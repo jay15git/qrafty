@@ -35,7 +35,6 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
@@ -1227,13 +1226,11 @@ export function ControlsPanel({
                       }))
                     }
                   >
-                    <SelectTrigger id="qr-draw-type" className="w-full">
-                      <SelectValue placeholder="Choose an option" />
-                    </SelectTrigger>
+                    <SelectTrigger id="qr-draw-type" className="w-full" placeholder="Choose an option" />
                     <SelectContent>
                       <SelectGroup>
-                        {DRAW_TYPES.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
+                        {DRAW_TYPES.map((option, index) => (
+                          <SelectItem index={index} key={option.value} value={option.value}>
                             {option.label}
                           </SelectItem>
                         ))}
@@ -2828,13 +2825,11 @@ function SelectField({
     <Field>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger id={id} className="w-full">
-          <SelectValue placeholder="Choose an option" />
-        </SelectTrigger>
+        <SelectTrigger id={id} className="w-full" placeholder="Choose an option" />
         <SelectContent>
           <SelectGroup>
-            {options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+            {options.map((option, index) => (
+              <SelectItem index={index} key={option.value} value={option.value}>
                 {option.label}
               </SelectItem>
             ))}

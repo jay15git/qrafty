@@ -3,10 +3,17 @@
 import { EyeIcon, EyeOffIcon, MinusIcon, PlusIcon } from "lucide-react"
 
 import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select"
+import {
+  DESKTOP_INSPECTOR_INPUT_CLASS,
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
   DESKTOP_INSPECTOR_SECTION_HEADING_CLASS,
   DesktopInspectorLabel,
-  DesktopInspectorNativeSelect,
   DesktopInspectorSection,
   DesktopInspectorSegmentedControl,
 } from "@/features/desktop-shell/components/InspectorControls"
@@ -22,6 +29,7 @@ import {
   DRAFTING_FILTER_RANGES,
   DRAFTING_FILTER_VISIBLE_DEFAULTS,
   DRAFTING_LAYER_FILTER_TYPES,
+  getDraftingFilterLabel,
   type DraftingFilterEffect,
   type DraftingFilterType,
 } from "@/features/workspace/model/filters"
@@ -205,16 +213,52 @@ function FilterEffectRow({
   onRemove: () => void
 }) {
   const range = DRAFTING_FILTER_RANGES[effect.type]
+  const filterLabel = getDraftingFilterLabel(effect.type)
 
   return (
-    <div className="rounded-[10px] border border-[var(--desktop-inspector-control-border-hover)] p-2">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <span className="text-[11px] font-semibold capitalize text-[var(--desktop-inspector-fg-secondary)]">
-          {effect.type.replace("-", " ")}
-        </span>
-        <div className="flex items-center gap-1">
+    <div className="grid gap-2">
+      <div className="flex items-center justify-between gap-2">
+        <Select
+          value={effect.type}
+          onValueChange={(nextType) => {
+            const type = nextType as DraftingFilterType
+            onChange({
+              type,
+              amount: DRAFTING_FILTER_VISIBLE_DEFAULTS[type],
+            })
+          }}
+        >
+          <SelectTrigger
+            aria-label="Filter effect"
+            className={cn(
+              "h-8 min-h-8 min-w-0 flex-1 px-2.5 text-[length:var(--desktop-inspector-type-value)]",
+              DESKTOP_INSPECTOR_INPUT_CLASS,
+            )}
+            data-slot="desktop-appearance-filter-select-trigger"
+            placeholder="Select filter"
+            variant="bordered"
+          />
+          <SelectContent
+            menuDataSlot="desktop-appearance-filter-select-menu"
+            positionerClassName="z-[20001]"
+          >
+            <SelectGroup>
+              {DRAFTING_LAYER_FILTER_TYPES.map((type, index) => (
+                <SelectItem
+                  key={type}
+                  className="desktop-appearance-filter-select-item"
+                  index={index}
+                  value={type}
+                >
+                  {getDraftingFilterLabel(type)}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <div className="flex shrink-0 items-center gap-1">
           <button
-            aria-label={effect.enabled ? "Disable filter" : "Enable filter"}
+            aria-label={effect.enabled ? `Disable ${filterLabel}` : `Enable ${filterLabel}`}
             className="grid size-7 place-items-center rounded-md text-[var(--desktop-inspector-fg-secondary)] hover:bg-[var(--desktop-inspector-control-hover-bg)]"
             type="button"
             onClick={() => onChange({ enabled: !effect.enabled })}
@@ -222,7 +266,7 @@ function FilterEffectRow({
             {effect.enabled ? <EyeIcon className="size-3.5" /> : <EyeOffIcon className="size-3.5" />}
           </button>
           <button
-            aria-label="Remove filter"
+            aria-label={`Remove ${filterLabel}`}
             className="grid size-7 place-items-center rounded-md text-[var(--desktop-inspector-fg-secondary)] hover:bg-[var(--desktop-inspector-control-hover-bg)]"
             type="button"
             onClick={onRemove}
@@ -243,32 +287,6 @@ function FilterEffectRow({
   )
 }
 
-function FilterPickerMenu({
-  existingTypes,
-  label,
-  onAdd,
-}: {
-  existingTypes: DraftingFilterType[]
-  label: string
-  onAdd: (type: DraftingFilterType) => void
-}) {
-  const available = DRAFTING_LAYER_FILTER_TYPES.filter((type) => !existingTypes.includes(type))
-
-  if (available.length === 0) {
-    return null
-  }
-
-  return (
-    <button
-      className="h-8 w-full rounded-[6px] border border-[var(--desktop-inspector-control-border-hover)] px-2 text-left text-[11px] text-[var(--desktop-inspector-fg-secondary)] hover:bg-[var(--desktop-inspector-control-hover-bg)]"
-      type="button"
-      onClick={() => onAdd(available[0]!)}
-    >
-      Add {label} filter
-    </button>
-  )
-}
-
 export function AppearanceFilterControls({
   appearance,
   className,
@@ -282,12 +300,32 @@ export function AppearanceFilterControls({
     onPatch({ layerFilters })
   }
 
+  const defaultAddFilterType =
+    appearance.layerFilters.at(-1)?.type ?? DRAFTING_LAYER_FILTER_TYPES[0]!
+
   return (
     <DesktopInspectorSection
       className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, className)}
       dataSlot="desktop-appearance-filter-controls"
     >
-      <DesktopInspectorLabel>Filters</DesktopInspectorLabel>
+      <div className="flex items-center justify-between gap-2">
+        <DesktopInspectorLabel>Filters</DesktopInspectorLabel>
+        <button
+          aria-label="Add filter"
+          className="grid size-7 place-items-center rounded-md text-[var(--desktop-inspector-fg-secondary)] hover:bg-[var(--desktop-inspector-control-hover-bg)]"
+          type="button"
+          onClick={() =>
+            updateLayerFilters([
+              ...appearance.layerFilters,
+              createDefaultDraftingFilterEffect(defaultAddFilterType, {
+                amount: DRAFTING_FILTER_VISIBLE_DEFAULTS[defaultAddFilterType],
+              }),
+            ])
+          }
+        >
+          <PlusIcon className="size-3.5" />
+        </button>
+      </div>
       <div className="grid gap-2">
         {appearance.layerFilters.map((effect) => (
           <FilterEffectRow
@@ -306,18 +344,6 @@ export function AppearanceFilterControls({
           />
         ))}
       </div>
-      <FilterPickerMenu
-        existingTypes={appearance.layerFilters.map((effect) => effect.type)}
-        label="layer"
-        onAdd={(type) =>
-          updateLayerFilters([
-            ...appearance.layerFilters,
-            createDefaultDraftingFilterEffect(type, {
-              amount: DRAFTING_FILTER_VISIBLE_DEFAULTS[type],
-            }),
-          ])
-        }
-      />
     </DesktopInspectorSection>
   )
 }

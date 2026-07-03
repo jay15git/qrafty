@@ -65,6 +65,23 @@ export function useProximityHover<T extends HTMLElement>(
         width: element.offsetWidth,
       };
     });
+    // Skip the state update when nothing moved (a cheap top/left/width/height
+    // compare) so redundant remeasures don't churn re-renders.
+    const prev = itemRectsRef.current;
+    let changed = prev.length !== rects.length;
+    for (let i = 0; !changed && i < rects.length; i++) {
+      const p = prev[i];
+      const r = rects[i];
+      if (p === r) continue; // both undefined (sparse slot)
+      changed =
+        !p ||
+        !r ||
+        p.top !== r.top ||
+        p.left !== r.left ||
+        p.width !== r.width ||
+        p.height !== r.height;
+    }
+    if (!changed) return;
     itemRectsRef.current = rects;
     setItemRects(rects);
   }, [containerRef]);
@@ -111,7 +128,6 @@ export function useProximityHover<T extends HTMLElement>(
         let closestIndex: number | null = null;
         let closestDistance = Infinity;
         let containingIndex: number | null = null;
-        let containingDistance = Infinity;
 
         const rects = itemRectsRef.current;
         // Convert content-relative rects to viewport coords using live scroll
@@ -134,15 +150,13 @@ export function useProximityHover<T extends HTMLElement>(
           const itemStart = containerEdge + (borderOffset + contentPos - scrollOffset) * scale;
           const itemSize = (axis === "x" ? r.width : r.height) * scale;
           const itemEnd = itemStart + itemSize;
-          const itemCenter = itemStart + itemSize / 2;
-          const distance = Math.abs(mousePos - itemCenter);
 
           if (mousePos >= itemStart && mousePos <= itemEnd) {
-            if (containingIndex === null || distance < containingDistance) {
-              containingIndex = index;
-              containingDistance = distance;
-            }
+            containingIndex = index;
           }
+
+          const itemCenter = itemStart + itemSize / 2;
+          const distance = Math.abs(mousePos - itemCenter);
 
           if (distance < closestDistance) {
             closestDistance = distance;
@@ -167,6 +181,25 @@ export function useProximityHover<T extends HTMLElement>(
     }
     setActiveIndex(null);
   }, []);
+
+  // Remeasure when the container resizes — a reflow moves items even though
+  // the registered set is unchanged, which would otherwise leave itemRects
+  // stale. Coalesced through the same rAF as register/unregister.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => {
+      if (remeasureRafIdRef.current !== null) {
+        cancelAnimationFrame(remeasureRafIdRef.current);
+      }
+      remeasureRafIdRef.current = requestAnimationFrame(() => {
+        remeasureRafIdRef.current = null;
+        measureItems();
+      });
+    });
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, [containerRef, measureItems]);
 
   // Clean up rAF on unmount
   useEffect(() => {
