@@ -106,9 +106,27 @@ describe("background shape svg payload", () => {
     }
   })
 
-  it("uses rounded rect markup for the default rect backing shape", () => {
+  it("skips background markup when shape is none and surface options are inactive", () => {
     const state = setSquareQrSize(createDefaultQrStudioState(), 240)
     state.backgroundOptions.round = 0.2
+    const [layer] = createDefaultDraftingLayers(
+      "preview",
+      state,
+      createDefaultDraftingCardState(),
+    ).filter((entry) => entry.kind === "qr")
+
+    const payload = buildDraftingQrBackgroundSvgPayload(layer, state)
+
+    expect(payload).toBeNull()
+  })
+
+  it("uses rounded rect markup when shape is none but surface options are active", () => {
+    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    state.backgroundOptions.round = 0.2
+    state.backgroundShapeOptions = {
+      ...state.backgroundShapeOptions,
+      paddingPx: 24,
+    }
     const [layer] = createDefaultDraftingLayers(
       "preview",
       state,

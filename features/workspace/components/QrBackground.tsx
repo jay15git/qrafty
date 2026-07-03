@@ -6,7 +6,11 @@ import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import {
   getQrBackgroundShapeDefinition,
 } from "@/features/qr-code/styles/background-shapes"
-import type { QrStudioState, StudioGradient } from "@/features/qr-code/model/state"
+import {
+  hasActiveBackgroundShapeOptions,
+  type QrStudioState,
+  type StudioGradient,
+} from "@/features/qr-code/model/state"
 import {
   getDraftingQrBackgroundPathTransform,
   getDraftingQrLayerLayout,
@@ -82,10 +86,26 @@ export function DraftingQrBackground({
   )
 }
 
+function shouldRenderDraftingQrBackground(state: QrStudioState) {
+  if (getQrBackgroundShapeDefinition(state.backgroundShapeId)) {
+    return true
+  }
+
+  if (getDraftingQrBackgroundImageHref(state)) {
+    return true
+  }
+
+  return hasActiveBackgroundShapeOptions(state.backgroundShapeOptions)
+}
+
 export function buildDraftingQrBackgroundPreviewSvgMarkup(
   layer: DraftingCanvasLayer,
   state: QrStudioState,
 ) {
+  if (!shouldRenderDraftingQrBackground(state)) {
+    return null
+  }
+
   const shape = getQrBackgroundShapeDefinition(state.backgroundShapeId)
   const layout = getDraftingQrLayerLayout(layer.width, state, layer.height)
   const { metrics, shapeOptions } = layout
@@ -119,6 +139,10 @@ export function getDraftingQrBackgroundSvgMarkup(
   layer: DraftingCanvasLayer,
   state: QrStudioState,
 ) {
+  if (!shouldRenderDraftingQrBackground(state)) {
+    return ""
+  }
+
   const frame = getDraftingQrBackgroundFrame(layer)
   const shape = getQrBackgroundShapeDefinition(state.backgroundShapeId)
   const ids = getDraftingQrBackgroundIds(layer.id)
