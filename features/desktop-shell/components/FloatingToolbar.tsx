@@ -1781,7 +1781,7 @@ export function DesktopThemeStyles() {
         --desktop-inspector-control-border-hover: rgba(255, 255, 255, 0.12);
         --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.10);
         --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.14);
-        --desktop-inspector-option-selected-border: #f8fafc;
+        --desktop-inspector-option-selected-border: rgba(255, 255, 255, 0.24);
         --desktop-inspector-option-selected-fg: rgba(255, 255, 255, 0.96);
         --desktop-inspector-field-bg: rgba(0, 0, 0, 0.22);
         --desktop-inspector-focus: rgba(255, 255, 255, 0.36);
@@ -1818,7 +1818,7 @@ export function DesktopThemeStyles() {
         --desktop-inspector-control-border-hover: rgba(15, 23, 42, 0.16);
         --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.96);
         --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.96);
-        --desktop-inspector-option-selected-border: #111827;
+        --desktop-inspector-option-selected-border: rgba(15, 23, 42, 0.22);
         --desktop-inspector-option-selected-fg: rgba(15, 23, 42, 0.94);
         --desktop-inspector-field-bg: rgba(255, 255, 255, 0.62);
         --desktop-inspector-focus: rgba(15, 23, 42, 0.36);
@@ -1850,7 +1850,7 @@ export function DesktopThemeStyles() {
         --desktop-inspector-control-border-hover: rgba(15, 23, 42, 0.16);
         --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.96);
         --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.96);
-        --desktop-inspector-option-selected-border: #111827;
+        --desktop-inspector-option-selected-border: rgba(15, 23, 42, 0.22);
         --desktop-inspector-option-selected-fg: rgba(15, 23, 42, 0.94);
         --desktop-inspector-field-bg: rgba(255, 255, 255, 0.62);
         --desktop-inspector-focus: rgba(15, 23, 42, 0.36);
