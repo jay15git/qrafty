@@ -273,11 +273,7 @@ export function DesktopInspectorAnimatedOptionGrid({
             width: selectedRect.width,
             height: selectedRect.height,
           }}
-          transition={
-            motionFrozen
-              ? DESKTOP_INSPECTOR_FROZEN_MOTION_TRANSITION
-              : DESKTOP_INSPECTOR_OPTION_SELECTION_SPRING
-          }
+          transition={DESKTOP_INSPECTOR_FROZEN_MOTION_TRANSITION}
         />
       ) : null}
       {children}
