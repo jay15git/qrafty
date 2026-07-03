@@ -56,6 +56,7 @@ import {
   cloneDraftingCanvasLayer,
   cloneDraftingCanvasLayersForPaste,
   createDraftingTextLayer,
+  createDraftingImageLayer,
   createDefaultDraftingLayers,
   DEFAULT_DRAFTING_TEXT_LAYER,
   distributeDraftingCanvasLayers,
@@ -130,6 +131,7 @@ import type {
   DesktopThemeMode,
   DesktopToolbarController,
   DesktopToolbarToolId,
+  ComposeSidebarPanel,
 } from "@/features/desktop-shell/components/FloatingToolbar"
 import {
   buildDesktopAppearancePatch,
@@ -563,6 +565,7 @@ export function WorkspaceSurface({
   const [desktopRailTool, setDesktopRailTool] = useState<DesktopToolbarToolId | null>(
     () => initialActiveTool ?? DEFAULT_DRAFTING_TOOL_ID,
   )
+  const [composeSidebarPanel, setComposeSidebarPanel] = useState<ComposeSidebarPanel>(null)
   const [selectedContentType, setSelectedContentType] = useState<QrInputType>(
     DEFAULT_QR_INPUT_TYPE,
   )
@@ -2185,6 +2188,11 @@ export function WorkspaceSurface({
     applyDraftingQrStateToControls(sourceState)
     setSelectedCardState(cloneDraftingCardState(selectedCardState))
     selectSingleLayer(getDraftingQrLayerId(nextNodeId))
+  }
+
+  function handleBrowseStockPhotos() {
+    setComposeSidebarPanel("stock-photos")
+    selectSingleLayer(null)
   }
 
   function handleInsertLayer(layer: DraftingCanvasLayer) {
@@ -4338,12 +4346,29 @@ export function WorkspaceSurface({
     shapeSettings: desktopShapeSettings,
     textSettings: desktopTextSettings,
     insertNodeId: activeQrNodeId,
+    composeSidebarPanel,
     selectedElementLayer,
     selectedTransformLayer,
     selectedAppearanceLayer,
     appearanceSnapshot: desktopAppearanceSnapshot,
     scanSafetyResult,
     onInsertLayer: handleInsertLayer,
+    onOpenComposeSidebar: (panel) => {
+      setComposeSidebarPanel(panel)
+      selectSingleLayer(null)
+    },
+    onCloseComposeSidebar: () => {
+      setComposeSidebarPanel(null)
+    },
+    onSelectStockPhoto: (imageUrl) => {
+      handleInsertLayer(
+        createDraftingImageLayer(activeQrNodeId, {
+          imageSource: "url",
+          imageValue: imageUrl,
+        }),
+      )
+      setComposeSidebarPanel(null)
+    },
     onElementLayerPatch: (patch) => {
       if (selectedElementLayer) {
         handleLayerChange(activeQrNodeId, selectedElementLayer.id, patch)
@@ -4356,6 +4381,7 @@ export function WorkspaceSurface({
       }
     },
     onActiveToolChange: (toolId) => {
+      setComposeSidebarPanel(null)
       setDesktopCanvasTool(null)
       if (chrome === "canvas-only") {
         setDesktopRailTool(toolId)
@@ -4913,7 +4939,11 @@ export function WorkspaceSurface({
                   >
                     Insert
                   </span>
-                  <InsertMenu nodeId={activeQrNodeId} onInsertLayer={handleInsertLayer} />
+                  <InsertMenu
+                    nodeId={activeQrNodeId}
+                    onBrowseStockPhotos={handleBrowseStockPhotos}
+                    onInsertLayer={handleInsertLayer}
+                  />
                 </div>
               </div>
             </div>
@@ -4960,6 +4990,7 @@ export function WorkspaceSurface({
               canAddQrCode={qrNodeIds.length < 10}
               canUndo={canUndoDraftingWorkspace}
               insertNodeId={activeQrNodeId}
+              onBrowseStockPhotos={handleBrowseStockPhotos}
               onAddQrCode={() => {
                 void handleAddQrCode()
               }}

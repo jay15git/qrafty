@@ -221,6 +221,7 @@ import {
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
 import { DesktopCodeExportInspector } from "@/features/desktop-shell/components/DesktopCodeExportInspector"
+import { DesktopPexelsPhotoInspector } from "@/features/desktop-shell/components/DesktopPexelsPhotoInspector"
 import { DownloadIcon as AnimatedDownloadIcon } from "@/components/ui/download"
 import {
   DraggableList,
@@ -241,6 +242,7 @@ import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import type { ScanSafetyResult } from "@/features/qr-code/scan-safety/types"
 
 type DesktopToolbarGroup = "QR" | "Add" | "Manage"
+export type ComposeSidebarPanel = "stock-photos" | null
 export type DesktopToolbarToolId =
   | "content"
   | "pattern"
@@ -580,11 +582,15 @@ export type DesktopToolbarController = {
   exportSettings: DesktopExportSettings
   textSettings: DesktopTextSettings
   insertNodeId?: string
+  composeSidebarPanel?: ComposeSidebarPanel
   selectedElementLayer?: DraftingCanvasLayer | null
   selectedTransformLayer?: DraftingCanvasLayer | null
   selectedAppearanceLayer?: DraftingCanvasLayer | null
   appearanceSnapshot?: DesktopAppearanceSnapshot | null
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
+  onOpenComposeSidebar?: (panel: "stock-photos") => void
+  onCloseComposeSidebar?: () => void
+  onSelectStockPhoto?: (imageUrl: string) => void
   onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
@@ -1353,7 +1359,9 @@ export function FloatingToolbar({
         </div>
         <DesktopSettingsToolbarShell
           model={model}
-          showInspector={Boolean(activeToolConfig || controller?.selectedElementLayer)}
+          showInspector={Boolean(
+            activeToolConfig || controller?.selectedElementLayer || controller?.composeSidebarPanel,
+          )}
           inspector={
             <DesktopFloatingInspector activeTool={actualActiveTool} model={model} />
           }
@@ -6164,12 +6172,14 @@ export function DesktopFloatingInspector({
   } = model
   const resolvedToolConfig =
     activeToolConfig ?? DESKTOP_TOOLBAR_TOOLS.find((tool) => tool.id === activeTool)
+  const showStockPhotosInspector = controller?.composeSidebarPanel === "stock-photos"
   const showElementInspector =
     Boolean(controller?.selectedElementLayer) &&
     activeTool !== "layers" &&
-    !resolvedToolConfig
+    !resolvedToolConfig &&
+    !showStockPhotosInspector
 
-  if (!resolvedToolConfig && !controller?.selectedElementLayer) {
+  if (!resolvedToolConfig && !controller?.selectedElementLayer && !showStockPhotosInspector) {
     return null
   }
 
@@ -6177,7 +6187,9 @@ export function DesktopFloatingInspector({
     <SurfaceProvider value={1}>
       <aside
       aria-label={
-        showElementInspector
+        showStockPhotosInspector
+          ? "Stock photos"
+          : showElementInspector
           ? `${controller?.selectedElementLayer?.kind} element settings`
           : resolvedToolConfig
             ? `${resolvedToolConfig.title} settings`
@@ -6186,7 +6198,12 @@ export function DesktopFloatingInspector({
       data-slot="desktop-floating-inspector"
       className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden", className)}
     >
-      {showElementInspector && controller?.selectedElementLayer ? (
+      {showStockPhotosInspector ? (
+        <DesktopPexelsPhotoInspector
+          onClose={() => controller?.onCloseComposeSidebar?.()}
+          onSelectPhoto={(imageUrl) => controller?.onSelectStockPhoto?.(imageUrl)}
+        />
+      ) : showElementInspector && controller?.selectedElementLayer ? (
         <DesktopElementInspector
           layer={controller.selectedElementLayer}
           onPatch={(patch) => controller.onElementLayerPatch?.(patch)}

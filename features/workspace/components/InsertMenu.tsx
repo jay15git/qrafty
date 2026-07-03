@@ -33,6 +33,7 @@ type InsertMenuProps = {
   onInsertLayer: (layer: ReturnType<typeof createDraftingTextLayer>) => void
   canAddQrCode?: boolean
   onAddQrCode?: () => void
+  onBrowseStockPhotos?: () => void
   triggerClassName?: string
   variant?: "rail" | "toolbar" | "bottom-toolbar"
 }
@@ -42,6 +43,7 @@ export function InsertMenu({
   onInsertLayer,
   canAddQrCode = true,
   onAddQrCode,
+  onBrowseStockPhotos,
   triggerClassName,
   variant = "rail",
 }: InsertMenuProps) {
@@ -72,6 +74,11 @@ export function InsertMenu({
         imageValue: value,
       }),
     )
+    closeMenu()
+  }
+
+  function browseStockPhotos() {
+    onBrowseStockPhotos?.()
     closeMenu()
   }
 
@@ -122,21 +129,19 @@ export function InsertMenu({
 
   const trigger =
     variant === "bottom-toolbar" ? (
-      <DesktopTooltip content="Add content" side="left" sideOffset={10}>
-        <Button
-          aria-label="Add content"
-          className={
-            triggerClassName ??
-            "h-8 w-8 rounded-md border-0 bg-transparent p-0 text-[var(--drafting-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--drafting-ink)]"
-          }
-          data-slot="drafting-insert-menu-trigger"
-          size="icon-md"
-          type="button"
-          variant="ghost"
-        >
-          <CopyPlusIcon />
-        </Button>
-      </DesktopTooltip>
+      <Button
+        aria-label="Add content"
+        className={
+          triggerClassName ??
+          "h-8 w-8 rounded-md border-0 bg-transparent p-0 text-[var(--drafting-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--drafting-ink)]"
+        }
+        data-slot="drafting-insert-menu-trigger"
+        size="icon-md"
+        type="button"
+        variant="ghost"
+      >
+        <CopyPlusIcon />
+      </Button>
     ) : variant === "toolbar" ? (
       <Button
         className={triggerClassName}
@@ -167,12 +172,18 @@ export function InsertMenu({
         }
       }}
     >
-      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      {variant === "bottom-toolbar" ? (
+        <DesktopTooltip content="Add content" side="left" sideOffset={10}>
+          <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+        </DesktopTooltip>
+      ) : (
+        <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      )}
       <PopoverContent
         align={variant === "bottom-toolbar" ? "center" : variant === "toolbar" ? "start" : "center"}
         className={cn(
           isDesktopPopover
-            ? DESKTOP_INSERT_POPOVER_SHELL
+            ? cn(DESKTOP_INSERT_POPOVER_SHELL, "z-[20000]")
             : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] p-3",
         )}
         data-slot={isDesktopPopover ? "desktop-insert-menu-popover" : "drafting-insert-menu"}
@@ -275,6 +286,42 @@ export function InsertMenu({
                 Back
               </Button>
             </div>
+            {onBrowseStockPhotos
+              ? renderMenuAction({
+                  onClick: browseStockPhotos,
+                  slot: "drafting-insert-menu-browse-photos",
+                  children: (
+                    <>
+                      <ImageIcon className="size-4 shrink-0" data-icon="inline-start" />
+                      Browse photos
+                    </>
+                  ),
+                })
+              : null}
+            {onBrowseStockPhotos ? (
+              <div className="flex items-center gap-2 px-1">
+                <div
+                  className={cn(
+                    "h-px flex-1",
+                    isDesktopPopover ? "bg-white/12" : "bg-[var(--drafting-line)]",
+                  )}
+                />
+                <span
+                  className={cn(
+                    "text-xs font-medium",
+                    isDesktopPopover ? "text-white/45" : "text-[var(--drafting-ink-muted)]",
+                  )}
+                >
+                  or
+                </span>
+                <div
+                  className={cn(
+                    "h-px flex-1",
+                    isDesktopPopover ? "bg-white/12" : "bg-[var(--drafting-line)]",
+                  )}
+                />
+              </div>
+            ) : null}
             <Input
               aria-label="Image URL"
               className={cn(

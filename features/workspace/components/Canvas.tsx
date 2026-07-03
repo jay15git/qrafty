@@ -138,6 +138,7 @@ type CanvasProps = {
   onAddQrCode?: () => void
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
   insertNodeId?: string
+  onBrowseStockPhotos?: () => void
   onRedo?: () => void
   onRemoveQrCode?: (paneId: string) => void
   onUndo?: () => void
@@ -647,6 +648,7 @@ export function Canvas({
   onAddQrCode,
   onInsertLayer,
   insertNodeId,
+  onBrowseStockPhotos,
   onRedo,
   onRemoveQrCode,
   onUndo,
@@ -1205,6 +1207,7 @@ export function Canvas({
                     }
                     variant="bottom-toolbar"
                     onAddQrCode={onAddQrCode}
+                    onBrowseStockPhotos={onBrowseStockPhotos}
                     onInsertLayer={onInsertLayer}
                   />
                 ) : onAddQrCode ? (

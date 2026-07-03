@@ -92,9 +92,20 @@ export function DesktopSettingsToolbarShell({
     }
   }, [isCollapsed, isShellAnimating, showInspector])
 
+  useEffect(() => {
+    if (!controller?.composeSidebarPanel || !isCollapsed) {
+      return
+    }
+
+    setIsCollapsed(false)
+    window.sessionStorage.setItem(DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY, "false")
+  }, [controller?.composeSidebarPanel, isCollapsed])
+
   const isExpanded = !isCollapsed
   const activeKey = showInspector
-    ? controller?.selectedElementLayer
+    ? controller?.composeSidebarPanel
+      ? `compose:${controller.composeSidebarPanel}`
+      : controller?.selectedElementLayer
       ? `element:${controller.selectedElementLayer.id}`
       : actualActiveTool
     : null
