@@ -465,6 +465,10 @@ function getLayerRoleLabel(node: DraftingLayerPane) {
     return "Shape"
   }
 
+  if (node.kind === "shader") {
+    return "Shader"
+  }
+
   if (node.kind === "group") {
     return "Group"
   }

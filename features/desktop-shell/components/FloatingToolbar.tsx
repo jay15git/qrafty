@@ -502,7 +502,7 @@ export type DesktopEffectsSettings = {
   frame: number
 }
 
-export type DesktopLayerKind = "card" | "image" | "qr" | "shape" | "text"
+export type DesktopLayerKind = "card" | "image" | "qr" | "shader" | "shape" | "text"
 export type DesktopLayerRow = {
   blur: number
   height: number
@@ -5432,6 +5432,10 @@ function DesktopEffectsInspector({
 function getDesktopLayerKindLabel(kind: DesktopLayerKind) {
   if (kind === "qr") {
     return "QR"
+  }
+
+  if (kind === "shader") {
+    return "Shader"
   }
 
   return kind.charAt(0).toUpperCase() + kind.slice(1)

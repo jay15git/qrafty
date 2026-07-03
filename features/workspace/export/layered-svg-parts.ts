@@ -110,6 +110,10 @@ function getDraftingLayerSvg(
     return getDraftingShapeLayerSvg(layer)
   }
 
+  if (layer.kind === "shader") {
+    return ""
+  }
+
   return getDraftingQrLayerSvg(layer, qrMarkup, state)
 }
 

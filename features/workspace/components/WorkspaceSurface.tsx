@@ -2370,7 +2370,8 @@ export function WorkspaceSurface({
       if (
         selectedLayer?.kind === "text" ||
         selectedLayer?.kind === "image" ||
-        selectedLayer?.kind === "shape"
+        selectedLayer?.kind === "shape" ||
+        selectedLayer?.kind === "shader"
       ) {
         setDesktopRailTool(null)
         return
@@ -2906,7 +2907,8 @@ export function WorkspaceSurface({
     selectedLayerIds.length === 1 && selectedTextLayer &&
     (selectedTextLayer.kind === "text" ||
       selectedTextLayer.kind === "shape" ||
-      selectedTextLayer.kind === "image")
+      selectedTextLayer.kind === "image" ||
+      selectedTextLayer.kind === "shader")
       ? selectedTextLayer
       : null
   const selectedTransformLayer =
@@ -5092,7 +5094,9 @@ function toDesktopLayerRow(layer: DraftingCanvasLayer): DesktopLayerRow {
             ? "image"
             : layer.kind === "shape"
               ? "shape"
-              : "qr",
+              : layer.kind === "shader"
+                ? "shader"
+                : "qr",
     name: layer.name,
     opacity: Math.round(layer.opacity * 100),
     shadowBlur: layer.shadow.blur,

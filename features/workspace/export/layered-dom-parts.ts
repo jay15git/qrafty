@@ -88,6 +88,10 @@ function getDraftingLayerDomNode(
     return getDraftingShapeLayerDom(layer)
   }
 
+  if (layer.kind === "shader") {
+    return null
+  }
+
   return getDraftingQrLayerDom(layer, qrMarkup, state)
 }
 

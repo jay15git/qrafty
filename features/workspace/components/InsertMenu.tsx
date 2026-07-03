@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, type ReactNode } from "react"
-import { CopyPlusIcon, FrameIcon, ImageIcon, TypeIcon } from "lucide-react"
+import { CopyPlusIcon, FrameIcon, ImageIcon, SparklesIcon, TypeIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
@@ -14,12 +14,15 @@ import { SecondaryButton } from "@/components/ui/secondary-button"
 import FileUpload from "@/components/vendor/kokonutui/file-upload"
 import { Input } from "@/components/ui/input"
 import { DraftingElementShapeOptionGrid } from "@/features/workspace/components/DraftingElementShapeOptionGrid"
+import { DraftingPaperShaderInsertGrid } from "@/features/workspace/components/DraftingPaperShaderInsertGrid"
 import {
   createDraftingImageLayer,
+  createDraftingShaderLayer,
   createDraftingShapeLayer,
   createDraftingTextLayer,
   type DraftingElementShapeId,
 } from "@/features/workspace/model/layers"
+import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
 import { cn } from "@/lib/utils"
 
 const DESKTOP_INSERT_POPOVER_SHELL =
@@ -48,7 +51,7 @@ export function InsertMenu({
   variant = "rail",
 }: InsertMenuProps) {
   const [open, setOpen] = useState(false)
-  const [panel, setPanel] = useState<"root" | "shape" | "image">("root")
+  const [panel, setPanel] = useState<"root" | "shape" | "image" | "shader">("root")
   const [imageUrl, setImageUrl] = useState("")
 
   function closeMenu() {
@@ -64,6 +67,11 @@ export function InsertMenu({
 
   function insertShape(shapeId: DraftingElementShapeId) {
     onInsertLayer(createDraftingShapeLayer(nodeId, shapeId))
+    closeMenu()
+  }
+
+  function insertShader(shaderId: PaperShaderId) {
+    onInsertLayer(createDraftingShaderLayer(nodeId, shaderId))
     closeMenu()
   }
 
@@ -216,6 +224,15 @@ export function InsertMenu({
                 </>
               ),
             })}
+            {renderMenuAction({
+              onClick: () => setPanel("shader"),
+              children: (
+                <>
+                  <SparklesIcon className="size-4 shrink-0" data-icon="inline-start" />
+                  Shader
+                </>
+              ),
+            })}
             {onAddQrCode
               ? renderMenuAction({
                   disabled: !canAddQrCode,
@@ -259,6 +276,36 @@ export function InsertMenu({
               decorativeDataSlot="drafting-insert-decorative-shape-grid"
               variant={isDesktopPopover ? "insert-desktop" : "insert-drafting"}
               onSelect={insertShape}
+            />
+          </div>
+        ) : null}
+
+        {panel === "shader" ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <p
+                className={cn(
+                  "font-semibold",
+                  isDesktopPopover
+                    ? "text-sm text-white/72"
+                    : "drafting-type-control-label text-[var(--drafting-ink)]",
+                )}
+              >
+                Choose shader
+              </p>
+              <Button
+                className={isDesktopPopover ? "text-white/70 hover:bg-white/[0.11] hover:text-white" : undefined}
+                size="sm"
+                type="button"
+                variant="ghost"
+                onClick={() => setPanel("root")}
+              >
+                Back
+              </Button>
+            </div>
+            <DraftingPaperShaderInsertGrid
+              variant={isDesktopPopover ? "insert-desktop" : "insert-drafting"}
+              onSelect={insertShader}
             />
           </div>
         ) : null}

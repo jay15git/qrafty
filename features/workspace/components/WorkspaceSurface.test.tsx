@@ -165,7 +165,7 @@ vi.mock("@/components/vendor/unlumen-ui/slider", () => ({
 import { WorkspaceSurface } from "@/features/workspace/components/WorkspaceSurface"
 import { FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
-import { createDraftingPaperShaderThumbnailCacheKey } from "@/features/workspace/components/StylePanel"
+import { createDraftingPaperShaderThumbnailCacheKey } from "@/features/workspace/components/PaperShaderOptionPreview"
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr-code/rendering/compose-scene"
 import { createDefaultQrStudioState, type QrStudioState } from "@/features/qr-code/model/state"
 

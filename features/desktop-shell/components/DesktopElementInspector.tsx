@@ -42,6 +42,7 @@ import {
   getNearestDesktopFontWeight,
 } from "@/features/desktop-shell/model/font-weight"
 import { DesktopElementShapeOptionGrid } from "@/features/desktop-shell/components/DesktopElementShapeOptionGrid"
+import { DesktopPaperShaderSettings } from "@/features/desktop-shell/components/DesktopPaperShaderSettings"
 import {
   DEFAULT_DRAFTING_IMAGE_LAYER,
   DEFAULT_DRAFTING_SHAPE_LAYER,
@@ -50,6 +51,7 @@ import {
   type DraftingShapeFillMode,
   type DraftingTextAlign,
 } from "@/features/workspace/model/layers"
+import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import {
   DRAFTING_FONT_REGISTRY,
   getDraftingFontCssFamily,
@@ -71,6 +73,10 @@ function getElementInspectorTitle(layer: DraftingCanvasLayer) {
 
   if (layer.kind === "image") {
     return "Image"
+  }
+
+  if (layer.kind === "shader") {
+    return "Shader"
   }
 
   return "Shape"
@@ -98,6 +104,9 @@ export function DesktopElementInspector({
         ) : null}
         {layer.kind === "image" ? (
           <DesktopLayerImageInspector layer={layer} onPatch={onPatch} />
+        ) : null}
+        {layer.kind === "shader" ? (
+          <DesktopLayerShaderInspector layer={layer} onPatch={onPatch} />
         ) : null}
       </DesktopInspectorScrollArea>
     </div>
@@ -139,7 +148,7 @@ export function DesktopTransformSection({
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
 }) {
-  const lockAspect = layer.kind === "image" || layer.kind === "shape" || layer.kind === "qr"
+  const lockAspect = layer.kind === "image" || layer.kind === "shape" || layer.kind === "shader" || layer.kind === "qr"
 
   return (
     <DesktopInspectorSection dataSlot="desktop-transform-section">
@@ -574,6 +583,23 @@ function DesktopLayerImageInspector({
       </div>
 
     </DesktopInspectorSection>
+  )
+}
+
+function DesktopLayerShaderInspector({
+  layer,
+  onPatch,
+}: {
+  layer: DraftingCanvasLayer
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+}) {
+  const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader()
+
+  return (
+    <DesktopPaperShaderSettings
+      paperShader={paperShader}
+      onPaperShaderChange={(nextPaperShader) => onPatch({ paperShader: nextPaperShader })}
+    />
   )
 }
 

@@ -26,6 +26,7 @@ import {
   type DraftingCardState,
 } from "@/features/workspace/model/card-state"
 import { DraftingCardPaperShaderLayer } from "@/features/workspace/components/CardPaperShaderLayer"
+import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import { getDraftingCardPatternStyle } from "@/features/workspace/model/card-patterns"
 import {
   createDefaultDraftingLayers,
@@ -2197,6 +2198,41 @@ export const Pane = memo(function Pane({
       )
     }
 
+    if (layer.kind === "shader") {
+      const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader()
+
+      return (
+        <div
+          key={layer.id}
+          data-slot="drafting-shader-layer"
+          data-layer-id={layer.id}
+          data-paper-shader-id={paperShader.shaderId}
+          data-selected={isLayerSelected ? "true" : "false"}
+          {...layerExportAttrs("shader")}
+          className={cn(
+            "absolute max-h-none max-w-none touch-none overflow-hidden",
+            LAYER_MOVE_CURSOR_CLASS,
+            layer.isLocked && "cursor-default",
+          )}
+          style={{
+            ...getLayerPlacementStyle(layer),
+            borderRadius: layer.cornerRadius ? `${layer.cornerRadius}px` : undefined,
+            ...getDraftingLayerEffectStyle(layer),
+          }}
+          onClick={(event) => selectLayerFromClick(event, layer)}
+          onPointerDown={(event) => startLayerInteraction(event, layer, "move")}
+          onPointerMove={updateLayerInteraction}
+          onPointerUp={endLayerInteraction}
+          onPointerCancel={endLayerInteraction}
+          onContextMenu={(event) => openLayerContextMenu(event, [layer.id])}
+        >
+          <DraftingLayerTiltShell layer={layer}>
+            <DraftingCardPaperShaderLayer paperShader={paperShader} />
+          </DraftingLayerTiltShell>
+        </div>
+      )
+    }
+
     return (
       <div
         key={layer.id}
@@ -2370,6 +2406,29 @@ export const Pane = memo(function Pane({
           }}
         >
           <DraftingShapeLayerContent layer={layer} />
+        </div>
+      )
+    }
+
+    if (layer.kind === "shader") {
+      const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader()
+
+      return (
+        <div
+          key={layer.id}
+          data-slot="drafting-shader-layer"
+          data-layer-id={layer.id}
+          data-paper-shader-id={paperShader.shaderId}
+          data-selected={isLayerSelected ? "true" : "false"}
+          {...layerExportAttrs("shader")}
+          className="absolute max-h-none max-w-none overflow-hidden"
+          style={{
+            ...getLayerPlacementStyle(layer, true),
+            borderRadius: layer.cornerRadius ? `${layer.cornerRadius}px` : undefined,
+            ...getDraftingLayerEffectStyle(layer),
+          }}
+        >
+          <DraftingCardPaperShaderLayer paperShader={paperShader} />
         </div>
       )
     }

@@ -19,6 +19,7 @@ import {
   getDraftingFontCssFamily,
 } from "@/features/workspace/model/fonts"
 import { getPaperShaderDefinition } from "@/features/workspace/rendering/paper-shaders"
+import type { PaperShaderParams } from "@/features/workspace/rendering/paper-shaders"
 
 export type BuildSceneIrOptions = {
   cardState: DraftingCardState
@@ -51,7 +52,61 @@ function resolveShaderState(
   return null
 }
 
+function buildCanvasShaderLayerNodes(
+  layers: DraftingCanvasLayer[],
+  shaderSnapshots?: Record<string, string>,
+): SceneIrShaderNode[] {
+  return layers
+    .filter(
+      (layer): layer is DraftingCanvasLayer & {
+        kind: "shader"
+        paperShader: NonNullable<DraftingCanvasLayer["paperShader"]>
+      } => layer.kind === "shader" && layer.isVisible && Boolean(layer.paperShader),
+    )
+    .map((layer) => {
+      const paperShader = layer.paperShader
+      const definition = getPaperShaderDefinition(paperShader.shaderId)
+      const imageValue =
+        shaderRequiresImage(paperShader.shaderId) && paperShader.image.value
+          ? paperShader.image.value
+          : undefined
+
+      return {
+        kind: "shader" as const,
+        shader: {
+          shaderId: paperShader.shaderId,
+          params: structuredClone(paperShader.params),
+          frame: paperShader.frame,
+          speed: paperShader.speed,
+          paused: paperShader.paused,
+          image: imageValue ? { value: imageValue } : undefined,
+          renderOptions: definition.renderOptions as Record<string, unknown> | undefined,
+        },
+        bounds: {
+          x: layer.x,
+          y: layer.y,
+          width: layer.width,
+          height: layer.height,
+        },
+        snapshotUrl: shaderSnapshots?.[layer.id] ?? shaderSnapshots?.[paperShader.shaderId],
+        fallbackFill: "#111827",
+      }
+    })
+}
+
 function buildShaderNodes(
+  cardState: DraftingCardState,
+  cardLayer: DraftingCanvasLayer | null,
+  layers: DraftingCanvasLayer[],
+  shaderSnapshots?: Record<string, string>,
+): SceneIrShaderNode[] {
+  const cardShaderNodes = buildCardShaderNodes(cardState, cardLayer, shaderSnapshots)
+  const canvasShaderNodes = buildCanvasShaderLayerNodes(layers, shaderSnapshots)
+
+  return [...cardShaderNodes, ...canvasShaderNodes]
+}
+
+function buildCardShaderNodes(
   cardState: DraftingCardState,
   cardLayer: DraftingCanvasLayer | null,
   shaderSnapshots?: Record<string, string>,
@@ -72,7 +127,7 @@ function buildShaderNodes(
       kind: "shader",
       shader: {
         shaderId: shaderState.shaderId,
-        params: structuredClone(shaderState.params),
+        params: structuredClone(shaderState.params) as PaperShaderParams,
         frame: shaderState.frame,
         speed: shaderState.speed,
         paused: shaderState.paused,
@@ -141,7 +196,7 @@ export async function buildSceneIr({
 
   const cardLayer = findCardLayer(layers)
   const qrLayer = findQrLayer(layers)
-  const shaders = buildShaderNodes(cardState, cardLayer, shaderSnapshots)
+  const shaders = buildShaderNodes(cardState, cardLayer, layers, shaderSnapshots)
   const animation = state.dotMatrixAnimation
   const animatedQr =
     qrLayer && animation.enabled && animation.animated
@@ -223,7 +278,7 @@ function sceneCardToShaderNodes(
       kind: "shader",
       shader: {
         shaderId: shaderState.shaderId,
-        params: structuredClone(shaderState.params),
+        params: structuredClone(shaderState.params) as PaperShaderParams,
         frame: shaderState.frame,
         speed: shaderState.speed,
         paused: shaderState.paused,

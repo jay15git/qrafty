@@ -53,6 +53,17 @@ function toSceneLayer(layer: DraftingCanvasLayer): SceneLayer {
     imageValue: layer.imageValue,
     imageFit: layer.imageFit,
     shapeId: layer.shapeId,
+    paperShader: layer.paperShader
+      ? {
+          shaderId: layer.paperShader.shaderId,
+          params: structuredClone(layer.paperShader.params),
+          frame: layer.paperShader.frame,
+          speed: layer.paperShader.speed,
+          paused: layer.paperShader.paused,
+          presetName: layer.paperShader.presetName,
+          image: layer.paperShader.image ? { ...layer.paperShader.image } : undefined,
+        }
+      : undefined,
     children: layer.children?.map(toSceneLayer),
   }
 }

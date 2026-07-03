@@ -21,7 +21,7 @@ export function TransformSection({
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
 }) {
-  const lockAspect = layer.kind === "image" || layer.kind === "shape" || layer.kind === "qr"
+  const lockAspect = layer.kind === "image" || layer.kind === "shape" || layer.kind === "shader" || layer.kind === "qr"
 
   return (
     <DraftingInspectorSection dataSlot="drafting-transform-section" title="Transform">

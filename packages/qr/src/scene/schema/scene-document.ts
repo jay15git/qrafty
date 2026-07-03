@@ -75,7 +75,7 @@ export type SceneQrState = {
   height: number
 }
 
-export type SceneLayerKind = "card" | "group" | "image" | "qr" | "shape" | "text"
+export type SceneLayerKind = "card" | "group" | "image" | "qr" | "shader" | "shape" | "text"
 
 export type SceneLayer = {
   id: string
@@ -101,6 +101,7 @@ export type SceneLayer = {
   imageValue?: string
   imageFit?: "contain" | "cover"
   shapeId?: string
+  paperShader?: ScenePaperShaderState
   children?: SceneLayer[]
 }
 

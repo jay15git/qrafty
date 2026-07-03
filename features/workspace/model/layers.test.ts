@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest"
 
 import {
   alignDraftingCanvasLayers,
+  cloneDraftingCanvasLayer,
   cloneDraftingCanvasLayersForPaste,
   createDraftingImageLayer,
+  createDraftingShaderLayer,
   createDraftingShapeLayer,
   createDraftingTextLayer,
   DEFAULT_DRAFTING_IMAGE_LAYER,
@@ -435,6 +437,72 @@ describe("drafting layer state actions", () => {
       name: "Shape",
       shapeId: "hexagon",
     })
+  })
+
+  it("creates shader layers with defaults", () => {
+    const shaderLayer = createDraftingShaderLayer("preview", "warp")
+
+    expect(shaderLayer).toMatchObject({
+      height: 180,
+      kind: "shader",
+      name: "Shader",
+      paperShader: {
+        presetName: "Default",
+        shaderId: "warp",
+      },
+      width: 180,
+    })
+  })
+
+  it("normalizes shader layers from persisted payloads", () => {
+    const normalized = normalizeDraftingCanvasLayers(
+      "preview",
+      [
+        {
+          height: 200,
+          id: "preview:shader:1",
+          kind: "shader",
+          name: "Gradient",
+          paperShader: {
+            frame: 12,
+            image: { source: "none" },
+            params: { colors: ["#ff0000", "#0000ff"] },
+            paused: true,
+            presetName: "Default",
+            shaderId: "mesh-gradient",
+            speed: 0.5,
+          },
+          width: 200,
+          x: 0,
+          y: 0,
+          zIndex: 5,
+        },
+      ],
+      createDefaultQrStudioState(),
+      createDefaultDraftingCardState(),
+    )
+
+    const shader = normalized.find((layer) => layer.kind === "shader")
+
+    expect(shader).toMatchObject({
+      kind: "shader",
+      name: "Gradient",
+      paperShader: {
+        frame: 12,
+        paused: true,
+        presetName: "Default",
+        shaderId: "mesh-gradient",
+        speed: 0.5,
+      },
+    })
+  })
+
+  it("clones shader layer paperShader state deeply", () => {
+    const shaderLayer = createDraftingShaderLayer("preview", "mesh-gradient")
+    const clone = cloneDraftingCanvasLayer(shaderLayer)
+
+    expect(clone.paperShader).not.toBe(shaderLayer.paperShader)
+    expect(clone.paperShader?.params).not.toBe(shaderLayer.paperShader?.params)
   })
 
   it("normalizes image and shape layers from persisted payloads", () => {

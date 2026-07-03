@@ -1020,6 +1020,25 @@ export function getPaperShaderDefinition(shaderId: PaperShaderId | string) {
   )
 }
 
+export function getAllPaperShaderDefinitions() {
+  return PAPER_SHADER_DEFINITIONS
+}
+
+export function formatPaperShaderParamLabel(value: string) {
+  return value
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[-_]/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
+export function formatPaperShaderNumberValue(paramKey: string, value: number) {
+  if (paramKey.toLowerCase().includes("angle") || paramKey === "rotation") {
+    return `${Math.round(value)}°`
+  }
+
+  return Number.isInteger(value) ? `${value}` : value.toFixed(2)
+}
+
 export function getCardImageFilterDefinitions() {
   return CARD_IMAGE_FILTER_SHADER_IDS.map((shaderId) => getPaperShaderDefinition(shaderId))
 }

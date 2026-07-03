@@ -39,9 +39,15 @@ import {
   type QrStudioState,
   type StudioGradient,
 } from "@/features/qr-code/model/state"
-import { normalizeDraftingCardShadow } from "@/features/workspace/model/card-state"
+import {
+  cloneDraftingCardPaperShaderState,
+  createDefaultDraftingCardPaperShader,
+  normalizeDraftingCardShadow,
+  type DraftingCardPaperShaderState,
+} from "@/features/workspace/model/card-state"
+import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
 
-export type DraftingCanvasLayerKind = "card" | "group" | "image" | "qr" | "shape" | "text"
+export type DraftingCanvasLayerKind = "card" | "group" | "image" | "qr" | "shader" | "shape" | "text"
 export type DraftingImageSourceMode = "none" | "upload" | "url"
 export type DraftingImageFit = "contain" | "cover"
 export type DraftingShapeFillMode = "gradient" | "image" | "none" | "solid"
@@ -90,6 +96,7 @@ export type DraftingCanvasLayer = {
   nodeId: string
   opacity: number
   outline: DraftingOutlineState
+  paperShader?: DraftingCardPaperShaderState
   rotation: number
   scaleX?: number
   scaleY?: number
@@ -168,6 +175,10 @@ export const DEFAULT_DRAFTING_SHAPE_LAYER = {
   strokeOpacity: 100,
   strokeStyle: "solid",
   strokeWidth: 0,
+} as const satisfies Partial<DraftingCanvasLayer>
+
+export const DEFAULT_DRAFTING_SHADER_LAYER = {
+  cornerRadius: 0,
 } as const satisfies Partial<DraftingCanvasLayer>
 
 export function getDraftingCardLayerId(nodeId: string) {
@@ -280,6 +291,22 @@ export function createDraftingImageLayer(
   )
 }
 
+export function createDraftingShaderLayer(
+  nodeId: string,
+  shaderId: PaperShaderId = "mesh-gradient",
+  options: Partial<DraftingCanvasLayer> = {},
+): DraftingCanvasLayer {
+  return patchDraftingCanvasLayer(
+    {
+      ...createFallbackLayer(nodeId, "shader"),
+      ...options,
+      kind: "shader",
+      paperShader: createDefaultDraftingCardPaperShader(shaderId),
+    },
+    {},
+  )
+}
+
 export function createDraftingShapeLayer(
   nodeId: string,
   shapeId: DraftingElementShapeId = DEFAULT_DRAFTING_SHAPE_LAYER.shapeId,
@@ -329,6 +356,9 @@ export function cloneDraftingCanvasLayer(layer: DraftingCanvasLayer): DraftingCa
       (shadow) => ({ ...shadow }),
     ),
     textRuns: layer.textRuns?.map((run) => ({ ...run })),
+    paperShader: layer.paperShader
+      ? cloneDraftingCardPaperShaderState(layer.paperShader)
+      : undefined,
   }
 }
 
@@ -712,6 +742,10 @@ function normalizeDraftingCanvasLayer(
     return normalizeGroupDraftingCanvasLayer({ ...context, kind })
   }
 
+  if (kind === "shader") {
+    return normalizeShaderDraftingCanvasLayer({ ...context, kind })
+  }
+
   return normalizeNonTextDraftingCanvasLayer({ ...context, kind })
 }
 
@@ -731,6 +765,7 @@ function getDraftingCanvasLayerKind(value: unknown): DraftingCanvasLayerKind | n
     value === "image" ||
     value === "qr" ||
     value === "shape" ||
+    value === "shader" ||
     value === "text"
     ? value
     : null
@@ -877,6 +912,72 @@ function normalizeImageDraftingCanvasLayer(
         : (fallback.imageValue ?? DEFAULT_DRAFTING_IMAGE_LAYER.imageValue),
     kind: "image",
   } satisfies DraftingCanvasLayer
+}
+
+function normalizeShaderDraftingCanvasLayer(
+  context: NormalizeDraftingLayerContext & { kind: "shader" },
+): DraftingCanvasLayer {
+  const { fallback, value } = context
+  const fallbackPaperShader =
+    fallback.paperShader ?? createDefaultDraftingCardPaperShader()
+
+  return {
+    ...normalizeSharedDraftingCanvasLayerFields(context),
+    borderSides: normalizeDraftingLayerBorderSides(value.borderSides, fallback.borderSides),
+    cornerRadius: clamp(
+      readFiniteNumber(
+        value.cornerRadius,
+        fallback.cornerRadius ?? DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius,
+      ),
+      0,
+      512,
+    ),
+    kind: "shader",
+    paperShader: normalizeLayerPaperShader(value.paperShader, fallbackPaperShader),
+  } satisfies DraftingCanvasLayer
+}
+
+function normalizeLayerPaperShader(
+  value: unknown,
+  fallback: DraftingCardPaperShaderState,
+): DraftingCardPaperShaderState {
+  if (!isRecord(value)) {
+    return cloneDraftingCardPaperShaderState(fallback)
+  }
+
+  const shaderId =
+    typeof value.shaderId === "string" ? (value.shaderId as PaperShaderId) : fallback.shaderId
+  const nextFallback =
+    shaderId === fallback.shaderId
+      ? fallback
+      : createDefaultDraftingCardPaperShader(shaderId)
+
+  return {
+    frame: readFiniteNumber(value.frame, nextFallback.frame),
+    image: isRecord(value.image)
+      ? {
+          source:
+            value.image.source === "none" ||
+            value.image.source === "sample" ||
+            value.image.source === "upload" ||
+            value.image.source === "url"
+              ? value.image.source
+              : nextFallback.image.source,
+          value:
+            typeof value.image.value === "string"
+              ? value.image.value
+              : nextFallback.image.value,
+        }
+      : { ...nextFallback.image },
+    params: isRecord(value.params)
+      ? structuredClone(value.params as DraftingCardPaperShaderState["params"])
+      : structuredClone(nextFallback.params),
+    paused: typeof value.paused === "boolean" ? value.paused : nextFallback.paused,
+    presetName:
+      typeof value.presetName === "string" ? value.presetName : nextFallback.presetName,
+    shaderId,
+    speed: readFiniteNumber(value.speed, nextFallback.speed),
+  }
 }
 
 function normalizeShapeDraftingCanvasLayer(
@@ -1076,16 +1177,18 @@ function createFallbackLayer(
         ? DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius
         : kind === "shape"
           ? DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius
-          : undefined,
+          : kind === "shader"
+            ? DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius
+            : undefined,
     fill: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.fill : kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.fill : undefined,
     fillMode: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode : undefined,
-    height: kind === "text" ? 48 : kind === "image" || kind === "shape" ? 180 : 240,
+    height: kind === "text" ? 48 : kind === "image" || kind === "shape" || kind === "shader" ? 180 : 240,
     id:
       kind === "card"
         ? getDraftingCardLayerId(nodeId)
         : kind === "qr"
           ? getDraftingQrLayerId(nodeId)
-          : kind === "text" || kind === "image" || kind === "shape"
+          : kind === "text" || kind === "image" || kind === "shape" || kind === "shader"
             ? createDraftingLayerInstanceId(nodeId, kind)
             : `${nodeId}:group`,
     isLocked: false,
@@ -1110,7 +1213,9 @@ function createFallbackLayer(
               ? "Image"
               : kind === "shape"
                 ? "Shape"
-                : "Group",
+                : kind === "shader"
+                  ? "Shader"
+                  : "Group",
     nodeId,
     opacity: 1,
     outline: { ...DEFAULT_DRAFTING_OUTLINE },
@@ -1122,6 +1227,7 @@ function createFallbackLayer(
     imageFit: kind === "image" ? DEFAULT_DRAFTING_IMAGE_LAYER.imageFit : undefined,
     imageSource: kind === "image" ? DEFAULT_DRAFTING_IMAGE_LAYER.imageSource : undefined,
     imageValue: kind === "image" ? DEFAULT_DRAFTING_IMAGE_LAYER.imageValue : undefined,
+    paperShader: kind === "shader" ? createDefaultDraftingCardPaperShader() : undefined,
     shapeId: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId : undefined,
     stroke: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.stroke : undefined,
     strokeOpacity: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.strokeOpacity : undefined,
@@ -1130,9 +1236,9 @@ function createFallbackLayer(
     text: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.text : undefined,
     textAlign: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.textAlign : undefined,
     underline: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.underline : undefined,
-    width: kind === "image" || kind === "shape" ? 180 : 240,
-    x: kind === "image" || kind === "shape" ? -90 : -120,
-    y: kind === "text" ? -24 : kind === "image" || kind === "shape" ? -90 : -120,
+    width: kind === "image" || kind === "shape" || kind === "shader" ? 180 : 240,
+    x: kind === "image" || kind === "shape" || kind === "shader" ? -90 : -120,
+    y: kind === "text" ? -24 : kind === "image" || kind === "shape" || kind === "shader" ? -90 : -120,
     zIndex: kind === "card" ? 0 : 1,
   }
 }
