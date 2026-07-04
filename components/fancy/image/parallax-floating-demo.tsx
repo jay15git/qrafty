@@ -62,7 +62,7 @@ const Preview = () => {
         </p>
       </motion.div>
 
-      <Floating sensitivity={-1} cursorCastShadow className="overflow-hidden">
+      <Floating sensitivity={-1} className="overflow-hidden">
         <FloatingElement depth={0.5} className="top-[8%] left-[11%]">
           <motion.img
             initial={{ opacity: 0 }}
