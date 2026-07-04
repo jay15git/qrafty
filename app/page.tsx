@@ -1,11 +1,5 @@
-import StickyFooter from "@/components/fancy/blocks/sticky-footer"
-import ParallaxFloatingDemo from "@/components/fancy/image/parallax-floating-demo"
+import HomePage from "@/components/home/home-page"
 
 export default function Home() {
-  return (
-    <div className="h-full w-full overflow-auto bg-[#efefef]">
-      <ParallaxFloatingDemo />
-      <StickyFooter />
-    </div>
-  )
+  return <HomePage />
 }
