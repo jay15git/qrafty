@@ -4,8 +4,38 @@ const ICONSTACK_GRADIENT_ID = "iconstack-icon-gradient"
 const ICONSTACK_SHAPE_TAG =
   /<(path|circle|rect|polygon|polyline|ellipse|line)\b/i
 
+function readSvgLengthAttribute(value: string | null | undefined, fallback: number) {
+  if (!value) {
+    return fallback
+  }
+
+  const parsed = Number.parseFloat(value)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
+}
+
+function ensureIconstackSvgViewBox(markup: string) {
+  if (/\bviewBox=/i.test(markup)) {
+    return markup
+  }
+
+  const openTagMatch = markup.match(/<svg\b([^>]*)>/i)
+  if (!openTagMatch) {
+    return markup
+  }
+
+  const attributes = openTagMatch[1]
+  const width = readSvgLengthAttribute(attributes.match(/\bwidth="([^"]+)"/i)?.[1], 24)
+  const height = readSvgLengthAttribute(attributes.match(/\bheight="([^"]+)"/i)?.[1], 24)
+
+  return markup.replace(
+    /<svg\b([^>]*)>/i,
+    `<svg$1 viewBox="0 0 ${width} ${height}">`,
+  )
+}
+
 export function normalizeIconstackSvgMarkup(svg: string) {
-  return svg.replace(/<!--[\s\S]*?-->/g, "").trim()
+  const withoutComments = svg.replace(/<!--[\s\S]*?-->/g, "").trim()
+  return ensureIconstackSvgViewBox(withoutComments)
 }
 
 export function isValidIconstackSvgMarkup(svg: string) {
