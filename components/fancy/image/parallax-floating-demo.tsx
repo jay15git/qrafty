@@ -11,6 +11,9 @@ import Floating, {
 } from "@/components/fancy/image/parallax-floating"
 import VariableFontCursorProximity from "@/components/fancy/text/variable-font-cursor-proximity"
 
+const floatingImageClass =
+  "object-cover hover:scale-105 duration-200 transition-transform"
+
 const Preview = () => {
   const [scope, animate] = useAnimate()
 
@@ -20,7 +23,7 @@ const Preview = () => {
 
   return (
     <div
-      className="relative flex w-dvw h-dvh justify-center items-center overflow-hidden"
+      className="relative z-10 flex h-dvh w-dvw items-center justify-center overflow-hidden"
       ref={scope}
     >
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 size-full">
@@ -59,12 +62,12 @@ const Preview = () => {
         </p>
       </motion.div>
 
-      <Floating sensitivity={-1} className="overflow-hidden">
+      <Floating sensitivity={-1} cursorCastShadow className="overflow-hidden">
         <FloatingElement depth={0.5} className="top-[8%] left-[11%]">
           <motion.img
             initial={{ opacity: 0 }}
             src={exampleImages[0].url}
-            className="w-16 h-16 md:w-24 md:h-24 object-cover hover:scale-105 duration-200 transition-transform"
+            className={`w-16 h-16 md:w-24 md:h-24 ${floatingImageClass}`}
             draggable={false}
           />
         </FloatingElement>
@@ -72,7 +75,7 @@ const Preview = () => {
           <motion.img
             initial={{ opacity: 0 }}
             src={exampleImages[1].url}
-            className="w-20 h-20 md:w-28 md:h-28 object-cover hover:scale-105 duration-200 transition-transform"
+            className={`w-20 h-20 md:w-28 md:h-28 ${floatingImageClass}`}
             draggable={false}
           />
         </FloatingElement>
@@ -80,7 +83,7 @@ const Preview = () => {
           <motion.img
             initial={{ opacity: 0 }}
             src={exampleImages[2].url}
-            className="w-28 h-40 md:w-40 md:h-52 object-cover hover:scale-105 duration-200 transition-transform"
+            className={`w-28 h-40 md:w-40 md:h-52 ${floatingImageClass}`}
             draggable={false}
           />
         </FloatingElement>
@@ -88,7 +91,7 @@ const Preview = () => {
           <motion.img
             initial={{ opacity: 0 }}
             src={exampleImages[3].url}
-            className="w-24 h-24 md:w-32 md:h-32 object-cover hover:scale-105 duration-200 transition-transform"
+            className={`w-24 h-24 md:w-32 md:h-32 ${floatingImageClass}`}
             draggable={false}
           />
         </FloatingElement>
@@ -97,7 +100,7 @@ const Preview = () => {
           <motion.img
             initial={{ opacity: 0 }}
             src={exampleImages[4].url}
-            className="w-28 h-28 md:w-36 md:h-36 object-cover hover:scale-105 duration-200 transition-transform"
+            className={`w-28 h-28 md:w-36 md:h-36 ${floatingImageClass}`}
             draggable={false}
           />
         </FloatingElement>
@@ -105,7 +108,7 @@ const Preview = () => {
           <motion.img
             initial={{ opacity: 0 }}
             src={exampleImages[7].url}
-            className="w-28 h-28 md:w-36 md:h-48 object-cover hover:scale-105 duration-200 transition-transform"
+            className={`w-28 h-28 md:w-36 md:h-48 ${floatingImageClass}`}
             draggable={false}
           />
         </FloatingElement>
@@ -114,7 +117,7 @@ const Preview = () => {
           <motion.img
             initial={{ opacity: 0 }}
             src={exampleImages[5].url}
-            className="w-40 md:w-52 h-full object-cover hover:scale-105 duration-200 transition-transform"
+            className={`w-40 md:w-52 h-full ${floatingImageClass}`}
             draggable={false}
           />
         </FloatingElement>
@@ -122,7 +125,7 @@ const Preview = () => {
           <motion.img
             initial={{ opacity: 0 }}
             src={exampleImages[6].url}
-            className="w-24 h-24 md:w-32 md:h-32 object-cover hover:scale-105 duration-200 transition-transform"
+            className={`w-24 h-24 md:w-32 md:h-32 ${floatingImageClass}`}
             draggable={false}
           />
         </FloatingElement>

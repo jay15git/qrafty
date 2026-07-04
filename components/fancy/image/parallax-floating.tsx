@@ -10,8 +10,12 @@ import {
 } from "react"
 import { motion, useAnimationFrame } from "motion/react"
 
-import { cn } from "@/lib/utils"
 import { useMousePositionRef } from "@/hooks/use-mouse-position-ref"
+import {
+  buildCursorCastShadowFilterFromOffset,
+  computeCursorCastShadowOffset,
+} from "@/lib/cursor-cast-shadow"
+import { cn } from "@/lib/utils"
 
 interface FloatingContextType {
   registerElement: (id: string, element: HTMLDivElement, depth: number) => void
@@ -33,6 +37,17 @@ interface FloatingProps {
   easingFactor?: number
   dragElastic?: number
   selectedOnTop?: boolean
+  cursorCastShadow?: boolean
+}
+
+function getVisualElement(element: HTMLDivElement) {
+  const image = element.querySelector("img")
+  if (image instanceof HTMLElement) {
+    return image
+  }
+
+  const firstChild = element.firstElementChild
+  return firstChild instanceof HTMLElement ? firstChild : null
 }
 
 const Floating = ({
@@ -42,6 +57,7 @@ const Floating = ({
   easingFactor = 0.05,
   dragElastic = 0.5,
   selectedOnTop = true,
+  cursorCastShadow = false,
   ...props
 }: FloatingProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -52,13 +68,24 @@ const Floating = ({
         element: HTMLDivElement
         depth: number
         currentPosition: { x: number; y: number }
+        currentShadowOffset: { x: number; y: number }
       }
-    >()
+    >(),
   )
   const wrapperMap = useRef(new Map<string, HTMLDivElement>())
   const draggingIdRef = useRef<string | null>(null)
   const maxZIndexRef = useRef(10)
   const mousePositionRef = useMousePositionRef(containerRef)
+
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const rect = containerRef.current.getBoundingClientRect()
+    mousePositionRef.current = {
+      x: rect.width / 2,
+      y: rect.height / 2,
+    }
+  }, [mousePositionRef])
 
   const registerElement = useCallback(
     (id: string, element: HTMLDivElement, depth: number) => {
@@ -66,9 +93,10 @@ const Floating = ({
         element,
         depth,
         currentPosition: { x: 0, y: 0 },
+        currentShadowOffset: { x: 20, y: 32 },
       })
     },
-    []
+    [],
   )
 
   const unregisterElement = useCallback((id: string) => {
@@ -93,7 +121,7 @@ const Floating = ({
         wrapper.style.zIndex = String(maxZIndexRef.current)
       }
     },
-    [selectedOnTop]
+    [selectedOnTop],
   )
 
   const setDraggingElement = useCallback((id: string | null) => {
@@ -103,21 +131,53 @@ const Floating = ({
   useAnimationFrame(() => {
     if (!containerRef.current) return
 
+    const containerRect = containerRef.current.getBoundingClientRect()
+    const lightX = mousePositionRef.current.x
+    const lightY = mousePositionRef.current.y
+
     elementsMap.current.forEach((data, id) => {
-      if (draggingIdRef.current === id) return
+      const isDragging = draggingIdRef.current === id
 
-      const strength = (data.depth * sensitivity) / 20
+      if (!isDragging) {
+        const strength = (data.depth * sensitivity) / 20
+        const newTargetX = lightX * strength
+        const newTargetY = lightY * strength
+        const dx = newTargetX - data.currentPosition.x
+        const dy = newTargetY - data.currentPosition.y
 
-      const newTargetX = mousePositionRef.current.x * strength
-      const newTargetY = mousePositionRef.current.y * strength
+        data.currentPosition.x += dx * easingFactor
+        data.currentPosition.y += dy * easingFactor
+        data.element.style.transform = `translate3d(${data.currentPosition.x}px, ${data.currentPosition.y}px, 0)`
+      }
 
-      const dx = newTargetX - data.currentPosition.x
-      const dy = newTargetY - data.currentPosition.y
+      if (!cursorCastShadow) return
 
-      data.currentPosition.x += dx * easingFactor
-      data.currentPosition.y += dy * easingFactor
+      const visualElement = getVisualElement(data.element)
+      if (!visualElement) return
 
-      data.element.style.transform = `translate3d(${data.currentPosition.x}px, ${data.currentPosition.y}px, 0)`
+      const visualRect = visualElement.getBoundingClientRect()
+      const elementCenterX =
+        visualRect.left + visualRect.width / 2 - containerRect.left
+      const elementCenterY =
+        visualRect.top + visualRect.height / 2 - containerRect.top
+      const targetShadow = computeCursorCastShadowOffset(
+        lightX,
+        lightY,
+        elementCenterX,
+        elementCenterY,
+        data.depth,
+      )
+
+      data.currentShadowOffset.x +=
+        (targetShadow.x - data.currentShadowOffset.x) * easingFactor
+      data.currentShadowOffset.y +=
+        (targetShadow.y - data.currentShadowOffset.y) * easingFactor
+
+      visualElement.style.filter = buildCursorCastShadowFilterFromOffset(
+        data.currentShadowOffset.x,
+        data.currentShadowOffset.y,
+        data.depth,
+      )
     })
   })
 
@@ -210,7 +270,7 @@ export const FloatingElement = ({
       className={cn(
         "absolute will-change-transform",
         draggable && "cursor-grab",
-        className
+        className,
       )}
     >
       <div ref={innerRef} className="will-change-transform">
