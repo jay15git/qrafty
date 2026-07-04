@@ -65,6 +65,7 @@ import {
   groupDraftingCanvasLayers,
   isDraftingCardLayerId,
   isDraftingQrLayerId,
+  layoutDraftingCardInsetLayers,
   patchDraftingCanvasLayer,
   reorderDraftingCanvasLayer,
   ungroupDraftingCanvasLayer,
@@ -550,7 +551,7 @@ function DraftingCardObjectInspectorNav({
 
 export function WorkspaceSurface({
   chrome = "full",
-  desktopTheme = "dark",
+  desktopTheme = "light",
   fontClassName,
   initialActiveTool,
   onDesktopThemeChange,
@@ -3893,11 +3894,9 @@ export function WorkspaceSurface({
   const desktopShapeSettings: DesktopShapeSettings = {
     backgroundShapeId: selectedBackgroundShapeId,
     bottomSpace: selectedCardState.bottomSpace,
-    cardEnabled: selectedCardState.enabled,
     cardFill: selectedCardState.fill,
     cardPatternId: selectedCardState.patternId,
     cardRadius: selectedCardState.cornerRadius,
-    padding: selectedCardState.padding,
     shapeColorMode: selectedBackgroundColorMode,
     shapeGradient: selectedBackgroundGradient,
     shapePadding: selectedBackgroundShapeOptions.paddingPx,
@@ -3907,8 +3906,6 @@ export function WorkspaceSurface({
     shapeShadowOffsetY: activeQrLayer?.shadow.offsetY ?? 0,
     shapeShadowOpacity: activeQrLayer?.shadow.opacity ?? 0,
     shapeSolidColor: selectedBackgroundColor,
-    shapeTiltX: selectedBackgroundShapeOptions.tiltX,
-    shapeTiltY: selectedBackgroundShapeOptions.tiltY,
     shadowBlur: selectedCardState.shadow.blur,
     shadowColor: selectedCardState.shadow.color,
     shadowOffsetX: selectedCardState.shadow.offsetX,
@@ -4144,8 +4141,6 @@ export function WorkspaceSurface({
     }
     const shapeOptionsPatch: Partial<BackgroundShapeOptions> = {}
     if (patch.shapePadding !== undefined) shapeOptionsPatch.paddingPx = patch.shapePadding
-    if (patch.shapeTiltX !== undefined) shapeOptionsPatch.tiltX = patch.shapeTiltX
-    if (patch.shapeTiltY !== undefined) shapeOptionsPatch.tiltY = patch.shapeTiltY
     if (Object.keys(shapeOptionsPatch).length > 0) {
       setSelectedBackgroundShapeOptions((current) => ({ ...current, ...shapeOptionsPatch }))
     }
@@ -4183,9 +4178,7 @@ export function WorkspaceSurface({
       ...current,
       bottomSpace: patch.bottomSpace ?? current.bottomSpace,
       cornerRadius: patch.cardRadius ?? current.cornerRadius,
-      enabled: patch.cardEnabled ?? current.enabled,
       fill: patch.cardFill ?? current.fill,
-      padding: patch.padding ?? current.padding,
       patternId: patch.cardPatternId ?? current.patternId,
       shadow: {
         ...current.shadow,
@@ -4197,9 +4190,28 @@ export function WorkspaceSurface({
       },
       styleMode: patch.cardPatternId ? "pattern" : current.styleMode,
     }))
-    if (patch.cardEnabled !== undefined || patch.shadowBlur !== undefined || patch.shadowColor !== undefined || patch.shadowOffsetX !== undefined || patch.shadowOffsetY !== undefined || patch.shadowOpacity !== undefined) {
+    if (patch.bottomSpace !== undefined) {
+      setLayerStateByNodeId((current) => {
+        const nextCardState = {
+          ...selectedCardState,
+          bottomSpace: patch.bottomSpace ?? selectedCardState.bottomSpace,
+        }
+        const layers =
+          current[activeQrNodeId] ??
+          createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, nextCardState)
+
+        return {
+          ...current,
+          [activeQrNodeId]: layoutDraftingCardInsetLayers(
+            layers.map(cloneDraftingCanvasLayer),
+            draftingStudioState,
+            nextCardState,
+          ),
+        }
+      })
+    }
+    if (patch.shadowBlur !== undefined || patch.shadowColor !== undefined || patch.shadowOffsetX !== undefined || patch.shadowOffsetY !== undefined || patch.shadowOpacity !== undefined) {
       handleLayerChange(activeQrNodeId, getDraftingCardLayerId(activeQrNodeId), {
-        isVisible: patch.cardEnabled,
         shadow: {
           ...selectedCardState.shadow,
           blur: patch.shadowBlur ?? selectedCardState.shadow.blur,

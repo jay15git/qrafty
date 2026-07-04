@@ -439,11 +439,9 @@ type DesktopShapeColorMode = "solid" | "gradient"
 export type DesktopShapeSettings = {
   backgroundShapeId: QrBackgroundShapeId
   bottomSpace: number
-  cardEnabled: boolean
   cardFill: string
   cardPatternId: DraftingCardPatternSelectionId
   cardRadius: number
-  padding: number
   shapeColorMode: DesktopShapeColorMode
   shapeGradient: StudioGradient
   shapePadding: number
@@ -453,8 +451,6 @@ export type DesktopShapeSettings = {
   shapeShadowOffsetY: number
   shapeShadowOpacity: number
   shapeSolidColor: string
-  shapeTiltX: number
-  shapeTiltY: number
   shadowBlur: number
   shadowColor: string
   shadowOffsetX: number
@@ -844,11 +840,9 @@ const DEFAULT_DESKTOP_CORNERS_SETTINGS: DesktopCornersSettings = {
 const DEFAULT_DESKTOP_SHAPE_SETTINGS: DesktopShapeSettings = {
   backgroundShapeId: "none",
   bottomSpace: DEFAULT_DRAFTING_CARD_STATE.bottomSpace,
-  cardEnabled: DEFAULT_DRAFTING_CARD_STATE.enabled,
   cardFill: DEFAULT_DRAFTING_CARD_STATE.fill,
   cardPatternId: DEFAULT_DRAFTING_CARD_STATE.patternId,
   cardRadius: DEFAULT_DRAFTING_CARD_STATE.cornerRadius,
-  padding: DEFAULT_DRAFTING_CARD_STATE.padding,
   shapeColorMode: "solid",
   shapeGradient: {
     enabled: true,
@@ -866,8 +860,6 @@ const DEFAULT_DESKTOP_SHAPE_SETTINGS: DesktopShapeSettings = {
   shapeShadowOffsetY: DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowOffsetY,
   shapeShadowOpacity: DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowOpacity,
   shapeSolidColor: "#18181b",
-  shapeTiltX: DEFAULT_BACKGROUND_SHAPE_OPTIONS.tiltX,
-  shapeTiltY: DEFAULT_BACKGROUND_SHAPE_OPTIONS.tiltY,
   shadowBlur: DEFAULT_DRAFTING_CARD_STATE.shadow.blur,
   shadowColor: DEFAULT_DRAFTING_CARD_STATE.shadow.color,
   shadowOffsetX: DEFAULT_DRAFTING_CARD_STATE.shadow.offsetX,
@@ -1076,7 +1068,7 @@ export function useDesktopToolbarInspectorModel({
   onThemeChange?: (theme: DesktopThemeMode) => void
 } = {}): DesktopInspectorModel {
   const [activeTool, setActiveTool] = useState<DesktopToolbarToolId | null>(null)
-  const [desktopTheme, setDesktopTheme] = useState<DesktopThemeMode>("dark")
+  const [desktopTheme, setDesktopTheme] = useState<DesktopThemeMode>("light")
   const [patternSettings, setPatternSettings] = useState<DesktopPatternSettings>(
     DEFAULT_DESKTOP_PATTERN_SETTINGS,
   )
@@ -3243,11 +3235,6 @@ function DesktopShapeInspector({
         <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
           <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Frame</p>
           <div className="grid gap-2">
-            <DesktopMotionToggleRow
-              checked={settings.cardEnabled}
-              label="Show shape"
-              onChange={(cardEnabled) => onShapeSettingsChange({ cardEnabled })}
-            />
             <DesktopElasticSliderRow
               label="Corner radius"
               max={64}
@@ -3258,11 +3245,11 @@ function DesktopShapeInspector({
             />
             <DesktopElasticSliderRow
               label="Padding"
-              max={72}
-              min={8}
-              value={settings.padding}
-              valueLabel={`${Math.round(settings.padding)}`}
-              onChange={(padding) => onShapeSettingsChange({ padding })}
+              max={192}
+              min={0}
+              value={settings.shapePadding}
+              valueLabel={`${Math.round(settings.shapePadding)}`}
+              onChange={(shapePadding) => onShapeSettingsChange({ shapePadding })}
             />
             <DesktopElasticSliderRow
               label="Bottom space"
@@ -3271,28 +3258,6 @@ function DesktopShapeInspector({
               value={settings.bottomSpace}
               valueLabel={`${Math.round(settings.bottomSpace)}`}
               onChange={(bottomSpace) => onShapeSettingsChange({ bottomSpace })}
-            />
-          </div>
-        </DesktopInspectorSection>
-
-        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Tilt</p>
-          <div className="grid gap-2">
-            <DesktopElasticSliderRow
-              label="Horizontal tilt"
-              max={60}
-              min={-60}
-              value={settings.shapeTiltX}
-              valueLabel={`${Math.round(settings.shapeTiltX)}°`}
-              onChange={(shapeTiltX) => onShapeSettingsChange({ shapeTiltX })}
-            />
-            <DesktopElasticSliderRow
-              label="Vertical tilt"
-              max={60}
-              min={-60}
-              value={settings.shapeTiltY}
-              valueLabel={`${Math.round(settings.shapeTiltY)}°`}
-              onChange={(shapeTiltY) => onShapeSettingsChange({ shapeTiltY })}
             />
           </div>
         </DesktopInspectorSection>
@@ -3324,7 +3289,7 @@ function DesktopShapeInspector({
                 style={{ backgroundColor: settings.cardFill }}
                 onClick={() => onShapeSettingsChange({ cardPatternId: DRAFTING_CARD_PATTERN_NONE_ID })}
               />
-              {DRAFTING_CARD_PATTERNS.slice(0, 8).map((pattern) => (
+              {DRAFTING_CARD_PATTERNS.map((pattern) => (
                 <DesktopPatternSwatchButton
                   key={pattern.id}
                   label={pattern.label}
@@ -3337,18 +3302,6 @@ function DesktopShapeInspector({
           </DesktopInspectorOptionGridScrollArea>
         </DesktopInspectorSection>
 
-        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Inner Padding</p>
-          <DesktopElasticSliderRow
-            ariaLabel="Shape inner padding"
-            label="Amount"
-            max={192}
-            min={0}
-            value={settings.shapePadding}
-            valueLabel={`${Math.round(settings.shapePadding)}`}
-            onChange={(shapePadding) => onShapeSettingsChange({ shapePadding })}
-          />
-        </DesktopInspectorSection>
       </DesktopInspectorScrollArea>
 
     </div>
@@ -5276,7 +5229,7 @@ function DesktopDecorationsInspector({
                 style={{ backgroundColor: settings.fill }}
                 onClick={() => onDecorationsSettingsChange({ patternId: DRAFTING_CARD_PATTERN_NONE_ID })}
               />
-              {DRAFTING_CARD_PATTERNS.slice(0, 8).map((pattern) => (
+              {DRAFTING_CARD_PATTERNS.map((pattern) => (
                 <DesktopPatternSwatchButton
                   key={pattern.id}
                   label={pattern.label}

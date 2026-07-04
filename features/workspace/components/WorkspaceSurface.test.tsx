@@ -491,7 +491,7 @@ describe("WorkspaceSurface", () => {
         surface.container,
         '[data-active-tool="shape"]',
       ).textContent,
-    ).toContain("Show shape")
+    ).toContain("Corner radius")
     expect(surface.container.textContent).not.toContain("Frame/Card")
   })
 
@@ -4200,7 +4200,7 @@ function renderSurface({
 
 function DesktopOverlayTestHarness(props: ComponentProps<typeof WorkspaceSurface>) {
   const [desktopTheme, setDesktopTheme] = useState<"dark" | "light">(
-    props.desktopTheme ?? "dark",
+    props.desktopTheme ?? "light",
   )
 
   return (

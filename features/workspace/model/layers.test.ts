@@ -4,6 +4,7 @@ import {
   alignDraftingCanvasLayers,
   cloneDraftingCanvasLayer,
   cloneDraftingCanvasLayersForPaste,
+  createDefaultDraftingLayers,
   createDraftingImageLayer,
   createDraftingShaderLayer,
   createDraftingShapeLayer,
@@ -14,6 +15,7 @@ import {
   distributeDraftingCanvasLayers,
   getDraftingMarqueeSelection,
   groupDraftingCanvasLayers,
+  layoutDraftingCardInsetLayers,
   normalizeDraftingCanvasLayers,
   reorderDraftingCanvasLayer,
   ungroupDraftingCanvasLayer,
@@ -23,6 +25,27 @@ import { createDefaultDraftingCardState } from "@/features/workspace/model/card-
 import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
 
 describe("drafting layer state actions", () => {
+  it("relayouts card and qr layers when card inset padding changes", () => {
+    const qrState = createDefaultQrStudioState()
+    const cardState = createDefaultDraftingCardState()
+    const layers = createDefaultDraftingLayers("preview", qrState, cardState)
+    const nextCardState = { ...cardState, padding: 40 }
+
+    const relayouted = layoutDraftingCardInsetLayers(layers, qrState, nextCardState)
+    const fresh = createDefaultDraftingLayers("preview", qrState, nextCardState)
+
+    expect(relayouted.find((layer) => layer.kind === "card")).toMatchObject({
+      height: fresh.find((layer) => layer.kind === "card")?.height,
+      width: fresh.find((layer) => layer.kind === "card")?.width,
+      x: fresh.find((layer) => layer.kind === "card")?.x,
+      y: fresh.find((layer) => layer.kind === "card")?.y,
+    })
+    expect(relayouted.find((layer) => layer.kind === "qr")).toMatchObject({
+      x: fresh.find((layer) => layer.kind === "qr")?.x,
+      y: fresh.find((layer) => layer.kind === "qr")?.y,
+    })
+  })
+
   it("moves a layer through the z-index stack", () => {
     const layers = [
       createLayer("card", 0),

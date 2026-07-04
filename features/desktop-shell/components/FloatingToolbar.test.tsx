@@ -16,6 +16,7 @@ import {
 } from "@/features/desktop-shell/components/DesktopSettingsToolbarShell"
 import { getDesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { createDraftingTextLayer, type DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import { DRAFTING_CARD_PATTERNS } from "@/features/workspace/model/card-patterns"
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root"
 
 const NODE_ID = "test-node"
@@ -127,7 +128,7 @@ describe("FloatingToolbar", () => {
     const historyActions = surface.container.querySelector('[data-slot="desktop-history-actions"]')
     const utilityToolbar = surface.container.querySelector('[data-slot="desktop-utility-toolbar"]')
 
-    expect(prototype?.getAttribute("data-desktop-theme")).toBe("dark")
+    expect(prototype?.getAttribute("data-desktop-theme")).toBe("light")
     expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
     expect(historyActions).not.toBeNull()
     expect(historyActions?.querySelector('button[aria-label="Switch to light mode"]')).toBeNull()
@@ -505,9 +506,6 @@ describe("FloatingToolbar", () => {
 
   it("uses an outer black selected ring with selected fill for module pattern options in light mode", async () => {
     const surface = await renderPrototype()
-    const themeToggle = getRequiredButton(surface.container, "Switch to light mode")
-
-    await clickButton(themeToggle)
     await openTool(surface.container, "pattern")
 
     const dotsPattern = getRequiredButton(surface.container, "Use Circle pattern")
@@ -524,6 +522,9 @@ describe("FloatingToolbar", () => {
 
   it("uses an outer white selected ring with selected fill for module pattern options in dark mode", async () => {
     const surface = await renderPrototype()
+    const themeToggle = getRequiredButton(surface.container, "Switch to dark mode")
+
+    await clickButton(themeToggle)
     await openTool(surface.container, "pattern")
 
     const dotsPattern = getRequiredButton(surface.container, "Use Circle pattern")
@@ -607,9 +608,6 @@ describe("FloatingToolbar", () => {
 
   it("uses an outer black selected ring with selected fill for corner frame and dot options in light mode", async () => {
     const surface = await renderPrototype()
-    const themeToggle = getRequiredButton(surface.container, "Switch to light mode")
-
-    await clickButton(themeToggle)
     await openTool(surface.container, "corners")
 
     const squareFrame = getRequiredButton(surface.container, "Use Square corner frame")
@@ -636,6 +634,9 @@ describe("FloatingToolbar", () => {
 
   it("uses an outer white selected ring with selected fill for corner frame and dot options in dark mode", async () => {
     const surface = await renderPrototype()
+    const themeToggle = getRequiredButton(surface.container, "Switch to dark mode")
+
+    await clickButton(themeToggle)
     await openTool(surface.container, "corners")
 
     const squareFrame = getRequiredButton(surface.container, "Use Square corner frame")
@@ -869,6 +870,28 @@ describe("FloatingToolbar", () => {
     expect(inspector?.textContent).not.toContain("Reset Shape")
   })
 
+  it("lists every drafting card pattern in the shape fill grid", async () => {
+    const surface = await renderPrototype()
+    await openTool(surface.container, "shape")
+
+    const patternGrid = surface.container.querySelector('[data-slot="desktop-shape-patterns"]')
+
+    expect(patternGrid).not.toBeNull()
+    expect(patternGrid?.querySelectorAll("button").length).toBe(DRAFTING_CARD_PATTERNS.length + 1)
+    expect(
+      surface.container.querySelector('button[aria-label="Use Pattern 145 decoration pattern"]'),
+    ).not.toBeNull()
+  })
+
+  it("does not cap shape fill patterns in the desktop inspector source", () => {
+    const source = readFileSync(
+      resolve(process.cwd(), "features/desktop-shell/components/FloatingToolbar.tsx"),
+      "utf8",
+    )
+
+    expect(source).not.toContain("DRAFTING_CARD_PATTERNS.slice(0, 8)")
+  })
+
   it("selects a shape preset without changing shape color mode", async () => {
     const surface = await renderPrototype()
     await openTool(surface.container, "shape")
@@ -937,7 +960,6 @@ describe("FloatingToolbar", () => {
       "Corner radius",
       "Padding",
       "Bottom space",
-      "Shape inner padding",
     ]
 
     for (const label of elasticLabels) {
@@ -946,9 +968,8 @@ describe("FloatingToolbar", () => {
     }
 
     expect(getRequiredSliderRow(surface.container, "Corner radius").textContent).toBe("Corner radius28")
-    expect(getRequiredSliderRow(surface.container, "Padding").textContent).toBe("Padding24")
+    expect(getRequiredSliderRow(surface.container, "Padding").textContent).toBe("Padding0")
     expect(getRequiredSliderRow(surface.container, "Bottom space").textContent).toBe("Bottom space128")
-    expect(getRequiredSliderRow(surface.container, "Shape inner padding").textContent).toBe("Amount0")
 
     await act(async () => {
       getRequiredSlider(surface.container, "Corner radius").dispatchEvent(

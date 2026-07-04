@@ -197,21 +197,62 @@ export function isDraftingQrLayerId(layerId: string | null | undefined) {
   return Boolean(layerId?.endsWith(DRAFTING_QR_LAYER_SUFFIX))
 }
 
-export function createDefaultDraftingLayers(
-  nodeId: string,
+export function getDraftingCardInsetLayout(
   qrState: QrStudioState,
-  cardState: DraftingCardState,
-): DraftingCanvasLayer[] {
+  cardState: Pick<DraftingCardState, "bottomSpace" | "padding">,
+) {
   const qrDimensions = getQrRenderedDimensions(qrState)
   const cardWidth = qrDimensions.width + cardState.padding * 2
   const cardHeight = qrDimensions.height + cardState.padding * 2 + cardState.bottomSpace
   const cardX = -cardWidth / 2
   const cardY = -cardHeight / 2
 
+  return {
+    card: {
+      height: cardHeight,
+      width: cardWidth,
+      x: cardX,
+      y: cardY,
+    },
+    qr: {
+      x: -qrDimensions.width / 2,
+      y: cardY + cardState.padding,
+    },
+  }
+}
+
+export function layoutDraftingCardInsetLayers(
+  layers: DraftingCanvasLayer[],
+  qrState: QrStudioState,
+  cardState: Pick<DraftingCardState, "bottomSpace" | "padding">,
+): DraftingCanvasLayer[] {
+  const layout = getDraftingCardInsetLayout(qrState, cardState)
+
+  return layers.map((layer) => {
+    if (layer.kind === "card") {
+      return patchDraftingCanvasLayer(layer, layout.card)
+    }
+
+    if (layer.kind === "qr") {
+      return patchDraftingCanvasLayer(layer, layout.qr)
+    }
+
+    return layer
+  })
+}
+
+export function createDefaultDraftingLayers(
+  nodeId: string,
+  qrState: QrStudioState,
+  cardState: DraftingCardState,
+): DraftingCanvasLayer[] {
+  const qrDimensions = getQrRenderedDimensions(qrState)
+  const layout = getDraftingCardInsetLayout(qrState, cardState)
+
   return [
     {
       blur: 0,
-      height: cardHeight,
+      height: layout.card.height,
       id: getDraftingCardLayerId(nodeId),
       isLocked: false,
       isVisible: cardState.enabled,
@@ -226,9 +267,9 @@ export function createDefaultDraftingLayers(
       tiltY: 0,
       shadow: normalizeDraftingCardShadow(cardState.shadow),
       shadows: [legacyShadowToShadowLayer(normalizeDraftingCardShadow(cardState.shadow))],
-      width: cardWidth,
-      x: cardX,
-      y: cardY,
+      width: layout.card.width,
+      x: layout.card.x,
+      y: layout.card.y,
       zIndex: 0,
     },
     {
@@ -249,8 +290,8 @@ export function createDefaultDraftingLayers(
       shadow: { ...DEFAULT_LAYER_SHADOW },
       shadows: [legacyShadowToShadowLayer(DEFAULT_LAYER_SHADOW)],
       width: qrDimensions.width,
-      x: -qrDimensions.width / 2,
-      y: cardY + cardState.padding,
+      x: layout.qr.x,
+      y: layout.qr.y,
       zIndex: 1,
     },
   ]
