@@ -13,6 +13,10 @@ import {
   normalizePerSideBorderState,
 } from "@/features/workspace/model/effects"
 import {
+  getCanvasSizeFromTemplate,
+  getSizeTemplate,
+} from "@/features/workspace/model/size-templates"
+import {
   createDefaultPaperShaderParams,
   DEFAULT_PAPER_SHADER_ID,
   getPaperShaderDefinition,
@@ -67,6 +71,11 @@ export type DraftingCardPaperShaderState = {
 export const DEFAULT_DRAFTING_PAPER_SHADER_IMAGE =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23f8fafc'/%3E%3Cstop offset='.48' stop-color='%2394a3b8'/%3E%3Cstop offset='1' stop-color='%23111827'/%3E%3C/linearGradient%3E%3CradialGradient id='r' cx='.32' cy='.28' r='.55'%3E%3Cstop stop-color='%23f59e0b' stop-opacity='.95'/%3E%3Cstop offset='.58' stop-color='%23ec4899' stop-opacity='.62'/%3E%3Cstop offset='1' stop-color='%230f172a' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Ccircle cx='360' cy='250' r='310' fill='url(%23r)'/%3E%3Crect x='590' y='170' width='390' height='540' rx='48' fill='%23ffffff' fill-opacity='.28'/%3E%3Cpath d='M145 715 C310 575 410 805 590 635 S865 535 1055 680' fill='none' stroke='%23ffffff' stroke-width='46' stroke-linecap='round' opacity='.7'/%3E%3C/svg%3E"
 
+export type DraftingCardSizeMode = "auto" | "fixed"
+
+export const DRAFTING_CARD_SIZE_MIN = 320
+export const DRAFTING_CARD_SIZE_MAX = 8192
+
 export type DraftingCardState = {
   border: DraftingCardBorderState
   bottomSpace: number
@@ -74,13 +83,18 @@ export type DraftingCardState = {
   cornerRadius: number
   enabled: boolean
   fill: string
+  height: number
   imageFilter: DraftingCardPaperShaderState
+  lockAspectRatio: boolean
   padding: number
   patternColors: Partial<Record<DraftingCardPatternId, DraftingCardPatternColorOverrides>>
   patternId: DraftingCardPatternSelectionId
   paperShader: DraftingCardPaperShaderState
   shadow: DraftingCardShadowState
+  sizeMode: DraftingCardSizeMode
+  sizePresetId?: string
   styleMode: DraftingCardStyleMode
+  width: number
 }
 
 export const DEFAULT_DRAFTING_CARD_STATE: DraftingCardState = {
@@ -101,7 +115,9 @@ export const DEFAULT_DRAFTING_CARD_STATE: DraftingCardState = {
   cornerRadius: 28,
   enabled: true,
   fill: "#ffd80a",
+  height: 1080,
   imageFilter: createDefaultDraftingCardPaperShader("image-dithering"),
+  lockAspectRatio: true,
   padding: 24,
   patternColors: {},
   patternId: DRAFTING_CARD_PATTERN_NONE_ID,
@@ -117,24 +133,73 @@ export const DEFAULT_DRAFTING_CARD_STATE: DraftingCardState = {
     spread: 0,
     visible: true,
   },
+  sizeMode: "auto",
+  sizePresetId: undefined,
   styleMode: "pattern",
+  width: 1080,
 }
 
 export function cloneDraftingCardState(state: DraftingCardState): DraftingCardState {
+  return normalizeDraftingCardState(state)
+}
+
+export function normalizeDraftingCardState(
+  state: Partial<DraftingCardState> | DraftingCardState,
+): DraftingCardState {
+  const fallback = DEFAULT_DRAFTING_CARD_STATE
+  const sizePresetId =
+    typeof state.sizePresetId === "string" && state.sizePresetId.length > 0
+      ? state.sizePresetId
+      : undefined
+  const presetTemplate = sizePresetId ? getSizeTemplate(sizePresetId) : undefined
+  const presetCanvasSize = presetTemplate ? getCanvasSizeFromTemplate(presetTemplate) : null
+  const resolvedWidth = presetCanvasSize?.width ?? state.width
+  const resolvedHeight = presetCanvasSize?.height ?? state.height
+
   return {
-    ...state,
     border: normalizeDraftingCardBorder(state.border),
-    cardImage: { ...state.cardImage },
-    imageFilter: cloneDraftingCardPaperShaderState(state.imageFilter),
-    paperShader: cloneDraftingCardPaperShaderState(state.paperShader),
+    bottomSpace: clampCardNumber(state.bottomSpace, fallback.bottomSpace, 0, 640),
+    cardImage: {
+      fit: state.cardImage?.fit ?? fallback.cardImage.fit,
+      opacity: clampCardNumber(state.cardImage?.opacity, fallback.cardImage.opacity, 0, 100),
+      source: state.cardImage?.source ?? fallback.cardImage.source,
+      value: state.cardImage?.value,
+    },
+    cornerRadius: clampCardNumber(state.cornerRadius, fallback.cornerRadius, 0, 256),
+    enabled: state.enabled ?? fallback.enabled,
+    fill: state.fill ?? fallback.fill,
+    height: clampCardSize(resolvedHeight, fallback.height),
+    imageFilter: state.imageFilter
+      ? cloneDraftingCardPaperShaderState(state.imageFilter)
+      : cloneDraftingCardPaperShaderState(fallback.imageFilter),
+    lockAspectRatio: state.lockAspectRatio ?? fallback.lockAspectRatio,
+    padding: clampCardNumber(state.padding, fallback.padding, 0, 256),
     patternColors: Object.fromEntries(
-      Object.entries(state.patternColors).map(([patternId, colors]) => [
+      Object.entries(state.patternColors ?? fallback.patternColors).map(([patternId, colors]) => [
         patternId,
         { ...colors },
       ]),
     ),
-    shadow: normalizeDraftingCardShadow(state.shadow),
+    patternId: state.patternId ?? fallback.patternId,
+    paperShader: state.paperShader
+      ? cloneDraftingCardPaperShaderState(state.paperShader)
+      : cloneDraftingCardPaperShaderState(fallback.paperShader),
+    shadow: normalizeDraftingCardShadow(state.shadow ?? fallback.shadow),
+    sizeMode: state.sizeMode === "fixed" ? "fixed" : "auto",
+    sizePresetId,
+    styleMode: state.styleMode ?? fallback.styleMode,
+    width: clampCardSize(resolvedWidth, fallback.width),
   }
+}
+
+function clampCardSize(value: unknown, fallback: number) {
+  const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback
+  return Math.min(DRAFTING_CARD_SIZE_MAX, Math.max(DRAFTING_CARD_SIZE_MIN, Math.round(parsed)))
+}
+
+function clampCardNumber(value: unknown, fallback: number, min: number, max: number) {
+  const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback
+  return Math.min(max, Math.max(min, Math.round(parsed)))
 }
 
 export function normalizeDraftingCardBorder(

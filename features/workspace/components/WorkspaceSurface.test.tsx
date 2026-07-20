@@ -29,10 +29,15 @@ const measureDashboardRasterExportSpy = vi.fn(() =>
   }),
 )
 
-vi.mock("@/features/qr-code/rendering/qr-svg", () => ({
-  buildDashboardQrNodePayload: (...args: Parameters<typeof buildDashboardQrNodePayloadSpy>) =>
-    buildDashboardQrNodePayloadSpy(...args),
-}))
+vi.mock("@/features/qr-code/rendering/qr-svg", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/features/qr-code/rendering/qr-svg")>()
+
+  return {
+    ...actual,
+    buildDashboardQrNodePayload: (...args: Parameters<typeof buildDashboardQrNodePayloadSpy>) =>
+      buildDashboardQrNodePayloadSpy(...args),
+  }
+})
 
 vi.mock("@/features/qr-code/export/batch-export", () => ({
   downloadDashboardQrBatchZipExport: (
@@ -1349,6 +1354,31 @@ describe("WorkspaceSurface", () => {
 
     expect(root.getAttribute("data-logo-source-mode")).toBe("preset")
     expect(root.getAttribute("data-logo-preset-id")).toBe("instagram")
+  })
+
+  it("applies a business card size preset to the active drafting card", async () => {
+    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    const surface = renderDesktopOverlaySurface()
+
+    await waitForDraftingSurface()
+
+    act(() => {
+      activateElement(getRequiredElement(surface.container, '[data-tool-id="shape"]'))
+    })
+
+    act(() => {
+      activateElement(
+        getRequiredElement(
+          surface.container,
+          'button[aria-label="Use Business card size 1050 by 600"]',
+        ),
+      )
+    })
+
+    const card = getSelectedPreviewCard(surface.container)
+
+    expect(card.style.width).toBe("1080px")
+    expect(card.style.height).toBe("617px")
   })
 
   it("renders the desktop canvas resize toolbar and wires it to preview zoom", () => {

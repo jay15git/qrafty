@@ -44,6 +44,7 @@ import {
 import {
   cloneDraftingCardState,
   createDefaultDraftingCardState,
+  normalizeDraftingCardState,
   type DraftingCardState,
 } from "@/features/workspace/model/card-state"
 import {
@@ -60,6 +61,7 @@ import {
   createDefaultDraftingLayers,
   DEFAULT_DRAFTING_TEXT_LAYER,
   distributeDraftingCanvasLayers,
+  fitQrSizeInCard,
   getDraftingCardLayerId,
   getDraftingQrLayerId,
   groupDraftingCanvasLayers,
@@ -270,6 +272,7 @@ type DraftingToolId =
   | "corners"
   | "logo"
   | "shape"
+  | "card-pattern"
   | "text"
   | "image"
   | "decorations"
@@ -431,6 +434,12 @@ const DRAFTING_TOOLS: DraftingTool[] = [
     id: "encoding",
     title: "Encoding",
     renderIcon: () => <Settings className="size-4 shrink-0" />,
+  },
+  {
+    group: "Add",
+    id: "card-pattern",
+    title: "Pattern",
+    renderIcon: () => <PieChart className="size-4 shrink-0" />,
   },
   {
     group: "Manage",
@@ -3667,14 +3676,25 @@ export function WorkspaceSurface({
           <DraftingInspectorSection title="Frame">
             {renderPanelContent("card-frame", "frame")}
           </DraftingInspectorSection>
-          <DraftingInspectorSection title="Fill">
-            {renderPanelContent("card-surface", "surface")}
-            {renderPanelContent("card-image", "upload")}
-          </DraftingInspectorSection>
           <DraftingInspectorSection title="Background">
             {renderPanelContent("background", "colors")}
             {renderPanelContent("background", "shape")}
             {renderPanelContent("background", "upload")}
+          </DraftingInspectorSection>
+        </InspectorPanel>
+      )
+    }
+
+    if (toolId === "card-pattern") {
+      return (
+        <InspectorPanel
+          dataSlot="drafting-stacked-inspector"
+          description="Choose generated CSS patterns and customize their colors."
+          eyebrow="Add"
+          title="Pattern"
+        >
+          <DraftingInspectorSection title="Fill">
+            {renderPanelContent("card-surface", "surface")}
           </DraftingInspectorSection>
         </InspectorPanel>
       )
@@ -3895,8 +3915,12 @@ export function WorkspaceSurface({
     backgroundShapeId: selectedBackgroundShapeId,
     bottomSpace: selectedCardState.bottomSpace,
     cardFill: selectedCardState.fill,
+    cardHeight: selectedCardState.height,
+    cardPatternColors: selectedCardState.patternColors,
     cardPatternId: selectedCardState.patternId,
     cardRadius: selectedCardState.cornerRadius,
+    cardWidth: selectedCardState.width,
+    lockAspectRatio: selectedCardState.lockAspectRatio,
     shapeColorMode: selectedBackgroundColorMode,
     shapeGradient: selectedBackgroundGradient,
     shapePadding: selectedBackgroundShapeOptions.paddingPx,
@@ -3911,6 +3935,8 @@ export function WorkspaceSurface({
     shadowOffsetX: selectedCardState.shadow.offsetX,
     shadowOffsetY: selectedCardState.shadow.offsetY,
     shadowOpacity: selectedCardState.shadow.opacity,
+    sizeMode: selectedCardState.sizeMode,
+    sizePresetId: selectedCardState.sizePresetId,
   }
   const desktopEncodingSettings: DesktopEncodingSettings = {
     errorCorrectionLevel: selectedQrErrorCorrectionLevel,
@@ -4174,38 +4200,69 @@ export function WorkspaceSurface({
         })
       }
     }
-    setSelectedCardState((current) => ({
-      ...current,
-      bottomSpace: patch.bottomSpace ?? current.bottomSpace,
-      cornerRadius: patch.cardRadius ?? current.cornerRadius,
-      fill: patch.cardFill ?? current.fill,
-      patternId: patch.cardPatternId ?? current.patternId,
+    const nextCardState = {
+      ...selectedCardState,
+      bottomSpace: patch.bottomSpace ?? selectedCardState.bottomSpace,
+      cornerRadius: patch.cardRadius ?? selectedCardState.cornerRadius,
+      enabled:
+        patch.sizeMode === "fixed" ||
+        patch.cardWidth !== undefined ||
+        patch.cardHeight !== undefined
+          ? true
+          : selectedCardState.enabled,
+      fill: patch.cardFill ?? selectedCardState.fill,
+      height: patch.cardHeight ?? selectedCardState.height,
+      lockAspectRatio: patch.lockAspectRatio ?? selectedCardState.lockAspectRatio,
+      patternColors: patch.cardPatternColors ?? selectedCardState.patternColors,
+      patternId: patch.cardPatternId ?? selectedCardState.patternId,
       shadow: {
-        ...current.shadow,
-        blur: patch.shadowBlur ?? current.shadow.blur,
-        color: patch.shadowColor ?? current.shadow.color,
-        offsetX: patch.shadowOffsetX ?? current.shadow.offsetX,
-        offsetY: patch.shadowOffsetY ?? current.shadow.offsetY,
-        opacity: patch.shadowOpacity ?? current.shadow.opacity,
+        ...selectedCardState.shadow,
+        blur: patch.shadowBlur ?? selectedCardState.shadow.blur,
+        color: patch.shadowColor ?? selectedCardState.shadow.color,
+        offsetX: patch.shadowOffsetX ?? selectedCardState.shadow.offsetX,
+        offsetY: patch.shadowOffsetY ?? selectedCardState.shadow.offsetY,
+        opacity: patch.shadowOpacity ?? selectedCardState.shadow.opacity,
       },
-      styleMode: patch.cardPatternId ? "pattern" : current.styleMode,
-    }))
-    if (patch.bottomSpace !== undefined) {
-      setLayerStateByNodeId((current) => {
-        const nextCardState = {
-          ...selectedCardState,
-          bottomSpace: patch.bottomSpace ?? selectedCardState.bottomSpace,
-        }
+      sizeMode: patch.sizeMode ?? selectedCardState.sizeMode,
+      sizePresetId:
+        patch.sizePresetId !== undefined ? patch.sizePresetId : selectedCardState.sizePresetId,
+      styleMode: patch.cardPatternId ? "pattern" : selectedCardState.styleMode,
+      width: patch.cardWidth ?? selectedCardState.width,
+    }
+
+    const shouldRelayoutCardInset =
+      patch.bottomSpace !== undefined ||
+      patch.cardHeight !== undefined ||
+      patch.cardWidth !== undefined ||
+      patch.sizeMode !== undefined ||
+      patch.sizePresetId !== undefined
+
+    const normalizedCardState = normalizeDraftingCardState(nextCardState)
+    setSelectedCardState(normalizedCardState)
+
+    if (shouldRelayoutCardInset) {
+      const fittedQr = fitQrSizeInCard(draftingStudioState, normalizedCardState)
+      const nextQrState = {
+        ...draftingStudioState,
+        height: fittedQr.height,
+        width: fittedQr.width,
+      }
+
+      if (normalizedCardState.sizeMode === "fixed") {
+        setSelectedQrSize(fittedQr.width)
+      }
+
+      setLayerStateByNodeId((layerState) => {
         const layers =
-          current[activeQrNodeId] ??
-          createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, nextCardState)
+          layerState[activeQrNodeId] ??
+          createDefaultDraftingLayers(activeQrNodeId, nextQrState, normalizedCardState)
 
         return {
-          ...current,
+          ...layerState,
           [activeQrNodeId]: layoutDraftingCardInsetLayers(
             layers.map(cloneDraftingCanvasLayer),
-            draftingStudioState,
-            nextCardState,
+            nextQrState,
+            normalizedCardState,
           ),
         }
       })
@@ -4370,6 +4427,19 @@ export function WorkspaceSurface({
     onOpenComposeSidebar: (panel) => {
       setComposeSidebarPanel(panel)
       selectSingleLayer(null)
+    },
+    onOpenCardPatternSettings: () => {
+      setSelectedCardState((current) => ({
+        ...current,
+        enabled: true,
+        styleMode: "pattern",
+      }))
+      selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
+      if (chrome === "canvas-only") {
+        setDesktopRailTool("card-pattern")
+      } else {
+        setActiveTool("card-pattern")
+      }
     },
     onCloseComposeSidebar: () => {
       setComposeSidebarPanel(null)
@@ -4956,6 +5026,19 @@ export function WorkspaceSurface({
                   <InsertMenu
                     nodeId={activeQrNodeId}
                     onBrowseStockPhotos={handleBrowseStockPhotos}
+                    onOpenCardPatternSettings={() => {
+                      setSelectedCardState((current) => ({
+                        ...current,
+                        enabled: true,
+                        styleMode: "pattern",
+                      }))
+                      selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
+                      if (chrome === "canvas-only") {
+                        setDesktopRailTool("card-pattern")
+                      } else {
+                        setActiveTool("card-pattern")
+                      }
+                    }}
                     onInsertLayer={handleInsertLayer}
                   />
                 </div>
@@ -5005,6 +5088,19 @@ export function WorkspaceSurface({
               canUndo={canUndoDraftingWorkspace}
               insertNodeId={activeQrNodeId}
               onBrowseStockPhotos={handleBrowseStockPhotos}
+              onOpenCardPatternSettings={() => {
+                setSelectedCardState((current) => ({
+                  ...current,
+                  enabled: true,
+                  styleMode: "pattern",
+                }))
+                selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
+                if (chrome === "canvas-only") {
+                  setDesktopRailTool("card-pattern")
+                } else {
+                  setActiveTool("card-pattern")
+                }
+              }}
               onAddQrCode={() => {
                 void handleAddQrCode()
               }}
@@ -5065,7 +5161,9 @@ function getDesktopToolbarToolId(toolId: DraftingToolId): DesktopToolbarToolId |
 }
 
 function getDraftingToolIdFromDesktop(toolId: DesktopToolbarToolId): DraftingToolId {
-  return toolId === "pattern" ? "style" : toolId
+  if (toolId === "pattern") return "style"
+  if (toolId === "card-pattern") return "card-pattern"
+  return toolId
 }
 
 function getDesktopLogoSourceMode(source: AssetSourceMode): DesktopLogoSourceMode {

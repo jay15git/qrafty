@@ -54,10 +54,13 @@ import { useIconstackIconSearch } from "@/features/qr-code/hooks/useIconstackIco
 import {
   DRAFTING_CARD_PATTERN_NONE_ID,
   DRAFTING_CARD_PATTERNS,
+  getDraftingCardPatternById,
   getDraftingCardPatternStyle,
+  type DraftingCardPatternColorOverrides,
+  type DraftingCardPatternId,
   type DraftingCardPatternSelectionId,
 } from "@/features/workspace/model/card-patterns"
-import { DEFAULT_DRAFTING_CARD_STATE } from "@/features/workspace/model/card-state"
+import { DEFAULT_DRAFTING_CARD_STATE, type DraftingCardSizeMode } from "@/features/workspace/model/card-state"
 import {
   getCardGeneratedShaderDefinitions,
   getCardImageFilterDefinitions,
@@ -222,6 +225,8 @@ import {
 } from "@/features/qr-code/content/input-options"
 import { DesktopCodeExportInspector } from "@/features/desktop-shell/components/DesktopCodeExportInspector"
 import { DesktopPexelsPhotoInspector } from "@/features/desktop-shell/components/DesktopPexelsPhotoInspector"
+import { DesktopSizeTemplateInspector } from "@/features/desktop-shell/components/DesktopSizeTemplateInspector"
+import { getCanvasSizeFromTemplate } from "@/features/workspace/model/size-templates"
 import { DownloadIcon as AnimatedDownloadIcon } from "@/components/ui/download"
 import {
   DraggableList,
@@ -250,6 +255,7 @@ export type DesktopToolbarToolId =
   | "logo"
   | "shape"
   | "motion"
+  | "card-pattern"
   | "text"
   | "image"
   | "decorations"
@@ -304,6 +310,12 @@ const DESKTOP_TOOLBAR_TOOLS: DesktopToolbarTool[] = [
     id: "motion",
     title: "Motion",
     renderIcon: () => <PlayIcon size={18} />,
+  },
+  {
+    group: "Add",
+    id: "card-pattern",
+    title: "Pattern",
+    renderIcon: () => <GalleryVerticalEndIcon size={18} />,
   },
   {
     group: "Manage",
@@ -440,8 +452,12 @@ export type DesktopShapeSettings = {
   backgroundShapeId: QrBackgroundShapeId
   bottomSpace: number
   cardFill: string
+  cardHeight: number
+  cardPatternColors: Partial<Record<DraftingCardPatternId, DraftingCardPatternColorOverrides>>
   cardPatternId: DraftingCardPatternSelectionId
   cardRadius: number
+  cardWidth: number
+  lockAspectRatio: boolean
   shapeColorMode: DesktopShapeColorMode
   shapeGradient: StudioGradient
   shapePadding: number
@@ -456,6 +472,8 @@ export type DesktopShapeSettings = {
   shadowOffsetX: number
   shadowOffsetY: number
   shadowOpacity: number
+  sizeMode: DraftingCardSizeMode
+  sizePresetId?: string
 }
 
 export type DesktopMotionSettings = QrDotMatrixAnimationOptions
@@ -585,6 +603,7 @@ export type DesktopToolbarController = {
   appearanceSnapshot?: DesktopAppearanceSnapshot | null
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
   onOpenComposeSidebar?: (panel: "stock-photos") => void
+  onOpenCardPatternSettings?: () => void
   onCloseComposeSidebar?: () => void
   onSelectStockPhoto?: (imageUrl: string) => void
   onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
@@ -841,8 +860,12 @@ const DEFAULT_DESKTOP_SHAPE_SETTINGS: DesktopShapeSettings = {
   backgroundShapeId: "none",
   bottomSpace: DEFAULT_DRAFTING_CARD_STATE.bottomSpace,
   cardFill: DEFAULT_DRAFTING_CARD_STATE.fill,
+  cardHeight: DEFAULT_DRAFTING_CARD_STATE.height,
+  cardPatternColors: DEFAULT_DRAFTING_CARD_STATE.patternColors,
   cardPatternId: DEFAULT_DRAFTING_CARD_STATE.patternId,
   cardRadius: DEFAULT_DRAFTING_CARD_STATE.cornerRadius,
+  cardWidth: DEFAULT_DRAFTING_CARD_STATE.width,
+  lockAspectRatio: DEFAULT_DRAFTING_CARD_STATE.lockAspectRatio,
   shapeColorMode: "solid",
   shapeGradient: {
     enabled: true,
@@ -865,6 +888,8 @@ const DEFAULT_DESKTOP_SHAPE_SETTINGS: DesktopShapeSettings = {
   shadowOffsetX: DEFAULT_DRAFTING_CARD_STATE.shadow.offsetX,
   shadowOffsetY: DEFAULT_DRAFTING_CARD_STATE.shadow.offsetY,
   shadowOpacity: DEFAULT_DRAFTING_CARD_STATE.shadow.opacity,
+  sizeMode: DEFAULT_DRAFTING_CARD_STATE.sizeMode,
+  sizePresetId: DEFAULT_DRAFTING_CARD_STATE.sizePresetId,
 }
 
 const DEFAULT_DESKTOP_MOTION_SETTINGS: DesktopMotionSettings = {
@@ -3128,6 +3153,27 @@ function DesktopShapeInspector({
       <DesktopInspectorHeader title="Shape" />
 
       <DesktopInspectorScrollArea>
+        <DesktopSizeTemplateInspector
+          settings={{
+            cardHeight: settings.cardHeight,
+            cardWidth: settings.cardWidth,
+            lockAspectRatio: settings.lockAspectRatio,
+            sizeMode: settings.sizeMode,
+            sizePresetId: settings.sizePresetId,
+          }}
+          onChange={(patch) => onShapeSettingsChange(patch)}
+          onSelectTemplate={(template) => {
+            const canvasSize = getCanvasSizeFromTemplate(template)
+            onShapeSettingsChange({
+              cardHeight: canvasSize.height,
+              cardWidth: canvasSize.width,
+              lockAspectRatio: true,
+              sizeMode: "fixed",
+              sizePresetId: template.id,
+            })
+          }}
+        />
+
         <DesktopInspectorSection>
           <div className="mb-2 min-w-0">
             <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Shape Options</p>
@@ -3262,49 +3308,118 @@ function DesktopShapeInspector({
           </div>
         </DesktopInspectorSection>
 
-        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Fill</p>
-          <DesktopColorInputRow
-            label="Shape fill color"
-            value={settings.cardFill}
-            onChange={(cardFill) => onShapeSettingsChange({ cardFill })}
-          />
-          <DesktopInspectorOptionGridScrollArea
-            ariaLabel="Shape fill patterns"
-            className="mt-2.5"
-            columns={2}
-            dataSlot="desktop-shape-patterns-scroll-area"
-            rowKind="labeled"
-            shelfDataSlot="desktop-shape-patterns"
-            variant="compact"
-          >
-            <DesktopInspectorAnimatedOptionGrid
-              columns={2}
-              data-slot="desktop-shape-patterns"
-              selectedKey={settings.cardPatternId}
-            >
-              <DesktopPatternSwatchButton
-                label="None"
-                selected={settings.cardPatternId === DRAFTING_CARD_PATTERN_NONE_ID}
-                style={{ backgroundColor: settings.cardFill }}
-                onClick={() => onShapeSettingsChange({ cardPatternId: DRAFTING_CARD_PATTERN_NONE_ID })}
-              />
-              {DRAFTING_CARD_PATTERNS.map((pattern) => (
-                <DesktopPatternSwatchButton
-                  key={pattern.id}
-                  label={pattern.label}
-                  selected={settings.cardPatternId === pattern.id}
-                  style={getDraftingCardPatternStyle(pattern.id, {}) ?? pattern.style}
-                  onClick={() => onShapeSettingsChange({ cardPatternId: pattern.id })}
-                />
-              ))}
-            </DesktopInspectorAnimatedOptionGrid>
-          </DesktopInspectorOptionGridScrollArea>
-        </DesktopInspectorSection>
-
       </DesktopInspectorScrollArea>
 
     </div>
+  )
+}
+
+function DesktopCardFillPatternInspector({
+  onShapeSettingsChange,
+  settings,
+}: {
+  onShapeSettingsChange: (patch: Partial<DesktopShapeSettings>) => void
+  settings: DesktopShapeSettings
+}) {
+  return (
+    <div data-slot="desktop-card-pattern-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <DesktopInspectorHeader title="Pattern" />
+      <DesktopInspectorScrollArea>
+        <DesktopCardFillPatternSection
+          cardFill={settings.cardFill}
+          cardPatternColors={settings.cardPatternColors}
+          cardPatternId={settings.cardPatternId}
+          onShapeSettingsChange={onShapeSettingsChange}
+        />
+      </DesktopInspectorScrollArea>
+    </div>
+  )
+}
+
+function DesktopCardFillPatternSection({
+  cardFill,
+  cardPatternColors,
+  cardPatternId,
+  onShapeSettingsChange,
+}: {
+  cardFill: string
+  cardPatternColors: Partial<Record<DraftingCardPatternId, DraftingCardPatternColorOverrides>>
+  cardPatternId: DraftingCardPatternSelectionId
+  onShapeSettingsChange: (patch: Partial<DesktopShapeSettings>) => void
+}) {
+  const selectedPattern = getDraftingCardPatternById(cardPatternId)
+  const selectedPatternId = selectedPattern?.id as DraftingCardPatternId | undefined
+  const patternColorOverrides =
+    selectedPatternId !== undefined ? (cardPatternColors[selectedPatternId] ?? {}) : {}
+
+  return (
+    <>
+      <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+        <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Pattern</p>
+        <DesktopInspectorOptionGridScrollArea
+          ariaLabel="Shape fill patterns"
+          columns={3}
+          dataSlot="desktop-card-pattern-scroll-area"
+          rowKind="square"
+          shelfDataSlot="desktop-card-patterns"
+          variant="compact"
+        >
+          <DesktopInspectorAnimatedOptionGrid
+            columns={3}
+            data-slot="desktop-card-patterns"
+            selectedKey={cardPatternId}
+          >
+            {DRAFTING_CARD_PATTERNS.map((pattern) => (
+              <DesktopPatternSwatchButton
+                key={pattern.id}
+                hideLabel
+                label={pattern.label}
+                selected={cardPatternId === pattern.id}
+                style={pattern.style}
+                onClick={() => onShapeSettingsChange({ cardPatternId: pattern.id })}
+              />
+            ))}
+          </DesktopInspectorAnimatedOptionGrid>
+        </DesktopInspectorOptionGridScrollArea>
+      </DesktopInspectorSection>
+
+      <DesktopInspectorSection
+        className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, "mt-2.5")}
+        dataSlot="desktop-card-pattern-colors"
+      >
+        <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Color</p>
+        {selectedPattern ? (
+          selectedPattern.colorSlots.map((slot, index) => {
+            const colorLabel = `Color ${index + 1}`
+
+            return (
+              <DesktopColorInputRow
+                key={slot.id}
+                label={colorLabel}
+                value={patternColorOverrides[slot.id] ?? slot.defaultValue}
+                onChange={(value) =>
+                  onShapeSettingsChange({
+                    cardPatternColors: {
+                      ...cardPatternColors,
+                      [selectedPatternId!]: {
+                        ...(cardPatternColors[selectedPatternId!] ?? {}),
+                        [slot.id]: value,
+                      },
+                    },
+                  })
+                }
+              />
+            )
+          })
+        ) : (
+          <DesktopColorInputRow
+            label="Color 1"
+            value={cardFill}
+            onChange={(nextFill) => onShapeSettingsChange({ cardFill: nextFill })}
+          />
+        )}
+      </DesktopInspectorSection>
+    </>
   )
 }
 
@@ -4581,11 +4696,13 @@ function DesktopNumberRow({
 }
 
 function DesktopPatternSwatchButton({
+  hideLabel = false,
   label,
   onClick,
   selected,
   style,
 }: {
+  hideLabel?: boolean
   label: string
   onClick: () => void
   selected: boolean
@@ -4598,8 +4715,8 @@ function DesktopPatternSwatchButton({
       data-desktop-animated-option-selection="true"
       data-desktop-option-tile="true"
       className={cn(
-        "group flex w-full min-w-0 flex-col items-center gap-1 text-center transition",
-        desktopInspectorOptionGridItemClass(),
+        "group flex w-full min-w-0 flex-col items-center text-center transition",
+        hideLabel ? "gap-0 p-2" : cn("gap-1", desktopInspectorOptionGridItemClass()),
         DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
         selected && "text-[var(--desktop-inspector-option-selected-fg)]",
@@ -4614,12 +4731,14 @@ function DesktopPatternSwatchButton({
           style={style}
         />
       </span>
-      <span
-        data-desktop-preview-caption="true"
-        className="relative z-10 block w-full truncate px-0.5 text-center text-inherit"
-      >
-        {label}
-      </span>
+      {hideLabel ? null : (
+        <span
+          data-desktop-preview-caption="true"
+          className="relative z-10 block w-full truncate px-0.5 text-center text-inherit"
+        >
+          {label}
+        </span>
+      )}
     </button>
   )
 }
@@ -6211,6 +6330,11 @@ export function DesktopFloatingInspector({
         <DesktopMotionInspector
           settings={actualMotionSettings}
           onMotionSettingsChange={onMotionSettingsChange}
+        />
+      ) : activeTool === "card-pattern" ? (
+        <DesktopCardFillPatternInspector
+          settings={actualShapeSettings}
+          onShapeSettingsChange={onShapeSettingsChange}
         />
       ) : activeTool === "layers" ? (
         <DesktopLayersInspector

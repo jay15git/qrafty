@@ -5,6 +5,7 @@ import {
   cloneDraftingCardState,
   createDefaultDraftingCardPaperShader,
   createDefaultDraftingCardState,
+  normalizeDraftingCardState,
 } from "@/features/workspace/model/card-state"
 
 describe("drafting card state", () => {
@@ -110,5 +111,21 @@ describe("drafting card state", () => {
     expect(paperShader.shaderId).toBe("image-dithering")
     expect(paperShader.image.source).toBe("sample")
     expect(paperShader.image.value).toContain("data:image/svg+xml")
+  })
+
+  it("resolves canvas dimensions from size presets using the max-edge baseline", () => {
+    const state = normalizeDraftingCardState({
+      ...createDefaultDraftingCardState(),
+      height: 7200,
+      sizeMode: "fixed",
+      sizePresetId: "print-poster-18x24",
+      width: 5400,
+    })
+
+    expect(state).toMatchObject({
+      height: 1080,
+      sizePresetId: "print-poster-18x24",
+      width: 810,
+    })
   })
 })

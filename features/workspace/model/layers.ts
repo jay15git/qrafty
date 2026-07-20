@@ -36,6 +36,7 @@ import { getQrRenderedDimensions } from "@/features/qr-code/rendering/svg-extens
 import type { QrBackgroundShapeId } from "@/features/qr-code/styles/background-shapes"
 import {
   clampBackgroundShapeTilt,
+  clampQrSize,
   type QrStudioState,
   type StudioGradient,
 } from "@/features/qr-code/model/state"
@@ -197,11 +198,63 @@ export function isDraftingQrLayerId(layerId: string | null | undefined) {
   return Boolean(layerId?.endsWith(DRAFTING_QR_LAYER_SUFFIX))
 }
 
-export function getDraftingCardInsetLayout(
+export function fitQrSizeInCard(
   qrState: QrStudioState,
-  cardState: Pick<DraftingCardState, "bottomSpace" | "padding">,
+  cardState: Pick<DraftingCardState, "bottomSpace" | "height" | "padding" | "sizeMode" | "width">,
 ) {
   const qrDimensions = getQrRenderedDimensions(qrState)
+
+  if (cardState.sizeMode !== "fixed") {
+    return {
+      height: qrDimensions.height,
+      width: qrDimensions.width,
+    }
+  }
+
+  const availableWidth = Math.max(24, cardState.width - cardState.padding * 2)
+  const availableHeight = Math.max(
+    24,
+    cardState.height - cardState.padding * 2 - cardState.bottomSpace,
+  )
+  const fittedSize = clampQrSize(Math.min(availableWidth, availableHeight, qrDimensions.width))
+
+  return {
+    height: fittedSize,
+    width: fittedSize,
+  }
+}
+
+export function getDraftingCardInsetLayout(
+  qrState: QrStudioState,
+  cardState: Pick<
+    DraftingCardState,
+    "bottomSpace" | "height" | "padding" | "sizeMode" | "width"
+  >,
+) {
+  const qrDimensions = fitQrSizeInCard(qrState, cardState)
+
+  if (cardState.sizeMode === "fixed") {
+    const cardWidth = cardState.width
+    const cardHeight = cardState.height
+    const cardX = -cardWidth / 2
+    const cardY = -cardHeight / 2
+
+    return {
+      card: {
+        height: cardHeight,
+        width: cardWidth,
+        x: cardX,
+        y: cardY,
+      },
+      qr: {
+        height: qrDimensions.height,
+        width: qrDimensions.width,
+        x: -qrDimensions.width / 2,
+        y: cardY + cardState.padding,
+      },
+    }
+  }
+
   const cardWidth = qrDimensions.width + cardState.padding * 2
   const cardHeight = qrDimensions.height + cardState.padding * 2 + cardState.bottomSpace
   const cardX = -cardWidth / 2
@@ -215,6 +268,8 @@ export function getDraftingCardInsetLayout(
       y: cardY,
     },
     qr: {
+      height: qrDimensions.height,
+      width: qrDimensions.width,
       x: -qrDimensions.width / 2,
       y: cardY + cardState.padding,
     },
@@ -224,7 +279,10 @@ export function getDraftingCardInsetLayout(
 export function layoutDraftingCardInsetLayers(
   layers: DraftingCanvasLayer[],
   qrState: QrStudioState,
-  cardState: Pick<DraftingCardState, "bottomSpace" | "padding">,
+  cardState: Pick<
+    DraftingCardState,
+    "bottomSpace" | "height" | "padding" | "sizeMode" | "width"
+  >,
 ): DraftingCanvasLayer[] {
   const layout = getDraftingCardInsetLayout(qrState, cardState)
 
@@ -246,7 +304,7 @@ export function createDefaultDraftingLayers(
   qrState: QrStudioState,
   cardState: DraftingCardState,
 ): DraftingCanvasLayer[] {
-  const qrDimensions = getQrRenderedDimensions(qrState)
+  const qrDimensions = fitQrSizeInCard(qrState, cardState)
   const layout = getDraftingCardInsetLayout(qrState, cardState)
 
   return [

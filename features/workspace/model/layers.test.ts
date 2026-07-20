@@ -13,6 +13,8 @@ import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,
   distributeDraftingCanvasLayers,
+  fitQrSizeInCard,
+  getDraftingCardInsetLayout,
   getDraftingMarqueeSelection,
   groupDraftingCanvasLayers,
   layoutDraftingCardInsetLayers,
@@ -44,6 +46,57 @@ describe("drafting layer state actions", () => {
       x: fresh.find((layer) => layer.kind === "qr")?.x,
       y: fresh.find((layer) => layer.kind === "qr")?.y,
     })
+  })
+
+  it("uses fixed card dimensions and fits the qr inside padding and bottom space", () => {
+    const qrState = createDefaultQrStudioState()
+    const cardState = {
+      ...createDefaultDraftingCardState(),
+      sizeMode: "fixed" as const,
+      width: 1050,
+      height: 600,
+      padding: 24,
+      bottomSpace: 80,
+    }
+    const layout = getDraftingCardInsetLayout(qrState, cardState)
+
+    expect(layout.card).toMatchObject({
+      width: 1050,
+      height: 600,
+      x: -525,
+      y: -300,
+    })
+
+    const fittedQr = fitQrSizeInCard(qrState, cardState)
+    expect(fittedQr.width).toBe(fittedQr.height)
+    expect(fittedQr.width).toBeLessThanOrEqual(1050 - 48)
+    expect(fittedQr.width).toBeLessThanOrEqual(600 - 48 - 80)
+
+    const layers = layoutDraftingCardInsetLayers(
+      createDefaultDraftingLayers("preview", qrState, cardState),
+      qrState,
+      cardState,
+    )
+
+    expect(layers.find((layer) => layer.kind === "card")).toMatchObject(layout.card)
+    expect(layers.find((layer) => layer.kind === "qr")).toMatchObject({
+      width: fittedQr.width,
+      height: fittedQr.height,
+      x: -fittedQr.width / 2,
+      y: layout.card.y + cardState.padding,
+    })
+  })
+
+  it("keeps auto card sizing derived from qr dimensions", () => {
+    const qrState = createDefaultQrStudioState()
+    const cardState = createDefaultDraftingCardState()
+    const layout = getDraftingCardInsetLayout(qrState, cardState)
+
+    expect(cardState.sizeMode).toBe("auto")
+    expect(layout.card.width).toBe(qrState.width + cardState.padding * 2)
+    expect(layout.card.height).toBe(
+      qrState.height + cardState.padding * 2 + cardState.bottomSpace,
+    )
   })
 
   it("moves a layer through the z-index stack", () => {

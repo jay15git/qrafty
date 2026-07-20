@@ -1,6 +1,7 @@
 import {
   cloneDraftingCardState,
   createDefaultDraftingCardState,
+  normalizeDraftingCardState,
   type DraftingCardState,
 } from "@/features/workspace/model/card-state"
 import {
@@ -327,7 +328,7 @@ function parseCardState(value: unknown): DraftingCardState {
     return fallback
   }
 
-  return cloneDraftingCardState({
+  return normalizeDraftingCardState({
     ...fallback,
     ...structuredClone(value),
   } as DraftingCardState)

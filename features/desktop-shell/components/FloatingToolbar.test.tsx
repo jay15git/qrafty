@@ -836,6 +836,25 @@ describe("FloatingToolbar", () => {
     expect(inspector?.textContent).not.toContain("Coming soon")
   })
 
+  it("renders card size templates in the shape inspector", async () => {
+    const surface = await renderPrototype()
+    await openTool(surface.container, "shape")
+
+    const sizeSection = surface.container.querySelector('[data-slot="desktop-card-size"]')
+    const templateSection = surface.container.querySelector('[data-slot="desktop-size-template-section"]')
+    expect(sizeSection).not.toBeNull()
+    expect(templateSection).not.toBeNull()
+    expect(sizeSection?.textContent).toContain("Size")
+    expect(templateSection?.querySelector('[data-slot="desktop-size-filter-search-row"]')).not.toBeNull()
+    expect(
+      templateSection?.querySelector('input[placeholder="Search"]'),
+    ).not.toBeNull()
+    expect(
+      surface.container.querySelector('button[aria-label="Use Business card size 1050 by 600"]'),
+    ).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-size-template-collection"]')).not.toBeNull()
+  })
+
   it("renders shape options, color controls, and preset shelf", async () => {
     const surface = await renderPrototype()
     await openTool(surface.container, "shape")
@@ -870,17 +889,25 @@ describe("FloatingToolbar", () => {
     expect(inspector?.textContent).not.toContain("Reset Shape")
   })
 
-  it("lists every drafting card pattern in the shape fill grid", async () => {
+  it("lists every drafting card pattern in the card pattern fill grid", async () => {
     const surface = await renderPrototype()
-    await openTool(surface.container, "shape")
+    await openTool(surface.container, "card-pattern")
 
-    const patternGrid = surface.container.querySelector('[data-slot="desktop-shape-patterns"]')
+    const patternGrid = surface.container.querySelector('[data-slot="desktop-card-patterns"]')
 
     expect(patternGrid).not.toBeNull()
-    expect(patternGrid?.querySelectorAll("button").length).toBe(DRAFTING_CARD_PATTERNS.length + 1)
+    expect(patternGrid?.querySelectorAll("button").length).toBe(DRAFTING_CARD_PATTERNS.length)
     expect(
       surface.container.querySelector('button[aria-label="Use Pattern 145 decoration pattern"]'),
     ).not.toBeNull()
+  })
+
+  it("does not render card fill patterns in the frame inspector", async () => {
+    const surface = await renderPrototype()
+    await openTool(surface.container, "shape")
+
+    expect(surface.container.querySelector('[data-slot="desktop-card-patterns"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-shape-patterns"]')).toBeNull()
   })
 
   it("does not cap shape fill patterns in the desktop inspector source", () => {
@@ -890,6 +917,45 @@ describe("FloatingToolbar", () => {
     )
 
     expect(source).not.toContain("DRAFTING_CARD_PATTERNS.slice(0, 8)")
+  })
+
+  it("shows pattern color inputs for the selected card fill pattern", async () => {
+    const surface = await renderPrototype()
+    await openTool(surface.container, "card-pattern")
+
+    const pattern003 = getRequiredButton(surface.container, "Use Pattern 003 decoration pattern")
+    await clickButton(pattern003)
+
+    const colorRows = surface.container.querySelector('[data-slot="desktop-card-pattern-colors"]')
+    expect(colorRows).not.toBeNull()
+    expect(getRequiredInput(surface.container, "Color 1").value).toBe("#c02942")
+    expect(getRequiredInput(surface.container, "Color 2").value).toBe("#53777a")
+    expect(getRequiredInput(surface.container, "Color 3").value).toBe("#ecd078")
+    expect(getRequiredInput(surface.container, "Color 4").value).toBe("#d95b43")
+
+    const pattern005 = getRequiredButton(surface.container, "Use Pattern 005 decoration pattern")
+    await clickButton(pattern005)
+
+    expect(surface.container.querySelectorAll('[data-slot="desktop-card-pattern-colors"] input')).toHaveLength(2)
+    expect(getRequiredInput(surface.container, "Color 1").value).toBe("#f7d2a1")
+    expect(getRequiredInput(surface.container, "Color 2").value).toBe("#05057e")
+
+    await act(async () => {
+      setInputValue(getRequiredInput(surface.container, "Color 1"), "#112233")
+    })
+
+    expect(getRequiredInput(surface.container, "Color 1").value).toBe("#112233")
+  })
+
+  it("shows only base color when no card pattern is selected", async () => {
+    const surface = await renderPrototype()
+    await openTool(surface.container, "card-pattern")
+
+    expect(surface.container.querySelectorAll('[data-slot="desktop-card-pattern-colors"] input')).toHaveLength(1)
+    expect(getRequiredInput(surface.container, "Color 1").value).toBe("#ffd80a")
+
+    await clickButton(getRequiredButton(surface.container, "Use Pattern 003 decoration pattern"))
+    expect(surface.container.querySelectorAll('[data-slot="desktop-card-pattern-colors"] input')).toHaveLength(4)
   })
 
   it("selects a shape preset without changing shape color mode", async () => {
