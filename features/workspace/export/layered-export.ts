@@ -15,6 +15,7 @@ export async function buildDraftingLayeredNodePayload({
   layers,
   name,
   nodeId,
+  sceneComposition,
   state,
   shaderSnapshots,
 }: {
@@ -22,6 +23,7 @@ export async function buildDraftingLayeredNodePayload({
   layers: DraftingCanvasLayer[]
   name: string
   nodeId: string
+  sceneComposition?: import("@/features/workspace/model/scene-templates").SceneCompositionState
   state: QrStudioState
   shaderSnapshots?: Record<string, string>
 }) {
@@ -32,6 +34,7 @@ export async function buildDraftingLayeredNodePayload({
   const ir = await buildSceneIr({
     cardState,
     layers: visibleLayers,
+    sceneComposition,
     state,
     qrMarkup: qrArtworkMarkup,
     componentName: name.replace(/[^a-zA-Z0-9]/g, "") || "QrCard",

@@ -24,6 +24,8 @@ import {
 } from "@/features/library/model/storage"
 import type { StudioNavigationIntent } from "@/features/studio-hub/model/navigation"
 import { getTemplateById } from "@/features/studio-hub/model/templates"
+import { applySceneTemplate } from "@/features/workspace/model/apply-scene-template"
+import { getSceneTemplate } from "@/features/workspace/model/scene-templates"
 
 export type BootstrapDocumentOptions = StudioNavigationIntent
 
@@ -127,6 +129,19 @@ export async function createDocumentFromHubIntent(
   if (intent.source === "template" && intent.templateId) {
     const template = getTemplateById(intent.templateId)
     if (template) {
+      const hubToSceneTemplateMap: Record<string, string> = {
+        "minimal-ink": "solid-ink",
+        "ocean-gradient": "gradient-ocean",
+        "neon-pulse": "gradient-neon",
+        "business-card": "minimal-neutral",
+        "instagram-glow": "gradient-pastel",
+      }
+      const sceneTemplateId = hubToSceneTemplateMap[intent.templateId]
+      const sceneTemplate = sceneTemplateId ? getSceneTemplate(sceneTemplateId) : undefined
+      if (sceneTemplate) {
+        const seeded = cloneDraftingWorkspaceDocument(template.document)
+        return applySceneTemplate(seeded, sceneTemplate.id, { preserveContent: true })
+      }
       return cloneDraftingWorkspaceDocument(template.document)
     }
   }

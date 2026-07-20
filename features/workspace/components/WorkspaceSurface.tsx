@@ -90,6 +90,25 @@ import {
   type DraftingWorkspaceDocumentV1,
 } from "@/features/workspace/model/document"
 import {
+  applySceneCompositionPatch,
+  applySceneTemplate,
+  cloneSceneCompositionByNodeId,
+  createDefaultSceneCompositionByNodeId,
+  type SceneCompositionByNodeId,
+} from "@/features/workspace/model/apply-scene-template"
+import {
+  getExportPreset,
+  resolveExportDimensions,
+  type ExportPresetId,
+} from "@/features/workspace/model/export-presets"
+import {
+  createDefaultSceneComposition,
+  normalizeSceneComposition,
+  type SceneLayoutPreset,
+  type SceneTemplate,
+} from "@/features/workspace/model/scene-templates"
+import { getCanvasSizeFromTemplate } from "@/features/workspace/model/size-templates"
+import {
   readDraftingWorkspaceDraft,
   writeDraftingWorkspaceDraft,
 } from "@/features/workspace/model/storage"
@@ -787,6 +806,10 @@ export function WorkspaceSurface({
   const [cardStateByNodeId, setCardStateByNodeId] = useState<DraftingCardStateByNodeId>(() => ({
     [DASHBOARD_QR_NODE_ID]: createDefaultDraftingCardState(),
   }))
+  const [sceneCompositionByNodeId, setSceneCompositionByNodeId] =
+    useState<SceneCompositionByNodeId>(() => ({
+      [DASHBOARD_QR_NODE_ID]: createDefaultSceneComposition(),
+    }))
   const [layerStateByNodeId, setLayerStateByNodeId] = useState<DraftingLayerStateByNodeId>(() => {
     const qrState = createDefaultDraftingWorkspaceQrState()
     const cardState = createDefaultDraftingCardState()
@@ -815,6 +838,10 @@ export function WorkspaceSurface({
   const [isDownloadPopoverOpen, setIsDownloadPopoverOpen] = useState(false)
   const [selectedRasterExportPresetId, setSelectedRasterExportPresetId] =
     useState<DraftingRasterExportPresetId>(DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID)
+  const [selectedExportPresetId, setSelectedExportPresetId] = useState<ExportPresetId | undefined>(
+    undefined,
+  )
+  const [selectedUsePlatformExportPreset, setSelectedUsePlatformExportPreset] = useState(false)
   const [draftingExportSizePreview, setDraftingExportSizePreview] =
     useState<DraftingExportSizePreview>({
       status: "idle",
@@ -1056,6 +1083,17 @@ export function WorkspaceSurface({
   const selectedRasterExportTargetSizePx = isDraftingRasterExport
     ? selectedRasterExportPreset.sizePx
     : undefined
+  const selectedPlatformExportDimensions = useMemo(() => {
+    if (!selectedUsePlatformExportPreset || !selectedExportPresetId) {
+      return undefined
+    }
+
+    const preset = getExportPreset(selectedExportPresetId)
+    return preset ? resolveExportDimensions(preset) : undefined
+  }, [selectedExportPresetId, selectedUsePlatformExportPreset])
+  const activeSceneComposition = normalizeSceneComposition(
+    sceneCompositionByNodeId[activeQrNodeId] ?? createDefaultSceneComposition(),
+  )
 
   const qrNodeIds = useMemo(() => Object.keys(qrStateByNodeId), [qrStateByNodeId])
   const qrPaneNamesById = useMemo(() => {
@@ -1127,6 +1165,7 @@ export function WorkspaceSurface({
       draftingStudioState,
       layerStateByNodeId,
       qrStateByNodeId,
+      sceneCompositionByNodeId,
       selectedCardState,
       selectedContentType,
     ],
@@ -1554,6 +1593,7 @@ export function WorkspaceSurface({
       layerStateByNodeId: nextLayerStateByNodeId,
       qrOrder,
       qrStateByNodeId: nextQrStateByNodeId,
+      sceneCompositionByNodeId: cloneSceneCompositionByNodeId(sceneCompositionByNodeId),
       selectedContentType,
       version: 1,
     }
@@ -1597,6 +1637,12 @@ export function WorkspaceSurface({
     setQrStateByNodeId(nextQrStateByNodeId)
     setCardStateByNodeId(nextCardStateByNodeId)
     setLayerStateByNodeId(nextLayerStateByNodeId)
+    setSceneCompositionByNodeId(
+      cloneSceneCompositionByNodeId(
+        nextDocument.sceneCompositionByNodeId ??
+          createDefaultSceneCompositionByNodeId(nextDocument),
+      ),
+    )
     setContentTypeByNodeId(structuredClone(nextDocument.contentTypeByNodeId))
     applyDraftingQrStateToControls(activeState)
     setSelectedContentType(nextDocument.selectedContentType)
@@ -2191,6 +2237,15 @@ export function WorkspaceSurface({
         nextNodeId,
         sourceState,
         selectedCardState,
+      ),
+    }))
+    setSceneCompositionByNodeId((current) => ({
+      ...current,
+      [activeQrNodeId]: normalizeSceneComposition(
+        current[activeQrNodeId] ?? createDefaultSceneComposition(),
+      ),
+      [nextNodeId]: normalizeSceneComposition(
+        current[activeQrNodeId] ?? createDefaultSceneComposition(),
       ),
     }))
 
@@ -2827,6 +2882,9 @@ export function WorkspaceSurface({
               layers: activeLayers,
               name: qrPaneNamesById.get(nodeId) ?? "QR Code",
               nodeId,
+              sceneComposition: normalizeSceneComposition(
+                sceneCompositionByNodeId[nodeId] ?? createDefaultSceneComposition(),
+              ),
               state: activeState,
             })
           }),
@@ -2841,7 +2899,10 @@ export function WorkspaceSurface({
           name: DEFAULT_DOWNLOAD_NAME,
           nodes,
           qualityPercent: draftingStudioState.rasterExportQualityPercent,
-          targetSizePx: selectedRasterExportTargetSizePx,
+          targetDimensions: selectedPlatformExportDimensions,
+          targetSizePx: selectedPlatformExportDimensions
+            ? undefined
+            : selectedRasterExportTargetSizePx,
         })
       } else if (
         selectedDownloadTarget === "current" ||
@@ -2869,6 +2930,9 @@ export function WorkspaceSurface({
           layers: activeLayers,
           name: qrPaneNamesById.get(nodeId) ?? "QR Code",
           nodeId,
+          sceneComposition: normalizeSceneComposition(
+            sceneCompositionByNodeId[nodeId] ?? createDefaultSceneComposition(),
+          ),
           state,
         })
 
@@ -2877,7 +2941,10 @@ export function WorkspaceSurface({
           name: qrPaneNamesById.get(nodeId) ?? "QR Code",
           node: payload,
           qualityPercent: draftingStudioState.rasterExportQualityPercent,
-          targetSizePx: selectedRasterExportTargetSizePx,
+          targetDimensions: selectedPlatformExportDimensions,
+          targetSizePx: selectedPlatformExportDimensions
+            ? undefined
+            : selectedRasterExportTargetSizePx,
         })
       } else if (selectedDownloadTarget === "surface") {
         const activeCardState = selectedCardState
@@ -2889,6 +2956,7 @@ export function WorkspaceSurface({
           layers: activeLayers,
           name: DEFAULT_DOWNLOAD_NAME,
           nodeId: activeQrNodeId,
+          sceneComposition: activeSceneComposition,
           state: draftingStudioState,
         })
 
@@ -2897,7 +2965,10 @@ export function WorkspaceSurface({
           name: DEFAULT_DOWNLOAD_NAME,
           node: payload,
           qualityPercent: draftingStudioState.rasterExportQualityPercent,
-          targetSizePx: selectedRasterExportTargetSizePx,
+          targetDimensions: selectedPlatformExportDimensions,
+          targetSizePx: selectedPlatformExportDimensions
+            ? undefined
+            : selectedRasterExportTargetSizePx,
         })
       }
     } catch (error) {
@@ -3803,6 +3874,9 @@ export function WorkspaceSurface({
               : (cardStateByNodeId[id] ?? selectedCardState),
           ),
         name: qrPaneNamesById.get(id) ?? "QR Code",
+        sceneComposition: normalizeSceneComposition(
+          sceneCompositionByNodeId[id] ?? createDefaultSceneComposition(),
+        ),
         state: id === activeQrNodeId ? draftingStudioState : (qrStateByNodeId[id] ?? draftingStudioState),
       })),
     [
@@ -3814,6 +3888,7 @@ export function WorkspaceSurface({
       activeQrNodeId,
       draftingStudioState,
       selectedCardState,
+      sceneCompositionByNodeId,
     ],
   )
 
@@ -3974,9 +4049,24 @@ export function WorkspaceSurface({
     selectedLayerId: selectedLayerId ?? activeCanvasLayerRows[0]?.id ?? "",
   }
   const desktopExportSettings: DesktopExportSettings = {
+    exportPresetId: selectedExportPresetId,
     extension: selectedDownloadExtension,
     qualityPresetId: selectedRasterExportPresetId,
     target: getDesktopExportTarget(selectedDownloadTarget),
+    usePlatformPreset: selectedUsePlatformExportPreset,
+  }
+  const desktopSceneTemplateSettings = {
+    selectedTemplateId: activeSceneComposition.templateId,
+    sizeSettings: {
+      cardHeight: selectedCardState.height,
+      cardWidth: selectedCardState.width,
+      lockAspectRatio: selectedCardState.lockAspectRatio,
+      sizeMode: selectedCardState.sizeMode,
+      sizePresetId: selectedCardState.sizePresetId,
+    },
+  }
+  const desktopLayoutSettings = {
+    layout: activeSceneComposition.layout,
   }
   const desktopTextSettings: DesktopTextSettings = getDesktopTextSettings(selectedTextLayer)
 
@@ -4388,6 +4478,8 @@ export function WorkspaceSurface({
     if (patch.extension) setSelectedDownloadExtension(patch.extension as DraftingDownloadExtension)
     if (patch.qualityPresetId) setSelectedRasterExportPresetId(patch.qualityPresetId)
     if (patch.target) setSelectedDownloadTarget(getDraftingDownloadTarget(patch.target))
+    if (patch.exportPresetId !== undefined) setSelectedExportPresetId(patch.exportPresetId)
+    if (patch.usePlatformPreset !== undefined) setSelectedUsePlatformExportPreset(patch.usePlatformPreset)
   }
 
   const scanSafetyResult = useQrScanSafety(draftingStudioState, {
@@ -4410,10 +4502,12 @@ export function WorkspaceSurface({
     accessibilitySettings: desktopAccessibilitySettings,
     exportSettings: desktopExportSettings,
     imageSettings: desktopImageSettings,
+    layoutSettings: desktopLayoutSettings,
     layersSettings: desktopLayersSettings,
     logoSettings: desktopLogoSettings,
     motionSettings: selectedDotMatrixAnimation as DesktopMotionSettings,
     patternSettings: desktopPatternSettings,
+    sceneTemplateSettings: desktopSceneTemplateSettings,
     shapeSettings: desktopShapeSettings,
     textSettings: desktopTextSettings,
     insertNodeId: activeQrNodeId,
@@ -4517,6 +4611,56 @@ export function WorkspaceSurface({
     onEncodingSettingsChange: updateDesktopEncodingSettings,
     onAccessibilityReset: () => setSelectedAriaLabel(""),
     onAccessibilitySettingsChange: updateDesktopAccessibilitySettings,
+    onApplyMockupStyle: (preset) => {
+      setSelectedCardState((current) =>
+        normalizeDraftingCardState({
+          ...current,
+          ...preset.cardState,
+        }),
+      )
+    },
+    onLayoutPresetSelect: (preset) => {
+      setSceneCompositionByNodeId((current) =>
+        applySceneCompositionPatch(current, activeQrNodeId, { layout: preset }),
+      )
+    },
+    onLayoutSettingsChange: (patch) => {
+      setSceneCompositionByNodeId((current) =>
+        applySceneCompositionPatch(current, activeQrNodeId, {
+          layout: { ...activeSceneComposition.layout, ...patch },
+        }),
+      )
+    },
+    onSceneTemplateSelect: (template: SceneTemplate) => {
+      const nextDocument = applySceneTemplate(draftingWorkspaceDocument, template.id, {
+        nodeId: activeQrNodeId,
+        preserveContent: true,
+      })
+      applyDraftingWorkspaceDocumentToControls(nextDocument)
+      if (template.exportPresetId) {
+        setSelectedExportPresetId(template.exportPresetId)
+        setSelectedUsePlatformExportPreset(true)
+      }
+    },
+    onSceneTemplateSizeChange: (patch) => {
+      updateDesktopShapeSettings({
+        cardHeight: patch.cardHeight,
+        cardWidth: patch.cardWidth,
+        lockAspectRatio: patch.lockAspectRatio,
+        sizeMode: patch.sizeMode,
+        sizePresetId: patch.sizePresetId,
+      })
+    },
+    onSceneTemplateSizeTemplateSelect: (template) => {
+      const canvasSize = getCanvasSizeFromTemplate(template)
+      updateDesktopShapeSettings({
+        cardHeight: canvasSize.height,
+        cardWidth: canvasSize.width,
+        lockAspectRatio: true,
+        sizeMode: "fixed",
+        sizePresetId: template.id,
+      })
+    },
     onExportDownload: () => {
       void handleDownload()
     },

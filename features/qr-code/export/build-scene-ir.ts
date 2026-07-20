@@ -8,6 +8,8 @@ import {
 } from "@/features/qr-code/model/state"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import type { SceneCompositionState } from "@/features/workspace/model/scene-templates"
+import type { SceneBackground } from "@/features/workspace/model/scene-templates"
 import {
   buildLayeredSvgParts,
   type LayeredSvgParts,
@@ -24,10 +26,26 @@ import type { PaperShaderParams } from "@/features/workspace/rendering/paper-sha
 export type BuildSceneIrOptions = {
   cardState: DraftingCardState
   layers: DraftingCanvasLayer[]
+  sceneComposition?: SceneCompositionState
   state: QrStudioState
   qrMarkup: string
   componentName?: string
   shaderSnapshots?: Record<string, string>
+}
+
+function buildSceneBackgroundSvg(
+  background: SceneBackground,
+  width: number,
+  height: number,
+): string {
+  switch (background.kind) {
+    case "solid":
+      return `<rect x="0" y="0" width="${width}" height="${height}" fill="${background.color}" data-export-kind="scene-background" />`
+    case "gradient":
+      return `<defs><linearGradient id="scene-bg-gradient" gradientTransform="rotate(${background.angle})"><stop offset="${background.stops[0].offset * 100}%" stop-color="${background.stops[0].color}" /><stop offset="${background.stops[1].offset * 100}%" stop-color="${background.stops[1].color}" /></linearGradient></defs><rect x="0" y="0" width="${width}" height="${height}" fill="url(#scene-bg-gradient)" data-export-kind="scene-background" />`
+    default:
+      return `<rect x="0" y="0" width="${width}" height="${height}" fill="#f4f4f5" data-export-kind="scene-background" />`
+  }
 }
 
 function findCardLayer(layers: DraftingCanvasLayer[]) {
@@ -174,6 +192,7 @@ function collectFontRefs(layers: DraftingCanvasLayer[]): SceneIrFontRef[] {
 export async function buildSceneIr({
   cardState,
   layers,
+  sceneComposition,
   state,
   qrMarkup,
   componentName,
@@ -215,10 +234,14 @@ export async function buildSceneIr({
         }
       : undefined
 
+  const sceneBackgroundMarkup = sceneComposition
+    ? buildSceneBackgroundSvg(sceneComposition.background, parts.bounds.width, parts.bounds.height)
+    : ""
+
   return {
     bounds: parts.bounds,
     defs: parts.defs,
-    body: parts.body,
+    body: `${sceneBackgroundMarkup}${parts.body}`,
     domLayers: animatedQr
       ? domParts.domLayers.filter((layer) => layer.kind !== "qr")
       : domParts.domLayers,

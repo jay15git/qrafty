@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, type ReactNode } from "react"
-import { CopyPlusIcon, FrameIcon, ImageIcon, SparklesIcon, TypeIcon } from "lucide-react"
+import { CopyPlusIcon, FrameIcon, Grid2X2Icon, ImageIcon, SparklesIcon, TypeIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
@@ -37,6 +37,7 @@ type InsertMenuProps = {
   canAddQrCode?: boolean
   onAddQrCode?: () => void
   onBrowseStockPhotos?: () => void
+  onOpenCardPatternSettings?: () => void
   triggerClassName?: string
   variant?: "rail" | "toolbar" | "bottom-toolbar"
 }
@@ -47,6 +48,7 @@ export function InsertMenu({
   canAddQrCode = true,
   onAddQrCode,
   onBrowseStockPhotos,
+  onOpenCardPatternSettings,
   triggerClassName,
   variant = "rail",
 }: InsertMenuProps) {
@@ -215,6 +217,21 @@ export function InsertMenu({
                 </>
               ),
             })}
+            {onOpenCardPatternSettings
+              ? renderMenuAction({
+                  onClick: () => {
+                    onOpenCardPatternSettings()
+                    closeMenu()
+                  },
+                  slot: "drafting-insert-menu-pattern",
+                  children: (
+                    <>
+                      <Grid2X2Icon className="size-4 shrink-0" data-icon="inline-start" />
+                      Pattern
+                    </>
+                  ),
+                })
+              : null}
             {renderMenuAction({
               onClick: () => setPanel("image"),
               children: (

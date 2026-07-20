@@ -29,6 +29,15 @@ import {
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
 import {
+  cloneSceneCompositionByNodeId,
+  createDefaultSceneCompositionByNodeId,
+  type SceneCompositionByNodeId,
+} from "@/features/workspace/model/apply-scene-template"
+import {
+  normalizeSceneComposition,
+  type SceneCompositionState,
+} from "@/features/workspace/model/scene-templates"
+import {
   getDefaultStaticQrValues,
   type StaticQrContentValues,
 } from "@/features/qr-code/content/static-payload"
@@ -45,6 +54,7 @@ export type DraftingWorkspaceDocumentV1 = {
   layerStateByNodeId: DraftingLayerStateByNodeId
   qrOrder: string[]
   qrStateByNodeId: DraftingQrStateByNodeId
+  sceneCompositionByNodeId: SceneCompositionByNodeId
   selectedContentType: QrInputType
   version: 1
 }
@@ -72,6 +82,7 @@ export function cloneDraftingWorkspaceDocument(
         cloneDraftingQrState(state),
       ]),
     ),
+    sceneCompositionByNodeId: cloneSceneCompositionByNodeId(document.sceneCompositionByNodeId),
     selectedContentType: document.selectedContentType,
     version: 1,
   }
@@ -80,8 +91,7 @@ export function cloneDraftingWorkspaceDocument(
 export function createDefaultDraftingWorkspaceDocument(): DraftingWorkspaceDocumentV1 {
   const qrState = createDefaultDraftingWorkspaceQrState()
   const cardState = createDefaultDraftingCardState()
-
-  return {
+  const document: DraftingWorkspaceDocumentV1 = {
     activeQrNodeId: DASHBOARD_QR_NODE_ID,
     cardStateByNodeId: {
       [DASHBOARD_QR_NODE_ID]: cardState,
@@ -106,9 +116,14 @@ export function createDefaultDraftingWorkspaceDocument(): DraftingWorkspaceDocum
     qrStateByNodeId: {
       [DASHBOARD_QR_NODE_ID]: qrState,
     },
+    sceneCompositionByNodeId: {},
     selectedContentType: DEFAULT_QR_INPUT_TYPE,
     version: 1,
   }
+
+  document.sceneCompositionByNodeId = createDefaultSceneCompositionByNodeId(document)
+
+  return document
 }
 
 export function parseDraftingWorkspaceDocument(
@@ -197,6 +212,10 @@ export function parseDraftingWorkspaceDocument(
     layerStateByNodeId,
     qrOrder: orderedNodeIds,
     qrStateByNodeId,
+    sceneCompositionByNodeId: parseSceneCompositionByNodeId(
+      value.sceneCompositionByNodeId,
+      orderedNodeIds,
+    ),
     selectedContentType,
     version: 1,
   }
@@ -359,6 +378,22 @@ function parseContentTypeByNodeId(
 
 function parseQrInputType(value: unknown): QrInputType {
   return typeof value === "string" ? (value as QrInputType) : DEFAULT_QR_INPUT_TYPE
+}
+
+function parseSceneCompositionByNodeId(
+  value: unknown,
+  nodeIds: string[],
+): SceneCompositionByNodeId {
+  const raw = isRecord(value) ? value : {}
+  const compositions: SceneCompositionByNodeId = {}
+
+  for (const nodeId of nodeIds) {
+    compositions[nodeId] = normalizeSceneComposition(
+      isRecord(raw[nodeId]) ? (raw[nodeId] as SceneCompositionState) : undefined,
+    )
+  }
+
+  return compositions
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

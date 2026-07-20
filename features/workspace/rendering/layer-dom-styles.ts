@@ -266,7 +266,10 @@ export function getDraftingCardDomStyle(
   const isImageFilterMode = cardState.styleMode === "image-filter"
   const includePattern = options?.includePattern ?? !(isPaperShaderMode || isImageFilterMode || isImageMode)
   const cardPatternStyle = includePattern
-    ? getDraftingCardPatternStyle(cardState.patternId, cardState.patternColors)
+    ? getDraftingCardPatternStyle(
+        cardState.patternId,
+        cardState.patternId === "none" ? undefined : cardState.patternColors[cardState.patternId],
+      )
     : undefined
   const cardImageStyle =
     isImageMode && cardState.cardImage.value

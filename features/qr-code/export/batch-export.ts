@@ -26,6 +26,7 @@ type DashboardQrNodeExportOptions = {
   name: string
   node: DashboardQrFileExportNode
   qualityPercent: number
+  targetDimensions?: { height: number; width: number }
   targetSizePx?: number
 }
 
@@ -34,6 +35,7 @@ type DashboardQrBatchZipExportOptions = {
   name: string
   nodes: DashboardQrFileExportNode[]
   qualityPercent: number
+  targetDimensions?: { height: number; width: number }
   targetSizePx?: number
 }
 
@@ -42,12 +44,14 @@ export async function downloadDashboardQrNodeExport({
   name,
   node,
   qualityPercent,
+  targetDimensions,
   targetSizePx,
 }: DashboardQrNodeExportOptions) {
   const result = await renderDashboardQrNodeExport({
     extension,
     node,
     qualityPercent,
+    targetDimensions,
     targetSizePx,
   })
 
@@ -59,6 +63,7 @@ export async function downloadDashboardQrBatchZipExport({
   name,
   nodes,
   qualityPercent,
+  targetDimensions,
   targetSizePx,
 }: DashboardQrBatchZipExportOptions) {
   const files = await Promise.all(
@@ -67,6 +72,7 @@ export async function downloadDashboardQrBatchZipExport({
         extension,
         node,
         qualityPercent,
+        targetDimensions,
         targetSizePx,
       })
 
@@ -104,6 +110,7 @@ async function renderDashboardQrNodeExport({
   extension,
   node,
   qualityPercent,
+  targetDimensions,
   targetSizePx,
 }: Omit<DashboardQrNodeExportOptions, "name">) {
   if (extension === "svg") {
@@ -117,6 +124,7 @@ async function renderDashboardQrNodeExport({
     node,
     qualityPercent,
     targetSizePx,
+    targetDimensions,
   )
   const canvas = await rasterizeSvgMarkupToCanvas(
     node.originalSvgMarkup,
@@ -137,10 +145,16 @@ function getDashboardQrNodeRasterDimensions(
   node: DashboardQrFileExportNode,
   qualityPercent: number,
   targetSizePx?: number,
+  targetDimensions?: { height: number; width: number },
 ) {
   let dimensions: { height: number; width: number }
 
-  if (targetSizePx !== undefined) {
+  if (targetDimensions) {
+    dimensions = {
+      height: Math.max(1, Math.round(targetDimensions.height)),
+      width: Math.max(1, Math.round(targetDimensions.width)),
+    }
+  } else if (targetSizePx !== undefined) {
     const targetSize = clampDashboardRasterTargetSize(targetSizePx)
     const maxNatural = Math.max(node.naturalWidth, node.naturalHeight)
 

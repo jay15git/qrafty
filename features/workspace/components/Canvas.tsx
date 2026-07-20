@@ -65,6 +65,7 @@ type DraftingPane = {
   id: string
   layers?: DraftingCanvasLayer[]
   name: string
+  sceneComposition?: import("@/features/workspace/model/scene-templates").SceneCompositionState
   state: QrStudioState
 }
 
@@ -139,6 +140,7 @@ type CanvasProps = {
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
   insertNodeId?: string
   onBrowseStockPhotos?: () => void
+  onOpenCardPatternSettings?: () => void
   onRedo?: () => void
   onRemoveQrCode?: (paneId: string) => void
   onUndo?: () => void
@@ -598,6 +600,7 @@ function DraftingPaneSurface({
           cardState={pane.cardState}
           interactionScale={paneZoom}
           layers={pane.layers}
+          sceneComposition={pane.sceneComposition}
           snapEnabled={snapEnabled}
           state={pane.state}
           isSelected={isSelected}
@@ -649,6 +652,7 @@ export function Canvas({
   onInsertLayer,
   insertNodeId,
   onBrowseStockPhotos,
+  onOpenCardPatternSettings,
   onRedo,
   onRemoveQrCode,
   onUndo,
@@ -1208,6 +1212,7 @@ export function Canvas({
                     variant="bottom-toolbar"
                     onAddQrCode={onAddQrCode}
                     onBrowseStockPhotos={onBrowseStockPhotos}
+                    onOpenCardPatternSettings={onOpenCardPatternSettings}
                     onInsertLayer={onInsertLayer}
                   />
                 ) : onAddQrCode ? (

@@ -49,6 +49,10 @@ import {
   sanitizeDraftingQrArtworkMarkup,
 } from "@/features/workspace/rendering/qr-artwork"
 import { DraftingLayerTiltShell } from "@/features/workspace/components/DraftingLayerTiltShell"
+import {
+  SceneBackgroundLayer,
+  SceneCompositionTransform,
+} from "@/features/workspace/components/SceneBackgroundLayer"
 import { DraftingQrLayerContent } from "@/features/workspace/components/DraftingQrLayerContent"
 import {
   getDraftingCardBorderStyle,
@@ -68,6 +72,7 @@ import {
 } from "@/features/workspace/rendering/shape-layer"
 import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg"
 import type { QrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultSceneComposition, type SceneCompositionState } from "@/features/workspace/model/scene-templates"
 import { cn } from "@/lib/utils"
 
 function layerExportAttrs(kind: DraftingCanvasLayer["kind"]) {
@@ -90,6 +95,7 @@ type PaneProps = {
   onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void
   onSelect: () => void
   onQrClick: () => void
+  sceneComposition?: SceneCompositionState
   selectedLayerId?: string | null
   selectedLayerIds?: string[]
   snapEnabled?: boolean
@@ -1012,6 +1018,7 @@ export const Pane = memo(function Pane({
   onLayerSelectionChange,
   onSelect,
   onQrClick,
+  sceneComposition = createDefaultSceneComposition(),
   selectedLayerId,
   selectedLayerIds,
 }: PaneProps) {
@@ -2494,8 +2501,20 @@ export const Pane = memo(function Pane({
           <>
             <SnapGuideOverlay guides={snapGuides} />
             {renderMarquee()}
-            <div data-export-root>
-              {visibleLayers.map(renderLayer)}
+            <div
+              className="relative"
+              style={{ width: cardState.width, height: cardState.height }}
+            >
+              <SceneBackgroundLayer
+                background={sceneComposition.background}
+                height={cardState.height}
+                width={cardState.width}
+              />
+              <SceneCompositionTransform layout={sceneComposition.layout}>
+                <div data-export-root>
+                  {visibleLayers.map(renderLayer)}
+                </div>
+              </SceneCompositionTransform>
             </div>
             {activeSelectedLayerIds.length > 0
               ? visibleLayers.map((layer) => renderLayerControls(layer))
@@ -2528,6 +2547,7 @@ export const Pane = memo(function Pane({
 },
 (previousProps, nextProps) =>
   previousProps.cardState === nextProps.cardState &&
+  previousProps.sceneComposition === nextProps.sceneComposition &&
   previousProps.state === nextProps.state &&
   previousProps.isSelected === nextProps.isSelected &&
   previousProps.interactionScale === nextProps.interactionScale &&

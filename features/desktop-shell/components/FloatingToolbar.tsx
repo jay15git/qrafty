@@ -34,6 +34,14 @@ import {
 } from "lucide-react"
 
 import { BlocksIcon } from "@/components/vendor/animate-ui/icons/blocks"
+import {
+  DesktopLayoutInspector,
+  type DesktopLayoutSettings,
+} from "@/features/desktop-shell/components/DesktopLayoutInspector"
+import {
+  DesktopSceneTemplateInspector,
+  type DesktopSceneTemplateSettings,
+} from "@/features/desktop-shell/components/DesktopSceneTemplateInspector"
 import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr-code/assets/brand-icon-svg"
 import {
   getBrandIconById,
@@ -233,6 +241,12 @@ import {
   DraggableListHandle,
   DraggableListItem,
 } from "@/components/ui/draggable-list"
+import {
+  EXPORT_PRESETS,
+  formatExportPresetLabel,
+  type ExportPresetId,
+} from "@/features/workspace/model/export-presets"
+import type { MockupStylePreset, SceneLayoutPreset, SceneTemplate } from "@/features/workspace/model/scene-templates"
 import { ElasticSlider } from "@/components/ui/elastic-slider"
 import { FluidSwitch } from "@/components/ui/fluid-switch"
 import { GalleryVerticalEndIcon } from "@/components/ui/gallery-vertical-end"
@@ -249,6 +263,8 @@ import type { ScanSafetyResult } from "@/features/qr-code/scan-safety/types"
 type DesktopToolbarGroup = "QR" | "Add" | "Manage"
 export type ComposeSidebarPanel = "stock-photos" | null
 export type DesktopToolbarToolId =
+  | "templates"
+  | "layout"
   | "content"
   | "pattern"
   | "corners"
@@ -273,6 +289,18 @@ type DesktopToolbarTool = {
 export type DesktopThemeMode = "dark" | "light"
 
 const DESKTOP_TOOLBAR_TOOLS: DesktopToolbarTool[] = [
+  {
+    group: "QR",
+    id: "templates",
+    title: "Templates",
+    renderIcon: () => <LayoutGrid size={18} />,
+  },
+  {
+    group: "QR",
+    id: "layout",
+    title: "Layout",
+    renderIcon: () => <Sparkles size={18} />,
+  },
   {
     group: "QR",
     id: "content",
@@ -316,6 +344,18 @@ const DESKTOP_TOOLBAR_TOOLS: DesktopToolbarTool[] = [
     id: "card-pattern",
     title: "Pattern",
     renderIcon: () => <GalleryVerticalEndIcon size={18} />,
+  },
+  {
+    group: "Manage",
+    id: "decorations",
+    title: "Decorations",
+    renderIcon: () => <ShapesIcon size={18} />,
+  },
+  {
+    group: "Manage",
+    id: "effects",
+    title: "Effects",
+    renderIcon: () => <Sparkles size={18} />,
   },
   {
     group: "Manage",
@@ -553,9 +593,11 @@ export type DesktopRasterExportPresetId =
   | "web-social"
 
 export type DesktopExportSettings = {
+  exportPresetId?: ExportPresetId
   extension: QrFileExtension
   qualityPresetId: DesktopRasterExportPresetId
   target: DesktopExportTarget
+  usePlatformPreset?: boolean
 }
 
 export type DesktopTextSettings = {
@@ -594,6 +636,8 @@ export type DesktopToolbarController = {
   effectsSettings: DesktopEffectsSettings
   layersSettings: DesktopLayersSettings
   exportSettings: DesktopExportSettings
+  layoutSettings: DesktopLayoutSettings
+  sceneTemplateSettings: DesktopSceneTemplateSettings
   textSettings: DesktopTextSettings
   insertNodeId?: string
   composeSidebarPanel?: ComposeSidebarPanel
@@ -643,6 +687,12 @@ export type DesktopToolbarController = {
   onExportReset: () => void
   onExportSettingsChange: (patch: Partial<DesktopExportSettings>) => void
   onExportDownload: () => void
+  onApplyMockupStyle?: (preset: MockupStylePreset) => void
+  onLayoutPresetSelect?: (preset: SceneLayoutPreset) => void
+  onLayoutSettingsChange?: (patch: Partial<SceneLayoutPreset>) => void
+  onSceneTemplateSelect?: (template: SceneTemplate) => void
+  onSceneTemplateSizeChange?: (patch: Partial<DesktopSceneTemplateSettings["sizeSettings"]>) => void
+  onSceneTemplateSizeTemplateSelect?: (template: import("@/features/workspace/model/size-templates").SizeTemplate) => void
   buildCodegenExport?: (target: CodeExportTarget) => Promise<{ code: string; installCommand?: string }>
   exportDownloadError?: string | null
   onTextReset: () => void
@@ -1062,6 +1112,8 @@ export type DesktopInspectorModel = {
   actualEffectsSettings: DesktopEffectsSettings
   actualLayersSettings: DesktopLayersSettings
   actualExportSettings: DesktopExportSettings
+  actualLayoutSettings: DesktopLayoutSettings
+  actualSceneTemplateSettings: DesktopSceneTemplateSettings
   actualTextSettings: DesktopTextSettings
   onActiveToolChange: (toolId: DesktopToolbarToolId) => void
   onDesktopThemeChange: (theme: DesktopThemeMode) => void
@@ -1080,6 +1132,8 @@ export type DesktopInspectorModel = {
   onLayersSettingsChange: (patch: Partial<DesktopLayersSettings>) => void
   onLayersReorder: (orderedIds: string[]) => void
   onExportSettingsChange: (patch: Partial<DesktopExportSettings>) => void
+  onLayoutSettingsChange: (patch: Partial<SceneLayoutPreset>) => void
+  onSceneTemplateSizeChange: (patch: Partial<DesktopSceneTemplateSettings["sizeSettings"]>) => void
   onTextSettingsChange: (patch: Partial<DesktopTextSettings>) => void
 }
 
@@ -1200,6 +1254,15 @@ export function useDesktopToolbarInspectorModel({
     actualEffectsSettings: controller?.effectsSettings ?? effectsSettings,
     actualLayersSettings: controller?.layersSettings ?? layersSettings,
     actualExportSettings: controller?.exportSettings ?? exportSettings,
+    actualLayoutSettings: controller?.layoutSettings ?? { layout: { id: "flat", label: "Flat", rotation: 0, tiltX: 0, tiltY: 0, zoom: 1 } },
+    actualSceneTemplateSettings: controller?.sceneTemplateSettings ?? {
+      sizeSettings: {
+        cardHeight: 1080,
+        cardWidth: 1080,
+        lockAspectRatio: true,
+        sizeMode: "auto",
+      },
+    },
     actualTextSettings: controller?.textSettings ?? textSettings,
     onActiveToolChange: controller?.onActiveToolChange ?? setActiveTool,
     onDesktopThemeChange:
@@ -1275,6 +1338,10 @@ export function useDesktopToolbarInspectorModel({
       controller?.onExportSettingsChange ??
       ((patch: Partial<DesktopExportSettings>) =>
         setExportSettings((current) => ({ ...current, ...patch }))),
+    onLayoutSettingsChange:
+      controller?.onLayoutSettingsChange ?? (() => undefined),
+    onSceneTemplateSizeChange:
+      controller?.onSceneTemplateSizeChange ?? (() => undefined),
     onTextSettingsChange:
       controller?.onTextSettingsChange ??
       ((patch: Partial<DesktopTextSettings>) =>
@@ -5734,23 +5801,66 @@ function DesktopExportInspector({
         </DesktopInspectorSection>
 
         {isRasterExport ? (
-          <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-            <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Quality</p>
-            <div className={desktopInspectorOptionStackClass()} data-slot="desktop-export-quality-grid">
-              {DESKTOP_RASTER_EXPORT_PRESETS.map((preset) => (
-                <button
-                  key={preset.id}
-                  aria-label={`Use ${preset.label} export quality`}
-                  aria-pressed={settings.qualityPresetId === preset.id}
-                  className={cn(
-                    "min-w-0 px-3 py-2 text-left",
-                    desktopInspectorOptionGridItemClass(),
-                    DESKTOP_INSPECTOR_CONTROL_CLASS,
-                    settings.qualityPresetId === preset.id &&
-                      DESKTOP_INSPECTOR_SELECTED_CLASS,
-                  )}
-                  type="button"
-                  onClick={() => onExportSettingsChange({ qualityPresetId: preset.id })}
+          <>
+            <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+              <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Platform size</p>
+              <div className={desktopInspectorOptionStackClass()} data-slot="desktop-export-platform-grid">
+                {EXPORT_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    aria-label={`Use ${preset.label} export size`}
+                    aria-pressed={settings.exportPresetId === preset.id && settings.usePlatformPreset}
+                    className={cn(
+                      "min-w-0 px-3 py-2 text-left",
+                      desktopInspectorOptionGridItemClass(),
+                      DESKTOP_INSPECTOR_CONTROL_CLASS,
+                      settings.exportPresetId === preset.id &&
+                        settings.usePlatformPreset &&
+                        DESKTOP_INSPECTOR_SELECTED_CLASS,
+                    )}
+                    type="button"
+                    onClick={() =>
+                      onExportSettingsChange({
+                        exportPresetId: preset.id,
+                        extension: preset.format,
+                        usePlatformPreset: true,
+                      })
+                    }
+                  >
+                    <span className={cn("block truncate", DESKTOP_INSPECTOR_VALUE_CLASS, DESKTOP_INSPECTOR_FG_TERTIARY)}>
+                      {preset.label}
+                    </span>
+                    <span className={cn("mt-0.5 block truncate", DESKTOP_INSPECTOR_CAPTION_CLASS)}>
+                      {formatExportPresetLabel(preset)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </DesktopInspectorSection>
+
+            <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+              <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Quality</p>
+              <div className={desktopInspectorOptionStackClass()} data-slot="desktop-export-quality-grid">
+                {DESKTOP_RASTER_EXPORT_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    aria-label={`Use ${preset.label} export quality`}
+                    aria-pressed={settings.qualityPresetId === preset.id && !settings.usePlatformPreset}
+                    className={cn(
+                      "min-w-0 px-3 py-2 text-left",
+                      desktopInspectorOptionGridItemClass(),
+                      DESKTOP_INSPECTOR_CONTROL_CLASS,
+                      settings.qualityPresetId === preset.id &&
+                        !settings.usePlatformPreset &&
+                        DESKTOP_INSPECTOR_SELECTED_CLASS,
+                    )}
+                    type="button"
+                    onClick={() =>
+                      onExportSettingsChange({
+                        qualityPresetId: preset.id,
+                        usePlatformPreset: false,
+                      })
+                    }
                 >
                   <span className={cn("block truncate", DESKTOP_INSPECTOR_VALUE_CLASS, DESKTOP_INSPECTOR_FG_TERTIARY)}>
                     {preset.label}
@@ -5762,6 +5872,7 @@ function DesktopExportInspector({
               ))}
             </div>
           </DesktopInspectorSection>
+          </>
         ) : null}
 
         {buildCodegenExport ? (
@@ -6221,10 +6332,12 @@ export function DesktopFloatingInspector({
     actualAccessibilitySettings,
     actualExportSettings,
     actualImageSettings,
+    actualLayoutSettings,
     actualLayersSettings,
     actualLogoSettings,
     actualMotionSettings,
     actualPatternSettings,
+    actualSceneTemplateSettings,
     actualShapeSettings,
     actualTextSettings,
     controller,
@@ -6237,11 +6350,13 @@ export function DesktopFloatingInspector({
     onAccessibilitySettingsChange,
     onExportSettingsChange,
     onImageSettingsChange,
+    onLayoutSettingsChange,
     onLayersReorder,
     onLayersSettingsChange,
     onLogoSettingsChange,
     onMotionSettingsChange,
     onPatternSettingsChange,
+    onSceneTemplateSizeChange,
     onShapeSettingsChange,
     onTextSettingsChange,
     actualDesktopTheme,
@@ -6283,6 +6398,20 @@ export function DesktopFloatingInspector({
         <DesktopElementInspector
           layer={controller.selectedElementLayer}
           onPatch={(patch) => controller.onElementLayerPatch?.(patch)}
+        />
+      ) : activeTool === "templates" ? (
+        <DesktopSceneTemplateInspector
+          onApplyMockupStyle={(preset) => controller?.onApplyMockupStyle?.(preset)}
+          onSelectTemplate={(template) => controller?.onSceneTemplateSelect?.(template)}
+          onSizeSettingsChange={(patch) => controller?.onSceneTemplateSizeChange?.(patch)}
+          onSelectSizeTemplate={(template) => controller?.onSceneTemplateSizeTemplateSelect?.(template)}
+          settings={actualSceneTemplateSettings}
+        />
+      ) : activeTool === "layout" ? (
+        <DesktopLayoutInspector
+          onLayoutChange={onLayoutSettingsChange}
+          onLayoutPresetSelect={(preset) => controller?.onLayoutPresetSelect?.(preset)}
+          settings={actualLayoutSettings}
         />
       ) : activeTool === "content" ? (
         <DesktopContentInspector
@@ -6335,6 +6464,16 @@ export function DesktopFloatingInspector({
         <DesktopCardFillPatternInspector
           settings={actualShapeSettings}
           onShapeSettingsChange={onShapeSettingsChange}
+        />
+      ) : activeTool === "decorations" ? (
+        <DesktopDecorationsInspector
+          settings={actualDecorationsSettings}
+          onDecorationsSettingsChange={onDecorationsSettingsChange}
+        />
+      ) : activeTool === "effects" ? (
+        <DesktopEffectsInspector
+          settings={actualEffectsSettings}
+          onEffectsSettingsChange={onEffectsSettingsChange}
         />
       ) : activeTool === "layers" ? (
         <DesktopLayersInspector
