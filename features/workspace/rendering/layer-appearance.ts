@@ -43,13 +43,42 @@ export function getDraftingShadowLayerCss(shadow: DraftingShadowLayerState | Dra
   if (
     shadow.visible === false ||
     shadow.opacity <= 0 ||
-    (shadow.blur <= 0 && shadow.offsetX === 0 && shadow.offsetY === 0)
+    (shadow.blur <= 0 && shadow.offsetX === 0 && shadow.offsetY === 0 && (shadow.spread ?? 0) === 0)
   ) {
     return null
   }
 
   const color = toRgba(shadow.color, shadow.opacity / 100)
   return `drop-shadow(${shadow.offsetX}px ${shadow.offsetY}px ${shadow.blur}px ${color})`
+}
+
+export function getDraftingShadowBoxShadowCss(
+  shadow: DraftingShadowLayerState | DraftingCardShadowState,
+) {
+  if (
+    shadow.visible === false ||
+    shadow.opacity <= 0 ||
+    (shadow.blur <= 0 &&
+      shadow.offsetX === 0 &&
+      shadow.offsetY === 0 &&
+      (shadow.spread ?? 0) === 0)
+  ) {
+    return null
+  }
+
+  const color = toRgba(shadow.color, shadow.opacity / 100)
+  const inset = shadow.inset ? "inset " : ""
+  return `${inset}${shadow.offsetX}px ${shadow.offsetY}px ${shadow.blur}px ${shadow.spread ?? 0}px ${color}`
+}
+
+export function getDraftingLayerBoxShadowStyle(
+  shadows: Array<DraftingCardShadowState | DraftingShadowLayerState>,
+) {
+  const boxShadows = shadows
+    .map((shadow) => getDraftingShadowBoxShadowCss(shadow))
+    .filter((value): value is string => Boolean(value))
+
+  return boxShadows.length > 0 ? boxShadows.join(", ") : undefined
 }
 
 export function getDraftingLayerDropShadowFilter(

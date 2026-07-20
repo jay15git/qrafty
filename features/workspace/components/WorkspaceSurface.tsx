@@ -104,10 +104,13 @@ import {
 import {
   createDefaultSceneComposition,
   normalizeSceneComposition,
+  type MockupStylePreset,
   type SceneLayoutPreset,
   type SceneTemplate,
+  resolveMockupStyleId,
 } from "@/features/workspace/model/scene-templates"
 import { getCanvasSizeFromTemplate } from "@/features/workspace/model/size-templates"
+import { legacyShadowToShadowLayer } from "@/features/workspace/model/effects"
 import {
   readDraftingWorkspaceDraft,
   writeDraftingWorkspaceDraft,
@@ -4012,6 +4015,7 @@ export function WorkspaceSurface({
     shadowOpacity: selectedCardState.shadow.opacity,
     sizeMode: selectedCardState.sizeMode,
     sizePresetId: selectedCardState.sizePresetId,
+    mockupStyleId: resolveMockupStyleId(selectedCardState),
   }
   const desktopEncodingSettings: DesktopEncodingSettings = {
     errorCorrectionLevel: selectedQrErrorCorrectionLevel,
@@ -4056,6 +4060,7 @@ export function WorkspaceSurface({
     usePlatformPreset: selectedUsePlatformExportPreset,
   }
   const desktopSceneTemplateSettings = {
+    mockupStyleId: resolveMockupStyleId(selectedCardState),
     selectedTemplateId: activeSceneComposition.templateId,
     sizeSettings: {
       cardHeight: selectedCardState.height,
@@ -4611,13 +4616,22 @@ export function WorkspaceSurface({
     onEncodingSettingsChange: updateDesktopEncodingSettings,
     onAccessibilityReset: () => setSelectedAriaLabel(""),
     onAccessibilitySettingsChange: updateDesktopAccessibilitySettings,
-    onApplyMockupStyle: (preset) => {
-      setSelectedCardState((current) =>
-        normalizeDraftingCardState({
-          ...current,
-          ...preset.cardState,
-        }),
-      )
+    onApplyMockupStyle: (preset: MockupStylePreset) => {
+      const nextCardState = normalizeDraftingCardState({
+        ...selectedCardState,
+        ...preset.cardState,
+        border: preset.cardState.border ?? selectedCardState.border,
+        shadow: preset.cardState.shadow ?? selectedCardState.shadow,
+      })
+      setSelectedCardState(nextCardState)
+
+      const layerShadows = preset.layerShadows ?? [nextCardState.shadow]
+      handleLayerChange(activeQrNodeId, getDraftingCardLayerId(activeQrNodeId), {
+        shadow: nextCardState.shadow,
+        shadows: layerShadows.map((shadow, index) =>
+          legacyShadowToShadowLayer(shadow, `mockup-shadow-${preset.id}-${index}`),
+        ),
+      })
     },
     onLayoutPresetSelect: (preset) => {
       setSceneCompositionByNodeId((current) =>

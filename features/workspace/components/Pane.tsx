@@ -1235,6 +1235,7 @@ export const Pane = memo(function Pane({
     ...cardImageStyle,
     ...getDraftingCardBorderStyle(cardState),
     borderRadius: cardState.cornerRadius,
+    ...(hasTranslucentCardFill(cardState.fill) ? { backdropFilter: "blur(16px)" } : {}),
   }
   const imageFilterShader = {
     ...cardState.imageFilter,
@@ -2557,3 +2558,12 @@ export const Pane = memo(function Pane({
   previousProps.selectedLayerIds === nextProps.selectedLayerIds &&
   previousProps.snapEnabled === nextProps.snapEnabled,
 )
+
+function hasTranslucentCardFill(fill: string) {
+  const rgbaMatch = /^rgba\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*([\d.]+)\s*\)$/i.exec(fill)
+  if (rgbaMatch) {
+    return Number(rgbaMatch[1]) < 0.98
+  }
+
+  return fill.includes("rgba(") && !fill.includes(", 1)") && !fill.includes(",1)")
+}

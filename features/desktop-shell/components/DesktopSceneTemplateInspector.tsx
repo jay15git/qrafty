@@ -2,18 +2,19 @@
 
 import { useMemo, useState } from "react"
 
+import { DesktopMockupStyleGrid } from "@/features/desktop-shell/components/DesktopMockupStyleGrid"
 import { DesktopSizeTemplateInspector } from "@/features/desktop-shell/components/DesktopSizeTemplateInspector"
 import {
   DesktopInspectorHeader,
   DesktopInspectorScrollArea,
 } from "@/features/desktop-shell/components/DesktopInspectorShell"
 import {
-  DESKTOP_INSPECTOR_FG_PRIMARY,
   DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
   DESKTOP_INSPECTOR_SECTION_HEADING_CLASS,
   DESKTOP_INSPECTOR_SELECTED_CLASS,
+  DESKTOP_INSPECTOR_FG_PRIMARY,
   DesktopInspectorAnimatedOptionGrid,
   DesktopInspectorSearchInput,
   DesktopInspectorSection,
@@ -23,7 +24,6 @@ import {
 import type { DesktopCardSizeSettings } from "@/features/desktop-shell/components/DesktopSizeTemplateInspector"
 import type { MockupStylePreset } from "@/features/workspace/model/scene-templates"
 import {
-  MOCKUP_STYLE_PRESETS,
   SCENE_TEMPLATE_CATEGORIES,
   SCENE_TEMPLATE_CATEGORY_LABELS,
   SCENE_TEMPLATES,
@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils"
 type SceneTemplateTab = "mockup" | "frame"
 
 export type DesktopSceneTemplateSettings = {
+  mockupStyleId?: string
   selectedTemplateId?: string
   sizeSettings: DesktopCardSizeSettings
 }
@@ -174,32 +175,10 @@ export function DesktopSceneTemplateInspector({
               </DesktopInspectorSection>
             ))}
 
-            <DesktopInspectorSection>
-              <p className={cn("mb-2", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Mockup style</p>
-              <DesktopInspectorAnimatedOptionGrid columns={3} selectedKey={undefined}>
-                {MOCKUP_STYLE_PRESETS.map((preset) => (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    aria-label={preset.label}
-                    className={cn(
-                      desktopInspectorOptionGridItemClass,
-                      DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
-                    )}
-                    onClick={() => onApplyMockupStyle(preset)}
-                  >
-                    <span
-                      className={cn(
-                        "grid aspect-[4/3] w-full place-items-center rounded-md text-xs font-medium",
-                        DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-                      )}
-                    >
-                      {preset.label}
-                    </span>
-                  </button>
-                ))}
-              </DesktopInspectorAnimatedOptionGrid>
-            </DesktopInspectorSection>
+            <DesktopMockupStyleGrid
+              onApplyMockupStyle={onApplyMockupStyle}
+              selectedStyleId={settings.mockupStyleId}
+            />
           </>
         )}
       </DesktopInspectorScrollArea>

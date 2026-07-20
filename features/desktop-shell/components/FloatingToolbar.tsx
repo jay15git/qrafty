@@ -38,6 +38,7 @@ import {
   DesktopLayoutInspector,
   type DesktopLayoutSettings,
 } from "@/features/desktop-shell/components/DesktopLayoutInspector"
+import { DesktopMockupStyleGrid } from "@/features/desktop-shell/components/DesktopMockupStyleGrid"
 import {
   DesktopSceneTemplateInspector,
   type DesktopSceneTemplateSettings,
@@ -514,6 +515,7 @@ export type DesktopShapeSettings = {
   shadowOpacity: number
   sizeMode: DraftingCardSizeMode
   sizePresetId?: string
+  mockupStyleId?: string
 }
 
 export type DesktopMotionSettings = QrDotMatrixAnimationOptions
@@ -3208,10 +3210,14 @@ function DesktopCornerStyleButton({
 
 function DesktopShapeInspector({
   desktopTheme,
+  mockupStyleId,
+  onApplyMockupStyle,
   onShapeSettingsChange,
   settings,
 }: {
   desktopTheme: DesktopThemeMode
+  mockupStyleId?: string
+  onApplyMockupStyle?: (preset: MockupStylePreset) => void
   onShapeSettingsChange: (patch: Partial<DesktopShapeSettings>) => void
   settings: DesktopShapeSettings
 }) {
@@ -3220,6 +3226,13 @@ function DesktopShapeInspector({
       <DesktopInspectorHeader title="Shape" />
 
       <DesktopInspectorScrollArea>
+        {onApplyMockupStyle ? (
+          <DesktopMockupStyleGrid
+            onApplyMockupStyle={onApplyMockupStyle}
+            selectedStyleId={mockupStyleId}
+          />
+        ) : null}
+
         <DesktopSizeTemplateInspector
           settings={{
             cardHeight: settings.cardHeight,
@@ -6452,7 +6465,9 @@ export function DesktopFloatingInspector({
       ) : activeTool === "shape" ? (
         <DesktopShapeInspector
           desktopTheme={actualDesktopTheme}
+          mockupStyleId={actualShapeSettings.mockupStyleId}
           settings={actualShapeSettings}
+          onApplyMockupStyle={(preset) => controller?.onApplyMockupStyle?.(preset)}
           onShapeSettingsChange={onShapeSettingsChange}
         />
       ) : activeTool === "motion" ? (

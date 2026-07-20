@@ -4,6 +4,7 @@ import { applySceneTemplate } from "@/features/workspace/model/apply-scene-templ
 import { createDefaultDraftingWorkspaceDocument } from "@/features/workspace/model/document"
 import {
   getSceneTemplate,
+  MOCKUP_STYLE_PRESETS,
   SCENE_TEMPLATES,
   SCENE_LAYOUT_PRESETS,
 } from "@/features/workspace/model/scene-templates"
@@ -23,6 +24,24 @@ describe("scene templates", () => {
   it("includes layout presets", () => {
     expect(SCENE_LAYOUT_PRESETS.length).toBeGreaterThanOrEqual(8)
     expect(SCENE_LAYOUT_PRESETS[0]?.id).toBe("flat")
+  })
+
+  it("exposes twelve mockup style presets", () => {
+    expect(MOCKUP_STYLE_PRESETS).toHaveLength(12)
+    expect(MOCKUP_STYLE_PRESETS.map((preset) => preset.id)).toEqual([
+      "default",
+      "glass-light",
+      "glass-dark",
+      "liquid",
+      "inset-light",
+      "inset-dark",
+      "outline",
+      "border",
+      "retro",
+      "card",
+      "stack",
+      "stack-2",
+    ])
   })
 })
 

@@ -12,6 +12,7 @@ import { getDraftingFontCssFamily } from "@/features/workspace/model/fonts"
 import { getDraftingTextFontFamily } from "@/features/workspace/rendering/text-layout"
 import {
   buildCssFilterString,
+  getDraftingLayerBoxShadowStyle,
   getDraftingLayerDropShadowFilter,
   getDraftingOutlineStyle,
   getDraftingPerSideBorderStyle,
@@ -65,15 +66,22 @@ export function getDraftingLayerEffectStyle(layer: DraftingCanvasLayer): CSSProp
       : layer.shadow
         ? [layer.shadow]
         : []
-  const filter = mergeCssFilterStrings(
-    buildCssFilterString(layer.layerFilters ?? []),
-    getDraftingLayerDropShadowFilter(shadows),
+  const usesBoxShadow = shadows.some(
+    (shadow) => shadow.inset || (shadow.spread ?? 0) !== 0 || shadows.length > 1,
   )
+  const filter = usesBoxShadow
+    ? buildCssFilterString(layer.layerFilters ?? [])
+    : mergeCssFilterStrings(
+        buildCssFilterString(layer.layerFilters ?? []),
+        getDraftingLayerDropShadowFilter(shadows),
+      )
   const borderStyle = layer.borderSides ? getDraftingPerSideBorderStyle(layer.borderSides) : {}
+  const boxShadow = usesBoxShadow ? getDraftingLayerBoxShadowStyle(shadows) : undefined
 
   return {
     ...borderStyle,
     ...getDraftingOutlineStyle(layer.outline),
+    ...(boxShadow ? { boxShadow } : {}),
     ...(filter ? { filter } : {}),
   }
 }
