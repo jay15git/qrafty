@@ -23,6 +23,15 @@
   );
   transform: translateX(-50%);
   pointer-events: none;
+  overflow: visible;
+}
+
+[data-slot="desktop-dynamic-island"] {
+  overflow: visible;
+}
+
+[data-slot="desktop-dynamic-island-content"] {
+  overflow: visible;
 }
 
 @media (max-width: 768px) {

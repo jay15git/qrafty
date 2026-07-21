@@ -251,7 +251,7 @@ export default function DynamicIsland({
         <motion.div
           className={
             isDesktopGlass
-              ? "mx-auto w-fit min-w-10 overflow-hidden rounded-full text-current"
+              ? "mx-auto w-fit min-w-10 overflow-visible rounded-full text-current"
               : "mx-auto w-fit min-w-[100px] overflow-hidden rounded-full bg-black"
           }
           layout

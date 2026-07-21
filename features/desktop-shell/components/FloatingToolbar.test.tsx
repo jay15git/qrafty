@@ -84,6 +84,62 @@ describe("FloatingToolbar", () => {
     expect(patternButton.getAttribute("aria-pressed")).toBe("true")
   })
 
+  it("renders the free edit toggle in the dynamic island", async () => {
+    const onEditingModeChange = vi.fn()
+    const surface = await renderPrototype({
+      controller: {
+        editingMode: "free",
+        isFreeEditingEnabled: true,
+        onEditingModeChange,
+      },
+    })
+
+    const toggle = surface.container.querySelector('[data-slot="desktop-free-edit-toggle"]')
+    const switchInput = surface.container.querySelector(
+      '[data-slot="desktop-free-edit-toggle"] [data-slot="switch"]',
+    )
+
+    expect(toggle).not.toBeNull()
+    expect(switchInput?.getAttribute("aria-checked")).toBe("true")
+
+    await act(async () => {
+      switchInput?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(onEditingModeChange).toHaveBeenCalledWith("template")
+  })
+
+  it("hides composition tools in template mode", async () => {
+    const surface = await renderPrototype({
+      controller: {
+        activeTool: "templates",
+        editingMode: "template",
+        isFreeEditingEnabled: false,
+      },
+    })
+
+    expect(surface.container.querySelector('[data-tool-id="text"]')).toBeNull()
+    expect(surface.container.querySelector('[data-tool-id="image"]')).toBeNull()
+    expect(surface.container.querySelector('[data-tool-id="layers"]')).toBeNull()
+    expect(surface.container.querySelector('[data-tool-id="templates"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-tool-id="content"]')).not.toBeNull()
+  })
+
+  it("hides appearance controls in template mode even when a layer is selected", async () => {
+    const layer = createDraftingTextLayer(NODE_ID, { text: "Hello" })
+    const surface = await renderPrototype({
+      controller: {
+        appearanceSnapshot: getDesktopAppearanceSnapshot(layer),
+        editingMode: "template",
+        isFreeEditingEnabled: false,
+        onAppearancePatch: vi.fn(),
+        selectedAppearanceLayer: layer,
+      },
+    })
+
+    expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
+  })
+
   it("renders the icon rail inside the inspector shell as one left toolbar", async () => {
     const surface = await renderPrototype({ controller: { activeTool: "content" } })
     const shell = surface.container.querySelector('[data-slot="desktop-left-toolbar-shell"]')

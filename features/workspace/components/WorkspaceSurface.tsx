@@ -110,6 +110,11 @@ import {
   resolveMockupStyleId,
 } from "@/features/workspace/model/scene-templates"
 import { getCanvasSizeFromTemplate } from "@/features/workspace/model/size-templates"
+import {
+  readWorkspaceEditingMode,
+  writeWorkspaceEditingMode,
+  type WorkspaceEditingMode,
+} from "@/features/workspace/model/workspace-editing-mode"
 import { legacyShadowToShadowLayer } from "@/features/workspace/model/effects"
 import {
   readDraftingWorkspaceDraft,
@@ -831,6 +836,9 @@ export function WorkspaceSurface({
   const [selectedLayerIds, setSelectedLayerIds] = useState<string[]>(() => [
     getDraftingQrLayerId(DASHBOARD_QR_NODE_ID),
   ])
+  const [editingMode, setEditingMode] = useState<WorkspaceEditingMode>(() =>
+    readWorkspaceEditingMode(),
+  )
   const [desktopCanvasTool, setDesktopCanvasTool] = useState<DraftingPaneCanvasTool | null>(null)
   const [showDesktopCanvasGrid, setShowDesktopCanvasGrid] = useState(true)
   const [selectedDownloadExtension, setSelectedDownloadExtension] =
@@ -1041,9 +1049,11 @@ export function WorkspaceSurface({
       selectedQrTypeNumber,
     ],
   )
+  const isFreeEditing = editingMode === "free"
   const keyboardStateRef = useRef({
     activeQrNodeId,
     draftingStudioState,
+    isFreeEditing,
     layerStateByNodeId,
     qrNodeCount: Object.keys(qrStateByNodeId).length,
     selectedCardState,
@@ -1654,6 +1664,23 @@ export function WorkspaceSurface({
     selectSingleLayer(getDraftingQrLayerId(activeNodeId))
   }
 
+  function handleEditingModeChange(mode: WorkspaceEditingMode) {
+    setEditingMode(mode)
+    writeWorkspaceEditingMode(mode)
+
+    if (mode === "template") {
+      selectSingleLayer(null)
+      setDesktopCanvasTool(null)
+      setComposeSidebarPanel(null)
+
+      if (chrome === "canvas-only") {
+        setDesktopRailTool("templates")
+      } else {
+        setActiveTool(getDraftingToolIdFromDesktop("templates"))
+      }
+    }
+  }
+
   function selectSingleLayer(layerId: string | null) {
     setSelectedLayerId(layerId)
     setSelectedLayerIds(layerId ? [layerId] : [])
@@ -1866,6 +1893,7 @@ export function WorkspaceSurface({
     keyboardStateRef.current = {
       activeQrNodeId,
       draftingStudioState,
+      isFreeEditing,
       layerStateByNodeId,
       qrNodeCount: qrNodeIds.length,
       selectedCardState,
@@ -1874,6 +1902,7 @@ export function WorkspaceSurface({
   }, [
     activeQrNodeId,
     draftingStudioState,
+    isFreeEditing,
     layerStateByNodeId,
     qrNodeIds.length,
     selectedCardState,
@@ -1900,6 +1929,10 @@ export function WorkspaceSurface({
       const usesModifier = event.metaKey || event.ctrlKey
 
       if (!usesModifier) {
+        if (!keyboardStateRef.current.isFreeEditing) {
+          return
+        }
+
         if (
           key === "arrowleft" ||
           key === "arrowright" ||
@@ -1967,6 +2000,10 @@ export function WorkspaceSurface({
       if (key === "d") {
         event.preventDefault()
         void handleAddQrCode()
+        return
+      }
+
+      if (!keyboardStateRef.current.isFreeEditing) {
         return
       }
 
@@ -2056,6 +2093,10 @@ export function WorkspaceSurface({
         return
       }
 
+      if (!keyboardStateRef.current.isFreeEditing) {
+        return
+      }
+
       const {
         activeQrNodeId: currentActiveQrNodeId,
         draftingStudioState: currentDraftingStudioState,
@@ -2086,6 +2127,10 @@ export function WorkspaceSurface({
 
     const handlePaste = (event: ClipboardEvent) => {
       if (!shouldUseDraftingClipboardEvent(event)) {
+        return
+      }
+
+      if (!keyboardStateRef.current.isFreeEditing) {
         return
       }
 
@@ -3669,7 +3714,7 @@ export function WorkspaceSurface({
   }
 
   const renderStackedInspectorContent = (toolId: DraftingToolId) => {
-    if (selectedElementLayer) {
+    if (isFreeEditing && selectedElementLayer) {
       return (
         <DraftingSliderVariantProvider value={sliderVariant}>
           <ElementInspector
@@ -3896,36 +3941,38 @@ export function WorkspaceSurface({
   )
 
   const desktopActiveTool = chrome === "canvas-only" ? desktopRailTool : getDesktopToolbarToolId(activeTool)
-  const selectedAppearanceLayer = selectedTransformLayer
-  const desktopAppearanceSnapshot = selectedAppearanceLayer
-    ? getDesktopAppearanceSnapshot(selectedAppearanceLayer, {
+  const gatedSelectedElementLayer = isFreeEditing ? selectedElementLayer : null
+  const gatedSelectedTransformLayer = isFreeEditing ? selectedTransformLayer : null
+  const gatedSelectedAppearanceLayer = isFreeEditing ? selectedTransformLayer : null
+  const desktopAppearanceSnapshot = gatedSelectedAppearanceLayer
+    ? getDesktopAppearanceSnapshot(gatedSelectedAppearanceLayer, {
         cardCornerRadius:
-          selectedAppearanceLayer.kind === "card" ? selectedCardState.cornerRadius : undefined,
+          gatedSelectedAppearanceLayer.kind === "card" ? selectedCardState.cornerRadius : undefined,
         qrBackgroundShapeOptions:
-          selectedAppearanceLayer.kind === "qr"
+          gatedSelectedAppearanceLayer.kind === "qr"
             ? draftingStudioState.backgroundShapeOptions
             : undefined,
       })
     : null
 
   function handleDesktopAppearancePatch(patch: Partial<DraftingCanvasLayer>) {
-    if (!selectedAppearanceLayer) {
+    if (!gatedSelectedAppearanceLayer) {
       return
     }
 
-    const result = buildDesktopAppearancePatch(selectedAppearanceLayer, patch, {
+    const result = buildDesktopAppearancePatch(gatedSelectedAppearanceLayer, patch, {
       qrBackgroundShapeOptions:
-        selectedAppearanceLayer.kind === "qr"
+        gatedSelectedAppearanceLayer.kind === "qr"
           ? draftingStudioState.backgroundShapeOptions
           : undefined,
     })
 
     if (Object.keys(result.layerPatch).length > 0) {
-      handleLayerChange(activeQrNodeId, selectedAppearanceLayer.id, result.layerPatch)
+      handleLayerChange(activeQrNodeId, gatedSelectedAppearanceLayer.id, result.layerPatch)
     }
 
     if (
-      selectedAppearanceLayer.kind === "card" &&
+      gatedSelectedAppearanceLayer.kind === "card" &&
       (result.cardCornerRadius !== undefined || result.cardShadow)
     ) {
       setSelectedCardState((current) => ({
@@ -4505,8 +4552,10 @@ export function WorkspaceSurface({
     encodedContentValue: selectedContentValue,
     encodingSettings: desktopEncodingSettings,
     accessibilitySettings: desktopAccessibilitySettings,
+    editingMode,
     exportSettings: desktopExportSettings,
     imageSettings: desktopImageSettings,
+    isFreeEditingEnabled: isFreeEditing,
     layoutSettings: desktopLayoutSettings,
     layersSettings: desktopLayersSettings,
     logoSettings: desktopLogoSettings,
@@ -4517,12 +4566,12 @@ export function WorkspaceSurface({
     textSettings: desktopTextSettings,
     insertNodeId: activeQrNodeId,
     composeSidebarPanel,
-    selectedElementLayer,
-    selectedTransformLayer,
-    selectedAppearanceLayer,
+    selectedElementLayer: gatedSelectedElementLayer,
+    selectedTransformLayer: gatedSelectedTransformLayer,
+    selectedAppearanceLayer: gatedSelectedAppearanceLayer,
     appearanceSnapshot: desktopAppearanceSnapshot,
     scanSafetyResult,
-    onInsertLayer: handleInsertLayer,
+    onInsertLayer: isFreeEditing ? handleInsertLayer : undefined,
     onOpenComposeSidebar: (panel) => {
       setComposeSidebarPanel(panel)
       selectSingleLayer(null)
@@ -4553,16 +4602,17 @@ export function WorkspaceSurface({
       setComposeSidebarPanel(null)
     },
     onElementLayerPatch: (patch) => {
-      if (selectedElementLayer) {
-        handleLayerChange(activeQrNodeId, selectedElementLayer.id, patch)
+      if (gatedSelectedElementLayer) {
+        handleLayerChange(activeQrNodeId, gatedSelectedElementLayer.id, patch)
       }
     },
     onAppearancePatch: handleDesktopAppearancePatch,
     onTransformLayerPatch: (patch) => {
-      if (selectedTransformLayer) {
-        handleLayerChange(activeQrNodeId, selectedTransformLayer.id, patch)
+      if (gatedSelectedTransformLayer) {
+        handleLayerChange(activeQrNodeId, gatedSelectedTransformLayer.id, patch)
       }
     },
+    onEditingModeChange: handleEditingModeChange,
     onActiveToolChange: (toolId) => {
       setComposeSidebarPanel(null)
       setDesktopCanvasTool(null)
@@ -5181,24 +5231,26 @@ export function WorkspaceSurface({
                   >
                     Insert
                   </span>
-                  <InsertMenu
-                    nodeId={activeQrNodeId}
-                    onBrowseStockPhotos={handleBrowseStockPhotos}
-                    onOpenCardPatternSettings={() => {
-                      setSelectedCardState((current) => ({
-                        ...current,
-                        enabled: true,
-                        styleMode: "pattern",
-                      }))
-                      selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
-                      if (chrome === "canvas-only") {
-                        setDesktopRailTool("card-pattern")
-                      } else {
-                        setActiveTool("card-pattern")
-                      }
-                    }}
-                    onInsertLayer={handleInsertLayer}
-                  />
+                  {isFreeEditing ? (
+                    <InsertMenu
+                      nodeId={activeQrNodeId}
+                      onBrowseStockPhotos={handleBrowseStockPhotos}
+                      onOpenCardPatternSettings={() => {
+                        setSelectedCardState((current) => ({
+                          ...current,
+                          enabled: true,
+                          styleMode: "pattern",
+                        }))
+                        selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
+                        if (chrome === "canvas-only") {
+                          setDesktopRailTool("card-pattern")
+                        } else {
+                          setActiveTool("card-pattern")
+                        }
+                      }}
+                      onInsertLayer={handleInsertLayer}
+                    />
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -5262,14 +5314,15 @@ export function WorkspaceSurface({
               onAddQrCode={() => {
                 void handleAddQrCode()
               }}
-              onInsertLayer={handleInsertLayer}
-              onLayerChange={handleLayerChange}
-              onLayerAction={handleLayerAction}
+              onInsertLayer={isFreeEditing ? handleInsertLayer : undefined}
+              layerEditingEnabled={isFreeEditing}
+              onLayerChange={isFreeEditing ? handleLayerChange : undefined}
+              onLayerAction={isFreeEditing ? handleLayerAction : undefined}
               onLayerCopy={(_paneId, layerIds) => {
                 void copySelectedDraftingLayers(layerIds, _paneId)
               }}
-              activeCanvasTool={desktopCanvasTool}
-              onAddTextLayerAt={handleAddTextLayerAt}
+              activeCanvasTool={isFreeEditing ? desktopCanvasTool : null}
+              onAddTextLayerAt={isFreeEditing ? handleAddTextLayerAt : undefined}
               onCanvasGridChange={setShowDesktopCanvasGrid}
               onCanvasToolChange={setDesktopCanvasTool}
               onLayerPaste={(_paneId, point) => {

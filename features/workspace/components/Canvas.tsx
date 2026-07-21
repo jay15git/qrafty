@@ -177,6 +177,7 @@ type CanvasProps = {
   selectedLayerId?: string | null
   selectedLayerIds?: string[]
   toolbarVariant?: DraftingPaneToolbarVariant
+  layerEditingEnabled?: boolean
 }
 
 function groupPanes<T>(panes: T[], groups: number[]) {
@@ -255,6 +256,7 @@ function DraftingPaneSurface({
   activeCanvasTool,
   onAddTextLayerAt,
   onCanvasToolChange,
+  layerEditingEnabled = true,
   showCanvasGrid = true,
   pane,
   panePan,
@@ -302,6 +304,7 @@ function DraftingPaneSurface({
   activeCanvasTool?: DraftingPaneCanvasTool | null
   onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
+  layerEditingEnabled?: boolean
   showCanvasGrid?: boolean
   pane: DraftingPane
   panePan: { x: number; y: number }
@@ -310,7 +313,7 @@ function DraftingPaneSurface({
   selectedLayerIds?: string[]
   snapEnabled: boolean
 }) {
-  const hideLayerSelectionChrome = activeCanvasTool === "pan"
+  const hideLayerSelectionChrome = activeCanvasTool === "pan" || !layerEditingEnabled
   const [isPanning, setIsPanning] = useState(false)
   const onPaneSelectRef = useRef(onPaneSelect)
   const onPaneQrClickRef = useRef(onPaneQrClick)
@@ -604,10 +607,20 @@ function DraftingPaneSurface({
           snapEnabled={snapEnabled}
           state={pane.state}
           isSelected={isSelected}
-          onLayerChange={(layerId, patch) => onLayerChange?.(pane.id, layerId, patch)}
-          onLayerAction={(layerIds, action) => onLayerAction?.(pane.id, layerIds, action)}
-          onLayerCopy={(layerIds) => onLayerCopy?.(pane.id, layerIds)}
-          onLayerPaste={(point) => onLayerPaste?.(pane.id, point)}
+          onLayerChange={
+            layerEditingEnabled
+              ? (layerId, patch) => onLayerChange?.(pane.id, layerId, patch)
+              : undefined
+          }
+          onLayerAction={
+            layerEditingEnabled
+              ? (layerIds, action) => onLayerAction?.(pane.id, layerIds, action)
+              : undefined
+          }
+          onLayerCopy={layerEditingEnabled ? (layerIds) => onLayerCopy?.(pane.id, layerIds) : undefined}
+          onLayerPaste={
+            layerEditingEnabled ? (point) => onLayerPaste?.(pane.id, point) : undefined
+          }
           onLayerSelect={(layerId, options) => onLayerSelect?.(pane.id, layerId, options)}
           onLayerSelectionChange={(layerIds, options) =>
             onLayerSelectionChange?.(pane.id, layerIds, options)
@@ -631,7 +644,7 @@ function DraftingPaneSurface({
           onPointerUp={handlePanePointerEnd}
         />
       ) : null}
-      {activeCanvasTool === "text" && onAddTextLayerAt ? (
+      {activeCanvasTool === "text" && layerEditingEnabled && onAddTextLayerAt ? (
         <div
           aria-hidden="true"
           className="absolute inset-0 z-[40] cursor-text touch-none"
@@ -673,6 +686,7 @@ export function Canvas({
   selectedLayerId,
   selectedLayerIds,
   toolbarVariant = "default",
+  layerEditingEnabled = true,
 }: CanvasProps) {
   const [zoomLevels, setZoomLevels] = useState<Record<string, number>>({})
   const [panOffsets, setPanOffsets] = useState<DraftingPanePanOffsets>({})
@@ -939,6 +953,7 @@ export function Canvas({
                                 onLayerSelect={onLayerSelect}
                                 onLayerSelectionChange={onLayerSelectionChange}
                                 activeCanvasTool={isSelected ? activeCanvasTool : null}
+                                layerEditingEnabled={layerEditingEnabled}
                                 onAddTextLayerAt={onAddTextLayerAt}
                                 onCanvasToolChange={onCanvasToolChange}
                                 onPaneQrClick={onPaneQrClick}

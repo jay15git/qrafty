@@ -2,6 +2,7 @@
 
 import {
   CircleDotIcon,
+  MousePointer2Icon,
   Redo2Icon,
   RotateCcwIcon,
   SquareRoundCornerIcon,
@@ -33,6 +34,7 @@ import { DEFAULT_SCAN_SAFETY_RESULT } from "@/features/qr-code/scan-safety/types
 import DynamicIsland from "@/components/smoothui/dynamic-island"
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Switch } from "@/components/ui/switch"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import { cn } from "@/lib/utils"
 
@@ -361,12 +363,44 @@ export function DesktopAppearanceIsland({
   )
 }
 
+function DesktopFreeEditToggle({
+  enabled,
+  onChange,
+}: {
+  enabled: boolean
+  onChange: (enabled: boolean) => void
+}) {
+  return (
+    <DesktopTooltip
+      content={enabled ? "Free edit on — canvas layers unlocked" : "Template mode — canvas layers locked"}
+      side="bottom"
+      sideOffset={10}
+    >
+      <label
+        className="flex min-w-0 cursor-pointer items-center gap-1.5 rounded-full px-1.5 py-1 text-[11px] font-semibold text-[var(--desktop-toolbar-fg)] transition-colors hover:text-[var(--desktop-toolbar-fg-hover)]"
+        data-slot="desktop-free-edit-toggle"
+      >
+        <MousePointer2Icon className="size-3.5 shrink-0" />
+        <span className="hidden sm:inline">Free edit</span>
+        <Switch
+          aria-label="Free edit"
+          checked={enabled}
+          onCheckedChange={onChange}
+          size="sm"
+        />
+      </label>
+    </DesktopTooltip>
+  )
+}
+
 export function DesktopDynamicIslandChrome({
   appearance,
   canRedo,
   canUndo,
+  isFreeEditingEnabled = true,
   layerLabel,
   onPatch,
+  onFreeEditingChange,
   onRedo,
   onResetDefaults,
   onThemeChange,
@@ -377,8 +411,10 @@ export function DesktopDynamicIslandChrome({
   appearance?: DesktopAppearanceSnapshot | null
   canRedo?: boolean
   canUndo?: boolean
+  isFreeEditingEnabled?: boolean
   layerLabel?: string | null
   onPatch?: (patch: Partial<DraftingCanvasLayer>) => void
+  onFreeEditingChange?: (enabled: boolean) => void
   onRedo?: () => void
   onResetDefaults?: () => void
   onThemeChange?: (theme: DesktopThemeMode) => void
@@ -386,7 +422,7 @@ export function DesktopDynamicIslandChrome({
   scanSafetyResult?: ScanSafetyResult
   theme?: DesktopThemeMode
 }) {
-  const hasAppearance = Boolean(appearance && layerLabel && onPatch)
+  const hasAppearance = Boolean(isFreeEditingEnabled && appearance && layerLabel && onPatch)
 
   return (
     <DynamicIsland
@@ -403,6 +439,15 @@ export function DesktopDynamicIslandChrome({
             onResetDefaults={onResetDefaults}
             onUndo={onUndo}
           />
+          {onFreeEditingChange ? (
+            <>
+              <DesktopDynamicIslandDivider />
+              <DesktopFreeEditToggle
+                enabled={isFreeEditingEnabled}
+                onChange={onFreeEditingChange}
+              />
+            </>
+          ) : null}
           {hasAppearance ? (
             <>
               <DesktopDynamicIslandDivider />

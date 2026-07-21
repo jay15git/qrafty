@@ -65,7 +65,7 @@ export function DesktopSettingsToolbarShell({
   model: DesktopInspectorModel
   showInspector: boolean
 }) {
-  const { actualActiveTool, controller, onActiveToolChange } = model
+  const { actualActiveTool, controller, onActiveToolChange, visibleToolbarTools } = model
   const [internalHovered, setInternalHovered] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isShellAnimating, setIsShellAnimating] = useState(false)
@@ -163,7 +163,7 @@ export function DesktopSettingsToolbarShell({
   }
 
   const handleToolSelect = (index: number) => {
-    const toolId = DESKTOP_TOOLBAR_TOOLS[index]?.id as DesktopToolbarToolId | undefined
+    const toolId = visibleToolbarTools[index]?.id as DesktopToolbarToolId | undefined
     if (!toolId) {
       return
     }
@@ -183,7 +183,7 @@ export function DesktopSettingsToolbarShell({
       className="relative h-full min-h-0 min-w-0 overflow-x-hidden overflow-y-auto px-1.5 pb-1.5 text-[var(--desktop-toolbar-fg)] max-md:px-1 max-md:pb-1"
       selectedIndex={
         actualActiveTool
-          ? DESKTOP_TOOLBAR_TOOLS.findIndex((tool) => tool.id === actualActiveTool)
+          ? visibleToolbarTools.findIndex((tool) => tool.id === actualActiveTool)
           : -1
       }
       onSelect={handleToolSelect}
@@ -242,8 +242,8 @@ export function DesktopSettingsToolbarShell({
         className="flex w-full flex-col items-center"
         data-slot="desktop-toolbar-tools"
       >
-        {DESKTOP_TOOLBAR_TOOLS.map((tool, index) => {
-          const previousGroup = DESKTOP_TOOLBAR_TOOLS[index - 1]?.group
+        {visibleToolbarTools.map((tool, index) => {
+          const previousGroup = visibleToolbarTools[index - 1]?.group
           const startsGroup = index > 0 && tool.group !== previousGroup
 
           return (

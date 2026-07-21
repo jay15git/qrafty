@@ -1308,6 +1308,25 @@ describe("WorkspaceSurface", () => {
     expect(root.getAttribute("data-qr-content-value")).toBe("https://example.com/desktop-live")
   })
 
+  it("switches to template mode from the dynamic island free edit toggle", () => {
+    const surface = renderDesktopOverlaySurface()
+    const switchInput = getRequiredElement(
+      surface.container,
+      '[data-slot="desktop-free-edit-toggle"] [data-slot="switch"]',
+    )
+
+    act(() => {
+      activateElement(switchInput)
+    })
+
+    expect(window.localStorage.getItem("desktop-workspace-editing-mode")).toBe("template")
+    expect(surface.container.querySelector('[data-tool-id="text"]')).toBeNull()
+    expect(surface.container.querySelector('[data-tool-id="image"]')).toBeNull()
+    expect(surface.container.querySelector('[data-tool-id="layers"]')).toBeNull()
+    expect(surface.container.querySelector('[data-tool-id="templates"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
+  })
+
   it("wires desktop pattern and logo inspectors into the active drafting QR state", async () => {
     buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
     const surface = renderDesktopOverlaySurface()

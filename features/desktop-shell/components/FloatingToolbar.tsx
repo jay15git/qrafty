@@ -260,6 +260,10 @@ import { ReceiptTextIcon } from "@/components/ui/receipt-text"
 import { cn } from "@/lib/utils"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import type { ScanSafetyResult } from "@/features/qr-code/scan-safety/types"
+import {
+  getVisibleToolbarToolIds,
+  type WorkspaceEditingMode,
+} from "@/features/workspace/model/workspace-editing-mode"
 
 type DesktopToolbarGroup = "QR" | "Add" | "Manage"
 export type ComposeSidebarPanel = "stock-photos" | null
@@ -641,6 +645,8 @@ export type DesktopToolbarController = {
   layoutSettings: DesktopLayoutSettings
   sceneTemplateSettings: DesktopSceneTemplateSettings
   textSettings: DesktopTextSettings
+  editingMode?: WorkspaceEditingMode
+  isFreeEditingEnabled?: boolean
   insertNodeId?: string
   composeSidebarPanel?: ComposeSidebarPanel
   selectedElementLayer?: DraftingCanvasLayer | null
@@ -655,6 +661,7 @@ export type DesktopToolbarController = {
   onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
+  onEditingModeChange?: (mode: WorkspaceEditingMode) => void
   onActiveToolChange: (toolId: DesktopToolbarToolId) => void
   onRedo?: () => void
   onSave?: () => void
@@ -1098,6 +1105,7 @@ export type DesktopInspectorModel = {
   actualActiveTool: DesktopToolbarToolId | null
   actualDesktopTheme: DesktopThemeMode
   activeToolConfig: DesktopToolbarTool | undefined
+  visibleToolbarTools: DesktopToolbarTool[]
   actualContentType: QrInputType
   actualContentValues: StaticQrContentValues
   actualEncodedContentValue: string
@@ -1233,13 +1241,19 @@ export function useDesktopToolbarInspectorModel({
 
   const actualActiveTool = controller?.activeTool ?? activeTool
   const actualDesktopTheme = theme ?? desktopTheme
-  const activeToolConfig = DESKTOP_TOOLBAR_TOOLS.find((tool) => tool.id === actualActiveTool)
+  const editingMode = controller?.editingMode ?? "free"
+  const visibleToolbarToolIds = getVisibleToolbarToolIds(editingMode)
+  const visibleToolbarTools = DESKTOP_TOOLBAR_TOOLS.filter((tool) =>
+    visibleToolbarToolIds.includes(tool.id),
+  )
+  const activeToolConfig = visibleToolbarTools.find((tool) => tool.id === actualActiveTool)
 
   return {
     controller,
     actualActiveTool,
     actualDesktopTheme,
     activeToolConfig,
+    visibleToolbarTools,
     actualContentType: controller?.contentType ?? selectedContentType,
     actualContentValues: controller?.contentValues ?? selectedContentValues,
     actualEncodedContentValue: controller?.encodedContentValue ?? selectedContentValue,
@@ -1393,10 +1407,14 @@ export function FloatingToolbar({
               appearance={controller?.appearanceSnapshot}
               canRedo={controller?.canRedo}
               canUndo={controller?.canUndo}
+              isFreeEditingEnabled={controller?.isFreeEditingEnabled ?? true}
               layerLabel={
                 controller?.selectedAppearanceLayer
                   ? `${controller.selectedAppearanceLayer.kind.charAt(0).toUpperCase()}${controller.selectedAppearanceLayer.kind.slice(1)}`
                   : null
+              }
+              onFreeEditingChange={(enabled) =>
+                controller?.onEditingModeChange?.(enabled ? "free" : "template")
               }
               onPatch={controller?.onAppearancePatch}
               onRedo={controller?.onRedo}
