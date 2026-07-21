@@ -1309,7 +1309,7 @@ describe("WorkspaceSurface", () => {
   })
 
   it("switches to template mode from the dynamic island free edit toggle", () => {
-    const surface = renderDesktopOverlaySurface()
+    const surface = renderDesktopOverlaySurface({ paneToolbarVariant: "desktop-zoom" })
     const switchInput = getRequiredElement(
       surface.container,
       '[data-slot="desktop-free-edit-toggle"] [data-slot="switch"]',
@@ -1320,6 +1320,10 @@ describe("WorkspaceSurface", () => {
     })
 
     expect(window.localStorage.getItem("desktop-workspace-editing-mode")).toBe("template")
+    expect(getRequiredElement(surface.container, '[data-slot="drafting-surface"]').getAttribute("data-editing-mode")).toBe("template")
+    expect(surface.container.querySelector('[data-preview-locked="true"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="template-edit-zone"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-resize-toolbar"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-tool-id="text"]')).toBeNull()
     expect(surface.container.querySelector('[data-tool-id="image"]')).toBeNull()
     expect(surface.container.querySelector('[data-tool-id="layers"]')).toBeNull()

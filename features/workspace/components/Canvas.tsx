@@ -44,6 +44,7 @@ import {
 import { Pane, type DraftingLayerMenuAction } from "@/features/workspace/components/Pane"
 import { InsertMenu } from "@/features/workspace/components/InsertMenu"
 import { getQrLayout } from "@/features/workspace/model/layout-engine"
+import { computeTemplatePreviewFit } from "@/features/workspace/model/template-preview-fit"
 import type { QrStudioState } from "@/features/qr-code/model/state"
 import { Button } from "@/components/ui/button"
 import {
@@ -178,6 +179,7 @@ type CanvasProps = {
   selectedLayerIds?: string[]
   toolbarVariant?: DraftingPaneToolbarVariant
   layerEditingEnabled?: boolean
+  previewLocked?: boolean
 }
 
 function groupPanes<T>(panes: T[], groups: number[]) {
@@ -261,9 +263,11 @@ function DraftingPaneSurface({
   pane,
   panePan,
   paneZoom,
+  previewLocked = false,
   selectedLayerId,
   selectedLayerIds,
   snapEnabled,
+  toolbarVariant = "default",
 }: {
   areaName?: string
   canSwap: boolean
@@ -309,11 +313,14 @@ function DraftingPaneSurface({
   pane: DraftingPane
   panePan: { x: number; y: number }
   paneZoom: number
+  previewLocked?: boolean
   selectedLayerId?: string | null
   selectedLayerIds?: string[]
   snapEnabled: boolean
+  toolbarVariant?: DraftingPaneToolbarVariant
 }) {
   const hideLayerSelectionChrome = activeCanvasTool === "pan" || !layerEditingEnabled
+  const surfaceRef = useRef<HTMLDivElement | null>(null)
   const [isPanning, setIsPanning] = useState(false)
   const onPaneSelectRef = useRef(onPaneSelect)
   const onPaneQrClickRef = useRef(onPaneQrClick)
@@ -327,6 +334,69 @@ function DraftingPaneSurface({
   } | null>(null)
   const pinchDistanceRef = useRef<number | null>(null)
   const pinchZoomRef = useRef(paneZoom)
+  const effectiveZoom = paneZoom
+  const effectivePan = previewLocked ? { x: 0, y: 0 } : panePan
+  const isFreeEditWorkspace =
+    toolbarVariant === "desktop-zoom" && layerEditingEnabled && !previewLocked
+  const surfaceAppearance = previewLocked ? "template" : isFreeEditWorkspace ? "workspace" : "neutral"
+  const hasSeededFitZoomRef = useRef(false)
+
+  useEffect(() => {
+    if (!previewLocked && !isFreeEditWorkspace) {
+      return
+    }
+
+    const surface = surfaceRef.current
+
+    if (!surface) {
+      return
+    }
+
+    const updateFitScale = () => {
+      const rect = surface.getBoundingClientRect()
+
+      if (rect.width <= 0 || rect.height <= 0) {
+        return
+      }
+
+      const nextFitScale = computeTemplatePreviewFit(
+        { width: pane.cardState.width, height: pane.cardState.height },
+        { width: rect.width, height: rect.height },
+      )
+
+      if (previewLocked) {
+        onPaneZoom(pane.id, nextFitScale)
+        return
+      }
+
+      if (isFreeEditWorkspace && !hasSeededFitZoomRef.current) {
+        onPaneZoom(pane.id, nextFitScale)
+        hasSeededFitZoomRef.current = true
+      }
+    }
+
+    updateFitScale()
+
+    const observer = new ResizeObserver(updateFitScale)
+    observer.observe(surface)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [
+    isFreeEditWorkspace,
+    onPaneZoom,
+    pane.cardState.height,
+    pane.cardState.width,
+    pane.id,
+    previewLocked,
+  ])
+
+  useEffect(() => {
+    if (!isFreeEditWorkspace) {
+      hasSeededFitZoomRef.current = false
+    }
+  }, [isFreeEditWorkspace])
 
   useEffect(() => {
     onPaneSelectRef.current = onPaneSelect
@@ -355,11 +425,11 @@ function DraftingPaneSurface({
       const rect = event.currentTarget.getBoundingClientRect()
 
       return {
-        x: (event.clientX - rect.left - rect.width / 2 - panePan.x) / paneZoom,
-        y: (event.clientY - rect.top - rect.height / 2 - panePan.y) / paneZoom,
+        x: (event.clientX - rect.left - rect.width / 2 - effectivePan.x) / effectiveZoom,
+        y: (event.clientY - rect.top - rect.height / 2 - effectivePan.y) / effectiveZoom,
       }
     },
-    [panePan.x, panePan.y, paneZoom],
+    [effectivePan.x, effectivePan.y, effectiveZoom],
   )
 
   const isPlacementTarget = useCallback(
@@ -412,6 +482,10 @@ function DraftingPaneSurface({
 
   const beginPanePan = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (previewLocked) {
+        return
+      }
+
       event.preventDefault()
       event.stopPropagation()
       const captureTarget = panOverlayRef.current ?? event.currentTarget
@@ -427,7 +501,7 @@ function DraftingPaneSurface({
       lockCanvasPanCursor()
       setIsPanning(true)
     },
-    [pane.id, panePan.x, panePan.y],
+    [pane.id, panePan.x, panePan.y, previewLocked],
   )
 
   const handlePanePointerDownCapture = useCallback(
@@ -502,6 +576,10 @@ function DraftingPaneSurface({
 
   const handleWheel = useCallback(
     (event: WheelEvent<HTMLDivElement>) => {
+      if (previewLocked) {
+        return
+      }
+
       event.preventDefault()
       event.stopPropagation()
       onPaneSelectRef.current(pane.id)
@@ -509,11 +587,15 @@ function DraftingPaneSurface({
       const nextZoom = clampPreviewZoom(paneZoom * Math.exp(-event.deltaY * WHEEL_ZOOM_SENSITIVITY))
       onPaneZoom(pane.id, nextZoom)
     },
-    [onPaneZoom, pane.id, paneZoom],
+    [onPaneZoom, pane.id, paneZoom, previewLocked],
   )
 
   const handleTouchStart = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
+      if (previewLocked) {
+        return
+      }
+
       const distance = getTouchDistance(event.touches)
 
       if (distance === null) {
@@ -526,11 +608,15 @@ function DraftingPaneSurface({
       pinchDistanceRef.current = distance
       pinchZoomRef.current = paneZoom
     },
-    [pane.id, paneZoom],
+    [pane.id, paneZoom, previewLocked],
   )
 
   const handleTouchMove = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
+      if (previewLocked) {
+        return
+      }
+
       const startDistance = pinchDistanceRef.current
       const nextDistance = getTouchDistance(event.touches)
 
@@ -542,7 +628,7 @@ function DraftingPaneSurface({
       event.stopPropagation()
       onPaneZoom(pane.id, clampPreviewZoom(pinchZoomRef.current * (nextDistance / startDistance)))
     },
-    [onPaneZoom, pane.id],
+    [onPaneZoom, pane.id, previewLocked],
   )
 
   const handleTouchEnd = useCallback((event: TouchEvent<HTMLDivElement>) => {
@@ -553,25 +639,31 @@ function DraftingPaneSurface({
 
   return (
     <div
+      ref={surfaceRef}
       key={pane.id}
       data-slot="dashboard-compose-surface"
-      data-surface-appearance="neutral"
+      data-surface-appearance={surfaceAppearance}
+      data-preview-locked={previewLocked ? "true" : "false"}
       data-dragging={draggingPaneId === pane.id ? "true" : "false"}
       data-grid-visible={showCanvasGrid ? "true" : "false"}
       data-panning={isPanning ? "true" : "false"}
       data-snap-target={isSnapTarget ? "true" : "false"}
       draggable={canSwap}
       className={cn(
-        "relative flex h-full w-full touch-none flex-col items-center justify-center overflow-hidden bg-[var(--drafting-canvas-bg)] transition-opacity duration-150 ease-out after:pointer-events-none after:absolute after:inset-0 after:border-2 after:border-dashed after:border-transparent after:content-[''] after:transition-colors after:duration-150 after:ease-out",
+        "relative flex h-full w-full touch-none flex-col items-center justify-center overflow-hidden transition-opacity duration-150 ease-out after:pointer-events-none after:absolute after:inset-0 after:border-2 after:border-dashed after:border-transparent after:content-[''] after:transition-colors after:duration-150 after:ease-out",
+        isFreeEditWorkspace
+          ? "bg-[var(--drafting-workspace-bg,#ffffff)]"
+          : "bg-[var(--drafting-canvas-bg)]",
         canSwap && "cursor-grab active:cursor-grabbing",
         draggingPaneId === pane.id && "opacity-55",
         isSnapTarget && "after:border-[var(--drafting-ink)]",
       )}
       style={{
         gridArea: areaName,
-        backgroundImage: showCanvasGrid
-          ? "radial-gradient(circle, rgb(var(--drafting-canvas-dot-rgb) / var(--drafting-canvas-dot-opacity)) 2.4px, transparent 3px)"
-          : "none",
+        backgroundImage:
+          showCanvasGrid && !isFreeEditWorkspace && !previewLocked
+            ? "radial-gradient(circle, rgb(var(--drafting-canvas-dot-rgb) / var(--drafting-canvas-dot-opacity)) 2.4px, transparent 3px)"
+            : "none",
         backgroundPosition: "0 0",
         backgroundSize: "30px 30px",
       }}
@@ -589,11 +681,18 @@ function DraftingPaneSurface({
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchMove}
       onTouchStart={handleTouchStart}
-      onWheel={handleWheel}
+      onWheel={previewLocked ? undefined : handleWheel}
     >
       <div
+        data-slot={
+          previewLocked
+            ? "template-edit-zone"
+            : isFreeEditWorkspace
+              ? "free-edit-artboard"
+              : undefined
+        }
         style={{
-          transform: `translate3d(${panePan.x}px, ${panePan.y}px, 0) scale(${paneZoom})`,
+          transform: `translate3d(${effectivePan.x}px, ${effectivePan.y}px, 0) scale(${effectiveZoom})`,
           transformOrigin: "center center",
           transition: "transform 150ms ease-out",
         }}
@@ -601,7 +700,7 @@ function DraftingPaneSurface({
       >
         <Pane
           cardState={pane.cardState}
-          interactionScale={paneZoom}
+          interactionScale={effectiveZoom}
           layers={pane.layers}
           sceneComposition={pane.sceneComposition}
           snapEnabled={snapEnabled}
@@ -631,7 +730,7 @@ function DraftingPaneSurface({
           selectedLayerIds={isSelected && !hideLayerSelectionChrome ? selectedLayerIds : undefined}
         />
       </div>
-      {activeCanvasTool === "pan" ? (
+      {activeCanvasTool === "pan" && !previewLocked ? (
         <div
           ref={panOverlayRef}
           aria-hidden="true"
@@ -687,6 +786,7 @@ export function Canvas({
   selectedLayerIds,
   toolbarVariant = "default",
   layerEditingEnabled = true,
+  previewLocked = false,
 }: CanvasProps) {
   const [zoomLevels, setZoomLevels] = useState<Record<string, number>>({})
   const [panOffsets, setPanOffsets] = useState<DraftingPanePanOffsets>({})
@@ -961,10 +1061,12 @@ export function Canvas({
                                 pane={pane}
                                 panePan={panePan}
                                 paneZoom={paneZoom}
+                                previewLocked={previewLocked}
                                 selectedLayerId={selectedLayerId}
                                 selectedLayerIds={selectedLayerIds}
                                 showCanvasGrid={showCanvasGrid}
                                 snapEnabled={snapEnabled}
+                                toolbarVariant={toolbarVariant}
                               />
                             </ResizablePanel>
                           )
@@ -995,6 +1097,7 @@ export function Canvas({
         </div>
 
         <div
+          data-slot={isDesktopZoomToolbar ? "desktop-compose-toolbar-anchor" : undefined}
           className={cn(
             "pointer-events-none absolute z-[60] flex",
             isDesktopZoomToolbar
@@ -1070,7 +1173,7 @@ export function Canvas({
               </>
             ) : null}
 
-            {isDesktopZoomToolbar ? (
+            {isDesktopZoomToolbar && !previewLocked ? (
               <>
                 <ComposeToolbarTooltip
                   content="Select and move elements"
@@ -1313,7 +1416,10 @@ export function Canvas({
         </div>
 
         {isDesktopZoomToolbar ? (
-          <div className="pointer-events-none absolute bottom-4 right-5 z-[60] flex justify-end max-md:right-4">
+          <div
+            data-slot="desktop-resize-toolbar-anchor"
+            className="pointer-events-none absolute bottom-4 right-5 z-[60] flex justify-end max-md:right-4"
+          >
             <div
               data-slot="desktop-resize-toolbar"
               data-toolbar-appearance="desktop-glass"

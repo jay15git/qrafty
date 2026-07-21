@@ -10,15 +10,20 @@ import { createDefaultDraftingCardState } from "@/features/workspace/model/card-
 import { Canvas } from "@/features/workspace/components/Canvas"
 import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
 
-vi.mock("@/features/qr-code/rendering/qr-svg", () => ({
-  buildDashboardQrNodePayload: vi.fn(() =>
-    Promise.resolve({
-      markup: "<svg />",
-      naturalHeight: 240,
-      naturalWidth: 240,
-    }),
-  ),
-}))
+vi.mock("@/features/qr-code/rendering/qr-svg", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/features/qr-code/rendering/qr-svg")>()
+
+  return {
+    ...actual,
+    buildDashboardQrNodePayload: vi.fn(() =>
+      Promise.resolve({
+        markup: "<svg />",
+        naturalHeight: 240,
+        naturalWidth: 240,
+      }),
+    ),
+  }
+})
 
 const cleanupCallbacks: Array<() => void> = []
 
@@ -209,6 +214,70 @@ describe("Canvas", () => {
 
     expect(getPaneSurfaces(workspace.container, 1)).toHaveLength(1)
     expect(getResizeHandles(workspace.container)).toHaveLength(0)
+  })
+
+  it("uses a fixed white workspace surface in free edit mode", async () => {
+    const workspace = renderWorkspace({
+      layerEditingEnabled: true,
+      paneCount: 1,
+      previewLocked: false,
+      toolbarVariant: "desktop-zoom",
+    })
+    const [pane] = getPaneSurfaces(workspace.container, 1)
+
+    await act(async () => {
+      await flushPromises()
+    })
+
+    expect(pane.getAttribute("data-surface-appearance")).toBe("workspace")
+    expect(pane.getAttribute("data-preview-locked")).toBe("false")
+    expect(pane.className).toContain("bg-[var(--drafting-workspace-bg,#ffffff)]")
+    expect(pane.querySelector('[data-slot="free-edit-artboard"]')).not.toBeNull()
+    expect(workspace.container.querySelector('[data-slot="desktop-resize-toolbar"]')).not.toBeNull()
+  })
+
+  it("blocks preview wheel zoom but keeps resize controls when preview is locked", async () => {
+    const workspace = renderWorkspace({
+      paneCount: 1,
+      previewLocked: true,
+      toolbarVariant: "desktop-zoom",
+    })
+    const [pane] = getPaneSurfaces(workspace.container, 1)
+    const viewport = pane.querySelector('[data-slot="template-edit-zone"]') as HTMLElement
+
+    expect(pane.getAttribute("data-preview-locked")).toBe("true")
+    expect(workspace.container.querySelector('[data-slot="desktop-resize-toolbar"]')).not.toBeNull()
+    expect(workspace.container.querySelector('button[aria-label="Pan canvas"]')).toBeNull()
+
+    await act(async () => {
+      await flushPromises()
+    })
+
+    const transformBefore = viewport.style.transform
+
+    await act(async () => {
+      pane.dispatchEvent(new WheelEvent("wheel", {
+        bubbles: true,
+        cancelable: true,
+        deltaY: -100,
+      }))
+      await flushPromises()
+    })
+
+    expect(viewport.style.transform).toBe(transformBefore)
+
+    const zoomInButton = workspace.container.querySelector(
+      'button[aria-label="Increase canvas size"]',
+    ) as HTMLButtonElement | null
+
+    expect(zoomInButton).not.toBeNull()
+
+    await act(async () => {
+      zoomInButton?.click()
+      await flushPromises()
+    })
+
+    expect(viewport.style.transform).not.toBe(transformBefore)
   })
 
   it("zooms the active preview with the mouse wheel", async () => {
@@ -533,8 +602,8 @@ describe("Canvas", () => {
     expect(gridButton).not.toBeNull()
     expect(gridButton?.getAttribute("aria-pressed")).toBe("true")
     expect(pane?.getAttribute("data-grid-visible")).toBe("true")
-    expect(pane?.style.backgroundImage).toContain("radial-gradient(circle")
-    expect(pane?.style.backgroundImage).toContain("var(--drafting-canvas-dot-rgb)")
+    expect(pane?.getAttribute("data-surface-appearance")).toBe("workspace")
+    expect(pane?.style.backgroundImage).toBe("none")
 
     act(() => {
       gridButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
@@ -552,6 +621,7 @@ describe("Canvas", () => {
 
     expect(workspace.container.querySelector('button[aria-label="Show canvas grid"]')).not.toBeNull()
     expect(pane?.getAttribute("data-grid-visible")).toBe("false")
+    expect(pane?.getAttribute("data-surface-appearance")).toBe("workspace")
     expect(pane?.style.backgroundImage).toBe("none")
   })
 
@@ -645,6 +715,8 @@ function renderWorkspace({
   selectedLayerIds,
   showCanvasGrid,
   toolbarVariant,
+  layerEditingEnabled,
+  previewLocked,
 }: {
   activeCanvasTool?: ComponentProps<typeof Canvas>["activeCanvasTool"]
   canRedo?: boolean
@@ -665,6 +737,8 @@ function renderWorkspace({
   selectedLayerIds?: ComponentProps<typeof Canvas>["selectedLayerIds"]
   showCanvasGrid?: ComponentProps<typeof Canvas>["showCanvasGrid"]
   toolbarVariant?: ComponentProps<typeof Canvas>["toolbarVariant"]
+  layerEditingEnabled?: ComponentProps<typeof Canvas>["layerEditingEnabled"]
+  previewLocked?: ComponentProps<typeof Canvas>["previewLocked"]
 } = {}) {
   const container = document.createElement("div")
   const root = createRoot(container)
@@ -693,6 +767,8 @@ function renderWorkspace({
         selectedLayerIds={selectedLayerIds}
         showCanvasGrid={showCanvasGrid}
         toolbarVariant={toolbarVariant}
+        layerEditingEnabled={layerEditingEnabled}
+        previewLocked={previewLocked}
       />,
     )
   }

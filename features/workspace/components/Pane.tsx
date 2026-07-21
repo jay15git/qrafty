@@ -2265,7 +2265,7 @@ export const Pane = memo(function Pane({
         className={cn(
           "absolute max-h-none max-w-none transition-[filter,background-color,border-radius] duration-150",
           LAYER_MOVE_CURSOR_CLASS,
-          "overflow-visible",
+          "overflow-hidden",
           layer.isLocked && "cursor-default",
         )}
         style={{
@@ -2281,6 +2281,11 @@ export const Pane = memo(function Pane({
         onContextMenu={(event) => openLayerContextMenu(event, [layer.id])}
       >
         <DraftingLayerTiltShell layer={layer}>
+          <SceneBackgroundLayer
+            background={sceneComposition.background}
+            height={layer.height}
+            width={layer.width}
+          />
           {isImageMode && cardState.cardImage.value ? (
             <div
               aria-hidden="true"
@@ -2506,11 +2511,6 @@ export const Pane = memo(function Pane({
               className="relative"
               style={{ width: cardState.width, height: cardState.height }}
             >
-              <SceneBackgroundLayer
-                background={sceneComposition.background}
-                height={cardState.height}
-                width={cardState.width}
-              />
               <SceneCompositionTransform layout={sceneComposition.layout}>
                 <div data-export-root>
                   {visibleLayers.map(renderLayer)}

@@ -49,6 +49,7 @@ import {
 } from "@/features/qr-code/model/state"
 import { renderDashboardQrSvgMarkup } from "@/features/qr-code/rendering/qr-svg"
 import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-artwork"
+import { createDefaultSceneComposition } from "@/features/workspace/model/scene-templates"
 
 const cleanupCallbacks: Array<() => void> = []
 
@@ -114,6 +115,29 @@ describe("Pane", () => {
     })
 
     expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalledTimes(2)
+  })
+
+  it("renders the scene background inside the card layer", async () => {
+    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const cardState = createDefaultDraftingCardState()
+    const nodeId = "preview"
+    const layers = createDefaultDraftingLayers(nodeId, state, cardState)
+    const { container } = renderPane(state, false, cardState, {
+      layers,
+      sceneComposition: createDefaultSceneComposition(),
+    })
+
+    await waitForQrPaneRender()
+
+    const card = container.querySelector('[data-slot="dashboard-compose-card"]')
+    const sceneBackground = card?.querySelector('[data-slot="scene-background-layer"]')
+    const artboard = container.querySelector(
+      '[data-slot="dashboard-compose-canvas"] > .relative',
+    )
+
+    expect(card).not.toBeNull()
+    expect(sceneBackground).not.toBeNull()
+    expect(artboard?.querySelector(':scope > [data-slot="scene-background-layer"]')).toBeNull()
   })
 
   it("lets the qr canvas fill the preview pane", async () => {
@@ -449,7 +473,7 @@ describe("Pane", () => {
     const frame = container.querySelector('[data-slot="drafting-layer-resize-frame"]') as HTMLElement
 
     expect(card).not.toBeNull()
-    expect(card.className).toContain("overflow-visible")
+    expect(card.className).toContain("overflow-hidden")
     expect(card.className).not.toContain("outline")
     expect(frame).not.toBeNull()
     expect(frame.className).toContain("border")
@@ -1857,6 +1881,7 @@ function renderPane(
     selectedLayerId?: string | null
     selectedLayerIds?: string[]
     snapEnabled?: boolean
+    sceneComposition?: import("@/features/workspace/model/scene-templates").SceneCompositionState
   } = {},
 ) {
   const container = document.createElement("div")
@@ -1877,6 +1902,7 @@ function renderPane(
         onLayerSelectionChange={props.onLayerSelectionChange}
         onQrClick={() => undefined}
         onSelect={() => undefined}
+        sceneComposition={props.sceneComposition}
         selectedLayerId={props.selectedLayerId}
         selectedLayerIds={props.selectedLayerIds}
         snapEnabled={props.snapEnabled}

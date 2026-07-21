@@ -1673,6 +1673,35 @@ export function WorkspaceSurface({
       setDesktopCanvasTool(null)
       setComposeSidebarPanel(null)
 
+      const normalizedCardState = normalizeDraftingCardState({
+        ...selectedCardState,
+        lockAspectRatio: true,
+        sizeMode: "fixed",
+      })
+      const fittedQr = fitQrSizeInCard(draftingStudioState, normalizedCardState)
+      const nextQrState = {
+        ...draftingStudioState,
+        height: fittedQr.height,
+        width: fittedQr.width,
+      }
+
+      setSelectedCardState(normalizedCardState)
+      setSelectedQrSize(fittedQr.width)
+      setLayerStateByNodeId((layerState) => {
+        const layers =
+          layerState[activeQrNodeId] ??
+          createDefaultDraftingLayers(activeQrNodeId, nextQrState, normalizedCardState)
+
+        return {
+          ...layerState,
+          [activeQrNodeId]: layoutDraftingCardInsetLayers(
+            layers.map(cloneDraftingCanvasLayer),
+            nextQrState,
+            normalizedCardState,
+          ),
+        }
+      })
+
       if (chrome === "canvas-only") {
         setDesktopRailTool("templates")
       } else {
@@ -4786,6 +4815,7 @@ export function WorkspaceSurface({
       data-qr-size={selectedQrSize}
       data-qr-type-number={selectedQrTypeNumber}
       data-slot="drafting-surface"
+      data-editing-mode={editingMode}
       tabIndex={-1}
       className={cn(
         "relative grid h-dvh w-full overflow-visible bg-[var(--drafting-surface-bg)] sm:h-[calc(100dvh-4rem)] lg:shadow-[var(--drafting-shadow-shell)] [--new-header-height:3.875rem] [--new-left-rail-width:clamp(6.25rem,10vw,7.5rem)] [--new-middle-rail-width:clamp(15rem,24vw,18.5rem)] [--new-mobile-rail-height:5.75rem]",
@@ -5282,6 +5312,7 @@ export function WorkspaceSurface({
         <section
           aria-label="Workspace frame"
           data-slot="drafting-workspace"
+          data-desktop-canvas-frame={chrome === "canvas-only" ? "true" : undefined}
           className={cn(
             "min-h-0 min-w-0 overflow-hidden",
             chrome === "canvas-only" ? "h-full" : "order-1 lg:order-none",
@@ -5291,6 +5322,10 @@ export function WorkspaceSurface({
             data-slot="drafting-workspace-inset"
             className="h-full min-h-0 p-0"
           >
+            <div
+              data-slot="desktop-canvas-viewport"
+              className={cn("h-full min-h-0", chrome === "canvas-only" && "min-w-0")}
+            >
             <Canvas
               activePaneId={activeQrNodeId}
               canRedo={canRedoDraftingWorkspace}
@@ -5349,11 +5384,13 @@ export function WorkspaceSurface({
               }}
               onUndo={handleUndoDraftingWorkspace}
               panes={panes}
+              previewLocked={!isFreeEditing}
               showCanvasGrid={paneToolbarVariant === "desktop-zoom" ? showDesktopCanvasGrid : true}
               toolbarVariant={paneToolbarVariant}
               selectedLayerId={selectedLayerId}
               selectedLayerIds={selectedLayerIds}
             />
+            </div>
           </div>
         </section>
       </div>

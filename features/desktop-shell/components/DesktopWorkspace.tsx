@@ -26,12 +26,13 @@ export function DesktopWorkspace({
 }: DesktopWorkspaceProps) {
   const [desktopTheme, setDesktopTheme] = useState<DesktopThemeMode>(initialTheme)
   const workspaceTone = {
-    "--workspace-shell": "#1f1f1f",
-    "--workspace-page": "#171717",
+    "--workspace-shell": desktopTheme === "light" ? "#e7e9ec" : "#1f1f1f",
+    "--workspace-page": desktopTheme === "light" ? "#ffffff" : "#171717",
     "--drafting-dark-shell-bg": "#1f1f1f",
     "--drafting-dark-page-bg": "#171717",
-    "--drafting-canvas-bg": "#1f1f1f",
-    "--drafting-surface-bg": "#1f1f1f",
+    "--drafting-canvas-bg": desktopTheme === "light" ? "#ffffff" : "#1f1f1f",
+    "--drafting-workspace-bg": desktopTheme === "light" ? "#ffffff" : "#171717",
+    "--drafting-surface-bg": desktopTheme === "light" ? "#e7e9ec" : "#1f1f1f",
   } as CSSProperties
 
   const handleSaveToLibrary = useCallback(async (document: DraftingWorkspaceDocumentV1) => {
