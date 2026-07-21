@@ -65,12 +65,7 @@ export function DesktopSettingsToolbarShell({
   model: DesktopInspectorModel
   showInspector: boolean
 }) {
-  const {
-    actualActiveTool,
-    controller,
-    onActiveToolChange,
-    visibleToolbarTools = DESKTOP_TOOLBAR_TOOLS,
-  } = model
+  const { actualActiveTool, controller, onActiveToolChange, visibleToolbarTools } = model
   const [internalHovered, setInternalHovered] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isShellAnimating, setIsShellAnimating] = useState(false)

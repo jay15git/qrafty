@@ -6,10 +6,16 @@ import {
   clampBackgroundShapeOpacity,
   clampBackgroundShapePaddingPx,
   clampBackgroundShapeTilt,
+  clampDotMatrixAnimationOpacity,
+  clampDotMatrixAnimationOverlayScale,
+  clampDotMatrixAnimationSpeed,
   clampRasterExportQualityPercent,
   clampQrBackgroundRound,
   clampQrSize,
   createDefaultQrStudioState,
+  DEFAULT_DOT_MATRIX_ANIMATION,
+  QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
+  setDotMatrixAnimationOptions,
   setRasterExportQualityPercent,
   setSquareQrSize,
 } from "@/features/qr-code/model/state";
@@ -131,13 +137,226 @@ describe("qr studio state helpers", () => {
     expect(state.rasterExportQualityPercent).toBe(100);
   });
 
+  it("starts with dot matrix animation disabled and SVG export static", () => {
+    const state = createDefaultQrStudioState();
 
+    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(17);
+    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => option.label)).toEqual([
+      "Neon Drift",
+      "Pulse Ladder",
+      "Core Spiral",
+      "Twin Orbit",
+      "Flux Columns",
+      "Block Drop",
+      "Strobe Stack",
+      "Glyph Pulse",
+      "CRT Glide",
+      "Echo Ring",
+      "Origin Wave",
+      "Core Rotor",
+      "Prism Bloom",
+      "Helix Glow",
+      "Helix Core",
+      "Infinity Run",
+      "Mobius Run",
+    ]);
+    expect(state.dotMatrixAnimation).toEqual(DEFAULT_DOT_MATRIX_ANIMATION);
+    expect(state.dotMatrixAnimation.enabled).toBe(false);
+    expect(state.dotMatrixAnimation.exportAnimatedSvg).toBe(false);
+    expect(state.dotMatrixAnimation.loader).toBe("neon-drift");
+    expect(state.dotMatrixAnimation.matrixSize).toBe(5);
+    expect(state.dotMatrixAnimation.pattern).toBe("full");
+    expect(state.dotMatrixAnimation.dotShape).toBe("circle");
+    expect(state.dotMatrixAnimation.customColorBase).toBe(state.dotMatrixAnimation.customColor);
+    expect(state.dotMatrixAnimation.customColorMid).toBe(state.dotMatrixAnimation.customColor);
+    expect(state.dotMatrixAnimation.customColorPeak).toBe(state.dotMatrixAnimation.customColor);
+  });
 
+  it("normalizes unknown dot matrix loader values", () => {
+    const state = createDefaultQrStudioState();
 
+    expect(setDotMatrixAnimationOptions(state, { loader: "vortex" }).dotMatrixAnimation.loader).toBe("neon-drift");
+    expect(setDotMatrixAnimationOptions(state, { loader: "honey-gate" }).dotMatrixAnimation.loader).toBe("neon-drift");
+  });
 
+  it("clamps dot matrix animation updates to supported ranges", () => {
+    const state = createDefaultQrStudioState();
+    const lowAnimation = setDotMatrixAnimationOptions(state, {
+      opacityBase: -1,
+      opacityMid: -2,
+      opacityPeak: -3,
+      matrixSize: -5,
+      overlayScale: -20,
+      speed: -1,
+    });
+    const highAnimation = setDotMatrixAnimationOptions(state, {
+      customColor: "#f4f4f5",
+      enabled: true,
+      exportAnimatedSvg: true,
+      loader: "honey-gate",
+      opacityBase: 2,
+      opacityMid: 3,
+      opacityPeak: 4,
+      matrixSize: 50,
+      overlayScale: 240,
+      pattern: "rings",
+      dotShape: "diamond",
+      speed: 12,
+    });
 
+    expect(lowAnimation.dotMatrixAnimation.opacityBase).toBe(0);
+    expect(lowAnimation.dotMatrixAnimation.opacityMid).toBe(0);
+    expect(lowAnimation.dotMatrixAnimation.opacityPeak).toBe(0);
+    expect(lowAnimation.dotMatrixAnimation.matrixSize).toBe(5);
+    expect(lowAnimation.dotMatrixAnimation.overlayScale).toBe(100);
+    expect(lowAnimation.dotMatrixAnimation.speed).toBe(1);
+    expect(highAnimation.dotMatrixAnimation).toEqual({
+      animated: true,
+      autoAnimate: "",
+      autoAnimateInterval: 5000,
+      colorPreset: "theme",
+      customColor: "#f4f4f5",
+      customColorBase: "#22d3ee",
+      customColorMid: "#22d3ee",
+      customColorPeak: "#22d3ee",
+      dotShape: "diamond",
+      enabled: true,
+      exportAnimatedSvg: true,
+      hoverColorMode: "both",
+      hoverEffect: "",
+      loader: "neon-drift",
+      matrixSize: 25,
+      motionIntensity: "premium",
+      opacityBase: 1,
+      opacityMid: 1,
+      opacityPeak: 1,
+      overlayScale: 140,
+      pattern: "rings",
+      preset: "neon-drift",
+      presetCategory: "dotMatrix",
+      respectReducedMotion: true,
+      speed: 10,
+    });
+    expect(clampDotMatrixAnimationOpacity(Number.NaN, DEFAULT_DOT_MATRIX_ANIMATION.opacityMid)).toBe(
+      DEFAULT_DOT_MATRIX_ANIMATION.opacityMid,
+    );
+    expect(clampDotMatrixAnimationOverlayScale(Number.NaN)).toBe(
+      DEFAULT_DOT_MATRIX_ANIMATION.overlayScale,
+    );
+    expect(clampDotMatrixAnimationSpeed(Number.NaN)).toBe(
+      DEFAULT_DOT_MATRIX_ANIMATION.speed,
+    );
+  });
 
+  it("drops removed dot matrix animation options from legacy state", () => {
+    const state = createDefaultQrStudioState();
+    const legacyState = {
+      ...state,
+      dotMatrixAnimation: {
+        ...state.dotMatrixAnimation,
+        bloom: true,
+        halo: 1,
+        hoverAnimated: true,
+        muted: true,
+      },
+    } as unknown as typeof state;
 
+    const cleaned = setDotMatrixAnimationOptions(legacyState, {});
+    const animationRecord = cleaned.dotMatrixAnimation as Record<string, unknown>;
+
+    expect(animationRecord.bloom).toBeUndefined();
+    expect(animationRecord.halo).toBeUndefined();
+    expect(animationRecord.hoverAnimated).toBeUndefined();
+    expect(animationRecord.muted).toBeUndefined();
+  });
+
+  it("restores missing dot matrix density from legacy state", () => {
+    const state = createDefaultQrStudioState();
+    const legacyState = {
+      ...state,
+      dotMatrixAnimation: {
+        ...state.dotMatrixAnimation,
+      },
+    } as unknown as typeof state;
+    delete (legacyState.dotMatrixAnimation as Partial<typeof state.dotMatrixAnimation>).matrixSize;
+
+    const cleaned = setDotMatrixAnimationOptions(legacyState, {});
+
+    expect(cleaned.dotMatrixAnimation.matrixSize).toBe(5);
+  });
+
+  it("keeps loader color controls independent and persists opacity anchors", () => {
+    const state = createDefaultQrStudioState();
+
+    const custom = setDotMatrixAnimationOptions(state, {
+      colorPreset: "mint",
+      customColor: "#abcdef",
+      customColorBase: "#111111",
+      customColorMid: "#555555",
+      customColorPeak: "#eeeeee",
+      opacityBase: 0.14,
+      opacityMid: 0.48,
+      opacityPeak: 0.92,
+    });
+
+    expect(custom.dotMatrixAnimation.colorPreset).toBe("mint");
+    expect(custom.dotMatrixAnimation.customColor).toBe("#abcdef");
+    expect(custom.dotMatrixAnimation.customColorBase).toBe("#111111");
+    expect(custom.dotMatrixAnimation.customColorMid).toBe("#555555");
+    expect(custom.dotMatrixAnimation.customColorPeak).toBe("#eeeeee");
+    expect(custom.dotMatrixAnimation.opacityBase).toBe(0.14);
+    expect(custom.dotMatrixAnimation.opacityMid).toBe(0.48);
+    expect(custom.dotMatrixAnimation.opacityPeak).toBe(0.92);
+
+    const styleColorChanged = {
+      ...custom,
+      dataModulesSettings: {
+        ...custom.dataModulesSettings,
+        color: "#ff0000",
+      },
+    };
+
+    expect(styleColorChanged.dotMatrixAnimation.colorPreset).toBe("mint");
+    expect(styleColorChanged.dotMatrixAnimation.customColor).toBe("#abcdef");
+    expect(styleColorChanged.dotMatrixAnimation.customColorBase).toBe("#111111");
+    expect(styleColorChanged.dotMatrixAnimation.customColorMid).toBe("#555555");
+    expect(styleColorChanged.dotMatrixAnimation.customColorPeak).toBe("#eeeeee");
+  });
+
+  it("seeds missing loader anchor colors from the legacy custom color", () => {
+    const state = createDefaultQrStudioState();
+    const legacyState = {
+      ...state,
+      dotMatrixAnimation: {
+        ...state.dotMatrixAnimation,
+        customColor: "#123abc",
+        customColorBase: undefined,
+        customColorMid: undefined,
+        customColorPeak: undefined,
+      },
+    } as unknown as typeof state;
+
+    const migrated = setDotMatrixAnimationOptions(legacyState, {});
+
+    expect(migrated.dotMatrixAnimation.customColor).toBe("#123abc");
+    expect(migrated.dotMatrixAnimation.customColorBase).toBe("#123abc");
+    expect(migrated.dotMatrixAnimation.customColorMid).toBe("#123abc");
+    expect(migrated.dotMatrixAnimation.customColorPeak).toBe("#123abc");
+  });
+
+  it("persists zero opacity anchors as literal zero values", () => {
+    const state = createDefaultQrStudioState();
+
+    const zeroOpacity = setDotMatrixAnimationOptions(state, {
+      opacityBase: 0,
+      opacityMid: 0,
+      opacityPeak: 0,
+    });
+
+    expect(zeroOpacity.dotMatrixAnimation.opacityBase).toBe(0);
+    expect(zeroOpacity.dotMatrixAnimation.opacityMid).toBe(0);
+    expect(zeroOpacity.dotMatrixAnimation.opacityPeak).toBe(0);
+  });
 
   it("clamps raster export quality updates to the supported range", () => {
     const state = createDefaultQrStudioState();

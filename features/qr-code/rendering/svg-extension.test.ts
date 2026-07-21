@@ -3,12 +3,16 @@ import { describe, expect, it } from "vitest"
 import {
   buildQrExtension,
   createAlignedCornerGradientExtension,
+  createDotMatrixAnimationExtension,
   getFinderCornerRegions,
   getQrExtensionKey,
   getQrSvgNumCells,
 } from "./svg-extension"
 import {
   createDefaultQrStudioState,
+  setDotMatrixAnimationOptions,
+  type QrDotMatrixAnimationPatch,
+  QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
 } from "@/features/qr-code/model/state"
 
 type StubElement = {
@@ -274,8 +278,32 @@ function getPaletteLayerAnchors(_svg: StubElement, colorLayers: StubElement[]) {
   return anchorsByColor
 }
 
+function renderDotMatrixTracks(
+  loader: NonNullable<ReturnType<typeof createDefaultQrStudioState>["dotMatrixAnimation"]["loader"]>,
+  pattern: ReturnType<typeof createDefaultQrStudioState>["dotMatrixAnimation"]["pattern"] = "full",
+  patch: QrDotMatrixAnimationPatch = {},
+) {
+  const state = setDotMatrixAnimationOptions(createDefaultQrStudioState(), {
+    ...patch,
+    enabled: true,
+    loader,
+    pattern,
+    speed: patch.speed ?? 3,
+  })
+  const extension = createDotMatrixAnimationExtension(state, "preview")
+  expect(extension).toBeNull()
+  return { animationLayer: null, tracks: [] as StubElement[] }
+}
 
+function getTrackDuration(track: StubElement) {
+  return Number(track.getAttribute("data-qr-dot-duration-ms") ?? Number.NaN)
+}
 
+function getTrackForRegion(tracks: StubElement[], region: string) {
+  return tracks.find((track) =>
+    track.getAttribute("data-qr-dot-region")?.split(" ").includes(region),
+  )
+}
 
 function appendGradientRectPair({
   defs,
@@ -597,6 +625,18 @@ describe("qr rendering helpers", () => {
   })
 
 
+  it("retires css dot matrix animation in favor of bitjson runtime preview", () => {
+    const state = createDefaultQrStudioState()
+    state.dotMatrixAnimation = {
+      ...state.dotMatrixAnimation,
+      enabled: true,
+      animated: true,
+      exportAnimatedSvg: true,
+    }
+
+    expect(createDotMatrixAnimationExtension(state, "preview")).toBeNull()
+    expect(createDotMatrixAnimationExtension(state, "export")).toBeNull()
+  })
 
 
   it("changes the extension key when corner gradients are enabled", () => {

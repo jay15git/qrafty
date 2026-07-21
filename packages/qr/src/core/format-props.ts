@@ -12,6 +12,7 @@ const DEFAULTS: Partial<NewQrCodeProps> = {
   margin: 12,
   size: 320,
   colorMode: "solid",
+  motion: "none",
   gradient: "none",
   backgroundGradient: "none",
 }
@@ -44,6 +45,8 @@ export function formatPortableQrPropsForCodegen(props: NewQrCodeProps) {
     "palette",
     "gradient",
     "logo",
+    "motion",
+    "motionPreset",
     "gradientMode",
     "moduleRoundSize",
   ]
@@ -61,6 +64,10 @@ export function formatPortableQrPropsForCodegen(props: NewQrCodeProps) {
     }
 
     if ((key === "gradient" || key === "backgroundGradient") && value === "none") {
+      continue
+    }
+
+    if (key === "motion" && value === "none") {
       continue
     }
 

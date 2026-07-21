@@ -2,7 +2,10 @@ import type { SceneIr, SceneIrFontRef, SceneIrShaderNode } from "@new-qr/qr-inte
 import { shaderRequiresImage } from "@new-qr/qr/shaders"
 import type { SceneDocumentV1 } from "@new-qr/qr-internal/scene"
 
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import {
+  resolveBitjsonMotionPreset,
+  type QrStudioState,
+} from "@/features/qr-code/model/state"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import type { SceneCompositionState } from "@/features/workspace/model/scene-templates"
@@ -47,6 +50,10 @@ function buildSceneBackgroundSvg(
 
 function findCardLayer(layers: DraftingCanvasLayer[]) {
   return layers.find((layer) => layer.kind === "card" && layer.isVisible) ?? null
+}
+
+function findQrLayer(layers: DraftingCanvasLayer[]) {
+  return layers.find((layer) => layer.kind === "qr" && layer.isVisible) ?? null
 }
 
 function resolveShaderState(
@@ -207,7 +214,25 @@ export async function buildSceneIr({
   })
 
   const cardLayer = findCardLayer(layers)
+  const qrLayer = findQrLayer(layers)
   const shaders = buildShaderNodes(cardState, cardLayer, layers, shaderSnapshots)
+  const animation = state.dotMatrixAnimation
+  const animatedQr =
+    qrLayer && animation.enabled && animation.animated
+      ? {
+          kind: "animated-qr" as const,
+          contents: state.data.trim() || "https://example.com",
+          externalSvg: qrMarkup,
+          bounds: {
+            x: qrLayer.x,
+            y: qrLayer.y,
+            width: qrLayer.width,
+            height: qrLayer.height,
+          },
+          preset: resolveBitjsonMotionPreset(animation),
+          hoverEffect: animation.hoverEffect,
+        }
+      : undefined
 
   const sceneBackgroundMarkup = sceneComposition
     ? buildSceneBackgroundSvg(sceneComposition.background, parts.bounds.width, parts.bounds.height)
@@ -217,8 +242,11 @@ export async function buildSceneIr({
     bounds: parts.bounds,
     defs: parts.defs,
     body: `${sceneBackgroundMarkup}${parts.body}`,
-    domLayers: domParts.domLayers,
+    domLayers: animatedQr
+      ? domParts.domLayers.filter((layer) => layer.kind !== "qr")
+      : domParts.domLayers,
     shaders,
+    animatedQr,
     fonts: collectFontRefs(layers),
     componentName,
   }
@@ -293,8 +321,10 @@ function sceneCardToShaderNodes(
 export function buildSceneIrFromSceneDocument(scene: SceneDocumentV1): SceneIr {
   const node = scene.activeNodeId
   const card = scene.cardStateByNodeId[node]
+  const qr = scene.qrStateByNodeId[node]
   const layers = scene.layersByNodeId[node] ?? []
   const cardLayer = layers.find((layer) => layer.kind === "card") ?? null
+  const qrLayer = layers.find((layer) => layer.kind === "qr") ?? null
   const decorSvg = scene.decorSvgByNodeId?.[node] ?? ""
   const parts = parseDecorSvgParts(decorSvg)
 
@@ -309,6 +339,22 @@ export function buildSceneIrFromSceneDocument(scene: SceneDocumentV1): SceneIr {
     body: parts.body,
     domLayers: [],
     shaders: card ? sceneCardToShaderNodes(card, cardLayer) : [],
+    animatedQr:
+      qr && qrLayer && qr.motion.enabled && qr.motion.animated
+        ? {
+            kind: "animated-qr",
+            contents: qr.contents,
+            externalSvg: qr.externalSvg,
+            bounds: {
+              x: qrLayer.x,
+              y: qrLayer.y,
+              width: qrLayer.width,
+              height: qrLayer.height,
+            },
+            preset: qr.motion.preset,
+            hoverEffect: qr.motion.hoverEffect,
+          }
+        : undefined,
     fonts: [],
     componentName: "MyQrCard",
   }

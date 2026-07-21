@@ -1,5 +1,6 @@
 export * from "./schema"
 export * from "./core"
 export { QrScene, type QrSceneProps } from "./react"
+export { AnimatedQr, type AnimatedQrProps } from "./bitjson"
 export { PaperShaderLayer } from "./paper"
 export { exportScene, exportSceneSvg } from "./export"

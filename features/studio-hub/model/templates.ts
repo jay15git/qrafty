@@ -199,6 +199,12 @@ function buildDocuments(): QrDesignTemplate[] {
         finderPatternOuterSettings: { type: "rounded-lg", color: "#7c3aed" },
         finderPatternInnerSettings: { type: "circle", color: "#c084fc" },
         backgroundOptions: { color: "#0f0a1a", round: 16, transparent: false },
+        dotMatrixAnimation: {
+          ...base.dotMatrixAnimation,
+          enabled: true,
+          animated: true,
+          colorPreset: "neon",
+        },
       }),
       card: (base) => ({
         ...base,

@@ -161,10 +161,10 @@ describe("dashboard raster export helper", () => {
     }
 
     expect(getDashboardRasterExportDimensions(state, 25)).toEqual({
-      height: 374,
+      height: 406,
       requestedScale: 1,
       scale: 1,
-      width: 374,
+      width: 406,
     })
 
     await downloadDashboardRasterExport({
@@ -207,8 +207,8 @@ describe("dashboard raster export helper", () => {
 
     expect(getDashboardRasterExportDimensions(state, 100, 812)).toEqual({
       height: 798,
-      requestedScale: 798 / 374,
-      scale: 798 / 374,
+      requestedScale: 798 / 406,
+      scale: 798 / 406,
       width: 798,
     })
     expect(createdCanvases[0]).toEqual(expect.objectContaining({

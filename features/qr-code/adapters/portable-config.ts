@@ -1,6 +1,7 @@
 import {
   getAssetValue,
   hasActiveBackgroundShapeOptions,
+  resolveBitjsonMotionPreset,
   type QrStudioState,
 } from "@/features/qr-code/model/state"
 import type {
@@ -117,6 +118,17 @@ function mapLogo(state: QrStudioState): NewQrCodeProps["logo"] | undefined {
   return logo
 }
 
+function mapMotion(state: QrStudioState): Pick<NewQrCodeProps, "motion" | "motionPreset"> {
+  if (!state.dotMatrixAnimation.enabled || !state.dotMatrixAnimation.animated) {
+    return { motion: "none" }
+  }
+
+  return {
+    motion: "bitjson",
+    motionPreset: resolveBitjsonMotionPreset(state.dotMatrixAnimation),
+  }
+}
+
 function mapValue(state: QrStudioState): NewQrCodeProps["value"] {
   if (state.valueSegments?.length) {
     return state.valueSegments.map((segment) => segment.trim()).filter(Boolean)
@@ -127,6 +139,7 @@ function mapValue(state: QrStudioState): NewQrCodeProps["value"] {
 
 export function toPortableQrConfig(state: QrStudioState): NewQrCodeProps {
   const logo = mapLogo(state)
+  const motion = mapMotion(state)
   const unifiedGradient =
     state.gradientLinkMode === "unified" && state.dotsColorMode === "gradient"
 
@@ -165,6 +178,8 @@ export function toPortableQrConfig(state: QrStudioState): NewQrCodeProps {
       ? { moduleLineWidth: state.dataModulesSettings.lineWidth }
       : {}),
     moduleRoundSize: state.dataModulesSettings.roundSize,
+    motion: motion.motion,
+    motionPreset: motion.motionPreset,
     palette: state.dotsPalette,
     size: state.width,
     value: mapValue(state),

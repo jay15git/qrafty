@@ -326,7 +326,7 @@ describe("WorkspaceSurface", () => {
     expect(
       surface.container.querySelector('[data-slot="drafting-plus-marker"]')?.getAttribute("class"),
     ).not.toContain("text-black/")
-    expect(surface.container.querySelectorAll('[data-drafting-tool-button="true"]')).toHaveLength(9)
+    expect(surface.container.querySelectorAll('[data-drafting-tool-button="true"]')).toHaveLength(13)
     expect(surface.container.querySelector('[data-slot="tabs"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="tabs-list"]')).toBeNull()
     expect(
@@ -335,10 +335,13 @@ describe("WorkspaceSurface", () => {
     expect(surface.container.textContent).toContain("QR Type:")
     expect(surface.container.textContent).toContain("Content")
     expect(surface.container.querySelector('button[aria-label="Open Card"]')).toBeNull()
+    expect(surface.container.querySelector('button[aria-label="Open Text"]')).not.toBeNull()
+    expect(surface.container.querySelector('button[aria-label="Open Image"]')).not.toBeNull()
     expect(surface.container.textContent).toContain("Pattern")
     expect(surface.container.textContent).toContain("Corners")
-    expect(surface.container.textContent).toContain("Frame")
+    expect(surface.container.textContent).toContain("Shape")
     expect(surface.container.textContent).toContain("Logo")
+    expect(surface.container.textContent).toContain("Motion")
     expect(surface.container.textContent).toContain("Encoding")
     expect(surface.container.textContent).toContain("Layers")
     expect(surface.container.querySelector('button[aria-label="Open Export"]')).not.toBeNull()
@@ -457,10 +460,12 @@ describe("WorkspaceSurface", () => {
         "data-card-only-mode",
       ),
     ).toBeNull()
-    expect(surface.container.querySelectorAll('[data-drafting-tool-button="true"]')).toHaveLength(9)
+    expect(surface.container.querySelectorAll('[data-drafting-tool-button="true"]')).toHaveLength(13)
     expect(surface.container.querySelector('button[aria-label="Open Content"]')).not.toBeNull()
     expect(surface.container.querySelector('button[aria-label="Open Pattern"]')).not.toBeNull()
     expect(surface.container.querySelector('button[aria-label="Open Shape"]')).not.toBeNull()
+    expect(surface.container.querySelector('button[aria-label="Open Text"]')).not.toBeNull()
+    expect(surface.container.querySelector('button[aria-label="Open Image"]')).not.toBeNull()
     expect(surface.container.querySelector('button[aria-label="Open Decorations"]')).not.toBeNull()
     expect(surface.container.querySelector('button[aria-label="Open Effects"]')).not.toBeNull()
 
@@ -468,7 +473,7 @@ describe("WorkspaceSurface", () => {
       activateElement(getRequiredElement(surface.container, 'button[aria-label="Open Image"]'))
     })
 
-    expect(surface.container.querySelectorAll('[data-drafting-tool-button="true"]')).toHaveLength(9)
+    expect(surface.container.querySelectorAll('[data-drafting-tool-button="true"]')).toHaveLength(13)
     expect(
       getRequiredElement(surface.container, 'button[aria-label="Open Image"]').getAttribute(
         "aria-pressed",
@@ -1122,7 +1127,108 @@ describe("WorkspaceSurface", () => {
     expect(surface.container.querySelector('[data-slot="drafting-layer-floating-toolbar"]')).toBeNull()
   })
 
+  it("renders dot matrix motion and loader playground controls in the Motion panel", async () => {
+    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    const surface = renderSurface()
+    const motionButton = getRequiredElement(
+      surface.container,
+      'button[aria-label="Open Motion"]',
+    )
 
+    act(() => {
+      activateElement(motionButton)
+    })
+
+    expect(motionButton.getAttribute("aria-pressed")).toBe("true")
+    expect(surface.container.querySelector('[data-slot="tabs-list"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="drafting-motion-tab"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="drafting-loader-playground-tab"]')).not.toBeNull()
+    expect(surface.container.textContent).toContain("Dot matrix motion")
+    expect(surface.container.textContent).toContain("Animated SVG export")
+    expect(surface.container.textContent).toContain("Neon Drift")
+    expect(surface.container.textContent).toContain("Mobius Run")
+    expect(surface.container.textContent).not.toContain("Honey Gate")
+    expect(surface.container.textContent).toContain("Loader color")
+    expect(surface.container.textContent).toContain("Overlay scale")
+    expect(surface.container.textContent).toContain("Bloom")
+    expect(surface.container.textContent).toContain("Base")
+    expect(surface.container.textContent).toContain("Mid")
+    expect(surface.container.textContent).toContain("Peak")
+    expect(surface.container.textContent).not.toContain("Dot shape")
+
+    await act(async () => {
+      activateElement(
+        getRequiredElement(
+          surface.container,
+          'button[aria-label="Select loader Mobius Run"]',
+        ),
+      )
+      await flushPromises()
+      await flushPromises()
+    })
+
+    expect(buildDashboardQrNodePayloadSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        dotMatrixAnimation: expect.objectContaining({
+          loader: "mobius-run",
+        }),
+      }),
+    )
+
+    const loaderPanel = getRequiredElement(
+      surface.container,
+      '[data-slot="drafting-loader-playground-tab"]',
+    )
+    const baseColorInput = getRequiredElement(
+      loaderPanel,
+      'input[aria-label="Loader base color"]',
+    ) as HTMLInputElement
+
+    await act(async () => {
+      changeInputValue(baseColorInput, "#111111")
+      await flushPromises()
+      await flushPromises()
+    })
+
+    expect(buildDashboardQrNodePayloadSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        dotMatrixAnimation: expect.objectContaining({
+          customColorBase: "#111111",
+        }),
+      }),
+    )
+  })
+
+  it("updates dot matrix motion from the Motion panel", async () => {
+    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    const surface = renderSurface()
+
+    act(() => {
+      activateElement(getRequiredElement(surface.container, 'button[aria-label="Open Motion"]'))
+    })
+
+    expect(surface.container.textContent).toContain("Dot matrix motion")
+    expect(surface.container.textContent).toContain("Animated SVG export")
+
+    await act(async () => {
+      activateElement(
+        getRequiredElement(
+          surface.container,
+          "#drafting-dot-matrix-animation-enabled",
+        ),
+      )
+      await flushPromises()
+      await flushPromises()
+    })
+
+    expect(buildDashboardQrNodePayloadSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        dotMatrixAnimation: expect.objectContaining({
+          enabled: true,
+        }),
+      }),
+    )
+  })
 
   it("ports static content controls into the default drafting panel without render type cards", () => {
     const surface = renderSurface()

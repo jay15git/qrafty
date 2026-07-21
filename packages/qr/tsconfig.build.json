@@ -17,8 +17,12 @@
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "paths": {
+      "../../bitjson-vendor/runtime.js": ["./src/bitjson-vendor/index.d.ts"],
+      "../bitjson-vendor/runtime.js": ["./src/bitjson-vendor/index.d.ts"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "vendor/react-qr-code/**/*.ts", "vendor/react-qr-code/**/*.tsx"],
-  "exclude": ["**/*.test.ts", "**/*.test.tsx"]
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "vendor/bitjson-qr-code/**"]
 }

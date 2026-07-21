@@ -1,0 +1,29 @@
+:host {
+  display: block;
+  contain: content;
+}
+
+#qr-container {
+  position: relative;
+  overflow: hidden;
+}
+
+#svg-container {
+  position: relative;
+  z-index: 1;
+}
+
+#dot-field-glow {
+  display: none;
+}
+
+#icon-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}

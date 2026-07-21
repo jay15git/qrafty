@@ -68,6 +68,8 @@ export type NewQrCodeProps = {
   palette?: string[]
   moduleRoundSize?: boolean
   gradientMode?: "split" | "unified"
+  motion?: "none" | "bitjson"
+  motionPreset?: string
   className?: string
   style?: CSSProperties
 }

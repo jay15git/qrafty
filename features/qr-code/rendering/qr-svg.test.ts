@@ -436,8 +436,8 @@ describe("dashboard qr svg helpers", () => {
 
     const payload = await buildDashboardQrNodePayload(state)
 
-    expect(payload.naturalWidth).toBe(374)
-    expect(payload.naturalHeight).toBe(374)
+    expect(payload.naturalWidth).toBe(406)
+    expect(payload.naturalHeight).toBe(406)
     expect(payload.markup).toContain('data-qr-layer="background-shape"')
   })
 })

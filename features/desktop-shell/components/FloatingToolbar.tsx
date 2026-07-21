@@ -122,20 +122,39 @@ import {
 import { StylePreview, type StylePreviewKind } from "@/features/qr-code/components/StylePreview"
 import { GradientOffsetRangeField } from "@/features/qr-code/components/GradientOffsetRangeField"
 import {
+  DEFAULT_DOT_MATRIX_ANIMATION,
   DEFAULT_BACKGROUND_SHAPE_OPTIONS,
+  MOTION_COLOR_SWATCHES,
+  QR_DOT_MATRIX_ANIMATION_SPEED_MAX,
+  QR_DOT_MATRIX_ANIMATION_SPEED_MIN,
+  QR_DOT_MATRIX_COLOR_PRESET_OPTIONS,
+  QR_DOT_MATRIX_OPACITY_MAX,
+  QR_DOT_MATRIX_OPACITY_MIN,
+  QR_MOTION_AUTO_ANIMATE_INTERVAL_MAX,
+  QR_MOTION_AUTO_ANIMATE_INTERVAL_MIN,
+  QR_MOTION_AUTO_ANIMATE_INTERVAL_STEP,
+  QR_MOTION_DOT_MATRIX_PRESET_OPTIONS,
+  QR_MOTION_HOVER_COLOR_MODE_OPTIONS,
+  QR_MOTION_HOVER_EFFECT_OPTIONS,
+  QR_MOTION_INTENSITY_OPTIONS,
+  QR_MOTION_STANDARD_PRESET_OPTIONS,
   createDefaultQrStudioState,
   QR_MODULE_LINE_WIDTH_MAX,
   QR_MODULE_LINE_WIDTH_MIN,
   QR_MODULE_SIZE_MAX,
   QR_MODULE_SIZE_MIN,
+  setDotMatrixAnimationOptions,
   type DotsColorMode,
   type QrCrossOrigin,
   type QrGradientLinkMode,
   type QrLogoPositionMode,
   type QrLogoSizeMode,
+  type QrDotMatrixAnimationOptions,
+  type QrDotMatrixAnimationPatch,
   type StudioGradient,
   type StudioDataModulesStyle,
 } from "@/features/qr-code/model/state"
+import type { CodeExportTarget } from "@new-qr/qr-internal/codegen"
 import {
   degreesToRadians,
   normalizeGradientOffsetRange,
@@ -213,6 +232,7 @@ import {
   QR_INPUT_OPTIONS,
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
+import { DesktopCodeExportInspector } from "@/features/desktop-shell/components/DesktopCodeExportInspector"
 import { DesktopPexelsPhotoInspector } from "@/features/desktop-shell/components/DesktopPexelsPhotoInspector"
 import { DesktopSizeTemplateInspector } from "@/features/desktop-shell/components/DesktopSizeTemplateInspector"
 import { getCanvasSizeFromTemplate } from "@/features/workspace/model/size-templates"
@@ -255,6 +275,7 @@ export type DesktopToolbarToolId =
   | "corners"
   | "logo"
   | "shape"
+  | "motion"
   | "card-pattern"
   | "text"
   | "image"
@@ -316,6 +337,12 @@ const DESKTOP_TOOLBAR_TOOLS: DesktopToolbarTool[] = [
     renderIcon: () => (
       <HugeiconsIcon icon={Image02Icon} size={18} color="currentColor" strokeWidth={1.8} />
     ),
+  },
+  {
+    group: "QR",
+    id: "motion",
+    title: "Motion",
+    renderIcon: () => <PlayIcon size={18} />,
   },
   {
     group: "Add",
@@ -495,6 +522,8 @@ export type DesktopShapeSettings = {
   mockupStyleId?: string
 }
 
+export type DesktopMotionSettings = QrDotMatrixAnimationOptions
+
 export type DesktopEncodingSettings = {
   errorCorrectionLevel: QrErrorCorrectionLevel
   typeNumber: QrTypeNumber
@@ -605,6 +634,7 @@ export type DesktopToolbarController = {
   logoSettings: DesktopLogoSettings
   cornersSettings: DesktopCornersSettings
   shapeSettings: DesktopShapeSettings
+  motionSettings: DesktopMotionSettings
   encodingSettings: DesktopEncodingSettings
   accessibilitySettings: DesktopAccessibilitySettings
   imageSettings: DesktopImageSettings
@@ -648,6 +678,8 @@ export type DesktopToolbarController = {
   onCornersSettingsChange: (patch: Partial<DesktopCornersSettings>) => void
   onShapeReset: () => void
   onShapeSettingsChange: (patch: Partial<DesktopShapeSettings>) => void
+  onMotionReset: () => void
+  onMotionSettingsChange: (patch: QrDotMatrixAnimationPatch) => void
   onEncodingReset: () => void
   onEncodingSettingsChange: (patch: Partial<DesktopEncodingSettings>) => void
   onAccessibilityReset: () => void
@@ -670,6 +702,7 @@ export type DesktopToolbarController = {
   onSceneTemplateSelect?: (template: SceneTemplate) => void
   onSceneTemplateSizeChange?: (patch: Partial<DesktopSceneTemplateSettings["sizeSettings"]>) => void
   onSceneTemplateSizeTemplateSelect?: (template: import("@/features/workspace/model/size-templates").SizeTemplate) => void
+  buildCodegenExport?: (target: CodeExportTarget) => Promise<{ code: string; installCommand?: string }>
   exportDownloadError?: string | null
   onTextReset: () => void
   onTextSettingsChange: (patch: Partial<DesktopTextSettings>) => void
@@ -918,6 +951,10 @@ const DEFAULT_DESKTOP_SHAPE_SETTINGS: DesktopShapeSettings = {
   sizePresetId: DEFAULT_DRAFTING_CARD_STATE.sizePresetId,
 }
 
+const DEFAULT_DESKTOP_MOTION_SETTINGS: DesktopMotionSettings = {
+  ...DEFAULT_DOT_MATRIX_ANIMATION,
+}
+
 const DEFAULT_DESKTOP_ENCODING_SETTINGS: DesktopEncodingSettings = {
   errorCorrectionLevel: "Q",
   typeNumber: 0,
@@ -1060,6 +1097,9 @@ const DESKTOP_TEXT_ALIGN_OPTIONS: Array<{ label: string; value: DraftingTextAlig
   { label: "Right", value: "right" },
 ]
 
+const DESKTOP_MOTION_COLOR_SWATCHES: Record<DesktopMotionSettings["colorPreset"], string[]> =
+  MOTION_COLOR_SWATCHES
+
 export type DesktopInspectorModel = {
   controller?: DesktopToolbarController
   actualActiveTool: DesktopToolbarToolId | null
@@ -1074,6 +1114,7 @@ export type DesktopInspectorModel = {
   actualLogoSettings: DesktopLogoSettings
   actualCornersSettings: DesktopCornersSettings
   actualShapeSettings: DesktopShapeSettings
+  actualMotionSettings: DesktopMotionSettings
   actualEncodingSettings: DesktopEncodingSettings
   actualAccessibilitySettings: DesktopAccessibilitySettings
   actualImageSettings: DesktopImageSettings
@@ -1092,6 +1133,7 @@ export type DesktopInspectorModel = {
   onLogoSettingsChange: (patch: DesktopLogoSettingsPatch) => void
   onCornersSettingsChange: (patch: Partial<DesktopCornersSettings>) => void
   onShapeSettingsChange: (patch: Partial<DesktopShapeSettings>) => void
+  onMotionSettingsChange: (patch: QrDotMatrixAnimationPatch) => void
   onEncodingSettingsChange: (patch: Partial<DesktopEncodingSettings>) => void
   onAccessibilitySettingsChange: (patch: Partial<DesktopAccessibilitySettings>) => void
   onImageSettingsChange: (patch: Partial<DesktopImageSettings>) => void
@@ -1127,6 +1169,9 @@ export function useDesktopToolbarInspectorModel({
   )
   const [shapeSettings, setShapeSettings] = useState<DesktopShapeSettings>(
     DEFAULT_DESKTOP_SHAPE_SETTINGS,
+  )
+  const [motionSettings, setMotionSettings] = useState<DesktopMotionSettings>(
+    DEFAULT_DESKTOP_MOTION_SETTINGS,
   )
   const [encodingSettings, setEncodingSettings] = useState<DesktopEncodingSettings>(
     DEFAULT_DESKTOP_ENCODING_SETTINGS,
@@ -1217,6 +1262,7 @@ export function useDesktopToolbarInspectorModel({
     actualLogoSettings: controller?.logoSettings ?? logoSettings,
     actualCornersSettings: controller?.cornersSettings ?? cornersSettings,
     actualShapeSettings: controller?.shapeSettings ?? shapeSettings,
+    actualMotionSettings: controller?.motionSettings ?? motionSettings,
     actualEncodingSettings: controller?.encodingSettings ?? encodingSettings,
     actualAccessibilitySettings: controller?.accessibilitySettings ?? accessibilitySettings,
     actualImageSettings: controller?.imageSettings ?? imageSettings,
@@ -1258,6 +1304,15 @@ export function useDesktopToolbarInspectorModel({
       controller?.onShapeSettingsChange ??
       ((patch: Partial<DesktopShapeSettings>) =>
         setShapeSettings((current) => ({ ...current, ...patch }))),
+    onMotionSettingsChange:
+      controller?.onMotionSettingsChange ??
+      ((patch: QrDotMatrixAnimationPatch) =>
+        setMotionSettings((current) =>
+          setDotMatrixAnimationOptions(
+            { ...createDefaultQrStudioState(), dotMatrixAnimation: current },
+            patch,
+          ).dotMatrixAnimation,
+        )),
     onEncodingSettingsChange:
       controller?.onEncodingSettingsChange ??
       ((patch: Partial<DesktopEncodingSettings>) =>
@@ -3585,6 +3640,311 @@ function DesktopShapePreview({
   )
 }
 
+function DesktopMotionInspector({
+  onMotionSettingsChange,
+  settings,
+}: {
+  onMotionSettingsChange: (patch: QrDotMatrixAnimationPatch) => void
+  settings: DesktopMotionSettings
+}) {
+  const autoAnimateOptions = [
+    { label: "Off", value: "" },
+    ...QR_MOTION_STANDARD_PRESET_OPTIONS.map((option) => ({
+      label: `Auto: ${option.label}`,
+      value: option.value,
+    })),
+    ...QR_MOTION_DOT_MATRIX_PRESET_OPTIONS.map((option) => ({
+      label: `Auto: ${option.label}`,
+      value: option.value,
+    })),
+  ]
+
+  return (
+    <div data-slot="desktop-motion-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <DesktopInspectorHeader title="Motion" />
+
+      <DesktopInspectorScrollArea>
+        <DesktopInspectorSection>
+          <DesktopMotionToggleRow
+            checked={settings.enabled}
+            label="Motion"
+            onChange={(enabled) => onMotionSettingsChange({ enabled })}
+          />
+        </DesktopInspectorSection>
+
+        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+          <div className="mb-2 min-w-0">
+            <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>QR Animations</p>
+          </div>
+          <DesktopInspectorOptionGridScrollArea
+            ariaLabel="Standard motion presets"
+            columns={3}
+            dataSlot="desktop-motion-standard-shelf-scroll-area"
+            shelfDataSlot="desktop-motion-standard-shelf"
+            variant="content"
+          >
+            <DesktopInspectorAnimatedOptionGrid
+              columns={3}
+              data-slot="desktop-motion-standard-shelf"
+              selectedKey={
+                settings.presetCategory === "standard" && typeof settings.preset === "string"
+                  ? settings.preset
+                  : null
+              }
+            >
+              {QR_MOTION_STANDARD_PRESET_OPTIONS.map((preset) => {
+                const isSelected =
+                  settings.presetCategory === "standard" && settings.preset === preset.value
+
+                return (
+                  <DesktopMotionPresetTileButton
+                    key={preset.value}
+                    label={preset.label}
+                    selected={isSelected}
+                    onClick={() =>
+                      onMotionSettingsChange({
+                        preset: preset.value,
+                        presetCategory: "standard",
+                      })
+                    }
+                  />
+                )
+              })}
+            </DesktopInspectorAnimatedOptionGrid>
+          </DesktopInspectorOptionGridScrollArea>
+        </DesktopInspectorSection>
+
+        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+          <div className="mb-2 min-w-0">
+            <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Dot Matrix Animations</p>
+          </div>
+          <DesktopInspectorOptionGridScrollArea
+            ariaLabel="Dot matrix motion presets"
+            columns={3}
+            dataSlot="desktop-motion-loader-shelf-scroll-area"
+            shelfDataSlot="desktop-motion-loader-shelf"
+            variant="content"
+          >
+            <DesktopInspectorAnimatedOptionGrid
+              columns={3}
+              data-slot="desktop-motion-dot-matrix-shelf"
+              selectedKey={
+                settings.presetCategory === "dotMatrix"
+                  ? typeof settings.preset === "string" && settings.preset
+                    ? settings.preset
+                    : settings.loader
+                  : null
+              }
+            >
+              {QR_MOTION_DOT_MATRIX_PRESET_OPTIONS.map((loader) => {
+                const isSelected =
+                  settings.presetCategory === "dotMatrix" &&
+                  (settings.preset === loader.value || settings.loader === loader.value)
+
+                return (
+                  <DesktopMotionPresetTileButton
+                    key={loader.value}
+                    label={loader.label}
+                    selected={isSelected}
+                    onClick={() =>
+                      onMotionSettingsChange({
+                        loader: loader.value,
+                        preset: loader.value,
+                        presetCategory: "dotMatrix",
+                      })
+                    }
+                  />
+                )
+              })}
+            </DesktopInspectorAnimatedOptionGrid>
+          </DesktopInspectorOptionGridScrollArea>
+        </DesktopInspectorSection>
+
+        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Playback</p>
+          <div className="grid gap-3">
+            <DesktopMotionSelectRow
+              label="Auto animate"
+              value={settings.autoAnimate}
+              options={autoAnimateOptions}
+              onChange={(autoAnimate) => onMotionSettingsChange({ autoAnimate })}
+            />
+            <DesktopMotionSliderRow
+              label="Auto interval"
+              max={QR_MOTION_AUTO_ANIMATE_INTERVAL_MAX}
+              min={QR_MOTION_AUTO_ANIMATE_INTERVAL_MIN}
+              step={QR_MOTION_AUTO_ANIMATE_INTERVAL_STEP}
+              value={settings.autoAnimateInterval}
+              valueLabel={`${Math.round(settings.autoAnimateInterval)}ms`}
+              onChange={(autoAnimateInterval) => onMotionSettingsChange({ autoAnimateInterval })}
+            />
+            <DesktopMotionSelectRow
+              label="Hover effect"
+              value={settings.hoverEffect}
+              options={QR_MOTION_HOVER_EFFECT_OPTIONS.map((option) => ({
+                label: option.label,
+                value: option.value,
+              }))}
+              onChange={(hoverEffect) => onMotionSettingsChange({ hoverEffect })}
+            />
+            <DesktopMotionSelectRow
+              label="Hover color"
+              value={settings.hoverColorMode}
+              options={QR_MOTION_HOVER_COLOR_MODE_OPTIONS.map((option) => ({
+                label: option.label,
+                value: option.value,
+              }))}
+              onChange={(hoverColorMode) => onMotionSettingsChange({ hoverColorMode })}
+            />
+            <DesktopMotionSelectRow
+              label="Intensity"
+              value={settings.motionIntensity}
+              options={QR_MOTION_INTENSITY_OPTIONS.map((option) => ({
+                label: option.label,
+                value: option.value,
+              }))}
+              onChange={(motionIntensity) => onMotionSettingsChange({ motionIntensity })}
+            />
+            <DesktopMotionSliderRow
+              label="Speed"
+              max={QR_DOT_MATRIX_ANIMATION_SPEED_MAX}
+              min={QR_DOT_MATRIX_ANIMATION_SPEED_MIN}
+              value={settings.speed}
+              valueLabel={`${Math.round(settings.speed)}x`}
+              onChange={(speed) => onMotionSettingsChange({ speed })}
+            />
+            <DesktopMotionSliderRow
+              label="Opacity base"
+              max={QR_DOT_MATRIX_OPACITY_MAX}
+              min={QR_DOT_MATRIX_OPACITY_MIN}
+              step={0.01}
+              value={settings.opacityBase}
+              valueLabel={settings.opacityBase.toFixed(2)}
+              onChange={(opacityBase) => onMotionSettingsChange({ opacityBase })}
+            />
+            <DesktopMotionSliderRow
+              label="Opacity mid"
+              max={QR_DOT_MATRIX_OPACITY_MAX}
+              min={QR_DOT_MATRIX_OPACITY_MIN}
+              step={0.01}
+              value={settings.opacityMid}
+              valueLabel={settings.opacityMid.toFixed(2)}
+              onChange={(opacityMid) => onMotionSettingsChange({ opacityMid })}
+            />
+            <DesktopMotionSliderRow
+              label="Opacity peak"
+              max={QR_DOT_MATRIX_OPACITY_MAX}
+              min={QR_DOT_MATRIX_OPACITY_MIN}
+              step={0.01}
+              value={settings.opacityPeak}
+              valueLabel={settings.opacityPeak.toFixed(2)}
+              onChange={(opacityPeak) => onMotionSettingsChange({ opacityPeak })}
+            />
+          </div>
+        </DesktopInspectorSection>
+
+        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Loader Color</p>
+          <div className={desktopInspectorOptionGridClass(2)} data-slot="desktop-motion-color-presets">
+            {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => (
+              <DesktopMotionColorPresetButton
+                key={preset.value}
+                colors={
+                  preset.value === "theme"
+                    ? [settings.customColorBase, settings.customColorMid, settings.customColorPeak]
+                    : DESKTOP_MOTION_COLOR_SWATCHES[preset.value]
+                }
+                label={preset.label}
+                selected={settings.colorPreset === preset.value}
+                onClick={() => onMotionSettingsChange({ colorPreset: preset.value })}
+              />
+            ))}
+          </div>
+
+          {settings.colorPreset === "theme" ? (
+            <div className="mt-2.5 grid gap-2">
+              <DesktopColorInputRow
+                label="Motion base color"
+                value={settings.customColorBase}
+                onChange={(customColorBase) =>
+                  onMotionSettingsChange({ customColor: customColorBase, customColorBase })
+                }
+              />
+              <DesktopColorInputRow
+                label="Motion mid color"
+                value={settings.customColorMid}
+                onChange={(customColorMid) => onMotionSettingsChange({ customColorMid })}
+              />
+              <DesktopColorInputRow
+                label="Motion peak color"
+                value={settings.customColorPeak}
+                onChange={(customColorPeak) => onMotionSettingsChange({ customColorPeak })}
+              />
+            </div>
+          ) : null}
+        </DesktopInspectorSection>
+
+        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Output</p>
+          <div className="grid gap-2">
+            <DesktopMotionToggleRow
+              checked={settings.animated}
+              label="Animated preview"
+              onChange={(animated) => onMotionSettingsChange({ animated })}
+            />
+            <DesktopMotionToggleRow
+              checked={settings.exportAnimatedSvg}
+              label="Preview-only animated SVG export"
+              onChange={(exportAnimatedSvg) => onMotionSettingsChange({ exportAnimatedSvg })}
+            />
+            <p className={DESKTOP_INSPECTOR_CAPTION_CLASS}>
+              File export stays static today. This toggle is reserved for a future animated SVG path.
+            </p>
+            <DesktopMotionToggleRow
+              checked={settings.respectReducedMotion}
+              label="Respect reduced motion"
+              onChange={(respectReducedMotion) => onMotionSettingsChange({ respectReducedMotion })}
+            />
+          </div>
+        </DesktopInspectorSection>
+      </DesktopInspectorScrollArea>
+
+    </div>
+  )
+}
+
+function DesktopMotionSelectRow<T extends string>({
+  label,
+  onChange,
+  options,
+  value,
+}: {
+  label: string
+  onChange: (value: T) => void
+  options: Array<{ label: string; value: T }>
+  value: T
+}) {
+  return (
+    <label className={cn("grid gap-1.5", DESKTOP_INSPECTOR_ROW_CLASS)}>
+      <span className={DESKTOP_INSPECTOR_LABEL_CLASS}>{label}</span>
+      <select
+        className={cn(
+          "h-9 w-full rounded-[6px] px-2.5",
+          DESKTOP_INSPECTOR_INPUT_CLASS,
+        )}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        {options.map((option) => (
+          <option key={`${option.value}-${option.label}`} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
 function DesktopMotionToggleRow({
   checked,
   label,
@@ -3685,6 +4045,37 @@ function DesktopElasticSliderRow({
   )
 }
 
+function DesktopMotionPresetTileButton({
+  label,
+  onClick,
+  selected,
+}: {
+  label: string
+  onClick: () => void
+  selected: boolean
+}) {
+  return (
+    <button
+      aria-label={`Use ${label} motion loader`}
+      aria-pressed={selected}
+      className={cn(
+        "relative flex h-[54px] min-w-0 flex-col items-center justify-center gap-1 px-1",
+        desktopInspectorOptionGridItemClass(),
+        DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+        DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+        selected && "text-[var(--desktop-inspector-option-selected-fg)]",
+      )}
+      data-desktop-animated-option-selection="true"
+      data-desktop-motion-loader-option="true"
+      data-desktop-option-tile="true"
+      type="button"
+      onClick={onClick}
+    >
+      <LayoutGrid className="relative z-10 size-4 shrink-0" />
+      <span className="relative z-10 max-w-full truncate">{label}</span>
+    </button>
+  )
+}
 
 function DesktopMotionColorPresetButton({
   colors,
@@ -5381,11 +5772,13 @@ function DesktopLayerStackIconToggle({
 }
 
 function DesktopExportInspector({
+  buildCodegenExport,
   exportDownloadError,
   onExportDownload,
   onExportSettingsChange,
   settings,
 }: {
+  buildCodegenExport?: (target: CodeExportTarget) => Promise<{ code: string; installCommand?: string }>
   exportDownloadError?: string | null
   onExportDownload: () => void
   onExportSettingsChange: (patch: Partial<DesktopExportSettings>) => void
@@ -5511,6 +5904,13 @@ function DesktopExportInspector({
             </div>
           </DesktopInspectorSection>
           </>
+        ) : null}
+
+        {buildCodegenExport ? (
+          <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+            <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Copy code</p>
+            <DesktopCodeExportInspector buildCodegenExport={buildCodegenExport} />
+          </DesktopInspectorSection>
         ) : null}
       </DesktopInspectorScrollArea>
       <div className={DESKTOP_INSPECTOR_FOOTER_CLASS}>
@@ -5966,6 +6366,7 @@ export function DesktopFloatingInspector({
     actualLayoutSettings,
     actualLayersSettings,
     actualLogoSettings,
+    actualMotionSettings,
     actualPatternSettings,
     actualSceneTemplateSettings,
     actualShapeSettings,
@@ -5984,6 +6385,7 @@ export function DesktopFloatingInspector({
     onLayersReorder,
     onLayersSettingsChange,
     onLogoSettingsChange,
+    onMotionSettingsChange,
     onPatternSettingsChange,
     onSceneTemplateSizeChange,
     onShapeSettingsChange,
@@ -6086,6 +6488,11 @@ export function DesktopFloatingInspector({
           onApplyMockupStyle={(preset) => controller?.onApplyMockupStyle?.(preset)}
           onShapeSettingsChange={onShapeSettingsChange}
         />
+      ) : activeTool === "motion" ? (
+        <DesktopMotionInspector
+          settings={actualMotionSettings}
+          onMotionSettingsChange={onMotionSettingsChange}
+        />
       ) : activeTool === "card-pattern" ? (
         <DesktopCardFillPatternInspector
           settings={actualShapeSettings}
@@ -6120,6 +6527,7 @@ export function DesktopFloatingInspector({
         />
       ) : activeTool === "export" ? (
         <DesktopExportInspector
+          buildCodegenExport={controller?.buildCodegenExport}
           exportDownloadError={controller?.exportDownloadError}
           settings={actualExportSettings}
           onExportDownload={controller?.onExportDownload ?? (() => undefined)}

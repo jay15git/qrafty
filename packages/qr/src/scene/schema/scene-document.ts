@@ -53,9 +53,24 @@ export type SceneCardState = {
   }
 }
 
+export type SceneQrMotionState = {
+  enabled: boolean
+  animated: boolean
+  preset: string
+  hoverEffect: string
+  hoverColorMode: "both" | "modules" | "overlay"
+  autoAnimate: string
+  autoAnimateInterval: number
+  speed: number
+  motionIntensity: "subtle" | "premium" | "dramatic"
+  respectReducedMotion: boolean
+  pressPreset?: string
+}
+
 export type SceneQrState = {
   contents: string
   externalSvg: string
+  motion: SceneQrMotionState
   width: number
   height: number
 }
@@ -121,6 +136,7 @@ export type SceneDependencyManifest = {
   dependencies: Record<string, string>
   features: {
     paperShaders: boolean
+    animatedQr: boolean
     staticFallback: boolean
   }
 }

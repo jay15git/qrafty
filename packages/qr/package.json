@@ -2,12 +2,13 @@
   "name": "@new-qr/qr",
   "version": "0.1.0",
   "private": true,
-  "description": "Customizable QR code and paper shader React components",
+  "description": "Customizable QR code, animated QR, and paper shader React components",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "vendor/bitjson-qr-code/dist"
   ],
   "scripts": {
     "build": "tsup",
@@ -21,6 +22,10 @@
     "./react": {
       "types": "./src/react/index.ts",
       "import": "./src/react/index.ts"
+    },
+    "./animated": {
+      "types": "./src/animated/index.ts",
+      "import": "./src/animated/index.ts"
     },
     "./shaders": {
       "types": "./src/shaders/index.ts",

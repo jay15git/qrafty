@@ -20,6 +20,7 @@ import {
   clampBackgroundShapeTilt,
   createDefaultQrStudioState,
   DEFAULT_BACKGROUND_SHAPE_OPTIONS,
+  setDotMatrixAnimationOptions,
   type BackgroundShapeOptions,
   type QrStudioState,
 } from "@/features/qr-code/model/state"
@@ -246,10 +247,24 @@ function parseQrState(value: unknown): QrStudioState {
     return fallback
   }
   const clonedValue = structuredClone(value)
+  const rawDotMatrixAnimation = isRecord(value.dotMatrixAnimation)
+    ? value.dotMatrixAnimation
+    : {}
+  const dotMatrixAnimation = setDotMatrixAnimationOptions(
+    {
+      ...fallback,
+      dotMatrixAnimation: {
+        ...fallback.dotMatrixAnimation,
+        ...rawDotMatrixAnimation,
+      },
+    },
+    rawDotMatrixAnimation,
+  ).dotMatrixAnimation
 
   return {
     ...fallback,
     ...clonedValue,
+    dotMatrixAnimation,
     backgroundShapeOptions: parseBackgroundShapeOptions(
       isRecord(value.backgroundShapeOptions) ? value.backgroundShapeOptions : undefined,
       fallback,

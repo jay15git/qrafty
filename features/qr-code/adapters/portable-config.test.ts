@@ -25,6 +25,7 @@ describe("toPortableQrConfig", () => {
       minVersion: 1,
       module: "rounded",
       moduleRoundSize: true,
+      motion: "none",
       palette: ["#04879c", "#0c3c78", "#090030", "#f30a49"],
       size: 320,
       value: "https://new-qr-studio.local/launch",
@@ -66,7 +67,7 @@ describe("toPortableQrConfig", () => {
     expect(config.finderOuter).toBe("rounded-lg")
   })
 
-  it("maps gradient presets", () => {
+  it("maps gradient and motion presets", () => {
     const state = createDefaultQrStudioState()
     state.dotsColorMode = "gradient"
     state.dataModulesGradient.enabled = true
@@ -76,6 +77,10 @@ describe("toPortableQrConfig", () => {
       { offset: 0, color: "#111111" },
       { offset: 1, color: "#999999" },
     ]
+    state.dotMatrixAnimation.enabled = true
+    state.dotMatrixAnimation.animated = true
+    state.dotMatrixAnimation.presetCategory = "standard"
+    state.dotMatrixAnimation.preset = "FadeInTopDown"
 
     const config = toPortableQrConfig(state)
 
@@ -88,6 +93,8 @@ describe("toPortableQrConfig", () => {
       ],
       type: "linear",
     })
+    expect(config.motion).toBe("bitjson")
+    expect(config.motionPreset).toBe("FadeInTopDown")
   })
 
   it("maps boostLevel, module tuning, logo advanced fields, and ariaLabel", () => {

@@ -1,14 +1,21 @@
 import {
+  buildSceneDependencyManifest,
   inlineSceneAssets,
 } from "@new-qr/qr-internal/scene"
+import { emitLiveReact } from "@new-qr/qr-internal/codegen"
 import {
   SCENE_DOCUMENT_VERSION,
   type SceneCardState,
   type SceneDocumentV1,
   type SceneLayer,
+  type SceneQrMotionState,
   type SceneQrState,
 } from "@new-qr/qr-internal/scene"
 
+import {
+  resolveBitjsonAutoAnimatePreset,
+  resolveBitjsonMotionPreset,
+} from "@/features/qr-code/model/state"
 import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg"
 import type { QrStudioState } from "@/features/qr-code/model/state"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
@@ -19,6 +26,7 @@ import {
   createDraftingQrArtworkState,
   sanitizeDraftingQrArtworkMarkup,
 } from "@/features/workspace/rendering/qr-artwork"
+import { buildSceneIrFromSceneDocument } from "@/features/qr-code/export/build-scene-ir"
 
 function toSceneLayer(layer: DraftingCanvasLayer): SceneLayer {
   return {
@@ -98,6 +106,24 @@ function toSceneCardState(cardState: DraftingCardState): SceneCardState {
   }
 }
 
+function toSceneQrMotion(state: QrStudioState): SceneQrMotionState {
+  const animation = state.dotMatrixAnimation
+
+  return {
+    enabled: animation.enabled,
+    animated: animation.animated,
+    preset: resolveBitjsonMotionPreset(animation),
+    hoverEffect: animation.hoverEffect,
+    hoverColorMode: animation.hoverColorMode,
+    autoAnimate: resolveBitjsonAutoAnimatePreset(animation),
+    autoAnimateInterval: animation.autoAnimateInterval,
+    speed: animation.speed,
+    motionIntensity: animation.motionIntensity,
+    respectReducedMotion: animation.respectReducedMotion,
+    pressPreset: animation.preset,
+  }
+}
+
 async function toSceneQrState(state: QrStudioState): Promise<SceneQrState> {
   const payload = await buildDashboardQrNodePayload(createDraftingQrArtworkState(state))
 
@@ -106,6 +132,7 @@ async function toSceneQrState(state: QrStudioState): Promise<SceneQrState> {
     externalSvg: sanitizeDraftingQrArtworkMarkup(payload.markup),
     width: state.width,
     height: state.height,
+    motion: toSceneQrMotion(state),
   }
 }
 
@@ -181,4 +208,41 @@ export function downloadSceneDocument(scene: SceneDocumentV1, filename = "scene.
   anchor.download = filename
   anchor.click()
   URL.revokeObjectURL(url)
+}
+
+export function buildSceneEmbedSnippet(scene: SceneDocumentV1, options: { locked?: boolean } = {}) {
+  const manifest = buildSceneDependencyManifest(scene)
+  const installCommand = `pnpm add ${Object.keys(manifest.dependencies).join(" ")}`
+  const sceneRef = options.locked
+    ? `sceneUrl="${scene.sceneUrl ?? "https://cdn.yourapp.com/scenes/abc123/v1/scene.json"}"`
+    : scene.sceneId
+      ? `sceneId="${scene.sceneId}"`
+      : `scene={scene}`
+
+  const reactCode = `/** Required:
+ * ${installCommand}
+ */
+import { QrScene } from "@new-qr/qr/react"
+${options.locked || !scene.sceneId ? "" : 'import scene from "./my-qr-card.scene.json"\n'}
+export function MyQrCard() {
+  return <QrScene ${sceneRef} mode="live" />
+}`
+
+  return {
+    installCommand,
+    reactCode,
+    manifest,
+  }
+}
+
+export function buildSceneReactLiveCode(scene: SceneDocumentV1) {
+  const manifest = buildSceneDependencyManifest(scene)
+  const installCommand = `pnpm add ${Object.keys(manifest.dependencies).join(" ")}`
+  const ir = buildSceneIrFromSceneDocument(scene)
+  const code = emitLiveReact(ir, { dialect: "tsx", componentName: "MyQrCard" })
+
+  return `/** Required:
+ * ${installCommand}
+ */
+${code}`
 }

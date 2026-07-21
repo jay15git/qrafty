@@ -6,8 +6,10 @@ import {
   findCardLayer,
   findQrLayer,
   getActiveSceneNode,
+  usesAnimatedQr,
   usesPaperShader,
 } from "../core"
+import { AnimatedQr, sceneQrToAnimatedQrProps } from "../bitjson"
 import { PaperShaderLayer } from "../paper"
 import {
   migrateSceneDocument,
@@ -114,6 +116,8 @@ export function QrScene({
     (mode === "live" || mode === "hybrid" || mode === "fallback") &&
     usesPaperShader(node.card) &&
     node.card?.paperShader
+  const showAnimatedQr =
+    (mode === "live" || mode === "hybrid") && node.qr && usesAnimatedQr(node.qr)
 
   return (
     <div
@@ -172,10 +176,14 @@ export function QrScene({
             zIndex: 10,
           }}
         >
-          <div
-            dangerouslySetInnerHTML={{ __html: node.qr.externalSvg }}
-            style={{ height: "100%", width: "100%" }}
-          />
+          {showAnimatedQr ? (
+            <AnimatedQr {...sceneQrToAnimatedQrProps(node.qr)} width={qrLayer.width} height={qrLayer.height} />
+          ) : (
+            <div
+              dangerouslySetInnerHTML={{ __html: node.qr.externalSvg }}
+              style={{ height: "100%", width: "100%" }}
+            />
+          )}
         </div>
       ) : null}
     </div>

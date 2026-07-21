@@ -12,6 +12,7 @@ export const TEMPLATE_MODE_TOOL_IDS: DesktopToolbarToolId[] = [
   "corners",
   "logo",
   "shape",
+  "motion",
   "card-pattern",
   "decorations",
   "effects",
