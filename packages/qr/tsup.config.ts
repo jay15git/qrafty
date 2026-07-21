@@ -20,7 +20,6 @@ const publicEntries = {
   index: "src/index.ts",
   react: "src/react/index.ts",
   shaders: "src/shaders/index.ts",
-  animated: "src/animated/index.ts",
 }
 
 export default defineConfig({

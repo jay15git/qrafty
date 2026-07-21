@@ -53,6 +53,8 @@ import {
   SceneBackgroundLayer,
   SceneCompositionTransform,
 } from "@/features/workspace/components/SceneBackgroundLayer"
+import { DraftingCanvasSelecto } from "@/features/workspace/components/DraftingCanvasSelecto"
+import { DraftingLayerMoveable } from "@/features/workspace/components/DraftingLayerMoveable"
 import { DraftingQrLayerContent } from "@/features/workspace/components/DraftingQrLayerContent"
 import {
   getDraftingCardBorderStyle,
@@ -121,6 +123,8 @@ type SnapGuides = {
   vertical: number[]
 }
 type LayerBounds = Pick<DraftingCanvasLayer, "height" | "id" | "width" | "x" | "y">
+
+const USE_MOVEABLE_LAYER_CONTROLS = true
 
 const LAYER_MOVE_CURSOR_LOCK_CLASS = "drafting-layer-moving"
 
@@ -1861,6 +1865,10 @@ export const Pane = memo(function Pane({
   }
 
   function renderLayerControls(layer: DraftingCanvasLayer) {
+    if (USE_MOVEABLE_LAYER_CONTROLS) {
+      return null
+    }
+
     if (activeSelectedLayerIds.length !== 1 || layer.isLocked || !activeSelectedLayerIdSet.has(layer.id)) {
       return null
     }
@@ -2494,10 +2502,10 @@ export const Pane = memo(function Pane({
           onSelect()
         }}
         onContextMenu={openCanvasContextMenu}
-        onPointerCancel={endMarqueeSelection}
-        onPointerDown={startMarqueeSelection}
-        onPointerMove={updateMarqueeSelection}
-        onPointerUp={endMarqueeSelection}
+        onPointerCancel={USE_MOVEABLE_LAYER_CONTROLS ? undefined : endMarqueeSelection}
+        onPointerDown={USE_MOVEABLE_LAYER_CONTROLS ? undefined : startMarqueeSelection}
+        onPointerMove={USE_MOVEABLE_LAYER_CONTROLS ? undefined : updateMarqueeSelection}
+        onPointerUp={USE_MOVEABLE_LAYER_CONTROLS ? undefined : endMarqueeSelection}
       >
         {isLoading ? (
           <div className="grid h-full place-items-center text-sm font-medium text-[var(--drafting-ink-muted)]">
@@ -2520,6 +2528,44 @@ export const Pane = memo(function Pane({
             {activeSelectedLayerIds.length > 0
               ? visibleLayers.map((layer) => renderLayerControls(layer))
               : null}
+            {USE_MOVEABLE_LAYER_CONTROLS && activeSelectedLayerIds.length === 1 && onLayerChange ? (
+              (() => {
+                const selectedLayer = visibleLayers.find((layer) => layer.id === activeSelectedLayerIds[0])
+                if (!selectedLayer || selectedLayer.isLocked) {
+                  return null
+                }
+
+                return (
+                  <DraftingLayerMoveable
+                    container={canvasRef.current}
+                    layer={selectedLayer}
+                    onLayerChange={onLayerChange}
+                    scale={interactionScale}
+                  />
+                )
+              })()
+            ) : null}
+            {USE_MOVEABLE_LAYER_CONTROLS ? (
+              <DraftingCanvasSelecto
+                container={canvasRef.current}
+                disabled={Boolean(editingTextLayerId)}
+                selectedLayerIds={activeSelectedLayerIds}
+                onSelectionChange={(layerIds, options) => {
+                  if (layerIds.length === 0) {
+                    onLayerSelect?.(null)
+                    return
+                  }
+
+                  if (options?.additive) {
+                    onLayerSelectionChange?.(layerIds, options)
+                    return
+                  }
+
+                  onLayerSelect?.(layerIds[0] ?? null)
+                  onLayerSelectionChange?.(layerIds, options)
+                }}
+              />
+            ) : null}
             {createMultiLayerControls()}
             {renderFloatingToolbar()}
             {contextMenu && typeof document !== "undefined"

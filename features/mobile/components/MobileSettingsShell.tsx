@@ -16,7 +16,6 @@ const MOBILE_TOOL_IDS = new Set<DesktopToolbarToolId>([
   "corners",
   "logo",
   "shape",
-  "motion",
   "layers",
 ])
 

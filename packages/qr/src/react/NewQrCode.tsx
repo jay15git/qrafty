@@ -36,8 +36,6 @@ export const NewQrCode = memo(function NewQrCode({
       props.moduleLineWidth,
       props.moduleRoundSize,
       props.moduleSize,
-      props.motion,
-      props.motionPreset,
       props.palette,
       props.size,
       props.value,

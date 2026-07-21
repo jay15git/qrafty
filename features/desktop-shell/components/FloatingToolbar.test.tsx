@@ -274,6 +274,7 @@ describe("FloatingToolbar", () => {
             {
               actualActiveTool: "content",
               onActiveToolChange: vi.fn(),
+              visibleToolbarTools: DESKTOP_TOOLBAR_TOOLS,
             } as unknown as DesktopInspectorModel
           }
         />
@@ -370,7 +371,6 @@ describe("FloatingToolbar", () => {
     const surface = await renderPrototype()
     const expectedSlots = [
       ["logo", "desktop-logo-inspector"],
-      ["motion", "desktop-motion-inspector"],
       ["pattern", "desktop-pattern-inspector"],
       ["layers", "desktop-layers-inspector"],
       ["export", "desktop-export-inspector"],
@@ -1125,178 +1125,14 @@ describe("FloatingToolbar", () => {
     ).toBeTruthy()
   })
 
-  it("renders a compact Pixelmator-style motion inspector without placeholder copy", async () => {
-    const surface = await renderPrototype()
-    await openTool(surface.container, "motion")
 
-    const inspector = surface.container.querySelector(
-      '[data-slot="desktop-floating-inspector"]',
-    )
 
-    expect(inspector?.getAttribute("aria-label")).toBe("Motion settings")
-    expect(inspector?.querySelector('[data-slot="desktop-motion-inspector"]')).not.toBeNull()
-    expect(inspector?.textContent).toContain("Motion")
-    expect(inspector?.textContent).not.toContain("Coming soon")
-  })
 
-  it("renders compact motion sections and loader shelf", async () => {
-    const surface = await renderPrototype()
-    await openTool(surface.container, "motion")
 
-    const inspector = surface.container.querySelector(
-      '[data-slot="desktop-floating-inspector"]',
-    )
-    const scrollArea = inspector?.querySelector(
-      '[data-slot="desktop-inspector-scroll-area"]',
-    )
-    const scrollViewport = inspector?.querySelector(
-      '[data-slot="desktop-inspector-scroll"]',
-    )
 
-    expect(inspector?.querySelector('[data-slot="desktop-motion-loader-shelf"]')).not.toBeNull()
-    expect(scrollArea?.querySelector('[data-slot="scroll-area-viewport"]')).not.toBeNull()
-    expect(scrollArea?.querySelector('[aria-hidden="true"] svg')).not.toBeNull()
-    expect(inspector?.textContent).toContain("Motion")
-    expect(inspector?.textContent).toContain("Loader")
-    expect(inspector?.textContent).toContain("Loader Color")
-    expect(inspector?.textContent).toContain("Output")
-    expect(inspector?.textContent).not.toContain("Reset Motion")
 
-    const motionToggle = getRequiredButton(surface.container, "Dot matrix motion")
-    const defaultLoader = getRequiredButton(surface.container, "Use Neon Drift motion loader")
 
-    expect(motionToggle.getAttribute("aria-pressed")).toBe("false")
-    expect(motionToggle.className).not.toContain("desktop-inspector-control-bg")
-    expect(defaultLoader.getAttribute("aria-pressed")).toBe("true")
-    expectAnimatedOptionSelection(defaultLoader)
-    expect(defaultLoader.className).not.toContain("ring-black")
-  })
 
-  it("toggles dot matrix motion without changing the default loader", async () => {
-    const surface = await renderPrototype()
-    await openTool(surface.container, "motion")
-
-    const motionToggle = getRequiredButton(surface.container, "Dot matrix motion")
-    const defaultLoader = getRequiredButton(surface.container, "Use Neon Drift motion loader")
-
-    expect(motionToggle.getAttribute("aria-pressed")).toBe("false")
-    expect(defaultLoader.getAttribute("aria-pressed")).toBe("true")
-
-    await clickButton(motionToggle)
-
-    expect(motionToggle.getAttribute("aria-pressed")).toBe("true")
-    expect(defaultLoader.getAttribute("aria-pressed")).toBe("true")
-  })
-
-  it("selects a standard motion preset", async () => {
-    const surface = await renderPrototype()
-    await openTool(surface.container, "motion")
-
-    const orbitReveal = getRequiredButton(surface.container, "Use Orbit Reveal motion loader")
-
-    await clickButton(orbitReveal)
-
-    expect(orbitReveal.getAttribute("aria-pressed")).toBe("true")
-    expect(getRequiredButton(surface.container, "Use Fade In Top Down motion loader").getAttribute("aria-pressed")).toBe("false")
-  })
-
-  it("updates motion speed, matrix density, and overlay scale sliders", async () => {
-    const surface = await renderPrototype()
-    await openTool(surface.container, "motion")
-
-    await act(async () => {
-      getRequiredSlider(surface.container, "Motion speed").dispatchEvent(
-        new KeyboardEvent("keydown", { bubbles: true, key: "End" }),
-      )
-      getRequiredSlider(surface.container, "Motion matrix density").dispatchEvent(
-        new KeyboardEvent("keydown", { bubbles: true, key: "End" }),
-      )
-      getRequiredSlider(surface.container, "Motion overlay scale").dispatchEvent(
-        new KeyboardEvent("keydown", { bubbles: true, key: "End" }),
-      )
-    })
-
-    expect(getRequiredSlider(surface.container, "Motion speed").getAttribute("aria-valuenow")).toBe("10")
-    expect(getRequiredSlider(surface.container, "Motion matrix density").getAttribute("aria-valuenow")).toBe("25")
-    expect(surface.container.textContent).toContain("25x25")
-    expect(getRequiredSlider(surface.container, "Motion overlay scale").getAttribute("aria-valuenow")).toBe("140")
-  })
-
-  it("renders compact motion sliders with the desktop elastic slider component", async () => {
-    const surface = await renderPrototype()
-    await openTool(surface.container, "motion")
-
-    expect(surface.container.querySelectorAll('[data-slot="desktop-elastic-slider"]')).toHaveLength(3)
-    expect(surface.container.querySelector('input[type="range"][aria-label^="Motion "]')).toBeNull()
-    expect(getRequiredSlider(surface.container, "Motion speed")).not.toBeNull()
-    expect(getRequiredSlider(surface.container, "Motion matrix density")).not.toBeNull()
-    expect(getRequiredSlider(surface.container, "Motion overlay scale")).not.toBeNull()
-    expect(getRequiredSliderRow(surface.container, "Motion speed").textContent).toBe("Speed3x")
-    expect(getRequiredSliderRow(surface.container, "Motion matrix density").textContent).toBe("Matrix density5x5")
-    expect(getRequiredSliderRow(surface.container, "Motion overlay scale").textContent).toBe("Overlay scale100%")
-    expect(
-      getRequiredSlider(surface.container, "Motion speed")
-        .closest('[data-slot="elastic-slider"]')
-        ?.className,
-    ).toContain("[--elastic-slider-label:rgba(255,255,255,0.58)]")
-    expect(surface.container.innerHTML).toContain('[data-slot="elastic-slider-label"]')
-    expect(surface.container.innerHTML).toContain("color: rgba(255, 255, 255, 0.86) !important")
-    expect(surface.container.innerHTML).toContain('data-desktop-theme="light"] [data-slot="desktop-floating-inspector"] [data-slot="elastic-slider-label"]')
-    expect(getRequiredSliderRow(surface.container, "Motion speed").className).not.toContain("desktop-inspector-control-bg")
-    expect(getRequiredSliderRow(surface.container, "Motion matrix density").className).not.toContain("desktop-inspector-control-bg")
-    expect(getRequiredSliderRow(surface.container, "Motion overlay scale").className).not.toContain("desktop-inspector-control-bg")
-  })
-
-  it("hides custom motion color inputs for non-theme color presets", async () => {
-    const surface = await renderPrototype()
-    await openTool(surface.container, "motion")
-
-    await clickButton(getRequiredButton(surface.container, "Use Mint motion colors"))
-
-    expect(getRequiredButton(surface.container, "Use Mint motion colors").getAttribute("aria-pressed")).toBe("true")
-    expect(surface.container.querySelector('input[aria-label="Motion base color"]')).toBeNull()
-    expect(surface.container.querySelector('input[aria-label="Motion mid color"]')).toBeNull()
-    expect(surface.container.querySelector('input[aria-label="Motion peak color"]')).toBeNull()
-  })
-
-  it("shows and updates custom motion theme colors", async () => {
-    const surface = await renderPrototype()
-    await openTool(surface.container, "motion")
-
-    await act(async () => {
-      getRequiredButton(surface.container, "Use Mint motion colors").dispatchEvent(new MouseEvent("click", { bubbles: true }))
-      getRequiredButton(surface.container, "Use Theme motion colors").dispatchEvent(new MouseEvent("click", { bubbles: true }))
-    })
-
-    await act(async () => {
-      setInputValue(getRequiredInput(surface.container, "Motion base color"), "#111111")
-      setInputValue(getRequiredInput(surface.container, "Motion mid color"), "#555555")
-      setInputValue(getRequiredInput(surface.container, "Motion peak color"), "#eeeeee")
-    })
-
-    expect(getRequiredInput(surface.container, "Motion base color").value).toBe("#111111")
-    expect(getRequiredInput(surface.container, "Motion mid color").value).toBe("#555555")
-    expect(getRequiredInput(surface.container, "Motion peak color").value).toBe("#eeeeee")
-  })
-
-  it("updates motion preview and animated SVG export toggles independently", async () => {
-    const surface = await renderPrototype()
-    await openTool(surface.container, "motion")
-
-    const previewToggle = getRequiredButton(surface.container, "Animated preview")
-    const exportToggle = getRequiredButton(surface.container, "Animated SVG export")
-
-    expect(previewToggle.getAttribute("aria-pressed")).toBe("true")
-    expect(exportToggle.getAttribute("aria-pressed")).toBe("false")
-
-    await act(async () => {
-      previewToggle.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-      exportToggle.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-    })
-
-    expect(previewToggle.getAttribute("aria-pressed")).toBe("false")
-    expect(exportToggle.getAttribute("aria-pressed")).toBe("true")
-  })
 
   it("renders a compact Pixelmator-style text inspector without placeholder copy", async () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Hello" })

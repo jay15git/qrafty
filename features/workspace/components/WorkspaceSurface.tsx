@@ -4,7 +4,6 @@ import { Image02Icon, KeyboardIcon, SignalIcon, SquareIcon } from "@hugeicons/co
 import { HugeiconsIcon } from "@hugeicons/react"
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
 
-import { buildCodegenExportFromWorkspace } from "@/features/qr-code/export/codegen-export"
 import type {
   QrErrorCorrectionLevel,
   QrFileExtension,
@@ -33,8 +32,6 @@ import {
   DraftingLogoColorTab,
   DraftingLogoSizeTab,
   DraftingLogoUploadTab,
-  DraftingLoaderPlaygroundTab,
-  DraftingMotionTab,
   DraftingQrTypeDropdown,
   DraftingSizeTab,
   DraftingSliderVariantProvider,
@@ -129,9 +126,6 @@ import {
   LayerList,
 } from "@/features/workspace/components/LayerList"
 import {
-  buildDraftingLayeredNodePayload,
-} from "@/features/workspace/export/layered-export"
-import {
   Canvas,
   type DraftingPaneCanvasTool,
   type DraftingPaneToolbarVariant,
@@ -154,7 +148,6 @@ import type {
   DesktopLogoSettings,
   DesktopLogoSettingsPatch,
   DesktopLogoSourceMode,
-  DesktopMotionSettings,
   DesktopPatternSettings,
   DesktopShapeSettings,
   DesktopTextSettings,
@@ -197,15 +190,13 @@ import {
 } from "@/features/qr-code/components/ControlsPanel"
 import { applyAssetUploadValue, applyIconstackLogoPresetSelection } from "@/features/qr-code/model/actions"
 import {
-  downloadDashboardQrBatchZipExport,
-  downloadDashboardQrNodeExport,
-} from "@/features/qr-code/export/batch-export"
-import {
   formatDashboardExportFileSize,
   isRasterExportExtension,
   measureDashboardRasterExport,
   type DashboardRasterExtension,
 } from "@/features/qr-code/export/raster-export"
+import { executeWorkspaceDownload } from "@/features/workspace/export/workspace-export-actions"
+import { useWorkspaceDocumentSync } from "@/features/workspace/hooks/use-workspace-document-sync"
 import {
   DASHBOARD_QR_NODE_ID,
 } from "@/features/qr-code/rendering/compose-scene"
@@ -215,7 +206,6 @@ import {
   type AssetSourceMode,
   type BackgroundShapeOptions,
   type DotsColorMode,
-  type QrDotMatrixAnimationOptions,
   type QrCrossOrigin,
   type QrGradientLinkMode,
   type QrLogoPositionMode,
@@ -223,7 +213,6 @@ import {
   type QrStudioState,
   type StudioDataModulesStyle,
   type StudioGradient,
-  setDotMatrixAnimationOptions,
 } from "@/features/qr-code/model/state"
 import {
   buildStaticQrPayload,
@@ -231,6 +220,7 @@ import {
   validateStaticQrContent,
   type StaticQrContentValue,
 } from "@/features/qr-code/content/static-payload"
+import type { QrBackgroundShapeId } from "@/features/qr-code/styles/background-shapes"
 import {
   DownloadIcon,
   FrameIcon,
@@ -304,7 +294,6 @@ type DraftingToolId =
   | "image"
   | "decorations"
   | "effects"
-  | "motion"
   | "encoding"
   | "layers"
   | "export"
@@ -449,12 +438,6 @@ const DRAFTING_TOOLS: DraftingTool[] = [
     renderIcon: () => (
       <HugeiconsIcon icon={Image02Icon} size={16} color="currentColor" strokeWidth={1.8} />
     ),
-  },
-  {
-    group: "QR",
-    id: "motion",
-    title: "Motion",
-    renderIcon: () => <SlidersHorizontal className="size-4 shrink-0" />,
   },
   {
     group: "QR",
@@ -643,10 +626,6 @@ export function WorkspaceSurface({
     ...DEFAULT_DRAFTING_STUDIO_STATE.dotsPalette,
   ])
   const [selectedDotsPalettePreset, setSelectedDotsPalettePreset] = useState<string | "custom">("Signal")
-  const [selectedDotMatrixAnimation, setSelectedDotMatrixAnimation] =
-    useState<QrDotMatrixAnimationOptions>({
-      ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation,
-    })
   const [openDotsColorItems, setOpenDotsColorItems] = useState<string[]>(["solid"])
   const [selectedQrFinderPatternOuterStyle, setSelectedQrFinderPatternOuterStyle] =
     useState<QrFinderPatternOuterStyle>("rounded-lg")
@@ -954,7 +933,6 @@ export function WorkspaceSurface({
       gradientLinkMode: selectedGradientLinkMode,
       dotsColorMode: selectedDotsColorMode,
       dotsPalette: [...selectedDotsPalette],
-      dotMatrixAnimation: { ...selectedDotMatrixAnimation },
       finderPatternOuterSettings: {
         type: selectedQrFinderPatternOuterStyle,
         color: selectedCornerSquareColor,
@@ -1009,7 +987,6 @@ export function WorkspaceSurface({
       selectedCornerSquareGradient,
       selectedQrFinderPatternOuterStyle,
       selectedDotColor,
-      selectedDotMatrixAnimation,
       selectedDotsColorMode,
       selectedDotsGradient,
       selectedDotsPalette,
@@ -1474,7 +1451,6 @@ export function WorkspaceSurface({
     setSelectedDotsColorMode(nextState.dotsColorMode)
     setSelectedDotColor(nextState.dataModulesSettings.color)
     setSelectedDotsGradient(structuredClone(nextState.dataModulesGradient))
-    setSelectedDotMatrixAnimation({ ...nextState.dotMatrixAnimation })
     setOpenDotsColorItems([nextState.dotsColorMode])
     setSelectedQrFinderPatternOuterStyle(nextState.finderPatternOuterSettings.type)
     setSelectedCornerSquareColorMode(
@@ -2942,116 +2918,40 @@ export function WorkspaceSurface({
   async function handleDownload() {
     try {
       setExportDownloadError(null)
-      if (selectedDownloadTarget === "all-qr") {
-        const nodes = await Promise.all(
-          Object.entries(qrStateByNodeId).map(async ([nodeId, state]) => {
-            const activeState = nodeId === activeQrNodeId ? draftingStudioState : state
-            const activeCardState =
-              nodeId === activeQrNodeId
-                ? selectedCardState
-                : (cardStateByNodeId[nodeId] ?? selectedCardState)
-            const activeLayers =
-              layerStateByNodeId[nodeId] ??
-              createDefaultDraftingLayers(nodeId, activeState, activeCardState)
+      const artboardElement =
+        draftingSurfaceRef.current?.querySelector<HTMLElement>("[data-export-root]") ?? null
 
-            return await buildDraftingLayeredNodePayload({
-              cardState: activeCardState,
-              layers: activeLayers,
-              name: qrPaneNamesById.get(nodeId) ?? "QR Code",
-              nodeId,
-              sceneComposition: normalizeSceneComposition(
-                sceneCompositionByNodeId[nodeId] ?? createDefaultSceneComposition(),
-              ),
-              state: activeState,
-            })
-          }),
-        )
-
-        if (nodes.length === 0) {
-          throw new Error("No QR codes are available for export.")
-        }
-
-        await downloadDashboardQrBatchZipExport({
-          extension: selectedDownloadExtension,
-          name: DEFAULT_DOWNLOAD_NAME,
-          nodes,
-          qualityPercent: draftingStudioState.rasterExportQualityPercent,
-          targetDimensions: selectedPlatformExportDimensions,
-          targetSizePx: selectedPlatformExportDimensions
-            ? undefined
-            : selectedRasterExportTargetSizePx,
-        })
-      } else if (
-        selectedDownloadTarget === "current" ||
-        selectedDownloadTarget.startsWith("qr:")
-      ) {
-        const nodeId =
-          selectedDownloadTarget === "current"
-            ? activeQrNodeId
-            : selectedDownloadTarget.slice("qr:".length)
-        const state = nodeId === activeQrNodeId ? draftingStudioState : qrStateByNodeId[nodeId]
-
-        if (!state) {
-          throw new Error("The selected QR code is unavailable for export.")
-        }
-
-        const activeCardState =
-          nodeId === activeQrNodeId
-            ? selectedCardState
-            : (cardStateByNodeId[nodeId] ?? selectedCardState)
-        const activeLayers =
-          layerStateByNodeId[nodeId] ??
-          createDefaultDraftingLayers(nodeId, state, activeCardState)
-        const payload = await buildDraftingLayeredNodePayload({
-          cardState: activeCardState,
-          layers: activeLayers,
-          name: qrPaneNamesById.get(nodeId) ?? "QR Code",
-          nodeId,
-          sceneComposition: normalizeSceneComposition(
-            sceneCompositionByNodeId[nodeId] ?? createDefaultSceneComposition(),
-          ),
-          state,
-        })
-
-        await downloadDashboardQrNodeExport({
-          extension: selectedDownloadExtension,
-          name: qrPaneNamesById.get(nodeId) ?? "QR Code",
-          node: payload,
-          qualityPercent: draftingStudioState.rasterExportQualityPercent,
-          targetDimensions: selectedPlatformExportDimensions,
-          targetSizePx: selectedPlatformExportDimensions
-            ? undefined
-            : selectedRasterExportTargetSizePx,
-        })
-      } else if (selectedDownloadTarget === "surface") {
-        const activeCardState = selectedCardState
-        const activeLayers =
-          layerStateByNodeId[activeQrNodeId] ??
-          createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, activeCardState)
-        const payload = await buildDraftingLayeredNodePayload({
-          cardState: activeCardState,
-          layers: activeLayers,
-          name: DEFAULT_DOWNLOAD_NAME,
-          nodeId: activeQrNodeId,
-          sceneComposition: activeSceneComposition,
-          state: draftingStudioState,
-        })
-
-        await downloadDashboardQrNodeExport({
-          extension: selectedDownloadExtension,
-          name: DEFAULT_DOWNLOAD_NAME,
-          node: payload,
-          qualityPercent: draftingStudioState.rasterExportQualityPercent,
-          targetDimensions: selectedPlatformExportDimensions,
-          targetSizePx: selectedPlatformExportDimensions
-            ? undefined
-            : selectedRasterExportTargetSizePx,
-        })
-      }
+      await executeWorkspaceDownload({
+        activeNodeId: activeQrNodeId,
+        artboardElement,
+        cardStateByNodeId,
+        extension: selectedDownloadExtension,
+        layerStateByNodeId,
+        name: DEFAULT_DOWNLOAD_NAME,
+        paneNamesById: qrPaneNamesById,
+        qualityPercent: draftingStudioState.rasterExportQualityPercent,
+        qrStateByNodeId: {
+          ...qrStateByNodeId,
+          [activeQrNodeId]: draftingStudioState,
+        },
+        sceneCompositionByNodeId,
+        target: selectedDownloadTarget,
+        targetDimensions: selectedPlatformExportDimensions,
+        targetSizePx: selectedPlatformExportDimensions
+          ? undefined
+          : selectedRasterExportTargetSizePx,
+      })
     } catch (error) {
       setExportDownloadError(error instanceof Error ? error.message : "Export failed.")
     }
   }
+
+  useWorkspaceDocumentSync({
+    activeNodeId: activeQrNodeId,
+    document: draftingWorkspaceDocument,
+    height: selectedCardState.height,
+    width: selectedCardState.width,
+  })
 
   const activeCanvasLayers =
     layerStateByNodeId[activeQrNodeId] ??
@@ -3147,45 +3047,6 @@ export function WorkspaceSurface({
       )
     }
 
-    if (toolId === "style" && tabId === "motion") {
-      return renderWithSliderVariant(
-        <DraftingMotionTab
-          animation={selectedDotMatrixAnimation}
-          onAnimationChange={(patch) =>
-            setSelectedDotMatrixAnimation(
-              (current) =>
-                setDotMatrixAnimationOptions(
-                  {
-                    ...DEFAULT_DRAFTING_STUDIO_STATE,
-                    dotMatrixAnimation: current,
-                  },
-                  patch,
-                ).dotMatrixAnimation,
-            )
-          }
-        />,
-      )
-    }
-
-    if (toolId === "loader-playground" && tabId === "playground") {
-      return renderWithSliderVariant(
-        <DraftingLoaderPlaygroundTab
-          animation={selectedDotMatrixAnimation}
-          onAnimationChange={(patch) =>
-            setSelectedDotMatrixAnimation(
-              (current) =>
-                setDotMatrixAnimationOptions(
-                  {
-                    ...DEFAULT_DRAFTING_STUDIO_STATE,
-                    dotMatrixAnimation: current,
-                  },
-                  patch,
-                ).dotMatrixAnimation,
-            )
-          }
-        />,
-      )
-    }
 
     if (toolId === "card-frame" && tabId === "frame") {
       return renderWithSliderVariant(
@@ -3868,23 +3729,6 @@ export function WorkspaceSurface({
       )
     }
 
-    if (toolId === "motion") {
-      return (
-        <InspectorPanel
-          dataSlot="drafting-stacked-inspector"
-          description="Preview animation settings for live QR surfaces."
-          eyebrow="QR"
-          title="Motion"
-        >
-          <DraftingInspectorSection title="Animation">
-            {renderPanelContent("style", "motion")}
-          </DraftingInspectorSection>
-          <DraftingInspectorSection title="Loader playground">
-            {renderPanelContent("loader-playground", "playground")}
-          </DraftingInspectorSection>
-        </InspectorPanel>
-      )
-    }
 
     if (toolId === "card-frame" || toolId === "card-surface" || toolId === "card-image" || toolId === "card-shaders") {
       return (
@@ -4477,14 +4321,6 @@ export function WorkspaceSurface({
     setSelectedBackgroundShapeOptions({ ...DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeOptions })
   }
 
-  function updateDesktopMotionSettings(patch: Parameters<typeof setDotMatrixAnimationOptions>[1]) {
-    setSelectedDotMatrixAnimation((current) =>
-      setDotMatrixAnimationOptions(
-        { ...DEFAULT_DRAFTING_STUDIO_STATE, dotMatrixAnimation: current },
-        patch,
-      ).dotMatrixAnimation,
-    )
-  }
 
   function updateDesktopEncodingSettings(patch: Partial<DesktopEncodingSettings>) {
     if (patch.typeNumber !== undefined) setSelectedQrTypeNumber(patch.typeNumber)
@@ -4588,7 +4424,6 @@ export function WorkspaceSurface({
     layoutSettings: desktopLayoutSettings,
     layersSettings: desktopLayersSettings,
     logoSettings: desktopLogoSettings,
-    motionSettings: selectedDotMatrixAnimation as DesktopMotionSettings,
     patternSettings: desktopPatternSettings,
     sceneTemplateSettings: desktopSceneTemplateSettings,
     shapeSettings: desktopShapeSettings,
@@ -4757,18 +4592,6 @@ export function WorkspaceSurface({
     onExportDownload: () => {
       void handleDownload()
     },
-    buildCodegenExport: async (target) => {
-      const result = await buildCodegenExportFromWorkspace({
-        document: draftingWorkspaceDocument,
-        nodeId: activeQrNodeId,
-        target,
-        shaderSnapshotRoot: draftingSurfaceRef.current,
-      })
-      return {
-        code: result.code,
-        installCommand: result.manifest.installCommand || undefined,
-      }
-    },
     exportDownloadError,
     onExportReset: () => {
       setExportDownloadError(null)
@@ -4788,8 +4611,6 @@ export function WorkspaceSurface({
     onLayersReorder: handleLayerReorder,
     onLogoReset: resetDesktopLogoSettings,
     onLogoSettingsChange: updateDesktopLogoSettings,
-    onMotionReset: () => setSelectedDotMatrixAnimation({ ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation }),
-    onMotionSettingsChange: updateDesktopMotionSettings,
     onPatternReset: resetDesktopPatternSettings,
     onPatternSettingsChange: updateDesktopPatternSettings,
     onShapeReset: resetDesktopShapeSettings,

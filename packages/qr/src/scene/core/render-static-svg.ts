@@ -1,4 +1,4 @@
-import type { SceneCardState, SceneDocumentV1, SceneLayer, SceneQrState } from "../schema"
+import type { SceneCardState, SceneDocumentV1, SceneLayer } from "../schema"
 
 export type SceneRenderProfile = "live" | "static" | "snapshot"
 
@@ -30,14 +30,9 @@ export function usesPaperShader(card?: SceneCardState) {
   return card?.styleMode === "paper-shader" && Boolean(card.paperShader)
 }
 
-export function usesAnimatedQr(qr?: SceneQrState) {
-  return Boolean(qr?.motion.enabled && qr.motion.animated)
-}
-
 export function buildSceneDependencyManifest(scene: SceneDocumentV1) {
   const node = getActiveSceneNode(scene)
   const paperShaders = usesPaperShader(node?.card)
-  const animatedQr = usesAnimatedQr(node?.qr)
 
   const dependencies: Record<string, string> = {
     "@new-qr/qr": "0.1.0",
@@ -52,7 +47,6 @@ export function buildSceneDependencyManifest(scene: SceneDocumentV1) {
     dependencies,
     features: {
       paperShaders,
-      animatedQr,
       staticFallback: true,
     },
   }

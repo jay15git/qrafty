@@ -86,24 +86,8 @@ import { Slider as UnlumenSlider } from "@/components/vendor/unlumen-ui/slider"
 import type {
   BackgroundShapeOptions,
   DotsColorMode,
-  QrDotMatrixAnimationOptions,
-  QrDotMatrixAnimationPatch,
   StudioDataModulesStyle,
   StudioGradient,
-} from "@/features/qr-code/model/state"
-import {
-  QR_DOT_MATRIX_ANIMATION_SPEED_MAX,
-  QR_DOT_MATRIX_ANIMATION_SPEED_MIN,
-  QR_DOT_MATRIX_COLOR_PRESET_OPTIONS,
-  QR_DOT_MATRIX_MATRIX_SIZE_MAX,
-  QR_DOT_MATRIX_MATRIX_SIZE_MIN,
-  QR_DOT_MATRIX_MATRIX_SIZE_STEP,
-  QR_DOT_MATRIX_OPACITY_MAX,
-  QR_DOT_MATRIX_OPACITY_MIN,
-  QR_DOT_MATRIX_OVERLAY_SCALE_MAX,
-  QR_DOT_MATRIX_OVERLAY_SCALE_MIN,
-  QR_DOT_MATRIX_PATTERN_OPTIONS,
-  QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
 } from "@/features/qr-code/model/state"
 import {
   type StaticQrContentValue,
@@ -929,262 +913,6 @@ export function DraftingSizeTab({
   )
 }
 
-export function DraftingMotionTab({
-  animation,
-  onAnimationChange,
-}: {
-  animation: QrDotMatrixAnimationOptions
-  onAnimationChange: (patch: QrDotMatrixAnimationPatch) => void
-}) {
-  return (
-    <DraftingLoaderPlaygroundTab
-      animation={animation}
-      dataSlot="drafting-motion-tab"
-      onAnimationChange={onAnimationChange}
-    />
-  )
-}
-
-export function DraftingLoaderPlaygroundTab({
-  animation,
-  dataSlot = "drafting-loader-playground-tab",
-  onAnimationChange,
-}: {
-  animation: QrDotMatrixAnimationOptions
-  dataSlot?: string
-  onAnimationChange: (patch: QrDotMatrixAnimationPatch) => void
-}) {
-  return (
-    <div data-slot={dataSlot} className="min-w-0 space-y-3">
-      <DraftingToggleField
-        checked={animation.enabled}
-        dataSlot="drafting-dot-matrix-animation-enabled"
-        description="Pulses QR modules without moving scanner-critical geometry."
-        id="drafting-dot-matrix-animation-enabled"
-        label="Dot matrix motion"
-        onCheckedChange={(enabled) => onAnimationChange({ enabled })}
-      />
-
-      <section
-        data-slot="drafting-dot-matrix-loader-section"
-        className="min-w-0 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 shadow-[var(--drafting-shadow-rest)]"
-      >
-        <div className="mb-3 min-w-0 space-y-1">
-          <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
-            Loader
-          </p>
-          <p className="drafting-type-body text-[var(--drafting-ink-muted)]">
-            Square loaders adapted from the upstream matrix motion set.
-          </p>
-        </div>
-        <div className="grid min-w-0 grid-cols-2 gap-2">
-          {QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((loader) => {
-            const isSelected = animation.loader === loader.value
-
-            return (
-              <Button
-                aria-label={`Select loader ${loader.label}`}
-                key={loader.value}
-                type="button"
-                variant="ghost"
-                onClick={() => onAnimationChange({ enabled: true, loader: loader.value })}
-                className={cn(
-                  "h-auto min-h-10 justify-start rounded-[6px] border px-3 py-2 text-left shadow-none",
-                  "border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] text-[var(--drafting-ink-muted)]",
-                  "hover:bg-[var(--drafting-panel-bg-hover)] hover:text-[var(--drafting-ink)]",
-                  isSelected &&
-                    "border-[var(--drafting-line-strong)] bg-[var(--drafting-panel-bg-active)] text-[var(--drafting-ink)]",
-                )}
-              >
-                <span className="drafting-type-meta min-w-0 truncate font-semibold">
-                  {loader.label}
-                </span>
-              </Button>
-            )
-          })}
-        </div>
-      </section>
-
-      <DraftingSliderField
-        dataSlot="drafting-dot-matrix-animation-speed-slider"
-        description="Controls pulse travel rate in preview and animated SVG export."
-        formatValue={(value) => `${Math.round(value)}x`}
-        id="drafting-dot-matrix-animation-speed"
-        label="Speed"
-        max={QR_DOT_MATRIX_ANIMATION_SPEED_MAX}
-        min={QR_DOT_MATRIX_ANIMATION_SPEED_MIN}
-        step={1}
-        value={animation.speed}
-        onChange={(speed) => onAnimationChange({ speed })}
-      />
-
-      <DraftingSliderField
-        dataSlot="drafting-dot-matrix-animation-density-slider"
-        description="Sets how many animation regions run across each QR axis."
-        formatValue={(value) => `${Math.round(value)}x${Math.round(value)}`}
-        id="drafting-dot-matrix-animation-density"
-        label="Matrix density"
-        max={QR_DOT_MATRIX_MATRIX_SIZE_MAX}
-        min={QR_DOT_MATRIX_MATRIX_SIZE_MIN}
-        step={QR_DOT_MATRIX_MATRIX_SIZE_STEP}
-        value={animation.matrixSize}
-        onChange={(matrixSize) => onAnimationChange({ matrixSize })}
-      />
-
-      <DraftingSliderField
-        dataSlot="drafting-dot-matrix-overlay-scale-slider"
-        description="Scales only the animated overlay modules; the QR base stays fixed."
-        formatValue={(value) => `${Math.round(value)}%`}
-        id="drafting-dot-matrix-overlay-scale"
-        label="Overlay scale"
-        max={QR_DOT_MATRIX_OVERLAY_SCALE_MAX}
-        min={QR_DOT_MATRIX_OVERLAY_SCALE_MIN}
-        step={1}
-        value={animation.overlayScale}
-        onChange={(overlayScale) => onAnimationChange({ overlayScale })}
-      />
-
-      <section className="min-w-0 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 shadow-[var(--drafting-shadow-rest)]">
-        <p className="drafting-type-control-label mb-3 font-semibold text-[var(--drafting-ink)]">
-          Loader color
-        </p>
-        <div className="grid min-w-0 grid-cols-2 gap-2">
-          {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => (
-            <Button
-              key={preset.value}
-              type="button"
-              variant="ghost"
-              onClick={() => onAnimationChange({ colorPreset: preset.value })}
-              className={cn(
-                "h-9 justify-start rounded-[6px] border px-3 text-left shadow-none",
-                animation.colorPreset === preset.value
-                  ? "border-[var(--drafting-line-strong)] bg-[var(--drafting-panel-bg-active)] text-[var(--drafting-ink)]"
-                  : "border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] text-[var(--drafting-ink-muted)]",
-              )}
-            >
-              <span className="drafting-type-meta font-semibold">{preset.label}</span>
-            </Button>
-          ))}
-        </div>
-        {animation.colorPreset === "theme" ? (
-          <div className="mt-3 grid min-w-0 gap-2">
-            {[
-              ["Base", "customColorBase", animation.customColorBase, "Loader base color"],
-              ["Mid", "customColorMid", animation.customColorMid, "Loader mid color"],
-              ["Peak", "customColorPeak", animation.customColorPeak, "Loader peak color"],
-            ].map(([label, field, value, ariaLabel]) => (
-              <label
-                key={field}
-                className="flex min-w-0 items-center justify-between gap-3 rounded-[6px] bg-[var(--drafting-control-bg)] px-3 py-2"
-              >
-                <span className="drafting-type-control-label font-semibold text-[var(--drafting-ink-muted)]">
-                  {label}
-                </span>
-                <Input
-                  aria-label={ariaLabel}
-                  type="color"
-                  value={value}
-                  onChange={(event) =>
-                    onAnimationChange({ [field]: event.target.value } as QrDotMatrixAnimationPatch)
-                  }
-                  className="h-8 w-12 shrink-0 border-0 bg-transparent p-0"
-                />
-              </label>
-            ))}
-          </div>
-        ) : null}
-      </section>
-
-      <section className="min-w-0 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 shadow-[var(--drafting-shadow-rest)]">
-        <p className="drafting-type-control-label mb-3 font-semibold text-[var(--drafting-ink)]">
-          Pattern
-        </p>
-        <div className="grid min-w-0 grid-cols-3 gap-2">
-          {QR_DOT_MATRIX_PATTERN_OPTIONS.map((pattern) => (
-            <Button
-              key={pattern.value}
-              type="button"
-              variant="ghost"
-              onClick={() => onAnimationChange({ pattern: pattern.value })}
-              className={cn(
-                "h-9 rounded-[6px] border px-2 shadow-none",
-                animation.pattern === pattern.value
-                  ? "border-[var(--drafting-line-strong)] bg-[var(--drafting-panel-bg-active)] text-[var(--drafting-ink)]"
-                  : "border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] text-[var(--drafting-ink-muted)]",
-              )}
-            >
-              <span className="drafting-type-meta font-semibold">{pattern.label}</span>
-            </Button>
-          ))}
-        </div>
-      </section>
-
-      <section className="min-w-0 space-y-2 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 shadow-[var(--drafting-shadow-rest)]">
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
-          States
-        </p>
-        <DraftingToggleField
-          checked={animation.animated}
-          dataSlot="drafting-dot-matrix-animated"
-          description="Runs the loader in preview."
-          id="drafting-dot-matrix-animated"
-          label="Animated"
-          onCheckedChange={(animated) => onAnimationChange({ animated })}
-        />
-      </section>
-
-      <section className="min-w-0 space-y-3 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 shadow-[var(--drafting-shadow-rest)]">
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
-          Opacity
-        </p>
-        <DraftingSliderField
-          dataSlot="drafting-dot-matrix-opacity-base-slider"
-          formatValue={(value) => value.toFixed(2)}
-          id="drafting-dot-matrix-opacity-base"
-          label="Base"
-          max={QR_DOT_MATRIX_OPACITY_MAX}
-          min={QR_DOT_MATRIX_OPACITY_MIN}
-          step={0.01}
-          value={animation.opacityBase}
-          onChange={(opacityBase) => onAnimationChange({ opacityBase })}
-        />
-        <DraftingSliderField
-          dataSlot="drafting-dot-matrix-opacity-mid-slider"
-          formatValue={(value) => value.toFixed(2)}
-          id="drafting-dot-matrix-opacity-mid"
-          label="Mid"
-          max={QR_DOT_MATRIX_OPACITY_MAX}
-          min={QR_DOT_MATRIX_OPACITY_MIN}
-          step={0.01}
-          value={animation.opacityMid}
-          onChange={(opacityMid) => onAnimationChange({ opacityMid })}
-        />
-        <DraftingSliderField
-          dataSlot="drafting-dot-matrix-opacity-peak-slider"
-          formatValue={(value) => value.toFixed(2)}
-          id="drafting-dot-matrix-opacity-peak"
-          label="Peak"
-          max={QR_DOT_MATRIX_OPACITY_MAX}
-          min={QR_DOT_MATRIX_OPACITY_MIN}
-          step={0.01}
-          value={animation.opacityPeak}
-          onChange={(opacityPeak) => onAnimationChange({ opacityPeak })}
-        />
-      </section>
-
-      <DraftingToggleField
-        checked={animation.exportAnimatedSvg}
-        dataSlot="drafting-dot-matrix-animation-export"
-        description="Reserved for a future animated SVG path. File export stays static today."
-        id="drafting-dot-matrix-animation-export"
-        label="Preview-only animated SVG export"
-        onCheckedChange={(exportAnimatedSvg) =>
-          onAnimationChange({ exportAnimatedSvg })
-        }
-      />
-    </div>
-  )
-}
 
 export function DraftingCardSettingsTab({
   value,
@@ -1584,7 +1312,6 @@ function DraftingCardPaperShaderPanel({
   const [openShaderAccordionIds, setOpenShaderAccordionIds] = useState([
     "filter",
     "preset",
-    "motion",
     "settings",
   ])
   const settingControls = definition.controls.filter(
@@ -1690,48 +1417,6 @@ function DraftingCardPaperShaderPanel({
     </section>
   )
 
-  const motionContent = (
-    <section className="min-w-0 space-y-3" data-slot="drafting-card-paper-shader-motion">
-      {!showAccordions ? (
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
-          Motion
-        </p>
-      ) : null}
-      <DraftingToggleField
-        checked={paperShader.paused}
-        dataSlot="drafting-card-paper-shader-paused"
-        description="Stops the shader animation while keeping the current frame visible."
-        id="drafting-card-paper-shader-paused"
-        label="Pause"
-        onCheckedChange={(paused) => updatePaperShader({ paused })}
-      />
-      {speedControl?.type === "number" ? (
-        <DraftingSliderField
-          dataSlot="drafting-card-paper-shader-speed"
-          formatValue={(value) => value.toFixed(2)}
-          id="drafting-card-paper-shader-speed"
-          label="Speed"
-          max={speedControl.max}
-          min={speedControl.min}
-          step={speedControl.step ?? 0.01}
-          value={paperShader.speed}
-          onChange={(speed) => updatePaperShader({ speed })}
-        />
-      ) : null}
-      <DraftingSliderField
-        dataSlot="drafting-card-paper-shader-frame"
-        formatValue={(value) => `${Math.round(value)}`}
-        id="drafting-card-paper-shader-frame"
-        label="Frame"
-        max={10000}
-        min={0}
-        step={1}
-        value={paperShader.frame}
-        onChange={(frame) => updatePaperShader({ frame })}
-      />
-    </section>
-  )
-
   const settingsContent = (
     <section className="min-w-0 space-y-3" data-slot="drafting-card-paper-shader-params">
       {!showAccordions ? (
@@ -1768,9 +1453,7 @@ function DraftingCardPaperShaderPanel({
           dataSlot={`${dataSlot}-accordion`}
           items={[
             { id: "filter", title: "Filter", content: filterContent },
-            { id: "preset", title: "Preset", content: presetContent },
-            { id: "motion", title: "Motion", content: motionContent },
-            { id: "settings", title: "Settings", content: settingsContent },
+            { id: "preset", title: "Preset", content: presetContent },            { id: "settings", title: "Settings", content: settingsContent },
           ]}
           openItemIds={openShaderAccordionIds}
           onOpenItemIdsChange={setOpenShaderAccordionIds}
@@ -1791,14 +1474,12 @@ function DraftingCardPaperShaderPanel({
         </>
       ) : panelTab === "settings" ? (
         <>
-          {motionContent}
           {settingsContent}
         </>
       ) : (
         <>
           {filterContent}
           {presetContent}
-          {motionContent}
           {settingsContent}
         </>
       )}
