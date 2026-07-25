@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { useState } from "react"
 
 import { SecondaryButton } from "@/components/ui/secondary-button"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   DesktopInspectorOptionGridScrollArea,
   DesktopInspectorScrollArea,
@@ -32,9 +33,10 @@ import { cn } from "@/lib/utils"
 
 function DesktopPexelsPhotoSkeleton() {
   return (
-    <div
+    <Skeleton
+      aria-hidden
       className={cn(
-        "relative aspect-[4/3] min-w-0 overflow-hidden rounded-[7px] bg-[var(--desktop-inspector-control-hover-bg)]",
+        "aspect-[4/3] min-w-0 rounded-[7px] bg-[var(--desktop-inspector-control-hover-bg)]",
         desktopInspectorOptionGridItemClass(),
       )}
       data-slot="desktop-pexels-photo-skeleton"

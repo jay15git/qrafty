@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+.pnpm-store/
+/packages/qr/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -20,6 +22,7 @@
 # production
 /build
 .cache/
+/packages/qr/dist/
 
 # misc
 .DS_Store
@@ -47,6 +50,8 @@ next-env.d.ts
 
 # generated visual artifacts
 /.codex-screenshots/
+/.codex-artifacts/
+/.superset/
 /designs/image-import*.png
 /designs/image-import*.jpg
 

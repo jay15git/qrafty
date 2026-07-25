@@ -1,0 +1,55 @@
+/* Required for Calligraph slot clipping in ScrubNumberInput.
+   Import alongside scrub-number-input.tsx:
+     import "./scrub-number-input.css"
+*/
+
+[data-slot="scrub-number-calligraph-value"],
+[data-slot="scrub-number-calligraph-value"] .scrub-number-calligraph {
+  line-height: 1;
+  overflow: hidden;
+}
+
+[data-slot="scrub-number-calligraph-value"] {
+  color: inherit;
+}
+
+[data-slot="scrub-number-calligraph-value"] .scrub-number-calligraph,
+[data-slot="scrub-number-calligraph-value"] .scrub-number-calligraph * {
+  color: inherit;
+}
+
+[data-slot="scrub-number-calligraph-value"] .scrub-number-calligraph {
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+[data-slot="scrub-number-calligraph-value"] .scrub-number-calligraph > span {
+  align-items: center !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+[data-slot="scrub-number-calligraph-value"]
+  .scrub-number-calligraph
+  span[style*="vertical-align: top"] {
+  align-items: center !important;
+  display: inline-flex !important;
+  height: 1em !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  max-height: 1em !important;
+  overflow: hidden !important;
+  vertical-align: middle !important;
+}
+
+[data-slot="scrub-number-calligraph-value"]
+  .scrub-number-calligraph
+  span[style*="visibility: hidden"] {
+  font: inherit !important;
+  line-height: inherit !important;
+}
