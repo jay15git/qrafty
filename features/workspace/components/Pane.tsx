@@ -2505,23 +2505,28 @@ export const Pane = memo(function Pane({
           </div>
         ) : markup ? (
           <>
-            <SnapGuideOverlay guides={snapGuides} />
-            {renderMarquee()}
             <div
-              className="relative"
-              style={{ width: cardState.width, height: cardState.height }}
+              className="absolute left-1/2 top-1/2"
+              data-slot="dashboard-compose-artboard"
+              style={{
+                height: cardState.height,
+                transform: "translate(-50%, -50%)",
+                width: cardState.width,
+              }}
             >
               <SceneCompositionTransform layout={sceneComposition.layout}>
-                <div data-export-root>
+                <div className="relative h-full w-full" data-export-root>
                   {visibleLayers.map(renderLayer)}
                 </div>
               </SceneCompositionTransform>
+              <SnapGuideOverlay guides={snapGuides} />
+              {renderMarquee()}
+              {activeSelectedLayerIds.length > 0
+                ? visibleLayers.map((layer) => renderLayerControls(layer))
+                : null}
+              {createMultiLayerControls()}
+              {renderFloatingToolbar()}
             </div>
-            {activeSelectedLayerIds.length > 0
-              ? visibleLayers.map((layer) => renderLayerControls(layer))
-              : null}
-            {createMultiLayerControls()}
-            {renderFloatingToolbar()}
             {contextMenu && typeof document !== "undefined"
               ? createPortal(
                   <LayerContextMenu

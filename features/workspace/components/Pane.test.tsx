@@ -131,9 +131,7 @@ describe("Pane", () => {
 
     const card = container.querySelector('[data-slot="dashboard-compose-card"]')
     const sceneBackground = card?.querySelector('[data-slot="scene-background-layer"]')
-    const artboard = container.querySelector(
-      '[data-slot="dashboard-compose-canvas"] > .relative',
-    )
+    const artboard = container.querySelector('[data-slot="dashboard-compose-artboard"]')
 
     expect(card).not.toBeNull()
     expect(sceneBackground).not.toBeNull()
