@@ -177,14 +177,39 @@ const SAMPLES: Partial<Record<QrInputType, IntentSamples>> = {
   "google-review": {
     place: { url: u("g.page/") },
   },
-  "booking-link": {
-    url: { url: u("https://") },
-  },
   calendly: {
-    event: { url: u("calendly.com/") },
+    profile: { url: u("calendly.com/") },
+    event: { url: u("calendly.com/qrafty/") },
+    "one-off": { url: u("calendly.com/d/") },
+    collective: { url: u("calendly.com/c/") },
   },
-  "payment-link": {
-    url: { url: u("https://") },
+  "cal-com": {
+    user: { url: u("cal.com/") },
+    event: { url: u("cal.com/qrafty/") },
+    team: { url: u("cal.com/team/") },
+    private: { url: u("cal.com/d/") },
+  },
+  "booking-com": {
+    hotel: { url: u("www.booking.com/hotel/") },
+    share: { url: u("www.booking.com/Share-") },
+  },
+  acuity: {
+    schedule: { url: u("qrafty.acuityscheduling.com/schedule.php") },
+    appointment: { url: u("qrafty.acuityscheduling.com/schedule.php?appointmentType=") },
+  },
+  stripe: {
+    pay: { url: u("buy.stripe.com/") },
+    book: { url: u("book.stripe.com/") },
+    donate: { url: u("donate.stripe.com/") },
+    checkout: { url: u("checkout.stripe.com/c/pay/") },
+  },
+  razorpay: {
+    link: { url: u("rzp.io/l/") },
+    invoice: { url: u("razorpay.com/payment-link/") },
+  },
+  square: {
+    checkout: { url: u("square.link/") },
+    pay: { url: u("squareup.com/u/") },
   },
   "paypal-me": {
     profile: { url: u("paypal.me/"), amount: "" },
@@ -196,11 +221,23 @@ const SAMPLES: Partial<Record<QrInputType, IntentSamples>> = {
   "cash-app": {
     cashtag: { url: u("cash.app/$") },
   },
-  menu: {
-    url: { url: u("https://") },
+  "google-forms": {
+    short: { url: u("forms.gle/") },
+    form: { url: u("docs.google.com/forms/d/e/") },
   },
-  form: {
-    url: { url: u("https://") },
+  "microsoft-forms": {
+    form: { url: u("forms.office.com/r/") },
+    page: { url: u("forms.office.com/Pages/ResponsePage.aspx?id=") },
+  },
+  typeform: {
+    form: { url: u("form.typeform.com/to/") },
+  },
+  tally: {
+    form: { url: u("tally.so/r/") },
+  },
+  jotform: {
+    form: { url: u("form.jotform.com/") },
+    submit: { url: u("www.jotform.com/submit/") },
   },
   zoom: {
     meeting: { url: u("zoom.us/j/") },
@@ -210,21 +247,6 @@ const SAMPLES: Partial<Record<QrInputType, IntentSamples>> = {
   },
   "microsoft-teams": {
     meeting: { url: u("teams.microsoft.com/l/meetup-join/") },
-  },
-  pdf: {
-    url: { url: u("https://") },
-  },
-  image: {
-    url: { url: u("https://") },
-  },
-  video: {
-    url: { url: u("https://") },
-  },
-  document: {
-    url: { url: u("https://") },
-  },
-  website: {
-    url: { url: u("https://") },
   },
   github: {
     user: { url: u("github.com/qrafty") },

@@ -141,6 +141,11 @@ const LINK_CONTENT_TYPES = new Set<QrInputType>([
   "link",
   "website",
   "app-download",
+  "pdf",
+  "image",
+  "video",
+  "document",
+  "menu",
 ])
 
 export function getDefaultStaticQrValues(type: QrInputType): StaticQrContentValues {
@@ -344,6 +349,11 @@ export function buildStaticQrPayload(
     case "link":
     case "website":
     case "app-download":
+    case "pdf":
+    case "image":
+    case "video":
+    case "document":
+    case "menu":
       return normalizeUrl(stringValue(values.url))
     case "phone":
       return `tel:${normalizePhone(stringValue(values.phone))}`

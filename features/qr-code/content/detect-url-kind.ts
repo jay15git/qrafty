@@ -47,45 +47,6 @@ export type PastedContentDetection = {
   value: string
 }
 
-type UrlRule = {
-  brandIconId?: string
-  category: UrlDetectionCategory
-  confidence?: UrlDetectionConfidence
-  hosts?: readonly string[]
-  inputTypeHint?: QrInputType
-  intent?: string
-  match?: (hostname: string, pathname: string) => boolean
-  platform?: string
-}
-
-const FILE_EXTENSION_RULES: readonly UrlRule[] = [
-  {
-    match: (_, pathname) =>
-      pathname.endsWith(".pdf") || pathname.includes("/pdf/"),
-    platform: "pdf",
-    category: "file",
-    inputTypeHint: "pdf",
-    intent: "url",
-    confidence: "high",
-  },
-  {
-    match: (_, pathname) => /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(pathname),
-    platform: "image",
-    category: "file",
-    inputTypeHint: "image",
-    intent: "url",
-    confidence: "high",
-  },
-  {
-    match: (_, pathname) => /\.(mp4|mov|webm|m4v)$/i.test(pathname),
-    platform: "video",
-    category: "file",
-    inputTypeHint: "video",
-    intent: "url",
-    confidence: "high",
-  },
-]
-
 function mapPlatformCategory(category: PlatformDef["category"]): UrlDetectionCategory {
   switch (category) {
     case "app":
@@ -116,15 +77,6 @@ export function detectUrlKind(input: string): UrlDetection | null {
   const parsed = parseHttpUrl(trimmed)
   if (!parsed) {
     return null
-  }
-
-  const hostname = normalizeHostname(parsed.hostname)
-  const pathname = parsed.pathname
-
-  for (const rule of FILE_EXTENSION_RULES) {
-    if (matchesUrlRule(rule, hostname, pathname)) {
-      return toUrlDetection(rule)
-    }
   }
 
   const platformDetection = detectPlatformIntentFromUrl(trimmed)
@@ -224,33 +176,6 @@ export function detectPastedContent(input: string): PastedContentDetection | nul
   return { kind: "text", value: trimmed }
 }
 
-function matchesUrlRule(rule: UrlRule, hostname: string, pathname: string) {
-  const hostMatched = rule.hosts
-    ? rule.hosts.some((host) => hostname === host || hostname.endsWith(`.${host}`))
-    : true
-
-  if (!hostMatched) {
-    return false
-  }
-
-  if (rule.match) {
-    return rule.match(hostname, pathname)
-  }
-
-  return Boolean(rule.hosts)
-}
-
-function toUrlDetection(rule: UrlRule): UrlDetection {
-  return {
-    brandIconId: rule.brandIconId,
-    category: rule.category,
-    confidence: rule.confidence ?? "high",
-    intent: rule.intent,
-    inputTypeHint: rule.inputTypeHint,
-    platform: rule.platform,
-  }
-}
-
 function parseHttpUrl(input: string) {
   const candidate = looksLikeUrl(input) ? normalizeUrlForParsing(input) : null
   if (!candidate) {
@@ -271,10 +196,6 @@ function normalizeUrlForParsing(input: string) {
   }
 
   return `https://${trimmed}`
-}
-
-function normalizeHostname(hostname: string) {
-  return hostname.trim().toLowerCase().replace(/^www\./, "")
 }
 
 function looksLikeUrl(input: string) {

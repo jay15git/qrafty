@@ -43,10 +43,16 @@ describe("detectUrlKind", () => {
     })
 
     expect(detectUrlKind("https://forms.gle/abc123")).toMatchObject({
-      platform: "form",
+      platform: "google-forms",
       category: "business",
-      inputTypeHint: "form",
-      intent: "url",
+      inputTypeHint: "google-forms",
+      intent: "short",
+    })
+
+    expect(detectUrlKind("https://docs.google.com/document/d/abc123/edit")).toMatchObject({
+      category: "link",
+      confidence: "low",
+      inputTypeHint: "link",
     })
 
     expect(detectUrlKind("https://apps.apple.com/app/id123")).toMatchObject({
@@ -64,17 +70,17 @@ describe("detectUrlKind", () => {
     })
   })
 
-  it("detects file URLs from extensions", () => {
+  it("treats file extension URLs as generic links", () => {
     expect(detectUrlKind("https://cdn.example.com/menu.pdf")).toMatchObject({
-      platform: "pdf",
-      category: "file",
-      inputTypeHint: "pdf",
+      category: "link",
+      confidence: "low",
+      inputTypeHint: "link",
     })
 
     expect(detectUrlKind("https://cdn.example.com/poster.png")).toMatchObject({
-      platform: "image",
-      category: "file",
-      inputTypeHint: "image",
+      category: "link",
+      confidence: "low",
+      inputTypeHint: "link",
     })
   })
 
@@ -91,12 +97,27 @@ describe("detectUrlKind", () => {
     expect(detectUrlKind("plain text")).toBeNull()
   })
 
-  it("detects booking and payment hosts from the platform catalog", () => {
+  it("detects booking, payment, and form hosts from the platform catalog", () => {
     expect(detectUrlKind("https://calendly.com/qrafty/30min")).toMatchObject({
       category: "business",
       confidence: "high",
       inputTypeHint: "calendly",
       intent: "event",
+    })
+
+    expect(detectUrlKind("https://cal.com/qrafty/30min")).toMatchObject({
+      platform: "cal-com",
+      intent: "event",
+    })
+
+    expect(detectUrlKind("https://buy.stripe.com/test_abc")).toMatchObject({
+      platform: "stripe",
+      intent: "pay",
+    })
+
+    expect(detectUrlKind("https://forms.office.com/r/abc123")).toMatchObject({
+      platform: "microsoft-forms",
+      intent: "form",
     })
 
     expect(detectUrlKind("https://paypal.me/qrafty")).toMatchObject({

@@ -72,6 +72,21 @@ describe("platform intent registry", () => {
       url: "https://youtube.com/watch?v=",
     })
 
+    expect(getPlatformDefaultValuesForIntent("calendly", "event")).toEqual({
+      intent: "event",
+      url: "https://calendly.com/qrafty/",
+    })
+
+    expect(getPlatformDefaultValuesForIntent("google-forms", "short")).toEqual({
+      intent: "short",
+      url: "https://forms.gle/",
+    })
+
+    expect(getPlatformDefaultValuesForIntent("stripe", "pay")).toEqual({
+      intent: "pay",
+      url: "https://buy.stripe.com/",
+    })
+
     expect(getPlatformDefaultValuesForIntent("instagram", "profile")).toEqual({
       intent: "profile",
       url: "https://instagram.com/",
@@ -157,6 +172,30 @@ describe("intent-specific URL catalog", () => {
     ["https://medium.com/@qrafty/my-story-title-abc123", "medium", "story"],
     ["https://qrafty.substack.com/p/post-title", "substack", "post"],
     ["https://venmo.com/u/qrafty?txn=1234567890", "venmo", "payment"],
+    ["https://forms.gle/abc123", "google-forms", "short"],
+    [
+      "https://docs.google.com/forms/d/e/1FAIpQLSd/viewform",
+      "google-forms",
+      "form",
+    ],
+    ["https://forms.office.com/r/abc123", "microsoft-forms", "form"],
+    ["https://form.typeform.com/to/abc123", "typeform", "form"],
+    ["https://tally.so/r/abc123", "tally", "form"],
+    ["https://form.jotform.com/1234567890", "jotform", "form"],
+    ["https://calendly.com/qrafty/30min", "calendly", "event"],
+    ["https://calendly.com/d/abc123", "calendly", "one-off"],
+    ["https://cal.com/qrafty/30min", "cal-com", "event"],
+    ["https://cal.com/team/qrafty/30min", "cal-com", "team"],
+    ["https://www.booking.com/hotel/us/example.html", "booking-com", "hotel"],
+    [
+      "https://qrafty.acuityscheduling.com/schedule.php?appointmentType=123",
+      "acuity",
+      "appointment",
+    ],
+    ["https://buy.stripe.com/test_abc", "stripe", "pay"],
+    ["https://checkout.stripe.com/c/pay/cs_test", "stripe", "checkout"],
+    ["https://rzp.io/l/abc123", "razorpay", "link"],
+    ["https://square.link/u/abc123", "square", "checkout"],
   ] as const
 
   it.each(detectionCases)("detects %s as %s %s", (url, type, intent) => {
@@ -232,6 +271,18 @@ describe("intent-specific URL catalog", () => {
       "medium",
       "substack",
       "venmo",
+      "google-forms",
+      "microsoft-forms",
+      "typeform",
+      "tally",
+      "jotform",
+      "calendly",
+      "cal-com",
+      "booking-com",
+      "acuity",
+      "stripe",
+      "razorpay",
+      "square",
     ] as const
 
     for (const type of auditedTypes) {
@@ -285,6 +336,18 @@ describe("intent-specific URL catalog", () => {
       "medium",
       "substack",
       "venmo",
+      "google-forms",
+      "microsoft-forms",
+      "typeform",
+      "tally",
+      "jotform",
+      "calendly",
+      "cal-com",
+      "booking-com",
+      "acuity",
+      "stripe",
+      "razorpay",
+      "square",
     ] as const
 
     for (const type of auditedTypes) {

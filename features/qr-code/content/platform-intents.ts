@@ -16,7 +16,19 @@ import {
 } from "@/features/qr-code/content/platform-builders"
 import { getIntentSampleValues } from "@/features/qr-code/content/platform-samples"
 import {
+  isAcuityAppointmentPath,
+  isAcuitySchedulePath,
   isBlueskyProfilePath,
+  isBookingComHotelPath,
+  isBookingComSharePath,
+  isCalComEventPath,
+  isCalComPrivatePath,
+  isCalComTeamPath,
+  isCalComUserPath,
+  isCalendlyCollectivePath,
+  isCalendlyEventPath,
+  isCalendlyOneOffPath,
+  isCalendlyProfilePath,
   isDiscordChannelPath,
   isDiscordServerPath,
   isFacebookProfilePath,
@@ -24,21 +36,33 @@ import {
   isGitHubUserPath,
   isGitLabProjectPath,
   isGitLabUserPath,
+  isGoogleFormsFullPath,
+  isGoogleFormsHost,
+  isGoogleFormsShortHost,
+  isJotformFormHost,
+  isJotformSubmitPath,
   isMastodonPostPath,
   isMastodonProfilePath,
   isMediumProfilePath,
   isMediumStoryPath,
+  isMicrosoftFormsPagePath,
+  isMicrosoftFormsShortPath,
   isPinterestProfilePath,
+  isRazorpayInvoicePath,
+  isRazorpayShortLinkPath,
   isRedditCommentPath,
   isRedditPostPath,
   isSoundCloudTrackPath,
   isSoundCloudUserPath,
+  isSquarePayPath,
   isSubstackPublicationPath,
+  isTallyFormPath,
   isThreadsProfilePath,
   isTikTokLivePath,
   isTikTokProfilePath,
   isTikTokVideoPath,
   isTumblrBlogPath,
+  isTypeformPath,
   isVenmoPaymentPath,
   isVenmoProfilePath,
   segments,
@@ -51,7 +75,6 @@ export type ContentCollectionId =
   | "apps"
   | "music"
   | "business"
-  | "files"
   | "contact"
   | "more"
 
@@ -81,6 +104,8 @@ export type PlatformDef = {
   category: "social" | "messaging" | "app" | "music" | "business" | "file" | "location" | "developer"
   hosts: readonly string[]
   brandIconId?: string
+  defaultIntentId?: string
+  matchHost?: (hostname: string, pathname: string) => boolean
   intents: readonly PlatformIntentDef[]
 }
 
@@ -580,7 +605,7 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     description: "Place, directions, or coordinates.",
     collection: "contact",
     category: "location",
-    hosts: ["maps.google.com", "maps.app.goo.gl", "google.com"],
+    hosts: ["maps.google.com", "maps.app.goo.gl"],
     brandIconId: "google-maps",
     intents: [
       {
@@ -658,34 +683,114 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     intents: [urlIntent("place", "Place")],
   },
   {
-    type: "booking-link",
-    label: "Booking",
-    description: "Booking or reservation link.",
-    collection: "business",
-    category: "business",
-    hosts: ["booking.com", "acuityscheduling.com"],
-    brandIconId: "calendly",
-    intents: [urlIntent("url", "URL")],
-  },
-  {
     type: "calendly",
     label: "Calendly",
-    description: "Calendly event link.",
+    description: "Profile, event, one-off, or collective link.",
     collection: "business",
     category: "business",
     hosts: ["calendly.com"],
     brandIconId: "calendly",
-    intents: [urlIntent("event", "Event")],
+    defaultIntentId: "event",
+    intents: [
+      urlIntent("one-off", "One-off", (p) => isCalendlyOneOffPath(p)),
+      urlIntent("collective", "Collective", (p) => isCalendlyCollectivePath(p)),
+      urlIntent("event", "Event", (p) => isCalendlyEventPath(p)),
+      urlIntent("profile", "Profile", (p) => isCalendlyProfilePath(p)),
+    ],
   },
   {
-    type: "payment-link",
-    label: "Payment Link",
-    description: "Checkout or payment page.",
+    type: "cal-com",
+    label: "Cal.com",
+    description: "User, event, team, or private booking link.",
     collection: "business",
     category: "business",
-    hosts: ["stripe.com", "checkout.stripe.com", "paypal.com", "razorpay.com", "square.link"],
+    hosts: ["cal.com"],
+    brandIconId: "calendly",
+    defaultIntentId: "event",
+    intents: [
+      urlIntent("private", "Private link", (p) => isCalComPrivatePath(p)),
+      urlIntent("team", "Team event", (p) => isCalComTeamPath(p)),
+      urlIntent("event", "Event", (p) => isCalComEventPath(p)),
+      urlIntent("user", "User", (p) => isCalComUserPath(p)),
+    ],
+  },
+  {
+    type: "booking-com",
+    label: "Booking.com",
+    description: "Hotel or share link.",
+    collection: "business",
+    category: "business",
+    hosts: ["booking.com"],
+    brandIconId: "booking-com",
+    defaultIntentId: "hotel",
+    intents: [
+      urlIntent("share", "Share", (p) => isBookingComSharePath(p)),
+      urlIntent("hotel", "Hotel", (p) => isBookingComHotelPath(p)),
+    ],
+  },
+  {
+    type: "acuity",
+    label: "Acuity",
+    description: "Schedule or appointment link.",
+    collection: "business",
+    category: "business",
+    hosts: ["acuityscheduling.com", "as.me"],
+    brandIconId: "calendly",
+    defaultIntentId: "schedule",
+    intents: [
+      urlIntent("appointment", "Appointment", (p, params) => isAcuityAppointmentPath(p, params)),
+      urlIntent("schedule", "Schedule", (p, _params, hostname) =>
+        isAcuitySchedulePath(p, hostname ?? ""),
+      ),
+    ],
+  },
+  {
+    type: "stripe",
+    label: "Stripe",
+    description: "Pay, book, donate, or checkout link.",
+    collection: "business",
+    category: "business",
+    hosts: ["buy.stripe.com", "book.stripe.com", "donate.stripe.com", "checkout.stripe.com"],
     brandIconId: "stripe",
-    intents: [urlIntent("url", "URL")],
+    defaultIntentId: "pay",
+    intents: [
+      urlIntent("checkout", "Checkout", (_p, _params, hostname) => hostname === "checkout.stripe.com"),
+      urlIntent("donate", "Donate", (_p, _params, hostname) => hostname === "donate.stripe.com"),
+      urlIntent("book", "Book", (_p, _params, hostname) => hostname === "book.stripe.com"),
+      urlIntent("pay", "Pay", (_p, _params, hostname) => hostname === "buy.stripe.com"),
+    ],
+  },
+  {
+    type: "razorpay",
+    label: "Razorpay",
+    description: "Payment link or invoice.",
+    collection: "business",
+    category: "business",
+    hosts: ["rzp.io", "razorpay.com"],
+    brandIconId: "razorpay",
+    defaultIntentId: "link",
+    intents: [
+      urlIntent("invoice", "Invoice", (p, _params, hostname) =>
+        isRazorpayInvoicePath(p, hostname ?? ""),
+      ),
+      urlIntent("link", "Payment link", (p, _params, hostname) =>
+        isRazorpayShortLinkPath(p, hostname ?? ""),
+      ),
+    ],
+  },
+  {
+    type: "square",
+    label: "Square",
+    description: "Checkout or pay link.",
+    collection: "business",
+    category: "business",
+    hosts: ["square.link", "squareup.com"],
+    brandIconId: "square",
+    defaultIntentId: "checkout",
+    intents: [
+      urlIntent("pay", "Pay", (p, _params, hostname) => isSquarePayPath(p, hostname ?? "")),
+      urlIntent("checkout", "Checkout", (_p, _params, hostname) => hostname === "square.link"),
+    ],
   },
   {
     type: "paypal-me",
@@ -735,22 +840,66 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     ],
   },
   {
-    type: "menu",
-    label: "Menu",
-    description: "Restaurant or venue menu URL.",
+    type: "google-forms",
+    label: "Google Forms",
+    description: "Short or full Google Forms link.",
     collection: "business",
     category: "business",
-    hosts: [],
-    intents: [urlIntent("url", "URL")],
+    hosts: ["forms.gle", "docs.google.com"],
+    brandIconId: "google",
+    defaultIntentId: "form",
+    matchHost: (hostname, pathname) => isGoogleFormsHost(hostname, pathname),
+    intents: [
+      urlIntent("short", "Short link", (_p, _params, hostname) => isGoogleFormsShortHost(hostname ?? "")),
+      urlIntent("form", "Form", (p) => isGoogleFormsFullPath(p)),
+    ],
   },
   {
-    type: "form",
-    label: "Form",
-    description: "Google Forms, Typeform, Tally, or Jotform.",
+    type: "microsoft-forms",
+    label: "Microsoft Forms",
+    description: "Form or response page link.",
     collection: "business",
     category: "business",
-    hosts: ["forms.gle", "docs.google.com", "typeform.com", "jotform.com", "tally.so"],
-    intents: [urlIntent("url", "URL")],
+    hosts: ["forms.office.com", "forms.microsoft.com"],
+    brandIconId: "microsoft",
+    defaultIntentId: "form",
+    intents: [
+      urlIntent("page", "Response page", (p) => isMicrosoftFormsPagePath(p)),
+      urlIntent("form", "Form", (p) => isMicrosoftFormsShortPath(p)),
+    ],
+  },
+  {
+    type: "typeform",
+    label: "Typeform",
+    description: "Typeform survey link.",
+    collection: "business",
+    category: "business",
+    hosts: ["typeform.com", "form.typeform.com"],
+    defaultIntentId: "form",
+    intents: [urlIntent("form", "Form", (p) => isTypeformPath(p))],
+  },
+  {
+    type: "tally",
+    label: "Tally",
+    description: "Tally form link.",
+    collection: "business",
+    category: "business",
+    hosts: ["tally.so"],
+    defaultIntentId: "form",
+    intents: [urlIntent("form", "Form", (p) => isTallyFormPath(p))],
+  },
+  {
+    type: "jotform",
+    label: "Jotform",
+    description: "Form or submit link.",
+    collection: "business",
+    category: "business",
+    hosts: ["jotform.com", "form.jotform.com"],
+    defaultIntentId: "form",
+    intents: [
+      urlIntent("submit", "Submit", (p) => isJotformSubmitPath(p)),
+      urlIntent("form", "Form", (p, _params, hostname) => isJotformFormHost(hostname ?? "", p)),
+    ],
   },
   {
     type: "zoom",
@@ -778,55 +927,6 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "business",
     hosts: ["teams.microsoft.com", "teams.live.com"],
     intents: [urlIntent("meeting", "Meeting")],
-  },
-
-  // Files
-  {
-    type: "pdf",
-    label: "PDF",
-    description: "Hosted PDF URL.",
-    collection: "files",
-    category: "file",
-    hosts: [],
-    intents: [urlIntent("url", "URL", (p) => p.endsWith(".pdf") || p.includes("/pdf/"))],
-  },
-  {
-    type: "image",
-    label: "Image",
-    description: "Hosted image URL.",
-    collection: "files",
-    category: "file",
-    hosts: [],
-    intents: [
-      urlIntent("url", "URL", (p) => /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(p)),
-    ],
-  },
-  {
-    type: "video",
-    label: "Video",
-    description: "Hosted video URL.",
-    collection: "files",
-    category: "file",
-    hosts: [],
-    intents: [urlIntent("url", "URL", (p) => /\.(mp4|mov|webm|m4v)$/i.test(p))],
-  },
-  {
-    type: "document",
-    label: "Document",
-    description: "Hosted document URL.",
-    collection: "files",
-    category: "file",
-    hosts: [],
-    intents: [urlIntent("url", "URL")],
-  },
-  {
-    type: "website",
-    label: "Website",
-    description: "Generic website URL.",
-    collection: "popular",
-    category: "business",
-    hosts: [],
-    intents: [urlIntent("url", "URL")],
   },
 
   // Developer
@@ -906,12 +1006,20 @@ export const LEGACY_PLATFORM_ALIASES: Partial<Record<QrInputType, QrInputType>> 
   "telegram-username": "telegram",
   "whatsapp-chat": "whatsapp",
   "app-download": "app-store",
+  form: "google-forms",
+  "booking-link": "calendly",
+  "payment-link": "stripe",
 }
 
 export const URL_ONLY_ALIAS_TYPES = new Set<QrInputType>([
   "auto",
   "website",
   "app-download",
+  "pdf",
+  "image",
+  "video",
+  "document",
+  "menu",
 ])
 
 export function getPlatformDef(type: QrInputType): PlatformDef | undefined {
@@ -931,6 +1039,10 @@ export function getDefaultIntentId(type: QrInputType): string {
   const def = getPlatformDef(type)
   if (!def) {
     return "url"
+  }
+
+  if (def.defaultIntentId) {
+    return def.defaultIntentId
   }
 
   const preferredIds = [
@@ -1166,6 +1278,10 @@ export function detectPlatformIntentFromUrl(
       continue
     }
 
+    if (def.matchHost && !def.matchHost(hostname, pathname)) {
+      continue
+    }
+
     if (def.type === "tiktok" && (hostname === "vm.tiktok.com" || hostname === "vt.tiktok.com")) {
       return {
         type: def.type,
@@ -1205,11 +1321,13 @@ export function detectPlatformIntentFromUrl(
     }
 
     const fallbackIntent =
+      def.intents.find((intent) => intent.id === def.defaultIntentId) ??
       def.intents.find((intent) =>
         ["profile", "blog", "publication", "user", "channel", "username", "invite"].includes(
           intent.id,
         ),
-      ) ?? def.intents[def.intents.length - 1]!
+      ) ??
+      def.intents[def.intents.length - 1]!
 
     return {
       type: def.type,
@@ -1289,23 +1407,25 @@ export const CONTENT_COLLECTIONS: ReadonlyArray<{
     label: "Business",
     types: [
       "google-review",
-      "booking-link",
       "calendly",
-      "payment-link",
+      "cal-com",
+      "booking-com",
+      "acuity",
+      "stripe",
+      "razorpay",
+      "square",
       "paypal-me",
       "venmo",
       "cash-app",
-      "menu",
-      "form",
+      "google-forms",
+      "microsoft-forms",
+      "typeform",
+      "tally",
+      "jotform",
       "zoom",
       "google-meet",
       "microsoft-teams",
     ],
-  },
-  {
-    id: "files",
-    label: "Files",
-    types: ["pdf", "image", "video", "document"],
   },
   {
     id: "contact",

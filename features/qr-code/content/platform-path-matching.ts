@@ -172,3 +172,108 @@ export function isRedditPostPath(pathname: string): boolean {
 export function isRedditCommentPath(pathname: string): boolean {
   return pathname.includes("/comments/") && redditSegmentsAfterComments(pathname) >= 3
 }
+
+export function isGoogleFormsHost(hostname: string, pathname: string): boolean {
+  return hostname === "forms.gle" || pathname.includes("/forms/")
+}
+
+export function isGoogleFormsShortHost(hostname: string): boolean {
+  return hostname === "forms.gle"
+}
+
+export function isGoogleFormsFullPath(pathname: string): boolean {
+  return (
+    pathname.includes("/forms/") &&
+    (pathname.includes("/viewform") || pathname.includes("/forms/d/"))
+  )
+}
+
+export function isMicrosoftFormsPagePath(pathname: string): boolean {
+  return pathname.includes("/Pages/ResponsePage.aspx")
+}
+
+export function isMicrosoftFormsShortPath(pathname: string): boolean {
+  return pathname.startsWith("/r/")
+}
+
+export function isTypeformPath(pathname: string): boolean {
+  return pathname.includes("/to/")
+}
+
+export function isTallyFormPath(pathname: string): boolean {
+  return pathname.startsWith("/r/")
+}
+
+export function isJotformSubmitPath(pathname: string): boolean {
+  return pathname.includes("/submit/")
+}
+
+export function isJotformFormHost(hostname: string, pathname: string): boolean {
+  return hostname === "form.jotform.com" || /^\/?\d+/.test(pathname)
+}
+
+export function isCalendlyOneOffPath(pathname: string): boolean {
+  return pathname.startsWith("/d/")
+}
+
+export function isCalendlyCollectivePath(pathname: string): boolean {
+  return pathname.startsWith("/c/")
+}
+
+export function isCalendlyProfilePath(pathname: string): boolean {
+  const parts = segments(pathname)
+  return parts.length === 1 && !pathname.startsWith("/d/") && !pathname.startsWith("/c/")
+}
+
+export function isCalendlyEventPath(pathname: string): boolean {
+  const parts = segments(pathname)
+  return parts.length >= 2 && !pathname.startsWith("/d/") && !pathname.startsWith("/c/")
+}
+
+export function isCalComPrivatePath(pathname: string): boolean {
+  return pathname.startsWith("/d/")
+}
+
+export function isCalComTeamPath(pathname: string): boolean {
+  return pathname.startsWith("/team/")
+}
+
+export function isCalComUserPath(pathname: string): boolean {
+  return segments(pathname).length === 1
+}
+
+export function isCalComEventPath(pathname: string): boolean {
+  const parts = segments(pathname)
+  return parts.length === 2 && parts[0] !== "team" && parts[0] !== "d"
+}
+
+export function isBookingComHotelPath(pathname: string): boolean {
+  return pathname.includes("/hotel/")
+}
+
+export function isBookingComSharePath(pathname: string): boolean {
+  return pathname.includes("/Share-")
+}
+
+export function isAcuityAppointmentPath(pathname: string, searchParams: URLSearchParams): boolean {
+  return searchParams.has("appointmentType") || pathname.includes("/appointment/")
+}
+
+export function isAcuitySchedulePath(pathname: string, hostname: string): boolean {
+  return pathname.includes("/schedule.php") || hostname.endsWith(".as.me")
+}
+
+export function isRazorpayInvoicePath(pathname: string, hostname: string): boolean {
+  return (
+    hostname === "razorpay.com" &&
+    (pathname.includes("/invoice/") || pathname.includes("/payment-link/"))
+  )
+}
+
+export function isRazorpayShortLinkPath(pathname: string, hostname: string): boolean {
+  return hostname === "rzp.io" && (pathname.startsWith("/l/") || pathname.startsWith("/i/"))
+}
+
+export function isSquarePayPath(pathname: string, hostname: string): boolean {
+  return hostname === "squareup.com" && (pathname.includes("/pay/") || pathname.includes("/u/"))
+}

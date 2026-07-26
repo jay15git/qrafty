@@ -17,7 +17,10 @@ describe("picker content types", () => {
   })
 
   it("normalizes legacy aliases to link or resolved picker types", () => {
-    expect(normalizeContentTypeForPicker("pdf")).toBe("pdf")
+    expect(normalizeContentTypeForPicker("pdf")).toBe("link")
+    expect(normalizeContentTypeForPicker("form")).toBe("google-forms")
+    expect(normalizeContentTypeForPicker("booking-link")).toBe("calendly")
+    expect(normalizeContentTypeForPicker("payment-link")).toBe("stripe")
     expect(normalizeContentTypeForPicker("instagram")).toBe("instagram")
     expect(normalizeContentTypeForPicker("telegram-username")).toBe("telegram")
     expect(normalizeContentTypeForPicker("auto")).toBe("text")

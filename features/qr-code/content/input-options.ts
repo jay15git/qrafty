@@ -108,6 +108,17 @@ export type QrInputType =
   | "apple-maps"
   | "waze"
   | "calendly"
+  | "cal-com"
+  | "booking-com"
+  | "acuity"
+  | "stripe"
+  | "razorpay"
+  | "square"
+  | "google-forms"
+  | "microsoft-forms"
+  | "typeform"
+  | "tally"
+  | "jotform"
   | "paypal-me"
   | "venmo"
   | "cash-app"
@@ -160,6 +171,11 @@ const LINK_ALIAS_QR_INPUT_TYPES = new Set<QrInputType>([
   "app-download",
   "whatsapp-chat",
   "telegram-username",
+  "pdf",
+  "image",
+  "video",
+  "document",
+  "menu",
 ])
 
 export function isPickerQrInputType(type: QrInputType): type is PickerQrInputType {
@@ -202,7 +218,7 @@ export function getContentTypeLabel(type: QrInputType): string {
   }
 
   if (LINK_ALIAS_QR_INPUT_TYPES.has(type)) {
-    return QR_INPUT_OPTIONS.link.label
+    return QR_INPUT_OPTIONS[type]?.label ?? QR_INPUT_OPTIONS.link.label
   }
 
   return QR_INPUT_OPTIONS[type as QrInputType]?.label ?? QR_INPUT_OPTIONS.link.label
@@ -316,6 +332,17 @@ export const QR_INPUT_OPTIONS: Record<QrInputType, QrInputOption> = {
   "apple-maps": { value: "apple-maps", label: "Apple Maps", icon: MapPinned },
   waze: { value: "waze", label: "Waze", icon: MapPinned },
   calendly: { value: "calendly", label: "Calendly", icon: CalendarDays },
+  "cal-com": { value: "cal-com", label: "Cal.com", icon: CalendarDays },
+  "booking-com": { value: "booking-com", label: "Booking.com", icon: CalendarDays },
+  acuity: { value: "acuity", label: "Acuity", icon: CalendarDays },
+  stripe: { value: "stripe", label: "Stripe", icon: CreditCard },
+  razorpay: { value: "razorpay", label: "Razorpay", icon: IndianRupee },
+  square: { value: "square", label: "Square", icon: CreditCard },
+  "google-forms": { value: "google-forms", label: "Google Forms", icon: NotebookPen },
+  "microsoft-forms": { value: "microsoft-forms", label: "Microsoft Forms", icon: NotebookPen },
+  typeform: { value: "typeform", label: "Typeform", icon: NotebookPen },
+  tally: { value: "tally", label: "Tally", icon: NotebookPen },
+  jotform: { value: "jotform", label: "Jotform", icon: NotebookPen },
   "paypal-me": { value: "paypal-me", label: "PayPal.me", icon: CreditCard },
   venmo: { value: "venmo", label: "Venmo", icon: CreditCard },
   "cash-app": { value: "cash-app", label: "Cash App", icon: CreditCard },
