@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react"
 import {
   AppWindow,
   AtSign,
+  Bitcoin,
   BotMessageSquare,
   BriefcaseBusiness,
   CalendarDays,
@@ -13,6 +14,11 @@ import {
   FileVideoCamera,
   Ghost,
   Globe,
+  Headphones,
+  IndianRupee,
+  Link2,
+  Mail,
+  MapPinned,
   MessageCircleMore,
   MessageSquareText,
   Music2,
@@ -26,17 +32,20 @@ import {
   Sparkles,
   Star,
   Store,
-  Bitcoin,
-  IndianRupee,
   TicketPercent,
   Type,
   Users,
-  Wifi,
-  Link2,
-  Mail,
-  MapPinned,
   Video,
+  Wifi,
 } from "lucide-react"
+
+import {
+  PLATFORM_PICKER_TYPES,
+  URL_ONLY_ALIAS_TYPES,
+  getPlatformDef,
+  isPlatformType,
+  resolvePlatformType,
+} from "@/features/qr-code/content/platform-intents"
 
 export type QrInputType =
   | "auto"
@@ -77,6 +86,39 @@ export type QrInputType =
   | "coupon"
   | "upi"
   | "crypto"
+  | "reddit"
+  | "twitch"
+  | "bluesky"
+  | "mastodon"
+  | "tumblr"
+  | "messenger"
+  | "signal"
+  | "line"
+  | "skype"
+  | "app-store"
+  | "play-store"
+  | "microsoft-store"
+  | "amazon-appstore"
+  | "huawei-appgallery"
+  | "spotify"
+  | "apple-music"
+  | "soundcloud"
+  | "youtube-music"
+  | "deezer"
+  | "apple-maps"
+  | "waze"
+  | "calendly"
+  | "paypal-me"
+  | "venmo"
+  | "cash-app"
+  | "zoom"
+  | "google-meet"
+  | "microsoft-teams"
+  | "github"
+  | "gitlab"
+  | "notion"
+  | "medium"
+  | "substack"
 
 export type QuickQrInputType =
   | "text"
@@ -88,8 +130,7 @@ export type QuickQrInputType =
 
 export type QrCategoryKey = "popular" | "contact" | "more"
 
-/** Types shown in content pickers. URL-only aliases + legacy auto still exist for saved docs. */
-export const PICKER_QR_INPUT_TYPES = [
+const STRUCTURED_PICKER_TYPES = [
   "link",
   "text",
   "phone",
@@ -97,8 +138,6 @@ export const PICKER_QR_INPUT_TYPES = [
   "sms",
   "wifi",
   "vcard",
-  "whatsapp-chat",
-  "telegram-username",
   "map-location",
   "event",
   "coupon",
@@ -106,32 +145,21 @@ export const PICKER_QR_INPUT_TYPES = [
   "crypto",
 ] as const satisfies readonly QrInputType[]
 
+/** Types shown in content pickers. Legacy aliases still exist for saved docs. */
+export const PICKER_QR_INPUT_TYPES = [
+  ...STRUCTURED_PICKER_TYPES,
+  ...PLATFORM_PICKER_TYPES.filter(
+    (type) => !(STRUCTURED_PICKER_TYPES as readonly QrInputType[]).includes(type),
+  ),
+] as const satisfies readonly QrInputType[]
+
 export type PickerQrInputType = (typeof PICKER_QR_INPUT_TYPES)[number]
 
 const LINK_ALIAS_QR_INPUT_TYPES = new Set<QrInputType>([
   "website",
-  "google-review",
-  "booking-link",
-  "payment-link",
-  "menu",
   "app-download",
-  "pdf",
-  "image",
-  "video",
-  "document",
-  "form",
-  "facebook",
-  "instagram",
-  "whatsapp",
-  "x",
-  "tiktok",
-  "youtube",
-  "linkedin",
-  "telegram",
-  "snapchat",
-  "threads",
-  "pinterest",
-  "discord",
+  "whatsapp-chat",
+  "telegram-username",
 ])
 
 export function isPickerQrInputType(type: QrInputType): type is PickerQrInputType {
@@ -147,7 +175,12 @@ export function normalizeContentTypeForPicker(type: QrInputType): PickerQrInputT
     return "text"
   }
 
-  if (LINK_ALIAS_QR_INPUT_TYPES.has(type)) {
+  const resolved = resolvePlatformType(type)
+  if (isPickerQrInputType(resolved)) {
+    return resolved
+  }
+
+  if (LINK_ALIAS_QR_INPUT_TYPES.has(type) || URL_ONLY_ALIAS_TYPES.has(type)) {
     return "link"
   }
 
@@ -163,11 +196,16 @@ export function getContentTypeLabel(type: QrInputType): string {
     return QR_INPUT_OPTIONS.text.label
   }
 
+  const platform = getPlatformDef(type)
+  if (platform) {
+    return platform.label
+  }
+
   if (LINK_ALIAS_QR_INPUT_TYPES.has(type)) {
     return QR_INPUT_OPTIONS.link.label
   }
 
-  return QR_INPUT_OPTIONS[type]?.label ?? QR_INPUT_OPTIONS.link.label
+  return QR_INPUT_OPTIONS[type as QrInputType]?.label ?? QR_INPUT_OPTIONS.link.label
 }
 
 export type QrInputOption = {
@@ -222,7 +260,7 @@ export const QR_INPUT_OPTIONS: Record<QrInputType, QrInputOption> = {
   },
   "map-location": {
     value: "map-location",
-    label: "Map Location",
+    label: "Google Maps",
     icon: MapPinned,
   },
   website: { value: "website", label: "Website", icon: Globe },
@@ -233,7 +271,7 @@ export const QR_INPUT_OPTIONS: Record<QrInputType, QrInputOption> = {
   },
   "booking-link": {
     value: "booking-link",
-    label: "Booking Link",
+    label: "Booking",
     icon: CalendarDays,
   },
   "payment-link": {
@@ -256,6 +294,39 @@ export const QR_INPUT_OPTIONS: Record<QrInputType, QrInputOption> = {
   coupon: { value: "coupon", label: "Coupon", icon: TicketPercent },
   upi: { value: "upi", label: "UPI", icon: IndianRupee },
   crypto: { value: "crypto", label: "Crypto", icon: Bitcoin },
+  reddit: { value: "reddit", label: "Reddit", icon: MessageSquareText },
+  twitch: { value: "twitch", label: "Twitch", icon: Video },
+  bluesky: { value: "bluesky", label: "Bluesky", icon: AtSign },
+  mastodon: { value: "mastodon", label: "Mastodon", icon: AtSign },
+  tumblr: { value: "tumblr", label: "Tumblr", icon: Type },
+  messenger: { value: "messenger", label: "Messenger", icon: MessageCircleMore },
+  signal: { value: "signal", label: "Signal", icon: MessageSquareText },
+  line: { value: "line", label: "Line", icon: MessageCircleMore },
+  skype: { value: "skype", label: "Skype", icon: Phone },
+  "app-store": { value: "app-store", label: "App Store", icon: AppWindow },
+  "play-store": { value: "play-store", label: "Play Store", icon: Store },
+  "microsoft-store": { value: "microsoft-store", label: "Microsoft Store", icon: AppWindow },
+  "amazon-appstore": { value: "amazon-appstore", label: "Amazon Appstore", icon: Store },
+  "huawei-appgallery": { value: "huawei-appgallery", label: "Huawei AppGallery", icon: AppWindow },
+  spotify: { value: "spotify", label: "Spotify", icon: Headphones },
+  "apple-music": { value: "apple-music", label: "Apple Music", icon: Music2 },
+  soundcloud: { value: "soundcloud", label: "SoundCloud", icon: Headphones },
+  "youtube-music": { value: "youtube-music", label: "YouTube Music", icon: Music2 },
+  deezer: { value: "deezer", label: "Deezer", icon: Headphones },
+  "apple-maps": { value: "apple-maps", label: "Apple Maps", icon: MapPinned },
+  waze: { value: "waze", label: "Waze", icon: MapPinned },
+  calendly: { value: "calendly", label: "Calendly", icon: CalendarDays },
+  "paypal-me": { value: "paypal-me", label: "PayPal.me", icon: CreditCard },
+  venmo: { value: "venmo", label: "Venmo", icon: CreditCard },
+  "cash-app": { value: "cash-app", label: "Cash App", icon: CreditCard },
+  zoom: { value: "zoom", label: "Zoom", icon: Video },
+  "google-meet": { value: "google-meet", label: "Google Meet", icon: Video },
+  "microsoft-teams": { value: "microsoft-teams", label: "Microsoft Teams", icon: Video },
+  github: { value: "github", label: "GitHub", icon: Globe },
+  gitlab: { value: "gitlab", label: "GitLab", icon: Globe },
+  notion: { value: "notion", label: "Notion", icon: NotebookText },
+  medium: { value: "medium", label: "Medium", icon: Type },
+  substack: { value: "substack", label: "Substack", icon: NotebookPen },
 }
 
 const QUICK_INPUT_VALUES = [
@@ -286,6 +357,9 @@ export const QR_CATEGORIES: readonly QrCategory[] = [
       "email",
       "wifi",
       "vcard",
+      "whatsapp",
+      "instagram",
+      "youtube",
     ]),
   },
   {
@@ -297,8 +371,8 @@ export const QR_CATEGORIES: readonly QrCategory[] = [
       "sms",
       "email",
       "vcard",
-      "whatsapp-chat",
-      "telegram-username",
+      "whatsapp",
+      "telegram",
       "map-location",
     ]),
   },
@@ -322,4 +396,8 @@ export function toggleQuickInputType(
   next: QuickQrInputType
 ): QrInputType | null {
   return current === next ? null : next
+}
+
+export function isPlatformContentType(type: QrInputType): boolean {
+  return isPlatformType(type)
 }

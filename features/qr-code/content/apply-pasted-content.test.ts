@@ -75,9 +75,14 @@ describe("getLinkPasteFieldUpdate", () => {
     })
 
     expect(getLinkPasteFieldUpdate("instagram", "https://instagram.com/newqr")).toEqual({
-      values: { username: "https://instagram.com/newqr" },
+      values: {
+        intent: "profile",
+        url: "https://instagram.com/newqr",
+        username: "newqr",
+      },
       urlDetection: expect.objectContaining({
         platform: "instagram",
+        intent: "profile",
       }),
     })
   })
@@ -97,7 +102,11 @@ describe("resolveDetectedLinkTypeApply", () => {
       ),
     ).toEqual({
       type: "instagram",
-      values: { username: "https://instagram.com/newqr" },
+      values: {
+        intent: "profile",
+        url: "https://instagram.com/newqr",
+        username: "newqr",
+      },
       urlDetection: expect.objectContaining({
         platform: "instagram",
       }),

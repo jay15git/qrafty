@@ -1,5 +1,14 @@
 import type { QrInputType } from "@/features/qr-code/content/input-options"
 import { normalizeContentTypeForPicker } from "@/features/qr-code/content/input-options"
+import {
+  buildPlatformPayload,
+  extractPlatformValuesFromUrl,
+  getPlatformDefaultValues,
+  isPlatformType,
+  PLATFORM_DEFS,
+  resolvePlatformType,
+  validatePlatformContent,
+} from "@/features/qr-code/content/platform-intents"
 
 export type StaticQrContentValue = string | boolean
 export type StaticQrContentValues = Record<string, StaticQrContentValue | undefined>
@@ -17,7 +26,7 @@ type StaticQrContentMeta = {
   title: string
 }
 
-export const STATIC_QR_CONTENT_META: Record<QrInputType, StaticQrContentMeta> = {
+const STRUCTURED_STATIC_QR_CONTENT_META = {
   auto: {
     description: "Paste any static value. URLs, text, and QR URI schemes are encoded as-is.",
     primaryField: "text",
@@ -48,75 +57,15 @@ export const STATIC_QR_CONTENT_META: Record<QrInputType, StaticQrContentMeta> = 
     primaryField: "email",
     title: "Email",
   },
-  instagram: {
-    description: "Instagram profile URL or username.",
-    primaryField: "username",
-    title: "Instagram",
-  },
-  whatsapp: {
-    description: "WhatsApp chat link with optional message.",
+  sms: {
+    description: "Tap-to-message phone number with optional body.",
     primaryField: "phone",
-    title: "WhatsApp",
+    title: "SMS",
   },
   wifi: {
     description: "Network name, security type, password, and hidden network flag.",
     primaryField: "ssid",
     title: "Wi-Fi",
-  },
-  facebook: {
-    description: "Facebook page or profile URL.",
-    primaryField: "url",
-    title: "Facebook",
-  },
-  x: {
-    description: "X profile URL or username.",
-    primaryField: "username",
-    title: "X",
-  },
-  tiktok: {
-    description: "TikTok profile URL or username.",
-    primaryField: "username",
-    title: "TikTok",
-  },
-  youtube: {
-    description: "YouTube channel, video, or handle URL.",
-    primaryField: "url",
-    title: "YouTube",
-  },
-  linkedin: {
-    description: "LinkedIn profile or company URL.",
-    primaryField: "url",
-    title: "LinkedIn",
-  },
-  telegram: {
-    description: "Telegram profile or channel username.",
-    primaryField: "username",
-    title: "Telegram",
-  },
-  snapchat: {
-    description: "Snapchat username.",
-    primaryField: "username",
-    title: "Snapchat",
-  },
-  threads: {
-    description: "Threads profile URL or username.",
-    primaryField: "username",
-    title: "Threads",
-  },
-  pinterest: {
-    description: "Pinterest profile URL or username.",
-    primaryField: "username",
-    title: "Pinterest",
-  },
-  discord: {
-    description: "Discord invite URL.",
-    primaryField: "url",
-    title: "Discord",
-  },
-  sms: {
-    description: "Tap-to-message phone number with optional body.",
-    primaryField: "phone",
-    title: "SMS",
   },
   vcard: {
     description: "A static contact card scanners can save.",
@@ -133,60 +82,10 @@ export const STATIC_QR_CONTENT_META: Record<QrInputType, StaticQrContentMeta> = 
     primaryField: "username",
     title: "Telegram Username",
   },
-  "map-location": {
-    description: "Coordinates or a search query for a place.",
-    primaryField: "url",
-    title: "Map Location",
-  },
-  "google-review": {
-    description: "Google review or business profile URL.",
-    primaryField: "url",
-    title: "Google Review",
-  },
-  "booking-link": {
-    description: "Booking, reservation, or calendar URL.",
-    primaryField: "url",
-    title: "Booking Link",
-  },
-  "payment-link": {
-    description: "Payment checkout URL.",
-    primaryField: "url",
-    title: "Payment Link",
-  },
-  menu: {
-    description: "Menu URL for restaurants, events, or venues.",
-    primaryField: "url",
-    title: "Menu",
-  },
   "app-download": {
     description: "App Store, Play Store, or universal app URL.",
     primaryField: "url",
     title: "App Download",
-  },
-  pdf: {
-    description: "Static hosted PDF URL.",
-    primaryField: "url",
-    title: "PDF",
-  },
-  image: {
-    description: "Static hosted image URL.",
-    primaryField: "url",
-    title: "Image",
-  },
-  video: {
-    description: "Static hosted video URL.",
-    primaryField: "url",
-    title: "Video",
-  },
-  document: {
-    description: "Static hosted document URL.",
-    primaryField: "url",
-    title: "Document",
-  },
-  form: {
-    description: "Static form URL.",
-    primaryField: "url",
-    title: "Form",
   },
   event: {
     description: "Event URL by default, or a static calendar payload.",
@@ -208,45 +107,49 @@ export const STATIC_QR_CONTENT_META: Record<QrInputType, StaticQrContentMeta> = 
     primaryField: "address",
     title: "Crypto",
   },
+} satisfies Partial<Record<QrInputType, StaticQrContentMeta>>
+
+function buildPlatformContentMeta(): Partial<Record<QrInputType, StaticQrContentMeta>> {
+  const meta: Partial<Record<QrInputType, StaticQrContentMeta>> = {}
+
+  for (const def of PLATFORM_DEFS) {
+    const primaryKey = def.intents[0]?.fields[0]?.key ?? "url"
+    meta[def.type] = {
+      description: def.description,
+      primaryField: primaryKey as StaticQrContentMeta["primaryField"],
+      title: def.label,
+    }
+  }
+
+  return meta
 }
+
+export const STATIC_QR_CONTENT_META: Record<QrInputType, StaticQrContentMeta> = {
+  ...STRUCTURED_STATIC_QR_CONTENT_META,
+  ...buildPlatformContentMeta(),
+} as Record<QrInputType, StaticQrContentMeta>
 
 const LINK_CONTENT_TYPES = new Set<QrInputType>([
   "link",
   "website",
-  "facebook",
-  "youtube",
-  "linkedin",
-  "discord",
-  "google-review",
-  "booking-link",
-  "payment-link",
-  "menu",
   "app-download",
-  "pdf",
-  "image",
-  "video",
-  "document",
-  "form",
 ])
-
-const SOCIAL_USERNAME_BUILDERS: Partial<Record<QrInputType, (username: string) => string>> = {
-  instagram: (username) => `https://instagram.com/${username}`,
-  pinterest: (username) => `https://pinterest.com/${username}`,
-  snapchat: (username) => `https://snapchat.com/add/${username}`,
-  telegram: (username) => `https://t.me/${username}`,
-  "telegram-username": (username) => `https://t.me/${username}`,
-  threads: (username) => `https://threads.net/@${username}`,
-  tiktok: (username) => `https://tiktok.com/@${username}`,
-  x: (username) => `https://x.com/${username}`,
-}
 
 export function getDefaultStaticQrValues(type: QrInputType): StaticQrContentValues {
   if (type === "auto") {
     return { text: "https://new-qr-studio.local/launch" }
   }
 
+  if (isPlatformType(type)) {
+    return getPlatformDefaultValues(resolvePlatformType(type))
+  }
+
   if (type === "text") {
-    return { text: "Hello from New QR" }
+    return { text: "" }
+  }
+
+  if (type === "link") {
+    return { url: "https://" }
   }
 
   if (type === "wifi") {
@@ -283,11 +186,11 @@ export function getDefaultStaticQrValues(type: QrInputType): StaticQrContentValu
   }
 
   if (type === "whatsapp" || type === "whatsapp-chat") {
-    return { message: "", phone: "" }
+    return getPlatformDefaultValues("whatsapp")
   }
 
   if (type === "map-location") {
-    return { latitude: "", longitude: "", query: "" }
+    return getPlatformDefaultValues("map-location")
   }
 
   if (type === "event") {
@@ -322,10 +225,6 @@ export function getDefaultStaticQrValues(type: QrInputType): StaticQrContentValu
       amount: "",
       asset: "bitcoin",
     }
-  }
-
-  if (SOCIAL_USERNAME_BUILDERS[type]) {
-    return { username: "" }
   }
 
   return { url: "" }
@@ -364,6 +263,23 @@ export function getContentValuesForTypeChange(
     }
   }
 
+  if (normalizedFrom === "link" && normalizedTo !== "link" && normalizedTo !== "text") {
+    const url = stringValue(fromValues.url) || stringValue(fromValues.username)
+    if (url && isPlatformType(toType)) {
+      const extracted = extractPlatformValuesFromUrl(toType, url)
+      if (extracted) {
+        return { ...defaults, ...extracted }
+      }
+    }
+  }
+
+  if (normalizedTo === "link" && normalizedFrom !== "link" && normalizedFrom !== "text") {
+    const url = stringValue(fromValues.url) || stringValue(fromValues.username)
+    if (url) {
+      return { ...getDefaultStaticQrValues("link"), url }
+    }
+  }
+
   return defaults
 }
 
@@ -371,26 +287,17 @@ export function buildStaticQrPayload(
   type: QrInputType,
   values: StaticQrContentValues,
 ): string {
+  if (isPlatformType(type)) {
+    return buildPlatformPayload(type, values)
+  }
+
   switch (type) {
     case "auto":
     case "text":
       return stringValue(values.text)
     case "link":
     case "website":
-    case "facebook":
-    case "youtube":
-    case "linkedin":
-    case "discord":
-    case "google-review":
-    case "booking-link":
-    case "payment-link":
-    case "menu":
     case "app-download":
-    case "pdf":
-    case "image":
-    case "video":
-    case "document":
-    case "form":
       return normalizeUrl(stringValue(values.url))
     case "phone":
       return `tel:${normalizePhone(stringValue(values.phone))}`
@@ -405,17 +312,6 @@ export function buildStaticQrPayload(
     case "whatsapp":
     case "whatsapp-chat":
       return buildWhatsAppPayload(values)
-    case "telegram":
-    case "telegram-username":
-    case "instagram":
-    case "pinterest":
-    case "snapchat":
-    case "threads":
-    case "tiktok":
-    case "x":
-      return buildUsernameOrUrlPayload(type, values)
-    case "map-location":
-      return buildMapPayload(values)
     case "event":
       return buildEventPayload(values)
     case "coupon":
@@ -431,6 +327,14 @@ export function validateStaticQrContent(
   type: QrInputType,
   values: StaticQrContentValues,
 ): StaticQrValidationResult {
+  if (isPlatformType(type)) {
+    const fieldErrors = validatePlatformContent(type, values)
+    return {
+      fieldErrors,
+      isValid: Object.keys(fieldErrors).length === 0,
+    }
+  }
+
   const fieldErrors: Record<string, string> = {}
 
   if (type === "wifi" && !stringValue(values.ssid)) {
@@ -441,14 +345,6 @@ export function validateStaticQrContent(
     fieldErrors.url = "Enter a URL."
   }
 
-  if (
-    SOCIAL_USERNAME_BUILDERS[type] &&
-    !stringValue(values.username) &&
-    !stringValue(values.url)
-  ) {
-    fieldErrors.username = "Enter a username."
-  }
-
   if (type === "phone" && !stringValue(values.phone)) {
     fieldErrors.phone = "Enter a phone number."
   }
@@ -457,7 +353,7 @@ export function validateStaticQrContent(
     fieldErrors.email = "Enter an email address."
   }
 
-  if ((type === "sms" || type === "whatsapp" || type === "whatsapp-chat") && !stringValue(values.phone)) {
+  if ((type === "sms") && !stringValue(values.phone)) {
     fieldErrors.phone = "Enter a phone number."
   }
 
@@ -472,25 +368,6 @@ export function validateStaticQrContent(
 
     if (!hasContactValue) {
       fieldErrors.firstName = "Add a name, phone, or email."
-    }
-  }
-
-  if (type === "map-location") {
-    const latitude = stringValue(values.latitude)
-    const longitude = stringValue(values.longitude)
-
-    if (!latitude && !longitude && !stringValue(values.query)) {
-      fieldErrors.query = "Enter a place or coordinates."
-    }
-
-    if (latitude || longitude) {
-      if (!isNumberInRange(latitude, -90, 90)) {
-        fieldErrors.latitude = "Latitude must be between -90 and 90."
-      }
-
-      if (!isNumberInRange(longitude, -180, 180)) {
-        fieldErrors.longitude = "Longitude must be between -180 and 180."
-      }
     }
   }
 
@@ -606,32 +483,6 @@ function buildWhatsAppPayload(values: StaticQrContentValues) {
   return message
     ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
     : `https://wa.me/${phone}`
-}
-
-function buildUsernameOrUrlPayload(type: QrInputType, values: StaticQrContentValues) {
-  const url = stringValue(values.url)
-
-  if (url) {
-    return normalizeUrl(url)
-  }
-
-  const username = normalizeUsername(stringValue(values.username))
-  const builder = SOCIAL_USERNAME_BUILDERS[type]
-
-  return builder ? builder(username) : username
-}
-
-function buildMapPayload(values: StaticQrContentValues) {
-  const latitude = stringValue(values.latitude)
-  const longitude = stringValue(values.longitude)
-  const query = stringValue(values.query)
-
-  if (latitude || longitude) {
-    const suffix = query ? `?q=${encodeURIComponent(query)}` : ""
-    return `geo:${latitude},${longitude}${suffix}`
-  }
-
-  return `https://maps.google.com/?q=${encodeURIComponent(query)}`
 }
 
 function buildEventPayload(values: StaticQrContentValues) {
@@ -760,10 +611,6 @@ function normalizePhone(value: string) {
   const digits = trimmed.replace(/\D/g, "")
 
   return hasPlus && digits ? `+${digits}` : digits
-}
-
-function normalizeUsername(value: string) {
-  return value.trim().replace(/^@+/, "").replace(/^\/+/, "")
 }
 
 function escapeWifiValue(value: string) {

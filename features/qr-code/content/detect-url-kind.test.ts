@@ -44,14 +44,16 @@ describe("detectUrlKind", () => {
 
     expect(detectUrlKind("https://forms.gle/abc123")).toMatchObject({
       platform: "form",
-      category: "form",
+      category: "business",
       inputTypeHint: "form",
+      intent: "url",
     })
 
     expect(detectUrlKind("https://apps.apple.com/app/id123")).toMatchObject({
-      platform: "app-download",
+      platform: "app-store",
       category: "app",
-      inputTypeHint: "app-download",
+      inputTypeHint: "app-store",
+      intent: "app",
     })
 
     expect(detectUrlKind("https://maps.google.com/?q=Mumbai")).toMatchObject({
@@ -89,17 +91,19 @@ describe("detectUrlKind", () => {
     expect(detectUrlKind("plain text")).toBeNull()
   })
 
-  it("marks booking and payment hosts as low confidence", () => {
+  it("detects booking and payment hosts from the platform catalog", () => {
     expect(detectUrlKind("https://calendly.com/newqr/30min")).toMatchObject({
-      category: "booking",
-      confidence: "low",
-      inputTypeHint: "booking-link",
+      category: "business",
+      confidence: "high",
+      inputTypeHint: "calendly",
+      intent: "event",
     })
 
     expect(detectUrlKind("https://paypal.me/newqr")).toMatchObject({
-      category: "payment",
-      confidence: "low",
-      inputTypeHint: "payment-link",
+      category: "business",
+      confidence: "high",
+      inputTypeHint: "paypal-me",
+      intent: "profile",
     })
   })
 })
@@ -155,6 +159,7 @@ describe("detectPastedContent", () => {
         category: "social",
         brandIconId: "instagram",
         inputTypeHint: "instagram",
+        intent: "profile",
         confidence: "high",
       },
     })

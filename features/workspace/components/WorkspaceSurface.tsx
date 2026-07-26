@@ -233,6 +233,10 @@ import {
   type StaticQrContentValue,
 } from "@/features/qr-code/content/static-payload"
 import {
+  getPlatformDefaultValuesForIntent,
+  isPlatformType,
+} from "@/features/qr-code/content/platform-intents"
+import {
   DownloadIcon,
   FrameIcon,
   LinkIcon,
@@ -1453,6 +1457,14 @@ export function WorkspaceSurface({
     field: string,
     value: StaticQrContentValue,
   ) {
+    if (field === "intent" && typeof value === "string" && isPlatformType(selectedContentType)) {
+      setContentValuesByType((current) => ({
+        ...current,
+        [selectedContentType]: getPlatformDefaultValuesForIntent(selectedContentType, value),
+      }))
+      return
+    }
+
     setContentValuesByType((current) => ({
       ...current,
       [selectedContentType]: {

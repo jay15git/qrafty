@@ -7,36 +7,27 @@ import {
 } from "@/features/qr-code/content/input-options"
 
 describe("picker content types", () => {
-  it("exposes only structured and link types in the picker", () => {
-    expect(PICKER_QR_INPUT_TYPES).toEqual([
-      "link",
-      "text",
-      "phone",
-      "email",
-      "sms",
-      "wifi",
-      "vcard",
-      "whatsapp-chat",
-      "telegram-username",
-      "map-location",
-      "event",
-      "coupon",
-      "upi",
-      "crypto",
-    ])
+  it("exposes structured types plus the full platform catalog", () => {
+    expect(PICKER_QR_INPUT_TYPES).toContain("link")
+    expect(PICKER_QR_INPUT_TYPES).toContain("instagram")
+    expect(PICKER_QR_INPUT_TYPES).toContain("spotify")
+    expect(PICKER_QR_INPUT_TYPES).toContain("app-store")
+    expect(PICKER_QR_INPUT_TYPES).toContain("github")
+    expect(PICKER_QR_INPUT_TYPES.length).toBeGreaterThan(40)
   })
 
-  it("normalizes url-only aliases to link and legacy auto to text", () => {
-    expect(normalizeContentTypeForPicker("pdf")).toBe("link")
-    expect(normalizeContentTypeForPicker("instagram")).toBe("link")
-    expect(normalizeContentTypeForPicker("menu")).toBe("link")
+  it("normalizes legacy aliases to link or resolved picker types", () => {
+    expect(normalizeContentTypeForPicker("pdf")).toBe("pdf")
+    expect(normalizeContentTypeForPicker("instagram")).toBe("instagram")
+    expect(normalizeContentTypeForPicker("telegram-username")).toBe("telegram")
     expect(normalizeContentTypeForPicker("auto")).toBe("text")
+    expect(normalizeContentTypeForPicker("app-download")).toBe("app-store")
     expect(normalizeContentTypeForPicker("wifi")).toBe("wifi")
   })
 
-  it("labels aliases for picker display", () => {
-    expect(getContentTypeLabel("pdf")).toBe("Link")
-    expect(getContentTypeLabel("instagram")).toBe("Link")
+  it("labels platform and legacy types", () => {
+    expect(getContentTypeLabel("pdf")).toBe("PDF")
+    expect(getContentTypeLabel("instagram")).toBe("Instagram")
     expect(getContentTypeLabel("auto")).toBe("Text")
     expect(getContentTypeLabel("link")).toBe("Link")
   })

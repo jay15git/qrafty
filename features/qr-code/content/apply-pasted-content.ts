@@ -1,9 +1,17 @@
 import type { QrInputType } from "@/features/qr-code/content/input-options"
+import { isPlatformContentType } from "@/features/qr-code/content/input-options"
 import {
   detectPastedContent,
   type PastedContentDetection,
   type UrlDetection,
 } from "@/features/qr-code/content/detect-url-kind"
+import {
+  extractPlatformValuesFromUrl,
+  getDefaultIntentId,
+  getPlatformDef,
+  isPlatformType,
+  resolvePlatformType,
+} from "@/features/qr-code/content/platform-intents"
 import {
   getDefaultStaticQrValues,
   type StaticQrContentValues,
@@ -40,14 +48,34 @@ export function getLinkPasteFieldUpdate(
     return null
   }
 
-  if (isUsernameType(contentType)) {
+  const resolvedType = resolvePlatformType(contentType)
+
+  if (isPlatformType(resolvedType)) {
+    const extracted = extractPlatformValuesFromUrl(resolvedType, detection.value)
+    if (extracted) {
+      return {
+        urlDetection: detection.urlDetection,
+        values: extracted,
+      }
+    }
+
+    if (detection.urlDetection?.inputTypeHint === resolvedType) {
+      return {
+        urlDetection: detection.urlDetection,
+        values: {
+          intent: detection.urlDetection.intent ?? getDefaultIntentId(resolvedType),
+          url: detection.value,
+        },
+      }
+    }
+
     return {
       urlDetection: detection.urlDetection,
-      values: { username: detection.value },
+      values: { url: detection.value },
     }
   }
 
-  if (isUrlType(contentType) || contentType === "coupon") {
+  if (isUrlType(contentType)) {
     return {
       urlDetection: detection.urlDetection,
       values: { url: detection.value },
@@ -68,6 +96,13 @@ export function getLinkPasteFieldUpdate(
     }
   }
 
+  if (contentType === "coupon") {
+    return {
+      urlDetection: detection.urlDetection,
+      values: { url: detection.value },
+    }
+  }
+
   return null
 }
 
@@ -80,11 +115,30 @@ export function resolveDetectedLinkTypeApply(
     return null
   }
 
-  const values = getDefaultStaticQrValues(targetType)
+  const resolvedType = resolvePlatformType(targetType)
+  const values = getDefaultStaticQrValues(resolvedType)
 
-  if (isUsernameType(targetType)) {
-    values.username = source
-  } else if (isUrlType(targetType) || targetType === "coupon" || targetType === "event") {
+  if (isPlatformType(resolvedType)) {
+    const extracted = extractPlatformValuesFromUrl(resolvedType, source)
+    if (extracted) {
+      return {
+        type: resolvedType,
+        values: { ...values, ...extracted },
+        urlDetection: detection,
+      }
+    }
+
+    values.intent = detection.intent ?? getDefaultIntentId(resolvedType)
+    values.url = source
+
+    return {
+      type: resolvedType,
+      values,
+      urlDetection: detection,
+    }
+  }
+
+  if (isUrlType(targetType) || targetType === "coupon" || targetType === "event") {
     values.url = source
   } else if (targetType === "text" || targetType === "auto") {
     values.text = source
@@ -103,12 +157,32 @@ export function getLinkDetectionSource(
   contentType: QrInputType,
   contentValues: StaticQrContentValues,
 ): string {
-  if (isUrlType(contentType)) {
-    return stringValue(contentValues.url)
+  const resolvedType = resolvePlatformType(contentType)
+
+  if (isPlatformType(resolvedType)) {
+    const def = getPlatformDef(resolvedType)
+    const intentId = stringValue(contentValues.intent) || getDefaultIntentId(resolvedType)
+    const intent = def?.intents.find((entry) => entry.id === intentId)
+
+    if (intent?.fields.some((field) => field.key === "url")) {
+      const url = stringValue(contentValues.url)
+      if (url) {
+        return url
+      }
+    }
+
+    if (intent?.fields.some((field) => field.key === "username")) {
+      const username = stringValue(contentValues.username)
+      if (username) {
+        return username
+      }
+    }
+
+    return stringValue(contentValues.url) || stringValue(contentValues.username)
   }
 
-  if (isUsernameType(contentType)) {
-    return stringValue(contentValues.username) || stringValue(contentValues.url)
+  if (isUrlType(contentType)) {
+    return stringValue(contentValues.url)
   }
 
   if (contentType === "auto" || contentType === "text") {
@@ -136,6 +210,21 @@ export function shouldShowUrlDetectionChip(
   }
 
   return Boolean(detection.platform) || detection.category !== "link"
+}
+
+export function getDetectionChipLabel(detection: UrlDetection): string {
+  const platformDef = detection.inputTypeHint
+    ? getPlatformDef(detection.inputTypeHint)
+    : undefined
+
+  if (detection.intent && platformDef) {
+    const intent = platformDef.intents.find((entry) => entry.id === detection.intent)
+    if (intent) {
+      return `${platformDef.label} · ${intent.label}`
+    }
+  }
+
+  return platformDef?.label ?? detection.platform ?? detection.category
 }
 
 function mapStructuredPaste(
@@ -238,6 +327,7 @@ function parseGeoValues(value: string): StaticQrContentValues {
   const params = new URLSearchParams(queryPart ?? "")
 
   return {
+    intent: "coords",
     latitude,
     longitude,
     query: params.get("q") ?? "",
@@ -290,7 +380,7 @@ function parseCryptoValues(value: string): StaticQrContentValues {
 function supportsUrlDetection(contentType: QrInputType) {
   return (
     isUrlType(contentType) ||
-    isUsernameType(contentType) ||
+    isPlatformContentType(contentType) ||
     contentType === "auto" ||
     contentType === "text" ||
     contentType === "event" ||
@@ -299,37 +389,7 @@ function supportsUrlDetection(contentType: QrInputType) {
 }
 
 function isUrlType(contentType: QrInputType) {
-  return [
-    "link",
-    "website",
-    "facebook",
-    "youtube",
-    "linkedin",
-    "discord",
-    "google-review",
-    "booking-link",
-    "payment-link",
-    "menu",
-    "app-download",
-    "pdf",
-    "image",
-    "video",
-    "document",
-    "form",
-  ].includes(contentType)
-}
-
-function isUsernameType(contentType: QrInputType) {
-  return [
-    "instagram",
-    "x",
-    "tiktok",
-    "telegram",
-    "snapchat",
-    "threads",
-    "pinterest",
-    "telegram-username",
-  ].includes(contentType)
+  return ["link", "website", "app-download"].includes(contentType)
 }
 
 function stringValue(value: string | boolean | undefined) {

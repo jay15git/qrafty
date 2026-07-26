@@ -109,12 +109,22 @@ import {
 } from "@/features/qr-code/content/static-payload"
 import {
   getLinkDetectionSource,
+  getDetectionChipLabel,
   getLinkPasteFieldUpdate,
   resolveDetectedLinkTypeApply,
   resolveStructuredPasteApply,
   shouldShowUrlDetectionChip,
 } from "@/features/qr-code/content/apply-pasted-content"
 import { detectUrlKind } from "@/features/qr-code/content/detect-url-kind"
+import {
+  CONTENT_COLLECTIONS,
+  getDefaultIntentId,
+  getPlatformDefaultValuesForIntent,
+  getPlatformDef,
+  isPlatformType,
+  resolvePlatformType,
+  type ContentCollectionId,
+} from "@/features/qr-code/content/platform-intents"
 import {
   QR_BACKGROUND_SHAPES,
   type QrBackgroundShapeId,
@@ -394,29 +404,13 @@ const DESKTOP_CONTENT_PRESET_TYPES: QrInputType[] = [...PICKER_QR_INPUT_TYPES]
 const DESKTOP_ELASTIC_SLIDER_CLASS =
   "desktop-elastic-slider [--elastic-slider-height:--spacing(8)] [--elastic-slider-radius:9999px] [--elastic-slider-bg:rgba(255,255,255,0.095)] [--elastic-slider-fill:rgba(255,255,255,0.13)] [--elastic-slider-fill-active:rgba(255,255,255,0.2)] [--elastic-slider-hash:rgba(255,255,255,0.24)] [--elastic-slider-handle:rgba(255,255,255,0.7)] [--elastic-slider-label:rgba(255,255,255,0.58)] [--elastic-slider-focus:rgba(255,255,255,0.82)]"
 
-type DesktopContentCollectionId = "all" | "popular" | "contact" | "more"
+type DesktopContentCollectionId = "all" | ContentCollectionId
 
-const DESKTOP_CONTENT_COLLECTIONS: Array<{
-  id: DesktopContentCollectionId
-  label: string
-  types: QrInputType[]
-}> = [
-  {
-    id: "popular",
-    label: "Popular",
-    types: ["link", "text", "email", "phone", "sms", "wifi", "vcard"],
-  },
-  {
-    id: "contact",
-    label: "Contact",
-    types: ["phone", "email", "sms", "vcard", "whatsapp-chat", "telegram-username", "map-location"],
-  },
-  {
-    id: "more",
-    label: "More",
-    types: ["event", "coupon", "upi", "crypto"],
-  },
-]
+const DESKTOP_CONTENT_COLLECTIONS = CONTENT_COLLECTIONS.map((collection) => ({
+  id: collection.id,
+  label: collection.label,
+  types: [...collection.types],
+}))
 
 const DESKTOP_CONTENT_FILTER_OPTIONS: Array<{
   id: DesktopContentCollectionId
@@ -1233,6 +1227,14 @@ export function useDesktopToolbarInspectorModel({
   }
 
   function handleContentValueChange(field: string, value: StaticQrContentValue) {
+    if (field === "intent" && typeof value === "string" && isPlatformType(selectedContentType)) {
+      setContentValuesByType((current) => ({
+        ...current,
+        [selectedContentType]: getPlatformDefaultValuesForIntent(selectedContentType, value),
+      }))
+      return
+    }
+
     setContentValuesByType((current) => ({
       ...current,
       [selectedContentType]: {
@@ -4293,12 +4295,12 @@ function DesktopContentInspector({
             <DesktopInspectorAnimatedOptionGrid
               columns={3}
               data-slot="desktop-content-type-collection"
-              selectedKey={normalizeContentTypeForPicker(contentType)}
+              selectedKey={contentType}
             >
               {visibleTypes.map((type) => {
               const option = QR_INPUT_OPTIONS[type]
               const Icon = option.icon
-              const isSelected = normalizeContentTypeForPicker(contentType) === type
+              const isSelected = contentType === type
 
               return (
                 <button
@@ -5130,13 +5132,11 @@ function DesktopContentDetectionChip({
   const typeLabel = detectedType ? QR_INPUT_OPTIONS[detectedType]?.label : undefined
   const brandIcon = findBrandIconById(detection.brandIconId)
   const BrandIcon = brandIcon?.icon
-  const label = typeLabel ?? detection.platform ?? detection.category
-  const normalizedContentType = normalizeContentTypeForPicker(contentType)
+  const label = getDetectionChipLabel(detection)
   const canApplyDetectedType = Boolean(
     detectedType &&
       isPickerQrInputType(detectedType) &&
-      detectedType !== contentType &&
-      detectedType !== normalizedContentType,
+      detectedType !== contentType,
   )
 
   return (
@@ -5302,6 +5302,44 @@ function getDesktopContentFields(
     value: contentValues[id],
   })
 
+  const resolvedType = resolvePlatformType(contentType)
+  const platform = getPlatformDef(resolvedType)
+
+  if (platform) {
+    const intentId = stringContentValue(contentValues.intent) || getDefaultIntentId(resolvedType)
+    const intent =
+      platform.intents.find((entry) => entry.id === intentId) ?? platform.intents[0]
+    const fields: DesktopContentField[] = []
+
+    if (platform.intents.length > 1) {
+      fields.push({
+        id: "intent",
+        label: "Type",
+        options: platform.intents.map((entry) => ({
+          label: entry.label,
+          value: entry.id,
+        })),
+        type: "segmented",
+        value: intentId,
+      })
+    }
+
+    for (const field of intent?.fields ?? []) {
+      const isTextarea = field.key === "message" || field.key === "body"
+      const nextField: DesktopContentField = {
+        error: validation.fieldErrors[field.key],
+        id: field.key,
+        label: field.label,
+        placeholder: field.placeholder,
+        type: isTextarea ? "textarea" : "text",
+        value: contentValues[field.key],
+      }
+      fields.push(nextField)
+    }
+
+    return fields
+  }
+
   if (contentType === "auto" || contentType === "text") {
     return [textarea("text", "Text", "Plain text to encode")]
   }
@@ -5356,25 +5394,6 @@ function getDesktopContentFields(
       text("email", "Email", "jay@example.com"),
       text("company", "Company", "New QR"),
       text("url", "Website", "https://example.com"),
-    ]
-  }
-
-  if (contentType === "whatsapp" || contentType === "whatsapp-chat") {
-    return [
-      text("phone", "Phone number", "+91 98765 43210", validation.fieldErrors.phone),
-      textarea("message", "Message", "I would like to book"),
-    ]
-  }
-
-  if (isUsernameContentType(contentType)) {
-    return [text("username", "Username", "@newqr", validation.fieldErrors.username)]
-  }
-
-  if (contentType === "map-location") {
-    return [
-      text("query", "Place", "Mumbai", validation.fieldErrors.query),
-      text("latitude", "Latitude", "19.0760", validation.fieldErrors.latitude),
-      text("longitude", "Longitude", "72.8777", validation.fieldErrors.longitude),
     ]
   }
 
@@ -5448,37 +5467,7 @@ function getDesktopContentFields(
 }
 
 function isUrlContentType(type: QrInputType) {
-  return [
-    "link",
-    "website",
-    "facebook",
-    "youtube",
-    "linkedin",
-    "discord",
-    "google-review",
-    "booking-link",
-    "payment-link",
-    "menu",
-    "app-download",
-    "pdf",
-    "image",
-    "video",
-    "document",
-    "form",
-  ].includes(type)
-}
-
-function isUsernameContentType(type: QrInputType) {
-  return [
-    "instagram",
-    "x",
-    "tiktok",
-    "telegram",
-    "snapchat",
-    "threads",
-    "pinterest",
-    "telegram-username",
-  ].includes(type)
+  return ["link", "website", "app-download"].includes(type)
 }
 
 function stringContentValue(value: StaticQrContentValue | undefined) {

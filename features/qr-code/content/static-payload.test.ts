@@ -50,6 +50,7 @@ describe("static QR content payloads", () => {
     )
     expect(
       buildStaticQrPayload("map-location", {
+        intent: "place",
         latitude: "19.0760",
         longitude: "72.8777",
         query: "Mumbai",
@@ -120,17 +121,17 @@ describe("static QR content payloads", () => {
   it("builds social and static link content as normalized URLs", () => {
     const cases: Array<[Parameters<typeof buildStaticQrPayload>[0], StaticQrContentValues, string]> =
       [
-        ["instagram", { username: "@newqr" }, "https://instagram.com/newqr"],
-        ["facebook", { url: "facebook.com/newqr" }, "https://facebook.com/newqr"],
-        ["x", { username: "newqr" }, "https://x.com/newqr"],
-        ["youtube", { url: "youtube.com/@newqr" }, "https://youtube.com/@newqr"],
-        ["linkedin", { url: "linkedin.com/company/newqr" }, "https://linkedin.com/company/newqr"],
-        ["tiktok", { username: "@newqr" }, "https://tiktok.com/@newqr"],
-        ["snapchat", { username: "newqr" }, "https://snapchat.com/add/newqr"],
-        ["threads", { username: "@newqr" }, "https://threads.net/@newqr"],
-        ["pinterest", { username: "newqr" }, "https://pinterest.com/newqr"],
-        ["discord", { url: "discord.gg/newqr" }, "https://discord.gg/newqr"],
-        ["pdf", { url: "example.com/menu.pdf" }, "https://example.com/menu.pdf"],
+        ["instagram", { intent: "profile", username: "@newqr" }, "https://instagram.com/newqr"],
+        ["facebook", { intent: "profile", url: "facebook.com/newqr" }, "https://facebook.com/newqr"],
+        ["x", { intent: "profile", username: "newqr" }, "https://x.com/newqr"],
+        ["youtube", { intent: "channel", url: "youtube.com/@newqr" }, "https://youtube.com/@newqr"],
+        ["linkedin", { intent: "profile", url: "linkedin.com/company/newqr" }, "https://linkedin.com/company/newqr"],
+        ["tiktok", { intent: "profile", username: "@newqr" }, "https://tiktok.com/@newqr"],
+        ["snapchat", { intent: "add", username: "newqr" }, "https://snapchat.com/add/newqr"],
+        ["threads", { intent: "profile", username: "@newqr" }, "https://threads.net/@newqr"],
+        ["pinterest", { intent: "profile", username: "newqr" }, "https://pinterest.com/newqr"],
+        ["discord", { intent: "invite", url: "discord.gg/newqr" }, "https://discord.gg/newqr"],
+        ["pdf", { intent: "url", url: "example.com/menu.pdf" }, "https://example.com/menu.pdf"],
         ["coupon", { code: "SAVE20", description: "20% off", url: "example.com/save" }, "SAVE20\n20% off\nhttps://example.com/save"],
       ]
 
@@ -152,6 +153,7 @@ describe("static QR content payloads", () => {
     })
     expect(
       validateStaticQrContent("map-location", {
+        intent: "place",
         latitude: "95",
         longitude: "200",
       }),
@@ -179,6 +181,29 @@ describe("static QR content payloads", () => {
       }),
     ).toEqual({
       url: "https://instagram.com/newqr",
+    })
+  })
+
+  it("uses platform stubs when switching from link without a matching platform URL", () => {
+    expect(
+      getContentValuesForTypeChange("link", "youtube", {
+        url: "https://example.com",
+      }),
+    ).toEqual({
+      intent: "channel",
+      username: "",
+      url: "https://youtube.com/@",
+    })
+  })
+
+  it("extracts platform values when switching from link with a matching platform URL", () => {
+    expect(
+      getContentValuesForTypeChange("link", "youtube", {
+        url: "https://youtube.com/watch?v=abc123",
+      }),
+    ).toMatchObject({
+      intent: "video",
+      url: "https://youtube.com/watch?v=abc123",
     })
   })
 
