@@ -24,12 +24,14 @@ export type UrlDetection = {
 }
 
 export type PastedContentKind =
+  | "crypto"
   | "email"
   | "link"
   | "map-location"
   | "phone"
   | "sms"
   | "text"
+  | "upi"
   | "vcard"
   | "wifi"
 
@@ -261,6 +263,20 @@ export function detectPastedContent(input: string): PastedContentDetection | nul
 
   if (lower.startsWith("begin:vcard")) {
     return { kind: "vcard", value: trimmed }
+  }
+
+  if (lower.startsWith("upi:")) {
+    return { kind: "upi", value: trimmed }
+  }
+
+  if (
+    lower.startsWith("bitcoin:") ||
+    lower.startsWith("ethereum:") ||
+    lower.startsWith("litecoin:") ||
+    lower.startsWith("bitcoincash:") ||
+    lower.startsWith("dash:")
+  ) {
+    return { kind: "crypto", value: trimmed }
   }
 
   if (lower.startsWith("tel:")) {

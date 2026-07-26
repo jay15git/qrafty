@@ -33,6 +33,30 @@ describe("resolveStructuredPasteApply", () => {
         ssid: "Cafe",
       },
     })
+
+    expect(
+      resolveStructuredPasteApply("upi://pay?pa=merchant@okaxis&pn=New%20QR&am=199.00&cu=INR&tn=Order"),
+    ).toEqual({
+      type: "upi",
+      values: {
+        amount: "199.00",
+        currency: "INR",
+        note: "Order",
+        payeeName: "New QR",
+        vpa: "merchant@okaxis",
+      },
+    })
+
+    expect(
+      resolveStructuredPasteApply("ethereum:0x1111111111111111111111111111111111111111?amount=1.5"),
+    ).toEqual({
+      type: "crypto",
+      values: {
+        address: "0x1111111111111111111111111111111111111111",
+        amount: "1.5",
+        asset: "ethereum",
+      },
+    })
   })
 
   it("returns null for plain text and link pastes", () => {

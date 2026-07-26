@@ -21,6 +21,8 @@ describe("picker content types", () => {
       "map-location",
       "event",
       "coupon",
+      "upi",
+      "crypto",
     ])
   })
 

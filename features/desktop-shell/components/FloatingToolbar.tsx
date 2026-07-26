@@ -414,7 +414,7 @@ const DESKTOP_CONTENT_COLLECTIONS: Array<{
   {
     id: "more",
     label: "More",
-    types: ["event", "coupon"],
+    types: ["event", "coupon", "upi", "crypto"],
   },
 ]
 
@@ -4193,23 +4193,17 @@ function DesktopPatternPalettePresetButton({
 }
 
 function DesktopContentInspector({
-  accessibilitySettings,
   contentType,
   contentValues,
-  desktopTheme,
   encodedValue,
-  onAccessibilitySettingsChange,
   onContentPasteApply,
   onContentTypeChange,
   onContentValueChange,
   validation,
 }: {
-  accessibilitySettings: DesktopAccessibilitySettings
   contentType: QrInputType
   contentValues: StaticQrContentValues
-  desktopTheme: DesktopThemeMode
   encodedValue: string
-  onAccessibilitySettingsChange: (patch: Partial<DesktopAccessibilitySettings>) => void
   onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void
   onContentTypeChange: (type: QrInputType) => void
   onContentValueChange: (field: string, value: StaticQrContentValue) => void
@@ -4353,25 +4347,6 @@ function DesktopContentInspector({
             onContentTypeChange={onContentTypeChange}
             onContentValueChange={onContentValueChange}
           />
-        </DesktopInspectorSection>
-
-        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <label className={cn("mb-1.5 block", DESKTOP_INSPECTOR_LABEL_CLASS)} htmlFor="desktop-qr-aria-label">
-            Accessibility label
-          </label>
-          <DesktopInspectorTextInput
-            aria-label="QR code accessibility label"
-            data-slot="desktop-qr-aria-label"
-            id="desktop-qr-aria-label"
-            placeholder="QR Code"
-            value={accessibilitySettings.ariaLabel}
-            onChange={(event) =>
-              onAccessibilitySettingsChange({ ariaLabel: event.currentTarget.value })
-            }
-          />
-          <p className={cn("mt-2", DESKTOP_INSPECTOR_CAPTION_CLASS, DESKTOP_INSPECTOR_FG_TERTIARY)}>
-            Sets the SVG aria-label for screen readers. Leave empty for the renderer default.
-          </p>
         </DesktopInspectorSection>
 
         <DesktopInspectorSection as="details" className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, "px-3 py-2.5")}>
@@ -5437,6 +5412,35 @@ function getDesktopContentFields(
       text("code", "Code", "SAVE20", validation.fieldErrors.code),
       textarea("description", "Description", "20% off"),
       text("url", "URL", "https://example.com/save"),
+    ]
+  }
+
+  if (contentType === "upi") {
+    return [
+      text("vpa", "UPI ID", "merchant@okaxis", validation.fieldErrors.vpa),
+      text("payeeName", "Payee name", "New QR Studio"),
+      text("amount", "Amount", "199.00", validation.fieldErrors.amount),
+      text("note", "Note", "Order payment"),
+    ]
+  }
+
+  if (contentType === "crypto") {
+    return [
+      {
+        id: "asset",
+        label: "Asset",
+        options: [
+          { label: "Bitcoin", value: "bitcoin" },
+          { label: "Ethereum", value: "ethereum" },
+          { label: "Litecoin", value: "litecoin" },
+          { label: "BCH", value: "bitcoincash" },
+          { label: "Dash", value: "dash" },
+        ],
+        type: "segmented",
+        value: contentValues.asset ?? "bitcoin",
+      },
+      text("address", "Address", "bc1q...", validation.fieldErrors.address),
+      text("amount", "Amount", "0.01", validation.fieldErrors.amount),
     ]
   }
 
@@ -6515,7 +6519,6 @@ export function DesktopFloatingInspector({
     actualEffectsSettings,
     actualEncodedContentValue,
     actualEncodingSettings,
-    actualAccessibilitySettings,
     actualExportSettings,
     actualImageSettings,
     actualLayoutSettings,
@@ -6534,7 +6537,6 @@ export function DesktopFloatingInspector({
     onDecorationsSettingsChange,
     onEffectsSettingsChange,
     onEncodingSettingsChange,
-    onAccessibilitySettingsChange,
     onExportSettingsChange,
     onImageSettingsChange,
     onLayoutSettingsChange,
@@ -6602,13 +6604,10 @@ export function DesktopFloatingInspector({
         />
       ) : activeTool === "content" ? (
         <DesktopContentInspector
-          accessibilitySettings={actualAccessibilitySettings}
           contentType={actualContentType}
           contentValues={actualContentValues}
-          desktopTheme={actualDesktopTheme}
           encodedValue={actualEncodedContentValue}
           validation={actualContentValidation}
-          onAccessibilitySettingsChange={onAccessibilitySettingsChange}
           onContentPasteApply={onContentPasteApply}
           onContentTypeChange={onContentTypeChange}
           onContentValueChange={onContentValueChange}

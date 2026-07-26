@@ -173,6 +173,16 @@ function mapStructuredPaste(
         values: parseGeoValues(detection.value),
         urlDetection: detection.urlDetection,
       }
+    case "upi":
+      return {
+        type: "upi",
+        values: parseUpiValues(detection.value),
+      }
+    case "crypto":
+      return {
+        type: "crypto",
+        values: parseCryptoValues(detection.value),
+      }
     default:
       return null
   }
@@ -231,6 +241,49 @@ function parseGeoValues(value: string): StaticQrContentValues {
     latitude,
     longitude,
     query: params.get("q") ?? "",
+  }
+}
+
+function parseUpiValues(value: string): StaticQrContentValues {
+  const defaults = getDefaultStaticQrValues("upi")
+  const queryIndex = value.indexOf("?")
+  const query = queryIndex >= 0 ? value.slice(queryIndex + 1) : ""
+  const params = new URLSearchParams(query)
+
+  return {
+    ...defaults,
+    amount: params.get("am") ?? "",
+    currency: params.get("cu") ?? "INR",
+    note: params.get("tn") ?? "",
+    payeeName: params.get("pn") ?? "",
+    vpa: params.get("pa") ?? "",
+  }
+}
+
+function parseCryptoValues(value: string): StaticQrContentValues {
+  const defaults = getDefaultStaticQrValues("crypto")
+  const match = value.match(/^([a-z]+):([^?]+)(?:\?(.*))?$/i)
+  if (!match) {
+    return { ...defaults, address: value }
+  }
+
+  const scheme = match[1]!.toLowerCase()
+  const address = match[2] ?? ""
+  const params = new URLSearchParams(match[3] ?? "")
+  const asset =
+    scheme === "bitcoin" ||
+    scheme === "ethereum" ||
+    scheme === "litecoin" ||
+    scheme === "bitcoincash" ||
+    scheme === "dash"
+      ? scheme
+      : "bitcoin"
+
+  return {
+    ...defaults,
+    address,
+    amount: params.get("amount") ?? "",
+    asset,
   }
 }
 

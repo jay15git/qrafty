@@ -181,4 +181,48 @@ describe("static QR content payloads", () => {
       url: "https://instagram.com/newqr",
     })
   })
+
+  it("builds UPI and crypto payment payloads", () => {
+    expect(
+      buildStaticQrPayload("upi", {
+        amount: "199.00",
+        currency: "INR",
+        note: "Order 42",
+        payeeName: "New QR",
+        vpa: "merchant@okaxis",
+      }),
+    ).toBe(
+      "upi://pay?pa=merchant%40okaxis&pn=New%20QR&am=199.00&cu=INR&tn=Order%2042",
+    )
+
+    expect(
+      buildStaticQrPayload("crypto", {
+        address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+        amount: "0.01",
+        asset: "bitcoin",
+      }),
+    ).toBe("bitcoin:bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh?amount=0.01")
+
+    expect(
+      buildStaticQrPayload("crypto", {
+        address: "0x1111111111111111111111111111111111111111",
+        asset: "ethereum",
+      }),
+    ).toBe("ethereum:0x1111111111111111111111111111111111111111")
+  })
+
+  it("validates UPI and crypto required fields", () => {
+    expect(validateStaticQrContent("upi", { vpa: "" })).toEqual({
+      fieldErrors: { vpa: "Enter a UPI ID." },
+      isValid: false,
+    })
+    expect(validateStaticQrContent("upi", { vpa: "not-a-vpa" })).toEqual({
+      fieldErrors: { vpa: "Enter a valid UPI ID (name@bank)." },
+      isValid: false,
+    })
+    expect(validateStaticQrContent("crypto", { address: "", asset: "bitcoin" })).toEqual({
+      fieldErrors: { address: "Enter a wallet address." },
+      isValid: false,
+    })
+  })
 })

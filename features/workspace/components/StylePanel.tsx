@@ -817,6 +817,102 @@ function buildDraftingContentFieldItems({
     ]
   }
 
+  if (contentType === "upi") {
+    return [
+      textItem(
+        "vpa",
+        "UPI ID",
+        "UPI ID",
+        "merchant@okaxis",
+        stringContentValue(contentValues.vpa),
+        validation.fieldErrors.vpa,
+      ),
+      textItem(
+        "payeeName",
+        "Payee name",
+        "Payee name",
+        "New QR Studio",
+        stringContentValue(contentValues.payeeName),
+      ),
+      textItem(
+        "amount",
+        "Amount",
+        "Amount",
+        "199.00",
+        stringContentValue(contentValues.amount),
+        validation.fieldErrors.amount,
+      ),
+      textItem(
+        "note",
+        "Note",
+        "Payment note",
+        "Order payment",
+        stringContentValue(contentValues.note),
+      ),
+    ]
+  }
+
+  if (contentType === "crypto") {
+    const asset = stringContentValue(contentValues.asset) || "bitcoin"
+    return [
+      {
+        id: "asset",
+        title: "Asset",
+        content: (
+          <div className="min-w-0 px-4 pb-4">
+            <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3">
+              {(
+                [
+                  ["bitcoin", "Bitcoin"],
+                  ["ethereum", "Ethereum"],
+                  ["litecoin", "Litecoin"],
+                  ["bitcoincash", "BCH"],
+                  ["dash", "Dash"],
+                ] as const
+              ).map(([value, label]) => (
+                <label
+                  key={value}
+                  className={cn(
+                    "flex min-h-9 cursor-pointer items-center justify-center rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-2 text-center",
+                    "drafting-type-caption font-semibold text-[var(--drafting-ink-muted)]",
+                    asset === value &&
+                      "border-[var(--drafting-ink)] bg-[var(--drafting-ink)] text-[var(--drafting-surface-bg)]",
+                  )}
+                >
+                  <input
+                    aria-label={`Crypto asset ${label}`}
+                    checked={asset === value}
+                    className="sr-only"
+                    name="drafting-crypto-asset"
+                    type="radio"
+                    onChange={() => onContentValueChange("asset", value)}
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+          </div>
+        ),
+      },
+      textItem(
+        "address",
+        "Address",
+        "Wallet address",
+        "bc1q...",
+        stringContentValue(contentValues.address),
+        validation.fieldErrors.address,
+      ),
+      textItem(
+        "amount",
+        "Amount",
+        "Amount",
+        "0.01",
+        stringContentValue(contentValues.amount),
+        validation.fieldErrors.amount,
+      ),
+    ]
+  }
+
   return []
 }
 

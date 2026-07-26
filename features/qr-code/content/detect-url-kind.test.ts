@@ -130,6 +130,20 @@ describe("detectPastedContent", () => {
       kind: "vcard",
       value: "BEGIN:VCARD\nVERSION:3.0\nEND:VCARD",
     })
+
+    expect(
+      detectPastedContent("upi://pay?pa=merchant@okaxis&pn=New%20QR&am=10&cu=INR"),
+    ).toEqual({
+      kind: "upi",
+      value: "upi://pay?pa=merchant@okaxis&pn=New%20QR&am=10&cu=INR",
+    })
+
+    expect(
+      detectPastedContent("bitcoin:bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh?amount=0.01"),
+    ).toEqual({
+      kind: "crypto",
+      value: "bitcoin:bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh?amount=0.01",
+    })
   })
 
   it("wraps URLs with url detection metadata", () => {

@@ -26,6 +26,8 @@ import {
   Sparkles,
   Star,
   Store,
+  Bitcoin,
+  IndianRupee,
   TicketPercent,
   Type,
   Users,
@@ -73,6 +75,8 @@ export type QrInputType =
   | "form"
   | "event"
   | "coupon"
+  | "upi"
+  | "crypto"
 
 export type QuickQrInputType =
   | "text"
@@ -98,6 +102,8 @@ export const PICKER_QR_INPUT_TYPES = [
   "map-location",
   "event",
   "coupon",
+  "upi",
+  "crypto",
 ] as const satisfies readonly QrInputType[]
 
 export type PickerQrInputType = (typeof PICKER_QR_INPUT_TYPES)[number]
@@ -248,6 +254,8 @@ export const QR_INPUT_OPTIONS: Record<QrInputType, QrInputOption> = {
   form: { value: "form", label: "Form", icon: NotebookPen },
   event: { value: "event", label: "Event", icon: CalendarRange },
   coupon: { value: "coupon", label: "Coupon", icon: TicketPercent },
+  upi: { value: "upi", label: "UPI", icon: IndianRupee },
+  crypto: { value: "crypto", label: "Crypto", icon: Bitcoin },
 }
 
 const QUICK_INPUT_VALUES = [
@@ -298,7 +306,7 @@ export const QR_CATEGORIES: readonly QrCategory[] = [
     key: "more",
     label: "More",
     icon: CalendarRange,
-    items: pickQrInputOptions(["event", "coupon"]),
+    items: pickQrInputOptions(["event", "coupon", "upi", "crypto"]),
   },
 ] as const
 

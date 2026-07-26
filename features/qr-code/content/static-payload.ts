@@ -13,7 +13,7 @@ type LinkFieldKey = "url" | "username"
 
 type StaticQrContentMeta = {
   description: string
-  primaryField: LinkFieldKey | "text" | "phone" | "email" | "ssid" | "firstName" | "code"
+  primaryField: LinkFieldKey | "text" | "phone" | "email" | "ssid" | "firstName" | "code" | "vpa" | "address"
   title: string
 }
 
@@ -198,6 +198,16 @@ export const STATIC_QR_CONTENT_META: Record<QrInputType, StaticQrContentMeta> = 
     primaryField: "code",
     title: "Coupon",
   },
+  upi: {
+    description: "UPI payment request for GPay, PhonePe, Paytm, and BHIM.",
+    primaryField: "vpa",
+    title: "UPI",
+  },
+  crypto: {
+    description: "Cryptocurrency payment URI with optional amount.",
+    primaryField: "address",
+    title: "Crypto",
+  },
 }
 
 const LINK_CONTENT_TYPES = new Set<QrInputType>([
@@ -296,6 +306,24 @@ export function getDefaultStaticQrValues(type: QrInputType): StaticQrContentValu
     return { code: "", description: "", url: "" }
   }
 
+  if (type === "upi") {
+    return {
+      amount: "",
+      currency: "INR",
+      note: "",
+      payeeName: "",
+      vpa: "",
+    }
+  }
+
+  if (type === "crypto") {
+    return {
+      address: "",
+      amount: "",
+      asset: "bitcoin",
+    }
+  }
+
   if (SOCIAL_USERNAME_BUILDERS[type]) {
     return { username: "" }
   }
@@ -392,6 +420,10 @@ export function buildStaticQrPayload(
       return buildEventPayload(values)
     case "coupon":
       return buildCouponPayload(values)
+    case "upi":
+      return buildUpiPayload(values)
+    case "crypto":
+      return buildCryptoPayload(values)
   }
 }
 
@@ -482,6 +514,31 @@ export function validateStaticQrContent(
 
   if (type === "coupon" && !stringValue(values.code) && !stringValue(values.url)) {
     fieldErrors.code = "Enter a coupon code or URL."
+  }
+
+  if (type === "upi") {
+    const vpa = stringValue(values.vpa)
+    if (!vpa) {
+      fieldErrors.vpa = "Enter a UPI ID."
+    } else if (!isValidUpiVpa(vpa)) {
+      fieldErrors.vpa = "Enter a valid UPI ID (name@bank)."
+    }
+
+    const amount = stringValue(values.amount)
+    if (amount && !isPositiveAmount(amount)) {
+      fieldErrors.amount = "Enter a valid amount."
+    }
+  }
+
+  if (type === "crypto") {
+    if (!stringValue(values.address)) {
+      fieldErrors.address = "Enter a wallet address."
+    }
+
+    const amount = stringValue(values.amount)
+    if (amount && !isPositiveAmount(amount)) {
+      fieldErrors.amount = "Enter a valid amount."
+    }
   }
 
   return {
@@ -612,6 +669,51 @@ function buildCouponPayload(values: StaticQrContentValues) {
   ]
     .filter(Boolean)
     .join("\n")
+}
+
+function buildUpiPayload(values: StaticQrContentValues) {
+  const query = toQueryString({
+    pa: stringValue(values.vpa),
+    pn: stringValue(values.payeeName),
+    am: stringValue(values.amount),
+    cu: stringValue(values.currency) || "INR",
+    tn: stringValue(values.note),
+  })
+
+  return `upi://pay?${query}`
+}
+
+const CRYPTO_ASSET_SCHEMES: Record<string, string> = {
+  bitcoin: "bitcoin",
+  bitcoincash: "bitcoincash",
+  dash: "dash",
+  ethereum: "ethereum",
+  litecoin: "litecoin",
+}
+
+function buildCryptoPayload(values: StaticQrContentValues) {
+  const asset = stringValue(values.asset) || "bitcoin"
+  const scheme = CRYPTO_ASSET_SCHEMES[asset] ?? "bitcoin"
+  const address = stringValue(values.address)
+  const amount = stringValue(values.amount)
+
+  if (!amount) {
+    return `${scheme}:${address}`
+  }
+
+  return `${scheme}:${address}?amount=${encodeURIComponent(amount)}`
+}
+
+function isValidUpiVpa(value: string) {
+  return /^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z]{2,}$/.test(value)
+}
+
+function isPositiveAmount(value: string) {
+  if (!/^\d+(\.\d+)?$/.test(value)) {
+    return false
+  }
+
+  return Number(value) > 0
 }
 
 function appendVCardLine(
