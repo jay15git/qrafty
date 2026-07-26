@@ -52,13 +52,14 @@ describe("buildTemplateDocumentSeed", () => {
     expect(document.contentValuesByType.wifi?.ssid).toBe("Test")
   })
 
-  it("defaults auto input type when omitted in blank flow", async () => {
+  it("defaults to the default input type when omitted in blank flow", async () => {
     const document = await createDocumentFromHubIntent({
       source: "prompt",
       inputType: DEFAULT_QR_INPUT_TYPE,
-      prompt: "hello world",
+      prompt: "https://example.com/hello",
     })
 
     expect(document.selectedContentType).toBe(DEFAULT_QR_INPUT_TYPE)
+    expect(document.contentValuesByType.link?.url).toBe("https://example.com/hello")
   })
 })

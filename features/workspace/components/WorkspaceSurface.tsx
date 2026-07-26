@@ -228,6 +228,7 @@ import {
 import {
   buildStaticQrPayload,
   getDefaultStaticQrValues,
+  getContentValuesForTypeChange,
   validateStaticQrContent,
   type StaticQrContentValue,
 } from "@/features/qr-code/content/static-payload"
@@ -610,7 +611,7 @@ export function WorkspaceSurface({
     useState<DraftingContentValuesByType>(() => ({
       [DEFAULT_QR_INPUT_TYPE]: {
         ...getDefaultStaticQrValues(DEFAULT_QR_INPUT_TYPE),
-        text: DEFAULT_DRAFTING_STUDIO_STATE.data,
+        url: DEFAULT_DRAFTING_STUDIO_STATE.data,
       },
     }))
   const [contentTypeByNodeId, setContentTypeByNodeId] = useState<Record<string, QrInputType>>(
@@ -1439,7 +1440,11 @@ export function WorkspaceSurface({
 
       return {
         ...current,
-        [type]: getDefaultStaticQrValues(type),
+        [type]: getContentValuesForTypeChange(
+          selectedContentType,
+          type,
+          current[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType),
+        ),
       }
     })
   }
@@ -1457,13 +1462,28 @@ export function WorkspaceSurface({
     }))
   }
 
+  function handleDraftingContentPasteApply(
+    type: QrInputType,
+    values: StaticQrContentValues,
+  ) {
+    setSelectedContentType(type)
+    setContentTypeByNodeId((current) => ({
+      ...current,
+      [activeQrNodeId]: type,
+    }))
+    setContentValuesByType((current) => ({
+      ...current,
+      [type]: values,
+    }))
+  }
+
   function applyDraftingQrStateToControls(nextState: QrStudioState) {
     setSelectedContentType(DEFAULT_QR_INPUT_TYPE)
     setContentValuesByType((current) => ({
       ...current,
       [DEFAULT_QR_INPUT_TYPE]: {
         ...getDefaultStaticQrValues(DEFAULT_QR_INPUT_TYPE),
-        text: nextState.data,
+        url: nextState.data,
       },
     }))
     setSelectedQrMargin(nextState.margin)
@@ -4157,7 +4177,7 @@ export function WorkspaceSurface({
       ...current,
       [DEFAULT_QR_INPUT_TYPE]: {
         ...getDefaultStaticQrValues(DEFAULT_QR_INPUT_TYPE),
-        text: DEFAULT_DRAFTING_STUDIO_STATE.data,
+        url: DEFAULT_DRAFTING_STUDIO_STATE.data,
       },
     }))
   }
@@ -4656,6 +4676,7 @@ export function WorkspaceSurface({
     onUndo: handleUndoDraftingWorkspace,
     onContentReset: resetDesktopContent,
     onContentTypeChange: handleDraftingContentTypeChange,
+    onContentPasteApply: handleDraftingContentPasteApply,
     onContentValueChange: handleDraftingContentValueChange,
     onCornersReset: () => applyDraftingQrStateToControls(createDefaultDraftingWorkspaceQrState()),
     onCornersSettingsChange: updateDesktopCornersSettings,

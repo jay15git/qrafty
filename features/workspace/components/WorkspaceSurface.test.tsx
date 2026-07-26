@@ -585,8 +585,8 @@ describe("WorkspaceSurface", () => {
 
     const autoContentInput = getRequiredElement(
       surface.container,
-      'textarea[aria-label="Auto content"]',
-    ) as HTMLTextAreaElement
+      'input[aria-label="Link URL"]',
+    ) as HTMLInputElement
 
     await act(async () => {
       changeInputValue(autoContentInput, "https://example.com/updated")
@@ -606,8 +606,8 @@ describe("WorkspaceSurface", () => {
     const callsBeforeEdit = buildDashboardQrNodePayloadSpy.mock.calls.length
     const autoContentInput = getRequiredElement(
       surface.container,
-      'textarea[aria-label="Auto content"]',
-    ) as HTMLTextAreaElement
+      'input[aria-label="Link URL"]',
+    ) as HTMLInputElement
 
     await act(async () => {
       changeInputValue(autoContentInput, "https://example.com/changed")
@@ -1236,7 +1236,7 @@ describe("WorkspaceSurface", () => {
       surface.container,
       '[data-slot="drafting-content-tab"]',
     )
-    const qrData = getRequiredElement(surface.container, 'textarea[aria-label="Auto content"]') as HTMLTextAreaElement
+    const qrData = getRequiredElement(surface.container, 'input[aria-label="Link URL"]') as HTMLInputElement
 
     expect(contentTab).not.toBeNull()
     expect(
@@ -1276,7 +1276,7 @@ describe("WorkspaceSurface", () => {
       getRequiredElement(surface.container, '[data-slot="drafting-surface"]').getAttribute(
         "data-qr-content-type",
       ),
-    ).toBe("auto")
+    ).toBe("link")
     expect(
       getRequiredElement(surface.container, '[data-slot="drafting-surface"]').getAttribute(
         "data-qr-content-value",
@@ -1298,8 +1298,8 @@ describe("WorkspaceSurface", () => {
 
     const payload = getRequiredElement(
       surface.container,
-      '#desktop-content-text',
-    ) as HTMLTextAreaElement
+      '#desktop-content-url',
+    ) as HTMLInputElement
 
     act(() => {
       changeInputValue(payload, "https://example.com/desktop-live")
@@ -1517,7 +1517,7 @@ describe("WorkspaceSurface", () => {
 
     const selectedAutoItem = getRequiredElement(
       document.body,
-      '[data-slot="dropdown-menu-item"][data-content-type="auto"]',
+      '[data-slot="dropdown-menu-item"][data-content-type="link"]',
     )
     expect(selectedAutoItem.className).toContain("bg-[var(--drafting-dropdown-selected-fill)]")
     expect(selectedAutoItem.className).not.toContain("bg-[var(--drafting-ink)]")
@@ -3398,8 +3398,8 @@ describe("WorkspaceSurface", () => {
       changeInputValue(
         getRequiredElement(
           surface.container,
-          'textarea[aria-label="Auto content"]',
-        ) as HTMLTextAreaElement,
+          'input[aria-label="Link URL"]',
+        ) as HTMLInputElement,
         "https://example.com/first",
       )
       await flushPromises()
@@ -3412,8 +3412,8 @@ describe("WorkspaceSurface", () => {
       changeInputValue(
         getRequiredElement(
           surface.container,
-          'textarea[aria-label="Auto content"]',
-        ) as HTMLTextAreaElement,
+          'input[aria-label="Link URL"]',
+        ) as HTMLInputElement,
         "https://example.com/second",
       )
       await flushPromises()
@@ -3632,8 +3632,8 @@ describe("WorkspaceSurface", () => {
     const surface = renderSurface({ openDownloadPopover: false })
     const contentInput = getRequiredElement(
       surface.container,
-      'textarea[aria-label="Auto content"]',
-    ) as HTMLTextAreaElement
+      'input[aria-label="Link URL"]',
+    ) as HTMLInputElement
 
     await advanceDraftingTimers()
 
@@ -3681,8 +3681,8 @@ describe("WorkspaceSurface", () => {
     const surface = renderSurface({ openDownloadPopover: false })
     const contentInput = getRequiredElement(
       surface.container,
-      'textarea[aria-label="Auto content"]',
-    ) as HTMLTextAreaElement
+      'input[aria-label="Link URL"]',
+    ) as HTMLInputElement
 
     await advanceDraftingTimers()
 
@@ -4017,8 +4017,8 @@ describe("WorkspaceSurface", () => {
     const surface = renderSurface({ openDownloadPopover: false })
     const contentInput = getRequiredElement(
       surface.container,
-      'textarea[aria-label="Auto content"]',
-    ) as HTMLTextAreaElement
+      'input[aria-label="Link URL"]',
+    ) as HTMLInputElement
 
     await advanceDraftingTimers()
 
@@ -4135,7 +4135,7 @@ describe("WorkspaceSurface", () => {
 
     act(() => {
       changeInputValue(
-        getRequiredElement(surface.container, 'textarea[aria-label="Auto content"]') as HTMLTextAreaElement,
+        getRequiredElement(surface.container, 'input[aria-label="Link URL"]') as HTMLInputElement,
         "https://example.com/before-reset",
       )
     })
@@ -4171,7 +4171,7 @@ describe("WorkspaceSurface", () => {
 
     act(() => {
       changeInputValue(
-        getRequiredElement(firstSurface.container, 'textarea[aria-label="Auto content"]') as HTMLTextAreaElement,
+        getRequiredElement(firstSurface.container, 'input[aria-label="Link URL"]') as HTMLInputElement,
         "https://example.com/autosaved",
       )
     })

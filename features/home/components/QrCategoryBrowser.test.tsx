@@ -18,30 +18,29 @@ describe("qr category browser", () => {
 
     expect(markup).toContain('data-testid="qr-category-browser"')
     expect(markup).toContain(">Popular<")
-    expect(markup).toContain(">Socials<")
     expect(markup).toContain(">Contact<")
-    expect(markup).toContain(">Business<")
-    expect(markup).toContain(">Content<")
+    expect(markup).toContain(">More<")
 
-    expect(markup).not.toContain(">Wi-Fi<")
+    expect(markup).not.toContain(">Socials<")
+    expect(markup).not.toContain(">Business<")
+    expect(markup).not.toContain(">Content<")
     expect(markup).not.toContain(">Discord<")
-    expect(markup).not.toContain(">vCard<")
     expect(markup).not.toContain(">Google Review<")
     expect(markup).not.toContain(">PDF<")
   })
 
   it("renders only the active category menu", () => {
-    const socialsMarkup = renderToStaticMarkup(
+    const moreMarkup = renderToStaticMarkup(
       <QrCategoryBrowser
         activeInputType={DEFAULT_QR_INPUT_TYPE}
         onInputTypeChange={() => {}}
-        openCategory="socials"
+        openCategory="more"
       />
     )
 
-    expect(socialsMarkup.match(/aria-expanded="true"/g)?.length ?? 0).toBe(1)
-    expect(socialsMarkup).toContain(">Socials<")
-    expect(socialsMarkup).toContain('data-state="open"')
+    expect(moreMarkup.match(/aria-expanded="true"/g)?.length ?? 0).toBe(1)
+    expect(moreMarkup).toContain(">More<")
+    expect(moreMarkup).toContain('data-state="open"')
 
     const contactMarkup = renderToStaticMarkup(
       <QrCategoryBrowser
@@ -57,8 +56,8 @@ describe("qr category browser", () => {
   })
 
   it("toggles one category open at a time", () => {
-    expect(getNextOpenQrCategory(null, "socials")).toBe("socials")
-    expect(getNextOpenQrCategory("socials", "socials")).toBeNull()
-    expect(getNextOpenQrCategory("socials", "contact")).toBe("contact")
+    expect(getNextOpenQrCategory(null, "more")).toBe("more")
+    expect(getNextOpenQrCategory("more", "more")).toBeNull()
+    expect(getNextOpenQrCategory("more", "contact")).toBe("contact")
   })
 })

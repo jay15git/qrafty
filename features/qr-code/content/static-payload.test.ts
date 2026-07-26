@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import {
   buildStaticQrPayload,
+  getContentValuesForTypeChange,
   getDefaultStaticQrValues,
   validateStaticQrContent,
   type StaticQrContentValues,
@@ -160,6 +161,24 @@ describe("static QR content payloads", () => {
         longitude: "Longitude must be between -180 and 180.",
       },
       isValid: false,
+    })
+  })
+
+  it("migrates url alias values when switching picker types to link", () => {
+    expect(
+      getContentValuesForTypeChange("pdf", "link", {
+        url: "https://example.com/menu.pdf",
+      }),
+    ).toEqual({
+      url: "https://example.com/menu.pdf",
+    })
+
+    expect(
+      getContentValuesForTypeChange("instagram", "link", {
+        username: "https://instagram.com/newqr",
+      }),
+    ).toEqual({
+      url: "https://instagram.com/newqr",
     })
   })
 })

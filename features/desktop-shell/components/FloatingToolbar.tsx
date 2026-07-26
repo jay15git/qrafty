@@ -11,7 +11,7 @@ import {
   ViewOffSlashIcon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { useEffect, useId, useMemo, useState, type CSSProperties, type ReactNode } from "react"
+import { useEffect, useId, useMemo, useState, type ClipboardEvent, type CSSProperties, type ReactNode } from "react"
 import type {
   QrFinderPatternOuterStyle,
   QrErrorCorrectionLevel,
@@ -45,6 +45,7 @@ import {
 } from "@/features/desktop-shell/components/DesktopSceneTemplateInspector"
 import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr-code/assets/brand-icon-svg"
 import {
+  findBrandIconById,
   getBrandIconById,
   POPULAR_BRAND_ICON_IDS,
   type BrandIconEntry,
@@ -99,12 +100,21 @@ import {
 } from "@/features/workspace/model/fonts"
 import {
   buildStaticQrPayload,
+  getContentValuesForTypeChange,
   getDefaultStaticQrValues,
   STATIC_QR_CONTENT_META,
   validateStaticQrContent,
   type StaticQrContentValue,
   type StaticQrContentValues,
 } from "@/features/qr-code/content/static-payload"
+import {
+  getLinkDetectionSource,
+  getLinkPasteFieldUpdate,
+  resolveDetectedLinkTypeApply,
+  resolveStructuredPasteApply,
+  shouldShowUrlDetectionChip,
+} from "@/features/qr-code/content/apply-pasted-content"
+import { detectUrlKind } from "@/features/qr-code/content/detect-url-kind"
 import {
   QR_BACKGROUND_SHAPES,
   type QrBackgroundShapeId,
@@ -229,6 +239,9 @@ import {
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
 import {
   DEFAULT_QR_INPUT_TYPE,
+  isPickerQrInputType,
+  normalizeContentTypeForPicker,
+  PICKER_QR_INPUT_TYPES,
   QR_INPUT_OPTIONS,
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
@@ -376,21 +389,12 @@ const DESKTOP_TOOLBAR_TOOLS: DesktopToolbarTool[] = [
   },
 ]
 
-const DESKTOP_CONTENT_PRESET_TYPES: QrInputType[] = [
-  "auto",
-  "link",
-  "text",
-  "email",
-  "phone",
-  "sms",
-  "wifi",
-  "vcard",
-]
+const DESKTOP_CONTENT_PRESET_TYPES: QrInputType[] = [...PICKER_QR_INPUT_TYPES]
 
 const DESKTOP_ELASTIC_SLIDER_CLASS =
   "desktop-elastic-slider [--elastic-slider-height:--spacing(8)] [--elastic-slider-radius:9999px] [--elastic-slider-bg:rgba(255,255,255,0.095)] [--elastic-slider-fill:rgba(255,255,255,0.13)] [--elastic-slider-fill-active:rgba(255,255,255,0.2)] [--elastic-slider-hash:rgba(255,255,255,0.24)] [--elastic-slider-handle:rgba(255,255,255,0.7)] [--elastic-slider-label:rgba(255,255,255,0.58)] [--elastic-slider-focus:rgba(255,255,255,0.82)]"
 
-type DesktopContentCollectionId = "all" | "popular" | "contact" | "social" | "business" | "files"
+type DesktopContentCollectionId = "all" | "popular" | "contact" | "more"
 
 const DESKTOP_CONTENT_COLLECTIONS: Array<{
   id: DesktopContentCollectionId
@@ -400,7 +404,7 @@ const DESKTOP_CONTENT_COLLECTIONS: Array<{
   {
     id: "popular",
     label: "Popular",
-    types: ["auto", "link", "text", "email", "phone", "sms", "wifi", "vcard"],
+    types: ["link", "text", "email", "phone", "sms", "wifi", "vcard"],
   },
   {
     id: "contact",
@@ -408,19 +412,9 @@ const DESKTOP_CONTENT_COLLECTIONS: Array<{
     types: ["phone", "email", "sms", "vcard", "whatsapp-chat", "telegram-username", "map-location"],
   },
   {
-    id: "social",
-    label: "Social",
-    types: ["instagram", "x", "tiktok", "youtube", "linkedin", "telegram", "snapchat", "threads", "pinterest", "facebook", "discord"],
-  },
-  {
-    id: "business",
-    label: "Business",
-    types: ["website", "google-review", "booking-link", "payment-link", "menu", "app-download", "event", "coupon"],
-  },
-  {
-    id: "files",
-    label: "Files",
-    types: ["pdf", "image", "video", "document", "form"],
+    id: "more",
+    label: "More",
+    types: ["event", "coupon"],
   },
 ]
 
@@ -429,12 +423,7 @@ const DESKTOP_CONTENT_FILTER_OPTIONS: Array<{
   label: string
 }> = [{ id: "all", label: "All" }, ...DESKTOP_CONTENT_COLLECTIONS]
 
-const DESKTOP_ALL_CONTENT_TYPES = Array.from(
-  new Set<QrInputType>([
-    ...DESKTOP_CONTENT_PRESET_TYPES,
-    ...DESKTOP_CONTENT_COLLECTIONS.flatMap((collection) => collection.types),
-  ]),
-)
+const DESKTOP_ALL_CONTENT_TYPES = [...PICKER_QR_INPUT_TYPES]
 
 export type DesktopPatternSettings = {
   dotsColorMode: DotsColorMode
@@ -669,6 +658,7 @@ export type DesktopToolbarController = {
   onResetDefaults?: () => void
   onContentReset: () => void
   onContentTypeChange: (type: QrInputType) => void
+  onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void
   onContentValueChange: (field: string, value: StaticQrContentValue) => void
   onPatternReset: () => void
   onPatternSettingsChange: (patch: Partial<DesktopPatternSettings>) => void
@@ -1128,6 +1118,7 @@ export type DesktopInspectorModel = {
   onActiveToolChange: (toolId: DesktopToolbarToolId) => void
   onDesktopThemeChange: (theme: DesktopThemeMode) => void
   onContentTypeChange: (type: QrInputType) => void
+  onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void
   onContentValueChange: (field: string, value: StaticQrContentValue) => void
   onPatternSettingsChange: (patch: Partial<DesktopPatternSettings>) => void
   onLogoSettingsChange: (patch: DesktopLogoSettingsPatch) => void
@@ -1224,9 +1215,21 @@ export function useDesktopToolbarInspectorModel({
 
       return {
         ...current,
-        [type]: getDefaultStaticQrValues(type),
+        [type]: getContentValuesForTypeChange(
+          selectedContentType,
+          type,
+          current[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType),
+        ),
       }
     })
+  }
+
+  function handleContentPasteApply(type: QrInputType, values: StaticQrContentValues) {
+    setSelectedContentType(type)
+    setContentValuesByType((current) => ({
+      ...current,
+      [type]: values,
+    }))
   }
 
   function handleContentValueChange(field: string, value: StaticQrContentValue) {
@@ -1287,6 +1290,7 @@ export function useDesktopToolbarInspectorModel({
         setDesktopTheme(nextTheme)
       }),
     onContentTypeChange: controller?.onContentTypeChange ?? handleContentTypeChange,
+    onContentPasteApply: controller?.onContentPasteApply ?? handleContentPasteApply,
     onContentValueChange: controller?.onContentValueChange ?? handleContentValueChange,
     onPatternSettingsChange:
       controller?.onPatternSettingsChange ??
@@ -4195,6 +4199,7 @@ function DesktopContentInspector({
   desktopTheme,
   encodedValue,
   onAccessibilitySettingsChange,
+  onContentPasteApply,
   onContentTypeChange,
   onContentValueChange,
   validation,
@@ -4205,6 +4210,7 @@ function DesktopContentInspector({
   desktopTheme: DesktopThemeMode
   encodedValue: string
   onAccessibilitySettingsChange: (patch: Partial<DesktopAccessibilitySettings>) => void
+  onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void
   onContentTypeChange: (type: QrInputType) => void
   onContentValueChange: (field: string, value: StaticQrContentValue) => void
   validation: ReturnType<typeof validateStaticQrContent>
@@ -4293,12 +4299,12 @@ function DesktopContentInspector({
             <DesktopInspectorAnimatedOptionGrid
               columns={3}
               data-slot="desktop-content-type-collection"
-              selectedKey={contentType}
+              selectedKey={normalizeContentTypeForPicker(contentType)}
             >
               {visibleTypes.map((type) => {
               const option = QR_INPUT_OPTIONS[type]
               const Icon = option.icon
-              const isSelected = contentType === type
+              const isSelected = normalizeContentTypeForPicker(contentType) === type
 
               return (
                 <button
@@ -4343,6 +4349,8 @@ function DesktopContentInspector({
             contentType={contentType}
             contentValues={contentValues}
             validation={validation}
+            onContentPasteApply={onContentPasteApply}
+            onContentTypeChange={onContentTypeChange}
             onContentValueChange={onContentValueChange}
           />
         </DesktopInspectorSection>
@@ -5023,25 +5031,93 @@ function isDesktopDotsPaletteCustomSelected(
 function DesktopContentFields({
   contentType,
   contentValues,
+  onContentPasteApply,
+  onContentTypeChange,
   onContentValueChange,
   validation,
 }: {
   contentType: QrInputType
   contentValues: StaticQrContentValues
+  onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void
+  onContentTypeChange: (type: QrInputType) => void
   onContentValueChange: (field: string, value: StaticQrContentValue) => void
   validation: ReturnType<typeof validateStaticQrContent>
 }) {
   const fields = getDesktopContentFields(contentType, contentValues, validation)
+  const linkSource = getLinkDetectionSource(contentType, contentValues)
+  const urlDetection = useMemo(
+    () => (linkSource ? detectUrlKind(linkSource) : null),
+    [linkSource],
+  )
+  const [dismissedDetectionSource, setDismissedDetectionSource] = useState<string | null>(null)
+  const isDetectionDismissed = dismissedDetectionSource === linkSource
+
+  function handlePaste(event: ClipboardEvent<HTMLDivElement>) {
+    const pasted = event.clipboardData.getData("text")
+    if (!pasted.trim()) {
+      return
+    }
+
+    const structuredPaste = resolveStructuredPasteApply(pasted)
+    if (structuredPaste) {
+      event.preventDefault()
+      onContentPasteApply(structuredPaste.type, structuredPaste.values)
+      setDismissedDetectionSource(null)
+      return
+    }
+
+    const linkPaste = getLinkPasteFieldUpdate(contentType, pasted)
+    if (linkPaste) {
+      event.preventDefault()
+      for (const [field, value] of Object.entries(linkPaste.values)) {
+        if (value !== undefined) {
+          onContentValueChange(field, value)
+        }
+      }
+      setDismissedDetectionSource(null)
+    }
+  }
+
+  function handleApplyDetectedType() {
+    if (!urlDetection) {
+      return
+    }
+
+    const applyResult = resolveDetectedLinkTypeApply(urlDetection, linkSource)
+    if (!applyResult) {
+      return
+    }
+
+    onContentPasteApply(applyResult.type, applyResult.values)
+    setDismissedDetectionSource(null)
+  }
 
   return (
-    <div data-slot="desktop-content-fields" className="flex flex-col">
+    <div
+      data-slot="desktop-content-fields"
+      className="flex flex-col"
+      onPaste={handlePaste}
+    >
       {fields.map((field) => (
         <DesktopContentFieldRow
           key={field.id}
           field={field}
-          onContentValueChange={onContentValueChange}
+          onContentValueChange={(fieldId, value) => {
+            if (fieldId === "url" || fieldId === "username" || fieldId === "text") {
+              setDismissedDetectionSource(null)
+            }
+            onContentValueChange(fieldId, value)
+          }}
         />
       ))}
+      <DesktopContentDetectionChip
+        contentType={contentType}
+        detection={urlDetection}
+        dismissed={isDetectionDismissed}
+        linkSource={linkSource}
+        onApplyDetectedType={handleApplyDetectedType}
+        onDismiss={() => setDismissedDetectionSource(linkSource)}
+      />
     </div>
   )
 }
@@ -5054,6 +5130,89 @@ type DesktopContentField = {
   placeholder?: string
   type: "text" | "textarea" | "toggle" | "segmented"
   value: StaticQrContentValue | undefined
+}
+
+function DesktopContentDetectionChip({
+  contentType,
+  detection,
+  dismissed,
+  linkSource,
+  onApplyDetectedType,
+  onDismiss,
+}: {
+  contentType: QrInputType
+  detection: ReturnType<typeof detectUrlKind>
+  dismissed: boolean
+  linkSource: string
+  onApplyDetectedType: () => void
+  onDismiss: () => void
+}) {
+  if (!linkSource || dismissed || !shouldShowUrlDetectionChip(contentType, detection) || !detection) {
+    return null
+  }
+
+  const detectedType = detection.inputTypeHint
+  const typeLabel = detectedType ? QR_INPUT_OPTIONS[detectedType]?.label : undefined
+  const brandIcon = findBrandIconById(detection.brandIconId)
+  const BrandIcon = brandIcon?.icon
+  const label = typeLabel ?? detection.platform ?? detection.category
+  const normalizedContentType = normalizeContentTypeForPicker(contentType)
+  const canApplyDetectedType = Boolean(
+    detectedType &&
+      isPickerQrInputType(detectedType) &&
+      detectedType !== contentType &&
+      detectedType !== normalizedContentType,
+  )
+
+  return (
+    <div
+      data-slot="desktop-content-detection-chip"
+      className={cn(
+        "mt-2 flex items-center gap-2 rounded-[8px] border border-white/10 bg-white/[0.04] px-2.5 py-2",
+        DESKTOP_INSPECTOR_CAPTION_CLASS,
+      )}
+    >
+      {BrandIcon ? (
+        <BrandIcon aria-hidden className="size-4 shrink-0" />
+      ) : (
+        <Sparkles aria-hidden className="size-4 shrink-0 opacity-70" />
+      )}
+      <div className="min-w-0 flex-1">
+        <p className={cn(DESKTOP_INSPECTOR_FG_SECONDARY, "truncate")}>
+          Detected: {label}
+        </p>
+        {detection.confidence === "low" ? (
+          <p className={cn(DESKTOP_INSPECTOR_FG_TERTIARY, "truncate")}>Suggestion only</p>
+        ) : null}
+      </div>
+      {canApplyDetectedType ? (
+        <button
+          className={cn(
+            "shrink-0 rounded-full px-2.5 py-1 font-medium",
+            DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
+            DESKTOP_INSPECTOR_CONTROL_CLASS,
+            DESKTOP_INSPECTOR_SELECTED_CLASS,
+          )}
+          type="button"
+          onClick={onApplyDetectedType}
+        >
+          Use {typeLabel}
+        </button>
+      ) : null}
+      <button
+        aria-label="Dismiss detection"
+        className={cn(
+          "shrink-0 rounded-full px-2 py-1",
+          DESKTOP_INSPECTOR_FG_TERTIARY,
+          DESKTOP_INSPECTOR_CONTROL_CLASS,
+        )}
+        type="button"
+        onClick={onDismiss}
+      >
+        ×
+      </button>
+    </div>
+  )
 }
 
 function DesktopContentFieldRow({
@@ -5168,11 +5327,7 @@ function getDesktopContentFields(
     value: contentValues[id],
   })
 
-  if (contentType === "auto") {
-    return [textarea("text", "Payload", "https://example.com/invite")]
-  }
-
-  if (contentType === "text") {
+  if (contentType === "auto" || contentType === "text") {
     return [textarea("text", "Text", "Plain text to encode")]
   }
 
@@ -6373,6 +6528,7 @@ export function DesktopFloatingInspector({
     actualTextSettings,
     controller,
     onContentTypeChange,
+    onContentPasteApply,
     onContentValueChange,
     onCornersSettingsChange,
     onDecorationsSettingsChange,
@@ -6453,6 +6609,7 @@ export function DesktopFloatingInspector({
           encodedValue={actualEncodedContentValue}
           validation={actualContentValidation}
           onAccessibilitySettingsChange={onAccessibilitySettingsChange}
+          onContentPasteApply={onContentPasteApply}
           onContentTypeChange={onContentTypeChange}
           onContentValueChange={onContentValueChange}
         />

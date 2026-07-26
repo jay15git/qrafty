@@ -1,4 +1,5 @@
 import type { QrInputType } from "@/features/qr-code/content/input-options"
+import { normalizeContentTypeForPicker } from "@/features/qr-code/content/input-options"
 
 export type StaticQrContentValue = string | boolean
 export type StaticQrContentValues = Record<string, StaticQrContentValue | undefined>
@@ -300,6 +301,42 @@ export function getDefaultStaticQrValues(type: QrInputType): StaticQrContentValu
   }
 
   return { url: "" }
+}
+
+export function getContentValuesForTypeChange(
+  fromType: QrInputType,
+  toType: QrInputType,
+  fromValues: StaticQrContentValues,
+): StaticQrContentValues {
+  const defaults = getDefaultStaticQrValues(toType)
+  const normalizedFrom = normalizeContentTypeForPicker(fromType)
+  const normalizedTo = normalizeContentTypeForPicker(toType)
+
+  if (normalizedFrom === "link" && normalizedTo === "link") {
+    const url = stringValue(fromValues.url) || stringValue(fromValues.username)
+
+    if (url) {
+      return { ...defaults, url }
+    }
+  }
+
+  if (normalizedFrom === "text" && normalizedTo === "link") {
+    const text = stringValue(fromValues.text)
+
+    if (text) {
+      return { ...defaults, url: text }
+    }
+  }
+
+  if (normalizedFrom === "link" && normalizedTo === "text") {
+    const url = stringValue(fromValues.url) || stringValue(fromValues.username)
+
+    if (url) {
+      return { ...defaults, text: url }
+    }
+  }
+
+  return defaults
 }
 
 export function buildStaticQrPayload(

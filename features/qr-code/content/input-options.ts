@@ -75,7 +75,6 @@ export type QrInputType =
   | "coupon"
 
 export type QuickQrInputType =
-  | "auto"
   | "text"
   | "link"
   | "phone"
@@ -83,12 +82,87 @@ export type QuickQrInputType =
   | "instagram"
   | "whatsapp"
 
-export type QrCategoryKey =
-  | "popular"
-  | "socials"
-  | "contact"
-  | "business"
-  | "content"
+export type QrCategoryKey = "popular" | "contact" | "more"
+
+/** Types shown in content pickers. URL-only aliases + legacy auto still exist for saved docs. */
+export const PICKER_QR_INPUT_TYPES = [
+  "link",
+  "text",
+  "phone",
+  "email",
+  "sms",
+  "wifi",
+  "vcard",
+  "whatsapp-chat",
+  "telegram-username",
+  "map-location",
+  "event",
+  "coupon",
+] as const satisfies readonly QrInputType[]
+
+export type PickerQrInputType = (typeof PICKER_QR_INPUT_TYPES)[number]
+
+const LINK_ALIAS_QR_INPUT_TYPES = new Set<QrInputType>([
+  "website",
+  "google-review",
+  "booking-link",
+  "payment-link",
+  "menu",
+  "app-download",
+  "pdf",
+  "image",
+  "video",
+  "document",
+  "form",
+  "facebook",
+  "instagram",
+  "whatsapp",
+  "x",
+  "tiktok",
+  "youtube",
+  "linkedin",
+  "telegram",
+  "snapchat",
+  "threads",
+  "pinterest",
+  "discord",
+])
+
+export function isPickerQrInputType(type: QrInputType): type is PickerQrInputType {
+  return (PICKER_QR_INPUT_TYPES as readonly QrInputType[]).includes(type)
+}
+
+export function normalizeContentTypeForPicker(type: QrInputType): PickerQrInputType {
+  if (isPickerQrInputType(type)) {
+    return type
+  }
+
+  if (type === "auto") {
+    return "text"
+  }
+
+  if (LINK_ALIAS_QR_INPUT_TYPES.has(type)) {
+    return "link"
+  }
+
+  return "link"
+}
+
+export function getContentTypeLabel(type: QrInputType): string {
+  if (isPickerQrInputType(type)) {
+    return QR_INPUT_OPTIONS[type].label
+  }
+
+  if (type === "auto") {
+    return QR_INPUT_OPTIONS.text.label
+  }
+
+  if (LINK_ALIAS_QR_INPUT_TYPES.has(type)) {
+    return QR_INPUT_OPTIONS.link.label
+  }
+
+  return QR_INPUT_OPTIONS[type]?.label ?? QR_INPUT_OPTIONS.link.label
+}
 
 export type QrInputOption = {
   icon: LucideIcon
@@ -107,7 +181,7 @@ export type QrCategory = {
   label: string
 }
 
-export const DEFAULT_QR_INPUT_TYPE: QrInputType = "auto"
+export const DEFAULT_QR_INPUT_TYPE: QrInputType = "link"
 
 export const QR_INPUT_OPTIONS: Record<QrInputType, QrInputOption> = {
   auto: { value: "auto", label: "Auto", icon: Sparkles },
@@ -177,12 +251,10 @@ export const QR_INPUT_OPTIONS: Record<QrInputType, QrInputOption> = {
 }
 
 const QUICK_INPUT_VALUES = [
-  "auto",
-  "text",
   "link",
+  "text",
   "phone",
   "email",
-  "instagram",
   "whatsapp",
 ] as const satisfies readonly QuickQrInputType[]
 
@@ -200,32 +272,12 @@ export const QR_CATEGORIES: readonly QrCategory[] = [
     label: "Popular",
     icon: QrCode,
     items: pickQrInputOptions([
-      "auto",
-      "text",
       "link",
+      "text",
       "phone",
       "email",
-      "whatsapp",
       "wifi",
-    ]),
-  },
-  {
-    key: "socials",
-    label: "Socials",
-    icon: MessageCircleMore,
-    items: pickQrInputOptions([
-      "whatsapp",
-      "instagram",
-      "facebook",
-      "x",
-      "tiktok",
-      "youtube",
-      "linkedin",
-      "telegram",
-      "snapchat",
-      "threads",
-      "pinterest",
-      "discord",
+      "vcard",
     ]),
   },
   {
@@ -243,31 +295,10 @@ export const QR_CATEGORIES: readonly QrCategory[] = [
     ]),
   },
   {
-    key: "business",
-    label: "Business",
-    icon: Store,
-    items: pickQrInputOptions([
-      "website",
-      "google-review",
-      "booking-link",
-      "payment-link",
-      "menu",
-      "app-download",
-    ]),
-  },
-  {
-    key: "content",
-    label: "Content",
-    icon: FileText,
-    items: pickQrInputOptions([
-      "pdf",
-      "image",
-      "video",
-      "document",
-      "form",
-      "event",
-      "coupon",
-    ]),
+    key: "more",
+    label: "More",
+    icon: CalendarRange,
+    items: pickQrInputOptions(["event", "coupon"]),
   },
 ] as const
 

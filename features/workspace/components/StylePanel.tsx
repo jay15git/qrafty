@@ -130,6 +130,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { OptionCard } from "@/components/ui/option-card"
 import {
+  getContentTypeLabel,
   QR_CATEGORIES,
   QR_INPUT_OPTIONS,
   type QrInputType,
@@ -252,6 +253,7 @@ export function DraftingQrTypeDropdown({
   const activeItem = QR_CATEGORIES.flatMap((c) => c.items).find(
     (item) => item.value === activeContentType,
   )
+  const activeLabel = activeItem?.label ?? getContentTypeLabel(activeContentType)
 
   return (
     <DropdownMenu>
@@ -275,7 +277,7 @@ export function DraftingQrTypeDropdown({
               QR Type:
             </span>
             <span className="drafting-type-panel-tab min-w-0 truncate font-semibold">
-              {activeItem?.label ?? "Choose a type"}
+              {activeLabel}
             </span>
           </span>
           <ChevronDown
@@ -431,19 +433,7 @@ function buildDraftingContentFieldItems({
     ),
   })
 
-  if (contentType === "auto") {
-    return [
-      textareaItem(
-        "text",
-        "Text, URL, or QR payload",
-        "Auto content",
-        "https://example.com/invite",
-        stringContentValue(contentValues.text),
-      ),
-    ]
-  }
-
-  if (contentType === "text") {
+  if (contentType === "auto" || contentType === "text") {
     return [
       textareaItem(
         "text",

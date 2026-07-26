@@ -102,7 +102,7 @@ export function createDefaultDraftingWorkspaceDocument(): DraftingWorkspaceDocum
     contentValuesByType: {
       [DEFAULT_QR_INPUT_TYPE]: {
         ...getDefaultStaticQrValues(DEFAULT_QR_INPUT_TYPE),
-        text: qrState.data,
+        url: qrState.data,
       },
     },
     layerStateByNodeId: {
@@ -193,8 +193,13 @@ export function parseDraftingWorkspaceDocument(
       selectedContentType === DEFAULT_QR_INPUT_TYPE
         ? {
             ...getDefaultStaticQrValues(DEFAULT_QR_INPUT_TYPE),
-            text: qrStateByNodeId[activeQrNodeId]?.data ?? fallback.qrStateByNodeId[DASHBOARD_QR_NODE_ID]!.data,
+            url: qrStateByNodeId[activeQrNodeId]?.data ?? fallback.qrStateByNodeId[DASHBOARD_QR_NODE_ID]!.data,
           }
+        : selectedContentType === "auto" || selectedContentType === "text"
+          ? {
+              ...getDefaultStaticQrValues(selectedContentType),
+              text: qrStateByNodeId[activeQrNodeId]?.data ?? fallback.qrStateByNodeId[DASHBOARD_QR_NODE_ID]!.data,
+            }
         : getDefaultStaticQrValues(selectedContentType)
   }
 
