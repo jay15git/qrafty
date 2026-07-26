@@ -7,7 +7,7 @@ import {
 
 describe("detectUrlKind", () => {
   it("detects major social platforms from hostnames", () => {
-    expect(detectUrlKind("https://instagram.com/newqr")).toMatchObject({
+    expect(detectUrlKind("https://instagram.com/qrafty")).toMatchObject({
       platform: "instagram",
       category: "social",
       brandIconId: "instagram",
@@ -15,7 +15,7 @@ describe("detectUrlKind", () => {
       confidence: "high",
     })
 
-    expect(detectUrlKind("https://x.com/newqr")).toMatchObject({
+    expect(detectUrlKind("https://x.com/qrafty")).toMatchObject({
       platform: "x",
       category: "social",
       brandIconId: "x",
@@ -28,7 +28,7 @@ describe("detectUrlKind", () => {
       inputTypeHint: "youtube",
     })
 
-    expect(detectUrlKind("https://www.tiktok.com/@newqr")).toMatchObject({
+    expect(detectUrlKind("https://www.tiktok.com/@qrafty")).toMatchObject({
       platform: "tiktok",
       category: "social",
       inputTypeHint: "tiktok",
@@ -92,14 +92,14 @@ describe("detectUrlKind", () => {
   })
 
   it("detects booking and payment hosts from the platform catalog", () => {
-    expect(detectUrlKind("https://calendly.com/newqr/30min")).toMatchObject({
+    expect(detectUrlKind("https://calendly.com/qrafty/30min")).toMatchObject({
       category: "business",
       confidence: "high",
       inputTypeHint: "calendly",
       intent: "event",
     })
 
-    expect(detectUrlKind("https://paypal.me/newqr")).toMatchObject({
+    expect(detectUrlKind("https://paypal.me/qrafty")).toMatchObject({
       category: "business",
       confidence: "high",
       inputTypeHint: "paypal-me",
@@ -151,9 +151,9 @@ describe("detectPastedContent", () => {
   })
 
   it("wraps URLs with url detection metadata", () => {
-    expect(detectPastedContent("instagram.com/newqr")).toEqual({
+    expect(detectPastedContent("instagram.com/qrafty")).toEqual({
       kind: "link",
-      value: "instagram.com/newqr",
+      value: "instagram.com/qrafty",
       urlDetection: {
         platform: "instagram",
         category: "social",

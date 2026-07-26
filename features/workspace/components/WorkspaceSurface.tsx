@@ -229,6 +229,7 @@ import {
   buildStaticQrPayload,
   getDefaultStaticQrValues,
   getContentValuesForTypeChange,
+  resolveContentValuesForType,
   validateStaticQrContent,
   type StaticQrContentValue,
 } from "@/features/qr-code/content/static-payload"
@@ -1438,17 +1439,18 @@ export function WorkspaceSurface({
       [activeQrNodeId]: type,
     }))
     setContentValuesByType((current) => {
-      if (current[type]) {
-        return current
-      }
+      const previousType = selectedContentType
+      const nextValues = current[type]
+        ? resolveContentValuesForType(type, current[type])
+        : getContentValuesForTypeChange(
+            previousType,
+            type,
+            current[previousType] ?? getDefaultStaticQrValues(previousType),
+          )
 
       return {
         ...current,
-        [type]: getContentValuesForTypeChange(
-          selectedContentType,
-          type,
-          current[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType),
-        ),
+        [type]: nextValues,
       }
     })
   }

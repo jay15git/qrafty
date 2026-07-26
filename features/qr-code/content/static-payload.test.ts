@@ -4,6 +4,7 @@ import {
   buildStaticQrPayload,
   getContentValuesForTypeChange,
   getDefaultStaticQrValues,
+  resolveContentValuesForType,
   validateStaticQrContent,
   type StaticQrContentValues,
 } from "@/features/qr-code/content/static-payload"
@@ -45,8 +46,8 @@ describe("static QR content payloads", () => {
         phone: "+91 98765 43210",
       }),
     ).toBe("https://wa.me/919876543210?text=I%20would%20like%20to%20book")
-    expect(buildStaticQrPayload("telegram-username", { username: "@newqr" })).toBe(
-      "https://t.me/newqr",
+    expect(buildStaticQrPayload("telegram-username", { url: "https://t.me/qrafty" })).toBe(
+      "https://t.me/qrafty",
     )
     expect(
       buildStaticQrPayload("map-location", {
@@ -121,16 +122,16 @@ describe("static QR content payloads", () => {
   it("builds social and static link content as normalized URLs", () => {
     const cases: Array<[Parameters<typeof buildStaticQrPayload>[0], StaticQrContentValues, string]> =
       [
-        ["instagram", { intent: "profile", username: "@newqr" }, "https://instagram.com/newqr"],
-        ["facebook", { intent: "profile", url: "facebook.com/newqr" }, "https://facebook.com/newqr"],
-        ["x", { intent: "profile", username: "newqr" }, "https://x.com/newqr"],
-        ["youtube", { intent: "channel", url: "youtube.com/@newqr" }, "https://youtube.com/@newqr"],
-        ["linkedin", { intent: "profile", url: "linkedin.com/company/newqr" }, "https://linkedin.com/company/newqr"],
-        ["tiktok", { intent: "profile", username: "@newqr" }, "https://tiktok.com/@newqr"],
-        ["snapchat", { intent: "add", username: "newqr" }, "https://snapchat.com/add/newqr"],
-        ["threads", { intent: "profile", username: "@newqr" }, "https://threads.net/@newqr"],
-        ["pinterest", { intent: "profile", username: "newqr" }, "https://pinterest.com/newqr"],
-        ["discord", { intent: "invite", url: "discord.gg/newqr" }, "https://discord.gg/newqr"],
+        ["instagram", { intent: "profile", url: "https://instagram.com/qrafty" }, "https://instagram.com/qrafty"],
+        ["facebook", { intent: "profile", url: "facebook.com/qrafty" }, "https://facebook.com/qrafty"],
+        ["x", { intent: "profile", url: "https://x.com/qrafty" }, "https://x.com/qrafty"],
+        ["youtube", { intent: "channel", url: "https://youtube.com/@qrafty" }, "https://youtube.com/@qrafty"],
+        ["linkedin", { intent: "profile", url: "linkedin.com/company/qrafty" }, "https://linkedin.com/company/qrafty"],
+        ["tiktok", { intent: "profile", url: "https://tiktok.com/@qrafty" }, "https://tiktok.com/@qrafty"],
+        ["snapchat", { intent: "add", url: "https://snapchat.com/add/qrafty" }, "https://snapchat.com/add/qrafty"],
+        ["threads", { intent: "profile", url: "https://threads.net/@qrafty" }, "https://threads.net/@qrafty"],
+        ["pinterest", { intent: "profile", url: "https://pinterest.com/qrafty" }, "https://pinterest.com/qrafty"],
+        ["discord", { intent: "invite", url: "discord.gg/qrafty" }, "https://discord.gg/qrafty"],
         ["pdf", { intent: "url", url: "example.com/menu.pdf" }, "https://example.com/menu.pdf"],
         ["coupon", { code: "SAVE20", description: "20% off", url: "example.com/save" }, "SAVE20\n20% off\nhttps://example.com/save"],
       ]
@@ -177,10 +178,32 @@ describe("static QR content payloads", () => {
 
     expect(
       getContentValuesForTypeChange("instagram", "link", {
-        username: "https://instagram.com/newqr",
+        username: "https://instagram.com/qrafty",
       }),
     ).toEqual({
-      url: "https://instagram.com/newqr",
+      url: "https://instagram.com/qrafty",
+    })
+  })
+
+  it("restores default stubs when revisiting a type with empty fields", () => {
+    expect(
+      resolveContentValuesForType("tiktok", {
+        intent: "profile",
+        url: "",
+      }),
+    ).toEqual({
+      intent: "profile",
+      url: "https://www.tiktok.com/@qrafty",
+    })
+
+    expect(
+      resolveContentValuesForType("tiktok", {
+        intent: "profile",
+        url: "https://www.tiktok.com/@custom",
+      }),
+    ).toEqual({
+      intent: "profile",
+      url: "https://www.tiktok.com/@custom",
     })
   })
 
@@ -191,7 +214,6 @@ describe("static QR content payloads", () => {
       }),
     ).toEqual({
       intent: "channel",
-      username: "",
       url: "https://youtube.com/@",
     })
   })
@@ -247,6 +269,23 @@ describe("static QR content payloads", () => {
     })
     expect(validateStaticQrContent("crypto", { address: "", asset: "bitcoin" })).toEqual({
       fieldErrors: { address: "Enter a wallet address." },
+      isValid: false,
+    })
+  })
+
+  it("flags invalid URL, email, and phone formats", () => {
+    expect(validateStaticQrContent("link", { url: "not a url" })).toEqual({
+      fieldErrors: { url: "Enter a valid URL." },
+      isValid: false,
+    })
+
+    expect(validateStaticQrContent("email", { email: "bad-email" })).toEqual({
+      fieldErrors: { email: "Enter a valid email address." },
+      isValid: false,
+    })
+
+    expect(validateStaticQrContent("phone", { phone: "123" })).toEqual({
+      fieldErrors: { phone: "Enter a valid phone number." },
       isValid: false,
     })
   })

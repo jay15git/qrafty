@@ -35,6 +35,51 @@ describe("desktop inspector controls", () => {
     expect(markup).toContain('aria-label="Search logo icons"')
   })
 
+  it("renders paste action on pasteable text inputs", () => {
+    const markup = renderToStaticMarkup(
+      <DesktopInspectorTextInput
+        aria-label="Content URL"
+        pasteable
+        onPasteValue={vi.fn()}
+      />,
+    )
+
+    expect(markup).toContain('data-slot="desktop-inspector-paste-action"')
+    expect(markup).toContain('data-icon="a"')
+    expect(markup).toContain('data-icon="b"')
+    expect(markup).toContain('aria-label="Paste from clipboard"')
+  })
+
+  it("keeps a stable wrap around pasteable inputs without errors", () => {
+    const markup = renderToStaticMarkup(
+      <DesktopInspectorTextInput
+        aria-label="Content URL"
+        pasteable
+        onPasteValue={vi.fn()}
+      />,
+    )
+
+    expect(markup).toContain("t-input-wrap")
+    expect(markup).not.toContain("t-error-msg--visible")
+  })
+
+  it("renders validation feedback without paste shake styling", () => {
+    const markup = renderToStaticMarkup(
+      <DesktopInspectorTextInput
+        aria-label="Content URL"
+        error="Enter a correct profile URL."
+        pasteable
+        onPasteValue={vi.fn()}
+      />,
+    )
+
+    expect(markup).toContain("t-input-wrap")
+    expect(markup).toContain("Enter a correct profile URL.")
+    expect(markup).toContain("t-error-msg--visible")
+    expect(markup).not.toContain("is-error")
+    expect(markup).not.toContain("is-shaking")
+  })
+
   it("renders segmented controls with tabs-subtle selected state", () => {
     const markup = renderToStaticMarkup(
       <DesktopInspectorSegmentedControl

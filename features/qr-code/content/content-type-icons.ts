@@ -1,0 +1,173 @@
+import type { IconSvgElement } from "@hugeicons/react"
+import {
+  AmazonIcon,
+  AppStoreIcon,
+  AppleIcon,
+  AppleMusicIcon,
+  Bitcoin01Icon,
+  BlueskyIcon,
+  Calendar01Icon,
+  ContactBookIcon,
+  CouponIcon,
+  DiscordIcon,
+  FacebookIcon,
+  GithubIcon,
+  GitlabIcon,
+  GlobeIcon,
+  GoogleIcon,
+  GoogleMapsIcon,
+  HomeWifiIcon,
+  Image01Icon,
+  InstagramIcon,
+  LegalDocument01Icon,
+  Link01Icon,
+  LinkedinIcon,
+  Mail01Icon,
+  MastodonIcon,
+  MediumIcon,
+  Menu01Icon,
+  Message01Icon,
+  MessengerIcon,
+  MicrosoftIcon,
+  NewTwitterIcon,
+  NotionIcon,
+  PaypalIcon,
+  Pdf01Icon,
+  PinterestIcon,
+  PlayStoreIcon,
+  PresentationOnlineIcon,
+  RedditIcon,
+  RupeeIcon,
+  SkypeIcon,
+  SmartPhone01Icon,
+  SnapchatIcon,
+  SoundcloudIcon,
+  SparklesIcon,
+  SpotifyIcon,
+  Store01Icon,
+  StripeIcon,
+  TelegramIcon,
+  TextFontIcon,
+  ThreadsIcon,
+  TiktokIcon,
+  TimelineEventIcon,
+  TumblrIcon,
+  TwitchIcon,
+  Video01Icon,
+  WazeIcon,
+  WhatsappIcon,
+  YoutubeIcon,
+  ZoomIcon,
+} from "@hugeicons/core-free-icons"
+import type { IconType } from "react-icons"
+
+import { findBrandIconById } from "@/features/qr-code/assets/brand-icons"
+import type { QrInputType } from "@/features/qr-code/content/input-options"
+import { getPlatformDef } from "@/features/qr-code/content/platform-intents"
+
+export type ContentTypeIcon =
+  | { kind: "hugeicons"; icon: IconSvgElement }
+  | { kind: "brand"; icon: IconType }
+
+const CONTENT_TYPE_HUGEICONS: Partial<Record<QrInputType, IconSvgElement>> = {
+  auto: SparklesIcon,
+  text: TextFontIcon,
+  link: Link01Icon,
+  phone: SmartPhone01Icon,
+  email: Mail01Icon,
+  wifi: HomeWifiIcon,
+  sms: Message01Icon,
+  vcard: ContactBookIcon,
+  instagram: InstagramIcon,
+  whatsapp: WhatsappIcon,
+  "whatsapp-chat": WhatsappIcon,
+  facebook: FacebookIcon,
+  x: NewTwitterIcon,
+  tiktok: TiktokIcon,
+  youtube: YoutubeIcon,
+  linkedin: LinkedinIcon,
+  telegram: TelegramIcon,
+  "telegram-username": TelegramIcon,
+  snapchat: SnapchatIcon,
+  threads: ThreadsIcon,
+  pinterest: PinterestIcon,
+  discord: DiscordIcon,
+  reddit: RedditIcon,
+  twitch: TwitchIcon,
+  bluesky: BlueskyIcon,
+  mastodon: MastodonIcon,
+  tumblr: TumblrIcon,
+  messenger: MessengerIcon,
+  skype: SkypeIcon,
+  "app-store": AppStoreIcon,
+  "play-store": PlayStoreIcon,
+  "microsoft-store": MicrosoftIcon,
+  "amazon-appstore": AmazonIcon,
+  "huawei-appgallery": Store01Icon,
+  spotify: SpotifyIcon,
+  "apple-music": AppleMusicIcon,
+  soundcloud: SoundcloudIcon,
+  "youtube-music": YoutubeIcon,
+  deezer: SpotifyIcon,
+  "map-location": GoogleMapsIcon,
+  "apple-maps": AppleIcon,
+  waze: WazeIcon,
+  "google-review": GoogleIcon,
+  "booking-link": GoogleMapsIcon,
+  calendly: Calendar01Icon,
+  "payment-link": StripeIcon,
+  "paypal-me": PaypalIcon,
+  venmo: PaypalIcon,
+  "cash-app": PaypalIcon,
+  menu: Menu01Icon,
+  form: LegalDocument01Icon,
+  website: GlobeIcon,
+  zoom: ZoomIcon,
+  "google-meet": PresentationOnlineIcon,
+  "microsoft-teams": MicrosoftIcon,
+  pdf: Pdf01Icon,
+  image: Image01Icon,
+  video: Video01Icon,
+  document: LegalDocument01Icon,
+  event: TimelineEventIcon,
+  coupon: CouponIcon,
+  upi: RupeeIcon,
+  crypto: Bitcoin01Icon,
+  github: GithubIcon,
+  gitlab: GitlabIcon,
+  notion: NotionIcon,
+  medium: MediumIcon,
+  substack: LegalDocument01Icon,
+  "app-download": AppStoreIcon,
+}
+
+const CONTENT_TYPE_BRAND_ICON_IDS: Partial<Record<QrInputType, string>> = {
+  line: "line",
+  signal: "signal",
+  calendly: "calendly",
+  venmo: "venmo",
+  "cash-app": "cash-app",
+  "youtube-music": "youtube-music",
+  "apple-music": "apple-music",
+  substack: "substack",
+  "paypal-me": "paypal",
+  "google-review": "google-maps",
+  "booking-link": "booking-com",
+  "payment-link": "stripe",
+}
+
+export function getContentTypeIcon(type: QrInputType): ContentTypeIcon {
+  const hugeicon = CONTENT_TYPE_HUGEICONS[type]
+  if (hugeicon) {
+    return { kind: "hugeicons", icon: hugeicon }
+  }
+
+  const brandIconId =
+    CONTENT_TYPE_BRAND_ICON_IDS[type] ?? getPlatformDef(type)?.brandIconId
+  const brandIcon = findBrandIconById(brandIconId)
+  if (brandIcon) {
+    return { kind: "brand", icon: brandIcon.icon }
+  }
+
+  return { kind: "hugeicons", icon: Link01Icon }
+}

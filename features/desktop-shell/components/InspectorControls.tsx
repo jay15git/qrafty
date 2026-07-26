@@ -19,6 +19,9 @@ import { ChevronDownIcon, SearchIcon } from "lucide-react"
 import { Calligraph } from "calligraph"
 import { motion, useReducedMotion, type Transition } from "motion/react"
 
+import { DesktopInspectorPasteButton } from "@/features/desktop-shell/components/DesktopInspectorPasteButton"
+import "./desktop-inspector-input-error.css"
+
 import { TabsSubtle, TabsSubtleItem } from "@/components/ui/tabs-subtle"
 import { useDesktopSettingsPanelMotionFrozen } from "@/features/desktop-shell/components/desktop-settings-panel-motion-frozen-context"
 import {
@@ -393,19 +396,129 @@ export function DesktopInspectorLabel({
   )
 }
 
-type DesktopInspectorTextInputProps = ComponentProps<"input">
+type DesktopInspectorTextInputProps = ComponentProps<"input"> & {
+  error?: string
+  onPasteValue?: (value: string) => void
+  pasteable?: boolean
+}
+
+function usePasteValidationShake(error?: string) {
+  const [pasteEpoch, setPasteEpoch] = useState(0)
+  const [pasteErrorActive, setPasteErrorActive] = useState(false)
+  const [shaking, setShaking] = useState(false)
+
+  const notifyPaste = useCallback(() => {
+    setPasteEpoch((epoch) => epoch + 1)
+  }, [])
+
+  useEffect(() => {
+    if (pasteEpoch === 0) {
+      return
+    }
+
+    if (!error) {
+      setPasteErrorActive(false)
+      setShaking(false)
+      return
+    }
+
+    setPasteErrorActive(true)
+    setShaking(false)
+    const frame = requestAnimationFrame(() => {
+      void document.body.offsetHeight
+      setShaking(true)
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [error, pasteEpoch])
+
+  useEffect(() => {
+    if (!error) {
+      setPasteErrorActive(false)
+      setShaking(false)
+    }
+  }, [error])
+
+  return {
+    notifyPaste,
+    pasteErrorActive,
+    shaking,
+  }
+}
+
+function wrapInspectorFieldFeedback(
+  content: ReactNode,
+  error: string | undefined,
+  pasteErrorActive: boolean,
+) {
+  // Always keep the wrap mounted so error text can appear/disappear as a
+  // sibling without remounting the input (which would steal focus).
+  return (
+    <div className={cn("t-input-wrap min-w-0", Boolean(error) && pasteErrorActive && "is-error")}>
+      {content}
+      {error ? (
+        <p
+          className={cn(
+            "t-error-msg t-error-msg--visible",
+            DESKTOP_INSPECTOR_CAPTION_CLASS,
+            pasteErrorActive && "t-error-msg--emphasis",
+          )}
+        >
+          {error}
+        </p>
+      ) : null}
+    </div>
+  )
+}
 
 export function DesktopInspectorTextInput({
   className,
+  error,
+  onPasteValue,
+  pasteable = false,
   type = "text",
   ...props
 }: DesktopInspectorTextInputProps) {
-  return (
+  const hasError = Boolean(error)
+  const { notifyPaste, pasteErrorActive, shaking } = usePasteValidationShake(error)
+
+  const input = (
     <input
-      className={cn("h-9 w-full rounded-[7px] px-3", DESKTOP_INSPECTOR_INPUT_CLASS, className)}
+      className={cn(
+        "t-input h-9 w-full rounded-[7px] px-3",
+        pasteErrorActive && "is-error",
+        shaking && "is-shaking",
+        pasteable && "pr-9",
+        DESKTOP_INSPECTOR_INPUT_CLASS,
+        className,
+      )}
       type={type}
       {...props}
+      aria-invalid={hasError ? true : props["aria-invalid"]}
     />
+  )
+
+  if (!pasteable) {
+    return wrapInspectorFieldFeedback(input, error, false)
+  }
+
+  return wrapInspectorFieldFeedback(
+    <div className="relative min-w-0" data-slot="desktop-inspector-pasteable-field">
+      {input}
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+        <DesktopInspectorPasteButton
+          className="pointer-events-auto"
+          onPaste={(value) => {
+            onPasteValue?.(value)
+            requestAnimationFrame(() => {
+              notifyPaste()
+            })
+          }}
+        />
+      </div>
+    </div>,
+    error,
+    pasteErrorActive,
   )
 }
 
@@ -991,21 +1104,58 @@ export function DesktopInspectorScrubbableNumberInput({
   )
 }
 
-type DesktopInspectorTextareaProps = ComponentProps<"textarea">
+type DesktopInspectorTextareaProps = ComponentProps<"textarea"> & {
+  error?: string
+  onPasteValue?: (value: string) => void
+  pasteable?: boolean
+}
 
 export function DesktopInspectorTextarea({
   className,
+  error,
+  onPasteValue,
+  pasteable = false,
   ...props
 }: DesktopInspectorTextareaProps) {
-  return (
+  const hasError = Boolean(error)
+  const { notifyPaste, pasteErrorActive, shaking } = usePasteValidationShake(error)
+
+  const textarea = (
     <textarea
       className={cn(
-        "min-h-24 w-full resize-none rounded-[7px] px-3 py-2.5",
+        "t-input min-h-24 w-full resize-none rounded-[7px] px-3 py-2.5",
+        pasteErrorActive && "is-error",
+        shaking && "is-shaking",
+        pasteable && "pr-9",
         DESKTOP_INSPECTOR_INPUT_CLASS,
         className,
       )}
       {...props}
+      aria-invalid={hasError ? true : props["aria-invalid"]}
     />
+  )
+
+  if (!pasteable) {
+    return wrapInspectorFieldFeedback(textarea, error, false)
+  }
+
+  return wrapInspectorFieldFeedback(
+    <div className="relative min-w-0" data-slot="desktop-inspector-pasteable-field">
+      {textarea}
+      <div className="pointer-events-none absolute right-0 top-2.5 flex pr-2">
+        <DesktopInspectorPasteButton
+          className="pointer-events-auto"
+          onPaste={(value) => {
+            onPasteValue?.(value)
+            requestAnimationFrame(() => {
+              notifyPaste()
+            })
+          }}
+        />
+      </div>
+    </div>,
+    error,
+    pasteErrorActive,
   )
 }
 

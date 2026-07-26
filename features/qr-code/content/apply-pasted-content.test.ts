@@ -61,24 +61,23 @@ describe("resolveStructuredPasteApply", () => {
 
   it("returns null for plain text and link pastes", () => {
     expect(resolveStructuredPasteApply("hello world")).toBeNull()
-    expect(resolveStructuredPasteApply("https://instagram.com/newqr")).toBeNull()
+    expect(resolveStructuredPasteApply("https://instagram.com/qrafty")).toBeNull()
   })
 })
 
 describe("getLinkPasteFieldUpdate", () => {
   it("keeps link pastes on the current link-like content type", () => {
-    expect(getLinkPasteFieldUpdate("link", "https://instagram.com/newqr")).toEqual({
-      values: { url: "https://instagram.com/newqr" },
+    expect(getLinkPasteFieldUpdate("link", "https://instagram.com/qrafty")).toEqual({
+      values: { url: "https://instagram.com/qrafty" },
       urlDetection: expect.objectContaining({
         platform: "instagram",
       }),
     })
 
-    expect(getLinkPasteFieldUpdate("instagram", "https://instagram.com/newqr")).toEqual({
+    expect(getLinkPasteFieldUpdate("instagram", "https://instagram.com/qrafty")).toEqual({
       values: {
         intent: "profile",
-        url: "https://instagram.com/newqr",
-        username: "newqr",
+        url: "https://instagram.com/qrafty",
       },
       urlDetection: expect.objectContaining({
         platform: "instagram",
@@ -98,14 +97,13 @@ describe("resolveDetectedLinkTypeApply", () => {
           inputTypeHint: "instagram",
           platform: "instagram",
         },
-        "https://instagram.com/newqr",
+        "https://instagram.com/qrafty",
       ),
     ).toEqual({
       type: "instagram",
       values: {
         intent: "profile",
-        url: "https://instagram.com/newqr",
-        username: "newqr",
+        url: "https://instagram.com/qrafty",
       },
       urlDetection: expect.objectContaining({
         platform: "instagram",
@@ -115,7 +113,7 @@ describe("resolveDetectedLinkTypeApply", () => {
 })
 
 describe("getLinkDetectionSource", () => {
-  it("reads the active url or username field for detection", () => {
+  it("reads url only for link content type", () => {
     expect(
       getLinkDetectionSource("link", {
         url: "https://example.com",
@@ -124,14 +122,20 @@ describe("getLinkDetectionSource", () => {
 
     expect(
       getLinkDetectionSource("instagram", {
-        username: "@newqr",
+        url: "https://instagram.com/qrafty",
       }),
-    ).toBe("@newqr")
+    ).toBe("")
+
+    expect(
+      getLinkDetectionSource("text", {
+        text: "https://instagram.com/qrafty",
+      }),
+    ).toBe("")
   })
 })
 
 describe("shouldShowUrlDetectionChip", () => {
-  it("shows chips for known platforms but not generic links", () => {
+  it("shows chips for known platforms on link only", () => {
     expect(
       shouldShowUrlDetectionChip("link", {
         category: "social",
@@ -146,6 +150,24 @@ describe("shouldShowUrlDetectionChip", () => {
         category: "link",
         confidence: "low",
         inputTypeHint: "link",
+      }),
+    ).toBe(false)
+
+    expect(
+      shouldShowUrlDetectionChip("instagram", {
+        category: "social",
+        confidence: "high",
+        platform: "instagram",
+        inputTypeHint: "instagram",
+      }),
+    ).toBe(false)
+
+    expect(
+      shouldShowUrlDetectionChip("text", {
+        category: "social",
+        confidence: "high",
+        platform: "instagram",
+        inputTypeHint: "instagram",
       }),
     ).toBe(false)
   })

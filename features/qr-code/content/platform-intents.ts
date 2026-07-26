@@ -3,14 +3,46 @@ import type { QrInputType } from "@/features/qr-code/content/input-options"
 export type PlatformContentValues = Record<string, string | boolean | undefined>
 
 import {
-  idOrUrl,
+  isPositiveAmount,
+  isValidPhone,
+  isValidPlatformUrl,
+  isValidUrl,
+  platformUrlErrorMessage,
+  VALIDATION_MESSAGES,
+} from "@/features/qr-code/content/content-field-validation"
+import {
   normalizeUrl,
-  normalizeUsername,
   stringFieldValue,
-  urlOrBuild,
-  usernameProfileUrl,
 } from "@/features/qr-code/content/platform-builders"
 import { getIntentSampleValues } from "@/features/qr-code/content/platform-samples"
+import {
+  isBlueskyProfilePath,
+  isDiscordChannelPath,
+  isDiscordServerPath,
+  isFacebookProfilePath,
+  isGitHubRepoPath,
+  isGitHubUserPath,
+  isGitLabProjectPath,
+  isGitLabUserPath,
+  isMastodonPostPath,
+  isMastodonProfilePath,
+  isMediumProfilePath,
+  isMediumStoryPath,
+  isPinterestProfilePath,
+  isRedditCommentPath,
+  isRedditPostPath,
+  isSoundCloudTrackPath,
+  isSoundCloudUserPath,
+  isSubstackPublicationPath,
+  isThreadsProfilePath,
+  isTikTokLivePath,
+  isTikTokProfilePath,
+  isTikTokVideoPath,
+  isTumblrBlogPath,
+  isVenmoPaymentPath,
+  isVenmoProfilePath,
+  segments,
+} from "@/features/qr-code/content/platform-path-matching"
 
 export type ContentCollectionId =
   | "popular"
@@ -38,7 +70,7 @@ export type PlatformIntentDef = {
   label: string
   fields: readonly PlatformFieldDef[]
   build: (values: PlatformContentValues) => string
-  matchPath?: (pathname: string, searchParams: URLSearchParams) => boolean
+  matchPath?: (pathname: string, searchParams: URLSearchParams, hostname?: string) => boolean
 }
 
 export type PlatformDef = {
@@ -52,28 +84,12 @@ export type PlatformDef = {
   intents: readonly PlatformIntentDef[]
 }
 
-const usernameField = (label = "Username", required = true): PlatformFieldDef => ({
-  key: "username",
-  kind: "username",
-  label,
-  placeholder: "@newqr",
-  required,
-})
-
 const urlField = (label = "URL", required = true): PlatformFieldDef => ({
   key: "url",
   kind: "url",
   label,
   placeholder: "https://example.com",
   required,
-})
-
-const idField = (label: string, placeholder: string): PlatformFieldDef => ({
-  key: "id",
-  kind: "id",
-  label,
-  placeholder,
-  required: true,
 })
 
 const textField = (key: string, label: string, placeholder?: string): PlatformFieldDef => ({
@@ -83,23 +99,8 @@ const textField = (key: string, label: string, placeholder?: string): PlatformFi
   placeholder,
 })
 
-function profileIntent(
-  baseUrl: string,
-  prefix = "",
-  opts?: { matchPath?: PlatformIntentDef["matchPath"] },
-): PlatformIntentDef {
-  return {
-    id: "profile",
-    label: "Profile",
-    fields: [usernameField()],
-    build: (values) => usernameProfileUrl(values, baseUrl, prefix),
-    matchPath:
-      opts?.matchPath ??
-      ((pathname) => {
-        const segments = pathname.split("/").filter(Boolean)
-        return segments.length <= 1
-      }),
-  }
+function profileIntent(matchPath?: PlatformIntentDef["matchPath"]): PlatformIntentDef {
+  return urlIntent("profile", "Profile", matchPath)
 }
 
 function urlIntent(
@@ -116,39 +117,6 @@ function urlIntent(
   }
 }
 
-function usernameOrUrlIntent(
-  id: string,
-  label: string,
-  buildFromUsername: (username: string) => string,
-  matchPath?: PlatformIntentDef["matchPath"],
-): PlatformIntentDef {
-  return {
-    id,
-    label,
-    fields: [usernameField(), urlField("URL (optional)", false)],
-    build: (values) =>
-      urlOrBuild(values, (v) => buildFromUsername(normalizeUsername(stringFieldValue(v, "username")))),
-    matchPath,
-  }
-}
-
-function idOrUrlIntent(
-  id: string,
-  label: string,
-  buildFromId: (id: string) => string,
-  idLabel: string,
-  idPlaceholder: string,
-  matchPath?: PlatformIntentDef["matchPath"],
-): PlatformIntentDef {
-  return {
-    id,
-    label,
-    fields: [idField(idLabel, idPlaceholder), urlField("URL (optional)", false)],
-    build: (values) => idOrUrl(values, buildFromId),
-    matchPath,
-  }
-}
-
 export const PLATFORM_DEFS: readonly PlatformDef[] = [
   // Social
   {
@@ -160,22 +128,14 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     hosts: ["instagram.com"],
     brandIconId: "instagram",
     intents: [
-      profileIntent("https://instagram.com/"),
-      idOrUrlIntent("post", "Post", (id) => `https://instagram.com/p/${id}`, "Post ID", "CxYz123", (p) =>
-        p.includes("/p/"),
-      ),
-      idOrUrlIntent("reel", "Reel", (id) => `https://instagram.com/reel/${id}`, "Reel ID", "CxYz123", (p) =>
-        p.includes("/reel/"),
-      ),
-      urlIntent("story", "Story", (p) => p.includes("/stories/")),
-      idOrUrlIntent(
-        "highlight",
-        "Highlight",
-        (id) => `https://instagram.com/stories/highlights/${id}`,
-        "Highlight ID",
-        "1234567890",
-        (p) => p.includes("/stories/highlights/"),
-      ),
+      profileIntent((pathname) => {
+        const segments = pathname.split("/").filter(Boolean)
+        return segments.length <= 1
+      }),
+      urlIntent("post", "Post", (p) => p.includes("/p/")),
+      urlIntent("reel", "Reel", (p) => p.includes("/reel/")),
+      urlIntent("story", "Story", (p) => p.includes("/stories/") && !p.includes("/highlights/")),
+      urlIntent("highlight", "Highlight", (p) => p.includes("/stories/highlights/")),
     ],
   },
   {
@@ -187,7 +147,10 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     hosts: ["x.com", "twitter.com"],
     brandIconId: "x",
     intents: [
-      profileIntent("https://x.com/"),
+      profileIntent((pathname) => {
+        const segments = pathname.split("/").filter(Boolean)
+        return segments.length <= 1 && !pathname.includes("/status/")
+      }),
       urlIntent("status", "Post", (p) => p.includes("/status/")),
       urlIntent("list", "List", (p) => p.includes("/i/lists/")),
       urlIntent("community", "Community", (p) => p.includes("/i/communities/")),
@@ -200,15 +163,12 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     description: "Profile, video, or live link.",
     collection: "social",
     category: "social",
-    hosts: ["tiktok.com"],
+    hosts: ["tiktok.com", "vm.tiktok.com", "vt.tiktok.com"],
     brandIconId: "tiktok",
     intents: [
-      usernameOrUrlIntent("profile", "Profile", (u) => `https://tiktok.com/@${u}`, (p) => {
-        const segments = p.split("/").filter(Boolean)
-        return segments.length <= 1 || segments[0]?.startsWith("@")
-      }),
-      urlIntent("video", "Video", (p) => p.includes("/video/") || p.includes("/t/")),
-      urlIntent("live", "Live", (p) => p.includes("/live")),
+      urlIntent("video", "Video", (p) => isTikTokVideoPath(p)),
+      urlIntent("live", "Live", (p) => isTikTokLivePath(p)),
+      urlIntent("profile", "Profile", (p) => isTikTokProfilePath(p)),
     ],
   },
   {
@@ -220,7 +180,7 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     hosts: ["youtube.com", "youtu.be", "m.youtube.com"],
     brandIconId: "youtube",
     intents: [
-      usernameOrUrlIntent("channel", "Channel", (u) => `https://youtube.com/@${u}`, (p) =>
+      urlIntent("channel", "Channel", (p) =>
         p.startsWith("/@") || p.startsWith("/channel/") || p.startsWith("/c/"),
       ),
       urlIntent("video", "Video", (p) => p.includes("/watch") || p.startsWith("/shorts/") === false && p.includes("/v/")),
@@ -238,12 +198,12 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     hosts: ["facebook.com", "fb.com", "m.facebook.com"],
     brandIconId: "facebook",
     intents: [
-      urlIntent("profile", "Profile"),
       urlIntent("page", "Page", (p) => p.includes("/pages/") || p.includes("/profile.php")),
-      urlIntent("post", "Post", (p) => p.includes("/posts/") || p.includes("/permalink/")),
+      urlIntent("post", "Post", (p) => p.includes("/posts/") || p.includes("/permalink/") || p.includes("story.php")),
       urlIntent("group", "Group", (p) => p.includes("/groups/")),
       urlIntent("event", "Event", (p) => p.includes("/events/")),
       urlIntent("reel", "Reel", (p) => p.includes("/reel/")),
+      urlIntent("profile", "Profile", (p) => isFacebookProfilePath(p)),
     ],
   },
   {
@@ -269,8 +229,8 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     hosts: ["threads.net"],
     brandIconId: "threads",
     intents: [
-      usernameOrUrlIntent("profile", "Profile", (u) => `https://threads.net/@${u}`),
       urlIntent("post", "Post", (p) => p.includes("/post/")),
+      urlIntent("profile", "Profile", (p) => isThreadsProfilePath(p)),
     ],
   },
   {
@@ -282,7 +242,7 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     hosts: ["snapchat.com"],
     brandIconId: "snapchat",
     intents: [
-      usernameOrUrlIntent("add", "Add", (u) => `https://snapchat.com/add/${u}`, (p) => p.includes("/add/")),
+      urlIntent("add", "Add", (p) => p.includes("/add/")),
       urlIntent("spotlight", "Spotlight", (p) => p.includes("/spotlight/")),
       urlIntent("lens", "Lens", (p) => p.includes("/lens/")),
     ],
@@ -296,9 +256,9 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     hosts: ["pinterest.com"],
     brandIconId: "pinterest",
     intents: [
-      usernameOrUrlIntent("profile", "Profile", (u) => `https://pinterest.com/${u}`),
       urlIntent("pin", "Pin", (p) => p.includes("/pin/")),
-      urlIntent("board", "Board", (p) => p.includes("/board/") || (p.split("/").filter(Boolean).length >= 2 && !p.includes("/pin/"))),
+      urlIntent("board", "Board", (p) => p.includes("/board/") || (segments(p).length >= 2 && !p.includes("/pin/"))),
+      urlIntent("profile", "Profile", (p) => isPinterestProfilePath(p)),
     ],
   },
   {
@@ -309,10 +269,10 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "social",
     hosts: ["reddit.com", "old.reddit.com"],
     intents: [
-      usernameOrUrlIntent("user", "User", (u) => `https://reddit.com/u/${u}`, (p) => p.startsWith("/u/") || p.startsWith("/user/")),
+      urlIntent("user", "User", (p) => p.startsWith("/u/") || p.startsWith("/user/")),
       urlIntent("subreddit", "Subreddit", (p) => p.startsWith("/r/") && !p.includes("/comments/")),
-      urlIntent("post", "Post", (p) => p.includes("/comments/")),
-      urlIntent("comment", "Comment", (p) => p.includes("/comments/") && p.split("/").length > 6),
+      urlIntent("comment", "Comment", (p) => isRedditCommentPath(p)),
+      urlIntent("post", "Post", (p) => isRedditPostPath(p)),
     ],
   },
   {
@@ -321,14 +281,11 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     description: "Channel, video, or clip.",
     collection: "social",
     category: "social",
-    hosts: ["twitch.tv"],
+    hosts: ["twitch.tv", "clips.twitch.tv"],
     intents: [
-      usernameOrUrlIntent("channel", "Channel", (u) => `https://twitch.tv/${u}`, (p) => {
-        const seg = p.split("/").filter(Boolean)
-        return seg.length === 1
-      }),
       urlIntent("video", "Video", (p) => p.includes("/videos/")),
       urlIntent("clip", "Clip", (p) => p.includes("/clip/")),
+      urlIntent("channel", "Channel", (p) => segments(p).length === 1),
     ],
   },
   {
@@ -339,8 +296,8 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "social",
     hosts: ["bsky.app"],
     intents: [
-      urlIntent("profile", "Profile", (p) => p.includes("/profile/")),
       urlIntent("post", "Post", (p) => p.includes("/post/")),
+      urlIntent("profile", "Profile", (p) => isBlueskyProfilePath(p)),
     ],
   },
   {
@@ -351,22 +308,8 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "social",
     hosts: [],
     intents: [
-      {
-        id: "profile",
-        label: "Profile",
-        fields: [
-          textField("instance", "Instance", "mastodon.social"),
-          usernameField("Handle"),
-        ],
-        build: (values) => {
-          const url = stringFieldValue(values, "url")
-          if (url) return normalizeUrl(url)
-          const instance = stringFieldValue(values, "instance").replace(/^https?:\/\//, "")
-          const username = normalizeUsername(stringFieldValue(values, "username"))
-          return `https://${instance}/@${username}`
-        },
-      },
-      urlIntent("post", "Post"),
+      urlIntent("post", "Post", (p) => isMastodonPostPath(p)),
+      urlIntent("profile", "Profile", (p) => isMastodonProfilePath(p)),
     ],
   },
   {
@@ -377,8 +320,8 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "social",
     hosts: ["tumblr.com"],
     intents: [
-      usernameOrUrlIntent("blog", "Blog", (u) => `https://${u}.tumblr.com`),
       urlIntent("post", "Post", (p) => p.includes("/post/")),
+      urlIntent("blog", "Blog", (p) => isTumblrBlogPath(p)),
     ],
   },
 
@@ -422,25 +365,34 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     hosts: ["t.me", "telegram.me", "telegram.dog"],
     brandIconId: "telegram",
     intents: [
-      usernameOrUrlIntent("username", "Username", (u) => `https://t.me/${u}`, (p) => {
-        const seg = p.split("/").filter(Boolean)
-        return seg.length === 1 && !p.includes("+") && !p.includes("joinchat")
+      urlIntent("channel", "Channel", (p) => p.startsWith("/c/") || p.includes("/s/")),
+      urlIntent("group", "Group", (p) => p.includes("+") || p.includes("joinchat")),
+      urlIntent("share", "Share", (p) => p.includes("/share/")),
+      urlIntent("username", "Username", (p, params) => {
+        const seg = segments(p)
+        return seg.length === 1 && !p.includes("+") && !p.includes("joinchat") && !params.has("text")
       }),
       {
         id: "message",
         label: "Message",
-        fields: [usernameField(), textField("message", "Message", "Hello")],
+        fields: [urlField(), textField("message", "Message")],
         build: (values) => {
-          const url = stringFieldValue(values, "url")
-          if (url) return normalizeUrl(url)
-          const username = normalizeUsername(stringFieldValue(values, "username"))
+          const url = normalizeUrl(stringFieldValue(values, "url"))
           const message = stringFieldValue(values, "message")
-          return `https://t.me/${username}?text=${encodeURIComponent(message)}`
+          if (!message) {
+            return url
+          }
+
+          try {
+            const parsed = new URL(url)
+            parsed.searchParams.set("text", message)
+            return parsed.toString()
+          } catch {
+            return url
+          }
         },
+        matchPath: (p, params) => segments(p).length === 1 && params.has("text"),
       },
-      urlIntent("channel", "Channel", (p) => p.startsWith("/c/") || p.includes("/s/")),
-      urlIntent("group", "Group", (p) => p.includes("+") || p.includes("joinchat")),
-      urlIntent("share", "Share", (p) => p.includes("/share/")),
     ],
   },
   {
@@ -453,8 +405,8 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     brandIconId: "discord",
     intents: [
       urlIntent("invite", "Invite", (p) => p.includes("/invite") || /^\/[A-Za-z0-9]+$/.test(p)),
-      urlIntent("server", "Server", (p) => p.includes("/channels/")),
-      urlIntent("channel", "Channel", (p) => p.includes("/channels/")),
+      urlIntent("channel", "Channel", (p) => isDiscordChannelPath(p)),
+      urlIntent("server", "Server", (p) => isDiscordServerPath(p)),
     ],
   },
   {
@@ -483,8 +435,8 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "messaging",
     hosts: ["line.me"],
     intents: [
-      urlIntent("profile", "Profile", (p) => p.includes("/ti/p/")),
-      urlIntent("chat", "Chat"),
+      urlIntent("chat", "Chat", (p) => p.includes("/R/ti/p/")),
+      urlIntent("profile", "Profile", (p) => p.includes("/ti/p/") && !p.includes("/R/ti/p/")),
     ],
   },
   {
@@ -508,9 +460,7 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     collection: "apps",
     category: "app",
     hosts: ["apps.apple.com", "appstore.com"],
-    intents: [
-      idOrUrlIntent("app", "App", (id) => `https://apps.apple.com/app/id${id}`, "App ID", "123456789"),
-    ],
+    intents: [urlIntent("app", "App", (p) => p.includes("/app/id") || /\/id\d+/.test(p))],
   },
   {
     type: "play-store",
@@ -519,16 +469,7 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     collection: "apps",
     category: "app",
     hosts: ["play.google.com"],
-    intents: [
-      idOrUrlIntent(
-        "app",
-        "App",
-        (id) => `https://play.google.com/store/apps/details?id=${id}`,
-        "Package name",
-        "com.example.app",
-        (p) => p.includes("/store/apps/"),
-      ),
-    ],
+    intents: [urlIntent("app", "App", (p) => p.includes("/store/apps/"))],
   },
   {
     type: "microsoft-store",
@@ -583,10 +524,10 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "music",
     hosts: ["music.apple.com"],
     intents: [
-      urlIntent("song", "Song"),
       urlIntent("album", "Album", (p) => p.includes("/album/")),
       urlIntent("artist", "Artist", (p) => p.includes("/artist/")),
       urlIntent("playlist", "Playlist", (p) => p.includes("/playlist/")),
+      urlIntent("song", "Song", (p) => p.includes("/song/")),
     ],
   },
   {
@@ -597,9 +538,9 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "music",
     hosts: ["soundcloud.com"],
     intents: [
-      urlIntent("track", "Track"),
-      usernameOrUrlIntent("user", "User", (u) => `https://soundcloud.com/${u}`),
       urlIntent("playlist", "Playlist", (p) => p.includes("/sets/")),
+      urlIntent("track", "Track", (p) => isSoundCloudTrackPath(p)),
+      urlIntent("user", "User", (p) => isSoundCloudUserPath(p)),
     ],
   },
   {
@@ -757,13 +698,15 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
       {
         id: "profile",
         label: "Profile",
-        fields: [usernameField("Username"), textField("amount", "Amount (optional)")],
+        fields: [urlField(), { key: "amount", kind: "text", label: "Amount (optional)", required: false }],
         build: (values) => {
-          const url = stringFieldValue(values, "url")
-          if (url) return normalizeUrl(url)
-          const username = normalizeUsername(stringFieldValue(values, "username"))
+          const url = normalizeUrl(stringFieldValue(values, "url"))
           const amount = stringFieldValue(values, "amount")
-          return amount ? `https://paypal.me/${username}/${amount}` : `https://paypal.me/${username}`
+          if (!amount) {
+            return url
+          }
+
+          return url.endsWith("/") ? `${url}${amount}` : `${url}/${amount}`
         },
       },
     ],
@@ -776,8 +719,8 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "business",
     hosts: ["venmo.com"],
     intents: [
-      usernameOrUrlIntent("profile", "Profile", (u) => `https://venmo.com/${u}`),
-      urlIntent("payment", "Payment", (p) => p.includes("txn=") || p.includes("/pay/")),
+      urlIntent("payment", "Payment", (p, params) => isVenmoPaymentPath(p, params)),
+      urlIntent("profile", "Profile", (p, params) => isVenmoProfilePath(p, params)),
     ],
   },
   {
@@ -788,9 +731,7 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "business",
     hosts: ["cash.app"],
     intents: [
-      usernameOrUrlIntent("cashtag", "Cashtag", (u) => `https://cash.app/$${normalizeUsername(u)}`, (p) =>
-        p.includes("/$"),
-      ),
+      urlIntent("cashtag", "Cashtag", (p) => p.includes("/$")),
     ],
   },
   {
@@ -897,16 +838,14 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "developer",
     hosts: ["github.com", "gist.github.com"],
     intents: [
-      usernameOrUrlIntent("user", "User", (u) => `https://github.com/${u}`, (p) => {
-        const seg = p.split("/").filter(Boolean)
-        return seg.length === 1
-      }),
-      urlIntent("repo", "Repository", (p) => {
-        const seg = p.split("/").filter(Boolean)
-        return seg.length === 2
-      }),
+      urlIntent("gist", "Gist", (_pathname, _params, hostname) => hostname === "gist.github.com"),
       urlIntent("issue", "Issue", (p) => p.includes("/issues/")),
-      urlIntent("gist", "Gist", (p) => p.includes("gist.github.com") || p.startsWith("/gist/")),
+      urlIntent("repo", "Repository", (p, _params, hostname) =>
+        hostname !== "gist.github.com" && isGitHubRepoPath(p),
+      ),
+      urlIntent("user", "User", (p, _params, hostname) =>
+        hostname !== "gist.github.com" && isGitHubUserPath(p),
+      ),
     ],
   },
   {
@@ -917,9 +856,9 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "developer",
     hosts: ["gitlab.com"],
     intents: [
-      usernameOrUrlIntent("user", "User", (u) => `https://gitlab.com/${u}`),
-      urlIntent("project", "Project"),
       urlIntent("issue", "Issue", (p) => p.includes("/-/issues/")),
+      urlIntent("project", "Project", (p) => isGitLabProjectPath(p)),
+      urlIntent("user", "User", (p) => isGitLabUserPath(p)),
     ],
   },
   {
@@ -939,8 +878,8 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "developer",
     hosts: ["medium.com"],
     intents: [
-      usernameOrUrlIntent("profile", "Profile", (u) => `https://medium.com/@${u}`),
-      urlIntent("story", "Story"),
+      urlIntent("story", "Story", (p) => isMediumStoryPath(p)),
+      urlIntent("profile", "Profile", (p) => isMediumProfilePath(p)),
     ],
   },
   {
@@ -951,8 +890,8 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
     category: "developer",
     hosts: ["substack.com"],
     intents: [
-      urlIntent("publication", "Publication"),
       urlIntent("post", "Post", (p) => p.includes("/p/")),
+      urlIntent("publication", "Publication", (p) => isSubstackPublicationPath(p)),
     ],
   },
 ] as const
@@ -990,7 +929,31 @@ export function resolvePlatformType(type: QrInputType): QrInputType {
 
 export function getDefaultIntentId(type: QrInputType): string {
   const def = getPlatformDef(type)
-  return def?.intents[0]?.id ?? "url"
+  if (!def) {
+    return "url"
+  }
+
+  const preferredIds = [
+    "profile",
+    "channel",
+    "user",
+    "username",
+    "invite",
+    "blog",
+    "publication",
+    "track",
+    "chat",
+    "song",
+    "url",
+  ] as const
+
+  for (const preferredId of preferredIds) {
+    if (def.intents.some((intent) => intent.id === preferredId)) {
+      return preferredId
+    }
+  }
+
+  return def.intents[0]?.id ?? "url"
 }
 
 export function getIntentDef(type: QrInputType, intentId: string): PlatformIntentDef | undefined {
@@ -1087,7 +1050,72 @@ export function validatePlatformContent(
     }
   }
 
+  const def = getPlatformDef(resolved)
+
+  for (const field of intent?.fields ?? []) {
+    const value = stringFieldValue(values, field.key)
+    if (!value || fieldErrors[field.key]) {
+      continue
+    }
+
+    switch (field.kind) {
+      case "url": {
+        const hosts = def?.hosts ?? []
+        const ok = hosts.length > 0 ? isValidPlatformUrl(value, hosts) : isValidUrl(value)
+        if (!ok) {
+          fieldErrors[field.key] = platformUrlErrorMessage(intent.label)
+        } else if (def && intent.matchPath && isWrongPlatformIntent(value, def, intent)) {
+          fieldErrors[field.key] = platformUrlErrorMessage(intent.label)
+        }
+        break
+      }
+      case "phone":
+        if (!isValidPhone(value)) {
+          fieldErrors[field.key] = VALIDATION_MESSAGES.phone
+        }
+        break
+      case "amount":
+        if (!isPositiveAmount(value)) {
+          fieldErrors[field.key] = VALIDATION_MESSAGES.amount
+        }
+        break
+      default:
+        break
+    }
+  }
+
   return fieldErrors
+}
+
+function isWrongPlatformIntent(
+  value: string,
+  def: PlatformDef,
+  intent: PlatformIntentDef,
+): boolean {
+  try {
+    const parsed = new URL(normalizeUrl(value))
+    const pathname = parsed.pathname
+    const params = parsed.searchParams
+    const hostname = parsed.hostname.toLowerCase().replace(/^www\./, "")
+
+    // Incomplete stubs / bare host still OK while typing.
+    const segments = pathname.split("/").filter(Boolean)
+    if (segments.length === 0) {
+      return false
+    }
+
+    if (intent.matchPath?.(pathname, params, hostname)) {
+      return false
+    }
+
+    return def.intents.some(
+      (other) =>
+        other.id !== intent.id &&
+        Boolean(other.matchPath?.(pathname, params, hostname)),
+    )
+  } catch {
+    return false
+  }
 }
 
 function isLatitude(value: string) {
@@ -1138,8 +1166,35 @@ export function detectPlatformIntentFromUrl(
       continue
     }
 
+    if (def.type === "tiktok" && (hostname === "vm.tiktok.com" || hostname === "vt.tiktok.com")) {
+      return {
+        type: def.type,
+        intent: "video",
+        platform: def.type,
+        brandIconId: def.brandIconId,
+      }
+    }
+
+    if (def.type === "github" && hostname === "gist.github.com") {
+      return {
+        type: def.type,
+        intent: "gist",
+        platform: def.type,
+        brandIconId: def.brandIconId,
+      }
+    }
+
+    if (def.type === "twitch" && hostname === "clips.twitch.tv") {
+      return {
+        type: def.type,
+        intent: "clip",
+        platform: def.type,
+        brandIconId: def.brandIconId,
+      }
+    }
+
     for (const intent of def.intents) {
-      if (intent.matchPath?.(pathname, searchParams)) {
+      if (intent.matchPath?.(pathname, searchParams, hostname)) {
         return {
           type: def.type,
           intent: intent.id,
@@ -1149,9 +1204,16 @@ export function detectPlatformIntentFromUrl(
       }
     }
 
+    const fallbackIntent =
+      def.intents.find((intent) =>
+        ["profile", "blog", "publication", "user", "channel", "username", "invite"].includes(
+          intent.id,
+        ),
+      ) ?? def.intents[def.intents.length - 1]!
+
     return {
       type: def.type,
-      intent: def.intents[0]!.id,
+      intent: fallbackIntent.id,
       platform: def.type,
       brandIconId: def.brandIconId,
     }
@@ -1172,25 +1234,6 @@ export function extractPlatformValuesFromUrl(
   const values: Partial<PlatformContentValues> = {
     intent: detection.intent,
     url: input.trim(),
-  }
-
-  try {
-    const parsed = new URL(/^https?:\/\//i.test(input) ? input : `https://${input}`)
-    const segments = parsed.pathname.split("/").filter(Boolean)
-
-    if (detection.intent === "profile" || detection.intent === "username" || detection.intent === "add") {
-      const handle = segments[0]?.replace(/^@/, "") ?? ""
-      if (handle) {
-        values.username = handle
-      }
-    }
-
-    if (detection.intent === "post" && segments.includes("p")) {
-      const idx = segments.indexOf("p")
-      values.id = segments[idx + 1] ?? ""
-    }
-  } catch {
-    // keep url only
   }
 
   return values

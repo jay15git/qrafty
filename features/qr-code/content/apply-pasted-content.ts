@@ -1,5 +1,4 @@
 import type { QrInputType } from "@/features/qr-code/content/input-options"
-import { isPlatformContentType } from "@/features/qr-code/content/input-options"
 import {
   detectPastedContent,
   type PastedContentDetection,
@@ -157,48 +156,12 @@ export function getLinkDetectionSource(
   contentType: QrInputType,
   contentValues: StaticQrContentValues,
 ): string {
-  const resolvedType = resolvePlatformType(contentType)
-
-  if (isPlatformType(resolvedType)) {
-    const def = getPlatformDef(resolvedType)
-    const intentId = stringValue(contentValues.intent) || getDefaultIntentId(resolvedType)
-    const intent = def?.intents.find((entry) => entry.id === intentId)
-
-    if (intent?.fields.some((field) => field.key === "url")) {
-      const url = stringValue(contentValues.url)
-      if (url) {
-        return url
-      }
-    }
-
-    if (intent?.fields.some((field) => field.key === "username")) {
-      const username = stringValue(contentValues.username)
-      if (username) {
-        return username
-      }
-    }
-
-    return stringValue(contentValues.url) || stringValue(contentValues.username)
+  // Detection chip is link-only — other content types stay silent while typing.
+  if (contentType !== "link") {
+    return ""
   }
 
-  if (isUrlType(contentType)) {
-    return stringValue(contentValues.url)
-  }
-
-  if (contentType === "auto" || contentType === "text") {
-    return stringValue(contentValues.text)
-  }
-
-  if (contentType === "event") {
-    const eventMode = stringValue(contentValues.eventMode) || "url"
-    return eventMode === "url" ? stringValue(contentValues.url) : ""
-  }
-
-  if (contentType === "coupon") {
-    return stringValue(contentValues.url)
-  }
-
-  return ""
+  return stringValue(contentValues.url)
 }
 
 export function shouldShowUrlDetectionChip(
@@ -378,14 +341,7 @@ function parseCryptoValues(value: string): StaticQrContentValues {
 }
 
 function supportsUrlDetection(contentType: QrInputType) {
-  return (
-    isUrlType(contentType) ||
-    isPlatformContentType(contentType) ||
-    contentType === "auto" ||
-    contentType === "text" ||
-    contentType === "event" ||
-    contentType === "coupon"
-  )
+  return contentType === "link"
 }
 
 function isUrlType(contentType: QrInputType) {

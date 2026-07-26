@@ -1,9 +1,17 @@
+import {
+  isPositiveAmount,
+  isValidEmail,
+  isValidPhone,
+  isValidUrl,
+  VALIDATION_MESSAGES,
+} from "@/features/qr-code/content/content-field-validation"
 import type { QrInputType } from "@/features/qr-code/content/input-options"
 import { normalizeContentTypeForPicker } from "@/features/qr-code/content/input-options"
 import {
   buildPlatformPayload,
   extractPlatformValuesFromUrl,
   getPlatformDefaultValues,
+  getPlatformDefaultValuesForIntent,
   isPlatformType,
   PLATFORM_DEFS,
   resolvePlatformType,
@@ -283,6 +291,44 @@ export function getContentValuesForTypeChange(
   return defaults
 }
 
+export function resolveContentValuesForType(
+  type: QrInputType,
+  existing?: StaticQrContentValues,
+): StaticQrContentValues {
+  if (!existing) {
+    return getDefaultStaticQrValues(type)
+  }
+
+  const defaults = isPlatformType(type)
+    ? getPlatformDefaultValuesForIntent(
+        type,
+        stringValue(existing.intent) || undefined,
+      )
+    : getDefaultStaticQrValues(type)
+
+  const merged: StaticQrContentValues = { ...defaults }
+
+  for (const [key, value] of Object.entries(existing)) {
+    if (value === undefined) {
+      continue
+    }
+
+    const defaultValue = defaults[key]
+    if (
+      typeof value === "string" &&
+      value.trim() === "" &&
+      typeof defaultValue === "string" &&
+      defaultValue.trim() !== ""
+    ) {
+      continue
+    }
+
+    merged[key] = value
+  }
+
+  return merged
+}
+
 export function buildStaticQrPayload(
   type: QrInputType,
   values: StaticQrContentValues,
@@ -403,7 +449,7 @@ export function validateStaticQrContent(
 
     const amount = stringValue(values.amount)
     if (amount && !isPositiveAmount(amount)) {
-      fieldErrors.amount = "Enter a valid amount."
+      fieldErrors.amount = VALIDATION_MESSAGES.amount
     }
   }
 
@@ -414,8 +460,32 @@ export function validateStaticQrContent(
 
     const amount = stringValue(values.amount)
     if (amount && !isPositiveAmount(amount)) {
-      fieldErrors.amount = "Enter a valid amount."
+      fieldErrors.amount = VALIDATION_MESSAGES.amount
     }
+  }
+
+  const url = stringValue(values.url)
+  if (url && !fieldErrors.url) {
+    const eventMode = stringValue(values.eventMode) || "url"
+    const shouldValidateUrl =
+      LINK_CONTENT_TYPES.has(type) ||
+      (type === "event" && eventMode === "url") ||
+      type === "vcard" ||
+      (type === "coupon" && !stringValue(values.code))
+
+    if (shouldValidateUrl && !isValidUrl(url)) {
+      fieldErrors.url = VALIDATION_MESSAGES.url
+    }
+  }
+
+  const email = stringValue(values.email)
+  if (email && !fieldErrors.email && (type === "email" || type === "vcard") && !isValidEmail(email)) {
+    fieldErrors.email = VALIDATION_MESSAGES.email
+  }
+
+  const phone = stringValue(values.phone)
+  if (phone && !fieldErrors.phone && (type === "phone" || type === "sms" || type === "vcard") && !isValidPhone(phone)) {
+    fieldErrors.phone = VALIDATION_MESSAGES.phone
   }
 
   return {
@@ -557,14 +627,6 @@ function buildCryptoPayload(values: StaticQrContentValues) {
 
 function isValidUpiVpa(value: string) {
   return /^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z]{2,}$/.test(value)
-}
-
-function isPositiveAmount(value: string) {
-  if (!/^\d+(\.\d+)?$/.test(value)) {
-    return false
-  }
-
-  return Number(value) > 0
 }
 
 function appendVCardLine(

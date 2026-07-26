@@ -102,6 +102,7 @@ import {
   buildStaticQrPayload,
   getContentValuesForTypeChange,
   getDefaultStaticQrValues,
+  resolveContentValuesForType,
   STATIC_QR_CONTENT_META,
   validateStaticQrContent,
   type StaticQrContentValue,
@@ -115,6 +116,7 @@ import {
   resolveStructuredPasteApply,
   shouldShowUrlDetectionChip,
 } from "@/features/qr-code/content/apply-pasted-content"
+import { ContentTypeGridIcon } from "@/features/qr-code/content/ContentTypeGridIcon"
 import { detectUrlKind } from "@/features/qr-code/content/detect-url-kind"
 import {
   CONTENT_COLLECTIONS,
@@ -1203,17 +1205,18 @@ export function useDesktopToolbarInspectorModel({
   function handleContentTypeChange(type: QrInputType) {
     setSelectedContentType(type)
     setContentValuesByType((current) => {
-      if (current[type]) {
-        return current
-      }
+      const previousType = selectedContentType
+      const nextValues = current[type]
+        ? resolveContentValuesForType(type, current[type])
+        : getContentValuesForTypeChange(
+            previousType,
+            type,
+            current[previousType] ?? getDefaultStaticQrValues(previousType),
+          )
 
       return {
         ...current,
-        [type]: getContentValuesForTypeChange(
-          selectedContentType,
-          type,
-          current[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType),
-        ),
+        [type]: nextValues,
       }
     })
   }
@@ -1501,6 +1504,7 @@ export function DesktopThemeStyles() {
         --desktop-inspector-fg-tertiary: rgba(255, 255, 255, 0.50);
         --desktop-inspector-fg-muted: rgba(255, 255, 255, 0.42);
         --desktop-inspector-fg-label: var(--desktop-inspector-fg-secondary);
+        --desktop-inspector-error: rgba(248, 113, 113, 0.92);
         --desktop-inspector-dropdown-bg: rgba(0, 0, 0, 0.9);
         --desktop-inspector-morph-filter-bg: var(--workspace-shell, #1f1f1f);
         --desktop-inspector-dropdown-border: rgba(255, 255, 255, 0.06);
@@ -1526,6 +1530,7 @@ export function DesktopThemeStyles() {
         --desktop-inspector-fg-tertiary: rgba(15, 23, 42, 0.44);
         --desktop-inspector-fg-muted: rgba(15, 23, 42, 0.38);
         --desktop-inspector-fg-label: rgba(15, 23, 42, 0.85);
+        --desktop-inspector-error: rgba(220, 38, 38, 0.88);
         --desktop-inspector-dropdown-bg: rgba(255, 255, 255, 0.84);
         --desktop-inspector-morph-filter-bg: rgb(255, 255, 255);
         --desktop-inspector-dropdown-border: rgba(15, 23, 42, 0.09);
@@ -1878,6 +1883,7 @@ export function DesktopThemeStyles() {
         --desktop-inspector-fg-tertiary: rgba(255, 255, 255, 0.50);
         --desktop-inspector-fg-muted: rgba(255, 255, 255, 0.42);
         --desktop-inspector-fg-label: var(--desktop-inspector-fg-secondary);
+        --desktop-inspector-error: rgba(248, 113, 113, 0.92);
         --desktop-inspector-type-panel: 0.9375rem;
         --desktop-inspector-type-value: 0.8125rem;
         --desktop-inspector-type-label: 0.6875rem;
@@ -1915,6 +1921,7 @@ export function DesktopThemeStyles() {
         --desktop-inspector-fg-tertiary: rgba(15, 23, 42, 0.44);
         --desktop-inspector-fg-muted: rgba(15, 23, 42, 0.38);
         --desktop-inspector-fg-label: rgba(15, 23, 42, 0.85);
+        --desktop-inspector-error: rgba(220, 38, 38, 0.88);
         --desktop-inspector-type-panel: 0.9375rem;
         --desktop-inspector-type-value: 0.8125rem;
         --desktop-inspector-type-label: 0.6875rem;
@@ -1947,6 +1954,7 @@ export function DesktopThemeStyles() {
         --desktop-inspector-fg-tertiary: rgba(15, 23, 42, 0.44);
         --desktop-inspector-fg-muted: rgba(15, 23, 42, 0.38);
         --desktop-inspector-fg-label: rgba(15, 23, 42, 0.85);
+        --desktop-inspector-error: rgba(220, 38, 38, 0.88);
         --desktop-inspector-type-panel: 0.9375rem;
         --desktop-inspector-type-value: 0.8125rem;
         --desktop-inspector-type-label: 0.6875rem;
@@ -4299,7 +4307,6 @@ function DesktopContentInspector({
             >
               {visibleTypes.map((type) => {
               const option = QR_INPUT_OPTIONS[type]
-              const Icon = option.icon
               const isSelected = contentType === type
 
               return (
@@ -4319,7 +4326,7 @@ function DesktopContentInspector({
                   type="button"
                   onClick={() => onContentTypeChange(type)}
                 >
-                  <Icon className="relative z-10 size-5 shrink-0" strokeWidth={1.75} />
+                  <ContentTypeGridIcon className="relative z-10" type={type} />
                   <span
                     className={cn(
                       "relative z-10 max-w-full truncate leading-none",
@@ -5071,13 +5078,14 @@ function DesktopContentFields({
 
   return (
     <div
+      key={contentType}
       data-slot="desktop-content-fields"
       className="flex flex-col"
       onPaste={handlePaste}
     >
       {fields.map((field) => (
         <DesktopContentFieldRow
-          key={field.id}
+          key={`${contentType}-${field.id}`}
           field={field}
           onContentValueChange={(fieldId, value) => {
             if (fieldId === "url" || fieldId === "username" || fieldId === "text") {
@@ -5205,26 +5213,27 @@ function DesktopContentFieldRow({
         <label className={DESKTOP_INSPECTOR_LABEL_CLASS} htmlFor={controlId}>
           {field.label}
         </label>
-        {field.error ? (
-          <span className={cn("shrink-0", DESKTOP_INSPECTOR_CAPTION_CLASS, DESKTOP_INSPECTOR_FG_TERTIARY)}>{field.error}</span>
-        ) : null}
       </div>
       {field.type === "textarea" ? (
         <DesktopInspectorTextarea
           id={controlId}
-          aria-invalid={field.error ? true : undefined}
+          error={field.error}
+          pasteable
           placeholder={field.placeholder}
           value={stringContentValue(field.value)}
           onChange={(event) => onContentValueChange(field.id, event.currentTarget.value)}
+          onPasteValue={(value) => onContentValueChange(field.id, value)}
         />
       ) : null}
       {field.type === "text" ? (
         <DesktopInspectorTextInput
           id={controlId}
-          aria-invalid={field.error ? true : undefined}
+          error={field.error}
+          pasteable
           placeholder={field.placeholder}
           value={stringContentValue(field.value)}
           onChange={(event) => onContentValueChange(field.id, event.currentTarget.value)}
+          onPasteValue={(value) => onContentValueChange(field.id, value)}
         />
       ) : null}
       {field.type === "toggle" ? (
