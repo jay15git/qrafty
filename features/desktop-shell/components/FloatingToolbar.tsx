@@ -1651,7 +1651,6 @@ export function DesktopThemeStyles() {
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28) !important;
       }
 
-      [data-desktop-theme="dark"] [data-slot="desktop-left-toolbar-shell"],
       [data-desktop-theme="dark"] [data-slot="desktop-document-toolbar"],
       [data-desktop-theme="dark"] [data-slot="desktop-utility-toolbar"],
       [data-desktop-theme="dark"] [data-slot="desktop-dynamic-island"],
@@ -1659,11 +1658,6 @@ export function DesktopThemeStyles() {
         box-shadow: var(--desktop-glass-shadow) !important;
       }
 
-      [data-desktop-theme="dark"] [data-slot="desktop-left-toolbar-shell"] {
-        box-shadow: var(--desktop-glass-panel-shadow) !important;
-      }
-
-      [data-desktop-theme="light"] [data-slot="desktop-left-toolbar-shell"],
       [data-desktop-theme="light"] [data-slot="desktop-document-toolbar"],
       [data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"],
       [data-desktop-theme="light"] [data-slot="desktop-dynamic-island"],
@@ -2342,11 +2336,11 @@ export function DesktopThemeStyles() {
       }
 
       [data-slot="desktop-left-toolbar-shell"] {
-        background: var(--desktop-glass-bg) !important;
-        border-color: rgba(255, 255, 255, 0.06) !important;
-        border-radius: var(--desktop-settings-toolbar-corner-radius, 36px) !important;
-        box-shadow: var(--desktop-glass-panel-shadow) !important;
-        backdrop-filter: blur(40px) !important;
+        background: transparent !important;
+        border-color: transparent !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
       }
 
       [data-slot="desktop-left-toolbar-shell"] [data-slot="desktop-floating-toolbar"],
@@ -2358,9 +2352,9 @@ export function DesktopThemeStyles() {
       }
 
       [data-desktop-theme="light"] [data-slot="desktop-left-toolbar-shell"] {
-        background: var(--desktop-glass-bg) !important;
-        border-color: rgba(15, 23, 42, 0.12) !important;
-        box-shadow: 0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+        background: transparent !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
       }
 
       [data-desktop-theme="light"] [data-slot="desktop-floating-inspector"] [data-desktop-shape-option-preview="true"] {
@@ -4390,23 +4384,23 @@ function DesktopPatternInspector({
   settings: DesktopPatternSettings
 }) {
   return (
-    <div data-slot="desktop-pattern-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
+    <div data-slot="desktop-pattern-inspector" className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-x-hidden">
       <DesktopInspectorHeader title="Pattern" />
 
       <DesktopInspectorScrollArea>
-        <DesktopInspectorSection>
+        <DesktopInspectorSection className="min-w-0 max-w-full overflow-x-hidden">
           <div className="mb-2 min-w-0">
             <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Module Pattern</p>
           </div>
           <DesktopInspectorOptionGridScrollArea
             ariaLabel="Module pattern presets"
-            columns={3}
             dataSlot="desktop-pattern-preset-shelf-scroll-area"
+            orientation="horizontal"
             shelfDataSlot="desktop-pattern-preset-shelf"
             variant="preset"
           >
             <DesktopInspectorAnimatedOptionGrid
-              columns={3}
+              layout="row"
               selectedKey={settings.qrDotType}
             >
               {DOT_STYLE_OPTIONS.map((option) => (
@@ -5080,7 +5074,7 @@ function DesktopContentFields({
     <div
       key={contentType}
       data-slot="desktop-content-fields"
-      className="flex flex-col"
+      className="flex min-w-0 flex-col"
       onPaste={handlePaste}
     >
       {fields.map((field) => (
@@ -5151,27 +5145,41 @@ function DesktopContentDetectionChip({
     <div
       data-slot="desktop-content-detection-chip"
       className={cn(
-        "mt-2 flex items-center gap-2 rounded-[8px] border border-white/10 bg-white/[0.04] px-2.5 py-2",
+        "mt-2 min-w-0 rounded-[8px] border border-white/10 bg-white/[0.04] px-2.5 py-2",
         DESKTOP_INSPECTOR_CAPTION_CLASS,
       )}
     >
-      {BrandIcon ? (
-        <BrandIcon aria-hidden className="size-4 shrink-0" />
-      ) : (
-        <Sparkles aria-hidden className="size-4 shrink-0 opacity-70" />
-      )}
-      <div className="min-w-0 flex-1">
-        <p className={cn(DESKTOP_INSPECTOR_FG_SECONDARY, "truncate")}>
-          Detected: {label}
-        </p>
-        {detection.confidence === "low" ? (
-          <p className={cn(DESKTOP_INSPECTOR_FG_TERTIARY, "truncate")}>Suggestion only</p>
-        ) : null}
+      <div className="flex min-w-0 items-start gap-2">
+        {BrandIcon ? (
+          <BrandIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
+        ) : (
+          <Sparkles aria-hidden className="mt-0.5 size-4 shrink-0 opacity-70" />
+        )}
+        <div className="min-w-0 flex-1">
+          <p className={cn(DESKTOP_INSPECTOR_FG_SECONDARY, "truncate")}>
+            Detected: {label}
+          </p>
+          {detection.confidence === "low" ? (
+            <p className={cn(DESKTOP_INSPECTOR_FG_TERTIARY, "truncate")}>Suggestion only</p>
+          ) : null}
+        </div>
+        <button
+          aria-label="Dismiss detection"
+          className={cn(
+            "shrink-0 rounded-full px-2 py-1",
+            DESKTOP_INSPECTOR_FG_TERTIARY,
+            DESKTOP_INSPECTOR_CONTROL_CLASS,
+          )}
+          type="button"
+          onClick={onDismiss}
+        >
+          ×
+        </button>
       </div>
       {canApplyDetectedType ? (
         <button
           className={cn(
-            "shrink-0 rounded-full px-2.5 py-1 font-medium",
+            "mt-2 w-full truncate rounded-full px-2.5 py-1 font-medium",
             DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
             DESKTOP_INSPECTOR_CONTROL_CLASS,
             DESKTOP_INSPECTOR_SELECTED_CLASS,
@@ -5182,18 +5190,6 @@ function DesktopContentDetectionChip({
           Use {typeLabel}
         </button>
       ) : null}
-      <button
-        aria-label="Dismiss detection"
-        className={cn(
-          "shrink-0 rounded-full px-2 py-1",
-          DESKTOP_INSPECTOR_FG_TERTIARY,
-          DESKTOP_INSPECTOR_CONTROL_CLASS,
-        )}
-        type="button"
-        onClick={onDismiss}
-      >
-        ×
-      </button>
     </div>
   )
 }

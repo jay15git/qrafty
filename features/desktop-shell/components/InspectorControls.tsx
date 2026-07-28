@@ -77,7 +77,7 @@ export const DESKTOP_INSPECTOR_CAPTION_CLASS = cn(
   DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
 )
 export const DESKTOP_INSPECTOR_SECTION_CLASS =
-  "rounded-[10px] bg-[var(--desktop-inspector-section-bg)] p-3"
+  "min-w-0 rounded-[10px] bg-[var(--desktop-inspector-section-bg)] p-3"
 export const DESKTOP_INSPECTOR_SECTION_GAP_CLASS = "mt-2.5"
 export const DESKTOP_INSPECTOR_MAJOR_GAP_CLASS = "mt-4"
 export const DESKTOP_INSPECTOR_ROW_GAP_CLASS = "gap-2"
@@ -154,6 +154,13 @@ export function desktopInspectorOptionGridClass(
   return cn("grid gap-0", DESKTOP_INSPECTOR_OPTION_GRID_COLS_CLASS[columns], className)
 }
 
+export function desktopInspectorOptionRowClass(className?: string) {
+  return cn(
+    "flex w-max flex-nowrap [&>*]:w-[5.25rem] [&>*]:min-w-[5.25rem] [&>*]:shrink-0",
+    className,
+  )
+}
+
 export const DESKTOP_INSPECTOR_OPTION_SELECTION_SPRING: Transition = {
   type: "spring",
   stiffness: 350,
@@ -193,12 +200,14 @@ export function DesktopInspectorAnimatedOptionGrid({
   className,
   columns,
   children,
+  layout = "grid",
   selectedKey,
   ...props
 }: {
   className?: string
-  columns: DesktopInspectorOptionGridColumns
+  columns?: DesktopInspectorOptionGridColumns
   children: ReactNode
+  layout?: "grid" | "row"
   selectedKey?: string | number | boolean | null
 } & ComponentProps<"div">) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -262,7 +271,12 @@ export function DesktopInspectorAnimatedOptionGrid({
   return (
     <div
       ref={containerRef}
-      className={cn("relative", desktopInspectorOptionGridClass(columns, className))}
+      className={cn(
+        "relative",
+        layout === "row"
+          ? desktopInspectorOptionRowClass(className)
+          : desktopInspectorOptionGridClass(columns ?? 3, className),
+      )}
       {...props}
     >
       {selectedRect ? (
@@ -485,7 +499,7 @@ export function DesktopInspectorTextInput({
   const input = (
     <input
       className={cn(
-        "t-input h-9 w-full rounded-[7px] px-3",
+        "t-input h-9 w-full min-w-0 max-w-full rounded-[7px] px-3",
         pasteErrorActive && "is-error",
         shaking && "is-shaking",
         pasteable && "pr-9",
@@ -1123,7 +1137,7 @@ export function DesktopInspectorTextarea({
   const textarea = (
     <textarea
       className={cn(
-        "t-input min-h-24 w-full resize-none rounded-[7px] px-3 py-2.5",
+        "t-input min-h-24 w-full min-w-0 max-w-full resize-none rounded-[7px] px-3 py-2.5",
         pasteErrorActive && "is-error",
         shaking && "is-shaking",
         pasteable && "pr-9",

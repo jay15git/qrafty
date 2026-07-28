@@ -133,7 +133,13 @@ const ScrollArea = forwardRef<
             <ScrollAreaPrimitive.Viewport
               ref={viewportRef}
               data-slot="scroll-area-viewport"
-              className={cn("size-full rounded-[inherit]", viewportClassName)}
+              className={cn(
+                "size-full rounded-[inherit]",
+                orientation === "vertical" && "overflow-x-hidden",
+                orientation === "horizontal" && "overflow-y-hidden",
+                orientation === "both" && "overflow-auto",
+                viewportClassName,
+              )}
             >
               {children}
             </ScrollAreaPrimitive.Viewport>

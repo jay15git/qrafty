@@ -33,13 +33,36 @@ export type DesktopInspectorOptionGridRowKind =
 
 function desktopOptionGridScrollHeightClass({
   columns = 3,
+  orientation = "vertical",
   rowKind,
   variant,
 }: {
   columns?: DesktopInspectorOptionGridColumns
+  orientation?: "vertical" | "horizontal"
   rowKind?: DesktopInspectorOptionGridRowKind
   variant: DesktopInspectorOptionGridVariant
 }): string {
+  if (orientation === "horizontal") {
+    const resolvedRowKind: DesktopInspectorOptionGridRowKind =
+      rowKind ?? (variant === "preset" ? "square" : columns === 4 ? "h-12" : "h-10")
+
+    switch (resolvedRowKind) {
+      case "square":
+      case "labeled":
+        return "h-[5.75rem]"
+      case "h-12":
+        return "h-14"
+      case "h-10":
+        return "h-12"
+      case "h-9":
+        return "h-11"
+      case "h-8":
+        return "h-10"
+      case "content":
+        return "h-[5.75rem]"
+    }
+  }
+
   const resolvedRowKind: DesktopInspectorOptionGridRowKind =
     rowKind ??
     (variant === "content"
@@ -89,10 +112,12 @@ export function DesktopInspectorScrollArea({ children }: { children: ReactNode }
       cueSize="comfortable"
       data-slot="desktop-inspector-scroll-area"
       scrollFade
-      className="min-h-0 flex-1"
-      viewportClassName="py-3"
+      className="desktop-inspector-scroll-area min-h-0 min-w-0 w-full max-w-full flex-1"
+      viewportClassName="min-w-0 py-3"
     >
-      <div data-slot="desktop-inspector-scroll">{children}</div>
+      <div className="min-w-0 w-full max-w-full" data-slot="desktop-inspector-scroll">
+        {children}
+      </div>
     </ScrollArea>
   )
 }
@@ -103,6 +128,7 @@ export function DesktopInspectorOptionGridScrollArea({
   className,
   columns = 3,
   dataSlot,
+  orientation = "vertical",
   role = "group",
   rowKind,
   shelfDataSlot,
@@ -114,34 +140,62 @@ export function DesktopInspectorOptionGridScrollArea({
   className?: string
   columns?: DesktopInspectorOptionGridColumns
   dataSlot: string
+  orientation?: "vertical" | "horizontal"
   role?: "group" | "listbox"
   rowKind?: DesktopInspectorOptionGridRowKind
   shelfDataSlot?: string
   shelfId?: string
   variant: DesktopInspectorOptionGridVariant
 }) {
+  const isHorizontal = orientation === "horizontal"
+  const heightClass = desktopOptionGridScrollHeightClass({
+    columns,
+    orientation,
+    rowKind,
+    variant,
+  })
+  const shelfProps = {
+    "aria-label": ariaLabel,
+    "data-slot": shelfDataSlot ?? dataSlot.replace(/-scroll-area$/, ""),
+    id: shelfId,
+    role,
+  } as const
+
+  // Horizontal shelves: native x-scroller capped to column width.
+  // Parent vertical Radix scroll uses display:table;min-width:100% which would
+  // otherwise grow to the row and overflow the whole settings panel.
+  if (isHorizontal) {
+    return (
+      <SurfaceProvider value={2}>
+        <div className="min-w-0 w-full max-w-full" style={{ width: "100%" }}>
+          <div
+            className={cn(
+              "min-w-0 w-full max-w-full overflow-x-auto overflow-y-hidden overscroll-x-contain [-webkit-overflow-scrolling:touch]",
+              heightClass,
+              className,
+            )}
+            data-slot={dataSlot}
+            style={{ width: "100%", maxWidth: "100%" }}
+          >
+            <div {...shelfProps}>{children}</div>
+          </div>
+        </div>
+      </SurfaceProvider>
+    )
+  }
+
   return (
     <SurfaceProvider value={2}>
       <ScrollArea
         chevron
         cueSize="tight"
         data-slot={dataSlot}
+        orientation="vertical"
         scrollFade
-        className={cn(
-          "shrink-0 overflow-hidden",
-          desktopOptionGridScrollHeightClass({ columns, rowKind, variant }),
-          className,
-        )}
+        className={cn("min-w-0 w-full shrink-0 overflow-hidden", heightClass, className)}
         viewportClassName="pr-1"
       >
-        <div
-          aria-label={ariaLabel}
-          data-slot={shelfDataSlot ?? dataSlot.replace(/-scroll-area$/, "")}
-          id={shelfId}
-          role={role}
-        >
-          {children}
-        </div>
+        <div {...shelfProps}>{children}</div>
       </ScrollArea>
     </SurfaceProvider>
   )

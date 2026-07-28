@@ -20,7 +20,7 @@ export default function DesktopPage() {
   return (
     <main
       data-slot="desktop-page"
-      className={`${satoshi.className} min-h-dvh overflow-hidden bg-workspace-shell-light text-neutral-950`}
+      className={`${satoshi.className} min-h-dvh overflow-hidden bg-white text-neutral-950`}
     >
       <Suspense fallback={null}>
         <DesktopPageClient fontClassName={satoshi.className} />

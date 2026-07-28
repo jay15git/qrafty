@@ -26,12 +26,12 @@ export function DesktopWorkspace({
 }: DesktopWorkspaceProps) {
   const [desktopTheme, setDesktopTheme] = useState<DesktopThemeMode>(initialTheme)
   const workspaceTone = {
-    "--workspace-shell": desktopTheme === "light" ? "#e7e9ec" : "#1f1f1f",
-    "--workspace-page": desktopTheme === "light" ? "#ffffff" : "#171717",
+    "--workspace-shell": desktopTheme === "light" ? "#ffffff" : "#07080a",
+    "--workspace-page": desktopTheme === "light" ? "#ffffff" : "#07080a",
     "--drafting-dark-shell-bg": "#1f1f1f",
-    "--drafting-dark-page-bg": "#171717",
-    "--drafting-canvas-bg": desktopTheme === "light" ? "#ffffff" : "#1f1f1f",
-    "--drafting-workspace-bg": desktopTheme === "light" ? "#ffffff" : "#171717",
+    "--drafting-dark-page-bg": "#07080a",
+    "--drafting-canvas-bg": desktopTheme === "light" ? "#e7e9ec" : "#1f1f1f",
+    "--drafting-workspace-bg": desktopTheme === "light" ? "#ffffff" : "#07080a",
     "--drafting-surface-bg": desktopTheme === "light" ? "#e7e9ec" : "#1f1f1f",
   } as CSSProperties
 
@@ -52,7 +52,7 @@ export function DesktopWorkspace({
         className={cn(
           fontClassName,
           "relative h-dvh min-h-dvh overflow-hidden transition-colors duration-200",
-          desktopTheme === "light" ? "bg-workspace-shell-light text-neutral-950" : "bg-workspace-shell text-white",
+          desktopTheme === "light" ? "bg-white text-neutral-950" : "bg-workspace-page text-white",
         )}
       >
       <WorkspaceSurface
@@ -90,17 +90,21 @@ function DesktopWorkspaceStyles() {
         min-height: 100dvh;
         grid-template-rows: 1fr;
         overflow: hidden;
-        background: var(--workspace-shell);
+        background: var(--workspace-page);
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-surface"] {
         --drafting-canvas-dot-rgb: 15 23 42;
         --drafting-canvas-dot-opacity: 0.08;
-        background: var(--workspace-shell-light);
+        background: #ffffff;
+      }
+
+      [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="drafting-surface"] {
+        background: #07080a;
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-floating-inspector"] {
-        --scroll-edge-fade-color: #0a0a0a;
+        --scroll-edge-fade-color: #07080a;
       }
 
       [data-slot="desktop-workspace"] [data-slot="dashboard-compose-surface"] {
@@ -175,7 +179,9 @@ function DesktopWorkspaceStyles() {
       [data-slot="desktop-workspace"] [data-slot="desktop-utility-toolbar-anchor"],
       [data-slot="desktop-workspace"] [data-slot="desktop-top-chrome"],
       [data-slot="desktop-workspace"] [data-slot="desktop-dynamic-island"],
-      [data-slot="desktop-workspace"] [data-slot="desktop-theme-toggle"] {
+      [data-slot="desktop-workspace"] [data-slot="desktop-theme-toggle"],
+      [data-slot="desktop-workspace"] [data-slot="desktop-sidebar-toggle"],
+      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] {
         pointer-events: auto;
       }
 
@@ -229,6 +235,26 @@ function DesktopWorkspaceStyles() {
 
       [data-slot="desktop-workspace"] [data-toolbar-appearance="desktop-glass"] button:active svg,
       [data-slot="desktop-workspace"] button[data-toolbar-appearance="desktop-glass"]:active svg {
+        transform: scale(0.84) !important;
+      }
+
+      /* Settings sidebar kept desktop-settings appearance — restore press scale on rail + inspector. */
+      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button,
+      [data-slot="desktop-workspace"] [data-slot="desktop-sidebar-toggle"] {
+        transform: none !important;
+        translate: none !important;
+        scale: none !important;
+        rotate: none !important;
+      }
+
+      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button svg,
+      [data-slot="desktop-workspace"] [data-slot="desktop-sidebar-toggle"] svg {
+        transform-origin: center;
+        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms ease, opacity 180ms ease;
+      }
+
+      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button:active svg,
+      [data-slot="desktop-workspace"] [data-slot="desktop-sidebar-toggle"]:active svg {
         transform: scale(0.84) !important;
       }
 

@@ -1,23 +1,28 @@
 :root {
-  --desktop-settings-toolbar-chrome-gap: 1.25rem;
-  --desktop-settings-toolbar-width: 380px;
-  --desktop-settings-toolbar-corner-radius: 36px;
-  --desktop-top-chrome-right: 1.25rem;
+  --desktop-settings-toolbar-chrome-gap: 0.75rem;
+  --desktop-settings-toolbar-width: 0px;
+  --desktop-settings-toolbar-corner-radius: 0px;
+  --desktop-canvas-radius: 32px;
+  --desktop-top-chrome-right: 0.75rem;
   --desktop-compose-rail-width: 4.5rem;
   --desktop-workspace-canvas-inset-top: var(--desktop-settings-toolbar-chrome-gap);
-  --desktop-workspace-canvas-inset-right: calc(
-    var(--desktop-settings-toolbar-chrome-gap) + var(--desktop-compose-rail-width)
-  );
+  --desktop-workspace-canvas-inset-right: var(--desktop-settings-toolbar-chrome-gap);
   --desktop-workspace-canvas-inset-bottom: var(--desktop-settings-toolbar-chrome-gap);
   --desktop-workspace-canvas-inset-left: calc(
-    var(--desktop-settings-toolbar-chrome-gap) * 2 + var(--desktop-settings-toolbar-width)
+    var(--desktop-settings-toolbar-chrome-gap) + var(--desktop-settings-toolbar-width)
   );
 }
 
+[data-slot="desktop-workspace"],
 [data-slot="desktop-floating-toolbar-root"] {
-  --desktop-settings-toolbar-width: 380px;
-  --desktop-settings-toolbar-chrome-gap: 1.25rem;
-  --desktop-top-chrome-right: 1.25rem;
+  --desktop-settings-toolbar-chrome-gap: 0.75rem;
+  --desktop-top-chrome-right: 0.75rem;
+  --desktop-workspace-canvas-inset-top: var(--desktop-settings-toolbar-chrome-gap);
+  --desktop-workspace-canvas-inset-right: var(--desktop-settings-toolbar-chrome-gap);
+  --desktop-workspace-canvas-inset-bottom: var(--desktop-settings-toolbar-chrome-gap);
+  --desktop-workspace-canvas-inset-left: calc(
+    var(--desktop-settings-toolbar-chrome-gap) + var(--desktop-settings-toolbar-width)
+  );
 }
 
 [data-slot="desktop-dynamic-island-anchor"] {
@@ -46,15 +51,18 @@
 @media (max-width: 768px) {
   [data-slot="desktop-dynamic-island-anchor"] {
     left: 50%;
-    top: 1rem;
+    top: 0.75rem;
   }
 
   :root,
+  [data-slot="desktop-workspace"],
   [data-slot="desktop-floating-toolbar-root"] {
-    --desktop-workspace-canvas-inset-top: 1rem;
-    --desktop-workspace-canvas-inset-right: calc(1rem + var(--desktop-compose-rail-width));
-    --desktop-workspace-canvas-inset-bottom: 1rem;
-    --desktop-workspace-canvas-inset-left: calc(0.75rem * 2 + var(--desktop-settings-toolbar-width));
+    --desktop-settings-toolbar-chrome-gap: 0.625rem;
+    --desktop-top-chrome-right: 0.625rem;
+    --desktop-workspace-canvas-inset-top: 0.625rem;
+    --desktop-workspace-canvas-inset-right: 0.625rem;
+    --desktop-workspace-canvas-inset-bottom: 0.625rem;
+    --desktop-workspace-canvas-inset-left: calc(0.625rem + var(--desktop-settings-toolbar-width));
   }
 }
 
@@ -62,6 +70,7 @@
   box-sizing: border-box;
   height: 100%;
   min-height: 0;
+  /* Left padding = expanding white column. Grey squircle shrinks as this grows. */
   padding:
     var(--desktop-workspace-canvas-inset-top)
     var(--desktop-workspace-canvas-inset-right)
@@ -73,13 +82,13 @@
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  border-radius: 0;
-  background: var(--drafting-workspace-bg, #ffffff);
+  border-radius: var(--desktop-canvas-radius);
+  background: var(--drafting-surface-bg, #e7e9ec);
   box-shadow: none;
 }
 
 [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-canvas-viewport"] {
-  background: var(--drafting-canvas-bg, #1f1f1f);
+  background: var(--drafting-surface-bg, #1f1f1f);
   box-shadow: none;
 }
 
@@ -120,8 +129,8 @@
 
 @media (max-width: 768px) {
   [data-slot="desktop-utility-toolbar-anchor"] {
-    top: 1rem;
-    right: 1rem;
+    top: 0.625rem;
+    right: 0.625rem;
   }
 }
 
@@ -129,7 +138,7 @@
   cursor: pointer;
 }
 
-/* Transitions.dev — icon swap (brand GitHub ↔ sidebar) */
+/* Transitions.dev — sidebar icon left ↔ right */
 [data-slot="desktop-toolbar-brand"] {
   --icon-swap-dur: 250ms;
   --icon-swap-blur: 2px;
@@ -170,10 +179,6 @@
   transform: scale(var(--icon-swap-start-scale));
 }
 
-[data-slot="desktop-toolbar-brand"] img {
-  filter: none !important;
-}
-
 /* Sidebar left ↔ right: blur + fade only, no scale */
 [data-slot="desktop-toolbar-brand"] .t-icon-swap--sidebar > .t-icon {
   transition:
@@ -198,7 +203,7 @@
 }
 
 [data-slot="desktop-left-toolbar-shell"] {
-  border-radius: var(--desktop-settings-toolbar-corner-radius, 36px);
+  border-radius: 0;
   --desktop-settings-toolbar-rail-hitbox-half: 1.5625rem;
   --desktop-settings-toolbar-inspector-header-height: 2.75rem;
   --desktop-toolbar-rail-width: 4.5rem;
@@ -217,13 +222,7 @@
     (var(--desktop-toolbar-rail-hitbox-size) - var(--desktop-toolbar-rail-icon-size)) / 2
   );
   --desktop-inspector-scroll-padding-block-start: 0.75rem;
-  --desktop-settings-toolbar-top-inset: max(
-    0.5rem,
-    calc(
-      var(--desktop-settings-toolbar-corner-radius, 36px) -
-        var(--desktop-settings-toolbar-rail-hitbox-half)
-    )
-  );
+  --desktop-settings-toolbar-top-inset: 0.75rem;
 }
 
 @media (max-width: 768px) {
@@ -254,4 +253,28 @@
       var(--desktop-toolbar-rail-hitbox-size) - var(--desktop-toolbar-rail-pill-inset-y)
   );
   box-sizing: border-box;
+}
+
+[data-slot="desktop-sidebar-toggle"] {
+  pointer-events: auto;
+}
+
+/*
+ * Radix ScrollArea content wrapper is `display: table; min-width: 100%`, which
+ * grows to the widest child. That makes horizontal option shelves inflate the
+ * whole settings column. Pin inspector scroll content to the panel width.
+ */
+[data-slot="desktop-inspector-scroll-area"] [data-slot="scroll-area-viewport"] > div {
+  display: block !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+[data-slot="desktop-pattern-preset-shelf-scroll-area"] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
