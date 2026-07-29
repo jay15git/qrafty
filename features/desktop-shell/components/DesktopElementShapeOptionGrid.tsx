@@ -4,6 +4,7 @@ import type { ReactNode } from "react"
 
 import {
   DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+  DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
   DesktopInspectorAnimatedOptionGrid,
   desktopInspectorOptionGridItemClass,
@@ -34,9 +35,10 @@ function DesktopElementShapeOptionTile({
       aria-label={`Use ${label} shape`}
       aria-pressed={selected}
       data-desktop-animated-option-selection="true"
+      data-desktop-option-interaction="scale"
       data-desktop-option-tile="true"
       className={cn(
-        "group flex w-full min-w-0 items-center justify-center transition",
+        "group flex w-full min-w-0 items-center justify-center",
         desktopInspectorOptionGridItemClass("loose"),
         DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
@@ -45,7 +47,12 @@ function DesktopElementShapeOptionTile({
       type="button"
       onClick={onClick}
     >
-      <span className="relative z-10 aspect-square w-full min-w-0 overflow-hidden rounded-[6px]">
+      <span
+        className={cn(
+          "relative z-10 aspect-square w-full min-w-0 overflow-hidden rounded-[6px]",
+          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+        )}
+      >
         <span
           aria-hidden="true"
           data-desktop-adaptive-option-preview="true"

@@ -127,10 +127,15 @@ export const DESKTOP_INSPECTOR_DROPDOWN_ITEM_CLASS = cn(
 )
 export const DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS =
   "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
+/** Option tiles: no grey hover fill. Selected chrome stays white pill; preview scales via SCALE_PREVIEW. */
 export const DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS = cn(
-  "rounded-[7px] border-2 border-transparent bg-transparent font-medium text-[var(--desktop-inspector-fg-tertiary)] transition hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)]",
+  "rounded-[7px] border-2 border-transparent bg-transparent font-medium text-[var(--desktop-inspector-fg-tertiary)] transition-colors hover:bg-transparent hover:text-[var(--desktop-inspector-fg-primary)]",
   DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
 )
+export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_SURFACE_CLASS =
+  DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS
+export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS =
+  "transition-transform duration-200 ease-out group-hover:scale-[1.06] group-active:scale-[0.94]"
 
 export const DESKTOP_INSPECTOR_OPTION_GRID_COLS_CLASS = {
   2: "grid-cols-2",
@@ -161,12 +166,14 @@ export function desktopInspectorOptionRowClass(className?: string) {
   )
 }
 
-export const DESKTOP_INSPECTOR_OPTION_SELECTION_SPRING: Transition = {
-  type: "spring",
-  stiffness: 350,
-  damping: 30,
-  mass: 1,
+export const DESKTOP_INSPECTOR_OPTION_SELECTION_APPEAR: Transition = {
+  opacity: { duration: 0.34, ease: [0.33, 1, 0.68, 1] },
+  filter: { duration: 0.48, ease: [0.22, 1, 0.36, 1] },
+  scale: { duration: 0.42, ease: [0.33, 1, 0.68, 1] },
 }
+
+/** @deprecated Prefer DESKTOP_INSPECTOR_OPTION_SELECTION_APPEAR — selection no longer travels. */
+export const DESKTOP_INSPECTOR_OPTION_SELECTION_SPRING = DESKTOP_INSPECTOR_OPTION_SELECTION_APPEAR
 
 const DESKTOP_INSPECTOR_FROZEN_MOTION_TRANSITION: Transition = { duration: 0 }
 
@@ -175,6 +182,11 @@ type DesktopInspectorOptionSelectionRect = {
   left: number
   top: number
   width: number
+}
+
+type DesktopInspectorOptionSelection = {
+  key: string
+  rect: DesktopInspectorOptionSelectionRect
 }
 
 function measureDesktopInspectorOptionSelection(
@@ -196,6 +208,16 @@ function measureDesktopInspectorOptionSelection(
   }
 }
 
+function resolveDesktopInspectorOptionSelectionKey(
+  selectedKey: string | number | boolean | null | undefined,
+) {
+  if (selectedKey === null || selectedKey === undefined) {
+    return "none"
+  }
+
+  return String(selectedKey)
+}
+
 export function DesktopInspectorAnimatedOptionGrid({
   className,
   columns,
@@ -211,8 +233,10 @@ export function DesktopInspectorAnimatedOptionGrid({
   selectedKey?: string | number | boolean | null
 } & ComponentProps<"div">) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [selectedRect, setSelectedRect] = useState<DesktopInspectorOptionSelectionRect | null>(null)
+  const [selection, setSelection] = useState<DesktopInspectorOptionSelection | null>(null)
   const motionFrozen = useDesktopSettingsPanelMotionFrozen()
+  const reduceMotion = useReducedMotion()
+  const skipAppear = motionFrozen || Boolean(reduceMotion)
 
   const measureSelected = useCallback(() => {
     if (motionFrozen) {
@@ -224,8 +248,11 @@ export function DesktopInspectorAnimatedOptionGrid({
       return
     }
 
-    setSelectedRect(measureDesktopInspectorOptionSelection(container))
-  }, [motionFrozen])
+    const rect = measureDesktopInspectorOptionSelection(container)
+    const key = resolveDesktopInspectorOptionSelectionKey(selectedKey)
+
+    setSelection(rect ? { key, rect } : null)
+  }, [motionFrozen, selectedKey])
 
   useLayoutEffect(() => {
     measureSelected()
@@ -279,18 +306,36 @@ export function DesktopInspectorAnimatedOptionGrid({
       )}
       {...props}
     >
-      {selectedRect ? (
+      {selection ? (
         <motion.div
+          key={selection.key}
           data-slot="desktop-inspector-option-selection-indicator"
-          className="pointer-events-none absolute z-0 rounded-[7px] border-2 border-[var(--desktop-inspector-option-selected-border)] bg-[var(--desktop-inspector-option-selected-bg)]"
-          initial={false}
-          animate={{
-            left: selectedRect.left,
-            top: selectedRect.top,
-            width: selectedRect.width,
-            height: selectedRect.height,
+          className="pointer-events-none absolute z-0 rounded-[7px] border-2 border-[var(--desktop-inspector-option-selected-border)] bg-[var(--desktop-inspector-option-selected-bg)] shadow-[var(--desktop-inspector-option-selected-shadow)] backdrop-blur-[16px]"
+          style={{
+            left: selection.rect.left,
+            top: selection.rect.top,
+            width: selection.rect.width,
+            height: selection.rect.height,
           }}
-          transition={DESKTOP_INSPECTOR_FROZEN_MOTION_TRANSITION}
+          initial={
+            skipAppear
+              ? false
+              : {
+                  opacity: 0,
+                  filter: "blur(18px)",
+                  scale: 0.985,
+                }
+          }
+          animate={{
+            opacity: 1,
+            filter: "blur(0px)",
+            scale: 1,
+          }}
+          transition={
+            skipAppear
+              ? DESKTOP_INSPECTOR_FROZEN_MOTION_TRANSITION
+              : DESKTOP_INSPECTOR_OPTION_SELECTION_APPEAR
+          }
         />
       ) : null}
       {children}

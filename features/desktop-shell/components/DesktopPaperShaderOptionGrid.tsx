@@ -2,6 +2,7 @@
 
 import {
   DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+  DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
   DesktopInspectorAnimatedOptionGrid,
   desktopInspectorOptionGridItemClass,
@@ -30,10 +31,11 @@ function DesktopPaperShaderOptionTile({
       aria-label={`Use ${label} shader`}
       aria-pressed={selected}
       data-desktop-animated-option-selection="true"
+      data-desktop-option-interaction="scale"
       data-desktop-option-tile="true"
       data-desktop-preview-option="true"
       className={cn(
-        "group relative aspect-square w-full min-w-0 p-0 text-center transition",
+        "group relative aspect-square w-full min-w-0 p-0 text-center",
         desktopInspectorOptionGridItemClass("loose"),
         DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
@@ -46,7 +48,10 @@ function DesktopPaperShaderOptionTile({
         aria-hidden="true"
         data-desktop-adaptive-option-preview="true"
         data-slot="desktop-style-preview-surface"
-        className="relative z-10 size-full overflow-hidden rounded-[6px] border-2 border-transparent bg-[#15161a] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"
+        className={cn(
+          "relative z-10 size-full overflow-hidden rounded-[6px] border-2 border-transparent bg-[#15161a] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]",
+          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+        )}
       >
         <PaperShaderOptionPreview isSelected={selected} shaderId={shaderId} />
       </span>

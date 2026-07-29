@@ -15,6 +15,7 @@ import {
   DESKTOP_INSPECTOR_FG_MUTED,
   DESKTOP_INSPECTOR_HEADER_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+  DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
   DESKTOP_INSPECTOR_PANEL_TITLE_CLASS,
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
   DesktopInspectorAnimatedOptionGrid,
@@ -55,10 +56,11 @@ function DesktopPexelsPhotoButton({
     <button
       aria-label={`Insert photo by ${photo.photographer}`}
       className={cn(
-        "relative aspect-[4/3] min-w-0 overflow-hidden rounded-[7px] border-2 border-transparent bg-[var(--desktop-inspector-control-hover-bg)] transition hover:border-[var(--desktop-inspector-control-border-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
+        "group relative aspect-[4/3] min-w-0 overflow-hidden rounded-[7px] border-2 border-transparent bg-[var(--desktop-inspector-control-hover-bg)]",
         desktopInspectorOptionGridItemClass(),
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
       )}
+      data-desktop-option-interaction="scale"
       data-desktop-option-tile="true"
       data-slot="desktop-pexels-photo-button"
       type="button"
@@ -67,7 +69,10 @@ function DesktopPexelsPhotoButton({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         alt={photo.alt}
-        className="absolute inset-0 size-full object-cover"
+        className={cn(
+          "absolute inset-0 size-full object-cover",
+          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+        )}
         loading="lazy"
         src={photo.previewUrl}
       />

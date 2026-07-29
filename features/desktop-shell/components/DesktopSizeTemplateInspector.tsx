@@ -10,6 +10,7 @@ import {
   DESKTOP_INSPECTOR_FG_TERTIARY,
   DESKTOP_INSPECTOR_LABEL_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+  DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
   DESKTOP_INSPECTOR_ROW_CLASS,
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
@@ -341,9 +342,10 @@ function DesktopSizeTemplateCard({
       aria-label={`Use ${template.label} size ${template.width} by ${template.height}`}
       aria-pressed={selected}
       data-desktop-animated-option-selection="true"
+      data-desktop-option-interaction="scale"
       data-desktop-option-tile="true"
       className={cn(
-        "group flex w-[4.75rem] min-w-0 flex-col items-center gap-1.5 text-center transition",
+        "group flex w-[4.75rem] min-w-0 flex-col items-center gap-1.5 text-center",
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
         selected && "text-[var(--desktop-inspector-option-selected-fg)]",
       )}
@@ -352,8 +354,9 @@ function DesktopSizeTemplateCard({
     >
       <span
         className={cn(
-          "relative flex h-[4.25rem] w-full items-center justify-center rounded-[10px] border border-white/10 bg-white/6 transition",
+          "relative flex h-[4.25rem] w-full items-center justify-center rounded-[10px] border border-white/10 bg-white/6",
           DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
           selected && DESKTOP_INSPECTOR_SELECTED_CLASS,
         )}
       >

@@ -11,6 +11,7 @@ import {
   DESKTOP_INSPECTOR_CONTROL_CLASS,
   DESKTOP_INSPECTOR_LABEL_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+  DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
   DESKTOP_INSPECTOR_ROW_CLASS,
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
@@ -87,16 +88,22 @@ export function DesktopLayoutInspector({
                   aria-label={preset.label}
                   aria-pressed={settings.layout.id === preset.id}
                   data-desktop-animated-option-selection="true"
+                  data-desktop-option-interaction="scale"
                   data-desktop-option-tile="true"
                   className={cn(
-                    "group flex w-full min-w-0 flex-col items-center justify-center gap-1.5 p-2 transition",
+                    "group flex w-full min-w-0 flex-col items-center justify-center gap-1.5 p-2",
                     DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
                     DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
                     settings.layout.id === preset.id && DESKTOP_INSPECTOR_SELECTED_CLASS,
                   )}
                   onClick={() => onLayoutPresetSelect(preset)}
                 >
-                  <span className="grid h-10 w-full place-items-center rounded-[6px] text-[10px] font-medium leading-tight">
+                  <span
+                    className={cn(
+                      "grid h-10 w-full place-items-center rounded-[6px] text-[10px] font-medium leading-tight",
+                      DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+                    )}
+                  >
                     {preset.label}
                   </span>
                 </button>

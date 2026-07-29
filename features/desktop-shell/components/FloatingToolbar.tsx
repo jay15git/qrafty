@@ -224,6 +224,8 @@ import {
   DESKTOP_INSPECTOR_LABEL_CLASS,
   DESKTOP_INSPECTOR_MAJOR_GAP_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+  DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+  DESKTOP_INSPECTOR_OPTION_TILE_SCALE_SURFACE_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
   DESKTOP_INSPECTOR_PANEL_TITLE_CLASS,
   DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
@@ -1865,8 +1867,9 @@ export function DesktopThemeStyles() {
         --desktop-inspector-control-active-bg: rgba(255, 255, 255, 0.13);
         --desktop-inspector-control-border-hover: rgba(255, 255, 255, 0.12);
         --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.10);
-        --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.14);
-        --desktop-inspector-option-selected-border: rgba(255, 255, 255, 0.24);
+        --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.09);
+        --desktop-inspector-option-selected-border: rgba(255, 255, 255, 0.18);
+        --desktop-inspector-option-selected-shadow: 0 1px 2px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
         --desktop-inspector-option-selected-fg: rgba(255, 255, 255, 0.96);
         --desktop-inspector-field-bg: rgba(0, 0, 0, 0.22);
         --desktop-inspector-focus: rgba(255, 255, 255, 0.36);
@@ -1902,9 +1905,10 @@ export function DesktopThemeStyles() {
         --desktop-inspector-control-hover-bg: rgba(15, 23, 42, 0.1);
         --desktop-inspector-control-active-bg: rgba(15, 23, 42, 0.14);
         --desktop-inspector-control-border-hover: rgba(15, 23, 42, 0.16);
-        --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.96);
-        --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.96);
-        --desktop-inspector-option-selected-border: rgba(15, 23, 42, 0.22);
+        --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.68);
+        --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.58);
+        --desktop-inspector-option-selected-border: rgba(15, 23, 42, 0.14);
+        --desktop-inspector-option-selected-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.55);
         --desktop-inspector-option-selected-fg: rgba(15, 23, 42, 0.94);
         --desktop-inspector-field-bg: rgba(255, 255, 255, 0.62);
         --desktop-inspector-focus: rgba(15, 23, 42, 0.36);
@@ -1935,9 +1939,10 @@ export function DesktopThemeStyles() {
         --desktop-inspector-control-hover-bg: rgba(15, 23, 42, 0.1);
         --desktop-inspector-control-active-bg: rgba(15, 23, 42, 0.14);
         --desktop-inspector-control-border-hover: rgba(15, 23, 42, 0.16);
-        --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.96);
-        --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.96);
-        --desktop-inspector-option-selected-border: rgba(15, 23, 42, 0.22);
+        --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.68);
+        --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.58);
+        --desktop-inspector-option-selected-border: rgba(15, 23, 42, 0.14);
+        --desktop-inspector-option-selected-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.55);
         --desktop-inspector-option-selected-fg: rgba(15, 23, 42, 0.94);
         --desktop-inspector-field-bg: rgba(255, 255, 255, 0.62);
         --desktop-inspector-focus: rgba(15, 23, 42, 0.36);
@@ -2190,6 +2195,9 @@ export function DesktopThemeStyles() {
       [data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-option-selection-indicator"] {
         background-color: var(--desktop-inspector-option-selected-bg) !important;
         border-color: var(--desktop-inspector-option-selected-border) !important;
+        box-shadow: var(--desktop-inspector-option-selected-shadow) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
       }
 
       [data-slot="desktop-floating-inspector"] button[aria-pressed="true"]:not([data-desktop-tool-button="true"]):not([data-slot="desktop-layer-stack-icon-toggle"]):not([data-slot="desktop-layer-row"]) :is(span, svg):not([data-desktop-adaptive-option-preview="true"]) {
@@ -2285,8 +2293,14 @@ export function DesktopThemeStyles() {
         color: var(--desktop-inspector-fg-tertiary) !important;
       }
 
+      [data-slot="desktop-floating-inspector"] button:is([data-desktop-preview-option="true"], [data-desktop-content-type-option="true"], [data-desktop-motion-loader-option="true"], [data-desktop-option-tile="true"]):hover,
+      [data-slot="desktop-floating-inspector"] button:is([data-desktop-preview-option="true"], [data-desktop-content-type-option="true"], [data-desktop-motion-loader-option="true"], [data-desktop-option-tile="true"]):active,
+      [data-desktop-theme="light"] [data-slot="desktop-floating-inspector"] button:is([data-desktop-preview-option="true"], [data-desktop-content-type-option="true"], [data-desktop-motion-loader-option="true"], [data-desktop-option-tile="true"]):hover,
+      [data-desktop-theme="light"] [data-slot="desktop-floating-inspector"] button:is([data-desktop-preview-option="true"], [data-desktop-content-type-option="true"], [data-desktop-motion-loader-option="true"], [data-desktop-option-tile="true"]):active {
+        background-color: transparent !important;
+      }
+
       [data-desktop-theme="light"] [data-slot="desktop-floating-inspector"] button:is([data-desktop-preview-option="true"], [data-desktop-content-type-option="true"], [data-desktop-motion-loader-option="true"], [data-desktop-option-tile="true"]):hover:not([aria-pressed="true"]) {
-        background-color: rgba(15, 23, 42, 0.06) !important;
         color: var(--desktop-inspector-fg-secondary) !important;
       }
 
@@ -2887,17 +2901,24 @@ function DesktopBrandIconButton({
       aria-label={`Use ${brandIcon.label} brand icon`}
       aria-pressed={selected}
       data-desktop-animated-option-selection="true"
+      data-desktop-option-interaction="scale"
       data-desktop-option-tile="true"
       className={cn(
-        "relative grid h-12 min-w-0 place-items-center rounded-[7px] border-2 border-transparent bg-transparent text-[var(--desktop-inspector-fg-tertiary)] transition hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)]",
+        "group relative grid h-12 min-w-0 place-items-center",
         desktopInspectorOptionGridItemClass(),
+        DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
         selected && "text-[var(--desktop-inspector-option-selected-fg)]",
       )}
       type="button"
       onClick={onClick}
     >
-      <span className="relative z-10 flex size-4 items-center justify-center">
+      <span
+        className={cn(
+          "relative z-10 flex size-4 items-center justify-center",
+          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+        )}
+      >
         <Icon className="size-4" />
       </span>
     </button>
@@ -2920,10 +2941,12 @@ function DesktopIconstackIconButton({
       aria-label={`Use ${result.name} icon from ${result.libraryName}`}
       aria-pressed={selected}
       data-desktop-animated-option-selection="true"
+      data-desktop-option-interaction="scale"
       data-desktop-option-tile="true"
       className={cn(
-        "relative grid h-12 min-w-0 place-items-center rounded-[7px] border-2 border-transparent bg-transparent text-[var(--desktop-inspector-fg-tertiary)] transition hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)]",
+        "group relative grid h-12 min-w-0 place-items-center",
         desktopInspectorOptionGridItemClass(),
+        DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
         selected && "text-[var(--desktop-inspector-option-selected-fg)]",
       )}
@@ -2932,11 +2955,20 @@ function DesktopIconstackIconButton({
     >
       {previewSvg ? (
         <span
-          className="relative z-10 flex size-4 items-center justify-center [&_svg]:size-4"
+          className={cn(
+            "relative z-10 flex size-4 items-center justify-center [&_svg]:size-4",
+            DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+          )}
           dangerouslySetInnerHTML={{ __html: previewSvg }}
         />
       ) : (
-        <span className={cn("relative z-10 text-[9px] font-semibold", DESKTOP_INSPECTOR_FG_MUTED)}>
+        <span
+          className={cn(
+            "relative z-10 text-[9px] font-semibold",
+            DESKTOP_INSPECTOR_FG_MUTED,
+            DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+          )}
+        >
           …
         </span>
       )}
@@ -3175,9 +3207,10 @@ function DesktopCornerStyleButton({
       aria-label={`Use ${label} ${target}`}
       aria-pressed={selected}
       data-desktop-animated-option-selection="true"
+      data-desktop-option-interaction="scale"
       data-desktop-preview-option="true"
       className={cn(
-        "group relative aspect-square w-full min-w-0 p-0 text-center transition",
+        "group relative aspect-square w-full min-w-0 p-0 text-center",
         desktopInspectorOptionGridItemClass("loose"),
         DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
@@ -3191,7 +3224,8 @@ function DesktopCornerStyleButton({
         data-desktop-adaptive-option-preview="true"
         data-slot="desktop-style-preview-surface"
         className={cn(
-          "relative z-10 grid size-full place-items-center overflow-hidden rounded-[6px] border-2 border-transparent bg-[#15161a] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] transition",
+          "relative z-10 grid size-full place-items-center overflow-hidden rounded-[6px] border-2 border-transparent bg-[#15161a] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]",
+          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
         )}
         style={getDesktopAdaptiveOptionPreviewStyle(desktopTheme)}
       >
@@ -3470,9 +3504,10 @@ function DesktopShapePresetButton({
       aria-label={`Use ${label} shape`}
       aria-pressed={selected}
       data-desktop-animated-option-selection="true"
+      data-desktop-option-interaction="scale"
       data-desktop-option-tile="true"
       className={cn(
-        "group flex w-full min-w-0 items-center justify-center transition",
+        "group flex w-full min-w-0 items-center justify-center",
         desktopInspectorOptionGridItemClass("loose"),
         DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
@@ -3481,14 +3516,19 @@ function DesktopShapePresetButton({
       type="button"
       onClick={onClick}
     >
-      <span className="relative z-10 aspect-square w-full min-w-0 overflow-hidden rounded-[6px]">
+      <span
+        className={cn(
+          "relative z-10 aspect-square w-full min-w-0 overflow-hidden rounded-[6px]",
+          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+        )}
+      >
         <DesktopShapePreview
           fillOverride="currentColor"
           label={label}
           previewStyle={getDesktopAdaptiveOptionPreviewStyle(desktopTheme)}
           settings={settings}
           shapeId={shapeId}
-          className="size-full rounded-[6px] transition"
+          className="size-full rounded-[6px]"
         />
       </span>
     </button>
@@ -3988,7 +4028,7 @@ function DesktopMotionPresetTileButton({
       aria-label={`Use ${label} motion loader`}
       aria-pressed={selected}
       className={cn(
-        "relative flex h-[54px] min-w-0 flex-col items-center justify-center gap-1 px-1",
+        "group relative flex h-[54px] min-w-0 flex-col items-center justify-center gap-1 px-1",
         desktopInspectorOptionGridItemClass(),
         DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
@@ -3996,12 +4036,20 @@ function DesktopMotionPresetTileButton({
       )}
       data-desktop-animated-option-selection="true"
       data-desktop-motion-loader-option="true"
+      data-desktop-option-interaction="scale"
       data-desktop-option-tile="true"
       type="button"
       onClick={onClick}
     >
-      <LayoutGrid className="relative z-10 size-4 shrink-0" />
-      <span className="relative z-10 max-w-full truncate">{label}</span>
+      <span
+        className={cn(
+          "relative z-10 flex flex-col items-center justify-center gap-1",
+          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+        )}
+      >
+        <LayoutGrid className="size-4 shrink-0" />
+        <span className="max-w-full truncate">{label}</span>
+      </span>
     </button>
   )
 }
@@ -4059,18 +4107,25 @@ function DesktopPatternPaletteCustomButton({
       aria-label="Use custom pattern palette"
       aria-pressed={selected}
       data-desktop-animated-option-selection="true"
+      data-desktop-option-interaction="scale"
       data-desktop-option-tile="true"
       className={cn(
-        "group relative flex aspect-square w-full min-w-0 items-center justify-center p-0 text-center transition",
+        "group relative flex aspect-square w-full min-w-0 items-center justify-center p-0 text-center",
         desktopInspectorOptionGridItemClass("loose"),
-        DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+        DESKTOP_INSPECTOR_OPTION_TILE_SCALE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
         selected && "text-[var(--desktop-inspector-option-selected-fg)]",
       )}
       type="button"
       onClick={onClick}
     >
-      <span className={cn("relative z-10 text-[10px] font-medium leading-none", DESKTOP_INSPECTOR_VALUE_CLASS)}>
+      <span
+        className={cn(
+          "relative z-10 text-[10px] font-medium leading-none",
+          DESKTOP_INSPECTOR_VALUE_CLASS,
+          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+        )}
+      >
         Custom
       </span>
     </button>
@@ -4093,18 +4148,25 @@ function DesktopPatternPalettePresetButton({
       aria-label={`Use ${label} pattern palette`}
       aria-pressed={selected}
       data-desktop-animated-option-selection="true"
+      data-desktop-option-interaction="scale"
       data-desktop-option-tile="true"
       className={cn(
-        "group relative flex aspect-square w-full min-w-0 items-center justify-center p-0 text-center transition",
+        "group relative flex aspect-square w-full min-w-0 items-center justify-center p-0 text-center",
         desktopInspectorOptionGridItemClass("loose"),
-        DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+        DESKTOP_INSPECTOR_OPTION_TILE_SCALE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
         selected && "text-[var(--desktop-inspector-option-selected-fg)]",
       )}
       type="button"
       onClick={onClick}
     >
-      <span aria-hidden="true" className="relative z-10 flex shrink-0 -space-x-2">
+      <span
+        aria-hidden="true"
+        className={cn(
+          "relative z-10 flex shrink-0 -space-x-2",
+          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+        )}
+      >
         {colors.map((color, index) => (
           <span
             key={`${label}-${color}-${index}`}
@@ -4230,7 +4292,7 @@ function DesktopContentInspector({
                   aria-label={`Use ${option.label} content`}
                   aria-pressed={isSelected}
                   className={cn(
-                    "group relative mx-auto flex aspect-square size-[3.375rem] min-w-0 flex-col items-center justify-center gap-1 p-1.5 text-center transition",
+                    "group relative mx-auto flex aspect-square size-[3.375rem] min-w-0 flex-col items-center justify-center gap-1 p-1.5 text-center",
                     desktopInspectorOptionGridItemClass("tight"),
                     DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
                     DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
@@ -4238,17 +4300,25 @@ function DesktopContentInspector({
                   )}
                   data-desktop-animated-option-selection="true"
                   data-desktop-content-type-option="true"
+                  data-desktop-option-interaction="scale"
                   type="button"
                   onClick={() => onContentTypeChange(type)}
                 >
-                  <ContentTypeGridIcon className="relative z-10" type={type} />
                   <span
                     className={cn(
-                      "relative z-10 max-w-full truncate leading-none",
-                      DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
+                      "relative z-10 flex flex-col items-center justify-center gap-1",
+                      DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
                     )}
                   >
-                    {option.label}
+                    <ContentTypeGridIcon type={type} />
+                    <span
+                      className={cn(
+                        "max-w-full truncate leading-none",
+                        DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
+                      )}
+                    >
+                      {option.label}
+                    </span>
                   </span>
                 </button>
               )
@@ -4622,11 +4692,12 @@ function DesktopModulePatternButton({
       aria-label={`Use ${label} pattern`}
       aria-pressed={selected}
       data-desktop-animated-option-selection="true"
+      data-desktop-option-interaction="scale"
       data-desktop-preview-option="true"
       className={cn(
-        "group relative aspect-square w-full min-w-0 p-0 text-center transition",
+        "group relative aspect-square w-full min-w-0 p-0 text-center",
         desktopInspectorOptionGridItemClass("loose"),
-        DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+        DESKTOP_INSPECTOR_OPTION_TILE_SCALE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
         selected && "text-[var(--desktop-inspector-option-selected-fg)]",
       )}
@@ -4635,7 +4706,10 @@ function DesktopModulePatternButton({
     >
       <DesktopQrDotPreview
         value={value}
-        className="relative z-10 size-full rounded-[6px] transition"
+        className={cn(
+          "relative z-10 size-full rounded-[6px]",
+          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+        )}
         style={getDesktopAdaptiveOptionPreviewStyle(desktopTheme)}
       />
     </button>
@@ -4718,9 +4792,10 @@ function DesktopPatternSwatchButton({
       aria-label={`Use ${label} decoration pattern`}
       aria-pressed={selected}
       data-desktop-animated-option-selection="true"
+      data-desktop-option-interaction="scale"
       data-desktop-option-tile="true"
       className={cn(
-        "group flex w-full min-w-0 flex-col items-center text-center transition",
+        "group flex w-full min-w-0 flex-col items-center text-center",
         hideLabel ? "gap-0 p-2" : cn("gap-1", desktopInspectorOptionGridItemClass()),
         DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
@@ -4729,10 +4804,15 @@ function DesktopPatternSwatchButton({
       type="button"
       onClick={onClick}
     >
-      <span className="relative z-10 aspect-square w-full min-w-0 overflow-hidden rounded-[6px]">
+      <span
+        className={cn(
+          "relative z-10 aspect-square w-full min-w-0 overflow-hidden rounded-[6px]",
+          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+        )}
+      >
         <span
           aria-hidden="true"
-          className="block size-full rounded-[6px] transition"
+          className="block size-full rounded-[6px]"
           style={style}
         />
       </span>

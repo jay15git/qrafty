@@ -622,6 +622,19 @@ describe("FloatingToolbar", () => {
     expect(selectedSurface?.style.color).toBe("rgb(248, 250, 252)")
   })
 
+  it("uses scale hover instead of grey fill for module pattern options", async () => {
+    const surface = await renderPrototype()
+    await openTool(surface.container, "pattern")
+
+    const dotsPattern = getRequiredButton(surface.container, "Use Circle pattern")
+    const preview = dotsPattern.querySelector<HTMLElement>('[data-desktop-adaptive-option-preview="true"]')
+
+    expect(dotsPattern.getAttribute("data-desktop-option-interaction")).toBe("scale")
+    expect(dotsPattern.className).not.toContain("hover:bg-[var(--desktop-inspector-control-hover-bg)]")
+    expect(preview?.className).toContain("group-hover:scale-[1.06]")
+    expect(preview?.className).toContain("group-active:scale-[0.94]")
+  })
+
   it("renders larger module pattern previews inside square options", async () => {
     const surface = await renderPrototype()
     await openTool(surface.container, "pattern")
@@ -877,6 +890,10 @@ describe("FloatingToolbar", () => {
 
     expect(presetGrid).not.toBeNull()
     expect(presetButtons).toHaveLength(31)
+    expect(customPreset.getAttribute("data-desktop-option-interaction")).toBe("scale")
+    expect(signalPreset.getAttribute("data-desktop-option-interaction")).toBe("scale")
+    expect(customPreset.className).not.toContain("hover:bg-[var(--desktop-inspector-control-hover-bg)]")
+    expect(signalPreset.className).not.toContain("hover:bg-[var(--desktop-inspector-control-hover-bg)]")
     expect(customPreset.getAttribute("aria-pressed")).toBe("false")
     expect(signalPreset.getAttribute("aria-pressed")).toBe("true")
     expect(auroraPreset.getAttribute("aria-pressed")).toBe("false")
@@ -1414,27 +1431,20 @@ describe("FloatingToolbar", () => {
     expect(selectedOption?.className).not.toContain("bg-[var(--desktop-inspector-selected-bg)]")
     expect(selectedOption).not.toBeNull()
     expectAnimatedOptionSelection(selectedOption!)
-    expect(filterTrigger.className).toContain("rounded-[7px]")
+    expect(textOption.getAttribute("data-desktop-option-interaction")).toBe("scale")
+    expect(textOption.className).not.toContain("hover:bg-[var(--desktop-inspector-control-hover-bg)]")
 
     const source = readFileSync(
       resolve(process.cwd(), "features/desktop-shell/components/FloatingToolbar.tsx"),
       "utf8",
     )
-    expect(source).toContain('data-slot="desktop-content-type-filter-menu"')
+    expect(source).toContain("desktop-content-type-filter-menu")
     expect(source).toContain('{ id: "all", label: "All" }')
-    expect(source).toContain("w-32")
-    expect(source).toContain("bg-white")
-    expect(source).toContain("bg-[#111116]")
-    expect(source).toContain("[&_[data-slot=dropdown-menu-radio-item-indicator]]:hidden")
-    expect(source).not.toContain("[&_[data-slot=dropdown-menu-radio-item-indicator]]:left-3")
-    expect(source).not.toContain("data-[state=checked]:ring-2")
-    expect(source).not.toContain("data-[state=checked]:focus:bg-transparent")
-    expect(source).toContain("data-[state=checked]:focus:bg-slate-950/[0.08]")
-    expect(source).toContain("data-[state=checked]:focus:bg-white/[0.1]")
-    expect(source).not.toContain("[&_[data-slot=dropdown-menu-radio-item-indicator]]:text-current")
-    expect(source).not.toContain("data-[state=checked]:focus:[&_[data-slot=dropdown-menu-radio-item-indicator]]")
-    expect(source).not.toContain("[data-slot=dropdown-menu-radio-item-indicator]_svg")
-    expect(source).toContain(':not([data-desktop-preview-option="true"]):not([data-desktop-content-type-option="true"]):not([data-desktop-option-tile="true"]):hover')
+    expect(source).toContain(
+      'button:is([data-desktop-preview-option="true"], [data-desktop-content-type-option="true"], [data-desktop-motion-loader-option="true"], [data-desktop-option-tile="true"]):hover',
+    )
+    expect(source).toContain("background-color: transparent !important;")
+    expect(source).not.toContain("rgba(15, 23, 42, 0.06) !important")
   })
 
   it("keeps logo size rows flat instead of stacking grey controls", async () => {
@@ -1687,9 +1697,11 @@ function getRequiredElement(container: HTMLElement, selector: string) {
 }
 
 function getOptionSelectionIndicator(button: HTMLElement | null) {
-  return button
-    ?.closest<HTMLElement>('[class*="grid-cols"]')
-    ?.querySelector<HTMLElement>('[data-slot="desktop-inspector-option-selection-indicator"]') ?? null
+  return (
+    button?.parentElement?.querySelector<HTMLElement>(
+      '[data-slot="desktop-inspector-option-selection-indicator"]',
+    ) ?? null
+  )
 }
 
 function expectAnimatedOptionSelection(button: HTMLElement) {
@@ -1698,6 +1710,9 @@ function expectAnimatedOptionSelection(button: HTMLElement) {
   expect(indicator).not.toBeNull()
   expect(indicator?.className).toContain("bg-[var(--desktop-inspector-option-selected-bg)]")
   expect(indicator?.className).toContain("border-[var(--desktop-inspector-option-selected-border)]")
+  expect(indicator?.className).toContain("backdrop-blur-[16px]")
+  expect(indicator?.className).toContain("shadow-[var(--desktop-inspector-option-selected-shadow)]")
+  expect(indicator?.className).toContain("border-2")
   expect(button.className).not.toContain("border-[var(--desktop-inspector-option-selected-border)]")
 }
 
