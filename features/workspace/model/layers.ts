@@ -238,6 +238,11 @@ export function getDraftingCardInsetLayout(
     const cardHeight = cardState.height
     const cardX = -cardWidth / 2
     const cardY = -cardHeight / 2
+    const contentTop = cardY + cardState.padding
+    const contentHeight = Math.max(
+      qrDimensions.height,
+      cardHeight - cardState.padding * 2 - cardState.bottomSpace,
+    )
 
     return {
       card: {
@@ -250,7 +255,7 @@ export function getDraftingCardInsetLayout(
         height: qrDimensions.height,
         width: qrDimensions.width,
         x: -qrDimensions.width / 2,
-        y: cardY + cardState.padding,
+        y: contentTop + (contentHeight - qrDimensions.height) / 2,
       },
     }
   }

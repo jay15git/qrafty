@@ -83,7 +83,28 @@ describe("drafting layer state actions", () => {
       width: fittedQr.width,
       height: fittedQr.height,
       x: -fittedQr.width / 2,
-      y: layout.card.y + cardState.padding,
+      y: layout.qr.y,
+    })
+  })
+
+  it("centers the qr vertically in a fixed card when bottom space is zero", () => {
+    const qrState = createDefaultQrStudioState()
+    const cardState = {
+      ...createDefaultDraftingCardState(),
+      sizeMode: "fixed" as const,
+      width: 1080,
+      height: 810,
+      padding: 24,
+      bottomSpace: 0,
+    }
+    const layout = getDraftingCardInsetLayout(qrState, cardState)
+    const fittedQr = fitQrSizeInCard(qrState, cardState)
+
+    expect(layout.qr).toMatchObject({
+      width: fittedQr.width,
+      height: fittedQr.height,
+      x: -fittedQr.width / 2,
+      y: layout.card.y + cardState.padding + (layout.card.height - cardState.padding * 2 - fittedQr.height) / 2,
     })
   })
 

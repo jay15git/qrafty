@@ -8,14 +8,14 @@ import {
   formatAspectRatio,
   getCanvasSizeFromTemplate,
   getSizeTemplate,
+  getSizeTemplateSections,
   getSizeTemplatesByGroup,
   normalizeCanvasSize,
 } from "@/features/workspace/model/size-templates"
 
 describe("size templates catalog", () => {
-  it("contains roughly twenty presets across four groups", () => {
-    expect(SIZE_TEMPLATES.length).toBeGreaterThanOrEqual(20)
-    expect(SIZE_TEMPLATES.length).toBeLessThanOrEqual(24)
+  it("contains platform presets across all groups", () => {
+    expect(SIZE_TEMPLATES.length).toBeGreaterThanOrEqual(40)
 
     for (const group of SIZE_TEMPLATE_GROUPS) {
       expect(getSizeTemplatesByGroup(group).length).toBeGreaterThan(0)
@@ -31,6 +31,7 @@ describe("size templates catalog", () => {
       expect(template.width).toBeGreaterThan(0)
       expect(template.height).toBeGreaterThan(0)
       expect(template.ratioLabel.length).toBeGreaterThan(0)
+      expect(template.subtitle?.length).toBeGreaterThan(0)
     }
   })
 
@@ -41,7 +42,24 @@ describe("size templates catalog", () => {
       height: 600,
       group: "qr-physical",
     })
-    expect(getSizeTemplatesByGroup("web")).toHaveLength(2)
+    expect(getSizeTemplate("instagram-story")).toMatchObject({
+      label: "Story",
+      group: "instagram",
+      brandIconId: "instagram",
+    })
+    expect(getSizeTemplatesByGroup("instagram")).toHaveLength(3)
+    expect(getSizeTemplatesByGroup("web")).toHaveLength(1)
+    expect(getSizeTemplate("web-x-card")).toMatchObject({
+      group: "x",
+      label: "Card",
+    })
+  })
+
+  it("builds ordered sections for the inspector", () => {
+    const sections = getSizeTemplateSections()
+    expect(sections[0]?.group).toBe("instagram")
+    expect(sections.some((section) => section.group === "app-store")).toBe(true)
+    expect(sections.every((section) => section.templates.length > 0)).toBe(true)
   })
 
   it("formats aspect ratios and finds ratio presets", () => {

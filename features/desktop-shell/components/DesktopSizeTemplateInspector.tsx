@@ -4,7 +4,6 @@ import { FilterMailIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useMemo, useState } from "react"
 
-import { DesktopInspectorOptionGridScrollArea } from "@/features/desktop-shell/components/DesktopInspectorShell"
 import {
   DESKTOP_INSPECTOR_CAPTION_CLASS,
   DESKTOP_INSPECTOR_CONTROL_CLASS,
@@ -17,23 +16,24 @@ import {
   DESKTOP_INSPECTOR_SECTION_HEADING_CLASS,
   DESKTOP_INSPECTOR_SELECTED_CLASS,
   DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
-  DesktopInspectorAnimatedOptionGrid,
   DesktopInspectorMorphFilterMenu,
   DesktopInspectorScrubbableNumberInput,
   DesktopInspectorSearchInput,
   DesktopInspectorSection,
-  desktopInspectorOptionGridItemClass,
 } from "@/features/desktop-shell/components/InspectorControls"
+import { findBrandIconById } from "@/features/qr-code/assets/brand-icons"
+import { getContentTypeIcon } from "@/features/qr-code/content/content-type-icons"
+import type { QrInputType } from "@/features/qr-code/content/input-options"
 import {
   DRAFTING_CARD_SIZE_MAX,
   DRAFTING_CARD_SIZE_MIN,
   type DraftingCardSizeMode,
 } from "@/features/workspace/model/card-state"
 import {
+  SIZE_TEMPLATE_GROUPS,
   SIZE_TEMPLATE_GROUP_LABELS,
-  SIZE_TEMPLATES,
   formatAspectRatio,
-  getSizeTemplatesByGroup,
+  getSizeTemplateSections,
   type SizeTemplate,
   type SizeTemplateGroup,
 } from "@/features/workspace/model/size-templates"
@@ -43,7 +43,7 @@ type SizeTemplateFilterId = "all" | SizeTemplateGroup
 
 const SIZE_TEMPLATE_FILTER_OPTIONS: Array<{ id: SizeTemplateFilterId; label: string }> = [
   { id: "all", label: "All" },
-  ...(["ratio", "web", "print", "qr-physical"] as const).map((group) => ({
+  ...SIZE_TEMPLATE_GROUPS.map((group) => ({
     id: group,
     label: SIZE_TEMPLATE_GROUP_LABELS[group],
   })),
@@ -80,20 +80,34 @@ export function DesktopSizeTemplateInspector({
     [],
   )
   const isGroupFilterActive = groupId !== "all"
-  const visibleTemplates = useMemo(() => {
-    const groupTemplates =
-      groupId === "all" ? [...SIZE_TEMPLATES] : getSizeTemplatesByGroup(groupId)
+  const visibleSections = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
 
-    if (!normalizedQuery) {
-      return groupTemplates
-    }
+    return getSizeTemplateSections()
+      .filter((section) => groupId === "all" || section.group === groupId)
+      .map((section) => ({
+        ...section,
+        templates: section.templates.filter((template) => {
+          if (!normalizedQuery) {
+            return true
+          }
 
-    return groupTemplates.filter((template) =>
-      `${template.label} ${template.ratioLabel} ${template.width} ${template.height}`
-        .toLowerCase()
-        .includes(normalizedQuery),
-    )
+          const haystack = [
+            section.label,
+            template.label,
+            template.ratioLabel,
+            template.subtitle,
+            `${template.width}`,
+            `${template.height}`,
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase()
+
+          return haystack.includes(normalizedQuery)
+        }),
+      }))
+      .filter((section) => section.templates.length > 0)
   }, [groupId, query])
 
   function updateWidth(nextWidth: number) {
@@ -217,34 +231,26 @@ export function DesktopSizeTemplateInspector({
           />
         </div>
 
-        <DesktopInspectorOptionGridScrollArea
-          ariaLabel="Size presets"
-          className="mt-3"
-          columns={3}
-          dataSlot="desktop-size-template-scroll-area"
-          shelfDataSlot="desktop-size-template-collection"
-          variant="content"
+        <div
+          className="mt-3 flex flex-col gap-4"
+          data-slot="desktop-size-template-collection"
         >
-          <DesktopInspectorAnimatedOptionGrid
-            columns={3}
-            data-slot="desktop-size-template-collection"
-            selectedKey={settings.sizePresetId}
-          >
-            {visibleTemplates.map((template) => (
-              <DesktopSizeTemplateCard
-                key={template.id}
-                selected={settings.sizePresetId === template.id}
-                template={template}
-                onClick={() => onSelectTemplate(template)}
-              />
-            ))}
-            {visibleTemplates.length === 0 ? (
-              <p className={cn("col-span-3 px-1 py-3 text-center", DESKTOP_INSPECTOR_CAPTION_CLASS)}>
-                No size presets found
-              </p>
-            ) : null}
-          </DesktopInspectorAnimatedOptionGrid>
-        </DesktopInspectorOptionGridScrollArea>
+          {visibleSections.map((section) => (
+            <DesktopSizeTemplatePlatformSection
+              key={section.group}
+              group={section.group}
+              label={section.label}
+              selectedPresetId={settings.sizePresetId}
+              templates={section.templates}
+              onSelectTemplate={onSelectTemplate}
+            />
+          ))}
+          {visibleSections.length === 0 ? (
+            <p className={cn("px-1 py-3 text-center", DESKTOP_INSPECTOR_CAPTION_CLASS)}>
+              No size presets found
+            </p>
+          ) : null}
+        </div>
       </DesktopInspectorSection>
     </>
   )
@@ -277,16 +283,58 @@ function DesktopSizeDimensionField({
   )
 }
 
+function DesktopSizeTemplatePlatformSection({
+  group,
+  label,
+  onSelectTemplate,
+  selectedPresetId,
+  templates,
+}: {
+  group: SizeTemplateGroup
+  label: string
+  onSelectTemplate: (template: SizeTemplate) => void
+  selectedPresetId?: string
+  templates: SizeTemplate[]
+}) {
+  const PlatformIcon = resolveSizeTemplatePlatformIcon(group)
+
+  return (
+    <section
+      className="border-t border-white/8 pt-4 first:border-t-0 first:pt-0"
+      data-slot={`desktop-size-template-section-${group}`}
+    >
+      <div className="mb-3 flex items-center gap-2">
+        <PlatformIcon className="size-4 shrink-0 opacity-90" />
+        <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>{label}</p>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        {templates.map((template) => (
+          <DesktopSizeTemplateCard
+            key={template.id}
+            platformIcon={resolveSizeTemplatePlatformIcon(template.brandIconId ?? group)}
+            selected={selectedPresetId === template.id}
+            template={template}
+            onClick={() => onSelectTemplate(template)}
+          />
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function DesktopSizeTemplateCard({
   onClick,
+  platformIcon: PlatformIcon,
   selected,
   template,
 }: {
   onClick: () => void
+  platformIcon: (props: { className?: string }) => React.ReactNode
   selected: boolean
   template: SizeTemplate
 }) {
-  const label = template.group === "ratio" ? template.ratioLabel : template.label
+  const isLandscape = template.width >= template.height
+  const previewWidth = isLandscape ? "3.25rem" : "2.1rem"
 
   return (
     <button
@@ -295,9 +343,7 @@ function DesktopSizeTemplateCard({
       data-desktop-animated-option-selection="true"
       data-desktop-option-tile="true"
       className={cn(
-        "group relative mx-auto flex aspect-square size-[3.375rem] min-w-0 flex-col items-center justify-center gap-1 p-1.5 text-center transition",
-        desktopInspectorOptionGridItemClass("tight"),
-        DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+        "group flex w-[4.75rem] min-w-0 flex-col items-center gap-1.5 text-center transition",
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
         selected && "text-[var(--desktop-inspector-option-selected-fg)]",
       )}
@@ -305,21 +351,70 @@ function DesktopSizeTemplateCard({
       onClick={onClick}
     >
       <span
-        aria-hidden="true"
-        className="relative z-10 block rounded-[4px] border border-white/14 bg-white/10"
-        style={{
-          aspectRatio: `${template.width} / ${template.height}`,
-          width: template.width >= template.height ? "1.35rem" : "0.95rem",
-        }}
-      />
-      <span
         className={cn(
-          "relative z-10 max-w-full truncate leading-none",
-          DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
+          "relative flex h-[4.25rem] w-full items-center justify-center rounded-[10px] border border-white/10 bg-white/6 transition",
+          DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+          selected && DESKTOP_INSPECTOR_SELECTED_CLASS,
         )}
       >
-        {label}
+        <span
+          aria-hidden="true"
+          className="relative flex items-center justify-center rounded-[6px] border border-white/14 bg-white/10"
+          style={{
+            aspectRatio: `${template.width} / ${template.height}`,
+            width: previewWidth,
+          }}
+        >
+          <PlatformIcon className="size-3 opacity-70" />
+        </span>
+      </span>
+      <span className="flex w-full flex-col items-center gap-0.5">
+        <span
+          className={cn(
+            "max-w-full truncate leading-none",
+            DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
+          )}
+        >
+          {template.label}
+        </span>
+        <span className={cn("max-w-full truncate text-[0.62rem] leading-none", DESKTOP_INSPECTOR_CAPTION_CLASS)}>
+          {template.subtitle ?? template.ratioLabel}
+        </span>
       </span>
     </button>
   )
+}
+
+function resolveSizeTemplatePlatformIcon(
+  iconId: string,
+): (props: { className?: string }) => React.ReactNode {
+  const brandIcon = findBrandIconById(iconId)
+  if (brandIcon) {
+    const BrandIcon = brandIcon.icon
+    return function BrandPlatformIcon({ className }: { className?: string }) {
+      return <BrandIcon aria-hidden className={className} />
+    }
+  }
+
+  const contentIcon = getContentTypeIcon(iconId as QrInputType)
+  if (contentIcon.kind === "brand") {
+    const BrandIcon = contentIcon.icon
+    return function ContentBrandPlatformIcon({ className }: { className?: string }) {
+      return <BrandIcon aria-hidden className={className} />
+    }
+  }
+
+  const HugeIcon = contentIcon.icon
+  return function ContentHugePlatformIcon({ className }: { className?: string }) {
+    return (
+      <HugeiconsIcon
+        aria-hidden
+        className={className}
+        color="currentColor"
+        icon={HugeIcon}
+        size={16}
+        strokeWidth={1.75}
+      />
+    )
+  }
 }
