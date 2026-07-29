@@ -15,7 +15,7 @@ import {
 
 describe("size templates catalog", () => {
   it("contains platform presets across all groups", () => {
-    expect(SIZE_TEMPLATES.length).toBeGreaterThanOrEqual(40)
+    expect(SIZE_TEMPLATES.length).toBeGreaterThanOrEqual(70)
 
     for (const group of SIZE_TEMPLATE_GROUPS) {
       expect(getSizeTemplatesByGroup(group).length).toBeGreaterThan(0)
@@ -47,18 +47,40 @@ describe("size templates catalog", () => {
       group: "instagram",
       brandIconId: "instagram",
     })
-    expect(getSizeTemplatesByGroup("instagram")).toHaveLength(3)
+    expect(getSizeTemplatesByGroup("instagram")).toHaveLength(4)
     expect(getSizeTemplatesByGroup("web")).toHaveLength(1)
     expect(getSizeTemplate("web-x-card")).toMatchObject({
       group: "x",
       label: "Card",
     })
+    expect(getSizeTemplate("whatsapp-status")).toMatchObject({
+      label: "Status",
+      group: "whatsapp",
+      brandIconId: "whatsapp",
+      ratioLabel: "9:16",
+    })
+    expect(getSizeTemplate("spotify-cover")).toMatchObject({
+      label: "Cover",
+      group: "spotify",
+      brandIconId: "spotify",
+      ratioLabel: "1:1",
+    })
+    expect(getSizeTemplate("reddit-post")).toMatchObject({
+      label: "Post",
+      group: "reddit",
+      width: 1200,
+      height: 628,
+    })
+    expect(getSizeTemplatesByGroup("whatsapp")).toHaveLength(3)
+    expect(getSizeTemplatesByGroup("twitch")).toHaveLength(3)
   })
 
   it("builds ordered sections for the inspector", () => {
     const sections = getSizeTemplateSections()
     expect(sections[0]?.group).toBe("instagram")
     expect(sections.some((section) => section.group === "app-store")).toBe(true)
+    expect(sections.some((section) => section.group === "whatsapp")).toBe(true)
+    expect(sections.some((section) => section.group === "spotify")).toBe(true)
     expect(sections.every((section) => section.templates.length > 0)).toBe(true)
   })
 

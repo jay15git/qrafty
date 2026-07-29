@@ -8,6 +8,19 @@ export type SizeTemplateGroup =
   | "pinterest"
   | "threads"
   | "snapchat"
+  | "whatsapp"
+  | "telegram"
+  | "messenger"
+  | "reddit"
+  | "spotify"
+  | "discord"
+  | "twitch"
+  | "wechat"
+  | "line"
+  | "tumblr"
+  | "behance"
+  | "medium"
+  | "substack"
   | "dribbble"
   | "app-store"
   | "play-store"
@@ -38,6 +51,19 @@ export const SIZE_TEMPLATE_GROUPS: readonly SizeTemplateGroup[] = [
   "pinterest",
   "threads",
   "snapchat",
+  "whatsapp",
+  "telegram",
+  "messenger",
+  "reddit",
+  "spotify",
+  "discord",
+  "twitch",
+  "wechat",
+  "line",
+  "tumblr",
+  "behance",
+  "medium",
+  "substack",
   "dribbble",
   "app-store",
   "play-store",
@@ -57,6 +83,19 @@ export const SIZE_TEMPLATE_GROUP_LABELS: Record<SizeTemplateGroup, string> = {
   pinterest: "Pinterest",
   threads: "Threads",
   snapchat: "Snapchat",
+  whatsapp: "WhatsApp",
+  telegram: "Telegram",
+  messenger: "Messenger",
+  reddit: "Reddit",
+  spotify: "Spotify",
+  discord: "Discord",
+  twitch: "Twitch",
+  wechat: "WeChat",
+  line: "LINE",
+  tumblr: "Tumblr",
+  behance: "Behance",
+  medium: "Medium",
+  substack: "Substack",
   dribbble: "Dribbble",
   "app-store": "App Store",
   "play-store": "Play Store",
@@ -176,6 +215,7 @@ export const SIZE_TEMPLATES: readonly SizeTemplate[] = [
   platformRatioTemplate("instagram-post", "instagram", "Post", "1:1", 1, 1),
   platformRatioTemplate("instagram-portrait", "instagram", "Portrait", "4:5", 4, 5),
   platformRatioTemplate("instagram-story", "instagram", "Story", "9:16", 9, 16),
+  platformRatioTemplate("instagram-reel", "instagram", "Reel", "9:16", 9, 16),
 
   platformRatioTemplate("x-post", "x", "Post", "16:9", 16, 9),
   platformRatioTemplate("x-cover", "x", "Cover", "3:1", 3, 1),
@@ -195,6 +235,7 @@ export const SIZE_TEMPLATES: readonly SizeTemplate[] = [
 
   platformRatioTemplate("facebook-post", "facebook", "Post", "1:1", 1, 1),
   platformRatioTemplate("facebook-story", "facebook", "Story", "9:16", 9, 16),
+  platformRatioTemplate("facebook-reel", "facebook", "Reel", "9:16", 9, 16),
   sizeTemplate("facebook-cover", "facebook", "Cover", 1640, 624, {
     brandIconId: "facebook",
     ratioLabel: "2.63:1",
@@ -202,6 +243,7 @@ export const SIZE_TEMPLATES: readonly SizeTemplate[] = [
   }),
 
   platformRatioTemplate("tiktok-video", "tiktok", "Video", "9:16", 9, 16),
+  platformRatioTemplate("tiktok-photo", "tiktok", "Photo", "9:16", 9, 16),
 
   sizeTemplate("linkedin-post", "linkedin", "Post", 1200, 627, {
     brandIconId: "linkedin",
@@ -222,6 +264,87 @@ export const SIZE_TEMPLATES: readonly SizeTemplate[] = [
   platformRatioTemplate("threads-portrait", "threads", "Portrait", "4:5", 4, 5),
 
   platformRatioTemplate("snapchat-story", "snapchat", "Story", "9:16", 9, 16),
+
+  platformRatioTemplate("whatsapp-status", "whatsapp", "Status", "9:16", 9, 16),
+  sizeTemplate("whatsapp-cover", "whatsapp", "Cover", 1200, 628, {
+    brandIconId: "whatsapp",
+    ratioLabel: "1.91:1",
+    subtitle: formatPixelSubtitle(1200, 628),
+  }),
+  platformRatioTemplate("whatsapp-catalog", "whatsapp", "Catalog", "1:1", 1, 1),
+
+  platformRatioTemplate("telegram-story", "telegram", "Story", "9:16", 9, 16),
+  platformRatioTemplate("telegram-post", "telegram", "Post", "1:1", 1, 1),
+
+  platformRatioTemplate("messenger-story", "messenger", "Story", "9:16", 9, 16),
+
+  sizeTemplate("reddit-post", "reddit", "Post", 1200, 628, {
+    brandIconId: "reddit",
+    ratioLabel: "1.91:1",
+    subtitle: formatPixelSubtitle(1200, 628),
+  }),
+  sizeTemplate("reddit-banner", "reddit", "Banner", 1920, 384, {
+    brandIconId: "reddit",
+    ratioLabel: "5:1",
+    subtitle: formatPixelSubtitle(1920, 384),
+  }),
+  platformRatioTemplate("reddit-square", "reddit", "Square", "1:1", 1, 1),
+
+  platformRatioTemplate("spotify-cover", "spotify", "Cover", "1:1", 1, 1),
+  platformRatioTemplate("spotify-canvas", "spotify", "Canvas", "9:16", 9, 16),
+
+  sizeTemplate("discord-banner", "discord", "Banner", 960, 540, {
+    brandIconId: "discord",
+    ratioLabel: "16:9",
+    subtitle: formatPixelSubtitle(960, 540),
+  }),
+  platformRatioTemplate("discord-icon", "discord", "Icon", "1:1", 1, 1),
+
+  sizeTemplate("twitch-thumbnail", "twitch", "Thumbnail", 1920, 1080, {
+    brandIconId: "twitch",
+    ratioLabel: "16:9",
+    subtitle: formatPixelSubtitle(1920, 1080),
+  }),
+  sizeTemplate("twitch-offline", "twitch", "Offline", 1920, 1080, {
+    brandIconId: "twitch",
+    ratioLabel: "16:9",
+    subtitle: formatPixelSubtitle(1920, 1080),
+  }),
+  sizeTemplate("twitch-panel", "twitch", "Panel", 320, 160, {
+    brandIconId: "twitch",
+    ratioLabel: "2:1",
+    subtitle: formatPixelSubtitle(320, 160),
+  }),
+
+  platformRatioTemplate("wechat-moments", "wechat", "Moments", "1:1", 1, 1),
+
+  platformRatioTemplate("line-voom", "line", "VOOM", "9:16", 9, 16),
+
+  platformRatioTemplate("tumblr-post", "tumblr", "Post", "2:3", 2, 3),
+  platformRatioTemplate("tumblr-square", "tumblr", "Square", "1:1", 1, 1),
+
+  sizeTemplate("behance-project", "behance", "Project", 1400, 980, {
+    brandIconId: "behance",
+    ratioLabel: "10:7",
+    subtitle: formatPixelSubtitle(1400, 980),
+  }),
+
+  sizeTemplate("medium-featured", "medium", "Featured", 1400, 788, {
+    brandIconId: "medium",
+    ratioLabel: "1.91:1",
+    subtitle: formatPixelSubtitle(1400, 788),
+  }),
+
+  sizeTemplate("substack-header", "substack", "Header", 1500, 500, {
+    brandIconId: "substack",
+    ratioLabel: "3:1",
+    subtitle: formatPixelSubtitle(1500, 500),
+  }),
+  sizeTemplate("substack-post", "substack", "Post", 1200, 628, {
+    brandIconId: "substack",
+    ratioLabel: "1.91:1",
+    subtitle: formatPixelSubtitle(1200, 628),
+  }),
 
   sizeTemplate("dribbble-shot", "dribbble", "Shot", 1600, 1200, {
     brandIconId: "dribbble",
