@@ -132,12 +132,13 @@ export function DesktopSettingsToolbarShell({
 }) {
   const { actualActiveTool, controller, onActiveToolChange, visibleToolbarTools } = model
   const [internalHovered, setInternalHovered] = useState(false)
-  const [isCollapsed, setIsCollapsed] = useState(() => readCollapsedFromSession())
+  // SSR-safe defaults only — sessionStorage / window size restored after mount.
+  // Reading storage in useState causes hydration mismatch (server always collapsed).
+  const [isCollapsed, setIsCollapsed] = useState(true)
   const [isShellAnimating, setIsShellAnimating] = useState(false)
-  const [panelMounted, setPanelMounted] = useState(
-    () => !readCollapsedFromSession() && showInspector,
-  )
-  const [expandedWidth, setExpandedWidth] = useState(() => getExpandedSidebarWidthPx())
+  const [panelMounted, setPanelMounted] = useState(false)
+  const [expandedWidth, setExpandedWidth] = useState(DESKTOP_SHELL_EXPANDED_WIDTH_FALLBACK_PX)
+  const [widthTransitionEnabled, setWidthTransitionEnabled] = useState(false)
   const isCollapsedRef = useRef(isCollapsed)
   const isHovered = hovered ?? internalHovered
   const columnWidth = isCollapsed ? DESKTOP_SHELL_COLLAPSED_WIDTH_PX : expandedWidth
@@ -165,6 +166,12 @@ export function DesktopSettingsToolbarShell({
     const collapsed = readCollapsedFromSession()
     setIsCollapsed(collapsed)
     setPanelMounted(!collapsed && showInspector)
+    setExpandedWidth(getExpandedSidebarWidthPx())
+    // Restore session width without spring, then enable transitions for user toggles.
+    const enableTransitionsFrame = window.requestAnimationFrame(() => {
+      setWidthTransitionEnabled(true)
+    })
+    return () => window.cancelAnimationFrame(enableTransitionsFrame)
   }, [showInspector])
 
   useEffect(() => {
@@ -351,7 +358,7 @@ export function DesktopSettingsToolbarShell({
         data-toolbar-appearance="desktop-settings"
         initial={false}
         animate={{ width: columnWidth }}
-        transition={EXPANDABLE_PANEL_SPRING}
+        transition={widthTransitionEnabled ? EXPANDABLE_PANEL_SPRING : { duration: 0 }}
         onAnimationStart={() => handleShellAnimatingChange(true)}
         onAnimationComplete={() => handleShellAnimatingChange(false)}
         onUpdate={(latest) => {
