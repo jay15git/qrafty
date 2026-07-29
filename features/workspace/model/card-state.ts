@@ -13,6 +13,12 @@ import {
   normalizePerSideBorderState,
 } from "@/features/workspace/model/effects"
 import {
+  cornerRadiiToLegacyRadius,
+  createUniformCornerRadii,
+  normalizeCornerRadiiState,
+  type DraftingCornerRadiiState,
+} from "@/features/workspace/model/corner-radius"
+import {
   getCanvasSizeFromTemplate,
   getSizeTemplate,
 } from "@/features/workspace/model/size-templates"
@@ -81,6 +87,7 @@ export type DraftingCardState = {
   bottomSpace: number
   cardImage: DraftingCardImageState
   cornerRadius: number
+  cornerRadii: DraftingCornerRadiiState
   enabled: boolean
   fill: string
   height: number
@@ -105,7 +112,7 @@ export const DEFAULT_DRAFTING_CARD_STATE: DraftingCardState = {
     style: "solid",
     width: 0,
   },
-  bottomSpace: 128,
+  bottomSpace: 0,
   cardImage: {
     fit: "cover",
     opacity: 100,
@@ -113,6 +120,7 @@ export const DEFAULT_DRAFTING_CARD_STATE: DraftingCardState = {
     value: undefined,
   },
   cornerRadius: 28,
+  cornerRadii: createUniformCornerRadii(28),
   enabled: true,
   fill: "#ffd80a",
   height: 1080,
@@ -121,7 +129,11 @@ export const DEFAULT_DRAFTING_CARD_STATE: DraftingCardState = {
   padding: 24,
   patternColors: {},
   patternId: DRAFTING_CARD_PATTERN_NONE_ID,
-  paperShader: createDefaultDraftingCardPaperShader(),
+  paperShader: {
+    ...createDefaultDraftingCardPaperShader("static-mesh-gradient"),
+    paused: true,
+    speed: 0,
+  },
   shadow: {
     blur: 44,
     color: "#1d1606",
@@ -133,9 +145,9 @@ export const DEFAULT_DRAFTING_CARD_STATE: DraftingCardState = {
     spread: 0,
     visible: true,
   },
-  sizeMode: "auto",
-  sizePresetId: undefined,
-  styleMode: "pattern",
+  sizeMode: "fixed",
+  sizePresetId: "ratio-4-3",
+  styleMode: "paper-shader",
   width: 1080,
 }
 
@@ -155,6 +167,12 @@ export function normalizeDraftingCardState(
   const presetCanvasSize = presetTemplate ? getCanvasSizeFromTemplate(presetTemplate) : null
   const resolvedWidth = presetCanvasSize?.width ?? state.width
   const resolvedHeight = presetCanvasSize?.height ?? state.height
+  const legacyCornerRadius = clampCardNumber(state.cornerRadius, fallback.cornerRadius, 0, 256)
+  const cornerRadii = normalizeCornerRadiiState(
+    state.cornerRadii,
+    fallback.cornerRadii,
+    legacyCornerRadius,
+  )
 
   return {
     border: normalizeDraftingCardBorder(state.border),
@@ -165,7 +183,8 @@ export function normalizeDraftingCardState(
       source: state.cardImage?.source ?? fallback.cardImage.source,
       value: state.cardImage?.value,
     },
-    cornerRadius: clampCardNumber(state.cornerRadius, fallback.cornerRadius, 0, 256),
+    cornerRadius: cornerRadiiToLegacyRadius(cornerRadii),
+    cornerRadii,
     enabled: state.enabled ?? fallback.enabled,
     fill: state.fill ?? fallback.fill,
     height: clampCardSize(resolvedHeight, fallback.height),

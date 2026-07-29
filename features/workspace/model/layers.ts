@@ -47,6 +47,13 @@ import {
   type DraftingCardPaperShaderState,
 } from "@/features/workspace/model/card-state"
 import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
+import {
+  buildCornerRadiusLayerPatch,
+  cornerRadiiToLegacyRadius,
+  createUniformCornerRadii,
+  normalizeCornerRadiiState,
+  type DraftingCornerRadiiState,
+} from "@/features/workspace/model/corner-radius"
 
 export type DraftingCanvasLayerKind = "card" | "group" | "image" | "qr" | "shader" | "shape" | "text"
 export type DraftingImageSourceMode = "none" | "upload" | "url"
@@ -79,6 +86,7 @@ export type DraftingCanvasLayer = {
   isVisible: boolean
   kind: DraftingCanvasLayerKind
   cornerRadius?: number
+  cornerRadii?: DraftingCornerRadiiState
   fill?: string
   fillGradient?: StudioGradient
   fillMode?: DraftingShapeFillMode
@@ -238,6 +246,7 @@ export function getDraftingCardInsetLayout(
     const cardHeight = cardState.height
     const cardX = -cardWidth / 2
     const cardY = -cardHeight / 2
+
     const contentTop = cardY + cardState.padding
     const contentHeight = Math.max(
       qrDimensions.height,
@@ -281,6 +290,44 @@ export function getDraftingCardInsetLayout(
   }
 }
 
+export function hasAuthoredLayerComposition(layers: DraftingCanvasLayer[]): boolean {
+  return layers.some(
+    (layer) => layer.isVisible && (layer.kind === "shape" || layer.kind === "image"),
+  )
+}
+
+export function hasCustomDraftingQrPlacement(
+  layers: DraftingCanvasLayer[],
+  nodeId: string,
+  qrState: QrStudioState,
+  cardState: Pick<
+    DraftingCardState,
+    "bottomSpace" | "height" | "padding" | "sizeMode" | "width"
+  >,
+  tolerance = 2,
+): boolean {
+  const qrLayer = layers.find(
+    (layer) => layer.kind === "qr" && layer.id === getDraftingQrLayerId(nodeId),
+  )
+
+  if (!qrLayer) {
+    return false
+  }
+
+  const inset = getDraftingCardInsetLayout(qrState, cardState).qr
+
+  return (
+    Math.abs(qrLayer.x - inset.x) > tolerance ||
+    Math.abs(qrLayer.y - inset.y) > tolerance ||
+    Math.abs(qrLayer.width - inset.width) > tolerance ||
+    Math.abs(qrLayer.height - inset.height) > tolerance
+  )
+}
+
+export type LayoutDraftingCardInsetLayersOptions = {
+  preserveCustomQrPlacement?: boolean
+}
+
 export function layoutDraftingCardInsetLayers(
   layers: DraftingCanvasLayer[],
   qrState: QrStudioState,
@@ -288,8 +335,13 @@ export function layoutDraftingCardInsetLayers(
     DraftingCardState,
     "bottomSpace" | "height" | "padding" | "sizeMode" | "width"
   >,
+  options?: LayoutDraftingCardInsetLayersOptions,
 ): DraftingCanvasLayer[] {
+  const nodeId = layers.find((layer) => layer.kind === "qr")?.nodeId ?? layers[0]?.nodeId
   const layout = getDraftingCardInsetLayout(qrState, cardState)
+  const preserveQrPlacement =
+    options?.preserveCustomQrPlacement ??
+    (nodeId ? hasCustomDraftingQrPlacement(layers, nodeId, qrState, cardState) : false)
 
   return layers.map((layer) => {
     if (layer.kind === "card") {
@@ -297,6 +349,10 @@ export function layoutDraftingCardInsetLayers(
     }
 
     if (layer.kind === "qr") {
+      if (preserveQrPlacement) {
+        return layer
+      }
+
       return patchDraftingCanvasLayer(layer, layout.qr)
     }
 
@@ -537,6 +593,14 @@ export function patchDraftingCanvasLayer(
 
   if (patch.layerFilters) {
     merged.blur = syncLegacyBlurFromFilters(patch.layerFilters)
+  }
+
+  const cornerRadiusPatch = buildCornerRadiusLayerPatch(layer, patch)
+  if (cornerRadiusPatch.cornerRadius !== undefined) {
+    merged.cornerRadius = cornerRadiusPatch.cornerRadius
+  }
+  if (cornerRadiusPatch.cornerRadii !== undefined) {
+    merged.cornerRadii = cornerRadiusPatch.cornerRadii
   }
 
   return normalizeDraftingCanvasLayer(layer.nodeId, merged, [layer]) ?? layer
@@ -992,6 +1056,24 @@ function normalizeDraftingGroupChildren({
     .filter((child): child is DraftingCanvasLayer => Boolean(child))
 }
 
+function normalizeLayerCornerRadiusFields(
+  value: Record<string, unknown>,
+  fallback: DraftingCanvasLayer,
+  defaultRadius: number,
+) {
+  const legacyCornerRadius = clamp(
+    readFiniteNumber(value.cornerRadius, fallback.cornerRadius ?? defaultRadius),
+    0,
+    512,
+  )
+  const cornerRadii = normalizeCornerRadiiState(value.cornerRadii, fallback.cornerRadii, legacyCornerRadius)
+
+  return {
+    cornerRadius: cornerRadiiToLegacyRadius(cornerRadii),
+    cornerRadii,
+  }
+}
+
 function normalizeImageDraftingCanvasLayer(
   context: NormalizeDraftingLayerContext & { kind: "image" },
 ): DraftingCanvasLayer {
@@ -1000,10 +1082,10 @@ function normalizeImageDraftingCanvasLayer(
   return {
     ...normalizeSharedDraftingCanvasLayerFields(context),
     borderSides: normalizeDraftingLayerBorderSides(value.borderSides, fallback.borderSides),
-    cornerRadius: clamp(
-      readFiniteNumber(value.cornerRadius, fallback.cornerRadius ?? DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius),
-      0,
-      512,
+    ...normalizeLayerCornerRadiusFields(
+      value,
+      fallback,
+      DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius,
     ),
     imageFit:
       value.imageFit === "contain" || value.imageFit === "cover"
@@ -1028,13 +1110,10 @@ function normalizeShaderDraftingCanvasLayer(
   return {
     ...normalizeSharedDraftingCanvasLayerFields(context),
     borderSides: normalizeDraftingLayerBorderSides(value.borderSides, fallback.borderSides),
-    cornerRadius: clamp(
-      readFiniteNumber(
-        value.cornerRadius,
-        fallback.cornerRadius ?? DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius,
-      ),
-      0,
-      512,
+    ...normalizeLayerCornerRadiusFields(
+      value,
+      fallback,
+      DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius,
     ),
     kind: "shader",
     paperShader: normalizeLayerPaperShader(value.paperShader, fallbackPaperShader),
@@ -1092,10 +1171,10 @@ function normalizeShapeDraftingCanvasLayer(
   return {
     ...normalizeSharedDraftingCanvasLayerFields(context),
     borderSides: normalizeDraftingLayerBorderSides(value.borderSides, fallback.borderSides),
-    cornerRadius: clamp(
-      readFiniteNumber(value.cornerRadius, fallback.cornerRadius ?? DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius),
-      0,
-      512,
+    ...normalizeLayerCornerRadiusFields(
+      value,
+      fallback,
+      DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius,
     ),
     fill: normalizeHexColor(value.fill, fallback.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill),
     fillGradient: normalizeShapeFillGradient(value.fillGradient, fallback.fillGradient),
@@ -1283,6 +1362,14 @@ function createFallbackLayer(
           ? DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius
           : kind === "shader"
             ? DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius
+            : undefined,
+    cornerRadii:
+      kind === "image"
+        ? createUniformCornerRadii(DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius)
+        : kind === "shape"
+          ? createUniformCornerRadii(DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius)
+          : kind === "shader"
+            ? createUniformCornerRadii(DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius)
             : undefined,
     fill: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.fill : kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.fill : undefined,
     fillMode: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode : undefined,

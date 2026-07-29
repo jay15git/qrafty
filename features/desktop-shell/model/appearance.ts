@@ -6,10 +6,14 @@ import type {
 } from "@/features/workspace/model/effects"
 import type { DraftingFilterEffect } from "@/features/workspace/model/filters"
 import {
-  DEFAULT_DRAFTING_IMAGE_LAYER,
   DEFAULT_DRAFTING_SHAPE_LAYER,
   type DraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
+import {
+  layerSupportsCornerRadius,
+  resolveCornerRadii,
+  type DraftingCornerRadiiState,
+} from "@/features/workspace/model/corner-radius"
 import {
   DEFAULT_DRAFTING_OUTLINE,
   legacyShadowToShadowLayer,
@@ -18,6 +22,7 @@ import {
 export type DesktopAppearanceSnapshot = {
   blur: number
   cornerRadius?: number
+  cornerRadii?: DraftingCornerRadiiState
   layerFilters: DraftingFilterEffect[]
   opacity: number
   outline: DraftingOutlineState
@@ -31,6 +36,7 @@ export function getDesktopAppearanceSnapshot(
   layer: DraftingCanvasLayer,
   options?: {
     cardCornerRadius?: number
+    cardCornerRadii?: DraftingCornerRadiiState
     qrBackgroundShapeOptions?: BackgroundShapeOptions
   },
 ): DesktopAppearanceSnapshot {
@@ -39,9 +45,11 @@ export function getDesktopAppearanceSnapshot(
   const shadows = layer.shadows ?? [legacyShadowToShadowLayer(layer.shadow)]
 
   if (layer.kind === "card" && options?.cardCornerRadius !== undefined) {
+    const cornerRadii = resolveCornerRadii(options.cardCornerRadii, options.cardCornerRadius)
     return {
       blur: layer.blur,
-      cornerRadius: options.cardCornerRadius,
+      cornerRadius: cornerRadii.topLeft,
+      cornerRadii,
       layerFilters,
       opacity: layer.opacity,
       outline,
@@ -67,27 +75,33 @@ export function getDesktopAppearanceSnapshot(
 
   const isRectShape =
     layer.kind === "shape" && (layer.shapeId ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId) === "rect"
+  const cornerRadii = resolveCornerRadii(
+    layer.cornerRadii,
+    layer.cornerRadius ??
+      (layer.kind === "image"
+        ? 0
+        : isRectShape
+          ? DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius
+          : 0),
+  )
 
   return {
     blur: layer.blur,
-    cornerRadius:
-      layer.kind === "image"
-        ? (layer.cornerRadius ?? DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius)
-        : isRectShape
-          ? (layer.cornerRadius ?? DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius)
-          : undefined,
+    cornerRadius: cornerRadii.topLeft,
+    cornerRadii,
     layerFilters,
     opacity: layer.opacity,
     outline,
     shadow: layer.shadow,
     shadows,
-    supportsCornerRadius: layer.kind === "image" || layer.kind === "shape",
+    supportsCornerRadius: layerSupportsCornerRadius(layer),
     supportsOutline: layer.kind === "card" || layer.kind === "image" || layer.kind === "text" || isRectShape,
   }
 }
 
 export type DesktopAppearancePatchResult = {
   cardCornerRadius?: number
+  cardCornerRadii?: DraftingCornerRadiiState
   cardShadow?: Partial<DraftingCardShadowState>
   layerPatch: Partial<DraftingCanvasLayer>
   qrBackgroundShapeOptions?: Partial<BackgroundShapeOptions>
@@ -119,6 +133,10 @@ export function buildDesktopAppearancePatch(
     layerPatch.cornerRadius = patch.cornerRadius
   }
 
+  if (patch.cornerRadii !== undefined) {
+    layerPatch.cornerRadii = patch.cornerRadii
+  }
+
   if (patch.outline !== undefined) {
     layerPatch.outline = patch.outline
   }
@@ -139,6 +157,7 @@ export function buildDesktopAppearancePatch(
 
     return {
       cardCornerRadius: patch.cornerRadius,
+      cardCornerRadii: patch.cornerRadii,
       cardShadow: primaryShadow,
       layerPatch,
     }

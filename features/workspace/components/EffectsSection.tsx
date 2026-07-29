@@ -24,6 +24,10 @@ import {
   type DraftingShadowLayerState,
 } from "@/features/workspace/model/effects"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import {
+  layerSupportsCornerRadius,
+} from "@/features/workspace/model/corner-radius"
+import { CornerRadiusControls } from "@/features/workspace/components/CornerRadiusControls"
 
 const DEFAULT_SHADOW_COLOR = "#111827"
 
@@ -144,6 +148,14 @@ export function EffectsSection({
             />
           </DraftingInspectorValueGrid>
         </DraftingInspectorSection>
+      ) : null}
+
+      {layerSupportsCornerRadius(layer) ? (
+        <CornerRadiusControls
+          cornerRadius={layer.cornerRadius}
+          cornerRadii={layer.cornerRadii}
+          onChange={(patch) => onPatch(patch)}
+        />
       ) : null}
 
       <DraftingInspectorSection dataSlot="drafting-shadow-section" title="Shadow">

@@ -47,6 +47,7 @@ import {
   normalizeDraftingCardState,
   type DraftingCardState,
 } from "@/features/workspace/model/card-state"
+import { createUniformCornerRadii } from "@/features/workspace/model/corner-radius"
 import {
   InspectorPanel,
   DraftingInspectorSection,
@@ -91,7 +92,6 @@ import {
 } from "@/features/workspace/model/document"
 import {
   applySceneCompositionPatch,
-  applySceneTemplate,
   cloneSceneCompositionByNodeId,
   createDefaultSceneCompositionByNodeId,
   type SceneCompositionByNodeId,
@@ -104,10 +104,7 @@ import {
 import {
   createDefaultSceneComposition,
   normalizeSceneComposition,
-  type MockupStylePreset,
   type SceneLayoutPreset,
-  type SceneTemplate,
-  resolveMockupStyleId,
 } from "@/features/workspace/model/scene-templates"
 import { getCanvasSizeFromTemplate } from "@/features/workspace/model/size-templates"
 import {
@@ -115,11 +112,11 @@ import {
   writeWorkspaceEditingMode,
   type WorkspaceEditingMode,
 } from "@/features/workspace/model/workspace-editing-mode"
-import { legacyShadowToShadowLayer } from "@/features/workspace/model/effects"
 import {
   readDraftingWorkspaceDraft,
   writeDraftingWorkspaceDraft,
 } from "@/features/workspace/model/storage"
+import { resolveWorkspaceBootstrapDocument } from "@/features/workspace/model/workspace-bootstrap"
 import type {
   DraftingCardPatternColorSlotId,
   DraftingCardPatternId,
@@ -1492,20 +1489,13 @@ export function WorkspaceSurface({
   }
 
   function applyDraftingQrStateToControls(nextState: QrStudioState) {
-    setSelectedContentType(DEFAULT_QR_INPUT_TYPE)
-    setContentValuesByType((current) => ({
-      ...current,
-      [DEFAULT_QR_INPUT_TYPE]: {
-        ...getDefaultStaticQrValues(DEFAULT_QR_INPUT_TYPE),
-        url: nextState.data,
-      },
-    }))
     setSelectedQrMargin(nextState.margin)
     setSelectedQrRadius(clampQrBackgroundRound(nextState.backgroundOptions.round))
     setSelectedRasterExportQualityPercent(nextState.rasterExportQualityPercent)
     setSelectedQrSize(nextState.width)
     setSelectedDotType(nextState.dataModulesSettings.type)
     setSelectedDotsColorMode(nextState.dotsColorMode)
+    setSelectedDotsPalette([...nextState.dotsPalette])
     setSelectedDotColor(nextState.dataModulesSettings.color)
     setSelectedDotsGradient(structuredClone(nextState.dataModulesGradient))
     setSelectedDotMatrixAnimation({ ...nextState.dotMatrixAnimation })
@@ -1528,6 +1518,7 @@ export function WorkspaceSurface({
       nextState.backgroundGradient.enabled ? "gradient" : "solid",
     )
     setSelectedBackgroundColor(nextState.backgroundOptions.color)
+    setSelectedBackgroundTransparent(nextState.backgroundOptions.transparent)
     setSelectedBackgroundGradient(structuredClone(nextState.backgroundGradient))
     setSelectedBackgroundShapeId(nextState.backgroundShapeId)
     setSelectedBackgroundShapeOptions({
@@ -1691,9 +1682,9 @@ export function WorkspaceSurface({
       ),
     )
     setContentTypeByNodeId(structuredClone(nextDocument.contentTypeByNodeId))
-    applyDraftingQrStateToControls(activeState)
     setSelectedContentType(nextDocument.selectedContentType)
     setContentValuesByType(structuredClone(nextDocument.contentValuesByType))
+    applyDraftingQrStateToControls(activeState)
     setSelectedCardState(cloneDraftingCardState(activeCardState))
     selectSingleLayer(getDraftingQrLayerId(activeNodeId))
   }
@@ -1876,17 +1867,13 @@ export function WorkspaceSurface({
   useEffect(() => {
     let cancelled = false
 
-    void readDraftingWorkspaceDraft().then((savedDocument) => {
+    void resolveWorkspaceBootstrapDocument().then(({ document: nextDocument }) => {
       if (cancelled) {
         return
       }
 
-      const nextDocument = savedDocument ?? createDefaultDraftingWorkspaceDocument()
-
       isApplyingDraftingWorkspaceHistoryRef.current = true
-      if (savedDocument) {
-        applyDraftingWorkspaceDocumentToControls(nextDocument)
-      }
+      applyDraftingWorkspaceDocumentToControls(nextDocument)
       setDraftingHistoryStack([cloneDraftingWorkspaceDocument(nextDocument)], 0)
       setIsDraftingWorkspaceReady(true)
       window.setTimeout(() => {
@@ -3967,29 +3954,26 @@ export function WorkspaceSurface({
 
   const panes = useMemo(
     () =>
-      qrNodeIds.map((id) => ({
-        cardState:
+      qrNodeIds.map((id) => {
+        const paneQrState = qrStateByNodeId[id] ?? draftingStudioState
+        const paneCardState =
           id === activeQrNodeId
             ? selectedCardState
-            : (cardStateByNodeId[id] ?? selectedCardState),
-        id,
-        layers:
-          layerStateByNodeId[id] ??
-          createDefaultDraftingLayers(
-            id,
-            id === activeQrNodeId
-              ? draftingStudioState
-              : (qrStateByNodeId[id] ?? draftingStudioState),
-            id === activeQrNodeId
-              ? selectedCardState
-              : (cardStateByNodeId[id] ?? selectedCardState),
+            : (cardStateByNodeId[id] ?? selectedCardState)
+
+        return {
+          cardState: paneCardState,
+          id,
+          layers:
+            layerStateByNodeId[id] ??
+            createDefaultDraftingLayers(id, paneQrState, paneCardState),
+          name: qrPaneNamesById.get(id) ?? "QR Code",
+          sceneComposition: normalizeSceneComposition(
+            sceneCompositionByNodeId[id] ?? createDefaultSceneComposition(),
           ),
-        name: qrPaneNamesById.get(id) ?? "QR Code",
-        sceneComposition: normalizeSceneComposition(
-          sceneCompositionByNodeId[id] ?? createDefaultSceneComposition(),
-        ),
-        state: id === activeQrNodeId ? draftingStudioState : (qrStateByNodeId[id] ?? draftingStudioState),
-      })),
+          state: id === activeQrNodeId ? draftingStudioState : paneQrState,
+        }
+      }),
     [
       qrNodeIds,
       qrPaneNamesById,
@@ -4011,6 +3995,8 @@ export function WorkspaceSurface({
     ? getDesktopAppearanceSnapshot(gatedSelectedAppearanceLayer, {
         cardCornerRadius:
           gatedSelectedAppearanceLayer.kind === "card" ? selectedCardState.cornerRadius : undefined,
+        cardCornerRadii:
+          gatedSelectedAppearanceLayer.kind === "card" ? selectedCardState.cornerRadii : undefined,
         qrBackgroundShapeOptions:
           gatedSelectedAppearanceLayer.kind === "qr"
             ? draftingStudioState.backgroundShapeOptions
@@ -4036,11 +4022,14 @@ export function WorkspaceSurface({
 
     if (
       gatedSelectedAppearanceLayer.kind === "card" &&
-      (result.cardCornerRadius !== undefined || result.cardShadow)
+      (result.cardCornerRadius !== undefined ||
+        result.cardCornerRadii !== undefined ||
+        result.cardShadow)
     ) {
       setSelectedCardState((current) => ({
         ...current,
         cornerRadius: result.cardCornerRadius ?? current.cornerRadius,
+        cornerRadii: result.cardCornerRadii ?? current.cornerRadii,
         shadow: result.cardShadow
           ? {
               ...current.shadow,
@@ -4125,7 +4114,6 @@ export function WorkspaceSurface({
     shadowOpacity: selectedCardState.shadow.opacity,
     sizeMode: selectedCardState.sizeMode,
     sizePresetId: selectedCardState.sizePresetId,
-    mockupStyleId: resolveMockupStyleId(selectedCardState),
   }
   const desktopEncodingSettings: DesktopEncodingSettings = {
     errorCorrectionLevel: selectedQrErrorCorrectionLevel,
@@ -4170,8 +4158,6 @@ export function WorkspaceSurface({
     usePlatformPreset: selectedUsePlatformExportPreset,
   }
   const desktopSceneTemplateSettings = {
-    mockupStyleId: resolveMockupStyleId(selectedCardState),
-    selectedTemplateId: activeSceneComposition.templateId,
     sizeSettings: {
       cardHeight: selectedCardState.height,
       cardWidth: selectedCardState.width,
@@ -4405,14 +4391,20 @@ export function WorkspaceSurface({
         })
       }
     }
+    const nextCornerRadius = patch.cardRadius ?? selectedCardState.cornerRadius
     const nextCardState = {
       ...selectedCardState,
       bottomSpace: patch.bottomSpace ?? selectedCardState.bottomSpace,
-      cornerRadius: patch.cardRadius ?? selectedCardState.cornerRadius,
+      cornerRadius: nextCornerRadius,
+      cornerRadii:
+        patch.cardRadius !== undefined
+          ? createUniformCornerRadii(nextCornerRadius)
+          : selectedCardState.cornerRadii,
       enabled:
         patch.sizeMode === "fixed" ||
         patch.cardWidth !== undefined ||
-        patch.cardHeight !== undefined
+        patch.cardHeight !== undefined ||
+        patch.sizePresetId !== undefined
           ? true
           : selectedCardState.enabled,
       fill: patch.cardFill ?? selectedCardState.fill,
@@ -4730,23 +4722,6 @@ export function WorkspaceSurface({
     onEncodingSettingsChange: updateDesktopEncodingSettings,
     onAccessibilityReset: () => setSelectedAriaLabel(""),
     onAccessibilitySettingsChange: updateDesktopAccessibilitySettings,
-    onApplyMockupStyle: (preset: MockupStylePreset) => {
-      const nextCardState = normalizeDraftingCardState({
-        ...selectedCardState,
-        ...preset.cardState,
-        border: preset.cardState.border ?? selectedCardState.border,
-        shadow: preset.cardState.shadow ?? selectedCardState.shadow,
-      })
-      setSelectedCardState(nextCardState)
-
-      const layerShadows = preset.layerShadows ?? [nextCardState.shadow]
-      handleLayerChange(activeQrNodeId, getDraftingCardLayerId(activeQrNodeId), {
-        shadow: nextCardState.shadow,
-        shadows: layerShadows.map((shadow, index) =>
-          legacyShadowToShadowLayer(shadow, `mockup-shadow-${preset.id}-${index}`),
-        ),
-      })
-    },
     onLayoutPresetSelect: (preset) => {
       setSceneCompositionByNodeId((current) =>
         applySceneCompositionPatch(current, activeQrNodeId, { layout: preset }),
@@ -4758,17 +4733,6 @@ export function WorkspaceSurface({
           layout: { ...activeSceneComposition.layout, ...patch },
         }),
       )
-    },
-    onSceneTemplateSelect: (template: SceneTemplate) => {
-      const nextDocument = applySceneTemplate(draftingWorkspaceDocument, template.id, {
-        nodeId: activeQrNodeId,
-        preserveContent: true,
-      })
-      applyDraftingWorkspaceDocumentToControls(nextDocument)
-      if (template.exportPresetId) {
-        setSelectedExportPresetId(template.exportPresetId)
-        setSelectedUsePlatformExportPreset(true)
-      }
     },
     onSceneTemplateSizeChange: (patch) => {
       updateDesktopShapeSettings({
@@ -5361,6 +5325,7 @@ export function WorkspaceSurface({
               data-slot="desktop-canvas-viewport"
               className={cn("h-full min-h-0", chrome === "canvas-only" && "min-w-0")}
             >
+            {isDraftingWorkspaceReady ? (
             <Canvas
               activePaneId={activeQrNodeId}
               canRedo={canRedoDraftingWorkspace}
@@ -5425,6 +5390,16 @@ export function WorkspaceSurface({
               selectedLayerId={selectedLayerId}
               selectedLayerIds={selectedLayerIds}
             />
+            ) : (
+              <div
+                aria-busy="true"
+                aria-label="Loading workspace"
+                className="grid h-full place-items-center text-sm font-medium text-[var(--drafting-ink-muted)]"
+                data-slot="drafting-workspace-loading"
+              >
+                Loading workspace…
+              </div>
+            )}
             </div>
           </div>
         </section>

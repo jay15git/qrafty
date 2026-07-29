@@ -198,13 +198,15 @@ describe("drafting workspace document", () => {
     })
   })
 
-  it("defaults card size mode to auto for unknown documents", () => {
+  it("defaults card size mode to fixed 4:3 for unknown documents", () => {
     const parsed = parseDraftingWorkspaceDocument({ version: 999, qrOrder: [] })
 
     expect(parsed.cardStateByNodeId[DASHBOARD_QR_NODE_ID]).toMatchObject({
-      height: 1080,
+      height: 810,
       lockAspectRatio: true,
-      sizeMode: "auto",
+      sizeMode: "fixed",
+      sizePresetId: "ratio-4-3",
+      styleMode: "paper-shader",
       width: 1080,
     })
   })

@@ -1,5 +1,11 @@
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import {
+  buildRoundedRectPath,
+  cornerRadiiToCss,
+  resolveCornerRadii,
+  resolveLayerCornerRadii,
+} from "@/features/workspace/model/corner-radius"
+import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
   type DraftingTextRun,
@@ -150,7 +156,7 @@ function getDraftingCardLayerSvg(layer: DraftingCanvasLayer, cardState: Drafting
       ? `<image href="${escapeXml(cardState.cardImage.value)}" x="0" y="0" width="${layer.width}" height="${layer.height}" preserveAspectRatio="${cardState.cardImage.fit === "contain" ? "xMidYMid meet" : "xMidYMid slice"}" opacity="${cardState.cardImage.opacity / 100}" />`
       : ""
 
-  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><rect x="0" y="0" width="${layer.width}" height="${layer.height}" rx="${cardState.cornerRadius}" fill="${escapeXml(cardState.fill)}"${stroke}/>${cardImage}</g>`
+  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><path d="${buildRoundedRectPath(layer.width, layer.height, resolveCornerRadii(cardState.cornerRadii, cardState.cornerRadius))}" fill="${escapeXml(cardState.fill)}"${stroke}/>${cardImage}</g>`
 }
 
 function getDraftingGroupLayerSvg(
@@ -182,12 +188,13 @@ function getDraftingImageLayerSvg(layer: DraftingCanvasLayer) {
   }
 
   const preserveAspectRatio = layer.imageFit === "contain" ? "xMidYMid meet" : "xMidYMid slice"
-  const radius = layer.cornerRadius ?? 0
+  const radii = resolveLayerCornerRadii(layer, 0)
+  const hasRadius = radii.topLeft > 0 || radii.topRight > 0 || radii.bottomRight > 0 || radii.bottomLeft > 0
   const clip =
-    radius > 0
-      ? `<clipPath id="${getSvgId(layer.id)}-clip"><rect x="0" y="0" width="${layer.width}" height="${layer.height}" rx="${radius}"/></clipPath>`
+    hasRadius
+      ? `<clipPath id="${getSvgId(layer.id)}-clip"><path d="${buildRoundedRectPath(layer.width, layer.height, radii)}"/></clipPath>`
       : ""
-  const clipRef = radius > 0 ? ` clip-path="url(#${getSvgId(layer.id)}-clip)"` : ""
+  const clipRef = hasRadius ? ` clip-path="url(#${getSvgId(layer.id)}-clip)"` : ""
 
   return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}>${clip}<image href="${escapeXml(imageValue)}" x="0" y="0" width="${layer.width}" height="${layer.height}" preserveAspectRatio="${preserveAspectRatio}"${clipRef}/></g>`
 }
@@ -204,12 +211,18 @@ function getDraftingShapeLayerSvg(layer: DraftingCanvasLayer) {
     strokeWidth > 0
       ? ` stroke="${escapeXml(layer.stroke ?? "#171717")}" stroke-width="${strokeWidth}" stroke-opacity="${(layer.strokeOpacity ?? 100) / 100}"`
       : ""
-  const innerMarkup = definition
-    ? `<path d="${definition.path}" fill="${fill}"${strokeAttrs}/>`
-    : getShapeSvgPath(shapeId).replace("/>", ` fill="${fill}"${strokeAttrs}/>`)
-  const viewBox = definition
-    ? `0 0 ${definition.viewBox.width} ${definition.viewBox.height}`
-    : "0 0 100 100"
+  const innerMarkup =
+    shapeId === "rect"
+      ? `<path d="${buildRoundedRectPath(layer.width, layer.height, resolveLayerCornerRadii(layer, 0))}" fill="${fill}"${strokeAttrs}/>`
+      : definition
+        ? `<path d="${definition.path}" fill="${fill}"${strokeAttrs}/>`
+        : getShapeSvgPath(shapeId).replace("/>", ` fill="${fill}"${strokeAttrs}/>`)
+  const viewBox =
+    shapeId === "rect"
+      ? `0 0 ${layer.width} ${layer.height}`
+      : definition
+        ? `0 0 ${definition.viewBox.width} ${definition.viewBox.height}`
+        : "0 0 100 100"
 
   return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><svg x="0" y="0" width="${layer.width}" height="${layer.height}" viewBox="${viewBox}" preserveAspectRatio="none">${innerMarkup}</svg></g>`
 }

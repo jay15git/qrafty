@@ -27,6 +27,7 @@ import {
 } from "@/features/workspace/model/card-state"
 import { DraftingCardPaperShaderLayer } from "@/features/workspace/components/CardPaperShaderLayer"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
+import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/workspace/model/corner-radius"
 import { getDraftingCardPatternStyle } from "@/features/workspace/model/card-patterns"
 import {
   createDefaultDraftingLayers,
@@ -1161,7 +1162,6 @@ export const Pane = memo(function Pane({
     }
   }, [contextMenu])
 
-  const isLoading = markup === null && !hasError
   const resolvedLayers = useMemo(
     () =>
       layers && layers.length > 0
@@ -1169,6 +1169,7 @@ export const Pane = memo(function Pane({
         : createDefaultDraftingLayers("preview", state, cardState),
     [cardState, layers, state],
   )
+  const isLoading = markup === null && !hasError
 
   useEffect(() => {
     void ensureDraftingFontsForLayers(resolvedLayers)
@@ -1234,7 +1235,7 @@ export const Pane = memo(function Pane({
     ...(isPaperShaderMode || isImageFilterMode || isImageMode ? undefined : cardPatternStyle),
     ...cardImageStyle,
     ...getDraftingCardBorderStyle(cardState),
-    borderRadius: cardState.cornerRadius,
+    borderRadius: cornerRadiiToCss(cardState.cornerRadii),
     ...(hasTranslucentCardFill(cardState.fill) ? { backdropFilter: "blur(16px)" } : {}),
   }
   const imageFilterShader = {
@@ -2157,7 +2158,7 @@ export const Pane = memo(function Pane({
           )}
           style={{
             ...getLayerPlacementStyle(layer),
-            borderRadius: layer.cornerRadius ? `${layer.cornerRadius}px` : undefined,
+            borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
             ...getDraftingLayerEffectStyle(layer),
           }}
           onClick={(event) => selectLayerFromClick(event, layer)}
@@ -2224,7 +2225,7 @@ export const Pane = memo(function Pane({
           )}
           style={{
             ...getLayerPlacementStyle(layer),
-            borderRadius: layer.cornerRadius ? `${layer.cornerRadius}px` : undefined,
+            borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
             ...getDraftingLayerEffectStyle(layer),
           }}
           onClick={(event) => selectLayerFromClick(event, layer)}
@@ -2437,7 +2438,7 @@ export const Pane = memo(function Pane({
           className="absolute max-h-none max-w-none overflow-hidden"
           style={{
             ...getLayerPlacementStyle(layer, true),
-            borderRadius: layer.cornerRadius ? `${layer.cornerRadius}px` : undefined,
+            borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
             ...getDraftingLayerEffectStyle(layer),
           }}
         >

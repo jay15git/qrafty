@@ -9,22 +9,25 @@ import {
 } from "@/features/workspace/model/card-state"
 
 describe("drafting card state", () => {
-  it("starts with a paper shader state beside existing card styles", () => {
+  it("starts with a static mesh paper shader as the default card background", () => {
     const state = createDefaultDraftingCardState()
 
-    expect(state.styleMode).toBe("pattern")
+    expect(state.styleMode).toBe("paper-shader")
+    expect(state.sizeMode).toBe("fixed")
+    expect(state.sizePresetId).toBe("ratio-4-3")
+    expect(state.bottomSpace).toBe(0)
     expect(state.cardImage).toEqual({
       fit: "cover",
       opacity: 100,
       source: "none",
       value: undefined,
     })
-    expect(state.border).toEqual({
+    expect(state.border).toMatchObject({
       color: "#111827",
       opacity: 100,
       width: 0,
     })
-    expect(state.shadow).toEqual({
+    expect(state.shadow).toMatchObject({
       blur: 44,
       color: "#1d1606",
       offsetX: 0,
@@ -33,17 +36,14 @@ describe("drafting card state", () => {
     })
     expect(state.imageFilter.shaderId).toBe("image-dithering")
     expect(state.imageFilter.image.source).toBe("sample")
-    expect(state.paperShader.shaderId).toBe("mesh-gradient")
+    expect(state.paperShader.shaderId).toBe("static-mesh-gradient")
     expect(state.paperShader.presetName).toBe("Default")
-    expect(state.paperShader.params.colors).toEqual([
-      "#e0eaff",
-      "#241d9a",
-      "#f75092",
-      "#9f50d3",
-    ])
-    expect(state.paperShader.speed).toBe(1)
+    expect(state.paperShader.params.colors).toEqual(
+      createDefaultDraftingCardPaperShader("static-mesh-gradient").params.colors,
+    )
+    expect(state.paperShader.speed).toBe(0)
     expect(state.paperShader.frame).toBe(0)
-    expect(state.paperShader.paused).toBe(false)
+    expect(state.paperShader.paused).toBe(true)
   })
 
   it("deep clones paper shader params with the rest of the card state", () => {
@@ -61,12 +61,13 @@ describe("drafting card state", () => {
     expect(clone.shadow).not.toBe(state.shadow)
 
     const cloneColors = clone.paperShader.params.colors as string[]
+    const defaultColors = state.paperShader.params.colors as string[]
     cloneColors[0] = "#000000"
     clone.cardImage.value = "https://example.com/card.png"
     clone.border.width = 12
     clone.shadow.blur = 10
 
-    expect((state.paperShader.params.colors as string[])[0]).toBe("#e0eaff")
+    expect((state.paperShader.params.colors as string[])[0]).toBe(defaultColors[0])
     expect(state.cardImage.value).toBeUndefined()
     expect(state.border.width).toBe(0)
     expect(state.shadow.blur).toBe(44)
@@ -82,7 +83,7 @@ describe("drafting card state", () => {
       state as unknown as ReturnType<typeof createDefaultDraftingCardState>,
     )
 
-    expect(clone.shadow).toEqual({
+    expect(clone.shadow).toMatchObject({
       blur: 54,
       color: "#1d1606",
       offsetX: 0,

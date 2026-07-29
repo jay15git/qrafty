@@ -64,3 +64,6 @@ next-env.d.ts
 
 # CocoIndex Code (ccc)
 /.cocoindex_code/
+
+# Template PNG renders (pnpm render:templates)
+.render/

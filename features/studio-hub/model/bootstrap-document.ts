@@ -9,7 +9,10 @@ import {
   createDefaultDraftingWorkspaceDocument,
   type DraftingWorkspaceDocumentV1,
 } from "@/features/workspace/model/document"
-import { createDefaultDraftingLayers } from "@/features/workspace/model/layers"
+import {
+  createDefaultDraftingLayers,
+  type DraftingCanvasLayer,
+} from "@/features/workspace/model/layers"
 import {
   cloneDraftingQrState,
 } from "@/features/workspace/model/document"
@@ -23,9 +26,16 @@ import {
   readLibraryIndex,
 } from "@/features/library/model/storage"
 import type { StudioNavigationIntent } from "@/features/studio-hub/model/navigation"
-import { getTemplateById } from "@/features/studio-hub/model/templates"
-import { applySceneTemplate } from "@/features/workspace/model/apply-scene-template"
-import { getSceneTemplate } from "@/features/workspace/model/scene-templates"
+import {
+  applySceneTemplate,
+  createDefaultSceneCompositionByNodeId,
+} from "@/features/workspace/model/apply-scene-template"
+import {
+  createDefaultSceneComposition,
+  getSceneTemplate,
+  normalizeSceneComposition,
+  type SceneCompositionState,
+} from "@/features/workspace/model/scene-templates"
 
 export type BootstrapDocumentOptions = StudioNavigationIntent
 
@@ -82,13 +92,24 @@ function applyInputTypeAndPrompt(
   return nextDocument
 }
 
-export function buildTemplateDocumentSeed(options: {
+export type TemplateDocumentSeedOptions = {
   inputType: QrInputType
   data: string
   contentValues?: Record<string, string>
   qr?: (base: QrStudioState) => QrStudioState
   card?: (base: DraftingCardState) => DraftingCardState
-}): DraftingWorkspaceDocumentV1 {
+  layers?: (context: {
+    cardState: DraftingCardState
+    defaultLayers: DraftingCanvasLayer[]
+    nodeId: string
+    qrState: QrStudioState
+  }) => DraftingCanvasLayer[]
+  sceneComposition?: Partial<SceneCompositionState>
+}
+
+export function buildTemplateDocumentSeed(
+  options: TemplateDocumentSeedOptions,
+): DraftingWorkspaceDocumentV1 {
   const base = createDefaultDraftingWorkspaceDocument()
   const nodeId = base.activeQrNodeId
   const qrState = options.qr
@@ -110,7 +131,17 @@ export function buildTemplateDocumentSeed(options: {
     contentValues.text = options.data
   }
 
-  return {
+  const defaultLayers = createDefaultDraftingLayers(nodeId, qrState, cardState)
+  const layers = options.layers
+    ? options.layers({
+        cardState,
+        defaultLayers,
+        nodeId,
+        qrState,
+      })
+    : defaultLayers
+
+  const seededDocument: DraftingWorkspaceDocumentV1 = {
     ...base,
     selectedContentType: inputType,
     contentTypeByNodeId: { [nodeId]: inputType },
@@ -118,15 +149,46 @@ export function buildTemplateDocumentSeed(options: {
     qrStateByNodeId: { [nodeId]: qrState },
     cardStateByNodeId: { [nodeId]: cardState },
     layerStateByNodeId: {
-      [nodeId]: createDefaultDraftingLayers(nodeId, qrState, cardState),
+      [nodeId]: layers,
     },
+    sceneCompositionByNodeId: createDefaultSceneCompositionByNodeId({
+      ...base,
+      cardStateByNodeId: { [nodeId]: cardState },
+      contentTypeByNodeId: { [nodeId]: inputType },
+      contentValuesByType: { [inputType]: contentValues },
+      layerStateByNodeId: { [nodeId]: layers },
+      qrStateByNodeId: { [nodeId]: qrState },
+    }),
   }
+
+  if (options.sceneComposition) {
+    seededDocument.sceneCompositionByNodeId = {
+      ...seededDocument.sceneCompositionByNodeId,
+      [nodeId]: normalizeSceneComposition({
+        ...createDefaultSceneComposition(),
+        ...options.sceneComposition,
+      }),
+    }
+  }
+
+  return seededDocument
 }
 
 export async function createDocumentFromHubIntent(
   intent: BootstrapDocumentOptions,
 ): Promise<DraftingWorkspaceDocumentV1> {
   if (intent.source === "template" && intent.templateId) {
+    const { buildSocialCardTemplateDocument, SOCIAL_CARD_TEMPLATE_BUILDERS } = await import(
+      "@/features/studio-hub/model/social-card-templates"
+    )
+
+    if (intent.templateId in SOCIAL_CARD_TEMPLATE_BUILDERS) {
+      return buildSocialCardTemplateDocument(
+        intent.templateId as keyof typeof SOCIAL_CARD_TEMPLATE_BUILDERS,
+      )
+    }
+
+    const { getTemplateById } = await import("@/features/studio-hub/model/templates")
     const template = getTemplateById(intent.templateId)
     if (template) {
       const hubToSceneTemplateMap: Record<string, string> = {

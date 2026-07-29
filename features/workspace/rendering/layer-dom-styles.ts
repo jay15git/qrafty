@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react"
 
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
+import { cornerRadiiToCss, resolveCornerRadii, resolveLayerCornerRadii } from "@/features/workspace/model/corner-radius"
 import { normalizeDraftingCardBorder } from "@/features/workspace/model/card-state"
 import { getDraftingCardPatternStyle } from "@/features/workspace/model/card-patterns"
 import {
@@ -298,20 +299,20 @@ export function getDraftingCardDomStyle(
     ...(cardPatternStyle as Record<string, string | number> | undefined),
     ...cardImageStyle,
     ...borderStyle,
-    borderRadius: cardState.cornerRadius,
+    borderRadius: cornerRadiiToCss(resolveCornerRadii(cardState.cornerRadii, cardState.cornerRadius)),
   })
 }
 
 export function getDraftingImageDomStyle(layer: DraftingCanvasLayer): Record<string, string | number> {
   const imageValue = layer.imageValue ?? ""
-  const cornerRadius = layer.cornerRadius ?? 0
+  const borderRadius = cornerRadiiToCss(resolveLayerCornerRadii(layer, 0))
   const fit = layer.imageFit ?? "cover"
 
   if (!imageValue) {
     return {
       backgroundColor: "#f4f4f5",
       border: "1px dashed #d4d4d8",
-      borderRadius: cornerRadius,
+      borderRadius,
     }
   }
 
@@ -320,7 +321,7 @@ export function getDraftingImageDomStyle(layer: DraftingCanvasLayer): Record<str
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
     backgroundSize: fit,
-    borderRadius: cornerRadius,
+    borderRadius,
   }
 }
 

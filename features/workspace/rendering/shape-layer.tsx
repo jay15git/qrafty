@@ -1,6 +1,12 @@
 import type { CSSProperties } from "react"
 
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import {
+  buildRoundedRectPath,
+  cornerRadiiToCss,
+  resolveLayerCornerRadii,
+  scaleCornerRadiiToBounds,
+} from "@/features/workspace/model/corner-radius"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
 import { getStrokeDasharray } from "@/features/workspace/rendering/layer-appearance"
 
@@ -103,25 +109,31 @@ function renderPrimitiveShape(
     )
   }
 
-  const radius = layer.cornerRadius ?? 0
+  if (shapeId === "rect") {
+    const radii = scaleCornerRadiiToBounds(
+      resolveLayerCornerRadii(layer, 0),
+      layer.width,
+      layer.height,
+      84,
+      84,
+    )
+    const path = buildRoundedRectPath(84, 84, radii, 8, 8)
 
-  return (
-    <svg aria-hidden="true" className="h-full w-full" viewBox="0 0 100 100">
-      <rect
-        fill={fill}
-        height="84"
-        rx={radius / 2}
-        ry={radius / 2}
-        stroke={stroke}
-        strokeDasharray={strokeDasharray}
-        strokeOpacity={strokeOpacity}
-        strokeWidth={strokeWidth}
-        width="84"
-        x="8"
-        y="8"
-      />
-    </svg>
-  )
+    return (
+      <svg aria-hidden="true" className="h-full w-full" viewBox="0 0 100 100">
+        <path
+          d={path}
+          fill={fill}
+          stroke={stroke}
+          strokeDasharray={strokeDasharray}
+          strokeOpacity={strokeOpacity}
+          strokeWidth={strokeWidth}
+        />
+      </svg>
+    )
+  }
+
+  return null
 }
 
 export function DraftingShapeLayerContent({ layer }: { layer: DraftingCanvasLayer }) {
@@ -160,7 +172,7 @@ export function DraftingShapeLayerContent({ layer }: { layer: DraftingCanvasLaye
 
 export function DraftingImageLayerContent({ layer }: { layer: DraftingCanvasLayer }) {
   const imageValue = layer.imageValue
-  const cornerRadius = layer.cornerRadius ?? 0
+  const cornerStyle = cornerRadiiToCss(resolveLayerCornerRadii(layer, 0))
   const fit = layer.imageFit ?? "cover"
 
   if (!imageValue) {
@@ -168,7 +180,7 @@ export function DraftingImageLayerContent({ layer }: { layer: DraftingCanvasLaye
       <div
         aria-hidden="true"
         className="grid h-full w-full place-items-center border border-dashed border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] text-[11px] font-semibold text-[var(--drafting-ink-muted)]"
-        style={{ borderRadius: cornerRadius }}
+        style={{ borderRadius: cornerStyle }}
       >
         Image
       </div>
@@ -182,7 +194,7 @@ export function DraftingImageLayerContent({ layer }: { layer: DraftingCanvasLaye
       draggable={false}
       src={imageValue}
       style={{
-        borderRadius: cornerRadius,
+        borderRadius: cornerStyle,
         objectFit: fit,
       }}
     />

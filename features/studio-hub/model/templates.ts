@@ -1,5 +1,9 @@
 import type { DraftingWorkspaceDocumentV1 } from "@/features/workspace/model/document"
 import { buildTemplateDocumentSeed } from "@/features/studio-hub/model/bootstrap-document"
+import {
+  buildSocialCardTemplateDocument,
+  socialCardThumbnail,
+} from "@/features/studio-hub/model/social-card-templates"
 
 export type QrDesignTemplateCategory =
   | "business"
@@ -137,6 +141,36 @@ const TEMPLATE_SEEDS: Omit<QrDesignTemplate, "document">[] = [
     tags: ["Link", "Bold"],
     thumbnailUrl: templateThumbnail(260, "#4f46e5"),
     accentColor: "#4f46e5",
+  },
+  {
+    id: "social-mint-cta",
+    title: "Mint CTA",
+    subtitle: "Paris travel card with stacked hero",
+    category: "social",
+    tags: ["Link", "Social", "Portrait"],
+    thumbnailUrl: socialCardThumbnail("#8fd6b4", "#d9f7ec"),
+    accentColor: "#8fd6b4",
+    featured: true,
+  },
+  {
+    id: "social-studio-index",
+    title: "Studio Index",
+    subtitle: "Bold folder card for project drops",
+    category: "social",
+    tags: ["Link", "Social", "Square"],
+    thumbnailUrl: socialCardThumbnail("#ff8a3d", "#f4f4f5"),
+    accentColor: "#ff8a3d",
+    featured: true,
+  },
+  {
+    id: "social-editorial-link",
+    title: "Editorial Link",
+    subtitle: "Warm portrait poster with price block",
+    category: "social",
+    tags: ["Link", "Social", "Portrait"],
+    thumbnailUrl: socialCardThumbnail("#ff9b54", "#fff8ef"),
+    accentColor: "#ff9b54",
+    featured: true,
   },
 ]
 
@@ -412,6 +446,9 @@ function buildDocuments(): QrDesignTemplate[] {
         border: { color: "#4f46e5", opacity: 100, width: 6 },
       }),
     }),
+    "social-mint-cta": buildSocialCardTemplateDocument("social-mint-cta"),
+    "social-studio-index": buildSocialCardTemplateDocument("social-studio-index"),
+    "social-editorial-link": buildSocialCardTemplateDocument("social-editorial-link"),
   }
 
   return TEMPLATE_SEEDS.map((seed) => ({

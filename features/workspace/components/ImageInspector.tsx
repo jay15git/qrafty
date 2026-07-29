@@ -59,14 +59,6 @@ export function ImageInspector({
           />
         ))}
       </div>
-
-      <InspectorNumberInput
-        label="Corner radius"
-        max={512}
-        min={0}
-        value={layer.cornerRadius ?? DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius}
-        onChange={(cornerRadius) => onPatch({ cornerRadius })}
-      />
     </DraftingInspectorSection>
   )
 }

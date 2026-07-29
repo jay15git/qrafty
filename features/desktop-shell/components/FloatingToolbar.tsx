@@ -38,7 +38,6 @@ import {
   DesktopLayoutInspector,
   type DesktopLayoutSettings,
 } from "@/features/desktop-shell/components/DesktopLayoutInspector"
-import { DesktopMockupStyleGrid } from "@/features/desktop-shell/components/DesktopMockupStyleGrid"
 import {
   DesktopSceneTemplateInspector,
   type DesktopSceneTemplateSettings,
@@ -272,7 +271,7 @@ import {
   formatExportPresetLabel,
   type ExportPresetId,
 } from "@/features/workspace/model/export-presets"
-import type { MockupStylePreset, SceneLayoutPreset, SceneTemplate } from "@/features/workspace/model/scene-templates"
+import type { SceneLayoutPreset } from "@/features/workspace/model/scene-templates"
 import { ElasticSlider } from "@/components/ui/elastic-slider"
 import { FluidSwitch } from "@/components/ui/fluid-switch"
 import { GalleryVerticalEndIcon } from "@/components/ui/gallery-vertical-end"
@@ -504,7 +503,6 @@ export type DesktopShapeSettings = {
   shadowOpacity: number
   sizeMode: DraftingCardSizeMode
   sizePresetId?: string
-  mockupStyleId?: string
 }
 
 export type DesktopMotionSettings = QrDotMatrixAnimationOptions
@@ -682,10 +680,8 @@ export type DesktopToolbarController = {
   onExportReset: () => void
   onExportSettingsChange: (patch: Partial<DesktopExportSettings>) => void
   onExportDownload: () => void
-  onApplyMockupStyle?: (preset: MockupStylePreset) => void
   onLayoutPresetSelect?: (preset: SceneLayoutPreset) => void
   onLayoutSettingsChange?: (patch: Partial<SceneLayoutPreset>) => void
-  onSceneTemplateSelect?: (template: SceneTemplate) => void
   onSceneTemplateSizeChange?: (patch: Partial<DesktopSceneTemplateSettings["sizeSettings"]>) => void
   onSceneTemplateSizeTemplateSelect?: (template: import("@/features/workspace/model/size-templates").SizeTemplate) => void
   buildCodegenExport?: (target: CodeExportTarget) => Promise<{ code: string; installCommand?: string }>
@@ -1281,10 +1277,11 @@ export function useDesktopToolbarInspectorModel({
     actualLayoutSettings: controller?.layoutSettings ?? { layout: { id: "flat", label: "Flat", rotation: 0, tiltX: 0, tiltY: 0, zoom: 1 } },
     actualSceneTemplateSettings: controller?.sceneTemplateSettings ?? {
       sizeSettings: {
-        cardHeight: 1080,
+        cardHeight: 810,
         cardWidth: 1080,
         lockAspectRatio: true,
-        sizeMode: "auto",
+        sizeMode: "fixed",
+        sizePresetId: "ratio-4-3",
       },
     },
     actualTextSettings: controller?.textSettings ?? textSettings,
@@ -3236,14 +3233,10 @@ function DesktopCornerStyleButton({
 
 function DesktopShapeInspector({
   desktopTheme,
-  mockupStyleId,
-  onApplyMockupStyle,
   onShapeSettingsChange,
   settings,
 }: {
   desktopTheme: DesktopThemeMode
-  mockupStyleId?: string
-  onApplyMockupStyle?: (preset: MockupStylePreset) => void
   onShapeSettingsChange: (patch: Partial<DesktopShapeSettings>) => void
   settings: DesktopShapeSettings
 }) {
@@ -3252,13 +3245,6 @@ function DesktopShapeInspector({
       <DesktopInspectorHeader title="Shape" />
 
       <DesktopInspectorScrollArea>
-        {onApplyMockupStyle ? (
-          <DesktopMockupStyleGrid
-            onApplyMockupStyle={onApplyMockupStyle}
-            selectedStyleId={mockupStyleId}
-          />
-        ) : null}
-
         <DesktopSizeTemplateInspector
           settings={{
             cardHeight: settings.cardHeight,
@@ -6584,8 +6570,6 @@ export function DesktopFloatingInspector({
         />
       ) : activeTool === "templates" ? (
         <DesktopSceneTemplateInspector
-          onApplyMockupStyle={(preset) => controller?.onApplyMockupStyle?.(preset)}
-          onSelectTemplate={(template) => controller?.onSceneTemplateSelect?.(template)}
           onSizeSettingsChange={(patch) => controller?.onSceneTemplateSizeChange?.(patch)}
           onSelectSizeTemplate={(template) => controller?.onSceneTemplateSizeTemplateSelect?.(template)}
           settings={actualSceneTemplateSettings}
@@ -6633,9 +6617,7 @@ export function DesktopFloatingInspector({
       ) : activeTool === "shape" ? (
         <DesktopShapeInspector
           desktopTheme={actualDesktopTheme}
-          mockupStyleId={actualShapeSettings.mockupStyleId}
           settings={actualShapeSettings}
-          onApplyMockupStyle={(preset) => controller?.onApplyMockupStyle?.(preset)}
           onShapeSettingsChange={onShapeSettingsChange}
         />
       ) : activeTool === "motion" ? (

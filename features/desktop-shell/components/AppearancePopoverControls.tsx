@@ -1,6 +1,6 @@
 "use client"
 
-import { EyeIcon, EyeOffIcon, MinusIcon, PlusIcon } from "lucide-react"
+import { EyeIcon, EyeOffIcon, Link2, MinusIcon, PlusIcon, Unlink2 } from "lucide-react"
 
 import {
   Select,
@@ -40,10 +40,17 @@ import {
   type DraftingShadowLayerState,
 } from "@/features/workspace/model/effects"
 import {
-  DEFAULT_DRAFTING_IMAGE_LAYER,
-  DEFAULT_DRAFTING_SHAPE_LAYER,
   type DraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
+import {
+  DRAFTING_CORNER_RADIUS_KEYS,
+  DRAFTING_CORNER_RADIUS_MAX,
+  patchCornerRadii,
+  resolveCornerRadii,
+  setCornerRadiiLinked,
+  type DraftingCornerRadiusKey,
+  type DraftingCornerRadiiState,
+} from "@/features/workspace/model/corner-radius"
 import { cn } from "@/lib/utils"
 
 const DEFAULT_SHADOW_COLOR = "#111827"
@@ -466,25 +473,64 @@ export function AppearanceRadiusControls({
     return null
   }
 
-  const defaultRadius =
-    appearance.cornerRadius ??
-    DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius ??
-    DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius
+  const radii = resolveCornerRadii(appearance.cornerRadii, appearance.cornerRadius)
+
+  const applyRadii = (nextRadii: DraftingCornerRadiiState) => {
+    onPatch({
+      cornerRadius: nextRadii.linked
+        ? nextRadii.topLeft
+        : Math.max(nextRadii.topLeft, nextRadii.topRight, nextRadii.bottomRight, nextRadii.bottomLeft),
+      cornerRadii: nextRadii,
+    })
+  }
+
+  const updateCorner = (corner: DraftingCornerRadiusKey, value: number) => {
+    applyRadii(patchCornerRadii(appearance.cornerRadii, appearance.cornerRadius, corner, value))
+  }
 
   return (
     <DesktopInspectorSection
       className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, className)}
       dataSlot="desktop-appearance-radius-controls"
     >
-      <DesktopInspectorLabel>Corner radius</DesktopInspectorLabel>
-      <DesktopInspectorElasticSliderRow
-        label="Corner radius"
-        max={512}
-        min={0}
-        value={defaultRadius}
-        valueLabel={`${Math.round(defaultRadius)}`}
-        onChange={(cornerRadius) => onPatch({ cornerRadius })}
-      />
+      <div className="flex items-center justify-between gap-2">
+        <DesktopInspectorLabel>Corner radius</DesktopInspectorLabel>
+        <button
+          aria-label={radii.linked ? "Unlink corner radii" : "Link corner radii"}
+          aria-pressed={radii.linked}
+          className="grid size-7 place-items-center rounded-md text-[var(--desktop-inspector-fg-secondary)] hover:bg-[var(--desktop-inspector-control-hover-bg)]"
+          type="button"
+          onClick={() =>
+            applyRadii(setCornerRadiiLinked(appearance.cornerRadii, appearance.cornerRadius, !radii.linked))
+          }
+        >
+          {radii.linked ? <Link2 className="size-3.5" /> : <Unlink2 className="size-3.5" />}
+        </button>
+      </div>
+
+      {radii.linked ? (
+        <DesktopInspectorElasticSliderRow
+          label="All corners"
+          max={DRAFTING_CORNER_RADIUS_MAX}
+          min={0}
+          value={radii.topLeft}
+          valueLabel={`${Math.round(radii.topLeft)}`}
+          onChange={(value) => updateCorner("topLeft", value)}
+        />
+      ) : (
+        <DesktopInspectorValueGrid>
+          {DRAFTING_CORNER_RADIUS_KEYS.map((corner) => (
+            <DesktopInspectorNumberField
+              key={corner}
+              label={corner === "topLeft" ? "TL" : corner === "topRight" ? "TR" : corner === "bottomRight" ? "BR" : "BL"}
+              max={DRAFTING_CORNER_RADIUS_MAX}
+              min={0}
+              value={radii[corner]}
+              onChange={(value) => updateCorner(corner, value)}
+            />
+          ))}
+        </DesktopInspectorValueGrid>
+      )}
     </DesktopInspectorSection>
   )
 }

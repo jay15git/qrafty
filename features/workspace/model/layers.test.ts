@@ -18,6 +18,7 @@ import {
   getDraftingMarqueeSelection,
   groupDraftingCanvasLayers,
   layoutDraftingCardInsetLayers,
+  hasCustomDraftingQrPlacement,
   normalizeDraftingCanvasLayers,
   reorderDraftingCanvasLayer,
   ungroupDraftingCanvasLayer,
@@ -29,7 +30,12 @@ import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
 describe("drafting layer state actions", () => {
   it("relayouts card and qr layers when card inset padding changes", () => {
     const qrState = createDefaultQrStudioState()
-    const cardState = createDefaultDraftingCardState()
+    const cardState = {
+      ...createDefaultDraftingCardState(),
+      sizeMode: "auto" as const,
+      sizePresetId: undefined,
+      bottomSpace: 128,
+    }
     const layers = createDefaultDraftingLayers("preview", qrState, cardState)
     const nextCardState = { ...cardState, padding: 40 }
 
@@ -45,6 +51,46 @@ describe("drafting layer state actions", () => {
     expect(relayouted.find((layer) => layer.kind === "qr")).toMatchObject({
       x: fresh.find((layer) => layer.kind === "qr")?.x,
       y: fresh.find((layer) => layer.kind === "qr")?.y,
+    })
+  })
+
+  it("detects custom qr placement outside the default card inset", () => {
+    const qrState = createDefaultQrStudioState()
+    const cardState = {
+      ...createDefaultDraftingCardState(),
+      sizeMode: "fixed" as const,
+      width: 1080,
+      height: 1350,
+      padding: 0,
+      bottomSpace: 0,
+    }
+    const layers = createDefaultDraftingLayers("preview", qrState, cardState).map(
+      cloneDraftingCanvasLayer,
+    )
+
+    expect(hasCustomDraftingQrPlacement(layers, "preview", qrState, cardState)).toBe(false)
+
+    const customLayers = layers.map((layer) =>
+      layer.kind === "qr"
+        ? {
+            ...layer,
+            height: 500,
+            width: 500,
+            x: 0,
+            y: -293,
+          }
+        : layer,
+    )
+
+    expect(hasCustomDraftingQrPlacement(customLayers, "preview", qrState, cardState)).toBe(true)
+
+    const relayouted = layoutDraftingCardInsetLayers(customLayers, qrState, cardState)
+
+    expect(relayouted.find((layer) => layer.kind === "qr")).toMatchObject({
+      height: 500,
+      width: 500,
+      x: 0,
+      y: -293,
     })
   })
 
@@ -110,7 +156,12 @@ describe("drafting layer state actions", () => {
 
   it("keeps auto card sizing derived from qr dimensions", () => {
     const qrState = createDefaultQrStudioState()
-    const cardState = createDefaultDraftingCardState()
+    const cardState = {
+      ...createDefaultDraftingCardState(),
+      sizeMode: "auto" as const,
+      sizePresetId: undefined,
+      bottomSpace: 128,
+    }
     const layout = getDraftingCardInsetLayout(qrState, cardState)
 
     expect(cardState.sizeMode).toBe("auto")

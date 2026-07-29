@@ -26,6 +26,7 @@ function buildDocumentPreviewCacheKey(
   const state = document.qrStateByNodeId[nodeId]
   const cardState = document.cardStateByNodeId[nodeId]
   const layers = document.layerStateByNodeId[nodeId]
+  const sceneComposition = document.sceneCompositionByNodeId[nodeId]
 
   if (!state || !cardState || !layers) {
     return null
@@ -35,6 +36,7 @@ function buildDocumentPreviewCacheKey(
     cardState,
     layers,
     options,
+    sceneComposition,
     state,
   })
 }
@@ -90,6 +92,7 @@ export async function buildDocumentPreviewMarkup(
   const state = document.qrStateByNodeId[nodeId]
   const cardState = document.cardStateByNodeId[nodeId]
   const layers = document.layerStateByNodeId[nodeId]
+  const sceneComposition = document.sceneCompositionByNodeId[nodeId]
 
   if (!state || !cardState || !layers) {
     return null
@@ -110,6 +113,7 @@ export async function buildDocumentPreviewMarkup(
     layers,
     name: "preview",
     nodeId,
+    sceneComposition,
     state,
   })
 

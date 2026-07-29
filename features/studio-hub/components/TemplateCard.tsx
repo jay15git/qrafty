@@ -6,6 +6,10 @@ import {
 import { QrDocumentPreview } from "@/features/qr-code/components/QrDocumentPreview"
 import { HUB_CARD_DOCUMENT_PREVIEW_OPTIONS } from "@/features/qr-code/rendering/document-preview"
 import { HUB_CARD_SURFACE } from "@/features/studio-hub/components/hub-surfaces"
+import {
+  buildSocialCardTemplateDocument,
+  SOCIAL_CARD_TEMPLATE_BUILDERS,
+} from "@/features/studio-hub/model/social-card-templates"
 import type { QrDesignTemplate } from "@/features/studio-hub/model/templates"
 import { cn } from "@/lib/utils"
 
@@ -15,6 +19,13 @@ type TemplateCardProps = {
 }
 
 export function TemplateCard({ template, onUse }: TemplateCardProps) {
+  const previewDocument =
+    template.id in SOCIAL_CARD_TEMPLATE_BUILDERS
+      ? buildSocialCardTemplateDocument(
+          template.id as keyof typeof SOCIAL_CARD_TEMPLATE_BUILDERS,
+        )
+      : template.document
+
   return (
     <button
       type="button"
@@ -24,7 +35,7 @@ export function TemplateCard({ template, onUse }: TemplateCardProps) {
     >
       <div className={cn("relative aspect-square w-full overflow-hidden p-3", HUB_CARD_SURFACE)}>
         <QrDocumentPreview
-          document={template.document}
+          document={previewDocument}
           previewOptions={HUB_CARD_DOCUMENT_PREVIEW_OPTIONS}
           className="transition-transform duration-500 group-hover:scale-[1.03]"
         />

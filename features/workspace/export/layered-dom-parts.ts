@@ -1,6 +1,7 @@
 import { type DomLayerNode } from "@new-qr/qr-internal/codegen"
 
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
+import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/workspace/model/corner-radius"
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
@@ -195,7 +196,7 @@ function getDraftingImageLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
     },
     htmlContent: imageValue
       ? `<img alt="" src="${escapeHtml(imageValue)}" style="${cssPropertiesToInlineStyle({
-          borderRadius: layer.cornerRadius ?? 0,
+          borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
           height: "100%",
           objectFit: layer.imageFit ?? "cover",
           width: "100%",

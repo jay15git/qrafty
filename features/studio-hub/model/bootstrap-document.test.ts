@@ -6,6 +6,7 @@ import {
   createDocumentFromHubIntent,
 } from "@/features/studio-hub/model/bootstrap-document"
 import { getTemplateById } from "@/features/studio-hub/model/templates"
+import { createDraftingTextLayer } from "@/features/workspace/model/layers"
 
 describe("createDocumentFromHubIntent", () => {
   it("creates a blank default workspace document", async () => {
@@ -61,5 +62,36 @@ describe("buildTemplateDocumentSeed", () => {
 
     expect(document.selectedContentType).toBe(DEFAULT_QR_INPUT_TYPE)
     expect(document.contentValuesByType.link?.url).toBe("https://example.com/hello")
+  })
+
+  it("supports custom authored layers in template seeds", () => {
+    const document = buildTemplateDocumentSeed({
+      inputType: "link",
+      data: "https://example.com",
+      layers: ({ nodeId, defaultLayers }) => [
+        ...defaultLayers,
+        createDraftingTextLayer(nodeId, {
+          id: `${nodeId}:seed-text`,
+          text: "Scan to follow",
+          zIndex: 5,
+        }),
+      ],
+      sceneComposition: {
+        background: {
+          angle: 120,
+          kind: "gradient",
+          stops: [
+            { color: "#dbeafe", offset: 0 },
+            { color: "#bfdbfe", offset: 1 },
+          ],
+        },
+      },
+    })
+
+    const nodeId = document.activeQrNodeId
+    const layers = document.layerStateByNodeId[nodeId] ?? []
+
+    expect(layers.some((layer) => layer.id === `${nodeId}:seed-text`)).toBe(true)
+    expect(document.sceneCompositionByNodeId[nodeId]?.background.kind).toBe("gradient")
   })
 })

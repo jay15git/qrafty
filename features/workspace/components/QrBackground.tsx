@@ -95,7 +95,11 @@ function shouldRenderDraftingQrBackground(state: QrStudioState) {
     return true
   }
 
-  return hasActiveBackgroundShapeOptions(state.backgroundShapeOptions)
+  if (hasActiveBackgroundShapeOptions(state.backgroundShapeOptions)) {
+    return true
+  }
+
+  return !state.backgroundOptions.transparent && Boolean(state.backgroundOptions.color)
 }
 
 export function buildDraftingQrBackgroundPreviewSvgMarkup(

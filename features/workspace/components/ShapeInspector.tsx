@@ -164,15 +164,6 @@ export function ShapeInspector({
           value={layer.strokeOpacity ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeOpacity}
           onChange={(strokeOpacity) => onPatch({ strokeOpacity })}
         />
-        {shapeId === "rect" ? (
-          <InspectorNumberInput
-            label="Corner radius"
-            max={512}
-            min={0}
-            value={layer.cornerRadius ?? DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius}
-            onChange={(cornerRadius) => onPatch({ cornerRadius })}
-          />
-        ) : null}
       </div>
     </DraftingInspectorSection>
   )

@@ -33,6 +33,7 @@ import {
   type DraftingCardState,
   type DraftingCardStyleMode,
 } from "@/features/workspace/model/card-state"
+import { createUniformCornerRadii } from "@/features/workspace/model/corner-radius"
 import {
   DRAFTING_CARD_PATTERN_NONE_ID,
   DRAFTING_CARD_PATTERNS,
@@ -1307,7 +1308,12 @@ export function DraftingCardSettingsTab({
         min={0}
         step={1}
         value={value.cornerRadius}
-        onChange={(cornerRadius) => updateCard({ cornerRadius })}
+        onChange={(cornerRadius) =>
+          updateCard({
+            cornerRadius,
+            cornerRadii: createUniformCornerRadii(cornerRadius),
+          })
+        }
       />
       <DraftingSliderField
         dataSlot="drafting-card-padding-slider"

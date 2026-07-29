@@ -22,7 +22,21 @@ export function QrDocumentPreview({ document, className, previewOptions }: QrDoc
   const cacheKey = React.useMemo(() => {
     const nodeId = resolveDocumentNodeId(document)
     const state = document.qrStateByNodeId[nodeId]
-    return state ? JSON.stringify({ previewOptions, state }) : nodeId
+    const cardState = document.cardStateByNodeId[nodeId]
+    const layers = document.layerStateByNodeId[nodeId]
+    const sceneComposition = document.sceneCompositionByNodeId[nodeId]
+
+    if (!state || !cardState || !layers) {
+      return nodeId
+    }
+
+    return JSON.stringify({
+      cardState,
+      layers,
+      previewOptions,
+      sceneComposition,
+      state,
+    })
   }, [document, previewOptions])
 
   React.useEffect(() => {

@@ -4,6 +4,7 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 
 import { writeDraftingWorkspaceDraft } from "@/features/workspace/model/storage"
+import { writeWorkspaceBootstrapSnapshot } from "@/features/workspace/model/workspace-bootstrap"
 import {
   buildDesktopEditorUrl,
   type StudioNavigationIntent,
@@ -36,6 +37,7 @@ export function StudioNavigationProvider({ children }: { children: React.ReactNo
   const openEditor = React.useCallback(
     async (intent: StudioNavigationIntent, item?: HubTransitionItem) => {
       const document = await createDocumentFromHubIntent(intent)
+      writeWorkspaceBootstrapSnapshot(document)
       await writeDraftingWorkspaceDraft(document)
 
       writeStudioSession({
