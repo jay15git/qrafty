@@ -26,9 +26,8 @@ import {
   BoldIcon,
   ChevronDownIcon,
   ItalicIcon,
-  ShapesIcon,
-  Sparkles,
   LayoutGrid,
+  Sparkles,
   TypeIcon,
   UnderlineIcon,
   Wallpaper,
@@ -40,9 +39,8 @@ import {
   type DesktopLayoutSettings,
 } from "@/features/desktop-shell/components/DesktopLayoutInspector"
 import {
-  DesktopSceneTemplateInspector,
-  type DesktopSceneTemplateSettings,
-} from "@/features/desktop-shell/components/DesktopSceneTemplateInspector"
+  type DesktopCardSizeSettings,
+} from "@/features/desktop-shell/components/DesktopSizeTemplateInspector"
 import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr-code/assets/brand-icon-svg"
 import {
   findBrandIconById,
@@ -62,10 +60,8 @@ import {
 import { useIconstackCuratedIcons } from "@/features/qr-code/hooks/useIconstackCuratedIcons"
 import { useIconstackIconSearch } from "@/features/qr-code/hooks/useIconstackIconSearch"
 import {
-  DRAFTING_CARD_PATTERN_NONE_ID,
   DRAFTING_CARD_PATTERNS,
   getDraftingCardPatternById,
-  getDraftingCardPatternStyle,
   type DraftingCardPatternColorOverrides,
   type DraftingCardPatternId,
   type DraftingCardPatternSelectionId,
@@ -264,8 +260,6 @@ import {
 } from "@/features/qr-code/content/input-options"
 import { DesktopCodeExportInspector } from "@/features/desktop-shell/components/DesktopCodeExportInspector"
 import { DesktopPexelsPhotoInspector } from "@/features/desktop-shell/components/DesktopPexelsPhotoInspector"
-import { DesktopSizeTemplateInspector } from "@/features/desktop-shell/components/DesktopSizeTemplateInspector"
-import { getCanvasSizeFromTemplate } from "@/features/workspace/model/size-templates"
 import { DownloadIcon as AnimatedDownloadIcon } from "@/components/ui/download"
 import {
   DraggableList,
@@ -280,7 +274,6 @@ import {
 import type { SceneLayoutPreset } from "@/features/workspace/model/scene-templates"
 import { ElasticSlider } from "@/components/ui/elastic-slider"
 import { FluidSwitch } from "@/components/ui/fluid-switch"
-import { GalleryVerticalEndIcon } from "@/components/ui/gallery-vertical-end"
 import { GripIcon } from "@/components/ui/grip"
 import { LayersIcon } from "@/components/ui/layers"
 import LetterTIcon from "@/components/ui/letter-t-icon"
@@ -298,7 +291,6 @@ import {
 type DesktopToolbarGroup = "QR" | "Add" | "Manage"
 export type ComposeSidebarPanel = "stock-photos" | null
 export type DesktopToolbarToolId =
-  | "templates"
   | "layout"
   | "content"
   | "pattern"
@@ -307,13 +299,17 @@ export type DesktopToolbarToolId =
   | "shape"
   | "background"
   | "motion"
-  | "card-pattern"
   | "text"
   | "image"
-  | "decorations"
   | "effects"
   | "layers"
   | "export"
+
+export type DesktopBackgroundInspectorTab = "paper" | "patterns"
+
+export type DesktopSceneTemplateSettings = {
+  sizeSettings: DesktopCardSizeSettings
+}
 
 type DesktopToolbarTool = {
   group: DesktopToolbarGroup
@@ -325,12 +321,6 @@ type DesktopToolbarTool = {
 export type DesktopThemeMode = "dark" | "light"
 
 const DESKTOP_TOOLBAR_TOOLS: DesktopToolbarTool[] = [
-  {
-    group: "QR",
-    id: "templates",
-    title: "Templates",
-    renderIcon: () => <LayoutGrid size={18} />,
-  },
   {
     group: "QR",
     id: "layout",
@@ -380,18 +370,6 @@ const DESKTOP_TOOLBAR_TOOLS: DesktopToolbarTool[] = [
     id: "motion",
     title: "Motion",
     renderIcon: () => <PlayIcon size={18} />,
-  },
-  {
-    group: "Add",
-    id: "card-pattern",
-    title: "Pattern",
-    renderIcon: () => <GalleryVerticalEndIcon size={18} />,
-  },
-  {
-    group: "Manage",
-    id: "decorations",
-    title: "Decorations",
-    renderIcon: () => <ShapesIcon size={18} />,
   },
   {
     group: "Manage",
@@ -541,13 +519,6 @@ export type DesktopImageSettings = {
   sourceMode: DesktopAssetSourceMode
 }
 
-export type DesktopDecorationsSettings = {
-  fill: string
-  kind: "badge" | "frame" | "label" | "sticker"
-  patternId: DraftingCardPatternSelectionId
-  radius: number
-}
-
 export type DesktopBackgroundSettings = {
   paperShader: DraftingCardPaperShaderState
 }
@@ -633,8 +604,8 @@ export type DesktopToolbarController = {
   encodingSettings: DesktopEncodingSettings
   accessibilitySettings: DesktopAccessibilitySettings
   imageSettings: DesktopImageSettings
-  decorationsSettings: DesktopDecorationsSettings
   backgroundSettings: DesktopBackgroundSettings
+  backgroundInspectorTab?: DesktopBackgroundInspectorTab
   effectsSettings: DesktopEffectsSettings
   layersSettings: DesktopLayersSettings
   exportSettings: DesktopExportSettings
@@ -683,10 +654,9 @@ export type DesktopToolbarController = {
   onAccessibilitySettingsChange: (patch: Partial<DesktopAccessibilitySettings>) => void
   onImageReset: () => void
   onImageSettingsChange: (patch: Partial<DesktopImageSettings>) => void
-  onDecorationsReset: () => void
-  onDecorationsSettingsChange: (patch: Partial<DesktopDecorationsSettings>) => void
   onBackgroundReset: () => void
   onBackgroundSettingsChange: (settings: DesktopBackgroundSettings) => void
+  onBackgroundInspectorTabChange?: (tab: DesktopBackgroundInspectorTab) => void
   onEffectsReset: () => void
   onEffectsSettingsChange: (patch: Partial<DesktopEffectsSettings>) => void
   onLayersReset: () => void
@@ -809,13 +779,6 @@ const DESKTOP_IMAGE_INTENT_OPTIONS: Array<{ label: string; value: DesktopImageIn
   { label: "Object", value: "image-object" },
   { label: "Shape fill", value: "shape-fill" },
   { label: "Logo", value: "logo" },
-]
-
-const DESKTOP_DECORATION_OPTIONS: Array<{ label: string; value: DesktopDecorationsSettings["kind"] }> = [
-  { label: "Frame", value: "frame" },
-  { label: "Badge", value: "badge" },
-  { label: "Label", value: "label" },
-  { label: "Sticker", value: "sticker" },
 ]
 
 const DESKTOP_EXPORT_TARGET_OPTIONS: Array<{ label: string; value: DesktopExportTarget }> = [
@@ -971,13 +934,6 @@ const DEFAULT_DESKTOP_IMAGE_SETTINGS: DesktopImageSettings = {
   sourceMode: "upload",
 }
 
-const DEFAULT_DESKTOP_DECORATIONS_SETTINGS: DesktopDecorationsSettings = {
-  fill: DEFAULT_DRAFTING_CARD_STATE.fill,
-  kind: "frame",
-  patternId: DRAFTING_CARD_PATTERN_NONE_ID,
-  radius: DEFAULT_DRAFTING_CARD_STATE.cornerRadius,
-}
-
 const DEFAULT_DESKTOP_BACKGROUND_SETTINGS: DesktopBackgroundSettings = {
   paperShader: createDefaultDraftingCardPaperShader(
     DEFAULT_DRAFTING_CARD_STATE.paperShader.shaderId,
@@ -1116,8 +1072,8 @@ export type DesktopInspectorModel = {
   actualEncodingSettings: DesktopEncodingSettings
   actualAccessibilitySettings: DesktopAccessibilitySettings
   actualImageSettings: DesktopImageSettings
-  actualDecorationsSettings: DesktopDecorationsSettings
   actualBackgroundSettings: DesktopBackgroundSettings
+  actualBackgroundInspectorTab: DesktopBackgroundInspectorTab
   actualEffectsSettings: DesktopEffectsSettings
   actualLayersSettings: DesktopLayersSettings
   actualExportSettings: DesktopExportSettings
@@ -1137,8 +1093,8 @@ export type DesktopInspectorModel = {
   onEncodingSettingsChange: (patch: Partial<DesktopEncodingSettings>) => void
   onAccessibilitySettingsChange: (patch: Partial<DesktopAccessibilitySettings>) => void
   onImageSettingsChange: (patch: Partial<DesktopImageSettings>) => void
-  onDecorationsSettingsChange: (patch: Partial<DesktopDecorationsSettings>) => void
   onBackgroundSettingsChange: (settings: DesktopBackgroundSettings) => void
+  onBackgroundInspectorTabChange: (tab: DesktopBackgroundInspectorTab) => void
   onEffectsSettingsChange: (patch: Partial<DesktopEffectsSettings>) => void
   onLayersSettingsChange: (patch: Partial<DesktopLayersSettings>) => void
   onLayersReorder: (orderedIds: string[]) => void
@@ -1183,9 +1139,8 @@ export function useDesktopToolbarInspectorModel({
   const [imageSettings, setImageSettings] = useState<DesktopImageSettings>(
     DEFAULT_DESKTOP_IMAGE_SETTINGS,
   )
-  const [decorationsSettings, setDecorationsSettings] = useState<DesktopDecorationsSettings>(
-    DEFAULT_DESKTOP_DECORATIONS_SETTINGS,
-  )
+  const [backgroundInspectorTab, setBackgroundInspectorTab] =
+    useState<DesktopBackgroundInspectorTab>("paper")
   const [backgroundSettings, setBackgroundSettings] = useState<DesktopBackgroundSettings>(
     DEFAULT_DESKTOP_BACKGROUND_SETTINGS,
   )
@@ -1291,8 +1246,8 @@ export function useDesktopToolbarInspectorModel({
     actualEncodingSettings: controller?.encodingSettings ?? encodingSettings,
     actualAccessibilitySettings: controller?.accessibilitySettings ?? accessibilitySettings,
     actualImageSettings: controller?.imageSettings ?? imageSettings,
-    actualDecorationsSettings: controller?.decorationsSettings ?? decorationsSettings,
     actualBackgroundSettings: controller?.backgroundSettings ?? backgroundSettings,
+    actualBackgroundInspectorTab: controller?.backgroundInspectorTab ?? backgroundInspectorTab,
     actualEffectsSettings: controller?.effectsSettings ?? effectsSettings,
     actualLayersSettings: controller?.layersSettings ?? layersSettings,
     actualExportSettings: controller?.exportSettings ?? exportSettings,
@@ -1353,13 +1308,11 @@ export function useDesktopToolbarInspectorModel({
       controller?.onImageSettingsChange ??
       ((patch: Partial<DesktopImageSettings>) =>
         setImageSettings((current) => ({ ...current, ...patch }))),
-    onDecorationsSettingsChange:
-      controller?.onDecorationsSettingsChange ??
-      ((patch: Partial<DesktopDecorationsSettings>) =>
-        setDecorationsSettings((current) => ({ ...current, ...patch }))),
     onBackgroundSettingsChange:
       controller?.onBackgroundSettingsChange ??
       ((settings: DesktopBackgroundSettings) => setBackgroundSettings(settings)),
+    onBackgroundInspectorTabChange:
+      controller?.onBackgroundInspectorTabChange ?? setBackgroundInspectorTab,
     onEffectsSettingsChange:
       controller?.onEffectsSettingsChange ??
       ((patch: Partial<DesktopEffectsSettings>) =>
@@ -3270,27 +3223,6 @@ function DesktopShapeInspector({
       <DesktopInspectorHeader title="Shape" />
 
       <DesktopInspectorScrollArea>
-        <DesktopSizeTemplateInspector
-          settings={{
-            cardHeight: settings.cardHeight,
-            cardWidth: settings.cardWidth,
-            lockAspectRatio: settings.lockAspectRatio,
-            sizeMode: settings.sizeMode,
-            sizePresetId: settings.sizePresetId,
-          }}
-          onChange={(patch) => onShapeSettingsChange(patch)}
-          onSelectTemplate={(template) => {
-            const canvasSize = getCanvasSizeFromTemplate(template)
-            onShapeSettingsChange({
-              cardHeight: canvasSize.height,
-              cardWidth: canvasSize.width,
-              lockAspectRatio: true,
-              sizeMode: "fixed",
-              sizePresetId: template.id,
-            })
-          }}
-        />
-
         <DesktopInspectorSection>
           <div className="mb-2 min-w-0">
             <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Shape Options</p>
@@ -3427,28 +3359,6 @@ function DesktopShapeInspector({
 
       </DesktopInspectorScrollArea>
 
-    </div>
-  )
-}
-
-function DesktopCardFillPatternInspector({
-  onShapeSettingsChange,
-  settings,
-}: {
-  onShapeSettingsChange: (patch: Partial<DesktopShapeSettings>) => void
-  settings: DesktopShapeSettings
-}) {
-  return (
-    <div data-slot="desktop-card-pattern-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Pattern" />
-      <DesktopInspectorScrollArea>
-        <DesktopCardFillPatternSection
-          cardFill={settings.cardFill}
-          cardPatternColors={settings.cardPatternColors}
-          cardPatternId={settings.cardPatternId}
-          onShapeSettingsChange={onShapeSettingsChange}
-        />
-      </DesktopInspectorScrollArea>
     </div>
   )
 }
@@ -5560,101 +5470,50 @@ function DesktopImageInspector({
   )
 }
 
-function DesktopDecorationsInspector({
-  onDecorationsSettingsChange,
-  settings,
-}: {
-  onDecorationsSettingsChange: (patch: Partial<DesktopDecorationsSettings>) => void
-  settings: DesktopDecorationsSettings
-}) {
-  return (
-    <div data-slot="desktop-decorations-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Decorations" />
-      <DesktopInspectorScrollArea>
-        <DesktopInspectorSection>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Add</p>
-          <DesktopInspectorSegmentedControl
-            columns={4}
-            dataSlot="desktop-decoration-kind"
-            itemAriaLabel={(option) => `Add ${option.label} decoration`}
-            itemClassName="h-9 px-1.5"
-            items={DESKTOP_DECORATION_OPTIONS}
-            value={settings.kind}
-            onValueChange={(kind) => onDecorationsSettingsChange({ kind })}
-          />
-        </DesktopInspectorSection>
-
-        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Fill</p>
-          <DesktopColorInputRow
-            label="Decoration fill color"
-            value={settings.fill}
-            onChange={(fill) => onDecorationsSettingsChange({ fill })}
-          />
-          <DesktopInspectorOptionGridScrollArea
-            ariaLabel="Decoration fill patterns"
-            className="mt-2.5"
-            columns={2}
-            dataSlot="desktop-decoration-patterns-scroll-area"
-            rowKind="labeled"
-            shelfDataSlot="desktop-decoration-patterns"
-            variant="compact"
-          >
-            <DesktopInspectorAnimatedOptionGrid
-              columns={2}
-              selectedKey={settings.patternId}
-            >
-              <DesktopPatternSwatchButton
-                label="None"
-                selected={settings.patternId === DRAFTING_CARD_PATTERN_NONE_ID}
-                style={{ backgroundColor: settings.fill }}
-                onClick={() => onDecorationsSettingsChange({ patternId: DRAFTING_CARD_PATTERN_NONE_ID })}
-              />
-              {DRAFTING_CARD_PATTERNS.map((pattern) => (
-                <DesktopPatternSwatchButton
-                  key={pattern.id}
-                  label={pattern.label}
-                  selected={settings.patternId === pattern.id}
-                  style={getDraftingCardPatternStyle(pattern.id, {}) ?? pattern.style}
-                  onClick={() => onDecorationsSettingsChange({ patternId: pattern.id })}
-                />
-              ))}
-            </DesktopInspectorAnimatedOptionGrid>
-          </DesktopInspectorOptionGridScrollArea>
-        </DesktopInspectorSection>
-
-        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Frame</p>
-          <div className="grid gap-2">
-            <DesktopNumberRow
-              label="Decoration radius"
-              max={96}
-              min={0}
-              value={settings.radius}
-              onChange={(radius) => onDecorationsSettingsChange({ radius })}
-            />
-          </div>
-        </DesktopInspectorSection>
-      </DesktopInspectorScrollArea>
-    </div>
-  )
-}
-
 function DesktopBackgroundInspector({
+  activeTab,
+  onActiveTabChange,
   onBackgroundSettingsChange,
+  onShapeSettingsChange,
   settings,
+  shapeSettings,
 }: {
+  activeTab: DesktopBackgroundInspectorTab
+  onActiveTabChange: (tab: DesktopBackgroundInspectorTab) => void
   onBackgroundSettingsChange: (settings: DesktopBackgroundSettings) => void
+  onShapeSettingsChange: (patch: Partial<DesktopShapeSettings>) => void
   settings: DesktopBackgroundSettings
+  shapeSettings: DesktopShapeSettings
 }) {
   return (
     <div data-slot="desktop-background-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
       <DesktopInspectorHeader title="Background" />
       <DesktopInspectorScrollArea>
-        <DesktopPaperShaderSettings
-          paperShader={settings.paperShader}
-          onPaperShaderChange={(paperShader) => onBackgroundSettingsChange({ paperShader })}
-        />
+        <DesktopInspectorSection>
+          <DesktopInspectorSegmentedControl
+            ariaLabelPrefix="Background"
+            items={[
+              { label: "Paper", value: "paper" },
+              { label: "Patterns", value: "patterns" },
+            ]}
+            onValueChange={onActiveTabChange}
+            value={activeTab}
+          />
+        </DesktopInspectorSection>
+
+        {activeTab === "paper" ? (
+          <DesktopPaperShaderSettings
+            paperShader={settings.paperShader}
+            onPaperShaderChange={(paperShader) => onBackgroundSettingsChange({ paperShader })}
+          />
+        ) : (
+          <DesktopCardFillPatternSection
+            cardFill={shapeSettings.cardFill}
+            cardPatternColors={shapeSettings.cardPatternColors}
+            cardPatternId={shapeSettings.cardPatternId}
+            onShapeSettingsChange={onShapeSettingsChange}
+          />
+        )}
       </DesktopInspectorScrollArea>
     </div>
   )
@@ -6466,8 +6325,8 @@ export function DesktopFloatingInspector({
     actualContentValidation,
     actualContentValues,
     actualCornersSettings,
-    actualDecorationsSettings,
     actualBackgroundSettings,
+    actualBackgroundInspectorTab,
     actualEffectsSettings,
     actualEncodedContentValue,
     actualEncodingSettings,
@@ -6486,8 +6345,8 @@ export function DesktopFloatingInspector({
     onContentPasteApply,
     onContentValueChange,
     onCornersSettingsChange,
-    onDecorationsSettingsChange,
     onBackgroundSettingsChange,
+    onBackgroundInspectorTabChange,
     onEffectsSettingsChange,
     onEncodingSettingsChange,
     onExportSettingsChange,
@@ -6541,17 +6400,14 @@ export function DesktopFloatingInspector({
           layer={controller.selectedElementLayer}
           onPatch={(patch) => controller.onElementLayerPatch?.(patch)}
         />
-      ) : activeTool === "templates" ? (
-        <DesktopSceneTemplateInspector
-          onSizeSettingsChange={(patch) => controller?.onSceneTemplateSizeChange?.(patch)}
-          onSelectSizeTemplate={(template) => controller?.onSceneTemplateSizeTemplateSelect?.(template)}
-          settings={actualSceneTemplateSettings}
-        />
       ) : activeTool === "layout" ? (
         <DesktopLayoutInspector
           onLayoutChange={onLayoutSettingsChange}
           onLayoutPresetSelect={(preset) => controller?.onLayoutPresetSelect?.(preset)}
+          onSizeSettingsChange={onSceneTemplateSizeChange}
+          onSelectSizeTemplate={(template) => controller?.onSceneTemplateSizeTemplateSelect?.(template)}
           settings={actualLayoutSettings}
+          sizeSettings={actualSceneTemplateSettings.sizeSettings}
         />
       ) : activeTool === "content" ? (
         <DesktopContentInspector
@@ -6595,23 +6451,17 @@ export function DesktopFloatingInspector({
         />
       ) : activeTool === "background" ? (
         <DesktopBackgroundInspector
+          activeTab={actualBackgroundInspectorTab}
           settings={actualBackgroundSettings}
+          shapeSettings={actualShapeSettings}
+          onActiveTabChange={onBackgroundInspectorTabChange}
           onBackgroundSettingsChange={onBackgroundSettingsChange}
+          onShapeSettingsChange={onShapeSettingsChange}
         />
       ) : activeTool === "motion" ? (
         <DesktopMotionInspector
           settings={actualMotionSettings}
           onMotionSettingsChange={onMotionSettingsChange}
-        />
-      ) : activeTool === "card-pattern" ? (
-        <DesktopCardFillPatternInspector
-          settings={actualShapeSettings}
-          onShapeSettingsChange={onShapeSettingsChange}
-        />
-      ) : activeTool === "decorations" ? (
-        <DesktopDecorationsInspector
-          settings={actualDecorationsSettings}
-          onDecorationsSettingsChange={onDecorationsSettingsChange}
         />
       ) : activeTool === "effects" ? (
         <DesktopEffectsInspector

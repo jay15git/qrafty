@@ -1327,7 +1327,8 @@ describe("WorkspaceSurface", () => {
     expect(surface.container.querySelector('[data-tool-id="text"]')).toBeNull()
     expect(surface.container.querySelector('[data-tool-id="image"]')).toBeNull()
     expect(surface.container.querySelector('[data-tool-id="layers"]')).toBeNull()
-    expect(surface.container.querySelector('[data-tool-id="templates"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-tool-id="templates"]')).toBeNull()
+    expect(surface.container.querySelector('[data-tool-id="layout"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
   })
 

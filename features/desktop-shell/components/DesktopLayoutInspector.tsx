@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import {
   DesktopInspectorHeader,
+  DesktopInspectorOptionGridScrollArea,
   DesktopInspectorScrollArea,
 } from "@/features/desktop-shell/components/DesktopInspectorShell"
 import {
@@ -15,14 +16,20 @@ import {
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
   DESKTOP_INSPECTOR_SECTION_HEADING_CLASS,
   DESKTOP_INSPECTOR_SELECTED_CLASS,
+  DesktopInspectorAnimatedOptionGrid,
   DesktopInspectorScrubbableNumberInput,
   DesktopInspectorSection,
   DesktopInspectorSegmentedControl,
 } from "@/features/desktop-shell/components/InspectorControls"
 import {
+  DesktopSizeTemplateInspector,
+  type DesktopCardSizeSettings,
+} from "@/features/desktop-shell/components/DesktopSizeTemplateInspector"
+import {
   SCENE_LAYOUT_PRESETS,
   type SceneLayoutPreset,
 } from "@/features/workspace/model/scene-templates"
+import type { SizeTemplate } from "@/features/workspace/model/size-templates"
 import { cn } from "@/lib/utils"
 
 type LayoutControlTab = "zoom" | "tilt"
@@ -34,13 +41,19 @@ export type DesktopLayoutSettings = {
 type DesktopLayoutInspectorProps = {
   onLayoutPresetSelect: (preset: SceneLayoutPreset) => void
   onLayoutChange: (patch: Partial<SceneLayoutPreset>) => void
+  onSizeSettingsChange: (patch: Partial<DesktopCardSizeSettings>) => void
+  onSelectSizeTemplate: (template: SizeTemplate) => void
   settings: DesktopLayoutSettings
+  sizeSettings: DesktopCardSizeSettings
 }
 
 export function DesktopLayoutInspector({
   onLayoutPresetSelect,
   onLayoutChange,
+  onSizeSettingsChange,
+  onSelectSizeTemplate,
   settings,
+  sizeSettings,
 }: DesktopLayoutInspectorProps) {
   const [activeTab, setActiveTab] = useState<LayoutControlTab>("zoom")
 
@@ -48,33 +61,48 @@ export function DesktopLayoutInspector({
     <div data-slot="desktop-layout-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
       <DesktopInspectorHeader title="Layout" />
       <DesktopInspectorScrollArea>
+        <DesktopSizeTemplateInspector
+          onChange={onSizeSettingsChange}
+          onSelectTemplate={onSelectSizeTemplate}
+          settings={sizeSettings}
+        />
+
         <DesktopInspectorSection className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
           <p className={cn("mb-2", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Presets</p>
-          <div className="flex flex-col gap-2">
-            {SCENE_LAYOUT_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                type="button"
-                aria-label={preset.label}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg border border-transparent p-2 text-left transition",
-                  DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
-                  settings.layout.id === preset.id && DESKTOP_INSPECTOR_SELECTED_CLASS,
-                )}
-                onClick={() => onLayoutPresetSelect(preset)}
-              >
-                <span
+          <DesktopInspectorOptionGridScrollArea
+            ariaLabel="Scene layout presets"
+            columns={3}
+            dataSlot="desktop-layout-preset-shelf-scroll-area"
+            shelfDataSlot="desktop-layout-preset-shelf"
+            variant="preset"
+          >
+            <DesktopInspectorAnimatedOptionGrid
+              columns={3}
+              selectedKey={settings.layout.id}
+            >
+              {SCENE_LAYOUT_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  aria-label={preset.label}
+                  aria-pressed={settings.layout.id === preset.id}
+                  data-desktop-animated-option-selection="true"
+                  data-desktop-option-tile="true"
                   className={cn(
-                    "grid h-12 w-16 shrink-0 place-items-center rounded-md text-[10px] font-medium",
+                    "group flex w-full min-w-0 flex-col items-center justify-center gap-1.5 p-2 transition",
+                    DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
                     DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+                    settings.layout.id === preset.id && DESKTOP_INSPECTOR_SELECTED_CLASS,
                   )}
+                  onClick={() => onLayoutPresetSelect(preset)}
                 >
-                  {preset.label}
-                </span>
-                <span className="text-sm font-medium">{preset.label}</span>
-              </button>
-            ))}
-          </div>
+                  <span className="grid h-10 w-full place-items-center rounded-[6px] text-[10px] font-medium leading-tight">
+                    {preset.label}
+                  </span>
+                </button>
+              ))}
+            </DesktopInspectorAnimatedOptionGrid>
+          </DesktopInspectorOptionGridScrollArea>
         </DesktopInspectorSection>
 
         <DesktopInspectorSection>

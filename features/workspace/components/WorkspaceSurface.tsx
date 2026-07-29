@@ -138,9 +138,9 @@ import { ElementInspector } from "@/features/workspace/components/ElementInspect
 import { InsertMenu } from "@/features/workspace/components/InsertMenu"
 import type {
   DesktopAssetSourceMode,
+  DesktopBackgroundInspectorTab,
   DesktopBackgroundSettings,
   DesktopCornersSettings,
-  DesktopDecorationsSettings,
   DesktopEncodingSettings,
   DesktopAccessibilitySettings,
   DesktopEffectsSettings,
@@ -607,6 +607,8 @@ export function WorkspaceSurface({
   const [desktopRailTool, setDesktopRailTool] = useState<DesktopToolbarToolId | null>(
     () => initialActiveTool ?? DEFAULT_DRAFTING_TOOL_ID,
   )
+  const [backgroundInspectorTab, setBackgroundInspectorTab] =
+    useState<DesktopBackgroundInspectorTab>("paper")
   const [composeSidebarPanel, setComposeSidebarPanel] = useState<ComposeSidebarPanel>(null)
   const [selectedContentType, setSelectedContentType] = useState<QrInputType>(
     DEFAULT_QR_INPUT_TYPE,
@@ -1730,9 +1732,9 @@ export function WorkspaceSurface({
       })
 
       if (chrome === "canvas-only") {
-        setDesktopRailTool("templates")
+        setDesktopRailTool("layout")
       } else {
-        setActiveTool(getDraftingToolIdFromDesktop("templates"))
+        setActiveTool(getDraftingToolIdFromDesktop("layout"))
       }
     }
   }
@@ -4133,12 +4135,6 @@ export function WorkspaceSurface({
     remoteUrl: selectedCardState.cardImage.value ?? "",
     sourceMode: getDesktopAssetSourceMode(selectedCardState.cardImage.source),
   }
-  const desktopDecorationsSettings: DesktopDecorationsSettings = {
-    fill: selectedCardState.fill,
-    kind: "frame",
-    patternId: selectedCardState.patternId,
-    radius: selectedCardState.cornerRadius,
-  }
   const desktopBackgroundSettings: DesktopBackgroundSettings = {
     paperShader: selectedCardState.paperShader,
   }
@@ -4602,8 +4598,8 @@ export function WorkspaceSurface({
     contentValues: selectedContentValues,
     contentValidation: selectedContentValidation,
     cornersSettings: desktopCornersSettings,
-    decorationsSettings: desktopDecorationsSettings,
     backgroundSettings: desktopBackgroundSettings,
+    backgroundInspectorTab,
     effectsSettings: desktopEffectsSettings,
     encodedContentValue: selectedContentValue,
     encodingSettings: desktopEncodingSettings,
@@ -4639,8 +4635,9 @@ export function WorkspaceSurface({
         styleMode: "pattern",
       }))
       selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
+      setBackgroundInspectorTab("patterns")
       if (chrome === "canvas-only") {
-        setDesktopRailTool("card-pattern")
+        setDesktopRailTool("background")
       } else {
         setActiveTool("card-pattern")
       }
@@ -4687,13 +4684,6 @@ export function WorkspaceSurface({
     onContentValueChange: handleDraftingContentValueChange,
     onCornersReset: () => applyDraftingQrStateToControls(createDefaultDraftingWorkspaceQrState()),
     onCornersSettingsChange: updateDesktopCornersSettings,
-    onDecorationsReset: resetDesktopShapeSettings,
-    onDecorationsSettingsChange: (patch) =>
-      updateDesktopShapeSettings({
-        cardFill: patch.fill,
-        cardPatternId: patch.patternId,
-        cardRadius: patch.radius,
-      }),
     onBackgroundReset: () =>
       setSelectedCardState((current) => ({
         ...current,
@@ -4706,6 +4696,7 @@ export function WorkspaceSurface({
         paperShader,
         styleMode: "paper-shader",
       })),
+    onBackgroundInspectorTabChange: setBackgroundInspectorTab,
     onEffectsReset: resetDesktopShapeSettings,
     onEffectsSettingsChange: (patch) =>
       setSelectedCardState((current) => ({
@@ -5276,8 +5267,9 @@ export function WorkspaceSurface({
                           styleMode: "pattern",
                         }))
                         selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
+                        setBackgroundInspectorTab("patterns")
                         if (chrome === "canvas-only") {
-                          setDesktopRailTool("card-pattern")
+                          setDesktopRailTool("background")
                         } else {
                           setActiveTool("card-pattern")
                         }
@@ -5345,8 +5337,9 @@ export function WorkspaceSurface({
                   styleMode: "pattern",
                 }))
                 selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
+                setBackgroundInspectorTab("patterns")
                 if (chrome === "canvas-only") {
-                  setDesktopRailTool("card-pattern")
+                  setDesktopRailTool("background")
                 } else {
                   setActiveTool("card-pattern")
                 }
@@ -5425,7 +5418,6 @@ function getDesktopToolbarToolId(toolId: DraftingToolId): DesktopToolbarToolId |
 
 function getDraftingToolIdFromDesktop(toolId: DesktopToolbarToolId): DraftingToolId {
   if (toolId === "pattern") return "style"
-  if (toolId === "card-pattern") return "card-pattern"
   return toolId as DraftingToolId
 }
 

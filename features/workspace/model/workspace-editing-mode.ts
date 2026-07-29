@@ -5,7 +5,6 @@ export type WorkspaceEditingMode = "free" | "template"
 export const WORKSPACE_EDITING_MODE_STORAGE_KEY = "desktop-workspace-editing-mode"
 
 export const TEMPLATE_MODE_TOOL_IDS: DesktopToolbarToolId[] = [
-  "templates",
   "layout",
   "content",
   "pattern",
@@ -14,8 +13,6 @@ export const TEMPLATE_MODE_TOOL_IDS: DesktopToolbarToolId[] = [
   "shape",
   "background",
   "motion",
-  "card-pattern",
-  "decorations",
   "effects",
   "export",
 ]

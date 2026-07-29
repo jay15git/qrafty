@@ -114,7 +114,7 @@ describe("FloatingToolbar", () => {
   it("hides composition tools in template mode", async () => {
     const surface = await renderPrototype({
       controller: {
-        activeTool: "templates",
+        activeTool: "layout",
         editingMode: "template",
         isFreeEditingEnabled: false,
       },
@@ -123,7 +123,7 @@ describe("FloatingToolbar", () => {
     expect(surface.container.querySelector('[data-tool-id="text"]')).toBeNull()
     expect(surface.container.querySelector('[data-tool-id="image"]')).toBeNull()
     expect(surface.container.querySelector('[data-tool-id="layers"]')).toBeNull()
-    expect(surface.container.querySelector('[data-tool-id="templates"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-tool-id="layout"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-tool-id="content"]')).not.toBeNull()
   })
 
@@ -912,15 +912,15 @@ describe("FloatingToolbar", () => {
       '[data-slot="desktop-floating-inspector"]',
     )
 
-    expect(inspector?.getAttribute("aria-label")).toBe("Shape settings")
+    expect(inspector?.getAttribute("aria-label")).toBe("Frame settings")
     expect(inspector?.querySelector('[data-slot="desktop-shape-inspector"]')).not.toBeNull()
     expect(inspector?.textContent).toContain("Shape")
     expect(inspector?.textContent).not.toContain("Coming soon")
   })
 
-  it("renders card size templates in the shape inspector", async () => {
+  it("renders card size templates in the layout inspector", async () => {
     const surface = await renderPrototype()
-    await openTool(surface.container, "shape")
+    await openTool(surface.container, "layout")
 
     const sizeSection = surface.container.querySelector('[data-slot="desktop-card-size"]')
     const templateSection = surface.container.querySelector('[data-slot="desktop-size-template-section"]')
@@ -971,9 +971,20 @@ describe("FloatingToolbar", () => {
     expect(inspector?.textContent).not.toContain("Reset Shape")
   })
 
-  it("lists every drafting card pattern in the card pattern fill grid", async () => {
+  it("does not render card size templates in the frame inspector", async () => {
     const surface = await renderPrototype()
-    await openTool(surface.container, "card-pattern")
+    await openTool(surface.container, "shape")
+
+    expect(surface.container.querySelector('[data-slot="desktop-card-size"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-size-template-section"]')).toBeNull()
+  })
+
+  it("lists every drafting card pattern in the background patterns grid", async () => {
+    const surface = await renderPrototype()
+    await openTool(surface.container, "background")
+
+    const patternsTab = getRequiredButton(surface.container, "Background Patterns")
+    await clickButton(patternsTab)
 
     const patternGrid = surface.container.querySelector('[data-slot="desktop-card-patterns"]')
 
@@ -1003,7 +1014,8 @@ describe("FloatingToolbar", () => {
 
   it("shows pattern color inputs for the selected card fill pattern", async () => {
     const surface = await renderPrototype()
-    await openTool(surface.container, "card-pattern")
+    await openTool(surface.container, "background")
+    await clickButton(getRequiredButton(surface.container, "Background Patterns"))
 
     const pattern003 = getRequiredButton(surface.container, "Use Pattern 003 decoration pattern")
     await clickButton(pattern003)
@@ -1031,7 +1043,8 @@ describe("FloatingToolbar", () => {
 
   it("shows only base color when no card pattern is selected", async () => {
     const surface = await renderPrototype()
-    await openTool(surface.container, "card-pattern")
+    await openTool(surface.container, "background")
+    await clickButton(getRequiredButton(surface.container, "Background Patterns"))
 
     expect(surface.container.querySelectorAll('[data-slot="desktop-card-pattern-colors"] input')).toHaveLength(1)
     expect(getRequiredInput(surface.container, "Color 1").value).toBe("#ffd80a")
