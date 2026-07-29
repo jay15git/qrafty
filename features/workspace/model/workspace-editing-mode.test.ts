@@ -62,5 +62,6 @@ describe("workspace-editing-mode", () => {
     expect(getVisibleToolbarToolIds("template")).not.toContain("layers")
     expect(getVisibleToolbarToolIds("template")).toContain("templates")
     expect(getVisibleToolbarToolIds("template")).toContain("content")
+    expect(getVisibleToolbarToolIds("template")).toContain("background")
   })
 })

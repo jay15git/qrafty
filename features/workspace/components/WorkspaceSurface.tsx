@@ -138,6 +138,7 @@ import { ElementInspector } from "@/features/workspace/components/ElementInspect
 import { InsertMenu } from "@/features/workspace/components/InsertMenu"
 import type {
   DesktopAssetSourceMode,
+  DesktopBackgroundSettings,
   DesktopCornersSettings,
   DesktopDecorationsSettings,
   DesktopEncodingSettings,
@@ -302,6 +303,7 @@ type DraftingToolId =
   | "corners"
   | "logo"
   | "shape"
+  | "background"
   | "card-pattern"
   | "text"
   | "image"
@@ -4137,14 +4139,12 @@ export function WorkspaceSurface({
     patternId: selectedCardState.patternId,
     radius: selectedCardState.cornerRadius,
   }
+  const desktopBackgroundSettings: DesktopBackgroundSettings = {
+    paperShader: selectedCardState.paperShader,
+  }
   const desktopEffectsSettings: DesktopEffectsSettings = {
     filterId: selectedCardState.imageFilter.shaderId,
     filterPresetName: selectedCardState.imageFilter.presetName,
-    frame: selectedCardState.paperShader.frame,
-    generatedShaderId: selectedCardState.paperShader.shaderId,
-    generatedShaderPresetName: selectedCardState.paperShader.presetName,
-    paused: selectedCardState.paperShader.paused,
-    speed: selectedCardState.paperShader.speed,
   }
   const desktopLayersSettings: DesktopLayersSettings = {
     layers: activeCanvasLayerRows.map(toDesktopLayerRow),
@@ -4603,6 +4603,7 @@ export function WorkspaceSurface({
     contentValidation: selectedContentValidation,
     cornersSettings: desktopCornersSettings,
     decorationsSettings: desktopDecorationsSettings,
+    backgroundSettings: desktopBackgroundSettings,
     effectsSettings: desktopEffectsSettings,
     encodedContentValue: selectedContentValue,
     encodingSettings: desktopEncodingSettings,
@@ -4693,6 +4694,18 @@ export function WorkspaceSurface({
         cardPatternId: patch.patternId,
         cardRadius: patch.radius,
       }),
+    onBackgroundReset: () =>
+      setSelectedCardState((current) => ({
+        ...current,
+        paperShader: createDefaultDraftingCardState().paperShader,
+        styleMode: "paper-shader",
+      })),
+    onBackgroundSettingsChange: ({ paperShader }) =>
+      setSelectedCardState((current) => ({
+        ...current,
+        paperShader,
+        styleMode: "paper-shader",
+      })),
     onEffectsReset: resetDesktopShapeSettings,
     onEffectsSettingsChange: (patch) =>
       setSelectedCardState((current) => ({
@@ -4702,15 +4715,7 @@ export function WorkspaceSurface({
           presetName: patch.filterPresetName ?? current.imageFilter.presetName,
           shaderId: patch.filterId ?? current.imageFilter.shaderId,
         },
-        paperShader: {
-          ...current.paperShader,
-          frame: patch.frame ?? current.paperShader.frame,
-          paused: patch.paused ?? current.paperShader.paused,
-          presetName: patch.generatedShaderPresetName ?? current.paperShader.presetName,
-          shaderId: patch.generatedShaderId ?? current.paperShader.shaderId,
-          speed: patch.speed ?? current.paperShader.speed,
-        },
-        styleMode: patch.generatedShaderId ? "paper-shader" : patch.filterId ? "image-filter" : current.styleMode,
+        styleMode: patch.filterId ? "image-filter" : current.styleMode,
       })),
     onEncodingReset: () => {
       setSelectedQrTypeNumber(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.typeNumber)
@@ -5421,7 +5426,7 @@ function getDesktopToolbarToolId(toolId: DraftingToolId): DesktopToolbarToolId |
 function getDraftingToolIdFromDesktop(toolId: DesktopToolbarToolId): DraftingToolId {
   if (toolId === "pattern") return "style"
   if (toolId === "card-pattern") return "card-pattern"
-  return toolId
+  return toolId as DraftingToolId
 }
 
 function getDesktopLogoSourceMode(source: AssetSourceMode): DesktopLogoSourceMode {

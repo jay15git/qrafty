@@ -31,6 +31,7 @@ import {
   LayoutGrid,
   TypeIcon,
   UnderlineIcon,
+  Wallpaper,
 } from "lucide-react"
 
 import { BlocksIcon } from "@/components/vendor/animate-ui/icons/blocks"
@@ -69,9 +70,14 @@ import {
   type DraftingCardPatternId,
   type DraftingCardPatternSelectionId,
 } from "@/features/workspace/model/card-patterns"
-import { DEFAULT_DRAFTING_CARD_STATE, type DraftingCardSizeMode } from "@/features/workspace/model/card-state"
 import {
-  getCardGeneratedShaderDefinitions,
+  createDefaultDraftingCardPaperShader,
+  DEFAULT_DRAFTING_CARD_STATE,
+  type DraftingCardPaperShaderState,
+  type DraftingCardSizeMode,
+} from "@/features/workspace/model/card-state"
+import { DesktopPaperShaderSettings } from "@/features/desktop-shell/components/DesktopPaperShaderSettings"
+import {
   getCardImageFilterDefinitions,
   getPaperShaderDefinition,
   type PaperShaderId,
@@ -299,6 +305,7 @@ export type DesktopToolbarToolId =
   | "corners"
   | "logo"
   | "shape"
+  | "background"
   | "motion"
   | "card-pattern"
   | "text"
@@ -361,6 +368,12 @@ const DESKTOP_TOOLBAR_TOOLS: DesktopToolbarTool[] = [
     renderIcon: () => (
       <HugeiconsIcon icon={Image02Icon} size={18} color="currentColor" strokeWidth={1.8} />
     ),
+  },
+  {
+    group: "QR",
+    id: "background",
+    title: "Background",
+    renderIcon: () => <Wallpaper size={18} />,
   },
   {
     group: "QR",
@@ -535,14 +548,13 @@ export type DesktopDecorationsSettings = {
   radius: number
 }
 
+export type DesktopBackgroundSettings = {
+  paperShader: DraftingCardPaperShaderState
+}
+
 export type DesktopEffectsSettings = {
   filterId: PaperShaderId
   filterPresetName: string
-  generatedShaderId: PaperShaderId
-  generatedShaderPresetName: string
-  paused: boolean
-  speed: number
-  frame: number
 }
 
 export type DesktopLayerKind = "card" | "image" | "qr" | "shader" | "shape" | "text"
@@ -622,6 +634,7 @@ export type DesktopToolbarController = {
   accessibilitySettings: DesktopAccessibilitySettings
   imageSettings: DesktopImageSettings
   decorationsSettings: DesktopDecorationsSettings
+  backgroundSettings: DesktopBackgroundSettings
   effectsSettings: DesktopEffectsSettings
   layersSettings: DesktopLayersSettings
   exportSettings: DesktopExportSettings
@@ -672,6 +685,8 @@ export type DesktopToolbarController = {
   onImageSettingsChange: (patch: Partial<DesktopImageSettings>) => void
   onDecorationsReset: () => void
   onDecorationsSettingsChange: (patch: Partial<DesktopDecorationsSettings>) => void
+  onBackgroundReset: () => void
+  onBackgroundSettingsChange: (settings: DesktopBackgroundSettings) => void
   onEffectsReset: () => void
   onEffectsSettingsChange: (patch: Partial<DesktopEffectsSettings>) => void
   onLayersReset: () => void
@@ -963,14 +978,15 @@ const DEFAULT_DESKTOP_DECORATIONS_SETTINGS: DesktopDecorationsSettings = {
   radius: DEFAULT_DRAFTING_CARD_STATE.cornerRadius,
 }
 
+const DEFAULT_DESKTOP_BACKGROUND_SETTINGS: DesktopBackgroundSettings = {
+  paperShader: createDefaultDraftingCardPaperShader(
+    DEFAULT_DRAFTING_CARD_STATE.paperShader.shaderId,
+  ),
+}
+
 const DEFAULT_DESKTOP_EFFECTS_SETTINGS: DesktopEffectsSettings = {
   filterId: getCardImageFilterDefinitions()[0]?.id ?? "paper-texture",
   filterPresetName: getCardImageFilterDefinitions()[0]?.presets[0]?.name ?? "",
-  frame: 0,
-  generatedShaderId: getCardGeneratedShaderDefinitions()[0]?.id ?? "mesh-gradient",
-  generatedShaderPresetName: getCardGeneratedShaderDefinitions()[0]?.presets[0]?.name ?? "",
-  paused: false,
-  speed: 1,
 }
 
 const DEFAULT_DESKTOP_LAYERS: DesktopLayerRow[] = [
@@ -1101,6 +1117,7 @@ export type DesktopInspectorModel = {
   actualAccessibilitySettings: DesktopAccessibilitySettings
   actualImageSettings: DesktopImageSettings
   actualDecorationsSettings: DesktopDecorationsSettings
+  actualBackgroundSettings: DesktopBackgroundSettings
   actualEffectsSettings: DesktopEffectsSettings
   actualLayersSettings: DesktopLayersSettings
   actualExportSettings: DesktopExportSettings
@@ -1121,6 +1138,7 @@ export type DesktopInspectorModel = {
   onAccessibilitySettingsChange: (patch: Partial<DesktopAccessibilitySettings>) => void
   onImageSettingsChange: (patch: Partial<DesktopImageSettings>) => void
   onDecorationsSettingsChange: (patch: Partial<DesktopDecorationsSettings>) => void
+  onBackgroundSettingsChange: (settings: DesktopBackgroundSettings) => void
   onEffectsSettingsChange: (patch: Partial<DesktopEffectsSettings>) => void
   onLayersSettingsChange: (patch: Partial<DesktopLayersSettings>) => void
   onLayersReorder: (orderedIds: string[]) => void
@@ -1167,6 +1185,9 @@ export function useDesktopToolbarInspectorModel({
   )
   const [decorationsSettings, setDecorationsSettings] = useState<DesktopDecorationsSettings>(
     DEFAULT_DESKTOP_DECORATIONS_SETTINGS,
+  )
+  const [backgroundSettings, setBackgroundSettings] = useState<DesktopBackgroundSettings>(
+    DEFAULT_DESKTOP_BACKGROUND_SETTINGS,
   )
   const [effectsSettings, setEffectsSettings] = useState<DesktopEffectsSettings>(
     DEFAULT_DESKTOP_EFFECTS_SETTINGS,
@@ -1271,6 +1292,7 @@ export function useDesktopToolbarInspectorModel({
     actualAccessibilitySettings: controller?.accessibilitySettings ?? accessibilitySettings,
     actualImageSettings: controller?.imageSettings ?? imageSettings,
     actualDecorationsSettings: controller?.decorationsSettings ?? decorationsSettings,
+    actualBackgroundSettings: controller?.backgroundSettings ?? backgroundSettings,
     actualEffectsSettings: controller?.effectsSettings ?? effectsSettings,
     actualLayersSettings: controller?.layersSettings ?? layersSettings,
     actualExportSettings: controller?.exportSettings ?? exportSettings,
@@ -1335,6 +1357,9 @@ export function useDesktopToolbarInspectorModel({
       controller?.onDecorationsSettingsChange ??
       ((patch: Partial<DesktopDecorationsSettings>) =>
         setDecorationsSettings((current) => ({ ...current, ...patch }))),
+    onBackgroundSettingsChange:
+      controller?.onBackgroundSettingsChange ??
+      ((settings: DesktopBackgroundSettings) => setBackgroundSettings(settings)),
     onEffectsSettingsChange:
       controller?.onEffectsSettingsChange ??
       ((patch: Partial<DesktopEffectsSettings>) =>
@@ -5615,6 +5640,26 @@ function DesktopDecorationsInspector({
   )
 }
 
+function DesktopBackgroundInspector({
+  onBackgroundSettingsChange,
+  settings,
+}: {
+  onBackgroundSettingsChange: (settings: DesktopBackgroundSettings) => void
+  settings: DesktopBackgroundSettings
+}) {
+  return (
+    <div data-slot="desktop-background-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <DesktopInspectorHeader title="Background" />
+      <DesktopInspectorScrollArea>
+        <DesktopPaperShaderSettings
+          paperShader={settings.paperShader}
+          onPaperShaderChange={(paperShader) => onBackgroundSettingsChange({ paperShader })}
+        />
+      </DesktopInspectorScrollArea>
+    </div>
+  )
+}
+
 function DesktopEffectsInspector({
   onEffectsSettingsChange,
   settings,
@@ -5622,87 +5667,13 @@ function DesktopEffectsInspector({
   onEffectsSettingsChange: (patch: Partial<DesktopEffectsSettings>) => void
   settings: DesktopEffectsSettings
 }) {
-  const generatedShaders = getCardGeneratedShaderDefinitions()
   const imageFilters = getCardImageFilterDefinitions()
-  const generatedDefinition = getPaperShaderDefinition(settings.generatedShaderId)
   const filterDefinition = getPaperShaderDefinition(settings.filterId)
 
   return (
     <div data-slot="desktop-effects-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
       <DesktopInspectorHeader title="Effects" />
       <DesktopInspectorScrollArea>
-        <DesktopInspectorSection>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Generated Effects</p>
-          <DesktopInspectorOptionGridScrollArea
-            ariaLabel="Generated effects"
-            columns={2}
-            dataSlot="desktop-generated-effects-scroll-area"
-            rowKind="h-9"
-            shelfDataSlot="desktop-generated-effects"
-            variant="compact"
-          >
-            <div className={desktopInspectorOptionGridClass(2)}>
-              {generatedShaders.slice(0, 12).map((shader) => (
-                <DesktopTextPresetButton
-                  key={shader.id}
-                  label={shader.label}
-                  selected={settings.generatedShaderId === shader.id}
-                  onClick={() =>
-                    onEffectsSettingsChange({
-                      generatedShaderId: shader.id,
-                      generatedShaderPresetName: shader.presets[0]?.name ?? "",
-                    })
-                  }
-                />
-              ))}
-            </div>
-          </DesktopInspectorOptionGridScrollArea>
-        </DesktopInspectorSection>
-
-        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Preset</p>
-          <DesktopInspectorNativeSelect
-            aria-label="Generated effect preset"
-            className="pr-2.5"
-            options={generatedDefinition.presets.map((preset) => ({
-              label: preset.name,
-              value: preset.name,
-            }))}
-            showIcon={false}
-            value={settings.generatedShaderPresetName}
-            onValueChange={(generatedShaderPresetName) =>
-              onEffectsSettingsChange({ generatedShaderPresetName })
-            }
-          />
-        </DesktopInspectorSection>
-
-        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Motion</p>
-          <div className="grid gap-2">
-            <DesktopMotionToggleRow
-              checked={settings.paused}
-              label="Pause"
-              onChange={(paused) => onEffectsSettingsChange({ paused })}
-            />
-            <DesktopMotionSliderRow
-              label="Speed"
-              max={4}
-              min={0}
-              value={settings.speed}
-              valueLabel={settings.speed.toFixed(2)}
-              onChange={(speed) => onEffectsSettingsChange({ speed })}
-            />
-            <DesktopMotionSliderRow
-              label="Frame"
-              max={10000}
-              min={0}
-              value={settings.frame}
-              valueLabel={`${Math.round(settings.frame)}`}
-              onChange={(frame) => onEffectsSettingsChange({ frame })}
-            />
-          </div>
-        </DesktopInspectorSection>
-
         <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
           <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Image Filters</p>
           <div className={desktopInspectorOptionGridClass(2)} data-slot="desktop-image-filters">
@@ -6496,6 +6467,7 @@ export function DesktopFloatingInspector({
     actualContentValues,
     actualCornersSettings,
     actualDecorationsSettings,
+    actualBackgroundSettings,
     actualEffectsSettings,
     actualEncodedContentValue,
     actualEncodingSettings,
@@ -6515,6 +6487,7 @@ export function DesktopFloatingInspector({
     onContentValueChange,
     onCornersSettingsChange,
     onDecorationsSettingsChange,
+    onBackgroundSettingsChange,
     onEffectsSettingsChange,
     onEncodingSettingsChange,
     onExportSettingsChange,
@@ -6619,6 +6592,11 @@ export function DesktopFloatingInspector({
           desktopTheme={actualDesktopTheme}
           settings={actualShapeSettings}
           onShapeSettingsChange={onShapeSettingsChange}
+        />
+      ) : activeTool === "background" ? (
+        <DesktopBackgroundInspector
+          settings={actualBackgroundSettings}
+          onBackgroundSettingsChange={onBackgroundSettingsChange}
         />
       ) : activeTool === "motion" ? (
         <DesktopMotionInspector
