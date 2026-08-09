@@ -151,8 +151,6 @@ import {
   QR_DOT_MATRIX_ANIMATION_SPEED_MAX,
   QR_DOT_MATRIX_ANIMATION_SPEED_MIN,
   QR_DOT_MATRIX_COLOR_PRESET_OPTIONS,
-  QR_DOT_MATRIX_OPACITY_MAX,
-  QR_DOT_MATRIX_OPACITY_MIN,
   QR_MOTION_DOT_MATRIX_PRESET_OPTIONS,
   createDefaultQrStudioState,
   QR_MODULE_LINE_WIDTH_MAX,
@@ -3682,33 +3680,6 @@ function DesktopMotionInspector({
               valueLabel={`${Math.round(settings.speed)}x`}
               onChange={(speed) => onMotionSettingsChange({ speed })}
             />
-            <DesktopMotionSliderRow
-              label="Opacity base"
-              max={QR_DOT_MATRIX_OPACITY_MAX}
-              min={QR_DOT_MATRIX_OPACITY_MIN}
-              step={0.01}
-              value={settings.opacityBase}
-              valueLabel={settings.opacityBase.toFixed(2)}
-              onChange={(opacityBase) => onMotionSettingsChange({ opacityBase })}
-            />
-            <DesktopMotionSliderRow
-              label="Opacity mid"
-              max={QR_DOT_MATRIX_OPACITY_MAX}
-              min={QR_DOT_MATRIX_OPACITY_MIN}
-              step={0.01}
-              value={settings.opacityMid}
-              valueLabel={settings.opacityMid.toFixed(2)}
-              onChange={(opacityMid) => onMotionSettingsChange({ opacityMid })}
-            />
-            <DesktopMotionSliderRow
-              label="Opacity peak"
-              max={QR_DOT_MATRIX_OPACITY_MAX}
-              min={QR_DOT_MATRIX_OPACITY_MIN}
-              step={0.01}
-              value={settings.opacityPeak}
-              valueLabel={settings.opacityPeak.toFixed(2)}
-              onChange={(opacityPeak) => onMotionSettingsChange({ opacityPeak })}
-            />
           </div>
         </DesktopInspectorSection>
 
@@ -3716,15 +3687,15 @@ function DesktopMotionInspector({
           <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Loader Color</p>
           <div className={desktopInspectorOptionGridClass(2)} data-slot="desktop-motion-color-presets">
             {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => {
-              const [base, mid, peak] = DESKTOP_MOTION_COLOR_SWATCHES[preset.value]
+              const [base, accent] = DESKTOP_MOTION_COLOR_SWATCHES[preset.value]
 
               return (
                 <DesktopMotionColorPresetButton
                   key={preset.value}
                   colors={
                     preset.value === "theme"
-                      ? [settings.customColorBase, settings.customColorMid, settings.customColorPeak]
-                      : [base, mid, peak]
+                      ? [settings.customColorBase, settings.customColorPeak]
+                      : [base, accent]
                   }
                   label={preset.label}
                   selected={settings.colorPreset === preset.value}
@@ -3733,8 +3704,8 @@ function DesktopMotionInspector({
                       colorPreset: preset.value,
                       customColor: base,
                       customColorBase: base,
-                      customColorMid: mid,
-                      customColorPeak: peak,
+                      customColorMid: accent,
+                      customColorPeak: accent,
                     })
                   }
                 />
@@ -3749,7 +3720,7 @@ function DesktopMotionInspector({
         >
           <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Color</p>
           <DesktopColorInputRow
-            label="Color 1"
+            label="Base"
             value={settings.customColorBase}
             onChange={(customColorBase) =>
               onMotionSettingsChange({
@@ -3760,17 +3731,14 @@ function DesktopMotionInspector({
             }
           />
           <DesktopColorInputRow
-            label="Color 2"
-            value={settings.customColorMid}
-            onChange={(customColorMid) =>
-              onMotionSettingsChange({ colorPreset: "theme", customColorMid })
-            }
-          />
-          <DesktopColorInputRow
-            label="Color 3"
+            label="Accent"
             value={settings.customColorPeak}
             onChange={(customColorPeak) =>
-              onMotionSettingsChange({ colorPreset: "theme", customColorPeak })
+              onMotionSettingsChange({
+                colorPreset: "theme",
+                customColorMid: customColorPeak,
+                customColorPeak,
+              })
             }
           />
         </DesktopInspectorSection>

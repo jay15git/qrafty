@@ -4,13 +4,10 @@ import {
   AnimationPreset,
   dotMatrixAnimationPresets,
   getAnimationPreset,
-  opacityFromSquare2Tail,
   QRCodeEntity,
   remapOpacityToTriplet,
   resolveDotMatrixKeyframeOpacity,
   sampleDotMatrixAnimationFrame,
-  SQUARE2_BASE_OPACITY,
-  SQUARE2_ROUTE,
   SOURCE_BASE_OPACITY,
   SOURCE_MID_OPACITY,
   SOURCE_PEAK_OPACITY,
@@ -18,8 +15,8 @@ import {
 } from "@new-qr/qr/dot-matrix";
 
 const defaultOpacitySettings: QRCodeAnimationSettings = {
-  dotMatrixOpacityBase: 0.16,
-  dotMatrixOpacityMid: 0.32,
+  dotMatrixOpacityBase: 1,
+  dotMatrixOpacityMid: 0.65,
   dotMatrixOpacityPeak: 1,
 };
 
@@ -42,8 +39,8 @@ describe("matrix animation parity", () => {
       const { dotMatrixOpacityBase: base, dotMatrixOpacityMid: mid, dotMatrixOpacityPeak: peak } =
         defaultOpacitySettings;
 
-      expect(remapOpacityToTriplet(SOURCE_BASE_OPACITY, base, mid, peak)).toBeCloseTo(0.16, 5);
-      expect(remapOpacityToTriplet(SOURCE_MID_OPACITY, base, mid, peak)).toBeCloseTo(0.32, 5);
+      expect(remapOpacityToTriplet(SOURCE_BASE_OPACITY, base, mid, peak)).toBeCloseTo(1, 5);
+      expect(remapOpacityToTriplet(SOURCE_MID_OPACITY, base, mid, peak)).toBeCloseTo(0.65, 5);
       expect(remapOpacityToTriplet(SOURCE_PEAK_OPACITY, base, mid, peak)).toBeCloseTo(1, 5);
     });
 
@@ -55,54 +52,12 @@ describe("matrix animation parity", () => {
 
       expect(remapped).toBeCloseTo(mid + (peak - mid) * progress, 5);
     });
-
-    it("maps idle pulse-ladder opacity to user base", () => {
-      const { dotMatrixOpacityBase: base, dotMatrixOpacityMid: mid, dotMatrixOpacityPeak: peak } =
-        defaultOpacitySettings;
-
-      expect(remapOpacityToTriplet(SQUARE2_BASE_OPACITY, base, mid, peak)).toBeCloseTo(0.16, 5);
-    });
-  });
-
-  describe("PulseLadder", () => {
-    it("uses the upstream 33-step route with source tail falloff", () => {
-      expect(SQUARE2_ROUTE).toHaveLength(33);
-
-      const headIndex = SQUARE2_ROUTE[0]!;
-      const headOpacity = opacityFromSquare2Tail(headIndex, 0);
-      const tailOpacity = opacityFromSquare2Tail(headIndex, 3);
-
-      expect(headOpacity).toBeCloseTo(1, 5);
-      expect(tailOpacity).toBeCloseTo(0.54, 5);
-      expect(opacityFromSquare2Tail(12, 0)).toBeCloseTo(SQUARE2_BASE_OPACITY, 5);
-    });
-
-    it("remaps pulse-ladder peak and tail through upstream triplet curve", () => {
-      const preset = getAnimationPreset(AnimationPreset.PulseLadder);
-      const animation = preset({}, 2, 2, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const frames = animation.web?.opacity;
-
-      expect(Array.isArray(frames)).toBe(true);
-      if (!Array.isArray(frames)) {
-        return;
-      }
-
-      const peakFrame = frames.find(
-        (frame) => typeof frame === "object" && frame !== null && "value" in frame && frame.value > 0.9,
-      );
-      const idleFrame = frames.find(
-        (frame) => typeof frame === "object" && frame !== null && "value" in frame && frame.value < 0.2,
-      );
-
-      expect(peakFrame).toBeTruthy();
-      expect(idleFrame).toBeTruthy();
-    });
   });
 
   describe("OriginWave", () => {
     it("matches upstream css-blend keyframes at idle and peak", () => {
       const idle = resolveDotMatrixKeyframeOpacity(
-        { cssBlend: { base: 0.625, mid: 0, peak: 0 }, offset: 0 },
+        { cssBlend: { base: 1, mid: 0, peak: 0 }, offset: 0 },
         defaultOpacitySettings,
       );
       const peak = resolveDotMatrixKeyframeOpacity(
@@ -114,9 +69,9 @@ describe("matrix animation parity", () => {
         defaultOpacitySettings,
       );
 
-      expect(idle).toBeCloseTo(0.625 * 0.16, 5);
+      expect(idle).toBeCloseTo(1, 5);
       expect(peak).toBeCloseTo(1, 5);
-      expect(mid).toBeCloseTo(0.5 * (0.16 + 0.32), 5);
+      expect(mid).toBeCloseTo(0.825, 5);
     });
 
     it("staggers rings with interpolated origin distance", () => {
@@ -135,6 +90,59 @@ describe("matrix animation parity", () => {
       const corner = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
 
       expect(corner.from).toBeGreaterThan(center.from ?? 0);
+    });
+
+    it("rests at user opacity base with dual base/accent colors", () => {
+      const preset = getAnimationPreset(AnimationPreset.RadialExpand);
+      const animation = preset(
+        {},
+        10,
+        10,
+        21,
+        QRCodeEntity.Module,
+        {
+          ...defaultOpacitySettings,
+          dotMatrixColorBase: "#111827",
+          dotMatrixColorMid: "#22d3ee",
+          dotMatrixColorPeak: "#22d3ee",
+        },
+      );
+      const from = typeof animation.from === "number" ? animation.from : 0;
+      const atRest = sampleDotMatrixAnimationFrame(animation, from);
+
+      expect(atRest.opacity).toBeCloseTo(1, 5);
+      expect(atRest.fill).toBe("#111827");
+    });
+
+    it("uses accent color at peak", () => {
+      const preset = getAnimationPreset(AnimationPreset.RadialExpand);
+      const settings = {
+        ...defaultOpacitySettings,
+        dotMatrixColorBase: "#111827",
+        dotMatrixColorMid: "#22d3ee",
+        dotMatrixColorPeak: "#22d3ee",
+      };
+      const animation = preset({}, 10, 10, 21, QRCodeEntity.Module, settings);
+      const frames = animation.web?.opacity;
+      const fillFrames = animation.web?.fill;
+
+      expect(Array.isArray(frames)).toBe(true);
+      expect(Array.isArray(fillFrames)).toBe(true);
+      if (!Array.isArray(frames) || !Array.isArray(fillFrames)) {
+        return;
+      }
+
+      const peakFillFrame = fillFrames.find(
+        (frame) =>
+          typeof frame === "object" &&
+          frame !== null &&
+          "value" in frame &&
+          (frame as { value: string }).value === "#22d3ee",
+      );
+
+      expect(peakFillFrame).toEqual(
+        expect.objectContaining({ value: "#22d3ee" }),
+      );
     });
   });
 

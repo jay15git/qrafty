@@ -35,14 +35,15 @@ export type QrGradientLinkMode = "split" | "unified";
 export type AssetSourceMode = "none" | "preset" | "url" | "upload";
 export type QrDotMatrixSquareLoader =
   | "neon-drift"
-  | "pulse-ladder"
-  | "core-spiral"
   | "flux-columns"
   | "echo-ring"
   | "origin-wave"
   | "radial-expand"
   | "radius-ping"
   | "diamond-expand"
+  | "heart-expand"
+  | "star-expand"
+  | "ripple-expand"
   | "zigzag-flow"
   | "cross-bloom"
   | "chevron-sweep"
@@ -234,15 +235,15 @@ const DEFAULT_DOTS_PALETTE = [
 ];
 
 
-export const MOTION_COLOR_SWATCHES: Record<QrDotMatrixColorPreset, [string, string, string]> = {
-  aurora: ["#67e8f9", "#a78bfa", "#f0abfc"],
-  fire: ["#f97316", "#ef4444", "#facc15"],
-  mint: ["#34d399", "#6ee7b7", "#d9f99d"],
-  neon: ["#22d3ee", "#a855f7", "#f8fafc"],
-  ocean: ["#38bdf8", "#2563eb", "#0f172a"],
-  prism: ["#64748b", "#eab308", "#22c55e"],
-  sunset: ["#f59e0b", "#f97316", "#fde047"],
-  theme: ["#22d3ee", "#22d3ee", "#22d3ee"],
+export const MOTION_COLOR_SWATCHES: Record<QrDotMatrixColorPreset, [string, string]> = {
+  aurora: ["#67e8f9", "#f0abfc"],
+  fire: ["#f97316", "#facc15"],
+  mint: ["#34d399", "#d9f99d"],
+  neon: ["#22d3ee", "#f8fafc"],
+  ocean: ["#38bdf8", "#0f172a"],
+  prism: ["#64748b", "#22c55e"],
+  sunset: ["#f59e0b", "#fde047"],
+  theme: ["#22d3ee", "#22d3ee"],
 };
 
 export const QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS: Array<{
@@ -250,14 +251,15 @@ export const QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS: Array<{
   value: QrDotMatrixSquareLoader;
 }> = [
   { label: "Neon Drift", value: "neon-drift" },
-  { label: "Pulse Ladder", value: "pulse-ladder" },
-  { label: "Core Spiral", value: "core-spiral" },
   { label: "Flux Columns", value: "flux-columns" },
   { label: "Echo Ring", value: "echo-ring" },
   { label: "Origin Wave", value: "origin-wave" },
   { label: "Radial Expand", value: "radial-expand" },
   { label: "Radius Ping", value: "radius-ping" },
   { label: "Diamond Expand", value: "diamond-expand" },
+  { label: "Heart Expand", value: "heart-expand" },
+  { label: "Star Expand", value: "star-expand" },
+  { label: "Ripple Expand", value: "ripple-expand" },
   { label: "Zigzag Flow", value: "zigzag-flow" },
   { label: "Cross Bloom", value: "cross-bloom" },
   { label: "Chevron Sweep", value: "chevron-sweep" },
@@ -319,8 +321,8 @@ export const QR_DOT_MATRIX_PATTERN_OPTIONS: Array<{
   loader: "neon-drift",
   matrixSize: QR_DOT_MATRIX_MATRIX_SIZE_MIN,
   motionIntensity: "premium",
-  opacityBase: 0.16,
-  opacityMid: 0.32,
+  opacityBase: 1,
+  opacityMid: 0.65,
   opacityPeak: 1,
   overlayScale: 100,
   pattern: "full",
@@ -646,13 +648,18 @@ export function setDotMatrixAnimationOptions(
       patch.customColorBase ?? state.dotMatrixAnimation.customColorBase,
       nextCustomColor,
     ),
-    customColorMid: coerceDotMatrixAnimationColor(
-      patch.customColorMid ?? state.dotMatrixAnimation.customColorMid,
-      nextCustomColor,
-    ),
     customColorPeak: coerceDotMatrixAnimationColor(
       patch.customColorPeak ?? state.dotMatrixAnimation.customColorPeak,
       nextCustomColor,
+    ),
+    customColorMid: coerceDotMatrixAnimationColor(
+      patch.customColorMid ??
+        patch.customColorPeak ??
+        state.dotMatrixAnimation.customColorMid,
+      coerceDotMatrixAnimationColor(
+        patch.customColorPeak ?? state.dotMatrixAnimation.customColorPeak,
+        nextCustomColor,
+      ),
     ),
     dotShape: patch.dotShape ?? state.dotMatrixAnimation.dotShape,
     enabled: patch.enabled ?? state.dotMatrixAnimation.enabled,

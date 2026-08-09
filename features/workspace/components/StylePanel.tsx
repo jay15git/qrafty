@@ -100,8 +100,6 @@ import {
   QR_DOT_MATRIX_MATRIX_SIZE_MAX,
   QR_DOT_MATRIX_MATRIX_SIZE_MIN,
   QR_DOT_MATRIX_MATRIX_SIZE_STEP,
-  QR_DOT_MATRIX_OPACITY_MAX,
-  QR_DOT_MATRIX_OPACITY_MIN,
   QR_DOT_MATRIX_OVERLAY_SCALE_MAX,
   QR_DOT_MATRIX_OVERLAY_SCALE_MIN,
   QR_DOT_MATRIX_PATTERN_OPTIONS,
@@ -1138,7 +1136,7 @@ export function DraftingLoaderPlaygroundTab({
         </p>
         <div className="grid min-w-0 grid-cols-2 gap-2">
           {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => {
-            const [base, mid, peak] = MOTION_COLOR_SWATCHES[preset.value]
+            const [base, accent] = MOTION_COLOR_SWATCHES[preset.value]
 
             return (
               <Button
@@ -1150,8 +1148,8 @@ export function DraftingLoaderPlaygroundTab({
                     colorPreset: preset.value,
                     customColor: base,
                     customColorBase: base,
-                    customColorMid: mid,
-                    customColorPeak: peak,
+                    customColorMid: accent,
+                    customColorPeak: accent,
                   })
                 }
                 className={cn(
@@ -1168,9 +1166,8 @@ export function DraftingLoaderPlaygroundTab({
         </div>
         <div className="mt-3 grid min-w-0 gap-4" data-slot="drafting-motion-custom-colors">
           {[
-            ["Color 1", "customColorBase", animation.customColorBase, "Loader base color"],
-            ["Color 2", "customColorMid", animation.customColorMid, "Loader mid color"],
-            ["Color 3", "customColorPeak", animation.customColorPeak, "Loader peak color"],
+            ["Base", "customColorBase", animation.customColorBase, "Loader base color"],
+            ["Accent", "customColorPeak", animation.customColorPeak, "Loader accent color"],
           ].map(([label, field, value, ariaLabel]) => (
             <label
               key={field}
@@ -1197,6 +1194,9 @@ export function DraftingLoaderPlaygroundTab({
                   if (field === "customColorBase") {
                     patch.customColor = nextValue
                   }
+                  if (field === "customColorPeak") {
+                    patch.customColorMid = nextValue
+                  }
                   onAnimationChange(patch)
                 }}
                 onInput={(event) => {
@@ -1207,6 +1207,9 @@ export function DraftingLoaderPlaygroundTab({
                   }
                   if (field === "customColorBase") {
                     patch.customColor = nextValue
+                  }
+                  if (field === "customColorPeak") {
+                    patch.customColorMid = nextValue
                   }
                   onAnimationChange(patch)
                 }}
@@ -1253,45 +1256,6 @@ export function DraftingLoaderPlaygroundTab({
           id="drafting-dot-matrix-animated"
           label="Animated"
           onCheckedChange={(animated) => onAnimationChange({ animated })}
-        />
-      </section>
-
-      <section className="min-w-0 space-y-3 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 shadow-[var(--drafting-shadow-rest)]">
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
-          Opacity
-        </p>
-        <DraftingSliderField
-          dataSlot="drafting-dot-matrix-opacity-base-slider"
-          formatValue={(value) => value.toFixed(2)}
-          id="drafting-dot-matrix-opacity-base"
-          label="Base"
-          max={QR_DOT_MATRIX_OPACITY_MAX}
-          min={QR_DOT_MATRIX_OPACITY_MIN}
-          step={0.01}
-          value={animation.opacityBase}
-          onChange={(opacityBase) => onAnimationChange({ opacityBase })}
-        />
-        <DraftingSliderField
-          dataSlot="drafting-dot-matrix-opacity-mid-slider"
-          formatValue={(value) => value.toFixed(2)}
-          id="drafting-dot-matrix-opacity-mid"
-          label="Mid"
-          max={QR_DOT_MATRIX_OPACITY_MAX}
-          min={QR_DOT_MATRIX_OPACITY_MIN}
-          step={0.01}
-          value={animation.opacityMid}
-          onChange={(opacityMid) => onAnimationChange({ opacityMid })}
-        />
-        <DraftingSliderField
-          dataSlot="drafting-dot-matrix-opacity-peak-slider"
-          formatValue={(value) => value.toFixed(2)}
-          id="drafting-dot-matrix-opacity-peak"
-          label="Peak"
-          max={QR_DOT_MATRIX_OPACITY_MAX}
-          min={QR_DOT_MATRIX_OPACITY_MIN}
-          step={0.01}
-          value={animation.opacityPeak}
-          onChange={(opacityPeak) => onAnimationChange({ opacityPeak })}
         />
       </section>
 

@@ -24,6 +24,14 @@ import {
   type QrStudioState,
   type StudioGradient,
 } from "@/features/qr-code/model/state"
+import {
+  heartExpansionMetric,
+  rippleRingIndex,
+  starExpansionMetric,
+} from "@new-qr/qr/dot-matrix"
+import {
+  resolveMotionColors,
+} from "@/features/qr-code/motion/motion-color"
 import { getBackgroundShapeSkewTransform } from "@/features/workspace/rendering/layer-transform"
 import { applyUnifiedQrGradientFill } from "@new-qr/qr-internal/core"
 import {
@@ -1349,8 +1357,6 @@ function getDotMatrixOverlayScale(animation: QrDotMatrixAnimationOptions) {
 
 type DotMatrixSquareLoaderId =
   | "dotm-square-1"
-  | "dotm-square-2"
-  | "dotm-square-3"
   | "dotm-square-6"
   | "dotm-square-11"
   | "dotm-square-12"
@@ -1361,14 +1367,12 @@ type DotMatrixSquareLoaderId =
   | "dotm-square-25"
   | "dotm-square-26"
   | "dotm-square-27"
+  | "dotm-square-28"
+  | "dotm-square-30"
+  | "dotm-square-31"
   | "dotm-square-29"
 
 const DOT_MATRIX_LOADER_SPECS: Record<QrDotMatrixSquareLoader, DotMatrixLoaderSpec> = {
-  "core-spiral": createDotMatrixLoaderSpec("dotm-square-3", "spiral-inward", (cell) =>
-    createClassCellAnimation("dotm-square-3", "spiral-inward", "dmx-spiral-snake", "dmx-spiral-snake", 1500, {
-      "--dmx-spiral-order": spiralInwardOrderValue(cell),
-    }),
-  ),
   "echo-ring": createDotMatrixLoaderSpec("dotm-square-11", "ripple-echo", (cell) =>
     createClassCellAnimation("dotm-square-11", "ripple-echo", "dmx-ripple-echo", "dmx-ripple-echo", 1500, {
       "--dmx-ripple-ring": Math.max(Math.abs(cell.col - getDotMatrixCenter(cell.matrixSize)), Math.abs(cell.row - getDotMatrixCenter(cell.matrixSize))),
@@ -1406,6 +1410,21 @@ const DOT_MATRIX_LOADER_SPECS: Record<QrDotMatrixSquareLoader, DotMatrixLoaderSp
       "--dmx-diamond-radius": diamondDistanceFromCenter(cell),
     }),
   ),
+  "heart-expand": createDotMatrixLoaderSpec("dotm-square-28", "heart-expand", (cell) =>
+    createClassCellAnimation("dotm-square-28", "heart-expand", "dmx-heart-expand", "dmx-heart-expand", 1500, {
+      "--dmx-heart-radius": heartExpansionMetric(cell.row, cell.col, cell.matrixSize),
+    }),
+  ),
+  "star-expand": createDotMatrixLoaderSpec("dotm-square-30", "star-expand", (cell) =>
+    createClassCellAnimation("dotm-square-30", "star-expand", "dmx-star-expand", "dmx-star-expand", 1500, {
+      "--dmx-star-radius": starExpansionMetric(cell.row, cell.col, cell.matrixSize),
+    }),
+  ),
+  "ripple-expand": createDotMatrixLoaderSpec("dotm-square-31", "ripple-expand", (cell) =>
+    createClassCellAnimation("dotm-square-31", "ripple-expand", "dmx-ripple-expand", "dmx-ripple-expand", 1500, {
+      "--dmx-ripple-expand-ring": rippleRingIndex(cell.row, cell.col, cell.matrixSize),
+    }, "ease-in-out"),
+  ),
   "zigzag-flow": createDotMatrixLoaderSpec("dotm-square-24", "zigzag-flow", (cell) =>
     createClassCellAnimation("dotm-square-24", "zigzag-flow", "dmx-zigzag-flow", "dmx-zigzag-flow", 1500, {
       "--dmx-zigzag-order": zigzagOrderValue(cell),
@@ -1431,7 +1450,6 @@ const DOT_MATRIX_LOADER_SPECS: Record<QrDotMatrixSquareLoader, DotMatrixLoaderSp
       "--dmx-corner-distance": cornerDistance(cell),
     }),
   ),
-  "pulse-ladder": createDotMatrixLoaderSpec("dotm-square-2", "row-cycle-snake", createGeneratedCellAnimation),
 }
 
 function createDotMatrixLoaderSpec(
@@ -1475,38 +1493,6 @@ function createQuietCellAnimation(
     active: false,
     durationMs: 1500,
     keyframes: `${upstreamLoader}-quiet`,
-    timingFunction: "linear",
-    topology,
-    upstreamLoader,
-  }
-}
-
-function createGeneratedCellAnimation(
-  cell: DotMatrixCell,
-  upstreamLoader: DotMatrixSquareLoaderId,
-  topology: string,
-): DotMatrixCellAnimation {
-  const durationByLoader: Record<DotMatrixSquareLoaderId, number> = {
-    "dotm-square-1": 1500,
-    "dotm-square-2": 1500,
-    "dotm-square-3": 1500,
-    "dotm-square-6": 1500,
-    "dotm-square-11": 1500,
-    "dotm-square-12": 1500,
-    "dotm-square-21": 1500,
-    "dotm-square-22": 1500,
-    "dotm-square-23": 1500,
-    "dotm-square-24": 1500,
-    "dotm-square-25": 1500,
-    "dotm-square-26": 1500,
-    "dotm-square-27": 1500,
-    "dotm-square-29": 1500,
-  }
-
-  return {
-    active: true,
-    durationMs: durationByLoader[upstreamLoader],
-    keyframes: getGeneratedDotMatrixKeyframesName(upstreamLoader, cell),
     timingFunction: "linear",
     topology,
     upstreamLoader,
@@ -1704,50 +1690,10 @@ function cornerDistance(cell: DotMatrixCell) {
   )
 }
 
-function createSpiralInwardPath(matrixSize: number) {
-  const path: Array<readonly [number, number]> = []
-  let left = 0
-  let right = matrixSize - 1
-  let top = 0
-  let bottom = matrixSize - 1
-
-  while (left <= right && top <= bottom) {
-    for (let col = left; col <= right; col += 1) {
-      path.push([col, top])
-    }
-    for (let row = top + 1; row <= bottom; row += 1) {
-      path.push([right, row])
-    }
-    if (top < bottom) {
-      for (let col = right - 1; col >= left; col -= 1) {
-        path.push([col, bottom])
-      }
-    }
-    if (left < right) {
-      for (let row = bottom - 1; row > top; row -= 1) {
-        path.push([left, row])
-      }
-    }
-
-    left += 1
-    right -= 1
-    top += 1
-    bottom -= 1
-  }
-
-  return path
-}
-
 function trBlPathNormFromIndex(cell: DotMatrixCell) {
   const { col, matrixSize, row } = cell
 
   return (row + (matrixSize - 1 - col)) / ((matrixSize - 1) * 2)
-}
-
-function spiralInwardOrderValue(cell: DotMatrixCell) {
-  const { col, matrixSize, row } = cell
-
-  return findDotMatrixCellIndex(createSpiralInwardPath(matrixSize), col, row)
 }
 
 function getDotMatrixPatternIndexes(pattern: QrDotMatrixAnimationOptions["pattern"], matrixSize: number) {
@@ -1784,15 +1730,6 @@ function stableDotMatrixStyleVarSignature(styleVars: Record<string, number | str
     .sort()
     .map((key) => `${key}=${styleVars[key]}`)
     .join(";")
-}
-
-function getGeneratedDotMatrixKeyframesName(
-  upstreamLoader: DotMatrixSquareLoaderId,
-  cell: DotMatrixCell,
-) {
-  const squareNumber = upstreamLoader.replace("dotm-square-", "")
-
-  return `dmx-square${squareNumber}-${upstreamLoader}-r${cell.row}c${cell.col}`.replaceAll(".", "-")
 }
 
 function getDotMatrixPerimeterIndex(
@@ -1920,36 +1857,8 @@ function applyDotMatrixOverlayScale(
 
 function resolveDotMatrixColors(state: QrStudioState) {
   const animation = state.dotMatrixAnimation
-  const defaultLoaderColor = DEFAULT_DOT_MATRIX_ANIMATION.customColor
 
-  if (animation.colorPreset === "theme") {
-    const legacyCustomColor = animation.customColor || defaultLoaderColor
-
-    return {
-      base: animation.customColorBase || legacyCustomColor,
-      mid: animation.customColorMid || legacyCustomColor,
-      peak: animation.customColorPeak || legacyCustomColor,
-    }
-  }
-
-  const presetColors: Record<QrDotMatrixAnimationOptions["colorPreset"], string> = {
-    aurora: "#a78bfa",
-    fire: "#fb7185",
-    mint: "#34d399",
-    neon: "#22d3ee",
-    ocean: "#38bdf8",
-    prism: "#f0abfc",
-    sunset: "#fb923c",
-    theme: animation.customColor || defaultLoaderColor,
-  }
-
-  const presetColor = presetColors[animation.colorPreset]
-
-  return {
-    base: presetColor,
-    mid: presetColor,
-    peak: presetColor,
-  }
+  return resolveMotionColors(animation)
 }
 
 function createGeneratedDotMatrixKeyframes(
@@ -1978,20 +1887,10 @@ function getMatrixSizeFromRegion(region: string) {
 }
 
 function getGeneratedDotMatrixOpacitySamples(
-  upstreamLoader: DotMatrixSquareLoaderId,
-  cell: DotMatrixCell,
+  _upstreamLoader: DotMatrixSquareLoaderId,
+  _cell: DotMatrixCell,
 ) {
-  switch (upstreamLoader) {
-    case "dotm-square-2":
-      return Array.from({ length: 10 }, (_, frame) => {
-        const head = Math.round(((frame <= 4 ? 4 - frame : frame - 5) / 4) * (cell.matrixSize - 1))
-        const distance = Math.abs(cell.row - head)
-        const tail = [1, 0.82, 0.68, 0.54, 0.42, 0.31, 0.22, 0.14]
-        return tail[distance + Math.abs(cell.col - (frame % cell.matrixSize))] ?? 0.08
-      })
-    default:
-      return [0.08, 1, 0.32, 0.08]
-  }
+  return [0.08, 1, 0.32, 0.08]
 }
 
 function createDotMatrixOpacityKeyframes(name: string, samples: number[]) {
@@ -2016,7 +1915,7 @@ function getDotMatrixAnchorValue(sourceOpacity: number) {
     return "peak"
   }
 
-  return "mid"
+  return "peak"
 }
 
 function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrack[]) {
@@ -2046,32 +1945,36 @@ function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrac
   filter: none;
 }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-diagonal-alt-sweep"] { animation-delay: calc((var(--dmx-path, 0) + var(--dmx-diagonal-parity, 0) * .08) * -1.5s); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-spiral-snake"] { animation-delay: calc(var(--dmx-spiral-order, 0) * -56ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-square6-col-snake"] { animation-delay: calc(var(--dmx-col-pos, 0) * -110ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-ripple-echo"] { animation-delay: calc(var(--dmx-ripple-ring, 0) * -120ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-center-origin-ripple"] { animation-delay: calc(var(--dmx-center-ripple-ring, 0) * -120ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-radial-expand"] { animation-delay: calc(var(--dmx-radial-radius, 0) * -140ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-radius-ping"] { animation-delay: calc(var(--dmx-radial-radius, 0) * -180ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-diamond-expand"] { animation-delay: calc(var(--dmx-diamond-radius, 0) * -120ms); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-heart-expand"] { animation-delay: calc(var(--dmx-heart-radius, 0) * -110ms); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-star-expand"] { animation-delay: calc(var(--dmx-star-radius, 0) * -110ms); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-ripple-expand"] { animation-delay: calc(var(--dmx-ripple-expand-ring, 0) * -90ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-zigzag-flow"] { animation-delay: calc(var(--dmx-zigzag-order, 0) * -35ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-cross-bloom"] { animation-delay: calc(var(--dmx-cross-distance, 0) * -140ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-chevron-sweep"] { animation-delay: calc(var(--dmx-chevron-distance, 0) * -110ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-wave-ride"] { animation-delay: calc(var(--dmx-wave-phase, 0) * -100ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-corner-pop"] { animation-delay: calc(var(--dmx-corner-distance, 0) * -120ms); }
 @keyframes qr-dot-loader-legacy { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 50% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } }
-@keyframes dmx-diagonal-alt-sweep { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 44% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 68% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
-@keyframes dmx-spiral-snake { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 10% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 34% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
-@keyframes dmx-square6-col-snake { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 18% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 42% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
-@keyframes dmx-ripple-echo { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 35% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 60% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
-@keyframes dmx-center-origin-ripple { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 32% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 62% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
-@keyframes dmx-radial-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 28% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 52% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
-@keyframes dmx-radius-ping { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 10% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 20% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
-@keyframes dmx-diamond-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 30% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 55% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
-@keyframes dmx-zigzag-flow { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 24% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 38% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
-@keyframes dmx-cross-bloom { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 26% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 48% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
-@keyframes dmx-chevron-sweep { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 32% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 50% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
-@keyframes dmx-wave-ride { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 40% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 62% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
-@keyframes dmx-corner-pop { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 30% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 48% { opacity: var(--qr-dot-matrix-opacity-mid); fill: var(--qr-dot-matrix-color-mid); } }
+@keyframes dmx-diagonal-alt-sweep { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 44% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 68% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 45%, var(--qr-dot-matrix-color-peak)); } }
+@keyframes dmx-square6-col-snake { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 18% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 42% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 45%, var(--qr-dot-matrix-color-peak)); } }
+@keyframes dmx-ripple-echo { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 35% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 60% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 50%, var(--qr-dot-matrix-color-peak)); } }
+@keyframes dmx-center-origin-ripple { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 32% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 62% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 50%, var(--qr-dot-matrix-color-peak)); } }
+@keyframes dmx-radial-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 28% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 52% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
+@keyframes dmx-radius-ping { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 10% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 20% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
+@keyframes dmx-diamond-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 30% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 55% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
+@keyframes dmx-heart-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 22% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 44% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
+@keyframes dmx-star-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 20% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 40% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
+@keyframes dmx-ripple-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 7% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 14% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 55%, var(--qr-dot-matrix-color-peak)); } 28% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
+@keyframes dmx-zigzag-flow { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 24% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 38% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 40%, var(--qr-dot-matrix-color-peak)); } }
+@keyframes dmx-cross-bloom { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 26% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 48% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 45%, var(--qr-dot-matrix-color-peak)); } }
+@keyframes dmx-chevron-sweep { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 32% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 50% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 40%, var(--qr-dot-matrix-color-peak)); } }
+@keyframes dmx-wave-ride { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 40% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 62% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 50%, var(--qr-dot-matrix-color-peak)); } }
+@keyframes dmx-corner-pop { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 30% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 48% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 40%, var(--qr-dot-matrix-color-peak)); } }
 ${generatedKeyframes}
 @media (prefers-reduced-motion: reduce) {
   .qr-dot-matrix-layer {

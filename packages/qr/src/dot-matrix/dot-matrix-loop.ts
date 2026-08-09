@@ -19,6 +19,34 @@ export interface DotMatrixLoopHandle {
   stop: () => void;
 }
 
+const DOT_MATRIX_PAINTABLE_SELECTOR = 'path,circle,rect,polygon';
+
+function applyDotMatrixSample(
+  element: SVGElement,
+  sample: { opacity: number; fill?: string },
+) {
+  element.style.opacity = String(sample.opacity);
+
+  if (!sample.fill) {
+    return;
+  }
+
+  const paintTargets = element.matches(DOT_MATRIX_PAINTABLE_SELECTOR)
+    ? [element]
+    : Array.from(
+        element.querySelectorAll<SVGElement>(DOT_MATRIX_PAINTABLE_SELECTOR),
+      );
+
+  if (paintTargets.length === 0) {
+    element.style.fill = sample.fill;
+    return;
+  }
+
+  for (const target of paintTargets) {
+    target.style.fill = sample.fill;
+  }
+}
+
 export function startDotMatrixLoop(
   targets: DotMatrixLoopTarget[],
   requestFrame: (callback: () => void) => number,
@@ -37,10 +65,7 @@ export function startDotMatrixLoop(
     targets.forEach(({ element, animation }) => {
       if (!element || !element.style) return;
       const sample = sampleDotMatrixAnimationFrame(animation as any, globalTimeMs);
-      element.style.opacity = String(sample.opacity);
-      if (sample.fill) {
-        element.style.fill = sample.fill;
-      }
+      applyDotMatrixSample(element, sample);
     });
 
     frameId = requestFrame(tick);

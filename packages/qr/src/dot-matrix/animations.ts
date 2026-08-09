@@ -11,7 +11,14 @@ export type DotMatrixAnimationFrame = {
     y?: unknown;
     rotate?: unknown;
     filter?: unknown;
+    shapeReveal?: DotMatrixShapeReveal;
   };
+};
+
+export type DotMatrixShapeReveal = {
+  edgeWidth?: number;
+  maxMetric: number;
+  metric: number;
 };
 
 import {
@@ -26,6 +33,19 @@ import {
   SOURCE_BASE_OPACITY,
   SOURCE_PEAK_OPACITY,
 } from './opacity-triplet';
+import {
+  dualAccentMixFromCssBlend,
+  dualAccentMixFromOpacity,
+  isMixableHexColor,
+  mixHexColors,
+} from './color-mix';
+import {
+  heartExpansionMetric,
+  heartMaxExpansionMetric,
+  rippleRingIndex,
+  starExpansionMetric,
+  starMaxExpansionMetric,
+} from './shape-metrics';
 
 export {
   remapOpacityToTriplet,
@@ -52,6 +72,7 @@ export type QRCodeAnimation = (
 
 export interface QRCodeAnimationSettings {
   animationSpeed?: number;
+  dotMatrixColorMode?: 'dual';
   dotMatrixOpacityBase?: number;
   dotMatrixOpacityMid?: number;
   dotMatrixOpacityPeak?: number;
@@ -95,14 +116,15 @@ export enum AnimationPreset {
   TideRise = 'TideRise',
   GravityCollapse = 'GravityCollapse',
   NeonDrift = 'NeonDrift',
-  PulseLadder = 'PulseLadder',
-  CoreSpiral = 'CoreSpiral',
   FluxColumns = 'FluxColumns',
   EchoRing = 'EchoRing',
   OriginWave = 'OriginWave',
   RadialExpand = 'RadialExpand',
   RadiusPing = 'RadiusPing',
   DiamondExpand = 'DiamondExpand',
+  HeartExpand = 'HeartExpand',
+  StarExpand = 'StarExpand',
+  RippleExpand = 'RippleExpand',
   ZigzagFlow = 'ZigzagFlow',
   CrossBloom = 'CrossBloom',
   ChevronSweep = 'ChevronSweep',
@@ -148,13 +170,14 @@ export const standardAnimationPresets = [
 
 export const dotMatrixAnimationPresets = [
   AnimationPreset.NeonDrift,
-  AnimationPreset.PulseLadder,
-  AnimationPreset.CoreSpiral,
   AnimationPreset.EchoRing,
   AnimationPreset.OriginWave,
   AnimationPreset.RadialExpand,
   AnimationPreset.RadiusPing,
   AnimationPreset.DiamondExpand,
+  AnimationPreset.HeartExpand,
+  AnimationPreset.StarExpand,
+  AnimationPreset.RippleExpand,
   AnimationPreset.ZigzagFlow,
   AnimationPreset.CrossBloom,
   AnimationPreset.ChevronSweep,
@@ -162,6 +185,9 @@ export const dotMatrixAnimationPresets = [
   AnimationPreset.CornerPop,
   AnimationPreset.FluxColumns,
 ];
+
+/** All square-loader presets use base + accent dual-color motion. */
+export const dualColorDotMatrixPresets = dotMatrixAnimationPresets;
 
 const FadeInTopDown: QRCodeAnimation = (targets, _x, y, _count, _entity) => {
   return {
@@ -571,6 +597,8 @@ const keyframeFillAt = (frames: WebKeyframeValue[], phase: number) => {
   }
 
   let previous = frames[0];
+  let previousOffset =
+    typeof previous === 'number' ? 0 : previous.offset;
   let previousValue = String(keyframeValueAt(previous));
 
   for (let index = 1; index < frames.length; index++) {
@@ -579,12 +607,83 @@ const keyframeFillAt = (frames: WebKeyframeValue[], phase: number) => {
       typeof frame === 'number' ? index / (frames.length - 1) : frame.offset;
     const value = String(keyframeValueAt(frame));
     if (clampedPhase <= offset) {
-      return previousValue;
+      const span = offset - previousOffset;
+      if (span <= 0) {
+        return value;
+      }
+      const progress = (clampedPhase - previousOffset) / span;
+      if (
+        isMixableHexColor(previousValue) &&
+        isMixableHexColor(value)
+      ) {
+        return mixHexColors(previousValue, value, progress);
+      }
+      return progress < 0.5 ? previousValue : value;
     }
+    previousOffset = offset;
     previousValue = value;
   }
 
   return String(keyframeValueAt(frames[frames.length - 1]));
+};
+
+const sampleShapeRevealFrame = (
+  animation: DotMatrixAnimationFrame,
+  cycleElapsed: number,
+  duration: number,
+): { opacity: number; fill?: string } | null => {
+  const web = animation.web;
+  const shapeReveal = web?.shapeReveal;
+  const fillFrames = web?.fill;
+  if (!shapeReveal || !Array.isArray(fillFrames) || fillFrames.length === 0) {
+    return null;
+  }
+
+  const linearPhase = clamp(cycleElapsed / duration, 0, 1);
+  // Expand to full shape by midpoint, contract back — loop closes at base like RadialExpand.
+  const pingPong =
+    linearPhase < 0.5 ? linearPhase * 2 : 2 - linearPhase * 2;
+  const revealPhase =
+    animation.easing === 'ease-in-out' ? easeInOut(pingPong) : pingPong;
+  const threshold = revealPhase * shapeReveal.maxMetric;
+  const edgeWidth = shapeReveal.edgeWidth ?? 1.4;
+  const blend = clamp((threshold - shapeReveal.metric) / edgeWidth, 0, 1);
+
+  const baseFill = String(
+    typeof fillFrames[0] === 'string'
+      ? fillFrames[0]
+      : keyframeValueAt(fillFrames[0] as WebKeyframeValue),
+  );
+  const accentFill = String(
+    typeof fillFrames[fillFrames.length > 1 ? 1 : 0] === 'string'
+      ? fillFrames[fillFrames.length > 1 ? 1 : 0]
+      : keyframeValueAt(
+          fillFrames[fillFrames.length > 1 ? 1 : 0] as WebKeyframeValue,
+        ),
+  );
+  const baseOpacity = Number(
+    keyframeValueAt(
+      Array.isArray(web?.opacity) ? (web.opacity as WebKeyframeValue[])[0] : 1,
+    ),
+  );
+  const accentOpacity = Number(
+    keyframeValueAt(
+      Array.isArray(web?.opacity)
+        ? (web.opacity as WebKeyframeValue[])[
+            web.opacity.length > 1 ? 1 : 0
+          ]
+        : 1,
+    ),
+  );
+  const opacity = baseOpacity + (accentOpacity - baseOpacity) * blend;
+  const fill =
+    isMixableHexColor(baseFill) && isMixableHexColor(accentFill)
+      ? mixHexColors(baseFill, accentFill, blend)
+      : blend >= 0.5
+        ? accentFill
+        : baseFill;
+
+  return { opacity, fill };
 };
 
 export const sampleDotMatrixAnimationFrame = (
@@ -599,6 +698,14 @@ export const sampleDotMatrixAnimationFrame = (
   const elapsed = Math.max(0, globalTimeMs - from);
   const cycleElapsed = elapsed % duration;
   const web = animation.web;
+  const shapeRevealSample = sampleShapeRevealFrame(
+    animation,
+    cycleElapsed,
+    duration,
+  );
+  if (shapeRevealSample) {
+    return shapeRevealSample;
+  }
   const rawFrames = web && web.opacity;
   const frames = Array.isArray(rawFrames)
     ? (rawFrames as WebKeyframeValue[])
@@ -616,9 +723,13 @@ export const sampleDotMatrixAnimationFrame = (
   if (steps) {
     const stepMs = duration / steps;
     const stepIndex = Math.floor(cycleElapsed / stepMs) % frames.length;
+    const stepProgress = (cycleElapsed % stepMs) / stepMs;
     const opacity = Number(keyframeValueAt(frames[stepIndex]));
     const fill = fillFrames
-      ? keyframeFillAt(fillFrames, stepIndex / Math.max(1, frames.length - 1))
+      ? keyframeFillAt(
+          fillFrames,
+          (stepIndex + stepProgress) / Math.max(1, frames.length - 1),
+        )
       : undefined;
     return { opacity, fill };
   }
@@ -716,64 +827,8 @@ const matrixEntityAnimation = (
 ) =>
   matrixSourceStyle(targets, entity, 0, duration, [1, 0.86, 1], 'ease-in-out');
 
-const steppedOpacityFrames = (
-  steps: number,
-  opacityForStep: (step: number) => number
-): WebKeyframeValue[] => {
-  const frameCount = Math.max(1, steps);
-  return Array.from({ length: frameCount }, (_, step) => ({
-    offset: frameCount === 1 ? 0 : step / (frameCount - 1),
-    value: opacityForStep(step),
-  }));
-};
-
-const phaseOpacityFrames = (
-  samples: number,
-  opacityForPhase: (phase: number) => number
-) =>
-  steppedOpacityFrames(samples + 1, (step) =>
-    opacityForPhase(step / Math.max(1, samples))
-  );
-
 const trBlPathNormFromCoord = (row: number, col: number) =>
   (row + (MATRIX_LAST - col)) / (MATRIX_LAST * 2);
-
-const buildSpiralInwardOrderToIndexMap = () => {
-  const order = new Array<number>(MATRIX_CELLS);
-  let top = 0;
-  let bottom = MATRIX_LAST;
-  let left = 0;
-  let right = MATRIX_LAST;
-  let t = 0;
-
-  while (top <= bottom && left <= right) {
-    for (let c = left; c <= right; c++) {
-      order[rowMajorIndex(top, c)] = t++;
-    }
-    for (let r = top + 1; r <= bottom; r++) {
-      order[rowMajorIndex(r, right)] = t++;
-    }
-    if (top < bottom) {
-      for (let c = right - 1; c >= left; c--) {
-        order[rowMajorIndex(bottom, c)] = t++;
-      }
-    }
-    if (left < right) {
-      for (let r = bottom - 1; r > top; r--) {
-        order[rowMajorIndex(r, left)] = t++;
-      }
-    }
-    top++;
-    bottom--;
-    left++;
-    right--;
-  }
-  return order;
-};
-
-const SPIRAL_INWARD_ORDER = buildSpiralInwardOrderToIndexMap();
-
-const spiralInwardOrderValue = (index: number) => SPIRAL_INWARD_ORDER[index];
 
 const ConfettiPop: QRCodeAnimation = (targets, x, y, count, entity) => {
   const seed = coordinateSeed(x, y, count);
@@ -1414,40 +1469,6 @@ const GravityCollapse: QRCodeAnimation = (targets, x, y, count, entity) => {
   };
 };
 
-const SQUARE2_TAIL = [1, 0.82, 0.68, 0.54, 0.42, 0.31, 0.22, 0.14];
-const SQUARE2_BASE_OPACITY = 0.08;
-const SQUARE2_ROUTE = (() => {
-  const path: number[] = [];
-  const push = (row: number, col: number) => path.push(rowMajorIndex(row, col));
-  for (let row = 4; row >= 0; row--) push(row, 0);
-  push(0, 1);
-  push(0, 2);
-  for (let row = 1; row <= 4; row++) push(row, 2);
-  push(4, 1);
-  for (let row = 3; row >= 0; row--) push(row, 1);
-  push(0, 2);
-  push(0, 3);
-  for (let row = 1; row <= 4; row++) push(row, 3);
-  push(4, 2);
-  for (let row = 3; row >= 0; row--) push(row, 2);
-  push(0, 3);
-  push(0, 4);
-  for (let row = 1; row <= 4; row++) push(row, 4);
-  return path;
-})();
-
-const opacityFromSquare2Tail = (index: number, head: number) => {
-  let opacity = SQUARE2_BASE_OPACITY;
-  for (let step = 0; step < SQUARE2_ROUTE.length; step++) {
-    if (SQUARE2_ROUTE[step] !== index) continue;
-    const distance = (head - step + SQUARE2_ROUTE.length) % SQUARE2_ROUTE.length;
-    if (distance >= 0 && distance < SQUARE2_TAIL.length) {
-      opacity = Math.max(opacity, SQUARE2_TAIL[distance]);
-    }
-  }
-  return opacity;
-};
-
 const frameMaskCell = (mask: string, row: number, col: number) =>
   mask[rowMajorIndex(row, col)] || '.';
 
@@ -1466,50 +1487,10 @@ const NeonDrift: QRCodeAnimation = (targets, x, y, count, entity) => {
     (path * 0.2 + parity * 0.5) * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0, 0, 0.5),
+      matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.14, 1, 0, 0),
       matrixCssKeyframe(0.3, 0, 0, 0.75),
-      matrixCssKeyframe(1, 0, 0, 0.5),
-    ]
-  );
-};
-
-const PulseLadder: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    0,
-    1500,
-    steppedOpacityFrames(SQUARE2_ROUTE.length, (step) =>
-      discreteCellField(fRow, fCol, (row, col) =>
-        opacityFromSquare2Tail(rowMajorIndex(row, col), step)
-      )
-    ),
-    'steps(33, end)'
-  );
-};
-
-const CoreSpiral: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  const order = sampleCellField(fRow, fCol, (row, col) =>
-    spiralInwardOrderValue(rowMajorIndex(row, col))
-  );
-  return matrixSourceStyle(
-    targets,
-    entity,
-    order * 0.04 * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
-    [
-      matrixCssKeyframe(0, 0, 0, 0.5),
-      matrixCssKeyframe(0.08, 1, 0, 0),
-      matrixCssKeyframe(0.16, 0.5, 0.4, 0.1),
-      matrixCssKeyframe(0.24, 0.25, 0.45, 0.3),
-      matrixCssKeyframe(0.32, 0, 0.5, 0.5),
-      matrixCssKeyframe(0.4, 0, 0, 0.75),
-      matrixCssKeyframe(1, 0, 0, 0.5),
+      matrixCssKeyframe(1, 0, 0, 1),
     ]
   );
 };
@@ -1526,12 +1507,12 @@ const FluxColumns: QRCodeAnimation = (targets, x, y, count, entity) => {
     position * 0.2 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0, 0, 0.625),
+      matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.2, 0.3, 0.5, 0.2),
       matrixCssKeyframe(0.4, 0, 0.6, 0.4),
       matrixCssKeyframe(0.6, 0, 0.2, 0.8),
-      matrixCssKeyframe(0.8, 0, 0, 0.625),
-      matrixCssKeyframe(1, 0, 0, 0.625),
+      matrixCssKeyframe(0.8, 0, 0, 1),
+      matrixCssKeyframe(1, 0, 0, 1),
     ],
     'steps(5, end)'
   );
@@ -1550,11 +1531,11 @@ const EchoRing: QRCodeAnimation = (targets, x, y, count, entity) => {
     (ring * 0.14 + parity * 0.03) * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0, 0, 0.625),
+      matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.28, 0.98, 0, 0),
       matrixCssKeyframe(0.56, 0, 1, 0),
       matrixCssKeyframe(0.78, 0.68, 0.32, 0),
-      matrixCssKeyframe(1, 0, 0, 0.625),
+      matrixCssKeyframe(1, 0, 0, 1),
     ],
     'ease-in-out'
   );
@@ -1572,10 +1553,10 @@ const OriginWave: QRCodeAnimation = (targets, x, y, count, entity) => {
     ring * 0.16 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0, 0, 0.625),
+      matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.34, 1, 0, 0),
       matrixCssKeyframe(0.6, 0, 0.5, 0.5),
-      matrixCssKeyframe(1, 0, 0, 0.625),
+      matrixCssKeyframe(1, 0, 0, 1),
     ],
     'ease-in-out'
   );
@@ -1619,10 +1600,10 @@ const RadialExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
     radius * 0.14 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0, 0, 0.5),
+      matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.28, 1, 0, 0),
-      matrixCssKeyframe(0.52, 0, 0.5, 0.5),
-      matrixCssKeyframe(1, 0, 0, 0.5),
+      matrixCssKeyframe(0.52, 0, 0, 1),
+      matrixCssKeyframe(1, 0, 0, 1),
     ],
     'ease-in-out'
   );
@@ -1638,10 +1619,10 @@ const RadiusPing: QRCodeAnimation = (targets, x, y, count, entity) => {
     radius * 0.18 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0, 0, 0.08),
+      matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.1, 1, 0, 0),
-      matrixCssKeyframe(0.2, 0, 0, 0.5),
-      matrixCssKeyframe(1, 0, 0, 0.08),
+      matrixCssKeyframe(0.2, 0, 0, 1),
+      matrixCssKeyframe(1, 0, 0, 1),
     ],
     'ease-in-out'
   );
@@ -1657,10 +1638,69 @@ const DiamondExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
     distance * 0.12 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0, 0, 0.5),
+      matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.3, 1, 0, 0),
-      matrixCssKeyframe(0.55, 0, 0.45, 0.1),
-      matrixCssKeyframe(1, 0, 0, 0.5),
+      matrixCssKeyframe(0.55, 0, 0, 1),
+      matrixCssKeyframe(1, 0, 0, 1),
+    ],
+    'ease-in-out'
+  );
+};
+
+const shapeRevealAnimation = (
+  targets: any,
+  metric: number,
+  maxMetric: number,
+): DotMatrixAnimationFrame => ({
+  targets,
+  from: 0,
+  duration: MATRIX_CYCLE_MS,
+  easing: 'ease-in-out',
+  web: {
+    shapeReveal: {
+      edgeWidth: 1.4,
+      maxMetric,
+      metric,
+    },
+    opacity: [
+      matrixCssKeyframe(0, 0, 0, 1),
+      matrixCssKeyframe(1, 1, 0, 0),
+    ],
+  },
+});
+
+const HeartExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
+  return shapeRevealAnimation(
+    targets,
+    heartExpansionMetric(y, x, count),
+    heartMaxExpansionMetric(count),
+  );
+};
+
+const StarExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
+  return shapeRevealAnimation(
+    targets,
+    starExpansionMetric(y, x, count),
+    starMaxExpansionMetric(count),
+  );
+};
+
+const RippleExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
+  const ring = rippleRingIndex(y, x, count);
+  return matrixSourceStyle(
+    targets,
+    entity,
+    ring * 0.09 * MATRIX_CYCLE_MS,
+    MATRIX_CYCLE_MS,
+    [
+      matrixCssKeyframe(0, 0, 0, 1),
+      matrixCssKeyframe(0.07, 1, 0, 0),
+      matrixCssKeyframe(0.14, 0.35, 0.45, 0.2),
+      matrixCssKeyframe(0.28, 0, 0, 1),
+      matrixCssKeyframe(1, 0, 0, 1),
     ],
     'ease-in-out'
   );
@@ -1676,11 +1716,11 @@ const ZigzagFlow: QRCodeAnimation = (targets, x, y, count, entity) => {
     order * 0.035 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0, 0, 0.08),
+      matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.12, 0.35, 0.55, 0.1),
       matrixCssKeyframe(0.24, 1, 0, 0),
       matrixCssKeyframe(0.38, 0, 0.5, 0.5),
-      matrixCssKeyframe(1, 0, 0, 0.08),
+      matrixCssKeyframe(1, 0, 0, 1),
     ],
     'ease-in-out'
   );
@@ -1696,10 +1736,10 @@ const CrossBloom: QRCodeAnimation = (targets, x, y, count, entity) => {
     distance * 0.14 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0, 0, 0.5),
+      matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.26, 1, 0, 0),
       matrixCssKeyframe(0.48, 0, 0.55, 0.1),
-      matrixCssKeyframe(1, 0, 0, 0.5),
+      matrixCssKeyframe(1, 0, 0, 1),
     ],
     'ease-in-out'
   );
@@ -1715,11 +1755,11 @@ const ChevronSweep: QRCodeAnimation = (targets, x, y, count, entity) => {
     distance * 0.11 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0, 0, 0.08),
+      matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.18, 0.4, 0.45, 0.15),
       matrixCssKeyframe(0.32, 1, 0, 0),
       matrixCssKeyframe(0.5, 0, 0.5, 0.5),
-      matrixCssKeyframe(1, 0, 0, 0.08),
+      matrixCssKeyframe(1, 0, 0, 1),
     ],
     'ease-in-out'
   );
@@ -1735,11 +1775,11 @@ const WaveRide: QRCodeAnimation = (targets, x, y, count, entity) => {
     phase * 0.1 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0, 0, 0.5),
+      matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.22, 0.55, 0.35, 0.1),
       matrixCssKeyframe(0.4, 1, 0, 0),
       matrixCssKeyframe(0.62, 0, 0.5, 0.5),
-      matrixCssKeyframe(1, 0, 0, 0.5),
+      matrixCssKeyframe(1, 0, 0, 1),
     ],
     'ease-in-out'
   );
@@ -1755,11 +1795,11 @@ const CornerPop: QRCodeAnimation = (targets, x, y, count, entity) => {
     distance * 0.12 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0, 0, 0.08),
+      matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.16, 0.5, 0.4, 0.1),
       matrixCssKeyframe(0.3, 1, 0, 0),
       matrixCssKeyframe(0.48, 0, 0.45, 0.1),
-      matrixCssKeyframe(1, 0, 0, 0.08),
+      matrixCssKeyframe(1, 0, 0, 1),
     ],
     'ease-in-out'
   );
@@ -1806,8 +1846,8 @@ const RadialRippleIn: QRCodeAnimation = (targets, x, y, count, entity) => {
 };
 
 const DEFAULT_ANIMATION_SPEED = 1;
-const DEFAULT_DOT_MATRIX_OPACITY_BASE = 0.16;
-const DEFAULT_DOT_MATRIX_OPACITY_MID = 0.32;
+const DEFAULT_DOT_MATRIX_OPACITY_BASE = 1;
+const DEFAULT_DOT_MATRIX_OPACITY_MID = 0.65;
 const DEFAULT_DOT_MATRIX_OPACITY_PEAK = 1;
 
 const dotMatrixColorSettings = (settings?: QRCodeAnimationSettings) => {
@@ -1916,12 +1956,43 @@ const dotMatrixColorForOpacityValue = (
   const colors = dotMatrixColorSettings(settings);
   if (!colors || !Number.isFinite(value)) return undefined;
   const opacity = clamp(value, 0, 1);
-  const { base, mid, peak } = dotMatrixOpacitySettings(settings);
+  const { peak } = dotMatrixOpacitySettings(settings);
+
+  if (settings?.dotMatrixColorMode === 'dual') {
+    return opacity >= peak ? colors.peak : colors.base;
+  }
+
+  const { base, mid, peak: peakAnchor } = dotMatrixOpacitySettings(settings);
   const baseCutoff = (base + mid) / 2;
-  const peakCutoff = (mid + peak) / 2;
+  const peakCutoff = (mid + peakAnchor) / 2;
   if (opacity <= baseCutoff) return colors.base;
   if (opacity <= peakCutoff) return colors.mid;
   return colors.peak;
+};
+
+const dualColorForCssBlendKeyframe = (
+  frame: DotMatrixCssBlendKeyframe,
+  colors: { base: string; mid: string; peak: string },
+) =>
+  mixHexColors(
+    colors.base,
+    colors.peak,
+    dualAccentMixFromCssBlend(frame.cssBlend),
+  );
+
+const dualColorForResolvedOpacity = (
+  opacity: number,
+  settings?: QRCodeAnimationSettings,
+  colors?: { base: string; mid: string; peak: string },
+) => {
+  const resolvedColors = colors ?? dotMatrixColorSettings(settings);
+  if (!resolvedColors) return undefined;
+  const { base, peak } = dotMatrixOpacitySettings(settings);
+  return mixHexColors(
+    resolvedColors.base,
+    resolvedColors.peak,
+    dualAccentMixFromOpacity(opacity, base, peak),
+  );
 };
 
 const remapDotMatrixFill = (
@@ -1931,9 +2002,21 @@ const remapDotMatrixFill = (
   if (!Array.isArray(opacity) || !dotMatrixColorSettings(settings)) {
     return undefined;
   }
+  const colors = dotMatrixColorSettings(settings)!;
   return opacity.map((frame) => {
-    const resolved = resolveDotMatrixKeyframeOpacity(frame, settings);
-    const color = dotMatrixColorForOpacityValue(resolved, settings);
+    const color =
+      settings?.dotMatrixColorMode === 'dual'
+        ? isCssBlendKeyframe(frame)
+          ? dualColorForCssBlendKeyframe(frame, colors)
+          : dualColorForResolvedOpacity(
+              resolveDotMatrixKeyframeOpacity(frame, settings),
+              settings,
+              colors,
+            )
+        : dotMatrixColorForOpacityValue(
+            resolveDotMatrixKeyframeOpacity(frame, settings),
+            settings,
+          );
     if (isCssBlendKeyframe(frame)) {
       return { offset: frame.offset, value: color };
     }
@@ -1944,19 +2027,38 @@ const remapDotMatrixFill = (
   });
 };
 
+const resolvePresetAnimationSettings = (
+  settings: QRCodeAnimationSettings | undefined,
+  isDotMatrixPreset: boolean,
+): QRCodeAnimationSettings | undefined => {
+  if (!isDotMatrixPreset) {
+    return settings;
+  }
+
+  return {
+    ...settings,
+    dotMatrixColorMode: settings?.dotMatrixColorMode ?? 'dual',
+  };
+};
+
 const applyPresetSettings = (
   animation: DotMatrixAnimationFrame,
   settings: QRCodeAnimationSettings | undefined,
-  isDotMatrixPreset: boolean
+  isDotMatrixPreset: boolean,
+  presetName?: AnimationPreset
 ): DotMatrixAnimationFrame => {
-  const speed = safeAnimationSpeed(settings);
+  const resolvedSettings = resolvePresetAnimationSettings(settings, isDotMatrixPreset);
+  const speed = safeAnimationSpeed(resolvedSettings);
   const dotMatrixFill = isDotMatrixPreset
-    ? remapDotMatrixFill(animation.web && animation.web.opacity, settings)
+    ? remapDotMatrixFill(animation.web && animation.web.opacity, resolvedSettings)
     : undefined;
   const web = isDotMatrixPreset
     ? {
         ...animation.web,
-        opacity: remapDotMatrixOpacity(animation.web && animation.web.opacity, settings),
+        opacity: remapDotMatrixOpacity(
+          animation.web && animation.web.opacity,
+          resolvedSettings
+        ),
         ...(dotMatrixFill ? { fill: dotMatrixFill } : {}),
       }
     : animation.web;
@@ -1974,12 +2076,14 @@ const applyPresetSettings = (
 
 const wrapPreset = (
   animation: QRCodeAnimation,
-  isDotMatrixPreset: boolean
+  isDotMatrixPreset: boolean,
+  presetName?: AnimationPreset
 ): QRCodeAnimation => (targets, x, y, count, entity, settings) =>
   applyPresetSettings(
     animation(targets, x, y, count, entity, settings),
     settings,
-    isDotMatrixPreset
+    isDotMatrixPreset,
+    presetName
   );
 
 const resolveAnimationPreset = (name: string) => {
@@ -2052,10 +2156,6 @@ const resolveAnimationPreset = (name: string) => {
       return GravityCollapse;
     case AnimationPreset.NeonDrift:
       return NeonDrift;
-    case AnimationPreset.PulseLadder:
-      return PulseLadder;
-    case AnimationPreset.CoreSpiral:
-      return CoreSpiral;
     case AnimationPreset.FluxColumns:
       return FluxColumns;
     case AnimationPreset.EchoRing:
@@ -2068,6 +2168,12 @@ const resolveAnimationPreset = (name: string) => {
       return RadiusPing;
     case AnimationPreset.DiamondExpand:
       return DiamondExpand;
+    case AnimationPreset.HeartExpand:
+      return HeartExpand;
+    case AnimationPreset.StarExpand:
+      return StarExpand;
+    case AnimationPreset.RippleExpand:
+      return RippleExpand;
     case AnimationPreset.ZigzagFlow:
       return ZigzagFlow;
     case AnimationPreset.CrossBloom:
@@ -2083,10 +2189,11 @@ const resolveAnimationPreset = (name: string) => {
   }
 };
 
-export const getAnimationPreset = (name: string) =>
-  wrapPreset(
+export const getAnimationPreset = (name: string) => {
+  const presetName = name as AnimationPreset;
+  return wrapPreset(
     resolveAnimationPreset(name),
-    dotMatrixAnimationPresets.indexOf(name as AnimationPreset) > -1
+    dotMatrixAnimationPresets.indexOf(presetName) > -1,
+    presetName
   );
-
-export { opacityFromSquare2Tail, SQUARE2_ROUTE, SQUARE2_BASE_OPACITY, SQUARE2_TAIL };
+};

@@ -5,8 +5,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import { annotateCanvasSvgForDotMatrixMotion } from "@/features/qr-code/motion/canvas-svg-adapter";
 import {
+  resolveMotionColors,
+  resolveMotionOpacityAnchors,
+} from "@/features/qr-code/motion/motion-color";
+import {
   DEFAULT_DOT_MATRIX_ANIMATION,
-  MOTION_COLOR_SWATCHES,
   clampQrSize,
   getAssetValue,
   resolveDotMatrixMotionPreset,
@@ -38,19 +41,6 @@ function coerceNumber(value: number, min: number, max: number, fallback: number)
   return Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback;
 }
 
-export function resolveMotionColors(animation: QrDotMatrixAnimationOptions) {
-  if (animation.colorPreset === "theme") {
-    return {
-      base: animation.customColorBase,
-      mid: animation.customColorMid,
-      peak: animation.customColorPeak,
-    };
-  }
-
-  const [base, mid, peak] = MOTION_COLOR_SWATCHES[animation.colorPreset];
-
-  return { base, mid, peak };
-}
 
 export function toQrcodeReactProps(state: QrStudioState) {
   const logoImage = getAssetValue(state.logo);
@@ -102,6 +92,7 @@ export function toDotMatrixQrConfig(
 ): DotMatrixQrConfig {
   const animation = state.dotMatrixAnimation;
   const motionColors = resolveMotionColors(animation);
+  const motionOpacity = resolveMotionOpacityAnchors(animation);
   const canvasSvgMarkup = options.canvasSvgMarkup?.trim();
   const adapted = canvasSvgMarkup
     ? annotateCanvasSvgForDotMatrixMotion(sanitizeDraftingQrArtworkMarkup(canvasSvgMarkup), state)
@@ -113,11 +104,11 @@ export function toDotMatrixQrConfig(
     animationSpeed: animation.speed / DEFAULT_DOT_MATRIX_ANIMATION.speed,
     contents: state.data.trim() || "https://example.com",
     dotMatrixColorBase: motionColors.base,
-    dotMatrixColorMid: motionColors.mid,
-    dotMatrixColorPeak: motionColors.peak,
-    dotMatrixOpacityBase: animation.opacityBase,
-    dotMatrixOpacityMid: animation.opacityMid,
-    dotMatrixOpacityPeak: animation.opacityPeak,
+    dotMatrixColorMid: motionColors.accent,
+    dotMatrixColorPeak: motionColors.accent,
+    dotMatrixOpacityBase: motionOpacity.base,
+    dotMatrixOpacityMid: motionOpacity.base,
+    dotMatrixOpacityPeak: motionOpacity.peak,
     externalSvg: adapted?.svg ?? "",
     logoSrc,
     moduleColor: state.dataModulesSettings.color,
