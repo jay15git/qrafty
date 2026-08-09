@@ -9,7 +9,7 @@ import {
   usesAnimatedQr,
   usesPaperShader,
 } from "../core"
-import { AnimatedQr, sceneQrToAnimatedQrProps } from "../bitjson"
+import { AnimatedQr, sceneQrToAnimatedQrProps } from "../animated"
 import { PaperShaderLayer } from "../paper"
 import {
   migrateSceneDocument,

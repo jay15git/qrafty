@@ -17,7 +17,7 @@ import {
 } from "react"
 import { ChevronDownIcon, SearchIcon } from "lucide-react"
 import { Calligraph } from "calligraph"
-import { motion, useReducedMotion, type Transition } from "motion/react"
+import { AnimatePresence, motion, useReducedMotion, type Transition } from "motion/react"
 
 import { DesktopInspectorPasteButton } from "@/features/desktop-shell/components/DesktopInspectorPasteButton"
 import "./desktop-inspector-input-error.css"
@@ -135,7 +135,7 @@ export const DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS = cn(
 export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_SURFACE_CLASS =
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS
 export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS =
-  "transition-transform duration-200 ease-out group-hover:scale-[1.06] group-active:scale-[0.94]"
+  "transition-transform duration-500 ease-in-out group-hover:scale-[1.06] group-active:scale-[0.97] group-active:duration-150 group-active:ease-out"
 
 export const DESKTOP_INSPECTOR_OPTION_GRID_COLS_CLASS = {
   2: "grid-cols-2",
@@ -167,9 +167,13 @@ export function desktopInspectorOptionRowClass(className?: string) {
 }
 
 export const DESKTOP_INSPECTOR_OPTION_SELECTION_APPEAR: Transition = {
-  opacity: { duration: 0.34, ease: [0.33, 1, 0.68, 1] },
-  filter: { duration: 0.48, ease: [0.22, 1, 0.36, 1] },
-  scale: { duration: 0.42, ease: [0.33, 1, 0.68, 1] },
+  opacity: { duration: 0.38, ease: [0.4, 0, 0.2, 1] },
+  filter: { duration: 0.42, ease: [0.4, 0, 0.2, 1] },
+}
+
+export const DESKTOP_INSPECTOR_OPTION_SELECTION_EXIT: Transition = {
+  opacity: { duration: 0.24, ease: [0.4, 0, 1, 1] },
+  filter: { duration: 0.24, ease: [0.4, 0, 1, 1] },
 }
 
 /** @deprecated Prefer DESKTOP_INSPECTOR_OPTION_SELECTION_APPEAR — selection no longer travels. */
@@ -306,38 +310,47 @@ export function DesktopInspectorAnimatedOptionGrid({
       )}
       {...props}
     >
-      {selection ? (
-        <motion.div
-          key={selection.key}
-          data-slot="desktop-inspector-option-selection-indicator"
-          className="pointer-events-none absolute z-0 rounded-[7px] border-2 border-[var(--desktop-inspector-option-selected-border)] bg-[var(--desktop-inspector-option-selected-bg)] shadow-[var(--desktop-inspector-option-selected-shadow)] backdrop-blur-[16px]"
-          style={{
-            left: selection.rect.left,
-            top: selection.rect.top,
-            width: selection.rect.width,
-            height: selection.rect.height,
-          }}
-          initial={
-            skipAppear
-              ? false
-              : {
-                  opacity: 0,
-                  filter: "blur(18px)",
-                  scale: 0.985,
-                }
-          }
-          animate={{
-            opacity: 1,
-            filter: "blur(0px)",
-            scale: 1,
-          }}
-          transition={
-            skipAppear
-              ? DESKTOP_INSPECTOR_FROZEN_MOTION_TRANSITION
-              : DESKTOP_INSPECTOR_OPTION_SELECTION_APPEAR
-          }
-        />
-      ) : null}
+      <AnimatePresence initial={false}>
+        {selection ? (
+          <motion.div
+            key={selection.key}
+            data-slot="desktop-inspector-option-selection-indicator"
+            className="pointer-events-none absolute z-0 rounded-[7px] border-2 border-[var(--desktop-inspector-option-selected-border)] bg-[var(--desktop-inspector-option-selected-bg)] shadow-[var(--desktop-inspector-option-selected-shadow)] backdrop-blur-[16px]"
+            style={{
+              left: selection.rect.left,
+              top: selection.rect.top,
+              width: selection.rect.width,
+              height: selection.rect.height,
+            }}
+            initial={
+              skipAppear
+                ? false
+                : {
+                    opacity: 0,
+                    filter: "blur(12px)",
+                  }
+            }
+            animate={{
+              opacity: 1,
+              filter: "blur(0px)",
+            }}
+            exit={
+              skipAppear
+                ? undefined
+                : {
+                    opacity: 0,
+                    filter: "blur(8px)",
+                    transition: DESKTOP_INSPECTOR_OPTION_SELECTION_EXIT,
+                  }
+            }
+            transition={
+              skipAppear
+                ? DESKTOP_INSPECTOR_FROZEN_MOTION_TRANSITION
+                : DESKTOP_INSPECTOR_OPTION_SELECTION_APPEAR
+            }
+          />
+        ) : null}
+      </AnimatePresence>
       {children}
     </div>
   )

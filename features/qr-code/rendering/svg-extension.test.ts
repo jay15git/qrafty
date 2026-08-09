@@ -625,7 +625,7 @@ describe("qr rendering helpers", () => {
   })
 
 
-  it("retires css dot matrix animation in favor of bitjson runtime preview", () => {
+  it("retires css dot matrix animation in favor of runtime dot matrix preview", () => {
     const state = createDefaultQrStudioState()
     state.dotMatrixAnimation = {
       ...state.dotMatrixAnimation,

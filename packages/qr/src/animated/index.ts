@@ -1,2 +1,2 @@
-export type { AnimatedQrProps } from "../scene/bitjson"
-export { AnimatedQr } from "../scene/bitjson"
+export type { AnimatedQrProps } from "../scene/animated"
+export { AnimatedQr } from "../scene/animated"

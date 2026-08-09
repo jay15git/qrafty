@@ -131,10 +131,3 @@ export function toDotMatrixQrConfig(
 export function shouldUseDotMatrixMotionPreview(state: QrStudioState) {
   return state.dotMatrixAnimation.enabled && state.dotMatrixAnimation.animated;
 }
-
-// Back-compat aliases while callers migrate.
-export const toBitjsonElementConfig = toDotMatrixQrConfig;
-export const shouldUseBitjsonMotionPreview = shouldUseDotMatrixMotionPreview;
-export const adaptQrcodeReactSvgForBitjson = adaptQrcodeReactSvgForDotMatrix;
-export { resolveDotMatrixMotionPreset, resolveBitjsonMotionPreset } from "@/features/qr-code/model/state";
-export type BitjsonQrElementConfig = DotMatrixQrConfig;

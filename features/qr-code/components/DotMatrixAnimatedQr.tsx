@@ -54,6 +54,3 @@ export function DotMatrixAnimatedQr({
     />
   );
 }
-
-// Back-compat export.
-export { DotMatrixAnimatedQr as BitjsonAnimatedQr };

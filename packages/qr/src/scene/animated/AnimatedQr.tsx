@@ -6,7 +6,7 @@ import { DotMatrixAnimatedSvg } from "../../dot-matrix/DotMatrixAnimatedSvg"
 import {
   buildAnimatedQrConfig,
   type AnimatedQrProps,
-} from "./bitjson-config"
+} from "./dot-matrix-config"
 
 export function AnimatedQr({
   className,

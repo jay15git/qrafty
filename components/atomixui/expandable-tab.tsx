@@ -98,6 +98,7 @@ export function ExpandableTab({
         measureHeight
         measureWidth={panelWidth}
         panel={panelContent}
+        data-slot="expandable-tab-shell"
         shellClassName="mx-auto rounded-3xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50"
         nav={
           <div className="flex h-9 w-full items-center justify-center gap-1">

@@ -62,8 +62,5 @@ next-env.d.ts
 !.cursor/hooks.json
 !.cursor/mcp.json
 
-# CocoIndex Code (ccc)
-/.cocoindex_code/
-
 # Template PNG renders (pnpm render:templates)
 .render/

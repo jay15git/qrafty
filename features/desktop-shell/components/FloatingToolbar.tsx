@@ -153,14 +153,7 @@ import {
   QR_DOT_MATRIX_COLOR_PRESET_OPTIONS,
   QR_DOT_MATRIX_OPACITY_MAX,
   QR_DOT_MATRIX_OPACITY_MIN,
-  QR_MOTION_AUTO_ANIMATE_INTERVAL_MAX,
-  QR_MOTION_AUTO_ANIMATE_INTERVAL_MIN,
-  QR_MOTION_AUTO_ANIMATE_INTERVAL_STEP,
   QR_MOTION_DOT_MATRIX_PRESET_OPTIONS,
-  QR_MOTION_HOVER_COLOR_MODE_OPTIONS,
-  QR_MOTION_HOVER_EFFECT_OPTIONS,
-  QR_MOTION_INTENSITY_OPTIONS,
-  QR_MOTION_STANDARD_PRESET_OPTIONS,
   createDefaultQrStudioState,
   QR_MODULE_LINE_WIDTH_MAX,
   QR_MODULE_LINE_WIDTH_MIN,
@@ -283,6 +276,7 @@ import { MessageCircleIcon } from "@/components/ui/message-circle"
 import { PlayIcon } from "@/components/ui/play"
 import { ReceiptTextIcon } from "@/components/ui/receipt-text"
 import { cn } from "@/lib/utils"
+import { exportAnimatedQrVideo } from "@/features/qr-code/export/video-capture"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import type { ScanSafetyResult } from "@/features/qr-code/scan-safety/types"
 import {
@@ -1868,7 +1862,7 @@ export function DesktopThemeStyles() {
         --desktop-inspector-control-border-hover: rgba(255, 255, 255, 0.12);
         --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.10);
         --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.09);
-        --desktop-inspector-option-selected-border: rgba(255, 255, 255, 0.18);
+        --desktop-inspector-option-selected-border: rgba(255, 255, 255, 0.48);
         --desktop-inspector-option-selected-shadow: 0 1px 2px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
         --desktop-inspector-option-selected-fg: rgba(255, 255, 255, 0.96);
         --desktop-inspector-field-bg: rgba(0, 0, 0, 0.22);
@@ -1907,7 +1901,7 @@ export function DesktopThemeStyles() {
         --desktop-inspector-control-border-hover: rgba(15, 23, 42, 0.16);
         --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.68);
         --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.58);
-        --desktop-inspector-option-selected-border: rgba(15, 23, 42, 0.14);
+        --desktop-inspector-option-selected-border: rgba(15, 23, 42, 0.4);
         --desktop-inspector-option-selected-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.55);
         --desktop-inspector-option-selected-fg: rgba(15, 23, 42, 0.94);
         --desktop-inspector-field-bg: rgba(255, 255, 255, 0.62);
@@ -1941,7 +1935,7 @@ export function DesktopThemeStyles() {
         --desktop-inspector-control-border-hover: rgba(15, 23, 42, 0.16);
         --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.68);
         --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.58);
-        --desktop-inspector-option-selected-border: rgba(15, 23, 42, 0.14);
+        --desktop-inspector-option-selected-border: rgba(15, 23, 42, 0.4);
         --desktop-inspector-option-selected-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.55);
         --desktop-inspector-option-selected-fg: rgba(15, 23, 42, 0.94);
         --desktop-inspector-field-bg: rgba(255, 255, 255, 0.62);
@@ -3000,12 +2994,13 @@ function DesktopCornersInspector({
               </div>
               <DesktopInspectorOptionGridScrollArea
                 ariaLabel="Corner frame presets"
-                columns={3}
                 dataSlot="desktop-corner-frame-preset-shelf-scroll-area"
+                orientation="horizontal"
+                shelfDataSlot="desktop-corner-frame-preset-shelf"
                 variant="preset"
               >
                 <DesktopInspectorAnimatedOptionGrid
-                  columns={3}
+                  layout="row"
                   selectedKey={settings.cornerSquareType}
                 >
                   {CORNER_SQUARE_STYLE_OPTIONS.map((option) => (
@@ -3048,12 +3043,13 @@ function DesktopCornersInspector({
               </div>
               <DesktopInspectorOptionGridScrollArea
                 ariaLabel="Corner dot presets"
-                columns={3}
                 dataSlot="desktop-corner-dot-preset-shelf-scroll-area"
+                orientation="horizontal"
+                shelfDataSlot="desktop-corner-dot-preset-shelf"
                 variant="preset"
               >
                 <DesktopInspectorAnimatedOptionGrid
-                  columns={3}
+                  layout="row"
                   selectedKey={settings.cornerDotType}
                 >
                   {CORNER_DOT_STYLE_OPTIONS.map((option) => (
@@ -3616,18 +3612,6 @@ function DesktopMotionInspector({
   onMotionSettingsChange: (patch: QrDotMatrixAnimationPatch) => void
   settings: DesktopMotionSettings
 }) {
-  const autoAnimateOptions = [
-    { label: "Off", value: "" },
-    ...QR_MOTION_STANDARD_PRESET_OPTIONS.map((option) => ({
-      label: `Auto: ${option.label}`,
-      value: option.value,
-    })),
-    ...QR_MOTION_DOT_MATRIX_PRESET_OPTIONS.map((option) => ({
-      label: `Auto: ${option.label}`,
-      value: option.value,
-    })),
-  ]
-
   return (
     <div data-slot="desktop-motion-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
       <DesktopInspectorHeader title="Motion" />
@@ -3636,51 +3620,9 @@ function DesktopMotionInspector({
         <DesktopInspectorSection>
           <DesktopMotionToggleRow
             checked={settings.enabled}
-            label="Motion"
+            label="Dot matrix motion"
             onChange={(enabled) => onMotionSettingsChange({ enabled })}
           />
-        </DesktopInspectorSection>
-
-        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <div className="mb-2 min-w-0">
-            <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>QR Animations</p>
-          </div>
-          <DesktopInspectorOptionGridScrollArea
-            ariaLabel="Standard motion presets"
-            columns={3}
-            dataSlot="desktop-motion-standard-shelf-scroll-area"
-            shelfDataSlot="desktop-motion-standard-shelf"
-            variant="content"
-          >
-            <DesktopInspectorAnimatedOptionGrid
-              columns={3}
-              data-slot="desktop-motion-standard-shelf"
-              selectedKey={
-                settings.presetCategory === "standard" && typeof settings.preset === "string"
-                  ? settings.preset
-                  : null
-              }
-            >
-              {QR_MOTION_STANDARD_PRESET_OPTIONS.map((preset) => {
-                const isSelected =
-                  settings.presetCategory === "standard" && settings.preset === preset.value
-
-                return (
-                  <DesktopMotionPresetTileButton
-                    key={preset.value}
-                    label={preset.label}
-                    selected={isSelected}
-                    onClick={() =>
-                      onMotionSettingsChange({
-                        preset: preset.value,
-                        presetCategory: "standard",
-                      })
-                    }
-                  />
-                )
-              })}
-            </DesktopInspectorAnimatedOptionGrid>
-          </DesktopInspectorOptionGridScrollArea>
         </DesktopInspectorSection>
 
         <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
@@ -3730,50 +3672,8 @@ function DesktopMotionInspector({
         </DesktopInspectorSection>
 
         <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Playback</p>
+          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Dot matrix controls</p>
           <div className="grid gap-3">
-            <DesktopMotionSelectRow
-              label="Auto animate"
-              value={settings.autoAnimate}
-              options={autoAnimateOptions}
-              onChange={(autoAnimate) => onMotionSettingsChange({ autoAnimate })}
-            />
-            <DesktopMotionSliderRow
-              label="Auto interval"
-              max={QR_MOTION_AUTO_ANIMATE_INTERVAL_MAX}
-              min={QR_MOTION_AUTO_ANIMATE_INTERVAL_MIN}
-              step={QR_MOTION_AUTO_ANIMATE_INTERVAL_STEP}
-              value={settings.autoAnimateInterval}
-              valueLabel={`${Math.round(settings.autoAnimateInterval)}ms`}
-              onChange={(autoAnimateInterval) => onMotionSettingsChange({ autoAnimateInterval })}
-            />
-            <DesktopMotionSelectRow
-              label="Hover effect"
-              value={settings.hoverEffect}
-              options={QR_MOTION_HOVER_EFFECT_OPTIONS.map((option) => ({
-                label: option.label,
-                value: option.value,
-              }))}
-              onChange={(hoverEffect) => onMotionSettingsChange({ hoverEffect })}
-            />
-            <DesktopMotionSelectRow
-              label="Hover color"
-              value={settings.hoverColorMode}
-              options={QR_MOTION_HOVER_COLOR_MODE_OPTIONS.map((option) => ({
-                label: option.label,
-                value: option.value,
-              }))}
-              onChange={(hoverColorMode) => onMotionSettingsChange({ hoverColorMode })}
-            />
-            <DesktopMotionSelectRow
-              label="Intensity"
-              value={settings.motionIntensity}
-              options={QR_MOTION_INTENSITY_OPTIONS.map((option) => ({
-                label: option.label,
-                value: option.value,
-              }))}
-              onChange={(motionIntensity) => onMotionSettingsChange({ motionIntensity })}
-            />
             <DesktopMotionSliderRow
               label="Speed"
               max={QR_DOT_MATRIX_ANIMATION_SPEED_MAX}
@@ -3863,11 +3763,40 @@ function DesktopMotionInspector({
             />
             <DesktopMotionToggleRow
               checked={settings.exportAnimatedSvg}
-              label="Preview-only animated SVG export"
+              label="Animated video export"
               onChange={(exportAnimatedSvg) => onMotionSettingsChange({ exportAnimatedSvg })}
             />
+            {settings.exportAnimatedSvg ? (
+              <>
+                <DesktopMotionSelectRow
+                  label="Duration"
+                  value={String(settings.durationSeconds)}
+                  options={[{ label: "5 seconds", value: "5" }, { label: "10 seconds", value: "10" }]}
+                  onChange={(value) => onMotionSettingsChange({ durationSeconds: Number(value) as 5 | 10 })}
+                />
+                <DesktopMotionSelectRow
+                  label="Frame rate"
+                  value={String(settings.frameRate)}
+                  options={[{ label: "30 FPS", value: "30" }, { label: "60 FPS", value: "60" }]}
+                  onChange={(value) => onMotionSettingsChange({ frameRate: Number(value) as 30 | 60 })}
+                />
+                <DesktopMotionSelectRow
+                  label="Format"
+                  value={settings.videoFormat}
+                  options={[{ label: "MP4", value: "mp4" }, { label: "WebM", value: "webm" }]}
+                  onChange={(videoFormat) => onMotionSettingsChange({ videoFormat: videoFormat as "mp4" | "webm" })}
+                />
+                <button
+                  className="mt-1 rounded-md border border-current/20 px-3 py-2 text-left text-xs font-medium hover:bg-current/10"
+                  type="button"
+                  onClick={() => void exportAnimatedQrVideo({ durationSeconds: settings.durationSeconds, frameRate: settings.frameRate, format: settings.videoFormat, width: 1080 })}
+                >
+                  Export animated video
+                </button>
+              </>
+            ) : null}
             <p className={DESKTOP_INSPECTOR_CAPTION_CLASS}>
-              File export stays static today. This toggle is reserved for a future animated SVG path.
+              Export 5 or 10 seconds at 30 or 60 FPS. MP4 encodes server-side; WebM works in-browser.
             </p>
             <DesktopMotionToggleRow
               checked={settings.respectReducedMotion}
@@ -3902,7 +3831,7 @@ function DesktopMotionSelectRow<T extends string>({
           DESKTOP_INSPECTOR_INPUT_CLASS,
         )}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => onChange(event.target.value as T)}
       >
         {options.map((option) => (
           <option key={`${option.value}-${option.label}`} value={option.value}>
@@ -4482,14 +4411,14 @@ function DesktopPatternInspector({
             <div className="mt-2.5 grid gap-2">
               <DesktopInspectorOptionGridScrollArea
                 ariaLabel="Pattern palette presets"
-                columns={3}
                 dataSlot="desktop-pattern-palette-presets-scroll-area"
+                orientation="horizontal"
                 shelfDataSlot="desktop-pattern-palette-presets"
                 variant="preset"
               >
                 <DesktopInspectorAnimatedOptionGrid
-                  columns={3}
                   data-slot="desktop-pattern-palette-presets"
+                  layout="row"
                   selectedKey={resolveDesktopDotsPalettePresetKey(
                     settings.dotsPalette,
                     settings.dotsPalettePreset,

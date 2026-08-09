@@ -14,7 +14,7 @@ vi.mock("@/features/qr-code/components/DotMatrixAnimatedQr", () => ({
   }) => (
     <div
       data-canvas-markup={canvasSvgMarkup ?? ""}
-      data-testid="bitjson-animated-qr"
+      data-testid="dot-matrix-animated-qr"
     />
   ),
 }))
@@ -1821,7 +1821,7 @@ describe("Pane", () => {
     )
   })
 
-  it("keeps building canvas markup and mounts bitjson preview when motion is enabled", async () => {
+  it("keeps building canvas markup and mounts dot matrix preview when motion is enabled", async () => {
     const baseState = setSquareQrSize(createDefaultQrStudioState(), 240)
     const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(baseState))
 
@@ -1842,7 +1842,7 @@ describe("Pane", () => {
 
     expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalledTimes(1)
 
-    const animatedPreview = container.querySelector('[data-testid="bitjson-animated-qr"]')
+    const animatedPreview = container.querySelector('[data-testid="dot-matrix-animated-qr"]')
 
     expect(animatedPreview).not.toBeNull()
     expect(animatedPreview?.getAttribute("data-canvas-markup")).toContain("<svg")

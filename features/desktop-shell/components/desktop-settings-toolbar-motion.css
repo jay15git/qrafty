@@ -5,9 +5,9 @@
   --desktop-canvas-radius: 32px;
   --desktop-top-chrome-right: 0.75rem;
   --desktop-compose-rail-width: 4.5rem;
-  --desktop-workspace-canvas-inset-top: var(--desktop-settings-toolbar-chrome-gap);
-  --desktop-workspace-canvas-inset-right: var(--desktop-settings-toolbar-chrome-gap);
-  --desktop-workspace-canvas-inset-bottom: var(--desktop-settings-toolbar-chrome-gap);
+  --desktop-workspace-canvas-inset-top: 0px;
+  --desktop-workspace-canvas-inset-right: 0px;
+  --desktop-workspace-canvas-inset-bottom: 0px;
   --desktop-workspace-canvas-inset-left: calc(
     var(--desktop-settings-toolbar-chrome-gap) + var(--desktop-settings-toolbar-width)
   );
@@ -17,9 +17,9 @@
 [data-slot="desktop-floating-toolbar-root"] {
   --desktop-settings-toolbar-chrome-gap: 0.75rem;
   --desktop-top-chrome-right: 0.75rem;
-  --desktop-workspace-canvas-inset-top: var(--desktop-settings-toolbar-chrome-gap);
-  --desktop-workspace-canvas-inset-right: var(--desktop-settings-toolbar-chrome-gap);
-  --desktop-workspace-canvas-inset-bottom: var(--desktop-settings-toolbar-chrome-gap);
+  --desktop-workspace-canvas-inset-top: 0px;
+  --desktop-workspace-canvas-inset-right: 0px;
+  --desktop-workspace-canvas-inset-bottom: 0px;
   --desktop-workspace-canvas-inset-left: calc(
     var(--desktop-settings-toolbar-chrome-gap) + var(--desktop-settings-toolbar-width)
   );
@@ -59,9 +59,9 @@
   [data-slot="desktop-floating-toolbar-root"] {
     --desktop-settings-toolbar-chrome-gap: 0.625rem;
     --desktop-top-chrome-right: 0.625rem;
-    --desktop-workspace-canvas-inset-top: 0.625rem;
-    --desktop-workspace-canvas-inset-right: 0.625rem;
-    --desktop-workspace-canvas-inset-bottom: 0.625rem;
+    --desktop-workspace-canvas-inset-top: 0px;
+    --desktop-workspace-canvas-inset-right: 0px;
+    --desktop-workspace-canvas-inset-bottom: 0px;
     --desktop-workspace-canvas-inset-left: calc(0.625rem + var(--desktop-settings-toolbar-width));
   }
 }
@@ -82,9 +82,19 @@
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  border-radius: var(--desktop-canvas-radius);
+  border-radius: 0 var(--desktop-canvas-radius) var(--desktop-canvas-radius) 0;
   background: var(--drafting-surface-bg, #e7e9ec);
   box-shadow: none;
+}
+
+/* Collapsed rail: canvas occupies the full viewport, edge to edge. */
+[data-slot="desktop-workspace"]:has([data-slot="desktop-left-toolbar-shell"][data-collapsed="true"]) {
+  --desktop-workspace-canvas-inset-left: 0px;
+}
+
+[data-slot="desktop-workspace"]:has([data-slot="desktop-left-toolbar-shell"][data-collapsed="true"])
+  [data-slot="desktop-canvas-viewport"] {
+  border-radius: 0;
 }
 
 [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-canvas-viewport"] {

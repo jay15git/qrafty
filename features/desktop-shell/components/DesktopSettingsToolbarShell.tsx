@@ -33,11 +33,11 @@ export const DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY =
 
 /** Collapsed: no white column — grey squircle is maximized. */
 const DESKTOP_SHELL_COLLAPSED_WIDTH_PX = 0
-/** Expanded white column ~32% so grey squircle stays dominant on the right. */
-const DESKTOP_SHELL_EXPANDED_WIDTH_RATIO = 0.32
+/** Expanded column leaves enough room to keep the canvas legible on compact desktops. */
+const DESKTOP_SHELL_EXPANDED_WIDTH_RATIO = 0.28
 const DESKTOP_SHELL_EXPANDED_WIDTH_MIN_PX = 300
-const DESKTOP_SHELL_EXPANDED_WIDTH_MAX_PX = 420
-const DESKTOP_SHELL_EXPANDED_WIDTH_FALLBACK_PX = 360
+const DESKTOP_SHELL_EXPANDED_WIDTH_MAX_PX = 380
+const DESKTOP_SHELL_EXPANDED_WIDTH_FALLBACK_PX = 340
 const DESKTOP_TOOLBAR_BRAND_PROXIMITY_INDEX = -1
 const DESKTOP_TOOLBAR_BRAND_ICON_SIZE = 20
 const DESKTOP_SIDEBAR_TOGGLE_ICON_SIZE = 18

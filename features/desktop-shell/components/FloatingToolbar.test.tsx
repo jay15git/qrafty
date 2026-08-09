@@ -382,6 +382,9 @@ describe("FloatingToolbar", () => {
     expect(source).toContain('[data-slot="dashboard-compose-toolbar"][data-toolbar-appearance="desktop-glass"] button:active')
     expect(source).toContain('[data-slot="dashboard-compose-toolbar"][data-toolbar-appearance="desktop-glass"] button:active svg')
     expect(source).toContain("transform: scale(0.84) !important")
+    expect(source).toContain(
+      '[data-slot="desktop-floating-inspector"] button:is([data-desktop-preview-option="true"], [data-desktop-content-type-option="true"], [data-desktop-motion-loader-option="true"], [data-desktop-option-tile="true"]):active svg',
+    )
     expect(source).toContain('button[aria-pressed="true"]::before')
     expect(source).toContain("background: rgba(255, 255, 255, 0.16)")
     expect(source).not.toContain("box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12)")
@@ -632,7 +635,7 @@ describe("FloatingToolbar", () => {
     expect(dotsPattern.getAttribute("data-desktop-option-interaction")).toBe("scale")
     expect(dotsPattern.className).not.toContain("hover:bg-[var(--desktop-inspector-control-hover-bg)]")
     expect(preview?.className).toContain("group-hover:scale-[1.06]")
-    expect(preview?.className).toContain("group-active:scale-[0.94]")
+    expect(preview?.className).toContain("group-active:scale-[0.97]")
   })
 
   it("renders larger module pattern previews inside square options", async () => {

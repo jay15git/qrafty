@@ -4,9 +4,13 @@
     "sessionStart": [
       {
         "command": ".cursor/hooks/caveman-session-start.sh"
-      },
+      }
+    ],
+    "postToolUse": [
       {
-        "command": ".cursor/hooks/ccc-session-index.sh"
+        "matcher": "Shell|Read|Grep",
+        "command": "node ./hooks/gitnexus-hook.cjs",
+        "timeout": 10
       }
     ]
   }

@@ -173,7 +173,7 @@ export function createDotMatrixAnimationExtension(
   return null
 }
 
-export function annotateCanvasSvgForBitjsonMotion(
+export function annotateCanvasSvgForDotMatrixMotion(
   svg: SVGElement,
   state?: Pick<QrStudioState, "dotsColorMode" | "data" | "dotsPalette">,
 ): number | null {
@@ -238,7 +238,7 @@ export function annotateCanvasSvgForBitjsonMotion(
     return null
   }
 
-  annotateFinderPatternsForBitjson(svg)
+  annotateFinderPatternsForDotMatrix(svg)
 
   return annotatedCount
 }
@@ -247,7 +247,7 @@ function materializeDataModulePaths(
   svg: SVGElement,
   state?: Pick<QrStudioState, "dotsColorMode" | "data" | "dotsPalette">,
 ) {
-  if (svg.querySelector('[data-qr-layer="bitjson-motion-modules"]')) {
+  if (svg.querySelector('[data-qr-layer="dot-matrix-motion-modules"]')) {
     return
   }
 
@@ -266,7 +266,7 @@ function materializeDataModulePaths(
 
     if (
       applyDirectPalettePaint(svg, state, allDotShapes, clipLayers, pathLayers, {
-        groupLayer: "bitjson-motion-modules",
+        groupLayer: "dot-matrix-motion-modules",
       })
     ) {
       return
@@ -287,7 +287,7 @@ function materializeDataModulePaths(
     }
 
     const group = document.createElementNS(SVG_NS, "g")
-    group.setAttribute("data-qr-layer", "bitjson-motion-modules")
+    group.setAttribute("data-qr-layer", "dot-matrix-motion-modules")
 
     for (const segmentShape of layer.shapes) {
       const path = document.createElementNS(SVG_NS, "path")
@@ -329,7 +329,7 @@ type PaletteColorAssignment = {
   shapes: SVGElement[]
 }
 
-type PalettePaintGroupLayer = "bitjson-motion-modules" | "dot-palette"
+type PalettePaintGroupLayer = "dot-matrix-motion-modules" | "dot-palette"
 
 function buildPaletteColorAssignments(
   state: Pick<QrStudioState, "data" | "dotsPalette">,
@@ -469,7 +469,7 @@ function suppressGradientPaletteOverlayLayers(svg: SVGElement) {
 function collectCanvasDotModuleShapes(svg: SVGElement): SVGElement[] {
   const fromMaterialized = [
     ...svg.querySelectorAll(
-      '[data-qr-layer="bitjson-motion-modules"] path, [data-qr-layer="bitjson-motion-modules"] rect, [data-qr-layer="bitjson-motion-modules"] circle',
+      '[data-qr-layer="dot-matrix-motion-modules"] path, [data-qr-layer="dot-matrix-motion-modules"] rect, [data-qr-layer="dot-matrix-motion-modules"] circle',
     ),
     ...svg.querySelectorAll(
       '[data-qr-layer="dot-palette"] [data-qr-layer="dot-palette-fill"] > *',
@@ -506,7 +506,7 @@ function appendSvgClass(element: SVGElement, className: string) {
   element.setAttribute("class", existing ? `${existing} ${className}` : className)
 }
 
-function annotateFinderPatternsForBitjson(svg: SVGElement) {
+function annotateFinderPatternsForDotMatrix(svg: SVGElement) {
   for (const element of svg.querySelectorAll('[data-testid="finder-patterns-outer"]')) {
     if (isSvgElementLike(element)) {
       appendSvgClass(element, "position-ring")

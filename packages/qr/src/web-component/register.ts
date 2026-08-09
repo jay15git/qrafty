@@ -84,8 +84,6 @@ function ensureCustomElement() {
       "size",
       "color-mode",
       "palette",
-      "motion",
-      "motion-preset",
       "gradient",
       "logo",
     ]
@@ -141,8 +139,6 @@ export function emitNewQrCodeAttributes(props: NewQrCodeProps) {
     ["size", props.size],
     ["color-mode", props.colorMode],
     ["palette", props.palette],
-    ["motion", props.motion],
-    ["motion-preset", props.motionPreset],
     ["gradient", props.gradient],
     ["logo", props.logo],
     ["module-round-size", props.moduleRoundSize],

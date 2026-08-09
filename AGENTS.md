@@ -29,11 +29,9 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 
 ## MCP Tools
 - **Use available MCP tools for every task** instead of falling back to raw bash commands when a tool fits.
-- **Codebase search:** use the `cocoindex-code` MCP `search` tool for semantic exploration (how features work, fuzzy concept lookup, unfamiliar areas). Prefer it over broad `grep` or manual file scanning.
-- **Structural code patterns:** use `ccc grep` via the `ccc` skill when you need AST-style by-example matching (function defs, call sites) — not exposed on MCP.
-- **Index freshness:** session hook runs incremental `ccc index` on start; MCP `search` also refreshes by default (`refresh_index: true`). Run `ccc index` manually after large refactors if results look stale.
+- **Codebase intelligence:** use GitNexus only. Do not configure or run other repository indexing/search tools.
 - **Other MCPs:** `context7_*` for library/framework docs; `pencil_*` for `.pen` design files in `designs/`.
-- **Do not use in this repo:** `paper`, `react-grab-mcp`, `supabase_*`, `codedb`, `graphify`, `code-review-graph`.
+- **Do not use in this repo:** `paper`, `react-grab-mcp`, `supabase_*`, `cocoindex-code`, `ccc`, `codedb`, `graphify`, `code-review-graph`.
 - If a tool exists for the job, use it. Do not manually `cat`, `grep`, or `sed` when a structured tool is available.
 
 ## Testing Notes
@@ -65,11 +63,56 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
   - `@new-qr/qr/shaders` — `PaperShaderLayer`
   - `@new-qr/qr` — shared types and `NewQrCode` re-export
 - Studio-only code (codegen, export, scene schema, vendored renderers) is imported via `@new-qr/qr-internal/*` paths in `tsconfig.json`. These are **not** in `packages/qr/package.json` exports.
-- Vendored forks: `packages/qr/vendor/react-qr-code`, `packages/qr/vendor/bitjson-qr-code`.
+- Vendored fork: `packages/qr/vendor/react-qr-code`.
 - Build library: `pnpm build:packages` (or `pnpm --filter @new-qr/qr build`).
 - Registry stubs for copied canvas components: `registry/components/{new-qr-code,paper-shader-layer,animated-qr,new-qr-scene}.tsx`.
 
 ## Search / Editing Gotchas
 - Exclude `.next` and `node_modules` when searching; they create noisy false positives.
 - Ignore generated/runtime directories and local artifacts covered by `.gitignore`, especially `.next/`, `node_modules/`, `coverage/`, `build/`, and `.env*`.
-- CocoIndex Code index lives in `.cocoindex_code/` (gitignored). Project MCP config is `.cursor/mcp.json`.
+- GitNexus local data lives in `.gitnexus/` (gitignored).
+
+<!-- gitnexus:start -->
+# GitNexus — Code Intelligence
+
+This project is indexed by GitNexus as **new-qr** (6104 symbols, 16861 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+
+> Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
+
+## Always Do
+
+- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
+- **MUST run `detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows. For regression review, compare against the default branch: `detect_changes({scope: "compare", base_ref: "main"})`.
+- **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
+- When exploring unfamiliar code, use `query({search_query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
+- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `context({name: "symbolName"})`.
+- For security review, `explain({target: "fileOrSymbol"})` lists taint findings (source→sink flows; needs `analyze --pdg`).
+
+## Never Do
+
+- NEVER edit a function, class, or method without first running `impact` on it.
+- NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
+- NEVER rename symbols with find-and-replace — use `rename` which understands the call graph.
+- NEVER commit changes without running `detect_changes()` to check affected scope.
+
+## Resources
+
+| Resource | Use for |
+|----------|---------|
+| `gitnexus://repo/new-qr/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/new-qr/clusters` | All functional areas |
+| `gitnexus://repo/new-qr/processes` | All execution flows |
+| `gitnexus://repo/new-qr/process/{name}` | Step-by-step execution trace |
+
+## CLI
+
+| Task | Read this skill file |
+|------|---------------------|
+| Understand architecture / "How does X work?" | `.claude/skills/gitnexus/gitnexus-exploring/SKILL.md` |
+| Blast radius / "What breaks if I change X?" | `.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md` |
+| Trace bugs / "Why is X failing?" | `.claude/skills/gitnexus/gitnexus-debugging/SKILL.md` |
+| Rename / extract / split / refactor | `.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md` |
+| Tools, resources, schema reference | `.claude/skills/gitnexus/gitnexus-guide/SKILL.md` |
+| Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
+
+<!-- gitnexus:end -->

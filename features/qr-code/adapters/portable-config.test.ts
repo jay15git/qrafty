@@ -25,7 +25,6 @@ describe("toPortableQrConfig", () => {
       minVersion: 1,
       module: "rounded",
       moduleRoundSize: true,
-      motion: "none",
       palette: ["#04879c", "#0c3c78", "#090030", "#f30a49"],
       size: 320,
       value: "https://new-qr-studio.local/launch",
@@ -93,7 +92,6 @@ describe("toPortableQrConfig", () => {
       ],
       type: "linear",
     })
-    expect(config.motion).toBe("none")
   })
 
   it("maps boostLevel, module tuning, logo advanced fields, and ariaLabel", () => {

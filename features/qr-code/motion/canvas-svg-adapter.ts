@@ -1,6 +1,6 @@
 import { adaptExternalQRCodeSVG } from "@new-qr/qr/dot-matrix";
 
-import { annotateCanvasSvgForBitjsonMotion } from "@/features/qr-code/rendering/svg-extension";
+import { annotateCanvasSvgForDotMatrixMotion as annotateSvgElementForDotMatrixMotion } from "@/features/qr-code/rendering/svg-extension";
 import type { QrStudioState } from "@/features/qr-code/model/state";
 
 export function annotateCanvasSvgForDotMatrixMotion(markup: string, state: QrStudioState) {
@@ -24,7 +24,7 @@ export function annotateCanvasSvgForDotMatrixMotion(markup: string, state: QrStu
     return undefined;
   }
 
-  if (annotateCanvasSvgForBitjsonMotion(svg, state) === null) {
+  if (annotateSvgElementForDotMatrixMotion(svg, state) === null) {
     return undefined;
   }
 
@@ -37,6 +37,3 @@ export function annotateCanvasSvgForDotMatrixMotion(markup: string, state: QrStu
     squares: false,
   });
 }
-
-// Back-compat alias.
-export const annotateCanvasSvgForBitjson = annotateCanvasSvgForDotMatrixMotion;

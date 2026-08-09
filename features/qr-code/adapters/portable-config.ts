@@ -117,10 +117,6 @@ function mapLogo(state: QrStudioState): NewQrCodeProps["logo"] | undefined {
   return logo
 }
 
-function mapMotion(): Pick<NewQrCodeProps, "motion" | "motionPreset"> {
-  return { motion: "none" }
-}
-
 function mapValue(state: QrStudioState): NewQrCodeProps["value"] {
   if (state.valueSegments?.length) {
     return state.valueSegments.map((segment) => segment.trim()).filter(Boolean)
@@ -131,7 +127,6 @@ function mapValue(state: QrStudioState): NewQrCodeProps["value"] {
 
 export function toPortableQrConfig(state: QrStudioState): NewQrCodeProps {
   const logo = mapLogo(state)
-  const motion = mapMotion()
   const unifiedGradient =
     state.gradientLinkMode === "unified" && state.dotsColorMode === "gradient"
 
@@ -170,8 +165,6 @@ export function toPortableQrConfig(state: QrStudioState): NewQrCodeProps {
       ? { moduleLineWidth: state.dataModulesSettings.lineWidth }
       : {}),
     moduleRoundSize: state.dataModulesSettings.roundSize,
-    motion: motion.motion,
-    motionPreset: motion.motionPreset,
     palette: state.dotsPalette,
     size: state.width,
     value: mapValue(state),

@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "cocoindex-code": {
-      "command": "/Users/jayant/.local/bin/ccc",
-      "args": ["mcp"],
-      "cwd": "."
-    }
-  }
-}

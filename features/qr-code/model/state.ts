@@ -512,9 +512,6 @@ function coerceDotMatrixSquareLoader(value: string | undefined) {
 
 export { mapLoaderToPresetName as dotMatrixLoaderToPresetName };
 
-/** @deprecated Use dotMatrixLoaderToPresetName */
-export const dotMatrixLoaderToBitjsonPreset = mapLoaderToPresetName;
-
 function coerceMotionPreset(
   value: string | undefined,
   loader: QrDotMatrixSquareLoader,
@@ -534,9 +531,6 @@ export function resolveDotMatrixMotionPreset(animation: QrDotMatrixAnimationOpti
 
   return mapLoaderToPresetName(loader);
 }
-
-/** @deprecated Use resolveDotMatrixMotionPreset */
-export const resolveBitjsonMotionPreset = resolveDotMatrixMotionPreset;
 
 function coerceDotMatrixAnimationColor(value: unknown, fallback: string) {
   return typeof value === "string" && value.trim() ? value : fallback;
