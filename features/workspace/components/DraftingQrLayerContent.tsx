@@ -2,8 +2,8 @@
 
 import { memo, useMemo, type CSSProperties } from "react"
 
-import { BitjsonAnimatedQr } from "@/features/qr-code/components/BitjsonAnimatedQr"
-import { shouldUseBitjsonMotionPreview } from "@/features/qr-code/motion/bitjson-bridge"
+import { DotMatrixAnimatedQr } from "@/features/qr-code/components/DotMatrixAnimatedQr"
+import { shouldUseDotMatrixMotionPreview } from "@/features/qr-code/motion/dot-matrix-bridge"
 import type { QrStudioState } from "@/features/qr-code/model/state"
 import { buildDraftingQrStudioPreviewMarkup } from "@/features/qr-code/rendering/drafting-qr-preview"
 import {
@@ -32,7 +32,7 @@ export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({
 }: DraftingQrLayerContentProps) {
   const layout = getDraftingQrLayerLayout(layer.width, state, layer.height)
   const qrPlacementStyle = getDraftingQrDomPlacementStyle(layout)
-  const useAnimatedQr = shouldUseBitjsonMotionPreview(state) && Boolean(canvasSvgMarkup)
+  const useAnimatedQr = shouldUseDotMatrixMotionPreview(state) && Boolean(canvasSvgMarkup)
   const qrSvgMarkup = useMemo(
     () => buildDraftingQrStudioPreviewMarkup(state, layout.innerWidth, layout.innerHeight),
     [layout.innerHeight, layout.innerWidth, state],
@@ -43,7 +43,7 @@ export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({
       <div className="relative h-full w-full" style={shapeTiltPerspectiveStyle}>
         <div className="relative h-full w-full" style={shapeTiltInnerStyle}>
           <DraftingQrBackground layer={layer} state={state} />
-          <BitjsonAnimatedQr
+          <DotMatrixAnimatedQr
             canvasSvgMarkup={canvasSvgMarkup}
             height={layout.innerHeight}
             state={state}

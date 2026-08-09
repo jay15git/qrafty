@@ -1,17 +1,18 @@
 import type { SceneQrMotionState, SceneQrState } from "../schema"
+import { dotMatrixLoaderToPresetName } from "../../dot-matrix/loader-to-preset"
 
 export type AnimatedQrProps = {
   contents: string
   externalSvg: string
   preset?: string
-  hoverEffect?: string
-  hoverColorMode?: SceneQrMotionState["hoverColorMode"]
-  autoAnimate?: string
-  autoAnimateInterval?: number
   speed?: number
-  motionIntensity?: SceneQrMotionState["motionIntensity"]
+  dotMatrixOpacityBase?: number
+  dotMatrixOpacityMid?: number
+  dotMatrixOpacityPeak?: number
+  dotMatrixColorBase?: string
+  dotMatrixColorMid?: string
+  dotMatrixColorPeak?: string
   respectReducedMotion?: boolean
-  pressPreset?: string
   width: number
   height: number
   className?: string
@@ -22,32 +23,45 @@ export function sceneQrToAnimatedQrProps(qr: SceneQrState): AnimatedQrProps {
     contents: qr.contents,
     externalSvg: qr.externalSvg,
     preset: qr.motion.preset,
-    hoverEffect: qr.motion.hoverEffect,
-    hoverColorMode: qr.motion.hoverColorMode,
-    autoAnimate: qr.motion.autoAnimate,
-    autoAnimateInterval: qr.motion.autoAnimateInterval,
     speed: qr.motion.speed,
-    motionIntensity: qr.motion.motionIntensity,
     respectReducedMotion: qr.motion.respectReducedMotion,
-    pressPreset: qr.motion.pressPreset,
     width: qr.width,
     height: qr.height,
   }
 }
 
-export function buildBitjsonElementConfig(props: AnimatedQrProps) {
+export function resolveMotionPreset(preset: string | undefined, fallback = "NeonDrift") {
+  if (!preset) {
+    return fallback
+  }
+
+  if (preset.includes("-")) {
+    return dotMatrixLoaderToPresetName(preset)
+  }
+
+  return preset
+}
+
+export function buildAnimatedQrConfig(props: AnimatedQrProps) {
+  const preset = resolveMotionPreset(props.preset)
+  const speed = props.speed ?? 1
+
   return {
     contents: props.contents,
     externalSvg: props.externalSvg,
-    animationPreset: props.preset ?? "SpiralBloom",
-    animationSpeed: props.speed ?? 1,
-    autoAnimate: props.autoAnimate ?? "",
-    autoAnimateInterval: props.autoAnimateInterval ?? 5000,
-    hoverEffect: props.hoverEffect ?? "",
-    hoverColorMode: props.hoverColorMode ?? "both",
-    motionIntensity: props.motionIntensity ?? "premium",
+    preset,
+    settings: {
+      animationSpeed: speed,
+      dotMatrixOpacityBase: props.dotMatrixOpacityBase,
+      dotMatrixOpacityMid: props.dotMatrixOpacityMid,
+      dotMatrixOpacityPeak: props.dotMatrixOpacityPeak,
+      dotMatrixColorBase: props.dotMatrixColorBase,
+      dotMatrixColorMid: props.dotMatrixColorMid,
+      dotMatrixColorPeak: props.dotMatrixColorPeak,
+    },
     respectReducedMotion: props.respectReducedMotion ?? true,
-    pressPreset: props.pressPreset ?? "",
     useExternalSvg: Boolean(props.externalSvg),
   }
 }
+
+export type { SceneQrMotionState }

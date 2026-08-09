@@ -1,26 +1,23 @@
-import { adaptExternalQRCodeSVG } from "@new-qr/qr-internal/bitjson-vendor";
+import { adaptExternalQRCodeSVG } from "@new-qr/qr/dot-matrix";
 import { QRCodeSVG } from "qrcode.react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { annotateCanvasSvgForBitjson } from "@/features/qr-code/motion/canvas-svg-adapter";
+import { annotateCanvasSvgForDotMatrixMotion } from "@/features/qr-code/motion/canvas-svg-adapter";
 import {
   DEFAULT_DOT_MATRIX_ANIMATION,
   MOTION_COLOR_SWATCHES,
   clampQrSize,
   getAssetValue,
-  resolveBitjsonAutoAnimatePreset,
-  resolveBitjsonMotionPreset,
+  resolveDotMatrixMotionPreset,
   type QrDotMatrixAnimationOptions,
   type QrStudioState,
 } from "@/features/qr-code/model/state";
 import { sanitizeDraftingQrArtworkMarkup } from "@/features/workspace/rendering/qr-artwork";
 
-export type BitjsonQrElementConfig = {
+export type DotMatrixQrConfig = {
   animationPreset: string;
   animationSpeed: number;
-  autoAnimate: string;
-  autoAnimateInterval: number;
   contents: string;
   dotMatrixColorBase: string;
   dotMatrixColorMid: string;
@@ -29,11 +26,8 @@ export type BitjsonQrElementConfig = {
   dotMatrixOpacityMid: number;
   dotMatrixOpacityPeak: number;
   externalSvg: string;
-  hoverColorMode: QrDotMatrixAnimationOptions["hoverColorMode"];
-  hoverEffect: string;
   logoSrc?: string;
   moduleColor: string;
-  motionIntensity: QrDotMatrixAnimationOptions["motionIntensity"];
   positionCenterColor: string;
   positionRingColor: string;
   respectReducedMotion: boolean;
@@ -90,7 +84,7 @@ export function renderQrcodeReactSvg(state: QrStudioState) {
   return renderToStaticMarkup(createElement(QRCodeSVG, toQrcodeReactProps(state)));
 }
 
-export function adaptQrcodeReactSvgForBitjson(state: QrStudioState) {
+export function adaptQrcodeReactSvgForDotMatrix(state: QrStudioState) {
   const externalSvg = renderQrcodeReactSvg(state);
 
   return adaptExternalQRCodeSVG(externalSvg, {
@@ -101,23 +95,22 @@ export function adaptQrcodeReactSvgForBitjson(state: QrStudioState) {
   });
 }
 
-export function toBitjsonElementConfig(
+
+export function toDotMatrixQrConfig(
   state: QrStudioState,
   options: { canvasSvgMarkup?: string | null } = {},
-): BitjsonQrElementConfig {
+): DotMatrixQrConfig {
   const animation = state.dotMatrixAnimation;
   const motionColors = resolveMotionColors(animation);
   const canvasSvgMarkup = options.canvasSvgMarkup?.trim();
   const adapted = canvasSvgMarkup
-    ? annotateCanvasSvgForBitjson(sanitizeDraftingQrArtworkMarkup(canvasSvgMarkup), state)
-    : adaptQrcodeReactSvgForBitjson(state);
+    ? annotateCanvasSvgForDotMatrixMotion(sanitizeDraftingQrArtworkMarkup(canvasSvgMarkup), state)
+    : adaptQrcodeReactSvgForDotMatrix(state);
   const logoSrc = getAssetValue(state.logo);
 
   return {
-    animationPreset: resolveBitjsonMotionPreset(animation),
+    animationPreset: resolveDotMatrixMotionPreset(animation),
     animationSpeed: animation.speed / DEFAULT_DOT_MATRIX_ANIMATION.speed,
-    autoAnimate: resolveBitjsonAutoAnimatePreset(animation),
-    autoAnimateInterval: animation.autoAnimateInterval,
     contents: state.data.trim() || "https://example.com",
     dotMatrixColorBase: motionColors.base,
     dotMatrixColorMid: motionColors.mid,
@@ -126,11 +119,8 @@ export function toBitjsonElementConfig(
     dotMatrixOpacityMid: animation.opacityMid,
     dotMatrixOpacityPeak: animation.opacityPeak,
     externalSvg: adapted?.svg ?? "",
-    hoverColorMode: animation.hoverColorMode,
-    hoverEffect: animation.hoverEffect,
     logoSrc,
     moduleColor: state.dataModulesSettings.color,
-    motionIntensity: animation.motionIntensity,
     positionCenterColor: state.finderPatternInnerSettings.color,
     positionRingColor: state.finderPatternOuterSettings.color,
     respectReducedMotion: animation.respectReducedMotion,
@@ -138,6 +128,13 @@ export function toBitjsonElementConfig(
   };
 }
 
-export function shouldUseBitjsonMotionPreview(state: QrStudioState) {
+export function shouldUseDotMatrixMotionPreview(state: QrStudioState) {
   return state.dotMatrixAnimation.enabled && state.dotMatrixAnimation.animated;
 }
+
+// Back-compat aliases while callers migrate.
+export const toBitjsonElementConfig = toDotMatrixQrConfig;
+export const shouldUseBitjsonMotionPreview = shouldUseDotMatrixMotionPreview;
+export const adaptQrcodeReactSvgForBitjson = adaptQrcodeReactSvgForDotMatrix;
+export { resolveDotMatrixMotionPreset, resolveBitjsonMotionPreset } from "@/features/qr-code/model/state";
+export type BitjsonQrElementConfig = DotMatrixQrConfig;

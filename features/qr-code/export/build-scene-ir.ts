@@ -2,10 +2,7 @@ import type { SceneIr, SceneIrFontRef, SceneIrShaderNode } from "@new-qr/qr-inte
 import { shaderRequiresImage } from "@new-qr/qr/shaders"
 import type { SceneDocumentV1 } from "@new-qr/qr-internal/scene"
 
-import {
-  resolveBitjsonMotionPreset,
-  type QrStudioState,
-} from "@/features/qr-code/model/state"
+import type { QrStudioState } from "@/features/qr-code/model/state"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import type { SceneCompositionState } from "@/features/workspace/model/scene-templates"
@@ -214,26 +211,7 @@ export async function buildSceneIr({
   })
 
   const cardLayer = findCardLayer(layers)
-  const qrLayer = findQrLayer(layers)
   const shaders = buildShaderNodes(cardState, cardLayer, layers, shaderSnapshots)
-  const animation = state.dotMatrixAnimation
-  const animatedQr =
-    qrLayer && animation.enabled && animation.animated
-      ? {
-          kind: "animated-qr" as const,
-          contents: state.data.trim() || "https://example.com",
-          externalSvg: qrMarkup,
-          bounds: {
-            x: qrLayer.x,
-            y: qrLayer.y,
-            width: qrLayer.width,
-            height: qrLayer.height,
-          },
-          preset: resolveBitjsonMotionPreset(animation),
-          hoverEffect: animation.hoverEffect,
-        }
-      : undefined
-
   const sceneBackgroundMarkup = sceneComposition
     ? buildSceneBackgroundSvg(sceneComposition.background, parts.bounds.width, parts.bounds.height)
     : ""
@@ -242,11 +220,8 @@ export async function buildSceneIr({
     bounds: parts.bounds,
     defs: parts.defs,
     body: `${sceneBackgroundMarkup}${parts.body}`,
-    domLayers: animatedQr
-      ? domParts.domLayers.filter((layer) => layer.kind !== "qr")
-      : domParts.domLayers,
+    domLayers: domParts.domLayers,
     shaders,
-    animatedQr,
     fonts: collectFontRefs(layers),
     componentName,
   }

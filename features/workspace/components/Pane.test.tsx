@@ -6,8 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 const buildDashboardQrNodePayloadSpy = vi.fn()
 
-vi.mock("@/features/qr-code/components/BitjsonAnimatedQr", () => ({
-  BitjsonAnimatedQr: ({
+vi.mock("@/features/qr-code/components/DotMatrixAnimatedQr", () => ({
+  DotMatrixAnimatedQr: ({
     canvasSvgMarkup,
   }: {
     canvasSvgMarkup?: string | null

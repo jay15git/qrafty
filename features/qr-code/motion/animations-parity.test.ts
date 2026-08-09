@@ -2,24 +2,39 @@ import { describe, expect, it } from "vitest";
 
 import {
   AnimationPreset,
+  dotMatrixAnimationPresets,
   getAnimationPreset,
   opacityFromSquare2Tail,
   QRCodeEntity,
   remapOpacityToTriplet,
   resolveDotMatrixKeyframeOpacity,
+  sampleDotMatrixAnimationFrame,
   SQUARE2_BASE_OPACITY,
   SQUARE2_ROUTE,
   SOURCE_BASE_OPACITY,
   SOURCE_MID_OPACITY,
   SOURCE_PEAK_OPACITY,
   type QRCodeAnimationSettings,
-} from "../../../packages/qr/vendor/bitjson-qr-code/src/components/qr-code/animations";
+} from "@new-qr/qr/dot-matrix";
 
 const defaultOpacitySettings: QRCodeAnimationSettings = {
   dotMatrixOpacityBase: 0.16,
   dotMatrixOpacityMid: 0.32,
   dotMatrixOpacityPeak: 1,
 };
+
+function resolvedAnimationFrameOpacity(frame: unknown) {
+  if (typeof frame === "object" && frame !== null && "value" in frame) {
+    return (frame as { value: number }).value;
+  }
+  if (typeof frame === "number") {
+    return frame;
+  }
+  return resolveDotMatrixKeyframeOpacity(
+    frame as Parameters<typeof resolveDotMatrixKeyframeOpacity>[0],
+    defaultOpacitySettings,
+  );
+}
 
 describe("matrix animation parity", () => {
   describe("remapOpacityToTriplet", () => {
@@ -125,6 +140,66 @@ describe("matrix animation parity", () => {
       if (Array.isArray(opacityFrames)) {
         expect(opacityFrames.length).toBeGreaterThan(20);
       }
+    });
+  });
+
+  describe("dot matrix loop seams", () => {
+    it.each(dotMatrixAnimationPresets)("loops %s without a sampled seam", (preset) => {
+      const animation = getAnimationPreset(preset)(
+        {},
+        10,
+        10,
+        21,
+        QRCodeEntity.Module,
+        defaultOpacitySettings,
+      );
+      const from = typeof animation.from === "number" ? animation.from : 0;
+      const duration =
+        typeof animation.duration === "number" ? animation.duration : 1500;
+      const atStart = sampleDotMatrixAnimationFrame(animation, from);
+      const atWrap = sampleDotMatrixAnimationFrame(animation, from + duration);
+
+      expect(atWrap.opacity).toBeCloseTo(atStart.opacity, 2);
+    });
+
+    it("matches upstream Block Drop frame count", () => {
+      const animation = getAnimationPreset(AnimationPreset.BlockDrop)(
+        {},
+        2,
+        2,
+        21,
+        QRCodeEntity.Module,
+        defaultOpacitySettings,
+      );
+      const frames = animation.web?.opacity;
+
+      expect(Array.isArray(frames)).toBe(true);
+      if (!Array.isArray(frames)) {
+        return;
+      }
+
+      expect(frames).toHaveLength(11);
+      expect(animation.easing).toBe("steps(11, end)");
+    });
+
+    it("matches upstream Strobe Stack full sequence length", () => {
+      const animation = getAnimationPreset(AnimationPreset.StrobeStack)(
+        {},
+        2,
+        2,
+        21,
+        QRCodeEntity.Module,
+        defaultOpacitySettings,
+      );
+      const frames = animation.web?.opacity;
+
+      expect(Array.isArray(frames)).toBe(true);
+      if (!Array.isArray(frames)) {
+        return;
+      }
+
+      expect(frames).toHaveLength(24);
+      expect(animation.easing).toBe("steps(24, end)");
     });
   });
 });

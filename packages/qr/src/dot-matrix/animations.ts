@@ -1,4 +1,19 @@
-import { AddAnimationOptions } from 'just-animate/types/lib/core/types';
+export type DotMatrixAnimationFrame = {
+  targets: SVGElement | HTMLElement;
+  from?: number;
+  duration?: number;
+  easing?: string;
+  web?: {
+    opacity?: unknown;
+    fill?: unknown;
+    scale?: unknown;
+    x?: unknown;
+    y?: unknown;
+    rotate?: unknown;
+    filter?: unknown;
+  };
+};
+
 import {
   innermostPoint,
   distanceBetween,
@@ -33,7 +48,7 @@ export type QRCodeAnimation = (
   count: number,
   entityType: QRCodeEntity,
   settings?: QRCodeAnimationSettings
-) => AddAnimationOptions;
+) => DotMatrixAnimationFrame;
 
 export interface QRCodeAnimationSettings {
   animationSpeed?: number;
@@ -431,6 +446,14 @@ type DotMatrixCssBlendKeyframe = {
   cssBlend: { base: number; mid: number; peak: number };
 };
 
+const isCssBlendKeyframe = (
+  frame: WebKeyframeValue
+): frame is DotMatrixCssBlendKeyframe =>
+  typeof frame === 'object' &&
+  frame !== null &&
+  'cssBlend' in frame &&
+  typeof (frame as DotMatrixCssBlendKeyframe).cssBlend === 'object';
+
 type WebKeyframeValue =
   | number
   | { offset: number; value: number }
@@ -496,7 +519,24 @@ const matrixCssKeyframe = (
 const keyframeNumericValue = (frame: WebKeyframeValue) =>
   typeof frame === 'number' ? frame : (frame as { value: number }).value;
 
-const keyframeOpacityAt = (
+const parseStepsEasing = (easing?: string) => {
+  if (!easing) return null;
+  const match = easing.match(/^steps\((\d+)\s*,\s*end\)$/);
+  return match ? Math.max(1, Number(match[1])) : null;
+};
+
+const easeInOut = (phase: number) =>
+  phase < 0.5 ? 2 * phase * phase : 1 - Math.pow(-2 * phase + 2, 2) / 2;
+
+const keyframeValueAt = (frame: WebKeyframeValue): number | string => {
+  if (typeof frame === 'number') return frame;
+  if (typeof frame === 'object' && frame !== null && 'value' in frame) {
+    return (frame as { value: number | string }).value;
+  }
+  return 0;
+};
+
+export const keyframeOpacityAt = (
   frames: WebKeyframeValue[],
   phase: number
 ) => {
@@ -529,10 +569,134 @@ const keyframeOpacityAt = (
   return keyframeNumericValue(last);
 };
 
+const keyframeFillAt = (frames: WebKeyframeValue[], phase: number) => {
+  const clampedPhase = clamp(phase, 0, 1);
+  if (frames.length === 0) return undefined;
+  if (frames.length === 1) {
+    return String(keyframeValueAt(frames[0]));
+  }
+
+  let previous = frames[0];
+  let previousValue = String(keyframeValueAt(previous));
+
+  for (let index = 1; index < frames.length; index++) {
+    const frame = frames[index];
+    const offset =
+      typeof frame === 'number' ? index / (frames.length - 1) : frame.offset;
+    const value = String(keyframeValueAt(frame));
+    if (clampedPhase <= offset) {
+      return previousValue;
+    }
+    previousValue = value;
+  }
+
+  return String(keyframeValueAt(frames[frames.length - 1]));
+};
+
+export const sampleDotMatrixAnimationFrame = (
+  animation: DotMatrixAnimationFrame,
+  globalTimeMs: number
+): { opacity: number; fill?: string } => {
+  const from = typeof animation.from === 'number' ? animation.from : 0;
+  const duration =
+    typeof animation.duration === 'number' && animation.duration > 0
+      ? animation.duration
+      : 1500;
+  const elapsed = Math.max(0, globalTimeMs - from);
+  const cycleElapsed = elapsed % duration;
+  const web = animation.web;
+  const rawFrames = web && web.opacity;
+  const frames = Array.isArray(rawFrames)
+    ? (rawFrames as WebKeyframeValue[])
+    : [];
+  const rawFillFrames = web && web.fill;
+  const fillFrames = Array.isArray(rawFillFrames)
+    ? (rawFillFrames as WebKeyframeValue[])
+    : undefined;
+  const steps = parseStepsEasing(animation.easing);
+
+  if (frames.length === 0) {
+    return { opacity: SOURCE_BASE_OPACITY };
+  }
+
+  if (steps) {
+    const stepMs = duration / steps;
+    const stepIndex = Math.floor(cycleElapsed / stepMs) % frames.length;
+    const opacity = Number(keyframeValueAt(frames[stepIndex]));
+    const fill = fillFrames
+      ? keyframeFillAt(fillFrames, stepIndex / Math.max(1, frames.length - 1))
+      : undefined;
+    return { opacity, fill };
+  }
+
+  const linearPhase = cycleElapsed / duration;
+  const easedPhase =
+    animation.easing === 'ease-in-out'
+      ? easeInOut(linearPhase)
+      : linearPhase;
+  const opacity = keyframeOpacityAt(frames, easedPhase);
+  const fill = fillFrames ? keyframeFillAt(fillFrames, easedPhase) : undefined;
+  return { opacity, fill };
+};
+
 const rowMajorIndex = (row: number, col: number) => row * MATRIX_SIZE + col;
 
 const matrixManhattanDistance = (row: number, col: number) =>
   Math.abs(row - 2) + Math.abs(col - 2);
+
+const cloneCssBlendKeyframe = (
+  frame: DotMatrixCssBlendKeyframe
+): DotMatrixCssBlendKeyframe => ({
+  cssBlend: { ...frame.cssBlend },
+  offset: frame.offset,
+});
+
+const cloneNumericKeyframe = (frame: WebKeyframeValue): WebKeyframeValue => {
+  if (typeof frame === 'number') return frame;
+  if (isCssBlendKeyframe(frame)) return cloneCssBlendKeyframe(frame);
+  if (typeof frame === 'object' && frame !== null && 'value' in frame) {
+    return { ...frame };
+  }
+  return frame;
+};
+
+export const closeOpacityLoop = (
+  frames: WebKeyframeValue[]
+): WebKeyframeValue[] => {
+  if (frames.length < 2) return frames;
+  const closed = frames.map((frame) => cloneNumericKeyframe(frame));
+  const first = closed[0];
+  const last = closed[closed.length - 1];
+  if (isCssBlendKeyframe(first) && isCssBlendKeyframe(last)) {
+    last.cssBlend = { ...first.cssBlend };
+    last.offset = 1;
+    return closed;
+  }
+  const firstValue = keyframeNumericValue(first);
+  if (typeof last === 'number') {
+    closed[closed.length - 1] = firstValue;
+  } else if (typeof last === 'object' && last !== null && 'value' in last) {
+    last.value = firstValue;
+    last.offset = 1;
+  }
+  return closed;
+};
+
+export const closeCssBlendLoop = (
+  frames: WebKeyframeValue[]
+): WebKeyframeValue[] => {
+  if (frames.length < 2) return frames;
+  const first = frames[0];
+  if (!isCssBlendKeyframe(first)) {
+    return closeOpacityLoop(frames);
+  }
+  const closed = frames.map((frame) => cloneNumericKeyframe(frame));
+  const closedFirst = closed[0] as DotMatrixCssBlendKeyframe;
+  const closedLast = closed[closed.length - 1] as DotMatrixCssBlendKeyframe;
+  closedLast.cssBlend = { ...closedFirst.cssBlend };
+  closedLast.offset = 1;
+  return closed;
+};
 
 const matrixSourceStyle = (
   targets: any,
@@ -541,7 +705,7 @@ const matrixSourceStyle = (
   duration: number,
   opacity: WebKeyframeValue[],
   easing: string = 'linear'
-): AddAnimationOptions => ({
+): DotMatrixAnimationFrame => ({
   targets,
   from,
   duration,
@@ -1443,7 +1607,7 @@ const FluxColumns: QRCodeAnimation = (targets, x, y, count, entity) => {
     position * 0.2 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
     [
-      matrixCssKeyframe(0, 0.6, 0.25, 0.15),
+      matrixCssKeyframe(0, 0, 0, 0.625),
       matrixCssKeyframe(0.2, 0.3, 0.5, 0.2),
       matrixCssKeyframe(0.4, 0, 0.6, 0.4),
       matrixCssKeyframe(0.6, 0, 0.2, 0.8),
@@ -1506,7 +1670,10 @@ const strobeStackCellOpacity = (row: number, col: number, step: number) => {
     const drainTick = step - (fillLast + 1 + blinkSteps);
     height = Math.max(
       0,
-      Math.min(MATRIX_SIZE, MATRIX_SIZE - Math.max(0, drainTick - col))
+      Math.min(
+        MATRIX_SIZE,
+        MATRIX_SIZE - Math.max(0, drainTick - col)
+      )
     );
   }
   const topLitRow = MATRIX_SIZE - height;
@@ -1521,7 +1688,8 @@ const StrobeStack: QRCodeAnimation = (targets, x, y, count, entity) => {
   const { fRow, fCol } = matrixFracCoord(x, y, count);
   const fillLast = MATRIX_SIZE + MATRIX_SIZE - 1;
   const blinkSteps = 4;
-  const sequenceLen = fillLast + 1 + blinkSteps + fillLast + 1;
+  const drainLast = fillLast;
+  const sequenceLen = fillLast + 1 + blinkSteps + drainLast + 1;
   return matrixSourceStyle(
     targets,
     entity,
@@ -1532,7 +1700,7 @@ const StrobeStack: QRCodeAnimation = (targets, x, y, count, entity) => {
         strobeStackCellOpacity(row, col, step)
       )
     ),
-    'steps(24, end)'
+    `steps(${sequenceLen}, end)`
   );
 };
 
@@ -2025,14 +2193,6 @@ const dotMatrixOpacitySettings = (settings?: QRCodeAnimationSettings) => ({
   ),
 });
 
-const isCssBlendKeyframe = (
-  frame: WebKeyframeValue
-): frame is DotMatrixCssBlendKeyframe =>
-  typeof frame === 'object' &&
-  frame !== null &&
-  'cssBlend' in frame &&
-  typeof (frame as DotMatrixCssBlendKeyframe).cssBlend === 'object';
-
 const resolveCssBlendOpacity = (
   blend: DotMatrixCssBlendKeyframe['cssBlend'],
   settings?: QRCodeAnimationSettings
@@ -2123,10 +2283,10 @@ const remapDotMatrixFill = (
 };
 
 const applyPresetSettings = (
-  animation: AddAnimationOptions,
+  animation: DotMatrixAnimationFrame,
   settings: QRCodeAnimationSettings | undefined,
   isDotMatrixPreset: boolean
-): AddAnimationOptions => {
+): DotMatrixAnimationFrame => {
   const speed = safeAnimationSpeed(settings);
   const dotMatrixFill = isDotMatrixPreset
     ? remapDotMatrixFill(animation.web && animation.web.opacity, settings)

@@ -12,10 +12,6 @@ import {
   type SceneQrState,
 } from "@new-qr/qr-internal/scene"
 
-import {
-  resolveBitjsonAutoAnimatePreset,
-  resolveBitjsonMotionPreset,
-} from "@/features/qr-code/model/state"
 import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg"
 import type { QrStudioState } from "@/features/qr-code/model/state"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
@@ -112,15 +108,15 @@ function toSceneQrMotion(state: QrStudioState): SceneQrMotionState {
   return {
     enabled: animation.enabled,
     animated: animation.animated,
-    preset: resolveBitjsonMotionPreset(animation),
-    hoverEffect: animation.hoverEffect,
-    hoverColorMode: animation.hoverColorMode,
-    autoAnimate: resolveBitjsonAutoAnimatePreset(animation),
-    autoAnimateInterval: animation.autoAnimateInterval,
+    preset: "",
+    hoverEffect: "",
+    hoverColorMode: "both",
+    autoAnimate: "",
+    autoAnimateInterval: 5000,
     speed: animation.speed,
-    motionIntensity: animation.motionIntensity,
+    motionIntensity: "premium",
     respectReducedMotion: animation.respectReducedMotion,
-    pressPreset: animation.preset,
+    pressPreset: "",
   }
 }
 

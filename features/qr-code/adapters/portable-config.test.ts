@@ -67,7 +67,7 @@ describe("toPortableQrConfig", () => {
     expect(config.finderOuter).toBe("rounded-lg")
   })
 
-  it("maps gradient and motion presets", () => {
+  it("maps gradient settings without QR effects", () => {
     const state = createDefaultQrStudioState()
     state.dotsColorMode = "gradient"
     state.dataModulesGradient.enabled = true
@@ -93,8 +93,7 @@ describe("toPortableQrConfig", () => {
       ],
       type: "linear",
     })
-    expect(config.motion).toBe("bitjson")
-    expect(config.motionPreset).toBe("FadeInTopDown")
+    expect(config.motion).toBe("none")
   })
 
   it("maps boostLevel, module tuning, logo advanced fields, and ariaLabel", () => {
