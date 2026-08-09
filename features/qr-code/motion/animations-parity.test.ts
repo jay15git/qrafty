@@ -143,6 +143,36 @@ describe("matrix animation parity", () => {
     });
   });
 
+  describe("RadialExpand", () => {
+    it("staggers by euclidean radius from center", () => {
+      const preset = getAnimationPreset(AnimationPreset.RadialExpand);
+      const center = preset({}, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const corner = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
+
+      expect(corner.from).toBeGreaterThan(center.from ?? 0);
+    });
+  });
+
+  describe("DiamondExpand", () => {
+    it("staggers by manhattan diamond distance from center", () => {
+      const preset = getAnimationPreset(AnimationPreset.DiamondExpand);
+      const center = preset({}, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const corner = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
+
+      expect(corner.from).toBeGreaterThan(center.from ?? 0);
+    });
+  });
+
+  describe("ZigzagFlow", () => {
+    it("travels in serpentine order across the matrix", () => {
+      const preset = getAnimationPreset(AnimationPreset.ZigzagFlow);
+      const first = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const later = preset({}, 0, 20, 21, QRCodeEntity.Module, defaultOpacitySettings);
+
+      expect(later.from).toBeGreaterThan(first.from ?? 0);
+    });
+  });
+
   describe("dot matrix loop seams", () => {
     it.each(dotMatrixAnimationPresets)("loops %s without a sampled seam", (preset) => {
       const animation = getAnimationPreset(preset)(

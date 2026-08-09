@@ -105,6 +105,14 @@ export enum AnimationPreset {
   CRTGlide = 'CRTGlide',
   EchoRing = 'EchoRing',
   OriginWave = 'OriginWave',
+  RadialExpand = 'RadialExpand',
+  RadiusPing = 'RadiusPing',
+  DiamondExpand = 'DiamondExpand',
+  ZigzagFlow = 'ZigzagFlow',
+  CrossBloom = 'CrossBloom',
+  ChevronSweep = 'ChevronSweep',
+  WaveRide = 'WaveRide',
+  CornerPop = 'CornerPop',
   CoreRotor = 'CoreRotor',
   PrismBloom = 'PrismBloom',
   HelixGlow = 'HelixGlow',
@@ -158,6 +166,14 @@ export const dotMatrixAnimationPresets = [
   AnimationPreset.MobiusRun,
   AnimationPreset.TwinOrbit,
   AnimationPreset.OriginWave,
+  AnimationPreset.RadialExpand,
+  AnimationPreset.RadiusPing,
+  AnimationPreset.DiamondExpand,
+  AnimationPreset.ZigzagFlow,
+  AnimationPreset.CrossBloom,
+  AnimationPreset.ChevronSweep,
+  AnimationPreset.WaveRide,
+  AnimationPreset.CornerPop,
   AnimationPreset.PrismBloom,
   AnimationPreset.FluxColumns,
   AnimationPreset.HelixGlow,
@@ -1832,6 +1848,188 @@ const OriginWave: QRCodeAnimation = (targets, x, y, count, entity) => {
 
 const MATRIX_CENTER = 2;
 
+const radialDistanceFromCenter = (row: number, col: number) =>
+  Math.hypot(row - MATRIX_CENTER, col - MATRIX_CENTER);
+
+const diamondDistanceFromCenter = (row: number, col: number) =>
+  Math.abs(row - MATRIX_CENTER) + Math.abs(col - MATRIX_CENTER);
+
+const zigzagOrder = (row: number, col: number) =>
+  row * MATRIX_SIZE + (row % 2 === 0 ? col : MATRIX_LAST - col);
+
+const crossBloomDistance = (row: number, col: number) =>
+  Math.max(Math.abs(row - MATRIX_CENTER), Math.abs(col - MATRIX_CENTER));
+
+const chevronDistance = (row: number, col: number) =>
+  MATRIX_LAST - row + Math.abs(col - MATRIX_CENTER);
+
+const waveRidePhase = (row: number, col: number) =>
+  row + Math.sin(col * 1.1) * 0.75;
+
+const cornerDistance = (row: number, col: number) =>
+  Math.min(
+    row + col,
+    row + (MATRIX_LAST - col),
+    MATRIX_LAST - row + col,
+    MATRIX_LAST - row + (MATRIX_LAST - col)
+  );
+
+const RadialExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
+  const { fRow, fCol } = matrixFracCoord(x, y, count);
+  const radius = sampleCellField(fRow, fCol, radialDistanceFromCenter);
+  return matrixSourceStyle(
+    targets,
+    entity,
+    radius * 0.14 * MATRIX_CYCLE_MS,
+    MATRIX_CYCLE_MS,
+    [
+      matrixCssKeyframe(0, 0, 0, 0.5),
+      matrixCssKeyframe(0.28, 1, 0, 0),
+      matrixCssKeyframe(0.52, 0, 0.5, 0.5),
+      matrixCssKeyframe(1, 0, 0, 0.5),
+    ],
+    'ease-in-out'
+  );
+};
+
+const RadiusPing: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
+  const { fRow, fCol } = matrixFracCoord(x, y, count);
+  const radius = sampleCellField(fRow, fCol, radialDistanceFromCenter);
+  return matrixSourceStyle(
+    targets,
+    entity,
+    radius * 0.18 * MATRIX_CYCLE_MS,
+    MATRIX_CYCLE_MS,
+    [
+      matrixCssKeyframe(0, 0, 0, 0.08),
+      matrixCssKeyframe(0.1, 1, 0, 0),
+      matrixCssKeyframe(0.2, 0, 0, 0.5),
+      matrixCssKeyframe(1, 0, 0, 0.08),
+    ],
+    'ease-in-out'
+  );
+};
+
+const DiamondExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
+  const { fRow, fCol } = matrixFracCoord(x, y, count);
+  const distance = sampleCellField(fRow, fCol, diamondDistanceFromCenter);
+  return matrixSourceStyle(
+    targets,
+    entity,
+    distance * 0.12 * MATRIX_CYCLE_MS,
+    MATRIX_CYCLE_MS,
+    [
+      matrixCssKeyframe(0, 0, 0, 0.5),
+      matrixCssKeyframe(0.3, 1, 0, 0),
+      matrixCssKeyframe(0.55, 0, 0.45, 0.1),
+      matrixCssKeyframe(1, 0, 0, 0.5),
+    ],
+    'ease-in-out'
+  );
+};
+
+const ZigzagFlow: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
+  const { fRow, fCol } = matrixFracCoord(x, y, count);
+  const order = sampleCellField(fRow, fCol, zigzagOrder);
+  return matrixSourceStyle(
+    targets,
+    entity,
+    order * 0.035 * MATRIX_CYCLE_MS,
+    MATRIX_CYCLE_MS,
+    [
+      matrixCssKeyframe(0, 0, 0, 0.08),
+      matrixCssKeyframe(0.12, 0.35, 0.55, 0.1),
+      matrixCssKeyframe(0.24, 1, 0, 0),
+      matrixCssKeyframe(0.38, 0, 0.5, 0.5),
+      matrixCssKeyframe(1, 0, 0, 0.08),
+    ],
+    'ease-in-out'
+  );
+};
+
+const CrossBloom: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
+  const { fRow, fCol } = matrixFracCoord(x, y, count);
+  const distance = sampleCellField(fRow, fCol, crossBloomDistance);
+  return matrixSourceStyle(
+    targets,
+    entity,
+    distance * 0.14 * MATRIX_CYCLE_MS,
+    MATRIX_CYCLE_MS,
+    [
+      matrixCssKeyframe(0, 0, 0, 0.5),
+      matrixCssKeyframe(0.26, 1, 0, 0),
+      matrixCssKeyframe(0.48, 0, 0.55, 0.1),
+      matrixCssKeyframe(1, 0, 0, 0.5),
+    ],
+    'ease-in-out'
+  );
+};
+
+const ChevronSweep: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
+  const { fRow, fCol } = matrixFracCoord(x, y, count);
+  const distance = sampleCellField(fRow, fCol, chevronDistance);
+  return matrixSourceStyle(
+    targets,
+    entity,
+    distance * 0.11 * MATRIX_CYCLE_MS,
+    MATRIX_CYCLE_MS,
+    [
+      matrixCssKeyframe(0, 0, 0, 0.08),
+      matrixCssKeyframe(0.18, 0.4, 0.45, 0.15),
+      matrixCssKeyframe(0.32, 1, 0, 0),
+      matrixCssKeyframe(0.5, 0, 0.5, 0.5),
+      matrixCssKeyframe(1, 0, 0, 0.08),
+    ],
+    'ease-in-out'
+  );
+};
+
+const WaveRide: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
+  const { fRow, fCol } = matrixFracCoord(x, y, count);
+  const phase = sampleCellField(fRow, fCol, waveRidePhase);
+  return matrixSourceStyle(
+    targets,
+    entity,
+    phase * 0.1 * MATRIX_CYCLE_MS,
+    MATRIX_CYCLE_MS,
+    [
+      matrixCssKeyframe(0, 0, 0, 0.5),
+      matrixCssKeyframe(0.22, 0.55, 0.35, 0.1),
+      matrixCssKeyframe(0.4, 1, 0, 0),
+      matrixCssKeyframe(0.62, 0, 0.5, 0.5),
+      matrixCssKeyframe(1, 0, 0, 0.5),
+    ],
+    'ease-in-out'
+  );
+};
+
+const CornerPop: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
+  const { fRow, fCol } = matrixFracCoord(x, y, count);
+  const distance = sampleCellField(fRow, fCol, cornerDistance);
+  return matrixSourceStyle(
+    targets,
+    entity,
+    distance * 0.12 * MATRIX_CYCLE_MS,
+    MATRIX_CYCLE_MS,
+    [
+      matrixCssKeyframe(0, 0, 0, 0.08),
+      matrixCssKeyframe(0.16, 0.5, 0.4, 0.1),
+      matrixCssKeyframe(0.3, 1, 0, 0),
+      matrixCssKeyframe(0.48, 0, 0.45, 0.1),
+      matrixCssKeyframe(1, 0, 0, 0.08),
+    ],
+    'ease-in-out'
+  );
+};
+
 const coreRotorCellOpacity = (row: number, col: number, phase: number) => {
   const outline = Math.min(row, col, MATRIX_LAST - row, MATRIX_LAST - col);
   const distFromCenter = Math.hypot(row - MATRIX_CENTER, col - MATRIX_CENTER);
@@ -2410,6 +2608,22 @@ const resolveAnimationPreset = (name: string) => {
       return EchoRing;
     case AnimationPreset.OriginWave:
       return OriginWave;
+    case AnimationPreset.RadialExpand:
+      return RadialExpand;
+    case AnimationPreset.RadiusPing:
+      return RadiusPing;
+    case AnimationPreset.DiamondExpand:
+      return DiamondExpand;
+    case AnimationPreset.ZigzagFlow:
+      return ZigzagFlow;
+    case AnimationPreset.CrossBloom:
+      return CrossBloom;
+    case AnimationPreset.ChevronSweep:
+      return ChevronSweep;
+    case AnimationPreset.WaveRide:
+      return WaveRide;
+    case AnimationPreset.CornerPop:
+      return CornerPop;
     case AnimationPreset.CoreRotor:
       return CoreRotor;
     case AnimationPreset.PrismBloom:

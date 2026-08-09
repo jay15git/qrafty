@@ -45,6 +45,14 @@ export type QrDotMatrixSquareLoader =
   | "crt-glide"
   | "echo-ring"
   | "origin-wave"
+  | "radial-expand"
+  | "radius-ping"
+  | "diamond-expand"
+  | "zigzag-flow"
+  | "cross-bloom"
+  | "chevron-sweep"
+  | "wave-ride"
+  | "corner-pop"
   | "core-rotor"
   | "prism-bloom"
   | "helix-glow"
@@ -263,6 +271,14 @@ export const QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS: Array<{
   { label: "CRT Glide", value: "crt-glide" },
   { label: "Echo Ring", value: "echo-ring" },
   { label: "Origin Wave", value: "origin-wave" },
+  { label: "Radial Expand", value: "radial-expand" },
+  { label: "Radius Ping", value: "radius-ping" },
+  { label: "Diamond Expand", value: "diamond-expand" },
+  { label: "Zigzag Flow", value: "zigzag-flow" },
+  { label: "Cross Bloom", value: "cross-bloom" },
+  { label: "Chevron Sweep", value: "chevron-sweep" },
+  { label: "Wave Ride", value: "wave-ride" },
+  { label: "Corner Pop", value: "corner-pop" },
   { label: "Core Rotor", value: "core-rotor" },
   { label: "Prism Bloom", value: "prism-bloom" },
   { label: "Helix Glow", value: "helix-glow" },
