@@ -3715,42 +3715,64 @@ function DesktopMotionInspector({
         <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
           <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Loader Color</p>
           <div className={desktopInspectorOptionGridClass(2)} data-slot="desktop-motion-color-presets">
-            {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => (
-              <DesktopMotionColorPresetButton
-                key={preset.value}
-                colors={
-                  preset.value === "theme"
-                    ? [settings.customColorBase, settings.customColorMid, settings.customColorPeak]
-                    : DESKTOP_MOTION_COLOR_SWATCHES[preset.value]
-                }
-                label={preset.label}
-                selected={settings.colorPreset === preset.value}
-                onClick={() => onMotionSettingsChange({ colorPreset: preset.value })}
-              />
-            ))}
-          </div>
+            {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => {
+              const [base, mid, peak] = DESKTOP_MOTION_COLOR_SWATCHES[preset.value]
 
-          {settings.colorPreset === "theme" ? (
-            <div className="mt-2.5 grid gap-2">
-              <DesktopColorInputRow
-                label="Motion base color"
-                value={settings.customColorBase}
-                onChange={(customColorBase) =>
-                  onMotionSettingsChange({ customColor: customColorBase, customColorBase })
-                }
-              />
-              <DesktopColorInputRow
-                label="Motion mid color"
-                value={settings.customColorMid}
-                onChange={(customColorMid) => onMotionSettingsChange({ customColorMid })}
-              />
-              <DesktopColorInputRow
-                label="Motion peak color"
-                value={settings.customColorPeak}
-                onChange={(customColorPeak) => onMotionSettingsChange({ customColorPeak })}
-              />
-            </div>
-          ) : null}
+              return (
+                <DesktopMotionColorPresetButton
+                  key={preset.value}
+                  colors={
+                    preset.value === "theme"
+                      ? [settings.customColorBase, settings.customColorMid, settings.customColorPeak]
+                      : [base, mid, peak]
+                  }
+                  label={preset.label}
+                  selected={settings.colorPreset === preset.value}
+                  onClick={() =>
+                    onMotionSettingsChange({
+                      colorPreset: preset.value,
+                      customColor: base,
+                      customColorBase: base,
+                      customColorMid: mid,
+                      customColorPeak: peak,
+                    })
+                  }
+                />
+              )
+            })}
+          </div>
+        </DesktopInspectorSection>
+
+        <DesktopInspectorSection
+          className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, "mt-2.5")}
+          dataSlot="desktop-motion-custom-colors"
+        >
+          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Color</p>
+          <DesktopColorInputRow
+            label="Color 1"
+            value={settings.customColorBase}
+            onChange={(customColorBase) =>
+              onMotionSettingsChange({
+                colorPreset: "theme",
+                customColor: customColorBase,
+                customColorBase,
+              })
+            }
+          />
+          <DesktopColorInputRow
+            label="Color 2"
+            value={settings.customColorMid}
+            onChange={(customColorMid) =>
+              onMotionSettingsChange({ colorPreset: "theme", customColorMid })
+            }
+          />
+          <DesktopColorInputRow
+            label="Color 3"
+            value={settings.customColorPeak}
+            onChange={(customColorPeak) =>
+              onMotionSettingsChange({ colorPreset: "theme", customColorPeak })
+            }
+          />
         </DesktopInspectorSection>
 
         <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>

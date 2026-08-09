@@ -95,6 +95,7 @@ import type {
 import {
   QR_DOT_MATRIX_ANIMATION_SPEED_MAX,
   QR_DOT_MATRIX_ANIMATION_SPEED_MIN,
+  MOTION_COLOR_SWATCHES,
   QR_DOT_MATRIX_COLOR_PRESET_OPTIONS,
   QR_DOT_MATRIX_MATRIX_SIZE_MAX,
   QR_DOT_MATRIX_MATRIX_SIZE_MIN,
@@ -1136,50 +1137,85 @@ export function DraftingLoaderPlaygroundTab({
           Loader color
         </p>
         <div className="grid min-w-0 grid-cols-2 gap-2">
-          {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => (
-            <Button
-              key={preset.value}
-              type="button"
-              variant="ghost"
-              onClick={() => onAnimationChange({ colorPreset: preset.value })}
-              className={cn(
-                "h-9 justify-start rounded-[6px] border px-3 text-left shadow-none",
-                animation.colorPreset === preset.value
-                  ? "border-[var(--drafting-line-strong)] bg-[var(--drafting-panel-bg-active)] text-[var(--drafting-ink)]"
-                  : "border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] text-[var(--drafting-ink-muted)]",
-              )}
-            >
-              <span className="drafting-type-meta font-semibold">{preset.label}</span>
-            </Button>
-          ))}
-        </div>
-        {animation.colorPreset === "theme" ? (
-          <div className="mt-3 grid min-w-0 gap-2">
-            {[
-              ["Base", "customColorBase", animation.customColorBase, "Loader base color"],
-              ["Mid", "customColorMid", animation.customColorMid, "Loader mid color"],
-              ["Peak", "customColorPeak", animation.customColorPeak, "Loader peak color"],
-            ].map(([label, field, value, ariaLabel]) => (
-              <label
-                key={field}
-                className="flex min-w-0 items-center justify-between gap-3 rounded-[6px] bg-[var(--drafting-control-bg)] px-3 py-2"
+          {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => {
+            const [base, mid, peak] = MOTION_COLOR_SWATCHES[preset.value]
+
+            return (
+              <Button
+                key={preset.value}
+                type="button"
+                variant="ghost"
+                onClick={() =>
+                  onAnimationChange({
+                    colorPreset: preset.value,
+                    customColor: base,
+                    customColorBase: base,
+                    customColorMid: mid,
+                    customColorPeak: peak,
+                  })
+                }
+                className={cn(
+                  "h-9 justify-start rounded-[6px] border px-3 text-left shadow-none",
+                  animation.colorPreset === preset.value
+                    ? "border-[var(--drafting-line-strong)] bg-[var(--drafting-panel-bg-active)] text-[var(--drafting-ink)]"
+                    : "border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] text-[var(--drafting-ink-muted)]",
+                )}
               >
-                <span className="drafting-type-control-label font-semibold text-[var(--drafting-ink-muted)]">
+                <span className="drafting-type-meta font-semibold">{preset.label}</span>
+              </Button>
+            )
+          })}
+        </div>
+        <div className="mt-3 grid min-w-0 gap-4" data-slot="drafting-motion-custom-colors">
+          {[
+            ["Color 1", "customColorBase", animation.customColorBase, "Loader base color"],
+            ["Color 2", "customColorMid", animation.customColorMid, "Loader mid color"],
+            ["Color 3", "customColorPeak", animation.customColorPeak, "Loader peak color"],
+          ].map(([label, field, value, ariaLabel]) => (
+            <label
+              key={field}
+              className="grid min-w-0 gap-2 rounded-[7px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] p-3"
+            >
+              <span className="flex min-w-0 items-center justify-between gap-3">
+                <span className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
                   {label}
                 </span>
-                <Input
-                  aria-label={ariaLabel}
-                  type="color"
-                  value={value}
-                  onChange={(event) =>
-                    onAnimationChange({ [field]: event.target.value } as QrDotMatrixAnimationPatch)
+                <span className="font-mono text-[11px] text-[var(--drafting-ink-muted)]">
+                  {value}
+                </span>
+              </span>
+              <input
+                aria-label={ariaLabel}
+                className="h-10 w-full cursor-pointer rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] p-1"
+                data-slot="drafting-motion-color-input"
+                onChange={(event) => {
+                  const nextValue = event.currentTarget.value
+                  const patch: QrDotMatrixAnimationPatch = {
+                    colorPreset: "theme",
+                    [field]: nextValue,
                   }
-                  className="h-8 w-12 shrink-0 border-0 bg-transparent p-0"
-                />
-              </label>
-            ))}
-          </div>
-        ) : null}
+                  if (field === "customColorBase") {
+                    patch.customColor = nextValue
+                  }
+                  onAnimationChange(patch)
+                }}
+                onInput={(event) => {
+                  const nextValue = event.currentTarget.value
+                  const patch: QrDotMatrixAnimationPatch = {
+                    colorPreset: "theme",
+                    [field]: nextValue,
+                  }
+                  if (field === "customColorBase") {
+                    patch.customColor = nextValue
+                  }
+                  onAnimationChange(patch)
+                }}
+                type="color"
+                value={value}
+              />
+            </label>
+          ))}
+        </div>
       </section>
 
       <section className="min-w-0 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 shadow-[var(--drafting-shadow-rest)]">
