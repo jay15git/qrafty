@@ -1850,7 +1850,7 @@ describe("Pane", () => {
     await act(async () => {
       reactRoot.render(
         <Pane
-          state={setDotMatrixAnimationOptions(motionState, { loader: "mobius-run" })}
+          state={setDotMatrixAnimationOptions(motionState, { loader: "corner-pop" })}
           isSelected={false}
           onQrClick={() => undefined}
           onSelect={() => undefined}

@@ -140,17 +140,12 @@ describe("qr studio state helpers", () => {
   it("starts with dot matrix animation disabled and SVG export static", () => {
     const state = createDefaultQrStudioState();
 
-    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(25);
+    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(14);
     expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => option.label)).toEqual([
       "Neon Drift",
       "Pulse Ladder",
       "Core Spiral",
-      "Twin Orbit",
       "Flux Columns",
-      "Block Drop",
-      "Strobe Stack",
-      "Glyph Pulse",
-      "CRT Glide",
       "Echo Ring",
       "Origin Wave",
       "Radial Expand",
@@ -161,12 +156,6 @@ describe("qr studio state helpers", () => {
       "Chevron Sweep",
       "Wave Ride",
       "Corner Pop",
-      "Core Rotor",
-      "Prism Bloom",
-      "Helix Glow",
-      "Helix Core",
-      "Infinity Run",
-      "Mobius Run",
     ]);
     expect(state.dotMatrixAnimation).toEqual(DEFAULT_DOT_MATRIX_ANIMATION);
     expect(state.dotMatrixAnimation.enabled).toBe(false);

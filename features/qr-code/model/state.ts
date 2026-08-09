@@ -37,12 +37,7 @@ export type QrDotMatrixSquareLoader =
   | "neon-drift"
   | "pulse-ladder"
   | "core-spiral"
-  | "twin-orbit"
   | "flux-columns"
-  | "block-drop"
-  | "strobe-stack"
-  | "glyph-pulse"
-  | "crt-glide"
   | "echo-ring"
   | "origin-wave"
   | "radial-expand"
@@ -52,13 +47,7 @@ export type QrDotMatrixSquareLoader =
   | "cross-bloom"
   | "chevron-sweep"
   | "wave-ride"
-  | "corner-pop"
-  | "core-rotor"
-  | "prism-bloom"
-  | "helix-glow"
-  | "helix-core"
-  | "infinity-run"
-  | "mobius-run";
+  | "corner-pop";
 export type QrDotMatrixColorPreset =
   | "theme"
   | "mint"
@@ -263,12 +252,7 @@ export const QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS: Array<{
   { label: "Neon Drift", value: "neon-drift" },
   { label: "Pulse Ladder", value: "pulse-ladder" },
   { label: "Core Spiral", value: "core-spiral" },
-  { label: "Twin Orbit", value: "twin-orbit" },
   { label: "Flux Columns", value: "flux-columns" },
-  { label: "Block Drop", value: "block-drop" },
-  { label: "Strobe Stack", value: "strobe-stack" },
-  { label: "Glyph Pulse", value: "glyph-pulse" },
-  { label: "CRT Glide", value: "crt-glide" },
   { label: "Echo Ring", value: "echo-ring" },
   { label: "Origin Wave", value: "origin-wave" },
   { label: "Radial Expand", value: "radial-expand" },
@@ -279,12 +263,6 @@ export const QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS: Array<{
   { label: "Chevron Sweep", value: "chevron-sweep" },
   { label: "Wave Ride", value: "wave-ride" },
   { label: "Corner Pop", value: "corner-pop" },
-  { label: "Core Rotor", value: "core-rotor" },
-  { label: "Prism Bloom", value: "prism-bloom" },
-  { label: "Helix Glow", value: "helix-glow" },
-  { label: "Helix Core", value: "helix-core" },
-  { label: "Infinity Run", value: "infinity-run" },
-  { label: "Mobius Run", value: "mobius-run" },
 ];
 
 export const QR_MOTION_DOT_MATRIX_PRESET_OPTIONS: Array<{

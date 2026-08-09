@@ -128,21 +128,6 @@ describe("matrix animation parity", () => {
     });
   });
 
-  describe("CoreRotor", () => {
-    it("uses continuous phase sampling instead of stepped frames", () => {
-      const preset = getAnimationPreset(AnimationPreset.CoreRotor);
-      const animation = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const opacityFrames = animation.web?.opacity;
-
-      expect(animation.easing).toBe("linear");
-      expect(animation.easing).not.toMatch(/^steps\(/);
-      expect(Array.isArray(opacityFrames)).toBe(true);
-      if (Array.isArray(opacityFrames)) {
-        expect(opacityFrames.length).toBeGreaterThan(20);
-      }
-    });
-  });
-
   describe("RadialExpand", () => {
     it("staggers by euclidean radius from center", () => {
       const preset = getAnimationPreset(AnimationPreset.RadialExpand);
@@ -192,44 +177,5 @@ describe("matrix animation parity", () => {
       expect(atWrap.opacity).toBeCloseTo(atStart.opacity, 2);
     });
 
-    it("matches upstream Block Drop frame count", () => {
-      const animation = getAnimationPreset(AnimationPreset.BlockDrop)(
-        {},
-        2,
-        2,
-        21,
-        QRCodeEntity.Module,
-        defaultOpacitySettings,
-      );
-      const frames = animation.web?.opacity;
-
-      expect(Array.isArray(frames)).toBe(true);
-      if (!Array.isArray(frames)) {
-        return;
-      }
-
-      expect(frames).toHaveLength(11);
-      expect(animation.easing).toBe("steps(11, end)");
-    });
-
-    it("matches upstream Strobe Stack full sequence length", () => {
-      const animation = getAnimationPreset(AnimationPreset.StrobeStack)(
-        {},
-        2,
-        2,
-        21,
-        QRCodeEntity.Module,
-        defaultOpacitySettings,
-      );
-      const frames = animation.web?.opacity;
-
-      expect(Array.isArray(frames)).toBe(true);
-      if (!Array.isArray(frames)) {
-        return;
-      }
-
-      expect(frames).toHaveLength(24);
-      expect(animation.easing).toBe("steps(24, end)");
-    });
   });
 });

@@ -97,12 +97,7 @@ export enum AnimationPreset {
   NeonDrift = 'NeonDrift',
   PulseLadder = 'PulseLadder',
   CoreSpiral = 'CoreSpiral',
-  TwinOrbit = 'TwinOrbit',
   FluxColumns = 'FluxColumns',
-  BlockDrop = 'BlockDrop',
-  StrobeStack = 'StrobeStack',
-  GlyphPulse = 'GlyphPulse',
-  CRTGlide = 'CRTGlide',
   EchoRing = 'EchoRing',
   OriginWave = 'OriginWave',
   RadialExpand = 'RadialExpand',
@@ -113,12 +108,6 @@ export enum AnimationPreset {
   ChevronSweep = 'ChevronSweep',
   WaveRide = 'WaveRide',
   CornerPop = 'CornerPop',
-  CoreRotor = 'CoreRotor',
-  PrismBloom = 'PrismBloom',
-  HelixGlow = 'HelixGlow',
-  HelixCore = 'HelixCore',
-  InfinityRun = 'InfinityRun',
-  MobiusRun = 'MobiusRun',
 }
 
 export const standardAnimationPresets = [
@@ -161,10 +150,7 @@ export const dotMatrixAnimationPresets = [
   AnimationPreset.NeonDrift,
   AnimationPreset.PulseLadder,
   AnimationPreset.CoreSpiral,
-  AnimationPreset.BlockDrop,
   AnimationPreset.EchoRing,
-  AnimationPreset.MobiusRun,
-  AnimationPreset.TwinOrbit,
   AnimationPreset.OriginWave,
   AnimationPreset.RadialExpand,
   AnimationPreset.RadiusPing,
@@ -174,15 +160,7 @@ export const dotMatrixAnimationPresets = [
   AnimationPreset.ChevronSweep,
   AnimationPreset.WaveRide,
   AnimationPreset.CornerPop,
-  AnimationPreset.PrismBloom,
   AnimationPreset.FluxColumns,
-  AnimationPreset.HelixGlow,
-  AnimationPreset.HelixCore,
-  AnimationPreset.StrobeStack,
-  AnimationPreset.CRTGlide,
-  AnimationPreset.GlyphPulse,
-  AnimationPreset.CoreRotor,
-  AnimationPreset.InfinityRun,
 ];
 
 const FadeInTopDown: QRCodeAnimation = (targets, _x, y, _count, _entity) => {
@@ -796,48 +774,6 @@ const buildSpiralInwardOrderToIndexMap = () => {
 const SPIRAL_INWARD_ORDER = buildSpiralInwardOrderToIndexMap();
 
 const spiralInwardOrderValue = (index: number) => SPIRAL_INWARD_ORDER[index];
-
-const OUTER_RING_CLOCKWISE_ORDER = [
-  [0, 0],
-  [0, 1],
-  [0, 2],
-  [0, 3],
-  [0, 4],
-  [1, 4],
-  [2, 4],
-  [3, 4],
-  [4, 4],
-  [4, 3],
-  [4, 2],
-  [4, 1],
-  [4, 0],
-  [3, 0],
-  [2, 0],
-  [1, 0],
-].reduce((order, [row, col], index) => {
-  order[rowMajorIndex(row, col)] = index;
-  return order;
-}, new Array<number>(MATRIX_CELLS).fill(-1));
-
-const MIDDLE_RING_ANTI_CLOCKWISE_ORDER = [
-  [1, 1],
-  [2, 1],
-  [3, 1],
-  [3, 2],
-  [3, 3],
-  [2, 3],
-  [1, 3],
-  [1, 2],
-].reduce((order, [row, col], index) => {
-  order[rowMajorIndex(row, col)] = index;
-  return order;
-}, new Array<number>(MATRIX_CELLS).fill(-1));
-
-const outerRingClockwiseOrderValue = (index: number) =>
-  OUTER_RING_CLOCKWISE_ORDER[index];
-
-const middleRingAntiClockwiseOrderValue = (index: number) =>
-  MIDDLE_RING_ANTI_CLOCKWISE_ORDER[index];
 
 const ConfettiPop: QRCodeAnimation = (targets, x, y, count, entity) => {
   const seed = coordinateSeed(x, y, count);
@@ -1578,39 +1514,6 @@ const CoreSpiral: QRCodeAnimation = (targets, x, y, count, entity) => {
   );
 };
 
-const twinOrbitDelayNorm = (row: number, col: number) => {
-  if (row === 2 && col === 2) return -1;
-  const outer = outerRingClockwiseOrderValue(rowMajorIndex(row, col));
-  if (outer >= 0) return outer * 0.0625;
-  const middle = middleRingAntiClockwiseOrderValue(rowMajorIndex(row, col));
-  return middle >= 0 ? middle * 0.125 : -1;
-};
-
-const TwinOrbit: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  const delayNorm = sampleCellField(fRow, fCol, twinOrbitDelayNorm);
-  const quietKeyframes: WebKeyframeValue[] = [
-    matrixCssKeyframe(0, 0, 0, 0.5),
-    matrixCssKeyframe(1, 0, 0, 0.5),
-  ];
-  const ringKeyframes: WebKeyframeValue[] = [
-    matrixCssKeyframe(0, 0, 0, 0.5),
-    matrixCssKeyframe(0.1, 1, 0, 0),
-    matrixCssKeyframe(0.2, 0.45, 0.45, 0.1),
-    matrixCssKeyframe(0.3, 0.2, 0.4, 0.4),
-    matrixCssKeyframe(0.4, 0, 0, 0.875),
-    matrixCssKeyframe(1, 0, 0, 0.5),
-  ];
-  return matrixSourceStyle(
-    targets,
-    entity,
-    Math.max(0, delayNorm) * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
-    delayNorm < 0 ? quietKeyframes : ringKeyframes
-  );
-};
-
 const FluxColumns: QRCodeAnimation = (targets, x, y, count, entity) => {
   if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
   const { fRow, fCol } = matrixFracCoord(x, y, count);
@@ -1630,174 +1533,6 @@ const FluxColumns: QRCodeAnimation = (targets, x, y, count, entity) => {
       matrixCssKeyframe(0.8, 0, 0, 0.625),
       matrixCssKeyframe(1, 0, 0, 0.625),
     ],
-    'steps(5, end)'
-  );
-};
-
-const SQUARE7_FRAME_MASKS = [
-  '.....' + '.....' + '.....' + '.....' + 'ooooo',
-  '.....' + '.....' + '.....' + 'ooooo' + 'ooooo',
-  '.....' + '.....' + 'ooooo' + 'ooooo' + 'ooooo',
-  '.....' + 'ooooo' + 'ooooo' + 'ooooo' + 'ooooo',
-  'ooooo' + 'ooooo' + 'ooooo' + 'ooooo' + 'ooooo',
-  'ccccc' + 'ccccc' + 'ccccc' + 'ccccc' + 'ccccc',
-  '.....' + '.....' + '.....' + '.....' + '.....',
-  'ccccc' + 'ccccc' + 'ccccc' + 'ccccc' + 'ccccc',
-  '.....' + '.....' + '.....' + '.....' + '.....',
-  '.....' + '.....' + '.....' + '.....' + '.....',
-];
-const SQUARE7_FRAME_SEQUENCE = [0, 1, 2, 3, 4, 4, 5, 6, 7, 8, 9];
-
-const blockDropCellOpacity = (row: number, col: number, step: number) => {
-  const mask = SQUARE7_FRAME_MASKS[SQUARE7_FRAME_SEQUENCE[step]];
-  const cell = frameMaskCell(mask, row, col);
-  if (cell === 'o') return 0.42;
-  if (cell === 'c') return 0.88;
-  return 0.08;
-};
-
-const BlockDrop: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    0,
-    1900,
-    steppedOpacityFrames(SQUARE7_FRAME_SEQUENCE.length, (step) =>
-      discreteCellField(fRow, fCol, (row, col) => blockDropCellOpacity(row, col, step))
-    ),
-    'steps(11, end)'
-  );
-};
-
-const strobeStackCellOpacity = (row: number, col: number, step: number) => {
-  const fillLast = MATRIX_SIZE + MATRIX_SIZE - 1;
-  const blinkSteps = 4;
-  const blinkOpacities = [0.38, 1, 0.38, 1];
-  let height = 0;
-  let blinkOpacity: number | null = null;
-  if (step <= fillLast) {
-    height = Math.max(0, Math.min(MATRIX_SIZE, step - col));
-  } else if (step < fillLast + 1 + blinkSteps) {
-    height = MATRIX_SIZE;
-    blinkOpacity = blinkOpacities[step - (fillLast + 1)];
-  } else {
-    const drainTick = step - (fillLast + 1 + blinkSteps);
-    height = Math.max(
-      0,
-      Math.min(
-        MATRIX_SIZE,
-        MATRIX_SIZE - Math.max(0, drainTick - col)
-      )
-    );
-  }
-  const topLitRow = MATRIX_SIZE - height;
-  const isLit = height > 0 && row >= topLitRow && row <= MATRIX_LAST;
-  if (!isLit) return 0.08;
-  if (blinkOpacity !== null) return blinkOpacity;
-  return row === topLitRow && height < MATRIX_SIZE ? 1 : 0.52;
-};
-
-const StrobeStack: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  const fillLast = MATRIX_SIZE + MATRIX_SIZE - 1;
-  const blinkSteps = 4;
-  const drainLast = fillLast;
-  const sequenceLen = fillLast + 1 + blinkSteps + drainLast + 1;
-  return matrixSourceStyle(
-    targets,
-    entity,
-    0,
-    2000,
-    steppedOpacityFrames(sequenceLen, (step) =>
-      discreteCellField(fRow, fCol, (row, col) =>
-        strobeStackCellOpacity(row, col, step)
-      )
-    ),
-    `steps(${sequenceLen}, end)`
-  );
-};
-
-const square9KeyframesForBit = (bitIndex: number) => {
-  const windows = [
-    [[0.03846154, 0.30769231], [0.46153846, 0.5], [0.53846154, 0.57692308], [0.65384615, 0.71153846], [0.80769231, 0.84615385], [0.88461538, 0.92307692]],
-    [[0.05769231, 0.25], [0.30769231, 0.36538462], [0.5, 0.53846154], [0.57692308, 0.61538462], [0.65384615, 0.76923077], [0.80769231, 0.84615385], [0.88461538, 0.92307692]],
-    [[0.07692308, 0.25], [0.36538462, 0.42307692], [0.46153846, 0.5], [0.53846154, 0.57692308], [0.71153846, 0.76923077], [0.80769231, 0.84615385], [0.88461538, 0.92307692]],
-    [[0.13461538, 0.30769231], [0.5, 0.53846154], [0.57692308, 0.61538462], [0.65384615, 0.71153846], [0.84615385, 0.88461538], [0.92307692, 0.96153846]],
-    [[0.15384615, 0.25], [0.30769231, 0.36538462], [0.46153846, 0.5], [0.53846154, 0.57692308], [0.65384615, 0.76923077], [0.84615385, 0.88461538], [0.92307692, 0.96153846]],
-    [[0.17307692, 0.25], [0.36538462, 0.42307692], [0.5, 0.53846154], [0.57692308, 0.61538462], [0.71153846, 0.76923077], [0.84615385, 0.88461538], [0.92307692, 0.96153846]],
-  ][bitIndex];
-  const frames: WebKeyframeValue[] = [{ offset: 0, value: SOURCE_BASE_OPACITY }];
-  windows.forEach(([start, end]) => {
-    frames.push({ offset: start, value: SOURCE_BASE_OPACITY });
-    frames.push({ offset: start, value: SOURCE_PEAK_OPACITY });
-    frames.push({ offset: end, value: SOURCE_PEAK_OPACITY });
-    frames.push({ offset: end, value: SOURCE_BASE_OPACITY });
-  });
-  frames.push({ offset: 1, value: SOURCE_BASE_OPACITY });
-  return frames;
-};
-
-const square9BitForCell = (row: number, col: number) => {
-  if (row < 1 || row > 3) return null;
-  const dr = row - 1;
-  if (col === 0) return dr;
-  if (col === 1) return dr + 3;
-  if (col === 3) return dr;
-  if (col === 4) return dr + 3;
-  return null;
-};
-
-const square9StaticOpacityForCell = (row: number, col: number) =>
-  row >= 1 && row <= 3 && col === 2 ? 0.12 : 0.08;
-
-const glyphPulseCellOpacity = (row: number, col: number, phase: number) => {
-  const bit = square9BitForCell(row, col);
-  if (bit === null) return square9StaticOpacityForCell(row, col);
-  return keyframeOpacityAt(square9KeyframesForBit(bit), phase);
-};
-
-const GlyphPulse: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    0,
-    5200,
-    phaseOpacityFrames(52, (phase) =>
-      discreteCellField(fRow, fCol, (row, col) =>
-        glyphPulseCellOpacity(row, col, phase)
-      )
-    ),
-    'steps(52, end)'
-  );
-};
-
-const crtGlideCellOpacity = (
-  row: number,
-  col: number,
-  scanRow: number
-) => {
-  if (row > scanRow) return 0.08;
-  const colGain = 1 + 0.07 * Math.sin(col * 1.72 + scanRow * 0.61);
-  const trail = Math.exp(-(scanRow - row) * 0.72);
-  return Math.min(1, 0.08 + (1 - 0.08) * trail * colGain);
-};
-
-const CRTGlide: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    0,
-    1500,
-    steppedOpacityFrames(MATRIX_SIZE, (scanRow) =>
-      crtGlideCellOpacity(fRow, fCol, scanRow)
-    ),
     'steps(5, end)'
   );
 };
@@ -2027,277 +1762,6 @@ const CornerPop: QRCodeAnimation = (targets, x, y, count, entity) => {
       matrixCssKeyframe(1, 0, 0, 0.08),
     ],
     'ease-in-out'
-  );
-};
-
-const coreRotorCellOpacity = (row: number, col: number, phase: number) => {
-  const outline = Math.min(row, col, MATRIX_LAST - row, MATRIX_LAST - col);
-  const distFromCenter = Math.hypot(row - MATRIX_CENTER, col - MATRIX_CENTER);
-
-  if (distFromCenter < 0.55) {
-    const hub = 0.5 + 0.5 * Math.sin(phase * Math.PI * 2);
-    return 0.08 + hub * 0.56;
-  }
-
-  if (outline > 0.12) {
-    return 0.08;
-  }
-
-  const angle = Math.atan2(row - MATRIX_CENTER, col - MATRIX_CENTER);
-  const angularPhase = (angle + Math.PI) / (2 * Math.PI);
-  let delta = phase - angularPhase;
-
-  while (delta > 0.5) {
-    delta -= 1;
-  }
-  while (delta < -0.5) {
-    delta += 1;
-  }
-
-  const wrapped = Math.abs(delta) * 2;
-  const bump = Math.max(0, Math.cos(wrapped * Math.PI * 0.62));
-
-  return 0.08 + bump * 0.92;
-};
-
-const CoreRotor: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    0,
-    MATRIX_CYCLE_MS,
-    phaseOpacityFrames(56, (phase) =>
-      sampleCellField(fRow, fCol, (row, col) =>
-        coreRotorCellOpacity(row, col, phase)
-      )
-    ),
-    'linear'
-  );
-};
-
-const SQUARE14_FRAME_MASKS = [
-  'x...x' + '.x.x.' + '..o..' + '.x.x.' + 'x...x',
-  '..x..' + '.oxo.' + 'xooox' + '.oxo.' + '..x..',
-  '.x.x.' + 'x.o.x' + '..o..' + 'x.o.x' + '.x.x.',
-  'x.x.x' + '.o.o.' + 'x.o.x' + '.o.o.' + 'x.x.x',
-];
-const SQUARE14_FRAME_SEQUENCE = [0, 1, 2, 3, 2, 1];
-
-const prismBloomCellOpacity = (row: number, col: number, step: number) => {
-  const mask = SQUARE14_FRAME_MASKS[SQUARE14_FRAME_SEQUENCE[step]];
-  const cell = frameMaskCell(mask, row, col);
-  if (cell === 'x') return 1;
-  if (cell === 'o') return 0.52;
-  return 0.08;
-};
-
-const PrismBloom: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    0,
-    1700,
-    steppedOpacityFrames(SQUARE14_FRAME_SEQUENCE.length, (step) =>
-      discreteCellField(fRow, fCol, (row, col) =>
-        prismBloomCellOpacity(row, col, step)
-      )
-    ),
-    'steps(6, end)'
-  );
-};
-
-const helixGlowCellOpacity = (
-  row: number,
-  col: number,
-  phase: number
-) => {
-  const rowPhase = phase * 4 * Math.PI + row * 1.24;
-  const left = Math.round(1 + Math.sin(rowPhase));
-  const right = 4 - left;
-  if (col === left || col === right) return 1;
-  if (Math.abs(col - left) === 1 || Math.abs(col - right) === 1) return 0.24;
-  return 0.08;
-};
-
-const HelixGlow: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    0,
-    1600,
-    phaseOpacityFrames(32, (phase) =>
-      sampleCellField(fRow, fCol, (row, col) =>
-        helixGlowCellOpacity(row, col, phase)
-      )
-    )
-  );
-};
-
-const helixCoreCellOpacity = (
-  row: number,
-  col: number,
-  phase: number
-) => {
-  const rowPhase = phase * 20 * ((Math.PI * 2) / 19) + row * 1.24;
-  const left = Math.round(1.5 + 0.5 * Math.sin(rowPhase));
-  const right = 4 - left;
-  if (col === left || col === right) return 1;
-  if (col > left && col < right && Math.cos(rowPhase * 2) > 0.82) return 0.58;
-  if (Math.abs(col - left) === 1 || Math.abs(col - right) === 1) return 0.24;
-  return 0.08;
-};
-
-const HelixCore: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    0,
-    1400,
-    phaseOpacityFrames(20, (phase) =>
-      sampleCellField(fRow, fCol, (row, col) =>
-        helixCoreCellOpacity(row, col, phase)
-      )
-    )
-  );
-};
-
-interface MatrixPoint {
-  x: number;
-  y: number;
-}
-
-const SQUARE19_STEP_COUNT = 48;
-
-const square19GridPoint = (row: number, col: number): MatrixPoint => ({
-  x: (col - 2) / 2,
-  y: (2 - row) / 2,
-});
-
-const square19LoopPoint = (step: number): MatrixPoint => {
-  const t = ((step % SQUARE19_STEP_COUNT) / SQUARE19_STEP_COUNT) * Math.PI * 2;
-  return { x: Math.sin(t), y: 0.58 * Math.sin(2 * t) };
-};
-
-const square19DistanceSq = (a: MatrixPoint, b: MatrixPoint) => {
-  const dx = a.x - b.x;
-  const dy = a.y - b.y;
-  return dx * dx + dy * dy;
-};
-
-const square19HeadInfluence = (dot: MatrixPoint, head: MatrixPoint) =>
-  Math.exp(-square19DistanceSq(dot, head) / 0.19);
-
-const InfinityRun: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  const dot = square19GridPoint(fRow, fCol);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    0,
-    1700,
-    steppedOpacityFrames(SQUARE19_STEP_COUNT, (step) => {
-      const headA = square19LoopPoint(step);
-      const headB = square19LoopPoint(step + SQUARE19_STEP_COUNT / 2);
-      const trailA = square19LoopPoint(step - 4);
-      const trailB = square19LoopPoint(step + SQUARE19_STEP_COUNT / 2 - 4);
-      const lead = Math.max(
-        square19HeadInfluence(dot, headA),
-        square19HeadInfluence(dot, headB)
-      );
-      const trail = Math.max(
-        square19HeadInfluence(dot, trailA),
-        square19HeadInfluence(dot, trailB)
-      );
-      const centerPulse =
-        Math.exp(-(dot.x * dot.x + dot.y * dot.y) / 0.05) * (0.45 + 0.55 * lead);
-      return Math.min(1, 0.08 + 0.32 * trail + 0.62 * lead + 0.16 * centerPulse);
-    }),
-    'steps(48, end)'
-  );
-};
-
-const SQUARE20_PERIMETER_PATH = [
-  rowMajorIndex(0, 0),
-  rowMajorIndex(0, 1),
-  rowMajorIndex(0, 2),
-  rowMajorIndex(0, 3),
-  rowMajorIndex(0, 4),
-  rowMajorIndex(1, 4),
-  rowMajorIndex(2, 4),
-  rowMajorIndex(3, 4),
-  rowMajorIndex(4, 4),
-  rowMajorIndex(4, 3),
-  rowMajorIndex(4, 2),
-  rowMajorIndex(4, 1),
-  rowMajorIndex(4, 0),
-  rowMajorIndex(3, 0),
-  rowMajorIndex(2, 0),
-  rowMajorIndex(1, 0),
-];
-const SQUARE20_TAIL_BRIGHT = [1, 0.82, 0.64, 0.46, 0.3, 0.18];
-const SQUARE20_BACK_TAIL_BRIGHT = [0.38, 0.3, 0.22, 0.14];
-const SQUARE20_TWIST_INNER_BY_HEAD_STEP = new Map([
-  [0, rowMajorIndex(1, 1)],
-  [4, rowMajorIndex(1, 3)],
-  [8, rowMajorIndex(3, 3)],
-  [12, rowMajorIndex(3, 1)],
-]);
-
-const square20OpacityFromTail = (distance: number, tail: number[]) =>
-  distance >= 0 && distance < tail.length ? tail[distance] : 0;
-
-const mobiusRunCellOpacity = (row: number, col: number, step: number) => {
-  const index = rowMajorIndex(row, col);
-  let opacity = 0.08;
-  const onLoop = SQUARE20_PERIMETER_PATH.indexOf(index);
-  const backHead =
-    (step + Math.floor(SQUARE20_PERIMETER_PATH.length / 2)) %
-    SQUARE20_PERIMETER_PATH.length;
-  if (onLoop >= 0) {
-    const forward =
-      (step - onLoop + SQUARE20_PERIMETER_PATH.length) %
-      SQUARE20_PERIMETER_PATH.length;
-    const alongBack =
-      (backHead - onLoop + SQUARE20_PERIMETER_PATH.length) %
-      SQUARE20_PERIMETER_PATH.length;
-    opacity = Math.max(
-      opacity,
-      square20OpacityFromTail(forward, SQUARE20_TAIL_BRIGHT),
-      square20OpacityFromTail(alongBack, SQUARE20_BACK_TAIL_BRIGHT)
-    );
-  }
-  if (SQUARE20_TWIST_INNER_BY_HEAD_STEP.get(step) === index) {
-    opacity = Math.max(opacity, 0.52);
-  }
-  if (index === rowMajorIndex(2, 2) && step % 4 === 0) {
-    opacity = Math.max(opacity, 0.55);
-  }
-  return Math.min(1, opacity);
-};
-
-const MobiusRun: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    0,
-    1600,
-    steppedOpacityFrames(SQUARE20_PERIMETER_PATH.length, (step) =>
-      discreteCellField(fRow, fCol, (row, col) =>
-        mobiusRunCellOpacity(row, col, step)
-      )
-    ),
-    'steps(16, end)'
   );
 };
 
@@ -2592,18 +2056,8 @@ const resolveAnimationPreset = (name: string) => {
       return PulseLadder;
     case AnimationPreset.CoreSpiral:
       return CoreSpiral;
-    case AnimationPreset.TwinOrbit:
-      return TwinOrbit;
     case AnimationPreset.FluxColumns:
       return FluxColumns;
-    case AnimationPreset.BlockDrop:
-      return BlockDrop;
-    case AnimationPreset.StrobeStack:
-      return StrobeStack;
-    case AnimationPreset.GlyphPulse:
-      return GlyphPulse;
-    case AnimationPreset.CRTGlide:
-      return CRTGlide;
     case AnimationPreset.EchoRing:
       return EchoRing;
     case AnimationPreset.OriginWave:
@@ -2624,18 +2078,6 @@ const resolveAnimationPreset = (name: string) => {
       return WaveRide;
     case AnimationPreset.CornerPop:
       return CornerPop;
-    case AnimationPreset.CoreRotor:
-      return CoreRotor;
-    case AnimationPreset.PrismBloom:
-      return PrismBloom;
-    case AnimationPreset.HelixGlow:
-      return HelixGlow;
-    case AnimationPreset.HelixCore:
-      return HelixCore;
-    case AnimationPreset.InfinityRun:
-      return InfinityRun;
-    case AnimationPreset.MobiusRun:
-      return MobiusRun;
     default:
       throw new Error(`${name} is not a valid AnimationPreset.`);
   }

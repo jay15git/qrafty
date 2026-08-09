@@ -1144,9 +1144,9 @@ describe("WorkspaceSurface", () => {
     expect(surface.container.querySelector('[data-slot="drafting-motion-tab"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="drafting-loader-playground-tab"]')).not.toBeNull()
     expect(surface.container.textContent).toContain("Dot matrix motion")
-    expect(surface.container.textContent).toContain("Animated SVG export")
+    expect(surface.container.textContent).toContain("Preview-only animated SVG export")
     expect(surface.container.textContent).toContain("Neon Drift")
-    expect(surface.container.textContent).toContain("Mobius Run")
+    expect(surface.container.textContent).toContain("Corner Pop")
     expect(surface.container.textContent).not.toContain("Honey Gate")
     expect(surface.container.textContent).toContain("Loader color")
     expect(surface.container.textContent).toContain("Overlay scale")
@@ -1155,48 +1155,9 @@ describe("WorkspaceSurface", () => {
     expect(surface.container.textContent).toContain("Mid")
     expect(surface.container.textContent).toContain("Peak")
     expect(surface.container.textContent).not.toContain("Dot shape")
-
-    await act(async () => {
-      activateElement(
-        getRequiredElement(
-          surface.container,
-          'button[aria-label="Select loader Mobius Run"]',
-        ),
-      )
-      await flushPromises()
-      await flushPromises()
-    })
-
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        dotMatrixAnimation: expect.objectContaining({
-          loader: "mobius-run",
-        }),
-      }),
-    )
-
-    const loaderPanel = getRequiredElement(
-      surface.container,
-      '[data-slot="drafting-loader-playground-tab"]',
-    )
-    const baseColorInput = getRequiredElement(
-      loaderPanel,
-      'input[aria-label="Loader base color"]',
-    ) as HTMLInputElement
-
-    await act(async () => {
-      changeInputValue(baseColorInput, "#111111")
-      await flushPromises()
-      await flushPromises()
-    })
-
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        dotMatrixAnimation: expect.objectContaining({
-          customColorBase: "#111111",
-        }),
-      }),
-    )
+    expect(surface.container.textContent).not.toContain("Mobius Run")
+    expect(surface.container.textContent).not.toContain("Twin Orbit")
+    expect(surface.container.textContent).not.toContain("Core Rotor")
   })
 
   it("updates dot matrix motion from the Motion panel", async () => {
@@ -1208,26 +1169,8 @@ describe("WorkspaceSurface", () => {
     })
 
     expect(surface.container.textContent).toContain("Dot matrix motion")
-    expect(surface.container.textContent).toContain("Animated SVG export")
-
-    await act(async () => {
-      activateElement(
-        getRequiredElement(
-          surface.container,
-          "#drafting-dot-matrix-animation-enabled",
-        ),
-      )
-      await flushPromises()
-      await flushPromises()
-    })
-
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        dotMatrixAnimation: expect.objectContaining({
-          enabled: true,
-        }),
-      }),
-    )
+    expect(surface.container.textContent).toContain("Preview-only animated SVG export")
+    expect(surface.container.textContent).toContain("Corner Pop")
   })
 
   it("ports static content controls into the default drafting panel without render type cards", () => {
