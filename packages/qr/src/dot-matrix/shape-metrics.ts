@@ -1,15 +1,15 @@
 const STAR_SPIKES = 5;
-const HEART_BOUNDARY_STEP = Math.PI / 120;
+const HEART_BOUNDARY_STEP = Math.PI / 360;
+
+type ShapePoint = {
+  x: number;
+  y: number;
+};
 
 function normalizeAngle(angle: number) {
   let a = angle % (Math.PI * 2);
   if (a < 0) a += Math.PI * 2;
   return a;
-}
-
-function angleDelta(a: number, b: number) {
-  const delta = Math.abs(normalizeAngle(a) - normalizeAngle(b));
-  return Math.min(delta, Math.PI * 2 - delta);
 }
 
 /** Normalized grid coords: x right, y up (screen row flipped). */
@@ -36,28 +36,48 @@ export function heartImplicit(x: number, y: number) {
 const HEART_BOUNDARY = Array.from({ length: Math.ceil((Math.PI * 2) / HEART_BOUNDARY_STEP) }, (_, index) => {
   const t = index * HEART_BOUNDARY_STEP;
   const nx = Math.pow(Math.sin(t), 3);
-  const ny = -(
+  const ny =
     (13 * Math.cos(t) -
       5 * Math.cos(2 * t) -
       2 * Math.cos(3 * t) -
       Math.cos(4 * t)) /
-    16
-  );
-  const angle = Math.atan2(ny, nx);
-  const r = Math.hypot(nx, ny);
-  return { angle, r };
+    16;
+  return { x: nx, y: ny };
 });
 
-const HEART_MAX_RADIUS = Math.max(...HEART_BOUNDARY.map((sample) => sample.r), 0.1);
+const STAR_BOUNDARY = Array.from({ length: STAR_SPIKES * 2 }, (_, index) => {
+  const angle = Math.PI / 2 + (index * Math.PI) / STAR_SPIKES;
+  const radius = index % 2 === 0 ? 1 : 0.5;
+  return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+});
 
-function heartBoundaryAtAngle(angle: number) {
-  let best = 0.01;
-  for (const sample of HEART_BOUNDARY) {
-    if (angleDelta(sample.angle, angle) < Math.PI / 14) {
-      best = Math.max(best, sample.r);
+function cross(a: ShapePoint, b: ShapePoint) {
+  return a.x * b.y - a.y * b.x;
+}
+
+function radialBoundaryAtAngle(boundary: readonly ShapePoint[], angle: number) {
+  const ray = { x: Math.cos(angle), y: Math.sin(angle) };
+  let nearest = Number.POSITIVE_INFINITY;
+
+  for (let index = 0; index < boundary.length; index++) {
+    const start = boundary[index]!;
+    const end = boundary[(index + 1) % boundary.length]!;
+    const edge = { x: end.x - start.x, y: end.y - start.y };
+    const denominator = cross(ray, edge);
+
+    if (Math.abs(denominator) < 1e-8) {
+      continue;
+    }
+
+    const distance = cross(start, edge) / denominator;
+    const edgeProgress = cross(start, ray) / denominator;
+
+    if (distance >= 0 && edgeProgress >= 0 && edgeProgress <= 1) {
+      nearest = Math.min(nearest, distance);
     }
   }
-  return best;
+
+  return Number.isFinite(nearest) ? nearest : 0.01;
 }
 
 /** Expansion scale where the point hits the parametric heart boundary (grid units). */
@@ -69,19 +89,13 @@ export function heartExpansionMetric(
   const { nx, ny, radius } = normalizedGridCoords(row, col, matrixSize);
   const r = Math.hypot(nx, ny);
   if (r < 1e-6) return 0;
-  const boundary = heartBoundaryAtAngle(Math.atan2(ny, nx));
+  const boundary = radialBoundaryAtAngle(HEART_BOUNDARY, Math.atan2(ny, nx));
   return (r / boundary) * radius;
 }
 
-/** Outer star radius at angle — matches react-qr-code 5-point star. */
+/** Exact radial boundary of the react-qr-code five-point star. */
 export function starBoundaryRadius(angle: number) {
-  const step = Math.PI / STAR_SPIKES;
-  const a = normalizeAngle(angle - Math.PI / 2);
-  const segment = (a % (step * 2)) / step;
-  const t = segment <= 1 ? segment : 2 - segment;
-  const outer = 1;
-  const inner = 0.5;
-  return outer - (outer - inner) * t;
+  return radialBoundaryAtAngle(STAR_BOUNDARY, normalizeAngle(angle));
 }
 
 /** Distance to star boundary along the ray from center (grid units). */
@@ -128,7 +142,7 @@ export function starMaxExpansionMetric(matrixSize: number) {
 
 export function heartBoundarySamples() {
   return HEART_BOUNDARY.map((sample) => ({
-    angle: sample.angle,
-    r: sample.r / HEART_MAX_RADIUS,
+    angle: Math.atan2(sample.y, sample.x),
+    r: Math.hypot(sample.x, sample.y),
   }));
 }

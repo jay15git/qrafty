@@ -22,6 +22,15 @@ describe("shape-metrics", () => {
     expect(bottomTip).toBeGreaterThan(topLobe);
   });
 
+  it("keeps the heart notch above its two upper lobes", () => {
+    const size = 25;
+    const center = (size - 1) / 2;
+    const topNotch = heartExpansionMetric(0, center, size);
+    const upperLobe = heartExpansionMetric(4, center - 4, size);
+
+    expect(topNotch).toBeGreaterThan(upperLobe);
+  });
+
   it("forms star tips farther than indent notches", () => {
     const size = 25;
     const center = (size - 1) / 2;

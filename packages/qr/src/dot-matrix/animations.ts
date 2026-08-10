@@ -1653,18 +1653,18 @@ const shapeRevealAnimation = (
   maxMetric: number,
 ): DotMatrixAnimationFrame => ({
   targets,
-  from: 0,
+  // Keep the full contour travel inside one cycle. Raw shape metrics scale
+  // with the QR size; using them directly starts additional hearts/stars
+  // before the first one has left the QR.
+  from: (maxMetric > 0 ? metric / maxMetric : 0) * 0.42 * MATRIX_CYCLE_MS,
   duration: MATRIX_CYCLE_MS,
   easing: 'ease-in-out',
   web: {
-    shapeReveal: {
-      edgeWidth: 1.4,
-      maxMetric,
-      metric,
-    },
     opacity: [
       matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(1, 1, 0, 0),
+      matrixCssKeyframe(0.12, 1, 0, 0),
+      matrixCssKeyframe(0.24, 0, 0, 1),
+      matrixCssKeyframe(1, 0, 0, 1),
     ],
   },
 });

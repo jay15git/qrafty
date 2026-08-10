@@ -26,8 +26,10 @@ import {
 } from "@/features/qr-code/model/state"
 import {
   heartExpansionMetric,
+  heartMaxExpansionMetric,
   rippleRingIndex,
   starExpansionMetric,
+  starMaxExpansionMetric,
 } from "@new-qr/qr/dot-matrix"
 import {
   resolveMotionColors,
@@ -1412,12 +1414,12 @@ const DOT_MATRIX_LOADER_SPECS: Record<QrDotMatrixSquareLoader, DotMatrixLoaderSp
   ),
   "heart-expand": createDotMatrixLoaderSpec("dotm-square-28", "heart-expand", (cell) =>
     createClassCellAnimation("dotm-square-28", "heart-expand", "dmx-heart-expand", "dmx-heart-expand", 1500, {
-      "--dmx-heart-radius": heartExpansionMetric(cell.row, cell.col, cell.matrixSize),
+      "--dmx-heart-progress": getShapeExpansionProgress(cell, heartExpansionMetric, heartMaxExpansionMetric),
     }),
   ),
   "star-expand": createDotMatrixLoaderSpec("dotm-square-30", "star-expand", (cell) =>
     createClassCellAnimation("dotm-square-30", "star-expand", "dmx-star-expand", "dmx-star-expand", 1500, {
-      "--dmx-star-radius": starExpansionMetric(cell.row, cell.col, cell.matrixSize),
+      "--dmx-star-progress": getShapeExpansionProgress(cell, starExpansionMetric, starMaxExpansionMetric),
     }),
   ),
   "ripple-expand": createDotMatrixLoaderSpec("dotm-square-31", "ripple-expand", (cell) =>
@@ -1660,6 +1662,15 @@ function radialDistanceFromCenter(cell: DotMatrixCell) {
 function diamondDistanceFromCenter(cell: DotMatrixCell) {
   const center = getDotMatrixCenter(cell.matrixSize)
   return Math.abs(cell.row - center) + Math.abs(cell.col - center)
+}
+
+function getShapeExpansionProgress(
+  cell: DotMatrixCell,
+  metricAt: (row: number, col: number, matrixSize: number) => number,
+  maxMetricAt: (matrixSize: number) => number,
+) {
+  const maxMetric = maxMetricAt(cell.matrixSize)
+  return maxMetric > 0 ? metricAt(cell.row, cell.col, cell.matrixSize) / maxMetric : 0
 }
 
 function zigzagOrderValue(cell: DotMatrixCell) {
@@ -1951,8 +1962,8 @@ function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrac
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-radial-expand"] { animation-delay: calc(var(--dmx-radial-radius, 0) * -140ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-radius-ping"] { animation-delay: calc(var(--dmx-radial-radius, 0) * -180ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-diamond-expand"] { animation-delay: calc(var(--dmx-diamond-radius, 0) * -120ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-heart-expand"] { animation-delay: calc(var(--dmx-heart-radius, 0) * -110ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-star-expand"] { animation-delay: calc(var(--dmx-star-radius, 0) * -110ms); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-heart-expand"] { animation-delay: calc(var(--dmx-heart-progress, 0) * -630ms); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-star-expand"] { animation-delay: calc(var(--dmx-star-progress, 0) * -630ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-ripple-expand"] { animation-delay: calc(var(--dmx-ripple-expand-ring, 0) * -90ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-zigzag-flow"] { animation-delay: calc(var(--dmx-zigzag-order, 0) * -35ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-cross-bloom"] { animation-delay: calc(var(--dmx-cross-distance, 0) * -140ms); }
@@ -1967,8 +1978,8 @@ function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrac
 @keyframes dmx-radial-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 28% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 52% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
 @keyframes dmx-radius-ping { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 10% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 20% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
 @keyframes dmx-diamond-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 30% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 55% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
-@keyframes dmx-heart-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 22% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 44% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
-@keyframes dmx-star-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 20% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 40% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
+@keyframes dmx-heart-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 12% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 24% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
+@keyframes dmx-star-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 12% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 24% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
 @keyframes dmx-ripple-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 7% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 14% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 55%, var(--qr-dot-matrix-color-peak)); } 28% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
 @keyframes dmx-zigzag-flow { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 24% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 38% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 40%, var(--qr-dot-matrix-color-peak)); } }
 @keyframes dmx-cross-bloom { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 26% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 48% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 45%, var(--qr-dot-matrix-color-peak)); } }

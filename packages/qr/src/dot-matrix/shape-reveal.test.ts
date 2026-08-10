@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { sampleDotMatrixAnimationFrame } from "./animations";
+import {
+  AnimationPreset,
+  getAnimationPreset,
+  QRCodeEntity,
+  sampleDotMatrixAnimationFrame,
+} from "./animations";
 import { heartExpansionMetric, heartMaxExpansionMetric } from "./shape-metrics";
 
 describe("shape reveal sampling", () => {
@@ -59,5 +64,20 @@ describe("shape reveal sampling", () => {
 
     expect(outsideMetric).toBeGreaterThan(maxMetric);
     expect(sampleDotMatrixAnimationFrame(animation, 750).fill).toBe("#111827");
+  });
+
+  it("sends heart and star waves outward before each loop restarts", () => {
+    const size = 21;
+    const center = (size - 1) / 2;
+
+    for (const preset of [AnimationPreset.HeartExpand, AnimationPreset.StarExpand]) {
+      const animation = getAnimationPreset(preset);
+      const centerWave = animation({} as HTMLElement, center, center, size, QRCodeEntity.Module);
+      const outerWave = animation({} as HTMLElement, center, 0, size, QRCodeEntity.Module);
+
+      expect(centerWave.from).toBe(0);
+      expect(outerWave.from).toBeGreaterThan(centerWave.from ?? 0);
+      expect(outerWave.web?.shapeReveal).toBeUndefined();
+    }
   });
 });

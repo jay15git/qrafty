@@ -3947,7 +3947,7 @@ function DesktopMotionPresetTileButton({
       aria-label={`Use ${label} motion loader`}
       aria-pressed={selected}
       className={cn(
-        "group relative flex h-[54px] min-w-0 flex-col items-center justify-center gap-1 px-1",
+        "group relative flex h-[54px] min-w-0 flex-col items-center justify-center px-1.5",
         desktopInspectorOptionGridItemClass(),
         DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
         DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
@@ -3962,12 +3962,11 @@ function DesktopMotionPresetTileButton({
     >
       <span
         className={cn(
-          "relative z-10 flex flex-col items-center justify-center gap-1",
+          "relative z-10 max-w-full truncate text-center text-[length:var(--desktop-inspector-type-caption)] leading-tight font-medium",
           DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
         )}
       >
-        <LayoutGrid className="size-4 shrink-0" />
-        <span className="max-w-full truncate">{label}</span>
+        {label}
       </span>
     </button>
   )
