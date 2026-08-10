@@ -87,16 +87,6 @@
   box-shadow: none;
 }
 
-/* Collapsed rail: canvas occupies the full viewport, edge to edge. */
-[data-slot="desktop-workspace"]:has([data-slot="desktop-left-toolbar-shell"][data-collapsed="true"]) {
-  --desktop-workspace-canvas-inset-left: 0px;
-}
-
-[data-slot="desktop-workspace"]:has([data-slot="desktop-left-toolbar-shell"][data-collapsed="true"])
-  [data-slot="desktop-canvas-viewport"] {
-  border-radius: 0;
-}
-
 [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-canvas-viewport"] {
   background: var(--drafting-surface-bg, #1f1f1f);
   box-shadow: none;
@@ -144,74 +134,6 @@
   }
 }
 
-.desktop-settings-toolbar-brand {
-  cursor: pointer;
-}
-
-/* Transitions.dev — sidebar icon left ↔ right */
-[data-slot="desktop-toolbar-brand"] {
-  --icon-swap-dur: 250ms;
-  --icon-swap-blur: 2px;
-  --icon-swap-start-scale: 0.25;
-  --icon-swap-ease: ease-in-out;
-}
-
-[data-slot="desktop-toolbar-brand"] .t-icon-swap {
-  position: relative;
-  display: grid;
-  width: 100%;
-  height: 100%;
-  place-items: center;
-}
-
-[data-slot="desktop-toolbar-brand"] .t-icon-swap > .t-icon {
-  grid-area: 1 / 1;
-  transition:
-    opacity var(--icon-swap-dur) var(--icon-swap-ease),
-    filter var(--icon-swap-dur) var(--icon-swap-ease),
-    transform var(--icon-swap-dur) var(--icon-swap-ease);
-  will-change: opacity, filter, transform;
-}
-
-[data-slot="desktop-toolbar-brand"] .t-icon-swap[data-state="a"] > .t-icon[data-icon="a"],
-[data-slot="desktop-toolbar-brand"] .t-icon-swap[data-state="b"] > .t-icon[data-icon="b"] {
-  opacity: 1;
-  visibility: visible;
-  filter: blur(0);
-  transform: scale(1);
-}
-
-[data-slot="desktop-toolbar-brand"] .t-icon-swap[data-state="a"] > .t-icon[data-icon="b"],
-[data-slot="desktop-toolbar-brand"] .t-icon-swap[data-state="b"] > .t-icon[data-icon="a"] {
-  opacity: 0;
-  visibility: hidden;
-  filter: blur(var(--icon-swap-blur));
-  transform: scale(var(--icon-swap-start-scale));
-}
-
-/* Sidebar left ↔ right: blur + fade only, no scale */
-[data-slot="desktop-toolbar-brand"] .t-icon-swap--sidebar > .t-icon {
-  transition:
-    opacity var(--icon-swap-dur) var(--icon-swap-ease),
-    filter var(--icon-swap-dur) var(--icon-swap-ease);
-  will-change: opacity, filter;
-}
-
-[data-slot="desktop-toolbar-brand"] .t-icon-swap--sidebar[data-state="a"] > .t-icon[data-icon="b"],
-[data-slot="desktop-toolbar-brand"] .t-icon-swap--sidebar[data-state="b"] > .t-icon[data-icon="a"] {
-  transform: scale(1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-slot="desktop-toolbar-brand"] .t-icon-swap > .t-icon {
-    transition: none !important;
-  }
-
-  [data-slot="desktop-toolbar-brand"] .t-icon-swap--sidebar > .t-icon {
-    transition: none !important;
-  }
-}
-
 [data-slot="desktop-left-toolbar-shell"] {
   border-radius: 0;
   --desktop-settings-toolbar-rail-hitbox-half: 1.5625rem;
@@ -254,19 +176,6 @@
 [data-slot="desktop-left-toolbar-shell"] [data-slot="desktop-floating-toolbar"] {
   padding-top: var(--desktop-settings-toolbar-top-inset);
   box-sizing: border-box;
-}
-
-[data-slot="desktop-left-toolbar-shell"] [data-slot="desktop-toolbar-tools"] {
-  margin-top: calc(
-    var(--desktop-settings-toolbar-inspector-header-height) +
-      var(--desktop-inspector-scroll-padding-block-start) -
-      var(--desktop-toolbar-rail-hitbox-size) - var(--desktop-toolbar-rail-pill-inset-y)
-  );
-  box-sizing: border-box;
-}
-
-[data-slot="desktop-sidebar-toggle"] {
-  pointer-events: auto;
 }
 
 /*

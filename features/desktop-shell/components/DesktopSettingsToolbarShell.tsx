@@ -1,22 +1,15 @@
 "use client"
 
-import {
-  SidebarLeftIcon,
-  SidebarRightIcon,
-} from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
 import { motion } from "motion/react"
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
+import { useCallback, useEffect, useState, type ReactNode } from "react"
 
 import { EXPANDABLE_PANEL_SPRING } from "@/components/atomixui/expandable-panel-shell"
 import {
   TabsSubtleIconRail,
-  TabsSubtleIconRailAccessory,
   TabsSubtleIconRailItem,
   TabsSubtleIconRailSeparator,
 } from "@/components/ui/tabs-subtle-icon-rail"
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
-import { DESKTOP_INSPECTOR_FOCUS_CLASS } from "@/features/desktop-shell/components/InspectorControls"
 import {
   DesktopSettingsPanelMotionFrozenProvider,
 } from "@/features/desktop-shell/components/desktop-settings-panel-motion-frozen-context"
@@ -28,33 +21,12 @@ import { cn } from "@/lib/utils"
 
 import "./desktop-settings-toolbar-motion.css"
 
-export const DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY =
-  "desktop-settings-toolbar-collapsed"
-
-/** Collapsed: no white column — grey squircle is maximized. */
-const DESKTOP_SHELL_COLLAPSED_WIDTH_PX = 0
 /** Expanded column leaves enough room to keep the canvas legible on compact desktops. */
 const DESKTOP_SHELL_EXPANDED_WIDTH_RATIO = 0.28
 const DESKTOP_SHELL_EXPANDED_WIDTH_MIN_PX = 300
 const DESKTOP_SHELL_EXPANDED_WIDTH_MAX_PX = 380
 const DESKTOP_SHELL_EXPANDED_WIDTH_FALLBACK_PX = 340
-const DESKTOP_TOOLBAR_BRAND_PROXIMITY_INDEX = -1
-const DESKTOP_TOOLBAR_BRAND_ICON_SIZE = 20
-const DESKTOP_SIDEBAR_TOGGLE_ICON_SIZE = 18
 const DESKTOP_TOOLBAR_RAIL_WIDTH_CLASS = "w-[4.5rem] max-md:w-[3.5rem]"
-
-function readCollapsedFromSession(): boolean {
-  if (typeof window === "undefined") {
-    return true
-  }
-
-  const stored = window.sessionStorage.getItem(DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY)
-  if (stored === null) {
-    return true
-  }
-
-  return stored === "true"
-}
 
 function getExpandedSidebarWidthPx(): number {
   if (typeof window === "undefined") {
@@ -87,38 +59,6 @@ function syncSidebarColumnWidth(width: number) {
   }
 }
 
-function DesktopSidebarToggleButton({
-  className,
-  collapsed,
-  onClick,
-}: {
-  className?: string
-  collapsed: boolean
-  onClick: () => void
-}) {
-  return (
-    <button
-      aria-expanded={!collapsed}
-      aria-label={collapsed ? "Expand settings panel" : "Collapse settings panel"}
-      className={cn(
-        DESKTOP_INSPECTOR_FOCUS_CLASS,
-        "grid size-10 shrink-0 cursor-pointer place-items-center rounded-[12px] border border-[var(--desktop-glass-border)] bg-[var(--desktop-glass-bg)] text-[var(--desktop-glass-fg)] shadow-[var(--desktop-glass-shadow)] backdrop-blur-2xl transition hover:bg-[var(--desktop-glass-button-hover-bg)] hover:text-[var(--desktop-glass-button-hover-fg)]",
-        className,
-      )}
-      data-slot="desktop-sidebar-toggle"
-      type="button"
-      onClick={onClick}
-    >
-      <HugeiconsIcon
-        icon={collapsed ? SidebarRightIcon : SidebarLeftIcon}
-        size={DESKTOP_SIDEBAR_TOGGLE_ICON_SIZE}
-        color="currentColor"
-        strokeWidth={1.8}
-      />
-    </button>
-  )
-}
-
 export function DesktopSettingsToolbarShell({
   hovered,
   inspector,
@@ -130,26 +70,16 @@ export function DesktopSettingsToolbarShell({
   model: DesktopInspectorModel
   showInspector: boolean
 }) {
-  const { actualActiveTool, controller, onActiveToolChange, visibleToolbarTools } = model
+  const { actualActiveTool, onActiveToolChange, visibleToolbarTools } = model
   const [internalHovered, setInternalHovered] = useState(false)
-  // SSR-safe defaults only — sessionStorage / window size restored after mount.
-  // Reading storage in useState causes hydration mismatch (server always collapsed).
-  const [isCollapsed, setIsCollapsed] = useState(true)
   const [isShellAnimating, setIsShellAnimating] = useState(false)
-  const [panelMounted, setPanelMounted] = useState(false)
   const [expandedWidth, setExpandedWidth] = useState(DESKTOP_SHELL_EXPANDED_WIDTH_FALLBACK_PX)
   const [widthTransitionEnabled, setWidthTransitionEnabled] = useState(false)
-  const isCollapsedRef = useRef(isCollapsed)
   const isHovered = hovered ?? internalHovered
-  const columnWidth = isCollapsed ? DESKTOP_SHELL_COLLAPSED_WIDTH_PX : expandedWidth
 
   useEffect(() => {
-    isCollapsedRef.current = isCollapsed
-  }, [isCollapsed])
-
-  useEffect(() => {
-    syncSidebarColumnWidth(columnWidth)
-  }, [columnWidth])
+    syncSidebarColumnWidth(expandedWidth)
+  }, [expandedWidth])
 
   useEffect(() => {
     const updateExpandedWidth = () => {
@@ -159,66 +89,19 @@ export function DesktopSettingsToolbarShell({
 
     updateExpandedWidth()
     window.addEventListener("resize", updateExpandedWidth)
-    return () => window.removeEventListener("resize", updateExpandedWidth)
-  }, [])
-
-  useEffect(() => {
-    const collapsed = readCollapsedFromSession()
-    setIsCollapsed(collapsed)
-    setPanelMounted(!collapsed && showInspector)
-    setExpandedWidth(getExpandedSidebarWidthPx())
-    // Restore session width without spring, then enable transitions for user toggles.
     const enableTransitionsFrame = window.requestAnimationFrame(() => {
       setWidthTransitionEnabled(true)
     })
-    return () => window.cancelAnimationFrame(enableTransitionsFrame)
-  }, [showInspector])
 
-  useEffect(() => {
-    if (!isCollapsed && showInspector && !isShellAnimating) {
-      setPanelMounted(true)
+    return () => {
+      window.removeEventListener("resize", updateExpandedWidth)
+      window.cancelAnimationFrame(enableTransitionsFrame)
     }
-  }, [isCollapsed, isShellAnimating, showInspector])
-
-  useEffect(() => {
-    if (!controller?.composeSidebarPanel || !isCollapsed) {
-      return
-    }
-
-    setIsCollapsed(false)
-    window.sessionStorage.setItem(DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY, "false")
-  }, [controller?.composeSidebarPanel, isCollapsed])
-
-  const handleShellAnimatingChange = useCallback(
-    (animating: boolean) => {
-      setIsShellAnimating(animating)
-
-      if (animating) {
-        return
-      }
-
-      if (isCollapsedRef.current || !showInspector) {
-        setPanelMounted(false)
-        return
-      }
-
-      setPanelMounted(true)
-    },
-    [showInspector],
-  )
-
-  const toggleCollapsed = useCallback(() => {
-    setIsCollapsed((previous) => {
-      const next = !previous
-      window.sessionStorage.setItem(
-        DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY,
-        String(next),
-      )
-      return next
-    })
   }, [])
 
-  const sidebarIconSwapState = isCollapsed ? "b" : "a"
+  const handleShellAnimatingChange = useCallback((animating: boolean) => {
+    setIsShellAnimating(animating)
+  }, [])
 
   const handleShellMouseEnter = useCallback(() => {
     if (hovered === undefined) {
@@ -238,11 +121,6 @@ export function DesktopSettingsToolbarShell({
       return
     }
 
-    if (isCollapsed) {
-      setIsCollapsed(false)
-      window.sessionStorage.setItem(DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY, "false")
-    }
-
     onActiveToolChange(toolId)
   }
 
@@ -260,39 +138,6 @@ export function DesktopSettingsToolbarShell({
       selectedPillClassName="rounded-full bg-[var(--desktop-toolbar-pill-selected)]"
       hoverPillClassName="rounded-full bg-[var(--desktop-toolbar-pill-hover)]"
     >
-      <TabsSubtleIconRailAccessory
-        index={DESKTOP_TOOLBAR_BRAND_PROXIMITY_INDEX}
-        aria-expanded={!isCollapsed}
-        aria-label={isCollapsed ? "Expand settings panel" : "Collapse settings panel"}
-        className={DESKTOP_INSPECTOR_FOCUS_CLASS}
-        data-slot="desktop-toolbar-brand"
-        onClick={toggleCollapsed}
-      >
-        <span
-          aria-hidden="true"
-          data-slot="tabs-subtle-icon-rail-icon"
-          className="pointer-events-none grid size-11 max-md:size-10 place-items-center [&_svg]:pointer-events-none"
-        >
-          <span className="t-icon-swap t-icon-swap--sidebar" data-state={sidebarIconSwapState}>
-            <span className="t-icon grid place-items-center" data-icon="a">
-              <HugeiconsIcon
-                icon={SidebarLeftIcon}
-                size={DESKTOP_TOOLBAR_BRAND_ICON_SIZE}
-                color="currentColor"
-                strokeWidth={1.8}
-              />
-            </span>
-            <span className="t-icon grid place-items-center" data-icon="b">
-              <HugeiconsIcon
-                icon={SidebarRightIcon}
-                size={DESKTOP_TOOLBAR_BRAND_ICON_SIZE}
-                color="currentColor"
-                strokeWidth={1.8}
-              />
-            </span>
-          </span>
-        </span>
-      </TabsSubtleIconRailAccessory>
       <div
         className="flex w-full flex-col items-center"
         data-slot="desktop-toolbar-tools"
@@ -322,7 +167,7 @@ export function DesktopSettingsToolbarShell({
   )
 
   const panelContent =
-    showInspector && panelMounted ? (
+    showInspector ? (
       <DesktopSettingsPanelMotionFrozenProvider frozen={isShellAnimating}>
         {inspector}
       </DesktopSettingsPanelMotionFrozenProvider>
@@ -335,29 +180,19 @@ export function DesktopSettingsToolbarShell({
       onMouseEnter={handleShellMouseEnter}
       onMouseLeave={handleShellMouseLeave}
     >
-      {isCollapsed ? (
-        <div className="pointer-events-auto absolute left-[var(--desktop-settings-toolbar-chrome-gap)] top-[var(--desktop-settings-toolbar-chrome-gap)] z-[26]">
-          <DesktopSidebarToggleButton collapsed onClick={toggleCollapsed} />
-        </div>
-      ) : null}
-
       {/*
-        White column clip: width animates 0 → expanded.
+        White column clip: width tracks viewport for responsive sidebar.
         Same width updates --desktop-settings-toolbar-width so grey canvas left inset
         grows in lockstep — white expands, grey minimizes. No overlay on the canvas.
       */}
       <motion.div
-        className={cn(
-          "absolute inset-y-0 left-0 z-[25] overflow-hidden bg-transparent text-[var(--desktop-glass-fg)]",
-          isCollapsed ? "pointer-events-none" : "pointer-events-auto",
-        )}
-        data-collapsed={isCollapsed ? "true" : "false"}
+        className="pointer-events-auto absolute inset-y-0 left-0 z-[25] overflow-hidden bg-transparent text-[var(--desktop-glass-fg)]"
         data-hovered={isHovered ? "true" : "false"}
         data-shell-animating={isShellAnimating ? "true" : "false"}
         data-slot="desktop-left-toolbar-shell"
         data-toolbar-appearance="desktop-settings"
         initial={false}
-        animate={{ width: columnWidth }}
+        animate={{ width: expandedWidth }}
         transition={widthTransitionEnabled ? EXPANDABLE_PANEL_SPRING : { duration: 0 }}
         onAnimationStart={() => handleShellAnimatingChange(true)}
         onAnimationComplete={() => handleShellAnimatingChange(false)}

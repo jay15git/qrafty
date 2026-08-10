@@ -10,10 +10,7 @@ import {
   FloatingToolbar,
   type DesktopInspectorModel,
 } from "@/features/desktop-shell/components/FloatingToolbar"
-import {
-  DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY,
-  DesktopSettingsToolbarShell,
-} from "@/features/desktop-shell/components/DesktopSettingsToolbarShell"
+import { DesktopSettingsToolbarShell } from "@/features/desktop-shell/components/DesktopSettingsToolbarShell"
 import { getDesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { createDraftingTextLayer, type DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import { DRAFTING_CARD_PATTERNS } from "@/features/workspace/model/card-patterns"
@@ -22,7 +19,7 @@ import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root"
 const NODE_ID = "test-node"
 
 beforeEach(() => {
-  sessionStorage.setItem(DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY, "false")
+  sessionStorage.clear()
 
   Object.defineProperty(window, "matchMedia", {
     configurable: true,
@@ -143,7 +140,6 @@ describe("FloatingToolbar", () => {
   })
 
   it("renders the icon rail inside the inspector shell as one left toolbar", async () => {
-    sessionStorage.setItem(DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY, "false")
     const surface = await renderPrototype({ controller: { activeTool: "content" } })
     const shell = surface.container.querySelector('[data-slot="desktop-left-toolbar-shell"]')
     const rail = surface.container.querySelector('[data-slot="desktop-floating-toolbar"]')
@@ -156,12 +152,10 @@ describe("FloatingToolbar", () => {
     expect(shell).not.toBeNull()
     expect(shell?.querySelector('[data-slot="desktop-floating-toolbar"]')).toBe(rail)
     expect(shell?.querySelector('[data-slot="desktop-floating-inspector"]')).toBe(inspector)
-    expect(shell?.getAttribute("data-collapsed")).toBe("false")
     expect(rail?.className).not.toContain("fixed")
     expect(rail?.className).not.toContain("rounded-full")
     expect(rail?.className).not.toContain("bg-black/55")
     expect(rail?.className).not.toContain("pt-14")
-    expect(rail?.querySelector('[data-slot="desktop-toolbar-brand"]')).not.toBeNull()
     expect(rail?.querySelector('[data-slot="desktop-toolbar-tools"]')).not.toBeNull()
     expect(inspector?.className).not.toContain("fixed")
     expect(inspector?.className).not.toContain("rounded-[20px]")
@@ -267,8 +261,7 @@ describe("FloatingToolbar", () => {
     expect(onExportDownload).toHaveBeenCalledTimes(1)
   })
 
-  it("collapses and expands the settings toolbar from the brand sidebar control", async () => {
-    sessionStorage.setItem(DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY, "false")
+  it("keeps the settings toolbar expanded", async () => {
     const surface = await renderWithAsyncJsdomRoot(
       <DesktopSettingsToolbarShell
           showInspector
@@ -283,61 +276,10 @@ describe("FloatingToolbar", () => {
         />
     )
     const shell = getRequiredElement(surface.container, '[data-slot="desktop-left-toolbar-shell"]')
-    const brandButton = getRequiredButton(shell, "Collapse settings panel")
-    const inspector = shell.querySelector('[data-slot="desktop-floating-inspector"]')
 
-    expect(shell.getAttribute("data-collapsed")).toBe("false")
-    expect(brandButton.getAttribute("aria-expanded")).toBe("true")
-    expect(inspector).not.toBeNull()
-
-    await act(async () => {
-      brandButton.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-    })
-
-    expect(shell.getAttribute("data-collapsed")).toBe("true")
-    expect(sessionStorage.getItem(DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY)).toBe("true")
-
-    const expandButton = getRequiredButton(surface.container, "Expand settings panel")
-    expect(expandButton.getAttribute("data-slot")).toBe("desktop-sidebar-toggle")
-
-    await act(async () => {
-      expandButton.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-    })
-
-    expect(shell.getAttribute("data-collapsed")).toBe("false")
     expect(shell.querySelector('[data-slot="desktop-floating-inspector"]')).not.toBeNull()
-    expect(sessionStorage.getItem(DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY)).toBe("false")
-  })
-
-  it("defaults to a collapsed settings toolbar with a floating sidebar toggle", async () => {
-    sessionStorage.clear()
-    const surface = await renderWithAsyncJsdomRoot(
-      <DesktopSettingsToolbarShell
-          showInspector
-          inspector={<div data-slot="desktop-floating-inspector">Inspector</div>}
-          model={
-            {
-              actualActiveTool: "content",
-              onActiveToolChange: vi.fn(),
-              visibleToolbarTools: [],
-            } as unknown as DesktopInspectorModel
-          }
-        />
-    )
-    const shell = getRequiredElement(surface.container, '[data-slot="desktop-left-toolbar-shell"]')
-    const expandButton = getRequiredButton(surface.container, "Expand settings panel")
-
-    expect(shell.getAttribute("data-collapsed")).toBe("true")
-    expect(expandButton.getAttribute("data-slot")).toBe("desktop-sidebar-toggle")
-  })
-
-  it("restores collapsed settings toolbar state from sessionStorage", async () => {
-    sessionStorage.setItem(DESKTOP_SETTINGS_TOOLBAR_COLLAPSED_STORAGE_KEY, "true")
-    const surface = await renderPrototype({ controller: { activeTool: "content" } })
-    const shell = getRequiredElement(surface.container, '[data-slot="desktop-left-toolbar-shell"]')
-
-    expect(shell.getAttribute("data-collapsed")).toBe("true")
-    sessionStorage.clear()
+    expect(surface.container.querySelector('[data-slot="desktop-sidebar-toggle"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-toolbar-brand"]')).toBeNull()
   })
 
   it("keeps the desktop workspace chrome contract for tool states and light tooltips", () => {

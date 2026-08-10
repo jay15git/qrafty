@@ -193,7 +193,6 @@ function DesktopWorkspaceStyles() {
       [data-slot="desktop-workspace"] [data-slot="desktop-top-chrome"],
       [data-slot="desktop-workspace"] [data-slot="desktop-dynamic-island"],
       [data-slot="desktop-workspace"] [data-slot="desktop-theme-toggle"],
-      [data-slot="desktop-workspace"] [data-slot="desktop-sidebar-toggle"],
       [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] {
         pointer-events: auto;
       }
@@ -252,22 +251,19 @@ function DesktopWorkspaceStyles() {
       }
 
       /* Settings sidebar kept desktop-settings appearance — restore press scale on rail + inspector. */
-      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button,
-      [data-slot="desktop-workspace"] [data-slot="desktop-sidebar-toggle"] {
+      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button {
         transform: none !important;
         translate: none !important;
         scale: none !important;
         rotate: none !important;
       }
 
-      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button svg,
-      [data-slot="desktop-workspace"] [data-slot="desktop-sidebar-toggle"] svg {
+      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button svg {
         transform-origin: center;
         transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms ease, opacity 180ms ease;
       }
 
-      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button:active svg,
-      [data-slot="desktop-workspace"] [data-slot="desktop-sidebar-toggle"]:active svg {
+      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button:active svg {
         transform: scale(0.84) !important;
       }
 
