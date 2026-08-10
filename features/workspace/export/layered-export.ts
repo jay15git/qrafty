@@ -1,14 +1,9 @@
-import { emitSvg, preprocessSvg } from "@new-qr/qr-internal/codegen"
-
-import { buildSceneIr } from "@/features/qr-code/export/build-scene-ir"
+import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg-render"
+import type { QrStudioState } from "@/features/qr-code/model/state"
+import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-artwork"
+import { buildDraftingLayeredNodePayloadCore } from "@/features/workspace/export/layered-export-core"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
-import {
-  createDraftingQrArtworkState,
-  sanitizeDraftingQrArtworkMarkup,
-} from "@/features/workspace/rendering/qr-artwork"
-import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg"
-import type { QrStudioState } from "@/features/qr-code/model/state"
 
 export async function buildDraftingLayeredNodePayload({
   cardState,
@@ -28,28 +23,17 @@ export async function buildDraftingLayeredNodePayload({
   shaderSnapshots?: Record<string, string>
 }) {
   const qrPayload = await buildDashboardQrNodePayload(createDraftingQrArtworkState(state))
-  const qrArtworkMarkup = sanitizeDraftingQrArtworkMarkup(qrPayload.markup)
-  const visibleLayers = layers.filter((layer) => layer.isVisible).sort((a, b) => a.zIndex - b.zIndex)
 
-  const ir = await buildSceneIr({
+  return buildDraftingLayeredNodePayloadCore({
     cardState,
-    layers: visibleLayers,
+    layers,
+    name,
+    nodeId,
+    qrPayload,
     sceneComposition,
     state,
-    qrMarkup: qrArtworkMarkup,
-    componentName: name.replace(/[^a-zA-Z0-9]/g, "") || "QrCard",
     shaderSnapshots,
   })
-
-  const rawSvg = emitSvg(ir)
-  const originalSvgMarkup = preprocessSvg(rawSvg, { idPrefix: nodeId })
-  return {
-    id: nodeId,
-    name,
-    naturalHeight: ir.bounds.height,
-    naturalWidth: ir.bounds.width,
-    originalSvgMarkup,
-  }
 }
 
 export async function downloadDraftingSvgExport({

@@ -1,7 +1,9 @@
+"use client";
+
 import { adaptExternalQRCodeSVG } from "@new-qr/qr/dot-matrix";
 import { QRCodeSVG } from "qrcode.react";
 import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderToStaticMarkup } from "react-dom/server.browser";
 
 import { annotateCanvasSvgForDotMatrixMotion } from "@/features/qr-code/motion/canvas-svg-adapter";
 import {

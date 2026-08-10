@@ -3,13 +3,13 @@
 import { useId } from "react"
 import { ApertureIcon, CornersOutIcon, DropIcon, LinkIcon, PaletteIcon, ScanIcon } from "@phosphor-icons/react"
 
-import { ExpandableTab, type ExpandableTabItem } from "@/components/atomixui/expandable-tab"
+import { ExpandableTab } from "@/components/atomixui/expandable-tab"
 import type { QrFinderPatternOuterStyle } from "@/features/qr-code/model/types"
 import { clampQrSize, setSquareQrSize, type StudioCornerDotStyle, type StudioDataModulesStyle } from "@/features/qr-code/model/state"
 import { CORNER_DOT_STYLE_OPTIONS, CORNER_SQUARE_STYLE_OPTIONS, DOT_STYLE_OPTIONS } from "@/features/qr-code/styles/style-options"
 import type { QrLabControlsProps } from "@/components/desktopexperiment/qr-lab-types"
 
-const TOOLS: ExpandableTabItem[] = [
+const TOOLS = [
   { id: "content", label: "Content", icon: LinkIcon },
   { id: "modules", label: "Modules", icon: ApertureIcon },
   { id: "corners", label: "Corners", icon: CornersOutIcon },

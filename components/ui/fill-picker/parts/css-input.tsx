@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 type CssInputProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
-  "value" | "onChange"
+  "value" | "onChange" | "size"
 >;
 
 export const CssInput = React.forwardRef<HTMLInputElement, CssInputProps>(function CssInput(

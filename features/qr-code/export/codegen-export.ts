@@ -8,7 +8,7 @@ import {
   createDraftingQrArtworkState,
   sanitizeDraftingQrArtworkMarkup,
 } from "@/features/workspace/rendering/qr-artwork"
-import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg"
+import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg-render"
 import { captureCardShaderSnapshots } from "@/features/qr-code/export/shader-snapshot-capture"
 
 export async function buildCodegenExportFromWorkspace({

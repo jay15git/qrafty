@@ -17,8 +17,7 @@ import {
   ensureDraftingFontsForLayers,
   getDraftingFontCssFamily,
 } from "@/features/workspace/model/fonts"
-import { getPaperShaderDefinition } from "@/features/workspace/rendering/paper-shaders"
-import type { PaperShaderParams } from "@/features/workspace/rendering/paper-shaders"
+import { getPaperShaderRenderOptions } from "@/features/workspace/rendering/paper-shader-export"
 
 export type BuildSceneIrOptions = {
   cardState: DraftingCardState
@@ -80,7 +79,7 @@ function buildCanvasShaderLayerNodes(
     )
     .map((layer) => {
       const paperShader = layer.paperShader
-      const definition = getPaperShaderDefinition(paperShader.shaderId)
+      const definitionRenderOptions = getPaperShaderRenderOptions(paperShader.shaderId)
       const imageValue =
         shaderRequiresImage(paperShader.shaderId) && paperShader.image.value
           ? paperShader.image.value
@@ -95,7 +94,7 @@ function buildCanvasShaderLayerNodes(
           speed: paperShader.speed,
           paused: paperShader.paused,
           image: imageValue ? { value: imageValue } : undefined,
-          renderOptions: definition.renderOptions as Record<string, unknown> | undefined,
+          renderOptions: definitionRenderOptions,
         },
         bounds: {
           x: layer.x,
@@ -131,7 +130,7 @@ function buildCardShaderNodes(
     return []
   }
 
-  const definition = getPaperShaderDefinition(shaderState.shaderId)
+  const definitionRenderOptions = getPaperShaderRenderOptions(shaderState.shaderId)
   const imageValue =
     shaderRequiresImage(shaderState.shaderId) && cardState.cardImage.value
       ? cardState.cardImage.value
@@ -142,12 +141,12 @@ function buildCardShaderNodes(
       kind: "shader",
       shader: {
         shaderId: shaderState.shaderId,
-        params: structuredClone(shaderState.params) as PaperShaderParams,
+        params: structuredClone(shaderState.params) as Record<string, unknown>,
         frame: shaderState.frame,
         speed: shaderState.speed,
         paused: shaderState.paused,
         image: imageValue ? { value: imageValue } : undefined,
-        renderOptions: definition.renderOptions as Record<string, unknown> | undefined,
+        renderOptions: definitionRenderOptions,
       },
       bounds: {
         x: cardLayer.x,
@@ -276,7 +275,7 @@ function sceneCardToShaderNodes(
       kind: "shader",
       shader: {
         shaderId: shaderState.shaderId,
-        params: structuredClone(shaderState.params) as PaperShaderParams,
+        params: structuredClone(shaderState.params) as Record<string, unknown>,
         frame: shaderState.frame,
         speed: shaderState.speed,
         paused: shaderState.paused,

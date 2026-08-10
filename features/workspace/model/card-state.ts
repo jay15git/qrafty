@@ -104,52 +104,73 @@ export type DraftingCardState = {
   width: number
 }
 
-export const DEFAULT_DRAFTING_CARD_STATE: DraftingCardState = {
-  border: {
-    color: "#111827",
-    opacity: 100,
-    sides: createUniformPerSideBorder({ color: "#111827", opacity: 100, style: "solid", width: 0 }),
-    style: "solid",
-    width: 0,
-  },
-  bottomSpace: 0,
-  cardImage: {
-    fit: "cover",
-    opacity: 100,
-    source: "none",
-    value: undefined,
-  },
-  cornerRadius: 28,
-  cornerRadii: createUniformCornerRadii(28),
-  enabled: true,
-  fill: "#ffd80a",
-  height: 1080,
-  imageFilter: createDefaultDraftingCardPaperShader("image-dithering"),
-  lockAspectRatio: true,
-  padding: 24,
-  patternColors: {},
-  patternId: DRAFTING_CARD_PATTERN_NONE_ID,
-  paperShader: {
-    ...createDefaultDraftingCardPaperShader("static-mesh-gradient"),
-    paused: true,
-    speed: 0,
-  },
-  shadow: {
-    blur: 44,
-    color: "#1d1606",
-    inset: false,
-    kind: "drop",
-    offsetX: 0,
-    offsetY: 20,
-    opacity: 52,
-    spread: 0,
-    visible: true,
-  },
-  sizeMode: "fixed",
-  sizePresetId: "ratio-4-3",
-  styleMode: "paper-shader",
-  width: 1080,
+function buildDefaultDraftingCardState(): DraftingCardState {
+  return {
+    border: {
+      color: "#111827",
+      opacity: 100,
+      sides: createUniformPerSideBorder({ color: "#111827", opacity: 100, style: "solid", width: 0 }),
+      style: "solid",
+      width: 0,
+    },
+    bottomSpace: 0,
+    cardImage: {
+      fit: "cover",
+      opacity: 100,
+      source: "none",
+      value: undefined,
+    },
+    cornerRadius: 28,
+    cornerRadii: createUniformCornerRadii(28),
+    enabled: true,
+    fill: "#ffd80a",
+    height: 1080,
+    imageFilter: createDefaultDraftingCardPaperShader("image-dithering"),
+    lockAspectRatio: true,
+    padding: 24,
+    patternColors: {},
+    patternId: DRAFTING_CARD_PATTERN_NONE_ID,
+    paperShader: {
+      ...createDefaultDraftingCardPaperShader("static-mesh-gradient"),
+      paused: true,
+      speed: 0,
+    },
+    shadow: {
+      blur: 44,
+      color: "#1d1606",
+      inset: false,
+      kind: "drop",
+      offsetX: 0,
+      offsetY: 20,
+      opacity: 52,
+      spread: 0,
+      visible: true,
+    },
+    sizeMode: "fixed",
+    sizePresetId: "ratio-4-3",
+    styleMode: "paper-shader",
+    width: 1080,
+  }
 }
+
+let cachedDefaultDraftingCardState: DraftingCardState | undefined
+
+function resolveDefaultDraftingCardState() {
+  cachedDefaultDraftingCardState ??= buildDefaultDraftingCardState()
+  return cachedDefaultDraftingCardState
+}
+
+export const DEFAULT_DRAFTING_CARD_STATE = new Proxy({} as DraftingCardState, {
+  get(_target, prop, receiver) {
+    return Reflect.get(resolveDefaultDraftingCardState(), prop, receiver)
+  },
+  ownKeys() {
+    return Reflect.ownKeys(resolveDefaultDraftingCardState())
+  },
+  getOwnPropertyDescriptor(_target, prop) {
+    return Reflect.getOwnPropertyDescriptor(resolveDefaultDraftingCardState(), prop)
+  },
+})
 
 export function cloneDraftingCardState(state: DraftingCardState): DraftingCardState {
   return normalizeDraftingCardState(state)

@@ -12,7 +12,7 @@ import {
   type SceneQrState,
 } from "@new-qr/qr-internal/scene"
 
-import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg"
+import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg-render"
 import type { QrStudioState } from "@/features/qr-code/model/state"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingWorkspaceDocumentV1 } from "@/features/workspace/model/document"
