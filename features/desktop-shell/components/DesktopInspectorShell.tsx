@@ -188,6 +188,7 @@ export function DesktopInspectorOptionGridScrollArea({
     <SurfaceProvider value={2}>
       <ScrollArea
         chevron
+        chevronOutside
         cueSize="tight"
         data-slot={dataSlot}
         orientation="vertical"

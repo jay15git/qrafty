@@ -141,6 +141,8 @@ export function QrScene({
         >
           <PaperShaderLayer
             fallbackColor={node.card?.fill}
+            layoutHeight={cardLayer?.height ?? loadedScene.height}
+            layoutWidth={cardLayer?.width ?? loadedScene.width}
             paperShader={node.card!.paperShader!}
           />
         </div>

@@ -919,7 +919,8 @@ describe("FloatingToolbar", () => {
     expect(shapePresetScrollArea?.querySelector('[data-slot="scroll-area-viewport"]')).not.toBeNull()
     expect(shapePresetScrollViewport).not.toBeNull()
     expect(shapePresetScrollArea?.querySelector('[data-slot="scroll-area-viewport"]')).not.toBeNull()
-    expect(shapePresetScrollArea?.querySelector('[aria-hidden="true"] svg')).not.toBeNull()
+    // Outside-chevron cue sits beside the scroll root, not in the overlay.
+    expect(shapePresetScrollArea?.parentElement?.querySelector(':scope > [aria-hidden="true"] svg')).not.toBeNull()
     expect(inspector?.querySelector('[data-slot="desktop-inspector-scroll-area"]')).not.toBeNull()
     expect(
       inspector

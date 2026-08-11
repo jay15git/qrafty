@@ -158,6 +158,38 @@ export interface ScrollEdgeCueProps {
   chevron?: boolean;
 }
 
+/** Standalone directional chevron for placement outside a scroll viewport. */
+export function ScrollEdgeOutsideChevron({
+  edge,
+  visible,
+}: {
+  edge: "top" | "bottom" | "left" | "right";
+  visible: boolean;
+}) {
+  return (
+    <svg
+      aria-hidden
+      width={16}
+      height={16}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={
+        {
+          color: "var(--scroll-edge-chevron-color, var(--muted-foreground))",
+          opacity: visible ? 1 : 0,
+          transition: `opacity ${visible ? 160 : 120}ms ease`,
+        } as CSSProperties
+      }
+    >
+      <path d={CHEVRON_PATHS[edge]} />
+    </svg>
+  );
+}
+
 export function ScrollEdgeCue({
   edge,
   visible,

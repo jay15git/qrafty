@@ -44,6 +44,8 @@ export function SceneBackgroundLayer({
     >
       {background.kind === "paper-shader" ? (
         <DraftingCardPaperShaderLayer
+          layoutHeight={height}
+          layoutWidth={width}
           paperShader={createScenePaperShaderState(background.shaderId)}
         />
       ) : null}

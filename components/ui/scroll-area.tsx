@@ -21,6 +21,7 @@ import { useShape } from "@/lib/shape-context";
 import {
   useScrollEdges,
   ScrollEdgeCue,
+  ScrollEdgeOutsideChevron,
   type ScrollEdgeCueSize,
 } from "@/lib/scroll-fade";
 import { useTouchPrimary } from "@/hooks/use-touch-primary";
@@ -44,6 +45,9 @@ interface ScrollAreaProps
   /** Show the directional chevron in the cues. The gradient fade always
    *  renders; set to `false` for fade-only cues. Defaults to `true`. */
   chevron?: boolean;
+  /** Place the bottom/right chevron just outside the scroll viewport instead
+   *  of overlaying content. Fade stays inside. Defaults to `false`. */
+  chevronOutside?: boolean;
   /** Which axes get scrollbars and edge cues. Defaults to `"vertical"`. */
   orientation?: Orientation;
 }
@@ -61,6 +65,7 @@ const ScrollArea = forwardRef<
       scrollFade = true,
       cueSize = "comfortable",
       chevron = true,
+      chevronOutside = false,
       orientation = "vertical",
       ...props
     },
@@ -72,10 +77,13 @@ const ScrollArea = forwardRef<
       enabled: scrollFade,
       axis: orientation,
     });
+    const showOutsideChevron = Boolean(scrollFade && chevron && chevronOutside);
 
     // Cues read the substrate surface from context — ScrollArea doesn't
     // elevate, so the gradient matches whatever background it sits on.
-    const cues = scrollFade && (
+    // Outside-chevron mode: no overlay fades; edge tracking still runs for
+    // the external chevron.
+    const cues = scrollFade && !chevronOutside && (
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-[inherit]"
@@ -95,59 +103,85 @@ const ScrollArea = forwardRef<
       </div>
     );
 
+    const outsideChevrons = showOutsideChevron ? (
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute z-10 flex items-center justify-center",
+          orientation === "horizontal"
+            ? "inset-y-0 left-full w-4 pl-0.5"
+            : "inset-x-0 top-full h-4 pt-0.5",
+        )}
+      >
+        <ScrollEdgeOutsideChevron
+          edge={orientation === "horizontal" ? "right" : "bottom"}
+          visible={orientation === "horizontal" ? edges.right : edges.bottom}
+        />
+      </div>
+    ) : null;
+
+    const scrollRoot = isTouch ? (
+      <div
+        ref={ref}
+        role="group"
+        data-slot="scroll-area"
+        aria-roledescription="scroll area"
+        className={cn("relative overflow-hidden", className)}
+        {...props}
+      >
+        <div
+          ref={viewportRef}
+          data-slot="scroll-area-viewport"
+          className={cn(
+            "size-full rounded-[inherit]",
+            orientation === "vertical" && "overflow-y-auto",
+            orientation === "horizontal" && "overflow-x-auto",
+            orientation === "both" && "overflow-auto",
+            viewportClassName
+          )}
+          tabIndex={0}
+        >
+          {children}
+        </div>
+        {cues}
+      </div>
+    ) : (
+      <ScrollAreaPrimitive.Root
+        ref={ref}
+        data-slot="scroll-area"
+        scrollHideDelay={scrollHideDelay}
+        className={cn("relative overflow-hidden", className)}
+        {...props}
+      >
+        <ScrollAreaPrimitive.Viewport
+          ref={viewportRef}
+          data-slot="scroll-area-viewport"
+          className={cn(
+            "size-full rounded-[inherit]",
+            orientation === "vertical" && "overflow-x-hidden",
+            orientation === "horizontal" && "overflow-y-hidden",
+            orientation === "both" && "overflow-auto",
+            viewportClassName,
+          )}
+        >
+          {children}
+        </ScrollAreaPrimitive.Viewport>
+        {cues}
+        {orientation !== "horizontal" && <ScrollBar orientation="vertical" />}
+        {orientation !== "vertical" && <ScrollBar orientation="horizontal" />}
+        {orientation === "both" && <ScrollAreaPrimitive.Corner />}
+      </ScrollAreaPrimitive.Root>
+    );
+
     return (
       <ScrollAreaContext.Provider value={isTouch}>
-        {isTouch ? (
-          <div
-            ref={ref}
-            role="group"
-            data-slot="scroll-area"
-            aria-roledescription="scroll area"
-            className={cn("relative overflow-hidden", className)}
-            {...props}
-          >
-            <div
-              ref={viewportRef}
-              data-slot="scroll-area-viewport"
-              className={cn(
-                "size-full rounded-[inherit]",
-                orientation === "vertical" && "overflow-y-auto",
-                orientation === "horizontal" && "overflow-x-auto",
-                orientation === "both" && "overflow-auto",
-                viewportClassName
-              )}
-              tabIndex={0}
-            >
-              {children}
-            </div>
-            {cues}
+        {showOutsideChevron ? (
+          <div className="relative min-w-0 w-full">
+            {scrollRoot}
+            {outsideChevrons}
           </div>
         ) : (
-          <ScrollAreaPrimitive.Root
-            ref={ref}
-            data-slot="scroll-area"
-            scrollHideDelay={scrollHideDelay}
-            className={cn("relative overflow-hidden", className)}
-            {...props}
-          >
-            <ScrollAreaPrimitive.Viewport
-              ref={viewportRef}
-              data-slot="scroll-area-viewport"
-              className={cn(
-                "size-full rounded-[inherit]",
-                orientation === "vertical" && "overflow-x-hidden",
-                orientation === "horizontal" && "overflow-y-hidden",
-                orientation === "both" && "overflow-auto",
-                viewportClassName,
-              )}
-            >
-              {children}
-            </ScrollAreaPrimitive.Viewport>
-            {cues}
-            {orientation !== "horizontal" && <ScrollBar orientation="vertical" />}
-            {orientation !== "vertical" && <ScrollBar orientation="horizontal" />}
-            {orientation === "both" && <ScrollAreaPrimitive.Corner />}
-          </ScrollAreaPrimitive.Root>
+          scrollRoot
         )}
       </ScrollAreaContext.Provider>
     );

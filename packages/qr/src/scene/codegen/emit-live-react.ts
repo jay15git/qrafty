@@ -23,8 +23,15 @@ export function emitLiveReact(
   for (const node of ir.shaders) {
     const exportName = getShaderComponentExportName(node.shader.shaderId)
     shaderImports.add(exportName)
-    const props = buildPaperShaderRenderProps(node.shader)
     const { bounds } = node
+    const props = buildPaperShaderRenderProps(
+      {
+        ...node.shader,
+        worldWidth: node.shader.worldWidth ?? bounds.width,
+        worldHeight: node.shader.worldHeight ?? bounds.height,
+      },
+      { quality: "export" },
+    )
 
     shaderBlocks.push(`      <${exportName}
 ${formatShaderProps(props)}

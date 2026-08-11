@@ -95,6 +95,8 @@ function buildCanvasShaderLayerNodes(
           paused: paperShader.paused,
           image: imageValue ? { value: imageValue } : undefined,
           renderOptions: definitionRenderOptions,
+          worldWidth: layer.width,
+          worldHeight: layer.height,
         },
         bounds: {
           x: layer.x,
@@ -147,6 +149,8 @@ function buildCardShaderNodes(
         paused: shaderState.paused,
         image: imageValue ? { value: imageValue } : undefined,
         renderOptions: definitionRenderOptions,
+        worldWidth: cardLayer.width,
+        worldHeight: cardLayer.height,
       },
       bounds: {
         x: cardLayer.x,
@@ -280,6 +284,8 @@ function sceneCardToShaderNodes(
         speed: shaderState.speed,
         paused: shaderState.paused,
         image: imageValue ? { value: imageValue } : undefined,
+        worldWidth: cardLayer.width,
+        worldHeight: cardLayer.height,
       },
       bounds: {
         x: cardLayer.x,

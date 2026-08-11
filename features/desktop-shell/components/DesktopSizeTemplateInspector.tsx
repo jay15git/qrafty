@@ -4,6 +4,7 @@ import { FilterMailIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useMemo, useState } from "react"
 
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   DESKTOP_INSPECTOR_CAPTION_CLASS,
   DESKTOP_INSPECTOR_CONTROL_CLASS,
@@ -11,7 +12,6 @@ import {
   DESKTOP_INSPECTOR_LABEL_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
-  DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
   DESKTOP_INSPECTOR_ROW_CLASS,
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
   DESKTOP_INSPECTOR_SECTION_HEADING_CLASS,
@@ -38,6 +38,7 @@ import {
   type SizeTemplate,
   type SizeTemplateGroup,
 } from "@/features/workspace/model/size-templates"
+import { SurfaceProvider } from "@/lib/surface-context"
 import { cn } from "@/lib/utils"
 
 type SizeTemplateFilterId = "all" | SizeTemplateGroup
@@ -232,26 +233,37 @@ export function DesktopSizeTemplateInspector({
           />
         </div>
 
-        <div
-          className="mt-3 flex flex-col gap-4"
-          data-slot="desktop-size-template-collection"
-        >
-          {visibleSections.map((section) => (
-            <DesktopSizeTemplatePlatformSection
-              key={section.group}
-              group={section.group}
-              label={section.label}
-              selectedPresetId={settings.sizePresetId}
-              templates={section.templates}
-              onSelectTemplate={onSelectTemplate}
-            />
-          ))}
-          {visibleSections.length === 0 ? (
-            <p className={cn("px-1 py-3 text-center", DESKTOP_INSPECTOR_CAPTION_CLASS)}>
-              No size presets found
-            </p>
-          ) : null}
-        </div>
+        <SurfaceProvider value={2}>
+          <ScrollArea
+            chevron
+            cueSize="tight"
+            data-slot="desktop-size-template-collection-scroll-area"
+            scrollFade
+            className="mt-3 h-[min(28rem,calc(100dvh-18rem))] min-w-0 w-full shrink-0 overflow-hidden"
+            viewportClassName="pr-1"
+          >
+            <div
+              className="flex flex-col gap-4"
+              data-slot="desktop-size-template-collection"
+            >
+              {visibleSections.map((section) => (
+                <DesktopSizeTemplatePlatformSection
+                  key={section.group}
+                  group={section.group}
+                  label={section.label}
+                  selectedPresetId={settings.sizePresetId}
+                  templates={section.templates}
+                  onSelectTemplate={onSelectTemplate}
+                />
+              ))}
+              {visibleSections.length === 0 ? (
+                <p className={cn("px-1 py-3 text-center", DESKTOP_INSPECTOR_CAPTION_CLASS)}>
+                  No size presets found
+                </p>
+              ) : null}
+            </div>
+          </ScrollArea>
+        </SurfaceProvider>
       </DesktopInspectorSection>
     </>
   )
@@ -352,17 +364,16 @@ function DesktopSizeTemplateCard({
       type="button"
       onClick={onClick}
     >
-      <span
-        className={cn(
-          "relative flex h-[4.25rem] w-full items-center justify-center rounded-[10px] border border-white/10 bg-white/6",
-          DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
-          selected && DESKTOP_INSPECTOR_SELECTED_CLASS,
-        )}
-      >
+      <span className="flex h-[4.25rem] w-full items-center justify-center">
         <span
           aria-hidden="true"
-          className="relative flex items-center justify-center rounded-[6px] border border-white/14 bg-white/10"
+          className={cn(
+            "relative flex items-center justify-center rounded-[6px] border transition-colors",
+            DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+            selected
+              ? DESKTOP_INSPECTOR_SELECTED_CLASS
+              : "border-white/14 bg-white/10 group-hover:border-white/22 group-hover:bg-white/14",
+          )}
           style={{
             aspectRatio: `${template.width} / ${template.height}`,
             width: previewWidth,

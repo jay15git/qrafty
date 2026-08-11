@@ -2236,7 +2236,11 @@ export const Pane = memo(function Pane({
           onContextMenu={(event) => openLayerContextMenu(event, [layer.id])}
         >
           <DraftingLayerTiltShell layer={layer}>
-            <DraftingCardPaperShaderLayer paperShader={paperShader} />
+            <DraftingCardPaperShaderLayer
+              layoutHeight={layer.height}
+              layoutWidth={layer.width}
+              paperShader={paperShader}
+            />
           </DraftingLayerTiltShell>
         </div>
       )
@@ -2300,10 +2304,18 @@ export const Pane = memo(function Pane({
             />
           ) : null}
           {isPaperShaderMode ? (
-            <DraftingCardPaperShaderLayer paperShader={cardState.paperShader} />
+            <DraftingCardPaperShaderLayer
+              layoutHeight={layer.height}
+              layoutWidth={layer.width}
+              paperShader={cardState.paperShader}
+            />
           ) : null}
           {isImageFilterMode ? (
-            <DraftingCardPaperShaderLayer paperShader={imageFilterShader} />
+            <DraftingCardPaperShaderLayer
+              layoutHeight={layer.height}
+              layoutWidth={layer.width}
+              paperShader={imageFilterShader}
+            />
           ) : null}
         </DraftingLayerTiltShell>
       </div>
@@ -2442,7 +2454,11 @@ export const Pane = memo(function Pane({
             ...getDraftingLayerEffectStyle(layer),
           }}
         >
-          <DraftingCardPaperShaderLayer paperShader={paperShader} />
+          <DraftingCardPaperShaderLayer
+            layoutHeight={layer.height}
+            layoutWidth={layer.width}
+            paperShader={paperShader}
+          />
         </div>
       )
     }
@@ -2461,7 +2477,13 @@ export const Pane = memo(function Pane({
           ...getDraftingLayerEffectStyle(layer),
         }}
       >
-        {isPaperShaderMode ? <DraftingCardPaperShaderLayer paperShader={cardState.paperShader} /> : null}
+        {isPaperShaderMode ? (
+          <DraftingCardPaperShaderLayer
+            layoutHeight={layer.height}
+            layoutWidth={layer.width}
+            paperShader={cardState.paperShader}
+          />
+        ) : null}
       </div>
     )
   }

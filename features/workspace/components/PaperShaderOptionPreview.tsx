@@ -9,6 +9,7 @@ import {
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
 import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
+import { LIVE_PAPER_SHADER_WEBGL_CONTEXT_ATTRIBUTES } from "@new-qr/qr-internal/scene"
 
 const PAPER_SHADER_THUMBNAIL_CACHE_VERSION = "paper-shader-thumbnail-v1"
 const PAPER_SHADER_THUMBNAIL_WIDTH = 96
@@ -20,6 +21,7 @@ const PAPER_SHADER_THUMBNAIL_RENDER_OPTIONS = {
   maxPixelCount: PAPER_SHADER_THUMBNAIL_MAX_PIXEL_COUNT,
   minPixelRatio: 1,
   webGlContextAttributes: {
+    ...LIVE_PAPER_SHADER_WEBGL_CONTEXT_ATTRIBUTES,
     preserveDrawingBuffer: true,
   },
 }
@@ -282,6 +284,8 @@ export function PaperShaderOptionPreview({
         >
           <DraftingCardPaperShaderRenderer
             dataSlot="paper-shader-option-preview-source"
+            layoutHeight={PAPER_SHADER_THUMBNAIL_HEIGHT}
+            layoutWidth={PAPER_SHADER_THUMBNAIL_WIDTH}
             onError={() => finishPaperShaderThumbnail(cacheKey)}
             paperShader={previewShader}
             renderOptions={PAPER_SHADER_THUMBNAIL_RENDER_OPTIONS}

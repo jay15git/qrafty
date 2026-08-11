@@ -1,8 +1,15 @@
 "use client"
 
-import { Component, type CSSProperties, type ReactNode, useMemo, useState } from "react"
+import {
+  Component,
+  type CSSProperties,
+  type ReactNode,
+  useMemo,
+  useState,
+} from "react"
 import { Dithering } from "@paper-design/shaders-react"
 import { buildPaperShaderRenderProps } from "../shaders"
+import { usePaperShaderWorldSize } from "./use-paper-shader-world-size"
 
 import type { ScenePaperShaderState } from "../schema"
 
@@ -13,6 +20,8 @@ type PaperShaderLayerProps = {
   className?: string
   style?: CSSProperties
   fallbackColor?: string
+  layoutWidth?: number
+  layoutHeight?: number
 }
 
 class PaperShaderErrorBoundary extends Component<
@@ -48,27 +57,34 @@ export function hasPaperShaderWebGlSupport() {
   }
 }
 
-function buildShaderProps(paperShader: ScenePaperShaderState) {
-  return buildPaperShaderRenderProps({
-    shaderId: paperShader.shaderId,
-    params: paperShader.params as Parameters<typeof buildPaperShaderRenderProps>[0]["params"],
-    frame: paperShader.frame,
-    speed: paperShader.speed,
-    paused: paperShader.paused,
-    image: paperShader.image,
-  })
-}
-
 export function PaperShaderLayer({
   paperShader,
   className,
   style,
   fallbackColor = "#111827",
+  layoutWidth,
+  layoutHeight,
 }: PaperShaderLayerProps) {
   const [canRenderShader] = useState(hasPaperShaderWebGlSupport)
   const [hasError, setHasError] = useState(false)
   const ShaderComponent = PAPER_SHADER_COMPONENTS_BY_ID[paperShader.shaderId] ?? Dithering
-  const shaderProps = useMemo(() => buildShaderProps(paperShader), [paperShader])
+  const worldSize = usePaperShaderWorldSize(layoutWidth, layoutHeight)
+  const shaderProps = useMemo(
+    () =>
+      buildPaperShaderRenderProps({
+        shaderId: paperShader.shaderId,
+        params: paperShader.params as Parameters<
+          typeof buildPaperShaderRenderProps
+        >[0]["params"],
+        frame: paperShader.frame,
+        speed: paperShader.paused ? 0 : paperShader.speed,
+        paused: paperShader.paused,
+        image: paperShader.image,
+        worldWidth: worldSize?.worldWidth,
+        worldHeight: worldSize?.worldHeight,
+      }),
+    [paperShader, worldSize],
+  )
 
   if (!canRenderShader || hasError) {
     return (
@@ -87,17 +103,25 @@ export function PaperShaderLayer({
 
   return (
     <PaperShaderErrorBoundary onError={() => setHasError(true)}>
-      <ShaderComponent
-        {...shaderProps}
-        aria-hidden="true"
+      <div
         className={className}
-        data-shader-canvas-host
+        data-shader-canvas-host-root=""
         style={{
           height: "100%",
           width: "100%",
           ...style,
         }}
-      />
+      >
+        <ShaderComponent
+          {...shaderProps}
+          aria-hidden="true"
+          data-shader-canvas-host
+          style={{
+            height: "100%",
+            width: "100%",
+          }}
+        />
+      </div>
     </PaperShaderErrorBoundary>
   )
 }

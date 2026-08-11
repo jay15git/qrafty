@@ -4,14 +4,23 @@ import { Component, type CSSProperties, type ReactNode, useMemo, useState } from
 
 import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
 import { getPaperShaderDefinition } from "@/features/workspace/rendering/paper-shaders"
+import {
+  LIVE_PAPER_SHADER_RENDER_OPTIONS,
+  buildPaperShaderWorldSize,
+  usePaperShaderWorldSize,
+} from "@new-qr/qr-internal/scene"
 
 type DraftingCardPaperShaderLayerProps = {
+  layoutHeight?: number
+  layoutWidth?: number
   paperShader: DraftingCardPaperShaderState
 }
 
 type DraftingCardPaperShaderRendererProps = {
   dataExportShader?: string
   dataSlot: string
+  layoutHeight?: number
+  layoutWidth?: number
   onError: () => void
   paperShader: DraftingCardPaperShaderState
   renderOptions?: Record<string, unknown>
@@ -65,7 +74,9 @@ export function hasDraftingPaperShaderWebGlSupport() {
 
 function buildDraftingPaperShaderRenderProps(
   paperShader: DraftingCardPaperShaderState,
+  playbackSpeed: number,
   renderOptions?: Record<string, unknown>,
+  worldSize?: ReturnType<typeof buildPaperShaderWorldSize>,
 ) {
   const definition = getPaperShaderDefinition(paperShader.shaderId)
 
@@ -75,15 +86,20 @@ function buildDraftingPaperShaderRenderProps(
     ...(definition.requiresImage && paperShader.image.value
       ? { image: paperShader.image.value }
       : {}),
-    speed: paperShader.paused ? 0 : paperShader.speed,
+    // Native Paper RAF: speed 0 stops the loop (perf guide).
+    speed: playbackSpeed,
     ...definition.renderOptions,
+    ...LIVE_PAPER_SHADER_RENDER_OPTIONS,
     ...renderOptions,
+    ...(worldSize ?? {}),
   }
 }
 
 export function DraftingCardPaperShaderRenderer({
   dataExportShader,
   dataSlot,
+  layoutHeight,
+  layoutWidth,
   onError,
   paperShader,
   renderOptions,
@@ -91,26 +107,42 @@ export function DraftingCardPaperShaderRenderer({
 }: DraftingCardPaperShaderRendererProps) {
   const definition = getPaperShaderDefinition(paperShader.shaderId)
   const ShaderComponent = definition.component
+  const worldSize = usePaperShaderWorldSize(layoutWidth, layoutHeight)
+  const playbackSpeed = paperShader.paused ? 0 : paperShader.speed
   const shaderProps = useMemo(
-    () => buildDraftingPaperShaderRenderProps(paperShader, renderOptions),
-    [paperShader, renderOptions],
+    () =>
+      buildDraftingPaperShaderRenderProps(
+        paperShader,
+        playbackSpeed,
+        renderOptions,
+        worldSize,
+      ),
+    [paperShader, playbackSpeed, renderOptions, worldSize],
   )
 
   return (
     <PaperShaderErrorBoundary key={paperShader.shaderId} onError={onError}>
-      <ShaderComponent
-        {...shaderProps}
-        aria-hidden="true"
-        data-export-shader={dataExportShader ?? paperShader.shaderId}
-        data-slot={dataSlot}
-        data-shader-canvas-host
-        style={style}
-      />
+      <div data-shader-canvas-host-root="" style={style}>
+        <ShaderComponent
+          {...shaderProps}
+          aria-hidden="true"
+          data-export-shader={dataExportShader ?? paperShader.shaderId}
+          data-slot={dataSlot}
+          data-shader-canvas-host
+          style={{
+            borderRadius: "inherit",
+            height: "100%",
+            width: "100%",
+          }}
+        />
+      </div>
     </PaperShaderErrorBoundary>
   )
 }
 
 export function DraftingCardPaperShaderLayer({
+  layoutHeight,
+  layoutWidth,
   paperShader,
 }: DraftingCardPaperShaderLayerProps) {
   const [canRenderShader] = useState(hasDraftingPaperShaderWebGlSupport)
@@ -125,6 +157,8 @@ export function DraftingCardPaperShaderLayer({
     <DraftingCardPaperShaderRenderer
       dataSlot="dashboard-compose-card-paper-shader"
       dataExportShader={paperShader.shaderId}
+      layoutHeight={layoutHeight}
+      layoutWidth={layoutWidth}
       onError={() => setShaderErrorId(paperShader.shaderId)}
       paperShader={paperShader}
       style={{
