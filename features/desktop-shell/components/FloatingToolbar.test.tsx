@@ -5,11 +5,7 @@ import { resolve } from "node:path"
 import { act, type ComponentProps, useState } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import {
-  DESKTOP_TOOLBAR_TOOLS,
-  FloatingToolbar,
-  type DesktopInspectorModel,
-} from "@/features/desktop-shell/components/FloatingToolbar"
+import { DESKTOP_TOOLBAR_TOOLS, FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
 import { DesktopSettingsToolbarShell } from "@/features/desktop-shell/components/DesktopSettingsToolbarShell"
 import { getDesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { createDraftingTextLayer, type DraftingCanvasLayer } from "@/features/workspace/model/layers"
@@ -139,30 +135,18 @@ describe("FloatingToolbar", () => {
     expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
   })
 
-  it("renders the icon rail inside the inspector shell as one left toolbar", async () => {
+  it("renders the accordion inspector without the removed icon rail", async () => {
     const surface = await renderPrototype({ controller: { activeTool: "content" } })
     const shell = surface.container.querySelector('[data-slot="desktop-left-toolbar-shell"]')
     const rail = surface.container.querySelector('[data-slot="desktop-floating-toolbar"]')
     const inspector = surface.container.querySelector('[data-slot="desktop-floating-inspector"]')
-    const source = readFileSync(
-      resolve(process.cwd(), "features/desktop-shell/components/FloatingToolbar.tsx"),
-      "utf8",
-    )
 
     expect(shell).not.toBeNull()
-    expect(shell?.querySelector('[data-slot="desktop-floating-toolbar"]')).toBe(rail)
+    expect(rail).toBeNull()
     expect(shell?.querySelector('[data-slot="desktop-floating-inspector"]')).toBe(inspector)
-    expect(rail?.className).not.toContain("fixed")
-    expect(rail?.className).not.toContain("rounded-full")
-    expect(rail?.className).not.toContain("bg-black/55")
-    expect(rail?.className).not.toContain("pt-14")
-    expect(rail?.querySelector('[data-slot="desktop-toolbar-tools"]')).not.toBeNull()
     expect(inspector?.className).not.toContain("fixed")
     expect(inspector?.className).not.toContain("rounded-[20px]")
     expect(inspector?.className).not.toContain("bg-black/55")
-    expect(source).toContain('[data-desktop-theme="light"] [data-slot="desktop-floating-toolbar"] {')
-    expect(source).toContain('--desktop-toolbar-fg: rgba(15, 23, 42, 0.48)')
-    expect(source).toContain('[data-slot="tabs-subtle-icon-rail-icon"]')
     sessionStorage.clear()
   })
 
@@ -172,7 +156,6 @@ describe("FloatingToolbar", () => {
       "utf8",
     )
 
-    expect(source).toContain("DESKTOP_INSPECTOR_HEADER_CLASS")
     expect(source).not.toContain("bg-[var(--desktop-inspector-header-bg)]")
   })
 
@@ -266,13 +249,6 @@ describe("FloatingToolbar", () => {
       <DesktopSettingsToolbarShell
           showInspector
           inspector={<div data-slot="desktop-floating-inspector">Inspector</div>}
-          model={
-            {
-              actualActiveTool: "content",
-              onActiveToolChange: vi.fn(),
-              visibleToolbarTools: [],
-            } as unknown as DesktopInspectorModel
-          }
         />
     )
     const shell = getRequiredElement(surface.container, '[data-slot="desktop-left-toolbar-shell"]')
@@ -461,7 +437,6 @@ describe("FloatingToolbar", () => {
     expect(source).not.toContain("ff9ab1")
     expect(source).not.toContain('[class*="bg-[#ff3b68]"]')
     expect(source).toContain("DESKTOP_INSPECTOR_SELECTED_CLASS")
-    expect(source).toContain("DESKTOP_INSPECTOR_HEADER_CLASS")
     expect(source).toContain("DESKTOP_INSPECTOR_FOOTER_CLASS")
     expect(source).toContain("DESKTOP_INSPECTOR_RESET_CLASS")
     expect(source).toContain("--desktop-inspector-section-bg: rgba(255, 255, 255, 0.055)")

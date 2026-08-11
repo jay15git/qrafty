@@ -5,9 +5,7 @@ import { type ReactNode } from "react"
 import { ElasticSlider } from "@/components/ui/elastic-slider"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
-  DESKTOP_INSPECTOR_HEADER_CLASS,
   DESKTOP_INSPECTOR_LABEL_CLASS,
-  DESKTOP_INSPECTOR_PANEL_TITLE_CLASS,
   DESKTOP_INSPECTOR_ROW_CLASS,
   DesktopInspectorTextInput,
   DesktopInspectorScrubNumberInput,
@@ -97,14 +95,6 @@ function desktopOptionGridScrollHeightClass({
 
 export type DesktopInspectorOptionGridVariant = "preset" | "compact" | "content"
 
-export function DesktopInspectorHeader({ title }: { title: string }) {
-  return (
-    <div className={DESKTOP_INSPECTOR_HEADER_CLASS}>
-      <h2 className={DESKTOP_INSPECTOR_PANEL_TITLE_CLASS}>{title}</h2>
-    </div>
-  )
-}
-
 export function DesktopInspectorScrollArea({ children }: { children: ReactNode }) {
   return (
     <ScrollArea
@@ -113,7 +103,7 @@ export function DesktopInspectorScrollArea({ children }: { children: ReactNode }
       data-slot="desktop-inspector-scroll-area"
       scrollFade
       className="desktop-inspector-scroll-area min-h-0 min-w-0 w-full max-w-full flex-1"
-      viewportClassName="min-w-0 py-3"
+      viewportClassName="min-w-0"
     >
       <div className="min-w-0 w-full max-w-full" data-slot="desktop-inspector-scroll">
         {children}

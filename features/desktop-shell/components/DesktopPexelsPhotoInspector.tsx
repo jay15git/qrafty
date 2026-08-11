@@ -13,10 +13,8 @@ import {
 import {
   DESKTOP_INSPECTOR_CAPTION_CLASS,
   DESKTOP_INSPECTOR_FG_MUTED,
-  DESKTOP_INSPECTOR_HEADER_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
-  DESKTOP_INSPECTOR_PANEL_TITLE_CLASS,
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
   DesktopInspectorAnimatedOptionGrid,
   DesktopInspectorMorphFilterMenu,
@@ -96,10 +94,6 @@ export function DesktopPexelsPhotoInspector({
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col" data-slot="desktop-pexels-photo-inspector">
-      <div className={DESKTOP_INSPECTOR_HEADER_CLASS}>
-        <h2 className={DESKTOP_INSPECTOR_PANEL_TITLE_CLASS}>Photos</h2>
-      </div>
-
       <DesktopInspectorScrollArea>
         <DesktopInspectorSection className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
           <div className="flex min-w-0 items-center gap-2">

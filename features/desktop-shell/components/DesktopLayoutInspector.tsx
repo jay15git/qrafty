@@ -3,7 +3,6 @@
 import { useState } from "react"
 
 import {
-  DesktopInspectorHeader,
   DesktopInspectorOptionGridScrollArea,
   DesktopInspectorScrollArea,
 } from "@/features/desktop-shell/components/DesktopInspectorShell"
@@ -60,7 +59,6 @@ export function DesktopLayoutInspector({
 
   return (
     <div data-slot="desktop-layout-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Layout" />
       <DesktopInspectorScrollArea>
         <DesktopSizeTemplateInspector
           onChange={onSizeSettingsChange}

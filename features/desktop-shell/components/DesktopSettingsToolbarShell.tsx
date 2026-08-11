@@ -5,19 +5,8 @@ import { useCallback, useEffect, useState, type ReactNode } from "react"
 
 import { EXPANDABLE_PANEL_SPRING } from "@/components/atomixui/expandable-panel-shell"
 import {
-  TabsSubtleIconRail,
-  TabsSubtleIconRailItem,
-  TabsSubtleIconRailSeparator,
-} from "@/components/ui/tabs-subtle-icon-rail"
-import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
-import {
   DesktopSettingsPanelMotionFrozenProvider,
 } from "@/features/desktop-shell/components/desktop-settings-panel-motion-frozen-context"
-import {
-  type DesktopInspectorModel,
-  type DesktopToolbarToolId,
-} from "@/features/desktop-shell/components/FloatingToolbar"
-import { cn } from "@/lib/utils"
 
 import "./desktop-settings-toolbar-motion.css"
 
@@ -26,7 +15,6 @@ const DESKTOP_SHELL_EXPANDED_WIDTH_RATIO = 0.28
 const DESKTOP_SHELL_EXPANDED_WIDTH_MIN_PX = 300
 const DESKTOP_SHELL_EXPANDED_WIDTH_MAX_PX = 380
 const DESKTOP_SHELL_EXPANDED_WIDTH_FALLBACK_PX = 340
-const DESKTOP_TOOLBAR_RAIL_WIDTH_CLASS = "w-[4.5rem] max-md:w-[3.5rem]"
 
 function getExpandedSidebarWidthPx(): number {
   if (typeof window === "undefined") {
@@ -62,15 +50,12 @@ function syncSidebarColumnWidth(width: number) {
 export function DesktopSettingsToolbarShell({
   hovered,
   inspector,
-  model,
   showInspector,
 }: {
   hovered?: boolean
   inspector: ReactNode
-  model: DesktopInspectorModel
   showInspector: boolean
 }) {
-  const { actualActiveTool, onActiveToolChange, visibleToolbarTools } = model
   const [internalHovered, setInternalHovered] = useState(false)
   const [isShellAnimating, setIsShellAnimating] = useState(false)
   const [expandedWidth, setExpandedWidth] = useState(DESKTOP_SHELL_EXPANDED_WIDTH_FALLBACK_PX)
@@ -115,57 +100,6 @@ export function DesktopSettingsToolbarShell({
     }
   }, [hovered])
 
-  const handleToolSelect = (index: number) => {
-    const toolId = visibleToolbarTools[index]?.id as DesktopToolbarToolId | undefined
-    if (!toolId) {
-      return
-    }
-
-    onActiveToolChange(toolId)
-  }
-
-  const nav = (
-    <TabsSubtleIconRail
-      aria-label="Desktop tools"
-      data-slot="desktop-floating-toolbar"
-      className="relative h-full min-h-0 min-w-0 overflow-x-hidden overflow-y-auto px-1.5 pb-1.5 text-[var(--desktop-toolbar-fg)] max-md:px-1 max-md:pb-1"
-      selectedIndex={
-        actualActiveTool
-          ? visibleToolbarTools.findIndex((tool) => tool.id === actualActiveTool)
-          : -1
-      }
-      onSelect={handleToolSelect}
-      selectedPillClassName="rounded-full bg-[var(--desktop-toolbar-pill-selected)]"
-      hoverPillClassName="rounded-full bg-[var(--desktop-toolbar-pill-hover)]"
-    >
-      <div
-        className="flex w-full flex-col items-center"
-        data-slot="desktop-toolbar-tools"
-      >
-        {visibleToolbarTools.map((tool, index) => {
-          const previousGroup = visibleToolbarTools[index - 1]?.group
-          const startsGroup = index > 0 && tool.group !== previousGroup
-
-          return (
-            <div key={tool.id} className="contents">
-              {startsGroup ? <TabsSubtleIconRailSeparator /> : null}
-              <DesktopTooltip content={tool.title} side="right" sideOffset={10}>
-                <TabsSubtleIconRailItem
-                  aria-label={`Open ${tool.title}`}
-                  data-desktop-tool-button="true"
-                  data-tool-id={tool.id}
-                  index={index}
-                >
-                  {tool.renderIcon()}
-                </TabsSubtleIconRailItem>
-              </DesktopTooltip>
-            </div>
-          )
-        })}
-      </div>
-    </TabsSubtleIconRail>
-  )
-
   const panelContent =
     showInspector ? (
       <DesktopSettingsPanelMotionFrozenProvider frozen={isShellAnimating}>
@@ -203,13 +137,10 @@ export function DesktopSettingsToolbarShell({
         }}
       >
         <div
-          className="flex h-full min-h-0 min-w-0 overflow-hidden"
+          className="h-full min-h-0 min-w-0 overflow-hidden"
           style={{ width: expandedWidth }}
         >
-          <div className={cn("flex h-full min-h-0 shrink-0 flex-col", DESKTOP_TOOLBAR_RAIL_WIDTH_CLASS)}>
-            {nav}
-          </div>
-          <div className="h-full min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-hidden">
+          <div className="h-full min-h-0 min-w-0 overflow-x-hidden overflow-y-hidden">
             {panelContent}
           </div>
         </div>

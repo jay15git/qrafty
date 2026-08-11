@@ -77,9 +77,9 @@ export const DESKTOP_INSPECTOR_CAPTION_CLASS = cn(
   DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
 )
 export const DESKTOP_INSPECTOR_SECTION_CLASS =
-  "min-w-0 rounded-[10px] bg-[var(--desktop-inspector-section-bg)] p-3"
-export const DESKTOP_INSPECTOR_SECTION_GAP_CLASS = "mt-2.5"
-export const DESKTOP_INSPECTOR_MAJOR_GAP_CLASS = "mt-4"
+  "min-w-0 px-3 py-4"
+export const DESKTOP_INSPECTOR_SECTION_GAP_CLASS = "mt-2"
+export const DESKTOP_INSPECTOR_MAJOR_GAP_CLASS = "mt-6"
 export const DESKTOP_INSPECTOR_ROW_GAP_CLASS = "gap-2"
 export const DESKTOP_INSPECTOR_ROW_CLASS =
   "flex min-w-0 items-center justify-between gap-3 py-2.5"
@@ -108,9 +108,9 @@ export const DESKTOP_INSPECTOR_SCRUB_NUMBER_FIELD_CLASS = cn(
 export const DESKTOP_INSPECTOR_FOCUS_CLASS =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]"
 export const DESKTOP_INSPECTOR_HEADER_CLASS =
-  "flex min-w-0 items-center justify-center py-3 text-center"
+  "flex min-h-12 min-w-0 items-center px-3 py-3 text-left"
 export const DESKTOP_INSPECTOR_FOOTER_CLASS =
-  "bg-[var(--desktop-inspector-footer-bg)] p-2.5"
+  "px-3 py-3"
 export const DESKTOP_INSPECTOR_RESET_CLASS = cn(
   "flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-[6px] border border-transparent bg-transparent px-3 font-medium text-[var(--desktop-inspector-fg-secondary)] transition hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] active:bg-[var(--desktop-inspector-control-active-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,

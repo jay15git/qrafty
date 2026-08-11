@@ -210,15 +210,12 @@ import {
   DESKTOP_INSPECTOR_FIELD_ROW_CLASS,
   DESKTOP_INSPECTOR_FOCUS_CLASS,
   DESKTOP_INSPECTOR_FOOTER_CLASS,
-  DESKTOP_INSPECTOR_HEADER_CLASS,
   DESKTOP_INSPECTOR_INPUT_CLASS,
   DESKTOP_INSPECTOR_LABEL_CLASS,
-  DESKTOP_INSPECTOR_MAJOR_GAP_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SCALE_SURFACE_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-  DESKTOP_INSPECTOR_PANEL_TITLE_CLASS,
   DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
   DESKTOP_INSPECTOR_VALUE_CLASS,
   DESKTOP_INSPECTOR_RESET_CLASS,
@@ -383,6 +380,23 @@ const DESKTOP_TOOLBAR_TOOLS: DesktopToolbarTool[] = [
     title: "Export",
     renderIcon: () => <AnimatedDownloadIcon size={18} />,
   },
+]
+
+const DESKTOP_INSPECTOR_ACCORDION_GROUPS: Array<{
+  id: string
+  title: string
+  toolIds: DesktopToolbarToolId[]
+}> = [
+  { id: "content", title: "Content", toolIds: ["content"] },
+  { id: "pattern", title: "Patterns", toolIds: ["pattern", "corners"] },
+  { id: "logo", title: "Logo", toolIds: ["logo"] },
+  { id: "shape", title: "Frame", toolIds: ["shape"] },
+  { id: "background", title: "Background", toolIds: ["background"] },
+  { id: "motion", title: "Motion", toolIds: ["motion"] },
+  { id: "effects", title: "Effects", toolIds: ["effects"] },
+  { id: "layers", title: "Layers", toolIds: ["layers"] },
+  { id: "layout", title: "Layout", toolIds: ["layout"] },
+  { id: "export", title: "Export", toolIds: ["export"] },
 ]
 
 const DESKTOP_CONTENT_PRESET_TYPES: QrInputType[] = [...PICKER_QR_INPUT_TYPES]
@@ -1440,7 +1454,6 @@ export function FloatingToolbar({
           </DesktopUtilityToolbar>
         </div>
         <DesktopSettingsToolbarShell
-          model={model}
           showInspector={Boolean(
             activeToolConfig || controller?.selectedElementLayer || controller?.composeSidebarPanel,
           )}
@@ -1851,9 +1864,9 @@ export function DesktopThemeStyles() {
         --desktop-inspector-type-value: 0.8125rem;
         --desktop-inspector-type-label: 0.6875rem;
         --desktop-inspector-type-caption: 0.625rem;
-        --desktop-inspector-section-bg: rgba(255, 255, 255, 0.055);
-        --desktop-inspector-header-bg: rgba(255, 255, 255, 0.025);
-        --desktop-inspector-footer-bg: rgba(0, 0, 0, 0.18);
+        --desktop-inspector-section-bg: transparent;
+        --desktop-inspector-header-bg: transparent;
+        --desktop-inspector-footer-bg: transparent;
         --desktop-inspector-control-bg: transparent;
         --desktop-inspector-control-hover-bg: rgba(255, 255, 255, 0.09);
         --desktop-inspector-control-active-bg: rgba(255, 255, 255, 0.13);
@@ -1890,9 +1903,9 @@ export function DesktopThemeStyles() {
         --desktop-inspector-type-value: 0.8125rem;
         --desktop-inspector-type-label: 0.6875rem;
         --desktop-inspector-type-caption: 0.625rem;
-        --desktop-inspector-section-bg: rgba(15, 23, 42, 0.032);
-        --desktop-inspector-header-bg: rgba(15, 23, 42, 0.025);
-        --desktop-inspector-footer-bg: rgba(15, 23, 42, 0.045);
+        --desktop-inspector-section-bg: transparent;
+        --desktop-inspector-header-bg: transparent;
+        --desktop-inspector-footer-bg: transparent;
         --desktop-inspector-control-bg: transparent;
         --desktop-inspector-control-hover-bg: rgba(15, 23, 42, 0.1);
         --desktop-inspector-control-active-bg: rgba(15, 23, 42, 0.14);
@@ -1924,9 +1937,9 @@ export function DesktopThemeStyles() {
         --desktop-inspector-type-value: 0.8125rem;
         --desktop-inspector-type-label: 0.6875rem;
         --desktop-inspector-type-caption: 0.625rem;
-        --desktop-inspector-section-bg: rgba(15, 23, 42, 0.032);
-        --desktop-inspector-header-bg: rgba(15, 23, 42, 0.025);
-        --desktop-inspector-footer-bg: rgba(15, 23, 42, 0.045);
+        --desktop-inspector-section-bg: transparent;
+        --desktop-inspector-header-bg: transparent;
+        --desktop-inspector-footer-bg: transparent;
         --desktop-inspector-control-bg: transparent;
         --desktop-inspector-control-hover-bg: rgba(15, 23, 42, 0.1);
         --desktop-inspector-control-active-bg: rgba(15, 23, 42, 0.14);
@@ -2444,14 +2457,6 @@ export function DesktopThemeStyles() {
   )
 }
 
-function DesktopInspectorHeader({ title }: { title: string }) {
-  return (
-    <div className={DESKTOP_INSPECTOR_HEADER_CLASS}>
-      <h2 className={DESKTOP_INSPECTOR_PANEL_TITLE_CLASS}>{title}</h2>
-    </div>
-  )
-}
-
 function getDesktopAdaptiveOptionPreviewStyle(
   desktopTheme: DesktopThemeMode,
 ): CSSProperties {
@@ -2495,7 +2500,6 @@ function DesktopLogoInspector({
 
   return (
     <div data-slot="desktop-logo-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Logo" />
 
       <DesktopInspectorScrollArea>
         <DesktopInspectorSection>
@@ -2970,126 +2974,74 @@ function DesktopIconstackIconButton({
 
 function DesktopCornersInspector({
   desktopTheme,
+  mode = "corner-frame",
   onCornersSettingsChange,
   settings,
 }: {
   desktopTheme: DesktopThemeMode
+  mode?: "corner-eye" | "corner-frame"
   onCornersSettingsChange: (patch: Partial<DesktopCornersSettings>) => void
   settings: DesktopCornersSettings
 }) {
+  const isCornerEye = mode === "corner-eye"
+  const styleOptions = isCornerEye ? CORNER_DOT_STYLE_OPTIONS : CORNER_SQUARE_STYLE_OPTIONS
+  const selectedStyle = isCornerEye ? settings.cornerDotType : settings.cornerSquareType
+  const target = isCornerEye ? "corner dot" : "corner frame"
+
   return (
     <div data-slot="desktop-corners-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Corners" />
+      <div className="grid min-h-0 gap-2.5 px-3 py-3">
+        <DesktopInspectorSection>
+          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>{isCornerEye ? "Corner eye" : "Corner frame"}</p>
+          <div className={desktopInspectorOptionGridClass(4)}>
+            {styleOptions.map((option) => (
+              <DesktopCornerStyleButton
+                desktopTheme={desktopTheme}
+                key={option.value}
+                label={option.label}
+                previewKind={isCornerEye ? "corner-dot" : "corner-square"}
+                selected={selectedStyle === option.value}
+                target={target}
+                value={option.value}
+                onClick={() => {
+                  if (isCornerEye) {
+                    onCornersSettingsChange({ cornerDotType: option.value as StudioCornerDotStyle })
+                  } else {
+                    onCornersSettingsChange({ cornerSquareType: option.value as QrFinderPatternOuterStyle })
+                  }
+                }}
+              />
+            ))}
+          </div>
+        </DesktopInspectorSection>
 
-      <div data-impeccable-variants="a34b4748" data-impeccable-variant-count="3" style={{ display: "contents" }}>
-        {/* impeccable-variants-start a34b4748 */}
-        {/* Original */}
-        <div data-impeccable-variant="original" className="flex min-h-0 flex-1 flex-col">
-          <DesktopInspectorScrollArea>
-            <DesktopInspectorSection>
-              <div className="mb-2 min-w-0">
-                <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Corner Frame</p>
-              </div>
-              <DesktopInspectorOptionGridScrollArea
-                ariaLabel="Corner frame presets"
-                dataSlot="desktop-corner-frame-preset-shelf-scroll-area"
-                orientation="horizontal"
-                shelfDataSlot="desktop-corner-frame-preset-shelf"
-                variant="preset"
-              >
-                <DesktopInspectorAnimatedOptionGrid
-                  layout="row"
-                  selectedKey={settings.cornerSquareType}
-                >
-                  {CORNER_SQUARE_STYLE_OPTIONS.map((option) => (
-                    <DesktopCornerStyleButton
-                      desktopTheme={desktopTheme}
-                      key={option.value}
-                      label={option.label}
-                      previewKind="corner-square"
-                      selected={settings.cornerSquareType === option.value}
-                      target="corner frame"
-                      value={option.value}
-                      onClick={() => onCornersSettingsChange({ cornerSquareType: option.value })}
-                    />
-                  ))}
-                </DesktopInspectorAnimatedOptionGrid>
-              </DesktopInspectorOptionGridScrollArea>
-            </DesktopInspectorSection>
+        <DesktopCornerColorSection
+          dataSlot={isCornerEye ? "desktop-corner-dot-color" : "desktop-corner-frame-color"}
+          gradient={isCornerEye ? settings.cornerDotGradient : settings.cornerSquareGradient}
+          mode={isCornerEye ? settings.cornerDotColorMode : settings.cornerSquareColorMode}
+          solidColor={isCornerEye ? settings.cornerDotSolidColor : settings.cornerSquareSolidColor}
+          target={target}
+          title={isCornerEye ? "Eye color" : "Frame color"}
+          onGradientChange={(gradient) =>
+            onCornersSettingsChange(
+              isCornerEye
+                ? { cornerDotColorMode: "gradient", cornerDotGradient: gradient }
+                : { cornerSquareColorMode: "gradient", cornerSquareGradient: gradient },
+            )
+          }
+          onModeChange={(mode) =>
+            onCornersSettingsChange(isCornerEye ? { cornerDotColorMode: mode } : { cornerSquareColorMode: mode })
+          }
+          onSolidColorChange={(color) =>
+            onCornersSettingsChange(
+              isCornerEye
+                ? { cornerDotColorMode: "solid", cornerDotSolidColor: color }
+                : { cornerSquareColorMode: "solid", cornerSquareSolidColor: color },
+            )
+          }
+        />
 
-            <DesktopCornerColorSection
-              dataSlot="desktop-corner-frame-color"
-              gradient={settings.cornerSquareGradient}
-              mode={settings.cornerSquareColorMode}
-              solidColor={settings.cornerSquareSolidColor}
-              target="corner frame"
-              title="Frame Color"
-              onGradientChange={(cornerSquareGradient) =>
-                onCornersSettingsChange({ cornerSquareColorMode: "gradient", cornerSquareGradient })
-              }
-              onModeChange={(cornerSquareColorMode) =>
-                onCornersSettingsChange({ cornerSquareColorMode })
-              }
-              onSolidColorChange={(cornerSquareSolidColor) =>
-                onCornersSettingsChange({ cornerSquareColorMode: "solid", cornerSquareSolidColor })
-              }
-            />
-
-            <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_MAJOR_GAP_CLASS)}>
-              <div className="mb-2 min-w-0">
-                <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Corner Dot</p>
-              </div>
-              <DesktopInspectorOptionGridScrollArea
-                ariaLabel="Corner dot presets"
-                dataSlot="desktop-corner-dot-preset-shelf-scroll-area"
-                orientation="horizontal"
-                shelfDataSlot="desktop-corner-dot-preset-shelf"
-                variant="preset"
-              >
-                <DesktopInspectorAnimatedOptionGrid
-                  layout="row"
-                  selectedKey={settings.cornerDotType}
-                >
-                  {CORNER_DOT_STYLE_OPTIONS.map((option) => (
-                    <DesktopCornerStyleButton
-                      desktopTheme={desktopTheme}
-                      key={option.value}
-                      label={option.label}
-                      previewKind="corner-dot"
-                      selected={settings.cornerDotType === option.value}
-                      target="corner dot"
-                      value={option.value}
-                      onClick={() => onCornersSettingsChange({ cornerDotType: option.value })}
-                    />
-                  ))}
-                </DesktopInspectorAnimatedOptionGrid>
-              </DesktopInspectorOptionGridScrollArea>
-            </DesktopInspectorSection>
-
-            <DesktopCornerColorSection
-              dataSlot="desktop-corner-dot-color"
-              gradient={settings.cornerDotGradient}
-              mode={settings.cornerDotColorMode}
-              solidColor={settings.cornerDotSolidColor}
-              target="corner dot"
-              title="Dot Color"
-              onGradientChange={(cornerDotGradient) =>
-                onCornersSettingsChange({ cornerDotColorMode: "gradient", cornerDotGradient })
-              }
-              onModeChange={(cornerDotColorMode) =>
-                onCornersSettingsChange({ cornerDotColorMode })
-              }
-              onSolidColorChange={(cornerDotSolidColor) =>
-                onCornersSettingsChange({ cornerDotColorMode: "solid", cornerDotSolidColor })
-              }
-            />
-
-          </DesktopInspectorScrollArea>
-        </div>
-        {/* Variants: insert below this line */}
-        {/* impeccable-variants-end a34b4748 */}
       </div>
-
     </div>
   )
 }
@@ -3248,7 +3200,6 @@ function DesktopShapeInspector({
 }) {
   return (
     <div data-slot="desktop-shape-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Shape" />
 
       <DesktopInspectorScrollArea>
         <DesktopInspectorSection>
@@ -3612,7 +3563,6 @@ function DesktopMotionInspector({
 }) {
   return (
     <div data-slot="desktop-motion-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Motion" />
 
       <DesktopInspectorScrollArea>
         <DesktopInspectorSection>
@@ -4149,7 +4099,6 @@ function DesktopContentInspector({
 
   return (
     <div data-slot="desktop-content-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Content" />
 
       <DesktopInspectorScrollArea>
         <DesktopInspectorSection dataSlot="desktop-content-type-section">
@@ -4276,40 +4225,71 @@ function DesktopContentInspector({
 }
 
 function DesktopPatternInspector({
+  cornersSettings,
   desktopTheme,
   encodingSettings,
   errorCorrectionLevel,
   onEncodingSettingsChange,
   onErrorCorrectionLevelChange,
+  onCornersSettingsChange,
   onPatternSettingsChange,
   settings,
 }: {
+  cornersSettings: DesktopCornersSettings
   desktopTheme: DesktopThemeMode
   encodingSettings: DesktopEncodingSettings
   errorCorrectionLevel: QrErrorCorrectionLevel
   onEncodingSettingsChange: (patch: Partial<DesktopEncodingSettings>) => void
   onErrorCorrectionLevelChange: (errorCorrectionLevel: QrErrorCorrectionLevel) => void
+  onCornersSettingsChange: (patch: Partial<DesktopCornersSettings>) => void
   onPatternSettingsChange: (patch: Partial<DesktopPatternSettings>) => void
   settings: DesktopPatternSettings
 }) {
+  const [activeTab, setActiveTab] = useState<"module" | "corner-eye" | "corner-frame">("module")
+  const tabs = (
+    <DesktopInspectorSegmentedControl
+      columns={3}
+      dataSlot="desktop-pattern-tabs"
+      itemAriaLabel={(option) => `Open ${option.label} settings`}
+      items={[
+        { label: "Module", value: "module" as const },
+        { label: "Corner eye", value: "corner-eye" as const },
+        { label: "Corner frame", value: "corner-frame" as const },
+      ]}
+      value={activeTab}
+      onValueChange={setActiveTab}
+    />
+  )
+
+  if (activeTab !== "module") {
+    return (
+      <div data-slot="desktop-pattern-inspector" className="grid min-h-0 min-w-0 flex-1 content-start gap-2.5 px-3 py-3">
+        {tabs}
+        <DesktopCornersInspector
+          desktopTheme={desktopTheme}
+          mode={activeTab}
+          onCornersSettingsChange={onCornersSettingsChange}
+          settings={cornersSettings}
+        />
+      </div>
+    )
+  }
+
   return (
     <div data-slot="desktop-pattern-inspector" className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-x-hidden">
-      <DesktopInspectorHeader title="Pattern" />
-
+      <div className="px-3 pt-3">{tabs}</div>
       <DesktopInspectorScrollArea>
-        <DesktopInspectorSection className="min-w-0 max-w-full overflow-x-hidden">
-          <div className="mb-2 min-w-0">
-            <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Module Pattern</p>
-          </div>
-          <DesktopInspectorOptionGridScrollArea
-            ariaLabel="Module pattern presets"
-            dataSlot="desktop-pattern-preset-shelf-scroll-area"
-            orientation="horizontal"
-            shelfDataSlot="desktop-pattern-preset-shelf"
-            variant="preset"
-          >
+        <DesktopInspectorSection
+          as="details"
+          className="min-w-0 max-w-full overflow-x-hidden"
+          data-slot="desktop-module-patterns"
+        >
+          <summary className={cn("cursor-pointer select-none", DESKTOP_INSPECTOR_LABEL_CLASS)}>
+            Patterns
+          </summary>
+          <div className="mt-2 min-w-0">
             <DesktopInspectorAnimatedOptionGrid
-              layout="row"
+              columns={4}
               selectedKey={settings.qrDotType}
             >
               {DOT_STYLE_OPTIONS.map((option) => (
@@ -4323,11 +4303,19 @@ function DesktopPatternInspector({
                 />
               ))}
             </DesktopInspectorAnimatedOptionGrid>
-          </DesktopInspectorOptionGridScrollArea>
+          </div>
         </DesktopInspectorSection>
 
-        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)} data-slot="desktop-module-color" resize>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Module Color</p>
+        <DesktopInspectorSection
+          as="details"
+          className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}
+          data-slot="desktop-module-colors"
+          resize
+        >
+          <summary className={cn("cursor-pointer select-none", DESKTOP_INSPECTOR_LABEL_CLASS)}>
+            Colors
+          </summary>
+          <div className="mt-2">
 
           <DesktopInspectorSegmentedControl
             columns={3}
@@ -4464,8 +4452,18 @@ function DesktopPatternInspector({
               ) : null}
             </div>
           ) : null}
+          </div>
         </DesktopInspectorSection>
 
+        <DesktopInspectorSection
+          as="details"
+          className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}
+          data-slot="desktop-module-advanced"
+        >
+          <summary className={cn("cursor-pointer select-none", DESKTOP_INSPECTOR_LABEL_CLASS)}>
+            Advanced
+          </summary>
+          <div className="mt-2 grid min-w-0">
         {supportsModuleSize(settings.qrDotType) ? (
           <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)} data-slot="desktop-module-size">
             <DesktopMotionSliderRow
@@ -4565,10 +4563,8 @@ function DesktopPatternInspector({
           </p>
         </DesktopInspectorSection>
 
-        <DesktopInspectorSection as="details" className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, "px-3 py-2.5")}>
-          <summary className={cn("cursor-pointer select-none", DESKTOP_INSPECTOR_LABEL_CLASS)}>
-            Advanced segments
-          </summary>
+        <div className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, "min-w-0 py-2")}>
+          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Encoding segments</p>
           <textarea
             aria-label="QR encoding segments"
             className={cn(
@@ -4585,6 +4581,8 @@ function DesktopPatternInspector({
           <p className={cn("mt-2", DESKTOP_INSPECTOR_CAPTION_CLASS, DESKTOP_INSPECTOR_FG_TERTIARY)}>
             Optional multi-segment encoding. Overrides the main content value when non-empty.
           </p>
+        </div>
+          </div>
         </DesktopInspectorSection>
       </DesktopInspectorScrollArea>
 
@@ -5407,7 +5405,6 @@ function DesktopImageInspector({
 }) {
   return (
     <div data-slot="desktop-image-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Image" />
       <DesktopInspectorScrollArea>
         <DesktopInspectorSection>
           <DesktopInspectorLabel>Intent</DesktopInspectorLabel>
@@ -5485,7 +5482,6 @@ function DesktopBackgroundInspector({
 }) {
   return (
     <div data-slot="desktop-background-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Background" />
       <DesktopInspectorScrollArea>
         <DesktopInspectorSection>
           <DesktopInspectorSegmentedControl
@@ -5529,7 +5525,6 @@ function DesktopEffectsInspector({
 
   return (
     <div data-slot="desktop-effects-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Effects" />
       <DesktopInspectorScrollArea>
         <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
           <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Image Filters</p>
@@ -5604,7 +5599,6 @@ function DesktopLayersInspector({
 
   return (
     <div data-slot="desktop-layers-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Layers" />
       <DesktopInspectorScrollArea>
         <DesktopInspectorSection>
           <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
@@ -5758,7 +5752,6 @@ function DesktopExportInspector({
 
   return (
     <div data-slot="desktop-export-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Export" />
       <DesktopInspectorScrollArea>
         <DesktopInspectorSection>
           <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Target</p>
@@ -5926,7 +5919,6 @@ function DesktopTextInspector({
 
   return (
     <div data-slot="desktop-text-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title="Text" />
 
       <DesktopInspectorScrollArea>
         <DesktopInspectorSection>
@@ -6300,11 +6292,61 @@ function getDesktopFontWeightSliderStep(supportedWeights: readonly number[]) {
   )
 }
 
-function DesktopPlaceholderInspector({ tool }: { tool: DesktopToolbarTool }) {
+function DesktopPlaceholderInspector() {
+  return <div className="min-h-0 min-w-0 flex-1" />
+}
+
+function DesktopInspectorAccordionNav({
+  activeTool,
+  onSelect,
+  renderTool,
+}: {
+  activeTool: DesktopToolbarToolId | null
+  onSelect: (toolId: DesktopToolbarToolId) => void
+  renderTool: (toolId: DesktopToolbarToolId) => ReactNode
+}) {
+  const activeGroupId =
+    DESKTOP_INSPECTOR_ACCORDION_GROUPS.find((group) => group.toolIds.includes(activeTool as DesktopToolbarToolId))?.id ??
+    DESKTOP_INSPECTOR_ACCORDION_GROUPS[0].id
+  const [openGroupId, setOpenGroupId] = useState(activeGroupId)
+
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DesktopInspectorHeader title={tool.title} />
-    </div>
+    <nav aria-label="Inspector sections" className="flex flex-col gap-1 px-0 py-2">
+      {DESKTOP_INSPECTOR_ACCORDION_GROUPS.map((group) => {
+        const isOpen = group.id === openGroupId
+        const groupTools = group.toolIds
+          .map((toolId) => DESKTOP_TOOLBAR_TOOLS.find((tool) => tool.id === toolId))
+          .filter((tool): tool is DesktopToolbarTool => Boolean(tool))
+        return (
+          <div key={group.id}>
+            <button
+              aria-expanded={isOpen}
+              className={cn(
+                "flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-[13px] font-medium text-[var(--desktop-inspector-fg-secondary)] transition-[color] duration-150 hover:text-[var(--desktop-inspector-fg-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)] focus-visible:ring-inset",
+                isOpen && "font-semibold text-[var(--desktop-inspector-fg-primary)]",
+              )}
+              type="button"
+              onClick={() => {
+                setOpenGroupId(isOpen ? "" : group.id)
+                if (!isOpen && groupTools[0]) onSelect(groupTools[0].id)
+              }}
+            >
+              <span>{group.title}</span>
+              <ChevronDownIcon className={cn("size-4 text-[var(--desktop-inspector-fg-muted)] transition-transform duration-200", isOpen && "rotate-180")} />
+            </button>
+            <div className={cn("grid transition-[grid-template-rows,opacity] duration-200", isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0")}>
+              <div className="min-h-0 overflow-hidden">
+                {isOpen && groupTools[0] ? (
+                  <div>
+                    {renderTool((activeTool && group.toolIds.includes(activeTool) ? activeTool : groupTools[0].id))}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        )
+      })}
+    </nav>
   )
 }
 
@@ -6359,6 +6401,7 @@ export function DesktopFloatingInspector({
     onShapeSettingsChange,
     onTextSettingsChange,
     actualDesktopTheme,
+    onActiveToolChange,
   } = model
   const resolvedToolConfig =
     activeToolConfig ?? DESKTOP_TOOLBAR_TOOLS.find((tool) => tool.id === activeTool)
@@ -6372,6 +6415,85 @@ export function DesktopFloatingInspector({
   if (!resolvedToolConfig && !controller?.selectedElementLayer && !showStockPhotosInspector) {
     return null
   }
+
+  const inspectorBody = (
+    showStockPhotosInspector ? (
+      <DesktopPexelsPhotoInspector
+        onClose={() => controller?.onCloseComposeSidebar?.()}
+        onSelectPhoto={(imageUrl) => controller?.onSelectStockPhoto?.(imageUrl)}
+      />
+    ) : showElementInspector && controller?.selectedElementLayer ? (
+      <DesktopElementInspector
+        layer={controller.selectedElementLayer}
+        onPatch={(patch) => controller.onElementLayerPatch?.(patch)}
+      />
+    ) : activeTool === "layout" ? (
+      <DesktopLayoutInspector
+        onLayoutChange={onLayoutSettingsChange}
+        onLayoutPresetSelect={(preset) => controller?.onLayoutPresetSelect?.(preset)}
+        onSizeSettingsChange={onSceneTemplateSizeChange}
+        onSelectSizeTemplate={(template) => controller?.onSceneTemplateSizeTemplateSelect?.(template)}
+        settings={actualLayoutSettings}
+        sizeSettings={actualSceneTemplateSettings.sizeSettings}
+      />
+    ) : activeTool === "content" ? (
+      <DesktopContentInspector
+        contentType={actualContentType}
+        contentValues={actualContentValues}
+        encodedValue={actualEncodedContentValue}
+        validation={actualContentValidation}
+        onContentPasteApply={onContentPasteApply}
+        onContentTypeChange={onContentTypeChange}
+        onContentValueChange={onContentValueChange}
+      />
+    ) : activeTool === "pattern" || activeTool === "corners" ? (
+      <DesktopPatternInspector
+        cornersSettings={actualCornersSettings}
+        desktopTheme={actualDesktopTheme}
+        encodingSettings={actualEncodingSettings}
+        errorCorrectionLevel={actualEncodingSettings.errorCorrectionLevel}
+        settings={actualPatternSettings}
+        onEncodingSettingsChange={onEncodingSettingsChange}
+        onErrorCorrectionLevelChange={(errorCorrectionLevel) =>
+          onEncodingSettingsChange({ errorCorrectionLevel })
+        }
+        onCornersSettingsChange={onCornersSettingsChange}
+        onPatternSettingsChange={onPatternSettingsChange}
+      />
+    ) : activeTool === "logo" ? (
+      <DesktopLogoInspector desktopTheme={actualDesktopTheme} settings={actualLogoSettings} onLogoSettingsChange={onLogoSettingsChange} />
+    ) : activeTool === "shape" ? (
+      <DesktopShapeInspector desktopTheme={actualDesktopTheme} settings={actualShapeSettings} onShapeSettingsChange={onShapeSettingsChange} />
+    ) : activeTool === "background" ? (
+      <DesktopBackgroundInspector activeTab={actualBackgroundInspectorTab} settings={actualBackgroundSettings} shapeSettings={actualShapeSettings} onActiveTabChange={onBackgroundInspectorTabChange} onBackgroundSettingsChange={onBackgroundSettingsChange} onShapeSettingsChange={onShapeSettingsChange} />
+    ) : activeTool === "motion" ? (
+      <DesktopMotionInspector settings={actualMotionSettings} onMotionSettingsChange={onMotionSettingsChange} />
+    ) : activeTool === "effects" ? (
+      <DesktopEffectsInspector settings={actualEffectsSettings} onEffectsSettingsChange={onEffectsSettingsChange} />
+    ) : activeTool === "layers" ? (
+      <DesktopLayersInspector
+        onLayersReorder={onLayersReorder}
+        onLayersSettingsChange={onLayersSettingsChange}
+        onTransformLayerPatch={(patch) => {
+          if (controller?.onTransformLayerPatch) {
+            controller.onTransformLayerPatch(patch)
+            return
+          }
+          controller?.onElementLayerPatch?.(patch)
+        }}
+        settings={actualLayersSettings}
+        transformLayer={controller?.selectedTransformLayer ?? controller?.selectedElementLayer ?? null}
+      />
+    ) : activeTool === "export" ? (
+      <DesktopExportInspector
+        buildCodegenExport={controller?.buildCodegenExport}
+        exportDownloadError={controller?.exportDownloadError}
+        settings={actualExportSettings}
+        onExportDownload={controller?.onExportDownload ?? (() => undefined)}
+        onExportSettingsChange={onExportSettingsChange}
+      />
+    ) : resolvedToolConfig ? <DesktopPlaceholderInspector /> : null
+  )
 
   return (
     <SurfaceProvider value={1}>
@@ -6388,112 +6510,15 @@ export function DesktopFloatingInspector({
       data-slot="desktop-floating-inspector"
       className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden", className)}
     >
-      {showStockPhotosInspector ? (
-        <DesktopPexelsPhotoInspector
-          onClose={() => controller?.onCloseComposeSidebar?.()}
-          onSelectPhoto={(imageUrl) => controller?.onSelectStockPhoto?.(imageUrl)}
+      {!showStockPhotosInspector && !showElementInspector ? (
+        <DesktopInspectorAccordionNav
+          key={activeTool ?? "none"}
+          activeTool={activeTool}
+          onSelect={onActiveToolChange}
+          renderTool={() => inspectorBody}
         />
-      ) : showElementInspector && controller?.selectedElementLayer ? (
-        <DesktopElementInspector
-          layer={controller.selectedElementLayer}
-          onPatch={(patch) => controller.onElementLayerPatch?.(patch)}
-        />
-      ) : activeTool === "layout" ? (
-        <DesktopLayoutInspector
-          onLayoutChange={onLayoutSettingsChange}
-          onLayoutPresetSelect={(preset) => controller?.onLayoutPresetSelect?.(preset)}
-          onSizeSettingsChange={onSceneTemplateSizeChange}
-          onSelectSizeTemplate={(template) => controller?.onSceneTemplateSizeTemplateSelect?.(template)}
-          settings={actualLayoutSettings}
-          sizeSettings={actualSceneTemplateSettings.sizeSettings}
-        />
-      ) : activeTool === "content" ? (
-        <DesktopContentInspector
-          contentType={actualContentType}
-          contentValues={actualContentValues}
-          encodedValue={actualEncodedContentValue}
-          validation={actualContentValidation}
-          onContentPasteApply={onContentPasteApply}
-          onContentTypeChange={onContentTypeChange}
-          onContentValueChange={onContentValueChange}
-        />
-      ) : activeTool === "pattern" ? (
-        <DesktopPatternInspector
-          desktopTheme={actualDesktopTheme}
-          encodingSettings={actualEncodingSettings}
-          errorCorrectionLevel={actualEncodingSettings.errorCorrectionLevel}
-          settings={actualPatternSettings}
-          onEncodingSettingsChange={onEncodingSettingsChange}
-          onErrorCorrectionLevelChange={(errorCorrectionLevel) =>
-            onEncodingSettingsChange({ errorCorrectionLevel })
-          }
-          onPatternSettingsChange={onPatternSettingsChange}
-        />
-      ) : activeTool === "corners" ? (
-        <DesktopCornersInspector
-          desktopTheme={actualDesktopTheme}
-          settings={actualCornersSettings}
-          onCornersSettingsChange={onCornersSettingsChange}
-        />
-      ) : activeTool === "logo" ? (
-        <DesktopLogoInspector
-          desktopTheme={actualDesktopTheme}
-          settings={actualLogoSettings}
-          onLogoSettingsChange={onLogoSettingsChange}
-        />
-      ) : activeTool === "shape" ? (
-        <DesktopShapeInspector
-          desktopTheme={actualDesktopTheme}
-          settings={actualShapeSettings}
-          onShapeSettingsChange={onShapeSettingsChange}
-        />
-      ) : activeTool === "background" ? (
-        <DesktopBackgroundInspector
-          activeTab={actualBackgroundInspectorTab}
-          settings={actualBackgroundSettings}
-          shapeSettings={actualShapeSettings}
-          onActiveTabChange={onBackgroundInspectorTabChange}
-          onBackgroundSettingsChange={onBackgroundSettingsChange}
-          onShapeSettingsChange={onShapeSettingsChange}
-        />
-      ) : activeTool === "motion" ? (
-        <DesktopMotionInspector
-          settings={actualMotionSettings}
-          onMotionSettingsChange={onMotionSettingsChange}
-        />
-      ) : activeTool === "effects" ? (
-        <DesktopEffectsInspector
-          settings={actualEffectsSettings}
-          onEffectsSettingsChange={onEffectsSettingsChange}
-        />
-      ) : activeTool === "layers" ? (
-        <DesktopLayersInspector
-          onLayersReorder={onLayersReorder}
-          onLayersSettingsChange={onLayersSettingsChange}
-          onTransformLayerPatch={(patch) => {
-            if (controller?.onTransformLayerPatch) {
-              controller.onTransformLayerPatch(patch)
-              return
-            }
-
-            controller?.onElementLayerPatch?.(patch)
-          }}
-          settings={actualLayersSettings}
-          transformLayer={
-            controller?.selectedTransformLayer ?? controller?.selectedElementLayer ?? null
-          }
-        />
-      ) : activeTool === "export" ? (
-        <DesktopExportInspector
-          buildCodegenExport={controller?.buildCodegenExport}
-          exportDownloadError={controller?.exportDownloadError}
-          settings={actualExportSettings}
-          onExportDownload={controller?.onExportDownload ?? (() => undefined)}
-          onExportSettingsChange={onExportSettingsChange}
-        />
-      ) : resolvedToolConfig ? (
-        <DesktopPlaceholderInspector tool={resolvedToolConfig} />
       ) : null}
+      {showStockPhotosInspector || showElementInspector ? inspectorBody : null}
     </aside>
     </SurfaceProvider>
   )

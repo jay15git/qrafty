@@ -31,7 +31,6 @@ import { DesktopColorInputRow } from "@/features/desktop-shell/components/Deskto
 import {
   DesktopInspectorColorRow,
   DesktopInspectorElasticSliderRow,
-  DesktopInspectorHeader,
   DesktopInspectorNumberField,
   DesktopInspectorScrollArea,
   DesktopInspectorValueGrid,
@@ -66,22 +65,6 @@ const DESKTOP_TEXT_ALIGN_OPTIONS: Array<{ label: string; value: DraftingTextAlig
   { label: "Right", value: "right" },
 ]
 
-function getElementInspectorTitle(layer: DraftingCanvasLayer) {
-  if (layer.kind === "text") {
-    return "Text"
-  }
-
-  if (layer.kind === "image") {
-    return "Image"
-  }
-
-  if (layer.kind === "shader") {
-    return "Shader"
-  }
-
-  return "Shape"
-}
-
 export function DesktopElementInspector({
   layer,
   onPatch,
@@ -94,7 +77,6 @@ export function DesktopElementInspector({
       data-slot="desktop-element-inspector"
       className="flex min-h-0 min-w-0 flex-1 flex-col"
     >
-      <DesktopInspectorHeader title={getElementInspectorTitle(layer)} />
       <DesktopInspectorScrollArea>
         {layer.kind === "text" ? (
           <DesktopLayerTextInspector layer={layer} onPatch={onPatch} />
@@ -125,7 +107,6 @@ export function DesktopTransformInspector({
       data-slot="desktop-transform-inspector"
       className="flex min-h-0 min-w-0 flex-1 flex-col"
     >
-      <DesktopInspectorHeader title="Transform" />
       <DesktopInspectorScrollArea>
         {layer ? (
           <DesktopTransformSection layer={layer} onPatch={onPatch} />
