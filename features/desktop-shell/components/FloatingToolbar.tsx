@@ -251,6 +251,10 @@ import {
 } from "@/features/qr-code/content/input-options"
 import { DesktopCodeExportInspector } from "@/features/desktop-shell/components/DesktopCodeExportInspector"
 import { DesktopPexelsPhotoInspector } from "@/features/desktop-shell/components/DesktopPexelsPhotoInspector"
+import {
+  DesktopSettingsPopover,
+  DesktopSettingsStack,
+} from "@/features/desktop-shell/components/DesktopSettingsPrimitives"
 import { DownloadIcon as AnimatedDownloadIcon } from "@/components/ui/download"
 import {
   DraggableList,
@@ -2517,18 +2521,25 @@ function DesktopLogoInspector({
     <div data-slot="desktop-logo-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
 
       <DesktopInspectorScrollArea>
-        <DesktopInspectorSection>
-          <DesktopInspectorLabel>Source</DesktopInspectorLabel>
-          <DesktopInspectorSegmentedControl
-            columns={3}
-            dataSlot="desktop-logo-source-mode"
-            itemAriaLabel={(option) => `Use ${option.label} logo source`}
-            itemClassName="px-1.5"
-            items={DESKTOP_LOGO_SOURCE_OPTIONS}
-            value={settings.sourceMode}
-            onValueChange={(sourceMode) => onLogoSettingsChange({ sourceMode })}
-          />
-        </DesktopInspectorSection>
+        <DesktopSettingsStack className="border-x-0 border-t-0 rounded-none">
+          <DesktopSettingsPopover
+            label="Logo source"
+            summary={
+              DESKTOP_LOGO_SOURCE_OPTIONS.find((option) => option.value === settings.sourceMode)?.label ??
+              settings.sourceMode
+            }
+          >
+            <DesktopInspectorSegmentedControl
+              columns={3}
+              dataSlot="desktop-logo-source-mode"
+              itemAriaLabel={(option) => `Use ${option.label} logo source`}
+              itemClassName="px-1.5"
+              items={DESKTOP_LOGO_SOURCE_OPTIONS}
+              value={settings.sourceMode}
+              onValueChange={(sourceMode) => onLogoSettingsChange({ sourceMode })}
+            />
+          </DesktopSettingsPopover>
+        </DesktopSettingsStack>
 
         {settings.sourceMode === "brand" ? (
           <DesktopInspectorSection className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
@@ -3217,44 +3228,50 @@ function DesktopShapeInspector({
 }) {
   return (
     <div data-slot="desktop-shape-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-
       <DesktopInspectorScrollArea>
-        <DesktopInspectorSection>
-          <div className="mb-2 min-w-0">
-            <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Card shape</p>
-          </div>
-          <DesktopInspectorOptionGridScrollArea
-            ariaLabel="Shape options"
-            columns={3}
-            dataSlot="desktop-shape-preset-shelf-scroll-area"
-            variant="preset"
+        <DesktopSettingsStack className="border-x-0 border-t-0 rounded-none">
+          <DesktopSettingsPopover
+            label="Card shape"
+            summary={
+              settings.backgroundShapeId === "none"
+                ? "None"
+                : QR_BACKGROUND_SHAPES.find((shape) => shape.id === settings.backgroundShapeId)?.label ??
+                  settings.backgroundShapeId
+            }
           >
-            <DesktopInspectorAnimatedOptionGrid
+            <DesktopInspectorOptionGridScrollArea
+              ariaLabel="Shape options"
               columns={3}
-              selectedKey={settings.backgroundShapeId}
+              dataSlot="desktop-shape-preset-shelf-scroll-area"
+              variant="preset"
             >
-              <DesktopShapePresetButton
-                desktopTheme={desktopTheme}
-                label="None"
-                selected={settings.backgroundShapeId === "none"}
-                settings={settings}
-                shapeId="none"
-                onClick={() => onShapeSettingsChange({ backgroundShapeId: "none" })}
-              />
-              {QR_BACKGROUND_SHAPES.map((shape) => (
+              <DesktopInspectorAnimatedOptionGrid
+                columns={3}
+                selectedKey={settings.backgroundShapeId}
+              >
                 <DesktopShapePresetButton
                   desktopTheme={desktopTheme}
-                  key={shape.id}
-                  label={shape.label}
-                  selected={settings.backgroundShapeId === shape.id}
+                  label="None"
+                  selected={settings.backgroundShapeId === "none"}
                   settings={settings}
-                  shapeId={shape.id}
-                  onClick={() => onShapeSettingsChange({ backgroundShapeId: shape.id })}
+                  shapeId="none"
+                  onClick={() => onShapeSettingsChange({ backgroundShapeId: "none" })}
                 />
-              ))}
-            </DesktopInspectorAnimatedOptionGrid>
-          </DesktopInspectorOptionGridScrollArea>
-        </DesktopInspectorSection>
+                {QR_BACKGROUND_SHAPES.map((shape) => (
+                  <DesktopShapePresetButton
+                    desktopTheme={desktopTheme}
+                    key={shape.id}
+                    label={shape.label}
+                    selected={settings.backgroundShapeId === shape.id}
+                    settings={settings}
+                    shapeId={shape.id}
+                    onClick={() => onShapeSettingsChange({ backgroundShapeId: shape.id })}
+                  />
+                ))}
+              </DesktopInspectorAnimatedOptionGrid>
+            </DesktopInspectorOptionGridScrollArea>
+          </DesktopSettingsPopover>
+        </DesktopSettingsStack>
 
         {showColorControls ? <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)} data-slot="desktop-shape-color" resize>
           <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Fill</p>
@@ -3596,51 +3613,59 @@ function DesktopMotionInspector({
           />
         </DesktopInspectorSection>
 
-        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <div className="mb-2 min-w-0">
-            <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Dot Matrix Animations</p>
-          </div>
-          <DesktopInspectorOptionGridScrollArea
-            ariaLabel="Dot matrix motion presets"
-            columns={3}
-            dataSlot="desktop-motion-loader-shelf-scroll-area"
-            shelfDataSlot="desktop-motion-loader-shelf"
-            variant="content"
+        <DesktopSettingsStack className="border-x-0 border-t-0 rounded-none">
+          <DesktopSettingsPopover
+            label="Animation preset"
+            summary={
+              QR_MOTION_DOT_MATRIX_PRESET_OPTIONS.find(
+                (option) =>
+                  option.value === settings.preset ||
+                  (settings.presetCategory === "dotMatrix" && option.value === settings.loader),
+              )?.label ?? "Custom"
+            }
           >
-            <DesktopInspectorAnimatedOptionGrid
+            <DesktopInspectorOptionGridScrollArea
+              ariaLabel="Dot matrix motion presets"
               columns={3}
-              data-slot="desktop-motion-dot-matrix-shelf"
-              selectedKey={
-                settings.presetCategory === "dotMatrix"
-                  ? typeof settings.preset === "string" && settings.preset
-                    ? settings.preset
-                    : settings.loader
-                  : null
-              }
+              dataSlot="desktop-motion-loader-shelf-scroll-area"
+              shelfDataSlot="desktop-motion-loader-shelf"
+              variant="content"
             >
-              {QR_MOTION_DOT_MATRIX_PRESET_OPTIONS.map((loader) => {
-                const isSelected =
-                  settings.presetCategory === "dotMatrix" &&
-                  (settings.preset === loader.value || settings.loader === loader.value)
+              <DesktopInspectorAnimatedOptionGrid
+                columns={3}
+                data-slot="desktop-motion-dot-matrix-shelf"
+                selectedKey={
+                  settings.presetCategory === "dotMatrix"
+                    ? typeof settings.preset === "string" && settings.preset
+                      ? settings.preset
+                      : settings.loader
+                    : null
+                }
+              >
+                {QR_MOTION_DOT_MATRIX_PRESET_OPTIONS.map((loader) => {
+                  const isSelected =
+                    settings.presetCategory === "dotMatrix" &&
+                    (settings.preset === loader.value || settings.loader === loader.value)
 
-                return (
-                  <DesktopMotionPresetTileButton
-                    key={loader.value}
-                    label={loader.label}
-                    selected={isSelected}
-                    onClick={() =>
-                      onMotionSettingsChange({
-                        loader: loader.value,
-                        preset: loader.value,
-                        presetCategory: "dotMatrix",
-                      })
-                    }
-                  />
-                )
-              })}
-            </DesktopInspectorAnimatedOptionGrid>
-          </DesktopInspectorOptionGridScrollArea>
-        </DesktopInspectorSection>
+                  return (
+                    <DesktopMotionPresetTileButton
+                      key={loader.value}
+                      label={loader.label}
+                      selected={isSelected}
+                      onClick={() =>
+                        onMotionSettingsChange({
+                          loader: loader.value,
+                          preset: loader.value,
+                          presetCategory: "dotMatrix",
+                        })
+                      }
+                    />
+                  )
+                })}
+              </DesktopInspectorAnimatedOptionGrid>
+            </DesktopInspectorOptionGridScrollArea>
+          </DesktopSettingsPopover>
+        </DesktopSettingsStack>
 
         <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
           <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Dot matrix controls</p>
@@ -4130,105 +4155,108 @@ function DesktopContentInspector({
 
   return (
     <div data-slot="desktop-content-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
-
       <DesktopInspectorScrollArea>
-        <DesktopInspectorSection dataSlot="desktop-content-type-section">
-          <div
-            className="flex min-w-0 items-center gap-2"
-            data-slot="desktop-content-filter-search-row"
+        <DesktopSettingsStack className="border-x-0 border-t-0 rounded-none">
+          <DesktopSettingsPopover
+            label="Content type"
+            summary={QR_INPUT_OPTIONS[contentType]?.label ?? contentType}
           >
-            <DesktopInspectorSearchInput
-              aria-label="Search QR types"
-              className="h-8 min-w-0 w-full flex-1"
-              iconClassName="left-3"
-              inputClassName="rounded-full pl-8 pr-3"
-              placeholder="Search"
-              value={query}
-              onValueChange={setQuery}
-            />
-            <DesktopInspectorMorphFilterMenu
-              ariaLabel="Filter QR types"
-              data-slot="desktop-content-type-morph"
-              icon={
-                <HugeiconsIcon
-                  icon={FilterMailIcon}
-                  size={16}
-                  color="currentColor"
-                  strokeWidth={1.8}
-                />
-              }
-              isActive={isCollectionFilterActive}
-              menuDataSlot="desktop-inspector-filter-menu desktop-content-type-filter-menu"
-              morphClassName="desktop-inspector-morph-filter--compact"
-              options={contentFilterOptions}
-              triggerDataSlot="desktop-inspector-filter-trigger desktop-content-type-filter-trigger"
-              value={collectionId}
-              onValueChange={setCollectionId}
-            />
-          </div>
-
-          <DesktopInspectorOptionGridScrollArea
-            ariaLabel="QR content types"
-            className="mt-3"
-            columns={3}
-            dataSlot="desktop-content-type-collection-scroll-area"
-            shelfDataSlot="desktop-content-type-collection-scroll"
-            variant="content"
-          >
-            <DesktopInspectorAnimatedOptionGrid
-              columns={3}
-              data-slot="desktop-content-type-collection"
-              selectedKey={contentType}
+            <div
+              className="flex min-w-0 items-center gap-2"
+              data-slot="desktop-content-filter-search-row"
             >
-              {visibleTypes.map((type) => {
-              const option = QR_INPUT_OPTIONS[type]
-              const isSelected = contentType === type
+              <DesktopInspectorSearchInput
+                aria-label="Search QR types"
+                className="h-8 min-w-0 w-full flex-1"
+                iconClassName="left-3"
+                inputClassName="rounded-sm pl-8 pr-3"
+                placeholder="Search"
+                value={query}
+                onValueChange={setQuery}
+              />
+              <DesktopInspectorMorphFilterMenu
+                ariaLabel="Filter QR types"
+                data-slot="desktop-content-type-morph"
+                icon={
+                  <HugeiconsIcon
+                    icon={FilterMailIcon}
+                    size={16}
+                    color="currentColor"
+                    strokeWidth={1.8}
+                  />
+                }
+                isActive={isCollectionFilterActive}
+                menuDataSlot="desktop-inspector-filter-menu desktop-content-type-filter-menu"
+                morphClassName="desktop-inspector-morph-filter--compact"
+                options={contentFilterOptions}
+                triggerDataSlot="desktop-inspector-filter-trigger desktop-content-type-filter-trigger"
+                value={collectionId}
+                onValueChange={setCollectionId}
+              />
+            </div>
+            <DesktopInspectorOptionGridScrollArea
+              ariaLabel="QR content types"
+              className="mt-3"
+              columns={3}
+              dataSlot="desktop-content-type-collection-scroll-area"
+              shelfDataSlot="desktop-content-type-collection-scroll"
+              variant="content"
+            >
+              <DesktopInspectorAnimatedOptionGrid
+                columns={3}
+                data-slot="desktop-content-type-collection"
+                selectedKey={contentType}
+              >
+                {visibleTypes.map((type) => {
+                  const option = QR_INPUT_OPTIONS[type]
+                  const isSelected = contentType === type
 
-              return (
-                <button
-                  key={type}
-                  aria-label={`Use ${option.label} content`}
-                  aria-pressed={isSelected}
-                  className={cn(
-                    "group relative mx-auto flex aspect-square size-[3.375rem] min-w-0 flex-col items-center justify-center gap-1 p-1.5 text-center",
-                    desktopInspectorOptionGridItemClass("tight"),
-                    DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-                    DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
-                    isSelected && "text-[var(--desktop-inspector-option-selected-fg)]",
-                  )}
-                  data-desktop-animated-option-selection="true"
-                  data-desktop-content-type-option="true"
-                  data-desktop-option-interaction="scale"
-                  type="button"
-                  onClick={() => onContentTypeChange(type)}
-                >
-                  <span
-                    className={cn(
-                      "relative z-10 flex flex-col items-center justify-center gap-1",
-                      DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
-                    )}
-                  >
-                    <ContentTypeGridIcon type={type} />
-                    <span
+                  return (
+                    <button
+                      key={type}
+                      aria-label={`Use ${option.label} content`}
+                      aria-pressed={isSelected}
                       className={cn(
-                        "max-w-full truncate leading-none",
-                        DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
+                        "group relative mx-auto flex aspect-square size-[3.375rem] min-w-0 flex-col items-center justify-center gap-1 p-1.5 text-center",
+                        desktopInspectorOptionGridItemClass("tight"),
+                        DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+                        DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+                        isSelected && "text-[var(--desktop-inspector-option-selected-fg)]",
                       )}
+                      data-desktop-animated-option-selection="true"
+                      data-desktop-content-type-option="true"
+                      data-desktop-option-interaction="scale"
+                      type="button"
+                      onClick={() => onContentTypeChange(type)}
                     >
-                      {option.label}
-                    </span>
-                  </span>
-                </button>
-              )
-            })}
-              {visibleTypes.length === 0 ? (
-                <p className={cn("col-span-3 px-1 py-3 text-center", DESKTOP_INSPECTOR_CAPTION_CLASS)}>
-                  No QR types found
-                </p>
-              ) : null}
-            </DesktopInspectorAnimatedOptionGrid>
-          </DesktopInspectorOptionGridScrollArea>
-        </DesktopInspectorSection>
+                      <span
+                        className={cn(
+                          "relative z-10 flex flex-col items-center justify-center gap-1",
+                          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+                        )}
+                      >
+                        <ContentTypeGridIcon type={type} />
+                        <span
+                          className={cn(
+                            "max-w-full truncate leading-none",
+                            DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
+                          )}
+                        >
+                          {option.label}
+                        </span>
+                      </span>
+                    </button>
+                  )
+                })}
+                {visibleTypes.length === 0 ? (
+                  <p className={cn("col-span-3 px-1 py-3 text-center", DESKTOP_INSPECTOR_CAPTION_CLASS)}>
+                    No QR types found
+                  </p>
+                ) : null}
+              </DesktopInspectorAnimatedOptionGrid>
+            </DesktopInspectorOptionGridScrollArea>
+          </DesktopSettingsPopover>
+        </DesktopSettingsStack>
 
         <DesktopInspectorSection as="div" className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
           <DesktopContentFields
@@ -4325,15 +4353,12 @@ function DesktopPatternInspector({
     <div data-slot="desktop-pattern-inspector" className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-x-hidden">
       <div className="px-3 pt-3">{tabs}</div>
       <DesktopInspectorScrollArea>
-        {showModulePatternControls ? <DesktopInspectorSection
-          as="details"
+        {showModulePatternControls ? <DesktopSettingsPopover
+          label="Module pattern"
+          summary={DOT_STYLE_OPTIONS.find((option) => option.value === settings.qrDotType)?.label ?? settings.qrDotType}
           className="min-w-0 max-w-full overflow-x-hidden"
-          data-slot="desktop-module-patterns"
         >
-          <summary className={cn("cursor-pointer select-none", DESKTOP_INSPECTOR_LABEL_CLASS)}>
-            Patterns
-          </summary>
-          <div className="mt-2 min-w-0">
+          <div className="min-w-0">
             <DesktopInspectorAnimatedOptionGrid
               columns={4}
               selectedKey={settings.qrDotType}
@@ -4350,18 +4375,13 @@ function DesktopPatternInspector({
               ))}
             </DesktopInspectorAnimatedOptionGrid>
           </div>
-        </DesktopInspectorSection> : null}
+        </DesktopSettingsPopover> : null}
 
-        {showColorControls ? <DesktopInspectorSection
-          as="details"
-          className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}
-          data-slot="desktop-module-colors"
-          resize
+        {showColorControls ? <DesktopSettingsPopover
+          label="Module colors"
+          summary={DESKTOP_DOTS_COLOR_MODES.find((option) => option.value === settings.dotsColorMode)?.label ?? settings.dotsColorMode}
         >
-          <summary className={cn("cursor-pointer select-none", DESKTOP_INSPECTOR_LABEL_CLASS)}>
-            Colors
-          </summary>
-          <div className="mt-2">
+          <div>
 
           <DesktopInspectorSegmentedControl
             columns={3}
@@ -4499,7 +4519,7 @@ function DesktopPatternInspector({
             </div>
           ) : null}
           </div>
-        </DesktopInspectorSection> : null}
+        </DesktopSettingsPopover> : null}
 
         {showAdvancedControls ? <DesktopInspectorSection
           as="details"
@@ -5805,9 +5825,14 @@ function DesktopExportInspector({
   return (
     <div data-slot="desktop-export-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
       <DesktopInspectorScrollArea>
-        <DesktopInspectorSection>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Target</p>
-          <div className={desktopInspectorOptionStackClass()} data-slot="desktop-export-target-list">
+        <DesktopSettingsStack className="border-x-0 border-t-0 rounded-none">
+          <DesktopSettingsPopover
+            label="Export target"
+            summary={
+              DESKTOP_EXPORT_TARGET_OPTIONS.find((option) => option.value === settings.target)?.label ??
+              settings.target
+            }
+          >
             {DESKTOP_EXPORT_TARGET_OPTIONS.map((option) => (
               <DesktopTextPresetButton
                 key={option.value}
@@ -5816,12 +5841,9 @@ function DesktopExportInspector({
                 onClick={() => onExportSettingsChange({ target: option.value })}
               />
             ))}
-          </div>
-        </DesktopInspectorSection>
+          </DesktopSettingsPopover>
 
-        <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Format</p>
-          <div className={desktopInspectorOptionGridClass(4)} data-slot="desktop-export-format-grid">
+          <DesktopSettingsPopover label="Format" summary={settings.extension.toUpperCase()}>
             {DESKTOP_DOWNLOAD_EXTENSIONS.map((extension) => (
               <button
                 key={extension}
@@ -5840,14 +5862,14 @@ function DesktopExportInspector({
                 {extension.toUpperCase()}
               </button>
             ))}
-          </div>
-        </DesktopInspectorSection>
+          </DesktopSettingsPopover>
 
         {isRasterExport ? (
           <>
-            <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-              <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Platform size</p>
-              <div className={desktopInspectorOptionStackClass()} data-slot="desktop-export-platform-grid">
+            <DesktopSettingsPopover
+              label="Platform size"
+              summary={settings.usePlatformPreset ? formatExportPresetLabel(EXPORT_PRESETS.find((preset) => preset.id === settings.exportPresetId) ?? EXPORT_PRESETS[0]) : "Custom"}
+            >
                 {EXPORT_PRESETS.map((preset) => (
                   <button
                     key={preset.id}
@@ -5878,12 +5900,9 @@ function DesktopExportInspector({
                     </span>
                   </button>
                 ))}
-              </div>
-            </DesktopInspectorSection>
+            </DesktopSettingsPopover>
 
-            <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-              <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Quality</p>
-              <div className={desktopInspectorOptionStackClass()} data-slot="desktop-export-quality-grid">
+            <DesktopSettingsPopover label="Quality" summary={selectedQuality.label}>
                 {DESKTOP_RASTER_EXPORT_PRESETS.map((preset) => (
                   <button
                     key={preset.id}
@@ -5913,10 +5932,10 @@ function DesktopExportInspector({
                   </span>
                 </button>
               ))}
-            </div>
-          </DesktopInspectorSection>
+            </DesktopSettingsPopover>
           </>
         ) : null}
+        </DesktopSettingsStack>
 
         {showCodeExport && buildCodegenExport ? (
           <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
@@ -6929,6 +6948,24 @@ export function DesktopFloatingInspector({
   const desktopSections = DESKTOP_INSPECTOR_ACCORDION_GROUPS.map((section) => ({
     id: section.id as DesktopInspectorSectionId,
     title: section.title,
+    summary:
+      section.id === "content"
+        ? (QR_INPUT_OPTIONS[actualContentType]?.label ?? actualContentType)
+        : section.id === "qr-style"
+          ? (DOT_STYLE_OPTIONS.find((option) => option.value === actualPatternSettings.qrDotType)?.label ??
+            actualPatternSettings.qrDotType)
+          : section.id === "logo"
+            ? (DESKTOP_LOGO_SOURCE_OPTIONS.find((option) => option.value === actualLogoSettings.sourceMode)?.label ??
+              actualLogoSettings.sourceMode)
+            : section.id === "card"
+              ? actualShapeSettings.backgroundShapeId
+              : section.id === "scene"
+                ? activeTool ?? "Canvas"
+                : section.id === "motion"
+                  ? actualMotionSettings.enabled
+                    ? "On"
+                    : "Off"
+                  : actualExportSettings.extension.toUpperCase(),
     toolId: section.toolIds[0],
     content:
       section.id === "scene" ? (

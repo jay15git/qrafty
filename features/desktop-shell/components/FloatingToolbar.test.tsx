@@ -55,13 +55,13 @@ describe("FloatingToolbar", () => {
 
     expect(inspector).not.toBeNull()
     expect(sectionHeaders.map((header) => header.textContent?.trim())).toEqual([
-      "Content",
-      "QR Style",
-      "Logo",
-      "Card",
-      "Scene",
-      "Motion",
-      "Export",
+      "ContentLink",
+      "QR StyleRounded",
+      "LogoBrand",
+      "Cardnone",
+      "Scenecontent",
+      "MotionOff",
+      "ExportPNG",
     ])
 
     expect(surface.container.querySelector('[data-slot="desktop-prototype-canvas"]')).toBeNull()
@@ -381,23 +381,19 @@ describe("FloatingToolbar", () => {
     expect(scrollArea?.querySelector('[data-slot="scroll-area-viewport"]')).not.toBeNull()
     expect(scrollArea?.querySelector('[aria-hidden="true"] svg')).not.toBeNull()
     expect(scrollGroups).toHaveLength(2)
-    expect(scrollGroups[0]?.getAttribute("data-slot")).toBe("desktop-content-type-section")
-    expect(scrollGroups[0]?.className).toContain("bg-[var(--desktop-inspector-section-bg)]")
-    expect(scrollGroups[1]?.className).toContain("bg-[var(--desktop-inspector-section-bg)]")
-    expect(inspector?.querySelector('[data-slot="desktop-content-type-collection"]')).not.toBeNull()
-    expect(inspector?.querySelector('[data-slot="desktop-content-type-filters"]')).toBeNull()
-    expect(inspector?.querySelector('[data-slot="desktop-content-type-filter-trigger"]')).not.toBeNull()
-    const filterSearchRow = inspector?.querySelector('[data-slot="desktop-content-filter-search-row"]')
+    expect(scrollGroups[0]?.getAttribute("data-slot")).toBe("desktop-settings-stack")
+    expect(scrollGroups[1]?.querySelector('[data-slot="desktop-content-fields"]')).not.toBeNull()
+    await clickButton(getRequiredButton(surface.container, "Edit Content type"))
+    expect(document.body.querySelector('[data-slot="desktop-content-type-collection"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="desktop-content-type-filters"]')).toBeNull()
+    const filterSearchRow = document.body.querySelector('[data-slot="desktop-content-filter-search-row"]')
     expect(filterSearchRow?.className).toContain("gap-2")
-    const filterTrigger = filterSearchRow?.querySelector('[data-slot="desktop-content-type-filter-trigger"]')
-    expect(filterTrigger?.className).toContain("t-morph-plus")
-    const searchInput = filterSearchRow?.querySelector('input[aria-label="Search QR types"]')
+    const searchInput = document.body.querySelector('input[aria-label="Search QR types"]')
     expect(searchInput).not.toBeNull()
     expect(searchInput?.className).toContain("desktop-inspector-input-bg")
-    expect(searchInput?.className).toContain("rounded-full")
-    expect(inspector?.querySelector('[data-slot="desktop-content-fields"]')).not.toBeNull()
+    expect(searchInput?.className).toContain("rounded-sm")
     expect(inspector?.textContent).toContain("Content")
-    expect(inspector?.textContent).toContain("Popular")
+    expect(document.body.textContent).toContain("Popular")
     expect(inspector?.textContent).not.toContain("Encoded value")
     expect(inspector?.textContent).not.toContain("Reset Content")
   })
@@ -406,7 +402,8 @@ describe("FloatingToolbar", () => {
     const surface = await renderPrototype()
     await openTool(surface.container, "content")
 
-    const linkPreset = getRequiredButton(surface.container, "Use Link content")
+    await clickButton(getRequiredButton(surface.container, "Edit Content type"))
+    const linkPreset = getRequiredButton(document.body, "Use Link content")
 
     await clickButton(linkPreset)
 
@@ -418,7 +415,7 @@ describe("FloatingToolbar", () => {
     expect(linkPreset.className).not.toContain("desktop-inspector-selected-fg")
     expect(linkPreset.className).not.toContain("ff3b68")
 
-    const textPreset = getRequiredButton(surface.container, "Use Text content")
+    const textPreset = getRequiredButton(document.body, "Use Text content")
     expect(textPreset.getAttribute("aria-pressed")).toBe("false")
     expect(textPreset.className).not.toContain("bg-white/[0.055]")
     expect(surface.container.textContent).toContain("Link")

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 export type DesktopInspectorAccordionSection<SectionId extends string> = {
   content: ReactNode
   id: SectionId
+  summary?: ReactNode
   title: string
   /** Primary toolbar tool id for section header affordances and tests. */
   toolId?: string
@@ -82,7 +83,14 @@ export function DesktopInspectorAccordion<SectionId extends string>({
                 type="button"
                 onClick={() => onSectionChange(section.id)}
               >
-                <span>{section.title}</span>
+                <span className="flex min-w-0 items-center gap-2">
+                  <span className="shrink-0">{section.title}</span>
+                  {section.summary ? (
+                    <span className="min-w-0 truncate text-xs font-normal text-muted-foreground">
+                      {section.summary}
+                    </span>
+                  ) : null}
+                </span>
                 <ChevronDownIcon
                   aria-hidden="true"
                   className={cn(
