@@ -262,10 +262,14 @@ function DesktopPaperShaderParamControl({
 export function DesktopPaperShaderSettings({
   paperShader,
   onPaperShaderChange,
+  showColorControls = true,
+  showNonColorControls = true,
   showShaderGrid = true,
 }: {
   paperShader: DraftingCardPaperShaderState
   onPaperShaderChange: (value: DraftingCardPaperShaderState) => void
+  showColorControls?: boolean
+  showNonColorControls?: boolean
   showShaderGrid?: boolean
 }) {
   const definition = getPaperShaderDefinition(paperShader.shaderId)
@@ -275,7 +279,12 @@ export function DesktopPaperShaderSettings({
   const speedControl = definition.controls.find(
     (control) => control.type === "number" && control.key === "speed",
   )
-  const settingControls = definition.controls.filter((control) => control.key !== "speed")
+  const settingControls = definition.controls.filter(
+    (control) =>
+      control.key !== "speed" &&
+      ((showColorControls && (control.type === "color" || control.type === "colors")) ||
+        (showNonColorControls && control.type !== "color" && control.type !== "colors")),
+  )
 
   const updatePaperShader = (patch: Partial<DraftingCardPaperShaderState>) => {
     onPaperShaderChange({
@@ -309,7 +318,7 @@ export function DesktopPaperShaderSettings({
         </DesktopInspectorSection>
       ) : null}
 
-      <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+      {showNonColorControls ? <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
         <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Preset</p>
         <DesktopInspectorNativeSelect
           aria-label="Shader preset"
@@ -324,9 +333,9 @@ export function DesktopPaperShaderSettings({
             onPaperShaderChange(applyDraftingCardPaperShaderPreset(paperShader, presetName))
           }
         />
-      </DesktopInspectorSection>
+      </DesktopInspectorSection> : null}
 
-      <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+      {showNonColorControls ? <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
         <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Motion</p>
         <div className="grid gap-2">
           <DesktopShaderToggleRow
@@ -355,9 +364,9 @@ export function DesktopPaperShaderSettings({
             onChange={(frame) => updatePaperShader({ frame })}
           />
         </div>
-      </DesktopInspectorSection>
+      </DesktopInspectorSection> : null}
 
-      <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+      {settingControls.length > 0 ? <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
         <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Settings</p>
         <div className="grid gap-2">
           {settingControls.map((control) => (
@@ -380,7 +389,7 @@ export function DesktopPaperShaderSettings({
             />
           ))}
         </div>
-      </DesktopInspectorSection>
+      </DesktopInspectorSection> : null}
     </>
   )
 }

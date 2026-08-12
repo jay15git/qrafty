@@ -47,6 +47,7 @@ export function MobileSettingsShell() {
               activeTool={activeTool as DesktopToolbarToolId}
               className="h-[min(24rem,50dvh)]"
               model={model}
+              variant="mobile"
             />
           )}
         />

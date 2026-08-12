@@ -46,23 +46,25 @@ beforeEach(() => {
 })
 
 describe("FloatingToolbar", () => {
-  it("renders every drafting left rail tool as an accessible icon button", async () => {
+  it("renders every drafting settings section in the accordion inspector", async () => {
     const surface = await renderPrototype()
-    const buttons = getToolButtons(surface.container)
+    const inspector = surface.container.querySelector('[data-slot="desktop-floating-inspector"]')
+    const sectionHeaders = Array.from(
+      surface.container.querySelectorAll<HTMLButtonElement>('[data-slot="desktop-inspector-accordion"] > section > button'),
+    )
 
-    expect(buttons).toHaveLength(DESKTOP_TOOLBAR_TOOLS.length)
-
-    for (const tool of DESKTOP_TOOLBAR_TOOLS) {
-      const button = surface.container.querySelector(
-        `[data-tool-id="${tool.id}"]`,
-      )
-
-      expect(button).not.toBeNull()
-      expect(button?.getAttribute("aria-label")).toBe(`Open ${tool.title}`)
-    }
+    expect(inspector).not.toBeNull()
+    expect(sectionHeaders.map((header) => header.textContent?.trim())).toEqual([
+      "Content",
+      "QR Style",
+      "Logo",
+      "Card",
+      "Scene",
+      "Motion",
+      "Export",
+    ])
 
     expect(surface.container.querySelector('[data-slot="desktop-prototype-canvas"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-floating-inspector"]')).toBeNull()
   })
 
   it("updates the locally active tool when a toolbar button is clicked", async () => {
@@ -378,12 +380,10 @@ describe("FloatingToolbar", () => {
     const scrollGroups = Array.from(scrollViewport?.children ?? [])
     expect(scrollArea?.querySelector('[data-slot="scroll-area-viewport"]')).not.toBeNull()
     expect(scrollArea?.querySelector('[aria-hidden="true"] svg')).not.toBeNull()
-    expect(scrollGroups).toHaveLength(3)
+    expect(scrollGroups).toHaveLength(2)
     expect(scrollGroups[0]?.getAttribute("data-slot")).toBe("desktop-content-type-section")
     expect(scrollGroups[0]?.className).toContain("bg-[var(--desktop-inspector-section-bg)]")
     expect(scrollGroups[1]?.className).toContain("bg-[var(--desktop-inspector-section-bg)]")
-    expect(scrollGroups[2]?.tagName).toBe("DETAILS")
-    expect(scrollGroups[2]?.className).toContain("bg-[var(--desktop-inspector-section-bg)]")
     expect(inspector?.querySelector('[data-slot="desktop-content-type-collection"]')).not.toBeNull()
     expect(inspector?.querySelector('[data-slot="desktop-content-type-filters"]')).toBeNull()
     expect(inspector?.querySelector('[data-slot="desktop-content-type-filter-trigger"]')).not.toBeNull()
@@ -398,7 +398,7 @@ describe("FloatingToolbar", () => {
     expect(inspector?.querySelector('[data-slot="desktop-content-fields"]')).not.toBeNull()
     expect(inspector?.textContent).toContain("Content")
     expect(inspector?.textContent).toContain("Popular")
-    expect(inspector?.textContent).toContain("Encoded value")
+    expect(inspector?.textContent).not.toContain("Encoded value")
     expect(inspector?.textContent).not.toContain("Reset Content")
   })
 
@@ -460,16 +460,19 @@ describe("FloatingToolbar", () => {
     expect(inspector?.querySelector('[data-slot="desktop-pattern-chooser"]')).toBeNull()
     expect(inspector?.textContent).toContain("Module Pattern")
     expect(inspector?.textContent).toContain("Module Color")
-    expect(inspector?.textContent).toContain("Error correction")
-    expect(inspector?.querySelector('[data-slot="desktop-pattern-error-correction"]')).not.toBeNull()
+    expect(inspector?.textContent).not.toContain("Error correction")
+    expect(inspector?.querySelector('[data-slot="desktop-pattern-error-correction"]')).toBeNull()
     expect(inspector?.textContent).toContain("Patterns")
     expect(inspector?.textContent).not.toContain("Reset Pattern")
     expect(surface.container.querySelector('input[placeholder="Search patterns"]')).toBeNull()
   })
 
-  it("updates error correction from the pattern inspector", async () => {
+  it("updates error correction from the advanced inspector", async () => {
     const surface = await renderPrototype()
     await openTool(surface.container, "pattern")
+
+    const advancedToggle = getRequiredElement(surface.container, '[data-slot="desktop-inspector-advanced-toggle"]')
+    await clickButton(advancedToggle as HTMLButtonElement)
 
     const highCorrection = getRequiredButton(surface.container, "Use H error correction")
 
@@ -849,9 +852,9 @@ describe("FloatingToolbar", () => {
       '[data-slot="desktop-floating-inspector"]',
     )
 
-    expect(inspector?.getAttribute("aria-label")).toBe("Frame settings")
+    expect(inspector?.getAttribute("aria-label")).toBe("Card settings")
     expect(inspector?.querySelector('[data-slot="desktop-shape-inspector"]')).not.toBeNull()
-    expect(inspector?.textContent).toContain("Shape")
+    expect(inspector?.textContent).toContain("Card")
     expect(inspector?.textContent).not.toContain("Coming soon")
   })
 
@@ -904,8 +907,8 @@ describe("FloatingToolbar", () => {
         ?.getAttribute("class"),
     ).toContain("bg-[var(--desktop-inspector-section-bg)]")
     expect(inspector?.querySelector('[data-slot="desktop-shape-color-mode"]')).not.toBeNull()
-    expect(inspector?.textContent).toContain("Shape Options")
-    expect(inspector?.textContent).toContain("Shape Color")
+    expect(inspector?.textContent).toContain("Card shape")
+    expect(inspector?.textContent).toContain("Fill")
     expect(inspector?.textContent).not.toContain("Reset Shape")
   })
 
@@ -1402,7 +1405,7 @@ describe("FloatingToolbar", () => {
     await openTool(surface.container, "shape")
 
     const shapeColor = surface.container.querySelector('[data-slot="desktop-shape-color"]')
-    expect(shapeColor?.textContent).toContain("Shape Color")
+    expect(shapeColor?.textContent).toContain("Fill")
     expect(shapeColor?.querySelector('[data-slot="desktop-style-preview-surface"]')).toBeNull()
 
     await openTool(surface.container, "logo")
@@ -1664,7 +1667,16 @@ async function clickButton(button: HTMLButtonElement) {
 }
 
 async function openTool(container: HTMLElement, toolId: string) {
-  await clickButton(getRequiredToolButton(container, toolId))
+  const sceneTools = new Set(["layout", "background", "layers", "effects"])
+  const navToolId = toolId === "corners" ? "pattern" : toolId
+
+  if (sceneTools.has(toolId) && toolId !== "layout") {
+    await clickButton(getRequiredToolButton(container, "layout"))
+    await clickButton(getRequiredToolButton(container, toolId))
+    return
+  }
+
+  await clickButton(getRequiredToolButton(container, navToolId))
 }
 
 function getRequiredSlider(container: HTMLElement, label: string) {
