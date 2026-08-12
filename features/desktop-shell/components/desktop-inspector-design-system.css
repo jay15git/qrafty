@@ -1,0 +1,246 @@
+/* Paper borderless neutral design system — desktop settings inspector */
+
+[data-slot="desktop-floating-inspector"] {
+  --desktop-inspector-bg: #000000;
+  --desktop-inspector-surface: #0a0a0a;
+  --desktop-inspector-control: #141414;
+  --desktop-inspector-elevated: #1c1c1c;
+  --desktop-inspector-accent: #ffffff;
+  --desktop-inspector-accent-fg: #000000;
+  --desktop-inspector-popover-shadow: 0 12px 48px rgb(0 0 0 / 50%);
+  --desktop-inspector-section-bg: var(--desktop-inspector-surface);
+  --desktop-inspector-border: transparent;
+  --desktop-inspector-header-bg: transparent;
+  --desktop-inspector-footer-bg: transparent;
+  --desktop-inspector-control-bg: var(--desktop-inspector-control);
+  --desktop-inspector-control-hover: #1c1c1c;
+  --desktop-inspector-control-hover-bg: #1c1c1c;
+  --desktop-inspector-control-active-bg: #262626;
+  --desktop-inspector-control-border-hover: transparent;
+  --desktop-inspector-layer-selected-bg: #1c1c1c;
+  --desktop-inspector-option-selected-bg: var(--desktop-inspector-accent);
+  --desktop-inspector-option-selected-border: transparent;
+  --desktop-inspector-option-selected-shadow: none;
+  --desktop-inspector-option-selected-fg: var(--desktop-inspector-accent-fg);
+  --desktop-inspector-field-bg: var(--desktop-inspector-control);
+  --desktop-inspector-fg-primary: #ffffff;
+  --desktop-inspector-fg-secondary: #a3a3a3;
+  --desktop-inspector-fg-tertiary: #737373;
+  --desktop-inspector-fg-muted: #737373;
+  --desktop-inspector-fg-label: var(--desktop-inspector-fg-secondary);
+  --desktop-inspector-dropdown-bg: var(--desktop-inspector-elevated);
+  --desktop-inspector-dropdown-border: transparent;
+  --desktop-inspector-morph-filter-bg: var(--desktop-inspector-elevated);
+  --desktop-inspector-focus: rgba(255, 255, 255, 0.36);
+  --desktop-inspector-swatch-ring: #ffffff;
+  --color-hover: var(--desktop-inspector-control-hover-bg);
+  --color-active: var(--desktop-inspector-accent);
+  --scroll-edge-fade-color: var(--desktop-inspector-bg);
+
+  background-color: var(--desktop-inspector-bg);
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-floating-inspector"] {
+  --desktop-inspector-bg: #ffffff;
+  --desktop-inspector-surface: #fafafa;
+  --desktop-inspector-control: #f5f5f5;
+  --desktop-inspector-elevated: #ffffff;
+  --desktop-inspector-accent: #0a0a0a;
+  --desktop-inspector-accent-fg: #ffffff;
+  --desktop-inspector-popover-shadow: 0 8px 32px rgb(0 0 0 / 8%);
+  --desktop-inspector-control-hover: #ededed;
+  --desktop-inspector-control-hover-bg: #ededed;
+  --desktop-inspector-control-active-bg: #e5e5e5;
+  --desktop-inspector-layer-selected-bg: #f5f5f5;
+  --desktop-inspector-fg-primary: #0a0a0a;
+  --desktop-inspector-fg-secondary: #525252;
+  --desktop-inspector-fg-tertiary: #737373;
+  --desktop-inspector-fg-muted: #737373;
+  --desktop-inspector-fg-label: #404040;
+  --desktop-inspector-focus: rgba(10, 10, 10, 0.36);
+  --desktop-inspector-swatch-ring: #0a0a0a;
+  --scroll-edge-fade-color: var(--desktop-inspector-bg);
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-panel-header"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1rem 0.75rem;
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-panel-title"] {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.125rem;
+  color: var(--desktop-inspector-fg-primary);
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-panel-subtitle"] {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--desktop-inspector-fg-muted);
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-accordion"] {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-accordion-section"] {
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--desktop-inspector-surface);
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-accordion-header"] {
+  display: flex;
+  width: 100%;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6875rem 0.75rem;
+  text-align: left;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--desktop-inspector-fg-primary);
+  outline: none;
+  transition: background-color 150ms ease;
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-accordion-header"]:hover,
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-accordion-header"]:focus-visible {
+  background: var(--desktop-inspector-control-hover-bg);
+}
+
+[data-slot="desktop-floating-inspector"]
+  [data-slot="desktop-inspector-accordion-section"][data-open="true"]
+  [data-slot="desktop-inspector-accordion-header"] {
+  background: transparent;
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-accordion-summary"] {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--desktop-inspector-fg-muted);
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-accordion-body"] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 0.625rem 0.75rem;
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-accordion-footer"] {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-advanced-toggle"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--desktop-inspector-fg-muted);
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-settings-stack"] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+  overflow: visible;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-settings-row"] {
+  display: flex;
+  min-height: 2.375rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--desktop-inspector-control);
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-settings-row"] [data-slot="desktop-settings-row-label"] {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--desktop-inspector-fg-primary);
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-settings-row"] [data-slot="desktop-settings-row-value"] {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.3125rem;
+  font-size: 0.75rem;
+  color: var(--desktop-inspector-fg-muted);
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-segmented-control"] {
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--desktop-inspector-control);
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-segmented-control"] .bg-active {
+  border-radius: 8px !important;
+  background: var(--desktop-inspector-accent) !important;
+}
+
+[data-slot="desktop-floating-inspector"]
+  [data-slot="desktop-inspector-segmented-control"]
+  [role="tab"][aria-selected="true"]
+  span {
+  color: var(--desktop-inspector-accent-fg) !important;
+  font-weight: 500;
+}
+
+[data-slot="desktop-floating-inspector"]
+  [data-slot="desktop-inspector-segmented-control"]
+  [role="tab"][aria-selected="false"]
+  span {
+  color: var(--desktop-inspector-fg-muted) !important;
+}
+
+[data-slot="desktop-floating-inspector"] .desktop-inspector-input-bg,
+[data-slot="desktop-floating-inspector"] :is(input, textarea, select):not([type="color"]) {
+  border: none !important;
+  border-radius: 6px !important;
+  background: var(--desktop-inspector-control) !important;
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-inspector-dropdown-menu"],
+[data-slot="desktop-floating-inspector"] .desktop-inspector-morph-filter[data-open="true"] {
+  border: none !important;
+  box-shadow: var(--desktop-inspector-popover-shadow) !important;
+}
+
+[data-slot="desktop-floating-inspector"] [data-radix-popper-content-wrapper] [data-slot="desktop-settings-popover-content"] {
+  border: none !important;
+  border-radius: 14px !important;
+  background: var(--desktop-inspector-elevated) !important;
+  box-shadow: var(--desktop-inspector-popover-shadow) !important;
+}

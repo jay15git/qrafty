@@ -1863,114 +1863,43 @@ export function DesktopThemeStyles() {
       }
 
       [data-slot="desktop-floating-inspector"] {
-        --surface-1: var(--desktop-glass-bg);
+        --surface-1: var(--desktop-inspector-bg);
         --surface-2: var(--desktop-inspector-section-bg);
-        --scroll-edge-fade-color: #0a0a0a;
+        --scroll-edge-fade-color: var(--desktop-inspector-bg);
         --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
-        --desktop-inspector-fg-primary: rgba(255, 255, 255, 0.94);
-        --desktop-inspector-fg-secondary: rgba(255, 255, 255, 0.76);
-        --desktop-inspector-fg-tertiary: rgba(255, 255, 255, 0.50);
-        --desktop-inspector-fg-muted: rgba(255, 255, 255, 0.42);
-        --desktop-inspector-fg-label: var(--desktop-inspector-fg-secondary);
-        --desktop-inspector-error: rgba(248, 113, 113, 0.92);
         --desktop-inspector-type-panel: 0.9375rem;
         --desktop-inspector-type-value: 0.8125rem;
         --desktop-inspector-type-label: 0.6875rem;
         --desktop-inspector-type-caption: 0.625rem;
-        --desktop-inspector-section-bg: transparent;
-        --desktop-inspector-border: rgba(255, 255, 255, 0.06);
-        --desktop-inspector-header-bg: transparent;
-        --desktop-inspector-footer-bg: transparent;
-        --desktop-inspector-control-bg: transparent;
-        --desktop-inspector-control-hover: rgba(255, 255, 255, 0.09);
-        --desktop-inspector-control-hover-bg: rgba(255, 255, 255, 0.09);
-        --desktop-inspector-control-active-bg: rgba(255, 255, 255, 0.13);
-        --desktop-inspector-control-border-hover: rgba(255, 255, 255, 0.12);
-        --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.10);
-        --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.09);
-        --desktop-inspector-option-selected-border: rgba(255, 255, 255, 0.48);
-        --desktop-inspector-option-selected-shadow: 0 1px 2px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        --desktop-inspector-option-selected-fg: rgba(255, 255, 255, 0.96);
-        --desktop-inspector-field-bg: rgba(0, 0, 0, 0.22);
-        --desktop-inspector-focus: rgba(255, 255, 255, 0.36);
-        --desktop-inspector-swatch-ring: rgba(255, 255, 255, 0.88);
-        --desktop-inspector-morph-filter-bg: var(--workspace-shell, #1f1f1f);
         color: var(--desktop-inspector-fg-secondary);
       }
 
       [data-desktop-theme="dark"] [data-slot="desktop-floating-inspector"] {
-        --scroll-edge-fade-color: #0a0a0a;
+        --scroll-edge-fade-color: var(--desktop-inspector-bg);
         --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
       }
 
       [data-desktop-theme="light"] [data-slot="desktop-floating-inspector"] {
-        --surface-1: var(--desktop-glass-bg);
+        --surface-1: var(--desktop-inspector-bg);
         --surface-2: var(--desktop-inspector-section-bg);
-        --scroll-edge-fade-color: rgba(255, 255, 255, 0.88);
-        --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
-        --desktop-inspector-fg-primary: rgba(15, 23, 42, 0.90);
-        --desktop-inspector-fg-secondary: rgba(15, 23, 42, 0.66);
-        --desktop-inspector-fg-tertiary: rgba(15, 23, 42, 0.44);
-        --desktop-inspector-fg-muted: rgba(15, 23, 42, 0.38);
-        --desktop-inspector-fg-label: rgba(15, 23, 42, 0.85);
-        --desktop-inspector-error: rgba(220, 38, 38, 0.88);
+        --scroll-edge-fade-color: var(--desktop-inspector-bg);
+        --scroll-edge-chevron-color: rgba(10, 10, 10, 0.42);
         --desktop-inspector-type-panel: 0.9375rem;
         --desktop-inspector-type-value: 0.8125rem;
         --desktop-inspector-type-label: 0.6875rem;
         --desktop-inspector-type-caption: 0.625rem;
-        --desktop-inspector-section-bg: transparent;
-        --desktop-inspector-border: rgba(15, 23, 42, 0.06);
-        --desktop-inspector-header-bg: transparent;
-        --desktop-inspector-footer-bg: transparent;
-        --desktop-inspector-control-bg: transparent;
-        --desktop-inspector-control-hover: rgba(15, 23, 42, 0.1);
-        --desktop-inspector-control-hover-bg: rgba(15, 23, 42, 0.1);
-        --desktop-inspector-control-active-bg: rgba(15, 23, 42, 0.14);
-        --desktop-inspector-control-border-hover: rgba(15, 23, 42, 0.16);
-        --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.68);
-        --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.58);
-        --desktop-inspector-option-selected-border: rgba(15, 23, 42, 0.4);
-        --desktop-inspector-option-selected-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.55);
-        --desktop-inspector-option-selected-fg: rgba(15, 23, 42, 0.94);
-        --desktop-inspector-field-bg: rgba(255, 255, 255, 0.62);
-        --desktop-inspector-focus: rgba(15, 23, 42, 0.36);
-        --desktop-inspector-swatch-ring: rgba(15, 23, 42, 0.88);
-        --desktop-inspector-morph-filter-bg: #ffffff;
         color: var(--desktop-inspector-fg-secondary);
       }
 
       body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-floating-inspector"] {
-        --surface-1: var(--desktop-glass-bg);
+        --surface-1: var(--desktop-inspector-bg);
         --surface-2: var(--desktop-inspector-section-bg);
-        --scroll-edge-fade-color: rgba(255, 255, 255, 0.88);
-        --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
-        --desktop-inspector-fg-primary: rgba(15, 23, 42, 0.90);
-        --desktop-inspector-fg-secondary: rgba(15, 23, 42, 0.66);
-        --desktop-inspector-fg-tertiary: rgba(15, 23, 42, 0.44);
-        --desktop-inspector-fg-muted: rgba(15, 23, 42, 0.38);
-        --desktop-inspector-fg-label: rgba(15, 23, 42, 0.85);
-        --desktop-inspector-error: rgba(220, 38, 38, 0.88);
+        --scroll-edge-fade-color: var(--desktop-inspector-bg);
+        --scroll-edge-chevron-color: rgba(10, 10, 10, 0.42);
         --desktop-inspector-type-panel: 0.9375rem;
         --desktop-inspector-type-value: 0.8125rem;
         --desktop-inspector-type-label: 0.6875rem;
         --desktop-inspector-type-caption: 0.625rem;
-        --desktop-inspector-section-bg: transparent;
-        --desktop-inspector-border: rgba(15, 23, 42, 0.06);
-        --desktop-inspector-header-bg: transparent;
-        --desktop-inspector-footer-bg: transparent;
-        --desktop-inspector-control-bg: transparent;
-        --desktop-inspector-control-hover: rgba(15, 23, 42, 0.1);
-        --desktop-inspector-control-hover-bg: rgba(15, 23, 42, 0.1);
-        --desktop-inspector-control-active-bg: rgba(15, 23, 42, 0.14);
-        --desktop-inspector-control-border-hover: rgba(15, 23, 42, 0.16);
-        --desktop-inspector-layer-selected-bg: rgba(255, 255, 255, 0.68);
-        --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.58);
-        --desktop-inspector-option-selected-border: rgba(15, 23, 42, 0.4);
-        --desktop-inspector-option-selected-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.55);
-        --desktop-inspector-option-selected-fg: rgba(15, 23, 42, 0.94);
-        --desktop-inspector-field-bg: rgba(255, 255, 255, 0.62);
-        --desktop-inspector-focus: rgba(15, 23, 42, 0.36);
-        --desktop-inspector-swatch-ring: rgba(15, 23, 42, 0.88);
         color: var(--desktop-inspector-fg-secondary);
       }
 
@@ -2523,7 +2452,9 @@ function DesktopLogoInspector({
       <DesktopInspectorScrollArea>
         <DesktopSettingsStack className="border-x-0 border-t-0 rounded-none">
           <DesktopSettingsPopover
-            label="Logo source"
+            hidePopoverTitle
+            hideRowSummary
+            label="Source"
             summary={
               DESKTOP_LOGO_SOURCE_OPTIONS.find((option) => option.value === settings.sourceMode)?.label ??
               settings.sourceMode
@@ -2774,7 +2705,7 @@ function DesktopLogoInspector({
         {settings.sourceMode !== "none" ? (
           <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
             <DesktopMotionSliderRow
-              label="Logo size"
+              label="Size"
               max={100}
               min={0}
               value={settings.size}
@@ -2782,7 +2713,7 @@ function DesktopLogoInspector({
               onChange={(size) => onLogoSettingsChange({ size })}
             />
             <DesktopMotionSliderRow
-              label="Logo opacity"
+              label="Opacity"
               max={100}
               min={0}
               step={5}
@@ -3018,7 +2949,6 @@ function DesktopCornersInspector({
     <div data-slot="desktop-corners-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
       <div className="grid min-h-0 gap-2.5 px-3 py-3">
         <DesktopInspectorSection>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>{isCornerEye ? "Corner eye" : "Corner frame"}</p>
           <div className={desktopInspectorOptionGridClass(4)}>
             {styleOptions.map((option) => (
               <DesktopCornerStyleButton
@@ -3231,7 +3161,9 @@ function DesktopShapeInspector({
       <DesktopInspectorScrollArea>
         <DesktopSettingsStack className="border-x-0 border-t-0 rounded-none">
           <DesktopSettingsPopover
-            label="Card shape"
+            hidePopoverTitle
+            hideRowSummary
+            label="Shape"
             summary={
               settings.backgroundShapeId === "none"
                 ? "None"
@@ -3608,14 +3540,15 @@ function DesktopMotionInspector({
         <DesktopInspectorSection>
           <DesktopMotionToggleRow
             checked={settings.enabled}
-            label="Dot matrix motion"
+            label="Enabled"
             onChange={(enabled) => onMotionSettingsChange({ enabled })}
           />
         </DesktopInspectorSection>
 
         <DesktopSettingsStack className="border-x-0 border-t-0 rounded-none">
           <DesktopSettingsPopover
-            label="Animation preset"
+            hidePopoverTitle
+            label="Preset"
             summary={
               QR_MOTION_DOT_MATRIX_PRESET_OPTIONS.find(
                 (option) =>
@@ -3668,7 +3601,6 @@ function DesktopMotionInspector({
         </DesktopSettingsStack>
 
         <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Dot matrix controls</p>
           <div className="grid gap-3">
             <DesktopMotionSliderRow
               label="Speed"
@@ -3683,7 +3615,7 @@ function DesktopMotionInspector({
 
         {settings.enabled ? (
           <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-            <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Loader color</p>
+            <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Color</p>
             <div className={desktopInspectorOptionGridClass(2)} data-slot="desktop-motion-color-presets">
             {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => {
               const [base, accent] = DESKTOP_MOTION_COLOR_SWATCHES[preset.value]
@@ -4158,7 +4090,9 @@ function DesktopContentInspector({
       <DesktopInspectorScrollArea>
         <DesktopSettingsStack className="border-x-0 border-t-0 rounded-none">
           <DesktopSettingsPopover
-            label="Content type"
+            hidePopoverTitle
+            hideRowSummary
+            label="Type"
             summary={QR_INPUT_OPTIONS[contentType]?.label ?? contentType}
           >
             <div
@@ -4326,8 +4260,8 @@ function DesktopPatternInspector({
       itemAriaLabel={(option) => `Open ${option.label} settings`}
       items={[
         { label: "Module", value: "module" as const },
-        { label: "Corner eye", value: "corner-eye" as const },
-        { label: "Corner frame", value: "corner-frame" as const },
+        { label: "Eye", value: "corner-eye" as const },
+        { label: "Frame", value: "corner-frame" as const },
       ]}
       value={activeTab}
       onValueChange={setActiveTab}
@@ -4354,7 +4288,8 @@ function DesktopPatternInspector({
       <div className="px-3 pt-3">{tabs}</div>
       <DesktopInspectorScrollArea>
         {showModulePatternControls ? <DesktopSettingsPopover
-          label="Module pattern"
+          hidePopoverTitle
+          label="Shape"
           summary={DOT_STYLE_OPTIONS.find((option) => option.value === settings.qrDotType)?.label ?? settings.qrDotType}
           className="min-w-0 max-w-full overflow-x-hidden"
         >
@@ -4378,7 +4313,8 @@ function DesktopPatternInspector({
         </DesktopSettingsPopover> : null}
 
         {showColorControls ? <DesktopSettingsPopover
-          label="Module colors"
+          hidePopoverTitle
+          label="Colors"
           summary={DESKTOP_DOTS_COLOR_MODES.find((option) => option.value === settings.dotsColorMode)?.label ?? settings.dotsColorMode}
         >
           <div>
@@ -5188,11 +5124,13 @@ function DesktopContentFieldRow({
 
   return (
     <div className={DESKTOP_INSPECTOR_FIELD_ROW_CLASS}>
-      <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
-        <label className={DESKTOP_INSPECTOR_LABEL_CLASS} htmlFor={controlId}>
-          {field.label}
-        </label>
-      </div>
+      {field.label ? (
+        <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
+          <label className={DESKTOP_INSPECTOR_LABEL_CLASS} htmlFor={controlId}>
+            {field.label}
+          </label>
+        </div>
+      ) : null}
       {field.type === "textarea" ? (
         <DesktopInspectorTextarea
           id={controlId}
@@ -5216,28 +5154,31 @@ function DesktopContentFieldRow({
         />
       ) : null}
       {field.type === "toggle" ? (
-        <button
-          id={controlId}
-          aria-pressed={Boolean(field.value)}
+        <div
           className={cn(
-            "flex h-8 w-full items-center justify-between px-2.5",
-            DESKTOP_INSPECTOR_VALUE_CLASS,
-            DESKTOP_INSPECTOR_CONTROL_CLASS,
-            field.value && DESKTOP_INSPECTOR_SELECTED_CLASS,
+            DESKTOP_INSPECTOR_ROW_CLASS,
+            "px-3",
           )}
-          type="button"
-          onClick={() => onContentValueChange(field.id, !field.value)}
         >
-          <span>{field.value ? "On" : "Off"}</span>
-          <span className={cn("h-4 w-7 rounded-full bg-white/18 p-0.5", field.value && "bg-white")}>
+          <label className={DESKTOP_INSPECTOR_LABEL_CLASS} htmlFor={controlId}>
+            {field.label}
+          </label>
+          <button
+            id={controlId}
+            aria-pressed={Boolean(field.value)}
+            aria-label={`${field.label} ${field.value ? "on" : "off"}`}
+            className="relative h-5 w-9 shrink-0 rounded-full bg-[var(--desktop-inspector-control-active-bg)] p-0.5 transition-colors"
+            type="button"
+            onClick={() => onContentValueChange(field.id, !field.value)}
+          >
             <span
               className={cn(
-                "block size-3 rounded-full bg-white transition-transform",
-                field.value && "translate-x-3",
+                "block size-4 rounded-full bg-[var(--desktop-inspector-fg-primary)] shadow-sm transition-transform",
+                field.value && "translate-x-4",
               )}
             />
-          </span>
-        </button>
+          </button>
+        </div>
       ) : null}
       {field.type === "segmented" ? (
         <div id={controlId} className={desktopInspectorOptionGridClass(3)}>
@@ -5333,11 +5274,11 @@ function getDesktopContentFields(
   }
 
   if (isUrlContentType(contentType)) {
-    return [text("url", "URL", "https://example.com", validation.fieldErrors.url)]
+    return [text("url", "", "https://example.com", validation.fieldErrors.url)]
   }
 
   if (contentType === "phone") {
-    return [text("phone", "Phone number", "+1 555 010 2000", validation.fieldErrors.phone)]
+    return [text("phone", "", "+1 555 010 2000", validation.fieldErrors.phone)]
   }
 
   if (contentType === "email") {
@@ -5357,10 +5298,10 @@ function getDesktopContentFields(
 
   if (contentType === "wifi") {
     return [
-      text("ssid", "Network", "Cafe Guest", validation.fieldErrors.ssid),
+      text("ssid", "", "Network name", validation.fieldErrors.ssid),
       {
         id: "security",
-        label: "Security",
+        label: "",
         options: [
           { label: "WPA", value: "WPA" },
           { label: "WEP", value: "WEP" },
@@ -5369,8 +5310,8 @@ function getDesktopContentFields(
         type: "segmented",
         value: contentValues.security ?? "WPA",
       },
-      text("password", "Password", "Network password"),
-      { id: "hidden", label: "Hidden network", type: "toggle", value: contentValues.hidden },
+      text("password", "", "Password"),
+      { id: "hidden", label: "Hidden", type: "toggle", value: contentValues.hidden },
     ]
   }
 
@@ -5827,7 +5768,8 @@ function DesktopExportInspector({
       <DesktopInspectorScrollArea>
         <DesktopSettingsStack className="border-x-0 border-t-0 rounded-none">
           <DesktopSettingsPopover
-            label="Export target"
+            hidePopoverTitle
+            label="Target"
             summary={
               DESKTOP_EXPORT_TARGET_OPTIONS.find((option) => option.value === settings.target)?.label ??
               settings.target
@@ -5953,7 +5895,7 @@ function DesktopExportInspector({
           onClick={onExportDownload}
         >
           <AnimatedDownloadIcon size={14} />
-          Download {settings.extension.toUpperCase()}
+          Download
         </button>
         {exportDownloadError ? (
           <p className={cn("mt-2 text-center text-xs text-red-500")}>{exportDownloadError}</p>
@@ -6641,6 +6583,7 @@ function DesktopInspectorAdvancedPanel({
           <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Scan reliability</p>
           <DesktopInspectorSegmentedControl
             columns={4}
+            itemAriaLabel={(option) => `Use ${option.label} error correction`}
             items={DESKTOP_ERROR_CORRECTION_LEVEL_OPTIONS}
             value={encodingSettings.errorCorrectionLevel}
             onValueChange={(errorCorrectionLevel) => onEncodingSettingsChange({ errorCorrectionLevel })}
@@ -7009,16 +6952,18 @@ export function DesktopFloatingInspector({
       className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden", className)}
     >
       {!showStockPhotosInspector && !showElementInspector && variant === "desktop" ? (
-        <DesktopInspectorAccordion
+        <>
+          <header data-slot="desktop-inspector-panel-header">
+            <h2 data-slot="desktop-inspector-panel-title">Settings</h2>
+            <span data-slot="desktop-inspector-panel-subtitle">QR Studio</span>
+          </header>
+          <DesktopInspectorAccordion
           activeSectionId={openSectionId}
           footer={
-            <div className="px-3 py-2">
+            <div className="flex w-full flex-col items-center gap-2">
               <button
                 aria-expanded={advancedOpen}
-                className={cn(
-                  "flex min-h-9 w-full items-center justify-between gap-2 rounded-[8px] px-2.5 text-left text-[13px] font-medium",
-                  "text-[var(--desktop-inspector-fg-secondary)] transition-colors hover:bg-[var(--desktop-inspector-control-hover)]",
-                )}
+                className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]"
                 data-slot="desktop-inspector-advanced-toggle"
                 type="button"
                 onClick={() => setAdvancedOpen((current) => !current)}
@@ -7027,13 +6972,13 @@ export function DesktopFloatingInspector({
                 <ChevronDownIcon
                   aria-hidden="true"
                   className={cn(
-                    "size-3.5 shrink-0 transition-transform duration-150",
+                    "size-3 shrink-0 transition-transform duration-150",
                     advancedOpen && "rotate-180",
                   )}
                 />
               </button>
               {advancedOpen ? (
-                <div className="mt-2 max-h-[min(40dvh,20rem)] overflow-y-auto overscroll-contain">
+                <div className="w-full max-h-[min(40dvh,20rem)] overflow-y-auto overscroll-contain rounded-[10px] bg-[var(--desktop-inspector-surface)] p-2.5">
                   <DesktopInspectorAdvancedPanel
                     buildCodegenExport={controller?.buildCodegenExport}
                     encodedValue={actualEncodedContentValue}
@@ -7056,6 +7001,7 @@ export function DesktopFloatingInspector({
           }}
           sections={desktopSections}
         />
+        </>
       ) : null}
       {variant === "mobile" || showStockPhotosInspector || showElementInspector ? inspectorBody : null}
     </aside>

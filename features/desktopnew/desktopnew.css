@@ -1,0 +1,177 @@
+/* Pencil design tokens — scoped to /desktopnew only. */
+
+.desktopnew-root {
+  --dn-bg: #0a0a0a;
+  --dn-surface: #141414;
+  --dn-control: #1c1c1c;
+  --dn-fg: #fafafa;
+  --dn-muted: #737373;
+  --dn-line: #1f1f1f;
+  --dn-accent: #ffffff;
+  --dn-on-accent: #0a0a0a;
+  --dn-font: "Inter", system-ui, sans-serif;
+  --dn-panel-width: 300px;
+  --dn-popover-shadow: 0 12px 48px rgb(0 0 0 / 50%);
+
+  /* Map Pencil tokens to shadcn component roles. */
+  --background: var(--dn-bg);
+  --foreground: var(--dn-fg);
+  --card: var(--dn-bg);
+  --card-foreground: var(--dn-fg);
+  --popover: var(--dn-surface);
+  --popover-foreground: var(--dn-fg);
+  --primary: var(--dn-accent);
+  --primary-foreground: var(--dn-on-accent);
+  --secondary: var(--dn-control);
+  --secondary-foreground: var(--dn-fg);
+  --muted: var(--dn-control);
+  --muted-foreground: var(--dn-muted);
+  --accent: var(--dn-control);
+  --accent-foreground: var(--dn-fg);
+  --border: var(--dn-line);
+  --input: var(--dn-control);
+  --ring: var(--dn-accent);
+  --scroll-edge-fade-color: var(--dn-bg);
+  --scroll-edge-chevron-color: var(--dn-muted);
+
+  min-height: 100dvh;
+  background: var(--dn-bg);
+  color: var(--dn-fg);
+  font-family: var(--dn-font);
+}
+
+.desktopnew-root[data-theme="light"] {
+  --dn-bg: #ffffff;
+  --dn-surface: #f5f5f5;
+  --dn-control: #ebebeb;
+  --dn-fg: #171717;
+  --dn-muted: #a3a3a3;
+  --dn-line: #e5e5e5;
+  --dn-accent: #171717;
+  --dn-on-accent: #ffffff;
+  --dn-popover-shadow: 0 8px 32px rgb(0 0 0 / 8%);
+}
+
+.desktopnew-shell {
+  display: flex;
+  min-height: 100dvh;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+/* Radix content is portalled outside .desktopnew-root. */
+.desktopnew-popover-content {
+  border-color: #e5e5e5 !important;
+  background: #f5f5f5 !important;
+  color: #171717 !important;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 8%) !important;
+}
+
+.dark .desktopnew-popover-content {
+  border-color: #1f1f1f !important;
+  background: #141414 !important;
+  color: #fafafa !important;
+  box-shadow: 0 12px 48px rgb(0 0 0 / 50%) !important;
+}
+
+:root {
+  --tabs-dur: 250ms;
+  --tabs-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.t-tabs {
+  position: relative;
+}
+
+/* Radix ScrollArea's generated table wrapper sizes itself to the widest
+ * accordion child. The settings rail must stay pinned to its sidebar width. */
+.dn-settings-scroll [data-slot="scroll-area-viewport"] > div {
+  display: block !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.t-tab {
+  position: relative;
+  z-index: 1;
+  transition: color var(--tabs-dur) var(--tabs-ease);
+}
+
+.t-tabs-pill {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  z-index: 0;
+  width: 0;
+  background: #171717;
+  transform: translateX(0);
+  transition:
+    transform var(--tabs-dur) var(--tabs-ease),
+    width var(--tabs-dur) var(--tabs-ease);
+  will-change: transform, width;
+  pointer-events: none;
+}
+
+.dark .t-tabs-pill {
+  background: #ffffff;
+}
+
+.dn-segment-tab[aria-selected="true"] {
+  background: transparent;
+  color: #ffffff;
+}
+
+.dark .dn-segment-tab[aria-selected="true"] {
+  color: #0a0a0a;
+}
+
+.dn-settings-accordion:has(.dn-settings-accordion-item[data-focused="true"])
+  .dn-settings-accordion-item:not([data-focused="true"]) {
+  filter: blur(1.25px);
+  opacity: 0.4;
+}
+
+.dn-settings-accordion-item {
+  transition: filter 180ms ease-out, opacity 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-tabs-pill,
+  .t-tab {
+    transition: none !important;
+  }
+
+  .dn-settings-accordion-item {
+    transition: none;
+  }
+}
+
+.dn-squircle-xs {
+  border-radius: 8px;
+  corner-shape: squircle;
+}
+
+.dn-squircle-sm {
+  border-radius: 10px;
+  corner-shape: squircle;
+}
+
+.dn-squircle-md {
+  border-radius: 12px;
+  corner-shape: squircle;
+}
+
+.dn-squircle-lg {
+  border-radius: 14px;
+  corner-shape: squircle;
+}
+
+@supports not (corner-shape: squircle) {
+  .dn-squircle-xs,
+  .dn-squircle-sm,
+  .dn-squircle-md,
+  .dn-squircle-lg {
+    corner-shape: round;
+  }
+}

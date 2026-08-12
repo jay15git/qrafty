@@ -383,7 +383,7 @@ describe("FloatingToolbar", () => {
     expect(scrollGroups).toHaveLength(2)
     expect(scrollGroups[0]?.getAttribute("data-slot")).toBe("desktop-settings-stack")
     expect(scrollGroups[1]?.querySelector('[data-slot="desktop-content-fields"]')).not.toBeNull()
-    await clickButton(getRequiredButton(surface.container, "Edit Content type"))
+    await clickButton(getRequiredButton(surface.container, "Edit Type"))
     expect(document.body.querySelector('[data-slot="desktop-content-type-collection"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="desktop-content-type-filters"]')).toBeNull()
     const filterSearchRow = document.body.querySelector('[data-slot="desktop-content-filter-search-row"]')
@@ -402,7 +402,7 @@ describe("FloatingToolbar", () => {
     const surface = await renderPrototype()
     await openTool(surface.container, "content")
 
-    await clickButton(getRequiredButton(surface.container, "Edit Content type"))
+    await clickButton(getRequiredButton(surface.container, "Edit Type"))
     const linkPreset = getRequiredButton(document.body, "Use Link content")
 
     await clickButton(linkPreset)
@@ -429,6 +429,11 @@ describe("FloatingToolbar", () => {
       "utf8",
     )
 
+    const designSystemSource = readFileSync(
+      resolve(process.cwd(), "features/desktop-shell/components/desktop-inspector-design-system.css"),
+      "utf8",
+    )
+
     expect(source).not.toContain("ff3b68")
     expect(source).not.toContain("ff4f78")
     expect(source).not.toContain("ff9ab1")
@@ -436,7 +441,7 @@ describe("FloatingToolbar", () => {
     expect(source).toContain("DESKTOP_INSPECTOR_SELECTED_CLASS")
     expect(source).toContain("DESKTOP_INSPECTOR_FOOTER_CLASS")
     expect(source).toContain("DESKTOP_INSPECTOR_RESET_CLASS")
-    expect(source).toContain("--desktop-inspector-section-bg: rgba(255, 255, 255, 0.055)")
+    expect(designSystemSource).toContain("--desktop-inspector-surface: #0a0a0a")
     expect(source).not.toContain('className="border-t border-white/[0.09] bg-black/20 p-3"')
     expect(source).not.toContain('className="mt-3 rounded-[10px] border border-white/[0.08] bg-white/[0.045] p-3"')
     expect(source).not.toContain("[data-slot=\"desktop-floating-inspector\"] [class*=\"bg-white/\"]")
@@ -902,7 +907,7 @@ describe("FloatingToolbar", () => {
         ?.querySelector('[data-slot="desktop-inspector-scroll"]')
         ?.children[0]
         ?.getAttribute("class"),
-    ).toContain("bg-[var(--desktop-inspector-section-bg)]")
+    ).toContain("bg-[var(--desktop-inspector-control)]")
     expect(inspector?.querySelector('[data-slot="desktop-shape-color-mode"]')).not.toBeNull()
     expect(inspector?.textContent).toContain("Card shape")
     expect(inspector?.textContent).toContain("Fill")
@@ -1139,7 +1144,7 @@ describe("FloatingToolbar", () => {
     expect(inspector?.textContent).toContain("Output")
     expect(inspector?.textContent).not.toContain("Reset Motion")
 
-    const motionToggle = getRequiredButton(surface.container, "Dot matrix motion")
+    const motionToggle = getRequiredButton(surface.container, "Enabled")
     const defaultLoader = getRequiredButton(surface.container, "Use Neon Drift motion loader")
 
     expect(motionToggle.getAttribute("aria-pressed")).toBe("false")
@@ -1153,7 +1158,7 @@ describe("FloatingToolbar", () => {
     const surface = await renderPrototype()
     await openTool(surface.container, "motion")
 
-    const motionToggle = getRequiredButton(surface.container, "Dot matrix motion")
+    const motionToggle = getRequiredButton(surface.container, "Enabled")
     const defaultLoader = getRequiredButton(surface.container, "Use Neon Drift motion loader")
 
     expect(motionToggle.getAttribute("aria-pressed")).toBe("false")

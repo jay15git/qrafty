@@ -19,32 +19,36 @@ export function DesktopSettingsRow({
   value?: ReactNode
 }) {
   return (
-    <div
-      className={cn(
-        "flex min-h-10 items-center justify-between gap-3 border-b border-border/60 px-3 py-2 last:border-b-0",
-        className,
-      )}
-      data-slot="desktop-settings-row"
-    >
-      <span className="min-w-0 truncate text-[13px] font-medium text-foreground">{label}</span>
-      <div className="flex min-w-0 items-center justify-end gap-2">{value ?? children}</div>
+    <div className={cn(className)} data-slot="desktop-settings-row">
+      <span data-slot="desktop-settings-row-label">{label}</span>
+      <div data-slot="desktop-settings-row-value">{value ?? children}</div>
     </div>
   )
 }
 
 export function DesktopSettingsPopover({
   children,
+  hidePopoverTitle = false,
+  hideRowSummary = false,
   label,
+  popoverTitle,
   summary,
   className,
   side = "left",
 }: {
   children: ReactNode
+  /** Hides the popover header when the accordion section already names the setting. */
+  hidePopoverTitle?: boolean
+  /** Hides the trailing summary when the accordion header already shows the value. */
+  hideRowSummary?: boolean
   label: string
+  popoverTitle?: string
   summary: ReactNode
   className?: string
   side?: "left" | "right" | "top" | "bottom"
 }) {
+  const resolvedPopoverTitle = popoverTitle ?? label
+
   return (
     <Popover>
       <DesktopSettingsRow
@@ -53,12 +57,12 @@ export function DesktopSettingsPopover({
           <PopoverTrigger asChild>
             <Button
               aria-label={`Edit ${label}`}
-              className="h-8 max-w-[11rem] gap-1 rounded-sm px-2 text-xs font-medium"
+              className="h-auto max-w-[9rem] gap-1 rounded-sm border-0 bg-transparent p-0 text-xs font-normal text-[var(--desktop-inspector-fg-muted)] shadow-none hover:bg-transparent hover:text-[var(--desktop-inspector-fg-primary)]"
               size="sm"
               variant="ghost"
             >
-              <span className="truncate">{summary}</span>
-              <ChevronRightIcon aria-hidden="true" className="size-3.5 shrink-0 text-muted-foreground" />
+              {hideRowSummary ? null : <span className="truncate">{summary}</span>}
+              <ChevronRightIcon aria-hidden="true" className="size-3 shrink-0 text-[var(--desktop-inspector-fg-muted)]" />
             </Button>
           </PopoverTrigger>
         }
@@ -67,11 +71,19 @@ export function DesktopSettingsPopover({
       </DesktopSettingsRow>
       <PopoverContent
         align="start"
-        className={cn("w-[min(22rem,calc(100vw-2rem))] rounded-md p-3", className)}
+        className={cn(
+          "w-[min(16.25rem,calc(100vw-2rem))] rounded-[14px] border-0 bg-[var(--desktop-inspector-elevated)] p-3.5 shadow-[var(--desktop-inspector-popover-shadow)]",
+          className,
+        )}
+        data-slot="desktop-settings-popover-content"
         side={side}
         sideOffset={8}
       >
-        <div className="mb-3 text-xs font-semibold text-foreground">{label}</div>
+        {hidePopoverTitle ? null : (
+          <div className="mb-3 text-[13px] font-medium text-[var(--desktop-inspector-fg-primary)]">
+            {resolvedPopoverTitle}
+          </div>
+        )}
         {children}
       </PopoverContent>
     </Popover>
@@ -80,10 +92,7 @@ export function DesktopSettingsPopover({
 
 export function DesktopSettingsStack({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div
-      className={cn("overflow-hidden rounded-md border border-border bg-background", className)}
-      data-slot="desktop-settings-stack"
-    >
+    <div className={cn(className)} data-slot="desktop-settings-stack">
       {children}
     </div>
   )

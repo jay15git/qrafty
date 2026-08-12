@@ -4,6 +4,8 @@ import { useEffect, useRef, type ReactNode } from "react"
 import { ChevronDownIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+import "./desktop-inspector-design-system.css"
+
 export type DesktopInspectorAccordionSection<SectionId extends string> = {
   content: ReactNode
   id: SectionId
@@ -49,85 +51,84 @@ export function DesktopInspectorAccordion<SectionId extends string>({
     <div className="flex h-full min-h-0 flex-col">
       <nav
         aria-label={ariaLabel}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
-        data-slot="desktop-inspector-accordion"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2"
       >
-        {sections.map((section) => {
-          const isOpen = section.id === activeSectionId
-          const bodyId = `desktop-inspector-section-${section.id}`
-          const headerId = `${bodyId}-header`
+        <div className="flex flex-col gap-0.5" data-slot="desktop-inspector-accordion">
+          {sections.map((section) => {
+            const isOpen = section.id === activeSectionId
+            const bodyId = `desktop-inspector-section-${section.id}`
+            const headerId = `${bodyId}-header`
 
-          return (
-            <section key={section.id} className="border-b border-[var(--desktop-inspector-border)]">
-              <button
-                ref={(node) => {
-                  if (node) {
-                    headerRefs.current.set(section.id, node)
-                  } else {
-                    headerRefs.current.delete(section.id)
-                  }
-                }}
-                aria-controls={bodyId}
-                aria-expanded={isOpen}
-                aria-label={section.toolId ? `Open ${section.title}` : section.title}
-                aria-pressed={isOpen}
-                className={cn(
-                  "flex min-h-11 w-full items-center justify-between gap-3 px-3 text-left text-[13px] font-medium",
-                  "text-[var(--desktop-inspector-fg-primary)] outline-none transition-colors duration-150",
-                  "hover:bg-[var(--desktop-inspector-control-hover)] focus-visible:bg-[var(--desktop-inspector-control-hover)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--desktop-inspector-focus)]",
-                  isOpen && "bg-[var(--desktop-inspector-control-hover)]",
-                )}
-                data-desktop-tool-button={section.toolId ? "true" : undefined}
-                data-tool-id={section.toolId}
-                id={headerId}
-                type="button"
-                onClick={() => onSectionChange(section.id)}
+            return (
+              <section
+                key={section.id}
+                data-open={isOpen ? "true" : "false"}
+                data-slot="desktop-inspector-accordion-section"
               >
-                <span className="flex min-w-0 items-center gap-2">
+                <button
+                  ref={(node) => {
+                    if (node) {
+                      headerRefs.current.set(section.id, node)
+                    } else {
+                      headerRefs.current.delete(section.id)
+                    }
+                  }}
+                  aria-controls={bodyId}
+                  aria-expanded={isOpen}
+                  aria-label={section.toolId ? `Open ${section.title}` : section.title}
+                  aria-pressed={isOpen}
+                  className="focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--desktop-inspector-focus)]"
+                  data-desktop-tool-button={section.toolId ? "true" : undefined}
+                  data-slot="desktop-inspector-accordion-header"
+                  data-tool-id={section.toolId}
+                  id={headerId}
+                  type="button"
+                  onClick={() => onSectionChange(section.id)}
+                >
                   <span className="shrink-0">{section.title}</span>
-                  {section.summary ? (
-                    <span className="min-w-0 truncate text-xs font-normal text-muted-foreground">
-                      {section.summary}
-                    </span>
-                  ) : null}
-                </span>
-                <ChevronDownIcon
-                  aria-hidden="true"
-                  className={cn(
-                    "size-3.5 shrink-0 text-[var(--desktop-inspector-fg-muted)] transition-transform duration-150 motion-reduce:transition-none",
-                    isOpen && "rotate-180",
-                  )}
-                />
-              </button>
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    {section.summary ? (
+                      <span className="max-w-[7.5rem]" data-slot="desktop-inspector-accordion-summary">
+                        {section.summary}
+                      </span>
+                    ) : null}
+                    <ChevronDownIcon
+                      aria-hidden="true"
+                      className={cn(
+                        "size-3 shrink-0 text-[var(--desktop-inspector-fg-muted)] transition-transform duration-150 motion-reduce:transition-none",
+                        isOpen && "rotate-180",
+                      )}
+                    />
+                  </span>
+                </button>
 
-              <div
-                aria-hidden={!isOpen}
-                className={cn(
-                  "grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none",
-                  isOpen ? "grid-rows-[1fr] opacity-100" : "pointer-events-none grid-rows-[0fr] opacity-0",
-                )}
-                id={bodyId}
-                inert={!isOpen}
-                role="region"
-                aria-labelledby={headerId}
-              >
-                <div className="min-h-0 overflow-hidden">
-                  <div className="max-h-[min(52dvh,28rem)] min-h-0 overflow-y-auto overscroll-contain">
-                    {section.content}
+                <div
+                  aria-hidden={!isOpen}
+                  className={cn(
+                    "grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none",
+                    isOpen ? "grid-rows-[1fr] opacity-100" : "pointer-events-none grid-rows-[0fr] opacity-0",
+                  )}
+                  id={bodyId}
+                  inert={!isOpen}
+                  role="region"
+                  aria-labelledby={headerId}
+                >
+                  <div className="min-h-0 overflow-hidden">
+                    <div
+                      className="max-h-[min(52dvh,28rem)] min-h-0 overflow-y-auto overscroll-contain"
+                      data-slot="desktop-inspector-accordion-body"
+                    >
+                      {section.content}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </section>
-          )
-        })}
+              </section>
+            )
+          })}
+        </div>
       </nav>
       {footer ? (
-        <div
-          className="shrink-0 border-t border-[var(--desktop-inspector-border)]"
-          data-slot="desktop-inspector-accordion-footer"
-        >
-          {footer}
-        </div>
+        <div data-slot="desktop-inspector-accordion-footer">{footer}</div>
       ) : null}
     </div>
   )

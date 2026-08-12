@@ -60,7 +60,7 @@ export const DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS =
   "text-[length:var(--desktop-inspector-type-caption)]"
 export const DESKTOP_INSPECTOR_SECTION_HEADING_CLASS =
   cn(
-    "mb-1.5 truncate font-medium tracking-[0.01em] text-[var(--desktop-inspector-fg-tertiary)]",
+    "mb-0 truncate pl-0.5 font-medium uppercase tracking-[0.05em] text-[var(--desktop-inspector-fg-muted)]",
     DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
   )
 export const DESKTOP_INSPECTOR_PANEL_TITLE_CLASS =
@@ -76,13 +76,12 @@ export const DESKTOP_INSPECTOR_CAPTION_CLASS = cn(
   "font-medium text-[var(--desktop-inspector-fg-muted)]",
   DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
 )
-export const DESKTOP_INSPECTOR_SECTION_CLASS =
-  "min-w-0 px-3 py-4"
+export const DESKTOP_INSPECTOR_SECTION_CLASS = "min-w-0 flex flex-col gap-2"
 export const DESKTOP_INSPECTOR_SECTION_GAP_CLASS = "mt-2"
 export const DESKTOP_INSPECTOR_MAJOR_GAP_CLASS = "mt-6"
 export const DESKTOP_INSPECTOR_ROW_GAP_CLASS = "gap-2"
 export const DESKTOP_INSPECTOR_ROW_CLASS =
-  "flex min-w-0 items-center justify-between gap-3 py-2.5"
+  "flex min-h-[2.375rem] min-w-0 items-center justify-between gap-3 rounded-md bg-[var(--desktop-inspector-control)] px-3"
 export const DESKTOP_INSPECTOR_FIELD_ROW_CLASS =
   "min-w-0 py-2.5"
 export const DESKTOP_INSPECTOR_LABEL_CLASS = cn(
@@ -116,7 +115,7 @@ export const DESKTOP_INSPECTOR_RESET_CLASS = cn(
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 )
 export const DESKTOP_INSPECTOR_DROPDOWN_MENU_CLASS =
-  "desktop-inspector-dropdown-menu z-50 min-w-0 rounded-[10px] border border-[var(--desktop-inspector-dropdown-border)] bg-[var(--desktop-inspector-dropdown-bg)] p-1 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-glass-shadow)] ring-0 backdrop-blur-xl"
+  "desktop-inspector-dropdown-menu z-50 min-w-0 rounded-[14px] border-0 bg-[var(--desktop-inspector-elevated)] p-1 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-inspector-popover-shadow)] ring-0 backdrop-blur-xl"
 export const DESKTOP_INSPECTOR_DROPDOWN_TRIGGER_CLASS = cn(
   "desktop-inspector-input-bg cursor-pointer bg-[var(--desktop-inspector-field-bg)] font-medium text-[var(--desktop-inspector-fg-tertiary)] outline-none transition hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)] data-[state=open]:bg-[var(--desktop-inspector-control-hover-bg)] data-[state=open]:text-[var(--desktop-inspector-fg-primary)]",
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
@@ -1451,7 +1450,7 @@ export function DesktopInspectorMorphFilterMenu<T extends string>({
     <div className={cn("relative size-8 shrink-0 overflow-visible", className)} ref={rootRef}>
       <div
         className={cn(
-          "desktop-inspector-morph-filter border border-[var(--desktop-inspector-dropdown-border)] bg-[var(--desktop-inspector-field-bg)] text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-glass-shadow)]",
+          "desktop-inspector-morph-filter border-0 bg-[var(--desktop-inspector-field-bg)] text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-inspector-popover-shadow)]",
           morphClassName,
           isActive &&
             !open &&

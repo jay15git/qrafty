@@ -104,7 +104,7 @@ function DesktopWorkspaceStyles() {
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-floating-inspector"] {
-        --scroll-edge-fade-color: #07080a;
+        --scroll-edge-fade-color: #000000;
       }
 
       [data-slot="desktop-workspace"] [data-slot="dashboard-compose-surface"] {

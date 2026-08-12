@@ -168,7 +168,7 @@
 }
 
 [data-slot="desktop-left-toolbar-shell"] [data-slot="desktop-floating-inspector"] {
-  padding-top: var(--desktop-settings-toolbar-top-inset);
+  padding-top: 0;
   padding-inline-end: var(--desktop-toolbar-rail-pill-inset);
   box-sizing: border-box;
 }
