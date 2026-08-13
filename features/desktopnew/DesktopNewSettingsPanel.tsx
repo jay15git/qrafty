@@ -63,6 +63,8 @@ import {
   getAllPaperShaderDefinitions,
   type PaperShaderId,
 } from "@/features/workspace/rendering/paper-shaders"
+import { SettingsEffectsSection } from "@/features/desktopnew/settings-effects"
+import { legacyShadowToShadowLayer } from "@/features/workspace/model/effects"
 import {
   getCanvasSizeFromTemplate,
   getSizeTemplate,
@@ -94,6 +96,7 @@ const SECTIONS = [
   "Content",
   "QR",
   "Shape",
+  "Effects",
   "Background",
   "Motion",
   "Export",
@@ -430,7 +433,7 @@ export function DesktopNewSettingsPanel({
     setOpenSection(sectionForTool(model.actualActiveTool))
   }, [model.actualActiveTool, setOpenSection])
 
-  const handleSectionChange = (section: string) => {
+  function handleSectionChange(section: string) {
     setOpenSection(section)
     const tool = SECTION_TO_TOOL[section as SectionId]
     if (tool) {
@@ -468,6 +471,8 @@ function SectionBody({
       return <QrStyleSection model={model} />
     case "Shape":
       return <CardSection model={model} />
+    case "Effects":
+      return <EffectsSection model={model} />
     case "Background":
       return <SceneSection model={model} />
     case "Motion":
@@ -653,6 +658,52 @@ function CardSection({ model }: { model: DesktopInspectorModel }) {
         onChange={(shapePadding) => onShapeSettingsChange({ shapePadding })}
       />
     </div>
+  )
+}
+
+function EffectsSection({ model }: { model: DesktopInspectorModel }) {
+  const snapshot = model.controller?.appearanceSnapshot
+  const onAppearancePatch = model.controller?.onAppearancePatch
+  const { actualShapeSettings, onShapeSettingsChange } = model
+
+  const shadows =
+    snapshot?.shadows ??
+    [
+      legacyShadowToShadowLayer({
+        blur: actualShapeSettings.shadowBlur,
+        color: actualShapeSettings.shadowColor,
+        offsetX: actualShapeSettings.shadowOffsetX,
+        offsetY: actualShapeSettings.shadowOffsetY,
+        opacity: actualShapeSettings.shadowOpacity,
+        visible: actualShapeSettings.shadowOpacity > 0,
+      }),
+    ]
+  const layerFilters = snapshot?.layerFilters ?? []
+
+  return (
+    <SettingsEffectsSection
+      layerFilters={layerFilters}
+      shadows={shadows}
+      onPatch={(patch) => {
+        if (onAppearancePatch) {
+          onAppearancePatch(patch)
+          return
+        }
+
+        const primary = patch.shadows?.[0] ?? patch.shadow
+        if (!primary) {
+          return
+        }
+
+        onShapeSettingsChange({
+          shadowBlur: primary.blur,
+          shadowColor: primary.color,
+          shadowOffsetX: primary.offsetX,
+          shadowOffsetY: primary.offsetY,
+          shadowOpacity: primary.visible === false ? 0 : primary.opacity,
+        })
+      }}
+    />
   )
 }
 

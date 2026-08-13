@@ -244,3 +244,19 @@
   background: var(--desktop-inspector-elevated) !important;
   box-shadow: var(--desktop-inspector-popover-shadow) !important;
 }
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-effects-accordion"] {
+  gap: 6px;
+  padding: 0 4px 8px;
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-effect-row"] {
+  overflow: hidden;
+  background: var(--desktop-inspector-control);
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="desktop-effects-add-menu"] {
+  border: none !important;
+  background: var(--desktop-inspector-elevated) !important;
+  box-shadow: var(--desktop-inspector-popover-shadow) !important;
+}

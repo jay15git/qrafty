@@ -6,6 +6,8 @@ import { describe, expect, it, vi } from "vitest"
 
 import { DesktopElementInspector, DesktopTransformInspector } from "@/features/desktop-shell/components/DesktopElementInspector"
 import { FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
+import { createDefaultDraftingShadowLayer } from "@/features/workspace/model/effects"
+import { createDefaultDraftingFilterEffect } from "@/features/workspace/model/filters"
 import {
   createDraftingImageLayer,
   createDraftingShapeLayer,
@@ -25,6 +27,7 @@ describe("DesktopElementInspector", () => {
     expect(markup).toContain('data-slot="desktop-element-inspector"')
     expect(markup).not.toContain('data-slot="desktop-transform-section"')
     expect(markup).toContain('data-slot="desktop-layer-text-inspector"')
+    expect(markup).toContain('data-slot="desktop-effects-accordion"')
     expect(markup).not.toContain('data-slot="desktop-effects-section"')
     expect(markup).not.toContain('data-slot="drafting-element-inspector"')
     expect(markup).not.toContain('data-slot="drafting-text-inspector"')
@@ -50,6 +53,7 @@ describe("DesktopElementInspector", () => {
     expect(markup).toContain('data-slot="desktop-layer-shape-inspector"')
     expect(markup).toContain('data-slot="desktop-layer-shape-fill-mode"')
     expect(markup).toContain('data-slot="desktop-layer-shape-fill"')
+    expect(markup).toContain('data-slot="desktop-effects-accordion"')
     expect(markup).toContain('data-slot="desktop-layer-shape-options"')
     expect(markup).toContain('data-slot="desktop-color-picker"')
     expect(markup).not.toContain('data-slot="drafting-shape-inspector"')
@@ -62,7 +66,29 @@ describe("DesktopElementInspector", () => {
     )
 
     expect(markup).toContain('data-slot="desktop-layer-image-inspector"')
+    expect(markup).toContain('data-slot="desktop-effects-accordion"')
     expect(markup).not.toContain('data-slot="drafting-image-inspector"')
+  })
+
+  it("renders Figma-style effect rows for existing shadows and filters", () => {
+    const shadow = createDefaultDraftingShadowLayer({
+      blur: 8,
+      opacity: 40,
+      visible: true,
+    })
+    const blur = createDefaultDraftingFilterEffect("blur", { amount: 10 })
+    const layer = createDraftingShapeLayer(NODE_ID, "rect", {
+      layerFilters: [blur],
+      shadows: [shadow],
+    })
+    const markup = renderToStaticMarkup(
+      <DesktopElementInspector layer={layer} onPatch={vi.fn()} />,
+    )
+
+    expect(markup).toContain('data-slot="desktop-effects-list"')
+    expect(markup).toContain('data-effect-kind="drop-shadow"')
+    expect(markup).toContain('data-effect-kind="layer-blur"')
+    expect(markup).toContain("Add effect")
   })
 })
 

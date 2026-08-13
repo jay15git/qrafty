@@ -40,6 +40,7 @@ import {
   getDesktopLayerFontWeight,
   getNearestDesktopFontWeight,
 } from "@/features/desktop-shell/model/font-weight"
+import { DesktopEffectsAccordion } from "@/features/desktop-shell/components/DesktopEffectsAccordion"
 import { DesktopElementShapeOptionGrid } from "@/features/desktop-shell/components/DesktopElementShapeOptionGrid"
 import { DesktopPaperShaderSettings } from "@/features/desktop-shell/components/DesktopPaperShaderSettings"
 import {
@@ -90,6 +91,7 @@ export function DesktopElementInspector({
         {layer.kind === "shader" ? (
           <DesktopLayerShaderInspector layer={layer} onPatch={onPatch} />
         ) : null}
+        <DesktopEffectsAccordion layer={layer} onPatch={onPatch} />
       </DesktopInspectorScrollArea>
     </div>
   )

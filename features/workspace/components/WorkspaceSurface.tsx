@@ -4025,37 +4025,40 @@ export function WorkspaceSurface({
   const gatedSelectedElementLayer = isFreeEditing ? selectedElementLayer : null
   const gatedSelectedTransformLayer = isFreeEditing ? selectedTransformLayer : null
   const gatedSelectedAppearanceLayer = isFreeEditing ? selectedTransformLayer : null
-  const desktopAppearanceSnapshot = gatedSelectedAppearanceLayer
-    ? getDesktopAppearanceSnapshot(gatedSelectedAppearanceLayer, {
+  const fallbackAppearanceLayer =
+    activeCanvasLayers.find((layer) => layer.kind === "card") ?? null
+  const appearanceTargetLayer = gatedSelectedAppearanceLayer ?? fallbackAppearanceLayer
+  const desktopAppearanceSnapshot = appearanceTargetLayer
+    ? getDesktopAppearanceSnapshot(appearanceTargetLayer, {
         cardCornerRadius:
-          gatedSelectedAppearanceLayer.kind === "card" ? selectedCardState.cornerRadius : undefined,
+          appearanceTargetLayer.kind === "card" ? selectedCardState.cornerRadius : undefined,
         cardCornerRadii:
-          gatedSelectedAppearanceLayer.kind === "card" ? selectedCardState.cornerRadii : undefined,
+          appearanceTargetLayer.kind === "card" ? selectedCardState.cornerRadii : undefined,
         qrBackgroundShapeOptions:
-          gatedSelectedAppearanceLayer.kind === "qr"
+          appearanceTargetLayer.kind === "qr"
             ? draftingStudioState.backgroundShapeOptions
             : undefined,
       })
     : null
 
   function handleDesktopAppearancePatch(patch: Partial<DraftingCanvasLayer>) {
-    if (!gatedSelectedAppearanceLayer) {
+    if (!appearanceTargetLayer) {
       return
     }
 
-    const result = buildDesktopAppearancePatch(gatedSelectedAppearanceLayer, patch, {
+    const result = buildDesktopAppearancePatch(appearanceTargetLayer, patch, {
       qrBackgroundShapeOptions:
-        gatedSelectedAppearanceLayer.kind === "qr"
+        appearanceTargetLayer.kind === "qr"
           ? draftingStudioState.backgroundShapeOptions
           : undefined,
     })
 
     if (Object.keys(result.layerPatch).length > 0) {
-      handleLayerChange(activeQrNodeId, gatedSelectedAppearanceLayer.id, result.layerPatch)
+      handleLayerChange(activeQrNodeId, appearanceTargetLayer.id, result.layerPatch)
     }
 
     if (
-      gatedSelectedAppearanceLayer.kind === "card" &&
+      appearanceTargetLayer.kind === "card" &&
       (result.cardCornerRadius !== undefined ||
         result.cardCornerRadii !== undefined ||
         result.cardShadow)
