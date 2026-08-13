@@ -497,11 +497,11 @@ export function ContentTypePicker({
   }, [filterId, query])
 
   const activeFilterLabel =
-    CONTENT_TYPE_FILTER_OPTIONS.find((option) => option.id === filterId)?.label ?? "Popular"
+    CONTENT_TYPE_FILTER_OPTIONS.find((option) => option.id === filterId)?.label ?? "All"
 
   return (
-    <div className="flex flex-col gap-2.5">
-      <div className="flex items-center gap-1.5">
+    <div className="dn-content-type-picker">
+      <div className="dn-content-type-picker-toolbar">
         <div className="relative min-w-0 flex-1">
           <Search
             aria-hidden
@@ -519,7 +519,7 @@ export function ContentTypePicker({
           <DropdownMenuTrigger asChild>
             <button
               aria-label={`Filter content types (${activeFilterLabel})`}
-              className="dn-content-type-filter-trigger dn-pressable inline-flex size-8 shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
+              className="dn-content-type-filter-trigger dn-pressable inline-flex size-7 shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
               data-active={filterId !== "all" ? "true" : undefined}
               type="button"
             >
@@ -552,7 +552,7 @@ export function ContentTypePicker({
         </DropdownMenu>
       </div>
 
-      <div className="grid max-h-64 grid-cols-3 gap-1.5 overflow-y-auto pr-0.5">
+      <div className="dn-content-type-grid">
         {visibleTypes.map((type) => {
           const option = QR_INPUT_OPTIONS[type]
           const isSelected = selected === type
@@ -563,10 +563,8 @@ export function ContentTypePicker({
               aria-label={`Use ${option.label} content`}
               aria-pressed={isSelected}
               className={cn(
-                "dn-pressable flex aspect-square flex-col items-center justify-center gap-1 p-1 text-center dn-squircle-xs",
-                isSelected
-                  ? "bg-[var(--dn-popover-tile)] text-[var(--dn-fg)] ring-2 ring-[var(--dn-fg)] ring-offset-2 ring-offset-[var(--dn-popover-ring-offset)]"
-                  : "bg-[var(--dn-popover-tile)] text-[var(--dn-popover-muted)]",
+                "dn-content-type-tile dn-option-tile dn-pressable dn-squircle-xs",
+                isSelected && "dn-content-type-tile--selected",
               )}
               type="button"
               onClick={() => {
@@ -574,19 +572,45 @@ export function ContentTypePicker({
                 onAfterSelect?.()
               }}
             >
-              <ContentTypeGridIcon className="size-4" type={type} />
-              <span className="max-w-full truncate text-[9px] font-medium leading-none tracking-tight">
-                {option.label}
-              </span>
+              <ContentTypeGridIcon className="dn-content-type-tile-icon" type={type} />
+              <span className="dn-content-type-tile-label">{option.label}</span>
             </button>
           )
         })}
         {visibleTypes.length === 0 ? (
-          <p className="col-span-3 px-1 py-3 text-center text-[11px] text-[var(--dn-popover-muted)]">
-            No types found
-          </p>
+          <p className="dn-content-type-grid-empty">No types found</p>
         ) : null}
       </div>
+    </div>
+  )
+}
+
+export function OptionScrollRow({
+  items,
+  onSelect,
+  selected,
+}: {
+  items: string[]
+  onSelect?: (item: string) => void
+  selected: string
+}) {
+  return (
+    <div className="dn-option-scroll-row">
+      {items.map((item) => {
+        const isSelected = selected === item
+
+        return (
+          <button
+            key={item}
+            aria-pressed={isSelected}
+            className="dn-option-tile dn-option-scroll-chip dn-pressable dn-squircle-xs"
+            type="button"
+            onClick={() => onSelect?.(item)}
+          >
+            {item}
+          </button>
+        )
+      })}
     </div>
   )
 }

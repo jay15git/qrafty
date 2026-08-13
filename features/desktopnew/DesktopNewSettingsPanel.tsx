@@ -14,6 +14,7 @@ import {
   type QrBackgroundShapeId,
 } from "@/features/qr-code/styles/background-shapes"
 
+import { DesktopNewContentFields } from "@/features/desktopnew/desktopnew-content-fields"
 import {
   ContentTypePicker,
   OptionGrid,
@@ -21,7 +22,6 @@ import {
   SegmentTabs,
   SettingsAccordion,
   SettingsFillPopover,
-  SettingsInput,
   SettingsPanelShell,
   SettingsPrimaryButton,
   SettingsRowPopover,
@@ -30,9 +30,9 @@ import {
   SettingsSwitchRow,
   SettingsTabPanel,
 } from "@/features/desktopnew/settings-ui"
+import { ContentTypeGridIcon } from "@/features/qr-code/content/ContentTypeGridIcon"
 import {
   getContentTypeLabel,
-  type QrInputType,
 } from "@/features/qr-code/content/input-options"
 import {
   MOTION_COLOR_SWATCHES,
@@ -80,10 +80,6 @@ import type {
 } from "@/features/desktop-shell/components/FloatingToolbar"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import type { QrFileExtension } from "@/features/qr-code/model/types"
-
-function isUrlContentType(type: QrInputType) {
-  return type === "link" || type === "website" || type === "app-download"
-}
 
 const SECTION_STACK = "flex flex-col gap-2.5"
 const PREVIEW_TILE =
@@ -474,20 +470,28 @@ function SectionBody({
 }
 
 function ContentSection({ model }: { model: DesktopInspectorModel }) {
-  const { actualContentType, actualContentValues, onContentTypeChange, onContentValueChange } =
-    model
+  const {
+    actualContentType,
+    actualContentValues,
+    actualContentValidation,
+    onContentPasteApply,
+    onContentTypeChange,
+    onContentValueChange,
+  } = model
   const [typePopoverOpen, setTypePopoverOpen] = useState(false)
-  const primaryField = isUrlContentType(actualContentType) ? "url" : "text"
-  const primaryValue = String(actualContentValues[primaryField] ?? "")
 
   return (
     <div className={SECTION_STACK}>
       <SettingsRowPopover
-        contentClassName="w-[17.5rem]"
+        contentClassName="w-[17.25rem] p-0"
         hint="Type"
         open={typePopoverOpen}
-        title="Type"
-        trigger={getContentTypeLabel(actualContentType)}
+        trigger={
+          <span className="flex min-w-0 items-center gap-2">
+            <ContentTypeGridIcon className="size-4 shrink-0" type={actualContentType} />
+            <span className="truncate">{getContentTypeLabel(actualContentType)}</span>
+          </span>
+        }
         onOpenChange={setTypePopoverOpen}
       >
         <ContentTypePicker
@@ -496,10 +500,12 @@ function ContentSection({ model }: { model: DesktopInspectorModel }) {
           onSelect={onContentTypeChange}
         />
       </SettingsRowPopover>
-      <SettingsInput
-        placeholder={primaryField === "url" ? "https://example.com" : "Text to encode"}
-        value={primaryValue}
-        onChange={(event) => onContentValueChange(primaryField, event.currentTarget.value)}
+      <DesktopNewContentFields
+        contentType={actualContentType}
+        contentValues={actualContentValues}
+        validation={actualContentValidation}
+        onContentPasteApply={onContentPasteApply}
+        onContentValueChange={onContentValueChange}
       />
     </div>
   )
