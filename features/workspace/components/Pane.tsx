@@ -30,6 +30,7 @@ import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model
 import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/workspace/model/corner-radius"
 import { getDraftingCardPatternStyle } from "@/features/workspace/model/card-patterns"
 import {
+  clampLayerGeometryToCanvas,
   createDefaultDraftingLayers,
   DEFAULT_DRAFTING_SHAPE_LAYER,
   getDraftingMarqueeSelection,
@@ -52,7 +53,6 @@ import {
 } from "@/features/workspace/rendering/qr-artwork"
 import { DraftingLayerTiltShell } from "@/features/workspace/components/DraftingLayerTiltShell"
 import {
-  SceneBackgroundLayer,
   SceneCompositionTransform,
 } from "@/features/workspace/components/SceneBackgroundLayer"
 import { DraftingQrLayerContent } from "@/features/workspace/components/DraftingQrLayerContent"
@@ -1252,6 +1252,27 @@ export const Pane = memo(function Pane({
       value: cardState.cardImage.value ?? cardState.imageFilter.image.value,
     },
   }
+
+  function constrainLayerPatch(
+    layer: DraftingCanvasLayer,
+    patch: Partial<DraftingCanvasLayer>,
+  ): Partial<DraftingCanvasLayer> {
+    if (layer.kind === "card") {
+      return patch
+    }
+
+    const constrained = clampLayerGeometryToCanvas({ ...layer, ...patch }, cardState)
+    const result = { ...patch }
+
+    for (const key of ["height", "width", "x", "y"] as const) {
+      if (key in patch) {
+        result[key] = constrained[key]
+      }
+    }
+
+    return result
+  }
+
   function startLayerInteraction(
     event: PointerEvent<HTMLElement>,
     layer: DraftingCanvasLayer,
@@ -1567,10 +1588,17 @@ export const Pane = memo(function Pane({
     if (interaction.layers && interaction.groupBounds && interaction.groupCenter) {
       if (interaction.mode === "move") {
         for (const selectedLayer of interaction.layers) {
-          onLayerChange?.(selectedLayer.id, {
-            x: roundLayerNumber(selectedLayer.x + deltaX),
-            y: roundLayerNumber(selectedLayer.y + deltaY),
-          })
+          if (selectedLayer.kind === "card") {
+            continue
+          }
+
+          onLayerChange?.(
+            selectedLayer.id,
+            constrainLayerPatch(selectedLayer, {
+              x: roundLayerNumber(selectedLayer.x + deltaX),
+              y: roundLayerNumber(selectedLayer.y + deltaY),
+            }),
+          )
         }
         return
       }
@@ -1599,16 +1627,23 @@ export const Pane = memo(function Pane({
         })
 
         for (const selectedLayer of interaction.layers) {
+          if (selectedLayer.kind === "card") {
+            continue
+          }
+
           const center = {
             x: selectedLayer.x + selectedLayer.width / 2,
             y: selectedLayer.y + selectedLayer.height / 2,
           }
           const nextCenter = rotatePoint(center, interaction.groupCenter, rotation)
-          onLayerChange?.(selectedLayer.id, {
-            rotation: normalizeLayerRotation(selectedLayer.rotation + rotation),
-            x: roundLayerNumber(nextCenter.x - selectedLayer.width / 2),
-            y: roundLayerNumber(nextCenter.y - selectedLayer.height / 2),
-          })
+          onLayerChange?.(
+            selectedLayer.id,
+            constrainLayerPatch(selectedLayer, {
+              rotation: normalizeLayerRotation(selectedLayer.rotation + rotation),
+              x: roundLayerNumber(nextCenter.x - selectedLayer.width / 2),
+              y: roundLayerNumber(nextCenter.y - selectedLayer.height / 2),
+            }),
+          )
         }
         return
       }
@@ -1639,12 +1674,19 @@ export const Pane = memo(function Pane({
         const scaleY = interaction.groupBounds.height > 0 ? nextBounds.height / interaction.groupBounds.height : 1
 
         for (const selectedLayer of interaction.layers) {
-          onLayerChange?.(selectedLayer.id, {
-            height: roundLayerNumber(selectedLayer.height * scaleY),
-            width: roundLayerNumber(selectedLayer.width * scaleX),
-            x: roundLayerNumber(nextBounds.x + (selectedLayer.x - interaction.groupBounds.x) * scaleX),
-            y: roundLayerNumber(nextBounds.y + (selectedLayer.y - interaction.groupBounds.y) * scaleY),
-          })
+          if (selectedLayer.kind === "card") {
+            continue
+          }
+
+          onLayerChange?.(
+            selectedLayer.id,
+            constrainLayerPatch(selectedLayer, {
+              height: roundLayerNumber(selectedLayer.height * scaleY),
+              width: roundLayerNumber(selectedLayer.width * scaleX),
+              x: roundLayerNumber(nextBounds.x + (selectedLayer.x - interaction.groupBounds.x) * scaleX),
+              y: roundLayerNumber(nextBounds.y + (selectedLayer.y - interaction.groupBounds.y) * scaleY),
+            }),
+          )
         }
         return
       }
@@ -1685,10 +1727,13 @@ export const Pane = memo(function Pane({
         : { guides: { horizontal: [], vertical: [] }, x: proposedX, y: proposedY }
 
       setSnapGuides(nextMove.guides)
-      onLayerChange?.(layer.id, {
-        x: nextMove.x,
-        y: nextMove.y,
-      })
+      onLayerChange?.(
+        layer.id,
+        constrainLayerPatch(layer, {
+          x: nextMove.x,
+          y: nextMove.y,
+        }),
+      )
       return
     }
 
@@ -1724,7 +1769,7 @@ export const Pane = memo(function Pane({
       : { geometry: nextGeometry, guides: { horizontal: [], vertical: [] } }
 
     setSnapGuides(snappedResize.guides)
-    onLayerChange?.(layer.id, snappedResize.geometry)
+    onLayerChange?.(layer.id, constrainLayerPatch(layer, snappedResize.geometry))
   }
 
   function endLayerInteraction(event: PointerEvent<HTMLElement>) {
@@ -1759,6 +1804,10 @@ export const Pane = memo(function Pane({
     layer: DraftingCanvasLayer,
     options?: { qr?: boolean },
   ) {
+    if (layer.kind === "card") {
+      return
+    }
+
     event.stopPropagation()
 
     if (suppressLayerClickRef.current) {
@@ -2275,28 +2324,15 @@ export const Pane = memo(function Pane({
         {...layerExportAttrs("card")}
         className={cn(
           "absolute max-h-none max-w-none transition-[filter,background-color,border-radius] duration-150",
-          LAYER_MOVE_CURSOR_CLASS,
-          "overflow-hidden",
-          layer.isLocked && "cursor-default",
+          "pointer-events-none overflow-hidden",
         )}
         style={{
           ...cardStyle,
           ...getLayerPlacementStyle(layer),
           ...getDraftingLayerEffectStyle(layer),
         }}
-        onClick={(event) => selectLayerFromClick(event, layer)}
-        onPointerDown={(event) => startLayerInteraction(event, layer, "move")}
-        onPointerMove={updateLayerInteraction}
-        onPointerUp={endLayerInteraction}
-        onPointerCancel={endLayerInteraction}
-        onContextMenu={(event) => openLayerContextMenu(event, [layer.id])}
       >
         <DraftingLayerTiltShell layer={layer}>
-          <SceneBackgroundLayer
-            background={sceneComposition.background}
-            height={layer.height}
-            width={layer.width}
-          />
           {isImageMode && cardState.cardImage.value ? (
             <div
               aria-hidden="true"
@@ -2535,9 +2571,10 @@ export const Pane = memo(function Pane({
         ) : markup ? (
           <>
             <div
-              className="absolute left-1/2 top-1/2"
+              className="absolute left-1/2 top-1/2 overflow-hidden"
               data-slot="dashboard-compose-artboard"
               style={{
+                borderRadius: cornerRadiiToCss(cardState.cornerRadii),
                 height: cardState.height,
                 transform: "translate(-50%, -50%)",
                 width: cardState.width,

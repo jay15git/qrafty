@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import {
   alignDraftingCanvasLayers,
+  clampLayerGeometryToCanvas,
   cloneDraftingCanvasLayer,
   cloneDraftingCanvasLayersForPaste,
   createDefaultDraftingLayers,
@@ -791,3 +792,33 @@ function createLayer(
     ...overrides,
   }
 }
+
+describe("clampLayerGeometryToCanvas", () => {
+  it("keeps layer geometry inside the card bounds", () => {
+    expect(
+      clampLayerGeometryToCanvas(
+        { height: 80, width: 120, x: 500, y: -400 },
+        { height: 400, width: 600 },
+      ),
+    ).toEqual({
+      height: 80,
+      width: 120,
+      x: 180,
+      y: -200,
+    })
+  })
+
+  it("shrinks oversized layers to the card size", () => {
+    expect(
+      clampLayerGeometryToCanvas(
+        { height: 900, width: 900, x: 0, y: 0 },
+        { height: 400, width: 600 },
+      ),
+    ).toEqual({
+      height: 400,
+      width: 600,
+      x: -300,
+      y: -200,
+    })
+  })
+})

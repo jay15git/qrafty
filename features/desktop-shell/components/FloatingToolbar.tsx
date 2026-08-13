@@ -71,6 +71,7 @@ import {
   DEFAULT_DRAFTING_CARD_STATE,
   type DraftingCardPaperShaderState,
   type DraftingCardSizeMode,
+  type DraftingCardStyleMode,
 } from "@/features/workspace/model/card-state"
 import { DesktopPaperShaderSettings } from "@/features/desktop-shell/components/DesktopPaperShaderSettings"
 import {
@@ -543,6 +544,7 @@ export type DesktopImageSettings = {
 
 export type DesktopBackgroundSettings = {
   paperShader: DraftingCardPaperShaderState
+  styleMode: DraftingCardStyleMode
 }
 
 export type DesktopEffectsSettings = {
@@ -647,6 +649,7 @@ export type DesktopToolbarController = {
   onOpenCardPatternSettings?: () => void
   onCloseComposeSidebar?: () => void
   onSelectStockPhoto?: (imageUrl: string) => void
+  onCanvasBackgroundTabChange?: (tab: "shader" | "image" | "color") => void
   onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
@@ -677,7 +680,7 @@ export type DesktopToolbarController = {
   onImageReset: () => void
   onImageSettingsChange: (patch: Partial<DesktopImageSettings>) => void
   onBackgroundReset: () => void
-  onBackgroundSettingsChange: (settings: DesktopBackgroundSettings) => void
+  onBackgroundSettingsChange: (settings: Partial<DesktopBackgroundSettings>) => void
   onBackgroundInspectorTabChange?: (tab: DesktopBackgroundInspectorTab) => void
   onEffectsReset: () => void
   onEffectsSettingsChange: (patch: Partial<DesktopEffectsSettings>) => void
@@ -960,6 +963,7 @@ const DEFAULT_DESKTOP_BACKGROUND_SETTINGS: DesktopBackgroundSettings = {
   paperShader: createDefaultDraftingCardPaperShader(
     DEFAULT_DRAFTING_CARD_STATE.paperShader.shaderId,
   ),
+  styleMode: DEFAULT_DRAFTING_CARD_STATE.styleMode,
 }
 
 const DEFAULT_DESKTOP_EFFECTS_SETTINGS: DesktopEffectsSettings = {
@@ -1115,7 +1119,7 @@ export type DesktopInspectorModel = {
   onEncodingSettingsChange: (patch: Partial<DesktopEncodingSettings>) => void
   onAccessibilitySettingsChange: (patch: Partial<DesktopAccessibilitySettings>) => void
   onImageSettingsChange: (patch: Partial<DesktopImageSettings>) => void
-  onBackgroundSettingsChange: (settings: DesktopBackgroundSettings) => void
+  onBackgroundSettingsChange: (settings: Partial<DesktopBackgroundSettings>) => void
   onBackgroundInspectorTabChange: (tab: DesktopBackgroundInspectorTab) => void
   onEffectsSettingsChange: (patch: Partial<DesktopEffectsSettings>) => void
   onLayersSettingsChange: (patch: Partial<DesktopLayersSettings>) => void
@@ -5484,7 +5488,7 @@ function DesktopBackgroundInspector({
 }: {
   activeTab: DesktopBackgroundInspectorTab
   onActiveTabChange: (tab: DesktopBackgroundInspectorTab) => void
-  onBackgroundSettingsChange: (settings: DesktopBackgroundSettings) => void
+  onBackgroundSettingsChange: (settings: Partial<DesktopBackgroundSettings>) => void
   onShapeSettingsChange: (patch: Partial<DesktopShapeSettings>) => void
   showColorControls?: boolean
   settings: DesktopBackgroundSettings
@@ -6328,7 +6332,7 @@ function DesktopInspectorColorPanel({
   cornersSettings: DesktopCornersSettings
   logoSettings: DesktopLogoSettings
   motionSettings: DesktopMotionSettings
-  onBackgroundSettingsChange: (settings: DesktopBackgroundSettings) => void
+  onBackgroundSettingsChange: (settings: Partial<DesktopBackgroundSettings>) => void
   onCornersSettingsChange: (patch: Partial<DesktopCornersSettings>) => void
   onLogoSettingsChange: (patch: DesktopLogoSettingsPatch) => void
   onMotionSettingsChange: (patch: QrDotMatrixAnimationPatch) => void
@@ -6472,7 +6476,7 @@ function DesktopSceneInspector({
   actualShapeSettings: DesktopShapeSettings
   controller?: DesktopToolbarController
   onBackgroundInspectorTabChange: (tab: DesktopBackgroundInspectorTab) => void
-  onBackgroundSettingsChange: (settings: DesktopBackgroundSettings) => void
+  onBackgroundSettingsChange: (settings: Partial<DesktopBackgroundSettings>) => void
   onEffectsSettingsChange: (patch: Partial<DesktopEffectsSettings>) => void
   onLayersReorder?: (orderedIds: string[]) => void
   onLayersSettingsChange: (patch: Partial<DesktopLayersSettings>) => void

@@ -24,13 +24,23 @@ describe("template-preview-fit", () => {
     expect(scale).toBeCloseTo((700 - TEMPLATE_PREVIEW_FIT_PADDING * 2) / 1920, 5)
   })
 
-  it("never upscales past 100%", () => {
+  it("never upscales past 100% without allowUpscale", () => {
     const scale = computeTemplatePreviewFit(
       { width: 320, height: 320 },
       { width: 1200, height: 900 },
     )
 
     expect(scale).toBe(1)
+  })
+
+  it("upscales to fill the viewport when allowUpscale is enabled", () => {
+    const scale = computeTemplatePreviewFit(
+      { width: 320, height: 320 },
+      { width: 1200, height: 900 },
+      { allowUpscale: true, padding: TEMPLATE_PREVIEW_FIT_PADDING },
+    )
+
+    expect(scale).toBeCloseTo((900 - TEMPLATE_PREVIEW_FIT_PADDING * 2) / 320, 5)
   })
 
   it("handles tiny viewports with a sensible minimum scale", () => {

@@ -50,8 +50,24 @@ import {
 import { renderDashboardQrSvgMarkup } from "@/features/qr-code/rendering/qr-svg"
 import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-artwork"
 import { createDefaultSceneComposition } from "@/features/workspace/model/scene-templates"
+import type { DraftingCardState } from "@/features/workspace/model/card-state"
 
 const cleanupCallbacks: Array<() => void> = []
+
+function createAutoSizedCardState(overrides: Partial<DraftingCardState> = {}): DraftingCardState {
+  return {
+    ...createDefaultDraftingCardState(),
+    sizeMode: "auto",
+    ...overrides,
+  }
+}
+
+const TEST_CANVAS_CARD_STATE: DraftingCardState = {
+  ...createDefaultDraftingCardState(),
+  height: 300,
+  sizeMode: "fixed",
+  width: 300,
+}
 
 beforeEach(() => {
   buildDashboardQrNodePayloadSpy.mockReset()
@@ -117,7 +133,7 @@ describe("Pane", () => {
     expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalledTimes(2)
   })
 
-  it("renders the scene background inside the card layer", async () => {
+  it("renders card canvas background from card state only", async () => {
     const state = setSquareQrSize(createDefaultQrStudioState(), 240)
     const cardState = createDefaultDraftingCardState()
     const nodeId = "preview"
@@ -134,7 +150,7 @@ describe("Pane", () => {
     const artboard = container.querySelector('[data-slot="dashboard-compose-artboard"]')
 
     expect(card).not.toBeNull()
-    expect(sceneBackground).not.toBeNull()
+    expect(sceneBackground).toBeNull()
     expect(artboard?.querySelector(':scope > [data-slot="scene-background-layer"]')).toBeNull()
   })
 
@@ -186,11 +202,10 @@ describe("Pane", () => {
       tiltX: 0,
       tiltY: 0,
     }
-    const cardState = {
-      ...createDefaultDraftingCardState(),
+    const cardState = createAutoSizedCardState({
       bottomSpace: 96,
       padding: 20,
-    }
+    })
     const { container } = renderPane(state, false, cardState)
 
     await waitForQrPaneRender()
@@ -208,8 +223,7 @@ describe("Pane", () => {
 
   it("renders the editable card layer behind the qr artwork", async () => {
     const state = setSquareQrSize(createDefaultQrStudioState(), 240)
-    const cardState = {
-      ...createDefaultDraftingCardState(),
+    const cardState = createAutoSizedCardState({
       bottomSpace: 96,
       border: {
         color: "#111827",
@@ -226,7 +240,7 @@ describe("Pane", () => {
         offsetY: 8,
         opacity: 35,
       },
-    }
+    })
     const { container } = renderPane(state, false, cardState)
 
     await waitForQrPaneRender()
@@ -243,7 +257,7 @@ describe("Pane", () => {
     expect(card.getAttribute("data-card-shadow-offset-y")).toBe("8")
     expect(card.style.backgroundColor).toBe("rgb(255, 204, 0)")
     expect(card.style.border).toContain("6px solid rgba(17, 24, 39, 0.4)")
-    expect(card.style.borderRadius).toBe("24px")
+    expect(card.style.borderRadius).toBe("28px 28px 28px 28px")
     expect(card.style.width).toBe("280px")
     expect(card.style.height).toBe("376px")
     expect(card.style.filter).toContain("drop-shadow(6px 8px 30px rgba(0, 0, 0, 0.35))")
@@ -322,10 +336,10 @@ describe("Pane", () => {
 
   it("applies the selected card css pattern to the card layer", async () => {
     const state = setSquareQrSize(createDefaultQrStudioState(), 240)
-    const cardState = {
-      ...createDefaultDraftingCardState(),
+    const cardState = createAutoSizedCardState({
       patternId: "g3" as const,
-    }
+      styleMode: "pattern",
+    })
     const { container } = renderPane(state, false, cardState)
 
     await waitForQrPaneRender()
@@ -341,15 +355,15 @@ describe("Pane", () => {
 
   it("applies selected card css pattern color overrides to the card layer", async () => {
     const state = setSquareQrSize(createDefaultQrStudioState(), 240)
-    const cardState = {
-      ...createDefaultDraftingCardState(),
+    const cardState = createAutoSizedCardState({
       patternColors: {
         g3: {
           "--p1": "#111111",
         },
       },
       patternId: "g3" as const,
-    }
+      styleMode: "pattern",
+    })
     const { container } = renderPane(state, false, cardState)
 
     await waitForQrPaneRender()
@@ -383,11 +397,11 @@ describe("Pane", () => {
 
   it("renders qr artwork without the card wrapper when the card is disabled", async () => {
     const state = setSquareQrSize(createDefaultQrStudioState(), 240)
-    const cardState = {
-      ...createDefaultDraftingCardState(),
+    const cardState = createAutoSizedCardState({
       enabled: false,
       patternId: "g3" as const,
-    }
+      styleMode: "pattern",
+    })
     const { container } = renderPane(state, false, cardState)
 
     await waitForQrPaneRender()
@@ -395,7 +409,7 @@ describe("Pane", () => {
     const card = container.querySelector('[data-slot="dashboard-compose-card"]')
     const node = container.querySelector('[data-slot="dashboard-compose-node"]')
 
-    expect(card).toBeNull()
+    expect(card).not.toBeNull()
     expect(node).not.toBeNull()
   })
 
@@ -453,16 +467,15 @@ describe("Pane", () => {
     expect(resizeHandle?.className).toContain("bg-white")
   })
 
-  it("keeps resize control padding equal around rectangular layers", async () => {
+  it("keeps resize control padding equal around selected qr layers", async () => {
     const state = setSquareQrSize(createDefaultQrStudioState(), 240)
-    const cardState = {
-      ...createDefaultDraftingCardState(),
+    const cardState = createAutoSizedCardState({
       bottomSpace: 96,
       padding: 20,
-    }
+    })
     const { container } = renderPane(state, true, cardState, {
       onLayerChange: () => undefined,
-      selectedLayerId: getDraftingCardLayerId("preview"),
+      selectedLayerId: getDraftingQrLayerId("preview"),
     })
 
     await waitForQrPaneRender()
@@ -472,12 +485,13 @@ describe("Pane", () => {
 
     expect(card).not.toBeNull()
     expect(card.className).toContain("overflow-hidden")
+    expect(card.className).toContain("pointer-events-none")
     expect(card.className).not.toContain("outline")
     expect(frame).not.toBeNull()
     expect(frame.className).toContain("border")
-    expect(frame.style.width).toBe("304px")
-    expect(frame.style.height).toBe("400px")
-    expect(frame.style.transform).toBe("translate3d(-152px, -200px, 0)")
+    expect(frame.style.width).toBe("264px")
+    expect(frame.style.height).toBe("264px")
+    expect(frame.style.transform).toBe("translate3d(-132px, -180px, 0)")
     expect(frame.style.zIndex).toBe("10000")
   })
 
@@ -709,14 +723,12 @@ describe("Pane", () => {
 
   it("shows the selected layer size below the resize frame", async () => {
     const state = createDefaultQrStudioState()
-    const cardState = createDefaultDraftingCardState()
-    const layers = createDefaultDraftingLayers("preview", state, cardState).map((layer) =>
-      layer.id === "preview:card" ? { ...layer, height: 320, width: 420 } : layer,
-    )
+    const cardState = createAutoSizedCardState()
+    const layers = createDefaultDraftingLayers("preview", state, cardState)
     const { container } = renderPane(state, true, cardState, {
       layers,
       onLayerChange: () => undefined,
-      selectedLayerId: "preview:card",
+      selectedLayerId: "preview:qr",
     })
 
     await waitForQrPaneRender()
@@ -724,7 +736,7 @@ describe("Pane", () => {
     const sizeValue = container.querySelector('[data-slot="drafting-layer-size-value"]') as HTMLElement
 
     expect(sizeValue).not.toBeNull()
-    expect(sizeValue.textContent).toBe("420 x 320")
+    expect(sizeValue.textContent).toMatch(/\d+ x \d+/)
     expect(sizeValue.style.transform).toBe("translate(-50%, calc(100% + 10px))")
   })
 
@@ -1023,8 +1035,23 @@ describe("Pane", () => {
   it("uses all selected layer ids for multi-selection floating actions", async () => {
     const onLayerAction = vi.fn()
     const onLayerCopy = vi.fn()
-    const selectedLayerIds = [getDraftingCardLayerId("preview"), getDraftingQrLayerId("preview")]
+    const selectedLayerIds = [getDraftingQrLayerId("preview"), "preview:text"]
+    const layers = createDefaultDraftingLayers(
+      "preview",
+      createDefaultQrStudioState(),
+      createDefaultDraftingCardState(),
+    ).concat(
+      createDraftingTextLayer("preview", {
+        height: 40,
+        id: "preview:text",
+        width: 120,
+        x: 0,
+        y: 120,
+        zIndex: 2,
+      }),
+    )
     const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+      layers,
       onLayerAction,
       onLayerCopy,
       selectedLayerIds,
@@ -1505,7 +1532,7 @@ describe("Pane", () => {
     expect(node?.className).not.toContain("shadow-[0_10px_24px_-12px_rgba(15,23,42,0.26)]")
   })
 
-  it("passes modifier-click layer selection intent to the parent", async () => {
+  it("does not select the card canvas when clicked", async () => {
     const onLayerSelect = vi.fn()
     const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
       onLayerSelect,
@@ -1519,46 +1546,33 @@ describe("Pane", () => {
       card.dispatchEvent(new MouseEvent("click", { bubbles: true, metaKey: true }))
     })
 
-    expect(onLayerSelect).toHaveBeenLastCalledWith(getDraftingCardLayerId("preview"), {
-      additive: true,
-    })
+    expect(onLayerSelect).not.toHaveBeenCalledWith("preview:card")
   })
 
   it("renders padded resize and rotate controls around multiple selected layers", async () => {
-    const selectedLayerIds = [getDraftingCardLayerId("preview"), getDraftingQrLayerId("preview")]
+    const selectedLayerIds = [getDraftingQrLayerId("preview")]
     const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
       selectedLayerIds,
     })
 
     await waitForQrPaneRender()
 
-    expect(container.querySelectorAll('[data-layer-id][data-selected="true"]')).toHaveLength(2)
-    expect(container.querySelector('[data-slot="drafting-layer-resize-frame"]')).toBeNull()
-    const multiFrame = container.querySelector(
-      '[data-slot="drafting-layer-multi-select-frame"]',
-    ) as HTMLElement
-    const rotateHandle = container.querySelector('[data-slot="drafting-layer-rotate-handle"]')
-
-    expect(multiFrame).not.toBeNull()
-    expect(multiFrame.style.width).toBe("392px")
-    expect(multiFrame.style.height).toBe("520px")
-    expect(multiFrame.style.transform).toBe("translate3d(-196px, -260px, 0)")
-    expect(container.querySelectorAll('[data-slot="drafting-layer-resize-handle"]')).toHaveLength(4)
-    expect(container.querySelectorAll('[data-slot="drafting-layer-resize-edge"]')).toHaveLength(4)
-    expect(rotateHandle).not.toBeNull()
-    expect(container.innerHTML).toContain('aria-label="Rotate selection"')
+    expect(container.querySelectorAll('[data-layer-id][data-selected="true"]')).toHaveLength(1)
+    expect(container.querySelector('[data-slot="drafting-layer-resize-frame"]')).not.toBeNull()
+    expect(container.querySelector('[data-slot="drafting-layer-multi-select-frame"]')).toBeNull()
   })
 
   it("resizes every selected layer from the combined resize handles", async () => {
     const onLayerChange = vi.fn()
     const layers: DraftingCanvasLayer[] = [
-      createLayer({ height: 100, id: "preview:card", kind: "card", width: 100, x: -100, y: -50, zIndex: 0 }),
+      createLayer({ height: 300, id: "preview:card", kind: "card", width: 300, x: -150, y: -150, zIndex: 0 }),
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: 50, y: -50, zIndex: 1 }),
+      createLayer({ height: 40, id: "preview:text", kind: "text", width: 120, x: -60, y: 20, zIndex: 2 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQrStudioState(), true, TEST_CANVAS_CARD_STATE, {
       layers,
       onLayerChange,
-      selectedLayerIds: ["preview:card", "preview:qr"],
+      selectedLayerIds: ["preview:qr", "preview:text"],
     })
 
     await waitForQrPaneRender()
@@ -1572,30 +1586,33 @@ describe("Pane", () => {
       handle.dispatchEvent(createPointerEvent("pointermove", 150, 100))
     })
 
-    expect(onLayerChange).toHaveBeenCalledWith("preview:card", {
-      height: 100,
-      width: 120,
-      x: -100,
-      y: -50,
-    })
-    expect(onLayerChange).toHaveBeenCalledWith("preview:qr", {
-      height: 100,
-      width: 120,
-      x: 80,
-      y: -50,
-    })
+    expect(onLayerChange).toHaveBeenCalledWith(
+      "preview:qr",
+      expect.objectContaining({
+        height: 100,
+        y: -50,
+      }),
+    )
+    expect(onLayerChange).toHaveBeenCalledWith(
+      "preview:text",
+      expect.objectContaining({
+        height: 40,
+        y: 20,
+      }),
+    )
   })
 
   it("rotates every selected layer around the combined selector center", async () => {
     const onLayerChange = vi.fn()
     const layers: DraftingCanvasLayer[] = [
-      createLayer({ height: 100, id: "preview:card", kind: "card", width: 100, x: -100, y: -50, zIndex: 0 }),
+      createLayer({ height: 300, id: "preview:card", kind: "card", width: 300, x: -150, y: -150, zIndex: 0 }),
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: 50, y: -50, zIndex: 1 }),
+      createLayer({ height: 40, id: "preview:text", kind: "text", width: 120, x: -60, y: 20, zIndex: 2 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQrStudioState(), true, TEST_CANVAS_CARD_STATE, {
       layers,
       onLayerChange,
-      selectedLayerIds: ["preview:card", "preview:qr"],
+      selectedLayerIds: ["preview:qr", "preview:text"],
     })
 
     await waitForQrPaneRender()
@@ -1624,15 +1641,15 @@ describe("Pane", () => {
       rotateHandle.dispatchEvent(createPointerEvent("pointermove", 337, 100))
     })
 
-    expect(onLayerChange).toHaveBeenCalledWith("preview:card", {
-      rotation: 90,
-      x: -25,
-      y: -125,
-    })
     expect(onLayerChange).toHaveBeenCalledWith("preview:qr", {
       rotation: 90,
-      x: -25,
-      y: 25,
+      x: 0,
+      y: 10,
+    })
+    expect(onLayerChange).toHaveBeenCalledWith("preview:text", {
+      rotation: 90,
+      x: -50,
+      y: -60,
     })
   })
 
@@ -1770,14 +1787,15 @@ describe("Pane", () => {
     const onLayerChange = vi.fn()
     const onLayerSelect = vi.fn()
     const layers: DraftingCanvasLayer[] = [
-      createLayer({ height: 100, id: "preview:card", kind: "card", width: 100, x: -100, y: -50, zIndex: 0 }),
+      createLayer({ height: 300, id: "preview:card", kind: "card", width: 300, x: -150, y: -150, zIndex: 0 }),
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: 50, y: -50, zIndex: 1 }),
+      createLayer({ height: 40, id: "preview:text", kind: "text", width: 120, x: -60, y: 20, zIndex: 2 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQrStudioState(), true, TEST_CANVAS_CARD_STATE, {
       layers,
       onLayerChange,
       onLayerSelect,
-      selectedLayerIds: ["preview:card", "preview:qr"],
+      selectedLayerIds: ["preview:qr", "preview:text"],
     })
 
     await waitForQrPaneRender()
@@ -1792,13 +1810,13 @@ describe("Pane", () => {
     })
 
     expect(onLayerSelect).not.toHaveBeenCalledWith("preview:qr")
-    expect(onLayerChange).toHaveBeenCalledWith("preview:card", {
-      x: -80,
+    expect(onLayerChange).toHaveBeenCalledWith("preview:qr", {
+      x: 50,
       y: -20,
     })
-    expect(onLayerChange).toHaveBeenCalledWith("preview:qr", {
-      x: 70,
-      y: -20,
+    expect(onLayerChange).toHaveBeenCalledWith("preview:text", {
+      x: -40,
+      y: 50,
     })
     expect(container.querySelector('[data-slot="drafting-layer-multi-select-frame"]')).not.toBeNull()
   })

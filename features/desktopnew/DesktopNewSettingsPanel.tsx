@@ -1,13 +1,9 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { StylePreview, type StylePreviewKind } from "@/features/qr-code/components/StylePreview"
-import {
-  POPULAR_BRAND_ICON_IDS,
-  getBrandIconById,
-} from "@/features/qr-code/assets/brand-icons"
 import {
   CORNER_DOT_STYLE_OPTIONS,
   CORNER_SQUARE_STYLE_OPTIONS,
@@ -47,8 +43,11 @@ import {
 import { PaperShaderOptionPreview } from "@/features/workspace/components/PaperShaderOptionPreview"
 import { cn } from "@/lib/utils"
 import {
-  fillPreviewHex,
-} from "@/features/desktopnew/desktopnew-fill-picker"
+  getLogoSelectionLabel,
+  LogoIconPicker,
+  PexelsPhotoPicker,
+} from "@/features/desktopnew/settings-pickers"
+import { fillPreviewHex } from "@/features/desktopnew/desktopnew-fill-picker"
 import {
   applyCornerFill,
   applyLogoFill,
@@ -89,6 +88,7 @@ function isUrlContentType(type: QrInputType) {
 const SECTION_STACK = "flex flex-col gap-2.5"
 const PREVIEW_TILE =
   "dn-preview-tile group relative shrink-0 p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
+const PREVIEW_ROW = "flex min-w-max gap-1.5 px-1 py-1.5"
 
 const SECTIONS = [
   "Content",
@@ -175,7 +175,7 @@ function QrStylePreviewGrid({
       scrollFade
       viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
     >
-      <div className="flex min-w-max gap-1.5 py-1.5">
+      <div className={PREVIEW_ROW}>
         {options.map((option) => {
           const isSelected = selected === option.value
 
@@ -221,7 +221,7 @@ function ShapeTypePreviewRow({
       scrollFade
       viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
     >
-      <div className="flex min-w-max gap-1.5 py-1.5">
+      <div className={PREVIEW_ROW}>
         <button
           aria-label="Use no shape"
           aria-pressed={selected === "none"}
@@ -230,8 +230,15 @@ function ShapeTypePreviewRow({
           type="button"
           onClick={() => onSelect("none")}
         >
-          <span className="relative z-10 grid size-full place-items-center text-[10px] font-medium text-[var(--dn-muted)]">
-            None
+          <span className="relative z-10 grid size-full place-items-center p-0.5 dn-preview-icon">
+            <svg
+              aria-hidden="true"
+              className="size-[90%] fill-current"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect width="24" height="24" />
+            </svg>
           </span>
         </button>
         {QR_BACKGROUND_SHAPES.map((option) => {
@@ -247,7 +254,7 @@ function ShapeTypePreviewRow({
               type="button"
               onClick={() => onSelect(option.id)}
             >
-              <span className="relative z-10 grid size-full place-items-center p-0.5 text-black dark:text-white">
+              <span className="relative z-10 grid size-full place-items-center p-0.5 dn-preview-icon">
                 <svg
                   aria-hidden="true"
                   className="size-[90%] fill-current"
@@ -283,7 +290,7 @@ function PaperShaderPreviewRow({
       scrollFade
       viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
     >
-      <div className="flex min-w-max gap-1.5 py-1.5">
+      <div className={PREVIEW_ROW}>
         {shaders.map((option) => {
           const isSelected = selected === option.id
 
@@ -326,7 +333,7 @@ function MotionLoaderPresetGrid({
       scrollFade
       viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
     >
-      <div className="flex min-w-max gap-1.5 py-1.5">
+      <div className={PREVIEW_ROW}>
         {QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => {
           const isSelected = selected === option.value
 
@@ -369,7 +376,7 @@ function AnimatedPresetGrid({
       scrollFade
       viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
     >
-      <div className="flex min-w-max gap-1.5 py-1.5">
+      <div className={PREVIEW_ROW}>
         {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => {
           const [base, peak] =
             preset.value === "theme" && customColors
@@ -397,44 +404,6 @@ function AnimatedPresetGrid({
         })}
       </div>
     </ScrollArea>
-  )
-}
-
-function BrandIconGrid({
-  selectedId,
-  onSelect,
-}: {
-  selectedId: string
-  onSelect: (id: string) => void
-}) {
-  const icons = useMemo(
-    () => POPULAR_BRAND_ICON_IDS.map((id) => getBrandIconById(id)),
-    [],
-  )
-
-  return (
-    <div className="grid w-full grid-cols-4 gap-1.5">
-      {icons.map((brandIcon) => {
-        const Icon = brandIcon.icon
-        const isSelected = selectedId === brandIcon.id
-
-        return (
-          <button
-            key={brandIcon.id}
-            aria-label={brandIcon.label}
-            aria-pressed={isSelected}
-            className={cn(
-              "dn-option-tile flex h-10 items-center justify-center dn-squircle-xs",
-              isSelected && "text-[var(--dn-fg)]",
-            )}
-            type="button"
-            onClick={() => onSelect(brandIcon.id)}
-          >
-            <Icon aria-hidden className="size-4" />
-          </button>
-        )
-      })}
-    </div>
   )
 }
 
@@ -513,18 +482,25 @@ function SectionBody({
 function ContentSection({ model }: { model: DesktopInspectorModel }) {
   const { actualContentType, actualContentValues, onContentTypeChange, onContentValueChange } =
     model
+  const [typePopoverOpen, setTypePopoverOpen] = useState(false)
   const primaryField = isUrlContentType(actualContentType) ? "url" : "text"
   const primaryValue = String(actualContentValues[primaryField] ?? "")
 
   return (
     <div className={SECTION_STACK}>
       <SettingsRowPopover
-        contentClassName="w-[15rem]"
+        contentClassName="w-[17.5rem]"
         hint="Type"
+        open={typePopoverOpen}
         title="Type"
         trigger={getContentTypeLabel(actualContentType)}
+        onOpenChange={setTypePopoverOpen}
       >
-        <ContentTypePicker selected={actualContentType} onSelect={onContentTypeChange} />
+        <ContentTypePicker
+          selected={actualContentType}
+          onAfterSelect={() => setTypePopoverOpen(false)}
+          onSelect={onContentTypeChange}
+        />
       </SettingsRowPopover>
       <SettingsInput
         placeholder={primaryField === "url" ? "https://example.com" : "Text to encode"}
@@ -537,6 +513,7 @@ function ContentSection({ model }: { model: DesktopInspectorModel }) {
 
 function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
   const [tab, setTab] = useState("Module")
+  const [logoPopoverOpen, setLogoPopoverOpen] = useState(false)
   const {
     actualCornersSettings,
     actualLogoSettings,
@@ -593,23 +570,27 @@ function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
 
       {tab === "Logo" ? (
         <>
-          <BrandIconGrid
-            selectedId={actualLogoSettings.selectedBrandIconId}
-            onSelect={(selectedBrandIconId) => {
-              onLogoSettingsChange({ sourceMode: "brand", selectedBrandIconId })
-            }}
-          />
+          <SettingsRowPopover
+            contentClassName="w-[18rem]"
+            hint="Logo"
+            open={logoPopoverOpen}
+            title="Logo"
+            trigger={getLogoSelectionLabel(actualLogoSettings.selectedBrandIconId)}
+            onOpenChange={setLogoPopoverOpen}
+          >
+            <LogoIconPicker
+              selectedId={actualLogoSettings.selectedBrandIconId}
+              onAfterSelect={() => setLogoPopoverOpen(false)}
+              onSelect={(selectedBrandIconId) => {
+                onLogoSettingsChange({ selectedBrandIconId, sourceMode: "brand" })
+              }}
+            />
+          </SettingsRowPopover>
           <SettingsSlider
             label="Size"
             max={100}
             value={actualLogoSettings.size}
             onChange={(size) => onLogoSettingsChange({ size })}
-          />
-          <SettingsSlider
-            label="Opacity"
-            max={100}
-            value={actualLogoSettings.opacity}
-            onChange={(opacity) => onLogoSettingsChange({ opacity })}
           />
           <SettingsFillPopover
             hint="Fill"
@@ -695,7 +676,7 @@ function CanvasRatioPresetRow({
       scrollFade
       viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
     >
-      <div className="flex min-w-max gap-1.5 py-1.5">
+      <div className={PREVIEW_ROW}>
         {presets.map((template) => {
           const isSelected = selectedPresetId === template.id
 
@@ -722,17 +703,48 @@ function CanvasRatioPresetRow({
   )
 }
 
+function backgroundTabFromStyleMode(
+  styleMode: DesktopInspectorModel["actualBackgroundSettings"]["styleMode"],
+): "Shader" | "Image" | "Color" {
+  if (styleMode === "image" || styleMode === "image-filter") {
+    return "Image"
+  }
+
+  if (styleMode === "paper-shader") {
+    return "Shader"
+  }
+
+  return "Color"
+}
+
 function SceneSection({ model }: { model: DesktopInspectorModel }) {
-  const [tab, setTab] = useState("Shader")
   const {
     actualBackgroundSettings,
+    actualImageSettings,
     actualShapeSettings,
-    onBackgroundSettingsChange,
-    onShapeSettingsChange,
     controller,
+    onBackgroundSettingsChange,
+    onImageSettingsChange,
+    onShapeSettingsChange,
   } = model
+  const [imagePopoverOpen, setImagePopoverOpen] = useState(false)
+  const [tab, setTab] = useState(() => backgroundTabFromStyleMode(actualBackgroundSettings.styleMode))
   const paperShader = actualBackgroundSettings.paperShader
   const backgroundFill = solidColorToFillCss(actualShapeSettings.cardFill)
+  const imageLabel = actualImageSettings.remoteUrl ? "Photo" : "None"
+
+  useEffect(() => {
+    setTab(backgroundTabFromStyleMode(actualBackgroundSettings.styleMode))
+  }, [actualBackgroundSettings.styleMode])
+
+  function handleBackgroundTabChange(nextTab: string) {
+    const resolvedTab =
+      nextTab === "Image" || nextTab === "Color" ? nextTab : ("Shader" as const)
+    setTab(resolvedTab)
+    controller?.onCanvasBackgroundTabChange?.(
+      resolvedTab === "Shader" ? "shader" : resolvedTab === "Image" ? "image" : "color",
+    )
+  }
 
   function selectCanvasTemplate(template: SizeTemplate) {
     const canvasSize = getCanvasSizeFromTemplate(template)
@@ -757,7 +769,7 @@ function SceneSection({ model }: { model: DesktopInspectorModel }) {
         selectedPresetId={actualShapeSettings.sizePresetId}
         onSelectTemplate={selectCanvasTemplate}
       />
-      <SegmentTabs items={["Shader", "Image", "Color"]} value={tab} onChange={setTab} />
+      <SegmentTabs items={["Shader", "Image", "Color"]} value={tab} onChange={handleBackgroundTabChange} />
       {tab === "Shader" ? (
         <>
           <PaperShaderPreviewRow
@@ -791,10 +803,28 @@ function SceneSection({ model }: { model: DesktopInspectorModel }) {
         </>
       ) : tab === "Image" ? (
         <>
-          <SettingsRowPopover hint="Image" title="Image" trigger="None">
-            <PresetList items={["None", "Studio", "Paper", "Texture"]} selected="None" onSelect={() => undefined} />
+          <SettingsRowPopover
+            contentClassName="w-[19rem]"
+            hint="Image"
+            open={imagePopoverOpen}
+            title="Image"
+            trigger={imageLabel}
+            onOpenChange={setImagePopoverOpen}
+          >
+            <PexelsPhotoPicker
+              onAfterSelect={() => setImagePopoverOpen(false)}
+              onClear={() => onImageSettingsChange({ remoteUrl: "" })}
+              onSelectPhoto={(imageUrl) =>
+                onImageSettingsChange({ remoteUrl: imageUrl, sourceMode: "url" })
+              }
+            />
           </SettingsRowPopover>
-          <SettingsSlider label="Opacity" value={100} />
+          <SettingsSlider
+            label="Opacity"
+            max={100}
+            value={actualImageSettings.opacity}
+            onChange={(opacity) => onImageSettingsChange({ opacity })}
+          />
         </>
       ) : (
         <SettingsFillPopover

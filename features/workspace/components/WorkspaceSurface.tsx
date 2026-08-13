@@ -55,6 +55,7 @@ import {
 } from "@/features/workspace/components/InspectorPanel"
 import {
   alignDraftingCanvasLayers,
+  clampLayerGeometryToCanvas,
   cloneDraftingCanvasLayer,
   cloneDraftingCanvasLayersForPaste,
   createDraftingTextLayer,
@@ -129,6 +130,9 @@ import {
 import {
   buildDraftingLayeredNodePayload,
 } from "@/features/workspace/export/layered-export"
+import {
+  DRAFTING_CARD_PATTERN_NONE_ID,
+} from "@/features/workspace/model/card-patterns"
 import {
   Canvas,
   type DraftingPaneCanvasTool,
@@ -2403,10 +2407,19 @@ export function WorkspaceSurface({
       layerStateByNodeId[paneId] ??
       createDefaultDraftingLayers(paneId, targetQrState, targetCardState)
     const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1)
+    const draftPosition = clampLayerGeometryToCanvas(
+      {
+        height: DEFAULT_DRAFTING_TEXT_LAYER.height,
+        width: DEFAULT_DRAFTING_TEXT_LAYER.width,
+        x: Math.round(point.x - 120),
+        y: Math.round(point.y - 24),
+      },
+      targetCardState,
+    )
     const textLayer = createDraftingTextLayer(paneId, {
       id: `${paneId}:text:${Date.now()}`,
-      x: Math.round(point.x - 120),
-      y: Math.round(point.y - 24),
+      x: draftPosition.x,
+      y: draftPosition.y,
       zIndex: maxZIndex + 1,
     })
 
@@ -3775,7 +3788,7 @@ export function WorkspaceSurface({
               handleLayerSelect(activeQrNodeId, nodeId)
             }
           }}
-          panes={activeCanvasLayerRows}
+          panes={activeCanvasLayerRows.filter((layer) => layer.kind !== "card")}
           selectedNodeId={selectedLayerId}
         />
       )
@@ -4154,13 +4167,16 @@ export function WorkspaceSurface({
   }
   const desktopBackgroundSettings: DesktopBackgroundSettings = {
     paperShader: selectedCardState.paperShader,
+    styleMode: selectedCardState.styleMode,
   }
   const desktopEffectsSettings: DesktopEffectsSettings = {
     filterId: selectedCardState.imageFilter.shaderId,
     filterPresetName: selectedCardState.imageFilter.presetName,
   }
   const desktopLayersSettings: DesktopLayersSettings = {
-    layers: activeCanvasLayerRows.map(toDesktopLayerRow),
+    layers: activeCanvasLayerRows
+      .filter((layer) => layer.kind !== "card")
+      .map(toDesktopLayerRow),
     selectedLayerId: selectedLayerId ?? activeCanvasLayerRows[0]?.id ?? "",
   }
   const desktopExportSettings: DesktopExportSettings = {
@@ -4424,7 +4440,10 @@ export function WorkspaceSurface({
       height: patch.cardHeight ?? selectedCardState.height,
       lockAspectRatio: patch.lockAspectRatio ?? selectedCardState.lockAspectRatio,
       patternColors: patch.cardPatternColors ?? selectedCardState.patternColors,
-      patternId: patch.cardPatternId ?? selectedCardState.patternId,
+      patternId:
+        patch.cardFill !== undefined
+          ? DRAFTING_CARD_PATTERN_NONE_ID
+          : (patch.cardPatternId ?? selectedCardState.patternId),
       shadow: {
         ...selectedCardState.shadow,
         blur: patch.shadowBlur ?? selectedCardState.shadow.blur,
@@ -4436,7 +4455,12 @@ export function WorkspaceSurface({
       sizeMode: patch.sizeMode ?? selectedCardState.sizeMode,
       sizePresetId:
         patch.sizePresetId !== undefined ? patch.sizePresetId : selectedCardState.sizePresetId,
-      styleMode: patch.cardPatternId ? "pattern" : selectedCardState.styleMode,
+      styleMode:
+        patch.cardFill !== undefined
+          ? "pattern"
+          : patch.cardPatternId
+            ? "pattern"
+            : selectedCardState.styleMode,
       width: patch.cardWidth ?? selectedCardState.width,
     }
 
@@ -4492,18 +4516,40 @@ export function WorkspaceSurface({
   }
 
   function updateDesktopImageSettings(patch: Partial<DesktopImageSettings>) {
-    setSelectedCardState((current) => ({
-      ...current,
-      cardImage: {
-        ...current.cardImage,
-        fit: patch.fit ?? current.cardImage.fit,
-        opacity: patch.opacity ?? current.cardImage.opacity,
-        source: patch.sourceMode ?? current.cardImage.source,
-        value: patch.remoteUrl !== undefined ? patch.remoteUrl : current.cardImage.value,
-      },
-      styleMode:
-        patch.remoteUrl || patch.sourceMode ? "image" : current.styleMode,
-    }))
+    setSelectedCardState((current) => {
+      if (patch.remoteUrl === "") {
+        return {
+          ...current,
+          cardImage: {
+            ...current.cardImage,
+            opacity: patch.opacity ?? current.cardImage.opacity,
+            source: "none",
+            value: undefined,
+          },
+          styleMode: "paper-shader",
+        }
+      }
+
+      const nextRemoteUrl =
+        patch.remoteUrl !== undefined ? patch.remoteUrl : current.cardImage.value
+
+      return {
+        ...current,
+        cardImage: {
+          ...current.cardImage,
+          fit: patch.fit ?? current.cardImage.fit,
+          opacity: patch.opacity ?? current.cardImage.opacity,
+          source:
+            patch.sourceMode === "url"
+              ? "url"
+              : patch.sourceMode === "upload"
+                ? "upload"
+                : current.cardImage.source,
+          value: nextRemoteUrl,
+        },
+        styleMode: nextRemoteUrl ? "image" : current.styleMode,
+      }
+    })
   }
 
   function resetDesktopShapeSettings() {
@@ -4663,13 +4709,28 @@ export function WorkspaceSurface({
       setComposeSidebarPanel(null)
     },
     onSelectStockPhoto: (imageUrl) => {
-      handleInsertLayer(
-        createDraftingImageLayer(activeQrNodeId, {
-          imageSource: "url",
-          imageValue: imageUrl,
-        }),
-      )
+      updateDesktopImageSettings({ remoteUrl: imageUrl, sourceMode: "url" })
       setComposeSidebarPanel(null)
+    },
+    onCanvasBackgroundTabChange: (tab) => {
+      setSelectedCardState((current) => {
+        if (tab === "shader") {
+          return { ...current, styleMode: "paper-shader" }
+        }
+
+        if (tab === "image") {
+          return {
+            ...current,
+            styleMode: current.cardImage.value ? "image" : current.styleMode,
+          }
+        }
+
+        return {
+          ...current,
+          patternId: DRAFTING_CARD_PATTERN_NONE_ID,
+          styleMode: "pattern",
+        }
+      })
     },
     onElementLayerPatch: (patch) => {
       if (gatedSelectedElementLayer) {
@@ -4707,11 +4768,13 @@ export function WorkspaceSurface({
         paperShader: createDefaultDraftingCardState().paperShader,
         styleMode: "paper-shader",
       })),
-    onBackgroundSettingsChange: ({ paperShader }) =>
+    onBackgroundSettingsChange: (settings) =>
       setSelectedCardState((current) => ({
         ...current,
-        paperShader,
-        styleMode: "paper-shader",
+        paperShader: settings.paperShader ?? current.paperShader,
+        styleMode:
+          settings.styleMode ??
+          (settings.paperShader !== undefined ? "paper-shader" : current.styleMode),
       })),
     onBackgroundInspectorTabChange: setBackgroundInspectorTab,
     onEffectsReset: resetDesktopShapeSettings,
@@ -5399,7 +5462,8 @@ export function WorkspaceSurface({
               }}
               onUndo={handleUndoDraftingWorkspace}
               panes={panes}
-              previewLocked={!isFreeEditing}
+              previewLocked={chrome === "canvas-only" || !isFreeEditing}
+              fitCanvasToViewport={chrome === "canvas-only"}
               showCanvasGrid={paneToolbarVariant === "desktop-zoom" ? showDesktopCanvasGrid : true}
               toolbarVariant={paneToolbarVariant}
               selectedLayerId={selectedLayerId}

@@ -346,6 +346,8 @@ export function SettingsRowPopover({
   children,
   align = "start",
   contentClassName,
+  open,
+  onOpenChange,
 }: {
   hint: string
   title?: string
@@ -353,11 +355,13 @@ export function SettingsRowPopover({
   children: ReactNode
   align?: "start" | "center" | "end"
   contentClassName?: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }) {
   const theme = useDesktopnewTheme()
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <SettingsRowButton>
           <span className={cn("truncate", DN_VALUE)}>{trigger}</span>
@@ -395,15 +399,17 @@ const CONTENT_TYPE_FILTER_OPTIONS: Array<{ id: ContentTypeFilterId; label: strin
 ]
 
 export function ContentTypePicker({
+  onAfterSelect,
   selected,
   onSelect,
 }: {
+  onAfterSelect?: () => void
   selected: QrInputType
   onSelect: (type: QrInputType) => void
 }) {
   const theme = useDesktopnewTheme()
   const [query, setQuery] = useState("")
-  const [filterId, setFilterId] = useState<ContentTypeFilterId>("popular")
+  const [filterId, setFilterId] = useState<ContentTypeFilterId>("all")
 
   const visibleTypes = useMemo(() => {
     const collectionTypes =
@@ -500,7 +506,10 @@ export function ContentTypePicker({
                   : "bg-[var(--dn-popover-tile)] text-[var(--dn-popover-muted)]",
               )}
               type="button"
-              onClick={() => onSelect(type)}
+              onClick={() => {
+                onSelect(type)
+                onAfterSelect?.()
+              }}
             >
               <ContentTypeGridIcon className="size-4" type={type} />
               <span className="max-w-full truncate text-[9px] font-medium leading-none tracking-tight">

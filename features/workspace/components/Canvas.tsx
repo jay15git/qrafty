@@ -44,7 +44,7 @@ import {
 import { Pane, type DraftingLayerMenuAction } from "@/features/workspace/components/Pane"
 import { InsertMenu } from "@/features/workspace/components/InsertMenu"
 import { getQrLayout } from "@/features/workspace/model/layout-engine"
-import { computeTemplatePreviewFit } from "@/features/workspace/model/template-preview-fit"
+import { computeTemplatePreviewFit, DESKTOP_CANVAS_FIT_PADDING } from "@/features/workspace/model/template-preview-fit"
 import type { QrStudioState } from "@/features/qr-code/model/state"
 import { Button } from "@/components/ui/button"
 import {
@@ -180,6 +180,7 @@ type CanvasProps = {
   toolbarVariant?: DraftingPaneToolbarVariant
   layerEditingEnabled?: boolean
   previewLocked?: boolean
+  fitCanvasToViewport?: boolean
 }
 
 function groupPanes<T>(panes: T[], groups: number[]) {
@@ -264,6 +265,7 @@ function DraftingPaneSurface({
   panePan,
   paneZoom,
   previewLocked = false,
+  fitCanvasToViewport = false,
   selectedLayerId,
   selectedLayerIds,
   snapEnabled,
@@ -314,6 +316,7 @@ function DraftingPaneSurface({
   panePan: { x: number; y: number }
   paneZoom: number
   previewLocked?: boolean
+  fitCanvasToViewport?: boolean
   selectedLayerId?: string | null
   selectedLayerIds?: string[]
   snapEnabled: boolean
@@ -338,11 +341,12 @@ function DraftingPaneSurface({
   const effectivePan = previewLocked ? { x: 0, y: 0 } : panePan
   const isFreeEditWorkspace =
     toolbarVariant === "desktop-zoom" && layerEditingEnabled && !previewLocked
+  const shouldAutoFitViewport = previewLocked || fitCanvasToViewport
   const surfaceAppearance = previewLocked ? "template" : isFreeEditWorkspace ? "workspace" : "neutral"
   const hasSeededFitZoomRef = useRef(false)
 
   useEffect(() => {
-    if (!previewLocked && !isFreeEditWorkspace) {
+    if (!shouldAutoFitViewport && !isFreeEditWorkspace) {
       return
     }
 
@@ -362,9 +366,12 @@ function DraftingPaneSurface({
       const nextFitScale = computeTemplatePreviewFit(
         { width: pane.cardState.width, height: pane.cardState.height },
         { width: rect.width, height: rect.height },
+        fitCanvasToViewport
+          ? { allowUpscale: true, padding: DESKTOP_CANVAS_FIT_PADDING }
+          : undefined,
       )
 
-      if (previewLocked) {
+      if (shouldAutoFitViewport) {
         onPaneZoom(pane.id, nextFitScale)
         return
       }
@@ -384,12 +391,13 @@ function DraftingPaneSurface({
       observer.disconnect()
     }
   }, [
+    fitCanvasToViewport,
     isFreeEditWorkspace,
     onPaneZoom,
     pane.cardState.height,
     pane.cardState.width,
     pane.id,
-    previewLocked,
+    shouldAutoFitViewport,
   ])
 
   useEffect(() => {
@@ -685,7 +693,7 @@ function DraftingPaneSurface({
     >
       <div
         data-slot={
-          previewLocked
+          previewLocked || fitCanvasToViewport
             ? "template-edit-zone"
             : isFreeEditWorkspace
               ? "free-edit-artboard"
@@ -787,6 +795,7 @@ export function Canvas({
   toolbarVariant = "default",
   layerEditingEnabled = true,
   previewLocked = false,
+  fitCanvasToViewport = false,
 }: CanvasProps) {
   const [zoomLevels, setZoomLevels] = useState<Record<string, number>>({})
   const [panOffsets, setPanOffsets] = useState<DraftingPanePanOffsets>({})
@@ -1062,6 +1071,7 @@ export function Canvas({
                                 panePan={panePan}
                                 paneZoom={paneZoom}
                                 previewLocked={previewLocked}
+                                fitCanvasToViewport={fitCanvasToViewport}
                                 selectedLayerId={selectedLayerId}
                                 selectedLayerIds={selectedLayerIds}
                                 showCanvasGrid={showCanvasGrid}

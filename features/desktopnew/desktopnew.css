@@ -250,6 +250,11 @@
     0 0 0 3.5px var(--dn-fg);
 }
 
+.desktopnew-root .dn-preview-tile [data-slot^="style-preview"],
+.desktopnew-root .dn-preview-tile .dn-preview-icon {
+  color: var(--dn-fg);
+}
+
 /* ── Settings typography ─────────────────────────────────────────── */
 
 .dn-type-label {

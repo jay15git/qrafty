@@ -236,6 +236,25 @@ export function fitQrSizeInCard(
   }
 }
 
+export function clampLayerGeometryToCanvas(
+  layer: Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y">,
+  cardState: Pick<DraftingCardState, "height" | "width">,
+): Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> {
+  const canvasLeft = -cardState.width / 2
+  const canvasTop = -cardState.height / 2
+  const width = Math.min(Math.max(1, layer.width), cardState.width)
+  const height = Math.min(Math.max(1, layer.height), cardState.height)
+  const maxX = canvasLeft + cardState.width - width
+  const maxY = canvasTop + cardState.height - height
+
+  return {
+    height,
+    width,
+    x: Math.min(maxX, Math.max(canvasLeft, layer.x)),
+    y: Math.min(maxY, Math.max(canvasTop, layer.y)),
+  }
+}
+
 export function getDraftingCardInsetLayout(
   qrState: QrStudioState,
   cardState: Pick<
