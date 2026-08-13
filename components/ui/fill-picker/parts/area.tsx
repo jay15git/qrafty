@@ -13,12 +13,13 @@ import {
   toGamut,
 } from "../lib/color";
 import type { Gamut, OklchColor } from "../lib/types";
+import { useLiveAnnounce } from "./use-live-announce";
 import { cn } from "@/lib/utils";
 
-type AreaMode = "oklch-cl" | "hsv-sv" | "oklch-hc";
-type AreaGamut = Gamut | "none";
+export type AreaMode = "oklch-cl" | "hsv-sv" | "oklch-hc";
+export type AreaGamut = Gamut | "none";
 
-interface AreaProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface AreaProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * What the 2D Area represents.
    *  - oklch-cl: Y = OKLCH lightness, X = chroma normalized to gamut. Perceptually uniform.
@@ -77,10 +78,27 @@ function warningGamuts(active: AreaGamut): Gamut[] {
   }
 }
 
-const SUPPORTS_P3 =
+/**
+ * Read display-P3 support fresh on the client and re-react if the user moves
+ * the window to a different display. Module-load evaluation locks the value
+ * to `false` in Next.js's SSR module cache (window is undefined there), and
+ * `useState(() => ...)` would diverge between server and client renders.
+ * `useSyncExternalStore` returns `false` on the server (matching SSR) and the
+ * real value on the client during reconciliation — no hydration mismatch.
+ */
+const subscribeP3 =
+  typeof window !== "undefined" && typeof window.matchMedia === "function"
+    ? (onChange: () => void) => {
+        const mq = window.matchMedia("(color-gamut: p3)");
+        mq.addEventListener("change", onChange);
+        return () => mq.removeEventListener("change", onChange);
+      }
+    : () => () => {};
+const getP3Client = () =>
   typeof window !== "undefined" &&
   typeof window.matchMedia === "function" &&
   window.matchMedia("(color-gamut: p3)").matches;
+const getP3Server = () => false;
 
 export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
   {
@@ -96,6 +114,11 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
   ref,
 ) {
   const { color, setColor, format } = useColorPickerContext();
+  const supportsP3 = React.useSyncExternalStore(
+    subscribeP3,
+    getP3Client,
+    getP3Server,
+  );
   const gamut: AreaGamut = gamutProp ?? libGamutFromFormat(format);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -112,13 +135,26 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
 
   React.useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
 
-  React.useEffect(() => {
+  // Adjusting state during rendering — React-blessed alternative to
+  // syncing color → pickPos in a useEffect. We compare channel values
+  // (not the OKLCH object identity, which a controlled ColorPicker may
+  // re-create each render even when values are unchanged) against the
+  // previous render's snapshot. When the user-driven path moved the
+  // bead, `selfSetRef` short-circuits the clear so the override sticks.
+  const [prevColor, setPrevColor] = React.useState(color);
+  if (
+    prevColor.l !== color.l ||
+    prevColor.c !== color.c ||
+    prevColor.h !== color.h ||
+    prevColor.alpha !== color.alpha
+  ) {
+    setPrevColor(color);
     if (selfSetRef.current) {
       selfSetRef.current = false;
-      return;
+    } else if (pickPos !== null) {
+      setPickPos(null);
     }
-    setPickPos((currentPickPos) => (currentPickPos === null ? currentPickPos : null));
-  }, [color.l, color.c, color.h, color.alpha]);
+  }
 
   // The gradient and warning lines depend only on the axis the mode keeps
   // *fixed* (hue for oklch-cl/hsv-sv, lightness for oklch-hc). Depending on
@@ -133,13 +169,13 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
     const h = resolution;
     canvas.width = w;
     canvas.height = h;
-    const ctx2dOpts: CanvasRenderingContext2DSettings = SUPPORTS_P3
+    const ctx2dOpts: CanvasRenderingContext2DSettings = supportsP3
       ? { colorSpace: "display-p3" }
       : {};
     const ctx = canvas.getContext("2d", ctx2dOpts);
     if (!ctx) return;
     const img = ctx.createImageData(w, h);
-    paintGradient(img, w, h, mode, color, chromaMax, gamut, SUPPORTS_P3, softProof);
+    paintGradient(img, w, h, mode, color, chromaMax, gamut, supportsP3, softProof);
     ctx.putImageData(img, 0, 0);
     if (gamut === "none" || !showWarningLines) {
       setPaths([]);
@@ -150,11 +186,19 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
         ),
       );
     }
+    // `color` is intentionally omitted — gradient + warning lines depend only
+    // on the locked axis (`fixedAxisValue`), not on every channel of `color`.
+    // Repainting on every pointer tick would stall the bead.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, fixedAxisValue, chromaMax, gamut, showWarningLines, resolution, softProof]);
+  }, [mode, fixedAxisValue, chromaMax, gamut, showWarningLines, resolution, softProof, supportsP3]);
 
   const [derivedPx, derivedPy] = positionFor(mode, color, chromaMax, gamut);
   const [px, py] = pickPos ?? [derivedPx, derivedPy];
+
+  // role="application" carries no value semantics, so keyboard adjustments
+  // would otherwise be silent to screen readers. Announce the value text in a
+  // polite live region, debounced so held-down arrows don't flood the queue.
+  const [liveText, announce] = useLiveAnnounce();
 
   const moveTo = React.useCallback(
     (x: number, y: number) => {
@@ -167,15 +211,18 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
       // defensive only — guards against drift at numerical boundaries. When
       // gamut === "none" the user has explicitly opted out of warping and we
       // skip clamping entirely (raw OKLCH plane).
+      let committed: OklchColor;
       if (gamut !== "none") {
         const targetHue = next.h;
         const clamped = toGamut(next, gamut as Gamut);
-        setColor({ ...clamped, h: targetHue });
+        committed = { ...clamped, h: targetHue };
       } else {
-        setColor(next);
+        committed = next;
       }
+      setColor(committed);
+      announce(ariaValueTextFor(mode, committed, chromaMax, gamut));
     },
-    [mode, chromaMax, color, setColor, gamut],
+    [mode, chromaMax, color, setColor, gamut, announce],
   );
 
   const handlePointer = React.useCallback(
@@ -195,6 +242,10 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.buttons !== 1) return;
     handlePointer(e.clientX, e.clientY);
+  };
+  const releaseCapture = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = e.currentTarget as HTMLDivElement;
+    if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -242,15 +293,17 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
       ref={containerRef}
       data-slot="color-picker-area"
       role="application"
-      aria-label={`Color area, ${valueText}`}
+      aria-label={`Color area: ${valueText}`}
       aria-roledescription="2D color area, use arrow keys to adjust"
       tabIndex={0}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
+      onPointerUp={releaseCapture}
+      onPointerCancel={releaseCapture}
       onKeyDown={onKeyDown}
       className={cn(
-        "relative h-45 w-full cursor-crosshair overflow-hidden rounded-xl border border-[var(--color-picker-control-border,var(--border))] bg-[var(--color-picker-control-bg,transparent)] shadow-[0_1px_0_var(--color-picker-highlight,rgba(255,255,255,0.08))_inset] outline-none touch-none select-none",
-        "focus-visible:ring-2 focus-visible:ring-[var(--color-picker-focus,var(--ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-picker-bg,var(--popover))]",
+        "relative h-45 w-full cursor-crosshair overflow-hidden rounded-md border border-border outline-none touch-none select-none",
+        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-popover",
         className,
       )}
       {...rest}
@@ -293,6 +346,9 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
           )}
         </svg>
       )}
+      <span aria-live="polite" className="sr-only">
+        {liveText}
+      </span>
       <div
         className="pointer-events-none absolute size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1.5px_rgba(0,0,0,0.6)]"
         style={{

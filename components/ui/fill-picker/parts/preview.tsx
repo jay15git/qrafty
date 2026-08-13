@@ -4,11 +4,9 @@ import * as React from "react";
 import { useColorPickerContext } from "../context";
 import { formatColor } from "../lib/color";
 import { cn } from "@/lib/utils";
+import { CHECKERBOARD_LG, SAMPLE_EDGE } from "../lib/constants";
 
-type PreviewProps = React.HTMLAttributes<HTMLDivElement>;
-
-const CHECKERBOARD =
-  "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><rect width='6' height='6' fill='%23ccc'/><rect x='6' y='6' width='6' height='6' fill='%23ccc'/></svg>\")";
+export interface PreviewProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export const Preview = React.forwardRef<HTMLDivElement, PreviewProps>(function Preview(
   { className, ...rest },
@@ -24,11 +22,12 @@ export const Preview = React.forwardRef<HTMLDivElement, PreviewProps>(function P
       role="img"
       aria-label="Color preview over background"
       className={cn(
-        "relative size-10 shrink-0 overflow-hidden rounded-md border border-border",
+        "relative size-10 shrink-0 overflow-hidden rounded-md",
+        SAMPLE_EDGE,
         className,
       )}
       style={{
-        backgroundImage: CHECKERBOARD,
+        backgroundImage: CHECKERBOARD_LG,
         backgroundSize: "12px 12px",
       }}
       {...rest}

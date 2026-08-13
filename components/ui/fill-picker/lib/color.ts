@@ -44,23 +44,53 @@ function isInRec2020(ok: { mode: "oklch"; l: number; c: number; h: number; alpha
   return channelsInRange(toRec2020(ok));
 }
 
+export interface ParsedColor {
+  color: OklchColor;
+  /**
+   * True when the source string carried no OKLCH-scale hue — an achromatic
+   * hex/rgb/hsl where the round-trip loses hue and `color.h` is a defaulted 0.
+   * False whenever the hue is meaningful: chromatic colors, and OKLCH/OKLab
+   * strings that author a hue even at zero chroma.
+   */
+  hueMissing: boolean;
+}
+
 /**
- * Parse a CSS color string into the canonical OKLCH form.
- * Returns null when the string can't be parsed.
+ * Parse a CSS color string into the canonical OKLCH form, reporting whether
+ * the hue survived the round-trip. Returns null when the string can't be
+ * parsed.
  */
-export function parseColor(input: string): OklchColor | null {
+export function parseColorDetailed(input: string): ParsedColor | null {
   if (!input || typeof input !== "string") return null;
   const parsed = culoriParse(input.trim());
   if (!parsed) return null;
   const oklch = toOklch(parsed);
   if (!oklch) return null;
+  const hueMissing = !Number.isFinite(oklch.h);
   return {
-    l: clamp(oklch.l ?? 0, 0, 1),
-    c: Math.max(oklch.c ?? 0, 0),
-    h: Number.isFinite(oklch.h) ? (oklch.h as number) : 0,
-    alpha: oklch.alpha ?? 1,
+    color: {
+      l: clamp(oklch.l ?? 0, 0, 1),
+      c: Math.max(oklch.c ?? 0, 0),
+      h: hueMissing ? 0 : (oklch.h as number),
+      alpha: oklch.alpha ?? 1,
+    },
+    hueMissing,
   };
-}/**
+}
+
+/**
+ * Parse a CSS color string into the canonical OKLCH form.
+ * Returns null when the string can't be parsed.
+ */
+export function parseColor(input: string): OklchColor | null {
+  return parseColorDetailed(input)?.color ?? null;
+}
+
+export function isValidColor(input: string): boolean {
+  return parseColor(input) !== null;
+}
+
+/**
  * Serialize a canonical OKLCH color to a CSS string in the chosen format.
  * For sRGB-targeted formats (hex/rgb/hsl/hsb) the color is gamut-mapped to sRGB first.
  * For P3 the color is gamut-mapped to P3.
@@ -205,7 +235,7 @@ export function linSrgbToLinP3(c: {
 }
 
 /* Linear sRGB → linear Rec.2020 (CSS Color 4 reference matrix). */
-function linSrgbToLinRec2020(c: {
+export function linSrgbToLinRec2020(c: {
   r: number;
   g: number;
   b: number;
@@ -291,6 +321,26 @@ export function findMaxChroma(
  * fits inside `<canvas colorSpace="display-p3">` plus the slice that won't
  * paint accurately on any current monitor.
  */
+/**
+ * Hue of an OKLCH color in HSL's hue scale (degrees). Used by the Hue slider
+ * when the active format is `hsl` so the slider position matches what the
+ * channel input shows — OKLCH hue and HSL hue diverge for the same color
+ * (red is OKLCH ~29° but HSL 0°). Returns the OKLCH hue as a fallback when
+ * the conversion fails (achromatic colors where culori returns NaN).
+ */
+export function hslHue(color: OklchColor): number {
+  const c = toHsl({ mode: "oklch", l: color.l, c: color.c, h: color.h });
+  return c?.h ?? color.h;
+}
+
+/**
+ * Hue of an OKLCH color in HSB/HSV's hue scale (degrees). See `hslHue`.
+ */
+export function hsbHue(color: OklchColor): number {
+  const c = toHsv({ mode: "oklch", l: color.l, c: color.c, h: color.h });
+  return c?.h ?? color.h;
+}
+
 export function gamutFromFormat(f: ColorFormat): Gamut {
   switch (f) {
     case "hex":
@@ -415,7 +465,7 @@ export function contrast(fg: OklchColor, bg: OklchColor): ContrastResult {
  *  - Positive Lc: dark text on light bg
  *  - Negative Lc: light text on dark bg
  */
-function apcaContrast(fg: OklchColor, bg: OklchColor): number {
+export function apcaContrast(fg: OklchColor, bg: OklchColor): number {
   const fgRgb = toRgb({ mode: "oklch", ...oklchObj(fg) });
   const bgRgb = toRgb({ mode: "oklch", ...oklchObj(bg) });
   if (!fgRgb || !bgRgb) return 0;

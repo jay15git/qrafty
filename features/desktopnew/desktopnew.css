@@ -1,17 +1,33 @@
 /* Pencil design tokens — scoped to /desktopnew only. */
 
 .desktopnew-root {
-  --dn-bg: #0a0a0a;
-  --dn-surface: #141414;
-  --dn-control: #1c1c1c;
-  --dn-fg: #fafafa;
-  --dn-muted: #737373;
-  --dn-line: #1f1f1f;
-  --dn-accent: #ffffff;
-  --dn-on-accent: #0a0a0a;
+  --dn-bg: #090909;
+  --dn-surface: #111111;
+  --dn-control: #1a1a1a;
+  --dn-control-hover: #1a1a1a;
+  --dn-fg: #f5f5f5;
+  --dn-muted: #6b6b6b;
+  --dn-line: #252525;
+  --dn-accent: #fafafa;
+  --dn-on-accent: #090909;
   --dn-font: "Inter", system-ui, sans-serif;
   --dn-panel-width: 300px;
   --dn-popover-shadow: 0 12px 48px rgb(0 0 0 / 50%);
+  --dn-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dn-press-dur: 140ms;
+  --dn-press-active-dur: 75ms;
+  --dn-type-caption: 10px;
+  --dn-type-label: 11px;
+  --dn-type-body: 13px;
+  --dn-type-section: 13px;
+  --dn-tracking-tight: -0.015em;
+  --dn-type-label-size: 12px;
+  --dn-type-meta-size: 11px;
+  --dn-type-value-size: 12px;
+  --dn-type-label-weight: 400;
+  --dn-type-value-weight: 500;
+  --dn-type-label-color: color-mix(in srgb, var(--dn-fg) 46%, transparent);
+  --dn-type-value-color: var(--dn-fg);
 
   /* Map Pencil tokens to shadcn component roles. */
   --background: var(--dn-bg);
@@ -26,30 +42,36 @@
   --secondary-foreground: var(--dn-fg);
   --muted: var(--dn-control);
   --muted-foreground: var(--dn-muted);
-  --accent: var(--dn-control);
+  --accent: var(--dn-control-hover);
   --accent-foreground: var(--dn-fg);
   --border: var(--dn-line);
   --input: var(--dn-control);
   --ring: var(--dn-accent);
   --scroll-edge-fade-color: var(--dn-bg);
   --scroll-edge-chevron-color: var(--dn-muted);
+  --dn-slider-bg: #161616;
 
   min-height: 100dvh;
   background: var(--dn-bg);
   color: var(--dn-fg);
   font-family: var(--dn-font);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
 }
 
 .desktopnew-root[data-theme="light"] {
   --dn-bg: #ffffff;
-  --dn-surface: #f5f5f5;
-  --dn-control: #ebebeb;
-  --dn-fg: #171717;
-  --dn-muted: #a3a3a3;
-  --dn-line: #e5e5e5;
-  --dn-accent: #171717;
+  --dn-surface: #fafafa;
+  --dn-control: #f6f6f6;
+  --dn-control-hover: #f6f6f6;
+  --dn-fg: #18181b;
+  --dn-muted: #8a8a8e;
+  --dn-line: #ececee;
+  --dn-accent: #18181b;
   --dn-on-accent: #ffffff;
   --dn-popover-shadow: 0 8px 32px rgb(0 0 0 / 8%);
+  --dn-slider-bg: #f1f1f2;
+  --dn-type-label-color: color-mix(in srgb, var(--dn-fg) 44%, transparent);
 }
 
 .desktopnew-shell {
@@ -60,37 +82,215 @@
   padding: 2rem 1rem;
 }
 
-/* Radix content is portalled outside .desktopnew-root. */
-.desktopnew-popover-content {
-  border-color: #e5e5e5 !important;
-  background: #f5f5f5 !important;
-  color: #171717 !important;
-  box-shadow: 0 8px 32px rgb(0 0 0 / 8%) !important;
+/* ── Microinteractions ───────────────────────────────────────────── */
+
+.dn-pressable {
+  transform-origin: center;
+  transition: transform var(--dn-press-dur) var(--dn-ease-out);
+  will-change: transform;
 }
 
-.dark .desktopnew-popover-content {
-  border-color: #1f1f1f !important;
-  background: #141414 !important;
-  color: #fafafa !important;
-  box-shadow: 0 12px 48px rgb(0 0 0 / 50%) !important;
+@media (hover: hover) {
+  .dn-pressable:hover:not(:disabled):not([disabled]):not([aria-disabled="true"]) {
+    transform: scale(1.012);
+  }
 }
 
-:root {
-  --tabs-dur: 250ms;
-  --tabs-ease: cubic-bezier(0.22, 1, 0.36, 1);
+.dn-pressable:active:not(:disabled):not([disabled]):not([aria-disabled="true"]) {
+  transform: scale(0.988);
+  transition-duration: var(--dn-press-active-dur);
 }
 
-.t-tabs {
-  position: relative;
+.dn-pressable-subtle {
+  transform-origin: center;
+  transition: transform var(--dn-press-dur) var(--dn-ease-out);
 }
 
-/* Radix ScrollArea's generated table wrapper sizes itself to the widest
- * accordion child. The settings rail must stay pinned to its sidebar width. */
-.dn-settings-scroll [data-slot="scroll-area-viewport"] > div {
-  display: block !important;
-  min-width: 0 !important;
-  width: 100% !important;
+@media (hover: hover) {
+  .dn-pressable-subtle:hover:not(:disabled):not([disabled]):not([aria-disabled="true"]) {
+    transform: scale(1.008);
+  }
 }
+
+.dn-pressable-subtle:active:not(:disabled):not([disabled]):not([aria-disabled="true"]) {
+  transform: scale(0.994);
+  transition-duration: var(--dn-press-active-dur);
+}
+
+/* ── Option tiles (grids, chips, presets) ────────────────────────── */
+
+.dn-option-tile {
+  background: var(--dn-control);
+  color: var(--dn-muted);
+  transition: transform var(--dn-press-dur) var(--dn-ease-out);
+}
+
+@media (hover: hover) {
+  .dn-option-tile:hover:not(:disabled) {
+    transform: scale(1.012);
+  }
+}
+
+.dn-option-tile:active:not(:disabled) {
+  transform: scale(0.988);
+  transition-duration: var(--dn-press-active-dur);
+}
+
+.dn-option-tile[aria-pressed="true"],
+.dn-option-tile[data-selected="true"] {
+  background: var(--dn-control);
+  color: var(--dn-fg);
+  box-shadow:
+    0 0 0 2px var(--dn-bg),
+    0 0 0 3.5px var(--dn-fg);
+}
+
+.dn-preview-tile {
+  color: color-mix(in srgb, var(--dn-fg) 65%, transparent);
+  transition: transform var(--dn-press-dur) var(--dn-ease-out);
+}
+
+@media (hover: hover) {
+  .dn-preview-tile:hover:not(:disabled) {
+    transform: scale(1.015);
+  }
+}
+
+.dn-preview-tile:active:not(:disabled) {
+  transform: scale(0.985);
+  transition-duration: var(--dn-press-active-dur);
+}
+
+.dn-preview-tile[aria-pressed="true"] {
+  color: var(--dn-fg);
+  box-shadow:
+    0 0 0 2px var(--dn-bg),
+    0 0 0 3.5px var(--dn-fg);
+}
+
+/* ── Settings typography ─────────────────────────────────────────── */
+
+.dn-type-label {
+  font-size: var(--dn-type-label-size);
+  font-weight: var(--dn-type-label-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-label-color);
+}
+
+.dn-type-meta {
+  font-size: var(--dn-type-meta-size);
+  font-weight: var(--dn-type-label-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-label-color);
+}
+
+.dn-type-value {
+  font-size: var(--dn-type-value-size);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--dn-type-value-color);
+}
+
+/* ── Row controls ────────────────────────────────────────────────── */
+
+.dn-settings-row {
+  height: 2.25rem;
+  border: 1px solid transparent;
+  background: var(--dn-control) !important;
+  color: var(--dn-type-value-color);
+  line-height: 1;
+}
+
+.desktopnew-root .dn-settings-row:hover,
+.desktopnew-root .dn-settings-row[data-variant="secondary"]:hover {
+  background: var(--dn-control) !important;
+  color: var(--dn-fg) !important;
+}
+
+.dn-settings-input {
+  height: 2.25rem;
+  border: 1px solid var(--dn-line);
+  background: var(--dn-control);
+  font-size: var(--dn-type-value-size);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color);
+}
+
+.dn-settings-input::placeholder {
+  color: var(--dn-muted);
+}
+
+/* ── Sliders ─────────────────────────────────────────────────────── */
+
+.desktopnew-root .dn-settings-elastic-slider {
+  --elastic-slider-bg: var(--dn-slider-bg);
+  --elastic-slider-fill: color-mix(in srgb, var(--dn-fg) 4%, transparent);
+  --elastic-slider-fill-active: color-mix(in srgb, var(--dn-fg) 9%, transparent);
+  --elastic-slider-hash: color-mix(in srgb, var(--dn-fg) 7%, transparent);
+  --elastic-slider-handle: color-mix(in srgb, var(--dn-fg) 85%, transparent);
+  --elastic-slider-label: var(--dn-type-label-color);
+  --elastic-slider-focus: var(--dn-type-value-color);
+}
+
+.desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
+  border-radius: 10px;
+  corner-shape: squircle;
+  border: none;
+}
+
+.desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-label"] {
+  font-family: inherit;
+  font-size: var(--dn-type-label-size);
+  font-weight: var(--dn-type-label-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-label-color) !important;
+}
+
+.desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-value"] {
+  font-family: inherit;
+  font-size: var(--dn-type-value-size);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color) !important;
+}
+
+.desktopnew-root .dn-settings-row [data-slot="button"] {
+  line-height: 1;
+}
+
+.desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-handle"] {
+  width: 3px;
+  height: 1.125rem;
+  border-radius: 999px;
+  opacity: 0.92;
+}
+
+/* ── Switch ──────────────────────────────────────────────────────── */
+
+.desktopnew-root [data-slot="switch"][data-state="checked"] {
+  background: var(--dn-fg) !important;
+}
+
+.desktopnew-root [data-slot="switch"][data-state="unchecked"] {
+  background: var(--dn-line) !important;
+}
+
+.desktopnew-root [data-slot="switch-thumb"] {
+  background: var(--dn-bg) !important;
+  border-color: color-mix(in srgb, var(--dn-fg) 12%, transparent) !important;
+}
+
+/* ── Segment tabs ────────────────────────────────────────────────── */
 
 .t-tab {
   position: relative;
@@ -126,25 +326,183 @@
   color: #0a0a0a;
 }
 
-.dn-settings-accordion:has(.dn-settings-accordion-item[data-focused="true"])
-  .dn-settings-accordion-item:not([data-focused="true"]) {
-  filter: blur(1.25px);
-  opacity: 0.4;
+/* ── Accordion ───────────────────────────────────────────────────── */
+
+.dn-settings-accordion [data-slot="accordion-trigger"] {
+  font-size: var(--dn-type-section);
+  font-weight: 500;
+  letter-spacing: var(--dn-tracking-tight);
+}
+
+.dn-settings-accordion [data-slot="accordion-content"] > div {
+  padding-inline: 0 !important;
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
 }
 
 .dn-settings-accordion-item {
   transition: filter 180ms ease-out, opacity 180ms ease-out;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .t-tabs-pill,
-  .t-tab {
-    transition: none !important;
-  }
+.dn-settings-accordion:has(.dn-settings-accordion-item[data-focused="true"])
+  .dn-settings-accordion-item:not([data-focused="true"]) {
+  filter: blur(1.25px);
+  opacity: 0.38;
+}
 
-  .dn-settings-accordion-item {
-    transition: none;
-  }
+.dn-settings-accordion:has(.dn-settings-accordion-item[data-focused="true"])
+  .dn-settings-accordion-item[data-focused="true"] {
+  border-bottom-width: 0;
+}
+
+.dn-settings-accordion:has(.dn-settings-accordion-item[data-focused="true"])
+  .dn-settings-accordion-item[data-focused="true"] + .dn-settings-accordion-item {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+/* Radix ScrollArea's generated table wrapper sizes itself to the widest
+ * accordion child. The settings rail must stay pinned to its sidebar width. */
+.dn-settings-scroll [data-slot="scroll-area-viewport"] > div {
+  display: block !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+/* ── Popovers (portalled outside .desktopnew-root) ───────────────── */
+
+.desktopnew-popover-content {
+  border-color: #ececee !important;
+  background: #fafafa !important;
+  color: #18181b !important;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 3%),
+    0 8px 32px rgb(0 0 0 / 8%) !important;
+  --dn-popover-control: #f6f6f6;
+  --dn-popover-tile: #f3f3f4;
+  --dn-popover-tile-hover: #f3f3f4;
+  --dn-popover-ring-offset: #fafafa;
+  --dn-popover-muted: #8a8a8e;
+  --dn-popover-border: #ececee;
+}
+
+.dark .desktopnew-popover-content {
+  border-color: #252525 !important;
+  background: #111111 !important;
+  color: #f5f5f5 !important;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 4%),
+    0 12px 48px rgb(0 0 0 / 50%) !important;
+  --dn-popover-control: #1a1a1a;
+  --dn-popover-tile: #1a1a1a;
+  --dn-popover-tile-hover: #1a1a1a;
+  --dn-popover-ring-offset: #111111;
+  --dn-popover-muted: #6b6b6b;
+  --dn-popover-border: #252525;
+}
+
+.desktopnew-popover-content .dn-popover-heading {
+  font-size: var(--dn-type-caption);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dn-popover-muted);
+}
+
+.desktopnew-popover-content .dn-content-type-search-input {
+  height: 2rem;
+  border: 1px solid var(--dn-popover-border);
+  background: var(--dn-popover-control);
+  padding-left: 2rem;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: var(--dn-tracking-tight);
+  color: inherit;
+}
+
+.desktopnew-popover-content .dn-content-type-search-input::placeholder {
+  color: var(--dn-popover-muted);
+}
+
+.desktopnew-popover-content .dn-content-type-filter-trigger[data-active="true"] {
+  color: inherit;
+  background: var(--dn-popover-tile-hover);
+  border-color: color-mix(in srgb, var(--dn-popover-muted) 35%, var(--dn-popover-border));
+}
+
+/* Fill picker popover: transparent Radix shell, one neutral panel on FillPicker.Root */
+.desktopnew-fill-popover {
+  --dn-bg: #ffffff;
+  --dn-surface: #fafafa;
+  --dn-control: #f6f6f6;
+  --dn-fg: #18181b;
+  --dn-muted: #8a8a8e;
+  --dn-line: #ececee;
+  --background: var(--dn-bg);
+  --foreground: var(--dn-fg);
+  --card: var(--dn-bg);
+  --card-foreground: var(--dn-fg);
+  --popover: var(--dn-surface);
+  --popover-foreground: var(--dn-fg);
+  --primary: var(--dn-fg);
+  --primary-foreground: #ffffff;
+  --secondary: var(--dn-control);
+  --secondary-foreground: var(--dn-fg);
+  --muted: var(--dn-control);
+  --muted-foreground: var(--dn-muted);
+  --accent: var(--dn-control-hover);
+  --accent-foreground: var(--dn-fg);
+  --border: var(--dn-line);
+  --input: var(--dn-control);
+  --ring: var(--dn-fg);
+}
+
+.dark .desktopnew-fill-popover {
+  --dn-bg: #090909;
+  --dn-surface: #111111;
+  --dn-control: #1a1a1a;
+  --dn-control-hover: #1a1a1a;
+  --dn-fg: #f5f5f5;
+  --dn-muted: #6b6b6b;
+  --dn-line: #252525;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel {
+  border: 1px solid var(--dn-line) !important;
+  background: var(--dn-surface) !important;
+  color: var(--dn-fg) !important;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 3%),
+    0 8px 32px rgb(0 0 0 / 8%);
+  border-radius: 12px;
+  corner-shape: squircle;
+}
+
+.dark .desktopnew-fill-popover .dn-fill-picker-panel {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 4%),
+    0 12px 48px rgb(0 0 0 / 50%);
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel [role="tablist"] {
+  background: var(--dn-control) !important;
+  border: 1px solid var(--dn-line);
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel [role="tab"][aria-selected="true"] {
+  background: var(--dn-bg) !important;
+  color: var(--dn-fg) !important;
+  box-shadow: none;
+}
+
+:root {
+  --tabs-dur: 250ms;
+  --tabs-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.t-tabs {
+  position: relative;
 }
 
 .dn-squircle-xs {
@@ -171,7 +529,35 @@
   .dn-squircle-xs,
   .dn-squircle-sm,
   .dn-squircle-md,
-  .dn-squircle-lg {
+  .dn-squircle-lg,
+  .desktopnew-fill-popover .dn-fill-picker-panel {
     corner-shape: round;
+  }
+
+  .desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
+    corner-shape: round;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dn-pressable,
+  .dn-pressable-subtle,
+  .dn-option-tile,
+  .dn-preview-tile,
+  .t-tabs-pill,
+  .t-tab,
+  .dn-settings-accordion-item {
+    transition: none !important;
+  }
+
+  .dn-pressable:hover,
+  .dn-pressable:active,
+  .dn-pressable-subtle:hover,
+  .dn-pressable-subtle:active,
+  .dn-option-tile:hover,
+  .dn-option-tile:active,
+  .dn-preview-tile:hover,
+  .dn-preview-tile:active {
+    transform: none !important;
   }
 }

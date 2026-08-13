@@ -1,6 +1,6 @@
 import { converter, type Color } from "culori";
 import type { ColorFormat, OklchColor } from "./types";
-import { toGamut } from "./color";
+import { findMaxChroma, gamutFromFormat, toGamut } from "./color";
 
 const toOklch = converter("oklch");
 const toRgb = converter("rgb");
@@ -17,6 +17,8 @@ export interface ChannelDescriptor {
   /** Current value in display units (e.g. RGB 0–255, OKLCH L 0–100). */
   value: number;
   min: number;
+  /** Hard edit bound; `Infinity` for channels unbounded in their space
+   * (OKLCH chroma). Clamping inputs must skip non-finite bounds. */
   max: number;
   /** Arrow-key step. */
   step: number;
@@ -72,7 +74,7 @@ export function colorChannels(
         ...oklchObj(toGamut(color, "srgb")),
       });
       return [
-        intChannel("h", "H", round(hsl?.h ?? 0, 0), 0, 360),
+        intChannel("h", "H", round(stableFormatHue(toHsl, color, hsl?.h), 0), 0, 360),
         intChannel("s", "S", round((hsl?.s ?? 0) * 100, 0), 0, 100, "%"),
         intChannel("l", "L", round((hsl?.l ?? 0) * 100, 0), 0, 100, "%"),
         ALPHA_DESCRIPTOR(color.alpha),
@@ -84,7 +86,7 @@ export function colorChannels(
         ...oklchObj(toGamut(color, "srgb")),
       });
       return [
-        intChannel("h", "H", round(hsv?.h ?? 0, 0), 0, 360),
+        intChannel("h", "H", round(stableFormatHue(toHsv, color, hsv?.h), 0), 0, 360),
         intChannel("s", "S", round((hsv?.s ?? 0) * 100, 0), 0, 100, "%"),
         intChannel("b", "B", round((hsv?.v ?? 0) * 100, 0), 0, 100, "%"),
         ALPHA_DESCRIPTOR(color.alpha),
@@ -93,7 +95,10 @@ export function colorChannels(
     case "oklch":
       return [
         intChannel("l", "L", round(color.l * 100, 0), 0, 100, "%"),
-        floatChannel("c", "C", round(color.c, 3), 0, 0.4, 0.005, 0.05, 3),
+        // Chroma is unbounded above at edit time (gamut limits apply at
+        // display via toGamut) — a finite max here would let clamping
+        // number fields destroy wide-gamut values.
+        floatChannel("c", "C", round(color.c, 3), 0, Infinity, 0.005, 0.05, 3),
         intChannel("h", "H", round(color.h, 0), 0, 360),
         ALPHA_DESCRIPTOR(color.alpha),
       ];
@@ -101,8 +106,8 @@ export function colorChannels(
       const lab = toOklab({ mode: "oklch", ...oklchObj(color) });
       return [
         intChannel("l", "L", round((lab?.l ?? color.l) * 100, 0), 0, 100, "%"),
-        floatChannel("a", "a", round(lab?.a ?? 0, 3), -0.4, 0.4, 0.005, 0.05, 3),
-        floatChannel("b", "b", round(lab?.b ?? 0, 3), -0.4, 0.4, 0.005, 0.05, 3),
+        floatChannel("a", "a", round(lab?.a ?? 0, 3), -0.5, 0.5, 0.005, 0.05, 3),
+        floatChannel("b", "b", round(lab?.b ?? 0, 3), -0.5, 0.5, 0.005, 0.05, 3),
         ALPHA_DESCRIPTOR(color.alpha),
       ];
     }
@@ -149,34 +154,36 @@ export function setColorChannel(
         [key]: clamp(value / 255, 0, 1),
         mode: "rgb" as const,
       };
-      return fromCulori(next, color.alpha);
+      return fromCulori(next, color.alpha, color.h);
     }
     case "hsl": {
       const hsl = toHsl({
         mode: "oklch",
         ...oklchObj(toGamut(color, "srgb")),
       }) ?? { h: 0, s: 0, l: 0 };
-      const h = key === "h" ? wrap(value, 360) : (hsl.h ?? 0);
+      const h = key === "h" ? wrap(value, 360) : stableFormatHue(toHsl, color, hsl.h);
       const s = key === "s" ? clamp(value / 100, 0, 1) : hsl.s;
       const l = key === "l" ? clamp(value / 100, 0, 1) : hsl.l;
-      return fromCulori({ mode: "hsl" as const, h, s, l }, color.alpha);
+      return fromCulori({ mode: "hsl" as const, h, s, l }, color.alpha, color.h);
     }
     case "hsb": {
       const hsv = toHsv({
         mode: "oklch",
         ...oklchObj(toGamut(color, "srgb")),
       }) ?? { h: 0, s: 0, v: 0 };
-      const h = key === "h" ? wrap(value, 360) : (hsv.h ?? 0);
+      const h = key === "h" ? wrap(value, 360) : stableFormatHue(toHsv, color, hsv.h);
       const s = key === "s" ? clamp(value / 100, 0, 1) : hsv.s;
       const v = key === "b" ? clamp(value / 100, 0, 1) : hsv.v;
-      return fromCulori({ mode: "hsv" as const, h, s, v }, color.alpha);
+      return fromCulori({ mode: "hsv" as const, h, s, v }, color.alpha, color.h);
     }
     case "oklch": {
       switch (key) {
         case "l":
           return { ...color, l: clamp(value / 100, 0, 1) };
         case "c":
-          return { ...color, c: clamp(value, 0, 0.5) };
+          // OKLCH chroma is unbounded above; gamut limits are applied at
+          // display time via toGamut, never at channel-edit time.
+          return { ...color, c: Math.max(value, 0) };
         case "h":
           return { ...color, h: wrap(value, 360) };
         default:
@@ -192,7 +199,7 @@ export function setColorChannel(
       const l = key === "l" ? clamp(value / 100, 0, 1) : (lab.l ?? 0);
       const a = key === "a" ? clamp(value, -0.5, 0.5) : (lab.a ?? 0);
       const b = key === "b" ? clamp(value, -0.5, 0.5) : (lab.b ?? 0);
-      return fromCulori({ mode: "oklab" as const, l, a, b }, color.alpha);
+      return fromCulori({ mode: "oklab" as const, l, a, b }, color.alpha, color.h);
     }
     case "p3": {
       const p3 = toP3({
@@ -204,20 +211,91 @@ export function setColorChannel(
         [key]: clamp(value, 0, 1),
         mode: "p3" as const,
       };
-      return fromCulori(next, color.alpha);
+      return fromCulori(next, color.alpha, color.h);
     }
   }
 }
 
-function fromCulori(c: Color, alpha: number): OklchColor {
+/**
+ * Next color for a hue-slider commit. Shared by both `<ColorPicker.Hue>`
+ * variants (classic and Base UI) so the two can't drift apart.
+ *
+ * Two paths:
+ *   - HSL/HSB — write the hue through the active format so the channel
+ *     input's H matches the slider exactly (no OKLCH↔HSL hue drift).
+ *   - everything else — rescale chroma to preserve "saturation", i.e. the
+ *     color's chroma as a fraction of the max chroma available at
+ *     (l, hue, gamut). Max chroma moves with hue (green has far less than
+ *     red in P3), so preserving *absolute* chroma would walk the color out
+ *     of the active gamut as the user scrolls. Preserving the ratio keeps
+ *     the area bead's X position — and the gamut badge — put.
+ *
+ * `newHue` may be any real number; it is wrapped into [0, 360).
+ */
+export function setHueFromSlider(
+  color: OklchColor,
+  newHue: number,
+  format: ColorFormat,
+): OklchColor {
+  const wrapped = wrap(newHue, 360);
+  if (format === "hsl" || format === "hsb") {
+    return setColorChannel(color, format, "h", wrapped);
+  }
+  const gamut = gamutFromFormat(format);
+  const oldMaxC = findMaxChroma(color.l, color.h, gamut);
+  const newMaxC = findMaxChroma(color.l, wrapped, gamut);
+  const saturation = oldMaxC > 1e-6 ? color.c / oldMaxC : 0;
+  return { ...color, h: wrapped, c: saturation * newMaxC };
+}
+
+const ACHROMATIC_EPS = 1e-4;
+
+function isAchromatic(l: number, c: number): boolean {
+  return (
+    c <= ACHROMATIC_EPS || l <= ACHROMATIC_EPS || l >= 1 - ACHROMATIC_EPS
+  );
+}
+
+/**
+ * Convert an edited culori color back to canonical OKLCH, preserving
+ * `fallbackHue` (the pre-edit hue) when the result is achromatic — there
+ * culori's hue is undefined or numerically meaningless, and storing it
+ * would destroy the user's hue (e.g. HSL s → 0 → 50 snapping blue to red).
+ * Chroma is the only axis allowed to be lossy; hue must round-trip.
+ */
+function fromCulori(c: Color, alpha: number, fallbackHue: number): OklchColor {
   const ok = toOklch(c);
-  if (!ok) return { l: 0, c: 0, h: 0, alpha };
+  if (!ok) return { l: 0, c: 0, h: fallbackHue, alpha };
+  const chroma = Math.max(ok.c ?? 0, 0);
+  const l = ok.l ?? 0;
   return {
-    l: ok.l ?? 0,
-    c: ok.c ?? 0,
-    h: ok.h ?? 0,
+    l,
+    c: chroma,
+    h:
+      isAchromatic(l, chroma) || !Number.isFinite(ok.h)
+        ? fallbackHue
+        : (ok.h as number),
     alpha,
   };
+}
+
+/**
+ * Hue of `color` in the target format's own hue scale (HSL/HSV degrees),
+ * stable at the achromatic point: when chroma is ~0 the direct conversion
+ * yields an undefined or garbage hue, so probe a slightly-saturated color
+ * on the same OKLCH hue instead. Keeps the H field and re-saturation edits
+ * anchored to the hue the user last had.
+ */
+function stableFormatHue(
+  convert: (c: Color) => { h?: number } | undefined,
+  color: OklchColor,
+  raw: number | undefined,
+): number {
+  if (!isAchromatic(color.l, color.c) && Number.isFinite(raw)) {
+    return raw as number;
+  }
+  const probe = convert({ mode: "oklch", l: 0.6, c: 0.08, h: color.h });
+  return probe?.h ?? color.h;
 }
 
 function oklchObj(c: OklchColor) {

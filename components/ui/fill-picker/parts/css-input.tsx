@@ -2,69 +2,65 @@
 
 import * as React from "react";
 import { useColorPickerContext } from "../context";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { FieldInput, FieldShell } from "./field";
 
-type CssInputProps = Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "value" | "onChange" | "size"
->;
+export interface CssInputProps
+  extends Omit<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    "value" | "onChange"
+  > {}
 
-export const CssInput = React.forwardRef<HTMLInputElement, CssInputProps>(function CssInput(
-  { className, ...rest },
-  ref,
-) {
-  const { formatted, setFromString } = useColorPickerContext();
-  const [draft, setDraft] = React.useState("");
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [error, setError] = React.useState(false);
-  const value = isEditing || error ? draft : formatted;
-
-  const commit = (value: string) => {
-    const ok = setFromString(value.trim());
-    setError(!ok);
-    setIsEditing(false);
-    if (ok) {
-      setDraft("");
-    } else {
-      setDraft(value);
+export const CssInput = React.forwardRef<HTMLInputElement, CssInputProps>(
+  function CssInput({ className, ...rest }, ref) {
+    const { formatted, setFromString } = useColorPickerContext();
+    // Sync draft when canonical value changes externally (slider drags etc.)
+    // via in-render adjustment — no useEffect needed.
+    const [draft, setDraft] = React.useState(formatted);
+    const [prevFormatted, setPrevFormatted] = React.useState(formatted);
+    const [error, setError] = React.useState(false);
+    if (formatted !== prevFormatted) {
+      setPrevFormatted(formatted);
+      setDraft(formatted);
+      setError(false);
     }
-  };
 
-  return (
-    <Input
-      ref={ref}
-      data-slot="color-picker-input"
-      type="text"
-      spellCheck={false}
-      autoComplete="off"
-      autoCorrect="off"
-      autoCapitalize="off"
-      value={value}
-      aria-invalid={error || undefined}
-      aria-label="Color value"
-      onChange={(e) => {
-        setIsEditing(true);
-        setDraft(e.target.value);
-        setError(false);
-      }}
-      onBlur={(e) => commit(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          commit(e.currentTarget.value);
-        } else if (e.key === "Escape") {
-          setDraft("");
-          setIsEditing(false);
-          setError(false);
-        }
-      }}
-      className={cn(
-        "h-8 rounded-lg !border-[var(--color-picker-control-border,var(--input))] !bg-[var(--color-picker-control-bg,transparent)] px-2 font-mono text-xs !text-[var(--color-picker-fg,var(--foreground))] shadow-xs",
-        "hover:bg-[var(--color-picker-control-hover-bg,var(--muted))] focus-visible:border-[var(--color-picker-focus,var(--ring))] focus-visible:ring-2 focus-visible:ring-[var(--color-picker-focus,var(--ring))]/30",
-        className,
-      )}
-      {...rest}
-    />
-  );
-});
+    const commit = (value: string) => {
+      const ok = setFromString(value.trim());
+      setError(!ok);
+    };
+
+    return (
+      <FieldShell
+        data-slot="color-picker-input"
+        className={cn("w-full", className)}
+      >
+        <FieldInput
+          ref={ref}
+          value={draft}
+          aria-invalid={error || undefined}
+          aria-label="Color value"
+          onChange={(e) => {
+            setDraft(e.target.value);
+            setError(false);
+          }}
+          onBlur={(e) => commit(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              commit(e.currentTarget.value);
+            } else if (e.key === "Escape") {
+              setDraft(formatted);
+              setError(false);
+            }
+          }}
+          className={cn(
+            "flex-1 px-2 text-left",
+            error && "text-destructive",
+          )}
+          {...rest}
+        />
+      </FieldShell>
+    );
+  },
+);

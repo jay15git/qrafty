@@ -10,39 +10,48 @@ interface EyeDropperLike {
   open: (opts?: { signal?: AbortSignal }) => Promise<{ sRGBHex: string }>;
 }
 
-type EyeDropperWindow = Window & {
-  EyeDropper?: { new (): EyeDropperLike };
-};
+declare global {
+  interface Window {
+    EyeDropper?: { new (): EyeDropperLike };
+  }
+}
 
-type EyeDropperProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
+const subscribeNoop = () => () => {};
+const getEyeDropperSupportClient = () =>
+  typeof window !== "undefined" && typeof window.EyeDropper === "function";
+const getEyeDropperSupportServer = () => false;
+
+export interface EyeDropperProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
 
 export const EyeDropper = React.forwardRef<HTMLButtonElement, EyeDropperProps>(function EyeDropper(
   { className, ...rest },
   ref,
 ) {
   const { setColor } = useColorPickerContext();
-  const [supported, setSupported] = React.useState(false);
+  // Client-only feature detection without a hydration mismatch and without the
+  // two-paint flash that an `useEffect(setState)` pattern introduces. The
+  // server snapshot returns `false` (matching SSR's empty render); the client
+  // snapshot reads the real value during hydration's reconciliation pass.
+  const supported = React.useSyncExternalStore(
+    subscribeNoop,
+    getEyeDropperSupportClient,
+    getEyeDropperSupportServer,
+  );
 
-  React.useEffect(() => {
-    setSupported(
-      typeof window !== "undefined" &&
-        typeof (window as EyeDropperWindow).EyeDropper === "function",
-    );
-  }, []);
+  const [active, setActive] = React.useState(false);
 
   if (!supported) return null;
 
   const onClick = async () => {
-    const EyeDropperConstructor = (window as EyeDropperWindow).EyeDropper;
-
-    if (!EyeDropperConstructor) return;
-
+    setActive(true);
     try {
-      const ed = new EyeDropperConstructor();
+      const ed = new window.EyeDropper!();
       const result = await ed.open();
       if (result?.sRGBHex) setColor(result.sRGBHex);
     } catch {
       // user cancelled
+    } finally {
+      setActive(false);
     }
   };
 
@@ -50,13 +59,16 @@ export const EyeDropper = React.forwardRef<HTMLButtonElement, EyeDropperProps>(f
     <Button
       ref={ref}
       data-slot="color-picker-eye-dropper"
+      data-state={active ? "on" : "off"}
       type="button"
       variant="outline"
       size="icon-sm"
       aria-label="Pick color from screen"
+      aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "cursor-pointer !border-[var(--color-picker-control-border,var(--border))] !bg-[var(--color-picker-control-bg,var(--background))] !text-[var(--color-picker-fg,var(--foreground))] shadow-xs hover:!bg-[var(--color-picker-control-hover-bg,var(--muted))] hover:!text-[var(--color-picker-fg,var(--foreground))] focus-visible:!border-[var(--color-picker-focus,var(--ring))] focus-visible:ring-[var(--color-picker-focus,var(--ring))]/30",
+        "cursor-pointer",
+        active && "border-foreground/70 bg-foreground/10 text-foreground hover:bg-foreground/15",
         className,
       )}
       {...rest}

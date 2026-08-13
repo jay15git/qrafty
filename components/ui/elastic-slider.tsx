@@ -58,6 +58,7 @@ export type ElasticSliderProps = {
   formatValue?: (value: number) => string
   className?: string
   scrubSound?: boolean
+  animateValue?: boolean
   "aria-label"?: string
 }
 
@@ -80,6 +81,7 @@ export function ElasticSlider({
   formatValue,
   className,
   scrubSound = false,
+  animateValue = true,
   "aria-label": ariaLabel,
 }: ElasticSliderProps) {
   const [value = min, setValue] = useControllableState({
@@ -114,7 +116,7 @@ export function ElasticSlider({
     ? formatValue(value)
     : value.toFixed(decimalsForStep(step))
   const { sign: displaySign, body: displayBody } = splitSignedDisplayValue(displayValue)
-  const useCalligraphAnimation = !shouldReduceMotion
+  const useCalligraphAnimation = animateValue && !shouldReduceMotion
 
   const fillPercent = useMotionValue(percentage)
   const fillWidth = useTransform(fillPercent, (pct) => `${pct}%`)

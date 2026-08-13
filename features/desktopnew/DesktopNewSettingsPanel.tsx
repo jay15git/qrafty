@@ -3,8 +3,7 @@
 import { useTheme } from "next-themes"
 import { useState } from "react"
 
-import { ColorPickerPopover } from "@/components/ui/color-picker"
-import { Input } from "@/components/ui/input"
+import { formatFill } from "@/components/ui/fill-picker-base/fill"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { StylePreview, type StylePreviewKind } from "@/features/qr-code/components/StylePreview"
@@ -22,11 +21,12 @@ import { cn } from "@/lib/utils"
 
 import {
   IconGrid,
+  ContentTypePicker,
   OptionGrid,
   PresetList,
   SegmentTabs,
   SettingsAccordion,
-  SettingsColorPopover,
+  SettingsFillPopover,
   SettingsInput,
   SettingsPanelShell,
   SettingsPrimaryButton,
@@ -35,18 +35,35 @@ import {
   SettingsSlider,
   SettingsSwitchRow,
 } from "@/features/desktopnew/settings-ui"
+import {
+  getContentTypeLabel,
+  type QrInputType,
+} from "@/features/qr-code/content/input-options"
+import {
+  MOTION_COLOR_SWATCHES,
+  QR_DOT_MATRIX_COLOR_PRESET_OPTIONS,
+  QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
+  type QrDotMatrixColorPreset,
+  type QrDotMatrixSquareLoader,
+} from "@/features/qr-code/model/state"
 import { PaperShaderOptionPreview } from "@/features/workspace/components/PaperShaderOptionPreview"
+import {
+  fillFromHex,
+  fillPreviewHex,
+} from "@/features/desktopnew/desktopnew-fill-picker"
 import {
   DEFAULT_PAPER_SHADER_ID,
   getAllPaperShaderDefinitions,
   type PaperShaderId,
 } from "@/features/workspace/rendering/paper-shaders"
 
+const SECTION_STACK = "flex flex-col gap-2.5"
+const PREVIEW_TILE =
+  "dn-preview-tile group relative shrink-0 p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
+
 const SECTIONS = [
   "Content",
-  "QR Style",
-  "Colors",
-  "Logo",
+  "QR",
   "Shape",
   "Background",
   "Motion",
@@ -56,28 +73,17 @@ const SECTIONS = [
 type SectionId = (typeof SECTIONS)[number]
 
 function ContentSection() {
-  const [selectedType, setSelectedType] = useState("Link")
+  const [contentType, setContentType] = useState<QrInputType>("link")
 
   return (
-    <div className="flex flex-col gap-3">
-      <SettingsRowPopover hint="Type" title="Type" trigger={selectedType}>
-        <Input className="mb-2 h-8 bg-muted/40 text-xs dn-squircle-xs" placeholder="Search" />
-        <OptionGrid
-          columns={3}
-          items={[
-            "Link",
-            "Text",
-            "WiFi",
-            "Email",
-            "Phone",
-            "Instagram",
-            "Spotify",
-            "GitHub",
-            "vCard",
-          ]}
-          selected={selectedType}
-          onSelect={setSelectedType}
-        />
+    <div className={SECTION_STACK}>
+      <SettingsRowPopover
+        contentClassName="w-[15rem]"
+        hint="Type"
+        title="Type"
+        trigger={getContentTypeLabel(contentType)}
+      >
+        <ContentTypePicker selected={contentType} onSelect={setContentType} />
       </SettingsRowPopover>
       <SettingsInput value="https://example.com" />
     </div>
@@ -104,7 +110,7 @@ function QrStylePreviewGrid({
       scrollFade
       viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
     >
-      <div className="flex min-w-max gap-1.5 px-1.5 py-1.5">
+      <div className="flex min-w-max gap-1.5 py-1.5">
         {options.map((option) => {
           const isSelected = selected === option.value
 
@@ -113,25 +119,15 @@ function QrStylePreviewGrid({
               key={option.value}
               aria-label={option.label}
               aria-pressed={isSelected}
-              className={cn(
-                "group relative size-14 shrink-0 p-0 text-center transition-shadow duration-200 ease-out dn-squircle-xs",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                "focus-visible:ring-offset-background",
-                isSelected && "ring-2 ring-foreground ring-offset-2 ring-offset-background shadow-sm",
-              )}
+              className={cn(PREVIEW_TILE, "size-14 text-center")}
               title={option.label}
               type="button"
               onClick={() => onSelect(option.value)}
             >
               <span
                 aria-hidden="true"
-                className={cn(
-                  "grid size-full place-items-center overflow-hidden p-0.5 dn-squircle-xs",
-                  isSelected
-                    ? "bg-transparent text-foreground"
-                    : "bg-transparent text-foreground/70 group-hover:text-foreground",
-              )}
-            >
+                className="grid size-full place-items-center overflow-hidden p-0.5 dn-squircle-xs"
+              >
                 <span className="grid size-[90%] place-items-center [&_svg]:size-full [&_svg]:text-current">
                   <StylePreview previewKind={previewKind} value={option.value} />
                 </span>
@@ -149,6 +145,14 @@ function QrStyleSection() {
   const [moduleShape, setModuleShape] = useState("rounded")
   const [eyeShape, setEyeShape] = useState("square")
   const [frameShape, setFrameShape] = useState("square")
+  const [moduleFill, setModuleFill] = useState(() => formatFill(fillFromHex("#171717")))
+  const [eyeFill, setEyeFill] = useState(() => formatFill(fillFromHex("#171717")))
+  const [frameFill, setFrameFill] = useState(() => formatFill(fillFromHex("#171717")))
+  const [logoFill, setLogoFill] = useState(() => formatFill(fillFromHex("#171717")))
+  const [selectedIcon, setSelectedIcon] = useState("G")
+  const [logoSize, setLogoSize] = useState(25)
+  const [logoOpacity, setLogoOpacity] = useState(100)
+
   const part =
     tab === "Module"
       ? {
@@ -172,14 +176,39 @@ function QrStyleSection() {
           }
 
   return (
-    <div className="flex w-full min-w-0 max-w-full flex-col gap-3 overflow-hidden">
-      <SegmentTabs items={["Module", "Eye", "Frame"]} value={tab} onChange={setTab} />
-      <QrStylePreviewGrid
-        options={part.options}
-        previewKind={part.previewKind}
-        selected={part.shape}
-        onSelect={part.setShape}
-      />
+    <div className="flex w-full min-w-0 max-w-full flex-col gap-2.5">
+      <SegmentTabs items={["Module", "Eye", "Frame", "Logo"]} value={tab} onChange={setTab} />
+
+      {tab === "Logo" ? (
+        <>
+          <IconGrid
+            items={["G", "in", "X", "gh", "f", "ig", "yt", "t"]}
+            selectedIndex={["G", "in", "X", "gh", "f", "ig", "yt", "t"].indexOf(selectedIcon)}
+            onSelect={setSelectedIcon}
+          />
+          <SettingsSlider label="Size" value={logoSize} onChange={setLogoSize} />
+          <SettingsSlider label="Opacity" value={logoOpacity} onChange={setLogoOpacity} />
+          <SettingsFillPopover hint="Fill" value={logoFill} onValueChange={setLogoFill} />
+        </>
+      ) : (
+        <>
+          <QrStylePreviewGrid
+            options={part.options}
+            previewKind={part.previewKind}
+            selected={part.shape}
+            onSelect={part.setShape}
+          />
+          {tab === "Module" ? (
+            <SettingsFillPopover hint="Fill" value={moduleFill} onValueChange={setModuleFill} />
+          ) : (
+            <SettingsFillPopover
+              hint="Fill"
+              value={tab === "Eye" ? eyeFill : frameFill}
+              onValueChange={tab === "Eye" ? setEyeFill : setFrameFill}
+            />
+          )}
+        </>
+      )}
     </div>
   )
 }
@@ -202,7 +231,7 @@ function ShapeTypePreviewRow({
       scrollFade
       viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
     >
-      <div className="flex min-w-max gap-1.5 px-1.5 py-1.5">
+      <div className="flex min-w-max gap-1.5 py-1.5">
         {shapes.map((option) => {
           const isSelected = selected === option.id
 
@@ -211,10 +240,7 @@ function ShapeTypePreviewRow({
               key={option.id}
               aria-label={`Use ${option.label} shape`}
               aria-pressed={isSelected}
-              className={cn(
-                "group relative size-14 shrink-0 p-0 text-foreground/70 transition-shadow duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs",
-                isSelected && "ring-2 ring-foreground ring-offset-2 ring-offset-background shadow-sm",
-              )}
+              className={cn(PREVIEW_TILE, "size-14")}
               title={option.label}
               type="button"
               onClick={() => onSelect(option.id)}
@@ -255,7 +281,7 @@ function PaperShaderPreviewRow({
       scrollFade
       viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
     >
-      <div className="flex min-w-max gap-1.5 px-1.5 py-1.5">
+      <div className="flex min-w-max gap-1.5 py-1.5">
         {shaders.map((option) => {
           const isSelected = selected === option.id
 
@@ -264,10 +290,7 @@ function PaperShaderPreviewRow({
               key={option.id}
               aria-label={`Use ${option.label} shader`}
               aria-pressed={isSelected}
-              className={cn(
-                "group relative size-14 shrink-0 p-0 transition-shadow duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs",
-                isSelected && "ring-2 ring-foreground ring-offset-2 ring-offset-background shadow-sm",
-              )}
+              className={cn(PREVIEW_TILE, "size-14")}
               title={option.label}
               type="button"
               onClick={() => onSelect(option.id)}
@@ -285,91 +308,105 @@ function PaperShaderPreviewRow({
   )
 }
 
-function ColorsSection() {
-  const [tab, setTab] = useState("Static")
-  const [staticMode, setStaticMode] = useState("Solid")
-  const [animatedTheme, setAnimatedTheme] = useState("Theme")
-  const [staticColor, setStaticColor] = useState("#171717")
-  const [animatedColor, setAnimatedColor] = useState("#171717")
-  const color = tab === "Static" ? staticColor : animatedColor
-  const setColor = tab === "Static" ? setStaticColor : setAnimatedColor
-
+function MotionLoaderPresetGrid({
+  selected,
+  onSelect,
+}: {
+  selected: QrDotMatrixSquareLoader
+  onSelect: (loader: QrDotMatrixSquareLoader) => void
+}) {
   return (
-    <div className="flex flex-col gap-3">
-      <SegmentTabs items={["Static", "Animated"]} value={tab} onChange={setTab} />
-      <SettingsColorPopover color={color} hint="Colors" title={`${tab} colors`}>
-        {tab === "Static" ? (
-          <SegmentTabs
-            items={["Solid", "Gradient", "Patterns"]}
-            value={staticMode}
-            onChange={setStaticMode}
-          />
-        ) : (
-          <SegmentTabs
-            items={["Theme", "Mint", "Sunset", "Ocean"]}
-            value={animatedTheme}
-            onChange={setAnimatedTheme}
-          />
-        )}
-        <ColorPickerPopover
-          defaultValue={color}
-          triggerLabel={tab === "Static" ? "Primary color" : "Theme color"}
-          triggerLabelPosition="right"
-          onValueChange={setColor}
-        />
-      </SettingsColorPopover>
-    </div>
+    <ScrollArea
+      className="w-full min-w-0 max-w-full overflow-hidden"
+      chevron={false}
+      cueSize="tight"
+      orientation="horizontal"
+      scrollFade
+      viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
+    >
+      <div className="flex min-w-max gap-1.5 py-1.5">
+        {QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => {
+          const isSelected = selected === option.value
+
+          return (
+            <button
+              key={option.value}
+              aria-label={option.label}
+              aria-pressed={isSelected}
+              className={cn(
+                "dn-option-tile h-9 shrink-0 px-3 text-[11px] font-medium tracking-tight dn-squircle-xs",
+                isSelected && "text-foreground",
+              )}
+              type="button"
+              onClick={() => onSelect(option.value)}
+            >
+              {option.label}
+            </button>
+          )
+        })}
+      </div>
+    </ScrollArea>
   )
 }
 
-function LogoSection() {
-  const [selectedIcon, setSelectedIcon] = useState("G")
-  const [logoColor, setLogoColor] = useState("#171717")
-
+function AnimatedPresetGrid({
+  customColors,
+  selected,
+  onSelect,
+}: {
+  customColors?: { base: string; peak: string }
+  selected: QrDotMatrixColorPreset
+  onSelect: (preset: QrDotMatrixColorPreset) => void
+}) {
   return (
-    <div className="flex flex-col gap-3">
-      <SettingsRowPopover hint="Icon" title="Choose icon" trigger={selectedIcon}>
-        <Input className="h-8 bg-muted/40 text-xs dn-squircle-xs" placeholder="Search icons" />
-        <IconGrid
-          items={["G", "in", "X", "gh", "f", "ig", "yt", "t"]}
-          selectedIndex={["G", "in", "X", "gh", "f", "ig", "yt", "t"].indexOf(selectedIcon)}
-          onSelect={(icon) => setSelectedIcon(icon)}
-        />
-        <SettingsSlider label="SIZE" value={25} />
-        <SettingsSlider label="OPACITY" value={100} />
-      </SettingsRowPopover>
-      <SettingsColorPopover color={logoColor} title="Logo color">
-        <ColorPickerPopover
-          defaultValue={logoColor}
-          triggerLabel="Icon color"
-          triggerLabelPosition="right"
-          onValueChange={setLogoColor}
-        />
-      </SettingsColorPopover>
-    </div>
+    <ScrollArea
+      className="w-full min-w-0 max-w-full overflow-hidden"
+      chevron={false}
+      cueSize="tight"
+      orientation="horizontal"
+      scrollFade
+      viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
+    >
+      <div className="flex min-w-max gap-1.5 py-1.5">
+        {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => {
+          const [base, peak] =
+            preset.value === "theme" && customColors
+              ? [customColors.base, customColors.peak]
+              : MOTION_COLOR_SWATCHES[preset.value]
+          const isSelected = selected === preset.value
+
+          return (
+            <button
+              key={preset.value}
+              aria-label={preset.label}
+              aria-pressed={isSelected}
+              className={cn(
+                "dn-pressable flex size-8 shrink-0 overflow-hidden border border-border/40 dn-squircle-xs",
+                isSelected &&
+                  "ring-2 ring-foreground ring-offset-2 ring-offset-background",
+              )}
+              type="button"
+              onClick={() => onSelect(preset.value)}
+            >
+              <span aria-hidden className="flex-1" style={{ backgroundColor: base }} />
+              <span aria-hidden className="flex-1" style={{ backgroundColor: peak }} />
+            </button>
+          )
+        })}
+      </div>
+    </ScrollArea>
   )
 }
 
 function CardSection() {
   const [shape, setShape] = useState<QrBackgroundShapeId>("circle")
-  const [fillMode, setFillMode] = useState("Solid")
-  const [cardColor, setCardColor] = useState("#FFFFFF")
+  const [cardFill, setCardFill] = useState(() => formatFill(fillFromHex("#ffffff")))
 
   return (
-    <div className="flex flex-col gap-3">
-      <ShapeTypePreviewRow selected={shape} onSelect={(nextShape) => setShape(nextShape)} />
-      <SettingsColorPopover color={cardColor} title="Card color">
-        <SegmentTabs items={["Solid", "Gradient"]} value={fillMode} onChange={setFillMode} />
-        <ColorPickerPopover
-          defaultValue={cardColor}
-          triggerLabel={fillMode === "Solid" ? "Solid color" : "Gradient start"}
-          triggerLabelPosition="right"
-          onValueChange={setCardColor}
-        />
-        <SettingsSlider label="CORNER RADIUS" value={24} />
-        <SettingsSlider label="PADDING" value={32} />
-        <SettingsSlider label="BOTTOM SPACE" value={0} />
-      </SettingsColorPopover>
+    <div className={SECTION_STACK}>
+      <ShapeTypePreviewRow selected={shape} onSelect={setShape} />
+      <SettingsFillPopover hint="Fill" value={cardFill} onValueChange={setCardFill} />
+      <SettingsSlider label="Padding" value={32} />
     </div>
   )
 }
@@ -379,37 +416,30 @@ function SceneSection() {
   const [shader, setShader] = useState<PaperShaderId>(DEFAULT_PAPER_SHADER_ID)
   const [paused, setPaused] = useState(false)
   const [backgroundImage, setBackgroundImage] = useState("None")
-  const [backgroundColor, setBackgroundColor] = useState("#171717")
+  const [backgroundFill, setBackgroundFill] = useState(() => formatFill(fillFromHex("#171717")))
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className={SECTION_STACK}>
       <SegmentTabs items={["Shader", "Image", "Color"]} value={tab} onChange={setTab} />
       {tab === "Shader" ? (
         <>
           <PaperShaderPreviewRow selected={shader} onSelect={setShader} />
           <SettingsSwitchRow checked={paused} label="Pause" onChange={setPaused} />
-          <SettingsSlider label="SPEED" value={100} />
+          <SettingsSlider label="Speed" value={100} />
         </>
       ) : tab === "Image" ? (
         <>
-          <SettingsRowPopover hint="Image" title="Background image" trigger={backgroundImage}>
+          <SettingsRowPopover hint="Image" title="Image" trigger={backgroundImage}>
             <PresetList
               items={["None", "Studio", "Paper", "Texture"]}
               selected={backgroundImage}
               onSelect={setBackgroundImage}
             />
           </SettingsRowPopover>
-          <SettingsSlider label="OPACITY" value={100} />
+          <SettingsSlider label="Opacity" value={100} />
         </>
       ) : (
-        <SettingsColorPopover color={backgroundColor} title="Background color">
-          <ColorPickerPopover
-            defaultValue={backgroundColor}
-            triggerLabel="Solid color"
-            triggerLabelPosition="right"
-            onValueChange={setBackgroundColor}
-          />
-        </SettingsColorPopover>
+        <SettingsFillPopover hint="Fill" value={backgroundFill} onValueChange={setBackgroundFill} />
       )}
     </div>
   )
@@ -417,34 +447,49 @@ function SceneSection() {
 
 function MotionSection() {
   const [enabled, setEnabled] = useState(true)
-  const [preset, setPreset] = useState("Neon Drift")
-  const [colorPreset, setColorPreset] = useState("Theme")
+  const [motionLoader, setMotionLoader] = useState<QrDotMatrixSquareLoader>("neon-drift")
+  const [animatedPreset, setAnimatedPreset] = useState<QrDotMatrixColorPreset>("theme")
+  const [animatedBaseFill, setAnimatedBaseFill] = useState(() => formatFill(fillFromHex("#22d3ee")))
+  const [animatedPeakFill, setAnimatedPeakFill] = useState(() => formatFill(fillFromHex("#f0abfc")))
 
-  const presets = [
-    "Neon Drift",
-    "Flux Columns",
-    "Echo Ring",
-    "Origin Wave",
-    "Radial Expand",
-    "Radius Ping",
-  ]
+  const selectAnimatedPreset = (nextPreset: QrDotMatrixColorPreset) => {
+    const [base, accent] = MOTION_COLOR_SWATCHES[nextPreset]
+    setAnimatedPreset(nextPreset)
+    setAnimatedBaseFill(formatFill(fillFromHex(base)))
+    setAnimatedPeakFill(formatFill(fillFromHex(accent)))
+  }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className={SECTION_STACK}>
       <SettingsSwitchRow checked={enabled} label="Enabled" onChange={setEnabled} />
-      <SettingsRowPopover hint="Preset" title="Preset" trigger={preset}>
-        <PresetList items={presets} selected={preset} onSelect={setPreset} />
-      </SettingsRowPopover>
-      <SettingsSlider label="SPEED" value={50} />
       {enabled ? (
-        <SettingsRowPopover hint="Color" title="Motion color" trigger={colorPreset}>
-          <OptionGrid
-            columns={4}
-            items={["Theme", "Mint", "Sunset", "Ocean"]}
-            selected={colorPreset}
-            onSelect={setColorPreset}
+        <>
+          <MotionLoaderPresetGrid selected={motionLoader} onSelect={setMotionLoader} />
+          <AnimatedPresetGrid
+            customColors={{
+              base: fillPreviewHex(animatedBaseFill),
+              peak: fillPreviewHex(animatedPeakFill),
+            }}
+            selected={animatedPreset}
+            onSelect={selectAnimatedPreset}
           />
-        </SettingsRowPopover>
+          <SettingsFillPopover
+            hint="Base"
+            value={animatedBaseFill}
+            onValueChange={(fill) => {
+              setAnimatedPreset("theme")
+              setAnimatedBaseFill(fill)
+            }}
+          />
+          <SettingsFillPopover
+            hint="Peak"
+            value={animatedPeakFill}
+            onValueChange={(fill) => {
+              setAnimatedPreset("theme")
+              setAnimatedPeakFill(fill)
+            }}
+          />
+        </>
       ) : null}
     </div>
   )
@@ -455,7 +500,7 @@ function ExportSection() {
   const [format, setFormat] = useState("PNG")
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className={SECTION_STACK}>
       <SettingsRowPopover hint="Target" title="Target" trigger={target}>
         <PresetList
           items={["Current QR", "All QR codes", "Full surface"]}
@@ -486,12 +531,8 @@ function SectionBody({ id }: { id: SectionId }) {
   switch (id) {
     case "Content":
       return <ContentSection />
-    case "QR Style":
+    case "QR":
       return <QrStyleSection />
-    case "Colors":
-      return <ColorsSection />
-    case "Logo":
-      return <LogoSection />
     case "Shape":
       return <CardSection />
     case "Background":
@@ -530,7 +571,7 @@ export function DesktopNewShell() {
     <ShapeProvider defaultShape="rounded">
       <div className="desktopnew-root desktopnew-shell" data-theme={theme}>
         <Button
-          className="fixed right-4 top-4 h-8 px-3 text-xs dn-squircle-sm"
+          className="dn-pressable fixed right-4 top-4 h-8 border-border/80 px-3 text-xs tracking-tight dn-squircle-sm"
           type="button"
           variant="outline"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
