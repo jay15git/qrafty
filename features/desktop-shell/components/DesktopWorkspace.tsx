@@ -107,11 +107,18 @@ function DesktopWorkspaceStyles() {
         --scroll-edge-fade-color: #000000;
       }
 
-      [data-slot="desktop-workspace"] [data-slot="dashboard-compose-surface"] {
+      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="dashboard-compose-surface"] {
         background-color: #f0f1f2 !important;
         border: 0 !important;
         border-radius: 0 12px 12px 0 !important;
         box-shadow: 0 8px 8px rgba(15, 23, 42, 0.08) !important;
+      }
+
+      [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="dashboard-compose-surface"] {
+        background-color: var(--drafting-canvas-bg, #1f1f1f) !important;
+        border: 0 !important;
+        border-radius: 0 12px 12px 0 !important;
+        box-shadow: none !important;
       }
 
       [data-slot="desktop-workspace"] [data-slot="dashboard-compose-surface"][data-grid-visible="false"] {

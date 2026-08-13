@@ -113,6 +113,25 @@
   justify-content: flex-start;
   padding: 0;
   isolation: isolate;
+  background: #f0f1f2;
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="dark"] {
+  background: #1f1f1f;
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-panel {
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  corner-shape: round;
+  background: #1f1f1f;
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-scroll,
+.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-scroll [data-slot="scroll-area-viewport"],
+[data-slot="desktopnew-settings-inspector"] > .desktopnew-root.desktopnew-embedded[data-theme="dark"] {
+  background: #1f1f1f;
 }
 
 .dn-settings-panel {
@@ -124,11 +143,17 @@
   box-shadow: none;
 }
 
-.desktopnew-root.desktopnew-embedded .dn-settings-panel {
+.desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-panel {
   width: 100%;
   border: none;
   border-radius: 0;
   corner-shape: round;
+  background: #f0f1f2;
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-scroll,
+.desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-scroll [data-slot="scroll-area-viewport"] {
+  background: #f0f1f2;
 }
 
 [data-slot="desktopnew-settings-inspector"] {
@@ -137,11 +162,11 @@
   min-width: 0;
 }
 
-[data-slot="desktopnew-settings-inspector"] > .desktopnew-root {
+[data-slot="desktopnew-settings-inspector"] > .desktopnew-root[data-theme="light"] {
   height: 100%;
   min-height: 0;
   width: 100%;
-  background: var(--dn-bg);
+  background: #f0f1f2;
   color: var(--dn-fg);
 }
 
@@ -447,67 +472,113 @@
 
 /* ── Accordion ───────────────────────────────────────────────────── */
 
-.dn-settings-accordion-item {
-  border-color: color-mix(in srgb, var(--dn-line) 60%, transparent) !important;
+.dn-settings-accordion > div {
+  align-items: center;
+  padding: 0.625rem;
+  border-radius: 0;
+  background: transparent;
+}
+
+.dn-settings-accordion > div > div {
+  width: min(100%, 17.25rem);
+  border-radius: 1rem !important;
   transition: filter 180ms ease-out, opacity 180ms ease-out;
 }
 
-.dn-settings-accordion-trigger {
-  color: var(--dn-fg) !important;
-  text-decoration: none !important;
-  box-shadow: none !important;
-  outline: none !important;
+.dn-settings-accordion > div > div > button {
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
 }
 
-.dn-settings-accordion-trigger:hover,
-.dn-settings-accordion-trigger:focus-visible {
-  color: var(--dn-fg) !important;
-  text-decoration: none !important;
-  box-shadow: none !important;
-}
-
-.dn-settings-accordion-trigger [data-slot="accordion-chevron"] {
-  width: 0.875rem;
-  height: 0.875rem;
-  color: var(--dn-muted);
-}
-
-.dn-settings-accordion [data-slot="accordion-trigger"] {
+.dn-settings-accordion > div > div > button > span:first-child {
   font-size: var(--dn-type-section);
   font-weight: 500;
   letter-spacing: var(--dn-tracking-tight);
+  line-height: 1.25;
 }
 
-.dn-settings-accordion [data-slot="accordion-content"] > div {
-  padding-inline: 0 !important;
-  padding-bottom: 0 !important;
-  padding-top: 0 !important;
+.dn-settings-accordion > div > div > button > span:last-child {
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
-.dn-settings-accordion:has(.dn-settings-accordion-item[data-focused="true"])
-  .dn-settings-accordion-item:not([data-focused="true"]) {
+.dn-settings-accordion > div > div > [role="region"] > div {
+  padding-inline: 0.875rem;
+  padding-bottom: 0.875rem;
+}
+
+.dn-settings-accordion [role="region"] {
+  --dn-bg: #ffffff;
+  --background: #ffffff;
+  --scroll-edge-fade-color: #ffffff;
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-accordion [role="region"] {
+  --dn-bg: var(--dn-surface, #111111);
+  --background: var(--dn-surface, #111111);
+  --scroll-edge-fade-color: var(--dn-surface, #111111);
+}
+
+.dn-settings-accordion [role="region"] [data-slot="scroll-area"],
+.dn-settings-accordion [role="region"] [data-slot="scroll-area-viewport"],
+.dn-settings-accordion [role="region"] [data-slot="scroll-area-viewport"] > div {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.dn-settings-accordion [role="region"] .dn-preview-tile {
+  background: transparent;
+}
+
+.dn-settings-accordion [role="region"] .dn-option-tile {
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--dn-line) 75%, transparent);
+}
+
+.dn-settings-accordion [role="region"] .dn-option-tile[aria-pressed="true"],
+.dn-settings-accordion [role="region"] .dn-option-tile[data-selected="true"] {
+  background: transparent;
+}
+
+.dn-settings-accordion [role="region"] .dn-settings-row {
+  background: var(--dn-control) !important;
+}
+
+.dn-settings-accordion [role="region"] .dn-settings-input {
+  background: var(--dn-control) !important;
+}
+
+.desktopnew-root.desktopnew-embedded .dn-settings-accordion > div > div {
+  background: #ffffff;
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-accordion > div > div {
+  background: var(--dn-surface, #111111);
+}
+
+.dn-settings-accordion:has([data-focused="true"]) > div > div:not([data-focused="true"]) {
   filter: blur(1.25px);
   opacity: 0.38;
 }
 
-.dn-settings-accordion:has(.dn-settings-accordion-item[data-focused="true"])
-  .dn-settings-accordion-item[data-focused="true"] {
-  border-bottom-width: 0;
-}
-
-.dn-settings-accordion:has(.dn-settings-accordion-item[data-focused="true"])
-  .dn-settings-accordion-item[data-focused="true"] + .dn-settings-accordion-item {
-  border-top-width: 1px;
-  border-top-style: solid;
-  border-top-color: color-mix(in srgb, var(--dn-line) 60%, transparent);
+.dn-settings-tab-panel {
+  will-change: opacity, filter;
+  backface-visibility: hidden;
 }
 
 /* Radix ScrollArea's generated table wrapper sizes itself to the widest
  * accordion child. The settings rail must stay pinned to its sidebar width. */
 .dn-settings-scroll [data-slot="scroll-area-viewport"] > div {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column;
+  min-height: 100%;
   min-width: 0 !important;
   width: 100% !important;
+}
+
+.dn-settings-scroll .dn-settings-accordion {
+  margin-block: auto;
+  flex-shrink: 0;
 }
 
 /* ── Popovers (portalled outside .desktopnew-root) ───────────────── */
@@ -706,8 +777,12 @@
   .dn-preview-tile,
   .t-tabs-pill,
   .t-tab,
-  .dn-settings-accordion-item {
+  .dn-settings-accordion > div > div {
     transition: none !important;
+  }
+
+  .dn-settings-tab-panel {
+    will-change: auto;
   }
 
   .dn-pressable:hover,

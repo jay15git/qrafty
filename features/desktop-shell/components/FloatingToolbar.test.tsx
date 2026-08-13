@@ -1528,12 +1528,14 @@ describe("FloatingToolbar", () => {
     })
 
     expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-shadow-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-filters-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-opacity-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-appearance-outline-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-appearance-radius-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-appearance-shadow-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-appearance-filters-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-appearance-opacity-trigger"]')).toBeNull()
   })
 
-  it("renders scan safety in the dynamic island", async () => {
+  it("does not render scan safety in the dynamic island", async () => {
     const surface = await renderPrototype({
       controller: {
         scanSafetyResult: {
@@ -1545,12 +1547,7 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-scan-safety-trigger"]')).not.toBeNull()
-    expect(
-      surface.container
-        .querySelector('[data-slot="desktop-scan-safety-trigger"]')
-        ?.getAttribute("aria-label"),
-    ).toContain("Not scannable")
+    expect(surface.container.querySelector('[data-slot="desktop-scan-safety-trigger"]')).toBeNull()
   })
 
   it("shows popular brand icons and search caption before a logo query is entered", async () => {

@@ -1418,11 +1418,6 @@ export function FloatingToolbar({
               canRedo={controller?.canRedo}
               canUndo={controller?.canUndo}
               isFreeEditingEnabled={controller?.isFreeEditingEnabled ?? true}
-              layerLabel={
-                controller?.selectedAppearanceLayer
-                  ? `${controller.selectedAppearanceLayer.kind.charAt(0).toUpperCase()}${controller.selectedAppearanceLayer.kind.slice(1)}`
-                  : null
-              }
               onFreeEditingChange={(enabled) =>
                 controller?.onEditingModeChange?.(enabled ? "free" : "template")
               }
@@ -1431,7 +1426,6 @@ export function FloatingToolbar({
               onResetDefaults={controller?.onResetDefaults}
               onThemeChange={model.onDesktopThemeChange}
               onUndo={controller?.onUndo}
-              scanSafetyResult={controller?.scanSafetyResult}
               theme={actualDesktopTheme}
             />
           </div>

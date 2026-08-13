@@ -28,6 +28,7 @@ import {
   SettingsScroll,
   SettingsSlider,
   SettingsSwitchRow,
+  SettingsTabPanel,
 } from "@/features/desktopnew/settings-ui"
 import {
   getContentTypeLabel,
@@ -176,7 +177,7 @@ function QrStylePreviewGrid({
       cueSize="tight"
       orientation="horizontal"
       scrollFade
-      viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
+      viewportClassName="min-w-0"
     >
       <div className={PREVIEW_ROW}>
         {options.map((option) => {
@@ -222,7 +223,7 @@ function ShapeTypePreviewRow({
       cueSize="tight"
       orientation="horizontal"
       scrollFade
-      viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
+      viewportClassName="min-w-0"
     >
       <div className={PREVIEW_ROW}>
         <button
@@ -291,7 +292,7 @@ function PaperShaderPreviewRow({
       cueSize="tight"
       orientation="horizontal"
       scrollFade
-      viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
+      viewportClassName="min-w-0"
     >
       <div className={PREVIEW_ROW}>
         {shaders.map((option) => {
@@ -334,7 +335,7 @@ function MotionLoaderPresetGrid({
       cueSize="tight"
       orientation="horizontal"
       scrollFade
-      viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
+      viewportClassName="min-w-0"
     >
       <div className={PREVIEW_ROW}>
         {QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => {
@@ -377,7 +378,7 @@ function AnimatedPresetGrid({
       cueSize="tight"
       orientation="horizontal"
       scrollFade
-      viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
+      viewportClassName="min-w-0"
     >
       <div className={PREVIEW_ROW}>
         {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => {
@@ -573,65 +574,67 @@ function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
     <div className="flex w-full min-w-0 max-w-full flex-col gap-2.5">
       <SegmentTabs items={["Module", "Eye", "Frame", "Logo"]} value={tab} onChange={setTab} />
 
-      {tab === "Logo" ? (
-        <>
-          <SettingsRowPopover
-            contentClassName="w-[18rem]"
-            hint="Logo"
-            open={logoPopoverOpen}
-            title="Logo"
-            trigger={getLogoSelectionLabel(actualLogoSettings.selectedBrandIconId)}
-            onOpenChange={setLogoPopoverOpen}
-          >
-            <LogoIconPicker
-              selectedId={actualLogoSettings.selectedBrandIconId}
-              onAfterSelect={() => setLogoPopoverOpen(false)}
-              onSelect={(selectedBrandIconId) => {
-                onLogoSettingsChange({ selectedBrandIconId, sourceMode: "brand" })
-              }}
+      <SettingsTabPanel activeKey={tab}>
+        {tab === "Logo" ? (
+          <>
+            <SettingsRowPopover
+              contentClassName="w-[18rem]"
+              hint="Logo"
+              open={logoPopoverOpen}
+              title="Logo"
+              trigger={getLogoSelectionLabel(actualLogoSettings.selectedBrandIconId)}
+              onOpenChange={setLogoPopoverOpen}
+            >
+              <LogoIconPicker
+                selectedId={actualLogoSettings.selectedBrandIconId}
+                onAfterSelect={() => setLogoPopoverOpen(false)}
+                onSelect={(selectedBrandIconId) => {
+                  onLogoSettingsChange({ selectedBrandIconId, sourceMode: "brand" })
+                }}
+              />
+            </SettingsRowPopover>
+            <SettingsSlider
+              label="Size"
+              max={100}
+              value={actualLogoSettings.size}
+              onChange={(size) => onLogoSettingsChange({ size })}
             />
-          </SettingsRowPopover>
-          <SettingsSlider
-            label="Size"
-            max={100}
-            value={actualLogoSettings.size}
-            onChange={(size) => onLogoSettingsChange({ size })}
-          />
-          <SettingsFillPopover
-            hint="Fill"
-            value={logoFill}
-            onValueChange={(fill) => onLogoSettingsChange(applyLogoFill(fill, actualLogoSettings))}
-          />
-        </>
-      ) : part ? (
-        <>
-          <QrStylePreviewGrid
-            options={part.options}
-            previewKind={part.previewKind}
-            selected={part.selected}
-            onSelect={part.onSelect}
-          />
-          {tab === "Module" ? (
             <SettingsFillPopover
               hint="Fill"
-              value={moduleFill}
-              onValueChange={(fill) =>
-                onPatternSettingsChange(applyPatternModuleFill(fill, actualPatternSettings))
-              }
+              value={logoFill}
+              onValueChange={(fill) => onLogoSettingsChange(applyLogoFill(fill, actualLogoSettings))}
             />
-          ) : (
-            <SettingsFillPopover
-              hint="Fill"
-              value={tab === "Eye" ? eyeFill : frameFill}
-              onValueChange={(fill) =>
-                onCornersSettingsChange(
-                  applyCornerFill(fill, tab === "Eye" ? "eye" : "frame", actualCornersSettings),
-                )
-              }
+          </>
+        ) : part ? (
+          <>
+            <QrStylePreviewGrid
+              options={part.options}
+              previewKind={part.previewKind}
+              selected={part.selected}
+              onSelect={part.onSelect}
             />
-          )}
-        </>
-      ) : null}
+            {tab === "Module" ? (
+              <SettingsFillPopover
+                hint="Fill"
+                value={moduleFill}
+                onValueChange={(fill) =>
+                  onPatternSettingsChange(applyPatternModuleFill(fill, actualPatternSettings))
+                }
+              />
+            ) : (
+              <SettingsFillPopover
+                hint="Fill"
+                value={tab === "Eye" ? eyeFill : frameFill}
+                onValueChange={(fill) =>
+                  onCornersSettingsChange(
+                    applyCornerFill(fill, tab === "Eye" ? "eye" : "frame", actualCornersSettings),
+                  )
+                }
+              />
+            )}
+          </>
+        ) : null}
+      </SettingsTabPanel>
     </div>
   )
 }
@@ -725,7 +728,7 @@ function CanvasRatioPresetRow({
       cueSize="tight"
       orientation="horizontal"
       scrollFade
-      viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
+      viewportClassName="min-w-0"
     >
       <div className={PREVIEW_ROW}>
         {presets.map((template) => {
@@ -821,69 +824,71 @@ function SceneSection({ model }: { model: DesktopInspectorModel }) {
         onSelectTemplate={selectCanvasTemplate}
       />
       <SegmentTabs items={["Shader", "Image", "Color"]} value={tab} onChange={handleBackgroundTabChange} />
-      {tab === "Shader" ? (
-        <>
-          <PaperShaderPreviewRow
-            selected={paperShader.shaderId}
-            onSelect={(shaderId) =>
-              onBackgroundSettingsChange({
-                paperShader: createDefaultDraftingCardPaperShader(shaderId),
-              })
-            }
-          />
-          <SettingsSwitchRow
-            checked={paperShader.paused}
-            label="Pause"
-            onChange={(paused) =>
-              onBackgroundSettingsChange({
-                paperShader: { ...paperShader, paused },
-              })
-            }
-          />
-          <SettingsSlider
-            label="Speed"
-            max={100}
-            min={1}
-            value={Math.round(paperShader.speed * 100)}
-            onChange={(value) =>
-              onBackgroundSettingsChange({
-                paperShader: { ...paperShader, speed: value / 100 },
-              })
-            }
-          />
-        </>
-      ) : tab === "Image" ? (
-        <>
-          <SettingsRowPopover
-            contentClassName="w-[19rem]"
-            hint="Image"
-            open={imagePopoverOpen}
-            title="Image"
-            trigger={imageLabel}
-            onOpenChange={setImagePopoverOpen}
-          >
-            <PexelsPhotoPicker
-              onAfterSelect={() => setImagePopoverOpen(false)}
-              onClear={() => onImageSettingsChange({ remoteUrl: "" })}
-              onSelectPhoto={(imageUrl) =>
-                onImageSettingsChange({ remoteUrl: imageUrl, sourceMode: "url" })
+      <SettingsTabPanel activeKey={tab}>
+        {tab === "Shader" ? (
+          <>
+            <PaperShaderPreviewRow
+              selected={paperShader.shaderId}
+              onSelect={(shaderId) =>
+                onBackgroundSettingsChange({
+                  paperShader: createDefaultDraftingCardPaperShader(shaderId),
+                })
               }
             />
-          </SettingsRowPopover>
-          <SettingsSlider
-            label="Opacity"
-            max={100}
-            value={actualImageSettings.opacity}
-            onChange={(opacity) => onImageSettingsChange({ opacity })}
+            <SettingsSwitchRow
+              checked={paperShader.paused}
+              label="Pause"
+              onChange={(paused) =>
+                onBackgroundSettingsChange({
+                  paperShader: { ...paperShader, paused },
+                })
+              }
+            />
+            <SettingsSlider
+              label="Speed"
+              max={100}
+              min={1}
+              value={Math.round(paperShader.speed * 100)}
+              onChange={(value) =>
+                onBackgroundSettingsChange({
+                  paperShader: { ...paperShader, speed: value / 100 },
+                })
+              }
+            />
+          </>
+        ) : tab === "Image" ? (
+          <>
+            <SettingsRowPopover
+              contentClassName="w-[19rem]"
+              hint="Image"
+              open={imagePopoverOpen}
+              title="Image"
+              trigger={imageLabel}
+              onOpenChange={setImagePopoverOpen}
+            >
+              <PexelsPhotoPicker
+                onAfterSelect={() => setImagePopoverOpen(false)}
+                onClear={() => onImageSettingsChange({ remoteUrl: "" })}
+                onSelectPhoto={(imageUrl) =>
+                  onImageSettingsChange({ remoteUrl: imageUrl, sourceMode: "url" })
+                }
+              />
+            </SettingsRowPopover>
+            <SettingsSlider
+              label="Opacity"
+              max={100}
+              value={actualImageSettings.opacity}
+              onChange={(opacity) => onImageSettingsChange({ opacity })}
+            />
+          </>
+        ) : (
+          <SettingsFillPopover
+            hint="Fill"
+            value={backgroundFill}
+            onValueChange={(fill) => onShapeSettingsChange({ cardFill: fillPreviewHex(fill) })}
           />
-        </>
-      ) : (
-        <SettingsFillPopover
-          hint="Fill"
-          value={backgroundFill}
-          onValueChange={(fill) => onShapeSettingsChange({ cardFill: fillPreviewHex(fill) })}
-        />
-      )}
+        )}
+      </SettingsTabPanel>
     </div>
   )
 }

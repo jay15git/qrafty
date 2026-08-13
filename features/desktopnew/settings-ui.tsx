@@ -1,6 +1,7 @@
 "use client"
 
 import { ChevronRight, Filter, Search } from "lucide-react"
+import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import {
   createContext,
   useContext,
@@ -11,12 +12,7 @@ import {
   type ReactNode,
 } from "react"
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
+import { MotionAccordion } from "@/components/unlumen-ui/motion-faqs-accordion"
 import {
   Popover,
   PopoverContent,
@@ -137,36 +133,32 @@ export function SettingsAccordion({
   renderSection,
 }: {
   openSection: string | undefined
-  onOpenSectionChange: (value: string) => void
+  onOpenSectionChange: (value: string | undefined) => void
   sections: readonly string[]
   renderSection: (section: string) => ReactNode
 }) {
+  const sectionIndex = openSection ? sections.indexOf(openSection) : -1
+  const openIndex = sectionIndex >= 0 ? sectionIndex : null
+
+  const items = sections.map((section) => ({
+    question: section,
+    answer: (
+      <div className={cn("flex w-full min-w-0 flex-col", DN_SECTION_GAP)}>
+        {renderSection(section)}
+      </div>
+    ),
+  }))
+
   return (
-    <Accordion
-      collapsible
-      type="single"
-      value={openSection}
-      onValueChange={onOpenSectionChange}
+    <MotionAccordion
       className="dn-settings-accordion w-full min-w-0 max-w-full"
-    >
-      {sections.map((section) => (
-        <AccordionItem
-          key={section}
-          className="dn-settings-accordion-item"
-          data-focused={openSection === section ? "true" : undefined}
-          value={section}
-        >
-          <AccordionTrigger className="dn-settings-accordion-trigger px-4 py-3.5 hover:no-underline">
-            {section}
-          </AccordionTrigger>
-          <AccordionContent className="pb-0">
-            <div className={cn("flex w-full min-w-0 flex-col px-4 pb-3.5 pt-1", DN_SECTION_GAP)}>
-              {renderSection(section)}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      ))}
-    </Accordion>
+      gap={6}
+      items={items}
+      openIndex={openIndex}
+      onOpenIndexChange={(index) => {
+        onOpenSectionChange(index === null ? undefined : sections[index])
+      }}
+    />
   )
 }
 
@@ -254,6 +246,75 @@ export function SegmentTabs({
           </button>
         )
       })}
+    </div>
+  )
+}
+
+const TAB_PANEL_EASE_ENTER = [0.16, 1, 0.3, 1] as const
+const TAB_PANEL_EASE_EXIT = [0.4, 0, 0.2, 1] as const
+
+const settingsTabPanelVariants = {
+  initial: { opacity: 0, filter: "blur(8px)" },
+  animate: {
+    opacity: 1,
+    filter: "blur(0px)",
+    transition: {
+      opacity: { duration: 0.36, ease: TAB_PANEL_EASE_ENTER },
+      filter: { duration: 0.44, ease: TAB_PANEL_EASE_ENTER },
+    },
+  },
+  exit: {
+    opacity: 0,
+    filter: "blur(6px)",
+    transition: {
+      opacity: { duration: 0.24, ease: TAB_PANEL_EASE_EXIT },
+      filter: { duration: 0.28, ease: TAB_PANEL_EASE_EXIT },
+    },
+  },
+}
+
+const settingsTabPanelReducedMotionVariants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: { duration: 0.22, ease: TAB_PANEL_EASE_ENTER },
+  },
+  exit: {
+    opacity: 0,
+    transition: { duration: 0.18, ease: TAB_PANEL_EASE_EXIT },
+  },
+}
+
+export function SettingsTabPanel({
+  activeKey,
+  className,
+  children,
+}: {
+  activeKey: string
+  className?: string
+  children: ReactNode
+}) {
+  const reduceMotion = useReducedMotion()
+
+  return (
+    <div className="grid w-full min-w-0 [&>*]:col-start-1 [&>*]:row-start-1">
+      <AnimatePresence mode="sync" initial={false}>
+        <motion.div
+          key={activeKey}
+          className={cn(
+            "dn-settings-tab-panel flex w-full min-w-0 flex-col gap-2.5",
+            className,
+          )}
+          variants={
+            reduceMotion ? settingsTabPanelReducedMotionVariants : settingsTabPanelVariants
+          }
+          initial="initial"
+          animate="animate"
+          exit="exit"
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
     </div>
   )
 }
