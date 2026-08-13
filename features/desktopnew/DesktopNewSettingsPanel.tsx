@@ -1,12 +1,13 @@
 "use client"
 
-import { useTheme } from "next-themes"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
-import { formatFill } from "@/components/ui/fill-picker-base/fill"
-import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { StylePreview, type StylePreviewKind } from "@/features/qr-code/components/StylePreview"
+import {
+  POPULAR_BRAND_ICON_IDS,
+  getBrandIconById,
+} from "@/features/qr-code/assets/brand-icons"
 import {
   CORNER_DOT_STYLE_OPTIONS,
   CORNER_SQUARE_STYLE_OPTIONS,
@@ -16,11 +17,8 @@ import {
   QR_BACKGROUND_SHAPES,
   type QrBackgroundShapeId,
 } from "@/features/qr-code/styles/background-shapes"
-import { ShapeProvider } from "@/lib/shape-context"
-import { cn } from "@/lib/utils"
 
 import {
-  IconGrid,
   ContentTypePicker,
   OptionGrid,
   PresetList,
@@ -47,15 +45,41 @@ import {
   type QrDotMatrixSquareLoader,
 } from "@/features/qr-code/model/state"
 import { PaperShaderOptionPreview } from "@/features/workspace/components/PaperShaderOptionPreview"
+import { cn } from "@/lib/utils"
 import {
-  fillFromHex,
   fillPreviewHex,
 } from "@/features/desktopnew/desktopnew-fill-picker"
 import {
-  DEFAULT_PAPER_SHADER_ID,
+  applyCornerFill,
+  applyLogoFill,
+  applyPatternModuleFill,
+  applyShapeFill,
+  readCornerFillCss,
+  readLogoFillCss,
+  readPatternModuleFillCss,
+  readShapeFillCss,
+  solidColorToFillCss,
+} from "@/features/desktopnew/desktopnew-settings-bridge"
+import {
   getAllPaperShaderDefinitions,
   type PaperShaderId,
 } from "@/features/workspace/rendering/paper-shaders"
+import {
+  EXPORT_PRESETS,
+  formatExportPresetLabel,
+} from "@/features/workspace/model/export-presets"
+import type {
+  DesktopExportTarget,
+  DesktopInspectorModel,
+  DesktopRasterExportPresetId,
+  DesktopToolbarToolId,
+} from "@/features/desktop-shell/components/FloatingToolbar"
+import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
+import type { QrFileExtension } from "@/features/qr-code/model/types"
+
+function isUrlContentType(type: QrInputType) {
+  return type === "link" || type === "website" || type === "app-download"
+}
 
 const SECTION_STACK = "flex flex-col gap-2.5"
 const PREVIEW_TILE =
@@ -72,22 +96,49 @@ const SECTIONS = [
 
 type SectionId = (typeof SECTIONS)[number]
 
-function ContentSection() {
-  const [contentType, setContentType] = useState<QrInputType>("link")
+const SECTION_TO_TOOL: Record<SectionId, DesktopToolbarToolId> = {
+  Content: "content",
+  QR: "pattern",
+  Shape: "shape",
+  Background: "background",
+  Motion: "motion",
+  Export: "export",
+}
 
-  return (
-    <div className={SECTION_STACK}>
-      <SettingsRowPopover
-        contentClassName="w-[15rem]"
-        hint="Type"
-        title="Type"
-        trigger={getContentTypeLabel(contentType)}
-      >
-        <ContentTypePicker selected={contentType} onSelect={setContentType} />
-      </SettingsRowPopover>
-      <SettingsInput value="https://example.com" />
-    </div>
-  )
+const TOOL_TO_SECTION: Partial<Record<DesktopToolbarToolId, SectionId>> = {
+  content: "Content",
+  pattern: "QR",
+  corners: "QR",
+  logo: "QR",
+  shape: "Shape",
+  background: "Background",
+  motion: "Motion",
+  export: "Export",
+}
+
+const EXPORT_TARGET_OPTIONS: Array<{ label: string; value: DesktopExportTarget }> = [
+  { label: "Current QR", value: "current" },
+  { label: "All QR codes", value: "all-qr" },
+  { label: "Full surface", value: "surface" },
+]
+
+const EXPORT_FORMAT_OPTIONS: QrFileExtension[] = ["svg", "png", "webp", "jpeg"]
+
+const RASTER_QUALITY_PRESETS: Array<{
+  id: DesktopRasterExportPresetId
+  label: string
+}> = [
+  { id: "quick-share", label: "Quick share" },
+  { id: "web-social", label: "Web & social" },
+  { id: "small-print", label: "Small print" },
+  { id: "flyer-poster", label: "Flyer / poster" },
+  { id: "large-format", label: "Large format" },
+  { id: "max-quality", label: "Max quality" },
+]
+
+function sectionForTool(tool: DesktopToolbarToolId | null): SectionId {
+  if (!tool) return "Content"
+  return TOOL_TO_SECTION[tool] ?? "Content"
 }
 
 function QrStylePreviewGrid({
@@ -140,79 +191,6 @@ function QrStylePreviewGrid({
   )
 }
 
-function QrStyleSection() {
-  const [tab, setTab] = useState("Module")
-  const [moduleShape, setModuleShape] = useState("rounded")
-  const [eyeShape, setEyeShape] = useState("square")
-  const [frameShape, setFrameShape] = useState("square")
-  const [moduleFill, setModuleFill] = useState(() => formatFill(fillFromHex("#171717")))
-  const [eyeFill, setEyeFill] = useState(() => formatFill(fillFromHex("#171717")))
-  const [frameFill, setFrameFill] = useState(() => formatFill(fillFromHex("#171717")))
-  const [logoFill, setLogoFill] = useState(() => formatFill(fillFromHex("#171717")))
-  const [selectedIcon, setSelectedIcon] = useState("G")
-  const [logoSize, setLogoSize] = useState(25)
-  const [logoOpacity, setLogoOpacity] = useState(100)
-
-  const part =
-    tab === "Module"
-      ? {
-          setShape: setModuleShape,
-          shape: moduleShape,
-          options: DOT_STYLE_OPTIONS,
-          previewKind: "dots" as const,
-        }
-      : tab === "Eye"
-        ? {
-            setShape: setEyeShape,
-            shape: eyeShape,
-            options: CORNER_DOT_STYLE_OPTIONS,
-            previewKind: "corner-dot" as const,
-          }
-        : {
-            setShape: setFrameShape,
-            shape: frameShape,
-            options: CORNER_SQUARE_STYLE_OPTIONS,
-            previewKind: "corner-square" as const,
-          }
-
-  return (
-    <div className="flex w-full min-w-0 max-w-full flex-col gap-2.5">
-      <SegmentTabs items={["Module", "Eye", "Frame", "Logo"]} value={tab} onChange={setTab} />
-
-      {tab === "Logo" ? (
-        <>
-          <IconGrid
-            items={["G", "in", "X", "gh", "f", "ig", "yt", "t"]}
-            selectedIndex={["G", "in", "X", "gh", "f", "ig", "yt", "t"].indexOf(selectedIcon)}
-            onSelect={setSelectedIcon}
-          />
-          <SettingsSlider label="Size" value={logoSize} onChange={setLogoSize} />
-          <SettingsSlider label="Opacity" value={logoOpacity} onChange={setLogoOpacity} />
-          <SettingsFillPopover hint="Fill" value={logoFill} onValueChange={setLogoFill} />
-        </>
-      ) : (
-        <>
-          <QrStylePreviewGrid
-            options={part.options}
-            previewKind={part.previewKind}
-            selected={part.shape}
-            onSelect={part.setShape}
-          />
-          {tab === "Module" ? (
-            <SettingsFillPopover hint="Fill" value={moduleFill} onValueChange={setModuleFill} />
-          ) : (
-            <SettingsFillPopover
-              hint="Fill"
-              value={tab === "Eye" ? eyeFill : frameFill}
-              onValueChange={tab === "Eye" ? setEyeFill : setFrameFill}
-            />
-          )}
-        </>
-      )}
-    </div>
-  )
-}
-
 function ShapeTypePreviewRow({
   selected,
   onSelect,
@@ -220,8 +198,6 @@ function ShapeTypePreviewRow({
   selected: QrBackgroundShapeId
   onSelect: (shapeId: QrBackgroundShapeId) => void
 }) {
-  const shapes = QR_BACKGROUND_SHAPES
-
   return (
     <ScrollArea
       className="w-full min-w-0 max-w-full overflow-hidden"
@@ -232,7 +208,19 @@ function ShapeTypePreviewRow({
       viewportClassName="min-w-0 scroll-fade-x scroll-fade-8"
     >
       <div className="flex min-w-max gap-1.5 py-1.5">
-        {shapes.map((option) => {
+        <button
+          aria-label="Use no shape"
+          aria-pressed={selected === "none"}
+          className={cn(PREVIEW_TILE, "size-14")}
+          title="None"
+          type="button"
+          onClick={() => onSelect("none")}
+        >
+          <span className="relative z-10 grid size-full place-items-center text-[10px] font-medium text-[var(--dn-muted)]">
+            None
+          </span>
+        </button>
+        {QR_BACKGROUND_SHAPES.map((option) => {
           const isSelected = selected === option.id
 
           return (
@@ -335,7 +323,7 @@ function MotionLoaderPresetGrid({
               aria-pressed={isSelected}
               className={cn(
                 "dn-option-tile h-9 shrink-0 px-3 text-[11px] font-medium tracking-tight dn-squircle-xs",
-                isSelected && "text-foreground",
+                isSelected && "text-[var(--dn-fg)]",
               )}
               type="button"
               onClick={() => onSelect(option.value)}
@@ -381,7 +369,7 @@ function AnimatedPresetGrid({
               aria-label={preset.label}
               aria-pressed={isSelected}
               className={cn(
-                "dn-pressable flex size-8 shrink-0 overflow-hidden border border-border/40 dn-squircle-xs",
+                "dn-pressable flex size-8 shrink-0 overflow-hidden border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] dn-squircle-xs",
                 isSelected &&
                   "ring-2 ring-foreground ring-offset-2 ring-offset-background",
               )}
@@ -398,96 +386,406 @@ function AnimatedPresetGrid({
   )
 }
 
-function CardSection() {
-  const [shape, setShape] = useState<QrBackgroundShapeId>("circle")
-  const [cardFill, setCardFill] = useState(() => formatFill(fillFromHex("#ffffff")))
+function BrandIconGrid({
+  selectedId,
+  onSelect,
+}: {
+  selectedId: string
+  onSelect: (id: string) => void
+}) {
+  const icons = useMemo(
+    () => POPULAR_BRAND_ICON_IDS.map((id) => getBrandIconById(id)),
+    [],
+  )
 
   return (
-    <div className={SECTION_STACK}>
-      <ShapeTypePreviewRow selected={shape} onSelect={setShape} />
-      <SettingsFillPopover hint="Fill" value={cardFill} onValueChange={setCardFill} />
-      <SettingsSlider label="Padding" value={32} />
+    <div className="grid w-full grid-cols-4 gap-1.5">
+      {icons.map((brandIcon) => {
+        const Icon = brandIcon.icon
+        const isSelected = selectedId === brandIcon.id
+
+        return (
+          <button
+            key={brandIcon.id}
+            aria-label={brandIcon.label}
+            aria-pressed={isSelected}
+            className={cn(
+              "dn-option-tile flex h-10 items-center justify-center dn-squircle-xs",
+              isSelected && "text-[var(--dn-fg)]",
+            )}
+            type="button"
+            onClick={() => onSelect(brandIcon.id)}
+          >
+            <Icon aria-hidden className="size-4" />
+          </button>
+        )
+      })}
     </div>
   )
 }
 
-function SceneSection() {
+type DesktopNewSettingsPanelProps = {
+  fillHeight?: boolean
+  model: DesktopInspectorModel
+  openSection?: string
+  onOpenSectionChange?: (section: string) => void
+}
+
+export function DesktopNewSettingsPanel({
+  fillHeight = false,
+  model,
+  openSection: openSectionProp,
+  onOpenSectionChange,
+}: DesktopNewSettingsPanelProps) {
+  const [internalOpenSection, setInternalOpenSection] = useState<string | undefined>(
+    sectionForTool(model.actualActiveTool),
+  )
+  const openSection = openSectionProp ?? internalOpenSection
+  const setOpenSection = onOpenSectionChange ?? setInternalOpenSection
+
+  useEffect(() => {
+    setOpenSection(sectionForTool(model.actualActiveTool))
+  }, [model.actualActiveTool, setOpenSection])
+
+  const handleSectionChange = (section: string) => {
+    setOpenSection(section)
+    const tool = SECTION_TO_TOOL[section as SectionId]
+    if (tool) {
+      model.onActiveToolChange(tool)
+    }
+  }
+
+  return (
+    <SettingsPanelShell fillHeight={fillHeight}>
+      <SettingsScroll fillHeight={fillHeight}>
+        <SettingsAccordion
+          openSection={openSection}
+          renderSection={(section) => (
+            <SectionBody id={section as SectionId} model={model} />
+          )}
+          sections={SECTIONS}
+          onOpenSectionChange={handleSectionChange}
+        />
+      </SettingsScroll>
+    </SettingsPanelShell>
+  )
+}
+
+function SectionBody({
+  id,
+  model,
+}: {
+  id: SectionId
+  model: DesktopInspectorModel
+}) {
+  switch (id) {
+    case "Content":
+      return <ContentSection model={model} />
+    case "QR":
+      return <QrStyleSection model={model} />
+    case "Shape":
+      return <CardSection model={model} />
+    case "Background":
+      return <SceneSection model={model} />
+    case "Motion":
+      return <MotionSection model={model} />
+    case "Export":
+      return <ExportSection model={model} />
+    default:
+      return null
+  }
+}
+
+function ContentSection({ model }: { model: DesktopInspectorModel }) {
+  const { actualContentType, actualContentValues, onContentTypeChange, onContentValueChange } =
+    model
+  const primaryField = isUrlContentType(actualContentType) ? "url" : "text"
+  const primaryValue = String(actualContentValues[primaryField] ?? "")
+
+  return (
+    <div className={SECTION_STACK}>
+      <SettingsRowPopover
+        contentClassName="w-[15rem]"
+        hint="Type"
+        title="Type"
+        trigger={getContentTypeLabel(actualContentType)}
+      >
+        <ContentTypePicker selected={actualContentType} onSelect={onContentTypeChange} />
+      </SettingsRowPopover>
+      <SettingsInput
+        placeholder={primaryField === "url" ? "https://example.com" : "Text to encode"}
+        value={primaryValue}
+        onChange={(event) => onContentValueChange(primaryField, event.currentTarget.value)}
+      />
+    </div>
+  )
+}
+
+function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
+  const [tab, setTab] = useState("Module")
+  const {
+    actualCornersSettings,
+    actualLogoSettings,
+    actualPatternSettings,
+    onCornersSettingsChange,
+    onLogoSettingsChange,
+    onPatternSettingsChange,
+  } = model
+
+  const moduleFill = readPatternModuleFillCss(actualPatternSettings)
+  const eyeFill = readCornerFillCss(
+    actualCornersSettings.cornerDotColorMode,
+    actualCornersSettings.cornerDotSolidColor,
+    actualCornersSettings.cornerDotGradient,
+  )
+  const frameFill = readCornerFillCss(
+    actualCornersSettings.cornerSquareColorMode,
+    actualCornersSettings.cornerSquareSolidColor,
+    actualCornersSettings.cornerSquareGradient,
+  )
+  const logoFill = readLogoFillCss(actualLogoSettings)
+
+  const part =
+    tab === "Module"
+      ? {
+          options: DOT_STYLE_OPTIONS,
+          previewKind: "dots" as const,
+          selected: actualPatternSettings.qrDotType,
+          onSelect: (value: string) => onPatternSettingsChange({ qrDotType: value as typeof actualPatternSettings.qrDotType }),
+        }
+      : tab === "Eye"
+        ? {
+            options: CORNER_DOT_STYLE_OPTIONS,
+            previewKind: "corner-dot" as const,
+            selected: actualCornersSettings.cornerDotType,
+            onSelect: (value: string) =>
+              onCornersSettingsChange({ cornerDotType: value as typeof actualCornersSettings.cornerDotType }),
+          }
+        : tab === "Frame"
+          ? {
+              options: CORNER_SQUARE_STYLE_OPTIONS,
+              previewKind: "corner-square" as const,
+              selected: actualCornersSettings.cornerSquareType,
+              onSelect: (value: string) =>
+                onCornersSettingsChange({
+                  cornerSquareType: value as typeof actualCornersSettings.cornerSquareType,
+                }),
+            }
+          : null
+
+  return (
+    <div className="flex w-full min-w-0 max-w-full flex-col gap-2.5">
+      <SegmentTabs items={["Module", "Eye", "Frame", "Logo"]} value={tab} onChange={setTab} />
+
+      {tab === "Logo" ? (
+        <>
+          <BrandIconGrid
+            selectedId={actualLogoSettings.selectedBrandIconId}
+            onSelect={(selectedBrandIconId) => {
+              onLogoSettingsChange({ sourceMode: "brand", selectedBrandIconId })
+            }}
+          />
+          <SettingsSlider
+            label="Size"
+            max={100}
+            value={actualLogoSettings.size}
+            onChange={(size) => onLogoSettingsChange({ size })}
+          />
+          <SettingsSlider
+            label="Opacity"
+            max={100}
+            value={actualLogoSettings.opacity}
+            onChange={(opacity) => onLogoSettingsChange({ opacity })}
+          />
+          <SettingsFillPopover
+            hint="Fill"
+            value={logoFill}
+            onValueChange={(fill) => onLogoSettingsChange(applyLogoFill(fill, actualLogoSettings))}
+          />
+        </>
+      ) : part ? (
+        <>
+          <QrStylePreviewGrid
+            options={part.options}
+            previewKind={part.previewKind}
+            selected={part.selected}
+            onSelect={part.onSelect}
+          />
+          {tab === "Module" ? (
+            <SettingsFillPopover
+              hint="Fill"
+              value={moduleFill}
+              onValueChange={(fill) =>
+                onPatternSettingsChange(applyPatternModuleFill(fill, actualPatternSettings))
+              }
+            />
+          ) : (
+            <SettingsFillPopover
+              hint="Fill"
+              value={tab === "Eye" ? eyeFill : frameFill}
+              onValueChange={(fill) =>
+                onCornersSettingsChange(
+                  applyCornerFill(fill, tab === "Eye" ? "eye" : "frame", actualCornersSettings),
+                )
+              }
+            />
+          )}
+        </>
+      ) : null}
+    </div>
+  )
+}
+
+function CardSection({ model }: { model: DesktopInspectorModel }) {
+  const { actualShapeSettings, onShapeSettingsChange } = model
+  const cardFill = readShapeFillCss(actualShapeSettings)
+
+  return (
+    <div className={SECTION_STACK}>
+      <ShapeTypePreviewRow
+        selected={actualShapeSettings.backgroundShapeId}
+        onSelect={(backgroundShapeId) => onShapeSettingsChange({ backgroundShapeId })}
+      />
+      <SettingsFillPopover
+        hint="Fill"
+        value={cardFill}
+        onValueChange={(fill) => onShapeSettingsChange(applyShapeFill(fill, actualShapeSettings))}
+      />
+      <SettingsSlider
+        label="Padding"
+        max={192}
+        value={actualShapeSettings.shapePadding}
+        onChange={(shapePadding) => onShapeSettingsChange({ shapePadding })}
+      />
+    </div>
+  )
+}
+
+function SceneSection({ model }: { model: DesktopInspectorModel }) {
   const [tab, setTab] = useState("Shader")
-  const [shader, setShader] = useState<PaperShaderId>(DEFAULT_PAPER_SHADER_ID)
-  const [paused, setPaused] = useState(false)
-  const [backgroundImage, setBackgroundImage] = useState("None")
-  const [backgroundFill, setBackgroundFill] = useState(() => formatFill(fillFromHex("#171717")))
+  const { actualBackgroundSettings, actualShapeSettings, onBackgroundSettingsChange, onShapeSettingsChange } =
+    model
+  const paperShader = actualBackgroundSettings.paperShader
+  const backgroundFill = solidColorToFillCss(actualShapeSettings.cardFill)
 
   return (
     <div className={SECTION_STACK}>
       <SegmentTabs items={["Shader", "Image", "Color"]} value={tab} onChange={setTab} />
       {tab === "Shader" ? (
         <>
-          <PaperShaderPreviewRow selected={shader} onSelect={setShader} />
-          <SettingsSwitchRow checked={paused} label="Pause" onChange={setPaused} />
-          <SettingsSlider label="Speed" value={100} />
+          <PaperShaderPreviewRow
+            selected={paperShader.shaderId}
+            onSelect={(shaderId) =>
+              onBackgroundSettingsChange({
+                paperShader: createDefaultDraftingCardPaperShader(shaderId),
+              })
+            }
+          />
+          <SettingsSwitchRow
+            checked={paperShader.paused}
+            label="Pause"
+            onChange={(paused) =>
+              onBackgroundSettingsChange({
+                paperShader: { ...paperShader, paused },
+              })
+            }
+          />
+          <SettingsSlider
+            label="Speed"
+            max={100}
+            min={1}
+            value={Math.round(paperShader.speed * 100)}
+            onChange={(value) =>
+              onBackgroundSettingsChange({
+                paperShader: { ...paperShader, speed: value / 100 },
+              })
+            }
+          />
         </>
       ) : tab === "Image" ? (
         <>
-          <SettingsRowPopover hint="Image" title="Image" trigger={backgroundImage}>
-            <PresetList
-              items={["None", "Studio", "Paper", "Texture"]}
-              selected={backgroundImage}
-              onSelect={setBackgroundImage}
-            />
+          <SettingsRowPopover hint="Image" title="Image" trigger="None">
+            <PresetList items={["None", "Studio", "Paper", "Texture"]} selected="None" onSelect={() => undefined} />
           </SettingsRowPopover>
           <SettingsSlider label="Opacity" value={100} />
         </>
       ) : (
-        <SettingsFillPopover hint="Fill" value={backgroundFill} onValueChange={setBackgroundFill} />
+        <SettingsFillPopover
+          hint="Fill"
+          value={backgroundFill}
+          onValueChange={(fill) => onShapeSettingsChange({ cardFill: fillPreviewHex(fill) })}
+        />
       )}
     </div>
   )
 }
 
-function MotionSection() {
-  const [enabled, setEnabled] = useState(true)
-  const [motionLoader, setMotionLoader] = useState<QrDotMatrixSquareLoader>("neon-drift")
-  const [animatedPreset, setAnimatedPreset] = useState<QrDotMatrixColorPreset>("theme")
-  const [animatedBaseFill, setAnimatedBaseFill] = useState(() => formatFill(fillFromHex("#22d3ee")))
-  const [animatedPeakFill, setAnimatedPeakFill] = useState(() => formatFill(fillFromHex("#f0abfc")))
+function MotionSection({ model }: { model: DesktopInspectorModel }) {
+  const { actualMotionSettings, onMotionSettingsChange } = model
+  const loader =
+    actualMotionSettings.presetCategory === "dotMatrix"
+      ? actualMotionSettings.loader
+      : ("neon-drift" satisfies QrDotMatrixSquareLoader)
 
   const selectAnimatedPreset = (nextPreset: QrDotMatrixColorPreset) => {
     const [base, accent] = MOTION_COLOR_SWATCHES[nextPreset]
-    setAnimatedPreset(nextPreset)
-    setAnimatedBaseFill(formatFill(fillFromHex(base)))
-    setAnimatedPeakFill(formatFill(fillFromHex(accent)))
+    onMotionSettingsChange({
+      colorPreset: nextPreset,
+      customColor: base,
+      customColorBase: base,
+      customColorMid: accent,
+      customColorPeak: accent,
+    })
   }
 
   return (
     <div className={SECTION_STACK}>
-      <SettingsSwitchRow checked={enabled} label="Enabled" onChange={setEnabled} />
-      {enabled ? (
+      <SettingsSwitchRow
+        checked={actualMotionSettings.enabled}
+        label="Enabled"
+        onChange={(enabled) => onMotionSettingsChange({ enabled })}
+      />
+      {actualMotionSettings.enabled ? (
         <>
-          <MotionLoaderPresetGrid selected={motionLoader} onSelect={setMotionLoader} />
+          <MotionLoaderPresetGrid
+            selected={loader}
+            onSelect={(nextLoader) =>
+              onMotionSettingsChange({
+                loader: nextLoader,
+                preset: nextLoader,
+                presetCategory: "dotMatrix",
+              })
+            }
+          />
           <AnimatedPresetGrid
             customColors={{
-              base: fillPreviewHex(animatedBaseFill),
-              peak: fillPreviewHex(animatedPeakFill),
+              base: actualMotionSettings.customColorBase,
+              peak: actualMotionSettings.customColorPeak,
             }}
-            selected={animatedPreset}
+            selected={actualMotionSettings.colorPreset}
             onSelect={selectAnimatedPreset}
           />
           <SettingsFillPopover
             hint="Base"
-            value={animatedBaseFill}
-            onValueChange={(fill) => {
-              setAnimatedPreset("theme")
-              setAnimatedBaseFill(fill)
-            }}
+            value={solidColorToFillCss(actualMotionSettings.customColorBase)}
+            onValueChange={(fill) =>
+              onMotionSettingsChange({
+                colorPreset: "theme",
+                customColor: fillPreviewHex(fill),
+                customColorBase: fillPreviewHex(fill),
+              })
+            }
           />
           <SettingsFillPopover
             hint="Peak"
-            value={animatedPeakFill}
-            onValueChange={(fill) => {
-              setAnimatedPreset("theme")
-              setAnimatedPeakFill(fill)
-            }}
+            value={solidColorToFillCss(actualMotionSettings.customColorPeak)}
+            onValueChange={(fill) =>
+              onMotionSettingsChange({
+                colorPreset: "theme",
+                customColorMid: fillPreviewHex(fill),
+                customColorPeak: fillPreviewHex(fill),
+              })
+            }
           />
         </>
       ) : null}
@@ -495,91 +793,99 @@ function MotionSection() {
   )
 }
 
-function ExportSection() {
-  const [target, setTarget] = useState("Current QR")
-  const [format, setFormat] = useState("PNG")
+function ExportSection({ model }: { model: DesktopInspectorModel }) {
+  const { actualExportSettings, controller, onExportSettingsChange } = model
+  const selectedPreset =
+    EXPORT_PRESETS.find((preset) => preset.id === actualExportSettings.exportPresetId) ??
+    EXPORT_PRESETS[0]
+  const selectedQuality =
+    RASTER_QUALITY_PRESETS.find((preset) => preset.id === actualExportSettings.qualityPresetId) ??
+    RASTER_QUALITY_PRESETS[1]
+
+  const targetLabel =
+    EXPORT_TARGET_OPTIONS.find((option) => option.value === actualExportSettings.target)?.label ??
+    "Current QR"
 
   return (
     <div className={SECTION_STACK}>
-      <SettingsRowPopover hint="Target" title="Target" trigger={target}>
+      <SettingsRowPopover hint="Target" title="Target" trigger={targetLabel}>
         <PresetList
-          items={["Current QR", "All QR codes", "Full surface"]}
-          selected={target}
-          onSelect={setTarget}
+          items={EXPORT_TARGET_OPTIONS.map((option) => option.label)}
+          selected={targetLabel}
+          onSelect={(label) => {
+            const next = EXPORT_TARGET_OPTIONS.find((option) => option.label === label)
+            if (next) onExportSettingsChange({ target: next.value })
+          }}
         />
       </SettingsRowPopover>
-      <SettingsRowPopover hint="Format" title="Format" trigger={format}>
+      <SettingsRowPopover
+        hint="Format"
+        title="Format"
+        trigger={actualExportSettings.extension.toUpperCase()}
+      >
         <OptionGrid
           columns={4}
-          items={["SVG", "PNG", "WEBP", "JPEG"]}
-          selected={format}
-          onSelect={setFormat}
+          items={EXPORT_FORMAT_OPTIONS.map((format) => format.toUpperCase())}
+          selected={actualExportSettings.extension.toUpperCase()}
+          onSelect={(format) =>
+            onExportSettingsChange({
+              extension: format.toLowerCase() as QrFileExtension,
+            })
+          }
         />
       </SettingsRowPopover>
-      <SettingsRowPopover hint="Platform size" title="Platform size" trigger="Web & social">
-        <PresetList items={["Web & social", "Print", "Custom"]} selected="Web & social" onSelect={() => undefined} />
+      <SettingsRowPopover
+        hint="Platform size"
+        title="Platform size"
+        trigger={
+          actualExportSettings.usePlatformPreset
+            ? selectedPreset.label
+            : "Custom"
+        }
+      >
+        <PresetList
+          items={EXPORT_PRESETS.map((preset) => preset.label)}
+          selected={selectedPreset.label}
+          onSelect={(label) => {
+            const preset = EXPORT_PRESETS.find((entry) => entry.label === label)
+            if (!preset) return
+            onExportSettingsChange({
+              exportPresetId: preset.id,
+              extension: preset.format,
+              usePlatformPreset: true,
+            })
+          }}
+        />
       </SettingsRowPopover>
-      <SettingsRowPopover hint="Quality" title="Quality" trigger="Web & social">
-        <PresetList items={["Web & social", "High", "Lossless"]} selected="Web & social" onSelect={() => undefined} />
+      <SettingsRowPopover hint="Quality" title="Quality" trigger={selectedQuality.label}>
+        <PresetList
+          items={RASTER_QUALITY_PRESETS.map((preset) => preset.label)}
+          selected={selectedQuality.label}
+          onSelect={(label) => {
+            const preset = RASTER_QUALITY_PRESETS.find((entry) => entry.label === label)
+            if (!preset) return
+            onExportSettingsChange({
+              qualityPresetId: preset.id,
+              usePlatformPreset: false,
+            })
+          }}
+        />
       </SettingsRowPopover>
-      <SettingsPrimaryButton>Download</SettingsPrimaryButton>
+      <SettingsPrimaryButton onClick={() => controller?.onExportDownload?.()}>
+        Download
+      </SettingsPrimaryButton>
+      {controller?.exportDownloadError ? (
+        <p className="text-center text-[11px] text-red-500">{controller.exportDownloadError}</p>
+      ) : null}
+      {actualExportSettings.usePlatformPreset ? (
+        <p className="dn-type-meta text-center">
+          {formatExportPresetLabel(selectedPreset)}
+        </p>
+      ) : null}
     </div>
   )
 }
 
-function SectionBody({ id }: { id: SectionId }) {
-  switch (id) {
-    case "Content":
-      return <ContentSection />
-    case "QR":
-      return <QrStyleSection />
-    case "Shape":
-      return <CardSection />
-    case "Background":
-      return <SceneSection />
-    case "Motion":
-      return <MotionSection />
-    case "Export":
-      return <ExportSection />
-    default:
-      return null
-  }
-}
-
-export function DesktopNewSettingsPanel() {
-  const [openSection, setOpenSection] = useState<string | undefined>()
-
-  return (
-    <SettingsPanelShell>
-      <SettingsScroll>
-        <SettingsAccordion
-          openSection={openSection}
-          renderSection={(section) => <SectionBody id={section as SectionId} />}
-          sections={SECTIONS}
-          onOpenSectionChange={setOpenSection}
-        />
-      </SettingsScroll>
-    </SettingsPanelShell>
-  )
-}
-
 export function DesktopNewShell() {
-  const { resolvedTheme, setTheme } = useTheme()
-  const theme = resolvedTheme === "dark" ? "dark" : "light"
-
-  return (
-    <ShapeProvider defaultShape="rounded">
-      <div className="desktopnew-root desktopnew-shell" data-theme={theme}>
-        <Button
-          className="dn-pressable fixed right-4 top-4 h-8 border-border/80 px-3 text-xs tracking-tight dn-squircle-sm"
-          type="button"
-          variant="outline"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        >
-          {theme === "dark" ? "Light" : "Dark"}
-        </Button>
-        <DesktopNewSettingsPanel />
-      </div>
-    </ShapeProvider>
-  )
+  return null
 }

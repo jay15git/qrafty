@@ -1,7 +1,15 @@
 "use client"
 
 import { ChevronRight, Filter, Search } from "lucide-react"
-import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react"
 
 import {
   Accordion,
@@ -9,9 +17,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Popover,
   PopoverContent,
@@ -47,33 +52,77 @@ import { cn } from "@/lib/utils"
 
 import "./desktopnew.css"
 
-const panelClass =
-  "w-[300px] shrink-0 border border-border/80 bg-card text-card-foreground shadow-none dn-squircle-lg"
-
 const DN_ROW = "dn-settings-row dn-pressable dn-squircle-sm"
 const DN_HINT = "dn-type-meta"
 const DN_LABEL = "dn-type-label"
 const DN_VALUE = "dn-type-value"
 const DN_SECTION_GAP = "gap-2.5"
 
+function SettingsRowButton({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"button">) {
+  return (
+    <button
+      className={cn(
+        DN_ROW,
+        "inline-flex w-full items-center justify-between px-3 font-normal",
+        className,
+      )}
+      type="button"
+      {...props}
+    >
+      {children}
+    </button>
+  )
+}
+
+export const DesktopnewThemeContext = createContext<"light" | "dark">("dark")
+
+function useDesktopnewTheme() {
+  return useContext(DesktopnewThemeContext)
+}
+
+function desktopnewPortalClass(theme: "light" | "dark", className?: string) {
+  return cn(className, theme === "dark" && "dark")
+}
+
 export function SettingsPanelShell({
   children,
   className,
+  fillHeight = false,
 }: {
   children: ReactNode
   className?: string
+  fillHeight?: boolean
 }) {
   return (
-    <aside className={cn(panelClass, className)}>
+    <aside
+      className={cn(
+        "dn-settings-panel dn-squircle-lg",
+        fillHeight && "flex h-full min-h-0 w-full flex-col",
+        className,
+      )}
+    >
       {children}
     </aside>
   )
 }
 
-export function SettingsScroll({ children }: { children: ReactNode }) {
+export function SettingsScroll({
+  children,
+  fillHeight = false,
+}: {
+  children: ReactNode
+  fillHeight?: boolean
+}) {
   return (
     <ScrollArea
-      className="dn-settings-scroll h-[min(72dvh,40rem)]"
+      className={cn(
+        "dn-settings-scroll",
+        fillHeight ? "h-full min-h-0" : "h-[min(72dvh,40rem)]",
+      )}
       viewportClassName="px-0"
     >
       {children}
@@ -103,11 +152,11 @@ export function SettingsAccordion({
       {sections.map((section) => (
         <AccordionItem
           key={section}
-          className="dn-settings-accordion-item border-border/60"
+          className="dn-settings-accordion-item"
           data-focused={openSection === section ? "true" : undefined}
           value={section}
         >
-          <AccordionTrigger className="px-4 py-3.5 hover:no-underline [&>svg]:size-3.5 [&>svg]:text-muted-foreground">
+          <AccordionTrigger className="dn-settings-accordion-trigger px-4 py-3.5 hover:no-underline">
             {section}
           </AccordionTrigger>
           <AccordionContent className="pb-0">
@@ -194,9 +243,7 @@ export function SegmentTabs({
             }}
             className={cn(
               "t-tab dn-segment-tab flex min-w-0 flex-1 items-center justify-center px-2 text-[11px] font-medium dn-squircle-xs",
-              active
-                ? "text-foreground"
-                : "bg-transparent text-muted-foreground",
+              active ? "text-[var(--dn-fg)]" : "bg-transparent text-[var(--dn-muted)]",
             )}
             role="tab"
             type="button"
@@ -222,6 +269,8 @@ export function SettingsFillPopover({
   hint?: string
   title?: string
 }) {
+  const theme = useDesktopnewTheme()
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -231,12 +280,16 @@ export function SettingsFillPopover({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="desktopnew-fill-popover w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none"
+        className={desktopnewPortalClass(
+          theme,
+          "desktopnew-fill-popover w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
+        )}
+        data-theme={theme}
         side="right"
         sideOffset={10}
       >
         {title ? (
-          <p className="mb-2 text-[11px] font-medium text-muted-foreground">{title}</p>
+          <p className="dn-type-meta mb-2">{title}</p>
         ) : null}
         <DesktopNewFillPicker value={value} onValueChange={onValueChange} />
       </PopoverContent>
@@ -256,6 +309,8 @@ export function SettingsColorPopover({
   hint?: string
   title?: string
 }) {
+  const theme = useDesktopnewTheme()
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -265,13 +320,15 @@ export function SettingsColorPopover({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="desktopnew-popover-content w-64 gap-3 p-3 dn-squircle-md"
+        className={desktopnewPortalClass(
+          theme,
+          "desktopnew-popover-content w-64 gap-3 p-3 dn-squircle-md",
+        )}
+        data-theme={theme}
         side="right"
         sideOffset={10}
       >
-        {title ? (
-          <p className="text-[11px] font-medium text-muted-foreground">{title}</p>
-        ) : null}
+        {title ? <p className="dn-type-meta">{title}</p> : null}
         {children}
       </PopoverContent>
     </Popover>
@@ -279,11 +336,7 @@ export function SettingsColorPopover({
 }
 
 export function FieldLabel({ children }: { children: ReactNode }) {
-  return (
-    <Label className="mt-1 -mb-1.5 text-[11px] font-medium tracking-wide text-muted-foreground">
-      {children}
-    </Label>
-  )
+  return <span className="dn-type-meta -mb-1.5 mt-1 block tracking-wide">{children}</span>
 }
 
 export function SettingsRowPopover({
@@ -301,27 +354,26 @@ export function SettingsRowPopover({
   align?: "start" | "center" | "end"
   contentClassName?: string
 }) {
+  const theme = useDesktopnewTheme()
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          className={cn(DN_ROW, "w-full justify-between px-3 font-normal")}
-          type="button"
-          variant="secondary"
-        >
+        <SettingsRowButton>
           <span className={cn("truncate", DN_VALUE)}>{trigger}</span>
           <span className={cn("flex shrink-0 items-center gap-1", DN_HINT)}>
             {hint}
             <ChevronRight aria-hidden className="size-3 opacity-50" />
           </span>
-        </Button>
+        </SettingsRowButton>
       </PopoverTrigger>
       <PopoverContent
         align={align}
-        className={cn(
-          "desktopnew-popover-content w-56 gap-3 p-3.5 dn-squircle-md",
-          contentClassName,
+        className={desktopnewPortalClass(
+          theme,
+          cn("desktopnew-popover-content w-56 gap-3 p-3.5 dn-squircle-md", contentClassName),
         )}
+        data-theme={theme}
         side="right"
         sideOffset={10}
       >
@@ -349,6 +401,7 @@ export function ContentTypePicker({
   selected: QrInputType
   onSelect: (type: QrInputType) => void
 }) {
+  const theme = useDesktopnewTheme()
   const [query, setQuery] = useState("")
   const [filterId, setFilterId] = useState<ContentTypeFilterId>("popular")
 
@@ -385,7 +438,7 @@ export function ContentTypePicker({
             aria-hidden
             className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--dn-popover-muted)]"
           />
-          <Input
+          <input
             aria-label="Search content types"
             className="dn-content-type-search-input dn-squircle-xs"
             placeholder="Search"
@@ -395,19 +448,22 @@ export function ContentTypePicker({
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
+            <button
               aria-label={`Filter content types (${activeFilterLabel})`}
-              className="dn-content-type-filter-trigger dn-pressable size-8 shrink-0 border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
+              className="dn-content-type-filter-trigger dn-pressable inline-flex size-8 shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
               data-active={filterId !== "all" ? "true" : undefined}
               type="button"
-              variant="ghost"
             >
               <Filter aria-hidden className="size-3.5" />
-            </Button>
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="desktopnew-popover-content min-w-36 border p-1 dn-squircle-sm"
+            className={desktopnewPortalClass(
+              theme,
+              "desktopnew-popover-content min-w-36 border p-1 dn-squircle-sm",
+            )}
+            data-theme={theme}
           >
             {CONTENT_TYPE_FILTER_OPTIONS.map((option) => (
               <DropdownMenuItem
@@ -415,8 +471,8 @@ export function ContentTypePicker({
                 className={cn(
                   "rounded-[6px] px-2 py-1.5 text-[11px] font-medium",
                   filterId === option.id
-                    ? "bg-[var(--dn-popover-tile-hover)] text-foreground"
-                    : "text-[var(--dn-popover-muted)] focus:bg-[var(--dn-popover-tile-hover)] focus:text-foreground",
+                    ? "bg-[var(--dn-popover-tile-hover)] text-[var(--dn-fg)]"
+                    : "text-[var(--dn-popover-muted)] focus:bg-[var(--dn-popover-tile-hover)] focus:text-[var(--dn-fg)]",
                 )}
                 onClick={() => setFilterId(option.id)}
               >
@@ -440,7 +496,7 @@ export function ContentTypePicker({
               className={cn(
                 "dn-pressable flex aspect-square flex-col items-center justify-center gap-1 p-1 text-center dn-squircle-xs",
                 isSelected
-                  ? "bg-[var(--dn-popover-tile)] text-foreground ring-2 ring-foreground ring-offset-2 ring-offset-[var(--dn-popover-ring-offset)]"
+                  ? "bg-[var(--dn-popover-tile)] text-[var(--dn-fg)] ring-2 ring-[var(--dn-fg)] ring-offset-2 ring-offset-[var(--dn-popover-ring-offset)]"
                   : "bg-[var(--dn-popover-tile)] text-[var(--dn-popover-muted)]",
               )}
               type="button"
@@ -495,8 +551,8 @@ export function OptionGrid({
               outline &&
                 isSelected &&
                 (animatedOutline
-                  ? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-                  : "ring-2 ring-foreground ring-inset"),
+                  ? "ring-2 ring-[var(--dn-fg)] ring-offset-2 ring-offset-[var(--dn-bg)]"
+                  : "ring-2 ring-[var(--dn-fg)] ring-inset"),
             )}
             type="button"
             aria-pressed={isSelected}
@@ -526,7 +582,7 @@ export function PresetList({
           key={item}
           className={cn(
             "dn-option-tile h-8 w-full px-2.5 text-left text-[11px] font-medium tracking-tight dn-squircle-xs",
-            selected === item && "text-foreground",
+            selected === item && "text-[var(--dn-fg)]",
           )}
           type="button"
           aria-pressed={selected === item}
@@ -552,16 +608,11 @@ export function ColorRowButton({
   const hex = fillPreviewHex(fill).replace("#", "").toUpperCase()
 
   return (
-    <Button
-      className={cn(DN_ROW, "w-full justify-between px-3 font-normal")}
-      type="button"
-      variant="secondary"
-      onClick={onClick}
-    >
+    <SettingsRowButton onClick={onClick}>
       <span className="flex min-w-0 items-center gap-2">
         <span
           aria-hidden
-          className="size-3.5 shrink-0 border border-border/40 dn-squircle-xs"
+          className="size-3.5 shrink-0 border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] dn-squircle-xs"
           style={gradient ? { background: fill } : { backgroundColor: fillPreviewHex(fill) }}
         />
         <span className={DN_LABEL}>{hint}</span>
@@ -570,15 +621,20 @@ export function ColorRowButton({
         <span className={DN_VALUE}>{gradient ? "Gradient" : hex}</span>
         <ChevronRight aria-hidden className={cn("size-3 opacity-50", DN_HINT)} />
       </span>
-    </Button>
+    </SettingsRowButton>
   )
 }
 
-export function SettingsInput({ value, ...props }: React.ComponentProps<typeof Input>) {
+export function SettingsInput({
+  value,
+  readOnly,
+  className,
+  ...props
+}: React.ComponentProps<"input">) {
   return (
-    <Input
-      className="dn-settings-input w-full dn-squircle-sm"
-      readOnly
+    <input
+      className={cn("dn-settings-input w-full dn-squircle-sm", className)}
+      readOnly={readOnly}
       value={value}
       {...props}
     />
@@ -645,9 +701,13 @@ export function SettingsPrimaryButton({
   onClick?: () => void
 }) {
   return (
-    <Button className={cn(DN_ROW, "h-9 w-full font-medium tracking-tight")} type="button" onClick={onClick}>
+    <SettingsRowButton
+      className="dn-settings-primary h-9 font-medium tracking-tight"
+      type="button"
+      onClick={onClick}
+    >
       {children}
-    </Button>
+    </SettingsRowButton>
   )
 }
 
@@ -667,7 +727,7 @@ export function IconGrid({
           key={icon}
           className={cn(
             "dn-option-tile flex h-10 items-center justify-center text-xs font-semibold tracking-tight dn-squircle-xs",
-            index === selectedIndex && "text-foreground",
+            index === selectedIndex && "text-[var(--dn-fg)]",
           )}
           type="button"
           aria-pressed={index === selectedIndex}
@@ -698,9 +758,9 @@ export function ColorChips({
           key={color}
           aria-label={labels?.[index] ?? color}
           className={cn(
-            "dn-pressable size-8 border border-border/50 dn-squircle-sm",
+            "dn-pressable size-8 border border-[color-mix(in_srgb,var(--dn-line)_50%,transparent)] dn-squircle-sm",
             index === selectedIndex &&
-              "ring-2 ring-foreground ring-offset-2 ring-offset-background",
+              "ring-2 ring-[var(--dn-fg)] ring-offset-2 ring-offset-[var(--dn-bg)]",
           )}
           style={{ backgroundColor: color }}
           type="button"

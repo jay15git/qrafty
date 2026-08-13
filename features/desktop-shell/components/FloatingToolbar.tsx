@@ -91,6 +91,7 @@ import {
 } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
 import { DesktopDynamicIslandChrome } from "@/features/desktop-shell/components/DesktopAppearanceIsland"
 import { DesktopSettingsToolbarShell } from "@/features/desktop-shell/components/DesktopSettingsToolbarShell"
+import { DesktopNewFloatingInspector } from "@/features/desktopnew/DesktopNewFloatingInspector"
 import { DesktopInspectorAccordion } from "@/features/desktop-shell/components/DesktopInspectorAccordion"
 import { DesktopElementInspector, DesktopTransformSection } from "@/features/desktop-shell/components/DesktopElementInspector"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
@@ -1471,7 +1472,7 @@ export function FloatingToolbar({
             activeToolConfig || controller?.selectedElementLayer || controller?.composeSidebarPanel,
           )}
           inspector={
-            <DesktopFloatingInspector activeTool={actualActiveTool} model={model} />
+            <DesktopNewFloatingInspector activeTool={actualActiveTool} model={model} />
           }
         />
       </section>

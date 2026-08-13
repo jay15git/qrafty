@@ -1,6 +1,7 @@
 /* Pencil design tokens — scoped to /desktopnew only. */
 
 .desktopnew-root {
+  color-scheme: dark;
   --dn-bg: #090909;
   --dn-surface: #111111;
   --dn-control: #1a1a1a;
@@ -60,6 +61,7 @@
 }
 
 .desktopnew-root[data-theme="light"] {
+  color-scheme: light;
   --dn-bg: #ffffff;
   --dn-surface: #fafafa;
   --dn-control: #f6f6f6;
@@ -72,6 +74,25 @@
   --dn-popover-shadow: 0 8px 32px rgb(0 0 0 / 8%);
   --dn-slider-bg: #f1f1f2;
   --dn-type-label-color: color-mix(in srgb, var(--dn-fg) 44%, transparent);
+  --background: var(--dn-bg);
+  --foreground: var(--dn-fg);
+  --card: var(--dn-bg);
+  --card-foreground: var(--dn-fg);
+  --popover: var(--dn-surface);
+  --popover-foreground: var(--dn-fg);
+  --primary: var(--dn-accent);
+  --primary-foreground: var(--dn-on-accent);
+  --secondary: var(--dn-control);
+  --secondary-foreground: var(--dn-fg);
+  --muted: var(--dn-control);
+  --muted-foreground: var(--dn-muted);
+  --accent: var(--dn-control-hover);
+  --accent-foreground: var(--dn-fg);
+  --border: var(--dn-line);
+  --input: var(--dn-control);
+  --ring: var(--dn-accent);
+  --scroll-edge-fade-color: var(--dn-bg);
+  --scroll-edge-chevron-color: var(--dn-muted);
 }
 
 .desktopnew-shell {
@@ -80,6 +101,67 @@
   align-items: flex-start;
   justify-content: center;
   padding: 2rem 1rem;
+}
+
+/* Embedded in /desktop toolbar — same token host, no preview padding. */
+.desktopnew-root.desktopnew-embedded {
+  display: flex;
+  min-height: 0;
+  height: 100%;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  isolation: isolate;
+}
+
+.dn-settings-panel {
+  width: var(--dn-panel-width);
+  flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--dn-line) 80%, transparent);
+  background: var(--dn-bg);
+  color: var(--dn-fg);
+  box-shadow: none;
+}
+
+.desktopnew-root.desktopnew-embedded .dn-settings-panel {
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  corner-shape: round;
+}
+
+[data-slot="desktopnew-settings-inspector"] {
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+[data-slot="desktopnew-settings-inspector"] > .desktopnew-root {
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  background: var(--dn-bg);
+  color: var(--dn-fg);
+}
+
+/* Keep desktopnew elastic sliders on dn tokens when mounted in /desktop workspace. */
+[data-slot="desktopnew-settings-inspector"] [data-slot="elastic-slider"],
+[data-slot="desktopnew-settings-inspector"] .desktopnew-root .dn-settings-elastic-slider,
+.desktopnew-root [data-slot="elastic-slider"] {
+  --elastic-slider-bg: var(--dn-slider-bg) !important;
+  --elastic-slider-fill: color-mix(in srgb, var(--dn-fg) 4%, transparent) !important;
+  --elastic-slider-fill-active: color-mix(in srgb, var(--dn-fg) 9%, transparent) !important;
+  --elastic-slider-hash: color-mix(in srgb, var(--dn-fg) 7%, transparent) !important;
+  --elastic-slider-handle: color-mix(in srgb, var(--dn-fg) 85%, transparent) !important;
+  --elastic-slider-label: var(--dn-type-label-color) !important;
+  --elastic-slider-focus: var(--dn-type-value-color) !important;
+}
+
+[data-slot="desktop-left-toolbar-shell"] [data-slot="desktopnew-settings-inspector"] {
+  padding-top: 0;
+  padding-inline-end: var(--desktop-toolbar-rail-pill-inset);
+  box-sizing: border-box;
 }
 
 /* ── Microinteractions ───────────────────────────────────────────── */
@@ -203,24 +285,56 @@
   background: var(--dn-control) !important;
   color: var(--dn-type-value-color);
   line-height: 1;
+  box-shadow: none !important;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
 }
 
 .desktopnew-root .dn-settings-row:hover,
-.desktopnew-root .dn-settings-row[data-variant="secondary"]:hover {
+.desktopnew-root .dn-settings-row:focus-visible,
+.desktopnew-root .dn-settings-row:active {
   background: var(--dn-control) !important;
   color: var(--dn-fg) !important;
+  box-shadow: none !important;
+  outline: none;
 }
 
+.dn-settings-primary {
+  background: var(--dn-fg) !important;
+  color: var(--dn-bg) !important;
+}
+
+.desktopnew-root .dn-settings-primary:hover,
+.desktopnew-root .dn-settings-primary:focus-visible,
+.desktopnew-root .dn-settings-primary:active {
+  background: var(--dn-fg) !important;
+  color: var(--dn-bg) !important;
+}
+
+.desktopnew-root .dn-settings-input,
 .dn-settings-input {
   height: 2.25rem;
   border: 1px solid var(--dn-line);
-  background: var(--dn-control);
+  background: var(--dn-control) !important;
   font-size: var(--dn-type-value-size);
   font-weight: var(--dn-type-value-weight);
   line-height: 1;
   font-variant-numeric: tabular-nums;
   letter-spacing: var(--dn-tracking-tight);
-  color: var(--dn-type-value-color);
+  color: var(--dn-type-value-color) !important;
+  box-shadow: none !important;
+  outline: none;
+  appearance: none;
+}
+
+.desktopnew-root .dn-settings-input:focus,
+.desktopnew-root .dn-settings-input:focus-visible,
+.dn-settings-input:focus,
+.dn-settings-input:focus-visible {
+  border-color: var(--dn-line);
+  box-shadow: none !important;
+  outline: none;
 }
 
 .dn-settings-input::placeholder {
@@ -313,7 +427,7 @@
   pointer-events: none;
 }
 
-.dark .t-tabs-pill {
+.desktopnew-root[data-theme="dark"] .t-tabs-pill {
   background: #ffffff;
 }
 
@@ -322,11 +436,36 @@
   color: #ffffff;
 }
 
-.dark .dn-segment-tab[aria-selected="true"] {
+.desktopnew-root[data-theme="dark"] .dn-segment-tab[aria-selected="true"] {
   color: #0a0a0a;
 }
 
 /* ── Accordion ───────────────────────────────────────────────────── */
+
+.dn-settings-accordion-item {
+  border-color: color-mix(in srgb, var(--dn-line) 60%, transparent) !important;
+  transition: filter 180ms ease-out, opacity 180ms ease-out;
+}
+
+.dn-settings-accordion-trigger {
+  color: var(--dn-fg) !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.dn-settings-accordion-trigger:hover,
+.dn-settings-accordion-trigger:focus-visible {
+  color: var(--dn-fg) !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+.dn-settings-accordion-trigger [data-slot="accordion-chevron"] {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--dn-muted);
+}
 
 .dn-settings-accordion [data-slot="accordion-trigger"] {
   font-size: var(--dn-type-section);
@@ -338,10 +477,6 @@
   padding-inline: 0 !important;
   padding-bottom: 0 !important;
   padding-top: 0 !important;
-}
-
-.dn-settings-accordion-item {
-  transition: filter 180ms ease-out, opacity 180ms ease-out;
 }
 
 .dn-settings-accordion:has(.dn-settings-accordion-item[data-focused="true"])
@@ -359,7 +494,7 @@
   .dn-settings-accordion-item[data-focused="true"] + .dn-settings-accordion-item {
   border-top-width: 1px;
   border-top-style: solid;
-  border-top-color: color-mix(in srgb, var(--border) 60%, transparent);
+  border-top-color: color-mix(in srgb, var(--dn-line) 60%, transparent);
 }
 
 /* Radix ScrollArea's generated table wrapper sizes itself to the widest
@@ -376,9 +511,18 @@
   border-color: #ececee !important;
   background: #fafafa !important;
   color: #18181b !important;
+  --tw-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
   box-shadow:
     0 0 0 1px rgb(0 0 0 / 3%),
     0 8px 32px rgb(0 0 0 / 8%) !important;
+  --dn-bg: #fafafa;
+  --dn-fg: #18181b;
+  --dn-control: #f6f6f6;
+  --dn-control-hover: #f6f6f6;
+  --dn-muted: #8a8a8e;
+  --dn-line: #ececee;
   --dn-popover-control: #f6f6f6;
   --dn-popover-tile: #f3f3f4;
   --dn-popover-tile-hover: #f3f3f4;
@@ -387,13 +531,19 @@
   --dn-popover-border: #ececee;
 }
 
-.dark .desktopnew-popover-content {
+.desktopnew-popover-content[data-theme="dark"] {
   border-color: #252525 !important;
   background: #111111 !important;
   color: #f5f5f5 !important;
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 4%),
     0 12px 48px rgb(0 0 0 / 50%) !important;
+  --dn-bg: #111111;
+  --dn-fg: #f5f5f5;
+  --dn-control: #1a1a1a;
+  --dn-control-hover: #1a1a1a;
+  --dn-muted: #6b6b6b;
+  --dn-line: #252525;
   --dn-popover-control: #1a1a1a;
   --dn-popover-tile: #1a1a1a;
   --dn-popover-tile-hover: #1a1a1a;
@@ -433,9 +583,14 @@
 
 /* Fill picker popover: transparent Radix shell, one neutral panel on FillPicker.Root */
 .desktopnew-fill-popover {
+  --tw-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  box-shadow: none !important;
   --dn-bg: #ffffff;
   --dn-surface: #fafafa;
   --dn-control: #f6f6f6;
+  --dn-control-hover: #f6f6f6;
   --dn-fg: #18181b;
   --dn-muted: #8a8a8e;
   --dn-line: #ececee;
@@ -458,7 +613,7 @@
   --ring: var(--dn-fg);
 }
 
-.dark .desktopnew-fill-popover {
+.desktopnew-fill-popover[data-theme="dark"] {
   --dn-bg: #090909;
   --dn-surface: #111111;
   --dn-control: #1a1a1a;
@@ -479,7 +634,7 @@
   corner-shape: squircle;
 }
 
-.dark .desktopnew-fill-popover .dn-fill-picker-panel {
+.desktopnew-fill-popover[data-theme="dark"] .dn-fill-picker-panel {
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 4%),
     0 12px 48px rgb(0 0 0 / 50%);

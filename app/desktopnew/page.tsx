@@ -1,16 +1,16 @@
 import type { Metadata } from "next"
 
-import { DesktopNewShell } from "@/features/desktopnew/DesktopNewSettingsPanel"
+import { DesktopLegacySettingsShell } from "@/features/desktopnew/DesktopLegacySettingsShell"
 
 export const metadata: Metadata = {
-  title: "Desktop New — Settings",
-  description: "Settings panel preview with shadcn components.",
+  title: "Desktop New — Legacy Settings Reference",
+  description: "Reference copy of the original /desktop settings panel.",
 }
 
 export default function DesktopNewPage() {
   return (
     <main className="min-h-dvh">
-      <DesktopNewShell />
+      <DesktopLegacySettingsShell />
     </main>
   )
 }
