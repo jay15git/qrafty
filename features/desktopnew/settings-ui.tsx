@@ -254,21 +254,22 @@ const TAB_PANEL_EASE_ENTER = [0.16, 1, 0.3, 1] as const
 const TAB_PANEL_EASE_EXIT = [0.4, 0, 0.2, 1] as const
 
 const settingsTabPanelVariants = {
-  initial: { opacity: 0, filter: "blur(8px)" },
+  initial: { opacity: 0, filter: "blur(6px)" },
   animate: {
     opacity: 1,
     filter: "blur(0px)",
     transition: {
-      opacity: { duration: 0.36, ease: TAB_PANEL_EASE_ENTER },
-      filter: { duration: 0.44, ease: TAB_PANEL_EASE_ENTER },
+      opacity: { duration: 0.22, ease: TAB_PANEL_EASE_ENTER },
+      filter: { duration: 0.22, ease: TAB_PANEL_EASE_ENTER },
     },
   },
   exit: {
     opacity: 0,
-    filter: "blur(6px)",
+    filter: "blur(4px)",
+    pointerEvents: "none" as const,
     transition: {
-      opacity: { duration: 0.24, ease: TAB_PANEL_EASE_EXIT },
-      filter: { duration: 0.28, ease: TAB_PANEL_EASE_EXIT },
+      opacity: { duration: 0.14, ease: TAB_PANEL_EASE_EXIT },
+      filter: { duration: 0.14, ease: TAB_PANEL_EASE_EXIT },
     },
   },
 }
@@ -297,8 +298,8 @@ export function SettingsTabPanel({
   const reduceMotion = useReducedMotion()
 
   return (
-    <div className="grid w-full min-w-0 [&>*]:col-start-1 [&>*]:row-start-1">
-      <AnimatePresence mode="sync" initial={false}>
+    <div className="relative w-full min-w-0 overflow-hidden">
+      <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={activeKey}
           className={cn(
@@ -536,7 +537,7 @@ export function ContentTypePicker({
               <DropdownMenuItem
                 key={option.id}
                 className={cn(
-                  "rounded-[6px] px-2 py-1.5 text-[11px] font-medium",
+                  "rounded-[8px] px-2 py-1.5 text-[11px] font-medium",
                   filterId === option.id
                     ? "bg-[var(--dn-popover-tile-hover)] text-[var(--dn-fg)]"
                     : "text-[var(--dn-popover-muted)] focus:bg-[var(--dn-popover-tile-hover)] focus:text-[var(--dn-fg)]",
@@ -729,7 +730,7 @@ export function SettingsSwitchRow({
 }
 
 const SETTINGS_ELASTIC_SLIDER_CLASS =
-  "desktop-elastic-slider dn-settings-elastic-slider dn-pressable-subtle w-full [--elastic-slider-height:--spacing(9)] [--elastic-slider-radius:10px]"
+  "desktop-elastic-slider dn-settings-elastic-slider dn-pressable-subtle w-full [--elastic-slider-height:--spacing(9)] [--elastic-slider-radius:12px]"
 
 export function SettingsSlider({
   label,

@@ -176,7 +176,6 @@ describe("FloatingToolbar", () => {
     expect(dynamicIsland?.querySelector('[data-slot="desktop-theme-toggle"]')).not.toBeNull()
     expect(dynamicIsland?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
     expect(Array.from(historyActions?.querySelectorAll("button") ?? []).map((button) => button.getAttribute("aria-label"))).toEqual([
-      "Reset defaults",
       "Undo",
       "Redo",
     ])
@@ -200,7 +199,6 @@ describe("FloatingToolbar", () => {
   it("wires undo and redo through the top dynamic island history actions", async () => {
     const onUndo = vi.fn()
     const onRedo = vi.fn()
-    const onResetDefaults = vi.fn()
     const onExportDownload = vi.fn()
     const surface = await renderPrototype({
       controller: {
@@ -208,7 +206,6 @@ describe("FloatingToolbar", () => {
         canUndo: true,
         onExportDownload,
         onRedo,
-        onResetDefaults,
         onUndo,
       },
     })
@@ -229,18 +226,15 @@ describe("FloatingToolbar", () => {
     expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").className).toContain("size-9")
     expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).not.toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
-    expect(getRequiredButton(historyActions, "Reset defaults").className).toContain("size-9")
     expect(getRequiredButton(historyActions, "Undo").className).toContain("size-9")
     expect(getRequiredButton(historyActions, "Redo").className).toContain("size-9")
 
     await act(async () => {
-      getRequiredButton(historyActions, "Reset defaults").dispatchEvent(new MouseEvent("click", { bubbles: true }))
       getRequiredButton(historyActions, "Undo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
       getRequiredButton(historyActions, "Redo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
       getRequiredButton(utilityToolbar as HTMLElement, "Download").dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
-    expect(onResetDefaults).toHaveBeenCalledTimes(1)
     expect(onUndo).toHaveBeenCalledTimes(1)
     expect(onRedo).toHaveBeenCalledTimes(1)
     expect(onExportDownload).toHaveBeenCalledTimes(1)

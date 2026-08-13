@@ -29,6 +29,10 @@
   --dn-type-value-weight: 500;
   --dn-type-label-color: color-mix(in srgb, var(--dn-fg) 46%, transparent);
   --dn-type-value-color: var(--dn-fg);
+  --dn-radius-xs: 10px;
+  --dn-radius-sm: 12px;
+  --dn-radius-md: 14px;
+  --dn-radius-lg: 14px;
 
   /* Map Pencil tokens to shadcn component roles. */
   --background: var(--dn-bg);
@@ -384,7 +388,7 @@
 }
 
 .desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
-  border-radius: 10px;
+  border-radius: var(--dn-radius-sm);
   corner-shape: squircle;
   border: none;
 }
@@ -562,6 +566,8 @@
 }
 
 .dn-settings-tab-panel {
+  width: 100%;
+  min-width: 0;
   will-change: opacity, filter;
   backface-visibility: hidden;
 }
@@ -605,6 +611,10 @@
   --dn-popover-ring-offset: #fafafa;
   --dn-popover-muted: #8a8a8e;
   --dn-popover-border: #ececee;
+  --dn-radius-xs: 10px;
+  --dn-radius-sm: 12px;
+  --dn-radius-md: 14px;
+  --dn-radius-lg: 14px;
 }
 
 .desktopnew-popover-content[data-theme="dark"] {
@@ -626,6 +636,10 @@
   --dn-popover-ring-offset: #111111;
   --dn-popover-muted: #6b6b6b;
   --dn-popover-border: #252525;
+  --dn-radius-xs: 10px;
+  --dn-radius-sm: 12px;
+  --dn-radius-md: 14px;
+  --dn-radius-lg: 14px;
 }
 
 .desktopnew-popover-content .dn-popover-heading {
@@ -687,6 +701,10 @@
   --border: var(--dn-line);
   --input: var(--dn-control);
   --ring: var(--dn-fg);
+  --dn-radius-xs: 10px;
+  --dn-radius-sm: 12px;
+  --dn-radius-md: 14px;
+  --dn-radius-lg: 14px;
 }
 
 .desktopnew-fill-popover[data-theme="dark"] {
@@ -706,7 +724,7 @@
   box-shadow:
     0 0 0 1px rgb(0 0 0 / 3%),
     0 8px 32px rgb(0 0 0 / 8%);
-  border-radius: 12px;
+  border-radius: var(--dn-radius-md);
   corner-shape: squircle;
 }
 
@@ -737,22 +755,22 @@
 }
 
 .dn-squircle-xs {
-  border-radius: 8px;
+  border-radius: var(--dn-radius-xs);
   corner-shape: squircle;
 }
 
 .dn-squircle-sm {
-  border-radius: 10px;
+  border-radius: var(--dn-radius-sm);
   corner-shape: squircle;
 }
 
 .dn-squircle-md {
-  border-radius: 12px;
+  border-radius: var(--dn-radius-md);
   corner-shape: squircle;
 }
 
 .dn-squircle-lg {
-  border-radius: 14px;
+  border-radius: var(--dn-radius-lg);
   corner-shape: squircle;
 }
 

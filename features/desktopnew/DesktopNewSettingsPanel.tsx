@@ -41,6 +41,7 @@ import {
   type QrDotMatrixColorPreset,
   type QrDotMatrixSquareLoader,
 } from "@/features/qr-code/model/state"
+import { SettingsPaperShaderControls } from "@/features/desktopnew/desktopnew-paper-shader-settings"
 import { PaperShaderOptionPreview } from "@/features/workspace/components/PaperShaderOptionPreview"
 import { cn } from "@/lib/utils"
 import {
@@ -66,11 +67,6 @@ import {
 } from "@/features/workspace/rendering/paper-shaders"
 import { SettingsEffectsSection } from "@/features/desktopnew/settings-effects"
 import { legacyShadowToShadowLayer } from "@/features/workspace/model/effects"
-import {
-  getCanvasSizeFromTemplate,
-  getSizeTemplate,
-  type SizeTemplate,
-} from "@/features/workspace/model/size-templates"
 import {
   EXPORT_PRESETS,
   formatExportPresetLabel,
@@ -144,15 +140,6 @@ const RASTER_QUALITY_PRESETS: Array<{
   { id: "large-format", label: "Large format" },
   { id: "max-quality", label: "Max quality" },
 ]
-
-const CANVAS_RATIO_PRESET_IDS = [
-  "ratio-16-9",
-  "ratio-3-2",
-  "ratio-4-3",
-  "ratio-1-1",
-  "ratio-4-5",
-  "ratio-9-16",
-] as const
 
 function sectionForTool(tool: DesktopToolbarToolId | null): SectionId {
   if (!tool) return "Content"
@@ -710,53 +697,6 @@ function EffectsSection({ model }: { model: DesktopInspectorModel }) {
   )
 }
 
-function CanvasRatioPresetRow({
-  selectedPresetId,
-  onSelectTemplate,
-}: {
-  selectedPresetId?: string
-  onSelectTemplate: (template: SizeTemplate) => void
-}) {
-  const presets = CANVAS_RATIO_PRESET_IDS.map((id) => getSizeTemplate(id)).filter(
-    (template): template is SizeTemplate => template !== undefined,
-  )
-
-  return (
-    <ScrollArea
-      className="w-full min-w-0 max-w-full overflow-hidden"
-      chevron={false}
-      cueSize="tight"
-      orientation="horizontal"
-      scrollFade
-      viewportClassName="min-w-0"
-    >
-      <div className={PREVIEW_ROW}>
-        {presets.map((template) => {
-          const isSelected = selectedPresetId === template.id
-
-          return (
-            <button
-              key={template.id}
-              aria-label={template.label}
-              aria-pressed={isSelected}
-              className={cn(
-                PREVIEW_TILE,
-                "h-14 min-w-[3.5rem] px-2 text-[10px] font-medium tracking-tight",
-                isSelected && "ring-2 ring-foreground ring-offset-2 ring-offset-background",
-              )}
-              title={template.label}
-              type="button"
-              onClick={() => onSelectTemplate(template)}
-            >
-              {template.ratioLabel ?? template.label}
-            </button>
-          )
-        })}
-      </div>
-    </ScrollArea>
-  )
-}
-
 function backgroundTabFromStyleMode(
   styleMode: DesktopInspectorModel["actualBackgroundSettings"]["styleMode"],
 ): "Shader" | "Image" | "Color" {
@@ -800,29 +740,8 @@ function SceneSection({ model }: { model: DesktopInspectorModel }) {
     )
   }
 
-  function selectCanvasTemplate(template: SizeTemplate) {
-    const canvasSize = getCanvasSizeFromTemplate(template)
-
-    if (controller?.onSceneTemplateSizeTemplateSelect) {
-      controller.onSceneTemplateSizeTemplateSelect(template)
-      return
-    }
-
-    onShapeSettingsChange({
-      cardHeight: canvasSize.height,
-      cardWidth: canvasSize.width,
-      lockAspectRatio: true,
-      sizeMode: "fixed",
-      sizePresetId: template.id,
-    })
-  }
-
   return (
     <div className={SECTION_STACK}>
-      <CanvasRatioPresetRow
-        selectedPresetId={actualShapeSettings.sizePresetId}
-        onSelectTemplate={selectCanvasTemplate}
-      />
       <SegmentTabs items={["Shader", "Image", "Color"]} value={tab} onChange={handleBackgroundTabChange} />
       <SettingsTabPanel activeKey={tab}>
         {tab === "Shader" ? (
@@ -835,24 +754,10 @@ function SceneSection({ model }: { model: DesktopInspectorModel }) {
                 })
               }
             />
-            <SettingsSwitchRow
-              checked={paperShader.paused}
-              label="Pause"
-              onChange={(paused) =>
-                onBackgroundSettingsChange({
-                  paperShader: { ...paperShader, paused },
-                })
-              }
-            />
-            <SettingsSlider
-              label="Speed"
-              max={100}
-              min={1}
-              value={Math.round(paperShader.speed * 100)}
-              onChange={(value) =>
-                onBackgroundSettingsChange({
-                  paperShader: { ...paperShader, speed: value / 100 },
-                })
+            <SettingsPaperShaderControls
+              paperShader={paperShader}
+              onPaperShaderChange={(nextPaperShader) =>
+                onBackgroundSettingsChange({ paperShader: nextPaperShader })
               }
             />
           </>

@@ -182,7 +182,7 @@ export function LogoIconPicker({
               <DropdownMenuItem
                 key={option.id}
                 className={cn(
-                  "rounded-[6px] px-2 py-1.5 text-[11px] font-medium",
+                  "rounded-[8px] px-2 py-1.5 text-[11px] font-medium",
                   library === option.id
                     ? "bg-[var(--dn-popover-tile-hover)] text-[var(--dn-fg)]"
                     : "text-[var(--dn-popover-muted)] focus:bg-[var(--dn-popover-tile-hover)] focus:text-[var(--dn-fg)]",
@@ -219,7 +219,7 @@ export function LogoIconPicker({
                   <div
                     key={`${icon.library}-${icon.id}`}
                     aria-hidden
-                    className="h-11 min-w-0 animate-pulse rounded-[7px] bg-[var(--dn-popover-tile)]"
+                    className="h-11 min-w-0 animate-pulse rounded-[9px] bg-[var(--dn-popover-tile)]"
                   />
                 ))
               : curatedIcons.map((result) => (
@@ -366,7 +366,7 @@ export function PexelsPhotoPicker({
               <DropdownMenuItem
                 key={option.value}
                 className={cn(
-                  "rounded-[6px] px-2 py-1.5 text-[11px] font-medium",
+                  "rounded-[8px] px-2 py-1.5 text-[11px] font-medium",
                   orientation === option.value
                     ? "bg-[var(--dn-popover-tile-hover)] text-[var(--dn-fg)]"
                     : "text-[var(--dn-popover-muted)] focus:bg-[var(--dn-popover-tile-hover)] focus:text-[var(--dn-fg)]",
@@ -386,7 +386,7 @@ export function PexelsPhotoPicker({
               <div
                 key={`skeleton-${index}`}
                 aria-hidden
-                className="aspect-[4/3] min-w-0 animate-pulse rounded-[7px] bg-[var(--dn-popover-tile)]"
+                className="aspect-[4/3] min-w-0 animate-pulse rounded-[9px] bg-[var(--dn-popover-tile)]"
               />
             ))
           : null}

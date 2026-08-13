@@ -1423,9 +1423,10 @@ export function FloatingToolbar({
               }
               onPatch={controller?.onAppearancePatch}
               onRedo={controller?.onRedo}
-              onResetDefaults={controller?.onResetDefaults}
+              onSelectSizeTemplate={controller?.onSceneTemplateSizeTemplateSelect}
               onThemeChange={model.onDesktopThemeChange}
               onUndo={controller?.onUndo}
+              sizePresetId={controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId}
               theme={actualDesktopTheme}
             />
           </div>

@@ -3,7 +3,6 @@
 import {
   MousePointer2Icon,
   Redo2Icon,
-  RotateCcwIcon,
   SquareRoundCornerIcon,
   SquareIcon,
   Undo2Icon,
@@ -20,6 +19,7 @@ import {
   DesktopKeyboardShortcutsTrigger,
   DesktopThemeToggleButton,
 } from "@/features/desktop-shell/components/DesktopChromeControls"
+import { DesktopCanvasRatioPresetRow } from "@/features/desktop-shell/components/DesktopCanvasRatioPresetRow"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import { DesktopUtilityToolbarButton } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
@@ -28,6 +28,7 @@ import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopToolt
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Switch } from "@/components/ui/switch"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import type { SizeTemplate } from "@/features/workspace/model/size-templates"
 import { cn } from "@/lib/utils"
 
 type AppearancePopoverId = "radius" | "outline"
@@ -142,13 +143,11 @@ export function DesktopHistoryActionButtons({
   canRedo,
   canUndo,
   onRedo,
-  onResetDefaults,
   onUndo,
 }: {
   canRedo?: boolean
   canUndo?: boolean
   onRedo?: () => void
-  onResetDefaults?: () => void
   onUndo?: () => void
 }) {
   return (
@@ -156,15 +155,6 @@ export function DesktopHistoryActionButtons({
       className="flex min-w-0 items-center gap-0.5"
       data-slot="desktop-history-actions"
     >
-      <DesktopTooltip content="Reset defaults" side="bottom" sideOffset={10}>
-        <DesktopUtilityToolbarButton
-          aria-label="Reset defaults"
-          disabled={!onResetDefaults}
-          onClick={onResetDefaults}
-        >
-          <RotateCcwIcon className="size-3.5" />
-        </DesktopUtilityToolbarButton>
-      </DesktopTooltip>
       <DesktopTooltip content="Undo" side="bottom" sideOffset={10}>
         <DesktopUtilityToolbarButton
           aria-label="Undo"
@@ -252,9 +242,10 @@ export function DesktopDynamicIslandChrome({
   onPatch,
   onFreeEditingChange,
   onRedo,
-  onResetDefaults,
+  onSelectSizeTemplate,
   onThemeChange,
   onUndo,
+  sizePresetId,
   theme = "dark",
 }: {
   appearance?: DesktopAppearanceSnapshot | null
@@ -264,12 +255,14 @@ export function DesktopDynamicIslandChrome({
   onPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onFreeEditingChange?: (enabled: boolean) => void
   onRedo?: () => void
-  onResetDefaults?: () => void
+  onSelectSizeTemplate?: (template: SizeTemplate) => void
   onThemeChange?: (theme: DesktopThemeMode) => void
   onUndo?: () => void
+  sizePresetId?: string
   theme?: DesktopThemeMode
 }) {
   const hasAppearance = Boolean(isFreeEditingEnabled && appearance && onPatch)
+  const hasCanvasRatioControls = Boolean(onSelectSizeTemplate)
 
   return (
     <DynamicIsland
@@ -283,9 +276,17 @@ export function DesktopDynamicIslandChrome({
             canRedo={canRedo}
             canUndo={canUndo}
             onRedo={onRedo}
-            onResetDefaults={onResetDefaults}
             onUndo={onUndo}
           />
+          {onSelectSizeTemplate ? (
+            <>
+              <DesktopDynamicIslandDivider />
+              <DesktopCanvasRatioPresetRow
+                selectedPresetId={sizePresetId}
+                onSelectTemplate={onSelectSizeTemplate}
+              />
+            </>
+          ) : null}
           {onFreeEditingChange ? (
             <>
               <DesktopDynamicIslandDivider />
@@ -316,7 +317,10 @@ export function DesktopDynamicIslandChrome({
         </div>
       }
       showViewControls={false}
-      className={cn(hasAppearance && "min-w-[12rem]")}
+      className={cn(
+        hasAppearance && "min-w-[12rem]",
+        hasCanvasRatioControls && "min-w-[18rem]",
+      )}
     />
   )
 }
