@@ -160,7 +160,7 @@
 
 [data-slot="desktop-left-toolbar-shell"] [data-slot="desktopnew-settings-inspector"] {
   padding-top: 0;
-  padding-inline-end: var(--desktop-toolbar-rail-pill-inset);
+  padding-inline-end: 0;
   box-sizing: border-box;
 }
 

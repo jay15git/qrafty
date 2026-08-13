@@ -206,6 +206,10 @@ export function isDraftingQrLayerId(layerId: string | null | undefined) {
   return Boolean(layerId?.endsWith(DRAFTING_QR_LAYER_SUFFIX))
 }
 
+export function isProtectedDraftingLayerId(layerId: string | null | undefined) {
+  return isDraftingCardLayerId(layerId) || isDraftingQrLayerId(layerId)
+}
+
 export function fitQrSizeInCard(
   qrState: QrStudioState,
   cardState: Pick<DraftingCardState, "bottomSpace" | "height" | "padding" | "sizeMode" | "width">,
@@ -373,8 +377,8 @@ export function createDefaultDraftingLayers(
       blur: 0,
       height: layout.card.height,
       id: getDraftingCardLayerId(nodeId),
-      isLocked: false,
-      isVisible: cardState.enabled,
+      isLocked: true,
+      isVisible: true,
       kind: "card",
       layerFilters: [],
       name: "Card",

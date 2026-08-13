@@ -17,6 +17,7 @@ import {
   getDraftingCardInsetLayout,
   getDraftingMarqueeSelection,
   groupDraftingCanvasLayers,
+  isProtectedDraftingLayerId,
   layoutDraftingCardInsetLayers,
   hasCustomDraftingQrPlacement,
   normalizeDraftingCanvasLayers,
@@ -28,6 +29,18 @@ import { createDefaultDraftingCardState } from "@/features/workspace/model/card-
 import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
 
 describe("drafting layer state actions", () => {
+  it("keeps the card background layer locked, visible, and protected", () => {
+    const cardState = { ...createDefaultDraftingCardState(), enabled: false }
+    const layers = createDefaultDraftingLayers("preview", createDefaultQrStudioState(), cardState)
+    const cardLayer = layers.find((layer) => layer.kind === "card")
+
+    expect(cardLayer).toMatchObject({
+      isLocked: true,
+      isVisible: true,
+    })
+    expect(isProtectedDraftingLayerId(cardLayer?.id)).toBe(true)
+  })
+
   it("relayouts card and qr layers when card inset padding changes", () => {
     const qrState = createDefaultQrStudioState()
     const cardState = {

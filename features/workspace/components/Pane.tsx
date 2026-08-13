@@ -33,6 +33,7 @@ import {
   createDefaultDraftingLayers,
   DEFAULT_DRAFTING_SHAPE_LAYER,
   getDraftingMarqueeSelection,
+  isProtectedDraftingLayerId,
   type DraftingLayerAlignAction,
   type DraftingLayerDistributeAction,
   type DraftingLayerReorderAction,
@@ -782,7 +783,8 @@ function LayerContextMenu({
 }) {
   const isMultiLayer = layerCount > 1
   const hasSelection = layerCount > 0
-  const hasHiddenLayer = layers.some((layer) => !layer.isVisible)
+  const actionableLayers = layers.filter((layer) => !isProtectedDraftingLayerId(layer.id))
+  const hasHiddenLayer = actionableLayers.some((layer) => !layer.isVisible)
   const hasGroupLayer = layers.some((layer) => layer.kind === "group")
 
   return (
@@ -804,10 +806,12 @@ function LayerContextMenu({
           <LayerContextMenuButton label="Send backward" onClick={() => onAction("backward")} />
           <LayerContextMenuButton label="Send to back" onClick={() => onAction("back")} />
           <LayerContextMenuSeparator />
-          <LayerContextMenuButton
-            label={hasHiddenLayer ? "Show" : "Hide"}
-            onClick={() => onAction(hasHiddenLayer ? "show" : "hide")}
-          />
+          {actionableLayers.length > 0 ? (
+            <LayerContextMenuButton
+              label={hasHiddenLayer ? "Show" : "Hide"}
+              onClick={() => onAction(hasHiddenLayer ? "show" : "hide")}
+            />
+          ) : null}
           <LayerContextMenuButton label="Reset rotation" onClick={() => onAction("reset-rotation")} />
           {isMultiLayer ? (
             <>
@@ -872,8 +876,10 @@ function LayerFloatingToolbar({
   onMore: (event: MouseEvent<HTMLButtonElement>) => void
   style: CSSProperties
 }) {
-  const hasUnlockedLayer = layers.some((layer) => !layer.isLocked)
-  const hasRemovableLayer = layers.some((layer) => layer.kind !== "qr")
+  const hasUnlockedLayer = layers.some(
+    (layer) => !layer.isLocked && !isProtectedDraftingLayerId(layer.id),
+  )
+  const hasRemovableLayer = layers.some((layer) => !isProtectedDraftingLayerId(layer.id))
   const lockAction = hasUnlockedLayer ? "lock" : "unlock"
   const lockLabel = hasUnlockedLayer ? "Lock selection" : "Unlock selection"
   const LockActionIcon = hasUnlockedLayer ? LockIcon : UnlockIcon

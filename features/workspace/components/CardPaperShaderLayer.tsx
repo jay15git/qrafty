@@ -1,9 +1,22 @@
 "use client"
 
-import { Component, type CSSProperties, type ReactNode, useMemo, useState } from "react"
+import {
+  Component,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+  type RefObject,
+  useMemo,
+} from "react"
 
 import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
 import { getPaperShaderDefinition } from "@/features/workspace/rendering/paper-shaders"
+import {
+  hasValidPaperShaderLayout,
+  readPaperShaderFallbackColor,
+} from "@/features/workspace/rendering/paper-shader-runtime"
 import {
   LIVE_PAPER_SHADER_RENDER_OPTIONS,
   buildPaperShaderWorldSize,
@@ -21,7 +34,9 @@ type DraftingCardPaperShaderRendererProps = {
   dataSlot: string
   layoutHeight?: number
   layoutWidth?: number
+  mountGeneration: number
   onError: () => void
+  onRecover: () => void
   paperShader: DraftingCardPaperShaderState
   renderOptions?: Record<string, unknown>
   style: CSSProperties
@@ -86,7 +101,6 @@ function buildDraftingPaperShaderRenderProps(
     ...(definition.requiresImage && paperShader.image.value
       ? { image: paperShader.image.value }
       : {}),
-    // Native Paper RAF: speed 0 stops the loop (perf guide).
     speed: playbackSpeed,
     ...definition.renderOptions,
     ...LIVE_PAPER_SHADER_RENDER_OPTIONS,
@@ -95,16 +109,64 @@ function buildDraftingPaperShaderRenderProps(
   }
 }
 
+function usePaperShaderContextRecovery(
+  hostRef: RefObject<HTMLDivElement | null>,
+  onRecover: () => void,
+) {
+  useEffect(() => {
+    const host = hostRef.current
+    if (!host) {
+      return
+    }
+
+    let canvasCleanup: (() => void) | undefined
+
+    const bindCanvas = () => {
+      canvasCleanup?.()
+      const canvas = host.querySelector("canvas")
+      if (!canvas) {
+        canvasCleanup = undefined
+        return
+      }
+
+      const handleContextLost = (event: Event) => {
+        event.preventDefault()
+        onRecover()
+      }
+
+      canvas.addEventListener("webglcontextlost", handleContextLost, false)
+      canvasCleanup = () => {
+        canvas.removeEventListener("webglcontextlost", handleContextLost, false)
+      }
+    }
+
+    bindCanvas()
+
+    const observer = new MutationObserver(() => {
+      bindCanvas()
+    })
+    observer.observe(host, { childList: true, subtree: true })
+
+    return () => {
+      observer.disconnect()
+      canvasCleanup?.()
+    }
+  }, [hostRef, onRecover])
+}
+
 export function DraftingCardPaperShaderRenderer({
   dataExportShader,
   dataSlot,
   layoutHeight,
   layoutWidth,
+  mountGeneration,
   onError,
+  onRecover,
   paperShader,
   renderOptions,
   style,
 }: DraftingCardPaperShaderRendererProps) {
+  const hostRef = useRef<HTMLDivElement | null>(null)
   const definition = getPaperShaderDefinition(paperShader.shaderId)
   const ShaderComponent = definition.component
   const worldSize = usePaperShaderWorldSize(layoutWidth, layoutHeight)
@@ -120,9 +182,14 @@ export function DraftingCardPaperShaderRenderer({
     [paperShader, playbackSpeed, renderOptions, worldSize],
   )
 
+  usePaperShaderContextRecovery(hostRef, onRecover)
+
   return (
-    <PaperShaderErrorBoundary key={paperShader.shaderId} onError={onError}>
-      <div data-shader-canvas-host-root="" style={style}>
+    <PaperShaderErrorBoundary
+      key={`${paperShader.shaderId}:${mountGeneration}`}
+      onError={onError}
+    >
+      <div ref={hostRef} data-shader-canvas-host-root="" style={style}>
         <ShaderComponent
           {...shaderProps}
           aria-hidden="true"
@@ -146,11 +213,38 @@ export function DraftingCardPaperShaderLayer({
   paperShader,
 }: DraftingCardPaperShaderLayerProps) {
   const [canRenderShader] = useState(hasDraftingPaperShaderWebGlSupport)
+  const [mountGeneration, setMountGeneration] = useState(0)
   const [shaderErrorId, setShaderErrorId] = useState<string | null>(null)
+  const hasLayout = hasValidPaperShaderLayout(layoutWidth, layoutHeight)
   const hasShaderError = shaderErrorId === paperShader.shaderId
+  const fallbackColor = readPaperShaderFallbackColor(paperShader)
 
-  if (!canRenderShader || hasShaderError) {
+  useEffect(() => {
+    setShaderErrorId(null)
+    setMountGeneration((current) => current + 1)
+  }, [paperShader.shaderId, paperShader.presetName])
+
+  if (!canRenderShader || !hasLayout) {
     return null
+  }
+
+  if (hasShaderError) {
+    return (
+      <div
+        aria-hidden="true"
+        data-slot="dashboard-compose-card-paper-shader-fallback"
+        style={{
+          backgroundColor: fallbackColor,
+          borderRadius: "inherit",
+          height: "100%",
+          inset: 0,
+          pointerEvents: "none",
+          position: "absolute",
+          width: "100%",
+          zIndex: 0,
+        }}
+      />
+    )
   }
 
   return (
@@ -159,7 +253,12 @@ export function DraftingCardPaperShaderLayer({
       dataExportShader={paperShader.shaderId}
       layoutHeight={layoutHeight}
       layoutWidth={layoutWidth}
+      mountGeneration={mountGeneration}
       onError={() => setShaderErrorId(paperShader.shaderId)}
+      onRecover={() => {
+        setShaderErrorId(null)
+        setMountGeneration((current) => current + 1)
+      }}
       paperShader={paperShader}
       style={{
         borderRadius: "inherit",

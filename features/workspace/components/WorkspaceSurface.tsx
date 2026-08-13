@@ -67,6 +67,7 @@ import {
   getDraftingQrLayerId,
   groupDraftingCanvasLayers,
   isDraftingCardLayerId,
+  isProtectedDraftingLayerId,
   isDraftingQrLayerId,
   layoutDraftingCardInsetLayers,
   patchDraftingCanvasLayer,
@@ -2727,6 +2728,14 @@ export function WorkspaceSurface({
     layerId: string,
     patch: Partial<DraftingCanvasLayer>,
   ) {
+    if (isProtectedDraftingLayerId(layerId)) {
+      const { isLocked: _isLocked, isVisible: _isVisible, ...safePatch } = patch
+      if (Object.keys(safePatch).length === 0) {
+        return
+      }
+      patch = safePatch
+    }
+
     setLayerStateByNodeId((current) => {
       const currentQrState =
         paneId === activeQrNodeId
@@ -2890,7 +2899,7 @@ export function WorkspaceSurface({
       let nextLayers = layers
 
       if (reorderActions.includes(action as DraftingLayerReorderAction)) {
-        for (const layerId of layerIds) {
+        for (const layerId of layerIds.filter((id) => !isProtectedDraftingLayerId(id))) {
           nextLayers = reorderDraftingCanvasLayer(
             nextLayers,
             layerId,
@@ -2920,7 +2929,7 @@ export function WorkspaceSurface({
         )
       } else if (action === "delete") {
         const removableLayerIds = new Set(
-          layerIds.filter((layerId) => !isDraftingQrLayerId(layerId)),
+          layerIds.filter((layerId) => !isProtectedDraftingLayerId(layerId)),
         )
 
         if (removableLayerIds.size > 0) {
@@ -2937,8 +2946,16 @@ export function WorkspaceSurface({
           })
         }
       } else {
+        const actionableLayerIds = layerIds.filter(
+          (layerId) => !isProtectedDraftingLayerId(layerId),
+        )
+
+        if (actionableLayerIds.length === 0) {
+          return current
+        }
+
         nextLayers = nextLayers.map((layer) => {
-          if (!layerIds.includes(layer.id)) {
+          if (!actionableLayerIds.includes(layer.id)) {
             return cloneDraftingCanvasLayer(layer)
           }
 

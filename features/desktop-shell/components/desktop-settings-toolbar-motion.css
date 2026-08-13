@@ -173,6 +173,28 @@
   box-sizing: border-box;
 }
 
+/* New accordion settings — full-width column, flush to canvas (no legacy icon-rail gutter). */
+[data-slot="desktop-workspace"]:has([data-slot="desktopnew-settings-inspector"]),
+[data-slot="desktop-floating-toolbar-root"]:has([data-slot="desktopnew-settings-inspector"]) {
+  --desktop-settings-toolbar-chrome-gap: 0px;
+}
+
+[data-slot="desktop-left-toolbar-shell"]:has([data-slot="desktopnew-settings-inspector"]) {
+  background: #ffffff;
+}
+
+[data-slot="desktop-workspace"][data-desktop-theme="dark"]
+  [data-slot="desktop-left-toolbar-shell"]:has([data-slot="desktopnew-settings-inspector"]) {
+  background: #090909;
+}
+
+[data-slot="desktop-left-toolbar-shell"]:has([data-slot="desktopnew-settings-inspector"])
+  [data-slot="desktopnew-settings-inspector"] {
+  padding-top: 0;
+  padding-inline-end: 0;
+  box-sizing: border-box;
+}
+
 [data-slot="desktop-left-toolbar-shell"] [data-slot="desktop-floating-toolbar"] {
   padding-top: var(--desktop-settings-toolbar-top-inset);
   box-sizing: border-box;

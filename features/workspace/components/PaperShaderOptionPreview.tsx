@@ -9,6 +9,7 @@ import {
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
 import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
+import { hasLiveCanvasPaperShaderMount } from "@/features/workspace/rendering/paper-shader-runtime"
 import { LIVE_PAPER_SHADER_WEBGL_CONTEXT_ATTRIBUTES } from "@new-qr/qr-internal/scene"
 
 const PAPER_SHADER_THUMBNAIL_CACHE_VERSION = "paper-shader-thumbnail-v1"
@@ -43,6 +44,7 @@ const paperShaderThumbnailFailures = new Set<string>()
 const paperShaderThumbnailSubscribers = new Map<string, Set<() => void>>()
 const paperShaderThumbnailQueue: string[] = []
 let activePaperShaderThumbnailKey: string | null = null
+let thumbnailDeferTimeoutId = 0
 
 export function createDraftingPaperShaderThumbnailCacheKey(
   paperShader: DraftingCardPaperShaderState,
@@ -98,6 +100,12 @@ function processNextPaperShaderThumbnail() {
     return
   }
 
+  if (hasLiveCanvasPaperShaderMount()) {
+    window.clearTimeout(thumbnailDeferTimeoutId)
+    thumbnailDeferTimeoutId = window.setTimeout(processNextPaperShaderThumbnail, 750)
+    return
+  }
+
   const nextKey = paperShaderThumbnailQueue.shift()
   if (!nextKey) {
     return
@@ -132,6 +140,7 @@ export function PaperShaderOptionPreview({
   shaderId: PaperShaderId
 }) {
   const [, setRevision] = useState(0)
+  const [mountGeneration, setMountGeneration] = useState(0)
   const captureHostRef = useRef<HTMLSpanElement | null>(null)
   const [canRenderShader] = useState(hasDraftingPaperShaderWebGlSupport)
   const previewShader = useMemo(
@@ -156,11 +165,11 @@ export function PaperShaderOptionPreview({
   )
 
   useEffect(() => {
-    if (!canRenderShader) {
+    if (!canRenderShader || !isSelected) {
       return
     }
 
-    requestPaperShaderThumbnail(cacheKey, isSelected)
+    requestPaperShaderThumbnail(cacheKey, true)
   }, [cacheKey, canRenderShader, isSelected])
 
   useEffect(() => {
@@ -286,7 +295,9 @@ export function PaperShaderOptionPreview({
             dataSlot="paper-shader-option-preview-source"
             layoutHeight={PAPER_SHADER_THUMBNAIL_HEIGHT}
             layoutWidth={PAPER_SHADER_THUMBNAIL_WIDTH}
+            mountGeneration={mountGeneration}
             onError={() => finishPaperShaderThumbnail(cacheKey)}
+            onRecover={() => setMountGeneration((current) => current + 1)}
             paperShader={previewShader}
             renderOptions={PAPER_SHADER_THUMBNAIL_RENDER_OPTIONS}
             style={PAPER_SHADER_THUMBNAIL_SHADER_STYLE}

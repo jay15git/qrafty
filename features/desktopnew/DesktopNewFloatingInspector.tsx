@@ -62,7 +62,7 @@ export function DesktopNewFloatingInspector({
   return (
     <aside
       aria-label="Settings"
-      className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden", className)}
+      className={cn("flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden", className)}
       data-slot="desktopnew-settings-inspector"
     >
       <div
