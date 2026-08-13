@@ -12,10 +12,13 @@ import {
 import { getIntentSampleValues } from "@/features/qr-code/content/platform-samples"
 
 describe("platform intent registry", () => {
-  it("includes the expanded catalog in picker types", () => {
-    expect(PLATFORM_PICKER_TYPES).toContain("instagram")
-    expect(PLATFORM_PICKER_TYPES).toContain("spotify")
-    expect(PLATFORM_PICKER_TYPES).toContain("github")
+  it("includes only lean picker collections", () => {
+    expect(PLATFORM_PICKER_TYPES).toContain("link")
+    expect(PLATFORM_PICKER_TYPES).toContain("whatsapp")
+    expect(PLATFORM_PICKER_TYPES).toContain("crypto")
+    expect(PLATFORM_PICKER_TYPES).not.toContain("instagram")
+    expect(PLATFORM_PICKER_TYPES).not.toContain("spotify")
+    expect(PLATFORM_PICKER_TYPES).not.toContain("github")
   })
 
   it("detects platform and intent from known URLs", () => {

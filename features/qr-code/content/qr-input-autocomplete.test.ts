@@ -19,7 +19,7 @@ describe("qr input autocomplete", () => {
 
     expect(wifi).toMatchObject({
       label: "Wi-Fi",
-      category: "Popular",
+      category: "Essentials",
     })
   })
 
@@ -29,7 +29,7 @@ describe("qr input autocomplete", () => {
     expect(filterQrInputAutocompleteItems(items, "wi").some((item) => item.value === "wifi")).toBe(
       true,
     )
-    expect(filterQrInputAutocompleteItems(items, "popular").length).toBeGreaterThan(0)
+    expect(filterQrInputAutocompleteItems(items, "essentials").length).toBeGreaterThan(0)
     expect(filterQrInputAutocompleteItems(items, "nope")).toHaveLength(0)
   })
 })

@@ -1500,7 +1500,7 @@ describe("WorkspaceSurface", () => {
       activateElement(getRequiredElement(surface.container, 'button[aria-label="Open QR type options"]'))
     })
     act(() => {
-      activateElement(getRequiredElement(document.body, '[data-slot="dropdown-menu-sub-trigger"][data-category="contact"]'))
+      activateElement(getRequiredElement(document.body, '[data-slot="dropdown-menu-sub-trigger"][data-category="more"]'))
     })
     act(() => {
       activateElement(getRequiredElement(document.body, '[data-slot="dropdown-menu-item"][data-content-type="sms"]'))

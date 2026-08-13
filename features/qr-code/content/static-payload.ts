@@ -6,7 +6,10 @@ import {
   VALIDATION_MESSAGES,
 } from "@/features/qr-code/content/content-field-validation"
 import type { QrInputType } from "@/features/qr-code/content/input-options"
-import { normalizeContentTypeForPicker } from "@/features/qr-code/content/input-options"
+import {
+  isPickerQrInputType,
+  normalizeContentTypeForPicker,
+} from "@/features/qr-code/content/input-options"
 import {
   buildPlatformPayload,
   extractPlatformValuesFromUrl,
@@ -251,14 +254,7 @@ export function getContentValuesForTypeChange(
   const defaults = getDefaultStaticQrValues(toType)
   const normalizedFrom = normalizeContentTypeForPicker(fromType)
   const normalizedTo = normalizeContentTypeForPicker(toType)
-
-  if (normalizedFrom === "link" && normalizedTo === "link") {
-    const url = stringValue(fromValues.url) || stringValue(fromValues.username)
-
-    if (url) {
-      return { ...defaults, url }
-    }
-  }
+  const urlFromValues = stringValue(fromValues.url) || stringValue(fromValues.username)
 
   if (normalizedFrom === "text" && normalizedTo === "link") {
     const text = stringValue(fromValues.text)
@@ -269,27 +265,40 @@ export function getContentValuesForTypeChange(
   }
 
   if (normalizedFrom === "link" && normalizedTo === "text") {
-    const url = stringValue(fromValues.url) || stringValue(fromValues.username)
-
-    if (url) {
-      return { ...defaults, text: url }
+    if (urlFromValues) {
+      return { ...defaults, text: urlFromValues }
     }
   }
 
-  if (normalizedFrom === "link" && normalizedTo !== "link" && normalizedTo !== "text") {
-    const url = stringValue(fromValues.url) || stringValue(fromValues.username)
-    if (url && isPlatformType(toType)) {
-      const extracted = extractPlatformValuesFromUrl(toType, url)
+  if (normalizedFrom === "link" && isPlatformType(toType) && !isPickerQrInputType(toType)) {
+    if (urlFromValues) {
+      const extracted = extractPlatformValuesFromUrl(toType, urlFromValues)
+      if (extracted) {
+        return { ...defaults, ...extracted }
+      }
+    }
+
+    return defaults
+  }
+
+  if (normalizedFrom === "link" && isPickerQrInputType(toType) && toType !== "link" && toType !== "text") {
+    if (urlFromValues && isPlatformType(toType)) {
+      const extracted = extractPlatformValuesFromUrl(toType, urlFromValues)
       if (extracted) {
         return { ...defaults, ...extracted }
       }
     }
   }
 
-  if (normalizedTo === "link" && normalizedFrom !== "link" && normalizedFrom !== "text") {
-    const url = stringValue(fromValues.url) || stringValue(fromValues.username)
-    if (url) {
-      return { ...getDefaultStaticQrValues("link"), url }
+  if (normalizedTo === "link" && isPlatformType(fromType)) {
+    if (urlFromValues) {
+      return { ...getDefaultStaticQrValues("link"), url: urlFromValues }
+    }
+  }
+
+  if (normalizedFrom === "link" && normalizedTo === "link") {
+    if (urlFromValues) {
+      return { ...defaults, url: urlFromValues }
     }
   }
 

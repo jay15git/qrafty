@@ -139,7 +139,7 @@ export type QuickQrInputType =
   | "instagram"
   | "whatsapp"
 
-export type QrCategoryKey = "popular" | "contact" | "more"
+export type QrCategoryKey = "popular" | "more"
 
 const STRUCTURED_PICKER_TYPES = [
   "link",
@@ -149,6 +149,7 @@ const STRUCTURED_PICKER_TYPES = [
   "sms",
   "wifi",
   "vcard",
+  "whatsapp",
   "map-location",
   "event",
   "coupon",
@@ -375,7 +376,7 @@ export const QUICK_INPUT_OPTIONS = pickQrInputOptions(
 export const QR_CATEGORIES: readonly QrCategory[] = [
   {
     key: "popular",
-    label: "Popular",
+    label: "Essentials",
     icon: QrCode,
     items: pickQrInputOptions([
       "link",
@@ -385,29 +386,20 @@ export const QR_CATEGORIES: readonly QrCategory[] = [
       "wifi",
       "vcard",
       "whatsapp",
-      "instagram",
-      "youtube",
-    ]),
-  },
-  {
-    key: "contact",
-    label: "Contact",
-    icon: ContactRound,
-    items: pickQrInputOptions([
-      "phone",
-      "sms",
-      "email",
-      "vcard",
-      "whatsapp",
-      "telegram",
-      "map-location",
     ]),
   },
   {
     key: "more",
     label: "More",
     icon: CalendarRange,
-    items: pickQrInputOptions(["event", "coupon", "upi", "crypto"]),
+    items: pickQrInputOptions([
+      "sms",
+      "map-location",
+      "event",
+      "coupon",
+      "upi",
+      "crypto",
+    ]),
   },
 ] as const
 

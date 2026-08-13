@@ -7,25 +7,37 @@ import {
 } from "@/features/qr-code/content/input-options"
 
 describe("picker content types", () => {
-  it("exposes structured types plus the full platform catalog", () => {
-    expect(PICKER_QR_INPUT_TYPES).toContain("link")
-    expect(PICKER_QR_INPUT_TYPES).toContain("instagram")
-    expect(PICKER_QR_INPUT_TYPES).toContain("spotify")
-    expect(PICKER_QR_INPUT_TYPES).toContain("app-store")
-    expect(PICKER_QR_INPUT_TYPES).toContain("github")
-    expect(PICKER_QR_INPUT_TYPES.length).toBeGreaterThan(40)
+  it("exposes only lean structured picker types", () => {
+    expect(PICKER_QR_INPUT_TYPES).toEqual([
+      "link",
+      "text",
+      "phone",
+      "email",
+      "sms",
+      "wifi",
+      "vcard",
+      "whatsapp",
+      "map-location",
+      "event",
+      "coupon",
+      "upi",
+      "crypto",
+    ])
+    expect(PICKER_QR_INPUT_TYPES).not.toContain("instagram")
+    expect(PICKER_QR_INPUT_TYPES).not.toContain("spotify")
   })
 
-  it("normalizes legacy aliases to link or resolved picker types", () => {
+  it("normalizes legacy aliases and platform types to link or picker types", () => {
     expect(normalizeContentTypeForPicker("pdf")).toBe("link")
-    expect(normalizeContentTypeForPicker("form")).toBe("google-forms")
-    expect(normalizeContentTypeForPicker("booking-link")).toBe("calendly")
-    expect(normalizeContentTypeForPicker("payment-link")).toBe("stripe")
-    expect(normalizeContentTypeForPicker("instagram")).toBe("instagram")
-    expect(normalizeContentTypeForPicker("telegram-username")).toBe("telegram")
+    expect(normalizeContentTypeForPicker("form")).toBe("link")
+    expect(normalizeContentTypeForPicker("booking-link")).toBe("link")
+    expect(normalizeContentTypeForPicker("payment-link")).toBe("link")
+    expect(normalizeContentTypeForPicker("instagram")).toBe("link")
+    expect(normalizeContentTypeForPicker("telegram-username")).toBe("link")
     expect(normalizeContentTypeForPicker("auto")).toBe("text")
-    expect(normalizeContentTypeForPicker("app-download")).toBe("app-store")
+    expect(normalizeContentTypeForPicker("app-download")).toBe("link")
     expect(normalizeContentTypeForPicker("wifi")).toBe("wifi")
+    expect(normalizeContentTypeForPicker("whatsapp")).toBe("whatsapp")
   })
 
   it("labels platform and legacy types", () => {
