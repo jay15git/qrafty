@@ -1,5 +1,6 @@
-import { formatFill, parseFill } from "@/components/ui/fill-picker-base/fill"
-import { formatColor } from "@/components/ui/fill-picker-base/color-picker"
+import { formatFill, parseFill, type Fill } from "@/components/ui/fill-picker-base/fill"
+import { formatColor, parseColor } from "@/components/ui/fill-picker-base/color-picker"
+import type { Gradient, GradientStop } from "@/components/ui/fill-picker-base/gradient"
 import type {
   DesktopCornersSettings,
   DesktopLogoSettings,
@@ -7,7 +8,60 @@ import type {
   DesktopShapeSettings,
 } from "@/features/desktop-shell/components/FloatingToolbar"
 import type { StudioGradient } from "@/features/qr-code/model/state"
+import { degreesToRadians, radiansToDegrees } from "@/features/qr-code/styles/gradient-controls"
 import { fillFromHex, fillPreviewHex } from "@/features/desktopnew/desktopnew-fill-picker"
+
+const FALLBACK_OKLCH = { l: 0, c: 0, h: 0, alpha: 1 } as const
+
+function parseStopColor(color: string) {
+  return parseColor(color) ?? FALLBACK_OKLCH
+}
+
+function studioStopsToFillStops(gradient: StudioGradient): GradientStop[] {
+  const start = gradient.colorStops[0]
+  const end = gradient.colorStops[1] ?? start
+
+  return [
+    {
+      id: "studio-start",
+      color: parseStopColor(start.color),
+      position: start.offset,
+    },
+    {
+      id: "studio-end",
+      color: parseStopColor(end.color),
+      position: end.offset,
+    },
+  ]
+}
+
+function studioGradientToFill(gradient: StudioGradient): Fill {
+  const stops = studioStopsToFillStops(gradient)
+
+  if (gradient.type === "radial") {
+    return {
+      kind: "gradient",
+      gradient: {
+        type: "radial",
+        shape: "circle",
+        center: { x: 0.5, y: 0.5 },
+        size: "farthest-corner",
+        interp: "oklch",
+        stops,
+      },
+    }
+  }
+
+  return {
+    kind: "gradient",
+    gradient: {
+      type: "linear",
+      angle: radiansToDegrees(gradient.rotation),
+      interp: "oklch",
+      stops,
+    },
+  }
+}
 
 export function solidColorToFillCss(color: string): string {
   return formatFill(fillFromHex(color))
@@ -18,12 +72,7 @@ export function studioGradientToFillCss(gradient: StudioGradient): string {
     return solidColorToFillCss(gradient.colorStops[0]?.color ?? "#171717")
   }
 
-  const [start, end] = gradient.colorStops
-  if (gradient.type === "radial") {
-    return `radial-gradient(circle, ${start.color} ${start.offset * 100}%, ${end.color} ${end.offset * 100}%)`
-  }
-
-  return `linear-gradient(${gradient.rotation}deg, ${start.color} ${start.offset * 100}%, ${end.color} ${end.offset * 100}%)`
+  return formatFill(studioGradientToFill(gradient))
 }
 
 export function readPatternModuleFillCss(settings: DesktopPatternSettings): string {
@@ -62,6 +111,46 @@ export function readLogoFillCss(settings: DesktopLogoSettings): string {
   return solidColorToFillCss(settings.solidColor)
 }
 
+function fillGradientToStudio(
+  gradient: Gradient,
+  fallback: StudioGradient,
+): StudioGradient {
+  const stops = [...gradient.stops].sort((a, b) => a.position - b.position)
+  const first = stops[0]
+  const second = stops[stops.length - 1] ?? first
+
+  if (!first || !second) {
+    return fallback
+  }
+
+  const colorStops: StudioGradient["colorStops"] = [
+    {
+      offset: Math.min(1, Math.max(0, first.position)),
+      color: formatColor(first.color, "hex"),
+    },
+    {
+      offset: Math.min(1, Math.max(0, second.position)),
+      color: formatColor(second.color, "hex"),
+    },
+  ]
+
+  if (gradient.type === "linear") {
+    return {
+      enabled: true,
+      type: "linear",
+      rotation: degreesToRadians(gradient.angle ?? 0),
+      colorStops,
+    }
+  }
+
+  return {
+    enabled: true,
+    type: "radial",
+    rotation: fallback.rotation,
+    colorStops,
+  }
+}
+
 export function fillCssToStudioGradient(
   css: string,
   fallback: StudioGradient,
@@ -80,113 +169,95 @@ export function fillCssToStudioGradient(
     }
   }
 
-  const gradient = parsed.gradient
-  const stops = [...gradient.stops].sort((a, b) => a.position - b.position)
-  const first = stops[0]
-  const second = stops[stops.length - 1] ?? first
+  return fillGradientToStudio(parsed.gradient, fallback)
+}
 
-  if (!first || !second) {
-    return fallback
+function solidHexFromFill(fill: Fill): string {
+  if (fill.kind === "color") {
+    return formatColor(fill.color, "hex")
   }
 
-  if (gradient.type === "linear") {
-    return {
-      enabled: true,
-      type: "linear",
-      rotation: gradient.angle ?? fallback.rotation,
-      colorStops: [
-        { offset: first.position, color: formatColor(first.color, "hex") },
-        { offset: second.position, color: formatColor(second.color, "hex") },
-      ],
-    }
-  }
-
-  return {
-    enabled: true,
-    type: "radial",
-    rotation: fallback.rotation,
-    colorStops: [
-      { offset: first.position, color: formatColor(first.color, "hex") },
-      { offset: second.position, color: formatColor(second.color, "hex") },
-    ],
-  }
+  const stops = [...fill.gradient.stops].sort((a, b) => a.position - b.position)
+  const first = stops[0]?.color
+  return first ? formatColor(first, "hex") : "#171717"
 }
 
 export function applyPatternModuleFill(
-  css: string,
+  fill: Fill,
   settings: DesktopPatternSettings,
 ): Partial<DesktopPatternSettings> {
-  const parsed = parseFill(css)
-
-  if (parsed?.kind === "gradient") {
+  if (fill.kind === "gradient") {
     return {
       dotsColorMode: "gradient",
-      dataModulesGradient: fillCssToStudioGradient(css, settings.dataModulesGradient),
+      dataModulesGradient: fillGradientToStudio(fill.gradient, settings.dataModulesGradient),
     }
   }
 
   return {
     dotsColorMode: "solid",
-    dotsSolidColor: fillPreviewHex(css),
+    dotsSolidColor: solidHexFromFill(fill),
   }
 }
 
 export function applyCornerFill(
-  css: string,
+  fill: Fill,
   part: "eye" | "frame",
   settings: DesktopCornersSettings,
 ): Partial<DesktopCornersSettings> {
-  const parsed = parseFill(css)
   const gradient =
     part === "eye" ? settings.cornerDotGradient : settings.cornerSquareGradient
 
-  if (parsed?.kind === "gradient") {
-    const nextGradient = fillCssToStudioGradient(css, gradient)
+  if (fill.kind === "gradient") {
+    const nextGradient = fillGradientToStudio(fill.gradient, gradient)
     return part === "eye"
       ? { cornerDotColorMode: "gradient", cornerDotGradient: nextGradient }
       : { cornerSquareColorMode: "gradient", cornerSquareGradient: nextGradient }
   }
 
-  const hex = fillPreviewHex(css)
+  const hex = solidHexFromFill(fill)
   return part === "eye"
     ? { cornerDotColorMode: "solid", cornerDotSolidColor: hex }
     : { cornerSquareColorMode: "solid", cornerSquareSolidColor: hex }
 }
 
 export function applyShapeFill(
-  css: string,
+  fill: Fill,
   settings: DesktopShapeSettings,
 ): Partial<DesktopShapeSettings> {
-  const parsed = parseFill(css)
-
-  if (parsed?.kind === "gradient") {
+  if (fill.kind === "gradient") {
     return {
       shapeColorMode: "gradient",
-      shapeGradient: fillCssToStudioGradient(css, settings.shapeGradient),
+      shapeGradient: fillGradientToStudio(fill.gradient, settings.shapeGradient),
     }
   }
 
   return {
     shapeColorMode: "solid",
-    shapeSolidColor: fillPreviewHex(css),
+    shapeSolidColor: solidHexFromFill(fill),
   }
 }
 
 export function applyLogoFill(
-  css: string,
+  fill: Fill,
   settings: DesktopLogoSettings,
 ): Partial<DesktopLogoSettings> {
-  const parsed = parseFill(css)
-
-  if (parsed?.kind === "gradient") {
+  if (fill.kind === "gradient") {
     return {
       colorMode: "gradient",
-      gradient: fillCssToStudioGradient(css, settings.gradient),
+      gradient: fillGradientToStudio(fill.gradient, settings.gradient),
     }
   }
 
   return {
     colorMode: "solid",
-    solidColor: fillPreviewHex(css),
+    solidColor: solidHexFromFill(fill),
   }
+}
+
+export function applyCardFill(fill: Fill): { cardFill: string } {
+  if (fill.kind === "gradient") {
+    return { cardFill: formatFill(fill) }
+  }
+
+  return { cardFill: solidHexFromFill(fill) }
 }

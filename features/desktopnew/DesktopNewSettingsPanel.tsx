@@ -54,6 +54,7 @@ import {
   applyCornerFill,
   applyLogoFill,
   applyPatternModuleFill,
+  applyCardFill,
   applyShapeFill,
   readCornerFillCss,
   readLogoFillCss,
@@ -724,7 +725,7 @@ function SceneSection({ model }: { model: DesktopInspectorModel }) {
   const [imagePopoverOpen, setImagePopoverOpen] = useState(false)
   const [tab, setTab] = useState(() => backgroundTabFromStyleMode(actualBackgroundSettings.styleMode))
   const paperShader = actualBackgroundSettings.paperShader
-  const backgroundFill = solidColorToFillCss(actualShapeSettings.cardFill)
+  const backgroundFill = actualShapeSettings.cardFill
   const imageLabel = actualImageSettings.remoteUrl ? "Photo" : "None"
 
   useEffect(() => {
@@ -790,7 +791,7 @@ function SceneSection({ model }: { model: DesktopInspectorModel }) {
           <SettingsFillPopover
             hint="Fill"
             value={backgroundFill}
-            onValueChange={(fill) => onShapeSettingsChange({ cardFill: fillPreviewHex(fill) })}
+            onValueChange={(fill) => onShapeSettingsChange(applyCardFill(fill))}
           />
         )}
       </SettingsTabPanel>
@@ -846,22 +847,22 @@ function MotionSection({ model }: { model: DesktopInspectorModel }) {
           <SettingsFillPopover
             hint="Base"
             value={solidColorToFillCss(actualMotionSettings.customColorBase)}
-            onValueChange={(fill) =>
+            onValueChange={(_fill, css) =>
               onMotionSettingsChange({
                 colorPreset: "theme",
-                customColor: fillPreviewHex(fill),
-                customColorBase: fillPreviewHex(fill),
+                customColor: fillPreviewHex(css),
+                customColorBase: fillPreviewHex(css),
               })
             }
           />
           <SettingsFillPopover
             hint="Peak"
             value={solidColorToFillCss(actualMotionSettings.customColorPeak)}
-            onValueChange={(fill) =>
+            onValueChange={(_fill, css) =>
               onMotionSettingsChange({
                 colorPreset: "theme",
-                customColorMid: fillPreviewHex(fill),
-                customColorPeak: fillPreviewHex(fill),
+                customColorMid: fillPreviewHex(css),
+                customColorPeak: fillPreviewHex(css),
               })
             }
           />

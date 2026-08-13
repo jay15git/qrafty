@@ -183,10 +183,10 @@ export function SettingsEffectsSection({
                 <SettingsFillPopover
                   hint="Color"
                   value={solidColorToFillCss(effect.shadow.color)}
-                  onValueChange={(fill) =>
+                  onValueChange={(_fill, css) =>
                     onPatch(
                       patchLayerShadowEffect(layer, effect.id, {
-                        color: fillPreviewHex(fill),
+                        color: fillPreviewHex(css),
                       }),
                     )
                   }

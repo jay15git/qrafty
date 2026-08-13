@@ -22,6 +22,7 @@ import {
   toRgba,
 } from "@/features/workspace/rendering/layer-appearance"
 import { clampBackgroundShapeTilt } from "@/features/qr-code/model/state"
+import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
 import {
   getBackgroundShapeCssTiltTransform,
   getLayerPlacementTransform,
@@ -295,7 +296,7 @@ export function getDraftingCardDomStyle(
     : getDraftingPerSideBorderStyle(border.sides)
 
   return serializeCssProperties({
-    backgroundColor: cardState.fill,
+    ...cssFillToBackgroundStyle(cardState.fill),
     ...(cardPatternStyle as Record<string, string | number> | undefined),
     ...cardImageStyle,
     ...borderStyle,

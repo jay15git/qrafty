@@ -64,6 +64,7 @@ import {
   getTextLayerStyle,
   getTextRunStyle,
 } from "@/features/workspace/rendering/layer-dom-styles"
+import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
 import {
   getBackgroundShapeTiltInnerStyle,
   getBackgroundShapeTiltPerspectiveStyle,
@@ -1237,7 +1238,7 @@ export const Pane = memo(function Pane({
         }
       : undefined
   const cardStyle: CSSProperties = {
-    backgroundColor: cardState.fill,
+    ...cssFillToBackgroundStyle(cardState.fill),
     ...(isPaperShaderMode || isImageFilterMode || isImageMode ? undefined : cardPatternStyle),
     ...cardImageStyle,
     ...getDraftingCardBorderStyle(cardState),

@@ -44,6 +44,7 @@ import {
   fillPreviewHex,
   isGradientFill,
 } from "@/features/desktopnew/desktopnew-fill-picker"
+import type { Fill } from "@/components/ui/fill-picker-base/fill"
 import { cn } from "@/lib/utils"
 
 import "./desktopnew.css"
@@ -327,7 +328,7 @@ export function SettingsFillPopover({
   title,
 }: {
   value: string
-  onValueChange: (css: string) => void
+  onValueChange: (fill: Fill, css: string) => void
   hint?: string
   title?: string
 }) {

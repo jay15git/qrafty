@@ -25,6 +25,7 @@ import {
   SettingsSlider,
   SettingsSwitchRow,
 } from "@/features/desktopnew/settings-ui"
+import { fillPreviewHex } from "@/features/desktopnew/desktopnew-fill-picker"
 
 const PAPER_SHADER_COLOR_FALLBACK = "#000000"
 const PAPER_SHADER_NEW_COLOR = "#ffffff"
@@ -166,9 +167,9 @@ function DesktopNewPaperShaderParamControl({
               key={`${color}-${index}`}
               hint={`${index + 1}`}
               value={isPaperShaderHexColor(color) ? color : PAPER_SHADER_COLOR_FALLBACK}
-              onValueChange={(nextColor) => {
+              onValueChange={(_fill, css) => {
                 const nextColors = [...colors]
-                nextColors[index] = nextColor
+                nextColors[index] = fillPreviewHex(css)
                 onChange(nextColors)
               }}
             />
@@ -196,7 +197,7 @@ function DesktopNewPaperShaderParamControl({
         hint={label}
         title={label}
         value={isPaperShaderHexColor(value) ? value : PAPER_SHADER_COLOR_FALLBACK}
-        onValueChange={onChange}
+        onValueChange={(_fill, css) => onChange(fillPreviewHex(css))}
       />
     )
   }
