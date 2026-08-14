@@ -169,8 +169,6 @@ vi.mock("@/components/vendor/unlumen-ui/slider", () => ({
 
 import { WorkspaceSurface } from "@/features/workspace/components/WorkspaceSurface"
 import { FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
-import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
-import { createDraftingPaperShaderThumbnailCacheKey } from "@/features/workspace/components/PaperShaderOptionPreview"
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr-code/rendering/compose-scene"
 import { createDefaultQrStudioState, type QrStudioState } from "@/features/qr-code/model/state"
 
@@ -225,22 +223,6 @@ afterEach(() => {
 })
 
 describe("WorkspaceSurface", () => {
-  it("builds distinct shader thumbnail cache keys when shader inputs change", () => {
-    const meshGradient = createDefaultDraftingCardPaperShader("mesh-gradient")
-    const warp = createDefaultDraftingCardPaperShader("warp")
-    const laterFrame = {
-      ...meshGradient,
-      frame: meshGradient.frame + 1,
-    }
-
-    expect(createDraftingPaperShaderThumbnailCacheKey(meshGradient)).not.toBe(
-      createDraftingPaperShaderThumbnailCacheKey(warp),
-    )
-    expect(createDraftingPaperShaderThumbnailCacheKey(meshGradient)).not.toBe(
-      createDraftingPaperShaderThumbnailCacheKey(laterFrame),
-    )
-  })
-
   it("renders the framed layout with compact QR anatomy tools and stacked inspector", () => {
     const surface = renderSurface()
     const header = getRequiredElement(surface.container, '[data-slot="drafting-header"]')

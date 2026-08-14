@@ -71,7 +71,7 @@ function LogoIconTile({
       aria-label={ariaLabel}
       aria-pressed={isSelected}
       className={cn(
-        "dn-pressable grid h-11 min-w-0 place-items-center dn-squircle-xs",
+        "dn-pressable-pickable grid h-11 min-w-0 place-items-center dn-squircle-xs",
         isSelected
           ? "bg-[var(--dn-popover-tile)] text-[var(--dn-fg)] ring-2 ring-[var(--dn-fg)] ring-offset-2 ring-offset-[var(--dn-popover-ring-offset)]"
           : "bg-[var(--dn-popover-tile)] text-[var(--dn-popover-muted)]",
@@ -167,7 +167,7 @@ export function LogoIconPicker({
           <DropdownMenuTrigger asChild>
             <button
               aria-label={`Filter logo libraries (${activeLibraryLabel})`}
-              className="dn-content-type-filter-trigger dn-pressable inline-flex size-8 shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
+              className="dn-content-type-filter-trigger dn-pressable-press-only inline-flex size-8 shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
               data-active={isLibraryFilterActive ? "true" : undefined}
               type="button"
             >
@@ -176,7 +176,7 @@ export function LogoIconPicker({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="desktopnew-popover-content min-w-36 border p-1 dn-squircle-sm"
+            className="desktopnew-popover-content dn-portal-surface min-w-36 border p-1 dn-squircle-sm"
           >
             {LOGO_LIBRARY_OPTIONS.map((option) => (
               <DropdownMenuItem
@@ -280,7 +280,7 @@ function PexelsPhotoTile({
   return (
     <button
       aria-label={`Use photo by ${photo.photographer}`}
-      className="dn-pressable relative aspect-[4/3] min-w-0 overflow-hidden dn-squircle-xs"
+      className="dn-pressable-pickable relative aspect-[4/3] min-w-0 overflow-hidden dn-squircle-xs"
       type="button"
       onClick={onClick}
     >
@@ -323,7 +323,7 @@ export function PexelsPhotoPicker({
   return (
     <div className="flex flex-col gap-2.5">
       <button
-        className="dn-pressable w-full px-2 py-1.5 text-left text-[11px] font-medium text-[var(--dn-popover-muted)] dn-squircle-xs hover:bg-[var(--dn-popover-tile-hover)] hover:text-[var(--dn-fg)]"
+        className="dn-pressable-press-only w-full px-2 py-1.5 text-left text-[11px] font-medium text-[var(--dn-popover-muted)] dn-squircle-xs hover:bg-[var(--dn-popover-tile-hover)] hover:text-[var(--dn-fg)]"
         type="button"
         onClick={() => {
           onClear?.()
@@ -351,7 +351,7 @@ export function PexelsPhotoPicker({
           <DropdownMenuTrigger asChild>
             <button
               aria-label={`Filter photo orientation (${activeOrientationLabel})`}
-              className="dn-content-type-filter-trigger dn-pressable inline-flex size-8 shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
+              className="dn-content-type-filter-trigger dn-pressable-press-only inline-flex size-8 shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
               data-active={isOrientationFilterActive ? "true" : undefined}
               type="button"
             >
@@ -360,7 +360,7 @@ export function PexelsPhotoPicker({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="desktopnew-popover-content min-w-36 border p-1 dn-squircle-sm"
+            className="desktopnew-popover-content dn-portal-surface min-w-36 border p-1 dn-squircle-sm"
           >
             {PEXELS_ORIENTATION_FILTER_OPTIONS.map((option) => (
               <DropdownMenuItem
@@ -413,7 +413,7 @@ export function PexelsPhotoPicker({
 
       {hasMore && !isLoading && !error ? (
         <button
-          className="dn-pressable w-full px-2 py-2 text-center text-[11px] font-medium text-[var(--dn-popover-muted)] dn-squircle-xs hover:bg-[var(--dn-popover-tile-hover)] hover:text-[var(--dn-fg)]"
+          className="dn-pressable-press-only w-full px-2 py-2 text-center text-[11px] font-medium text-[var(--dn-popover-muted)] dn-squircle-xs hover:bg-[var(--dn-popover-tile-hover)] hover:text-[var(--dn-fg)]"
           disabled={isLoadingMore}
           type="button"
           onClick={() => {

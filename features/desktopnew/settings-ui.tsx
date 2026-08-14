@@ -49,7 +49,7 @@ import { cn } from "@/lib/utils"
 
 import "./desktopnew.css"
 
-const DN_ROW = "dn-settings-row dn-pressable dn-squircle-sm"
+const DN_ROW = "dn-settings-row dn-pressable-press-only dn-squircle-sm"
 const DN_HINT = "dn-type-meta"
 const DN_LABEL = "dn-type-label"
 const DN_VALUE = "dn-type-value"
@@ -235,7 +235,7 @@ export function SegmentTabs({
               else tabRefs.current.delete(item)
             }}
             className={cn(
-              "t-tab dn-segment-tab flex min-w-0 flex-1 items-center justify-center px-2 text-[11px] font-medium dn-squircle-xs",
+              "t-tab dn-segment-tab dn-pressable-press-only flex min-w-0 flex-1 items-center justify-center px-2 text-[11px] font-medium dn-squircle-xs",
               active ? "text-[var(--dn-fg)]" : "bg-transparent text-[var(--dn-muted)]",
             )}
             role="tab"
@@ -345,7 +345,7 @@ export function SettingsFillPopover({
         align="start"
         className={desktopnewPortalClass(
           theme,
-          "desktopnew-fill-popover w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
+          "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
         )}
         data-theme={theme}
         side="right"
@@ -385,7 +385,7 @@ export function SettingsColorPopover({
         align="start"
         className={desktopnewPortalClass(
           theme,
-          "desktopnew-popover-content w-64 gap-3 p-3 dn-squircle-md",
+          cn("dn-portal-surface desktopnew-popover-content w-64 gap-3 p-3 dn-squircle-md"),
         )}
         data-theme={theme}
         side="right"
@@ -438,7 +438,7 @@ export function SettingsRowPopover({
         align={align}
         className={desktopnewPortalClass(
           theme,
-          cn("desktopnew-popover-content w-56 gap-3 p-3.5 dn-squircle-md", contentClassName),
+          cn("dn-portal-surface desktopnew-popover-content w-56 gap-3 p-3.5 dn-squircle-md", contentClassName),
         )}
         data-theme={theme}
         side="right"
@@ -519,7 +519,7 @@ export function ContentTypePicker({
           <DropdownMenuTrigger asChild>
             <button
               aria-label={`Filter content types (${activeFilterLabel})`}
-              className="dn-content-type-filter-trigger dn-pressable inline-flex size-7 shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
+              className="dn-content-type-filter-trigger dn-pressable-press-only inline-flex size-7 shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
               data-active={filterId !== "all" ? "true" : undefined}
               type="button"
             >
@@ -530,7 +530,7 @@ export function ContentTypePicker({
             align="end"
             className={desktopnewPortalClass(
               theme,
-              "desktopnew-popover-content min-w-36 border p-1 dn-squircle-sm",
+              "dn-portal-surface desktopnew-popover-content min-w-36 border p-1 dn-squircle-sm",
             )}
             data-theme={theme}
           >
@@ -563,7 +563,7 @@ export function ContentTypePicker({
               aria-label={`Use ${option.label} content`}
               aria-pressed={isSelected}
               className={cn(
-                "dn-content-type-tile dn-option-tile dn-pressable dn-squircle-xs",
+                "dn-content-type-tile dn-option-tile dn-pressable-pickable dn-squircle-xs",
                 isSelected && "dn-content-type-tile--selected",
               )}
               type="button"
@@ -603,7 +603,7 @@ export function OptionScrollRow({
           <button
             key={item}
             aria-pressed={isSelected}
-            className="dn-option-tile dn-option-scroll-chip dn-pressable dn-squircle-xs"
+            className="dn-option-tile dn-option-scroll-chip dn-pressable-press-only dn-squircle-xs"
             type="button"
             onClick={() => onSelect?.(item)}
           >
@@ -677,7 +677,7 @@ export function PresetList({
         <button
           key={item}
           className={cn(
-            "dn-option-tile h-8 w-full px-2.5 text-left text-[11px] font-medium tracking-tight dn-squircle-xs",
+            "dn-preset-item h-8 w-full px-2.5 text-left text-[11px] font-medium tracking-tight dn-squircle-xs",
             selected === item && "text-[var(--dn-fg)]",
           )}
           type="button"
@@ -755,7 +755,7 @@ export function SettingsSwitchRow({
 }
 
 const SETTINGS_ELASTIC_SLIDER_CLASS =
-  "desktop-elastic-slider dn-settings-elastic-slider dn-pressable-subtle w-full [--elastic-slider-height:--spacing(9)] [--elastic-slider-radius:12px]"
+  "desktop-elastic-slider dn-settings-elastic-slider w-full [--elastic-slider-height:--spacing(9)] [--elastic-slider-radius:12px]"
 
 export function SettingsSlider({
   label,
@@ -798,7 +798,7 @@ export function SettingsPrimaryButton({
 }) {
   return (
     <SettingsRowButton
-      className="dn-settings-primary h-9 font-medium tracking-tight"
+      className="dn-settings-primary dn-pressable-press-only h-9 font-medium tracking-tight"
       type="button"
       onClick={onClick}
     >
@@ -854,7 +854,7 @@ export function ColorChips({
           key={color}
           aria-label={labels?.[index] ?? color}
           className={cn(
-            "dn-pressable size-8 border border-[color-mix(in_srgb,var(--dn-line)_50%,transparent)] dn-squircle-sm",
+            "dn-pressable-pickable size-8 border border-[color-mix(in_srgb,var(--dn-line)_50%,transparent)] dn-squircle-sm",
             index === selectedIndex &&
               "ring-2 ring-[var(--dn-fg)] ring-offset-2 ring-offset-[var(--dn-bg)]",
           )}

@@ -110,7 +110,7 @@ function DesktopNewPaperShaderParamControl({
         >
           Use sample image
         </SettingsPrimaryButton>
-        <label className="dn-settings-row dn-pressable dn-squircle-sm inline-flex h-9 cursor-pointer items-center justify-center px-3 text-[11px] font-medium tracking-tight">
+        <label className="dn-settings-row dn-pressable-press-only dn-squircle-sm inline-flex h-9 cursor-pointer items-center justify-center px-3 text-[11px] font-medium tracking-tight">
           Upload image
           <input
             accept="image/*"
@@ -177,7 +177,7 @@ function DesktopNewPaperShaderParamControl({
           <button
             aria-label={`Add ${label}`}
             className={cn(
-              "dn-pressable grid size-8 place-items-center border border-dashed border-[color-mix(in_srgb,var(--dn-line)_55%,transparent)] dn-squircle-xs text-[var(--dn-muted)]",
+              "dn-pressable-pickable grid size-8 place-items-center border border-dashed border-[color-mix(in_srgb,var(--dn-line)_55%,transparent)] dn-squircle-xs text-[var(--dn-muted)]",
               colors.length >= (maxColorCount ?? 10) && "cursor-not-allowed opacity-40",
             )}
             disabled={colors.length >= (maxColorCount ?? 10)}

@@ -378,7 +378,7 @@ function AnimatedPresetGrid({
               aria-label={preset.label}
               aria-pressed={isSelected}
               className={cn(
-                "dn-pressable flex size-8 shrink-0 overflow-hidden border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] dn-squircle-xs",
+                "dn-pressable-pickable flex size-8 shrink-0 overflow-hidden border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] dn-squircle-xs",
                 isSelected &&
                   "ring-2 ring-foreground ring-offset-2 ring-offset-background",
               )}
