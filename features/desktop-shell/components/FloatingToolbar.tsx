@@ -24,6 +24,7 @@ import {
   AlignLeftIcon,
   AlignRightIcon,
   BoldIcon,
+  CheckIcon,
   ChevronDownIcon,
   ItalicIcon,
   LayoutGrid,
@@ -256,6 +257,7 @@ import {
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
 import { DesktopCodeExportInspector } from "@/features/desktop-shell/components/DesktopCodeExportInspector"
+import { DesktopInspectorIconSwap } from "@/features/desktop-shell/components/DesktopInspectorIconSwap"
 import { DesktopPexelsPhotoInspector } from "@/features/desktop-shell/components/DesktopPexelsPhotoInspector"
 import {
   DesktopSettingsPopover,
@@ -3790,7 +3792,7 @@ function DesktopMotionToggleRow({
       onToggle={() => onChange(!checked)}
       className={cn(
         DESKTOP_INSPECTOR_ROW_CLASS,
-        "w-full flex-row-reverse justify-between px-0 touch-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
+        "desktop-inspector-toggle w-full flex-row-reverse justify-between px-0 touch-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
         "[&>span:last-child]:min-w-0 [&>span:last-child]:truncate [&>span:last-child]:text-[length:var(--desktop-inspector-type-label)] [&>span:last-child]:font-medium",
         checked
           ? "[&>span:last-child]:text-[var(--desktop-inspector-fg-primary)]"
@@ -5564,10 +5566,30 @@ function DesktopExportInspector({
   showCodeExport?: boolean
   settings: DesktopExportSettings
 }) {
+  const [downloadState, setDownloadState] = useState<"idle" | "success">("idle")
   const selectedQuality =
     DESKTOP_RASTER_EXPORT_PRESETS.find((preset) => preset.id === settings.qualityPresetId) ??
     DESKTOP_RASTER_EXPORT_PRESETS[1]
   const isRasterExport = settings.extension !== "svg"
+
+  useEffect(() => {
+    if (downloadState !== "success") {
+      return
+    }
+
+    const timer = window.setTimeout(() => {
+      setDownloadState("idle")
+    }, 1800)
+
+    return () => {
+      window.clearTimeout(timer)
+    }
+  }, [downloadState])
+
+  const handleDownload = () => {
+    onExportDownload()
+    setDownloadState("success")
+  }
 
   return (
     <div data-slot="desktop-export-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -5698,10 +5720,17 @@ function DesktopExportInspector({
           className={cn("mb-2", DESKTOP_INSPECTOR_RESET_CLASS, DESKTOP_INSPECTOR_SELECTED_CLASS)}
           data-slot="desktop-export-download"
           type="button"
-          onClick={onExportDownload}
+          onClick={handleDownload}
         >
-          <AnimatedDownloadIcon size={14} />
-          Download
+          <DesktopInspectorIconSwap
+            activeKey={downloadState}
+            className="size-3.5"
+            icons={{
+              idle: <AnimatedDownloadIcon className="size-3.5" size={14} />,
+              success: <CheckIcon className="size-3.5" />,
+            }}
+          />
+          {downloadState === "success" ? "Downloaded" : "Download"}
         </button>
         {exportDownloadError ? (
           <p className={cn("mt-2 text-center text-xs text-red-500")}>{exportDownloadError}</p>

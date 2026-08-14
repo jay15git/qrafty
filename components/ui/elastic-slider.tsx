@@ -446,6 +446,7 @@ export function ElasticSlider({
         tabIndex={0}
         data-slot="elastic-slider-track"
         data-active={isActive}
+        data-dragging={isDragging}
         data-focus-visible={keyboardFocusRing}
         aria-label={ariaLabel ?? label}
         aria-orientation="horizontal"
@@ -501,8 +502,8 @@ export function ElasticSlider({
           style={{ left: handleLeft, y: "-50%" }}
           animate={{
             opacity: handleOpacity,
-            scaleX: isActive ? 1 : 0.25,
-            scaleY: isActive && valueDodge ? 0.75 : 1,
+            scaleX: isDragging ? 1.08 : isActive ? 1 : 0.25,
+            scaleY: isDragging ? 1.08 : isActive && valueDodge ? 0.75 : 1,
           }}
           transition={
             shouldReduceMotion

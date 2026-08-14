@@ -11,7 +11,12 @@ import {
 import { motion, useMotionValue, animate, type Transition } from "framer-motion";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 import { cn } from "@/lib/utils";
-import { spring } from "@/lib/springs";
+
+const INSPECTOR_THUMB_TRANSITION = {
+  type: "spring" as const,
+  duration: 0.22,
+  bounce: 0.12,
+};
 
 interface SwitchProps extends HTMLAttributes<HTMLDivElement> {
   label: string;
@@ -73,7 +78,7 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
       if (!hasMounted.current) {
         motionX.set(thumbX);
       } else {
-        animate(motionX, thumbX, thumbTransition ?? spring.moderate);
+        animate(motionX, thumbX, thumbTransition ?? INSPECTOR_THUMB_TRANSITION);
       }
     }, [thumbX, motionX, thumbTransition]);
 
@@ -138,7 +143,7 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
             const snapTarget = checked
               ? THUMB_OFFSET + THUMB_TRAVEL
               : THUMB_OFFSET;
-            animate(motionX, snapTarget, thumbTransition ?? spring.moderate);
+            animate(motionX, snapTarget, thumbTransition ?? INSPECTOR_THUMB_TRANSITION);
           }
 
           requestAnimationFrame(() => {
@@ -155,7 +160,7 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
       <div
         ref={ref}
         className={cn(
-          "relative z-10 flex items-center gap-2.5 px-3 py-2 cursor-pointer select-none touch-none",
+          "desktop-inspector-press relative z-10 flex items-center gap-2.5 px-3 py-2 cursor-pointer select-none touch-none",
           disabled && "opacity-50 pointer-events-none",
           className
         )}
@@ -214,7 +219,7 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
                 width: thumbWidth,
                 height: thumbHeight,
               }}
-              transition={hasMounted.current ? (thumbTransition ?? spring.moderate) : { duration: 0 }}
+              transition={hasMounted.current ? (thumbTransition ?? INSPECTOR_THUMB_TRANSITION) : { duration: 0 }}
             />
           </SwitchPrimitive.Thumb>
         </SwitchPrimitive.Root>

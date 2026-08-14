@@ -91,7 +91,7 @@ function DesktopShaderToggleRow({
       onToggle={() => onChange(!checked)}
       className={cn(
         DESKTOP_INSPECTOR_ROW_CLASS,
-        "w-full flex-row-reverse justify-between px-0 touch-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
+        "desktop-inspector-toggle w-full flex-row-reverse justify-between px-0 touch-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
         "[&>span:last-child]:min-w-0 [&>span:last-child]:truncate [&>span:last-child]:text-[length:var(--desktop-inspector-type-label)] [&>span:last-child]:font-medium",
         checked
           ? "[&>span:last-child]:text-[var(--desktop-inspector-fg-primary)]"

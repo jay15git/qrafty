@@ -10,13 +10,18 @@ import {
 } from "@/components/ui/popover"
 import {
   DESKTOP_INSPECTOR_LABEL_CLASS,
+  DESKTOP_INSPECTOR_PRESS_CLASS,
   DESKTOP_INSPECTOR_ROW_CLASS,
   DesktopInspectorTextInput,
 } from "@/features/desktop-shell/components/InspectorControls"
 import { cn } from "@/lib/utils"
 
-export const DESKTOP_COLOR_SWATCH_BUTTON_CLASS =
-  "relative flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
+import "./desktop-inspector-motion.css"
+
+export const DESKTOP_COLOR_SWATCH_BUTTON_CLASS = cn(
+  DESKTOP_INSPECTOR_PRESS_CLASS,
+  "desktop-inspector-color-swatch relative flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35",
+)
 
 export const DESKTOP_COLOR_SWATCH_FILL_CLASS =
   "relative size-6 shrink-0 overflow-hidden rounded-full border-2 border-[var(--desktop-inspector-swatch-ring)] box-border"
@@ -143,7 +148,7 @@ export function DesktopColorPickerPopover({
       <PopoverContent
         align="center"
         data-slot="desktop-color-picker-popover"
-        className="w-auto border-0 bg-transparent p-0 shadow-none"
+        className="desktop-inspector-popover-content w-auto border-0 bg-transparent p-0 shadow-none"
         side="right"
         sideOffset={8}
       >

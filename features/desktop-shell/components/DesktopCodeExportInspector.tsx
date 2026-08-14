@@ -1,8 +1,17 @@
 "use client"
 
+import { CheckIcon, CopyIcon } from "lucide-react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import type { CodeExportTarget } from "@new-qr/qr-internal/codegen"
+
+import { DesktopInspectorIconSwap } from "@/features/desktop-shell/components/DesktopInspectorIconSwap"
+import {
+  DESKTOP_INSPECTOR_PRESS_CLASS,
+  DESKTOP_INSPECTOR_RESET_CLASS,
+  DESKTOP_INSPECTOR_SELECTED_CLASS,
+} from "@/features/desktop-shell/components/InspectorControls"
+import { cn } from "@/lib/utils"
 
 type CodeExportOption = {
   id: string
@@ -26,6 +35,8 @@ const CODE_EXPORT_OPTIONS: CodeExportOption[] = [
   { id: "svg", label: "SVG", target: { format: "svg" } },
 ]
 
+const COPY_SUCCESS_MS = 1800
+
 type DesktopCodeExportInspectorProps = {
   buildCodegenExport: (target: CodeExportTarget) => Promise<{ code: string; installCommand?: string }>
 }
@@ -36,6 +47,7 @@ export function DesktopCodeExportInspector({ buildCodegenExport }: DesktopCodeEx
   const [codePreview, setCodePreview] = useState("")
   const [installCommand, setInstallCommand] = useState("")
   const [codeLoading, setCodeLoading] = useState(false)
+  const [copyState, setCopyState] = useState<"idle" | "success">("idle")
 
   const selectedExport = useMemo(
     () => CODE_EXPORT_OPTIONS.find((option) => option.id === selectedExportId) ?? CODE_EXPORT_OPTIONS[0],
@@ -63,6 +75,30 @@ export function DesktopCodeExportInspector({ buildCodegenExport }: DesktopCodeEx
   useEffect(() => {
     refreshCodegen()
   }, [refreshCodegen])
+
+  useEffect(() => {
+    if (copyState !== "success") {
+      return
+    }
+
+    const timer = window.setTimeout(() => {
+      setCopyState("idle")
+    }, COPY_SUCCESS_MS)
+
+    return () => {
+      window.clearTimeout(timer)
+    }
+  }, [copyState])
+
+  const handleCopy = useCallback(() => {
+    if (!codePreview || codeLoading) {
+      return
+    }
+
+    void navigator.clipboard.writeText(codePreview).then(() => {
+      setCopyState("success")
+    })
+  }, [codeLoading, codePreview])
 
   if (error) {
     return <p className="text-sm text-red-500">{error}</p>
@@ -92,14 +128,31 @@ export function DesktopCodeExportInspector({ buildCodegenExport }: DesktopCodeEx
       ) : null}
       <div className="flex flex-wrap gap-2">
         <button
-          className="rounded-md border px-3 py-2 text-sm"
+          className={cn(
+            DESKTOP_INSPECTOR_PRESS_CLASS,
+            DESKTOP_INSPECTOR_RESET_CLASS,
+            "mb-0 h-9 w-auto px-3",
+            copyState === "success" && DESKTOP_INSPECTOR_SELECTED_CLASS,
+          )}
           type="button"
-          onClick={() => navigator.clipboard.writeText(codePreview)}
+          onClick={handleCopy}
           disabled={!codePreview || codeLoading}
         >
-          Copy {selectedExport.label}
+          <DesktopInspectorIconSwap
+            activeKey={copyState}
+            className="size-3.5"
+            icons={{
+              idle: <CopyIcon className="size-3.5" />,
+              success: <CheckIcon className="size-3.5" />,
+            }}
+          />
+          {copyState === "success" ? "Copied" : `Copy ${selectedExport.label}`}
         </button>
-        <button className="rounded-md border px-3 py-2 text-sm" type="button" onClick={() => refreshCodegen()}>
+        <button
+          className={cn(DESKTOP_INSPECTOR_PRESS_CLASS, "rounded-md border px-3 py-2 text-sm")}
+          type="button"
+          onClick={() => refreshCodegen()}
+        >
           Refresh preview
         </button>
       </div>

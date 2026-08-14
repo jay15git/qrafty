@@ -37,6 +37,9 @@ import { cn } from "@/lib/utils"
 import { SurfaceProvider } from "@/lib/surface-context"
 
 import "./desktop-inspector-morph-filter.css"
+import "./desktop-inspector-motion.css"
+
+export const DESKTOP_INSPECTOR_PRESS_CLASS = "desktop-inspector-press"
 
 const DESKTOP_INSPECTOR_IMAGE_UPLOAD_MAX_SIZE = 5 * 1024 * 1024
 
@@ -91,7 +94,7 @@ export const DESKTOP_INSPECTOR_LABEL_CLASS = cn(
 export const DESKTOP_INSPECTOR_SCROLL_CLASS =
   "min-h-0 flex-1 overflow-y-auto px-3 py-3 scroll-fade-effect-y"
 export const DESKTOP_INSPECTOR_CONTROL_CLASS =
-  "cursor-pointer rounded-[6px] border border-transparent bg-transparent text-[var(--desktop-inspector-fg-tertiary)] transition hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] active:bg-[var(--desktop-inspector-control-active-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)] disabled:cursor-not-allowed"
+  "desktop-inspector-press cursor-pointer rounded-[6px] border border-transparent bg-transparent text-[var(--desktop-inspector-fg-tertiary)] transition-[background-color,border-color,color] duration-150 ease-out hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] active:bg-[var(--desktop-inspector-control-active-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)] disabled:cursor-not-allowed"
 export const DESKTOP_INSPECTOR_SELECTED_CLASS =
   "border-transparent bg-[var(--desktop-inspector-option-selected-bg)] text-[var(--desktop-inspector-option-selected-fg)] hover:border-transparent hover:bg-[var(--desktop-inspector-option-selected-bg)] hover:text-[var(--desktop-inspector-option-selected-fg)]"
 export const DESKTOP_OPTION_CARD_SELECTED_CLASS =
@@ -111,7 +114,7 @@ export const DESKTOP_INSPECTOR_HEADER_CLASS =
 export const DESKTOP_INSPECTOR_FOOTER_CLASS =
   "px-3 py-3"
 export const DESKTOP_INSPECTOR_RESET_CLASS = cn(
-  "flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-[6px] border border-transparent bg-transparent px-3 font-medium text-[var(--desktop-inspector-fg-secondary)] transition hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] active:bg-[var(--desktop-inspector-control-active-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
+  "desktop-inspector-press flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-[6px] border border-transparent bg-transparent px-3 font-medium text-[var(--desktop-inspector-fg-secondary)] transition-[background-color,border-color,color] duration-150 ease-out hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] active:bg-[var(--desktop-inspector-control-active-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 )
 export const DESKTOP_INSPECTOR_DROPDOWN_MENU_CLASS =
@@ -125,7 +128,7 @@ export const DESKTOP_INSPECTOR_DROPDOWN_ITEM_CLASS = cn(
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 )
 export const DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS =
-  "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
+  "desktop-inspector-press cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
 /** Option tiles: no grey hover fill. Selected chrome stays white pill; preview scales via SCALE_PREVIEW. */
 export const DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS = cn(
   "rounded-[7px] border-2 border-transparent bg-transparent font-medium text-[var(--desktop-inspector-fg-tertiary)] transition-colors hover:bg-transparent hover:text-[var(--desktop-inspector-fg-primary)]",
@@ -133,8 +136,8 @@ export const DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS = cn(
 )
 export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_SURFACE_CLASS =
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS
-export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS =
-  "transition-transform duration-500 ease-in-out group-hover:scale-[1.06] group-active:scale-[0.97] group-active:duration-150 group-active:ease-out"
+/** Preview scale timing lives in desktop-inspector-motion.css */
+export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS = ""
 
 export const DESKTOP_INSPECTOR_OPTION_GRID_COLS_CLASS = {
   2: "grid-cols-2",

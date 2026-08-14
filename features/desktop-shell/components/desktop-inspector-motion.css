@@ -1,0 +1,158 @@
+/* Shared motion tokens for /desktop inspector controls */
+
+:root {
+  --desktop-inspector-motion-press: 0.96;
+  --desktop-inspector-motion-press-dur: 150ms;
+  --desktop-inspector-motion-hover-dur: 150ms;
+  --desktop-inspector-motion-hover-out-dur: 200ms;
+  --desktop-inspector-motion-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --desktop-inspector-motion-ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --desktop-inspector-motion-ease-hover-out: cubic-bezier(0.34, 3.85, 0.64, 1);
+  --desktop-inspector-popover-open-dur: 250ms;
+  --desktop-inspector-popover-close-dur: 150ms;
+  --desktop-inspector-popover-open-scale: 0.97;
+  --desktop-inspector-popover-close-scale: 0.99;
+}
+
+/* Press feedback — interruptible transform only */
+.desktop-inspector-press {
+  transition-property: transform;
+  transition-duration: var(--desktop-inspector-motion-press-dur);
+  transition-timing-function: var(--desktop-inspector-motion-ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .desktop-inspector-press:active:not(:disabled) {
+    transform: scale(var(--desktop-inspector-motion-press));
+  }
+}
+
+/* Option tile preview scale */
+[data-desktop-option-tile="true"] [data-slot="desktop-style-preview-surface"],
+[data-desktop-option-tile="true"] [data-desktop-adaptive-option-preview="true"] {
+  transition-property: transform;
+  transition-duration: var(--desktop-inspector-motion-hover-out-dur);
+  transition-timing-function: var(--desktop-inspector-motion-ease-hover-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-desktop-option-tile="true"]:hover [data-slot="desktop-style-preview-surface"],
+  [data-desktop-option-tile="true"]:hover [data-desktop-adaptive-option-preview="true"] {
+    transform: scale(1.06);
+    transition-duration: var(--desktop-inspector-motion-hover-dur);
+    transition-timing-function: var(--desktop-inspector-motion-ease-out);
+  }
+}
+
+[data-desktop-option-tile="true"]:active [data-slot="desktop-style-preview-surface"],
+[data-desktop-option-tile="true"]:active [data-desktop-adaptive-option-preview="true"] {
+  transform: scale(var(--desktop-inspector-motion-press));
+  transition-duration: var(--desktop-inspector-motion-press-dur);
+  transition-timing-function: var(--desktop-inspector-motion-ease-out);
+}
+
+/* Color swatch trigger */
+.desktop-inspector-color-swatch {
+  transition-property: transform, box-shadow;
+  transition-duration: var(--desktop-inspector-motion-hover-dur);
+  transition-timing-function: var(--desktop-inspector-motion-ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .desktop-inspector-color-swatch:hover:not(:disabled) {
+    transform: scale(1.02);
+  }
+
+  .desktop-inspector-color-swatch:hover:not(:disabled) [data-slot="desktop-color-swatch-fill"] {
+    transform: scale(1.06);
+  }
+}
+
+.desktop-inspector-color-swatch:active:not(:disabled) {
+  transform: scale(var(--desktop-inspector-motion-press));
+  transition-duration: var(--desktop-inspector-motion-press-dur);
+}
+
+.desktop-inspector-color-swatch [data-slot="desktop-color-swatch-fill"] {
+  transition-property: transform, box-shadow;
+  transition-duration: var(--desktop-inspector-motion-hover-dur);
+  transition-timing-function: var(--desktop-inspector-motion-ease-out);
+}
+
+.desktop-inspector-color-swatch[data-state="open"] {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--desktop-inspector-focus, #fff) 45%, transparent);
+}
+
+.desktop-inspector-color-swatch[data-state="open"] [data-slot="desktop-color-swatch-fill"] {
+  box-shadow: 0 0 0 1px color-mix(in srgb, #fff 28%, transparent);
+}
+
+/* Origin-aware desktop color popover */
+.desktop-inspector-popover-content {
+  transform-origin: var(--radix-popover-content-transform-origin);
+  animation: none !important;
+  opacity: 0;
+  transform: scale(var(--desktop-inspector-popover-open-scale));
+  pointer-events: none;
+  transition:
+    transform var(--desktop-inspector-popover-open-dur) var(--desktop-inspector-motion-ease-smooth),
+    opacity var(--desktop-inspector-popover-open-dur) var(--desktop-inspector-motion-ease-smooth);
+}
+
+.desktop-inspector-popover-content[data-state="open"] {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.desktop-inspector-popover-content[data-state="closed"] {
+  opacity: 0;
+  transform: scale(var(--desktop-inspector-popover-close-scale));
+  transition-duration: var(--desktop-inspector-popover-close-dur);
+}
+
+/* Radix switch thumb — interruptible slide with tiny overshoot */
+.desktop-inspector-toggle [data-slot="switch"] {
+  transition:
+    background-color 180ms var(--desktop-inspector-motion-ease-out),
+    transform var(--desktop-inspector-motion-press-dur) var(--desktop-inspector-motion-ease-out);
+}
+
+.desktop-inspector-toggle [data-slot="switch-thumb"] {
+  transition: transform 220ms cubic-bezier(0.34, 1.15, 0.64, 1);
+}
+
+.desktop-inspector-toggle.desktop-inspector-press:active:not(:disabled) {
+  transform: scale(var(--desktop-inspector-motion-press));
+}
+
+/* Elastic slider handle — scale while dragging */
+.desktop-elastic-slider [data-slot="elastic-slider-handle"] {
+  transition:
+    opacity 150ms var(--desktop-inspector-motion-ease-out),
+    transform 150ms var(--desktop-inspector-motion-ease-out);
+}
+
+.desktop-elastic-slider [data-slot="elastic-slider-track"][data-dragging="true"] [data-slot="elastic-slider-handle"] {
+  transform: translateY(-50%) scale(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktop-inspector-press,
+  .desktop-inspector-color-swatch,
+  .desktop-inspector-color-swatch [data-slot="desktop-color-swatch-fill"],
+  [data-desktop-option-tile="true"] [data-slot="desktop-style-preview-surface"],
+  [data-desktop-option-tile="true"] [data-desktop-adaptive-option-preview="true"],
+  .desktop-inspector-popover-content,
+  .desktop-inspector-toggle [data-slot="switch"],
+  .desktop-inspector-toggle [data-slot="switch-thumb"],
+  .desktop-elastic-slider [data-slot="elastic-slider-handle"] {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .desktop-inspector-popover-content[data-state="open"] {
+    opacity: 1;
+  }
+}
