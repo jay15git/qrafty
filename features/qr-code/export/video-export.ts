@@ -1,6 +1,6 @@
-export const VIDEO_EXPORT_DURATIONS = [5, 10] as const
-export const VIDEO_EXPORT_FRAME_RATES = [30, 60] as const
-export const VIDEO_EXPORT_FORMATS = ["mp4", "webm"] as const
+const VIDEO_EXPORT_DURATIONS = [5, 10] as const
+const VIDEO_EXPORT_FRAME_RATES = [30, 60] as const
+const VIDEO_EXPORT_FORMATS = ["mp4", "webm"] as const
 
 export type VideoExportDuration = (typeof VIDEO_EXPORT_DURATIONS)[number]
 export type VideoExportFrameRate = (typeof VIDEO_EXPORT_FRAME_RATES)[number]

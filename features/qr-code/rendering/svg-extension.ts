@@ -2395,7 +2395,7 @@ export function getDraftingQrDomPlacementStyle(
 }
 
 /** Stretch outer-metrics QR DOM coords to fill the drafting layer box. */
-export function getDraftingQrDomStretchScale(
+function getDraftingQrDomStretchScale(
   layer: Pick<{ height: number; width: number }, "height" | "width">,
   layout: Pick<DraftingQrLayerLayout, "metrics">,
 ) {

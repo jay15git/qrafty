@@ -13,7 +13,7 @@ export function getCachedIconstackSvg(selectionId: string) {
   return iconstackSvgCache.get(selectionId)
 }
 
-export function setCachedIconstackSvg(selectionId: string, svg: string) {
+function setCachedIconstackSvg(selectionId: string, svg: string) {
   iconstackSvgCache.set(selectionId, svg)
 }
 

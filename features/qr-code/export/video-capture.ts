@@ -1,18 +1,18 @@
 import type { VideoExportFormat, VideoExportFrameRate } from "./video-export"
 
-export function getSupportedRecordingMimeType(format: VideoExportFormat) {
+function getSupportedRecordingMimeType(format: VideoExportFormat) {
   const candidates = format === "webm"
     ? ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"]
     : ["video/mp4;codecs=avc1", "video/mp4"]
   return candidates.find((type) => typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(type)) ?? null
 }
 
-export function createFixedRateCapture(canvas: HTMLCanvasElement, frameRate: VideoExportFrameRate) {
+function createFixedRateCapture(canvas: HTMLCanvasElement, frameRate: VideoExportFrameRate) {
   if (typeof canvas.captureStream !== "function") throw new Error("Canvas capture is unavailable in this browser.")
   return canvas.captureStream(frameRate)
 }
 
-export async function encodeRecordedVideo(stream: MediaStream, durationSeconds: 5 | 10, mimeType: string) {
+async function encodeRecordedVideo(stream: MediaStream, durationSeconds: 5 | 10, mimeType: string) {
   if (typeof MediaRecorder === "undefined") throw new Error("Video recording is unavailable in this browser.")
   const recorder = new MediaRecorder(stream, { mimeType })
   const chunks: BlobPart[] = []

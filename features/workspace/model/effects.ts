@@ -44,7 +44,7 @@ export const DRAFTING_BORDER_SIDE_KEYS: DraftingBorderSideKey[] = [
   "left",
 ]
 
-export const DEFAULT_DRAFTING_BORDER_SIDE: DraftingBorderSideValue = {
+const DEFAULT_DRAFTING_BORDER_SIDE: DraftingBorderSideValue = {
   color: "#111827",
   opacity: 100,
   style: "solid",
@@ -60,7 +60,7 @@ export const DEFAULT_DRAFTING_OUTLINE: DraftingOutlineState = {
   width: 0,
 }
 
-export const DEFAULT_DRAFTING_SHADOW_LAYER: Omit<DraftingShadowLayerState, "id"> = {
+const DEFAULT_DRAFTING_SHADOW_LAYER: Omit<DraftingShadowLayerState, "id"> = {
   blur: 0,
   color: "#111827",
   inset: false,
@@ -72,7 +72,7 @@ export const DEFAULT_DRAFTING_SHADOW_LAYER: Omit<DraftingShadowLayerState, "id">
   visible: true,
 }
 
-export function createDraftingShadowLayerId() {
+function createDraftingShadowLayerId() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : `shadow-${Math.random().toString(36).slice(2)}`
@@ -108,7 +108,7 @@ export function normalizeBorderStyle(value: unknown, fallback: DraftingBorderSty
   return value === "solid" || value === "dashed" || value === "dotted" ? value : fallback
 }
 
-export function normalizeShadowKind(_value: unknown, _fallback: DraftingShadowKind): DraftingShadowKind {
+function normalizeShadowKind(_value: unknown, _fallback: DraftingShadowKind): DraftingShadowKind {
   return "drop"
 }
 
@@ -132,7 +132,7 @@ export function normalizeOutlineState(
   }
 }
 
-export function normalizeBorderSideValue(
+function normalizeBorderSideValue(
   value: unknown,
   fallback: DraftingBorderSideValue,
 ): DraftingBorderSideValue {

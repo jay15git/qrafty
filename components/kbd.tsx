@@ -167,5 +167,5 @@ function KbdCombo({
   )
 }
 
-export { Kbd, KbdCombo, kbdVariants, builtInSchemes }
-export type { KbdProps, KbdComboProps, KbdColorScheme, BuiltInColorScheme }
+export { Kbd }
+export type { KbdProps, KbdColorScheme, BuiltInColorScheme }

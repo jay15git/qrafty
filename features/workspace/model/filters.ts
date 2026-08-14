@@ -26,7 +26,7 @@ export const DRAFTING_LAYER_FILTER_TYPES: DraftingFilterType[] = [
   "sepia",
 ]
 
-export const DRAFTING_FILTER_DEFAULTS: Record<DraftingFilterType, number> = {
+const DRAFTING_FILTER_DEFAULTS: Record<DraftingFilterType, number> = {
   blur: 0,
   brightness: 100,
   contrast: 100,
@@ -77,7 +77,7 @@ export const DRAFTING_FILTER_RANGES: Record<
   sepia: { defaultValue: 0, max: 100, min: 0, unit: "%" },
 }
 
-export function createDraftingFilterId() {
+function createDraftingFilterId() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : `filter-${Math.random().toString(36).slice(2)}`
@@ -96,14 +96,14 @@ export function createDefaultDraftingFilterEffect(
   }
 }
 
-export function normalizeFilterType(value: unknown): DraftingFilterType | null {
+function normalizeFilterType(value: unknown): DraftingFilterType | null {
   return typeof value === "string" &&
     (DRAFTING_LAYER_FILTER_TYPES as string[]).includes(value)
     ? (value as DraftingFilterType)
     : null
 }
 
-export function normalizeFilterEffect(
+function normalizeFilterEffect(
   value: unknown,
   fallback?: DraftingFilterEffect,
 ): DraftingFilterEffect | null {

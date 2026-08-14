@@ -139,7 +139,7 @@ function DesktopDynamicIslandDivider() {
   )
 }
 
-export function DesktopHistoryActionButtons({
+function DesktopHistoryActionButtons({
   canRedo,
   canUndo,
   onRedo,
@@ -177,7 +177,7 @@ export function DesktopHistoryActionButtons({
   )
 }
 
-export function DesktopAppearanceIsland({
+function DesktopAppearanceIsland({
   appearance,
   onPatch,
 }: {

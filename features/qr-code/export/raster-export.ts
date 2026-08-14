@@ -12,6 +12,7 @@ import {
   clampRasterExportQualityPercent,
   type QrStudioState,
 } from "@/features/qr-code/model/state"
+import qrcode from "qrcode-generator"
 import type { QrFileExtension } from "@/features/qr-code/model/types"
 import {
   parseNestedQrSvgMetrics,
@@ -19,9 +20,14 @@ import {
   snapDimensionToViewBoxGrid,
   snapLayeredRasterDimensionsToQrModuleGrid,
 } from "@/features/workspace/rendering/qr-artwork"
-import { getQrModuleCount } from "@/features/qr-code/scan-safety-legacy/matrix"
-
 const DASHBOARD_RASTER_EXPORT_MAX_DIMENSION = 4096
+
+function getQrModuleCount(state: QrStudioState): number {
+  const qr = qrcode(state.qrOptions.typeNumber || 0, state.qrOptions.errorCorrectionLevel)
+  qr.addData(state.data.trim() || "https://example.com", state.qrOptions.mode)
+  qr.make()
+  return qr.getModuleCount()
+}
 
 export type DashboardRasterExtension = Exclude<QrFileExtension, "svg">
 

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs"
 import { isValidElement } from "react"
 import { describe, expect, it, vi } from "vitest"
 
-vi.mock("@/features/studio-hub/components/DesktopPageClient", () => ({
+vi.mock("@/features/desktop-shell/components/DesktopPageClient", () => ({
   DesktopPageClient: ({ fontClassName }: { fontClassName?: string }) => (
     <div data-font-class-name={fontClassName} data-testid="desktop-page-client" />
   ),
@@ -14,7 +14,7 @@ vi.mock("next/font/local", () => ({
   }),
 }))
 
-import { DesktopPageClient } from "@/features/studio-hub/components/DesktopPageClient"
+import { DesktopPageClient } from "@/features/desktop-shell/components/DesktopPageClient"
 import DesktopPage, { metadata } from "./page"
 
 describe("desktop page", () => {

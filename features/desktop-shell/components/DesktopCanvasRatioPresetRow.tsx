@@ -7,7 +7,7 @@ import {
 } from "@/features/workspace/model/size-templates"
 import { cn } from "@/lib/utils"
 
-export const DESKTOP_CANVAS_RATIO_PRESET_IDS = [
+const DESKTOP_CANVAS_RATIO_PRESET_IDS = [
   "ratio-16-9",
   "ratio-3-2",
   "ratio-4-3",

@@ -4,7 +4,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 
-export const buttonVariants = tv({
+const buttonVariants = tv({
   base: [
     "relative",
     "inline-flex shrink-0 items-center justify-center gap-2",

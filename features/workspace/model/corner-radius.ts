@@ -17,7 +17,7 @@ export const DRAFTING_CORNER_RADIUS_KEYS: DraftingCornerRadiusKey[] = [
 
 export const DRAFTING_CORNER_RADIUS_MAX = 512
 
-export const DEFAULT_DRAFTING_CORNER_RADII: DraftingCornerRadiiState = {
+const DEFAULT_DRAFTING_CORNER_RADII: DraftingCornerRadiiState = {
   bottomLeft: 0,
   bottomRight: 0,
   linked: true,
@@ -94,7 +94,7 @@ export function cornerRadiiToLegacyRadius(radii: DraftingCornerRadiiState) {
   return Math.max(radii.topLeft, radii.topRight, radii.bottomRight, radii.bottomLeft)
 }
 
-export function cornerRadiiAreUniform(radii: DraftingCornerRadiiState) {
+function cornerRadiiAreUniform(radii: DraftingCornerRadiiState) {
   return (
     radii.topLeft === radii.topRight &&
     radii.topRight === radii.bottomRight &&
@@ -106,7 +106,7 @@ export function cornerRadiiToCss(radii: DraftingCornerRadiiState) {
   return `${radii.topLeft}px ${radii.topRight}px ${radii.bottomRight}px ${radii.bottomLeft}px`
 }
 
-export function cornerRadiiToStyle(radii: DraftingCornerRadiiState) {
+function cornerRadiiToStyle(radii: DraftingCornerRadiiState) {
   return { borderRadius: cornerRadiiToCss(radii) }
 }
 

@@ -43,7 +43,7 @@ export function FieldDivider() {
  * existing `onChange` handler runs unchanged — no parallel commit path,
  * no double validation. Non-numeric values are ignored.
  */
-export interface FieldInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface FieldInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   /**
    * Step amount for ↑/↓ keyboard nudge. Shift multiplies by 10. Omit
    * to disable nudge (text fields and non-numeric inputs).

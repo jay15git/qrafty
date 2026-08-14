@@ -321,7 +321,7 @@ export function resizeDraftingLayer(
   }
 }
 
-export function resizeSquareLayer(
+function resizeSquareLayer(
   layer: DraftingCanvasLayer,
   direction: ResizeDirection,
   deltaX: number,
@@ -354,7 +354,7 @@ export function resizeSquareLayer(
   })
 }
 
-export function anchorSquareLayerResize(
+function anchorSquareLayerResize(
   layer: DraftingCanvasLayer,
   direction: ResizeDirection,
   geometry: Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y">,

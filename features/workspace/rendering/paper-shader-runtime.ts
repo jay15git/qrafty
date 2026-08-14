@@ -1,6 +1,6 @@
 import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
 
-export const MIN_PAPER_SHADER_LAYOUT_PX = 8
+const MIN_PAPER_SHADER_LAYOUT_PX = 8
 
 export function hasValidPaperShaderLayout(
   layoutWidth?: number,
@@ -16,7 +16,7 @@ export function hasValidPaperShaderLayout(
   )
 }
 
-export function hasLiveCanvasPaperShaderMount(): boolean {
+function hasLiveCanvasPaperShaderMount(): boolean {
   if (typeof document === "undefined") {
     return false
   }

@@ -131,7 +131,7 @@ export type QrInputType =
   | "medium"
   | "substack"
 
-export type QuickQrInputType =
+type QuickQrInputType =
   | "text"
   | "link"
   | "phone"
@@ -369,7 +369,7 @@ function pickQrInputOptions<const T extends readonly QrInputType[]>(values: T) {
   return values.map((value) => QR_INPUT_OPTIONS[value])
 }
 
-export const QUICK_INPUT_OPTIONS = pickQrInputOptions(
+const QUICK_INPUT_OPTIONS = pickQrInputOptions(
   QUICK_INPUT_VALUES
 ) as readonly QuickQrInputOption[]
 
@@ -410,13 +410,13 @@ export function getNextOpenQrCategory(
   return current === next ? null : next
 }
 
-export function toggleQuickInputType(
+function toggleQuickInputType(
   current: QrInputType | null,
   next: QuickQrInputType
 ): QrInputType | null {
   return current === next ? null : next
 }
 
-export function isPlatformContentType(type: QrInputType): boolean {
+function isPlatformContentType(type: QrInputType): boolean {
   return isPlatformType(type)
 }

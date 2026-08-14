@@ -19,7 +19,7 @@ type SceneBackgroundLayerProps = {
   width: number
 }
 
-export function SceneBackgroundLayer({
+function SceneBackgroundLayer({
   background,
   className,
   height,

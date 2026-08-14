@@ -38,7 +38,6 @@ export type ExpandableTabItem = {
   label: string
   icon: ReactNode
 }
-
 export type ExpandableTabProps = {
   tabs: ExpandableTabItem[]
   defaultActiveId?: string | null
@@ -150,5 +149,3 @@ export function ExpandableTab({
     </div>
   )
 }
-
-export { EXPANDABLE_PANEL_SPRING }

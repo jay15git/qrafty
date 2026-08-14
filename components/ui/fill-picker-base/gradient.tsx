@@ -57,10 +57,7 @@ export type {
   GradientType,
   GradientInterp,
   GradientStop,
-  LinearGradient,
-  RadialGradient,
   RadialSizeKeyword,
-  ConicGradient,
 } from "@/components/ui/fill-picker/lib/gradient";
 export {
   formatGradient,
@@ -69,12 +66,6 @@ export {
   DEFAULT_RADIAL,
   DEFAULT_CONIC,
 } from "@/components/ui/fill-picker/lib/gradient";
-export { BUILTIN_GRADIENT_PRESETS };
-export { useGradientPicker } from "@/components/ui/fill-picker/hooks/use-gradient-picker";
-export type {
-  UseGradientPickerProps,
-  GradientPickerState,
-} from "@/components/ui/fill-picker/hooks/use-gradient-picker";
 
 // The gradient context surface, re-exported so the barrel is a complete
 // entry point for anyone composing custom gradient parts (a part needs
@@ -111,7 +102,6 @@ export {
 } from "@/components/ui/fill-picker/contexts/gradient";
 export type { GradientStopEditorRenderer } from "@/components/ui/fill-picker/contexts/gradient";
 
-export { ColorPickerBase };
 
 /**
  * The engine `Root` plus this variant's stop editor (Base UI Hue/Alpha/
@@ -124,7 +114,7 @@ const GradientRoot = React.forwardRef<HTMLDivElement, GradientRootProps>(
   },
 );
 
-export const GradientPickerBase = {
+const GradientPickerBase = {
   Root: GradientRoot,
   Bar,
   Area: GradientArea,

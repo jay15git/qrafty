@@ -42,13 +42,13 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches
 }
 
-export function areDesktopSoundsEnabled(): boolean {
+function areDesktopSoundsEnabled(): boolean {
   if (typeof window === "undefined") return false
   if (prefersReducedMotion()) return false
   return window.localStorage.getItem(DESKTOP_SOUNDS_ENABLED_KEY) !== "false"
 }
 
-export function setDesktopSoundsEnabled(enabled: boolean): void {
+function setDesktopSoundsEnabled(enabled: boolean): void {
   if (typeof window === "undefined") return
   window.localStorage.setItem(DESKTOP_SOUNDS_ENABLED_KEY, enabled ? "true" : "false")
 }

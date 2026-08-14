@@ -8,7 +8,7 @@ import {
   type UseFillPickerProps,
 } from "../../hooks/use-fill-picker";
 
-export interface RootProps
+interface RootProps
   extends UseFillPickerProps,
     Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange"> {}
 

@@ -19,5 +19,4 @@
 // `.../fill-picker-base/parts/gradient/stop-list` keeps resolving.
 export {
   StopList,
-  type StopListProps,
 } from "@/components/ui/fill-picker/parts/gradient/stop-list";

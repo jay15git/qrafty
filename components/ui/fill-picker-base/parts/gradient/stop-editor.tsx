@@ -13,7 +13,7 @@ import { Alpha } from "../alpha";
 import { ChannelInput } from "../channel-input";
 import { FormatSwitcher } from "../format-switcher";
 
-export interface StopEditorProps {
+interface StopEditorProps {
   /** Stop the popover edits — color + per-stop format are read/written via gradient context. */
   stopId: string;
   /**
@@ -42,7 +42,7 @@ export interface StopEditorProps {
  * `@base-ui/react/popover` (anchor-without-trigger, z-50 positioner), so
  * there's nothing Radix-flavoured to re-do.
  */
-export function StopEditor({
+function StopEditor({
   stopId,
   open,
   onOpenChange,

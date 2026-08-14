@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 
 import "./desktop-inspector-design-system.css"
 
-export type DesktopInspectorAccordionSection<SectionId extends string> = {
+type DesktopInspectorAccordionSection<SectionId extends string> = {
   content: ReactNode
   id: SectionId
   summary?: ReactNode

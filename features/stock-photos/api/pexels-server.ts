@@ -10,11 +10,11 @@ import {
 const PEXELS_API_BASE = "https://api.pexels.com/v1"
 const DEFAULT_PER_PAGE = 24
 
-export function getPexelsApiKey() {
+function getPexelsApiKey() {
   return process.env.PEXELS_API_KEY?.trim() ?? ""
 }
 
-export async function fetchPexelsApi(path: string, searchParams?: URLSearchParams) {
+async function fetchPexelsApi(path: string, searchParams?: URLSearchParams) {
   const apiKey = getPexelsApiKey()
 
   if (!apiKey) {

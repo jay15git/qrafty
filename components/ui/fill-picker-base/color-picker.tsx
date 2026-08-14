@@ -32,18 +32,6 @@ import { Swatches } from "./parts/swatches";
 import { GamutBadge } from "./parts/gamut-badge";
 import { ContrastReadout } from "./parts/contrast-readout";
 
-export type {
-  ColorFormat,
-  OklchColor,
-  GamutInfo,
-  ContrastResult,
-  Gamut,
-} from "@/components/ui/fill-picker/lib/types";
-export type {
-  UseColorPickerProps,
-  ColorPickerState,
-} from "@/components/ui/fill-picker/hooks/use-color-picker";
-export { useColorPicker } from "@/components/ui/fill-picker/hooks/use-color-picker";
 export {
   parseColor,
   formatColor,
@@ -58,7 +46,6 @@ export {
   colorChannels,
   setColorChannel,
 } from "@/components/ui/fill-picker/lib/channels";
-export type { ChannelDescriptor } from "@/components/ui/fill-picker/lib/channels";
 
 export const ColorPickerBase = {
   Root,

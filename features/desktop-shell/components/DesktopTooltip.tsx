@@ -3,7 +3,6 @@
 import {
   Tooltip,
   type TooltipProps,
-  type TooltipSide,
 } from "@/components/ui/fluid-tooltip"
 import { cn } from "@/lib/utils"
 
@@ -23,5 +22,3 @@ export function DesktopTooltip({
     />
   )
 }
-
-export type { TooltipSide }

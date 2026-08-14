@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 export type AreaMode = "oklch-cl" | "hsv-sv" | "oklch-hc";
 export type AreaGamut = Gamut | "none";
 
-export interface AreaProps extends React.HTMLAttributes<HTMLDivElement> {
+interface AreaProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * What the 2D Area represents.
    *  - oklch-cl: Y = OKLCH lightness, X = chroma normalized to gamut. Perceptually uniform.

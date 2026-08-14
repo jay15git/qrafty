@@ -102,7 +102,7 @@ function shouldRenderDraftingQrBackground(state: QrStudioState) {
   return !state.backgroundOptions.transparent && Boolean(state.backgroundOptions.color)
 }
 
-export function buildDraftingQrBackgroundPreviewSvgMarkup(
+function buildDraftingQrBackgroundPreviewSvgMarkup(
   layer: DraftingCanvasLayer,
   state: QrStudioState,
 ) {

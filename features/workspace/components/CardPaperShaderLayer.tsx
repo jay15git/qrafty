@@ -70,7 +70,7 @@ class PaperShaderErrorBoundary extends Component<
   }
 }
 
-export function hasDraftingPaperShaderWebGlSupport() {
+function hasDraftingPaperShaderWebGlSupport() {
   if (typeof document === "undefined") return false
   if (
     typeof navigator !== "undefined" &&
@@ -154,7 +154,7 @@ function usePaperShaderContextRecovery(
   }, [hostRef, onRecover])
 }
 
-export function DraftingCardPaperShaderRenderer({
+function DraftingCardPaperShaderRenderer({
   dataExportShader,
   dataSlot,
   layoutHeight,

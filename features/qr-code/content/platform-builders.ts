@@ -8,7 +8,7 @@ export function stringFieldValue(
   return typeof value === "string" ? value.trim() : ""
 }
 
-export function normalizeUsername(value: string): string {
+function normalizeUsername(value: string): string {
   return value.trim().replace(/^@+/, "").replace(/^\/+/, "")
 }
 
@@ -23,7 +23,7 @@ export function normalizeUrl(value: string): string {
   return `https://${trimmed}`
 }
 
-export function urlOrBuild(
+function urlOrBuild(
   values: PlatformContentValues,
   build: (values: PlatformContentValues) => string,
 ): string {
@@ -34,7 +34,7 @@ export function urlOrBuild(
   return build(values)
 }
 
-export function usernameProfileUrl(
+function usernameProfileUrl(
   values: PlatformContentValues,
   baseUrl: string,
   prefix = "",
@@ -43,7 +43,7 @@ export function usernameProfileUrl(
   return `${baseUrl}${prefix}${username}`
 }
 
-export function idOrUrl(
+function idOrUrl(
   values: PlatformContentValues,
   buildFromId: (id: string) => string,
   idKey = "id",

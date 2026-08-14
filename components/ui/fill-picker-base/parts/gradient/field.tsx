@@ -17,10 +17,9 @@ export {
   FieldInput,
   FieldInputGroup,
   FieldSuffix,
-  type FieldInputProps,
 } from "@/components/ui/fill-picker/parts/field";
 
-export interface FieldSelectProps {
+interface FieldSelectProps {
   /**
    * `standalone` (default) — bordered chevron-select matching every
    * picker dropdown (`FormatSwitcher`, `TypeSwitcher`, `InterpSwitcher`,
@@ -149,7 +148,7 @@ export const FieldSelect = React.forwardRef<
   );
 });
 
-export interface FieldSelectItemProps {
+interface FieldSelectItemProps {
   value: string;
   className?: string;
   children?: React.ReactNode;

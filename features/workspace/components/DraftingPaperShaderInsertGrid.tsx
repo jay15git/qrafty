@@ -7,7 +7,7 @@ import {
 } from "@/features/workspace/rendering/paper-shaders"
 import { cn } from "@/lib/utils"
 
-export type DraftingPaperShaderInsertGridVariant = "insert-desktop" | "insert-drafting"
+type DraftingPaperShaderInsertGridVariant = "insert-desktop" | "insert-drafting"
 
 type DraftingPaperShaderInsertGridProps = {
   dataSlot?: string

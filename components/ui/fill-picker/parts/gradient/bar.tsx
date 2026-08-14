@@ -18,7 +18,7 @@ import { formatColor } from "../../lib/color";
 import { focusNeighborIn } from "./stop-list-shared";
 import { useLiveAnnounce } from "../use-live-announce";
 
-export interface BarProps extends React.HTMLAttributes<HTMLDivElement> {
+interface BarProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Track height in px. Defaults to 12 to match `<ColorPicker.Hue>`. */
   height?: number;
   /** Handle (stop) diameter in px. Defaults to 16 to match the Hue thumb. */

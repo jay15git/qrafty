@@ -6,7 +6,7 @@ import type { ColorFormat } from "@/components/ui/fill-picker/lib/types";
 import { cn } from "@/lib/utils";
 import { FieldSelect, FieldSelectItem } from "./gradient/field";
 
-export interface FormatSwitcherProps
+interface FormatSwitcherProps
   extends Omit<React.ComponentPropsWithoutRef<"button">, "onChange" | "value"> {
   formats?: ColorFormat[];
 }

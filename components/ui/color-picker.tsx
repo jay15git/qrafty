@@ -1809,8 +1809,6 @@ export {
 
 export type {
   ColorPickerProps,
-  ColorPickerPopoverProps,
-  ColorSwatchProps,
   ColorFormat,
   ParsedColor,
 };

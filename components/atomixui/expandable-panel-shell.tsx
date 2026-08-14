@@ -7,12 +7,12 @@ import useMeasure from "react-use-measure"
 import { cn } from "@/lib/utils"
 
 export const EXPANDABLE_PANEL_SPRING = { type: "spring" as const, stiffness: 340, damping: 28 }
-export const EXPANDABLE_PANEL_SLIDE_T = {
+const EXPANDABLE_PANEL_SLIDE_T = {
   duration: 0.24,
   ease: [0.4, 0, 0.2, 1] as [number, number, number, number],
 }
 
-export const expandablePanelSlideVariants = {
+const expandablePanelSlideVariants = {
   enter: (dir: number) => ({ x: dir * 32, opacity: 0, filter: "blur(4px)" }),
   center: { x: 0, opacity: 1, filter: "blur(0px)" },
   exit: (dir: number) => ({ x: dir * -32, opacity: 0, filter: "blur(4px)" }),

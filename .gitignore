@@ -52,6 +52,7 @@ next-env.d.ts
 /.codex-screenshots/
 /.codex-artifacts/
 /.superset/
+/archive/
 /designs/image-import*.png
 /designs/image-import*.jpg
 

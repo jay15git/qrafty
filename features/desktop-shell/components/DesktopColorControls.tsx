@@ -18,18 +18,18 @@ import { cn } from "@/lib/utils"
 
 import "./desktop-inspector-motion.css"
 
-export const DESKTOP_COLOR_SWATCH_BUTTON_CLASS = cn(
+const DESKTOP_COLOR_SWATCH_BUTTON_CLASS = cn(
   DESKTOP_INSPECTOR_PRESS_CLASS,
   "desktop-inspector-color-swatch relative flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35",
 )
 
-export const DESKTOP_COLOR_SWATCH_FILL_CLASS =
+const DESKTOP_COLOR_SWATCH_FILL_CLASS =
   "relative size-6 shrink-0 overflow-hidden rounded-full border-2 border-[var(--desktop-inspector-swatch-ring)] box-border"
 
 const DESKTOP_COLOR_SWATCH_CHECKERBOARD =
   "conic-gradient(var(--checker-a, #808080) 0 25%, var(--checker-b, #c0c0c0) 0 50%, var(--checker-a, #808080) 0 75%, var(--checker-b, #c0c0c0) 0)"
 
-export function DesktopColorSwatchButton({
+function DesktopColorSwatchButton({
   "aria-label": ariaLabel,
   className,
   color,
@@ -121,7 +121,7 @@ export function DesktopColorSwatchPicker({
   )
 }
 
-export function DesktopColorPickerPopover({
+function DesktopColorPickerPopover({
   ariaLabel,
   "aria-label": ariaLabelProp,
   onChange,

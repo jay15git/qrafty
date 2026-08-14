@@ -297,7 +297,6 @@ type WorkspaceSurfaceProps = {
   fontClassName?: string
   initialActiveTool?: DesktopToolbarToolId
   onDesktopThemeChange?: (theme: DesktopThemeMode) => void
-  onSaveToLibrary?: (document: DraftingWorkspaceDocumentV1) => Promise<void>
   paneToolbarVariant?: DraftingPaneToolbarVariant
   renderOverlay?: (controller: DraftingWorkspaceController) => ReactNode
   sliderVariant?: DraftingSliderVariant
@@ -601,7 +600,6 @@ export function WorkspaceSurface({
   fontClassName,
   initialActiveTool,
   onDesktopThemeChange,
-  onSaveToLibrary,
   paneToolbarVariant = "default",
   renderOverlay,
   sliderVariant = "default",
@@ -1792,7 +1790,6 @@ export function WorkspaceSurface({
     }
 
     void writeDraftingWorkspaceDraft(draftingWorkspaceDocument)
-    void onSaveToLibrary?.(draftingWorkspaceDocument)
   }
 
   function handlePaneSelection(paneId: string) {

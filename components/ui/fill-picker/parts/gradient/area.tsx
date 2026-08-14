@@ -7,7 +7,7 @@ import { formatGradient } from "../../lib/gradient";
 import { CHECKERBOARD_LG } from "../../lib/constants";
 import { Overlay, type OverlayProps } from "./overlay";
 
-export interface AreaProps extends React.HTMLAttributes<HTMLDivElement> {
+interface AreaProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Fixed height in px. Defaults to 120. Width always fills the container. */
   height?: number;
   /** Forwarded to the inner `<GradientPicker.Overlay>` for conic dial sizing. */

@@ -280,5 +280,5 @@ const DropdownSeparator = forwardRef<
 
 DropdownSeparator.displayName = "DropdownSeparator";
 
-export { Dropdown, DropdownLabel, DropdownSeparator };
+export { Dropdown };
 export default Dropdown;

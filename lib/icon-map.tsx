@@ -278,7 +278,7 @@ export type IconName =
 
 export const iconLibraryOrder: IconLibrary[] = ["lucide", "tabler", "phosphor", "hugeicons", "untitledui"];
 
-export const iconLibraryLabels: Record<IconLibrary, string> = {
+const iconLibraryLabels: Record<IconLibrary, string> = {
   lucide: "Lucide",
   tabler: "Tabler",
   phosphor: "Phosphor",

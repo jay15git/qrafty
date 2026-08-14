@@ -2,15 +2,15 @@ export function segments(pathname: string): string[] {
   return pathname.split("/").filter(Boolean)
 }
 
-export function excludes(pathname: string, substrings: readonly string[]): boolean {
+function excludes(pathname: string, substrings: readonly string[]): boolean {
   return !substrings.some((substring) => pathname.includes(substring))
 }
 
-export function isSingleSegmentPath(pathname: string): boolean {
+function isSingleSegmentPath(pathname: string): boolean {
   return segments(pathname).length === 1
 }
 
-export function discordChannelSegmentCount(pathname: string): number | null {
+function discordChannelSegmentCount(pathname: string): number | null {
   if (!pathname.includes("/channels/")) {
     return null
   }
@@ -150,7 +150,7 @@ export function isVenmoPaymentPath(pathname: string, searchParams: URLSearchPara
   return searchParams.has("txn") || pathname.includes("/pay/")
 }
 
-export function redditSegmentsAfterComments(pathname: string): number {
+function redditSegmentsAfterComments(pathname: string): number {
   const parts = segments(pathname)
   const commentsIndex = parts.indexOf("comments")
   if (commentsIndex < 0) {

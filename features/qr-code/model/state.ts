@@ -200,22 +200,22 @@ export const QR_DOT_MATRIX_MATRIX_SIZE_MAX = 25;
 export const QR_DOT_MATRIX_MATRIX_SIZE_STEP = 5;
 export const QR_DOT_MATRIX_OVERLAY_SCALE_MIN = 100;
 export const QR_DOT_MATRIX_OVERLAY_SCALE_MAX = 140;
-export const QR_DOT_MATRIX_OPACITY_MIN = 0;
-export const QR_DOT_MATRIX_OPACITY_MAX = 1;
+const QR_DOT_MATRIX_OPACITY_MIN = 0;
+const QR_DOT_MATRIX_OPACITY_MAX = 1;
 const BACKGROUND_SHAPE_PADDING_PX_MAX = 192;
 const BACKGROUND_SHAPE_STROKE_WIDTH_MAX = 24;
 const BACKGROUND_SHAPE_EDGE_BLUR_MAX = 32;
 const BACKGROUND_SHAPE_OPACITY_MAX = 100;
 const BACKGROUND_SHAPE_SHADOW_OFFSET_MIN = -64;
 const BACKGROUND_SHAPE_SHADOW_OFFSET_MAX = 64;
-export const BACKGROUND_SHAPE_TILT_MIN = -60;
-export const BACKGROUND_SHAPE_TILT_MAX = 60;
+const BACKGROUND_SHAPE_TILT_MIN = -60;
+const BACKGROUND_SHAPE_TILT_MAX = 60;
 export const QR_MODULE_SIZE_MIN = 0.75;
 export const QR_MODULE_SIZE_MAX = 1;
 export const QR_MODULE_LINE_WIDTH_MIN = 0.25;
 export const QR_MODULE_LINE_WIDTH_MAX = 1;
-export const QR_LOGO_OPACITY_MIN = 0;
-export const QR_LOGO_OPACITY_MAX = 1;
+const QR_LOGO_OPACITY_MIN = 0;
+const QR_LOGO_OPACITY_MAX = 1;
 
 const DEFAULT_GRADIENT: StudioGradient = {
   enabled: false,
@@ -437,15 +437,15 @@ export function clampQrSize(value: number) {
   return coerceNumber(value, QR_SIZE_MIN, QR_SIZE_MAX, DEFAULT_QR_SIZE);
 }
 
-export function clampModuleSize(value: number) {
+function clampModuleSize(value: number) {
   return coerceNumber(value, QR_MODULE_SIZE_MIN, QR_MODULE_SIZE_MAX, 1);
 }
 
-export function clampModuleLineWidth(value: number) {
+function clampModuleLineWidth(value: number) {
   return coerceNumber(value, QR_MODULE_LINE_WIDTH_MIN, QR_MODULE_LINE_WIDTH_MAX, 1);
 }
 
-export function clampLogoOpacity(value: number) {
+function clampLogoOpacity(value: number) {
   return coerceNumber(value, QR_LOGO_OPACITY_MIN, QR_LOGO_OPACITY_MAX, 1);
 }
 

@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
  */
 const CHROMA_MAX = 0.4;
 
-export interface ChromaProps
+interface ChromaProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onKeyDown"> {
   orientation?: "horizontal" | "vertical";
 }

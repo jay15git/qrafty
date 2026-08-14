@@ -2,55 +2,5 @@
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "@new-qr",
   "homepage": "https://github.com/new-qr/new-qr",
-  "items": [
-    {
-      "name": "qr-code",
-      "type": "registry:ui",
-      "title": "New QR Code",
-      "description": "Readable QR component wrapper backed by the @new-qr/qr runtime package.",
-      "dependencies": ["@new-qr/qr"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "registry/components/new-qr-code.tsx",
-          "type": "registry:ui",
-          "target": "components/new-qr-code.tsx"
-        }
-      ]
-    },
-    {
-      "name": "qr-scene",
-      "type": "registry:ui",
-      "title": "New QR Scene",
-      "description": "Scene wrapper for card + QR compositions using @new-qr/qr.",
-      "dependencies": ["@new-qr/qr"],
-      "registryDependencies": ["qr-code"],
-      "files": [
-        {
-          "path": "registry/components/new-qr-scene.tsx",
-          "type": "registry:ui",
-          "target": "components/new-qr-scene.tsx"
-        }
-      ]
-    },
-    {
-      "name": "paper-shader-layer",
-      "type": "registry:ui",
-      "title": "Paper Shader Layer",
-      "description": "Paper shader runtime wrapper from @new-qr/qr.",
-      "dependencies": [
-        "@new-qr/qr",
-        "@paper-design/shaders",
-        "@paper-design/shaders-react"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "registry/components/paper-shader-layer.tsx",
-          "type": "registry:ui",
-          "target": "components/paper-shader-layer.tsx"
-        }
-      ]
-    }
-  ]
+  "items": []
 }

@@ -241,4 +241,3 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
 Switch.displayName = "Switch";
 
 export { Switch as FluidSwitch }
-export type { SwitchProps as FluidSwitchProps }

@@ -8,7 +8,7 @@ import type {
 } from "@/features/workspace/model/effects"
 import type { DraftingFilterEffect } from "@/features/workspace/model/filters"
 
-export function toRgba(color: string, opacity: number) {
+function toRgba(color: string, opacity: number) {
   const normalizedOpacity = Math.min(1, Math.max(0, Number.isFinite(opacity) ? opacity : 1))
   const hex = color.trim().replace(/^#/, "")
 
@@ -39,7 +39,7 @@ export function getStrokeDasharray(style: DraftingBorderStyle | undefined) {
   }
 }
 
-export function getDraftingShadowLayerCss(shadow: DraftingShadowLayerState | DraftingCardShadowState) {
+function getDraftingShadowLayerCss(shadow: DraftingShadowLayerState | DraftingCardShadowState) {
   if (
     shadow.visible === false ||
     shadow.opacity <= 0 ||
@@ -52,7 +52,7 @@ export function getDraftingShadowLayerCss(shadow: DraftingShadowLayerState | Dra
   return `drop-shadow(${shadow.offsetX}px ${shadow.offsetY}px ${shadow.blur}px ${color})`
 }
 
-export function getDraftingShadowBoxShadowCss(
+function getDraftingShadowBoxShadowCss(
   shadow: DraftingShadowLayerState | DraftingCardShadowState,
 ) {
   if (

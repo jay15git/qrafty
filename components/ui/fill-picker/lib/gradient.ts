@@ -225,7 +225,7 @@ function angleFromPoints(
  * `startProj` / `endProj` are an approximation in stretched containers.
  * The direction is always correct.
  */
-export function gradientLineProjection(
+function gradientLineProjection(
   start: { x: number; y: number },
   end: { x: number; y: number },
 ): { startProj: number; endProj: number } | null {

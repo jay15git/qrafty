@@ -186,7 +186,7 @@ export const DEFAULT_DRAFTING_SHAPE_LAYER = {
   strokeWidth: 0,
 } as const satisfies Partial<DraftingCanvasLayer>
 
-export const DEFAULT_DRAFTING_SHADER_LAYER = {
+const DEFAULT_DRAFTING_SHADER_LAYER = {
   cornerRadius: 0,
 } as const satisfies Partial<DraftingCanvasLayer>
 
@@ -313,7 +313,7 @@ export function getDraftingCardInsetLayout(
   }
 }
 
-export function hasAuthoredLayerComposition(layers: DraftingCanvasLayer[]): boolean {
+function hasAuthoredLayerComposition(layers: DraftingCanvasLayer[]): boolean {
   return layers.some(
     (layer) => layer.isVisible && (layer.kind === "shape" || layer.kind === "image"),
   )

@@ -679,4 +679,4 @@ export {
   triggerVariants,
 };
 
-export type { SelectProps, SelectTriggerProps, SelectContentProps, SelectItemProps };
+export type { SelectProps };

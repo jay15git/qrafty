@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/fill-picker/parts/field";
 import { cn } from "@/lib/utils";
 
-export interface ChannelInputProps
+interface ChannelInputProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   formats?: ColorFormat[];
   showFormat?: boolean;
@@ -258,4 +258,3 @@ function ChannelField({
     </NumberField.Root>
   );
 }
-

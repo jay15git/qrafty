@@ -34,7 +34,7 @@ export function motionColorRgbHex(input: string, fallback = "#000000") {
   return `#${componentToHex(parsed.r)}${componentToHex(parsed.g)}${componentToHex(parsed.b)}`;
 }
 
-export function parseMotionColorChannel(input: string) {
+function parseMotionColorChannel(input: string) {
   const value = input.trim();
   if (!value) {
     return null;

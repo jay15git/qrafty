@@ -27,7 +27,7 @@ import {
   FieldSuffix,
 } from "../field";
 
-export interface StopListProps extends React.HTMLAttributes<HTMLDivElement> {
+interface StopListProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Render a trailing "+ Add stop" row that inserts a new stop in the
    * largest gap between adjacent stops, sampling the gradient's existing

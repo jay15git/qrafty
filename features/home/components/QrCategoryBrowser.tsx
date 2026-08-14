@@ -16,11 +16,13 @@ import {
   DESKTOP_INSPECTOR_FG_SECONDARY,
   DESKTOP_INSPECTOR_SELECTED_CLASS,
 } from "@/features/desktop-shell/components/InspectorControls"
-import {
-  HUB_CATEGORY_PILL_SURFACE,
-  HUB_DROPDOWN_MENU_CLASS,
-} from "@/features/studio-hub/components/hub-surfaces"
 import { cn } from "@/lib/utils"
+
+const CATEGORY_PILL_SURFACE =
+  "rounded-full border border-transparent bg-[var(--desktop-inspector-field-bg)] shadow-[var(--drafting-shadow-rest)] transition-shadow duration-300 hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] hover:shadow-[var(--drafting-shadow-hover)]"
+
+const CATEGORY_DROPDOWN_MENU_CLASS =
+  "z-50 min-w-0 rounded-2xl border border-transparent bg-[var(--drafting-option-card-bg)] p-2 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--drafting-option-card-shadow-rest)] ring-0"
 
 import {
   QR_CATEGORIES,
@@ -87,7 +89,7 @@ export function QrCategoryBrowser({
                 size="sm"
                 className={cn(
                   "h-8 px-3 text-xs",
-                  HUB_CATEGORY_PILL_SURFACE,
+                  CATEGORY_PILL_SURFACE,
                   DESKTOP_INSPECTOR_FG_SECONDARY,
                   (isOpen || isSelectedCategory) &&
                     cn(
@@ -108,7 +110,7 @@ export function QrCategoryBrowser({
               align="start"
               data-slot="hub-dropdown-menu"
               className={cn(
-                HUB_DROPDOWN_MENU_CLASS,
+                CATEGORY_DROPDOWN_MENU_CLASS,
                 "w-[22rem] max-w-[calc(100vw-2rem)]",
               )}
             >

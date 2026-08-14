@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/fill-picker/parts/gamut-badge-shared";
 import type { GamutBadgeProps } from "@/components/ui/fill-picker/parts/gamut-badge-shared";
 
-export type { GamutBadgeProps };
 
 export const GamutBadge = React.forwardRef<HTMLDivElement, GamutBadgeProps>(function GamutBadge(
   { showLabel = true, className, ...rest },

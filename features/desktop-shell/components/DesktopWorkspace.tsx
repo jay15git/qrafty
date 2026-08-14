@@ -6,12 +6,9 @@ import {
   type DesktopThemeMode,
   type DesktopToolbarToolId,
 } from "@/features/desktop-shell/components/FloatingToolbar"
-import { saveDesignToLibrary } from "@/features/studio-hub/model/save-library-design"
-import { readStudioSession } from "@/features/studio-hub/model/navigation"
 import { DesktopSoundProvider } from "@/features/desktop-shell/components/DesktopSoundProvider"
 import { cn } from "@/lib/utils"
-import { useCallback, useState, type CSSProperties } from "react"
-import type { DraftingWorkspaceDocumentV1 } from "@/features/workspace/model/document"
+import { useState, type CSSProperties } from "react"
 
 type DesktopWorkspaceProps = {
   fontClassName?: string
@@ -35,13 +32,6 @@ export function DesktopWorkspace({
     "--drafting-surface-bg": desktopTheme === "light" ? "#e7e9ec" : "#1f1f1f",
   } as CSSProperties
 
-  const handleSaveToLibrary = useCallback(async (document: DraftingWorkspaceDocumentV1) => {
-    const session = readStudioSession()
-    await saveDesignToLibrary(document, {
-      designId: session?.designId,
-    })
-  }, [])
-
   return (
     <DesktopSoundProvider>
       <section
@@ -61,7 +51,6 @@ export function DesktopWorkspace({
         fontClassName={fontClassName}
         initialActiveTool={initialActiveTool}
         onDesktopThemeChange={setDesktopTheme}
-        onSaveToLibrary={handleSaveToLibrary}
         paneToolbarVariant="desktop-zoom"
         sliderVariant="desktop-elastic"
         renderOverlay={(controller) => (

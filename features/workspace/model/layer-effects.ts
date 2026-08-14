@@ -103,15 +103,15 @@ export function getLayerEffectKindLabel(kind: LayerEffectKind) {
   return LAYER_EFFECT_KIND_LABELS[kind]
 }
 
-export function isLayerShadowEffectKind(kind: LayerEffectKind): kind is LayerShadowEffectKind {
+function isLayerShadowEffectKind(kind: LayerEffectKind): kind is LayerShadowEffectKind {
   return kind === "drop-shadow" || kind === "inner-shadow"
 }
 
-export function isLayerShadowEffectItem(item: LayerEffectItem): item is LayerShadowEffectItem {
+function isLayerShadowEffectItem(item: LayerEffectItem): item is LayerShadowEffectItem {
   return item.source === "shadow"
 }
 
-export function isPlaceholderShadowLayer(shadow: DraftingShadowLayerState) {
+function isPlaceholderShadowLayer(shadow: DraftingShadowLayerState) {
   return (
     shadow.visible === false &&
     shadow.opacity <= 0 &&

@@ -29,4 +29,4 @@ export function PaperShaderOptionPreview({
 }
 
 /** @deprecated Use PaperShaderOptionPreview */
-export const DraftingPaperShaderOptionPreview = PaperShaderOptionPreview
+const DraftingPaperShaderOptionPreview = PaperShaderOptionPreview

@@ -2,7 +2,7 @@ import type { CSSProperties } from "react"
 
 const FULL_ROTATION_DEGREES = 360
 
-export const GRADIENT_SLIDER_CHECKER_PATTERN =
+const GRADIENT_SLIDER_CHECKER_PATTERN =
   "conic-gradient(var(--checker-a, #808080) 0 25%, var(--checker-b, #c0c0c0) 0 50%, var(--checker-a, #808080) 0 75%, var(--checker-b, #c0c0c0) 0)"
 
 function clamp255(value: number) {
@@ -49,7 +49,7 @@ function parseHexColor(input: string): { r: number; g: number; b: number; a: num
   return null
 }
 
-export function parseCssColor(input: string): { r: number; g: number; b: number; a: number } | null {
+function parseCssColor(input: string): { r: number; g: number; b: number; a: number } | null {
   const value = input.trim()
   if (!value) return null
 
@@ -99,7 +99,7 @@ export function buildGradientSliderTrackStyle(startColor: string, endColor: stri
   }
 }
 
-export function cssColorNeedsCheckerboard(input: string) {
+function cssColorNeedsCheckerboard(input: string) {
   const parsed = parseCssColor(input)
   return parsed != null && parsed.a < 1
 }

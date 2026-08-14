@@ -1601,5 +1601,5 @@ const SliderComfortable = forwardRef<HTMLDivElement, SliderComfortableProps>(
 
 SliderComfortable.displayName = "SliderComfortable";
 
-export { Slider, SliderComfortable };
-export type { SliderProps, SliderValue, ValuePosition, SliderComfortableProps };
+export { Slider };
+export type { SliderValue, ValuePosition };

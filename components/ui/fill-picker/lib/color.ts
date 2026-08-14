@@ -86,7 +86,7 @@ export function parseColor(input: string): OklchColor | null {
   return parseColorDetailed(input)?.color ?? null;
 }
 
-export function isValidColor(input: string): boolean {
+function isValidColor(input: string): boolean {
   return parseColor(input) !== null;
 }
 
@@ -235,7 +235,7 @@ export function linSrgbToLinP3(c: {
 }
 
 /* Linear sRGB → linear Rec.2020 (CSS Color 4 reference matrix). */
-export function linSrgbToLinRec2020(c: {
+function linSrgbToLinRec2020(c: {
   r: number;
   g: number;
   b: number;
@@ -465,7 +465,7 @@ export function contrast(fg: OklchColor, bg: OklchColor): ContrastResult {
  *  - Positive Lc: dark text on light bg
  *  - Negative Lc: light text on dark bg
  */
-export function apcaContrast(fg: OklchColor, bg: OklchColor): number {
+function apcaContrast(fg: OklchColor, bg: OklchColor): number {
   const fgRgb = toRgb({ mode: "oklch", ...oklchObj(fg) });
   const bgRgb = toRgb({ mode: "oklch", ...oklchObj(bg) });
   if (!fgRgb || !bgRgb) return 0;

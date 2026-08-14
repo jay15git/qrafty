@@ -29,9 +29,8 @@ import {
   getLayerTiltPerspectiveStyle,
 } from "@/features/workspace/rendering/layer-transform"
 
-export { toRgba } from "@/features/workspace/rendering/layer-appearance"
 
-export function getDraftingCardBorder(cardState: DraftingCardState) {
+function getDraftingCardBorder(cardState: DraftingCardState) {
   const border = normalizeDraftingCardBorder(cardState.border)
   const hasPerSideOverrides = border.sides.top.width !== border.width ||
     border.sides.right.width !== border.width ||
@@ -124,7 +123,7 @@ export function getLayerControlShellStyle(
   }
 }
 
-export function getExportLayerTransform(layer: DraftingCanvasLayer) {
+function getExportLayerTransform(layer: DraftingCanvasLayer) {
   const rotation = Number.isFinite(layer.rotation) ? layer.rotation : 0
   const scaleX = layer.scaleX ?? 1
   const scaleY = layer.scaleY ?? 1
@@ -248,7 +247,7 @@ export function cssPropertiesToInlineStyle(
     .join(";")
 }
 
-export function cssPropertiesToReactStyle(
+function cssPropertiesToReactStyle(
   properties: Record<string, string | number>,
 ): string {
   return Object.entries(properties)

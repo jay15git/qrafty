@@ -43,7 +43,7 @@ export const DESKTOP_INSPECTOR_PRESS_CLASS = "desktop-inspector-press"
 
 const DESKTOP_INSPECTOR_IMAGE_UPLOAD_MAX_SIZE = 5 * 1024 * 1024
 
-export const DESKTOP_INSPECTOR_FG_PRIMARY =
+const DESKTOP_INSPECTOR_FG_PRIMARY =
   "text-[var(--desktop-inspector-fg-primary)]"
 export const DESKTOP_INSPECTOR_FG_SECONDARY =
   "text-[var(--desktop-inspector-fg-secondary)]"
@@ -51,22 +51,20 @@ export const DESKTOP_INSPECTOR_FG_TERTIARY =
   "text-[var(--desktop-inspector-fg-tertiary)]"
 export const DESKTOP_INSPECTOR_FG_MUTED =
   "text-[var(--desktop-inspector-fg-muted)]"
-export const DESKTOP_INSPECTOR_FG_LABEL =
-  "text-[var(--desktop-inspector-fg-label)]"
-export const DESKTOP_INSPECTOR_TYPE_PANEL_CLASS =
+const DESKTOP_INSPECTOR_TYPE_PANEL_CLASS =
   "text-[length:var(--desktop-inspector-type-panel)]"
-export const DESKTOP_INSPECTOR_TYPE_VALUE_CLASS =
+const DESKTOP_INSPECTOR_TYPE_VALUE_CLASS =
   "text-[length:var(--desktop-inspector-type-value)] leading-[1.45]"
 export const DESKTOP_INSPECTOR_TYPE_LABEL_CLASS =
   "text-[length:var(--desktop-inspector-type-label)]"
-export const DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS =
+const DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS =
   "text-[length:var(--desktop-inspector-type-caption)]"
 export const DESKTOP_INSPECTOR_SECTION_HEADING_CLASS =
   cn(
     "mb-0 truncate pl-0.5 font-medium uppercase tracking-[0.05em] text-[var(--desktop-inspector-fg-muted)]",
     DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
   )
-export const DESKTOP_INSPECTOR_PANEL_TITLE_CLASS =
+const DESKTOP_INSPECTOR_PANEL_TITLE_CLASS =
   cn(
     "truncate font-semibold leading-5 text-[var(--desktop-inspector-fg-primary)]",
     DESKTOP_INSPECTOR_TYPE_PANEL_CLASS,
@@ -79,9 +77,8 @@ export const DESKTOP_INSPECTOR_CAPTION_CLASS = cn(
   "font-medium text-[var(--desktop-inspector-fg-muted)]",
   DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
 )
-export const DESKTOP_INSPECTOR_SECTION_CLASS = "min-w-0 flex flex-col gap-2"
+const DESKTOP_INSPECTOR_SECTION_CLASS = "min-w-0 flex flex-col gap-2"
 export const DESKTOP_INSPECTOR_SECTION_GAP_CLASS = "mt-2"
-export const DESKTOP_INSPECTOR_MAJOR_GAP_CLASS = "mt-6"
 export const DESKTOP_INSPECTOR_ROW_GAP_CLASS = "gap-2"
 export const DESKTOP_INSPECTOR_ROW_CLASS =
   "flex min-h-[2.375rem] min-w-0 items-center justify-between gap-3 rounded-md bg-[var(--desktop-inspector-control)] px-3"
@@ -91,35 +88,29 @@ export const DESKTOP_INSPECTOR_LABEL_CLASS = cn(
   "truncate font-medium text-[var(--desktop-inspector-fg-label)]",
   DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
 )
-export const DESKTOP_INSPECTOR_SCROLL_CLASS =
-  "min-h-0 flex-1 overflow-y-auto px-3 py-3 scroll-fade-effect-y"
 export const DESKTOP_INSPECTOR_CONTROL_CLASS =
   "desktop-inspector-press cursor-pointer rounded-[6px] border border-transparent bg-transparent text-[var(--desktop-inspector-fg-tertiary)] transition-[background-color,border-color,color] duration-150 ease-out hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] active:bg-[var(--desktop-inspector-control-active-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)] disabled:cursor-not-allowed"
 export const DESKTOP_INSPECTOR_SELECTED_CLASS =
   "border-transparent bg-[var(--desktop-inspector-option-selected-bg)] text-[var(--desktop-inspector-option-selected-fg)] hover:border-transparent hover:bg-[var(--desktop-inspector-option-selected-bg)] hover:text-[var(--desktop-inspector-option-selected-fg)]"
-export const DESKTOP_OPTION_CARD_SELECTED_CLASS =
-  "border-[var(--desktop-inspector-option-selected-border)] bg-[var(--desktop-inspector-option-selected-bg)] text-[var(--desktop-inspector-option-selected-fg)] hover:bg-[var(--desktop-inspector-option-selected-bg)] hover:text-[var(--desktop-inspector-option-selected-fg)]"
 export const DESKTOP_INSPECTOR_INPUT_CLASS = cn(
   "desktop-inspector-input-bg bg-[var(--desktop-inspector-field-bg)] font-medium text-[var(--desktop-inspector-fg-primary)] outline-none placeholder:text-[var(--desktop-inspector-fg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 )
-export const DESKTOP_INSPECTOR_SCRUB_NUMBER_FIELD_CLASS = cn(
+const DESKTOP_INSPECTOR_SCRUB_NUMBER_FIELD_CLASS = cn(
   "text-center tabular-nums",
   DESKTOP_INSPECTOR_INPUT_CLASS,
 )
-export const DESKTOP_INSPECTOR_FOCUS_CLASS =
+const DESKTOP_INSPECTOR_FOCUS_CLASS =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]"
-export const DESKTOP_INSPECTOR_HEADER_CLASS =
-  "flex min-h-12 min-w-0 items-center px-3 py-3 text-left"
 export const DESKTOP_INSPECTOR_FOOTER_CLASS =
   "px-3 py-3"
 export const DESKTOP_INSPECTOR_RESET_CLASS = cn(
   "desktop-inspector-press flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-[6px] border border-transparent bg-transparent px-3 font-medium text-[var(--desktop-inspector-fg-secondary)] transition-[background-color,border-color,color] duration-150 ease-out hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] active:bg-[var(--desktop-inspector-control-active-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 )
-export const DESKTOP_INSPECTOR_DROPDOWN_MENU_CLASS =
+const DESKTOP_INSPECTOR_DROPDOWN_MENU_CLASS =
   "desktop-inspector-dropdown-menu z-50 min-w-0 rounded-[14px] border-0 bg-[var(--desktop-inspector-elevated)] p-1 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-inspector-popover-shadow)] ring-0 backdrop-blur-xl"
-export const DESKTOP_INSPECTOR_DROPDOWN_TRIGGER_CLASS = cn(
+const DESKTOP_INSPECTOR_DROPDOWN_TRIGGER_CLASS = cn(
   "desktop-inspector-input-bg cursor-pointer bg-[var(--desktop-inspector-field-bg)] font-medium text-[var(--desktop-inspector-fg-tertiary)] outline-none transition hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)] data-[state=open]:bg-[var(--desktop-inspector-control-hover-bg)] data-[state=open]:text-[var(--desktop-inspector-fg-primary)]",
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 )
@@ -139,7 +130,7 @@ export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_SURFACE_CLASS =
 /** Preview scale timing lives in desktop-inspector-motion.css */
 export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS = ""
 
-export const DESKTOP_INSPECTOR_OPTION_GRID_COLS_CLASS = {
+const DESKTOP_INSPECTOR_OPTION_GRID_COLS_CLASS = {
   2: "grid-cols-2",
   3: "grid-cols-3",
   4: "grid-cols-4",
@@ -147,7 +138,7 @@ export const DESKTOP_INSPECTOR_OPTION_GRID_COLS_CLASS = {
 
 export type DesktopInspectorOptionGridColumns = keyof typeof DESKTOP_INSPECTOR_OPTION_GRID_COLS_CLASS
 
-export const DESKTOP_INSPECTOR_OPTION_GRID_ITEM_PADDING_CLASS = {
+const DESKTOP_INSPECTOR_OPTION_GRID_ITEM_PADDING_CLASS = {
   tight: "p-[3px]",
   loose: "p-1",
 } as const
@@ -161,25 +152,22 @@ export function desktopInspectorOptionGridClass(
   return cn("grid gap-0", DESKTOP_INSPECTOR_OPTION_GRID_COLS_CLASS[columns], className)
 }
 
-export function desktopInspectorOptionRowClass(className?: string) {
+function desktopInspectorOptionRowClass(className?: string) {
   return cn(
     "flex w-max flex-nowrap [&>*]:w-[5.25rem] [&>*]:min-w-[5.25rem] [&>*]:shrink-0",
     className,
   )
 }
 
-export const DESKTOP_INSPECTOR_OPTION_SELECTION_APPEAR: Transition = {
+const DESKTOP_INSPECTOR_OPTION_SELECTION_APPEAR: Transition = {
   opacity: { duration: 0.38, ease: [0.4, 0, 0.2, 1] },
   filter: { duration: 0.42, ease: [0.4, 0, 0.2, 1] },
 }
 
-export const DESKTOP_INSPECTOR_OPTION_SELECTION_EXIT: Transition = {
+const DESKTOP_INSPECTOR_OPTION_SELECTION_EXIT: Transition = {
   opacity: { duration: 0.24, ease: [0.4, 0, 1, 1] },
   filter: { duration: 0.24, ease: [0.4, 0, 1, 1] },
 }
-
-/** @deprecated Prefer DESKTOP_INSPECTOR_OPTION_SELECTION_APPEAR — selection no longer travels. */
-export const DESKTOP_INSPECTOR_OPTION_SELECTION_SPRING = DESKTOP_INSPECTOR_OPTION_SELECTION_APPEAR
 
 const DESKTOP_INSPECTOR_FROZEN_MOTION_TRANSITION: Transition = { duration: 0 }
 

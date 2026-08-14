@@ -48,7 +48,7 @@ export function isValidIconstackSvgMarkup(svg: string) {
   return ICONSTACK_SHAPE_TAG.test(normalized)
 }
 
-export function svgMarkupToDataUrl(markup: string) {
+function svgMarkupToDataUrl(markup: string) {
   return `data:image/svg+xml,${encodeURIComponent(markup)}`
 }
 

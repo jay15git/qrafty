@@ -1000,9 +1000,9 @@ const PLATFORM_DEF_BY_TYPE = new Map<QrInputType, PlatformDef>(
   PLATFORM_DEFS.map((def) => [def.type, def]),
 )
 
-export const PLATFORM_TYPES = new Set<QrInputType>(PLATFORM_DEFS.map((def) => def.type))
+const PLATFORM_TYPES = new Set<QrInputType>(PLATFORM_DEFS.map((def) => def.type))
 
-export const LEGACY_PLATFORM_ALIASES: Partial<Record<QrInputType, QrInputType>> = {
+const LEGACY_PLATFORM_ALIASES: Partial<Record<QrInputType, QrInputType>> = {
   "telegram-username": "telegram",
   "whatsapp-chat": "whatsapp",
   "app-download": "app-store",
@@ -1068,7 +1068,7 @@ export function getDefaultIntentId(type: QrInputType): string {
   return def.intents[0]?.id ?? "url"
 }
 
-export function getIntentDef(type: QrInputType, intentId: string): PlatformIntentDef | undefined {
+function getIntentDef(type: QrInputType, intentId: string): PlatformIntentDef | undefined {
   const def = getPlatformDef(type)
   return def?.intents.find((intent) => intent.id === intentId) ?? def?.intents[0]
 }
@@ -1378,6 +1378,6 @@ export const PLATFORM_PICKER_TYPES: readonly QrInputType[] = [
   ...new Set(CONTENT_COLLECTIONS.flatMap((collection) => collection.types)),
 ]
 
-export function getIntentLabel(type: QrInputType, intentId: string): string {
+function getIntentLabel(type: QrInputType, intentId: string): string {
   return getIntentDef(type, intentId)?.label ?? intentId
 }

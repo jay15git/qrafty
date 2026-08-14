@@ -19,7 +19,7 @@ export const BUILTIN_GRADIENT_PRESETS: string[] = [
   "conic-gradient(from 0deg at 50% 50% in oklch, oklch(0.7 0.18 0) 0%, oklch(0.7 0.18 90) 25%, oklch(0.7 0.18 180) 50%, oklch(0.7 0.18 270) 75%, oklch(0.7 0.18 360) 100%)",
 ];
 
-export interface PresetsProps extends React.HTMLAttributes<HTMLDivElement> {
+interface PresetsProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Override or extend the built-in preset list. */
   presets?: string[];
   /**

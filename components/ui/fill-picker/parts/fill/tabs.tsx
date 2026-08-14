@@ -52,7 +52,7 @@ export const Tabs = React.forwardRef<
   );
 });
 
-export interface TabProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface TabProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   mode: FillMode;
 }
 

@@ -31,7 +31,7 @@ export function getExportPreset(id: string): ExportPreset | undefined {
   return EXPORT_PRESETS.find((preset) => preset.id === id)
 }
 
-export function getExportPresetForSizeTemplate(sizePresetId: string): ExportPreset | undefined {
+function getExportPresetForSizeTemplate(sizePresetId: string): ExportPreset | undefined {
   return EXPORT_PRESETS.find((preset) => preset.sizePresetId === sizePresetId)
 }
 

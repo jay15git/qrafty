@@ -18,7 +18,6 @@ import type {
   ContrastReadoutProps,
 } from "@/components/ui/fill-picker/parts/contrast-readout-shared";
 
-export type { ContrastMetric, ContrastReadoutProps };
 
 const POPUP_CLASS =
   "z-50 max-w-[260px] rounded-md border border-border bg-popover p-2.5 text-xs text-popover-foreground shadow-md";

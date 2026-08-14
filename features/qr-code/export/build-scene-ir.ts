@@ -298,7 +298,7 @@ function sceneCardToShaderNodes(
   ]
 }
 
-export function buildSceneIrFromSceneDocument(scene: SceneDocumentV1): SceneIr {
+function buildSceneIrFromSceneDocument(scene: SceneDocumentV1): SceneIr {
   const node = scene.activeNodeId
   const card = scene.cardStateByNodeId[node]
   const qr = scene.qrStateByNodeId[node]

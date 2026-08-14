@@ -17,7 +17,7 @@ import {
   isSameSwatchColor,
 } from "@/components/ui/fill-picker/lib/swatch-presets";
 
-export interface SwatchesProps extends React.HTMLAttributes<HTMLDivElement> {
+interface SwatchesProps extends React.HTMLAttributes<HTMLDivElement> {
   presets?: string[];
   onAdd?: (color: OklchColor, hex: string) => void;
 }

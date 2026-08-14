@@ -13,7 +13,7 @@ export type ScanSafetyResult = {
   decodedText: string | null
 }
 
-export const DEFAULT_SCAN_SAFETY_RESULT: ScanSafetyResult = {
+const DEFAULT_SCAN_SAFETY_RESULT: ScanSafetyResult = {
   status: "valid",
   summary: "Valid",
   expectedText: "",

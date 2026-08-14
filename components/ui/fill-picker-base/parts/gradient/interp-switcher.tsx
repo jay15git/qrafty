@@ -15,7 +15,7 @@ const INTERP_ITEMS = Object.fromEntries(
   OPTIONS.map((o) => [o.value, o.label]),
 ) as Record<GradientInterp, string>;
 
-export interface InterpSwitcherProps {
+interface InterpSwitcherProps {
   className?: string;
   /** Applied to the select trigger. */
   triggerClassName?: string;

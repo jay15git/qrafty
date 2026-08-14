@@ -19,8 +19,7 @@ import {
 } from "@/lib/icon-map";
 
 // Re-export types for consumers
-export type { IconComponent, IconName, IconLibrary } from "@/lib/icon-map";
-export { iconLibraryOrder, iconLibraryLabels } from "@/lib/icon-map";
+export type { IconComponent, IconName } from "@/lib/icon-map";
 
 interface IconContextValue {
   iconLibrary: IconLibrary;
@@ -102,4 +101,4 @@ function IconProvider({
   );
 }
 
-export { IconProvider, useIcon, useIcons, useIconLibrary };
+export { useIcon };

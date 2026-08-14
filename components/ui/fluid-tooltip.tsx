@@ -126,5 +126,5 @@ function Tooltip({
   );
 }
 
-export { Tooltip, TooltipPortalContainer };
+export { Tooltip };
 export type { TooltipProps, TooltipSide };

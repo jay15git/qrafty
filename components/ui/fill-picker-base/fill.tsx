@@ -5,7 +5,6 @@
 // the whole Base UI fill-picker public surface: color + gradient + the
 // fill switcher below.
 export * from "./gradient";
-export { ColorPickerBase, GradientPickerBase } from "./gradient";
 
 // Root/Tabs/Tab/Pane are plain markup (role="tablist"/"tab", no Radix
 // primitive underneath) — reused unmodified from the original.
@@ -19,14 +18,8 @@ import {
 import { GradientStopEditorContext } from "@/components/ui/fill-picker-base/gradient";
 import { stopEditorSlot } from "./parts/gradient/stop-editor";
 
-export type { Fill, ColorFill, GradientFill } from "@/components/ui/fill-picker/lib/gradient";
+export type { Fill } from "@/components/ui/fill-picker/lib/gradient";
 export { formatFill, parseFill } from "@/components/ui/fill-picker/lib/gradient";
-export { useFillPicker } from "@/components/ui/fill-picker/hooks/use-fill-picker";
-export type {
-  UseFillPickerProps,
-  FillPickerState,
-  FillMode,
-} from "@/components/ui/fill-picker/hooks/use-fill-picker";
 
 /**
  * The engine `Pane` plus this variant's stop editor: the gradient pane owns
@@ -44,7 +37,7 @@ const FillPane = React.forwardRef<HTMLDivElement, PaneProps>(function Pane(
   );
 });
 
-export const FillPickerBase = {
+const FillPickerBase = {
   Root: FillRoot,
   Tabs: FillTabs,
   Tab: FillTab,

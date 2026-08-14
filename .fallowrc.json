@@ -1,0 +1,4 @@
+{
+  "ignorePatterns": ["archive/**"],
+  "publicPackages": ["@new-qr/qr"]
+}

@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import localFont from "next/font/local"
 import { Suspense } from "react"
 
-import { DesktopPageClient } from "@/features/studio-hub/components/DesktopPageClient"
+import { DesktopPageClient } from "@/features/desktop-shell/components/DesktopPageClient"
 
 const satoshi = localFont({
   src: "../../public/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-Variable.woff2",

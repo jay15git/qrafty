@@ -7,7 +7,7 @@ import { formatColor } from "@/components/ui/fill-picker/lib/color";
 import { cn } from "@/lib/utils";
 
 // See Hue: omit `defaultValue` (Slider.Root owns it as a number).
-export interface LightnessProps
+interface LightnessProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue"> {
   orientation?: "horizontal" | "vertical";
 }

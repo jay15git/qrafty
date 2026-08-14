@@ -142,7 +142,7 @@ function apcaLevel(lc: number): "headline" | "body" | "fail" {
   return abs >= 75 ? "headline" : abs >= 60 ? "body" : "fail";
 }
 
-export function WcagBody({
+function WcagBody({
   wcag,
   aa,
   aaa,
@@ -177,7 +177,7 @@ export function WcagBody({
   );
 }
 
-export function ApcaBody({
+function ApcaBody({
   lc,
   showLabel,
   showValue,
@@ -297,7 +297,7 @@ function Chip({ color }: { color: string }) {
   );
 }
 
-export function wcagPopover(
+function wcagPopover(
   ratio: number,
   aa: boolean,
   aaa: boolean,
@@ -319,7 +319,7 @@ export function wcagPopover(
   };
 }
 
-export function apcaPopover(lc: number): { title: string; rows: PassRow[] } {
+function apcaPopover(lc: number): { title: string; rows: PassRow[] } {
   const abs = Math.abs(lc);
   const passesBody = abs >= 60;
   const passesHeadline = abs >= 75;

@@ -11,7 +11,7 @@ import { RADIAL_SIZE_OPTIONS } from "@/components/ui/fill-picker/lib/gradient-op
 
 const SIZE_OPTIONS = RADIAL_SIZE_OPTIONS;
 
-export interface RadialSizeSelectProps {
+interface RadialSizeSelectProps {
   className?: string;
   /** Applied to the select trigger. */
   triggerClassName?: string;

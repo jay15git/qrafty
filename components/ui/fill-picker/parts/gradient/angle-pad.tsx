@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { useGradientPickerContext } from "../../contexts/gradient";
 import { trackPointerDrag } from "./pointer-drag";
 
-export interface AnglePadProps extends React.HTMLAttributes<HTMLDivElement> {
+interface AnglePadProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: number;
 }
 

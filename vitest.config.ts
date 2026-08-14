@@ -28,6 +28,7 @@ export default defineConfig({
   },
   test: {
     exclude: [
+      "archive/**",
       ".portable-compose-editor/**",
       ".external/**",
       "packages/qr/vendor/**",

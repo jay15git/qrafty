@@ -36,7 +36,7 @@ export async function buildDraftingLayeredNodePayload({
   })
 }
 
-export async function downloadDraftingSvgExport({
+async function downloadDraftingSvgExport({
   name,
   state,
 }: {

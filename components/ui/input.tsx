@@ -5,7 +5,7 @@ import type React from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 import { cn } from "@/lib/utils";
 
-export const inputVariants = tv({
+const inputVariants = tv({
   base: [
     "peer",
     "w-full min-w-0",

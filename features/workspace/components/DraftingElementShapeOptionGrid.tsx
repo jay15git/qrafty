@@ -11,7 +11,7 @@ import {
 import { ElementShapePrimitivePreview } from "@/features/workspace/components/ElementShapePrimitivePreview"
 import { cn } from "@/lib/utils"
 
-export type DraftingElementShapeOptionGridVariant = "insert-desktop" | "insert-drafting"
+type DraftingElementShapeOptionGridVariant = "insert-desktop" | "insert-drafting"
 
 type DraftingElementShapeOptionGridProps = {
   decorativeDataSlot?: string

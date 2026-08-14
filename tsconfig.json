@@ -41,5 +41,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "packages/qr/vendor"]
+  "exclude": ["node_modules", "packages/qr/vendor", "archive"]
 }
