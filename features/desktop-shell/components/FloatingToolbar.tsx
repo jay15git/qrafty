@@ -176,7 +176,6 @@ import {
   type StudioGradient,
   type StudioDataModulesStyle,
 } from "@/features/qr-code/model/state"
-import type { CodeExportTarget } from "@new-qr/qr-internal/codegen"
 import {
   degreesToRadians,
   normalizeGradientOffsetRange,
@@ -188,13 +187,6 @@ import {
   TYPE_NUMBER_MIN,
   formatQrTypeNumberLabel,
 } from "@/features/qr-code/styles/encoding-options"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   DesktopInspectorOptionGridScrollArea,
@@ -256,7 +248,6 @@ import {
   QR_INPUT_OPTIONS,
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
-import { DesktopCodeExportInspector } from "@/features/desktop-shell/components/DesktopCodeExportInspector"
 import { DesktopInspectorIconSwap } from "@/features/desktop-shell/components/DesktopInspectorIconSwap"
 import { DesktopPexelsPhotoInspector } from "@/features/desktop-shell/components/DesktopPexelsPhotoInspector"
 import {
@@ -279,7 +270,6 @@ import { ElasticSlider } from "@/components/ui/elastic-slider"
 import { FluidSwitch } from "@/components/ui/fluid-switch"
 import { GripIcon } from "@/components/ui/grip"
 import { LayersIcon } from "@/components/ui/layers"
-import LetterTIcon from "@/components/ui/letter-t-icon"
 import { MessageCircleIcon } from "@/components/ui/message-circle"
 import { PlayIcon } from "@/components/ui/play"
 import { ReceiptTextIcon } from "@/components/ui/receipt-text"
@@ -700,7 +690,6 @@ export type DesktopToolbarController = {
   onLayoutSettingsChange?: (patch: Partial<SceneLayoutPreset>) => void
   onSceneTemplateSizeChange?: (patch: Partial<DesktopSceneTemplateSettings["sizeSettings"]>) => void
   onSceneTemplateSizeTemplateSelect?: (template: import("@/features/workspace/model/size-templates").SizeTemplate) => void
-  buildCodegenExport?: (target: CodeExportTarget) => Promise<{ code: string; installCommand?: string }>
   exportDownloadError?: string | null
   onTextReset: () => void
   onTextSettingsChange: (patch: Partial<DesktopTextSettings>) => void
@@ -5552,18 +5541,14 @@ function DesktopLayerStackIconToggle({
 }
 
 function DesktopExportInspector({
-  buildCodegenExport,
   exportDownloadError,
   onExportDownload,
   onExportSettingsChange,
-  showCodeExport = true,
   settings,
 }: {
-  buildCodegenExport?: (target: CodeExportTarget) => Promise<{ code: string; installCommand?: string }>
   exportDownloadError?: string | null
   onExportDownload: () => void
   onExportSettingsChange: (patch: Partial<DesktopExportSettings>) => void
-  showCodeExport?: boolean
   settings: DesktopExportSettings
 }) {
   const [downloadState, setDownloadState] = useState<"idle" | "success">("idle")
@@ -5706,13 +5691,6 @@ function DesktopExportInspector({
           </>
         ) : null}
         </DesktopSettingsStack>
-
-        {showCodeExport && buildCodegenExport ? (
-          <DesktopInspectorSection className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-            <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Copy code</p>
-            <DesktopCodeExportInspector buildCodegenExport={buildCodegenExport} />
-          </DesktopInspectorSection>
-        ) : null}
       </DesktopInspectorScrollArea>
       <div className={DESKTOP_INSPECTOR_FOOTER_CLASS}>
         <button
@@ -6393,7 +6371,6 @@ function DesktopSceneInspector({
 }
 
 function DesktopInspectorAdvancedPanel({
-  buildCodegenExport,
   encodedValue,
   encodingSettings,
   logoSettings,
@@ -6402,7 +6379,6 @@ function DesktopInspectorAdvancedPanel({
   onLogoSettingsChange,
   onMotionSettingsChange,
 }: {
-  buildCodegenExport?: (target: CodeExportTarget) => Promise<{ code: string; installCommand?: string }>
   encodedValue: string
   encodingSettings: DesktopEncodingSettings
   logoSettings: DesktopLogoSettings
@@ -6501,13 +6477,6 @@ function DesktopInspectorAdvancedPanel({
             onChange={(respectReducedMotion) => onMotionSettingsChange({ respectReducedMotion })}
           />
         </DesktopInspectorSection>
-
-        {buildCodegenExport ? (
-          <DesktopInspectorSection className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
-            <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Copy code</p>
-            <DesktopCodeExportInspector buildCodegenExport={buildCodegenExport} />
-          </DesktopInspectorSection>
-        ) : null}
       </DesktopInspectorScrollArea>
     </div>
   )
@@ -6690,12 +6659,10 @@ export function DesktopFloatingInspector({
       />
     ) : toolId === "export" ? (
       <DesktopExportInspector
-        buildCodegenExport={controller?.buildCodegenExport}
         exportDownloadError={controller?.exportDownloadError}
         settings={actualExportSettings}
         onExportDownload={controller?.onExportDownload ?? (() => undefined)}
         onExportSettingsChange={onExportSettingsChange}
-        showCodeExport={!desktopSection}
       />
     ) : toolId ? (
       <DesktopPlaceholderInspector />
@@ -6815,7 +6782,6 @@ export function DesktopFloatingInspector({
               {advancedOpen ? (
                 <div className="w-full max-h-[min(40dvh,20rem)] overflow-y-auto overscroll-contain rounded-[10px] bg-[var(--desktop-inspector-surface)] p-2.5">
                   <DesktopInspectorAdvancedPanel
-                    buildCodegenExport={controller?.buildCodegenExport}
                     encodedValue={actualEncodedContentValue}
                     encodingSettings={actualEncodingSettings}
                     logoSettings={actualLogoSettings}

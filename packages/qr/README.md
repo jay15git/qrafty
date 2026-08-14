@@ -1,22 +1,10 @@
 # @new-qr/qr
 
-Three React component families for designed QR cards:
+Internal QR rendering library used by the studio:
 
 - **QR rendering** — `NewQrCode`
 - **Paper shaders** — `PaperShaderLayer`
 - **Animated QR** — `AnimatedQr`
-
-## Install
-
-```bash
-pnpm add @new-qr/qr
-```
-
-Shader backgrounds also need Paper (emitted in copied canvas code):
-
-```bash
-pnpm add @paper-design/shaders @paper-design/shaders-react
-```
 
 ## Usage
 
@@ -26,14 +14,12 @@ import { AnimatedQr } from "@new-qr/qr/animated"
 import { PaperShaderLayer } from "@new-qr/qr/shaders"
 ```
 
-Copied canvas React export uses `@new-qr/qr/react`, `@new-qr/qr/animated`, and `@paper-design/shaders-react` directly.
-
-## Public exports
+## Exports
 
 | Import | Components |
 |--------|------------|
 | `@new-qr/qr` | Shared types, `NewQrCode` |
-| `@new-qr/qr/react` | `NewQrCode`, `QrScene`, `ReactQRCode` (upstream primitive) |
+| `@new-qr/qr/react` | `NewQrCode`, `ReactQRCode` (upstream primitive) |
 | `@new-qr/qr/shaders` | `PaperShaderLayer`, shader helpers |
 | `@new-qr/qr/animated` | `AnimatedQr` |
 

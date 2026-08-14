@@ -56,28 +56,3 @@ export type SceneIr = {
   fonts: SceneIrFontRef[]
   componentName?: string
 }
-
-export type CodeExportTarget =
-  | { format: "html" }
-  | { format: "css" }
-  | { format: "react"; dialect: "jsx" | "tsx"; componentName?: string }
-  | { format: "svg" }
-
-export type FrameworkTarget =
-  | { framework: "svg" }
-  | { framework: "react"; dialect: "jsx" | "tsx"; mode: "static"; componentName?: string }
-  | { framework: "react"; dialect: "jsx" | "tsx"; mode: "live"; componentName?: string }
-  | { framework: "vue"; lang: "js" | "ts" }
-  | { framework: "svelte"; lang: "js" | "ts" }
-
-export type CodegenTarget = CodeExportTarget | FrameworkTarget
-
-export function isCodeExportTarget(target: CodegenTarget): target is CodeExportTarget {
-  return "format" in target
-}
-
-export function isLiveReactTarget(
-  target: FrameworkTarget,
-): target is Extract<FrameworkTarget, { framework: "react"; mode: "live" }> {
-  return target.framework === "react" && "mode" in target && target.mode === "live"
-}

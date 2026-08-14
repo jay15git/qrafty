@@ -15,6 +15,7 @@ export async function buildDraftingLayeredNodePayloadCore({
   qrPayload,
   sceneComposition,
   shaderSnapshots,
+  state,
 }: {
   cardState: DraftingCardState
   layers: DraftingCanvasLayer[]

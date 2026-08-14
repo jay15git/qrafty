@@ -10,7 +10,6 @@ const qrAliases = [
   { find: "@new-qr/qr-internal/export", replacement: pkg("scene/export/index.ts") },
   { find: "@new-qr/qr-internal/scene", replacement: pkg("scene/index.ts") },
   { find: "@new-qr/qr-internal/react-qr-code", replacement: pkg("react-qr-code/index.ts") },
-  { find: "@new-qr/qr-internal/web-component", replacement: pkg("web-component/index.ts") },
   { find: "@new-qr/qr-internal/core", replacement: pkg("core/index.ts") },
   { find: "@new-qr/qr/dot-matrix", replacement: pkg("dot-matrix/index.ts") },
   { find: "@new-qr/qr/animated", replacement: pkg("animated/index.ts") },
@@ -28,9 +27,6 @@ export default defineConfig({
   },
   test: {
     exclude: [
-      "archive/**",
-      ".portable-compose-editor/**",
-      ".external/**",
       "packages/qr/vendor/**",
       "packages/qr-scene*/**",
       "node_modules/**",

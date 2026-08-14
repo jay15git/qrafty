@@ -1,6 +1,5 @@
 import type { SceneIr, SceneIrFontRef, SceneIrShaderNode } from "@new-qr/qr-internal/codegen"
 import { shaderRequiresImage } from "@new-qr/qr/shaders"
-import type { SceneDocumentV1 } from "@new-qr/qr-internal/scene"
 
 import type { QrStudioState } from "@/features/qr-code/model/state"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
@@ -46,10 +45,6 @@ function buildSceneBackgroundSvg(
 
 function findCardLayer(layers: DraftingCanvasLayer[]) {
   return layers.find((layer) => layer.kind === "card" && layer.isVisible) ?? null
-}
-
-function findQrLayer(layers: DraftingCanvasLayer[]) {
-  return layers.find((layer) => layer.kind === "qr" && layer.isVisible) ?? null
 }
 
 function resolveShaderState(
@@ -227,115 +222,5 @@ export async function buildSceneIr({
     shaders,
     fonts: collectFontRefs(layers),
     componentName,
-  }
-}
-
-function parseDecorSvgParts(decorSvg: string) {
-  const defsMatch = decorSvg.match(/<defs>([\s\S]*?)<\/defs>/)
-  const bodyMatch = decorSvg.match(/<defs>[\s\S]*?<\/defs>([\s\S]*?)<\/svg>/)
-  const viewBoxMatch = decorSvg.match(/viewBox="([^"]+)"/)
-
-  let minX = 0
-  let minY = 0
-  let width = 1
-  let height = 1
-
-  if (viewBoxMatch) {
-    const parts = viewBoxMatch[1].split(/\s+/).map(Number.parseFloat)
-    if (parts.length === 4) {
-      ;[minX, minY, width, height] = parts
-    }
-  }
-
-  return {
-    bounds: { minX, minY, width, height },
-    defs: defsMatch?.[1] ?? "",
-    body: bodyMatch?.[1]?.trim() ?? decorSvg,
-  }
-}
-
-function sceneCardToShaderNodes(
-  card: NonNullable<SceneDocumentV1["cardStateByNodeId"][string]>,
-  cardLayer: { x: number; y: number; width: number; height: number } | null,
-): SceneIrShaderNode[] {
-  const shaderState =
-    card.styleMode === "paper-shader"
-      ? card.paperShader
-      : card.styleMode === "image-filter"
-        ? card.imageFilter
-        : null
-
-  if (!shaderState || !cardLayer) {
-    return []
-  }
-
-  const imageValue =
-    shaderRequiresImage(shaderState.shaderId) && card.cardImage?.value
-      ? card.cardImage.value
-      : shaderState.image?.value
-
-  return [
-    {
-      kind: "shader",
-      shader: {
-        shaderId: shaderState.shaderId,
-        params: structuredClone(shaderState.params) as Record<string, unknown>,
-        frame: shaderState.frame,
-        speed: shaderState.speed,
-        paused: shaderState.paused,
-        image: imageValue ? { value: imageValue } : undefined,
-        worldWidth: cardLayer.width,
-        worldHeight: cardLayer.height,
-      },
-      bounds: {
-        x: cardLayer.x,
-        y: cardLayer.y,
-        width: cardLayer.width,
-        height: cardLayer.height,
-      },
-      fallbackFill: card.fill,
-    },
-  ]
-}
-
-function buildSceneIrFromSceneDocument(scene: SceneDocumentV1): SceneIr {
-  const node = scene.activeNodeId
-  const card = scene.cardStateByNodeId[node]
-  const qr = scene.qrStateByNodeId[node]
-  const layers = scene.layersByNodeId[node] ?? []
-  const cardLayer = layers.find((layer) => layer.kind === "card") ?? null
-  const qrLayer = layers.find((layer) => layer.kind === "qr") ?? null
-  const decorSvg = scene.decorSvgByNodeId?.[node] ?? ""
-  const parts = parseDecorSvgParts(decorSvg)
-
-  return {
-    bounds: {
-      minX: parts.bounds.minX,
-      minY: parts.bounds.minY,
-      width: scene.width || parts.bounds.width,
-      height: scene.height || parts.bounds.height,
-    },
-    defs: parts.defs,
-    body: parts.body,
-    domLayers: [],
-    shaders: card ? sceneCardToShaderNodes(card, cardLayer) : [],
-    animatedQr:
-      qr && qrLayer && qr.motion.enabled && qr.motion.animated
-        ? {
-            kind: "animated-qr",
-            contents: qr.contents,
-            externalSvg: qr.externalSvg,
-            bounds: {
-              x: qrLayer.x,
-              y: qrLayer.y,
-              width: qrLayer.width,
-              height: qrLayer.height,
-            },
-            preset: qr.motion.preset,
-            hoverEffect: qr.motion.hoverEffect,
-          }
-        : undefined,
-    fonts: [],
-    componentName: "MyQrCard",
   }
 }

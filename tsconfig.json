@@ -29,8 +29,7 @@
       "@new-qr/qr-internal/export": ["./packages/qr/src/scene/export/index.ts"],
       "@new-qr/qr-internal/scene": ["./packages/qr/src/scene/index.ts"],
       "@new-qr/qr-internal/core": ["./packages/qr/src/core/index.ts"],
-      "@new-qr/qr-internal/react-qr-code": ["./packages/qr/src/react-qr-code/index.ts"],
-      "@new-qr/qr-internal/web-component": ["./packages/qr/src/web-component/index.ts"]
+      "@new-qr/qr-internal/react-qr-code": ["./packages/qr/src/react-qr-code/index.ts"]
     }
   },
   "include": [

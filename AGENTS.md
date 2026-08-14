@@ -57,15 +57,14 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - There is no checked-in CI workflow, formatter config, or pre-commit hook config in this repo, so verify locally with lint, typecheck, tests, and build before claiming completion.
 
 ## `@new-qr/qr` package layout
-- Publishable library lives in `packages/qr/`. One npm package, three public component families:
-  - `@new-qr/qr/react` — `NewQrCode`, `QrScene`
+- Internal QR library lives in `packages/qr/`. One package, three component families used by the studio:
+  - `@new-qr/qr/react` — `NewQrCode`
   - `@new-qr/qr/animated` — `AnimatedQr`
   - `@new-qr/qr/shaders` — `PaperShaderLayer`
   - `@new-qr/qr` — shared types and `NewQrCode` re-export
-- Studio-only code (codegen, export, scene schema, vendored renderers) is imported via `@new-qr/qr-internal/*` paths in `tsconfig.json`. These are **not** in `packages/qr/package.json` exports.
+- Studio-only code (SVG scene emit, export, scene schema, vendored renderers) is imported via `@new-qr/qr-internal/*` paths in `tsconfig.json`. These are **not** in `packages/qr/package.json` exports.
 - Vendored fork: `packages/qr/vendor/react-qr-code`.
 - Build library: `pnpm build:packages` (or `pnpm --filter @new-qr/qr build`).
-- Registry stubs for copied canvas components: `registry/components/{new-qr-code,paper-shader-layer,animated-qr,new-qr-scene}.tsx`.
 
 ## Search / Editing Gotchas
 - Exclude `.next` and `node_modules` when searching; they create noisy false positives.

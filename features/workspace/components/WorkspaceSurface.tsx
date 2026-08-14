@@ -4,7 +4,6 @@ import { Image02Icon, KeyboardIcon, SignalIcon, SquareIcon } from "@hugeicons/co
 import { HugeiconsIcon } from "@hugeicons/react"
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
 
-import { buildCodegenExportFromWorkspace } from "@/features/qr-code/export/codegen-export"
 import type {
   QrErrorCorrectionLevel,
   QrFileExtension,
@@ -4831,18 +4830,6 @@ export function WorkspaceSurface({
     },
     onExportDownload: () => {
       void handleDownload()
-    },
-    buildCodegenExport: async (target) => {
-      const result = await buildCodegenExportFromWorkspace({
-        document: draftingWorkspaceDocument,
-        nodeId: activeQrNodeId,
-        target,
-        shaderSnapshotRoot: draftingSurfaceRef.current,
-      })
-      return {
-        code: result.code,
-        installCommand: result.manifest.installCommand || undefined,
-      }
     },
     exportDownloadError,
     onExportReset: () => {
