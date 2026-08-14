@@ -22,7 +22,7 @@ function hasLiveCanvasPaperShaderMount(): boolean {
   }
 
   return Boolean(
-    document.querySelector('[data-slot="dashboard-compose-card-paper-shader"] canvas'),
+    document.querySelector('[data-slot="desktop-compose-card-paper-shader"] canvas'),
   )
 }
 
