@@ -1,33 +1,27 @@
 "use client"
 
-import { useRef } from "react"
-import { Outfit } from "next/font/google"
+import Link from "next/link"
 
-import StickyFooter from "@/components/fancy/blocks/sticky-footer"
-import ScrollStand from "@/components/fancy/blocks/scroll-stand"
-import ParallaxFloatingDemo from "@/components/fancy/image/parallax-floating-demo"
-
-const outfit = Outfit({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-outfit",
-})
-
-const HomePage = () => {
-  const scrollerRef = useRef<HTMLDivElement>(null)
-
+export default function HomePage() {
   return (
-    <div
-      ref={scrollerRef}
-      className={`h-dvh w-full overflow-x-hidden overflow-y-auto ${outfit.variable}`}
-    >
-      <div className="relative z-10">
-        <ParallaxFloatingDemo />
-        <ScrollStand scrollerRef={scrollerRef} />
+    <main className="flex min-h-dvh flex-col items-center justify-center gap-8 bg-background px-6 py-16 text-center text-foreground">
+      <div className="space-y-3">
+        <p className="text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">
+          New QR
+        </p>
+        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+          Design QR codes that look intentional.
+        </h1>
+        <p className="mx-auto max-w-lg text-base text-muted-foreground">
+          Open the desktop studio to edit layout, styling, motion, and export.
+        </p>
       </div>
-      <StickyFooter />
-    </div>
+      <Link
+        className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+        href="/desktop"
+      >
+        Open studio
+      </Link>
+    </main>
   )
 }
-
-export default HomePage

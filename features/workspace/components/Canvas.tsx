@@ -649,7 +649,7 @@ function DraftingPaneSurface({
     <div
       ref={surfaceRef}
       key={pane.id}
-      data-slot="dashboard-compose-surface"
+      data-slot="desktop-compose-surface"
       data-surface-appearance={surfaceAppearance}
       data-preview-locked={previewLocked ? "true" : "false"}
       data-dragging={draggingPaneId === pane.id ? "true" : "false"}
@@ -1116,7 +1116,7 @@ export function Canvas({
           )}
         >
           <div
-            data-slot="dashboard-compose-toolbar"
+            data-slot="desktop-compose-toolbar"
             data-toolbar-appearance={isDesktopZoomToolbar ? "desktop-glass" : "neutral"}
             className={cn(
               "pointer-events-auto max-w-full flex-wrap justify-center",

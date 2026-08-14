@@ -237,7 +237,7 @@ describe("WorkspaceSurface", () => {
 
     act(() => {
       activateElement(
-        getRequiredElement(surface.container, '[data-slot="dashboard-compose-surface"]'),
+        getRequiredElement(surface.container, '[data-slot="desktop-compose-surface"]'),
       )
     })
 
@@ -261,7 +261,7 @@ describe("WorkspaceSurface", () => {
     })
 
     expect(surface.container.querySelector('[data-slot="drafting-text-layer"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="dashboard-compose-node"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-compose-node"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="drafting-layer-floating-toolbar"]')).toBeNull()
   })
 
@@ -302,7 +302,7 @@ describe("WorkspaceSurface", () => {
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
     await waitForDraftingSurface()
-    const composeToolbar = getRequiredElement(surface.container, '[data-slot="dashboard-compose-toolbar"]')
+    const composeToolbar = getRequiredElement(surface.container, '[data-slot="desktop-compose-toolbar"]')
 
     expect(composeToolbar.getAttribute("data-toolbar-appearance")).toBe("desktop-glass")
     expect(composeToolbar.className).toContain("rounded-[10px]")
@@ -394,7 +394,7 @@ describe("WorkspaceSurface", () => {
     await waitForDraftingSurface()
 
     expect(surface.container.querySelector('button[aria-label="Toggle edit mode"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="dashboard-compose-edit-mode"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-compose-edit-mode"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="dashboard-edit-rail"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="drafting-edit-nav-scroll-area"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="drafting-edit-panel-scroll"]')).toBeNull()
@@ -408,7 +408,7 @@ describe("WorkspaceSurface", () => {
     const surface = renderSurface()
 
     expect(
-      surface.container.querySelector('[data-slot="dashboard-compose-document-guides"]'),
+      surface.container.querySelector('[data-slot="desktop-compose-document-guides"]'),
     ).toBeNull()
   })
 
@@ -418,7 +418,7 @@ describe("WorkspaceSurface", () => {
 
     await waitForDraftingSurface()
 
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-node"]')).toHaveLength(1)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(1)
 
     await addQrCode(surface.container)
 
@@ -429,7 +429,7 @@ describe("WorkspaceSurface", () => {
 
     expect(selectedNodeId).toMatch(/^dashboard-qr-node-/)
     expect(selectedNodeId).not.toBe(DASHBOARD_QR_NODE_ID)
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-node"]')).toHaveLength(2)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(2)
     expect(
       getRequiredElement(surface.container, '[data-slot="drafting-surface"]').getAttribute(
         "data-compose-edit-mode",
@@ -444,7 +444,7 @@ describe("WorkspaceSurface", () => {
     expect(surface.container.querySelector('[data-slot="dashboard-layer-row"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="drafting-layer-row"]')).toBeNull()
 
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-node"]')).toHaveLength(2)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(2)
     expect(buildDashboardQrNodePayloadSpy).toHaveBeenLastCalledWith(
       expect.objectContaining({
         data: "https://new-qr-studio.local/launch",
@@ -491,7 +491,7 @@ describe("WorkspaceSurface", () => {
     })
 
     const [firstPane, secondPane] = Array.from(
-      surface.container.querySelectorAll('[data-slot="dashboard-compose-surface"]'),
+      surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]'),
     ) as HTMLElement[]
     const dataTransfer = createDataTransfer()
 
@@ -504,7 +504,7 @@ describe("WorkspaceSurface", () => {
     })
 
     const swappedPaneNodes = Array.from(
-      surface.container.querySelectorAll('[data-slot="dashboard-compose-node"]'),
+      surface.container.querySelectorAll('[data-slot="desktop-compose-node"]'),
     ) as HTMLElement[]
 
     expect(swappedPaneNodes.map((node) => node.getAttribute("data-node-id"))).toEqual([
@@ -552,7 +552,7 @@ describe("WorkspaceSurface", () => {
     await waitForDraftingSurface()
     const composeSurface = getRequiredElement(
       surface.container,
-      '[data-slot="dashboard-compose-surface"]',
+      '[data-slot="desktop-compose-surface"]',
     )
 
     expect(composeSurface.getAttribute("data-surface-appearance")).toBe("workspace")
@@ -689,7 +689,7 @@ describe("WorkspaceSurface", () => {
 
     const qrLayer = getRequiredElement(
       surface.container,
-      '[data-slot="dashboard-compose-node"]',
+      '[data-slot="desktop-compose-node"]',
     ) as HTMLElement
 
     expect(qrLayer.style.transform).toContain("translate3d(-120px")
@@ -717,7 +717,7 @@ describe("WorkspaceSurface", () => {
     })
     await advanceDraftingTimers()
 
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-surface"]')).toHaveLength(2)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(2)
   })
 
   it("copies and pastes selected layers with keyboard shortcuts", async () => {
@@ -739,7 +739,7 @@ describe("WorkspaceSurface", () => {
 
     await advanceDraftingTimers()
 
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-node"]')).toHaveLength(1)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(1)
 
     await act(async () => {
       document.body.dispatchEvent(
@@ -774,7 +774,7 @@ describe("WorkspaceSurface", () => {
     await advanceDraftingTimers()
 
     expect(readText).toHaveBeenCalledOnce()
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-node"]')).toHaveLength(2)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(2)
   })
 
   it("uses keyboard shortcuts to select all, clear selection, order layers, delete cards, and keep the canonical QR", async () => {
@@ -806,7 +806,7 @@ describe("WorkspaceSurface", () => {
     await advanceDraftingTimers()
 
     const pastedQrLayer = Array.from(
-      surface.container.querySelectorAll<HTMLElement>('[data-slot="dashboard-compose-node"]'),
+      surface.container.querySelectorAll<HTMLElement>('[data-slot="desktop-compose-node"]'),
     ).find((node) => node.dataset.layerId?.includes(":qr:"))
 
     expect(pastedQrLayer).toBeDefined()
@@ -858,12 +858,12 @@ describe("WorkspaceSurface", () => {
       dispatchBodyShortcut("Delete")
     })
 
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-node"]')).toHaveLength(1)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(1)
 
     act(() => {
       getRequiredElement(
         surface.container,
-        '[data-slot="dashboard-compose-node"][data-layer-id="dashboard-qr-node:qr"]',
+        '[data-slot="desktop-compose-node"][data-layer-id="dashboard-qr-node:qr"]',
       ).dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
@@ -871,7 +871,7 @@ describe("WorkspaceSurface", () => {
       dispatchBodyShortcut("Backspace")
     })
 
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-node"]')).toHaveLength(1)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(1)
   })
 
   it("uses keyboard shortcuts to group, ungroup, lock, and hide selected layers", async () => {
@@ -891,7 +891,7 @@ describe("WorkspaceSurface", () => {
     })
     act(() => {
       activateElement(
-        getRequiredElement(surface.container, '[data-slot="dashboard-compose-surface"]'),
+        getRequiredElement(surface.container, '[data-slot="desktop-compose-surface"]'),
       )
     })
     await advanceDraftingTimers()
@@ -996,7 +996,7 @@ describe("WorkspaceSurface", () => {
     }
 
     expect(contentInput.value).toBe("https://example.com/native-shortcuts")
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-node"]')).toHaveLength(1)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(1)
   })
 
   it("uses native clipboard events for copy and paste when keyboard shortcuts become clipboard events", async () => {
@@ -1038,7 +1038,7 @@ describe("WorkspaceSurface", () => {
     })
     await advanceDraftingTimers()
 
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-node"]')).toHaveLength(2)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(2)
   })
 
   it("focuses the drafting surface after selecting a canvas layer", async () => {
@@ -1058,7 +1058,7 @@ describe("WorkspaceSurface", () => {
     )
     const qrLayer = getRequiredElement(
       surface.container,
-      '[data-slot="dashboard-compose-node"]',
+      '[data-slot="desktop-compose-node"]',
     )
 
     act(() => {
@@ -1080,19 +1080,19 @@ describe("WorkspaceSurface", () => {
     await addQrCode(surface.container)
     await advanceDraftingTimers()
 
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-surface"]')).toHaveLength(2)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(2)
 
     act(() => {
       activateElement(getRequiredElement(surface.container, '[data-slot="desktop-history-actions"] button[aria-label="Undo"]'))
     })
 
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-surface"]')).toHaveLength(1)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(1)
 
     act(() => {
       activateElement(getRequiredElement(surface.container, '[data-slot="desktop-history-actions"] button[aria-label="Redo"]'))
     })
 
-    expect(surface.container.querySelectorAll('[data-slot="dashboard-compose-surface"]')).toHaveLength(2)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(2)
 
     act(() => {
       changeInputValue(
@@ -1317,14 +1317,14 @@ function openCardOnlyMode(parent: ParentNode) {
 
 function getSelectedPreviewCard(parent: ParentNode) {
   const selectedNode =
-    parent.querySelector('[data-slot="dashboard-compose-node"][data-selected="true"]') ??
-    parent.querySelector('[data-slot="dashboard-compose-card"][data-selected="true"]') ??
-    getRequiredElement(parent, '[data-slot="dashboard-compose-node"]')
+    parent.querySelector('[data-slot="desktop-compose-node"][data-selected="true"]') ??
+    parent.querySelector('[data-slot="desktop-compose-card"][data-selected="true"]') ??
+    getRequiredElement(parent, '[data-slot="desktop-compose-node"]')
   const card =
-    selectedNode.closest('[data-slot="dashboard-compose-card"]') ??
+    selectedNode.closest('[data-slot="desktop-compose-card"]') ??
     selectedNode
-      .closest('[data-slot="dashboard-compose-canvas"]')
-      ?.querySelector('[data-slot="dashboard-compose-card"]')
+      .closest('[data-slot="desktop-compose-canvas"]')
+      ?.querySelector('[data-slot="desktop-compose-card"]')
 
   expect(card).not.toBeNull()
 
@@ -1360,7 +1360,7 @@ async function waitForDraftingSurface() {
     for (let attempt = 0; attempt < 40; attempt += 1) {
       await flushPromises()
       const loading = document.querySelector('[data-slot="drafting-workspace-loading"]')
-      const canvas = document.querySelector('[data-slot="dashboard-compose-surface"]')
+      const canvas = document.querySelector('[data-slot="desktop-compose-surface"]')
       if (!loading && canvas) {
         return
       }

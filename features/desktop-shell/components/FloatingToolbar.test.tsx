@@ -178,7 +178,7 @@ describe("FloatingToolbar", () => {
     const dynamicIsland = surface.container.querySelector('[data-slot="desktop-dynamic-island"]')
     expect(dynamicIsland?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
     expect(dynamicIsland?.querySelector('[data-slot="desktop-theme-toggle"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="dashboard-compose-toolbar"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-compose-toolbar"]')).toBeNull()
   })
 
   it("wires undo and redo through the top dynamic island history actions", async () => {

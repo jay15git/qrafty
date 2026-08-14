@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   resizeDraftingLayer,
   type ResizeDirection,
-} from "@/features/workspace/components/Pane"
+} from "@/features/workspace/components/pane-layer-geometry"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 
 // Base QR layer: 200x200 at (100, 100). Opposite edges sit at 300/300.

@@ -43,8 +43,8 @@ import {
   getNearestDesktopFontWeight,
 } from "@/features/desktop-shell/model/font-weight"
 import { DesktopEffectsAccordion } from "@/features/desktop-shell/components/DesktopEffectsAccordion"
-import { DesktopElementShapeOptionGrid } from "@/features/desktop-shell/components/DesktopElementShapeOptionGrid"
-import { DesktopPaperShaderOptionGrid } from "@/features/desktop-shell/components/DesktopPaperShaderOptionGrid"
+import { ElementShapeOptionGrid } from "@/features/workspace/components/ElementShapeOptionGrid"
+import { PaperShaderOptionGrid } from "@/features/workspace/components/PaperShaderOptionGrid"
 import {
   SettingsPaperShaderControls,
 } from "@/features/desktop-shell/inspector/desktopnew-paper-shader-settings"
@@ -451,8 +451,9 @@ function DesktopLayerShapeInspector({
         resize
       >
         <DesktopInspectorLabel>Shape</DesktopInspectorLabel>
-        <DesktopElementShapeOptionGrid
+        <ElementShapeOptionGrid
           selectedShapeId={shapeId}
+          variant="inspector"
           onSelect={(nextShapeId) => onPatch({ shapeId: nextShapeId })}
         />
       </DesktopInspectorSection>
@@ -594,8 +595,9 @@ function DesktopLayerShaderInspector({
     <>
       <DesktopInspectorSection className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
         <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Shader</p>
-        <DesktopPaperShaderOptionGrid
+        <PaperShaderOptionGrid
           selectedShaderId={paperShader.shaderId}
+          variant="inspector"
           onSelect={(shaderId) =>
             onPatch({ paperShader: createDefaultDraftingCardPaperShader(shaderId) })
           }

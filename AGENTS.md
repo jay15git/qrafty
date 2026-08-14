@@ -19,12 +19,13 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 
 ## App Structure
 - `app/layout.tsx` defines the root shell, Geist/Bricolage Grotesque/Manrope fonts, and global CSS.
-- `app/page.tsx` is the home route; renders `HomePromptShell` from `components/home/`.
-- `/desktop` is the active desktop workspace.
+- `app/page.tsx` is the home route; renders `HomePage` from `components/home/home-page.tsx`.
+- `/desktop` is the active desktop workspace (`DesktopWorkspace` → `WorkspaceSurface` canvas + `FloatingToolbar` settings).
 - `/new`, `/dashboard`, and `/settings` have been removed. Do not re-add features or fixes there unless explicitly asked.
 - `features/qr-code/model/state.ts` is the core QR state and mapper layer. Update this first when adding new controls, defaults, or renderer options.
-- `components/qr/qr-control-sections.tsx` is the large control-surface form. Follow its existing inline `setState` pattern unless there is a clear reason to refactor.
-- `components/drafting/drafting-surface.tsx` is the shared drafting UI used by `/desktop`.
+- Desktop QR settings live in `features/desktop-shell/components/FloatingToolbar.tsx` and `features/desktop-shell/inspector/DesktopNewSettingsPanel.tsx`.
+- Element-layer settings use `features/desktop-shell/components/DesktopElementInspector.tsx` with `SettingsFillPopover` / `DesktopNewFillPicker`.
+- Shared workspace helpers live in `features/workspace/components/workspace-surface-helpers.ts` and `features/workspace/components/pane-layer-geometry.ts`.
 - `lib/utils.ts` only provides `cn()`.
 
 ## MCP Tools

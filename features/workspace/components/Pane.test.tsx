@@ -100,7 +100,7 @@ describe("Pane", () => {
     await waitForQrPaneRender()
 
     expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalledTimes(1)
-    expect(container.querySelector('[data-slot="dashboard-compose-node"]')).not.toBeNull()
+    expect(container.querySelector('[data-slot="desktop-compose-node"]')).not.toBeNull()
 
     await act(async () => {
       reactRoot.render(
@@ -145,9 +145,9 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const card = container.querySelector('[data-slot="dashboard-compose-card"]')
+    const card = container.querySelector('[data-slot="desktop-compose-card"]')
     const sceneBackground = card?.querySelector('[data-slot="scene-background-layer"]')
-    const artboard = container.querySelector('[data-slot="dashboard-compose-artboard"]')
+    const artboard = container.querySelector('[data-slot="desktop-compose-artboard"]')
 
     expect(card).not.toBeNull()
     expect(sceneBackground).toBeNull()
@@ -160,9 +160,9 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const canvas = container.querySelector('[data-slot="dashboard-compose-canvas"]')
-    const card = container.querySelector('[data-slot="dashboard-compose-card"]')
-    const node = container.querySelector('[data-slot="dashboard-compose-node"]')
+    const canvas = container.querySelector('[data-slot="desktop-compose-canvas"]')
+    const card = container.querySelector('[data-slot="desktop-compose-card"]')
+    const node = container.querySelector('[data-slot="desktop-compose-node"]')
     const pane = container.querySelector('[data-slot="qr-pane"]')
 
     expect(pane).not.toBeNull()
@@ -210,8 +210,8 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const card = container.querySelector('[data-slot="dashboard-compose-card"]') as HTMLElement
-    const node = container.querySelector('[data-slot="dashboard-compose-node"]') as HTMLElement
+    const card = container.querySelector('[data-slot="desktop-compose-card"]') as HTMLElement
+    const node = container.querySelector('[data-slot="desktop-compose-node"]') as HTMLElement
 
     expect(node).not.toBeNull()
     expect(node.style.width).toBe("288px")
@@ -245,8 +245,8 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const card = container.querySelector('[data-slot="dashboard-compose-card"]') as HTMLElement
-    const node = container.querySelector('[data-slot="dashboard-compose-node"]') as HTMLElement
+    const card = container.querySelector('[data-slot="desktop-compose-card"]') as HTMLElement
+    const node = container.querySelector('[data-slot="desktop-compose-node"]') as HTMLElement
 
     expect(card).not.toBeNull()
     expect(card.getAttribute("data-card-enabled")).toBe("true")
@@ -304,7 +304,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const card = container.querySelector('[data-slot="dashboard-compose-card"]') as HTMLElement
+    const card = container.querySelector('[data-slot="desktop-compose-card"]') as HTMLElement
     const cardShape = card.querySelector('[data-slot="drafting-card-shape"]')
     const qrBackground = container.querySelector('[data-slot="drafting-qr-background"]')
     const qrComponent = container.querySelector('[data-slot="drafting-qr-component"]') as HTMLElement
@@ -344,7 +344,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const card = container.querySelector('[data-slot="dashboard-compose-card"]') as HTMLElement
+    const card = container.querySelector('[data-slot="desktop-compose-card"]') as HTMLElement
 
     expect(card).not.toBeNull()
     expect(card.getAttribute("data-card-pattern")).toBe("g3")
@@ -368,7 +368,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const card = container.querySelector('[data-slot="dashboard-compose-card"]') as HTMLElement
+    const card = container.querySelector('[data-slot="desktop-compose-card"]') as HTMLElement
 
     expect(card).not.toBeNull()
     expect(card.getAttribute("data-card-pattern")).toBe("g3")
@@ -387,7 +387,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const card = container.querySelector('[data-slot="dashboard-compose-card"]') as HTMLElement
+    const card = container.querySelector('[data-slot="desktop-compose-card"]') as HTMLElement
 
     expect(card).not.toBeNull()
     expect(card.getAttribute("data-card-style-mode")).toBe("paper-shader")
@@ -406,8 +406,8 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const card = container.querySelector('[data-slot="dashboard-compose-card"]')
-    const node = container.querySelector('[data-slot="dashboard-compose-node"]')
+    const card = container.querySelector('[data-slot="desktop-compose-card"]')
+    const node = container.querySelector('[data-slot="desktop-compose-node"]')
 
     expect(card).not.toBeNull()
     expect(node).not.toBeNull()
@@ -420,8 +420,8 @@ describe("Pane", () => {
     await waitForQrPaneRender()
 
     const pane = container.querySelector('[data-slot="qr-pane"]')
-    const canvas = container.querySelector('[data-slot="dashboard-compose-canvas"]')
-    const node = container.querySelector('[data-slot="dashboard-compose-node"]')
+    const canvas = container.querySelector('[data-slot="desktop-compose-canvas"]')
+    const node = container.querySelector('[data-slot="desktop-compose-node"]')
 
     expect(pane).not.toBeNull()
     expect(pane?.className).not.toContain("ring-2")
@@ -437,7 +437,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const node = container.querySelector('[data-slot="dashboard-compose-node"]')
+    const node = container.querySelector('[data-slot="desktop-compose-node"]')
 
     expect(node).not.toBeNull()
     expect((node as HTMLElement).style.width).toBe("320px")
@@ -480,7 +480,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const card = container.querySelector('[data-slot="dashboard-compose-card"]') as HTMLElement
+    const card = container.querySelector('[data-slot="desktop-compose-card"]') as HTMLElement
     const frame = container.querySelector('[data-slot="drafting-layer-resize-frame"]') as HTMLElement
 
     expect(card).not.toBeNull()
@@ -1172,7 +1172,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const canvas = getRequiredElement(container, '[data-slot="dashboard-compose-canvas"]')
+    const canvas = getRequiredElement(container, '[data-slot="desktop-compose-canvas"]')
     setElementRect(canvas, { height: 400, left: 0, top: 0, width: 400 })
 
     act(() => {
@@ -1226,7 +1226,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const canvas = getRequiredElement(container, '[data-slot="dashboard-compose-canvas"]')
+    const canvas = getRequiredElement(container, '[data-slot="desktop-compose-canvas"]')
     setElementRect(canvas, { height: 400, left: 0, top: 0, width: 400 })
 
     act(() => {
@@ -1464,7 +1464,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const canvas = container.querySelector('[data-slot="dashboard-compose-canvas"]')
+    const canvas = container.querySelector('[data-slot="desktop-compose-canvas"]')
 
     expect(canvas).not.toBeNull()
 
@@ -1526,7 +1526,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const node = container.querySelector('[data-slot="dashboard-compose-node"]')
+    const node = container.querySelector('[data-slot="desktop-compose-node"]')
 
     expect(node).not.toBeNull()
     expect(node?.className).not.toContain("shadow-[0_10px_24px_-12px_rgba(15,23,42,0.26)]")
@@ -1540,7 +1540,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    const card = container.querySelector('[data-slot="dashboard-compose-card"]') as HTMLElement
+    const card = container.querySelector('[data-slot="desktop-compose-card"]') as HTMLElement
 
     act(() => {
       card.dispatchEvent(new MouseEvent("click", { bubbles: true, metaKey: true }))

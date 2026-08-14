@@ -115,7 +115,7 @@
   z-index: 40;
 }
 
-[data-slot="desktop-workspace"] [data-slot="drafting-workspace"][data-desktop-canvas-frame="true"] [data-slot="dashboard-compose-surface"][data-surface-appearance="workspace"] {
+[data-slot="desktop-workspace"] [data-slot="drafting-workspace"][data-desktop-canvas-frame="true"] [data-slot="desktop-compose-surface"][data-surface-appearance="workspace"] {
   background-color: transparent !important;
   background-image: none !important;
 }

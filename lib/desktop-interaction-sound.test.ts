@@ -23,7 +23,7 @@ describe("resolveDesktopSoundZone", () => {
   it("maps compose toolbar buttons to toolbar", () => {
     document.body.innerHTML = `
       <section data-slot="desktop-workspace">
-        <div data-slot="dashboard-compose-toolbar">
+        <div data-slot="desktop-compose-toolbar">
           <button type="button" id="compose-btn">Pan</button>
         </div>
       </section>

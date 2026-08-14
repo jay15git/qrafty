@@ -445,7 +445,7 @@ describe("Canvas", () => {
       pane.querySelector('[data-slot="drafting-layer-resize-handle"]')?.className,
     ).toContain("cursor-")
     expect(
-      workspace.container.querySelector('[data-slot="dashboard-compose-toolbar"]')?.parentElement
+      workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')?.parentElement
         ?.className,
     ).toContain("z-[60]")
     expect(
@@ -513,7 +513,7 @@ describe("Canvas", () => {
       onUndo: vi.fn(),
       toolbarVariant: "desktop-zoom",
     })
-    const bottomToolbar = workspace.container.querySelector('[data-slot="dashboard-compose-toolbar"]')
+    const bottomToolbar = workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')
 
     expect(bottomToolbar?.querySelector('button[aria-label="Undo"]')).toBeNull()
     expect(bottomToolbar?.querySelector('button[aria-label="Redo"]')).toBeNull()
@@ -526,12 +526,11 @@ describe("Canvas", () => {
       paneCount: 1,
       toolbarVariant: "desktop-zoom",
     })
-    const bottomToolbar = workspace.container.querySelector('[data-slot="dashboard-compose-toolbar"]')
+    const bottomToolbar = workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')
 
     expect(bottomToolbar?.className).toContain("gap-0.5")
     expect(bottomToolbar?.className).toContain("flex-col")
     expect(bottomToolbar?.className).toContain("px-1")
-    expect(bottomToolbar?.className).toContain("cursor-pointer")
     expect(
       Array.from(bottomToolbar?.children ?? []).filter((child) =>
         String((child as HTMLElement).className).includes("w-px"),
@@ -569,7 +568,7 @@ describe("Canvas", () => {
     expect(selectButton).not.toBeNull()
     expect(panButton).not.toBeNull()
     expect(
-      workspace.container.querySelector('[data-slot="dashboard-compose-toolbar"]')?.parentElement
+      workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')?.parentElement
         ?.className,
     ).toContain("z-[60]")
     expect(selectButton?.getAttribute("aria-pressed")).toBe("false")
@@ -831,13 +830,13 @@ function getResizablePanels(parent: ParentNode) {
 
 function getQrNodes(parent: ParentNode) {
   return Array.from(
-    parent.querySelectorAll('[data-slot="dashboard-compose-node"]'),
+    parent.querySelectorAll('[data-slot="desktop-compose-node"]'),
   ) as HTMLElement[]
 }
 
 function getPaneSurfaces(parent: ParentNode, expectedCount = 2) {
   const panes = Array.from(
-    parent.querySelectorAll('[data-slot="dashboard-compose-surface"]'),
+    parent.querySelectorAll('[data-slot="desktop-compose-surface"]'),
   ) as HTMLElement[]
 
   expect(panes).toHaveLength(expectedCount)

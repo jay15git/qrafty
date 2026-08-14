@@ -232,7 +232,7 @@ export function DraftingCardPaperShaderLayer({
     return (
       <div
         aria-hidden="true"
-        data-slot="dashboard-compose-card-paper-shader-fallback"
+        data-slot="desktop-compose-card-paper-shader-fallback"
         style={{
           backgroundColor: fallbackColor,
           borderRadius: "inherit",
@@ -249,7 +249,7 @@ export function DraftingCardPaperShaderLayer({
 
   return (
     <DraftingCardPaperShaderRenderer
-      dataSlot="dashboard-compose-card-paper-shader"
+      dataSlot="desktop-compose-card-paper-shader"
       dataExportShader={paperShader.shaderId}
       layoutHeight={layoutHeight}
       layoutWidth={layoutWidth}

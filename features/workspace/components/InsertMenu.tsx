@@ -13,8 +13,8 @@ import {
 import { SecondaryButton } from "@/components/ui/secondary-button"
 import FileUpload from "@/components/vendor/kokonutui/file-upload"
 import { Input } from "@/components/ui/input"
-import { DraftingElementShapeOptionGrid } from "@/features/workspace/components/DraftingElementShapeOptionGrid"
-import { DraftingPaperShaderInsertGrid } from "@/features/workspace/components/DraftingPaperShaderInsertGrid"
+import { ElementShapeOptionGrid } from "@/features/workspace/components/ElementShapeOptionGrid"
+import { PaperShaderOptionGrid } from "@/features/workspace/components/PaperShaderOptionGrid"
 import {
   createDraftingImageLayer,
   createDraftingShaderLayer,
@@ -289,7 +289,7 @@ export function InsertMenu({
                 Back
               </Button>
             </div>
-            <DraftingElementShapeOptionGrid
+            <ElementShapeOptionGrid
               decorativeDataSlot="drafting-insert-decorative-shape-grid"
               variant={isDesktopPopover ? "insert-desktop" : "insert-drafting"}
               onSelect={insertShape}
@@ -320,7 +320,8 @@ export function InsertMenu({
                 Back
               </Button>
             </div>
-            <DraftingPaperShaderInsertGrid
+            <PaperShaderOptionGrid
+              dataSlot="drafting-paper-shader-insert-grid"
               variant={isDesktopPopover ? "insert-desktop" : "insert-drafting"}
               onSelect={insertShader}
             />

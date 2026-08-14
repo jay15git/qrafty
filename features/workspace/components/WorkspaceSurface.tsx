@@ -82,6 +82,11 @@ import { resolveWorkspaceBootstrapDocument } from "@/features/workspace/model/wo
 import {
   buildDraftingLayeredNodePayload,
 } from "@/features/workspace/export/layered-export"
+import { buildDraftingWorkspaceDocumentFromState } from "@/features/workspace/components/workspace-surface-document"
+import {
+  buildDesktopToolbarSettingsSnapshots,
+  pickDesktopToolbarSettingsSnapshots,
+} from "@/features/workspace/components/workspace-desktop-settings-snapshots"
 import {
   DRAFTING_CARD_PATTERN_NONE_ID,
 } from "@/features/workspace/model/card-patterns"
@@ -191,6 +196,24 @@ import {
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
 import { cn } from "@/lib/utils"
+import {
+  formatValueSegmentsText,
+  findDraftingLayerById,
+  getDesktopAssetSourceMode,
+  getDesktopExportTarget,
+  getDesktopLogoSourceMode,
+  getDesktopTextSettings,
+  getDraftingDownloadTarget,
+  getDraftingLayerClipboardPayload,
+  getDraftingQrNodeDownloadTarget,
+  isEditableShortcutTarget,
+  parseDraftingLayerClipboardPayload,
+  parseValueSegmentsText,
+  patchDraftingLayerById,
+  swapDraftingQrNodeOrder,
+  toDesktopLayerRow,
+  type DraftingDownloadTarget,
+} from "@/features/workspace/components/workspace-surface-helpers"
 
 type DraftingBinaryColorMode = "solid" | "gradient"
 type DraftingAssetSourceMode = Extract<AssetSourceMode, "upload" | "url">
@@ -209,22 +232,7 @@ type WorkspaceSurfaceProps = {
 
 const DEFAULT_DRAFTING_STUDIO_STATE = createDefaultQrStudioState()
 
-function parseValueSegmentsText(text: string) {
-  const segments = text
-    .split("\n")
-    .map((segment) => segment.trim())
-    .filter(Boolean)
-
-  return segments.length > 0 ? segments : undefined
-}
-
-function formatValueSegmentsText(segments: string[] | undefined) {
-  return segments?.join("\n") ?? ""
-}
-
 const DEFAULT_DRAFTING_PANE_QR_SIZE = 240
-const DRAFTING_LAYER_CLIPBOARD_TYPE = "new-qr/drafting-layers"
-const DRAFTING_LAYER_CLIPBOARD_VERSION = 1
 const DRAFTING_LAYER_PASTE_OFFSET = 24
 const IGNORE_DRAFTING_UPLOAD_ERROR: (message: string) => void = () => undefined
 const DEFAULT_DOWNLOAD_NAME = "new-qr-studio"
@@ -270,40 +278,8 @@ const DRAFTING_RASTER_EXPORT_PRESETS = [
   },
 ] as const
 type DraftingRasterExportPresetId = (typeof DRAFTING_RASTER_EXPORT_PRESETS)[number]["id"]
-const DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID: DraftingRasterExportPresetId = "web-social"
-
-function swapDraftingQrNodeOrder(
-  current: DraftingQrStateByNodeId,
-  sourceNodeId: string,
-  targetNodeId: string,
-  activeNodeId: string,
-  activeState: QrStudioState,
-) {
-  if (sourceNodeId === targetNodeId) {
-    return current
-  }
-
-  const entries = Object.entries(current).map(([nodeId, state]) => [
-    nodeId,
-    nodeId === activeNodeId ? activeState : state,
-  ] as const)
-  const sourceIndex = entries.findIndex(([nodeId]) => nodeId === sourceNodeId)
-  const targetIndex = entries.findIndex(([nodeId]) => nodeId === targetNodeId)
-
-  if (sourceIndex === -1 || targetIndex === -1) {
-    return current
-  }
-
-  const nextEntries = [...entries]
-  const sourceEntry = nextEntries[sourceIndex]
-  nextEntries[sourceIndex] = nextEntries[targetIndex]
-  nextEntries[targetIndex] = sourceEntry
-
-  return Object.fromEntries(nextEntries)
-}
-
 type DraftingDownloadExtension = (typeof DRAFTING_DOWNLOAD_EXTENSIONS)[number]
-type DraftingDownloadTarget = "all-qr" | "current" | "surface" | `qr:${string}`
+const DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID: DraftingRasterExportPresetId = "web-social"
 
 export function WorkspaceSurface({
   desktopTheme = "light",
@@ -1234,66 +1210,18 @@ export function WorkspaceSurface({
   }
 
   function buildDraftingWorkspaceDocument(): DraftingWorkspaceDocumentV1 {
-    const qrStateEntries = Object.entries(qrStateByNodeId)
-    const nextQrStateByNodeId: DraftingQrStateByNodeId = {}
-    const nextCardStateByNodeId: DraftingCardStateByNodeId = {}
-    const nextLayerStateByNodeId: DraftingLayerStateByNodeId = {}
-    const qrOrder = qrStateEntries.length > 0
-      ? qrStateEntries.map(([nodeId]) => nodeId)
-      : [activeQrNodeId]
-
-    for (const nodeId of qrOrder) {
-      nextQrStateByNodeId[nodeId] =
-        nodeId === activeQrNodeId
-          ? cloneDraftingQrState(draftingStudioState)
-          : cloneDraftingQrState(qrStateByNodeId[nodeId] ?? draftingStudioState)
-      nextCardStateByNodeId[nodeId] =
-        nodeId === activeQrNodeId
-          ? cloneDraftingCardState(selectedCardState)
-          : cloneDraftingCardState(cardStateByNodeId[nodeId] ?? selectedCardState)
-      nextLayerStateByNodeId[nodeId] = (
-        layerStateByNodeId[nodeId] ??
-        createDefaultDraftingLayers(
-          nodeId,
-          nextQrStateByNodeId[nodeId],
-          nextCardStateByNodeId[nodeId],
-        )
-      ).map(cloneDraftingCanvasLayer)
-    }
-
-    if (!nextQrStateByNodeId[activeQrNodeId]) {
-      qrOrder.push(activeQrNodeId)
-      nextQrStateByNodeId[activeQrNodeId] = cloneDraftingQrState(draftingStudioState)
-      nextCardStateByNodeId[activeQrNodeId] = cloneDraftingCardState(selectedCardState)
-      nextLayerStateByNodeId[activeQrNodeId] = createDefaultDraftingLayers(
-        activeQrNodeId,
-        draftingStudioState,
-        selectedCardState,
-      )
-    }
-
-    const nextContentTypeByNodeId: Record<string, QrInputType> = {
-      ...contentTypeByNodeId,
-      [activeQrNodeId]: selectedContentType,
-    }
-    for (const nodeId of qrOrder) {
-      if (!nextContentTypeByNodeId[nodeId]) {
-        nextContentTypeByNodeId[nodeId] = DEFAULT_QR_INPUT_TYPE
-      }
-    }
-
-    return {
+    return buildDraftingWorkspaceDocumentFromState({
       activeQrNodeId,
-      cardStateByNodeId: nextCardStateByNodeId,
-      contentTypeByNodeId: nextContentTypeByNodeId,
-      contentValuesByType: structuredClone(contentValuesByType),
-      layerStateByNodeId: nextLayerStateByNodeId,
-      qrOrder,
-      qrStateByNodeId: nextQrStateByNodeId,
-      sceneCompositionByNodeId: cloneSceneCompositionByNodeId(sceneCompositionByNodeId),
+      cardStateByNodeId,
+      contentTypeByNodeId,
+      contentValuesByType,
+      draftingStudioState,
+      layerStateByNodeId,
+      qrStateByNodeId,
+      sceneCompositionByNodeId,
+      selectedCardState,
       selectedContentType,
-      version: 1,
-    }
+    })
   }
 
   function applyDraftingWorkspaceDocumentToControls(
@@ -2771,131 +2699,85 @@ export function WorkspaceSurface({
     }
   }
 
-  const desktopPatternSettings: DesktopPatternSettings = {
-    dotsColorMode: selectedDotsColorMode,
-    dataModulesGradient: selectedDotsGradient,
-    dotsPalette: selectedDotsPalette,
-    dotsPalettePreset: selectedDotsPalettePreset,
-    dotsSolidColor: selectedDotColor,
-    qrDotType: selectedDotType,
-    moduleRoundSize: selectedModuleRoundSize,
-    moduleSize: selectedModuleSize,
-    moduleLineWidth: selectedModuleLineWidth,
-    gradientLinkMode: selectedGradientLinkMode,
-  }
-  const desktopLogoSettings: DesktopLogoSettings = {
-    colorMode: selectedLogoColorMode,
-    gradient: selectedLogoGradient,
-    hideBackgroundDots: selectedHideBackgroundDots,
-    margin: selectedLogoMargin,
-    remoteUrl: selectedLogoRemoteUrl,
-    selectedBrandIconId: selectedLogoPresetId ?? "",
-    size: selectedLogoSize,
-    solidColor: selectedLogoColor,
-    sourceMode: getDesktopLogoSourceMode(selectedLogoSourceMode),
-    uploadMode: selectedLogoAssetSourceMode,
-    opacity: selectedLogoOpacity,
-    sizeMode: selectedLogoSizeMode,
-    widthPx: selectedLogoWidthPx,
-    heightPx: selectedLogoHeightPx,
-    lockAspect: selectedLogoLockAspect,
-    positionMode: selectedLogoPositionMode,
-    offsetX: selectedLogoOffsetX,
-    offsetY: selectedLogoOffsetY,
-    crossOrigin: selectedLogoCrossOrigin,
-  }
-  const desktopCornersSettings: DesktopCornersSettings = {
-    cornerDotColorMode: selectedCornerDotColorMode,
-    cornerDotGradient: selectedCornerDotGradient,
-    cornerDotSolidColor: selectedCornerDotColor,
-    cornerDotType: selectedQrFinderPatternInnerStyle,
-    cornerSquareColorMode: selectedCornerSquareColorMode,
-    cornerSquareGradient: selectedCornerSquareGradient,
-    cornerSquareSolidColor: selectedCornerSquareColor,
-    cornerSquareType: selectedQrFinderPatternOuterStyle,
-  }
-  const activeQrLayer =
-    activeCanvasLayers.find((layer) => layer.kind === "qr") ??
-    createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState).find(
-      (layer) => layer.kind === "qr",
-    )
-  const desktopShapeSettings: DesktopShapeSettings = {
-    backgroundShapeId: selectedBackgroundShapeId,
-    bottomSpace: selectedCardState.bottomSpace,
-    cardFill: selectedCardState.fill,
-    cardHeight: selectedCardState.height,
-    cardPatternColors: selectedCardState.patternColors,
-    cardPatternId: selectedCardState.patternId,
-    cardRadius: selectedCardState.cornerRadius,
-    cardWidth: selectedCardState.width,
-    lockAspectRatio: selectedCardState.lockAspectRatio,
-    shapeColorMode: selectedBackgroundColorMode,
-    shapeGradient: selectedBackgroundGradient,
-    shapePadding: selectedBackgroundShapeOptions.paddingPx,
-    shapeShadowBlur: activeQrLayer?.shadow.blur ?? 0,
-    shapeShadowColor: activeQrLayer?.shadow.color ?? "#111827",
-    shapeShadowOffsetX: activeQrLayer?.shadow.offsetX ?? 0,
-    shapeShadowOffsetY: activeQrLayer?.shadow.offsetY ?? 0,
-    shapeShadowOpacity: activeQrLayer?.shadow.opacity ?? 0,
-    shapeSolidColor: selectedBackgroundColor,
-    shadowBlur: selectedCardState.shadow.blur,
-    shadowColor: selectedCardState.shadow.color,
-    shadowOffsetX: selectedCardState.shadow.offsetX,
-    shadowOffsetY: selectedCardState.shadow.offsetY,
-    shadowOpacity: selectedCardState.shadow.opacity,
-    sizeMode: selectedCardState.sizeMode,
-    sizePresetId: selectedCardState.sizePresetId,
-  }
-  const desktopEncodingSettings: DesktopEncodingSettings = {
-    errorCorrectionLevel: selectedQrErrorCorrectionLevel,
-    typeNumber: selectedQrTypeNumber,
-    boostLevel: selectedBoostLevel,
-    valueSegmentsText: selectedValueSegmentsText,
-  }
-  const desktopAccessibilitySettings: DesktopAccessibilitySettings = {
-    ariaLabel: selectedAriaLabel,
-  }
-  const desktopImageSettings: DesktopImageSettings = {
-    fit: selectedCardState.cardImage.fit,
-    intent: "shape-fill",
-    opacity: selectedCardState.cardImage.opacity,
-    remoteUrl: selectedCardState.cardImage.value ?? "",
-    sourceMode: getDesktopAssetSourceMode(selectedCardState.cardImage.source),
-  }
-  const desktopBackgroundSettings: DesktopBackgroundSettings = {
-    paperShader: selectedCardState.paperShader,
-    styleMode: selectedCardState.styleMode,
-  }
-  const desktopEffectsSettings: DesktopEffectsSettings = {
-    filterId: selectedCardState.imageFilter.shaderId,
-    filterPresetName: selectedCardState.imageFilter.presetName,
-  }
-  const desktopLayersSettings: DesktopLayersSettings = {
-    layers: activeCanvasLayerRows
-      .filter((layer) => layer.kind !== "card")
-      .map(toDesktopLayerRow),
-    selectedLayerId: selectedLayerId ?? activeCanvasLayerRows[0]?.id ?? "",
-  }
-  const desktopExportSettings: DesktopExportSettings = {
-    exportPresetId: selectedExportPresetId,
-    extension: selectedDownloadExtension,
-    qualityPresetId: selectedRasterExportPresetId,
-    target: getDesktopExportTarget(selectedDownloadTarget),
-    usePlatformPreset: selectedUsePlatformExportPreset,
-  }
-  const desktopSceneTemplateSettings = {
-    sizeSettings: {
-      cardHeight: selectedCardState.height,
-      cardWidth: selectedCardState.width,
-      lockAspectRatio: selectedCardState.lockAspectRatio,
-      sizeMode: selectedCardState.sizeMode,
-      sizePresetId: selectedCardState.sizePresetId,
-    },
-  }
-  const desktopLayoutSettings = {
-    layout: activeSceneComposition.layout,
-  }
-  const desktopTextSettings: DesktopTextSettings = getDesktopTextSettings(selectedTextLayer)
+  const {
+    desktopPatternSettings,
+    desktopLogoSettings,
+    desktopCornersSettings,
+    desktopShapeSettings,
+    desktopEncodingSettings,
+    desktopAccessibilitySettings,
+    desktopImageSettings,
+    desktopBackgroundSettings,
+    desktopEffectsSettings,
+    desktopLayersSettings,
+    desktopExportSettings,
+    desktopSceneTemplateSettings,
+    desktopLayoutSettings,
+    desktopTextSettings,
+  } = pickDesktopToolbarSettingsSnapshots(
+    buildDesktopToolbarSettingsSnapshots({
+      activeQrNodeId,
+      activeCanvasLayers,
+      activeCanvasLayerRows,
+      activeSceneComposition,
+      draftingStudioState,
+      selectedAriaLabel,
+      selectedBackgroundColor,
+      selectedBackgroundColorMode,
+      selectedBackgroundGradient,
+      selectedBackgroundShapeId,
+      selectedBackgroundShapeOptions,
+      selectedBoostLevel,
+      selectedCardState,
+      selectedCornerDotColor,
+      selectedCornerDotColorMode,
+      selectedCornerDotGradient,
+      selectedCornerSquareColor,
+      selectedCornerSquareColorMode,
+      selectedCornerSquareGradient,
+      selectedDotColor,
+      selectedDotType,
+      selectedDotsColorMode,
+      selectedDotsGradient,
+      selectedDotsPalette,
+      selectedDotsPalettePreset,
+      selectedDownloadExtension,
+      selectedDownloadTarget,
+      selectedExportPresetId,
+      selectedGradientLinkMode,
+      selectedHideBackgroundDots,
+      selectedLayerId,
+      selectedLogoAssetSourceMode,
+      selectedLogoColor,
+      selectedLogoColorMode,
+      selectedLogoCrossOrigin,
+      selectedLogoGradient,
+      selectedLogoHeightPx,
+      selectedLogoLockAspect,
+      selectedLogoMargin,
+      selectedLogoOffsetX,
+      selectedLogoOffsetY,
+      selectedLogoOpacity,
+      selectedLogoPositionMode,
+      selectedLogoPresetId,
+      selectedLogoRemoteUrl,
+      selectedLogoSize,
+      selectedLogoSizeMode,
+      selectedLogoSourceMode,
+      selectedLogoWidthPx,
+      selectedModuleLineWidth,
+      selectedModuleRoundSize,
+      selectedModuleSize,
+      selectedQrErrorCorrectionLevel,
+      selectedQrFinderPatternInnerStyle,
+      selectedQrFinderPatternOuterStyle,
+      selectedQrTypeNumber,
+      selectedRasterExportPresetId,
+      selectedTextLayer,
+      selectedUsePlatformExportPreset,
+      selectedValueSegmentsText,
+    }),
+  )
 
   function resetDesktopContent() {
     setSelectedContentType(DEFAULT_QR_INPUT_TYPE)
@@ -3572,7 +3454,7 @@ export function WorkspaceSurface({
       data-editing-mode={editingMode}
       tabIndex={-1}
       className={cn(
-        "relative grid h-dvh w-full overflow-visible bg-[var(--ws-surface-bg)] sm:h-dvh lg:shadow-[var(--ws-shadow-shell)] [--new-header-height:3.875rem] [--new-left-rail-width:clamp(6.25rem,10vw,7.5rem)] [--new-middle-rail-width:clamp(15rem,24vw,18.5rem)] [--new-mobile-rail-height:5.75rem]",
+        "relative grid h-dvh w-full overflow-visible bg-[var(--ws-surface-bg)] sm:h-dvh lg:shadow-[var(--ws-shadow-shell)]",
         "grid-rows-1 sm:h-dvh",
       )}
       data-compose-edit-mode="false"
@@ -3677,213 +3559,4 @@ export function WorkspaceSurface({
       {renderOverlay ? renderOverlay(desktopController) : null}
     </section>
   )
-}
-
-
-function getDesktopLogoSourceMode(source: AssetSourceMode): DesktopLogoSourceMode {
-  if (source === "preset") return "brand"
-  if (source === "url" || source === "upload") return "upload"
-  return "none"
-}
-
-function getDesktopAssetSourceMode(source: "none" | "upload" | "url"): DesktopAssetSourceMode {
-  return source === "url" ? "url" : "upload"
-}
-
-function getDesktopExportTarget(target: DraftingDownloadTarget): DesktopExportTarget {
-  if (target === "all-qr") return "all-qr"
-  if (target === "surface") return "surface"
-  return "current"
-}
-
-function getDraftingDownloadTarget(target: DesktopExportTarget): DraftingDownloadTarget {
-  if (target === "all-qr") return "all-qr"
-  if (target === "surface") return "surface"
-  return "current"
-}
-
-function toDesktopLayerRow(layer: DraftingCanvasLayer): DesktopLayerRow {
-  return {
-    blur: layer.blur,
-    height: Math.round(layer.height),
-    id: layer.id,
-    isLocked: layer.isLocked,
-    isVisible: layer.isVisible,
-    kind:
-      layer.kind === "text"
-        ? "text"
-        : layer.kind === "card"
-          ? "card"
-          : layer.kind === "image"
-            ? "image"
-            : layer.kind === "shape"
-              ? "shape"
-              : layer.kind === "shader"
-                ? "shader"
-                : "qr",
-    name: layer.name,
-    opacity: Math.round(layer.opacity * 100),
-    shadowBlur: layer.shadow.blur,
-    shadowColor: layer.shadow.color,
-    shadowOffsetX: layer.shadow.offsetX,
-    shadowOffsetY: layer.shadow.offsetY,
-    shadowOpacity: layer.shadow.opacity,
-    tiltX: layer.tiltX ?? 0,
-    tiltY: layer.tiltY ?? 0,
-    width: Math.round(layer.width),
-    x: Math.round(layer.x),
-    y: Math.round(layer.y),
-  }
-}
-
-function getDesktopTextSettings(layer: DraftingCanvasLayer | null): DesktopTextSettings {
-  const textLayer = layer?.kind === "text" ? layer : null
-  return {
-    fill: textLayer?.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill,
-    fontFamily: textLayer?.fontFamily ?? DEFAULT_DRAFTING_TEXT_LAYER.fontFamily,
-    fontId: textLayer?.fontId ?? DEFAULT_DRAFTING_TEXT_LAYER.fontId,
-    fontSize: textLayer?.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize,
-    fontStyle: textLayer?.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle,
-    fontWeight: textLayer?.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight,
-    letterSpacing: textLayer?.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing,
-    lineHeight: textLayer?.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight,
-    text: textLayer?.text ?? DEFAULT_DRAFTING_TEXT_LAYER.text,
-    textAlign: textLayer?.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign,
-    underline: textLayer?.underline ?? DEFAULT_DRAFTING_TEXT_LAYER.underline,
-  }
-}
-
-function getDraftingQrNodeDownloadTarget(nodeId: string): DraftingDownloadTarget {
-  return `qr:${nodeId}`
-}
-
-function patchDraftingLayerById(
-  layer: DraftingCanvasLayer,
-  layerId: string,
-  patch: Partial<DraftingCanvasLayer>,
-): DraftingCanvasLayer {
-  if (layer.id === layerId) {
-    return patchDraftingCanvasLayer(layer, patch)
-  }
-
-  if (!layer.children?.length) {
-    return cloneDraftingCanvasLayer(layer)
-  }
-
-  return patchDraftingCanvasLayer(
-    {
-      ...cloneDraftingCanvasLayer(layer),
-      children: layer.children.map((child) => patchDraftingLayerById(child, layerId, patch)),
-    },
-    {},
-  )
-}
-
-function findDraftingLayerById(
-  layers: DraftingCanvasLayer[],
-  layerId: string,
-): DraftingCanvasLayer | null {
-  for (const layer of layers) {
-    if (layer.id === layerId) {
-      return layer
-    }
-
-    const child = layer.children ? findDraftingLayerById(layer.children, layerId) : null
-
-    if (child) {
-      return child
-    }
-  }
-
-  return null
-}
-
-function isEditableShortcutTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) {
-    return false
-  }
-
-  return Boolean(
-    target.closest(
-      'input, textarea, select, [contenteditable="true"], [contenteditable=""], [role="textbox"]',
-    ),
-  )
-}
-
-function getDraftingClipboardBounds(layers: DraftingCanvasLayer[]) {
-  const left = Math.min(...layers.map((layer) => layer.x))
-  const top = Math.min(...layers.map((layer) => layer.y))
-  const right = Math.max(...layers.map((layer) => layer.x + layer.width))
-  const bottom = Math.max(...layers.map((layer) => layer.y + layer.height))
-
-  return {
-    height: bottom - top,
-    width: right - left,
-    x: left,
-    y: top,
-  }
-}
-
-function getDraftingLayerClipboardPayload({
-  layerIds,
-  layers,
-  paneId,
-}: {
-  layerIds: string[]
-  layers: DraftingCanvasLayer[]
-  paneId: string
-}) {
-  const selectedIdSet = new Set(layerIds)
-  const selectedLayers = layers.filter((layer) => selectedIdSet.has(layer.id))
-
-  if (selectedLayers.length === 0) {
-    return null
-  }
-
-  return JSON.stringify({
-    bounds: getDraftingClipboardBounds(selectedLayers),
-    layers: selectedLayers.map(cloneDraftingCanvasLayer),
-    sourceNodeId: paneId,
-    type: DRAFTING_LAYER_CLIPBOARD_TYPE,
-    version: DRAFTING_LAYER_CLIPBOARD_VERSION,
-  })
-}
-
-function parseDraftingLayerClipboardPayload(value: string) {
-  try {
-    const payload = JSON.parse(value) as unknown
-
-    if (!isRecord(payload) || payload.type !== DRAFTING_LAYER_CLIPBOARD_TYPE) {
-      return null
-    }
-
-    if (payload.version !== DRAFTING_LAYER_CLIPBOARD_VERSION || !Array.isArray(payload.layers)) {
-      return null
-    }
-
-    const bounds = isRecord(payload.bounds)
-      ? {
-          height: readClipboardNumber(payload.bounds.height, 1),
-          width: readClipboardNumber(payload.bounds.width, 1),
-          x: readClipboardNumber(payload.bounds.x, 0),
-          y: readClipboardNumber(payload.bounds.y, 0),
-        }
-      : { height: 1, width: 1, x: 0, y: 0 }
-
-    return {
-      bounds,
-      layers: payload.layers as DraftingCanvasLayer[],
-      sourceNodeId: typeof payload.sourceNodeId === "string" ? payload.sourceNodeId : null,
-    }
-  } catch {
-    return null
-  }
-}
-
-function readClipboardNumber(value: unknown, fallback: number) {
-  return typeof value === "number" && Number.isFinite(value) ? value : fallback
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value))
 }
