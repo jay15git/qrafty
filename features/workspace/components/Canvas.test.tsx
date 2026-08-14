@@ -138,7 +138,7 @@ describe("Canvas", () => {
 
     expect(secondPane.getAttribute("data-snap-target")).toBe("true")
     expect(secondPane.className).toContain("after:border-dashed")
-    expect(secondPane.className).toContain("after:border-[var(--drafting-ink)]")
+    expect(secondPane.className).toContain("after:border-[var(--ws-ink)]")
   })
 
   it("renders one pane without resize handles", async () => {
@@ -231,7 +231,7 @@ describe("Canvas", () => {
 
     expect(pane.getAttribute("data-surface-appearance")).toBe("workspace")
     expect(pane.getAttribute("data-preview-locked")).toBe("false")
-    expect(pane.className).toContain("bg-[var(--drafting-workspace-bg,#ffffff)]")
+    expect(pane.className).toContain("bg-[var(--ws-workspace-bg,#ffffff)]")
     expect(pane.querySelector('[data-slot="free-edit-artboard"]')).not.toBeNull()
     expect(workspace.container.querySelector('[data-slot="desktop-resize-toolbar"]')).not.toBeNull()
   })

@@ -70,14 +70,14 @@ export function LayerList({
     <section data-slot="drafting-layers-tab" className="space-y-3">
       <div className="flex items-center justify-between gap-3 px-1">
         <div className="min-w-0">
-          <p className="drafting-type-section-title font-semibold text-[var(--drafting-ink)]">
+          <p className="ws-type-section-title font-semibold text-[var(--ws-ink)]">
             Layers
           </p>
-          <p className="drafting-type-body mt-1 text-[var(--drafting-ink-muted)]">
+          <p className="ws-type-body mt-1 text-[var(--ws-ink-muted)]">
             Reorder and manage the current QR stack.
           </p>
         </div>
-        <span className="drafting-type-data shrink-0 text-[var(--drafting-ink-muted)]">
+        <span className="ws-type-data shrink-0 text-[var(--ws-ink-muted)]">
           {layerNodes.length} total
         </span>
       </div>
@@ -85,7 +85,7 @@ export function LayerList({
       {layerNodes.length === 0 ? (
         <div
           data-slot="drafting-layers-empty-state"
-          className="drafting-type-body rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 text-[var(--drafting-ink-muted)] shadow-[var(--drafting-shadow-rest)]"
+          className="ws-type-body rounded-[8px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] px-4 py-3 text-[var(--ws-ink-muted)] shadow-[var(--ws-shadow-rest)]"
         >
           The layer stack will appear here once there is content.
         </div>
@@ -116,16 +116,16 @@ export function LayerList({
                   data-node-id={node.id}
                   data-selected={isSelected ? "true" : "false"}
                   className={cn(
-                    "min-w-0 overflow-hidden rounded-[8px] border px-3 py-3 shadow-[var(--drafting-shadow-rest)] transition-[border-color,box-shadow,transform,background-color] duration-150 ease-out",
-                    "border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] hover:-translate-y-px hover:border-[var(--drafting-line-hover)] hover:bg-[var(--drafting-panel-bg-hover)] hover:shadow-[var(--drafting-shadow-hover)]",
+                    "min-w-0 overflow-hidden rounded-[8px] border px-3 py-3 shadow-[var(--ws-shadow-rest)] transition-[border-color,box-shadow,transform,background-color] duration-150 ease-out",
+                    "border-[var(--ws-line)] bg-[var(--ws-panel-bg)] hover:-translate-y-px hover:border-[var(--ws-line-hover)] hover:bg-[var(--ws-panel-bg-hover)] hover:shadow-[var(--ws-shadow-hover)]",
                     isSelected &&
-                      "border-[var(--drafting-ink)] bg-[var(--drafting-panel-bg-active)] shadow-[var(--drafting-shadow-rest)]",
+                      "border-[var(--ws-ink)] bg-[var(--ws-panel-bg-active)] shadow-[var(--ws-shadow-rest)]",
                   )}
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     <div className="shrink-0">
                       <DraggableListHandle
-                        className="rounded-[6px] border-transparent bg-[var(--drafting-control-bg)] text-[var(--drafting-ink-subtle)] hover:bg-[var(--drafting-panel-bg-hover)] hover:text-[var(--drafting-ink)]"
+                        className="rounded-[6px] border-transparent bg-[var(--ws-control-bg)] text-[var(--ws-ink-subtle)] hover:bg-[var(--ws-panel-bg-hover)] hover:text-[var(--ws-ink)]"
                         label={`Reorder ${displayName}`}
                       />
                     </div>
@@ -135,10 +135,10 @@ export function LayerList({
                       onClick={() => onSelectedNodeChange(node.id)}
                       type="button"
                     >
-                        <p className="drafting-type-control-label truncate font-semibold text-[var(--drafting-ink)]">
+                        <p className="ws-type-control-label truncate font-semibold text-[var(--ws-ink)]">
                         {displayName}
                       </p>
-                      <p className="drafting-type-meta mt-1 truncate text-[var(--drafting-ink-muted)]">
+                      <p className="ws-type-meta mt-1 truncate text-[var(--ws-ink-muted)]">
                         {getLayerRowMeta(node, index, layerNodes.length, isSelected)}
                       </p>
                     </button>
@@ -147,7 +147,7 @@ export function LayerList({
                       {isRemovable && onRemoveNode ? (
                           <IconActionButton
                           ariaLabel={`Delete ${displayName}`}
-                          className="border-[var(--drafting-line-strong)] text-[var(--drafting-ink)] hover:bg-[var(--drafting-control-bg-active)] hover:text-[var(--drafting-ink)]"
+                          className="border-[var(--ws-line-strong)] text-[var(--ws-ink)] hover:bg-[var(--ws-control-bg-active)] hover:text-[var(--ws-ink)]"
                           onClick={() => {
                             const fallbackNodeId =
                               panes.find(
@@ -184,20 +184,20 @@ export function LayerList({
                     </div>
                   </div>
                   {node.children?.length ? (
-                    <div className="mt-2 space-y-1 border-l border-[var(--drafting-line)] pl-3">
+                    <div className="mt-2 space-y-1 border-l border-[var(--ws-line)] pl-3">
                       {node.children.map((child) => (
                         <button
                           key={child.id}
                           className={cn(
                             "block w-full rounded-[6px] px-2 py-1.5 text-left",
                             child.id === selectedNodeId
-                              ? "bg-[var(--drafting-control-bg-active)] text-[var(--drafting-ink)]"
-                              : "text-[var(--drafting-ink-muted)] hover:bg-[var(--drafting-control-bg)] hover:text-[var(--drafting-ink)]",
+                              ? "bg-[var(--ws-control-bg-active)] text-[var(--ws-ink)]"
+                              : "text-[var(--ws-ink-muted)] hover:bg-[var(--ws-control-bg)] hover:text-[var(--ws-ink)]",
                           )}
                           type="button"
                           onClick={() => onSelectedNodeChange(child.id)}
                         >
-                          <span className="drafting-type-meta block truncate font-semibold">
+                          <span className="ws-type-meta block truncate font-semibold">
                             {getLayerDisplayName(child)}
                           </span>
                         </button>
@@ -278,13 +278,13 @@ function LayerInspector({
       <DraftingInspectorControlRow label="Name">
         <input
           aria-label="Layer name"
-          className="drafting-type-input h-8 w-full min-w-0 rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-2 text-[var(--drafting-ink)] shadow-none"
+          className="ws-type-input h-8 w-full min-w-0 rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-2 text-[var(--ws-ink)] shadow-none"
           value={getLayerDisplayName(layer)}
           onChange={(event) => onLayerPatch(layer.id, { name: event.currentTarget.value })}
         />
       </DraftingInspectorControlRow>
 
-      <DraftingInspectorSection className="bg-[var(--drafting-control-bg)] shadow-none" title="Geometry">
+      <DraftingInspectorSection className="bg-[var(--ws-control-bg)] shadow-none" title="Geometry">
         <DraftingInspectorValueGrid>
           <LayerNumberInput label="X" value={layer.x ?? 0} onChange={(x) => onLayerPatch(layer.id, { x })} />
           <LayerNumberInput label="Y" value={layer.y ?? 0} onChange={(y) => onLayerPatch(layer.id, { y })} />
@@ -293,7 +293,7 @@ function LayerInspector({
         </DraftingInspectorValueGrid>
       </DraftingInspectorSection>
 
-      <DraftingInspectorSection className="bg-[var(--drafting-control-bg)] shadow-none" title="Appearance">
+      <DraftingInspectorSection className="bg-[var(--ws-control-bg)] shadow-none" title="Appearance">
         <DraftingInspectorValueGrid>
           <LayerNumberInput label="Opacity" max={100} min={0} value={Math.round((layer.opacity ?? 1) * 100)} onChange={(opacity) => onLayerPatch(layer.id, { opacity: opacity / 100 })} />
           <LayerNumberInput label="Blur" max={96} min={0} value={layer.blur ?? 0} onChange={(blur) => onLayerPatch(layer.id, { blur })} />
@@ -312,11 +312,11 @@ function LayerInspector({
         </div>
       </DraftingInspectorSection>
 
-      <DraftingInspectorSection className="bg-[var(--drafting-control-bg)] shadow-none" title="Shadow">
+      <DraftingInspectorSection className="bg-[var(--ws-control-bg)] shadow-none" title="Shadow">
         <label className="grid min-w-0 grid-cols-[2rem_minmax(0,1fr)] items-center gap-2">
           <input
             aria-label="Layer shadow color swatch"
-            className="size-8 rounded-[6px] border border-[var(--drafting-line)] bg-transparent p-1"
+            className="size-8 rounded-[6px] border border-[var(--ws-line)] bg-transparent p-1"
             type="color"
             value={shadow.color}
             onChange={(event) =>
@@ -327,7 +327,7 @@ function LayerInspector({
           />
           <input
             aria-label="Layer shadow color"
-            className="drafting-type-input h-8 min-w-0 rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-2 text-[var(--drafting-ink)] shadow-none"
+            className="ws-type-input h-8 min-w-0 rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-2 text-[var(--ws-ink)] shadow-none"
             value={shadow.color}
             onChange={(event) =>
               onLayerPatch(layer.id, {
@@ -364,11 +364,11 @@ function LayerNumberInput({
 }) {
   return (
     <label className="min-w-0">
-      <span className="drafting-type-meta mb-1 block font-semibold text-[var(--drafting-ink-muted)]">
+      <span className="ws-type-meta mb-1 block font-semibold text-[var(--ws-ink-muted)]">
         {label}
       </span>
       <input
-        className="drafting-type-input h-9 w-full min-w-0 rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-2 text-[var(--drafting-ink)] shadow-none disabled:opacity-45"
+        className="ws-type-input h-9 w-full min-w-0 rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-2 text-[var(--ws-ink)] shadow-none disabled:opacity-45"
         disabled={disabled}
         max={max}
         min={min}
@@ -396,10 +396,10 @@ function LayerToggle({
   onChange: (checked: boolean) => void
 }) {
   return (
-    <label className="drafting-type-meta flex min-w-0 items-center gap-2 font-semibold text-[var(--drafting-ink)]">
+    <label className="ws-type-meta flex min-w-0 items-center gap-2 font-semibold text-[var(--ws-ink)]">
       <input
         checked={checked}
-        className="size-4 accent-[var(--drafting-ink)]"
+        className="size-4 accent-[var(--ws-ink)]"
         type="checkbox"
         onChange={(event) => onChange(event.currentTarget.checked)}
       />

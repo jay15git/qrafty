@@ -44,13 +44,13 @@ export function ShapeInspector({
             darkShadowTone="ink"
             key={shape.id}
             label={shape.label}
-            labelClassName="drafting-type-option-label"
+            labelClassName="ws-type-option-label"
             name="drafting-element-shape"
             onSelect={() => onPatch({ shapeId: shape.id })}
             size="compact"
             value={shape.id}
           >
-            <span className="grid size-full place-items-center text-[10px] font-semibold text-[var(--drafting-ink-muted)]">
+            <span className="grid size-full place-items-center text-[10px] font-semibold text-[var(--ws-ink-muted)]">
               {shape.label}
             </span>
           </OptionCard>
@@ -62,7 +62,7 @@ export function ShapeInspector({
             darkShadowTone="ink"
             key={shape.id}
             label={shape.label}
-            labelClassName="drafting-type-option-label"
+            labelClassName="ws-type-option-label"
             name="drafting-element-shape"
             onSelect={() => onPatch({ shapeId: shape.id })}
             size="compact"
@@ -95,12 +95,12 @@ export function ShapeInspector({
 
       {fillMode === "solid" || fillMode === "gradient" ? (
         <label className="min-w-0">
-          <span className="drafting-type-meta mb-1 block font-semibold text-[var(--drafting-ink-muted)]">
+          <span className="ws-type-meta mb-1 block font-semibold text-[var(--ws-ink-muted)]">
             Fill color
           </span>
           <input
             aria-label="Shape fill color"
-            className="h-9 w-full rounded-[6px] border border-[var(--drafting-line)] bg-transparent p-1"
+            className="h-9 w-full rounded-[6px] border border-[var(--ws-line)] bg-transparent p-1"
             type="color"
             value={layer.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill}
             onChange={(event) => onPatch({ fill: event.currentTarget.value })}
@@ -112,7 +112,7 @@ export function ShapeInspector({
         <div className="space-y-2">
           <Input
             aria-label="Shape fill image URL"
-            className="drafting-type-input h-10 min-w-0 border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-3 text-[var(--drafting-ink)] shadow-none"
+            className="ws-type-input h-10 min-w-0 border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-3 text-[var(--ws-ink)] shadow-none"
             placeholder="https://example.com/texture.png"
             value={layer.imageSource === "url" ? (layer.imageValue ?? "") : ""}
             onChange={(event) =>
@@ -139,12 +139,12 @@ export function ShapeInspector({
 
       <div className="grid grid-cols-2 gap-2">
         <label className="min-w-0">
-          <span className="drafting-type-meta mb-1 block font-semibold text-[var(--drafting-ink-muted)]">
+          <span className="ws-type-meta mb-1 block font-semibold text-[var(--ws-ink-muted)]">
             Stroke
           </span>
           <input
             aria-label="Shape stroke color"
-            className="h-9 w-full rounded-[6px] border border-[var(--drafting-line)] bg-transparent p-1"
+            className="h-9 w-full rounded-[6px] border border-[var(--ws-line)] bg-transparent p-1"
             type="color"
             value={layer.stroke ?? DEFAULT_DRAFTING_SHAPE_LAYER.stroke}
             onChange={(event) => onPatch({ stroke: event.currentTarget.value })}

@@ -37,9 +37,9 @@ describe("Unlumen slider", () => {
       />,
     )
 
-    expect(markup).toContain("text-[var(--drafting-ink-muted)]")
-    expect(markup).toContain("bg-[var(--drafting-control-bg)]")
-    expect(markup).toContain("border-[var(--drafting-line)]")
+    expect(markup).toContain("text-[var(--ws-ink-muted)]")
+    expect(markup).toContain("bg-[var(--ws-control-bg)]")
+    expect(markup).toContain("border-[var(--ws-line)]")
     expect(markup).toContain("Outer margin:")
     expect(markup).not.toContain("text-muted-foreground")
     expect(markup).not.toContain("bg-neutral-")

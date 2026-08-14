@@ -31,7 +31,7 @@ describe("DesktopElementInspector", () => {
     expect(markup).not.toContain('data-slot="desktop-effects-section"')
     expect(markup).not.toContain('data-slot="drafting-element-inspector"')
     expect(markup).not.toContain('data-slot="drafting-text-inspector"')
-    expect(markup).not.toContain("border-[var(--drafting-line)]")
+    expect(markup).not.toContain("border-[var(--ws-line)]")
   })
 
   it("renders desktop transform inspector slots for text layers", () => {

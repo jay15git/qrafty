@@ -143,7 +143,7 @@ export function InsertMenu({
         aria-label="Add content"
         className={
           triggerClassName ??
-          "h-8 w-8 rounded-md border-0 bg-transparent p-0 text-[var(--drafting-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--drafting-ink)]"
+          "h-8 w-8 rounded-md border-0 bg-transparent p-0 text-[var(--ws-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--ws-ink)]"
         }
         data-slot="drafting-insert-menu-trigger"
         size="icon-md"
@@ -194,7 +194,7 @@ export function InsertMenu({
         className={cn(
           isDesktopPopover
             ? cn(DESKTOP_INSERT_POPOVER_SHELL, "z-[20000]")
-            : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] p-3",
+            : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--ws-line)] bg-[var(--ws-panel-bg)] p-3",
         )}
         data-slot={isDesktopPopover ? "desktop-insert-menu-popover" : "drafting-insert-menu"}
         side={variant === "bottom-toolbar" ? "top" : undefined}
@@ -274,7 +274,7 @@ export function InsertMenu({
                   "font-semibold",
                   isDesktopPopover
                     ? "text-sm text-white/72"
-                    : "drafting-type-control-label text-[var(--drafting-ink)]",
+                    : "ws-type-control-label text-[var(--ws-ink)]",
                 )}
               >
                 Choose shape
@@ -305,7 +305,7 @@ export function InsertMenu({
                   "font-semibold",
                   isDesktopPopover
                     ? "text-sm text-white/72"
-                    : "drafting-type-control-label text-[var(--drafting-ink)]",
+                    : "ws-type-control-label text-[var(--ws-ink)]",
                 )}
               >
                 Choose shader
@@ -335,7 +335,7 @@ export function InsertMenu({
                   "font-semibold",
                   isDesktopPopover
                     ? "text-sm text-white/72"
-                    : "drafting-type-control-label text-[var(--drafting-ink)]",
+                    : "ws-type-control-label text-[var(--ws-ink)]",
                 )}
               >
                 Add image
@@ -367,13 +367,13 @@ export function InsertMenu({
                 <div
                   className={cn(
                     "h-px flex-1",
-                    isDesktopPopover ? "bg-white/12" : "bg-[var(--drafting-line)]",
+                    isDesktopPopover ? "bg-white/12" : "bg-[var(--ws-line)]",
                   )}
                 />
                 <span
                   className={cn(
                     "text-xs font-medium",
-                    isDesktopPopover ? "text-white/45" : "text-[var(--drafting-ink-muted)]",
+                    isDesktopPopover ? "text-white/45" : "text-[var(--ws-ink-muted)]",
                   )}
                 >
                   or
@@ -381,7 +381,7 @@ export function InsertMenu({
                 <div
                   className={cn(
                     "h-px flex-1",
-                    isDesktopPopover ? "bg-white/12" : "bg-[var(--drafting-line)]",
+                    isDesktopPopover ? "bg-white/12" : "bg-[var(--ws-line)]",
                   )}
                 />
               </div>
@@ -392,7 +392,7 @@ export function InsertMenu({
                 "h-10 min-w-0 px-3 shadow-none",
                 isDesktopPopover
                   ? "border-white/[0.12] bg-white/[0.08] text-white placeholder:text-white/40"
-                  : "drafting-type-input border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] text-[var(--drafting-ink)]",
+                  : "ws-type-input border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] text-[var(--ws-ink)]",
               )}
               placeholder="https://example.com/photo.png"
               value={imageUrl}

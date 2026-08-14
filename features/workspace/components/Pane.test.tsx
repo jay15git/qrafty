@@ -1016,7 +1016,7 @@ describe("Pane", () => {
     const menu = document.body.querySelector('[data-slot="drafting-layer-context-menu"]') as HTMLElement
 
     expect(menu).not.toBeNull()
-    expect(menu.className).toContain("bg-[var(--drafting-dropdown-menu-surface-open)]")
+    expect(menu.className).toContain("bg-[var(--ws-dropdown-menu-surface-open)]")
     expect(menu.className).not.toContain("backdrop-blur")
     expect(menu.style.left).toBe("120px")
     expect(menu.style.top).toBe("116px")
@@ -1101,7 +1101,7 @@ describe("Pane", () => {
     const menu = document.body.querySelector('[data-slot="drafting-layer-context-menu"]') as HTMLElement
 
     expect(menu).not.toBeNull()
-    expect(menu.className).toContain("bg-[var(--drafting-dropdown-menu-surface-open)]")
+    expect(menu.className).toContain("bg-[var(--ws-dropdown-menu-surface-open)]")
     expect(menu.className).not.toContain("backdrop-blur")
     expect(menu.style.left).toBe("120px")
     expect(menu.style.top).toBe("148px")

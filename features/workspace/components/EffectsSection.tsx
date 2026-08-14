@@ -59,7 +59,7 @@ export function EffectsSection({
       <DraftingInspectorSection dataSlot="drafting-outline-section" title="Outline">
         <select
           aria-label="Outline style"
-          className="drafting-type-input h-8 w-full rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-2"
+          className="ws-type-input h-8 w-full rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-2"
           value={layer.outline.style}
           onChange={(event) =>
             onPatch({
@@ -107,7 +107,7 @@ export function EffectsSection({
         <DraftingInspectorSection dataSlot="drafting-border-section" title="Border sides">
           <select
             aria-label="Border side"
-            className="drafting-type-input h-8 w-full rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-2"
+            className="ws-type-input h-8 w-full rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-2"
             value={activeBorderSide}
             onChange={(event) => setActiveBorderSide(event.currentTarget.value as DraftingBorderSideKey)}
           >
@@ -162,7 +162,7 @@ export function EffectsSection({
         <div className="mb-2 flex justify-end">
           <button
             aria-label="Add shadow"
-            className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--drafting-line)]"
+            className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--ws-line)]"
             type="button"
             onClick={() =>
               updateShadows([
@@ -182,12 +182,12 @@ export function EffectsSection({
         {layer.shadows.map((shadow, index) => (
           <div
             key={shadow.id}
-            className="mb-3 rounded-[8px] border border-[var(--drafting-line)] p-2"
+            className="mb-3 rounded-[8px] border border-[var(--ws-line)] p-2"
           >
             <div className="mb-2 flex items-center justify-end gap-1">
               <button
                 aria-label={shadow.visible ? "Hide shadow" : "Show shadow"}
-                className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--drafting-line)]"
+                className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--ws-line)]"
                 type="button"
                 onClick={() =>
                   updateShadows(
@@ -201,7 +201,7 @@ export function EffectsSection({
               </button>
               <button
                 aria-label="Remove shadow"
-                className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--drafting-line)]"
+                className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--ws-line)]"
                 type="button"
                 onClick={() =>
                   updateShadows(layer.shadows.filter((_, entryIndex) => entryIndex !== index))
@@ -213,7 +213,7 @@ export function EffectsSection({
             <label className="grid min-w-0 grid-cols-[2rem_minmax(0,1fr)] items-center gap-2">
               <input
                 aria-label="Shadow color swatch"
-                className="size-8 rounded-[6px] border border-[var(--drafting-line)] bg-transparent p-1"
+                className="size-8 rounded-[6px] border border-[var(--ws-line)] bg-transparent p-1"
                 type="color"
                 value={shadow.color}
                 onChange={(event) =>
@@ -228,7 +228,7 @@ export function EffectsSection({
               />
               <input
                 aria-label="Shadow color"
-                className="drafting-type-input h-8 min-w-0 rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-2 text-[var(--drafting-ink)] shadow-none"
+                className="ws-type-input h-8 min-w-0 rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-2 text-[var(--ws-ink)] shadow-none"
                 value={shadow.color}
                 onChange={(event) =>
                   updateShadows(
@@ -328,21 +328,21 @@ function FilterSection({
 
   return (
     <div className="mb-3">
-      <p className="mb-2 text-xs font-semibold text-[var(--drafting-ink-muted)]">{label}</p>
+      <p className="mb-2 text-xs font-semibold text-[var(--ws-ink-muted)]">{label}</p>
       {filters.map((effect) => {
         const range = DRAFTING_FILTER_RANGES[effect.type]
 
         return (
           <div
             key={effect.id}
-            className="mb-2 rounded-[8px] border border-[var(--drafting-line)] p-2"
+            className="mb-2 rounded-[8px] border border-[var(--ws-line)] p-2"
           >
             <div className="mb-2 flex items-center justify-between">
               <span className="text-xs font-semibold capitalize">{effect.type.replace("-", " ")}</span>
               <div className="flex gap-1">
                 <button
                   aria-label={effect.enabled ? "Disable filter" : "Enable filter"}
-                  className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--drafting-line)]"
+                  className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--ws-line)]"
                   type="button"
                   onClick={() =>
                     onChange(
@@ -356,7 +356,7 @@ function FilterSection({
                 </button>
                 <button
                   aria-label="Remove filter"
-                  className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--drafting-line)]"
+                  className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--ws-line)]"
                   type="button"
                   onClick={() => onChange(filters.filter((entry) => entry.id !== effect.id))}
                 >
@@ -381,7 +381,7 @@ function FilterSection({
       {available.length > 0 ? (
         <select
           aria-label={`Add ${label} filter`}
-          className="drafting-type-input h-8 w-full rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-2"
+          className="ws-type-input h-8 w-full rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-2"
           value=""
           onChange={(event) => {
             const type = event.currentTarget.value as DraftingFilterType

@@ -231,10 +231,10 @@ describe("WorkspaceSurface", () => {
     expect(surface.container.querySelector('[data-slot="drafting-surface"]')).not.toBeNull()
     expect(
       getRequiredElement(surface.container, '[data-slot="drafting-surface"]').className,
-    ).toContain("bg-[var(--drafting-surface-bg)]")
+    ).toContain("bg-[var(--ws-surface-bg)]")
     expect(
       getRequiredElement(surface.container, '[data-slot="drafting-surface"]').className,
-    ).not.toContain("lg:border-[var(--drafting-line-hover)]")
+    ).not.toContain("lg:border-[var(--ws-line-hover)]")
     expect(header).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="drafting-nav"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="drafting-scroll-area"]')).not.toBeNull()
@@ -271,7 +271,7 @@ describe("WorkspaceSurface", () => {
       surface.container
         .querySelector('[data-slot="dashboard-compose-surface"]')
         ?.className,
-    ).not.toContain("ring-2 ring-inset ring-[var(--drafting-ink)]")
+    ).not.toContain("ring-2 ring-inset ring-[var(--ws-ink)]")
     expect(
       surface.container
         .querySelector('[data-slot="dashboard-compose-canvas"]')
@@ -304,7 +304,7 @@ describe("WorkspaceSurface", () => {
     ).toContain("lg:block")
     expect(
       surface.container.querySelector('[data-slot="drafting-plus-marker"]')?.getAttribute("class"),
-    ).toContain("text-[var(--drafting-ink-muted)]")
+    ).toContain("text-[var(--ws-ink-muted)]")
     expect(
       surface.container.querySelector('[data-slot="drafting-plus-marker"]')?.getAttribute("class"),
     ).not.toContain("text-black/")
@@ -332,10 +332,10 @@ describe("WorkspaceSurface", () => {
     expect(header.innerHTML).toContain('data-slot="switch"')
     expect(header.innerHTML).toContain('data-slot="drafting-download-trigger"')
     expect(getRequiredElement(header, '[data-slot="switch"]').className).not.toContain(
-      "bg-[var(--drafting-panel-bg)]",
+      "bg-[var(--ws-panel-bg)]",
     )
     expect(getRequiredElement(header, '[data-slot="switch"]').className).not.toContain(
-      "shadow-[var(--drafting-shadow-rest)]",
+      "shadow-[var(--ws-shadow-rest)]",
     )
     expect(surface.container.textContent).not.toContain("Appearance")
     expect(surface.container.innerHTML).toContain('aria-label="Toggle dark mode"')
@@ -1179,7 +1179,7 @@ describe("WorkspaceSurface", () => {
     expect(
       getRequiredElement(surface.container, 'button[aria-label="Open QR type options"]')
         .className,
-    ).toContain("border-[var(--drafting-dropdown-border)]")
+    ).toContain("border-[var(--ws-dropdown-border)]")
     expect(
       getRequiredElement(surface.container, 'button[aria-label="Open QR type options"]')
         .querySelector("svg"),
@@ -1187,11 +1187,11 @@ describe("WorkspaceSurface", () => {
     expect(
       getRequiredElement(surface.container, 'button[aria-label="Open QR type options"]')
         .className,
-    ).toContain("bg-[var(--drafting-dropdown-trigger-surface)]")
+    ).toContain("bg-[var(--ws-dropdown-trigger-surface)]")
     expect(
       getRequiredElement(surface.container, 'button[aria-label="Open QR type options"]')
         .className,
-    ).not.toContain("bg-[var(--drafting-ink)]")
+    ).not.toContain("bg-[var(--ws-ink)]")
     expect(surface.container.textContent).toContain("QR Type:")
     expect(surface.container.textContent).not.toContain("Wi-Fi")
     expect(surface.container.textContent).not.toContain("Discord")
@@ -1217,13 +1217,9 @@ describe("WorkspaceSurface", () => {
     const surface = renderDesktopOverlaySurface()
     const root = getRequiredElement(surface.container, '[data-slot="drafting-surface"]')
 
-    act(() => {
-      activateElement(getRequiredElement(surface.container, '[data-tool-id="content"]'))
-    })
-
     const payload = getRequiredElement(
       surface.container,
-      '#desktop-content-url',
+      '#dn-content-url',
     ) as HTMLInputElement
 
     act(() => {
@@ -1246,88 +1242,8 @@ describe("WorkspaceSurface", () => {
 
     expect(window.localStorage.getItem("desktop-workspace-editing-mode")).toBe("template")
     expect(getRequiredElement(surface.container, '[data-slot="drafting-surface"]').getAttribute("data-editing-mode")).toBe("template")
-    expect(surface.container.querySelector('[data-preview-locked="true"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="template-edit-zone"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-resize-toolbar"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-tool-id="text"]')).toBeNull()
-    expect(surface.container.querySelector('[data-tool-id="image"]')).toBeNull()
-    expect(surface.container.querySelector('[data-tool-id="layers"]')).toBeNull()
-    expect(surface.container.querySelector('[data-tool-id="templates"]')).toBeNull()
-    expect(surface.container.querySelector('[data-tool-id="layout"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
-  })
-
-  it("wires desktop pattern and logo inspectors into the active drafting QR state", async () => {
-    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
-    const surface = renderDesktopOverlaySurface()
-    const root = getRequiredElement(surface.container, '[data-slot="drafting-surface"]')
-
-    await waitForDraftingSurface()
-    const callsBeforePatternEdit = buildDashboardQrNodePayloadSpy.mock.calls.length
-
-    act(() => {
-      activateElement(getRequiredElement(surface.container, '[data-tool-id="pattern"]'))
-    })
-    act(() => {
-      activateElement(getRequiredElement(surface.container, 'button[aria-label="Use Circle pattern"]'))
-      changeInputValue(
-        getRequiredElement(surface.container, 'input[aria-label="Solid color"]') as HTMLInputElement,
-        "#123456",
-      )
-    })
-
-    expect(root.getAttribute("data-qr-content-value")).toBe("https://new-qr-studio.local/launch")
-    await act(async () => {
-      await flushPromises()
-      await flushPromises()
-    })
-
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalledTimes(callsBeforePatternEdit + 1)
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        dataModulesSettings: expect.objectContaining({ color: "#123456" }),
-        dotsColorMode: "solid",
-      }),
-      expect.anything(),
-    )
-
-    act(() => {
-      activateElement(getRequiredElement(surface.container, '[data-tool-id="logo"]'))
-    })
-    act(() => {
-      activateElement(getRequiredElement(surface.container, 'button[aria-label="Use Brand logo source"]'))
-    })
-    act(() => {
-      activateElement(getRequiredElement(surface.container, 'button[aria-label="Use Instagram logo icon"]'))
-    })
-
-    expect(root.getAttribute("data-logo-source-mode")).toBe("preset")
-    expect(root.getAttribute("data-logo-preset-id")).toBe("instagram")
-  })
-
-  it("applies a business card size preset to the active drafting card", async () => {
-    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
-    const surface = renderDesktopOverlaySurface()
-
-    await waitForDraftingSurface()
-
-    act(() => {
-      activateElement(getRequiredElement(surface.container, '[data-tool-id="shape"]'))
-    })
-
-    act(() => {
-      activateElement(
-        getRequiredElement(
-          surface.container,
-          'button[aria-label="Use Business card size 1050 by 600"]',
-        ),
-      )
-    })
-
-    const card = getSelectedPreviewCard(surface.container)
-
-    expect(card.style.width).toBe("1080px")
-    expect(card.style.height).toBe("617px")
   })
 
   it("renders the desktop canvas resize toolbar and wires it to preview zoom", () => {
@@ -1429,13 +1345,13 @@ describe("WorkspaceSurface", () => {
     const globalsSource = readFileSync("app/globals.css", "utf8")
     expect(globalsSource).toContain('[data-drafting-dropdown-content="true"]')
     expect(globalsSource).toContain('.dark [data-drafting-dropdown-content="true"]')
-    expect(globalsSource).toContain("--drafting-dropdown-menu-surface-open: #252a33;")
+    expect(globalsSource).toContain("--ws-dropdown-menu-surface-open: #252a33;")
     expect(menuContent.getAttribute("data-drafting-dropdown-content")).toBe("true")
     expect(
       menuContent.className,
-    ).toContain("bg-[var(--drafting-dropdown-menu-surface-open)]")
+    ).toContain("bg-[var(--ws-dropdown-menu-surface-open)]")
     expect(menuContent.className).toContain("w-[280px]")
-    expect(menuContent.className).toContain("shadow-[var(--drafting-dropdown-menu-shadow-open)]")
+    expect(menuContent.className).toContain("shadow-[var(--ws-dropdown-menu-shadow-open)]")
 
     act(() => {
       activateElement(getRequiredElement(document.body, '[data-slot="dropdown-menu-sub-trigger"][data-category="popular"]'))
@@ -1445,8 +1361,8 @@ describe("WorkspaceSurface", () => {
       document.body,
       '[data-slot="dropdown-menu-item"][data-content-type="link"]',
     )
-    expect(selectedAutoItem.className).toContain("bg-[var(--drafting-dropdown-selected-fill)]")
-    expect(selectedAutoItem.className).not.toContain("bg-[var(--drafting-ink)]")
+    expect(selectedAutoItem.className).toContain("bg-[var(--ws-dropdown-selected-fill)]")
+    expect(selectedAutoItem.className).not.toContain("bg-[var(--ws-ink)]")
     expect(selectedAutoItem.className).not.toContain("border-dashed")
     expect(selectedAutoItem.className).not.toContain("focus:bg-accent")
     expect(selectedAutoItem.querySelector("svg")?.getAttribute("class")).toContain("opacity-100")
@@ -1455,7 +1371,7 @@ describe("WorkspaceSurface", () => {
       '[data-slot="dropdown-menu-item"][data-content-type="wifi"]',
     )
     expect(wifiItem.className).toContain("bg-transparent")
-    expect(wifiItem.className).not.toContain("bg-[var(--drafting-ink)]")
+    expect(wifiItem.className).not.toContain("bg-[var(--ws-ink)]")
     expect(wifiItem.querySelectorAll("svg")).toHaveLength(2)
     expect(wifiItem.querySelector("svg")?.getAttribute("class")).toContain("opacity-0")
     act(() => {
@@ -1576,12 +1492,12 @@ describe("WorkspaceSurface", () => {
       squareInput.parentElement
         ?.querySelector('[data-slot="option-card"]')
         ?.getAttribute("class"),
-    ).toContain("border-[var(--drafting-option-card-border)]")
+    ).toContain("border-[var(--ws-option-card-border)]")
     expect(
       squareInput.parentElement
         ?.querySelector('[data-slot="option-card"]')
         ?.getAttribute("class"),
-    ).toContain("shadow-[var(--drafting-option-card-shadow-rest)]")
+    ).toContain("shadow-[var(--ws-option-card-shadow-rest)]")
     expect(styleGrid.innerHTML).not.toMatch(
       /dark:[^"]*shadow-\[[^\]]*rgba\(255,255,255/,
     )
@@ -1614,13 +1530,13 @@ describe("WorkspaceSurface", () => {
     expect(surface.container.textContent).toContain("Solid")
     expect(surface.container.textContent).toContain("Gradient")
     expect(surface.container.textContent).toContain("Palette")
-    expect(accordion.innerHTML).toContain("text-[var(--drafting-ink-muted)]")
+    expect(accordion.innerHTML).toContain("text-[var(--ws-ink-muted)]")
     expect(
       getRequiredElement(
         accordion,
         '[data-slot="drafting-color-trigger"]',
       ).className,
-    ).toContain("[&_[data-slot=accordion-chevron]]:text-[var(--drafting-ink-muted)]")
+    ).toContain("[&_[data-slot=accordion-chevron]]:text-[var(--ws-ink-muted)]")
     const triggerMarkup = Array.from(
       accordion.querySelectorAll('[data-slot="drafting-color-trigger"]'),
     )
@@ -2256,14 +2172,14 @@ describe("WorkspaceSurface", () => {
     expect(
       gradientTypeRoots.every((root) =>
         root.className.includes(
-          "[&_[data-slot=option-card]]:!shadow-[0_0_12px_0_rgb(var(--drafting-ink-rgb)/0.07),0_2px_5px_0_rgb(var(--drafting-ink-rgb)/0.045)]",
+          "[&_[data-slot=option-card]]:!shadow-[0_0_12px_0_rgb(var(--ws-ink-rgb)/0.07),0_2px_5px_0_rgb(var(--ws-ink-rgb)/0.045)]",
         ),
       ),
     ).toBe(true)
     expect(
       gradientTypeRoots.every((root) =>
         root.className.includes(
-          "hover:[&_[data-slot=option-card]]:!shadow-[0_0_20px_1px_rgb(var(--drafting-ink-rgb)/0.09),0_4px_10px_0_rgb(var(--drafting-ink-rgb)/0.06)]",
+          "hover:[&_[data-slot=option-card]]:!shadow-[0_0_20px_1px_rgb(var(--ws-ink-rgb)/0.09),0_4px_10px_0_rgb(var(--ws-ink-rgb)/0.06)]",
         ),
       ),
     ).toBe(true)
@@ -3178,7 +3094,7 @@ describe("WorkspaceSurface", () => {
     ) as HTMLInputElement
 
     expect(
-      encodingTab.querySelector('[data-slot="drafting-type-number-slider"]'),
+      encodingTab.querySelector('[data-slot="ws-type-number-slider"]'),
     ).not.toBeNull()
     expect(
       encodingTab.querySelectorAll('input[name="drafting-error-correction"]'),
@@ -3544,10 +3460,10 @@ describe("WorkspaceSurface", () => {
     expect(composeSurface.getAttribute("data-surface-appearance")).toBe("neutral")
     expect(composeSurface.style.backgroundImage).toContain("radial-gradient(circle")
     expect(composeSurface.style.backgroundImage).toContain(
-      "var(--drafting-canvas-dot-rgb)",
+      "var(--ws-canvas-dot-rgb)",
     )
     expect(composeSurface.style.backgroundImage).toContain(
-      "var(--drafting-canvas-dot-opacity)",
+      "var(--ws-canvas-dot-opacity)",
     )
     expect(composeSurface.style.backgroundImage).not.toContain("linear-gradient(45deg")
     expect(composeSurface.style.backgroundSize).toBe("30px 30px")

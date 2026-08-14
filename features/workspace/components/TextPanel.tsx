@@ -19,7 +19,7 @@ export function DraftingTextLayerTab({
 }) {
   if (!layer) {
     return (
-      <p className="drafting-type-body rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 text-[var(--drafting-ink-muted)] shadow-[var(--drafting-shadow-rest)]">
+      <p className="ws-type-body rounded-[8px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] px-4 py-3 text-[var(--ws-ink-muted)] shadow-[var(--ws-shadow-rest)]">
         Select a text layer or use Insert to add one.
       </p>
     )

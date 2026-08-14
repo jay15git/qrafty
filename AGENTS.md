@@ -20,7 +20,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 ## App Structure
 - `app/layout.tsx` defines the root shell, Geist/Bricolage Grotesque/Manrope fonts, and global CSS.
 - `app/page.tsx` is the home route; renders `HomePromptShell` from `components/home/`.
-- `/desktop` is the active desktop workspace and `/mobile` is the mobile shell.
+- `/desktop` is the active desktop workspace.
 - `/new`, `/dashboard`, and `/settings` have been removed. Do not re-add features or fixes there unless explicitly asked.
 - `features/qr-code/model/state.ts` is the core QR state and mapper layer. Update this first when adding new controls, defaults, or renderer options.
 - `components/qr/qr-control-sections.tsx` is the large control-surface form. Follow its existing inline `setState` pattern unless there is a clear reason to refactor.

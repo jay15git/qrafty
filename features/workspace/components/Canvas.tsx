@@ -93,7 +93,7 @@ const PREVIEW_ZOOM_STEP = 0.1
 const WHEEL_ZOOM_SENSITIVITY = 0.001
 
 const COMPOSE_TOOLBAR_NEUTRAL_ICON_BUTTON_CLASS =
-  "h-7 w-7 rounded-md border-0 bg-transparent p-0 text-[var(--drafting-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--drafting-ink)] [&_svg]:size-3.5"
+  "h-7 w-7 rounded-md border-0 bg-transparent p-0 text-[var(--ws-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--ws-ink)] [&_svg]:size-3.5"
 
 function ComposeToolbarTooltip({
   content,
@@ -210,10 +210,10 @@ function DraftingResizeHandle() {
     <ResizableHandle
       data-slot="drafting-resize-handle"
       className={cn(
-        "z-10 bg-[var(--drafting-line)] transition-colors duration-150 hover:bg-[var(--drafting-line-hover)] active:bg-[var(--drafting-line-strong)]",
+        "z-10 bg-[var(--ws-line)] transition-colors duration-150 hover:bg-[var(--ws-line-hover)] active:bg-[var(--ws-line-strong)]",
         "focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-0",
         "after:w-5 after:bg-transparent aria-[orientation=horizontal]:after:h-5 aria-[orientation=horizontal]:after:bg-transparent",
-        "before:absolute before:left-1/2 before:top-1/2 before:z-10 before:h-7 before:w-px before:-translate-x-1/2 before:-translate-y-1/2 before:bg-[var(--drafting-ink-muted)] before:opacity-45 before:content-['']",
+        "before:absolute before:left-1/2 before:top-1/2 before:z-10 before:h-7 before:w-px before:-translate-x-1/2 before:-translate-y-1/2 before:bg-[var(--ws-ink-muted)] before:opacity-45 before:content-['']",
         "aria-[orientation=horizontal]:before:h-px aria-[orientation=horizontal]:before:w-7",
       )}
     />
@@ -660,17 +660,17 @@ function DraftingPaneSurface({
       className={cn(
         "relative flex h-full w-full touch-none flex-col items-center justify-center overflow-hidden transition-opacity duration-150 ease-out after:pointer-events-none after:absolute after:inset-0 after:border-2 after:border-dashed after:border-transparent after:content-[''] after:transition-colors after:duration-150 after:ease-out",
         isFreeEditWorkspace
-          ? "bg-[var(--drafting-workspace-bg,#ffffff)]"
-          : "bg-[var(--drafting-canvas-bg)]",
+          ? "bg-[var(--ws-workspace-bg,#ffffff)]"
+          : "bg-[var(--ws-canvas-bg)]",
         canSwap && "cursor-grab active:cursor-grabbing",
         draggingPaneId === pane.id && "opacity-55",
-        isSnapTarget && "after:border-[var(--drafting-ink)]",
+        isSnapTarget && "after:border-[var(--ws-ink)]",
       )}
       style={{
         gridArea: areaName,
         backgroundImage:
           showCanvasGrid && !isFreeEditWorkspace && !previewLocked
-            ? "radial-gradient(circle, rgb(var(--drafting-canvas-dot-rgb) / var(--drafting-canvas-dot-opacity)) 2.4px, transparent 3px)"
+            ? "radial-gradient(circle, rgb(var(--ws-canvas-dot-rgb) / var(--ws-canvas-dot-opacity)) 2.4px, transparent 3px)"
             : "none",
         backgroundPosition: "0 0",
         backgroundSize: "30px 30px",
@@ -994,7 +994,7 @@ export function Canvas({
           }}
         >
           {panes.length === 0 ? (
-            <div className="grid h-full place-items-center text-sm font-medium text-[var(--drafting-ink-muted)]">
+            <div className="grid h-full place-items-center text-sm font-medium text-[var(--ws-ink-muted)]">
               No QR codes
             </div>
           ) : (
@@ -1122,7 +1122,7 @@ export function Canvas({
               "pointer-events-auto max-w-full flex-wrap justify-center",
               isDesktopZoomToolbar
                 ? DESKTOP_CANVAS_GLASS_TOOLBAR_VERTICAL_SHELL_CLASS
-                : "inline-flex items-center gap-1 rounded-[10px] bg-[var(--drafting-panel-bg-active)] px-2 py-1.5",
+                : "inline-flex items-center gap-1 rounded-[10px] bg-[var(--ws-panel-bg-active)] px-2 py-1.5",
             )}
           >
             {!isDesktopZoomToolbar ? (
@@ -1143,7 +1143,7 @@ export function Canvas({
                   <TooltipContent>Zoom out</TooltipContent>
                 </Tooltip>
 
-                <div className="min-w-12 px-1 text-center font-semibold drafting-type-data text-[var(--drafting-ink)]">
+                <div className="min-w-12 px-1 text-center font-semibold ws-type-data text-[var(--ws-ink)]">
                   {zoomPercent}
                 </div>
 
@@ -1179,7 +1179,7 @@ export function Canvas({
                   <TooltipContent>Reset view</TooltipContent>
                 </Tooltip>
 
-                <div className="mx-1 h-4 w-px bg-[var(--drafting-line)]" />
+                <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" />
               </>
             ) : null}
 
@@ -1195,7 +1195,7 @@ export function Canvas({
                     className={getComposeToolbarIconButtonClass(
                       isDesktopZoomToolbar,
                       activeInteractionTool === "select" &&
-                        "bg-[var(--drafting-ink)] text-[var(--drafting-paper)] hover:bg-[var(--drafting-ink)] hover:text-[var(--drafting-paper)]",
+                        "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
                     )}
                     onClick={() => onCanvasToolChange?.("select")}
                     size="icon"
@@ -1213,7 +1213,7 @@ export function Canvas({
                     className={getComposeToolbarIconButtonClass(
                       isDesktopZoomToolbar,
                       activeInteractionTool === "pan" &&
-                        "bg-[var(--drafting-ink)] text-[var(--drafting-paper)] hover:bg-[var(--drafting-ink)] hover:text-[var(--drafting-paper)]",
+                        "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
                     )}
                     onClick={() => onCanvasToolChange?.("pan")}
                     size="icon"
@@ -1236,7 +1236,7 @@ export function Canvas({
                 className={getComposeToolbarIconButtonClass(
                   isDesktopZoomToolbar,
                   snapEnabled &&
-                    "bg-[var(--drafting-ink)] text-[var(--drafting-paper)] hover:bg-[var(--drafting-ink)] hover:text-[var(--drafting-paper)]",
+                    "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
                 )}
                 onClick={() => setSnapEnabled((current) => !current)}
                 size="icon"
@@ -1249,7 +1249,7 @@ export function Canvas({
 
             {panes.length > 1 && (
               <>
-                {!isDesktopZoomToolbar ? <div className="mx-1 h-4 w-px bg-[var(--drafting-line)]" /> : null}
+                {!isDesktopZoomToolbar ? <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" /> : null}
                 <ComposeToolbarTooltip
                   content={isMaximized ? "Restore layout" : "Maximize pane"}
                   desktop={isDesktopZoomToolbar}
@@ -1272,7 +1272,7 @@ export function Canvas({
               </>
             )}
 
-            {!isDesktopZoomToolbar ? <div className="mx-1 h-4 w-px bg-[var(--drafting-line)]" /> : null}
+            {!isDesktopZoomToolbar ? <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" /> : null}
 
             {isDesktopZoomToolbar ? (
               <>
@@ -1286,7 +1286,7 @@ export function Canvas({
                     className={getComposeToolbarIconButtonClass(
                       isDesktopZoomToolbar,
                       showCanvasGrid &&
-                        "bg-[var(--drafting-ink)] text-[var(--drafting-paper)] hover:bg-[var(--drafting-ink)] hover:text-[var(--drafting-paper)]",
+                        "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
                     )}
                     onClick={() => onCanvasGridChange?.(!showCanvasGrid)}
                     size="icon"
@@ -1314,7 +1314,7 @@ export function Canvas({
                           isDesktopZoomToolbar,
                           "disabled:opacity-40",
                           activeCanvasTool === "text" &&
-                            "bg-[var(--drafting-ink)] text-[var(--drafting-paper)] hover:bg-[var(--drafting-ink)] hover:text-[var(--drafting-paper)]",
+                            "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
                         )}
                         disabled={!onAddTextLayerAt}
                         onClick={() =>
@@ -1380,7 +1380,7 @@ export function Canvas({
                   </ComposeToolbarTooltip>
                 ) : null}
 
-                {!isDesktopZoomToolbar ? <div className="mx-1 h-4 w-px bg-[var(--drafting-line)]" /> : null}
+                {!isDesktopZoomToolbar ? <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" /> : null}
               </>
             ) : null}
 
@@ -1390,7 +1390,7 @@ export function Canvas({
                   <TooltipTrigger asChild>
                     <Button
                       aria-label="Undo"
-                      className="h-8 w-8 rounded-md border-0 bg-transparent p-0 text-[var(--drafting-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--drafting-ink)] disabled:opacity-40"
+                      className="h-8 w-8 rounded-md border-0 bg-transparent p-0 text-[var(--ws-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--ws-ink)] disabled:opacity-40"
                       disabled={!canUndo || !onUndo}
                       onClick={onUndo}
                       size="icon"
@@ -1407,7 +1407,7 @@ export function Canvas({
                   <TooltipTrigger asChild>
                     <Button
                       aria-label="Redo"
-                      className="h-8 w-8 rounded-md border-0 bg-transparent p-0 text-[var(--drafting-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--drafting-ink)] disabled:opacity-40"
+                      className="h-8 w-8 rounded-md border-0 bg-transparent p-0 text-[var(--ws-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--ws-ink)] disabled:opacity-40"
                       disabled={!canRedo || !onRedo}
                       onClick={onRedo}
                       size="icon"

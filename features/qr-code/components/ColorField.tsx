@@ -99,7 +99,7 @@ function DraftingFillPicker({
     <FillColorPicker.Root
       backgroundColor="#C19B1D"
       className={cn(
-        "w-full max-w-none gap-3 rounded-none border-0 bg-transparent p-0 text-[var(--drafting-ink)] shadow-none",
+        "w-full max-w-none gap-3 rounded-none border-0 bg-transparent p-0 text-[var(--ws-ink)] shadow-none",
         className,
       )}
       defaultFormat="hex"
@@ -116,8 +116,8 @@ function DraftingFillPicker({
     >
       <FillColorPicker.Area
         className={cn(
-          "h-auto aspect-[4/2] rounded-none border border-[var(--drafting-line)] bg-transparent shadow-none",
-          "focus-visible:ring-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--drafting-line-strong)]",
+          "h-auto aspect-[4/2] rounded-none border border-[var(--ws-line)] bg-transparent shadow-none",
+          "focus-visible:ring-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ws-line-strong)]",
         )}
         mode="hsv-sv"
       />
@@ -132,9 +132,9 @@ function DraftingFillPicker({
         />
         <FillColorPicker.EyeDropper
           className={cn(
-            "h-8 w-full flex-1 rounded-none border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] text-[var(--drafting-ink)] shadow-none",
-            "hover:border-[var(--drafting-line-hover)] hover:bg-[var(--drafting-control-bg-hover)] hover:text-[var(--drafting-ink)]",
-            "focus-visible:border-[var(--drafting-line-strong)] focus-visible:ring-0",
+            "h-8 w-full flex-1 rounded-none border-[var(--ws-line)] bg-[var(--ws-control-bg)] text-[var(--ws-ink)] shadow-none",
+            "hover:border-[var(--ws-line-hover)] hover:bg-[var(--ws-control-bg-hover)] hover:text-[var(--ws-ink)]",
+            "focus-visible:border-[var(--ws-line-strong)] focus-visible:ring-0",
           )}
         />
       </div>
@@ -146,9 +146,9 @@ function DraftingFillPicker({
       />
       <FillColorPicker.Swatches
         className={cn(
-          "grid-cols-8 rounded-none text-[var(--drafting-ink-muted)]",
-          "[&_button]:border-[var(--drafting-line)] [&_button]:focus-visible:ring-0 [&_button]:focus-visible:outline [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-offset-2 [&_button]:focus-visible:outline-[var(--drafting-line-strong)]",
-          "[&_button[aria-selected=true]]:ring-2 [&_button[aria-selected=true]]:ring-[var(--drafting-line-strong)]",
+          "grid-cols-8 rounded-none text-[var(--ws-ink-muted)]",
+          "[&_button]:border-[var(--ws-line)] [&_button]:focus-visible:ring-0 [&_button]:focus-visible:outline [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-offset-2 [&_button]:focus-visible:outline-[var(--ws-line-strong)]",
+          "[&_button[aria-selected=true]]:ring-2 [&_button[aria-selected=true]]:ring-[var(--ws-line-strong)]",
         )}
         onAdd={(_color, hex) => savePreset(hex)}
         presets={swatchPresets}
@@ -172,15 +172,15 @@ const DRAFTING_FILL_PICKER_DEFAULT_SWATCHES = [
 
 const DRAFTING_FILL_PICKER_SLIDER_CLASS_NAME = cn(
   "h-3 rounded-none shadow-none",
-  "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--drafting-line-strong)]",
-  "[&>div:last-child]:rounded-[4px] [&>div:last-child]:border-[var(--drafting-line)] [&>div:last-child]:shadow-[var(--drafting-shadow-rest)]",
+  "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ws-line-strong)]",
+  "[&>div:last-child]:rounded-[4px] [&>div:last-child]:border-[var(--ws-line)] [&>div:last-child]:shadow-[var(--ws-shadow-rest)]",
 )
 
 const DRAFTING_FILL_PICKER_INPUT_CLASS_NAME = cn(
-  "rounded-none border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] text-[var(--drafting-ink)] shadow-none",
-  "hover:border-[var(--drafting-line-hover)] hover:bg-[var(--drafting-control-bg-hover)]",
-  "focus-visible:border-[var(--drafting-line-strong)] focus-visible:ring-0",
-  "placeholder:text-[var(--drafting-ink-muted)]",
+  "rounded-none border-[var(--ws-line)] bg-[var(--ws-control-bg)] text-[var(--ws-ink)] shadow-none",
+  "hover:border-[var(--ws-line-hover)] hover:bg-[var(--ws-control-bg-hover)]",
+  "focus-visible:border-[var(--ws-line-strong)] focus-visible:ring-0",
+  "placeholder:text-[var(--ws-ink-muted)]",
 )
 
 function parseDraftingColor(value: string): OklchColor {

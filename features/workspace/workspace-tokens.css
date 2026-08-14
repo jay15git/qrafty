@@ -1,0 +1,212 @@
+/* Workspace canvas tokens — scoped to /desktop only. */
+
+[data-slot="desktop-workspace"] {
+  --ws-ink-rgb: 15 23 42;
+  --ws-paper-rgb: 255 255 255;
+  --ws-page-bg: #ffffff;
+  --ws-surface-bg: #f8f8f7;
+  --ws-canvas-bg: #f0f1f2;
+  --ws-workspace-bg: #ffffff;
+  --ws-canvas-dot-rgb: var(--ws-ink-rgb);
+  --ws-canvas-dot-opacity: 0.055;
+  --ws-ink: #0f172a;
+  --ws-resize-frame: #18a0fb;
+  --ws-ink-muted: rgb(var(--ws-ink-rgb) / 0.55);
+  --ws-ink-secondary: rgb(var(--ws-ink-rgb) / 0.68);
+  --ws-ink-subtle: rgb(var(--ws-ink-rgb) / 0.38);
+  --ws-ink-inverse: #ffffff;
+  --ws-paper: #ffffff;
+  --ws-line: rgb(var(--ws-ink-rgb) / 0.12);
+  --ws-line-hover: rgb(var(--ws-ink-rgb) / 0.2);
+  --ws-line-strong: rgb(var(--ws-ink-rgb) / 0.4);
+  --ws-dash-color: rgb(var(--ws-ink-rgb) / 0.12);
+  --ws-dash-size: 15px;
+  --ws-dash-cycle: 30px;
+  --ws-control-bg: rgb(var(--ws-ink-rgb) / 0.04);
+  --ws-control-bg-hover: rgb(var(--ws-ink-rgb) / 0.07);
+  --ws-control-bg-active: rgb(var(--ws-ink-rgb) / 0.1);
+  --ws-shadow-rest: 0 2px 8px rgb(var(--ws-ink-rgb) / 0.06);
+  --ws-shadow-hover: 0 4px 12px rgb(var(--ws-ink-rgb) / 0.1);
+  --ws-shadow-active: 0 1px 4px rgb(var(--ws-ink-rgb) / 0.08);
+  --ws-shadow-selected: 0 0 22px 2px rgb(var(--ws-ink-rgb) / 0.14);
+  --ws-shadow-shell: none;
+  --ws-panel-bg: rgb(var(--ws-paper-rgb) / 0.8);
+  --ws-panel-bg-hover: rgb(var(--ws-paper-rgb) / 0.95);
+  --ws-panel-bg-active: #ffffff;
+  --ws-button-bg: var(--ws-control-bg);
+  --ws-button-bg-hover: var(--ws-control-bg-hover);
+  --ws-button-bg-active: var(--ws-control-bg-active);
+  --ws-button-bg-selected: var(--ws-ink);
+  --ws-button-icon: currentColor;
+  --ws-button-icon-selected: var(--ws-ink-inverse);
+  --ws-button-label: var(--ws-ink-muted);
+  --ws-button-label-hover: var(--ws-ink-secondary);
+  --ws-button-label-selected: var(--ws-ink);
+  --ws-button-shadow-rest: var(--ws-shadow-rest);
+  --ws-button-shadow-hover: var(--ws-shadow-hover);
+  --ws-button-shadow-active: var(--ws-shadow-active);
+  --ws-button-shadow-selected: var(--ws-shadow-rest);
+  --ws-button-shadow-selected-hover: var(--ws-shadow-hover);
+  --ws-dropdown-border: rgb(var(--ws-ink-rgb) / 0.12);
+  --ws-dropdown-text: #262626;
+  --ws-dropdown-text-muted: rgb(var(--ws-ink-rgb) / 0.7);
+  --ws-dropdown-menu-surface-open: #ffffff;
+  --ws-dropdown-menu-shadow-open: 0 24px 64px rgb(var(--ws-ink-rgb) / 0.14);
+  --ws-dropdown-selected-fill: rgb(var(--ws-ink-rgb) / 0.06);
+  --ws-layer-toolbar-button-hover-bg: rgb(var(--ws-ink-rgb) / 0.08);
+  --ws-layer-toolbar-button-hover-text: rgb(var(--ws-ink-rgb) / 0.95);
+  --ws-option-card-bg: #ffffff;
+  --ws-option-card-bg-hover: #ffffff;
+  --ws-option-card-bg-active: #ffffff;
+  --ws-option-card-bg-selected: #ffffff;
+  --ws-option-card-border: rgb(var(--ws-ink-rgb) / 0.09);
+  --ws-option-card-border-hover: rgb(var(--ws-ink-rgb) / 0.16);
+  --ws-option-card-border-active: rgb(var(--ws-ink-rgb) / 0.2);
+  --ws-option-card-border-selected: var(--ws-ink);
+  --ws-option-card-motif: #4b4f56;
+  --ws-option-card-motif-selected: #4b4f56;
+  --ws-option-card-label: rgb(var(--ws-ink-rgb) / 0.45);
+  --ws-option-card-label-selected: var(--ws-ink);
+  --ws-option-card-shadow-rest: var(--ws-shadow-rest);
+  --ws-option-card-shadow-hover: var(--ws-shadow-hover);
+  --ws-option-card-shadow-active: var(--ws-shadow-active);
+  --ws-option-card-shadow-selected: var(--ws-shadow-selected);
+  --ws-option-card-shadow-selected-hover: 0 0 28px 3px rgb(var(--ws-ink-rgb) / 0.18);
+  --ws-type-panel-tab: 0.875rem;
+  --ws-type-section-title: 0.875rem;
+  --ws-type-control-label: 0.875rem;
+  --ws-type-body: 0.9375rem;
+  --ws-type-input: 1rem;
+  --ws-type-nav-label: 0.75rem;
+  --ws-type-meta: 0.875rem;
+  --ws-type-caption: 0.75rem;
+  --ws-type-display-data: 1.5rem;
+}
+
+[data-slot="desktop-workspace"][data-desktop-theme="dark"] {
+  --ws-ink-rgb: 245 245 245;
+  --ws-paper-rgb: 7 8 10;
+  --ws-page-bg: #07080a;
+  --ws-surface-bg: #07080a;
+  --ws-canvas-bg: #1f1f1f;
+  --ws-workspace-bg: #07080a;
+  --ws-canvas-dot-opacity: 0.075;
+  --ws-ink: #f5f5f5;
+  --ws-resize-frame: #4ab8ff;
+  --ws-ink-muted: rgb(var(--ws-ink-rgb) / 0.55);
+  --ws-ink-secondary: rgb(var(--ws-ink-rgb) / 0.72);
+  --ws-ink-subtle: rgb(var(--ws-ink-rgb) / 0.42);
+  --ws-ink-inverse: #101216;
+  --ws-paper: #101216;
+  --ws-line: rgb(255 255 255 / 0.13);
+  --ws-line-hover: rgb(255 255 255 / 0.35);
+  --ws-line-strong: var(--ws-ink);
+  --ws-dash-color: rgb(255 255 255 / 0.13);
+  --ws-control-bg: rgb(255 255 255 / 0.05);
+  --ws-control-bg-hover: rgb(255 255 255 / 0.08);
+  --ws-control-bg-active: rgb(255 255 255 / 0.12);
+  --ws-shadow-rest: 0 0 18px 2px rgb(0 0 0 / 0.1);
+  --ws-shadow-hover: 0 0 24px 3px rgb(0 0 0 / 0.14);
+  --ws-shadow-active: 0 0 14px 1px rgb(0 0 0 / 0.12);
+  --ws-shadow-selected: 0 0 24px 3px rgb(0 0 0 / 0.14);
+  --ws-panel-bg: rgb(255 255 255 / 0.05);
+  --ws-panel-bg-hover: rgb(255 255 255 / 0.08);
+  --ws-panel-bg-active: #1f1f1f;
+  --ws-button-bg-selected: #f5f5f5;
+  --ws-button-icon-selected: #101216;
+  --ws-button-label-selected: #f5f5f5;
+  --ws-dropdown-border: rgb(255 255 255 / 0.13);
+  --ws-dropdown-text: #f5f5f5;
+  --ws-dropdown-text-muted: rgb(245 245 245 / 0.55);
+  --ws-dropdown-menu-surface-open: #252525;
+  --ws-dropdown-menu-shadow-open: 0 24px 64px rgb(0 0 0 / 0.45);
+  --ws-dropdown-selected-fill: rgb(255 255 255 / 0.08);
+  --ws-layer-toolbar-button-hover-bg: rgb(255 255 255 / 0.11);
+  --ws-layer-toolbar-button-hover-text: #ffffff;
+  --ws-option-card-bg: #101216;
+  --ws-option-card-bg-hover: rgb(255 255 255 / 0.05);
+  --ws-option-card-bg-active: rgb(255 255 255 / 0.08);
+  --ws-option-card-bg-selected: rgb(255 255 255 / 0.08);
+  --ws-option-card-border: rgb(255 255 255 / 0.12);
+  --ws-option-card-border-hover: rgb(255 255 255 / 0.17);
+  --ws-option-card-border-active: rgb(255 255 255 / 0.2);
+  --ws-option-card-border-selected: #f5f5f5;
+  --ws-option-card-motif: #b8c0cc;
+  --ws-option-card-motif-selected: #dfe5ee;
+  --ws-option-card-label: rgb(245 245 245 / 0.55);
+  --ws-option-card-label-selected: #f5f5f5;
+}
+
+[data-slot="desktop-workspace"] .ws-type-panel-tab {
+  font-size: var(--ws-type-panel-tab);
+  line-height: 1.1;
+}
+
+[data-slot="desktop-workspace"] .ws-type-section-title {
+  font-size: var(--ws-type-section-title);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}
+
+[data-slot="desktop-workspace"] .ws-type-control-label {
+  font-size: var(--ws-type-control-label);
+  line-height: 1.2;
+}
+
+[data-slot="desktop-workspace"] .ws-type-body {
+  font-size: var(--ws-type-body);
+  line-height: 1.55;
+}
+
+[data-slot="desktop-workspace"] .ws-type-input {
+  font-size: var(--ws-type-input);
+  line-height: 1.45;
+}
+
+[data-slot="desktop-workspace"] .ws-type-nav-label {
+  font-size: var(--ws-type-nav-label);
+  line-height: 1.05;
+}
+
+[data-slot="desktop-workspace"] .ws-type-meta {
+  font-size: var(--ws-type-meta);
+  line-height: 1.35;
+}
+
+[data-slot="desktop-workspace"] .ws-type-caption {
+  font-size: var(--ws-type-caption);
+  line-height: 1.25;
+}
+
+[data-slot="desktop-workspace"] .ws-type-data {
+  font-size: var(--ws-type-meta);
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-slot="desktop-workspace"] [data-slot="drafting-surface"] {
+  border-color: transparent;
+  isolation: isolate;
+}
+
+[data-slot="desktop-workspace"] [data-slot="drafting-surface"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background-image:
+    linear-gradient(90deg, var(--ws-dash-color) 0 var(--ws-dash-size), transparent var(--ws-dash-size) var(--ws-dash-cycle)),
+    linear-gradient(90deg, var(--ws-dash-color) 0 var(--ws-dash-size), transparent var(--ws-dash-size) var(--ws-dash-cycle)),
+    linear-gradient(180deg, var(--ws-dash-color) 0 var(--ws-dash-size), transparent var(--ws-dash-size) var(--ws-dash-cycle)),
+    linear-gradient(180deg, var(--ws-dash-color) 0 var(--ws-dash-size), transparent var(--ws-dash-size) var(--ws-dash-cycle));
+  background-position: top left, bottom left, top left, top right;
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size: var(--ws-dash-cycle) 1px, var(--ws-dash-cycle) 1px, 1px var(--ws-dash-cycle), 1px var(--ws-dash-cycle);
+}
+
+@media (max-width: 63.999rem) {
+  [data-slot="desktop-workspace"] [data-slot="drafting-surface"]::before {
+    display: none;
+  }
+}

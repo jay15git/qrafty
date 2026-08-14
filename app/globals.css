@@ -106,41 +106,41 @@
 
 :root {
   color-scheme: light;
-  --background: oklch(0.97 0.006 95);
-  --foreground: oklch(0.24 0.014 252);
-  --card: oklch(0.995 0.002 95);
-  --card-foreground: oklch(0.24 0.014 252);
-  --popover: oklch(0.995 0.002 95);
-  --popover-foreground: oklch(0.24 0.014 252);
-  --primary: oklch(0.62 0.11 66);
-  --primary-foreground: oklch(0.985 0.002 95);
-  --secondary: oklch(0.93 0.01 95);
-  --secondary-foreground: oklch(0.28 0.014 252);
-  --muted: oklch(0.95 0.008 95);
-  --muted-foreground: oklch(0.54 0.018 252);
-  --accent: oklch(0.91 0.015 88);
-  --accent-foreground: oklch(0.28 0.014 252);
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.18 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0 0);
+  --primary: oklch(0.18 0 0);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.22 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --accent: oklch(0.94 0 0);
+  --accent-foreground: oklch(0.22 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.87 0.008 95 / 0.9);
-  --input: oklch(0.94 0.008 95);
-  --ring: oklch(0.68 0.08 66);
-  --chart-1: oklch(0.67 0.13 66);
-  --chart-2: oklch(0.61 0.08 214);
-  --chart-3: oklch(0.58 0.06 170);
-  --chart-4: oklch(0.53 0.05 140);
-  --chart-5: oklch(0.48 0.045 110);
+  --border: oklch(0.9 0 0 / 0.9);
+  --input: oklch(0.96 0 0);
+  --ring: oklch(0.65 0 0);
+  --chart-1: oklch(0.45 0 0);
+  --chart-2: oklch(0.55 0 0);
+  --chart-3: oklch(0.65 0 0);
+  --chart-4: oklch(0.75 0 0);
+  --chart-5: oklch(0.85 0 0);
   --workspace-page: #171717;
   --workspace-shell: #1f1f1f;
-  --workspace-shell-light: #e7e9ec;
+  --workspace-shell-light: #f4f4f5;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0.003 95);
-  --sidebar-foreground: oklch(0.26 0.014 252);
-  --sidebar-primary: oklch(0.62 0.11 66);
-  --sidebar-primary-foreground: oklch(0.985 0.002 95);
-  --sidebar-accent: oklch(0.93 0.01 95);
-  --sidebar-accent-foreground: oklch(0.28 0.014 252);
-  --sidebar-border: oklch(0.87 0.008 95 / 0.9);
-  --sidebar-ring: oklch(0.68 0.08 66);
+  --sidebar: oklch(0.99 0 0);
+  --sidebar-foreground: oklch(0.22 0 0);
+  --sidebar-primary: oklch(0.18 0 0);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.96 0 0);
+  --sidebar-accent-foreground: oklch(0.22 0 0);
+  --sidebar-border: oklch(0.9 0 0 / 0.9);
+  --sidebar-ring: oklch(0.65 0 0);
   --destructive-foreground: var(--color-red-700);
   --info: var(--color-blue-500);
   --info-foreground: var(--color-blue-700);
@@ -165,46 +165,46 @@
   --shadow-6: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color), 0 24px 24px -12px var(--shadow-color);
   --shadow-7: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color), 0 24px 24px -12px var(--shadow-color), 0 48px 48px -24px var(--shadow-color);
   --shadow-8: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color), 0 24px 24px -12px var(--shadow-color), 0 48px 48px -24px var(--shadow-color), 0 96px 96px -48px var(--shadow-color);
-  --fluid-switch-track-off: oklch(0.86 0.006 252);
-  --fluid-switch-track-off-hover: oklch(0.82 0.006 252);
-  --fluid-switch-track-on: oklch(0.42 0.012 252);
-  --fluid-switch-track-on-hover: oklch(0.38 0.012 252);
-  --fluid-switch-thumb-off: oklch(0.99 0.002 95);
-  --fluid-switch-thumb-on: oklch(0.98 0.002 95);
+  --fluid-switch-track-off: oklch(0.86 0 0);
+  --fluid-switch-track-off-hover: oklch(0.82 0 0);
+  --fluid-switch-track-on: oklch(0.42 0 0);
+  --fluid-switch-track-on-hover: oklch(0.38 0 0);
+  --fluid-switch-thumb-off: oklch(0.99 0 0);
+  --fluid-switch-thumb-on: oklch(0.98 0 0);
 }
 
 .dark {
-  --background: oklch(0.15 0.012 252);
-  --foreground: oklch(0.96 0.01 80);
-  --card: oklch(0.2 0.014 252);
-  --card-foreground: oklch(0.96 0.01 80);
-  --popover: oklch(0.2 0.014 252);
-  --popover-foreground: oklch(0.96 0.01 80);
-  --primary: oklch(0.75 0.1 66);
-  --primary-foreground: oklch(0.18 0.014 252);
-  --secondary: oklch(0.24 0.016 252);
-  --secondary-foreground: oklch(0.96 0.01 80);
-  --muted: oklch(0.22 0.014 252);
-  --muted-foreground: oklch(0.72 0.02 80);
-  --accent: oklch(0.25 0.018 252);
-  --accent-foreground: oklch(0.96 0.01 80);
+  --background: oklch(0.15 0 0);
+  --foreground: oklch(0.96 0 0);
+  --card: oklch(0.2 0 0);
+  --card-foreground: oklch(0.96 0 0);
+  --popover: oklch(0.2 0 0);
+  --popover-foreground: oklch(0.96 0 0);
+  --primary: oklch(0.92 0 0);
+  --primary-foreground: oklch(0.18 0 0);
+  --secondary: oklch(0.24 0 0);
+  --secondary-foreground: oklch(0.96 0 0);
+  --muted: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.72 0 0);
+  --accent: oklch(0.25 0 0);
+  --accent-foreground: oklch(0.96 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.33 0.012 252 / 0.75);
-  --input: oklch(0.28 0.012 252 / 0.95);
-  --ring: oklch(0.72 0.05 66);
-  --chart-1: oklch(0.76 0.08 66);
-  --chart-2: oklch(0.68 0.04 214);
-  --chart-3: oklch(0.63 0.03 170);
-  --chart-4: oklch(0.55 0.025 140);
-  --chart-5: oklch(0.48 0.022 110);
-  --sidebar: oklch(0.18 0.012 252);
-  --sidebar-foreground: oklch(0.95 0.01 80);
-  --sidebar-primary: oklch(0.75 0.1 66);
-  --sidebar-primary-foreground: oklch(0.18 0.014 252);
-  --sidebar-accent: oklch(0.23 0.016 252);
-  --sidebar-accent-foreground: oklch(0.95 0.01 80);
-  --sidebar-border: oklch(0.31 0.012 252 / 0.75);
-  --sidebar-ring: oklch(0.72 0.05 66);
+  --border: oklch(0.33 0 0 / 0.75);
+  --input: oklch(0.28 0 0 / 0.95);
+  --ring: oklch(0.72 0 0);
+  --chart-1: oklch(0.76 0 0);
+  --chart-2: oklch(0.68 0 0);
+  --chart-3: oklch(0.63 0 0);
+  --chart-4: oklch(0.55 0 0);
+  --chart-5: oklch(0.48 0 0);
+  --sidebar: oklch(0.18 0 0);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.92 0 0);
+  --sidebar-primary-foreground: oklch(0.18 0 0);
+  --sidebar-accent: oklch(0.23 0 0);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.31 0 0 / 0.75);
+  --sidebar-ring: oklch(0.72 0 0);
   --destructive-foreground: var(--color-red-400);
   --info: var(--color-blue-500);
   --info-foreground: var(--color-blue-400);
@@ -444,590 +444,6 @@
     0 var(--scroll-buffer),
     calc(100% - var(--scroll-buffer)) 100%;
   animation-fill-mode: both;
-}
-
-[data-slot="drafting-tab-panel-scroll"] {
-  scrollbar-width: none;
-}
-
-[data-slot="drafting-tab-panel-scroll"]::-webkit-scrollbar {
-  display: none;
-}
-
-:is([data-slot="desktop-page"]) {
-  min-height: 100dvh;
-  --drafting-ink-rgb: 17 17 17;
-  --drafting-paper-rgb: 255 255 255;
-  --drafting-page-bg: oklch(0.9821 0 0);
-  --drafting-surface-bg: oklch(0.9821 0 0);
-  --drafting-canvas-bg: oklch(1 0 0);
-  --drafting-canvas-dot-rgb: var(--drafting-ink-rgb);
-  --drafting-canvas-dot-opacity: 0.08;
-  --drafting-canvas-check-rgb: 255 255 255;
-  --drafting-canvas-check-opacity: 0.72;
-  --drafting-panel-bg: rgb(var(--drafting-paper-rgb) / 0.8);
-  --drafting-panel-bg-hover: rgb(var(--drafting-paper-rgb) / 0.95);
-  --drafting-panel-bg-active: oklch(1 0 0);
-  --drafting-ink: oklch(0.18 0 0);
-  --drafting-resize-frame: #18a0fb;
-  --drafting-ink-muted: rgb(var(--drafting-ink-rgb) / 0.45);
-  --drafting-ink-strong-muted: rgb(var(--drafting-ink-rgb) / 0.65);
-  --drafting-ink-subtle: rgb(var(--drafting-ink-rgb) / 0.32);
-  --drafting-ink-inverse: oklch(1 0 0);
-  --drafting-line: rgb(var(--drafting-ink-rgb) / 0.09);
-  --drafting-line-hover: rgb(var(--drafting-ink-rgb) / 0.16);
-  --drafting-line-strong: rgb(var(--drafting-ink-rgb) / 0.4);
-  --drafting-dash-color: rgb(var(--drafting-ink-rgb) / 0.12);
-  --drafting-control-bg: rgb(var(--drafting-ink-rgb) / 0.03);
-  --drafting-control-bg-hover: rgb(var(--drafting-ink-rgb) / 0.06);
-  --drafting-control-bg-active: rgb(var(--drafting-ink-rgb) / 0.08);
-  --drafting-shadow-rest: 0 0 10px 0 rgb(var(--drafting-ink-rgb) / 0.05), 0 2px 4px 0 rgb(var(--drafting-ink-rgb) / 0.03);
-  --drafting-shadow-hover: 0 0 18px 1px rgb(var(--drafting-ink-rgb) / 0.07), 0 4px 10px 0 rgb(var(--drafting-ink-rgb) / 0.04);
-  --drafting-shadow-active: 0 0 8px 0 rgb(var(--drafting-ink-rgb) / 0.07), 0 1px 3px 0 rgb(var(--drafting-ink-rgb) / 0.06);
-  --drafting-shadow-selected: 0 0 22px 2px rgb(var(--drafting-ink-rgb) / 0.14), 0 5px 10px 1px rgb(var(--drafting-ink-rgb) / 0.08);
-  --drafting-shadow-raised: 0 24px 64px rgb(var(--drafting-ink-rgb) / 0.18), 0 8px 20px rgb(var(--drafting-ink-rgb) / 0.08);
-  --drafting-shadow-shell: 0 18px 48px rgb(var(--drafting-ink-rgb) / 0.06);
-  --drafting-button-bg: var(--drafting-control-bg);
-  --drafting-button-bg-hover: var(--drafting-control-bg-hover);
-  --drafting-button-bg-active: var(--drafting-control-bg-active);
-  --drafting-button-bg-selected: var(--drafting-ink);
-  --drafting-button-glow-bg: var(--drafting-control-bg);
-  --drafting-button-glow-bg-selected: var(--drafting-ink);
-  --drafting-button-icon: currentColor;
-  --drafting-button-icon-selected: var(--drafting-ink-inverse);
-  --drafting-button-label: var(--drafting-ink-muted);
-  --drafting-button-label-hover: var(--drafting-ink-strong-muted);
-  --drafting-button-label-selected: var(--drafting-ink);
-  --drafting-button-shadow-rest: var(--drafting-shadow-rest);
-  --drafting-button-shadow-hover: var(--drafting-shadow-hover);
-  --drafting-button-shadow-active: var(--drafting-shadow-active);
-  --drafting-button-shadow-selected: var(--drafting-shadow-rest);
-  --drafting-button-shadow-selected-hover: var(--drafting-shadow-hover);
-  --drafting-panel-tab-tray-bg: var(--drafting-control-bg);
-  --drafting-panel-tab-bg: transparent;
-  --drafting-panel-tab-bg-hover: var(--drafting-panel-bg-hover);
-  --drafting-panel-tab-bg-active: var(--drafting-panel-bg-hover);
-  --drafting-panel-tab-bg-selected: var(--drafting-panel-bg-active);
-  --drafting-panel-tab-shelf: var(--drafting-line);
-  --drafting-panel-tab-shelf-rest: var(--drafting-line);
-  --drafting-panel-tab-shelf-selected: var(--drafting-line-hover);
-  --drafting-panel-tab-shelf-selected-hover: var(--drafting-line-hover);
-  --drafting-panel-tab-label: var(--drafting-ink-muted);
-  --drafting-panel-tab-label-hover: var(--drafting-ink-strong-muted);
-  --drafting-panel-tab-label-selected: var(--drafting-ink);
-  --drafting-panel-tab-shadow-rest: none;
-  --drafting-panel-tab-shadow-hover: var(--drafting-shadow-hover);
-  --drafting-panel-tab-shadow-active: var(--drafting-shadow-active);
-  --drafting-panel-tab-shadow-selected: var(--drafting-shadow-active);
-  --drafting-panel-tab-shadow-selected-hover: var(--drafting-shadow-hover);
-  --drafting-option-card-bg: #ffffff;
-  --drafting-option-card-bg-hover: #ffffff;
-  --drafting-option-card-bg-active: #ffffff;
-  --drafting-option-card-bg-selected: #ffffff;
-  --drafting-option-card-border: #00000017;
-  --drafting-option-card-border-hover: #0000002a;
-  --drafting-option-card-border-active: #00000034;
-  --drafting-option-card-border-selected: #000000;
-  --drafting-option-card-motif: #4b4f56;
-  --drafting-option-card-motif-selected: #4b4f56;
-  --drafting-option-card-label: #00000073;
-  --drafting-option-card-label-selected: #111111;
-  --drafting-option-card-shadow-rest: 0 0 10px 0 rgb(0 0 0 / 0.08), 0 2px 4px 0 rgb(0 0 0 / 0.06);
-  --drafting-option-card-shadow-hover: 0 0 16px 1px rgb(0 0 0 / 0.1), 0 3px 8px 0 rgb(0 0 0 / 0.08);
-  --drafting-option-card-shadow-active: 0 0 8px 0 rgb(0 0 0 / 0.08), 0 1px 3px 0 rgb(0 0 0 / 0.08);
-  --drafting-option-card-shadow-selected: 0 0 22px 2px rgb(0 0 0 / 0.14), 0 5px 10px 1px rgb(0 0 0 / 0.1);
-  --drafting-option-card-shadow-selected-hover: 0 0 28px 3px rgb(0 0 0 / 0.18), 0 6px 14px 1px rgb(0 0 0 / 0.12);
-  --drafting-dropdown-trigger-surface: #ffffff;
-  --drafting-dropdown-trigger-surface-hover: #00000003;
-  --drafting-dropdown-trigger-surface-pressed: #00000006;
-  --drafting-dropdown-trigger-surface-open: #ffffff;
-  --drafting-dropdown-menu-surface-open: #ffffff;
-  --drafting-dropdown-border: #0000001f;
-  --drafting-dropdown-border-focus: #000000;
-  --drafting-dropdown-text: #262626;
-  --drafting-dropdown-text-muted: #000000b3;
-  --drafting-dropdown-selected-fill: #00000006;
-  --drafting-dropdown-trigger-shadow-rest: 0 0 18px 2px #00000008, 0 2px 4px #00000006;
-  --drafting-dropdown-trigger-shadow-hover: 0 0 24px 3px #00000010, 0 4px 10px #00000008;
-  --drafting-dropdown-trigger-shadow-pressed: 0 0 14px 1px #0000000c, 0 2px 6px #00000008;
-  --drafting-dropdown-menu-shadow-open: 0 24px 64px #0000002e, 0 8px 20px #00000014;
-}
-
-[data-drafting-dropdown-content="true"] {
-  --drafting-dropdown-trigger-surface: #ffffff;
-  --drafting-dropdown-trigger-surface-hover: #00000003;
-  --drafting-dropdown-trigger-surface-pressed: #00000006;
-  --drafting-dropdown-trigger-surface-open: #ffffff;
-  --drafting-dropdown-menu-surface-open: #ffffff;
-  --drafting-dropdown-border: #0000001f;
-  --drafting-dropdown-border-focus: #000000;
-  --drafting-dropdown-text: #262626;
-  --drafting-dropdown-text-muted: #000000b3;
-  --drafting-dropdown-selected-fill: #00000006;
-  --drafting-dropdown-trigger-shadow-rest: 0 0 18px 2px #00000008, 0 2px 4px #00000006;
-  --drafting-dropdown-trigger-shadow-hover: 0 0 24px 3px #00000010, 0 4px 10px #00000008;
-  --drafting-dropdown-trigger-shadow-pressed: 0 0 14px 1px #0000000c, 0 2px 6px #00000008;
-  --drafting-dropdown-menu-shadow-open: 0 24px 64px #0000002e, 0 8px 20px #00000014;
-}
-
-.dark :is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) {
-  --drafting-dark-page-bg: #171717;
-  --drafting-dark-shell-bg: #1f1f1f;
-  --drafting-dark-surface-muted: #ffffff08;
-  --drafting-dark-surface-subtle: #ffffff0d;
-  --drafting-dark-surface-raised: #171a20;
-  --drafting-dark-surface-selected: #f6f8fb;
-  --drafting-dark-border: #ffffff22;
-  --drafting-dark-border-strong: #ffffff59;
-  --drafting-dark-text-primary: #f6f8fb;
-  --drafting-dark-text-secondary: #c8d0dc;
-  --drafting-dark-text-muted: #a8b0bd;
-  --drafting-dark-ink-primary: #dfe5ee;
-  --drafting-dark-ink-muted: #b8c0cc;
-  --drafting-dark-selected-foreground: #101216;
-  --drafting-dark-button-fill-default: #ffffff08;
-  --drafting-dark-button-fill-hover: #ffffff0d;
-  --drafting-dark-button-fill-pressed: #ffffff14;
-  --drafting-dark-button-fill-selected: #f6f8fb;
-  --drafting-dark-button-glow-default: #ffffff1a;
-  --drafting-dark-button-glow-selected: #ffffff33;
-  --drafting-dark-button-icon-default: #dfe5ee;
-  --drafting-dark-button-icon-selected: #101216;
-  --drafting-dark-button-label-default: #a8b0bd;
-  --drafting-dark-button-label-hover: #c8d0dc;
-  --drafting-dark-button-label-selected: #f6f8fb;
-  --drafting-dark-panel-tray-fill: #ffffff0d;
-  --drafting-dark-panel-surface-default: #ffffff00;
-  --drafting-dark-panel-surface-hover: #ffffff0d;
-  --drafting-dark-panel-surface-pressed: #ffffff14;
-  --drafting-dark-panel-surface-selected: #101216;
-  --drafting-dark-panel-shelf-muted: #ffffff14;
-  --drafting-dark-panel-shelf-rest: #ffffff20;
-  --drafting-dark-panel-shelf-selected: #ffffff24;
-  --drafting-dark-panel-shelf-selected-hover: #ffffff2b;
-  --drafting-dark-panel-label-default: #a8b0bd;
-  --drafting-dark-panel-label-hover: #c8d0dc;
-  --drafting-dark-panel-label-selected: #dfe5ee;
-  --drafting-dark-option-fill-default: #101216;
-  --drafting-dark-option-fill-hover: #ffffff0d;
-  --drafting-dark-option-fill-pressed: #ffffff14;
-  --drafting-dark-option-fill-selected: #ffffff14;
-  --drafting-dark-option-border-default: #ffffff20;
-  --drafting-dark-option-border-hover: #ffffff2b;
-  --drafting-dark-option-border-pressed: #ffffff34;
-  --drafting-dark-option-border-selected: #f6f8fb;
-  --drafting-dark-option-motif-default: #b8c0cc;
-  --drafting-dark-option-motif-selected: #dfe5ee;
-  --drafting-dark-option-label-default: #a8b0bd;
-  --drafting-dark-option-label-selected: #f6f8fb;
-  --drafting-dark-shadow-rest: 0 0 18px 2px #00000010, 0 3px 8px 1px #00000009;
-  --drafting-dark-shadow-hover: 0 0 24px 3px #00000016, 0 4px 10px 1px #0000000e;
-  --drafting-dark-shadow-active: 0 0 14px 1px #00000012, 0 2px 6px 0 #0000000c;
-  --drafting-dark-shadow-selected: 0 0 24px 3px #00000016, 0 4px 10px 1px #0000000e;
-  --drafting-dark-shadow-selected-hover: 0 0 28px 4px #0000001a, 0 5px 12px 1px #00000010;
-  --drafting-dark-option-shadow-rest: 0 0 10px 0 #00000010, 0 2px 4px 0 #00000009;
-  --drafting-dark-option-shadow-hover: 0 0 16px 1px #00000016, 0 3px 8px 0 #0000000e;
-  --drafting-dark-option-shadow-active: 0 0 8px 0 #00000012, 0 1px 3px 0 #0000000c;
-  --drafting-dark-option-shadow-selected: 0 0 22px 2px #00000016, 0 5px 10px 1px #0000000e;
-  --drafting-dark-option-shadow-selected-hover: 0 0 28px 3px #0000001a, 0 6px 14px 1px #00000010;
-  --drafting-dark-shadow-raised: 0 24px 64px #00000075, 0 8px 20px #00000052;
-  --drafting-dark-shadow-shell: none;
-  --drafting-dropdown-trigger-surface: #ffffff08;
-  --drafting-dropdown-trigger-surface-hover: #ffffff0d;
-  --drafting-dropdown-trigger-surface-pressed: #ffffff14;
-  --drafting-dropdown-trigger-surface-open: #252a33;
-  --drafting-dropdown-menu-surface-open: #252a33;
-  --drafting-dropdown-border: #ffffff22;
-  --drafting-dropdown-border-focus: #ffffff59;
-  --drafting-dropdown-text: #f6f8fb;
-  --drafting-dropdown-text-muted: #a8b0bd;
-  --drafting-dropdown-selected-fill: #ffffff14;
-  --drafting-dropdown-trigger-shadow-rest: 0 0 18px 2px #00000010, 0 3px 8px 1px #00000009;
-  --drafting-dropdown-trigger-shadow-hover: 0 0 24px 3px #00000016, 0 4px 10px 1px #0000000e;
-  --drafting-dropdown-trigger-shadow-pressed: 0 0 14px 1px #00000012, 0 2px 6px #0000000c;
-  --drafting-dropdown-menu-shadow-open: 0 24px 64px #00000075, 0 8px 20px #00000052;
-  --drafting-ink-rgb: 246 248 251;
-  --drafting-paper-rgb: 16 18 22;
-  --drafting-page-bg: var(--drafting-dark-page-bg);
-  --drafting-surface-bg: var(--drafting-dark-shell-bg);
-  --drafting-canvas-bg: var(--drafting-dark-shell-bg);
-  --drafting-canvas-dot-rgb: var(--drafting-ink-rgb);
-  --drafting-canvas-dot-opacity: 0.075;
-  --drafting-canvas-check-rgb: 246 248 251;
-  --drafting-canvas-check-opacity: 0.052;
-  --drafting-panel-bg: var(--drafting-dark-surface-muted);
-  --drafting-panel-bg-hover: var(--drafting-dark-surface-subtle);
-  --drafting-panel-bg-active: var(--drafting-dark-shell-bg);
-  --drafting-ink: var(--drafting-dark-text-primary);
-  --drafting-resize-frame: #4ab8ff;
-  --drafting-ink-muted: var(--drafting-dark-text-muted);
-  --drafting-ink-strong-muted: var(--drafting-dark-text-secondary);
-  --drafting-ink-subtle: var(--drafting-dark-ink-muted);
-  --drafting-ink-inverse: var(--drafting-dark-selected-foreground);
-  --drafting-line: var(--drafting-dark-border);
-  --drafting-line-hover: var(--drafting-dark-border-strong);
-  --drafting-line-strong: var(--drafting-dark-text-primary);
-  --drafting-dash-color: var(--drafting-dark-border);
-  --drafting-control-bg: var(--drafting-dark-button-fill-default);
-  --drafting-control-bg-hover: var(--drafting-dark-button-fill-hover);
-  --drafting-control-bg-active: var(--drafting-dark-button-fill-pressed);
-  --drafting-shadow-rest: var(--drafting-dark-shadow-rest);
-  --drafting-shadow-hover: var(--drafting-dark-shadow-hover);
-  --drafting-shadow-active: var(--drafting-dark-shadow-active);
-  --drafting-shadow-selected: var(--drafting-dark-shadow-selected);
-  --drafting-shadow-selected-hover: var(--drafting-dark-shadow-selected-hover);
-  --drafting-shadow-raised: var(--drafting-dark-shadow-raised);
-  --drafting-shadow-shell: var(--drafting-dark-shadow-shell);
-  --drafting-button-bg: var(--drafting-dark-button-fill-default);
-  --drafting-button-bg-hover: var(--drafting-dark-button-fill-hover);
-  --drafting-button-bg-active: var(--drafting-dark-button-fill-pressed);
-  --drafting-button-bg-selected: var(--drafting-dark-button-fill-selected);
-  --drafting-button-glow-bg: var(--drafting-dark-button-glow-default);
-  --drafting-button-glow-bg-selected: var(--drafting-dark-button-glow-selected);
-  --drafting-button-icon: var(--drafting-dark-button-icon-default);
-  --drafting-button-icon-selected: var(--drafting-dark-button-icon-selected);
-  --drafting-button-label: var(--drafting-dark-button-label-default);
-  --drafting-button-label-hover: var(--drafting-dark-button-label-hover);
-  --drafting-button-label-selected: var(--drafting-dark-button-label-selected);
-  --drafting-button-shadow-rest: var(--drafting-dark-shadow-rest);
-  --drafting-button-shadow-hover: var(--drafting-dark-shadow-hover);
-  --drafting-button-shadow-active: var(--drafting-dark-shadow-active);
-  --drafting-button-shadow-selected: var(--drafting-dark-shadow-selected);
-  --drafting-button-shadow-selected-hover: var(--drafting-dark-shadow-selected-hover);
-  --drafting-panel-tab-tray-bg: var(--drafting-dark-panel-tray-fill);
-  --drafting-panel-tab-bg: var(--drafting-dark-panel-surface-default);
-  --drafting-panel-tab-bg-hover: var(--drafting-dark-panel-surface-hover);
-  --drafting-panel-tab-bg-active: var(--drafting-dark-panel-surface-pressed);
-  --drafting-panel-tab-bg-selected: var(--drafting-dark-panel-surface-selected);
-  --drafting-panel-tab-shelf: var(--drafting-dark-panel-shelf-muted);
-  --drafting-panel-tab-shelf-rest: var(--drafting-dark-panel-shelf-rest);
-  --drafting-panel-tab-shelf-selected: var(--drafting-dark-panel-shelf-selected);
-  --drafting-panel-tab-shelf-selected-hover: var(--drafting-dark-panel-shelf-selected-hover);
-  --drafting-panel-tab-label: var(--drafting-dark-panel-label-default);
-  --drafting-panel-tab-label-hover: var(--drafting-dark-panel-label-hover);
-  --drafting-panel-tab-label-selected: var(--drafting-dark-panel-label-selected);
-  --drafting-panel-tab-shadow-rest: none;
-  --drafting-panel-tab-shadow-hover: none;
-  --drafting-panel-tab-shadow-active: none;
-  --drafting-panel-tab-shadow-selected: none;
-  --drafting-panel-tab-shadow-selected-hover: none;
-  --drafting-option-card-bg: var(--drafting-dark-option-fill-default);
-  --drafting-option-card-bg-hover: var(--drafting-dark-option-fill-hover);
-  --drafting-option-card-bg-active: var(--drafting-dark-option-fill-pressed);
-  --drafting-option-card-bg-selected: var(--drafting-dark-option-fill-selected);
-  --drafting-option-card-border: var(--drafting-dark-option-border-default);
-  --drafting-option-card-border-hover: var(--drafting-dark-option-border-hover);
-  --drafting-option-card-border-active: var(--drafting-dark-option-border-pressed);
-  --drafting-option-card-border-selected: var(--drafting-dark-option-border-selected);
-  --drafting-option-card-motif: var(--drafting-dark-option-motif-default);
-  --drafting-option-card-motif-selected: var(--drafting-dark-option-motif-selected);
-  --drafting-option-card-label: var(--drafting-dark-option-label-default);
-  --drafting-option-card-label-selected: var(--drafting-dark-option-label-selected);
-  --drafting-option-card-shadow-rest: var(--drafting-dark-option-shadow-rest);
-  --drafting-option-card-shadow-hover: var(--drafting-dark-option-shadow-hover);
-  --drafting-option-card-shadow-active: var(--drafting-dark-option-shadow-active);
-  --drafting-option-card-shadow-selected: var(--drafting-dark-option-shadow-selected);
-  --drafting-option-card-shadow-selected-hover: var(--drafting-dark-option-shadow-selected-hover);
-}
-
-.dark [data-drafting-dropdown-content="true"] {
-  --drafting-dropdown-trigger-surface: #ffffff08;
-  --drafting-dropdown-trigger-surface-hover: #ffffff0d;
-  --drafting-dropdown-trigger-surface-pressed: #ffffff14;
-  --drafting-dropdown-trigger-surface-open: #252a33;
-  --drafting-dropdown-menu-surface-open: #252a33;
-  --drafting-dropdown-border: #ffffff22;
-  --drafting-dropdown-border-focus: #ffffff59;
-  --drafting-dropdown-text: #f6f8fb;
-  --drafting-dropdown-text-muted: #a8b0bd;
-  --drafting-dropdown-selected-fill: #ffffff14;
-  --drafting-dropdown-trigger-shadow-rest: 0 0 18px 2px #00000010, 0 3px 8px 1px #00000009;
-  --drafting-dropdown-trigger-shadow-hover: 0 0 24px 3px #00000016, 0 4px 10px 1px #0000000e;
-  --drafting-dropdown-trigger-shadow-pressed: 0 0 14px 1px #00000012, 0 2px 6px #0000000c;
-  --drafting-dropdown-menu-shadow-open: 0 24px 64px #00000075, 0 8px 20px #00000052;
-}
-
-[data-slot="drafting-surface"] {
-  --drafting-dash-size: 15px;
-  --drafting-dash-cycle: 30px;
-  border-color: transparent;
-  isolation: isolate;
-}
-
-:is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) {
-  --drafting-type-panel-tab: 0.875rem;
-  --drafting-type-section-title: 0.875rem;
-  --drafting-type-control-label: 0.875rem;
-  --drafting-type-body: 0.9375rem;
-  --drafting-type-input: 1rem;
-  --drafting-type-nav-label: 0.75rem;
-  --drafting-type-meta: 0.875rem;
-  --drafting-type-caption: 0.75rem;
-  --drafting-type-display-data: 1.5rem;
-  font-kerning: normal;
-  font-optical-sizing: auto;
-}
-
-:is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) .drafting-type-panel-tab {
-  font-size: var(--drafting-type-panel-tab);
-  line-height: 1.1;
-  letter-spacing: 0;
-}
-
-:is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) .drafting-type-section-title {
-  font-size: var(--drafting-type-section-title);
-  line-height: 1.15;
-  letter-spacing: 0.01em;
-}
-
-:is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) .drafting-type-control-label {
-  font-size: var(--drafting-type-control-label);
-  line-height: 1.2;
-  letter-spacing: 0.005em;
-}
-
-:is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) .drafting-type-body {
-  max-width: 65ch;
-  font-size: var(--drafting-type-body);
-  line-height: 1.55;
-  letter-spacing: 0;
-  text-wrap: pretty;
-}
-
-:is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) .drafting-type-input {
-  font-size: var(--drafting-type-input);
-  line-height: 1.45;
-  letter-spacing: 0;
-}
-
-:is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) .drafting-type-nav-label {
-  font-size: var(--drafting-type-nav-label);
-  line-height: 1.05;
-  letter-spacing: 0.015em;
-}
-
-:is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) .drafting-type-meta {
-  font-size: var(--drafting-type-meta);
-  line-height: 1.35;
-  letter-spacing: 0.01em;
-}
-
-:is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) .drafting-type-caption {
-  font-size: var(--drafting-type-caption);
-  line-height: 1.25;
-  letter-spacing: 0;
-}
-
-:is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) .drafting-type-data {
-  font-size: var(--drafting-type-meta);
-  line-height: 1.35;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0;
-}
-
-:is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) .drafting-type-display-data {
-  font-size: var(--drafting-type-display-data);
-  line-height: 1;
-  letter-spacing: 0;
-  font-variant-numeric: tabular-nums;
-}
-
-@media (min-width: 64rem) {
-  :is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) .drafting-type-nav-label {
-    font-size: var(--drafting-type-nav-label);
-    line-height: 1.18;
-    letter-spacing: 0.015em;
-  }
-}
-
-.dark :is([data-slot="desktop-page"], [data-slot="drafting-download-popover"]) {
-  --background: var(--drafting-dark-page-bg);
-  --card: var(--drafting-dark-surface-raised);
-  --popover: var(--drafting-dark-shell-bg);
-  --muted: var(--drafting-dark-surface-muted);
-  --input: var(--drafting-dark-surface-subtle);
-  --border: var(--drafting-dark-border);
-  background: var(--drafting-dark-page-bg);
-}
-
-.dark [data-slot="drafting-download-popover"] {
-  --drafting-option-card-border: #ffffff12;
-  --drafting-option-card-border-hover: var(--drafting-dark-option-border-default);
-  --drafting-option-card-border-active: var(--drafting-dark-option-border-hover);
-}
-
-.dark [data-slot="desktop-page"] [data-slot="drafting-surface"] {
-  background: var(--drafting-dark-shell-bg);
-  box-shadow: var(--drafting-dark-shadow-shell);
-}
-
-.dark [data-slot="desktop-page"] :is(
-  [data-slot="mode-toggle"],
-  [data-slot="button"]:not([data-drafting-tool-button="true"]):not([data-drafting-dropdown-trigger="true"]),
-  [data-slot="card"],
-  [data-slot="input"],
-  [data-slot="textarea"],
-  [data-slot="select-trigger"],
-  [data-slot="popover-content"],
-  [data-slot="drafting-download-popover"],
-  [data-slot="drafting-content-textarea-field"],
-  [data-slot="drafting-layers-empty-state"],
-  [data-slot="drafting-layer-row"],
-  [data-slot="drafting-color-trigger"],
-  [data-slot="drafting-download-submit"]
-) {
-  box-shadow: var(--drafting-shadow-rest) !important;
-}
-
-.dark [data-slot="desktop-page"] :is(
-  [data-slot="mode-toggle"],
-  [data-slot="button"]:not([data-drafting-tool-button="true"]):not([data-drafting-dropdown-trigger="true"]),
-  [data-slot="card"],
-  [data-slot="input"],
-  [data-slot="textarea"],
-  [data-slot="select-trigger"],
-  [data-slot="popover-content"],
-  [data-slot="drafting-download-popover"],
-  [data-slot="drafting-content-textarea-field"],
-  [data-slot="drafting-layers-empty-state"],
-  [data-slot="drafting-layer-row"],
-  [data-slot="drafting-color-trigger"],
-  [data-slot="drafting-download-submit"]
-):hover {
-  box-shadow: var(--drafting-shadow-hover) !important;
-}
-
-.dark [data-slot="desktop-page"] :is(
-  [data-slot="button"]:not([data-drafting-tool-button="true"]),
-  [data-slot="drafting-layer-row"],
-  [data-slot="drafting-color-trigger"],
-  [data-slot="drafting-download-submit"]
-):active {
-  box-shadow: var(--drafting-shadow-active) !important;
-}
-
-.dark [data-slot="desktop-page"] :is(
-  [data-state="open"][data-slot="drafting-color-trigger"]
-) {
-  box-shadow: var(--drafting-shadow-selected) !important;
-}
-
-.dark [data-slot="desktop-page"] [data-drafting-tool-button="true"][aria-pressed="true"] [data-slot="drafting-tool-button-icon"] {
-  box-shadow: var(--drafting-shadow-selected) !important;
-}
-
-[data-slot="drafting-surface"]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-  pointer-events: none;
-  background-image:
-    linear-gradient(
-      90deg,
-      var(--drafting-dash-color) 0 var(--drafting-dash-size),
-      transparent var(--drafting-dash-size) var(--drafting-dash-cycle)
-    ),
-    linear-gradient(
-      90deg,
-      var(--drafting-dash-color) 0 var(--drafting-dash-size),
-      transparent var(--drafting-dash-size) var(--drafting-dash-cycle)
-    ),
-    linear-gradient(
-      180deg,
-      var(--drafting-dash-color) 0 var(--drafting-dash-size),
-      transparent var(--drafting-dash-size) var(--drafting-dash-cycle)
-    ),
-    linear-gradient(
-      180deg,
-      var(--drafting-dash-color) 0 var(--drafting-dash-size),
-      transparent var(--drafting-dash-size) var(--drafting-dash-cycle)
-    );
-  background-position:
-    top left,
-    bottom left,
-    top left,
-    top right;
-  background-repeat:
-    repeat-x,
-    repeat-x,
-    repeat-y,
-    repeat-y;
-  background-size:
-    var(--drafting-dash-cycle) 1px,
-    var(--drafting-dash-cycle) 1px,
-    1px var(--drafting-dash-cycle),
-    1px var(--drafting-dash-cycle);
-}
-
-[data-slot="drafting-divider-horizontal"] {
-  isolation: isolate;
-}
-
-[data-slot="drafting-divider-vertical"] {
-  isolation: isolate;
-}
-
-[data-slot="drafting-divider-horizontal"]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  height: 1px;
-  transform: translateY(-0.5px);
-  background-image: repeating-linear-gradient(
-    90deg,
-    var(--drafting-dash-color) 0 var(--drafting-dash-size),
-    transparent var(--drafting-dash-size) var(--drafting-dash-cycle)
-  );
-  background-repeat: repeat-x;
-  background-size: var(--drafting-dash-cycle) 1px;
-}
-
-[data-slot="drafting-divider-vertical"]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 1px;
-  transform: translateX(-0.5px);
-  background-image: repeating-linear-gradient(
-    180deg,
-    var(--drafting-dash-color) 0 var(--drafting-dash-size),
-    transparent var(--drafting-dash-size) var(--drafting-dash-cycle)
-  );
-  background-repeat: repeat-y;
-  background-size: 1px var(--drafting-dash-cycle);
-}
-
-@media (max-width: 63.999rem) {
-  [data-slot="drafting-surface"]::before,
-  [data-slot="drafting-divider-horizontal"]::before,
-  [data-slot="drafting-divider-vertical"]::before {
-    display: none;
-  }
-
-  [data-slot="drafting-nav"]::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    z-index: 50;
-    height: 1px;
-    pointer-events: none;
-    background-image: repeating-linear-gradient(
-      90deg,
-      var(--drafting-dash-color) 0 var(--drafting-dash-size),
-      transparent var(--drafting-dash-size) var(--drafting-dash-cycle)
-    );
-    background-position: top left;
-    background-repeat: repeat-x;
-    background-size: var(--drafting-dash-cycle) 1px;
-  }
-
-  [data-slot="drafting-nav"]::before {
-    top: 0;
-  }
 }
 
 /* Calligraph slots: hide reel fade/peek — show active digit only */

@@ -35,7 +35,7 @@ function PaperShaderInsertOptionTile({
         "group relative aspect-square w-full min-w-0 p-0 transition",
         isInsertDesktop
           ? "rounded-[8px] hover:bg-white/[0.11]"
-          : "rounded-[7px] hover:bg-[var(--drafting-panel-bg-hover)]",
+          : "rounded-[7px] hover:bg-[var(--ws-panel-bg-hover)]",
       )}
       type="button"
       onClick={onClick}
@@ -45,7 +45,7 @@ function PaperShaderInsertOptionTile({
         data-slot="paper-shader-insert-preview-surface"
         className={cn(
           "relative block size-full overflow-hidden rounded-[6px] border-2 border-transparent shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]",
-          isInsertDesktop ? "bg-[#15161a]" : "bg-[var(--drafting-control-bg)]",
+          isInsertDesktop ? "bg-[#15161a]" : "bg-[var(--ws-control-bg)]",
         )}
       >
         <PaperShaderOptionPreview shaderId={shaderId} />

@@ -24,15 +24,15 @@ export function ModeToggle({ appearance = "default", className }: ModeToggleProp
   const isDrafting = appearance === "drafting"
   const lightIconClassName = isDrafting
     ? isDark
-      ? "text-[var(--drafting-ink-subtle)]"
-      : "text-[var(--drafting-ink)]"
+      ? "text-[var(--ws-ink-subtle)]"
+      : "text-[var(--ws-ink)]"
     : isDark
       ? "text-foreground/35"
       : "text-amber-500"
   const darkIconClassName = isDrafting
     ? isDark
-      ? "text-[var(--drafting-ink)]"
-      : "text-[var(--drafting-ink-subtle)]"
+      ? "text-[var(--ws-ink)]"
+      : "text-[var(--ws-ink-subtle)]"
     : isDark
       ? "text-sky-300"
       : "text-foreground/35"
@@ -65,7 +65,7 @@ export function ModeToggle({ appearance = "default", className }: ModeToggleProp
       <span
         className={cn(
           "font-medium text-foreground/70",
-          isDrafting ? "drafting-type-body" : "text-sm",
+          isDrafting ? "ws-type-body" : "text-sm",
         )}
       >
         Appearance

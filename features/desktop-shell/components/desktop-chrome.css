@@ -1,0 +1,607 @@
+body:has([data-slot="desktop-floating-toolbar-root"]) {
+  --desktop-glass-bg: rgba(0, 0, 0, 0.95);
+  --desktop-glass-border: rgba(255, 255, 255, 0.06);
+  --desktop-glass-fg: rgba(255, 255, 255, 0.72);
+  --desktop-glass-shadow: 0 24px 64px rgba(0, 0, 0, 0.34);
+  --desktop-glass-panel-border: rgba(255, 255, 255, 0.06);
+  --desktop-glass-panel-shadow: var(--desktop-glass-shadow);
+  --desktop-glass-button-hover-bg: rgba(255, 255, 255, 0.11);
+  --desktop-glass-button-hover-fg: rgba(255, 255, 255, 1);
+  --desktop-glass-button-focus-ring: rgba(255, 255, 255, 0.45);
+  --desktop-appearance-popover-bg: rgba(10, 10, 10, 0.96);
+  --desktop-appearance-popover-border: rgba(255, 255, 255, 0.06);
+  --desktop-appearance-popover-shadow: var(--desktop-glass-shadow);
+  --desktop-inspector-fg-primary: rgba(255, 255, 255, 0.94);
+  --desktop-inspector-fg-secondary: rgba(255, 255, 255, 0.76);
+  --desktop-inspector-fg-tertiary: rgba(255, 255, 255, 0.50);
+  --desktop-inspector-fg-muted: rgba(255, 255, 255, 0.42);
+  --desktop-inspector-fg-label: var(--desktop-inspector-fg-secondary);
+  --desktop-inspector-error: rgba(248, 113, 113, 0.92);
+  --desktop-inspector-dropdown-bg: rgba(0, 0, 0, 0.9);
+  --desktop-inspector-morph-filter-bg: var(--workspace-shell, #1f1f1f);
+  --desktop-inspector-dropdown-border: rgba(255, 255, 255, 0.06);
+  --desktop-inspector-control-hover-bg: rgba(255, 255, 255, 0.09);
+  --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.14);
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) {
+  --desktop-glass-bg: rgba(255, 255, 255, 0.78);
+  --desktop-glass-border: rgba(15, 23, 42, 0.12);
+  --desktop-glass-fg: rgba(15, 23, 42, 0.68);
+  --desktop-glass-shadow: 0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  --desktop-glass-panel-border: rgba(15, 23, 42, 0.12);
+  --desktop-glass-panel-shadow: var(--desktop-glass-shadow);
+  --desktop-glass-button-hover-bg: rgba(15, 23, 42, 0.08);
+  --desktop-glass-button-hover-fg: rgba(15, 23, 42, 0.95);
+  --desktop-glass-button-focus-ring: rgba(15, 23, 42, 0.36);
+  --desktop-appearance-popover-bg: rgba(255, 255, 255, 0.96);
+  --desktop-appearance-popover-border: rgba(15, 23, 42, 0.12);
+  --desktop-appearance-popover-shadow: 0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --desktop-inspector-fg-primary: rgba(15, 23, 42, 0.90);
+  --desktop-inspector-fg-secondary: rgba(15, 23, 42, 0.66);
+  --desktop-inspector-fg-tertiary: rgba(15, 23, 42, 0.44);
+  --desktop-inspector-fg-muted: rgba(15, 23, 42, 0.38);
+  --desktop-inspector-fg-label: rgba(15, 23, 42, 0.85);
+  --desktop-inspector-error: rgba(220, 38, 38, 0.88);
+  --desktop-inspector-dropdown-bg: rgba(255, 255, 255, 0.84);
+  --desktop-inspector-morph-filter-bg: rgb(255, 255, 255);
+  --desktop-inspector-dropdown-border: rgba(15, 23, 42, 0.09);
+  --desktop-inspector-control-hover-bg: rgba(15, 23, 42, 0.06);
+  --desktop-inspector-option-selected-bg: rgba(15, 23, 42, 0.08);
+}
+
+[data-slot="desktop-inspector-filter-trigger"] {
+  color: var(--desktop-inspector-fg-tertiary) !important;
+}
+
+[data-slot="desktop-inspector-filter-trigger"]:hover,
+[data-slot="desktop-inspector-filter-trigger"][data-state="open"] {
+  color: var(--desktop-inspector-fg-secondary) !important;
+}
+
+[data-slot="desktop-inspector-filter-trigger"] span {
+  color: inherit !important;
+}
+
+[data-slot~="desktop-inspector-filter-menu"] {
+  background-color: var(--desktop-inspector-dropdown-bg) !important;
+  border-color: var(--desktop-inspector-dropdown-border) !important;
+  color: var(--desktop-inspector-fg-secondary) !important;
+  box-shadow: var(--desktop-glass-shadow) !important;
+  --tw-ring-color: transparent !important;
+}
+
+[data-slot~="desktop-inspector-filter-menu"] [data-slot="dropdown-menu-radio-item"] {
+  color: var(--desktop-inspector-fg-tertiary) !important;
+}
+
+[data-slot~="desktop-inspector-filter-menu"] [data-slot="dropdown-menu-radio-item"]:is(:focus, [data-highlighted]) {
+  background-color: var(--desktop-inspector-control-hover-bg) !important;
+  color: var(--desktop-inspector-fg-secondary) !important;
+}
+
+[data-slot~="desktop-inspector-filter-menu"] [data-slot="dropdown-menu-radio-item"][data-state="checked"] {
+  background-color: var(--desktop-inspector-option-selected-bg) !important;
+  color: var(--desktop-inspector-fg-secondary) !important;
+}
+
+[data-slot~="desktop-inspector-filter-menu"] [data-slot="dropdown-menu-radio-item"][data-state="checked"]:is(:focus, [data-highlighted]) {
+  background-color: var(--desktop-inspector-option-selected-bg) !important;
+  color: var(--desktop-inspector-fg-secondary) !important;
+}
+
+[data-slot~="desktop-inspector-filter-menu"] .bg-hover {
+  left: 0 !important;
+  width: 100% !important;
+  background-color: var(--desktop-inspector-control-hover-bg) !important;
+}
+
+[data-slot~="desktop-inspector-filter-menu"] .bg-active {
+  left: 0 !important;
+  width: 100% !important;
+  background-color: var(--desktop-inspector-option-selected-bg) !important;
+}
+
+[data-slot~="desktop-inspector-filter-menu"] .text-muted-foreground {
+  color: var(--desktop-inspector-fg-tertiary) !important;
+}
+
+[data-slot~="desktop-inspector-filter-menu"] .text-foreground,
+[data-slot~="desktop-inspector-filter-menu"] [role="menuitemradio"]:hover .text-muted-foreground {
+  color: var(--desktop-inspector-fg-primary) !important;
+}
+
+[data-slot~="desktop-inspector-filter-menu"] [role="menu"] {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-slot="desktop-floating-inspector"] .desktop-inspector-morph-filter[data-open="true"] [data-slot~="desktop-inspector-filter-menu"] {
+  --foreground: var(--desktop-inspector-fg-primary);
+  --muted-foreground: var(--desktop-inspector-fg-tertiary);
+  --background: var(--desktop-inspector-morph-filter-bg);
+  background-color: var(--desktop-inspector-morph-filter-bg) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: var(--desktop-inspector-fg-secondary) !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-floating-inspector"] .desktop-inspector-morph-filter[data-open="true"] [data-slot~="desktop-inspector-filter-menu"] {
+  --desktop-inspector-control-hover-bg: rgba(15, 23, 42, 0.06);
+  --desktop-inspector-option-selected-bg: rgba(15, 23, 42, 0.08);
+}
+
+[data-desktop-theme="light"] .desktop-inspector-morph-filter[data-open="true"] {
+  --scroll-edge-fade-color: rgba(255, 255, 255, 0.88);
+}
+
+[data-desktop-theme="dark"] .desktop-inspector-morph-filter[data-open="true"] {
+  --scroll-edge-fade-color: var(--desktop-inspector-morph-filter-bg);
+}
+
+[data-desktop-theme="light"] {
+  color-scheme: light;
+}
+
+[data-desktop-theme="dark"] {
+  color-scheme: dark;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) .desktop-tooltip-content,
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) .desktop-tooltip-content {
+  border-radius: 9999px !important;
+  background: rgba(15, 15, 15, 0.94) !important;
+  color: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="dark"]) .desktop-tooltip-content,
+body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-tooltip-content {
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: rgba(15, 15, 15, 0.94) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28) !important;
+}
+
+[data-desktop-theme="dark"] [data-slot="desktop-document-toolbar"],
+[data-desktop-theme="dark"] [data-slot="desktop-utility-toolbar"],
+[data-desktop-theme="dark"] [data-slot="desktop-dynamic-island"],
+[data-desktop-theme="dark"] [data-slot="desktop-action-toolbar"] {
+  box-shadow: var(--desktop-glass-shadow) !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-document-toolbar"],
+[data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"],
+[data-desktop-theme="light"] [data-slot="desktop-dynamic-island"],
+[data-desktop-theme="light"] [data-slot="desktop-action-toolbar"] {
+  background: var(--desktop-glass-bg) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  color: rgba(15, 23, 42, 0.68) !important;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-floating-toolbar"] button:not([data-proximity-index]):hover,
+[data-desktop-theme="light"] [data-slot="desktop-document-toolbar"] button:hover,
+[data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"] button:hover,
+[data-desktop-theme="light"] [data-slot="desktop-dynamic-island"] button:hover,
+[data-desktop-theme="light"] [data-slot="desktop-action-toolbar"] button:hover {
+  background: rgba(15, 23, 42, 0.08) !important;
+  color: var(--desktop-toolbar-fg-hover) !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-floating-toolbar"] {
+  --desktop-toolbar-fg: rgba(15, 23, 42, 0.48);
+  --desktop-toolbar-fg-hover: rgba(15, 23, 42, 0.62);
+  --desktop-toolbar-fg-active: rgba(15, 23, 42, 0.90);
+  --desktop-toolbar-pill-selected: rgba(15, 23, 42, 0.11);
+  --desktop-toolbar-pill-hover: rgba(15, 23, 42, 0.08);
+  color: var(--desktop-toolbar-fg) !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-floating-toolbar"] button:not([data-proximity-index])[aria-pressed="true"] {
+  background: rgba(15, 23, 42, 0.11) !important;
+  color: var(--desktop-toolbar-fg-active) !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-floating-toolbar"] button[data-proximity-index]:hover,
+[data-desktop-theme="light"] [data-slot="desktop-floating-toolbar"] button[data-proximity-index][aria-pressed="true"] {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-floating-toolbar"] [data-slot="tabs-subtle-icon-rail-separator"] {
+  background-color: rgba(15, 23, 42, 0.11) !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-floating-toolbar"] [class*="border-white"] {
+  border-color: rgba(15, 23, 42, 0.11) !important;
+}
+
+[data-slot="desktop-keyboard-shortcuts-popover"] {
+  --scroll-edge-fade-color: #0a0a0a;
+  --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
+}
+
+[data-slot^="desktop-appearance-"][data-slot$="-popover"] {
+  --scroll-edge-fade-color: var(--desktop-appearance-popover-bg, #0a0a0a);
+  --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"],
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] {
+  --scroll-edge-fade-color: rgba(255, 255, 255, 0.88);
+  --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] {
+  --scroll-edge-fade-color: rgba(255, 255, 255, 0.88);
+  --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
+  background: #ffffff !important;
+  border-color: #dedede !important;
+  color: rgba(23, 23, 23, 0.92) !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.14) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] div,
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] section,
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] kbd {
+  border-color: #dddddd !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] section {
+  background: #f4f4f4 !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] [data-slot="desktop-shortcut-platform-toggle"] {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] [data-slot="desktop-shortcut-platform-button"] {
+  color: rgba(23, 23, 23, 0.52) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] [data-slot="desktop-shortcut-platform-button"]:hover {
+  background: #eeeeee !important;
+  color: rgba(23, 23, 23, 0.86) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] [data-slot="desktop-shortcut-platform-button"][aria-pressed="true"] {
+  background: #e5e5e5 !important;
+  color: rgba(23, 23, 23, 0.94) !important;
+  box-shadow: none !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] kbd {
+  background: #ffffff !important;
+  color: rgba(23, 23, 23, 0.86) !important;
+}
+
+[data-slot="desktop-keyboard-shortcuts-scrollbar"][data-state="hidden"],
+[data-slot="desktop-shape-preset-shelf-scrollbar"][data-state="hidden"],
+[data-slot="desktop-corner-frame-preset-shelf-scrollbar"][data-state="hidden"],
+[data-slot="desktop-corner-dot-preset-shelf-scrollbar"][data-state="hidden"] {
+  opacity: 0;
+}
+
+[data-slot="desktop-keyboard-shortcuts-scrollbar"],
+[data-slot="desktop-shape-preset-shelf-scrollbar"],
+[data-slot="desktop-corner-frame-preset-shelf-scrollbar"],
+[data-slot="desktop-corner-dot-preset-shelf-scrollbar"] {
+  transition: opacity 150ms ease;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-scroll-thumb"] {
+  background: rgba(23, 23, 23, 0.24) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-scroll-thumb"]:hover {
+  background: rgba(23, 23, 23, 0.38) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] p,
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] h3,
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] span {
+  color: rgba(23, 23, 23, 0.6) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] h2 {
+  color: rgba(23, 23, 23, 0.92) !important;
+}
+
+[data-slot="desktop-style-preview-surface"] {
+  background: rgba(255, 255, 255, 0.045) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: none !important;
+}
+
+[data-slot="desktop-floating-inspector"] [data-desktop-shape-option-preview="true"] {
+  background: rgba(0, 0, 0, 0.88) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #f8fafc !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-style-preview-surface"] {
+  background: rgba(255, 255, 255, 0.48) !important;
+  border-color: rgba(15, 23, 42, 0.11) !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-floating-inspector"] [data-desktop-shape-option-preview="true"] {
+  background: rgba(255, 255, 255, 0.86) !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+  color: #18181b !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-style-preview-surface"] svg {
+  color: rgba(15, 23, 42, 0.9) !important;
+}
+
+[data-slot="desktop-floating-toolbar"] {
+  --desktop-toolbar-fg: rgba(255, 255, 255, 0.56);
+  --desktop-toolbar-fg-hover: rgba(255, 255, 255, 0.72);
+  --desktop-toolbar-fg-active: rgba(255, 255, 255, 0.94);
+  --desktop-toolbar-pill-selected: rgba(255, 255, 255, 0.18);
+  --desktop-toolbar-pill-hover: rgba(255, 255, 255, 0.11);
+  color: var(--desktop-toolbar-fg);
+}
+
+[data-slot="desktop-floating-toolbar"] [data-proximity-index] [data-slot="tabs-subtle-icon-rail-icon"] {
+  color: var(--desktop-toolbar-fg);
+  transition: color 80ms;
+}
+
+[data-slot="desktop-floating-toolbar"] [data-proximity-index] [data-slot="tabs-subtle-icon-rail-icon"] svg,
+[data-slot="desktop-floating-toolbar"] [data-proximity-index] [data-slot="tabs-subtle-icon-rail-icon"] svg * {
+  transition: color 80ms, stroke-width 80ms;
+}
+
+[data-slot="desktop-floating-toolbar"] [data-proximity-index]:not([data-active]) [data-slot="tabs-subtle-icon-rail-icon"] svg {
+  stroke-width: 1.5;
+}
+
+[data-slot="desktop-floating-toolbar"] [data-proximity-index][data-active] [data-slot="tabs-subtle-icon-rail-icon"] {
+  color: var(--desktop-toolbar-fg-hover);
+}
+
+[data-slot="desktop-floating-toolbar"] [data-proximity-index][data-active] [data-slot="tabs-subtle-icon-rail-icon"] svg {
+  stroke-width: 2;
+}
+
+[data-slot="desktop-floating-toolbar"] [data-proximity-index][data-selected] [data-slot="tabs-subtle-icon-rail-icon"] {
+  color: var(--desktop-toolbar-fg-active);
+}
+
+[data-slot="desktop-floating-toolbar"] button:not([data-proximity-index]):hover {
+  color: var(--desktop-toolbar-fg-hover);
+}
+
+[data-slot="desktop-floating-toolbar"] button:not([data-proximity-index])[aria-pressed="true"] {
+  color: var(--desktop-toolbar-fg-active);
+}
+
+
+[data-desktop-theme="dark"] [data-slot="desktop-floating-inspector"] {
+  --scroll-edge-fade-color: var(--desktop-inspector-bg);
+  --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
+}
+
+
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="elastic-slider"] {
+  --elastic-slider-bg: rgba(15, 23, 42, 0.035);
+  --elastic-slider-fill: rgba(15, 23, 42, 0.052);
+  --elastic-slider-fill-active: rgba(15, 23, 42, 0.085);
+  --elastic-slider-hash: rgba(15, 23, 42, 0.13);
+  --elastic-slider-handle: rgba(15, 23, 42, 0.46);
+}
+
+[data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-trigger"] {
+  min-width: 0 !important;
+  border-color: var(--desktop-inspector-control-border-hover) !important;
+  background-color: var(--desktop-inspector-field-bg) !important;
+  color: var(--desktop-inspector-fg-primary) !important;
+}
+
+[data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-trigger"]:hover {
+  background-color: var(--desktop-inspector-control-hover-bg) !important;
+  border-color: var(--desktop-inspector-control-border-hover) !important;
+}
+
+[data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-trigger"]:focus-visible {
+  ring-color: var(--desktop-inspector-focus) !important;
+}
+
+[data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-trigger"] svg {
+  color: var(--desktop-inspector-fg-tertiary) !important;
+}
+
+body:has([data-slot^="desktop-appearance-"][data-slot$="-popover"]) [data-slot="desktop-appearance-filter-select-menu"] {
+  --foreground: rgba(255, 255, 255, 0.94);
+  --muted-foreground: rgba(255, 255, 255, 0.5);
+  --background: var(--desktop-appearance-popover-bg);
+  --border: var(--desktop-appearance-popover-border);
+  --color-hover: var(--desktop-inspector-control-hover-bg);
+  --color-active: var(--desktop-inspector-option-selected-bg);
+  --surface-1: var(--desktop-appearance-popover-bg);
+  --surface-2: rgba(255, 255, 255, 0.055);
+  --surface-3: rgba(255, 255, 255, 0.14);
+  background-color: var(--desktop-appearance-popover-bg) !important;
+  border: 1px solid var(--desktop-appearance-popover-border) !important;
+  box-shadow: var(--desktop-appearance-popover-shadow) !important;
+  color: var(--desktop-inspector-fg-secondary) !important;
+}
+
+body:has([data-slot^="desktop-appearance-"][data-slot$="-popover"]) [data-slot="desktop-appearance-filter-select-menu"] .desktop-appearance-filter-select-item {
+  color: var(--desktop-inspector-fg-tertiary) !important;
+}
+
+body:has([data-slot^="desktop-appearance-"][data-slot$="-popover"]) [data-slot="desktop-appearance-filter-select-menu"] .desktop-appearance-filter-select-item.text-foreground {
+  color: var(--desktop-inspector-fg-primary) !important;
+}
+
+body:has([data-slot^="desktop-appearance-"][data-slot$="-popover"]) [data-slot="desktop-appearance-filter-select-menu"] .desktop-appearance-filter-select-item svg {
+  color: var(--desktop-inspector-fg-primary) !important;
+}
+
+body:has([data-slot^="desktop-appearance-"][data-slot$="-popover"]) [data-slot="desktop-appearance-filter-select-menu"] .bg-hover {
+  background-color: var(--desktop-inspector-control-hover-bg) !important;
+}
+
+body:has([data-slot^="desktop-appearance-"][data-slot$="-popover"]) [data-slot="desktop-appearance-filter-select-menu"] .bg-active {
+  background-color: var(--desktop-inspector-option-selected-bg) !important;
+}
+
+[data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-trigger"] [data-placeholder] {
+  color: var(--desktop-inspector-fg-tertiary) !important;
+}
+
+[data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-trigger"] .text-muted-foreground {
+  color: var(--desktop-inspector-fg-tertiary) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-trigger"],
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-trigger"] {
+  border-color: var(--desktop-inspector-control-border-hover) !important;
+  background-color: var(--desktop-inspector-field-bg) !important;
+  color: var(--desktop-inspector-fg-primary) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-trigger"]:hover,
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-trigger"]:hover {
+  background-color: var(--desktop-inspector-control-hover-bg) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-menu"],
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-menu"] {
+  --foreground: rgba(15, 23, 42, 0.9);
+  --muted-foreground: rgba(15, 23, 42, 0.44);
+  --background: var(--desktop-appearance-popover-bg);
+  --border: var(--desktop-appearance-popover-border);
+  --color-hover: var(--desktop-inspector-control-hover-bg);
+  --color-active: var(--desktop-inspector-option-selected-bg);
+  --surface-1: var(--desktop-appearance-popover-bg);
+  --surface-2: rgba(15, 23, 42, 0.032);
+  --surface-3: rgba(255, 255, 255, 0.96);
+  background-color: var(--desktop-appearance-popover-bg) !important;
+  border-color: var(--desktop-appearance-popover-border) !important;
+  color: var(--desktop-inspector-fg-secondary) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-menu"] .desktop-appearance-filter-select-item,
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-menu"] .desktop-appearance-filter-select-item {
+  color: var(--desktop-inspector-fg-tertiary) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-menu"] .desktop-appearance-filter-select-item.text-foreground,
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="desktop-appearance-filter-select-menu"] .desktop-appearance-filter-select-item.text-foreground {
+  color: var(--desktop-inspector-fg-primary) !important;
+}
+
+[data-slot="desktop-color-picker-popover"] {
+  --color-picker-bg: rgba(23, 24, 29, 0.95);
+  --color-picker-border: rgba(255, 255, 255, 0.1);
+  --color-picker-fg: #ffffff;
+  --color-picker-muted-fg: rgba(255, 255, 255, 0.64);
+  --color-picker-control-bg: rgba(0, 0, 0, 0.22);
+  --color-picker-control-hover-bg: rgba(255, 255, 255, 0.08);
+  --color-picker-control-border: rgba(255, 255, 255, 0.12);
+  --color-picker-focus: rgba(255, 255, 255, 0.38);
+  --color-picker-highlight: rgba(255, 255, 255, 0.1);
+  --color-picker-swatch-inner: rgba(255, 255, 255, 0.18);
+  --desktop-color-picker-popover-bg: rgba(23, 24, 29, 0.95);
+  --desktop-color-picker-popover-border: rgba(255, 255, 255, 0.1);
+  --desktop-color-picker-popover-fg: #ffffff;
+  --checker-a: #6b6b6b;
+  --checker-b: #9a9a9a;
+  --foreground: var(--desktop-color-picker-popover-fg);
+  --muted-foreground: var(--color-picker-muted-fg);
+  --background: var(--desktop-color-picker-popover-bg);
+  --border: var(--color-picker-control-border);
+}
+
+[data-slot="desktop-color-picker-popover"] [data-slot="color-picker"] {
+  background-color: var(--desktop-color-picker-popover-bg) !important;
+  color: var(--desktop-color-picker-popover-fg);
+  box-shadow: none !important;
+}
+
+[data-slot="desktop-color-picker-popover"] [data-slot="color-picker"] :is(button, input) {
+  color: var(--desktop-color-picker-popover-fg);
+}
+
+[data-slot="desktop-color-picker-popover"] [data-slot="color-picker"] button:hover,
+[data-slot="desktop-color-picker-popover"] [data-slot="color-picker"] button:focus-visible,
+[data-slot="desktop-color-picker-popover"] [data-slot="color-picker"] .bg-active,
+[data-slot="desktop-color-picker-popover"] [data-slot="color-picker"] div:has(> input):hover,
+[data-slot="desktop-color-picker-popover"] [data-slot="color-picker"] div:has(> input):focus-within {
+  background-color: var(--color-picker-control-hover-bg) !important;
+  color: var(--desktop-color-picker-popover-fg) !important;
+}
+
+[data-slot="desktop-color-picker-popover"] [data-slot="color-picker"] .text-muted-foreground {
+  color: var(--color-picker-muted-fg) !important;
+}
+
+[data-slot="desktop-color-picker-popover"] [data-slot="color-picker"] .text-foreground,
+[data-slot="desktop-color-picker-popover"] [data-slot="color-picker"] .hover\:text-foreground:hover {
+  color: var(--desktop-color-picker-popover-fg) !important;
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-color-picker-popover"] {
+  --color-picker-bg: rgba(255, 255, 255, 0.96);
+  --color-picker-border: rgba(15, 23, 42, 0.12);
+  --color-picker-fg: #18181b;
+  --color-picker-muted-fg: rgba(15, 23, 42, 0.58);
+  --color-picker-control-bg: rgba(15, 23, 42, 0.04);
+  --color-picker-control-hover-bg: rgba(15, 23, 42, 0.08);
+  --color-picker-control-border: rgba(15, 23, 42, 0.12);
+  --color-picker-focus: rgba(15, 23, 42, 0.34);
+  --color-picker-highlight: rgba(255, 255, 255, 0.9);
+  --color-picker-swatch-inner: rgba(15, 23, 42, 0.16);
+  --desktop-color-picker-popover-bg: rgba(255, 255, 255, 0.96);
+  --desktop-color-picker-popover-border: rgba(15, 23, 42, 0.12);
+  --desktop-color-picker-popover-fg: #18181b;
+  --checker-a: #b8b8b8;
+  --checker-b: #e0e0e0;
+  --foreground: var(--desktop-color-picker-popover-fg);
+  --muted-foreground: var(--color-picker-muted-fg);
+  --background: var(--desktop-color-picker-popover-bg);
+  --border: var(--color-picker-control-border);
+}
+
+[data-slot="desktop-color-picker-popover"] [data-slot="color-picker-alpha"] .border-border {
+  border-color: var(--color-picker-control-border) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-picker-control-border) 65%, transparent);
+}
+
+[data-slot="desktop-floating-inspector"] :is(input, textarea, select) {
+  background-color: var(--desktop-inspector-field-bg) !important;
+  border-color: transparent !important;
+  color: currentColor !important;
+  box-shadow: none !important;
+}
+
+[data-slot="desktop-floating-inspector"] [data-slot="elastic-slider-label"] {
+  color: var(--desktop-inspector-fg-label) !important;
+  font-size: var(--desktop-inspector-type-label) !important;
+  font-weight: 500 !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-floating-inspector"] [data-slot="elastic-slider"] {
+  --elastic-slider-bg: rgba(15, 23, 42, 0.035);
+  --elastic-slider-fill: rgba(15, 23, 42, 0.052);
+  --elastic-slider-fill-active: rgba(15, 23, 42, 0.085);
+  --elastic-slider-hash: rgba(15, 23, 42, 0.13);
+  --elastic-slider-handle: rgba(15, 23, 42, 0.46);
+}
+
+[data-slot="desktop-floating-inspector"] :is(input, textarea, select):focus,
+[data-slot="desktop-floating-inspector"] :is(input, textarea, select):focus-visible {
+  border-color: transparent !important;
+  box-shadow: inset 0 0 0 1px var(--desktop-inspector-focus) !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-floating-inspector"] input::placeholder,
+[data-desktop-theme="light"] [data-slot="desktop-floating-inspector"] textarea::placeholder {
+  color: var(--desktop-inspector-fg-muted) !important;
+}

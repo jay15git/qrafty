@@ -230,12 +230,12 @@ export function DraftingContentTab({
 
       <details
         data-slot="drafting-content-encoded-preview"
-        className="min-w-0 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 text-[var(--drafting-ink)] shadow-[var(--drafting-shadow-rest)]"
+        className="min-w-0 rounded-[8px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] px-4 py-3 text-[var(--ws-ink)] shadow-[var(--ws-shadow-rest)]"
       >
-        <summary className="drafting-type-control-label cursor-pointer font-semibold">
+        <summary className="ws-type-control-label cursor-pointer font-semibold">
           Encoded value
         </summary>
-        <pre className="drafting-type-caption mt-3 max-h-44 min-w-0 overflow-auto whitespace-pre-wrap break-words rounded-[4px] bg-[var(--drafting-panel-bg-hover)] p-3 text-[var(--drafting-ink-muted)]">
+        <pre className="ws-type-caption mt-3 max-h-44 min-w-0 overflow-auto whitespace-pre-wrap break-words rounded-[4px] bg-[var(--ws-panel-bg-hover)] p-3 text-[var(--ws-ink-muted)]">
           {encodedValue}
         </pre>
       </details>
@@ -264,32 +264,32 @@ export function DraftingQrTypeDropdown({
           type="button"
           className={cn(
             "group flex h-10 w-full min-w-0 cursor-default select-none items-center justify-between gap-2 rounded-[6px] border px-3 py-0 text-left outline-none",
-            "border-[var(--drafting-dropdown-border)] bg-[var(--drafting-dropdown-trigger-surface)] text-[var(--drafting-dropdown-text)] shadow-[var(--drafting-dropdown-trigger-shadow-rest)]",
+            "border-[var(--ws-dropdown-border)] bg-[var(--ws-dropdown-trigger-surface)] text-[var(--ws-dropdown-text)] shadow-[var(--ws-dropdown-trigger-shadow-rest)]",
             "transition-[border-color,box-shadow,transform,background-color,color] duration-150 ease-out",
-            "hover:-translate-y-px hover:bg-[var(--drafting-dropdown-trigger-surface-hover)] hover:shadow-[var(--drafting-dropdown-trigger-shadow-hover)]",
-            "active:translate-y-0 active:bg-[var(--drafting-dropdown-trigger-surface-pressed)] active:shadow-[var(--drafting-dropdown-trigger-shadow-pressed)]",
-            "focus-visible:border-2 focus-visible:border-[var(--drafting-dropdown-border-focus)] focus-visible:ring-0",
-            "data-[state=open]:border-[var(--drafting-dropdown-border-focus)] data-[state=open]:bg-[var(--drafting-dropdown-trigger-surface-open)] data-[state=open]:shadow-[var(--drafting-dropdown-trigger-shadow-hover)]",
+            "hover:-translate-y-px hover:bg-[var(--ws-dropdown-trigger-surface-hover)] hover:shadow-[var(--ws-dropdown-trigger-shadow-hover)]",
+            "active:translate-y-0 active:bg-[var(--ws-dropdown-trigger-surface-pressed)] active:shadow-[var(--ws-dropdown-trigger-shadow-pressed)]",
+            "focus-visible:border-2 focus-visible:border-[var(--ws-dropdown-border-focus)] focus-visible:ring-0",
+            "data-[state=open]:border-[var(--ws-dropdown-border-focus)] data-[state=open]:bg-[var(--ws-dropdown-trigger-surface-open)] data-[state=open]:shadow-[var(--ws-dropdown-trigger-shadow-hover)]",
           )}
         >
           <span className="flex min-w-0 items-center gap-2">
-            <span className="drafting-type-panel-tab shrink-0 font-medium text-[var(--drafting-dropdown-text-muted)]">
+            <span className="ws-type-panel-tab shrink-0 font-medium text-[var(--ws-dropdown-text-muted)]">
               QR Type:
             </span>
-            <span className="drafting-type-panel-tab min-w-0 truncate font-semibold">
+            <span className="ws-type-panel-tab min-w-0 truncate font-semibold">
               {activeLabel}
             </span>
           </span>
           <ChevronDown
             aria-hidden="true"
-            className="size-4 shrink-0 text-[var(--drafting-dropdown-text-muted)] transition-transform duration-150 ease-out group-data-[state=open]:rotate-180"
+            className="size-4 shrink-0 text-[var(--ws-dropdown-text-muted)] transition-transform duration-150 ease-out group-data-[state=open]:rotate-180"
           />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
         data-drafting-dropdown-content="true"
-        className="w-[280px] max-w-[calc(100vw-2rem)] rounded-[8px] border border-[var(--drafting-dropdown-border)] bg-[var(--drafting-dropdown-menu-surface-open)] p-2 text-[var(--drafting-dropdown-text)] shadow-[var(--drafting-dropdown-menu-shadow-open)] ring-0"
+        className="w-[280px] max-w-[calc(100vw-2rem)] rounded-[8px] border border-[var(--ws-dropdown-border)] bg-[var(--ws-dropdown-menu-surface-open)] p-2 text-[var(--ws-dropdown-text)] shadow-[var(--ws-dropdown-menu-shadow-open)] ring-0"
       >
         <DropdownMenuGroup className="grid gap-0.5">
           {QR_CATEGORIES.map((category) => {
@@ -300,23 +300,23 @@ export function DraftingQrTypeDropdown({
                 <DropdownMenuSubTrigger
                   data-category={category.key}
                   className={cn(
-                    "flex h-9 min-h-9 cursor-default items-center justify-between gap-2 rounded-[4px] border border-transparent bg-transparent px-2.5 py-0 text-[12px] font-medium text-[var(--drafting-dropdown-text)]",
-                    "focus:bg-[var(--drafting-dropdown-trigger-surface-hover)] focus:text-[var(--drafting-dropdown-text)]",
+                    "flex h-9 min-h-9 cursor-default items-center justify-between gap-2 rounded-[4px] border border-transparent bg-transparent px-2.5 py-0 text-[12px] font-medium text-[var(--ws-dropdown-text)]",
+                    "focus:bg-[var(--ws-dropdown-trigger-surface-hover)] focus:text-[var(--ws-dropdown-text)]",
                   )}
                 >
                   <span className="flex items-center gap-2">
                     <CategoryIcon
                       aria-hidden="true"
-                      className="size-4 shrink-0 text-[var(--drafting-dropdown-text)]"
+                      className="size-4 shrink-0 text-[var(--ws-dropdown-text)]"
                     />
-                    <span className="drafting-type-caption font-medium">
+                    <span className="ws-type-caption font-medium">
                       {category.label}
                     </span>
                   </span>
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent
                   sideOffset={4}
-                  className="w-[280px] max-w-[calc(100vw-2rem)] rounded-[8px] border border-[var(--drafting-dropdown-border)] bg-[var(--drafting-dropdown-menu-surface-open)] p-2 text-[var(--drafting-dropdown-text)] shadow-[var(--drafting-dropdown-menu-shadow-open)] ring-0"
+                  className="w-[280px] max-w-[calc(100vw-2rem)] rounded-[8px] border border-[var(--ws-dropdown-border)] bg-[var(--ws-dropdown-menu-surface-open)] p-2 text-[var(--ws-dropdown-text)] shadow-[var(--ws-dropdown-menu-shadow-open)] ring-0"
                 >
                   <DropdownMenuGroup className="grid gap-1">
                     {category.items.map((item) => {
@@ -329,10 +329,10 @@ export function DraftingQrTypeDropdown({
                           data-content-type={item.value}
                           onSelect={() => onContentTypeChange(item.value)}
                           className={cn(
-                            "h-9 min-h-9 gap-2 rounded-[4px] border border-transparent bg-transparent px-2.5 py-0 text-[12px] font-medium text-[var(--drafting-dropdown-text)]",
-                            "focus:bg-[var(--drafting-dropdown-trigger-surface-hover)] focus:text-[var(--drafting-dropdown-text)] focus:**:text-[var(--drafting-dropdown-text)]",
+                            "h-9 min-h-9 gap-2 rounded-[4px] border border-transparent bg-transparent px-2.5 py-0 text-[12px] font-medium text-[var(--ws-dropdown-text)]",
+                            "focus:bg-[var(--ws-dropdown-trigger-surface-hover)] focus:text-[var(--ws-dropdown-text)] focus:**:text-[var(--ws-dropdown-text)]",
                             isSelected &&
-                              "bg-[var(--drafting-dropdown-selected-fill)] font-semibold text-[var(--drafting-dropdown-text)] focus:bg-[var(--drafting-dropdown-selected-fill)] focus:text-[var(--drafting-dropdown-text)]",
+                              "bg-[var(--ws-dropdown-selected-fill)] font-semibold text-[var(--ws-dropdown-text)] focus:bg-[var(--ws-dropdown-selected-fill)] focus:text-[var(--ws-dropdown-text)]",
                           )}
                         >
                           <span
@@ -341,16 +341,16 @@ export function DraftingQrTypeDropdown({
                           >
                             <CheckIcon
                               className={cn(
-                                "size-3.5 text-[var(--drafting-dropdown-text)] transition-opacity duration-100",
+                                "size-3.5 text-[var(--ws-dropdown-text)] transition-opacity duration-100",
                                 isSelected ? "opacity-100" : "opacity-0",
                               )}
                             />
                           </span>
                           <ItemIcon
                             aria-hidden="true"
-                            className="size-4 shrink-0 text-[var(--drafting-dropdown-text)]"
+                            className="size-4 shrink-0 text-[var(--ws-dropdown-text)]"
                           />
-                          <span className="drafting-type-caption min-w-0 truncate font-medium">
+                          <span className="ws-type-caption min-w-0 truncate font-medium">
                             {item.label}
                           </span>
                         </DropdownMenuItem>
@@ -379,9 +379,9 @@ function buildDraftingContentFieldItems({
   validation: StaticQrValidationResult
 }): Array<{ id: string; title: string; content: ReactNode; error?: string }> {
   const inputClassName =
-    "drafting-type-input h-11 min-w-0 border-0 bg-[var(--drafting-panel-bg-hover)] px-3.5 py-2.5 text-[var(--drafting-ink)] shadow-none placeholder:text-[var(--drafting-ink-subtle)] focus-visible:ring-0 aria-invalid:ring-0"
+    "ws-type-input h-11 min-w-0 border-0 bg-[var(--ws-panel-bg-hover)] px-3.5 py-2.5 text-[var(--ws-ink)] shadow-none placeholder:text-[var(--ws-ink-subtle)] focus-visible:ring-0 aria-invalid:ring-0"
   const textareaClassName =
-    "drafting-type-input min-h-24 min-w-0 max-w-full resize-none overflow-x-hidden border-0 bg-[var(--drafting-panel-bg-hover)] px-3.5 py-3 text-[var(--drafting-ink)] shadow-none placeholder:text-[var(--drafting-ink-subtle)] [overflow-wrap:anywhere] focus-visible:ring-0 aria-invalid:ring-0"
+    "ws-type-input min-h-24 min-w-0 max-w-full resize-none overflow-x-hidden border-0 bg-[var(--ws-panel-bg-hover)] px-3.5 py-3 text-[var(--ws-ink)] shadow-none placeholder:text-[var(--ws-ink-subtle)] [overflow-wrap:anywhere] focus-visible:ring-0 aria-invalid:ring-0"
 
   const textItem = (
     id: string,
@@ -539,10 +539,10 @@ function buildDraftingContentFieldItems({
                 <label
                   key={sec}
                   className={cn(
-                    "flex min-h-9 cursor-pointer items-center justify-center rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-2 text-center",
-                    "drafting-type-caption font-semibold text-[var(--drafting-ink-muted)]",
+                    "flex min-h-9 cursor-pointer items-center justify-center rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-2 text-center",
+                    "ws-type-caption font-semibold text-[var(--ws-ink-muted)]",
                     security === sec &&
-                      "border-[var(--drafting-ink)] bg-[var(--drafting-ink)] text-[var(--drafting-surface-bg)]",
+                      "border-[var(--ws-ink)] bg-[var(--ws-ink)] text-[var(--ws-surface-bg)]",
                   )}
                 >
                   <input
@@ -572,14 +572,14 @@ function buildDraftingContentFieldItems({
         title: "Hidden network",
         content: (
           <div className="min-w-0 px-4 pb-4">
-            <label className="flex min-w-0 items-center justify-between gap-3 rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-3 py-2">
-              <span className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+            <label className="flex min-w-0 items-center justify-between gap-3 rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-3 py-2">
+              <span className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
                 Hidden network
               </span>
               <input
                 aria-label="Hidden network"
                 checked={Boolean(contentValues.hidden)}
-                className="size-4 accent-[var(--drafting-ink)]"
+                className="size-4 accent-[var(--ws-ink)]"
                 type="checkbox"
                 onChange={(event) =>
                   onContentValueChange("hidden", event.currentTarget.checked)
@@ -718,10 +718,10 @@ function buildDraftingContentFieldItems({
                 <label
                   key={value}
                   className={cn(
-                    "flex min-h-9 cursor-pointer items-center justify-center rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-2 text-center",
-                    "drafting-type-caption font-semibold text-[var(--drafting-ink-muted)]",
+                    "flex min-h-9 cursor-pointer items-center justify-center rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-2 text-center",
+                    "ws-type-caption font-semibold text-[var(--ws-ink-muted)]",
                     eventMode === value &&
-                      "border-[var(--drafting-ink)] bg-[var(--drafting-ink)] text-[var(--drafting-surface-bg)]",
+                      "border-[var(--ws-ink)] bg-[var(--ws-ink)] text-[var(--ws-surface-bg)]",
                   )}
                 >
                   <input
@@ -873,10 +873,10 @@ function buildDraftingContentFieldItems({
                 <label
                   key={value}
                   className={cn(
-                    "flex min-h-9 cursor-pointer items-center justify-center rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-2 text-center",
-                    "drafting-type-caption font-semibold text-[var(--drafting-ink-muted)]",
+                    "flex min-h-9 cursor-pointer items-center justify-center rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-2 text-center",
+                    "ws-type-caption font-semibold text-[var(--ws-ink-muted)]",
                     asset === value &&
-                      "border-[var(--drafting-ink)] bg-[var(--drafting-ink)] text-[var(--drafting-surface-bg)]",
+                      "border-[var(--ws-ink)] bg-[var(--ws-ink)] text-[var(--ws-surface-bg)]",
                   )}
                 >
                   <input
@@ -1053,13 +1053,13 @@ export function DraftingLoaderPlaygroundTab({
 
       <section
         data-slot="drafting-dot-matrix-loader-section"
-        className="min-w-0 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 shadow-[var(--drafting-shadow-rest)]"
+        className="min-w-0 rounded-[8px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] px-4 py-3 shadow-[var(--ws-shadow-rest)]"
       >
         <div className="mb-3 min-w-0 space-y-1">
-          <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+          <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
             Loader
           </p>
-          <p className="drafting-type-body text-[var(--drafting-ink-muted)]">
+          <p className="ws-type-body text-[var(--ws-ink-muted)]">
             Square loaders adapted from the upstream matrix motion set.
           </p>
         </div>
@@ -1076,13 +1076,13 @@ export function DraftingLoaderPlaygroundTab({
                 onClick={() => onAnimationChange({ enabled: true, loader: loader.value })}
                 className={cn(
                   "h-auto min-h-10 justify-start rounded-[6px] border px-3 py-2 text-left shadow-none",
-                  "border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] text-[var(--drafting-ink-muted)]",
-                  "hover:bg-[var(--drafting-panel-bg-hover)] hover:text-[var(--drafting-ink)]",
+                  "border-[var(--ws-line)] bg-[var(--ws-control-bg)] text-[var(--ws-ink-muted)]",
+                  "hover:bg-[var(--ws-panel-bg-hover)] hover:text-[var(--ws-ink)]",
                   isSelected &&
-                    "border-[var(--drafting-line-strong)] bg-[var(--drafting-panel-bg-active)] text-[var(--drafting-ink)]",
+                    "border-[var(--ws-line-strong)] bg-[var(--ws-panel-bg-active)] text-[var(--ws-ink)]",
                 )}
               >
-                <span className="drafting-type-meta min-w-0 truncate font-semibold">
+                <span className="ws-type-meta min-w-0 truncate font-semibold">
                   {loader.label}
                 </span>
               </Button>
@@ -1130,8 +1130,8 @@ export function DraftingLoaderPlaygroundTab({
         onChange={(overlayScale) => onAnimationChange({ overlayScale })}
       />
 
-      <section className="min-w-0 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 shadow-[var(--drafting-shadow-rest)]">
-        <p className="drafting-type-control-label mb-3 font-semibold text-[var(--drafting-ink)]">
+      <section className="min-w-0 rounded-[8px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] px-4 py-3 shadow-[var(--ws-shadow-rest)]">
+        <p className="ws-type-control-label mb-3 font-semibold text-[var(--ws-ink)]">
           Loader color
         </p>
         <div className="grid min-w-0 grid-cols-2 gap-2">
@@ -1155,11 +1155,11 @@ export function DraftingLoaderPlaygroundTab({
                 className={cn(
                   "h-9 justify-start rounded-[6px] border px-3 text-left shadow-none",
                   animation.colorPreset === preset.value
-                    ? "border-[var(--drafting-line-strong)] bg-[var(--drafting-panel-bg-active)] text-[var(--drafting-ink)]"
-                    : "border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] text-[var(--drafting-ink-muted)]",
+                    ? "border-[var(--ws-line-strong)] bg-[var(--ws-panel-bg-active)] text-[var(--ws-ink)]"
+                    : "border-[var(--ws-line)] bg-[var(--ws-control-bg)] text-[var(--ws-ink-muted)]",
                 )}
               >
-                <span className="drafting-type-meta font-semibold">{preset.label}</span>
+                <span className="ws-type-meta font-semibold">{preset.label}</span>
               </Button>
             )
           })}
@@ -1171,19 +1171,19 @@ export function DraftingLoaderPlaygroundTab({
           ].map(([label, field, value, ariaLabel]) => (
             <label
               key={field}
-              className="grid min-w-0 gap-2 rounded-[7px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] p-3"
+              className="grid min-w-0 gap-2 rounded-[7px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] p-3"
             >
               <span className="flex min-w-0 items-center justify-between gap-3">
-                <span className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+                <span className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
                   {label}
                 </span>
-                <span className="font-mono text-[11px] text-[var(--drafting-ink-muted)]">
+                <span className="font-mono text-[11px] text-[var(--ws-ink-muted)]">
                   {value}
                 </span>
               </span>
               <input
                 aria-label={ariaLabel}
-                className="h-10 w-full cursor-pointer rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] p-1"
+                className="h-10 w-full cursor-pointer rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-control-bg)] p-1"
                 data-slot="drafting-motion-color-input"
                 onChange={(event) => {
                   const nextValue = event.currentTarget.value
@@ -1221,8 +1221,8 @@ export function DraftingLoaderPlaygroundTab({
         </div>
       </section>
 
-      <section className="min-w-0 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 shadow-[var(--drafting-shadow-rest)]">
-        <p className="drafting-type-control-label mb-3 font-semibold text-[var(--drafting-ink)]">
+      <section className="min-w-0 rounded-[8px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] px-4 py-3 shadow-[var(--ws-shadow-rest)]">
+        <p className="ws-type-control-label mb-3 font-semibold text-[var(--ws-ink)]">
           Pattern
         </p>
         <div className="grid min-w-0 grid-cols-3 gap-2">
@@ -1235,18 +1235,18 @@ export function DraftingLoaderPlaygroundTab({
               className={cn(
                 "h-9 rounded-[6px] border px-2 shadow-none",
                 animation.pattern === pattern.value
-                  ? "border-[var(--drafting-line-strong)] bg-[var(--drafting-panel-bg-active)] text-[var(--drafting-ink)]"
-                  : "border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] text-[var(--drafting-ink-muted)]",
+                  ? "border-[var(--ws-line-strong)] bg-[var(--ws-panel-bg-active)] text-[var(--ws-ink)]"
+                  : "border-[var(--ws-line)] bg-[var(--ws-control-bg)] text-[var(--ws-ink-muted)]",
               )}
             >
-              <span className="drafting-type-meta font-semibold">{pattern.label}</span>
+              <span className="ws-type-meta font-semibold">{pattern.label}</span>
             </Button>
           ))}
         </div>
       </section>
 
-      <section className="min-w-0 space-y-2 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 shadow-[var(--drafting-shadow-rest)]">
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+      <section className="min-w-0 space-y-2 rounded-[8px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] px-4 py-3 shadow-[var(--ws-shadow-rest)]">
+        <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
           States
         </p>
         <DraftingToggleField
@@ -1371,22 +1371,22 @@ export function DraftingCardSurfaceTab({
       <label
         data-slot="drafting-card-fill-field"
         htmlFor="drafting-card-fill"
-        className="block min-w-0 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 py-3 shadow-[var(--drafting-shadow-rest)]"
+        className="block min-w-0 rounded-[8px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] px-4 py-3 shadow-[var(--ws-shadow-rest)]"
       >
-        <span className="drafting-type-control-label block font-semibold text-[var(--drafting-ink)]">
+        <span className="ws-type-control-label block font-semibold text-[var(--ws-ink)]">
           Base fill
         </span>
         <span className="mt-3 flex min-w-0 items-center gap-2">
           <input
             aria-label="Shape fill swatch"
-            className="size-10 shrink-0 cursor-pointer rounded-[6px] border border-[var(--drafting-line)] bg-transparent p-1"
+            className="size-10 shrink-0 cursor-pointer rounded-[6px] border border-[var(--ws-line)] bg-transparent p-1"
             type="color"
             value={fill}
             onChange={(event) => onFillChange(event.currentTarget.value)}
           />
           <Input
             id="drafting-card-fill"
-            className="drafting-type-input h-10 min-w-0 border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-3 text-[var(--drafting-ink)] shadow-none focus-visible:border-[var(--drafting-line-strong)] focus-visible:ring-0"
+            className="ws-type-input h-10 min-w-0 border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-3 text-[var(--ws-ink)] shadow-none focus-visible:border-[var(--ws-line-strong)] focus-visible:ring-0"
             value={fill}
             onChange={(event) => onFillChange(event.currentTarget.value)}
           />
@@ -1394,7 +1394,7 @@ export function DraftingCardSurfaceTab({
       </label>
 
       <section className="min-w-0 space-y-3">
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+        <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
           Generated patterns
         </p>
         <div aria-label="Shape pattern" role="radiogroup" className="grid grid-cols-2 gap-2">
@@ -1479,7 +1479,7 @@ export function DraftingCardImageTab({
     return (
       <div data-slot="drafting-card-image-upload-tab" className="min-w-0 space-y-6">
         <section className="min-w-0 space-y-3">
-          <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+          <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
             Image source
           </p>
           <DraftingCardImageSourceControl
@@ -1505,11 +1505,11 @@ export function DraftingCardImageTab({
 
   return (
     <div data-slot="drafting-card-image-filters-tab" className="min-w-0 space-y-6">
-      <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+      <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
         Image filters
       </p>
       {cardImage.source === "none" ? (
-        <div className="rounded-[7px] border border-dashed border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] p-3 text-[12px] font-medium leading-5 text-[var(--drafting-ink-muted)]">
+        <div className="rounded-[7px] border border-dashed border-[var(--ws-line)] bg-[var(--ws-panel-bg)] p-3 text-[12px] font-medium leading-5 text-[var(--ws-ink-muted)]">
           Add an image in Shape to apply these filters to your shape fill.
         </div>
       ) : null}
@@ -1567,10 +1567,10 @@ function DraftingCardImageSourceControl({
   }
 
   return (
-    <div className="min-w-0 space-y-3 rounded-[7px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] p-3">
+    <div className="min-w-0 space-y-3 rounded-[7px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] p-3">
       <Input
         aria-label="Shape image URL"
-        className="drafting-type-input h-10 min-w-0 border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-3 text-[var(--drafting-ink)] shadow-none focus-visible:border-[var(--drafting-line-strong)] focus-visible:ring-0"
+        className="ws-type-input h-10 min-w-0 border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-3 text-[var(--ws-ink)] shadow-none focus-visible:border-[var(--ws-line-strong)] focus-visible:ring-0"
         placeholder="https://example.com/shape.png"
         value={cardImage.source === "url" ? (cardImage.value ?? "") : ""}
         onChange={(event) =>
@@ -1597,9 +1597,9 @@ function DraftingCardImageSourceControl({
           <Button
             key={fit}
             className={cn(
-              "h-9 rounded-[7px] border border-[var(--drafting-line)] bg-transparent px-2 text-[12px] font-semibold text-[var(--drafting-ink-muted)] shadow-none hover:border-[var(--drafting-line-hover)] hover:bg-[var(--drafting-panel-bg-hover)]",
+              "h-9 rounded-[7px] border border-[var(--ws-line)] bg-transparent px-2 text-[12px] font-semibold text-[var(--ws-ink-muted)] shadow-none hover:border-[var(--ws-line-hover)] hover:bg-[var(--ws-panel-bg-hover)]",
               cardImage.fit === fit &&
-                "border-[var(--drafting-line-strong)] text-[var(--drafting-ink)]",
+                "border-[var(--ws-line-strong)] text-[var(--ws-ink)]",
             )}
             type="button"
             variant="ghost"
@@ -1686,7 +1686,7 @@ function DraftingCardPaperShaderPanel({
   const filterContent = (
     <section className="min-w-0 space-y-3" data-slot="drafting-card-paper-shader-picker">
       {!showAccordions ? (
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+        <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
           {heading}
         </p>
       ) : null}
@@ -1722,7 +1722,7 @@ function DraftingCardPaperShaderPanel({
             >
               <span
                 aria-hidden="true"
-                className="flex size-full items-center justify-center bg-[var(--drafting-control-bg)] px-2 text-center text-[11px] font-semibold text-[var(--drafting-ink-muted)]"
+                className="flex size-full items-center justify-center bg-[var(--ws-control-bg)] px-2 text-center text-[11px] font-semibold text-[var(--ws-ink-muted)]"
               >
                 <PaperShaderOptionPreview
                   isSelected={isSelected}
@@ -1739,24 +1739,24 @@ function DraftingCardPaperShaderPanel({
   const presetContent = (
     <section className="min-w-0 space-y-3" data-slot="drafting-card-paper-shader-presets">
       {!showAccordions ? (
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+        <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
           Preset
         </p>
       ) : null}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            className="h-11 w-full justify-between rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-4 text-[var(--drafting-ink)] shadow-none hover:border-[var(--drafting-line-hover)] hover:bg-[var(--drafting-panel-bg-hover)]"
+            className="h-11 w-full justify-between rounded-[8px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] px-4 text-[var(--ws-ink)] shadow-none hover:border-[var(--ws-line-hover)] hover:bg-[var(--ws-panel-bg-hover)]"
             type="button"
             variant="ghost"
           >
             <span>{selectedPreset?.name ?? paperShader.presetName}</span>
-            <ChevronDown className="size-4 text-[var(--drafting-ink-muted)]" aria-hidden="true" />
+            <ChevronDown className="size-4 text-[var(--ws-ink-muted)]" aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
-          className="w-[276px] rounded-[8px] border border-[var(--drafting-dropdown-border)] bg-[var(--drafting-dropdown-menu-surface-open)] p-2 text-[var(--drafting-dropdown-text)] shadow-[var(--drafting-dropdown-menu-shadow-open)]"
+          className="w-[276px] rounded-[8px] border border-[var(--ws-dropdown-border)] bg-[var(--ws-dropdown-menu-surface-open)] p-2 text-[var(--ws-dropdown-text)] shadow-[var(--ws-dropdown-menu-shadow-open)]"
         >
           <DropdownMenuGroup>
             {definition.presets.map((preset) => (
@@ -1765,7 +1765,7 @@ function DraftingCardPaperShaderPanel({
                 className={cn(
                   "h-9 cursor-default rounded-[6px] px-2 text-[12px] font-medium",
                   preset.name === paperShader.presetName &&
-                    "bg-[var(--drafting-dropdown-selected-fill)]",
+                    "bg-[var(--ws-dropdown-selected-fill)]",
                 )}
                 onClick={() =>
                   onPaperShaderChange(
@@ -1785,7 +1785,7 @@ function DraftingCardPaperShaderPanel({
   const motionContent = (
     <section className="min-w-0 space-y-3" data-slot="drafting-card-paper-shader-motion">
       {!showAccordions ? (
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+        <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
           Motion
         </p>
       ) : null}
@@ -1827,7 +1827,7 @@ function DraftingCardPaperShaderPanel({
   const settingsContent = (
     <section className="min-w-0 space-y-3" data-slot="drafting-card-paper-shader-params">
       {!showAccordions ? (
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+        <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
           Settings
         </p>
       ) : null}
@@ -1975,8 +1975,8 @@ function DraftingPaperShaderParamControl({
 
   if (control.type === "enum" && typeof value === "string") {
     return (
-      <div className="min-w-0 space-y-2 rounded-[7px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] p-3">
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+      <div className="min-w-0 space-y-2 rounded-[7px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] p-3">
+        <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
           {label}
         </p>
         <div className="grid grid-cols-2 gap-2">
@@ -1984,9 +1984,9 @@ function DraftingPaperShaderParamControl({
             <Button
               key={option}
               className={cn(
-                "h-9 rounded-[7px] border border-[var(--drafting-line)] bg-transparent px-2 text-[12px] font-semibold text-[var(--drafting-ink-muted)] shadow-none hover:border-[var(--drafting-line-hover)] hover:bg-[var(--drafting-panel-bg-hover)]",
+                "h-9 rounded-[7px] border border-[var(--ws-line)] bg-transparent px-2 text-[12px] font-semibold text-[var(--ws-ink-muted)] shadow-none hover:border-[var(--ws-line-hover)] hover:bg-[var(--ws-panel-bg-hover)]",
                 value === option &&
-                  "border-[var(--drafting-line-strong)] text-[var(--drafting-ink)]",
+                  "border-[var(--ws-line-strong)] text-[var(--ws-ink)]",
               )}
               type="button"
               variant="ghost"
@@ -2014,15 +2014,15 @@ function DraftingPaperShaderImageControl({
 }) {
   return (
     <div
-      className="min-w-0 space-y-3 rounded-[7px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] p-3"
+      className="min-w-0 space-y-3 rounded-[7px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] p-3"
       data-slot="drafting-card-paper-shader-image"
     >
       <div className="flex min-w-0 items-center justify-between gap-3">
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+        <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
           {label}
         </p>
         <Button
-          className="h-8 rounded-[6px] border border-[var(--drafting-line)] bg-transparent px-3 text-[12px] font-semibold text-[var(--drafting-ink-muted)] shadow-none hover:border-[var(--drafting-line-hover)] hover:bg-[var(--drafting-panel-bg-hover)]"
+          className="h-8 rounded-[6px] border border-[var(--ws-line)] bg-transparent px-3 text-[12px] font-semibold text-[var(--ws-ink-muted)] shadow-none hover:border-[var(--ws-line-hover)] hover:bg-[var(--ws-panel-bg-hover)]"
           type="button"
           variant="ghost"
           onClick={() =>
@@ -2035,7 +2035,7 @@ function DraftingPaperShaderImageControl({
           Use sample
         </Button>
       </div>
-      <p className="drafting-type-caption text-[var(--drafting-ink-muted)]">
+      <p className="ws-type-caption text-[var(--ws-ink-muted)]">
         {image.source === "upload" ? "Uploaded image" : "Built-in sample image"}
       </p>
       <FileUpload
@@ -2066,15 +2066,15 @@ function DraftingPaperShaderColorArrayControl({
   onChange: (value: string[]) => void
 }) {
   return (
-    <div className="min-w-0 space-y-3 rounded-[7px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] p-3">
-      <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+    <div className="min-w-0 space-y-3 rounded-[7px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] p-3">
+      <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
         {label}
       </p>
       <div className="flex min-w-0 flex-wrap items-center gap-3">
         {colors.map((color, index) => (
           <label
             key={`${color}-${index}`}
-            className="relative block size-10 shrink-0 cursor-pointer overflow-hidden rounded-full border border-[var(--drafting-line)] shadow-[var(--drafting-shadow-rest)]"
+            className="relative block size-10 shrink-0 cursor-pointer overflow-hidden rounded-full border border-[var(--ws-line)] shadow-[var(--ws-shadow-rest)]"
             style={{ backgroundColor: color }}
           >
             <span className="sr-only">
@@ -2095,7 +2095,7 @@ function DraftingPaperShaderColorArrayControl({
         ))}
         <Button
           aria-label={`Add ${label}`}
-          className="size-10 rounded-full border border-dashed border-[var(--drafting-line)] bg-transparent p-0 text-[var(--drafting-ink-muted)] shadow-none hover:border-[var(--drafting-line-hover)] hover:bg-[var(--drafting-panel-bg-hover)]"
+          className="size-10 rounded-full border border-dashed border-[var(--ws-line)] bg-transparent p-0 text-[var(--ws-ink-muted)] shadow-none hover:border-[var(--ws-line-hover)] hover:bg-[var(--ws-panel-bg-hover)]"
           disabled={colors.length >= maxColorCount}
           type="button"
           variant="ghost"
@@ -2118,20 +2118,20 @@ function DraftingPaperShaderColorControl({
   onChange: (value: string) => void
 }) {
   return (
-    <label className="grid min-w-0 gap-2 rounded-[7px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] p-3">
-      <span className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+    <label className="grid min-w-0 gap-2 rounded-[7px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] p-3">
+      <span className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
         {label}
       </span>
       <span className="flex min-w-0 items-center gap-2">
         <input
           aria-label={label}
-          className="size-10 shrink-0 cursor-pointer rounded-[6px] border border-[var(--drafting-line)] bg-transparent p-1"
+          className="size-10 shrink-0 cursor-pointer rounded-[6px] border border-[var(--ws-line)] bg-transparent p-1"
           type="color"
           value={isPaperShaderHexColor(value) ? value : PAPER_SHADER_COLOR_INPUT_FALLBACK}
           onChange={(event) => onChange(event.currentTarget.value)}
         />
         <Input
-          className="drafting-type-input h-10 min-w-0 border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-3 text-[var(--drafting-ink)] shadow-none focus-visible:border-[var(--drafting-line-strong)] focus-visible:ring-0"
+          className="ws-type-input h-10 min-w-0 border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-3 text-[var(--ws-ink)] shadow-none focus-visible:border-[var(--ws-line-strong)] focus-visible:ring-0"
           value={value}
           onChange={(event) => onChange(event.currentTarget.value)}
         />
@@ -2168,10 +2168,10 @@ function DraftingCardColorsTab({
       <div data-slot="drafting-card-colors-tab" className="min-w-0 space-y-3">
         <div
           aria-hidden="true"
-          className="h-24 overflow-hidden rounded-[7px] border border-[var(--drafting-line)]"
+          className="h-24 overflow-hidden rounded-[7px] border border-[var(--ws-line)]"
           style={{ backgroundColor: fill }}
         />
-        <p className="drafting-type-caption text-[var(--drafting-ink-muted)]">
+        <p className="ws-type-caption text-[var(--ws-ink-muted)]">
           Choose a pattern in Surface to edit colors.
         </p>
       </div>
@@ -2187,19 +2187,19 @@ function DraftingCardColorsTab({
       <div
         aria-label={`${pattern.label} color preview`}
         data-slot="drafting-card-pattern-color-preview"
-        className="h-24 overflow-hidden rounded-[7px] border border-[var(--drafting-line)]"
+        className="h-24 overflow-hidden rounded-[7px] border border-[var(--ws-line)]"
         style={previewStyle ?? pattern.style}
       />
 
       <div className="flex min-w-0 items-center justify-between gap-3">
-        <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+        <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
           {pattern.label}
         </p>
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="h-8 rounded-[6px] px-2 text-[11px] font-semibold text-[var(--drafting-ink-muted)] hover:text-[var(--drafting-ink)]"
+          className="h-8 rounded-[6px] px-2 text-[11px] font-semibold text-[var(--ws-ink-muted)] hover:text-[var(--ws-ink)]"
           onClick={() => onResetPatternColors(selectedPatternId)}
         >
           Reset pattern colors
@@ -2209,20 +2209,20 @@ function DraftingCardColorsTab({
       <div className="grid min-w-0 gap-4">
         {pattern.colorSlots.map((slot) => (
           <label
-            className="grid min-w-0 gap-2 rounded-[7px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] p-3"
+            className="grid min-w-0 gap-2 rounded-[7px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] p-3"
             key={slot.id}
           >
             <span className="flex min-w-0 items-center justify-between gap-3">
-              <span className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+              <span className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
                 {slot.label}
               </span>
-              <span className="font-mono text-[11px] text-[var(--drafting-ink-muted)]">
+              <span className="font-mono text-[11px] text-[var(--ws-ink-muted)]">
                 {overrides[slot.id] ?? slot.defaultValue}
               </span>
             </span>
             <input
               aria-label={`${pattern.label} ${slot.label}`}
-              className="h-10 w-full cursor-pointer rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] p-1"
+              className="h-10 w-full cursor-pointer rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-control-bg)] p-1"
               data-slot="drafting-card-pattern-color-input"
               onChange={(event) =>
                 onPatternColorChange(selectedPatternId, slot.id, event.currentTarget.value)
@@ -2360,7 +2360,7 @@ export function DraftingDotsColorTab({
                 <span
                   key={color}
                   aria-hidden="true"
-                  className="size-7 shrink-0 rounded-full border border-black/10 shadow-[var(--drafting-shadow-rest)]"
+                  className="size-7 shrink-0 rounded-full border border-black/10 shadow-[var(--ws-shadow-rest)]"
                   style={{ backgroundColor: color }}
                 />
               ))}
@@ -2368,7 +2368,7 @@ export function DraftingDotsColorTab({
             <Button
               type="button"
               variant="outline"
-              className="w-full rounded-[8px] border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] text-[var(--drafting-ink)] shadow-[var(--drafting-shadow-rest)] hover:border-[var(--drafting-line-hover)] hover:bg-[var(--drafting-panel-bg-hover)]"
+              className="w-full rounded-[8px] border-[var(--ws-line)] bg-[var(--ws-panel-bg)] text-[var(--ws-ink)] shadow-[var(--ws-shadow-rest)] hover:border-[var(--ws-line-hover)] hover:bg-[var(--ws-panel-bg-hover)]"
               onClick={() => onModeChange("palette")}
             >
               Use palette
@@ -2539,7 +2539,7 @@ export function DraftingBackgroundShapeTab({
           darkShadowTone="ink"
           checked={value === "none"}
           label="None"
-          labelClassName="drafting-type-option-label"
+          labelClassName="ws-type-option-label"
           name="drafting-background-shape"
           onSelect={() => onValueChange("none")}
           size="compact"
@@ -2547,7 +2547,7 @@ export function DraftingBackgroundShapeTab({
         >
           <span
             aria-hidden="true"
-            className="flex size-full items-center justify-center rounded-[7px] border border-dashed border-[var(--drafting-line)] text-[var(--drafting-ink-muted)]"
+            className="flex size-full items-center justify-center rounded-[7px] border border-dashed border-[var(--ws-line)] text-[var(--ws-ink-muted)]"
           >
             None
           </span>
@@ -2563,7 +2563,7 @@ export function DraftingBackgroundShapeTab({
               key={shape.id}
               checked={shape.id === value}
               label={getDraftingShapeLabel(shape.id, shape.label)}
-              labelClassName="drafting-type-option-label"
+              labelClassName="ws-type-option-label"
               name="drafting-background-shape"
               onSelect={() => onValueChange(shape.id)}
               value={shape.id}
@@ -2626,10 +2626,10 @@ export function DraftingBackgroundShapeTab({
           className="min-w-0 space-y-3"
         >
           <div className="space-y-1">
-            <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+            <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
               Shape
             </p>
-            <p className="drafting-type-body text-[var(--drafting-ink-muted)]">
+            <p className="ws-type-body text-[var(--ws-ink-muted)]">
               Expands the QR backing surface without changing QR modules.
             </p>
           </div>
@@ -2714,7 +2714,7 @@ export function DraftingBrandIconTab({
           <span
             aria-hidden="true"
             data-slot="drafting-brand-icon-search-icon"
-            className="pointer-events-none absolute left-3 top-1/2 flex size-4 -translate-y-1/2 items-center justify-center text-[var(--drafting-ink-subtle)]"
+            className="pointer-events-none absolute left-3 top-1/2 flex size-4 -translate-y-1/2 items-center justify-center text-[var(--ws-ink-subtle)]"
           >
             <HugeiconsIcon
               icon={Search01Icon}
@@ -2726,7 +2726,7 @@ export function DraftingBrandIconTab({
           <Input
             id="drafting-brand-icon-search"
             aria-label="Search brand icons"
-            className="drafting-type-input h-10 border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] pl-9 pr-3 text-[var(--drafting-ink)] shadow-[var(--drafting-shadow-rest)] placeholder:text-[var(--drafting-ink-subtle)] focus-visible:border-[var(--drafting-line-strong)] focus-visible:ring-0"
+            className="ws-type-input h-10 border-[var(--ws-line)] bg-[var(--ws-panel-bg)] pl-9 pr-3 text-[var(--ws-ink)] shadow-[var(--ws-shadow-rest)] placeholder:text-[var(--ws-ink-subtle)] focus-visible:border-[var(--ws-line-strong)] focus-visible:ring-0"
             placeholder="Search icons"
             value={brandIconQuery}
             onChange={(event) => onBrandIconQueryChange(event.target.value)}
@@ -2763,10 +2763,10 @@ export function DraftingBrandIconTab({
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "drafting-type-meta flex size-full items-center justify-center font-medium",
+                    "ws-type-meta flex size-full items-center justify-center font-medium",
                     isSelected
-                      ? "text-[var(--drafting-ink)]"
-                      : "text-[var(--drafting-ink-muted)]",
+                      ? "text-[var(--ws-ink)]"
+                      : "text-[var(--ws-ink-muted)]",
                   )}
                 >
                   {option.label}
@@ -2793,10 +2793,10 @@ export function DraftingBrandIconTab({
                 className={cn(
                   "w-[56px]",
                   "[&_[data-slot=option-card]]:h-[56px] [&_[data-slot=option-card]]:w-[56px]",
-                  "[&_[data-slot=option-card-motif]]:text-[var(--drafting-ink)]",
+                  "[&_[data-slot=option-card-motif]]:text-[var(--ws-ink)]",
                 )}
                 label={brandIcon.label}
-                labelClassName="drafting-type-caption min-h-[1.2rem]"
+                labelClassName="ws-type-caption min-h-[1.2rem]"
                 motifClassName="size-full px-1.5 py-1.5"
                 name="drafting-brand-icon"
                 onSelect={() => onSelect(brandIcon)}
@@ -2809,7 +2809,7 @@ export function DraftingBrandIconTab({
                   data-slot="drafting-brand-icon-option"
                   className="flex size-full items-center justify-center"
                 >
-                  <span className="text-[var(--drafting-ink)]">
+                  <span className="text-[var(--ws-ink)]">
                     <Icon className="size-[18px]" />
                   </span>
                 </span>
@@ -2983,10 +2983,10 @@ export function DraftingEncodingTab({
   return (
     <div data-slot="drafting-encoding-tab" className="min-w-0 space-y-4">
       <DraftingSliderField
-        dataSlot="drafting-type-number-slider"
+        dataSlot="ws-type-number-slider"
         description="Auto picks the QR version for you. Higher values force denser versions with more modules."
         formatValue={(value) => formatQrTypeNumberLabel(value)}
-        id="drafting-type-number"
+        id="ws-type-number"
         label="Type number"
         max={TYPE_NUMBER_MAX}
         min={TYPE_NUMBER_MIN}
@@ -2997,10 +2997,10 @@ export function DraftingEncodingTab({
 
       <section data-slot="drafting-error-correction-section" className="space-y-3">
         <div className="space-y-1">
-          <h3 className="drafting-type-section-title font-semibold text-[var(--drafting-ink)]">
+          <h3 className="ws-type-section-title font-semibold text-[var(--ws-ink)]">
             Error correction
           </h3>
-          <p className="drafting-type-body text-[var(--drafting-ink-muted)]">
+          <p className="ws-type-body text-[var(--ws-ink-muted)]">
             Higher recovery makes styled codes more tolerant to logos, crops, and wear.
           </p>
         </div>
@@ -3035,10 +3035,10 @@ export function DraftingEncodingTab({
                 <span className="flex size-full flex-col items-start justify-between gap-2 text-left">
                   <span
                     className={cn(
-                      "drafting-type-display-data font-semibold",
+                      "ws-type-display-data font-semibold",
                       isSelected
-                        ? "text-[var(--drafting-ink)]"
-                        : "text-[var(--drafting-ink-muted)]",
+                        ? "text-[var(--ws-ink)]"
+                        : "text-[var(--ws-ink-muted)]",
                     )}
                   >
                     {option.label}
@@ -3046,20 +3046,20 @@ export function DraftingEncodingTab({
                   <span className="space-y-1">
                     <span
                       className={cn(
-                        "drafting-type-meta block font-semibold",
+                        "ws-type-meta block font-semibold",
                         isSelected
-                          ? "text-[var(--drafting-ink)]"
-                          : "text-[var(--drafting-ink-strong-muted)]",
+                          ? "text-[var(--ws-ink)]"
+                          : "text-[var(--ws-ink-strong-muted)]",
                       )}
                     >
                       {option.title}
                     </span>
                     <span
                       className={cn(
-                        "drafting-type-body block",
+                        "ws-type-body block",
                         isSelected
-                          ? "text-[var(--drafting-ink)]"
-                          : "text-[var(--drafting-ink-muted)]",
+                          ? "text-[var(--ws-ink)]"
+                          : "text-[var(--ws-ink-muted)]",
                       )}
                     >
                       {option.summary}
@@ -3181,7 +3181,7 @@ function buildDraftingAssetSourceItems({
         <div className="min-w-0 px-4 pb-4">
           <Input
             aria-label={remoteUrlAriaLabel}
-            className="drafting-type-input h-10 rounded-[8px] border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] px-3 text-[var(--drafting-ink)] shadow-[var(--drafting-shadow-rest)] placeholder:text-[var(--drafting-ink-subtle)] focus-visible:border-[var(--drafting-line-strong)] focus-visible:ring-0"
+            className="ws-type-input h-10 rounded-[8px] border-[var(--ws-line)] bg-[var(--ws-panel-bg)] px-3 text-[var(--ws-ink)] shadow-[var(--ws-shadow-rest)] placeholder:text-[var(--ws-ink-subtle)] focus-visible:border-[var(--ws-line-strong)] focus-visible:ring-0"
             placeholder={remoteUrlPlaceholder}
             value={remoteUrl}
             onChange={(event) => {
@@ -3234,13 +3234,13 @@ function DraftingAccordion({
               value={item.id}
               className={cn(
                 "mb-2 min-w-0 w-full overflow-hidden rounded-[8px] last:mb-0 last:border-b",
-                "bg-[var(--drafting-panel-bg)] shadow-[var(--drafting-shadow-rest)] transition-[border-color,box-shadow,background-color] duration-150 ease-out",
-                "hover:bg-[var(--drafting-panel-bg-hover)] hover:shadow-[var(--drafting-shadow-hover)]",
-                "active:translate-y-0 active:bg-[var(--drafting-panel-bg-active)] active:shadow-[var(--drafting-shadow-active)]",
-                "data-[state=open]:bg-[var(--drafting-panel-bg-hover)]",
+                "bg-[var(--ws-panel-bg)] shadow-[var(--ws-shadow-rest)] transition-[border-color,box-shadow,background-color] duration-150 ease-out",
+                "hover:bg-[var(--ws-panel-bg-hover)] hover:shadow-[var(--ws-shadow-hover)]",
+                "active:translate-y-0 active:bg-[var(--ws-panel-bg-active)] active:shadow-[var(--ws-shadow-active)]",
+                "data-[state=open]:bg-[var(--ws-panel-bg-hover)]",
                 isSelected
-                  ? "border-2 border-dashed border-[var(--drafting-line-strong)] hover:border-[var(--drafting-line-strong)] active:border-[var(--drafting-line-strong)] last:border-b-2 bg-[var(--drafting-panel-bg-active)]"
-                  : "border border-dashed border-[var(--drafting-line)] hover:border-[var(--drafting-line-hover)] active:border-[var(--drafting-line-hover)]",
+                  ? "border-2 border-dashed border-[var(--ws-line-strong)] hover:border-[var(--ws-line-strong)] active:border-[var(--ws-line-strong)] last:border-b-2 bg-[var(--ws-panel-bg-active)]"
+                  : "border border-dashed border-[var(--ws-line)] hover:border-[var(--ws-line-hover)] active:border-[var(--ws-line-hover)]",
               )}
             >
               <AccordionTrigger
@@ -3248,16 +3248,16 @@ function DraftingAccordion({
                 data-slot="drafting-color-trigger"
                 className={cn(
                   "px-3 py-2.5 no-underline hover:no-underline focus-visible:ring-0",
-                  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[var(--drafting-line-strong)]",
-                  "text-[var(--drafting-ink-muted)] hover:text-[var(--drafting-ink-strong-muted)] data-[state=open]:text-[var(--drafting-ink)]",
-                  "[&_[data-slot=accordion-chevron]]:text-[var(--drafting-ink-muted)] hover:[&_[data-slot=accordion-chevron]]:text-[var(--drafting-ink-strong-muted)] data-[state=open]:[&_[data-slot=accordion-chevron]]:text-[var(--drafting-ink)]",
+                  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[var(--ws-line-strong)]",
+                  "text-[var(--ws-ink-muted)] hover:text-[var(--ws-ink-strong-muted)] data-[state=open]:text-[var(--ws-ink)]",
+                  "[&_[data-slot=accordion-chevron]]:text-[var(--ws-ink-muted)] hover:[&_[data-slot=accordion-chevron]]:text-[var(--ws-ink-strong-muted)] data-[state=open]:[&_[data-slot=accordion-chevron]]:text-[var(--ws-ink)]",
                 )}
               >
                 <span className="flex min-w-0 items-center gap-3">
                   <span
                     className={cn(
-                      "drafting-type-control-label font-medium text-[var(--drafting-ink-muted)] transition-colors",
-                      isSelected && "font-semibold text-[var(--drafting-ink)]",
+                      "ws-type-control-label font-medium text-[var(--ws-ink-muted)] transition-colors",
+                      isSelected && "font-semibold text-[var(--ws-ink)]",
                     )}
                   >
                     {item.title}
@@ -3328,7 +3328,7 @@ function DraftingSliderField({
           />
         </div>
         {description ? (
-          <p className="drafting-type-caption mt-2 text-[var(--drafting-ink-muted)]">{description}</p>
+          <p className="ws-type-caption mt-2 text-[var(--ws-ink-muted)]">{description}</p>
         ) : null}
       </div>
     )
@@ -3337,7 +3337,7 @@ function DraftingSliderField({
   return (
     <DraftingInspectorSection
       dataSlot={`${dataSlot}-field`}
-      className="transition-[border-color,box-shadow,background-color] duration-150 ease-out hover:border-[var(--drafting-line-hover)] hover:bg-[var(--drafting-panel-bg-hover)] hover:shadow-[var(--drafting-shadow-hover)] focus-within:border-[var(--drafting-line-strong)] focus-within:bg-[var(--drafting-panel-bg-active)]"
+      className="transition-[border-color,box-shadow,background-color] duration-150 ease-out hover:border-[var(--ws-line-hover)] hover:bg-[var(--ws-panel-bg-hover)] hover:shadow-[var(--ws-shadow-hover)] focus-within:border-[var(--ws-line-strong)] focus-within:bg-[var(--ws-panel-bg-active)]"
     >
       <UnlumenSlider
         appearance="drafting"
@@ -3352,13 +3352,13 @@ function DraftingSliderField({
         showValue
         step={step}
         thumbDataSlot={`${dataSlot}-thumb`}
-        trackClassName="bg-[var(--drafting-control-bg)]"
+        trackClassName="bg-[var(--ws-control-bg)]"
         trackDataSlot={`${dataSlot}-track`}
         value={value}
         onChange={(nextValue) => onChange(Array.isArray(nextValue) ? nextValue[0] ?? value : nextValue)}
       />
       {description ? (
-        <p className="drafting-type-caption mt-2 text-[var(--drafting-ink-muted)]">{description}</p>
+        <p className="ws-type-caption mt-2 text-[var(--ws-ink-muted)]">{description}</p>
       ) : null}
     </DraftingInspectorSection>
   )
@@ -3383,8 +3383,8 @@ function DraftingToggleField({
     <DraftingInspectorSection
       dataSlot={dataSlot}
       className={cn(
-        "cursor-pointer transition-[border-color,box-shadow,background-color] duration-150 ease-out hover:border-[var(--drafting-line-hover)] hover:bg-[var(--drafting-panel-bg-hover)] hover:shadow-[var(--drafting-shadow-hover)] focus-within:border-[var(--drafting-line-strong)] focus-within:bg-[var(--drafting-panel-bg-active)]",
-        checked && "border-[var(--drafting-line-strong)] bg-[var(--drafting-panel-bg-active)]",
+        "cursor-pointer transition-[border-color,box-shadow,background-color] duration-150 ease-out hover:border-[var(--ws-line-hover)] hover:bg-[var(--ws-panel-bg-hover)] hover:shadow-[var(--ws-shadow-hover)] focus-within:border-[var(--ws-line-strong)] focus-within:bg-[var(--ws-panel-bg-active)]",
+        checked && "border-[var(--ws-line-strong)] bg-[var(--ws-panel-bg-active)]",
       )}
     >
       <DraftingInspectorControlRow
@@ -3395,11 +3395,11 @@ function DraftingToggleField({
           <Switch
             checked={checked}
             className={cn(
-              "ml-auto h-[20px] w-[36px] shrink-0 border border-[var(--drafting-line)] bg-[var(--drafting-control-bg)]",
-              "shadow-[var(--drafting-shadow-rest)] transition-[background-color,border-color,box-shadow] duration-150",
-              "hover:border-[var(--drafting-line-hover)] hover:bg-[var(--drafting-control-bg-hover)]",
-              "data-[state=checked]:border-[var(--drafting-ink)] data-[state=checked]:bg-[var(--drafting-ink)]",
-              "focus-visible:ring-2 focus-visible:ring-[var(--drafting-line-hover)] focus-visible:ring-offset-0",
+              "ml-auto h-[20px] w-[36px] shrink-0 border border-[var(--ws-line)] bg-[var(--ws-control-bg)]",
+              "shadow-[var(--ws-shadow-rest)] transition-[background-color,border-color,box-shadow] duration-150",
+              "hover:border-[var(--ws-line-hover)] hover:bg-[var(--ws-control-bg-hover)]",
+              "data-[state=checked]:border-[var(--ws-ink)] data-[state=checked]:bg-[var(--ws-ink)]",
+              "focus-visible:ring-2 focus-visible:ring-[var(--ws-line-hover)] focus-visible:ring-offset-0",
             )}
             data-slot={`${dataSlot}-switch`}
             id={id}
@@ -3445,7 +3445,7 @@ function DraftingOptionCardGrid<TValue extends string>({
             darkShadowTone="ink"
             key={option.value}
             checked={option.value === value}
-            labelClassName="drafting-type-option-label"
+            labelClassName="ws-type-option-label"
             label={option.label}
             name={name}
             onSelect={() => onValueChange(option.value)}

@@ -24,17 +24,17 @@ export function InspectorPanel({
     <section data-slot={dataSlot} className={cn("min-w-0 space-y-3", className)}>
       <div className="min-w-0 px-1">
         {eyebrow ? (
-          <p className="drafting-type-caption font-bold tracking-[0.04em] text-[var(--drafting-ink-subtle)]">
+          <p className="ws-type-caption font-bold tracking-[0.04em] text-[var(--ws-ink-subtle)]">
             {eyebrow}
           </p>
         ) : null}
         <div className="mt-0.5 flex min-w-0 items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="drafting-type-section-title truncate font-semibold text-[var(--drafting-ink)]">
+            <h2 className="ws-type-section-title truncate font-semibold text-[var(--ws-ink)]">
               {title}
             </h2>
             {description ? (
-              <p className="drafting-type-caption mt-1 text-[var(--drafting-ink-muted)]">
+              <p className="ws-type-caption mt-1 text-[var(--ws-ink-muted)]">
                 {description}
               </p>
             ) : null}
@@ -65,19 +65,19 @@ export function DraftingInspectorSection({
     <section
       data-slot={dataSlot}
       className={cn(
-        "min-w-0 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg)] shadow-[var(--drafting-shadow-rest)]",
+        "min-w-0 rounded-[8px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg)] shadow-[var(--ws-shadow-rest)]",
         className,
       )}
     >
       {title || description ? (
-        <div className="min-w-0 border-b border-[var(--drafting-line)] px-3 py-2.5">
+        <div className="min-w-0 border-b border-[var(--ws-line)] px-3 py-2.5">
           {title ? (
-            <p className="drafting-type-control-label font-semibold text-[var(--drafting-ink)]">
+            <p className="ws-type-control-label font-semibold text-[var(--ws-ink)]">
               {title}
             </p>
           ) : null}
           {description ? (
-            <p className="drafting-type-caption mt-1 text-[var(--drafting-ink-muted)]">
+            <p className="ws-type-caption mt-1 text-[var(--ws-ink-muted)]">
               {description}
             </p>
           ) : null}
@@ -106,7 +106,7 @@ export function DraftingInspectorControlRow({
   value,
 }: DraftingInspectorControlRowProps) {
   const labelNode = (
-    <span className="drafting-type-meta block font-semibold text-[var(--drafting-ink)]">
+    <span className="ws-type-meta block font-semibold text-[var(--ws-ink)]">
       {label}
     </span>
   )
@@ -127,7 +127,7 @@ export function DraftingInspectorControlRow({
           labelNode
         )}
         {description ? (
-          <span className="drafting-type-caption mt-0.5 block text-[var(--drafting-ink-muted)]">
+          <span className="ws-type-caption mt-0.5 block text-[var(--ws-ink-muted)]">
             {description}
           </span>
         ) : null}
@@ -164,7 +164,7 @@ export function DraftingInspectorSegmentedControl<TValue extends string>({
     <div
       aria-label={ariaLabel}
       className={cn(
-        "grid min-w-0 gap-1 rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] p-1",
+        "grid min-w-0 gap-1 rounded-[8px] border border-[var(--ws-line)] bg-[var(--ws-control-bg)] p-1",
         className,
       )}
       role="radiogroup"
@@ -177,8 +177,8 @@ export function DraftingInspectorSegmentedControl<TValue extends string>({
             key={item.value}
             aria-checked={isSelected}
             className={cn(
-              "drafting-type-meta flex min-h-8 min-w-0 items-center justify-center gap-1.5 rounded-[5px] px-2 font-semibold text-[var(--drafting-ink-muted)] transition-colors hover:bg-[var(--drafting-panel-bg-hover)] hover:text-[var(--drafting-ink)]",
-              isSelected && "bg-[var(--drafting-ink)] text-[var(--drafting-ink-inverse)] hover:bg-[var(--drafting-ink)] hover:text-[var(--drafting-ink-inverse)]",
+              "ws-type-meta flex min-h-8 min-w-0 items-center justify-center gap-1.5 rounded-[5px] px-2 font-semibold text-[var(--ws-ink-muted)] transition-colors hover:bg-[var(--ws-panel-bg-hover)] hover:text-[var(--ws-ink)]",
+              isSelected && "bg-[var(--ws-ink)] text-[var(--ws-ink-inverse)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-ink-inverse)]",
             )}
             role="radio"
             type="button"
@@ -210,7 +210,7 @@ export function DraftingInspectorIconButton({
     <Button
       aria-label={ariaLabel}
       className={cn(
-        "size-8 rounded-[6px] border border-transparent bg-[var(--drafting-control-bg)] text-[var(--drafting-ink-muted)] shadow-none transition-[color,background-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-px hover:bg-[var(--drafting-panel-bg-hover)] hover:text-[var(--drafting-ink)] hover:shadow-[var(--drafting-shadow-hover)] active:translate-y-0 active:bg-[var(--drafting-control-bg-active)] disabled:pointer-events-none disabled:opacity-35",
+        "size-8 rounded-[6px] border border-transparent bg-[var(--ws-control-bg)] text-[var(--ws-ink-muted)] shadow-none transition-[color,background-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-px hover:bg-[var(--ws-panel-bg-hover)] hover:text-[var(--ws-ink)] hover:shadow-[var(--ws-shadow-hover)] active:translate-y-0 active:bg-[var(--ws-control-bg-active)] disabled:pointer-events-none disabled:opacity-35",
         className,
       )}
       disabled={disabled}

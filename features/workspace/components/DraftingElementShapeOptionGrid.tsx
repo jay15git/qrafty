@@ -37,7 +37,7 @@ export function DraftingElementShapeOptionGrid({
     "flex aspect-square w-full min-w-0 items-center justify-center p-2 transition",
     isInsertDesktop
       ? "text-white/78 hover:bg-white/[0.11] hover:text-white"
-      : "text-[var(--drafting-ink-muted)] hover:bg-[var(--drafting-panel-bg-hover)] hover:text-[var(--drafting-ink)]",
+      : "text-[var(--ws-ink-muted)] hover:bg-[var(--ws-panel-bg-hover)] hover:text-[var(--ws-ink)]",
   )
 
   return (

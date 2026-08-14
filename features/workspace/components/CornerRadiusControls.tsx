@@ -67,7 +67,7 @@ export function CornerRadiusControls({
         <button
           aria-label={radii.linked ? "Unlink corner radii" : "Link corner radii"}
           aria-pressed={radii.linked}
-          className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--drafting-line)]"
+          className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--ws-line)]"
           type="button"
           onClick={toggleLinked}
         >
@@ -101,7 +101,7 @@ export function CornerRadiusControls({
       <div
         aria-hidden="true"
         className={cn(
-          "mt-3 grid grid-cols-2 gap-2 rounded-[8px] border border-[var(--drafting-line)] p-3",
+          "mt-3 grid grid-cols-2 gap-2 rounded-[8px] border border-[var(--ws-line)] p-3",
           radii.linked && "opacity-80",
         )}
       >
@@ -137,8 +137,8 @@ function CornerRadiusPreviewCorner({
     <div className={cn("flex min-h-10", alignment)}>
       <div
         className={cn(
-          "size-8 border border-[var(--drafting-line-strong)] bg-[var(--drafting-panel-bg-hover)]",
-          active && "ring-1 ring-[var(--drafting-line-strong)]",
+          "size-8 border border-[var(--ws-line-strong)] bg-[var(--ws-panel-bg-hover)]",
+          active && "ring-1 ring-[var(--ws-line-strong)]",
         )}
         style={{
           borderBottomLeftRadius: corner === "bottomLeft" ? radius : 0,

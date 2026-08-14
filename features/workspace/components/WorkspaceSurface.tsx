@@ -551,7 +551,7 @@ function PlusMarker({ className }: { className: string }) {
     <svg
       aria-hidden="true"
       data-slot="drafting-plus-marker"
-      className={cn("pointer-events-none absolute size-4 text-[var(--drafting-ink-muted)]", className)}
+      className={cn("pointer-events-none absolute size-4 text-[var(--ws-ink-muted)]", className)}
       fill="none"
       viewBox="0 0 24 24"
     >
@@ -3618,16 +3618,16 @@ export function WorkspaceSurface({
       return (
         <section data-slot="drafting-export-tab" className="min-w-0 space-y-4">
           <div>
-            <p className="drafting-type-section-title font-bold text-[var(--drafting-ink)]">
+            <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
               Export
             </p>
-            <p className="drafting-type-body mt-1 text-[var(--drafting-ink-muted)]">
+            <p className="ws-type-body mt-1 text-[var(--ws-ink-muted)]">
               Choose the QR target, file type, and raster quality.
             </p>
           </div>
 
           <div className="flex flex-col gap-2.5">
-            <p className="drafting-type-section-title font-bold text-[var(--drafting-ink)]">
+            <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
               Target
             </p>
             <div
@@ -3654,8 +3654,8 @@ export function WorkspaceSurface({
                   >
                     <span
                       className={cn(
-                        "drafting-type-meta flex min-w-0 items-center justify-center text-center font-semibold",
-                        isSelected ? "text-[var(--drafting-ink)]" : "text-[var(--drafting-ink-muted)]",
+                        "ws-type-meta flex min-w-0 items-center justify-center text-center font-semibold",
+                        isSelected ? "text-[var(--ws-ink)]" : "text-[var(--ws-ink-muted)]",
                       )}
                     >
                       {target.label}
@@ -3667,7 +3667,7 @@ export function WorkspaceSurface({
           </div>
 
           <div className="flex flex-col gap-2.5">
-            <p className="drafting-type-section-title font-bold text-[var(--drafting-ink)]">
+            <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
               Format
             </p>
             <div
@@ -3694,8 +3694,8 @@ export function WorkspaceSurface({
                   >
                     <span
                       className={cn(
-                        "drafting-type-meta font-semibold",
-                        isSelected ? "text-[var(--drafting-ink)]" : "text-[var(--drafting-ink-muted)]",
+                        "ws-type-meta font-semibold",
+                        isSelected ? "text-[var(--ws-ink)]" : "text-[var(--ws-ink-muted)]",
                       )}
                     >
                       {extension.toUpperCase()}
@@ -3708,7 +3708,7 @@ export function WorkspaceSurface({
 
           {isDraftingRasterExport ? (
             <div className="flex flex-col gap-2.5">
-              <p className="drafting-type-section-title font-bold text-[var(--drafting-ink)]">
+              <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
                 Quality
               </p>
               <div
@@ -3742,10 +3742,10 @@ export function WorkspaceSurface({
                       value={preset.id}
                     >
                       <span className="flex min-w-0 flex-col gap-0.5 text-left">
-                        <span className="drafting-type-meta font-semibold text-[var(--drafting-ink)]">
+                        <span className="ws-type-meta font-semibold text-[var(--ws-ink)]">
                           {preset.label}
                         </span>
-                        <span className="drafting-type-data font-semibold text-[var(--drafting-ink-muted)]">
+                        <span className="ws-type-data font-semibold text-[var(--ws-ink-muted)]">
                           {preset.sizePx} x {preset.sizePx} px
                           {selectedPresetExportSizeLabel ? ` · ${selectedPresetExportSizeLabel}` : ""}
                         </span>
@@ -4880,7 +4880,7 @@ export function WorkspaceSurface({
       data-editing-mode={editingMode}
       tabIndex={-1}
       className={cn(
-        "relative grid h-dvh w-full overflow-visible bg-[var(--drafting-surface-bg)] sm:h-[calc(100dvh-4rem)] lg:shadow-[var(--drafting-shadow-shell)] [--new-header-height:3.875rem] [--new-left-rail-width:clamp(6.25rem,10vw,7.5rem)] [--new-middle-rail-width:clamp(15rem,24vw,18.5rem)] [--new-mobile-rail-height:5.75rem]",
+        "relative grid h-dvh w-full overflow-visible bg-[var(--ws-surface-bg)] sm:h-[calc(100dvh-4rem)] lg:shadow-[var(--ws-shadow-shell)] [--new-header-height:3.875rem] [--new-left-rail-width:clamp(6.25rem,10vw,7.5rem)] [--new-middle-rail-width:clamp(15rem,24vw,18.5rem)] [--new-mobile-rail-height:5.75rem]",
         chrome === "canvas-only" ? "grid-rows-1 sm:h-dvh" : "grid-rows-[var(--new-header-height)_minmax(0,1fr)]",
       )}
       data-compose-edit-mode="false"
@@ -4938,25 +4938,25 @@ export function WorkspaceSurface({
                 sideOffset={10}
                 className={cn(
                   fontClassName,
-                  "z-[20000] w-[min(24rem,calc(100vw-1rem))] rounded-[12px] border border-[var(--drafting-dropdown-border)] p-0 text-[var(--drafting-dropdown-text)] shadow-[var(--drafting-dropdown-menu-shadow-open)]",
+                  "z-[20000] w-[min(24rem,calc(100vw-1rem))] rounded-[12px] border border-[var(--ws-dropdown-border)] p-0 text-[var(--ws-dropdown-text)] shadow-[var(--ws-dropdown-menu-shadow-open)]",
                 )}
                 style={{
                   backgroundColor:
-                    "var(--drafting-dropdown-menu-surface-open, var(--popover))",
+                    "var(--ws-dropdown-menu-surface-open, var(--popover))",
                 }}
               >
-                <div className="border-b border-[var(--drafting-dropdown-border)] px-4 py-3">
-                  <div className="text-[0.72rem] font-semibold text-[var(--drafting-ink-muted)]">
+                <div className="border-b border-[var(--ws-dropdown-border)] px-4 py-3">
+                  <div className="text-[0.72rem] font-semibold text-[var(--ws-ink-muted)]">
                     Keyboard
                   </div>
-                  <h2 className="mt-1 text-sm font-semibold text-[var(--drafting-ink)]">
+                  <h2 className="mt-1 text-sm font-semibold text-[var(--ws-ink)]">
                     Shortcuts
                   </h2>
                 </div>
                 <div className="grid gap-3 p-3">
                   {DRAFTING_KEYBOARD_SHORTCUT_GROUPS.map((group) => (
                     <section key={group.title} aria-label={`${group.title} shortcuts`}>
-                      <h3 className="px-1 pb-1 text-[0.68rem] font-semibold text-[var(--drafting-ink-muted)]">
+                      <h3 className="px-1 pb-1 text-[0.68rem] font-semibold text-[var(--ws-ink-muted)]">
                         {group.title}
                       </h3>
                       <div className="grid gap-1">
@@ -4965,10 +4965,10 @@ export function WorkspaceSurface({
                             key={keys}
                             className="grid grid-cols-[minmax(7.5rem,auto)_1fr] items-center gap-3 rounded-[7px] px-2 py-1.5 text-xs"
                           >
-                            <kbd className="justify-self-start rounded-[5px] border border-[var(--drafting-dropdown-border)] bg-[var(--drafting-control-bg)] px-2 py-1 font-mono text-[0.68rem] font-semibold text-[var(--drafting-ink)]">
+                            <kbd className="justify-self-start rounded-[5px] border border-[var(--ws-dropdown-border)] bg-[var(--ws-control-bg)] px-2 py-1 font-mono text-[0.68rem] font-semibold text-[var(--ws-ink)]">
                               {keys}
                             </kbd>
-                            <span className="text-[var(--drafting-ink-muted)]">
+                            <span className="text-[var(--ws-ink-muted)]">
                               {description}
                             </span>
                           </div>
@@ -4979,7 +4979,7 @@ export function WorkspaceSurface({
                 </div>
               </PopoverContent>
             </Popover>
-            <ModeToggle appearance="drafting" className="shrink-0 text-[var(--drafting-ink)]" />
+            <ModeToggle appearance="drafting" className="shrink-0 text-[var(--ws-ink)]" />
             <Popover open={isDownloadPopoverOpen} onOpenChange={setIsDownloadPopoverOpen}>
               <PopoverTrigger asChild>
                 <SecondaryButton
@@ -5010,7 +5010,7 @@ export function WorkspaceSurface({
                       data-slot="drafting-download-target-section"
                       className="flex flex-col gap-2.5"
                     >
-                      <p className="drafting-type-section-title font-bold text-[var(--drafting-ink)]">
+                      <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
                         Target
                       </p>
                       <div
@@ -5042,10 +5042,10 @@ export function WorkspaceSurface({
                             >
                               <span
                                 className={cn(
-                                  "drafting-type-meta flex min-w-0 items-center justify-center text-center font-semibold",
+                                  "ws-type-meta flex min-w-0 items-center justify-center text-center font-semibold",
                                   isSelected
-                                    ? "text-[var(--drafting-ink)]"
-                                    : "text-[var(--drafting-ink-muted)]",
+                                    ? "text-[var(--ws-ink)]"
+                                    : "text-[var(--ws-ink-muted)]",
                                 )}
                               >
                                 {target.label}
@@ -5060,7 +5060,7 @@ export function WorkspaceSurface({
                       data-slot="drafting-download-format-section"
                       className="flex flex-col gap-2.5"
                     >
-                      <p className="drafting-type-section-title font-bold text-[var(--drafting-ink)]">
+                      <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
                         Format
                       </p>
                       <div
@@ -5093,10 +5093,10 @@ export function WorkspaceSurface({
                               <span className="flex size-full items-center justify-center text-center">
                                 <span
                                   className={cn(
-                                    "drafting-type-meta font-semibold",
+                                    "ws-type-meta font-semibold",
                                     isSelected
-                                      ? "text-[var(--drafting-ink)]"
-                                      : "text-[var(--drafting-ink-muted)]",
+                                      ? "text-[var(--ws-ink)]"
+                                      : "text-[var(--ws-ink-muted)]",
                                   )}
                                 >
                                   {extension.toUpperCase()}
@@ -5113,7 +5113,7 @@ export function WorkspaceSurface({
                         data-slot="drafting-raster-preset-section"
                         className="flex flex-col gap-2.5"
                       >
-                        <p className="drafting-type-section-title font-bold text-[var(--drafting-ink)]">
+                        <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
                           Quality preset
                         </p>
 
@@ -5160,10 +5160,10 @@ export function WorkspaceSurface({
                                 <span className="flex min-w-0 flex-col gap-0.5 text-left">
                                   <span
                                     className={cn(
-                                      "drafting-type-meta font-semibold",
+                                      "ws-type-meta font-semibold",
                                       isSelected
-                                        ? "text-[var(--drafting-ink)]"
-                                        : "text-[var(--drafting-ink-strong-muted)]",
+                                        ? "text-[var(--ws-ink)]"
+                                        : "text-[var(--ws-ink-strong-muted)]",
                                     )}
                                   >
                                     {preset.label}
@@ -5172,10 +5172,10 @@ export function WorkspaceSurface({
                                     <span
                                       data-slot="drafting-raster-quality-value"
                                       className={cn(
-                                        "drafting-type-data font-semibold",
+                                        "ws-type-data font-semibold",
                                         isSelected
-                                          ? "text-[var(--drafting-ink)]"
-                                          : "text-[var(--drafting-ink-muted)]",
+                                          ? "text-[var(--ws-ink)]"
+                                          : "text-[var(--ws-ink-muted)]",
                                       )}
                                     >
                                       {preset.sizePx} x {preset.sizePx} px
@@ -5184,20 +5184,20 @@ export function WorkspaceSurface({
                                       <>
                                         <span
                                           aria-hidden="true"
-                                          className="drafting-type-caption text-[var(--drafting-ink-subtle)]"
+                                          className="ws-type-caption text-[var(--ws-ink-subtle)]"
                                         >
                                           ⋅
                                         </span>
                                         <span
                                           data-slot="drafting-raster-calculated-size"
-                                          className="drafting-type-data font-semibold text-[var(--drafting-ink)]"
+                                          className="ws-type-data font-semibold text-[var(--ws-ink)]"
                                         >
                                           {selectedPresetExportSizeLabel}
                                         </span>
                                       </>
                                     ) : null}
                                   </span>
-                                  <span className="drafting-type-caption text-[var(--drafting-ink-muted)]">
+                                  <span className="ws-type-caption text-[var(--ws-ink-muted)]">
                                     {preset.primaryUse}
                                   </span>
                                 </span>
@@ -5210,7 +5210,7 @@ export function WorkspaceSurface({
                     ) : null}
                   </div>
 
-                  <div className="shrink-0 border-t border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] p-3">
+                  <div className="shrink-0 border-t border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] p-3">
                     <SecondaryButton
                       data-slot="drafting-download-submit"
                       disabled={!canDownload}
@@ -5243,7 +5243,7 @@ export function WorkspaceSurface({
         {chrome === "full" ? <nav
           aria-label="Primary navigation frame"
           data-slot="drafting-nav"
-          className="relative isolate order-2 min-h-0 min-w-0 overflow-hidden border-t border-transparent bg-[var(--drafting-panel-bg)] lg:order-none lg:border-t-0 lg:bg-transparent"
+          className="relative isolate order-2 min-h-0 min-w-0 overflow-hidden border-t border-transparent bg-[var(--ws-panel-bg)] lg:order-none lg:border-t-0 lg:bg-transparent"
         >
           <ScrollArea
             chevron
@@ -5274,7 +5274,7 @@ export function WorkspaceSurface({
                       {shouldRenderGroupLabel ? (
                         <span
                           data-slot="drafting-tool-group-label"
-                          className="drafting-type-caption w-full px-2 text-left font-bold tracking-[0.04em] text-[var(--drafting-ink-subtle)] lg:text-center"
+                          className="ws-type-caption w-full px-2 text-left font-bold tracking-[0.04em] text-[var(--ws-ink-subtle)] lg:text-center"
                         >
                           {tool.group}
                         </span>
@@ -5284,9 +5284,9 @@ export function WorkspaceSurface({
                         aria-pressed={isActive}
                         data-drafting-tool-button="true"
                         className={cn(
-                          "group flex h-16 w-20 min-w-20 flex-col items-center justify-center gap-2 rounded-none border-0 bg-transparent px-2 py-1.5 text-center text-[var(--drafting-ink-muted)] shadow-none transition-[background-color,box-shadow,color,transform] duration-150 ease-out hover:-translate-y-px hover:bg-transparent hover:text-[var(--drafting-ink-strong-muted)] hover:shadow-none active:translate-y-0 active:bg-transparent active:shadow-none dark:bg-transparent dark:text-[var(--drafting-button-label)] dark:shadow-none dark:hover:bg-transparent dark:hover:text-[var(--drafting-button-label-hover)] dark:hover:shadow-none dark:active:bg-transparent dark:active:shadow-none lg:h-auto lg:w-20 lg:min-w-0 lg:justify-center lg:gap-3 lg:px-2 lg:py-2.5",
+                          "group flex h-16 w-20 min-w-20 flex-col items-center justify-center gap-2 rounded-none border-0 bg-transparent px-2 py-1.5 text-center text-[var(--ws-ink-muted)] shadow-none transition-[background-color,box-shadow,color,transform] duration-150 ease-out hover:-translate-y-px hover:bg-transparent hover:text-[var(--ws-ink-strong-muted)] hover:shadow-none active:translate-y-0 active:bg-transparent active:shadow-none dark:bg-transparent dark:text-[var(--ws-button-label)] dark:shadow-none dark:hover:bg-transparent dark:hover:text-[var(--ws-button-label-hover)] dark:hover:shadow-none dark:active:bg-transparent dark:active:shadow-none lg:h-auto lg:w-20 lg:min-w-0 lg:justify-center lg:gap-3 lg:px-2 lg:py-2.5",
                           isActive &&
-                            "text-[var(--drafting-ink)] hover:text-[var(--drafting-ink)] active:text-[var(--drafting-ink)] dark:text-[var(--drafting-button-label-selected)] dark:hover:text-[var(--drafting-button-label-selected)] dark:active:text-[var(--drafting-button-label-selected)]",
+                            "text-[var(--ws-ink)] hover:text-[var(--ws-ink)] active:text-[var(--ws-ink)] dark:text-[var(--ws-button-label-selected)] dark:hover:text-[var(--ws-button-label-selected)] dark:active:text-[var(--ws-button-label-selected)]",
                         )}
                         size="default"
                         type="button"
@@ -5296,9 +5296,9 @@ export function WorkspaceSurface({
                         <span
                           data-slot="drafting-tool-button-icon"
                           className={cn(
-                            "flex size-8 shrink-0 items-center justify-center rounded-[5px] bg-[var(--drafting-control-bg)] text-current shadow-[var(--drafting-shadow-rest)] transition-[background-color,box-shadow,transform,color] duration-150 ease-out group-hover:-translate-y-px group-hover:bg-[var(--drafting-control-bg-hover)] group-hover:shadow-[var(--drafting-shadow-hover)] group-active:translate-y-0 group-active:bg-[var(--drafting-control-bg-active)] group-active:shadow-[var(--drafting-shadow-active)] dark:bg-[var(--drafting-button-bg)] dark:text-[var(--drafting-button-icon)] dark:shadow-[var(--drafting-button-shadow-rest)] dark:group-hover:bg-[var(--drafting-button-bg-hover)] dark:group-hover:shadow-[var(--drafting-button-shadow-hover)] dark:group-active:bg-[var(--drafting-button-bg-active)] dark:group-active:shadow-[var(--drafting-button-shadow-active)] lg:size-10 lg:rounded-[6px]",
+                            "flex size-8 shrink-0 items-center justify-center rounded-[5px] bg-[var(--ws-control-bg)] text-current shadow-[var(--ws-shadow-rest)] transition-[background-color,box-shadow,transform,color] duration-150 ease-out group-hover:-translate-y-px group-hover:bg-[var(--ws-control-bg-hover)] group-hover:shadow-[var(--ws-shadow-hover)] group-active:translate-y-0 group-active:bg-[var(--ws-control-bg-active)] group-active:shadow-[var(--ws-shadow-active)] dark:bg-[var(--ws-button-bg)] dark:text-[var(--ws-button-icon)] dark:shadow-[var(--ws-button-shadow-rest)] dark:group-hover:bg-[var(--ws-button-bg-hover)] dark:group-hover:shadow-[var(--ws-button-shadow-hover)] dark:group-active:bg-[var(--ws-button-bg-active)] dark:group-active:shadow-[var(--ws-button-shadow-active)] lg:size-10 lg:rounded-[6px]",
                             isActive &&
-                              "bg-[var(--drafting-ink)] text-[var(--drafting-ink-inverse)] shadow-[var(--drafting-shadow-rest)] group-hover:bg-[var(--drafting-ink)] group-hover:text-[var(--drafting-ink-inverse)] group-hover:shadow-[var(--drafting-shadow-hover)] group-active:translate-y-0 group-active:bg-[var(--drafting-ink)] group-active:text-[var(--drafting-ink-inverse)] group-active:shadow-[var(--drafting-shadow-active)] dark:bg-[var(--drafting-button-bg-selected)] dark:text-[var(--drafting-button-icon-selected)] dark:shadow-[var(--drafting-button-shadow-selected)] dark:group-hover:bg-[var(--drafting-button-bg-selected)] dark:group-hover:text-[var(--drafting-button-icon-selected)] dark:group-hover:shadow-[var(--drafting-button-shadow-selected-hover)] dark:group-active:bg-[var(--drafting-button-bg-selected)] dark:group-active:text-[var(--drafting-button-icon-selected)] dark:group-active:shadow-[var(--drafting-shadow-active)]",
+                              "bg-[var(--ws-ink)] text-[var(--ws-ink-inverse)] shadow-[var(--ws-shadow-rest)] group-hover:bg-[var(--ws-ink)] group-hover:text-[var(--ws-ink-inverse)] group-hover:shadow-[var(--ws-shadow-hover)] group-active:translate-y-0 group-active:bg-[var(--ws-ink)] group-active:text-[var(--ws-ink-inverse)] group-active:shadow-[var(--ws-shadow-active)] dark:bg-[var(--ws-button-bg-selected)] dark:text-[var(--ws-button-icon-selected)] dark:shadow-[var(--ws-button-shadow-selected)] dark:group-hover:bg-[var(--ws-button-bg-selected)] dark:group-hover:text-[var(--ws-button-icon-selected)] dark:group-hover:shadow-[var(--ws-button-shadow-selected-hover)] dark:group-active:bg-[var(--ws-button-bg-selected)] dark:group-active:text-[var(--ws-button-icon-selected)] dark:group-active:shadow-[var(--ws-shadow-active)]",
                           )}
                         >
                           {tool.renderIcon()}
@@ -5306,8 +5306,8 @@ export function WorkspaceSurface({
                         <span
                           data-slot="drafting-tool-button-label"
                           className={cn(
-                            "drafting-type-nav-label font-medium text-[var(--drafting-ink-muted)] transition-colors duration-150 group-hover:text-[var(--drafting-ink-strong-muted)] dark:text-[var(--drafting-button-label)] dark:group-hover:text-[var(--drafting-button-label-hover)]",
-                            isActive && "font-semibold text-current dark:text-[var(--drafting-button-label-selected)]",
+                            "ws-type-nav-label font-medium text-[var(--ws-ink-muted)] transition-colors duration-150 group-hover:text-[var(--ws-ink-strong-muted)] dark:text-[var(--ws-button-label)] dark:group-hover:text-[var(--ws-button-label-hover)]",
+                            isActive && "font-semibold text-current dark:text-[var(--ws-button-label-selected)]",
                           )}
                         >
                           {tool.title}
@@ -5319,7 +5319,7 @@ export function WorkspaceSurface({
                 <div className="flex min-w-20 flex-col items-center gap-1 px-2 lg:min-w-0 lg:gap-2">
                   <span
                     data-slot="drafting-tool-group-label"
-                    className="drafting-type-caption w-full px-2 text-left font-bold tracking-[0.04em] text-[var(--drafting-ink-subtle)] lg:text-center"
+                    className="ws-type-caption w-full px-2 text-left font-bold tracking-[0.04em] text-[var(--ws-ink-subtle)] lg:text-center"
                   >
                     Insert
                   </span>
@@ -5352,7 +5352,7 @@ export function WorkspaceSurface({
         {chrome === "full" ? <aside
           aria-label="Middle scroll frame"
           data-slot="drafting-scroll-area"
-          className="hidden min-h-0 min-w-0 overflow-hidden bg-[var(--drafting-panel-bg)] lg:order-none lg:block lg:bg-transparent"
+          className="hidden min-h-0 min-w-0 overflow-hidden bg-[var(--ws-panel-bg)] lg:order-none lg:block lg:bg-transparent"
         >
           <ScrollArea
             chevron
@@ -5460,7 +5460,7 @@ export function WorkspaceSurface({
               <div
                 aria-busy="true"
                 aria-label="Loading workspace"
-                className="grid h-full place-items-center text-sm font-medium text-[var(--drafting-ink-muted)]"
+                className="grid h-full place-items-center text-sm font-medium text-[var(--ws-ink-muted)]"
                 data-slot="drafting-workspace-loading"
               >
                 Loading workspace…

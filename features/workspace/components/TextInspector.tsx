@@ -78,34 +78,34 @@ export function TextInspector({
   return (
     <DraftingInspectorSection dataSlot="drafting-text-inspector" title="Text">
       <label className="block min-w-0">
-        <span className="drafting-type-control-label mb-1.5 block font-semibold text-[var(--drafting-ink)]">
+        <span className="ws-type-control-label mb-1.5 block font-semibold text-[var(--ws-ink)]">
           Content
         </span>
         <textarea
           aria-label="Text layer content"
-          className="drafting-type-input min-h-24 w-full resize-y rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-3 py-2 text-[var(--drafting-ink)] shadow-none"
+          className="ws-type-input min-h-24 w-full resize-y rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-3 py-2 text-[var(--ws-ink)] shadow-none"
           value={layer.text ?? ""}
           onChange={(event) => patchTextLayer({ text: event.currentTarget.value })}
         />
       </label>
 
       <div className="block min-w-0" data-slot="drafting-font-picker">
-        <span className="drafting-type-meta mb-1 block font-semibold text-[var(--drafting-ink-muted)]">
+        <span className="ws-type-meta mb-1 block font-semibold text-[var(--ws-ink-muted)]">
           Font
         </span>
         <input
           aria-label="Search text fonts"
-          className="drafting-type-input h-9 w-full rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-2 text-[var(--drafting-ink)] shadow-none"
+          className="ws-type-input h-9 w-full rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-2 text-[var(--ws-ink)] shadow-none"
           placeholder={selectedFont.label}
           type="search"
           value={fontQuery}
           onChange={(event) => setFontQuery(event.currentTarget.value)}
         />
-        <div className="mt-2 max-h-52 min-w-0 space-y-3 overflow-y-auto rounded-[6px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] p-2">
+        <div className="mt-2 max-h-52 min-w-0 space-y-3 overflow-y-auto rounded-[6px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] p-2">
           {groupedFonts.map(({ fonts, source }) =>
             fonts.length > 0 ? (
               <div key={source} className="min-w-0 space-y-1">
-                <p className="drafting-type-meta px-1 font-semibold text-[var(--drafting-ink-muted)]">
+                <p className="ws-type-meta px-1 font-semibold text-[var(--ws-ink-muted)]">
                   {getDraftingFontSourceLabel(source)}
                 </p>
                 {fonts.map((font) => {
@@ -117,9 +117,9 @@ export function TextInspector({
                       aria-label={`Choose ${font.label}`}
                       aria-pressed={isSelected}
                       className={cn(
-                        "flex h-9 w-full items-center justify-between gap-2 rounded-[5px] px-2 text-left text-xs font-semibold text-[var(--drafting-ink-muted)] hover:bg-[var(--drafting-control-bg-active)] hover:text-[var(--drafting-ink)]",
+                        "flex h-9 w-full items-center justify-between gap-2 rounded-[5px] px-2 text-left text-xs font-semibold text-[var(--ws-ink-muted)] hover:bg-[var(--ws-control-bg-active)] hover:text-[var(--ws-ink)]",
                         isSelected &&
-                          "bg-[var(--drafting-control-bg-active)] text-[var(--drafting-ink)]",
+                          "bg-[var(--ws-control-bg-active)] text-[var(--ws-ink)]",
                       )}
                       style={{ fontFamily: getDraftingFontCssFamily({ fontId: font.id }) }}
                       type="button"
@@ -165,12 +165,12 @@ export function TextInspector({
           onChange={(lineHeight) => patchTextLayer({ lineHeight })}
         />
         <label className="min-w-0">
-          <span className="drafting-type-meta mb-1 block font-semibold text-[var(--drafting-ink-muted)]">
+          <span className="ws-type-meta mb-1 block font-semibold text-[var(--ws-ink-muted)]">
             Fill
           </span>
           <input
             aria-label="Text fill color"
-            className="h-9 w-full rounded-[6px] border border-[var(--drafting-line)] bg-transparent p-1"
+            className="h-9 w-full rounded-[6px] border border-[var(--ws-line)] bg-transparent p-1"
             type="color"
             value={layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill}
             onChange={(event) => patchTextLayer({ fill: event.currentTarget.value })}
@@ -269,7 +269,7 @@ function TextWeightSlider({
         "min-w-0",
         isDesktopElastic
           ? "px-0 py-1"
-          : "rounded-[8px] border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-3 py-2",
+          : "rounded-[8px] border border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-3 py-2",
       )}
     >
       {isDesktopElastic ? (

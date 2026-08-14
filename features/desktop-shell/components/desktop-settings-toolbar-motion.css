@@ -83,12 +83,12 @@
   min-height: 0;
   overflow: hidden;
   border-radius: 0 var(--desktop-canvas-radius) var(--desktop-canvas-radius) 0;
-  background: var(--drafting-surface-bg, #e7e9ec);
+  background: var(--ws-surface-bg, #e7e9ec);
   box-shadow: none;
 }
 
 [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-canvas-viewport"] {
-  background: var(--drafting-surface-bg, #1f1f1f);
+  background: var(--ws-surface-bg, #1f1f1f);
   box-shadow: none;
 }
 

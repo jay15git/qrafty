@@ -27,14 +27,14 @@ function GradientValueChip({
       className={cn(
         "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[11px]",
         isDrafting
-          ? "border-[var(--drafting-line)] bg-[var(--drafting-control-bg)] text-[var(--drafting-ink-muted)]"
+          ? "border-[var(--ws-line)] bg-[var(--ws-control-bg)] text-[var(--ws-ink-muted)]"
           : "border-border/60 bg-muted/30 text-muted-foreground",
       )}
     >
       <span
         className={cn(
           "font-medium",
-          isDrafting ? "text-[var(--drafting-ink)]" : "text-foreground",
+          isDrafting ? "text-[var(--ws-ink)]" : "text-foreground",
         )}
       >
         {label}

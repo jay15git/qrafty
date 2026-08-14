@@ -274,7 +274,7 @@ function renderResizeFrameControls(
         <button
           aria-label={`Resize ${targetLabel} from ${handle.label}`}
           className={cn(
-            "pointer-events-auto absolute z-30 size-3 rounded-full border border-[#a8b0bb] bg-white shadow-[var(--drafting-shadow-rest)]",
+            "pointer-events-auto absolute z-30 size-3 rounded-full border border-[#a8b0bb] bg-white shadow-[var(--ws-shadow-rest)]",
             handle.className,
             handle.cursorClassName,
           )}
@@ -750,7 +750,7 @@ function SnapGuideOverlay({ guides }: { guides: SnapGuides }) {
       {guides.vertical.map((x) => (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 z-[9999] w-px bg-[var(--drafting-ink)] opacity-55"
+          className="pointer-events-none absolute inset-y-0 z-[9999] w-px bg-[var(--ws-ink)] opacity-55"
           data-slot="drafting-layer-snap-guide"
           data-axis="vertical"
           key={`v-${x}`}
@@ -760,7 +760,7 @@ function SnapGuideOverlay({ guides }: { guides: SnapGuides }) {
       {guides.horizontal.map((y) => (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 z-[9999] h-px bg-[var(--drafting-ink)] opacity-55"
+          className="pointer-events-none absolute inset-x-0 z-[9999] h-px bg-[var(--ws-ink)] opacity-55"
           data-slot="drafting-layer-snap-guide"
           data-axis="horizontal"
           key={`h-${y}`}
@@ -790,7 +790,7 @@ function LayerContextMenu({
 
   return (
     <div
-      className="fixed z-[20000] min-w-52 rounded-[18px] border border-[var(--drafting-dropdown-border)] bg-[var(--drafting-dropdown-menu-surface-open)] p-1.5 text-[var(--drafting-dropdown-text)] shadow-[var(--drafting-dropdown-menu-shadow-open)]"
+      className="fixed z-[20000] min-w-52 rounded-[18px] border border-[var(--ws-dropdown-border)] bg-[var(--ws-dropdown-menu-surface-open)] p-1.5 text-[var(--ws-dropdown-text)] shadow-[var(--ws-dropdown-menu-shadow-open)]"
       data-drafting-dropdown-content="true"
       data-slot="drafting-layer-context-menu"
       data-toolbar-appearance="desktop-glass"
@@ -940,7 +940,7 @@ function LayerFloatingToolbarButton({
   return (
     <button
       aria-label={label}
-      className="flex size-8 cursor-pointer items-center justify-center rounded-full text-current transition-[background-color,color] duration-150 hover:bg-[var(--drafting-layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--drafting-layer-toolbar-button-hover-text,white)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
+      className="flex size-8 cursor-pointer items-center justify-center rounded-full text-current transition-[background-color,color] duration-150 hover:bg-[var(--ws-layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--ws-layer-toolbar-button-hover-text,white)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
       data-slot="drafting-layer-floating-toolbar-button"
       disabled={disabled}
       type="button"
@@ -1906,7 +1906,7 @@ export const Pane = memo(function Pane({
 
     return (
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 z-[9998] border border-[var(--drafting-ink)] bg-[var(--drafting-ink)]/10"
+        className="pointer-events-none absolute left-1/2 top-1/2 z-[9998] border border-[var(--ws-ink)] bg-[var(--ws-ink)]/10"
         data-slot="drafting-layer-marquee"
         style={{
           height: bounds.height,
@@ -1933,7 +1933,7 @@ export const Pane = memo(function Pane({
 
     return (
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 touch-none overflow-visible border border-[var(--drafting-resize-frame)]"
+        className="pointer-events-none absolute left-1/2 top-1/2 touch-none overflow-visible border border-[var(--ws-resize-frame)]"
         data-layer-id={layer.id}
         data-slot="drafting-layer-resize-frame"
         key={`${layer.id}:controls`}
@@ -1947,7 +1947,7 @@ export const Pane = memo(function Pane({
       >
         <DraftingLayerTiltShell className="relative" layer={layer}>
           <div
-            className="pointer-events-none absolute left-1/2 top-0 w-px -translate-x-1/2 -translate-y-full bg-[var(--drafting-resize-frame)]"
+            className="pointer-events-none absolute left-1/2 top-0 w-px -translate-x-1/2 -translate-y-full bg-[var(--ws-resize-frame)]"
             style={{ height: ROTATE_HANDLE_OFFSET_PX }}
           />
           {isRotating ? (
@@ -1965,7 +1965,7 @@ export const Pane = memo(function Pane({
           <LayerSizeValue height={layer.height} width={layer.width} />
           <button
             aria-label={`Rotate ${layer.name}`}
-            className="pointer-events-auto absolute left-1/2 top-0 z-30 size-3 rounded-full border border-[#a8b0bb] bg-white shadow-[var(--drafting-shadow-rest)]"
+            className="pointer-events-auto absolute left-1/2 top-0 z-30 size-3 rounded-full border border-[#a8b0bb] bg-white shadow-[var(--ws-shadow-rest)]"
             data-slot="drafting-layer-rotate-handle"
             onClick={(event) => event.stopPropagation()}
             onPointerCancel={endLayerInteraction}
@@ -2004,7 +2004,7 @@ export const Pane = memo(function Pane({
 
     return (
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 touch-none overflow-visible border border-[var(--drafting-resize-frame)]"
+        className="pointer-events-none absolute left-1/2 top-1/2 touch-none overflow-visible border border-[var(--ws-resize-frame)]"
         data-layer-ids={activeSelectedLayerIds.join(" ")}
         data-slot="drafting-layer-multi-select-frame"
         style={{
@@ -2017,7 +2017,7 @@ export const Pane = memo(function Pane({
         onContextMenu={(event) => openLayerContextMenu(event, activeSelectedLayerIds)}
       >
         <div
-          className="pointer-events-none absolute left-1/2 top-0 w-px -translate-x-1/2 -translate-y-full bg-[var(--drafting-resize-frame)]"
+          className="pointer-events-none absolute left-1/2 top-0 w-px -translate-x-1/2 -translate-y-full bg-[var(--ws-resize-frame)]"
           style={{ height: ROTATE_HANDLE_OFFSET_PX }}
         />
         {isRotating ? (
@@ -2035,7 +2035,7 @@ export const Pane = memo(function Pane({
         <LayerSizeValue height={bounds.height} width={bounds.width} />
         <button
           aria-label="Rotate selection"
-          className="pointer-events-auto absolute left-1/2 top-0 z-30 size-3 rounded-full border border-[#a8b0bb] bg-white shadow-[var(--drafting-shadow-rest)]"
+          className="pointer-events-auto absolute left-1/2 top-0 z-30 size-3 rounded-full border border-[#a8b0bb] bg-white shadow-[var(--ws-shadow-rest)]"
           data-slot="drafting-layer-rotate-handle"
           onClick={(event) => event.stopPropagation()}
           onPointerCancel={endLayerInteraction}
@@ -2566,7 +2566,7 @@ export const Pane = memo(function Pane({
         onPointerUp={endMarqueeSelection}
       >
         {isLoading ? (
-          <div className="grid h-full place-items-center text-sm font-medium text-[var(--drafting-ink-muted)]">
+          <div className="grid h-full place-items-center text-sm font-medium text-[var(--ws-ink-muted)]">
             Loading QR…
           </div>
         ) : markup ? (
@@ -2610,7 +2610,7 @@ export const Pane = memo(function Pane({
               : null}
           </>
         ) : (
-          <div className="grid h-full place-items-center text-sm font-medium text-[var(--drafting-ink-muted)]">
+          <div className="grid h-full place-items-center text-sm font-medium text-[var(--ws-ink-muted)]">
             Could not generate QR
           </div>
         )}

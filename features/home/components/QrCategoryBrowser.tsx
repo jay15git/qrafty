@@ -19,10 +19,10 @@ import {
 import { cn } from "@/lib/utils"
 
 const CATEGORY_PILL_SURFACE =
-  "rounded-full border border-transparent bg-[var(--desktop-inspector-field-bg)] shadow-[var(--drafting-shadow-rest)] transition-shadow duration-300 hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] hover:shadow-[var(--drafting-shadow-hover)]"
+  "rounded-full border border-transparent bg-[var(--desktop-inspector-field-bg)] shadow-[var(--ws-shadow-rest)] transition-shadow duration-300 hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] hover:shadow-[var(--ws-shadow-hover)]"
 
 const CATEGORY_DROPDOWN_MENU_CLASS =
-  "z-50 min-w-0 rounded-2xl border border-transparent bg-[var(--drafting-option-card-bg)] p-2 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--drafting-option-card-shadow-rest)] ring-0"
+  "z-50 min-w-0 rounded-2xl border border-transparent bg-[var(--ws-option-card-bg)] p-2 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--ws-option-card-shadow-rest)] ring-0"
 
 import {
   QR_CATEGORIES,
@@ -94,7 +94,7 @@ export function QrCategoryBrowser({
                   (isOpen || isSelectedCategory) &&
                     cn(
                       DESKTOP_INSPECTOR_SELECTED_CLASS,
-                      "shadow-[var(--drafting-shadow-rest)] hover:shadow-[var(--drafting-shadow-hover)]",
+                      "shadow-[var(--ws-shadow-rest)] hover:shadow-[var(--ws-shadow-hover)]",
                     ),
                 )}
               >

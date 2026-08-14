@@ -36,6 +36,7 @@ import { MenuItem } from "@/components/ui/menu-item"
 import { cn } from "@/lib/utils"
 import { SurfaceProvider } from "@/lib/surface-context"
 
+import "./desktop-inspector-design-system.css"
 import "./desktop-inspector-morph-filter.css"
 import "./desktop-inspector-motion.css"
 

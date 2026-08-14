@@ -25,7 +25,7 @@ export function ImageInspector({
     <DraftingInspectorSection dataSlot="drafting-image-inspector" title="Image">
       <Input
         aria-label="Image URL"
-        className="drafting-type-input h-10 min-w-0 border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-hover)] px-3 text-[var(--drafting-ink)] shadow-none focus-visible:border-[var(--drafting-line-strong)] focus-visible:ring-0"
+        className="ws-type-input h-10 min-w-0 border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] px-3 text-[var(--ws-ink)] shadow-none focus-visible:border-[var(--ws-line-strong)] focus-visible:ring-0"
         placeholder="https://example.com/photo.png"
         value={layer.imageSource === "url" ? (layer.imageValue ?? "") : ""}
         onChange={(event) =>

@@ -7,6 +7,7 @@ import {
   type DesktopToolbarToolId,
 } from "@/features/desktop-shell/components/FloatingToolbar"
 import { DesktopSoundProvider } from "@/features/desktop-shell/components/DesktopSoundProvider"
+import "@/features/workspace/workspace-tokens.css"
 import { cn } from "@/lib/utils"
 import { useState, type CSSProperties } from "react"
 
@@ -25,11 +26,9 @@ export function DesktopWorkspace({
   const workspaceTone = {
     "--workspace-shell": desktopTheme === "light" ? "#ffffff" : "#07080a",
     "--workspace-page": desktopTheme === "light" ? "#ffffff" : "#07080a",
-    "--drafting-dark-shell-bg": "#1f1f1f",
-    "--drafting-dark-page-bg": "#07080a",
-    "--drafting-canvas-bg": desktopTheme === "light" ? "#e7e9ec" : "#1f1f1f",
-    "--drafting-workspace-bg": desktopTheme === "light" ? "#ffffff" : "#07080a",
-    "--drafting-surface-bg": desktopTheme === "light" ? "#e7e9ec" : "#1f1f1f",
+    "--ws-canvas-bg": desktopTheme === "light" ? "#e7e9ec" : "#1f1f1f",
+    "--ws-workspace-bg": desktopTheme === "light" ? "#ffffff" : "#07080a",
+    "--ws-surface-bg": desktopTheme === "light" ? "#e7e9ec" : "#1f1f1f",
   } as CSSProperties
 
   return (
@@ -71,8 +70,8 @@ function DesktopWorkspaceStyles() {
   return (
     <style>{`
       [data-slot="desktop-workspace"] [data-slot="drafting-surface"] {
-        --drafting-canvas-dot-rgb: 15 23 42;
-        --drafting-canvas-dot-opacity: 0.055;
+        --ws-canvas-dot-rgb: 15 23 42;
+        --ws-canvas-dot-opacity: 0.055;
         position: absolute;
         inset: 0;
         height: 100dvh;
@@ -83,8 +82,8 @@ function DesktopWorkspaceStyles() {
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-surface"] {
-        --drafting-canvas-dot-rgb: 15 23 42;
-        --drafting-canvas-dot-opacity: 0.055;
+        --ws-canvas-dot-rgb: 15 23 42;
+        --ws-canvas-dot-opacity: 0.055;
         background: #f8f8f7;
       }
 
@@ -104,7 +103,7 @@ function DesktopWorkspaceStyles() {
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="dashboard-compose-surface"] {
-        background-color: var(--drafting-canvas-bg, #1f1f1f) !important;
+        background-color: var(--ws-canvas-bg, #1f1f1f) !important;
         border: 0 !important;
         border-radius: 0 12px 12px 0 !important;
         box-shadow: none !important;
@@ -415,8 +414,8 @@ function DesktopWorkspaceStyles() {
 
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-floating-toolbar"],
       body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="drafting-layer-floating-toolbar"] {
-        --drafting-layer-toolbar-button-hover-bg: rgba(15, 23, 42, 0.08);
-        --drafting-layer-toolbar-button-hover-text: rgba(15, 23, 42, 0.95);
+        --ws-layer-toolbar-button-hover-bg: rgba(15, 23, 42, 0.08);
+        --ws-layer-toolbar-button-hover-text: rgba(15, 23, 42, 0.95);
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-resize-toolbar"] button,

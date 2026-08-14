@@ -10,15 +10,13 @@ import {
   DesktopInspectorTextInput,
   DesktopInspectorScrubNumberInput,
   useDesktopInspectorNumberScrub,
+  type DesktopInspectorOptionGridColumns,
 } from "@/features/desktop-shell/components/InspectorControls"
 import { SurfaceProvider } from "@/lib/surface-context"
 import { cn } from "@/lib/utils"
 
 const DESKTOP_ELASTIC_SLIDER_CLASS =
   "desktop-elastic-slider [--elastic-slider-height:--spacing(8)] [--elastic-slider-radius:9999px] [--elastic-slider-bg:rgba(255,255,255,0.095)] [--elastic-slider-fill:rgba(255,255,255,0.13)] [--elastic-slider-fill-active:rgba(255,255,255,0.2)] [--elastic-slider-hash:rgba(255,255,255,0.24)] [--elastic-slider-handle:rgba(255,255,255,0.7)] [--elastic-slider-label:rgba(255,255,255,0.58)] [--elastic-slider-focus:rgba(255,255,255,0.82)]"
-
-
-export type DesktopInspectorOptionGridColumns = 2 | 3 | 4
 
 export type DesktopInspectorOptionGridRowKind =
   | "square"

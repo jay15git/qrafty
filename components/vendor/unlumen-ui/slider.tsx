@@ -170,7 +170,7 @@ function ValueDisplay({
               <span
                 className={
                   isDrafting
-                    ? "text-[var(--drafting-ink-muted)]"
+                    ? "text-[var(--ws-ink-muted)]"
                     : "text-muted-foreground"
                 }
               >
@@ -194,7 +194,7 @@ function ValueDisplay({
               className={cn(
                 "w-[5ch] rounded-none border-b bg-transparent text-center outline-none",
                 isDrafting
-                  ? "border-[var(--drafting-line)] text-[var(--drafting-ink)]"
+                  ? "border-[var(--ws-line)] text-[var(--ws-ink)]"
                   : "border-border text-foreground",
               )}
               style={{ fontVariationSettings: fontWeights.medium }}
@@ -222,7 +222,7 @@ function ValueDisplay({
       className={cn(
         "text-[13px] transition-[font-variation-settings] duration-100 tabular-nums",
         isDrafting
-          ? "text-[var(--drafting-ink-muted)]"
+          ? "text-[var(--ws-ink-muted)]"
           : "text-muted-foreground",
       )}
       style={{
@@ -235,7 +235,7 @@ function ValueDisplay({
         <span
           className={
             isDrafting
-              ? "text-[var(--drafting-ink-muted)]"
+              ? "text-[var(--ws-ink-muted)]"
               : "text-muted-foreground"
           }
         >
@@ -249,7 +249,7 @@ function ValueDisplay({
             className={cn(
               "mx-1",
               isDrafting
-                ? "text-[var(--drafting-ink-subtle)]"
+                ? "text-[var(--ws-ink-subtle)]"
                 : "text-muted-foreground/50",
             )}
           >
@@ -290,7 +290,7 @@ function TooltipValue({
         className={cn(
           "whitespace-nowrap rounded-md px-2 py-1 text-[12px] tabular-nums",
           isDrafting
-            ? "border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-active)] text-[var(--drafting-ink)] shadow-[var(--drafting-shadow-rest)]"
+            ? "border border-[var(--ws-line)] bg-[var(--ws-panel-bg-active)] text-[var(--ws-ink)] shadow-[var(--ws-shadow-rest)]"
             : "bg-neutral-100 text-foreground dark:bg-neutral-800",
         )}
         style={{ fontVariationSettings: fontWeights.medium }}
@@ -664,7 +664,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
               className={cn(
                 "flex items-center justify-center rounded-[4px] border",
                 isDrafting
-                  ? "border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-active)] shadow-[var(--drafting-shadow-rest)]"
+                  ? "border-[var(--ws-line)] bg-[var(--ws-panel-bg-active)] shadow-[var(--ws-shadow-rest)]"
                   : "border-black/10 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.06)] dark:border-border dark:bg-card dark:shadow-[0_1px_4px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.08)]",
               )}
               initial={false}
@@ -678,7 +678,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                 className={cn(
                   "rounded-[2px] border",
                   isDrafting
-                    ? "border-[var(--drafting-line-hover)]"
+                    ? "border-[var(--ws-line-hover)]"
                     : "border-black/10 dark:border-border",
                 )}
                 style={{
@@ -686,7 +686,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                   height: thumbState.isActive ? 10 : 8,
                   backgroundColor:
                     isDrafting
-                      ? "color-mix(in srgb, var(--drafting-ink) 84%, var(--drafting-surface-bg))"
+                      ? "color-mix(in srgb, var(--ws-ink) 84%, var(--ws-surface-bg))"
                       : "color-mix(in srgb, var(--foreground) 84%, white)",
                 }}
               />
@@ -816,7 +816,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                     className={cn(
                       "whitespace-nowrap rounded-md px-2 py-1 text-[12px] tabular-nums",
                       isDrafting
-                        ? "border border-[var(--drafting-line)] bg-[var(--drafting-panel-bg-active)] text-[var(--drafting-ink)] shadow-[var(--drafting-shadow-rest)]"
+                        ? "border border-[var(--ws-line)] bg-[var(--ws-panel-bg-active)] text-[var(--ws-ink)] shadow-[var(--ws-shadow-rest)]"
                         : "bg-neutral-100 text-foreground dark:bg-neutral-800",
                     )}
                     style={{ fontVariationSettings: fontWeights.medium }}
@@ -832,7 +832,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
               className={cn(
                 "absolute left-0 right-0 rounded-[4px]",
                 isDrafting &&
-                  "border border-[var(--drafting-line)] bg-[var(--drafting-control-bg)]",
+                  "border border-[var(--ws-line)] bg-[var(--ws-control-bg)]",
                 trackClassName,
               )}
               initial={false}
@@ -852,7 +852,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
               <motion.div
                 className={cn(
                   "absolute h-full rounded-[4px]",
-                  isDrafting && "bg-[var(--drafting-ink)]",
+                  isDrafting && "bg-[var(--ws-ink)]",
                   rangeClassName,
                 )}
                 style={{
@@ -887,7 +887,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                 style={{
                   backgroundColor:
                     isDrafting
-                      ? "color-mix(in srgb, var(--drafting-ink) 20%, transparent)"
+                      ? "color-mix(in srgb, var(--ws-ink) 20%, transparent)"
                       : "color-mix(in srgb, var(--foreground) 20%, transparent)",
                 }}
               />
@@ -907,7 +907,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                 style={{
                   backgroundColor:
                     isDrafting
-                      ? "color-mix(in srgb, var(--drafting-surface-bg) 25%, transparent)"
+                      ? "color-mix(in srgb, var(--ws-surface-bg) 25%, transparent)"
                       : "color-mix(in srgb, var(--background) 25%, transparent)",
                 }}
               />
@@ -939,10 +939,10 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                     style={{
                       backgroundColor: onFilled
                         ? isDrafting
-                          ? "color-mix(in srgb, var(--drafting-surface-bg) 20%, var(--drafting-ink))"
+                          ? "color-mix(in srgb, var(--ws-surface-bg) 20%, var(--ws-ink))"
                           : "color-mix(in srgb, var(--background) 20%, var(--foreground))"
                         : isDrafting
-                          ? "color-mix(in srgb, var(--drafting-ink-muted) 28%, var(--drafting-control-bg))"
+                          ? "color-mix(in srgb, var(--ws-ink-muted) 28%, var(--ws-control-bg))"
                           : NEUTRAL_DOT_COLOR,
                     }}
                   />
