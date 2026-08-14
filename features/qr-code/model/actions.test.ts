@@ -17,7 +17,7 @@ import {
   applyLogoPresetSelection,
   createDashboardAccordionOpenItemIds,
   ensureDashboardAccordionItemExpanded,
-} from "@/features/qr-code/components/ControlsPanel"
+} from "@/features/qr-code/model/actions"
 import { getBrandIconById } from "@/features/qr-code/assets/brand-icons"
 import {
   createBrandIconDataUrl,

@@ -22,7 +22,8 @@
 // engine fixes.
 
 import * as React from "react";
-import { ColorPickerBase } from "./color-picker";
+
+export { ColorPicker } from "./color-picker";
 
 import {
   Root as EngineGradientRoot,
@@ -40,7 +41,7 @@ import { ShapeSwitcher } from "@/components/ui/fill-picker/parts/gradient/shape-
 import { RadiusInput } from "@/components/ui/fill-picker/parts/gradient/radius-input";
 import { EllipseRadiiInput } from "@/components/ui/fill-picker/parts/gradient/ellipse-radii-input";
 import { StopColor } from "@/components/ui/fill-picker/parts/gradient/stop-color";
-import { Presets, BUILTIN_GRADIENT_PRESETS } from "@/components/ui/fill-picker/parts/gradient/presets";
+import { Presets } from "@/components/ui/fill-picker/parts/gradient/presets";
 import { CssInput as GradientCssInput } from "@/components/ui/fill-picker/parts/gradient/css-input";
 import { PositionGroup } from "@/components/ui/fill-picker/parts/gradient/position-group";
 import { AngleGroup } from "@/components/ui/fill-picker/parts/gradient/angle-group";
@@ -58,13 +59,6 @@ export type {
   GradientInterp,
   GradientStop,
   RadialSizeKeyword,
-} from "@/components/ui/fill-picker/lib/gradient";
-export {
-  formatGradient,
-  parseGradient,
-  DEFAULT_LINEAR,
-  DEFAULT_RADIAL,
-  DEFAULT_CONIC,
 } from "@/components/ui/fill-picker/lib/gradient";
 
 // The gradient context surface, re-exported so the barrel is a complete
@@ -95,10 +89,8 @@ export {
 // guards the export side of this; nothing can guard the eval side but
 // this comment.
 export {
-  GradientPickerContext,
   GradientStopEditorContext,
   useGradientPickerContext,
-  useGradientStopEditor,
 } from "@/components/ui/fill-picker/contexts/gradient";
 export type { GradientStopEditorRenderer } from "@/components/ui/fill-picker/contexts/gradient";
 
@@ -142,4 +134,3 @@ const GradientPickerBase = {
 // Plain-name aliases so consumers (and docs snippets) can swap variants by
 // changing only the import path — mirrors `ColorPicker` in color-picker.tsx.
 export const GradientPicker = GradientPickerBase;
-export { ColorPicker } from "./color-picker";

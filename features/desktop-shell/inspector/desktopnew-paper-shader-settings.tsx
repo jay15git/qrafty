@@ -166,6 +166,7 @@ function DesktopNewPaperShaderParamControl({
             <SettingsFillPopover
               key={`${color}-${index}`}
               hint={`${index + 1}`}
+              solidOnly
               value={isPaperShaderHexColor(color) ? color : PAPER_SHADER_COLOR_FALLBACK}
               onValueChange={(_fill, css) => {
                 const nextColors = [...colors]
@@ -195,6 +196,7 @@ function DesktopNewPaperShaderParamControl({
     return (
       <SettingsFillPopover
         hint={label}
+        solidOnly
         title={label}
         value={isPaperShaderHexColor(value) ? value : PAPER_SHADER_COLOR_FALLBACK}
         onValueChange={(_fill, css) => onChange(fillPreviewHex(css))}

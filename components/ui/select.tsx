@@ -674,9 +674,6 @@ export {
   SelectContent,
   SelectItem,
   SelectGroup,
-  SelectLabel,
-  SelectSeparator,
-  triggerVariants,
 };
 
 export type { SelectProps };

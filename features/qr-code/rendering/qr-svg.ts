@@ -1,6 +1,4 @@
 export {
-  applyStudioQrSvgMarkupExtensions,
-  buildDashboardQrNodePayloadFromBaseMarkup,
   createDashboardSurfaceQrState,
   stripXmlDeclaration,
 } from "@/features/qr-code/rendering/qr-svg-markup"

@@ -27,9 +27,11 @@ import {
   desktopInspectorOptionGridItemClass,
   desktopInspectorOptionStackClass,
 } from "@/features/desktop-shell/components/InspectorControls"
-import { DesktopColorInputRow } from "@/features/desktop-shell/components/DesktopColorControls"
 import {
-  DesktopInspectorColorRow,
+  SettingsFillPopover,
+} from "@/features/desktop-shell/inspector/settings-ui"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import {
   DesktopInspectorElasticSliderRow,
   DesktopInspectorNumberField,
   DesktopInspectorScrollArea,
@@ -42,7 +44,10 @@ import {
 } from "@/features/desktop-shell/model/font-weight"
 import { DesktopEffectsAccordion } from "@/features/desktop-shell/components/DesktopEffectsAccordion"
 import { DesktopElementShapeOptionGrid } from "@/features/desktop-shell/components/DesktopElementShapeOptionGrid"
-import { DesktopPaperShaderSettings } from "@/features/desktop-shell/components/DesktopPaperShaderSettings"
+import { DesktopPaperShaderOptionGrid } from "@/features/desktop-shell/components/DesktopPaperShaderOptionGrid"
+import {
+  SettingsPaperShaderControls,
+} from "@/features/desktop-shell/inspector/desktopnew-paper-shader-settings"
 import {
   DEFAULT_DRAFTING_IMAGE_LAYER,
   DEFAULT_DRAFTING_SHAPE_LAYER,
@@ -363,10 +368,12 @@ function DesktopLayerTextInspector({
         dataSlot="desktop-layer-text-color"
       >
         <p className={cn("mb-3", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Color</p>
-        <DesktopInspectorColorRow
-          label="Text fill"
+        <SettingsFillPopover
+          hint="Text fill"
+          solidOnly
+          title="Text fill"
           value={layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill}
-          onChange={(fill) => patchTextLayer({ fill })}
+          onValueChange={(_fill, css) => patchTextLayer({ fill: fillPreviewHex(css) })}
         />
       </DesktopInspectorSection>
 
@@ -501,11 +508,16 @@ function DesktopLayerShapeInspector({
           dataSlot="desktop-layer-shape-fill"
         >
           <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Fill</p>
-          <DesktopColorInputRow
-            ariaLabel="Shape fill color"
-            label="Fill color"
+          <SettingsFillPopover
+            hint="Fill color"
+            solidOnly={fillMode === "solid"}
+            title="Fill color"
             value={layer.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill}
-            onChange={(fill) => onPatch({ fill })}
+            onValueChange={(_fill, css) =>
+              onPatch({
+                fill: fillMode === "solid" ? fillPreviewHex(css) : css,
+              })
+            }
           />
         </DesktopInspectorSection>
       ) : null}
@@ -579,10 +591,23 @@ function DesktopLayerShaderInspector({
   const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader()
 
   return (
-    <DesktopPaperShaderSettings
-      paperShader={paperShader}
-      onPaperShaderChange={(nextPaperShader) => onPatch({ paperShader: nextPaperShader })}
-    />
+    <>
+      <DesktopInspectorSection className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
+        <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Shader</p>
+        <DesktopPaperShaderOptionGrid
+          selectedShaderId={paperShader.shaderId}
+          onSelect={(shaderId) =>
+            onPatch({ paperShader: createDefaultDraftingCardPaperShader(shaderId) })
+          }
+        />
+      </DesktopInspectorSection>
+      <div className="min-w-0 px-3 pb-3">
+        <SettingsPaperShaderControls
+          paperShader={paperShader}
+          onPaperShaderChange={(nextPaperShader) => onPatch({ paperShader: nextPaperShader })}
+        />
+      </div>
+    </>
   )
 }
 

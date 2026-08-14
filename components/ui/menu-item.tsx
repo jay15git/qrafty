@@ -155,4 +155,3 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
 MenuItem.displayName = "MenuItem";
 
 export { MenuItem };
-export default MenuItem;

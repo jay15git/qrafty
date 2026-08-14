@@ -1031,7 +1031,8 @@ export function useDesktopToolbarInspectorModel({
     }))
   }
 
-  const actualActiveTool = controller?.activeTool ?? activeTool
+  const actualActiveTool =
+    controller && "activeTool" in controller ? controller.activeTool : activeTool
   const actualDesktopTheme = theme ?? desktopTheme
   const editingMode = controller?.editingMode ?? "free"
   const visibleToolbarToolIds = getVisibleToolbarToolIds(editingMode)

@@ -1,4 +1,11 @@
 {
   "ignorePatterns": ["archive/**"],
-  "publicPackages": ["@new-qr/qr"]
+  "publicPackages": ["@new-qr/qr"],
+  "ignoreDependencies": ["@paper-design/shaders"],
+  "ignoreExports": [
+    {
+      "file": "components/ui/fill-picker/fill-picker.tsx",
+      "exports": ["ColorPicker"]
+    }
+  ]
 }

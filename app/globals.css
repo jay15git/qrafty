@@ -2,7 +2,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "./bibata-cursors.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -524,14 +523,14 @@ body.drafting-canvas-panning,
 body.drafting-canvas-panning *,
 html.drafting-canvas-panning,
 html.drafting-canvas-panning * {
-  cursor: var(--cursor-move) !important;
+  cursor: move !important;
 }
 
 body.drafting-layer-moving,
 body.drafting-layer-moving *,
 html.drafting-layer-moving,
 html.drafting-layer-moving * {
-  cursor: var(--cursor-move) !important;
+  cursor: move !important;
 }
 
 /* Transitions.dev — Card resize */

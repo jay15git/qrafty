@@ -327,11 +327,19 @@ export function SettingsFillPopover({
   hint = "Fill",
   title,
   modulePattern,
+  solidOnly = false,
+  variant = "row",
+  side = "right",
+  align = "start",
 }: {
   value: string
   onValueChange: (fill: Fill, css: string) => void
   hint?: string
   title?: string
+  solidOnly?: boolean
+  variant?: "row" | "swatch"
+  side?: "top" | "right" | "bottom" | "left"
+  align?: "start" | "center" | "end"
   modulePattern?: {
     selectedPalette: string[]
     selectedPreset: string | "custom"
@@ -343,18 +351,22 @@ export function SettingsFillPopover({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div>
-          <ColorRowButton fill={value} hint={hint} />
-        </div>
+        {variant === "swatch" ? (
+          <FillSwatchButton ariaLabel={hint} fill={value} />
+        ) : (
+          <div>
+            <ColorRowButton fill={value} hint={hint} />
+          </div>
+        )}
       </PopoverTrigger>
       <PopoverContent
-        align="start"
+        align={align}
         className={desktopnewPortalClass(
           theme,
           "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
         )}
         data-theme={theme}
-        side="right"
+        side={side}
         sideOffset={10}
       >
         {title ? (
@@ -362,6 +374,7 @@ export function SettingsFillPopover({
         ) : null}
         <DesktopNewFillPicker
           modulePattern={modulePattern}
+          solidOnly={solidOnly}
           value={value}
           onValueChange={onValueChange}
         />
@@ -660,6 +673,45 @@ export function PresetList({
         </button>
       ))}
     </div>
+  )
+}
+
+function FillSwatchButton({
+  ariaLabel,
+  fill,
+}: {
+  ariaLabel: string
+  fill: string
+}) {
+  const gradient = isGradientFill(fill)
+
+  return (
+    <button
+      aria-label={ariaLabel}
+      className="relative flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-focus,var(--ring))]"
+      data-slot="desktop-fill-swatch-trigger"
+      type="button"
+    >
+      <span
+        aria-hidden="true"
+        className="relative size-6 shrink-0 overflow-hidden rounded-full border-2 border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] box-border"
+      >
+        <span
+          aria-hidden="true"
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "conic-gradient(var(--checker-a, #808080) 0 25%, var(--checker-b, #c0c0c0) 0 50%, var(--checker-a, #808080) 0 75%, var(--checker-b, #c0c0c0) 0)",
+            backgroundSize: "8px 8px",
+          }}
+        />
+        <span
+          aria-hidden="true"
+          className="absolute inset-0"
+          style={gradient ? { background: fill } : { backgroundColor: fillPreviewHex(fill) }}
+        />
+      </span>
+    </button>
   )
 }
 

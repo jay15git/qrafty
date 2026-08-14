@@ -11,7 +11,7 @@ import {
 } from "../../lib/gradient";
 import { SAMPLE_EDGE } from "../../lib/constants";
 
-export const BUILTIN_GRADIENT_PRESETS: string[] = [
+const BUILTIN_GRADIENT_PRESETS: string[] = [
   "linear-gradient(in oklch 90deg, oklch(0.9 0.15 60) 0%, oklch(0.6 0.2 30) 100%)",
   "linear-gradient(in oklch 135deg, oklch(0.8 0.18 200) 0%, oklch(0.7 0.2 320) 100%)",
   "linear-gradient(in oklch 0deg, oklch(0.95 0.04 90) 0%, oklch(0.5 0.18 30) 100%)",

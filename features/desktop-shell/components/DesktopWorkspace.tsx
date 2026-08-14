@@ -45,13 +45,11 @@ export function DesktopWorkspace({
         )}
       >
       <WorkspaceSurface
-        chrome="canvas-only"
         desktopTheme={desktopTheme}
         fontClassName={fontClassName}
         initialActiveTool={initialActiveTool}
         onDesktopThemeChange={setDesktopTheme}
         paneToolbarVariant="desktop-zoom"
-        sliderVariant="desktop-elastic"
         renderOverlay={(controller) => (
           <FloatingToolbar
             controller={controller}
@@ -162,19 +160,19 @@ function DesktopWorkspaceStyles() {
       body:has([data-slot="desktop-workspace"]) summary,
       body:has([data-slot="desktop-workspace"]) select:not(:disabled),
       body:has([data-slot="desktop-workspace"]) input[type="color"] {
-        cursor: var(--cursor-pointer);
+        cursor: pointer;
       }
 
       body:has([data-slot="desktop-workspace"]) button:disabled {
-        cursor: var(--cursor-not-allowed);
+        cursor: not-allowed;
       }
 
       body:has([data-slot="desktop-workspace"]) [data-slot="draggable-list-handle"]:not(:disabled) {
-        cursor: var(--cursor-grab);
+        cursor: grab;
       }
 
       body:has([data-slot="desktop-workspace"]) [data-slot="draggable-list-handle"]:not(:disabled):active {
-        cursor: var(--cursor-grabbing);
+        cursor: grabbing;
       }
 
       [data-slot="desktop-workspace"] [data-slot="desktop-floating-toolbar"],
@@ -282,12 +280,12 @@ function DesktopWorkspaceStyles() {
       [data-slot="desktop-workspace"] [data-slot="desktop-action-toolbar"][data-toolbar-appearance="desktop-glass"],
       [data-slot="desktop-workspace"] [data-slot="desktop-resize-toolbar"][data-toolbar-appearance="desktop-glass"],
       [data-slot="desktop-workspace"] [data-slot="dashboard-compose-toolbar"][data-toolbar-appearance="desktop-glass"] {
-        cursor: var(--cursor-pointer);
+        cursor: pointer;
       }
 
       [data-slot="desktop-workspace"] [data-slot="desktop-action-toolbar"][data-toolbar-appearance="desktop-glass"] button,
       [data-slot="desktop-workspace"] [data-slot="desktop-resize-toolbar"][data-toolbar-appearance="desktop-glass"] button {
-        cursor: var(--cursor-pointer) !important;
+        cursor: pointer !important;
       }
 
       [data-slot="desktop-workspace"] [data-slot="desktop-dynamic-island"] {
@@ -304,7 +302,7 @@ function DesktopWorkspaceStyles() {
       [data-slot="desktop-workspace"] [data-slot="dashboard-compose-toolbar"][data-toolbar-appearance="desktop-glass"] button {
         position: relative !important;
         border-radius: 6px !important;
-        cursor: var(--cursor-pointer) !important;
+        cursor: pointer !important;
         overflow: hidden !important;
         transform: none !important;
         translate: none !important;

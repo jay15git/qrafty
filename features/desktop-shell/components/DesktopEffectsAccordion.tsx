@@ -10,7 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { DesktopColorSwatchPicker } from "@/features/desktop-shell/components/DesktopColorControls"
+import { SettingsFillPopover } from "@/features/desktop-shell/inspector/settings-ui"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
 import {
   DESKTOP_INSPECTOR_CONTROL_CLASS,
   DESKTOP_INSPECTOR_SECTION_HEADING_CLASS,
@@ -219,10 +220,14 @@ function EffectRow({
         />
 
         {effect.source === "shadow" ? (
-          <DesktopColorSwatchPicker
-            ariaLabel={`${label} color`}
+          <SettingsFillPopover
+            hint={`${label} color`}
+            solidOnly
+            variant="swatch"
             value={effect.shadow.color}
-            onChange={(color) => onPatchShadow({ color: color || "#000000" })}
+            onValueChange={(_fill, css) =>
+              onPatchShadow({ color: fillPreviewHex(css) || "#000000" })
+            }
           />
         ) : null}
 

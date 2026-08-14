@@ -51,10 +51,17 @@ export function DesktopNewFloatingInspector({
         className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden", className)}
         data-slot="desktop-floating-inspector"
       >
-        <DesktopElementInspector
-          layer={controller.selectedElementLayer}
-          onPatch={(patch) => controller.onElementLayerPatch?.(patch)}
-        />
+        <div
+          className="desktopnew-root desktopnew-embedded h-full min-h-0 w-full min-w-0 overflow-hidden"
+          data-theme={actualDesktopTheme}
+        >
+          <DesktopnewThemeContext.Provider value={actualDesktopTheme}>
+            <DesktopElementInspector
+              layer={controller.selectedElementLayer}
+              onPatch={(patch) => controller.onElementLayerPatch?.(patch)}
+            />
+          </DesktopnewThemeContext.Provider>
+        </div>
       </aside>
     )
   }

@@ -35,19 +35,9 @@ import { ContrastReadout } from "./parts/contrast-readout";
 export {
   parseColor,
   formatColor,
-  formatAll,
-  gamutInfo,
-  toGamut,
-  contrast,
-  apcaContrast,
-  isValidColor,
 } from "@/components/ui/fill-picker/lib/color";
-export {
-  colorChannels,
-  setColorChannel,
-} from "@/components/ui/fill-picker/lib/channels";
 
-export const ColorPickerBase = {
+const ColorPickerBase = {
   Root,
   Area,
   Chroma,

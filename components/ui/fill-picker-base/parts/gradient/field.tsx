@@ -11,13 +11,6 @@ import { cn } from "@/lib/utils";
 // plain, variant-agnostic markup — re-exported from the original so both
 // pickers share one implementation. Only FieldSelect (built on shadcn
 // `<Select>` / Radix in the original) is rebuilt here on `@base-ui/react/select`.
-export {
-  FieldShell,
-  FieldDivider,
-  FieldInput,
-  FieldInputGroup,
-  FieldSuffix,
-} from "@/components/ui/fill-picker/parts/field";
 
 interface FieldSelectProps {
   /**

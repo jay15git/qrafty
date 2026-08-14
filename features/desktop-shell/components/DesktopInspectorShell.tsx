@@ -289,35 +289,3 @@ export function DesktopInspectorNumberField({
     </div>
   )
 }
-
-export function DesktopInspectorColorRow({
-  label,
-  onChange,
-  value,
-}: {
-  label: string
-  onChange: (value: string) => void
-  value: string
-}) {
-  return (
-    <div className={DESKTOP_INSPECTOR_ROW_CLASS}>
-      <span className={DESKTOP_INSPECTOR_LABEL_CLASS}>{label}</span>
-      <span className="flex items-center gap-2">
-        <input
-          aria-label={`${label} swatch`}
-          className="desktop-inspector-color-swatch size-7 shrink-0 cursor-pointer rounded-full"
-          data-slot="desktop-color-swatch-ring"
-          type="color"
-          value={value}
-          onChange={(event) => onChange(event.currentTarget.value)}
-        />
-        <DesktopInspectorTextInput
-          aria-label={label}
-          className="h-7 w-20 rounded-[5px] px-2"
-          value={value}
-          onChange={(event) => onChange(event.currentTarget.value)}
-        />
-      </span>
-    </div>
-  )
-}

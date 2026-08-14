@@ -1,7 +1,5 @@
 "use client"
 
-import { Image02Icon, KeyboardIcon, SignalIcon, SquareIcon } from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
 
 import type {
@@ -14,44 +12,12 @@ import type {
 import type { StudioCornerDotStyle } from "@/features/qr-code/model/state"
 
 import {
-  DraftingBackgroundColorTab,
-  DraftingBackgroundShapeTab,
-  DraftingBackgroundUploadTab,
-  DraftingBrandIconTab,
-  DraftingCardImageTab,
-  DraftingCardSettingsTab,
-  DraftingCardShadersTab,
-  DraftingCardSurfaceTab,
-  DraftingContentTab,
-  DraftingCornerDotColorTab,
-  DraftingCornerDotStyleTab,
-  DraftingCornerSquareColorTab,
-  DraftingCornerSquareStyleTab,
-  DraftingDotsColorTab,
-  DraftingEncodingTab,
-  DraftingLogoColorTab,
-  DraftingLogoSizeTab,
-  DraftingLogoUploadTab,
-  DraftingLoaderPlaygroundTab,
-  DraftingMotionTab,
-  DraftingQrTypeDropdown,
-  DraftingSizeTab,
-  DraftingSliderVariantProvider,
-  StylePanel,
-  type DraftingSliderVariant,
-} from "@/features/workspace/components/StylePanel"
-import {
   cloneDraftingCardState,
   createDefaultDraftingCardState,
   normalizeDraftingCardState,
   type DraftingCardState,
 } from "@/features/workspace/model/card-state"
 import { createUniformCornerRadii } from "@/features/workspace/model/corner-radius"
-import {
-  InspectorPanel,
-  DraftingInspectorSection,
-  DraftingInspectorSegmentedControl,
-} from "@/features/workspace/components/InspectorPanel"
 import {
   alignDraftingCanvasLayers,
   clampLayerGeometryToCanvas,
@@ -79,7 +45,6 @@ import {
   type DraftingLayerReorderAction,
   type DraftingLayerStateByNodeId,
 } from "@/features/workspace/model/layers"
-import { DRAFTING_KEYBOARD_SHORTCUT_GROUPS } from "@/features/workspace/model/keyboard-shortcuts"
 import {
   cloneDraftingQrState,
   cloneDraftingWorkspaceDocument,
@@ -105,7 +70,6 @@ import {
 import {
   createDefaultSceneComposition,
   normalizeSceneComposition,
-  type SceneLayoutPreset,
 } from "@/features/workspace/model/scene-templates"
 import { getCanvasSizeFromTemplate } from "@/features/workspace/model/size-templates"
 import {
@@ -113,19 +77,8 @@ import {
   writeWorkspaceEditingMode,
   type WorkspaceEditingMode,
 } from "@/features/workspace/model/workspace-editing-mode"
-import {
-  readDraftingWorkspaceDraft,
-  writeDraftingWorkspaceDraft,
-} from "@/features/workspace/model/storage"
+import { writeDraftingWorkspaceDraft } from "@/features/workspace/model/storage"
 import { resolveWorkspaceBootstrapDocument } from "@/features/workspace/model/workspace-bootstrap"
-import type {
-  DraftingCardPatternColorSlotId,
-  DraftingCardPatternId,
-} from "@/features/workspace/model/card-patterns"
-import {
-  DRAFTING_LAYERS_TAB_ICON,
-  LayerList,
-} from "@/features/workspace/components/LayerList"
 import {
   buildDraftingLayeredNodePayload,
 } from "@/features/workspace/export/layered-export"
@@ -137,9 +90,6 @@ import {
   type DraftingPaneCanvasTool,
   type DraftingPaneToolbarVariant,
 } from "@/features/workspace/components/Canvas"
-import { DraftingTextLayerTab } from "@/features/workspace/components/TextPanel"
-import { ElementInspector } from "@/features/workspace/components/ElementInspector"
-import { InsertMenu } from "@/features/workspace/components/InsertMenu"
 import type {
   DesktopAssetSourceMode,
   DesktopBackgroundInspectorTab,
@@ -196,18 +146,13 @@ import {
   applyLogoPresetColor,
   applyLogoPresetGradient,
   applyLogoPresetSelection,
-} from "@/features/qr-code/components/ControlsPanel"
+} from "@/features/qr-code/model/actions"
 import { applyAssetUploadValue, applyIconstackLogoPresetSelection } from "@/features/qr-code/model/actions"
 import {
   downloadDashboardQrBatchZipExport,
   downloadDashboardQrNodeExport,
 } from "@/features/qr-code/export/batch-export"
-import {
-  formatDashboardExportFileSize,
-  isRasterExportExtension,
-  measureDashboardRasterExport,
-  type DashboardRasterExtension,
-} from "@/features/qr-code/export/raster-export"
+import { isRasterExportExtension } from "@/features/qr-code/export/raster-export"
 import {
   DASHBOARD_QR_NODE_ID,
 } from "@/features/qr-code/rendering/compose-scene"
@@ -227,6 +172,7 @@ import {
   type StudioGradient,
   setDotMatrixAnimationOptions,
 } from "@/features/qr-code/model/state"
+import { type QrBackgroundShapeId } from "@/features/qr-code/styles/background-shapes"
 import {
   buildStaticQrPayload,
   getDefaultStaticQrValues,
@@ -234,96 +180,31 @@ import {
   resolveContentValuesForType,
   validateStaticQrContent,
   type StaticQrContentValue,
+  type StaticQrContentValues,
 } from "@/features/qr-code/content/static-payload"
 import {
   getPlatformDefaultValuesForIntent,
   isPlatformType,
 } from "@/features/qr-code/content/platform-intents"
 import {
-  DownloadIcon,
-  FrameIcon,
-  LinkIcon,
-  PieChart,
-  Settings,
-  SlidersHorizontal,
-  Sparkles,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { SecondaryButton } from "@/components/ui/secondary-button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { ModeToggle } from "@/components/mode-toggle"
-import { OptionCard } from "@/components/ui/option-card"
-import {
-  ScrollArea,
-} from "@/components/ui/scroll-area"
-import {
   DEFAULT_QR_INPUT_TYPE,
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
 import { cn } from "@/lib/utils"
 
-const OUTER_MARKERS = [
-  "hidden lg:block left-0 top-0 -translate-x-1/2 -translate-y-1/2",
-  "hidden lg:block right-0 top-0 translate-x-1/2 -translate-y-1/2",
-  "hidden lg:block bottom-0 left-0 -translate-x-1/2 translate-y-1/2",
-  "hidden lg:block bottom-0 right-0 translate-x-1/2 translate-y-1/2",
-] as const
-
-const JUNCTION_MARKERS = [
-  "hidden lg:block left-0 top-[var(--new-header-height)] -translate-x-1/2 -translate-y-1/2",
-  "hidden lg:block left-[var(--new-left-rail-width)] top-[var(--new-header-height)] -translate-x-1/2 -translate-y-1/2",
-  "hidden lg:block left-[calc(var(--new-left-rail-width)+var(--new-middle-rail-width))] top-[var(--new-header-height)] -translate-x-1/2 -translate-y-1/2",
-  "hidden lg:block right-0 top-[var(--new-header-height)] translate-x-1/2 -translate-y-1/2",
-  "hidden lg:block bottom-0 left-[var(--new-left-rail-width)] -translate-x-1/2 translate-y-1/2",
-  "hidden lg:block bottom-0 left-[calc(var(--new-left-rail-width)+var(--new-middle-rail-width))] -translate-x-1/2 translate-y-1/2",
-] as const
-
 type DraftingBinaryColorMode = "solid" | "gradient"
 type DraftingAssetSourceMode = Extract<AssetSourceMode, "upload" | "url">
 type DraftingBrandIconCategoryFilter = BrandIconCategory | "all"
-type DraftingCardToolId = "card-frame" | "card-surface" | "card-image" | "card-shaders"
-type WorkspaceSurfaceChrome = "canvas-only" | "full"
 
 type DraftingWorkspaceController = DesktopToolbarController
 
 type WorkspaceSurfaceProps = {
-  chrome?: WorkspaceSurfaceChrome
   desktopTheme?: DesktopThemeMode
   fontClassName?: string
   initialActiveTool?: DesktopToolbarToolId
   onDesktopThemeChange?: (theme: DesktopThemeMode) => void
   paneToolbarVariant?: DraftingPaneToolbarVariant
   renderOverlay?: (controller: DraftingWorkspaceController) => ReactNode
-  sliderVariant?: DraftingSliderVariant
-}
-type DraftingToolId =
-  | "content"
-  | "style"
-  | "corners"
-  | "logo"
-  | "shape"
-  | "background"
-  | "card-pattern"
-  | "text"
-  | "image"
-  | "decorations"
-  | "effects"
-  | "motion"
-  | "encoding"
-  | "layers"
-  | "export"
-  | DraftingCardToolId
-type DraftingToolGroup = "QR" | "Add" | "Manage"
-
-type DraftingTool = {
-  group?: DraftingToolGroup
-  id: DraftingToolId
-  title: string
-  renderIcon: () => ReactNode
 }
 
 const DEFAULT_DRAFTING_STUDIO_STATE = createDefaultQrStudioState()
@@ -340,7 +221,7 @@ function parseValueSegmentsText(text: string) {
 function formatValueSegmentsText(segments: string[] | undefined) {
   return segments?.join("\n") ?? ""
 }
-const DEFAULT_DRAFTING_TOOL_ID = "content" satisfies DraftingToolId
+
 const DEFAULT_DRAFTING_PANE_QR_SIZE = 240
 const DRAFTING_LAYER_CLIPBOARD_TYPE = "new-qr/drafting-layers"
 const DRAFTING_LAYER_CLIPBOARD_VERSION = 1
@@ -421,193 +302,19 @@ function swapDraftingQrNodeOrder(
   return Object.fromEntries(nextEntries)
 }
 
-const DRAFTING_TOOLS: DraftingTool[] = [
-  {
-    group: "QR",
-    id: "content",
-    title: "Content",
-    renderIcon: () => <LinkIcon className="size-4 shrink-0" />,
-  },
-  {
-    group: "QR",
-    id: "style",
-    title: "Pattern",
-    renderIcon: () => <Sparkles className="size-4 shrink-0" />,
-  },
-  {
-    group: "QR",
-    id: "corners",
-    title: "Corners",
-    renderIcon: () => (
-      <HugeiconsIcon icon={SquareIcon} size={16} color="currentColor" strokeWidth={1.8} />
-    ),
-  },
-  {
-    group: "QR",
-    id: "logo",
-    title: "Logo",
-    renderIcon: () => (
-      <HugeiconsIcon icon={SignalIcon} size={16} color="currentColor" strokeWidth={1.8} />
-    ),
-  },
-  {
-    group: "QR",
-    id: "shape",
-    title: "Frame",
-    renderIcon: () => (
-      <HugeiconsIcon icon={Image02Icon} size={16} color="currentColor" strokeWidth={1.8} />
-    ),
-  },
-  {
-    group: "QR",
-    id: "motion",
-    title: "Motion",
-    renderIcon: () => <SlidersHorizontal className="size-4 shrink-0" />,
-  },
-  {
-    group: "QR",
-    id: "encoding",
-    title: "Encoding",
-    renderIcon: () => <Settings className="size-4 shrink-0" />,
-  },
-  {
-    group: "Add",
-    id: "card-pattern",
-    title: "Pattern",
-    renderIcon: () => <PieChart className="size-4 shrink-0" />,
-  },
-  {
-    group: "Manage",
-    id: "layers",
-    title: "Layers",
-    renderIcon: () => <DRAFTING_LAYERS_TAB_ICON className="size-4 shrink-0" />,
-  },
-  {
-    group: "Manage",
-    id: "export",
-    title: "Export",
-    renderIcon: () => <DownloadIcon className="size-4 shrink-0" />,
-  },
-  {
-    id: "card-frame",
-    title: "Shape",
-    renderIcon: () => <FrameIcon className="size-4 shrink-0" />,
-  },
-  {
-    id: "card-surface",
-    title: "Decorations",
-    renderIcon: () => <PieChart className="size-4 shrink-0" />,
-  },
-  {
-    id: "card-image",
-    title: "Shape Image",
-    renderIcon: () => (
-      <HugeiconsIcon icon={Image02Icon} size={16} color="currentColor" strokeWidth={1.8} />
-    ),
-  },
-  {
-    id: "card-shaders",
-    title: "Effects",
-    renderIcon: () => <Sparkles className="size-4 shrink-0" />,
-  },
-]
-
-const DRAFTING_RAIL_TOOLS = DRAFTING_TOOLS.filter((tool) => tool.group)
-
-function getDraftingRailToolId(toolId: DraftingToolId) {
-  if (toolId === "card-frame" || toolId === "card-image") {
-    return "shape" satisfies DraftingToolId
-  }
-
-  if (toolId === "card-surface") {
-    return "shape" satisfies DraftingToolId
-  }
-
-  if (toolId === "card-shaders") {
-    return "shape" satisfies DraftingToolId
-  }
-
-  return toolId
-}
-
 type DraftingDownloadExtension = (typeof DRAFTING_DOWNLOAD_EXTENSIONS)[number]
 type DraftingDownloadTarget = "all-qr" | "current" | "surface" | `qr:${string}`
-type DraftingExportSizePreview =
-  | { status: "error" }
-  | { status: "idle" }
-  | { status: "pending" }
-  | ({
-      status: "ready"
-      blobSizeBytes: number
-      encoderQuality?: number
-      extension: DraftingDownloadExtension
-      height: number
-      qualityPercent: number
-      width: number
-    })
-
-function PlusMarker({ className }: { className: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      data-slot="drafting-plus-marker"
-      className={cn("pointer-events-none absolute size-4 text-[var(--ws-ink-muted)]", className)}
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path d="M12 2v20M2 12h20" stroke="currentColor" strokeWidth="2.25" />
-    </svg>
-  )
-}
-
-function DraftingCardObjectInspectorNav({
-  activeTool,
-  onToolChange,
-}: {
-  activeTool: DraftingCardToolId
-  onToolChange: (toolId: DraftingCardToolId) => void
-}) {
-  const items: Array<{ id: DraftingCardToolId; label: string; icon: ReactNode }> = [
-    { id: "card-frame", label: "Shape", icon: <FrameIcon data-icon="inline-start" /> },
-    { id: "card-surface", label: "Fill", icon: <PieChart data-icon="inline-start" /> },
-    {
-      id: "card-image",
-      label: "Image fill",
-      icon: <HugeiconsIcon icon={Image02Icon} size={14} color="currentColor" strokeWidth={1.8} />,
-    },
-    { id: "card-shaders", label: "Effects", icon: <Sparkles data-icon="inline-start" /> },
-  ]
-
-  return (
-    <DraftingInspectorSegmentedControl
-      ariaLabel="Shape inspector sections"
-      className="grid-cols-2"
-      items={items.map((item) => ({
-        icon: item.icon,
-        label: item.label,
-        value: item.id,
-      }))}
-      value={activeTool}
-      onValueChange={onToolChange}
-    />
-  )
-}
 
 export function WorkspaceSurface({
-  chrome = "full",
   desktopTheme = "light",
   fontClassName,
   initialActiveTool,
   onDesktopThemeChange,
   paneToolbarVariant = "default",
   renderOverlay,
-  sliderVariant = "default",
 }: WorkspaceSurfaceProps = {}) {
-  const [activeTool, setActiveTool] = useState<DraftingToolId>(() =>
-    initialActiveTool ? getDraftingToolIdFromDesktop(initialActiveTool) : DEFAULT_DRAFTING_TOOL_ID,
-  )
   const [desktopRailTool, setDesktopRailTool] = useState<DesktopToolbarToolId | null>(
-    () => initialActiveTool ?? DEFAULT_DRAFTING_TOOL_ID,
+    () => initialActiveTool ?? "content",
   )
   const [backgroundInspectorTab, setBackgroundInspectorTab] =
     useState<DesktopBackgroundInspectorTab>("paper")
@@ -855,21 +562,14 @@ export function WorkspaceSurface({
   const [selectedDownloadTarget, setSelectedDownloadTarget] =
     useState<DraftingDownloadTarget>("current")
   const [exportDownloadError, setExportDownloadError] = useState<string | null>(null)
-  const [isDownloadPopoverOpen, setIsDownloadPopoverOpen] = useState(false)
   const [selectedRasterExportPresetId, setSelectedRasterExportPresetId] =
     useState<DraftingRasterExportPresetId>(DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID)
   const [selectedExportPresetId, setSelectedExportPresetId] = useState<ExportPresetId | undefined>(
     undefined,
   )
   const [selectedUsePlatformExportPreset, setSelectedUsePlatformExportPreset] = useState(false)
-  const [draftingExportSizePreview, setDraftingExportSizePreview] =
-    useState<DraftingExportSizePreview>({
-      status: "idle",
-    })
   const [isDraftingWorkspaceReady, setIsDraftingWorkspaceReady] = useState(false)
   const [draftingHistoryRevision, setDraftingHistoryRevision] = useState(0)
-  const draftingExportPreviewRequestRef = useRef(0)
-  const draftingExportPreviewTimeoutRef = useRef<number | null>(null)
   const draftingWorkspaceAutosaveTimerRef = useRef<number | null>(null)
   const draftingWorkspaceHistoryTimerRef = useRef<number | null>(null)
   const draftingWorkspaceHistoryRef = useRef<DraftingWorkspaceDocumentV1[]>([])
@@ -879,10 +579,6 @@ export function WorkspaceSurface({
   const draftingSurfaceRef = useRef<HTMLElement | null>(null)
   const iconstackSvgCacheRef = useRef<Map<string, string>>(new Map())
   const draftingLayerClipboardRef = useRef<string>("")
-  const activeToolConfig =
-    DRAFTING_TOOLS.find((section) => section.id === activeTool) ?? DRAFTING_TOOLS[0]
-  const activeRailToolId = getDraftingRailToolId(activeTool)
-  const visibleDraftingTools = DRAFTING_RAIL_TOOLS
   const filteredBrandIcons = filterBrandIcons(brandIconQuery, brandIconCategory)
   const selectedContentValues =
     contentValuesByType[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType)
@@ -1132,49 +828,6 @@ export function WorkspaceSurface({
     selectedDownloadTarget === "current" ||
     selectedDownloadTarget === activeQrDownloadTarget
 
-  const draftingDownloadTargetOptions = useMemo(
-    () => [
-      {
-        id: "current" as const,
-        label: "Current QR",
-      },
-    ...(qrNodeIds.length > 0
-        ? [
-            {
-              id: "all-qr" as const,
-              label: "All QR codes",
-            },
-          ]
-        : []),
-      ...qrNodeIds.map((nodeId) => ({
-        id: getDraftingQrNodeDownloadTarget(nodeId),
-        label: qrPaneNamesById.get(nodeId) ?? "QR Code",
-      })),
-    ],
-    [qrNodeIds, qrPaneNamesById],
-  )
-  const effectiveDraftingExportSizePreview: DraftingExportSizePreview =
-    canDownload && isDraftingRasterExport
-      ? draftingExportSizePreview
-      : {
-          status: "idle",
-        }
-  const isDraftingExportInspectorActive = activeTool === "export"
-  const activeDraftingExportPreviewEnabled =
-    (isDownloadPopoverOpen || isDraftingExportInspectorActive) &&
-    canDownload &&
-    isDraftingRasterExport &&
-    shouldMeasureActiveQrExport
-  const activeDraftingExportPreviewState =
-    isDownloadPopoverOpen || isDraftingExportInspectorActive ? draftingStudioState : null
-  const activeDraftingExportPreviewExtension: DashboardRasterExtension | null =
-    isDownloadPopoverOpen || isDraftingExportInspectorActive
-      ? (selectedDownloadExtension as DashboardRasterExtension)
-      : null
-  const activeDraftingExportPreviewTargetSizePx =
-    isDownloadPopoverOpen || isDraftingExportInspectorActive
-      ? selectedRasterExportTargetSizePx
-      : undefined
   const draftingWorkspaceDocument = useMemo(
     () => buildDraftingWorkspaceDocument(),
     // buildDraftingWorkspaceDocument reads exactly the state listed here.
@@ -1733,11 +1386,7 @@ export function WorkspaceSurface({
         }
       })
 
-      if (chrome === "canvas-only") {
-        setDesktopRailTool("layout")
-      } else {
-        setActiveTool(getDraftingToolIdFromDesktop("layout"))
-      }
+      setDesktopRailTool("layout")
     }
   }
 
@@ -1834,7 +1483,7 @@ export function WorkspaceSurface({
   function resetDraftingWorkspace() {
     const nextState = createDefaultDraftingWorkspaceQrState()
 
-    setActiveTool(DEFAULT_DRAFTING_TOOL_ID)
+    setDesktopRailTool("content")
     applyDraftingQrStateToControls(nextState)
     setBrandIconQuery("")
     setBrandIconCategory("all")
@@ -1862,9 +1511,6 @@ export function WorkspaceSurface({
     setSelectedDownloadExtension("png")
     setSelectedDownloadTarget("current")
     setSelectedRasterExportPresetId(DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID)
-    setDraftingExportSizePreview({
-      status: "idle",
-    })
     setSelectedBackgroundTransparent(false)
     setSelectedBackgroundShapeId(nextState.backgroundShapeId)
   }
@@ -2229,9 +1875,6 @@ export function WorkspaceSurface({
 
   useEffect(() => {
     return () => {
-      if (draftingExportPreviewTimeoutRef.current !== null) {
-        window.clearTimeout(draftingExportPreviewTimeoutRef.current)
-      }
       if (draftingWorkspaceAutosaveTimerRef.current !== null) {
         window.clearTimeout(draftingWorkspaceAutosaveTimerRef.current)
       }
@@ -2241,76 +1884,6 @@ export function WorkspaceSurface({
     }
   }, [])
 
-  // Export size preview
-  useEffect(() => {
-    if (draftingExportPreviewTimeoutRef.current !== null) {
-      window.clearTimeout(draftingExportPreviewTimeoutRef.current)
-    }
-
-    const requestId = ++draftingExportPreviewRequestRef.current
-
-    if (!activeDraftingExportPreviewEnabled) {
-      queueMicrotask(() => {
-        if (draftingExportPreviewRequestRef.current !== requestId) {
-          return
-        }
-
-        setDraftingExportSizePreview({
-          status: "idle",
-        })
-      })
-      return
-    }
-
-    queueMicrotask(() => {
-      if (draftingExportPreviewRequestRef.current !== requestId) {
-        return
-      }
-
-      setDraftingExportSizePreview({
-        status: "pending",
-      })
-    })
-
-    draftingExportPreviewTimeoutRef.current = window.setTimeout(() => {
-      void measureDashboardRasterExport({
-        extension: activeDraftingExportPreviewExtension!,
-        qualityPercent: activeDraftingExportPreviewState!.rasterExportQualityPercent,
-        state: activeDraftingExportPreviewState!,
-        targetSizePx: activeDraftingExportPreviewTargetSizePx,
-      })
-        .then((result) => {
-          if (draftingExportPreviewRequestRef.current !== requestId) {
-            return
-          }
-
-          setDraftingExportSizePreview({
-            ...result,
-            status: "ready",
-          })
-        })
-        .catch(() => {
-          if (draftingExportPreviewRequestRef.current !== requestId) {
-            return
-          }
-
-          setDraftingExportSizePreview({
-            status: "error",
-          })
-        })
-    }, 250)
-
-    return () => {
-      if (draftingExportPreviewTimeoutRef.current !== null) {
-        window.clearTimeout(draftingExportPreviewTimeoutRef.current)
-      }
-    }
-  }, [
-    activeDraftingExportPreviewEnabled,
-    activeDraftingExportPreviewExtension,
-    activeDraftingExportPreviewState,
-    activeDraftingExportPreviewTargetSizePx,
-  ])
 
   async function handleAddQrCode() {
     if (qrNodeIds.length >= 10) return
@@ -2405,8 +1978,8 @@ export function WorkspaceSurface({
     const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1)
     const draftPosition = clampLayerGeometryToCanvas(
       {
-        height: DEFAULT_DRAFTING_TEXT_LAYER.height,
-        width: DEFAULT_DRAFTING_TEXT_LAYER.width,
+        height: 48,
+        width: 240,
         x: Math.round(point.x - 120),
         y: Math.round(point.y - 24),
       },
@@ -2466,7 +2039,7 @@ export function WorkspaceSurface({
       ),
     }))
     selectSingleLayer(cardLayerId)
-    setActiveTool("shape")
+    setDesktopRailTool("shape")
     draftingSurfaceRef.current?.focus({ preventScroll: true })
   }
 
@@ -2527,9 +2100,7 @@ export function WorkspaceSurface({
     }
 
     if (layerId === null) {
-      if (chrome === "canvas-only") {
-        setDesktopRailTool("content")
-      }
+      setDesktopRailTool("content")
       return
     }
 
@@ -2543,42 +2114,27 @@ export function WorkspaceSurface({
       layerId,
     )
 
-    if (chrome === "canvas-only") {
-      if (
-        selectedLayer?.kind === "text" ||
-        selectedLayer?.kind === "image" ||
-        selectedLayer?.kind === "shape" ||
-        selectedLayer?.kind === "shader"
-      ) {
-        setDesktopRailTool(null)
-        return
-      }
-
-      if (selectedLayer?.kind === "group") {
-        setDesktopRailTool("layers")
-        return
-      }
-
-      if (isDraftingCardLayerId(layerId)) {
-        setDesktopRailTool("shape")
-        return
-      }
-
-      setDesktopRailTool("content")
+    if (
+      selectedLayer?.kind === "text" ||
+      selectedLayer?.kind === "image" ||
+      selectedLayer?.kind === "shape" ||
+      selectedLayer?.kind === "shader"
+    ) {
+      setDesktopRailTool(null)
       return
     }
 
     if (selectedLayer?.kind === "group") {
-      setActiveTool("layers")
+      setDesktopRailTool("layers")
       return
     }
 
     if (isDraftingCardLayerId(layerId)) {
-      setActiveTool("shape")
+      setDesktopRailTool("shape")
       return
     }
 
-    setActiveTool(DEFAULT_DRAFTING_TOOL_ID)
+    setDesktopRailTool("content")
   }
 
   function handleLayerSelectionChange(
@@ -3123,864 +2679,6 @@ export function WorkspaceSurface({
   const selectedTransformLayer =
     selectedLayerIds.length === 1 && selectedTextLayer ? selectedTextLayer : null
 
-  const renderPanelContent = (toolId: string, tabId: string) => {
-    const renderWithSliderVariant = (content: ReactNode) => (
-      <DraftingSliderVariantProvider value={sliderVariant}>
-        {content}
-      </DraftingSliderVariantProvider>
-    )
-
-    if (toolId === "text" && tabId === "text") {
-      return renderWithSliderVariant(
-        <DraftingTextLayerTab
-          layer={selectedTextLayer?.kind === "text" ? selectedTextLayer : null}
-          sliderVariant={sliderVariant}
-          onLayerPatch={(patch) => {
-            if (selectedTextLayer?.kind === "text") {
-              handleLayerChange(activeQrNodeId, selectedTextLayer.id, patch)
-            }
-          }}
-        />,
-      )
-    }
-
-    if (toolId === "content" && tabId === "content") {
-      return renderWithSliderVariant(
-        <DraftingContentTab
-          contentType={selectedContentType}
-          contentValues={selectedContentValues}
-          encodedValue={selectedContentValue}
-          validation={selectedContentValidation}
-          onContentValueChange={handleDraftingContentValueChange}
-        />,
-      )
-    }
-
-    if (toolId === "style" && tabId === "style") {
-      return renderWithSliderVariant(<StylePanel onValueChange={setSelectedDotType} value={selectedDotType} />)
-    }
-
-    if (toolId === "style" && tabId === "color") {
-      return renderWithSliderVariant(
-        <DraftingDotsColorTab
-          gradient={selectedDotsGradient}
-          mode={selectedDotsColorMode}
-          openItemIds={openDotsColorItems}
-          palette={selectedDotsPalette}
-          solidColor={selectedDotColor}
-          onGradientChange={(value) => {
-            ensureDotsColorItemExpanded("gradient")
-            setSelectedDotsColorMode("gradient")
-            setSelectedDotsGradient({ ...value, enabled: true })
-          }}
-          onModeChange={(value) => {
-            ensureDotsColorItemExpanded(value)
-            setSelectedDotsColorMode(value)
-          }}
-          onOpenItemIdsChange={setOpenDotsColorItems}
-          onSolidColorChange={(value) => {
-            ensureDotsColorItemExpanded("solid")
-            setSelectedDotsColorMode("solid")
-            setSelectedDotColor(value)
-          }}
-        />,
-      )
-    }
-
-    if (toolId === "style" && tabId === "size") {
-      return renderWithSliderVariant(
-        <DraftingSizeTab
-          margin={selectedQrMargin}
-          radius={selectedQrRadius * 100}
-          onMarginChange={setSelectedQrMargin}
-          onRadiusChange={(value) => setSelectedQrRadius(clampQrBackgroundRound(value / 100))}
-        />,
-      )
-    }
-
-    if (toolId === "style" && tabId === "motion") {
-      return renderWithSliderVariant(
-        <DraftingMotionTab
-          animation={selectedDotMatrixAnimation}
-          onAnimationChange={(patch) =>
-            setSelectedDotMatrixAnimation(
-              (current) =>
-                setDotMatrixAnimationOptions(
-                  {
-                    ...DEFAULT_DRAFTING_STUDIO_STATE,
-                    dotMatrixAnimation: current,
-                  },
-                  patch,
-                ).dotMatrixAnimation,
-            )
-          }
-        />,
-      )
-    }
-
-    if (toolId === "loader-playground" && tabId === "playground") {
-      return renderWithSliderVariant(
-        <DraftingLoaderPlaygroundTab
-          animation={selectedDotMatrixAnimation}
-          onAnimationChange={(patch) =>
-            setSelectedDotMatrixAnimation(
-              (current) =>
-                setDotMatrixAnimationOptions(
-                  {
-                    ...DEFAULT_DRAFTING_STUDIO_STATE,
-                    dotMatrixAnimation: current,
-                  },
-                  patch,
-                ).dotMatrixAnimation,
-            )
-          }
-        />,
-      )
-    }
-
-    if (toolId === "card-frame" && tabId === "frame") {
-      return renderWithSliderVariant(
-        <DraftingCardSettingsTab
-          value={selectedCardState}
-          onValueChange={(nextCardState) => {
-            setSelectedCardState(nextCardState)
-            handleLayerChange(activeQrNodeId, getDraftingCardLayerId(activeQrNodeId), {
-              isVisible: nextCardState.enabled,
-              shadow: nextCardState.shadow,
-            })
-          }}
-        />,
-      )
-    }
-
-    if (toolId === "card-surface" && tabId === "surface") {
-      return renderWithSliderVariant(
-        <DraftingCardSurfaceTab
-          fill={selectedCardState.fill}
-          patternColors={selectedCardState.patternColors}
-          patternId={selectedCardState.patternId}
-          styleMode={selectedCardState.styleMode}
-          onFillChange={(fill) =>
-            setSelectedCardState((current) => ({
-              ...current,
-              fill,
-            }))
-          }
-          onPatternChange={(patternId) =>
-            setSelectedCardState((current) => ({
-              ...current,
-              patternId,
-              styleMode: "pattern",
-            }))
-          }
-          onPatternColorChange={(
-            patternId: DraftingCardPatternId,
-            colorId: DraftingCardPatternColorSlotId,
-            value: string,
-          ) =>
-            setSelectedCardState((current) => ({
-              ...current,
-              patternColors: {
-                ...current.patternColors,
-                [patternId]: {
-                  ...(current.patternColors[patternId] ?? {}),
-                  [colorId]: value,
-                },
-              },
-            }))
-          }
-          onResetPatternColors={(patternId) =>
-            setSelectedCardState((current) => {
-              const nextPatternColors = { ...current.patternColors }
-              delete nextPatternColors[patternId]
-
-              return {
-                ...current,
-                patternColors: nextPatternColors,
-              }
-            })
-          }
-        />,
-      )
-    }
-
-    if (toolId === "card-image" && tabId === "upload") {
-      return (
-        <DraftingCardImageTab
-          cardImage={selectedCardState.cardImage}
-          mode="upload"
-          onCardImageChange={(cardImage) =>
-            setSelectedCardState((current) => ({
-              ...current,
-              cardImage,
-              styleMode: cardImage.source === "none" ? current.styleMode : "image",
-            }))
-          }
-        />
-      )
-    }
-
-    if (toolId === "card-image" && tabId === "filters") {
-      return (
-        <DraftingCardImageTab
-          cardImage={selectedCardState.cardImage}
-          imageFilter={selectedCardState.imageFilter}
-          mode="filters"
-          styleMode={selectedCardState.styleMode}
-          onImageFilterChange={(imageFilter) =>
-            setSelectedCardState((current) => ({
-              ...current,
-              imageFilter: {
-                ...imageFilter,
-                image: {
-                  source: current.cardImage.source === "none" ? "sample" : current.cardImage.source,
-                  value: current.cardImage.value ?? imageFilter.image.value,
-                },
-              },
-              patternId: "none",
-              styleMode: "image-filter",
-            }))
-          }
-        />
-      )
-    }
-
-    if (toolId === "card-shaders" && (tabId === "shaders" || tabId === "settings" || tabId === "all")) {
-      return (
-        <DraftingCardShadersTab
-          activeTab={tabId === "all" ? undefined : tabId}
-          paperShader={selectedCardState.paperShader}
-          styleMode={selectedCardState.styleMode}
-          onPaperShaderChange={(paperShader) =>
-            setSelectedCardState((current) => ({
-              ...current,
-              paperShader,
-              patternId: "none",
-              styleMode: "paper-shader",
-            }))
-          }
-        />
-      )
-    }
-
-    if (toolId === "corner-square" && tabId === "style") {
-      return (
-        <DraftingCornerSquareStyleTab
-          onValueChange={setSelectedQrFinderPatternOuterStyle}
-          value={selectedQrFinderPatternOuterStyle}
-        />
-      )
-    }
-
-    if (toolId === "corner-square" && tabId === "color") {
-      return (
-        <DraftingCornerSquareColorTab
-          gradient={selectedCornerSquareGradient}
-          mode={selectedCornerSquareColorMode}
-          openItemIds={openCornerSquareColorItems}
-          solidColor={selectedCornerSquareColor}
-          onGradientChange={(value) => {
-            ensureCornerSquareColorItemExpanded("gradient")
-            setSelectedCornerSquareColorMode("gradient")
-            setSelectedCornerSquareGradient({ ...value, enabled: true })
-          }}
-          onModeChange={(value) => {
-            ensureCornerSquareColorItemExpanded(value)
-            setSelectedCornerSquareColorMode(value)
-          }}
-          onOpenItemIdsChange={setOpenCornerSquareColorItems}
-          onSolidColorChange={(value) => {
-            ensureCornerSquareColorItemExpanded("solid")
-            setSelectedCornerSquareColorMode("solid")
-            setSelectedCornerSquareColor(value)
-          }}
-        />
-      )
-    }
-
-    if (toolId === "corner-dot" && tabId === "style") {
-      return (
-        <DraftingCornerDotStyleTab
-          onValueChange={setSelectedQrFinderPatternInnerStyle}
-          value={selectedQrFinderPatternInnerStyle}
-        />
-      )
-    }
-
-    if (toolId === "corner-dot" && tabId === "color") {
-      return (
-        <DraftingCornerDotColorTab
-          gradient={selectedCornerDotGradient}
-          mode={selectedCornerDotColorMode}
-          openItemIds={openCornerDotColorItems}
-          solidColor={selectedCornerDotColor}
-          onGradientChange={(value) => {
-            ensureCornerDotColorItemExpanded("gradient")
-            setSelectedCornerDotColorMode("gradient")
-            setSelectedCornerDotGradient({ ...value, enabled: true })
-          }}
-          onModeChange={(value) => {
-            ensureCornerDotColorItemExpanded(value)
-            setSelectedCornerDotColorMode(value)
-          }}
-          onOpenItemIdsChange={setOpenCornerDotColorItems}
-          onSolidColorChange={(value) => {
-            ensureCornerDotColorItemExpanded("solid")
-            setSelectedCornerDotColorMode("solid")
-            setSelectedCornerDotColor(value)
-          }}
-        />
-      )
-    }
-
-    if (toolId === "background" && tabId === "colors") {
-      return (
-        <DraftingBackgroundColorTab
-          gradient={selectedBackgroundGradient}
-          mode={selectedBackgroundColorMode}
-          openItemIds={openBackgroundColorItems}
-          solidColor={selectedBackgroundColor}
-          onGradientChange={(value) => {
-            ensureBackgroundColorItemExpanded("gradient")
-            setSelectedBackgroundColorMode("gradient")
-            setSelectedBackgroundGradient({ ...value, enabled: true })
-            setSelectedBackgroundTransparent(false)
-          }}
-          onModeChange={(value) => {
-            ensureBackgroundColorItemExpanded(value)
-            setSelectedBackgroundColorMode(value)
-            setSelectedBackgroundTransparent(false)
-          }}
-          onOpenItemIdsChange={setOpenBackgroundColorItems}
-          onSolidColorChange={(value) => {
-            ensureBackgroundColorItemExpanded("solid")
-            setSelectedBackgroundColorMode("solid")
-            setSelectedBackgroundColor(value)
-            setSelectedBackgroundTransparent(false)
-          }}
-        />
-      )
-    }
-
-    if (toolId === "background" && tabId === "upload") {
-      return (
-        <DraftingBackgroundUploadTab
-          mode={selectedBackgroundAssetSourceMode}
-          openItemIds={openBackgroundUploadItems}
-          remoteUrl={selectedBackgroundRemoteUrl}
-          onModeChange={(value) => {
-            ensureBackgroundUploadItemExpanded(value)
-            setSelectedBackgroundAssetSourceMode(value)
-            setSelectedBackgroundShapeId("none")
-          }}
-          onOpenItemIdsChange={setOpenBackgroundUploadItems}
-          onRemoteUrlChange={(value) => {
-            ensureBackgroundUploadItemExpanded("url")
-            setSelectedBackgroundAssetSourceMode("url")
-            setSelectedBackgroundRemoteUrl(value)
-            setSelectedBackgroundShapeId("none")
-          }}
-          onUploadError={IGNORE_DRAFTING_UPLOAD_ERROR}
-          onUploadSuccess={() => {
-            ensureBackgroundUploadItemExpanded("upload")
-            setSelectedBackgroundAssetSourceMode("upload")
-            setSelectedBackgroundShapeId("none")
-          }}
-        />
-      )
-    }
-
-    if (toolId === "background" && tabId === "shape") {
-      return renderWithSliderVariant(
-        <DraftingBackgroundShapeTab
-          gradient={{
-            ...structuredClone(selectedBackgroundGradient),
-            enabled: selectedBackgroundColorMode === "gradient",
-          }}
-          solidColor={selectedBackgroundColor}
-          value={selectedBackgroundShapeId}
-          options={selectedBackgroundShapeOptions}
-          onOptionsChange={setSelectedBackgroundShapeOptions}
-          onValueChange={(value) => {
-            setSelectedBackgroundShapeId(value)
-            setSelectedBackgroundAssetSourceMode("upload")
-            setSelectedBackgroundRemoteUrl("")
-          }}
-        />,
-      )
-    }
-
-    if (toolId === "logo" && tabId === "colors") {
-      return (
-        <DraftingLogoColorTab
-          gradient={selectedLogoGradient}
-          mode={selectedLogoColorMode}
-          openItemIds={openLogoColorItems}
-          solidColor={selectedLogoColor}
-          onGradientChange={handleDraftingLogoGradientChange}
-          onModeChange={(value) => {
-            ensureLogoColorItemExpanded(value)
-            setSelectedLogoColorMode(value)
-          }}
-          onOpenItemIdsChange={setOpenLogoColorItems}
-          onSolidColorChange={handleDraftingLogoColorChange}
-        />
-      )
-    }
-
-    if (toolId === "logo" && tabId === "brand-icons") {
-      return (
-        <DraftingBrandIconTab
-          brandIcons={filteredBrandIcons}
-          brandIconQuery={brandIconQuery}
-          selectedBrandIconId={selectedLogoPresetId}
-          selectedCategory={brandIconCategory}
-          onBrandIconCategoryChange={setBrandIconCategory}
-          onBrandIconQueryChange={setBrandIconQuery}
-          onSelect={handleDraftingBrandIconSelection}
-        />
-      )
-    }
-
-    if (toolId === "logo" && tabId === "upload") {
-      return (
-        <DraftingLogoUploadTab
-          mode={selectedLogoAssetSourceMode}
-          openItemIds={openLogoUploadItems}
-          remoteUrl={selectedLogoRemoteUrl}
-          onModeChange={(value) => {
-            ensureLogoUploadItemExpanded(value)
-
-            if (value === "upload") {
-              clearDraftingLogoPreset("upload")
-              return
-            }
-
-            const nextState = applyAssetUrlValue(
-              buildDraftingLogoStateSnapshot({
-                logoRemoteUrl: selectedLogoRemoteUrl,
-                logoSourceMode: "url",
-              }),
-              "logo",
-              selectedLogoRemoteUrl,
-            )
-
-            syncDraftingLogoAsset(nextState)
-          }}
-          onOpenItemIdsChange={setOpenLogoUploadItems}
-          onRemoteUrlChange={(value) => {
-            ensureLogoUploadItemExpanded("url")
-            const nextState = applyAssetUrlValue(
-              buildDraftingLogoStateSnapshot({
-                logoRemoteUrl: value,
-                logoSourceMode: "url",
-              }),
-              "logo",
-              value,
-            )
-
-            syncDraftingLogoAsset(nextState)
-          }}
-          onUploadError={IGNORE_DRAFTING_UPLOAD_ERROR}
-          onUploadSuccess={() => {
-            ensureLogoUploadItemExpanded("upload")
-            clearDraftingLogoPreset("upload")
-          }}
-        />
-      )
-    }
-
-    if (toolId === "logo" && tabId === "size") {
-      return renderWithSliderVariant(
-        <DraftingLogoSizeTab
-          hideBackgroundDots={selectedHideBackgroundDots}
-          logoMargin={selectedLogoMargin}
-          logoSize={selectedLogoSize}
-          onHideBackgroundDotsChange={setSelectedHideBackgroundDots}
-          onLogoMarginChange={setSelectedLogoMargin}
-          onLogoSizeChange={setSelectedLogoSize}
-        />,
-      )
-    }
-
-    if (toolId === "encoding" && tabId === "encoding") {
-      return renderWithSliderVariant(
-        <DraftingEncodingTab
-          errorCorrectionLevel={selectedQrErrorCorrectionLevel}
-          typeNumber={selectedQrTypeNumber}
-          onQrErrorCorrectionLevelChange={setSelectedQrErrorCorrectionLevel}
-          onQrTypeNumberChange={setSelectedQrTypeNumber}
-        />,
-      )
-    }
-
-    if (toolId === "export" && tabId === "export") {
-      return (
-        <section data-slot="drafting-export-tab" className="min-w-0 space-y-4">
-          <div>
-            <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
-              Export
-            </p>
-            <p className="ws-type-body mt-1 text-[var(--ws-ink-muted)]">
-              Choose the QR target, file type, and raster quality.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-2.5">
-            <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
-              Target
-            </p>
-            <div
-              data-slot="drafting-export-target-list"
-              role="radiogroup"
-              aria-label="Export target"
-              className="grid grid-cols-1 gap-1"
-            >
-              {draftingDownloadTargetOptions.map((target) => {
-                const isSelected = target.id === selectedDownloadTarget
-
-                return (
-                  <OptionCard
-                    appearance="drafting"
-                    darkShadowTone="ink"
-                    key={target.id}
-                    checked={isSelected}
-                    className="w-full gap-0 [&_[data-slot=option-card]]:h-9 [&_[data-slot=option-card]]:w-full [&_[data-slot=option-card]]:rounded-[7px] [&_[data-slot=option-card-label]]:sr-only"
-                    label={`Export ${target.label}`}
-                    motifClassName="size-full px-2 py-1"
-                    name="drafting-export-target"
-                    onSelect={() => setSelectedDownloadTarget(target.id)}
-                    value={target.id}
-                  >
-                    <span
-                      className={cn(
-                        "ws-type-meta flex min-w-0 items-center justify-center text-center font-semibold",
-                        isSelected ? "text-[var(--ws-ink)]" : "text-[var(--ws-ink-muted)]",
-                      )}
-                    >
-                      {target.label}
-                    </span>
-                  </OptionCard>
-                )
-              })}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2.5">
-            <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
-              Format
-            </p>
-            <div
-              data-slot="drafting-export-format-grid"
-              role="radiogroup"
-              aria-label="Export format"
-              className="grid grid-cols-4 gap-1"
-            >
-              {DRAFTING_DOWNLOAD_EXTENSIONS.map((extension) => {
-                const isSelected = extension === selectedDownloadExtension
-
-                return (
-                  <OptionCard
-                    appearance="drafting"
-                    darkShadowTone="ink"
-                    key={extension}
-                    checked={isSelected}
-                    className="w-full gap-0 [&_[data-slot=option-card]]:h-9 [&_[data-slot=option-card]]:w-full [&_[data-slot=option-card]]:rounded-[7px] [&_[data-slot=option-card-label]]:sr-only"
-                    label={`Export ${extension.toUpperCase()}`}
-                    motifClassName="size-full px-1.5 py-1"
-                    name="drafting-export-format"
-                    onSelect={() => setSelectedDownloadExtension(extension)}
-                    value={extension}
-                  >
-                    <span
-                      className={cn(
-                        "ws-type-meta font-semibold",
-                        isSelected ? "text-[var(--ws-ink)]" : "text-[var(--ws-ink-muted)]",
-                      )}
-                    >
-                      {extension.toUpperCase()}
-                    </span>
-                  </OptionCard>
-                )
-              })}
-            </div>
-          </div>
-
-          {isDraftingRasterExport ? (
-            <div className="flex flex-col gap-2.5">
-              <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
-                Quality
-              </p>
-              <div
-                data-slot="drafting-export-quality-grid"
-                role="radiogroup"
-                aria-label="Export quality"
-                className="grid grid-cols-1 gap-1"
-              >
-                {DRAFTING_RASTER_EXPORT_PRESETS.map((preset) => {
-                  const isSelected = preset.id === selectedRasterExportPresetId
-                  const selectedPresetExportSizeLabel =
-                    isSelected && effectiveDraftingExportSizePreview.status === "pending"
-                      ? "Calculating size"
-                      : isSelected && effectiveDraftingExportSizePreview.status === "ready"
-                        ? formatDashboardExportFileSize(effectiveDraftingExportSizePreview.blobSizeBytes)
-                        : isSelected && effectiveDraftingExportSizePreview.status === "error"
-                          ? "Size unavailable"
-                          : null
-
-                  return (
-                    <OptionCard
-                      appearance="drafting"
-                      darkShadowTone="ink"
-                      key={preset.id}
-                      checked={isSelected}
-                      className="w-full items-stretch gap-0 text-left [&_[data-slot=option-card]]:min-h-[56px] [&_[data-slot=option-card]]:w-full [&_[data-slot=option-card]]:justify-start [&_[data-slot=option-card]]:rounded-[7px] [&_[data-slot=option-card-label]]:sr-only"
-                      label={`Use ${preset.label} export quality`}
-                      motifClassName="size-full px-2 py-1.5"
-                      name="drafting-export-quality"
-                      onSelect={() => setSelectedRasterExportPresetId(preset.id)}
-                      value={preset.id}
-                    >
-                      <span className="flex min-w-0 flex-col gap-0.5 text-left">
-                        <span className="ws-type-meta font-semibold text-[var(--ws-ink)]">
-                          {preset.label}
-                        </span>
-                        <span className="ws-type-data font-semibold text-[var(--ws-ink-muted)]">
-                          {preset.sizePx} x {preset.sizePx} px
-                          {selectedPresetExportSizeLabel ? ` · ${selectedPresetExportSizeLabel}` : ""}
-                        </span>
-                      </span>
-                    </OptionCard>
-                  )
-                })}
-              </div>
-            </div>
-          ) : null}
-
-          <SecondaryButton
-            className="h-9 w-full"
-            data-slot="drafting-export-submit"
-            disabled={!canDownload}
-            type="button"
-            onClick={() => {
-              void handleDownload()
-            }}
-          >
-            <DownloadIcon data-icon="inline-start" />
-            Download {selectedDownloadExtension.toUpperCase()}
-          </SecondaryButton>
-        </section>
-      )
-    }
-
-    if (toolId === "layers" && tabId === "layers") {
-      return (
-        <LayerList
-          onLayerAction={(layerIds, action) => handleLayerAction(activeQrNodeId, layerIds, action)}
-          onLayerPatch={(layerId, patch) => handleLayerChange(activeQrNodeId, layerId, patch)}
-          onReorder={handleLayerReorder}
-          onSelectedNodeChange={(nodeId) => {
-            if (nodeId) {
-              handleLayerSelect(activeQrNodeId, nodeId)
-            }
-          }}
-          panes={activeCanvasLayerRows.filter((layer) => layer.kind !== "card")}
-          selectedNodeId={selectedLayerId}
-        />
-      )
-    }
-
-    return null
-  }
-
-  const renderStackedInspectorContent = (toolId: DraftingToolId) => {
-    if (isFreeEditing && selectedElementLayer) {
-      return (
-        <DraftingSliderVariantProvider value={sliderVariant}>
-          <ElementInspector
-            layer={selectedElementLayer}
-            sliderVariant={sliderVariant}
-            onPatch={(patch) => handleLayerChange(activeQrNodeId, selectedElementLayer.id, patch)}
-          />
-        </DraftingSliderVariantProvider>
-      )
-    }
-
-    if (toolId === "content") {
-      return (
-        <InspectorPanel
-          dataSlot="drafting-stacked-inspector"
-          description="Choose the QR payload and edit the fields that feed the code."
-          eyebrow="QR"
-          title="Content"
-        >
-          <DraftingQrTypeDropdown
-            activeContentType={selectedContentType}
-            onContentTypeChange={handleDraftingContentTypeChange}
-          />
-          {renderPanelContent("content", "content")}
-        </InspectorPanel>
-      )
-    }
-
-    if (toolId === "style") {
-      return (
-        <InspectorPanel
-          dataSlot="drafting-stacked-inspector"
-          description="Control QR module shape, color, and spacing."
-          eyebrow="QR"
-          title="Pattern"
-        >
-          <DraftingInspectorSection title="Modules">
-            {renderPanelContent("style", "style")}
-          </DraftingInspectorSection>
-          <DraftingInspectorSection title="Color">
-            {renderPanelContent("style", "color")}
-          </DraftingInspectorSection>
-          <DraftingInspectorSection title="Size">
-            {renderPanelContent("style", "size")}
-          </DraftingInspectorSection>
-        </InspectorPanel>
-      )
-    }
-
-    if (toolId === "corners") {
-      return (
-        <InspectorPanel
-          dataSlot="drafting-stacked-inspector"
-          description="Tune finder shapes independently from the body modules."
-          eyebrow="QR"
-          title="Corners"
-        >
-          <DraftingInspectorSection dataSlot="drafting-corner-frame-section" title="Corner frame">
-            {renderPanelContent("corner-square", "style")}
-            {renderPanelContent("corner-square", "color")}
-          </DraftingInspectorSection>
-          <DraftingInspectorSection dataSlot="drafting-corner-dot-section" title="Corner dot">
-            {renderPanelContent("corner-dot", "style")}
-            {renderPanelContent("corner-dot", "color")}
-          </DraftingInspectorSection>
-        </InspectorPanel>
-      )
-    }
-
-    if (toolId === "shape") {
-      return (
-        <InspectorPanel
-          dataSlot="drafting-stacked-inspector"
-          description="Build the container and background behind the QR."
-          eyebrow="QR"
-          title="Frame"
-        >
-          <DraftingInspectorSection title="Frame">
-            {renderPanelContent("card-frame", "frame")}
-          </DraftingInspectorSection>
-          <DraftingInspectorSection title="Background">
-            {renderPanelContent("background", "colors")}
-            {renderPanelContent("background", "shape")}
-            {renderPanelContent("background", "upload")}
-          </DraftingInspectorSection>
-        </InspectorPanel>
-      )
-    }
-
-    if (toolId === "card-pattern") {
-      return (
-        <InspectorPanel
-          dataSlot="drafting-stacked-inspector"
-          description="Choose generated CSS patterns and customize their colors."
-          eyebrow="Add"
-          title="Pattern"
-        >
-          <DraftingInspectorSection title="Fill">
-            {renderPanelContent("card-surface", "surface")}
-          </DraftingInspectorSection>
-        </InspectorPanel>
-      )
-    }
-
-    if (toolId === "logo") {
-      return (
-        <InspectorPanel
-          dataSlot="drafting-stacked-inspector"
-          description="Place a brand mark in the QR without changing scan geometry."
-          eyebrow="QR"
-          title="Logo"
-        >
-          <DraftingInspectorSection title="Source">
-            {renderPanelContent("logo", "brand-icons")}
-            {renderPanelContent("logo", "upload")}
-          </DraftingInspectorSection>
-          <DraftingInspectorSection title="Color and size">
-            {renderPanelContent("logo", "colors")}
-            {renderPanelContent("logo", "size")}
-          </DraftingInspectorSection>
-        </InspectorPanel>
-      )
-    }
-
-    if (toolId === "motion") {
-      return (
-        <InspectorPanel
-          dataSlot="drafting-stacked-inspector"
-          description="Preview animation settings for live QR surfaces."
-          eyebrow="QR"
-          title="Motion"
-        >
-          <DraftingInspectorSection title="Animation">
-            {renderPanelContent("style", "motion")}
-          </DraftingInspectorSection>
-          <DraftingInspectorSection title="Loader playground">
-            {renderPanelContent("loader-playground", "playground")}
-          </DraftingInspectorSection>
-        </InspectorPanel>
-      )
-    }
-
-    if (toolId === "card-frame" || toolId === "card-surface" || toolId === "card-image" || toolId === "card-shaders") {
-      return (
-        <InspectorPanel
-          dataSlot="drafting-stacked-inspector"
-          description="Switch between shape object inspector groups."
-          eyebrow="Object"
-          title="Shape inspector"
-        >
-          <DraftingCardObjectInspectorNav activeTool={toolId} onToolChange={setActiveTool} />
-          {toolId === "card-frame" ? renderPanelContent("card-frame", "frame") : null}
-          {toolId === "card-surface" ? renderPanelContent("card-surface", "surface") : null}
-          {toolId === "card-image" ? renderPanelContent("card-image", "upload") : null}
-          {toolId === "card-shaders" ? renderPanelContent("card-shaders", "all") : null}
-        </InspectorPanel>
-      )
-    }
-
-    const defaultPanelByTool: Partial<Record<DraftingToolId, string>> = {
-      encoding: "encoding",
-      layers: "layers",
-      export: "export",
-    }
-    const tabId = defaultPanelByTool[toolId]
-
-    if (!tabId) {
-      return null
-    }
-
-    const defaultTitleByTool: Partial<Record<DraftingToolId, string>> = {
-      encoding: "Encoding",
-      export: "Export",
-      layers: "Layers",
-    }
-
-    return (
-      <InspectorPanel
-        dataSlot="drafting-stacked-inspector"
-        eyebrow="Manage"
-        title={defaultTitleByTool[toolId] ?? activeToolConfig.title}
-      >
-        {renderPanelContent(toolId, tabId)}
-      </InspectorPanel>
-    )
-  }
 
   const panes = useMemo(
     () =>
@@ -4017,7 +2715,7 @@ export function WorkspaceSurface({
     ],
   )
 
-  const desktopActiveTool = chrome === "canvas-only" ? desktopRailTool : getDesktopToolbarToolId(activeTool)
+  const desktopActiveTool = desktopRailTool
   const gatedSelectedElementLayer = isFreeEditing ? selectedElementLayer : null
   const gatedSelectedTransformLayer = isFreeEditing ? selectedTransformLayer : null
   const gatedSelectedAppearanceLayer = isFreeEditing ? selectedTransformLayer : null
@@ -4619,6 +3317,7 @@ export function WorkspaceSurface({
           name: row.name,
           opacity: row.opacity / 100,
           shadow: {
+            ...layer.shadow,
             blur: row.shadowBlur,
             color: row.shadowColor,
             offsetX: row.shadowOffsetX,
@@ -4698,11 +3397,7 @@ export function WorkspaceSurface({
       }))
       selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
       setBackgroundInspectorTab("patterns")
-      if (chrome === "canvas-only") {
-        setDesktopRailTool("background")
-      } else {
-        setActiveTool("card-pattern")
-      }
+      setDesktopRailTool("background")
     },
     onCloseComposeSidebar: () => {
       setComposeSidebarPanel(null)
@@ -4746,10 +3441,7 @@ export function WorkspaceSurface({
     onActiveToolChange: (toolId) => {
       setComposeSidebarPanel(null)
       setDesktopCanvasTool(null)
-      if (chrome === "canvas-only") {
-        setDesktopRailTool(toolId)
-      }
-      setActiveTool(getDraftingToolIdFromDesktop(toolId))
+      setDesktopRailTool(toolId)
     },
     onRedo: handleRedoDraftingWorkspace,
     onResetDefaults: resetDraftingWorkspace,
@@ -4880,506 +3572,22 @@ export function WorkspaceSurface({
       data-editing-mode={editingMode}
       tabIndex={-1}
       className={cn(
-        "relative grid h-dvh w-full overflow-visible bg-[var(--ws-surface-bg)] sm:h-[calc(100dvh-4rem)] lg:shadow-[var(--ws-shadow-shell)] [--new-header-height:3.875rem] [--new-left-rail-width:clamp(6.25rem,10vw,7.5rem)] [--new-middle-rail-width:clamp(15rem,24vw,18.5rem)] [--new-mobile-rail-height:5.75rem]",
-        chrome === "canvas-only" ? "grid-rows-1 sm:h-dvh" : "grid-rows-[var(--new-header-height)_minmax(0,1fr)]",
+        "relative grid h-dvh w-full overflow-visible bg-[var(--ws-surface-bg)] sm:h-dvh lg:shadow-[var(--ws-shadow-shell)] [--new-header-height:3.875rem] [--new-left-rail-width:clamp(6.25rem,10vw,7.5rem)] [--new-middle-rail-width:clamp(15rem,24vw,18.5rem)] [--new-mobile-rail-height:5.75rem]",
+        "grid-rows-1 sm:h-dvh",
       )}
       data-compose-edit-mode="false"
       data-compose-selected-node-id={activeQrNodeId ?? ""}
     >
-      {chrome === "full" ? OUTER_MARKERS.map((marker) => (
-        <PlusMarker key={marker} className={marker} />
-      )) : null}
-      {chrome === "full" ? JUNCTION_MARKERS.map((marker) => (
-        <PlusMarker key={marker} className={marker} />
-      )) : null}
-
-      {chrome === "full" ? <div
-        aria-hidden="true"
-        data-slot="drafting-divider-horizontal"
-        className="pointer-events-none absolute left-0 right-0 top-[var(--new-header-height)] z-20 h-0"
-      /> : null}
-      {chrome === "full" ? <div
-        aria-hidden="true"
-        data-slot="drafting-divider-vertical"
-        className="pointer-events-none absolute bottom-0 left-[var(--new-left-rail-width)] top-[var(--new-header-height)] z-20 hidden w-0 lg:block"
-      /> : null}
-      {chrome === "full" ? <div
-        aria-hidden="true"
-        data-slot="drafting-divider-vertical"
-        className="pointer-events-none absolute bottom-0 left-[calc(var(--new-left-rail-width)+var(--new-middle-rail-width))] top-[var(--new-header-height)] z-20 hidden w-0 lg:block"
-      /> : null}
-
-      {chrome === "full" ? <header
-        aria-label="Header frame"
-        data-slot="drafting-header"
-        className="min-h-0 min-w-0 px-3 py-2 sm:px-4"
-      >
-        <div className="flex h-full min-w-0 items-center justify-end">
-          <div data-slot="drafting-header-actions" className="flex h-full min-w-0 max-w-full items-center gap-1.5 sm:gap-2.5">
-            <Popover>
-              <PopoverTrigger asChild>
-                <SecondaryButton
-                  aria-label="Open keyboard shortcuts"
-                  data-slot="drafting-shortcuts-trigger"
-                  className="h-8 shrink-0 px-2 sm:px-3"
-                >
-                  <HugeiconsIcon
-                    icon={KeyboardIcon}
-                    size={16}
-                    color="currentColor"
-                    strokeWidth={1.8}
-                  />
-                  <span className="hidden sm:inline">Shortcuts</span>
-                </SecondaryButton>
-              </PopoverTrigger>
-              <PopoverContent
-                align="end"
-                data-slot="drafting-shortcuts-popover"
-                sideOffset={10}
-                className={cn(
-                  fontClassName,
-                  "z-[20000] w-[min(24rem,calc(100vw-1rem))] rounded-[12px] border border-[var(--ws-dropdown-border)] p-0 text-[var(--ws-dropdown-text)] shadow-[var(--ws-dropdown-menu-shadow-open)]",
-                )}
-                style={{
-                  backgroundColor:
-                    "var(--ws-dropdown-menu-surface-open, var(--popover))",
-                }}
-              >
-                <div className="border-b border-[var(--ws-dropdown-border)] px-4 py-3">
-                  <div className="text-[0.72rem] font-semibold text-[var(--ws-ink-muted)]">
-                    Keyboard
-                  </div>
-                  <h2 className="mt-1 text-sm font-semibold text-[var(--ws-ink)]">
-                    Shortcuts
-                  </h2>
-                </div>
-                <div className="grid gap-3 p-3">
-                  {DRAFTING_KEYBOARD_SHORTCUT_GROUPS.map((group) => (
-                    <section key={group.title} aria-label={`${group.title} shortcuts`}>
-                      <h3 className="px-1 pb-1 text-[0.68rem] font-semibold text-[var(--ws-ink-muted)]">
-                        {group.title}
-                      </h3>
-                      <div className="grid gap-1">
-                        {group.shortcuts.map(([keys, description]) => (
-                          <div
-                            key={keys}
-                            className="grid grid-cols-[minmax(7.5rem,auto)_1fr] items-center gap-3 rounded-[7px] px-2 py-1.5 text-xs"
-                          >
-                            <kbd className="justify-self-start rounded-[5px] border border-[var(--ws-dropdown-border)] bg-[var(--ws-control-bg)] px-2 py-1 font-mono text-[0.68rem] font-semibold text-[var(--ws-ink)]">
-                              {keys}
-                            </kbd>
-                            <span className="text-[var(--ws-ink-muted)]">
-                              {description}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
-            <ModeToggle appearance="drafting" className="shrink-0 text-[var(--ws-ink)]" />
-            <Popover open={isDownloadPopoverOpen} onOpenChange={setIsDownloadPopoverOpen}>
-              <PopoverTrigger asChild>
-                <SecondaryButton
-                  aria-label="Open download options"
-                  data-slot="drafting-download-trigger"
-                  disabled={!canDownload}
-                  className="h-8 shrink-0 px-2 sm:px-3.5"
-                >
-                  <DownloadIcon data-icon="inline-start" />
-                  <span className="hidden sm:inline">Download</span>
-                </SecondaryButton>
-              </PopoverTrigger>
-              <PopoverContent
-                align="end"
-                data-slot="drafting-download-popover"
-                sideOffset={10}
-                className={cn(
-                  fontClassName,
-                  "flex max-h-[calc(100dvh-5rem)] w-[min(27rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[12px] border p-0",
-                )}
-              >
-                <div className="flex min-h-0 flex-1 flex-col">
-                  <div
-                    data-slot="drafting-download-dialog-body"
-                    className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-2.5"
-                  >
-                    <div
-                      data-slot="drafting-download-target-section"
-                      className="flex flex-col gap-2.5"
-                    >
-                      <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
-                        Target
-                      </p>
-                      <div
-                        data-slot="drafting-download-target-list"
-                        role="radiogroup"
-                        aria-label="Download target"
-                        className="grid grid-cols-2 gap-1 sm:grid-cols-3"
-                      >
-                        {draftingDownloadTargetOptions.map((target) => {
-                          const isSelected = target.id === selectedDownloadTarget
-
-                          return (
-                            <OptionCard
-                              appearance="drafting"
-                              darkShadowTone="ink"
-                              key={target.id}
-                              checked={isSelected}
-                              className={cn(
-                                "w-full gap-0",
-                                "[&_[data-slot=option-card]]:h-full [&_[data-slot=option-card]]:min-h-[36px] [&_[data-slot=option-card]]:w-full [&_[data-slot=option-card]]:rounded-[7px]",
-                                "[&_[data-slot=option-card-motif]]:size-full",
-                                "[&_[data-slot=option-card-label]]:sr-only",
-                              )}
-                              label={`Download ${target.label}`}
-                              motifClassName="size-full px-1.5 py-1"
-                              name="drafting-download-target"
-                              onSelect={() => setSelectedDownloadTarget(target.id)}
-                              value={target.id}
-                            >
-                              <span
-                                className={cn(
-                                  "ws-type-meta flex min-w-0 items-center justify-center text-center font-semibold",
-                                  isSelected
-                                    ? "text-[var(--ws-ink)]"
-                                    : "text-[var(--ws-ink-muted)]",
-                                )}
-                              >
-                                {target.label}
-                              </span>
-                            </OptionCard>
-                          )
-                        })}
-                      </div>
-                    </div>
-
-                    <div
-                      data-slot="drafting-download-format-section"
-                      className="flex flex-col gap-2.5"
-                    >
-                      <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
-                        Format
-                      </p>
-                      <div
-                        data-slot="drafting-download-format-grid"
-                        role="radiogroup"
-                        aria-label="Download format"
-                        className="grid grid-cols-4 gap-1"
-                      >
-                        {DRAFTING_DOWNLOAD_EXTENSIONS.map((extension) => {
-                          const isSelected = extension === selectedDownloadExtension
-
-                          return (
-                            <OptionCard
-                              appearance="drafting"
-                              darkShadowTone="ink"
-                              key={extension}
-                              checked={isSelected}
-                              className={cn(
-                                "w-full gap-0",
-                                "[&_[data-slot=option-card]]:h-full [&_[data-slot=option-card]]:min-h-[36px] [&_[data-slot=option-card]]:w-full [&_[data-slot=option-card]]:rounded-[7px]",
-                                "[&_[data-slot=option-card-motif]]:size-full",
-                                "[&_[data-slot=option-card-label]]:sr-only",
-                              )}
-                              label={`Export ${extension.toUpperCase()}`}
-                              motifClassName="size-full px-1.5 py-1"
-                              name="drafting-download-format"
-                              onSelect={() => setSelectedDownloadExtension(extension)}
-                              value={extension}
-                            >
-                              <span className="flex size-full items-center justify-center text-center">
-                                <span
-                                  className={cn(
-                                    "ws-type-meta font-semibold",
-                                    isSelected
-                                      ? "text-[var(--ws-ink)]"
-                                      : "text-[var(--ws-ink-muted)]",
-                                  )}
-                                >
-                                  {extension.toUpperCase()}
-                                </span>
-                              </span>
-                            </OptionCard>
-                          )
-                        })}
-                      </div>
-                    </div>
-
-                    {isDraftingRasterExport ? (
-                      <div
-                        data-slot="drafting-raster-preset-section"
-                        className="flex flex-col gap-2.5"
-                      >
-                        <p className="ws-type-section-title font-bold text-[var(--ws-ink)]">
-                          Quality preset
-                        </p>
-
-                        <div
-                          data-slot="drafting-raster-preset-grid"
-                          role="radiogroup"
-                          aria-label="Raster quality preset"
-                          className="grid grid-cols-1 gap-1 sm:grid-cols-2"
-                        >
-                          {DRAFTING_RASTER_EXPORT_PRESETS.map((preset) => {
-                            const isSelected = preset.id === selectedRasterExportPresetId
-                            const selectedPresetExportSizeLabel =
-                              isSelected &&
-                              effectiveDraftingExportSizePreview.status === "pending"
-                                ? "Calculating size"
-                                : isSelected &&
-                                    effectiveDraftingExportSizePreview.status === "ready"
-                                  ? formatDashboardExportFileSize(
-                                      effectiveDraftingExportSizePreview.blobSizeBytes,
-                                    )
-                                  : isSelected &&
-                                      effectiveDraftingExportSizePreview.status === "error"
-                                    ? "Size unavailable"
-                                    : null
-
-                            return (
-                              <OptionCard
-                                appearance="drafting"
-                                darkShadowTone="ink"
-                                key={preset.id}
-                                checked={isSelected}
-                                className={cn(
-                                  "w-full items-stretch gap-0 text-left",
-                                  "[&_[data-slot=option-card]]:h-full [&_[data-slot=option-card]]:min-h-[58px] [&_[data-slot=option-card]]:w-full [&_[data-slot=option-card]]:justify-start [&_[data-slot=option-card]]:rounded-[7px]",
-                                  "[&_[data-slot=option-card-motif]]:size-full [&_[data-slot=option-card-motif]]:justify-start",
-                                  "[&_[data-slot=option-card-label]]:sr-only",
-                                )}
-                                label={`Use ${preset.label} export preset`}
-                                motifClassName="size-full px-2 py-1.5"
-                                name="drafting-raster-quality-preset"
-                                onSelect={() => setSelectedRasterExportPresetId(preset.id)}
-                                value={preset.id}
-                              >
-                                <span className="flex min-w-0 flex-col gap-0.5 text-left">
-                                  <span
-                                    className={cn(
-                                      "ws-type-meta font-semibold",
-                                      isSelected
-                                        ? "text-[var(--ws-ink)]"
-                                        : "text-[var(--ws-ink-strong-muted)]",
-                                    )}
-                                  >
-                                    {preset.label}
-                                  </span>
-                                  <span className="flex min-w-0 flex-wrap items-center gap-x-1 gap-y-0.5">
-                                    <span
-                                      data-slot="drafting-raster-quality-value"
-                                      className={cn(
-                                        "ws-type-data font-semibold",
-                                        isSelected
-                                          ? "text-[var(--ws-ink)]"
-                                          : "text-[var(--ws-ink-muted)]",
-                                      )}
-                                    >
-                                      {preset.sizePx} x {preset.sizePx} px
-                                    </span>
-                                    {selectedPresetExportSizeLabel ? (
-                                      <>
-                                        <span
-                                          aria-hidden="true"
-                                          className="ws-type-caption text-[var(--ws-ink-subtle)]"
-                                        >
-                                          ⋅
-                                        </span>
-                                        <span
-                                          data-slot="drafting-raster-calculated-size"
-                                          className="ws-type-data font-semibold text-[var(--ws-ink)]"
-                                        >
-                                          {selectedPresetExportSizeLabel}
-                                        </span>
-                                      </>
-                                    ) : null}
-                                  </span>
-                                  <span className="ws-type-caption text-[var(--ws-ink-muted)]">
-                                    {preset.primaryUse}
-                                  </span>
-                                </span>
-                              </OptionCard>
-                            )
-                          })}
-                        </div>
-
-                      </div>
-                    ) : null}
-                  </div>
-
-                  <div className="shrink-0 border-t border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] p-3">
-                    <SecondaryButton
-                      data-slot="drafting-download-submit"
-                      disabled={!canDownload}
-                      type="button"
-                      className="h-9 w-full"
-                      onClick={() => {
-                        void handleDownload()
-                      }}
-                    >
-                      <DownloadIcon data-icon="inline-start" />
-                      Download {selectedDownloadExtension.toUpperCase()}
-                    </SecondaryButton>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-        </div>
-      </header> : null}
 
       <div
         data-slot="drafting-content-grid"
-        className={cn(
-          "min-h-0 min-w-0",
-          chrome === "canvas-only"
-            ? "block h-full"
-            : "grid grid-rows-[minmax(0,1fr)_var(--new-mobile-rail-height)] lg:grid-cols-[var(--new-left-rail-width)_var(--new-middle-rail-width)_minmax(0,1fr)] lg:grid-rows-1",
-        )}
+        className="min-h-0 min-w-0 block h-full"
       >
-        {chrome === "full" ? <nav
-          aria-label="Primary navigation frame"
-          data-slot="drafting-nav"
-          className="relative isolate order-2 min-h-0 min-w-0 overflow-hidden border-t border-transparent bg-[var(--ws-panel-bg)] lg:order-none lg:border-t-0 lg:bg-transparent"
-        >
-          <ScrollArea
-            chevron
-            cueSize="comfortable"
-            data-slot="drafting-nav-scroll-area"
-            orientation="both"
-            scrollFade
-            className="h-[var(--new-mobile-rail-height)] min-h-0 w-full min-w-0 lg:h-full"
-          >
-            <div
-              data-slot="drafting-nav-scroll"
-              className="min-h-0 min-w-0"
-            >
-              <div
-                data-slot="drafting-nav-scroll-content"
-                className="flex h-full min-w-max flex-row items-center gap-2 px-3 py-2 lg:min-h-full lg:min-w-0 lg:flex-col lg:items-center lg:gap-4 lg:px-0 lg:py-4"
-              >
-                {visibleDraftingTools.map((tool, index) => {
-                  const isActive = tool.id === activeRailToolId
-                  const previousGroup = visibleDraftingTools[index - 1]?.group
-                  const shouldRenderGroupLabel = tool.group && tool.group !== previousGroup
-
-                  return (
-                    <div
-                      key={tool.id}
-                      className="flex min-w-20 flex-col items-center gap-1 lg:min-w-0 lg:gap-2"
-                    >
-                      {shouldRenderGroupLabel ? (
-                        <span
-                          data-slot="drafting-tool-group-label"
-                          className="ws-type-caption w-full px-2 text-left font-bold tracking-[0.04em] text-[var(--ws-ink-subtle)] lg:text-center"
-                        >
-                          {tool.group}
-                        </span>
-                      ) : null}
-                      <Button
-                        aria-label={`Open ${tool.title}`}
-                        aria-pressed={isActive}
-                        data-drafting-tool-button="true"
-                        className={cn(
-                          "group flex h-16 w-20 min-w-20 flex-col items-center justify-center gap-2 rounded-none border-0 bg-transparent px-2 py-1.5 text-center text-[var(--ws-ink-muted)] shadow-none transition-[background-color,box-shadow,color,transform] duration-150 ease-out hover:-translate-y-px hover:bg-transparent hover:text-[var(--ws-ink-strong-muted)] hover:shadow-none active:translate-y-0 active:bg-transparent active:shadow-none dark:bg-transparent dark:text-[var(--ws-button-label)] dark:shadow-none dark:hover:bg-transparent dark:hover:text-[var(--ws-button-label-hover)] dark:hover:shadow-none dark:active:bg-transparent dark:active:shadow-none lg:h-auto lg:w-20 lg:min-w-0 lg:justify-center lg:gap-3 lg:px-2 lg:py-2.5",
-                          isActive &&
-                            "text-[var(--ws-ink)] hover:text-[var(--ws-ink)] active:text-[var(--ws-ink)] dark:text-[var(--ws-button-label-selected)] dark:hover:text-[var(--ws-button-label-selected)] dark:active:text-[var(--ws-button-label-selected)]",
-                        )}
-                        size="default"
-                        type="button"
-                        variant="ghost"
-                        onClick={() => setActiveTool(tool.id)}
-                      >
-                        <span
-                          data-slot="drafting-tool-button-icon"
-                          className={cn(
-                            "flex size-8 shrink-0 items-center justify-center rounded-[5px] bg-[var(--ws-control-bg)] text-current shadow-[var(--ws-shadow-rest)] transition-[background-color,box-shadow,transform,color] duration-150 ease-out group-hover:-translate-y-px group-hover:bg-[var(--ws-control-bg-hover)] group-hover:shadow-[var(--ws-shadow-hover)] group-active:translate-y-0 group-active:bg-[var(--ws-control-bg-active)] group-active:shadow-[var(--ws-shadow-active)] dark:bg-[var(--ws-button-bg)] dark:text-[var(--ws-button-icon)] dark:shadow-[var(--ws-button-shadow-rest)] dark:group-hover:bg-[var(--ws-button-bg-hover)] dark:group-hover:shadow-[var(--ws-button-shadow-hover)] dark:group-active:bg-[var(--ws-button-bg-active)] dark:group-active:shadow-[var(--ws-button-shadow-active)] lg:size-10 lg:rounded-[6px]",
-                            isActive &&
-                              "bg-[var(--ws-ink)] text-[var(--ws-ink-inverse)] shadow-[var(--ws-shadow-rest)] group-hover:bg-[var(--ws-ink)] group-hover:text-[var(--ws-ink-inverse)] group-hover:shadow-[var(--ws-shadow-hover)] group-active:translate-y-0 group-active:bg-[var(--ws-ink)] group-active:text-[var(--ws-ink-inverse)] group-active:shadow-[var(--ws-shadow-active)] dark:bg-[var(--ws-button-bg-selected)] dark:text-[var(--ws-button-icon-selected)] dark:shadow-[var(--ws-button-shadow-selected)] dark:group-hover:bg-[var(--ws-button-bg-selected)] dark:group-hover:text-[var(--ws-button-icon-selected)] dark:group-hover:shadow-[var(--ws-button-shadow-selected-hover)] dark:group-active:bg-[var(--ws-button-bg-selected)] dark:group-active:text-[var(--ws-button-icon-selected)] dark:group-active:shadow-[var(--ws-shadow-active)]",
-                          )}
-                        >
-                          {tool.renderIcon()}
-                        </span>
-                        <span
-                          data-slot="drafting-tool-button-label"
-                          className={cn(
-                            "ws-type-nav-label font-medium text-[var(--ws-ink-muted)] transition-colors duration-150 group-hover:text-[var(--ws-ink-strong-muted)] dark:text-[var(--ws-button-label)] dark:group-hover:text-[var(--ws-button-label-hover)]",
-                            isActive && "font-semibold text-current dark:text-[var(--ws-button-label-selected)]",
-                          )}
-                        >
-                          {tool.title}
-                        </span>
-                      </Button>
-                    </div>
-                  )
-                })}
-                <div className="flex min-w-20 flex-col items-center gap-1 px-2 lg:min-w-0 lg:gap-2">
-                  <span
-                    data-slot="drafting-tool-group-label"
-                    className="ws-type-caption w-full px-2 text-left font-bold tracking-[0.04em] text-[var(--ws-ink-subtle)] lg:text-center"
-                  >
-                    Insert
-                  </span>
-                  {isFreeEditing ? (
-                    <InsertMenu
-                      nodeId={activeQrNodeId}
-                      onBrowseStockPhotos={handleBrowseStockPhotos}
-                      onOpenCardPatternSettings={() => {
-                        setSelectedCardState((current) => ({
-                          ...current,
-                          enabled: true,
-                          styleMode: "pattern",
-                        }))
-                        selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
-                        setBackgroundInspectorTab("patterns")
-                        if (chrome === "canvas-only") {
-                          setDesktopRailTool("background")
-                        } else {
-                          setActiveTool("card-pattern")
-                        }
-                      }}
-                      onInsertLayer={handleInsertLayer}
-                    />
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          </ScrollArea>
-        </nav> : null}
-        {chrome === "full" ? <aside
-          aria-label="Middle scroll frame"
-          data-slot="drafting-scroll-area"
-          className="hidden min-h-0 min-w-0 overflow-hidden bg-[var(--ws-panel-bg)] lg:order-none lg:block lg:bg-transparent"
-        >
-          <ScrollArea
-            chevron
-            cueSize="comfortable"
-            data-slot="drafting-tab-panel-scroll-area"
-            scrollFade
-            className="h-full min-h-0 min-w-0"
-            viewportClassName="px-3 py-4 sm:px-4"
-          >
-            <div
-              aria-label={`${activeToolConfig.title} inspector panel`}
-              data-active-tool={activeTool}
-              data-slot="drafting-tab-panel-scroll"
-              className="min-w-0 max-w-full overflow-x-hidden"
-            >
-              {renderStackedInspectorContent(activeTool)}
-            </div>
-          </ScrollArea>
-        </aside> : null}
         <section
           aria-label="Workspace frame"
           data-slot="drafting-workspace"
-          data-desktop-canvas-frame={chrome === "canvas-only" ? "true" : undefined}
-          className={cn(
-            "min-h-0 min-w-0 overflow-hidden",
-            chrome === "canvas-only" ? "h-full" : "order-1 lg:order-none",
-          )}
+          data-desktop-canvas-frame="true"
+          className={cn("min-h-0 min-w-0 overflow-hidden", "h-full")}
         >
           <div
             data-slot="drafting-workspace-inset"
@@ -5387,7 +3595,7 @@ export function WorkspaceSurface({
           >
             <div
               data-slot="desktop-canvas-viewport"
-              className={cn("h-full min-h-0", chrome === "canvas-only" && "min-w-0")}
+              className="h-full min-h-0 min-w-0"
             >
             {isDraftingWorkspaceReady ? (
             <Canvas
@@ -5405,11 +3613,7 @@ export function WorkspaceSurface({
                 }))
                 selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
                 setBackgroundInspectorTab("patterns")
-                if (chrome === "canvas-only") {
-                  setDesktopRailTool("background")
-                } else {
-                  setActiveTool("card-pattern")
-                }
+                setDesktopRailTool("background")
               }}
               onAddQrCode={() => {
                 void handleAddQrCode()
@@ -5449,8 +3653,8 @@ export function WorkspaceSurface({
               }}
               onUndo={handleUndoDraftingWorkspace}
               panes={panes}
-              previewLocked={chrome === "canvas-only" || !isFreeEditing}
-              fitCanvasToViewport={chrome === "canvas-only"}
+              previewLocked={!isFreeEditing}
+              fitCanvasToViewport
               showCanvasGrid={paneToolbarVariant === "desktop-zoom" ? showDesktopCanvasGrid : true}
               toolbarVariant={paneToolbarVariant}
               selectedLayerId={selectedLayerId}
@@ -5475,19 +3679,6 @@ export function WorkspaceSurface({
   )
 }
 
-function getDesktopToolbarToolId(toolId: DraftingToolId): DesktopToolbarToolId | null {
-  if (toolId === "style") return "pattern"
-  if (toolId === "card-frame" || toolId === "card-image") return "shape"
-  if (toolId === "card-surface" || toolId === "card-shaders") return "shape"
-  return DRAFTING_RAIL_TOOLS.some((tool) => tool.id === toolId)
-    ? (toolId as DesktopToolbarToolId)
-    : null
-}
-
-function getDraftingToolIdFromDesktop(toolId: DesktopToolbarToolId): DraftingToolId {
-  if (toolId === "pattern") return "style"
-  return toolId as DraftingToolId
-}
 
 function getDesktopLogoSourceMode(source: AssetSourceMode): DesktopLogoSourceMode {
   if (source === "preset") return "brand"

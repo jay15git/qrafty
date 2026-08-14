@@ -1,13 +1,10 @@
-import type { DraftingElementShapeId } from "@/features/workspace/model/layers"
+import type { DraftingShapePrimitiveId } from "@/features/workspace/model/layers"
 import {
   QR_BACKGROUND_SHAPES,
   type QrBackgroundShapeDefinition,
 } from "@/features/qr-code/styles/background-shapes"
 
-export type DraftingShapePrimitiveId = Extract<
-  DraftingElementShapeId,
-  "arrow" | "ellipse" | "line" | "rect"
->
+export type { DraftingShapePrimitiveId }
 
 export const DRAFTING_SHAPE_PRIMITIVES: Array<{
   id: DraftingShapePrimitiveId

@@ -4,6 +4,7 @@
 // re-exports the Base UI color-picker), so a single import point covers
 // the whole Base UI fill-picker public surface: color + gradient + the
 // fill switcher below.
+export { ColorPicker } from "./color-picker";
 export * from "./gradient";
 
 // Root/Tabs/Tab/Pane are plain markup (role="tablist"/"tab", no Radix

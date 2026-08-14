@@ -51,13 +51,14 @@ const APPEARANCE_POPOVERS: Array<{
   renderControls: (props: {
     appearance: DesktopAppearanceSnapshot
     onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+    theme: DesktopThemeMode
   }) => ReactNode
 }> = [
   {
     id: "outline",
     renderIcon: () => <SquareIcon className="size-3.5" />,
-    renderControls: ({ appearance, onPatch }) => (
-      <AppearanceOutlineControls appearance={appearance} onPatch={onPatch} />
+    renderControls: ({ appearance, onPatch, theme }) => (
+      <AppearanceOutlineControls appearance={appearance} onPatch={onPatch} theme={theme} />
     ),
   },
   {
@@ -76,14 +77,17 @@ function DesktopAppearancePopover({
   popoverId,
   renderControls,
   renderIcon,
+  theme,
 }: {
   appearance: DesktopAppearanceSnapshot
   label: string
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
   popoverId: AppearancePopoverId
+  theme: DesktopThemeMode
   renderControls: (props: {
     appearance: DesktopAppearanceSnapshot
     onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+    theme: DesktopThemeMode
   }) => ReactNode
   renderIcon: () => ReactNode
 }) {
@@ -122,7 +126,7 @@ function DesktopAppearancePopover({
           viewportClassName="px-3 py-3"
         >
           <div data-slot="desktop-inspector-scroll">
-            <div data-slot="desktop-floating-inspector">{renderControls({ appearance, onPatch })}</div>
+            <div data-slot="desktop-floating-inspector">{renderControls({ appearance, onPatch, theme })}</div>
           </div>
         </ScrollArea>
       </PopoverContent>
@@ -180,9 +184,11 @@ function DesktopHistoryActionButtons({
 function DesktopAppearanceIsland({
   appearance,
   onPatch,
+  theme,
 }: {
   appearance: DesktopAppearanceSnapshot
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  theme: DesktopThemeMode
 }) {
   return (
     <div
@@ -198,6 +204,7 @@ function DesktopAppearanceIsland({
           popoverId={popover.id}
           renderControls={popover.renderControls}
           renderIcon={popover.renderIcon}
+          theme={theme}
         />
       ))}
     </div>
@@ -302,6 +309,7 @@ export function DesktopDynamicIslandChrome({
               <DesktopAppearanceIsland
                 appearance={appearance!}
                 onPatch={onPatch!}
+                theme={theme}
               />
             </>
           ) : null}

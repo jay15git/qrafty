@@ -2,7 +2,7 @@
 
 import { type ComponentProps } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
-import { describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { DesktopElementInspector, DesktopTransformInspector } from "@/features/desktop-shell/components/DesktopElementInspector"
 import { FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
@@ -16,6 +16,23 @@ import {
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root"
 
 const NODE_ID = "test-node"
+
+beforeEach(() => {
+  vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true)
+  vi.stubGlobal(
+    "ResizeObserver",
+    class ResizeObserver {
+      disconnect() {}
+      observe() {}
+      unobserve() {}
+    },
+  )
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+  document.body.innerHTML = ""
+})
 
 describe("DesktopElementInspector", () => {
   it("renders desktop element inspector slots for text layers", () => {
@@ -55,7 +72,6 @@ describe("DesktopElementInspector", () => {
     expect(markup).toContain('data-slot="desktop-layer-shape-fill"')
     expect(markup).toContain('data-slot="desktop-effects-accordion"')
     expect(markup).toContain('data-slot="desktop-layer-shape-options"')
-    expect(markup).toContain('data-slot="desktop-color-picker"')
     expect(markup).not.toContain('data-slot="drafting-shape-inspector"')
   })
 
@@ -99,6 +115,7 @@ describe("FloatingToolbar selected element routing", () => {
       <FloatingToolbar
         controller={
           {
+            activeTool: null,
             selectedElementLayer: layer,
             onElementLayerPatch: vi.fn(),
           } as ComponentProps<typeof FloatingToolbar>["controller"]
@@ -128,7 +145,7 @@ describe("FloatingToolbar selected element routing", () => {
     )
 
     expect(surface.container.querySelector('[data-slot="desktop-element-inspector"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-logo-inspector"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-floating-inspector"]')?.getAttribute("aria-label")).toBe(
       "text element settings",
     )
@@ -148,10 +165,8 @@ describe("FloatingToolbar selected element routing", () => {
       />,
     )
 
-    expect(surface.container.querySelector('[data-slot="desktop-logo-inspector"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-element-inspector"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-floating-inspector"]')?.getAttribute("aria-label")).toBe(
-      "Logo settings",
-    )
+    expect(surface.container.querySelector('[data-slot="desktop-floating-inspector"]')).toBeNull()
   })
 })

@@ -5,7 +5,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server.browser";
 
-import { annotateCanvasSvgForDotMatrixMotion } from "@/features/qr-code/motion/canvas-svg-adapter";
+import { adaptCanvasSvgMarkupForDotMatrixMotion } from "@/features/qr-code/motion/canvas-svg-adapter";
 import {
   resolveMotionColors,
   resolveMotionOpacityAnchors,
@@ -97,7 +97,7 @@ export function toDotMatrixQrConfig(
   const motionOpacity = resolveMotionOpacityAnchors(animation);
   const canvasSvgMarkup = options.canvasSvgMarkup?.trim();
   const adapted = canvasSvgMarkup
-    ? annotateCanvasSvgForDotMatrixMotion(sanitizeDraftingQrArtworkMarkup(canvasSvgMarkup), state)
+    ? adaptCanvasSvgMarkupForDotMatrixMotion(sanitizeDraftingQrArtworkMarkup(canvasSvgMarkup), state)
     : adaptQrcodeReactSvgForDotMatrix(state);
   const logoSrc = getAssetValue(state.logo);
 

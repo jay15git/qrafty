@@ -3,7 +3,7 @@ import { adaptExternalQRCodeSVG } from "@new-qr/qr/dot-matrix";
 import { annotateCanvasSvgForDotMatrixMotion as annotateSvgElementForDotMatrixMotion } from "@/features/qr-code/rendering/svg-extension";
 import type { QrStudioState } from "@/features/qr-code/model/state";
 
-export function annotateCanvasSvgForDotMatrixMotion(markup: string, state: QrStudioState) {
+export function adaptCanvasSvgMarkupForDotMatrixMotion(markup: string, state: QrStudioState) {
   if (!markup.trim()) {
     return undefined;
   }

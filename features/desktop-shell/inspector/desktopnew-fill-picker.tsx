@@ -47,10 +47,12 @@ export function DesktopNewFillPicker({
   onValueChange,
   className,
   modulePattern,
+  solidOnly = false,
 }: {
   value: string
   onValueChange: (fill: Fill, css: string) => void
   className?: string
+  solidOnly?: boolean
   modulePattern?: {
     selectedPalette: string[]
     selectedPreset: string | "custom"
@@ -63,7 +65,11 @@ export function DesktopNewFillPicker({
   // the same % and freezes the bar thumbs.
   const initialFillRef = useRef(parseFill(value) ?? fillFromHex(value))
   const initialFill = initialFillRef.current
-  const initialMode = initialFill.kind === "gradient" ? "gradient" : "color"
+  const initialMode = solidOnly
+    ? "color"
+    : initialFill.kind === "gradient"
+      ? "gradient"
+      : "color"
   const [activeMode, setActiveMode] = useState<"color" | "gradient" | "pattern">(
     initialMode,
   )
@@ -81,6 +87,7 @@ export function DesktopNewFillPicker({
       onModeChange={setActiveMode}
       onValueChange={onValueChange}
     >
+      {solidOnly ? null : (
       <FillPicker.Tabs className="self-stretch">
         <FillPicker.Tab
           className="flex-1"
@@ -114,7 +121,8 @@ export function DesktopNewFillPicker({
           </button>
         ) : null}
       </FillPicker.Tabs>
-      {activeMode === "pattern" && modulePattern ? (
+      )}
+      {!solidOnly && activeMode === "pattern" && modulePattern ? (
         <ModulePatternPicker {...modulePattern} />
       ) : (
         <>
@@ -124,25 +132,27 @@ export function DesktopNewFillPicker({
             <ColorPicker.Alpha />
             <ColorPicker.ChannelInput formats={["hex", "rgb", "hsl", "oklch"]} />
           </FillPicker.Pane>
-          <FillPicker.Pane className="flex flex-col gap-2" mode="gradient">
-            <GradientPicker.TypeSwitcher />
-            <GradientPicker.Bar editOnClick />
-            <GradientPicker.Area />
-            <GradientPicker.InterpSwitcher />
-            <GradientPicker.ShapeSwitcher />
-            <GradientPicker.PositionGroup>
-              <GradientPicker.PositionPad />
-              <GradientPicker.PositionInput />
-            </GradientPicker.PositionGroup>
-            <GradientPicker.RadiusInput />
-            <GradientPicker.EllipseRadiiInput />
-            <GradientPicker.AngleGroup>
-              <GradientPicker.AnglePad />
-              <GradientPicker.AngleInput />
-            </GradientPicker.AngleGroup>
-            <GradientPicker.StopList />
-            <GradientPicker.Presets />
-          </FillPicker.Pane>
+          {solidOnly ? null : (
+            <FillPicker.Pane className="flex flex-col gap-2" mode="gradient">
+              <GradientPicker.TypeSwitcher />
+              <GradientPicker.Bar editOnClick />
+              <GradientPicker.Area />
+              <GradientPicker.InterpSwitcher />
+              <GradientPicker.ShapeSwitcher />
+              <GradientPicker.PositionGroup>
+                <GradientPicker.PositionPad />
+                <GradientPicker.PositionInput />
+              </GradientPicker.PositionGroup>
+              <GradientPicker.RadiusInput />
+              <GradientPicker.EllipseRadiiInput />
+              <GradientPicker.AngleGroup>
+                <GradientPicker.AnglePad />
+                <GradientPicker.AngleInput />
+              </GradientPicker.AngleGroup>
+              <GradientPicker.StopList />
+              <GradientPicker.Presets />
+            </FillPicker.Pane>
+          )}
         </>
       )}
     </FillPicker.Root>

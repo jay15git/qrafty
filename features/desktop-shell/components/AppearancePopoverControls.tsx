@@ -8,11 +8,15 @@ import {
   DesktopInspectorSegmentedControl,
 } from "@/features/desktop-shell/components/InspectorControls"
 import {
-  DesktopInspectorColorRow,
   DesktopInspectorElasticSliderRow,
   DesktopInspectorNumberField,
   DesktopInspectorValueGrid,
 } from "@/features/desktop-shell/components/DesktopInspectorShell"
+import {
+  DesktopnewThemeContext,
+  SettingsFillPopover,
+} from "@/features/desktop-shell/inspector/settings-ui"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import {
   DRAFTING_BORDER_STYLES,
@@ -36,10 +40,12 @@ export function AppearanceOutlineControls({
   appearance,
   className,
   onPatch,
+  theme = "dark",
 }: {
   appearance: DesktopAppearanceSnapshot
   className?: string
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  theme?: "dark" | "light"
 }) {
   if (!appearance.supportsOutline) {
     return null
@@ -61,11 +67,17 @@ export function AppearanceOutlineControls({
         }
         value={outline.style}
       />
-      <DesktopInspectorColorRow
-        label="Outline color"
-        value={outline.color}
-        onChange={(color) => onPatch({ outline: { ...outline, color: color || "#111827" } })}
-      />
+      <DesktopnewThemeContext.Provider value={theme}>
+        <SettingsFillPopover
+          hint="Outline color"
+          solidOnly
+          title="Outline color"
+          value={outline.color}
+          onValueChange={(_fill, css) =>
+            onPatch({ outline: { ...outline, color: fillPreviewHex(css) || "#111827" } })
+          }
+        />
+      </DesktopnewThemeContext.Provider>
       <div className="mt-2 grid gap-2">
         <DesktopInspectorElasticSliderRow
           label="Outline width"

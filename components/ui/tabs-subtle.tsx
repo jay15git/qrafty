@@ -421,4 +421,3 @@ const TabsSubtlePanel = forwardRef<HTMLDivElement, TabsSubtlePanelProps>(
 TabsSubtlePanel.displayName = "TabsSubtlePanel";
 
 export { TabsSubtle, TabsSubtleItem };
-export default TabsSubtle;

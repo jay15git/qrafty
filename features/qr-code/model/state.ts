@@ -506,8 +506,6 @@ function coerceDotMatrixSquareLoader(value: string | undefined) {
     : DEFAULT_DOT_MATRIX_ANIMATION.loader;
 }
 
-export { mapLoaderToPresetName as dotMatrixLoaderToPresetName };
-
 function coerceMotionPreset(
   value: string | undefined,
   loader: QrDotMatrixSquareLoader,
