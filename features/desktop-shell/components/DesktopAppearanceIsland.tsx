@@ -27,6 +27,8 @@ import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopToolt
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import type { SizeTemplate } from "@/features/workspace/model/size-templates"
+import type { DraftingPaneCanvasTool } from "@/features/workspace/components/DraftingPaneSurface"
+import { DynamicIslandComposeToolbar } from "@/features/workspace/components/canvas-compose-toolbar"
 import { cn } from "@/lib/utils"
 
 type AppearancePopoverId = "radius" | "outline"
@@ -221,28 +223,71 @@ function DesktopAppearanceIsland({
 
 export function DesktopDynamicIslandChrome({
   appearance,
+  activeCanvasTool,
+  activePaneId,
+  canAddQrCode,
+  canRemoveQrCode,
   canRedo,
   canUndo,
+  insertNodeId,
+  onAddQrCode,
+  onAddTextLayerAt,
+  onBrowseStockPhotos,
+  onCanvasGridChange,
+  onCanvasToolChange,
+  onInsertLayer,
+  onOpenCardPatternSettings,
   onPatch,
   onRedo,
+  onRemoveQrCode,
   onSelectSizeTemplate,
+  onSnapEnabledChange,
   onThemeChange,
   onUndo,
+  showCanvasGrid,
+  snapEnabled,
   sizePresetId,
   theme = "dark",
 }: {
   appearance?: DesktopAppearanceSnapshot | null
+  activeCanvasTool?: DraftingPaneCanvasTool | null
+  activePaneId?: string
+  canAddQrCode?: boolean
+  canRemoveQrCode?: boolean
   canRedo?: boolean
   canUndo?: boolean
+  insertNodeId?: string
+  onAddQrCode?: () => void
+  onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
+  onBrowseStockPhotos?: () => void
+  onCanvasGridChange?: (showGrid: boolean) => void
+  onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
+  onInsertLayer?: (layer: DraftingCanvasLayer) => void
+  onOpenCardPatternSettings?: () => void
   onPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onRedo?: () => void
+  onRemoveQrCode?: () => void
   onSelectSizeTemplate?: (template: SizeTemplate) => void
+  onSnapEnabledChange?: (enabled: boolean) => void
   onThemeChange?: (theme: DesktopThemeMode) => void
   onUndo?: () => void
+  showCanvasGrid?: boolean
+  snapEnabled?: boolean
   sizePresetId?: string
   theme?: DesktopThemeMode
 }) {
   const hasAppearance = Boolean(appearance && onPatch)
+  const hasComposeControls =
+    Boolean(onCanvasToolChange) &&
+    Boolean(activePaneId) &&
+    typeof snapEnabled === "boolean" &&
+    Boolean(onSnapEnabledChange)
+  const activeInteractionTool =
+    activeCanvasTool === "pan"
+      ? "pan"
+      : activeCanvasTool === "text"
+        ? "text"
+        : "select"
 
   return (
     <DynamicIsland
@@ -260,6 +305,43 @@ export function DesktopDynamicIslandChrome({
             onUndo={onUndo}
             sizePresetId={sizePresetId}
           />
+          {hasComposeControls ? (
+            <>
+              <DesktopDynamicIslandDivider />
+              <DynamicIslandComposeToolbar
+                activeCanvasTool={activeCanvasTool}
+                activeInteractionTool={activeInteractionTool}
+                activePaneId={activePaneId!}
+                canRemove={Boolean(canRemoveQrCode)}
+                insertNodeId={insertNodeId}
+                isMaximized={false}
+                qr={{
+                  canAdd: Boolean(canAddQrCode),
+                  onAdd: onAddQrCode,
+                }}
+                onAddTextLayerAt={onAddTextLayerAt}
+                onBrowseStockPhotos={onBrowseStockPhotos}
+                onCanvasGridChange={onCanvasGridChange}
+                onCanvasToolChange={onCanvasToolChange}
+                onInsertLayer={onInsertLayer}
+                onOpenCardPatternSettings={onOpenCardPatternSettings}
+                onRemoveQrCode={
+                  onRemoveQrCode && activePaneId
+                    ? () => onRemoveQrCode()
+                    : undefined
+                }
+                onResetView={() => undefined}
+                onToggleMaximize={() => undefined}
+                onZoomIn={() => undefined}
+                onZoomOut={() => undefined}
+                paneCount={1}
+                showCanvasGrid={showCanvasGrid}
+                snapEnabled={snapEnabled!}
+                onSnapEnabledChange={onSnapEnabledChange!}
+                zoomPercent="100%"
+              />
+            </>
+          ) : null}
           {hasAppearance ? (
             <>
               <DesktopDynamicIslandDivider />
@@ -282,7 +364,7 @@ export function DesktopDynamicIslandChrome({
         </div>
       }
       showViewControls={false}
-      className={cn(hasAppearance && "min-w-[12rem]")}
+      className={cn(hasAppearance || hasComposeControls ? "min-w-[12rem]" : undefined)}
     />
   )
 }

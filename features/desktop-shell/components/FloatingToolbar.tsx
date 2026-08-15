@@ -93,13 +93,29 @@ export function FloatingToolbar({
           >
             <DesktopDynamicIslandChrome
               appearance={controller?.appearanceSnapshot}
+              activeCanvasTool={controller?.canvasTool}
+              activePaneId={controller?.insertNodeId}
+              canAddQrCode={controller?.canAddQrCode}
+              canRemoveQrCode={controller?.canRemoveQrCode}
               canRedo={controller?.canRedo}
               canUndo={controller?.canUndo}
+              insertNodeId={controller?.insertNodeId}
+              onAddQrCode={controller?.onAddQrCode}
+              onAddTextLayerAt={controller?.onAddTextLayerAt}
+              onBrowseStockPhotos={() => controller?.onOpenComposeSidebar?.("stock-photos")}
+              onCanvasGridChange={controller?.onCanvasGridChange}
+              onCanvasToolChange={controller?.onCanvasToolChange}
+              onInsertLayer={controller?.onInsertLayer}
+              onOpenCardPatternSettings={controller?.onOpenCardPatternSettings}
               onPatch={controller?.onAppearancePatch}
               onRedo={controller?.onRedo}
+              onRemoveQrCode={controller?.onRemoveQrCode}
               onSelectSizeTemplate={controller?.onSceneTemplateSizeTemplateSelect}
+              onSnapEnabledChange={controller?.onSnapEnabledChange}
               onThemeChange={model.onDesktopThemeChange}
               onUndo={controller?.onUndo}
+              showCanvasGrid={controller?.showCanvasGrid}
+              snapEnabled={controller?.snapEnabled}
               sizePresetId={controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId}
               theme={actualDesktopTheme}
             />

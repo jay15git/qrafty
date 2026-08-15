@@ -46,6 +46,7 @@ import { type QrInputType } from "@/features/qr-code/content/input-options"
 import { type ExportPresetId } from "@/features/workspace/model/export-presets"
 import type { SceneLayoutPreset } from "@/features/workspace/model/scene-templates"
 import type { ScanSafetyResult } from "@/features/qr-code/scan-safety/types"
+import type { DraftingPaneCanvasTool } from "@/features/workspace/components/DraftingPaneSurface"
 
 type DesktopToolbarGroup = "QR" | "Add" | "Manage"
 export type ComposeSidebarPanel = "stock-photos" | null
@@ -292,6 +293,17 @@ export type DesktopToolbarController = {
   selectedAppearanceLayer?: DraftingCanvasLayer | null
   appearanceSnapshot?: DesktopAppearanceSnapshot | null
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
+  canvasTool?: DraftingPaneCanvasTool | null
+  onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
+  showCanvasGrid?: boolean
+  onCanvasGridChange?: (showGrid: boolean) => void
+  snapEnabled?: boolean
+  onSnapEnabledChange?: (enabled: boolean) => void
+  canAddQrCode?: boolean
+  onAddQrCode?: () => void
+  onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
+  canRemoveQrCode?: boolean
+  onRemoveQrCode?: () => void
   onOpenComposeSidebar?: (panel: "stock-photos") => void
   onOpenCardPatternSettings?: () => void
   onCloseComposeSidebar?: () => void

@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
 import { Canvas } from "@/features/workspace/components/Canvas"
+import { DynamicIslandComposeToolbar } from "@/features/workspace/components/canvas-compose-toolbar"
 import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
 
 vi.mock("@/features/qr-code/rendering/qr-svg", async (importOriginal) => {
@@ -287,10 +288,7 @@ describe("Canvas", () => {
     expect(
       pane.querySelector('[data-slot="drafting-layer-resize-handle"]')?.className,
     ).toContain("cursor-")
-    expect(
-      workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')?.parentElement
-        ?.className,
-    ).toContain("z-[60]")
+    expect(workspace.container.querySelector('[data-slot="desktop-compose-toolbar-anchor"]')).toBeNull()
 
     await act(async () => {
       overlay?.dispatchEvent(new MouseEvent("click", {
@@ -346,7 +344,7 @@ describe("Canvas", () => {
     expect(onRedo).toHaveBeenCalledTimes(1)
   })
 
-  it("omits undo and redo from the bottom toolbar in desktop zoom mode", () => {
+  it("does not render a floating compose toolbar in desktop zoom mode", () => {
     const workspace = renderWorkspace({
       canRedo: true,
       canUndo: true,
@@ -354,35 +352,43 @@ describe("Canvas", () => {
       onUndo: vi.fn(),
       toolbarVariant: "desktop-zoom",
     })
-    const bottomToolbar = workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')
 
-    expect(bottomToolbar?.querySelector('button[aria-label="Undo"]')).toBeNull()
-    expect(bottomToolbar?.querySelector('button[aria-label="Redo"]')).toBeNull()
+    expect(workspace.container.querySelector('[data-slot="desktop-compose-toolbar-anchor"]')).toBeNull()
+    expect(workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')).toBeNull()
   })
 
-  it("orders desktop bottom toolbar controls by interaction, view, and creation", () => {
-    const workspace = renderWorkspace({
-      onAddQrCode: vi.fn(),
+  it("orders desktop compose controls by interaction, view, and creation", () => {
+    const container = renderComposeToolbar({
+      activeInteractionTool: "select",
+      activePaneId: "pane-1",
+      canRemove: false,
+      insertNodeId: "pane-1",
+      isMaximized: false,
       onAddTextLayerAt: vi.fn(),
+      onCanvasGridChange: vi.fn(),
+      onCanvasToolChange: vi.fn(),
+      onInsertLayer: vi.fn(),
+      onResetView: vi.fn(),
+      onToggleMaximize: vi.fn(),
+      onZoomIn: vi.fn(),
+      onZoomOut: vi.fn(),
       paneCount: 1,
-      toolbarVariant: "desktop-zoom",
+      qr: { canAdd: true, onAdd: vi.fn() },
+      showCanvasGrid: true,
+      snapEnabled: true,
+      onSnapEnabledChange: vi.fn(),
+      zoomPercent: "100%",
     })
-    const bottomToolbar = workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')
+    const composeToolbar = container.querySelector('[data-slot="desktop-compose-toolbar"]')
 
-    expect(bottomToolbar?.className).toContain("gap-0.5")
-    expect(bottomToolbar?.className).toContain("flex-col")
-    expect(bottomToolbar?.className).toContain("px-1")
+    expect(composeToolbar?.className).toContain("gap-0.5")
+    expect(composeToolbar?.className).toContain("items-center")
     expect(
-      Array.from(bottomToolbar?.children ?? []).filter((child) =>
-        String((child as HTMLElement).className).includes("w-px"),
-      ),
-    ).toHaveLength(0)
-    expect(
-      Array.from(bottomToolbar?.querySelectorAll("button") ?? []).every((button) =>
+      Array.from(composeToolbar?.querySelectorAll("button") ?? []).every((button) =>
         String(button.className).includes("size-9"),
       ),
     ).toBe(true)
-    expect(Array.from(bottomToolbar?.querySelectorAll("button") ?? []).map((button) => button.getAttribute("aria-label"))).toEqual([
+    expect(Array.from(composeToolbar?.querySelectorAll("button") ?? []).map((button) => button.getAttribute("aria-label"))).toEqual([
       "Select and move elements",
       "Pan canvas",
       "Disable snapping",
@@ -394,29 +400,34 @@ describe("Canvas", () => {
 
   it("renders desktop select and pan tool buttons and wires mode changes", () => {
     const onCanvasToolChange = vi.fn()
-    const workspace = renderWorkspace({
+    const container = renderComposeToolbar({
       activeCanvasTool: "pan",
+      activeInteractionTool: "pan",
+      activePaneId: "pane-1",
+      canRemove: false,
+      insertNodeId: "pane-1",
+      isMaximized: false,
       onCanvasToolChange,
-      toolbarVariant: "desktop-zoom",
+      onResetView: vi.fn(),
+      onToggleMaximize: vi.fn(),
+      onZoomIn: vi.fn(),
+      onZoomOut: vi.fn(),
+      paneCount: 1,
+      snapEnabled: true,
+      onSnapEnabledChange: vi.fn(),
+      zoomPercent: "100%",
     })
-    const selectButton = workspace.container.querySelector(
+    const selectButton = container.querySelector(
       'button[aria-label="Select and move elements"]',
     ) as HTMLButtonElement | null
-    const panButton = workspace.container.querySelector(
+    const panButton = container.querySelector(
       'button[aria-label="Pan canvas"]',
     ) as HTMLButtonElement | null
 
     expect(selectButton).not.toBeNull()
     expect(panButton).not.toBeNull()
-    expect(
-      workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')?.parentElement
-        ?.className,
-    ).toContain("z-[60]")
     expect(selectButton?.getAttribute("aria-pressed")).toBe("false")
     expect(panButton?.getAttribute("aria-pressed")).toBe("true")
-    expect(
-      workspace.container.querySelector('[data-slot="drafting-pan-overlay"]')?.className,
-    ).toContain("z-[1]")
 
     act(() => {
       selectButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
@@ -427,23 +438,31 @@ describe("Canvas", () => {
     expect(onCanvasToolChange).toHaveBeenNthCalledWith(2, "pan")
   })
 
-  it("toggles the desktop canvas dot grid from the main toolbar", () => {
+  it("wires the desktop compose grid toggle", () => {
     const onCanvasGridChange = vi.fn()
-    const workspace = renderWorkspace({
+    const container = renderComposeToolbar({
+      activeInteractionTool: "select",
+      activePaneId: "pane-1",
+      canRemove: false,
+      insertNodeId: "pane-1",
+      isMaximized: false,
       onCanvasGridChange,
+      onResetView: vi.fn(),
+      onToggleMaximize: vi.fn(),
+      onZoomIn: vi.fn(),
+      onZoomOut: vi.fn(),
+      paneCount: 1,
       showCanvasGrid: true,
-      toolbarVariant: "desktop-zoom",
+      snapEnabled: true,
+      onSnapEnabledChange: vi.fn(),
+      zoomPercent: "100%",
     })
-    const pane = getPaneSurfaces(workspace.container, 1)[0]
-    const gridButton = workspace.container.querySelector(
+    const gridButton = container.querySelector(
       'button[aria-label="Hide canvas grid"]',
     ) as HTMLButtonElement | null
 
     expect(gridButton).not.toBeNull()
     expect(gridButton?.getAttribute("aria-pressed")).toBe("true")
-    expect(pane?.getAttribute("data-grid-visible")).toBe("true")
-    expect(pane?.getAttribute("data-surface-appearance")).toBe("workspace")
-    expect(pane?.style.backgroundImage).toBe("none")
 
     act(() => {
       gridButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
@@ -452,14 +471,34 @@ describe("Canvas", () => {
     expect(onCanvasGridChange).toHaveBeenCalledWith(false)
   })
 
-  it("hides the canvas dot grid when the desktop grid setting is off", () => {
+  it("reflects canvas grid visibility on the pane surface", async () => {
+    const workspace = renderWorkspace({
+      showCanvasGrid: true,
+      toolbarVariant: "desktop-zoom",
+    })
+    const pane = getPaneSurfaces(workspace.container, 1)[0]
+
+    await act(async () => {
+      await flushPromises()
+    })
+
+    expect(pane?.getAttribute("data-grid-visible")).toBe("true")
+    expect(pane?.getAttribute("data-surface-appearance")).toBe("workspace")
+    expect(pane?.style.backgroundImage).toBe("none")
+  })
+
+  it("hides the canvas dot grid when the desktop grid setting is off", async () => {
     const workspace = renderWorkspace({
       showCanvasGrid: false,
       toolbarVariant: "desktop-zoom",
     })
     const pane = getPaneSurfaces(workspace.container, 1)[0]
 
-    expect(workspace.container.querySelector('button[aria-label="Show canvas grid"]')).not.toBeNull()
+    await act(async () => {
+      await flushPromises()
+    })
+
+    expect(workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')).toBeNull()
     expect(pane?.getAttribute("data-grid-visible")).toBe("false")
     expect(pane?.getAttribute("data-surface-appearance")).toBe("workspace")
     expect(pane?.style.backgroundImage).toBe("none")
@@ -616,6 +655,27 @@ function renderWorkspace({
   document.body.appendChild(container)
 
   return { container, render }
+}
+
+function renderComposeToolbar(
+  props: ComponentProps<typeof DynamicIslandComposeToolbar>,
+) {
+  const container = document.createElement("div")
+  const root = createRoot(container)
+
+  act(() => {
+    root.render(<DynamicIslandComposeToolbar {...props} />)
+  })
+
+  cleanupCallbacks.push(() => {
+    act(() => {
+      root.unmount()
+    })
+  })
+
+  document.body.appendChild(container)
+
+  return container
 }
 
 function createPanes(_paneCount = 1) {

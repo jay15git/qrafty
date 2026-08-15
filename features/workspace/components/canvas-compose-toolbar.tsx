@@ -20,7 +20,6 @@ import {
 
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import {
-  DESKTOP_CANVAS_GLASS_TOOLBAR_VERTICAL_SHELL_CLASS,
   DESKTOP_COMPOSE_TOOLBAR_ICON_BUTTON_CLASS,
 } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
 import type {
@@ -47,18 +46,26 @@ export const MAX_PREVIEW_ZOOM = 4
 export const COMPOSE_TOOLBAR_NEUTRAL_ICON_BUTTON_CLASS =
   "h-7 w-7 rounded-md border-0 bg-transparent p-0 text-[var(--ws-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--ws-ink)] [&_svg]:size-3.5"
 
+export type ComposeToolbarPlacement = "canvas-floating" | "dynamic-island"
+
 export function ComposeToolbarTooltip({
   content,
   desktop,
+  placement = "canvas-floating",
   children,
 }: {
   content: ReactNode
   desktop: boolean
+  placement?: ComposeToolbarPlacement
   children: ReactElement
 }) {
   if (desktop) {
     return (
-      <DesktopTooltip content={content} side="left" sideOffset={10}>
+      <DesktopTooltip
+        content={content}
+        side={placement === "dynamic-island" ? "bottom" : "left"}
+        sideOffset={10}
+      >
         {children}
       </DesktopTooltip>
     )
@@ -73,18 +80,18 @@ export function ComposeToolbarTooltip({
 }
 
 export function getComposeToolbarIconButtonClass(
-  isDesktopZoomToolbar: boolean,
+  isDesktopGlassToolbar: boolean,
   ...extra: Array<string | false | null | undefined>
 ) {
   return cn(
-    isDesktopZoomToolbar
+    isDesktopGlassToolbar
       ? DESKTOP_COMPOSE_TOOLBAR_ICON_BUTTON_CLASS
       : COMPOSE_TOOLBAR_NEUTRAL_ICON_BUTTON_CLASS,
     ...extra,
   )
 }
 
-type CanvasComposeToolbarProps = {
+type ComposeToolbarControlsProps = {
   activeCanvasTool?: DraftingPaneCanvasTool | null
   activeInteractionTool: "select" | "pan" | "text"
   activePaneId: string
@@ -92,8 +99,9 @@ type CanvasComposeToolbarProps = {
   qr?: CanvasQrControls
   canRemove: boolean
   insertNodeId?: string
-  isDesktopZoomToolbar: boolean
+  isDesktopGlassToolbar: boolean
   isMaximized: boolean
+  placement?: ComposeToolbarPlacement
   onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
   onBrowseStockPhotos?: () => void
   onCanvasGridChange?: (showGrid: boolean) => void
@@ -108,13 +116,14 @@ type CanvasComposeToolbarProps = {
   paneCount: number
   previewLocked?: boolean
   showCanvasGrid?: boolean
+  showDesktopInteractionTools?: boolean
   snapEnabled: boolean
   onSnapEnabledChange: (enabled: boolean) => void
   toolbarVariant?: DraftingPaneToolbarVariant
   zoomPercent: string
 }
 
-export function CanvasComposeToolbar({
+export function ComposeToolbarControls({
   activeCanvasTool,
   activeInteractionTool,
   activePaneId,
@@ -122,8 +131,9 @@ export function CanvasComposeToolbar({
   qr = { canAdd: true },
   canRemove,
   insertNodeId,
-  isDesktopZoomToolbar,
+  isDesktopGlassToolbar,
   isMaximized,
+  placement = "canvas-floating",
   onAddTextLayerAt,
   onBrowseStockPhotos,
   onCanvasGridChange,
@@ -138,332 +148,375 @@ export function CanvasComposeToolbar({
   paneCount,
   previewLocked = false,
   showCanvasGrid = true,
+  showDesktopInteractionTools = true,
   snapEnabled,
   onSnapEnabledChange,
+  toolbarVariant = "default",
   zoomPercent,
-}: CanvasComposeToolbarProps) {
+}: ComposeToolbarControlsProps) {
   const { canUndo, canRedo, onUndo, onRedo } = history
   const { canAdd: canAddQrCode, onAdd: onAddQrCode } = qr
+  const insertMenuVariant =
+    placement === "dynamic-island" ? "dynamic-island" : "bottom-toolbar"
 
   return (
     <>
-      <div
-        data-slot={isDesktopZoomToolbar ? "desktop-compose-toolbar-anchor" : undefined}
-        className={cn(
-          "pointer-events-none absolute z-[60] flex",
-          isDesktopZoomToolbar
-            ? "right-5 top-1/2 max-md:right-4 -translate-y-1/2 flex-col items-end"
-            : "bottom-4 justify-center inset-x-5 px-2 sm:inset-x-6 lg:inset-x-8",
-        )}
-      >
-        <div
-          data-slot="desktop-compose-toolbar"
-          data-toolbar-appearance={isDesktopZoomToolbar ? "desktop-glass" : "neutral"}
-          className={cn(
-            "pointer-events-auto max-w-full flex-wrap justify-center",
-            isDesktopZoomToolbar
-              ? DESKTOP_CANVAS_GLASS_TOOLBAR_VERTICAL_SHELL_CLASS
-              : "inline-flex items-center gap-1 rounded-[10px] bg-[var(--ws-panel-bg-active)] px-2 py-1.5",
-          )}
-        >
-          {!isDesktopZoomToolbar ? (
-            <>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    aria-label="Zoom out preview"
-                    className={getComposeToolbarIconButtonClass(isDesktopZoomToolbar)}
-                    onClick={onZoomOut}
-                    size="icon"
-                    type="button"
-                    variant="ghost"
-                  >
-                    <ZoomOutIcon />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Zoom out</TooltipContent>
-              </Tooltip>
-
-              <div className="min-w-12 px-1 text-center font-semibold ws-type-data text-[var(--ws-ink)]">
-                {zoomPercent}
-              </div>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    aria-label="Zoom in preview"
-                    className={getComposeToolbarIconButtonClass(isDesktopZoomToolbar)}
-                    onClick={onZoomIn}
-                    size="icon"
-                    type="button"
-                    variant="ghost"
-                  >
-                    <ZoomInIcon />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Zoom in</TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    aria-label="Reset view"
-                    className={getComposeToolbarIconButtonClass(isDesktopZoomToolbar)}
-                    onClick={onResetView}
-                    size="icon"
-                    type="button"
-                    variant="ghost"
-                  >
-                    <CrosshairIcon />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Reset view</TooltipContent>
-              </Tooltip>
-
-              <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" />
-            </>
-          ) : null}
-
-          {isDesktopZoomToolbar && !previewLocked ? (
-            <>
-              <ComposeToolbarTooltip
-                content="Select and move elements"
-                desktop={isDesktopZoomToolbar}
+      {!isDesktopGlassToolbar ? (
+        <>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label="Zoom out preview"
+                className={getComposeToolbarIconButtonClass(isDesktopGlassToolbar)}
+                onClick={onZoomOut}
+                size="icon"
+                type="button"
+                variant="ghost"
               >
-                <Button
-                  aria-label="Select and move elements"
-                  aria-pressed={activeInteractionTool === "select"}
-                  className={getComposeToolbarIconButtonClass(
-                    isDesktopZoomToolbar,
-                    activeInteractionTool === "select" &&
-                      "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
-                  )}
-                  onClick={() => onCanvasToolChange?.("select")}
-                  size="icon"
-                  type="button"
-                  variant="ghost"
-                >
-                  <MousePointer2Icon />
-                </Button>
-              </ComposeToolbarTooltip>
+                <ZoomOutIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Zoom out</TooltipContent>
+          </Tooltip>
 
-              <ComposeToolbarTooltip content="Pan canvas" desktop={isDesktopZoomToolbar}>
-                <Button
-                  aria-label="Pan canvas"
-                  aria-pressed={activeInteractionTool === "pan"}
-                  className={getComposeToolbarIconButtonClass(
-                    isDesktopZoomToolbar,
-                    activeInteractionTool === "pan" &&
-                      "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
-                  )}
-                  onClick={() => onCanvasToolChange?.("pan")}
-                  size="icon"
-                  type="button"
-                  variant="ghost"
-                >
-                  <HandIcon />
-                </Button>
-              </ComposeToolbarTooltip>
-            </>
-          ) : null}
+          <div className="min-w-12 px-1 text-center font-semibold ws-type-data text-[var(--ws-ink)]">
+            {zoomPercent}
+          </div>
 
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label="Zoom in preview"
+                className={getComposeToolbarIconButtonClass(isDesktopGlassToolbar)}
+                onClick={onZoomIn}
+                size="icon"
+                type="button"
+                variant="ghost"
+              >
+                <ZoomInIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Zoom in</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label="Reset view"
+                className={getComposeToolbarIconButtonClass(isDesktopGlassToolbar)}
+                onClick={onResetView}
+                size="icon"
+                type="button"
+                variant="ghost"
+              >
+                <CrosshairIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Reset view</TooltipContent>
+          </Tooltip>
+
+          <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" />
+        </>
+      ) : null}
+
+      {isDesktopGlassToolbar && showDesktopInteractionTools && !previewLocked ? (
+        <>
           <ComposeToolbarTooltip
-            content={snapEnabled ? "Snapping on" : "Snapping off"}
-            desktop={isDesktopZoomToolbar}
+            content="Select and move elements"
+            desktop={isDesktopGlassToolbar}
+            placement={placement}
           >
             <Button
-              aria-label={snapEnabled ? "Disable snapping" : "Enable snapping"}
-              aria-pressed={snapEnabled}
+              aria-label="Select and move elements"
+              aria-pressed={activeInteractionTool === "select"}
               className={getComposeToolbarIconButtonClass(
-                isDesktopZoomToolbar,
-                snapEnabled &&
+                isDesktopGlassToolbar,
+                activeInteractionTool === "select" &&
                   "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
               )}
-              onClick={() => onSnapEnabledChange(!snapEnabled)}
+              onClick={() => onCanvasToolChange?.("select")}
               size="icon"
               type="button"
               variant="ghost"
             >
-              <MagnetIcon />
+              <MousePointer2Icon />
             </Button>
           </ComposeToolbarTooltip>
 
-          {paneCount > 1 && (
-            <>
-              {!isDesktopZoomToolbar ? <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" /> : null}
-              <ComposeToolbarTooltip
-                content={isMaximized ? "Restore layout" : "Maximize pane"}
-                desktop={isDesktopZoomToolbar}
-              >
-                <Button
-                  aria-label={isMaximized ? "Restore layout" : "Maximize pane"}
-                  className={getComposeToolbarIconButtonClass(isDesktopZoomToolbar)}
-                  onClick={onToggleMaximize}
-                  size="icon"
-                  type="button"
-                  variant="ghost"
-                >
-                  {isMaximized ? (
-                    <Minimize2Icon />
-                  ) : (
-                    <Maximize2Icon />
-                  )}
-                </Button>
-              </ComposeToolbarTooltip>
-            </>
+          <ComposeToolbarTooltip content="Pan canvas" desktop={isDesktopGlassToolbar} placement={placement}>
+            <Button
+              aria-label="Pan canvas"
+              aria-pressed={activeInteractionTool === "pan"}
+              className={getComposeToolbarIconButtonClass(
+                isDesktopGlassToolbar,
+                activeInteractionTool === "pan" &&
+                  "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
+              )}
+              onClick={() => onCanvasToolChange?.("pan")}
+              size="icon"
+              type="button"
+              variant="ghost"
+            >
+              <HandIcon />
+            </Button>
+          </ComposeToolbarTooltip>
+        </>
+      ) : null}
+
+      <ComposeToolbarTooltip
+        content={snapEnabled ? "Snapping on" : "Snapping off"}
+        desktop={isDesktopGlassToolbar}
+        placement={placement}
+      >
+        <Button
+          aria-label={snapEnabled ? "Disable snapping" : "Enable snapping"}
+          aria-pressed={snapEnabled}
+          className={getComposeToolbarIconButtonClass(
+            isDesktopGlassToolbar,
+            snapEnabled &&
+              "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
           )}
+          onClick={() => onSnapEnabledChange(!snapEnabled)}
+          size="icon"
+          type="button"
+          variant="ghost"
+        >
+          <MagnetIcon />
+        </Button>
+      </ComposeToolbarTooltip>
 
-          {!isDesktopZoomToolbar ? <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" /> : null}
+      {paneCount > 1 && (
+        <>
+          {!isDesktopGlassToolbar ? <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" /> : null}
+          <ComposeToolbarTooltip
+            content={isMaximized ? "Restore layout" : "Maximize pane"}
+            desktop={isDesktopGlassToolbar}
+            placement={placement}
+          >
+            <Button
+              aria-label={isMaximized ? "Restore layout" : "Maximize pane"}
+              className={getComposeToolbarIconButtonClass(isDesktopGlassToolbar)}
+              onClick={onToggleMaximize}
+              size="icon"
+              type="button"
+              variant="ghost"
+            >
+              {isMaximized ? <Minimize2Icon /> : <Maximize2Icon />}
+            </Button>
+          </ComposeToolbarTooltip>
+        </>
+      )}
 
-          {isDesktopZoomToolbar ? (
-            <>
-              <ComposeToolbarTooltip
-                content={showCanvasGrid ? "Grid on" : "Grid off"}
-                desktop={isDesktopZoomToolbar}
+      {!isDesktopGlassToolbar ? <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" /> : null}
+
+      {isDesktopGlassToolbar ? (
+        <ComposeToolbarTooltip
+          content={showCanvasGrid ? "Grid on" : "Grid off"}
+          desktop={isDesktopGlassToolbar}
+          placement={placement}
+        >
+          <Button
+            aria-label={showCanvasGrid ? "Hide canvas grid" : "Show canvas grid"}
+            aria-pressed={showCanvasGrid}
+            className={getComposeToolbarIconButtonClass(
+              isDesktopGlassToolbar,
+              showCanvasGrid &&
+                "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
+            )}
+            onClick={() => onCanvasGridChange?.(!showCanvasGrid)}
+            size="icon"
+            type="button"
+            variant="ghost"
+          >
+            <Grid3X3Icon />
+          </Button>
+        </ComposeToolbarTooltip>
+      ) : null}
+
+      {onAddQrCode || onInsertLayer ? (
+        <>
+          {isDesktopGlassToolbar ? (
+            <ComposeToolbarTooltip
+              content="Click canvas to add text"
+              desktop={isDesktopGlassToolbar}
+              placement={placement}
+            >
+              <Button
+                aria-label="Add text on canvas"
+                aria-pressed={activeCanvasTool === "text"}
+                className={getComposeToolbarIconButtonClass(
+                  isDesktopGlassToolbar,
+                  "disabled:opacity-40",
+                  activeCanvasTool === "text" &&
+                    "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
+                )}
+                disabled={!onAddTextLayerAt}
+                onClick={() =>
+                  onCanvasToolChange?.(activeCanvasTool === "text" ? "select" : "text")
+                }
+                size="icon"
+                type="button"
+                variant="ghost"
               >
-                <Button
-                  aria-label={showCanvasGrid ? "Hide canvas grid" : "Show canvas grid"}
-                  aria-pressed={showCanvasGrid}
-                  className={getComposeToolbarIconButtonClass(
-                    isDesktopZoomToolbar,
-                    showCanvasGrid &&
-                      "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
-                  )}
-                  onClick={() => onCanvasGridChange?.(!showCanvasGrid)}
-                  size="icon"
-                  type="button"
-                  variant="ghost"
-                >
-                  <Grid3X3Icon />
-                </Button>
-              </ComposeToolbarTooltip>
-            </>
+                <TypeIcon />
+              </Button>
+            </ComposeToolbarTooltip>
           ) : null}
 
-          {onAddQrCode || onInsertLayer ? (
-            <>
-              {isDesktopZoomToolbar ? (
-                <>
-                  <ComposeToolbarTooltip
-                    content="Click canvas to add text"
-                    desktop={isDesktopZoomToolbar}
-                  >
-                    <Button
-                      aria-label="Add text on canvas"
-                      aria-pressed={activeCanvasTool === "text"}
-                      className={getComposeToolbarIconButtonClass(
-                        isDesktopZoomToolbar,
-                        "disabled:opacity-40",
-                        activeCanvasTool === "text" &&
-                          "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
-                      )}
-                      disabled={!onAddTextLayerAt}
-                      onClick={() =>
-                        onCanvasToolChange?.(activeCanvasTool === "text" ? "select" : "text")
-                      }
-                      size="icon"
-                      type="button"
-                      variant="ghost"
-                    >
-                      <TypeIcon />
-                    </Button>
-                  </ComposeToolbarTooltip>
-                </>
-              ) : null}
-
-              {onInsertLayer && insertNodeId ? (
-                <InsertMenu
-                  canAddQrCode={canAddQrCode}
-                  nodeId={insertNodeId}
-                  triggerClassName={
-                    isDesktopZoomToolbar ? DESKTOP_COMPOSE_TOOLBAR_ICON_BUTTON_CLASS : undefined
-                  }
-                  variant="bottom-toolbar"
-                  onAddQrCode={onAddQrCode}
-                  onBrowseStockPhotos={onBrowseStockPhotos}
-                  onOpenCardPatternSettings={onOpenCardPatternSettings}
-                  onInsertLayer={onInsertLayer}
-                />
-              ) : onAddQrCode ? (
-                <ComposeToolbarTooltip
-                  content={canAddQrCode ? "Add QR code" : "Maximum 10 QR codes reached"}
-                  desktop={isDesktopZoomToolbar}
-                >
-                  <Button
-                    aria-label="Add QR code"
-                    className={getComposeToolbarIconButtonClass(
-                      isDesktopZoomToolbar,
-                      "disabled:opacity-40",
-                    )}
-                    onClick={onAddQrCode}
-                    disabled={!canAddQrCode}
-                    size="icon"
-                    type="button"
-                    variant="ghost"
-                  >
-                    <CopyPlusIcon />
-                  </Button>
-                </ComposeToolbarTooltip>
-              ) : null}
-
-              {canRemove ? (
-                <ComposeToolbarTooltip content="Remove QR code" desktop={isDesktopZoomToolbar}>
-                  <Button
-                    aria-label="Remove QR code"
-                    className={getComposeToolbarIconButtonClass(isDesktopZoomToolbar)}
-                    onClick={() => onRemoveQrCode?.(activePaneId)}
-                    size="icon"
-                    type="button"
-                    variant="ghost"
-                  >
-                    <Trash2Icon />
-                  </Button>
-                </ComposeToolbarTooltip>
-              ) : null}
-
-              {!isDesktopZoomToolbar ? <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" /> : null}
-            </>
+          {onInsertLayer && insertNodeId ? (
+            <InsertMenu
+              canAddQrCode={canAddQrCode}
+              nodeId={insertNodeId}
+              triggerClassName={
+                isDesktopGlassToolbar ? DESKTOP_COMPOSE_TOOLBAR_ICON_BUTTON_CLASS : undefined
+              }
+              variant={insertMenuVariant}
+              onAddQrCode={onAddQrCode}
+              onBrowseStockPhotos={onBrowseStockPhotos}
+              onOpenCardPatternSettings={onOpenCardPatternSettings}
+              onInsertLayer={onInsertLayer}
+            />
+          ) : onAddQrCode ? (
+            <ComposeToolbarTooltip
+              content={canAddQrCode ? "Add QR code" : "Maximum 10 QR codes reached"}
+              desktop={isDesktopGlassToolbar}
+              placement={placement}
+            >
+              <Button
+                aria-label="Add QR code"
+                className={getComposeToolbarIconButtonClass(
+                  isDesktopGlassToolbar,
+                  "disabled:opacity-40",
+                )}
+                onClick={onAddQrCode}
+                disabled={!canAddQrCode}
+                size="icon"
+                type="button"
+                variant="ghost"
+              >
+                <CopyPlusIcon />
+              </Button>
+            </ComposeToolbarTooltip>
           ) : null}
 
-          {!isDesktopZoomToolbar ? (
-            <>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    aria-label="Undo"
-                    className="h-8 w-8 rounded-md border-0 bg-transparent p-0 text-[var(--ws-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--ws-ink)] disabled:opacity-40"
-                    disabled={!canUndo || !onUndo}
-                    onClick={onUndo}
-                    size="icon"
-                    type="button"
-                    variant="ghost"
-                  >
-                    <Undo2Icon />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Undo</TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    aria-label="Redo"
-                    className="h-8 w-8 rounded-md border-0 bg-transparent p-0 text-[var(--ws-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--ws-ink)] disabled:opacity-40"
-                    disabled={!canRedo || !onRedo}
-                    onClick={onRedo}
-                    size="icon"
-                    type="button"
-                    variant="ghost"
-                  >
-                    <Redo2Icon />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Redo</TooltipContent>
-              </Tooltip>
-            </>
+          {canRemove ? (
+            <ComposeToolbarTooltip content="Remove QR code" desktop={isDesktopGlassToolbar} placement={placement}>
+              <Button
+                aria-label="Remove QR code"
+                className={getComposeToolbarIconButtonClass(isDesktopGlassToolbar)}
+                onClick={() => onRemoveQrCode?.(activePaneId)}
+                size="icon"
+                type="button"
+                variant="ghost"
+              >
+                <Trash2Icon />
+              </Button>
+            </ComposeToolbarTooltip>
           ) : null}
-        </div>
-      </div>
+
+          {!isDesktopGlassToolbar ? <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" /> : null}
+        </>
+      ) : null}
+
+      {!isDesktopGlassToolbar ? (
+        <>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label="Undo"
+                className="h-8 w-8 rounded-md border-0 bg-transparent p-0 text-[var(--ws-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--ws-ink)] disabled:opacity-40"
+                disabled={!canUndo || !onUndo}
+                onClick={onUndo}
+                size="icon"
+                type="button"
+                variant="ghost"
+              >
+                <Undo2Icon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Undo</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label="Redo"
+                className="h-8 w-8 rounded-md border-0 bg-transparent p-0 text-[var(--ws-ink-muted)] shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--ws-ink)] disabled:opacity-40"
+                disabled={!canRedo || !onRedo}
+                onClick={onRedo}
+                size="icon"
+                type="button"
+                variant="ghost"
+              >
+                <Redo2Icon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Redo</TooltipContent>
+          </Tooltip>
+        </>
+      ) : null}
     </>
+  )
+}
+
+type CanvasComposeToolbarProps = Omit<
+  ComposeToolbarControlsProps,
+  "isDesktopGlassToolbar" | "placement" | "showDesktopInteractionTools"
+> & {
+  isDesktopZoomToolbar: boolean
+  toolbarVariant?: DraftingPaneToolbarVariant
+}
+
+export function CanvasComposeToolbar({
+  isDesktopZoomToolbar,
+  toolbarVariant = "default",
+  ...controlsProps
+}: CanvasComposeToolbarProps) {
+  if (isDesktopZoomToolbar) {
+    return null
+  }
+
+  return (
+    <div
+      data-slot="desktop-compose-toolbar-anchor"
+      className={cn(
+        "pointer-events-none absolute z-[60] flex",
+        "bottom-4 justify-center inset-x-5 px-2 sm:inset-x-6 lg:inset-x-8",
+      )}
+    >
+      <div
+        data-slot="desktop-compose-toolbar"
+        data-toolbar-appearance="neutral"
+        className="pointer-events-auto inline-flex max-w-full flex-wrap items-center justify-center gap-1 rounded-[10px] bg-[var(--ws-panel-bg-active)] px-2 py-1.5"
+      >
+        <ComposeToolbarControls
+          {...controlsProps}
+          isDesktopGlassToolbar={false}
+          placement="canvas-floating"
+          showDesktopInteractionTools={false}
+          toolbarVariant={toolbarVariant}
+        />
+      </div>
+    </div>
+  )
+}
+
+export function DynamicIslandComposeToolbar({
+  ...controlsProps
+}: Omit<ComposeToolbarControlsProps, "isDesktopGlassToolbar" | "placement" | "showDesktopInteractionTools">) {
+  return (
+    <div
+      className="flex min-w-0 items-center gap-0.5"
+      data-slot="desktop-compose-toolbar"
+      data-toolbar-appearance="desktop-glass"
+    >
+      <ComposeToolbarControls
+        {...controlsProps}
+        isDesktopGlassToolbar
+        placement="dynamic-island"
+        showDesktopInteractionTools
+        toolbarVariant="desktop-zoom"
+      />
+    </div>
   )
 }

@@ -1,0 +1,76 @@
+diff --git a/dist/index.js b/dist/index.js
+index af0307c0dc0098203896beb7284ecd26a72a6340..d0c75c0263321c9c842deba28c93f225c4fb0eda 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1,6 +1,7 @@
+ 'use client';
+ import { jsx, jsxs } from 'react/jsx-runtime';
+-import { MotionConfig, AnimatePresence, motion, useIsPresent, useMotionValue, animate, useTransform } from 'motion/react';
++import { MotionConfig, AnimatePresence, useIsPresent, useMotionValue, animate, useTransform } from 'motion/react';
++import * as m from 'motion/react-m';
+ import { useRef, useState, useEffect, useCallback } from 'react';
+ 
+ const segmenter = new Intl.Segmenter(undefined, {
+@@ -183,7 +184,7 @@ function NumberRenderer({ text, Component, transition, stagger, animateInitial,
+                     const outerKey = isPrefix ? `pre-${i}` : `col-${chars.length - 1 - i}`;
+                     const delay = i * stagger;
+                     const isLast = i === chars.length - 1;
+-                    return /*#__PURE__*/ jsx(motion.span, {
++                    return /*#__PURE__*/ jsx(m.span, {
+                         layout: "position",
+                         initial: isPrefix ? false : {
+                             opacity: 0
+@@ -208,7 +209,7 @@ function NumberRenderer({ text, Component, transition, stagger, animateInitial,
+                             mode: "popLayout",
+                             initial: animateInitial,
+                             propagate: true,
+-                            children: /*#__PURE__*/ jsx(motion.span, {
++                            children: /*#__PURE__*/ jsx(m.span, {
+                                 "aria-hidden": "true",
+                                 initial: {
+                                     y: isDigit(char) ? dir > 0 ? DIGIT_DISTANCE : -DIGIT_DISTANCE : 0,
+@@ -256,7 +257,7 @@ function DigitNum({ n, current }) {
+         const clamped = Math.max(-1, Math.min(1, offset));
+         return `${-clamped * 100}%`;
+     });
+-    return /*#__PURE__*/ jsx(motion.span, {
++    return /*#__PURE__*/ jsx(m.span, {
+         "aria-hidden": true,
+         style: {
+             position: "absolute",
+@@ -396,7 +397,7 @@ function SlotsRenderer({ text, Component, transition, stagger, animateInitial, c
+                         const isPrefix = i < prefixLen;
+                         const outerKey = isPrefix ? `pre-${i}` : `col-${chars.length - 1 - i}`;
+                         if (isPrefix || !isDigit(char)) {
+-                            return /*#__PURE__*/ jsx(motion.span, {
++                            return /*#__PURE__*/ jsx(m.span, {
+                                 layout: "position",
+                                 initial: false,
+                                 exit: isPrefix ? undefined : {
+@@ -411,7 +412,7 @@ function SlotsRenderer({ text, Component, transition, stagger, animateInitial, c
+                         }
+                         const delay = (digitCount - 1 - digitIndex) * stagger;
+                         digitIndex++;
+-                        return /*#__PURE__*/ jsx(motion.span, {
++                        return /*#__PURE__*/ jsx(m.span, {
+                             layout: "position",
+                             initial: false,
+                             exit: {
+@@ -468,7 +469,7 @@ function TextRenderer({ text, Component, transition, driftX, driftY, trend, anim
+                     const offsetY = (progress - 0.5) * driftY * changeRatio;
+                     const trendY = trend * 8 * changeRatio;
+                     const isLast = i === graphemes.length - 1;
+-                    return /*#__PURE__*/ jsx(motion.span, {
++                    return /*#__PURE__*/ jsx(m.span, {
+                         "aria-hidden": "true",
+                         layout: "position",
+                         initial: {
+@@ -521,7 +522,7 @@ function AutoSizeWrapper({ children, transition }) {
+     }, [
+         element
+     ]);
+-    return /*#__PURE__*/ jsx(motion.span, {
++    return /*#__PURE__*/ jsx(m.span, {
+         animate: {
+             width: width > 0 ? width : "auto"
+         },

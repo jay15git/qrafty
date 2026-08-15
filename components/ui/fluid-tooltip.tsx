@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import { m } from "framer-motion";
+import { m } from "motion/react";
 import { cn } from "@/lib/utils";
 import { spring } from "@/lib/springs";
 import { fontWeights } from "@/lib/font-weight";

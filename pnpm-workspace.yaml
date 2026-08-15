@@ -17,3 +17,5 @@ ignoredBuiltDependencies:
   - unrs-resolver
 onlyBuiltDependencies:
   - msw
+patchedDependencies:
+  calligraph@1.4.1: patches/calligraph@1.4.1.patch

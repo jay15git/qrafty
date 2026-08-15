@@ -38,7 +38,7 @@ type InsertMenuProps = {
   onBrowseStockPhotos?: () => void
   onOpenCardPatternSettings?: () => void
   triggerClassName?: string
-  variant?: "rail" | "toolbar" | "bottom-toolbar"
+  variant?: "rail" | "toolbar" | "bottom-toolbar" | "dynamic-island"
 }
 
 export function InsertMenu({
@@ -101,10 +101,10 @@ export function InsertMenu({
     closeMenu()
   }
 
-  const isDesktopPopover = variant === "bottom-toolbar"
+  const isDesktopPopover = variant === "bottom-toolbar" || variant === "dynamic-island"
 
   const trigger =
-    variant === "bottom-toolbar" ? (
+    variant === "bottom-toolbar" || variant === "dynamic-island" ? (
       <Button
         aria-label="Add content"
         className={
@@ -148,23 +148,27 @@ export function InsertMenu({
         }
       }}
     >
-      {variant === "bottom-toolbar" ? (
-        <DesktopTooltip content="Add content" side="left" sideOffset={10}>
+      {variant === "bottom-toolbar" || variant === "dynamic-island" ? (
+        <DesktopTooltip
+          content="Add content"
+          side={variant === "dynamic-island" ? "bottom" : "left"}
+          sideOffset={10}
+        >
           <PopoverTrigger asChild>{trigger}</PopoverTrigger>
         </DesktopTooltip>
       ) : (
         <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       )}
       <PopoverContent
-        align={variant === "bottom-toolbar" ? "center" : variant === "toolbar" ? "start" : "center"}
+        align={variant === "bottom-toolbar" || variant === "dynamic-island" ? "center" : variant === "toolbar" ? "start" : "center"}
         className={cn(
           isDesktopPopover
             ? cn(DESKTOP_INSERT_POPOVER_SHELL, "z-[20000]")
             : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--ws-line)] bg-[var(--ws-panel-bg)] p-3",
         )}
         data-slot={isDesktopPopover ? "desktop-insert-menu-popover" : "drafting-insert-menu"}
-        side={variant === "bottom-toolbar" ? "top" : undefined}
-        sideOffset={variant === "bottom-toolbar" ? 12 : undefined}
+        side={variant === "dynamic-island" ? "bottom" : variant === "bottom-toolbar" ? "top" : undefined}
+        sideOffset={variant === "bottom-toolbar" || variant === "dynamic-island" ? 12 : undefined}
       >
         {panel === "root" ? (
           <InsertMenuRootPanel

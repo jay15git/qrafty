@@ -283,15 +283,17 @@ describe("WorkspaceSurface", () => {
     expect(root.getAttribute("data-qr-content-value")).toBe("https://example.com/desktop-live")
   })
 
-  it("renders the desktop canvas resize toolbar and wires it to preview zoom", async () => {
+  it("renders compose controls in the dynamic island on desktop", async () => {
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
     await waitForDraftingSurface()
-    const composeToolbar = getRequiredElement(surface.container, '[data-slot="desktop-compose-toolbar"]')
+    const dynamicIsland = getRequiredElement(surface.container, '[data-slot="desktop-dynamic-island"]')
+    const composeToolbar = getRequiredElement(
+      dynamicIsland,
+      '[data-slot="desktop-compose-toolbar"]',
+    )
 
     expect(composeToolbar.getAttribute("data-toolbar-appearance")).toBe("desktop-glass")
-    expect(composeToolbar.className).toContain("rounded-[10px]")
-    expect(composeToolbar.className).toContain("bg-[var(--desktop-glass-bg)]")
     expect(surface.container.querySelector('button[aria-label="Zoom out preview"]')).toBeNull()
     expect(surface.container.querySelector('button[aria-label="Zoom in preview"]')).toBeNull()
     expect(surface.container.querySelector('button[aria-label="Reset view"]')).toBeNull()
@@ -308,7 +310,6 @@ describe("WorkspaceSurface", () => {
       "Add text on canvas",
       "Add content",
     ])
-    const dynamicIsland = getRequiredElement(surface.container, '[data-slot="desktop-dynamic-island"]')
     const utilityToolbar = getRequiredElement(surface.container, '[data-slot="desktop-utility-toolbar"]')
     expect(surface.container.querySelector('[data-slot="desktop-document-toolbar"]')).toBeNull()
     expect(Array.from(utilityToolbar.querySelectorAll("button")).map((button) => button.getAttribute("aria-label"))).toEqual([
@@ -329,8 +330,7 @@ describe("WorkspaceSurface", () => {
       "Redo",
       "Canvas size — 4:3",
     ])
-    expect(composeToolbar.parentElement?.className).toContain("top-1/2")
-    expect(composeToolbar.parentElement?.className).toContain("-translate-y-1/2")
+    expect(surface.container.querySelector('[data-slot="desktop-compose-toolbar-anchor"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-resize-toolbar"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-zoom-popover"]')).toBeNull()
   })

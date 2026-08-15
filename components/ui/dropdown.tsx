@@ -13,7 +13,7 @@ import {
   type ReactNode,
   type HTMLAttributes,
 } from "react";
-import { m, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import { spring } from "@/lib/springs";
 import { useProximityHover } from "@/hooks/use-proximity-hover";

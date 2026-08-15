@@ -67,5 +67,10 @@
     "tailwindcss": "^4",
     "typescript": "^5.9.3",
     "vitest": "^4.1.4"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "calligraph@1.4.1": "patches/calligraph@1.4.1.patch"
+    }
   }
 }

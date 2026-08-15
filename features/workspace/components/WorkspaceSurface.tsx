@@ -324,6 +324,7 @@ export function WorkspaceSurface({
       selectedLayerIds,
       desktopCanvasTool,
       showDesktopCanvasGrid,
+      desktopSnapEnabled,
       selectedDownloadExtension,
       selectedDownloadTarget,
       exportDownloadError,
@@ -413,6 +414,7 @@ export function WorkspaceSurface({
       setSelectedLayerIds,
       setDesktopCanvasTool,
       setShowDesktopCanvasGrid,
+      setDesktopSnapEnabled,
       setSelectedDownloadExtension,
       setSelectedDownloadTarget,
       setExportDownloadError,
@@ -3238,6 +3240,11 @@ export function WorkspaceSurface({
     contentIsValid: selectedContentValidation.isValid,
   })
 
+  const canRemoveQrCode =
+    paneToolbarVariant === "desktop-zoom" &&
+    qrCanvasLayers.length > 1 &&
+    Boolean(selectedLayerId?.includes(":qr"))
+
   const desktopController: DraftingWorkspaceController = {
     activeTool: desktopActiveTool,
     canRedo: canRedoDraftingWorkspace,
@@ -3269,6 +3276,25 @@ export function WorkspaceSurface({
     selectedAppearanceLayer: selectedTransformLayer,
     appearanceSnapshot: desktopAppearanceSnapshot,
     scanSafetyResult,
+    canvasTool: paneToolbarVariant === "desktop-zoom" ? desktopCanvasTool : undefined,
+    onCanvasToolChange:
+      paneToolbarVariant === "desktop-zoom" ? setDesktopCanvasTool : undefined,
+    showCanvasGrid: paneToolbarVariant === "desktop-zoom" ? showDesktopCanvasGrid : undefined,
+    onCanvasGridChange:
+      paneToolbarVariant === "desktop-zoom" ? setShowDesktopCanvasGrid : undefined,
+    snapEnabled: paneToolbarVariant === "desktop-zoom" ? desktopSnapEnabled : undefined,
+    onSnapEnabledChange:
+      paneToolbarVariant === "desktop-zoom" ? setDesktopSnapEnabled : undefined,
+    canAddQrCode: qrCanvasLayers.length < 10,
+    onAddQrCode: () => {
+      void handleAddQrCode()
+    },
+    onAddTextLayerAt: handleAddTextLayerAt,
+    canRemoveQrCode,
+    onRemoveQrCode:
+      canRemoveQrCode && selectedLayerId
+        ? () => handleRemoveQrCode(selectedLayerId)
+        : undefined,
     onInsertLayer: handleInsertLayer,
     onOpenComposeSidebar: (panel) => {
       setComposeSidebarPanel(panel)
@@ -3530,6 +3556,10 @@ export function WorkspaceSurface({
               panes={panes}
               fitCanvasToViewport
               showCanvasGrid={paneToolbarVariant === "desktop-zoom" ? showDesktopCanvasGrid : true}
+              snapEnabled={paneToolbarVariant === "desktop-zoom" ? desktopSnapEnabled : undefined}
+              onSnapEnabledChange={
+                paneToolbarVariant === "desktop-zoom" ? setDesktopSnapEnabled : undefined
+              }
               toolbarVariant={paneToolbarVariant}
               selectedLayerId={selectedLayerId}
               selectedLayerIds={selectedLayerIds}

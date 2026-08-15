@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, forwardRef, type HTMLAttributes } from "react";
 import type { IconComponent } from "@/lib/icon-context";
-import { m, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "motion/react";
 import { useDropdown } from "@/components/ui/dropdown";
 import { cn } from "@/lib/utils";
 import { fontWeights } from "@/lib/font-weight";
