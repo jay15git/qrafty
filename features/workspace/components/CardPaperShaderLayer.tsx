@@ -5,6 +5,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
   type ReactNode,
   type RefObject,
@@ -70,6 +71,18 @@ class PaperShaderErrorBoundary extends Component<
   }
 }
 
+function subscribeToPaperShaderSupport(_onStoreChange: () => void) {
+  return () => {}
+}
+
+function getPaperShaderSupportSnapshot() {
+  return hasDraftingPaperShaderWebGlSupport()
+}
+
+function getPaperShaderSupportServerSnapshot() {
+  return false
+}
+
 function hasDraftingPaperShaderWebGlSupport() {
   if (typeof document === "undefined") return false
   if (
@@ -113,15 +126,13 @@ function usePaperShaderContextRecovery(
   hostRef: RefObject<HTMLDivElement | null>,
   onRecover: () => void,
 ) {
+  // eslint-disable-next-line react-doctor/effect-needs-cleanup -- observer/listener cleanup in return
   useEffect(() => {
-    const host = hostRef.current
-    if (!host) {
-      return
-    }
-
+    let cancelled = false
     let canvasCleanup: (() => void) | undefined
+    let observer: MutationObserver | undefined
 
-    const bindCanvas = () => {
+    const bindCanvas = (host: HTMLDivElement) => {
       canvasCleanup?.()
       const canvas = host.querySelector("canvas")
       if (!canvas) {
@@ -140,15 +151,20 @@ function usePaperShaderContextRecovery(
       }
     }
 
-    bindCanvas()
-
-    const observer = new MutationObserver(() => {
-      bindCanvas()
-    })
-    observer.observe(host, { childList: true, subtree: true })
+    const host = hostRef.current
+    if (host) {
+      bindCanvas(host)
+      observer = new MutationObserver(() => {
+        if (!cancelled && hostRef.current) {
+          bindCanvas(hostRef.current)
+        }
+      })
+      observer.observe(host, { childList: true, subtree: true })
+    }
 
     return () => {
-      observer.disconnect()
+      cancelled = true
+      observer?.disconnect()
       canvasCleanup?.()
     }
   }, [hostRef, onRecover])
@@ -212,7 +228,11 @@ export function DraftingCardPaperShaderLayer({
   layoutWidth,
   paperShader,
 }: DraftingCardPaperShaderLayerProps) {
-  const [canRenderShader] = useState(hasDraftingPaperShaderWebGlSupport)
+  const canRenderShader = useSyncExternalStore(
+    subscribeToPaperShaderSupport,
+    getPaperShaderSupportSnapshot,
+    getPaperShaderSupportServerSnapshot,
+  )
   const [mountGeneration, setMountGeneration] = useState(0)
   const [shaderErrorId, setShaderErrorId] = useState<string | null>(null)
   const hasLayout = hasValidPaperShaderLayout(layoutWidth, layoutHeight)

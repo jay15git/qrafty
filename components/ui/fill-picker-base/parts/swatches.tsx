@@ -71,7 +71,7 @@ export const Swatches = React.forwardRef<HTMLDivElement, SwatchesProps>(function
       >
         {presets.map((p, i) => (
           <Radio.Root
-            key={`${p}-${i}`}
+            key={p}
             value={p}
             aria-label={p}
             className={cn(

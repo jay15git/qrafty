@@ -409,7 +409,7 @@ export function DesktopNewSettingsPanel({
   onOpenSectionChange,
 }: DesktopNewSettingsPanelProps) {
   const [internalOpenSection, setInternalOpenSection] = useState<string | undefined>(
-    sectionForTool(model.actualActiveTool),
+    () => sectionForTool(model.actualActiveTool),
   )
   const openSection = openSectionProp ?? internalOpenSection
   const setOpenSection = onOpenSectionChange ?? setInternalOpenSection

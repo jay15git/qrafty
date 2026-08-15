@@ -11,7 +11,7 @@
  */
 
 import { UploadCloud } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import {
   type DragEvent,
   useCallback,
@@ -347,16 +347,7 @@ export default function FileUpload({
             setFile(null);
             onUploadSuccess?.(uploadingFile);
           } else {
-            setStatus((prevStatus) => {
-              if (prevStatus === "uploading") {
-                setProgress(currentProgress);
-                return "uploading";
-              }
-              if (uploadIntervalRef.current) {
-                clearInterval(uploadIntervalRef.current);
-              }
-              return prevStatus;
-            });
+            setProgress(currentProgress);
           }
         },
         uploadDelay / (100 / UPLOAD_STEP_SIZE)
@@ -484,7 +475,7 @@ export default function FileUpload({
             <div className="relative h-[240px]">
               <AnimatePresence mode="wait">
                 {status === "idle" || status === "dragging" ? (
-                  <motion.div
+                  <m.div
                     animate={{
                       opacity: status === "dragging" ? 0.8 : 1,
                       y: 0,
@@ -539,9 +530,9 @@ export default function FileUpload({
                       ref={fileInputRef}
                       type="file"
                     />
-                  </motion.div>
+                  </m.div>
                 ) : status === "uploading" ? (
-                  <motion.div
+                  <m.div
                     animate={{ opacity: 1, scale: 1 }}
                     className="absolute inset-0 flex flex-col items-center justify-center p-6"
                     exit={{ opacity: 0, scale: 0.95 }}
@@ -573,14 +564,14 @@ export default function FileUpload({
                     >
                       Cancel
                     </button>
-                  </motion.div>
+                  </m.div>
                 ) : null}
               </AnimatePresence>
             </div>
 
             <AnimatePresence>
               {error && (
-                <motion.div
+                <m.div
                   animate={{ opacity: 1, y: 0 }}
                   className="absolute bottom-4 left-1/2 -translate-x-1/2 transform rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2"
                   exit={{ opacity: 0, y: -10 }}
@@ -589,7 +580,7 @@ export default function FileUpload({
                   <p className="text-red-500 text-sm dark:text-red-400">
                     {error.message}
                   </p>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </div>

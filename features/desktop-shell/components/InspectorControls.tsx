@@ -17,7 +17,7 @@ import {
 } from "react"
 import { ChevronDownIcon, SearchIcon } from "lucide-react"
 import { Calligraph } from "calligraph"
-import { AnimatePresence, motion, useReducedMotion, type Transition } from "motion/react"
+import { AnimatePresence, m, useReducedMotion, type Transition } from "motion/react"
 
 import { DesktopInspectorPasteButton } from "@/features/desktop-shell/components/DesktopInspectorPasteButton"
 import "./desktop-inspector-input-error.css"
@@ -38,7 +38,7 @@ import { SurfaceProvider } from "@/lib/surface-context"
 
 import "./desktop-inspector-design-system.css"
 import "./desktop-inspector-morph-filter.css"
-import "./desktop-inspector-motion.css"
+import "./desktop-inspector-m.css"
 
 export const DESKTOP_INSPECTOR_PRESS_CLASS = "desktop-inspector-press"
 
@@ -128,7 +128,7 @@ export const DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS = cn(
 )
 export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_SURFACE_CLASS =
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS
-/** Preview scale timing lives in desktop-inspector-motion.css */
+/** Preview scale timing lives in desktop-inspector-m.css */
 export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS = ""
 
 export {

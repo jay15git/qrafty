@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useAnimation, type Variants } from "motion/react";
+import { m, useAnimation, type Variants } from "motion/react";
 import type { HTMLAttributes } from "react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import { cn } from "@/lib/utils";
@@ -83,7 +83,7 @@ const ReceiptTextIcon = forwardRef<ReceiptTextIconHandle, ReceiptTextIconProps>(
         onMouseLeave={handleMouseLeave}
         {...props}
       >
-        <motion.svg
+        <m.svg
           fill="none"
           height={size}
           stroke="currentColor"
@@ -95,16 +95,16 @@ const ReceiptTextIcon = forwardRef<ReceiptTextIconHandle, ReceiptTextIconProps>(
           xmlns="http://www.w3.org/2000/svg"
         >
           <path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z" />
-          <motion.g
+          <m.g
             animate={controls}
             initial="visible"
             variants={LINES_CONTAINER_VARIANTS}
           >
-            <motion.path d="M8 8H14" variants={LINE_VARIANTS} />
-            <motion.path d="M8 12H16" variants={LINE_VARIANTS} />
-            <motion.path d="M8 16H13" variants={LINE_VARIANTS} />
-          </motion.g>
-        </motion.svg>
+            <m.path d="M8 8H14" variants={LINE_VARIANTS} />
+            <m.path d="M8 12H16" variants={LINE_VARIANTS} />
+            <m.path d="M8 16H13" variants={LINE_VARIANTS} />
+          </m.g>
+        </m.svg>
       </div>
     );
   }

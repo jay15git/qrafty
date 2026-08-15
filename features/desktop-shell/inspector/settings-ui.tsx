@@ -1,7 +1,7 @@
 "use client"
 
 import { ChevronRight, Filter, Search } from "lucide-react"
-import { AnimatePresence, motion, useReducedMotion } from "motion/react"
+import { AnimatePresence, m, useReducedMotion } from "motion/react"
 import {
   createContext,
   useContext,
@@ -301,7 +301,7 @@ export function SettingsTabPanel({
   return (
     <div className="relative w-full min-w-0 overflow-hidden">
       <AnimatePresence mode="popLayout" initial={false}>
-        <motion.div
+        <m.div
           key={activeKey}
           className={cn(
             "dn-settings-tab-panel flex w-full min-w-0 flex-col gap-2.5",
@@ -315,7 +315,7 @@ export function SettingsTabPanel({
           exit="exit"
         >
           {children}
-        </motion.div>
+        </m.div>
       </AnimatePresence>
     </div>
   )

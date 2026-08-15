@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "motion/react"
+import { m } from "motion/react"
 import { useCallback, useEffect, useState, type ReactNode } from "react"
 
 import { EXPANDABLE_PANEL_SPRING } from "@/components/atomixui/expandable-panel-shell"
@@ -8,7 +8,7 @@ import {
   DesktopSettingsPanelMotionFrozenProvider,
 } from "@/features/desktop-shell/components/desktop-settings-panel-motion-frozen-context"
 
-import "./desktop-settings-toolbar-motion.css"
+import "./desktop-settings-toolbar-m.css"
 
 /** Expanded column leaves enough room to keep the canvas legible on compact desktops. */
 const DESKTOP_SHELL_EXPANDED_WIDTH_RATIO = 0.28
@@ -119,22 +119,18 @@ export function DesktopSettingsToolbarShell({
         Same width updates --desktop-settings-toolbar-width so grey canvas left inset
         grows in lockstep — white expands, grey minimizes. No overlay on the canvas.
       */}
-      <motion.div
+      <m.div
+        layout
         className="pointer-events-auto absolute inset-y-0 left-0 z-[25] overflow-hidden bg-transparent text-[var(--desktop-glass-fg)]"
         data-hovered={isHovered ? "true" : "false"}
         data-shell-animating={isShellAnimating ? "true" : "false"}
         data-slot="desktop-left-toolbar-shell"
         data-toolbar-appearance="desktop-settings"
         initial={false}
-        animate={{ width: expandedWidth }}
+        style={{ width: expandedWidth }}
         transition={widthTransitionEnabled ? EXPANDABLE_PANEL_SPRING : { duration: 0 }}
-        onAnimationStart={() => handleShellAnimatingChange(true)}
-        onAnimationComplete={() => handleShellAnimatingChange(false)}
-        onUpdate={(latest) => {
-          if (typeof latest.width === "number") {
-            syncSidebarColumnWidth(latest.width)
-          }
-        }}
+        onLayoutAnimationStart={() => handleShellAnimatingChange(true)}
+        onLayoutAnimationComplete={() => handleShellAnimatingChange(false)}
       >
         <div
           className="h-full min-h-0 min-w-0 overflow-hidden"
@@ -144,7 +140,7 @@ export function DesktopSettingsToolbarShell({
             {panelContent}
           </div>
         </div>
-      </motion.div>
+      </m.div>
     </div>
   )
 }

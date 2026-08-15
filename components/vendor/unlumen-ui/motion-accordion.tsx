@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { motion } from "motion/react"
+import { m } from "motion/react"
 
 import { cn } from "@/lib/utils"
 
@@ -191,7 +191,7 @@ function AccordionItem({
   }, [contentH, isOpen])
 
   return (
-    <motion.div
+    <m.div
       ref={itemRef}
       layout
       data-slot="motion-accordion-item"
@@ -254,7 +254,7 @@ function AccordionItem({
             />
           </span>
         ) : (
-          <motion.div
+          <m.div
             aria-hidden="true"
             data-slot="motion-accordion-icon"
             animate={{ rotate: isOpen ? 45 : 0 }}
@@ -275,11 +275,12 @@ function AccordionItem({
                 strokeLinecap="round"
               />
             </svg>
-          </motion.div>
+          </m.div>
         )}
       </button>
 
-      <motion.div
+      <m.div
+        layout
         ref={panelRef}
         id={panelId}
         role="region"
@@ -287,18 +288,15 @@ function AccordionItem({
         aria-hidden={!isOpen}
         data-slot="motion-accordion-panel"
         data-state={isOpen ? "open" : "closed"}
-        animate={{
-          height: isOpen ? contentH : 0,
-          opacity: isOpen ? 1 : 0,
-        }}
+        animate={{ opacity: isOpen ? 1 : 0 }}
         initial={false}
         transition={{
-          height: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
+          layout: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
           opacity: { duration: 0.2, ease: "easeOut" },
         }}
-        style={{ overflow: "hidden" }}
+        style={{ height: isOpen ? contentH : 0, overflow: "hidden" }}
       >
-        <motion.div
+        <m.div
           ref={contentRef}
           animate={{ y: isOpen ? 0 : -8 }}
           initial={false}
@@ -319,9 +317,9 @@ function AccordionItem({
           >
             {item.content}
           </div>
-        </motion.div>
-      </motion.div>
-    </motion.div>
+        </m.div>
+      </m.div>
+    </m.div>
   )
 }
 

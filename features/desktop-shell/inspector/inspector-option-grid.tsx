@@ -9,7 +9,7 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react"
-import { AnimatePresence, motion, useReducedMotion, type Transition } from "motion/react"
+import { AnimatePresence, m, useReducedMotion, type Transition } from "motion/react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useDesktopSettingsPanelMotionFrozen } from "@/features/desktop-shell/components/desktop-settings-panel-motion-frozen-context"
@@ -188,7 +188,7 @@ export function DesktopInspectorAnimatedOptionGrid({
     >
       <AnimatePresence initial={false}>
         {selection ? (
-          <motion.div
+          <m.div
             key={selection.key}
             data-slot="desktop-inspector-option-selection-indicator"
             className="pointer-events-none absolute z-0 rounded-[7px] border-2 border-[var(--desktop-inspector-option-selected-border)] bg-[var(--desktop-inspector-option-selected-bg)] shadow-[var(--desktop-inspector-option-selected-shadow)] backdrop-blur-[16px]"

@@ -4,7 +4,7 @@ import * as React from "react"
 import { Calligraph } from "calligraph"
 import {
   animate,
-  motion,
+  m,
   useMotionValue,
   useReducedMotion,
   useTransform,
@@ -440,7 +440,7 @@ export function ElasticSlider({
         className,
       )}
     >
-      <motion.div
+      <m.div
         ref={trackRef}
         role="slider"
         tabIndex={0}
@@ -485,7 +485,7 @@ export function ElasticSlider({
           ))}
         </div>
 
-        <motion.div
+        <m.div
           data-slot="elastic-slider-fill"
           aria-hidden="true"
           className={cn(
@@ -495,7 +495,7 @@ export function ElasticSlider({
           style={{ width: fillWidth }}
         />
 
-        <motion.div
+        <m.div
           data-slot="elastic-slider-handle"
           aria-hidden="true"
           className="pointer-events-none absolute top-1/2 h-5 w-1 rounded-full bg-(--elastic-slider-handle)"
@@ -557,7 +557,7 @@ export function ElasticSlider({
             displayBody
           )}
         </span>
-      </motion.div>
+      </m.div>
     </div>
   )
 }

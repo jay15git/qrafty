@@ -6,13 +6,14 @@ import {
   useState,
   useCallback,
   useEffect,
+  useMemo,
   createContext,
   useContext,
   forwardRef,
   type ReactNode,
   type HTMLAttributes,
 } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import type { IconComponent } from "@/lib/icon-context";
 import { cn } from "@/lib/utils";
 import { spring } from "@/lib/springs";
@@ -83,28 +84,37 @@ const TabsSubtle = forwardRef<HTMLDivElement, TabsSubtleProps>(
 
     useEffect(() => {
       if (pauseSelectionMotion) {
-        return
+        return () => {}
       }
 
       measureTabs();
+      return () => {}
     }, [measureTabs, children, pauseSelectionMotion]);
 
     // Observe individual tab buttons for resize (label expand/collapse in activeLabel mode)
     useEffect(() => {
       if (pauseSelectionMotion) {
-        return
+        return () => {}
       }
 
-      const elements = tabElementsRef.current;
-      if (elements.size === 0) return;
-      if (typeof ResizeObserver === "undefined") {
-        measureTabs();
-        return;
+      const elements = Array.from(tabElementsRef.current.values())
+      if (elements.length === 0) {
+        return () => {}
       }
-      const ro = new ResizeObserver(() => measureTabs());
-      elements.forEach((el) => ro.observe(el));
-      return () => ro.disconnect();
-    }, [measureTabs, children, pauseSelectionMotion]);
+      if (typeof ResizeObserver === "undefined") {
+        measureTabs()
+        return () => {}
+      }
+
+      const ro = new ResizeObserver(() => measureTabs())
+      for (const element of elements) {
+        ro.observe(element)
+      }
+
+      return () => {
+        ro.disconnect()
+      }
+    }, [measureTabs, children, pauseSelectionMotion])
 
     // Wrap handlers to track isMouseInside
     const handleMouseMove = useCallback(
@@ -129,10 +139,13 @@ const TabsSubtle = forwardRef<HTMLDivElement, TabsSubtleProps>(
     const isHoveringSelected = hoveredIndex === selectedIndex;
     const isHovering = hoveredIndex !== null && !isHoveringSelected;
 
+    const contextValue = useMemo(
+      () => ({ registerTab, hoveredIndex, selectedIndex, onSelect, idPrefix, activeLabel }),
+      [registerTab, hoveredIndex, selectedIndex, onSelect, idPrefix, activeLabel],
+    );
+
     return (
-      <TabsSubtleContext.Provider
-        value={{ registerTab, hoveredIndex, selectedIndex, onSelect, idPrefix, activeLabel }}
-      >
+      <TabsSubtleContext.Provider value={contextValue}>
         <div
           ref={(node) => {
             (containerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
@@ -189,14 +202,16 @@ const TabsSubtle = forwardRef<HTMLDivElement, TabsSubtleProps>(
         >
           {/* Selected pill */}
           {selectedRect ? (
-            <motion.div
+            <m.div
               className={cn("absolute bg-active pointer-events-none", TABS_SUBTLE_PILL_CLASS)}
               initial={false}
-              animate={{
+              style={{
                 left: selectedRect.left,
                 width: selectedRect.width,
                 top: selectedRect.top,
                 height: selectedRect.height,
+              }}
+              animate={{
                 opacity: isHovering ? 0.8 : 1,
               }}
               transition={
@@ -213,29 +228,21 @@ const TabsSubtle = forwardRef<HTMLDivElement, TabsSubtleProps>(
           {/* Hover pill */}
           <AnimatePresence>
             {hoverRect && !isHoveringSelected && selectedRect && !pauseSelectionMotion && (
-              <motion.div
+              <m.div
                 className={cn("absolute bg-active pointer-events-none", TABS_SUBTLE_PILL_CLASS)}
-                initial={{
-                  left: selectedRect.left,
-                  width: selectedRect.width,
-                  top: selectedRect.top,
-                  height: selectedRect.height,
-                  opacity: 0,
-                }}
-                animate={{
+                initial={{ opacity: 0 }}
+                style={{
                   left: hoverRect.left,
                   width: hoverRect.width,
                   top: hoverRect.top,
                   height: hoverRect.height,
+                }}
+                animate={{
                   opacity: 0.4,
                 }}
                 exit={
                   !isMouseInside.current && selectedRect
                     ? {
-                        left: selectedRect.left,
-                        width: selectedRect.width,
-                        top: selectedRect.top,
-                        height: selectedRect.height,
                         opacity: 0,
                         transition: { ...spring.moderate, opacity: { duration: 0.06 } },
                       }
@@ -252,18 +259,19 @@ const TabsSubtle = forwardRef<HTMLDivElement, TabsSubtleProps>(
           {/* Focus ring */}
           <AnimatePresence>
             {focusRect && !pauseSelectionMotion && (
-              <motion.div
+              <m.div
                 className={cn(
                   "absolute pointer-events-none z-20 border border-[#6B97FF]",
                   TABS_SUBTLE_FOCUS_RING_CLASS,
                 )}
                 initial={false}
-                animate={{
+                style={{
                   left: focusRect.left - 2,
                   top: focusRect.top - 2,
                   width: focusRect.width + 4,
                   height: focusRect.height + 4,
                 }}
+                animate={{}}
                 exit={{ opacity: 0, transition: spring.fast.exit }}
                 transition={{
                   ...spring.fast,
@@ -365,19 +373,20 @@ const TabsSubtleItem = forwardRef<HTMLButtonElement, TabsSubtleItemProps>(
         {collapseLabel ? (
           <AnimatePresence initial={false}>
             {showLabel && (
-              <motion.span
+              <m.span
                 key="label"
-                className="overflow-hidden"
-                initial={{ width: 0, opacity: 0, marginLeft: 0 }}
-                animate={{ width: "auto", opacity: 1, marginLeft: 8 }}
-                exit={{ width: 0, opacity: 0, marginLeft: 0 }}
+                className="overflow-hidden inline-block origin-left"
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 1 }}
+                exit={{ scaleX: 0, opacity: 0 }}
+                style={{ marginLeft: showLabel ? 8 : 0 }}
                 transition={{
                   ...spring.fast,
                   opacity: { duration: 0.06 },
                 }}
               >
                 {labelContent}
-              </motion.span>
+              </m.span>
             )}
           </AnimatePresence>
         ) : (

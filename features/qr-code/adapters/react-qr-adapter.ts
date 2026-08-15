@@ -94,7 +94,10 @@ export function toReactQrCodeProps(state: QrStudioState): ReactQRCodeProps {
       },
     },
     value: state.valueSegments?.length
-      ? state.valueSegments.map((segment) => segment.trim()).filter(Boolean)
+      ? state.valueSegments.flatMap((segment) => {
+          const trimmed = segment.trim()
+          return trimmed ? [trimmed] : []
+        })
       : state.data.trim(),
   };
 }

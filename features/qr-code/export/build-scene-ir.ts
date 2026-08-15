@@ -195,18 +195,20 @@ export async function buildSceneIr({
 }: BuildSceneIrOptions): Promise<SceneIr> {
   await ensureDraftingFontsForLayers(layers)
 
-  const parts: LayeredSvgParts = await buildLayeredSvgParts({
-    cardState,
-    layers,
-    state,
-    qrMarkup,
-  })
-  const domParts = await buildLayeredDomParts({
-    cardState,
-    layers,
-    state,
-    qrMarkup,
-  })
+  const [parts, domParts] = await Promise.all([
+    buildLayeredSvgParts({
+      cardState,
+      layers,
+      state,
+      qrMarkup,
+    }),
+    buildLayeredDomParts({
+      cardState,
+      layers,
+      state,
+      qrMarkup,
+    }),
+  ])
 
   const cardLayer = findCardLayer(layers)
   const shaders = buildShaderNodes(cardState, cardLayer, layers, shaderSnapshots)

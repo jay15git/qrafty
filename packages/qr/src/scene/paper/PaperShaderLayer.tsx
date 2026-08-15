@@ -6,6 +6,7 @@ import {
   type ReactNode,
   useMemo,
   useState,
+  useSyncExternalStore,
 } from "react"
 import { Dithering } from "@paper-design/shaders-react"
 import { buildPaperShaderRenderProps } from "../shaders"
@@ -57,6 +58,14 @@ export function hasPaperShaderWebGlSupport() {
   }
 }
 
+function subscribeToPaperShaderSupport(_onStoreChange: () => void) {
+  return () => {}
+}
+
+function getPaperShaderSupportServerSnapshot() {
+  return false
+}
+
 export function PaperShaderLayer({
   paperShader,
   className,
@@ -65,7 +74,11 @@ export function PaperShaderLayer({
   layoutWidth,
   layoutHeight,
 }: PaperShaderLayerProps) {
-  const [canRenderShader] = useState(hasPaperShaderWebGlSupport)
+  const canRenderShader = useSyncExternalStore(
+    subscribeToPaperShaderSupport,
+    hasPaperShaderWebGlSupport,
+    getPaperShaderSupportServerSnapshot,
+  )
   const [hasError, setHasError] = useState(false)
   const ShaderComponent = PAPER_SHADER_COMPONENTS_BY_ID[paperShader.shaderId] ?? Dithering
   const worldSize = usePaperShaderWorldSize(layoutWidth, layoutHeight)

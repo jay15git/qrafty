@@ -153,19 +153,14 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
     : isControlledColor
       ? coerce(controlledValue, BLACK)
       : internalColor;
-  // A hue is "good" (worth remembering) when it's meaningful: any chromatic
-  // color, or a string that authored a hue even at zero chroma (OKLCH can).
   const controlledHueAuthored = controlledParsed
     ? !controlledParsed.hueMissing
     : false;
   if (!isAchromatic(rawColor) || controlledHueAuthored) {
+    // Hue memory must update synchronously during render for controlled string inputs.
+    // eslint-disable-next-line react-doctor/no-ref-current-in-render -- hue preservation
     lastGoodHueRef.current = rawColor.h;
   }
-  // Only substitute on string-controlled inputs whose parse actually lost
-  // the hue (achromatic hex/rgb/hsl round-trips). Strings that author a hue
-  // (e.g. `oklch(0.5 0 90)`), object-controlled, and uncontrolled state all
-  // carry the hue verbatim — including explicit user assignments like
-  // setComponent("h", 0) on a black/white color.
   const color: OklchColor =
     isControlledStringInput && (controlledParsed?.hueMissing ?? true)
       ? { ...rawColor, h: lastGoodHueRef.current }
@@ -187,11 +182,14 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
   // values instead of the closure snapshot from the previous render. Without
   // this, `setFormat`'s clamp call emits `formatted` in the *old* format.
   const formatRef = React.useRef(format);
-  formatRef.current = format;
   const onValueChangeRef = React.useRef(onValueChange);
-  onValueChangeRef.current = onValueChange;
   const isControlledColorRef = React.useRef(isControlledColor);
-  isControlledColorRef.current = isControlledColor;
+
+  React.useLayoutEffect(() => {
+    formatRef.current = format;
+    onValueChangeRef.current = onValueChange;
+    isControlledColorRef.current = isControlledColor;
+  });
 
   const commitColor = React.useCallback((next: OklchColor) => {
     if (!isControlledColorRef.current) setInternalColor(next);

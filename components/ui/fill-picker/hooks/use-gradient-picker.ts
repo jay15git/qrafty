@@ -243,11 +243,12 @@ export function useGradientPicker(
   // and re-assigned inside `apply` so chained setters in one event handler each
   // see the previous result.
   const stateRef = React.useRef(internal);
-  stateRef.current = internal;
-
-  // Latest-callback ref so a fresh arrow each render doesn't re-create setters.
   const onValueChangeRef = React.useRef(onValueChange);
-  onValueChangeRef.current = onValueChange;
+
+  React.useLayoutEffect(() => {
+    stateRef.current = internal;
+    onValueChangeRef.current = onValueChange;
+  });
 
   // Per-shape override stashes. The radial gradient can carry either an
   // ellipse override (`radii`) or a circle override (`radiusPx`), never
@@ -314,7 +315,6 @@ export function useGradientPicker(
         ? byId
         : sameLength &&
           prev.stops.every((s, i) => s.position === incoming[i].position);
-      idTrackedRef.current = uniqueIds;
       const structuralMatch = prev.gradient.type === value.type && sameShape;
       const next: InternalState = structuralMatch
         ? {
@@ -325,10 +325,17 @@ export function useGradientPicker(
           }
         : attachIds(value);
       if (!structuralMatch) {
+        /* eslint-disable react-doctor/no-ref-current-in-render -- controlled gradient sync */
         radiiStashRef.current = undefined;
         radiusPxStashRef.current = undefined;
+        /* eslint-enable react-doctor/no-ref-current-in-render */
       }
+      // Controlled sync during render: refs mirror the reconciled state for the
+      // next event handler. React documents this adjust-on-prop-change pattern.
+      /* eslint-disable react-doctor/no-ref-current-in-render -- controlled gradient sync */
+      idTrackedRef.current = uniqueIds;
       stateRef.current = next;
+      /* eslint-enable react-doctor/no-ref-current-in-render */
       setInternal(next);
     }
   }

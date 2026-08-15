@@ -119,7 +119,10 @@ function mapLogo(state: QrStudioState): NewQrCodeProps["logo"] | undefined {
 
 function mapValue(state: QrStudioState): NewQrCodeProps["value"] {
   if (state.valueSegments?.length) {
-    return state.valueSegments.map((segment) => segment.trim()).filter(Boolean)
+    return state.valueSegments.flatMap((segment) => {
+      const trimmed = segment.trim()
+      return trimmed ? [trimmed] : []
+    })
   }
 
   return state.data.trim()

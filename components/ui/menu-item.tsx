@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, forwardRef, type HTMLAttributes } from "react";
 import type { IconComponent } from "@/lib/icon-context";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useDropdown } from "@/components/ui/dropdown";
 import { cn } from "@/lib/utils";
 import { fontWeights } from "@/lib/font-weight";
@@ -107,7 +107,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
         <span className="inline-grid size-4 shrink-0">
           <AnimatePresence>
             {checked ? (
-              <motion.svg
+              <m.svg
                 key="check"
                 width={16}
                 height={16}
@@ -122,7 +122,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 1 }}
               >
-                <motion.path
+                <m.path
                   d="M4 12L9 17L20 6"
                   initial={{ pathLength: skipAnimation ? 1 : 0 }}
                   animate={{
@@ -134,7 +134,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
                     transition: { duration: 0.04, ease: "easeIn" },
                   }}
                 />
-              </motion.svg>
+              </m.svg>
             ) : (
               <svg
                 key="check-spacer"

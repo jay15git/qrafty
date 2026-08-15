@@ -454,6 +454,7 @@ function LayerFloatingToolbar({
       data-slot="drafting-layer-floating-toolbar"
       data-toolbar-appearance="desktop-glass"
       role="toolbar"
+      aria-label="Layer actions"
       style={style}
       tabIndex={-1}
       onClick={(event) => event.stopPropagation()}

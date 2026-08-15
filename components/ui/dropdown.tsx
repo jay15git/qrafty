@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
   useEffect,
+  useMemo,
   createContext,
   useContext,
   forwardRef,
@@ -12,7 +13,7 @@ import {
   type ReactNode,
   type HTMLAttributes,
 } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { spring } from "@/lib/springs";
 import { useProximityHover } from "@/hooks/use-proximity-hover";
@@ -146,18 +147,25 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
         (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
     };
 
+    const contextValue = useMemo(
+      () => ({ registerItem, activeIndex, checkedIndex, shape }),
+      [registerItem, activeIndex, checkedIndex, shape],
+    );
+
     const menuBody = (
       <>
           <AnimatePresence>
             {checkedRect && (
-              <motion.div
+              <m.div
                 className={`absolute ${shape.bg} bg-active pointer-events-none`}
                 initial={false}
-                animate={{
+                style={{
                   top: checkedRect.top,
                   left: checkedRect.left,
                   width: checkedRect.width,
                   height: checkedRect.height,
+                }}
+                animate={{
                   opacity: isHoveringOther ? 0.8 : 1,
                 }}
                 exit={{ opacity: 0, transition: spring.moderate.exit }}
@@ -172,22 +180,18 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
           {/* Hover background */}
           <AnimatePresence>
             {activeRect && (
-              <motion.div
+              <m.div
                 key={sessionRef.current}
                 className={`absolute ${shape.bg} bg-hover pointer-events-none`}
-                initial={{
-                  opacity: 0,
-                  top: checkedRect?.top ?? activeRect.top,
-                  left: checkedRect?.left ?? activeRect.left,
-                  width: checkedRect?.width ?? activeRect.width,
-                  height: checkedRect?.height ?? activeRect.height,
-                }}
-                animate={{
-                  opacity: 1,
+                initial={{ opacity: 0 }}
+                style={{
                   top: activeRect.top,
                   left: activeRect.left,
                   width: activeRect.width,
                   height: activeRect.height,
+                }}
+                animate={{
+                  opacity: 1,
                 }}
                 exit={{ opacity: 0, transition: spring.fast.exit }}
                 transition={{
@@ -201,15 +205,16 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
           {/* Focus ring */}
           <AnimatePresence>
             {focusRect && (
-              <motion.div
+              <m.div
                 className={`absolute ${shape.focusRing} pointer-events-none z-20 border border-[#6B97FF]`}
                 initial={false}
-                animate={{
+                style={{
                   left: focusRect.left - 2,
                   top: focusRect.top - 2,
                   width: focusRect.width + 4,
                   height: focusRect.height + 4,
                 }}
+                animate={{}}
                 exit={{ opacity: 0, transition: spring.fast.exit }}
                 transition={{
                   ...spring.fast,
@@ -224,9 +229,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
     );
 
     return (
-      <DropdownContext.Provider
-        value={{ registerItem, activeIndex, checkedIndex, shape }}
-      >
+      <DropdownContext.Provider value={contextValue}>
         {flat ? (
           <div ref={assignRef} {...menuProps}>
             {menuBody}
@@ -267,13 +270,12 @@ DropdownLabel.displayName = "DropdownLabel";
 // ---------------------------------------------------------------------------
 
 const DropdownSeparator = forwardRef<
-  HTMLDivElement,
-  HTMLAttributes<HTMLDivElement>
+  HTMLHRElement,
+  HTMLAttributes<HTMLHRElement>
 >(({ className, ...props }, ref) => (
-  <div
+  <hr
     ref={ref}
-    role="separator"
-    className={cn("my-1 -mx-1 h-px bg-border/60", className)}
+    className={cn("my-1 -mx-1 h-px border-0 bg-border/60", className)}
     {...props}
   />
 ));

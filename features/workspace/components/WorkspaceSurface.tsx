@@ -329,7 +329,7 @@ export function WorkspaceSurface({
     DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.color,
   )
   const [selectedDotsGradient, setSelectedDotsGradient] = useState<StudioGradient>(
-    structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesGradient),
+    () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesGradient),
   )
   const [selectedDotsPalette, setSelectedDotsPalette] = useState<string[]>([
     ...DEFAULT_DRAFTING_STUDIO_STATE.dotsPalette,
@@ -351,7 +351,7 @@ export function WorkspaceSurface({
   )
   const [selectedCornerSquareGradient, setSelectedCornerSquareGradient] =
     useState<StudioGradient>(
-      structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterGradient),
+      () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterGradient),
     )
   const [openCornerSquareColorItems, setOpenCornerSquareColorItems] = useState<string[]>([
     "solid",
@@ -367,7 +367,7 @@ export function WorkspaceSurface({
   )
   const [selectedCornerDotGradient, setSelectedCornerDotGradient] =
     useState<StudioGradient>(
-      structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerGradient),
+      () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerGradient),
     )
   const [openCornerDotColorItems, setOpenCornerDotColorItems] = useState<string[]>([
     "solid",
@@ -383,7 +383,7 @@ export function WorkspaceSurface({
     useState(false)
   const [selectedBackgroundGradient, setSelectedBackgroundGradient] =
     useState<StudioGradient>(
-      structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient),
+      () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient),
     )
   const [selectedBackgroundShapeId, setSelectedBackgroundShapeId] =
     useState<QrBackgroundShapeId>(DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeId)
@@ -416,7 +416,7 @@ export function WorkspaceSurface({
     DEFAULT_DRAFTING_STUDIO_STATE.logo.presetColor ?? DEFAULT_BRAND_ICON_COLOR,
   )
   const [selectedLogoGradient, setSelectedLogoGradient] = useState<StudioGradient>(
-    structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.logoGradient),
+    () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.logoGradient),
   )
   const [openLogoColorItems, setOpenLogoColorItems] = useState<string[]>(["solid"])
   const [brandIconQuery, setBrandIconQuery] = useState("")
@@ -555,6 +555,7 @@ export function WorkspaceSurface({
   const draftingSurfaceRef = useRef<HTMLElement | null>(null)
   const iconstackSvgCacheRef = useRef<Map<string, string>>(new Map())
   const draftingLayerClipboardRef = useRef<string>("")
+  const logoUploadObjectUrlRef = useRef<string | null>(null)
   const filteredBrandIcons = filterBrandIcons(brandIconQuery, brandIconCategory)
   const selectedContentValues =
     contentValuesByType[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType)
@@ -1323,6 +1324,11 @@ export function WorkspaceSurface({
     setSelectedLayerIds(layerId ? [layerId] : [])
   }
 
+  function applyLayerSelection(nextLayerIds: string[]) {
+    setSelectedLayerIds(nextLayerIds)
+    setSelectedLayerId(nextLayerIds.at(-1) ?? null)
+  }
+
   function setDraftingHistoryStack(nextStack: DraftingWorkspaceDocumentV1[], nextIndex: number) {
     draftingWorkspaceHistoryRef.current = nextStack
     draftingWorkspaceHistoryIndexRef.current = nextIndex
@@ -1442,6 +1448,14 @@ export function WorkspaceSurface({
     setSelectedBackgroundTransparent(false)
     setSelectedBackgroundShapeId(nextState.backgroundShapeId)
   }
+
+  useEffect(() => {
+    return () => {
+      if (logoUploadObjectUrlRef.current) {
+        URL.revokeObjectURL(logoUploadObjectUrlRef.current)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -2015,14 +2029,11 @@ export function WorkspaceSurface({
     }
 
     if (options?.additive && paneId === activeQrNodeId && layerId !== null) {
-      setSelectedLayerIds((current) => {
-        const next = current.includes(layerId)
-          ? current.filter((id) => id !== layerId)
-          : [...current, layerId]
+      const next = selectedLayerIds.includes(layerId)
+        ? selectedLayerIds.filter((id) => id !== layerId)
+        : [...selectedLayerIds, layerId]
 
-        setSelectedLayerId(next.at(-1) ?? null)
-        return next
-      })
+      applyLayerSelection(next)
     } else {
       selectSingleLayer(layerId)
     }
@@ -2074,14 +2085,11 @@ export function WorkspaceSurface({
       handlePaneSelection(paneId)
     }
 
-    setSelectedLayerIds((current) => {
-      const next = options?.additive
-        ? Array.from(new Set([...current, ...layerIds]))
-        : layerIds
+    const next = options?.additive
+      ? Array.from(new Set([...selectedLayerIds, ...layerIds]))
+      : layerIds
 
-      setSelectedLayerId(next.at(-1) ?? null)
-      return next
-    })
+    applyLayerSelection(next)
   }
 
   function getActiveSelectableLayers() {
@@ -2125,13 +2133,11 @@ export function WorkspaceSurface({
   function selectAllActiveDraftingLayers() {
     const layerIds = getActiveSelectableLayers().map((layer) => layer.id)
 
-    setSelectedLayerIds(layerIds)
-    setSelectedLayerId(layerIds.at(-1) ?? null)
+    applyLayerSelection(layerIds)
   }
 
   function clearDraftingLayerSelection() {
-    setSelectedLayerIds([])
-    setSelectedLayerId(null)
+    applyLayerSelection([])
   }
 
   function toggleSelectedLayerLock() {
@@ -2202,12 +2208,9 @@ export function WorkspaceSurface({
         }
       })
 
-      setSelectedLayerIds((current) => {
-        const next = current.filter((layerId) => !removableLayerIds.includes(layerId))
-
-        setSelectedLayerId(next.at(-1) ?? null)
-        return next
-      })
+      applyLayerSelection(
+        selectedLayerIds.filter((layerId) => !removableLayerIds.includes(layerId)),
+      )
       return
     }
 
@@ -2317,34 +2320,37 @@ export function WorkspaceSurface({
       return
     }
 
+    const {
+      draftingStudioState: currentDraftingStudioState,
+      selectedCardState: currentSelectedCardState,
+    } = keyboardStateRef.current
+    const layers =
+      layerStateByNodeId[paneId] ??
+      createDefaultDraftingLayers(paneId, currentDraftingStudioState, currentSelectedCardState)
+    const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1)
+    const offset = point
+      ? {
+          x: point.x - payload.bounds.x,
+          y: point.y - payload.bounds.y,
+        }
+      : { x: DRAFTING_LAYER_PASTE_OFFSET, y: DRAFTING_LAYER_PASTE_OFFSET }
+    const pastedLayers = cloneDraftingCanvasLayersForPaste({
+      layers: payload.layers,
+      nodeId: paneId,
+      offset,
+      startingZIndex: maxZIndex + 1,
+    })
+
+    applyLayerSelection(pastedLayers.map((layer) => layer.id))
+
     setLayerStateByNodeId((current) => {
-      const {
-        draftingStudioState: currentDraftingStudioState,
-        selectedCardState: currentSelectedCardState,
-      } = keyboardStateRef.current
-      const layers =
+      const currentLayers =
         current[paneId] ??
         createDefaultDraftingLayers(paneId, currentDraftingStudioState, currentSelectedCardState)
-      const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1)
-      const offset = point
-        ? {
-            x: point.x - payload.bounds.x,
-            y: point.y - payload.bounds.y,
-          }
-        : { x: DRAFTING_LAYER_PASTE_OFFSET, y: DRAFTING_LAYER_PASTE_OFFSET }
-      const pastedLayers = cloneDraftingCanvasLayersForPaste({
-        layers: payload.layers,
-        nodeId: paneId,
-        offset,
-        startingZIndex: maxZIndex + 1,
-      })
-
-      setSelectedLayerIds(pastedLayers.map((layer) => layer.id))
-      setSelectedLayerId(pastedLayers.at(-1)?.id ?? null)
 
       return {
         ...current,
-        [paneId]: [...layers.map(cloneDraftingCanvasLayer), ...pastedLayers],
+        [paneId]: [...currentLayers.map(cloneDraftingCanvasLayer), ...pastedLayers],
       }
     })
   }
@@ -2356,6 +2362,18 @@ export function WorkspaceSurface({
   ) {
     if (layerIds.length === 0) {
       return
+    }
+
+    if (action === "delete") {
+      const removableLayerIds = new Set(
+        layerIds.filter((layerId) => !isProtectedDraftingLayerId(layerId)),
+      )
+
+      if (removableLayerIds.size > 0) {
+        applyLayerSelection(
+          selectedLayerIds.filter((layerId) => !removableLayerIds.has(layerId)),
+        )
+      }
     }
 
     setLayerStateByNodeId((current) => {
@@ -2429,14 +2447,6 @@ export function WorkspaceSurface({
           nextLayers = nextLayers
             .filter((layer) => !removableLayerIds.has(layer.id))
             .map(cloneDraftingCanvasLayer)
-          setSelectedLayerIds((currentSelectedLayerIds) => {
-            const nextSelectedLayerIds = currentSelectedLayerIds.filter(
-              (layerId) => !removableLayerIds.has(layerId),
-            )
-
-            setSelectedLayerId(nextSelectedLayerIds.at(-1) ?? null)
-            return nextSelectedLayerIds
-          })
         }
       } else {
         const actionableLayerIds = layerIds.filter(
@@ -2838,7 +2848,11 @@ export function WorkspaceSurface({
   function updateDesktopLogoSettings(patch: DesktopLogoSettingsPatch) {
     if (patch.uploadedFile) {
       ensureLogoUploadItemExpanded("upload")
+      if (logoUploadObjectUrlRef.current) {
+        URL.revokeObjectURL(logoUploadObjectUrlRef.current)
+      }
       const uploadValue = URL.createObjectURL(patch.uploadedFile)
+      logoUploadObjectUrlRef.current = uploadValue
       const nextState = applyAssetUploadValue(
         buildDraftingLogoStateSnapshot({
           logoSourceMode: "upload",

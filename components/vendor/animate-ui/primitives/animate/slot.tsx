@@ -3,7 +3,7 @@
 /* eslint-disable react-hooks/static-components */
 
 import * as React from 'react';
-import { motion, isMotionComponent, type HTMLMotionProps } from 'motion/react';
+import { m, isMotionComponent, type HTMLMotionProps } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 type AnyProps = Record<string, unknown>;
@@ -67,7 +67,7 @@ function getMotionComponent(type: React.ElementType): React.ElementType {
 
   if (cached) return cached;
 
-  const MotionComponent = motion.create(type);
+  const MotionComponent = m.create(type);
   motionComponentCache.set(type, MotionComponent);
 
   return MotionComponent;

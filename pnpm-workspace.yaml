@@ -2,6 +2,10 @@ packages:
   - "."
   - "packages/*"
 
+minimumReleaseAge: 10080
+
+trustPolicy: warn
+
 allowBuilds:
   esbuild: true
   msw: true

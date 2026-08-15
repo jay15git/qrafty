@@ -69,13 +69,18 @@ export function useFillPicker(props: UseFillPickerProps = {}): FillPickerState {
       ? initialFill
       : { kind: "gradient", gradient: DEFAULT_LINEAR },
   );
-  if (fill.kind === "color") lastColorRef.current = fill;
-  else lastGradientRef.current = fill;
+  React.useLayoutEffect(() => {
+    if (fill.kind === "color") lastColorRef.current = fill;
+    else lastGradientRef.current = fill;
+  }, [fill]);
 
   const isControlledRef = React.useRef(isControlled);
-  isControlledRef.current = isControlled;
   const isControlledModeRef = React.useRef(isControlledMode);
-  isControlledModeRef.current = isControlledMode;
+
+  React.useLayoutEffect(() => {
+    isControlledRef.current = isControlled;
+    isControlledModeRef.current = isControlledMode;
+  });
 
   const setFill = React.useCallback(
     (next: Fill) => {

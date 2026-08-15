@@ -1,6 +1,6 @@
 "use client"
 
-import { AnimatePresence, motion } from "motion/react"
+import { AnimatePresence, m } from "motion/react"
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react"
 import useMeasure from "react-use-measure"
 
@@ -101,36 +101,31 @@ export function ExpandablePanelShell({
     onWidthChange?.(shellWidth)
   }, [onWidthChange, shellWidth])
 
-  useEffect(() => {
-    onShellAnimatingChange?.(isShellAnimating)
-  }, [isShellAnimating, onShellAnimatingChange])
-
-  const panelBody =
-    showPanel && activeKey && panel ? (
-      usePanelSlide ? (
-        <AnimatePresence custom={direction} initial={false}>
-          <motion.div
-            key={activeKey}
-            custom={direction}
-            variants={expandablePanelSlideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={EXPANDABLE_PANEL_SLIDE_T}
-            className={layout === "bottom-nav" ? "absolute inset-x-0 top-0" : "h-full min-h-0"}
-          >
-            {panel}
-          </motion.div>
-        </AnimatePresence>
-      ) : (
-        <div
+  const panelBody = usePanelSlide ? (
+    <AnimatePresence custom={direction} initial={false}>
+      {showPanel && activeKey && panel ? (
+        <m.div
+          key={activeKey}
+          custom={direction}
+          variants={expandablePanelSlideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={EXPANDABLE_PANEL_SLIDE_T}
           className={layout === "bottom-nav" ? "absolute inset-x-0 top-0" : "h-full min-h-0"}
-          data-panel-frozen="true"
         >
           {panel}
-        </div>
-      )
-    ) : null
+        </m.div>
+      ) : null}
+    </AnimatePresence>
+  ) : showPanel && activeKey && panel ? (
+    <div
+      className={layout === "bottom-nav" ? "absolute inset-x-0 top-0" : "h-full min-h-0"}
+      data-panel-frozen="true"
+    >
+      {panel}
+    </div>
+  ) : null
 
   const panelSlot =
     layout === "bottom-nav" ? (
@@ -180,29 +175,28 @@ export function ExpandablePanelShell({
           <div ref={ghostRef}>{panel}</div>
         </div>
       ) : null}
-      <motion.div
+      <m.div
+        layout
         data-slot={dataSlot}
         data-collapsed={dataCollapsed}
         data-shell-animating={isShellAnimating ? "true" : "false"}
         data-toolbar-appearance={dataToolbarAppearance}
         className={cn("relative overflow-hidden", shellClassName, className)}
-        style={{ overflow: "hidden", ...shellStyle }}
-        animate={{
+        style={{
+          overflow: "hidden",
           width: shellWidth,
           ...(shellHeight !== undefined ? { height: shellHeight } : {}),
+          ...shellStyle,
         }}
         transition={EXPANDABLE_PANEL_SPRING}
-        onAnimationStart={() => {
+        onLayoutAnimationStart={() => {
           widthTargetRef.current = shellWidth
           setIsShellAnimating(true)
+          onShellAnimatingChange?.(true)
         }}
-        onAnimationComplete={() => {
+        onLayoutAnimationComplete={() => {
           setIsShellAnimating(false)
-        }}
-        onUpdate={(latest) => {
-          if (typeof latest.width === "number") {
-            onWidthChange?.(latest.width)
-          }
+          onShellAnimatingChange?.(false)
         }}
       >
         {layout === "bottom-nav" ? (
@@ -216,7 +210,7 @@ export function ExpandablePanelShell({
             {panelSlot}
           </div>
         )}
-      </motion.div>
+      </m.div>
     </>
   )
 }

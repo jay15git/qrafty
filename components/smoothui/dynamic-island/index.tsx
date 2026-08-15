@@ -12,8 +12,8 @@ import {
   Thermometer,
   Timer as TimerIcon,
 } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { type ReactNode, useMemo, useState } from "react";
+import { AnimatePresence, m, useReducedMotion } from "motion/react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 
 const BOUNCE_VARIANTS = {
   idle: 0.5,
@@ -33,7 +33,7 @@ const DefaultIdle = ({ compact = false }: { compact?: boolean }) => {
   const [showTemp, setShowTemp] = useState(false);
 
   return (
-    <motion.div
+    <m.div
       className={
         compact
           ? "flex min-h-10 items-center gap-1.5 px-1"
@@ -44,7 +44,7 @@ const DefaultIdle = ({ compact = false }: { compact?: boolean }) => {
       onHoverStart={() => setShowTemp(true)}
     >
       <AnimatePresence mode="wait">
-        <motion.div
+        <m.div
           animate={{ opacity: 1, scale: 1 }}
           className="text-current"
           exit={{ opacity: 0, scale: 0.8 }}
@@ -52,25 +52,26 @@ const DefaultIdle = ({ compact = false }: { compact?: boolean }) => {
           key="storm"
         >
           <CloudLightning className={compact ? "size-4" : "h-5 w-5"} />
-        </motion.div>
+        </m.div>
       </AnimatePresence>
 
       <AnimatePresence>
         {showTemp && (
-          <motion.div
-            animate={{ opacity: 1, width: "auto" }}
+          <m.div
+            layout
+            animate={{ opacity: 1 }}
             className="flex items-center gap-1 overflow-hidden text-current"
-            exit={{ opacity: 0, width: 0 }}
-            initial={{ opacity: 0, width: 0 }}
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
           >
             <Thermometer className="h-3 w-3" />
             <span className="pointer-events-none whitespace-nowrap text-xs opacity-80">
               12°C
             </span>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 };
 
@@ -93,12 +94,18 @@ const DefaultRing = () => (
 // Timer Component
 const DefaultTimer = () => {
   const [time, setTime] = useState(60);
+  const [progressWidth, setProgressWidth] = useState("100%");
 
   useMemo(() => {
     const timer = setInterval(() => {
       setTime((t) => (t > 0 ? t - 1 : 0));
     }, TIMER_INTERVAL_MS);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setProgressWidth("0%"));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   return (
@@ -110,11 +117,12 @@ const DefaultTimer = () => {
         </p>
       </div>
       <div className="h-1 w-24 overflow-hidden rounded-full bg-white/20">
-        <motion.div
-          animate={{ width: "0%" }}
+        <div
           className="h-full bg-amber-500"
-          initial={{ width: "100%" }}
-          transition={{ duration: time, ease: "linear" }}
+          style={{
+            width: progressWidth,
+            transition: `width ${time}s linear`,
+          }}
         />
       </div>
     </div>
@@ -154,6 +162,7 @@ const MusicPlayer = () => {
         </p>
       </div>
       <button
+        aria-label="Skip back"
         className="rounded-full p-1 hover:bg-white/30"
         onClick={() => setPlaying(false)}
         type="button"
@@ -161,6 +170,7 @@ const MusicPlayer = () => {
         <SkipBack className="h-4 w-4 text-white" />
       </button>
       <button
+        aria-label={playing ? "Pause" : "Play"}
         className="rounded-full p-1 hover:bg-white/30"
         onClick={() => setPlaying((p) => !p)}
         type="button"
@@ -172,6 +182,7 @@ const MusicPlayer = () => {
         )}
       </button>
       <button
+        aria-label="Skip forward"
         className="rounded-full p-1 hover:bg-white/30"
         onClick={() => setPlaying(true)}
         type="button"
@@ -248,7 +259,7 @@ export default function DynamicIsland({
             : "relative flex w-full flex-col justify-center"
         }
       >
-        <motion.div
+        <m.div
           className={
             isDesktopGlass
               ? "mx-auto w-fit min-w-10 overflow-visible rounded-full text-current"
@@ -269,7 +280,7 @@ export default function DynamicIsland({
                 }
           }
         >
-          <motion.div
+          <m.div
             animate={
               shouldReduceMotion
                 ? { scale: 1, opacity: 1 }
@@ -298,8 +309,8 @@ export default function DynamicIsland({
             }}
           >
             {content}
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
 
         {showViewControls ? (
           <div className="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 justify-center gap-1 rounded-full border bg-background p-1">

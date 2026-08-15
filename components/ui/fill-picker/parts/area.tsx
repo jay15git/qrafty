@@ -149,12 +149,16 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
     prevColor.alpha !== color.alpha
   ) {
     setPrevColor(color);
-    if (selfSetRef.current) {
-      selfSetRef.current = false;
-    } else if (pickPos !== null) {
+    if (!selfSetRef.current && pickPos !== null) {
       setPickPos(null);
     }
   }
+
+  React.useLayoutEffect(() => {
+    if (selfSetRef.current) {
+      selfSetRef.current = false;
+    }
+  });
 
   // The gradient and warning lines depend only on the axis the mode keeps
   // *fixed* (hue for oklch-cl/hsv-sv, lightness for oklch-hc). Depending on

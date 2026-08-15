@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
@@ -45,7 +45,7 @@ function AccordionItem({
   }, []);
 
   return (
-    <motion.div
+    <m.div
       layout
       data-focused={isOpen ? "true" : undefined}
       className={cn(
@@ -69,7 +69,7 @@ function AccordionItem({
           {item.question}
         </span>
 
-        <motion.span
+        <m.span
           aria-hidden="true"
           initial={false}
           animate={{
@@ -110,25 +110,23 @@ function AccordionItem({
               />
             </svg>
           )}
-        </motion.span>
+        </m.span>
       </button>
 
-      <motion.div
+      <m.div
+        layout
         id={panelId}
         role="region"
         aria-labelledby={itemId}
-        animate={{
-          height: isOpen ? contentH : 0,
-          opacity: isOpen ? 1 : 0,
-        }}
+        animate={{ opacity: isOpen ? 1 : 0 }}
         initial={false}
         transition={{
-          height: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
+          layout: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
           opacity: { duration: 0.2, ease: "easeOut" },
         }}
-        style={{ overflow: "hidden" }}
+        style={{ height: isOpen ? contentH : 0, overflow: "hidden" }}
       >
-        <motion.div
+        <m.div
           ref={contentRef}
           animate={{ y: isOpen ? 0 : -8 }}
           transition={{
@@ -140,9 +138,9 @@ function AccordionItem({
           className="px-7 pb-7"
         >
           {item.answer}
-        </motion.div>
-      </motion.div>
-    </motion.div>
+        </m.div>
+      </m.div>
+    </m.div>
   );
 }
 

@@ -16,6 +16,26 @@ interface UseControllableStateParams<T> {
   caller?: string
 }
 
+function useControlledWarning(isControlled: boolean, caller?: string) {
+  const isControlledRef = React.useRef(isControlled)
+
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === "production") {
+      return
+    }
+
+    const wasControlled = isControlledRef.current
+    if (wasControlled !== isControlled) {
+      const from = wasControlled ? "controlled" : "uncontrolled"
+      const to = isControlled ? "controlled" : "uncontrolled"
+      console.warn(
+        `${caller ?? "Component"} is changing from ${from} to ${to}. Components should not switch from controlled to uncontrolled (or vice versa). Decide between using a controlled or uncontrolled value for the lifetime of the component.`,
+      )
+    }
+    isControlledRef.current = isControlled
+  }, [isControlled, caller])
+}
+
 export function useControllableState<T>({
   prop,
   defaultProp,
@@ -30,22 +50,7 @@ export function useControllableState<T>({
   const isControlled = prop !== undefined
   const value = isControlled ? prop : uncontrolledProp
 
-  /* eslint-disable react-hooks/rules-of-hooks */
-  if (process.env.NODE_ENV !== "production") {
-    const isControlledRef = React.useRef(prop !== undefined)
-    React.useEffect(() => {
-      const wasControlled = isControlledRef.current
-      if (wasControlled !== isControlled) {
-        const from = wasControlled ? "controlled" : "uncontrolled"
-        const to = isControlled ? "controlled" : "uncontrolled"
-        console.warn(
-          `${caller ?? "Component"} is changing from ${from} to ${to}. Components should not switch from controlled to uncontrolled (or vice versa). Decide between using a controlled or uncontrolled value for the lifetime of the component.`,
-        )
-      }
-      isControlledRef.current = isControlled
-    }, [isControlled, caller])
-  }
-  /* eslint-enable react-hooks/rules-of-hooks */
+  useControlledWarning(isControlled, caller)
 
   const setValue = React.useCallback<SetStateFn<T>>(
     (nextValue) => {

@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { spring } from "@/lib/springs";
 import { fontWeights } from "@/lib/font-weight";
@@ -100,7 +100,7 @@ function Tooltip({
               forceMount
               className="z-50"
             >
-              <motion.div
+              <m.div
                 className={cn(
                   "bg-foreground text-background text-[12px] px-2 py-1",
                   shape.bg,
@@ -117,7 +117,7 @@ function Tooltip({
                 onAnimationComplete={handleExitComplete}
               >
                 {content}
-              </motion.div>
+              </m.div>
             </TooltipPrimitive.Content>
           </TooltipPrimitive.Portal>
         )}

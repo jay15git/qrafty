@@ -675,6 +675,15 @@ function DraftingPaneSurface({
         backgroundPosition: "0 0",
         backgroundSize: "30px 30px",
       }}
+      role="group"
+      aria-label="Canvas surface"
+      onKeyDown={(event) => {
+        if (event.key !== "Enter" && event.key !== " ") {
+          return
+        }
+        event.preventDefault()
+        handleSurfaceClick(event as unknown as React.MouseEvent<HTMLDivElement>)
+      }}
       onClick={handleSurfaceClick}
       onDragEnd={onPaneDragEnd}
       onDragLeave={(event) => onPaneDragLeave(pane.id, event)}

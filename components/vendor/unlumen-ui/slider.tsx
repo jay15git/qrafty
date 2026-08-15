@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import {
-  motion,
+  m,
   useMotionValue,
   useTransform,
   animate,
@@ -278,7 +278,7 @@ function TooltipValue({
   const isDrafting = appearance === "drafting";
   const tooltipX = useTransform(motionX, (x) => x + THUMB_SIZE / 2);
   return (
-    <motion.div
+    <m.div
       className="absolute -translate-x-1/2 pointer-events-none z-20"
       style={{ x: tooltipX, top: -16 }}
       initial={{ opacity: 0, y: 4 }}
@@ -297,7 +297,7 @@ function TooltipValue({
       >
         {formatValue(value)}
       </span>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -642,7 +642,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
         isPressed: isPressedThumb,
       };
       return (
-        <motion.span
+        <m.span
           key={`visual-thumb-${index}`}
           data-slot={thumbDataSlot}
           className="flex items-center justify-center pointer-events-none absolute top-1/2"
@@ -660,7 +660,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
           {renderThumb ? (
             renderThumb(index, thumbState)
           ) : (
-            <motion.span
+            <m.span
               className={cn(
                 "flex items-center justify-center rounded-[4px] border",
                 isDrafting
@@ -668,7 +668,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                   : "border-black/10 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.06)] dark:border-border dark:bg-card dark:shadow-[0_1px_4px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.08)]",
               )}
               initial={false}
-              animate={{
+              style={{
                 width: THUMB_SIZE,
                 height: THUMB_SIZE,
               }}
@@ -690,9 +690,9 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                       : "color-mix(in srgb, var(--foreground) 84%, white)",
                 }}
               />
-            </motion.span>
+            </m.span>
           )}
-        </motion.span>
+        </m.span>
       );
     };
 
@@ -803,14 +803,14 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
 
             <AnimatePresence>
               {hoverPreview && valuePosition !== "tooltip" && (
-                <motion.div
+                <m.div
                   key="hover-tip"
                   className="absolute -translate-x-1/2 pointer-events-none z-20"
                   initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0, left: hoverPreview.cursorX }}
+                  animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4, transition: { duration: 0.1 } }}
                   transition={springs.fast}
-                  style={{ top: -20 }}
+                  style={{ top: -20, left: hoverPreview.cursorX }}
                 >
                   <span
                     className={cn(
@@ -823,11 +823,12 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                   >
                     {formatValue(hoverPreview.snappedValue)}
                   </span>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
 
-            <motion.div
+            <m.div
+              layout
               data-slot={trackDataSlot}
               className={cn(
                 "absolute left-0 right-0 rounded-[4px]",
@@ -836,20 +837,18 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                 trackClassName,
               )}
               initial={false}
-              animate={{
+              transition={springs.fast}
+              style={{
                 height: isHovered || isPressed ? ACTIVE_TRACK_HEIGHT : TRACK_HEIGHT,
                 top:
                   isHovered || isPressed
                     ? 8 + (THUMB_SIZE - ACTIVE_TRACK_HEIGHT) / 2
                     : 8 + (THUMB_SIZE - TRACK_HEIGHT) / 2,
-              }}
-              transition={springs.fast}
-              style={{
                 backgroundColor: isDrafting ? undefined : NEUTRAL_TRACK_COLOR,
                 ...trackStyle,
               }}
             >
-              <motion.div
+              <m.div
                 className={cn(
                   "absolute h-full rounded-[4px]",
                   isDrafting && "bg-[var(--ws-ink)]",
@@ -863,18 +862,10 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                 }}
               />
 
-              <motion.div
+              <m.div
                 className="absolute h-full pointer-events-none rounded-[4px]"
                 initial={false}
                 animate={{
-                  left:
-                    hoverPreview && !hoverPreview.onFilledSide
-                      ? hoverPreview.left
-                      : 0,
-                  width:
-                    hoverPreview && !hoverPreview.onFilledSide
-                      ? hoverPreview.width
-                      : 0,
                   opacity:
                     hoverPreview && !hoverPreview.onFilledSide && !isPressed
                       ? 1
@@ -885,6 +876,14 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                   opacity: { duration: 0.15 },
                 }}
                 style={{
+                  left:
+                    hoverPreview && !hoverPreview.onFilledSide
+                      ? hoverPreview.left
+                      : 0,
+                  width:
+                    hoverPreview && !hoverPreview.onFilledSide
+                      ? hoverPreview.width
+                      : 0,
                   backgroundColor:
                     isDrafting
                       ? "color-mix(in srgb, var(--ws-ink) 20%, transparent)"
@@ -892,12 +891,10 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                 }}
               />
 
-              <motion.div
+              <m.div
                 className="absolute h-full pointer-events-none z-[2] rounded-[4px]"
                 initial={false}
                 animate={{
-                  left: hoverPreview?.onFilledSide ? hoverPreview.left : 0,
-                  width: hoverPreview?.onFilledSide ? hoverPreview.width : 0,
                   opacity: hoverPreview?.onFilledSide && !isPressed ? 1 : 0,
                 }}
                 transition={{
@@ -905,13 +902,15 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                   opacity: { duration: 0.15 },
                 }}
                 style={{
+                  left: hoverPreview?.onFilledSide ? hoverPreview.left : 0,
+                  width: hoverPreview?.onFilledSide ? hoverPreview.width : 0,
                   backgroundColor:
                     isDrafting
                       ? "color-mix(in srgb, var(--ws-surface-bg) 25%, transparent)"
                       : "color-mix(in srgb, var(--background) 25%, transparent)",
                 }}
               />
-            </motion.div>
+            </m.div>
 
             {stepDots.map(({ value: v, percent }) => {
               const onFilled = isRange
@@ -928,15 +927,14 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                     height: 0,
                   }}
                 >
-                  <motion.div
+                  <m.div
+                    layout
                     className="relative rounded-full flex-shrink-0 z-[6]"
                     initial={false}
-                    animate={{
-                      width: isHovered ? DOT_SIZE * 1.25 : DOT_SIZE,
-                      height: isHovered ? DOT_SIZE * 1.25 : DOT_SIZE,
-                    }}
                     transition={springs.moderate}
                     style={{
+                      width: isHovered ? DOT_SIZE * 1.25 : DOT_SIZE,
+                      height: isHovered ? DOT_SIZE * 1.25 : DOT_SIZE,
                       backgroundColor: onFilled
                         ? isDrafting
                           ? "color-mix(in srgb, var(--ws-surface-bg) 20%, var(--ws-ink))"

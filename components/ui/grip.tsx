@@ -1,7 +1,7 @@
 "use client";
 
 import type { Variants } from "motion/react";
-import { motion, useAnimation } from "motion/react";
+import { m, useAnimation } from "motion/react";
 import type { HTMLAttributes } from "react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 
@@ -109,7 +109,7 @@ const GripIcon = forwardRef<GripIconHandle, GripProps>(
           xmlns="http://www.w3.org/2000/svg"
         >
           {CIRCLES.map((circle, index) => (
-            <motion.circle
+            <m.circle
               animate={controls}
               custom={index}
               cx={circle.cx}
