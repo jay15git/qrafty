@@ -1,4 +1,4 @@
-import { buildStaticDecorSvg } from "../core"
+import { buildStaticDecorSvg } from "../core/render-static-svg"
 import type { SceneDocumentV1 } from "../schema"
 
 export type SceneExportFormat = "svg" | "png" | "webp" | "jpeg"

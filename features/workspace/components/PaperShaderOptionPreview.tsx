@@ -1,12 +1,9 @@
 "use client"
 
+import Image from "next/image"
+
 import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
-
-const PAPER_SHADER_OPTION_PREVIEW_PATH = "/shader-previews"
-
-export function getPaperShaderOptionPreviewUrl(shaderId: PaperShaderId) {
-  return `${PAPER_SHADER_OPTION_PREVIEW_PATH}/${encodeURIComponent(shaderId)}.webp`
-}
+import { getPaperShaderOptionPreviewUrl } from "@/features/workspace/components/paper-shader-option-preview.utils"
 
 export function PaperShaderOptionPreview({
   className,
@@ -17,13 +14,14 @@ export function PaperShaderOptionPreview({
   shaderId: PaperShaderId
 }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
+    <Image
       alt=""
       className={className ?? "block size-full object-cover"}
       data-slot="paper-shader-option-preview-image"
       draggable={false}
+      height={64}
       src={getPaperShaderOptionPreviewUrl(shaderId)}
+      width={64}
     />
   )
 }

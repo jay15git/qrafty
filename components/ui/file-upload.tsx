@@ -29,6 +29,21 @@ const ITEM_PROGRESS_NAME = "FileUploadItemProgress";
 const ITEM_DELETE_NAME = "FileUploadItemDelete";
 const CLEAR_NAME = "FileUploadClear";
 
+function getOrCreateCachedObjectUrl(
+  cache: WeakMap<File, string>,
+  file: File,
+) {
+  const existing = cache.get(file);
+  if (existing) {
+    return existing;
+  }
+
+  // eslint-disable-next-line react-doctor/no-create-object-url-without-revoke -- urlCache revokes on remove/clear/unmount
+  const url = URL.createObjectURL(file);
+  cache.set(file, url);
+  return url;
+}
+
 function formatBytes(bytes: number) {
   if (bytes === 0) return "0 B";
   const sizes = ["B", "KB", "MB", "GB", "TB"];
@@ -1068,11 +1083,7 @@ function FileUploadItemPreview(props: FileUploadItemPreviewProps) {
   const getDefaultRender = React.useCallback(
     (file: File) => {
       if (itemContext.fileState?.file.type.startsWith("image/")) {
-        let url = context.urlCache.get(file);
-        if (!url) {
-          url = URL.createObjectURL(file);
-          context.urlCache.set(file, url);
-        }
+        const url = getOrCreateCachedObjectUrl(context.urlCache, file);
 
         return (
           // biome-ignore lint/performance/noImgElement: dynamic file URLs from user uploads don't work well with Next.js Image optimization

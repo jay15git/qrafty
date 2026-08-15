@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from "vitest"
 
 import {
   DESKTOP_INSPECTOR_INPUT_CLASS,
+} from "@/features/desktop-shell/components/desktop-inspector-tokens"
+import {
   DesktopInspectorMorphFilterMenu,
   DesktopInspectorNativeSelect,
   DesktopInspectorScrubbableNumberInput,

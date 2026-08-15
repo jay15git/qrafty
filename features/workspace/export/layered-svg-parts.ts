@@ -15,12 +15,12 @@ import { layoutDraftingText } from "@/features/workspace/rendering/text-layout"
 import { hasDraftingLayerShadow } from "@/features/workspace/rendering/qr-layer-shadow"
 import { scaleNestedSvgMarkup } from "@/features/workspace/rendering/qr-artwork"
 import { getLayerSvgTransform } from "@/features/workspace/rendering/layer-transform"
-import { getShapeSvgPath } from "@/features/workspace/rendering/shape-layer"
+import { getShapeSvgPath } from "@/features/workspace/rendering/shape-layer-paths"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
 import {
   getDraftingQrBackgroundBounds,
   getDraftingQrBackgroundSvgMarkup,
-} from "@/features/workspace/components/QrBackground"
+} from "@/features/workspace/components/drafting-qr-background.utils"
 
 import type { QrStudioState } from "@/features/qr-code/model/state"
 

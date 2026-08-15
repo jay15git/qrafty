@@ -8,7 +8,7 @@ import {
   type DraftingTextRun,
 } from "@/features/workspace/model/layers"
 import { layoutDraftingText } from "@/features/workspace/rendering/text-layout"
-import { getShapeSvgPath } from "@/features/workspace/rendering/shape-layer"
+import { getShapeSvgPath } from "@/features/workspace/rendering/shape-layer-paths"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
 import {
   cssPropertiesToInlineStyle,
@@ -24,7 +24,7 @@ import {
 import { toPortableQrConfig } from "@/features/qr-code/adapters/portable-config"
 import type { QrStudioState } from "@/features/qr-code/model/state"
 import { getDraftingQrLayerLayout } from "@/features/qr-code/rendering/svg-extension"
-import { buildDraftingQrBackgroundSvgPayload } from "@/features/workspace/components/QrBackground"
+import { buildDraftingQrBackgroundSvgPayload } from "@/features/workspace/components/drafting-qr-background.utils"
 
 import { getDraftingLayerBounds } from "./layered-svg-parts"
 

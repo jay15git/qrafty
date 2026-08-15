@@ -20,8 +20,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { DesktopInspectorSection } from "@/features/desktop-shell/components/InspectorControls"
 import {
   DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_CLASS,
-  DesktopUtilityToolbarButton,
-} from "@/features/desktop-shell/components/DesktopUtilityToolbar"
+} from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
+import { DesktopUtilityToolbarButton } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
 import { DRAFTING_KEYBOARD_SHORTCUT_GROUPS } from "@/features/workspace/model/keyboard-shortcuts"
 import { cn } from "@/lib/utils"

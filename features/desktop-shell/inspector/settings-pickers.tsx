@@ -1,6 +1,7 @@
 "use client"
 
 import { Filter, Search } from "lucide-react"
+import Image from "next/image"
 import { useMemo, useState, type ReactNode } from "react"
 
 import {
@@ -10,13 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  findBrandIconById,
   getBrandIconById,
   POPULAR_BRAND_ICON_IDS,
 } from "@/features/qr-code/assets/brand-icons"
 import {
   ICONSTACK_LIBRARIES,
-  ICONSTACK_SELECTION_PREFIX,
   toIconstackSelectionId,
   type IconstackLibraryId,
   type IconstackSearchResult,
@@ -36,24 +35,6 @@ const LOGO_LIBRARY_OPTIONS: Array<{ id: IconstackLibraryId | "all"; label: strin
   { id: "all", label: "All libraries" },
   ...ICONSTACK_LIBRARIES.map((library) => ({ id: library.id, label: library.label })),
 ]
-
-export function getLogoSelectionLabel(selectedId: string) {
-  const brandIcon = findBrandIconById(selectedId)
-  if (brandIcon) return brandIcon.label
-
-  if (selectedId.startsWith(ICONSTACK_SELECTION_PREFIX)) {
-    const rest = selectedId.slice(ICONSTACK_SELECTION_PREFIX.length)
-    const separator = rest.indexOf(":")
-    if (separator >= 0) {
-      return rest
-        .slice(separator + 1)
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, (char) => char.toUpperCase())
-    }
-  }
-
-  return "Choose logo"
-}
 
 function LogoIconTile({
   ariaLabel,
@@ -95,9 +76,14 @@ function IconstackIconPreview({
     return (
       <span
         aria-hidden
-        className="flex size-4 items-center justify-center [&_svg]:size-full"
-        dangerouslySetInnerHTML={{ __html: previewSvg }}
-      />
+        className="flex size-4 items-center justify-center [&_img]:size-full"
+      >
+        <img
+          alt=""
+          className="size-full"
+          src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(previewSvg)}`}
+        />
+      </span>
     )
   }
 
@@ -284,11 +270,11 @@ function PexelsPhotoTile({
       type="button"
       onClick={onClick}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         alt={photo.alt}
         className="absolute inset-0 size-full object-cover"
-        loading="lazy"
+        fill
+        sizes="160px"
         src={photo.previewUrl}
       />
     </button>

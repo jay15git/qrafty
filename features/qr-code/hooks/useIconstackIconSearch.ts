@@ -118,9 +118,7 @@ export function useIconstackIconSearch({
               : "Icon search failed",
           )
         } finally {
-          if (!cancelled) {
-            setIsLoading(false)
-          }
+          setIsLoading(false)
         }
       })()
     }, SEARCH_DEBOUNCE_MS)

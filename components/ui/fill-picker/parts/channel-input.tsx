@@ -143,11 +143,12 @@ function HexField({
 }) {
   const [draft, setDraft] = React.useState(value);
   const [error, setError] = React.useState(false);
-
-  React.useEffect(() => {
+  const [prevValue, setPrevValue] = React.useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     setDraft(value);
     setError(false);
-  }, [value]);
+  }
 
   const commit = (v: string) => {
     const ok = onCommit(v.trim());

@@ -122,30 +122,26 @@ export const FinderPatternsOuter = ({
       style === 'leaf-sm' || style === 'leaf' || style === 'leaf-lg'
         ? finderPatternsOuterLeaf
         : finderPatternsOuterInOutPoint
-    return coordinates
-      .map((coordinate, index) => ({
-        ...coordinate,
-        rotation: FINDER_PATTERN_OUTER_ROTATIONS[style][index],
-      }))
-      .map(({ x, y, rotation }) => {
-        const path = pathFn({
-          x,
-          y,
-          radius: FINDER_PATTERN_OUTER_RADIUSES[style],
-        })
-        return (
-          <path
-            key={`finder-patterns-outer-${style}-${x}-${y}`}
-            fill={fill}
-            d={path}
-            style={{
-              transform: `rotate(${rotation}deg)`,
-              transformOrigin: 'center',
-              transformBox: 'fill-box',
-            }}
-            {...testProps}
-          />
-        )
+    return coordinates.flatMap((coordinate, index) => {
+      const rotation = FINDER_PATTERN_OUTER_ROTATIONS[style][index]
+      const path = pathFn({
+        x: coordinate.x,
+        y: coordinate.y,
+        radius: FINDER_PATTERN_OUTER_RADIUSES[style],
       })
+      return [
+        <path
+          key={`finder-patterns-outer-${style}-${coordinate.x}-${coordinate.y}`}
+          fill={fill}
+          d={path}
+          style={{
+            transform: `rotate(${rotation}deg)`,
+            transformOrigin: 'center',
+            transformBox: 'fill-box',
+          }}
+          {...testProps}
+        />,
+      ]
+    })
   }
 }

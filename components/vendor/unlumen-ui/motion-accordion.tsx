@@ -5,6 +5,12 @@ import { m } from "motion/react"
 
 import { cn } from "@/lib/utils"
 
+import {
+  getAccordionScrollAdjustment,
+  getNextOpenItemId,
+  getNextOpenItemIds,
+} from "@/components/vendor/unlumen-ui/motion-accordion.utils"
+
 export interface MotionAccordionItem {
   id: string
   title: React.ReactNode
@@ -22,71 +28,6 @@ export interface MotionAccordionProps {
   gap?: number
   className?: string
   variant?: "card" | "settings"
-}
-
-const ACCORDION_SCROLL_PADDING = 24
-
-export function getNextOpenItemId(
-  currentOpenItemId: string | null | undefined,
-  targetItemId: string,
-  allowCollapse = true,
-) {
-  if (currentOpenItemId === targetItemId) {
-    return allowCollapse ? null : targetItemId
-  }
-
-  return targetItemId
-}
-
-export function getNextOpenItemIds(
-  currentOpenItemIds: string[] | null | undefined,
-  targetItemId: string,
-  allowCollapse = true,
-) {
-  const safeOpenItemIds = currentOpenItemIds ?? []
-  const isOpen = safeOpenItemIds.includes(targetItemId)
-
-  if (isOpen) {
-    return allowCollapse
-      ? safeOpenItemIds.filter((itemId) => itemId !== targetItemId)
-      : safeOpenItemIds
-  }
-
-  return [...safeOpenItemIds, targetItemId]
-}
-
-export function getAccordionScrollAdjustment({
-  containerBottom,
-  containerTop,
-  itemBottom,
-  itemTop,
-  padding = ACCORDION_SCROLL_PADDING,
-  targetContentHeight,
-  visiblePanelHeight,
-}: {
-  containerBottom: number
-  containerTop: number
-  itemBottom: number
-  itemTop: number
-  padding?: number
-  targetContentHeight: number
-  visiblePanelHeight: number
-}) {
-  const projectedBottom =
-    itemBottom + Math.max(0, targetContentHeight - visiblePanelHeight)
-  const maxVisibleBottom = containerBottom - padding
-
-  if (projectedBottom > maxVisibleBottom) {
-    return projectedBottom - maxVisibleBottom
-  }
-
-  const minVisibleTop = containerTop + padding
-
-  if (itemTop < minVisibleTop) {
-    return itemTop - minVisibleTop
-  }
-
-  return 0
 }
 
 function findScrollableParent(element: HTMLElement | null) {
@@ -337,13 +278,17 @@ export function MotionAccordion({
   const rawId = React.useId()
   const baseId = `accordion-${rawId.replace(/:/g, "")}`
   const isMultiOpen = openItemIds !== undefined
+  const openItemIdSet = React.useMemo(
+    () => (isMultiOpen && openItemIds ? new Set(openItemIds) : null),
+    [isMultiOpen, openItemIds],
+  )
 
   return (
     <div data-slot="motion-accordion" className={cn("w-full", className)}>
       <div className="flex flex-col" style={{ gap }}>
         {items.map((item, index) => {
           const isOpen = isMultiOpen
-            ? openItemIds.includes(item.id)
+            ? (openItemIdSet?.has(item.id) ?? false)
             : openItemId === item.id
 
           return (

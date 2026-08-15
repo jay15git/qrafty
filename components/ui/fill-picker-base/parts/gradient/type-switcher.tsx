@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useGradientPickerContext } from "@/components/ui/fill-picker-base/gradient";
-import type { GradientType } from "@/components/ui/fill-picker-base/gradient";
+import { useGradientPickerContext } from "@/components/ui/fill-picker-base/public-api";
+import type { GradientType } from "@/components/ui/fill-picker-base/public-api";
 import { FieldSelect, FieldSelectItem } from "./field";
 import { GRADIENT_TYPE_OPTIONS } from "@/components/ui/fill-picker/lib/gradient-options";
 

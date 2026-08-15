@@ -731,7 +731,8 @@ function stringValue(value: StaticQrContentValue | undefined) {
 
 function toQueryString(values: Record<string, string>) {
   return Object.entries(values)
-    .filter(([, value]) => Boolean(value))
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .flatMap(([key, value]) =>
+      value ? [`${encodeURIComponent(key)}=${encodeURIComponent(value)}`] : [],
+    )
     .join("&")
 }

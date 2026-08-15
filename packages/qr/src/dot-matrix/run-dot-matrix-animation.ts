@@ -26,12 +26,14 @@ function normalizeAnimationElement(element: SVGElement) {
 
 function resolveModuleCount(root: ParentNode) {
   const modules = Array.from(root.querySelectorAll(".module")) as SVGElement[]
-  const positions = modules
-    .map((module) => ({
-      column: readModulePosition(module, "column"),
-      row: readModulePosition(module, "row"),
-    }))
-    .filter((position) => Number.isFinite(position.column) && Number.isFinite(position.row))
+  const positions = modules.flatMap((module) => {
+    const column = readModulePosition(module, "column")
+    const row = readModulePosition(module, "row")
+    if (!Number.isFinite(column) || !Number.isFinite(row)) {
+      return []
+    }
+    return [{ column, row }]
+  })
 
   if (positions.length === 0) {
     return 21
@@ -85,23 +87,16 @@ export function runDotMatrixAnimation(
     ...setEntityType(rings, QRCodeEntity.PositionRing),
     ...setEntityType(centers, QRCodeEntity.PositionCenter),
     ...setEntityType(icons, QRCodeEntity.Icon),
-  ]
-    .map(({ element, entityType }) => ({
+  ].flatMap(({ element, entityType }) => [
+    animation(
       element,
-      positionX: readModulePosition(element as SVGElement, "column"),
-      positionY: readModulePosition(element as SVGElement, "row"),
+      readModulePosition(element as SVGElement, "column"),
+      readModulePosition(element as SVGElement, "row"),
+      moduleCount,
       entityType,
-    }))
-    .map((entityInfo) =>
-      animation(
-        entityInfo.element,
-        entityInfo.positionX,
-        entityInfo.positionY,
-        moduleCount,
-        entityInfo.entityType,
-        settings,
-      ),
-    )
+      settings,
+    ),
+  ])
 
   const loopTargets = animationAdditions.map((addition) => ({
     element: addition.targets as SVGElement,

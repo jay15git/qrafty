@@ -6,14 +6,15 @@ export function collectSceneFonts(scene: SceneDocumentV1): SceneFont[] {
 
 export function buildFontFaceCss(fonts: SceneFont[]) {
   return fonts
-    .filter((font) => font.url)
-    .map(
-      (font) => `@font-face {
+    .flatMap((font) =>
+      font.url
+        ? [`@font-face {
   font-family: "${font.family}";
   src: url("${font.url}");
   font-weight: ${font.weight ?? "normal"};
   font-style: ${font.style ?? "normal"};
-}`,
+}`]
+        : [],
     )
     .join("\n")
 }

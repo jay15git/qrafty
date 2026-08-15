@@ -152,7 +152,7 @@ function KbdCombo({
   return (
     <span className={cn("inline-flex items-center gap-1", className)}>
       {keys.map((key, i) => (
-        <React.Fragment key={`${key}-${i}`}>
+        <React.Fragment key={`${keys.slice(0, i + 1).join("+")}`}>
           {i > 0 && separator !== undefined && (
             <span className="text-[10px] text-muted-foreground/60">
               {separator}

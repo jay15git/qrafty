@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   getNextOpenItemId,
   getNextOpenItemIds,
-} from "@/components/vendor/unlumen-ui/motion-accordion"
+} from "@/components/vendor/unlumen-ui/motion-accordion.utils"
 
 describe("motion accordion helpers", () => {
   it("adds a new item in multi-open mode without closing siblings", () => {

@@ -168,12 +168,21 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
   const format = isControlledFormat ? controlledFormat! : internalFormat;
   const background = coerce(backgroundColor, WHITE);
 
-  const formatStrings = React.useMemo(() => formatAll(color), [color]);
+  const formatStrings = React.useMemo(
+    () => formatAll(color),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- OKLCH channels are the meaningful deps; object identity is unstable
+    [color.l, color.c, color.h, color.alpha],
+  );
   const formatted = formatStrings[format];
-  const gamut = React.useMemo(() => gamutInfo(color), [color]);
+  const gamut = React.useMemo(
+    () => gamutInfo(color),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- gamut derives from OKLCH channels only
+    [color.l, color.c, color.h, color.alpha],
+  );
   const contrastResult = React.useMemo(
     () => contrast(color, background),
-    [color, background],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- contrast uses OKLCH channels, not object identity
+    [color.l, color.c, color.h, color.alpha, background.l, background.c, background.h, background.alpha],
   );
 
   // Refs that mirror `format` and `onValueChange` during render so chained
@@ -231,7 +240,8 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
     (key: ColorComponent, val: number) => {
       commitColor(applyComponent(color, key, val));
     },
-    [color, commitColor],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- commitColor is stable; color channels are the live snapshot
+    [color.l, color.c, color.h, color.alpha, commitColor],
   );
 
   const adjustComponent = React.useCallback(
@@ -240,7 +250,8 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
         key === "l" ? color.l : key === "c" ? color.c : key === "h" ? color.h : color.alpha;
       commitColor(applyComponent(color, key, current + delta));
     },
-    [color, commitColor],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- commitColor is stable; color channels are the live snapshot
+    [color.l, color.c, color.h, color.alpha, commitColor],
   );
 
   const setFormat = React.useCallback(
@@ -273,7 +284,8 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
       if (!isControlledFormat) setInternalFormat(f);
       onFormatChange?.(f);
     },
-    [color, commitColor, isControlledFormat, onFormatChange],
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- color channels drive gamut clamp; onFormatChange is optional callback
+  [color.l, color.c, color.h, color.alpha, commitColor, isControlledFormat, onFormatChange],
   );
 
   const setFromString = React.useCallback(

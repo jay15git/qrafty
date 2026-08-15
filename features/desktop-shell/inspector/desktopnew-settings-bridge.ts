@@ -1,6 +1,5 @@
-import { formatFill, parseFill, type Fill } from "@/components/ui/fill-picker-base/fill"
+import { formatFill, parseFill, type Fill, type Gradient, type GradientStop } from "@/components/ui/fill-picker-base/public-api"
 import { formatColor, parseColor } from "@/components/ui/fill-picker-base/color-picker"
-import type { Gradient, GradientStop } from "@/components/ui/fill-picker-base/gradient"
 import type {
   DesktopCornersSettings,
   DesktopLogoSettings,
@@ -9,7 +8,7 @@ import type {
 } from "@/features/desktop-shell/components/FloatingToolbar"
 import type { StudioGradient } from "@/features/qr-code/model/state"
 import { degreesToRadians, radiansToDegrees } from "@/features/qr-code/styles/gradient-controls"
-import { fillFromHex, fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import { fillFromHex, fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 
 const FALLBACK_OKLCH = { l: 0, c: 0, h: 0, alpha: 1 } as const
 

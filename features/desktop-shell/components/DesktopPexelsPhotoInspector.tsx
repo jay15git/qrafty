@@ -2,6 +2,7 @@
 
 import { FilterMailIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import Image from "next/image"
 import { useState } from "react"
 
 import { SecondaryButton } from "@/components/ui/secondary-button"
@@ -16,12 +17,16 @@ import {
   DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
-  DesktopInspectorAnimatedOptionGrid,
+} from "@/features/desktop-shell/components/desktop-inspector-tokens"
+import {
   DesktopInspectorMorphFilterMenu,
   DesktopInspectorSearchInput,
   DesktopInspectorSection,
-  desktopInspectorOptionGridItemClass,
 } from "@/features/desktop-shell/components/InspectorControls"
+import {
+  DesktopInspectorAnimatedOptionGrid,
+} from "@/features/desktop-shell/inspector/inspector-option-grid"
+import { desktopInspectorOptionGridItemClass } from "@/features/desktop-shell/inspector/inspector-option-grid.classes"
 import { usePexelsPhotos } from "@/features/stock-photos/hooks/usePexelsPhotos"
 import {
   PEXELS_ORIENTATION_FILTER_OPTIONS,
@@ -64,14 +69,14 @@ function DesktopPexelsPhotoButton({
       type="button"
       onClick={onClick}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         alt={photo.alt}
         className={cn(
           "absolute inset-0 size-full object-cover",
           DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
         )}
-        loading="lazy"
+        fill
+        sizes="160px"
         src={photo.previewUrl}
       />
     </button>

@@ -3,7 +3,6 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -69,12 +68,11 @@ function Tooltip({
   const [internalOpen, setInternalOpen] = useState(false);
   const open = forceOpen !== undefined ? forceOpen : internalOpen;
   const [mounted, setMounted] = useState(false);
+  if (open && !mounted) {
+    setMounted(true);
+  }
   const shape = useShape();
   const portalContainer = useContext(TooltipPortalContainerContext);
-
-  useEffect(() => {
-    if (open) setMounted(true);
-  }, [open]);
 
   const handleExitComplete = () => {
     if (!open) setMounted(false);
@@ -87,6 +85,7 @@ function Tooltip({
       <TooltipPrimitive.Root
         open={open}
         onOpenChange={(value) => {
+          if (value) setMounted(true);
           setInternalOpen(value);
           onOpenChangeProp?.(value);
         }}

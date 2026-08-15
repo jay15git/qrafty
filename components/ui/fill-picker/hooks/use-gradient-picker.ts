@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useLazyRef } from "@/hooks/use-lazy-ref";
 import {
   DEFAULT_LINEAR,
   DEFAULT_RADIAL,
@@ -33,6 +34,19 @@ interface InternalState {
   // We keep the full gradient object and overlay stops separately.
   gradient: Gradient;
   stops: InternalStop[];
+}
+
+function recomputeAngle(
+  start: { x: number; y: number } | undefined,
+  end: { x: number; y: number } | undefined,
+  fallback: number,
+): number {
+  if (!start || !end) return fallback;
+  const dx = end.x - start.x;
+  const dy = -(end.y - start.y); // y axis is down in box coords
+  if (dx === 0 && dy === 0) return fallback;
+  const deg = (Math.atan2(dx, dy) * 180) / Math.PI;
+  return ((deg % 360) + 360) % 360;
 }
 
 // ---- Helpers ---------------------------------------------------------------
@@ -225,7 +239,10 @@ export function useGradientPicker(
   // it has to be a ref rather than derived state because the emit path inside
   // `apply` needs it for mutations (addStop, moveStop, …) that happen between
   // controlled syncs.
-  const idTrackedRef = React.useRef(
+  const idTrackedRef = useLazyRef(() =>
+    hasStopIds(value ?? defaultValue ?? DEFAULT_LINEAR),
+  );
+  const [tracksStopIds, setTracksStopIds] = React.useState(() =>
     hasStopIds(value ?? defaultValue ?? DEFAULT_LINEAR),
   );
   const [selectedStopId, setSelectedStopId] = React.useState<string>(
@@ -314,7 +331,8 @@ export function useGradientPicker(
       const sameShape = uniqueIds
         ? byId
         : sameLength &&
-          prev.stops.every((s, i) => s.position === incoming[i].position);
+          incoming.length === prev.stops.length &&
+          prev.stops.every((s, i) => s.position === incoming[i]?.position);
       const structuralMatch = prev.gradient.type === value.type && sameShape;
       const next: InternalState = structuralMatch
         ? {
@@ -334,6 +352,9 @@ export function useGradientPicker(
       // next event handler. React documents this adjust-on-prop-change pattern.
       /* eslint-disable react-doctor/no-ref-current-in-render -- controlled gradient sync */
       idTrackedRef.current = uniqueIds;
+      if (uniqueIds !== tracksStopIds) {
+        setTracksStopIds(uniqueIds);
+      }
       stateRef.current = next;
       /* eslint-enable react-doctor/no-ref-current-in-render */
       setInternal(next);
@@ -366,6 +387,7 @@ export function useGradientPicker(
       radiiStashRef.current = undefined;
       radiusPxStashRef.current = undefined;
       idTrackedRef.current = hasStopIds(next);
+      setTracksStopIds(hasStopIds(next));
       apply(() => attachIds(next));
       setSelectedStopId((prev) => stateRef.current.stops[0]?.id ?? prev);
     },
@@ -402,19 +424,6 @@ export function useGradientPicker(
       }),
     [apply],
   );
-
-  const recomputeAngle = (
-    start: { x: number; y: number } | undefined,
-    end: { x: number; y: number } | undefined,
-    fallback: number,
-  ): number => {
-    if (!start || !end) return fallback;
-    const dx = end.x - start.x;
-    const dy = -(end.y - start.y); // y axis is down in box coords
-    if (dx === 0 && dy === 0) return fallback;
-    const deg = (Math.atan2(dx, dy) * 180) / Math.PI;
-    return ((deg % 360) + 360) % 360;
-  };
 
   const setLinearStart = React.useCallback(
     (xy: { x: number; y: number } | undefined) =>
@@ -744,8 +753,8 @@ export function useGradientPicker(
   );
 
   const cleanGradient = React.useMemo(
-    () => toPublicGradient(internal, idTrackedRef.current),
-    [internal],
+    () => toPublicGradient(internal, tracksStopIds),
+    [internal, tracksStopIds],
   );
 
   return {

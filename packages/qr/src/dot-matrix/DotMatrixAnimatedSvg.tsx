@@ -32,6 +32,17 @@ export function DotMatrixAnimatedSvg({
 
   useEffect(() => {
     const container = containerRef.current
+    if (!container) {
+      return
+    }
+
+    const parsed = new DOMParser().parseFromString(svgMarkup, "image/svg+xml")
+    const svg = parsed.documentElement
+    container.replaceChildren(svg)
+  }, [svgMarkup])
+
+  useEffect(() => {
+    const container = containerRef.current
     if (!container || !preset) {
       return
     }
@@ -53,7 +64,6 @@ export function DotMatrixAnimatedSvg({
       className={className}
       data-export-animated-qr="true"
       style={{ position: "relative", width, height, ...style }}
-      dangerouslySetInnerHTML={{ __html: svgMarkup }}
     />
   )
 }

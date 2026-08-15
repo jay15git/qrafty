@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { getPaperShaderOptionPreviewUrl } from "@/features/workspace/components/PaperShaderOptionPreview"
+import { getPaperShaderOptionPreviewUrl } from "@/features/workspace/components/paper-shader-option-preview.utils"
 import { getAllPaperShaderDefinitions } from "@/features/workspace/rendering/paper-shaders"
 
 describe("paper shader option previews", () => {

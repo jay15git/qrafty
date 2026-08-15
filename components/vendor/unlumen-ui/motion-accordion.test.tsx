@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest"
 import {
   getAccordionScrollAdjustment,
   getNextOpenItemId,
-  MotionAccordion,
-} from "@/components/vendor/unlumen-ui/motion-accordion"
+} from "@/components/vendor/unlumen-ui/motion-accordion.utils"
+import { MotionAccordion } from "@/components/vendor/unlumen-ui/motion-accordion"
 
 describe("MotionAccordion", () => {
   it("renders measured panels and an icon affordance for controlled state", () => {

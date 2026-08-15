@@ -12,6 +12,11 @@ import { cn } from "@/lib/utils";
  */
 const CHROMA_MAX = 0.4;
 
+function releasePointerCapture(e: React.PointerEvent<HTMLDivElement>) {
+  const el = e.currentTarget as HTMLDivElement;
+  if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+}
+
 interface ChromaProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onKeyDown"> {
   orientation?: "horizontal" | "vertical";
@@ -43,12 +48,6 @@ export const Chroma = React.forwardRef<HTMLDivElement, ChromaProps>(
       if (e.buttons !== 1) return;
       moveTo(orientation === "horizontal" ? e.clientX : e.clientY);
     };
-    const releaseCapture = (e: React.PointerEvent<HTMLDivElement>) => {
-      const el = e.currentTarget as HTMLDivElement;
-      if (el.hasPointerCapture(e.pointerId))
-        el.releasePointerCapture(e.pointerId);
-    };
-
     const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
       const big = e.shiftKey ? 0.05 : 0.005;
       let next = color.c;
@@ -91,6 +90,8 @@ export const Chroma = React.forwardRef<HTMLDivElement, ChromaProps>(
         arr.push(formatColor({ ...color, c, alpha: 1 }, "oklch"));
       }
       return arr.join(", ");
+      // Chroma ramp samples only hue and lightness; chroma is swept in-loop.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [color.h, color.l]);
 
     const ratio = Math.max(0, Math.min(1, color.c / CHROMA_MAX));
@@ -109,8 +110,8 @@ export const Chroma = React.forwardRef<HTMLDivElement, ChromaProps>(
         tabIndex={0}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
-        onPointerUp={releaseCapture}
-        onPointerCancel={releaseCapture}
+        onPointerUp={releasePointerCapture}
+        onPointerCancel={releasePointerCapture}
         onKeyDown={onKeyDown}
         className={cn(
           "relative cursor-pointer rounded-full outline-none touch-none",

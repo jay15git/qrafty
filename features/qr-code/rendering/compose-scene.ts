@@ -364,9 +364,10 @@ export function reorderDashboardComposeNodes(
   }
 
   const currentOrder = getDashboardComposeNodeIdsByStackOrder(scene.nodes)
+  const currentOrderSet = new Set(currentOrder)
   const nextOrder = [
     ...new Set([
-      ...orderedNodeIds.filter((nodeId) => currentOrder.includes(nodeId)),
+      ...orderedNodeIds.filter((nodeId) => currentOrderSet.has(nodeId)),
       ...currentOrder,
     ]),
   ]

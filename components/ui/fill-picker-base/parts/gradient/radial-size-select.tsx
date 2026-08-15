@@ -4,8 +4,8 @@ import * as React from "react";
 import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@base-ui/react/tooltip";
-import { useGradientPickerContext } from "@/components/ui/fill-picker-base/gradient";
-import type { RadialSizeKeyword } from "@/components/ui/fill-picker-base/gradient";
+import { useGradientPickerContext } from "@/components/ui/fill-picker-base/public-api";
+import type { RadialSizeKeyword } from "@/components/ui/fill-picker-base/public-api";
 import { FieldSelect, FieldSelectItem } from "./field";
 import { RADIAL_SIZE_OPTIONS } from "@/components/ui/fill-picker/lib/gradient-options";
 

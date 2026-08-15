@@ -78,6 +78,11 @@ function warningGamuts(active: AreaGamut): Gamut[] {
   }
 }
 
+function releasePointerCapture(e: React.PointerEvent<HTMLDivElement>) {
+  const el = e.currentTarget as HTMLDivElement;
+  if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+}
+
 /**
  * Read display-P3 support fresh on the client and re-react if the user moves
  * the window to a different display. Module-load evaluation locks the value
@@ -122,7 +127,6 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
   const gamut: AreaGamut = gamutProp ?? libGamutFromFormat(format);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const [paths, setPaths] = React.useState<string[][]>([]);
   // Bead position override. The (X, Y) → OKLCH mapping is lossy at the
   // gamut poles: at l=0 or l=1 every X collapses to chroma 0, so deriving
   // the bead back from the resulting color always recovers X=0 — making
@@ -166,6 +170,14 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
   // a 128² marching-squares pass on every pointer tick — enough to stall the
   // bead. Narrowing the dep to the locked axis keeps drags free.
   const fixedAxisValue = mode === "oklch-hc" ? color.l : color.h;
+  const paths = React.useMemo(() => {
+    if (gamut === "none" || !showWarningLines) return [];
+    return warningGamuts(gamut).map((g) =>
+      computeGamutPaths(mode, color, chromaMax, g, gamut),
+    );
+    // `color` omitted — paths depend only on the locked axis (`fixedAxisValue`).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, fixedAxisValue, chromaMax, gamut, showWarningLines]);
   React.useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -181,15 +193,6 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
     const img = ctx.createImageData(w, h);
     paintGradient(img, w, h, mode, color, chromaMax, gamut, supportsP3, softProof);
     ctx.putImageData(img, 0, 0);
-    if (gamut === "none" || !showWarningLines) {
-      setPaths([]);
-    } else {
-      setPaths(
-        warningGamuts(gamut).map((g) =>
-          computeGamutPaths(mode, color, chromaMax, g, gamut),
-        ),
-      );
-    }
     // `color` is intentionally omitted — gradient + warning lines depend only
     // on the locked axis (`fixedAxisValue`), not on every channel of `color`.
     // Repainting on every pointer tick would stall the bead.
@@ -247,11 +250,6 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
     if (e.buttons !== 1) return;
     handlePointer(e.clientX, e.clientY);
   };
-  const releaseCapture = (e: React.PointerEvent<HTMLDivElement>) => {
-    const el = e.currentTarget as HTMLDivElement;
-    if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
-  };
-
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const big = e.shiftKey ? 10 : 1;
     const stepX = big / 100; // % of axis
@@ -302,8 +300,8 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
       tabIndex={0}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
-      onPointerUp={releaseCapture}
-      onPointerCancel={releaseCapture}
+      onPointerUp={releasePointerCapture}
+      onPointerCancel={releasePointerCapture}
       onKeyDown={onKeyDown}
       className={cn(
         "relative h-45 w-full cursor-crosshair overflow-hidden rounded-md border border-border outline-none touch-none select-none",

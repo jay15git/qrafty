@@ -17,20 +17,24 @@ import {
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
   DESKTOP_INSPECTOR_SECTION_HEADING_CLASS,
   DESKTOP_INSPECTOR_SELECTED_CLASS,
+} from "@/features/desktop-shell/components/desktop-inspector-tokens"
+import {
   DesktopInspectorLabel,
   DesktopInspectorSection,
   DesktopInspectorSegmentedControl,
   DesktopInspectorTextarea,
   DesktopInspectorTextInput,
   DesktopInspectorScrubbableNumberInput,
+} from "@/features/desktop-shell/components/InspectorControls"
+import {
   desktopInspectorOptionGridClass,
   desktopInspectorOptionGridItemClass,
   desktopInspectorOptionStackClass,
-} from "@/features/desktop-shell/components/InspectorControls"
+} from "@/features/desktop-shell/inspector/inspector-option-grid.classes"
 import {
   SettingsFillPopover,
 } from "@/features/desktop-shell/inspector/settings-ui"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import {
   DesktopInspectorElasticSliderRow,
   DesktopInspectorNumberField,

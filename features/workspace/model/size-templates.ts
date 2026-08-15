@@ -531,11 +531,18 @@ export function getSizeTemplateSections(): Array<{
   label: string
   templates: SizeTemplate[]
 }> {
-  return SIZE_TEMPLATE_GROUPS.map((group) => ({
-    group,
-    label: SIZE_TEMPLATE_GROUP_LABELS[group],
-    templates: getSizeTemplatesByGroup(group),
-  })).filter((section) => section.templates.length > 0)
+  return SIZE_TEMPLATE_GROUPS.flatMap((group) => {
+    const templates = getSizeTemplatesByGroup(group)
+    if (templates.length === 0) {
+      return []
+    }
+
+    return [{
+      group,
+      label: SIZE_TEMPLATE_GROUP_LABELS[group],
+      templates,
+    }]
+  })
 }
 
 export function formatAspectRatio(width: number, height: number): string {

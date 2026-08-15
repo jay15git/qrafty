@@ -12,8 +12,8 @@ import { DesktopSettingsToolbarShell } from "@/features/desktop-shell/components
 import {
   DesktopUtilityToolbar,
   DesktopUtilityToolbarButton,
-  DESKTOP_UTILITY_TOOLBAR_SHELL_CLASS,
 } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
+import { DESKTOP_UTILITY_TOOLBAR_SHELL_CLASS } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
 import { DesktopNewFloatingInspector } from "@/features/desktop-shell/inspector/DesktopNewFloatingInspector"
 import { useDesktopToolbarInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"

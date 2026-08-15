@@ -3,6 +3,8 @@
 import { Link2, Unlink2 } from "lucide-react"
 import {
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
+} from "@/features/desktop-shell/components/desktop-inspector-tokens"
+import {
   DesktopInspectorLabel,
   DesktopInspectorSection,
   DesktopInspectorSegmentedControl,
@@ -12,11 +14,9 @@ import {
   DesktopInspectorNumberField,
   DesktopInspectorValueGrid,
 } from "@/features/desktop-shell/components/DesktopInspectorShell"
-import {
-  DesktopnewThemeContext,
-  SettingsFillPopover,
-} from "@/features/desktop-shell/inspector/settings-ui"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { SettingsFillPopover } from "@/features/desktop-shell/inspector/settings-ui"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import {
   DRAFTING_BORDER_STYLES,

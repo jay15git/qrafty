@@ -6,6 +6,7 @@ import { useGradientPickerContext } from "../../contexts/gradient";
 import { type RadialSizeKeyword } from "../../lib/gradient";
 import { formatColor } from "../../lib/color";
 import { CHECKERBOARD_LG } from "../../lib/constants";
+import type { OklchColor } from "../../lib/types";
 import { useLiveAnnounce } from "../use-live-announce";
 import { trackPointerDrag } from "./pointer-drag";
 
@@ -62,6 +63,25 @@ function edgeExtent(dir: XY, halfW: number, halfH: number): number {
 function snapDeg(deg: number, step: number): number {
   const s = Math.round(deg / step) * step;
   return ((s % 360) + 360) % 360;
+}
+
+function rotateAngle(current: number, e: React.KeyboardEvent): number | null {
+  const step = e.shiftKey ? 15 : 1;
+  let next = current;
+  if (e.key === "ArrowRight" || e.key === "ArrowUp") next = current + step;
+  else if (e.key === "ArrowLeft" || e.key === "ArrowDown") next = current - step;
+  else if (e.key === "Home") next = 0;
+  else if (e.key === "End") next = 359;
+  else return null;
+  return ((next % 360) + 360) % 360;
+}
+
+function stopSwatchStyle(color: OklchColor) {
+  const css = formatColor(color, "oklch");
+  return {
+    backgroundImage: `linear-gradient(${css}, ${css}), ${CHECKERBOARD_LG}`,
+    backgroundSize: "auto, 6px 6px",
+  } as const;
 }
 
 /**
@@ -397,41 +417,14 @@ export const Overlay = React.forwardRef<HTMLDivElement, OverlayProps>(
 
   // Keyboard nudge helpers --------------------------------------------------
 
-  const rotate = (current: number, e: React.KeyboardEvent): number | null => {
-    const step = e.shiftKey ? 15 : 1;
-    let next = current;
-    if (e.key === "ArrowRight" || e.key === "ArrowUp") next = current + step;
-    else if (e.key === "ArrowLeft" || e.key === "ArrowDown")
-      next = current - step;
-    else if (e.key === "Home") next = 0;
-    else if (e.key === "End") next = 359;
-    else return null;
-    return ((next % 360) + 360) % 360;
-  };
-
   // 2D handles (center, free-positioned endpoints) use role="application",
   // which has no value semantics — announce keyboard moves in a polite live
   // region rendered at the overlay root.
   const [liveText, announce] = useLiveAnnounce();
 
-  /**
-   * Stack three background layers so a handle dot shows the stop's actual
-   * color (alpha intact) while still fully occluding the dashed gradient
-   * line behind it: stop-color on top, checkerboard underneath so
-   * transparency reads as transparency, and the Handle's own solid
-   * `bg-background` at the bottom for the final opacity guarantee.
-   */
-  const stopSwatchStyle = (color: typeof ctx.stops[number]["color"]) => {
-    const css = formatColor(color, "oklch");
-    return {
-      backgroundImage: `linear-gradient(${css}, ${css}), ${CHECKERBOARD_LG}`,
-      backgroundSize: "auto, 6px 6px",
-    } as const;
-  };
-
   const onKeyDownAngle = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (gradient.type !== "linear") return;
-    const next = rotate(gradient.angle, e);
+    const next = rotateAngle(gradient.angle, e);
     if (next === null) return;
     e.preventDefault();
     ctx.setAngle(next);
@@ -471,7 +464,7 @@ export const Overlay = React.forwardRef<HTMLDivElement, OverlayProps>(
 
   const onKeyDownConicDial = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (gradient.type !== "conic") return;
-    const next = rotate(gradient.startAngle, e);
+    const next = rotateAngle(gradient.startAngle, e);
     if (next === null) return;
     e.preventDefault();
     ctx.setStartAngle(next);

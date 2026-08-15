@@ -5,6 +5,8 @@ import { type ReactNode } from "react"
 import { ElasticSlider } from "@/components/ui/elastic-slider"
 import {
   DESKTOP_INSPECTOR_LABEL_CLASS,
+} from "@/features/desktop-shell/components/desktop-inspector-tokens"
+import {
   DesktopInspectorScrubNumberInput,
   useDesktopInspectorNumberScrub,
 } from "@/features/desktop-shell/components/InspectorControls"

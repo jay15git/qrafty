@@ -11,10 +11,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { SettingsFillPopover } from "@/features/desktop-shell/inspector/settings-ui"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import {
   DESKTOP_INSPECTOR_CONTROL_CLASS,
   DESKTOP_INSPECTOR_SECTION_HEADING_CLASS,
+} from "@/features/desktop-shell/components/desktop-inspector-tokens"
+import {
   DesktopInspectorNativeSelect,
   DesktopInspectorSection,
 } from "@/features/desktop-shell/components/InspectorControls"
@@ -56,6 +58,7 @@ export function DesktopEffectsAccordion({
 }) {
   const effects = listLayerEffects(layer)
   const [openIds, setOpenIds] = useState<string[]>([])
+  const openIdSet = new Set(openIds)
 
   function applyPatch(patch: Partial<DraftingCanvasLayer>) {
     onPatch(patch)
@@ -122,7 +125,7 @@ export function DesktopEffectsAccordion({
       {effects.length > 0 ? (
         <div className="flex flex-col gap-1" data-slot="desktop-effects-list">
           {effects.map((effect) => {
-            const isOpen = openIds.includes(effect.id)
+            const isOpen = openIdSet.has(effect.id)
 
             return (
               <EffectRow

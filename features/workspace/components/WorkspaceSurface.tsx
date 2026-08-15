@@ -1,10 +1,10 @@
 "use client"
 
+import { useLazyRef } from "@/hooks/use-lazy-ref"
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
 
 import type {
   QrErrorCorrectionLevel,
-  QrFileExtension,
   QrFinderPatternOuterStyle,
   QrMode,
   QrTypeNumber,
@@ -88,6 +88,17 @@ import {
   pickDesktopToolbarSettingsSnapshots,
 } from "@/features/workspace/components/workspace-desktop-settings-snapshots"
 import {
+  DEFAULT_DRAFTING_PANE_QR_SIZE,
+  DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID,
+  DEFAULT_DRAFTING_STUDIO_STATE,
+  DEFAULT_DOWNLOAD_NAME,
+  DRAFTING_LAYER_PASTE_OFFSET,
+  DRAFTING_RASTER_EXPORT_PRESETS,
+  replaceTrackedObjectUrl,
+  type DraftingDownloadExtension,
+  type DraftingRasterExportPresetId,
+} from "@/features/workspace/components/workspace-surface.constants"
+import {
   DRAFTING_CARD_PATTERN_NONE_ID,
 } from "@/features/workspace/model/card-patterns"
 import {
@@ -126,7 +137,6 @@ import {
 } from "@/features/desktop-shell/model/appearance"
 import type { DraftingLayerMenuAction } from "@/features/workspace/components/Pane"
 import {
-  filterBrandIcons,
   findBrandIconById,
   type BrandIconCategory,
   type BrandIconEntry,
@@ -163,7 +173,6 @@ import {
 } from "@/features/qr-code/rendering/compose-scene"
 import {
   clampQrBackgroundRound,
-  createDefaultQrStudioState,
   type AssetSourceMode,
   type BackgroundShapeOptions,
   type DotsColorMode,
@@ -230,57 +239,6 @@ type WorkspaceSurfaceProps = {
   renderOverlay?: (controller: DraftingWorkspaceController) => ReactNode
 }
 
-const DEFAULT_DRAFTING_STUDIO_STATE = createDefaultQrStudioState()
-
-const DEFAULT_DRAFTING_PANE_QR_SIZE = 240
-const DRAFTING_LAYER_PASTE_OFFSET = 24
-const IGNORE_DRAFTING_UPLOAD_ERROR: (message: string) => void = () => undefined
-const DEFAULT_DOWNLOAD_NAME = "new-qr-studio"
-const DRAFTING_DOWNLOAD_EXTENSIONS = ["svg", "png", "webp", "jpeg"] as const satisfies ReadonlyArray<
-  QrFileExtension
->
-const DRAFTING_RASTER_EXPORT_PRESETS = [
-  {
-    id: "quick-share",
-    label: "Quick share",
-    primaryUse: "chat, email, docs, previews",
-    sizePx: 512,
-  },
-  {
-    id: "web-social",
-    label: "Web & social",
-    primaryUse: "websites, social posts, menus",
-    sizePx: 1024,
-  },
-  {
-    id: "small-print",
-    label: "Small print",
-    primaryUse: "stickers, cards, table tents",
-    sizePx: 1600,
-  },
-  {
-    id: "flyer-poster",
-    label: "Flyer / poster",
-    primaryUse: "flyers, posters, nearby signage",
-    sizePx: 2400,
-  },
-  {
-    id: "large-format",
-    label: "Large format",
-    primaryUse: "banners, wall signs, storefronts",
-    sizePx: 3200,
-  },
-  {
-    id: "max-quality",
-    label: "Max quality",
-    primaryUse: "designer handoff, archive, safest PNG",
-    sizePx: 4096,
-  },
-] as const
-type DraftingRasterExportPresetId = (typeof DRAFTING_RASTER_EXPORT_PRESETS)[number]["id"]
-type DraftingDownloadExtension = (typeof DRAFTING_DOWNLOAD_EXTENSIONS)[number]
-const DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID: DraftingRasterExportPresetId = "web-social"
-
 export function WorkspaceSurface({
   desktopTheme = "light",
   fontClassName,
@@ -339,7 +297,7 @@ export function WorkspaceSurface({
     useState<QrDotMatrixAnimationOptions>({
       ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation,
     })
-  const [openDotsColorItems, setOpenDotsColorItems] = useState<string[]>(["solid"])
+  const openDotsColorItemsRef = useLazyRef(() => new Set<DotsColorMode>(["solid"]))
   const [selectedQrFinderPatternOuterStyle, setSelectedQrFinderPatternOuterStyle] =
     useState<QrFinderPatternOuterStyle>("rounded-lg")
   const [selectedCornerSquareColorMode, setSelectedCornerSquareColorMode] =
@@ -353,9 +311,9 @@ export function WorkspaceSurface({
     useState<StudioGradient>(
       () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterGradient),
     )
-  const [openCornerSquareColorItems, setOpenCornerSquareColorItems] = useState<string[]>([
-    "solid",
-  ])
+  const openCornerSquareColorItemsRef = useLazyRef(
+    () => new Set<DraftingBinaryColorMode>(["solid"]),
+  )
   const [selectedQrFinderPatternInnerStyle, setSelectedQrFinderPatternInnerStyle] =
     useState<StudioCornerDotStyle>("circle")
   const [selectedCornerDotColorMode, setSelectedCornerDotColorMode] =
@@ -369,9 +327,9 @@ export function WorkspaceSurface({
     useState<StudioGradient>(
       () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerGradient),
     )
-  const [openCornerDotColorItems, setOpenCornerDotColorItems] = useState<string[]>([
-    "solid",
-  ])
+  const openCornerDotColorItemsRef = useLazyRef(
+    () => new Set<DraftingBinaryColorMode>(["solid"]),
+  )
   const [selectedBackgroundColorMode, setSelectedBackgroundColorMode] =
     useState<DraftingBinaryColorMode>(
       DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient.enabled ? "gradient" : "solid",
@@ -391,9 +349,9 @@ export function WorkspaceSurface({
     useState<BackgroundShapeOptions>(() => ({
       ...DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeOptions,
     }))
-  const [openBackgroundColorItems, setOpenBackgroundColorItems] = useState<string[]>([
-    "solid",
-  ])
+  const openBackgroundColorItemsRef = useLazyRef(
+    () => new Set<DraftingBinaryColorMode>(["solid"]),
+  )
   const [selectedBackgroundAssetSourceMode, setSelectedBackgroundAssetSourceMode] =
     useState<DraftingAssetSourceMode>(
       DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.source === "url" ? "url" : "upload",
@@ -403,9 +361,9 @@ export function WorkspaceSurface({
       ? (DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.value ?? "")
       : "",
   )
-  const [openBackgroundUploadItems, setOpenBackgroundUploadItems] = useState<string[]>([
-    "upload",
-  ])
+  const openBackgroundUploadItemsRef = useLazyRef(
+    () => new Set<DraftingAssetSourceMode>(["upload"]),
+  )
   const [selectedLogoColorMode, setSelectedLogoColorMode] = useState<DraftingBinaryColorMode>(
     DEFAULT_DRAFTING_STUDIO_STATE.logoGradient.enabled ? "gradient" : "solid",
   )
@@ -418,10 +376,11 @@ export function WorkspaceSurface({
   const [selectedLogoGradient, setSelectedLogoGradient] = useState<StudioGradient>(
     () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.logoGradient),
   )
-  const [openLogoColorItems, setOpenLogoColorItems] = useState<string[]>(["solid"])
-  const [brandIconQuery, setBrandIconQuery] = useState("")
-  const [brandIconCategory, setBrandIconCategory] =
-    useState<DraftingBrandIconCategoryFilter>("all")
+  const openLogoColorItemsRef = useLazyRef(
+    () => new Set<DraftingBinaryColorMode>(["solid"]),
+  )
+  const brandIconQueryRef = useRef("")
+  const brandIconCategoryRef = useRef<DraftingBrandIconCategoryFilter>("all")
   const [selectedLogoPresetId, setSelectedLogoPresetId] = useState<string | undefined>(
     DEFAULT_DRAFTING_STUDIO_STATE.logo.presetId,
   )
@@ -442,7 +401,9 @@ export function WorkspaceSurface({
       ? (DEFAULT_DRAFTING_STUDIO_STATE.logo.value ?? "")
       : "",
   )
-  const [openLogoUploadItems, setOpenLogoUploadItems] = useState<string[]>(["upload"])
+  const openLogoUploadItemsRef = useLazyRef(
+    () => new Set<DraftingAssetSourceMode>(["upload"]),
+  )
   const [selectedLogoSize, setSelectedLogoSize] = useState(
     DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.imageSize * 100,
   )
@@ -556,7 +517,7 @@ export function WorkspaceSurface({
   const iconstackSvgCacheRef = useRef<Map<string, string>>(new Map())
   const draftingLayerClipboardRef = useRef<string>("")
   const logoUploadObjectUrlRef = useRef<string | null>(null)
-  const filteredBrandIcons = filterBrandIcons(brandIconQuery, brandIconCategory)
+  const [logoUploadObjectUrl, setLogoUploadObjectUrl] = useState<string | null>(null)
   const selectedContentValues =
     contentValuesByType[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType)
   const selectedContentValue = useMemo(
@@ -741,34 +702,27 @@ export function WorkspaceSurface({
     selectedCardState,
     selectedLayerIds,
   })
-  const ensureDotsColorItemExpanded = (itemId: DotsColorMode) =>
-    setOpenDotsColorItems((current) =>
-      current.includes(itemId) ? current : [...current, itemId],
-    )
-  const ensureCornerSquareColorItemExpanded = (itemId: DraftingBinaryColorMode) =>
-    setOpenCornerSquareColorItems((current) =>
-      current.includes(itemId) ? current : [...current, itemId],
-    )
-  const ensureCornerDotColorItemExpanded = (itemId: DraftingBinaryColorMode) =>
-    setOpenCornerDotColorItems((current) =>
-      current.includes(itemId) ? current : [...current, itemId],
-    )
-  const ensureBackgroundColorItemExpanded = (itemId: DraftingBinaryColorMode) =>
-    setOpenBackgroundColorItems((current) =>
-      current.includes(itemId) ? current : [...current, itemId],
-    )
-  const ensureLogoColorItemExpanded = (itemId: DraftingBinaryColorMode) =>
-    setOpenLogoColorItems((current) =>
-      current.includes(itemId) ? current : [...current, itemId],
-    )
-  const ensureBackgroundUploadItemExpanded = (itemId: DraftingAssetSourceMode) =>
-    setOpenBackgroundUploadItems((current) =>
-      current.includes(itemId) ? current : [...current, itemId],
-    )
-  const ensureLogoUploadItemExpanded = (itemId: DraftingAssetSourceMode) =>
-    setOpenLogoUploadItems((current) =>
-      current.includes(itemId) ? current : [...current, itemId],
-    )
+  const ensureDotsColorItemExpanded = (itemId: DotsColorMode) => {
+    openDotsColorItemsRef.current.add(itemId)
+  }
+  const ensureCornerSquareColorItemExpanded = (itemId: DraftingBinaryColorMode) => {
+    openCornerSquareColorItemsRef.current.add(itemId)
+  }
+  const ensureCornerDotColorItemExpanded = (itemId: DraftingBinaryColorMode) => {
+    openCornerDotColorItemsRef.current.add(itemId)
+  }
+  const ensureBackgroundColorItemExpanded = (itemId: DraftingBinaryColorMode) => {
+    openBackgroundColorItemsRef.current.add(itemId)
+  }
+  const ensureLogoColorItemExpanded = (itemId: DraftingBinaryColorMode) => {
+    openLogoColorItemsRef.current.add(itemId)
+  }
+  const ensureBackgroundUploadItemExpanded = (itemId: DraftingAssetSourceMode) => {
+    openBackgroundUploadItemsRef.current.add(itemId)
+  }
+  const ensureLogoUploadItemExpanded = (itemId: DraftingAssetSourceMode) => {
+    openLogoUploadItemsRef.current.add(itemId)
+  }
   const canDownload = selectedContentValidation.isValid && Boolean(draftingStudioState.data.trim())
   const isDraftingRasterExport = isRasterExportExtension(selectedDownloadExtension)
   const selectedRasterExportPreset =
@@ -1135,21 +1089,23 @@ export function WorkspaceSurface({
     setSelectedDotColor(nextState.dataModulesSettings.color)
     setSelectedDotsGradient(structuredClone(nextState.dataModulesGradient))
     setSelectedDotMatrixAnimation({ ...nextState.dotMatrixAnimation })
-    setOpenDotsColorItems([nextState.dotsColorMode])
+    openDotsColorItemsRef.current = new Set([nextState.dotsColorMode])
     setSelectedQrFinderPatternOuterStyle(nextState.finderPatternOuterSettings.type)
     setSelectedCornerSquareColorMode(
       nextState.finderPatternOuterGradient.enabled ? "gradient" : "solid",
     )
     setSelectedCornerSquareColor(nextState.finderPatternOuterSettings.color)
     setSelectedCornerSquareGradient(structuredClone(nextState.finderPatternOuterGradient))
-    setOpenCornerSquareColorItems([
+    openCornerSquareColorItemsRef.current = new Set([
       nextState.finderPatternOuterGradient.enabled ? "gradient" : "solid",
     ])
     setSelectedQrFinderPatternInnerStyle(nextState.finderPatternInnerSettings.type)
     setSelectedCornerDotColorMode(nextState.finderPatternInnerGradient.enabled ? "gradient" : "solid")
     setSelectedCornerDotColor(nextState.finderPatternInnerSettings.color)
     setSelectedCornerDotGradient(structuredClone(nextState.finderPatternInnerGradient))
-    setOpenCornerDotColorItems([nextState.finderPatternInnerGradient.enabled ? "gradient" : "solid"])
+    openCornerDotColorItemsRef.current = new Set([
+      nextState.finderPatternInnerGradient.enabled ? "gradient" : "solid",
+    ])
     setSelectedBackgroundColorMode(
       nextState.backgroundGradient.enabled ? "gradient" : "solid",
     )
@@ -1161,21 +1117,25 @@ export function WorkspaceSurface({
       ...DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeOptions,
       ...nextState.backgroundShapeOptions,
     })
-    setOpenBackgroundColorItems([nextState.backgroundGradient.enabled ? "gradient" : "solid"])
+    openBackgroundColorItemsRef.current = new Set([
+      nextState.backgroundGradient.enabled ? "gradient" : "solid",
+    ])
     setSelectedBackgroundAssetSourceMode(
       nextState.backgroundImage.source === "url" ? "url" : "upload",
     )
     setSelectedBackgroundRemoteUrl(
       nextState.backgroundImage.source === "url" ? (nextState.backgroundImage.value ?? "") : "",
     )
-    setOpenBackgroundUploadItems([
+    openBackgroundUploadItemsRef.current = new Set([
       nextState.backgroundImage.source === "url" ? "url" : "upload",
     ])
     setSelectedLogoColorMode(nextState.logoGradient.enabled ? "gradient" : "solid")
     setSelectedLogoSourceMode(nextState.logo.source)
     setSelectedLogoColor(nextState.logo.presetColor ?? DEFAULT_BRAND_ICON_COLOR)
     setSelectedLogoGradient(structuredClone(nextState.logoGradient))
-    setOpenLogoColorItems([nextState.logoGradient.enabled ? "gradient" : "solid"])
+    openLogoColorItemsRef.current = new Set([
+      nextState.logoGradient.enabled ? "gradient" : "solid",
+    ])
     setSelectedLogoPresetId(nextState.logo.presetId)
     setSelectedLogoPresetValue(nextState.logo.source === "preset" ? nextState.logo.value : undefined)
     setSelectedLogoAssetSourceMode(nextState.logo.source === "url" ? "url" : "upload")
@@ -1185,7 +1145,9 @@ export function WorkspaceSurface({
     setSelectedLogoUploadValue(
       nextState.logo.source === "upload" ? (nextState.logo.value ?? "") : "",
     )
-    setOpenLogoUploadItems([nextState.logo.source === "url" ? "url" : "upload"])
+    openLogoUploadItemsRef.current = new Set([
+      nextState.logo.source === "url" ? "url" : "upload",
+    ])
     setSelectedLogoSize(nextState.imageOptions.imageSize * 100)
     setSelectedLogoMargin(nextState.imageOptions.margin)
     setSelectedHideBackgroundDots(nextState.imageOptions.hideBackgroundDots)
@@ -1419,8 +1381,8 @@ export function WorkspaceSurface({
 
     setDesktopRailTool("content")
     applyDraftingQrStateToControls(nextState)
-    setBrandIconQuery("")
-    setBrandIconCategory("all")
+    brandIconQueryRef.current = ""
+    brandIconCategoryRef.current = "all"
     setActiveQrNodeId(DASHBOARD_QR_NODE_ID)
     setContentTypeByNodeId({
       [DASHBOARD_QR_NODE_ID]: DEFAULT_QR_INPUT_TYPE,
@@ -1450,12 +1412,14 @@ export function WorkspaceSurface({
   }
 
   useEffect(() => {
-    return () => {
-      if (logoUploadObjectUrlRef.current) {
-        URL.revokeObjectURL(logoUploadObjectUrlRef.current)
-      }
+    if (!logoUploadObjectUrl) {
+      return
     }
-  }, [])
+
+    return () => {
+      URL.revokeObjectURL(logoUploadObjectUrl)
+    }
+  }, [logoUploadObjectUrl])
 
   useEffect(() => {
     let cancelled = false
@@ -1592,10 +1556,12 @@ export function WorkspaceSurface({
           } = keyboardStateRef.current
           const activeLayers = currentLayerStateByNodeId[currentActiveQrNodeId] ?? []
 
+          const activeLayerById = new Map(activeLayers.map((item) => [item.id, item]))
+
           if (currentSelectedLayerIds.length > 0) {
             event.preventDefault()
             for (const layerId of currentSelectedLayerIds) {
-              const layer = activeLayers.find((item) => item.id === layerId)
+              const layer = activeLayerById.get(layerId)
 
               if (layer && !layer.isLocked) {
                 handleLayerChange(currentActiveQrNodeId, layerId, {
@@ -1793,6 +1759,7 @@ export function WorkspaceSurface({
       window.removeEventListener("copy", handleCopy, true)
       window.removeEventListener("paste", handlePaste, true)
     }
+    // eslint-disable-next-line react-doctor/exhaustive-deps -- clipboard handlers read latest state via refs
   }, [])
 
   useEffect(() => {
@@ -2185,12 +2152,12 @@ export function WorkspaceSurface({
         currentSelectedCardState,
       )
     const selectedLayerIdSet = new Set(currentSelectedLayerIds)
-    const removableLayerIds = layers
-      .filter((layer) => selectedLayerIdSet.has(layer.id))
-      .filter((layer) => !isDraftingQrLayerId(layer.id))
-      .map((layer) => layer.id)
+    const removableLayerIds = layers.flatMap((layer) =>
+      selectedLayerIdSet.has(layer.id) && !isDraftingQrLayerId(layer.id) ? [layer.id] : [],
+    )
 
     if (removableLayerIds.length > 0) {
+      const removableLayerIdSet = new Set(removableLayerIds)
       setLayerStateByNodeId((current) => {
         const currentLayers =
           current[currentActiveQrNodeId] ??
@@ -2202,14 +2169,14 @@ export function WorkspaceSurface({
 
         return {
           ...current,
-          [currentActiveQrNodeId]: currentLayers
-            .filter((layer) => !removableLayerIds.includes(layer.id))
-            .map(cloneDraftingCanvasLayer),
+          [currentActiveQrNodeId]: currentLayers.flatMap((layer) =>
+            removableLayerIdSet.has(layer.id) ? [] : [cloneDraftingCanvasLayer(layer)],
+          ),
         }
       })
 
       applyLayerSelection(
-        selectedLayerIds.filter((layerId) => !removableLayerIds.includes(layerId)),
+        selectedLayerIds.filter((layerId) => !removableLayerIdSet.has(layerId)),
       )
       return
     }
@@ -2258,11 +2225,12 @@ export function WorkspaceSurface({
         current[activeQrNodeId] ??
         createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
       const layerById = new Map(currentLayers.map((layer) => [layer.id, layer]))
+      const orderedIdSet = new Set(orderedIds)
       const nextOrder = [
         ...orderedIds.filter((layerId) => layerById.has(layerId)),
-        ...currentLayers
-          .map((layer) => layer.id)
-          .filter((layerId) => !orderedIds.includes(layerId)),
+        ...currentLayers.flatMap((layer) =>
+          orderedIdSet.has(layer.id) ? [] : [layer.id],
+        ),
       ]
       const zIndexByLayerId = new Map(
         nextOrder.map((layerId, index) => [layerId, nextOrder.length - index]),
@@ -2444,21 +2412,21 @@ export function WorkspaceSurface({
         )
 
         if (removableLayerIds.size > 0) {
-          nextLayers = nextLayers
-            .filter((layer) => !removableLayerIds.has(layer.id))
-            .map(cloneDraftingCanvasLayer)
+          nextLayers = nextLayers.flatMap((layer) =>
+            removableLayerIds.has(layer.id) ? [] : [cloneDraftingCanvasLayer(layer)],
+          )
         }
       } else {
-        const actionableLayerIds = layerIds.filter(
-          (layerId) => !isProtectedDraftingLayerId(layerId),
+        const actionableLayerIdSet = new Set(
+          layerIds.filter((layerId) => !isProtectedDraftingLayerId(layerId)),
         )
 
-        if (actionableLayerIds.length === 0) {
+        if (actionableLayerIdSet.size === 0) {
           return current
         }
 
         nextLayers = nextLayers.map((layer) => {
-          if (!actionableLayerIds.includes(layer.id)) {
+          if (!actionableLayerIdSet.has(layer.id)) {
             return cloneDraftingCanvasLayer(layer)
           }
 
@@ -2848,11 +2816,11 @@ export function WorkspaceSurface({
   function updateDesktopLogoSettings(patch: DesktopLogoSettingsPatch) {
     if (patch.uploadedFile) {
       ensureLogoUploadItemExpanded("upload")
-      if (logoUploadObjectUrlRef.current) {
-        URL.revokeObjectURL(logoUploadObjectUrlRef.current)
-      }
-      const uploadValue = URL.createObjectURL(patch.uploadedFile)
-      logoUploadObjectUrlRef.current = uploadValue
+      const uploadValue = replaceTrackedObjectUrl(
+        logoUploadObjectUrlRef,
+        patch.uploadedFile,
+        setLogoUploadObjectUrl,
+      )
       const nextState = applyAssetUploadValue(
         buildDraftingLogoStateSnapshot({
           logoSourceMode: "upload",

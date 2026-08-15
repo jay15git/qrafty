@@ -16,6 +16,7 @@ import {
   type DragEvent,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -42,6 +43,7 @@ interface FileUploadProps {
 }
 
 const DEFAULT_MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const EMPTY_ACCEPTED_FILE_TYPES: string[] = [];
 const UPLOAD_STEP_SIZE = 5;
 const FILE_SIZES = [
   "Bytes",
@@ -256,7 +258,7 @@ const UploadingAnimation = ({ progress }: { progress: number }) => (
 export default function FileUpload({
   onUploadSuccess = () => {},
   onUploadError = () => {},
-  acceptedFileTypes = [],
+  acceptedFileTypes = EMPTY_ACCEPTED_FILE_TYPES,
   maxFileSize = DEFAULT_MAX_FILE_SIZE,
   currentFile: initialFile = null,
   onFileRemove = () => {},
@@ -270,6 +272,17 @@ export default function FileUpload({
   const [error, setError] = useState<FileError | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const onUploadSuccessRef = useRef(onUploadSuccess);
+  const onUploadErrorRef = useRef(onUploadError);
+  const onFileRemoveRef = useRef(onFileRemove);
+  const validateFileRef = useRef(validateFile);
+
+  useLayoutEffect(() => {
+    onUploadSuccessRef.current = onUploadSuccess;
+    onUploadErrorRef.current = onUploadError;
+    onFileRemoveRef.current = onFileRemove;
+    validateFileRef.current = validateFile;
+  });
 
   useEffect(
     () => () => {
@@ -317,14 +330,14 @@ export default function FileUpload({
     (error: FileError) => {
       setError(error);
       setStatus("error");
-      onUploadError?.(error);
+      onUploadErrorRef.current?.(error);
 
       setTimeout(() => {
         setError(null);
         setStatus("idle");
       }, 3000);
     },
-    [onUploadError]
+    []
   );
 
   const simulateUpload = useCallback(
@@ -345,7 +358,7 @@ export default function FileUpload({
             setProgress(0);
             setStatus("idle");
             setFile(null);
-            onUploadSuccess?.(uploadingFile);
+            onUploadSuccessRef.current?.(uploadingFile);
           } else {
             setProgress(currentProgress);
           }
@@ -353,7 +366,7 @@ export default function FileUpload({
         uploadDelay / (100 / UPLOAD_STEP_SIZE)
       );
     },
-    [onUploadSuccess, uploadDelay]
+    [uploadDelay]
   );
 
   const handleFileSelect = useCallback(
@@ -376,7 +389,7 @@ export default function FileUpload({
         return;
       }
 
-      const customError = validateFile?.(selectedFile);
+      const customError = validateFileRef.current?.(selectedFile);
       if (customError) {
         handleError(customError);
         return;
@@ -391,7 +404,6 @@ export default function FileUpload({
       simulateUpload,
       validateFileSize,
       validateFileType,
-      validateFile,
       handleError,
     ]
   );
@@ -438,14 +450,13 @@ export default function FileUpload({
     setFile(null);
     setStatus("idle");
     setProgress(0);
-    if (onFileRemove) onFileRemove();
-  }, [onFileRemove]);
+    if (onFileRemoveRef.current) onFileRemoveRef.current();
+  }, []);
 
   return (
-    <div
+    <aside
       aria-label="File upload"
       className={cn("relative mx-auto w-full max-w-sm", className || "")}
-      role="complementary"
     >
       <div className="group relative w-full rounded-xl bg-white p-0.5 ring-1 ring-gray-200 dark:bg-black dark:ring-white/10">
         <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
@@ -467,7 +478,7 @@ export default function FileUpload({
               <div className="absolute inset-x-0 bottom-0 h-[20%] bg-gradient-to-t from-blue-500/10 to-transparent" />
               <div className="absolute inset-y-0 left-0 w-[20%] bg-gradient-to-r from-blue-500/10 to-transparent" />
               <div className="absolute inset-y-0 right-0 w-[20%] bg-gradient-to-l from-blue-500/10 to-transparent" />
-              <div className="absolute inset-[20%] animate-pulse rounded-lg bg-blue-500/5 transition-all duration-300" />
+              <div className="absolute inset-[20%] animate-pulse rounded-lg bg-blue-500/5 transition-opacity duration-300" />
             </div>
 
             <div className="absolute -top-4 -right-4 h-8 w-8 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 blur-md transition-opacity duration-500 group-hover:opacity-100" />
@@ -510,7 +521,7 @@ export default function FileUpload({
                     </div>
 
                     <button
-                      className="group flex w-4/5 items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 font-semibold text-gray-900 text-sm transition-all duration-200 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+                      className="group flex w-4/5 items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 font-semibold text-gray-900 text-sm transition-colors duration-200 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
                       onClick={triggerFileInput}
                       type="button"
                     >
@@ -558,7 +569,7 @@ export default function FileUpload({
                     </div>
 
                     <button
-                      className="flex w-4/5 items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 font-semibold text-gray-900 text-sm transition-all duration-200 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+                      className="flex w-4/5 items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 font-semibold text-gray-900 text-sm transition-colors duration-200 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
                       onClick={resetState}
                       type="button"
                     >
@@ -586,7 +597,7 @@ export default function FileUpload({
           </div>
         </div>
       </div>
-    </div>
+    </aside>
   );
 }
 

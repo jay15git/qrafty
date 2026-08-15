@@ -43,15 +43,26 @@ export const downloadRaster = ({
 
   const svgData = new XMLSerializer().serializeToString(svgRef.current)
   const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
-  const svgUrl = URL.createObjectURL(svgBlob)
 
   const qrImg = new Image()
   qrImg.crossOrigin = 'anonymous'
-  qrImg.src = svgUrl
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    if (typeof reader.result !== 'string') {
+      return
+    }
+
+    qrImg.src = reader.result
+  }
+  reader.onerror = (err) => {
+    // oxlint-disable-next-line no-console
+    console.error('Error loading QR code:', err)
+  }
+  reader.readAsDataURL(svgBlob)
 
   qrImg.onload = () => {
     ctx.drawImage(qrImg, 0, 0, fileSize, fileSize)
-    URL.revokeObjectURL(svgUrl)
 
     if (imageSettings?.src && calculatedImageSettings) {
       const logoImg = new Image()
@@ -91,6 +102,8 @@ export const downloadRaster = ({
       document.body.removeChild(a)
     }
   }
-  // oxlint-disable-next-line no-console
-  qrImg.onerror = (err) => console.error('Error loading QR code:', err)
+  qrImg.onerror = (err) => {
+    // oxlint-disable-next-line no-console
+    console.error('Error loading QR code:', err)
+  }
 }

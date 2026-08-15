@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
-import { formatFill, parseFill, type Fill } from "@/components/ui/fill-picker-base/fill"
-import { fillFromHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import { formatFill, parseFill, type Fill } from "@/components/ui/fill-picker-base/public-api"
+import { fillFromHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { degreesToRadians } from "@/features/qr-code/styles/gradient-controls"
 import type { StudioGradient } from "@/features/qr-code/model/state"
 import {

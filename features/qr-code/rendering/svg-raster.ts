@@ -53,16 +53,25 @@ async function loadSvgMarkupAsImage(markup: string): Promise<HTMLImageElement> {
   const blob = new Blob([preparedMarkup], { type: "image/svg+xml;charset=utf-8" })
 
   return await new Promise<HTMLImageElement>((resolve, reject) => {
+    // eslint-disable-next-line react-doctor/no-create-object-url-without-revoke -- released in onload/onerror/onabort
     const objectUrl = URL.createObjectURL(blob)
     const image = new Image()
 
-    image.onload = () => {
+    const releaseObjectUrl = () => {
       URL.revokeObjectURL(objectUrl)
+    }
+
+    image.onload = () => {
+      releaseObjectUrl()
       resolve(image)
     }
     image.onerror = () => {
-      URL.revokeObjectURL(objectUrl)
+      releaseObjectUrl()
       reject(new Error("The SVG could not be rasterized."))
+    }
+    image.onabort = () => {
+      releaseObjectUrl()
+      reject(new Error("The SVG rasterization was aborted."))
     }
     image.src = objectUrl
   })

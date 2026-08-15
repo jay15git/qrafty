@@ -370,16 +370,16 @@ const TabsSubtleItem = forwardRef<HTMLButtonElement, TabsSubtleItemProps>(
             )}
           />
         )}
-        {collapseLabel ? (
-          <AnimatePresence initial={false}>
-            {showLabel && (
+        <AnimatePresence initial={false}>
+          {collapseLabel ? (
+            showLabel ? (
               <m.span
                 key="label"
                 className="overflow-hidden inline-block origin-left"
                 initial={{ scaleX: 0, opacity: 0 }}
                 animate={{ scaleX: 1, opacity: 1 }}
                 exit={{ scaleX: 0, opacity: 0 }}
-                style={{ marginLeft: showLabel ? 8 : 0 }}
+                style={{ marginLeft: 8 }}
                 transition={{
                   ...spring.fast,
                   opacity: { duration: 0.06 },
@@ -387,11 +387,11 @@ const TabsSubtleItem = forwardRef<HTMLButtonElement, TabsSubtleItemProps>(
               >
                 {labelContent}
               </m.span>
-            )}
-          </AnimatePresence>
-        ) : (
-          labelContent
-        )}
+            ) : null
+          ) : (
+            <span key="label-static">{labelContent}</span>
+          )}
+        </AnimatePresence>
       </button>
     );
   }

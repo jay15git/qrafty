@@ -61,14 +61,11 @@ export const ContrastReadout = React.forwardRef<HTMLDivElement, ContrastReadoutP
     const initial =
       defaultMetric && metrics.includes(defaultMetric) ? defaultMetric : metrics[0];
     const [active, setActive] = React.useState<ContrastMetric>(initial);
-
-    React.useEffect(() => {
-      if (!metrics.includes(active)) setActive(metrics[0]);
-    }, [metrics, active]);
+    const resolvedActive = metrics.includes(active) ? active : metrics[0];
 
     const togglable = metrics.length > 1;
     const cycle = () => {
-      const i = metrics.indexOf(active);
+      const i = metrics.indexOf(resolvedActive);
       setActive(metrics[(i + 1) % metrics.length]);
     };
 
@@ -76,7 +73,7 @@ export const ContrastReadout = React.forwardRef<HTMLDivElement, ContrastReadoutP
       "flex w-full items-center gap-2 rounded-md border border-border bg-muted/30 px-2 py-1.5 text-xs";
 
     const body =
-      active === "wcag" ? (
+      resolvedActive === "wcag" ? (
         <WcagBody
           wcag={contrast.wcag}
           aa={contrast.wcagLevel.aaNormal}
@@ -95,7 +92,7 @@ export const ContrastReadout = React.forwardRef<HTMLDivElement, ContrastReadoutP
       );
 
     const popover =
-      active === "wcag"
+      resolvedActive === "wcag"
         ? wcagPopover(
             contrast.wcag,
             contrast.wcagLevel.aaNormal,
@@ -104,7 +101,7 @@ export const ContrastReadout = React.forwardRef<HTMLDivElement, ContrastReadoutP
         : apcaPopover(contrast.apca);
 
     if (togglable) {
-      const nextMetric = metrics[(metrics.indexOf(active) + 1) % metrics.length];
+      const nextMetric = metrics[(metrics.indexOf(resolvedActive) + 1) % metrics.length];
       return (
         <TooltipProvider delayDuration={150}>
           <Tooltip>
@@ -114,7 +111,7 @@ export const ContrastReadout = React.forwardRef<HTMLDivElement, ContrastReadoutP
                 data-slot="color-picker-contrast-readout"
                 type="button"
                 onClick={cycle}
-                aria-label={`Contrast (${active.toUpperCase()}). Click to switch to ${nextMetric.toUpperCase()}.`}
+                aria-label={`Contrast (${resolvedActive.toUpperCase()}). Click to switch to ${nextMetric.toUpperCase()}.`}
                 className={cn(
                   baseClass,
                   "cursor-pointer text-left transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",

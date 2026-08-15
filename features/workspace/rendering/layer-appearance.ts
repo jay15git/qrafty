@@ -74,9 +74,10 @@ function getDraftingShadowBoxShadowCss(
 export function getDraftingLayerBoxShadowStyle(
   shadows: Array<DraftingCardShadowState | DraftingShadowLayerState>,
 ) {
-  const boxShadows = shadows
-    .map((shadow) => getDraftingShadowBoxShadowCss(shadow))
-    .filter((value): value is string => Boolean(value))
+  const boxShadows = shadows.flatMap((shadow) => {
+    const css = getDraftingShadowBoxShadowCss(shadow)
+    return css ? [css] : []
+  })
 
   return boxShadows.length > 0 ? boxShadows.join(", ") : undefined
 }
@@ -84,39 +85,41 @@ export function getDraftingLayerBoxShadowStyle(
 export function getDraftingLayerDropShadowFilter(
   shadows: Array<DraftingCardShadowState | DraftingShadowLayerState>,
 ) {
-  const dropShadows = shadows
-    .map((shadow) => getDraftingShadowLayerCss(shadow))
-    .filter((value): value is string => Boolean(value))
+  const dropShadows = shadows.flatMap((shadow) => {
+    const css = getDraftingShadowLayerCss(shadow)
+    return css ? [css] : []
+  })
 
   return dropShadows.length > 0 ? dropShadows.join(" ") : undefined
 }
 
 export function buildCssFilterString(filters: DraftingFilterEffect[]) {
-  const parts = filters
-    .filter((filter) => filter.enabled)
-    .map((filter) => {
-      switch (filter.type) {
-        case "blur":
-          return filter.amount > 0 ? `blur(${filter.amount}px)` : null
-        case "brightness":
-          return filter.amount !== 100 ? `brightness(${filter.amount / 100})` : null
-        case "contrast":
-          return filter.amount !== 100 ? `contrast(${filter.amount / 100})` : null
-        case "grayscale":
-          return filter.amount > 0 ? `grayscale(${filter.amount / 100})` : null
-        case "hue-rotate":
-          return filter.amount !== 0 ? `hue-rotate(${filter.amount}deg)` : null
-        case "invert":
-          return filter.amount > 0 ? `invert(${filter.amount / 100})` : null
-        case "saturation":
-          return filter.amount !== 100 ? `saturate(${filter.amount / 100})` : null
-        case "sepia":
-          return filter.amount > 0 ? `sepia(${filter.amount / 100})` : null
-        default:
-          return null
-      }
-    })
-    .filter((value): value is string => Boolean(value))
+  const parts = filters.flatMap((filter) => {
+    if (!filter.enabled) {
+      return []
+    }
+
+    switch (filter.type) {
+      case "blur":
+        return filter.amount > 0 ? [`blur(${filter.amount}px)`] : []
+      case "brightness":
+        return filter.amount !== 100 ? [`brightness(${filter.amount / 100})`] : []
+      case "contrast":
+        return filter.amount !== 100 ? [`contrast(${filter.amount / 100})`] : []
+      case "grayscale":
+        return filter.amount > 0 ? [`grayscale(${filter.amount / 100})`] : []
+      case "hue-rotate":
+        return filter.amount !== 0 ? [`hue-rotate(${filter.amount}deg)`] : []
+      case "invert":
+        return filter.amount > 0 ? [`invert(${filter.amount / 100})`] : []
+      case "saturation":
+        return filter.amount !== 100 ? [`saturate(${filter.amount / 100})`] : []
+      case "sepia":
+        return filter.amount > 0 ? [`sepia(${filter.amount / 100})`] : []
+      default:
+        return []
+    }
+  })
 
   return parts.length > 0 ? parts.join(" ") : undefined
 }

@@ -7,7 +7,7 @@ import type {
   DesktopToolbarToolId,
 } from "@/features/desktop-shell/components/FloatingToolbar"
 import { DesktopNewSettingsPanel } from "@/features/desktop-shell/inspector/DesktopNewSettingsPanel"
-import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/settings-ui"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { cn } from "@/lib/utils"
 
 import "@/features/desktop-shell/inspector/desktopnew.css"

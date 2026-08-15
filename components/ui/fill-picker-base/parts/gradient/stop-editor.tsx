@@ -3,7 +3,7 @@
 import * as React from "react";
 import { StopPopover } from "@/components/ui/fill-picker/parts/gradient/stop-popover";
 import { ColorPickerContext } from "@/components/ui/fill-picker/context";
-import type { GradientStopEditorRenderer } from "@/components/ui/fill-picker-base/gradient";
+import type { GradientStopEditorRenderer } from "@/components/ui/fill-picker-base/public-api";
 import { useStopColorPickerState } from "@/components/ui/fill-picker/parts/gradient/stop-editor-shared";
 import { Area as ColorArea } from "@/components/ui/fill-picker/parts/area";
 import { EyeDropper } from "@/components/ui/fill-picker/parts/eye-dropper";

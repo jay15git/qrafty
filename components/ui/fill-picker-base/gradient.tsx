@@ -1,29 +1,6 @@
 "use client";
 
-// Base UI variant of the gradient picker.
-//
-// Mirrors `registry/new-york/ui/fill-picker/gradient-picker.tsx`'s public
-// surface. Only the parts that touch Radix/shadcn primitives directly are
-// rewritten on Base UI:
-//   - TypeSwitcher, InterpSwitcher, RadialSizeSelect → Select
-//   - ReverseStops                                   → plain button
-//   - StopList                                       → plain button (+
-//     the shared field shell), re-exported from the original (see
-//     stop-list.tsx for why)
-//   - the per-stop color editor → ./parts/gradient/stop-editor, injected
-//     below through the `stopEditor` slot. Both `<Bar editOnClick>` and
-//     `<StopList>` rows read that slot instead of importing an editor, so
-//     they stay dialect-free and open *this* variant's editor here.
-//
-// Everything else (Root/context, Bar, Area, Overlay, ShapeSwitcher, the
-// pad/input/group parts, StopColor, Presets, CssInput, RepeatingToggle) is
-// pure pointer/canvas logic or plain markup with zero Radix dependency, so
-// it's imported straight from the original — a single source of truth for
-// engine fixes.
-
 import * as React from "react";
-
-export { ColorPicker } from "./color-picker";
 
 import {
   Root as EngineGradientRoot,
@@ -52,48 +29,6 @@ import { StopList } from "./parts/gradient/stop-list";
 import { InterpSwitcher } from "./parts/gradient/interp-switcher";
 import { RadialSizeSelect } from "./parts/gradient/radial-size-select";
 import { stopEditorSlot } from "./parts/gradient/stop-editor";
-
-export type {
-  Gradient,
-  GradientType,
-  GradientInterp,
-  GradientStop,
-  RadialSizeKeyword,
-} from "@/components/ui/fill-picker/lib/gradient";
-
-// The gradient context surface, re-exported so the barrel is a complete
-// entry point for anyone composing custom gradient parts (a part needs
-// `useGradientPickerContext` to read state, and `GradientStopEditor*` to
-// fill the stop-editor slot). This also keeps the barrel self-consistent
-// with how the shadcn CLI rewrites installed imports: its import-fixup pass
-// resolves an aliased specifier by file BASENAME and prefers a `.tsx`
-// candidate over a `.ts` one, so `.../fill-picker/contexts/gradient.ts`
-// gets redirected to this file (`fill-picker-base/gradient.tsx`) in a
-// consumer project. Export-from specifiers are exempt from that pass, so
-// the re-exports below stay pointed at the real module.
-//
-// Cycle invariant: because of that same redirect, an INSTALLED consumer's
-// sibling parts (`./parts/gradient/{type,interp}-switcher`,
-// `radial-size-select`, `stop-editor`, and `./fill`) import their context
-// from *this barrel* rather than from `contexts/gradient` — and this barrel
-// imports those parts back. That module cycle is benign only because every
-// redirected binding is referenced inside a component body / hook call at
-// render time, never at module-eval time: by the time anything reads
-// `useGradientPickerContext`, both halves of the cycle have finished
-// evaluating. Keep new module-scope evaluation out of the base gradient
-// parts — a top-level `const x = useGradientPickerContext` or a
-// `Context.Provider` captured into a module constant would read a
-// still-uninitialized binding and blow up in consumer projects while
-// staying green in this repo (where TypeScript resolves the honest path
-// and there is no cycle at all). The build's basename-collision lint
-// guards the export side of this; nothing can guard the eval side but
-// this comment.
-export {
-  GradientStopEditorContext,
-  useGradientPickerContext,
-} from "@/components/ui/fill-picker/contexts/gradient";
-export type { GradientStopEditorRenderer } from "@/components/ui/fill-picker/contexts/gradient";
-
 
 /**
  * The engine `Root` plus this variant's stop editor (Base UI Hue/Alpha/
@@ -131,6 +66,4 @@ const GradientPickerBase = {
   AngleGroup,
 };
 
-// Plain-name aliases so consumers (and docs snippets) can swap variants by
-// changing only the import path — mirrors `ColorPicker` in color-picker.tsx.
 export const GradientPicker = GradientPickerBase;

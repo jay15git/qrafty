@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react"
+import Image from "next/image"
 
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import {
@@ -188,36 +189,20 @@ export function DraftingImageLayerContent({ layer }: { layer: DraftingCanvasLaye
   }
 
   return (
-    <img
-      alt=""
-      className="h-full w-full"
-      draggable={false}
-      src={imageValue}
-      style={{
-        borderRadius: cornerStyle,
-        objectFit: fit,
-      }}
-    />
+    <div className="relative h-full w-full" style={{ borderRadius: cornerStyle }}>
+      <Image
+        alt=""
+        className="h-full w-full"
+        draggable={false}
+        fill
+        sizes="(max-width: 768px) 100vw, 320px"
+        src={imageValue}
+        style={{
+          borderRadius: cornerStyle,
+          objectFit: fit,
+        }}
+        unoptimized
+      />
+    </div>
   )
-}
-
-export function getShapeSvgPath(shapeId: NonNullable<DraftingCanvasLayer["shapeId"]>) {
-  if (shapeId === "rect") {
-    return '<rect x="8" y="8" width="84" height="84" rx="8" ry="8" />'
-  }
-
-  if (shapeId === "ellipse") {
-    return '<ellipse cx="50" cy="50" rx="42" ry="42" />'
-  }
-
-  if (shapeId === "line") {
-    return '<line x1="8" y1="50" x2="92" y2="50" stroke-linecap="round" />'
-  }
-
-  if (shapeId === "arrow") {
-    return '<path d="M10 50 H62 M62 50 L44 34 M62 50 L44 66" fill="none" stroke-linecap="round" stroke-linejoin="round" />'
-  }
-
-  const definition = QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId)
-  return definition ? `<path d="${definition.path}" />` : ""
 }

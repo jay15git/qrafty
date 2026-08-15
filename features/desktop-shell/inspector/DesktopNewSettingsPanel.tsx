@@ -44,12 +44,12 @@ import {
 import { SettingsPaperShaderControls } from "@/features/desktop-shell/inspector/desktopnew-paper-shader-settings"
 import { PaperShaderOptionPreview } from "@/features/workspace/components/PaperShaderOptionPreview"
 import { cn } from "@/lib/utils"
+import { getLogoSelectionLabel } from "@/features/desktop-shell/inspector/settings-pickers.utils"
 import {
-  getLogoSelectionLabel,
   LogoIconPicker,
   PexelsPhotoPicker,
 } from "@/features/desktop-shell/inspector/settings-pickers"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import {
   applyCornerFill,
   applyLogoFill,

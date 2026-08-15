@@ -25,7 +25,7 @@ import {
   SettingsSlider,
   SettingsSwitchRow,
 } from "@/features/desktop-shell/inspector/settings-ui"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 
 const PAPER_SHADER_COLOR_FALLBACK = "#000000"
 const PAPER_SHADER_NEW_COLOR = "#ffffff"
@@ -164,7 +164,7 @@ function DesktopNewPaperShaderParamControl({
         <div className="flex flex-wrap items-center gap-1.5">
           {colors.map((color, index) => (
             <SettingsFillPopover
-              key={`${color}-${index}`}
+              key={`shader-color-${color}`}
               hint={`${index + 1}`}
               solidOnly
               value={isPaperShaderHexColor(color) ? color : PAPER_SHADER_COLOR_FALLBACK}

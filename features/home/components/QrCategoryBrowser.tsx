@@ -15,7 +15,7 @@ import {
   DESKTOP_INSPECTOR_DROPDOWN_ITEM_CLASS,
   DESKTOP_INSPECTOR_FG_SECONDARY,
   DESKTOP_INSPECTOR_SELECTED_CLASS,
-} from "@/features/desktop-shell/components/InspectorControls"
+} from "@/features/desktop-shell/components/desktop-inspector-tokens"
 import { cn } from "@/lib/utils"
 
 const CATEGORY_PILL_SURFACE =

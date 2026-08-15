@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
-import { CopyPlusIcon, FrameIcon, Grid2X2Icon, ImageIcon, SparklesIcon, TypeIcon } from "lucide-react"
+import { useState } from "react"
+import { CopyPlusIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
@@ -11,10 +11,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { SecondaryButton } from "@/components/ui/secondary-button"
-import FileUpload from "@/components/vendor/kokonutui/file-upload"
-import { Input } from "@/components/ui/input"
-import { ElementShapeOptionGrid } from "@/features/workspace/components/ElementShapeOptionGrid"
-import { PaperShaderOptionGrid } from "@/features/workspace/components/PaperShaderOptionGrid"
+import {
+  InsertMenuImagePanel,
+  InsertMenuRootPanel,
+  InsertMenuShapePanel,
+  InsertMenuShaderPanel,
+} from "@/features/workspace/components/insert-menu/InsertMenuPanels"
 import {
   createDraftingImageLayer,
   createDraftingShaderLayer,
@@ -27,9 +29,6 @@ import { cn } from "@/lib/utils"
 
 const DESKTOP_INSERT_POPOVER_SHELL =
   "w-[min(18rem,calc(100vw-2rem))] rounded-[20px] border border-white/[0.12] bg-black/70 p-2 text-white/84 shadow-[var(--desktop-glass-shadow)] backdrop-blur-2xl"
-
-const DESKTOP_INSERT_MENU_ITEM =
-  "flex h-10 w-full items-center gap-2 rounded-[10px] px-2 text-left text-sm font-semibold text-current transition hover:bg-white/[0.11] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 disabled:cursor-not-allowed disabled:opacity-40"
 
 type InsertMenuProps = {
   nodeId: string
@@ -97,45 +96,12 @@ export function InsertMenu({
     closeMenu()
   }
 
-  const isDesktopPopover = variant === "bottom-toolbar"
-
-  function renderMenuAction({
-    children,
-    disabled,
-    onClick,
-    slot,
-  }: {
-    children: ReactNode
-    disabled?: boolean
-    onClick: () => void
-    slot?: string
-  }) {
-    if (isDesktopPopover) {
-      return (
-        <button
-          className={DESKTOP_INSERT_MENU_ITEM}
-          data-slot={slot}
-          disabled={disabled}
-          type="button"
-          onClick={onClick}
-        >
-          {children}
-        </button>
-      )
-    }
-
-    return (
-      <SecondaryButton
-        className="h-10 w-full justify-start"
-        data-slot={slot}
-        disabled={disabled}
-        type="button"
-        onClick={onClick}
-      >
-        {children}
-      </SecondaryButton>
-    )
+  function openCardPatternSettings() {
+    onOpenCardPatternSettings?.()
+    closeMenu()
   }
+
+  const isDesktopPopover = variant === "bottom-toolbar"
 
   const trigger =
     variant === "bottom-toolbar" ? (
@@ -201,231 +167,42 @@ export function InsertMenu({
         sideOffset={variant === "bottom-toolbar" ? 12 : undefined}
       >
         {panel === "root" ? (
-          <div className={cn("grid", isDesktopPopover ? "gap-0.5" : "gap-2")}>
-            {renderMenuAction({ onClick: insertText, children: (
-              <>
-                <TypeIcon className="size-4 shrink-0" data-icon="inline-start" />
-                Text
-              </>
-            ) })}
-            {renderMenuAction({
-              onClick: () => setPanel("shape"),
-              children: (
-                <>
-                  <FrameIcon className="size-4 shrink-0" data-icon="inline-start" />
-                  Shape
-                </>
-              ),
-            })}
-            {onOpenCardPatternSettings
-              ? renderMenuAction({
-                  onClick: () => {
-                    onOpenCardPatternSettings()
-                    closeMenu()
-                  },
-                  slot: "drafting-insert-menu-pattern",
-                  children: (
-                    <>
-                      <Grid2X2Icon className="size-4 shrink-0" data-icon="inline-start" />
-                      Pattern
-                    </>
-                  ),
-                })
-              : null}
-            {renderMenuAction({
-              onClick: () => setPanel("image"),
-              children: (
-                <>
-                  <ImageIcon className="size-4 shrink-0" data-icon="inline-start" />
-                  Image
-                </>
-              ),
-            })}
-            {renderMenuAction({
-              onClick: () => setPanel("shader"),
-              children: (
-                <>
-                  <SparklesIcon className="size-4 shrink-0" data-icon="inline-start" />
-                  Shader
-                </>
-              ),
-            })}
-            {onAddQrCode
-              ? renderMenuAction({
-                  disabled: !canAddQrCode,
-                  onClick: addQrCode,
-                  slot: "drafting-insert-menu-add-qr",
-                  children: (
-                    <>
-                      <CopyPlusIcon className="size-4 shrink-0" data-icon="inline-start" />
-                      {canAddQrCode ? "QR code" : "Maximum 10 QR codes reached"}
-                    </>
-                  ),
-                })
-              : null}
-          </div>
+          <InsertMenuRootPanel
+            canAddQrCode={canAddQrCode}
+            isDesktopPopover={isDesktopPopover}
+            onAddQrCode={onAddQrCode ? addQrCode : undefined}
+            onInsertText={insertText}
+            onOpenCardPatternSettings={
+              onOpenCardPatternSettings ? openCardPatternSettings : undefined
+            }
+            onOpenImagePanel={() => setPanel("image")}
+            onOpenShapePanel={() => setPanel("shape")}
+            onOpenShaderPanel={() => setPanel("shader")}
+          />
         ) : null}
-
         {panel === "shape" ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <p
-                className={cn(
-                  "font-semibold",
-                  isDesktopPopover
-                    ? "text-sm text-white/72"
-                    : "ws-type-control-label text-[var(--ws-ink)]",
-                )}
-              >
-                Choose shape
-              </p>
-              <Button
-                className={isDesktopPopover ? "text-white/70 hover:bg-white/[0.11] hover:text-white" : undefined}
-                size="sm"
-                type="button"
-                variant="ghost"
-                onClick={() => setPanel("root")}
-              >
-                Back
-              </Button>
-            </div>
-            <ElementShapeOptionGrid
-              decorativeDataSlot="drafting-insert-decorative-shape-grid"
-              variant={isDesktopPopover ? "insert-desktop" : "insert-drafting"}
-              onSelect={insertShape}
-            />
-          </div>
+          <InsertMenuShapePanel
+            isDesktopPopover={isDesktopPopover}
+            onBack={() => setPanel("root")}
+            onSelectShape={insertShape}
+          />
         ) : null}
-
         {panel === "shader" ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <p
-                className={cn(
-                  "font-semibold",
-                  isDesktopPopover
-                    ? "text-sm text-white/72"
-                    : "ws-type-control-label text-[var(--ws-ink)]",
-                )}
-              >
-                Choose shader
-              </p>
-              <Button
-                className={isDesktopPopover ? "text-white/70 hover:bg-white/[0.11] hover:text-white" : undefined}
-                size="sm"
-                type="button"
-                variant="ghost"
-                onClick={() => setPanel("root")}
-              >
-                Back
-              </Button>
-            </div>
-            <PaperShaderOptionGrid
-              dataSlot="drafting-paper-shader-insert-grid"
-              variant={isDesktopPopover ? "insert-desktop" : "insert-drafting"}
-              onSelect={insertShader}
-            />
-          </div>
+          <InsertMenuShaderPanel
+            isDesktopPopover={isDesktopPopover}
+            onBack={() => setPanel("root")}
+            onSelectShader={insertShader}
+          />
         ) : null}
-
         {panel === "image" ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <p
-                className={cn(
-                  "font-semibold",
-                  isDesktopPopover
-                    ? "text-sm text-white/72"
-                    : "ws-type-control-label text-[var(--ws-ink)]",
-                )}
-              >
-                Add image
-              </p>
-              <Button
-                className={isDesktopPopover ? "text-white/70 hover:bg-white/[0.11] hover:text-white" : undefined}
-                size="sm"
-                type="button"
-                variant="ghost"
-                onClick={() => setPanel("root")}
-              >
-                Back
-              </Button>
-            </div>
-            {onBrowseStockPhotos
-              ? renderMenuAction({
-                  onClick: browseStockPhotos,
-                  slot: "drafting-insert-menu-browse-photos",
-                  children: (
-                    <>
-                      <ImageIcon className="size-4 shrink-0" data-icon="inline-start" />
-                      Browse photos
-                    </>
-                  ),
-                })
-              : null}
-            {onBrowseStockPhotos ? (
-              <div className="flex items-center gap-2 px-1">
-                <div
-                  className={cn(
-                    "h-px flex-1",
-                    isDesktopPopover ? "bg-white/12" : "bg-[var(--ws-line)]",
-                  )}
-                />
-                <span
-                  className={cn(
-                    "text-xs font-medium",
-                    isDesktopPopover ? "text-white/45" : "text-[var(--ws-ink-muted)]",
-                  )}
-                >
-                  or
-                </span>
-                <div
-                  className={cn(
-                    "h-px flex-1",
-                    isDesktopPopover ? "bg-white/12" : "bg-[var(--ws-line)]",
-                  )}
-                />
-              </div>
-            ) : null}
-            <Input
-              aria-label="Image URL"
-              className={cn(
-                "h-10 min-w-0 px-3 shadow-none",
-                isDesktopPopover
-                  ? "border-white/[0.12] bg-white/[0.08] text-white placeholder:text-white/40"
-                  : "ws-type-input border-[var(--ws-line)] bg-[var(--ws-panel-bg-hover)] text-[var(--ws-ink)]",
-              )}
-              placeholder="https://example.com/photo.png"
-              value={imageUrl}
-              onChange={(event) => setImageUrl(event.currentTarget.value)}
-            />
-            {isDesktopPopover ? (
-              <button
-                className={DESKTOP_INSERT_MENU_ITEM}
-                disabled={!imageUrl.trim()}
-                type="button"
-                onClick={() => insertImage(imageUrl.trim(), "url")}
-              >
-                Use URL
-              </button>
-            ) : (
-              <SecondaryButton
-                className="h-9 w-full"
-                disabled={!imageUrl.trim()}
-                type="button"
-                onClick={() => insertImage(imageUrl.trim(), "url")}
-              >
-                Use URL
-              </SecondaryButton>
-            )}
-            <FileUpload
-              acceptedFileTypes={["image/*"]}
-              className="mx-0 max-w-full"
-              onUploadError={() => undefined}
-              onUploadSuccess={(file) => insertImage(URL.createObjectURL(file), "upload")}
-              uploadDelay={0}
-            />
-          </div>
+          <InsertMenuImagePanel
+            imageUrl={imageUrl}
+            isDesktopPopover={isDesktopPopover}
+            onBack={() => setPanel("root")}
+            onBrowseStockPhotos={onBrowseStockPhotos ? browseStockPhotos : undefined}
+            onImageUrlChange={setImageUrl}
+            onInsertImage={insertImage}
+          />
         ) : null}
       </PopoverContent>
     </Popover>

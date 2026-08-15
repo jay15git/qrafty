@@ -9,8 +9,9 @@ import {
   useSyncExternalStore,
 } from "react"
 import { Dithering } from "@paper-design/shaders-react"
-import { buildPaperShaderRenderProps } from "../shaders"
+import { buildPaperShaderRenderProps } from "../shaders/build-props"
 import { usePaperShaderWorldSize } from "./use-paper-shader-world-size"
+import { hasPaperShaderWebGlSupport } from "./paper-shader-webgl"
 
 import type { ScenePaperShaderState } from "../schema"
 
@@ -41,20 +42,6 @@ class PaperShaderErrorBoundary extends Component<
 
   render() {
     return this.state.hasError ? null : this.props.children
-  }
-}
-
-export function hasPaperShaderWebGlSupport() {
-  if (typeof document === "undefined") {
-    return false
-  }
-
-  const canvas = document.createElement("canvas")
-
-  try {
-    return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"))
-  } catch {
-    return false
   }
 }
 
@@ -137,12 +124,4 @@ export function PaperShaderLayer({
       </div>
     </PaperShaderErrorBoundary>
   )
-}
-
-export async function capturePaperShaderFrame(
-  canvas: HTMLCanvasElement,
-  mimeType = "image/png",
-  quality = 0.92,
-) {
-  return canvas.toDataURL(mimeType, quality)
 }

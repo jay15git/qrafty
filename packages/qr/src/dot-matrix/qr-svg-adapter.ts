@@ -76,12 +76,14 @@ function passThroughAnimatableSVG(svg: SVGSVGElement) {
   );
   if (!hasAnimatableModules) return undefined;
 
-  const positions = modules
-    .map((module) => ({
-      column: parseFloat(module.getAttribute('data-column') || ''),
-      row: parseFloat(module.getAttribute('data-row') || ''),
-    }))
-    .filter((position) => isFinite(position.column) && isFinite(position.row));
+  const positions = modules.flatMap((module) => {
+    const column = parseFloat(module.getAttribute('data-column') || '')
+    const row = parseFloat(module.getAttribute('data-row') || '')
+    if (!isFinite(column) || !isFinite(row)) {
+      return []
+    }
+    return [{ column, row }]
+  });
   if (positions.length === 0) return undefined;
 
   const maxCoordinate = positions.reduce(

@@ -1157,9 +1157,17 @@ function getClipPathId(clipPath: string | null) {
 }
 
 function getActiveDotsPalette(state: Pick<QrStudioState, "dotsPalette">) {
-  return state.dotsPalette
-    .map((color) => color.trim())
-    .filter((color, index, palette) => color.length > 0 && palette.indexOf(color) === index)
+  const seen = new Set<string>()
+
+  return state.dotsPalette.flatMap((color) => {
+    const trimmed = color.trim()
+    if (!trimmed.length || seen.has(trimmed)) {
+      return []
+    }
+
+    seen.add(trimmed)
+    return [trimmed]
+  })
 }
 
 function isSvgElementLike(node: Element): node is SVGElement {
@@ -1932,8 +1940,17 @@ function getDotMatrixAnchorValue(sourceOpacity: number) {
 function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrack[]) {
   const style = document.createElementNS(SVG_NS, "style")
   const generatedKeyframes = tracks
-    .filter((track) => track.state === "active" && track.keyframes.includes("-dotm-square-"))
-    .map((track) => createGeneratedDotMatrixKeyframes(track.keyframes, track.upstreamLoader, track.region))
+    .flatMap((track) =>
+      track.state === "active" && track.keyframes.includes("-dotm-square-")
+        ? [
+            createGeneratedDotMatrixKeyframes(
+              track.keyframes,
+              track.upstreamLoader,
+              track.region,
+            ),
+          ]
+        : [],
+    )
     .join("\n")
 
   style.setAttribute("data-qr-layer", "dot-matrix-animation")

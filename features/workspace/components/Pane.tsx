@@ -35,9 +35,6 @@ import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   getDraftingMarqueeSelection,
   isProtectedDraftingLayerId,
-  type DraftingLayerAlignAction,
-  type DraftingLayerDistributeAction,
-  type DraftingLayerReorderAction,
   type DraftingCanvasLayer,
   type DraftingTextRun,
 } from "@/features/workspace/model/layers"
@@ -56,6 +53,25 @@ import {
   SceneCompositionTransform,
 } from "@/features/workspace/components/SceneBackgroundLayer"
 import { DraftingQrLayerContent } from "@/features/workspace/components/DraftingQrLayerContent"
+import {
+  LayerContextMenu,
+  LayerFloatingToolbar,
+  LayerSizeValue,
+  ResizeFrameControls,
+  SnapGuideOverlay,
+} from "@/features/workspace/components/PaneLayerChrome"
+import {
+  CONTEXT_MENU_POINTER_OFFSET_PX,
+  FLOATING_TOOLBAR_GAP_PX,
+  FLOATING_TOOLBAR_HEIGHT_PX,
+  RESIZE_CONTROL_PADDING_PX,
+  RESIZE_SNAP_THRESHOLD_PX,
+  ROTATE_HANDLE_OFFSET_PX,
+  ROTATE_HANDLE_RADIUS_PX,
+  ROTATE_LABEL_GAP_PX,
+  SIZE_LABEL_GAP_PX,
+  type DraftingLayerMenuAction,
+} from "@/features/workspace/components/pane-layer-chrome.constants"
 import {
   getDraftingCardBorderStyle,
   getDraftingLayerEffectStyle,
@@ -80,7 +96,6 @@ import { cn } from "@/lib/utils"
 import {
   getCombinedLayerBounds,
   getLayerRotationLabel,
-  getLayerSizeLabel,
   getMarqueeBounds,
   normalizeLayerRotation,
   resizeDraftingLayer,
@@ -95,6 +110,7 @@ import {
 
 export type { ResizeDirection } from "@/features/workspace/components/pane-layer-geometry"
 export { resizeDraftingLayer } from "@/features/workspace/components/pane-layer-geometry"
+export type { DraftingLayerMenuAction } from "@/features/workspace/components/pane-layer-chrome.constants"
 
 function layerExportAttrs(kind: DraftingCanvasLayer["kind"]) {
   return {
@@ -123,19 +139,6 @@ type PaneProps = {
   state: QrStudioState
 }
 
-export type DraftingLayerMenuAction =
-  | DraftingLayerAlignAction
-  | DraftingLayerDistributeAction
-  | DraftingLayerReorderAction
-  | "delete"
-  | "group"
-  | "hide"
-  | "lock"
-  | "reset-rotation"
-  | "show"
-  | "ungroup"
-  | "unlock"
-
 const LAYER_MOVE_CURSOR_LOCK_CLASS = "drafting-layer-moving"
 
 function lockLayerMoveCursor() {
@@ -149,386 +152,9 @@ function unlockLayerMoveCursor() {
 }
 
 const LAYER_MOVE_CURSOR_CLASS = "cursor-all-scroll"
-const RESIZE_CONTROL_PADDING_PX = 12
-const ROTATE_HANDLE_OFFSET_PX = 34
-const ROTATE_LABEL_GAP_PX = 8
-const SIZE_LABEL_GAP_PX = 10
-const FLOATING_TOOLBAR_GAP_PX = 14
-const FLOATING_TOOLBAR_HEIGHT_PX = 38
 const ROTATION_LABEL_HIDE_DELAY_MS = 2000
 const SNAP_THRESHOLD_PX = 6
-const RESIZE_SNAP_THRESHOLD_PX = 3
 const INTERACTION_START_THRESHOLD_PX = 3
-const CONTEXT_MENU_POINTER_OFFSET_PX = 8
-
-const RESIZE_CORNER_HANDLE_SIZE_PX = 12
-const RESIZE_EDGE_HIT_SIZE_PX = 6
-const ROTATE_HANDLE_RADIUS_PX = RESIZE_CORNER_HANDLE_SIZE_PX / 2
-
-const CORNER_RESIZE_HANDLES: Array<{
-  className: string
-  cursorClassName: string
-  direction: ResizeDirection
-  label: string
-}> = [
-  {
-    className: "right-0 top-0 translate-x-1/2 -translate-y-1/2",
-    cursorClassName: "cursor-nesw-resize",
-    direction: "ne",
-    label: "top right",
-  },
-  {
-    className: "bottom-0 right-0 translate-x-1/2 translate-y-1/2",
-    cursorClassName: "cursor-nwse-resize",
-    direction: "se",
-    label: "bottom right",
-  },
-  {
-    className: "bottom-0 left-0 -translate-x-1/2 translate-y-1/2",
-    cursorClassName: "cursor-nesw-resize",
-    direction: "sw",
-    label: "bottom left",
-  },
-  {
-    className: "left-0 top-0 -translate-x-1/2 -translate-y-1/2",
-    cursorClassName: "cursor-nwse-resize",
-    direction: "nw",
-    label: "top left",
-  },
-]
-
-const EDGE_RESIZE_ZONES: Array<{
-  className: string
-  cursorClassName: string
-  direction: ResizeDirection
-  label: string
-  style: CSSProperties
-}> = [
-  {
-    className: "top-0 -translate-y-1/2",
-    cursorClassName: "cursor-ns-resize",
-    direction: "n",
-    label: "top",
-    style: {
-      height: RESIZE_EDGE_HIT_SIZE_PX,
-      left: RESIZE_CORNER_HANDLE_SIZE_PX,
-      right: RESIZE_CORNER_HANDLE_SIZE_PX,
-    },
-  },
-  {
-    className: "right-0 translate-x-1/2",
-    cursorClassName: "cursor-ew-resize",
-    direction: "e",
-    label: "right",
-    style: {
-      bottom: RESIZE_CORNER_HANDLE_SIZE_PX,
-      top: RESIZE_CORNER_HANDLE_SIZE_PX,
-      width: RESIZE_EDGE_HIT_SIZE_PX,
-    },
-  },
-  {
-    className: "bottom-0 translate-y-1/2",
-    cursorClassName: "cursor-ns-resize",
-    direction: "s",
-    label: "bottom",
-    style: {
-      height: RESIZE_EDGE_HIT_SIZE_PX,
-      left: RESIZE_CORNER_HANDLE_SIZE_PX,
-      right: RESIZE_CORNER_HANDLE_SIZE_PX,
-    },
-  },
-  {
-    className: "left-0 -translate-x-1/2",
-    cursorClassName: "cursor-ew-resize",
-    direction: "w",
-    label: "left",
-    style: {
-      bottom: RESIZE_CORNER_HANDLE_SIZE_PX,
-      top: RESIZE_CORNER_HANDLE_SIZE_PX,
-      width: RESIZE_EDGE_HIT_SIZE_PX,
-    },
-  },
-]
-
-function renderResizeFrameControls(
-  targetLabel: string,
-  onResizePointerDown: (event: PointerEvent<HTMLButtonElement>, direction: ResizeDirection) => void,
-  onPointerCancel: (event: PointerEvent<HTMLButtonElement>) => void,
-  onPointerMove: (event: PointerEvent<HTMLButtonElement>) => void,
-  onPointerUp: (event: PointerEvent<HTMLButtonElement>) => void,
-) {
-  return (
-    <>
-      {EDGE_RESIZE_ZONES.map((zone) => (
-        <button
-          aria-label={`Resize ${targetLabel} from ${zone.label}`}
-          className={cn(
-            "pointer-events-auto absolute z-20 border-0 bg-transparent p-0",
-            zone.className,
-            zone.cursorClassName,
-          )}
-          data-resize-direction={zone.direction}
-          data-slot="drafting-layer-resize-edge"
-          key={zone.direction}
-          onClick={(event) => event.stopPropagation()}
-          onPointerCancel={onPointerCancel}
-          onPointerDown={(event) => onResizePointerDown(event, zone.direction)}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          style={zone.style}
-          type="button"
-        />
-      ))}
-      {CORNER_RESIZE_HANDLES.map((handle) => (
-        <button
-          aria-label={`Resize ${targetLabel} from ${handle.label}`}
-          className={cn(
-            "pointer-events-auto absolute z-30 size-3 rounded-full border border-[#a8b0bb] bg-white shadow-[var(--ws-shadow-rest)]",
-            handle.className,
-            handle.cursorClassName,
-          )}
-          data-resize-direction={handle.direction}
-          data-slot="drafting-layer-resize-handle"
-          key={handle.direction}
-          onClick={(event) => event.stopPropagation()}
-          onPointerCancel={onPointerCancel}
-          onPointerDown={(event) => onResizePointerDown(event, handle.direction)}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          type="button"
-        />
-      ))}
-    </>
-  )
-}
-
-
-function SnapGuideOverlay({ guides }: { guides: SnapGuides }) {
-  if (guides.horizontal.length === 0 && guides.vertical.length === 0) {
-    return null
-  }
-
-  return (
-    <>
-      {guides.vertical.map((x) => (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 z-[9999] w-px bg-[var(--ws-ink)] opacity-55"
-          data-slot="drafting-layer-snap-guide"
-          data-axis="vertical"
-          key={`v-${x}`}
-          style={{ left: `calc(50% + ${x}px)` }}
-        />
-      ))}
-      {guides.horizontal.map((y) => (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 z-[9999] h-px bg-[var(--ws-ink)] opacity-55"
-          data-slot="drafting-layer-snap-guide"
-          data-axis="horizontal"
-          key={`h-${y}`}
-          style={{ top: `calc(50% + ${y}px)` }}
-        />
-      ))}
-    </>
-  )
-}
-
-function LayerContextMenu({
-  layerCount,
-  layers,
-  onAction,
-  style,
-}: {
-  layerCount: number
-  layers: DraftingCanvasLayer[]
-  onAction: (action: DraftingLayerMenuAction) => void
-  style: CSSProperties
-}) {
-  const isMultiLayer = layerCount > 1
-  const hasSelection = layerCount > 0
-  const actionableLayers = layers.filter((layer) => !isProtectedDraftingLayerId(layer.id))
-  const hasHiddenLayer = actionableLayers.some((layer) => !layer.isVisible)
-  const hasGroupLayer = layers.some((layer) => layer.kind === "group")
-
-  return (
-    <div
-      className="fixed z-[20000] min-w-52 rounded-[18px] border border-[var(--ws-dropdown-border)] bg-[var(--ws-dropdown-menu-surface-open)] p-1.5 text-[var(--ws-dropdown-text)] shadow-[var(--ws-dropdown-menu-shadow-open)]"
-      data-drafting-dropdown-content="true"
-      data-slot="drafting-layer-context-menu"
-      data-toolbar-appearance="desktop-glass"
-      role="menu"
-      style={style}
-      tabIndex={-1}
-      onClick={(event) => event.stopPropagation()}
-      onContextMenu={(event) => event.preventDefault()}
-    >
-      {hasSelection ? (
-        <>
-          <LayerContextMenuButton label="Bring to front" onClick={() => onAction("front")} />
-          <LayerContextMenuButton label="Bring forward" onClick={() => onAction("forward")} />
-          <LayerContextMenuButton label="Send backward" onClick={() => onAction("backward")} />
-          <LayerContextMenuButton label="Send to back" onClick={() => onAction("back")} />
-          <LayerContextMenuSeparator />
-          {actionableLayers.length > 0 ? (
-            <LayerContextMenuButton
-              label={hasHiddenLayer ? "Show" : "Hide"}
-              onClick={() => onAction(hasHiddenLayer ? "show" : "hide")}
-            />
-          ) : null}
-          <LayerContextMenuButton label="Reset rotation" onClick={() => onAction("reset-rotation")} />
-          {isMultiLayer ? (
-            <>
-              <LayerContextMenuSeparator />
-              <LayerContextMenuButton label="Group" onClick={() => onAction("group")} />
-              <LayerContextMenuButton label="Distribute selection horizontally" onClick={() => onAction("horizontal")} />
-              <LayerContextMenuButton label="Distribute selection vertically" onClick={() => onAction("vertical")} />
-            </>
-          ) : null}
-          {hasGroupLayer ? (
-            <>
-              <LayerContextMenuSeparator />
-              <LayerContextMenuButton label="Ungroup" onClick={() => onAction("ungroup")} />
-            </>
-          ) : null}
-        </>
-      ) : null}
-    </div>
-  )
-}
-
-function LayerContextMenuButton({
-  label,
-  onClick,
-}: {
-  label: string
-  onClick: () => void
-}) {
-  return (
-    <button
-      aria-label={label}
-      className="block h-8 w-full cursor-pointer rounded-full px-3 text-left text-[12px] font-semibold text-current transition-[background-color,color] duration-150 hover:bg-white/[0.11] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
-      role="menuitem"
-      type="button"
-      onClick={onClick}
-    >
-      {label}
-    </button>
-  )
-}
-
-function LayerContextMenuSeparator() {
-  return (
-    <div
-      aria-hidden="true"
-      className="my-1 h-px bg-white/[0.12]"
-      data-slot="drafting-layer-context-menu-separator"
-    />
-  )
-}
-
-function LayerFloatingToolbar({
-  layers,
-  onAction,
-  onCopy,
-  onMore,
-  style,
-}: {
-  layers: DraftingCanvasLayer[]
-  onAction?: (action: DraftingLayerMenuAction) => void
-  onCopy?: () => void
-  onMore: (event: MouseEvent<HTMLButtonElement>) => void
-  style: CSSProperties
-}) {
-  const hasUnlockedLayer = layers.some(
-    (layer) => !layer.isLocked && !isProtectedDraftingLayerId(layer.id),
-  )
-  const hasRemovableLayer = layers.some((layer) => !isProtectedDraftingLayerId(layer.id))
-  const lockAction = hasUnlockedLayer ? "lock" : "unlock"
-  const lockLabel = hasUnlockedLayer ? "Lock selection" : "Unlock selection"
-  const LockActionIcon = hasUnlockedLayer ? LockIcon : UnlockIcon
-
-  return (
-    <div
-      className="absolute left-1/2 top-1/2 z-[10001] inline-flex h-11 items-center gap-1 rounded-full border border-white/[0.12] bg-[#171717] px-2 text-white/78 shadow-[var(--desktop-glass-shadow)]"
-      data-slot="drafting-layer-floating-toolbar"
-      data-toolbar-appearance="desktop-glass"
-      role="toolbar"
-      aria-label="Layer actions"
-      style={style}
-      tabIndex={-1}
-      onClick={(event) => event.stopPropagation()}
-      onContextMenu={(event) => event.preventDefault()}
-      onPointerDown={(event) => event.stopPropagation()}
-    >
-      <LayerFloatingToolbarButton
-        label="Copy selection"
-        disabled={!onCopy}
-        onClick={() => onCopy?.()}
-      >
-        <CopyIcon aria-hidden="true" className="size-4" strokeWidth={2} />
-      </LayerFloatingToolbarButton>
-      <LayerFloatingToolbarButton
-        label={lockLabel}
-        disabled={!onAction}
-        onClick={() => onAction?.(lockAction)}
-      >
-        <LockActionIcon aria-hidden="true" className="size-4" strokeWidth={2} />
-      </LayerFloatingToolbarButton>
-      <LayerFloatingToolbarButton
-        label="Delete selection"
-        disabled={!onAction || !hasRemovableLayer}
-        onClick={() => onAction?.("delete")}
-      >
-        <Trash2Icon aria-hidden="true" className="size-4" strokeWidth={2} />
-      </LayerFloatingToolbarButton>
-      <div className="mx-0.5 h-4 w-px bg-white/[0.12]" data-slot="drafting-layer-toolbar-separator" />
-      <LayerFloatingToolbarButton label="More layer actions" onClick={onMore}>
-        <MoreHorizontalIcon aria-hidden="true" className="size-4" strokeWidth={2} />
-      </LayerFloatingToolbarButton>
-    </div>
-  )
-}
-
-function LayerFloatingToolbarButton({
-  children,
-  disabled = false,
-  label,
-  onClick,
-}: {
-  children: ReactNode
-  disabled?: boolean
-  label: string
-  onClick: (event: MouseEvent<HTMLButtonElement>) => void
-}) {
-  return (
-    <button
-      aria-label={label}
-      className="flex size-8 cursor-pointer items-center justify-center rounded-full text-current transition-[background-color,color] duration-150 hover:bg-[var(--ws-layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--ws-layer-toolbar-button-hover-text,white)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
-      data-slot="drafting-layer-floating-toolbar-button"
-      disabled={disabled}
-      type="button"
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  )
-}
-
-function LayerSizeValue({ height, width }: Pick<DraftingCanvasLayer, "height" | "width">) {
-  return (
-    <div
-      className="pointer-events-none absolute bottom-0 left-1/2 w-max min-w-[4.75rem] whitespace-nowrap rounded-full border border-white/[0.12] bg-[var(--desktop-glass-bg)] px-2.5 py-1 text-center text-[0.68rem] font-semibold leading-none text-white/82 shadow-[var(--desktop-glass-shadow)] backdrop-blur-2xl"
-      data-slot="drafting-layer-size-value"
-      data-toolbar-appearance="desktop-glass"
-      style={{
-        transform: `translate(-50%, calc(100% + ${SIZE_LABEL_GAP_PX}px))`,
-      }}
-    >
-      {getLayerSizeLabel({ height, width })}
-    </div>
-  )
-}
 
 function getTextLayerRuns(layer: DraftingCanvasLayer): DraftingTextRun[] {
   const text = layer.text ?? ""
@@ -781,8 +407,9 @@ export const Pane = memo(function Pane({
   const activeSelectedLayerIdSet = new Set(activeSelectedLayerIds)
   const selectedVisibleLayers = visibleLayers.filter((layer) => activeSelectedLayerIdSet.has(layer.id))
   const selectedVisibleLayerIds = selectedVisibleLayers.map((layer) => layer.id)
+  const contextMenuLayerIdSet = contextMenu ? new Set(contextMenu.layerIds) : null
   const contextMenuLayers = contextMenu
-    ? resolvedLayers.filter((layer) => contextMenu.layerIds.includes(layer.id))
+    ? resolvedLayers.filter((layer) => contextMenuLayerIdSet?.has(layer.id))
     : []
   const combinedLayerBounds = getCombinedLayerBounds(selectedVisibleLayers)
   const isPaperShaderMode = cardState.styleMode === "paper-shader"
@@ -1541,13 +1168,15 @@ export const Pane = memo(function Pane({
             }}
             type="button"
           />
-          {renderResizeFrameControls(
-            layer.name,
-            (event, direction) => startLayerInteraction(event, layer, "resize", direction),
-            endLayerInteraction,
-            updateLayerInteraction,
-            endLayerInteraction,
-          )}
+          <ResizeFrameControls
+            onPointerCancel={endLayerInteraction}
+            onPointerMove={updateLayerInteraction}
+            onPointerUp={endLayerInteraction}
+            onResizePointerDown={(event, direction) =>
+              startLayerInteraction(event, layer, "resize", direction)
+            }
+            targetLabel={layer.name}
+          />
         </DraftingLayerTiltShell>
       </div>
     )
@@ -1611,13 +1240,15 @@ export const Pane = memo(function Pane({
           }}
           type="button"
         />
-        {renderResizeFrameControls(
-          "selection",
-          (event, direction) => startMultiLayerInteraction(event, "resize", direction),
-          endLayerInteraction,
-          updateLayerInteraction,
-          endLayerInteraction,
-        )}
+        <ResizeFrameControls
+          onPointerCancel={endLayerInteraction}
+          onPointerMove={updateLayerInteraction}
+          onPointerUp={endLayerInteraction}
+          onResizePointerDown={(event, direction) =>
+            startMultiLayerInteraction(event, "resize", direction)
+          }
+          targetLabel="selection"
+        />
       </div>
     )
   }

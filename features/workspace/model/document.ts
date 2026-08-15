@@ -155,10 +155,12 @@ export function parseDraftingWorkspaceDocument(
     : []
   const fallback = createDefaultDraftingWorkspaceDocument()
   const orderedNodeIds = qrOrder.filter((nodeId) => isRecord(rawQrStateByNodeId[nodeId]))
+  const orderedNodeIdSet = new Set(orderedNodeIds)
 
   for (const nodeId of Object.keys(rawQrStateByNodeId)) {
-    if (!orderedNodeIds.includes(nodeId) && isRecord(rawQrStateByNodeId[nodeId])) {
+    if (!orderedNodeIdSet.has(nodeId) && isRecord(rawQrStateByNodeId[nodeId])) {
       orderedNodeIds.push(nodeId)
+      orderedNodeIdSet.add(nodeId)
     }
   }
 

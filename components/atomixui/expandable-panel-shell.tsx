@@ -1,12 +1,16 @@
 "use client"
 
 import { AnimatePresence, m } from "motion/react"
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import useMeasure from "react-use-measure"
 
 import { cn } from "@/lib/utils"
 
-export const EXPANDABLE_PANEL_SPRING = { type: "spring" as const, stiffness: 340, damping: 28 }
+import {
+  EXPANDABLE_PANEL_SPRING,
+  type ExpandablePanelShellProps,
+} from "@/components/atomixui/expandable-panel-shell.constants"
+
 const EXPANDABLE_PANEL_SLIDE_T = {
   duration: 0.24,
   ease: [0.4, 0, 0.2, 1] as [number, number, number, number],
@@ -16,32 +20,6 @@ const expandablePanelSlideVariants = {
   enter: (dir: number) => ({ x: dir * 32, opacity: 0, filter: "blur(4px)" }),
   center: { x: 0, opacity: 1, filter: "blur(0px)" },
   exit: (dir: number) => ({ x: dir * -32, opacity: 0, filter: "blur(4px)" }),
-}
-
-export type ExpandablePanelShellLayout = "bottom-nav" | "left-rail"
-
-export type ExpandablePanelShellProps = {
-  activeKey: string | null
-  className?: string
-  collapsedHeight?: number
-  collapsedWidth: number
-  direction: number
-  enablePanelSlide?: boolean
-  expanded: boolean
-  expandedWidth: number
-  layout: ExpandablePanelShellLayout
-  measureHeight?: boolean
-  measureWidth?: number
-  nav: ReactNode
-  onShellAnimatingChange?: (animating: boolean) => void
-  onWidthChange?: (width: number) => void
-  panel: ReactNode | null
-  panelMounted?: boolean
-  shellClassName?: string
-  shellStyle?: CSSProperties
-  "data-slot"?: string
-  "data-collapsed"?: string
-  "data-toolbar-appearance"?: string
 }
 
 export function ExpandablePanelShell({
@@ -101,31 +79,37 @@ export function ExpandablePanelShell({
     onWidthChange?.(shellWidth)
   }, [onWidthChange, shellWidth])
 
-  const panelBody = usePanelSlide ? (
+  const panelVisible = showPanel && activeKey && panel
+  const panelBody = (
     <AnimatePresence custom={direction} initial={false}>
-      {showPanel && activeKey && panel ? (
-        <m.div
-          key={activeKey}
-          custom={direction}
-          variants={expandablePanelSlideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={EXPANDABLE_PANEL_SLIDE_T}
-          className={layout === "bottom-nav" ? "absolute inset-x-0 top-0" : "h-full min-h-0"}
-        >
-          {panel}
-        </m.div>
+      {panelVisible ? (
+        usePanelSlide ? (
+          <m.div
+            key={activeKey}
+            custom={direction}
+            variants={expandablePanelSlideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={EXPANDABLE_PANEL_SLIDE_T}
+            className={layout === "bottom-nav" ? "absolute inset-x-0 top-0" : "h-full min-h-0"}
+          >
+            {panel}
+          </m.div>
+        ) : (
+          <m.div
+            key={activeKey}
+            initial={false}
+            animate={{ opacity: 1 }}
+            className={layout === "bottom-nav" ? "absolute inset-x-0 top-0" : "h-full min-h-0"}
+            data-panel-frozen="true"
+          >
+            {panel}
+          </m.div>
+        )
       ) : null}
     </AnimatePresence>
-  ) : showPanel && activeKey && panel ? (
-    <div
-      className={layout === "bottom-nav" ? "absolute inset-x-0 top-0" : "h-full min-h-0"}
-      data-panel-frozen="true"
-    >
-      {panel}
-    </div>
-  ) : null
+  )
 
   const panelSlot =
     layout === "bottom-nav" ? (

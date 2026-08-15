@@ -233,16 +233,18 @@ export function DraftingCardPaperShaderLayer({
     getPaperShaderSupportSnapshot,
     getPaperShaderSupportServerSnapshot,
   )
-  const [mountGeneration, setMountGeneration] = useState(0)
+  const shaderMountKey = `${paperShader.shaderId}:${paperShader.presetName}`
   const [shaderErrorId, setShaderErrorId] = useState<string | null>(null)
+  const [recoverEpoch, setRecoverEpoch] = useState(0)
+  const [prevShaderMountKey, setPrevShaderMountKey] = useState(shaderMountKey)
+  if (shaderMountKey !== prevShaderMountKey) {
+    setPrevShaderMountKey(shaderMountKey)
+    setShaderErrorId(null)
+    setRecoverEpoch(0)
+  }
   const hasLayout = hasValidPaperShaderLayout(layoutWidth, layoutHeight)
   const hasShaderError = shaderErrorId === paperShader.shaderId
   const fallbackColor = readPaperShaderFallbackColor(paperShader)
-
-  useEffect(() => {
-    setShaderErrorId(null)
-    setMountGeneration((current) => current + 1)
-  }, [paperShader.shaderId, paperShader.presetName])
 
   if (!canRenderShader || !hasLayout) {
     return null
@@ -269,15 +271,16 @@ export function DraftingCardPaperShaderLayer({
 
   return (
     <DraftingCardPaperShaderRenderer
+      key={`${shaderMountKey}:${recoverEpoch}`}
       dataSlot="desktop-compose-card-paper-shader"
       dataExportShader={paperShader.shaderId}
       layoutHeight={layoutHeight}
       layoutWidth={layoutWidth}
-      mountGeneration={mountGeneration}
+      mountGeneration={recoverEpoch}
       onError={() => setShaderErrorId(paperShader.shaderId)}
       onRecover={() => {
         setShaderErrorId(null)
-        setMountGeneration((current) => current + 1)
+        setRecoverEpoch((current) => current + 1)
       }}
       paperShader={paperShader}
       style={{

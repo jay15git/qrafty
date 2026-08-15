@@ -154,10 +154,10 @@ export function createLayerEffect(kind: LayerEffectKind): LayerEffectItem {
 }
 
 export function serializeLayerEffects(effects: LayerEffectItem[]): Partial<DraftingCanvasLayer> {
-  const shadows = effects.filter(isLayerShadowEffectItem).map((item) => item.shadow)
-  const layerFilters = effects
-    .filter((item): item is LayerFilterEffectItem => item.source === "filter")
-    .map((item) => item.filter)
+  const shadows = effects.flatMap((item) => (isLayerShadowEffectItem(item) ? [item.shadow] : []))
+  const layerFilters = effects.flatMap((item) =>
+    item.source === "filter" ? [item.filter] : [],
+  )
 
   if (shadows.length === 0) {
     const placeholder = createDefaultDraftingShadowLayer({

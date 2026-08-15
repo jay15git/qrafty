@@ -6,9 +6,9 @@ import {
   DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-  DesktopInspectorAnimatedOptionGrid,
-  desktopInspectorOptionGridItemClass,
-} from "@/features/desktop-shell/components/InspectorControls"
+} from "@/features/desktop-shell/components/desktop-inspector-tokens"
+import { DesktopInspectorAnimatedOptionGrid } from "@/features/desktop-shell/inspector/inspector-option-grid"
+import { desktopInspectorOptionGridItemClass } from "@/features/desktop-shell/inspector/inspector-option-grid.classes"
 import { DesktopInspectorOptionGridScrollArea } from "@/features/desktop-shell/inspector/inspector-option-grid"
 import {
   DRAFTING_ELEMENT_DECORATIVE_SHAPES,

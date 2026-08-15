@@ -4,8 +4,8 @@ import * as React from "react";
 import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@base-ui/react/tooltip";
-import { useGradientPickerContext } from "@/components/ui/fill-picker-base/gradient";
-import type { GradientInterp } from "@/components/ui/fill-picker-base/gradient";
+import { useGradientPickerContext } from "@/components/ui/fill-picker-base/public-api";
+import type { GradientInterp } from "@/components/ui/fill-picker-base/public-api";
 import { FieldSelect, FieldSelectItem } from "./field";
 import { GRADIENT_INTERP_OPTIONS } from "@/components/ui/fill-picker/lib/gradient-options";
 

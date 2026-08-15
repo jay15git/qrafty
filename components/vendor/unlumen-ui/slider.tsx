@@ -205,15 +205,16 @@ function ValueDisplay({
     }
 
     return (
-      <span
-        className="cursor-text select-none"
+      <button
+        className="cursor-text select-none border-0 bg-transparent p-0"
+        type="button"
         onClick={() => {
           setInputValue(String(values[index]));
           onStartEdit(index);
         }}
       >
         {formatValue(values[index])}
-      </span>
+      </button>
     );
   };
 
@@ -593,6 +594,16 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
       animate(motionX, valueToPixel(snapped, min, max, tw), springs.moderate);
     }, [min, max, step, motionX0, motionX1]);
 
+    const handlePointerCancel = useCallback(
+      (e: React.PointerEvent<HTMLDivElement>) => {
+        if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+          e.currentTarget.releasePointerCapture(e.pointerId);
+        }
+        handlePointerUp();
+      },
+      [handlePointerUp],
+    );
+
     const handleRadixChange = useCallback(
       (newValues: number[]) => {
         if (dragging.current) return;
@@ -643,7 +654,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
       };
       return (
         <m.span
-          key={`visual-thumb-${index}`}
+          key={index === 0 ? "thumb-start" : "thumb-end"}
           data-slot={thumbDataSlot}
           className="flex items-center justify-center pointer-events-none absolute top-1/2"
           style={{
@@ -792,6 +803,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
           >
             <div
               className="absolute cursor-ew-resize"
@@ -799,6 +811,7 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerCancel}
             />
 
             <AnimatePresence>

@@ -14,6 +14,7 @@ export const NewQrCode = memo(function NewQrCode({
 }: NewQrCodeProps) {
   const svgMarkup = useMemo(
     () => renderNewQrSvg(props),
+    // eslint-disable-next-line react-doctor/exhaustive-deps -- explicit QR render inputs listed below
     [
       props.ariaLabel,
       props.background,

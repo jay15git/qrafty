@@ -11,11 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  DesktopnewThemeContext,
   SettingsFillPopover,
   SettingsSlider,
 } from "@/features/desktop-shell/inspector/settings-ui"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { solidColorToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
 import { DRAFTING_FILTER_RANGES } from "@/features/workspace/model/filters"
 import {
@@ -52,6 +52,7 @@ export function SettingsEffectsSection({
   const layer = { layerFilters: layerFilters ?? [], shadows: shadows ?? [] }
   const effects = listLayerEffects(layer)
   const [openIds, setOpenIds] = useState<string[]>([])
+  const openIdSet = new Set(openIds)
 
   function handleAdd(kind: LayerEffectKind) {
     const next = createLayerEffect(kind)
@@ -105,7 +106,7 @@ export function SettingsEffectsSection({
       </DropdownMenu>
 
       {effects.map((effect) => {
-        const isOpen = openIds.includes(effect.id)
+        const isOpen = openIdSet.has(effect.id)
         const label = getLayerEffectKindLabel(effect.kind)
         const range =
           effect.source === "filter" ? DRAFTING_FILTER_RANGES[effect.filter.type] : null
@@ -157,7 +158,7 @@ export function SettingsEffectsSection({
                 type="button"
                 onClick={() =>
                   setOpenIds((current) =>
-                    current.includes(effect.id)
+                    isOpen
                       ? current.filter((id) => id !== effect.id)
                       : [...current, effect.id],
                   )

@@ -10,40 +10,36 @@ import {
 } from "../../contexts/fill";
 import type { FillMode } from "../../hooks/use-fill-picker";
 
+function handleFillTablistKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+  const keys = ["ArrowRight", "ArrowLeft", "Home", "End"];
+  if (!keys.includes(e.key)) return;
+  const tabs = Array.from(
+    e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+  );
+  if (tabs.length === 0) return;
+  const current = tabs.indexOf(document.activeElement as HTMLButtonElement);
+  let next: number;
+  if (e.key === "Home") next = 0;
+  else if (e.key === "End") next = tabs.length - 1;
+  else {
+    const delta = e.key === "ArrowRight" ? 1 : -1;
+    next = (Math.max(current, 0) + delta + tabs.length) % tabs.length;
+  }
+  e.preventDefault();
+  tabs[next].focus();
+  tabs[next].click();
+}
+
 export const Tabs = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(function Tabs({ className, children, ...rest }, ref) {
-  // APG Tabs pattern: Left/Right arrows rove between tabs and select as
-  // they go (selection follows focus — panes render instantly). Activating
-  // via .click() keeps any consumer onClick on the Tab in the loop.
-  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    const keys = ["ArrowRight", "ArrowLeft", "Home", "End"];
-    if (!keys.includes(e.key)) return;
-    const tabs = Array.from(
-      e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
-    );
-    if (tabs.length === 0) return;
-    const current = tabs.indexOf(
-      document.activeElement as HTMLButtonElement,
-    );
-    let next: number;
-    if (e.key === "Home") next = 0;
-    else if (e.key === "End") next = tabs.length - 1;
-    else {
-      const delta = e.key === "ArrowRight" ? 1 : -1;
-      next = (Math.max(current, 0) + delta + tabs.length) % tabs.length;
-    }
-    e.preventDefault();
-    tabs[next].focus();
-    tabs[next].click();
-  };
   return (
     <div
       ref={ref}
       role="tablist"
       aria-label="Fill mode"
-      onKeyDown={onKeyDown}
+      onKeyDown={handleFillTablistKeyDown}
       className={cn("inline-flex items-center gap-1 rounded-md bg-muted p-1", className)}
       {...rest}
     >

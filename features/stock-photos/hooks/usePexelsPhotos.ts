@@ -27,7 +27,6 @@ export function usePexelsPhotos({
   query,
 }: UsePexelsPhotosParams) {
   const [photos, setPhotos] = useState<PexelsPhoto[]>([])
-  const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(false)
   const [totalResults, setTotalResults] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
@@ -36,10 +35,12 @@ export function usePexelsPhotos({
 
   const trimmedQuery = query.trim()
   const canSearch = enabled && trimmedQuery.length >= MIN_QUERY_LENGTH
-
-  useEffect(() => {
-    setPage(1)
-  }, [orientation, trimmedQuery, enabled])
+  const fetchKey = `${orientation}|${trimmedQuery}|${enabled}`
+  const [pageBundle, setPageBundle] = useState({ key: fetchKey, page: 1 })
+  if (pageBundle.key !== fetchKey) {
+    setPageBundle({ key: fetchKey, page: 1 })
+  }
+  const page = pageBundle.page
 
   useEffect(() => {
     if (!enabled) {
@@ -76,7 +77,7 @@ export function usePexelsPhotos({
           }
 
           setPhotos(response.photos)
-          setPage(response.page)
+          setPageBundle({ key: fetchKey, page: response.page })
           setHasMore(response.hasMore)
           setTotalResults(response.totalResults)
         } catch (loadError) {
@@ -91,9 +92,7 @@ export function usePexelsPhotos({
             loadError instanceof Error ? loadError.message : "Photo search failed",
           )
         } finally {
-          if (!cancelled) {
-            setIsLoading(false)
-          }
+          setIsLoading(false)
         }
       })()
     }, canSearch ? SEARCH_DEBOUNCE_MS : 0)
@@ -102,7 +101,7 @@ export function usePexelsPhotos({
       cancelled = true
       window.clearTimeout(timeoutId)
     }
-  }, [canSearch, enabled, orientation, trimmedQuery])
+  }, [canSearch, enabled, fetchKey, orientation, trimmedQuery])
 
   const loadMore = useCallback(async () => {
     if (!enabled || isLoading || isLoadingMore || !hasMore) {
@@ -127,7 +126,7 @@ export function usePexelsPhotos({
           })
 
       setPhotos((current) => [...current, ...response.photos])
-      setPage(response.page)
+      setPageBundle((current) => ({ ...current, page: response.page }))
       setHasMore(response.hasMore)
       setTotalResults(response.totalResults)
     } catch (loadError) {

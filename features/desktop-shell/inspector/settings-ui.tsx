@@ -3,7 +3,6 @@
 import { ChevronRight, Filter, Search } from "lucide-react"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
 import {
-  createContext,
   useContext,
   useLayoutEffect,
   useMemo,
@@ -41,10 +40,13 @@ import {
 import { STATIC_QR_CONTENT_META } from "@/features/qr-code/content/static-payload"
 import {
   DesktopNewFillPicker,
+} from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import {
   fillPreviewHex,
   isGradientFill,
-} from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
-import type { Fill } from "@/components/ui/fill-picker-base/fill"
+} from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import { cn } from "@/lib/utils"
 
 import "./desktopnew.css"
@@ -74,8 +76,6 @@ function SettingsRowButton({
     </button>
   )
 }
-
-export const DesktopnewThemeContext = createContext<"light" | "dark">("dark")
 
 function useDesktopnewTheme() {
   return useContext(DesktopnewThemeContext)

@@ -797,7 +797,9 @@ export function groupDraftingCanvasLayers(
   )
 
   return normalizeLayerZIndexes([
-    ...layers.filter((layer) => !selectedIdSet.has(layer.id)).map(cloneDraftingCanvasLayer),
+    ...layers.flatMap((layer) =>
+      selectedIdSet.has(layer.id) ? [] : [cloneDraftingCanvasLayer(layer)],
+    ),
     groupLayer,
   ].sort((a, b) => a.zIndex - b.zIndex))
 }
@@ -822,7 +824,9 @@ export function ungroupDraftingCanvasLayer(
   )
 
   return normalizeLayerZIndexes([
-    ...layers.filter((layer) => layer.id !== groupLayerId).map(cloneDraftingCanvasLayer),
+    ...layers.flatMap((layer) =>
+      layer.id === groupLayerId ? [] : [cloneDraftingCanvasLayer(layer)],
+    ),
     ...restoredChildren,
   ].sort((a, b) => a.zIndex - b.zIndex))
 }
@@ -838,17 +842,24 @@ export function getDraftingMarqueeSelection(
     top: marquee.y,
   }
 
-  return layers
-    .filter((layer) => layer.isVisible && !layer.isLocked)
-    .filter((layer) =>
-      rectanglesIntersect(marqueeBounds, {
+  return layers.flatMap((layer) => {
+    if (!layer.isVisible || layer.isLocked) {
+      return []
+    }
+
+    if (
+      !rectanglesIntersect(marqueeBounds, {
         bottom: layer.y + layer.height,
         left: layer.x,
         right: layer.x + layer.width,
         top: layer.y,
-      }),
-    )
-    .map((layer) => layer.id)
+      })
+    ) {
+      return []
+    }
+
+    return [layer.id]
+  })
 }
 
 function normalizeLayerZIndexes(layers: DraftingCanvasLayer[]) {
@@ -1308,14 +1319,14 @@ function normalizeDraftingLayerShadows(
     return [legacyShadowToShadowLayer(primaryShadow)]
   }
 
-  return value
-    .map((entry, index) =>
-      normalizeShadowLayerState(
-        entry,
-        fallback[index] ?? legacyShadowToShadowLayer(primaryShadow),
-      ),
+  return value.flatMap((entry, index) => {
+    const shadow = normalizeShadowLayerState(
+      entry,
+      fallback[index] ?? legacyShadowToShadowLayer(primaryShadow),
     )
-    .filter((shadow) => shadow.visible !== false || shadow.opacity > 0)
+
+    return shadow.visible !== false || shadow.opacity > 0 ? [shadow] : []
+  })
 }
 
 function normalizeDraftingLayerFilters(

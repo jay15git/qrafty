@@ -153,6 +153,27 @@ export function MotionAccordion({
 }: MotionAccordionProps) {
   const rawId = React.useId();
   const baseId = `accordion-${rawId.replace(/:/g, "")}`;
+  const itemKeyMapRef = React.useRef(new WeakMap<MotionAccordionItem, string>());
+  const itemKeyCounterRef = React.useRef(0);
+
+  const getStableItemKey = React.useCallback(
+    (item: MotionAccordionItem) => {
+      if (typeof item.question === "string") {
+        return `${baseId}-${item.question}`;
+      }
+
+      const cachedKey = itemKeyMapRef.current.get(item);
+      if (cachedKey) {
+        return cachedKey;
+      }
+
+      const nextKey = `${baseId}-item-${itemKeyCounterRef.current}`;
+      itemKeyCounterRef.current += 1;
+      itemKeyMapRef.current.set(item, nextKey);
+      return nextKey;
+    },
+    [baseId],
+  );
 
   const [internalOpenIndex, setInternalOpenIndex] = React.useState<number | null>(
     null,
@@ -174,16 +195,20 @@ export function MotionAccordion({
   return (
     <div className={cn("w-full min-w-0 max-w-full", className)}>
       <div className="flex flex-col rounded-[34px] p-3" style={{ gap }}>
-        {items.map((item, i) => (
-          <AccordionItem
-            key={i}
-            item={item}
-            isOpen={currentOpenIndex === i}
-            onToggle={() => toggle(i)}
-            itemId={`${baseId}-trigger-${i}`}
-            panelId={`${baseId}-panel-${i}`}
-          />
-        ))}
+        {items.map((item, i) => {
+          const itemKey = getStableItemKey(item);
+
+          return (
+            <AccordionItem
+              key={itemKey}
+              item={item}
+              isOpen={currentOpenIndex === i}
+              onToggle={() => toggle(i)}
+              itemId={`${baseId}-trigger-${i}`}
+              panelId={`${baseId}-panel-${i}`}
+            />
+          )
+        })}
       </div>
     </div>
   );
