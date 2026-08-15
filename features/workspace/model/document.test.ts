@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr-code/rendering/compose-scene"
+import { getDraftingQrLayerId, getQrCanvasLayers } from "@/features/workspace/model/layers"
 import {
   cloneDraftingWorkspaceDocument,
   createDefaultDraftingWorkspaceDocument,
@@ -9,16 +10,16 @@ import {
 } from "@/features/workspace/model/document"
 
 describe("drafting workspace document", () => {
-  it("round-trips a versioned drafting workspace document", () => {
+  it("flattens legacy multi-pane documents into qr layers on one canvas", () => {
     const document = createDefaultDraftingWorkspaceDocument()
     document.qrOrder = [DASHBOARD_QR_NODE_ID, "qr-code-extra"]
     document.activeQrNodeId = "qr-code-extra"
     document.qrStateByNodeId["qr-code-extra"] = {
-      ...cloneDraftingWorkspaceDocument(document).qrStateByNodeId[DASHBOARD_QR_NODE_ID],
+      ...cloneDraftingWorkspaceDocument(document).qrStateByNodeId[DASHBOARD_QR_NODE_ID]!,
       data: "https://example.com/extra",
     }
     document.cardStateByNodeId["qr-code-extra"] =
-      cloneDraftingWorkspaceDocument(document).cardStateByNodeId[DASHBOARD_QR_NODE_ID]
+      cloneDraftingWorkspaceDocument(document).cardStateByNodeId[DASHBOARD_QR_NODE_ID]!
     document.layerStateByNodeId["qr-code-extra"] =
       cloneDraftingWorkspaceDocument(document).layerStateByNodeId[DASHBOARD_QR_NODE_ID]?.map(
         (layer) => ({
@@ -41,9 +42,18 @@ describe("drafting workspace document", () => {
       },
     }
 
-    expect(parseDraftingWorkspaceDocument(serializeDraftingWorkspaceDocument(document))).toEqual(
-      document,
-    )
+    const parsed = parseDraftingWorkspaceDocument(serializeDraftingWorkspaceDocument(document))
+    const layers = parsed.layerStateByNodeId[DASHBOARD_QR_NODE_ID] ?? []
+
+    expect(parsed.qrOrder).toEqual([DASHBOARD_QR_NODE_ID])
+    expect(parsed.activeQrNodeId).toBe(DASHBOARD_QR_NODE_ID)
+    expect(getQrCanvasLayers(layers)).toHaveLength(2)
+    expect(
+      Object.values(parsed.qrStateByLayerId).some(
+        (state) => state.data === "https://example.com/extra",
+      ),
+    ).toBe(true)
+    expect(parsed.contentTypeByLayerId[getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)]).toBe("auto")
   })
 
   it("migrates missing layer state into independent card and qr layers", () => {
@@ -71,10 +81,14 @@ describe("drafting workspace document", () => {
   })
 
   it("falls back to defaults for invalid documents", () => {
-    expect(parseDraftingWorkspaceDocument(null)).toEqual(createDefaultDraftingWorkspaceDocument())
-    expect(parseDraftingWorkspaceDocument({ version: 999, qrOrder: [] })).toEqual(
-      createDefaultDraftingWorkspaceDocument(),
-    )
+    expect(parseDraftingWorkspaceDocument(null)).toMatchObject({
+      activeQrNodeId: DASHBOARD_QR_NODE_ID,
+      version: 1,
+    })
+    expect(parseDraftingWorkspaceDocument({ version: 999, qrOrder: [] })).toMatchObject({
+      activeQrNodeId: DASHBOARD_QR_NODE_ID,
+      version: 1,
+    })
   })
 
   it("creates one default pane when saved state is missing pane data", () => {

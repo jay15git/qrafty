@@ -17,7 +17,7 @@ export const DRAFTING_KEYBOARD_SHORTCUT_GROUPS = [
       ["Cmd/Ctrl + Y", "Redo"],
       ["Cmd/Ctrl + C", "Copy selected layers"],
       ["Cmd/Ctrl + V", "Paste copied layers"],
-      ["Cmd/Ctrl + D", "Duplicate QR pane"],
+      ["Cmd/Ctrl + D", "Duplicate selected layer"],
       ["Cmd/Ctrl + G", "Group selected layers"],
       ["Cmd/Ctrl + Shift + G", "Ungroup selected groups"],
     ],

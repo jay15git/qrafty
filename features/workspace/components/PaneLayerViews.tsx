@@ -40,6 +40,8 @@ import {
   DraftingShapeLayerContent,
 } from "@/features/workspace/rendering/shape-layer"
 import type { QrStudioState } from "@/features/qr-code/model/state"
+import { useDraftingQrMarkup } from "@/features/workspace/hooks/use-drafting-qr-markup"
+import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
 import { cn } from "@/lib/utils"
 import type { ResizeDirection } from "@/features/workspace/components/pane-layer-geometry"
 import { PaneLayerInteractive } from "@/features/workspace/components/pane-layer-a11y"
@@ -99,6 +101,39 @@ function renderTextLayerContent(layer: DraftingCanvasLayer) {
   ))
 }
 
+function resolveQrLayerState(
+  layerId: string,
+  qrStateByLayerId: DraftingQrStateByLayerId,
+  fallbackState: QrStudioState,
+) {
+  return qrStateByLayerId[layerId] ?? fallbackState
+}
+
+function PaneQrLayerSurface({
+  layer,
+  qrState,
+}: {
+  layer: DraftingCanvasLayer
+  qrState: QrStudioState
+}) {
+  const { markup } = useDraftingQrMarkup(qrState)
+  const shapeTiltPerspectiveStyle = getBackgroundShapeTiltPerspectiveStyle(
+    qrState.backgroundShapeOptions,
+  )
+  const shapeTiltInnerStyle = getBackgroundShapeTiltInnerStyle(qrState.backgroundShapeOptions)
+
+  return (
+    <DraftingQrLayerContent
+      canvasSvgMarkup={markup}
+      layer={layer}
+      qrMarkup={markup ?? ""}
+      shapeTiltInnerStyle={shapeTiltInnerStyle}
+      shapeTiltPerspectiveStyle={shapeTiltPerspectiveStyle}
+      state={qrState}
+    />
+  )
+}
+
 export type PaneLayerViewSharedProps = {
   activeSelectedLayerIdSet: Set<string>
   cardImageStyle: CSSProperties | undefined
@@ -108,7 +143,7 @@ export type PaneLayerViewSharedProps = {
   isImageFilterMode: boolean
   isImageMode: boolean
   isPaperShaderMode: boolean
-  markup: string | null
+  qrStateByLayerId: DraftingQrStateByLayerId
   state: QrStudioState
 }
 
@@ -126,7 +161,7 @@ export function PaneNestedLayerView({
   isImageMode,
   isPaperShaderMode,
   layer,
-  markup,
+  qrStateByLayerId,
   state,
 }: PaneNestedLayerViewProps) {
   const isLayerSelected = activeSelectedLayerIdSet.has(layer.id)
@@ -160,7 +195,7 @@ export function PaneNestedLayerView({
               isImageMode={isImageMode}
               isPaperShaderMode={isPaperShaderMode}
               layer={child}
-              markup={markup}
+              qrStateByLayerId={qrStateByLayerId}
               state={state}
             />
           ))}
@@ -169,8 +204,7 @@ export function PaneNestedLayerView({
   }
 
   if (layer.kind === "qr") {
-    const shapeTiltPerspectiveStyle = getBackgroundShapeTiltPerspectiveStyle(state.backgroundShapeOptions)
-    const shapeTiltInnerStyle = getBackgroundShapeTiltInnerStyle(state.backgroundShapeOptions)
+    const qrState = resolveQrLayerState(layer.id, qrStateByLayerId, state)
 
     return (
       <div
@@ -185,14 +219,7 @@ export function PaneNestedLayerView({
           ...getDraftingLayerEffectStyle(layer),
         }}
       >
-        <DraftingQrLayerContent
-          canvasSvgMarkup={markup}
-          layer={layer}
-          qrMarkup={markup ?? ""}
-          shapeTiltInnerStyle={shapeTiltInnerStyle}
-          shapeTiltPerspectiveStyle={shapeTiltPerspectiveStyle}
-          state={state}
-        />
+        <PaneQrLayerSurface layer={layer} qrState={qrState} />
       </div>
     )
   }
@@ -349,7 +376,7 @@ export function PaneLayerView({
   isImageMode,
   isPaperShaderMode,
   layer,
-  markup,
+  qrStateByLayerId,
   onActivateLayerSelection,
   onCommitEditingTextDraft,
   onEndLayerInteraction,
@@ -407,7 +434,7 @@ export function PaneLayerView({
                 isImageMode={isImageMode}
                 isPaperShaderMode={isPaperShaderMode}
                 layer={child}
-                markup={markup}
+                qrStateByLayerId={qrStateByLayerId}
                 state={state}
               />
             ))}
@@ -417,8 +444,7 @@ export function PaneLayerView({
   }
 
   if (layer.kind === "qr") {
-    const shapeTiltPerspectiveStyle = getBackgroundShapeTiltPerspectiveStyle(state.backgroundShapeOptions)
-    const shapeTiltInnerStyle = getBackgroundShapeTiltInnerStyle(state.backgroundShapeOptions)
+    const qrState = resolveQrLayerState(layer.id, qrStateByLayerId, state)
 
     return (
       <PaneLayerInteractive
@@ -428,7 +454,7 @@ export function PaneLayerView({
         onActivate={(additive) => onActivateLayerSelection(layer, { additive, qr: true })}
         data-slot="desktop-compose-node"
         data-layer-id={layer.id}
-        data-node-id={state.data}
+        data-node-id={qrState.data}
         data-selected={isLayerSelected ? "true" : "false"}
         {...layerExportAttrs("qr")}
         className={cn(
@@ -448,14 +474,7 @@ export function PaneLayerView({
         onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
       >
         <DraftingLayerTiltShell layer={layer}>
-          <DraftingQrLayerContent
-            canvasSvgMarkup={markup}
-            layer={layer}
-            qrMarkup={markup ?? ""}
-            shapeTiltInnerStyle={shapeTiltInnerStyle}
-            shapeTiltPerspectiveStyle={shapeTiltPerspectiveStyle}
-            state={state}
-          />
+          <PaneQrLayerSurface layer={layer} qrState={qrState} />
         </DraftingLayerTiltShell>
       </PaneLayerInteractive>
     )

@@ -1,9 +1,11 @@
 import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr-code/content/input-options"
 import type { QrStudioState } from "@/features/qr-code/model/state"
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr-code/rendering/compose-scene"
 import {
   cloneDraftingQrState,
   type DraftingCardStateByNodeId,
   type DraftingContentValuesByType,
+  type DraftingQrStateByLayerId,
   type DraftingQrStateByNodeId,
   type DraftingWorkspaceDocumentV1,
 } from "@/features/workspace/model/document"
@@ -12,89 +14,101 @@ import { cloneDraftingCardState, type DraftingCardState } from "@/features/works
 import {
   cloneDraftingCanvasLayer,
   createDefaultDraftingLayers,
+  getDraftingQrLayerId,
+  getQrCanvasLayers,
   type DraftingLayerStateByNodeId,
 } from "@/features/workspace/model/layers"
 
 export type BuildDraftingWorkspaceDocumentInput = {
+  activeQrLayerId: string
   activeQrNodeId: string
   cardStateByNodeId: DraftingCardStateByNodeId
+  contentTypeByLayerId: Record<string, QrInputType>
   contentTypeByNodeId: Record<string, QrInputType>
   contentValuesByType: DraftingContentValuesByType
   draftingStudioState: QrStudioState
   layerStateByNodeId: DraftingLayerStateByNodeId
-  qrStateByNodeId: DraftingQrStateByNodeId
+  qrStateByLayerId: DraftingQrStateByLayerId
   sceneCompositionByNodeId: SceneCompositionByNodeId
   selectedCardState: DraftingCardState
   selectedContentType: QrInputType
 }
 
 export function buildDraftingWorkspaceDocumentFromState({
+  activeQrLayerId,
   activeQrNodeId,
   cardStateByNodeId,
+  contentTypeByLayerId,
   contentTypeByNodeId,
   contentValuesByType,
   draftingStudioState,
   layerStateByNodeId,
-  qrStateByNodeId,
+  qrStateByLayerId,
   sceneCompositionByNodeId,
   selectedCardState,
   selectedContentType,
 }: BuildDraftingWorkspaceDocumentInput): DraftingWorkspaceDocumentV1 {
-  const qrStateEntries = Object.entries(qrStateByNodeId)
-  const nextQrStateByNodeId: DraftingQrStateByNodeId = {}
-  const nextCardStateByNodeId: DraftingCardStateByNodeId = {}
-  const nextLayerStateByNodeId: DraftingLayerStateByNodeId = {}
-  const qrOrder =
-    qrStateEntries.length > 0 ? qrStateEntries.map(([nodeId]) => nodeId) : [activeQrNodeId]
+  const nodeId = DASHBOARD_QR_NODE_ID
+  const layers = (
+    layerStateByNodeId[nodeId] ??
+    createDefaultDraftingLayers(nodeId, draftingStudioState, selectedCardState)
+  ).map(cloneDraftingCanvasLayer)
+  const nextQrStateByLayerId: DraftingQrStateByLayerId = {
+    ...Object.fromEntries(
+      Object.entries(qrStateByLayerId).map(([layerId, state]) => [
+        layerId,
+        cloneDraftingQrState(layerId === activeQrLayerId ? draftingStudioState : state),
+      ]),
+    ),
+  }
 
-  for (const nodeId of qrOrder) {
-    nextQrStateByNodeId[nodeId] =
-      nodeId === activeQrNodeId
-        ? cloneDraftingQrState(draftingStudioState)
-        : cloneDraftingQrState(qrStateByNodeId[nodeId] ?? draftingStudioState)
-    nextCardStateByNodeId[nodeId] =
-      nodeId === activeQrNodeId
-        ? cloneDraftingCardState(selectedCardState)
-        : cloneDraftingCardState(cardStateByNodeId[nodeId] ?? selectedCardState)
-    nextLayerStateByNodeId[nodeId] = (
-      layerStateByNodeId[nodeId] ??
-      createDefaultDraftingLayers(
-        nodeId,
-        nextQrStateByNodeId[nodeId],
-        nextCardStateByNodeId[nodeId],
+  for (const layer of getQrCanvasLayers(layers)) {
+    if (!nextQrStateByLayerId[layer.id]) {
+      nextQrStateByLayerId[layer.id] = cloneDraftingQrState(
+        layer.id === activeQrLayerId
+          ? draftingStudioState
+          : (qrStateByLayerId[layer.id] ?? draftingStudioState),
       )
-    ).map(cloneDraftingCanvasLayer)
-  }
-
-  if (!nextQrStateByNodeId[activeQrNodeId]) {
-    qrOrder.push(activeQrNodeId)
-    nextQrStateByNodeId[activeQrNodeId] = cloneDraftingQrState(draftingStudioState)
-    nextCardStateByNodeId[activeQrNodeId] = cloneDraftingCardState(selectedCardState)
-    nextLayerStateByNodeId[activeQrNodeId] = createDefaultDraftingLayers(
-      activeQrNodeId,
-      draftingStudioState,
-      selectedCardState,
-    )
-  }
-
-  const nextContentTypeByNodeId: Record<string, QrInputType> = {
-    ...contentTypeByNodeId,
-    [activeQrNodeId]: selectedContentType,
-  }
-  for (const nodeId of qrOrder) {
-    if (!nextContentTypeByNodeId[nodeId]) {
-      nextContentTypeByNodeId[nodeId] = DEFAULT_QR_INPUT_TYPE
     }
   }
 
+  const primaryQrLayerId = getDraftingQrLayerId(nodeId)
+  const nextContentTypeByLayerId: Record<string, QrInputType> = {
+    ...contentTypeByLayerId,
+    [activeQrLayerId]: selectedContentType,
+  }
+
+  for (const layer of getQrCanvasLayers(layers)) {
+    if (!nextContentTypeByLayerId[layer.id]) {
+      nextContentTypeByLayerId[layer.id] = DEFAULT_QR_INPUT_TYPE
+    }
+  }
+
+  const primaryState =
+    nextQrStateByLayerId[primaryQrLayerId] ??
+    nextQrStateByLayerId[activeQrLayerId] ??
+    cloneDraftingQrState(draftingStudioState)
+
   return {
-    activeQrNodeId,
-    cardStateByNodeId: nextCardStateByNodeId,
-    contentTypeByNodeId: nextContentTypeByNodeId,
+    activeQrLayerId,
+    activeQrNodeId: nodeId,
+    cardStateByNodeId: {
+      [nodeId]: cloneDraftingCardState(selectedCardState),
+    },
+    contentTypeByLayerId: nextContentTypeByLayerId,
+    contentTypeByNodeId: {
+      ...contentTypeByNodeId,
+      [nodeId]: selectedContentType,
+    },
     contentValuesByType: structuredClone(contentValuesByType),
-    layerStateByNodeId: nextLayerStateByNodeId,
-    qrOrder,
-    qrStateByNodeId: nextQrStateByNodeId,
+    layerStateByNodeId: {
+      [nodeId]: layers,
+    },
+    qrOrder: [nodeId],
+    qrStateByLayerId: nextQrStateByLayerId,
+    qrStateByNodeId: {
+      [nodeId]: primaryState,
+    } satisfies DraftingQrStateByNodeId,
     sceneCompositionByNodeId: cloneSceneCompositionByNodeId(sceneCompositionByNodeId),
     selectedContentType,
     version: 1,

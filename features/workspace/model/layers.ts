@@ -198,16 +198,106 @@ export function getDraftingQrLayerId(nodeId: string) {
   return `${nodeId}${DRAFTING_QR_LAYER_SUFFIX}`
 }
 
+export function createAdditionalDraftingQrLayerId(nodeId: string) {
+  return `${nodeId}${DRAFTING_QR_LAYER_SUFFIX}:${crypto.randomUUID()}`
+}
+
 export function isDraftingCardLayerId(layerId: string | null | undefined) {
   return Boolean(layerId?.endsWith(DRAFTING_CARD_LAYER_SUFFIX))
 }
 
 export function isDraftingQrLayerId(layerId: string | null | undefined) {
-  return Boolean(layerId?.endsWith(DRAFTING_QR_LAYER_SUFFIX))
+  if (!layerId) {
+    return false
+  }
+
+  return /:qr(?::|$)/.test(layerId)
 }
 
-export function isProtectedDraftingLayerId(layerId: string | null | undefined) {
-  return isDraftingCardLayerId(layerId) || isDraftingQrLayerId(layerId)
+export function isQrCanvasLayer(
+  layer: Pick<DraftingCanvasLayer, "kind">,
+): layer is DraftingCanvasLayer & { kind: "qr" } {
+  return layer.kind === "qr"
+}
+
+export function getQrCanvasLayers(layers: DraftingCanvasLayer[]) {
+  return layers.filter(isQrCanvasLayer)
+}
+
+export function canDeleteQrLayer(layerId: string, layers: DraftingCanvasLayer[]) {
+  if (!isDraftingQrLayerId(layerId)) {
+    return false
+  }
+
+  return getQrCanvasLayers(layers).length > 1
+}
+
+export function isLayerDeletable(layerId: string, layers: DraftingCanvasLayer[]) {
+  if (isDraftingCardLayerId(layerId)) {
+    return false
+  }
+
+  if (isDraftingQrLayerId(layerId)) {
+    return canDeleteQrLayer(layerId, layers)
+  }
+
+  return true
+}
+
+export function isProtectedDraftingLayerId(
+  layerId: string | null | undefined,
+  layers?: DraftingCanvasLayer[],
+) {
+  if (isDraftingCardLayerId(layerId)) {
+    return true
+  }
+
+  if (layerId && isDraftingQrLayerId(layerId) && layers) {
+    return !canDeleteQrLayer(layerId, layers)
+  }
+
+  return false
+}
+
+export function createDraftingQrLayer(
+  nodeId: string,
+  qrState: QrStudioState,
+  cardState: Pick<DraftingCardState, "bottomSpace" | "height" | "padding" | "sizeMode" | "width">,
+  options: {
+    id?: string
+    nearLayer?: Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y">
+    zIndex?: number
+  } = {},
+): DraftingCanvasLayer {
+  const qrDimensions = fitQrSizeInCard(qrState, cardState)
+  const nearLayer = options.nearLayer
+  const offset = 40
+  const defaultLayout = getDraftingCardInsetLayout(qrState, cardState)
+  const x = nearLayer ? nearLayer.x + offset : defaultLayout.qr.x
+  const y = nearLayer ? nearLayer.y + offset : defaultLayout.qr.y
+
+  return {
+    blur: 0,
+    height: qrDimensions.height,
+    id: options.id ?? createAdditionalDraftingQrLayerId(nodeId),
+    isLocked: false,
+    isVisible: true,
+    kind: "qr",
+    layerFilters: [],
+    name: "QR code",
+    nodeId,
+    opacity: 1,
+    outline: { ...DEFAULT_DRAFTING_OUTLINE },
+    rotation: 0,
+    tiltX: 0,
+    tiltY: 0,
+    shadow: { ...DEFAULT_LAYER_SHADOW },
+    shadows: [legacyShadowToShadowLayer(DEFAULT_LAYER_SHADOW)],
+    width: qrDimensions.width,
+    x,
+    y,
+    zIndex: options.zIndex ?? 1,
+  }
 }
 
 export function fitQrSizeInCard(

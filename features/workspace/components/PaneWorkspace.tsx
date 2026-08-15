@@ -27,10 +27,6 @@ import {
 import {
   ensureDraftingFontsForLayers,
 } from "@/features/workspace/model/fonts"
-import {
-  createDraftingQrArtworkState,
-  sanitizeDraftingQrArtworkMarkup,
-} from "@/features/workspace/rendering/qr-artwork"
 import { DraftingLayerTiltShell } from "@/features/workspace/components/DraftingLayerTiltShell"
 import {
   SceneCompositionTransform,
@@ -62,8 +58,8 @@ import {
   getLayerControlShellStyle,
 } from "@/features/workspace/rendering/layer-dom-styles"
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
-import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg"
 import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
 import { createDefaultSceneComposition, type SceneCompositionState } from "@/features/workspace/model/scene-templates"
 import {
   getCombinedLayerBounds,
@@ -94,6 +90,7 @@ export type PaneWorkspaceProps = {
   onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void
   onSelect: () => void
   onQrClick: () => void
+  qrStateByLayerId: DraftingQrStateByLayerId
   sceneComposition?: SceneCompositionState
   selectedLayerId?: string | null
   selectedLayerIds?: string[]
@@ -140,11 +137,11 @@ export function PaneWorkspace({
   onLayerSelectionChange,
   onSelect,
   onQrClick,
+  qrStateByLayerId,
   sceneComposition = createDefaultSceneComposition(),
   selectedLayerId,
   selectedLayerIds,
 }: PaneWorkspaceProps) {
-  const [markup, setMarkup] = useState<string | null>(null)
   const [hasError, setHasError] = useState(false)
   const [rotatingLayerId, setRotatingLayerId] = useState<string | null>(null)
   const [isLayerInteracting, setIsLayerInteracting] = useState(false)
@@ -195,35 +192,6 @@ export function PaneWorkspace({
   const marqueeRef = useRef<typeof marquee>(null)
   const suppressCanvasClickRef = useRef(false)
   const suppressLayerClickRef = useRef(false)
-  const requestRef = useRef(0)
-  const markupCacheRef = useRef(new Map<string, string>())
-  const qrArtworkState = useMemo(() => createDraftingQrArtworkState(state), [state])
-  const stateCacheKey = useMemo(() => JSON.stringify(qrArtworkState), [qrArtworkState])
-
-  useEffect(() => {
-    const requestId = ++requestRef.current
-    const cachedMarkup = markupCacheRef.current.get(stateCacheKey)
-
-    if (cachedMarkup) {
-      setMarkup(cachedMarkup)
-      setHasError(false)
-      return
-    }
-
-    void buildDashboardQrNodePayload(qrArtworkState)
-      .then((payload) => {
-        if (requestRef.current !== requestId) return
-        const nextMarkup = sanitizeDraftingQrArtworkMarkup(payload.markup)
-        markupCacheRef.current.set(stateCacheKey, nextMarkup)
-        setMarkup(nextMarkup)
-        setHasError(false)
-      })
-      .catch(() => {
-        if (requestRef.current !== requestId) return
-        setMarkup(null)
-        setHasError(true)
-      })
-  }, [qrArtworkState, stateCacheKey])
 
   useEffect(
     () => () => {
@@ -290,7 +258,6 @@ export function PaneWorkspace({
         : createDefaultDraftingLayers("preview", state, cardState),
     [cardState, layers, state],
   )
-  const isLoading = markup === null && !hasError
 
   useEffect(() => {
     void ensureDraftingFontsForLayers(resolvedLayers)
@@ -1204,7 +1171,7 @@ export function PaneWorkspace({
     isImageFilterMode,
     isImageMode,
     isPaperShaderMode,
-    markup,
+    qrStateByLayerId,
     state,
   }
 
@@ -1249,11 +1216,11 @@ export function PaneWorkspace({
         onPointerMove={updateMarqueeSelection}
         onPointerUp={endMarqueeSelection}
       >
-        {isLoading ? (
+        {hasError ? (
           <div className="grid h-full place-items-center text-sm font-medium text-[var(--ws-ink-muted)]">
-            Loading QR…
+            Could not generate QR
           </div>
-        ) : markup ? (
+        ) : (
           <>
             <div
               className="absolute left-1/2 top-1/2 overflow-hidden"
@@ -1311,10 +1278,6 @@ export function PaneWorkspace({
                 )
               : null}
           </>
-        ) : (
-          <div className="grid h-full place-items-center text-sm font-medium text-[var(--ws-ink-muted)]">
-            Could not generate QR
-          </div>
         )}
       </PaneSurfaceInteractive>
     </PaneSurfaceInteractive>

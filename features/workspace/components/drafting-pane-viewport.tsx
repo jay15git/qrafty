@@ -202,6 +202,7 @@ export function DraftingPaneViewport({
           cardState={pane.cardState}
           interactionScale={effectiveZoom}
           layers={pane.layers}
+          qrStateByLayerId={pane.qrStateByLayerId}
           sceneComposition={pane.sceneComposition}
           snapEnabled={snapEnabled}
           state={pane.state}

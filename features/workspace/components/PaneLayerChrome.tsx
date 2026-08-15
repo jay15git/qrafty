@@ -213,7 +213,9 @@ export function LayerContextMenu({
 }) {
   const isMultiLayer = layerCount > 1
   const hasSelection = layerCount > 0
-  const actionableLayers = layers.filter((layer) => !isProtectedDraftingLayerId(layer.id))
+  const actionableLayers = layers.filter(
+    (layer) => !isProtectedDraftingLayerId(layer.id, layers),
+  )
   const hasHiddenLayer = actionableLayers.some((layer) => !layer.isVisible)
   const hasGroupLayer = layers.some((layer) => layer.kind === "group")
 
@@ -307,9 +309,11 @@ export function LayerFloatingToolbar({
   style: CSSProperties
 }) {
   const hasUnlockedLayer = layers.some(
-    (layer) => !layer.isLocked && !isProtectedDraftingLayerId(layer.id),
+    (layer) => !layer.isLocked && !isProtectedDraftingLayerId(layer.id, layers),
   )
-  const hasRemovableLayer = layers.some((layer) => !isProtectedDraftingLayerId(layer.id))
+  const hasRemovableLayer = layers.some(
+    (layer) => !isProtectedDraftingLayerId(layer.id, layers),
+  )
   const lockAction = hasUnlockedLayer ? "lock" : "unlock"
   const lockLabel = hasUnlockedLayer ? "Lock selection" : "Unlock selection"
   const LockActionIcon = hasUnlockedLayer ? LockIcon : UnlockIcon

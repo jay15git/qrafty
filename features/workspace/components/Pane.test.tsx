@@ -46,11 +46,14 @@ import {
   createDefaultQrStudioState,
   setDotMatrixAnimationOptions,
   setSquareQrSize,
+  type QrStudioState,
 } from "@/features/qr-code/model/state"
 import { renderDashboardQrSvgMarkup } from "@/features/qr-code/rendering/qr-svg"
 import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-artwork"
 import { createDefaultSceneComposition } from "@/features/workspace/model/scene-templates"
+import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
+import { clearDraftingQrMarkupCache } from "@/features/workspace/hooks/use-drafting-qr-markup"
 
 const cleanupCallbacks: Array<() => void> = []
 
@@ -70,6 +73,7 @@ const TEST_CANVAS_CARD_STATE: DraftingCardState = {
 }
 
 beforeEach(() => {
+  clearDraftingQrMarkupCache()
   buildDashboardQrNodePayloadSpy.mockReset()
   buildDashboardQrNodePayloadSpy.mockImplementation(async (state) => ({
     markup: `<svg data-width="${state.width}" data-height="${state.height}" />`,
@@ -106,6 +110,8 @@ describe("Pane", () => {
       reactRoot.render(
         <Pane
           state={secondState}
+          cardState={createDefaultDraftingCardState()}
+          qrStateByLayerId={createDefaultPaneQrStateByLayerId(secondState)}
           isSelected={false}
           onQrClick={() => undefined}
           onSelect={() => undefined}
@@ -121,6 +127,8 @@ describe("Pane", () => {
       reactRoot.render(
         <Pane
           state={thirdState}
+          cardState={createDefaultDraftingCardState()}
+          qrStateByLayerId={createDefaultPaneQrStateByLayerId(thirdState)}
           isSelected={false}
           onQrClick={() => undefined}
           onSelect={() => undefined}
@@ -867,6 +875,10 @@ describe("Pane", () => {
           cardState={createDefaultDraftingCardState()}
           isSelected
           layers={[...defaultLayers, textLayer]}
+          qrStateByLayerId={createTestQrStateByLayerId(createDefaultQrStudioState(), [
+            ...defaultLayers,
+            textLayer,
+          ])}
           selectedLayerId="preview:text"
           state={createDefaultQrStudioState()}
           onLayerChange={onLayerChange}
@@ -1743,6 +1755,10 @@ describe("Pane", () => {
             createLayer({ height: 100, id: "preview:card", kind: "card", rotation: 90, width: 100, x: -25, y: -125, zIndex: 0 }),
             createLayer({ height: 100, id: "preview:qr", kind: "qr", rotation: 90, width: 100, x: -25, y: 25, zIndex: 1 }),
           ]}
+          qrStateByLayerId={createTestQrStateByLayerId(createDefaultQrStudioState(), [
+            createLayer({ height: 100, id: "preview:card", kind: "card", rotation: 90, width: 100, x: -25, y: -125, zIndex: 0 }),
+            createLayer({ height: 100, id: "preview:qr", kind: "qr", rotation: 90, width: 100, x: -25, y: 25, zIndex: 1 }),
+          ])}
           state={createDefaultQrStudioState()}
           isSelected={true}
           onLayerChange={onLayerChange}
@@ -1869,6 +1885,10 @@ describe("Pane", () => {
       reactRoot.render(
         <Pane
           state={setDotMatrixAnimationOptions(motionState, { loader: "corner-pop" })}
+          cardState={createDefaultDraftingCardState()}
+          qrStateByLayerId={createDefaultPaneQrStateByLayerId(
+            setDotMatrixAnimationOptions(motionState, { loader: "corner-pop" }),
+          )}
           isSelected={false}
           onQrClick={() => undefined}
           onSelect={() => undefined}
@@ -1894,6 +1914,7 @@ function renderPane(
     onLayerPaste?: (point: { x: number; y: number }) => void
     onLayerSelect?: (layerId: string | null, options?: { additive?: boolean }) => void
     onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void
+    qrStateByLayerId?: DraftingQrStateByLayerId
     selectedLayerId?: string | null
     selectedLayerIds?: string[]
     snapEnabled?: boolean
@@ -1902,12 +1923,15 @@ function renderPane(
 ) {
   const container = document.createElement("div")
   const reactRoot = createRoot(container)
+  const layers = props.layers ?? createDefaultDraftingLayers("preview", state, cardState)
+  const qrStateByLayerId = props.qrStateByLayerId ?? createTestQrStateByLayerId(state, layers)
 
   act(() => {
     reactRoot.render(
       <Pane
         cardState={cardState}
-        layers={props.layers}
+        layers={layers}
+        qrStateByLayerId={qrStateByLayerId}
         state={state}
         isSelected={isSelected}
         onLayerChange={props.onLayerChange}
@@ -1935,6 +1959,28 @@ function renderPane(
   document.body.appendChild(container)
 
   return { container, reactRoot }
+}
+
+function createDefaultPaneQrStateByLayerId(state: QrStudioState) {
+  return createTestQrStateByLayerId(
+    state,
+    createDefaultDraftingLayers("preview", state, createDefaultDraftingCardState()),
+  )
+}
+
+function createTestQrStateByLayerId(
+  state: QrStudioState,
+  layers: DraftingCanvasLayer[],
+): DraftingQrStateByLayerId {
+  const qrStateByLayerId: DraftingQrStateByLayerId = {}
+
+  for (const layer of layers) {
+    if (layer.kind === "qr") {
+      qrStateByLayerId[layer.id] = structuredClone(state)
+    }
+  }
+
+  return qrStateByLayerId
 }
 
 function flushPromises() {

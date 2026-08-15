@@ -20,6 +20,7 @@ import {
   createDefaultDraftingWorkspaceQrState,
   type DraftingCardStateByNodeId,
   type DraftingContentValuesByType,
+  type DraftingQrStateByLayerId,
   type DraftingQrStateByNodeId,
 } from "@/features/workspace/model/document"
 import type { SceneCompositionByNodeId } from "@/features/workspace/model/apply-scene-template"
@@ -74,6 +75,7 @@ export type WorkspaceSurfaceState = {
   selectedContentType: QrInputType
   contentValuesByType: DraftingContentValuesByType
   contentTypeByNodeId: Record<string, QrInputType>
+  contentTypeByLayerId: Record<string, QrInputType>
   selectedQrMargin: number
   selectedQrRadius: number
   selectedRasterExportQualityPercent: number
@@ -132,7 +134,9 @@ export type WorkspaceSurfaceState = {
   selectedLogoOffsetX: number
   selectedLogoOffsetY: number
   selectedLogoCrossOrigin: QrCrossOrigin
+  activeQrLayerId: string
   activeQrNodeId: string
+  qrStateByLayerId: DraftingQrStateByLayerId
   qrStateByNodeId: DraftingQrStateByNodeId
   selectedCardState: DraftingCardState
   cardStateByNodeId: DraftingCardStateByNodeId
@@ -190,6 +194,7 @@ export function createInitialWorkspaceSurfaceState(
 ): WorkspaceSurfaceState {
   const defaultQrState = createDefaultDraftingWorkspaceQrState()
   const defaultCardState = createDefaultDraftingCardState()
+  const primaryQrLayerId = getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)
 
   return {
     desktopRailTool: initialActiveTool ?? "content",
@@ -204,6 +209,9 @@ export function createInitialWorkspaceSurfaceState(
     },
     contentTypeByNodeId: {
       [DASHBOARD_QR_NODE_ID]: DEFAULT_QR_INPUT_TYPE,
+    },
+    contentTypeByLayerId: {
+      [primaryQrLayerId]: DEFAULT_QR_INPUT_TYPE,
     },
     selectedQrMargin: DEFAULT_DRAFTING_STUDIO_STATE.margin,
     selectedQrRadius: DEFAULT_DRAFTING_STUDIO_STATE.backgroundOptions.round,
@@ -286,7 +294,11 @@ export function createInitialWorkspaceSurfaceState(
     selectedLogoOffsetX: 0,
     selectedLogoOffsetY: 0,
     selectedLogoCrossOrigin: DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.crossOrigin,
+    activeQrLayerId: primaryQrLayerId,
     activeQrNodeId: DASHBOARD_QR_NODE_ID,
+    qrStateByLayerId: {
+      [primaryQrLayerId]: defaultQrState,
+    },
     qrStateByNodeId: {
       [DASHBOARD_QR_NODE_ID]: defaultQrState,
     },
@@ -367,6 +379,7 @@ function createWorkspaceSurfaceSetters(
     setSelectedContentType: (value) => setField("selectedContentType", value),
     setContentValuesByType: (value) => setField("contentValuesByType", value),
     setContentTypeByNodeId: (value) => setField("contentTypeByNodeId", value),
+    setContentTypeByLayerId: (value) => setField("contentTypeByLayerId", value),
     setSelectedQrMargin: (value) => setField("selectedQrMargin", value),
     setSelectedQrRadius: (value) => setField("selectedQrRadius", value),
     setSelectedRasterExportQualityPercent: (value) =>
@@ -433,7 +446,9 @@ function createWorkspaceSurfaceSetters(
     setSelectedLogoOffsetX: (value) => setField("selectedLogoOffsetX", value),
     setSelectedLogoOffsetY: (value) => setField("selectedLogoOffsetY", value),
     setSelectedLogoCrossOrigin: (value) => setField("selectedLogoCrossOrigin", value),
+    setActiveQrLayerId: (value) => setField("activeQrLayerId", value),
     setActiveQrNodeId: (value) => setField("activeQrNodeId", value),
+    setQrStateByLayerId: (value) => setField("qrStateByLayerId", value),
     setQrStateByNodeId: (value) => setField("qrStateByNodeId", value),
     setSelectedCardState: (value) => setField("selectedCardState", value),
     setCardStateByNodeId: (value) => setField("cardStateByNodeId", value),

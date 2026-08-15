@@ -6,7 +6,12 @@ import {
 } from "@/features/workspace/model/card-state"
 import {
   cloneDraftingLayerStateByNodeId,
+  cloneDraftingCanvasLayer,
+  createAdditionalDraftingQrLayerId,
   createDefaultDraftingLayers,
+  createDraftingQrLayer,
+  getDraftingQrLayerId,
+  getQrCanvasLayers,
   normalizeDraftingCanvasLayers,
   type DraftingLayerStateByNodeId,
 } from "@/features/workspace/model/layers"
@@ -34,6 +39,7 @@ import {
   type SceneCompositionByNodeId,
 } from "@/features/workspace/model/apply-scene-template"
 import {
+  createDefaultSceneComposition,
   normalizeSceneComposition,
   type SceneCompositionState,
 } from "@/features/workspace/model/scene-templates"
@@ -46,13 +52,18 @@ export type DraftingQrStateByNodeId = Record<string, QrStudioState>
 export type DraftingCardStateByNodeId = Record<string, DraftingCardState>
 export type DraftingContentValuesByType = Partial<Record<QrInputType, StaticQrContentValues>>
 
+export type DraftingQrStateByLayerId = Record<string, QrStudioState>
+
 export type DraftingWorkspaceDocumentV1 = {
+  activeQrLayerId: string
   activeQrNodeId: string
   cardStateByNodeId: DraftingCardStateByNodeId
+  contentTypeByLayerId: Record<string, QrInputType>
   contentTypeByNodeId: Record<string, QrInputType>
   contentValuesByType: DraftingContentValuesByType
   layerStateByNodeId: DraftingLayerStateByNodeId
   qrOrder: string[]
+  qrStateByLayerId: DraftingQrStateByLayerId
   qrStateByNodeId: DraftingQrStateByNodeId
   sceneCompositionByNodeId: SceneCompositionByNodeId
   selectedContentType: QrInputType
@@ -65,6 +76,7 @@ export function cloneDraftingWorkspaceDocument(
   document: DraftingWorkspaceDocumentV1,
 ): DraftingWorkspaceDocumentV1 {
   return {
+    activeQrLayerId: document.activeQrLayerId,
     activeQrNodeId: document.activeQrNodeId,
     cardStateByNodeId: Object.fromEntries(
       Object.entries(document.cardStateByNodeId).map(([nodeId, state]) => [
@@ -72,10 +84,17 @@ export function cloneDraftingWorkspaceDocument(
         cloneDraftingCardState(state),
       ]),
     ),
+    contentTypeByLayerId: structuredClone(document.contentTypeByLayerId),
     contentTypeByNodeId: structuredClone(document.contentTypeByNodeId),
     contentValuesByType: structuredClone(document.contentValuesByType),
     layerStateByNodeId: cloneDraftingLayerStateByNodeId(document.layerStateByNodeId),
     qrOrder: [...document.qrOrder],
+    qrStateByLayerId: Object.fromEntries(
+      Object.entries(document.qrStateByLayerId).map(([layerId, state]) => [
+        layerId,
+        cloneDraftingQrState(state),
+      ]),
+    ),
     qrStateByNodeId: Object.fromEntries(
       Object.entries(document.qrStateByNodeId).map(([nodeId, state]) => [
         nodeId,
@@ -91,10 +110,15 @@ export function cloneDraftingWorkspaceDocument(
 export function createDefaultDraftingWorkspaceDocument(): DraftingWorkspaceDocumentV1 {
   const qrState = createDefaultDraftingWorkspaceQrState()
   const cardState = createDefaultDraftingCardState()
+  const primaryQrLayerId = getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)
   const document: DraftingWorkspaceDocumentV1 = {
+    activeQrLayerId: primaryQrLayerId,
     activeQrNodeId: DASHBOARD_QR_NODE_ID,
     cardStateByNodeId: {
       [DASHBOARD_QR_NODE_ID]: cardState,
+    },
+    contentTypeByLayerId: {
+      [primaryQrLayerId]: DEFAULT_QR_INPUT_TYPE,
     },
     contentTypeByNodeId: {
       [DASHBOARD_QR_NODE_ID]: DEFAULT_QR_INPUT_TYPE,
@@ -113,6 +137,9 @@ export function createDefaultDraftingWorkspaceDocument(): DraftingWorkspaceDocum
       ),
     },
     qrOrder: [DASHBOARD_QR_NODE_ID],
+    qrStateByLayerId: {
+      [primaryQrLayerId]: qrState,
+    },
     qrStateByNodeId: {
       [DASHBOARD_QR_NODE_ID]: qrState,
     },
@@ -211,13 +238,29 @@ export function parseDraftingWorkspaceDocument(
     selectedContentType,
   )
 
-  return {
+  const parsedDocument: DraftingWorkspaceDocumentV1 = {
+    activeQrLayerId:
+      typeof value.activeQrLayerId === "string"
+        ? value.activeQrLayerId
+        : getDraftingQrLayerId(activeQrNodeId),
     activeQrNodeId,
     cardStateByNodeId,
+    contentTypeByLayerId: parseContentTypeByLayerId(
+      value.contentTypeByLayerId,
+      layerStateByNodeId,
+      contentTypeByNodeId,
+      activeQrNodeId,
+    ),
     contentTypeByNodeId,
     contentValuesByType,
     layerStateByNodeId,
     qrOrder: orderedNodeIds,
+    qrStateByLayerId: parseQrStateByLayerId(
+      value.qrStateByLayerId,
+      layerStateByNodeId,
+      qrStateByNodeId,
+      activeQrNodeId,
+    ),
     qrStateByNodeId,
     sceneCompositionByNodeId: parseSceneCompositionByNodeId(
       value.sceneCompositionByNodeId,
@@ -226,6 +269,8 @@ export function parseDraftingWorkspaceDocument(
     selectedContentType,
     version: 1,
   }
+
+  return normalizeDraftingWorkspaceDocument(parsedDocument)
 }
 
 export function serializeDraftingWorkspaceDocument(
@@ -366,6 +411,208 @@ function parseContentValuesByType(value: unknown): DraftingContentValuesByType {
   }
 
   return structuredClone(value) as DraftingContentValuesByType
+}
+
+function parseContentTypeByLayerId(
+  value: unknown,
+  layerStateByNodeId: DraftingLayerStateByNodeId,
+  contentTypeByNodeId: Record<string, QrInputType>,
+  activeQrNodeId: string,
+): Record<string, QrInputType> {
+  const raw = isRecord(value) ? value : {}
+  const contentTypeByLayerId: Record<string, QrInputType> = {}
+  const fallbackType = contentTypeByNodeId[activeQrNodeId] ?? DEFAULT_QR_INPUT_TYPE
+
+  for (const layers of Object.values(layerStateByNodeId)) {
+    for (const layer of layers) {
+      if (layer.kind !== "qr") {
+        continue
+      }
+
+      contentTypeByLayerId[layer.id] = parseQrInputType(raw[layer.id] ?? fallbackType)
+    }
+  }
+
+  return contentTypeByLayerId
+}
+
+function parseQrStateByLayerId(
+  value: unknown,
+  layerStateByNodeId: DraftingLayerStateByNodeId,
+  qrStateByNodeId: DraftingQrStateByNodeId,
+  activeQrNodeId: string,
+): DraftingQrStateByLayerId {
+  const raw = isRecord(value) ? value : {}
+  const qrStateByLayerId: DraftingQrStateByLayerId = {}
+  const fallbackState =
+    qrStateByNodeId[activeQrNodeId] ?? createDefaultDraftingWorkspaceQrState()
+
+  for (const [nodeId, layers] of Object.entries(layerStateByNodeId)) {
+    const nodeState = qrStateByNodeId[nodeId] ?? fallbackState
+
+    for (const layer of layers) {
+      if (layer.kind !== "qr") {
+        continue
+      }
+
+      qrStateByLayerId[layer.id] = parseQrState(raw[layer.id] ?? nodeState)
+    }
+  }
+
+  return qrStateByLayerId
+}
+
+function normalizeDraftingWorkspaceDocument(
+  document: DraftingWorkspaceDocumentV1,
+): DraftingWorkspaceDocumentV1 {
+  const primaryNodeId = DASHBOARD_QR_NODE_ID
+  const orderedNodeIds =
+    document.qrOrder.length > 0 ? [...document.qrOrder] : Object.keys(document.qrStateByNodeId)
+
+  if (orderedNodeIds.length <= 1 && orderedNodeIds[0] === primaryNodeId) {
+    const primaryQrLayerId = getDraftingQrLayerId(primaryNodeId)
+    const primaryLayers =
+      document.layerStateByNodeId[primaryNodeId] ??
+      createDefaultDraftingLayers(
+        primaryNodeId,
+        document.qrStateByLayerId[primaryQrLayerId] ??
+          document.qrStateByNodeId[primaryNodeId] ??
+          createDefaultDraftingWorkspaceQrState(),
+        document.cardStateByNodeId[primaryNodeId] ?? createDefaultDraftingCardState(),
+      )
+
+    return {
+      ...document,
+      activeQrLayerId: document.qrStateByLayerId[document.activeQrLayerId]
+        ? document.activeQrLayerId
+        : primaryQrLayerId,
+      activeQrNodeId: primaryNodeId,
+      cardStateByNodeId: {
+        [primaryNodeId]:
+          document.cardStateByNodeId[primaryNodeId] ?? createDefaultDraftingCardState(),
+      },
+      layerStateByNodeId: {
+        [primaryNodeId]: primaryLayers,
+      },
+      qrOrder: [primaryNodeId],
+      qrStateByNodeId: {
+        [primaryNodeId]:
+          document.qrStateByLayerId[primaryQrLayerId] ??
+          document.qrStateByNodeId[primaryNodeId] ??
+          createDefaultDraftingWorkspaceQrState(),
+      },
+      sceneCompositionByNodeId: {
+        [primaryNodeId]:
+          document.sceneCompositionByNodeId[primaryNodeId] ?? createDefaultSceneComposition(),
+      },
+    }
+  }
+
+  const primaryNode =
+    orderedNodeIds.includes(primaryNodeId) ? primaryNodeId : orderedNodeIds[0]!
+  const primaryCardState =
+    document.cardStateByNodeId[primaryNode] ?? createDefaultDraftingCardState()
+  const primaryLayers = (
+    document.layerStateByNodeId[primaryNode] ??
+    createDefaultDraftingLayers(
+      primaryNodeId,
+      document.qrStateByNodeId[primaryNode] ?? createDefaultDraftingWorkspaceQrState(),
+      primaryCardState,
+    )
+  ).map(cloneDraftingCanvasLayer)
+  const qrStateByLayerId: DraftingQrStateByLayerId = {}
+  const contentTypeByLayerId: Record<string, QrInputType> = {}
+  const maxZIndex = primaryLayers.reduce((max, layer) => Math.max(max, layer.zIndex), 0)
+
+  for (const layer of primaryLayers) {
+    if (layer.kind !== "qr") {
+      continue
+    }
+
+    qrStateByLayerId[layer.id] = cloneDraftingQrState(
+      document.qrStateByLayerId[layer.id] ??
+        document.qrStateByNodeId[primaryNode] ??
+        createDefaultDraftingWorkspaceQrState(),
+    )
+    contentTypeByLayerId[layer.id] =
+      document.contentTypeByNodeId[primaryNode] ??
+      document.contentTypeByLayerId[layer.id] ??
+      document.selectedContentType
+  }
+
+  let nextZIndex = maxZIndex + 1
+  let extraIndex = 0
+
+  for (const nodeId of orderedNodeIds) {
+    if (nodeId === primaryNode) {
+      continue
+    }
+
+    const nodeState =
+      document.qrStateByNodeId[nodeId] ?? createDefaultDraftingWorkspaceQrState()
+    const nodeLayers = document.layerStateByNodeId[nodeId]
+    const sourceQrLayer = nodeLayers?.find((layer) => layer.kind === "qr")
+    const layerId = createAdditionalDraftingQrLayerId(primaryNodeId)
+    const nearLayer =
+      getQrCanvasLayers(primaryLayers).at(-1) ??
+      primaryLayers.find((layer) => layer.kind === "qr")
+
+    primaryLayers.push(
+      createDraftingQrLayer(primaryNodeId, nodeState, primaryCardState, {
+        id: layerId,
+        nearLayer,
+        zIndex: nextZIndex,
+      }),
+    )
+
+    if (sourceQrLayer) {
+      const targetLayer = primaryLayers.at(-1)
+      if (targetLayer) {
+        targetLayer.x = sourceQrLayer.x + extraIndex * 24
+        targetLayer.y = sourceQrLayer.y + extraIndex * 24
+        targetLayer.width = sourceQrLayer.width
+        targetLayer.height = sourceQrLayer.height
+        targetLayer.rotation = sourceQrLayer.rotation
+      }
+    }
+
+    qrStateByLayerId[layerId] = cloneDraftingQrState(nodeState)
+    contentTypeByLayerId[layerId] =
+      document.contentTypeByNodeId[nodeId] ?? document.selectedContentType
+    nextZIndex += 1
+    extraIndex += 1
+  }
+
+  const primaryQrLayerId = getDraftingQrLayerId(primaryNodeId)
+
+  return {
+    ...document,
+    activeQrLayerId: document.qrStateByLayerId[document.activeQrLayerId]
+      ? document.activeQrLayerId
+      : primaryQrLayerId,
+    activeQrNodeId: primaryNodeId,
+    cardStateByNodeId: {
+      [primaryNodeId]: primaryCardState,
+    },
+    contentTypeByLayerId,
+    layerStateByNodeId: {
+      [primaryNodeId]: primaryLayers,
+    },
+    qrOrder: [primaryNodeId],
+    qrStateByLayerId,
+    qrStateByNodeId: {
+      [primaryNodeId]:
+        qrStateByLayerId[primaryQrLayerId] ??
+        document.qrStateByNodeId[primaryNode] ??
+        createDefaultDraftingWorkspaceQrState(),
+    },
+    sceneCompositionByNodeId: {
+      [primaryNodeId]:
+        document.sceneCompositionByNodeId[primaryNode] ??
+        document.sceneCompositionByNodeId[primaryNodeId] ??
+        createDefaultSceneComposition(),
+    },
+  }
 }
 
 function parseContentTypeByNodeId(

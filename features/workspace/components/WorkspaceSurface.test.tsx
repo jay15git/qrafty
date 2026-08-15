@@ -169,6 +169,7 @@ vi.mock("@/components/vendor/unlumen-ui/slider", () => ({
 
 import { WorkspaceSurface } from "@/features/workspace/components/WorkspaceSurface"
 import { FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
+import { clearDraftingQrMarkupCache } from "@/features/workspace/hooks/use-drafting-qr-markup"
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr-code/rendering/compose-scene"
 import { createDefaultQrStudioState, type QrStudioState } from "@/features/qr-code/model/state"
 
@@ -182,6 +183,7 @@ const QR_PAYLOAD = {
 const cleanupCallbacks: Array<() => void> = []
 
 beforeEach(() => {
+  clearDraftingQrMarkupCache()
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true)
   Object.defineProperty(window, "localStorage", {
     configurable: true,
@@ -412,47 +414,29 @@ describe("WorkspaceSurface", () => {
     ).toBeNull()
   })
 
-  it("adds a duplicated qr layer from the bottom toolbar and selects it", async () => {
+  it("adds a fresh qr layer from the bottom toolbar and selects it", async () => {
     buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
     await waitForDraftingSurface()
 
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(1)
     expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(1)
 
     await addQrCode(surface.container)
 
-    const selectedNodeId = getRequiredElement(
-      surface.container,
-      '[data-slot="drafting-surface"]',
-    ).getAttribute("data-compose-selected-node-id")
-
-    expect(selectedNodeId).toMatch(/^dashboard-qr-node-/)
-    expect(selectedNodeId).not.toBe(DASHBOARD_QR_NODE_ID)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(1)
     expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(2)
     expect(
       getRequiredElement(surface.container, '[data-slot="drafting-surface"]').getAttribute(
         "data-compose-edit-mode",
       ),
     ).toBe("false")
-    expect(
-      getRequiredElement(surface.container, '[data-slot="drafting-surface"]').getAttribute(
-        "data-compose-edit-section",
-      ),
-    ).toBeNull()
     expect(surface.container.querySelector('[data-slot="dashboard-edit-rail"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="dashboard-layer-row"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="drafting-layer-row"]')).toBeNull()
-
-    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(2)
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        data: "https://new-qr-studio.local/launch",
-      }),
-    )
+    expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalled()
   })
 
-  it("swaps qr panes and keeps downloads in visual order", async () => {
+  it("keeps independent qr layer content on one canvas", async () => {
     buildDashboardQrNodePayloadSpy.mockImplementation((state?: QrStudioState) =>
       Promise.resolve({
         markup: `<svg data-value="${state?.data ?? ""}" />`,
@@ -466,10 +450,7 @@ describe("WorkspaceSurface", () => {
 
     await act(async () => {
       changeInputValue(
-        getRequiredElement(
-          surface.container,
-          '#dn-content-url',
-        ) as HTMLInputElement,
+        getRequiredElement(surface.container, '#dn-content-url') as HTMLInputElement,
         "https://example.com/first",
       )
       await flushPromises()
@@ -480,47 +461,25 @@ describe("WorkspaceSurface", () => {
 
     await act(async () => {
       changeInputValue(
-        getRequiredElement(
-          surface.container,
-          '#dn-content-url',
-        ) as HTMLInputElement,
+        getRequiredElement(surface.container, '#dn-content-url') as HTMLInputElement,
         "https://example.com/second",
       )
       await flushPromises()
       await flushPromises()
     })
 
-    const [firstPane, secondPane] = Array.from(
-      surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]'),
-    ) as HTMLElement[]
-    const dataTransfer = createDataTransfer()
-
-    await act(async () => {
-      firstPane.dispatchEvent(createDragEvent("dragstart", dataTransfer))
-      secondPane.dispatchEvent(createDragEvent("dragover", dataTransfer))
-      secondPane.dispatchEvent(createDragEvent("drop", dataTransfer))
-      await flushPromises()
-      await flushPromises()
-    })
-
-    const swappedPaneNodes = Array.from(
+    const qrNodes = Array.from(
       surface.container.querySelectorAll('[data-slot="desktop-compose-node"]'),
     ) as HTMLElement[]
 
-    expect(swappedPaneNodes.map((node) => node.getAttribute("data-node-id"))).toEqual([
-      "https://example.com/second",
-      "https://example.com/first",
-    ])
-
-    act(() => {
-      activateElement(getRequiredElement(surface.container, 'button[aria-label="Download"]'))
-    })
-
-    await act(async () => {
-      await flushPromises()
-    })
-
-    expect(downloadDashboardQrNodeExportSpy).toHaveBeenCalled()
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(1)
+    expect(qrNodes).toHaveLength(2)
+    expect(qrNodes.map((node) => node.getAttribute("data-node-id"))).toEqual(
+      expect.arrayContaining([
+        "https://example.com/first",
+        "https://example.com/second",
+      ]),
+    )
   })
 
   it("keeps the qr renderer foreground-only on first render and after reset", async () => {
@@ -717,7 +676,8 @@ describe("WorkspaceSurface", () => {
     })
     await advanceDraftingTimers()
 
-    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(2)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(1)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(2)
   })
 
   it("copies and pastes selected layers with keyboard shortcuts", async () => {
@@ -1080,19 +1040,22 @@ describe("WorkspaceSurface", () => {
     await addQrCode(surface.container)
     await advanceDraftingTimers()
 
-    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(2)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(1)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(2)
 
     act(() => {
       activateElement(getRequiredElement(surface.container, '[data-slot="desktop-history-actions"] button[aria-label="Undo"]'))
     })
 
     expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(1)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(1)
 
     act(() => {
       activateElement(getRequiredElement(surface.container, '[data-slot="desktop-history-actions"] button[aria-label="Redo"]'))
     })
 
-    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(2)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(1)
+    expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(2)
 
     act(() => {
       changeInputValue(

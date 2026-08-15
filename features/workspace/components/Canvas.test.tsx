@@ -50,165 +50,21 @@ afterEach(() => {
 })
 
 describe("Canvas", () => {
-  it("swaps panes when a dragged pane drops onto another pane", async () => {
-    const onSwapPanes = vi.fn()
-    const workspace = renderWorkspace({ onSwapPanes })
-    const [firstPane, secondPane] = getPaneSurfaces(workspace.container)
-    const dataTransfer = createDataTransfer()
-
-    await act(async () => {
-      firstPane.dispatchEvent(createDragEvent("dragstart", dataTransfer))
-      secondPane.dispatchEvent(createDragEvent("dragover", dataTransfer))
-      secondPane.dispatchEvent(createDragEvent("drop", dataTransfer))
-      await flushPromises()
-    })
-
-    expect(onSwapPanes).toHaveBeenCalledWith("pane-1", "pane-2")
-  })
-
-  it("keeps resizable panel slot identity stable when pane content is swapped", async () => {
-    const panes = createPanes(2)
-    const workspace = renderWorkspace({ panes })
-
-    await act(async () => {
-      await flushPromises()
-    })
-
-    const panelIdsBefore = getResizablePanels(workspace.container).map((panel) =>
-      panel.getAttribute("data-panel"),
-    )
-    const paneDataBefore = getQrNodes(workspace.container).map((node) =>
-      node.getAttribute("data-node-id"),
-    )
-
-    await act(async () => {
-      workspace.render([...panes].reverse())
-      await flushPromises()
-    })
-
-    expect(getResizablePanels(workspace.container).map((panel) =>
-      panel.getAttribute("data-panel"),
-    )).toEqual(panelIdsBefore)
-    expect(getQrNodes(workspace.container).map((node) =>
-      node.getAttribute("data-node-id"),
-    )).toEqual([...paneDataBefore].reverse())
-  })
-
-  it("does not swap when a pane drops onto itself", async () => {
-    const onSwapPanes = vi.fn()
-    const workspace = renderWorkspace({ onSwapPanes })
-    const [firstPane] = getPaneSurfaces(workspace.container)
-    const dataTransfer = createDataTransfer()
-
-    await act(async () => {
-      firstPane.dispatchEvent(createDragEvent("dragstart", dataTransfer))
-      firstPane.dispatchEvent(createDragEvent("dragover", dataTransfer))
-      firstPane.dispatchEvent(createDragEvent("drop", dataTransfer))
-      await flushPromises()
-    })
-
-    expect(onSwapPanes).not.toHaveBeenCalled()
-  })
-
-  it("does not swap when a dragged pane drops outside a target slot", async () => {
-    const onSwapPanes = vi.fn()
-    const workspace = renderWorkspace({ onSwapPanes })
-    const [firstPane] = getPaneSurfaces(workspace.container)
-    const dataTransfer = createDataTransfer()
-
-    await act(async () => {
-      firstPane.dispatchEvent(createDragEvent("dragstart", dataTransfer))
-      workspace.container.dispatchEvent(createDragEvent("drop", dataTransfer))
-      await flushPromises()
-    })
-
-    expect(onSwapPanes).not.toHaveBeenCalled()
-  })
-
-  it("marks the hovered drop target while dragging another pane", async () => {
-    const workspace = renderWorkspace({ onSwapPanes: vi.fn() })
-    const [firstPane, secondPane] = getPaneSurfaces(workspace.container)
-    const dataTransfer = createDataTransfer()
-
-    await act(async () => {
-      firstPane.dispatchEvent(createDragEvent("dragstart", dataTransfer))
-      secondPane.dispatchEvent(createDragEvent("dragover", dataTransfer))
-      await flushPromises()
-    })
-
-    expect(secondPane.getAttribute("data-snap-target")).toBe("true")
-    expect(secondPane.className).toContain("after:border-dashed")
-    expect(secondPane.className).toContain("after:border-[var(--ws-ink)]")
-  })
-
-  it("renders one pane without resize handles", async () => {
+  it("renders a single canvas surface", async () => {
     const workspace = renderWorkspace({ paneCount: 1 })
 
     await act(async () => {
       await flushPromises()
     })
 
-    expect(getPaneSurfaces(workspace.container, 1)).toHaveLength(1)
-    expect(getResizeHandles(workspace.container)).toHaveLength(0)
+    expect(getPaneSurfaces(workspace.container)).toHaveLength(1)
+    expect(workspace.container.querySelector('[data-slot="drafting-pane-layout"]')).toBeNull()
   })
 
-  it("renders five landscape panes as two resizable rows", async () => {
-    const workspace = renderWorkspace({ paneCount: 5 })
+  it("renders one pane without resize handles", async () => {
+    const workspace = renderWorkspace({ paneCount: 1 })
 
     await act(async () => {
-      await flushPromises()
-    })
-
-    const layout = getPaneLayout(workspace.container)
-    const groups = getLayoutGroups(layout)
-    const panes = getPaneSurfaces(workspace.container, 5)
-
-    expect(layout.getAttribute("data-layout-direction")).toBe("rows")
-    expect(layout.getAttribute("data-resize-orientation")).toBe("vertical")
-    expect(groups.map((group) => group.getAttribute("data-layout-group-size"))).toEqual([
-      "3",
-      "2",
-    ])
-    expect(getNestedPanelGroups(workspace.container).map((group) =>
-      group.getAttribute("data-resize-orientation"),
-    )).toEqual(["horizontal", "horizontal"])
-    expect(getResizeHandles(workspace.container)).toHaveLength(4)
-    expect(panes).toHaveLength(5)
-  })
-
-  it("renders five portrait panes as two resizable columns", async () => {
-    stubPortraitOrientation(true)
-    const workspace = renderWorkspace({ paneCount: 5 })
-
-    await act(async () => {
-      await flushPromises()
-    })
-
-    const layout = getPaneLayout(workspace.container)
-    const groups = getLayoutGroups(layout)
-
-    expect(layout.getAttribute("data-layout-direction")).toBe("columns")
-    expect(layout.getAttribute("data-resize-orientation")).toBe("horizontal")
-    expect(groups.map((group) => group.getAttribute("data-layout-group-size"))).toEqual([
-      "3",
-      "2",
-    ])
-    expect(getNestedPanelGroups(workspace.container).map((group) =>
-      group.getAttribute("data-resize-orientation"),
-    )).toEqual(["vertical", "vertical"])
-    expect(getResizeHandles(workspace.container)).toHaveLength(4)
-  })
-
-  it("hides resize handles while the active pane is maximized", async () => {
-    const workspace = renderWorkspace({ paneCount: 3 })
-    const maximizeButton = workspace.container.querySelector(
-      'button[aria-label="Maximize pane"]',
-    ) as HTMLButtonElement | null
-
-    expect(maximizeButton).not.toBeNull()
-
-    await act(async () => {
-      maximizeButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
       await flushPromises()
     })
 
@@ -595,7 +451,7 @@ describe("Canvas", () => {
       showCanvasGrid: true,
       toolbarVariant: "desktop-zoom",
     })
-    const pane = getPaneSurfaces(workspace.container, 2)[0]
+    const pane = getPaneSurfaces(workspace.container, 1)[0]
     const gridButton = workspace.container.querySelector(
       'button[aria-label="Hide canvas grid"]',
     ) as HTMLButtonElement | null
@@ -618,7 +474,7 @@ describe("Canvas", () => {
       showCanvasGrid: false,
       toolbarVariant: "desktop-zoom",
     })
-    const pane = getPaneSurfaces(workspace.container, 2)[0]
+    const pane = getPaneSurfaces(workspace.container, 1)[0]
 
     expect(workspace.container.querySelector('button[aria-label="Show canvas grid"]')).not.toBeNull()
     expect(pane?.getAttribute("data-grid-visible")).toBe("false")
@@ -753,7 +609,6 @@ function renderWorkspace({
         onInsertLayer={onInsertLayer}
         insertNodeId={insertNodeId}
         onAddTextLayerAt={onAddTextLayerAt}
-        onSwapPanes={onSwapPanes}
         panes={nextPanes}
         selectedLayerId={selectedLayerId}
         selectedLayerIds={selectedLayerIds}
@@ -780,16 +635,23 @@ function renderWorkspace({
   return { container, render }
 }
 
-function createPanes(paneCount: number) {
-  return Array.from({ length: paneCount }, (_, index) => ({
-    cardState: createDefaultDraftingCardState(),
-    id: `pane-${index + 1}`,
-    name: index === 0 ? "QR Code" : `QR Code ${index + 1}`,
-    state: {
-      ...createDefaultQrStudioState(),
-      data: `https://${index + 1}.example`,
+function createPanes(_paneCount = 1) {
+  const state = {
+    ...createDefaultQrStudioState(),
+    data: "https://1.example",
+  }
+
+  return [
+    {
+      cardState: createDefaultDraftingCardState(),
+      id: "pane-1",
+      name: "QR Code",
+      qrStateByLayerId: {
+        "pane-1:qr": state,
+      },
+      state,
     },
-  }))
+  ]
 }
 
 function getPaneLayout(parent: ParentNode) {
@@ -827,7 +689,7 @@ function getQrNodes(parent: ParentNode) {
   ) as HTMLElement[]
 }
 
-function getPaneSurfaces(parent: ParentNode, expectedCount = 2) {
+function getPaneSurfaces(parent: ParentNode, expectedCount = 1) {
   const panes = Array.from(
     parent.querySelectorAll('[data-slot="desktop-compose-surface"]'),
   ) as HTMLElement[]

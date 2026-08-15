@@ -26,15 +26,18 @@ import {
   createDraftingTextLayer,
   createDraftingImageLayer,
   createDefaultDraftingLayers,
+  createDraftingQrLayer,
   DEFAULT_DRAFTING_TEXT_LAYER,
   distributeDraftingCanvasLayers,
   fitQrSizeInCard,
   getDraftingCardLayerId,
   getDraftingQrLayerId,
+  getQrCanvasLayers,
   groupDraftingCanvasLayers,
   isDraftingCardLayerId,
-  isProtectedDraftingLayerId,
   isDraftingQrLayerId,
+  isLayerDeletable,
+  isProtectedDraftingLayerId,
   layoutDraftingCardInsetLayers,
   patchDraftingCanvasLayer,
   reorderDraftingCanvasLayer,
@@ -219,7 +222,6 @@ import {
   parseDraftingLayerClipboardPayload,
   parseValueSegmentsText,
   patchDraftingLayerById,
-  swapDraftingQrNodeOrder,
   toDesktopLayerRow,
   type DraftingDownloadTarget,
 } from "@/features/workspace/components/workspace-surface-helpers"
@@ -257,6 +259,7 @@ export function WorkspaceSurface({
       selectedContentType,
       contentValuesByType,
       contentTypeByNodeId,
+      contentTypeByLayerId,
       selectedQrMargin,
       selectedQrRadius,
       selectedRasterExportQualityPercent,
@@ -315,7 +318,9 @@ export function WorkspaceSurface({
       selectedLogoOffsetX,
       selectedLogoOffsetY,
       selectedLogoCrossOrigin,
+      activeQrLayerId,
       activeQrNodeId,
+      qrStateByLayerId,
       qrStateByNodeId,
       selectedCardState,
       cardStateByNodeId,
@@ -344,6 +349,7 @@ export function WorkspaceSurface({
       setSelectedContentType,
       setContentValuesByType,
       setContentTypeByNodeId,
+      setContentTypeByLayerId,
       setSelectedQrMargin,
       setSelectedQrRadius,
       setSelectedRasterExportQualityPercent,
@@ -402,7 +408,9 @@ export function WorkspaceSurface({
       setSelectedLogoOffsetX,
       setSelectedLogoOffsetY,
       setSelectedLogoCrossOrigin,
+      setActiveQrLayerId,
       setActiveQrNodeId,
+      setQrStateByLayerId,
       setQrStateByNodeId,
       setSelectedCardState,
       setCardStateByNodeId,
@@ -632,11 +640,15 @@ export function WorkspaceSurface({
   )
   const isFreeEditing = editingMode === "free"
   const keyboardStateRef = useRef({
+    activeQrLayerId,
     activeQrNodeId,
     draftingStudioState,
     isFreeEditing,
     layerStateByNodeId,
-    qrNodeCount: Object.keys(qrStateByNodeId).length,
+    qrLayerCount: getQrCanvasLayers(
+      layerStateByNodeId[activeQrNodeId] ??
+        createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState),
+    ).length,
     selectedCardState,
     selectedLayerIds,
   })
@@ -682,17 +694,24 @@ export function WorkspaceSurface({
     sceneCompositionByNodeId[activeQrNodeId] ?? createDefaultSceneComposition(),
   )
 
-  const qrNodeIds = useMemo(() => Object.keys(qrStateByNodeId), [qrStateByNodeId])
+  const qrNodeIds = useMemo(() => [DASHBOARD_QR_NODE_ID], [])
+  const activeCanvasLayers =
+    layerStateByNodeId[activeQrNodeId] ??
+    createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+  const qrCanvasLayers = useMemo(
+    () => getQrCanvasLayers(activeCanvasLayers),
+    [activeCanvasLayers],
+  )
   const qrPaneNamesById = useMemo(() => {
     const next = new Map<string, string>()
 
-    qrNodeIds.forEach((nodeId, index) => {
-      next.set(nodeId, index === 0 ? "QR Code" : `QR Code ${index + 1}`)
+    qrCanvasLayers.forEach((layer, index) => {
+      next.set(layer.id, index === 0 ? "QR Code" : `QR Code ${index + 1}`)
     })
 
     return next
-  }, [qrNodeIds])
-  const activeQrDownloadTarget = getDraftingQrNodeDownloadTarget(activeQrNodeId)
+  }, [qrCanvasLayers])
+  const activeQrDownloadTarget = `qr:${activeQrLayerId}` as DraftingDownloadTarget
   const shouldMeasureActiveQrExport =
     selectedDownloadTarget === "current" ||
     selectedDownloadTarget === activeQrDownloadTarget
@@ -702,13 +721,15 @@ export function WorkspaceSurface({
     // buildDraftingWorkspaceDocument reads exactly the state listed here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
+      activeQrLayerId,
       activeQrNodeId,
       cardStateByNodeId,
+      contentTypeByLayerId,
       contentTypeByNodeId,
       contentValuesByType,
       draftingStudioState,
       layerStateByNodeId,
-      qrStateByNodeId,
+      qrStateByLayerId,
       sceneCompositionByNodeId,
       selectedCardState,
       selectedContentType,
@@ -1112,69 +1133,95 @@ export function WorkspaceSurface({
 
   function buildDraftingWorkspaceDocument(): DraftingWorkspaceDocumentV1 {
     return buildDraftingWorkspaceDocumentFromState({
+      activeQrLayerId,
       activeQrNodeId,
       cardStateByNodeId,
+      contentTypeByLayerId,
       contentTypeByNodeId,
       contentValuesByType,
       draftingStudioState,
       layerStateByNodeId,
-      qrStateByNodeId,
+      qrStateByLayerId,
       sceneCompositionByNodeId,
       selectedCardState,
       selectedContentType,
     })
   }
 
+  function persistActiveQrLayerState(nextState: QrStudioState = draftingStudioState) {
+    setQrStateByLayerId((current) => ({
+      ...current,
+      [activeQrLayerId]: cloneDraftingQrState(nextState),
+    }))
+    setContentTypeByLayerId((current) => ({
+      ...current,
+      [activeQrLayerId]: selectedContentType,
+    }))
+    setQrStateByNodeId({
+      [DASHBOARD_QR_NODE_ID]: cloneDraftingQrState(nextState),
+    })
+  }
+
+  function activateQrLayer(layerId: string) {
+    if (!isDraftingQrLayerId(layerId) || layerId === activeQrLayerId) {
+      return
+    }
+
+    shouldReplaceCurrentDraftingHistoryEntryRef.current = true
+    persistActiveQrLayerState()
+
+    const nextState =
+      qrStateByLayerId[layerId] ?? createDefaultDraftingWorkspaceQrState()
+    const nextContentType = contentTypeByLayerId[layerId] ?? DEFAULT_QR_INPUT_TYPE
+
+    setActiveQrLayerId(layerId)
+    applyDraftingQrStateToControls(nextState)
+    setSelectedContentType(nextContentType)
+    selectSingleLayer(layerId)
+  }
+
   function applyDraftingWorkspaceDocumentToControls(
     nextDocument: DraftingWorkspaceDocumentV1,
   ) {
-    const nextQrOrder = nextDocument.qrOrder.filter(
-      (nodeId) => nextDocument.qrStateByNodeId[nodeId],
-    )
-    const activeNodeId = nextDocument.qrStateByNodeId[nextDocument.activeQrNodeId]
-      ? nextDocument.activeQrNodeId
-      : (nextQrOrder[0] ?? DASHBOARD_QR_NODE_ID)
+    const nodeId = DASHBOARD_QR_NODE_ID
+    const activeNodeId = nodeId
+    const activeLayerId =
+      nextDocument.qrStateByLayerId[nextDocument.activeQrLayerId]
+        ? nextDocument.activeQrLayerId
+        : getDraftingQrLayerId(nodeId)
     const activeState =
-      nextDocument.qrStateByNodeId[activeNodeId] ?? createDefaultDraftingWorkspaceQrState()
+      nextDocument.qrStateByLayerId[activeLayerId] ?? createDefaultDraftingWorkspaceQrState()
     const activeCardState =
       nextDocument.cardStateByNodeId[activeNodeId] ?? createDefaultDraftingCardState()
-    const nextQrStateByNodeId: DraftingQrStateByNodeId = {}
-    const nextCardStateByNodeId: DraftingCardStateByNodeId = {}
-    const nextLayerStateByNodeId: DraftingLayerStateByNodeId = {}
 
-    for (const nodeId of nextQrOrder.length > 0 ? nextQrOrder : [activeNodeId]) {
-      nextQrStateByNodeId[nodeId] = cloneDraftingQrState(
-        nextDocument.qrStateByNodeId[nodeId] ?? activeState,
-      )
-      nextCardStateByNodeId[nodeId] = cloneDraftingCardState(
-        nextDocument.cardStateByNodeId[nodeId] ?? activeCardState,
-      )
-      nextLayerStateByNodeId[nodeId] = (
-        nextDocument.layerStateByNodeId[nodeId] ??
-        createDefaultDraftingLayers(
-          nodeId,
-          nextQrStateByNodeId[nodeId],
-          nextCardStateByNodeId[nodeId],
-        )
-      ).map(cloneDraftingCanvasLayer)
-    }
-
+    setActiveQrLayerId(activeLayerId)
     setActiveQrNodeId(activeNodeId)
-    setQrStateByNodeId(nextQrStateByNodeId)
-    setCardStateByNodeId(nextCardStateByNodeId)
-    setLayerStateByNodeId(nextLayerStateByNodeId)
+    setQrStateByLayerId(structuredClone(nextDocument.qrStateByLayerId))
+    setQrStateByNodeId({
+      [activeNodeId]: cloneDraftingQrState(activeState),
+    })
+    setCardStateByNodeId({
+      [activeNodeId]: cloneDraftingCardState(activeCardState),
+    })
+    setLayerStateByNodeId({
+      [activeNodeId]: (
+        nextDocument.layerStateByNodeId[activeNodeId] ??
+        createDefaultDraftingLayers(activeNodeId, activeState, activeCardState)
+      ).map(cloneDraftingCanvasLayer),
+    })
     setSceneCompositionByNodeId(
       cloneSceneCompositionByNodeId(
         nextDocument.sceneCompositionByNodeId ??
           createDefaultSceneCompositionByNodeId(nextDocument),
       ),
     )
+    setContentTypeByLayerId(structuredClone(nextDocument.contentTypeByLayerId))
     setContentTypeByNodeId(structuredClone(nextDocument.contentTypeByNodeId))
     setSelectedContentType(nextDocument.selectedContentType)
     setContentValuesByType(structuredClone(nextDocument.contentValuesByType))
     applyDraftingQrStateToControls(activeState)
     setSelectedCardState(cloneDraftingCardState(activeCardState))
-    selectSingleLayer(getDraftingQrLayerId(activeNodeId))
+    selectSingleLayer(activeLayerId)
   }
 
   function handleEditingModeChange(mode: WorkspaceEditingMode) {
@@ -1288,38 +1335,8 @@ export function WorkspaceSurface({
     void writeDraftingWorkspaceDraft(draftingWorkspaceDocument)
   }
 
-  function handlePaneSelection(paneId: string) {
+  function handlePaneSelection(_paneId: string) {
     draftingSurfaceRef.current?.focus({ preventScroll: true })
-
-    if (paneId === activeQrNodeId) {
-      return
-    }
-
-    shouldReplaceCurrentDraftingHistoryEntryRef.current = true
-
-    // Save current controls state to the old active pane
-    setContentTypeByNodeId((current) => ({
-      ...current,
-      [activeQrNodeId]: selectedContentType,
-    }))
-    setQrStateByNodeId((current) => ({
-      ...current,
-      [activeQrNodeId]: cloneDraftingQrState(draftingStudioState),
-    }))
-    setCardStateByNodeId((current) => ({
-      ...current,
-      [activeQrNodeId]: cloneDraftingCardState(selectedCardState),
-    }))
-
-    // Load the new pane's state into controls
-    const nextState = qrStateByNodeId[paneId] ?? draftingStudioState
-    const nextCardState = cardStateByNodeId[paneId] ?? selectedCardState
-    const nextContentType = contentTypeByNodeId[paneId] ?? DEFAULT_QR_INPUT_TYPE
-    setActiveQrNodeId(paneId)
-    applyDraftingQrStateToControls(nextState)
-    setSelectedContentType(nextContentType)
-    setSelectedCardState(cloneDraftingCardState(nextCardState))
-    selectSingleLayer(getDraftingQrLayerId(paneId))
   }
 
   function handlePaneQrClick(paneId: string) {
@@ -1335,9 +1352,16 @@ export function WorkspaceSurface({
     applyDraftingQrStateToControls(nextState)
     brandIconQueryRef.current = ""
     brandIconCategoryRef.current = "all"
+    setActiveQrLayerId(getDraftingQrLayerId(DASHBOARD_QR_NODE_ID))
     setActiveQrNodeId(DASHBOARD_QR_NODE_ID)
     setContentTypeByNodeId({
       [DASHBOARD_QR_NODE_ID]: DEFAULT_QR_INPUT_TYPE,
+    })
+    setContentTypeByLayerId({
+      [getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)]: DEFAULT_QR_INPUT_TYPE,
+    })
+    setQrStateByLayerId({
+      [getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)]: cloneDraftingQrState(nextState),
     })
     setQrStateByNodeId({
       [DASHBOARD_QR_NODE_ID]: cloneDraftingQrState(nextState),
@@ -1450,20 +1474,22 @@ export function WorkspaceSurface({
 
   useEffect(() => {
     keyboardStateRef.current = {
+      activeQrLayerId,
       activeQrNodeId,
       draftingStudioState,
       isFreeEditing,
       layerStateByNodeId,
-      qrNodeCount: qrNodeIds.length,
+      qrLayerCount: qrCanvasLayers.length,
       selectedCardState,
       selectedLayerIds,
     }
   }, [
+    activeQrLayerId,
     activeQrNodeId,
     draftingStudioState,
     isFreeEditing,
     layerStateByNodeId,
-    qrNodeIds.length,
+    qrCanvasLayers.length,
     selectedCardState,
     selectedLayerIds,
   ])
@@ -1560,7 +1586,7 @@ export function WorkspaceSurface({
 
       if (key === "d") {
         event.preventDefault()
-        void handleAddQrCode()
+        duplicateSelectedLayers()
         return
       }
 
@@ -1747,49 +1773,174 @@ export function WorkspaceSurface({
 
 
   async function handleAddQrCode() {
-    if (qrNodeIds.length >= 10) return
+    if (qrCanvasLayers.length >= 10) return
 
-    const sourceState = draftingStudioState
-    const nextNodeId = `${DASHBOARD_QR_NODE_ID}-${crypto.randomUUID()}`
+    persistActiveQrLayerState()
 
-    // Save current controls to active pane first
-    setQrStateByNodeId((current) => ({
+    const freshState = createDefaultDraftingWorkspaceQrState()
+    const layers =
+      layerStateByNodeId[activeQrNodeId] ??
+      createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+    const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1)
+    const nearLayer =
+      findDraftingLayerById(layers, activeQrLayerId) ??
+      qrCanvasLayers.at(-1) ??
+      undefined
+    const nextLayer = createDraftingQrLayer(
+      activeQrNodeId,
+      freshState,
+      selectedCardState,
+      {
+        nearLayer,
+        zIndex: maxZIndex + 1,
+      },
+    )
+
+    setQrStateByLayerId((current) => ({
       ...current,
-      [activeQrNodeId]: cloneDraftingQrState(draftingStudioState),
-      [nextNodeId]: cloneDraftingQrState(sourceState),
+      [nextLayer.id]: cloneDraftingQrState(freshState),
     }))
-    setCardStateByNodeId((current) => ({
+    setContentTypeByLayerId((current) => ({
       ...current,
-      [activeQrNodeId]: cloneDraftingCardState(selectedCardState),
-      [nextNodeId]: cloneDraftingCardState(selectedCardState),
-    }))
-    setContentTypeByNodeId((current) => ({
-      ...current,
-      [activeQrNodeId]: selectedContentType,
-      [nextNodeId]: selectedContentType,
+      [nextLayer.id]: DEFAULT_QR_INPUT_TYPE,
     }))
     setLayerStateByNodeId((current) => ({
       ...current,
-      [nextNodeId]: createDefaultDraftingLayers(
-        nextNodeId,
-        sourceState,
-        selectedCardState,
-      ),
-    }))
-    setSceneCompositionByNodeId((current) => ({
-      ...current,
-      [activeQrNodeId]: normalizeSceneComposition(
-        current[activeQrNodeId] ?? createDefaultSceneComposition(),
-      ),
-      [nextNodeId]: normalizeSceneComposition(
-        current[activeQrNodeId] ?? createDefaultSceneComposition(),
-      ),
+      [activeQrNodeId]: [...layers.map(cloneDraftingCanvasLayer), nextLayer],
     }))
 
-    setActiveQrNodeId(nextNodeId)
-    applyDraftingQrStateToControls(sourceState)
-    setSelectedCardState(cloneDraftingCardState(selectedCardState))
-    selectSingleLayer(getDraftingQrLayerId(nextNodeId))
+    setActiveQrLayerId(nextLayer.id)
+    applyDraftingQrStateToControls(freshState)
+    setSelectedContentType(DEFAULT_QR_INPUT_TYPE)
+    selectSingleLayer(nextLayer.id)
+  }
+
+  function duplicateSelectedLayers(layerIds = selectedLayerIds) {
+    if (layerIds.length === 0) {
+      return
+    }
+
+    persistActiveQrLayerState()
+
+    const layers =
+      layerStateByNodeId[activeQrNodeId] ??
+      createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+    const selectedIdSet = new Set(layerIds)
+    const selectedLayers = layers.filter((layer) => selectedIdSet.has(layer.id))
+
+    if (selectedLayers.length === 0) {
+      return
+    }
+
+    const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1)
+    const duplicatedLayers: DraftingCanvasLayer[] = []
+    const nextQrStateByLayerId: Record<string, QrStudioState> = {}
+    const nextContentTypeByLayerId: Record<string, QrInputType> = {}
+
+    selectedLayers.forEach((layer, index) => {
+      const duplicatedLayer = patchDraftingCanvasLayer(
+        {
+          ...cloneDraftingCanvasLayer(layer),
+          id: `${activeQrNodeId}:${layer.kind}:${Date.now()}-${index}`,
+          x: layer.x + DRAFTING_LAYER_PASTE_OFFSET,
+          y: layer.y + DRAFTING_LAYER_PASTE_OFFSET,
+          zIndex: maxZIndex + index + 1,
+        },
+        {},
+      )
+      duplicatedLayers.push(duplicatedLayer)
+
+      if (layer.kind === "qr") {
+        const sourceState =
+          layer.id === activeQrLayerId
+            ? draftingStudioState
+            : (qrStateByLayerId[layer.id] ?? draftingStudioState)
+        nextQrStateByLayerId[duplicatedLayer.id] = cloneDraftingQrState(sourceState)
+        nextContentTypeByLayerId[duplicatedLayer.id] =
+          contentTypeByLayerId[layer.id] ?? selectedContentType
+      }
+    })
+
+    if (Object.keys(nextQrStateByLayerId).length > 0) {
+      setQrStateByLayerId((current) => ({
+        ...current,
+        ...nextQrStateByLayerId,
+      }))
+      setContentTypeByLayerId((current) => ({
+        ...current,
+        ...nextContentTypeByLayerId,
+      }))
+    }
+
+    setLayerStateByNodeId((current) => ({
+      ...current,
+      [activeQrNodeId]: [
+        ...(current[activeQrNodeId] ?? layers).map(cloneDraftingCanvasLayer),
+        ...duplicatedLayers,
+      ],
+    }))
+
+    const nextActiveLayerId = duplicatedLayers.at(-1)?.id ?? activeQrLayerId
+    const nextActiveState =
+      nextQrStateByLayerId[nextActiveLayerId] ??
+      qrStateByLayerId[nextActiveLayerId] ??
+      draftingStudioState
+
+    if (nextActiveLayerId !== activeQrLayerId) {
+      setActiveQrLayerId(nextActiveLayerId)
+      applyDraftingQrStateToControls(nextActiveState)
+      setSelectedContentType(
+        nextContentTypeByLayerId[nextActiveLayerId] ??
+          contentTypeByLayerId[nextActiveLayerId] ??
+          selectedContentType,
+      )
+    }
+
+    applyLayerSelection(duplicatedLayers.map((layer) => layer.id))
+    draftingSurfaceRef.current?.focus({ preventScroll: true })
+  }
+
+  function handleRemoveQrCode(layerId: string) {
+    const layers =
+      layerStateByNodeId[activeQrNodeId] ??
+      createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+
+    if (!isLayerDeletable(layerId, layers)) {
+      return
+    }
+
+    const fallbackLayerId =
+      getQrCanvasLayers(layers).find((layer) => layer.id !== layerId)?.id ??
+      getDraftingQrLayerId(activeQrNodeId)
+
+    setLayerStateByNodeId((current) => ({
+      ...current,
+      [activeQrNodeId]: (current[activeQrNodeId] ?? layers).filter(
+        (layer) => layer.id !== layerId,
+      ),
+    }))
+    setQrStateByLayerId((current) => {
+      const next = { ...current }
+      delete next[layerId]
+      return next
+    })
+    setContentTypeByLayerId((current) => {
+      const next = { ...current }
+      delete next[layerId]
+      return next
+    })
+
+    if (layerId === activeQrLayerId) {
+      const fallbackState =
+        qrStateByLayerId[fallbackLayerId] ?? createDefaultDraftingWorkspaceQrState()
+      setActiveQrLayerId(fallbackLayerId)
+      applyDraftingQrStateToControls(fallbackState)
+      setSelectedContentType(contentTypeByLayerId[fallbackLayerId] ?? DEFAULT_QR_INPUT_TYPE)
+      selectSingleLayer(fallbackLayerId)
+      return
+    }
+
+    selectSingleLayer(fallbackLayerId)
   }
 
   function handleBrowseStockPhotos() {
@@ -1904,38 +2055,6 @@ export function WorkspaceSurface({
     draftingSurfaceRef.current?.focus({ preventScroll: true })
   }
 
-  function handleRemoveQrCode(paneId: string) {
-    setQrStateByNodeId((current) => {
-      const next = { ...current }
-      delete next[paneId]
-      return next
-    })
-    setCardStateByNodeId((current) => {
-      const next = { ...current }
-      delete next[paneId]
-      return next
-    })
-    setLayerStateByNodeId((current) => {
-      const next = { ...current }
-      delete next[paneId]
-      return next
-    })
-
-    if (activeQrNodeId === paneId) {
-      // Find fallback pane
-      const fallbackId = Object.keys(qrStateByNodeId).find(
-        (id) => id !== paneId,
-      ) ?? DASHBOARD_QR_NODE_ID
-      setActiveQrNodeId(fallbackId)
-      const fallbackState =
-        qrStateByNodeId[fallbackId] ?? createDefaultDraftingWorkspaceQrState()
-      const fallbackCardState = cardStateByNodeId[fallbackId] ?? createDefaultDraftingCardState()
-      applyDraftingQrStateToControls(fallbackState)
-      setSelectedCardState(cloneDraftingCardState(fallbackCardState))
-      selectSingleLayer(getDraftingQrLayerId(fallbackId))
-    }
-  }
-
   function handleLayerSelect(
     paneId: string,
     layerId: string | null,
@@ -1943,8 +2062,8 @@ export function WorkspaceSurface({
   ) {
     draftingSurfaceRef.current?.focus({ preventScroll: true })
 
-    if (paneId !== activeQrNodeId) {
-      handlePaneSelection(paneId)
+    if (layerId && isDraftingQrLayerId(layerId) && !options?.additive) {
+      activateQrLayer(layerId)
     }
 
     if (options?.additive && paneId === activeQrNodeId && layerId !== null) {
@@ -2092,7 +2211,6 @@ export function WorkspaceSurface({
       activeQrNodeId: currentActiveQrNodeId,
       draftingStudioState: currentDraftingStudioState,
       layerStateByNodeId: currentLayerStateByNodeId,
-      qrNodeCount: currentQrNodeCount,
       selectedCardState: currentSelectedCardState,
       selectedLayerIds: currentSelectedLayerIds,
     } = keyboardStateRef.current
@@ -2105,37 +2223,69 @@ export function WorkspaceSurface({
       )
     const selectedLayerIdSet = new Set(currentSelectedLayerIds)
     const removableLayerIds = layers.flatMap((layer) =>
-      selectedLayerIdSet.has(layer.id) && !isDraftingQrLayerId(layer.id) ? [layer.id] : [],
+      selectedLayerIdSet.has(layer.id) && isLayerDeletable(layer.id, layers) ? [layer.id] : [],
     )
 
-    if (removableLayerIds.length > 0) {
-      const removableLayerIdSet = new Set(removableLayerIds)
-      setLayerStateByNodeId((current) => {
-        const currentLayers =
-          current[currentActiveQrNodeId] ??
-          createDefaultDraftingLayers(
-            currentActiveQrNodeId,
-            currentDraftingStudioState,
-            currentSelectedCardState,
-          )
-
-        return {
-          ...current,
-          [currentActiveQrNodeId]: currentLayers.flatMap((layer) =>
-            removableLayerIdSet.has(layer.id) ? [] : [cloneDraftingCanvasLayer(layer)],
-          ),
-        }
-      })
-
-      applyLayerSelection(
-        selectedLayerIds.filter((layerId) => !removableLayerIdSet.has(layerId)),
-      )
+    if (removableLayerIds.length === 0) {
       return
     }
 
-    if (currentSelectedLayerIds.length === 0 && currentQrNodeCount > 1) {
-      handleRemoveQrCode(currentActiveQrNodeId)
+    const removableLayerIdSet = new Set(removableLayerIds)
+
+    setQrStateByLayerId((current) => {
+      const next = { ...current }
+      for (const layerId of removableLayerIds) {
+        if (isDraftingQrLayerId(layerId)) {
+          delete next[layerId]
+        }
+      }
+      return next
+    })
+    setContentTypeByLayerId((current) => {
+      const next = { ...current }
+      for (const layerId of removableLayerIds) {
+        if (isDraftingQrLayerId(layerId)) {
+          delete next[layerId]
+        }
+      }
+      return next
+    })
+    setLayerStateByNodeId((current) => {
+      const currentLayers =
+        current[currentActiveQrNodeId] ??
+        createDefaultDraftingLayers(
+          currentActiveQrNodeId,
+          currentDraftingStudioState,
+          currentSelectedCardState,
+        )
+
+      return {
+        ...current,
+        [currentActiveQrNodeId]: currentLayers.flatMap((layer) =>
+          removableLayerIdSet.has(layer.id) ? [] : [cloneDraftingCanvasLayer(layer)],
+        ),
+      }
+    })
+
+    const nextSelection = currentSelectedLayerIds.filter(
+      (layerId) => !removableLayerIdSet.has(layerId),
+    )
+    const fallbackLayerId =
+      getQrCanvasLayers(
+        layers.filter((layer) => !removableLayerIdSet.has(layer.id)),
+      ).at(-1)?.id ?? getDraftingQrLayerId(currentActiveQrNodeId)
+
+    if (removableLayerIdSet.has(activeQrLayerId)) {
+      const fallbackState =
+        qrStateByLayerId[fallbackLayerId] ?? createDefaultDraftingWorkspaceQrState()
+      setActiveQrLayerId(fallbackLayerId)
+      applyDraftingQrStateToControls(fallbackState)
+      setSelectedContentType(contentTypeByLayerId[fallbackLayerId] ?? DEFAULT_QR_INPUT_TYPE)
     }
+
+    applyLayerSelection(
+      nextSelection.length > 0 ? nextSelection : [fallbackLayerId],
+    )
   }
 
   function handleLayerChange(
@@ -2143,7 +2293,11 @@ export function WorkspaceSurface({
     layerId: string,
     patch: Partial<DraftingCanvasLayer>,
   ) {
-    if (isProtectedDraftingLayerId(layerId)) {
+    const layers =
+      layerStateByNodeId[paneId] ??
+      createDefaultDraftingLayers(paneId, draftingStudioState, selectedCardState)
+
+    if (isProtectedDraftingLayerId(layerId, layers)) {
       const { isLocked: _isLocked, isVisible: _isVisible, ...safePatch } = patch
       if (Object.keys(safePatch).length === 0) {
         return
@@ -2152,21 +2306,13 @@ export function WorkspaceSurface({
     }
 
     setLayerStateByNodeId((current) => {
-      const currentQrState =
-        paneId === activeQrNodeId
-          ? draftingStudioState
-          : (qrStateByNodeId[paneId] ?? createDefaultDraftingWorkspaceQrState())
-      const currentCardState =
-        paneId === activeQrNodeId
-          ? selectedCardState
-          : (cardStateByNodeId[paneId] ?? createDefaultDraftingCardState())
-      const layers =
+      const currentLayers =
         current[paneId] ??
-        createDefaultDraftingLayers(paneId, currentQrState, currentCardState)
+        createDefaultDraftingLayers(paneId, draftingStudioState, selectedCardState)
 
       return {
         ...current,
-        [paneId]: layers.map((layer) => patchDraftingLayerById(layer, layerId, patch)),
+        [paneId]: currentLayers.map((layer) => patchDraftingLayerById(layer, layerId, patch)),
       }
     })
   }
@@ -2284,12 +2430,34 @@ export function WorkspaceSurface({
       return
     }
 
+    const currentLayers =
+      layerStateByNodeId[paneId] ??
+      createDefaultDraftingLayers(paneId, draftingStudioState, selectedCardState)
+
     if (action === "delete") {
       const removableLayerIds = new Set(
-        layerIds.filter((layerId) => !isProtectedDraftingLayerId(layerId)),
+        layerIds.filter((layerId) => isLayerDeletable(layerId, currentLayers)),
       )
 
       if (removableLayerIds.size > 0) {
+        setQrStateByLayerId((current) => {
+          const next = { ...current }
+          for (const layerId of removableLayerIds) {
+            if (isDraftingQrLayerId(layerId)) {
+              delete next[layerId]
+            }
+          }
+          return next
+        })
+        setContentTypeByLayerId((current) => {
+          const next = { ...current }
+          for (const layerId of removableLayerIds) {
+            if (isDraftingQrLayerId(layerId)) {
+              delete next[layerId]
+            }
+          }
+          return next
+        })
         applyLayerSelection(
           selectedLayerIds.filter((layerId) => !removableLayerIds.has(layerId)),
         )
@@ -2297,17 +2465,9 @@ export function WorkspaceSurface({
     }
 
     setLayerStateByNodeId((current) => {
-      const currentQrState =
-        paneId === activeQrNodeId
-          ? draftingStudioState
-          : (qrStateByNodeId[paneId] ?? createDefaultDraftingWorkspaceQrState())
-      const currentCardState =
-        paneId === activeQrNodeId
-          ? selectedCardState
-          : (cardStateByNodeId[paneId] ?? createDefaultDraftingCardState())
       const layers =
         current[paneId] ??
-        createDefaultDraftingLayers(paneId, currentQrState, currentCardState)
+        createDefaultDraftingLayers(paneId, draftingStudioState, selectedCardState)
       const reorderActions: DraftingLayerReorderAction[] = [
         "back",
         "backward",
@@ -2330,7 +2490,9 @@ export function WorkspaceSurface({
       let nextLayers = layers
 
       if (reorderActions.includes(action as DraftingLayerReorderAction)) {
-        for (const layerId of layerIds.filter((id) => !isProtectedDraftingLayerId(id))) {
+        for (const layerId of layerIds.filter(
+          (id) => !isProtectedDraftingLayerId(id, layers),
+        )) {
           nextLayers = reorderDraftingCanvasLayer(
             nextLayers,
             layerId,
@@ -2360,7 +2522,7 @@ export function WorkspaceSurface({
         )
       } else if (action === "delete") {
         const removableLayerIds = new Set(
-          layerIds.filter((layerId) => !isProtectedDraftingLayerId(layerId)),
+          layerIds.filter((layerId) => isLayerDeletable(layerId, layers)),
         )
 
         if (removableLayerIds.size > 0) {
@@ -2370,7 +2532,7 @@ export function WorkspaceSurface({
         }
       } else {
         const actionableLayerIdSet = new Set(
-          layerIds.filter((layerId) => !isProtectedDraftingLayerId(layerId)),
+          layerIds.filter((layerId) => !isProtectedDraftingLayerId(layerId, layers)),
         )
 
         if (actionableLayerIdSet.size === 0) {
@@ -2408,26 +2570,30 @@ export function WorkspaceSurface({
     try {
       setExportDownloadError(null)
       if (selectedDownloadTarget === "all-qr") {
+        const exportLayers =
+          layerStateByNodeId[activeQrNodeId] ??
+          createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
         const nodes = await Promise.all(
-          Object.entries(qrStateByNodeId).map(async ([nodeId, state]) => {
-            const activeState = nodeId === activeQrNodeId ? draftingStudioState : state
-            const activeCardState =
-              nodeId === activeQrNodeId
-                ? selectedCardState
-                : (cardStateByNodeId[nodeId] ?? selectedCardState)
-            const activeLayers =
-              layerStateByNodeId[nodeId] ??
-              createDefaultDraftingLayers(nodeId, activeState, activeCardState)
+          qrCanvasLayers.map(async (layer) => {
+            const layerState =
+              layer.id === activeQrLayerId
+                ? draftingStudioState
+                : (qrStateByLayerId[layer.id] ?? draftingStudioState)
+            const isolatedLayers = exportLayers.map((entry) =>
+              cloneDraftingCanvasLayer({
+                ...entry,
+                isVisible:
+                  entry.kind === "card" || entry.id === layer.id ? entry.isVisible : false,
+              }),
+            )
 
             return await buildDraftingLayeredNodePayload({
-              cardState: activeCardState,
-              layers: activeLayers,
-              name: qrPaneNamesById.get(nodeId) ?? "QR Code",
-              nodeId,
-              sceneComposition: normalizeSceneComposition(
-                sceneCompositionByNodeId[nodeId] ?? createDefaultSceneComposition(),
-              ),
-              state: activeState,
+              cardState: selectedCardState,
+              layers: isolatedLayers,
+              name: qrPaneNamesById.get(layer.id) ?? "QR Code",
+              nodeId: activeQrNodeId,
+              sceneComposition: activeSceneComposition,
+              state: layerState,
             })
           }),
         )
@@ -2450,37 +2616,41 @@ export function WorkspaceSurface({
         selectedDownloadTarget === "current" ||
         selectedDownloadTarget.startsWith("qr:")
       ) {
-        const nodeId =
+        const layerId =
           selectedDownloadTarget === "current"
-            ? activeQrNodeId
+            ? activeQrLayerId
             : selectedDownloadTarget.slice("qr:".length)
-        const state = nodeId === activeQrNodeId ? draftingStudioState : qrStateByNodeId[nodeId]
+        const state =
+          layerId === activeQrLayerId
+            ? draftingStudioState
+            : qrStateByLayerId[layerId]
 
         if (!state) {
           throw new Error("The selected QR code is unavailable for export.")
         }
 
-        const activeCardState =
-          nodeId === activeQrNodeId
-            ? selectedCardState
-            : (cardStateByNodeId[nodeId] ?? selectedCardState)
         const activeLayers =
-          layerStateByNodeId[nodeId] ??
-          createDefaultDraftingLayers(nodeId, state, activeCardState)
+          layerStateByNodeId[activeQrNodeId] ??
+          createDefaultDraftingLayers(activeQrNodeId, state, selectedCardState)
+        const isolatedLayers = activeLayers.map((entry) =>
+          cloneDraftingCanvasLayer({
+            ...entry,
+            isVisible:
+              entry.kind === "card" || entry.id === layerId ? entry.isVisible : false,
+          }),
+        )
         const payload = await buildDraftingLayeredNodePayload({
-          cardState: activeCardState,
-          layers: activeLayers,
-          name: qrPaneNamesById.get(nodeId) ?? "QR Code",
-          nodeId,
-          sceneComposition: normalizeSceneComposition(
-            sceneCompositionByNodeId[nodeId] ?? createDefaultSceneComposition(),
-          ),
+          cardState: selectedCardState,
+          layers: isolatedLayers,
+          name: qrPaneNamesById.get(layerId) ?? "QR Code",
+          nodeId: activeQrNodeId,
+          sceneComposition: activeSceneComposition,
           state,
         })
 
         await downloadDashboardQrNodeExport({
           extension: selectedDownloadExtension,
-          name: qrPaneNamesById.get(nodeId) ?? "QR Code",
+          name: qrPaneNamesById.get(layerId) ?? "QR Code",
           node: payload,
           qualityPercent: draftingStudioState.rasterExportQualityPercent,
           targetDimensions: selectedPlatformExportDimensions,
@@ -2518,9 +2688,6 @@ export function WorkspaceSurface({
     }
   }
 
-  const activeCanvasLayers =
-    layerStateByNodeId[activeQrNodeId] ??
-    createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
   const activeCanvasLayerRows = [...activeCanvasLayers].sort(
     (a, b) => b.zIndex - a.zIndex,
   )
@@ -2538,40 +2705,32 @@ export function WorkspaceSurface({
     selectedLayerIds.length === 1 && selectedTextLayer ? selectedTextLayer : null
 
 
-  const panes = useMemo(
-    () =>
-      qrNodeIds.map((id) => {
-        const paneQrState = qrStateByNodeId[id] ?? draftingStudioState
-        const paneCardState =
-          id === activeQrNodeId
-            ? selectedCardState
-            : (cardStateByNodeId[id] ?? selectedCardState)
+  const panes = useMemo(() => {
+    const mergedQrStateByLayerId = {
+      ...qrStateByLayerId,
+      [activeQrLayerId]: draftingStudioState,
+    }
 
-        return {
-          cardState: paneCardState,
-          id,
-          layers:
-            layerStateByNodeId[id] ??
-            createDefaultDraftingLayers(id, paneQrState, paneCardState),
-          name: qrPaneNamesById.get(id) ?? "QR Code",
-          sceneComposition: normalizeSceneComposition(
-            sceneCompositionByNodeId[id] ?? createDefaultSceneComposition(),
-          ),
-          state: id === activeQrNodeId ? draftingStudioState : paneQrState,
-        }
-      }),
-    [
-      qrNodeIds,
-      qrPaneNamesById,
-      qrStateByNodeId,
-      cardStateByNodeId,
-      layerStateByNodeId,
-      activeQrNodeId,
-      draftingStudioState,
-      selectedCardState,
-      sceneCompositionByNodeId,
-    ],
-  )
+    return [
+      {
+        cardState: selectedCardState,
+        id: activeQrNodeId,
+        layers: activeCanvasLayers,
+        name: "QR Code",
+        qrStateByLayerId: mergedQrStateByLayerId,
+        sceneComposition: activeSceneComposition,
+        state: draftingStudioState,
+      },
+    ]
+  }, [
+    activeCanvasLayers,
+    activeQrLayerId,
+    activeQrNodeId,
+    activeSceneComposition,
+    draftingStudioState,
+    qrStateByLayerId,
+    selectedCardState,
+  ])
 
   const desktopActiveTool = desktopRailTool
   const gatedSelectedElementLayer = isFreeEditing ? selectedElementLayer : null
@@ -3423,11 +3582,12 @@ export function WorkspaceSurface({
                 onUndo: handleUndoDraftingWorkspace,
               }}
               qr={{
-                canAdd: qrNodeIds.length < 10,
+                canAdd: qrCanvasLayers.length < 10,
                 onAdd: () => {
                   void handleAddQrCode()
                 },
               }}
+              qrLayerCount={qrCanvasLayers.length}
               insertNodeId={activeQrNodeId}
               onBrowseStockPhotos={handleBrowseStockPhotos}
               onOpenCardPatternSettings={() => {
@@ -3459,19 +3619,6 @@ export function WorkspaceSurface({
               onPaneQrClick={handlePaneQrClick}
               onPaneSelect={handlePaneSelection}
               onRemoveQrCode={handleRemoveQrCode}
-              onSwapPanes={(sourcePaneId, targetPaneId) => {
-                const activeState = cloneDraftingQrState(draftingStudioState)
-
-                setQrStateByNodeId((current) =>
-                  swapDraftingQrNodeOrder(
-                    current,
-                    sourcePaneId,
-                    targetPaneId,
-                    activeQrNodeId,
-                    activeState,
-                  ),
-                )
-              }}
               panes={panes}
               previewLocked={!isFreeEditing}
               fitCanvasToViewport

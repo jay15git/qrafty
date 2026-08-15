@@ -1,10 +1,6 @@
 "use client"
 
-import {
-  useCallback,
-  useState,
-  useSyncExternalStore,
-} from "react"
+import { useCallback, useState } from "react"
 
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import {
@@ -22,15 +18,8 @@ import type {
   CanvasHistoryControls,
   CanvasQrControls,
 } from "@/features/workspace/components/canvas-control-props"
-import {
-  CanvasPaneLayout,
-  useCanvasPaneDrag,
-} from "@/features/workspace/components/canvas-pane-layout"
-import { getQrLayout } from "@/features/workspace/model/layout-engine"
+import { DraftingPaneSurface } from "@/features/workspace/components/DraftingPaneSurface"
 import { TooltipProvider } from "@/components/ui/tooltip"
-
-type DraftingPanelLayouts = Record<string, Record<string, number>>
-type DraftingPanePanOffsets = Record<string, { x: number; y: number }>
 
 export type { DraftingPaneCanvasTool, DraftingPaneToolbarVariant } from "@/features/workspace/components/DraftingPaneSurface"
 
@@ -45,10 +34,9 @@ type CanvasProps = {
   insertNodeId?: string
   onBrowseStockPhotos?: () => void
   onOpenCardPatternSettings?: () => void
-  onRemoveQrCode?: (paneId: string) => void
+  onRemoveQrCode?: (layerId: string) => void
   onPaneSelect: (paneId: string) => void
   onPaneQrClick: (paneId: string) => void
-  onSwapPanes?: (sourcePaneId: string, targetPaneId: string) => void
   onLayerChange?: (
     paneId: string,
     layerId: string,
@@ -82,18 +70,7 @@ type CanvasProps = {
   layerEditingEnabled?: boolean
   previewLocked?: boolean
   fitCanvasToViewport?: boolean
-}
-
-function getPortraitSnapshot() {
-  if (typeof window === "undefined" || !window.matchMedia) return false
-  return window.matchMedia("(orientation: portrait)").matches
-}
-
-function subscribePortrait(callback: () => void) {
-  if (typeof window === "undefined" || !window.matchMedia) return () => {}
-  const mql = window.matchMedia("(orientation: portrait)")
-  mql.addEventListener("change", callback)
-  return () => mql.removeEventListener("change", callback)
+  qrLayerCount?: number
 }
 
 function clampPreviewZoom(value: number) {
@@ -112,7 +89,6 @@ export function Canvas({
   onRemoveQrCode,
   onPaneSelect,
   onPaneQrClick,
-  onSwapPanes,
   onLayerChange,
   onLayerAction,
   onLayerCopy,
@@ -130,29 +106,14 @@ export function Canvas({
   layerEditingEnabled = true,
   previewLocked = false,
   fitCanvasToViewport = false,
+  qrLayerCount = 1,
 }: CanvasProps) {
   const [zoomLevels, setZoomLevels] = useState<Record<string, number>>({})
-  const [panOffsets, setPanOffsets] = useState<DraftingPanePanOffsets>({})
+  const [panOffsets, setPanOffsets] = useState<Record<string, { x: number; y: number }>>({})
   const [snapEnabled, setSnapEnabled] = useState(true)
-  const [maximizedPaneId, setMaximizedPaneId] = useState<string | null>(null)
-  const [panelLayouts, setPanelLayouts] = useState<DraftingPanelLayouts>({})
-  const isPortrait = useSyncExternalStore(
-    subscribePortrait,
-    getPortraitSnapshot,
-    () => false,
-  )
 
+  const activePane = panes.find((pane) => pane.id === activePaneId) ?? panes[0]
   const activeZoom = zoomLevels[activePaneId] ?? 1
-  const canSwapPanes = panes.length > 1 && Boolean(onSwapPanes)
-  const {
-    draggingPaneId,
-    snapTargetPaneId,
-    handlePaneDragEnd,
-    handlePaneDragLeave,
-    handlePaneDragOver,
-    handlePaneDragStart,
-    handlePaneDrop,
-  } = useCanvasPaneDrag({ canSwapPanes, onSwapPanes })
 
   const handleZoomOut = useCallback(() => {
     setZoomLevels((current) => ({
@@ -201,110 +162,58 @@ export function Canvas({
     : activeCanvasTool === "text"
       ? "text"
       : "select"
-  const isMaximized = maximizedPaneId !== null
-  const canRemove = panes.length > 1 && onRemoveQrCode
-  const visiblePanes = isMaximized
-    ? panes.filter((p) => p.id === activePaneId)
-    : panes
-  const layout = panes.length > 0
-    ? getQrLayout(isMaximized ? 1 : panes.length, isPortrait)
-    : null
-  const topLevelOrientation = layout?.direction === "rows" ? "vertical" : "horizontal"
-  const nestedOrientation = layout?.direction === "rows" ? "horizontal" : "vertical"
-  const layoutKey = layout
-    ? `${layout.direction}-${layout.groups.join("-")}`
-    : "empty"
-  const rootPanelGroupId = `drafting-pane-layout-${layoutKey}-root`
-
-  const handleToggleMaximize = useCallback(() => {
-    setMaximizedPaneId((current) => (current === null ? activePaneId : null))
-  }, [activePaneId])
-
-  const handlePanelLayoutChange = useCallback(
-    (groupId: string) => (nextLayout: Record<string, number>) => {
-      setPanelLayouts((current) => {
-        const previousLayout = current[groupId]
-
-        if (
-          previousLayout &&
-          Object.keys(previousLayout).length === Object.keys(nextLayout).length &&
-          Object.entries(nextLayout).every(
-            ([panelId, size]) => previousLayout[panelId] === size,
-          )
-        ) {
-          return current
-        }
-
-        return {
-          ...current,
-          [groupId]: nextLayout,
-        }
-      })
-    },
-    [],
-  )
+  const canRemoveQr =
+    qrLayerCount > 1 &&
+    Boolean(onRemoveQrCode) &&
+    Boolean(selectedLayerId) &&
+    Boolean(selectedLayerId?.includes(":qr"))
 
   return (
     <TooltipProvider>
       <div className="relative flex h-full w-full flex-col">
-        <div
-          className="relative min-h-0 flex-1"
-          onDrop={handlePaneDragEnd}
-          onDragOver={(event) => {
-            if (draggingPaneId) {
-              event.preventDefault()
-            }
-          }}
-        >
-          {panes.length === 0 ? (
+        <div className="relative min-h-0 flex-1">
+          {!activePane ? (
             <div className="grid h-full place-items-center text-sm font-medium text-[var(--ws-ink-muted)]">
               No QR codes
             </div>
           ) : (
-            layout ? (
-              <CanvasPaneLayout
-                activeCanvasTool={activeCanvasTool}
-                activePaneId={activePaneId}
-                canSwapPanes={canSwapPanes}
-                draggingPaneId={draggingPaneId}
-                fitCanvasToViewport={fitCanvasToViewport}
-                layerEditingEnabled={layerEditingEnabled}
-                layout={layout}
-                layoutKey={layoutKey}
-                nestedOrientation={nestedOrientation}
-                onAddTextLayerAt={onAddTextLayerAt}
-                onCanvasToolChange={onCanvasToolChange}
-                onLayerAction={onLayerAction}
-                onLayerChange={onLayerChange}
-                onLayerCopy={onLayerCopy}
-                onLayerPaste={onLayerPaste}
-                onLayerSelect={onLayerSelect}
-                onLayerSelectionChange={onLayerSelectionChange}
-                onPaneDragEnd={handlePaneDragEnd}
-                onPaneDragLeave={handlePaneDragLeave}
-                onPaneDragOver={handlePaneDragOver}
-                onPaneDragStart={handlePaneDragStart}
-                onPaneDrop={handlePaneDrop}
-                onPanePan={handlePanePan}
-                onPaneQrClick={onPaneQrClick}
-                onPaneSelect={onPaneSelect}
-                onPaneZoom={handlePaneZoom}
-                onPanelLayoutChange={handlePanelLayoutChange}
-                panOffsets={panOffsets}
-                panelLayouts={panelLayouts}
-                previewLocked={previewLocked}
-                rootPanelGroupId={rootPanelGroupId}
-                selectedLayerId={selectedLayerId}
-                selectedLayerIds={selectedLayerIds}
-                showCanvasGrid={showCanvasGrid}
-                snapEnabled={snapEnabled}
-                snapTargetPaneId={snapTargetPaneId}
-                toolbarVariant={toolbarVariant}
-                topLevelOrientation={topLevelOrientation}
-                visiblePanes={visiblePanes}
-                zoomLevels={zoomLevels}
-              />
-            ) : null
+            <DraftingPaneSurface
+              activeCanvasTool={activeCanvasTool}
+              fitCanvasToViewport={fitCanvasToViewport}
+              interaction={{
+                canSwap: false,
+                isSelected: true,
+                isSnapTarget: false,
+              }}
+              draggingPaneId={null}
+              layerEditingEnabled={layerEditingEnabled}
+              onAddTextLayerAt={onAddTextLayerAt}
+              onCanvasToolChange={onCanvasToolChange}
+              onLayerAction={onLayerAction}
+              onLayerChange={onLayerChange}
+              onLayerCopy={onLayerCopy}
+              onLayerPaste={onLayerPaste}
+              onLayerSelect={onLayerSelect}
+              onLayerSelectionChange={onLayerSelectionChange}
+              onPaneDragEnd={() => undefined}
+              onPaneDragLeave={() => undefined}
+              onPaneDragOver={() => undefined}
+              onPaneDragStart={() => undefined}
+              onPaneDrop={() => undefined}
+              onPanePan={handlePanePan}
+              onPaneQrClick={onPaneQrClick}
+              onPaneSelect={onPaneSelect}
+              onPaneZoom={handlePaneZoom}
+              pane={activePane}
+              panePan={panOffsets[activePane.id] ?? { x: 0, y: 0 }}
+              paneZoom={zoomLevels[activePane.id] ?? 1}
+              previewLocked={previewLocked}
+              selectedLayerId={selectedLayerId}
+              selectedLayerIds={selectedLayerIds}
+              showCanvasGrid={showCanvasGrid}
+              snapEnabled={snapEnabled}
+              toolbarVariant={toolbarVariant}
+            />
           )}
         </div>
 
@@ -314,10 +223,10 @@ export function Canvas({
           activePaneId={activePaneId}
           activeZoom={activeZoom}
           history={history}
-          canRemove={Boolean(canRemove)}
+          canRemove={canRemoveQr}
           insertNodeId={insertNodeId}
           isDesktopZoomToolbar={isDesktopZoomToolbar}
-          isMaximized={isMaximized}
+          isMaximized={false}
           qr={qr}
           onAddTextLayerAt={onAddTextLayerAt}
           onBrowseStockPhotos={onBrowseStockPhotos}
@@ -325,12 +234,16 @@ export function Canvas({
           onCanvasToolChange={onCanvasToolChange}
           onInsertLayer={onInsertLayer}
           onOpenCardPatternSettings={onOpenCardPatternSettings}
-          onRemoveQrCode={onRemoveQrCode}
+          onRemoveQrCode={
+            onRemoveQrCode && selectedLayerId
+              ? () => onRemoveQrCode(selectedLayerId)
+              : undefined
+          }
           onResetView={handleResetView}
-          onToggleMaximize={handleToggleMaximize}
+          onToggleMaximize={() => undefined}
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
-          paneCount={panes.length}
+          paneCount={1}
           previewLocked={previewLocked}
           showCanvasGrid={showCanvasGrid}
           snapEnabled={snapEnabled}

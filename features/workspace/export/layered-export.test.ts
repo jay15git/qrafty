@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest"
 
 const buildDashboardQrNodePayloadSpy = vi.fn()
 
-vi.mock("@/features/qr-code/rendering/qr-svg", () => ({
+vi.mock("@/features/qr-code/rendering/qr-svg-render", () => ({
   buildDashboardQrNodePayload: (
     ...args: Parameters<typeof buildDashboardQrNodePayloadSpy>
   ) => buildDashboardQrNodePayloadSpy(...args),
