@@ -19,7 +19,7 @@ import {
   DesktopKeyboardShortcutsTrigger,
   DesktopThemeToggleButton,
 } from "@/features/desktop-shell/components/DesktopChromeControls"
-import { DesktopCanvasRatioPresetRow } from "@/features/desktop-shell/components/DesktopCanvasRatioPresetRow"
+import { DesktopCanvasRatioPresetPopover } from "@/features/desktop-shell/components/DesktopCanvasRatioPresetRow"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import { DesktopUtilityToolbarButton } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
@@ -147,12 +147,16 @@ function DesktopHistoryActionButtons({
   canRedo,
   canUndo,
   onRedo,
+  onSelectSizeTemplate,
   onUndo,
+  sizePresetId,
 }: {
   canRedo?: boolean
   canUndo?: boolean
   onRedo?: () => void
+  onSelectSizeTemplate?: (template: SizeTemplate) => void
   onUndo?: () => void
+  sizePresetId?: string
 }) {
   return (
     <div
@@ -177,6 +181,12 @@ function DesktopHistoryActionButtons({
           <Redo2Icon className="size-3.5" />
         </DesktopUtilityToolbarButton>
       </DesktopTooltip>
+      {onSelectSizeTemplate ? (
+        <DesktopCanvasRatioPresetPopover
+          selectedPresetId={sizePresetId}
+          onSelectTemplate={onSelectSizeTemplate}
+        />
+      ) : null}
     </div>
   )
 }
@@ -269,7 +279,6 @@ export function DesktopDynamicIslandChrome({
   theme?: DesktopThemeMode
 }) {
   const hasAppearance = Boolean(isFreeEditingEnabled && appearance && onPatch)
-  const hasCanvasRatioControls = Boolean(onSelectSizeTemplate)
 
   return (
     <DynamicIsland
@@ -283,17 +292,10 @@ export function DesktopDynamicIslandChrome({
             canRedo={canRedo}
             canUndo={canUndo}
             onRedo={onRedo}
+            onSelectSizeTemplate={onSelectSizeTemplate}
             onUndo={onUndo}
+            sizePresetId={sizePresetId}
           />
-          {onSelectSizeTemplate ? (
-            <>
-              <DesktopDynamicIslandDivider />
-              <DesktopCanvasRatioPresetRow
-                selectedPresetId={sizePresetId}
-                onSelectTemplate={onSelectSizeTemplate}
-              />
-            </>
-          ) : null}
           {onFreeEditingChange ? (
             <>
               <DesktopDynamicIslandDivider />
@@ -325,10 +327,7 @@ export function DesktopDynamicIslandChrome({
         </div>
       }
       showViewControls={false}
-      className={cn(
-        hasAppearance && "min-w-[12rem]",
-        hasCanvasRatioControls && "min-w-[18rem]",
-      )}
+      className={cn(hasAppearance && "min-w-[12rem]")}
     />
   )
 }

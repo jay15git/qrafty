@@ -10,7 +10,6 @@ import { MoonIcon, SunIcon } from "lucide-react"
 import { useState, type ComponentProps, type CSSProperties } from "react"
 
 import { Kbd } from "@/components/kbd"
-import { CalligraphText } from "@/components/ui/calligraph-text"
 import {
   Popover,
   PopoverContent,
@@ -229,7 +228,7 @@ export function DesktopKeyboardShortcutsTrigger({
                                     size="md"
                                     variant="sculpted"
                                   >
-                                    <CalligraphText>{key}</CalligraphText>
+                                    {key}
                                   </Kbd>
                                 </span>
                               ))}
