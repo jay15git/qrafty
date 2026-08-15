@@ -221,7 +221,6 @@ function AccordionItem({
       </button>
 
       <m.div
-        layout
         ref={panelRef}
         id={panelId}
         role="region"
@@ -229,13 +228,16 @@ function AccordionItem({
         aria-hidden={!isOpen}
         data-slot="motion-accordion-panel"
         data-state={isOpen ? "open" : "closed"}
-        animate={{ opacity: isOpen ? 1 : 0 }}
+        animate={{
+          height: isOpen ? contentH : 0,
+          opacity: isOpen ? 1 : 0,
+        }}
         initial={false}
         transition={{
-          layout: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
+          height: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
           opacity: { duration: 0.2, ease: "easeOut" },
         }}
-        style={{ height: isOpen ? contentH : 0, overflow: "hidden" }}
+        style={{ overflow: "hidden" }}
       >
         <m.div
           ref={contentRef}
