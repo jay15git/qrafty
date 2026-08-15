@@ -375,6 +375,7 @@ export function useGradientPicker(
       lastEmittedRef.current = clean;
       onValueChangeRef.current?.(clean, formatGradient(clean));
     },
+    // eslint-disable-next-line react-doctor/exhaustive-deps -- idTrackedRef is read at invocation time
     [],
   );
 
@@ -391,6 +392,7 @@ export function useGradientPicker(
       apply(() => attachIds(next));
       setSelectedStopId((prev) => stateRef.current.stops[0]?.id ?? prev);
     },
+    // eslint-disable-next-line react-doctor/exhaustive-deps -- idTrackedRef is read at invocation time
     [apply],
   );
 

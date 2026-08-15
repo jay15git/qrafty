@@ -4,6 +4,7 @@ packages:
 
 minimumReleaseAge: 10080
 
+# trustPolicy: no-downgrade blocked by calligraph@1.4.1 and 4 transitive trust downgrades in lockfile.
 trustPolicy: warn
 
 allowBuilds:

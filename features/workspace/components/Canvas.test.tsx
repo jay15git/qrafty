@@ -486,10 +486,12 @@ describe("Canvas", () => {
     const onUndo = vi.fn()
     const onRedo = vi.fn()
     const workspace = renderWorkspace({
-      canRedo: true,
-      canUndo: true,
-      onRedo,
-      onUndo,
+      history: {
+        canRedo: true,
+        canUndo: true,
+        onRedo,
+        onUndo,
+      },
     })
 
     act(() => {
@@ -696,18 +698,15 @@ describe("Canvas", () => {
 
 function renderWorkspace({
   activeCanvasTool,
-  canRedo,
-  canUndo,
+  history,
+  qr,
   onCanvasToolChange,
   onCanvasGridChange,
-  onRedo,
   onAddTextLayerAt,
-  onAddQrCode,
   onInsertLayer = vi.fn(),
   insertNodeId = "pane-1",
   onLayerSelect,
   onSwapPanes = vi.fn(),
-  onUndo,
   paneCount = 2,
   panes = createPanes(paneCount),
   selectedLayerId,
@@ -718,18 +717,15 @@ function renderWorkspace({
   previewLocked,
 }: {
   activeCanvasTool?: ComponentProps<typeof Canvas>["activeCanvasTool"]
-  canRedo?: boolean
-  canUndo?: boolean
+  history?: ComponentProps<typeof Canvas>["history"]
+  qr?: ComponentProps<typeof Canvas>["qr"]
   onCanvasToolChange?: ComponentProps<typeof Canvas>["onCanvasToolChange"]
   onCanvasGridChange?: ComponentProps<typeof Canvas>["onCanvasGridChange"]
-  onRedo?: () => void
   onAddTextLayerAt?: ComponentProps<typeof Canvas>["onAddTextLayerAt"]
-  onAddQrCode?: ComponentProps<typeof Canvas>["onAddQrCode"]
   onInsertLayer?: ComponentProps<typeof Canvas>["onInsertLayer"]
   insertNodeId?: ComponentProps<typeof Canvas>["insertNodeId"]
   onLayerSelect?: (paneId: string, layerId: string | null) => void
   onSwapPanes?: (sourcePaneId: string, targetPaneId: string) => void
-  onUndo?: () => void
   paneCount?: number
   panes?: ReturnType<typeof createPanes>
   selectedLayerId?: ComponentProps<typeof Canvas>["selectedLayerId"]
@@ -747,20 +743,17 @@ function renderWorkspace({
       <Canvas
         activePaneId="pane-1"
         activeCanvasTool={activeCanvasTool}
-        canRedo={canRedo}
-        canUndo={canUndo}
-        onRedo={onRedo}
+        history={history}
+        qr={qr}
         onPaneQrClick={() => undefined}
         onPaneSelect={() => undefined}
         onLayerSelect={onLayerSelect}
         onCanvasGridChange={onCanvasGridChange}
         onCanvasToolChange={onCanvasToolChange}
-        onAddQrCode={onAddQrCode}
         onInsertLayer={onInsertLayer}
         insertNodeId={insertNodeId}
         onAddTextLayerAt={onAddTextLayerAt}
         onSwapPanes={onSwapPanes}
-        onUndo={onUndo}
         panes={nextPanes}
         selectedLayerId={selectedLayerId}
         selectedLayerIds={selectedLayerIds}

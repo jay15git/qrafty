@@ -1,7 +1,7 @@
 "use client"
 
 import { useLazyRef } from "@/hooks/use-lazy-ref"
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
+import { type ReactNode, useEffect, useMemo, useRef } from "react"
 
 import type {
   QrErrorCorrectionLevel,
@@ -107,7 +107,6 @@ import {
   type DraftingPaneToolbarVariant,
 } from "@/features/workspace/components/Canvas"
 import type {
-  DesktopAssetSourceMode,
   DesktopBackgroundInspectorTab,
   DesktopBackgroundSettings,
   DesktopCornersSettings,
@@ -223,9 +222,11 @@ import {
   toDesktopLayerRow,
   type DraftingDownloadTarget,
 } from "@/features/workspace/components/workspace-surface-helpers"
-
-type DraftingBinaryColorMode = "solid" | "gradient"
-type DraftingAssetSourceMode = Extract<AssetSourceMode, "upload" | "url">
+import {
+  type DraftingAssetSourceMode,
+  type DraftingBinaryColorMode,
+  useWorkspaceSurfaceReducer,
+} from "@/features/workspace/components/workspace-surface-reducer"
 type DraftingBrandIconCategoryFilter = BrandIconCategory | "all"
 
 type DraftingWorkspaceController = DesktopToolbarController
@@ -247,266 +248,202 @@ export function WorkspaceSurface({
   paneToolbarVariant = "default",
   renderOverlay,
 }: WorkspaceSurfaceProps = {}) {
-  const [desktopRailTool, setDesktopRailTool] = useState<DesktopToolbarToolId | null>(
-    () => initialActiveTool ?? "content",
-  )
-  const [backgroundInspectorTab, setBackgroundInspectorTab] =
-    useState<DesktopBackgroundInspectorTab>("paper")
-  const [composeSidebarPanel, setComposeSidebarPanel] = useState<ComposeSidebarPanel>(null)
-  const [selectedContentType, setSelectedContentType] = useState<QrInputType>(
-    DEFAULT_QR_INPUT_TYPE,
-  )
-  const [contentValuesByType, setContentValuesByType] =
-    useState<DraftingContentValuesByType>(() => ({
-      [DEFAULT_QR_INPUT_TYPE]: {
-        ...getDefaultStaticQrValues(DEFAULT_QR_INPUT_TYPE),
-        url: DEFAULT_DRAFTING_STUDIO_STATE.data,
-      },
-    }))
-  const [contentTypeByNodeId, setContentTypeByNodeId] = useState<Record<string, QrInputType>>(
-    () => ({
-      [DASHBOARD_QR_NODE_ID]: DEFAULT_QR_INPUT_TYPE,
-    }),
-  )
-  const [selectedQrMargin, setSelectedQrMargin] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.margin,
-  )
-  const [selectedQrRadius, setSelectedQrRadius] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.backgroundOptions.round,
-  )
-  const [selectedRasterExportQualityPercent, setSelectedRasterExportQualityPercent] =
-    useState(DEFAULT_DRAFTING_STUDIO_STATE.rasterExportQualityPercent)
-  const [selectedQrSize, setSelectedQrSize] = useState(
-    DEFAULT_DRAFTING_PANE_QR_SIZE,
-  )
-  const [selectedDotType, setSelectedDotType] = useState<StudioDataModulesStyle>("rounded")
-  const [selectedDotsColorMode, setSelectedDotsColorMode] = useState<DotsColorMode>(
-    DEFAULT_DRAFTING_STUDIO_STATE.dotsColorMode,
-  )
-  const [selectedDotColor, setSelectedDotColor] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.color,
-  )
-  const [selectedDotsGradient, setSelectedDotsGradient] = useState<StudioGradient>(
-    () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesGradient),
-  )
-  const [selectedDotsPalette, setSelectedDotsPalette] = useState<string[]>([
-    ...DEFAULT_DRAFTING_STUDIO_STATE.dotsPalette,
-  ])
-  const [selectedDotsPalettePreset, setSelectedDotsPalettePreset] = useState<string | "custom">("Signal")
-  const [selectedDotMatrixAnimation, setSelectedDotMatrixAnimation] =
-    useState<QrDotMatrixAnimationOptions>({
-      ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation,
-    })
+  const [
+    {
+      desktopRailTool,
+      backgroundInspectorTab,
+      composeSidebarPanel,
+      selectedContentType,
+      contentValuesByType,
+      contentTypeByNodeId,
+      selectedQrMargin,
+      selectedQrRadius,
+      selectedRasterExportQualityPercent,
+      selectedQrSize,
+      selectedDotType,
+      selectedDotsColorMode,
+      selectedDotColor,
+      selectedDotsGradient,
+      selectedDotsPalette,
+      selectedDotsPalettePreset,
+      selectedDotMatrixAnimation,
+      selectedQrFinderPatternOuterStyle,
+      selectedCornerSquareColorMode,
+      selectedCornerSquareColor,
+      selectedCornerSquareGradient,
+      selectedQrFinderPatternInnerStyle,
+      selectedCornerDotColorMode,
+      selectedCornerDotColor,
+      selectedCornerDotGradient,
+      selectedBackgroundColorMode,
+      selectedBackgroundColor,
+      selectedBackgroundTransparent,
+      selectedBackgroundGradient,
+      selectedBackgroundShapeId,
+      selectedBackgroundShapeOptions,
+      selectedBackgroundAssetSourceMode,
+      selectedBackgroundRemoteUrl,
+      selectedLogoColorMode,
+      selectedLogoSourceMode,
+      selectedLogoColor,
+      selectedLogoGradient,
+      selectedLogoPresetId,
+      selectedLogoPresetValue,
+      selectedLogoAssetSourceMode,
+      selectedLogoRemoteUrl,
+      selectedLogoUploadValue,
+      selectedLogoSize,
+      selectedLogoMargin,
+      selectedHideBackgroundDots,
+      selectedQrTypeNumber,
+      selectedQrErrorCorrectionLevel,
+      selectedBoostLevel,
+      selectedQrMode,
+      selectedValueSegmentsText,
+      selectedAriaLabel,
+      selectedModuleRoundSize,
+      selectedModuleSize,
+      selectedModuleLineWidth,
+      selectedGradientLinkMode,
+      selectedLogoOpacity,
+      selectedLogoSizeMode,
+      selectedLogoWidthPx,
+      selectedLogoHeightPx,
+      selectedLogoLockAspect,
+      selectedLogoPositionMode,
+      selectedLogoOffsetX,
+      selectedLogoOffsetY,
+      selectedLogoCrossOrigin,
+      activeQrNodeId,
+      qrStateByNodeId,
+      selectedCardState,
+      cardStateByNodeId,
+      sceneCompositionByNodeId,
+      layerStateByNodeId,
+      selectedLayerId,
+      selectedLayerIds,
+      editingMode,
+      desktopCanvasTool,
+      showDesktopCanvasGrid,
+      selectedDownloadExtension,
+      selectedDownloadTarget,
+      exportDownloadError,
+      selectedRasterExportPresetId,
+      selectedExportPresetId,
+      selectedUsePlatformExportPreset,
+      isDraftingWorkspaceReady,
+      draftingHistoryRevision,
+      logoUploadObjectUrl,
+    },
+    ,
+    {
+      setDesktopRailTool,
+      setBackgroundInspectorTab,
+      setComposeSidebarPanel,
+      setSelectedContentType,
+      setContentValuesByType,
+      setContentTypeByNodeId,
+      setSelectedQrMargin,
+      setSelectedQrRadius,
+      setSelectedRasterExportQualityPercent,
+      setSelectedQrSize,
+      setSelectedDotType,
+      setSelectedDotsColorMode,
+      setSelectedDotColor,
+      setSelectedDotsGradient,
+      setSelectedDotsPalette,
+      setSelectedDotsPalettePreset,
+      setSelectedDotMatrixAnimation,
+      setSelectedQrFinderPatternOuterStyle,
+      setSelectedCornerSquareColorMode,
+      setSelectedCornerSquareColor,
+      setSelectedCornerSquareGradient,
+      setSelectedQrFinderPatternInnerStyle,
+      setSelectedCornerDotColorMode,
+      setSelectedCornerDotColor,
+      setSelectedCornerDotGradient,
+      setSelectedBackgroundColorMode,
+      setSelectedBackgroundColor,
+      setSelectedBackgroundTransparent,
+      setSelectedBackgroundGradient,
+      setSelectedBackgroundShapeId,
+      setSelectedBackgroundShapeOptions,
+      setSelectedBackgroundAssetSourceMode,
+      setSelectedBackgroundRemoteUrl,
+      setSelectedLogoColorMode,
+      setSelectedLogoSourceMode,
+      setSelectedLogoColor,
+      setSelectedLogoGradient,
+      setSelectedLogoPresetId,
+      setSelectedLogoPresetValue,
+      setSelectedLogoAssetSourceMode,
+      setSelectedLogoRemoteUrl,
+      setSelectedLogoUploadValue,
+      setSelectedLogoSize,
+      setSelectedLogoMargin,
+      setSelectedHideBackgroundDots,
+      setSelectedQrTypeNumber,
+      setSelectedQrErrorCorrectionLevel,
+      setSelectedBoostLevel,
+      setSelectedQrMode,
+      setSelectedValueSegmentsText,
+      setSelectedAriaLabel,
+      setSelectedModuleRoundSize,
+      setSelectedModuleSize,
+      setSelectedModuleLineWidth,
+      setSelectedGradientLinkMode,
+      setSelectedLogoOpacity,
+      setSelectedLogoSizeMode,
+      setSelectedLogoWidthPx,
+      setSelectedLogoHeightPx,
+      setSelectedLogoLockAspect,
+      setSelectedLogoPositionMode,
+      setSelectedLogoOffsetX,
+      setSelectedLogoOffsetY,
+      setSelectedLogoCrossOrigin,
+      setActiveQrNodeId,
+      setQrStateByNodeId,
+      setSelectedCardState,
+      setCardStateByNodeId,
+      setSceneCompositionByNodeId,
+      setLayerStateByNodeId,
+      setSelectedLayerId,
+      setSelectedLayerIds,
+      setEditingMode,
+      setDesktopCanvasTool,
+      setShowDesktopCanvasGrid,
+      setSelectedDownloadExtension,
+      setSelectedDownloadTarget,
+      setExportDownloadError,
+      setSelectedRasterExportPresetId,
+      setSelectedExportPresetId,
+      setSelectedUsePlatformExportPreset,
+      setIsDraftingWorkspaceReady,
+      setDraftingHistoryRevision,
+      setLogoUploadObjectUrl,
+    },
+  ] = useWorkspaceSurfaceReducer(initialActiveTool)
   const openDotsColorItemsRef = useLazyRef(() => new Set<DotsColorMode>(["solid"]))
-  const [selectedQrFinderPatternOuterStyle, setSelectedQrFinderPatternOuterStyle] =
-    useState<QrFinderPatternOuterStyle>("rounded-lg")
-  const [selectedCornerSquareColorMode, setSelectedCornerSquareColorMode] =
-    useState<DraftingBinaryColorMode>(
-      DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterGradient.enabled ? "gradient" : "solid",
-    )
-  const [selectedCornerSquareColor, setSelectedCornerSquareColor] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterSettings.color,
-  )
-  const [selectedCornerSquareGradient, setSelectedCornerSquareGradient] =
-    useState<StudioGradient>(
-      () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterGradient),
-    )
   const openCornerSquareColorItemsRef = useLazyRef(
     () => new Set<DraftingBinaryColorMode>(["solid"]),
   )
-  const [selectedQrFinderPatternInnerStyle, setSelectedQrFinderPatternInnerStyle] =
-    useState<StudioCornerDotStyle>("circle")
-  const [selectedCornerDotColorMode, setSelectedCornerDotColorMode] =
-    useState<DraftingBinaryColorMode>(
-      DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerGradient.enabled ? "gradient" : "solid",
-    )
-  const [selectedCornerDotColor, setSelectedCornerDotColor] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerSettings.color,
-  )
-  const [selectedCornerDotGradient, setSelectedCornerDotGradient] =
-    useState<StudioGradient>(
-      () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerGradient),
-    )
   const openCornerDotColorItemsRef = useLazyRef(
     () => new Set<DraftingBinaryColorMode>(["solid"]),
   )
-  const [selectedBackgroundColorMode, setSelectedBackgroundColorMode] =
-    useState<DraftingBinaryColorMode>(
-      DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient.enabled ? "gradient" : "solid",
-    )
-  const [selectedBackgroundColor, setSelectedBackgroundColor] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.backgroundOptions.color,
-  )
-  const [selectedBackgroundTransparent, setSelectedBackgroundTransparent] =
-    useState(false)
-  const [selectedBackgroundGradient, setSelectedBackgroundGradient] =
-    useState<StudioGradient>(
-      () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient),
-    )
-  const [selectedBackgroundShapeId, setSelectedBackgroundShapeId] =
-    useState<QrBackgroundShapeId>(DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeId)
-  const [selectedBackgroundShapeOptions, setSelectedBackgroundShapeOptions] =
-    useState<BackgroundShapeOptions>(() => ({
-      ...DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeOptions,
-    }))
   const openBackgroundColorItemsRef = useLazyRef(
     () => new Set<DraftingBinaryColorMode>(["solid"]),
   )
-  const [selectedBackgroundAssetSourceMode, setSelectedBackgroundAssetSourceMode] =
-    useState<DraftingAssetSourceMode>(
-      DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.source === "url" ? "url" : "upload",
-    )
-  const [selectedBackgroundRemoteUrl, setSelectedBackgroundRemoteUrl] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.source === "url"
-      ? (DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.value ?? "")
-      : "",
-  )
   const openBackgroundUploadItemsRef = useLazyRef(
     () => new Set<DraftingAssetSourceMode>(["upload"]),
-  )
-  const [selectedLogoColorMode, setSelectedLogoColorMode] = useState<DraftingBinaryColorMode>(
-    DEFAULT_DRAFTING_STUDIO_STATE.logoGradient.enabled ? "gradient" : "solid",
-  )
-  const [selectedLogoSourceMode, setSelectedLogoSourceMode] = useState<AssetSourceMode>(
-    DEFAULT_DRAFTING_STUDIO_STATE.logo.source,
-  )
-  const [selectedLogoColor, setSelectedLogoColor] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.logo.presetColor ?? DEFAULT_BRAND_ICON_COLOR,
-  )
-  const [selectedLogoGradient, setSelectedLogoGradient] = useState<StudioGradient>(
-    () => structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.logoGradient),
   )
   const openLogoColorItemsRef = useLazyRef(
     () => new Set<DraftingBinaryColorMode>(["solid"]),
   )
   const brandIconQueryRef = useRef("")
   const brandIconCategoryRef = useRef<DraftingBrandIconCategoryFilter>("all")
-  const [selectedLogoPresetId, setSelectedLogoPresetId] = useState<string | undefined>(
-    DEFAULT_DRAFTING_STUDIO_STATE.logo.presetId,
-  )
-  const [selectedLogoPresetValue, setSelectedLogoPresetValue] = useState<string | undefined>(
-    DEFAULT_DRAFTING_STUDIO_STATE.logo.value,
-  )
-  const [selectedLogoAssetSourceMode, setSelectedLogoAssetSourceMode] =
-    useState<DraftingAssetSourceMode>(
-      DEFAULT_DRAFTING_STUDIO_STATE.logo.source === "url" ? "url" : "upload",
-    )
-  const [selectedLogoRemoteUrl, setSelectedLogoRemoteUrl] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.logo.source === "url"
-      ? (DEFAULT_DRAFTING_STUDIO_STATE.logo.value ?? "")
-      : "",
-  )
-  const [selectedLogoUploadValue, setSelectedLogoUploadValue] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.logo.source === "upload"
-      ? (DEFAULT_DRAFTING_STUDIO_STATE.logo.value ?? "")
-      : "",
-  )
   const openLogoUploadItemsRef = useLazyRef(
     () => new Set<DraftingAssetSourceMode>(["upload"]),
   )
-  const [selectedLogoSize, setSelectedLogoSize] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.imageSize * 100,
-  )
-  const [selectedLogoMargin, setSelectedLogoMargin] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.margin,
-  )
-  const [selectedHideBackgroundDots, setSelectedHideBackgroundDots] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.hideBackgroundDots,
-  )
-  const [selectedQrTypeNumber, setSelectedQrTypeNumber] = useState<QrTypeNumber>(
-    DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.typeNumber,
-  )
-  const [selectedQrErrorCorrectionLevel, setSelectedQrErrorCorrectionLevel] =
-    useState<QrErrorCorrectionLevel>(
-      DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.errorCorrectionLevel,
-    )
-  const [selectedBoostLevel, setSelectedBoostLevel] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.boostLevel,
-  )
-  const [selectedQrMode, setSelectedQrMode] = useState<QrMode>(
-    DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.mode,
-  )
-  const [selectedValueSegmentsText, setSelectedValueSegmentsText] = useState("")
-  const [selectedAriaLabel, setSelectedAriaLabel] = useState("")
-  const [selectedModuleRoundSize, setSelectedModuleRoundSize] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.roundSize,
-  )
-  const [selectedModuleSize, setSelectedModuleSize] = useState<number | undefined>(undefined)
-  const [selectedModuleLineWidth, setSelectedModuleLineWidth] = useState<number | undefined>(
-    undefined,
-  )
-  const [selectedGradientLinkMode, setSelectedGradientLinkMode] = useState<QrGradientLinkMode>(
-    DEFAULT_DRAFTING_STUDIO_STATE.gradientLinkMode,
-  )
-  const [selectedLogoOpacity, setSelectedLogoOpacity] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.opacity * 100,
-  )
-  const [selectedLogoSizeMode, setSelectedLogoSizeMode] = useState<QrLogoSizeMode>(
-    DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.sizeMode,
-  )
-  const [selectedLogoWidthPx, setSelectedLogoWidthPx] = useState<number | undefined>(undefined)
-  const [selectedLogoHeightPx, setSelectedLogoHeightPx] = useState<number | undefined>(undefined)
-  const [selectedLogoLockAspect, setSelectedLogoLockAspect] = useState(
-    DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.lockAspect,
-  )
-  const [selectedLogoPositionMode, setSelectedLogoPositionMode] = useState<QrLogoPositionMode>(
-    DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.logoPositionMode,
-  )
-  const [selectedLogoOffsetX, setSelectedLogoOffsetX] = useState(0)
-  const [selectedLogoOffsetY, setSelectedLogoOffsetY] = useState(0)
-  const [selectedLogoCrossOrigin, setSelectedLogoCrossOrigin] = useState<QrCrossOrigin>(
-    DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.crossOrigin,
-  )
-  const [activeQrNodeId, setActiveQrNodeId] = useState(DASHBOARD_QR_NODE_ID)
-  const [qrStateByNodeId, setQrStateByNodeId] = useState<DraftingQrStateByNodeId>(() => ({
-    [DASHBOARD_QR_NODE_ID]: createDefaultDraftingWorkspaceQrState(),
-  }))
-  const [selectedCardState, setSelectedCardState] = useState<DraftingCardState>(() =>
-    createDefaultDraftingCardState(),
-  )
-  const [cardStateByNodeId, setCardStateByNodeId] = useState<DraftingCardStateByNodeId>(() => ({
-    [DASHBOARD_QR_NODE_ID]: createDefaultDraftingCardState(),
-  }))
-  const [sceneCompositionByNodeId, setSceneCompositionByNodeId] =
-    useState<SceneCompositionByNodeId>(() => ({
-      [DASHBOARD_QR_NODE_ID]: createDefaultSceneComposition(),
-    }))
-  const [layerStateByNodeId, setLayerStateByNodeId] = useState<DraftingLayerStateByNodeId>(() => {
-    const qrState = createDefaultDraftingWorkspaceQrState()
-    const cardState = createDefaultDraftingCardState()
-
-    return {
-      [DASHBOARD_QR_NODE_ID]: createDefaultDraftingLayers(
-        DASHBOARD_QR_NODE_ID,
-        qrState,
-        cardState,
-      ),
-    }
-  })
-  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(() =>
-    getDraftingQrLayerId(DASHBOARD_QR_NODE_ID),
-  )
-  const [selectedLayerIds, setSelectedLayerIds] = useState<string[]>(() => [
-    getDraftingQrLayerId(DASHBOARD_QR_NODE_ID),
-  ])
-  const [editingMode, setEditingMode] = useState<WorkspaceEditingMode>(() =>
-    readWorkspaceEditingMode(),
-  )
-  const [desktopCanvasTool, setDesktopCanvasTool] = useState<DraftingPaneCanvasTool | null>(null)
-  const [showDesktopCanvasGrid, setShowDesktopCanvasGrid] = useState(true)
-  const [selectedDownloadExtension, setSelectedDownloadExtension] =
-    useState<DraftingDownloadExtension>("png")
-  const [selectedDownloadTarget, setSelectedDownloadTarget] =
-    useState<DraftingDownloadTarget>("current")
-  const [exportDownloadError, setExportDownloadError] = useState<string | null>(null)
-  const [selectedRasterExportPresetId, setSelectedRasterExportPresetId] =
-    useState<DraftingRasterExportPresetId>(DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID)
-  const [selectedExportPresetId, setSelectedExportPresetId] = useState<ExportPresetId | undefined>(
-    undefined,
-  )
-  const [selectedUsePlatformExportPreset, setSelectedUsePlatformExportPreset] = useState(false)
-  const [isDraftingWorkspaceReady, setIsDraftingWorkspaceReady] = useState(false)
-  const [draftingHistoryRevision, setDraftingHistoryRevision] = useState(0)
   const draftingWorkspaceAutosaveTimerRef = useRef<number | null>(null)
   const draftingWorkspaceHistoryTimerRef = useRef<number | null>(null)
   const draftingWorkspaceHistoryRef = useRef<DraftingWorkspaceDocumentV1[]>([])
@@ -517,7 +454,6 @@ export function WorkspaceSurface({
   const iconstackSvgCacheRef = useRef<Map<string, string>>(new Map())
   const draftingLayerClipboardRef = useRef<string>("")
   const logoUploadObjectUrlRef = useRef<string | null>(null)
-  const [logoUploadObjectUrl, setLogoUploadObjectUrl] = useState<string | null>(null)
   const selectedContentValues =
     contentValuesByType[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType)
   const selectedContentValue = useMemo(
@@ -2737,7 +2673,7 @@ export function WorkspaceSurface({
       selectedLogoOffsetY,
       selectedLogoOpacity,
       selectedLogoPositionMode,
-      selectedLogoPresetId,
+      selectedLogoPresetId: selectedLogoPresetId ?? null,
       selectedLogoRemoteUrl,
       selectedLogoSize,
       selectedLogoSizeMode,
@@ -3464,9 +3400,18 @@ export function WorkspaceSurface({
             {isDraftingWorkspaceReady ? (
             <Canvas
               activePaneId={activeQrNodeId}
-              canRedo={canRedoDraftingWorkspace}
-              canAddQrCode={qrNodeIds.length < 10}
-              canUndo={canUndoDraftingWorkspace}
+              history={{
+                canRedo: canRedoDraftingWorkspace,
+                canUndo: canUndoDraftingWorkspace,
+                onRedo: handleRedoDraftingWorkspace,
+                onUndo: handleUndoDraftingWorkspace,
+              }}
+              qr={{
+                canAdd: qrNodeIds.length < 10,
+                onAdd: () => {
+                  void handleAddQrCode()
+                },
+              }}
               insertNodeId={activeQrNodeId}
               onBrowseStockPhotos={handleBrowseStockPhotos}
               onOpenCardPatternSettings={() => {
@@ -3478,9 +3423,6 @@ export function WorkspaceSurface({
                 selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
                 setBackgroundInspectorTab("patterns")
                 setDesktopRailTool("background")
-              }}
-              onAddQrCode={() => {
-                void handleAddQrCode()
               }}
               onInsertLayer={isFreeEditing ? handleInsertLayer : undefined}
               layerEditingEnabled={isFreeEditing}
@@ -3500,7 +3442,6 @@ export function WorkspaceSurface({
               onLayerSelectionChange={handleLayerSelectionChange}
               onPaneQrClick={handlePaneQrClick}
               onPaneSelect={handlePaneSelection}
-              onRedo={handleRedoDraftingWorkspace}
               onRemoveQrCode={handleRemoveQrCode}
               onSwapPanes={(sourcePaneId, targetPaneId) => {
                 const activeState = cloneDraftingQrState(draftingStudioState)
@@ -3515,7 +3456,6 @@ export function WorkspaceSurface({
                   ),
                 )
               }}
-              onUndo={handleUndoDraftingWorkspace}
               panes={panes}
               previewLocked={!isFreeEditing}
               fitCanvasToViewport
