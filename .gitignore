@@ -56,12 +56,30 @@ next-env.d.ts
 /designs/image-import*.png
 /designs/image-import*.jpg
 
-# cursor IDE local artifacts (keep shared rules/hooks/mcp in repo)
+# cursor IDE local artifacts (keep shared rules/hooks in repo)
 .cursor/*
 !.cursor/rules/
 !.cursor/hooks/
 !.cursor/hooks.json
-!.cursor/mcp.json
+
+# Local agent / IDE tooling (not app source)
+.agents/
+.claude/settings.json
+.claude/skills/*
+!.claude/skills/gitnexus/
+skills-lock.json
+.mcp.json
+.cursorrules
+.windsurfrules
+.opencode.json
+GEMINI.md
+.factory/
+.junie/
+.kiro/
+.qoder/
+.qwen/
+.trae/
+.windsurf/
 
 # Template PNG renders (pnpm render:templates)
 .render/
