@@ -73,6 +73,7 @@ import {
 } from "@/features/workspace/model/scene-templates"
 import { getCanvasSizeFromTemplate } from "@/features/workspace/model/size-templates"
 import {
+  DEFAULT_WORKSPACE_EDITING_MODE,
   readWorkspaceEditingMode,
   writeWorkspaceEditingMode,
   type WorkspaceEditingMode,
@@ -454,6 +455,7 @@ export function WorkspaceSurface({
   const iconstackSvgCacheRef = useRef<Map<string, string>>(new Map())
   const draftingLayerClipboardRef = useRef<string>("")
   const logoUploadObjectUrlRef = useRef<string | null>(null)
+  const hasHydratedEditingModeRef = useRef(false)
   const selectedContentValues =
     contentValuesByType[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType)
   const selectedContentValue = useMemo(
@@ -1216,6 +1218,20 @@ export function WorkspaceSurface({
       setDesktopRailTool("layout")
     }
   }
+
+  useEffect(() => {
+    if (!isDraftingWorkspaceReady || hasHydratedEditingModeRef.current) {
+      return
+    }
+
+    hasHydratedEditingModeRef.current = true
+    const storedMode = readWorkspaceEditingMode()
+    if (storedMode !== DEFAULT_WORKSPACE_EDITING_MODE) {
+      handleEditingModeChange(storedMode)
+    }
+    // Persisted editing mode must hydrate after bootstrap so SSR and first paint match.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDraftingWorkspaceReady])
 
   function selectSingleLayer(layerId: string | null) {
     setSelectedLayerId(layerId)

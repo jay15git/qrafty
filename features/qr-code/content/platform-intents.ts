@@ -84,7 +84,6 @@ export type PlatformFieldDef = {
   key: string
   kind: FieldKind
   label: string
-  placeholder?: string
   required?: boolean
 }
 
@@ -113,15 +112,13 @@ const urlField = (label = "URL", required = true): PlatformFieldDef => ({
   key: "url",
   kind: "url",
   label,
-  placeholder: "https://example.com",
   required,
 })
 
-const textField = (key: string, label: string, placeholder?: string): PlatformFieldDef => ({
+const textField = (key: string, label: string): PlatformFieldDef => ({
   key,
   kind: "text",
   label,
-  placeholder,
 })
 
 function profileIntent(matchPath?: PlatformIntentDef["matchPath"]): PlatformIntentDef {
@@ -364,8 +361,8 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
         id: "chat",
         label: "Chat",
         fields: [
-          { key: "phone", kind: "phone", label: "Phone number", placeholder: "+91 98765 43210", required: true },
-          textField("message", "Message", "Hello"),
+          { key: "phone", kind: "phone", label: "Phone number", required: true },
+          textField("message", "Message"),
         ],
         build: (values) => {
           const url = stringFieldValue(values, "url")
@@ -612,9 +609,9 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
         id: "place",
         label: "Place",
         fields: [
-          textField("query", "Place", "Mumbai"),
-          textField("latitude", "Latitude", "19.0760"),
-          textField("longitude", "Longitude", "72.8777"),
+          textField("query", "Place"),
+          textField("latitude", "Latitude"),
+          textField("longitude", "Longitude"),
         ],
         build: (values) => {
           const url = stringFieldValue(values, "url")
@@ -639,9 +636,9 @@ export const PLATFORM_DEFS: readonly PlatformDef[] = [
         id: "coords",
         label: "Coordinates",
         fields: [
-          textField("latitude", "Latitude", "19.0760"),
-          textField("longitude", "Longitude", "72.8777"),
-          textField("query", "Label", ""),
+          textField("latitude", "Latitude"),
+          textField("longitude", "Longitude"),
+          textField("query", "Label"),
         ],
         build: (values) => {
           const lat = stringFieldValue(values, "latitude")

@@ -2,6 +2,7 @@ import type { DesktopToolbarToolId } from "@/features/desktop-shell/components/F
 
 export type WorkspaceEditingMode = "free" | "template"
 
+export const DEFAULT_WORKSPACE_EDITING_MODE: WorkspaceEditingMode = "free"
 export const WORKSPACE_EDITING_MODE_STORAGE_KEY = "desktop-workspace-editing-mode"
 
 const TEMPLATE_MODE_TOOL_IDS: DesktopToolbarToolId[] = [
@@ -25,11 +26,11 @@ function isWorkspaceEditingMode(value: unknown): value is WorkspaceEditingMode {
 
 export function readWorkspaceEditingMode(): WorkspaceEditingMode {
   if (typeof window === "undefined") {
-    return "free"
+    return DEFAULT_WORKSPACE_EDITING_MODE
   }
 
   const stored = window.localStorage.getItem(WORKSPACE_EDITING_MODE_STORAGE_KEY)
-  return isWorkspaceEditingMode(stored) ? stored : "free"
+  return isWorkspaceEditingMode(stored) ? stored : DEFAULT_WORKSPACE_EDITING_MODE
 }
 
 export function writeWorkspaceEditingMode(mode: WorkspaceEditingMode): void {

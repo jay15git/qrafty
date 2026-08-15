@@ -25,7 +25,7 @@ import {
 import type { SceneCompositionByNodeId } from "@/features/workspace/model/apply-scene-template"
 import { createDefaultSceneComposition } from "@/features/workspace/model/scene-templates"
 import {
-  readWorkspaceEditingMode,
+  DEFAULT_WORKSPACE_EDITING_MODE,
   type WorkspaceEditingMode,
 } from "@/features/workspace/model/workspace-editing-mode"
 import {
@@ -306,7 +306,7 @@ export function createInitialWorkspaceSurfaceState(
     },
     selectedLayerId: getDraftingQrLayerId(DASHBOARD_QR_NODE_ID),
     selectedLayerIds: [getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)],
-    editingMode: readWorkspaceEditingMode(),
+    editingMode: DEFAULT_WORKSPACE_EDITING_MODE,
     desktopCanvasTool: null,
     showDesktopCanvasGrid: true,
     selectedDownloadExtension: "png",

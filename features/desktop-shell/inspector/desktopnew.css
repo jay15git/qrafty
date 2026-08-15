@@ -491,6 +491,84 @@
   color: #f87171;
 }
 
+/* Spell UI components expect app-level shadcn tokens, not desktopnew remaps. */
+.desktopnew-root .spell-ui-scope {
+  color-scheme: light;
+  --spell-ui-label-bg: #ffffff;
+  --spell-ui-input-bg: var(--dn-control);
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.18 0 0);
+  --primary: oklch(0.18 0 0);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.22 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --accent: oklch(0.94 0 0);
+  --accent-foreground: oklch(0.22 0 0);
+  --border: oklch(0.9 0 0 / 0.9);
+  --input: oklch(0.96 0 0);
+  --ring: oklch(0.65 0 0);
+}
+
+.desktopnew-root .spell-ui-scope.dark {
+  color-scheme: dark;
+  --spell-ui-label-bg: var(--dn-surface);
+  --spell-ui-input-bg: var(--dn-control);
+  --background: oklch(0.15 0 0);
+  --foreground: oklch(0.96 0 0);
+  --primary: oklch(0.92 0 0);
+  --primary-foreground: oklch(0.18 0 0);
+  --secondary: oklch(0.24 0 0);
+  --secondary-foreground: oklch(0.96 0 0);
+  --muted: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.72 0 0);
+  --accent: oklch(0.25 0 0);
+  --accent-foreground: oklch(0.96 0 0);
+  --border: oklch(0.33 0 0 / 0.75);
+  --input: oklch(0.28 0 0 / 0.95);
+  --ring: oklch(0.72 0 0);
+}
+
+.desktopnew-root .spell-ui-scope input {
+  border: none !important;
+  border-radius: var(--dn-radius-xs);
+  background: var(--spell-ui-input-bg) !important;
+  font-size: var(--dn-type-value-size);
+  font-weight: var(--dn-type-value-weight);
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color) !important;
+  box-shadow: none !important;
+}
+
+.desktopnew-root .spell-ui-scope textarea {
+  border: none !important;
+  border-radius: var(--dn-radius-xs);
+  background: var(--spell-ui-input-bg) !important;
+  font-size: var(--dn-type-value-size);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1.25;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color) !important;
+  box-shadow: none !important;
+}
+
+.desktopnew-root .spell-ui-scope input:focus,
+.desktopnew-root .spell-ui-scope input:focus-visible,
+.desktopnew-root .spell-ui-scope textarea:focus,
+.desktopnew-root .spell-ui-scope textarea:focus-visible {
+  border: none !important;
+  outline: none;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+}
+
+.desktopnew-root .spell-ui-scope label {
+  background: transparent !important;
+  color: var(--dn-type-label-color) !important;
+}
+
 .dn-content-detection-chip {
   border: 1px solid var(--dn-line);
   background: var(--dn-control);

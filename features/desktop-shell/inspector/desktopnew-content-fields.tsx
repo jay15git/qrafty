@@ -3,6 +3,8 @@
 import { Sparkles } from "lucide-react"
 import { useMemo, useState, type ClipboardEvent } from "react"
 
+import { LabelInput } from "@/components/label-input"
+import { LabelTextarea } from "@/components/label-textarea"
 import { findBrandIconById } from "@/features/qr-code/assets/brand-icons"
 import {
   getDetectionChipLabel,
@@ -27,16 +29,53 @@ import {
   type StaticQrContentValue,
   type StaticQrContentValues,
 } from "@/features/qr-code/content/static-payload"
+import { SpellUiScope } from "@/features/desktop-shell/inspector/spell-ui-scope"
 import {
-  FieldLabel,
   OptionScrollRow,
-  SettingsInput,
   SettingsSwitchRow,
 } from "@/features/desktop-shell/inspector/settings-ui"
 import { cn } from "@/lib/utils"
 
+const FLOATING_LABEL_PLACEHOLDER = " "
+
+type ContentFieldGroup =
+  | { fields: [ContentFieldDefinition, ContentFieldDefinition]; kind: "pair" }
+  | { field: ContentFieldDefinition; kind: "single" }
+
 function stringContentValue(value: StaticQrContentValue | undefined) {
   return typeof value === "string" ? value : ""
+}
+
+function canPairFields(
+  left: ContentFieldDefinition,
+  right: ContentFieldDefinition | undefined,
+): right is ContentFieldDefinition {
+  return (
+    Boolean(right) &&
+    left.layout === "half" &&
+    right.layout === "half" &&
+    left.type === "text" &&
+    right.type === "text"
+  )
+}
+
+function groupContentFields(fields: ContentFieldDefinition[]): ContentFieldGroup[] {
+  const groups: ContentFieldGroup[] = []
+
+  for (let index = 0; index < fields.length; index += 1) {
+    const field = fields[index]
+    const nextField = fields[index + 1]
+
+    if (canPairFields(field, nextField)) {
+      groups.push({ kind: "pair", fields: [field, nextField] })
+      index += 1
+      continue
+    }
+
+    groups.push({ kind: "single", field })
+  }
+
+  return groups
 }
 
 function ContentFieldRow({
@@ -60,8 +99,8 @@ function ContentFieldRow({
 
   if (field.type === "segmented") {
     return (
-      <div className="flex flex-col gap-1.5">
-        {field.label ? <FieldLabel>{field.label}</FieldLabel> : null}
+      <div className="flex flex-col gap-1">
+        {field.label ? <span className="dn-type-meta px-0.5">{field.label}</span> : null}
         <OptionScrollRow
           items={field.options?.map((option) => option.label) ?? []}
           selected={
@@ -80,33 +119,29 @@ function ContentFieldRow({
 
   if (field.type === "textarea") {
     return (
-      <div className="flex flex-col gap-1.5">
-        {field.label ? <FieldLabel>{field.label}</FieldLabel> : null}
-        <textarea
-          aria-invalid={field.error ? true : undefined}
-          className="dn-settings-textarea w-full dn-squircle-sm"
+      <div className="min-w-0">
+        <LabelTextarea
           id={controlId}
-          placeholder={field.placeholder}
-          rows={3}
+          label={field.label}
+          placeholder={FLOATING_LABEL_PLACEHOLDER}
+          rows={2}
           value={stringContentValue(field.value)}
           onChange={(event) => onContentValueChange(field.id, event.currentTarget.value)}
         />
-        {field.error ? <p className="dn-field-error">{field.error}</p> : null}
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-1.5">
-      {field.label ? <FieldLabel>{field.label}</FieldLabel> : null}
-      <SettingsInput
-        aria-invalid={field.error ? true : undefined}
+    <div className="min-w-0">
+      <LabelInput
         id={controlId}
-        placeholder={field.placeholder}
+        label={field.label}
+        placeholder={FLOATING_LABEL_PLACEHOLDER}
+        type={field.inputKind ?? "text"}
         value={stringContentValue(field.value)}
         onChange={(event) => onContentValueChange(field.id, event.currentTarget.value)}
       />
-      {field.error ? <p className="dn-field-error">{field.error}</p> : null}
     </div>
   )
 }
@@ -239,33 +274,55 @@ export function DesktopNewContentFields({
     setDismissedDetectionSource(null)
   }
 
+  function handleFieldChange(fieldId: string, value: StaticQrContentValue) {
+    if (fieldId === "url" || fieldId === "username" || fieldId === "text") {
+      setDismissedDetectionSource(null)
+    }
+    onContentValueChange(fieldId, value)
+  }
+
+  const fieldGroups = useMemo(() => groupContentFields(fields), [fields])
+
   return (
-    <div
-      key={contentType}
-      className={cn("flex min-w-0 flex-col gap-2.5")}
-      data-slot="desktopnew-content-fields"
-      onPaste={handlePaste}
-    >
-      {fields.map((field) => (
-        <ContentFieldRow
-          key={`${contentType}-${field.id}`}
-          field={field}
-          onContentValueChange={(fieldId, value) => {
-            if (fieldId === "url" || fieldId === "username" || fieldId === "text") {
-              setDismissedDetectionSource(null)
-            }
-            onContentValueChange(fieldId, value)
-          }}
+    <SpellUiScope>
+      <div
+        key={contentType}
+        className={cn("flex min-w-0 flex-col gap-3 pt-1")}
+        data-slot="desktopnew-content-fields"
+        onPaste={handlePaste}
+      >
+        {fieldGroups.map((group) => {
+          if (group.kind === "pair") {
+            const [leftField, rightField] = group.fields
+            return (
+              <div
+                key={`${contentType}-${leftField.id}-${rightField.id}`}
+                className="grid min-w-0 grid-cols-2 gap-2"
+                data-slot="desktopnew-content-field-row"
+              >
+                <ContentFieldRow field={leftField} onContentValueChange={handleFieldChange} />
+                <ContentFieldRow field={rightField} onContentValueChange={handleFieldChange} />
+              </div>
+            )
+          }
+
+          return (
+            <ContentFieldRow
+              key={`${contentType}-${group.field.id}`}
+              field={group.field}
+              onContentValueChange={handleFieldChange}
+            />
+          )
+        })}
+        <ContentDetectionChip
+          contentType={contentType}
+          detection={urlDetection}
+          dismissed={isDetectionDismissed}
+          linkSource={linkSource}
+          onApplyDetectedType={handleApplyDetectedType}
+          onDismiss={() => setDismissedDetectionSource(linkSource)}
         />
-      ))}
-      <ContentDetectionChip
-        contentType={contentType}
-        detection={urlDetection}
-        dismissed={isDetectionDismissed}
-        linkSource={linkSource}
-        onApplyDetectedType={handleApplyDetectedType}
-        onDismiss={() => setDismissedDetectionSource(linkSource)}
-      />
-    </div>
+      </div>
+    </SpellUiScope>
   )
 }
