@@ -149,8 +149,8 @@ export function DraftingPaneViewport({
       className={cn(
         "relative flex h-full w-full touch-none flex-col items-center justify-center overflow-hidden transition-opacity duration-150 ease-out after:pointer-events-none after:absolute after:inset-0 after:border-2 after:border-dashed after:border-transparent after:content-[''] after:transition-colors after:duration-150 after:ease-out",
         isFreeEditWorkspace
-          ? "bg-[var(--ws-workspace-bg,#ffffff)]"
-          : "bg-[var(--ws-canvas-bg)]",
+          ? "bg-[var(--ws-workspace-bg,#f0f1f2)]"
+          : "bg-[var(--ws-canvas-bg,#f0f1f2)]",
         canSwap && "cursor-grab active:cursor-grabbing",
         draggingPaneId === pane.id && "opacity-55",
         isSnapTarget && "after:border-[var(--ws-ink)]",

@@ -27,9 +27,9 @@ export function DesktopWorkspace({
   const workspaceTone = {
     "--workspace-shell": desktopTheme === "light" ? "#ffffff" : "#07080a",
     "--workspace-page": desktopTheme === "light" ? "#ffffff" : "#07080a",
-    "--ws-canvas-bg": desktopTheme === "light" ? "#e7e9ec" : "#1f1f1f",
-    "--ws-workspace-bg": desktopTheme === "light" ? "#ffffff" : "#07080a",
-    "--ws-surface-bg": desktopTheme === "light" ? "#e7e9ec" : "#1f1f1f",
+    "--ws-canvas-bg": desktopTheme === "light" ? "#f0f1f2" : "#1f1f1f",
+    "--ws-workspace-bg": desktopTheme === "light" ? "#f0f1f2" : "#1f1f1f",
+    "--ws-surface-bg": desktopTheme === "light" ? "#f0f1f2" : "#1f1f1f",
   } as CSSProperties
 
   return (

@@ -47,6 +47,7 @@ import {
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
+import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
 import { cn } from "@/lib/utils"
 
 import "./desktopnew.css"
@@ -143,6 +144,7 @@ export function SettingsAccordion({
 
   const items = sections.map((section) => ({
     question: section,
+    icon: <SettingsSectionIconFor section={section} />,
     answer: (
       <div className={cn("flex w-full min-w-0 flex-col", DN_SECTION_GAP)}>
         {renderSection(section)}

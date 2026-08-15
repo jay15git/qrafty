@@ -26,10 +26,6 @@ import {
 import type { SceneCompositionByNodeId } from "@/features/workspace/model/apply-scene-template"
 import { createDefaultSceneComposition } from "@/features/workspace/model/scene-templates"
 import {
-  DEFAULT_WORKSPACE_EDITING_MODE,
-  type WorkspaceEditingMode,
-} from "@/features/workspace/model/workspace-editing-mode"
-import {
   DEFAULT_DRAFTING_PANE_QR_SIZE,
   DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID,
   DEFAULT_DRAFTING_STUDIO_STATE,
@@ -144,7 +140,6 @@ export type WorkspaceSurfaceState = {
   layerStateByNodeId: DraftingLayerStateByNodeId
   selectedLayerId: string | null
   selectedLayerIds: string[]
-  editingMode: WorkspaceEditingMode
   desktopCanvasTool: DraftingPaneCanvasTool | null
   showDesktopCanvasGrid: boolean
   selectedDownloadExtension: DraftingDownloadExtension
@@ -318,7 +313,6 @@ export function createInitialWorkspaceSurfaceState(
     },
     selectedLayerId: getDraftingQrLayerId(DASHBOARD_QR_NODE_ID),
     selectedLayerIds: [getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)],
-    editingMode: DEFAULT_WORKSPACE_EDITING_MODE,
     desktopCanvasTool: null,
     showDesktopCanvasGrid: true,
     selectedDownloadExtension: "png",
@@ -456,7 +450,6 @@ function createWorkspaceSurfaceSetters(
     setLayerStateByNodeId: (value) => setField("layerStateByNodeId", value),
     setSelectedLayerId: (value) => setField("selectedLayerId", value),
     setSelectedLayerIds: (value) => setField("selectedLayerIds", value),
-    setEditingMode: (value) => setField("editingMode", value),
     setDesktopCanvasTool: (value) => setField("desktopCanvasTool", value),
     setShowDesktopCanvasGrid: (value) => setField("showDesktopCanvasGrid", value),
     setSelectedDownloadExtension: (value) => setField("selectedDownloadExtension", value),

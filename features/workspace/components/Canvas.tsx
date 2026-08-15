@@ -221,7 +221,6 @@ export function Canvas({
           activeCanvasTool={activeCanvasTool}
           activeInteractionTool={activeInteractionTool}
           activePaneId={activePaneId}
-          activeZoom={activeZoom}
           history={history}
           canRemove={canRemoveQr}
           insertNodeId={insertNodeId}

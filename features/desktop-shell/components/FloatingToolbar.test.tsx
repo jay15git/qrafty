@@ -54,10 +54,10 @@ describe("FloatingToolbar", () => {
     expect(sectionHeaders.map((header) => header.textContent?.trim())).toEqual([
       "Content",
       "QR",
-      "Shape",
-      "Effects",
-      "Background",
       "Motion",
+      "Shape",
+      "Background",
+      "Effects",
       "Export",
     ])
     expect(surface.container.querySelector('[data-slot="desktop-inspector-accordion"]')).toBeNull()
@@ -81,44 +81,17 @@ describe("FloatingToolbar", () => {
     )
   })
 
-  it("renders the free edit toggle in the dynamic island", async () => {
-    const onEditingModeChange = vi.fn()
-    const surface = await renderPrototype({
-      controller: {
-        editingMode: "free",
-        isFreeEditingEnabled: true,
-        onEditingModeChange,
-      },
-    })
-
-    const toggle = surface.container.querySelector('[data-slot="desktop-free-edit-toggle"]')
-    const switchInput = surface.container.querySelector(
-      '[data-slot="desktop-free-edit-toggle"] [data-slot="switch"]',
-    )
-
-    expect(toggle).not.toBeNull()
-    expect(switchInput?.getAttribute("aria-checked")).toBe("true")
-
-    await act(async () => {
-      switchInput?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-    })
-
-    expect(onEditingModeChange).toHaveBeenCalledWith("template")
-  })
-
-  it("hides appearance controls in template mode even when a layer is selected", async () => {
+  it("shows appearance controls when a layer is selected", async () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Hello" })
     const surface = await renderPrototype({
       controller: {
         appearanceSnapshot: getDesktopAppearanceSnapshot(layer),
-        editingMode: "template",
-        isFreeEditingEnabled: false,
         onAppearancePatch: vi.fn(),
         selectedAppearanceLayer: layer,
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
   })
 
@@ -293,10 +266,10 @@ function getAccordionHeaders(container: HTMLElement) {
   const sectionLabels = new Set([
     "Content",
     "QR",
-    "Shape",
-    "Effects",
-    "Background",
     "Motion",
+    "Shape",
+    "Background",
+    "Effects",
     "Export",
   ])
 

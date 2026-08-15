@@ -89,10 +89,10 @@ const PREVIEW_ROW = "flex min-w-max gap-1.5 px-1 py-1.5"
 const SECTIONS = [
   "Content",
   "QR",
-  "Shape",
-  "Effects",
-  "Background",
   "Motion",
+  "Shape",
+  "Background",
+  "Effects",
   "Export",
 ] as const
 

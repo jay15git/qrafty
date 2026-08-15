@@ -16,7 +16,7 @@ export function DesktopWorkspaceStyles() {
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-surface"] {
         --ws-canvas-dot-rgb: 15 23 42;
         --ws-canvas-dot-opacity: 0.055;
-        background: #f8f8f7;
+        background: var(--ws-workspace-bg, #f0f1f2);
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="drafting-surface"] {
@@ -28,16 +28,16 @@ export function DesktopWorkspaceStyles() {
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-compose-surface"] {
-        background-color: #f0f1f2 !important;
+        background-color: var(--ws-workspace-bg, #f0f1f2) !important;
         border: 0 !important;
-        border-radius: 0 12px 12px 0 !important;
+        border-radius: 0 !important;
         box-shadow: 0 8px 8px rgba(15, 23, 42, 0.08) !important;
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-compose-surface"] {
         background-color: var(--ws-canvas-bg, #1f1f1f) !important;
         border: 0 !important;
-        border-radius: 0 12px 12px 0 !important;
+        border-radius: 0 !important;
         box-shadow: none !important;
       }
 
@@ -586,7 +586,7 @@ export function DesktopWorkspaceStyles() {
         }
 
         [data-slot="desktop-workspace"] [data-slot="desktop-compose-surface"] {
-          border-radius: 0 8px 8px 0 !important;
+          border-radius: 0 !important;
         }
       }
 

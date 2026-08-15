@@ -95,10 +95,6 @@ export function FloatingToolbar({
               appearance={controller?.appearanceSnapshot}
               canRedo={controller?.canRedo}
               canUndo={controller?.canUndo}
-              isFreeEditingEnabled={controller?.isFreeEditingEnabled ?? true}
-              onFreeEditingChange={(enabled) =>
-                controller?.onEditingModeChange?.(enabled ? "free" : "template")
-              }
               onPatch={controller?.onAppearancePatch}
               onRedo={controller?.onRedo}
               onSelectSizeTemplate={controller?.onSceneTemplateSizeTemplateSelect}

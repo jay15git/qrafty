@@ -283,23 +283,6 @@ describe("WorkspaceSurface", () => {
     expect(root.getAttribute("data-qr-content-value")).toBe("https://example.com/desktop-live")
   })
 
-  it("switches to template mode from the dynamic island free edit toggle", () => {
-    const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
-    const switchInput = getRequiredElement(
-      surface.container,
-      '[data-slot="desktop-free-edit-toggle"] [data-slot="switch"]',
-    )
-
-    act(() => {
-      activateElement(switchInput)
-    })
-
-    expect(window.localStorage.getItem("desktop-workspace-editing-mode")).toBe("template")
-    expect(getRequiredElement(surface.container, '[data-slot="drafting-surface"]').getAttribute("data-editing-mode")).toBe("template")
-    expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
-  })
-
   it("renders the desktop canvas resize toolbar and wires it to preview zoom", async () => {
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
@@ -344,33 +327,12 @@ describe("WorkspaceSurface", () => {
     expect(Array.from(historyActions.querySelectorAll("button")).map((button) => button.getAttribute("aria-label"))).toEqual([
       "Undo",
       "Redo",
+      "Canvas size — 4:3",
     ])
-    const resizeToolbar = getRequiredElement(surface.container, '[data-slot="desktop-resize-toolbar"]')
-    expect(resizeToolbar.parentElement?.className).toContain("bottom-4")
-    expect(resizeToolbar.parentElement?.className).toContain("right-5")
     expect(composeToolbar.parentElement?.className).toContain("top-1/2")
     expect(composeToolbar.parentElement?.className).toContain("-translate-y-1/2")
-    expect(resizeToolbar.parentElement).not.toBe(composeToolbar.parentElement)
-    expect(resizeToolbar.className).toContain("flex-col")
-    expect(resizeToolbar.className).toContain("min-w-11")
-    expect(resizeToolbar.getAttribute("data-toolbar-appearance")).toBe("desktop-glass")
-    expect(resizeToolbar.className).toContain("px-1")
-    expect(getRequiredElement(resizeToolbar, 'button[aria-label="Decrease canvas size"]').className).toContain("size-9")
-    expect(getRequiredElement(resizeToolbar, 'button[aria-label="Increase canvas size"]').className).toContain("size-9")
-    expect(resizeToolbar.querySelector('button[aria-label^="Choose canvas size"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-resize-toolbar"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-zoom-popover"]')).toBeNull()
-    expect(Array.from(resizeToolbar.querySelectorAll("button")).map((button) => button.getAttribute("aria-label"))).toEqual([
-      "Increase canvas size",
-      "Decrease canvas size",
-    ])
-
-    act(() => {
-      activateElement(getRequiredElement(surface.container, 'button[aria-label="Increase canvas size"]'))
-    })
-
-    act(() => {
-      activateElement(getRequiredElement(surface.container, 'button[aria-label="Decrease canvas size"]'))
-    })
   })
 
   it("opens keyboard shortcuts from the dynamic island toolbar", () => {

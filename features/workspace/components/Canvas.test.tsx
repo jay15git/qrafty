@@ -87,12 +87,12 @@ describe("Canvas", () => {
 
     expect(pane.getAttribute("data-surface-appearance")).toBe("workspace")
     expect(pane.getAttribute("data-preview-locked")).toBe("false")
-    expect(pane.className).toContain("bg-[var(--ws-workspace-bg,#ffffff)]")
+    expect(pane.className).toContain("bg-[var(--ws-workspace-bg,#f0f1f2)]")
     expect(pane.querySelector('[data-slot="free-edit-artboard"]')).not.toBeNull()
-    expect(workspace.container.querySelector('[data-slot="desktop-resize-toolbar"]')).not.toBeNull()
+    expect(workspace.container.querySelector('[data-slot="desktop-resize-toolbar"]')).toBeNull()
   })
 
-  it("blocks preview wheel zoom but keeps resize controls when preview is locked", async () => {
+  it("blocks preview wheel zoom when preview is locked", async () => {
     const workspace = renderWorkspace({
       paneCount: 1,
       previewLocked: true,
@@ -102,7 +102,7 @@ describe("Canvas", () => {
     const viewport = pane.querySelector('[data-slot="template-edit-zone"]') as HTMLElement
 
     expect(pane.getAttribute("data-preview-locked")).toBe("true")
-    expect(workspace.container.querySelector('[data-slot="desktop-resize-toolbar"]')).not.toBeNull()
+    expect(workspace.container.querySelector('[data-slot="desktop-resize-toolbar"]')).toBeNull()
     expect(workspace.container.querySelector('button[aria-label="Pan canvas"]')).toBeNull()
 
     await act(async () => {
@@ -121,19 +121,6 @@ describe("Canvas", () => {
     })
 
     expect(viewport.style.transform).toBe(transformBefore)
-
-    const zoomInButton = workspace.container.querySelector(
-      'button[aria-label="Increase canvas size"]',
-    ) as HTMLButtonElement | null
-
-    expect(zoomInButton).not.toBeNull()
-
-    await act(async () => {
-      zoomInButton?.click()
-      await flushPromises()
-    })
-
-    expect(viewport.style.transform).not.toBe(transformBefore)
   })
 
   it("zooms the active preview with the mouse wheel", async () => {
@@ -302,10 +289,6 @@ describe("Canvas", () => {
     ).toContain("cursor-")
     expect(
       workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')?.parentElement
-        ?.className,
-    ).toContain("z-[60]")
-    expect(
-      workspace.container.querySelector('[data-slot="desktop-resize-toolbar"]')?.parentElement
         ?.className,
     ).toContain("z-[60]")
 

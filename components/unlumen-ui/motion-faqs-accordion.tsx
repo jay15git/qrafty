@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 export interface MotionAccordionItem {
   question: React.ReactNode;
   answer: React.ReactNode;
+  icon?: React.ReactNode;
 }
 
 export interface MotionAccordionProps {
@@ -65,8 +66,13 @@ function AccordionItem({
         onClick={onToggle}
         className="flex w-full cursor-pointer select-none items-center justify-between gap-4 px-7 py-5 text-left"
       >
-        <span className="text-[clamp(1.2rem,1.6vw,1.3rem)] font-medium tracking-tight leading-snug">
-          {item.question}
+        <span className="inline-flex min-w-0 items-center gap-2 font-medium tracking-tight">
+          {item.icon ? (
+            <span aria-hidden className="dn-settings-section-icon-slot">
+              {item.icon}
+            </span>
+          ) : null}
+          <span className="truncate">{item.question}</span>
         </span>
 
         <m.span

@@ -9,9 +9,7 @@ import {
   MagnetIcon,
   Maximize2Icon,
   Minimize2Icon,
-  MinusIcon,
   MousePointer2Icon,
-  PlusIcon,
   Redo2Icon,
   Trash2Icon,
   TypeIcon,
@@ -24,7 +22,6 @@ import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import {
   DESKTOP_CANVAS_GLASS_TOOLBAR_VERTICAL_SHELL_CLASS,
   DESKTOP_COMPOSE_TOOLBAR_ICON_BUTTON_CLASS,
-  DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_CLASS,
 } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
 import type {
   CanvasHistoryControls,
@@ -91,7 +88,6 @@ type CanvasComposeToolbarProps = {
   activeCanvasTool?: DraftingPaneCanvasTool | null
   activeInteractionTool: "select" | "pan" | "text"
   activePaneId: string
-  activeZoom: number
   history?: CanvasHistoryControls
   qr?: CanvasQrControls
   canRemove: boolean
@@ -122,7 +118,6 @@ export function CanvasComposeToolbar({
   activeCanvasTool,
   activeInteractionTool,
   activePaneId,
-  activeZoom,
   history = { canUndo: false, canRedo: false },
   qr = { canAdd: true },
   canRemove,
@@ -469,38 +464,6 @@ export function CanvasComposeToolbar({
           ) : null}
         </div>
       </div>
-
-      {isDesktopZoomToolbar ? (
-        <div
-          data-slot="desktop-resize-toolbar-anchor"
-          className="pointer-events-none absolute bottom-4 right-5 z-[60] flex justify-end max-md:right-4"
-        >
-          <div
-            data-slot="desktop-resize-toolbar"
-            data-toolbar-appearance="desktop-glass"
-            className={cn("pointer-events-auto", DESKTOP_CANVAS_GLASS_TOOLBAR_VERTICAL_SHELL_CLASS)}
-          >
-            <button
-              aria-label="Increase canvas size"
-              className={DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_CLASS}
-              disabled={activeZoom >= MAX_PREVIEW_ZOOM}
-              type="button"
-              onClick={onZoomIn}
-            >
-              <PlusIcon className="size-3.5" strokeWidth={2.3} />
-            </button>
-            <button
-              aria-label="Decrease canvas size"
-              className={DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_CLASS}
-              disabled={activeZoom <= MIN_PREVIEW_ZOOM}
-              type="button"
-              onClick={onZoomOut}
-            >
-              <MinusIcon className="size-3.5" strokeWidth={2.6} />
-            </button>
-          </div>
-        </div>
-      ) : null}
     </>
   )
 }

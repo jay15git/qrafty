@@ -75,12 +75,6 @@ import {
   normalizeSceneComposition,
 } from "@/features/workspace/model/scene-templates"
 import { getCanvasSizeFromTemplate } from "@/features/workspace/model/size-templates"
-import {
-  DEFAULT_WORKSPACE_EDITING_MODE,
-  readWorkspaceEditingMode,
-  writeWorkspaceEditingMode,
-  type WorkspaceEditingMode,
-} from "@/features/workspace/model/workspace-editing-mode"
 import { writeDraftingWorkspaceDraft } from "@/features/workspace/model/storage"
 import { resolveWorkspaceBootstrapDocument } from "@/features/workspace/model/workspace-bootstrap"
 import {
@@ -328,7 +322,6 @@ export function WorkspaceSurface({
       layerStateByNodeId,
       selectedLayerId,
       selectedLayerIds,
-      editingMode,
       desktopCanvasTool,
       showDesktopCanvasGrid,
       selectedDownloadExtension,
@@ -418,7 +411,6 @@ export function WorkspaceSurface({
       setLayerStateByNodeId,
       setSelectedLayerId,
       setSelectedLayerIds,
-      setEditingMode,
       setDesktopCanvasTool,
       setShowDesktopCanvasGrid,
       setSelectedDownloadExtension,
@@ -463,7 +455,6 @@ export function WorkspaceSurface({
   const iconstackSvgCacheRef = useRef<Map<string, string>>(new Map())
   const draftingLayerClipboardRef = useRef<string>("")
   const logoUploadObjectUrlRef = useRef<string | null>(null)
-  const hasHydratedEditingModeRef = useRef(false)
   const selectedContentValues =
     contentValuesByType[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType)
   const selectedContentValue = useMemo(
@@ -638,12 +629,10 @@ export function WorkspaceSurface({
       selectedQrTypeNumber,
     ],
   )
-  const isFreeEditing = editingMode === "free"
   const keyboardStateRef = useRef({
     activeQrLayerId,
     activeQrNodeId,
     draftingStudioState,
-    isFreeEditing,
     layerStateByNodeId,
     qrLayerCount: getQrCanvasLayers(
       layerStateByNodeId[activeQrNodeId] ??
@@ -1224,62 +1213,6 @@ export function WorkspaceSurface({
     selectSingleLayer(activeLayerId)
   }
 
-  function handleEditingModeChange(mode: WorkspaceEditingMode) {
-    setEditingMode(mode)
-    writeWorkspaceEditingMode(mode)
-
-    if (mode === "template") {
-      selectSingleLayer(null)
-      setDesktopCanvasTool(null)
-      setComposeSidebarPanel(null)
-
-      const normalizedCardState = normalizeDraftingCardState({
-        ...selectedCardState,
-        lockAspectRatio: true,
-        sizeMode: "fixed",
-      })
-      const fittedQr = fitQrSizeInCard(draftingStudioState, normalizedCardState)
-      const nextQrState = {
-        ...draftingStudioState,
-        height: fittedQr.height,
-        width: fittedQr.width,
-      }
-
-      setSelectedCardState(normalizedCardState)
-      setSelectedQrSize(fittedQr.width)
-      setLayerStateByNodeId((layerState) => {
-        const layers =
-          layerState[activeQrNodeId] ??
-          createDefaultDraftingLayers(activeQrNodeId, nextQrState, normalizedCardState)
-
-        return {
-          ...layerState,
-          [activeQrNodeId]: layoutDraftingCardInsetLayers(
-            layers.map(cloneDraftingCanvasLayer),
-            nextQrState,
-            normalizedCardState,
-          ),
-        }
-      })
-
-      setDesktopRailTool("layout")
-    }
-  }
-
-  useEffect(() => {
-    if (!isDraftingWorkspaceReady || hasHydratedEditingModeRef.current) {
-      return
-    }
-
-    hasHydratedEditingModeRef.current = true
-    const storedMode = readWorkspaceEditingMode()
-    if (storedMode !== DEFAULT_WORKSPACE_EDITING_MODE) {
-      handleEditingModeChange(storedMode)
-    }
-    // Persisted editing mode must hydrate after bootstrap so SSR and first paint match.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDraftingWorkspaceReady])
-
   function selectSingleLayer(layerId: string | null) {
     setSelectedLayerId(layerId)
     setSelectedLayerIds(layerId ? [layerId] : [])
@@ -1477,7 +1410,6 @@ export function WorkspaceSurface({
       activeQrLayerId,
       activeQrNodeId,
       draftingStudioState,
-      isFreeEditing,
       layerStateByNodeId,
       qrLayerCount: qrCanvasLayers.length,
       selectedCardState,
@@ -1487,7 +1419,6 @@ export function WorkspaceSurface({
     activeQrLayerId,
     activeQrNodeId,
     draftingStudioState,
-    isFreeEditing,
     layerStateByNodeId,
     qrCanvasLayers.length,
     selectedCardState,
@@ -1514,10 +1445,6 @@ export function WorkspaceSurface({
       const usesModifier = event.metaKey || event.ctrlKey
 
       if (!usesModifier) {
-        if (!keyboardStateRef.current.isFreeEditing) {
-          return
-        }
-
         if (
           key === "arrowleft" ||
           key === "arrowright" ||
@@ -1587,10 +1514,6 @@ export function WorkspaceSurface({
       if (key === "d") {
         event.preventDefault()
         duplicateSelectedLayers()
-        return
-      }
-
-      if (!keyboardStateRef.current.isFreeEditing) {
         return
       }
 
@@ -1680,10 +1603,6 @@ export function WorkspaceSurface({
         return
       }
 
-      if (!keyboardStateRef.current.isFreeEditing) {
-        return
-      }
-
       const {
         activeQrNodeId: currentActiveQrNodeId,
         draftingStudioState: currentDraftingStudioState,
@@ -1714,10 +1633,6 @@ export function WorkspaceSurface({
 
     const handlePaste = (event: ClipboardEvent) => {
       if (!shouldUseDraftingClipboardEvent(event)) {
-        return
-      }
-
-      if (!keyboardStateRef.current.isFreeEditing) {
         return
       }
 
@@ -2733,12 +2648,9 @@ export function WorkspaceSurface({
   ])
 
   const desktopActiveTool = desktopRailTool
-  const gatedSelectedElementLayer = isFreeEditing ? selectedElementLayer : null
-  const gatedSelectedTransformLayer = isFreeEditing ? selectedTransformLayer : null
-  const gatedSelectedAppearanceLayer = isFreeEditing ? selectedTransformLayer : null
   const fallbackAppearanceLayer =
     activeCanvasLayers.find((layer) => layer.kind === "card") ?? null
-  const appearanceTargetLayer = gatedSelectedAppearanceLayer ?? fallbackAppearanceLayer
+  const appearanceTargetLayer = selectedTransformLayer ?? fallbackAppearanceLayer
   const desktopAppearanceSnapshot = appearanceTargetLayer
     ? getDesktopAppearanceSnapshot(appearanceTargetLayer, {
         cardCornerRadius:
@@ -3340,10 +3252,8 @@ export function WorkspaceSurface({
     encodedContentValue: selectedContentValue,
     encodingSettings: desktopEncodingSettings,
     accessibilitySettings: desktopAccessibilitySettings,
-    editingMode,
     exportSettings: desktopExportSettings,
     imageSettings: desktopImageSettings,
-    isFreeEditingEnabled: isFreeEditing,
     layoutSettings: desktopLayoutSettings,
     layersSettings: desktopLayersSettings,
     logoSettings: desktopLogoSettings,
@@ -3354,12 +3264,12 @@ export function WorkspaceSurface({
     textSettings: desktopTextSettings,
     insertNodeId: activeQrNodeId,
     composeSidebarPanel,
-    selectedElementLayer: gatedSelectedElementLayer,
-    selectedTransformLayer: gatedSelectedTransformLayer,
-    selectedAppearanceLayer: gatedSelectedAppearanceLayer,
+    selectedElementLayer,
+    selectedTransformLayer,
+    selectedAppearanceLayer: selectedTransformLayer,
     appearanceSnapshot: desktopAppearanceSnapshot,
     scanSafetyResult,
-    onInsertLayer: isFreeEditing ? handleInsertLayer : undefined,
+    onInsertLayer: handleInsertLayer,
     onOpenComposeSidebar: (panel) => {
       setComposeSidebarPanel(panel)
       selectSingleLayer(null)
@@ -3402,17 +3312,16 @@ export function WorkspaceSurface({
       })
     },
     onElementLayerPatch: (patch) => {
-      if (gatedSelectedElementLayer) {
-        handleLayerChange(activeQrNodeId, gatedSelectedElementLayer.id, patch)
+      if (selectedElementLayer) {
+        handleLayerChange(activeQrNodeId, selectedElementLayer.id, patch)
       }
     },
     onAppearancePatch: handleDesktopAppearancePatch,
     onTransformLayerPatch: (patch) => {
-      if (gatedSelectedTransformLayer) {
-        handleLayerChange(activeQrNodeId, gatedSelectedTransformLayer.id, patch)
+      if (selectedTransformLayer) {
+        handleLayerChange(activeQrNodeId, selectedTransformLayer.id, patch)
       }
     },
-    onEditingModeChange: handleEditingModeChange,
     onActiveToolChange: (toolId) => {
       setComposeSidebarPanel(null)
       setDesktopCanvasTool(null)
@@ -3544,7 +3453,6 @@ export function WorkspaceSurface({
       data-qr-size={selectedQrSize}
       data-qr-type-number={selectedQrTypeNumber}
       data-slot="drafting-surface"
-      data-editing-mode={editingMode}
       tabIndex={-1}
       className={cn(
         "relative grid h-dvh w-full overflow-visible bg-[var(--ws-surface-bg)] sm:h-dvh lg:shadow-[var(--ws-shadow-shell)]",
@@ -3600,15 +3508,15 @@ export function WorkspaceSurface({
                 setBackgroundInspectorTab("patterns")
                 setDesktopRailTool("background")
               }}
-              onInsertLayer={isFreeEditing ? handleInsertLayer : undefined}
-              layerEditingEnabled={isFreeEditing}
-              onLayerChange={isFreeEditing ? handleLayerChange : undefined}
-              onLayerAction={isFreeEditing ? handleLayerAction : undefined}
+              onInsertLayer={handleInsertLayer}
+              layerEditingEnabled
+              onLayerChange={handleLayerChange}
+              onLayerAction={handleLayerAction}
               onLayerCopy={(_paneId, layerIds) => {
                 void copySelectedDraftingLayers(layerIds, _paneId)
               }}
-              activeCanvasTool={isFreeEditing ? desktopCanvasTool : null}
-              onAddTextLayerAt={isFreeEditing ? handleAddTextLayerAt : undefined}
+              activeCanvasTool={desktopCanvasTool}
+              onAddTextLayerAt={handleAddTextLayerAt}
               onCanvasGridChange={setShowDesktopCanvasGrid}
               onCanvasToolChange={setDesktopCanvasTool}
               onLayerPaste={(_paneId, point) => {
@@ -3620,7 +3528,6 @@ export function WorkspaceSurface({
               onPaneSelect={handlePaneSelection}
               onRemoveQrCode={handleRemoveQrCode}
               panes={panes}
-              previewLocked={!isFreeEditing}
               fitCanvasToViewport
               showCanvasGrid={paneToolbarVariant === "desktop-zoom" ? showDesktopCanvasGrid : true}
               toolbarVariant={paneToolbarVariant}

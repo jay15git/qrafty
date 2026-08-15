@@ -4,9 +4,9 @@
   --ws-ink-rgb: 15 23 42;
   --ws-paper-rgb: 255 255 255;
   --ws-page-bg: #ffffff;
-  --ws-surface-bg: #f8f8f7;
+  --ws-surface-bg: #f0f1f2;
   --ws-canvas-bg: #f0f1f2;
-  --ws-workspace-bg: #ffffff;
+  --ws-workspace-bg: #f0f1f2;
   --ws-canvas-dot-rgb: var(--ws-ink-rgb);
   --ws-canvas-dot-opacity: 0.055;
   --ws-ink: #0f172a;
@@ -87,9 +87,9 @@
   --ws-ink-rgb: 245 245 245;
   --ws-paper-rgb: 7 8 10;
   --ws-page-bg: #07080a;
-  --ws-surface-bg: #07080a;
+  --ws-surface-bg: #1f1f1f;
   --ws-canvas-bg: #1f1f1f;
-  --ws-workspace-bg: #07080a;
+  --ws-workspace-bg: #1f1f1f;
   --ws-canvas-dot-opacity: 0.075;
   --ws-ink: #f5f5f5;
   --ws-resize-frame: #4ab8ff;

@@ -700,10 +700,27 @@
 }
 
 .dn-settings-accordion > div > div > button > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
   font-size: var(--dn-type-section);
   font-weight: 500;
   letter-spacing: var(--dn-tracking-tight);
   line-height: 1.25;
+}
+
+.dn-settings-accordion .dn-settings-section-icon-slot {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.dn-settings-accordion .dn-settings-section-icon {
+  display: block;
+  width: 0.875rem;
+  height: 0.875rem;
 }
 
 .dn-settings-accordion > div > div > button > span:last-child {

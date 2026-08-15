@@ -46,7 +46,6 @@ import { type QrInputType } from "@/features/qr-code/content/input-options"
 import { type ExportPresetId } from "@/features/workspace/model/export-presets"
 import type { SceneLayoutPreset } from "@/features/workspace/model/scene-templates"
 import type { ScanSafetyResult } from "@/features/qr-code/scan-safety/types"
-import { type WorkspaceEditingMode } from "@/features/workspace/model/workspace-editing-mode"
 
 type DesktopToolbarGroup = "QR" | "Add" | "Manage"
 export type ComposeSidebarPanel = "stock-photos" | null
@@ -286,8 +285,6 @@ export type DesktopToolbarController = {
   layoutSettings: DesktopLayoutSettings
   sceneTemplateSettings: DesktopSceneTemplateSettings
   textSettings: DesktopTextSettings
-  editingMode?: WorkspaceEditingMode
-  isFreeEditingEnabled?: boolean
   insertNodeId?: string
   composeSidebarPanel?: ComposeSidebarPanel
   selectedElementLayer?: DraftingCanvasLayer | null
@@ -303,7 +300,6 @@ export type DesktopToolbarController = {
   onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
-  onEditingModeChange?: (mode: WorkspaceEditingMode) => void
   onActiveToolChange: (toolId: DesktopToolbarToolId) => void
   onRedo?: () => void
   onSave?: () => void
