@@ -6,7 +6,6 @@ import type {
   PointerEvent as ReactPointerEvent,
   RefObject,
   TouchEvent,
-  WheelEvent,
 } from "react"
 
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
@@ -26,6 +25,7 @@ type DraftingPaneViewportProps = {
   effectiveZoom: number
   fitCanvasToViewport?: boolean
   hideLayerSelectionChrome: boolean
+  isBoundedCanvas: boolean
   isFreeEditWorkspace: boolean
   isPanning: boolean
   isSelected: boolean
@@ -71,7 +71,6 @@ type DraftingPaneViewportProps = {
   onSurfaceTouchEnd: (event: TouchEvent<HTMLDivElement>) => void
   onSurfaceTouchMove: (event: TouchEvent<HTMLDivElement>) => void
   onSurfaceTouchStart: (event: TouchEvent<HTMLDivElement>) => void
-  onSurfaceWheel?: (event: WheelEvent<HTMLDivElement>) => void
   onBeginPanePan: (event: ReactPointerEvent<HTMLDivElement>) => void
   pane: DraftingPane
   panOverlayRef: RefObject<HTMLDivElement | null>
@@ -93,6 +92,7 @@ export function DraftingPaneViewport({
   effectiveZoom,
   fitCanvasToViewport = false,
   hideLayerSelectionChrome,
+  isBoundedCanvas,
   isFreeEditWorkspace,
   isPanning,
   isSelected,
@@ -123,7 +123,6 @@ export function DraftingPaneViewport({
   onSurfaceTouchEnd,
   onSurfaceTouchMove,
   onSurfaceTouchStart,
-  onSurfaceWheel,
   pane,
   panOverlayRef,
   previewLocked = false,
@@ -141,6 +140,7 @@ export function DraftingPaneViewport({
       data-slot="desktop-compose-surface"
       data-surface-appearance={surfaceAppearance}
       data-preview-locked={previewLocked ? "true" : "false"}
+      data-bounded-canvas={isBoundedCanvas ? "true" : "false"}
       data-dragging={draggingPaneId === pane.id ? "true" : "false"}
       data-grid-visible={showCanvasGrid ? "true" : "false"}
       data-panning={isPanning ? "true" : "false"}
@@ -157,8 +157,9 @@ export function DraftingPaneViewport({
       )}
       style={{
         gridArea: areaName,
+        overscrollBehavior: "contain",
         backgroundImage:
-          showCanvasGrid && !isFreeEditWorkspace && !previewLocked
+          showCanvasGrid && !isFreeEditWorkspace && !previewLocked && !isBoundedCanvas
             ? "radial-gradient(circle, rgb(var(--ws-canvas-dot-rgb) / var(--ws-canvas-dot-opacity)) 2.4px, transparent 3px)"
             : "none",
         backgroundPosition: "0 0",
@@ -181,7 +182,6 @@ export function DraftingPaneViewport({
       onTouchEnd={onSurfaceTouchEnd}
       onTouchMove={onSurfaceTouchMove}
       onTouchStart={onSurfaceTouchStart}
-      onWheel={onSurfaceWheel}
     >
       <div
         data-slot={
@@ -191,14 +191,19 @@ export function DraftingPaneViewport({
               ? "free-edit-artboard"
               : undefined
         }
-        style={{
-          transform: `translate3d(${effectivePan.x}px, ${effectivePan.y}px, 0) scale(${effectiveZoom})`,
-          transformOrigin: "center center",
-          transition: "transform 150ms ease-out",
-        }}
+        style={
+          isBoundedCanvas
+            ? undefined
+            : {
+                transform: `translate3d(${effectivePan.x}px, ${effectivePan.y}px, 0) scale(${effectiveZoom})`,
+                transformOrigin: "center center",
+                transition: "transform 150ms ease-out",
+              }
+        }
         className="flex h-full w-full items-center justify-center"
       >
         <Pane
+          artboardZoom={isBoundedCanvas}
           cardState={pane.cardState}
           interactionScale={effectiveZoom}
           layers={pane.layers}
@@ -231,7 +236,7 @@ export function DraftingPaneViewport({
           selectedLayerIds={isSelected && !hideLayerSelectionChrome ? selectedLayerIds : undefined}
         />
       </div>
-      {activeCanvasTool === "pan" && !previewLocked ? (
+      {activeCanvasTool === "pan" && !previewLocked && !isBoundedCanvas ? (
         <div
           ref={panOverlayRef}
           aria-hidden="true"

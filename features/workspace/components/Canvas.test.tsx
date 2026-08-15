@@ -73,6 +73,60 @@ describe("Canvas", () => {
     expect(getResizeHandles(workspace.container)).toHaveLength(0)
   })
 
+  it("uses a bounded artboard when fit to viewport is enabled", async () => {
+    const workspace = renderWorkspace({
+      fitCanvasToViewport: true,
+      layerEditingEnabled: true,
+      paneCount: 1,
+      previewLocked: false,
+      toolbarVariant: "desktop-zoom",
+    })
+    const [pane] = getPaneSurfaces(workspace.container, 1)
+
+    await act(async () => {
+      await flushPromises()
+    })
+
+    expect(pane.getAttribute("data-bounded-canvas")).toBe("true")
+    expect(pane.getAttribute("data-surface-appearance")).toBe("neutral")
+    expect(pane.querySelector('[data-slot="template-edit-zone"]')).not.toBeNull()
+    expect(pane.querySelector('[data-slot="free-edit-artboard"]')).toBeNull()
+    expect(pane.querySelector('[data-renderer="konva"]')).not.toBeNull()
+    expect(pane.querySelector('[data-slot="desktop-compose-artboard"]')).not.toBeNull()
+  })
+
+  it("applies bounded wheel zoom through the Konva renderer", async () => {
+    const workspace = renderWorkspace({
+      fitCanvasToViewport: true,
+      paneCount: 1,
+      toolbarVariant: "desktop-zoom",
+    })
+    const [pane] = getPaneSurfaces(workspace.container, 1)
+    const viewport = pane.querySelector('[data-slot="template-edit-zone"]') as HTMLElement
+    const artboard = pane.querySelector('[data-slot="desktop-compose-artboard"]') as HTMLElement
+    const konvaCanvas = pane.querySelector('[data-renderer="konva"]') as HTMLElement
+
+    await act(async () => {
+      await flushPromises()
+    })
+
+    expect(viewport.style.transform).toBe("")
+    expect(konvaCanvas).not.toBeNull()
+    const initialHeight = artboard.style.height
+
+    await act(async () => {
+      pane.dispatchEvent(new WheelEvent("wheel", {
+        bubbles: true,
+        cancelable: true,
+        deltaY: -100,
+      }))
+      await flushPromises()
+    })
+
+    expect(artboard.style.height).not.toBe(initialHeight)
+    expect(viewport.style.transform).toBe("")
+  })
+
   it("uses a fixed white workspace surface in free edit mode", async () => {
     const workspace = renderWorkspace({
       layerEditingEnabled: true,
@@ -390,7 +444,6 @@ describe("Canvas", () => {
     ).toBe(true)
     expect(Array.from(composeToolbar?.querySelectorAll("button") ?? []).map((button) => button.getAttribute("aria-label"))).toEqual([
       "Select and move elements",
-      "Pan canvas",
       "Disable snapping",
       "Hide canvas grid",
       "Add text on canvas",
@@ -398,11 +451,11 @@ describe("Canvas", () => {
     ])
   })
 
-  it("renders desktop select and pan tool buttons and wires mode changes", () => {
+  it("renders the desktop select tool and wires mode changes", () => {
     const onCanvasToolChange = vi.fn()
     const container = renderComposeToolbar({
-      activeCanvasTool: "pan",
-      activeInteractionTool: "pan",
+      activeCanvasTool: "select",
+      activeInteractionTool: "select",
       activePaneId: "pane-1",
       canRemove: false,
       insertNodeId: "pane-1",
@@ -425,17 +478,14 @@ describe("Canvas", () => {
     ) as HTMLButtonElement | null
 
     expect(selectButton).not.toBeNull()
-    expect(panButton).not.toBeNull()
-    expect(selectButton?.getAttribute("aria-pressed")).toBe("false")
-    expect(panButton?.getAttribute("aria-pressed")).toBe("true")
+    expect(panButton).toBeNull()
+    expect(selectButton?.getAttribute("aria-pressed")).toBe("true")
 
     act(() => {
       selectButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-      panButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
-    expect(onCanvasToolChange).toHaveBeenNthCalledWith(1, "select")
-    expect(onCanvasToolChange).toHaveBeenNthCalledWith(2, "pan")
+    expect(onCanvasToolChange).toHaveBeenCalledWith("select")
   })
 
   it("wires the desktop compose grid toggle", () => {
@@ -576,6 +626,7 @@ describe("Canvas", () => {
 
 function renderWorkspace({
   activeCanvasTool,
+  fitCanvasToViewport,
   history,
   qr,
   onCanvasToolChange,
@@ -595,6 +646,7 @@ function renderWorkspace({
   previewLocked,
 }: {
   activeCanvasTool?: ComponentProps<typeof Canvas>["activeCanvasTool"]
+  fitCanvasToViewport?: ComponentProps<typeof Canvas>["fitCanvasToViewport"]
   history?: ComponentProps<typeof Canvas>["history"]
   qr?: ComponentProps<typeof Canvas>["qr"]
   onCanvasToolChange?: ComponentProps<typeof Canvas>["onCanvasToolChange"]
@@ -621,6 +673,7 @@ function renderWorkspace({
       <Canvas
         activePaneId="pane-1"
         activeCanvasTool={activeCanvasTool}
+        fitCanvasToViewport={fitCanvasToViewport}
         history={history}
         qr={qr}
         onPaneQrClick={() => undefined}

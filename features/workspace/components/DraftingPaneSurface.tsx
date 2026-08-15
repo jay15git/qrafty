@@ -139,6 +139,7 @@ export function DraftingPaneSurface({
       effectiveZoom={interactions.effectiveZoom}
       fitCanvasToViewport={fitCanvasToViewport}
       hideLayerSelectionChrome={interactions.hideLayerSelectionChrome}
+      isBoundedCanvas={interactions.isBoundedCanvas}
       isFreeEditWorkspace={interactions.isFreeEditWorkspace}
       isPanning={interactions.isPanning}
       isSelected={isSelected}
@@ -169,7 +170,6 @@ export function DraftingPaneSurface({
       onSurfaceTouchEnd={interactions.handleTouchEnd}
       onSurfaceTouchMove={interactions.handleTouchMove}
       onSurfaceTouchStart={interactions.handleTouchStart}
-      onSurfaceWheel={previewLocked ? undefined : interactions.handleWheel}
       pane={pane}
       panOverlayRef={interactions.panOverlayRef}
       previewLocked={previewLocked}

@@ -26,6 +26,7 @@ export default defineConfig({
     ],
   },
   test: {
+    setupFiles: ["./test/setup-konva.ts"],
     exclude: [
       "packages/qr/vendor/**",
       "packages/qr-scene*/**",

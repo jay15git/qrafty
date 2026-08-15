@@ -2,6 +2,7 @@
 
 import { memo } from "react"
 
+import { KonvaPaneWorkspace } from "@/features/workspace/konva/KonvaPaneWorkspace"
 import { PaneWorkspace, type PaneWorkspaceProps } from "@/features/workspace/components/PaneWorkspace"
 
 export type { ResizeDirection } from "@/features/workspace/components/pane-layer-geometry"
@@ -11,9 +12,14 @@ export type { DraftingLayerMenuAction } from "@/features/workspace/components/pa
 type PaneProps = PaneWorkspaceProps
 
 export const Pane = memo(function Pane(props: PaneProps) {
+  if (props.artboardZoom) {
+    return <KonvaPaneWorkspace {...props} />
+  }
+
   return <PaneWorkspace {...props} />
 },
 (previousProps, nextProps) =>
+  previousProps.artboardZoom === nextProps.artboardZoom &&
   previousProps.cardState === nextProps.cardState &&
   previousProps.sceneComposition === nextProps.sceneComposition &&
   previousProps.state === nextProps.state &&

@@ -300,11 +300,10 @@ describe("WorkspaceSurface", () => {
     expect(composeToolbar.querySelector('button[aria-label="Undo"]')).toBeNull()
     expect(composeToolbar.querySelector('button[aria-label="Redo"]')).toBeNull()
     expect(composeToolbar.querySelector('button[aria-label="Select and move elements"]')).not.toBeNull()
-    expect(composeToolbar.querySelector('button[aria-label="Pan canvas"]')).not.toBeNull()
+    expect(composeToolbar.querySelector('button[aria-label="Pan canvas"]')).toBeNull()
     expect(composeToolbar.querySelector('button[aria-label="Add text on canvas"]')).not.toBeNull()
     expect(Array.from(composeToolbar.querySelectorAll("button")).map((button) => button.getAttribute("aria-label"))).toEqual([
       "Select and move elements",
-      "Pan canvas",
       "Disable snapping",
       "Hide canvas grid",
       "Add text on canvas",
@@ -467,7 +466,7 @@ describe("WorkspaceSurface", () => {
     expect(initialState?.height).toBe(240)
   })
 
-  it("renders a faint dotted texture behind the neutral pane workspace", async () => {
+  it("renders a bounded compose surface for desktop drafting", async () => {
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
     await waitForDraftingSurface()
@@ -476,7 +475,10 @@ describe("WorkspaceSurface", () => {
       '[data-slot="desktop-compose-surface"]',
     )
 
-    expect(composeSurface.getAttribute("data-surface-appearance")).toBe("workspace")
+    expect(composeSurface.getAttribute("data-bounded-canvas")).toBe("true")
+    expect(composeSurface.getAttribute("data-surface-appearance")).toBe("neutral")
+    expect(composeSurface.querySelector('[data-renderer="konva"]')).not.toBeNull()
+    expect(composeSurface.querySelector('[data-slot="desktop-compose-artboard"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="drafting-surface"]')).not.toBeNull()
   })
 
