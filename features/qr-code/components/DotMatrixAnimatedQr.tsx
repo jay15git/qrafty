@@ -47,6 +47,7 @@ export function DotMatrixAnimatedQr({
         dotMatrixOpacityBase: config.dotMatrixOpacityBase,
         dotMatrixOpacityMid: config.dotMatrixOpacityMid,
         dotMatrixOpacityPeak: config.dotMatrixOpacityPeak,
+        preserveModuleFills: config.preserveModuleFills,
       }}
       style={style}
       svgMarkup={config.externalSvg}

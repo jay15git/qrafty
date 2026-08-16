@@ -1877,7 +1877,7 @@ function applyDotMatrixOverlayScale(
 function resolveDotMatrixColors(state: QrStudioState) {
   const animation = state.dotMatrixAnimation
 
-  return resolveMotionColors(animation)
+  return resolveMotionColors(animation, state.dataModulesSettings.color)
 }
 
 function createGeneratedDotMatrixKeyframes(

@@ -347,11 +347,13 @@ function MotionLoaderPresetGrid({
 }
 
 function AnimatedPresetGrid({
-  customColors,
+  peakColor,
+  qrModuleColor,
   selected,
   onSelect,
 }: {
-  customColors?: { base: string; peak: string }
+  peakColor: string
+  qrModuleColor: string
   selected: QrDotMatrixColorPreset
   onSelect: (preset: QrDotMatrixColorPreset) => void
 }) {
@@ -366,10 +368,10 @@ function AnimatedPresetGrid({
     >
       <div className={PREVIEW_ROW}>
         {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => {
-          const [base, peak] =
-            preset.value === "theme" && customColors
-              ? [customColors.base, customColors.peak]
-              : MOTION_COLOR_SWATCHES[preset.value]
+          const peak =
+            preset.value === "theme"
+              ? peakColor
+              : MOTION_COLOR_SWATCHES[preset.value][1]
           const isSelected = selected === preset.value
 
           return (
@@ -385,7 +387,7 @@ function AnimatedPresetGrid({
               type="button"
               onClick={() => onSelect(preset.value)}
             >
-              <span aria-hidden className="flex-1" style={{ backgroundColor: base }} />
+              <span aria-hidden className="flex-1" style={{ backgroundColor: qrModuleColor }} />
               <span aria-hidden className="flex-1" style={{ backgroundColor: peak }} />
             </button>
           )
@@ -827,11 +829,10 @@ function MotionSection({ model }: { model: DesktopInspectorModel }) {
       : ("neon-drift" satisfies QrDotMatrixSquareLoader)
 
   const selectAnimatedPreset = (nextPreset: QrDotMatrixColorPreset) => {
-    const [base, accent] = MOTION_COLOR_SWATCHES[nextPreset]
+    const [, accent] = MOTION_COLOR_SWATCHES[nextPreset]
     onMotionSettingsChange({
       colorPreset: nextPreset,
-      customColor: base,
-      customColorBase: base,
+      customColor: accent,
       customColorMid: accent,
       customColorPeak: accent,
     })
@@ -857,23 +858,10 @@ function MotionSection({ model }: { model: DesktopInspectorModel }) {
             }
           />
           <AnimatedPresetGrid
-            customColors={{
-              base: actualMotionSettings.customColorBase,
-              peak: actualMotionSettings.customColorPeak,
-            }}
+            peakColor={actualMotionSettings.customColorPeak}
+            qrModuleColor={model.actualPatternSettings.dotsSolidColor}
             selected={actualMotionSettings.colorPreset}
             onSelect={selectAnimatedPreset}
-          />
-          <SettingsFillPopover
-            hint="Base"
-            value={solidColorToFillCss(actualMotionSettings.customColorBase)}
-            onValueChange={(_fill, css) =>
-              onMotionSettingsChange({
-                colorPreset: "theme",
-                customColor: fillPreviewHex(css),
-                customColorBase: fillPreviewHex(css),
-              })
-            }
           />
           <SettingsFillPopover
             hint="Peak"

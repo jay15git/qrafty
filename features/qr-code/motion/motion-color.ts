@@ -111,21 +111,41 @@ function resolveMotionColorChannel(
   };
 }
 
-export function resolveMotionOpacityAnchors(animation: QrDotMatrixAnimationOptions) {
+function resolveMotionPeakColorChannel(animation: QrDotMatrixAnimationOptions) {
+  const peakColor =
+    animation.colorPreset === "theme"
+      ? animation.customColorPeak
+      : MOTION_COLOR_SWATCHES[animation.colorPreset][1];
+
+  return resolveMotionColorChannel(
+    peakColor,
+    MOTION_OPACITY_ANCHORS.peak,
+    peakColor,
+  );
+}
+
+export function resolveMotionBaseColor(qrModuleColor: string) {
+  return resolveMotionColorChannel(
+    qrModuleColor,
+    MOTION_OPACITY_ANCHORS.base,
+    qrModuleColor,
+  );
+}
+
+export function resolveMotionOpacityAnchors(
+  animation: QrDotMatrixAnimationOptions,
+  qrModuleColor: string,
+) {
+  const base = resolveMotionBaseColor(qrModuleColor);
   if (animation.colorPreset !== "theme") {
-    return { ...MOTION_OPACITY_ANCHORS };
+    return {
+      base: base.opacity,
+      mid: base.opacity,
+      peak: MOTION_OPACITY_ANCHORS.peak,
+    };
   }
 
-  const base = resolveMotionColorChannel(
-    animation.customColorBase,
-    MOTION_OPACITY_ANCHORS.base,
-    animation.customColorBase,
-  );
-  const accent = resolveMotionColorChannel(
-    animation.customColorPeak,
-    MOTION_OPACITY_ANCHORS.peak,
-    animation.customColorPeak,
-  );
+  const accent = resolveMotionPeakColorChannel(animation);
 
   return {
     base: base.opacity,
@@ -134,26 +154,15 @@ export function resolveMotionOpacityAnchors(animation: QrDotMatrixAnimationOptio
   };
 }
 
-export function resolveMotionColors(animation: QrDotMatrixAnimationOptions): MotionColorPair {
-  if (animation.colorPreset === "theme") {
-    const base = resolveMotionColorChannel(
-      animation.customColorBase,
-      MOTION_OPACITY_ANCHORS.base,
-      animation.customColorBase,
-    );
-    const accent = resolveMotionColorChannel(
-      animation.customColorPeak,
-      MOTION_OPACITY_ANCHORS.peak,
-      animation.customColorPeak,
-    );
+export function resolveMotionColors(
+  animation: QrDotMatrixAnimationOptions,
+  qrModuleColor: string,
+): MotionColorPair {
+  const base = resolveMotionBaseColor(qrModuleColor);
+  const accent = resolveMotionPeakColorChannel(animation);
 
-    return {
-      base: base.color,
-      accent: accent.color,
-    };
-  }
-
-  const [base, accent] = MOTION_COLOR_SWATCHES[animation.colorPreset];
-
-  return { base, accent };
+  return {
+    base: base.color,
+    accent: accent.color,
+  };
 }

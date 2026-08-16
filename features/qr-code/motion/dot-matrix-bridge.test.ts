@@ -48,7 +48,9 @@ describe("dot matrix motion bridge", () => {
       preset: "neon-drift",
       presetCategory: "dotMatrix",
       speed: 6,
+      colorPreset: "neon",
     });
+    state.dataModulesSettings.color = "#334155";
 
     const config = toDotMatrixQrConfig(state);
 
@@ -56,6 +58,8 @@ describe("dot matrix motion bridge", () => {
     expect(config.animationSpeed).toBe(2);
     expect(config.useExternalSvg).toBe(true);
     expect(config.externalSvg).toContain('class="module"');
+    expect(config.dotMatrixColorBase).toBe("#334155");
+    expect(config.dotMatrixColorPeak).toBe("#f8fafc");
     expect(resolveDotMatrixMotionPreset(state.dotMatrixAnimation)).toBe("NeonDrift");
   });
 
@@ -160,5 +164,20 @@ describe("dot matrix motion bridge", () => {
 
     expect(adapted?.svg).toContain('fill="#ff0000"');
     expect(adapted?.svg).not.toMatch(/class="module"[^>]*fill="#111827"/);
+  });
+
+  it("enables preserve mode for gradient and palette qr colors", () => {
+    const gradientState = createDefaultQrStudioState();
+    gradientState.dotsColorMode = "gradient";
+
+    const paletteState = createDefaultQrStudioState();
+    paletteState.dotsColorMode = "palette";
+
+    const solidState = createDefaultQrStudioState();
+    solidState.dotsColorMode = "solid";
+
+    expect(toDotMatrixQrConfig(gradientState).preserveModuleFills).toBe(true);
+    expect(toDotMatrixQrConfig(paletteState).preserveModuleFills).toBe(true);
+    expect(toDotMatrixQrConfig(solidState).preserveModuleFills).toBe(false);
   });
 });

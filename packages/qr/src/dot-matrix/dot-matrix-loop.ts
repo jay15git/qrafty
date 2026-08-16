@@ -1,4 +1,7 @@
-import { sampleDotMatrixAnimationFrame } from './animations';
+import {
+  isPreserveModuleFill,
+  sampleDotMatrixAnimationFrame,
+} from './animations';
 
 export interface DotMatrixLoopAnimation {
   from?: number;
@@ -21,29 +24,89 @@ export interface DotMatrixLoopHandle {
 
 const DOT_MATRIX_PAINTABLE_SELECTOR = 'path,circle,rect,polygon';
 
-function applyDotMatrixSample(
-  element: SVGElement,
-  sample: { opacity: number; fill?: string },
-) {
-  element.style.opacity = String(sample.opacity);
-
-  if (!sample.fill) {
-    return;
-  }
-
-  const paintTargets = element.matches(DOT_MATRIX_PAINTABLE_SELECTOR)
+function getPaintTargets(element: SVGElement) {
+  return element.matches(DOT_MATRIX_PAINTABLE_SELECTOR)
     ? [element]
     : Array.from(
         element.querySelectorAll<SVGElement>(DOT_MATRIX_PAINTABLE_SELECTOR),
       );
+}
+
+function readPaintTargetFill(element: SVGElement) {
+  const attrFill = element.getAttribute('fill');
+  if (attrFill && attrFill !== 'none') {
+    return attrFill;
+  }
+
+  return element.style.getPropertyValue('fill') || '';
+}
+
+function restorePaintTargetFill(element: SVGElement, originalFill: string) {
+  element.style.removeProperty('fill');
+  if (originalFill) {
+    element.setAttribute('fill', originalFill);
+    return;
+  }
+
+  element.removeAttribute('fill');
+}
+
+function applyPaintTargetFill(element: SVGElement, fill: string) {
+  element.style.setProperty('fill', fill);
+}
+
+function captureOriginalFills(targets: DotMatrixLoopTarget[]) {
+  const fills = new WeakMap<SVGElement, string>();
+
+  for (const { element } of targets) {
+    const paintTargets = getPaintTargets(element);
+    if (paintTargets.length === 0) {
+      fills.set(element, readPaintTargetFill(element));
+      continue;
+    }
+
+    for (const target of paintTargets) {
+      fills.set(target, readPaintTargetFill(target));
+    }
+  }
+
+  return fills;
+}
+
+function applyDotMatrixSample(
+  element: SVGElement,
+  sample: { opacity: number; fill?: string },
+  originalFills: WeakMap<SVGElement, string>,
+) {
+  element.style.opacity = String(sample.opacity);
+
+  const paintTargets = getPaintTargets(element);
+  const shouldPreserve =
+    !sample.fill || isPreserveModuleFill(sample.fill);
 
   if (paintTargets.length === 0) {
-    element.style.fill = sample.fill;
+    if (shouldPreserve) {
+      const original = originalFills.get(element);
+      if (original !== undefined) {
+        restorePaintTargetFill(element, original);
+      }
+      return;
+    }
+
+    applyPaintTargetFill(element, sample.fill!);
     return;
   }
 
   for (const target of paintTargets) {
-    target.style.fill = sample.fill;
+    if (shouldPreserve) {
+      const original = originalFills.get(target);
+      if (original !== undefined) {
+        restorePaintTargetFill(target, original);
+      }
+      continue;
+    }
+
+    applyPaintTargetFill(target, sample.fill!);
   }
 }
 
@@ -54,6 +117,7 @@ export function startDotMatrixLoop(
 ): DotMatrixLoopHandle {
   let frameId: number | undefined;
   let stopped = false;
+  const originalFills = captureOriginalFills(targets);
   const startMs =
     typeof performance !== 'undefined' ? performance.now() : Date.now();
 
@@ -65,7 +129,7 @@ export function startDotMatrixLoop(
     targets.forEach(({ element, animation }) => {
       if (!element || !element.style) return;
       const sample = sampleDotMatrixAnimationFrame(animation as any, globalTimeMs);
-      applyDotMatrixSample(element, sample);
+      applyDotMatrixSample(element, sample, originalFills);
     });
 
     frameId = requestFrame(tick);

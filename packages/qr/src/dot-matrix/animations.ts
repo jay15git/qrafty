@@ -79,6 +79,13 @@ export interface QRCodeAnimationSettings {
   dotMatrixColorBase?: string;
   dotMatrixColorMid?: string;
   dotMatrixColorPeak?: string;
+  preserveModuleFills?: boolean;
+}
+
+export const PRESERVE_MODULE_FILL = '__qr-preserve-module-fill__';
+
+export function isPreserveModuleFill(fill: string | undefined | null) {
+  return fill === PRESERVE_MODULE_FILL;
 }
 
 export enum AnimationPreset {
@@ -676,8 +683,11 @@ const sampleShapeRevealFrame = (
     ),
   );
   const opacity = baseOpacity + (accentOpacity - baseOpacity) * blend;
-  const fill =
-    isMixableHexColor(baseFill) && isMixableHexColor(accentFill)
+  const fill = isPreserveModuleFill(baseFill)
+    ? blend >= 0.5
+      ? accentFill
+      : PRESERVE_MODULE_FILL
+    : isMixableHexColor(baseFill) && isMixableHexColor(accentFill)
       ? mixHexColors(baseFill, accentFill, blend)
       : blend >= 0.5
         ? accentFill
@@ -1995,11 +2005,63 @@ const dualColorForResolvedOpacity = (
   );
 };
 
+const resolvePeakAccentMix = (
+  frame: WebKeyframeValue,
+  settings: QRCodeAnimationSettings,
+) => {
+  if (settings.dotMatrixColorMode === 'dual') {
+    if (isCssBlendKeyframe(frame)) {
+      return dualAccentMixFromCssBlend(frame.cssBlend);
+    }
+    const { base, peak } = dotMatrixOpacitySettings(settings);
+    return dualAccentMixFromOpacity(
+      resolveDotMatrixKeyframeOpacity(frame, settings),
+      base,
+      peak,
+    );
+  }
+
+  const { base, peak } = dotMatrixOpacitySettings(settings);
+  return dualAccentMixFromOpacity(
+    resolveDotMatrixKeyframeOpacity(frame, settings),
+    base,
+    peak,
+  );
+};
+
+const fillForPreserveFrame = (
+  frame: WebKeyframeValue,
+  settings: QRCodeAnimationSettings,
+  peakColor: string,
+) => (resolvePeakAccentMix(frame, settings) > 0 ? peakColor : PRESERVE_MODULE_FILL);
+
 const remapDotMatrixFill = (
   opacity: any,
   settings?: QRCodeAnimationSettings
 ) => {
-  if (!Array.isArray(opacity) || !dotMatrixColorSettings(settings)) {
+  if (!Array.isArray(opacity)) {
+    return undefined;
+  }
+
+  if (settings?.preserveModuleFills) {
+    const peakColor = settings.dotMatrixColorPeak;
+    if (!peakColor) {
+      return undefined;
+    }
+
+    return opacity.map((frame) => {
+      const fill = fillForPreserveFrame(frame, settings, peakColor);
+      if (isCssBlendKeyframe(frame)) {
+        return { offset: frame.offset, value: fill };
+      }
+      if (typeof frame === 'number') {
+        return fill;
+      }
+      return { ...frame, value: fill };
+    });
+  }
+
+  if (!dotMatrixColorSettings(settings)) {
     return undefined;
   }
   const colors = dotMatrixColorSettings(settings)!;

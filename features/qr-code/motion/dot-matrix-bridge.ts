@@ -37,6 +37,7 @@ export type DotMatrixQrConfig = {
   positionRingColor: string;
   respectReducedMotion: boolean;
   useExternalSvg: boolean;
+  preserveModuleFills: boolean;
 };
 
 function coerceNumber(value: number, min: number, max: number, fallback: number) {
@@ -93,8 +94,9 @@ export function toDotMatrixQrConfig(
   options: { canvasSvgMarkup?: string | null } = {},
 ): DotMatrixQrConfig {
   const animation = state.dotMatrixAnimation;
-  const motionColors = resolveMotionColors(animation);
-  const motionOpacity = resolveMotionOpacityAnchors(animation);
+  const qrModuleColor = state.dataModulesSettings.color;
+  const motionColors = resolveMotionColors(animation, qrModuleColor);
+  const motionOpacity = resolveMotionOpacityAnchors(animation, qrModuleColor);
   const canvasSvgMarkup = options.canvasSvgMarkup?.trim();
   const adapted = canvasSvgMarkup
     ? adaptCanvasSvgMarkupForDotMatrixMotion(sanitizeDraftingQrArtworkMarkup(canvasSvgMarkup), state)
@@ -116,6 +118,7 @@ export function toDotMatrixQrConfig(
     moduleColor: state.dataModulesSettings.color,
     positionCenterColor: state.finderPatternInnerSettings.color,
     positionRingColor: state.finderPatternOuterSettings.color,
+    preserveModuleFills: state.dotsColorMode !== "solid",
     respectReducedMotion: animation.respectReducedMotion,
     useExternalSvg: Boolean(adapted?.svg),
   };
