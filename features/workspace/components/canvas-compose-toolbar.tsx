@@ -5,6 +5,7 @@ import {
   CopyPlusIcon,
   CrosshairIcon,
   Grid3X3Icon,
+  HandIcon,
   MagnetIcon,
   Maximize2Icon,
   Minimize2Icon,
@@ -239,6 +240,24 @@ export function ComposeToolbarControls({
               variant="ghost"
             >
               <MousePointer2Icon />
+            </Button>
+          </ComposeToolbarTooltip>
+
+          <ComposeToolbarTooltip content="Pan canvas" desktop={isDesktopGlassToolbar} placement={placement}>
+            <Button
+              aria-label="Pan canvas"
+              aria-pressed={activeInteractionTool === "pan"}
+              className={getComposeToolbarIconButtonClass(
+                isDesktopGlassToolbar,
+                activeInteractionTool === "pan" &&
+                  "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
+              )}
+              onClick={() => onCanvasToolChange?.("pan")}
+              size="icon"
+              type="button"
+              variant="ghost"
+            >
+              <HandIcon />
             </Button>
           </ComposeToolbarTooltip>
         </>

@@ -101,17 +101,10 @@ export function useDraftingPaneSurfaceInteractions({
   const pinchDistanceRef = useRef<number | null>(null)
   const pinchZoomRef = useRef(paneZoom)
   const effectiveZoom = paneZoom
-  const isBoundedCanvas = fitCanvasToViewport && !previewLocked
+  const effectivePan = previewLocked ? { x: 0, y: 0 } : panePan
   const isFreeEditWorkspace =
-    toolbarVariant === "desktop-zoom" &&
-    layerEditingEnabled &&
-    !previewLocked &&
-    !isBoundedCanvas
-  const effectivePan = previewLocked || isBoundedCanvas ? { x: 0, y: 0 } : panePan
+    toolbarVariant === "desktop-zoom" && layerEditingEnabled && !previewLocked
   const shouldAutoFitViewport = previewLocked || fitCanvasToViewport
-  const fitScaleRef = useRef(1)
-  const paneZoomRef = useRef(paneZoom)
-  const onPaneZoomRef = useRef(onPaneZoom)
   const surfaceAppearance: "template" | "workspace" | "neutral" = previewLocked
     ? "template"
     : isFreeEditWorkspace
@@ -144,25 +137,9 @@ export function useDraftingPaneSurfaceInteractions({
           ? { allowUpscale: true, padding: DESKTOP_CANVAS_FIT_PADDING }
           : undefined,
       )
-      const previousFitScale = fitScaleRef.current
-      fitScaleRef.current = nextFitScale
 
-      if (previewLocked) {
+      if (shouldAutoFitViewport) {
         onPaneZoom(pane.id, nextFitScale)
-        return
-      }
-
-      if (isBoundedCanvas) {
-        if (!hasSeededFitZoomRef.current) {
-          onPaneZoom(pane.id, nextFitScale)
-          hasSeededFitZoomRef.current = true
-          return
-        }
-
-        const currentZoom = paneZoomRef.current
-        const zoomRatio = previousFitScale > 0 ? currentZoom / previousFitScale : 1
-        const nextZoom = clampPreviewZoom(Math.max(nextFitScale, nextFitScale * zoomRatio))
-        onPaneZoom(pane.id, nextZoom)
         return
       }
 
@@ -182,7 +159,6 @@ export function useDraftingPaneSurfaceInteractions({
     }
   }, [
     fitCanvasToViewport,
-    isBoundedCanvas,
     isFreeEditWorkspace,
     onPaneZoom,
     pane.cardState.height,
@@ -192,26 +168,10 @@ export function useDraftingPaneSurfaceInteractions({
   ])
 
   useEffect(() => {
-    if (!isFreeEditWorkspace && !isBoundedCanvas) {
+    if (!isFreeEditWorkspace) {
       hasSeededFitZoomRef.current = false
     }
-  }, [isBoundedCanvas, isFreeEditWorkspace])
-
-  useEffect(() => {
-    if (!isBoundedCanvas) {
-      return
-    }
-
-    if (panePan.x !== 0 || panePan.y !== 0) {
-      onPanePan(pane.id, { x: 0, y: 0 })
-    }
-  }, [isBoundedCanvas, onPanePan, pane.id, panePan.x, panePan.y])
-
-  useEffect(() => {
-    if (isBoundedCanvas && activeCanvasTool === "pan") {
-      onCanvasToolChange?.("select")
-    }
-  }, [activeCanvasTool, isBoundedCanvas, onCanvasToolChange])
+  }, [isFreeEditWorkspace])
 
   useEffect(() => {
     onPaneSelectRef.current = onPaneSelect
@@ -220,14 +180,6 @@ export function useDraftingPaneSurfaceInteractions({
   useEffect(() => {
     onPaneQrClickRef.current = onPaneQrClick
   }, [onPaneQrClick])
-
-  useEffect(() => {
-    paneZoomRef.current = paneZoom
-  }, [paneZoom])
-
-  useEffect(() => {
-    onPaneZoomRef.current = onPaneZoom
-  }, [onPaneZoom])
 
   useEffect(() => {
     pinchZoomRef.current = paneZoom
@@ -239,52 +191,12 @@ export function useDraftingPaneSurfaceInteractions({
     }
   }, [])
 
-  useEffect(() => {
-    const surface = surfaceRef.current
-
-    if (!surface || previewLocked) {
-      return
-    }
-
-    const onWheel = (event: WheelEvent) => {
-      event.preventDefault()
-      event.stopPropagation()
-      onPaneSelectRef.current(pane.id)
-
-      const currentZoom = paneZoomRef.current
-      const rawZoom = currentZoom * Math.exp(-event.deltaY * WHEEL_ZOOM_SENSITIVITY)
-      const minZoom = isBoundedCanvas ? fitScaleRef.current : MIN_PREVIEW_ZOOM
-      const nextZoom = clampPreviewZoom(Math.max(minZoom, rawZoom))
-      onPaneZoomRef.current(pane.id, nextZoom)
-    }
-
-    surface.addEventListener("wheel", onWheel, { passive: false })
-
-    return () => {
-      surface.removeEventListener("wheel", onWheel)
-    }
-  }, [isBoundedCanvas, pane.id, previewLocked])
-
   const handleSelect = useCallback(() => {
     onPaneSelectRef.current(pane.id)
   }, [pane.id])
 
   const getPlacementPoint = useCallback(
     (event: ReactMouseEvent<HTMLDivElement> | ReactPointerEvent<HTMLDivElement>) => {
-      if (isBoundedCanvas) {
-        const artboard = event.currentTarget.querySelector('[data-slot="desktop-compose-artboard"]')
-        const rect = artboard?.getBoundingClientRect()
-
-        if (rect && rect.width > 0) {
-          const scale = rect.width / pane.cardState.width
-
-          return {
-            x: (event.clientX - (rect.left + rect.width / 2)) / scale,
-            y: (event.clientY - (rect.top + rect.height / 2)) / scale,
-          }
-        }
-      }
-
       const rect = event.currentTarget.getBoundingClientRect()
 
       return {
@@ -292,22 +204,14 @@ export function useDraftingPaneSurfaceInteractions({
         y: (event.clientY - rect.top - rect.height / 2 - effectivePan.y) / effectiveZoom,
       }
     },
-    [
-      effectivePan.x,
-      effectivePan.y,
-      effectiveZoom,
-      isBoundedCanvas,
-      pane.cardState.width,
-    ],
+    [effectivePan.x, effectivePan.y, effectiveZoom],
   )
 
   const isPlacementTarget = useCallback(
     (event: ReactMouseEvent<HTMLDivElement> | ReactPointerEvent<HTMLDivElement>) =>
       !(
         event.target instanceof Element &&
-        event.target.closest(
-          "[data-layer-id], [data-slot='drafting-layer-resize-frame'], button, [data-konva-layer-mirror='true']",
-        )
+        event.target.closest("[data-layer-id], [data-slot='drafting-layer-resize-frame'], button")
       ),
     [],
   )
@@ -364,7 +268,7 @@ export function useDraftingPaneSurfaceInteractions({
 
   const beginPanePan = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (previewLocked || isBoundedCanvas) {
+      if (previewLocked) {
         return
       }
 
@@ -383,17 +287,12 @@ export function useDraftingPaneSurfaceInteractions({
       lockCanvasPanCursor()
       setIsPanning(true)
     },
-    [isBoundedCanvas, pane.id, panePan.x, panePan.y, previewLocked],
+    [pane.id, panePan.x, panePan.y, previewLocked],
   )
 
   const handlePanePointerDownCapture = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (
-        isBoundedCanvas ||
-        activeCanvasTool !== "pan" ||
-        event.button !== 0 ||
-        event.pointerType === "touch"
-      ) {
+      if (activeCanvasTool !== "pan" || event.button !== 0 || event.pointerType === "touch") {
         return
       }
 
@@ -407,7 +306,7 @@ export function useDraftingPaneSurfaceInteractions({
 
       beginPanePan(event)
     },
-    [activeCanvasTool, beginPanePan, isBoundedCanvas, shouldIgnorePanToolTarget],
+    [activeCanvasTool, beginPanePan, shouldIgnorePanToolTarget],
   )
 
   const handlePanePointerDown = useCallback(
@@ -471,12 +370,10 @@ export function useDraftingPaneSurfaceInteractions({
       event.stopPropagation()
       onPaneSelectRef.current(pane.id)
 
-      const rawZoom = paneZoom * Math.exp(-event.deltaY * WHEEL_ZOOM_SENSITIVITY)
-      const minZoom = isBoundedCanvas ? fitScaleRef.current : MIN_PREVIEW_ZOOM
-      const nextZoom = clampPreviewZoom(Math.max(minZoom, rawZoom))
+      const nextZoom = clampPreviewZoom(paneZoom * Math.exp(-event.deltaY * WHEEL_ZOOM_SENSITIVITY))
       onPaneZoom(pane.id, nextZoom)
     },
-    [isBoundedCanvas, onPaneZoom, pane.id, paneZoom, previewLocked],
+    [onPaneZoom, pane.id, paneZoom, previewLocked],
   )
 
   const handleTouchStart = useCallback(
@@ -515,15 +412,9 @@ export function useDraftingPaneSurfaceInteractions({
 
       event.preventDefault()
       event.stopPropagation()
-      const minZoom = isBoundedCanvas ? fitScaleRef.current : MIN_PREVIEW_ZOOM
-      onPaneZoom(
-        pane.id,
-        clampPreviewZoom(
-          Math.max(minZoom, pinchZoomRef.current * (nextDistance / startDistance)),
-        ),
-      )
+      onPaneZoom(pane.id, clampPreviewZoom(pinchZoomRef.current * (nextDistance / startDistance)))
     },
-    [isBoundedCanvas, onPaneZoom, pane.id, previewLocked],
+    [onPaneZoom, pane.id, previewLocked],
   )
 
   const handleTouchEnd = useCallback((event: TouchEvent<HTMLDivElement>) => {
@@ -537,7 +428,6 @@ export function useDraftingPaneSurfaceInteractions({
     effectivePan,
     effectiveZoom,
     hideLayerSelectionChrome,
-    isBoundedCanvas,
     isFreeEditWorkspace,
     isPanning,
     panOverlayRef,

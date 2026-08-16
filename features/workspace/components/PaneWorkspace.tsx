@@ -78,7 +78,6 @@ import {
 import { PaneSurfaceInteractive } from "@/features/workspace/components/pane-layer-a11y"
 
 export type PaneWorkspaceProps = {
-  artboardZoom?: boolean
   cardState?: DraftingCardState
   interactionScale?: number
   isSelected: boolean
@@ -125,7 +124,6 @@ function hasTranslucentCardFill(fill: string) {
 }
 
 export function PaneWorkspace({
-  artboardZoom = false,
   cardState = DEFAULT_DRAFTING_CARD_STATE,
   interactionScale = 1,
   snapEnabled = true,
@@ -190,7 +188,6 @@ export function PaneWorkspace({
   } | null>(null)
   const rotationLabelTimeoutRef = useRef<number | null>(null)
   const canvasRef = useRef<HTMLDivElement | null>(null)
-  const artboardRef = useRef<HTMLDivElement | null>(null)
   const textEditorRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
   const marqueeRef = useRef<typeof marquee>(null)
   const suppressCanvasClickRef = useRef(false)
@@ -507,17 +504,6 @@ export function PaneWorkspace({
   }
 
   function getScenePointFromClientPoint(clientX: number, clientY: number) {
-    const artboardRect = artboardRef.current?.getBoundingClientRect()
-
-    if (artboardZoom && artboardRect && artboardRect.width > 0) {
-      const scale = artboardRect.width / cardState.width
-
-      return {
-        x: (clientX - (artboardRect.left + artboardRect.width / 2)) / scale,
-        y: (clientY - (artboardRect.top + artboardRect.height / 2)) / scale,
-      }
-    }
-
     const rect = canvasRef.current?.getBoundingClientRect()
     const scale = interactionScale > 0 ? interactionScale : 1
 
@@ -1237,16 +1223,12 @@ export function PaneWorkspace({
         ) : (
           <>
             <div
-              ref={artboardRef}
               className="absolute left-1/2 top-1/2 overflow-hidden"
               data-slot="desktop-compose-artboard"
               style={{
                 borderRadius: cornerRadiiToCss(cardState.cornerRadii),
                 height: cardState.height,
-                transform: artboardZoom
-                  ? `translate(-50%, -50%) scale(${interactionScale})`
-                  : "translate(-50%, -50%)",
-                transformOrigin: "center center",
+                transform: "translate(-50%, -50%)",
                 width: cardState.width,
               }}
             >
