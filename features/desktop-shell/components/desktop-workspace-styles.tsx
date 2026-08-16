@@ -226,6 +226,26 @@ export function DesktopWorkspaceStyles() {
         border-radius: 0 !important;
       }
 
+      [data-slot="desktop-workspace"] [data-slot="desktop-dynamic-island"] button:is([aria-pressed="true"], [data-state="open"]),
+      [data-slot="desktop-floating-toolbar-root"] [data-slot="desktop-dynamic-island"] button:is([aria-pressed="true"], [data-state="open"]) {
+        position: relative !important;
+        overflow: visible !important;
+      }
+
+      [data-slot="desktop-workspace"] [data-slot="desktop-dynamic-island"] button:is([aria-pressed="true"], [data-state="open"])::after,
+      [data-slot="desktop-floating-toolbar-root"] [data-slot="desktop-dynamic-island"] button:is([aria-pressed="true"], [data-state="open"])::after {
+        content: "";
+        position: absolute;
+        bottom: 3px;
+        left: 50%;
+        width: 3px;
+        height: 3px;
+        border-radius: 9999px;
+        background: currentColor;
+        transform: translateX(-50%);
+        pointer-events: none;
+      }
+
       [data-slot="desktop-workspace"] [data-slot="desktop-utility-toolbar"],
       [data-slot="desktop-workspace"] [data-slot="desktop-action-toolbar"],
       [data-slot="desktop-workspace"] [data-slot="desktop-resize-toolbar"],
