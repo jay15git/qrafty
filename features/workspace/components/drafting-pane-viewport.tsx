@@ -78,10 +78,10 @@ type DraftingPaneViewportProps = {
   previewLocked?: boolean
   selectedLayerId?: string | null
   selectedLayerIds?: string[]
-  showCanvasGrid?: boolean
   snapEnabled: boolean
   surfaceAppearance: "template" | "workspace" | "neutral"
   surfaceRef: RefObject<HTMLDivElement | null>
+  viewFitScale?: number
 }
 
 export function DraftingPaneViewport({
@@ -129,10 +129,10 @@ export function DraftingPaneViewport({
   previewLocked = false,
   selectedLayerId,
   selectedLayerIds,
-  showCanvasGrid = true,
   snapEnabled,
   surfaceAppearance,
   surfaceRef,
+  viewFitScale = 1,
 }: DraftingPaneViewportProps) {
   return (
     <div
@@ -142,7 +142,6 @@ export function DraftingPaneViewport({
       data-surface-appearance={surfaceAppearance}
       data-preview-locked={previewLocked ? "true" : "false"}
       data-dragging={draggingPaneId === pane.id ? "true" : "false"}
-      data-grid-visible={showCanvasGrid ? "true" : "false"}
       data-panning={isPanning ? "true" : "false"}
       data-snap-target={isSnapTarget ? "true" : "false"}
       draggable={canSwap}
@@ -158,7 +157,7 @@ export function DraftingPaneViewport({
       style={{
         gridArea: areaName,
         backgroundImage:
-          showCanvasGrid && !isFreeEditWorkspace && !previewLocked
+          !isFreeEditWorkspace && !previewLocked
             ? "radial-gradient(circle, rgb(var(--ws-canvas-dot-rgb) / var(--ws-canvas-dot-opacity)) 2.4px, transparent 3px)"
             : "none",
         backgroundPosition: "0 0",
@@ -192,7 +191,9 @@ export function DraftingPaneViewport({
               : undefined
         }
         style={{
-          transform: `translate3d(${effectivePan.x}px, ${effectivePan.y}px, 0) scale(${effectiveZoom})`,
+          transform: isFreeEditWorkspace
+            ? `translate3d(${effectivePan.x}px, ${effectivePan.y}px, 0)`
+            : `translate3d(${effectivePan.x}px, ${effectivePan.y}px, 0) scale(${effectiveZoom})`,
           transformOrigin: "center center",
           transition: "transform 150ms ease-out",
         }}
@@ -200,7 +201,9 @@ export function DraftingPaneViewport({
       >
         <Pane
           cardState={pane.cardState}
+          contentOnlyZoom={isFreeEditWorkspace}
           interactionScale={effectiveZoom}
+          viewFitScale={viewFitScale}
           layers={pane.layers}
           qrStateByLayerId={pane.qrStateByLayerId}
           sceneComposition={pane.sceneComposition}

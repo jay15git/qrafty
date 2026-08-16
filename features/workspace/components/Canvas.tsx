@@ -62,8 +62,6 @@ type CanvasProps = {
   activeCanvasTool?: DraftingPaneCanvasTool | null
   onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
-  onCanvasGridChange?: (showGrid: boolean) => void
-  showCanvasGrid?: boolean
   selectedLayerId?: string | null
   selectedLayerIds?: string[]
   toolbarVariant?: DraftingPaneToolbarVariant
@@ -100,8 +98,6 @@ export function Canvas({
   activeCanvasTool,
   onAddTextLayerAt,
   onCanvasToolChange,
-  onCanvasGridChange,
-  showCanvasGrid = true,
   selectedLayerId,
   selectedLayerIds,
   toolbarVariant = "default",
@@ -216,7 +212,6 @@ export function Canvas({
               previewLocked={previewLocked}
               selectedLayerId={selectedLayerId}
               selectedLayerIds={selectedLayerIds}
-              showCanvasGrid={showCanvasGrid}
               snapEnabled={snapEnabled}
               toolbarVariant={toolbarVariant}
             />
@@ -235,7 +230,6 @@ export function Canvas({
           qr={qr}
           onAddTextLayerAt={onAddTextLayerAt}
           onBrowseStockPhotos={onBrowseStockPhotos}
-          onCanvasGridChange={onCanvasGridChange}
           onCanvasToolChange={onCanvasToolChange}
           onInsertLayer={onInsertLayer}
           onOpenCardPatternSettings={onOpenCardPatternSettings}
@@ -250,7 +244,6 @@ export function Canvas({
           onZoomOut={handleZoomOut}
           paneCount={1}
           previewLocked={previewLocked}
-          showCanvasGrid={showCanvasGrid}
           snapEnabled={snapEnabled}
           onSnapEnabledChange={handleSnapEnabledChange}
           zoomPercent={zoomPercent}

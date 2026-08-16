@@ -79,7 +79,9 @@ import { PaneSurfaceInteractive } from "@/features/workspace/components/pane-lay
 
 export type PaneWorkspaceProps = {
   cardState?: DraftingCardState
+  contentOnlyZoom?: boolean
   interactionScale?: number
+  viewFitScale?: number
   isSelected: boolean
   layers?: DraftingCanvasLayer[]
   onLayerAction?: (layerIds: string[], action: DraftingLayerMenuAction) => void
@@ -125,7 +127,9 @@ function hasTranslucentCardFill(fill: string) {
 
 export function PaneWorkspace({
   cardState = DEFAULT_DRAFTING_CARD_STATE,
+  contentOnlyZoom = false,
   interactionScale = 1,
+  viewFitScale = 1,
   snapEnabled = true,
   state,
   isSelected,
@@ -294,6 +298,19 @@ export function PaneWorkspace({
   const visibleLayers = resolvedLayers
     .filter((layer) => layer.isVisible)
     .sort((a, b) => a.zIndex - b.zIndex)
+  const cardLayers = contentOnlyZoom
+    ? visibleLayers.filter((layer) => layer.kind === "card")
+    : []
+  const contentLayers = contentOnlyZoom
+    ? visibleLayers.filter((layer) => layer.kind !== "card")
+    : visibleLayers
+  const contentZoomStyle: CSSProperties | undefined =
+    contentOnlyZoom && interactionScale !== 1
+      ? {
+          transform: `scale(${interactionScale})`,
+          transformOrigin: "center center",
+        }
+      : undefined
   const activeSelectedLayerIds = selectedLayerIds ?? (selectedLayerId ? [selectedLayerId] : [])
   const activeSelectedLayerIdSet = new Set(activeSelectedLayerIds)
   const selectedVisibleLayers = visibleLayers.filter((layer) => activeSelectedLayerIdSet.has(layer.id))
@@ -505,7 +522,8 @@ export function PaneWorkspace({
 
   function getScenePointFromClientPoint(clientX: number, clientY: number) {
     const rect = canvasRef.current?.getBoundingClientRect()
-    const scale = interactionScale > 0 ? interactionScale : 1
+    const scale =
+      (interactionScale > 0 ? interactionScale : 1) * (viewFitScale > 0 ? viewFitScale : 1)
 
     if (!rect) {
       return { x: 0, y: 0 }
@@ -653,7 +671,8 @@ export function PaneWorkspace({
     }
 
     event.stopPropagation()
-    const scale = interactionScale > 0 ? interactionScale : 1
+    const scale =
+      (interactionScale > 0 ? interactionScale : 1) * (viewFitScale > 0 ? viewFitScale : 1)
     const snapThreshold = SNAP_THRESHOLD_PX / scale
     const resizeSnapThreshold = RESIZE_SNAP_THRESHOLD_PX / scale
     const deltaX = (event.clientX - interaction.startX) / scale
@@ -1175,6 +1194,42 @@ export function PaneWorkspace({
     state,
   }
 
+  function renderLayerView(layer: DraftingCanvasLayer) {
+    return (
+      <PaneLayerView
+        key={layer.id}
+        {...layerViewSharedProps}
+        editingTextDraft={editingTextDraft}
+        editingTextLayerId={editingTextLayerId}
+        layer={layer}
+        onCommitEditingTextDraft={commitEditingTextDraft}
+        onEndLayerInteraction={endLayerInteraction}
+        onHandleTextEditorInput={handleTextEditorInput}
+        onOpenLayerContextMenu={openLayerContextMenu}
+        onActivateLayerSelection={activateLayerSelection}
+        onSelectLayerFromClick={selectLayerFromClick}
+        onStartLayerInteraction={startLayerInteraction}
+        onStartTextEditing={startTextEditing}
+        onUpdateLayerInteraction={updateLayerInteraction}
+        textEditorRefs={textEditorRefs}
+      />
+    )
+  }
+
+  function renderContentChrome() {
+    return (
+      <>
+        <SnapGuideOverlay guides={snapGuides} />
+        {renderMarquee()}
+        {activeSelectedLayerIds.length > 0
+          ? contentLayers.map((layer) => renderLayerControls(layer))
+          : null}
+        {createMultiLayerControls()}
+        {renderFloatingToolbar()}
+      </>
+    )
+  }
+
   return (
     <PaneSurfaceInteractive
       data-slot="qr-pane"
@@ -1228,40 +1283,36 @@ export function PaneWorkspace({
               style={{
                 borderRadius: cornerRadiiToCss(cardState.cornerRadii),
                 height: cardState.height,
-                transform: "translate(-50%, -50%)",
+                transform:
+                  viewFitScale !== 1
+                    ? `translate(-50%, -50%) scale(${viewFitScale})`
+                    : "translate(-50%, -50%)",
+                transformOrigin: "center center",
                 width: cardState.width,
               }}
             >
-              <SceneCompositionTransform layout={sceneComposition.layout}>
+              {contentOnlyZoom ? (
                 <div className="relative h-full w-full" data-export-root>
-                  {visibleLayers.map((layer) => (
-                    <PaneLayerView
-                      key={layer.id}
-                      {...layerViewSharedProps}
-                      editingTextDraft={editingTextDraft}
-                      editingTextLayerId={editingTextLayerId}
-                      layer={layer}
-                      onCommitEditingTextDraft={commitEditingTextDraft}
-                      onEndLayerInteraction={endLayerInteraction}
-                      onHandleTextEditorInput={handleTextEditorInput}
-                      onOpenLayerContextMenu={openLayerContextMenu}
-                      onActivateLayerSelection={activateLayerSelection}
-                      onSelectLayerFromClick={selectLayerFromClick}
-                      onStartLayerInteraction={startLayerInteraction}
-                      onStartTextEditing={startTextEditing}
-                      onUpdateLayerInteraction={updateLayerInteraction}
-                      textEditorRefs={textEditorRefs}
-                    />
-                  ))}
+                  {cardLayers.map((layer) => renderLayerView(layer))}
+                  <SceneCompositionTransform layout={sceneComposition.layout}>
+                    <div
+                      className="relative h-full w-full"
+                      data-slot="desktop-compose-content-zoom"
+                      style={contentZoomStyle}
+                    >
+                      {contentLayers.map((layer) => renderLayerView(layer))}
+                      {renderContentChrome()}
+                    </div>
+                  </SceneCompositionTransform>
                 </div>
-              </SceneCompositionTransform>
-              <SnapGuideOverlay guides={snapGuides} />
-              {renderMarquee()}
-              {activeSelectedLayerIds.length > 0
-                ? visibleLayers.map((layer) => renderLayerControls(layer))
-                : null}
-              {createMultiLayerControls()}
-              {renderFloatingToolbar()}
+              ) : (
+                <SceneCompositionTransform layout={sceneComposition.layout}>
+                  <div className="relative h-full w-full" data-export-root>
+                    {visibleLayers.map((layer) => renderLayerView(layer))}
+                    {renderContentChrome()}
+                  </div>
+                </SceneCompositionTransform>
+              )}
             </div>
             {contextMenu && typeof document !== "undefined"
               ? createPortal(

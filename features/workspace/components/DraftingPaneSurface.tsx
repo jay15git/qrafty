@@ -63,7 +63,6 @@ type DraftingPaneSurfaceProps = {
   onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
   layerEditingEnabled?: boolean
-  showCanvasGrid?: boolean
   pane: DraftingPane
   panePan: { x: number; y: number }
   paneZoom: number
@@ -98,7 +97,6 @@ export function DraftingPaneSurface({
   onAddTextLayerAt,
   onCanvasToolChange,
   layerEditingEnabled = true,
-  showCanvasGrid = true,
   pane,
   panePan,
   paneZoom,
@@ -175,10 +173,10 @@ export function DraftingPaneSurface({
       previewLocked={previewLocked}
       selectedLayerId={selectedLayerId}
       selectedLayerIds={selectedLayerIds}
-      showCanvasGrid={showCanvasGrid}
       snapEnabled={snapEnabled}
       surfaceAppearance={interactions.surfaceAppearance}
       surfaceRef={interactions.surfaceRef}
+      viewFitScale={interactions.viewFitScale}
     />
   )
 }

@@ -18,6 +18,8 @@ export const Pane = memo(function Pane(props: PaneProps) {
   previousProps.sceneComposition === nextProps.sceneComposition &&
   previousProps.state === nextProps.state &&
   previousProps.isSelected === nextProps.isSelected &&
+  previousProps.viewFitScale === nextProps.viewFitScale &&
+  previousProps.contentOnlyZoom === nextProps.contentOnlyZoom &&
   previousProps.interactionScale === nextProps.interactionScale &&
   previousProps.layers === nextProps.layers &&
   previousProps.qrStateByLayerId === nextProps.qrStateByLayerId &&

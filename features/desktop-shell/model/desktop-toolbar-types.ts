@@ -295,8 +295,6 @@ export type DesktopToolbarController = {
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
   canvasTool?: DraftingPaneCanvasTool | null
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
-  showCanvasGrid?: boolean
-  onCanvasGridChange?: (showGrid: boolean) => void
   snapEnabled?: boolean
   onSnapEnabledChange?: (enabled: boolean) => void
   canAddQrCode?: boolean

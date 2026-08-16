@@ -323,7 +323,6 @@ export function WorkspaceSurface({
       selectedLayerId,
       selectedLayerIds,
       desktopCanvasTool,
-      showDesktopCanvasGrid,
       desktopSnapEnabled,
       selectedDownloadExtension,
       selectedDownloadTarget,
@@ -413,7 +412,6 @@ export function WorkspaceSurface({
       setSelectedLayerId,
       setSelectedLayerIds,
       setDesktopCanvasTool,
-      setShowDesktopCanvasGrid,
       setDesktopSnapEnabled,
       setSelectedDownloadExtension,
       setSelectedDownloadTarget,
@@ -3279,9 +3277,6 @@ export function WorkspaceSurface({
     canvasTool: paneToolbarVariant === "desktop-zoom" ? desktopCanvasTool : undefined,
     onCanvasToolChange:
       paneToolbarVariant === "desktop-zoom" ? setDesktopCanvasTool : undefined,
-    showCanvasGrid: paneToolbarVariant === "desktop-zoom" ? showDesktopCanvasGrid : undefined,
-    onCanvasGridChange:
-      paneToolbarVariant === "desktop-zoom" ? setShowDesktopCanvasGrid : undefined,
     snapEnabled: paneToolbarVariant === "desktop-zoom" ? desktopSnapEnabled : undefined,
     onSnapEnabledChange:
       paneToolbarVariant === "desktop-zoom" ? setDesktopSnapEnabled : undefined,
@@ -3543,7 +3538,6 @@ export function WorkspaceSurface({
               }}
               activeCanvasTool={desktopCanvasTool}
               onAddTextLayerAt={handleAddTextLayerAt}
-              onCanvasGridChange={setShowDesktopCanvasGrid}
               onCanvasToolChange={setDesktopCanvasTool}
               onLayerPaste={(_paneId, point) => {
                 void pasteDraftingLayers(point, undefined, _paneId)
@@ -3555,7 +3549,6 @@ export function WorkspaceSurface({
               onRemoveQrCode={handleRemoveQrCode}
               panes={panes}
               fitCanvasToViewport
-              showCanvasGrid={paneToolbarVariant === "desktop-zoom" ? showDesktopCanvasGrid : true}
               snapEnabled={paneToolbarVariant === "desktop-zoom" ? desktopSnapEnabled : undefined}
               onSnapEnabledChange={
                 paneToolbarVariant === "desktop-zoom" ? setDesktopSnapEnabled : undefined

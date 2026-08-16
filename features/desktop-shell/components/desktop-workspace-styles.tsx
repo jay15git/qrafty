@@ -41,10 +41,6 @@ export function DesktopWorkspaceStyles() {
         box-shadow: none !important;
       }
 
-      [data-slot="desktop-workspace"] [data-slot="desktop-compose-surface"][data-grid-visible="false"] {
-        background-image: none !important;
-      }
-
       [data-slot="desktop-workspace"] [data-slot="elastic-slider"],
       body:has([data-slot="desktop-workspace"]) [data-slot="elastic-slider"] {
         --elastic-slider-bg: rgba(255, 255, 255, 0.095);

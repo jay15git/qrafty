@@ -4,7 +4,6 @@ import type { ReactElement, ReactNode } from "react"
 import {
   CopyPlusIcon,
   CrosshairIcon,
-  Grid3X3Icon,
   HandIcon,
   MagnetIcon,
   Maximize2Icon,
@@ -104,7 +103,6 @@ type ComposeToolbarControlsProps = {
   placement?: ComposeToolbarPlacement
   onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
   onBrowseStockPhotos?: () => void
-  onCanvasGridChange?: (showGrid: boolean) => void
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
   onOpenCardPatternSettings?: () => void
@@ -115,7 +113,6 @@ type ComposeToolbarControlsProps = {
   onZoomOut: () => void
   paneCount: number
   previewLocked?: boolean
-  showCanvasGrid?: boolean
   showDesktopInteractionTools?: boolean
   snapEnabled: boolean
   onSnapEnabledChange: (enabled: boolean) => void
@@ -136,7 +133,6 @@ export function ComposeToolbarControls({
   placement = "canvas-floating",
   onAddTextLayerAt,
   onBrowseStockPhotos,
-  onCanvasGridChange,
   onCanvasToolChange,
   onInsertLayer,
   onOpenCardPatternSettings,
@@ -147,7 +143,6 @@ export function ComposeToolbarControls({
   onZoomOut,
   paneCount,
   previewLocked = false,
-  showCanvasGrid = true,
   showDesktopInteractionTools = true,
   snapEnabled,
   onSnapEnabledChange,
@@ -306,32 +301,6 @@ export function ComposeToolbarControls({
           </ComposeToolbarTooltip>
         </>
       )}
-
-      {!isDesktopGlassToolbar ? <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" /> : null}
-
-      {isDesktopGlassToolbar ? (
-        <ComposeToolbarTooltip
-          content={showCanvasGrid ? "Grid on" : "Grid off"}
-          desktop={isDesktopGlassToolbar}
-          placement={placement}
-        >
-          <Button
-            aria-label={showCanvasGrid ? "Hide canvas grid" : "Show canvas grid"}
-            aria-pressed={showCanvasGrid}
-            className={getComposeToolbarIconButtonClass(
-              isDesktopGlassToolbar,
-              showCanvasGrid &&
-                "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
-            )}
-            onClick={() => onCanvasGridChange?.(!showCanvasGrid)}
-            size="icon"
-            type="button"
-            variant="ghost"
-          >
-            <Grid3X3Icon />
-          </Button>
-        </ComposeToolbarTooltip>
-      ) : null}
 
       {onAddQrCode || onInsertLayer ? (
         <>

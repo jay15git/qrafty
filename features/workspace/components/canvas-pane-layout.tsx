@@ -96,7 +96,6 @@ type CanvasPaneLayoutProps = {
   rootPanelGroupId: string
   selectedLayerId?: string | null
   selectedLayerIds?: string[]
-  showCanvasGrid?: boolean
   snapEnabled: boolean
   snapTargetPaneId: string | null
   toolbarVariant?: DraftingPaneToolbarVariant
@@ -234,7 +233,6 @@ export function CanvasPaneLayout({
   rootPanelGroupId,
   selectedLayerId,
   selectedLayerIds,
-  showCanvasGrid = true,
   snapEnabled,
   snapTargetPaneId,
   toolbarVariant,
@@ -320,7 +318,6 @@ export function CanvasPaneLayout({
                       fitCanvasToViewport={fitCanvasToViewport}
                       selectedLayerId={selectedLayerId}
                       selectedLayerIds={selectedLayerIds}
-                      showCanvasGrid={showCanvasGrid}
                       snapEnabled={snapEnabled}
                       toolbarVariant={toolbarVariant}
                     />

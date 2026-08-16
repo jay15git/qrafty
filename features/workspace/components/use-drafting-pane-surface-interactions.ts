@@ -13,7 +13,7 @@ import {
 } from "react"
 
 import type { DraftingPane, DraftingPaneCanvasTool } from "@/features/workspace/components/DraftingPaneSurface"
-import { computeTemplatePreviewFit, DESKTOP_CANVAS_FIT_PADDING } from "@/features/workspace/model/template-preview-fit"
+import { computeTemplatePreviewFit, DESKTOP_ARTBOARD_VIEW_INSETS, DESKTOP_CANVAS_FIT_PADDING } from "@/features/workspace/model/template-preview-fit"
 
 const CANVAS_PAN_CURSOR_LOCK_CLASS = "drafting-canvas-panning"
 
@@ -100,6 +100,7 @@ export function useDraftingPaneSurfaceInteractions({
   } | null>(null)
   const pinchDistanceRef = useRef<number | null>(null)
   const pinchZoomRef = useRef(paneZoom)
+  const [viewFitScale, setViewFitScale] = useState(1)
   const effectiveZoom = paneZoom
   const effectivePan = previewLocked ? { x: 0, y: 0 } : panePan
   const isFreeEditWorkspace =
@@ -133,17 +134,24 @@ export function useDraftingPaneSurfaceInteractions({
       const nextFitScale = computeTemplatePreviewFit(
         { width: pane.cardState.width, height: pane.cardState.height },
         { width: rect.width, height: rect.height },
-        fitCanvasToViewport
-          ? { allowUpscale: true, padding: DESKTOP_CANVAS_FIT_PADDING }
-          : undefined,
+        isFreeEditWorkspace
+          ? { allowUpscale: true, insets: DESKTOP_ARTBOARD_VIEW_INSETS }
+          : fitCanvasToViewport
+            ? { allowUpscale: true, padding: DESKTOP_CANVAS_FIT_PADDING }
+            : undefined,
       )
+
+      if (isFreeEditWorkspace) {
+        setViewFitScale(nextFitScale)
+        return
+      }
 
       if (shouldAutoFitViewport) {
         onPaneZoom(pane.id, nextFitScale)
         return
       }
 
-      if (isFreeEditWorkspace && !hasSeededFitZoomRef.current) {
+      if (!hasSeededFitZoomRef.current) {
         onPaneZoom(pane.id, nextFitScale)
         hasSeededFitZoomRef.current = true
       }
@@ -198,13 +206,14 @@ export function useDraftingPaneSurfaceInteractions({
   const getPlacementPoint = useCallback(
     (event: ReactMouseEvent<HTMLDivElement> | ReactPointerEvent<HTMLDivElement>) => {
       const rect = event.currentTarget.getBoundingClientRect()
+      const sceneScale = effectiveZoom * viewFitScale
 
       return {
-        x: (event.clientX - rect.left - rect.width / 2 - effectivePan.x) / effectiveZoom,
-        y: (event.clientY - rect.top - rect.height / 2 - effectivePan.y) / effectiveZoom,
+        x: (event.clientX - rect.left - rect.width / 2 - effectivePan.x) / sceneScale,
+        y: (event.clientY - rect.top - rect.height / 2 - effectivePan.y) / sceneScale,
       }
     },
-    [effectivePan.x, effectivePan.y, effectiveZoom],
+    [effectivePan.x, effectivePan.y, effectiveZoom, viewFitScale],
   )
 
   const isPlacementTarget = useCallback(
@@ -433,6 +442,7 @@ export function useDraftingPaneSurfaceInteractions({
     panOverlayRef,
     surfaceAppearance,
     surfaceRef,
+    viewFitScale,
     handleQrClick,
     handleSelect,
     handlePanePointerDown,

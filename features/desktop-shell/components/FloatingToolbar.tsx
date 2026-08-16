@@ -102,7 +102,6 @@ export function FloatingToolbar({
               onAddQrCode={controller?.onAddQrCode}
               onAddTextLayerAt={controller?.onAddTextLayerAt}
               onBrowseStockPhotos={() => controller?.onOpenComposeSidebar?.("stock-photos")}
-              onCanvasGridChange={controller?.onCanvasGridChange}
               onCanvasToolChange={controller?.onCanvasToolChange}
               onElementLayerPatch={controller?.onElementLayerPatch}
               onInsertLayer={controller?.onInsertLayer}
@@ -115,7 +114,6 @@ export function FloatingToolbar({
               onThemeChange={model.onDesktopThemeChange}
               onUndo={controller?.onUndo}
               selectedElementLayer={controller?.selectedElementLayer}
-              showCanvasGrid={controller?.showCanvasGrid}
               snapEnabled={controller?.snapEnabled}
               sizePresetId={controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId}
               theme={actualDesktopTheme}

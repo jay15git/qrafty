@@ -52,4 +52,17 @@ describe("template-preview-fit", () => {
     expect(scale).toBeGreaterThan(0)
     expect(scale).toBeLessThan(1)
   })
+
+  it("respects asymmetric viewport insets", () => {
+    const scale = computeTemplatePreviewFit(
+      { width: 800, height: 800 },
+      { width: 1000, height: 900 },
+      {
+        allowUpscale: true,
+        insets: { top: 56, right: 72, bottom: 56, left: 40 },
+      },
+    )
+
+    expect(scale).toBeCloseTo(Math.min((1000 - 40 - 72) / 800, (900 - 56 - 56) / 800), 5)
+  })
 })

@@ -234,7 +234,6 @@ export function DesktopDynamicIslandChrome({
   onAddQrCode,
   onAddTextLayerAt,
   onBrowseStockPhotos,
-  onCanvasGridChange,
   onCanvasToolChange,
   onInsertLayer,
   onOpenCardPatternSettings,
@@ -247,7 +246,6 @@ export function DesktopDynamicIslandChrome({
   onThemeChange,
   onUndo,
   selectedElementLayer,
-  showCanvasGrid,
   snapEnabled,
   sizePresetId,
   theme = "dark",
@@ -263,7 +261,6 @@ export function DesktopDynamicIslandChrome({
   onAddQrCode?: () => void
   onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
   onBrowseStockPhotos?: () => void
-  onCanvasGridChange?: (showGrid: boolean) => void
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
   onOpenCardPatternSettings?: () => void
@@ -276,7 +273,6 @@ export function DesktopDynamicIslandChrome({
   onThemeChange?: (theme: DesktopThemeMode) => void
   onUndo?: () => void
   selectedElementLayer?: DraftingCanvasLayer | null
-  showCanvasGrid?: boolean
   snapEnabled?: boolean
   sizePresetId?: string
   theme?: DesktopThemeMode
@@ -327,7 +323,6 @@ export function DesktopDynamicIslandChrome({
                 }}
                 onAddTextLayerAt={onAddTextLayerAt}
                 onBrowseStockPhotos={onBrowseStockPhotos}
-                onCanvasGridChange={onCanvasGridChange}
                 onCanvasToolChange={onCanvasToolChange}
                 onInsertLayer={onInsertLayer}
                 onOpenCardPatternSettings={onOpenCardPatternSettings}
@@ -341,7 +336,6 @@ export function DesktopDynamicIslandChrome({
                 onZoomIn={() => undefined}
                 onZoomOut={() => undefined}
                 paneCount={1}
-                showCanvasGrid={showCanvasGrid}
                 snapEnabled={snapEnabled!}
                 onSnapEnabledChange={onSnapEnabledChange!}
                 zoomPercent="100%"

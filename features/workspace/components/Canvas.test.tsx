@@ -365,7 +365,6 @@ describe("Canvas", () => {
       insertNodeId: "pane-1",
       isMaximized: false,
       onAddTextLayerAt: vi.fn(),
-      onCanvasGridChange: vi.fn(),
       onCanvasToolChange: vi.fn(),
       onInsertLayer: vi.fn(),
       onResetView: vi.fn(),
@@ -374,7 +373,6 @@ describe("Canvas", () => {
       onZoomOut: vi.fn(),
       paneCount: 1,
       qr: { canAdd: true, onAdd: vi.fn() },
-      showCanvasGrid: true,
       snapEnabled: true,
       onSnapEnabledChange: vi.fn(),
       zoomPercent: "100%",
@@ -392,7 +390,6 @@ describe("Canvas", () => {
       "Select and move elements",
       "Pan canvas",
       "Disable snapping",
-      "Hide canvas grid",
       "Add text on canvas",
       "Add content",
     ])
@@ -438,42 +435,8 @@ describe("Canvas", () => {
     expect(onCanvasToolChange).toHaveBeenNthCalledWith(2, "pan")
   })
 
-  it("wires the desktop compose grid toggle", () => {
-    const onCanvasGridChange = vi.fn()
-    const container = renderComposeToolbar({
-      activeInteractionTool: "select",
-      activePaneId: "pane-1",
-      canRemove: false,
-      insertNodeId: "pane-1",
-      isMaximized: false,
-      onCanvasGridChange,
-      onResetView: vi.fn(),
-      onToggleMaximize: vi.fn(),
-      onZoomIn: vi.fn(),
-      onZoomOut: vi.fn(),
-      paneCount: 1,
-      showCanvasGrid: true,
-      snapEnabled: true,
-      onSnapEnabledChange: vi.fn(),
-      zoomPercent: "100%",
-    })
-    const gridButton = container.querySelector(
-      'button[aria-label="Hide canvas grid"]',
-    ) as HTMLButtonElement | null
-
-    expect(gridButton).not.toBeNull()
-    expect(gridButton?.getAttribute("aria-pressed")).toBe("true")
-
-    act(() => {
-      gridButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-    })
-
-    expect(onCanvasGridChange).toHaveBeenCalledWith(false)
-  })
-
-  it("reflects canvas grid visibility on the pane surface", async () => {
+  it("reflects workspace surface appearance on the pane surface", async () => {
     const workspace = renderWorkspace({
-      showCanvasGrid: true,
       toolbarVariant: "desktop-zoom",
     })
     const pane = getPaneSurfaces(workspace.container, 1)[0]
@@ -482,24 +445,6 @@ describe("Canvas", () => {
       await flushPromises()
     })
 
-    expect(pane?.getAttribute("data-grid-visible")).toBe("true")
-    expect(pane?.getAttribute("data-surface-appearance")).toBe("workspace")
-    expect(pane?.style.backgroundImage).toBe("none")
-  })
-
-  it("hides the canvas dot grid when the desktop grid setting is off", async () => {
-    const workspace = renderWorkspace({
-      showCanvasGrid: false,
-      toolbarVariant: "desktop-zoom",
-    })
-    const pane = getPaneSurfaces(workspace.container, 1)[0]
-
-    await act(async () => {
-      await flushPromises()
-    })
-
-    expect(workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')).toBeNull()
-    expect(pane?.getAttribute("data-grid-visible")).toBe("false")
     expect(pane?.getAttribute("data-surface-appearance")).toBe("workspace")
     expect(pane?.style.backgroundImage).toBe("none")
   })
@@ -579,7 +524,6 @@ function renderWorkspace({
   history,
   qr,
   onCanvasToolChange,
-  onCanvasGridChange,
   onAddTextLayerAt,
   onInsertLayer = vi.fn(),
   insertNodeId = "pane-1",
@@ -589,7 +533,6 @@ function renderWorkspace({
   panes = createPanes(paneCount),
   selectedLayerId,
   selectedLayerIds,
-  showCanvasGrid,
   toolbarVariant,
   layerEditingEnabled,
   previewLocked,
@@ -598,7 +541,6 @@ function renderWorkspace({
   history?: ComponentProps<typeof Canvas>["history"]
   qr?: ComponentProps<typeof Canvas>["qr"]
   onCanvasToolChange?: ComponentProps<typeof Canvas>["onCanvasToolChange"]
-  onCanvasGridChange?: ComponentProps<typeof Canvas>["onCanvasGridChange"]
   onAddTextLayerAt?: ComponentProps<typeof Canvas>["onAddTextLayerAt"]
   onInsertLayer?: ComponentProps<typeof Canvas>["onInsertLayer"]
   insertNodeId?: ComponentProps<typeof Canvas>["insertNodeId"]
@@ -608,7 +550,6 @@ function renderWorkspace({
   panes?: ReturnType<typeof createPanes>
   selectedLayerId?: ComponentProps<typeof Canvas>["selectedLayerId"]
   selectedLayerIds?: ComponentProps<typeof Canvas>["selectedLayerIds"]
-  showCanvasGrid?: ComponentProps<typeof Canvas>["showCanvasGrid"]
   toolbarVariant?: ComponentProps<typeof Canvas>["toolbarVariant"]
   layerEditingEnabled?: ComponentProps<typeof Canvas>["layerEditingEnabled"]
   previewLocked?: ComponentProps<typeof Canvas>["previewLocked"]
@@ -626,7 +567,6 @@ function renderWorkspace({
         onPaneQrClick={() => undefined}
         onPaneSelect={() => undefined}
         onLayerSelect={onLayerSelect}
-        onCanvasGridChange={onCanvasGridChange}
         onCanvasToolChange={onCanvasToolChange}
         onInsertLayer={onInsertLayer}
         insertNodeId={insertNodeId}
@@ -634,7 +574,6 @@ function renderWorkspace({
         panes={nextPanes}
         selectedLayerId={selectedLayerId}
         selectedLayerIds={selectedLayerIds}
-        showCanvasGrid={showCanvasGrid}
         toolbarVariant={toolbarVariant}
         layerEditingEnabled={layerEditingEnabled}
         previewLocked={previewLocked}
