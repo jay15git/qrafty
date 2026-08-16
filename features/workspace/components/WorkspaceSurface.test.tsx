@@ -321,10 +321,10 @@ describe("WorkspaceSurface", () => {
     expect(composeToolbar.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
     expect(composeToolbar.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
     expect(dynamicIsland.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
-    expect(getRequiredElement(dynamicIsland, '[data-slot="desktop-theme-toggle"]').getAttribute("aria-label")).toBe("Switch to dark mode")
+    expect(getRequiredElement(dynamicIsland, '[data-slot="desktop-theme-toggle"]').getAttribute("aria-label")).toBe("Switch to light mode")
     expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
     const historyActions = getRequiredElement(surface.container, '[data-slot="desktop-history-actions"]')
-    expect(historyActions.querySelector('button[aria-label="Switch to dark mode"]')).toBeNull()
+    expect(historyActions.querySelector('button[aria-label="Switch to light mode"]')).toBeNull()
     expect(Array.from(historyActions.querySelectorAll("button")).map((button) => button.getAttribute("aria-label"))).toEqual([
       "Undo",
       "Redo",
@@ -1075,7 +1075,7 @@ describe("WorkspaceSurface", () => {
 
 function DesktopOverlayTestHarness(props: ComponentProps<typeof WorkspaceSurface>) {
   const [desktopTheme, setDesktopTheme] = useState<"dark" | "light">(
-    props?.desktopTheme ?? "light",
+    props?.desktopTheme ?? "dark",
   )
 
   return (

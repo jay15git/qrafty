@@ -20,7 +20,7 @@ type DesktopWorkspaceProps = {
 
 export function DesktopWorkspace({
   fontClassName,
-  initialTheme = "light",
+  initialTheme = "dark",
   initialActiveTool,
 }: DesktopWorkspaceProps) {
   const [desktopTheme, setDesktopTheme] = useState<DesktopThemeMode>(initialTheme)

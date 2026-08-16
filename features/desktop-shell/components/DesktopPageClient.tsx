@@ -20,12 +20,12 @@ export function DesktopPageClient({ fontClassName }: DesktopPageClientProps) {
   const searchParams = useSearchParams()
   const source = searchParams.get("source")
   const [initialTheme] = React.useState<DesktopThemeMode>(() => {
-    if (typeof window === "undefined") return "light"
+    if (typeof window === "undefined") return "dark"
 
     try {
-      return window.localStorage.getItem(DESKTOP_THEME_KEY) === "dark" ? "dark" : "light"
+      return window.localStorage.getItem(DESKTOP_THEME_KEY) === "light" ? "light" : "dark"
     } catch {
-      return "light"
+      return "dark"
     }
   })
 

@@ -125,10 +125,10 @@ describe("FloatingToolbar", () => {
     const historyActions = surface.container.querySelector('[data-slot="desktop-history-actions"]')
     const utilityToolbar = surface.container.querySelector('[data-slot="desktop-utility-toolbar"]')
 
-    expect(prototype?.getAttribute("data-desktop-theme")).toBe("light")
+    expect(prototype?.getAttribute("data-desktop-theme")).toBe("dark")
     expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
     expect(historyActions).not.toBeNull()
-    expect(historyActions?.querySelector('button[aria-label="Switch to light mode"]')).toBeNull()
+    expect(historyActions?.querySelector('button[aria-label="Switch to dark mode"]')).toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
     const dynamicIsland = surface.container.querySelector('[data-slot="desktop-dynamic-island"]')
     expect(dynamicIsland?.querySelector('[data-slot="desktop-theme-toggle"]')).not.toBeNull()

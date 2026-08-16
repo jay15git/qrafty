@@ -123,7 +123,7 @@ export function useDesktopToolbarInspectorModel({
   onThemeChange?: (theme: DesktopThemeMode) => void
 } = {}): DesktopInspectorModel {
   const [activeTool, setActiveTool] = useState<DesktopToolbarToolId | null>("content")
-  const [desktopTheme, setDesktopTheme] = useState<DesktopThemeMode>("light")
+  const [desktopTheme, setDesktopTheme] = useState<DesktopThemeMode>("dark")
   const [patternSettings, setPatternSettings] = useState<DesktopPatternSettings>(
     DEFAULT_DESKTOP_PATTERN_SETTINGS,
   )
