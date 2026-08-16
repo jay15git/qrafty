@@ -2,6 +2,7 @@
 
 import {
   Component,
+  memo,
   useEffect,
   useRef,
   useState,
@@ -223,7 +224,7 @@ function DraftingCardPaperShaderRenderer({
   )
 }
 
-export function DraftingCardPaperShaderLayer({
+export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShaderLayer({
   layoutHeight,
   layoutWidth,
   paperShader,
@@ -294,4 +295,7 @@ export function DraftingCardPaperShaderLayer({
       }}
     />
   )
-}
+}, (previous, next) =>
+  previous.paperShader === next.paperShader &&
+  previous.layoutWidth === next.layoutWidth &&
+  previous.layoutHeight === next.layoutHeight)

@@ -33,6 +33,7 @@ import {
 } from "@/features/workspace/components/SceneBackgroundLayer"
 import {
   PaneLayerView,
+  PaneDocumentCardLayer,
   type PaneLayerViewSharedProps,
 } from "@/features/workspace/components/PaneLayerViews"
 import {
@@ -337,7 +338,9 @@ export function PaneWorkspace({
         }
       : undefined
   const cardStyle: CSSProperties = {
-    ...cssFillToBackgroundStyle(cardState.fill),
+    ...(isPaperShaderMode || isImageFilterMode || isImageMode
+      ? { backgroundColor: "transparent" }
+      : cssFillToBackgroundStyle(cardState.fill)),
     ...(isPaperShaderMode || isImageFilterMode || isImageMode ? undefined : cardPatternStyle),
     ...cardImageStyle,
     ...getDraftingCardBorderStyle(cardState),
@@ -1293,7 +1296,17 @@ export function PaneWorkspace({
             >
               {contentOnlyZoom ? (
                 <div className="relative h-full w-full" data-export-root>
-                  {cardLayers.map((layer) => renderLayerView(layer))}
+                  {cardLayers.map((layer) => (
+                    <PaneDocumentCardLayer
+                      key={layer.id}
+                      cardState={cardState}
+                      isImageFilterMode={isImageFilterMode}
+                      isImageMode={isImageMode}
+                      isPaperShaderMode={isPaperShaderMode}
+                      isLayerSelected={activeSelectedLayerIdSet.has(layer.id)}
+                      layer={layer}
+                    />
+                  ))}
                   <SceneCompositionTransform layout={sceneComposition.layout}>
                     <div
                       className="relative h-full w-full"

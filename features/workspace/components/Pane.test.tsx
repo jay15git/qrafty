@@ -240,6 +240,7 @@ describe("Pane", () => {
       },
       cornerRadius: 24,
       fill: "#ffcc00",
+      styleMode: "pattern",
       padding: 20,
       shadow: {
         blur: 30,

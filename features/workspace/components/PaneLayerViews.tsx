@@ -1,6 +1,8 @@
 "use client"
 
 import {
+  memo,
+  useMemo,
   type CSSProperties,
   type FormEvent,
   type MouseEvent,
@@ -23,6 +25,7 @@ import {
   type DraftingTextRun,
 } from "@/features/workspace/model/layers"
 import {
+  getDraftingCardBorderStyle,
   getDraftingLayerEffectStyle,
   getLayerPlacementStyle,
   getTextLayerStyle,
@@ -42,6 +45,8 @@ import {
 import type { QrStudioState } from "@/features/qr-code/model/state"
 import { useDraftingQrMarkup } from "@/features/workspace/hooks/use-drafting-qr-markup"
 import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
+import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
+import { getDraftingCardPatternStyle } from "@/features/workspace/model/card-patterns"
 import { cn } from "@/lib/utils"
 import type { ResizeDirection } from "@/features/workspace/components/pane-layer-geometry"
 import { PaneLayerInteractive } from "@/features/workspace/components/pane-layer-a11y"
@@ -53,6 +58,181 @@ function layerExportAttrs(kind: DraftingCanvasLayer["kind"]) {
     "data-export-kind": kind,
     "data-export-layer": "true",
   } as const
+}
+
+function buildPaneDocumentCardSurfaceStyle(
+  cardState: DraftingCardState,
+  isImageFilterMode: boolean,
+  isImageMode: boolean,
+  isPaperShaderMode: boolean,
+): CSSProperties {
+  const usesShaderOrImageSurface = isPaperShaderMode || isImageFilterMode || isImageMode
+  const patternStyle = getDraftingCardPatternStyle(
+    cardState.patternId,
+    cardState.patternId === "none" ? undefined : cardState.patternColors[cardState.patternId],
+  )
+
+  return {
+    ...(usesShaderOrImageSurface
+      ? { backgroundColor: "transparent" }
+      : cssFillToBackgroundStyle(cardState.fill)),
+    ...(usesShaderOrImageSurface ? undefined : patternStyle),
+    ...getDraftingCardBorderStyle(cardState),
+    borderRadius: cornerRadiiToCss(cardState.cornerRadii),
+  }
+}
+
+type PaneDocumentCardLayerProps = {
+  cardState: DraftingCardState
+  isImageFilterMode: boolean
+  isImageMode: boolean
+  isPaperShaderMode: boolean
+  isLayerSelected: boolean
+  layer: DraftingCanvasLayer
+  nested?: boolean
+}
+
+export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
+  cardState,
+  isImageFilterMode,
+  isImageMode,
+  isPaperShaderMode,
+  isLayerSelected,
+  layer,
+  nested = false,
+}: PaneDocumentCardLayerProps) {
+  const cardImageStyle =
+    (isImageMode || isImageFilterMode) && cardState.cardImage.value
+      ? {
+          backgroundImage: `url("${cardState.cardImage.value}")`,
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: cardState.cardImage.fit,
+        }
+      : undefined
+  const imageFilterShader = useMemo(
+    () => ({
+      ...cardState.imageFilter,
+      image: {
+        ...cardState.imageFilter.image,
+        source:
+          cardState.cardImage.source === "none"
+            ? cardState.imageFilter.image.source
+            : cardState.cardImage.source,
+        value: cardState.cardImage.value ?? cardState.imageFilter.image.value,
+      },
+    }),
+    [cardState.cardImage.source, cardState.cardImage.value, cardState.imageFilter],
+  )
+  const surfaceStyle = useMemo(
+    () => buildPaneDocumentCardSurfaceStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
+    [cardState, isImageFilterMode, isImageMode, isPaperShaderMode],
+  )
+
+  if (nested) {
+    return (
+      <div
+        key={layer.id}
+        data-slot="desktop-compose-card"
+        data-layer-id={layer.id}
+        data-selected={isLayerSelected ? "true" : "false"}
+        {...layerExportAttrs("card")}
+        className="absolute max-h-none max-w-none overflow-visible"
+        style={{
+          ...surfaceStyle,
+          ...getLayerPlacementStyle(layer, true),
+          ...getDraftingLayerEffectStyle(layer),
+        }}
+      >
+        {isPaperShaderMode ? (
+          <DraftingCardPaperShaderLayer
+            layoutHeight={layer.height}
+            layoutWidth={layer.width}
+            paperShader={cardState.paperShader}
+          />
+        ) : null}
+      </div>
+    )
+  }
+
+  return (
+    <div
+      key={layer.id}
+      data-slot="desktop-compose-card"
+      data-layer-id={layer.id}
+      data-card-pattern={isPaperShaderMode || isImageFilterMode || isImageMode ? "none" : cardState.patternId}
+      data-card-paper-shader={
+        isPaperShaderMode
+          ? cardState.paperShader.shaderId
+          : isImageFilterMode
+            ? cardState.imageFilter.shaderId
+            : "none"
+      }
+      data-card-shadow-blur={layer.shadow.blur}
+      data-card-shadow-offset-x={layer.shadow.offsetX}
+      data-card-shadow-offset-y={layer.shadow.offsetY}
+      data-card-style-mode={cardState.styleMode}
+      data-card-enabled={layer.isVisible ? "true" : "false"}
+      data-card-border-width={cardState.border.width}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("card")}
+      className={cn(
+        "pointer-events-none absolute max-h-none max-w-none overflow-hidden",
+        isPaperShaderMode
+          ? "transition-[filter,border-radius] duration-150"
+          : "transition-[filter,background-color,border-radius] duration-150",
+      )}
+      style={{
+        ...surfaceStyle,
+        ...getLayerPlacementStyle(layer),
+        ...getDraftingLayerEffectStyle(layer),
+      }}
+    >
+      <DraftingLayerTiltShell layer={layer}>
+        {isImageMode && cardState.cardImage.value ? (
+          <div
+            aria-hidden="true"
+            data-slot="desktop-compose-card-image"
+            className="pointer-events-none absolute inset-0 z-0"
+            style={{
+              ...cardImageStyle,
+              borderRadius: "inherit",
+              opacity: cardState.cardImage.opacity / 100,
+            }}
+          />
+        ) : null}
+        {isPaperShaderMode ? (
+          <DraftingCardPaperShaderLayer
+            layoutHeight={layer.height}
+            layoutWidth={layer.width}
+            paperShader={cardState.paperShader}
+          />
+        ) : null}
+        {isImageFilterMode ? (
+          <DraftingCardPaperShaderLayer
+            layoutHeight={layer.height}
+            layoutWidth={layer.width}
+            paperShader={imageFilterShader}
+          />
+        ) : null}
+      </DraftingLayerTiltShell>
+    </div>
+  )
+}, paneDocumentCardLayerPropsAreEqual)
+
+function paneDocumentCardLayerPropsAreEqual(
+  previous: PaneDocumentCardLayerProps,
+  next: PaneDocumentCardLayerProps,
+) {
+  return (
+    previous.layer === next.layer &&
+    previous.cardState === next.cardState &&
+    previous.isImageFilterMode === next.isImageFilterMode &&
+    previous.isImageMode === next.isImageMode &&
+    previous.isPaperShaderMode === next.isPaperShaderMode &&
+    previous.isLayerSelected === next.isLayerSelected &&
+    previous.nested === next.nested
+  )
 }
 
 function getTextLayerRuns(layer: DraftingCanvasLayer): DraftingTextRun[] {
@@ -312,27 +492,15 @@ export function PaneNestedLayerView({
   }
 
   return (
-    <div
-      key={layer.id}
-      data-slot="desktop-compose-card"
-      data-layer-id={layer.id}
-      data-selected={isLayerSelected ? "true" : "false"}
-      {...layerExportAttrs("card")}
-      className="absolute max-h-none max-w-none overflow-visible"
-      style={{
-        ...cardStyle,
-        ...getLayerPlacementStyle(layer, true),
-        ...getDraftingLayerEffectStyle(layer),
-      }}
-    >
-      {isPaperShaderMode ? (
-        <DraftingCardPaperShaderLayer
-          layoutHeight={layer.height}
-          layoutWidth={layer.width}
-          paperShader={cardState.paperShader}
-        />
-      ) : null}
-    </div>
+    <PaneDocumentCardLayer
+      cardState={cardState}
+      isImageFilterMode={isImageFilterMode}
+      isImageMode={isImageMode}
+      isPaperShaderMode={isPaperShaderMode}
+      isLayerSelected={isLayerSelected}
+      layer={layer}
+      nested
+    />
   )
 }
 
@@ -658,64 +826,13 @@ export function PaneLayerView({
   }
 
   return (
-    <div
-      key={layer.id}
-      data-slot="desktop-compose-card"
-      data-layer-id={layer.id}
-      data-card-pattern={isPaperShaderMode || isImageFilterMode || isImageMode ? "none" : cardState.patternId}
-      data-card-paper-shader={
-        isPaperShaderMode
-          ? cardState.paperShader.shaderId
-          : isImageFilterMode
-            ? cardState.imageFilter.shaderId
-            : "none"
-      }
-      data-card-shadow-blur={layer.shadow.blur}
-      data-card-shadow-offset-x={layer.shadow.offsetX}
-      data-card-shadow-offset-y={layer.shadow.offsetY}
-      data-card-style-mode={cardState.styleMode}
-      data-card-enabled={layer.isVisible ? "true" : "false"}
-      data-card-border-width={cardState.border.width}
-      data-selected={isLayerSelected ? "true" : "false"}
-      {...layerExportAttrs("card")}
-      className={cn(
-        "absolute max-h-none max-w-none transition-[filter,background-color,border-radius] duration-150",
-        "pointer-events-none overflow-hidden",
-      )}
-      style={{
-        ...cardStyle,
-        ...getLayerPlacementStyle(layer),
-        ...getDraftingLayerEffectStyle(layer),
-      }}
-    >
-      <DraftingLayerTiltShell layer={layer}>
-        {isImageMode && cardState.cardImage.value ? (
-          <div
-            aria-hidden="true"
-            data-slot="desktop-compose-card-image"
-            className="pointer-events-none absolute inset-0 z-0"
-            style={{
-              ...cardImageStyle,
-              borderRadius: "inherit",
-              opacity: cardState.cardImage.opacity / 100,
-            }}
-          />
-        ) : null}
-        {isPaperShaderMode ? (
-          <DraftingCardPaperShaderLayer
-            layoutHeight={layer.height}
-            layoutWidth={layer.width}
-            paperShader={cardState.paperShader}
-          />
-        ) : null}
-        {isImageFilterMode ? (
-          <DraftingCardPaperShaderLayer
-            layoutHeight={layer.height}
-            layoutWidth={layer.width}
-            paperShader={imageFilterShader}
-          />
-        ) : null}
-      </DraftingLayerTiltShell>
-    </div>
+    <PaneDocumentCardLayer
+      cardState={cardState}
+      isImageFilterMode={isImageFilterMode}
+      isImageMode={isImageMode}
+      isPaperShaderMode={isPaperShaderMode}
+      isLayerSelected={isLayerSelected}
+      layer={layer}
+    />
   )
 }
