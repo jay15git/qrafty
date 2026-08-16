@@ -109,7 +109,7 @@ describe("DesktopElementInspector", () => {
 })
 
 describe("FloatingToolbar selected element routing", () => {
-  it("renders desktop element inspector when a canvas element is selected", async () => {
+  it("renders layer toolbar in the dynamic island when a canvas element is selected", async () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" })
     const surface = await renderWithAsyncJsdomRoot(
       <FloatingToolbar
@@ -123,14 +123,12 @@ describe("FloatingToolbar selected element routing", () => {
       />,
     )
 
-    expect(surface.container.querySelector('[data-slot="desktop-element-inspector"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="drafting-element-inspector"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-floating-inspector"]')?.getAttribute("aria-label")).toBe(
-      "text element settings",
-    )
+    expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-element-inspector"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
   })
 
-  it("prioritizes a selected canvas element when no rail tool is active", async () => {
+  it("keeps accordion settings visible when a canvas element is selected", async () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" })
     const surface = await renderWithAsyncJsdomRoot(
       <FloatingToolbar
@@ -144,14 +142,11 @@ describe("FloatingToolbar selected element routing", () => {
       />,
     )
 
-    expect(surface.container.querySelector('[data-slot="desktop-element-inspector"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-floating-inspector"]')?.getAttribute("aria-label")).toBe(
-      "text element settings",
-    )
+    expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-element-inspector"]')).toBeNull()
   })
 
-  it("prioritizes the active toolbar tool over a selected canvas element", async () => {
+  it("prioritizes the active toolbar tool accordion over a selected canvas element in the left panel", async () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" })
     const surface = await renderWithAsyncJsdomRoot(
       <FloatingToolbar
@@ -167,6 +162,6 @@ describe("FloatingToolbar selected element routing", () => {
 
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-element-inspector"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-floating-inspector"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).not.toBeNull()
   })
 })

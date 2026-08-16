@@ -67,7 +67,6 @@ export function FloatingToolbar({
   const {
     actualActiveTool,
     actualDesktopTheme,
-    activeToolConfig,
   } = model
 
   return (
@@ -105,6 +104,7 @@ export function FloatingToolbar({
               onBrowseStockPhotos={() => controller?.onOpenComposeSidebar?.("stock-photos")}
               onCanvasGridChange={controller?.onCanvasGridChange}
               onCanvasToolChange={controller?.onCanvasToolChange}
+              onElementLayerPatch={controller?.onElementLayerPatch}
               onInsertLayer={controller?.onInsertLayer}
               onOpenCardPatternSettings={controller?.onOpenCardPatternSettings}
               onPatch={controller?.onAppearancePatch}
@@ -114,6 +114,7 @@ export function FloatingToolbar({
               onSnapEnabledChange={controller?.onSnapEnabledChange}
               onThemeChange={model.onDesktopThemeChange}
               onUndo={controller?.onUndo}
+              selectedElementLayer={controller?.selectedElementLayer}
               showCanvasGrid={controller?.showCanvasGrid}
               snapEnabled={controller?.snapEnabled}
               sizePresetId={controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId}
@@ -157,9 +158,7 @@ export function FloatingToolbar({
           </DesktopUtilityToolbar>
         </div>
         <DesktopSettingsToolbarShell
-          showInspector={Boolean(
-            activeToolConfig || controller?.selectedElementLayer || controller?.composeSidebarPanel,
-          )}
+          showInspector
           inspector={
             <DesktopNewFloatingInspector activeTool={actualActiveTool} model={model} />
           }

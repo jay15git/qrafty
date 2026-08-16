@@ -19,6 +19,7 @@ import {
   DesktopThemeToggleButton,
 } from "@/features/desktop-shell/components/DesktopChromeControls"
 import { DesktopCanvasRatioPresetPopover } from "@/features/desktop-shell/components/DesktopCanvasRatioPresetRow"
+import { DesktopLayerToolbar } from "@/features/desktop-shell/components/DesktopLayerToolbar"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import { DesktopUtilityToolbarButton } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
@@ -240,10 +241,12 @@ export function DesktopDynamicIslandChrome({
   onPatch,
   onRedo,
   onRemoveQrCode,
+  onElementLayerPatch,
   onSelectSizeTemplate,
   onSnapEnabledChange,
   onThemeChange,
   onUndo,
+  selectedElementLayer,
   showCanvasGrid,
   snapEnabled,
   sizePresetId,
@@ -267,16 +270,19 @@ export function DesktopDynamicIslandChrome({
   onPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onRedo?: () => void
   onRemoveQrCode?: () => void
+  onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onSelectSizeTemplate?: (template: SizeTemplate) => void
   onSnapEnabledChange?: (enabled: boolean) => void
   onThemeChange?: (theme: DesktopThemeMode) => void
   onUndo?: () => void
+  selectedElementLayer?: DraftingCanvasLayer | null
   showCanvasGrid?: boolean
   snapEnabled?: boolean
   sizePresetId?: string
   theme?: DesktopThemeMode
 }) {
   const hasAppearance = Boolean(appearance && onPatch)
+  const hasLayerToolbar = Boolean(selectedElementLayer && onElementLayerPatch)
   const hasComposeControls =
     Boolean(onCanvasToolChange) &&
     Boolean(activePaneId) &&
@@ -342,6 +348,16 @@ export function DesktopDynamicIslandChrome({
               />
             </>
           ) : null}
+          {hasLayerToolbar ? (
+            <>
+              <DesktopDynamicIslandDivider />
+              <DesktopLayerToolbar
+                layer={selectedElementLayer!}
+                theme={theme}
+                onPatch={onElementLayerPatch!}
+              />
+            </>
+          ) : null}
           {hasAppearance ? (
             <>
               <DesktopDynamicIslandDivider />
@@ -364,7 +380,7 @@ export function DesktopDynamicIslandChrome({
         </div>
       }
       showViewControls={false}
-      className={cn(hasAppearance || hasComposeControls ? "min-w-[12rem]" : undefined)}
+      className={cn(hasAppearance || hasComposeControls || hasLayerToolbar ? "min-w-[12rem]" : undefined)}
     />
   )
 }

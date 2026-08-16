@@ -1,6 +1,5 @@
 "use client"
 
-import { DesktopElementInspector } from "@/features/desktop-shell/components/DesktopElementInspector"
 import { DesktopPexelsPhotoInspector } from "@/features/desktop-shell/components/DesktopPexelsPhotoInspector"
 import type {
   DesktopInspectorModel,
@@ -21,13 +20,8 @@ export function DesktopNewFloatingInspector({
   className?: string
   model: DesktopInspectorModel
 }) {
-  const { activeToolConfig, actualDesktopTheme, controller } = model
+  const { actualDesktopTheme, controller } = model
   const showStockPhotosInspector = controller?.composeSidebarPanel === "stock-photos"
-  const showElementInspector =
-    Boolean(controller?.selectedElementLayer) &&
-    activeTool !== "layers" &&
-    !activeToolConfig &&
-    !showStockPhotosInspector
 
   if (showStockPhotosInspector) {
     return (
@@ -40,28 +34,6 @@ export function DesktopNewFloatingInspector({
           onClose={() => controller?.onCloseComposeSidebar?.()}
           onSelectPhoto={(imageUrl) => controller?.onSelectStockPhoto?.(imageUrl)}
         />
-      </aside>
-    )
-  }
-
-  if (showElementInspector && controller?.selectedElementLayer) {
-    return (
-      <aside
-        aria-label={`${controller.selectedElementLayer.kind} element settings`}
-        className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden", className)}
-        data-slot="desktop-floating-inspector"
-      >
-        <div
-          className="desktopnew-root desktopnew-embedded h-full min-h-0 w-full min-w-0 overflow-hidden"
-          data-theme={actualDesktopTheme}
-        >
-          <DesktopnewThemeContext.Provider value={actualDesktopTheme}>
-            <DesktopElementInspector
-              layer={controller.selectedElementLayer}
-              onPatch={(patch) => controller.onElementLayerPatch?.(patch)}
-            />
-          </DesktopnewThemeContext.Provider>
-        </div>
       </aside>
     )
   }
