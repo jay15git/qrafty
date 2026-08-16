@@ -45,8 +45,7 @@ export function DesktopCanvasRatioPresetPopover({
             aria-label={tooltipLabel}
             className={cn(
               "h-8 w-auto px-2.5 text-[10px] font-medium tracking-tight",
-              open &&
-                "bg-[var(--desktop-glass-button-hover-bg)] text-[var(--desktop-glass-button-hover-fg)]",
+              open && "text-[var(--desktop-glass-button-hover-fg)]",
               className,
             )}
             data-slot="desktop-canvas-size-trigger"

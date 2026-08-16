@@ -164,15 +164,18 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
 }
 
 [data-desktop-theme="dark"] [data-slot="desktop-document-toolbar"],
-[data-desktop-theme="dark"] [data-slot="desktop-utility-toolbar"],
-[data-desktop-theme="dark"] [data-slot="desktop-dynamic-island"],
 [data-desktop-theme="dark"] [data-slot="desktop-action-toolbar"] {
   box-shadow: var(--desktop-glass-shadow) !important;
 }
 
+[data-desktop-theme="dark"] [data-slot="desktop-utility-toolbar"],
+[data-desktop-theme="dark"] [data-slot="desktop-dynamic-island"] {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
 [data-desktop-theme="light"] [data-slot="desktop-document-toolbar"],
-[data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"],
-[data-desktop-theme="light"] [data-slot="desktop-dynamic-island"],
 [data-desktop-theme="light"] [data-slot="desktop-action-toolbar"] {
   background: var(--desktop-glass-bg) !important;
   border-color: rgba(15, 23, 42, 0.12) !important;
@@ -180,12 +183,24 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
   box-shadow: 0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
 }
 
+[data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"],
+[data-desktop-theme="light"] [data-slot="desktop-dynamic-island"] {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: rgba(15, 23, 42, 0.68) !important;
+  box-shadow: none !important;
+}
+
 [data-desktop-theme="light"] [data-slot="desktop-floating-toolbar"] button:not([data-proximity-index]):hover,
 [data-desktop-theme="light"] [data-slot="desktop-document-toolbar"] button:hover,
-[data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"] button:hover,
-[data-desktop-theme="light"] [data-slot="desktop-dynamic-island"] button:hover,
 [data-desktop-theme="light"] [data-slot="desktop-action-toolbar"] button:hover {
   background: rgba(15, 23, 42, 0.08) !important;
+  color: var(--desktop-toolbar-fg-hover) !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"] button:hover,
+[data-desktop-theme="light"] [data-slot="desktop-dynamic-island"] button:hover {
+  background: transparent !important;
   color: var(--desktop-toolbar-fg-hover) !important;
 }
 

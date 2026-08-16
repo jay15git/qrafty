@@ -8,7 +8,7 @@ import {
 } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
 
 const DESKTOP_UTILITY_TOOLBAR_BUTTON_CLASS =
-  "grid size-9 cursor-pointer place-items-center rounded-[7px] text-current transition-colors duration-150 hover:bg-[var(--desktop-glass-button-hover-bg)] hover:text-[var(--desktop-glass-button-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-glass-button-focus-ring)] disabled:cursor-not-allowed max-md:size-8 [&_svg]:size-3.5"
+  "grid size-9 cursor-pointer place-items-center rounded-none border-0 bg-transparent p-0 text-current shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--desktop-glass-button-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-glass-button-focus-ring)] disabled:cursor-not-allowed max-md:size-8 [&_svg]:size-3.5"
 
 export function DesktopUtilityToolbar({
   className,

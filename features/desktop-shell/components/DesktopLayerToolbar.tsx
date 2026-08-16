@@ -115,7 +115,7 @@ function DesktopLayerToolbarToggle({
       <DesktopUtilityToolbarButton
         aria-label={label}
         aria-pressed={active}
-        className={cn(active && "bg-[var(--desktop-glass-button-hover-bg)] text-[var(--desktop-glass-button-hover-fg)]")}
+        className={cn(active && "text-[var(--desktop-glass-button-hover-fg)]")}
         onClick={onClick}
       >
         {children}

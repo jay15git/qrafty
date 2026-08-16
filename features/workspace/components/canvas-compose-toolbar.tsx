@@ -20,6 +20,7 @@ import {
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import {
   DESKTOP_COMPOSE_TOOLBAR_ICON_BUTTON_CLASS,
+  DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_ACTIVE_CLASS,
 } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
 import type {
   CanvasHistoryControls,
@@ -226,8 +227,7 @@ export function ComposeToolbarControls({
               aria-pressed={activeInteractionTool === "select"}
               className={getComposeToolbarIconButtonClass(
                 isDesktopGlassToolbar,
-                activeInteractionTool === "select" &&
-                  "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
+                activeInteractionTool === "select" && DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_ACTIVE_CLASS,
               )}
               onClick={() => onCanvasToolChange?.("select")}
               size="icon"
@@ -244,8 +244,7 @@ export function ComposeToolbarControls({
               aria-pressed={activeInteractionTool === "pan"}
               className={getComposeToolbarIconButtonClass(
                 isDesktopGlassToolbar,
-                activeInteractionTool === "pan" &&
-                  "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
+                activeInteractionTool === "pan" && DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_ACTIVE_CLASS,
               )}
               onClick={() => onCanvasToolChange?.("pan")}
               size="icon"
@@ -268,8 +267,7 @@ export function ComposeToolbarControls({
           aria-pressed={snapEnabled}
           className={getComposeToolbarIconButtonClass(
             isDesktopGlassToolbar,
-            snapEnabled &&
-              "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
+            snapEnabled && DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_ACTIVE_CLASS,
           )}
           onClick={() => onSnapEnabledChange(!snapEnabled)}
           size="icon"
@@ -316,8 +314,7 @@ export function ComposeToolbarControls({
                 className={getComposeToolbarIconButtonClass(
                   isDesktopGlassToolbar,
                   "disabled:opacity-40",
-                  activeCanvasTool === "text" &&
-                    "bg-[var(--ws-ink)] text-[var(--ws-paper)] hover:bg-[var(--ws-ink)] hover:text-[var(--ws-paper)]",
+                  activeCanvasTool === "text" && DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_ACTIVE_CLASS,
                 )}
                 disabled={!onAddTextLayerAt}
                 onClick={() =>
