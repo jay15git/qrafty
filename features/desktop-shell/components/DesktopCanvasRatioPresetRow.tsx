@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { DesktopUtilityToolbarButton } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
 import {
   DESKTOP_BOXED_TOOLBAR_BUTTON_CLASS,
@@ -41,59 +41,37 @@ function DesktopCanvasSizeIcon({ className }: { className?: string }) {
   )
 }
 
-export function DesktopCanvasRatioPresetPopover({
+export function DesktopCanvasRatioPresetPopoverContent({
   selectedPresetId,
   onSelectTemplate,
-  className,
 }: {
   selectedPresetId?: string
   onSelectTemplate: (template: SizeTemplate) => void
-  className?: string
 }) {
-  const [open, setOpen] = useState(false)
   const presets = DESKTOP_CANVAS_RATIO_PRESET_IDS.map((id) => getSizeTemplate(id)).filter(
     (template): template is SizeTemplate => template !== undefined,
   )
-  const selectedTemplate = selectedPresetId ? getSizeTemplate(selectedPresetId) : undefined
-  const selectedLabel = selectedTemplate?.ratioLabel ?? selectedTemplate?.label
-  const tooltipLabel = selectedLabel ? `Canvas size — ${selectedLabel}` : "Canvas size"
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <DesktopTooltip content={tooltipLabel} side="bottom" sideOffset={10}>
-        <PopoverTrigger asChild>
-          <DesktopUtilityToolbarButton
-            aria-label={tooltipLabel}
-            className={cn(
-              DESKTOP_BOXED_TOOLBAR_BUTTON_CLASS,
-              open && "text-[var(--desktop-glass-button-hover-fg)]",
-              className,
-            )}
-            data-slot="desktop-canvas-size-trigger"
-          >
-            <DesktopCanvasSizeIcon className={DESKTOP_BOXED_TOOLBAR_ICON_CLASS} />
-          </DesktopUtilityToolbarButton>
-        </PopoverTrigger>
-      </DesktopTooltip>
-      <PopoverContent
-        align="start"
-        data-slot="desktop-canvas-ratio-preset-popover"
-        side="bottom"
-        sideOffset={12}
-        className="z-[20000] w-auto rounded-[12px] border border-[var(--desktop-glass-border)] bg-[var(--desktop-glass-bg)] p-1 text-[var(--desktop-glass-fg)] shadow-[var(--desktop-glass-shadow)] backdrop-blur-xl"
+    <PopoverContent
+      align="start"
+      data-slot="desktop-canvas-ratio-preset-popover"
+      side="bottom"
+      sideOffset={12}
+      className="z-[20000] w-auto rounded-[12px] border border-[var(--desktop-glass-border)] bg-[var(--desktop-glass-bg)] p-1 text-[var(--desktop-glass-fg)] shadow-[var(--desktop-glass-shadow)] backdrop-blur-xl"
+    >
+      <div
+        aria-label="Canvas aspect ratio"
+        className="grid grid-cols-3 gap-0.5"
+        data-slot="desktop-canvas-ratio-preset-row"
+        role="group"
       >
-        <div
-          aria-label="Canvas aspect ratio"
-          className="grid grid-cols-3 gap-0.5"
-          data-slot="desktop-canvas-ratio-preset-row"
-          role="group"
-        >
-          {presets.map((template) => {
-            const isSelected = selectedPresetId === template.id
+        {presets.map((template) => {
+          const isSelected = selectedPresetId === template.id
 
-            return (
+          return (
+            <PopoverClose asChild key={template.id}>
               <button
-                key={template.id}
                 aria-label={template.label}
                 aria-pressed={isSelected}
                 className={cn(
@@ -105,17 +83,72 @@ export function DesktopCanvasRatioPresetPopover({
                 )}
                 title={template.label}
                 type="button"
-                onClick={() => {
-                  onSelectTemplate(template)
-                  setOpen(false)
-                }}
+                onClick={() => onSelectTemplate(template)}
               >
                 {template.ratioLabel ?? template.label}
               </button>
-            )
-          })}
-        </div>
-      </PopoverContent>
+            </PopoverClose>
+          )
+        })}
+      </div>
+    </PopoverContent>
+  )
+}
+
+export function DesktopCanvasRatioPresetPopover({
+  selectedPresetId,
+  onSelectTemplate,
+  className,
+  suppressTooltip = false,
+}: {
+  selectedPresetId?: string
+  onSelectTemplate: (template: SizeTemplate) => void
+  className?: string
+  suppressTooltip?: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const selectedTemplate = selectedPresetId ? getSizeTemplate(selectedPresetId) : undefined
+  const selectedLabel = selectedTemplate?.ratioLabel ?? selectedTemplate?.label
+  const tooltipLabel = selectedLabel ? `Canvas size — ${selectedLabel}` : "Canvas size"
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      {suppressTooltip ? (
+        <PopoverTrigger asChild>
+          <DesktopUtilityToolbarButton
+            aria-label={tooltipLabel}
+            className={cn(
+              DESKTOP_BOXED_TOOLBAR_BUTTON_CLASS,
+              "size-9 rounded-full hover:bg-white/10",
+              open && "text-[var(--desktop-glass-button-hover-fg)]",
+              className,
+            )}
+            data-slot="desktop-canvas-size-trigger"
+          >
+            <DesktopCanvasSizeIcon className={DESKTOP_BOXED_TOOLBAR_ICON_CLASS} />
+          </DesktopUtilityToolbarButton>
+        </PopoverTrigger>
+      ) : (
+        <DesktopTooltip content={tooltipLabel} side="bottom" sideOffset={10}>
+          <PopoverTrigger asChild>
+            <DesktopUtilityToolbarButton
+              aria-label={tooltipLabel}
+              className={cn(
+                DESKTOP_BOXED_TOOLBAR_BUTTON_CLASS,
+                open && "text-[var(--desktop-glass-button-hover-fg)]",
+                className,
+              )}
+              data-slot="desktop-canvas-size-trigger"
+            >
+              <DesktopCanvasSizeIcon className={DESKTOP_BOXED_TOOLBAR_ICON_CLASS} />
+            </DesktopUtilityToolbarButton>
+          </PopoverTrigger>
+        </DesktopTooltip>
+      )}
+      <DesktopCanvasRatioPresetPopoverContent
+        onSelectTemplate={onSelectTemplate}
+        selectedPresetId={selectedPresetId}
+      />
     </Popover>
   )
 }

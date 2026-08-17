@@ -300,11 +300,10 @@ describe("WorkspaceSurface", () => {
     expect(composeToolbar.querySelector('button[aria-label="Undo"]')).toBeNull()
     expect(composeToolbar.querySelector('button[aria-label="Redo"]')).toBeNull()
     expect(composeToolbar.querySelector('button[aria-label="Select and move elements"]')).not.toBeNull()
-    expect(composeToolbar.querySelector('button[aria-label="Pan canvas"]')).not.toBeNull()
+    expect(composeToolbar.querySelector('button[aria-label="Pan canvas"]')).toBeNull()
     expect(composeToolbar.querySelector('button[aria-label="Add text on canvas"]')).not.toBeNull()
     expect(Array.from(composeToolbar.querySelectorAll("button")).map((button) => button.getAttribute("aria-label"))).toEqual([
       "Select and move elements",
-      "Pan canvas",
       "Disable snapping",
       "Hide canvas grid",
       "Add text on canvas",

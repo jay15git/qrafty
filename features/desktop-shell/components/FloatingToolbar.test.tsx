@@ -123,21 +123,16 @@ describe("FloatingToolbar", () => {
   it("toggles the desktop prototype between dark and light mode", async () => {
     const surface = await renderPrototype()
     const prototype = surface.container.querySelector('[data-slot="desktop-floating-toolbar-root"]')
-    const historyActions = surface.container.querySelector('[data-slot="desktop-history-actions"]')
     const utilityToolbar = surface.container.querySelector('[data-slot="desktop-utility-toolbar"]')
+    const dynamicIsland = surface.container.querySelector('[data-slot="desktop-dynamic-island"]')
 
     expect(prototype?.getAttribute("data-desktop-theme")).toBe("dark")
     expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
-    expect(historyActions).not.toBeNull()
-    expect(historyActions?.querySelector('button[aria-label="Switch to dark mode"]')).toBeNull()
+    expect(dynamicIsland?.querySelector('button[aria-label="Undo"]')).not.toBeNull()
+    expect(dynamicIsland?.querySelector('button[aria-label="Redo"]')).not.toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
-    const dynamicIsland = surface.container.querySelector('[data-slot="desktop-dynamic-island"]')
     expect(dynamicIsland?.querySelector('[data-slot="desktop-theme-toggle"]')).not.toBeNull()
     expect(dynamicIsland?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
-    expect(Array.from(historyActions?.querySelectorAll("button") ?? []).map((button) => button.getAttribute("aria-label"))).toEqual([
-      "Undo",
-      "Redo",
-    ])
   })
 
   it("places a squircle download button in the top-right utility toolbar", async () => {
@@ -181,7 +176,7 @@ describe("FloatingToolbar", () => {
         onUndo,
       },
     })
-    const historyActions = getRequiredElement(surface.container, '[data-slot="desktop-history-actions"]')
+    const dynamicIsland = getRequiredElement(surface.container, '[data-slot="desktop-dynamic-island"]')
     const utilityToolbar = surface.container.querySelector('[data-slot="desktop-utility-toolbar"]')
 
     expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
@@ -195,12 +190,10 @@ describe("FloatingToolbar", () => {
     ).not.toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
-    expect(getRequiredButton(historyActions, "Undo").className).toContain("size-9")
-    expect(getRequiredButton(historyActions, "Redo").className).toContain("size-9")
 
     await act(async () => {
-      getRequiredButton(historyActions, "Undo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
-      getRequiredButton(historyActions, "Redo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      getRequiredButton(dynamicIsland, "Undo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      getRequiredButton(dynamicIsland, "Redo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
     expect(onUndo).toHaveBeenCalledTimes(1)

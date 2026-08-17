@@ -218,7 +218,7 @@ describe("Canvas", () => {
 
   it("clears selected layer when pressing empty canvas space", async () => {
     const onLayerSelect = vi.fn()
-    const workspace = renderWorkspace({ onLayerSelect, paneCount: 1 })
+    const workspace = renderWorkspace({ activeCanvasTool: "select", onLayerSelect, paneCount: 1 })
     const [pane] = getPaneSurfaces(workspace.container, 1)
 
     await act(async () => {
@@ -230,7 +230,7 @@ describe("Canvas", () => {
   })
 
   it("does not pan when dragging a layer", async () => {
-    const workspace = renderWorkspace({ paneCount: 1 })
+    const workspace = renderWorkspace({ activeCanvasTool: "select", paneCount: 1 })
     const [pane] = getPaneSurfaces(workspace.container, 1)
     const viewport = pane.firstElementChild as HTMLElement
     const layer = getQrNodes(workspace.container)[0]
@@ -388,14 +388,12 @@ describe("Canvas", () => {
     ).toBe(true)
     expect(Array.from(composeToolbar?.querySelectorAll("button") ?? []).map((button) => button.getAttribute("aria-label"))).toEqual([
       "Select and move elements",
-      "Pan canvas",
       "Disable snapping",
-      "Add text on canvas",
       "Add content",
     ])
   })
 
-  it("renders desktop select and pan tool buttons and wires mode changes", () => {
+  it("renders a desktop select toggle that switches between pan and select", () => {
     const onCanvasToolChange = vi.fn()
     const container = renderComposeToolbar({
       activeCanvasTool: "pan",
@@ -417,22 +415,49 @@ describe("Canvas", () => {
     const selectButton = container.querySelector(
       'button[aria-label="Select and move elements"]',
     ) as HTMLButtonElement | null
-    const panButton = container.querySelector(
-      'button[aria-label="Pan canvas"]',
-    ) as HTMLButtonElement | null
 
     expect(selectButton).not.toBeNull()
-    expect(panButton).not.toBeNull()
+    expect(container.querySelector('button[aria-label="Pan canvas"]')).toBeNull()
     expect(selectButton?.getAttribute("aria-pressed")).toBe("false")
-    expect(panButton?.getAttribute("aria-pressed")).toBe("true")
 
     act(() => {
       selectButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-      panButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
-    expect(onCanvasToolChange).toHaveBeenNthCalledWith(1, "select")
-    expect(onCanvasToolChange).toHaveBeenNthCalledWith(2, "pan")
+    expect(onCanvasToolChange).toHaveBeenCalledTimes(1)
+    expect(onCanvasToolChange).toHaveBeenCalledWith("select")
+  })
+
+  it("toggles the desktop select tool back to pan when already selected", () => {
+    const onCanvasToolChange = vi.fn()
+    const container = renderComposeToolbar({
+      activeCanvasTool: "select",
+      activeInteractionTool: "select",
+      activePaneId: "pane-1",
+      canRemove: false,
+      insertNodeId: "pane-1",
+      isMaximized: false,
+      onCanvasToolChange,
+      onResetView: vi.fn(),
+      onToggleMaximize: vi.fn(),
+      onZoomIn: vi.fn(),
+      onZoomOut: vi.fn(),
+      paneCount: 1,
+      snapEnabled: true,
+      onSnapEnabledChange: vi.fn(),
+      zoomPercent: "100%",
+    })
+    const selectButton = container.querySelector(
+      'button[aria-label="Select and move elements"]',
+    ) as HTMLButtonElement | null
+
+    expect(selectButton?.getAttribute("aria-pressed")).toBe("true")
+
+    act(() => {
+      selectButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(onCanvasToolChange).toHaveBeenCalledWith("pan")
   })
 
   it("reflects workspace surface appearance on the pane surface", async () => {

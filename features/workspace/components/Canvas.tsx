@@ -159,11 +159,11 @@ export function Canvas({
   const zoomLevel = Math.round(activeZoom * 100)
   const zoomPercent = `${zoomLevel}%`
   const isDesktopZoomToolbar = toolbarVariant === "desktop-zoom"
-  const activeInteractionTool = activeCanvasTool === "pan"
-    ? "pan"
+  const activeInteractionTool = activeCanvasTool === "select"
+    ? "select"
     : activeCanvasTool === "text"
       ? "text"
-      : "select"
+      : "pan"
   const canRemoveQr =
     qrLayerCount > 1 &&
     Boolean(onRemoveQrCode) &&

@@ -27,6 +27,7 @@ export function DesktopLayerSettingsTrigger({
   onTransformLayerPatch,
   selectedElementLayer,
   selectedTransformLayer,
+  suppressTooltip = false,
   theme,
 }: {
   appearance?: DesktopAppearanceSnapshot | null
@@ -36,6 +37,7 @@ export function DesktopLayerSettingsTrigger({
   onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   selectedElementLayer?: DraftingCanvasLayer | null
   selectedTransformLayer?: DraftingCanvasLayer | null
+  suppressTooltip?: boolean
   theme: DesktopThemeMode
 }) {
   const effectsLayer = selectedElementLayer ?? appearanceLayer ?? null
@@ -61,6 +63,7 @@ export function DesktopLayerSettingsTrigger({
         <DesktopToolbarPopover
           dataSlot="desktop-layer-style-popover"
           label="Style"
+          suppressTooltip={suppressTooltip}
           trigger={<PaletteIcon />}
           triggerDataSlot="desktop-layer-style-trigger"
           triggerOpenClassName="text-[var(--desktop-glass-button-hover-fg)]"
@@ -77,6 +80,7 @@ export function DesktopLayerSettingsTrigger({
         <DesktopToolbarPopover
           dataSlot="desktop-layer-effects-popover"
           label="Effects"
+          suppressTooltip={suppressTooltip}
           trigger={
             <>
               <SparklesIcon />
@@ -99,6 +103,7 @@ export function DesktopLayerSettingsTrigger({
         <DesktopToolbarPopover
           dataSlot="desktop-layer-transform-popover"
           label="Transform"
+          suppressTooltip={suppressTooltip}
           trigger={<MoveIcon />}
           triggerDataSlot="desktop-layer-transform-trigger"
           triggerOpenClassName="text-[var(--desktop-glass-button-hover-fg)]"
@@ -115,6 +120,7 @@ export function DesktopLayerSettingsTrigger({
         <DesktopToolbarPopover
           dataSlot="desktop-layer-appearance-popover"
           label="Appearance"
+          suppressTooltip={suppressTooltip}
           trigger={<SquareIcon />}
           triggerDataSlot="desktop-layer-appearance-trigger"
           triggerOpenClassName="text-[var(--desktop-glass-button-hover-fg)]"

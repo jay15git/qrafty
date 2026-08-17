@@ -14,6 +14,12 @@ import type { DraftingQrStateByLayerId } from "@/features/workspace/model/docume
 export type DraftingPaneToolbarVariant = "default" | "desktop-zoom"
 export type DraftingPaneCanvasTool = "select" | "pan" | "text"
 
+export function resolveDraftingCanvasTool(
+  tool?: DraftingPaneCanvasTool | null,
+): DraftingPaneCanvasTool {
+  return tool === "select" || tool === "text" ? tool : "pan"
+}
+
 export type DraftingPane = {
   cardState: DraftingCardState
   id: string
@@ -108,9 +114,10 @@ export function DraftingPaneSurface({
   toolbarVariant = "default",
 }: DraftingPaneSurfaceProps) {
   const { canSwap, isSelected, isSnapTarget } = interaction
+  const canvasTool = resolveDraftingCanvasTool(activeCanvasTool)
 
   const interactions = useDraftingPaneSurfaceInteractions({
-    activeCanvasTool,
+    activeCanvasTool: canvasTool,
     fitCanvasToViewport,
     layerEditingEnabled,
     onAddTextLayerAt,
@@ -130,7 +137,7 @@ export function DraftingPaneSurface({
   return (
     <DraftingPaneViewport
       areaName={areaName}
-      activeCanvasTool={activeCanvasTool}
+      activeCanvasTool={canvasTool}
       canSwap={canSwap}
       draggingPaneId={draggingPaneId}
       effectivePan={interactions.effectivePan}

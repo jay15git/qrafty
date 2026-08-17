@@ -4,7 +4,6 @@ import type { ReactElement, ReactNode } from "react"
 import {
   CopyPlusIcon,
   CrosshairIcon,
-  HandIcon,
   MagnetIcon,
   Maximize2Icon,
   Minimize2Icon,
@@ -228,29 +227,14 @@ export function ComposeToolbarControls({
                 isDesktopGlassToolbar,
                 activeInteractionTool === "select" && DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_ACTIVE_CLASS,
               )}
-              onClick={() => onCanvasToolChange?.("select")}
+              onClick={() =>
+                onCanvasToolChange?.(activeInteractionTool === "select" ? "pan" : "select")
+              }
               size="icon"
               type="button"
               variant="ghost"
             >
               <MousePointer2Icon />
-            </Button>
-          </ComposeToolbarTooltip>
-
-          <ComposeToolbarTooltip content="Pan canvas" desktop={isDesktopGlassToolbar} placement={placement}>
-            <Button
-              aria-label="Pan canvas"
-              aria-pressed={activeInteractionTool === "pan"}
-              className={getComposeToolbarIconButtonClass(
-                isDesktopGlassToolbar,
-                activeInteractionTool === "pan" && DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_ACTIVE_CLASS,
-              )}
-              onClick={() => onCanvasToolChange?.("pan")}
-              size="icon"
-              type="button"
-              variant="ghost"
-            >
-              <HandIcon />
             </Button>
           </ComposeToolbarTooltip>
         </>

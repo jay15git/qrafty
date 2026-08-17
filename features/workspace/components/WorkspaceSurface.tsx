@@ -3345,7 +3345,7 @@ export function WorkspaceSurface({
     },
     onActiveToolChange: (toolId) => {
       setComposeSidebarPanel(null)
-      setDesktopCanvasTool(null)
+      setDesktopCanvasTool("pan")
       setDesktopRailTool(toolId)
     },
     onRedo: handleRedoDraftingWorkspace,

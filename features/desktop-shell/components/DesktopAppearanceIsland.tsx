@@ -1,36 +1,34 @@
 "use client"
 
-import { type ReactNode } from "react"
+import { useMemo, type ReactNode } from "react"
+import {
+  MagnetIcon,
+  MoonIcon,
+  MousePointer2Icon,
+  PaletteIcon,
+  SunIcon,
+} from "lucide-react"
+import { KeyboardIcon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 
+import { DesktopKeyboardShortcutsPopoverContent } from "@/features/desktop-shell/components/DesktopChromeControls"
+import { DesktopCanvasRatioPresetPopoverContent } from "@/features/desktop-shell/components/DesktopCanvasRatioPresetRow"
 import {
-  DesktopKeyboardShortcutsTrigger,
-  DesktopThemeToggleButton,
-} from "@/features/desktop-shell/components/DesktopChromeControls"
-import { DesktopCanvasRatioPresetPopover } from "@/features/desktop-shell/components/DesktopCanvasRatioPresetRow"
-import { DesktopLayerSettingsTrigger } from "@/features/desktop-shell/components/DesktopLayerSettingsTrigger"
+  DesktopLayerAppearancePanel,
+  DesktopLayerEffectsPanel,
+  DesktopLayerStylePanel,
+  DesktopLayerTransformPanel,
+} from "@/features/desktop-shell/components/DesktopLayerSettingsPanel"
+import { DesktopToolbarPopoverContent } from "@/features/desktop-shell/components/DesktopToolbarPopover"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
-import { DesktopUtilityToolbarButton } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
-import {
-  DESKTOP_BOXED_TOOLBAR_BUTTON_CLASS,
-  DESKTOP_BOXED_TOOLBAR_ICON_CLASS,
-} from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
-import DynamicIsland from "@/components/smoothui/dynamic-island"
-import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
+import { TooltipNavbar, type TooltipItem } from "@/components/ui/tooltip-navbar"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import type { SizeTemplate } from "@/features/workspace/model/size-templates"
 import type { DraftingPaneCanvasTool } from "@/features/workspace/components/DraftingPaneSurface"
-import { DynamicIslandComposeToolbar } from "@/features/workspace/components/canvas-compose-toolbar"
-import { cn } from "@/lib/utils"
-
-function DesktopDynamicIslandDivider() {
-  return (
-    <div
-      aria-hidden="true"
-      className="mx-0.5 h-6 w-px shrink-0 bg-[var(--desktop-glass-border)]"
-    />
-  )
-}
+import { InsertMenuPopoverContent } from "@/features/workspace/components/insert-menu/InsertMenuPopoverContent"
+import { InsertMenuAddIcon } from "@/features/workspace/components/insert-menu/InsertMenuAddIcon"
+import { listLayerEffects } from "@/features/workspace/model/layer-effects"
 
 function DesktopToolbarSvgIcon({
   className,
@@ -70,55 +68,18 @@ function DesktopRedoIcon({ className }: { className?: string }) {
   )
 }
 
-function DesktopHistoryActionButtons({
-  canRedo,
-  canUndo,
-  onRedo,
-  onSelectSizeTemplate,
-  onUndo,
-  sizePresetId,
-}: {
-  canRedo?: boolean
-  canUndo?: boolean
-  onRedo?: () => void
-  onSelectSizeTemplate?: (template: SizeTemplate) => void
-  onUndo?: () => void
-  sizePresetId?: string
-}) {
+function DesktopCanvasSizeIcon({ className }: { className?: string }) {
   return (
-    <div
-      className="flex min-w-0 items-center gap-0.5"
-      data-slot="desktop-history-actions"
-    >
-      <DesktopTooltip content="Undo" side="bottom" sideOffset={10}>
-        <DesktopUtilityToolbarButton
-          aria-label="Undo"
-          className={DESKTOP_BOXED_TOOLBAR_BUTTON_CLASS}
-          disabled={!canUndo || !onUndo}
-          onClick={onUndo}
-        >
-          <DesktopUndoIcon className={DESKTOP_BOXED_TOOLBAR_ICON_CLASS} />
-        </DesktopUtilityToolbarButton>
-      </DesktopTooltip>
-      <DesktopTooltip content="Redo" side="bottom" sideOffset={10}>
-        <DesktopUtilityToolbarButton
-          aria-label="Redo"
-          className={DESKTOP_BOXED_TOOLBAR_BUTTON_CLASS}
-          disabled={!canRedo || !onRedo}
-          onClick={onRedo}
-        >
-          <DesktopRedoIcon className={DESKTOP_BOXED_TOOLBAR_ICON_CLASS} />
-        </DesktopUtilityToolbarButton>
-      </DesktopTooltip>
-      {onSelectSizeTemplate ? (
-        <DesktopCanvasRatioPresetPopover
-          selectedPresetId={sizePresetId}
-          onSelectTemplate={onSelectSizeTemplate}
-        />
-      ) : null}
-    </div>
+    <DesktopToolbarSvgIcon className={className}>
+      <path d="M21 9.75C20.59 9.75 20.25 9.41 20.25 9V3.75H15C14.59 3.75 14.25 3.41 14.25 3C14.25 2.59 14.59 2.25 15 2.25H21C21.41 2.25 21.75 2.59 21.75 3V9C21.75 9.41 21.41 9.75 21 9.75Z" />
+      <path d="M9 21.75H3C2.59 21.75 2.25 21.41 2.25 21V15C2.25 14.59 2.59 14.25 3 14.25C3.41 14.25 3.75 14.59 3.75 15V20.25H9C9.41 20.25 9.75 20.59 9.75 21C9.75 21.41 9.41 21.75 9 21.75Z" />
+      <path d="M13.4999 11.2495C13.3099 11.2495 13.1199 11.1795 12.9699 11.0295C12.6799 10.7395 12.6799 10.2595 12.9699 9.96945L20.4699 2.46945C20.7599 2.17945 21.2399 2.17945 21.5299 2.46945C21.8199 2.75945 21.8199 3.23945 21.5299 3.52945L14.0299 11.0295C13.8799 11.1795 13.6899 11.2495 13.4999 11.2495Z" />
+      <path d="M2.99994 21.7495C2.80994 21.7495 2.61994 21.6795 2.46994 21.5295C2.17994 21.2395 2.17994 20.7595 2.46994 20.4695L9.96994 12.9695C10.2599 12.6795 10.7399 12.6795 11.0299 12.9695C11.3199 13.2595 11.3199 13.7395 11.0299 14.0295L3.52994 21.5295C3.37994 21.6795 3.18994 21.7495 2.99994 21.7495Z" />
+    </DesktopToolbarSvgIcon>
   )
 }
+
+const ICON_CLASS = "size-3.5 shrink-0"
 
 export function DesktopDynamicIslandChrome({
   appearance,
@@ -126,19 +87,16 @@ export function DesktopDynamicIslandChrome({
   activePaneId,
   appearanceLayer,
   canAddQrCode,
-  canRemoveQrCode,
   canRedo,
   canUndo,
   insertNodeId,
   onAddQrCode,
-  onAddTextLayerAt,
   onBrowseStockPhotos,
   onCanvasToolChange,
   onInsertLayer,
   onOpenCardPatternSettings,
   onAppearancePatch,
   onRedo,
-  onRemoveQrCode,
   onElementLayerPatch,
   onTransformLayerPatch,
   onSelectSizeTemplate,
@@ -182,101 +140,223 @@ export function DesktopDynamicIslandChrome({
   theme?: DesktopThemeMode
 }) {
   const hasAppearance = Boolean(appearance && onAppearancePatch)
-  const hasLayerSettings =
-    Boolean(selectedElementLayer && onElementLayerPatch) ||
-    hasAppearance ||
-    Boolean(selectedTransformLayer && onTransformLayerPatch)
+  const hasStyle = Boolean(selectedElementLayer && onElementLayerPatch)
+  const effectsLayer = selectedElementLayer ?? appearanceLayer ?? null
+  const effectsPatch = selectedElementLayer ? onElementLayerPatch : onAppearancePatch
+  const hasEffects = Boolean(effectsLayer && effectsPatch)
+  const hasTransform = Boolean(selectedTransformLayer && onTransformLayerPatch)
+  const hasLayerSettings = hasStyle || hasEffects || hasTransform || hasAppearance
   const hasComposeControls =
     Boolean(onCanvasToolChange) &&
     Boolean(activePaneId) &&
     typeof snapEnabled === "boolean" &&
     Boolean(onSnapEnabledChange)
-  const activeInteractionTool =
-    activeCanvasTool === "pan"
-      ? "pan"
-      : activeCanvasTool === "text"
-        ? "text"
-        : "select"
 
-  return (
-    <DynamicIsland
-      appearance="desktop-glass"
-      idleContent={
-        <div
-          className="flex min-w-0 items-center gap-1 px-1"
-          data-slot="desktop-dynamic-island-content"
-        >
-          <DesktopHistoryActionButtons
-            canRedo={canRedo}
-            canUndo={canUndo}
-            onRedo={onRedo}
-            onSelectSizeTemplate={onSelectSizeTemplate}
-            onUndo={onUndo}
-            sizePresetId={sizePresetId}
+  const items = useMemo(() => {
+    const nextItems: TooltipItem[] = [
+      {
+        ariaLabel: "Undo",
+        disabled: !canUndo || !onUndo,
+        icon: <DesktopUndoIcon className={ICON_CLASS} />,
+        label: "Undo",
+        onClick: onUndo,
+      },
+      {
+        ariaLabel: "Redo",
+        disabled: !canRedo || !onRedo,
+        icon: <DesktopRedoIcon className={ICON_CLASS} />,
+        label: "Redo",
+        onClick: onRedo,
+      },
+    ]
+
+    if (onSelectSizeTemplate) {
+      nextItems.push({
+        ariaLabel: "Canvas size",
+        dataSlot: "desktop-canvas-size-trigger",
+        icon: <DesktopCanvasSizeIcon className={ICON_CLASS} />,
+        label: "Canvas size",
+        popover: (
+          <DesktopCanvasRatioPresetPopoverContent
+            onSelectTemplate={onSelectSizeTemplate}
+            selectedPresetId={sizePresetId}
           />
-          {hasComposeControls ? (
-            <>
-              <DesktopDynamicIslandDivider />
-              <DynamicIslandComposeToolbar
-                activeCanvasTool={activeCanvasTool}
-                activeInteractionTool={activeInteractionTool}
-                activePaneId={activePaneId!}
-                canRemove={Boolean(canRemoveQrCode)}
-                insertNodeId={insertNodeId}
-                isMaximized={false}
-                qr={{
-                  canAdd: Boolean(canAddQrCode),
-                  onAdd: onAddQrCode,
-                }}
-                onAddTextLayerAt={onAddTextLayerAt}
-                onBrowseStockPhotos={onBrowseStockPhotos}
-                onCanvasToolChange={onCanvasToolChange}
-                onInsertLayer={onInsertLayer}
-                onOpenCardPatternSettings={onOpenCardPatternSettings}
-                onRemoveQrCode={
-                  onRemoveQrCode && activePaneId
-                    ? () => onRemoveQrCode()
-                    : undefined
-                }
-                onResetView={() => undefined}
-                onToggleMaximize={() => undefined}
-                onZoomIn={() => undefined}
-                onZoomOut={() => undefined}
-                paneCount={1}
-                snapEnabled={snapEnabled!}
-                onSnapEnabledChange={onSnapEnabledChange!}
-                zoomPercent="100%"
-              />
-            </>
-          ) : null}
-          {hasLayerSettings ? (
-            <>
-              <DesktopDynamicIslandDivider />
-              <DesktopLayerSettingsTrigger
-                appearance={appearance}
-                appearanceLayer={appearanceLayer}
-                onAppearancePatch={onAppearancePatch}
-                onElementLayerPatch={onElementLayerPatch}
-                onTransformLayerPatch={onTransformLayerPatch}
-                selectedElementLayer={selectedElementLayer}
-                selectedTransformLayer={selectedTransformLayer}
+        ),
+      })
+    }
+
+    if (hasComposeControls) {
+      const isSelectTool = activeCanvasTool === "select"
+
+      nextItems.push(
+        {
+          ariaLabel: "Select and move elements",
+          icon: <MousePointer2Icon className={ICON_CLASS} />,
+          label: "Select",
+          pressed: isSelectTool,
+          onClick: () => onCanvasToolChange?.(isSelectTool ? "pan" : "select"),
+        },
+        {
+          ariaLabel: snapEnabled ? "Disable snapping" : "Enable snapping",
+          icon: <MagnetIcon className={ICON_CLASS} />,
+          label: snapEnabled ? "Snapping on" : "Snapping off",
+          onClick: () => onSnapEnabledChange?.(!snapEnabled),
+        },
+      )
+
+      if (onInsertLayer && insertNodeId) {
+        nextItems.push({
+          ariaLabel: "Add content",
+          icon: <InsertMenuAddIcon className={ICON_CLASS} />,
+          label: "Add content",
+          popover: (
+            <InsertMenuPopoverContent
+              canAddQrCode={Boolean(canAddQrCode)}
+              nodeId={insertNodeId}
+              onAddQrCode={onAddQrCode}
+              onBrowseStockPhotos={onBrowseStockPhotos}
+              onInsertLayer={onInsertLayer}
+              onOpenCardPatternSettings={onOpenCardPatternSettings}
+            />
+          ),
+        })
+      }
+    }
+
+    if (hasLayerSettings) {
+      if (hasStyle) {
+        nextItems.push({
+          ariaLabel: "Style",
+          dataSlot: "desktop-layer-style-trigger",
+          icon: <PaletteIcon className={ICON_CLASS} />,
+          label: "Style",
+          popover: (
+            <DesktopToolbarPopoverContent dataSlot="desktop-layer-style-popover">
+              <DesktopLayerStylePanel
+                layer={selectedElementLayer!}
+                onPatch={onElementLayerPatch!}
                 theme={theme}
               />
-            </>
-          ) : null}
-          <DesktopDynamicIslandDivider />
-          <DesktopKeyboardShortcutsTrigger popoverSide="bottom" variant="glass" />
-          {onThemeChange ? (
-            <DesktopThemeToggleButton
-              theme={theme}
-              onToggle={() => onThemeChange(theme === "light" ? "dark" : "light")}
-              variant="glass"
-            />
-          ) : null}
-        </div>
+            </DesktopToolbarPopoverContent>
+          ),
+        })
       }
-      showViewControls={false}
-      className={cn(hasAppearance || hasComposeControls || hasLayerSettings ? "min-w-[12rem]" : undefined)}
-    />
+
+      if (hasEffects) {
+        nextItems.push({
+          ariaLabel: "Effects",
+          dataSlot: "desktop-layer-effects-trigger",
+          label: "Effects",
+          variant: "text",
+          popover: (
+            <DesktopToolbarPopoverContent dataSlot="desktop-layer-effects-popover">
+              <DesktopLayerEffectsPanel layer={effectsLayer!} onPatch={effectsPatch!} theme={theme} />
+            </DesktopToolbarPopoverContent>
+          ),
+        })
+      }
+
+      if (hasTransform) {
+        nextItems.push({
+          ariaLabel: "Transform",
+          dataSlot: "desktop-layer-transform-trigger",
+          label: "Transform",
+          variant: "text",
+          popover: (
+            <DesktopToolbarPopoverContent dataSlot="desktop-layer-transform-popover">
+              <DesktopLayerTransformPanel
+                layer={selectedTransformLayer!}
+                onPatch={onTransformLayerPatch!}
+                theme={theme}
+              />
+            </DesktopToolbarPopoverContent>
+          ),
+        })
+      }
+
+      if (hasAppearance) {
+        nextItems.push({
+          ariaLabel: "Appearance",
+          dataSlot: "desktop-layer-appearance-trigger",
+          label: "Appearance",
+          variant: "text",
+          popover: (
+            <DesktopToolbarPopoverContent dataSlot="desktop-layer-appearance-popover">
+              <DesktopLayerAppearancePanel
+                appearance={appearance!}
+                onPatch={onAppearancePatch!}
+                theme={theme}
+              />
+            </DesktopToolbarPopoverContent>
+          ),
+        })
+      }
+    }
+
+    nextItems.push({
+      ariaLabel: "Open keyboard shortcuts",
+      dataSlot: "desktop-keyboard-shortcuts-trigger",
+      icon: (
+        <HugeiconsIcon icon={KeyboardIcon} size={14} color="currentColor" strokeWidth={1.8} />
+      ),
+      label: "Keyboard shortcuts",
+      popover: <DesktopKeyboardShortcutsPopoverContent popoverSide="bottom" />,
+    })
+
+    if (onThemeChange) {
+      nextItems.push({
+        ariaLabel: `Switch to ${theme === "light" ? "dark" : "light"} mode`,
+        dataSlot: "desktop-theme-toggle",
+        icon:
+          theme === "light" ? (
+            <MoonIcon className={ICON_CLASS} />
+          ) : (
+            <SunIcon className={ICON_CLASS} />
+          ),
+        label: `Switch to ${theme === "light" ? "dark" : "light"} mode`,
+        onClick: () => onThemeChange(theme === "light" ? "dark" : "light"),
+      })
+    }
+
+    return nextItems
+  }, [
+    appearance,
+    activeCanvasTool,
+    canAddQrCode,
+    canRedo,
+    canUndo,
+    effectsLayer,
+    effectsPatch,
+    hasAppearance,
+    hasComposeControls,
+    hasEffects,
+    hasLayerSettings,
+    hasStyle,
+    hasTransform,
+    insertNodeId,
+    onAddQrCode,
+    onAppearancePatch,
+    onBrowseStockPhotos,
+    onCanvasToolChange,
+    onElementLayerPatch,
+    onInsertLayer,
+    onOpenCardPatternSettings,
+    onRedo,
+    onSelectSizeTemplate,
+    onSnapEnabledChange,
+    onThemeChange,
+    onTransformLayerPatch,
+    onUndo,
+    selectedElementLayer,
+    selectedTransformLayer,
+    sizePresetId,
+    snapEnabled,
+    theme,
+  ])
+
+  return (
+    <div data-slot="desktop-dynamic-island-content">
+      <TooltipNavbar items={items} />
+    </div>
   )
 }

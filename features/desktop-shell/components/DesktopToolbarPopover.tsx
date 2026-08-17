@@ -7,6 +7,35 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
 import { cn } from "@/lib/utils"
 
+export function DesktopToolbarPopoverContent({
+  children,
+  dataSlot = "desktop-toolbar-popover",
+}: {
+  children: ReactNode
+  dataSlot?: string
+}) {
+  return (
+    <PopoverContent
+      align="center"
+      data-slot={dataSlot}
+      side="bottom"
+      sideOffset={12}
+      className="z-[20000] flex h-[min(28rem,calc(100dvh-8rem))] max-h-[min(28rem,calc(100dvh-8rem))] w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[16px] border border-[var(--desktop-appearance-popover-border)] bg-[var(--desktop-appearance-popover-bg)] p-0 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-appearance-popover-shadow)] backdrop-blur-xl"
+    >
+      <ScrollArea
+        chevron
+        cueSize="comfortable"
+        className="h-full min-h-0 flex-1"
+        data-slot="desktop-inspector-scroll-area"
+        scrollFade
+        viewportClassName="px-3 py-3"
+      >
+        <div data-slot="desktop-inspector-scroll">{children}</div>
+      </ScrollArea>
+    </PopoverContent>
+  )
+}
+
 export function DesktopToolbarPopover({
   children,
   dataSlot = "desktop-toolbar-popover",
@@ -15,53 +44,46 @@ export function DesktopToolbarPopover({
   triggerClassName,
   triggerDataSlot,
   triggerOpenClassName,
+  suppressTooltip = false,
 }: {
   children: ReactNode
   dataSlot?: string
   label: string
   trigger: ReactNode
+  suppressTooltip?: boolean
   triggerClassName?: string
   triggerDataSlot?: string
   triggerOpenClassName?: string
 }) {
   const [open, setOpen] = useState(false)
 
+  const triggerButton = (
+    <PopoverTrigger asChild>
+      <button
+        aria-label={label}
+        className={cn(
+          "relative grid size-9 cursor-pointer place-items-center overflow-visible rounded-full border-0 bg-transparent p-0 text-current shadow-none transition-colors duration-150 hover:bg-white/10 hover:text-[var(--desktop-glass-button-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-glass-button-focus-ring)] disabled:cursor-not-allowed [&_svg]:size-3.5",
+          open && triggerOpenClassName,
+          triggerClassName,
+        )}
+        data-slot={triggerDataSlot}
+        type="button"
+      >
+        {trigger}
+      </button>
+    </PopoverTrigger>
+  )
+
   return (
     <Popover modal={false} open={open} onOpenChange={setOpen}>
-      <DesktopTooltip content={label} side="bottom" sideOffset={10}>
-        <PopoverTrigger asChild>
-          <button
-            aria-label={label}
-            className={cn(
-              "relative grid size-9 cursor-pointer place-items-center overflow-visible rounded-none border-0 bg-transparent p-0 text-current shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--desktop-glass-button-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-glass-button-focus-ring)] disabled:cursor-not-allowed [&_svg]:size-3.5",
-              open && triggerOpenClassName,
-              triggerClassName,
-            )}
-            data-slot={triggerDataSlot}
-            type="button"
-          >
-            {trigger}
-          </button>
-        </PopoverTrigger>
-      </DesktopTooltip>
-      <PopoverContent
-        align="center"
-        data-slot={dataSlot}
-        side="bottom"
-        sideOffset={12}
-        className="z-[20000] flex h-[min(28rem,calc(100dvh-8rem))] max-h-[min(28rem,calc(100dvh-8rem))] w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[16px] border border-[var(--desktop-appearance-popover-border)] bg-[var(--desktop-appearance-popover-bg)] p-0 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-appearance-popover-shadow)] backdrop-blur-xl"
-      >
-        <ScrollArea
-          chevron
-          cueSize="comfortable"
-          className="h-full min-h-0 flex-1"
-          data-slot="desktop-inspector-scroll-area"
-          scrollFade
-          viewportClassName="px-3 py-3"
-        >
-          <div data-slot="desktop-inspector-scroll">{children}</div>
-        </ScrollArea>
-      </PopoverContent>
+      {suppressTooltip ? (
+        triggerButton
+      ) : (
+        <DesktopTooltip content={label} side="bottom" sideOffset={10}>
+          {triggerButton}
+        </DesktopTooltip>
+      )}
+      <DesktopToolbarPopoverContent dataSlot={dataSlot}>{children}</DesktopToolbarPopoverContent>
     </Popover>
   )
 }

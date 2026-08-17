@@ -191,6 +191,24 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
   box-shadow: none !important;
 }
 
+[data-desktop-theme="light"] [data-slot="tooltip-navbar-shell"] {
+  background: rgb(255, 255, 255) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  color: rgba(15, 23, 42, 0.76) !important;
+  border-radius: 1rem !important;
+  corner-shape: squircle;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+}
+
+[data-desktop-theme="dark"] [data-slot="tooltip-navbar-shell"] {
+  background: rgba(0, 0, 0, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+  border-radius: 1rem !important;
+  corner-shape: squircle;
+  box-shadow: var(--desktop-glass-shadow) !important;
+}
+
 [data-desktop-theme="light"] [data-slot="desktop-floating-toolbar"] button:not([data-proximity-index]):hover,
 [data-desktop-theme="light"] [data-slot="desktop-document-toolbar"] button:hover,
 [data-desktop-theme="light"] [data-slot="desktop-action-toolbar"] button:hover {
