@@ -10,25 +10,36 @@ import { cn } from "@/lib/utils"
 export function DesktopToolbarPopoverContent({
   children,
   dataSlot = "desktop-toolbar-popover",
+  fitContent = false,
+  flush = false,
 }: {
   children: ReactNode
   dataSlot?: string
+  fitContent?: boolean
+  flush?: boolean
 }) {
+  const heightClass = fitContent
+    ? "max-h-[min(28rem,calc(100dvh-8rem))]"
+    : "h-[min(28rem,calc(100dvh-8rem))] max-h-[min(28rem,calc(100dvh-8rem))]"
+
   return (
     <PopoverContent
       align="center"
       data-slot={dataSlot}
       side="bottom"
       sideOffset={12}
-      className="z-[20000] flex h-[min(28rem,calc(100dvh-8rem))] max-h-[min(28rem,calc(100dvh-8rem))] w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[16px] border border-[var(--desktop-appearance-popover-border)] bg-[var(--desktop-appearance-popover-bg)] p-0 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-appearance-popover-shadow)] backdrop-blur-xl"
+      className={cn(
+        "z-[20000] flex w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[16px] border border-[var(--desktop-appearance-popover-border)] bg-[var(--desktop-appearance-popover-bg)] p-0 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-appearance-popover-shadow)]",
+        heightClass,
+      )}
     >
       <ScrollArea
         chevron
         cueSize="comfortable"
-        className="h-full min-h-0 flex-1"
+        className={cn(fitContent ? "min-h-0" : "h-full min-h-0 flex-1")}
         data-slot="desktop-inspector-scroll-area"
         scrollFade
-        viewportClassName="px-3 py-3"
+        viewportClassName={flush ? "p-0" : "px-3 py-3"}
       >
         <div data-slot="desktop-inspector-scroll">{children}</div>
       </ScrollArea>

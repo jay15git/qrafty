@@ -8,7 +8,7 @@ body:has([data-slot="desktop-floating-toolbar-root"]) {
   --desktop-glass-button-hover-bg: rgba(255, 255, 255, 0.11);
   --desktop-glass-button-hover-fg: rgba(255, 255, 255, 1);
   --desktop-glass-button-focus-ring: rgba(255, 255, 255, 0.45);
-  --desktop-appearance-popover-bg: rgba(10, 10, 10, 0.96);
+  --desktop-appearance-popover-bg: #0a0a0a;
   --desktop-appearance-popover-border: rgba(255, 255, 255, 0.06);
   --desktop-appearance-popover-shadow: var(--desktop-glass-shadow);
   --desktop-inspector-fg-primary: rgba(255, 255, 255, 0.94);
@@ -34,7 +34,7 @@ body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]
   --desktop-glass-button-hover-bg: rgba(15, 23, 42, 0.08);
   --desktop-glass-button-hover-fg: rgba(15, 23, 42, 0.95);
   --desktop-glass-button-focus-ring: rgba(15, 23, 42, 0.36);
-  --desktop-appearance-popover-bg: rgba(255, 255, 255, 0.96);
+  --desktop-appearance-popover-bg: #ffffff;
   --desktop-appearance-popover-border: rgba(15, 23, 42, 0.12);
   --desktop-appearance-popover-shadow: 0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --desktop-inspector-fg-primary: rgba(15, 23, 42, 0.90);
@@ -258,6 +258,61 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
 [data-slot^="desktop-appearance-"][data-slot$="-popover"] {
   --scroll-edge-fade-color: var(--desktop-appearance-popover-bg, #0a0a0a);
   --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
+}
+
+[data-slot="desktop-layers-popover"],
+[data-slot="desktop-layer-properties-popover"],
+[data-slot="desktop-toolbar-popover"] {
+  --desktop-inspector-control: rgba(255, 255, 255, 0.055);
+  --desktop-inspector-field-bg: rgba(255, 255, 255, 0.055);
+  --desktop-inspector-control-hover-bg: rgba(255, 255, 255, 0.09);
+  --desktop-inspector-control-active-bg: rgba(255, 255, 255, 0.12);
+  --desktop-inspector-control-border-hover: rgba(255, 255, 255, 0.08);
+  --desktop-inspector-option-selected-bg: #ffffff;
+  --desktop-inspector-option-selected-fg: #0a0a0a;
+  --desktop-inspector-focus: rgba(255, 255, 255, 0.36);
+  --desktop-inspector-type-value: 0.8125rem;
+  --desktop-inspector-type-label: 0.6875rem;
+  --desktop-inspector-type-caption: 0.625rem;
+  --scroll-edge-fade-color: var(--desktop-appearance-popover-bg, #0a0a0a);
+  --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
+}
+
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layers-popover"],
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-properties-popover"],
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-toolbar-popover"],
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layers-popover"],
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-properties-popover"],
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-toolbar-popover"] {
+  --desktop-inspector-control: rgba(15, 23, 42, 0.035);
+  --desktop-inspector-field-bg: rgba(15, 23, 42, 0.035);
+  --desktop-inspector-control-hover-bg: rgba(15, 23, 42, 0.06);
+  --desktop-inspector-control-active-bg: rgba(15, 23, 42, 0.08);
+  --desktop-inspector-control-border-hover: rgba(15, 23, 42, 0.1);
+  --desktop-inspector-option-selected-bg: #0a0a0a;
+  --desktop-inspector-option-selected-fg: #ffffff;
+  --desktop-inspector-focus: rgba(15, 23, 42, 0.36);
+  --scroll-edge-fade-color: #ffffff;
+  --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
+}
+
+[data-slot="desktop-layer-properties-popover"] .desktopnew-root.desktopnew-embedded,
+[data-slot="desktop-layers-popover"] .desktopnew-root.desktopnew-embedded,
+[data-slot="desktop-layer-style-popover"] .desktopnew-root.desktopnew-embedded,
+[data-slot="desktop-layer-effects-popover"] .desktopnew-root.desktopnew-embedded,
+[data-slot="desktop-layer-transform-popover"] .desktopnew-root.desktopnew-embedded,
+[data-slot="desktop-layer-appearance-popover"] .desktopnew-root.desktopnew-embedded,
+[data-slot="desktop-export-popover"] .desktopnew-root.desktopnew-embedded,
+[data-slot^="desktop-appearance-"][data-slot$="-popover"] .desktopnew-root.desktopnew-embedded {
+  background: transparent;
+}
+
+[data-slot="desktop-layer-row"][data-selected="true"] .desktop-layer-row-action:hover:not(:disabled) {
+  background-color: color-mix(
+    in srgb,
+    var(--desktop-inspector-option-selected-fg, #fff) 12%,
+    transparent
+  );
 }
 
 body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"],

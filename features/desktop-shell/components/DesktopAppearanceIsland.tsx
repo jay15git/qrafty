@@ -234,7 +234,7 @@ export function DesktopDynamicIslandChrome({
         icon: <LayersIcon className={ICON_CLASS} />,
         label: "Layers",
         popover: (
-          <DesktopToolbarPopoverContent dataSlot="desktop-layers-popover">
+          <DesktopToolbarPopoverContent dataSlot="desktop-layers-popover" fitContent flush>
             <DesktopLayersPopoverContent
               layersSettings={layersSettings!}
               onLayersReorder={onLayersReorder}
@@ -252,7 +252,7 @@ export function DesktopDynamicIslandChrome({
         icon: <SlidersHorizontalIcon className={ICON_CLASS} />,
         label: "Properties",
         popover: (
-          <DesktopToolbarPopoverContent dataSlot="desktop-layer-properties-popover">
+          <DesktopToolbarPopoverContent dataSlot="desktop-layer-properties-popover" fitContent flush>
             <DesktopLayerPropertiesPanel
               appearance={appearance}
               appearanceLayer={appearanceLayer}

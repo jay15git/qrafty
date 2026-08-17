@@ -203,6 +203,16 @@ export type DesktopEffectsSettings = {
 }
 
 export type DesktopLayerKind = "card" | "image" | "qr" | "shader" | "shape" | "text"
+
+export const DESKTOP_LAYER_KIND_LABELS: Record<DesktopLayerKind, string> = {
+  card: "Card",
+  image: "Image",
+  qr: "QR code",
+  shader: "Shader",
+  shape: "Shape",
+  text: "Text",
+}
+
 export type DesktopLayerRow = {
   blur: number
   height: number

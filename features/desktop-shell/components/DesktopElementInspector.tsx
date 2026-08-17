@@ -21,7 +21,6 @@ import {
 import {
   DesktopInspectorLabel,
   DesktopInspectorSection,
-  DesktopInspectorSegmentedControl,
   DesktopInspectorTextarea,
   DesktopInspectorTextInput,
   DesktopInspectorScrubbableNumberInput,
@@ -32,6 +31,7 @@ import {
   desktopInspectorOptionStackClass,
 } from "@/features/desktop-shell/inspector/inspector-option-grid.classes"
 import {
+  SegmentTabs,
   SettingsFillPopover,
 } from "@/features/desktop-shell/inspector/settings-ui"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
@@ -484,15 +484,10 @@ function DesktopLayerShapeInspector({
         dataSlot="desktop-layer-shape-fill-mode"
       >
         <p className={cn("mb-2", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Fill mode</p>
-        <DesktopInspectorSegmentedControl
-          columns={4}
-          itemClassName="h-8 px-1 text-[10px] capitalize"
-          items={(["solid", "gradient", "image", "none"] as const).map((mode) => ({
-            label: mode,
-            value: mode,
-          }))}
+        <SegmentTabs
+          items={["solid", "gradient", "image", "none"]}
           value={fillMode}
-          onValueChange={(mode) => onPatch({ fillMode: mode as DraftingShapeFillMode })}
+          onChange={(mode) => onPatch({ fillMode: mode as DraftingShapeFillMode })}
         />
 
         {fillMode === "image" ? (
@@ -588,14 +583,10 @@ function DesktopLayerImageInspector({
 
       <div className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
         <p className={cn("mb-2", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Image fit</p>
-        <DesktopInspectorSegmentedControl
-          itemClassName="capitalize"
-          items={[
-            { label: "cover", value: "cover" },
-            { label: "contain", value: "contain" },
-          ]}
+        <SegmentTabs
+          items={["cover", "contain"]}
           value={layer.imageFit ?? DEFAULT_DRAFTING_IMAGE_LAYER.imageFit}
-          onValueChange={(imageFit) => onPatch({ imageFit })}
+          onChange={(imageFit) => onPatch({ imageFit: imageFit as "cover" | "contain" })}
         />
       </div>
 

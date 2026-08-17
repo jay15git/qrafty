@@ -7,7 +7,6 @@ import {
 import {
   DesktopInspectorLabel,
   DesktopInspectorSection,
-  DesktopInspectorSegmentedControl,
 } from "@/features/desktop-shell/components/InspectorControls"
 import {
   DesktopInspectorElasticSliderRow,
@@ -15,7 +14,7 @@ import {
   DesktopInspectorValueGrid,
 } from "@/features/desktop-shell/components/DesktopInspectorShell"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
-import { SettingsFillPopover } from "@/features/desktop-shell/inspector/settings-ui"
+import { SegmentTabs, SettingsFillPopover } from "@/features/desktop-shell/inspector/settings-ui"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import {
@@ -59,13 +58,12 @@ export function AppearanceOutlineControls({
       dataSlot="desktop-appearance-outline-controls"
     >
       <DesktopInspectorLabel>Outline</DesktopInspectorLabel>
-      <DesktopInspectorSegmentedControl
-        ariaLabelPrefix="Outline style"
-        items={DRAFTING_BORDER_STYLES.map((style) => ({ label: style, value: style }))}
-        onValueChange={(style: DraftingBorderStyle) =>
-          onPatch({ outline: { ...outline, style } })
-        }
+      <SegmentTabs
+        items={[...DRAFTING_BORDER_STYLES]}
         value={outline.style}
+        onChange={(style) =>
+          onPatch({ outline: { ...outline, style: style as DraftingBorderStyle } })
+        }
       />
       <DesktopnewThemeContext.Provider value={theme}>
         <SettingsFillPopover

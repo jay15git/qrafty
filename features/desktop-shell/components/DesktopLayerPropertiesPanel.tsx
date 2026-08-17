@@ -12,7 +12,10 @@ import {
   DesktopLayerStyleInspector,
   DesktopTransformSection,
 } from "@/features/desktop-shell/components/DesktopElementInspector"
-import { DesktopInspectorSegmentedControl } from "@/features/desktop-shell/components/InspectorControls"
+import {
+  DESKTOP_INSPECTOR_CAPTION_CLASS,
+  DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
+} from "@/features/desktop-shell/components/desktop-inspector-tokens"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import {
@@ -21,7 +24,9 @@ import {
   type LayerPropertyTab,
 } from "@/features/desktop-shell/model/layer-toolbar-capabilities"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-ui"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import { cn } from "@/lib/utils"
 
 import "@/features/desktop-shell/inspector/desktopnew.css"
 
@@ -64,7 +69,7 @@ export function DesktopLayerPropertiesPanel({
   if (!layer) {
     return (
       <p
-        className="py-6 text-center text-[12px] font-medium text-[var(--desktop-inspector-fg-muted)]"
+        className={cn(DESKTOP_INSPECTOR_CAPTION_CLASS, "px-3 py-5 text-center")}
         data-slot="desktop-layer-properties-empty"
       >
         Select a layer to edit properties.
@@ -73,22 +78,27 @@ export function DesktopLayerPropertiesPanel({
   }
 
   return (
-    <DesktopnewThemeContext.Provider value={theme}>
-      <div className="desktopnew-root desktopnew-embedded flex min-h-0 flex-col" data-theme={theme}>
-        {tabs.length > 1 ? (
-          <DesktopInspectorSegmentedControl
-            ariaLabelPrefix="Layer property"
-            className="mb-3"
-            dataSlot="desktop-layer-properties-tabs"
-            items={tabs.map((tab) => ({
-              label: getLayerPropertyTabLabel(tab, layer),
-              value: tab,
-            }))}
-            value={resolvedTab}
-            onValueChange={setActiveTab}
+    <div
+      className="desktopnew-root desktopnew-embedded flex min-w-0 flex-col"
+      data-slot="desktop-layer-properties-panel"
+      data-theme={theme}
+    >
+      {tabs.length > 1 ? (
+        <div className="px-3 pt-2.5">
+          <SegmentTabs
+            items={tabs.map((tab) => getLayerPropertyTabLabel(tab, layer))}
+            value={getLayerPropertyTabLabel(resolvedTab, layer)}
+            onChange={(label) => {
+              const nextTab = tabs.find((tab) => getLayerPropertyTabLabel(tab, layer) === label)
+              if (nextTab) {
+                setActiveTab(nextTab)
+              }
+            }}
           />
-        ) : null}
+        </div>
+      ) : null}
 
+      <div className="px-3 py-3">
         {resolvedTab === "transform" && transformLayer && onTransformLayerPatch ? (
           <DesktopTransformSection layer={transformLayer} onPatch={onTransformLayerPatch} />
         ) : null}
@@ -100,13 +110,15 @@ export function DesktopLayerPropertiesPanel({
             ) : null}
 
             {appearance && onAppearancePatch ? (
-              <div className="grid gap-2">
+              <div className={cn("grid gap-2", DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
                 <AppearanceOpacityControls appearance={appearance} onPatch={onAppearancePatch} />
-                <AppearanceOutlineControls
-                  appearance={appearance}
-                  onPatch={onAppearancePatch}
-                  theme={theme}
-                />
+                <DesktopnewThemeContext.Provider value={theme}>
+                  <AppearanceOutlineControls
+                    appearance={appearance}
+                    onPatch={onAppearancePatch}
+                    theme={theme}
+                  />
+                </DesktopnewThemeContext.Provider>
                 <AppearanceRadiusControls appearance={appearance} onPatch={onAppearancePatch} />
               </div>
             ) : null}
@@ -121,6 +133,6 @@ export function DesktopLayerPropertiesPanel({
           </div>
         ) : null}
       </div>
-    </DesktopnewThemeContext.Provider>
+    </div>
   )
 }

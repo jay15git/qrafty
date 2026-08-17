@@ -66,3 +66,18 @@ export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_SURFACE_CLASS =
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS
 /** Preview scale timing lives in desktop-inspector-motion.css */
 export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS = ""
+export const DESKTOP_INSPECTOR_LAYER_ROW_CLASS =
+  "group grid h-[34px] min-w-0 grid-cols-[1fr_auto] items-center gap-1 rounded-[6px] px-1.5 transition-[background-color,color] duration-150 ease-out"
+export const DESKTOP_INSPECTOR_LAYER_ROW_SELECTED_CLASS =
+  "bg-[var(--desktop-inspector-option-selected-bg)] text-[var(--desktop-inspector-option-selected-fg,var(--desktop-inspector-fg-primary))]"
+export const DESKTOP_INSPECTOR_LAYER_ROW_IDLE_CLASS =
+  "text-[var(--desktop-inspector-fg-secondary)] hover:bg-[var(--desktop-inspector-control-hover-bg)]"
+export const DESKTOP_INSPECTOR_LAYER_ACTION_CLASS = cn(
+  "desktop-layer-row-action grid size-7 shrink-0 place-items-center rounded-[6px] text-[var(--desktop-inspector-fg-tertiary)] transition-[background-color,color,opacity] duration-150 ease-out",
+  "hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)]",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
+  "disabled:cursor-not-allowed disabled:opacity-30",
+  "group-data-[selected=true]:text-[var(--desktop-inspector-option-selected-fg,var(--desktop-inspector-fg-primary))]",
+)
+export const DESKTOP_INSPECTOR_POPOVER_HEADER_CLASS =
+  "flex items-center justify-between gap-3 border-b border-[var(--desktop-inspector-control-border-hover,rgba(255,255,255,0.08))] px-3 py-2.5"
