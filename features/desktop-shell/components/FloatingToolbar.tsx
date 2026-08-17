@@ -106,6 +106,9 @@ export function FloatingToolbar({
               onSelectSizeTemplate={controller?.onSceneTemplateSizeTemplateSelect}
               onSnapEnabledChange={controller?.onSnapEnabledChange}
               onThemeChange={model.onDesktopThemeChange}
+              layersSettings={controller?.layersSettings}
+              onLayersReorder={controller?.onLayersReorder}
+              onLayersSettingsChange={controller?.onLayersSettingsChange}
               onTransformLayerPatch={controller?.onTransformLayerPatch}
               onUndo={controller?.onUndo}
               selectedElementLayer={controller?.selectedElementLayer}

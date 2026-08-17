@@ -125,28 +125,32 @@ export const TooltipNavbar = ({
   const calculatePosition = (index: number) => {
     const activeLabel = measureRefs.current[index];
     const activeIcon = buttonRefs.current[index];
+    const measureStrip = measureRefs.current[0]?.parentElement;
 
-    if (!activeLabel || !activeIcon) return null;
+    if (!activeLabel || !activeIcon || !measureStrip) return null;
 
     const labelLeft = activeLabel.offsetLeft;
     const labelWidth = activeLabel.offsetWidth;
-    const labelCenter = labelLeft + labelWidth / 2;
 
-    const iconLeft = activeIcon.offsetLeft;
-    const iconWidth = activeIcon.offsetWidth;
-    const iconCenter = iconLeft + iconWidth / 2;
+    const iconRect = activeIcon.getBoundingClientRect();
+    const labelRect = activeLabel.getBoundingClientRect();
+    const translateX = iconRect.left + iconRect.width / 2 - (labelRect.left + labelRect.width / 2);
 
     const totalWidth = measureRefs.current.reduce(
       (acc, el) => acc + (el?.offsetWidth || 0),
-      0
+      0,
     );
+
+    if (totalWidth <= 0 || labelWidth <= 0) {
+      return null;
+    }
 
     const cLeft = (labelLeft / totalWidth) * 100;
     const cRight = 100 - ((labelLeft + labelWidth) / totalWidth) * 100;
 
     return {
       clipPath: `inset(0 ${cRight}% 0 ${cLeft}% round 8px)`,
-      translateX: iconCenter - labelCenter,
+      translateX,
     };
   };
 
@@ -186,16 +190,17 @@ export const TooltipNavbar = ({
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-center">
+    <div className="overflow-visible">
+      <div className="flex items-center justify-center overflow-visible">
         <div
-          className="relative text-[var(--desktop-glass-fg,rgba(255,255,255,0.72))]"
+          className="relative overflow-visible text-[var(--desktop-glass-fg,rgba(255,255,255,0.72))]"
           onMouseLeave={handleMouseLeave}
         >
           <AnimatePresence>
             {activeIndex !== null && coords.clipPath !== "" && openPopoverIndex === null && (
               <m.div
-                className="absolute top-10 left-0"
+                className="pointer-events-none absolute top-full left-0 z-20 mt-1"
+                data-slot="tooltip-navbar-tooltip"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -280,40 +285,43 @@ export const TooltipNavbar = ({
               return <span key={index}>{button}</span>;
             })}
           </div>
-        </div>
-      </div>
 
-      <div className="pointer-events-none absolute bottom-0 left-0 flex h-0 overflow-hidden whitespace-nowrap opacity-0">
-        {items.map((item, index) => (
           <div
-            key={`measure-${index}`}
-            ref={(el) => {
-              measureRefs.current[index] = el;
-            }}
-            className="flex items-center justify-center gap-1 px-2 text-sm font-medium whitespace-nowrap"
+            aria-hidden
+            className="pointer-events-none absolute top-full left-0 mt-1 flex h-8 overflow-hidden whitespace-nowrap opacity-0"
           >
-            <span>{item.label}</span>
-            {item.hasBadge && (
-              <div className="flex items-center gap-0.5 text-white/40">
-                <span className="flex items-center justify-center rounded-sm border border-white/20 p-1">
-                  <CommandIcon className="size-3 text-neutral-500" />
-                </span>
+            {items.map((item, index) => (
+              <div
+                key={`measure-${index}`}
+                ref={(el) => {
+                  measureRefs.current[index] = el;
+                }}
+                className="flex items-center justify-center gap-1 px-2 text-sm font-medium whitespace-nowrap"
+              >
+                <span>{item.label}</span>
+                {item.hasBadge && (
+                  <div className="flex items-center gap-0.5 text-white/40">
+                    <span className="flex items-center justify-center rounded-sm border border-white/20 p-1">
+                      <CommandIcon className="size-3 text-neutral-500" />
+                    </span>
+                  </div>
+                )}
+                {item.labelHasKeyword && (
+                  <div className="flex items-center gap-0.5 text-white/40">
+                    {item.labelHasKeyword.map((key, i) => (
+                      <span
+                        key={i}
+                        className="flex items-center justify-center rounded-sm border border-white/20 px-1 tabular-nums"
+                      >
+                        {typeof key === "string" ? key : "⌘"}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-            {item.labelHasKeyword && (
-              <div className="flex items-center gap-0.5 text-white/40">
-                {item.labelHasKeyword.map((key, i) => (
-                  <span
-                    key={i}
-                    className="flex items-center justify-center rounded-sm border border-white/20 px-1 tabular-nums"
-                  >
-                    {typeof key === "string" ? key : "⌘"}
-                  </span>
-                ))}
-              </div>
-            )}
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );

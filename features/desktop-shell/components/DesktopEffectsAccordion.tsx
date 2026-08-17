@@ -51,12 +51,15 @@ const ICON_BUTTON_CLASS = cn(
 
 export function DesktopEffectsAccordion({
   layer,
+  maxEffects,
   onPatch,
 }: {
   layer: DraftingCanvasLayer
+  maxEffects?: number
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
 }) {
   const effects = listLayerEffects(layer)
+  const canAddEffect = maxEffects === undefined || effects.length < maxEffects
   const [openIds, setOpenIds] = useState<string[]>([])
   const openIdSet = new Set(openIds)
 
@@ -93,6 +96,7 @@ export function DesktopEffectsAccordion({
               aria-label="Add effect"
               className={ICON_BUTTON_CLASS}
               data-slot="desktop-effects-add"
+              disabled={!canAddEffect}
               type="button"
             >
               <PlusIcon className="size-3.5" />

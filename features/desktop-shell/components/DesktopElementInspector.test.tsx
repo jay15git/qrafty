@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { DesktopElementInspector, DesktopTransformInspector } from "@/features/desktop-shell/components/DesktopElementInspector"
+import { DEFAULT_DESKTOP_LAYERS_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 import { FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
 import { createDefaultDraftingShadowLayer } from "@/features/workspace/model/effects"
 import { createDefaultDraftingFilterEffect } from "@/features/workspace/model/filters"
@@ -116,15 +117,23 @@ describe("FloatingToolbar selected element routing", () => {
         controller={
           {
             activeTool: null,
+            layersSettings: {
+              ...DEFAULT_DESKTOP_LAYERS_SETTINGS,
+              selectedLayerId: layer.id,
+            },
+            onLayersSettingsChange: vi.fn(),
             selectedElementLayer: layer,
+            selectedTransformLayer: layer,
             onElementLayerPatch: vi.fn(),
+            onTransformLayerPatch: vi.fn(),
           } as ComponentProps<typeof FloatingToolbar>["controller"]
         }
       />,
     )
 
-    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-element-inspector"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
@@ -164,8 +173,9 @@ describe("FloatingToolbar selected element routing", () => {
 
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-element-inspector"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).toBeNull()
   })
 })

@@ -575,6 +575,7 @@ export function DesktopWorkspaceStyles() {
         [data-slot="desktop-workspace"] [data-slot="desktop-dynamic-island"] {
           max-width: calc(100vw - 15rem);
           overflow-x: auto;
+          overflow-y: visible;
         }
 
         [data-slot="desktop-workspace"] [data-slot="desktop-compose-surface"] {

@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
 import { DesktopSettingsToolbarShell } from "@/features/desktop-shell/components/DesktopSettingsToolbarShell"
 import { getDesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
+import { DEFAULT_DESKTOP_LAYERS_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 import { createDraftingTextLayer } from "@/features/workspace/model/layers"
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root"
 
@@ -84,14 +85,23 @@ describe("FloatingToolbar", () => {
     const surface = await renderPrototype({
       controller: {
         appearanceSnapshot: getDesktopAppearanceSnapshot(layer),
+        layersSettings: {
+          ...DEFAULT_DESKTOP_LAYERS_SETTINGS,
+          selectedLayerId: layer.id,
+        },
         onAppearancePatch: vi.fn(),
+        onLayersSettingsChange: vi.fn(),
         selectedAppearanceLayer: layer,
+        selectedTransformLayer: layer,
+        onTransformLayerPatch: vi.fn(),
       },
     })
 
+    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-appearance-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-appearance-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
   })
@@ -185,9 +195,7 @@ describe("FloatingToolbar", () => {
     expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").textContent?.trim()).toBe(
       "Download",
     )
-    expect(
-      utilityToolbar?.querySelector('[data-slot="desktop-download-shader-layer"]'),
-    ).not.toBeNull()
+    expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").className).toContain("bg-white")
     expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
 
@@ -231,15 +239,20 @@ describe("FloatingToolbar", () => {
     expect(surface.container.querySelector('[data-slot="desktop-toolbar-brand"]')).toBeNull()
   })
 
-  it("renders four layer popover triggers in the dynamic island when a layer is selected", async () => {
+  it("renders layers and properties triggers in the dynamic island when a layer is selected", async () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" })
     const onAppearancePatch = vi.fn()
     const surface = await renderPrototype({
       controller: {
         activeTool: null,
         appearanceSnapshot: getDesktopAppearanceSnapshot(layer),
+        layersSettings: {
+          ...DEFAULT_DESKTOP_LAYERS_SETTINGS,
+          selectedLayerId: layer.id,
+        },
         onAppearancePatch,
         onElementLayerPatch: vi.fn(),
+        onLayersSettingsChange: vi.fn(),
         selectedAppearanceLayer: layer,
         selectedElementLayer: layer,
         selectedTransformLayer: layer,
@@ -247,10 +260,12 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-appearance-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-appearance-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-appearance-outline-trigger"]')).toBeNull()

@@ -1,0 +1,126 @@
+"use client"
+
+import { useState } from "react"
+
+import {
+  AppearanceOpacityControls,
+  AppearanceOutlineControls,
+  AppearanceRadiusControls,
+} from "@/features/desktop-shell/components/AppearancePopoverControls"
+import { DesktopEffectsAccordion } from "@/features/desktop-shell/components/DesktopEffectsAccordion"
+import {
+  DesktopLayerStyleInspector,
+  DesktopTransformSection,
+} from "@/features/desktop-shell/components/DesktopElementInspector"
+import { DesktopInspectorSegmentedControl } from "@/features/desktop-shell/components/InspectorControls"
+import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
+import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
+import {
+  getDesktopLayerToolbarCapabilities,
+  getLayerPropertyTabLabel,
+  type LayerPropertyTab,
+} from "@/features/desktop-shell/model/layer-toolbar-capabilities"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+
+import "@/features/desktop-shell/inspector/desktopnew.css"
+
+export function DesktopLayerPropertiesPanel({
+  appearance,
+  appearanceLayer,
+  elementLayer,
+  maxEffects,
+  onAppearancePatch,
+  onElementLayerPatch,
+  onTransformLayerPatch,
+  propertyTabs,
+  showStyleInDesign,
+  theme,
+  transformLayer,
+}: {
+  appearance?: DesktopAppearanceSnapshot | null
+  appearanceLayer?: DraftingCanvasLayer | null
+  elementLayer?: DraftingCanvasLayer | null
+  maxEffects?: number
+  onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void
+  onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
+  onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
+  propertyTabs?: LayerPropertyTab[]
+  showStyleInDesign?: boolean
+  theme: DesktopThemeMode
+  transformLayer?: DraftingCanvasLayer | null
+}) {
+  const layer = transformLayer ?? elementLayer ?? appearanceLayer ?? null
+  const capabilities = getDesktopLayerToolbarCapabilities(layer, appearance)
+  const tabs = propertyTabs ?? capabilities.propertyTabs
+  const [activeTab, setActiveTab] = useState<LayerPropertyTab>(tabs[0] ?? "transform")
+
+  const resolvedTab = tabs.includes(activeTab) ? activeTab : tabs[0] ?? "transform"
+  const designLayer = elementLayer ?? appearanceLayer
+  const designPatch = elementLayer ? onElementLayerPatch : onAppearancePatch
+  const effectsLayer = elementLayer ?? appearanceLayer
+  const effectsPatch = elementLayer ? onElementLayerPatch : onAppearancePatch
+
+  if (!layer) {
+    return (
+      <p
+        className="py-6 text-center text-[12px] font-medium text-[var(--desktop-inspector-fg-muted)]"
+        data-slot="desktop-layer-properties-empty"
+      >
+        Select a layer to edit properties.
+      </p>
+    )
+  }
+
+  return (
+    <DesktopnewThemeContext.Provider value={theme}>
+      <div className="desktopnew-root desktopnew-embedded flex min-h-0 flex-col" data-theme={theme}>
+        {tabs.length > 1 ? (
+          <DesktopInspectorSegmentedControl
+            ariaLabelPrefix="Layer property"
+            className="mb-3"
+            dataSlot="desktop-layer-properties-tabs"
+            items={tabs.map((tab) => ({
+              label: getLayerPropertyTabLabel(tab, layer),
+              value: tab,
+            }))}
+            value={resolvedTab}
+            onValueChange={setActiveTab}
+          />
+        ) : null}
+
+        {resolvedTab === "transform" && transformLayer && onTransformLayerPatch ? (
+          <DesktopTransformSection layer={transformLayer} onPatch={onTransformLayerPatch} />
+        ) : null}
+
+        {resolvedTab === "design" ? (
+          <div className="grid gap-3" data-slot="desktop-layer-design-panel">
+            {showStyleInDesign && designLayer && designPatch ? (
+              <DesktopLayerStyleInspector layer={designLayer} onPatch={designPatch} />
+            ) : null}
+
+            {appearance && onAppearancePatch ? (
+              <div className="grid gap-2">
+                <AppearanceOpacityControls appearance={appearance} onPatch={onAppearancePatch} />
+                <AppearanceOutlineControls
+                  appearance={appearance}
+                  onPatch={onAppearancePatch}
+                  theme={theme}
+                />
+                <AppearanceRadiusControls appearance={appearance} onPatch={onAppearancePatch} />
+              </div>
+            ) : null}
+
+            {effectsLayer && effectsPatch && (maxEffects ?? capabilities.maxEffects) > 0 ? (
+              <DesktopEffectsAccordion
+                layer={effectsLayer}
+                maxEffects={maxEffects ?? capabilities.maxEffects}
+                onPatch={effectsPatch}
+              />
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    </DesktopnewThemeContext.Provider>
+  )
+}
