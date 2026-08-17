@@ -17,7 +17,6 @@ export type ElasticSliderProps = {
   step?: number
   formatValue?: (value: number) => string
   className?: string
-  scrubSound?: boolean
   animateValue?: boolean
   "aria-label"?: string
 }
@@ -32,7 +31,6 @@ export function ElasticSlider({
   step = 0.01,
   formatValue,
   className,
-  scrubSound = false,
   animateValue = true,
   "aria-label": ariaLabel,
 }: ElasticSliderProps) {
@@ -48,7 +46,6 @@ export function ElasticSlider({
     max,
     step,
     formatValue,
-    scrubSound,
   })
 
   return (

@@ -9,7 +9,6 @@ import {
 } from "motion/react"
 
 import { useControllableState } from "@/hooks/use-controllable-state"
-import { playDesktopSound } from "@/lib/desktop-interaction-sound"
 
 const CLICK_THRESHOLD = 3
 const DEAD_ZONE = 32
@@ -61,7 +60,6 @@ type UseElasticSliderOptions = {
   max: number
   step: number
   formatValue?: (value: number) => string
-  scrubSound?: boolean
   animateValue?: boolean
 }
 
@@ -74,7 +72,6 @@ export function useElasticSlider({
   max,
   step,
   formatValue,
-  scrubSound = false,
 }: UseElasticSliderOptions) {
   const [value = min, setValue] = useControllableState({
     prop: valueProp,
@@ -128,20 +125,6 @@ export function useElasticSlider({
       fillPercent.jump(percentage)
     }
   }, [percentage, isInteracting, fillPercent])
-
-  const previousScrubValueRef = React.useRef(value)
-
-  React.useEffect(() => {
-    if (!scrubSound) {
-      previousScrubValueRef.current = value
-      return
-    }
-
-    if (value === previousScrubValueRef.current) return
-
-    playDesktopSound("slider")
-    previousScrubValueRef.current = value
-  }, [value, scrubSound])
 
   const positionToValue = React.useCallback(
     (clientX: number) => {

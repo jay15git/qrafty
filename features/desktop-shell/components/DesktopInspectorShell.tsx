@@ -6,6 +6,7 @@ import { ElasticSlider } from "@/components/ui/elastic-slider"
 import {
   DESKTOP_INSPECTOR_LABEL_CLASS,
 } from "@/features/desktop-shell/components/desktop-inspector-tokens"
+import { SETTINGS_ELASTIC_SLIDER_CLASS } from "@/features/desktop-shell/inspector/settings-ui"
 import {
   DesktopInspectorScrubNumberInput,
   useDesktopInspectorNumberScrub,
@@ -18,9 +19,6 @@ export {
   type DesktopInspectorOptionGridRowKind,
   type DesktopInspectorOptionGridVariant,
 } from "@/features/desktop-shell/inspector/inspector-option-grid"
-
-const DESKTOP_ELASTIC_SLIDER_CLASS =
-  "desktop-elastic-slider [--elastic-slider-height:--spacing(8)] [--elastic-slider-radius:9999px] [--elastic-slider-bg:rgba(255,255,255,0.095)] [--elastic-slider-fill:rgba(255,255,255,0.13)] [--elastic-slider-fill-active:rgba(255,255,255,0.2)] [--elastic-slider-hash:rgba(255,255,255,0.24)] [--elastic-slider-handle:rgba(255,255,255,0.7)] [--elastic-slider-label:rgba(255,255,255,0.58)] [--elastic-slider-focus:rgba(255,255,255,0.82)]"
 
 export function DesktopInspectorElasticSliderRow({
   ariaLabel,
@@ -46,12 +44,11 @@ export function DesktopInspectorElasticSliderRow({
       <div data-slot="desktop-elastic-slider">
         <ElasticSlider
           aria-label={ariaLabel ?? label}
-          className={DESKTOP_ELASTIC_SLIDER_CLASS}
+          className={SETTINGS_ELASTIC_SLIDER_CLASS}
           formatValue={() => valueLabel}
           label={label}
           max={max}
           min={min}
-          scrubSound
           step={step}
           value={value}
           onValueChange={onChange}

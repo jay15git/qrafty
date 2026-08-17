@@ -806,7 +806,7 @@ export function SettingsSwitchRow({
   )
 }
 
-const SETTINGS_ELASTIC_SLIDER_CLASS =
+export const SETTINGS_ELASTIC_SLIDER_CLASS =
   "desktop-elastic-slider dn-settings-elastic-slider w-full [--elastic-slider-height:--spacing(9)] [--elastic-slider-radius:12px]"
 
 export function SettingsSlider({
@@ -833,7 +833,6 @@ export function SettingsSlider({
       label={label}
       max={max}
       min={min}
-      scrubSound
       step={step}
       value={value}
       onValueChange={onChange}

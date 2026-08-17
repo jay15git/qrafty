@@ -6,7 +6,6 @@ import {
   type DesktopThemeMode,
   type DesktopToolbarToolId,
 } from "@/features/desktop-shell/components/FloatingToolbar"
-import { DesktopSoundProvider } from "@/features/desktop-shell/components/DesktopSoundProvider"
 import "@/features/workspace/workspace-tokens.css"
 import { DesktopWorkspaceStyles } from "@/features/desktop-shell/components/desktop-workspace-styles"
 import { cn } from "@/lib/utils"
@@ -33,18 +32,17 @@ export function DesktopWorkspace({
   } as CSSProperties
 
   return (
-    <DesktopSoundProvider>
-      <section
-        aria-label="Desktop workspace"
-        data-desktop-theme={desktopTheme}
-        data-slot="desktop-workspace"
-        style={workspaceTone}
-        className={cn(
-          fontClassName,
-          "relative h-dvh min-h-dvh overflow-hidden transition-colors duration-200",
-          desktopTheme === "light" ? "bg-white text-neutral-950" : "bg-workspace-page text-white",
-        )}
-      >
+    <section
+      aria-label="Desktop workspace"
+      data-desktop-theme={desktopTheme}
+      data-slot="desktop-workspace"
+      style={workspaceTone}
+      className={cn(
+        fontClassName,
+        "relative h-dvh min-h-dvh overflow-hidden transition-colors duration-200",
+        desktopTheme === "light" ? "bg-white text-neutral-950" : "bg-workspace-page text-white",
+      )}
+    >
       <WorkspaceSurface
         desktopTheme={desktopTheme}
         fontClassName={fontClassName}
@@ -61,6 +59,5 @@ export function DesktopWorkspace({
       />
       <DesktopWorkspaceStyles />
     </section>
-    </DesktopSoundProvider>
   )
 }
