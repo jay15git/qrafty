@@ -58,9 +58,20 @@ export function DesktopInspectorElasticSliderRow({
   )
 }
 
-export function DesktopInspectorValueGrid({ children }: { children: ReactNode }) {
+export function DesktopInspectorValueGrid({
+  children,
+  className,
+}: {
+  children: ReactNode
+  className?: string
+}) {
   return (
-    <div className="grid w-full grid-cols-2 gap-x-5 gap-y-3 [&>:nth-child(even)]:justify-self-end [&>:nth-child(odd)]:justify-self-start">
+    <div
+      className={cn(
+        "grid w-full grid-cols-2 gap-x-5 gap-y-3 [&>:nth-child(even)]:justify-self-end [&>:nth-child(odd)]:justify-self-start",
+        className,
+      )}
+    >
       {children}
     </div>
   )
@@ -68,20 +79,26 @@ export function DesktopInspectorValueGrid({ children }: { children: ReactNode })
 
 export function DesktopInspectorNumberField({
   disabled,
+  fill = false,
   label,
   max,
   min,
   onChange,
   step,
   value,
+  className,
+  labelClassName,
 }: {
   disabled?: boolean
+  fill?: boolean
   label: string
   max?: number
   min?: number
   onChange: (value: number) => void
   step?: number
   value: number
+  className?: string
+  labelClassName?: string
 }) {
   const scrub = useDesktopInspectorNumberScrub({
     disabled,
@@ -94,13 +111,20 @@ export function DesktopInspectorNumberField({
 
   return (
     <div
-      className="grid grid-cols-[1.25rem_4.75rem] items-center gap-x-2.5"
+      className={cn(
+        fill
+          ? "grid w-full min-w-0 grid-cols-[2.75rem_minmax(0,1fr)] items-center gap-x-2"
+          : "grid grid-cols-[1.25rem_4.75rem] items-center gap-x-2.5",
+        className,
+      )}
       role="group"
     >
       <span
         className={cn(
-          "text-center",
+          fill ? "text-left" : "text-center",
           DESKTOP_INSPECTOR_LABEL_CLASS,
+          fill && "truncate-none",
+          labelClassName,
           scrub.canScrub && "cursor-ew-resize select-none",
         )}
         {...scrub.labelScrubHandlers}
@@ -109,7 +133,7 @@ export function DesktopInspectorNumberField({
       </span>
       <DesktopInspectorScrubNumberInput
         aria-label={label}
-        className="h-7 w-[4.75rem]"
+        className={cn("h-7", fill ? "w-full min-w-0" : "w-[4.75rem]")}
         disabled={disabled}
         inputClassName="h-7 w-full rounded-[6px] px-1.5"
         scrub={scrub}

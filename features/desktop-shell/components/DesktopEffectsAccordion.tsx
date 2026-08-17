@@ -25,6 +25,7 @@ import {
   DesktopInspectorNumberField,
   DesktopInspectorValueGrid,
 } from "@/features/desktop-shell/components/DesktopInspectorShell"
+import { SettingsSlider } from "@/features/desktop-shell/inspector/settings-ui"
 import { DRAFTING_FILTER_RANGES } from "@/features/workspace/model/filters"
 import {
   createLayerEffect,
@@ -49,14 +50,19 @@ const ICON_BUTTON_CLASS = cn(
   DESKTOP_INSPECTOR_CONTROL_CLASS,
 )
 
+const FLAT_ICON_BUTTON_CLASS =
+  "grid size-7 shrink-0 place-items-center rounded-md text-[var(--desktop-inspector-fg-tertiary)] transition-colors hover:text-[var(--desktop-inspector-fg-primary)] disabled:cursor-not-allowed disabled:opacity-30"
+
 export function DesktopEffectsAccordion({
   layer,
   maxEffects,
   onPatch,
+  variant = "default",
 }: {
   layer: DraftingCanvasLayer
   maxEffects?: number
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  variant?: "default" | "flat"
 }) {
   const effects = listLayerEffects(layer)
   const canAddEffect = maxEffects === undefined || effects.length < maxEffects
@@ -88,13 +94,22 @@ export function DesktopEffectsAccordion({
 
   return (
     <DesktopInspectorSection dataSlot="desktop-effects-accordion">
-      <div className="flex h-8 items-center justify-between gap-2">
-        <p className={cn(DESKTOP_INSPECTOR_SECTION_HEADING_CLASS, "mb-0")}>Effects</p>
+      <div className={cn("flex items-center justify-between gap-2", variant === "flat" ? "h-7" : "h-8")}>
+        <p
+          className={cn(
+            "mb-0",
+            variant === "flat"
+              ? "font-medium text-[var(--desktop-inspector-fg-secondary)] text-[length:var(--desktop-inspector-type-label,0.6875rem)]"
+              : DESKTOP_INSPECTOR_SECTION_HEADING_CLASS,
+          )}
+        >
+          Effects
+        </p>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               aria-label="Add effect"
-              className={ICON_BUTTON_CLASS}
+              className={variant === "flat" ? FLAT_ICON_BUTTON_CLASS : ICON_BUTTON_CLASS}
               data-slot="desktop-effects-add"
               disabled={!canAddEffect}
               type="button"
@@ -127,7 +142,10 @@ export function DesktopEffectsAccordion({
       </div>
 
       {effects.length > 0 ? (
-        <div className="flex flex-col gap-1" data-slot="desktop-effects-list">
+        <div
+          className={cn("flex flex-col", variant === "flat" ? "gap-0" : "gap-1")}
+          data-slot="desktop-effects-list"
+        >
           {effects.map((effect) => {
             const isOpen = openIdSet.has(effect.id)
 
@@ -136,6 +154,7 @@ export function DesktopEffectsAccordion({
                 key={effect.id}
                 effect={effect}
                 isOpen={isOpen}
+                variant={variant}
                 onKindChange={(kind) => applyPatch(setLayerEffectKind(layer, effect.id, kind))}
                 onOpenToggle={() => toggleOpen(effect.id)}
                 onPatchFilter={(patch) =>
@@ -166,6 +185,7 @@ function EffectRow({
   onPatchShadow,
   onRemove,
   onVisibleToggle,
+  variant = "default",
 }: {
   effect: LayerEffectItem
   isOpen: boolean
@@ -184,24 +204,30 @@ function EffectRow({
   ) => void
   onRemove: () => void
   onVisibleToggle: () => void
+  variant?: "default" | "flat"
 }) {
   const label = getLayerEffectKindLabel(effect.kind)
   const range =
     effect.source === "filter" ? DRAFTING_FILTER_RANGES[effect.filter.type] : null
+  const iconButtonClass = variant === "flat" ? FLAT_ICON_BUTTON_CLASS : ICON_BUTTON_CLASS
 
   return (
     <div
-      className="rounded-[8px] bg-[var(--desktop-inspector-control)]"
+      className={cn(
+        variant === "flat"
+          ? "border-b border-[var(--desktop-inspector-control-border-hover,rgba(255,255,255,0.08))] py-1.5 last:border-b-0"
+          : "rounded-[8px] bg-[var(--desktop-inspector-control)]",
+      )}
       data-effect-id={effect.id}
       data-effect-kind={effect.kind}
       data-open={isOpen ? "true" : "false"}
       data-slot="desktop-effect-row"
     >
-      <div className="flex h-8 items-center gap-0.5 px-0.5">
+      <div className={cn("flex items-center", variant === "flat" ? "gap-1" : "h-8 gap-0.5 px-0.5")}>
         <button
           aria-label={effect.enabled ? `Hide ${label}` : `Show ${label}`}
           aria-pressed={effect.enabled}
-          className={cn(ICON_BUTTON_CLASS, !effect.enabled && "opacity-40")}
+          className={cn(iconButtonClass, !effect.enabled && "opacity-40")}
           type="button"
           onClick={onVisibleToggle}
         >
@@ -214,8 +240,12 @@ function EffectRow({
 
         <DesktopInspectorNativeSelect
           aria-label={`${label} type`}
-          className="h-7 min-h-7 px-2 pr-6 text-[11px]"
-          iconClassName="right-1.5 size-3"
+          className={cn(
+            variant === "flat"
+              ? "h-7 min-h-7 border-0 bg-transparent px-0 pr-5 text-[length:var(--desktop-inspector-type-value,0.8125rem)] shadow-none focus-visible:ring-0"
+              : "h-7 min-h-7 px-2 pr-6 text-[11px]",
+          )}
+          iconClassName={variant === "flat" ? "right-0 size-3" : "right-1.5 size-3"}
           options={LAYER_EFFECT_KINDS.map((kind) => ({
             label: getLayerEffectKindLabel(kind),
             value: kind,
@@ -241,7 +271,7 @@ function EffectRow({
         <button
           aria-expanded={isOpen}
           aria-label={isOpen ? `Collapse ${label}` : `Expand ${label}`}
-          className={ICON_BUTTON_CLASS}
+          className={iconButtonClass}
           type="button"
           onClick={onOpenToggle}
         >
@@ -255,7 +285,7 @@ function EffectRow({
 
         <button
           aria-label={`Remove ${label}`}
-          className={ICON_BUTTON_CLASS}
+          className={iconButtonClass}
           type="button"
           onClick={onRemove}
         >
@@ -265,13 +295,23 @@ function EffectRow({
 
       {isOpen ? (
         <div
-          className="grid gap-2 border-t border-[var(--desktop-inspector-bg)] px-2 py-2"
+          className={cn(
+            "grid gap-2",
+            variant === "flat" ? "pt-2" : "border-t border-[var(--desktop-inspector-bg)] px-2 py-2",
+          )}
           data-slot="desktop-effect-row-body"
         >
           {effect.source === "shadow" ? (
             <>
-              <DesktopInspectorValueGrid>
+              <DesktopInspectorValueGrid
+                className={
+                  variant === "flat"
+                    ? "gap-x-3 gap-y-2 [&>:nth-child(even)]:justify-self-stretch [&>:nth-child(odd)]:justify-self-stretch"
+                    : undefined
+                }
+              >
                 <DesktopInspectorNumberField
+                  fill={variant === "flat"}
                   label="X"
                   max={256}
                   min={-256}
@@ -279,6 +319,7 @@ function EffectRow({
                   onChange={(offsetX) => onPatchShadow({ offsetX })}
                 />
                 <DesktopInspectorNumberField
+                  fill={variant === "flat"}
                   label="Y"
                   max={256}
                   min={-256}
@@ -286,6 +327,7 @@ function EffectRow({
                   onChange={(offsetY) => onPatchShadow({ offsetY })}
                 />
                 <DesktopInspectorNumberField
+                  fill={variant === "flat"}
                   label="Blur"
                   max={128}
                   min={0}
@@ -293,6 +335,7 @@ function EffectRow({
                   onChange={(blur) => onPatchShadow({ blur })}
                 />
                 <DesktopInspectorNumberField
+                  fill={variant === "flat"}
                   label="Spread"
                   max={128}
                   min={-128}
@@ -300,24 +343,44 @@ function EffectRow({
                   onChange={(spread) => onPatchShadow({ spread })}
                 />
               </DesktopInspectorValueGrid>
-              <DesktopInspectorElasticSliderRow
-                label="Opacity"
-                max={100}
-                min={0}
-                value={effect.shadow.opacity}
-                valueLabel={`${Math.round(effect.shadow.opacity)}%`}
-                onChange={(opacity) => onPatchShadow({ opacity })}
-              />
+              {variant === "flat" ? (
+                <SettingsSlider
+                  label="Opacity"
+                  max={100}
+                  min={0}
+                  value={effect.shadow.opacity}
+                  onChange={(opacity) => onPatchShadow({ opacity })}
+                />
+              ) : (
+                <DesktopInspectorElasticSliderRow
+                  label="Opacity"
+                  max={100}
+                  min={0}
+                  value={effect.shadow.opacity}
+                  valueLabel={`${Math.round(effect.shadow.opacity)}%`}
+                  onChange={(opacity) => onPatchShadow({ opacity })}
+                />
+              )}
             </>
           ) : range ? (
-            <DesktopInspectorElasticSliderRow
-              label="Amount"
-              max={range.max}
-              min={range.min}
-              value={effect.filter.amount}
-              valueLabel={`${Math.round(effect.filter.amount)}${range.unit ?? ""}`}
-              onChange={(amount) => onPatchFilter({ amount })}
-            />
+            variant === "flat" ? (
+              <SettingsSlider
+                label="Amount"
+                max={range.max}
+                min={range.min}
+                value={effect.filter.amount}
+                onChange={(amount) => onPatchFilter({ amount })}
+              />
+            ) : (
+              <DesktopInspectorElasticSliderRow
+                label="Amount"
+                max={range.max}
+                min={range.min}
+                value={effect.filter.amount}
+                valueLabel={`${Math.round(effect.filter.amount)}${range.unit ?? ""}`}
+                onChange={(amount) => onPatchFilter({ amount })}
+              />
+            )
           ) : null}
         </div>
       ) : null}

@@ -14,7 +14,7 @@ import {
   DesktopInspectorValueGrid,
 } from "@/features/desktop-shell/components/DesktopInspectorShell"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
-import { SegmentTabs, SettingsFillPopover } from "@/features/desktop-shell/inspector/settings-ui"
+import { SegmentTabs, SettingsFillPopover, SettingsSlider } from "@/features/desktop-shell/inspector/settings-ui"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import {
@@ -110,24 +110,38 @@ export function AppearanceOpacityControls({
   appearance,
   className,
   onPatch,
+  useSettingsSlider = false,
 }: {
   appearance: DesktopAppearanceSnapshot
   className?: string
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  useSettingsSlider?: boolean
 }) {
+  const opacityPercent = Math.round(appearance.opacity * 100)
+
   return (
     <DesktopInspectorSection
       className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, className)}
       dataSlot="desktop-appearance-opacity-controls"
     >
-      <DesktopInspectorElasticSliderRow
-        label="Opacity"
-        max={100}
-        min={0}
-        value={Math.round(appearance.opacity * 100)}
-        valueLabel={`${Math.round(appearance.opacity * 100)}%`}
-        onChange={(opacityPercent) => onPatch({ opacity: opacityPercent / 100 })}
-      />
+      {useSettingsSlider ? (
+        <SettingsSlider
+          label="Opacity"
+          max={100}
+          min={0}
+          value={opacityPercent}
+          onChange={(next) => onPatch({ opacity: next / 100 })}
+        />
+      ) : (
+        <DesktopInspectorElasticSliderRow
+          label="Opacity"
+          max={100}
+          min={0}
+          value={opacityPercent}
+          valueLabel={`${opacityPercent}%`}
+          onChange={(next) => onPatch({ opacity: next / 100 })}
+        />
+      )}
     </DesktopInspectorSection>
   )
 }

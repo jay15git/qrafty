@@ -52,6 +52,7 @@ function HorizontalShaderOptionRow({
         cueSize="tight"
         orientation="horizontal"
         scrollFade
+        showScrollbar={false}
         viewportClassName="min-w-0"
       >
         <div className={HORIZONTAL_OPTION_ROW}>
@@ -110,7 +111,7 @@ function DesktopNewPaperShaderParamControl({
         >
           Use sample image
         </SettingsPrimaryButton>
-        <label className="dn-settings-row dn-pressable-press-only dn-squircle-sm inline-flex h-9 cursor-pointer items-center justify-center px-3 text-[11px] font-medium tracking-tight">
+        <label className="dn-settings-row dn-squircle-sm inline-flex h-9 cursor-pointer items-center justify-center px-3 text-[11px] font-medium tracking-tight">
           Upload image
           <input
             accept="image/*"

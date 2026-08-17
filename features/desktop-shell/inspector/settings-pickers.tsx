@@ -2,7 +2,7 @@
 
 import { Filter, Search } from "lucide-react"
 import Image from "next/image"
-import { useMemo, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
 
 import {
   DropdownMenu,
@@ -11,15 +11,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
+  findBrandIconById,
   getBrandIconById,
   POPULAR_BRAND_ICON_IDS,
 } from "@/features/qr-code/assets/brand-icons"
 import {
   ICONSTACK_LIBRARIES,
+  parseIconstackSelectionId,
   toIconstackSelectionId,
   type IconstackLibraryId,
   type IconstackSearchResult,
 } from "@/features/qr-code/assets/iconstack-api"
+import {
+  fetchAndCacheIconstackSvg,
+  getCachedIconstackSvg,
+} from "@/features/qr-code/assets/iconstack-svg-cache"
 import { filterCuratedIconstackIcons } from "@/features/qr-code/assets/iconstack-curated"
 import { useIconstackCuratedIcons } from "@/features/qr-code/hooks/useIconstackCuratedIcons"
 import { useIconstackIconSearch } from "@/features/qr-code/hooks/useIconstackIconSearch"
@@ -62,6 +68,65 @@ function LogoIconTile({
     >
       {children}
     </button>
+  )
+}
+
+export function LogoSelectionIcon({ selectedId }: { selectedId: string }) {
+  const brandIcon = findBrandIconById(selectedId)
+  const parsed = parseIconstackSelectionId(selectedId)
+  const [iconstackSvg, setIconstackSvg] = useState<string | undefined>(() =>
+    parsed ? getCachedIconstackSvg(selectedId) : undefined,
+  )
+
+  useEffect(() => {
+    if (!parsed) {
+      setIconstackSvg(undefined)
+      return
+    }
+
+    const cached = getCachedIconstackSvg(selectedId)
+    if (cached) {
+      setIconstackSvg(cached)
+      return
+    }
+
+    let cancelled = false
+    void fetchAndCacheIconstackSvg({ library: parsed.library, id: parsed.iconId }).then((svg) => {
+      if (!cancelled) {
+        setIconstackSvg(svg)
+      }
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [parsed, selectedId])
+
+  if (brandIcon) {
+    const Icon = brandIcon.icon
+    return <Icon aria-hidden className="size-3.5 shrink-0" />
+  }
+
+  if (iconstackSvg) {
+    return (
+      <span
+        aria-hidden
+        className="flex size-3.5 shrink-0 items-center justify-center [&_img]:size-full"
+      >
+        <img
+          alt=""
+          className="size-full"
+          src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(iconstackSvg)}`}
+        />
+      </span>
+    )
+  }
+
+  return (
+    <span
+      aria-hidden
+      className="size-3.5 shrink-0 border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] dn-squircle-xs"
+    />
   )
 }
 

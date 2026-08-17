@@ -25,6 +25,7 @@
   --dn-press-active-dur: 75ms;
   --dn-press-spring-dur: 180ms;
   --dn-press-scale: 0.93;
+  --dn-select-ring-dur: 340ms;
   --tabs-dur: var(--dn-motion-ui);
   --tabs-ease: var(--dn-ease-out);
   --dn-type-caption: 10px;
@@ -255,9 +256,28 @@
 /* ── Option tiles (grids, chips, presets) ────────────────────────── */
 
 .dn-option-tile {
+  position: relative;
+  isolation: isolate;
   background: var(--dn-control);
   color: var(--dn-muted);
-  transition: transform var(--dn-press-dur) var(--dn-ease-out);
+  transition:
+    color 160ms var(--dn-ease-out),
+    background-color 160ms var(--dn-ease-out);
+}
+
+.dn-option-tile::after,
+.dn-preview-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 2px solid var(--dn-fg);
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity var(--dn-select-ring-dur) var(--dn-ease-out),
+    transform var(--dn-select-ring-dur) var(--dn-ease-press);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -294,9 +314,12 @@
 .dn-option-tile[data-selected="true"] {
   background: var(--dn-control);
   color: var(--dn-fg);
-  box-shadow:
-    0 0 0 2px var(--dn-bg),
-    0 0 0 3.5px var(--dn-fg);
+}
+
+.dn-option-tile[aria-pressed="true"]::after,
+.dn-option-tile[data-selected="true"]::after {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .dn-option-scroll-row {
@@ -328,6 +351,15 @@
   font-weight: 500;
   letter-spacing: var(--dn-tracking-tight);
   white-space: nowrap;
+  background: transparent;
+}
+
+.dn-option-scroll-chip[aria-pressed="true"],
+.dn-option-scroll-chip[data-selected="true"],
+.dn-option-tile.dn-option-scroll-chip,
+.dn-option-tile.dn-option-scroll-chip[aria-pressed="true"],
+.dn-option-tile.dn-option-scroll-chip[data-selected="true"] {
+  background: transparent;
 }
 
 @media (hover: hover) {
@@ -340,14 +372,13 @@
   transform: scale(0.98);
 }
 
-.dn-option-scroll-chip[aria-pressed="true"],
-.dn-option-scroll-chip[data-selected="true"] {
-  box-shadow: inset 0 0 0 1.5px var(--dn-fg);
-}
-
 .dn-preview-tile {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  padding: 5px;
   color: color-mix(in srgb, var(--dn-fg) 65%, transparent);
-  transition: transform var(--dn-press-dur) var(--dn-ease-out);
+  transition: color 160ms var(--dn-ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -363,14 +394,55 @@
 
 .dn-preview-tile[aria-pressed="true"] {
   color: var(--dn-fg);
-  box-shadow:
-    0 0 0 2px var(--dn-bg),
-    0 0 0 3.5px var(--dn-fg);
+}
+
+.dn-preview-tile[aria-pressed="true"]::after {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .desktopnew-root .dn-preview-tile [data-slot^="style-preview"],
 .desktopnew-root .dn-preview-tile .dn-preview-icon {
   color: var(--dn-fg);
+}
+
+/* Settings surfaces — flat press (no hover/active scale) */
+:is(.desktopnew-root, .dn-portal-surface, .desktopnew-fill-popover)
+  :is(
+    .dn-pressable,
+    .dn-pressable-pickable,
+    .dn-pressable-press-only,
+    .dn-pressable-subtle,
+    .dn-option-tile,
+    .dn-option-scroll-chip,
+    .dn-preset-item,
+    .dn-preview-tile,
+    .t-tab,
+    .dn-segment-tab,
+    .dn-content-type-filter-trigger,
+    .dn-settings-row
+  ) {
+  will-change: auto;
+}
+
+:is(.desktopnew-root, .dn-portal-surface, .desktopnew-fill-popover)
+  :is(
+    .dn-pressable,
+    .dn-pressable-pickable,
+    .dn-pressable-press-only,
+    .dn-pressable-subtle,
+    .dn-option-tile,
+    .dn-option-scroll-chip,
+    .dn-preset-item,
+    .dn-preview-tile,
+    .t-tab,
+    .dn-segment-tab,
+    .dn-content-type-filter-trigger,
+    .dn-settings-row
+  ):is(:hover, :active),
+:is(.desktopnew-root, .dn-portal-surface, .desktopnew-fill-popover)
+  .dn-pressable-press-only[data-pressed] {
+  transform: none !important;
 }
 
 /* ── Settings typography ─────────────────────────────────────────── */
@@ -412,6 +484,7 @@
   outline: none;
   appearance: none;
   cursor: pointer;
+  transform: none;
 }
 
 .desktopnew-root .dn-settings-row:hover,
@@ -792,24 +865,25 @@
   background: transparent;
 }
 
-.dn-settings-accordion [role="region"] .dn-option-tile {
+.dn-settings-accordion [role="region"] .dn-option-tile:not(.dn-option-scroll-chip) {
   background: transparent;
   border: 1px solid color-mix(in srgb, var(--dn-line) 75%, transparent);
 }
 
 .dn-settings-accordion [role="region"] .dn-option-scroll-chip {
-  background: var(--dn-control);
+  background: transparent;
+  border: none;
 }
 
-.dn-settings-accordion [role="region"] .dn-option-tile[aria-pressed="true"],
-.dn-settings-accordion [role="region"] .dn-option-tile[data-selected="true"] {
+.dn-settings-accordion [role="region"] .dn-option-tile:not(.dn-option-scroll-chip)[aria-pressed="true"],
+.dn-settings-accordion [role="region"] .dn-option-tile:not(.dn-option-scroll-chip)[data-selected="true"] {
   background: transparent;
 }
 
 .dn-settings-accordion [role="region"] .dn-option-scroll-chip[aria-pressed="true"],
 .dn-settings-accordion [role="region"] .dn-option-scroll-chip[data-selected="true"] {
-  background: var(--dn-control);
-  border-color: var(--dn-fg);
+  background: transparent;
+  border: none;
   box-shadow: none;
 }
 
@@ -1244,5 +1318,10 @@
   .dn-preview-tile:hover,
   .dn-preview-tile:active {
     transform: none !important;
+  }
+
+  .dn-option-tile::after,
+  .dn-preview-tile::after {
+    transition: none !important;
   }
 }

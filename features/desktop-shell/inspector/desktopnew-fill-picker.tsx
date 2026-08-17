@@ -151,13 +151,14 @@ function ModulePatternPicker({
       cueSize="tight"
       orientation="horizontal"
       scrollFade
+      showScrollbar={false}
       viewportClassName="min-w-0"
     >
       <div className="grid min-w-max grid-cols-4 gap-1.5 px-1 py-1.5">
         <button
           aria-label="Use custom pattern palette"
           aria-pressed={selectedPreset === "custom"}
-          className={cn("dn-preview-tile relative flex size-14 items-center justify-center p-0 text-center dn-squircle-xs", selectedPreset === "custom" && "ring-2 ring-primary ring-offset-1")}
+          className={cn("dn-preview-tile relative flex size-14 items-center justify-center text-center dn-squircle-xs", selectedPreset === "custom" && "ring-2 ring-primary ring-offset-1")}
           type="button"
           onClick={() => onSelect("custom")}
         >
@@ -171,7 +172,7 @@ function ModulePatternPicker({
               aria-label={`Use ${option.label} pattern palette`}
               aria-pressed={isSelected}
               className={cn(
-                "dn-preview-tile group relative size-14 shrink-0 p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs",
+                "dn-preview-tile group relative size-14 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs",
                 isSelected && "ring-2 ring-primary ring-offset-1",
               )}
               title={option.label}

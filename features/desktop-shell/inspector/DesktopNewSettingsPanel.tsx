@@ -47,6 +47,7 @@ import { cn } from "@/lib/utils"
 import { getLogoSelectionLabel } from "@/features/desktop-shell/inspector/settings-pickers.utils"
 import {
   LogoIconPicker,
+  LogoSelectionIcon,
   PexelsPhotoPicker,
 } from "@/features/desktop-shell/inspector/settings-pickers"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
@@ -74,7 +75,7 @@ import type {
 
 const SECTION_STACK = "flex flex-col gap-2.5"
 const PREVIEW_TILE =
-  "dn-preview-tile group relative shrink-0 p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
+  "dn-preview-tile group relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
 const PREVIEW_ROW = "flex min-w-max gap-1.5 px-1 py-1.5"
 
 const SECTIONS = [
@@ -128,6 +129,7 @@ function QrStylePreviewGrid({
       cueSize="tight"
       orientation="horizontal"
       scrollFade
+      showScrollbar={false}
       viewportClassName="min-w-0"
     >
       <div className={PREVIEW_ROW}>
@@ -146,9 +148,9 @@ function QrStylePreviewGrid({
             >
               <span
                 aria-hidden="true"
-                className="grid size-full place-items-center overflow-hidden p-0.5 dn-squircle-xs"
+                className="grid size-full place-items-center overflow-hidden dn-squircle-xs"
               >
-                <span className="grid size-[90%] place-items-center [&_svg]:size-full [&_svg]:text-current">
+                <span className="grid size-full place-items-center [&_svg]:size-full [&_svg]:text-current">
                   <StylePreview previewKind={previewKind} value={option.value} />
                 </span>
               </span>
@@ -174,6 +176,7 @@ function ShapeTypePreviewRow({
       cueSize="tight"
       orientation="horizontal"
       scrollFade
+      showScrollbar={false}
       viewportClassName="min-w-0"
     >
       <div className={PREVIEW_ROW}>
@@ -243,6 +246,7 @@ function PaperShaderPreviewRow({
       cueSize="tight"
       orientation="horizontal"
       scrollFade
+      showScrollbar={false}
       viewportClassName="min-w-0"
     >
       <div className={PREVIEW_ROW}>
@@ -286,6 +290,7 @@ function MotionLoaderPresetGrid({
       cueSize="tight"
       orientation="horizontal"
       scrollFade
+      showScrollbar={false}
       viewportClassName="min-w-0"
     >
       <div className={PREVIEW_ROW}>
@@ -331,6 +336,7 @@ function AnimatedPresetGrid({
       cueSize="tight"
       orientation="horizontal"
       scrollFade
+      showScrollbar={false}
       viewportClassName="min-w-0"
     >
       <div className={PREVIEW_ROW}>
@@ -543,7 +549,8 @@ function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
           <>
             <SettingsRowPopover
               contentClassName="w-[18rem]"
-              hint="Logo"
+              hideHint
+              leading={<LogoSelectionIcon selectedId={actualLogoSettings.selectedBrandIconId} />}
               open={logoPopoverOpen}
               title="Logo"
               trigger={getLogoSelectionLabel(actualLogoSettings.selectedBrandIconId)}

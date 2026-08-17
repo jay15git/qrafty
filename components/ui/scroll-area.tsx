@@ -50,6 +50,10 @@ interface ScrollAreaProps
   chevronOutside?: boolean;
   /** Which axes get scrollbars and edge cues. Defaults to `"vertical"`. */
   orientation?: Orientation;
+  /** Hide the Radix scrollbar track (keeps Radix viewport + scroll fade).
+   *  Defaults to `true`. Set `false` on horizontal carousels to drop the
+   *  invisible bottom track hit area. */
+  showScrollbar?: boolean;
 }
 
 const ScrollArea = forwardRef<
@@ -67,6 +71,7 @@ const ScrollArea = forwardRef<
       chevron = true,
       chevronOutside = false,
       orientation = "vertical",
+      showScrollbar = true,
       ...props
     },
     ref
@@ -168,7 +173,15 @@ const ScrollArea = forwardRef<
         </ScrollAreaPrimitive.Viewport>
         {cues}
         {orientation !== "horizontal" && <ScrollBar orientation="vertical" />}
-        {orientation !== "vertical" && <ScrollBar orientation="horizontal" />}
+        {orientation !== "vertical" && (
+          <ScrollBar
+            className={cn(
+              !showScrollbar &&
+                "pointer-events-none !h-0 !min-h-0 overflow-hidden opacity-0",
+            )}
+            orientation="horizontal"
+          />
+        )}
         {orientation === "both" && <ScrollAreaPrimitive.Corner />}
       </ScrollAreaPrimitive.Root>
     );

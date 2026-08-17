@@ -33,6 +33,7 @@ import {
 import {
   SegmentTabs,
   SettingsFillPopover,
+  SettingsSlider,
 } from "@/features/desktop-shell/inspector/settings-ui"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import {
@@ -153,27 +154,42 @@ export function DesktopTransformInspector({
 export function DesktopTransformSection({
   layer,
   onPatch,
+  variant = "default",
 }: {
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  variant?: "default" | "flat"
 }) {
   const lockAspect = layer.kind === "image" || layer.kind === "shape" || layer.kind === "shader" || layer.kind === "qr"
+  const flat = variant === "flat"
 
   return (
-    <DesktopInspectorSection dataSlot="desktop-transform-section">
-      <DesktopInspectorLabel>Transform</DesktopInspectorLabel>
-      <DesktopInspectorValueGrid>
+    <DesktopInspectorSection
+      className={flat ? "gap-2.5" : undefined}
+      dataSlot="desktop-transform-section"
+    >
+      {flat ? null : <DesktopInspectorLabel>Transform</DesktopInspectorLabel>}
+      <DesktopInspectorValueGrid
+        className={
+          flat
+            ? "gap-x-3 gap-y-2 [&>:nth-child(even)]:justify-self-stretch [&>:nth-child(odd)]:justify-self-stretch"
+            : undefined
+        }
+      >
         <DesktopInspectorNumberField
+          fill={flat}
           label="X"
           value={Math.round(layer.x)}
           onChange={(x) => onPatch({ x })}
         />
         <DesktopInspectorNumberField
+          fill={flat}
           label="Y"
           value={Math.round(layer.y)}
           onChange={(y) => onPatch({ y })}
         />
         <DesktopInspectorNumberField
+          fill={flat}
           label="W"
           min={1}
           value={Math.round(layer.width)}
@@ -187,6 +203,7 @@ export function DesktopTransformSection({
         />
         <DesktopInspectorNumberField
           disabled={layer.kind === "qr" || lockAspect}
+          fill={flat}
           label="H"
           min={1}
           value={Math.round(layer.height)}
@@ -194,34 +211,62 @@ export function DesktopTransformSection({
         />
       </DesktopInspectorValueGrid>
 
-      <div className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
-        <DesktopInspectorElasticSliderRow
-          label="Rotation"
-          max={360}
-          min={-360}
-          value={Math.round(layer.rotation)}
-          valueLabel={`${Math.round(layer.rotation)}°`}
-          onChange={(rotation) => onPatch({ rotation })}
-        />
-      </div>
-
-      <div className={cn("mt-2 grid gap-2", DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-        <DesktopInspectorElasticSliderRow
-          label="Horizontal tilt"
-          max={60}
-          min={-60}
-          value={layer.tiltX ?? 0}
-          valueLabel={`${Math.round(layer.tiltX ?? 0)}°`}
-          onChange={(tiltX) => onPatch({ tiltX })}
-        />
-        <DesktopInspectorElasticSliderRow
-          label="Vertical tilt"
-          max={60}
-          min={-60}
-          value={layer.tiltY ?? 0}
-          valueLabel={`${Math.round(layer.tiltY ?? 0)}°`}
-          onChange={(tiltY) => onPatch({ tiltY })}
-        />
+      <div className={flat ? "grid gap-2" : DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
+        {flat ? (
+          <>
+            <SettingsSlider
+              label="Rotation"
+              max={360}
+              min={-360}
+              step={1}
+              value={Math.round(layer.rotation)}
+              onChange={(rotation) => onPatch({ rotation })}
+            />
+            <SettingsSlider
+              label="Horizontal tilt"
+              max={60}
+              min={-60}
+              step={1}
+              value={Math.round(layer.tiltX ?? 0)}
+              onChange={(tiltX) => onPatch({ tiltX })}
+            />
+            <SettingsSlider
+              label="Vertical tilt"
+              max={60}
+              min={-60}
+              step={1}
+              value={Math.round(layer.tiltY ?? 0)}
+              onChange={(tiltY) => onPatch({ tiltY })}
+            />
+          </>
+        ) : (
+          <>
+            <DesktopInspectorElasticSliderRow
+              label="Rotation"
+              max={360}
+              min={-360}
+              value={Math.round(layer.rotation)}
+              valueLabel={`${Math.round(layer.rotation)}°`}
+              onChange={(rotation) => onPatch({ rotation })}
+            />
+            <DesktopInspectorElasticSliderRow
+              label="Horizontal tilt"
+              max={60}
+              min={-60}
+              value={layer.tiltX ?? 0}
+              valueLabel={`${Math.round(layer.tiltX ?? 0)}°`}
+              onChange={(tiltX) => onPatch({ tiltX })}
+            />
+            <DesktopInspectorElasticSliderRow
+              label="Vertical tilt"
+              max={60}
+              min={-60}
+              value={layer.tiltY ?? 0}
+              valueLabel={`${Math.round(layer.tiltY ?? 0)}°`}
+              onChange={(tiltY) => onPatch({ tiltY })}
+            />
+          </>
+        )}
       </div>
     </DesktopInspectorSection>
   )

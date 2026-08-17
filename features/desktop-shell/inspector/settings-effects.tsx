@@ -37,7 +37,7 @@ import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import { cn } from "@/lib/utils"
 
 const ROW =
-  "dn-settings-row dn-pressable-press-only dn-squircle-sm inline-flex h-9 w-full items-center gap-1.5 px-2"
+  "dn-settings-row dn-squircle-sm inline-flex h-9 w-full items-center gap-1.5 px-2"
 
 export function SettingsEffectsSection({
   layerFilters,

@@ -52,28 +52,15 @@ import { cn } from "@/lib/utils"
 
 import "./desktopnew.css"
 
-const DN_ROW = "dn-settings-row dn-pressable-press-only dn-squircle-sm"
+const DN_ROW = "dn-settings-row dn-squircle-sm"
 const DN_HINT = "dn-type-meta"
 const DN_LABEL = "dn-type-label"
 const DN_VALUE = "dn-type-value"
 const DN_SECTION_GAP = "gap-2.5"
 
-function bindPressScale(node: HTMLElement) {
-  if (node.hasAttribute("data-pressed")) return
-  node.setAttribute("data-pressed", "")
-  const clear = () => {
-    node.removeAttribute("data-pressed")
-    window.removeEventListener("pointerup", clear, true)
-    window.removeEventListener("pointercancel", clear, true)
-  }
-  window.addEventListener("pointerup", clear, true)
-  window.addEventListener("pointercancel", clear, true)
-}
-
 function SettingsRowButton({
   className,
   children,
-  onPointerDown,
   ...props
 }: React.ComponentProps<"button">) {
   return (
@@ -85,16 +72,6 @@ function SettingsRowButton({
       )}
       type="button"
       {...props}
-      onPointerDown={(event) => {
-        if (
-          event.button === 0 &&
-          !event.currentTarget.disabled &&
-          event.currentTarget.getAttribute("aria-disabled") !== "true"
-        ) {
-          bindPressScale(event.currentTarget)
-        }
-        onPointerDown?.(event)
-      }}
     >
       {children}
     </button>
@@ -414,15 +391,19 @@ export function SettingsRowPopover({
   hint,
   title,
   trigger,
+  leading,
+  hideHint = false,
   children,
   align = "start",
   contentClassName,
   open,
   onOpenChange,
 }: {
-  hint: string
+  hint?: string
   title?: string
   trigger: ReactNode
+  leading?: ReactNode
+  hideHint?: boolean
   children: ReactNode
   align?: "start" | "center" | "end"
   contentClassName?: string
@@ -435,11 +416,22 @@ export function SettingsRowPopover({
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <SettingsRowButton>
-          <span className={cn("truncate", DN_VALUE)}>{trigger}</span>
-          <span className={cn("flex shrink-0 items-center gap-1", DN_HINT)}>
-            {hint}
-            <ChevronRight aria-hidden className="size-3 opacity-50" />
-          </span>
+          {leading ? (
+            <span className="flex min-w-0 items-center gap-2">
+              {leading}
+              <span className={cn("truncate", DN_LABEL)}>{trigger}</span>
+            </span>
+          ) : (
+            <span className={cn("truncate", DN_VALUE)}>{trigger}</span>
+          )}
+          {hideHint ? (
+            <ChevronRight aria-hidden className={cn("size-3 shrink-0 opacity-50", DN_HINT)} />
+          ) : (
+            <span className={cn("flex shrink-0 items-center gap-1", DN_HINT)}>
+              {hint}
+              <ChevronRight aria-hidden className="size-3 opacity-50" />
+            </span>
+          )}
         </SettingsRowButton>
       </PopoverTrigger>
       <PopoverContent
@@ -611,7 +603,7 @@ export function OptionScrollRow({
           <button
             key={item}
             aria-pressed={isSelected}
-            className="dn-option-tile dn-option-scroll-chip dn-pressable-press-only dn-squircle-xs"
+            className="dn-option-tile dn-option-scroll-chip dn-squircle-xs"
             type="button"
             onClick={() => onSelect?.(item)}
           >

@@ -98,9 +98,13 @@ export function DesktopLayerPropertiesPanel({
         </div>
       ) : null}
 
-      <div className="px-3 py-3">
+      <div className="px-3 py-3" data-slot="desktop-layer-properties-body">
         {resolvedTab === "transform" && transformLayer && onTransformLayerPatch ? (
-          <DesktopTransformSection layer={transformLayer} onPatch={onTransformLayerPatch} />
+          <DesktopTransformSection
+            layer={transformLayer}
+            onPatch={onTransformLayerPatch}
+            variant="flat"
+          />
         ) : null}
 
         {resolvedTab === "design" ? (
@@ -111,7 +115,11 @@ export function DesktopLayerPropertiesPanel({
 
             {appearance && onAppearancePatch ? (
               <div className={cn("grid gap-2", DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-                <AppearanceOpacityControls appearance={appearance} onPatch={onAppearancePatch} />
+                <AppearanceOpacityControls
+                  appearance={appearance}
+                  onPatch={onAppearancePatch}
+                  useSettingsSlider
+                />
                 <DesktopnewThemeContext.Provider value={theme}>
                   <AppearanceOutlineControls
                     appearance={appearance}
@@ -128,6 +136,7 @@ export function DesktopLayerPropertiesPanel({
                 layer={effectsLayer}
                 maxEffects={maxEffects ?? capabilities.maxEffects}
                 onPatch={effectsPatch}
+                variant="flat"
               />
             ) : null}
           </div>
