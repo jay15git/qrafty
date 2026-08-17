@@ -15,12 +15,16 @@
   --dn-panel-width: 300px;
   --dn-popover-shadow: 0 12px 48px rgb(0 0 0 / 50%);
   --dn-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* Near-critically-damped stand-in for beui SPRING_PRESS (k=500, c=30, m=0.6). */
+  --dn-ease-press: cubic-bezier(0.16, 1, 0.3, 1);
   --dn-motion-fast: 120ms;
   --dn-motion-ui: 180ms;
   --dn-motion-enter: 180ms;
   --dn-motion-exit: 120ms;
   --dn-press-dur: 140ms;
   --dn-press-active-dur: 75ms;
+  --dn-press-spring-dur: 180ms;
+  --dn-press-scale: 0.93;
   --tabs-dur: var(--dn-motion-ui);
   --tabs-ease: var(--dn-ease-out);
   --dn-type-caption: 10px;
@@ -224,15 +228,18 @@
   transition-duration: var(--dn-press-active-dur);
 }
 
-/* Rows, presets, segment tabs — press feedback only (high-frequency controls). */
+/* Rows, presets, segment tabs — press only (high-frequency; no hover lift).
+   `[data-pressed]` mirrors whileTap when Radix opens overlays on pointerdown. */
 .dn-pressable-press-only {
   transform-origin: center;
-  transition: transform var(--dn-press-dur) var(--dn-ease-out);
+  transition: transform var(--dn-press-spring-dur) var(--dn-ease-press);
 }
 
-.dn-pressable-press-only:active:not(:disabled):not([disabled]):not([aria-disabled="true"]) {
-  transform: scale(0.97);
+.dn-pressable-press-only:active:not(:disabled):not([disabled]):not([aria-disabled="true"]),
+.dn-pressable-press-only[data-pressed]:not(:disabled):not([disabled]):not([aria-disabled="true"]) {
+  transform: scale(var(--dn-press-scale));
   transition-duration: var(--dn-press-active-dur);
+  transition-timing-function: var(--dn-ease-out);
 }
 
 .dn-pressable-subtle {
@@ -1228,6 +1235,7 @@
   .dn-pressable-pickable:hover,
   .dn-pressable-pickable:active,
   .dn-pressable-press-only:active,
+  .dn-pressable-press-only[data-pressed],
   .dn-pressable-subtle:hover,
   .dn-pressable-subtle:active,
   .dn-option-tile:hover,

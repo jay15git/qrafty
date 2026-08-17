@@ -177,20 +177,21 @@ export function DesktopWorkspaceStyles() {
         transform: scale(0.84) !important;
       }
 
-      /* Settings sidebar kept desktop-settings appearance — restore press scale on rail + inspector. */
-      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button {
+      /* Settings sidebar — glass chrome resets icon-button transform; SVG glyphs squash on press.
+         Row/tile press classes (.dn-pressable-*) keep whole-control scale from desktopnew.css. */
+      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button:not(.dn-pressable-press-only):not(.dn-pressable):not(.dn-pressable-pickable):not(.dn-pressable-subtle):not(.dn-option-tile):not(.dn-preset-item):not(.dn-preview-tile) {
         transform: none !important;
         translate: none !important;
         scale: none !important;
         rotate: none !important;
       }
 
-      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button svg {
+      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button:not(.dn-pressable-press-only):not(.dn-pressable):not(.dn-pressable-pickable):not(.dn-pressable-subtle):not(.dn-option-tile):not(.dn-preset-item):not(.dn-preview-tile) svg {
         transform-origin: center;
         transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms ease, opacity 180ms ease;
       }
 
-      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button:active svg {
+      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button:not(.dn-pressable-press-only):not(.dn-pressable):not(.dn-pressable-pickable):not(.dn-pressable-subtle):not(.dn-option-tile):not(.dn-preset-item):not(.dn-preview-tile):active svg {
         transform: scale(0.84) !important;
       }
 

@@ -58,9 +58,22 @@ const DN_LABEL = "dn-type-label"
 const DN_VALUE = "dn-type-value"
 const DN_SECTION_GAP = "gap-2.5"
 
+function bindPressScale(node: HTMLElement) {
+  if (node.hasAttribute("data-pressed")) return
+  node.setAttribute("data-pressed", "")
+  const clear = () => {
+    node.removeAttribute("data-pressed")
+    window.removeEventListener("pointerup", clear, true)
+    window.removeEventListener("pointercancel", clear, true)
+  }
+  window.addEventListener("pointerup", clear, true)
+  window.addEventListener("pointercancel", clear, true)
+}
+
 function SettingsRowButton({
   className,
   children,
+  onPointerDown,
   ...props
 }: React.ComponentProps<"button">) {
   return (
@@ -72,6 +85,16 @@ function SettingsRowButton({
       )}
       type="button"
       {...props}
+      onPointerDown={(event) => {
+        if (
+          event.button === 0 &&
+          !event.currentTarget.disabled &&
+          event.currentTarget.getAttribute("aria-disabled") !== "true"
+        ) {
+          bindPressScale(event.currentTarget)
+        }
+        onPointerDown?.(event)
+      }}
     >
       {children}
     </button>
@@ -356,9 +379,7 @@ export function SettingsFillPopover({
         {variant === "swatch" ? (
           <FillSwatchButton ariaLabel={hint} fill={value} />
         ) : (
-          <div>
-            <ColorRowButton fill={value} hint={hint} />
-          </div>
+          <ColorRowButton fill={value} hint={hint} />
         )}
       </PopoverTrigger>
       <PopoverContent
@@ -681,7 +702,9 @@ export function PresetList({
 function FillSwatchButton({
   ariaLabel,
   fill,
-}: {
+  className,
+  ...props
+}: React.ComponentProps<"button"> & {
   ariaLabel: string
   fill: string
 }) {
@@ -690,9 +713,13 @@ function FillSwatchButton({
   return (
     <button
       aria-label={ariaLabel}
-      className="relative flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-focus,var(--ring))]"
+      className={cn(
+        "relative flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-focus,var(--ring))]",
+        className,
+      )}
       data-slot="desktop-fill-swatch-trigger"
       type="button"
+      {...props}
     >
       <span
         aria-hidden="true"
@@ -720,17 +747,16 @@ function FillSwatchButton({
 function ColorRowButton({
   fill,
   hint,
-  onClick,
-}: {
+  ...props
+}: React.ComponentProps<"button"> & {
   fill: string
   hint: string
-  onClick?: () => void
 }) {
   const gradient = isGradientFill(fill)
   const hex = fillPreviewHex(fill).replace("#", "").toUpperCase()
 
   return (
-    <SettingsRowButton onClick={onClick}>
+    <SettingsRowButton {...props}>
       <span className="flex min-w-0 items-center gap-2">
         <span
           aria-hidden
