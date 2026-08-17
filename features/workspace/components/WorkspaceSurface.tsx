@@ -217,6 +217,7 @@ import {
   parseValueSegmentsText,
   patchDraftingLayerById,
   toDesktopLayerRow,
+  ensureMandatoryDesktopLayerRows,
   type DraftingDownloadTarget,
 } from "@/features/workspace/components/workspace-surface-helpers"
 import {
@@ -2238,11 +2239,16 @@ export function WorkspaceSurface({
         current[activeQrNodeId] ??
         createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
       const layerById = new Map(currentLayers.map((layer) => [layer.id, layer]))
+      const cardLayerId = currentLayers.find((layer) => layer.kind === "card")?.id
       const orderedIdSet = new Set(orderedIds)
+      const reorderableIds = orderedIds.filter(
+        (layerId) => layerId !== cardLayerId && layerById.has(layerId),
+      )
       const nextOrder = [
-        ...orderedIds.filter((layerId) => layerById.has(layerId)),
+        ...reorderableIds,
+        ...(cardLayerId ? [cardLayerId] : []),
         ...currentLayers.flatMap((layer) =>
-          orderedIdSet.has(layer.id) ? [] : [layer.id],
+          orderedIdSet.has(layer.id) || layer.id === cardLayerId ? [] : [layer.id],
         ),
       ]
       const zIndexByLayerId = new Map(
@@ -3192,8 +3198,9 @@ export function WorkspaceSurface({
       handleLayerSelect(activeQrNodeId, patch.selectedLayerId, { preserveActiveTool: true })
     }
     if (patch.layers) {
+      const mergedRows = ensureMandatoryDesktopLayerRows(patch.layers, activeCanvasLayers)
       const currentLayersById = new Map(activeCanvasLayers.map((layer) => [layer.id, layer]))
-      const nextLayers = patch.layers.map((row) => {
+      const nextLayers = mergedRows.map((row) => {
         const layer = currentLayersById.get(row.id) ?? createDraftingTextLayer(activeQrNodeId, { id: row.id })
 
         return patchDraftingCanvasLayer(layer, {

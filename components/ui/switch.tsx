@@ -24,7 +24,7 @@ function Switch({
     >
       <SwitchPrimitive.Thumb
         data-slot="switch-thumb"
-        className="pointer-events-none block rounded-[2px] border border-black/8 bg-background shadow-[0_1px_2px_rgba(15,23,42,0.18)] ring-0 transition-transform duration-[220ms] ease-[cubic-bezier(0.34,1.15,0.64,1)] group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-[15px] group-data-[size=sm]/switch:data-checked:translate-x-[11px] group-data-[size=default]/switch:data-unchecked:translate-x-0 group-data-[size=sm]/switch:data-unchecked:translate-x-0 dark:border-white/12 dark:data-checked:bg-primary-foreground dark:data-unchecked:bg-foreground dark:shadow-[0_1px_2px_rgba(0,0,0,0.38)]"
+        className="pointer-events-none block rounded-[2px] border border-black/8 bg-background shadow-[0_1px_2px_rgba(15,23,42,0.18)] ring-0 transition-transform duration-[220ms] ease-[cubic-bezier(0.34,1.15,0.64,1)] group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-[14px] group-data-[size=sm]/switch:data-checked:translate-x-[10px] group-data-[size=default]/switch:data-unchecked:translate-x-0 group-data-[size=sm]/switch:data-unchecked:translate-x-0 dark:border-white/12 dark:data-checked:bg-primary-foreground dark:data-unchecked:bg-foreground dark:shadow-[0_1px_2px_rgba(0,0,0,0.38)]"
       />
     </SwitchPrimitive.Root>
   )

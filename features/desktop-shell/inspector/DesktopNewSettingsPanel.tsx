@@ -35,10 +35,7 @@ import {
   getContentTypeLabel,
 } from "@/features/qr-code/content/input-options"
 import {
-  MOTION_COLOR_SWATCHES,
-  QR_DOT_MATRIX_COLOR_PRESET_OPTIONS,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
-  type QrDotMatrixColorPreset,
   type QrDotMatrixSquareLoader,
 } from "@/features/qr-code/model/state"
 import { SettingsPaperShaderControls } from "@/features/desktop-shell/inspector/desktopnew-paper-shader-settings"
@@ -318,63 +315,11 @@ function MotionLoaderPresetGrid({
   )
 }
 
-function AnimatedPresetGrid({
-  peakColor,
-  qrModuleColor,
-  selected,
-  onSelect,
-}: {
-  peakColor: string
-  qrModuleColor: string
-  selected: QrDotMatrixColorPreset
-  onSelect: (preset: QrDotMatrixColorPreset) => void
-}) {
-  return (
-    <ScrollArea
-      className="w-full min-w-0 max-w-full overflow-hidden"
-      chevron={false}
-      cueSize="tight"
-      orientation="horizontal"
-      scrollFade
-      showScrollbar={false}
-      viewportClassName="min-w-0"
-    >
-      <div className={PREVIEW_ROW}>
-        {QR_DOT_MATRIX_COLOR_PRESET_OPTIONS.map((preset) => {
-          const peak =
-            preset.value === "theme"
-              ? peakColor
-              : MOTION_COLOR_SWATCHES[preset.value][1]
-          const isSelected = selected === preset.value
-
-          return (
-            <button
-              key={preset.value}
-              aria-label={preset.label}
-              aria-pressed={isSelected}
-              className={cn(
-                "dn-pressable-pickable flex size-8 shrink-0 overflow-hidden border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] dn-squircle-xs",
-                isSelected &&
-                  "ring-2 ring-foreground ring-offset-2 ring-offset-background",
-              )}
-              type="button"
-              onClick={() => onSelect(preset.value)}
-            >
-              <span aria-hidden className="flex-1" style={{ backgroundColor: qrModuleColor }} />
-              <span aria-hidden className="flex-1" style={{ backgroundColor: peak }} />
-            </button>
-          )
-        })}
-      </div>
-    </ScrollArea>
-  )
-}
-
 type DesktopNewSettingsPanelProps = {
   fillHeight?: boolean
   model: DesktopInspectorModel
   openSection?: string
-  onOpenSectionChange?: (section: string) => void
+  onOpenSectionChange?: (section: string | undefined) => void
 }
 
 export function DesktopNewSettingsPanel({
@@ -393,8 +338,12 @@ export function DesktopNewSettingsPanel({
     setOpenSection(sectionForTool(model.actualActiveTool))
   }, [model.actualActiveTool, setOpenSection])
 
-  function handleSectionChange(section: string) {
+  function handleSectionChange(section: string | undefined) {
     setOpenSection(section)
+    if (!section) {
+      return
+    }
+
     const tool = SECTION_TO_TOOL[section as SectionId]
     if (tool) {
       model.onActiveToolChange(tool)
@@ -757,16 +706,6 @@ function MotionSection({ model }: { model: DesktopInspectorModel }) {
       ? actualMotionSettings.loader
       : ("neon-drift" satisfies QrDotMatrixSquareLoader)
 
-  const selectAnimatedPreset = (nextPreset: QrDotMatrixColorPreset) => {
-    const [, accent] = MOTION_COLOR_SWATCHES[nextPreset]
-    onMotionSettingsChange({
-      colorPreset: nextPreset,
-      customColor: accent,
-      customColorMid: accent,
-      customColorPeak: accent,
-    })
-  }
-
   return (
     <div className={SECTION_STACK}>
       <SettingsSwitchRow
@@ -785,12 +724,6 @@ function MotionSection({ model }: { model: DesktopInspectorModel }) {
                 presetCategory: "dotMatrix",
               })
             }
-          />
-          <AnimatedPresetGrid
-            peakColor={actualMotionSettings.customColorPeak}
-            qrModuleColor={model.actualPatternSettings.dotsSolidColor}
-            selected={actualMotionSettings.colorPreset}
-            onSelect={selectAnimatedPreset}
           />
           <SettingsFillPopover
             hint="Peak"

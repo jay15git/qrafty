@@ -242,9 +242,7 @@ export function buildDesktopToolbarSettingsSnapshots(
   }
 
   const layersSettings: DesktopLayersSettings = {
-    layers: activeCanvasLayerRows.flatMap((layer) =>
-      layer.kind === "card" ? [] : [toDesktopLayerRow(layer)],
-    ),
+    layers: activeCanvasLayerRows.map((layer) => toDesktopLayerRow(layer)),
     selectedLayerId: input.selectedLayerId ?? activeCanvasLayerRows[0]?.id ?? "",
   }
 

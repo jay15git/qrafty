@@ -118,6 +118,26 @@ export function toDesktopLayerRow(layer: DraftingCanvasLayer): DesktopLayerRow {
   }
 }
 
+export function isMandatoryDesktopLayerRow(row: Pick<DesktopLayerRow, "kind">) {
+  return row.kind === "card"
+}
+
+export function ensureMandatoryDesktopLayerRows(
+  rows: DesktopLayerRow[],
+  currentLayers: DraftingCanvasLayer[],
+): DesktopLayerRow[] {
+  const cardLayer = currentLayers.find((layer) => layer.kind === "card")
+  if (!cardLayer) {
+    return rows
+  }
+
+  if (rows.some((row) => row.id === cardLayer.id)) {
+    return rows
+  }
+
+  return [...rows, toDesktopLayerRow(cardLayer)]
+}
+
 export function getDesktopTextSettings(layer: DraftingCanvasLayer | null): DesktopTextSettings {
   const textLayer = layer?.kind === "text" ? layer : null
   return {

@@ -1,13 +1,11 @@
 "use client"
 
-import { ChevronRight, Filter, Search } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
 import {
   useContext,
   useLayoutEffect,
-  useMemo,
   useRef,
-  useState,
   type ReactNode,
 } from "react"
 
@@ -17,12 +15,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { ElasticSlider } from "@/components/ui/elastic-slider"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Switch } from "@/components/ui/switch"
@@ -33,11 +25,6 @@ import {
   QR_INPUT_OPTIONS,
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
-import {
-  CONTENT_COLLECTIONS,
-  type ContentCollectionId,
-} from "@/features/qr-code/content/platform-intents"
-import { STATIC_QR_CONTENT_META } from "@/features/qr-code/content/static-payload"
 import {
   DesktopNewFillPicker,
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
@@ -451,16 +438,6 @@ export function SettingsRowPopover({
   )
 }
 
-type ContentTypeFilterId = "all" | ContentCollectionId
-
-const CONTENT_TYPE_FILTER_OPTIONS: Array<{ id: ContentTypeFilterId; label: string }> = [
-  { id: "all", label: "All" },
-  ...CONTENT_COLLECTIONS.map((collection) => ({
-    id: collection.id,
-    label: collection.label,
-  })),
-]
-
 export function ContentTypePicker({
   onAfterSelect,
   selected,
@@ -470,90 +447,10 @@ export function ContentTypePicker({
   selected: QrInputType
   onSelect: (type: QrInputType) => void
 }) {
-  const theme = useDesktopnewTheme()
-  const [query, setQuery] = useState("")
-  const [filterId, setFilterId] = useState<ContentTypeFilterId>("all")
-
-  const visibleTypes = useMemo(() => {
-    const collectionTypes =
-      filterId === "all"
-        ? PICKER_QR_INPUT_TYPES
-        : (CONTENT_COLLECTIONS.find((collection) => collection.id === filterId)?.types ??
-          PICKER_QR_INPUT_TYPES)
-    const normalizedQuery = query.trim().toLowerCase()
-
-    if (!normalizedQuery) {
-      return collectionTypes
-    }
-
-    return collectionTypes.filter((type) => {
-      const option = QR_INPUT_OPTIONS[type]
-      const meta = STATIC_QR_CONTENT_META[type]
-
-      return `${option.label} ${meta.title} ${meta.description}`
-        .toLowerCase()
-        .includes(normalizedQuery)
-    })
-  }, [filterId, query])
-
-  const activeFilterLabel =
-    CONTENT_TYPE_FILTER_OPTIONS.find((option) => option.id === filterId)?.label ?? "All"
-
   return (
     <div className="dn-content-type-picker">
-      <div className="dn-content-type-picker-toolbar">
-        <div className="relative min-w-0 flex-1">
-          <Search
-            aria-hidden
-            className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--dn-popover-muted)]"
-          />
-          <input
-            aria-label="Search content types"
-            className="dn-content-type-search-input dn-squircle-xs"
-            placeholder="Search"
-            value={query}
-            onChange={(event) => setQuery(event.currentTarget.value)}
-          />
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              aria-label={`Filter content types (${activeFilterLabel})`}
-              className="dn-content-type-filter-trigger dn-pressable-press-only inline-flex size-7 shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
-              data-active={filterId !== "all" ? "true" : undefined}
-              type="button"
-            >
-              <Filter aria-hidden className="size-3.5" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className={desktopnewPortalClass(
-              theme,
-              "dn-portal-surface desktopnew-popover-content min-w-36 border p-1 dn-squircle-sm",
-            )}
-            data-theme={theme}
-          >
-            {CONTENT_TYPE_FILTER_OPTIONS.map((option) => (
-              <DropdownMenuItem
-                key={option.id}
-                className={cn(
-                  "rounded-[8px] px-2 py-1.5 text-[11px] font-medium",
-                  filterId === option.id
-                    ? "bg-[var(--dn-popover-tile-hover)] text-[var(--dn-fg)]"
-                    : "text-[var(--dn-popover-muted)] focus:bg-[var(--dn-popover-tile-hover)] focus:text-[var(--dn-fg)]",
-                )}
-                onClick={() => setFilterId(option.id)}
-              >
-                {option.label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
       <div className="dn-content-type-grid">
-        {visibleTypes.map((type) => {
+        {PICKER_QR_INPUT_TYPES.map((type) => {
           const option = QR_INPUT_OPTIONS[type]
           const isSelected = selected === type
 
@@ -577,9 +474,6 @@ export function ContentTypePicker({
             </button>
           )
         })}
-        {visibleTypes.length === 0 ? (
-          <p className="dn-content-type-grid-empty">No types found</p>
-        ) : null}
       </div>
     </div>
   )

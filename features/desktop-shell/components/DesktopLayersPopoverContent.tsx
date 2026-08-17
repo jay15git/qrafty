@@ -30,6 +30,7 @@ import {
   type DesktopLayerKind,
   type DesktopLayersSettings,
 } from "@/features/desktop-shell/model/desktop-toolbar-types"
+import { isMandatoryDesktopLayerRow } from "@/features/workspace/components/workspace-surface-helpers"
 import { cn } from "@/lib/utils"
 
 function LayerKindIcon({ kind, className }: { kind: DesktopLayerKind; className?: string }) {
@@ -88,8 +89,13 @@ export function DesktopLayersPopoverContent({
   const layers = layersSettings.layers
 
   function patchLayer(layerId: string, patch: Partial<(typeof layers)[number]>) {
+    const row = layers.find((entry) => entry.id === layerId)
+    if (row && isMandatoryDesktopLayerRow(row)) {
+      return
+    }
+
     onLayersSettingsChange({
-      layers: layers.map((row) => (row.id === layerId ? { ...row, ...patch } : row)),
+      layers: layers.map((entry) => (entry.id === layerId ? { ...entry, ...patch } : entry)),
     })
   }
 
@@ -99,8 +105,14 @@ export function DesktopLayersPopoverContent({
       return
     }
 
+    const moving = layers[index]!
     const targetIndex = direction === "up" ? index - 1 : index + 1
     if (targetIndex < 0 || targetIndex >= layers.length) {
+      return
+    }
+
+    const target = layers[targetIndex]!
+    if (isMandatoryDesktopLayerRow(moving) || isMandatoryDesktopLayerRow(target)) {
       return
     }
 
@@ -131,7 +143,10 @@ export function DesktopLayersPopoverContent({
         >
           {layers.map((row, index) => {
             const isSelected = row.id === layersSettings.selectedLayerId
-            const displayName = row.name || DESKTOP_LAYER_KIND_LABELS[row.kind]
+            const isProtected = isMandatoryDesktopLayerRow(row)
+            const displayName = isProtected
+              ? "Background"
+              : row.name || DESKTOP_LAYER_KIND_LABELS[row.kind]
 
             return (
               <div
@@ -183,6 +198,7 @@ export function DesktopLayersPopoverContent({
                   <LayerRowActionButton
                     ariaLabel={row.isVisible ? `Hide ${displayName}` : `Show ${displayName}`}
                     className={!row.isVisible ? "opacity-40" : undefined}
+                    disabled={isProtected}
                     pressed={row.isVisible}
                     onClick={() => patchLayer(row.id, { isVisible: !row.isVisible })}
                   >
@@ -196,6 +212,7 @@ export function DesktopLayersPopoverContent({
                   <LayerRowActionButton
                     ariaLabel={row.isLocked ? `Unlock ${displayName}` : `Lock ${displayName}`}
                     className={!row.isLocked ? "opacity-55" : undefined}
+                    disabled={isProtected}
                     pressed={row.isLocked}
                     onClick={() => patchLayer(row.id, { isLocked: !row.isLocked })}
                   >
@@ -213,7 +230,7 @@ export function DesktopLayersPopoverContent({
                     <LayerRowActionButton
                       ariaLabel={`Move ${displayName} up`}
                       className="size-3.5 min-h-0"
-                      disabled={index === 0}
+                      disabled={isProtected || index === 0 || isMandatoryDesktopLayerRow(layers[index - 1]!)}
                       onClick={() => moveLayer(row.id, "up")}
                     >
                       <ChevronUpIcon className="size-3" />
@@ -221,7 +238,11 @@ export function DesktopLayersPopoverContent({
                     <LayerRowActionButton
                       ariaLabel={`Move ${displayName} down`}
                       className="size-3.5 min-h-0"
-                      disabled={index === layers.length - 1}
+                      disabled={
+                        isProtected ||
+                        index === layers.length - 1 ||
+                        isMandatoryDesktopLayerRow(layers[index + 1]!)
+                      }
                       onClick={() => moveLayer(row.id, "down")}
                     >
                       <ChevronDownIcon className="size-3" />

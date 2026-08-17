@@ -132,12 +132,38 @@ function maxShapeExpansionMetric(
   return max;
 }
 
+function getCachedMaxExpansionMetric(
+  matrixSize: number,
+  cache: Map<number, number>,
+  metricAt: (row: number, col: number, matrixSize: number) => number,
+) {
+  const cached = cache.get(matrixSize);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  const max = maxShapeExpansionMetric(matrixSize, metricAt);
+  cache.set(matrixSize, max);
+  return max;
+}
+
+const heartMaxExpansionMetricCache = new Map<number, number>();
+const starMaxExpansionMetricCache = new Map<number, number>();
+
 export function heartMaxExpansionMetric(matrixSize: number) {
-  return maxShapeExpansionMetric(matrixSize, heartExpansionMetric);
+  return getCachedMaxExpansionMetric(
+    matrixSize,
+    heartMaxExpansionMetricCache,
+    heartExpansionMetric,
+  );
 }
 
 export function starMaxExpansionMetric(matrixSize: number) {
-  return maxShapeExpansionMetric(matrixSize, starExpansionMetric);
+  return getCachedMaxExpansionMetric(
+    matrixSize,
+    starMaxExpansionMetricCache,
+    starExpansionMetric,
+  );
 }
 
 export function heartBoundarySamples() {
