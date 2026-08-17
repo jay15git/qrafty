@@ -109,7 +109,7 @@ describe("DesktopElementInspector", () => {
 })
 
 describe("FloatingToolbar selected element routing", () => {
-  it("renders layer toolbar in the dynamic island when a canvas element is selected", async () => {
+  it("renders layer popover triggers in the dynamic island when a canvas element is selected", async () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" })
     const surface = await renderWithAsyncJsdomRoot(
       <FloatingToolbar
@@ -123,7 +123,9 @@ describe("FloatingToolbar selected element routing", () => {
       />,
     )
 
-    expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-element-inspector"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
   })
@@ -162,6 +164,8 @@ describe("FloatingToolbar selected element routing", () => {
 
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-element-inspector"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).toBeNull()
   })
 })

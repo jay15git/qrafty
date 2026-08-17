@@ -11,7 +11,6 @@ import {
   MousePointer2Icon,
   Redo2Icon,
   Trash2Icon,
-  TypeIcon,
   Undo2Icon,
   ZoomInIcon,
   ZoomOutIcon,
@@ -302,33 +301,6 @@ export function ComposeToolbarControls({
 
       {onAddQrCode || onInsertLayer ? (
         <>
-          {isDesktopGlassToolbar ? (
-            <ComposeToolbarTooltip
-              content="Click canvas to add text"
-              desktop={isDesktopGlassToolbar}
-              placement={placement}
-            >
-              <Button
-                aria-label="Add text on canvas"
-                aria-pressed={activeCanvasTool === "text"}
-                className={getComposeToolbarIconButtonClass(
-                  isDesktopGlassToolbar,
-                  "disabled:opacity-40",
-                  activeCanvasTool === "text" && DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_ACTIVE_CLASS,
-                )}
-                disabled={!onAddTextLayerAt}
-                onClick={() =>
-                  onCanvasToolChange?.(activeCanvasTool === "text" ? "select" : "text")
-                }
-                size="icon"
-                type="button"
-                variant="ghost"
-              >
-                <TypeIcon />
-              </Button>
-            </ComposeToolbarTooltip>
-          ) : null}
-
           {onInsertLayer && insertNodeId ? (
             <InsertMenu
               canAddQrCode={canAddQrCode}

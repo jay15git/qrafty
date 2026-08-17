@@ -1,17 +1,11 @@
 "use client"
 
-import {
-  Download02Icon,
-  SaveIcon,
-} from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
-
 import "@/features/desktop-shell/components/desktop-chrome.css"
 import { DesktopDynamicIslandChrome } from "@/features/desktop-shell/components/DesktopAppearanceIsland"
 import { DesktopSettingsToolbarShell } from "@/features/desktop-shell/components/DesktopSettingsToolbarShell"
+import { DesktopSquircleDownloadButton } from "@/features/desktop-shell/components/DesktopSquircleDownloadButton"
 import {
   DesktopUtilityToolbar,
-  DesktopUtilityToolbarButton,
 } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
 import { DESKTOP_UTILITY_TOOLBAR_SHELL_CLASS } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
@@ -92,6 +86,7 @@ export function FloatingToolbar({
           >
             <DesktopDynamicIslandChrome
               appearance={controller?.appearanceSnapshot}
+              appearanceLayer={controller?.selectedAppearanceLayer}
               activeCanvasTool={controller?.canvasTool}
               activePaneId={controller?.insertNodeId}
               canAddQrCode={controller?.canAddQrCode}
@@ -106,14 +101,16 @@ export function FloatingToolbar({
               onElementLayerPatch={controller?.onElementLayerPatch}
               onInsertLayer={controller?.onInsertLayer}
               onOpenCardPatternSettings={controller?.onOpenCardPatternSettings}
-              onPatch={controller?.onAppearancePatch}
+              onAppearancePatch={controller?.onAppearancePatch}
               onRedo={controller?.onRedo}
               onRemoveQrCode={controller?.onRemoveQrCode}
               onSelectSizeTemplate={controller?.onSceneTemplateSizeTemplateSelect}
               onSnapEnabledChange={controller?.onSnapEnabledChange}
               onThemeChange={model.onDesktopThemeChange}
+              onTransformLayerPatch={controller?.onTransformLayerPatch}
               onUndo={controller?.onUndo}
               selectedElementLayer={controller?.selectedElementLayer}
+              selectedTransformLayer={controller?.selectedTransformLayer}
               snapEnabled={controller?.snapEnabled}
               sizePresetId={controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId}
               theme={actualDesktopTheme}
@@ -123,35 +120,10 @@ export function FloatingToolbar({
         <div data-slot="desktop-utility-toolbar-anchor">
           <DesktopUtilityToolbar
             data-slot="desktop-utility-toolbar"
-            className="pointer-events-auto"
+            className="pointer-events-auto gap-0 p-0"
           >
-            <DesktopTooltip content="Save" side="left" sideOffset={10}>
-              <DesktopUtilityToolbarButton
-                aria-label="Save"
-                data-slot="desktop-save-trigger"
-                onClick={() => controller?.onSave?.()}
-              >
-                <HugeiconsIcon
-                  icon={SaveIcon}
-                  size={16}
-                  color="currentColor"
-                  strokeWidth={1.8}
-                />
-              </DesktopUtilityToolbarButton>
-            </DesktopTooltip>
             <DesktopTooltip content="Download" side="left" sideOffset={10}>
-              <DesktopUtilityToolbarButton
-                aria-label="Download"
-                data-slot="desktop-download-trigger"
-                onClick={() => controller?.onExportDownload?.()}
-              >
-                <HugeiconsIcon
-                  icon={Download02Icon}
-                  size={16}
-                  color="currentColor"
-                  strokeWidth={1.8}
-                />
-              </DesktopUtilityToolbarButton>
+              <DesktopSquircleDownloadButton onClick={() => controller?.onExportDownload?.()} />
             </DesktopTooltip>
           </DesktopUtilityToolbar>
         </div>

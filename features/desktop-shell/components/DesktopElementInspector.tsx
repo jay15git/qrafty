@@ -75,6 +75,34 @@ const DESKTOP_TEXT_ALIGN_OPTIONS: Array<{ label: string; value: DraftingTextAlig
   { label: "Right", value: "right" },
 ]
 
+export function DesktopLayerStyleInspector({
+  layer,
+  onPatch,
+}: {
+  layer: DraftingCanvasLayer
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+}) {
+  return (
+    <div
+      data-slot="desktop-layer-style-inspector"
+      className="flex min-h-0 min-w-0 flex-1 flex-col"
+    >
+      {layer.kind === "text" ? (
+        <DesktopLayerTextInspector layer={layer} onPatch={onPatch} />
+      ) : null}
+      {layer.kind === "shape" ? (
+        <DesktopLayerShapeInspector layer={layer} onPatch={onPatch} />
+      ) : null}
+      {layer.kind === "image" ? (
+        <DesktopLayerImageInspector layer={layer} onPatch={onPatch} />
+      ) : null}
+      {layer.kind === "shader" ? (
+        <DesktopLayerShaderInspector layer={layer} onPatch={onPatch} />
+      ) : null}
+    </div>
+  )
+}
+
 export function DesktopElementInspector({
   layer,
   onPatch,
@@ -88,18 +116,7 @@ export function DesktopElementInspector({
       className="flex min-h-0 min-w-0 flex-1 flex-col"
     >
       <DesktopInspectorScrollArea>
-        {layer.kind === "text" ? (
-          <DesktopLayerTextInspector layer={layer} onPatch={onPatch} />
-        ) : null}
-        {layer.kind === "shape" ? (
-          <DesktopLayerShapeInspector layer={layer} onPatch={onPatch} />
-        ) : null}
-        {layer.kind === "image" ? (
-          <DesktopLayerImageInspector layer={layer} onPatch={onPatch} />
-        ) : null}
-        {layer.kind === "shader" ? (
-          <DesktopLayerShaderInspector layer={layer} onPatch={onPatch} />
-        ) : null}
+        <DesktopLayerStyleInspector layer={layer} onPatch={onPatch} />
         <DesktopEffectsAccordion layer={layer} onPatch={onPatch} />
       </DesktopInspectorScrollArea>
     </div>

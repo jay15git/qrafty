@@ -81,7 +81,7 @@ describe("FloatingToolbar", () => {
     )
   })
 
-  it("shows appearance controls when a layer is selected", async () => {
+  it("shows layer popover triggers when an appearance layer is selected", async () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Hello" })
     const surface = await renderPrototype({
       controller: {
@@ -91,7 +91,10 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-appearance-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
   })
 
@@ -139,13 +142,13 @@ describe("FloatingToolbar", () => {
     ])
   })
 
-  it("places save and download in the top-right utility toolbar", async () => {
+  it("places a squircle download button in the top-right utility toolbar", async () => {
     const surface = await renderPrototype()
     const utilityToolbar = surface.container.querySelector('[data-slot="desktop-utility-toolbar"]')
 
     expect(surface.container.querySelector('[data-slot="desktop-document-toolbar"]')).toBeNull()
-    expect(getRequiredButton(utilityToolbar as HTMLElement, "Save")).not.toBeNull()
-    expect(getRequiredButton(utilityToolbar as HTMLElement, "Download")).not.toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="desktop-download-trigger"]')).not.toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
     const dynamicIsland = surface.container.querySelector('[data-slot="desktop-dynamic-island"]')
@@ -173,9 +176,11 @@ describe("FloatingToolbar", () => {
     expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-dynamic-island-anchor"]')).not.toBeNull()
     expect(utilityToolbar?.className).toContain("min-h-11")
-    expect(getRequiredButton(utilityToolbar as HTMLElement, "Save").className).toContain("size-9")
-    expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").className).toContain("size-9")
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).not.toBeNull()
+    expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").textContent?.trim()).toBe(
+      "Download",
+    )
+    expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").className).toContain("bg-white")
+    expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
     expect(getRequiredButton(historyActions, "Undo").className).toContain("size-9")
     expect(getRequiredButton(historyActions, "Redo").className).toContain("size-9")
@@ -205,7 +210,7 @@ describe("FloatingToolbar", () => {
     expect(surface.container.querySelector('[data-slot="desktop-toolbar-brand"]')).toBeNull()
   })
 
-  it("renders appearance popovers in the dynamic island when a layer is selected", async () => {
+  it("renders four layer popover triggers in the dynamic island when a layer is selected", async () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" })
     const onAppearancePatch = vi.fn()
     const surface = await renderPrototype({
@@ -213,17 +218,21 @@ describe("FloatingToolbar", () => {
         activeTool: null,
         appearanceSnapshot: getDesktopAppearanceSnapshot(layer),
         onAppearancePatch,
+        onElementLayerPatch: vi.fn(),
         selectedAppearanceLayer: layer,
         selectedElementLayer: layer,
+        selectedTransformLayer: layer,
+        onTransformLayerPatch: vi.fn(),
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-outline-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-radius-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-shadow-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-filters-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-opacity-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-appearance-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-appearance-outline-trigger"]')).toBeNull()
   })
 
   it("does not render scan safety in the dynamic island", async () => {

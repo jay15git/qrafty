@@ -108,6 +108,32 @@ export function AppearanceOutlineControls({
   )
 }
 
+export function AppearanceOpacityControls({
+  appearance,
+  className,
+  onPatch,
+}: {
+  appearance: DesktopAppearanceSnapshot
+  className?: string
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+}) {
+  return (
+    <DesktopInspectorSection
+      className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, className)}
+      dataSlot="desktop-appearance-opacity-controls"
+    >
+      <DesktopInspectorElasticSliderRow
+        label="Opacity"
+        max={100}
+        min={0}
+        value={Math.round(appearance.opacity * 100)}
+        valueLabel={`${Math.round(appearance.opacity * 100)}%`}
+        onChange={(opacityPercent) => onPatch({ opacity: opacityPercent / 100 })}
+      />
+    </DesktopInspectorSection>
+  )
+}
+
 export function AppearanceRadiusControls({
   appearance,
   className,

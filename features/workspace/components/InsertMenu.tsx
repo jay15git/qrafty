@@ -1,10 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { CopyPlusIcon } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
+import { InsertMenuAddIcon } from "@/features/workspace/components/insert-menu/InsertMenuAddIcon"
 import {
   Popover,
   PopoverContent,
@@ -116,7 +115,7 @@ export function InsertMenu({
         type="button"
         variant="ghost"
       >
-        <CopyPlusIcon />
+        <InsertMenuAddIcon />
       </Button>
     ) : variant === "toolbar" ? (
       <Button
