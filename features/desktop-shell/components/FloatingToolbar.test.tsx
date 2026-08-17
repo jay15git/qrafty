@@ -57,8 +57,6 @@ describe("FloatingToolbar", () => {
       "Motion",
       "Shape",
       "Background",
-      "Effects",
-      "Export",
     ])
     expect(surface.container.querySelector('[data-slot="desktop-inspector-accordion"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-prototype-canvas"]')).toBeNull()
@@ -157,6 +155,19 @@ describe("FloatingToolbar", () => {
     expect(surface.container.querySelector('[data-slot="desktop-compose-toolbar"]')).toBeNull()
   })
 
+  it("shows the QRafty brand mark in Caveat at the top-left", async () => {
+    const surface = await renderPrototype()
+    const brandMark = surface.container.querySelector('[data-slot="desktop-brand-mark"]')
+
+    expect(brandMark?.textContent).toBe("QRafty")
+    expect(brandMark?.className).toContain("font-caveat")
+    expect(
+      surface.container.querySelector(
+        '[data-slot="desktopnew-settings-inspector"] [data-slot="desktop-brand-mark-anchor"]',
+      ),
+    ).not.toBeNull()
+  })
+
   it("wires undo and redo through the top dynamic island history actions", async () => {
     const onUndo = vi.fn()
     const onRedo = vi.fn()
@@ -179,7 +190,9 @@ describe("FloatingToolbar", () => {
     expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").textContent?.trim()).toBe(
       "Download",
     )
-    expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").className).toContain("bg-white")
+    expect(
+      utilityToolbar?.querySelector('[data-slot="desktop-download-shader-layer"]'),
+    ).not.toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
     expect(getRequiredButton(historyActions, "Undo").className).toContain("size-9")
@@ -188,11 +201,26 @@ describe("FloatingToolbar", () => {
     await act(async () => {
       getRequiredButton(historyActions, "Undo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
       getRequiredButton(historyActions, "Redo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
-      getRequiredButton(utilityToolbar as HTMLElement, "Download").dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
     expect(onUndo).toHaveBeenCalledTimes(1)
     expect(onRedo).toHaveBeenCalledTimes(1)
+    expect(onExportDownload).not.toHaveBeenCalled()
+
+    await act(async () => {
+      getRequiredButton(utilityToolbar as HTMLElement, "Download").click()
+    })
+
+    await vi.waitFor(() => {
+      expect(document.querySelector('[data-slot="desktop-export-download-confirm"]')).not.toBeNull()
+    })
+
+    await act(async () => {
+      document
+        .querySelector('[data-slot="desktop-export-download-confirm"]')
+        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
     expect(onExportDownload).toHaveBeenCalledTimes(1)
   })
 
@@ -278,8 +306,6 @@ function getAccordionHeaders(container: HTMLElement) {
     "Motion",
     "Shape",
     "Background",
-    "Effects",
-    "Export",
   ])
 
   return Array.from(

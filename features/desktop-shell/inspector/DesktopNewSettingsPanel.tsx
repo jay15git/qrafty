@@ -14,6 +14,7 @@ import {
   type QrBackgroundShapeId,
 } from "@/features/qr-code/styles/background-shapes"
 
+import { DesktopBrandMark } from "@/features/desktop-shell/components/DesktopBrandMark"
 import { DesktopNewContentFields } from "@/features/desktop-shell/inspector/desktopnew-content-fields"
 import {
   ContentTypePicker,
@@ -23,7 +24,6 @@ import {
   SettingsAccordion,
   SettingsFillPopover,
   SettingsPanelShell,
-  SettingsPrimaryButton,
   SettingsRowPopover,
   SettingsScroll,
   SettingsSlider,
@@ -66,20 +66,11 @@ import {
   getAllPaperShaderDefinitions,
   type PaperShaderId,
 } from "@/features/workspace/rendering/paper-shaders"
-import { SettingsEffectsSection } from "@/features/desktop-shell/inspector/settings-effects"
-import { legacyShadowToShadowLayer } from "@/features/workspace/model/effects"
-import {
-  EXPORT_PRESETS,
-  formatExportPresetLabel,
-} from "@/features/workspace/model/export-presets"
+import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import type {
-  DesktopExportTarget,
   DesktopInspectorModel,
-  DesktopRasterExportPresetId,
   DesktopToolbarToolId,
 } from "@/features/desktop-shell/components/FloatingToolbar"
-import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
-import type { QrFileExtension } from "@/features/qr-code/model/types"
 
 const SECTION_STACK = "flex flex-col gap-2.5"
 const PREVIEW_TILE =
@@ -92,8 +83,6 @@ const SECTIONS = [
   "Motion",
   "Shape",
   "Background",
-  "Effects",
-  "Export",
 ] as const
 
 type SectionId = (typeof SECTIONS)[number]
@@ -104,7 +93,6 @@ const SECTION_TO_TOOL: Record<SectionId, DesktopToolbarToolId> = {
   Shape: "shape",
   Background: "background",
   Motion: "motion",
-  Export: "export",
 }
 
 const TOOL_TO_SECTION: Partial<Record<DesktopToolbarToolId, SectionId>> = {
@@ -115,28 +103,7 @@ const TOOL_TO_SECTION: Partial<Record<DesktopToolbarToolId, SectionId>> = {
   shape: "Shape",
   background: "Background",
   motion: "Motion",
-  export: "Export",
 }
-
-const EXPORT_TARGET_OPTIONS: Array<{ label: string; value: DesktopExportTarget }> = [
-  { label: "Current QR", value: "current" },
-  { label: "All QR codes", value: "all-qr" },
-  { label: "Full surface", value: "surface" },
-]
-
-const EXPORT_FORMAT_OPTIONS: QrFileExtension[] = ["svg", "png", "webp", "jpeg"]
-
-const RASTER_QUALITY_PRESETS: Array<{
-  id: DesktopRasterExportPresetId
-  label: string
-}> = [
-  { id: "quick-share", label: "Quick share" },
-  { id: "web-social", label: "Web & social" },
-  { id: "small-print", label: "Small print" },
-  { id: "flyer-poster", label: "Flyer / poster" },
-  { id: "large-format", label: "Large format" },
-  { id: "max-quality", label: "Max quality" },
-]
 
 function sectionForTool(tool: DesktopToolbarToolId | null): SectionId {
   if (!tool) return "Content"
@@ -431,6 +398,11 @@ export function DesktopNewSettingsPanel({
   return (
     <SettingsPanelShell fillHeight={fillHeight}>
       <SettingsScroll fillHeight={fillHeight}>
+        <div className="dn-settings-rail-track dn-settings-brand-row" data-slot="desktop-brand-mark-anchor">
+          <div className="dn-settings-rail-track__inner">
+            <DesktopBrandMark theme={model.actualDesktopTheme} />
+          </div>
+        </div>
         <SettingsAccordion
           openSection={openSection}
           renderSection={(section) => (
@@ -458,14 +430,10 @@ function SectionBody({
       return <QrStyleSection model={model} />
     case "Shape":
       return <CardSection model={model} />
-    case "Effects":
-      return <EffectsSection model={model} />
     case "Background":
       return <SceneSection model={model} />
     case "Motion":
       return <MotionSection model={model} />
-    case "Export":
-      return <ExportSection model={model} />
     default:
       return null
   }
@@ -674,52 +642,6 @@ function CardSection({ model }: { model: DesktopInspectorModel }) {
   )
 }
 
-function EffectsSection({ model }: { model: DesktopInspectorModel }) {
-  const snapshot = model.controller?.appearanceSnapshot
-  const onAppearancePatch = model.controller?.onAppearancePatch
-  const { actualShapeSettings, onShapeSettingsChange } = model
-
-  const shadows =
-    snapshot?.shadows ??
-    [
-      legacyShadowToShadowLayer({
-        blur: actualShapeSettings.shadowBlur,
-        color: actualShapeSettings.shadowColor,
-        offsetX: actualShapeSettings.shadowOffsetX,
-        offsetY: actualShapeSettings.shadowOffsetY,
-        opacity: actualShapeSettings.shadowOpacity,
-        visible: actualShapeSettings.shadowOpacity > 0,
-      }),
-    ]
-  const layerFilters = snapshot?.layerFilters ?? []
-
-  return (
-    <SettingsEffectsSection
-      layerFilters={layerFilters}
-      shadows={shadows}
-      onPatch={(patch) => {
-        if (onAppearancePatch) {
-          onAppearancePatch(patch)
-          return
-        }
-
-        const primary = patch.shadows?.[0] ?? patch.shadow
-        if (!primary) {
-          return
-        }
-
-        onShapeSettingsChange({
-          shadowBlur: primary.blur,
-          shadowColor: primary.color,
-          shadowOffsetX: primary.offsetX,
-          shadowOffsetY: primary.offsetY,
-          shadowOpacity: primary.visible === false ? 0 : primary.opacity,
-        })
-      }}
-    />
-  )
-}
-
 function backgroundTabFromStyleMode(
   styleMode: DesktopInspectorModel["actualBackgroundSettings"]["styleMode"],
 ): "Shader" | "Image" | "Color" {
@@ -875,99 +797,6 @@ function MotionSection({ model }: { model: DesktopInspectorModel }) {
             }
           />
         </>
-      ) : null}
-    </div>
-  )
-}
-
-function ExportSection({ model }: { model: DesktopInspectorModel }) {
-  const { actualExportSettings, controller, onExportSettingsChange } = model
-  const selectedPreset =
-    EXPORT_PRESETS.find((preset) => preset.id === actualExportSettings.exportPresetId) ??
-    EXPORT_PRESETS[0]
-  const selectedQuality =
-    RASTER_QUALITY_PRESETS.find((preset) => preset.id === actualExportSettings.qualityPresetId) ??
-    RASTER_QUALITY_PRESETS[1]
-
-  const targetLabel =
-    EXPORT_TARGET_OPTIONS.find((option) => option.value === actualExportSettings.target)?.label ??
-    "Current QR"
-
-  return (
-    <div className={SECTION_STACK}>
-      <SettingsRowPopover hint="Target" title="Target" trigger={targetLabel}>
-        <PresetList
-          items={EXPORT_TARGET_OPTIONS.map((option) => option.label)}
-          selected={targetLabel}
-          onSelect={(label) => {
-            const next = EXPORT_TARGET_OPTIONS.find((option) => option.label === label)
-            if (next) onExportSettingsChange({ target: next.value })
-          }}
-        />
-      </SettingsRowPopover>
-      <SettingsRowPopover
-        hint="Format"
-        title="Format"
-        trigger={actualExportSettings.extension.toUpperCase()}
-      >
-        <OptionGrid
-          columns={4}
-          items={EXPORT_FORMAT_OPTIONS.map((format) => format.toUpperCase())}
-          selected={actualExportSettings.extension.toUpperCase()}
-          onSelect={(format) =>
-            onExportSettingsChange({
-              extension: format.toLowerCase() as QrFileExtension,
-            })
-          }
-        />
-      </SettingsRowPopover>
-      <SettingsRowPopover
-        hint="Platform size"
-        title="Platform size"
-        trigger={
-          actualExportSettings.usePlatformPreset
-            ? selectedPreset.label
-            : "Custom"
-        }
-      >
-        <PresetList
-          items={EXPORT_PRESETS.map((preset) => preset.label)}
-          selected={selectedPreset.label}
-          onSelect={(label) => {
-            const preset = EXPORT_PRESETS.find((entry) => entry.label === label)
-            if (!preset) return
-            onExportSettingsChange({
-              exportPresetId: preset.id,
-              extension: preset.format,
-              usePlatformPreset: true,
-            })
-          }}
-        />
-      </SettingsRowPopover>
-      <SettingsRowPopover hint="Quality" title="Quality" trigger={selectedQuality.label}>
-        <PresetList
-          items={RASTER_QUALITY_PRESETS.map((preset) => preset.label)}
-          selected={selectedQuality.label}
-          onSelect={(label) => {
-            const preset = RASTER_QUALITY_PRESETS.find((entry) => entry.label === label)
-            if (!preset) return
-            onExportSettingsChange({
-              qualityPresetId: preset.id,
-              usePlatformPreset: false,
-            })
-          }}
-        />
-      </SettingsRowPopover>
-      <SettingsPrimaryButton onClick={() => controller?.onExportDownload?.()}>
-        Download
-      </SettingsPrimaryButton>
-      {controller?.exportDownloadError ? (
-        <p className="text-center text-[11px] text-red-500">{controller.exportDownloadError}</p>
-      ) : null}
-      {actualExportSettings.usePlatformPreset ? (
-        <p className="dn-type-meta text-center">
-          {formatExportPresetLabel(selectedPreset)}
-        </p>
       ) : null}
     </div>
   )

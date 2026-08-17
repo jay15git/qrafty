@@ -681,7 +681,24 @@
 
 /* ── Accordion ───────────────────────────────────────────────────── */
 
+.dn-settings-rail-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0.625rem 0.625rem 0;
+  width: 100%;
+}
+
+.dn-settings-rail-track__inner {
+  box-sizing: border-box;
+  width: min(100%, 17.25rem);
+  padding-inline: 0.75rem;
+}
+
 .dn-settings-accordion > div {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   padding: 0.625rem;
   border-radius: 0;

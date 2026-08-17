@@ -818,15 +818,14 @@ export function SettingsSlider({
 export function SettingsPrimaryButton({
   children,
   onClick,
-}: {
-  children: ReactNode
-  onClick?: () => void
-}) {
+  ...props
+}: React.ComponentProps<"button">) {
   return (
     <SettingsRowButton
       className="dn-settings-primary dn-pressable-press-only h-9 font-medium tracking-tight"
       type="button"
       onClick={onClick}
+      {...props}
     >
       {children}
     </SettingsRowButton>

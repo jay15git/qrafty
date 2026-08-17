@@ -3,12 +3,11 @@
 import "@/features/desktop-shell/components/desktop-chrome.css"
 import { DesktopDynamicIslandChrome } from "@/features/desktop-shell/components/DesktopAppearanceIsland"
 import { DesktopSettingsToolbarShell } from "@/features/desktop-shell/components/DesktopSettingsToolbarShell"
-import { DesktopSquircleDownloadButton } from "@/features/desktop-shell/components/DesktopSquircleDownloadButton"
+import { DesktopExportDownloadPopover } from "@/features/desktop-shell/components/DesktopExportDownloadPopover"
 import {
   DesktopUtilityToolbar,
 } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
 import { DESKTOP_UTILITY_TOOLBAR_SHELL_CLASS } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
-import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
 import { DesktopNewFloatingInspector } from "@/features/desktop-shell/inspector/DesktopNewFloatingInspector"
 import { useDesktopToolbarInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 import { DESKTOP_TOOLBAR_TOOLS } from "@/features/desktop-shell/model/desktop-toolbar-tools"
@@ -72,7 +71,7 @@ export function FloatingToolbar({
           "relative min-h-dvh overflow-hidden transition-colors duration-200",
           actualDesktopTheme === "light" ? "bg-[#f4f6f9]" : "bg-[#07080a]",
         )}
-      >
+        >
         <div
           data-slot="desktop-dynamic-island-anchor"
         >
@@ -122,9 +121,7 @@ export function FloatingToolbar({
             data-slot="desktop-utility-toolbar"
             className="pointer-events-auto gap-0 p-0"
           >
-            <DesktopTooltip content="Download" side="left" sideOffset={10}>
-              <DesktopSquircleDownloadButton onClick={() => controller?.onExportDownload?.()} />
-            </DesktopTooltip>
+            <DesktopExportDownloadPopover model={model} theme={actualDesktopTheme} />
           </DesktopUtilityToolbar>
         </div>
         <DesktopSettingsToolbarShell
