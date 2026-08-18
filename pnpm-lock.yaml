@@ -5,7 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
-  calligraph@1.4.1: 0d35df8b24e9581aafd5b810a0bc26e9d9d8935ed136554ddf57832720541314
+  calligraph@1.4.1:
+    hash: 0d35df8b24e9581aafd5b810a0bc26e9d9d8935ed136554ddf57832720541314
+    path: patches/calligraph@1.4.1.patch
 
 importers:
 

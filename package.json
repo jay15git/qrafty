@@ -2,6 +2,7 @@
   "name": "new-qr",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.28.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -67,10 +68,5 @@
     "tailwindcss": "^4",
     "typescript": "^5.9.3",
     "vitest": "^4.1.4"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "calligraph@1.4.1": "patches/calligraph@1.4.1.patch"
-    }
   }
 }

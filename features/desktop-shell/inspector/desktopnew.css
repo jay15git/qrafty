@@ -706,7 +706,7 @@
 /* ── Switch ──────────────────────────────────────────────────────── */
 
 .desktopnew-root [data-slot="switch"] {
-  transition: background-color var(--dn-motion-fast) var(--dn-ease-out) !important;
+  transition: background-color var(--dn-motion-ui) var(--dn-ease-out) !important;
 }
 
 .desktopnew-root [data-slot="switch"][data-state="checked"] {
@@ -720,7 +720,7 @@
 .desktopnew-root [data-slot="switch-thumb"] {
   background: var(--dn-bg) !important;
   border-color: color-mix(in srgb, var(--dn-fg) 12%, transparent) !important;
-  transition: transform var(--dn-motion-fast) var(--dn-ease-out) !important;
+  backface-visibility: hidden;
 }
 
 /* ── Segment tabs ────────────────────────────────────────────────── */
