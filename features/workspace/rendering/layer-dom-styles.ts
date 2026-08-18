@@ -3,7 +3,6 @@ import type { CSSProperties } from "react"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import { cornerRadiiToCss, resolveCornerRadii, resolveLayerCornerRadii } from "@/features/workspace/model/corner-radius"
 import { normalizeDraftingCardBorder } from "@/features/workspace/model/card-state"
-import { getDraftingCardPatternStyle } from "@/features/workspace/model/card-patterns"
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
@@ -266,20 +265,12 @@ export function getDraftingCardDomStyle(
   cardState: DraftingCardState,
   layer: DraftingCanvasLayer,
   options?: {
-    includePattern?: boolean
     includeShaderModes?: boolean
   },
 ): Record<string, string | number> {
   const isImageMode = cardState.styleMode === "image"
   const isPaperShaderMode = cardState.styleMode === "paper-shader"
   const isImageFilterMode = cardState.styleMode === "image-filter"
-  const includePattern = options?.includePattern ?? !(isPaperShaderMode || isImageFilterMode || isImageMode)
-  const cardPatternStyle = includePattern
-    ? getDraftingCardPatternStyle(
-        cardState.patternId,
-        cardState.patternId === "none" ? undefined : cardState.patternColors[cardState.patternId],
-      )
-    : undefined
   const cardImageStyle =
     isImageMode && cardState.cardImage.value
       ? {
@@ -296,7 +287,6 @@ export function getDraftingCardDomStyle(
 
   return serializeCssProperties({
     ...cssFillToBackgroundStyle(cardState.fill),
-    ...(cardPatternStyle as Record<string, string | number> | undefined),
     ...cardImageStyle,
     ...borderStyle,
     borderRadius: cornerRadiiToCss(resolveCornerRadii(cardState.cornerRadii, cardState.cornerRadius)),

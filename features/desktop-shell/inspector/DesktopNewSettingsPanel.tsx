@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { StylePreview, type StylePreviewKind } from "@/features/qr-code/components/StylePreview"
@@ -328,13 +328,17 @@ export function DesktopNewSettingsPanel({
   openSection: openSectionProp,
   onOpenSectionChange,
 }: DesktopNewSettingsPanelProps) {
-  const [internalOpenSection, setInternalOpenSection] = useState<string | undefined>(
-    () => sectionForTool(model.actualActiveTool),
-  )
+  const [internalOpenSection, setInternalOpenSection] = useState<string | undefined>(undefined)
   const openSection = openSectionProp ?? internalOpenSection
   const setOpenSection = onOpenSectionChange ?? setInternalOpenSection
+  const skipInitialAccordionSyncRef = useRef(true)
 
   useEffect(() => {
+    if (skipInitialAccordionSyncRef.current) {
+      skipInitialAccordionSyncRef.current = false
+      return
+    }
+
     setOpenSection(sectionForTool(model.actualActiveTool))
   }, [model.actualActiveTool, setOpenSection])
 

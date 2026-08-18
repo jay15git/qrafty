@@ -2,12 +2,20 @@
 
 import { useRef, useState } from "react"
 import { PopoverClose, PopoverContent } from "@/components/ui/popover"
+import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import {
+  InsertMenuEmojiPanel,
   InsertMenuImagePanel,
   InsertMenuRootPanel,
   InsertMenuShapePanel,
   InsertMenuShaderPanel,
 } from "@/features/workspace/components/insert-menu/InsertMenuPanels"
+import {
+  INSERT_MENU_EMOJI_POPOVER_WIDTH,
+  INSERT_MENU_POPOVER_SHELL,
+  INSERT_MENU_POPOVER_WIDTH,
+  insertMenuPortalClass,
+} from "@/features/workspace/components/insert-menu/insert-menu-styles"
 import {
   createDraftingImageLayer,
   createDraftingShaderLayer,
@@ -18,8 +26,7 @@ import {
 import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
 import { cn } from "@/lib/utils"
 
-const DESKTOP_INSERT_POPOVER_SHELL =
-  "w-[min(18rem,calc(100vw-2rem))] rounded-[20px] border border-white/[0.12] bg-black/70 p-2 text-white/84 shadow-[var(--desktop-glass-shadow)] backdrop-blur-2xl"
+import "@/features/desktop-shell/inspector/desktopnew.css"
 
 type InsertMenuPopoverContentProps = {
   nodeId: string
@@ -27,9 +34,9 @@ type InsertMenuPopoverContentProps = {
   canAddQrCode?: boolean
   onAddQrCode?: () => void
   onBrowseStockPhotos?: () => void
-  onOpenCardPatternSettings?: () => void
   isDesktopPopover?: boolean
   popoverSide?: "top" | "bottom" | "left" | "right"
+  theme?: DesktopThemeMode
 }
 
 export function InsertMenuPopoverContent({
@@ -38,11 +45,11 @@ export function InsertMenuPopoverContent({
   canAddQrCode = true,
   onAddQrCode,
   onBrowseStockPhotos,
-  onOpenCardPatternSettings,
   isDesktopPopover = true,
   popoverSide = "bottom",
+  theme = "dark",
 }: InsertMenuPopoverContentProps) {
-  const [panel, setPanel] = useState<"root" | "shape" | "image" | "shader">("root")
+  const [panel, setPanel] = useState<"root" | "shape" | "image" | "shader" | "emoji">("root")
   const [imageUrl, setImageUrl] = useState("")
   const closeRef = useRef<HTMLButtonElement>(null)
 
@@ -59,6 +66,17 @@ export function InsertMenuPopoverContent({
 
   function insertShape(shapeId: DraftingElementShapeId) {
     onInsertLayer(createDraftingShapeLayer(nodeId, shapeId))
+    closeMenu()
+  }
+
+  function insertEmoji(emoji: string) {
+    onInsertLayer(
+      createDraftingTextLayer(nodeId, {
+        fontSize: 64,
+        lineHeight: 1,
+        text: emoji,
+      }),
+    )
     closeMenu()
   }
 
@@ -87,20 +105,22 @@ export function InsertMenuPopoverContent({
     closeMenu()
   }
 
-  function openCardPatternSettings() {
-    onOpenCardPatternSettings?.()
-    closeMenu()
-  }
-
   return (
     <PopoverContent
       align={isDesktopPopover ? "center" : "start"}
       className={
         isDesktopPopover
-          ? cn(DESKTOP_INSERT_POPOVER_SHELL, "z-[20000]")
+          ? insertMenuPortalClass(
+              theme,
+              cn(
+                INSERT_MENU_POPOVER_SHELL,
+                panel === "emoji" ? INSERT_MENU_EMOJI_POPOVER_WIDTH : INSERT_MENU_POPOVER_WIDTH,
+              ),
+            )
           : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--ws-line)] bg-[var(--ws-panel-bg)] p-3"
       }
       data-slot={isDesktopPopover ? "desktop-insert-menu-popover" : "drafting-insert-menu"}
+      data-theme={isDesktopPopover ? theme : undefined}
       side={popoverSide}
       sideOffset={isDesktopPopover ? 12 : undefined}
       onCloseAutoFocus={() => {
@@ -111,14 +131,12 @@ export function InsertMenuPopoverContent({
       {panel === "root" ? (
         <InsertMenuRootPanel
           canAddQrCode={canAddQrCode}
-          isDesktopPopover
+          isDesktopPopover={isDesktopPopover}
           onAddQrCode={onAddQrCode ? addQrCode : undefined}
           onInsertText={() => {
             insertText()
           }}
-          onOpenCardPatternSettings={
-            onOpenCardPatternSettings ? openCardPatternSettings : undefined
-          }
+          onOpenEmojiPanel={() => setPanel("emoji")}
           onOpenImagePanel={() => setPanel("image")}
           onOpenShapePanel={() => setPanel("shape")}
           onOpenShaderPanel={() => setPanel("shader")}
@@ -126,22 +144,29 @@ export function InsertMenuPopoverContent({
       ) : null}
       {panel === "shape" ? (
         <InsertMenuShapePanel
-          isDesktopPopover
+          isDesktopPopover={isDesktopPopover}
           onBack={() => setPanel("root")}
           onSelectShape={insertShape}
         />
       ) : null}
       {panel === "shader" ? (
         <InsertMenuShaderPanel
-          isDesktopPopover
+          isDesktopPopover={isDesktopPopover}
           onBack={() => setPanel("root")}
           onSelectShader={insertShader}
+        />
+      ) : null}
+      {panel === "emoji" ? (
+        <InsertMenuEmojiPanel
+          isDesktopPopover={isDesktopPopover}
+          onBack={() => setPanel("root")}
+          onSelectEmoji={insertEmoji}
         />
       ) : null}
       {panel === "image" ? (
         <InsertMenuImagePanel
           imageUrl={imageUrl}
-          isDesktopPopover
+          isDesktopPopover={isDesktopPopover}
           onBack={() => setPanel("root")}
           onBrowseStockPhotos={onBrowseStockPhotos ? browseStockPhotos : undefined}
           onImageUrlChange={setImageUrl}

@@ -155,7 +155,7 @@ export function ElementShapeOptionGrid({
   const buttonClassName = cn(
     "flex aspect-square w-full min-w-0 items-center justify-center p-2 transition",
     isInsertDesktop
-      ? "text-white/78 hover:bg-white/[0.11] hover:text-white"
+      ? "text-[var(--dn-muted)] hover:bg-[var(--dn-control-hover)] hover:text-[var(--dn-fg)]"
       : "text-[var(--ws-ink-muted)] hover:bg-[var(--ws-panel-bg-hover)] hover:text-[var(--ws-ink)]",
   )
 
@@ -164,7 +164,9 @@ export function ElementShapeOptionGrid({
       aria-label="Shape options"
       className={cn(
         "grid max-h-72 grid-cols-3 gap-0 overflow-y-auto",
-        isInsertDesktop ? "rounded-[10px] border border-white/[0.12] bg-white/[0.04]" : undefined,
+        isInsertDesktop
+          ? "dn-squircle-sm border border-[var(--dn-line)] bg-[var(--dn-control)]"
+          : undefined,
       )}
       data-slot={optionsDataSlot ?? decorativeDataSlot}
       role="group"

@@ -97,9 +97,6 @@ import {
   type DraftingRasterExportPresetId,
 } from "@/features/workspace/components/workspace-surface.constants"
 import {
-  DRAFTING_CARD_PATTERN_NONE_ID,
-} from "@/features/workspace/model/card-patterns"
-import {
   Canvas,
   type DraftingPaneCanvasTool,
   type DraftingPaneToolbarVariant,
@@ -3029,11 +3026,6 @@ export function WorkspaceSurface({
       fill: patch.cardFill ?? selectedCardState.fill,
       height: patch.cardHeight ?? selectedCardState.height,
       lockAspectRatio: patch.lockAspectRatio ?? selectedCardState.lockAspectRatio,
-      patternColors: patch.cardPatternColors ?? selectedCardState.patternColors,
-      patternId:
-        patch.cardFill !== undefined
-          ? DRAFTING_CARD_PATTERN_NONE_ID
-          : (patch.cardPatternId ?? selectedCardState.patternId),
       shadow: {
         ...selectedCardState.shadow,
         blur: patch.shadowBlur ?? selectedCardState.shadow.blur,
@@ -3047,10 +3039,8 @@ export function WorkspaceSurface({
         patch.sizePresetId !== undefined ? patch.sizePresetId : selectedCardState.sizePresetId,
       styleMode:
         patch.cardFill !== undefined
-          ? "pattern"
-          : patch.cardPatternId
-            ? "pattern"
-            : selectedCardState.styleMode,
+          ? "solid"
+          : selectedCardState.styleMode,
       width: patch.cardWidth ?? selectedCardState.width,
     }
 
@@ -3302,16 +3292,6 @@ export function WorkspaceSurface({
       setComposeSidebarPanel(panel)
       selectSingleLayer(null)
     },
-    onOpenCardPatternSettings: () => {
-      setSelectedCardState((current) => ({
-        ...current,
-        enabled: true,
-        styleMode: "pattern",
-      }))
-      selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
-      setBackgroundInspectorTab("patterns")
-      setDesktopRailTool("background")
-    },
     onCloseComposeSidebar: () => {
       setComposeSidebarPanel(null)
     },
@@ -3334,8 +3314,7 @@ export function WorkspaceSurface({
 
         return {
           ...current,
-          patternId: DRAFTING_CARD_PATTERN_NONE_ID,
-          styleMode: "pattern",
+          styleMode: "solid",
         }
       })
     },
@@ -3526,16 +3505,6 @@ export function WorkspaceSurface({
               qrLayerCount={qrCanvasLayers.length}
               insertNodeId={activeQrNodeId}
               onBrowseStockPhotos={handleBrowseStockPhotos}
-              onOpenCardPatternSettings={() => {
-                setSelectedCardState((current) => ({
-                  ...current,
-                  enabled: true,
-                  styleMode: "pattern",
-                }))
-                selectSingleLayer(getDraftingCardLayerId(activeQrNodeId))
-                setBackgroundInspectorTab("patterns")
-                setDesktopRailTool("background")
-              }}
               onInsertLayer={handleInsertLayer}
               layerEditingEnabled
               onLayerChange={handleLayerChange}

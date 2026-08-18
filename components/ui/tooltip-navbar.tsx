@@ -260,7 +260,7 @@ export const TooltipNavbar = ({
 
           <div
             data-slot="tooltip-navbar-shell"
-            className="z-10 inline-flex items-center justify-center gap-1 rounded-2xl border border-[var(--desktop-glass-border,rgba(255,255,255,0.06))] bg-[var(--desktop-glass-bg,rgba(0,0,0,0.95))] p-1 shadow-[var(--desktop-glass-shadow,0_24px_64px_rgba(0,0,0,0.34))] backdrop-blur-xl [corner-shape:squircle]"
+            className="z-10 inline-flex items-center justify-center gap-1 rounded-2xl border border-[var(--desktop-glass-border,rgba(255,255,255,0.06))] bg-[var(--desktop-glass-bg,rgba(0,0,0,0.95))] p-1 backdrop-blur-xl"
           >
             {items.map((item, index) => {
               const button = renderItemButton(item, index);

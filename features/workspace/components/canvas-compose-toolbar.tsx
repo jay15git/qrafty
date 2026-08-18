@@ -104,7 +104,6 @@ type ComposeToolbarControlsProps = {
   onBrowseStockPhotos?: () => void
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
-  onOpenCardPatternSettings?: () => void
   onRemoveQrCode?: (paneId: string) => void
   onResetView: () => void
   onToggleMaximize: () => void
@@ -134,7 +133,6 @@ export function ComposeToolbarControls({
   onBrowseStockPhotos,
   onCanvasToolChange,
   onInsertLayer,
-  onOpenCardPatternSettings,
   onRemoveQrCode,
   onResetView,
   onToggleMaximize,
@@ -295,7 +293,6 @@ export function ComposeToolbarControls({
               variant={insertMenuVariant}
               onAddQrCode={onAddQrCode}
               onBrowseStockPhotos={onBrowseStockPhotos}
-              onOpenCardPatternSettings={onOpenCardPatternSettings}
               onInsertLayer={onInsertLayer}
             />
           ) : onAddQrCode ? (

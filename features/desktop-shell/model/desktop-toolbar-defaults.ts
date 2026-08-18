@@ -255,8 +255,6 @@ export const DEFAULT_DESKTOP_SHAPE_SETTINGS: DesktopShapeSettings = {
   bottomSpace: DEFAULT_DRAFTING_CARD_STATE.bottomSpace,
   cardFill: DEFAULT_DRAFTING_CARD_STATE.fill,
   cardHeight: DEFAULT_DRAFTING_CARD_STATE.height,
-  cardPatternColors: DEFAULT_DRAFTING_CARD_STATE.patternColors,
-  cardPatternId: DEFAULT_DRAFTING_CARD_STATE.patternId,
   cardRadius: DEFAULT_DRAFTING_CARD_STATE.cornerRadius,
   cardWidth: DEFAULT_DRAFTING_CARD_STATE.width,
   lockAspectRatio: DEFAULT_DRAFTING_CARD_STATE.lockAspectRatio,

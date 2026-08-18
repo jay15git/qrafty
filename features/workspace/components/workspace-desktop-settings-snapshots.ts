@@ -189,8 +189,6 @@ export function buildDesktopToolbarSettingsSnapshots(
     bottomSpace: selectedCardState.bottomSpace,
     cardFill: selectedCardState.fill,
     cardHeight: selectedCardState.height,
-    cardPatternColors: selectedCardState.patternColors,
-    cardPatternId: selectedCardState.patternId,
     cardRadius: selectedCardState.cornerRadius,
     cardWidth: selectedCardState.width,
     lockAspectRatio: selectedCardState.lockAspectRatio,

@@ -92,7 +92,6 @@ export function DesktopDynamicIslandChrome({
   onBrowseStockPhotos,
   onCanvasToolChange,
   onInsertLayer,
-  onOpenCardPatternSettings,
   onAppearancePatch,
   onRedo,
   onElementLayerPatch,
@@ -124,7 +123,6 @@ export function DesktopDynamicIslandChrome({
   onBrowseStockPhotos?: () => void
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
-  onOpenCardPatternSettings?: () => void
   onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onRedo?: () => void
   onRemoveQrCode?: () => void
@@ -220,7 +218,7 @@ export function DesktopDynamicIslandChrome({
               onAddQrCode={onAddQrCode}
               onBrowseStockPhotos={onBrowseStockPhotos}
               onInsertLayer={onInsertLayer}
-              onOpenCardPatternSettings={onOpenCardPatternSettings}
+              theme={theme}
             />
           ),
         })
@@ -320,7 +318,6 @@ export function DesktopDynamicIslandChrome({
     onCanvasToolChange,
     onElementLayerPatch,
     onInsertLayer,
-    onOpenCardPatternSettings,
     onRedo,
     onSelectSizeTemplate,
     onSnapEnabledChange,

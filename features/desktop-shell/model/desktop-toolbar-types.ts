@@ -8,11 +8,6 @@ import type {
 import type { StudioCornerDotStyle } from "@/features/qr-code/model/state"
 import type { DesktopCardSizeSettings } from "@/features/desktop-shell/model/card-size-settings"
 import {
-  type DraftingCardPatternColorOverrides,
-  type DraftingCardPatternId,
-  type DraftingCardPatternSelectionId,
-} from "@/features/workspace/model/card-patterns"
-import {
   type DraftingCardPaperShaderState,
   type DraftingCardSizeMode,
   type DraftingCardStyleMode,
@@ -65,7 +60,7 @@ export type DesktopToolbarToolId =
   | "layers"
   | "export"
 
-export type DesktopBackgroundInspectorTab = "paper" | "patterns"
+export type DesktopBackgroundInspectorTab = "paper"
 
 export type DesktopSceneTemplateSettings = {
   sizeSettings: DesktopCardSizeSettings
@@ -146,8 +141,6 @@ export type DesktopShapeSettings = {
   bottomSpace: number
   cardFill: string
   cardHeight: number
-  cardPatternColors: Partial<Record<DraftingCardPatternId, DraftingCardPatternColorOverrides>>
-  cardPatternId: DraftingCardPatternSelectionId
   cardRadius: number
   cardWidth: number
   lockAspectRatio: boolean
@@ -313,7 +306,6 @@ export type DesktopToolbarController = {
   canRemoveQrCode?: boolean
   onRemoveQrCode?: () => void
   onOpenComposeSidebar?: (panel: "stock-photos") => void
-  onOpenCardPatternSettings?: () => void
   onCloseComposeSidebar?: () => void
   onSelectStockPhoto?: (imageUrl: string) => void
   onCanvasBackgroundTabChange?: (tab: "shader" | "image" | "color") => void

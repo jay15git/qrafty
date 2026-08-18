@@ -46,7 +46,6 @@ import type { QrStudioState } from "@/features/qr-code/model/state"
 import { useDraftingQrMarkup } from "@/features/workspace/hooks/use-drafting-qr-markup"
 import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
-import { getDraftingCardPatternStyle } from "@/features/workspace/model/card-patterns"
 import { cn } from "@/lib/utils"
 import type { ResizeDirection } from "@/features/workspace/components/pane-layer-geometry"
 import { PaneLayerInteractive } from "@/features/workspace/components/pane-layer-a11y"
@@ -67,16 +66,10 @@ function buildPaneDocumentCardSurfaceStyle(
   isPaperShaderMode: boolean,
 ): CSSProperties {
   const usesShaderOrImageSurface = isPaperShaderMode || isImageFilterMode || isImageMode
-  const patternStyle = getDraftingCardPatternStyle(
-    cardState.patternId,
-    cardState.patternId === "none" ? undefined : cardState.patternColors[cardState.patternId],
-  )
-
   return {
     ...(usesShaderOrImageSurface
       ? { backgroundColor: "transparent" }
       : cssFillToBackgroundStyle(cardState.fill)),
-    ...(usesShaderOrImageSurface ? undefined : patternStyle),
     ...getDraftingCardBorderStyle(cardState),
     borderRadius: cornerRadiiToCss(cardState.cornerRadii),
   }
@@ -160,7 +153,6 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
       key={layer.id}
       data-slot="desktop-compose-card"
       data-layer-id={layer.id}
-      data-card-pattern={isPaperShaderMode || isImageFilterMode || isImageMode ? "none" : cardState.patternId}
       data-card-paper-shader={
         isPaperShaderMode
           ? cardState.paperShader.shaderId

@@ -90,7 +90,7 @@ function InsertPaperShaderOptionTile({
       className={cn(
         "group relative aspect-square w-full min-w-0 p-0 transition",
         isInsertDesktop
-          ? "rounded-[8px] hover:bg-white/[0.11]"
+          ? "rounded-[8px] hover:bg-[var(--dn-control-hover)]"
           : "rounded-[7px] hover:bg-[var(--ws-panel-bg-hover)]",
       )}
       type="button"
@@ -101,7 +101,7 @@ function InsertPaperShaderOptionTile({
         data-slot="paper-shader-insert-preview-surface"
         className={cn(
           "relative block size-full overflow-hidden rounded-[6px] border-2 border-transparent shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]",
-          isInsertDesktop ? "bg-[#15161a]" : "bg-[var(--ws-control-bg)]",
+          isInsertDesktop ? "bg-[var(--dn-bg)]" : "bg-[var(--ws-control-bg)]",
         )}
       >
         <PaperShaderOptionPreview shaderId={shaderId} />
@@ -154,7 +154,9 @@ export function PaperShaderOptionGrid({
       aria-label="Shader options"
       className={cn(
         "grid max-h-72 grid-cols-3 gap-1 overflow-y-auto p-1",
-        variant === "insert-desktop" ? "rounded-[10px] border border-white/[0.12] bg-white/[0.04]" : undefined,
+        variant === "insert-desktop"
+          ? "dn-squircle-sm border border-[var(--dn-line)] bg-[var(--dn-control)] p-1"
+          : undefined,
       )}
       data-slot={dataSlot}
       role="group"

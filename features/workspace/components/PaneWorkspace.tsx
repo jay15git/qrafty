@@ -17,7 +17,6 @@ import {
   type DraftingCardState,
 } from "@/features/workspace/model/card-state"
 import { cornerRadiiToCss } from "@/features/workspace/model/corner-radius"
-import { getDraftingCardPatternStyle } from "@/features/workspace/model/card-patterns"
 import {
   clampLayerGeometryToCanvas,
   createDefaultDraftingLayers,
@@ -324,10 +323,6 @@ export function PaneWorkspace({
   const isPaperShaderMode = cardState.styleMode === "paper-shader"
   const isImageMode = cardState.styleMode === "image"
   const isImageFilterMode = cardState.styleMode === "image-filter"
-  const cardPatternStyle = getDraftingCardPatternStyle(
-    cardState.patternId,
-    cardState.patternId === "none" ? undefined : cardState.patternColors[cardState.patternId],
-  )
   const cardImageStyle =
     (isImageMode || isImageFilterMode) && cardState.cardImage.value
       ? {
@@ -341,7 +336,6 @@ export function PaneWorkspace({
     ...(isPaperShaderMode || isImageFilterMode || isImageMode
       ? { backgroundColor: "transparent" }
       : cssFillToBackgroundStyle(cardState.fill)),
-    ...(isPaperShaderMode || isImageFilterMode || isImageMode ? undefined : cardPatternStyle),
     ...cardImageStyle,
     ...getDraftingCardBorderStyle(cardState),
     borderRadius: cornerRadiiToCss(cardState.cornerRadii),

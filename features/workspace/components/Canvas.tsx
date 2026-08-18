@@ -33,7 +33,6 @@ type CanvasProps = {
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
   insertNodeId?: string
   onBrowseStockPhotos?: () => void
-  onOpenCardPatternSettings?: () => void
   onRemoveQrCode?: (layerId: string) => void
   onPaneSelect: (paneId: string) => void
   onPaneQrClick: (paneId: string) => void
@@ -85,7 +84,6 @@ export function Canvas({
   onInsertLayer,
   insertNodeId,
   onBrowseStockPhotos,
-  onOpenCardPatternSettings,
   onRemoveQrCode,
   onPaneSelect,
   onPaneQrClick,
@@ -232,7 +230,6 @@ export function Canvas({
           onBrowseStockPhotos={onBrowseStockPhotos}
           onCanvasToolChange={onCanvasToolChange}
           onInsertLayer={onInsertLayer}
-          onOpenCardPatternSettings={onOpenCardPatternSettings}
           onRemoveQrCode={
             onRemoveQrCode && selectedLayerId
               ? () => onRemoveQrCode(selectedLayerId)

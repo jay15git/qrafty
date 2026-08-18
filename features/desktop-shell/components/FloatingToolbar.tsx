@@ -99,7 +99,6 @@ export function FloatingToolbar({
               onCanvasToolChange={controller?.onCanvasToolChange}
               onElementLayerPatch={controller?.onElementLayerPatch}
               onInsertLayer={controller?.onInsertLayer}
-              onOpenCardPatternSettings={controller?.onOpenCardPatternSettings}
               onAppearancePatch={controller?.onAppearancePatch}
               onRedo={controller?.onRedo}
               onRemoveQrCode={controller?.onRemoveQrCode}

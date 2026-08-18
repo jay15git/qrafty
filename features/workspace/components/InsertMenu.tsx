@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { SecondaryButton } from "@/components/ui/secondary-button"
+import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
 import { InsertMenuAddIcon } from "@/features/workspace/components/insert-menu/InsertMenuAddIcon"
 import { InsertMenuPopoverContent } from "@/features/workspace/components/insert-menu/InsertMenuPopoverContent"
@@ -18,9 +19,9 @@ type InsertMenuProps = {
   canAddQrCode?: boolean
   onAddQrCode?: () => void
   onBrowseStockPhotos?: () => void
-  onOpenCardPatternSettings?: () => void
   triggerClassName?: string
   suppressTooltip?: boolean
+  theme?: DesktopThemeMode
   variant?: "rail" | "toolbar" | "bottom-toolbar" | "dynamic-island"
 }
 
@@ -30,9 +31,9 @@ export function InsertMenu({
   canAddQrCode = true,
   onAddQrCode,
   onBrowseStockPhotos,
-  onOpenCardPatternSettings,
   triggerClassName,
   suppressTooltip = false,
+  theme = "dark",
   variant = "rail",
 }: InsertMenuProps) {
   const [open, setOpen] = useState(false)
@@ -101,8 +102,8 @@ export function InsertMenu({
           onAddQrCode={onAddQrCode}
           onBrowseStockPhotos={onBrowseStockPhotos}
           onInsertLayer={onInsertLayer}
-          onOpenCardPatternSettings={onOpenCardPatternSettings}
           popoverSide={variant === "bottom-toolbar" ? "top" : "bottom"}
+          theme={theme}
         />
       ) : (
         <InsertMenuPopoverContent
@@ -112,7 +113,7 @@ export function InsertMenu({
           onAddQrCode={onAddQrCode}
           onBrowseStockPhotos={onBrowseStockPhotos}
           onInsertLayer={onInsertLayer}
-          onOpenCardPatternSettings={onOpenCardPatternSettings}
+          theme={theme}
         />
       )}
     </Popover>

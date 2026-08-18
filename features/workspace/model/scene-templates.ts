@@ -1,4 +1,3 @@
-import type { DraftingCardPatternColorOverrides, DraftingCardPatternId } from "@/features/workspace/model/card-patterns"
 import type { DraftingCardBorderState, DraftingCardShadowState, DraftingCardState } from "@/features/workspace/model/card-state"
 import { createUniformPerSideBorder } from "@/features/workspace/model/effects"
 import type { ExportPresetId } from "@/features/workspace/model/export-presets"
@@ -17,7 +16,6 @@ export type SceneGradientStop = { color: string; offset: number }
 
 export type SceneBackground =
   | { angle: number; kind: "gradient"; stops: [SceneGradientStop, SceneGradientStop] }
-  | { colors?: Partial<Record<DraftingCardPatternId, DraftingCardPatternColorOverrides>>; kind: "pattern"; patternId: DraftingCardPatternId }
   | { fit: "contain" | "cover"; kind: "image"; src: string }
   | { kind: "paper-shader"; params?: Partial<PaperShaderParams>; shaderId: PaperShaderId }
   | { color: string; kind: "solid" }
@@ -102,9 +100,7 @@ export const MOCKUP_STYLE_PRESETS: readonly MockupStylePreset[] = [
       border: mockupBorder("#000000", 0, 0),
       cornerRadius: 20,
       fill: "#ffffff",
-      patternId: "none",
-      shadow: mockupShadow({ blur: 24, color: "#0f172a", offsetY: 12, opacity: 22 }),
-      styleMode: "pattern",
+      styleMode: "solid",
     },
   },
   {
@@ -120,9 +116,8 @@ export const MOCKUP_STYLE_PRESETS: readonly MockupStylePreset[] = [
       border: mockupBorder("#ffffff", 1, 35),
       cornerRadius: 20,
       fill: "rgba(255, 255, 255, 0.58)",
-      patternId: "none",
       shadow: mockupShadow({ blur: 20, color: "#0f172a", offsetY: 10, opacity: 18 }),
-      styleMode: "pattern",
+      styleMode: "solid",
     },
   },
   {
@@ -138,9 +133,8 @@ export const MOCKUP_STYLE_PRESETS: readonly MockupStylePreset[] = [
       border: mockupBorder("#ffffff", 1, 12),
       cornerRadius: 20,
       fill: "rgba(24, 24, 27, 0.72)",
-      patternId: "none",
       shadow: mockupShadow({ blur: 28, color: "#000000", offsetY: 14, opacity: 42 }),
-      styleMode: "pattern",
+      styleMode: "solid",
     },
   },
   {
@@ -155,9 +149,8 @@ export const MOCKUP_STYLE_PRESETS: readonly MockupStylePreset[] = [
       border: mockupBorder("#ffffff", 0, 0),
       cornerRadius: 28,
       fill: "#ffffff",
-      patternId: "none",
       shadow: mockupShadow({ blur: 48, color: "#ea580c", offsetY: 20, opacity: 35, spread: -6 }),
-      styleMode: "pattern",
+      styleMode: "solid",
     },
   },
   {
@@ -170,9 +163,8 @@ export const MOCKUP_STYLE_PRESETS: readonly MockupStylePreset[] = [
       border: mockupBorder("#e2e8f0", 1),
       cornerRadius: 16,
       fill: "#f8fafc",
-      patternId: "none",
       shadow: mockupShadow({ blur: 0, color: "#94a3b8", inset: true, offsetY: 2, opacity: 40, spread: 4 }),
-      styleMode: "pattern",
+      styleMode: "solid",
     },
   },
   {
@@ -185,9 +177,8 @@ export const MOCKUP_STYLE_PRESETS: readonly MockupStylePreset[] = [
       border: mockupBorder("#334155", 1, 80),
       cornerRadius: 16,
       fill: "#1e293b",
-      patternId: "none",
       shadow: mockupShadow({ blur: 0, color: "#000000", inset: true, offsetY: 2, opacity: 55, spread: 6 }),
-      styleMode: "pattern",
+      styleMode: "solid",
     },
   },
   {
@@ -200,9 +191,8 @@ export const MOCKUP_STYLE_PRESETS: readonly MockupStylePreset[] = [
       border: mockupBorder("#d4d4d8", 1),
       cornerRadius: 18,
       fill: "#ffffff",
-      patternId: "none",
       shadow: mockupShadow({ color: "#000000", opacity: 0, visible: false }),
-      styleMode: "pattern",
+      styleMode: "solid",
     },
   },
   {
@@ -215,9 +205,8 @@ export const MOCKUP_STYLE_PRESETS: readonly MockupStylePreset[] = [
       border: mockupBorder("#a1a1aa", 3),
       cornerRadius: 18,
       fill: "#ffffff",
-      patternId: "none",
       shadow: mockupShadow({ color: "#000000", opacity: 0, visible: false }),
-      styleMode: "pattern",
+      styleMode: "solid",
     },
   },
   {
@@ -230,9 +219,8 @@ export const MOCKUP_STYLE_PRESETS: readonly MockupStylePreset[] = [
       border: mockupBorder("#09090b", 4),
       cornerRadius: 0,
       fill: "#ffffff",
-      patternId: "none",
       shadow: mockupShadow({ color: "#000000", opacity: 0, visible: false }),
-      styleMode: "pattern",
+      styleMode: "solid",
     },
   },
   {
@@ -246,9 +234,8 @@ export const MOCKUP_STYLE_PRESETS: readonly MockupStylePreset[] = [
       border: mockupBorder("#000000", 0, 0),
       cornerRadius: 16,
       fill: "#ffffff",
-      patternId: "none",
       shadow: mockupShadow({ blur: 0, color: "#e4e4e7", offsetY: 6, opacity: 100 }),
-      styleMode: "pattern",
+      styleMode: "solid",
     },
     layerShadows: [
       mockupShadow({ blur: 0, color: "#e4e4e7", offsetY: 6, opacity: 100 }),
@@ -269,9 +256,8 @@ export const MOCKUP_STYLE_PRESETS: readonly MockupStylePreset[] = [
       border: mockupBorder("#000000", 0, 0),
       cornerRadius: 14,
       fill: "#ffffff",
-      patternId: "none",
       shadow: mockupShadow({ blur: 0, color: "#d4d4d8", offsetX: 6, offsetY: 6, opacity: 100 }),
-      styleMode: "pattern",
+      styleMode: "solid",
     },
     layerShadows: [
       mockupShadow({ blur: 0, color: "#d4d4d8", offsetX: 6, offsetY: 6, opacity: 100 }),
@@ -294,9 +280,8 @@ export const MOCKUP_STYLE_PRESETS: readonly MockupStylePreset[] = [
       border: mockupBorder("#000000", 0, 0),
       cornerRadius: 12,
       fill: "#ffffff",
-      patternId: "none",
       shadow: mockupShadow({ blur: 0, color: "#d4d4d8", offsetX: 4, offsetY: 5, opacity: 100 }),
-      styleMode: "pattern",
+      styleMode: "solid",
     },
     layerShadows: [
       mockupShadow({ blur: 0, color: "#d4d4d8", offsetX: 4, offsetY: 5, opacity: 100 }),

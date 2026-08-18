@@ -1,10 +1,4 @@
 import {
-  DRAFTING_CARD_PATTERN_NONE_ID,
-  type DraftingCardPatternColorOverrides,
-  type DraftingCardPatternId,
-  type DraftingCardPatternSelectionId,
-} from "@/features/workspace/model/card-patterns"
-import {
   createUniformPerSideBorder,
   type DraftingBorderStyle,
   type DraftingPerSideBorderState,
@@ -32,7 +26,20 @@ import {
 } from "@/features/workspace/rendering/paper-shaders"
 
 type DraftingCardShadowPreset = "none" | "soft" | "medium" | "strong"
-export type DraftingCardStyleMode = "pattern" | "image" | "image-filter" | "paper-shader"
+export type DraftingCardStyleMode = "solid" | "image" | "image-filter" | "paper-shader"
+
+export type LegacyDraftingCardStyleMode = DraftingCardStyleMode | "pattern"
+
+function normalizeDraftingCardStyleMode(
+  value: LegacyDraftingCardStyleMode | undefined,
+  fallback: DraftingCardStyleMode,
+): DraftingCardStyleMode {
+  if (value === "pattern") {
+    return "solid"
+  }
+
+  return value ?? fallback
+}
 
 export type DraftingCardBorderState = {
   color: string
@@ -94,8 +101,6 @@ export type DraftingCardState = {
   imageFilter: DraftingCardPaperShaderState
   lockAspectRatio: boolean
   padding: number
-  patternColors: Partial<Record<DraftingCardPatternId, DraftingCardPatternColorOverrides>>
-  patternId: DraftingCardPatternSelectionId
   paperShader: DraftingCardPaperShaderState
   shadow: DraftingCardShadowState
   sizeMode: DraftingCardSizeMode
@@ -128,8 +133,6 @@ function buildDefaultDraftingCardState(): DraftingCardState {
     imageFilter: createDefaultDraftingCardPaperShader("image-dithering"),
     lockAspectRatio: true,
     padding: 24,
-    patternColors: {},
-    patternId: DRAFTING_CARD_PATTERN_NONE_ID,
     paperShader: {
       ...createDefaultDraftingCardPaperShader("static-mesh-gradient"),
       paused: true,
@@ -214,20 +217,13 @@ export function normalizeDraftingCardState(
       : cloneDraftingCardPaperShaderState(fallback.imageFilter),
     lockAspectRatio: state.lockAspectRatio ?? fallback.lockAspectRatio,
     padding: clampCardNumber(state.padding, fallback.padding, 0, 256),
-    patternColors: Object.fromEntries(
-      Object.entries(state.patternColors ?? fallback.patternColors).map(([patternId, colors]) => [
-        patternId,
-        { ...colors },
-      ]),
-    ),
-    patternId: state.patternId ?? fallback.patternId,
     paperShader: state.paperShader
       ? cloneDraftingCardPaperShaderState(state.paperShader)
       : cloneDraftingCardPaperShaderState(fallback.paperShader),
     shadow: normalizeDraftingCardShadow(state.shadow ?? fallback.shadow),
     sizeMode: state.sizeMode === "fixed" ? "fixed" : "auto",
     sizePresetId,
-    styleMode: state.styleMode ?? fallback.styleMode,
+    styleMode: normalizeDraftingCardStyleMode(state.styleMode, fallback.styleMode),
     width: clampCardSize(resolvedWidth, fallback.width),
   }
 }

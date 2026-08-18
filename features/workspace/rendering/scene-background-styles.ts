@@ -1,6 +1,5 @@
 import type { CSSProperties } from "react"
 
-import { getDraftingCardPatternStyle } from "@/features/workspace/model/card-patterns"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import type { SceneBackground } from "@/features/workspace/model/scene-templates"
 
@@ -12,8 +11,6 @@ export function getSceneBackgroundStyle(background: SceneBackground): CSSPropert
       return {
         backgroundImage: `linear-gradient(${background.angle}deg, ${background.stops[0].color} ${background.stops[0].offset * 100}%, ${background.stops[1].color} ${background.stops[1].offset * 100}%)`,
       }
-    case "pattern":
-      return getDraftingCardPatternStyle(background.patternId, background.colors ?? {})
     case "image":
       return {
         backgroundImage: `url("${background.src}")`,

@@ -240,7 +240,7 @@ describe("Pane", () => {
       },
       cornerRadius: 24,
       fill: "#ffcc00",
-      styleMode: "pattern",
+      styleMode: "solid",
       padding: 20,
       shadow: {
         blur: 30,
@@ -260,7 +260,6 @@ describe("Pane", () => {
     expect(card).not.toBeNull()
     expect(card.getAttribute("data-card-enabled")).toBe("true")
     expect(card.getAttribute("data-card-border-width")).toBe("6")
-    expect(card.getAttribute("data-card-pattern")).toBe("none")
     expect(card.getAttribute("data-card-shadow-blur")).toBe("30")
     expect(card.getAttribute("data-card-shadow-offset-x")).toBe("6")
     expect(card.getAttribute("data-card-shadow-offset-y")).toBe("8")
@@ -343,48 +342,6 @@ describe("Pane", () => {
     )
   })
 
-  it("applies the selected card css pattern to the card layer", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
-    const cardState = createAutoSizedCardState({
-      patternId: "g3" as const,
-      styleMode: "pattern",
-    })
-    const { container } = renderPane(state, false, cardState)
-
-    await waitForQrPaneRender()
-
-    const card = container.querySelector('[data-slot="desktop-compose-card"]') as HTMLElement
-
-    expect(card).not.toBeNull()
-    expect(card.getAttribute("data-card-pattern")).toBe("g3")
-    expect(card.style.getPropertyValue("--s")).toBe("72px")
-    expect(card.style.getPropertyValue("--p1")).toBe("#c02942")
-    expect(card.getAttribute("style")).toContain("background-size")
-  })
-
-  it("applies selected card css pattern color overrides to the card layer", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
-    const cardState = createAutoSizedCardState({
-      patternColors: {
-        g3: {
-          "--p1": "#111111",
-        },
-      },
-      patternId: "g3" as const,
-      styleMode: "pattern",
-    })
-    const { container } = renderPane(state, false, cardState)
-
-    await waitForQrPaneRender()
-
-    const card = container.querySelector('[data-slot="desktop-compose-card"]') as HTMLElement
-
-    expect(card).not.toBeNull()
-    expect(card.getAttribute("data-card-pattern")).toBe("g3")
-    expect(card.style.getPropertyValue("--p1")).toBe("#111111")
-    expect(card.style.getPropertyValue("--p2")).toBe("#53777a")
-  })
-
   it("marks the card layer with the selected paper shader", async () => {
     const state = setSquareQrSize(createDefaultQrStudioState(), 240)
     const cardState = {
@@ -400,7 +357,6 @@ describe("Pane", () => {
 
     expect(card).not.toBeNull()
     expect(card.getAttribute("data-card-style-mode")).toBe("paper-shader")
-    expect(card.getAttribute("data-card-pattern")).toBe("none")
     expect(card.getAttribute("data-card-paper-shader")).toBe("warp")
   })
 
@@ -408,8 +364,7 @@ describe("Pane", () => {
     const state = setSquareQrSize(createDefaultQrStudioState(), 240)
     const cardState = createAutoSizedCardState({
       enabled: false,
-      patternId: "g3" as const,
-      styleMode: "pattern",
+      styleMode: "solid",
     })
     const { container } = renderPane(state, false, cardState)
 

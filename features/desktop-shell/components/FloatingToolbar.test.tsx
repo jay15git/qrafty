@@ -68,7 +68,7 @@ describe("FloatingToolbar", () => {
     const contentHeader = getRequiredAccordionHeader(surface.container, "Content")
     const qrHeader = getRequiredAccordionHeader(surface.container, "QR")
 
-    expect(contentHeader.getAttribute("aria-expanded")).toBe("true")
+    expect(contentHeader.getAttribute("aria-expanded")).toBe("false")
     expect(qrHeader.getAttribute("aria-expanded")).toBe("false")
 
     await act(async () => {

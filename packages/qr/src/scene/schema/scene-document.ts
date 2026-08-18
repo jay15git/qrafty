@@ -37,14 +37,13 @@ export type ScenePaperShaderState = {
 }
 
 export type SceneCardState = {
-  styleMode: "pattern" | "image" | "image-filter" | "paper-shader"
+  styleMode: "solid" | "pattern" | "image" | "image-filter" | "paper-shader"
   fill: string
   cornerRadius: number
   border: { color: string; opacity: number; width: number }
   shadow?: { blur: number; color: string; offsetX: number; offsetY: number; opacity: number }
   paperShader?: ScenePaperShaderState
   imageFilter?: ScenePaperShaderState
-  patternId?: string
   cardImage?: {
     fit: "contain" | "cover"
     opacity: number
