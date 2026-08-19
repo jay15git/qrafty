@@ -4,6 +4,7 @@ import {
   CopyPlusIcon,
   FrameIcon,
   ImageIcon,
+  PenLineIcon,
   SmileIcon,
   SparklesIcon,
   TypeIcon,
@@ -27,7 +28,14 @@ import {
   INSERT_MENU_ITEM_CLASS,
   INSERT_MENU_PANEL_TITLE,
 } from "@/features/workspace/components/insert-menu/insert-menu-styles"
+import { IllustrationOptionGrid } from "@/features/workspace/components/IllustrationOptionGrid"
 import { PaperShaderOptionGrid } from "@/features/workspace/components/PaperShaderOptionGrid"
+import {
+  ILLUSTRATION_SETS,
+  type IllustrationAsset,
+  type IllustrationSet,
+  type IllustrationSetId,
+} from "@/features/workspace/assets/illustration-sets"
 import type { DraftingElementShapeId } from "@/features/workspace/model/layers"
 import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
 import { cn } from "@/lib/utils"
@@ -108,6 +116,7 @@ export function InsertMenuRootPanel({
   isDesktopPopover,
   onAddQrCode,
   onInsertText,
+  onOpenIllustrationPanel,
   onOpenImagePanel,
   onOpenShapePanel,
   onOpenEmojiPanel,
@@ -118,6 +127,7 @@ export function InsertMenuRootPanel({
   onAddQrCode?: () => void
   onInsertText: () => void
   onOpenEmojiPanel: () => void
+  onOpenIllustrationPanel: () => void
   onOpenImagePanel: () => void
   onOpenShapePanel: () => void
   onOpenShaderPanel: () => void
@@ -147,6 +157,14 @@ export function InsertMenuRootPanel({
       <InsertMenuActionButton isDesktopPopover={isDesktopPopover} onClick={onOpenShaderPanel}>
         <SparklesIcon className="size-4 shrink-0" data-icon="inline-start" />
         Shader
+      </InsertMenuActionButton>
+      <InsertMenuActionButton
+        isDesktopPopover={isDesktopPopover}
+        onClick={onOpenIllustrationPanel}
+        slot="drafting-insert-menu-illustration"
+      >
+        <PenLineIcon className="size-4 shrink-0" data-icon="inline-start" />
+        Illustration
       </InsertMenuActionButton>
       {onAddQrCode ? (
         <InsertMenuActionButton
@@ -293,6 +311,63 @@ export function InsertMenuImagePanel({
         onUploadError={() => undefined}
         onUploadSuccess={(file) => onInsertImage(URL.createObjectURL(file), "upload")}
         uploadDelay={0}
+      />
+    </div>
+  )
+}
+
+export function InsertMenuIllustrationPanel({
+  isDesktopPopover,
+  onBack,
+  onOpenSet,
+}: {
+  isDesktopPopover: boolean
+  onBack: () => void
+  onOpenSet: (setId: IllustrationSetId) => void
+}) {
+  return (
+    <div className="space-y-3">
+      <InsertMenuPanelHeader
+        isDesktopPopover={isDesktopPopover}
+        title="Choose illustration set"
+        onBack={onBack}
+      />
+      <div className={cn("grid", isDesktopPopover ? "gap-0.5" : "gap-2")}>
+        {ILLUSTRATION_SETS.map((set) => (
+          <InsertMenuActionButton
+            isDesktopPopover={isDesktopPopover}
+            key={set.id}
+            onClick={() => onOpenSet(set.id)}
+          >
+            <PenLineIcon className="size-4 shrink-0" data-icon="inline-start" />
+            {set.label}
+            <span className="ml-auto text-xs font-medium opacity-60">{set.assets.length}</span>
+          </InsertMenuActionButton>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function InsertMenuIllustrationSetPanel({
+  isDesktopPopover,
+  onBack,
+  onSelectAsset,
+  set,
+}: {
+  isDesktopPopover: boolean
+  onBack: () => void
+  onSelectAsset: (asset: IllustrationAsset) => void
+  set: IllustrationSet
+}) {
+  return (
+    <div className="space-y-3">
+      <InsertMenuPanelHeader isDesktopPopover={isDesktopPopover} title={set.label} onBack={onBack} />
+      <IllustrationOptionGrid
+        assets={set.assets}
+        dataSlot="drafting-illustration-option-grid"
+        variant={isDesktopPopover ? "insert-desktop" : "insert-drafting"}
+        onSelect={onSelectAsset}
       />
     </div>
   )

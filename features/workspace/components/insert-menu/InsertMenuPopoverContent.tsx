@@ -5,6 +5,8 @@ import { PopoverClose, PopoverContent } from "@/components/ui/popover"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import {
   InsertMenuEmojiPanel,
+  InsertMenuIllustrationPanel,
+  InsertMenuIllustrationSetPanel,
   InsertMenuImagePanel,
   InsertMenuRootPanel,
   InsertMenuShapePanel,
@@ -23,8 +25,13 @@ import {
   createDraftingTextLayer,
   type DraftingElementShapeId,
 } from "@/features/workspace/model/layers"
-import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
+import {
+  getIllustrationSet,
+  type IllustrationAsset,
+  type IllustrationSetId,
+} from "@/features/workspace/assets/illustration-sets"
 import { cn } from "@/lib/utils"
+import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
 
 import "@/features/desktop-shell/inspector/desktopnew.css"
 
@@ -49,13 +56,19 @@ export function InsertMenuPopoverContent({
   popoverSide = "bottom",
   theme = "dark",
 }: InsertMenuPopoverContentProps) {
-  const [panel, setPanel] = useState<"root" | "shape" | "image" | "shader" | "emoji">("root")
+  const [panel, setPanel] = useState<
+    "root" | "shape" | "image" | "shader" | "emoji" | "illustration" | "illustration-set"
+  >("root")
   const [imageUrl, setImageUrl] = useState("")
+  const [illustrationSetId, setIllustrationSetId] = useState<IllustrationSetId | null>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
+  const activeIllustrationSet =
+    illustrationSetId ? getIllustrationSet(illustrationSetId) : undefined
 
   function closeMenu() {
     setPanel("root")
     setImageUrl("")
+    setIllustrationSetId(null)
     closeRef.current?.click()
   }
 
@@ -95,6 +108,17 @@ export function InsertMenuPopoverContent({
     closeMenu()
   }
 
+  function insertIllustration(asset: IllustrationAsset) {
+    onInsertLayer(
+      createDraftingImageLayer(nodeId, {
+        imageFit: "contain",
+        imageSource: "url",
+        imageValue: asset.path,
+      }),
+    )
+    closeMenu()
+  }
+
   function browseStockPhotos() {
     onBrowseStockPhotos?.()
     closeMenu()
@@ -126,6 +150,7 @@ export function InsertMenuPopoverContent({
       onCloseAutoFocus={() => {
         setPanel("root")
         setImageUrl("")
+        setIllustrationSetId(null)
       }}
     >
       {panel === "root" ? (
@@ -137,6 +162,7 @@ export function InsertMenuPopoverContent({
             insertText()
           }}
           onOpenEmojiPanel={() => setPanel("emoji")}
+          onOpenIllustrationPanel={() => setPanel("illustration")}
           onOpenImagePanel={() => setPanel("image")}
           onOpenShapePanel={() => setPanel("shape")}
           onOpenShaderPanel={() => setPanel("shader")}
@@ -161,6 +187,24 @@ export function InsertMenuPopoverContent({
           isDesktopPopover={isDesktopPopover}
           onBack={() => setPanel("root")}
           onSelectEmoji={insertEmoji}
+        />
+      ) : null}
+      {panel === "illustration" ? (
+        <InsertMenuIllustrationPanel
+          isDesktopPopover={isDesktopPopover}
+          onBack={() => setPanel("root")}
+          onOpenSet={(setId) => {
+            setIllustrationSetId(setId)
+            setPanel("illustration-set")
+          }}
+        />
+      ) : null}
+      {panel === "illustration-set" && activeIllustrationSet ? (
+        <InsertMenuIllustrationSetPanel
+          isDesktopPopover={isDesktopPopover}
+          set={activeIllustrationSet}
+          onBack={() => setPanel("illustration")}
+          onSelectAsset={insertIllustration}
         />
       ) : null}
       {panel === "image" ? (
