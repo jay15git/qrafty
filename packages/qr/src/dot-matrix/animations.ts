@@ -130,6 +130,9 @@ export enum AnimationPreset {
   RadialExpand = 'RadialExpand',
   VortexRotate = 'VortexRotate',
   FanRotate = 'FanRotate',
+  Tunnel = 'Tunnel',
+  Wave = 'Wave',
+  Scan = 'Scan',
   RadiusPing = 'RadiusPing',
   DiamondExpand = 'DiamondExpand',
   HeartExpand = 'HeartExpand',
@@ -185,6 +188,9 @@ export const dotMatrixAnimationPresets = [
   AnimationPreset.RadialExpand,
   AnimationPreset.VortexRotate,
   AnimationPreset.FanRotate,
+  AnimationPreset.Tunnel,
+  AnimationPreset.Wave,
+  AnimationPreset.Scan,
   AnimationPreset.RadiusPing,
   AnimationPreset.DiamondExpand,
   AnimationPreset.HeartExpand,
@@ -1755,13 +1761,62 @@ const fanOpacityMultiplierKeyframes = fanActivityKeyframes.map(
   ({ offset, value }) => ({ offset, value: 0.5 + value * 0.5 }),
 );
 
+const wrapUnitPhase = (value: number) => value - Math.floor(value);
+
+const qrmoveStaticEntity = (
+  targets: any,
+  duration: number,
+): DotMatrixAnimationFrame => ({
+  targets,
+  duration,
+  web: { opacity: [1], scale: [1] },
+});
+
+const qrmoveFieldAnimation = (
+  targets: any,
+  phase: number,
+  cycleMs: number,
+  scaleAt: (unit: number) => number,
+  alphaAt: (unit: number) => number,
+): DotMatrixAnimationFrame => ({
+  targets,
+  from: -(1 - phase) * cycleMs,
+  duration: cycleMs,
+  easing: 'linear',
+  web: {
+    opacity: [1],
+    opacityMultiplier: fanActivityKeyframes.map(({ offset, value }) => ({
+      offset,
+      value: alphaAt(value),
+    })),
+    scale: fanActivityKeyframes.map(({ offset, value }) =>
+      scaleKeyframe(offset, scaleAt(value)),
+    ),
+  },
+});
+
+const TUNNEL_CYCLE_MS = 1800;
+const WAVE_CYCLE_MS = 3500;
+const SCAN_CYCLE_MS = 3500;
+
+const tunnelFieldPhase = (x: number, y: number, count: number) => {
+  const center = (count - 1) / 2;
+  const normalizedRadius =
+    Math.hypot(x - center, y - center) / Math.max(1, Math.hypot(center, center));
+  return wrapUnitPhase((normalizedRadius * 16) / (Math.PI * 2));
+};
+
+const waveFieldPhase = (x: number, y: number, count: number) => {
+  const diagonal = (x + y) / Math.max(1, (count - 1) * 2);
+  return wrapUnitPhase((diagonal * 6) / (Math.PI * 2));
+};
+
+const scanFieldPhase = (y: number, count: number) =>
+  count > 1 ? y / (count - 1) : 0;
+
 const FanRotate: QRCodeAnimation = (targets, x, y, count, entity) => {
   if (entity !== QRCodeEntity.Module) {
-    return {
-      targets,
-      duration: FAN_ROTATE_CYCLE_MS,
-      web: { opacity: [1], scale: [1] },
-    };
+    return qrmoveStaticEntity(targets, FAN_ROTATE_CYCLE_MS);
   }
   const phase = fanFieldPhase(x, y, count);
   return {
@@ -1775,6 +1830,45 @@ const FanRotate: QRCodeAnimation = (targets, x, y, count, entity) => {
       scale: fanScaleKeyframes,
     },
   };
+};
+
+const Tunnel: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) {
+    return qrmoveStaticEntity(targets, TUNNEL_CYCLE_MS);
+  }
+  return qrmoveFieldAnimation(
+    targets,
+    tunnelFieldPhase(x, y, count),
+    TUNNEL_CYCLE_MS,
+    (unit) => 0.3 + unit * 0.6,
+    (unit) => 0.34 + unit * 0.56,
+  );
+};
+
+const Wave: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) {
+    return qrmoveStaticEntity(targets, WAVE_CYCLE_MS);
+  }
+  return qrmoveFieldAnimation(
+    targets,
+    waveFieldPhase(x, y, count),
+    WAVE_CYCLE_MS,
+    (unit) => 0.34 + unit * unit * unit * 0.56,
+    (unit) => 0.34 + unit * unit * unit * 0.56,
+  );
+};
+
+const Scan: QRCodeAnimation = (targets, _x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) {
+    return qrmoveStaticEntity(targets, SCAN_CYCLE_MS);
+  }
+  return qrmoveFieldAnimation(
+    targets,
+    scanFieldPhase(y, count),
+    SCAN_CYCLE_MS,
+    (unit) => 0.34 + unit * unit * unit * 0.56,
+    (unit) => 0.34 + unit * unit * unit * 0.56,
+  );
 };
 
 const RadiusPing: QRCodeAnimation = (targets, x, y, count, entity) => {
@@ -2388,6 +2482,12 @@ const resolveAnimationPreset = (name: string) => {
       return VortexRotate;
     case AnimationPreset.FanRotate:
       return FanRotate;
+    case AnimationPreset.Tunnel:
+      return Tunnel;
+    case AnimationPreset.Wave:
+      return Wave;
+    case AnimationPreset.Scan:
+      return Scan;
     case AnimationPreset.RadiusPing:
       return RadiusPing;
     case AnimationPreset.DiamondExpand:

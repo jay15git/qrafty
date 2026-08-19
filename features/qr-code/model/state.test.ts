@@ -140,7 +140,7 @@ describe("qr studio state helpers", () => {
   it("starts with dot matrix animation disabled and SVG export static", () => {
     const state = createDefaultQrStudioState();
 
-    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(17);
+    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(20);
     expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => option.label)).toEqual([
       "Neon Drift",
       "Flux Columns",
@@ -149,6 +149,9 @@ describe("qr studio state helpers", () => {
       "Radial Expand",
       "Vortex Rotate",
       "Fan Rotate",
+      "Tunnel",
+      "Wave",
+      "Scan",
       "Radius Ping",
       "Diamond Expand",
       "Heart Expand",

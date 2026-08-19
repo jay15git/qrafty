@@ -1383,6 +1383,9 @@ type DotMatrixSquareLoaderId =
   | "dotm-square-29"
   | "dotm-square-32"
   | "dotm-square-33"
+  | "dotm-square-34"
+  | "dotm-square-35"
+  | "dotm-square-36"
 
 const DOT_MATRIX_LOADER_SPECS: Record<QrDotMatrixSquareLoader, DotMatrixLoaderSpec> = {
   "echo-ring": createDotMatrixLoaderSpec("dotm-square-11", "ripple-echo", (cell) =>
@@ -1421,6 +1424,21 @@ const DOT_MATRIX_LOADER_SPECS: Record<QrDotMatrixSquareLoader, DotMatrixLoaderSp
   "fan-rotate": createDotMatrixLoaderSpec("dotm-square-33", "fan-rotate", (cell) =>
     createClassCellAnimation("dotm-square-33", "fan-rotate", "dmx-fan-rotate", "dmx-fan-rotate", 3500, {
       "--dmx-fan-phase": fanFieldPhase(cell),
+    }, "linear"),
+  ),
+  "tunnel": createDotMatrixLoaderSpec("dotm-square-34", "tunnel", (cell) =>
+    createClassCellAnimation("dotm-square-34", "tunnel", "dmx-tunnel", "dmx-tunnel", 1800, {
+      "--dmx-tunnel-phase": tunnelFieldPhase(cell),
+    }, "linear"),
+  ),
+  "wave": createDotMatrixLoaderSpec("dotm-square-35", "wave", (cell) =>
+    createClassCellAnimation("dotm-square-35", "wave", "dmx-wave", "dmx-wave", 3500, {
+      "--dmx-wave-field-phase": waveFieldPhase(cell),
+    }, "linear"),
+  ),
+  "scan": createDotMatrixLoaderSpec("dotm-square-36", "scan", (cell) =>
+    createClassCellAnimation("dotm-square-36", "scan", "dmx-scan", "dmx-scan", 3500, {
+      "--dmx-scan-phase": scanFieldPhase(cell),
     }, "linear"),
   ),
   "radius-ping": createDotMatrixLoaderSpec("dotm-square-22", "radius-ping", (cell) =>
@@ -1698,6 +1716,27 @@ function fanFieldPhase(cell: DotMatrixCell) {
   const angle = Math.atan2(cell.row - center, cell.col - center)
   const phase = (angle * 4 + normalizedRadius * 8) / (Math.PI * 2)
   return phase - Math.floor(phase)
+}
+
+function wrapUnitPhase(value: number) {
+  return value - Math.floor(value)
+}
+
+function tunnelFieldPhase(cell: DotMatrixCell) {
+  const center = getDotMatrixCenter(cell.matrixSize)
+  const normalizedRadius =
+    Math.hypot(cell.row - center, cell.col - center) /
+    Math.max(1, Math.hypot(center, center))
+  return wrapUnitPhase((normalizedRadius * 16) / (Math.PI * 2))
+}
+
+function waveFieldPhase(cell: DotMatrixCell) {
+  const diagonal = (cell.row + cell.col) / Math.max(1, (cell.matrixSize - 1) * 2)
+  return wrapUnitPhase((diagonal * 6) / (Math.PI * 2))
+}
+
+function scanFieldPhase(cell: DotMatrixCell) {
+  return cell.matrixSize > 1 ? cell.row / (cell.matrixSize - 1) : 0
 }
 
 function normalizedRadiusFromCenter(cell: DotMatrixCell) {
@@ -2029,6 +2068,9 @@ function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrac
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-radial-expand"] { animation-delay: calc(var(--dmx-radial-radius, 0) * -140ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-vortex-rotate"] { animation-delay: calc(var(--dmx-vortex-phase, 0) * -1500ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-fan-rotate"] { animation-delay: calc(var(--dmx-fan-phase, 0) * -3500ms); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-tunnel"] { animation-delay: calc(var(--dmx-tunnel-phase, 0) * -1800ms); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-wave"] { animation-delay: calc(var(--dmx-wave-field-phase, 0) * -3500ms); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-scan"] { animation-delay: calc(var(--dmx-scan-phase, 0) * -3500ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-radius-ping"] { animation-delay: calc(var(--dmx-radial-radius, 0) * -180ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-diamond-expand"] { animation-delay: calc(var(--dmx-diamond-radius, 0) * -120ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-heart-expand"] { animation-delay: calc(var(--dmx-heart-progress, 0) * -630ms); }
@@ -2047,6 +2089,9 @@ function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrac
 @keyframes dmx-radial-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 28% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 52% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
 @keyframes dmx-vortex-rotate { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); transform: scale(var(--dmx-dot-rest-scale, 0.5)); } 16% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); transform: scale(var(--dmx-dot-peak-scale, 1.35)); } 38% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); transform: scale(calc(var(--dmx-dot-peak-scale, 1.35) * 0.94)); } 50% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 45%, var(--qr-dot-matrix-color-peak)); transform: scale(var(--dmx-dot-rest-scale, 0.5)); } }
 @keyframes dmx-fan-rotate { 0%, 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .75); fill: var(--qr-dot-matrix-color-base); transform: scale(.625); } 12.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .5732); fill: var(--qr-dot-matrix-color-base); transform: scale(.3952); } 25% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .5); fill: var(--qr-dot-matrix-color-base); transform: scale(.3); } 37.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .5732); fill: var(--qr-dot-matrix-color-base); transform: scale(.3952); } 50% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .75); fill: var(--qr-dot-matrix-color-base); transform: scale(.625); } 62.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9268); fill: var(--qr-dot-matrix-color-base); transform: scale(.8548); } 75% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); transform: scale(.95); } 87.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9268); fill: var(--qr-dot-matrix-color-base); transform: scale(.8548); } }
+@keyframes dmx-tunnel { 0%, 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .62); fill: var(--qr-dot-matrix-color-base); transform: scale(.6); } 12.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .422); fill: var(--qr-dot-matrix-color-base); transform: scale(.388); } 25% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.3); } 37.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .422); fill: var(--qr-dot-matrix-color-base); transform: scale(.388); } 50% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .62); fill: var(--qr-dot-matrix-color-base); transform: scale(.6); } 62.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .818); fill: var(--qr-dot-matrix-color-base); transform: scale(.812); } 75% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9); fill: var(--qr-dot-matrix-color-base); transform: scale(.9); } 87.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .818); fill: var(--qr-dot-matrix-color-base); transform: scale(.812); } }
+@keyframes dmx-wave { 0%, 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .41); fill: var(--qr-dot-matrix-color-base); transform: scale(.41); } 12.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .342); fill: var(--qr-dot-matrix-color-base); transform: scale(.342); } 25% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.34); } 37.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .342); fill: var(--qr-dot-matrix-color-base); transform: scale(.342); } 50% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .41); fill: var(--qr-dot-matrix-color-base); transform: scale(.41); } 62.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .688); fill: var(--qr-dot-matrix-color-base); transform: scale(.688); } 75% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9); fill: var(--qr-dot-matrix-color-base); transform: scale(.9); } 87.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .688); fill: var(--qr-dot-matrix-color-base); transform: scale(.688); } }
+@keyframes dmx-scan { 0%, 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .41); fill: var(--qr-dot-matrix-color-base); transform: scale(.41); } 12.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .342); fill: var(--qr-dot-matrix-color-base); transform: scale(.342); } 25% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.34); } 37.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .342); fill: var(--qr-dot-matrix-color-base); transform: scale(.342); } 50% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .41); fill: var(--qr-dot-matrix-color-base); transform: scale(.41); } 62.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .688); fill: var(--qr-dot-matrix-color-base); transform: scale(.688); } 75% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9); fill: var(--qr-dot-matrix-color-base); transform: scale(.9); } 87.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .688); fill: var(--qr-dot-matrix-color-base); transform: scale(.688); } }
 @keyframes dmx-radius-ping { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 10% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 20% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
 @keyframes dmx-diamond-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 30% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 55% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
 @keyframes dmx-heart-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 12% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 24% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }

@@ -187,6 +187,50 @@ describe("matrix animation parity", () => {
     });
   });
 
+  describe("Tunnel", () => {
+    it("rings expand from radius with size and alpha on one field", () => {
+      const preset = getAnimationPreset(AnimationPreset.Tunnel);
+      const animation = preset({}, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const from = typeof animation.from === "number" ? animation.from : 0;
+      const trough = sampleDotMatrixAnimationFrame(animation, from + 450);
+      const peak = sampleDotMatrixAnimationFrame(animation, from + 1350);
+
+      expect(trough.scale).toBeCloseTo(0.3, 2);
+      expect(peak.scale).toBeCloseTo(0.9, 2);
+      expect(trough.opacityMultiplier).toBeCloseTo(0.34, 2);
+      expect(peak.opacityMultiplier).toBeCloseTo(0.9, 2);
+    });
+  });
+
+  describe("Wave", () => {
+    it("sharpens a diagonal sine into a traveling pulse", () => {
+      const preset = getAnimationPreset(AnimationPreset.Wave);
+      const animation = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const from = typeof animation.from === "number" ? animation.from : 0;
+      const trough = sampleDotMatrixAnimationFrame(animation, from + 875);
+      const peak = sampleDotMatrixAnimationFrame(animation, from + 2625);
+
+      expect(trough.scale).toBeCloseTo(0.34, 2);
+      expect(peak.scale).toBeCloseTo(0.9, 2);
+      expect(peak.scale ?? 0).toBeGreaterThan(trough.scale ?? 0);
+    });
+  });
+
+  describe("Scan", () => {
+    it("rides a smooth sine band down the rows", () => {
+      const preset = getAnimationPreset(AnimationPreset.Scan);
+      const animation = preset({}, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const from = typeof animation.from === "number" ? animation.from : 0;
+      const trough = sampleDotMatrixAnimationFrame(animation, from + 875);
+      const peak = sampleDotMatrixAnimationFrame(animation, from + 2625);
+
+      expect(trough.scale).toBeCloseTo(0.34, 2);
+      expect(peak.scale).toBeCloseTo(0.9, 2);
+      expect(trough.opacityMultiplier).toBeCloseTo(0.34, 2);
+      expect(peak.opacityMultiplier).toBeCloseTo(0.9, 2);
+    });
+  });
+
   describe("DiamondExpand", () => {
     it("staggers by manhattan diamond distance from center", () => {
       const preset = getAnimationPreset(AnimationPreset.DiamondExpand);

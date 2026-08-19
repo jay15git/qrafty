@@ -23,6 +23,9 @@ describe("dot matrix motion bridge", () => {
     expect(dotMatrixLoaderToPresetName("neon-drift")).toBe("NeonDrift");
     expect(dotMatrixLoaderToPresetName("vortex-rotate")).toBe("VortexRotate");
     expect(dotMatrixLoaderToPresetName("fan-rotate")).toBe("FanRotate");
+    expect(dotMatrixLoaderToPresetName("tunnel")).toBe("Tunnel");
+    expect(dotMatrixLoaderToPresetName("wave")).toBe("Wave");
+    expect(dotMatrixLoaderToPresetName("scan")).toBe("Scan");
   });
 
   it("renders qrcode.react svg markup for desktop state", () => {
