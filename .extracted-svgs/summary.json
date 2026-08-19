@@ -1,0 +1,196 @@
+{
+  "source": "Figma page export",
+  "note": "Figma ~150 shapes → 410 path elements on SVG export (text/vectors flatten)",
+  "totalPaths": 410,
+  "pathsOutsideQrGroups": 378,
+  "qrGroupPaths": 32,
+  "extractedFiles": [
+    "00-full-page.svg",
+    "01-main-artwork.svg",
+    "02-qr-top-left.svg",
+    "03-qr-mid-left.svg",
+    "04-qr-row3-left.svg",
+    "05-qr-row3-right.svg",
+    "06-qr-row4-left.svg",
+    "07-qr-row4-right.svg",
+    "10-section-top.svg",
+    "11-section-after-qr1.svg",
+    "12-section-after-qr2.svg",
+    "13-section-after-qr3a.svg",
+    "14-section-after-qr3b.svg",
+    "15-section-after-qr4a.svg",
+    "16-section-after-qr4b.svg"
+  ],
+  "files": [
+    {
+      "file": "01-main-artwork.svg",
+      "type": "main-artwork",
+      "paths": 378,
+      "viewBox": "0 0 1579 3983"
+    },
+    {
+      "file": "02-qr-top-left.svg",
+      "type": "qr-clip-group",
+      "paths": 1,
+      "viewBox": "0 0 110.58 110.58"
+    },
+    {
+      "file": "03-qr-mid-left.svg",
+      "type": "qr-clip-group",
+      "paths": 1,
+      "viewBox": "0 0 110.58 110.58"
+    },
+    {
+      "file": "04-qr-row3-left.svg",
+      "type": "qr-clip-group",
+      "paths": 3,
+      "viewBox": "0 0 110.58 110.58"
+    },
+    {
+      "file": "05-qr-row3-right.svg",
+      "type": "qr-clip-group",
+      "paths": 1,
+      "viewBox": "0 0 110.58 110.58"
+    },
+    {
+      "file": "06-qr-row4-left.svg",
+      "type": "qr-clip-group",
+      "paths": 25,
+      "viewBox": "0 0 110.58 110.58"
+    },
+    {
+      "file": "07-qr-row4-right.svg",
+      "type": "qr-clip-group",
+      "paths": 1,
+      "viewBox": "0 0 110.58 110.58"
+    },
+    {
+      "file": "10-section-top.svg",
+      "type": "section",
+      "paths": 107,
+      "viewBox": "0 0 1579 3983"
+    },
+    {
+      "file": "11-section-after-qr1.svg",
+      "type": "section",
+      "paths": 42,
+      "viewBox": "0 0 1579 3983"
+    },
+    {
+      "file": "12-section-after-qr2.svg",
+      "type": "section",
+      "paths": 47,
+      "viewBox": "0 0 1579 3983"
+    },
+    {
+      "file": "13-section-after-qr3a.svg",
+      "type": "section",
+      "paths": 2,
+      "viewBox": "0 0 1579 3983"
+    },
+    {
+      "file": "14-section-after-qr3b.svg",
+      "type": "section",
+      "paths": 82,
+      "viewBox": "0 0 1579 3983"
+    },
+    {
+      "file": "15-section-after-qr4a.svg",
+      "type": "section",
+      "paths": 5,
+      "viewBox": "0 0 1579 3983"
+    },
+    {
+      "file": "16-section-after-qr4b.svg",
+      "type": "section",
+      "paths": 93,
+      "viewBox": "0 0 1579 3983"
+    }
+  ],
+  "clipGroups": [
+    {
+      "x": 102.179,
+      "y": 1244.07,
+      "w": 110.58,
+      "h": 110.58,
+      "id": "clip0_1065_3391",
+      "pathCount": 1,
+      "name": "qr-top-left"
+    },
+    {
+      "x": 102.179,
+      "y": 1966.39,
+      "w": 110.58,
+      "h": 110.58,
+      "id": "clip1_1065_3391",
+      "pathCount": 1,
+      "name": "qr-mid-left"
+    },
+    {
+      "x": 824.5,
+      "y": 2508.13,
+      "w": 110.58,
+      "h": 110.58,
+      "id": "clip2_1065_3391",
+      "pathCount": 3,
+      "name": "qr-row3-left"
+    },
+    {
+      "x": 1366.24,
+      "y": 2508.13,
+      "w": 110.58,
+      "h": 110.58,
+      "id": "clip3_1065_3391",
+      "pathCount": 1,
+      "name": "qr-row3-right"
+    },
+    {
+      "x": 824.5,
+      "y": 2869.29,
+      "w": 110.58,
+      "h": 110.58,
+      "id": "clip4_1065_3391",
+      "pathCount": 25,
+      "name": "qr-row4-left"
+    },
+    {
+      "x": 1185.66,
+      "y": 2869.29,
+      "w": 110.58,
+      "h": 110.58,
+      "id": "clip5_1065_3391",
+      "pathCount": 1,
+      "name": "qr-row4-right"
+    }
+  ],
+  "segments": [
+    {
+      "name": "section-top",
+      "paths": 107
+    },
+    {
+      "name": "section-after-qr1",
+      "paths": 42
+    },
+    {
+      "name": "section-after-qr2",
+      "paths": 47
+    },
+    {
+      "name": "section-after-qr3a",
+      "paths": 2
+    },
+    {
+      "name": "section-after-qr3b",
+      "paths": 82
+    },
+    {
+      "name": "section-after-qr4a",
+      "paths": 5
+    },
+    {
+      "name": "section-after-qr4b",
+      "paths": 93
+    }
+  ]
+}
