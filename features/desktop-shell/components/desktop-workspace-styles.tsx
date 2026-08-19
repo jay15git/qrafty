@@ -368,7 +368,7 @@ export function DesktopWorkspaceStyles() {
 
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-resize-toolbar"] button,
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-document-toolbar"] button,
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"] button,
+      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"] button:not([data-slot="desktop-download-trigger"]),
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-dynamic-island"] button,
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-theme-toggle"],
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-action-toolbar"] button,
@@ -395,7 +395,7 @@ export function DesktopWorkspaceStyles() {
         color: rgba(15, 23, 42, 0.95) !important;
       }
 
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"] button:hover,
+      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"] button:hover:not([data-slot="desktop-download-trigger"]),
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-dynamic-island"] button:hover {
         background-color: transparent !important;
         color: rgba(15, 23, 42, 0.95) !important;

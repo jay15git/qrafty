@@ -207,6 +207,23 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
   box-shadow: none !important;
 }
 
+[data-slot="desktop-download-trigger"] {
+  border-radius: 1rem !important;
+  corner-shape: squircle;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-download-trigger"] {
+  background: rgba(0, 0, 0, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+  box-shadow: none !important;
+}
+
+[data-desktop-theme="light"] [data-slot="desktop-download-trigger"]:hover {
+  background: rgba(0, 0, 0, 0.95) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
 [data-desktop-theme="light"] [data-slot="desktop-floating-toolbar"] button:not([data-proximity-index]):hover,
 [data-desktop-theme="light"] [data-slot="desktop-document-toolbar"] button:hover,
 [data-desktop-theme="light"] [data-slot="desktop-action-toolbar"] button:hover {
@@ -214,7 +231,7 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
   color: var(--desktop-toolbar-fg-hover) !important;
 }
 
-[data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"] button:hover,
+[data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"] button:hover:not([data-slot="desktop-download-trigger"]),
 [data-desktop-theme="light"] [data-slot="desktop-dynamic-island"] button:hover {
   background: transparent !important;
   color: var(--desktop-toolbar-fg-hover) !important;

@@ -18,8 +18,8 @@ export const DesktopSquircleDownloadButton = forwardRef<
       ref={ref}
       aria-label="Download"
       className={cn(
-        "relative inline-flex h-9 shrink-0 cursor-pointer items-center gap-1.5 overflow-hidden border-0 bg-white px-3 text-[#0a0a0a] shadow-[0_1px_2px_rgba(0,0,0,0.24)] transition hover:brightness-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100",
-        "rounded-[10px] [corner-shape:squircle]",
+        "relative inline-flex h-9 shrink-0 cursor-pointer items-center gap-1.5 overflow-hidden border border-[var(--desktop-glass-border)] bg-[var(--desktop-glass-bg)] px-3 text-[var(--desktop-glass-fg)] shadow-none transition hover:brightness-[1.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-glass-button-focus-ring)] active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100",
+        "rounded-[1rem] [corner-shape:squircle]",
         className,
       )}
       data-slot="desktop-download-trigger"
