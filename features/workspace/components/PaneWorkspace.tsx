@@ -79,6 +79,7 @@ import { PaneSurfaceInteractive } from "@/features/workspace/components/pane-lay
 
 export type PaneWorkspaceProps = {
   cardState?: DraftingCardState
+  contentPan?: { x: number; y: number }
   contentOnlyZoom?: boolean
   interactionScale?: number
   viewFitScale?: number
@@ -125,8 +126,30 @@ function hasTranslucentCardFill(fill: string) {
   return fill.includes("rgba(") && !fill.includes(", 1)") && !fill.includes(",1)")
 }
 
+function buildContentTransformStyle(
+  contentPan: { x: number; y: number } | undefined,
+  interactionScale: number,
+): CSSProperties | undefined {
+  const translate =
+    contentPan && (contentPan.x !== 0 || contentPan.y !== 0)
+      ? `translate3d(${contentPan.x}px, ${contentPan.y}px, 0)`
+      : null
+  const scale = interactionScale !== 1 ? `scale(${interactionScale})` : null
+  const transform = [translate, scale].filter(Boolean).join(" ")
+
+  if (!transform) {
+    return undefined
+  }
+
+  return {
+    transform,
+    transformOrigin: "center center",
+  }
+}
+
 export function PaneWorkspace({
   cardState = DEFAULT_DRAFTING_CARD_STATE,
+  contentPan,
   contentOnlyZoom = false,
   interactionScale = 1,
   viewFitScale = 1,
@@ -304,13 +327,9 @@ export function PaneWorkspace({
   const contentLayers = contentOnlyZoom
     ? visibleLayers.filter((layer) => layer.kind !== "card")
     : visibleLayers
-  const contentZoomStyle: CSSProperties | undefined =
-    contentOnlyZoom && interactionScale !== 1
-      ? {
-          transform: `scale(${interactionScale})`,
-          transformOrigin: "center center",
-        }
-      : undefined
+  const contentTransformStyle: CSSProperties | undefined = contentOnlyZoom
+    ? buildContentTransformStyle(contentPan, interactionScale)
+    : undefined
   const activeSelectedLayerIds = selectedLayerIds ?? (selectedLayerId ? [selectedLayerId] : [])
   const activeSelectedLayerIdSet = new Set(activeSelectedLayerIds)
   const selectedVisibleLayers = visibleLayers.filter((layer) => activeSelectedLayerIdSet.has(layer.id))
@@ -1305,7 +1324,7 @@ export function PaneWorkspace({
                     <div
                       className="relative h-full w-full"
                       data-slot="desktop-compose-content-zoom"
-                      style={contentZoomStyle}
+                      style={contentTransformStyle}
                     >
                       {contentLayers.map((layer) => renderLayerView(layer))}
                       {renderContentChrome()}

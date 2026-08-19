@@ -19,6 +19,8 @@ export const Pane = memo(function Pane(props: PaneProps) {
   previousProps.state === nextProps.state &&
   previousProps.isSelected === nextProps.isSelected &&
   previousProps.viewFitScale === nextProps.viewFitScale &&
+  previousProps.contentPan?.x === nextProps.contentPan?.x &&
+  previousProps.contentPan?.y === nextProps.contentPan?.y &&
   previousProps.contentOnlyZoom === nextProps.contentOnlyZoom &&
   previousProps.interactionScale === nextProps.interactionScale &&
   previousProps.layers === nextProps.layers &&

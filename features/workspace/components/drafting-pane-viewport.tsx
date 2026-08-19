@@ -192,7 +192,7 @@ export function DraftingPaneViewport({
         }
         style={{
           transform: isFreeEditWorkspace
-            ? `translate3d(${effectivePan.x}px, ${effectivePan.y}px, 0)`
+            ? undefined
             : `translate3d(${effectivePan.x}px, ${effectivePan.y}px, 0) scale(${effectiveZoom})`,
           transformOrigin: "center center",
           transition: "transform 150ms ease-out",
@@ -201,6 +201,7 @@ export function DraftingPaneViewport({
       >
         <Pane
           cardState={pane.cardState}
+          contentPan={isFreeEditWorkspace ? effectivePan : undefined}
           contentOnlyZoom={isFreeEditWorkspace}
           interactionScale={effectiveZoom}
           viewFitScale={viewFitScale}

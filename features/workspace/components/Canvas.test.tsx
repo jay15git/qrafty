@@ -216,6 +216,32 @@ describe("Canvas", () => {
     expect(viewport.style.transform).toBe("translate3d(40px, 25px, 0) scale(1)")
   })
 
+  it("pans only compose content in desktop zoom mode while the card stays fixed", async () => {
+    const workspace = renderWorkspace({
+      activeCanvasTool: "pan",
+      paneCount: 1,
+      toolbarVariant: "desktop-zoom",
+    })
+    const [pane] = getPaneSurfaces(workspace.container, 1)
+    const artboard = pane.querySelector('[data-slot="free-edit-artboard"]') as HTMLElement
+    const contentZoom = pane.querySelector('[data-slot="desktop-compose-content-zoom"]') as HTMLElement
+    const panOverlay = pane.querySelector('[data-slot="drafting-pan-overlay"]')
+
+    await act(async () => {
+      await flushPromises()
+    })
+
+    await act(async () => {
+      panOverlay?.dispatchEvent(createPointerEvent("pointerdown", 100, 120))
+      panOverlay?.dispatchEvent(createPointerEvent("pointermove", 140, 145))
+      panOverlay?.dispatchEvent(createPointerEvent("pointerup", 140, 145))
+      await flushPromises()
+    })
+
+    expect(artboard.style.transform).toBe("")
+    expect(contentZoom.style.transform).toBe("translate3d(40px, 25px, 0)")
+  })
+
   it("clears selected layer when pressing empty canvas space", async () => {
     const onLayerSelect = vi.fn()
     const workspace = renderWorkspace({ activeCanvasTool: "select", onLayerSelect, paneCount: 1 })
