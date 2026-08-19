@@ -1381,6 +1381,8 @@ type DotMatrixSquareLoaderId =
   | "dotm-square-30"
   | "dotm-square-31"
   | "dotm-square-29"
+  | "dotm-square-32"
+  | "dotm-square-33"
 
 const DOT_MATRIX_LOADER_SPECS: Record<QrDotMatrixSquareLoader, DotMatrixLoaderSpec> = {
   "echo-ring": createDotMatrixLoaderSpec("dotm-square-11", "ripple-echo", (cell) =>
@@ -1409,6 +1411,17 @@ const DOT_MATRIX_LOADER_SPECS: Record<QrDotMatrixSquareLoader, DotMatrixLoaderSp
     createClassCellAnimation("dotm-square-21", "radial-expand", "dmx-radial-expand", "dmx-radial-expand", 1500, {
       "--dmx-radial-radius": radialDistanceFromCenter(cell),
     }),
+  ),
+  "vortex-rotate": createDotMatrixLoaderSpec("dotm-square-32", "vortex-rotate", (cell) =>
+    createClassCellAnimation("dotm-square-32", "vortex-rotate", "dmx-vortex-rotate", "dmx-vortex-rotate", 1500, {
+      "--dmx-vortex-phase": vortexAnglePhase(cell),
+      ...dotMotionScaleVars(cell),
+    }, "linear"),
+  ),
+  "fan-rotate": createDotMatrixLoaderSpec("dotm-square-33", "fan-rotate", (cell) =>
+    createClassCellAnimation("dotm-square-33", "fan-rotate", "dmx-fan-rotate", "dmx-fan-rotate", 3500, {
+      "--dmx-fan-phase": fanFieldPhase(cell),
+    }, "linear"),
   ),
   "radius-ping": createDotMatrixLoaderSpec("dotm-square-22", "radius-ping", (cell) =>
     createClassCellAnimation("dotm-square-22", "radius-ping", "dmx-radius-ping", "dmx-radius-ping", 1500, {
@@ -1665,6 +1678,41 @@ function getDotMatrixCenter(matrixSize: number) {
 function radialDistanceFromCenter(cell: DotMatrixCell) {
   const center = getDotMatrixCenter(cell.matrixSize)
   return Math.hypot(cell.row - center, cell.col - center)
+}
+
+function vortexAnglePhase(cell: DotMatrixCell) {
+  const center = getDotMatrixCenter(cell.matrixSize)
+  const angle = Math.atan2(cell.row - center, cell.col - center)
+  return (angle + Math.PI) / (Math.PI * 2)
+}
+
+function clockwiseAnglePhase(cell: DotMatrixCell) {
+  return 1 - vortexAnglePhase(cell)
+}
+
+function fanFieldPhase(cell: DotMatrixCell) {
+  const center = getDotMatrixCenter(cell.matrixSize)
+  const normalizedRadius =
+    Math.hypot(cell.row - center, cell.col - center) /
+    Math.max(1, Math.hypot(center, center))
+  const angle = Math.atan2(cell.row - center, cell.col - center)
+  const phase = (angle * 4 + normalizedRadius * 8) / (Math.PI * 2)
+  return phase - Math.floor(phase)
+}
+
+function normalizedRadiusFromCenter(cell: DotMatrixCell) {
+  const center = getDotMatrixCenter(cell.matrixSize)
+  const maxRadius = Math.hypot(center, center)
+  const radius = Math.hypot(cell.row - center, cell.col - center)
+  return maxRadius > 0 ? Math.max(0, Math.min(1, radius / maxRadius)) : 0
+}
+
+function dotMotionScaleVars(cell: DotMatrixCell) {
+  const inward = 1 - normalizedRadiusFromCenter(cell)
+  return {
+    "--dmx-dot-rest-scale": 0.4 + inward * 0.2,
+    "--dmx-dot-peak-scale": 1.1 + inward * 0.45,
+  }
 }
 
 function diamondDistanceFromCenter(cell: DotMatrixCell) {
@@ -1966,6 +2014,8 @@ function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrac
   fill: var(--qr-dot-matrix-color-base);
   filter: drop-shadow(0 0 3px var(--qr-dot-matrix-color));
   opacity: var(--qr-dot-matrix-opacity-base);
+  transform-box: fill-box;
+  transform-origin: center;
 }
 .qr-dot-matrix-track-quiet {
   animation: none !important;
@@ -1977,6 +2027,8 @@ function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrac
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-ripple-echo"] { animation-delay: calc(var(--dmx-ripple-ring, 0) * -120ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-center-origin-ripple"] { animation-delay: calc(var(--dmx-center-ripple-ring, 0) * -120ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-radial-expand"] { animation-delay: calc(var(--dmx-radial-radius, 0) * -140ms); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-vortex-rotate"] { animation-delay: calc(var(--dmx-vortex-phase, 0) * -1500ms); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-fan-rotate"] { animation-delay: calc(var(--dmx-fan-phase, 0) * -3500ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-radius-ping"] { animation-delay: calc(var(--dmx-radial-radius, 0) * -180ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-diamond-expand"] { animation-delay: calc(var(--dmx-diamond-radius, 0) * -120ms); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-heart-expand"] { animation-delay: calc(var(--dmx-heart-progress, 0) * -630ms); }
@@ -1993,6 +2045,8 @@ function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrac
 @keyframes dmx-ripple-echo { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 35% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 60% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 50%, var(--qr-dot-matrix-color-peak)); } }
 @keyframes dmx-center-origin-ripple { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 32% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 62% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 50%, var(--qr-dot-matrix-color-peak)); } }
 @keyframes dmx-radial-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 28% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 52% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
+@keyframes dmx-vortex-rotate { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); transform: scale(var(--dmx-dot-rest-scale, 0.5)); } 16% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); transform: scale(var(--dmx-dot-peak-scale, 1.35)); } 38% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); transform: scale(calc(var(--dmx-dot-peak-scale, 1.35) * 0.94)); } 50% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 45%, var(--qr-dot-matrix-color-peak)); transform: scale(var(--dmx-dot-rest-scale, 0.5)); } }
+@keyframes dmx-fan-rotate { 0%, 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .75); fill: var(--qr-dot-matrix-color-base); transform: scale(.625); } 12.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .5732); fill: var(--qr-dot-matrix-color-base); transform: scale(.3952); } 25% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .5); fill: var(--qr-dot-matrix-color-base); transform: scale(.3); } 37.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .5732); fill: var(--qr-dot-matrix-color-base); transform: scale(.3952); } 50% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .75); fill: var(--qr-dot-matrix-color-base); transform: scale(.625); } 62.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9268); fill: var(--qr-dot-matrix-color-base); transform: scale(.8548); } 75% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); transform: scale(.95); } 87.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9268); fill: var(--qr-dot-matrix-color-base); transform: scale(.8548); } }
 @keyframes dmx-radius-ping { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 10% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 20% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
 @keyframes dmx-diamond-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 30% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 55% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
 @keyframes dmx-heart-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 12% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 24% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }

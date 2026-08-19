@@ -5,6 +5,7 @@ export type DotMatrixAnimationFrame = {
   easing?: string;
   web?: {
     opacity?: unknown;
+    opacityMultiplier?: unknown;
     fill?: unknown;
     scale?: unknown;
     x?: unknown;
@@ -127,6 +128,8 @@ export enum AnimationPreset {
   EchoRing = 'EchoRing',
   OriginWave = 'OriginWave',
   RadialExpand = 'RadialExpand',
+  VortexRotate = 'VortexRotate',
+  FanRotate = 'FanRotate',
   RadiusPing = 'RadiusPing',
   DiamondExpand = 'DiamondExpand',
   HeartExpand = 'HeartExpand',
@@ -180,6 +183,8 @@ export const dotMatrixAnimationPresets = [
   AnimationPreset.EchoRing,
   AnimationPreset.OriginWave,
   AnimationPreset.RadialExpand,
+  AnimationPreset.VortexRotate,
+  AnimationPreset.FanRotate,
   AnimationPreset.RadiusPing,
   AnimationPreset.DiamondExpand,
   AnimationPreset.HeartExpand,
@@ -699,7 +704,7 @@ const sampleShapeRevealFrame = (
 export const sampleDotMatrixAnimationFrame = (
   animation: DotMatrixAnimationFrame,
   globalTimeMs: number
-): { opacity: number; fill?: string } => {
+): { opacity: number; fill?: string; opacityMultiplier?: number; scale?: number } => {
   const from = typeof animation.from === 'number' ? animation.from : 0;
   const duration =
     typeof animation.duration === 'number' && animation.duration > 0
@@ -724,6 +729,14 @@ export const sampleDotMatrixAnimationFrame = (
   const fillFrames = Array.isArray(rawFillFrames)
     ? (rawFillFrames as WebKeyframeValue[])
     : undefined;
+  const rawOpacityMultiplierFrames = web && web.opacityMultiplier;
+  const opacityMultiplierFrames = Array.isArray(rawOpacityMultiplierFrames)
+    ? (rawOpacityMultiplierFrames as WebKeyframeValue[])
+    : undefined;
+  const rawScaleFrames = web && web.scale;
+  const scaleFrames = Array.isArray(rawScaleFrames)
+    ? (rawScaleFrames as WebKeyframeValue[])
+    : undefined;
   const steps = parseStepsEasing(animation.easing);
 
   if (frames.length === 0) {
@@ -741,7 +754,19 @@ export const sampleDotMatrixAnimationFrame = (
           (stepIndex + stepProgress) / Math.max(1, frames.length - 1),
         )
       : undefined;
-    return { opacity, fill };
+    const scale = scaleFrames
+      ? keyframeOpacityAt(
+          scaleFrames,
+          (stepIndex + stepProgress) / Math.max(1, frames.length - 1),
+        )
+      : undefined;
+    const opacityMultiplier = opacityMultiplierFrames
+      ? keyframeOpacityAt(
+          opacityMultiplierFrames,
+          (stepIndex + stepProgress) / Math.max(1, frames.length - 1),
+        )
+      : undefined;
+    return { opacity, fill, opacityMultiplier, scale };
   }
 
   const linearPhase = cycleElapsed / duration;
@@ -751,7 +776,13 @@ export const sampleDotMatrixAnimationFrame = (
       : linearPhase;
   const opacity = keyframeOpacityAt(frames, easedPhase);
   const fill = fillFrames ? keyframeFillAt(fillFrames, easedPhase) : undefined;
-  return { opacity, fill };
+  const scale = scaleFrames
+    ? keyframeOpacityAt(scaleFrames, easedPhase)
+    : undefined;
+  const opacityMultiplier = opacityMultiplierFrames
+    ? keyframeOpacityAt(opacityMultiplierFrames, easedPhase)
+    : undefined;
+  return { opacity, fill, opacityMultiplier, scale };
 };
 
 const rowMajorIndex = (row: number, col: number) => row * MATRIX_SIZE + col;
@@ -829,6 +860,26 @@ const matrixSourceStyle = (
     opacity: opacity as any,
   },
 });
+
+const matrixMotionStyle = (
+  targets: any,
+  from: number,
+  duration: number,
+  opacity: WebKeyframeValue[],
+  scale: WebKeyframeValue[],
+  easing: string = 'linear',
+): DotMatrixAnimationFrame => ({
+  targets,
+  from,
+  duration,
+  easing,
+  web: {
+    opacity: opacity as any,
+    scale: scale as any,
+  },
+});
+
+const scaleKeyframe = (offset: number, value: number) => ({ offset, value });
 
 const matrixEntityAnimation = (
   targets: any,
@@ -1577,6 +1628,50 @@ const MATRIX_CENTER = 2;
 const radialDistanceFromCenter = (row: number, col: number) =>
   Math.hypot(row - MATRIX_CENTER, col - MATRIX_CENTER);
 
+const vortexAnglePhase = (x: number, y: number, count: number) => {
+  const center = count / 2;
+  const angle = Math.atan2(y - center, x - center);
+  return (angle + Math.PI) / (Math.PI * 2);
+};
+
+const clockwiseAnglePhase = (x: number, y: number, count: number) =>
+  1 - vortexAnglePhase(x, y, count);
+
+const FAN_ROTATE_CYCLE_MS = 3500;
+
+const normalizedRadiusFromCenter = (x: number, y: number, count: number) => {
+  const center = count / 2;
+  const maxRadius = Math.hypot(center, center);
+  const radius = Math.hypot(x - center, y - center);
+  return maxRadius > 0 ? clamp(radius / maxRadius, 0, 1) : 0;
+};
+
+const fanFieldPhase = (x: number, y: number, count: number) => {
+  const center = (count - 1) / 2;
+  const normalizedRadius =
+    Math.hypot(x - center, y - center) / Math.max(1, Math.hypot(center, center));
+  const angle = Math.atan2(y - center, x - center);
+  const phase = (angle * 4 + normalizedRadius * 8) / (Math.PI * 2);
+  return phase - Math.floor(phase);
+};
+
+const dotMotionScale = (x: number, y: number, count: number) => {
+  const inward = 1 - normalizedRadiusFromCenter(x, y, count);
+  return {
+    rest: 0.4 + inward * 0.2,
+    peak: 1.1 + inward * 0.45,
+  };
+};
+
+const motionScaleKeyframes = (rest: number, peak: number) => [
+  scaleKeyframe(0, rest),
+  scaleKeyframe(0.08, rest * 1.08),
+  scaleKeyframe(0.16, peak),
+  scaleKeyframe(0.38, peak * 0.94),
+  scaleKeyframe(0.5, rest),
+  scaleKeyframe(1, rest),
+];
+
 const diamondDistanceFromCenter = (row: number, col: number) =>
   Math.abs(row - MATRIX_CENTER) + Math.abs(col - MATRIX_CENTER);
 
@@ -1617,6 +1712,69 @@ const RadialExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
     ],
     'ease-in-out'
   );
+};
+
+const VortexRotate: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
+  const phase = vortexAnglePhase(x, y, count);
+  const { rest, peak } = dotMotionScale(x, y, count);
+  return matrixMotionStyle(
+    targets,
+    phase * MATRIX_CYCLE_MS,
+    MATRIX_CYCLE_MS,
+    [
+      matrixCssKeyframe(0, 0, 0, 1),
+      matrixCssKeyframe(0.08, 0.35, 0.45, 0.12),
+      matrixCssKeyframe(0.16, 1, 0, 0),
+      matrixCssKeyframe(0.38, 1, 0, 0),
+      matrixCssKeyframe(0.5, 0, 0.35, 0.15),
+      matrixCssKeyframe(1, 0, 0, 1),
+    ],
+    motionScaleKeyframes(rest, peak),
+    'linear',
+  );
+};
+
+const fanActivityKeyframes = [
+  { offset: 0, value: 0.5 },
+  { offset: 0.125, value: 0.1464 },
+  { offset: 0.25, value: 0 },
+  { offset: 0.375, value: 0.1464 },
+  { offset: 0.5, value: 0.5 },
+  { offset: 0.625, value: 0.8536 },
+  { offset: 0.75, value: 1 },
+  { offset: 0.875, value: 0.8536 },
+  { offset: 1, value: 0.5 },
+];
+
+const fanScaleKeyframes = fanActivityKeyframes.map(({ offset, value }) =>
+  scaleKeyframe(offset, 0.3 + value * 0.65),
+);
+
+const fanOpacityMultiplierKeyframes = fanActivityKeyframes.map(
+  ({ offset, value }) => ({ offset, value: 0.5 + value * 0.5 }),
+);
+
+const FanRotate: QRCodeAnimation = (targets, x, y, count, entity) => {
+  if (entity !== QRCodeEntity.Module) {
+    return {
+      targets,
+      duration: FAN_ROTATE_CYCLE_MS,
+      web: { opacity: [1], scale: [1] },
+    };
+  }
+  const phase = fanFieldPhase(x, y, count);
+  return {
+    targets,
+    from: -(1 - phase) * FAN_ROTATE_CYCLE_MS,
+    duration: FAN_ROTATE_CYCLE_MS,
+    easing: 'linear',
+    web: {
+      opacity: [1],
+      opacityMultiplier: fanOpacityMultiplierKeyframes,
+      scale: fanScaleKeyframes,
+    },
+  };
 };
 
 const RadiusPing: QRCodeAnimation = (targets, x, y, count, entity) => {
@@ -2226,6 +2384,10 @@ const resolveAnimationPreset = (name: string) => {
       return OriginWave;
     case AnimationPreset.RadialExpand:
       return RadialExpand;
+    case AnimationPreset.VortexRotate:
+      return VortexRotate;
+    case AnimationPreset.FanRotate:
+      return FanRotate;
     case AnimationPreset.RadiusPing:
       return RadiusPing;
     case AnimationPreset.DiamondExpand:

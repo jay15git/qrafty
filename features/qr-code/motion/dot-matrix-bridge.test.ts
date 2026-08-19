@@ -21,6 +21,8 @@ import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-
 describe("dot matrix motion bridge", () => {
   it("maps desktop loaders to preset names", () => {
     expect(dotMatrixLoaderToPresetName("neon-drift")).toBe("NeonDrift");
+    expect(dotMatrixLoaderToPresetName("vortex-rotate")).toBe("VortexRotate");
+    expect(dotMatrixLoaderToPresetName("fan-rotate")).toBe("FanRotate");
   });
 
   it("renders qrcode.react svg markup for desktop state", () => {

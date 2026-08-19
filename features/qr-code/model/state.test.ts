@@ -140,13 +140,15 @@ describe("qr studio state helpers", () => {
   it("starts with dot matrix animation disabled and SVG export static", () => {
     const state = createDefaultQrStudioState();
 
-    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(15);
+    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(17);
     expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => option.label)).toEqual([
       "Neon Drift",
       "Flux Columns",
       "Echo Ring",
       "Origin Wave",
       "Radial Expand",
+      "Vortex Rotate",
+      "Fan Rotate",
       "Radius Ping",
       "Diamond Expand",
       "Heart Expand",
@@ -173,6 +175,7 @@ describe("qr studio state helpers", () => {
   it("normalizes unknown dot matrix loader values", () => {
     const state = createDefaultQrStudioState();
 
+    expect(setDotMatrixAnimationOptions(state, { loader: "vortex-rotate" }).dotMatrixAnimation.loader).toBe("vortex-rotate");
     expect(setDotMatrixAnimationOptions(state, { loader: "vortex" }).dotMatrixAnimation.loader).toBe("neon-drift");
     expect(setDotMatrixAnimationOptions(state, { loader: "honey-gate" }).dotMatrixAnimation.loader).toBe("neon-drift");
   });

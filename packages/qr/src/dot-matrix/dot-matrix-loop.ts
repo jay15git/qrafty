@@ -10,6 +10,8 @@ export interface DotMatrixLoopAnimation {
   web?: {
     opacity?: any;
     fill?: any;
+    opacityMultiplier?: any;
+    scale?: any;
   };
 }
 
@@ -75,10 +77,27 @@ function captureOriginalFills(targets: DotMatrixLoopTarget[]) {
 
 function applyDotMatrixSample(
   element: SVGElement,
-  sample: { opacity: number; fill?: string },
+  sample: {
+    opacity: number;
+    fill?: string;
+    opacityMultiplier?: number;
+    scale?: number;
+  },
   originalFills: WeakMap<SVGElement, string>,
 ) {
-  element.style.opacity = String(sample.opacity);
+  const opacityMultiplier =
+    sample.opacityMultiplier !== undefined && Number.isFinite(sample.opacityMultiplier)
+      ? sample.opacityMultiplier
+      : 1;
+  element.style.opacity = String(
+    Math.max(0, Math.min(1, sample.opacity * opacityMultiplier)),
+  );
+
+  if (sample.scale !== undefined && Number.isFinite(sample.scale)) {
+    element.style.transform = `scale(${sample.scale})`;
+  } else {
+    element.style.removeProperty('transform');
+  }
 
   const paintTargets = getPaintTargets(element);
   const shouldPreserve =
