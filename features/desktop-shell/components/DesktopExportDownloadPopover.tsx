@@ -28,7 +28,10 @@ export function DesktopExportDownloadPopover({
     <Popover modal={false} open={open} onOpenChange={setOpen}>
       <DesktopTooltip content="Export" side="left" sideOffset={10}>
         <PopoverTrigger asChild>
-          <DesktopSquircleDownloadButton data-state={open ? "open" : "closed"} />
+          <DesktopSquircleDownloadButton
+            data-state={open ? "open" : "closed"}
+            desktopTheme={theme}
+          />
         </PopoverTrigger>
       </DesktopTooltip>
       <PopoverContent
