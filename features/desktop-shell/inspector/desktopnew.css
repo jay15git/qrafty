@@ -14,20 +14,6 @@
   --dn-font: "Inter", system-ui, sans-serif;
   --dn-panel-width: 300px;
   --dn-popover-shadow: 0 12px 48px rgb(0 0 0 / 50%);
-  --dn-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  /* Near-critically-damped stand-in for beui SPRING_PRESS (k=500, c=30, m=0.6). */
-  --dn-ease-press: cubic-bezier(0.16, 1, 0.3, 1);
-  --dn-motion-fast: 120ms;
-  --dn-motion-ui: 180ms;
-  --dn-motion-enter: 180ms;
-  --dn-motion-exit: 120ms;
-  --dn-press-dur: 140ms;
-  --dn-press-active-dur: 75ms;
-  --dn-press-spring-dur: 180ms;
-  --dn-press-scale: 0.93;
-  --dn-select-ring-dur: 340ms;
-  --tabs-dur: var(--dn-motion-ui);
-  --tabs-ease: var(--dn-ease-out);
   --dn-type-caption: 10px;
   --dn-type-label: 11px;
   --dn-type-body: 13px;
@@ -73,6 +59,24 @@
   font-family: var(--dn-font);
   font-feature-settings: "cv11", "ss01";
   -webkit-font-smoothing: antialiased;
+}
+
+/* Motion + interaction tokens — shared by in-tree settings and portalled surfaces. */
+:is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover) {
+  --dn-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* Near-critically-damped stand-in for beui SPRING_PRESS (k=500, c=30, m=0.6). */
+  --dn-ease-press: cubic-bezier(0.16, 1, 0.3, 1);
+  --dn-motion-fast: 120ms;
+  --dn-motion-ui: 180ms;
+  --dn-motion-enter: 180ms;
+  --dn-motion-exit: 120ms;
+  --dn-press-dur: 140ms;
+  --dn-press-active-dur: 75ms;
+  --dn-press-spring-dur: 180ms;
+  --dn-press-scale: 0.93;
+  --dn-select-ring-dur: 340ms;
+  --tabs-dur: var(--dn-motion-ui);
+  --tabs-ease: var(--dn-ease-out);
 }
 
 .desktopnew-root[data-theme="light"] {
@@ -995,11 +999,6 @@
 }
 
 .desktopnew-popover-content {
-  --dn-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --dn-motion-fast: 120ms;
-  --dn-motion-ui: 180ms;
-  --dn-motion-enter: 180ms;
-  --dn-motion-exit: 120ms;
   border-color: #ececee !important;
   background: #fafafa !important;
   color: #18181b !important;
@@ -1154,11 +1153,6 @@
 
 /* Fill picker popover: transparent Radix shell, one neutral panel on FillPicker.Root */
 .desktopnew-fill-popover {
-  --dn-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --dn-motion-fast: 120ms;
-  --dn-motion-ui: 180ms;
-  --dn-motion-enter: 180ms;
-  --dn-motion-exit: 120ms;
   --tw-shadow: 0 0 #0000;
   --tw-ring-shadow: 0 0 #0000;
   --tw-ring-offset-shadow: 0 0 #0000;

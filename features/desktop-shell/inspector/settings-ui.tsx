@@ -335,6 +335,7 @@ export function SettingsFillPopover({
     selectedPalette: string[]
     selectedPreset: string | "custom"
     onSelect: (preset: { label: string; colors: string[] } | "custom") => void
+    onPaletteColorChange: (index: number, color: string) => void
   }
 }) {
   const theme = useDesktopnewTheme()

@@ -555,6 +555,14 @@ function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
                             dotsPalettePreset: preset.label,
                           },
                     ),
+                  onPaletteColorChange: (index, color) =>
+                    onPatternSettingsChange({
+                      dotsColorMode: "palette",
+                      dotsPalettePreset: "custom",
+                      dotsPalette: actualPatternSettings.dotsPalette.map((current, paletteIndex) =>
+                        paletteIndex === index ? color : current,
+                      ),
+                    }),
                 }}
                 value={moduleFill}
                 onValueChange={(fill) =>
