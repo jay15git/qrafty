@@ -10,11 +10,11 @@ import {
   TypeIcon,
 } from "lucide-react"
 import type { ReactNode } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import {
   EmojiPicker,
   EmojiPickerContent,
-  EmojiPickerFooter,
   EmojiPickerSearch,
 } from "@/components/ui/emoji-picker"
 import { Button } from "@/components/ui/button"
@@ -375,43 +375,55 @@ export function InsertMenuIllustrationSetPanel({
 
 export function InsertMenuEmojiPanel({
   isDesktopPopover,
-  onBack,
   onSelectEmoji,
 }: {
   isDesktopPopover: boolean
-  onBack: () => void
   onSelectEmoji: (emoji: string) => void
 }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [columns, setColumns] = useState(10)
+
+  useEffect(() => {
+    const node = containerRef.current
+    if (!node) return
+
+    const updateColumns = () => {
+      const width = node.getBoundingClientRect().width
+      setColumns(Math.max(7, Math.min(12, Math.floor(width / 36))))
+    }
+
+    updateColumns()
+    const observer = new ResizeObserver(updateColumns)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <div className="space-y-2">
-      <InsertMenuPanelHeader isDesktopPopover={isDesktopPopover} title="Choose emoji" onBack={onBack} />
+    <div ref={containerRef} className="w-full min-w-0">
       <EmojiPicker
         className={cn(
-          "h-[22rem] w-full dn-squircle-sm",
+          "h-[22rem] min-w-0 w-full border-0 bg-transparent shadow-none [--frimousse-row-height:2.25rem]",
           isDesktopPopover
-            ? "border border-[var(--dn-line)] bg-[var(--dn-control)] text-[var(--dn-fg)] [--frimousse-emoji-font:'Apple_Color_Emoji','Segoe_UI_Emoji','Noto_Color_Emoji',sans-serif]"
-            : "border border-[var(--ws-line)] bg-[var(--ws-panel-bg)]",
+            ? "text-[var(--dn-fg)] [--frimousse-emoji-font:'Apple_Color_Emoji','Segoe_UI_Emoji','Noto_Color_Emoji',sans-serif]"
+            : "dn-squircle-sm border border-[var(--ws-line)] bg-[var(--ws-panel-bg)]",
         )}
+        columns={columns}
         data-slot="drafting-insert-menu-emoji-picker"
         onEmojiSelect={({ emoji }) => onSelectEmoji(emoji)}
       >
         <EmojiPickerSearch
           className={cn(
+            "border-0 bg-transparent px-0",
             isDesktopPopover
-              ? "border-[var(--dn-line)] [&_input]:placeholder:text-[var(--dn-muted)]"
-              : "border-[var(--ws-line)]",
+              ? "border-b border-[var(--dn-line)] [&_input]:bg-transparent [&_input]:placeholder:text-[var(--dn-muted)]"
+              : "border-b border-[var(--ws-line)]",
           )}
           placeholder="Search emoji…"
         />
         <EmojiPickerContent
           className={cn(
             isDesktopPopover &&
-              "[&_[data-slot=emoji-picker-category-header]]:bg-transparent [&_[data-slot=emoji-picker-category-header]]:text-[var(--dn-muted)] [&_[data-slot=emoji-picker-emoji]]:hover:bg-[var(--dn-control-hover)] [&_[data-slot=emoji-picker-emoji][data-active]]:bg-[var(--dn-control-hover)]",
-          )}
-        />
-        <EmojiPickerFooter
-          className={cn(
-            isDesktopPopover ? "border-[var(--dn-line)] text-[var(--dn-muted)]" : "border-[var(--ws-line)]",
+              "[&_[data-slot=emoji-picker-category-header]]:hidden [&_[data-slot=emoji-picker-emoji]]:hover:bg-[var(--dn-control-hover)] [&_[data-slot=emoji-picker-emoji][data-active]]:bg-[var(--dn-control-hover)]",
           )}
         />
       </EmojiPicker>

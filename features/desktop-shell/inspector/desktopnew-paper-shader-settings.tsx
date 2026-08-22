@@ -38,14 +38,14 @@ function HorizontalShaderOptionRow({
   selected,
   onSelect,
 }: {
-  label: string
+  label?: string
   items: Array<{ value: string; label: string }>
   selected: string
   onSelect: (value: string) => void
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="dn-type-label">{label}</span>
+      {label ? <span className="dn-type-label">{label}</span> : null}
       <ScrollArea
         className="w-full min-w-0 max-w-full overflow-hidden"
         chevron={false}
@@ -360,7 +360,6 @@ export function SettingsPaperShaderControls({
   return (
     <div className={SECTION_GAP}>
       <HorizontalShaderOptionRow
-        label="Preset"
         items={definition.presets.map((preset) => ({
           value: preset.name,
           label: preset.name,

@@ -2,7 +2,7 @@ import type { DesktopThemeMode } from "@/features/desktop-shell/components/Float
 import { cn } from "@/lib/utils"
 
 export const INSERT_MENU_POPOVER_WIDTH = "w-[min(18rem,calc(100vw-2rem))]"
-export const INSERT_MENU_EMOJI_POPOVER_WIDTH = "w-[min(22rem,calc(100vw-2rem))]"
+export const INSERT_MENU_EMOJI_POPOVER_WIDTH = "w-[min(26rem,calc(100vw-2rem))]"
 
 export const INSERT_MENU_POPOVER_SHELL =
   "dn-portal-surface desktopnew-popover-content z-[20000] border-0 p-2 shadow-none outline-none dn-squircle-md"

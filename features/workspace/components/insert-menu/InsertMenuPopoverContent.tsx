@@ -185,7 +185,6 @@ export function InsertMenuPopoverContent({
       {panel === "emoji" ? (
         <InsertMenuEmojiPanel
           isDesktopPopover={isDesktopPopover}
-          onBack={() => setPanel("root")}
           onSelectEmoji={insertEmoji}
         />
       ) : null}

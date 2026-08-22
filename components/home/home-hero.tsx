@@ -18,6 +18,12 @@ const SLOT_TEXT_OPTIONS = {
   skipUnchanged: false,
 }
 
+const HERO_SUPPORT_CLASS =
+  "font-sans text-4xl font-medium tracking-tight text-foreground/88 sm:text-5xl md:text-6xl"
+
+const HERO_BRAND_CLASS =
+  "font-caveat text-5xl font-semibold tracking-tight text-foreground sm:text-6xl md:text-[5.25rem]"
+
 type HomeHeroProps = {
   heroDelayS: number
 }
@@ -50,7 +56,7 @@ export function HomeHero({ heroDelayS }: HomeHeroProps) {
       }}
     >
       <div className="space-y-2">
-        <p className="font-heading text-5xl font-semibold tracking-tight text-foreground sm:text-6xl md:text-7xl">
+        <p className={HERO_SUPPORT_CLASS}>
           <span className="inline-flex flex-wrap items-baseline justify-center gap-x-[0.28em]">
             <span>Sharing a</span>
             <SlotText
@@ -60,8 +66,9 @@ export function HomeHero({ heroDelayS }: HomeHeroProps) {
             <span>?</span>
           </span>
         </p>
-        <h1 className="font-heading text-5xl font-semibold tracking-tight text-foreground sm:text-6xl md:text-7xl">
-          make it QRafty
+        <h1 className="flex w-full flex-wrap items-baseline justify-center gap-x-[0.28em]">
+          <span className={HERO_SUPPORT_CLASS}>make it</span>
+          <span className={HERO_BRAND_CLASS}>QRafty</span>
         </h1>
       </div>
     </div>

@@ -18,7 +18,7 @@ function EmojiPicker({
   return (
     <EmojiPickerPrimitive.Root
       className={cn(
-        "bg-popover text-popover-foreground isolate flex h-full w-fit flex-col overflow-hidden rounded-md",
+        "isolate flex h-full w-full min-w-0 flex-col overflow-hidden rounded-md bg-transparent text-popover-foreground",
         className,
       )}
       data-slot="emoji-picker"
@@ -48,7 +48,11 @@ function EmojiPickerSearch({
 
 function EmojiPickerRow({ children, ...props }: EmojiPickerListRowProps) {
   return (
-    <div {...props} className="scroll-my-1 px-1" data-slot="emoji-picker-row">
+    <div
+      {...props}
+      className="grid w-full scroll-my-1 px-0 [grid-template-columns:repeat(var(--frimousse-list-columns),minmax(0,1fr))]"
+      data-slot="emoji-picker-row"
+    >
       {children}
     </div>
   )
@@ -63,7 +67,7 @@ function EmojiPickerEmoji({
     <button
       {...props}
       className={cn(
-        "data-[active]:bg-accent flex size-7 items-center justify-center rounded-sm text-base",
+        "data-[active]:bg-accent flex aspect-square w-full items-center justify-center rounded-sm text-xl",
         className,
       )}
       data-slot="emoji-picker-emoji"
@@ -95,7 +99,7 @@ function EmojiPickerContent({
 }: React.ComponentProps<typeof EmojiPickerPrimitive.Viewport>) {
   return (
     <EmojiPickerPrimitive.Viewport
-      className={cn("outline-hidden relative flex-1", className)}
+      className={cn("outline-hidden relative min-w-0 w-full flex-1", className)}
       data-slot="emoji-picker-viewport"
       {...props}
     >
@@ -112,7 +116,7 @@ function EmojiPickerContent({
         No emoji found.
       </EmojiPickerPrimitive.Empty>
       <EmojiPickerPrimitive.List
-        className="select-none pb-1"
+        className="w-full min-w-0 select-none pb-1"
         components={{
           Row: EmojiPickerRow,
           Emoji: EmojiPickerEmoji,
