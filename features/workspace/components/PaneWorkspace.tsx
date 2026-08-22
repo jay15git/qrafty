@@ -327,8 +327,10 @@ export function PaneWorkspace({
   const contentLayers = contentOnlyZoom
     ? visibleLayers.filter((layer) => layer.kind !== "card")
     : visibleLayers
+  const artboardInteractionScale = contentOnlyZoom ? interactionScale : 1
+  const artboardScale = viewFitScale * artboardInteractionScale
   const contentTransformStyle: CSSProperties | undefined = contentOnlyZoom
-    ? buildContentTransformStyle(contentPan, interactionScale)
+    ? buildContentTransformStyle(contentPan, 1)
     : undefined
   const activeSelectedLayerIds = selectedLayerIds ?? (selectedLayerId ? [selectedLayerId] : [])
   const activeSelectedLayerIdSet = new Set(activeSelectedLayerIds)
@@ -1300,8 +1302,8 @@ export function PaneWorkspace({
                 borderRadius: cornerRadiiToCss(cardState.cornerRadii),
                 height: cardState.height,
                 transform:
-                  viewFitScale !== 1
-                    ? `translate(-50%, -50%) scale(${viewFitScale})`
+                  artboardScale !== 1
+                    ? `translate(-50%, -50%) scale(${artboardScale})`
                     : "translate(-50%, -50%)",
                 transformOrigin: "center center",
                 width: cardState.width,

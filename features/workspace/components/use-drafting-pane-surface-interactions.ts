@@ -370,7 +370,7 @@ export function useDraftingPaneSurfaceInteractions({
   }, [])
 
   const handleWheel = useCallback(
-    (event: WheelEvent<HTMLDivElement>) => {
+    (event: Pick<WheelEvent<HTMLDivElement>, "preventDefault" | "stopPropagation" | "deltaY">) => {
       if (previewLocked) {
         return
       }
@@ -384,6 +384,24 @@ export function useDraftingPaneSurfaceInteractions({
     },
     [onPaneZoom, pane.id, paneZoom, previewLocked],
   )
+
+  useEffect(() => {
+    const surface = surfaceRef.current
+
+    if (!surface || previewLocked) {
+      return
+    }
+
+    const onWheel = (event: globalThis.WheelEvent) => {
+      handleWheel(event)
+    }
+
+    surface.addEventListener("wheel", onWheel, { passive: false })
+
+    return () => {
+      surface.removeEventListener("wheel", onWheel)
+    }
+  }, [handleWheel, previewLocked])
 
   const handleTouchStart = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
@@ -454,6 +472,5 @@ export function useDraftingPaneSurfaceInteractions({
     handleTouchEnd,
     handleTouchMove,
     handleTouchStart,
-    handleWheel,
   }
 }

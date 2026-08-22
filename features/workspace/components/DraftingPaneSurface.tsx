@@ -174,7 +174,6 @@ export function DraftingPaneSurface({
       onSurfaceTouchEnd={interactions.handleTouchEnd}
       onSurfaceTouchMove={interactions.handleTouchMove}
       onSurfaceTouchStart={interactions.handleTouchStart}
-      onSurfaceWheel={previewLocked ? undefined : interactions.handleWheel}
       pane={pane}
       panOverlayRef={interactions.panOverlayRef}
       previewLocked={previewLocked}

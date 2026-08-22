@@ -1,6 +1,13 @@
 export function DesktopWorkspaceStyles() {
   return (
     <style>{`
+      html:has([data-slot="desktop-workspace"]),
+      body:has([data-slot="desktop-workspace"]) {
+        overflow: hidden;
+        overscroll-behavior: none;
+        height: 100%;
+      }
+
       [data-slot="desktop-workspace"] [data-slot="drafting-surface"] {
         --ws-canvas-dot-rgb: 15 23 42;
         --ws-canvas-dot-opacity: 0.055;
@@ -10,7 +17,13 @@ export function DesktopWorkspaceStyles() {
         min-height: 100dvh;
         grid-template-rows: 1fr;
         overflow: hidden;
+        overscroll-behavior: none;
         background: var(--workspace-page);
+      }
+
+      [data-slot="desktop-workspace"] [data-slot="desktop-canvas-viewport"],
+      [data-slot="desktop-workspace"] [data-slot="desktop-compose-surface"] {
+        overscroll-behavior: none;
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-surface"] {

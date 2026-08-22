@@ -190,23 +190,5 @@
 }
 
 [data-slot="desktop-workspace"] [data-slot="drafting-surface"]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-  pointer-events: none;
-  background-image:
-    linear-gradient(90deg, var(--ws-dash-color) 0 var(--ws-dash-size), transparent var(--ws-dash-size) var(--ws-dash-cycle)),
-    linear-gradient(90deg, var(--ws-dash-color) 0 var(--ws-dash-size), transparent var(--ws-dash-size) var(--ws-dash-cycle)),
-    linear-gradient(180deg, var(--ws-dash-color) 0 var(--ws-dash-size), transparent var(--ws-dash-size) var(--ws-dash-cycle)),
-    linear-gradient(180deg, var(--ws-dash-color) 0 var(--ws-dash-size), transparent var(--ws-dash-size) var(--ws-dash-cycle));
-  background-position: top left, bottom left, top left, top right;
-  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-  background-size: var(--ws-dash-cycle) 1px, var(--ws-dash-cycle) 1px, 1px var(--ws-dash-cycle), 1px var(--ws-dash-cycle);
-}
-
-@media (max-width: 63.999rem) {
-  [data-slot="desktop-workspace"] [data-slot="drafting-surface"]::before {
-    display: none;
-  }
+  display: none;
 }

@@ -3462,7 +3462,7 @@ export function WorkspaceSurface({
       data-slot="drafting-surface"
       tabIndex={-1}
       className={cn(
-        "relative grid h-dvh w-full overflow-visible bg-[var(--ws-surface-bg)] sm:h-dvh lg:shadow-[var(--ws-shadow-shell)]",
+        "relative grid h-dvh w-full overflow-hidden overscroll-none bg-[var(--ws-surface-bg)] sm:h-dvh lg:shadow-[var(--ws-shadow-shell)]",
         "grid-rows-1 sm:h-dvh",
       )}
       data-compose-edit-mode="false"

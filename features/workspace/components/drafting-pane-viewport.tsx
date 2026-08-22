@@ -6,7 +6,6 @@ import type {
   PointerEvent as ReactPointerEvent,
   RefObject,
   TouchEvent,
-  WheelEvent,
 } from "react"
 
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
@@ -71,7 +70,6 @@ type DraftingPaneViewportProps = {
   onSurfaceTouchEnd: (event: TouchEvent<HTMLDivElement>) => void
   onSurfaceTouchMove: (event: TouchEvent<HTMLDivElement>) => void
   onSurfaceTouchStart: (event: TouchEvent<HTMLDivElement>) => void
-  onSurfaceWheel?: (event: WheelEvent<HTMLDivElement>) => void
   onBeginPanePan: (event: ReactPointerEvent<HTMLDivElement>) => void
   pane: DraftingPane
   panOverlayRef: RefObject<HTMLDivElement | null>
@@ -123,7 +121,6 @@ export function DraftingPaneViewport({
   onSurfaceTouchEnd,
   onSurfaceTouchMove,
   onSurfaceTouchStart,
-  onSurfaceWheel,
   pane,
   panOverlayRef,
   previewLocked = false,
@@ -146,13 +143,14 @@ export function DraftingPaneViewport({
       data-snap-target={isSnapTarget ? "true" : "false"}
       draggable={canSwap}
       className={cn(
-        "relative flex h-full w-full touch-none flex-col items-center justify-center overflow-hidden transition-opacity duration-150 ease-out after:pointer-events-none after:absolute after:inset-0 after:border-2 after:border-dashed after:border-transparent after:content-[''] after:transition-colors after:duration-150 after:ease-out",
+        "relative flex h-full w-full touch-none flex-col items-center justify-center overflow-hidden overscroll-none transition-opacity duration-150 ease-out",
         isFreeEditWorkspace
           ? "bg-[var(--ws-workspace-bg,#f0f1f2)]"
           : "bg-[var(--ws-canvas-bg,#f0f1f2)]",
         canSwap && "cursor-grab active:cursor-grabbing",
         draggingPaneId === pane.id && "opacity-55",
-        isSnapTarget && "after:border-[var(--ws-ink)]",
+        isSnapTarget &&
+          "after:pointer-events-none after:absolute after:inset-0 after:border-2 after:border-[var(--ws-ink)] after:content-['']",
       )}
       style={{
         gridArea: areaName,
@@ -180,7 +178,6 @@ export function DraftingPaneViewport({
       onTouchEnd={onSurfaceTouchEnd}
       onTouchMove={onSurfaceTouchMove}
       onTouchStart={onSurfaceTouchStart}
-      onWheel={onSurfaceWheel}
     >
       <div
         data-slot={
