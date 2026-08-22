@@ -88,7 +88,12 @@ const ColorPaneInner = React.forwardRef<
     setFillRef.current({ kind: "color", color });
   }, []);
 
-  const state = useColorPicker({ value: colorValue, onValueChange });
+  const state = useColorPicker({
+    value: colorValue,
+    onValueChange,
+    defaultFormat: "hex",
+    formats: ["hex", "rgb", "hsl", "oklch"],
+  });
   const visible = useMountFade();
 
   return (
@@ -126,7 +131,11 @@ const GradientPaneInner = React.forwardRef<
     setFillRef.current({ kind: "gradient", gradient });
   }, []);
 
-  const state = useGradientPicker({ value: gradientValue, onValueChange });
+  const state = useGradientPicker({
+    value: gradientValue,
+    onValueChange,
+    defaultStopColorFormat: "hex",
+  });
   const visible = useMountFade();
 
   return (

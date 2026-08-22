@@ -317,6 +317,7 @@ export function SettingsFillPopover({
   title,
   modulePattern,
   solidOnly = false,
+  qrGradient = false,
   variant = "row",
   side = "right",
   align = "start",
@@ -326,6 +327,7 @@ export function SettingsFillPopover({
   hint?: string
   title?: string
   solidOnly?: boolean
+  qrGradient?: boolean
   variant?: "row" | "swatch"
   side?: "top" | "right" | "bottom" | "left"
   align?: "start" | "center" | "end"
@@ -361,6 +363,7 @@ export function SettingsFillPopover({
         ) : null}
         <DesktopNewFillPicker
           modulePattern={modulePattern}
+          qrGradient={qrGradient}
           solidOnly={solidOnly}
           value={value}
           onValueChange={onValueChange}

@@ -196,8 +196,9 @@ export function createCornerGradientElement(
   gradientElement.setAttribute("gradientUnits", "userSpaceOnUse")
 
   if (gradient.type === "radial") {
-    gradientElement.setAttribute("cx", String(x + width / 2))
-    gradientElement.setAttribute("cy", String(y + height / 2))
+    const center = gradient.center ?? { x: 0.5, y: 0.5 }
+    gradientElement.setAttribute("cx", String(x + center.x * width))
+    gradientElement.setAttribute("cy", String(y + center.y * height))
     gradientElement.setAttribute("r", String(Math.max(width, height) / 2))
   } else {
     const endpoints = getLinearGradientEndpoints({

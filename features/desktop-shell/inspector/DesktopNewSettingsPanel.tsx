@@ -525,6 +525,7 @@ function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
             />
             <SettingsFillPopover
               hint="Fill"
+              qrGradient
               value={logoFill}
               onValueChange={(fill) => onLogoSettingsChange(applyLogoFill(fill, actualLogoSettings))}
             />
@@ -540,6 +541,7 @@ function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
             {tab === "Module" ? (
               <SettingsFillPopover
                 hint="Fill"
+                qrGradient
                 modulePattern={{
                   selectedPalette: actualPatternSettings.dotsPalette,
                   selectedPreset: actualPatternSettings.dotsPalettePreset,
@@ -562,6 +564,7 @@ function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
             ) : (
               <SettingsFillPopover
                 hint="Fill"
+                qrGradient
                 value={tab === "Eye" ? eyeFill : frameFill}
                 onValueChange={(fill) =>
                   onCornersSettingsChange(
@@ -589,6 +592,7 @@ function CardSection({ model }: { model: DesktopInspectorModel }) {
       />
       <SettingsFillPopover
         hint="Fill"
+        qrGradient
         value={cardFill}
         onValueChange={(fill) => onShapeSettingsChange(applyShapeFill(fill, actualShapeSettings))}
       />

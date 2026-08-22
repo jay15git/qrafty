@@ -40,7 +40,7 @@ describe("desktopnew fill bridge", () => {
       return
     }
 
-    expect(parsed.gradient.angle).toBeCloseTo(45)
+    expect(parsed.gradient.angle).toBeCloseTo(135)
 
     const back = fillCssToStudioGradient(css, SAMPLE_GRADIENT)
     expect(back.enabled).toBe(true)
@@ -64,6 +64,43 @@ describe("desktopnew fill bridge", () => {
 
     expect(patch.dotsColorMode).toBe("gradient")
     expect(patch.dataModulesGradient?.enabled).toBe(true)
+  })
+
+  it("maps CSS 90deg to horizontal studio rotation", () => {
+    const fill: Fill = {
+      kind: "gradient",
+      gradient: {
+        type: "linear",
+        angle: 90,
+        interp: "oklch",
+        stops: [
+          { color: WHITE, position: 0 },
+          { color: BLACK, position: 1 },
+        ],
+      },
+    }
+
+    const studio = fillCssToStudioGradient(formatFill(fill), SAMPLE_GRADIENT)
+    expect(studio.rotation).toBeCloseTo(0)
+  })
+
+  it("coerces conic gradients to radial for studio storage", () => {
+    const fill: Fill = {
+      kind: "gradient",
+      gradient: {
+        type: "conic",
+        startAngle: 45,
+        center: { x: 0.5, y: 0.5 },
+        interp: "oklch",
+        stops: [
+          { color: WHITE, position: 0 },
+          { color: BLACK, position: 1 },
+        ],
+      },
+    }
+
+    const studio = fillCssToStudioGradient(formatFill(fill), SAMPLE_GRADIENT)
+    expect(studio.type).toBe("radial")
   })
 
   it("keeps authored stop offsets when the area has start/end", () => {
@@ -99,6 +136,36 @@ describe("desktopnew fill bridge", () => {
 
     expect(patch.dataModulesGradient?.colorStops[0].offset).toBe(0)
     expect(patch.dataModulesGradient?.colorStops[1].offset).toBe(1)
+  })
+
+  it("round-trips radial center through the studio bridge", () => {
+    const fill: Fill = {
+      kind: "gradient",
+      gradient: {
+        type: "radial",
+        shape: "circle",
+        center: { x: 0.35, y: 0.65 },
+        size: "farthest-corner",
+        interp: "oklch",
+        stops: [
+          { color: WHITE, position: 0 },
+          { color: BLACK, position: 1 },
+        ],
+      },
+    }
+
+    const studio = fillCssToStudioGradient(formatFill(fill), SAMPLE_GRADIENT)
+    expect(studio.type).toBe("radial")
+    expect(studio.center?.x).toBeCloseTo(0.35)
+    expect(studio.center?.y).toBeCloseTo(0.65)
+
+    const css = studioGradientToFillCss(studio)
+    const parsed = parseFill(css)
+    expect(parsed?.kind).toBe("gradient")
+    if (parsed?.kind === "gradient" && parsed.gradient.type === "radial") {
+      expect(parsed.gradient.center.x).toBeCloseTo(0.35)
+      expect(parsed.gradient.center.y).toBeCloseTo(0.65)
+    }
   })
 
   it("keeps card fill CSS for gradients", () => {

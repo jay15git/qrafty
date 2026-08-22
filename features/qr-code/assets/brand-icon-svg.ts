@@ -3,6 +3,10 @@ import { renderToStaticMarkup } from "react-dom/server.browser"
 
 import type { BrandIconEntry } from "@/features/qr-code/assets/brand-icons"
 import type { StudioGradient } from "@/features/qr-code/model/state"
+import {
+  getStudioGradientCenter,
+  studioRadialCenterAsPercent,
+} from "@/features/qr-code/styles/studio-gradient-geometry"
 
 export const DEFAULT_BRAND_ICON_COLOR = "#111827"
 const BRAND_ICON_SIZE = 256
@@ -73,7 +77,8 @@ function createSvgGradientMarkup(gradient: StudioGradient) {
     .join("")
 
   if (gradient.type === "radial") {
-    return `<radialGradient id="${BRAND_ICON_GRADIENT_ID}">${colorStopsMarkup}</radialGradient>`
+    const { cx, cy } = studioRadialCenterAsPercent(getStudioGradientCenter(gradient))
+    return `<radialGradient id="${BRAND_ICON_GRADIENT_ID}" cx="${cx}" cy="${cy}" r="50%">${colorStopsMarkup}</radialGradient>`
   }
 
   const rotationDegrees = (gradient.rotation * 180) / Math.PI

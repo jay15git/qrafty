@@ -36,11 +36,13 @@ interface StopListProps extends React.HTMLAttributes<HTMLDivElement> {
    * add-stop UI) is visible and the trailing row would be redundant.
    */
   showAddStop?: boolean;
+  /** Show the per-row stop position (%) input. Defaults to `true`. */
+  showPosition?: boolean;
 }
 
 export const StopList = React.forwardRef<HTMLDivElement, StopListProps>(
   function StopList(
-    { className, showAddStop = true, ...rest },
+    { className, showAddStop = true, showPosition = true, ...rest },
     ref,
   ) {
   const ctx = useGradientPickerContext();
@@ -87,6 +89,7 @@ export const StopList = React.forwardRef<HTMLDivElement, StopListProps>(
             toDisplay={toDisplay}
             fromDisplay={fromDisplay}
             formatted={formatColor(s.color, ctx.getStopColorFormat(s.id))}
+            showPosition={showPosition}
           />
         );
       })}
@@ -112,12 +115,14 @@ function StopRow({
   toDisplay,
   fromDisplay,
   formatted,
+  showPosition,
 }: {
   stop: ReturnType<typeof useGradientPickerContext>["stops"][number];
   selected: boolean;
   toDisplay: (n: number) => number;
   fromDisplay: (n: number) => number;
   formatted: string;
+  showPosition: boolean;
 }) {
   const ctx = useGradientPickerContext();
   // Same slot the Bar uses: the editor's UI dialect ships per variant and is
@@ -186,29 +191,31 @@ function StopRow({
             children: swatch,
           })
         : swatch}
-      <FieldShell className="h-7 w-fit">
-        <FieldInputGroup>
-          <span className="sr-only">Stop position</span>
-          <FieldInput
-            inputMode="numeric"
-            nudge={1}
-            value={Math.round(toDisplay(s.position) * 100)}
-            onChange={(e) => {
-              const v = parseFloat(e.target.value);
-              // Clamp the typed *displayed* percent to the track; moveStop
-              // itself no longer clamps (extrapolated stops are legal).
-              if (Number.isFinite(v))
-                ctx.moveStop(
-                  s.id,
-                  fromDisplay(Math.max(0, Math.min(1, v / 100))),
-                );
-            }}
-            aria-label="Stop position"
-            className="w-10"
-          />
-          <FieldSuffix>%</FieldSuffix>
-        </FieldInputGroup>
-      </FieldShell>
+      {showPosition ? (
+        <FieldShell className="h-7 w-fit">
+          <FieldInputGroup>
+            <span className="sr-only">Stop position</span>
+            <FieldInput
+              inputMode="numeric"
+              nudge={1}
+              value={Math.round(toDisplay(s.position) * 100)}
+              onChange={(e) => {
+                const v = parseFloat(e.target.value);
+                // Clamp the typed *displayed* percent to the track; moveStop
+                // itself no longer clamps (extrapolated stops are legal).
+                if (Number.isFinite(v))
+                  ctx.moveStop(
+                    s.id,
+                    fromDisplay(Math.max(0, Math.min(1, v / 100))),
+                  );
+              }}
+              aria-label="Stop position"
+              className="w-10"
+            />
+            <FieldSuffix>%</FieldSuffix>
+          </FieldInputGroup>
+        </FieldShell>
+      ) : null}
       <FieldShell className="h-7 min-w-0 flex-1">
         <FieldInputGroup>
           <span className="sr-only">Stop color (paste hex / css)</span>

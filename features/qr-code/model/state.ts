@@ -19,11 +19,18 @@ export type GradientStop = {
   color: string;
 };
 
+export type StudioGradientCenter = {
+  x: number;
+  y: number;
+};
+
 export type StudioGradient = {
   enabled: boolean;
   type: QrGradientType;
   rotation: number;
   colorStops: [GradientStop, GradientStop];
+  /** Normalized radial center in 0..1. Defaults to the box center. */
+  center?: StudioGradientCenter;
 };
 
 export type StudioDataModulesStyle = QrDataModulesStyle;

@@ -7,10 +7,30 @@ import type {
   DesktopShapeSettings,
 } from "@/features/desktop-shell/components/FloatingToolbar"
 import type { StudioGradient } from "@/features/qr-code/model/state"
+import {
+  clampStudioGradientCenter,
+  getStudioGradientCenter,
+} from "@/features/qr-code/styles/studio-gradient-geometry"
 import { degreesToRadians, radiansToDegrees } from "@/features/qr-code/styles/gradient-controls"
 import { fillFromHex, fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 
 const FALLBACK_OKLCH = { l: 0, c: 0, h: 0, alpha: 1 } as const
+
+/** CSS `linear-gradient` angles are 90° ahead of studio SVG rotation. */
+const CSS_STUDIO_ROTATION_OFFSET_DEG = 90
+
+function normalizeDegrees(value: number) {
+  const mod = value % 360
+  return mod < 0 ? mod + 360 : mod
+}
+
+function cssAngleToStudioRotation(angleDeg: number) {
+  return degreesToRadians(normalizeDegrees(angleDeg - CSS_STUDIO_ROTATION_OFFSET_DEG))
+}
+
+function studioRotationToCssAngle(rotationRad: number) {
+  return normalizeDegrees(radiansToDegrees(rotationRad) + CSS_STUDIO_ROTATION_OFFSET_DEG)
+}
 
 function parseStopColor(color: string) {
   return parseColor(color) ?? FALLBACK_OKLCH
@@ -38,12 +58,13 @@ function studioGradientToFill(gradient: StudioGradient): Fill {
   const stops = studioStopsToFillStops(gradient)
 
   if (gradient.type === "radial") {
+    const center = getStudioGradientCenter(gradient)
     return {
       kind: "gradient",
       gradient: {
         type: "radial",
         shape: "circle",
-        center: { x: 0.5, y: 0.5 },
+        center,
         size: "farthest-corner",
         interp: "oklch",
         stops,
@@ -55,7 +76,7 @@ function studioGradientToFill(gradient: StudioGradient): Fill {
     kind: "gradient",
     gradient: {
       type: "linear",
-      angle: radiansToDegrees(gradient.rotation),
+      angle: studioRotationToCssAngle(gradient.rotation),
       interp: "oklch",
       stops,
     },
@@ -137,16 +158,32 @@ function fillGradientToStudio(
     return {
       enabled: true,
       type: "linear",
-      rotation: degreesToRadians(gradient.angle ?? 0),
+      rotation: cssAngleToStudioRotation(gradient.angle ?? 0),
       colorStops,
     }
   }
+
+  if (gradient.type === "conic") {
+    return {
+      enabled: true,
+      type: "radial",
+      rotation: fallback.rotation,
+      colorStops,
+      center: clampStudioGradientCenter(gradient.center),
+    }
+  }
+
+  const center =
+    gradient.type === "radial"
+      ? clampStudioGradientCenter(gradient.center)
+      : clampStudioGradientCenter(fallback.center ?? getStudioGradientCenter(fallback))
 
   return {
     enabled: true,
     type: "radial",
     rotation: fallback.rotation,
     colorStops,
+    center,
   }
 }
 

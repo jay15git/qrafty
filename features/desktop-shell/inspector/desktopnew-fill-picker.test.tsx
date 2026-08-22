@@ -54,7 +54,7 @@ describe("DesktopNewFillPicker", () => {
       })
     }).not.toThrow()
 
-    expect(container.querySelector('[data-slot="gradient-bar"]')).not.toBeNull()
+    expect(container.querySelector('[data-slot="gradient-area"]')).not.toBeNull()
     expect(container.querySelector('[data-slot="color-picker-area"]')).toBeNull()
 
     act(() => {
@@ -79,7 +79,7 @@ describe("DesktopNewFillPicker", () => {
       root.render(<DesktopNewFillPicker value={css} onValueChange={() => undefined} />)
     })
 
-    expect(container.querySelector('[data-slot="gradient-bar"]')).not.toBeNull()
+    expect(container.querySelector('[data-slot="gradient-area"]')).not.toBeNull()
     expect(
       container.querySelector('[role="tab"][aria-selected="true"]')?.textContent,
     ).toBe("Gradient")

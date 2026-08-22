@@ -19,6 +19,7 @@ export type { CrossOrigin, ErrorCorrectionLevel }
 export type NewQrGradientConfig = {
   type: "linear" | "radial"
   rotation?: number
+  center?: { x: number; y: number }
   stops: [{ offset: number; color: string }, { offset: number; color: string }]
 }
 

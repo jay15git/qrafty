@@ -47,8 +47,9 @@ function createRadialGradient(
 ) {
   const element = document.createElementNS(SVG_NS, "radialGradient")
   element.setAttribute("id", id)
-  element.setAttribute("cx", "50%")
-  element.setAttribute("cy", "50%")
+  const center = gradient.center ?? { x: 0.5, y: 0.5 }
+  element.setAttribute("cx", String(center.x * 100))
+  element.setAttribute("cy", String(center.y * 100))
   element.setAttribute("r", "50%")
 
   for (const stop of gradient.stops) {

@@ -39,6 +39,7 @@ function mapStudioGradient(
   return {
     type: gradient.type,
     rotation: gradient.rotation,
+    center: gradient.type === "radial" ? gradient.center : undefined,
     stops: [
       {
         offset: gradient.colorStops[0].offset,

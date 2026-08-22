@@ -1,4 +1,8 @@
 import type { StudioGradient } from "@/features/qr-code/model/state"
+import {
+  getStudioGradientCenter,
+  studioRadialCenterAsPercent,
+} from "@/features/qr-code/styles/studio-gradient-geometry"
 
 const ICONSTACK_GRADIENT_ID = "iconstack-icon-gradient"
 const ICONSTACK_SHAPE_TAG =
@@ -95,7 +99,8 @@ function createSvgGradientMarkup(gradient: StudioGradient) {
     .join("")
 
   if (gradient.type === "radial") {
-    return `<radialGradient id="${ICONSTACK_GRADIENT_ID}">${colorStopsMarkup}</radialGradient>`
+    const { cx, cy } = studioRadialCenterAsPercent(getStudioGradientCenter(gradient))
+    return `<radialGradient id="${ICONSTACK_GRADIENT_ID}" cx="${cx}" cy="${cy}" r="50%">${colorStopsMarkup}</radialGradient>`
   }
 
   const rotationDegrees = (gradient.rotation * 180) / Math.PI

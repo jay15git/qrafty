@@ -1,5 +1,5 @@
 import { formatColor, parseColor } from "@/components/ui/fill-picker-base/color-picker"
-import { parseFill, type Fill } from "@/components/ui/fill-picker-base/public-api"
+import { formatFill, parseFill, type Fill } from "@/components/ui/fill-picker-base/public-api"
 
 export function fillFromHex(hex: string): Fill {
   const color = parseColor(hex)
@@ -27,4 +27,54 @@ export function fillPreviewHex(fillCss: string): string {
 
 export function isGradientFill(fillCss: string): boolean {
   return parseFill(fillCss)?.kind === "gradient"
+}
+
+/** Clamp picker output to what QR module/eye/frame/logo can store and render. */
+export function normalizeFillForQrTarget(fill: Fill): Fill {
+  if (fill.kind !== "gradient") {
+    return fill
+  }
+
+  const gradient = fill.gradient
+
+  if (gradient.type === "conic") {
+    return {
+      kind: "gradient",
+      gradient: {
+        type: "radial",
+        shape: "circle",
+        center: gradient.center,
+        size: "farthest-corner",
+        interp: gradient.interp,
+        stops: gradient.stops,
+      },
+    }
+  }
+
+  if (gradient.type === "radial") {
+    if (gradient.shape === "circle" && !gradient.radii && gradient.radiusPx == null) {
+      return fill
+    }
+
+    return {
+      kind: "gradient",
+      gradient: {
+        ...gradient,
+        shape: "circle",
+        radii: undefined,
+        radiusPx: undefined,
+      },
+    }
+  }
+
+  return fill
+}
+
+export function normalizeQrTargetFillCss(fillCss: string): string {
+  const parsed = parseFill(fillCss)
+  if (!parsed) {
+    return fillCss
+  }
+
+  return formatFill(normalizeFillForQrTarget(parsed))
 }

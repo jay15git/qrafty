@@ -1738,6 +1738,15 @@ function normalizeShapeFillGradient(
         offset: clamp(readFiniteNumber(secondStop.offset, 1), 0, 1),
       },
     ],
+    center:
+      isRecord(value.center) &&
+      typeof value.center.x === "number" &&
+      typeof value.center.y === "number"
+        ? {
+            x: clamp(value.center.x, 0, 1),
+            y: clamp(value.center.y, 0, 1),
+          }
+        : fallback?.center,
     enabled: typeof value.enabled === "boolean" ? value.enabled : true,
     rotation: readFiniteNumber(value.rotation, 0),
     type: value.type === "radial" ? "radial" : "linear",

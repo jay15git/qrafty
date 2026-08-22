@@ -8,6 +8,10 @@ import {
   type StudioGradient,
 } from "@/features/qr-code/model/state"
 import {
+  getStudioGradientCenter,
+  studioRadialCenterAsPercent,
+} from "@/features/qr-code/styles/studio-gradient-geometry"
+import {
   getDraftingQrBackgroundPathTransform,
   getDraftingQrLayerLayout,
 } from "@/features/qr-code/rendering/svg-extension"
@@ -231,7 +235,9 @@ function getDraftingQrBackgroundGradientMarkup(id: string, gradient: StudioGradi
     .join("")
 
   if (gradient.type === "radial") {
-    return `<radialGradient id="${id}" cx="50%" cy="50%" r="50%">${stops}</radialGradient>`
+    const center = getStudioGradientCenter(gradient)
+    const { cx, cy } = studioRadialCenterAsPercent(center)
+    return `<radialGradient id="${id}" cx="${cx}" cy="${cy}" r="50%">${stops}</radialGradient>`
   }
 
   return `<linearGradient id="${id}" x1="0%" x2="100%" y1="0%" y2="100%" gradientTransform="rotate(${(gradient.rotation * 180) / Math.PI} .5 .5)">${stops}</linearGradient>`

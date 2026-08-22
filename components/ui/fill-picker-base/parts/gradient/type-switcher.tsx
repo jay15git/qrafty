@@ -8,10 +8,6 @@ import { GRADIENT_TYPE_OPTIONS } from "@/components/ui/fill-picker/lib/gradient-
 
 const TYPES = GRADIENT_TYPE_OPTIONS;
 
-const TYPE_ITEMS = Object.fromEntries(
-  TYPES.map((t) => [t.value, t.label]),
-) as Record<GradientType, string>;
-
 /**
  * Base UI port of `<GradientPicker.TypeSwitcher>`. Bound to `gradient.type`.
  * Built on `<FieldSelect>` (Base UI `Select` under the hood) so it shares
@@ -23,22 +19,29 @@ const TYPE_ITEMS = Object.fromEntries(
  */
 export const TypeSwitcher = React.forwardRef<
   HTMLButtonElement,
-  { className?: string }
->(function TypeSwitcher({ className }, ref) {
+  { className?: string; allowedTypes?: GradientType[] }
+>(function TypeSwitcher({ className, allowedTypes }, ref) {
   const ctx = useGradientPickerContext();
+  const types = allowedTypes
+    ? TYPES.filter((type) => allowedTypes.includes(type.value))
+    : TYPES;
+  const typeItems = Object.fromEntries(
+    types.map((type) => [type.value, type.label]),
+  ) as Record<GradientType, string>;
+
   return (
     <FieldSelect
       ref={ref}
       aria-label="Gradient type"
       value={ctx.gradient.type}
       onValueChange={(v) => ctx.setType(v as GradientType)}
-      items={TYPE_ITEMS}
+      items={typeItems}
       wrapperProps={{
         "data-slot": "gradient-type-switcher",
         className,
       }}
     >
-      {TYPES.map((t) => (
+      {types.map((t) => (
         <FieldSelectItem key={t.value} value={t.value}>
           {t.label}
         </FieldSelectItem>

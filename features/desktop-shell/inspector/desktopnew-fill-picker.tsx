@@ -11,12 +11,21 @@ import {
 import {
   GradientPicker,
 } from "@/components/ui/fill-picker-base/gradient"
-import { parseFill, type Fill } from "@/components/ui/fill-picker-base/public-api"
-import { formatColor, parseColor } from "@/components/ui/fill-picker-base/color-picker"
+import {
+  formatFill,
+  parseFill,
+  type Fill,
+} from "@/components/ui/fill-picker-base/public-api"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DESKTOP_DOTS_PALETTE_PRESETS } from "@/features/desktop-shell/inspector/desktopnew-pattern-palettes"
-import { fillFromHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import {
+  fillFromHex,
+  normalizeFillForQrTarget,
+} from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-ui"
 import { cn } from "@/lib/utils"
+
+const QR_GRADIENT_TYPES = ["linear", "radial"] as const
 
 export function DesktopNewFillPicker({
   value,
@@ -24,11 +33,14 @@ export function DesktopNewFillPicker({
   className,
   modulePattern,
   solidOnly = false,
+  qrGradient = false,
 }: {
   value: string
   onValueChange: (fill: Fill, css: string) => void
   className?: string
   solidOnly?: boolean
+  /** Limits gradients to linear/radial circle — for module, eye, frame, logo. */
+  qrGradient?: boolean
   modulePattern?: {
     selectedPalette: string[]
     selectedPreset: string | "custom"
@@ -39,7 +51,10 @@ export function DesktopNewFillPicker({
   // which bakes Area start/end into stop percentages. parseFill cannot
   // recover start/end, so feeding that CSS back collapses both stops onto
   // the same % and freezes the bar thumbs.
-  const initialFillRef = useRef(parseFill(value) ?? fillFromHex(value))
+  const parsedInitialFill = parseFill(value) ?? fillFromHex(value)
+  const initialFillRef = useRef(
+    qrGradient ? normalizeFillForQrTarget(parsedInitialFill) : parsedInitialFill,
+  )
   const initialFill = initialFillRef.current
   const initialMode = solidOnly
     ? "color"
@@ -51,6 +66,16 @@ export function DesktopNewFillPicker({
   )
   const pickerMode = activeMode === "gradient" ? "gradient" : "color"
 
+  const handleValueChange = (fill: Fill, css: string) => {
+    if (!qrGradient) {
+      onValueChange(fill, css)
+      return
+    }
+
+    const normalized = normalizeFillForQrTarget(fill)
+    onValueChange(normalized, formatFill(normalized))
+  }
+
   return (
     <FillPicker.Root
       className={cn(
@@ -61,71 +86,68 @@ export function DesktopNewFillPicker({
       defaultValue={initialFill}
       mode={pickerMode}
       onModeChange={setActiveMode}
-      onValueChange={onValueChange}
+      onValueChange={handleValueChange}
     >
       {solidOnly ? null : (
-      <FillPicker.Tabs className="self-stretch">
-        <FillPicker.Tab
-          className="flex-1"
-          mode="color"
-          onClick={() => setActiveMode("color")}
-        >
-          Solid
-        </FillPicker.Tab>
-        <FillPicker.Tab
-          className="flex-1"
-          mode="gradient"
-          onClick={() => setActiveMode("gradient")}
-        >
-          Gradient
-        </FillPicker.Tab>
-        {modulePattern ? (
-          <button
-            aria-selected={activeMode === "pattern"}
-            className={cn(
-              "rounded-sm px-3 py-1 text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
-              activeMode === "pattern"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-            role="tab"
-            tabIndex={activeMode === "pattern" ? 0 : -1}
-            type="button"
-            onClick={() => setActiveMode("pattern")}
-          >
-            Pattern
-          </button>
-        ) : null}
-      </FillPicker.Tabs>
+        <SegmentTabs
+          className="self-stretch"
+          items={
+            modulePattern
+              ? ["Solid", "Gradient", "Pattern"]
+              : ["Solid", "Gradient"]
+          }
+          value={
+            activeMode === "color"
+              ? "Solid"
+              : activeMode === "gradient"
+                ? "Gradient"
+                : "Pattern"
+          }
+          onChange={(item) => {
+            if (item === "Solid") setActiveMode("color")
+            else if (item === "Gradient") setActiveMode("gradient")
+            else setActiveMode("pattern")
+          }}
+        />
       )}
       {!solidOnly && activeMode === "pattern" && modulePattern ? (
         <ModulePatternPicker {...modulePattern} />
       ) : (
         <>
-          <FillPicker.Pane className="flex flex-col gap-2" mode="color">
+          <FillPicker.Pane
+            className="dn-settings-tab-panel flex w-full min-w-0 flex-col gap-2.5"
+            mode="color"
+          >
             <ColorPicker.Area />
             <ColorPicker.Hue />
             <ColorPicker.Alpha />
-            <ColorPicker.ChannelInput formats={["hex", "rgb", "hsl", "oklch"]} />
+            <ColorPicker.ChannelInput />
           </FillPicker.Pane>
           {solidOnly ? null : (
-            <FillPicker.Pane className="flex flex-col gap-2" mode="gradient">
-              <GradientPicker.TypeSwitcher />
+            <FillPicker.Pane
+              className="dn-settings-tab-panel flex w-full min-w-0 flex-col gap-2.5"
+              mode="gradient"
+            >
+              <div className="grid w-full min-w-0 grid-cols-2 gap-2">
+                {qrGradient ? (
+                  <GradientPicker.TypeSwitcher
+                    allowedTypes={[...QR_GRADIENT_TYPES]}
+                    className="w-full"
+                  />
+                ) : (
+                  <GradientPicker.TypeSwitcher className="w-full" />
+                )}
+                <GradientPicker.InterpSwitcher className="w-full" />
+              </div>
               <GradientPicker.Bar editOnClick />
               <GradientPicker.Area />
-              <GradientPicker.InterpSwitcher />
-              <GradientPicker.ShapeSwitcher />
-              <GradientPicker.PositionGroup>
-                <GradientPicker.PositionPad />
-                <GradientPicker.PositionInput />
-              </GradientPicker.PositionGroup>
-              <GradientPicker.RadiusInput />
-              <GradientPicker.EllipseRadiiInput />
-              <GradientPicker.AngleGroup>
-                <GradientPicker.AnglePad />
-                <GradientPicker.AngleInput />
-              </GradientPicker.AngleGroup>
-              <GradientPicker.StopList />
+              {qrGradient ? null : (
+                <>
+                  <GradientPicker.ShapeSwitcher />
+                  <GradientPicker.EllipseRadiiInput />
+                </>
+              )}
+              <GradientPicker.StopList showPosition={false} />
               <GradientPicker.Presets />
             </FillPicker.Pane>
           )}

@@ -35,6 +35,10 @@ import {
   resolveMotionColors,
 } from "@/features/qr-code/motion/motion-color"
 import { getBackgroundShapeSkewTransform } from "@/features/workspace/rendering/layer-transform"
+import {
+  getStudioGradientCenter,
+  studioRadialCenterInUserSpace,
+} from "@/features/qr-code/styles/studio-gradient-geometry"
 import { applyUnifiedQrGradientFill } from "@new-qr/qr-internal/core"
 import {
   buildCustomCornerDotTransform,
@@ -2154,6 +2158,10 @@ function createUnifiedGradientExtension(
       gradient: {
         type: state.dataModulesGradient.type,
         rotation: state.dataModulesGradient.rotation,
+        center:
+          state.dataModulesGradient.type === "radial"
+            ? state.dataModulesGradient.center
+            : undefined,
         stops: [
           {
             color: state.dataModulesGradient.colorStops[0]?.color ?? "#000000",
@@ -2933,9 +2941,15 @@ function createBackgroundShapeGradient(
   gradientElement.setAttribute("gradientUnits", "userSpaceOnUse")
 
   if (gradient.type === "radial") {
-    gradientElement.setAttribute("cx", String(x + width / 2))
-    gradientElement.setAttribute("cy", String(y + height / 2))
-    gradientElement.setAttribute("r", String(Math.max(width, height) / 2))
+    const { cx, cy, r } = studioRadialCenterInUserSpace(getStudioGradientCenter(gradient), {
+      x,
+      y,
+      width,
+      height,
+    })
+    gradientElement.setAttribute("cx", String(cx))
+    gradientElement.setAttribute("cy", String(cy))
+    gradientElement.setAttribute("r", String(r))
   } else {
     const endpoints = getLinearGradientEndpoints({
       height,
