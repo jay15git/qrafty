@@ -37,6 +37,10 @@ import {
 } from "@/features/desktop-shell/inspector/settings-ui"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import {
+  getShapeLayerFillCssValue,
+  patchShapeLayerFillFromPicker,
+} from "@/features/workspace/rendering/shape-fill"
+import {
   DesktopInspectorElasticSliderRow,
   DesktopInspectorNumberField,
   DesktopInspectorScrollArea,
@@ -574,12 +578,8 @@ function DesktopLayerShapeInspector({
             hint="Fill color"
             solidOnly={fillMode === "solid"}
             title="Fill color"
-            value={layer.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill}
-            onValueChange={(_fill, css) =>
-              onPatch({
-                fill: fillMode === "solid" ? fillPreviewHex(css) : css,
-              })
-            }
+            value={getShapeLayerFillCssValue(layer)}
+            onValueChange={(fill, css) => onPatch(patchShapeLayerFillFromPicker(layer, fill, css))}
           />
         </DesktopInspectorSection>
       ) : null}

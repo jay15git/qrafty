@@ -4,7 +4,9 @@ import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
 
 import { createDraftingShapeLayer, patchDraftingCanvasLayer } from "@/features/workspace/model/layers"
+import { patchShapeLayerFillFromPicker } from "@/features/workspace/rendering/shape-fill"
 import { DraftingShapeLayerContent } from "@/features/workspace/rendering/shape-layer"
+import { formatFill } from "@/components/ui/fill-picker-base/public-api"
 
 describe("DraftingShapeLayerContent", () => {
   it("renders decorative shapes from shapeId without a solid square backdrop", () => {
@@ -44,5 +46,44 @@ describe("DraftingShapeLayerContent", () => {
       shapeId: "arrow",
       strokeWidth: 4,
     })
+  })
+
+  it("renders svg gradient defs for gradient shape fills", () => {
+    const layer = createDraftingShapeLayer("preview", "flower")
+    const gradientCss = formatFill({
+      kind: "gradient",
+      gradient: {
+        type: "linear",
+        angle: 90,
+        interp: "oklch",
+        stops: [
+          { color: { l: 0.2, c: 0.05, h: 260, alpha: 1 }, position: 0 },
+          { color: { l: 0.85, c: 0.08, h: 40, alpha: 1 }, position: 1 },
+        ],
+      },
+    })
+    const gradientLayer = patchDraftingCanvasLayer(
+      layer,
+      patchShapeLayerFillFromPicker(
+        layer,
+        {
+          kind: "gradient",
+          gradient: {
+            type: "linear",
+            angle: 90,
+            interp: "oklch",
+            stops: [
+              { color: { l: 0.2, c: 0.05, h: 260, alpha: 1 }, position: 0 },
+              { color: { l: 0.85, c: 0.08, h: 40, alpha: 1 }, position: 1 },
+            ],
+          },
+        },
+        gradientCss,
+      ),
+    )
+    const markup = renderToStaticMarkup(<DraftingShapeLayerContent layer={gradientLayer} />)
+
+    expect(markup).toContain("linearGradient")
+    expect(markup).toContain("-shape-fill-gradient)")
   })
 })

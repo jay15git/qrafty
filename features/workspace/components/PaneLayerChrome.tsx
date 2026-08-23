@@ -9,6 +9,8 @@ import {
   UnlockIcon,
 } from "lucide-react"
 
+import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
+import { LayerFloatingToolbarSettings } from "@/features/workspace/components/LayerFloatingToolbarSettings"
 import {
   isProtectedDraftingLayerId,
   type DraftingCanvasLayer,
@@ -297,14 +299,18 @@ export function LayerFloatingToolbar({
   layers,
   onAction,
   onCopy,
+  onLayerChange,
   onMore,
   style,
+  theme = "dark",
 }: {
   layers: DraftingCanvasLayer[]
   onAction?: (action: DraftingLayerMenuAction) => void
   onCopy?: () => void
+  onLayerChange?: (patch: Partial<DraftingCanvasLayer>) => void
   onMore: (event: MouseEvent<HTMLButtonElement>) => void
   style: CSSProperties
+  theme?: DesktopThemeMode
 }) {
   const hasUnlockedLayer = layers.some(
     (layer) => !layer.isLocked && !isProtectedDraftingLayerId(layer.id, layers),
@@ -315,6 +321,8 @@ export function LayerFloatingToolbar({
   const lockAction = hasUnlockedLayer ? "lock" : "unlock"
   const lockLabel = hasUnlockedLayer ? "Lock selection" : "Unlock selection"
   const LockActionIcon = hasUnlockedLayer ? LockIcon : UnlockIcon
+  const settingsLayer = layers.length === 1 && !layers[0]?.isLocked ? layers[0] : null
+  const showLayerSettings = Boolean(settingsLayer && onLayerChange)
 
   return (
     <div
@@ -329,6 +337,19 @@ export function LayerFloatingToolbar({
       onContextMenu={(event) => event.preventDefault()}
       onPointerDown={(event) => event.stopPropagation()}
     >
+      {showLayerSettings ? (
+        <>
+          <LayerFloatingToolbarSettings
+            layer={settingsLayer!}
+            theme={theme}
+            onPatch={onLayerChange!}
+          />
+          <div
+            className="mx-0.5 h-4 w-px bg-white/[0.12]"
+            data-slot="drafting-layer-toolbar-settings-separator"
+          />
+        </>
+      ) : null}
       <LayerFloatingToolbarButton
         label="Copy selection"
         disabled={!onCopy}

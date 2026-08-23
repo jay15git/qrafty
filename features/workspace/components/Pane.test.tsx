@@ -856,6 +856,7 @@ describe("Pane", () => {
   it("shows floating layer actions for a selected unlocked text layer", async () => {
     const onLayerAction = vi.fn()
     const onLayerCopy = vi.fn()
+    const onLayerChange = vi.fn()
     const textLayer = createDraftingTextLayer("preview", {
       id: "preview:text",
       text: "Scan here",
@@ -865,6 +866,7 @@ describe("Pane", () => {
       layers: [...createDefaultDraftingLayers("preview", createDefaultQrStudioState(), createDefaultDraftingCardState()), textLayer],
       onLayerAction,
       onLayerCopy,
+      onLayerChange,
       selectedLayerId: "preview:text",
     })
 
@@ -877,6 +879,24 @@ describe("Pane", () => {
     expect(toolbar).not.toBeNull()
     expect(toolbar.getAttribute("role")).toBe("toolbar")
     expect((toolbar as HTMLElement).style.transform).toContain("translate3d")
+    expect(getRequiredElement(toolbar, 'button[aria-label="Text color"]')).toBeTruthy()
+    expect(getRequiredElement(toolbar, 'button[aria-label="Text formatting"]')).toBeTruthy()
+    expect(getRequiredElement(toolbar, 'button[aria-label="Text size"]')).toBeTruthy()
+
+    act(() => {
+      clickElement(getRequiredElement(toolbar, 'button[aria-label="Text formatting"]'))
+    })
+
+    expect(
+      document.querySelector('[data-slot="drafting-layer-text-typography-settings"]'),
+    ).toBeTruthy()
+
+    act(() => {
+      clickElement(getRequiredElement(toolbar, 'button[aria-label="Text size"]'))
+    })
+
+    expect(document.querySelector('[data-slot="drafting-layer-text-size-settings"]')).toBeTruthy()
+    expect(document.querySelector('[data-slot="drafting-layer-text-size-settings"] button[aria-label="32px"]')).toBeTruthy()
 
     act(() => {
       clickElement(getRequiredElement(toolbar, 'button[aria-label="Copy selection"]'))

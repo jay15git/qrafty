@@ -57,6 +57,7 @@ import {
   getLayerControlShellStyle,
 } from "@/features/workspace/rendering/layer-dom-styles"
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
+import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import type { QrStudioState } from "@/features/qr-code/model/state"
 import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
 import { createDefaultSceneComposition, type SceneCompositionState } from "@/features/workspace/model/scene-templates"
@@ -98,6 +99,7 @@ export type PaneWorkspaceProps = {
   selectedLayerIds?: string[]
   snapEnabled?: boolean
   state: QrStudioState
+  theme?: DesktopThemeMode
 }
 
 const LAYER_MOVE_CURSOR_LOCK_CLASS = "drafting-layer-moving"
@@ -181,6 +183,7 @@ export function PaneWorkspace({
   sceneComposition = createDefaultSceneComposition(),
   selectedLayerId,
   selectedLayerIds,
+  theme = "dark",
 }: PaneWorkspaceProps) {
   const [hasError, setHasError] = useState(false)
   const [rotatingLayerId, setRotatingLayerId] = useState<string | null>(null)
@@ -1112,8 +1115,14 @@ export function PaneWorkspace({
         layers={selectedVisibleLayers}
         onAction={onLayerAction ? runSelectedLayerAction : undefined}
         onCopy={onLayerCopy ? runSelectedLayerCopy : undefined}
+        onLayerChange={
+          onLayerChange && selectedVisibleLayers.length === 1
+            ? (patch) => onLayerChange(selectedVisibleLayers[0]!.id, patch)
+            : undefined
+        }
         onMore={(event) => openFloatingLayerContextMenu(event, selectedVisibleLayerIds)}
         style={layerToolbarStyle}
+        theme={theme}
       />
     )
   }

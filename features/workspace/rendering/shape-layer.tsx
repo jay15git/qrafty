@@ -10,6 +10,11 @@ import {
 } from "@/features/workspace/model/corner-radius"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
 import { getStrokeDasharray } from "@/features/workspace/rendering/layer-appearance"
+import {
+  resolveShapeSvgFill,
+  ShapeFillGradientDefs,
+  shouldRenderShapeFillGradient,
+} from "@/features/workspace/rendering/shape-fill"
 
 function getShapeDefinition(shapeId: NonNullable<DraftingCanvasLayer["shapeId"]>) {
   if (shapeId === "rect" || shapeId === "ellipse" || shapeId === "line" || shapeId === "arrow") {
@@ -40,11 +45,15 @@ function getShapeFillStyle(layer: DraftingCanvasLayer): CSSProperties {
 }
 
 function getShapePathFill(layer: DraftingCanvasLayer) {
-  if (layer.fillMode === "none") {
-    return "none"
+  return resolveShapeSvgFill(layer)
+}
+
+function renderShapeGradientDefs(layer: DraftingCanvasLayer) {
+  if (!shouldRenderShapeFillGradient(layer) || !layer.fillGradient) {
+    return null
   }
 
-  return layer.fill ?? "#E8E8E8"
+  return <ShapeFillGradientDefs gradient={layer.fillGradient} layerId={layer.id} />
 }
 
 function renderPrimitiveShape(
@@ -54,12 +63,13 @@ function renderPrimitiveShape(
   const stroke = layer.stroke ?? "#171717"
   const strokeWidth = layer.strokeWidth ?? 0
   const strokeOpacity = (layer.strokeOpacity ?? 100) / 100
-  const fill = layer.fillMode === "none" ? "none" : (layer.fill ?? "#E8E8E8")
+  const fill = resolveShapeSvgFill(layer)
   const strokeDasharray = getStrokeDasharray(layer.strokeStyle)
 
   if (shapeId === "line") {
     return (
       <svg aria-hidden="true" className="h-full w-full" viewBox="0 0 100 100">
+        <defs>{renderShapeGradientDefs(layer)}</defs>
         <line
           stroke={stroke}
           strokeDasharray={strokeDasharray}
@@ -78,6 +88,7 @@ function renderPrimitiveShape(
   if (shapeId === "arrow") {
     return (
       <svg aria-hidden="true" className="h-full w-full" viewBox="0 0 100 100">
+        <defs>{renderShapeGradientDefs(layer)}</defs>
         <path
           d="M10 50 H62 M62 50 L44 34 M62 50 L44 66"
           fill="none"
@@ -95,6 +106,7 @@ function renderPrimitiveShape(
   if (shapeId === "ellipse") {
     return (
       <svg aria-hidden="true" className="h-full w-full" viewBox="0 0 100 100">
+        <defs>{renderShapeGradientDefs(layer)}</defs>
         <ellipse
           cx="50"
           cy="50"
@@ -122,6 +134,7 @@ function renderPrimitiveShape(
 
     return (
       <svg aria-hidden="true" className="h-full w-full" viewBox="0 0 100 100">
+        <defs>{renderShapeGradientDefs(layer)}</defs>
         <path
           d={path}
           fill={fill}
@@ -151,6 +164,7 @@ export function DraftingShapeLayerContent({ layer }: { layer: DraftingCanvasLaye
           preserveAspectRatio="none"
           viewBox={`0 0 ${definition.viewBox.width} ${definition.viewBox.height}`}
         >
+          <defs>{renderShapeGradientDefs(layer)}</defs>
           <path
             d={definition.path}
             fill={getShapePathFill(layer)}
