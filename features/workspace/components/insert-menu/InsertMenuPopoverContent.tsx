@@ -10,7 +10,6 @@ import {
   InsertMenuImagePanel,
   InsertMenuRootPanel,
   InsertMenuShapePanel,
-  InsertMenuShaderPanel,
 } from "@/features/workspace/components/insert-menu/InsertMenuPanels"
 import {
   INSERT_MENU_EMOJI_POPOVER_WIDTH,
@@ -20,7 +19,6 @@ import {
 } from "@/features/workspace/components/insert-menu/insert-menu-styles"
 import {
   createDraftingImageLayer,
-  createDraftingShaderLayer,
   createDraftingShapeLayer,
   createDraftingTextLayer,
   type DraftingElementShapeId,
@@ -31,7 +29,6 @@ import {
   type IllustrationSetId,
 } from "@/features/workspace/assets/illustration-sets"
 import { cn } from "@/lib/utils"
-import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
 
 import "@/features/desktop-shell/inspector/desktopnew.css"
 
@@ -57,7 +54,7 @@ export function InsertMenuPopoverContent({
   theme = "dark",
 }: InsertMenuPopoverContentProps) {
   const [panel, setPanel] = useState<
-    "root" | "shape" | "image" | "shader" | "emoji" | "illustration" | "illustration-set"
+    "root" | "shape" | "image" | "emoji" | "illustration" | "illustration-set"
   >("root")
   const [imageUrl, setImageUrl] = useState("")
   const [illustrationSetId, setIllustrationSetId] = useState<IllustrationSetId | null>(null)
@@ -90,11 +87,6 @@ export function InsertMenuPopoverContent({
         text: emoji,
       }),
     )
-    closeMenu()
-  }
-
-  function insertShader(shaderId: PaperShaderId) {
-    onInsertLayer(createDraftingShaderLayer(nodeId, shaderId))
     closeMenu()
   }
 
@@ -165,7 +157,6 @@ export function InsertMenuPopoverContent({
           onOpenIllustrationPanel={() => setPanel("illustration")}
           onOpenImagePanel={() => setPanel("image")}
           onOpenShapePanel={() => setPanel("shape")}
-          onOpenShaderPanel={() => setPanel("shader")}
         />
       ) : null}
       {panel === "shape" ? (
@@ -173,13 +164,6 @@ export function InsertMenuPopoverContent({
           isDesktopPopover={isDesktopPopover}
           onBack={() => setPanel("root")}
           onSelectShape={insertShape}
-        />
-      ) : null}
-      {panel === "shader" ? (
-        <InsertMenuShaderPanel
-          isDesktopPopover={isDesktopPopover}
-          onBack={() => setPanel("root")}
-          onSelectShader={insertShader}
         />
       ) : null}
       {panel === "emoji" ? (

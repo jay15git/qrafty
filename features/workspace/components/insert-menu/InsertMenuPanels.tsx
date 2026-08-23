@@ -6,7 +6,6 @@ import {
   ImageIcon,
   PenLineIcon,
   SmileIcon,
-  SparklesIcon,
   TypeIcon,
 } from "lucide-react"
 import type { ReactNode } from "react"
@@ -29,7 +28,6 @@ import {
   INSERT_MENU_PANEL_TITLE,
 } from "@/features/workspace/components/insert-menu/insert-menu-styles"
 import { IllustrationOptionGrid } from "@/features/workspace/components/IllustrationOptionGrid"
-import { PaperShaderOptionGrid } from "@/features/workspace/components/PaperShaderOptionGrid"
 import {
   ILLUSTRATION_SETS,
   type IllustrationAsset,
@@ -37,7 +35,6 @@ import {
   type IllustrationSetId,
 } from "@/features/workspace/assets/illustration-sets"
 import type { DraftingElementShapeId } from "@/features/workspace/model/layers"
-import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
 import { cn } from "@/lib/utils"
 
 export function InsertMenuActionButton({
@@ -120,7 +117,6 @@ export function InsertMenuRootPanel({
   onOpenImagePanel,
   onOpenShapePanel,
   onOpenEmojiPanel,
-  onOpenShaderPanel,
 }: {
   canAddQrCode: boolean
   isDesktopPopover: boolean
@@ -130,7 +126,6 @@ export function InsertMenuRootPanel({
   onOpenIllustrationPanel: () => void
   onOpenImagePanel: () => void
   onOpenShapePanel: () => void
-  onOpenShaderPanel: () => void
 }) {
   return (
     <div className={cn("grid", isDesktopPopover ? "gap-0.5" : "gap-2")}>
@@ -153,10 +148,6 @@ export function InsertMenuRootPanel({
       <InsertMenuActionButton isDesktopPopover={isDesktopPopover} onClick={onOpenImagePanel}>
         <ImageIcon className="size-4 shrink-0" data-icon="inline-start" />
         Image
-      </InsertMenuActionButton>
-      <InsertMenuActionButton isDesktopPopover={isDesktopPopover} onClick={onOpenShaderPanel}>
-        <SparklesIcon className="size-4 shrink-0" data-icon="inline-start" />
-        Shader
       </InsertMenuActionButton>
       <InsertMenuActionButton
         isDesktopPopover={isDesktopPopover}
@@ -197,27 +188,6 @@ export function InsertMenuShapePanel({
         decorativeDataSlot="drafting-insert-decorative-shape-grid"
         variant={isDesktopPopover ? "insert-desktop" : "insert-drafting"}
         onSelect={onSelectShape}
-      />
-    </div>
-  )
-}
-
-export function InsertMenuShaderPanel({
-  isDesktopPopover,
-  onBack,
-  onSelectShader,
-}: {
-  isDesktopPopover: boolean
-  onBack: () => void
-  onSelectShader: (shaderId: PaperShaderId) => void
-}) {
-  return (
-    <div className="space-y-3">
-      <InsertMenuPanelHeader isDesktopPopover={isDesktopPopover} title="Choose shader" onBack={onBack} />
-      <PaperShaderOptionGrid
-        dataSlot="drafting-paper-shader-insert-grid"
-        variant={isDesktopPopover ? "insert-desktop" : "insert-drafting"}
-        onSelect={onSelectShader}
       />
     </div>
   )
