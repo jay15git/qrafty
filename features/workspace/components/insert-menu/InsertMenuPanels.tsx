@@ -9,7 +9,7 @@ import {
   TypeIcon,
 } from "lucide-react"
 import type { ReactNode } from "react"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 
 import {
   EmojiPicker,
@@ -21,8 +21,19 @@ import { Input } from "@/components/ui/input"
 import { SecondaryButton } from "@/components/ui/secondary-button"
 import FileUpload from "@/components/vendor/kokonutui/file-upload"
 import { ElementShapeOptionGrid } from "@/features/workspace/components/ElementShapeOptionGrid"
+import { InsertMenuFanPreview } from "@/features/workspace/components/insert-menu/InsertMenuFanPreview"
+import type { InsertMenuFanPreviewItems } from "@/features/workspace/components/insert-menu/InsertMenuFanPreview"
+import {
+  INSERT_MENU_EMOJI_FAN_PREVIEWS,
+  INSERT_MENU_ILLUSTRATION_SET_PREVIEWS,
+  INSERT_MENU_IMAGE_PREVIEWS,
+  INSERT_MENU_QR_PREVIEWS,
+  INSERT_MENU_SHAPE_PREVIEWS,
+  INSERT_MENU_TEXT_PREVIEWS,
+} from "@/features/workspace/components/insert-menu/insert-menu-root-previews"
 import {
   INSERT_MENU_BACK_BUTTON,
+  INSERT_MENU_EMOJI_SHELL_CLASS,
   INSERT_MENU_INPUT_CLASS,
   INSERT_MENU_ITEM_CLASS,
   INSERT_MENU_PANEL_TITLE,
@@ -108,12 +119,46 @@ function InsertMenuPanelHeader({
   )
 }
 
+export function InsertMenuRootOptionTile({
+  disabled,
+  label,
+  onClick,
+  previews,
+  slot,
+}: {
+  disabled?: boolean
+  label: string
+  onClick: () => void
+  previews: InsertMenuFanPreviewItems
+  slot?: string
+}) {
+  const [isHovered, setIsHovered] = useState(false)
+
+  return (
+    <button
+      aria-label={label}
+      className="dn-insert-menu-root-tile dn-option-tile dn-squircle-xs"
+      data-slot={slot}
+      disabled={disabled}
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <span className="dn-insert-menu-root-tile-preview">
+        <InsertMenuFanPreview isHovered={isHovered} previews={previews} />
+      </span>
+      <span className="dn-insert-menu-root-tile-label">{label}</span>
+    </button>
+  )
+}
+
 export function InsertMenuRootPanel({
   canAddQrCode,
   isDesktopPopover,
   onAddQrCode,
   onInsertText,
-  onOpenIllustrationPanel,
+  onOpenIllustrationSet,
   onOpenImagePanel,
   onOpenShapePanel,
   onOpenEmojiPanel,
@@ -123,12 +168,58 @@ export function InsertMenuRootPanel({
   onAddQrCode?: () => void
   onInsertText: () => void
   onOpenEmojiPanel: () => void
-  onOpenIllustrationPanel: () => void
+  onOpenIllustrationSet: (setId: IllustrationSetId) => void
   onOpenImagePanel: () => void
   onOpenShapePanel: () => void
 }) {
+  if (isDesktopPopover) {
+    return (
+      <div className="dn-insert-menu-root-grid p-3.5">
+        <InsertMenuRootOptionTile
+          label="Text"
+          previews={INSERT_MENU_TEXT_PREVIEWS}
+          onClick={onInsertText}
+        />
+        <InsertMenuRootOptionTile
+          label="Shape"
+          previews={INSERT_MENU_SHAPE_PREVIEWS}
+          onClick={onOpenShapePanel}
+        />
+        <InsertMenuRootOptionTile
+          label="Emoji"
+          previews={INSERT_MENU_EMOJI_FAN_PREVIEWS}
+          slot="drafting-insert-menu-emoji"
+          onClick={onOpenEmojiPanel}
+        />
+        <InsertMenuRootOptionTile
+          label="Image"
+          previews={INSERT_MENU_IMAGE_PREVIEWS}
+          onClick={onOpenImagePanel}
+        />
+        {ILLUSTRATION_SETS.map((set) => (
+          <InsertMenuRootOptionTile
+            key={set.id}
+            label={set.label}
+            previews={INSERT_MENU_ILLUSTRATION_SET_PREVIEWS[set.id]}
+            slot={`drafting-insert-menu-illustration-${set.id}`}
+            onClick={() => onOpenIllustrationSet(set.id)}
+          />
+        ))}
+        {onAddQrCode ? (
+          <InsertMenuRootOptionTile
+            disabled={!canAddQrCode}
+            label={canAddQrCode ? "QR code" : "Max 10 QR codes"}
+            previews={INSERT_MENU_QR_PREVIEWS}
+            slot="drafting-insert-menu-add-qr"
+            onClick={onAddQrCode}
+          />
+        ) : null}
+      </div>
+    )
+  }
+
   return (
-    <div className={cn("grid", isDesktopPopover ? "gap-0.5" : "gap-2")}>
+    <div className="grid gap-2">
       <InsertMenuActionButton isDesktopPopover={isDesktopPopover} onClick={onInsertText}>
         <TypeIcon className="size-4 shrink-0" data-icon="inline-start" />
         Text
@@ -149,14 +240,17 @@ export function InsertMenuRootPanel({
         <ImageIcon className="size-4 shrink-0" data-icon="inline-start" />
         Image
       </InsertMenuActionButton>
-      <InsertMenuActionButton
-        isDesktopPopover={isDesktopPopover}
-        onClick={onOpenIllustrationPanel}
-        slot="drafting-insert-menu-illustration"
-      >
-        <PenLineIcon className="size-4 shrink-0" data-icon="inline-start" />
-        Illustration
-      </InsertMenuActionButton>
+      {ILLUSTRATION_SETS.map((set) => (
+        <InsertMenuActionButton
+          isDesktopPopover={isDesktopPopover}
+          key={set.id}
+          slot={`drafting-insert-menu-illustration-${set.id}`}
+          onClick={() => onOpenIllustrationSet(set.id)}
+        >
+          <PenLineIcon className="size-4 shrink-0" data-icon="inline-start" />
+          {set.label}
+        </InsertMenuActionButton>
+      ))}
       {onAddQrCode ? (
         <InsertMenuActionButton
           disabled={!canAddQrCode}
@@ -183,13 +277,59 @@ export function InsertMenuShapePanel({
 }) {
   return (
     <div className="space-y-3">
-      <InsertMenuPanelHeader isDesktopPopover={isDesktopPopover} title="Choose shape" onBack={onBack} />
+      <InsertMenuPanelHeader isDesktopPopover={isDesktopPopover} title="Shape" onBack={onBack} />
       <ElementShapeOptionGrid
         decorativeDataSlot="drafting-insert-decorative-shape-grid"
         variant={isDesktopPopover ? "insert-desktop" : "insert-drafting"}
         onSelect={onSelectShape}
       />
     </div>
+  )
+}
+
+function InsertMenuDesktopImageDropzone({
+  onFile,
+}: {
+  onFile: (file: File) => void
+}) {
+  const [isDragging, setIsDragging] = useState(false)
+
+  function takeFile(fileList: FileList | null) {
+    const file = fileList?.[0]
+    if (file?.type.startsWith("image/")) onFile(file)
+  }
+
+  return (
+    <label
+      className={cn(
+        "dn-settings-row dn-squircle-sm dn-pressable flex min-h-[4.5rem] cursor-pointer flex-col items-center justify-center gap-1 px-3 py-3 text-center",
+        isDragging && "text-[var(--dn-fg)]",
+      )}
+      onDragLeave={() => setIsDragging(false)}
+      onDragOver={(event) => {
+        event.preventDefault()
+        setIsDragging(true)
+      }}
+      onDrop={(event) => {
+        event.preventDefault()
+        setIsDragging(false)
+        takeFile(event.dataTransfer.files)
+      }}
+    >
+      <input
+        accept="image/*"
+        className="sr-only"
+        type="file"
+        onChange={(event) => {
+          takeFile(event.currentTarget.files)
+          event.currentTarget.value = ""
+        }}
+      />
+      <span className="text-[11px] font-semibold text-[var(--dn-fg)]">
+        {isDragging ? "Drop image" : "Upload image"}
+      </span>
+      <span className="dn-type-meta">PNG, JPG, SVG, WebP</span>
+    </label>
   )
 }
 
@@ -210,7 +350,7 @@ export function InsertMenuImagePanel({
 }) {
   return (
     <div className="space-y-3">
-      <InsertMenuPanelHeader isDesktopPopover={isDesktopPopover} title="Add image" onBack={onBack} />
+      <InsertMenuPanelHeader isDesktopPopover={isDesktopPopover} title="Image" onBack={onBack} />
       {onBrowseStockPhotos ? (
         <InsertMenuActionButton
           isDesktopPopover={isDesktopPopover}
@@ -221,30 +361,41 @@ export function InsertMenuImagePanel({
           Browse photos
         </InsertMenuActionButton>
       ) : null}
-      {onBrowseStockPhotos ? (
-        <div className="flex items-center gap-2 px-1">
-          <div
-            className={cn(
-              "h-px flex-1",
-              isDesktopPopover ? "bg-[var(--dn-line)]" : "bg-[var(--ws-line)]",
-            )}
-          />
-          <span
-            className={cn(
-              "text-xs font-medium",
-              isDesktopPopover ? "dn-type-meta" : "text-[var(--ws-ink-muted)]",
-            )}
-          >
-            or
-          </span>
-          <div
-            className={cn(
-              "h-px flex-1",
-              isDesktopPopover ? "bg-[var(--dn-line)]" : "bg-[var(--ws-line)]",
-            )}
-          />
-        </div>
-      ) : null}
+      {isDesktopPopover ? (
+        <InsertMenuDesktopImageDropzone
+          onFile={(file) => onInsertImage(URL.createObjectURL(file), "upload")}
+        />
+      ) : (
+        <FileUpload
+          acceptedFileTypes={["image/*"]}
+          className="mx-0 max-w-full"
+          onUploadError={() => undefined}
+          onUploadSuccess={(file) => onInsertImage(URL.createObjectURL(file), "upload")}
+          uploadDelay={0}
+        />
+      )}
+      <div className="flex items-center gap-2 px-1">
+        <div
+          className={cn(
+            "h-px flex-1",
+            isDesktopPopover ? "bg-[var(--dn-line)]" : "bg-[var(--ws-line)]",
+          )}
+        />
+        <span
+          className={cn(
+            "text-xs font-medium",
+            isDesktopPopover ? "dn-type-meta" : "text-[var(--ws-ink-muted)]",
+          )}
+        >
+          or
+        </span>
+        <div
+          className={cn(
+            "h-px flex-1",
+            isDesktopPopover ? "bg-[var(--dn-line)]" : "bg-[var(--ws-line)]",
+          )}
+        />
+      </div>
       <Input
         aria-label="Image URL"
         className={cn(
@@ -275,46 +426,6 @@ export function InsertMenuImagePanel({
           Use URL
         </SecondaryButton>
       )}
-      <FileUpload
-        acceptedFileTypes={["image/*"]}
-        className="mx-0 max-w-full"
-        onUploadError={() => undefined}
-        onUploadSuccess={(file) => onInsertImage(URL.createObjectURL(file), "upload")}
-        uploadDelay={0}
-      />
-    </div>
-  )
-}
-
-export function InsertMenuIllustrationPanel({
-  isDesktopPopover,
-  onBack,
-  onOpenSet,
-}: {
-  isDesktopPopover: boolean
-  onBack: () => void
-  onOpenSet: (setId: IllustrationSetId) => void
-}) {
-  return (
-    <div className="space-y-3">
-      <InsertMenuPanelHeader
-        isDesktopPopover={isDesktopPopover}
-        title="Choose illustration set"
-        onBack={onBack}
-      />
-      <div className={cn("grid", isDesktopPopover ? "gap-0.5" : "gap-2")}>
-        {ILLUSTRATION_SETS.map((set) => (
-          <InsertMenuActionButton
-            isDesktopPopover={isDesktopPopover}
-            key={set.id}
-            onClick={() => onOpenSet(set.id)}
-          >
-            <PenLineIcon className="size-4 shrink-0" data-icon="inline-start" />
-            {set.label}
-            <span className="ml-auto text-xs font-medium opacity-60">{set.assets.length}</span>
-          </InsertMenuActionButton>
-        ))}
-      </div>
     </div>
   )
 }
@@ -345,58 +456,62 @@ export function InsertMenuIllustrationSetPanel({
 
 export function InsertMenuEmojiPanel({
   isDesktopPopover,
+  onBack,
   onSelectEmoji,
 }: {
   isDesktopPopover: boolean
+  onBack?: () => void
   onSelectEmoji: (emoji: string) => void
 }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [columns, setColumns] = useState(10)
+  const picker = (
+    <EmojiPicker
+      className={cn(
+        "min-h-0 min-w-0 w-full flex-1 border-0 bg-transparent shadow-none [--frimousse-row-height:2.25rem]",
+        isDesktopPopover
+          ? "text-[var(--dn-fg)] [--frimousse-emoji-font:'Apple_Color_Emoji','Segoe_UI_Emoji','Noto_Color_Emoji',sans-serif]"
+          : "h-[22rem] dn-squircle-sm border border-[var(--ws-line)] bg-[var(--ws-panel-bg)]",
+      )}
+      columns={8}
+      data-slot="drafting-insert-menu-emoji-picker"
+      onEmojiSelect={({ emoji }) => onSelectEmoji(emoji)}
+    >
+      <EmojiPickerSearch
+        className={cn(
+          "shrink-0 border-0 bg-transparent",
+          isDesktopPopover
+            ? "border-b border-[var(--dn-line)] px-3.5 [&_input]:bg-transparent [&_input]:placeholder:text-[var(--dn-muted)]"
+            : "border-b border-[var(--ws-line)] px-0",
+        )}
+        placeholder="Search emoji…"
+      />
+      <EmojiPickerContent
+        className={cn(
+          isDesktopPopover &&
+            "[&_[data-slot=emoji-picker-emoji]]:hover:bg-[var(--dn-control)] [&_[data-slot=emoji-picker-emoji][data-active]]:bg-[var(--dn-control)]",
+        )}
+      />
+    </EmojiPicker>
+  )
 
-  useEffect(() => {
-    const node = containerRef.current
-    if (!node) return
-
-    const updateColumns = () => {
-      const width = node.getBoundingClientRect().width
-      setColumns(Math.max(7, Math.min(12, Math.floor(width / 36))))
-    }
-
-    updateColumns()
-    const observer = new ResizeObserver(updateColumns)
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [])
+  if (!isDesktopPopover) {
+    return (
+      <div className="w-full min-w-0 space-y-3">
+        {onBack ? (
+          <InsertMenuPanelHeader isDesktopPopover={isDesktopPopover} title="Emoji" onBack={onBack} />
+        ) : null}
+        {picker}
+      </div>
+    )
+  }
 
   return (
-    <div ref={containerRef} className="w-full min-w-0">
-      <EmojiPicker
-        className={cn(
-          "h-[22rem] min-w-0 w-full border-0 bg-transparent shadow-none [--frimousse-row-height:2.25rem]",
-          isDesktopPopover
-            ? "text-[var(--dn-fg)] [--frimousse-emoji-font:'Apple_Color_Emoji','Segoe_UI_Emoji','Noto_Color_Emoji',sans-serif]"
-            : "dn-squircle-sm border border-[var(--ws-line)] bg-[var(--ws-panel-bg)]",
-        )}
-        columns={columns}
-        data-slot="drafting-insert-menu-emoji-picker"
-        onEmojiSelect={({ emoji }) => onSelectEmoji(emoji)}
-      >
-        <EmojiPickerSearch
-          className={cn(
-            "border-0 bg-transparent px-0",
-            isDesktopPopover
-              ? "border-b border-[var(--dn-line)] [&_input]:bg-transparent [&_input]:placeholder:text-[var(--dn-muted)]"
-              : "border-b border-[var(--ws-line)]",
-          )}
-          placeholder="Search emoji…"
-        />
-        <EmojiPickerContent
-          className={cn(
-            isDesktopPopover &&
-              "[&_[data-slot=emoji-picker-category-header]]:hidden [&_[data-slot=emoji-picker-emoji]]:hover:bg-[var(--dn-control-hover)] [&_[data-slot=emoji-picker-emoji][data-active]]:bg-[var(--dn-control-hover)]",
-          )}
-        />
-      </EmojiPicker>
+    <div className={INSERT_MENU_EMOJI_SHELL_CLASS}>
+      {onBack ? (
+        <div className="shrink-0 px-3.5 pt-3.5">
+          <InsertMenuPanelHeader isDesktopPopover={isDesktopPopover} title="Emoji" onBack={onBack} />
+        </div>
+      ) : null}
+      {picker}
     </div>
   )
 }

@@ -93,6 +93,16 @@ export function MotionSectionIcon({ className, size = 14 }: SettingsSectionIconP
   )
 }
 
+export function ElementsSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
+  return (
+    <SettingsSectionSvg className={className} size={size}>
+      <path d="M12 2.75L3.5 7.25L12 11.75L20.5 7.25L12 2.75Z" />
+      <path d="M3.5 12.25L12 16.75L20.5 12.25" />
+      <path d="M3.5 17.25L12 21.75L20.5 17.25" />
+    </SettingsSectionSvg>
+  )
+}
+
 export function ExportSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
   return (
     <SettingsSectionSvg className={className} size={size}>
@@ -109,6 +119,7 @@ const SETTINGS_SECTION_ICON_MAP = {
   Effects: EffectsSectionIcon,
   Background: BackgroundSectionIcon,
   Motion: MotionSectionIcon,
+  Elements: ElementsSectionIcon,
   Export: ExportSectionIcon,
 } as const
 

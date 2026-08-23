@@ -15,6 +15,7 @@ import {
 } from "@/features/qr-code/styles/background-shapes"
 
 import { DesktopBrandMark } from "@/features/desktop-shell/components/DesktopBrandMark"
+import { ElementsSection } from "@/features/desktop-shell/inspector/desktopnew-elements-section"
 import { DesktopNewContentFields } from "@/features/desktop-shell/inspector/desktopnew-content-fields"
 import {
   ContentTypePicker,
@@ -81,11 +82,12 @@ const SECTIONS = [
   "Motion",
   "Shape",
   "Background",
+  "Elements",
 ] as const
 
 type SectionId = (typeof SECTIONS)[number]
 
-const SECTION_TO_TOOL: Record<SectionId, DesktopToolbarToolId> = {
+const SECTION_TO_TOOL: Partial<Record<SectionId, DesktopToolbarToolId>> = {
   Content: "content",
   QR: "pattern",
   Shape: "shape",
@@ -393,6 +395,8 @@ function SectionBody({
       return <SceneSection model={model} />
     case "Motion":
       return <MotionSection model={model} />
+    case "Elements":
+      return <ElementsSection model={model} />
     default:
       return null
   }

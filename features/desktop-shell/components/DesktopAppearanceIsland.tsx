@@ -2,7 +2,6 @@
 
 import { useMemo, type ReactNode } from "react"
 import {
-  LayersIcon,
   MagnetIcon,
   MoonIcon,
   MousePointer2Icon,
@@ -15,18 +14,14 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { DesktopKeyboardShortcutsPopoverContent } from "@/features/desktop-shell/components/DesktopChromeControls"
 import { DesktopCanvasRatioPresetPopoverContent } from "@/features/desktop-shell/components/DesktopCanvasRatioPresetRow"
 import { DesktopLayerPropertiesPanel } from "@/features/desktop-shell/components/DesktopLayerPropertiesPanel"
-import { DesktopLayersPopoverContent } from "@/features/desktop-shell/components/DesktopLayersPopoverContent"
 import { DesktopToolbarPopoverContent } from "@/features/desktop-shell/components/DesktopToolbarPopover"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
-import type { DesktopLayersSettings } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import { getDesktopLayerToolbarCapabilities } from "@/features/desktop-shell/model/layer-toolbar-capabilities"
 import { TooltipNavbar, type TooltipItem } from "@/components/ui/tooltip-navbar"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import type { SizeTemplate } from "@/features/workspace/model/size-templates"
 import type { DraftingPaneCanvasTool } from "@/features/workspace/components/DraftingPaneSurface"
-import { InsertMenuPopoverContent } from "@/features/workspace/components/insert-menu/InsertMenuPopoverContent"
-import { InsertMenuAddIcon } from "@/features/workspace/components/insert-menu/InsertMenuAddIcon"
 
 function DesktopToolbarSvgIcon({
   className,
@@ -97,20 +92,12 @@ export function DesktopDynamicIslandChrome({
   activeCanvasTool,
   activePaneId,
   appearanceLayer,
-  canAddQrCode,
   canRedo,
   canUndo,
-  insertNodeId,
-  onAddQrCode,
-  onBrowseStockPhotos,
   onCanvasToolChange,
-  onInsertLayer,
   onAppearancePatch,
   onRedo,
   onElementLayerPatch,
-  layersSettings,
-  onLayersReorder,
-  onLayersSettingsChange,
   onTransformLayerPatch,
   onSelectSizeTemplate,
   onSnapEnabledChange,
@@ -126,23 +113,12 @@ export function DesktopDynamicIslandChrome({
   activeCanvasTool?: DraftingPaneCanvasTool | null
   activePaneId?: string
   appearanceLayer?: DraftingCanvasLayer | null
-  canAddQrCode?: boolean
-  canRemoveQrCode?: boolean
   canRedo?: boolean
   canUndo?: boolean
-  insertNodeId?: string
-  onAddQrCode?: () => void
-  onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
-  onBrowseStockPhotos?: () => void
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
-  onInsertLayer?: (layer: DraftingCanvasLayer) => void
   onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onRedo?: () => void
-  onRemoveQrCode?: () => void
   onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
-  layersSettings?: DesktopLayersSettings
-  onLayersReorder?: (orderedIds: string[]) => void
-  onLayersSettingsChange?: (patch: Partial<DesktopLayersSettings>) => void
   onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onSelectSizeTemplate?: (template: SizeTemplate) => void
   onSnapEnabledChange?: (enabled: boolean) => void
@@ -154,7 +130,6 @@ export function DesktopDynamicIslandChrome({
   sizePresetId?: string
   theme?: DesktopThemeMode
 }) {
-  const hasLayerControls = Boolean(onLayersSettingsChange && layersSettings)
   const hasProperties =
     Boolean(selectedTransformLayer && onTransformLayerPatch) ||
     Boolean(selectedElementLayer && onElementLayerPatch) ||
@@ -218,42 +193,6 @@ export function DesktopDynamicIslandChrome({
           onClick: () => onSnapEnabledChange?.(!snapEnabled),
         },
       )
-
-      if (onInsertLayer && insertNodeId) {
-        nextItems.push({
-          ariaLabel: "Add content",
-          icon: <InsertMenuAddIcon className={ICON_CLASS} />,
-          label: "Add content",
-          popover: (
-            <InsertMenuPopoverContent
-              canAddQrCode={Boolean(canAddQrCode)}
-              nodeId={insertNodeId}
-              onAddQrCode={onAddQrCode}
-              onBrowseStockPhotos={onBrowseStockPhotos}
-              onInsertLayer={onInsertLayer}
-              theme={theme}
-            />
-          ),
-        })
-      }
-    }
-
-    if (hasLayerControls) {
-      nextItems.push({
-        ariaLabel: "Layers",
-        dataSlot: "desktop-layers-trigger",
-        icon: <LayersIcon className={ICON_CLASS} />,
-        label: "Layers",
-        popover: (
-          <DesktopToolbarPopoverContent dataSlot="desktop-layers-popover" fitContent flush>
-            <DesktopLayersPopoverContent
-              layersSettings={layersSettings!}
-              onLayersReorder={onLayersReorder}
-              onLayersSettingsChange={onLayersSettingsChange!}
-            />
-          </DesktopToolbarPopoverContent>
-        ),
-      })
     }
 
     if (hasProperties) {
@@ -312,25 +251,16 @@ export function DesktopDynamicIslandChrome({
     appearance,
     appearanceLayer,
     activeCanvasTool,
-    canAddQrCode,
     canRedo,
     canUndo,
     hasComposeControls,
-    hasLayerControls,
     hasProperties,
-    layersSettings,
-    onLayersReorder,
-    onLayersSettingsChange,
     propertyCapabilities.maxEffects,
     propertyCapabilities.propertyTabs,
     propertyCapabilities.showStyleInDesign,
-    insertNodeId,
-    onAddQrCode,
     onAppearancePatch,
-    onBrowseStockPhotos,
     onCanvasToolChange,
     onElementLayerPatch,
-    onInsertLayer,
     onRedo,
     onSelectSizeTemplate,
     onSnapEnabledChange,

@@ -72,6 +72,8 @@ import {
   loadDraftingFont,
   resolveDraftingFont,
 } from "@/features/workspace/model/fonts"
+import { IllustrationInspectorColorSection } from "@/features/workspace/components/IllustrationColorControls"
+import { isDraftingIllustrationLayer } from "@/features/workspace/model/layer-floating-settings"
 import { cn } from "@/lib/utils"
 
 const DESKTOP_TEXT_ALIGN_OPTIONS: Array<{ label: string; value: DraftingTextAlign }> = [
@@ -594,37 +596,48 @@ function DesktopLayerImageInspector({
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
 }) {
+  const isIllustration = isDraftingIllustrationLayer(layer)
+
   return (
     <DesktopInspectorSection
       className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
       dataSlot="desktop-layer-image-inspector"
     >
-      <DesktopInspectorLabel>Source</DesktopInspectorLabel>
-      <DesktopInspectorTextInput
-        aria-label="Image URL"
-        placeholder="https://example.com/photo.png"
-        value={layer.imageSource === "url" ? (layer.imageValue ?? "") : ""}
-        onChange={(event) =>
-          onPatch({
-            imageSource: event.currentTarget.value ? "url" : "none",
-            imageValue: event.currentTarget.value || undefined,
-          })
-        }
-      />
-      <div className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
-        <FileUpload
-          acceptedFileTypes={["image/*"]}
-          className="mx-0 max-w-full"
-          onUploadError={() => undefined}
-          onUploadSuccess={(file) => {
-            onPatch({
-              imageSource: "upload",
-              imageValue: URL.createObjectURL(file),
-            })
-          }}
-          uploadDelay={0}
-        />
-      </div>
+      {isIllustration ? (
+        <div className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
+          <p className={cn("mb-3", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Color</p>
+          <IllustrationInspectorColorSection layer={layer} onPatch={onPatch} />
+        </div>
+      ) : (
+        <>
+          <DesktopInspectorLabel>Source</DesktopInspectorLabel>
+          <DesktopInspectorTextInput
+            aria-label="Image URL"
+            placeholder="https://example.com/photo.png"
+            value={layer.imageSource === "url" ? (layer.imageValue ?? "") : ""}
+            onChange={(event) =>
+              onPatch({
+                imageSource: event.currentTarget.value ? "url" : "none",
+                imageValue: event.currentTarget.value || undefined,
+              })
+            }
+          />
+          <div className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
+            <FileUpload
+              acceptedFileTypes={["image/*"]}
+              className="mx-0 max-w-full"
+              onUploadError={() => undefined}
+              onUploadSuccess={(file) => {
+                onPatch({
+                  imageSource: "upload",
+                  imageValue: URL.createObjectURL(file),
+                })
+              }}
+              uploadDelay={0}
+            />
+          </div>
+        </>
+      )}
 
       <div className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
         <p className={cn("mb-2", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Image fit</p>
@@ -634,7 +647,6 @@ function DesktopLayerImageInspector({
           onChange={(imageFit) => onPatch({ imageFit: imageFit as "cover" | "contain" })}
         />
       </div>
-
     </DesktopInspectorSection>
   )
 }

@@ -3447,6 +3447,10 @@ export function WorkspaceSurface({
       })),
     onLayersSettingsChange: updateDesktopLayersSettings,
     onLayersReorder: handleLayerReorder,
+    onLayerDelete: (layerId: string) => {
+      handleLayerAction(activeQrNodeId, [layerId], "delete")
+    },
+    canDeleteLayer: (layerId: string) => isLayerDeletable(layerId, activeCanvasLayers),
     onLogoReset: resetDesktopLogoSettings,
     onLogoSettingsChange: updateDesktopLogoSettings,
     onMotionReset: () => setSelectedDotMatrixAnimation({ ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation }),

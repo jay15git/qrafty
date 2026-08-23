@@ -9,6 +9,8 @@ import {
   scaleCornerRadiiToBounds,
 } from "@/features/workspace/model/corner-radius"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
+import { IllustrationLayerImage } from "@/features/workspace/components/IllustrationColorControls"
+import { isDraftingIllustrationLayer } from "@/features/workspace/model/layer-floating-settings"
 import { getStrokeDasharray } from "@/features/workspace/rendering/layer-appearance"
 import {
   resolveShapeSvgFill,
@@ -198,6 +200,14 @@ export function DraftingImageLayerContent({ layer }: { layer: DraftingCanvasLaye
         style={{ borderRadius: cornerStyle }}
       >
         Image
+      </div>
+    )
+  }
+
+  if (isDraftingIllustrationLayer(layer)) {
+    return (
+      <div className="relative h-full w-full" style={{ borderRadius: cornerStyle }}>
+        <IllustrationLayerImage layer={layer} />
       </div>
     )
   }

@@ -151,23 +151,19 @@ export function ElementShapeOptionGrid({
   }
 
   const isInsertDesktop = variant === "insert-desktop"
-  const decorativeFill = isInsertDesktop ? "#E8E8E8" : shapeFill
-  const buttonClassName = cn(
-    "flex aspect-square w-full min-w-0 items-center justify-center p-2 transition",
-    isInsertDesktop
-      ? "text-[var(--dn-muted)] hover:bg-[var(--dn-control-hover)] hover:text-[var(--dn-fg)]"
-      : "text-[var(--ws-ink-muted)] hover:bg-[var(--ws-panel-bg-hover)] hover:text-[var(--ws-ink)]",
-  )
+  const decorativeFill = isInsertDesktop ? "currentColor" : shapeFill
+  const buttonClassName = isInsertDesktop
+    ? "dn-option-tile flex aspect-square w-full min-w-0 items-center justify-center dn-squircle-xs"
+    : "flex aspect-square w-full min-w-0 items-center justify-center p-2 text-[var(--ws-ink-muted)] transition hover:bg-[var(--ws-panel-bg-hover)] hover:text-[var(--ws-ink)]"
 
   return (
     <div
       aria-label="Shape options"
-      className={cn(
-        "grid max-h-72 grid-cols-3 gap-0 overflow-y-auto",
+      className={
         isInsertDesktop
-          ? "dn-squircle-sm border border-[var(--dn-line)] bg-[var(--dn-control)]"
-          : undefined,
-      )}
+          ? "dn-insert-menu-option-grid"
+          : "grid max-h-72 grid-cols-3 gap-0 overflow-y-auto"
+      }
       data-slot={optionsDataSlot ?? decorativeDataSlot}
       role="group"
     >

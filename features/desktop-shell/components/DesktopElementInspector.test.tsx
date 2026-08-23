@@ -131,7 +131,7 @@ describe("FloatingToolbar selected element routing", () => {
       />,
     )
 
-    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).toBeNull()

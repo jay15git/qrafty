@@ -58,6 +58,7 @@ describe("FloatingToolbar", () => {
       "Motion",
       "Shape",
       "Background",
+      "Elements",
     ])
     expect(surface.container.querySelector('[data-slot="desktop-inspector-accordion"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-prototype-canvas"]')).toBeNull()
@@ -97,7 +98,7 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).toBeNull()
@@ -260,7 +261,7 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).toBeNull()
@@ -314,6 +315,7 @@ function getAccordionHeaders(container: HTMLElement) {
     "Motion",
     "Shape",
     "Background",
+    "Elements",
   ])
 
   return Array.from(

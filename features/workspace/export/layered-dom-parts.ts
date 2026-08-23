@@ -26,6 +26,12 @@ import type { QrStudioState } from "@/features/qr-code/model/state"
 import { getDraftingQrLayerLayout } from "@/features/qr-code/rendering/svg-extension"
 import { buildDraftingQrBackgroundSvgPayload } from "@/features/workspace/components/drafting-qr-background.utils"
 
+import {
+  collectIllustrationAssetPaths,
+  getCachedIllustrationDisplaySrc,
+  preloadIllustrationSvgMarkup,
+} from "@/features/workspace/assets/illustration-recolor"
+
 import { getDraftingLayerBounds } from "./layered-svg-parts"
 
 export type LayeredDomParts = {
@@ -49,6 +55,7 @@ export async function buildLayeredDomParts({
   qrMarkup: string
   state: QrStudioState
 }): Promise<LayeredDomParts> {
+  await preloadIllustrationSvgMarkup(collectIllustrationAssetPaths(layers))
   const bounds = getDraftingLayerBounds(layers, state)
   const domLayers = layers
     .filter((layer) => layer.isVisible)
@@ -176,7 +183,10 @@ function getDraftingTextLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
 }
 
 function getDraftingImageLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
-  const imageValue = layer.imageValue ?? ""
+  const imageValue =
+    getCachedIllustrationDisplaySrc(layer.imageValue, layer.illustrationColorStops) ??
+    layer.imageValue ??
+    ""
   const imageStyle = getDraftingImageDomStyle(layer)
 
   return {

@@ -40,6 +40,7 @@ import {
   isDraftingEmojiLayer,
   isDraftingIllustrationLayer,
 } from "@/features/workspace/model/layer-floating-settings"
+import { IllustrationFloatingColorControl } from "@/features/workspace/components/IllustrationColorControls"
 import { resolveDraftingFont } from "@/features/workspace/model/fonts"
 import {
   getShapeLayerFillCssValue,
@@ -467,6 +468,12 @@ export function LayerFloatingToolbarSettings({
         content={<ImageFitSettings layer={layer} onPatch={onPatch} />}
         trigger={<ImageIcon className="size-4" strokeWidth={2} />}
       />
+    )
+  }
+
+  if (isDraftingIllustrationLayer(layer)) {
+    return (
+      <IllustrationFloatingColorControl layer={layer} onPatch={onPatch} theme={theme} />
     )
   }
 

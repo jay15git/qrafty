@@ -22,6 +22,11 @@ import {
   getDraftingQrBackgroundSvgMarkup,
 } from "@/features/workspace/components/drafting-qr-background.utils"
 
+import {
+  collectIllustrationAssetPaths,
+  getCachedIllustrationDisplaySrc,
+  preloadIllustrationSvgMarkup,
+} from "@/features/workspace/assets/illustration-recolor"
 import type { QrStudioState } from "@/features/qr-code/model/state"
 
 export type LayeredSvgParts = {
@@ -46,6 +51,7 @@ export async function buildLayeredSvgParts({
   qrMarkup: string
   state: QrStudioState
 }): Promise<LayeredSvgParts> {
+  await preloadIllustrationSvgMarkup(collectIllustrationAssetPaths(layers))
   const bounds = getDraftingLayerBounds(layers, state)
   const defs = layers.flatMap(getDraftingLayerFilterMarkups).filter(Boolean).join("")
   const body = layers
@@ -181,7 +187,10 @@ function getDraftingImageLayerSvg(layer: DraftingCanvasLayer) {
   const filter = getDraftingLayerFilterMarkup(layer)
     ? ` filter="url(#${getSvgId(layer.id)}-filter)"`
     : ""
-  const imageValue = layer.imageValue ?? ""
+  const imageValue =
+    getCachedIllustrationDisplaySrc(layer.imageValue, layer.illustrationColorStops) ??
+    layer.imageValue ??
+    ""
 
   if (!imageValue) {
     return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><rect x="0" y="0" width="${layer.width}" height="${layer.height}" fill="none" stroke="#d4d4d8"/></g>`

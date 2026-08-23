@@ -88,26 +88,15 @@ export function FloatingToolbar({
               appearanceLayer={controller?.selectedAppearanceLayer}
               activeCanvasTool={controller?.canvasTool}
               activePaneId={controller?.insertNodeId}
-              canAddQrCode={controller?.canAddQrCode}
-              canRemoveQrCode={controller?.canRemoveQrCode}
               canRedo={controller?.canRedo}
               canUndo={controller?.canUndo}
-              insertNodeId={controller?.insertNodeId}
-              onAddQrCode={controller?.onAddQrCode}
-              onAddTextLayerAt={controller?.onAddTextLayerAt}
-              onBrowseStockPhotos={() => controller?.onOpenComposeSidebar?.("stock-photos")}
               onCanvasToolChange={controller?.onCanvasToolChange}
               onElementLayerPatch={controller?.onElementLayerPatch}
-              onInsertLayer={controller?.onInsertLayer}
               onAppearancePatch={controller?.onAppearancePatch}
               onRedo={controller?.onRedo}
-              onRemoveQrCode={controller?.onRemoveQrCode}
               onSelectSizeTemplate={controller?.onSceneTemplateSizeTemplateSelect}
               onSnapEnabledChange={controller?.onSnapEnabledChange}
               onThemeChange={model.onDesktopThemeChange}
-              layersSettings={controller?.layersSettings}
-              onLayersReorder={controller?.onLayersReorder}
-              onLayersSettingsChange={controller?.onLayersSettingsChange}
               onTransformLayerPatch={controller?.onTransformLayerPatch}
               onUndo={controller?.onUndo}
               selectedElementLayer={controller?.selectedElementLayer}

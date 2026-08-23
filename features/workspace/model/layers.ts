@@ -54,6 +54,10 @@ import {
   normalizeCornerRadiiState,
   type DraftingCornerRadiiState,
 } from "@/features/workspace/model/corner-radius"
+import {
+  normalizeSvgPaintColor,
+  type DraftingIllustrationColorStop,
+} from "@/features/workspace/assets/illustration-recolor"
 
 export type DraftingCanvasLayerKind = "card" | "group" | "image" | "qr" | "shader" | "shape" | "text"
 export type DraftingImageSourceMode = "none" | "upload" | "url"
@@ -98,6 +102,7 @@ export type DraftingCanvasLayer = {
   imageFit?: DraftingImageFit
   imageSource?: DraftingImageSourceMode
   imageValue?: string
+  illustrationColorStops?: DraftingIllustrationColorStop[]
   layerFilters: DraftingFilterEffect[]
   letterSpacing?: number
   lineHeight?: number
@@ -629,6 +634,7 @@ export function cloneDraftingCanvasLayer(layer: DraftingCanvasLayer): DraftingCa
       (shadow) => ({ ...shadow }),
     ),
     textRuns: layer.textRuns?.map((run) => ({ ...run })),
+    illustrationColorStops: layer.illustrationColorStops?.map((stop) => ({ ...stop })),
     paperShader: layer.paperShader
       ? cloneDraftingCardPaperShaderState(layer.paperShader)
       : undefined,
@@ -1220,6 +1226,10 @@ function normalizeImageDraftingCanvasLayer(
       typeof value.imageValue === "string"
         ? value.imageValue
         : (fallback.imageValue ?? DEFAULT_DRAFTING_IMAGE_LAYER.imageValue),
+    illustrationColorStops: normalizeIllustrationColorStops(
+      value.illustrationColorStops,
+      fallback.illustrationColorStops,
+    ),
     kind: "image",
   } satisfies DraftingCanvasLayer
 }
@@ -1542,6 +1552,7 @@ function createFallbackLayer(
     imageFit: kind === "image" ? DEFAULT_DRAFTING_IMAGE_LAYER.imageFit : undefined,
     imageSource: kind === "image" ? DEFAULT_DRAFTING_IMAGE_LAYER.imageSource : undefined,
     imageValue: kind === "image" ? DEFAULT_DRAFTING_IMAGE_LAYER.imageValue : undefined,
+    illustrationColorStops: undefined,
     paperShader: kind === "shader" ? createDefaultDraftingCardPaperShader() : undefined,
     shapeId: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId : undefined,
     stroke: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.stroke : undefined,
@@ -1626,6 +1637,33 @@ function normalizeImageSourceMode(
   }
 
   return fallback ?? DEFAULT_DRAFTING_IMAGE_LAYER.imageSource
+}
+
+function normalizeIllustrationColorStops(
+  value: unknown,
+  fallback: DraftingIllustrationColorStop[] | undefined,
+): DraftingIllustrationColorStop[] | undefined {
+  const source = Array.isArray(value) ? value : fallback
+  if (!Array.isArray(source)) {
+    return undefined
+  }
+
+  const stops: DraftingIllustrationColorStop[] = []
+  for (const item of source) {
+    if (!isRecord(item) || typeof item.from !== "string" || typeof item.to !== "string") {
+      continue
+    }
+
+    const from = normalizeSvgPaintColor(item.from)
+    const to = normalizeSvgPaintColor(item.to)
+    if (!from || !to) {
+      continue
+    }
+
+    stops.push({ from, to })
+  }
+
+  return stops.length > 0 ? stops : undefined
 }
 
 function normalizeShapeFillMode(

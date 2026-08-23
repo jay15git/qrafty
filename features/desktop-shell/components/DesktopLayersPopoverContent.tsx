@@ -11,6 +11,7 @@ import {
   QrCodeIcon,
   SparklesIcon,
   SquareIcon,
+  Trash2Icon,
   TypeIcon,
   UnlockIcon,
 } from "lucide-react"
@@ -78,13 +79,19 @@ function LayerRowActionButton({
 }
 
 export function DesktopLayersPopoverContent({
+  embedded = false,
   layersSettings,
   onLayersReorder,
   onLayersSettingsChange,
+  onLayerDelete,
+  canDeleteLayer,
 }: {
+  embedded?: boolean
   layersSettings: DesktopLayersSettings
   onLayersReorder?: (orderedIds: string[]) => void
   onLayersSettingsChange: (patch: Partial<DesktopLayersSettings>) => void
+  onLayerDelete?: (layerId: string) => void
+  canDeleteLayer?: (layerId: string) => boolean
 }) {
   const layers = layersSettings.layers
 
@@ -123,20 +130,36 @@ export function DesktopLayersPopoverContent({
     onLayersReorder?.(next.map((entry) => entry.id))
   }
 
+  function deleteLayer(layerId: string) {
+    if (!onLayerDelete) {
+      return
+    }
+
+    onLayerDelete(layerId)
+  }
+
   return (
-    <div className="flex min-w-0 flex-col" data-slot="desktop-layers-popover">
-      <header className={DESKTOP_INSPECTOR_POPOVER_HEADER_CLASS}>
-        <p className={cn("mb-0", DESKTOP_INSPECTOR_LABEL_CLASS)}>Layers</p>
-        {layers.length > 0 ? (
-          <p className={cn(DESKTOP_INSPECTOR_CAPTION_CLASS, "shrink-0 tabular-nums")}>
-            {layers.length}
-          </p>
-        ) : null}
-      </header>
+    <div
+      className={cn("flex min-w-0 flex-col", embedded && "dn-settings-elements-layers")}
+      data-slot={embedded ? "desktop-layers-embedded" : "desktop-layers-popover"}
+    >
+      {!embedded ? (
+        <header className={DESKTOP_INSPECTOR_POPOVER_HEADER_CLASS}>
+          <p className={cn("mb-0", DESKTOP_INSPECTOR_LABEL_CLASS)}>Layers</p>
+          {layers.length > 0 ? (
+            <p className={cn(DESKTOP_INSPECTOR_CAPTION_CLASS, "shrink-0 tabular-nums")}>
+              {layers.length}
+            </p>
+          ) : null}
+        </header>
+      ) : null}
 
       {layers.length > 0 ? (
         <div
-          className="flex flex-col gap-0.5 px-1.5 py-1.5"
+          className={cn(
+            "flex flex-col",
+            embedded ? "gap-1" : "gap-0.5 px-1.5 py-1.5",
+          )}
           data-slot="desktop-layers-list"
           role="listbox"
           aria-label="Canvas layers"
@@ -144,6 +167,10 @@ export function DesktopLayersPopoverContent({
           {layers.map((row, index) => {
             const isSelected = row.id === layersSettings.selectedLayerId
             const isProtected = isMandatoryDesktopLayerRow(row)
+            const canDelete =
+              Boolean(onLayerDelete) &&
+              !isProtected &&
+              (canDeleteLayer?.(row.id) ?? true)
             const displayName = isProtected
               ? "Background"
               : row.name || DESKTOP_LAYER_KIND_LABELS[row.kind]
@@ -153,10 +180,14 @@ export function DesktopLayersPopoverContent({
                 key={row.id}
                 aria-selected={isSelected}
                 className={cn(
-                  DESKTOP_INSPECTOR_LAYER_ROW_CLASS,
-                  isSelected
-                    ? DESKTOP_INSPECTOR_LAYER_ROW_SELECTED_CLASS
-                    : DESKTOP_INSPECTOR_LAYER_ROW_IDLE_CLASS,
+                  embedded
+                    ? "dn-settings-row dn-squircle-sm grid h-9 min-w-0 grid-cols-[1fr_auto] items-center gap-1 px-1.5"
+                    : DESKTOP_INSPECTOR_LAYER_ROW_CLASS,
+                  !embedded &&
+                    (isSelected
+                      ? DESKTOP_INSPECTOR_LAYER_ROW_SELECTED_CLASS
+                      : DESKTOP_INSPECTOR_LAYER_ROW_IDLE_CLASS),
+                  embedded && isSelected && "ring-1 ring-[var(--dn-line)]",
                 )}
                 data-layer-id={row.id}
                 data-selected={isSelected ? "true" : "false"}
@@ -172,19 +203,27 @@ export function DesktopLayersPopoverContent({
                   <LayerKindIcon
                     className={cn(
                       "size-3.5 shrink-0",
-                      isSelected
-                        ? "text-[var(--desktop-inspector-option-selected-fg,var(--desktop-inspector-fg-primary))]"
-                        : "text-[var(--desktop-inspector-fg-tertiary)]",
+                      embedded
+                        ? isSelected
+                          ? "text-[var(--dn-fg)]"
+                          : "text-[var(--dn-muted)]"
+                        : isSelected
+                          ? "text-[var(--desktop-inspector-option-selected-fg,var(--desktop-inspector-fg-primary))]"
+                          : "text-[var(--desktop-inspector-fg-tertiary)]",
                     )}
                     kind={row.kind}
                   />
                   <span
                     className={cn(
                       "min-w-0 flex-1 truncate font-medium",
-                      DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
-                      isSelected
-                        ? "text-[var(--desktop-inspector-option-selected-fg,var(--desktop-inspector-fg-primary))]"
-                        : "text-[var(--desktop-inspector-fg-secondary)]",
+                      embedded
+                        ? "text-[length:var(--dn-type-value-size)] text-[var(--dn-type-value-color)]"
+                        : cn(
+                            DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
+                            isSelected
+                              ? "text-[var(--desktop-inspector-option-selected-fg,var(--desktop-inspector-fg-primary))]"
+                              : "text-[var(--desktop-inspector-fg-secondary)]",
+                          ),
                     )}
                   >
                     {displayName}
@@ -197,7 +236,10 @@ export function DesktopLayersPopoverContent({
                 >
                   <LayerRowActionButton
                     ariaLabel={row.isVisible ? `Hide ${displayName}` : `Show ${displayName}`}
-                    className={!row.isVisible ? "opacity-40" : undefined}
+                    className={cn(
+                      !row.isVisible ? "opacity-40" : undefined,
+                      embedded && "size-6 rounded-[8px] text-[var(--dn-muted)] hover:text-[var(--dn-fg)]",
+                    )}
                     disabled={isProtected}
                     pressed={row.isVisible}
                     onClick={() => patchLayer(row.id, { isVisible: !row.isVisible })}
@@ -211,7 +253,10 @@ export function DesktopLayersPopoverContent({
 
                   <LayerRowActionButton
                     ariaLabel={row.isLocked ? `Unlock ${displayName}` : `Lock ${displayName}`}
-                    className={!row.isLocked ? "opacity-55" : undefined}
+                    className={cn(
+                      !row.isLocked ? "opacity-55" : undefined,
+                      embedded && "size-6 rounded-[8px] text-[var(--dn-muted)] hover:text-[var(--dn-fg)]",
+                    )}
                     disabled={isProtected}
                     pressed={row.isLocked}
                     onClick={() => patchLayer(row.id, { isLocked: !row.isLocked })}
@@ -222,6 +267,21 @@ export function DesktopLayersPopoverContent({
                       <UnlockIcon className="size-3.5" />
                     )}
                   </LayerRowActionButton>
+
+                  {onLayerDelete ? (
+                    <LayerRowActionButton
+                      ariaLabel={`Delete ${displayName}`}
+                      className={cn(
+                        embedded &&
+                          "size-6 rounded-[8px] text-[var(--dn-muted)] hover:text-[var(--dn-fg)]",
+                        !canDelete && "opacity-30",
+                      )}
+                      disabled={!canDelete}
+                      onClick={() => deleteLayer(row.id)}
+                    >
+                      <Trash2Icon className="size-3.5" />
+                    </LayerRowActionButton>
+                  ) : null}
 
                   <div
                     className="flex size-7 shrink-0 flex-col items-center justify-center"
@@ -255,10 +315,14 @@ export function DesktopLayersPopoverContent({
         </div>
       ) : (
         <p
-          className={cn(DESKTOP_INSPECTOR_CAPTION_CLASS, "px-3 py-4 text-center")}
+          className={cn(
+            embedded
+              ? "dn-type-meta px-1 py-3 text-center"
+              : cn(DESKTOP_INSPECTOR_CAPTION_CLASS, "px-3 py-4 text-center"),
+          )}
           data-slot="desktop-layers-empty"
         >
-          No layers yet. Add content to the canvas.
+          {embedded ? "No elements yet." : "No layers yet. Add content to the canvas."}
         </p>
       )}
     </div>
