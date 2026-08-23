@@ -267,7 +267,7 @@ export function createInitialWorkspaceSurfaceState(
       DEFAULT_DRAFTING_STUDIO_STATE.logo.source === "upload"
         ? (DEFAULT_DRAFTING_STUDIO_STATE.logo.value ?? "")
         : "",
-    selectedLogoSize: DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.imageSize * 100,
+    selectedLogoSize: Math.round(DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.imageSize * 100),
     selectedLogoMargin: DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.margin,
     selectedHideBackgroundDots: DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.hideBackgroundDots,
     selectedQrTypeNumber: DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.typeNumber,

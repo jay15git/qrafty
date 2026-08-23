@@ -505,13 +505,11 @@ function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
               hideHint
               leading={<LogoSelectionIcon selectedId={actualLogoSettings.selectedBrandIconId} />}
               open={logoPopoverOpen}
-              title="Logo"
               trigger={getLogoSelectionLabel(actualLogoSettings.selectedBrandIconId)}
               onOpenChange={setLogoPopoverOpen}
             >
               <LogoIconPicker
                 selectedId={actualLogoSettings.selectedBrandIconId}
-                onAfterSelect={() => setLogoPopoverOpen(false)}
                 onSelect={(selectedBrandIconId) => {
                   onLogoSettingsChange({ selectedBrandIconId, sourceMode: "brand" })
                 }}

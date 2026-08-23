@@ -25,12 +25,12 @@ export const ICONSTACK_CURATED_ICONS = [
   { library: "simple", id: "instagram", label: "Instagram" },
   { library: "simple", id: "youtube", label: "YouTube" },
   { library: "simple", id: "spotify", label: "Spotify" },
-  { library: "heroicons", id: "shopping-bag", label: "Shop" },
-  { library: "heroicons", id: "credit-card", label: "Payment" },
-  { library: "phosphor", id: "ticket", label: "Ticket" },
-  { library: "phosphor", id: "identification-card", label: "Contact" },
-  { library: "material", id: "restaurant", label: "Menu" },
-  { library: "material", id: "local-offer", label: "Coupon" },
+  { library: "heroicons", id: "shopping-bag-solid", label: "Shop" },
+  { library: "heroicons", id: "credit-card-solid", label: "Payment" },
+  { library: "phosphor", id: "ticket-bold-bold", label: "Ticket" },
+  { library: "phosphor", id: "identification-card-bold-bold", label: "Contact" },
+  { library: "carbon", id: "restaurant", label: "Menu" },
+  { library: "material", id: "offer", label: "Coupon" },
 ] as const satisfies readonly IconstackCuratedIcon[]
 
 const ICONSTACK_LIBRARY_LABELS = new Map(

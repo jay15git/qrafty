@@ -81,6 +81,7 @@ import {
   buildDraftingLayeredNodePayload,
 } from "@/features/workspace/export/layered-export"
 import { buildDraftingWorkspaceDocumentFromState } from "@/features/workspace/components/workspace-surface-document"
+import { clearDraftingQrMarkupCache } from "@/features/workspace/hooks/use-drafting-qr-markup"
 import {
   buildDesktopToolbarSettingsSnapshots,
   pickDesktopToolbarSettingsSnapshots,
@@ -167,7 +168,6 @@ import {
 } from "@/features/qr-code/rendering/compose-scene"
 import {
   clampQrBackgroundRound,
-  type AssetSourceMode,
   type BackgroundShapeOptions,
   type DotsColorMode,
   type QrDotMatrixAnimationOptions,
@@ -729,47 +729,6 @@ export function WorkspaceSurface({
     draftingWorkspaceHistoryIndexRef.current <
       draftingWorkspaceHistoryRef.current.length - 1
 
-  function buildDraftingLogoStateSnapshot({
-    logoColor = selectedLogoColor,
-    logoColorMode = selectedLogoColorMode,
-    logoGradient = selectedLogoGradient,
-    logoPresetId = selectedLogoPresetId,
-    logoPresetValue = selectedLogoPresetValue,
-    logoRemoteUrl = selectedLogoRemoteUrl,
-    logoSourceMode = selectedLogoSourceMode,
-    logoUploadValue = selectedLogoUploadValue,
-  }: {
-    logoColor?: string
-    logoColorMode?: DraftingBinaryColorMode
-    logoGradient?: StudioGradient
-    logoPresetId?: string
-    logoPresetValue?: string
-    logoRemoteUrl?: string
-    logoSourceMode?: AssetSourceMode
-    logoUploadValue?: string
-  } = {}): QrStudioState {
-    return {
-      ...DEFAULT_DRAFTING_STUDIO_STATE,
-      logo: {
-        presetColor: logoColor,
-        presetId: logoPresetId,
-        source: logoSourceMode,
-        value:
-          logoSourceMode === "preset"
-            ? logoPresetValue
-            : logoSourceMode === "url"
-              ? logoRemoteUrl
-              : logoSourceMode === "upload"
-                ? logoUploadValue
-                : undefined,
-      },
-      logoGradient: {
-        ...structuredClone(logoGradient),
-        enabled: logoColorMode === "gradient",
-      },
-    }
-  }
-
   function syncDraftingLogoAsset(nextState: QrStudioState) {
     setSelectedLogoSourceMode(nextState.logo.source)
     setSelectedLogoPresetId(nextState.logo.presetId)
@@ -788,18 +747,128 @@ export function WorkspaceSurface({
     }
   }
 
-  function clearDraftingLogoPreset(nextSourceMode: DraftingAssetSourceMode) {
-    const clearedState = applyAssetNoneSelection(buildDraftingLogoStateSnapshot(), "logo")
+  function syncDraftingLogoControlsFromState(nextState: QrStudioState) {
+    syncDraftingLogoAsset(nextState)
+    setSelectedLogoColor(nextState.logo.presetColor ?? DEFAULT_BRAND_ICON_COLOR)
+    setSelectedLogoColorMode(nextState.logoGradient.enabled ? "gradient" : "solid")
+    setSelectedLogoGradient(structuredClone(nextState.logoGradient))
+    setSelectedLogoSize(Math.round(nextState.imageOptions.imageSize * 100))
+    setSelectedLogoMargin(nextState.imageOptions.margin)
+    setSelectedHideBackgroundDots(nextState.imageOptions.hideBackgroundDots)
+    setSelectedLogoOpacity(nextState.imageOptions.opacity * 100)
+    setSelectedLogoSizeMode(nextState.imageOptions.sizeMode)
+    setSelectedLogoWidthPx(nextState.imageOptions.widthPx)
+    setSelectedLogoHeightPx(nextState.imageOptions.heightPx)
+    setSelectedLogoLockAspect(nextState.imageOptions.lockAspect)
+    setSelectedLogoPositionMode(nextState.imageOptions.logoPositionMode)
+    setSelectedLogoOffsetX(nextState.imageOptions.x ?? 0)
+    setSelectedLogoOffsetY(nextState.imageOptions.y ?? 0)
+    setSelectedLogoCrossOrigin(nextState.imageOptions.crossOrigin)
+  }
 
-    setSelectedLogoPresetId(clearedState.logo.presetId)
-    setSelectedLogoPresetValue(undefined)
-    setSelectedLogoSourceMode(nextSourceMode)
+  function commitActiveQrStudioState(nextState: QrStudioState) {
+    syncDraftingLogoControlsFromState(nextState)
+    persistActiveQrLayerState(nextState)
+    clearDraftingQrMarkupCache()
+  }
+
+  function patchActiveQrLogoImageOptions(
+    patch: Pick<
+      DesktopLogoSettingsPatch,
+      | "size"
+      | "margin"
+      | "hideBackgroundDots"
+      | "opacity"
+      | "sizeMode"
+      | "widthPx"
+      | "heightPx"
+      | "lockAspect"
+      | "positionMode"
+      | "offsetX"
+      | "offsetY"
+      | "crossOrigin"
+    >,
+  ) {
+    const nextImageOptions = { ...draftingStudioState.imageOptions }
+    let changed = false
+
+    if (patch.size !== undefined) {
+      nextImageOptions.imageSize = patch.size / 100
+      changed = true
+    }
+    if (patch.margin !== undefined) {
+      nextImageOptions.margin = patch.margin
+      changed = true
+    }
+    if (patch.hideBackgroundDots !== undefined) {
+      nextImageOptions.hideBackgroundDots = patch.hideBackgroundDots
+      changed = true
+    }
+    if (patch.opacity !== undefined) {
+      nextImageOptions.opacity = patch.opacity / 100
+      changed = true
+    }
+    if (patch.sizeMode) {
+      nextImageOptions.sizeMode = patch.sizeMode
+      changed = true
+    }
+    if (patch.widthPx !== undefined) {
+      nextImageOptions.widthPx = patch.widthPx
+      changed = true
+    }
+    if (patch.heightPx !== undefined) {
+      nextImageOptions.heightPx = patch.heightPx
+      changed = true
+    }
+    if (patch.lockAspect !== undefined) {
+      nextImageOptions.lockAspect = patch.lockAspect
+      changed = true
+    }
+    if (patch.positionMode) {
+      nextImageOptions.logoPositionMode = patch.positionMode
+      changed = true
+    }
+    if (patch.offsetX !== undefined) {
+      nextImageOptions.x = patch.offsetX
+      changed = true
+    }
+    if (patch.offsetY !== undefined) {
+      nextImageOptions.y = patch.offsetY
+      changed = true
+    }
+    if (patch.crossOrigin !== undefined) {
+      nextImageOptions.crossOrigin = patch.crossOrigin
+      changed = true
+    }
+
+    if (!changed) {
+      return
+    }
+
+    commitActiveQrStudioState({
+      ...draftingStudioState,
+      imageOptions: nextImageOptions,
+    })
+  }
+
+  function clearDraftingLogoPreset(nextSourceMode: DraftingAssetSourceMode) {
+    const clearedState = applyAssetNoneSelection(draftingStudioState, "logo")
+
     setSelectedLogoAssetSourceMode(nextSourceMode)
 
     if (nextSourceMode === "upload") {
-      setSelectedLogoRemoteUrl("")
-      setSelectedLogoUploadValue("")
+      commitActiveQrStudioState({
+        ...clearedState,
+        logo: {
+          ...clearedState.logo,
+          source: "upload",
+          value: undefined,
+        },
+      })
+      return
     }
+
+    commitActiveQrStudioState(clearedState)
   }
 
   async function resolveIconstackSvgMarkup(selectionId: string) {
@@ -836,16 +905,13 @@ export function WorkspaceSurface({
           })
         : createIconstackIconDataUrl(svg, selectedLogoColor)
     const nextState = applyIconstackLogoPresetSelection(
-      buildDraftingLogoStateSnapshot({
-        logoColorMode: selectedLogoColorMode,
-      }),
+      draftingStudioState,
       selectionId,
       nextValue,
       selectedLogoColor,
     )
 
-    setSelectedLogoPresetId(selectionId)
-    syncDraftingLogoAsset(nextState)
+    commitActiveQrStudioState(nextState)
   }
 
   function handleDraftingBrandIconSelection(brandIcon: BrandIconEntry) {
@@ -857,21 +923,17 @@ export function WorkspaceSurface({
           })
         : createBrandIconDataUrl(brandIcon, selectedLogoColor)
     const nextState = applyLogoPresetSelection(
-      buildDraftingLogoStateSnapshot({
-        logoColorMode: selectedLogoColorMode,
-      }),
+      draftingStudioState,
       brandIcon,
       nextValue,
       selectedLogoColor,
     )
 
-    syncDraftingLogoAsset(nextState)
+    commitActiveQrStudioState(nextState)
   }
 
   async function handleDraftingLogoColorChange(value: string) {
     ensureLogoColorItemExpanded("solid")
-    setSelectedLogoColorMode("solid")
-    setSelectedLogoColor(value)
 
     const iconstackSelectionId = parseIconstackSelectionId(selectedLogoPresetId)
       ? selectedLogoPresetId
@@ -884,15 +946,12 @@ export function WorkspaceSurface({
       }
 
       const nextState = applyLogoPresetColor(
-        buildDraftingLogoStateSnapshot({
-          logoColor: value,
-          logoColorMode: "solid",
-        }),
+        draftingStudioState,
         createIconstackIconDataUrl(svg, value),
         value,
       )
 
-      syncDraftingLogoAsset(nextState)
+      commitActiveQrStudioState(nextState)
       return
     }
 
@@ -903,15 +962,12 @@ export function WorkspaceSurface({
     }
 
     const nextState = applyLogoPresetColor(
-      buildDraftingLogoStateSnapshot({
-        logoColor: value,
-        logoColorMode: "solid",
-      }),
+      draftingStudioState,
       createBrandIconDataUrl(selectedIcon, value),
       value,
     )
 
-    syncDraftingLogoAsset(nextState)
+    commitActiveQrStudioState(nextState)
   }
 
   async function handleDraftingLogoGradientChange(value: StudioGradient) {
@@ -921,8 +977,6 @@ export function WorkspaceSurface({
     }
 
     ensureLogoColorItemExpanded("gradient")
-    setSelectedLogoColorMode("gradient")
-    setSelectedLogoGradient(nextGradient)
 
     const iconstackSelectionId = parseIconstackSelectionId(selectedLogoPresetId)
       ? selectedLogoPresetId
@@ -935,15 +989,12 @@ export function WorkspaceSurface({
       }
 
       const nextState = applyLogoPresetGradient(
-        buildDraftingLogoStateSnapshot({
-          logoColorMode: "gradient",
-          logoGradient: nextGradient,
-        }),
+        draftingStudioState,
         createIconstackIconGradientDataUrl(svg, nextGradient),
         nextGradient,
       )
 
-      syncDraftingLogoAsset(nextState)
+      commitActiveQrStudioState(nextState)
       return
     }
 
@@ -954,15 +1005,12 @@ export function WorkspaceSurface({
     }
 
     const nextState = applyLogoPresetGradient(
-      buildDraftingLogoStateSnapshot({
-        logoColorMode: "gradient",
-        logoGradient: nextGradient,
-      }),
+      draftingStudioState,
       createBrandIconGradientDataUrl(selectedIcon, nextGradient),
       nextGradient,
     )
 
-    syncDraftingLogoAsset(nextState)
+    commitActiveQrStudioState(nextState)
   }
 
   function handleDraftingContentTypeChange(type: QrInputType) {
@@ -1094,7 +1142,7 @@ export function WorkspaceSurface({
     openLogoUploadItemsRef.current = new Set([
       nextState.logo.source === "url" ? "url" : "upload",
     ])
-    setSelectedLogoSize(nextState.imageOptions.imageSize * 100)
+    setSelectedLogoSize(Math.round(nextState.imageOptions.imageSize * 100))
     setSelectedLogoMargin(nextState.imageOptions.margin)
     setSelectedHideBackgroundDots(nextState.imageOptions.hideBackgroundDots)
     setSelectedQrTypeNumber(nextState.qrOptions.typeNumber)
@@ -2847,33 +2895,22 @@ export function WorkspaceSurface({
         patch.uploadedFile,
         setLogoUploadObjectUrl,
       )
-      const nextState = applyAssetUploadValue(
-        buildDraftingLogoStateSnapshot({
-          logoSourceMode: "upload",
-          logoUploadValue: uploadValue,
-        }),
-        "logo",
-        uploadValue,
-      )
-      syncDraftingLogoAsset(nextState)
+      const nextState = applyAssetUploadValue(draftingStudioState, "logo", uploadValue)
+      commitActiveQrStudioState(nextState)
     }
     if (patch.sourceMode) {
       if (patch.sourceMode === "none") {
-        const nextState = applyAssetNoneSelection(buildDraftingLogoStateSnapshot({ logoSourceMode: "none" }), "logo")
-        syncDraftingLogoAsset(nextState)
+        commitActiveQrStudioState(applyAssetNoneSelection(draftingStudioState, "logo"))
       } else if (patch.sourceMode === "brand") {
         setSelectedLogoSourceMode("preset")
       } else if (patch.sourceMode === "url") {
         ensureLogoUploadItemExpanded("url")
         const nextState = applyAssetUrlValue(
-          buildDraftingLogoStateSnapshot({
-            logoRemoteUrl: selectedLogoRemoteUrl,
-            logoSourceMode: "url",
-          }),
+          draftingStudioState,
           "logo",
           selectedLogoRemoteUrl,
         )
-        syncDraftingLogoAsset(nextState)
+        commitActiveQrStudioState(nextState)
       } else {
         ensureLogoUploadItemExpanded("upload")
         clearDraftingLogoPreset("upload")
@@ -2883,29 +2920,19 @@ export function WorkspaceSurface({
       ensureLogoUploadItemExpanded(patch.uploadMode)
       if (patch.uploadMode === "url") {
         const nextState = applyAssetUrlValue(
-          buildDraftingLogoStateSnapshot({
-            logoRemoteUrl: selectedLogoRemoteUrl,
-            logoSourceMode: "url",
-          }),
+          draftingStudioState,
           "logo",
           selectedLogoRemoteUrl,
         )
-        syncDraftingLogoAsset(nextState)
+        commitActiveQrStudioState(nextState)
       } else {
         clearDraftingLogoPreset("upload")
       }
     }
     if (patch.remoteUrl !== undefined) {
       ensureLogoUploadItemExpanded("url")
-      const nextState = applyAssetUrlValue(
-        buildDraftingLogoStateSnapshot({
-          logoRemoteUrl: patch.remoteUrl,
-          logoSourceMode: "url",
-        }),
-        "logo",
-        patch.remoteUrl,
-      )
-      syncDraftingLogoAsset(nextState)
+      const nextState = applyAssetUrlValue(draftingStudioState, "logo", patch.remoteUrl)
+      commitActiveQrStudioState(nextState)
     }
     if (patch.selectedBrandIconId) {
       if (parseIconstackSelectionId(patch.selectedBrandIconId)) {
@@ -2916,20 +2943,9 @@ export function WorkspaceSurface({
       }
     }
     if (patch.colorMode) setSelectedLogoColorMode(patch.colorMode)
-    if (patch.solidColor) handleDraftingLogoColorChange(patch.solidColor)
-    if (patch.gradient) handleDraftingLogoGradientChange({ ...patch.gradient, enabled: true })
-    if (patch.size !== undefined) setSelectedLogoSize(patch.size)
-    if (patch.margin !== undefined) setSelectedLogoMargin(patch.margin)
-    if (patch.hideBackgroundDots !== undefined) setSelectedHideBackgroundDots(patch.hideBackgroundDots)
-    if (patch.opacity !== undefined) setSelectedLogoOpacity(patch.opacity)
-    if (patch.sizeMode) setSelectedLogoSizeMode(patch.sizeMode)
-    if (patch.widthPx !== undefined) setSelectedLogoWidthPx(patch.widthPx)
-    if (patch.heightPx !== undefined) setSelectedLogoHeightPx(patch.heightPx)
-    if (patch.lockAspect !== undefined) setSelectedLogoLockAspect(patch.lockAspect)
-    if (patch.positionMode) setSelectedLogoPositionMode(patch.positionMode)
-    if (patch.offsetX !== undefined) setSelectedLogoOffsetX(patch.offsetX)
-    if (patch.offsetY !== undefined) setSelectedLogoOffsetY(patch.offsetY)
-    if (patch.crossOrigin !== undefined) setSelectedLogoCrossOrigin(patch.crossOrigin)
+    if (patch.solidColor) void handleDraftingLogoColorChange(patch.solidColor)
+    if (patch.gradient) void handleDraftingLogoGradientChange({ ...patch.gradient, enabled: true })
+    patchActiveQrLogoImageOptions(patch)
   }
 
   function resetDesktopLogoSettings() {

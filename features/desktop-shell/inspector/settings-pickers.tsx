@@ -1,6 +1,6 @@
 "use client"
 
-import { Filter, Search } from "lucide-react"
+import { Search } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useMemo, useState, type ReactNode } from "react"
 
@@ -16,16 +16,15 @@ import {
   POPULAR_BRAND_ICON_IDS,
 } from "@/features/qr-code/assets/brand-icons"
 import {
-  ICONSTACK_LIBRARIES,
   parseIconstackSelectionId,
   toIconstackSelectionId,
-  type IconstackLibraryId,
   type IconstackSearchResult,
 } from "@/features/qr-code/assets/iconstack-api"
 import {
   fetchAndCacheIconstackSvg,
   getCachedIconstackSvg,
 } from "@/features/qr-code/assets/iconstack-svg-cache"
+import { normalizeIconstackSvgMarkup } from "@/features/qr-code/assets/iconstack-svg"
 import { filterCuratedIconstackIcons } from "@/features/qr-code/assets/iconstack-curated"
 import { useIconstackCuratedIcons } from "@/features/qr-code/hooks/useIconstackCuratedIcons"
 import { useIconstackIconSearch } from "@/features/qr-code/hooks/useIconstackIconSearch"
@@ -36,11 +35,6 @@ import {
   type PexelsPhotoOrientationFilter,
 } from "@/features/stock-photos/model/pexels"
 import { cn } from "@/lib/utils"
-
-const LOGO_LIBRARY_OPTIONS: Array<{ id: IconstackLibraryId | "all"; label: string }> = [
-  { id: "all", label: "All libraries" },
-  ...ICONSTACK_LIBRARIES.map((library) => ({ id: library.id, label: library.label })),
-]
 
 function LogoIconTile({
   ariaLabel,
@@ -60,8 +54,8 @@ function LogoIconTile({
       className={cn(
         "dn-pressable-pickable grid h-11 min-w-0 place-items-center dn-squircle-xs",
         isSelected
-          ? "bg-[var(--dn-popover-tile)] text-[var(--dn-fg)] ring-2 ring-[var(--dn-fg)] ring-offset-2 ring-offset-[var(--dn-popover-ring-offset)]"
-          : "bg-[var(--dn-popover-tile)] text-[var(--dn-popover-muted)]",
+          ? "bg-[var(--dn-popover-tile)] text-[var(--dn-fg)] ring-2 ring-inset ring-[var(--dn-fg)]"
+          : "bg-[var(--dn-popover-tile)] text-[var(--dn-fg)]",
       )}
       type="button"
       onClick={onClick}
@@ -111,14 +105,9 @@ export function LogoSelectionIcon({ selectedId }: { selectedId: string }) {
     return (
       <span
         aria-hidden
-        className="flex size-3.5 shrink-0 items-center justify-center [&_img]:size-full"
-      >
-        <img
-          alt=""
-          className="size-full"
-          src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(iconstackSvg)}`}
-        />
-      </span>
+        className="flex size-3.5 shrink-0 items-center justify-center text-[var(--dn-fg)] [&_svg]:size-full"
+        dangerouslySetInnerHTML={{ __html: normalizeIconstackSvgMarkup(iconstackSvg) }}
+      />
     )
   }
 
@@ -141,14 +130,9 @@ function IconstackIconPreview({
     return (
       <span
         aria-hidden
-        className="flex size-4 items-center justify-center [&_img]:size-full"
-      >
-        <img
-          alt=""
-          className="size-full"
-          src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(previewSvg)}`}
-        />
-      </span>
+        className="flex size-4 items-center justify-center text-[var(--dn-fg)] [&_svg]:size-full"
+        dangerouslySetInnerHTML={{ __html: normalizeIconstackSvgMarkup(previewSvg) }}
+      />
     )
   }
 
@@ -168,16 +152,14 @@ export function LogoIconPicker({
   selectedId: string
   onSelect: (selectedBrandIconId: string) => void
 }) {
-  const [library, setLibrary] = useState<IconstackLibraryId | "all">("all")
   const [query, setQuery] = useState("")
-  const isLibraryFilterActive = library !== "all"
   const popularBrandIcons = useMemo(
     () => POPULAR_BRAND_ICON_IDS.map((id) => getBrandIconById(id)),
     [],
   )
-  const curatedIconSlots = useMemo(() => filterCuratedIconstackIcons(library), [library])
+  const curatedIconSlots = useMemo(() => filterCuratedIconstackIcons("all"), [])
   const { canSearch, error, isLoading, previewSvgs, results } = useIconstackIconSearch({
-    library,
+    library: "all",
     query,
   })
   const {
@@ -187,11 +169,8 @@ export function LogoIconPicker({
     previewSvgs: curatedPreviewSvgs,
   } = useIconstackCuratedIcons({
     enabled: !canSearch,
-    library,
+    library: "all",
   })
-
-  const activeLibraryLabel =
-    LOGO_LIBRARY_OPTIONS.find((option) => option.id === library)?.label ?? "All libraries"
 
   const selectLogo = (nextId: string) => {
     onSelect(nextId)
@@ -200,54 +179,21 @@ export function LogoIconPicker({
 
   return (
     <div className="flex flex-col gap-2.5">
-      <div className="flex items-center gap-1.5">
-        <div className="relative min-w-0 flex-1">
-          <Search
-            aria-hidden
-            className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--dn-popover-muted)]"
-          />
-          <input
-            aria-label="Search logo icons"
-            className="dn-content-type-search-input dn-squircle-xs"
-            placeholder="Search"
-            value={query}
-            onChange={(event) => setQuery(event.currentTarget.value)}
-          />
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              aria-label={`Filter logo libraries (${activeLibraryLabel})`}
-              className="dn-content-type-filter-trigger dn-pressable-press-only inline-flex size-8 shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
-              data-active={isLibraryFilterActive ? "true" : undefined}
-              type="button"
-            >
-              <Filter aria-hidden className="size-3.5" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="desktopnew-popover-content dn-portal-surface min-w-36 border p-1 dn-squircle-sm"
-          >
-            {LOGO_LIBRARY_OPTIONS.map((option) => (
-              <DropdownMenuItem
-                key={option.id}
-                className={cn(
-                  "rounded-[8px] px-2 py-1.5 text-[11px] font-medium",
-                  library === option.id
-                    ? "bg-[var(--dn-popover-tile-hover)] text-[var(--dn-fg)]"
-                    : "text-[var(--dn-popover-muted)] focus:bg-[var(--dn-popover-tile-hover)] focus:text-[var(--dn-fg)]",
-                )}
-                onClick={() => setLibrary(option.id)}
-              >
-                {option.label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="relative w-full">
+        <Search
+          aria-hidden
+          className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--dn-popover-muted)]"
+        />
+        <input
+          aria-label="Search logo icons"
+          className="dn-content-type-search-input dn-squircle-xs w-full"
+          placeholder="Search"
+          value={query}
+          onChange={(event) => setQuery(event.currentTarget.value)}
+        />
       </div>
 
-      <div className="grid max-h-72 grid-cols-4 gap-1.5 overflow-y-auto pr-0.5">
+      <div className="grid max-h-72 grid-cols-4 gap-1.5 overflow-y-auto px-0.5 py-px">
         {!canSearch ? (
           <>
             {popularBrandIcons.map((brandIcon) => {

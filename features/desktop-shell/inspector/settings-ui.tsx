@@ -714,17 +714,23 @@ export function SettingsSlider({
   max?: number
   step?: number
 }) {
+  const stepDecimals = step.toString().includes(".")
+    ? (step.toString().split(".")[1]?.length ?? 0)
+    : 0
+  const normalizedValue = parseFloat(
+    (Math.round(value / step) * step).toFixed(stepDecimals),
+  )
+
   return (
     <ElasticSlider
       animateValue={false}
       aria-label={label}
       className={SETTINGS_ELASTIC_SLIDER_CLASS}
-      formatValue={(v) => String(v)}
       label={label}
       max={max}
       min={min}
       step={step}
-      value={value}
+      value={normalizedValue}
       onValueChange={onChange}
     />
   )
