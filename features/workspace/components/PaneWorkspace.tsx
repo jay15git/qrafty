@@ -116,6 +116,20 @@ const ROTATION_LABEL_HIDE_DELAY_MS = 2000
 const SNAP_THRESHOLD_PX = 6
 const INTERACTION_START_THRESHOLD_PX = 3
 
+function overlayLayerGeometry(
+  layers: DraftingCanvasLayer[],
+  geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> | null,
+) {
+  if (!geometryByLayerId) {
+    return layers
+  }
+
+  return layers.map((layer) => {
+    const patch = geometryByLayerId[layer.id]
+    return patch ? { ...layer, ...patch } : layer
+  })
+}
+
 function hasTranslucentCardFill(fill: string) {
   const rgbaMatch = /^rgba\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*([\d.]+)\s*\)$/i.exec(fill)
   if (rgbaMatch) {
@@ -196,6 +210,14 @@ export function PaneWorkspace({
   } | null>(null)
   const [editingTextLayerId, setEditingTextLayerId] = useState<string | null>(null)
   const [editingTextDraft, setEditingTextDraft] = useState("")
+  const [liveLayerGeometryById, setLiveLayerGeometryById] = useState<Record<
+    string,
+    Partial<DraftingCanvasLayer>
+  > | null>(null)
+  const pendingDocumentLayerChangesRef = useRef<Map<string, Partial<DraftingCanvasLayer>>>(
+    new Map(),
+  )
+  const documentLayerChangeRafRef = useRef<number | null>(null)
   const interactionRef = useRef<{
     centerClientX?: number
     centerClientY?: number
@@ -223,6 +245,9 @@ export function PaneWorkspace({
     () => () => {
       if (rotationLabelTimeoutRef.current !== null) {
         window.clearTimeout(rotationLabelTimeoutRef.current)
+      }
+      if (documentLayerChangeRafRef.current !== null) {
+        window.cancelAnimationFrame(documentLayerChangeRafRef.current)
       }
     },
     [],
@@ -284,6 +309,10 @@ export function PaneWorkspace({
         : createDefaultDraftingLayers("preview", state, cardState),
     [cardState, layers, state],
   )
+  const sceneLayers = useMemo(
+    () => overlayLayerGeometry(resolvedLayers, liveLayerGeometryById),
+    [liveLayerGeometryById, resolvedLayers],
+  )
 
   useEffect(() => {
     void ensureDraftingFontsForLayers(resolvedLayers)
@@ -317,7 +346,7 @@ export function PaneWorkspace({
     }
   }, [])
 
-  const visibleLayers = resolvedLayers
+  const visibleLayers = sceneLayers
     .filter((layer) => layer.isVisible)
     .sort((a, b) => a.zIndex - b.zIndex)
   const cardLayers = contentOnlyZoom
@@ -388,6 +417,54 @@ export function PaneWorkspace({
     }
 
     return result
+  }
+
+  function flushDocumentLayerChanges() {
+    if (documentLayerChangeRafRef.current !== null) {
+      window.cancelAnimationFrame(documentLayerChangeRafRef.current)
+      documentLayerChangeRafRef.current = null
+    }
+
+    const pending = pendingDocumentLayerChangesRef.current
+    if (pending.size === 0) {
+      return
+    }
+
+    pendingDocumentLayerChangesRef.current = new Map()
+    for (const [layerId, patch] of pending) {
+      onLayerChange?.(layerId, patch)
+    }
+  }
+
+  function queueDocumentLayerChange(layerId: string, patch: Partial<DraftingCanvasLayer>) {
+    const current = pendingDocumentLayerChangesRef.current.get(layerId)
+    pendingDocumentLayerChangesRef.current.set(layerId, current ? { ...current, ...patch } : patch)
+  }
+
+  function scheduleDocumentLayerFlush() {
+    if (documentLayerChangeRafRef.current !== null) {
+      return
+    }
+
+    documentLayerChangeRafRef.current = window.requestAnimationFrame(() => {
+      documentLayerChangeRafRef.current = null
+      flushDocumentLayerChanges()
+    })
+  }
+
+  function publishLiveLayerGeometry(
+    geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>>,
+    guides?: SnapGuides,
+  ) {
+    setLiveLayerGeometryById(geometryByLayerId)
+    if (guides) {
+      setSnapGuides(guides)
+    }
+
+    for (const [layerId, patch] of Object.entries(geometryByLayerId)) {
+      queueDocumentLayerChange(layerId, patch)
+    }
+    scheduleDocumentLayerFlush()
   }
 
   function startLayerInteraction(
@@ -706,19 +783,20 @@ export function PaneWorkspace({
 
     if (interaction.layers && interaction.groupBounds && interaction.groupCenter) {
       if (interaction.mode === "move") {
+        const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {}
+
         for (const selectedLayer of interaction.layers) {
           if (selectedLayer.kind === "card") {
             continue
           }
 
-          onLayerChange?.(
-            selectedLayer.id,
-            constrainLayerPatch(selectedLayer, {
-              x: roundLayerNumber(selectedLayer.x + deltaX),
-              y: roundLayerNumber(selectedLayer.y + deltaY),
-            }),
-          )
+          geometryByLayerId[selectedLayer.id] = constrainLayerPatch(selectedLayer, {
+            x: roundLayerNumber(selectedLayer.x + deltaX),
+            y: roundLayerNumber(selectedLayer.y + deltaY),
+          })
         }
+
+        publishLiveLayerGeometry(geometryByLayerId)
         return
       }
 
@@ -740,10 +818,8 @@ export function PaneWorkspace({
               }
             : current,
         )
-        setSnapGuides({
-          horizontal: [],
-          vertical: snapEnabled && rotation !== freeRotation ? [0] : [],
-        })
+
+        const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {}
 
         for (const selectedLayer of interaction.layers) {
           if (selectedLayer.kind === "card") {
@@ -755,15 +831,17 @@ export function PaneWorkspace({
             y: selectedLayer.y + selectedLayer.height / 2,
           }
           const nextCenter = rotatePoint(center, interaction.groupCenter, rotation)
-          onLayerChange?.(
-            selectedLayer.id,
-            constrainLayerPatch(selectedLayer, {
-              rotation: normalizeLayerRotation(selectedLayer.rotation + rotation),
-              x: roundLayerNumber(nextCenter.x - selectedLayer.width / 2),
-              y: roundLayerNumber(nextCenter.y - selectedLayer.height / 2),
-            }),
-          )
+          geometryByLayerId[selectedLayer.id] = constrainLayerPatch(selectedLayer, {
+            rotation: normalizeLayerRotation(selectedLayer.rotation + rotation),
+            x: roundLayerNumber(nextCenter.x - selectedLayer.width / 2),
+            y: roundLayerNumber(nextCenter.y - selectedLayer.height / 2),
+          })
         }
+
+        publishLiveLayerGeometry(geometryByLayerId, {
+          horizontal: [],
+          vertical: snapEnabled && rotation !== freeRotation ? [0] : [],
+        })
         return
       }
 
@@ -791,22 +869,22 @@ export function PaneWorkspace({
         )
         const scaleX = interaction.groupBounds.width > 0 ? nextBounds.width / interaction.groupBounds.width : 1
         const scaleY = interaction.groupBounds.height > 0 ? nextBounds.height / interaction.groupBounds.height : 1
+        const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {}
 
         for (const selectedLayer of interaction.layers) {
           if (selectedLayer.kind === "card") {
             continue
           }
 
-          onLayerChange?.(
-            selectedLayer.id,
-            constrainLayerPatch(selectedLayer, {
-              height: roundLayerNumber(selectedLayer.height * scaleY),
-              width: roundLayerNumber(selectedLayer.width * scaleX),
-              x: roundLayerNumber(nextBounds.x + (selectedLayer.x - interaction.groupBounds.x) * scaleX),
-              y: roundLayerNumber(nextBounds.y + (selectedLayer.y - interaction.groupBounds.y) * scaleY),
-            }),
-          )
+          geometryByLayerId[selectedLayer.id] = constrainLayerPatch(selectedLayer, {
+            height: roundLayerNumber(selectedLayer.height * scaleY),
+            width: roundLayerNumber(selectedLayer.width * scaleX),
+            x: roundLayerNumber(nextBounds.x + (selectedLayer.x - interaction.groupBounds.x) * scaleX),
+            y: roundLayerNumber(nextBounds.y + (selectedLayer.y - interaction.groupBounds.y) * scaleY),
+          })
         }
+
+        publishLiveLayerGeometry(geometryByLayerId)
         return
       }
     }
@@ -824,11 +902,13 @@ export function PaneWorkspace({
       const rotation = snapEnabled ? snapLayerRotation(freeRotation) : freeRotation
 
       setRotationPreviewDegrees(getLayerRotationLabel(rotation))
-      setSnapGuides({
-        horizontal: [],
-        vertical: snapEnabled && rotation !== freeRotation ? [0] : [],
-      })
-      onLayerChange?.(layer.id, { rotation })
+      publishLiveLayerGeometry(
+        { [layer.id]: { rotation } },
+        {
+          horizontal: [],
+          vertical: snapEnabled && rotation !== freeRotation ? [0] : [],
+        },
+      )
       return
     }
 
@@ -845,13 +925,14 @@ export function PaneWorkspace({
           })
         : { guides: { horizontal: [], vertical: [] }, x: proposedX, y: proposedY }
 
-      setSnapGuides(nextMove.guides)
-      onLayerChange?.(
-        layer.id,
-        constrainLayerPatch(layer, {
-          x: nextMove.x,
-          y: nextMove.y,
-        }),
+      publishLiveLayerGeometry(
+        {
+          [layer.id]: constrainLayerPatch(layer, {
+            x: nextMove.x,
+            y: nextMove.y,
+          }),
+        },
+        nextMove.guides,
       )
       return
     }
@@ -887,14 +968,18 @@ export function PaneWorkspace({
         })
       : { geometry: nextGeometry, guides: { horizontal: [], vertical: [] } }
 
-    setSnapGuides(snappedResize.guides)
-    onLayerChange?.(layer.id, constrainLayerPatch(layer, snappedResize.geometry))
+    publishLiveLayerGeometry(
+      { [layer.id]: constrainLayerPatch(layer, snappedResize.geometry) },
+      snappedResize.guides,
+    )
   }
 
   function endLayerInteraction(event: PointerEvent<HTMLElement>) {
     const interaction = interactionRef.current
 
     if (interaction?.pointerId === event.pointerId) {
+      flushDocumentLayerChanges()
+      setLiveLayerGeometryById(null)
       setSnapGuides({ horizontal: [], vertical: [] })
       suppressLayerClickRef.current =
         Math.abs(event.clientX - interaction.startX) > 1 ||

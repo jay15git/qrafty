@@ -2,17 +2,15 @@ import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr-code/cont
 import type { QrStudioState } from "@/features/qr-code/model/state"
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr-code/rendering/compose-scene"
 import {
-  cloneDraftingQrState,
   type DraftingCardStateByNodeId,
   type DraftingContentValuesByType,
   type DraftingQrStateByLayerId,
   type DraftingQrStateByNodeId,
   type DraftingWorkspaceDocumentV1,
 } from "@/features/workspace/model/document"
-import { cloneSceneCompositionByNodeId, type SceneCompositionByNodeId } from "@/features/workspace/model/apply-scene-template"
-import { cloneDraftingCardState, type DraftingCardState } from "@/features/workspace/model/card-state"
+import { type SceneCompositionByNodeId } from "@/features/workspace/model/apply-scene-template"
+import { type DraftingCardState } from "@/features/workspace/model/card-state"
 import {
-  cloneDraftingCanvasLayer,
   createDefaultDraftingLayers,
   getDraftingQrLayerId,
   getQrCanvasLayers,
@@ -49,26 +47,20 @@ export function buildDraftingWorkspaceDocumentFromState({
   selectedContentType,
 }: BuildDraftingWorkspaceDocumentInput): DraftingWorkspaceDocumentV1 {
   const nodeId = DASHBOARD_QR_NODE_ID
-  const layers = (
+  const layers =
     layerStateByNodeId[nodeId] ??
     createDefaultDraftingLayers(nodeId, draftingStudioState, selectedCardState)
-  ).map(cloneDraftingCanvasLayer)
   const nextQrStateByLayerId: DraftingQrStateByLayerId = {
-    ...Object.fromEntries(
-      Object.entries(qrStateByLayerId).map(([layerId, state]) => [
-        layerId,
-        cloneDraftingQrState(layerId === activeQrLayerId ? draftingStudioState : state),
-      ]),
-    ),
+    ...qrStateByLayerId,
+    [activeQrLayerId]: draftingStudioState,
   }
 
   for (const layer of getQrCanvasLayers(layers)) {
     if (!nextQrStateByLayerId[layer.id]) {
-      nextQrStateByLayerId[layer.id] = cloneDraftingQrState(
+      nextQrStateByLayerId[layer.id] =
         layer.id === activeQrLayerId
           ? draftingStudioState
-          : (qrStateByLayerId[layer.id] ?? draftingStudioState),
-      )
+          : (qrStateByLayerId[layer.id] ?? draftingStudioState)
     }
   }
 
@@ -87,20 +79,20 @@ export function buildDraftingWorkspaceDocumentFromState({
   const primaryState =
     nextQrStateByLayerId[primaryQrLayerId] ??
     nextQrStateByLayerId[activeQrLayerId] ??
-    cloneDraftingQrState(draftingStudioState)
+    draftingStudioState
 
   return {
     activeQrLayerId,
     activeQrNodeId: nodeId,
     cardStateByNodeId: {
-      [nodeId]: cloneDraftingCardState(selectedCardState),
+      [nodeId]: selectedCardState,
     },
     contentTypeByLayerId: nextContentTypeByLayerId,
     contentTypeByNodeId: {
       ...contentTypeByNodeId,
       [nodeId]: selectedContentType,
     },
-    contentValuesByType: structuredClone(contentValuesByType),
+    contentValuesByType,
     layerStateByNodeId: {
       [nodeId]: layers,
     },
@@ -109,7 +101,7 @@ export function buildDraftingWorkspaceDocumentFromState({
     qrStateByNodeId: {
       [nodeId]: primaryState,
     } satisfies DraftingQrStateByNodeId,
-    sceneCompositionByNodeId: cloneSceneCompositionByNodeId(sceneCompositionByNodeId),
+    sceneCompositionByNodeId,
     selectedContentType,
     version: 1,
   }

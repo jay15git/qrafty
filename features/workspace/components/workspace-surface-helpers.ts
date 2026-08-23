@@ -169,13 +169,26 @@ export function patchDraftingLayerById(
   }
 
   if (!layer.children?.length) {
-    return cloneDraftingCanvasLayer(layer)
+    return layer
+  }
+
+  let childrenChanged = false
+  const children = layer.children.map((child) => {
+    const nextChild = patchDraftingLayerById(child, layerId, patch)
+    if (nextChild !== child) {
+      childrenChanged = true
+    }
+    return nextChild
+  })
+
+  if (!childrenChanged) {
+    return layer
   }
 
   return patchDraftingCanvasLayer(
     {
-      ...cloneDraftingCanvasLayer(layer),
-      children: layer.children.map((child) => patchDraftingLayerById(child, layerId, patch)),
+      ...layer,
+      children,
     },
     {},
   )

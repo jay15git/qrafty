@@ -524,7 +524,46 @@ export type PaneLayerViewProps = PaneLayerViewSharedProps & {
   textEditorRefs: MutableRefObject<Record<string, HTMLTextAreaElement | null>>
 }
 
-export function PaneLayerView({
+function arePaneLayerViewPropsEqual(
+  previous: PaneLayerViewProps,
+  next: PaneLayerViewProps,
+) {
+  if (
+    previous.layer !== next.layer ||
+    previous.cardState !== next.cardState ||
+    previous.cardStyle !== next.cardStyle ||
+    previous.cardImageStyle !== next.cardImageStyle ||
+    previous.imageFilterShader !== next.imageFilterShader ||
+    previous.isImageFilterMode !== next.isImageFilterMode ||
+    previous.isImageMode !== next.isImageMode ||
+    previous.isPaperShaderMode !== next.isPaperShaderMode ||
+    previous.state !== next.state ||
+    previous.textEditorRefs !== next.textEditorRefs
+  ) {
+    return false
+  }
+
+  const wasSelected = previous.activeSelectedLayerIdSet.has(previous.layer.id)
+  const isSelected = next.activeSelectedLayerIdSet.has(next.layer.id)
+  if (wasSelected !== isSelected) {
+    return false
+  }
+
+  const wasEditing = previous.editingTextLayerId === previous.layer.id
+  const isEditing = next.editingTextLayerId === next.layer.id
+  if (wasEditing !== isEditing) {
+    return false
+  }
+  if (isEditing && previous.editingTextDraft !== next.editingTextDraft) {
+    return false
+  }
+
+  return (
+    previous.qrStateByLayerId[previous.layer.id] === next.qrStateByLayerId[next.layer.id]
+  )
+}
+
+export const PaneLayerView = memo(function PaneLayerView({
   activeSelectedLayerIdSet,
   cardImageStyle,
   cardState,
@@ -827,4 +866,4 @@ export function PaneLayerView({
       layer={layer}
     />
   )
-}
+}, arePaneLayerViewPropsEqual)

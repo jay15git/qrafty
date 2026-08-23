@@ -81,10 +81,16 @@ beforeEach(() => {
     naturalWidth: state.width,
   }))
   HTMLElement.prototype.setPointerCapture = vi.fn()
+  vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+    callback(0)
+    return 1
+  })
+  vi.stubGlobal("cancelAnimationFrame", () => undefined)
 })
 
 afterEach(() => {
   vi.useRealTimers()
+  vi.unstubAllGlobals()
 
   for (const cleanup of cleanupCallbacks.splice(0)) {
     cleanup()
