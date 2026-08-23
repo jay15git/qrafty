@@ -36,6 +36,7 @@ import {
 } from "@/features/workspace/model/layers"
 import {
   COMPACT_TEXT_FONT_SIZES,
+  getDraftingEmojiLayerSizePatch,
   isDraftingEmojiLayer,
   isDraftingIllustrationLayer,
 } from "@/features/workspace/model/layer-floating-settings"
@@ -252,6 +253,7 @@ function TextSizeSettings({
   onSelect?: () => void
 }) {
   const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize
+  const isEmojiLayer = isDraftingEmojiLayer(layer)
 
   return (
     <div
@@ -270,7 +272,14 @@ function TextSizeSettings({
           role="option"
           type="button"
           onClick={() => {
-            onPatch({ fontSize: size, textRuns: undefined })
+            onPatch(
+              isEmojiLayer
+                ? {
+                    ...getDraftingEmojiLayerSizePatch(layer, size),
+                    textRuns: undefined,
+                  }
+                : { fontSize: size, textRuns: undefined },
+            )
             onSelect?.()
           }}
         >

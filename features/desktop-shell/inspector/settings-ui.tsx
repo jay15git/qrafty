@@ -142,7 +142,7 @@ export function SettingsAccordion({
   return (
     <MotionAccordion
       className="dn-settings-accordion w-full min-w-0 max-w-full"
-      gap={6}
+      gap={8}
       items={items}
       openIndex={openIndex}
       onOpenIndexChange={(index) => {

@@ -23,6 +23,7 @@ import {
   createDraftingTextLayer,
   type DraftingElementShapeId,
 } from "@/features/workspace/model/layers"
+import { createDraftingEmojiLayer } from "@/features/workspace/model/layer-floating-settings"
 import {
   getIllustrationSet,
   type IllustrationAsset,
@@ -80,13 +81,7 @@ export function InsertMenuPopoverContent({
   }
 
   function insertEmoji(emoji: string) {
-    onInsertLayer(
-      createDraftingTextLayer(nodeId, {
-        fontSize: 64,
-        lineHeight: 1,
-        text: emoji,
-      }),
-    )
+    onInsertLayer(createDraftingEmojiLayer(nodeId, emoji))
     closeMenu()
   }
 

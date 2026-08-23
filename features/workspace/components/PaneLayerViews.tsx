@@ -31,6 +31,7 @@ import {
   getTextLayerStyle,
   getTextRunStyle,
 } from "@/features/workspace/rendering/layer-dom-styles"
+import { isDraftingEmojiLayer } from "@/features/workspace/model/layer-floating-settings"
 import {
   getBackgroundShapeTiltInnerStyle,
   getBackgroundShapeTiltPerspectiveStyle,
@@ -397,6 +398,8 @@ export function PaneNestedLayerView({
   }
 
   if (layer.kind === "text") {
+    const isEmojiLayer = isDraftingEmojiLayer(layer)
+
     return (
       <div
         key={layer.id}
@@ -410,7 +413,11 @@ export function PaneNestedLayerView({
           ...getDraftingLayerEffectStyle(layer),
         }}
       >
-        <div className="h-full w-full" data-slot="drafting-text-content" style={getTextLayerStyle(layer)}>
+        <div
+          className={cn("h-full w-full", isEmojiLayer && "flex items-center justify-center")}
+          data-slot="drafting-text-content"
+          style={getTextLayerStyle(layer)}
+        >
           {renderTextLayerContent(layer)}
         </div>
       </div>
