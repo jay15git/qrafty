@@ -38,7 +38,6 @@ import {
 import {
   LayerContextMenu,
   LayerFloatingToolbar,
-  LayerSizeValue,
   ResizeFrameControls,
   SnapGuideOverlay,
 } from "@/features/workspace/components/PaneLayerChrome"
@@ -1099,7 +1098,6 @@ export function PaneWorkspace({
               {rotationDegrees}°
             </div>
           ) : null}
-          <LayerSizeValue height={layer.height} width={layer.width} />
           <button
             aria-label={`Rotate ${layer.name}`}
             className="pointer-events-auto absolute left-1/2 top-0 z-30 size-3 rounded-full border border-[#a8b0bb] bg-white shadow-[var(--ws-shadow-rest)]"
@@ -1171,7 +1169,6 @@ export function PaneWorkspace({
             {rotationDegrees}°
           </div>
         ) : null}
-        <LayerSizeValue height={bounds.height} width={bounds.width} />
         <button
           aria-label="Rotate selection"
           className="pointer-events-auto absolute left-1/2 top-0 z-30 size-3 rounded-full border border-[#a8b0bb] bg-white shadow-[var(--ws-shadow-rest)]"

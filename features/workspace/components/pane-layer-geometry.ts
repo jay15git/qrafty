@@ -227,13 +227,6 @@ export function roundLayerNumber(value: number) {
   return Math.round(value * 1000) / 1000
 }
 
-export function getLayerSizeLabel({
-  height,
-  width,
-}: Pick<DraftingCanvasLayer, "height" | "width">) {
-  return `${Math.round(width)} x ${Math.round(height)}`
-}
-
 export function snapLayerMove({
   layer,
   layers,

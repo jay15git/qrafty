@@ -685,47 +685,6 @@ describe("Pane", () => {
     expect(container.innerHTML).toContain('aria-label="Rotate QR code"')
   })
 
-  it("shows the selected layer size below the resize frame", async () => {
-    const state = createDefaultQrStudioState()
-    const cardState = createAutoSizedCardState()
-    const layers = createDefaultDraftingLayers("preview", state, cardState)
-    const { container } = renderPane(state, true, cardState, {
-      layers,
-      onLayerChange: () => undefined,
-      selectedLayerId: "preview:qr",
-    })
-
-    await waitForQrPaneRender()
-
-    const sizeValue = container.querySelector('[data-slot="drafting-layer-size-value"]') as HTMLElement
-
-    expect(sizeValue).not.toBeNull()
-    expect(sizeValue.textContent).toMatch(/\d+ x \d+/)
-    expect(sizeValue.style.transform).toBe("translate(-50%, calc(100% + 10px))")
-  })
-
-  it("keeps the size label on one line when the selected layer is very small", async () => {
-    const state = createDefaultQrStudioState()
-    const cardState = createDefaultDraftingCardState()
-    const layers = createDefaultDraftingLayers("preview", state, cardState).map((layer) =>
-      layer.id === "preview:qr" ? { ...layer, height: 24, width: 24 } : layer,
-    )
-    const { container } = renderPane(state, true, cardState, {
-      layers,
-      onLayerChange: () => undefined,
-      selectedLayerId: "preview:qr",
-    })
-
-    await waitForQrPaneRender()
-
-    const sizeValue = container.querySelector('[data-slot="drafting-layer-size-value"]') as HTMLElement
-
-    expect(sizeValue).not.toBeNull()
-    expect(sizeValue.textContent).toBe("24 x 24")
-    expect(sizeValue.className).toContain("whitespace-nowrap")
-    expect(sizeValue.className).toContain("w-max")
-  })
-
   it("renders and edits Avnac-style text layers inline", async () => {
     const onLayerChange = vi.fn()
     const onLayerSelect = vi.fn()
@@ -1791,24 +1750,6 @@ describe("Pane", () => {
       y: 50,
     })
     expect(container.querySelector('[data-slot="drafting-layer-multi-select-frame"]')).not.toBeNull()
-  })
-
-  it("shows the selected multi-layer size below the selection frame", async () => {
-    const layers: DraftingCanvasLayer[] = [
-      createLayer({ height: 100, id: "preview:card", kind: "card", width: 160, x: -100, y: -50, zIndex: 0 }),
-      createLayer({ height: 120, id: "preview:qr", kind: "qr", width: 120, x: 80, y: -30, zIndex: 1 }),
-    ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
-      layers,
-      onLayerChange: () => undefined,
-      selectedLayerIds: ["preview:card", "preview:qr"],
-    })
-
-    await waitForQrPaneRender()
-
-    expect(container.querySelector('[data-slot="drafting-layer-size-value"]')?.textContent).toBe(
-      "300 x 140",
-    )
   })
 
   it("keeps building canvas markup and mounts dot matrix preview when motion is enabled", async () => {

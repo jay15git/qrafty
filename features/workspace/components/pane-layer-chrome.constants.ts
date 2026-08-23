@@ -20,7 +20,6 @@ export type DraftingLayerMenuAction =
 export const RESIZE_CONTROL_PADDING_PX = 12
 export const ROTATE_HANDLE_OFFSET_PX = 34
 export const ROTATE_LABEL_GAP_PX = 8
-export const SIZE_LABEL_GAP_PX = 10
 export const FLOATING_TOOLBAR_GAP_PX = 14
 export const FLOATING_TOOLBAR_HEIGHT_PX = 38
 export const RESIZE_SNAP_THRESHOLD_PX = 3
