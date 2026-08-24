@@ -323,6 +323,8 @@ export function SettingsFillPopover({
   variant = "row",
   side = "right",
   align = "start",
+  collisionPadding,
+  triggerClassName,
 }: {
   value: string
   onValueChange: (fill: Fill, css: string) => void
@@ -333,6 +335,8 @@ export function SettingsFillPopover({
   variant?: "row" | "swatch"
   side?: "top" | "right" | "bottom" | "left"
   align?: "start" | "center" | "end"
+  collisionPadding?: number
+  triggerClassName?: string
   fillPreviewImageUrl?: string
   modulePattern?: {
     selectedPalette: string[]
@@ -353,7 +357,7 @@ export function SettingsFillPopover({
     <Popover>
       <PopoverTrigger asChild>
         {variant === "swatch" ? (
-          <FillSwatchButton ariaLabel={hint} fill={value} imageUrl={fillPreviewImageUrl} />
+          <FillSwatchButton ariaLabel={hint} className={triggerClassName} fill={value} imageUrl={fillPreviewImageUrl} />
         ) : (
           <ColorRowButton fill={value} hint={hint} imageUrl={fillPreviewImageUrl} />
         )}
@@ -367,6 +371,7 @@ export function SettingsFillPopover({
         data-theme={theme}
         side={side}
         sideOffset={10}
+        collisionPadding={collisionPadding}
       >
         {title ? (
           <p className="dn-type-meta mb-2">{title}</p>

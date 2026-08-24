@@ -13,7 +13,6 @@ function buildQrLayer(): DraftingCanvasLayer {
     blur: 0,
     height: 200,
     id: "qr-test",
-    isLocked: false,
     isVisible: true,
     kind: "qr",
     name: "QR code",

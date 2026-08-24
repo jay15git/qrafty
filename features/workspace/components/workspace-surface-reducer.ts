@@ -320,7 +320,7 @@ export function createInitialWorkspaceSurfaceState(
     },
     selectedLayerId: getDraftingQrLayerId(DASHBOARD_QR_NODE_ID),
     selectedLayerIds: [getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)],
-    desktopCanvasTool: "pan",
+    desktopCanvasTool: "select",
     desktopSnapEnabled: true,
     selectedDownloadExtension: "png",
     selectedDownloadTarget: "current",

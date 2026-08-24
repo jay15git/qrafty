@@ -7,13 +7,11 @@ import {
   EyeIcon,
   EyeOffIcon,
   ImageIcon,
-  LockIcon,
   QrCodeIcon,
   SparklesIcon,
   SquareIcon,
   Trash2Icon,
   TypeIcon,
-  UnlockIcon,
 } from "lucide-react"
 
 import {
@@ -248,23 +246,6 @@ export function DesktopLayersPopoverContent({
                       <EyeIcon className="size-3.5" />
                     ) : (
                       <EyeOffIcon className="size-3.5" />
-                    )}
-                  </LayerRowActionButton>
-
-                  <LayerRowActionButton
-                    ariaLabel={row.isLocked ? `Unlock ${displayName}` : `Lock ${displayName}`}
-                    className={cn(
-                      !row.isLocked ? "opacity-55" : undefined,
-                      embedded && "size-6 rounded-[8px] text-[var(--dn-muted)] hover:text-[var(--dn-fg)]",
-                    )}
-                    disabled={isProtected}
-                    pressed={row.isLocked}
-                    onClick={() => patchLayer(row.id, { isLocked: !row.isLocked })}
-                  >
-                    {row.isLocked ? (
-                      <LockIcon className="size-3.5" />
-                    ) : (
-                      <UnlockIcon className="size-3.5" />
                     )}
                   </LayerRowActionButton>
 

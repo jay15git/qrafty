@@ -89,7 +89,6 @@ export function toDesktopLayerRow(layer: DraftingCanvasLayer): DesktopLayerRow {
     blur: layer.blur,
     height: Math.round(layer.height),
     id: layer.id,
-    isLocked: layer.isLocked,
     isVisible: layer.isVisible,
     kind:
       layer.kind === "text"

@@ -86,7 +86,6 @@ export type DraftingCanvasLayer = {
   borderSides?: DraftingPerSideBorderState
   height: number
   id: string
-  isLocked: boolean
   isVisible: boolean
   kind: DraftingCanvasLayerKind
   cornerRadius?: number
@@ -285,7 +284,6 @@ export function createDraftingQrLayer(
     blur: 0,
     height: qrDimensions.height,
     id: options.id ?? createAdditionalDraftingQrLayerId(nodeId),
-    isLocked: false,
     isVisible: true,
     kind: "qr",
     layerFilters: [],
@@ -491,7 +489,6 @@ export function createDefaultDraftingLayers(
       blur: 0,
       height: layout.card.height,
       id: getDraftingCardLayerId(nodeId),
-      isLocked: true,
       isVisible: true,
       kind: "card",
       layerFilters: [],
@@ -513,7 +510,6 @@ export function createDefaultDraftingLayers(
       blur: 0,
       height: qrDimensions.height,
       id: getDraftingQrLayerId(nodeId),
-      isLocked: false,
       isVisible: true,
       kind: "qr",
       layerFilters: [],
@@ -871,7 +867,6 @@ export function groupDraftingCanvasLayers(
         ),
       height: bounds.bottom - bounds.top,
       id: options.groupId,
-      isLocked: false,
       isVisible: true,
       kind: "group",
       layerFilters: [],
@@ -939,7 +934,7 @@ export function getDraftingMarqueeSelection(
   }
 
   return layers.flatMap((layer) => {
-    if (!layer.isVisible || layer.isLocked) {
+    if (!layer.isVisible) {
       return []
     }
 
@@ -1103,8 +1098,6 @@ function normalizeSharedDraftingCanvasLayerFields({
     children: undefined,
     height: Math.max(1, height),
     id: typeof value.id === "string" ? value.id : fallback.id,
-    isLocked:
-      typeof value.isLocked === "boolean" ? value.isLocked : fallback.isLocked,
     isVisible:
       typeof value.isVisible === "boolean" ? value.isVisible : fallback.isVisible,
     fill: undefined,
@@ -1516,7 +1509,6 @@ function createFallbackLayer(
           : kind === "text" || kind === "image" || kind === "shape" || kind === "shader"
             ? createDraftingLayerInstanceId(nodeId, kind)
             : `${nodeId}:group`,
-    isLocked: false,
     isVisible: true,
     kind,
     fontFamily: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.fontFamily : undefined,

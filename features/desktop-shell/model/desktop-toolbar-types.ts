@@ -216,7 +216,6 @@ export type DesktopLayerRow = {
   blur: number
   height: number
   id: string
-  isLocked: boolean
   isVisible: boolean
   kind: DesktopLayerKind
   name: string

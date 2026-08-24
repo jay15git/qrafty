@@ -79,6 +79,8 @@ export function IllustrationFloatingColorControl({
             align="center"
             hint="Illustration color"
             side="top"
+            avoidCollisions
+            collisionPadding={12}
             solidOnly
             title="Illustration color"
             value={displayColors[0] ?? "#171717"}
@@ -103,12 +105,12 @@ export function IllustrationFloatingColorControl({
           <PopoverTrigger asChild>
             <button
               aria-label="Illustration colors"
-              className="relative flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
+              className="relative flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
               type="button"
             >
               <span
                 aria-hidden
-                className="grid size-6 grid-cols-2 overflow-hidden rounded-full border-2 border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)]"
+                className="grid size-7 grid-cols-2 overflow-hidden rounded-xl border-2 border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)]"
               >
                 {displayColors.slice(0, 4).map((color, index) => (
                   <span
@@ -221,4 +223,3 @@ export function IllustrationLayerImage({ layer }: { layer: DraftingCanvasLayer }
     />
   )
 }
-

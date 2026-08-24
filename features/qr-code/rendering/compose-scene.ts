@@ -51,7 +51,6 @@ export type DashboardComposeNodeBase = {
   opacity: number
   blendMode: string
   isVisible: boolean
-  isLocked: boolean
 }
 
 export type DashboardComposeSvgNode = DashboardComposeNodeBase & {
@@ -326,7 +325,6 @@ export function addDashboardComposeImageNode(
     opacity: 1,
     blendMode: "normal",
     isVisible: true,
-    isLocked: false,
   })
 
   return {
@@ -519,7 +517,6 @@ function createDashboardQrNode(
     opacity: 1,
     blendMode: "normal",
     isVisible: true,
-    isLocked: false,
   }) as DashboardComposeSvgNode
 }
 
@@ -539,7 +536,6 @@ function normalizeDashboardComposeNode(
     zIndex: Number.isFinite(node.zIndex) ? node.zIndex : 0,
     blendMode: node.blendMode || "normal",
     isVisible: node.isVisible ?? true,
-    isLocked: node.isLocked ?? false,
   }
 
   if (node.kind === "image") {

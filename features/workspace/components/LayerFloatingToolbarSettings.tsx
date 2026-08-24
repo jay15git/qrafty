@@ -51,10 +51,10 @@ import { cn } from "@/lib/utils"
 import "@/features/desktop-shell/inspector/desktopnew.css"
 
 const COMPACT_POPOVER_CLASS =
-  "z-[20001] w-auto min-w-[10.5rem] rounded-[14px] border border-white/[0.12] bg-[#171717] p-2.5 text-white shadow-[var(--desktop-glass-shadow)]"
+  "z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-white/[0.12] bg-[#171717] p-3 text-white shadow-[var(--desktop-glass-shadow)]"
 
 const ICON_TOGGLE_CLASS =
-  "grid size-8 place-items-center rounded-full text-white/78 transition-[background-color,color] duration-150 hover:bg-white/[0.11] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 aria-pressed:bg-white/[0.16] aria-pressed:text-white"
+  "grid size-9 place-items-center rounded-xl text-white/78 transition-[background-color,color] duration-150 hover:bg-white/[0.11] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 aria-pressed:bg-white/[0.16] aria-pressed:text-white"
 
 const SIZE_OPTION_CLASS =
   "flex h-8 w-full min-w-[5.5rem] items-center justify-between rounded-lg px-2.5 text-[12px] font-semibold text-white/78 transition-[background-color,color] duration-150 hover:bg-white/[0.11] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 aria-pressed:bg-white/[0.16] aria-pressed:text-white"
@@ -76,7 +76,7 @@ const LayerFloatingSettingsButton = forwardRef<
       aria-label={ariaLabel}
       aria-pressed={active}
       className={cn(
-        "flex size-8 cursor-pointer items-center justify-center rounded-full text-current transition-[background-color,color] duration-150 hover:bg-[var(--ws-layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--ws-layer-toolbar-button-hover-text,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45",
+        "flex size-9 cursor-pointer items-center justify-center rounded-xl text-current transition-[background-color,color] duration-150 hover:bg-[var(--ws-layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--ws-layer-toolbar-button-hover-text,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45",
         active && "bg-white/[0.16] text-white",
         className,
       )}
@@ -115,6 +115,8 @@ function LayerFloatingSettingsPopover({
         className={COMPACT_POPOVER_CLASS}
         data-slot="drafting-layer-floating-settings-popover"
         side="top"
+        avoidCollisions
+        collisionPadding={12}
         sideOffset={10}
         onClick={(event) => event.stopPropagation()}
         onPointerDown={(event) => event.stopPropagation()}
@@ -149,11 +151,13 @@ function FillColorToolbarButton({
       <DesktopnewThemeContext.Provider value={theme}>
         <SettingsFillPopover
           align="center"
+          collisionPadding={12}
           hint={ariaLabel}
           side="top"
           solidOnly={solidOnly}
           title={title}
           value={value}
+          triggerClassName="size-9 rounded-xl [&>span]:size-7 [&>span]:rounded-xl"
           variant="swatch"
           onValueChange={onValueChange}
         />

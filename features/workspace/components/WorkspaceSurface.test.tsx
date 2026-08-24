@@ -795,7 +795,7 @@ describe("WorkspaceSurface", () => {
     expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(1)
   })
 
-  it("uses keyboard shortcuts to group, ungroup, lock, and hide selected layers", async () => {
+  it("uses keyboard shortcuts to group, ungroup, and hide selected layers", async () => {
     buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
@@ -853,18 +853,6 @@ describe("WorkspaceSurface", () => {
     act(() => {
       groupLayer.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
-
-    act(() => {
-      dispatchBodyShortcut("l", { ctrlKey: true, shiftKey: true })
-    })
-
-    expect(groupLayer.className).toContain("cursor-default")
-
-    act(() => {
-      dispatchBodyShortcut("l", { ctrlKey: true, shiftKey: true })
-    })
-
-    expect(groupLayer.className).toContain("cursor-all-scroll")
 
     act(() => {
       dispatchBodyShortcut("h", { ctrlKey: true, shiftKey: true })

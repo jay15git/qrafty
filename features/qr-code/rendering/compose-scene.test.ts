@@ -99,7 +99,6 @@ describe("dashboard compose scene helpers", () => {
     expect(node.name).toBe("QR Code")
     expect(node.kind === "svg" ? node.originalSvgMarkup : "").toContain("<svg")
     expect(node.isVisible).toBe(true)
-    expect(node.isLocked).toBe(false)
     expect(node.scale).toBeCloseTo(expectedScale)
     expect(node.x).toBeCloseTo(expectedXOffset)
     expect(node.y).toBeCloseTo(expectedYOffset)
@@ -281,7 +280,6 @@ describe("dashboard compose scene helpers", () => {
       },
     })
     const updatedNodeScene = updateDashboardComposeNode(backgroundScene, DASHBOARD_QR_NODE_ID, {
-      isLocked: true,
       isVisible: false,
       name: "Poster QR",
     })
@@ -290,7 +288,6 @@ describe("dashboard compose scene helpers", () => {
     expect(backgroundScene.background.gradient.enabled).toBe(true)
     expect(backgroundScene.background.gradient.type).toBe("radial")
     expect(updatedNodeScene.nodes[0]).toMatchObject({
-      isLocked: true,
       isVisible: false,
       name: "Poster QR",
     })
@@ -475,7 +472,6 @@ describe("dashboard compose scene helpers", () => {
       id: "image-node",
       kind: "image",
       imageUrl: "/landscape.png",
-      isLocked: true,
       isVisible: true,
       name: "Landscape",
       opacity: 0.8,
@@ -513,7 +509,6 @@ function createLayeredScene() {
       node.id === "image-node"
         ? {
             ...node,
-            isLocked: true,
             opacity: 0.8,
           }
         : node,

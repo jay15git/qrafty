@@ -4,7 +4,6 @@ import { useMemo, type ReactNode } from "react"
 import {
   MagnetIcon,
   MoonIcon,
-  MousePointer2Icon,
   SlidersHorizontalIcon,
   SunIcon,
 } from "lucide-react"
@@ -137,7 +136,6 @@ export function DesktopDynamicIslandChrome({
   const propertyLayer = selectedTransformLayer ?? selectedElementLayer ?? appearanceLayer ?? null
   const propertyCapabilities = getDesktopLayerToolbarCapabilities(propertyLayer, appearance)
   const hasComposeControls =
-    Boolean(onCanvasToolChange) &&
     Boolean(activePaneId) &&
     typeof snapEnabled === "boolean" &&
     Boolean(onSnapEnabledChange)
@@ -176,16 +174,7 @@ export function DesktopDynamicIslandChrome({
     }
 
     if (hasComposeControls) {
-      const isSelectTool = activeCanvasTool === "select"
-
       nextItems.push(
-        {
-          ariaLabel: "Select and move elements",
-          icon: <MousePointer2Icon className={ICON_CLASS} />,
-          label: "Select",
-          pressed: isSelectTool,
-          onClick: () => onCanvasToolChange?.(isSelectTool ? "pan" : "select"),
-        },
         {
           ariaLabel: snapEnabled ? "Disable snapping" : "Enable snapping",
           icon: <MagnetIcon className={ICON_CLASS} />,
@@ -250,7 +239,6 @@ export function DesktopDynamicIslandChrome({
   }, [
     appearance,
     appearanceLayer,
-    activeCanvasTool,
     canRedo,
     canUndo,
     hasComposeControls,
@@ -259,7 +247,6 @@ export function DesktopDynamicIslandChrome({
     propertyCapabilities.propertyTabs,
     propertyCapabilities.showStyleInDesign,
     onAppearancePatch,
-    onCanvasToolChange,
     onElementLayerPatch,
     onRedo,
     onSelectSizeTemplate,

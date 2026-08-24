@@ -12,7 +12,6 @@ function createQrLayer(id: string): DraftingCanvasLayer {
     blur: 0,
     height: 200,
     id,
-    isLocked: false,
     isVisible: true,
     kind: "qr",
     layerFilters: [],

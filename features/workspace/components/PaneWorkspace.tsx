@@ -46,6 +46,7 @@ import {
   FLOATING_TOOLBAR_GAP_PX,
   FLOATING_TOOLBAR_HEIGHT_PX,
   RESIZE_CONTROL_PADDING_PX,
+  FLOATING_TOOLBAR_EDGE_GUTTER_PX,
   RESIZE_SNAP_THRESHOLD_PX,
   ROTATE_HANDLE_OFFSET_PX,
   ROTATE_HANDLE_RADIUS_PX,
@@ -190,6 +191,7 @@ export function PaneWorkspace({
   const [isLayerInteracting, setIsLayerInteracting] = useState(false)
   const [isMovingLayers, setIsMovingLayers] = useState(false)
   const [canvasHeight, setCanvasHeight] = useState(0)
+  const [canvasWidth, setCanvasWidth] = useState(0)
   const [rotationPreviewDegrees, setRotationPreviewDegrees] = useState<number | null>(null)
   const [multiSelectionPreview, setMultiSelectionPreview] = useState<{
     bounds: Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> & { rotation?: number }
@@ -265,6 +267,7 @@ export function PaneWorkspace({
 
     const updateCanvasHeight = () => {
       setCanvasHeight(canvas.getBoundingClientRect().height)
+      setCanvasWidth(canvas.getBoundingClientRect().width)
     }
 
     updateCanvasHeight()
@@ -358,10 +361,11 @@ export function PaneWorkspace({
   const contentLayers = contentOnlyZoom
     ? visibleLayers.filter((layer) => layer.kind !== "card")
     : visibleLayers
-  const artboardInteractionScale = contentOnlyZoom ? interactionScale : 1
+  // Desktop compose zoom belongs to content layers. Keep card/background fixed.
+  const artboardInteractionScale = contentOnlyZoom ? 1 : interactionScale
   const artboardScale = viewFitScale * artboardInteractionScale
   const contentTransformStyle: CSSProperties | undefined = contentOnlyZoom
-    ? buildContentTransformStyle(contentPan, 1)
+    ? buildContentTransformStyle(contentPan, interactionScale)
     : undefined
   const activeSelectedLayerIds = selectedLayerIds ?? (selectedLayerId ? [selectedLayerId] : [])
   const activeSelectedLayerIdSet = new Set(activeSelectedLayerIds)
@@ -484,7 +488,7 @@ export function PaneWorkspace({
       return
     }
 
-    if (layer.isLocked || !onLayerChange) {
+    if (!onLayerChange) {
       return
     }
 
@@ -854,7 +858,6 @@ export function PaneWorkspace({
             ...interaction.groupBounds,
             blur: 0,
             id: "selection",
-            isLocked: false,
             isVisible: true,
             kind: "card",
             name: "Selection",
@@ -1052,7 +1055,7 @@ export function PaneWorkspace({
   }
 
   function startTextEditing(event: MouseEvent<HTMLElement>, layer: DraftingCanvasLayer) {
-    if (layer.kind !== "text" || layer.isLocked) {
+    if (layer.kind !== "text") {
       return
     }
 
@@ -1104,10 +1107,19 @@ export function PaneWorkspace({
       ROTATE_HANDLE_RADIUS_PX -
       FLOATING_TOOLBAR_GAP_PX -
       FLOATING_TOOLBAR_HEIGHT_PX
-    const minY = canvasHeight > 0 ? -canvasHeight / 2 + FLOATING_TOOLBAR_GAP_PX : rawY
-    const y = Math.max(rawY, minY)
+    const topBoundary = canvasHeight > 0 ? -canvasHeight / 2 + FLOATING_TOOLBAR_EDGE_GUTTER_PX : rawY
+    const bottomBoundary = canvasHeight > 0
+      ? canvasHeight / 2 - FLOATING_TOOLBAR_HEIGHT_PX - FLOATING_TOOLBAR_EDGE_GUTTER_PX
+      : rawY
+    const yAbove = Math.min(rawY, bottomBoundary)
+    const yBelow = Math.min(bounds.y + bounds.height + FLOATING_TOOLBAR_GAP_PX, bottomBoundary)
+    const y = rawY < topBoundary ? Math.max(yBelow, topBoundary) : Math.max(yAbove, topBoundary)
+    const horizontalLimit = canvasWidth > 0
+      ? Math.max(0, canvasWidth / 2 - 132 - FLOATING_TOOLBAR_EDGE_GUTTER_PX)
+      : Number.POSITIVE_INFINITY
+    const clampedX = Math.min(horizontalLimit, Math.max(-horizontalLimit, x))
     const layerToolbarStyle = {
-      transform: `translate3d(${x}px, ${y}px, 0) translateX(-50%)`,
+      transform: `translate3d(${clampedX}px, ${y}px, 0) translateX(-50%)`,
     }
 
     return (
@@ -1148,7 +1160,7 @@ export function PaneWorkspace({
   }
 
   function renderLayerControls(layer: DraftingCanvasLayer) {
-    if (activeSelectedLayerIds.length !== 1 || layer.isLocked || !activeSelectedLayerIdSet.has(layer.id)) {
+    if (activeSelectedLayerIds.length !== 1 || !activeSelectedLayerIdSet.has(layer.id)) {
       return null
     }
 

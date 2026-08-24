@@ -114,7 +114,10 @@ export function DraftingPaneSurface({
   toolbarVariant = "default",
 }: DraftingPaneSurfaceProps) {
   const { canSwap, isSelected, isSnapTarget } = interaction
-  const canvasTool = resolveDraftingCanvasTool(activeCanvasTool)
+  // Desktop compose workspace has one interaction mode: select.
+  const canvasTool = toolbarVariant === "desktop-zoom"
+    ? "select"
+    : resolveDraftingCanvasTool(activeCanvasTool)
 
   const interactions = useDraftingPaneSurfaceInteractions({
     activeCanvasTool: canvasTool,

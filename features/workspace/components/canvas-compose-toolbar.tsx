@@ -7,7 +7,6 @@ import {
   MagnetIcon,
   Maximize2Icon,
   Minimize2Icon,
-  MousePointer2Icon,
   Redo2Icon,
   Trash2Icon,
   Undo2Icon,
@@ -120,7 +119,6 @@ type ComposeToolbarControlsProps = {
 
 export function ComposeToolbarControls({
   activeCanvasTool,
-  activeInteractionTool,
   activePaneId,
   history = { canUndo: false, canRedo: false },
   qr = { canAdd: true },
@@ -131,7 +129,6 @@ export function ComposeToolbarControls({
   placement = "canvas-floating",
   onAddTextLayerAt,
   onBrowseStockPhotos,
-  onCanvasToolChange,
   onInsertLayer,
   onRemoveQrCode,
   onResetView,
@@ -208,33 +205,6 @@ export function ComposeToolbarControls({
           </Tooltip>
 
           <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" />
-        </>
-      ) : null}
-
-      {isDesktopGlassToolbar && showDesktopInteractionTools && !previewLocked ? (
-        <>
-          <ComposeToolbarTooltip
-            content="Select and move elements"
-            desktop={isDesktopGlassToolbar}
-            placement={placement}
-          >
-            <Button
-              aria-label="Select and move elements"
-              aria-pressed={activeInteractionTool === "select"}
-              className={getComposeToolbarIconButtonClass(
-                isDesktopGlassToolbar,
-                activeInteractionTool === "select" && DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_ACTIVE_CLASS,
-              )}
-              onClick={() =>
-                onCanvasToolChange?.(activeInteractionTool === "select" ? "pan" : "select")
-              }
-              size="icon"
-              type="button"
-              variant="ghost"
-            >
-              <MousePointer2Icon />
-            </Button>
-          </ComposeToolbarTooltip>
         </>
       ) : null}
 

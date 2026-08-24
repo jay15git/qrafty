@@ -853,7 +853,7 @@ describe("Pane", () => {
     expect(container.querySelector('[data-slot="desktop-text-format-toolbar"]')).toBeNull()
   })
 
-  it("shows floating layer actions for a selected unlocked text layer", async () => {
+  it("shows floating layer actions for a selected text layer", async () => {
     const onLayerAction = vi.fn()
     const onLayerCopy = vi.fn()
     const onLayerChange = vi.fn()
@@ -905,44 +905,10 @@ describe("Pane", () => {
     expect(onLayerCopy).toHaveBeenCalledWith(["preview:text"])
 
     act(() => {
-      clickElement(getRequiredElement(toolbar, 'button[aria-label="Lock selection"]'))
-    })
-
-    expect(onLayerAction).toHaveBeenCalledWith(["preview:text"], "lock")
-
-    act(() => {
       clickElement(getRequiredElement(toolbar, 'button[aria-label="Delete selection"]'))
     })
 
     expect(onLayerAction).toHaveBeenCalledWith(["preview:text"], "delete")
-  })
-
-  it("shows unlock action for locked selected layers without resize handles", async () => {
-    const onLayerAction = vi.fn()
-    const lockedTextLayer = createDraftingTextLayer("preview", {
-      id: "preview:text",
-      isLocked: true,
-      zIndex: 2,
-    })
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
-      layers: [...createDefaultDraftingLayers("preview", createDefaultQrStudioState(), createDefaultDraftingCardState()), lockedTextLayer],
-      onLayerAction,
-      selectedLayerId: "preview:text",
-    })
-
-    await act(async () => {
-      await flushPromises()
-    })
-
-    const toolbar = getRequiredElement(container, '[data-slot="drafting-layer-floating-toolbar"]')
-
-    expect(container.querySelector('[data-slot="drafting-layer-resize-frame"]')).toBeNull()
-
-    act(() => {
-      clickElement(getRequiredElement(toolbar, 'button[aria-label="Unlock selection"]'))
-    })
-
-    expect(onLayerAction).toHaveBeenCalledWith(["preview:text"], "unlock")
   })
 
   it("opens the existing context menu from the floating more button", async () => {
@@ -1022,11 +988,6 @@ describe("Pane", () => {
 
     expect(onLayerCopy).toHaveBeenCalledWith(selectedLayerIds)
 
-    act(() => {
-      clickElement(getRequiredElement(toolbar, 'button[aria-label="Lock selection"]'))
-    })
-
-    expect(onLayerAction).toHaveBeenCalledWith(selectedLayerIds, "lock")
   })
 
   it("opens a selected layer context menu and emits layer actions", async () => {
@@ -1146,7 +1107,7 @@ describe("Pane", () => {
     expect(onLayerPaste).not.toHaveBeenCalled()
   })
 
-  it("marquee selects visible unlocked layers intersecting the drag box", async () => {
+  it("marquee selects visible layers intersecting the drag box", async () => {
     const onLayerSelectionChange = vi.fn()
     const onLayerSelect = vi.fn()
     const layers: DraftingCanvasLayer[] = [
@@ -1162,7 +1123,6 @@ describe("Pane", () => {
       createLayer({
         height: 80,
         id: "preview:qr",
-        isLocked: true,
         kind: "qr",
         width: 80,
         x: 40,
@@ -1439,7 +1399,6 @@ describe("Pane", () => {
       blur: 0,
       height: 240,
       id: "preview:qr",
-      isLocked: false,
       isVisible: true,
       kind: "qr",
       name: "QR code",
@@ -1966,7 +1925,6 @@ function createLayer(
     blur: 0,
     height: 100,
     id,
-    isLocked: false,
     isVisible: true,
     kind,
     name: kind === "card" ? "Card" : "QR code",

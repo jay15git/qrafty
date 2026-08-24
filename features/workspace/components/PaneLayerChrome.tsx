@@ -3,10 +3,8 @@
 import type { CSSProperties, MouseEvent, PointerEvent, ReactNode } from "react"
 import {
   CopyIcon,
-  LockIcon,
   MoreHorizontalIcon,
   Trash2Icon,
-  UnlockIcon,
 } from "lucide-react"
 
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
@@ -312,21 +310,15 @@ export function LayerFloatingToolbar({
   style: CSSProperties
   theme?: DesktopThemeMode
 }) {
-  const hasUnlockedLayer = layers.some(
-    (layer) => !layer.isLocked && !isProtectedDraftingLayerId(layer.id, layers),
-  )
   const hasRemovableLayer = layers.some(
     (layer) => !isProtectedDraftingLayerId(layer.id, layers),
   )
-  const lockAction = hasUnlockedLayer ? "lock" : "unlock"
-  const lockLabel = hasUnlockedLayer ? "Lock selection" : "Unlock selection"
-  const LockActionIcon = hasUnlockedLayer ? LockIcon : UnlockIcon
-  const settingsLayer = layers.length === 1 && !layers[0]?.isLocked ? layers[0] : null
+  const settingsLayer = layers.length === 1 ? layers[0] : null
   const showLayerSettings = Boolean(settingsLayer && onLayerChange)
 
   return (
     <div
-      className="absolute left-1/2 top-1/2 z-[10001] inline-flex h-11 items-center gap-1 rounded-full border border-white/[0.12] bg-[#171717] px-2 text-white/78 shadow-[var(--desktop-glass-shadow)]"
+      className="absolute left-1/2 top-1/2 z-[10001] inline-flex min-h-12 min-w-48 items-center justify-center gap-1.5 rounded-2xl border border-white/[0.12] bg-[#171717] px-2.5 text-white/78 shadow-[var(--desktop-glass-shadow)]"
       data-slot="drafting-layer-floating-toolbar"
       data-toolbar-appearance="desktop-glass"
       role="toolbar"
@@ -358,13 +350,6 @@ export function LayerFloatingToolbar({
         <CopyIcon aria-hidden="true" className="size-4" strokeWidth={2} />
       </LayerFloatingToolbarButton>
       <LayerFloatingToolbarButton
-        label={lockLabel}
-        disabled={!onAction}
-        onClick={() => onAction?.(lockAction)}
-      >
-        <LockActionIcon aria-hidden="true" className="size-4" strokeWidth={2} />
-      </LayerFloatingToolbarButton>
-      <LayerFloatingToolbarButton
         label="Delete selection"
         disabled={!onAction || !hasRemovableLayer}
         onClick={() => onAction?.("delete")}
@@ -393,7 +378,7 @@ function LayerFloatingToolbarButton({
   return (
     <button
       aria-label={label}
-      className="flex size-8 cursor-pointer items-center justify-center rounded-full text-current transition-[background-color,color] duration-150 hover:bg-[var(--ws-layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--ws-layer-toolbar-button-hover-text,white)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
+        className="flex size-9 cursor-pointer items-center justify-center rounded-xl text-current transition-[background-color,color] duration-150 hover:bg-[var(--ws-layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--ws-layer-toolbar-button-hover-text,white)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
       data-slot="drafting-layer-floating-toolbar-button"
       disabled={disabled}
       type="button"

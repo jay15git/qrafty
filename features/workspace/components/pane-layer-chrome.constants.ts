@@ -11,17 +11,16 @@ export type DraftingLayerMenuAction =
   | "delete"
   | "group"
   | "hide"
-  | "lock"
   | "reset-rotation"
   | "show"
   | "ungroup"
-  | "unlock"
 
 export const RESIZE_CONTROL_PADDING_PX = 12
 export const ROTATE_HANDLE_OFFSET_PX = 34
 export const ROTATE_LABEL_GAP_PX = 8
-export const FLOATING_TOOLBAR_GAP_PX = 14
-export const FLOATING_TOOLBAR_HEIGHT_PX = 38
+export const FLOATING_TOOLBAR_GAP_PX = 16
+export const FLOATING_TOOLBAR_HEIGHT_PX = 48
+export const FLOATING_TOOLBAR_EDGE_GUTTER_PX = 12
 export const RESIZE_SNAP_THRESHOLD_PX = 3
 export const CONTEXT_MENU_POINTER_OFFSET_PX = 8
 

@@ -611,7 +611,6 @@ export const PaneLayerView = memo(function PaneLayerView({
         className={cn(
           "absolute max-h-none max-w-none touch-none",
           LAYER_MOVE_CURSOR_CLASS,
-          layer.isLocked && "cursor-default",
         )}
         style={{
           ...getLayerPlacementStyle(layer),
@@ -666,7 +665,6 @@ export const PaneLayerView = memo(function PaneLayerView({
         className={cn(
           "absolute max-h-none max-w-none touch-none",
           LAYER_MOVE_CURSOR_CLASS,
-          layer.isLocked && "cursor-default",
         )}
         style={{
           ...getLayerPlacementStyle(layer),
@@ -702,7 +700,6 @@ export const PaneLayerView = memo(function PaneLayerView({
         className={cn(
           "absolute max-h-none max-w-none touch-none overflow-hidden",
           isEditing ? "cursor-text" : LAYER_MOVE_CURSOR_CLASS,
-          layer.isLocked && !isEditing && "cursor-default",
         )}
         style={{
           ...getLayerPlacementStyle(layer),
@@ -765,7 +762,6 @@ export const PaneLayerView = memo(function PaneLayerView({
         className={cn(
           "absolute max-h-none max-w-none touch-none overflow-hidden",
           LAYER_MOVE_CURSOR_CLASS,
-          layer.isLocked && "cursor-default",
         )}
         style={{
           ...getLayerPlacementStyle(layer),
@@ -801,7 +797,6 @@ export const PaneLayerView = memo(function PaneLayerView({
         className={cn(
           "absolute max-h-none max-w-none touch-none overflow-visible",
           LAYER_MOVE_CURSOR_CLASS,
-          layer.isLocked && "cursor-default",
         )}
         style={{
           ...getLayerPlacementStyle(layer),
@@ -838,7 +833,6 @@ export const PaneLayerView = memo(function PaneLayerView({
         className={cn(
           "absolute max-h-none max-w-none touch-none overflow-hidden",
           LAYER_MOVE_CURSOR_CLASS,
-          layer.isLocked && "cursor-default",
         )}
         style={{
           ...getLayerPlacementStyle(layer),

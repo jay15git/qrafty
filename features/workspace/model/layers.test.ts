@@ -30,15 +30,12 @@ import { createDefaultDraftingCardState } from "@/features/workspace/model/card-
 import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
 
 describe("drafting layer state actions", () => {
-  it("keeps the card background layer locked, visible, and protected", () => {
+  it("keeps the card background layer visible and protected", () => {
     const cardState = { ...createDefaultDraftingCardState(), enabled: false }
     const layers = createDefaultDraftingLayers("preview", createDefaultQrStudioState(), cardState)
     const cardLayer = layers.find((layer) => layer.kind === "card")
 
-    expect(cardLayer).toMatchObject({
-      isLocked: true,
-      isVisible: true,
-    })
+    expect(cardLayer?.isVisible).toBe(true)
     expect(isProtectedDraftingLayerId(cardLayer?.id)).toBe(true)
   })
 
@@ -286,10 +283,10 @@ describe("drafting layer state actions", () => {
     ])
   })
 
-  it("selects visible unlocked layers intersecting a marquee box", () => {
+  it("selects visible layers intersecting a marquee box", () => {
     const layers = [
       createLayer("card", 0, { height: 100, width: 100, x: 0, y: 0 }),
-      createLayer("qr", 1, { height: 50, isLocked: true, width: 50, x: 120, y: 120 }),
+      createLayer("qr", 1, { height: 50, width: 50, x: 120, y: 120 }),
       createLayer("hidden", 2, { height: 50, isVisible: false, width: 50, x: 20, y: 20 }),
       createLayer("badge", 3, { height: 40, width: 40, x: 180, y: 20 }),
     ]
@@ -301,7 +298,7 @@ describe("drafting layer state actions", () => {
         x: -10,
         y: -10,
       }),
-    ).toEqual(["card"])
+    ).toEqual(["card", "qr"])
   })
 
   it("creates and normalizes Avnac-style text layers", () => {
@@ -356,7 +353,6 @@ describe("drafting layer state actions", () => {
           fontWeight: "heavy",
           height: 30,
           id: "text-1",
-          isLocked: false,
           isVisible: true,
           kind: "text",
           letterSpacing: 500,
@@ -769,7 +765,6 @@ function createLayer(
     blur: 0,
     height: 40,
     id,
-    isLocked: false,
     isVisible: true,
     kind: id === "card" ? "card" : "qr",
     name: id,

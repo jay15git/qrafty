@@ -1572,7 +1572,7 @@ export function WorkspaceSurface({
             for (const layerId of currentSelectedLayerIds) {
               const layer = activeLayerById.get(layerId)
 
-              if (layer && !layer.isLocked) {
+              if (layer) {
                 handleLayerChange(currentActiveQrNodeId, layerId, {
                   x: layer.x + x,
                   y: layer.y + y,
@@ -1666,12 +1666,6 @@ export function WorkspaceSurface({
           keyboardStateRef.current.selectedLayerIds,
           event.shiftKey ? "ungroup" : "group",
         )
-        return
-      }
-
-      if (key === "l" && event.shiftKey) {
-        event.preventDefault()
-        toggleSelectedLayerLock()
         return
       }
 
@@ -2164,7 +2158,7 @@ export function WorkspaceSurface({
         currentSelectedCardState,
       )
 
-    return layers.filter((layer) => layer.isVisible && !layer.isLocked)
+    return layers.filter((layer) => layer.isVisible)
   }
 
   function getSelectedActiveLayers() {
@@ -2195,20 +2189,6 @@ export function WorkspaceSurface({
 
   function clearDraftingLayerSelection() {
     applyLayerSelection([])
-  }
-
-  function toggleSelectedLayerLock() {
-    const selectedLayers = getSelectedActiveLayers()
-
-    if (selectedLayers.length === 0) {
-      return
-    }
-
-    handleLayerAction(
-      keyboardStateRef.current.activeQrNodeId,
-      selectedLayers.map((layer) => layer.id),
-      selectedLayers.some((layer) => !layer.isLocked) ? "lock" : "unlock",
-    )
   }
 
   function toggleSelectedLayerVisibility() {
@@ -2317,7 +2297,7 @@ export function WorkspaceSurface({
       createDefaultDraftingLayers(paneId, draftingStudioState, selectedCardState)
 
     if (isProtectedDraftingLayerId(layerId, layers)) {
-      const { isLocked: _isLocked, isVisible: _isVisible, ...safePatch } = patch
+      const { isVisible: _isVisible, ...safePatch } = patch
       if (Object.keys(safePatch).length === 0) {
         return
       }
@@ -2573,11 +2553,7 @@ export function WorkspaceSurface({
               ? { isVisible: false }
               : action === "show"
                 ? { isVisible: true }
-                : action === "lock"
-                  ? { isLocked: true }
-                  : action === "unlock"
-                    ? { isLocked: false }
-                    : { rotation: 0 }
+                : { rotation: 0 }
 
           return patchDraftingCanvasLayer(layer, patch)
         })
@@ -3307,7 +3283,6 @@ export function WorkspaceSurface({
         return patchDraftingCanvasLayer(layer, {
           blur: row.blur,
           height: row.height,
-          isLocked: row.isLocked,
           isVisible: row.isVisible,
           name: row.name,
           opacity: row.opacity / 100,
@@ -3442,7 +3417,7 @@ export function WorkspaceSurface({
     },
     onActiveToolChange: (toolId) => {
       setComposeSidebarPanel(null)
-      setDesktopCanvasTool("pan")
+      setDesktopCanvasTool("select")
       setDesktopRailTool(toolId)
     },
     onRedo: handleRedoDraftingWorkspace,
