@@ -80,7 +80,11 @@ import { resolveWorkspaceBootstrapDocument } from "@/features/workspace/model/wo
 import {
   buildDraftingLayeredNodePayload,
 } from "@/features/workspace/export/layered-export"
-import { buildDraftingWorkspaceDocumentFromState } from "@/features/workspace/components/workspace-surface-document"
+import {
+  buildDraftingWorkspaceDocumentFromState,
+  mergeLiveQrStateByLayerId,
+  resolveActiveQrLayerIdFromLayers,
+} from "@/features/workspace/components/workspace-surface-document"
 import { clearDraftingQrMarkupCache } from "@/features/workspace/hooks/use-drafting-qr-markup"
 import {
   buildDesktopToolbarSettingsSnapshots,
@@ -1220,14 +1224,32 @@ export function WorkspaceSurface({
   ) {
     const nodeId = DASHBOARD_QR_NODE_ID
     const activeNodeId = nodeId
-    const activeLayerId =
+    const fallbackActiveLayerId =
       nextDocument.qrStateByLayerId[nextDocument.activeQrLayerId]
         ? nextDocument.activeQrLayerId
         : getDraftingQrLayerId(nodeId)
-    const activeState =
-      nextDocument.qrStateByLayerId[activeLayerId] ?? createDefaultDraftingWorkspaceQrState()
     const activeCardState =
       nextDocument.cardStateByNodeId[activeNodeId] ?? createDefaultDraftingCardState()
+    const layers = (
+      nextDocument.layerStateByNodeId[activeNodeId] ??
+      createDefaultDraftingLayers(
+        activeNodeId,
+        nextDocument.qrStateByLayerId[fallbackActiveLayerId] ??
+          nextDocument.qrStateByNodeId[activeNodeId] ??
+          createDefaultDraftingWorkspaceQrState(),
+        activeCardState,
+      )
+    ).map(cloneDraftingCanvasLayer)
+    const activeLayerId = resolveActiveQrLayerIdFromLayers(
+      fallbackActiveLayerId,
+      layers,
+      nextDocument.activeQrLayerId,
+    )
+    const activeState =
+      nextDocument.qrStateByLayerId[activeLayerId] ??
+      nextDocument.qrStateByLayerId[fallbackActiveLayerId] ??
+      nextDocument.qrStateByNodeId[activeNodeId] ??
+      createDefaultDraftingWorkspaceQrState()
 
     setActiveQrLayerId(activeLayerId)
     setActiveQrNodeId(activeNodeId)
@@ -1239,10 +1261,7 @@ export function WorkspaceSurface({
       [activeNodeId]: cloneDraftingCardState(activeCardState),
     })
     setLayerStateByNodeId({
-      [activeNodeId]: (
-        nextDocument.layerStateByNodeId[activeNodeId] ??
-        createDefaultDraftingLayers(activeNodeId, activeState, activeCardState)
-      ).map(cloneDraftingCanvasLayer),
+      [activeNodeId]: layers,
     })
     setSceneCompositionByNodeId(
       cloneSceneCompositionByNodeId(
@@ -2672,10 +2691,13 @@ export function WorkspaceSurface({
 
 
   const panes = useMemo(() => {
-    const mergedQrStateByLayerId = {
-      ...qrStateByLayerId,
-      [activeQrLayerId]: draftingStudioState,
-    }
+    const mergedQrStateByLayerId = mergeLiveQrStateByLayerId({
+      qrStateByLayerId,
+      activeQrLayerId,
+      canvasLayers: activeCanvasLayers,
+      draftingStudioState,
+      selectedLayerId,
+    })
 
     return [
       {
@@ -2696,6 +2718,7 @@ export function WorkspaceSurface({
     draftingStudioState,
     qrStateByLayerId,
     selectedCardState,
+    selectedLayerId,
   ])
 
   const desktopActiveTool = desktopRailTool

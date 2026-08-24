@@ -14,8 +14,66 @@ import {
   createDefaultDraftingLayers,
   getDraftingQrLayerId,
   getQrCanvasLayers,
+  type DraftingCanvasLayer,
   type DraftingLayerStateByNodeId,
 } from "@/features/workspace/model/layers"
+
+export function resolveActiveQrLayerIdFromLayers(
+  activeQrLayerId: string,
+  canvasLayers: DraftingCanvasLayer[],
+  selectedLayerId: string | null = null,
+): string {
+  const qrLayers = getQrCanvasLayers(canvasLayers)
+
+  if (qrLayers.some((layer) => layer.id === activeQrLayerId)) {
+    return activeQrLayerId
+  }
+
+  if (selectedLayerId && qrLayers.some((layer) => layer.id === selectedLayerId)) {
+    return selectedLayerId
+  }
+
+  return qrLayers[0]?.id ?? activeQrLayerId
+}
+
+export function mergeLiveQrStateByLayerId({
+  qrStateByLayerId,
+  activeQrLayerId,
+  canvasLayers,
+  draftingStudioState,
+  selectedLayerId = null,
+}: {
+  qrStateByLayerId: DraftingQrStateByLayerId
+  activeQrLayerId: string
+  canvasLayers: DraftingCanvasLayer[]
+  draftingStudioState: QrStudioState
+  selectedLayerId?: string | null
+}): DraftingQrStateByLayerId {
+  const merged: DraftingQrStateByLayerId = {
+    ...qrStateByLayerId,
+    [activeQrLayerId]: draftingStudioState,
+  }
+  const qrLayers = getQrCanvasLayers(canvasLayers)
+  const activeLayerOnCanvas = qrLayers.some((layer) => layer.id === activeQrLayerId)
+
+  for (const layer of qrLayers) {
+    const isLiveEditingTarget =
+      layer.id === activeQrLayerId ||
+      layer.id === selectedLayerId ||
+      (!activeLayerOnCanvas && qrLayers.length === 1)
+
+    if (isLiveEditingTarget) {
+      merged[layer.id] = draftingStudioState
+      continue
+    }
+
+    if (!merged[layer.id]) {
+      merged[layer.id] = qrStateByLayerId[layer.id] ?? draftingStudioState
+    }
+  }
+
+  return merged
+}
 
 export type BuildDraftingWorkspaceDocumentInput = {
   activeQrLayerId: string
@@ -50,19 +108,12 @@ export function buildDraftingWorkspaceDocumentFromState({
   const layers =
     layerStateByNodeId[nodeId] ??
     createDefaultDraftingLayers(nodeId, draftingStudioState, selectedCardState)
-  const nextQrStateByLayerId: DraftingQrStateByLayerId = {
-    ...qrStateByLayerId,
-    [activeQrLayerId]: draftingStudioState,
-  }
-
-  for (const layer of getQrCanvasLayers(layers)) {
-    if (!nextQrStateByLayerId[layer.id]) {
-      nextQrStateByLayerId[layer.id] =
-        layer.id === activeQrLayerId
-          ? draftingStudioState
-          : (qrStateByLayerId[layer.id] ?? draftingStudioState)
-    }
-  }
+  const nextQrStateByLayerId = mergeLiveQrStateByLayerId({
+    qrStateByLayerId,
+    activeQrLayerId,
+    canvasLayers: layers,
+    draftingStudioState,
+  })
 
   const primaryQrLayerId = getDraftingQrLayerId(nodeId)
   const nextContentTypeByLayerId: Record<string, QrInputType> = {
