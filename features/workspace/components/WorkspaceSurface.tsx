@@ -2716,6 +2716,9 @@ export function WorkspaceSurface({
   const fallbackAppearanceLayer =
     activeCanvasLayers.find((layer) => layer.kind === "card") ?? null
   const appearanceTargetLayer = selectedTransformLayer ?? fallbackAppearanceLayer
+  const propertiesTransformLayer =
+    selectedTransformLayer ??
+    (selectedLayerIds.length === 0 ? appearanceTargetLayer : null)
   const desktopAppearanceSnapshot = appearanceTargetLayer
     ? getDesktopAppearanceSnapshot(appearanceTargetLayer, {
         cardCornerRadius:
@@ -3329,8 +3332,8 @@ export function WorkspaceSurface({
     insertNodeId: activeQrNodeId,
     composeSidebarPanel,
     selectedElementLayer,
-    selectedTransformLayer,
-    selectedAppearanceLayer: selectedTransformLayer,
+    selectedTransformLayer: propertiesTransformLayer,
+    selectedAppearanceLayer: appearanceTargetLayer,
     appearanceSnapshot: desktopAppearanceSnapshot,
     scanSafetyResult,
     canvasTool: paneToolbarVariant === "desktop-zoom" ? desktopCanvasTool : undefined,
@@ -3387,8 +3390,9 @@ export function WorkspaceSurface({
     },
     onAppearancePatch: handleDesktopAppearancePatch,
     onTransformLayerPatch: (patch) => {
-      if (selectedTransformLayer) {
-        handleLayerChange(activeQrNodeId, selectedTransformLayer.id, patch)
+      const target = selectedTransformLayer ?? propertiesTransformLayer
+      if (target) {
+        handleLayerChange(activeQrNodeId, target.id, patch)
       }
     },
     onActiveToolChange: (toolId) => {

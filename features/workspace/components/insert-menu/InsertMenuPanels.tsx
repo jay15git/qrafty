@@ -16,10 +16,10 @@ import {
   EmojiPickerContent,
   EmojiPickerSearch,
 } from "@/components/ui/emoji-picker"
-import { Button } from "@/components/ui/button"
+import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
+import { ImageCropper } from "@/components/ui/image-cropper"
 import { Input } from "@/components/ui/input"
 import { SecondaryButton } from "@/components/ui/secondary-button"
-import FileUpload from "@/components/vendor/kokonutui/file-upload"
 import { ElementShapeOptionGrid } from "@/features/workspace/components/ElementShapeOptionGrid"
 import { InsertMenuFanPreview } from "@/features/workspace/components/insert-menu/InsertMenuFanPreview"
 import type { InsertMenuFanPreviewItems } from "@/features/workspace/components/insert-menu/InsertMenuFanPreview"
@@ -106,15 +106,17 @@ function InsertMenuPanelHeader({
       >
         {title}
       </p>
-      <Button
-        className={isDesktopPopover ? INSERT_MENU_BACK_BUTTON : undefined}
-        size="sm"
+      <button
+        className={
+          isDesktopPopover
+            ? INSERT_MENU_BACK_BUTTON
+            : "text-sm font-medium text-[var(--ws-ink-muted)] hover:text-[var(--ws-ink)]"
+        }
         type="button"
-        variant="ghost"
         onClick={onBack}
       >
         Back
-      </Button>
+      </button>
     </div>
   )
 }
@@ -289,52 +291,6 @@ export function InsertMenuShapePanel({
   )
 }
 
-function InsertMenuDesktopImageDropzone({
-  onFile,
-}: {
-  onFile: (file: File) => void
-}) {
-  const [isDragging, setIsDragging] = useState(false)
-
-  function takeFile(fileList: FileList | null) {
-    const file = fileList?.[0]
-    if (file?.type.startsWith("image/")) onFile(file)
-  }
-
-  return (
-    <label
-      className={cn(
-        "dn-settings-row dn-squircle-sm dn-pressable flex min-h-[4.5rem] cursor-pointer flex-col items-center justify-center gap-1 px-3 py-3 text-center",
-        isDragging && "text-[var(--dn-fg)]",
-      )}
-      onDragLeave={() => setIsDragging(false)}
-      onDragOver={(event) => {
-        event.preventDefault()
-        setIsDragging(true)
-      }}
-      onDrop={(event) => {
-        event.preventDefault()
-        setIsDragging(false)
-        takeFile(event.dataTransfer.files)
-      }}
-    >
-      <input
-        accept="image/*"
-        className="sr-only"
-        type="file"
-        onChange={(event) => {
-          takeFile(event.currentTarget.files)
-          event.currentTarget.value = ""
-        }}
-      />
-      <span className="text-[11px] font-semibold text-[var(--dn-fg)]">
-        {isDragging ? "Drop image" : "Upload image"}
-      </span>
-      <span className="dn-type-meta">PNG, JPG, SVG, WebP</span>
-    </label>
-  )
-}
-
 export function InsertMenuImagePanel({
   imageUrl,
   isDesktopPopover,
@@ -342,6 +298,7 @@ export function InsertMenuImagePanel({
   onBrowseStockPhotos,
   onImageUrlChange,
   onInsertImage,
+  theme = "dark",
 }: {
   imageUrl: string
   isDesktopPopover: boolean
@@ -349,6 +306,7 @@ export function InsertMenuImagePanel({
   onBrowseStockPhotos?: () => void
   onImageUrlChange: (value: string) => void
   onInsertImage: (value: string, source: "upload" | "url") => void
+  theme?: DesktopThemeMode
 }) {
   return (
     <div className="space-y-3">
@@ -363,19 +321,19 @@ export function InsertMenuImagePanel({
           Browse photos
         </InsertMenuActionButton>
       ) : null}
-      {isDesktopPopover ? (
-        <InsertMenuDesktopImageDropzone
-          onFile={(file) => onInsertImage(URL.createObjectURL(file), "upload")}
-        />
-      ) : (
-        <FileUpload
-          acceptedFileTypes={["image/*"]}
-          className="mx-0 max-w-full"
-          onUploadError={() => undefined}
-          onUploadSuccess={(file) => onInsertImage(URL.createObjectURL(file), "upload")}
-          uploadDelay={0}
-        />
-      )}
+      <ImageCropper
+        className="w-full"
+        compact
+        dialogContentClassName={theme === "dark" ? "dark" : undefined}
+        maxFileSize={5 * 1024 * 1024}
+        placeholder="Drop image or click to upload"
+        showFormatHint
+        onChange={(value) => {
+          if (value instanceof File) {
+            onInsertImage(URL.createObjectURL(value), "upload")
+          }
+        }}
+      />
       <div className="flex items-center gap-2 px-1">
         <div
           className={cn(
@@ -470,7 +428,7 @@ export function InsertMenuEmojiPanel({
       className={cn(
         "min-h-0 min-w-0 w-full flex-1 border-0 bg-transparent shadow-none [--frimousse-row-height:2.25rem]",
         isDesktopPopover
-          ? "text-[var(--dn-fg)] [--frimousse-emoji-font:'Apple_Color_Emoji','Segoe_UI_Emoji','Noto_Color_Emoji',sans-serif]"
+          ? "text-[var(--dn-fg)] [--frimousse-category-header-height:1px] [--frimousse-emoji-font:'Apple_Color_Emoji','Segoe_UI_Emoji','Noto_Color_Emoji',sans-serif]"
           : "h-[22rem] dn-squircle-sm border border-[var(--ws-line)] bg-[var(--ws-panel-bg)]",
       )}
       columns={8}
@@ -491,6 +449,7 @@ export function InsertMenuEmojiPanel({
           isDesktopPopover &&
             "[&_[data-slot=emoji-picker-emoji]]:hover:bg-[var(--dn-control)] [&_[data-slot=emoji-picker-emoji][data-active]]:bg-[var(--dn-control)]",
         )}
+        hideCategoryHeaders={isDesktopPopover}
       />
     </EmojiPicker>
   )

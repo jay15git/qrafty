@@ -65,6 +65,7 @@ export function InsertMenuPopoverContent({
         onBrowseStockPhotos={onBrowseStockPhotos}
         onClose={closeMenu}
         onInsertLayer={onInsertLayer}
+        theme={theme}
       />
       <PopoverClose ref={closeRef} className="sr-only" type="button">
         Close

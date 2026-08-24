@@ -46,12 +46,13 @@ function EmojiPickerSearch({
   )
 }
 
-function EmojiPickerRow({ children, ...props }: EmojiPickerListRowProps) {
+function EmojiPickerRow({ children, style, ...props }: EmojiPickerListRowProps) {
   return (
     <div
       {...props}
-      className="grid w-full scroll-my-1 px-0 [grid-template-columns:repeat(var(--frimousse-list-columns),minmax(0,1fr))]"
+      className="w-full scroll-my-1 px-0"
       data-slot="emoji-picker-row"
+      style={style}
     >
       {children}
     </div>
@@ -67,7 +68,7 @@ function EmojiPickerEmoji({
     <button
       {...props}
       className={cn(
-        "data-[active]:bg-accent flex aspect-square w-full items-center justify-center rounded-sm text-xl",
+        "data-[active]:bg-accent flex aspect-square min-w-0 flex-1 items-center justify-center rounded-sm text-xl",
         className,
       )}
       data-slot="emoji-picker-emoji"
@@ -93,13 +94,35 @@ function EmojiPickerCategoryHeader({
   )
 }
 
+function EmojiPickerHiddenCategoryHeader({
+  category: _category,
+  style,
+  ...props
+}: EmojiPickerListCategoryHeaderProps) {
+  return (
+    <div
+      {...props}
+      aria-hidden
+      className="overflow-hidden opacity-0"
+      data-slot="emoji-picker-category-header"
+      style={{
+        ...style,
+        minHeight: "1px",
+      }}
+    />
+  )
+}
+
 function EmojiPickerContent({
   className,
+  hideCategoryHeaders = false,
   ...props
-}: React.ComponentProps<typeof EmojiPickerPrimitive.Viewport>) {
+}: React.ComponentProps<typeof EmojiPickerPrimitive.Viewport> & {
+  hideCategoryHeaders?: boolean
+}) {
   return (
     <EmojiPickerPrimitive.Viewport
-      className={cn("outline-hidden relative min-w-0 w-full flex-1", className)}
+      className={cn("outline-hidden relative min-w-0 w-full min-h-0 flex-1", className)}
       data-slot="emoji-picker-viewport"
       {...props}
     >
@@ -120,7 +143,9 @@ function EmojiPickerContent({
         components={{
           Row: EmojiPickerRow,
           Emoji: EmojiPickerEmoji,
-          CategoryHeader: EmojiPickerCategoryHeader,
+          CategoryHeader: hideCategoryHeaders
+            ? EmojiPickerHiddenCategoryHeader
+            : EmojiPickerCategoryHeader,
         }}
         data-slot="emoji-picker-list"
       />

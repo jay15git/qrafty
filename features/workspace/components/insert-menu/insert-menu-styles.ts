@@ -16,10 +16,10 @@ export const INSERT_MENU_PANEL_CONTENT_CLASS = "dn-insert-menu-panel-content fle
 export const INSERT_MENU_ITEM_CLASS =
   "dn-settings-row dn-squircle-sm dn-pressable flex h-10 w-full items-center gap-2 px-2 text-left font-semibold"
 
-export const INSERT_MENU_PANEL_TITLE = "dn-popover-heading"
+export const INSERT_MENU_PANEL_TITLE = "dn-insert-menu-panel-heading"
 
 export const INSERT_MENU_BACK_BUTTON =
-  "dn-pressable-subtle h-8 px-2 text-[var(--dn-muted)] hover:text-[var(--dn-fg)]"
+  "dn-insert-menu-panel-back dn-pressable-subtle shrink-0"
 
 export const INSERT_MENU_INPUT_CLASS = "dn-settings-input h-10 min-w-0 px-3 shadow-none"
 

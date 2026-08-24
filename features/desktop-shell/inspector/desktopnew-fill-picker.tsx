@@ -191,9 +191,11 @@ function ModuleImagePicker({
   return (
     <ImageCropper
       className="w-full"
+      compact
       dialogContentClassName={theme === "dark" ? "dark" : undefined}
       maxFileSize={5 * 1024 * 1024}
-      placeholder="Drag and drop an image here, or click to select"
+      placeholder="Drop image or click to upload"
+      showFormatHint
       value={imageUrl || null}
       onChange={(value) => {
         if (value instanceof File) {
@@ -235,15 +237,6 @@ function ModulePatternPicker({
         viewportClassName="min-w-0"
       >
         <div className="flex min-w-max gap-1.5 px-1 py-2">
-          <button
-            aria-label="Use custom pattern palette"
-            aria-pressed={selectedPreset === "custom"}
-            className={PATTERN_TILE}
-            type="button"
-            onClick={() => onSelect("custom")}
-          >
-            <span className="text-[9px] font-medium leading-none">Custom</span>
-          </button>
           {DESKTOP_DOTS_PALETTE_PRESETS.map((option) => {
             const isSelected =
               selectedPreset === option.label ||

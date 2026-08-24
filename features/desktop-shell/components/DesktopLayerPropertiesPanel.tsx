@@ -59,7 +59,9 @@ export function DesktopLayerPropertiesPanel({
   const layer = transformLayer ?? elementLayer ?? appearanceLayer ?? null
   const capabilities = getDesktopLayerToolbarCapabilities(layer, appearance)
   const tabs = propertyTabs ?? capabilities.propertyTabs
-  const [activeTab, setActiveTab] = useState<LayerPropertyTab>(tabs[0] ?? "transform")
+  const defaultTab: LayerPropertyTab =
+    transformLayer || !tabs.includes("design") ? tabs[0] ?? "transform" : "design"
+  const [activeTab, setActiveTab] = useState<LayerPropertyTab>(defaultTab)
 
   const resolvedTab = tabs.includes(activeTab) ? activeTab : tabs[0] ?? "transform"
   const designLayer = elementLayer ?? appearanceLayer

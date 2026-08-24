@@ -153,7 +153,7 @@ export function ElementShapeOptionGrid({
   const isInsertDesktop = variant === "insert-desktop"
   const decorativeFill = isInsertDesktop ? "currentColor" : shapeFill
   const buttonClassName = isInsertDesktop
-    ? "dn-option-tile flex aspect-square w-full min-w-0 items-center justify-center dn-squircle-xs"
+    ? "dn-option-tile flex aspect-square w-full min-w-0 items-center justify-center text-[var(--dn-fg)] dn-squircle-xs"
     : "flex aspect-square w-full min-w-0 items-center justify-center p-2 text-[var(--ws-ink-muted)] transition hover:bg-[var(--ws-panel-bg-hover)] hover:text-[var(--ws-ink)]"
 
   return (
@@ -176,7 +176,7 @@ export function ElementShapeOptionGrid({
           type="button"
           onClick={() => onSelect(shape.id)}
         >
-          <ElementShapePrimitivePreview className="size-8" shapeId={shape.id} />
+          <ElementShapePrimitivePreview className="size-8 text-[var(--dn-fg)]" shapeId={shape.id} />
         </button>
       ))}
       {DRAFTING_ELEMENT_DECORATIVE_SHAPES.map((shape) => (

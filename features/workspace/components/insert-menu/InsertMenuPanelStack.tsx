@@ -9,6 +9,7 @@ import {
   InsertMenuRootPanel,
   InsertMenuShapePanel,
 } from "@/features/workspace/components/insert-menu/InsertMenuPanels"
+import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import { InsertMenuDesktopScroll } from "@/features/workspace/components/insert-menu/InsertMenuDesktopScroll"
 import { INSERT_MENU_PANEL_CONTENT_CLASS } from "@/features/workspace/components/insert-menu/insert-menu-styles"
 import {
@@ -33,6 +34,7 @@ type InsertMenuPanelStackProps = {
   onBrowseStockPhotos?: () => void
   isDesktopPopover?: boolean
   onClose?: () => void
+  theme?: DesktopThemeMode
 }
 
 export function InsertMenuPanelStack({
@@ -43,6 +45,7 @@ export function InsertMenuPanelStack({
   onBrowseStockPhotos,
   isDesktopPopover = true,
   onClose,
+  theme = "dark",
 }: InsertMenuPanelStackProps) {
   const [panel, setPanel] = useState<"root" | "shape" | "image" | "emoji" | "illustration-set">(
     "root",
@@ -158,6 +161,7 @@ export function InsertMenuPanelStack({
             onBrowseStockPhotos={onBrowseStockPhotos ? browseStockPhotos : undefined}
             onImageUrlChange={setImageUrl}
             onInsertImage={insertImage}
+            theme={theme}
           />
         ) : null}
       </InsertMenuDesktopScroll>
@@ -211,6 +215,7 @@ export function InsertMenuPanelStack({
           onBrowseStockPhotos={onBrowseStockPhotos ? browseStockPhotos : undefined}
           onImageUrlChange={setImageUrl}
           onInsertImage={insertImage}
+          theme={theme}
         />
       ) : null}
     </>

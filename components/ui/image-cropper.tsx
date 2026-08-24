@@ -51,6 +51,8 @@ interface ImageUploaderProps {
   error?: string
   disabled?: boolean
   placeholder?: string
+  showFormatHint?: boolean
+  compact?: boolean
 }
 
 export function ImageCropper({
@@ -68,6 +70,8 @@ export function ImageCropper({
   disabled = false,
   imgClassName,
   placeholder = "Drag and drop an image here, or click to select",
+  showFormatHint = true,
+  compact = false,
 }: ImageUploaderProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [originalFile, setOriginalFile] = useState<File | null>(null)
@@ -483,7 +487,8 @@ export function ImageCropper({
     <>
       <div
         className={cn(
-          "group h-52 overflow-hidden rounded-lg border-2 border-dashed bg-background text-center transition-colors",
+          "group overflow-hidden rounded-lg border-2 border-dashed bg-background text-center transition-colors",
+          compact ? "h-28" : "h-52",
           disabled
             ? "cursor-not-allowed border-muted-foreground/10 bg-muted/5"
             : "cursor-pointer",
@@ -532,33 +537,44 @@ export function ImageCropper({
               ) : null}
             </div>
           ) : (
-            <div className="relative w-full flex-1 px-4 py-8">
+            <div
+              className={cn(
+                "relative flex w-full flex-1 flex-col items-center justify-center",
+                compact ? "px-3 py-3" : "px-4 py-8",
+              )}
+            >
               <Upload
                 className={cn(
-                  "mx-auto mb-4 size-12",
+                  compact ? "mb-1 size-7" : "mx-auto mb-4 size-12",
                   disabled ? "text-muted-foreground/50" : "text-muted-foreground",
                 )}
               />
-              <p
-                className={cn(
-                  "mb-2 line-clamp-2 text-sm",
-                  disabled ? "text-muted-foreground/50" : "text-muted-foreground",
-                )}
-              >
-                {isProcessing ? "Processing image..." : placeholder}
-              </p>
-              <p
-                className={cn(
-                  "line-clamp-1 text-xs",
-                  disabled ? "text-muted-foreground/50" : "text-muted-foreground",
-                )}
-              >
-                Supports{" "}
-                {supportedFormats
-                  .map((format) => format.split("/")[1].toUpperCase())
-                  .join(", ")}{" "}
-                up to {maxFileSizeMb} MB
-              </p>
+              {placeholder ? (
+                <p
+                  className={cn(
+                    compact ? "text-xs" : "mb-2 line-clamp-2 text-sm",
+                    disabled ? "text-muted-foreground/50" : "text-muted-foreground",
+                  )}
+                >
+                  {isProcessing ? "Processing…" : placeholder}
+                </p>
+              ) : null}
+              {showFormatHint ? (
+                <p
+                  className={cn(
+                    "line-clamp-1 text-xs",
+                    disabled ? "text-muted-foreground/50" : "text-muted-foreground",
+                  )}
+                >
+                  {compact
+                    ? `${supportedFormats
+                        .map((format) => format.split("/")[1].toUpperCase())
+                        .join(", ")} · ${maxFileSizeMb} MB max`
+                    : `Supports ${supportedFormats
+                        .map((format) => format.split("/")[1].toUpperCase())
+                        .join(", ")} up to ${maxFileSizeMb} MB`}
+                </p>
+              ) : null}
               {validationError ? (
                 <p className="mt-2 text-xs text-destructive">{validationError}</p>
               ) : null}
