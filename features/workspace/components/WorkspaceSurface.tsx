@@ -1666,12 +1666,6 @@ export function WorkspaceSurface({
           keyboardStateRef.current.selectedLayerIds,
           event.shiftKey ? "ungroup" : "group",
         )
-        return
-      }
-
-      if (key === "h" && event.shiftKey) {
-        event.preventDefault()
-        toggleSelectedLayerVisibility()
       }
     }
 
@@ -2191,20 +2185,6 @@ export function WorkspaceSurface({
     applyLayerSelection([])
   }
 
-  function toggleSelectedLayerVisibility() {
-    const selectedLayers = getSelectedActiveLayers()
-
-    if (selectedLayers.length === 0) {
-      return
-    }
-
-    handleLayerAction(
-      keyboardStateRef.current.activeQrNodeId,
-      selectedLayers.map((layer) => layer.id),
-      selectedLayers.some((layer) => layer.isVisible) ? "hide" : "show",
-    )
-  }
-
   function deleteSelectedLayersOrPane() {
     const {
       activeQrNodeId: currentActiveQrNodeId,
@@ -2302,6 +2282,9 @@ export function WorkspaceSurface({
         return
       }
       patch = safePatch
+    } else {
+      const { isVisible: _isVisible, ...patchWithoutVisibility } = patch
+      patch = patchWithoutVisibility
     }
 
     setLayerStateByNodeId((current) => {
@@ -2534,7 +2517,7 @@ export function WorkspaceSurface({
             removableLayerIds.has(layer.id) ? [] : [cloneDraftingCanvasLayer(layer)],
           )
         }
-      } else {
+      } else if (action === "reset-rotation") {
         const actionableLayerIdSet = new Set(
           layerIds.filter((layerId) => !isProtectedDraftingLayerId(layerId, layers)),
         )
@@ -2548,14 +2531,7 @@ export function WorkspaceSurface({
             return cloneDraftingCanvasLayer(layer)
           }
 
-          const patch =
-            action === "hide"
-              ? { isVisible: false }
-              : action === "show"
-                ? { isVisible: true }
-                : { rotation: 0 }
-
-          return patchDraftingCanvasLayer(layer, patch)
+          return patchDraftingCanvasLayer(layer, { rotation: 0 })
         })
       }
 
@@ -3283,7 +3259,7 @@ export function WorkspaceSurface({
         return patchDraftingCanvasLayer(layer, {
           blur: row.blur,
           height: row.height,
-          isVisible: row.isVisible,
+          isVisible: true,
           name: row.name,
           opacity: row.opacity / 100,
           shadow: {

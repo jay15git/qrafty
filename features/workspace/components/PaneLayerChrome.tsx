@@ -211,10 +211,6 @@ export function LayerContextMenu({
 }) {
   const isMultiLayer = layerCount > 1
   const hasSelection = layerCount > 0
-  const actionableLayers = layers.filter(
-    (layer) => !isProtectedDraftingLayerId(layer.id, layers),
-  )
-  const hasHiddenLayer = actionableLayers.some((layer) => !layer.isVisible)
   const hasGroupLayer = layers.some((layer) => layer.kind === "group")
 
   return (
@@ -236,12 +232,6 @@ export function LayerContextMenu({
           <LayerContextMenuButton label="Send backward" onClick={() => onAction("backward")} />
           <LayerContextMenuButton label="Send to back" onClick={() => onAction("back")} />
           <LayerContextMenuSeparator />
-          {actionableLayers.length > 0 ? (
-            <LayerContextMenuButton
-              label={hasHiddenLayer ? "Show" : "Hide"}
-              onClick={() => onAction(hasHiddenLayer ? "show" : "hide")}
-            />
-          ) : null}
           <LayerContextMenuButton label="Reset rotation" onClick={() => onAction("reset-rotation")} />
           {isMultiLayer ? (
             <>

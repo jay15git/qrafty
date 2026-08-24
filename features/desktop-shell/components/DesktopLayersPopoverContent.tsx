@@ -1,18 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  EyeIcon,
-  EyeOffIcon,
-  ImageIcon,
-  QrCodeIcon,
-  SparklesIcon,
-  SquareIcon,
-  Trash2Icon,
-  TypeIcon,
-} from "lucide-react"
+import { ChevronDownIcon, ChevronUpIcon, Trash2Icon } from "lucide-react"
 
 import {
   DESKTOP_INSPECTOR_CAPTION_CLASS,
@@ -26,26 +15,10 @@ import {
 } from "@/features/desktop-shell/components/desktop-inspector-tokens"
 import {
   DESKTOP_LAYER_KIND_LABELS,
-  type DesktopLayerKind,
   type DesktopLayersSettings,
 } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import { isMandatoryDesktopLayerRow } from "@/features/workspace/components/workspace-surface-helpers"
 import { cn } from "@/lib/utils"
-
-function LayerKindIcon({ kind, className }: { kind: DesktopLayerKind; className?: string }) {
-  switch (kind) {
-    case "text":
-      return <TypeIcon className={className} />
-    case "image":
-      return <ImageIcon className={className} />
-    case "qr":
-      return <QrCodeIcon className={className} />
-    case "shader":
-      return <SparklesIcon className={className} />
-    default:
-      return <SquareIcon className={className} />
-  }
-}
 
 function LayerRowActionButton({
   ariaLabel,
@@ -92,17 +65,6 @@ export function DesktopLayersPopoverContent({
   canDeleteLayer?: (layerId: string) => boolean
 }) {
   const layers = layersSettings.layers
-
-  function patchLayer(layerId: string, patch: Partial<(typeof layers)[number]>) {
-    const row = layers.find((entry) => entry.id === layerId)
-    if (row && isMandatoryDesktopLayerRow(row)) {
-      return
-    }
-
-    onLayersSettingsChange({
-      layers: layers.map((entry) => (entry.id === layerId ? { ...entry, ...patch } : entry)),
-    })
-  }
 
   function moveLayer(layerId: string, direction: "up" | "down") {
     const index = layers.findIndex((row) => row.id === layerId)
@@ -194,23 +156,10 @@ export function DesktopLayersPopoverContent({
               >
                 <button
                   aria-label={`Select ${displayName}`}
-                  className="flex min-w-0 items-center gap-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]"
+                  className="flex min-w-0 items-center text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]"
                   type="button"
                   onClick={() => onLayersSettingsChange({ selectedLayerId: row.id })}
                 >
-                  <LayerKindIcon
-                    className={cn(
-                      "size-3.5 shrink-0",
-                      embedded
-                        ? isSelected
-                          ? "text-[var(--dn-fg)]"
-                          : "text-[var(--dn-muted)]"
-                        : isSelected
-                          ? "text-[var(--desktop-inspector-option-selected-fg,var(--desktop-inspector-fg-primary))]"
-                          : "text-[var(--desktop-inspector-fg-tertiary)]",
-                    )}
-                    kind={row.kind}
-                  />
                   <span
                     className={cn(
                       "min-w-0 flex-1 truncate font-medium",
@@ -232,23 +181,6 @@ export function DesktopLayersPopoverContent({
                   className="flex shrink-0 items-center"
                   data-slot="desktop-layer-row-actions"
                 >
-                  <LayerRowActionButton
-                    ariaLabel={row.isVisible ? `Hide ${displayName}` : `Show ${displayName}`}
-                    className={cn(
-                      !row.isVisible ? "opacity-40" : undefined,
-                      embedded && "size-6 rounded-[8px] text-[var(--dn-muted)] hover:text-[var(--dn-fg)]",
-                    )}
-                    disabled={isProtected}
-                    pressed={row.isVisible}
-                    onClick={() => patchLayer(row.id, { isVisible: !row.isVisible })}
-                  >
-                    {row.isVisible ? (
-                      <EyeIcon className="size-3.5" />
-                    ) : (
-                      <EyeOffIcon className="size-3.5" />
-                    )}
-                  </LayerRowActionButton>
-
                   {onLayerDelete ? (
                     <LayerRowActionButton
                       ariaLabel={`Delete ${displayName}`}
@@ -265,7 +197,7 @@ export function DesktopLayersPopoverContent({
                   ) : null}
 
                   <div
-                    className="flex size-7 shrink-0 flex-col items-center justify-center"
+                    className="flex shrink-0 items-center gap-0.5"
                     data-slot="desktop-layer-row-reorder"
                   >
                     <LayerRowActionButton

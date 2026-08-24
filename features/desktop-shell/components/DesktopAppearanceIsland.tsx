@@ -191,7 +191,11 @@ export function DesktopDynamicIslandChrome({
         icon: <SlidersHorizontalIcon className={ICON_CLASS} />,
         label: "Properties",
         popover: (
-          <DesktopToolbarPopoverContent dataSlot="desktop-layer-properties-popover" fitContent flush>
+          <DesktopToolbarPopoverContent
+            dataSlot="desktop-layer-properties-popover"
+            disableScroll
+            flush
+          >
             <DesktopLayerPropertiesPanel
               appearance={appearance}
               appearanceLayer={appearanceLayer}

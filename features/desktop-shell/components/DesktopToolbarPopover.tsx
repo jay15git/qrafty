@@ -10,17 +10,39 @@ import { cn } from "@/lib/utils"
 export function DesktopToolbarPopoverContent({
   children,
   dataSlot = "desktop-toolbar-popover",
+  disableScroll = false,
   fitContent = false,
   flush = false,
 }: {
   children: ReactNode
   dataSlot?: string
+  disableScroll?: boolean
   fitContent?: boolean
   flush?: boolean
 }) {
   const heightClass = fitContent
     ? "max-h-[min(28rem,calc(100dvh-8rem))]"
     : "h-[min(28rem,calc(100dvh-8rem))] max-h-[min(28rem,calc(100dvh-8rem))]"
+
+  const content = disableScroll ? (
+    <div
+      className={cn("flex h-full min-h-0 flex-1 flex-col overflow-hidden", flush ? "p-0" : "px-3 py-3")}
+      data-slot="desktop-inspector-scroll"
+    >
+      {children}
+    </div>
+  ) : (
+    <ScrollArea
+      chevron
+      cueSize="comfortable"
+      className={cn(fitContent ? "min-h-0" : "h-full min-h-0 flex-1")}
+      data-slot="desktop-inspector-scroll-area"
+      scrollFade
+      viewportClassName={flush ? "p-0" : "px-3 py-3"}
+    >
+      <div data-slot="desktop-inspector-scroll">{children}</div>
+    </ScrollArea>
+  )
 
   return (
     <PopoverContent
@@ -33,16 +55,7 @@ export function DesktopToolbarPopoverContent({
         heightClass,
       )}
     >
-      <ScrollArea
-        chevron
-        cueSize="comfortable"
-        className={cn(fitContent ? "min-h-0" : "h-full min-h-0 flex-1")}
-        data-slot="desktop-inspector-scroll-area"
-        scrollFade
-        viewportClassName={flush ? "p-0" : "px-3 py-3"}
-      >
-        <div data-slot="desktop-inspector-scroll">{children}</div>
-      </ScrollArea>
+      {content}
     </PopoverContent>
   )
 }

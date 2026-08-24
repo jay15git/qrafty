@@ -9,20 +9,13 @@ import {
   DESKTOP_BOXED_TOOLBAR_ICON_CLASS,
 } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
+import { findBrandIconById } from "@/features/qr-code/assets/brand-icons"
 import {
   getSizeTemplate,
+  getSizeTemplateSections,
   type SizeTemplate,
 } from "@/features/workspace/model/size-templates"
 import { cn } from "@/lib/utils"
-
-const DESKTOP_CANVAS_RATIO_PRESET_IDS = [
-  "ratio-16-9",
-  "ratio-3-2",
-  "ratio-4-3",
-  "ratio-1-1",
-  "ratio-4-5",
-  "ratio-9-16",
-] as const
 
 function DesktopCanvasSizeIcon({ className }: { className?: string }) {
   return (
@@ -55,9 +48,7 @@ export function DesktopCanvasRatioPresetPopoverContent({
   selectedPresetId?: string
   onSelectTemplate: (template: SizeTemplate) => void
 }) {
-  const presets = DESKTOP_CANVAS_RATIO_PRESET_IDS.map((id) => getSizeTemplate(id)).filter(
-    (template): template is SizeTemplate => template !== undefined,
-  )
+  const sections = getSizeTemplateSections()
 
   return (
     <PopoverContent
@@ -65,38 +56,76 @@ export function DesktopCanvasRatioPresetPopoverContent({
       data-slot="desktop-canvas-ratio-preset-popover"
       side="bottom"
       sideOffset={12}
-      className="z-[20000] w-auto rounded-[12px] border border-[var(--desktop-glass-border)] bg-[var(--desktop-glass-bg)] p-1 text-[var(--desktop-glass-fg)] shadow-[var(--desktop-glass-shadow)] backdrop-blur-xl"
+      className="z-[20000] max-h-[min(72vh,500px)] w-[min(280px,calc(100vw-24px))] overflow-y-auto rounded-[12px] border border-[var(--desktop-appearance-popover-border)] bg-[var(--desktop-appearance-popover-bg)] p-2 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-appearance-popover-shadow)]"
     >
-      <div
-        aria-label="Canvas aspect ratio"
-        className="grid grid-cols-3 gap-0.5"
-        data-slot="desktop-canvas-ratio-preset-row"
-        role="group"
-      >
-        {presets.map((template) => {
-          const isSelected = selectedPresetId === template.id
+      <div className="space-y-3" data-slot="desktop-canvas-size-sections">
+        {sections.map((section) => (
+          <section key={section.group} aria-labelledby={`canvas-size-${section.group}`}>
+            <h3
+              id={`canvas-size-${section.group}`}
+              className="mb-1.5 px-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-[var(--desktop-inspector-fg-muted)]"
+            >
+              {section.label}
+            </h3>
+            <div
+              aria-label={`${section.label} canvas sizes`}
+              className="grid grid-cols-2 gap-1.5"
+              data-slot="desktop-canvas-size-section"
+              role="group"
+            >
+              {section.templates.map((template) => {
+                const isSelected = selectedPresetId === template.id
+                const BrandIcon = template.brandIconId
+                  ? findBrandIconById(template.brandIconId)?.icon
+                  : undefined
 
-          return (
-            <PopoverClose asChild key={template.id}>
-              <button
-                aria-label={template.label}
-                aria-pressed={isSelected}
-                className={cn(
-                  "h-8 shrink-0 rounded-[7px] px-2.5 text-[10px] font-medium tracking-tight transition-colors duration-150",
-                  "hover:bg-[var(--desktop-glass-button-hover-bg)] hover:text-[var(--desktop-glass-button-hover-fg)]",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-glass-button-focus-ring)]",
-                  isSelected &&
-                    "bg-[var(--desktop-glass-button-hover-bg)] text-[var(--desktop-glass-button-hover-fg)] ring-1 ring-[var(--desktop-glass-border)]",
-                )}
-                title={template.label}
-                type="button"
-                onClick={() => onSelectTemplate(template)}
-              >
-                {template.ratioLabel ?? template.label}
-              </button>
-            </PopoverClose>
-          )
-        })}
+                return (
+                  <PopoverClose asChild key={template.id}>
+                    <button
+                      aria-label={`${section.label} ${template.label}, ${template.width} by ${template.height} pixels`}
+                      aria-pressed={isSelected}
+                      className={cn(
+                        "relative flex h-[64px] min-w-0 items-center gap-2 rounded-[8px] border border-transparent p-2 text-left transition-[border-color,box-shadow,transform] duration-200 ease-out",
+                        "hover:bg-transparent hover:text-inherit",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
+                        isSelected &&
+                          "border-[var(--desktop-inspector-fg-primary)] shadow-[inset_0_0_0_1px_var(--desktop-inspector-fg-primary)]",
+                        "active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100",
+                      )}
+                      title={`${template.label} · ${template.ratioLabel}`}
+                      type="button"
+                      onClick={() => onSelectTemplate(template)}
+                    >
+                      <span
+                        aria-hidden
+                        className="flex size-9 shrink-0 items-center justify-center"
+                      >
+                        {BrandIcon ? (
+                          <BrandIcon className="size-6 text-current" />
+                        ) : (
+                          <span
+                            className="block rounded-[3px] border border-current"
+                            style={{
+                              aspectRatio: `${template.width} / ${template.height}`,
+                              height: template.width >= template.height ? 24 : undefined,
+                              width: template.width < template.height ? 15 : 24,
+                            }}
+                          />
+                        )}
+                      </span>
+                      <span className="min-w-0 leading-tight">
+                        <span className="block truncate text-[12px] font-medium">{template.label}</span>
+                        <span className="block truncate text-[11px] text-[var(--desktop-inspector-fg-muted)]">
+                          {template.ratioLabel}
+                        </span>
+                      </span>
+                    </button>
+                  </PopoverClose>
+                )
+              })}
+            </div>
+          </section>
+        ))}
       </div>
     </PopoverContent>
   )

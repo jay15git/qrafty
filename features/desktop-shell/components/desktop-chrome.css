@@ -317,6 +317,19 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot
   background: var(--desktop-appearance-popover-bg, #0a0a0a);
 }
 
+[data-slot="desktop-layer-properties-popover"] [data-slot="desktop-layer-properties-panel"] {
+  height: 100%;
+  min-height: 0;
+}
+
+[data-slot="desktop-layer-properties-scroll-area"] [data-slot="scroll-area-viewport"] > div {
+  display: block !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
 [data-slot="desktop-layer-properties-popover"] [data-slot="desktop-layer-properties-body"] [data-slot="desktop-transform-section"] {
   gap: 0.625rem;
 }

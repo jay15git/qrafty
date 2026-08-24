@@ -29,7 +29,6 @@ export const DRAFTING_KEYBOARD_SHORTCUT_GROUPS = [
       ["Cmd/Ctrl + ]", "Bring forward"],
       ["Cmd/Ctrl + Shift + [", "Send to back"],
       ["Cmd/Ctrl + Shift + ]", "Bring to front"],
-      ["Cmd/Ctrl + Shift + H", "Hide/show selected layers"],
     ],
   },
 ] as const

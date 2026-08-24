@@ -10,9 +10,7 @@ export type DraftingLayerMenuAction =
   | DraftingLayerReorderAction
   | "delete"
   | "group"
-  | "hide"
   | "reset-rotation"
-  | "show"
   | "ungroup"
 
 export const RESIZE_CONTROL_PADDING_PX = 12

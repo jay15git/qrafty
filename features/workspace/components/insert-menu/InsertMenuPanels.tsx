@@ -120,12 +120,14 @@ function InsertMenuPanelHeader({
 }
 
 export function InsertMenuRootOptionTile({
+  className,
   disabled,
   label,
   onClick,
   previews,
   slot,
 }: {
+  className?: string
   disabled?: boolean
   label: string
   onClick: () => void
@@ -137,7 +139,7 @@ export function InsertMenuRootOptionTile({
   return (
     <button
       aria-label={label}
-      className="dn-insert-menu-root-tile dn-option-tile dn-squircle-xs"
+      className={cn("dn-insert-menu-root-tile dn-option-tile dn-squircle-xs", className)}
       data-slot={slot}
       disabled={disabled}
       type="button"

@@ -5,12 +5,16 @@ import { createDefaultDraftingFilterEffect } from "@/features/workspace/model/fi
 import {
   addLayerEffect,
   createLayerEffect,
+  getLayerFilterAmount,
+  getLayerShadowOpacity,
   listLayerEffects,
   patchLayerShadowEffect,
   removeLayerEffect,
   serializeLayerEffects,
   setLayerEffectEnabled,
   setLayerEffectKind,
+  setLayerFilterAmount,
+  setLayerShadowOpacity,
 } from "@/features/workspace/model/layer-effects"
 
 describe("layer effects stack", () => {
@@ -208,5 +212,29 @@ describe("layer effects stack", () => {
     })
 
     expect(listed.map((item) => item.kind)).toEqual(["drop-shadow", "contrast"])
+  })
+
+  it("sets and clears filter amounts by kind", () => {
+    const layer = { layerFilters: [], shadows: [] }
+    const withBrightness = setLayerFilterAmount(layer, "brightness", 140)
+
+    expect(getLayerFilterAmount(withBrightness, "brightness")).toBe(140)
+    expect(withBrightness.layerFilters).toHaveLength(1)
+
+    const cleared = setLayerFilterAmount(withBrightness, "brightness", 100)
+    expect(getLayerFilterAmount(cleared, "brightness")).toBe(100)
+    expect(cleared.layerFilters).toEqual([])
+  })
+
+  it("sets and clears shadow opacity by kind", () => {
+    const layer = { layerFilters: [], shadows: [] }
+    const withShadow = setLayerShadowOpacity(layer, "drop-shadow", 35)
+
+    expect(getLayerShadowOpacity(withShadow, "drop-shadow")).toBe(35)
+    expect(withShadow.shadows?.[0]?.inset).toBe(false)
+
+    const cleared = setLayerShadowOpacity(withShadow, "drop-shadow", 0)
+    expect(getLayerShadowOpacity(cleared, "drop-shadow")).toBe(0)
+    expect(listLayerEffects(cleared)).toEqual([])
   })
 })

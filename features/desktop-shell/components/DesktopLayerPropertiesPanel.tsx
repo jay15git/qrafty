@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   AppearanceOpacityControls,
   AppearanceOutlineControls,
@@ -65,6 +66,8 @@ export function DesktopLayerPropertiesPanel({
   const designPatch = elementLayer ? onElementLayerPatch : onAppearancePatch
   const effectsLayer = elementLayer ?? appearanceLayer
   const effectsPatch = elementLayer ? onElementLayerPatch : onAppearancePatch
+  const showEffects =
+    Boolean(effectsLayer && effectsPatch && (maxEffects ?? capabilities.maxEffects) > 0)
 
   if (!layer) {
     return (
@@ -79,12 +82,12 @@ export function DesktopLayerPropertiesPanel({
 
   return (
     <div
-      className="desktopnew-root desktopnew-embedded flex min-w-0 flex-col"
+      className="desktopnew-root desktopnew-embedded flex h-full min-h-0 min-w-0 flex-col"
       data-slot="desktop-layer-properties-panel"
       data-theme={theme}
     >
       {tabs.length > 1 ? (
-        <div className="px-3 pt-2.5">
+        <div className="shrink-0 px-3 pt-2.5">
           <SegmentTabs
             items={tabs.map((tab) => getLayerPropertyTabLabel(tab, layer))}
             value={getLayerPropertyTabLabel(resolvedTab, layer)}
@@ -98,7 +101,15 @@ export function DesktopLayerPropertiesPanel({
         </div>
       ) : null}
 
-      <div className="px-3 py-3" data-slot="desktop-layer-properties-body">
+      <ScrollArea
+        chevron
+        className="h-0 min-h-0 flex-1"
+        cueSize="comfortable"
+        data-slot="desktop-layer-properties-scroll-area"
+        scrollFade
+        viewportClassName="px-3 py-3"
+      >
+        <div data-slot="desktop-layer-properties-body">
         {resolvedTab === "transform" && transformLayer && onTransformLayerPatch ? (
           <DesktopTransformSection
             layer={transformLayer}
@@ -115,11 +126,13 @@ export function DesktopLayerPropertiesPanel({
 
             {appearance && onAppearancePatch ? (
               <div className={cn("grid gap-2", DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-                <AppearanceOpacityControls
-                  appearance={appearance}
-                  onPatch={onAppearancePatch}
-                  useSettingsSlider
-                />
+                {showEffects ? null : (
+                  <AppearanceOpacityControls
+                    appearance={appearance}
+                    onPatch={onAppearancePatch}
+                    useSettingsSlider
+                  />
+                )}
                 <DesktopnewThemeContext.Provider value={theme}>
                   <AppearanceOutlineControls
                     appearance={appearance}
@@ -131,17 +144,24 @@ export function DesktopLayerPropertiesPanel({
               </div>
             ) : null}
 
-            {effectsLayer && effectsPatch && (maxEffects ?? capabilities.maxEffects) > 0 ? (
+            {showEffects && effectsLayer && effectsPatch ? (
               <DesktopEffectsAccordion
                 layer={effectsLayer}
+                layerOpacity={appearance?.opacity}
                 maxEffects={maxEffects ?? capabilities.maxEffects}
+                onLayerOpacityChange={
+                  appearance && onAppearancePatch
+                    ? (opacity) => onAppearancePatch({ opacity })
+                    : undefined
+                }
                 onPatch={effectsPatch}
                 variant="flat"
               />
             ) : null}
           </div>
         ) : null}
-      </div>
+        </div>
+      </ScrollArea>
     </div>
   )
 }

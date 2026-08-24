@@ -5,6 +5,7 @@ import {
 } from "@/features/workspace/model/effects"
 import {
   createDefaultDraftingFilterEffect,
+  DRAFTING_FILTER_RANGES,
   DRAFTING_FILTER_VISIBLE_DEFAULTS,
   type DraftingFilterEffect,
   type DraftingFilterType,
@@ -259,6 +260,113 @@ export function setLayerEffectKind(
 
       return convertLayerEffect(item, kind)
     }),
+  )
+}
+
+export function getLayerFilterAmount(
+  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
+  kind: LayerFilterEffectKind,
+): number {
+  const type = FILTER_TYPE_BY_KIND[kind]
+  const filter = (layer.layerFilters ?? []).find(
+    (item) => item.type === type && item.enabled,
+  )
+
+  if (!filter) {
+    return DRAFTING_FILTER_RANGES[type].defaultValue
+  }
+
+  return filter.amount
+}
+
+export function setLayerFilterAmount(
+  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
+  kind: LayerFilterEffectKind,
+  amount: number,
+): Partial<DraftingCanvasLayer> {
+  const type = FILTER_TYPE_BY_KIND[kind]
+  const range = DRAFTING_FILTER_RANGES[type]
+  const clamped = Math.min(range.max, Math.max(range.min, amount))
+  const filters = layer.layerFilters ?? []
+  const withoutType = filters.filter((item) => item.type !== type)
+  const nextFilters =
+    clamped === range.defaultValue
+      ? withoutType
+      : [
+          ...withoutType,
+          createDefaultDraftingFilterEffect(type, {
+            id: filters.find((item) => item.type === type)?.id,
+            amount: clamped,
+            enabled: true,
+          }),
+        ]
+
+  return serializeLayerEffects(
+    listLayerEffects({
+      ...layer,
+      layerFilters: nextFilters,
+    }),
+  )
+}
+
+export function getLayerShadowOpacity(
+  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
+  kind: LayerShadowEffectKind,
+): number {
+  const shadow = getLayerShadowByKind(layer, kind)
+  if (!shadow || !shadow.visible) {
+    return 0
+  }
+
+  return shadow.opacity
+}
+
+export function setLayerShadowOpacity(
+  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
+  kind: LayerShadowEffectKind,
+  opacity: number,
+): Partial<DraftingCanvasLayer> {
+  const clamped = Math.min(100, Math.max(0, opacity))
+  const activeShadows = (layer.shadows ?? []).filter((shadow) => !isPlaceholderShadowLayer(shadow))
+  const otherShadows = activeShadows.filter((shadow) =>
+    kind === "inner-shadow" ? !shadow.inset : shadow.inset,
+  )
+  const existing = getLayerShadowByKind(layer, kind)
+
+  if (clamped <= 0) {
+    return serializeLayerEffects(
+      listLayerEffects({
+        ...layer,
+        shadows: otherShadows,
+      }),
+    )
+  }
+
+  const nextShadow = existing
+    ? { ...existing, opacity: clamped, visible: true }
+    : createDefaultDraftingShadowLayer({
+        ...DEFAULT_DROP_SHADOW,
+        inset: kind === "inner-shadow",
+        opacity: clamped,
+        visible: true,
+      })
+
+  return serializeLayerEffects(
+    listLayerEffects({
+      ...layer,
+      shadows: [...otherShadows, nextShadow],
+    }),
+  )
+}
+
+function getLayerShadowByKind(
+  layer: Pick<DraftingCanvasLayer, "shadows">,
+  kind: LayerShadowEffectKind,
+) {
+  return (layer.shadows ?? []).find(
+    (shadow) =>
+      !isPlaceholderShadowLayer(shadow) &&
+      (kind === "inner-shadow" ? shadow.inset : !shadow.inset),
   )
 }
 
