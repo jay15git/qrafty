@@ -1,6 +1,6 @@
 "use client"
 
-import { Search } from "lucide-react"
+import { Filter, Search } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useMemo, useState, type ReactNode } from "react"
 

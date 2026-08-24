@@ -552,15 +552,12 @@ function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
                 hint="Fill"
                 moduleImage={{
                   imageUrl: actualPatternSettings.moduleFillImageUrl,
-                  sourceMode: actualPatternSettings.moduleFillImageSourceMode,
-                  onImageUrlChange: (url) =>
-                    onPatternSettingsChange(
-                      applyPatternModuleImageUrl(url, url ? "url" : "upload"),
-                    ),
                   onUpload: (file) =>
                     onPatternSettingsChange({
                       uploadedModuleFillFile: file,
                     }),
+                  onClear: () =>
+                    onPatternSettingsChange(applyPatternModuleImageUrl("", "upload")),
                 }}
                 qrGradient
                 modulePattern={{

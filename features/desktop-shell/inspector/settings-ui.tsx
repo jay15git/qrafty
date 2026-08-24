@@ -346,9 +346,8 @@ export function SettingsFillPopover({
   }
   moduleImage?: {
     imageUrl: string
-    sourceMode: "upload" | "url"
-    onImageUrlChange: (url: string) => void
     onUpload: (file: File) => void
+    onClear: () => void
   }
 }) {
   const theme = useDesktopnewTheme()

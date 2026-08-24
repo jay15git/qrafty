@@ -1,9 +1,6 @@
 "use client"
 
-import {
-  useRef,
-  useState,
-} from "react"
+import { useContext, useRef, useState } from "react"
 
 import {
   ColorPicker,
@@ -19,17 +16,16 @@ import {
   parseFill,
   type Fill,
 } from "@/components/ui/fill-picker-base/public-api"
-import FileUpload from "@/components/vendor/kokonutui/file-upload"
+import { ImageCropper } from "@/components/ui/image-cropper"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DESKTOP_DOTS_PALETTE_PRESETS } from "@/features/desktop-shell/inspector/desktopnew-pattern-palettes"
 import {
   fillFromHex,
   normalizeFillForQrTarget,
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette-color-stop-list"
-import { SettingsInput } from "@/features/desktop-shell/inspector/settings-ui"
 import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-ui"
-import type { DesktopAssetSourceMode } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import { cn } from "@/lib/utils"
 
 const QR_GRADIENT_TYPES = ["linear", "radial"] as const
@@ -59,9 +55,8 @@ export function DesktopNewFillPicker({
   }
   moduleImage?: {
     imageUrl: string
-    sourceMode: DesktopAssetSourceMode
-    onImageUrlChange: (url: string) => void
     onUpload: (file: File) => void
+    onClear: () => void
   }
 }) {
   // Snapshot on mount. Controlled CSS round-trips through formatGradient,
@@ -184,43 +179,33 @@ export function DesktopNewFillPicker({
 
 function ModuleImagePicker({
   imageUrl,
-  sourceMode,
-  onImageUrlChange,
   onUpload,
+  onClear,
 }: {
   imageUrl: string
-  sourceMode: DesktopAssetSourceMode
-  onImageUrlChange: (url: string) => void
   onUpload: (file: File) => void
+  onClear: () => void
 }) {
+  const theme = useContext(DesktopnewThemeContext)
+
   return (
-    <div className="flex w-full min-w-0 flex-col gap-2.5">
-      <SettingsInput
-        aria-label="Module fill image URL"
-        placeholder="https://example.com/texture.png"
-        value={sourceMode === "url" ? imageUrl : ""}
-        onChange={(event) => onImageUrlChange(event.currentTarget.value)}
-      />
-      <FileUpload
-        acceptedFileTypes={["image/*"]}
-        className="mx-0 max-w-full"
-        onUploadError={() => undefined}
-        onUploadSuccess={onUpload}
-        uploadDelay={0}
-      />
-      {imageUrl ? (
-        <div
-          aria-hidden
-          className="h-24 w-full overflow-hidden border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] dn-squircle-sm bg-[color-mix(in_srgb,var(--dn-line)_12%,transparent)]"
-          style={{
-            backgroundImage: `url("${imageUrl}")`,
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "cover",
-          }}
-        />
-      ) : null}
-    </div>
+    <ImageCropper
+      className="w-full"
+      dialogContentClassName={theme === "dark" ? "dark" : undefined}
+      maxFileSize={5 * 1024 * 1024}
+      placeholder="Drag and drop an image here, or click to select"
+      value={imageUrl || null}
+      onChange={(value) => {
+        if (value instanceof File) {
+          onUpload(value)
+          return
+        }
+
+        if (value === null) {
+          onClear()
+        }
+      }}
+    />
   )
 }
 
