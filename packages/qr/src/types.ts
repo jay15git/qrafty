@@ -65,10 +65,11 @@ export type NewQrCodeProps = {
   margin?: number
   logo?: NewQrLogoConfig
   gradient?: NewQrGradientConfig | "none"
-  colorMode?: "solid" | "gradient" | "palette"
+  colorMode?: "solid" | "gradient" | "palette" | "image"
   palette?: string[]
+  moduleFillImage?: string
   moduleRoundSize?: boolean
-  gradientMode?: "split" | "unified"
+  gradientMode?: "split" | "unified" | "unified-image"
   className?: string
   style?: CSSProperties
 }

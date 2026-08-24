@@ -129,10 +129,19 @@ function mapValue(state: QrStudioState): NewQrCodeProps["value"] {
   return state.data.trim()
 }
 
+function mapModuleFillImage(state: QrStudioState): string | undefined {
+  if (state.dotsColorMode !== "image") {
+    return undefined
+  }
+
+  return getAssetValue(state.moduleFillImage) || undefined
+}
+
 export function toPortableQrConfig(state: QrStudioState): NewQrCodeProps {
   const logo = mapLogo(state)
   const unifiedGradient =
     state.gradientLinkMode === "unified" && state.dotsColorMode === "gradient"
+  const unifiedImage = state.dotsColorMode === "image" && Boolean(mapModuleFillImage(state))
 
   return {
     ...(state.ariaLabel ? { ariaLabel: state.ariaLabel } : {}),
@@ -173,6 +182,8 @@ export function toPortableQrConfig(state: QrStudioState): NewQrCodeProps {
     size: state.width,
     value: mapValue(state),
     ...(unifiedGradient ? { gradientMode: "unified" as const } : {}),
+    ...(unifiedImage ? { gradientMode: "unified-image" as const } : {}),
+    ...(mapModuleFillImage(state) ? { moduleFillImage: mapModuleFillImage(state) } : {}),
     ...(logo ? { logo } : {}),
   }
 }

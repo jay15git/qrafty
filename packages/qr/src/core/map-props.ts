@@ -91,9 +91,13 @@ export function portablePropsToReactQrProps(props: NewQrCodeProps): ReactQRCodeP
     props.colorMode === "gradient" &&
     props.gradient !== undefined &&
     props.gradient !== "none"
+  const unifiedImage =
+    (props.gradientMode === "unified-image" || props.colorMode === "image") &&
+    Boolean(props.moduleFillImage)
+  const unifiedFill = unifiedGradient || unifiedImage
 
   const dotsColor =
-    !unifiedGradient && (props.colorMode === "solid" || !props.colorMode)
+    !unifiedFill && (props.colorMode === "solid" || !props.colorMode)
       ? props.foreground
       : undefined
 
@@ -124,11 +128,11 @@ export function portablePropsToReactQrProps(props: NewQrCodeProps): ReactQRCodeP
     boostLevel: props.boostLevel ?? true,
     dataModulesSettings,
     finderPatternInnerSettings: {
-      color: unifiedGradient ? undefined : props.finderInnerColor ?? props.foreground,
+      color: unifiedFill ? undefined : props.finderInnerColor ?? props.foreground,
       style: (props.finderInner ?? "square") as FinderPatternInnerStyle,
     },
     finderPatternOuterSettings: {
-      color: unifiedGradient ? undefined : props.finderOuterColor ?? props.foreground,
+      color: unifiedFill ? undefined : props.finderOuterColor ?? props.foreground,
       style: (props.finderOuter ?? "square") as FinderPatternOuterStyle,
     },
     gradient: upstreamGradient,

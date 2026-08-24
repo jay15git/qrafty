@@ -27,7 +27,10 @@ export function toReactQrCodeProps(state: QrStudioState): ReactQRCodeProps {
   const unifiedGradient =
     state.gradientLinkMode === "unified" &&
     state.dotsColorMode === "gradient" &&
-    state.dataModulesGradient.enabled;
+    state.dataModulesGradient.enabled
+  const unifiedImage =
+    state.dotsColorMode === "image" && Boolean(getAssetValue(state.moduleFillImage))
+  const unifiedFill = unifiedGradient || unifiedImage
 
   return {
     background:
@@ -36,7 +39,7 @@ export function toReactQrCodeProps(state: QrStudioState): ReactQRCodeProps {
         : buildGradient(state.backgroundGradient) ?? state.backgroundOptions.color,
     boostLevel: state.qrOptions.boostLevel,
     dataModulesSettings: {
-      color: getDotsColor(state, unifiedGradient),
+      color: getDotsColor(state, unifiedFill),
       randomSize: !state.dataModulesSettings.roundSize,
       style: state.dataModulesSettings.type,
       ...(state.dataModulesSettings.moduleSize !== undefined
@@ -47,11 +50,11 @@ export function toReactQrCodeProps(state: QrStudioState): ReactQRCodeProps {
         : {}),
     },
     finderPatternInnerSettings: {
-      color: unifiedGradient ? undefined : state.finderPatternInnerSettings.color,
+      color: unifiedFill ? undefined : state.finderPatternInnerSettings.color,
       style: resolveFinderInnerStyle(state.finderPatternInnerSettings.type),
     },
     finderPatternOuterSettings: {
-      color: unifiedGradient ? undefined : state.finderPatternOuterSettings.color,
+      color: unifiedFill ? undefined : state.finderPatternOuterSettings.color,
       style: state.finderPatternOuterSettings.type,
     },
     gradient: unifiedGradient ? buildGradient(state.dataModulesGradient) : undefined,
@@ -106,8 +109,8 @@ function resolveFinderInnerStyle(type: StudioCornerDotStyle): QrFinderPatternInn
   return isCustomCornerDotShape(type) ? "square" : type;
 }
 
-function getDotsColor(state: QrStudioState, unifiedGradient: boolean) {
-  if (unifiedGradient || state.dotsColorMode !== "solid") {
+function getDotsColor(state: QrStudioState, unifiedFill: boolean) {
+  if (unifiedFill || state.dotsColorMode !== "solid") {
     return undefined;
   }
 

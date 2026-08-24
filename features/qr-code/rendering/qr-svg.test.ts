@@ -342,6 +342,33 @@ describe("dashboard qr svg helpers", () => {
     expect(finderInner.length).toBeGreaterThan(0)
   })
 
+  it("applies unified module image fills to corner frames and corner dots", () => {
+    const state = createDefaultQrStudioState()
+    state.dotsColorMode = "image"
+    state.moduleFillImage = {
+      source: "url",
+      value: "https://example.com/module-texture.png",
+    }
+
+    const markup = renderDashboardQrSvgMarkup(state)
+    const document = new DOMParser().parseFromString(markup, "image/svg+xml")
+    const unifiedFills = document.querySelectorAll('[data-qr-layer="unified-image-fill"]')
+    const finderOuter = document.querySelectorAll('[data-testid="finder-patterns-outer"]')
+    const finderInner = document.querySelectorAll('[data-testid="finder-patterns-inner"]')
+
+    expect(markup).toContain('data-qr-layer="unified-image-definition"')
+    expect(markup).toContain('data-qr-layer="unified-image-clip"')
+    expect(markup).toContain('preserveAspectRatio="xMidYMid slice"')
+    expect(markup).toContain('clip-path="url(#unified-image-definition-clip)"')
+    expect(markup).not.toContain("unified-image-finder-outer")
+    expect(markup).not.toContain("unified-image-finder-inner")
+    expect(markup).not.toContain("<pattern")
+    expect(unifiedFills.length).toBe(0)
+    expect(finderOuter.length).toBeGreaterThan(0)
+    expect(finderInner.length).toBeGreaterThan(0)
+    expect(markup).toContain('href="https://example.com/module-texture.png"')
+  })
+
   it("leaves logo images untouched when unified module gradients are active", () => {
     const state = createDefaultQrStudioState()
     state.dotsColorMode = "gradient"

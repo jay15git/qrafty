@@ -53,8 +53,10 @@ import {
   applyCornerFill,
   applyLogoFill,
   applyPatternModuleFill,
+  applyPatternModuleImageUrl,
   applyCardFill,
   applyShapeFill,
+  isPatternModuleImageFill,
   readCornerFillCss,
   readLogoFillCss,
   readPatternModuleFillCss,
@@ -542,7 +544,24 @@ function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
             />
             {tab === "Module" ? (
               <SettingsFillPopover
+                fillPreviewImageUrl={
+                  isPatternModuleImageFill(actualPatternSettings)
+                    ? actualPatternSettings.moduleFillImageUrl
+                    : undefined
+                }
                 hint="Fill"
+                moduleImage={{
+                  imageUrl: actualPatternSettings.moduleFillImageUrl,
+                  sourceMode: actualPatternSettings.moduleFillImageSourceMode,
+                  onImageUrlChange: (url) =>
+                    onPatternSettingsChange(
+                      applyPatternModuleImageUrl(url, url ? "url" : "upload"),
+                    ),
+                  onUpload: (file) =>
+                    onPatternSettingsChange({
+                      uploadedModuleFillFile: file,
+                    }),
+                }}
                 qrGradient
                 modulePattern={{
                   selectedPalette: actualPatternSettings.dotsPalette,

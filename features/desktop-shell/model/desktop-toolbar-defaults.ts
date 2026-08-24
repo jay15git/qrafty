@@ -202,6 +202,8 @@ export const DEFAULT_DESKTOP_PATTERN_SETTINGS: DesktopPatternSettings = {
   dotsPalette: DEFAULT_DESKTOP_DOTS_PALETTE,
   dotsPalettePreset: "Signal",
   dotsSolidColor: "#18181b",
+  moduleFillImageUrl: "",
+  moduleFillImageSourceMode: "upload",
   qrDotType: "rounded",
   moduleRoundSize: true,
   gradientLinkMode: "split",

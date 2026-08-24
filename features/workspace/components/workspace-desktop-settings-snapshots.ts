@@ -82,6 +82,9 @@ export type BuildDesktopToolbarSettingsSnapshotsInput = {
   selectedDotsGradient: QrStudioState["dataModulesGradient"]
   selectedDotsPalette: string[]
   selectedDotsPalettePreset: string | "custom"
+  selectedModuleFillImageUrl: string
+  selectedModuleFillImageSourceMode: "upload" | "url"
+  selectedModuleFillRemoteUrl: string
   selectedDownloadExtension: string
   selectedDownloadTarget: DraftingDownloadTarget
   selectedExportPresetId?: ExportPresetId
@@ -138,6 +141,11 @@ export function buildDesktopToolbarSettingsSnapshots(
     dotsPalette: input.selectedDotsPalette,
     dotsPalettePreset: input.selectedDotsPalettePreset,
     dotsSolidColor: input.selectedDotColor,
+    moduleFillImageUrl:
+      input.selectedModuleFillImageSourceMode === "url"
+        ? input.selectedModuleFillRemoteUrl
+        : input.selectedModuleFillImageUrl,
+    moduleFillImageSourceMode: input.selectedModuleFillImageSourceMode,
     qrDotType: input.selectedDotType,
     moduleRoundSize: input.selectedModuleRoundSize,
     moduleSize: input.selectedModuleSize,

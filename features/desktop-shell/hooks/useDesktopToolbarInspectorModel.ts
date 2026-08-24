@@ -52,6 +52,7 @@ import type {
   DesktopLogoSettingsPatch,
   DesktopMotionSettings,
   DesktopPatternSettings,
+  DesktopPatternSettingsPatch,
   DesktopSceneTemplateSettings,
   DesktopShapeSettings,
   DesktopTextSettings,
@@ -94,7 +95,7 @@ export type DesktopInspectorModel = {
   onContentTypeChange: (type: QrInputType) => void
   onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void
   onContentValueChange: (field: string, value: StaticQrContentValue) => void
-  onPatternSettingsChange: (patch: Partial<DesktopPatternSettings>) => void
+  onPatternSettingsChange: (patch: DesktopPatternSettingsPatch) => void
   onLogoSettingsChange: (patch: DesktopLogoSettingsPatch) => void
   onCornersSettingsChange: (patch: Partial<DesktopCornersSettings>) => void
   onShapeSettingsChange: (patch: Partial<DesktopShapeSettings>) => void
@@ -282,7 +283,7 @@ export function useDesktopToolbarInspectorModel({
     onContentValueChange: controller?.onContentValueChange ?? handleContentValueChange,
     onPatternSettingsChange:
       controller?.onPatternSettingsChange ??
-      ((patch: Partial<DesktopPatternSettings>) =>
+      ((patch: DesktopPatternSettingsPatch) =>
         setPatternSettings((current) => ({ ...current, ...patch }))),
     onLogoSettingsChange:
       controller?.onLogoSettingsChange ??

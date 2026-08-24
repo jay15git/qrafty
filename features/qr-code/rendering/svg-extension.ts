@@ -39,7 +39,7 @@ import {
   getStudioGradientCenter,
   studioRadialCenterInUserSpace,
 } from "@/features/qr-code/styles/studio-gradient-geometry"
-import { applyUnifiedQrGradientFill } from "@new-qr/qr-internal/core"
+import { applyUnifiedQrGradientFill, applyUnifiedQrImageFill } from "@new-qr/qr-internal/core"
 import {
   buildCustomCornerDotTransform,
   getCustomCornerDotShapeGeometry,
@@ -95,6 +95,9 @@ export function buildQrExtension(state: QrStudioState) {
     state.dotsColorMode === "gradient" &&
     state.dataModulesGradient.enabled
 
+  const unifiedModuleImage =
+    state.dotsColorMode === "image" && Boolean(getAssetValue(state.moduleFillImage))
+
   if (state.dotsColorMode === "gradient" && !unifiedModuleGradient) {
     extensions.push(createDotsGradientExtension(state))
   }
@@ -103,7 +106,9 @@ export function buildQrExtension(state: QrStudioState) {
     extensions.push(createDotsPaletteExtension(state))
   }
 
-  if (unifiedModuleGradient) {
+  if (unifiedModuleImage) {
+    extensions.push(createUnifiedImageExtension(state))
+  } else if (unifiedModuleGradient) {
     extensions.push(createUnifiedGradientExtension(state))
   } else {
     if (state.finderPatternOuterGradient.enabled) {
@@ -172,6 +177,7 @@ export function getQrExtensionKey(state: QrStudioState) {
     dataModulesGradient: state.dotsColorMode === "gradient" ? state.dataModulesGradient : null,
     dotsColorMode: state.dotsColorMode,
     dotsPalette: state.dotsPalette,
+    moduleFillImage: getAssetValue(state.moduleFillImage),
     gradientLinkMode: state.gradientLinkMode,
     logo: getAssetValue(state.logo),
     seed: state.data.trim(),
@@ -2128,6 +2134,43 @@ function findDotMatrixLayerAnchor(svg: SVGElement) {
 
     return child.tagName.toLowerCase() === "image"
   }) ?? null
+}
+
+function createUnifiedImageExtension(
+  state: Pick<QrStudioState, "dotsColorMode" | "margin" | "moduleFillImage">,
+): QrSvgExtensionFunction {
+  return (svg) => {
+    removeLegacyDotGradientOverlay(svg)
+
+    const imageHref = getAssetValue(state.moduleFillImage)
+
+    if (!imageHref) {
+      return
+    }
+
+    const dotClipLayers = getQrModuleClipLayers(svg)
+    const dotPathLayers = getQrModulePathLayers(svg)
+    const modulePaintTargets = [
+      ...dotClipLayers.map((layer) => layer.element),
+      ...dotPathLayers.map((layer) => layer.element),
+    ]
+
+    if (modulePaintTargets.length === 0) {
+      const dataModules = svg.querySelector('[data-testid="data-modules"]')
+
+      if (isSvgElementLike(dataModules)) {
+        modulePaintTargets.push(dataModules)
+      }
+    }
+
+    applyUnifiedQrImageFill(svg, {
+      imageHref,
+      imageId: "unified-image-definition",
+      imageLayer: "unified-image-definition",
+      margin: state.margin,
+      modulePaintTargets,
+    })
+  }
 }
 
 function createUnifiedGradientExtension(

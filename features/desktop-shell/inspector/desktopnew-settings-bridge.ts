@@ -96,11 +96,19 @@ export function studioGradientToFillCss(gradient: StudioGradient): string {
 }
 
 export function readPatternModuleFillCss(settings: DesktopPatternSettings): string {
+  if (settings.dotsColorMode === "image") {
+    return settings.moduleFillImageUrl || "transparent"
+  }
+
   if (settings.dotsColorMode === "gradient") {
     return studioGradientToFillCss(settings.dataModulesGradient)
   }
 
   return solidColorToFillCss(settings.dotsSolidColor)
+}
+
+export function isPatternModuleImageFill(settings: DesktopPatternSettings): boolean {
+  return settings.dotsColorMode === "image" && Boolean(settings.moduleFillImageUrl)
 }
 
 export function readCornerFillCss(
@@ -232,6 +240,17 @@ export function applyPatternModuleFill(
   return {
     dotsColorMode: "solid",
     dotsSolidColor: solidHexFromFill(fill),
+  }
+}
+
+export function applyPatternModuleImageUrl(
+  imageUrl: string,
+  sourceMode: DesktopPatternSettings["moduleFillImageSourceMode"],
+): Partial<DesktopPatternSettings> {
+  return {
+    dotsColorMode: "image",
+    moduleFillImageUrl: imageUrl,
+    moduleFillImageSourceMode: sourceMode,
   }
 }
 

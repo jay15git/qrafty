@@ -34,7 +34,7 @@ export type StudioGradient = {
 };
 
 export type StudioDataModulesStyle = QrDataModulesStyle;
-export type DotsColorMode = "solid" | "gradient" | "palette";
+export type DotsColorMode = "solid" | "gradient" | "palette" | "image";
 export type QrLogoPositionMode = "center" | "custom";
 export type QrLogoSizeMode = "ratio" | "pixels";
 export type QrCrossOrigin = "anonymous" | "use-credentials" | "";
@@ -145,6 +145,7 @@ export type QrStudioState = {
   margin: number;
   rasterExportQualityPercent: number;
   logo: StudioAsset;
+  moduleFillImage: StudioAsset;
   backgroundImage: StudioAsset;
   backgroundShapeId: QrBackgroundShapeId;
   backgroundShapeOptions: BackgroundShapeOptions;
@@ -372,6 +373,12 @@ export function createDefaultQrStudioState(): QrStudioState {
     margin: 12,
     rasterExportQualityPercent: DEFAULT_RASTER_EXPORT_QUALITY,
     logo: {
+      presetColor: undefined,
+      presetId: undefined,
+      source: "none",
+      value: undefined,
+    },
+    moduleFillImage: {
       presetColor: undefined,
       presetId: undefined,
       source: "none",

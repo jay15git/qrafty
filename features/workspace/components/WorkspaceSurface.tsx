@@ -123,6 +123,7 @@ import type {
   DesktopLogoSourceMode,
   DesktopMotionSettings,
   DesktopPatternSettings,
+  DesktopPatternSettingsPatch,
   DesktopShapeSettings,
   DesktopTextSettings,
   DesktopThemeMode,
@@ -266,6 +267,9 @@ export function WorkspaceSurface({
       selectedDotsGradient,
       selectedDotsPalette,
       selectedDotsPalettePreset,
+      selectedModuleFillImageUrl,
+      selectedModuleFillImageSourceMode,
+      selectedModuleFillRemoteUrl,
       selectedDotMatrixAnimation,
       selectedQrFinderPatternOuterStyle,
       selectedCornerSquareColorMode,
@@ -335,6 +339,7 @@ export function WorkspaceSurface({
       isDraftingWorkspaceReady,
       draftingHistoryRevision,
       logoUploadObjectUrl,
+      moduleFillUploadObjectUrl,
     },
     ,
     {
@@ -355,6 +360,9 @@ export function WorkspaceSurface({
       setSelectedDotsGradient,
       setSelectedDotsPalette,
       setSelectedDotsPalettePreset,
+      setSelectedModuleFillImageUrl,
+      setSelectedModuleFillImageSourceMode,
+      setSelectedModuleFillRemoteUrl,
       setSelectedDotMatrixAnimation,
       setSelectedQrFinderPatternOuterStyle,
       setSelectedCornerSquareColorMode,
@@ -424,6 +432,7 @@ export function WorkspaceSurface({
       setIsDraftingWorkspaceReady,
       setDraftingHistoryRevision,
       setLogoUploadObjectUrl,
+      setModuleFillUploadObjectUrl,
     },
   ] = useWorkspaceSurfaceReducer(initialActiveTool)
   const openDotsColorItemsRef = useLazyRef(() => new Set<DotsColorMode>(["solid"]))
@@ -457,6 +466,7 @@ export function WorkspaceSurface({
   const iconstackSvgCacheRef = useRef<Map<string, string>>(new Map())
   const draftingLayerClipboardRef = useRef<string>("")
   const logoUploadObjectUrlRef = useRef<string | null>(null)
+  const moduleFillUploadObjectUrlRef = useRef<string | null>(null)
   const selectedContentValues =
     contentValuesByType[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType)
   const selectedContentValue = useMemo(
@@ -496,6 +506,22 @@ export function WorkspaceSurface({
         value:
           selectedBackgroundAssetSourceMode === "url"
             ? selectedBackgroundRemoteUrl
+            : undefined,
+      },
+      moduleFillImage: {
+        presetColor: undefined,
+        presetId: undefined,
+        source:
+          selectedDotsColorMode === "image"
+            ? selectedModuleFillImageSourceMode === "url"
+              ? "url"
+              : "upload"
+            : "none",
+        value:
+          selectedDotsColorMode === "image"
+            ? selectedModuleFillImageSourceMode === "url"
+              ? selectedModuleFillRemoteUrl
+              : selectedModuleFillImageUrl
             : undefined,
       },
       backgroundShapeId: selectedBackgroundShapeId,
@@ -595,6 +621,9 @@ export function WorkspaceSurface({
       selectedDotsColorMode,
       selectedDotsGradient,
       selectedDotsPalette,
+      selectedModuleFillImageUrl,
+      selectedModuleFillImageSourceMode,
+      selectedModuleFillRemoteUrl,
       selectedDotType,
       selectedQrErrorCorrectionLevel,
       selectedBoostLevel,
@@ -1394,6 +1423,16 @@ export function WorkspaceSurface({
       URL.revokeObjectURL(logoUploadObjectUrl)
     }
   }, [logoUploadObjectUrl])
+
+  useEffect(() => {
+    if (!moduleFillUploadObjectUrl) {
+      return
+    }
+
+    return () => {
+      URL.revokeObjectURL(moduleFillUploadObjectUrl)
+    }
+  }, [moduleFillUploadObjectUrl])
 
   useEffect(() => {
     let cancelled = false
@@ -2816,6 +2855,9 @@ export function WorkspaceSurface({
       selectedDotsGradient,
       selectedDotsPalette,
       selectedDotsPalettePreset,
+      selectedModuleFillImageUrl,
+      selectedModuleFillImageSourceMode,
+      selectedModuleFillRemoteUrl,
       selectedDownloadExtension,
       selectedDownloadTarget,
       selectedExportPresetId,
@@ -2865,7 +2907,18 @@ export function WorkspaceSurface({
     }))
   }
 
-  function updateDesktopPatternSettings(patch: Partial<DesktopPatternSettings>) {
+  function updateDesktopPatternSettings(patch: DesktopPatternSettingsPatch) {
+    if (patch.uploadedModuleFillFile) {
+      ensureDotsColorItemExpanded("image")
+      const uploadValue = replaceTrackedObjectUrl(
+        moduleFillUploadObjectUrlRef,
+        patch.uploadedModuleFillFile,
+        setModuleFillUploadObjectUrl,
+      )
+      setSelectedDotsColorMode("image")
+      setSelectedModuleFillImageSourceMode("upload")
+      setSelectedModuleFillImageUrl(uploadValue)
+    }
     if (patch.qrDotType) setSelectedDotType(patch.qrDotType)
     if (patch.moduleRoundSize !== undefined) setSelectedModuleRoundSize(patch.moduleRoundSize)
     if (patch.moduleSize !== undefined) setSelectedModuleSize(patch.moduleSize)
@@ -2895,6 +2948,22 @@ export function WorkspaceSurface({
       setSelectedDotsColorMode("palette")
       setSelectedDotsPalettePreset(patch.dotsPalettePreset)
     }
+    if (patch.moduleFillImageUrl !== undefined) {
+      ensureDotsColorItemExpanded("image")
+      setSelectedDotsColorMode("image")
+      const sourceMode = patch.moduleFillImageSourceMode ?? selectedModuleFillImageSourceMode
+      setSelectedModuleFillImageSourceMode(sourceMode)
+      if (sourceMode === "url") {
+        setSelectedModuleFillRemoteUrl(patch.moduleFillImageUrl)
+      } else {
+        setSelectedModuleFillImageUrl(patch.moduleFillImageUrl)
+      }
+    }
+    if (patch.moduleFillImageSourceMode && patch.moduleFillImageUrl === undefined) {
+      ensureDotsColorItemExpanded("image")
+      setSelectedDotsColorMode("image")
+      setSelectedModuleFillImageSourceMode(patch.moduleFillImageSourceMode)
+    }
   }
 
   function resetDesktopPatternSettings() {
@@ -2904,6 +2973,9 @@ export function WorkspaceSurface({
     setSelectedDotsGradient(structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesGradient))
     setSelectedDotsPalette([...DEFAULT_DRAFTING_STUDIO_STATE.dotsPalette])
     setSelectedDotsPalettePreset("Signal")
+    setSelectedModuleFillImageUrl("")
+    setSelectedModuleFillRemoteUrl("")
+    setSelectedModuleFillImageSourceMode("upload")
     setSelectedModuleRoundSize(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.roundSize)
     setSelectedModuleSize(undefined)
     setSelectedModuleLineWidth(undefined)

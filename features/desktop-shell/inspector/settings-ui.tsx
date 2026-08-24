@@ -316,6 +316,8 @@ export function SettingsFillPopover({
   hint = "Fill",
   title,
   modulePattern,
+  moduleImage,
+  fillPreviewImageUrl,
   solidOnly = false,
   qrGradient = false,
   variant = "row",
@@ -331,11 +333,18 @@ export function SettingsFillPopover({
   variant?: "row" | "swatch"
   side?: "top" | "right" | "bottom" | "left"
   align?: "start" | "center" | "end"
+  fillPreviewImageUrl?: string
   modulePattern?: {
     selectedPalette: string[]
     selectedPreset: string | "custom"
     onSelect: (preset: { label: string; colors: string[] } | "custom") => void
     onPaletteColorChange: (index: number, color: string) => void
+  }
+  moduleImage?: {
+    imageUrl: string
+    sourceMode: "upload" | "url"
+    onImageUrlChange: (url: string) => void
+    onUpload: (file: File) => void
   }
 }) {
   const theme = useDesktopnewTheme()
@@ -344,9 +353,9 @@ export function SettingsFillPopover({
     <Popover>
       <PopoverTrigger asChild>
         {variant === "swatch" ? (
-          <FillSwatchButton ariaLabel={hint} fill={value} />
+          <FillSwatchButton ariaLabel={hint} fill={value} imageUrl={fillPreviewImageUrl} />
         ) : (
-          <ColorRowButton fill={value} hint={hint} />
+          <ColorRowButton fill={value} hint={hint} imageUrl={fillPreviewImageUrl} />
         )}
       </PopoverTrigger>
       <PopoverContent
@@ -363,6 +372,7 @@ export function SettingsFillPopover({
           <p className="dn-type-meta mb-2">{title}</p>
         ) : null}
         <DesktopNewFillPicker
+          moduleImage={moduleImage}
           modulePattern={modulePattern}
           qrGradient={qrGradient}
           solidOnly={solidOnly}
@@ -592,11 +602,13 @@ export function PresetList({
 function FillSwatchButton({
   ariaLabel,
   fill,
+  imageUrl,
   className,
   ...props
 }: React.ComponentProps<"button"> & {
   ariaLabel: string
   fill: string
+  imageUrl?: string
 }) {
   const gradient = isGradientFill(fill)
 
@@ -627,7 +639,18 @@ function FillSwatchButton({
         <span
           aria-hidden="true"
           className="absolute inset-0"
-          style={gradient ? { background: fill } : { backgroundColor: fillPreviewHex(fill) }}
+          style={
+            imageUrl
+              ? {
+                  backgroundImage: `url("${imageUrl}")`,
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: "cover",
+                }
+              : gradient
+                ? { background: fill }
+                : { backgroundColor: fillPreviewHex(fill) }
+          }
         />
       </span>
     </button>
@@ -637,10 +660,12 @@ function FillSwatchButton({
 function ColorRowButton({
   fill,
   hint,
+  imageUrl,
   ...props
 }: React.ComponentProps<"button"> & {
   fill: string
   hint: string
+  imageUrl?: string
 }) {
   const gradient = isGradientFill(fill)
   const hex = fillPreviewHex(fill).replace("#", "").toUpperCase()
@@ -651,12 +676,23 @@ function ColorRowButton({
         <span
           aria-hidden
           className="size-3.5 shrink-0 border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] dn-squircle-xs"
-          style={gradient ? { background: fill } : { backgroundColor: fillPreviewHex(fill) }}
+          style={
+            imageUrl
+              ? {
+                  backgroundImage: `url("${imageUrl}")`,
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: "cover",
+                }
+              : gradient
+                ? { background: fill }
+                : { backgroundColor: fillPreviewHex(fill) }
+          }
         />
         <span className={DN_LABEL}>{hint}</span>
       </span>
       <span className="flex shrink-0 items-center gap-1">
-        <span className={DN_VALUE}>{gradient ? "Gradient" : hex}</span>
+        <span className={DN_VALUE}>{imageUrl ? "Image" : gradient ? "Gradient" : hex}</span>
         <ChevronRight aria-hidden className={cn("size-3 opacity-50", DN_HINT)} />
       </span>
     </SettingsRowButton>

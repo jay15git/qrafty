@@ -82,6 +82,9 @@ export type WorkspaceSurfaceState = {
   selectedDotsGradient: StudioGradient
   selectedDotsPalette: string[]
   selectedDotsPalettePreset: string | "custom"
+  selectedModuleFillImageUrl: string
+  selectedModuleFillImageSourceMode: DraftingAssetSourceMode
+  selectedModuleFillRemoteUrl: string
   selectedDotMatrixAnimation: QrDotMatrixAnimationOptions
   selectedQrFinderPatternOuterStyle: QrFinderPatternOuterStyle
   selectedCornerSquareColorMode: DraftingBinaryColorMode
@@ -151,6 +154,7 @@ export type WorkspaceSurfaceState = {
   isDraftingWorkspaceReady: boolean
   draftingHistoryRevision: number
   logoUploadObjectUrl: string | null
+  moduleFillUploadObjectUrl: string | null
 }
 
 type WorkspaceSurfaceStateField = keyof WorkspaceSurfaceState
@@ -218,6 +222,9 @@ export function createInitialWorkspaceSurfaceState(
     selectedDotsGradient: structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesGradient),
     selectedDotsPalette: [...DEFAULT_DRAFTING_STUDIO_STATE.dotsPalette],
     selectedDotsPalettePreset: "Signal",
+    selectedModuleFillImageUrl: "",
+    selectedModuleFillImageSourceMode: "upload",
+    selectedModuleFillRemoteUrl: "",
     selectedDotMatrixAnimation: {
       ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation,
     },
@@ -324,6 +331,7 @@ export function createInitialWorkspaceSurfaceState(
     isDraftingWorkspaceReady: false,
     draftingHistoryRevision: 0,
     logoUploadObjectUrl: null,
+    moduleFillUploadObjectUrl: null,
   }
 }
 
@@ -385,6 +393,10 @@ function createWorkspaceSurfaceSetters(
     setSelectedDotsGradient: (value) => setField("selectedDotsGradient", value),
     setSelectedDotsPalette: (value) => setField("selectedDotsPalette", value),
     setSelectedDotsPalettePreset: (value) => setField("selectedDotsPalettePreset", value),
+    setSelectedModuleFillImageUrl: (value) => setField("selectedModuleFillImageUrl", value),
+    setSelectedModuleFillImageSourceMode: (value) =>
+      setField("selectedModuleFillImageSourceMode", value),
+    setSelectedModuleFillRemoteUrl: (value) => setField("selectedModuleFillRemoteUrl", value),
     setSelectedDotMatrixAnimation: (value) => setField("selectedDotMatrixAnimation", value),
     setSelectedQrFinderPatternOuterStyle: (value) =>
       setField("selectedQrFinderPatternOuterStyle", value),
@@ -462,6 +474,7 @@ function createWorkspaceSurfaceSetters(
     setIsDraftingWorkspaceReady: (value) => setField("isDraftingWorkspaceReady", value),
     setDraftingHistoryRevision: (value) => setField("draftingHistoryRevision", value),
     setLogoUploadObjectUrl: (value) => setField("logoUploadObjectUrl", value),
+    setModuleFillUploadObjectUrl: (value) => setField("moduleFillUploadObjectUrl", value),
   }
 }
 

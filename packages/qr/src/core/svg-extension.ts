@@ -1,6 +1,7 @@
 import type { NewQrCodeProps } from "../types"
 import { applyPortableFinderGradientOverlays } from "./finder-gradient-overlays"
 import { applyUnifiedQrGradientFill } from "./unified-gradient"
+import { applyUnifiedQrImageFill } from "./unified-image"
 
 const SVG_NS = "http://www.w3.org/2000/svg"
 const DOTS_CLIP_PATH_PREFIX = "clip-path-dot-color-"
@@ -150,11 +151,25 @@ export function applyPortableQrSvgExtensions(svg: SVGElement, props: NewQrCodePr
     props.gradient !== undefined &&
     props.gradient !== "none"
 
+  const unifiedModuleImage =
+    (props.gradientMode === "unified-image" || props.colorMode === "image") &&
+    Boolean(props.moduleFillImage)
+
   if (!unifiedModuleGradient) {
     applyDotsGradientExtension(svg, props)
   }
 
   applyDotsPaletteExtension(svg, props)
+
+  if (unifiedModuleImage && props.moduleFillImage) {
+    applyUnifiedQrImageFill(svg, {
+      imageHref: props.moduleFillImage,
+      imageId: "new-qr-dots-image",
+      margin: props.margin ?? 12,
+    })
+
+    return
+  }
 
   if (unifiedModuleGradient && props.gradient && props.gradient !== "none") {
     applyUnifiedQrGradientFill(svg, {

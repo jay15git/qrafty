@@ -85,11 +85,17 @@ export type DesktopPatternSettings = {
   dotsPalette: string[]
   dotsPalettePreset: string | "custom"
   dotsSolidColor: string
+  moduleFillImageUrl: string
+  moduleFillImageSourceMode: DesktopAssetSourceMode
   qrDotType: StudioDataModulesStyle
   moduleRoundSize: boolean
   moduleSize?: number
   moduleLineWidth?: number
   gradientLinkMode: QrGradientLinkMode
+}
+
+export type DesktopPatternSettingsPatch = Partial<DesktopPatternSettings> & {
+  uploadedModuleFillFile?: File
 }
 
 export type DesktopLogoSourceMode = "brand" | "none" | "upload" | "url"
@@ -322,7 +328,7 @@ export type DesktopToolbarController = {
   onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void
   onContentValueChange: (field: string, value: StaticQrContentValue) => void
   onPatternReset: () => void
-  onPatternSettingsChange: (patch: Partial<DesktopPatternSettings>) => void
+  onPatternSettingsChange: (patch: DesktopPatternSettingsPatch) => void
   onLogoReset: () => void
   onLogoSettingsChange: (patch: DesktopLogoSettingsPatch) => void
   onCornersReset: () => void

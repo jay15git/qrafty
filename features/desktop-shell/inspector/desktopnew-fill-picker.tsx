@@ -19,6 +19,7 @@ import {
   parseFill,
   type Fill,
 } from "@/components/ui/fill-picker-base/public-api"
+import FileUpload from "@/components/vendor/kokonutui/file-upload"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DESKTOP_DOTS_PALETTE_PRESETS } from "@/features/desktop-shell/inspector/desktopnew-pattern-palettes"
 import {
@@ -26,16 +27,21 @@ import {
   normalizeFillForQrTarget,
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette-color-stop-list"
+import { SettingsInput } from "@/features/desktop-shell/inspector/settings-ui"
 import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-ui"
+import type { DesktopAssetSourceMode } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import { cn } from "@/lib/utils"
 
 const QR_GRADIENT_TYPES = ["linear", "radial"] as const
+
+type ModuleFillTabMode = "color" | "gradient" | "pattern" | "image"
 
 export function DesktopNewFillPicker({
   value,
   onValueChange,
   className,
   modulePattern,
+  moduleImage,
   solidOnly = false,
   qrGradient = false,
 }: {
@@ -51,6 +57,12 @@ export function DesktopNewFillPicker({
     onSelect: (preset: { label: string; colors: string[] } | "custom") => void
     onPaletteColorChange: (index: number, color: string) => void
   }
+  moduleImage?: {
+    imageUrl: string
+    sourceMode: DesktopAssetSourceMode
+    onImageUrlChange: (url: string) => void
+    onUpload: (file: File) => void
+  }
 }) {
   // Snapshot on mount. Controlled CSS round-trips through formatGradient,
   // which bakes Area start/end into stop percentages. parseFill cannot
@@ -61,14 +73,15 @@ export function DesktopNewFillPicker({
     qrGradient ? normalizeFillForQrTarget(parsedInitialFill) : parsedInitialFill,
   )
   const initialFill = initialFillRef.current
-  const initialMode = solidOnly
+  const initialMode: ModuleFillTabMode = solidOnly
     ? "color"
-    : initialFill.kind === "gradient"
-      ? "gradient"
-      : "color"
-  const [activeMode, setActiveMode] = useState<"color" | "gradient" | "pattern">(
-    initialMode,
-  )
+    : moduleImage?.imageUrl
+      ? "image"
+      : initialFill.kind === "gradient"
+        ? "gradient"
+        : "color"
+  const fillPickerInitialMode = initialMode === "gradient" ? "gradient" : "color"
+  const [activeMode, setActiveMode] = useState<ModuleFillTabMode>(initialMode)
   const pickerMode = activeMode === "gradient" ? "gradient" : "color"
 
   const handleValueChange = (fill: Fill, css: string) => {
@@ -87,10 +100,10 @@ export function DesktopNewFillPicker({
         "dn-fill-picker-panel max-h-[min(72dvh,40rem)] max-w-none overflow-y-auto border-0 bg-transparent shadow-none",
         className,
       )}
-      defaultMode={initialMode}
+      defaultMode={fillPickerInitialMode}
       defaultValue={initialFill}
       mode={pickerMode}
-      onModeChange={setActiveMode}
+      onModeChange={(mode) => setActiveMode(mode)}
       onValueChange={handleValueChange}
     >
       {solidOnly ? null : (
@@ -98,7 +111,9 @@ export function DesktopNewFillPicker({
           className="self-stretch"
           items={
             modulePattern
-              ? ["Solid", "Gradient", "Pattern"]
+              ? moduleImage
+                ? ["Solid", "Gradient", "Pattern", "Image"]
+                : ["Solid", "Gradient", "Pattern"]
               : ["Solid", "Gradient"]
           }
           value={
@@ -106,17 +121,22 @@ export function DesktopNewFillPicker({
               ? "Solid"
               : activeMode === "gradient"
                 ? "Gradient"
-                : "Pattern"
+                : activeMode === "image"
+                  ? "Image"
+                  : "Pattern"
           }
           onChange={(item) => {
             if (item === "Solid") setActiveMode("color")
             else if (item === "Gradient") setActiveMode("gradient")
+            else if (item === "Image") setActiveMode("image")
             else setActiveMode("pattern")
           }}
         />
       )}
       {!solidOnly && activeMode === "pattern" && modulePattern ? (
         <ModulePatternPicker {...modulePattern} />
+      ) : !solidOnly && activeMode === "image" && moduleImage ? (
+        <ModuleImagePicker {...moduleImage} />
       ) : (
         <>
           <FillPicker.Pane
@@ -159,6 +179,48 @@ export function DesktopNewFillPicker({
         </>
       )}
     </FillPicker.Root>
+  )
+}
+
+function ModuleImagePicker({
+  imageUrl,
+  sourceMode,
+  onImageUrlChange,
+  onUpload,
+}: {
+  imageUrl: string
+  sourceMode: DesktopAssetSourceMode
+  onImageUrlChange: (url: string) => void
+  onUpload: (file: File) => void
+}) {
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-2.5">
+      <SettingsInput
+        aria-label="Module fill image URL"
+        placeholder="https://example.com/texture.png"
+        value={sourceMode === "url" ? imageUrl : ""}
+        onChange={(event) => onImageUrlChange(event.currentTarget.value)}
+      />
+      <FileUpload
+        acceptedFileTypes={["image/*"]}
+        className="mx-0 max-w-full"
+        onUploadError={() => undefined}
+        onUploadSuccess={onUpload}
+        uploadDelay={0}
+      />
+      {imageUrl ? (
+        <div
+          aria-hidden
+          className="h-24 w-full overflow-hidden border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] dn-squircle-sm bg-[color-mix(in_srgb,var(--dn-line)_12%,transparent)]"
+          style={{
+            backgroundImage: `url("${imageUrl}")`,
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+          }}
+        />
+      ) : null}
+    </div>
   )
 }
 

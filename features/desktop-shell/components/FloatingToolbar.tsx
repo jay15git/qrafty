@@ -33,6 +33,7 @@ export type {
   DesktopLogoSourceMode,
   DesktopMotionSettings,
   DesktopPatternSettings,
+  DesktopPatternSettingsPatch,
   DesktopRasterExportPresetId,
   DesktopSceneTemplateSettings,
   DesktopShapeSettings,
