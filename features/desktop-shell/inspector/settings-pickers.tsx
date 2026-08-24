@@ -34,6 +34,7 @@ import {
   type PexelsPhoto,
   type PexelsPhotoOrientationFilter,
 } from "@/features/stock-photos/model/pexels"
+import { RaycastWallpaperGrid } from "@/features/workspace/components/RaycastWallpaperGrid"
 import { cn } from "@/lib/utils"
 
 function LogoIconTile({
@@ -330,6 +331,19 @@ export function PexelsPhotoPicker({
         None
       </button>
 
+      <div className="flex flex-col gap-1.5">
+        <p className="px-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--dn-popover-muted)]">
+          Wallpapers
+        </p>
+        <RaycastWallpaperGrid
+          onSelectWallpaper={(imagePath) => selectPhoto(imagePath)}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <p className="px-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--dn-popover-muted)]">
+          Photos
+        </p>
       <div className="flex items-center gap-1.5">
         <div className="relative min-w-0 flex-1">
           <Search
@@ -432,6 +446,7 @@ export function PexelsPhotoPicker({
           Pexels
         </a>
       </p>
+      </div>
     </div>
   )
 }

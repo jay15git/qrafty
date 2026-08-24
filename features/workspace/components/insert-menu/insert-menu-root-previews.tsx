@@ -13,9 +13,9 @@ import type { InsertMenuFanPreviewItems } from "@/features/workspace/components/
 import type { DraftingShapePrimitiveId } from "@/features/workspace/model/element-shapes"
 
 const INSERT_MENU_IMAGE_PREVIEW_SRCS = [
-  "/backgrounds/ascii-landscape.png",
+  "/backgrounds/raycast/chromatic-dark-1-preview.webp",
+  "/backgrounds/raycast/blob-preview.webp",
   "/shader-previews/mesh-gradient.webp",
-  "/shader-previews/waves.webp",
 ] as const
 
 const INSERT_MENU_EMOJI_PREVIEWS = ["✨", "😊", "🎉"] as const
