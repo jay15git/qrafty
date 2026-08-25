@@ -388,8 +388,13 @@ export const DEFAULT_DESKTOP_LAYERS_SETTINGS: DesktopLayersSettings = {
 
 export const DEFAULT_DESKTOP_EXPORT_SETTINGS: DesktopExportSettings = {
   extension: "png",
+  mediaKind: "photo",
   qualityPresetId: "web-social",
   target: "current",
+  videoDurationSeconds: 5,
+  videoFormat: "mp4",
+  videoFrameRate: 30,
+  videoLongEdge: 1080,
 }
 
 export const DEFAULT_DESKTOP_TEXT_SETTINGS: DesktopTextSettings = {

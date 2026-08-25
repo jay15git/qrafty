@@ -87,7 +87,12 @@ export type BuildDesktopToolbarSettingsSnapshotsInput = {
   selectedModuleFillRemoteUrl: string
   selectedDownloadExtension: string
   selectedDownloadTarget: DraftingDownloadTarget
+  selectedExportMediaKind: DesktopExportSettings["mediaKind"]
   selectedExportPresetId?: ExportPresetId
+  selectedVideoDurationSeconds: DesktopExportSettings["videoDurationSeconds"]
+  selectedVideoFormat: DesktopExportSettings["videoFormat"]
+  selectedVideoFrameRate: DesktopExportSettings["videoFrameRate"]
+  selectedVideoLongEdge: DesktopExportSettings["videoLongEdge"]
   selectedGradientLinkMode: QrStudioState["gradientLinkMode"]
   selectedHideBackgroundDots: boolean
   selectedLayerId: string | null
@@ -255,9 +260,14 @@ export function buildDesktopToolbarSettingsSnapshots(
   const exportSettings: DesktopExportSettings = {
     exportPresetId: input.selectedExportPresetId,
     extension: input.selectedDownloadExtension as DesktopExportSettings["extension"],
+    mediaKind: input.selectedExportMediaKind,
     qualityPresetId: input.selectedRasterExportPresetId as DesktopExportSettings["qualityPresetId"],
     target: getDesktopExportTarget(input.selectedDownloadTarget),
     usePlatformPreset: input.selectedUsePlatformExportPreset,
+    videoDurationSeconds: input.selectedVideoDurationSeconds,
+    videoFormat: input.selectedVideoFormat,
+    videoFrameRate: input.selectedVideoFrameRate,
+    videoLongEdge: input.selectedVideoLongEdge,
   }
 
   return {

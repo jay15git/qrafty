@@ -59,6 +59,8 @@ import {
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
 import type { ExportPresetId } from "@/features/workspace/model/export-presets"
+import type { DesktopExportMediaKind } from "@/features/desktop-shell/model/desktop-toolbar-types"
+import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 import type { DraftingDownloadTarget } from "@/features/workspace/components/workspace-surface-helpers"
 
 export type DraftingBinaryColorMode = "solid" | "gradient"
@@ -151,6 +153,11 @@ export type WorkspaceSurfaceState = {
   selectedRasterExportPresetId: DraftingRasterExportPresetId
   selectedExportPresetId: ExportPresetId | undefined
   selectedUsePlatformExportPreset: boolean
+  selectedExportMediaKind: DesktopExportMediaKind
+  selectedVideoDurationSeconds: 5 | 10
+  selectedVideoFormat: "mp4" | "webm"
+  selectedVideoFrameRate: 30 | 60
+  selectedVideoLongEdge: 1080 | 2160
   isDraftingWorkspaceReady: boolean
   draftingHistoryRevision: number
   logoUploadObjectUrl: string | null
@@ -328,6 +335,11 @@ export function createInitialWorkspaceSurfaceState(
     selectedRasterExportPresetId: DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID,
     selectedExportPresetId: undefined,
     selectedUsePlatformExportPreset: false,
+    selectedExportMediaKind: DEFAULT_DESKTOP_EXPORT_SETTINGS.mediaKind,
+    selectedVideoDurationSeconds: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoDurationSeconds,
+    selectedVideoFormat: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFormat,
+    selectedVideoFrameRate: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFrameRate,
+    selectedVideoLongEdge: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoLongEdge,
     isDraftingWorkspaceReady: false,
     draftingHistoryRevision: 0,
     logoUploadObjectUrl: null,
@@ -471,6 +483,11 @@ function createWorkspaceSurfaceSetters(
     setSelectedExportPresetId: (value) => setField("selectedExportPresetId", value),
     setSelectedUsePlatformExportPreset: (value) =>
       setField("selectedUsePlatformExportPreset", value),
+    setSelectedExportMediaKind: (value) => setField("selectedExportMediaKind", value),
+    setSelectedVideoDurationSeconds: (value) => setField("selectedVideoDurationSeconds", value),
+    setSelectedVideoFormat: (value) => setField("selectedVideoFormat", value),
+    setSelectedVideoFrameRate: (value) => setField("selectedVideoFrameRate", value),
+    setSelectedVideoLongEdge: (value) => setField("selectedVideoLongEdge", value),
     setIsDraftingWorkspaceReady: (value) => setField("isDraftingWorkspaceReady", value),
     setDraftingHistoryRevision: (value) => setField("draftingHistoryRevision", value),
     setLogoUploadObjectUrl: (value) => setField("logoUploadObjectUrl", value),

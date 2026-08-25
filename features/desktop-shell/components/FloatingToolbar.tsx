@@ -23,6 +23,7 @@ export type {
   DesktopCornersSettings,
   DesktopEffectsSettings,
   DesktopEncodingSettings,
+  DesktopExportMediaKind,
   DesktopExportSettings,
   DesktopExportTarget,
   DesktopImageSettings,

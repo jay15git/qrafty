@@ -10,6 +10,7 @@ import {
   buildLayeredSvgParts,
   type LayeredSvgParts,
 } from "@/features/workspace/export/layered-svg-parts"
+import { getArtboardExportBounds } from "@/features/workspace/export/pipeline/bounds"
 import { buildLayeredDomParts } from "@/features/workspace/export/layered-dom-parts"
 import {
   DRAFTING_FONT_REGISTRY,
@@ -28,20 +29,7 @@ export type BuildSceneIrOptions = {
   shaderSnapshots?: Record<string, string>
 }
 
-function buildSceneBackgroundSvg(
-  background: SceneBackground,
-  width: number,
-  height: number,
-): string {
-  switch (background.kind) {
-    case "solid":
-      return `<rect x="0" y="0" width="${width}" height="${height}" fill="${background.color}" data-export-kind="scene-background" />`
-    case "gradient":
-      return `<defs><linearGradient id="scene-bg-gradient" gradientTransform="rotate(${background.angle})"><stop offset="${background.stops[0].offset * 100}%" stop-color="${background.stops[0].color}" /><stop offset="${background.stops[1].offset * 100}%" stop-color="${background.stops[1].color}" /></linearGradient></defs><rect x="0" y="0" width="${width}" height="${height}" fill="url(#scene-bg-gradient)" data-export-kind="scene-background" />`
-    default:
-      return `<rect x="0" y="0" width="${width}" height="${height}" fill="#f4f4f5" data-export-kind="scene-background" />`
-  }
-}
+export { getArtboardExportBounds } from "@/features/workspace/export/pipeline/bounds"
 
 function findCardLayer(layers: DraftingCanvasLayer[]) {
   return layers.find((layer) => layer.kind === "card" && layer.isVisible) ?? null
@@ -195,12 +183,17 @@ export async function buildSceneIr({
 }: BuildSceneIrOptions): Promise<SceneIr> {
   await ensureDraftingFontsForLayers(layers)
 
+  const cardLayer = findCardLayer(layers)
+  const artboardBounds = cardLayer ? getArtboardExportBounds(cardLayer) : undefined
+
   const [parts, domParts] = await Promise.all([
     buildLayeredSvgParts({
+      bounds: artboardBounds,
       cardState,
       layers,
-      state,
       qrMarkup,
+      shaderSnapshots,
+      state,
     }),
     buildLayeredDomParts({
       cardState,
@@ -210,18 +203,12 @@ export async function buildSceneIr({
     }),
   ])
 
-  const cardLayer = findCardLayer(layers)
-  const shaders = buildShaderNodes(cardState, cardLayer, layers, shaderSnapshots)
-  const sceneBackgroundMarkup = sceneComposition
-    ? buildSceneBackgroundSvg(sceneComposition.background, parts.bounds.width, parts.bounds.height)
-    : ""
-
   return {
-    bounds: parts.bounds,
+    bounds: artboardBounds ?? parts.bounds,
     defs: parts.defs,
-    body: `${sceneBackgroundMarkup}${parts.body}`,
+    body: parts.body,
     domLayers: domParts.domLayers,
-    shaders,
+    shaders: [],
     fonts: collectFontRefs(layers),
     componentName,
   }

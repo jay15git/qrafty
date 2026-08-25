@@ -33,3 +33,20 @@ export const LIVE_PAPER_SHADER_RENDER_OPTIONS = {
   maxPixelCount: LIVE_PAPER_SHADER_MAX_PIXEL_COUNT,
   webGlContextAttributes: LIVE_PAPER_SHADER_WEBGL_CONTEXT_ATTRIBUTES,
 } as const
+
+/** Export / snapshot: full-res buffer readable via `toDataURL`. */
+export const EXPORT_PAPER_SHADER_MAX_PIXEL_COUNT = 6016 * 3384
+
+export const EXPORT_PAPER_SHADER_WEBGL_CONTEXT_ATTRIBUTES = {
+  alpha: true,
+  antialias: false,
+  depth: false,
+  stencil: false,
+  preserveDrawingBuffer: true,
+  powerPreference: "default" as WebGLPowerPreference,
+}
+
+export const EXPORT_PAPER_SHADER_RENDER_OPTIONS = {
+  maxPixelCount: EXPORT_PAPER_SHADER_MAX_PIXEL_COUNT,
+  webGlContextAttributes: EXPORT_PAPER_SHADER_WEBGL_CONTEXT_ATTRIBUTES,
+} as const

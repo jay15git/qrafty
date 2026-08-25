@@ -6,7 +6,13 @@ import {
   type QRCodeAnimation,
   type QRCodeAnimationSettings,
 } from "./animations"
-import { startDotMatrixLoop, type DotMatrixLoopHandle } from "./dot-matrix-loop"
+import {
+  captureDotMatrixOriginalFills,
+  seekDotMatrixTargets,
+  startDotMatrixLoop,
+  type DotMatrixLoopHandle,
+  type DotMatrixLoopTarget,
+} from "./dot-matrix-loop"
 
 export type DotMatrixAnimationHandle = DotMatrixLoopHandle
 
@@ -60,11 +66,11 @@ export function isDotMatrixPreset(preset: string) {
   return dotMatrixAnimationPresets.indexOf(preset as AnimationPreset) > -1
 }
 
-export function runDotMatrixAnimation(
+export function buildDotMatrixAnimationTargets(
   root: ParentNode,
   preset: string | QRCodeAnimation,
   settings: QRCodeAnimationSettings = {},
-): DotMatrixAnimationHandle | undefined {
+): DotMatrixLoopTarget[] {
   const animation =
     typeof preset === "string" ? getAnimationPreset(preset) : preset
 
@@ -72,7 +78,7 @@ export function runDotMatrixAnimation(
   const targets = [...modules, ...rings, ...centers, ...icons]
 
   if (targets.length === 0) {
-    return undefined
+    return []
   }
 
   targets.forEach((element) => normalizeAnimationElement(element as SVGElement))
@@ -98,10 +104,38 @@ export function runDotMatrixAnimation(
     ),
   ])
 
-  const loopTargets = animationAdditions.map((addition) => ({
+  return animationAdditions.map((addition) => ({
     element: addition.targets as SVGElement,
     animation: addition,
   }))
+}
+
+export function seekDotMatrixAnimation(
+  root: ParentNode,
+  preset: string | QRCodeAnimation,
+  globalTimeMs: number,
+  settings: QRCodeAnimationSettings = {},
+) {
+  const loopTargets = buildDotMatrixAnimationTargets(root, preset, settings)
+  if (loopTargets.length === 0) {
+    return undefined
+  }
+
+  const originalFills = captureDotMatrixOriginalFills(loopTargets)
+  seekDotMatrixTargets(loopTargets, globalTimeMs, originalFills)
+  return { loopTargets, originalFills }
+}
+
+export function runDotMatrixAnimation(
+  root: ParentNode,
+  preset: string | QRCodeAnimation,
+  settings: QRCodeAnimationSettings = {},
+): DotMatrixAnimationHandle | undefined {
+  const loopTargets = buildDotMatrixAnimationTargets(root, preset, settings)
+
+  if (loopTargets.length === 0) {
+    return undefined
+  }
 
   return startDotMatrixLoop(
     loopTargets,

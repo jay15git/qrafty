@@ -30,9 +30,18 @@ describe("buildPaperShaderRenderProps", () => {
     expect(exported).toMatchObject({
       maxPixelCount: 6016 * 3384,
       speed: 1,
+      preserveDrawingBuffer: true,
     })
     expect(exported).not.toHaveProperty("minPixelRatio")
-    expect(exported).not.toHaveProperty("webGlContextAttributes")
+  })
+
+  it("uses export clock frame when frameMs is provided", () => {
+    expect(
+      buildPaperShaderRenderProps(shader, { quality: "export", frameMs: 2500, seek: true }),
+    ).toMatchObject({
+      frame: 2500,
+      speed: 0,
+    })
   })
 
   it("zeros speed when paused", () => {

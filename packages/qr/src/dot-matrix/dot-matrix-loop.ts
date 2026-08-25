@@ -57,24 +57,6 @@ function applyPaintTargetFill(element: SVGElement, fill: string) {
   element.style.setProperty('fill', fill);
 }
 
-function captureOriginalFills(targets: DotMatrixLoopTarget[]) {
-  const fills = new WeakMap<SVGElement, string>();
-
-  for (const { element } of targets) {
-    const paintTargets = getPaintTargets(element);
-    if (paintTargets.length === 0) {
-      fills.set(element, readPaintTargetFill(element));
-      continue;
-    }
-
-    for (const target of paintTargets) {
-      fills.set(target, readPaintTargetFill(target));
-    }
-  }
-
-  return fills;
-}
-
 function applyDotMatrixSample(
   element: SVGElement,
   sample: {
@@ -129,6 +111,36 @@ function applyDotMatrixSample(
   }
 }
 
+export function captureDotMatrixOriginalFills(targets: DotMatrixLoopTarget[]) {
+  const fills = new WeakMap<SVGElement, string>();
+
+  for (const { element } of targets) {
+    const paintTargets = getPaintTargets(element);
+    if (paintTargets.length === 0) {
+      fills.set(element, readPaintTargetFill(element));
+      continue;
+    }
+
+    for (const target of paintTargets) {
+      fills.set(target, readPaintTargetFill(target));
+    }
+  }
+
+  return fills;
+}
+
+export function seekDotMatrixTargets(
+  targets: DotMatrixLoopTarget[],
+  globalTimeMs: number,
+  originalFills: WeakMap<SVGElement, string>,
+) {
+  targets.forEach(({ element, animation }) => {
+    if (!element || !element.style) return;
+    const sample = sampleDotMatrixAnimationFrame(animation as any, globalTimeMs);
+    applyDotMatrixSample(element, sample, originalFills);
+  });
+}
+
 export function startDotMatrixLoop(
   targets: DotMatrixLoopTarget[],
   requestFrame: (callback: () => void) => number,
@@ -136,7 +148,7 @@ export function startDotMatrixLoop(
 ): DotMatrixLoopHandle {
   let frameId: number | undefined;
   let stopped = false;
-  const originalFills = captureOriginalFills(targets);
+  const originalFills = captureDotMatrixOriginalFills(targets);
   const startMs =
     typeof performance !== 'undefined' ? performance.now() : Date.now();
 

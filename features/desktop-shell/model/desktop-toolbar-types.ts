@@ -246,12 +246,19 @@ export type DesktopRasterExportPresetId =
   | "small-print"
   | "web-social"
 
+export type DesktopExportMediaKind = "photo" | "video"
+
 export type DesktopExportSettings = {
   exportPresetId?: ExportPresetId
   extension: QrFileExtension
+  mediaKind: DesktopExportMediaKind
   qualityPresetId: DesktopRasterExportPresetId
   target: DesktopExportTarget
   usePlatformPreset?: boolean
+  videoDurationSeconds: 5 | 10
+  videoFormat: "mp4" | "webm"
+  videoFrameRate: 30 | 60
+  videoLongEdge: 1080 | 2160
 }
 
 export type DesktopTextSettings = {
@@ -360,6 +367,11 @@ export type DesktopToolbarController = {
   onSceneTemplateSizeChange?: (patch: Partial<DesktopSceneTemplateSettings["sizeSettings"]>) => void
   onSceneTemplateSizeTemplateSelect?: (template: import("@/features/workspace/model/size-templates").SizeTemplate) => void
   exportDownloadError?: string | null
+  canExportDownload?: boolean
+  canExportVideo?: boolean
+  exportInProgress?: boolean
+  exportProgressLabel?: string | null
+  onExportCancel?: () => void
   onTextReset: () => void
   onTextSettingsChange: (patch: Partial<DesktopTextSettings>) => void
   scanSafetyResult?: ScanSafetyResult

@@ -7,6 +7,8 @@ import { promisify } from "node:util"
 
 import { getFfmpegVideoArgs, getVideoExportFilename, getVideoExportMimeType, validateVideoExportRequest } from "@/features/qr-code/export/video-export"
 
+/** @deprecated Client-side WebCodecs export is the product path. This route remains for optional server transcode only. */
+
 const execFileAsync = promisify(execFile)
 const MAX_UPLOAD_BYTES = 64 * 1024 * 1024
 
