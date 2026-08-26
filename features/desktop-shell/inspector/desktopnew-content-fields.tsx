@@ -185,7 +185,7 @@ function ContentDetectionChip({
           <Sparkles aria-hidden className="mt-0.5 size-4 shrink-0 opacity-70" />
         )}
         <div className="min-w-0 flex-1">
-          <p className="dn-type-value truncate text-[11px]">Detected: {label}</p>
+          <p className="dn-type-meta truncate">Detected: {label}</p>
           {detection.confidence === "low" ? (
             <p className="dn-type-meta truncate">Suggestion only</p>
           ) : null}
@@ -201,7 +201,7 @@ function ContentDetectionChip({
       </div>
       {canApplyDetectedType ? (
         <button
-          className="dn-pressable mt-2 w-full truncate rounded-full bg-[var(--dn-fg)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--dn-bg)]"
+          className="dn-pressable dn-control-surface mt-2 w-full truncate rounded-full bg-[var(--dn-fg)] px-2.5 dn-type-chip font-medium text-[var(--dn-bg)]"
           type="button"
           onClick={onApplyDetectedType}
         >

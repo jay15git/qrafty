@@ -37,7 +37,7 @@ export function SettingsEffectsSection({
   const layer = { layerFilters: layerFilters ?? [], shadows: shadows ?? [] }
 
   return (
-    <div className="flex flex-col gap-2.5" data-slot="desktopnew-effects-section">
+    <div className="dn-section-stack" data-slot="desktopnew-effects-section">
       {LAYER_EFFECT_KINDS.map((kind) => {
         const label = getLayerEffectKindLabel(kind)
 

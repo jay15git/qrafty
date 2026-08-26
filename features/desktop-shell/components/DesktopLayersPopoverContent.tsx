@@ -141,7 +141,7 @@ export function DesktopLayersPopoverContent({
                 aria-selected={isSelected}
                 className={cn(
                   embedded
-                    ? "dn-settings-row dn-squircle-sm grid h-9 min-w-0 grid-cols-[1fr_auto] items-center gap-1 px-1.5"
+                    ? "dn-settings-row dn-control-surface dn-squircle-sm grid min-w-0 grid-cols-[1fr_auto] items-center gap-1 px-1.5"
                     : DESKTOP_INSPECTOR_LAYER_ROW_CLASS,
                   !embedded &&
                     (isSelected

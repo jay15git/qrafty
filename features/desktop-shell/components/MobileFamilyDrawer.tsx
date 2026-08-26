@@ -1,5 +1,6 @@
 "use client"
 
+import { ChevronLeft } from "lucide-react"
 import {
   createContext,
   startTransition,
@@ -93,32 +94,8 @@ function MobileDrawerHeightSync() {
   return null
 }
 
-function MobileDrawerCloseIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-    >
-      <path
-        d="M10.4854 1.99998L2.00007 10.4853"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10.4854 10.4844L2.00007 1.99908"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
+function MobileDrawerBackIcon() {
+  return <ChevronLeft aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
 }
 
 function MobileNestedHeader({
@@ -129,17 +106,18 @@ function MobileNestedHeader({
   onClose: () => void
 }) {
   return (
-    <header className="mb-3 flex items-center justify-between gap-3 border-b border-border pb-3">
-      <h2 className="text-[19px] font-semibold text-foreground">{title}</h2>
+    <header className="dn-mobile-drawer-nested-header">
       <button
         aria-label="Back"
-        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        className="dn-mobile-drawer-back"
         data-vaul-no-drag=""
         type="button"
         onClick={onClose}
       >
-        <MobileDrawerCloseIcon />
+        <MobileDrawerBackIcon />
       </button>
+      <h2 className="dn-mobile-drawer-nested-header__title">{title}</h2>
+      <span aria-hidden className="dn-mobile-drawer-back-spacer" />
     </header>
   )
 }
@@ -203,7 +181,7 @@ function MobileMenuView() {
   return (
     <div className="flex flex-col">
       <FamilyDrawerHeader
-        className="mb-3 gap-0 border-b border-border pb-3"
+        className="dn-mobile-drawer-header gap-0"
         title="Settings"
       />
       <ScrollArea
@@ -298,7 +276,9 @@ function MobileSettingDetailView() {
     <div className="desktopnew-root w-full min-w-0" data-theme={model.actualDesktopTheme}>
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
         <MobileNestedHeader title={payload.title} onClose={() => navigation?.closeDetail()} />
-        <div className="dn-portal-surface w-full min-w-0">{payload.content}</div>
+        <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
+          {payload.content}
+        </div>
       </DesktopnewThemeContext.Provider>
     </div>
   )
@@ -351,12 +331,13 @@ function MobileFamilyDrawerChrome({
           className,
         )}
         data-desktop-theme={theme}
+        data-mobile-inspector=""
         data-slot="mobile-family-drawer-root"
         data-theme={theme}
         variant="card"
       >
         <MobileDrawerHeightSync />
-        <FamilyDrawerAnimatedWrapper className="px-5 pb-5 pt-4">
+        <FamilyDrawerAnimatedWrapper className="dn-mobile-drawer-body px-5 pt-4">
           <FamilyDrawerAnimatedContent>
             <FamilyDrawerViewContent />
           </FamilyDrawerAnimatedContent>

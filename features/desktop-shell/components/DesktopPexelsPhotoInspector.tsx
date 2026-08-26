@@ -104,7 +104,7 @@ export function DesktopPexelsPhotoInspector({
           <div className="flex min-w-0 items-center gap-2">
             <DesktopInspectorSearchInput
               aria-label="Search photos"
-              className="h-8 min-w-0 w-full flex-1"
+              className="dn-control-surface min-w-0 w-full flex-1"
               iconClassName="left-3"
               inputClassName="rounded-full pl-8 pr-3"
               placeholder="Search"
@@ -183,7 +183,7 @@ export function DesktopPexelsPhotoInspector({
           {hasMore && !isLoading && !error ? (
             <div className="mt-2 px-1">
               <SecondaryButton
-                className="h-9 w-full"
+                className="dn-control-surface w-full"
                 disabled={isLoadingMore}
                 type="button"
                 onClick={() => {

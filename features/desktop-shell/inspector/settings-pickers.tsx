@@ -179,7 +179,7 @@ export function LogoIconPicker({
   }
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="dn-section-stack">
       <div className="relative w-full">
         <Search
           aria-hidden
@@ -319,7 +319,7 @@ export function PexelsPhotoPicker({
   }
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="dn-section-stack">
       <button
         className="dn-pressable-press-only w-full px-2 py-1.5 text-left text-[11px] font-medium text-[var(--dn-popover-muted)] dn-squircle-xs hover:bg-[var(--dn-popover-tile-hover)] hover:text-[var(--dn-fg)]"
         type="button"

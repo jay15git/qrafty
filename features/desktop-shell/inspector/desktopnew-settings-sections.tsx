@@ -61,10 +61,10 @@ import {
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 
-export const SECTION_STACK = "flex w-full min-w-0 flex-col gap-2.5"
+export const SECTION_STACK = "dn-section-stack"
 const PREVIEW_TILE =
-  "dn-preview-tile group relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
-const PREVIEW_ROW = "flex min-w-max gap-1.5 px-1 py-1.5"
+  "dn-preview-tile dn-preview-tile-size group relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
+const PREVIEW_ROW = "dn-preview-row"
 
 function QrStylePreviewGrid({
   options,
@@ -96,7 +96,7 @@ function QrStylePreviewGrid({
               key={option.value}
               aria-label={option.label}
               aria-pressed={isSelected}
-              className={cn(PREVIEW_TILE, "size-14 text-center")}
+              className={cn(PREVIEW_TILE, "text-center")}
               title={option.label}
               type="button"
               onClick={() => onSelect(option.value)}
@@ -138,7 +138,7 @@ function ShapeTypePreviewRow({
         <button
           aria-label="Use no shape"
           aria-pressed={selected === "none"}
-          className={cn(PREVIEW_TILE, "size-14")}
+          className={cn(PREVIEW_TILE)}
           title="None"
           type="button"
           onClick={() => onSelect("none")}
@@ -162,7 +162,7 @@ function ShapeTypePreviewRow({
               key={option.id}
               aria-label={`Use ${option.label} shape`}
               aria-pressed={isSelected}
-              className={cn(PREVIEW_TILE, "size-14")}
+              className={cn(PREVIEW_TILE)}
               title={option.label}
               type="button"
               onClick={() => onSelect(option.id)}
@@ -213,7 +213,7 @@ function PaperShaderPreviewRow({
               key={option.id}
               aria-label={`Use ${option.label} shader`}
               aria-pressed={isSelected}
-              className={cn(PREVIEW_TILE, "size-14")}
+              className={cn(PREVIEW_TILE)}
               title={option.label}
               type="button"
               onClick={() => onSelect(option.id)}
@@ -258,7 +258,7 @@ function MotionLoaderPresetGrid({
               aria-label={option.label}
               aria-pressed={isSelected}
               className={cn(
-                "dn-option-tile h-9 shrink-0 px-3 text-[11px] font-medium tracking-tight dn-squircle-xs",
+                "dn-option-tile dn-control-surface shrink-0 px-3 dn-type-chip dn-squircle-xs",
                 isSelected && "text-[var(--dn-fg)]",
               )}
               type="button"
@@ -374,7 +374,7 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
           : null
 
   return (
-    <div className="flex w-full min-w-0 max-w-full flex-col gap-2.5">
+    <div className="dn-section-stack w-full min-w-0 max-w-full">
       <SegmentTabs items={["Module", "Eye", "Frame", "Logo"]} value={tab} onChange={setTab} />
 
       <SettingsTabPanel activeKey={tab}>

@@ -29,8 +29,8 @@ import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fi
 
 const PAPER_SHADER_COLOR_FALLBACK = "#000000"
 const PAPER_SHADER_NEW_COLOR = "#ffffff"
-const HORIZONTAL_OPTION_ROW = "flex min-w-max gap-1.5 px-1 py-1.5"
-const SECTION_GAP = "flex flex-col gap-2.5"
+const HORIZONTAL_OPTION_ROW = "dn-preview-row"
+const SECTION_GAP = "dn-section-stack"
 
 function HorizontalShaderOptionRow({
   label,
@@ -65,7 +65,7 @@ function HorizontalShaderOptionRow({
                 aria-label={item.label}
                 aria-pressed={isSelected}
                 className={cn(
-                  "dn-option-tile h-9 shrink-0 px-3 text-[11px] font-medium tracking-tight dn-squircle-xs",
+                  "dn-option-tile dn-control-surface shrink-0 px-3 dn-type-chip dn-squircle-xs",
                   isSelected && "text-[var(--dn-fg)]",
                 )}
                 type="button"
@@ -111,7 +111,7 @@ function DesktopNewPaperShaderParamControl({
         >
           Use sample image
         </SettingsPrimaryButton>
-        <label className="dn-settings-row dn-squircle-sm inline-flex h-9 cursor-pointer items-center justify-center px-3 text-[11px] font-medium tracking-tight">
+        <label className="dn-settings-row dn-control-surface dn-squircle-sm inline-flex w-full cursor-pointer items-center justify-center px-3 dn-type-chip">
           Upload image
           <input
             accept="image/*"

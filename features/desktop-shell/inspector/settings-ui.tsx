@@ -49,7 +49,7 @@ const DN_ROW = "dn-settings-row dn-squircle-sm"
 const DN_HINT = "dn-type-meta"
 const DN_LABEL = "dn-type-label"
 const DN_VALUE = "dn-type-value"
-const DN_SECTION_GAP = "gap-2.5"
+const DN_SECTION_GAP = "dn-section-stack"
 
 function SettingsRowButton({
   className,
@@ -285,7 +285,7 @@ export function SegmentTabs({
     <div
       ref={tablistRef}
       className={cn(
-        "t-tabs flex h-8 w-full max-w-full gap-1 overflow-hidden bg-transparent p-0 dn-squircle-xs",
+        "t-tabs dn-tab-bar flex w-full max-w-full gap-1 overflow-hidden bg-transparent p-0 dn-squircle-xs",
         variant === "muted" && "t-tabs--muted",
         className,
       )}
@@ -306,7 +306,7 @@ export function SegmentTabs({
               else tabRefs.current.delete(item)
             }}
             className={cn(
-              "t-tab dn-segment-tab dn-pressable-press-only flex min-w-0 flex-1 items-center justify-center px-2 text-[11px] font-medium dn-squircle-xs",
+              "t-tab dn-segment-tab dn-pressable-press-only dn-type-chip flex min-w-0 flex-1 items-center justify-center px-2 dn-squircle-xs",
               variant === "muted" && "dn-segment-tab--muted",
               active ? "text-[var(--dn-fg)]" : "bg-transparent text-[var(--dn-muted)]",
             )}
@@ -379,7 +379,7 @@ export function SettingsTabPanel({
           <m.div
             key={activeKey}
             className={cn(
-              "dn-settings-tab-panel flex w-full min-w-0 flex-col gap-2.5",
+              "dn-settings-tab-panel dn-section-stack flex w-full min-w-0",
               className,
             )}
             initial={{ opacity: 0 }}
@@ -400,7 +400,7 @@ export function SettingsTabPanel({
         <m.div
           key={activeKey}
           className={cn(
-            "dn-settings-tab-panel flex w-full min-w-0 flex-col gap-2.5",
+            "dn-settings-tab-panel dn-section-stack flex w-full min-w-0",
             className,
           )}
           variants={
@@ -749,7 +749,7 @@ export function OptionGrid({
           <button
             key={item}
             className={cn(
-              "dn-option-tile flex aspect-square items-center justify-center text-[10px] font-medium tracking-tight dn-squircle-xs",
+              "dn-option-tile flex aspect-square items-center justify-center dn-type-chip dn-squircle-xs",
               outline &&
                 isSelected &&
                 (animatedOutline
@@ -783,7 +783,7 @@ export function PresetList({
         <button
           key={item}
           className={cn(
-            "dn-preset-item h-8 w-full px-2.5 text-left text-[11px] font-medium tracking-tight dn-squircle-xs",
+            "dn-preset-item dn-control-surface w-full px-2.5 text-left dn-type-chip dn-squircle-xs",
             selected === item && "text-[var(--dn-fg)]",
           )}
           type="button"
@@ -923,7 +923,7 @@ export function SettingsSwitchRow({
   onChange: (checked: boolean) => void
 }) {
   return (
-    <div className="flex h-9 items-center justify-between gap-3">
+    <div className="dn-switch-row">
       <span className={DN_LABEL}>{label}</span>
       <Switch checked={checked} onCheckedChange={onChange} />
     </div>
@@ -931,7 +931,7 @@ export function SettingsSwitchRow({
 }
 
 export const SETTINGS_ELASTIC_SLIDER_CLASS =
-  "desktop-elastic-slider dn-settings-elastic-slider w-full [--elastic-slider-height:--spacing(9)] [--elastic-slider-radius:12px]"
+  "desktop-elastic-slider dn-settings-elastic-slider w-full [--elastic-slider-height:var(--dn-control-height)] [--elastic-slider-radius:var(--dn-radius-sm)]"
 
 export function SettingsSlider({
   label,
@@ -977,7 +977,7 @@ export function SettingsPrimaryButton({
 }: React.ComponentProps<"button">) {
   return (
     <SettingsRowButton
-      className="dn-settings-primary dn-pressable-press-only h-9 font-medium tracking-tight"
+      className="dn-settings-primary dn-control-surface dn-pressable-press-only w-full font-medium tracking-tight"
       type="button"
       onClick={onClick}
       {...props}

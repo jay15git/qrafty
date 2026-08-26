@@ -7,7 +7,7 @@ import { DesktopLayersPopoverContent } from "@/features/desktop-shell/components
 import { SettingsRowPopover } from "@/features/desktop-shell/inspector/settings-ui"
 import { InsertMenuPanelStack } from "@/features/workspace/components/insert-menu/InsertMenuPanelStack"
 
-const SECTION_STACK = "flex flex-col gap-2.5"
+const SECTION_STACK = "dn-section-stack"
 
 export function ElementsSection({ model }: { model: DesktopInspectorModel }) {
   const [addElementOpen, setAddElementOpen] = useState(false)
