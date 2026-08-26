@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  startTransition,
   useContext,
   useEffect,
   useRef,
@@ -46,7 +47,7 @@ import "@/features/desktop-shell/inspector/desktopnew.css"
 import "@/features/desktop-shell/inspector/mobile-inspector.css"
 
 const MOBILE_DRAWER_BOTTOM_GAP_PX = 16
-const HEIGHT_SYNC_THRESHOLD_PX = 8
+const HEIGHT_SYNC_ANIMATION_MS = 280
 
 const MobileInspectorContext = createContext<DesktopInspectorModel | null>(null)
 
@@ -76,30 +77,42 @@ function syncMobileDrawerHeight(height: number) {
 function MobileDrawerHeightSync() {
   const { bounds } = useFamilyDrawer()
   const lastSyncedHeightRef = useRef(0)
-  const rafRef = useRef<number | null>(null)
+  const timeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     const nextHeight = bounds.height
-    const delta = Math.abs(nextHeight - lastSyncedHeightRef.current)
-    if (delta < HEIGHT_SYNC_THRESHOLD_PX && lastSyncedHeightRef.current > 0) {
+    if (nextHeight <= 0) {
       return
     }
 
-    if (rafRef.current !== null) {
-      cancelAnimationFrame(rafRef.current)
-    }
-
-    rafRef.current = requestAnimationFrame(() => {
+    const apply = () => {
       lastSyncedHeightRef.current = nextHeight
       syncMobileDrawerHeight(nextHeight)
-      rafRef.current = null
-    })
+      timeoutRef.current = null
+    }
+
+    if (timeoutRef.current !== null) {
+      window.clearTimeout(timeoutRef.current)
+    }
+
+    if (lastSyncedHeightRef.current === 0) {
+      apply()
+      return
+    }
+
+    timeoutRef.current = window.setTimeout(apply, HEIGHT_SYNC_ANIMATION_MS)
+
+    return () => {
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current)
+      }
+    }
   }, [bounds.height])
 
   useEffect(() => {
     return () => {
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current)
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current)
       }
       syncMobileDrawerHeight(0)
     }
@@ -227,11 +240,13 @@ function MobileMenuView() {
   const selectedLayer = controller?.selectedElementLayer
 
   function openSection(section: DesktopSettingsSectionId) {
+    setView(MOBILE_DRAWER_VIEW_FOR_SECTION[section])
     const tool = SECTION_TO_TOOL[section]
     if (tool) {
-      model.onActiveToolChange(tool)
+      startTransition(() => {
+        model.onActiveToolChange(tool)
+      })
     }
-    setView(MOBILE_DRAWER_VIEW_FOR_SECTION[section])
   }
 
   return (
@@ -423,7 +438,6 @@ export function MobileFamilyDrawer({
         <FamilyDrawerRoot
           dismissible={false}
           defaultOpen
-          layoutAnimation="reduced"
           modal={false}
           open
           views={MOBILE_VIEWS}

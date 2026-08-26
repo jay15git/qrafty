@@ -1,0 +1,15 @@
+/* Radix wraps viewport children in display:table + min-width:100%, which sizes
+ * to the widest child and prevents horizontal scroll containment. */
+[data-slot="scroll-area"][data-orientation="horizontal"] {
+  max-width: 100%;
+}
+
+[data-slot="scroll-area"][data-orientation="horizontal"] [data-slot="scroll-area-viewport"] {
+  max-width: 100%;
+}
+
+[data-slot="scroll-area"][data-orientation="horizontal"] [data-slot="scroll-area-viewport"] > div {
+  display: block !important;
+  width: max-content;
+  min-width: 100%;
+}

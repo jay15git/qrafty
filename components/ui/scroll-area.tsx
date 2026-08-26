@@ -26,6 +26,8 @@ import {
 } from "@/lib/scroll-fade";
 import { useTouchPrimary } from "@/hooks/use-touch-primary";
 
+import "./scroll-area.css";
+
 // On touch-primary devices the Radix machinery is skipped entirely in favour
 // of native overflow scrolling (better physics, momentum, rubber-banding);
 // the context lets the exported ScrollBar no-op in that branch.
@@ -130,6 +132,7 @@ const ScrollArea = forwardRef<
         ref={ref}
         role="group"
         data-slot="scroll-area"
+        data-orientation={orientation}
         aria-roledescription="scroll area"
         className={cn("relative overflow-hidden", className)}
         {...props}
@@ -154,6 +157,7 @@ const ScrollArea = forwardRef<
       <ScrollAreaPrimitive.Root
         ref={ref}
         data-slot="scroll-area"
+        data-orientation={orientation}
         scrollHideDelay={scrollHideDelay}
         className={cn("relative overflow-hidden", className)}
         {...props}

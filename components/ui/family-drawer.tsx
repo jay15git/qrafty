@@ -22,8 +22,6 @@ interface ViewsRegistry {
   [viewName: string]: ViewComponent
 }
 
-export type FamilyDrawerLayoutAnimation = "full" | "reduced"
-
 interface FamilyDrawerContextValue {
   isOpen: boolean
   view: string
@@ -32,7 +30,6 @@ interface FamilyDrawerContextValue {
   elementRef: ReturnType<typeof useMeasure>[0]
   bounds: ReturnType<typeof useMeasure>[1]
   views: ViewsRegistry | undefined
-  layoutAnimation: FamilyDrawerLayoutAnimation
 }
 
 const FamilyDrawerContext = createContext<FamilyDrawerContextValue | undefined>(undefined)
@@ -55,8 +52,6 @@ interface FamilyDrawerRootProps {
   views?: ViewsRegistry
   modal?: boolean
   dismissible?: boolean
-  /** Reduced skips height layout animation and uses lighter view transitions. */
-  layoutAnimation?: FamilyDrawerLayoutAnimation
 }
 
 function FamilyDrawerRoot({
@@ -69,7 +64,6 @@ function FamilyDrawerRoot({
   views: customViews,
   modal = true,
   dismissible = true,
-  layoutAnimation = "full",
 }: FamilyDrawerRootProps) {
   const [internalOpen, setInternalOpen] = useState(defaultOpen)
   const [view, setView] = useState(defaultView)
@@ -117,7 +111,6 @@ function FamilyDrawerRoot({
       elementRef,
       bounds,
       views,
-      layoutAnimation,
     }),
     [
       isOpen,
@@ -127,7 +120,6 @@ function FamilyDrawerRoot({
       elementRef,
       bounds,
       views,
-      layoutAnimation,
     ],
   )
 
@@ -229,29 +221,28 @@ function FamilyDrawerContent({
   accessibilityTitle,
   ...rest
 }: FamilyDrawerContentProps) {
-  const { bounds, view, layoutAnimation } = useFamilyDrawer()
+  const { bounds, view } = useFamilyDrawer()
   const dialogTitle =
     accessibilityTitle ??
     DEFAULT_VIEW_ACCESSIBILITY_TITLES[view] ??
     DEFAULT_VIEW_ACCESSIBILITY_TITLES.default
-  const reduceLayoutAnimation = layoutAnimation === "reduced"
 
   const variantClass =
     variant === "sheet"
       ? "fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-h-[min(70dvh,32rem)] overflow-hidden rounded-t-[28px] bg-background outline-none pb-[env(safe-area-inset-bottom,0px)]"
       : "fixed bottom-[max(1rem,env(safe-area-inset-bottom,0px))] z-30 overflow-hidden rounded-[36px] bg-background outline-none"
 
-  const animated = reduceLayoutAnimation ? (
-    <div style={{ height: bounds.height }}>{children}</div>
-  ) : (
+  const animated = (
     <m.div
       animate={{
-        height: bounds.height,
+        height: bounds.height || "auto",
         transition: {
           duration: 0.27,
           ease: [0.25, 1, 0.5, 1],
         },
       }}
+      className="overflow-hidden"
+      initial={false}
     >
       {children}
     </m.div>
@@ -293,7 +284,7 @@ function FamilyDrawerAnimatedWrapper({
   return (
     <div
       ref={elementRef}
-      className={cn("px-6 pb-6 pt-2.5 antialiased", className)}
+      className={cn("relative px-6 pb-6 pt-2.5 antialiased", className)}
       {...rest}
     >
       {children}
@@ -306,34 +297,22 @@ interface FamilyDrawerAnimatedContentProps {
 }
 
 function FamilyDrawerAnimatedContent({ children }: FamilyDrawerAnimatedContentProps) {
-  const { view, opacityDuration, layoutAnimation } = useFamilyDrawer()
-  const reduceLayoutAnimation = layoutAnimation === "reduced"
-
-  if (reduceLayoutAnimation) {
-    return (
-      <AnimatePresence initial={false} mode="wait">
-        <m.div
-          key={view}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          initial={{ opacity: 0 }}
-          transition={{
-            duration: Math.min(opacityDuration, 0.18),
-            ease: [0.26, 0.08, 0.25, 1],
-          }}
-        >
-          {children}
-        </m.div>
-      </AnimatePresence>
-    )
-  }
+  const { view, opacityDuration } = useFamilyDrawer()
 
   return (
-    <AnimatePresence initial={false} mode="popLayout">
+    <AnimatePresence initial={false}>
       <m.div
         key={view}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96 }}
+        className="w-full"
+        exit={{
+          left: 0,
+          opacity: 0,
+          position: "absolute",
+          right: 0,
+          scale: 0.96,
+          top: 0,
+        }}
         initial={{ opacity: 0, scale: 0.96 }}
         transition={{
           duration: opacityDuration,

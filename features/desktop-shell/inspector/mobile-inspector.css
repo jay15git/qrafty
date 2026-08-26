@@ -175,13 +175,26 @@
   border-radius: 16px;
 }
 
-[data-mobile-inspector] [data-slot="scroll-area"] {
+[data-mobile-inspector][data-slot="scroll-area"] {
   min-width: 0;
 }
 
-[data-mobile-inspector] [data-slot="scroll-area-viewport"] {
+/* Only the drawer shell scroll — not nested horizontal preview rows. */
+[data-mobile-inspector][data-slot="scroll-area"] > [data-slot="scroll-area-viewport"] {
   overscroll-behavior: contain;
   touch-action: pan-y;
+}
+
+[data-mobile-inspector][data-slot="scroll-area"] > [data-slot="scroll-area-viewport"] > div {
+  display: flex !important;
+  flex-direction: column;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+[data-mobile-inspector] [data-slot="scroll-area"][data-orientation="horizontal"] [data-slot="scroll-area-viewport"] {
+  touch-action: pan-x pinch-zoom;
+  overscroll-behavior-x: contain;
 }
 
 [data-mobile-inspector] [data-slot="elastic-slider-track"] {

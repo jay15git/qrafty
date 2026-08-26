@@ -61,7 +61,7 @@ import {
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 
-export const SECTION_STACK = "flex flex-col gap-2.5"
+export const SECTION_STACK = "flex w-full min-w-0 flex-col gap-2.5"
 const PREVIEW_TILE =
   "dn-preview-tile group relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
 const PREVIEW_ROW = "flex min-w-max gap-1.5 px-1 py-1.5"
