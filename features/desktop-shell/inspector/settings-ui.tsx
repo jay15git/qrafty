@@ -369,30 +369,6 @@ export function SettingsTabPanel({
   children: ReactNode
 }) {
   const reduceMotion = useReducedMotion()
-  const mobileDensity = useMobileInspectorDensity()
-  const useReducedTabTransition = mobileDensity || reduceMotion
-
-  if (useReducedTabTransition) {
-    return (
-      <div className="relative w-full min-w-0 overflow-hidden">
-        <AnimatePresence mode="wait" initial={false}>
-          <m.div
-            key={activeKey}
-            className={cn(
-              "dn-settings-tab-panel dn-section-stack flex w-full min-w-0",
-              className,
-            )}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.16, ease: TAB_PANEL_EASE_ENTER }}
-          >
-            {children}
-          </m.div>
-        </AnimatePresence>
-      </div>
-    )
-  }
 
   return (
     <div className="relative w-full min-w-0 overflow-hidden">
