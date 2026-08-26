@@ -8,6 +8,7 @@ import {
   useRef,
   cloneElement,
   isValidElement,
+  Children,
   type ReactElement,
   type ReactNode,
 } from "react"
@@ -78,25 +79,40 @@ function desktopnewPortalClass(theme: "light" | "dark", className?: string) {
   return cn(className, theme === "dark" && "dark")
 }
 
-function mergeMobileDetailChildClose(
+function mapMobileDetailCloseChildren(
   children: ReactNode,
   onClose: () => void,
 ): ReactNode {
-  if (!isValidElement(children)) {
-    return children
-  }
+  return Children.map(children, (child) => {
+    if (!isValidElement(child)) {
+      return child
+    }
 
-  const childProps = children.props as {
-    onAfterSelect?: () => void
-    onClose?: () => void
-  }
+    if (typeof child.type === "string") {
+      const childProps = child.props as { children?: ReactNode }
 
-  return cloneElement(
-    children as ReactElement<{
+      if (childProps.children === undefined) {
+        return child
+      }
+
+      return cloneElement(
+        child,
+        undefined,
+        mapMobileDetailCloseChildren(childProps.children, onClose),
+      )
+    }
+
+    const childProps = child.props as {
       onAfterSelect?: () => void
       onClose?: () => void
-    }>,
-    {
+      children?: ReactNode
+    }
+
+    const patchedProps: {
+      onAfterSelect: () => void
+      onClose: () => void
+      children?: ReactNode
+    } = {
       onAfterSelect: () => {
         childProps.onAfterSelect?.()
         onClose()
@@ -105,8 +121,31 @@ function mergeMobileDetailChildClose(
         childProps.onClose?.()
         onClose()
       },
-    },
-  )
+    }
+
+    if (childProps.children !== undefined) {
+      patchedProps.children = mapMobileDetailCloseChildren(
+        childProps.children,
+        onClose,
+      )
+    }
+
+    return cloneElement(
+      child as ReactElement<{
+        onAfterSelect?: () => void
+        onClose?: () => void
+        children?: ReactNode
+      }>,
+      patchedProps,
+    )
+  })
+}
+
+function mergeMobileDetailChildClose(
+  children: ReactNode,
+  onClose: () => void,
+): ReactNode {
+  return mapMobileDetailCloseChildren(children, onClose)
 }
 
 export function SettingsPanelShell({

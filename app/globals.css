@@ -540,8 +540,11 @@ html.drafting-layer-moving * {
 }
 
 .t-resize {
-  transition: height var(--resize-dur) var(--resize-ease);
-  will-change: height;
+  transition:
+    width var(--resize-dur) var(--resize-ease),
+    height var(--resize-dur) var(--resize-ease),
+    padding var(--resize-dur) var(--resize-ease);
+  will-change: width, height, padding;
 }
 
 @media (prefers-reduced-motion: reduce) {

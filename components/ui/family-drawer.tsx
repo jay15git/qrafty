@@ -232,20 +232,16 @@ function FamilyDrawerContent({
       ? "fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-h-[min(70dvh,32rem)] overflow-hidden rounded-t-[28px] bg-background outline-none pb-[env(safe-area-inset-bottom,0px)]"
       : "fixed bottom-[max(1rem,env(safe-area-inset-bottom,0px))] z-30 overflow-hidden rounded-[36px] bg-background outline-none"
 
+  const resizeHeightStyle =
+    bounds.height > 0 ? { height: bounds.height } : undefined
+
   const animated = (
-    <m.div
-      animate={{
-        height: bounds.height || "auto",
-        transition: {
-          duration: 0.27,
-          ease: [0.25, 1, 0.5, 1],
-        },
-      }}
-      className="overflow-hidden"
-      initial={false}
+    <div
+      className="t-resize overflow-hidden"
+      style={resizeHeightStyle}
     >
       {children}
-    </m.div>
+    </div>
   )
 
   const accessibilityLabel = (

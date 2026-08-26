@@ -7,6 +7,14 @@ export const DESKTOP_ARTBOARD_VIEW_INSETS = {
   left: 40,
 } as const
 
+/** Minimal breathing room on mobile; top chrome floats over the canvas. */
+export const MOBILE_ARTBOARD_VIEW_INSETS = {
+  top: 12,
+  right: 16,
+  bottom: 16,
+  left: 16,
+} as const
+
 export type TemplatePreviewFitInsets = {
   bottom: number
   left: number

@@ -13,7 +13,13 @@ import {
 } from "react"
 
 import type { DraftingPane, DraftingPaneCanvasTool } from "@/features/workspace/components/DraftingPaneSurface"
-import { computeTemplatePreviewFit, DESKTOP_ARTBOARD_VIEW_INSETS, DESKTOP_CANVAS_FIT_PADDING } from "@/features/workspace/model/template-preview-fit"
+import { DESKTOP_WORKSPACE_MOBILE_QUERY } from "@/hooks/use-media-query"
+import {
+  computeTemplatePreviewFit,
+  DESKTOP_ARTBOARD_VIEW_INSETS,
+  DESKTOP_CANVAS_FIT_PADDING,
+  MOBILE_ARTBOARD_VIEW_INSETS,
+} from "@/features/workspace/model/template-preview-fit"
 
 const CANVAS_PAN_CURSOR_LOCK_CLASS = "drafting-canvas-panning"
 
@@ -131,11 +137,19 @@ export function useDraftingPaneSurfaceInteractions({
         return
       }
 
+      const isMobileViewport =
+        typeof window !== "undefined" &&
+        window.matchMedia(DESKTOP_WORKSPACE_MOBILE_QUERY).matches
+      const artboardInsets =
+        isMobileViewport && isFreeEditWorkspace
+          ? MOBILE_ARTBOARD_VIEW_INSETS
+          : DESKTOP_ARTBOARD_VIEW_INSETS
+
       const nextFitScale = computeTemplatePreviewFit(
         { width: pane.cardState.width, height: pane.cardState.height },
         { width: rect.width, height: rect.height },
         isFreeEditWorkspace
-          ? { allowUpscale: true, insets: DESKTOP_ARTBOARD_VIEW_INSETS }
+          ? { allowUpscale: true, insets: artboardInsets }
           : fitCanvasToViewport
             ? { allowUpscale: true, padding: DESKTOP_CANVAS_FIT_PADDING }
             : undefined,

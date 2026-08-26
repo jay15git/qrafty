@@ -179,7 +179,7 @@
   min-width: 0;
 }
 
-/* Only the drawer shell scroll — not nested horizontal preview rows. */
+/* Nested horizontal preview rows inside inspector sections. */
 [data-mobile-inspector][data-slot="scroll-area"] > [data-slot="scroll-area-viewport"] {
   overscroll-behavior: contain;
   touch-action: pan-y;

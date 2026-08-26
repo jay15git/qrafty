@@ -5,7 +5,6 @@ import {
   startTransition,
   useContext,
   useEffect,
-  useRef,
   type ReactNode,
 } from "react"
 
@@ -47,7 +46,6 @@ import "@/features/desktop-shell/inspector/desktopnew.css"
 import "@/features/desktop-shell/inspector/mobile-inspector.css"
 
 const MOBILE_DRAWER_BOTTOM_GAP_PX = 16
-const HEIGHT_SYNC_ANIMATION_MS = 280
 
 const MobileInspectorContext = createContext<DesktopInspectorModel | null>(null)
 
@@ -76,8 +74,6 @@ function syncMobileDrawerHeight(height: number) {
 
 function MobileDrawerHeightSync() {
   const { bounds } = useFamilyDrawer()
-  const lastSyncedHeightRef = useRef(0)
-  const timeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     const nextHeight = bounds.height
@@ -85,35 +81,11 @@ function MobileDrawerHeightSync() {
       return
     }
 
-    const apply = () => {
-      lastSyncedHeightRef.current = nextHeight
-      syncMobileDrawerHeight(nextHeight)
-      timeoutRef.current = null
-    }
-
-    if (timeoutRef.current !== null) {
-      window.clearTimeout(timeoutRef.current)
-    }
-
-    if (lastSyncedHeightRef.current === 0) {
-      apply()
-      return
-    }
-
-    timeoutRef.current = window.setTimeout(apply, HEIGHT_SYNC_ANIMATION_MS)
-
-    return () => {
-      if (timeoutRef.current !== null) {
-        window.clearTimeout(timeoutRef.current)
-      }
-    }
+    syncMobileDrawerHeight(nextHeight)
   }, [bounds.height])
 
   useEffect(() => {
     return () => {
-      if (timeoutRef.current !== null) {
-        window.clearTimeout(timeoutRef.current)
-      }
       syncMobileDrawerHeight(0)
     }
   }, [])
@@ -172,27 +144,6 @@ function MobileNestedHeader({
   )
 }
 
-function MobileInspectorScroll({ children }: { children: ReactNode }) {
-  const scrollKeyRef = useRef(0)
-  const { view } = useFamilyDrawer()
-
-  useEffect(() => {
-    scrollKeyRef.current += 1
-  }, [view])
-
-  return (
-    <ScrollArea
-      key={view}
-      className="max-h-[min(52dvh,24rem)] w-full min-w-0"
-      data-mobile-inspector=""
-      scrollFade
-      viewportClassName="overscroll-y-contain"
-    >
-      {children}
-    </ScrollArea>
-  )
-}
-
 function MobileSectionView({ section }: { section: DesktopSettingsSectionId }) {
   const model = useMobileInspectorModel()
   const { setView } = useFamilyDrawer()
@@ -201,9 +152,7 @@ function MobileSectionView({ section }: { section: DesktopSettingsSectionId }) {
     <div className="desktopnew-root w-full min-w-0" data-theme={model.actualDesktopTheme}>
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
         <MobileNestedHeader title={section} onClose={() => setView("default")} />
-        <MobileInspectorScroll>
-          <SettingsSectionBody id={section} model={model} />
-        </MobileInspectorScroll>
+        <SettingsSectionBody id={section} model={model} />
       </DesktopnewThemeContext.Provider>
     </div>
   )
@@ -233,6 +182,8 @@ function MobileElementsSectionView() {
   return <MobileSectionView section="Elements" />
 }
 
+const MOBILE_MENU_ROW_CLASS = "flex min-w-max gap-2 px-1 py-1"
+
 function MobileMenuView() {
   const model = useMobileInspectorModel()
   const { setView } = useFamilyDrawer()
@@ -255,20 +206,34 @@ function MobileMenuView() {
         className="mb-3 gap-0 border-b border-border pb-3"
         title="Settings"
       />
-      <div className="flex flex-col gap-2">
-        {DESKTOP_SETTINGS_SECTIONS.map((section) => (
-          <FamilyDrawerButton key={section} onClick={() => openSection(section)}>
-            <SettingsSectionIconFor className="text-foreground" section={section} size={22} />
-            <span>{section}</span>
-          </FamilyDrawerButton>
-        ))}
-        {selectedLayer && controller?.onElementLayerPatch ? (
-          <FamilyDrawerButton onClick={() => setView("element")}>
-            <SettingsSectionIconFor className="text-foreground" section="Effects" size={22} />
-            <span>Layer style</span>
-          </FamilyDrawerButton>
-        ) : null}
-      </div>
+      <ScrollArea
+        className="w-full min-w-0 max-w-full overflow-hidden"
+        chevron={false}
+        cueSize="tight"
+        orientation="horizontal"
+        scrollFade
+        showScrollbar={false}
+        viewportClassName="min-w-0"
+      >
+        <div className={MOBILE_MENU_ROW_CLASS}>
+          {DESKTOP_SETTINGS_SECTIONS.map((section) => (
+            <FamilyDrawerButton
+              key={section}
+              className="h-14 w-auto shrink-0"
+              onClick={() => openSection(section)}
+            >
+              <SettingsSectionIconFor className="text-foreground" section={section} size={22} />
+              <span>{section}</span>
+            </FamilyDrawerButton>
+          ))}
+          {selectedLayer && controller?.onElementLayerPatch ? (
+            <FamilyDrawerButton className="h-14 w-auto shrink-0" onClick={() => setView("element")}>
+              <SettingsSectionIconFor className="text-foreground" section="Effects" size={22} />
+              <span>Layer style</span>
+            </FamilyDrawerButton>
+          ) : null}
+        </div>
+      </ScrollArea>
     </div>
   )
 }
@@ -289,9 +254,7 @@ function MobileElementView() {
     <div className="desktopnew-root w-full min-w-0" data-theme={model.actualDesktopTheme}>
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
         <MobileNestedHeader title="Layer style" onClose={() => setView("default")} />
-        <MobileInspectorScroll>
-          <DesktopElementInspector layer={layer} onPatch={onPatch} />
-        </MobileInspectorScroll>
+        <DesktopElementInspector layer={layer} onPatch={onPatch} />
       </DesktopnewThemeContext.Provider>
     </div>
   )
@@ -311,15 +274,13 @@ function MobileStockPhotosView() {
           setView("elements")
         }}
       />
-      <MobileInspectorScroll>
-        <DesktopPexelsPhotoInspector
-          onClose={() => {
-            controller?.onCloseComposeSidebar?.()
-            setView("elements")
-          }}
-          onSelectPhoto={(imageUrl) => controller?.onSelectStockPhoto?.(imageUrl)}
-        />
-      </MobileInspectorScroll>
+      <DesktopPexelsPhotoInspector
+        onClose={() => {
+          controller?.onCloseComposeSidebar?.()
+          setView("elements")
+        }}
+        onSelectPhoto={(imageUrl) => controller?.onSelectStockPhoto?.(imageUrl)}
+      />
     </div>
   )
 }
@@ -337,9 +298,7 @@ function MobileSettingDetailView() {
     <div className="desktopnew-root w-full min-w-0" data-theme={model.actualDesktopTheme}>
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
         <MobileNestedHeader title={payload.title} onClose={() => navigation?.closeDetail()} />
-        <MobileInspectorScroll>
-          <div className="dn-portal-surface w-full min-w-0">{payload.content}</div>
-        </MobileInspectorScroll>
+        <div className="dn-portal-surface w-full min-w-0">{payload.content}</div>
       </DesktopnewThemeContext.Provider>
     </div>
   )

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import {
   computeTemplatePreviewFit,
+  MOBILE_ARTBOARD_VIEW_INSETS,
   TEMPLATE_PREVIEW_FIT_PADDING,
 } from "@/features/workspace/model/template-preview-fit"
 
@@ -51,6 +52,22 @@ describe("template-preview-fit", () => {
 
     expect(scale).toBeGreaterThan(0)
     expect(scale).toBeLessThan(1)
+  })
+
+  it("uses tighter mobile insets for more artboard area", () => {
+    const viewport = { width: 390, height: 420 }
+    const card = { width: 1080, height: 1080 }
+
+    const mobileScale = computeTemplatePreviewFit(card, viewport, {
+      allowUpscale: true,
+      insets: MOBILE_ARTBOARD_VIEW_INSETS,
+    })
+    const desktopScale = computeTemplatePreviewFit(card, viewport, {
+      allowUpscale: true,
+      insets: { top: 56, right: 72, bottom: 56, left: 40 },
+    })
+
+    expect(mobileScale).toBeGreaterThan(desktopScale)
   })
 
   it("respects asymmetric viewport insets", () => {

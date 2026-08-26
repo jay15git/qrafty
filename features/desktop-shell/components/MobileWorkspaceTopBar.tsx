@@ -47,7 +47,7 @@ export function MobileWorkspaceTopBar({
 }) {
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between px-2.5 pt-[max(0.625rem,env(safe-area-inset-top,0px))]"
+      className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-2.5 pt-[max(0.625rem,env(safe-area-inset-top,0px))]"
       data-slot="mobile-workspace-top-bar"
     >
       <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-border/60 bg-background/90 p-1 shadow-sm backdrop-blur-md">
