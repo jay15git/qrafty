@@ -2,9 +2,9 @@
 
 import {
   useEffect,
+  useLayoutEffect,
   useState,
   type CSSProperties,
-  type RefObject,
 } from "react";
 import { useSurface } from "@/lib/surface-context";
 
@@ -35,39 +35,44 @@ const NO_EDGES: ScrollEdges = {
 };
 
 export interface UseScrollEdgesOptions {
-  /** Attach/detach tracking. While false all edges read false. Callers whose
-   *  scroller mounts late (portals) must fold that into `enabled` so the
-   *  hook re-attaches once the element exists. Defaults to `true`. */
+  /** Attach/detach tracking. While false all edges read false. Defaults
+   *  to `true`. Pass the live scroller node as `element` — the effect
+   *  rebinds when that node identity changes (portals, touch remounts). */
   enabled?: boolean;
   /** Which axes to measure. Defaults to `"vertical"`. */
   axis?: "vertical" | "horizontal" | "both";
 }
 
+const useIsoLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
+
 export function useScrollEdges(
-  ref: RefObject<HTMLElement | null>,
+  element: HTMLElement | null,
   { enabled = true, axis = "vertical" }: UseScrollEdgesOptions = {}
 ): ScrollEdges {
   const [edges, setEdges] = useState<ScrollEdges>(NO_EDGES);
 
-  useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- reset edges when tracking is disabled
       setEdges(NO_EDGES);
       return;
     }
-    const el = ref.current;
-    if (!el) return;
+    // Keep the last reading while the scroller remounts (touch ↔ pointer
+    // swap). Rebinding on the new node is what this hook is for; resetting
+    // here would flash the fade off for a frame.
+    if (!element) return;
 
     const update = () => {
       const next = { ...NO_EDGES };
       if (axis !== "horizontal") {
-        const { scrollTop, scrollHeight, clientHeight } = el;
+        const { scrollTop, scrollHeight, clientHeight } = element;
         const overflowing = scrollHeight - clientHeight > 1;
         next.top = overflowing && scrollTop > 1;
         next.bottom = overflowing && scrollTop + clientHeight < scrollHeight - 1;
       }
       if (axis !== "vertical") {
-        const { scrollLeft, scrollWidth, clientWidth } = el;
+        const { scrollLeft, scrollWidth, clientWidth } = element;
         const overflowing = scrollWidth - clientWidth > 1;
         next.left = overflowing && scrollLeft > 1;
         next.right = overflowing && scrollLeft + clientWidth < scrollWidth - 1;
@@ -86,11 +91,11 @@ export function useScrollEdges(
     update();
     // Recompute once layout settles after enter animations.
     const raf = requestAnimationFrame(update);
-    el.addEventListener("scroll", update, { passive: true });
+    element.addEventListener("scroll", update, { passive: true });
 
     const ro =
       typeof ResizeObserver === "function" ? new ResizeObserver(update) : null;
-    ro?.observe(el);
+    ro?.observe(element);
 
     // Async content (items loading in, streamed text) changes scrollHeight
     // without resizing the container itself. Coalesce to one update per
@@ -108,15 +113,15 @@ export function useScrollEdges(
       typeof MutationObserver === "function"
         ? new MutationObserver(scheduleUpdate)
         : null;
-    mo?.observe(el, { childList: true, subtree: true, characterData: true });
+    mo?.observe(element, { childList: true, subtree: true, characterData: true });
     return () => {
       cancelAnimationFrame(raf);
       if (moRaf) cancelAnimationFrame(moRaf);
-      el.removeEventListener("scroll", update);
+      element.removeEventListener("scroll", update);
       ro?.disconnect();
       mo?.disconnect();
     };
-  }, [ref, enabled, axis]);
+  }, [element, enabled, axis]);
 
   return edges;
 }

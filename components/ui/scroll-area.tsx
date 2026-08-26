@@ -11,7 +11,7 @@ import {
   createContext,
   forwardRef,
   useContext,
-  useRef,
+  useState,
   type ComponentPropsWithoutRef,
   type ComponentRef,
 } from "react";
@@ -52,9 +52,10 @@ interface ScrollAreaProps
   chevronOutside?: boolean;
   /** Which axes get scrollbars and edge cues. Defaults to `"vertical"`. */
   orientation?: Orientation;
-  /** Hide the Radix scrollbar track (keeps Radix viewport + scroll fade).
-   *  Defaults to `true`. Set `false` on horizontal carousels to drop the
-   *  invisible bottom track hit area. */
+  /** Show the Radix scrollbar track on pointer devices. Native OS
+   *  scrollbars are always hidden; fade cues remain. Defaults to `true`.
+   *  Set `false` on horizontal carousels to drop the invisible bottom
+   *  track hit area. */
   showScrollbar?: boolean;
 }
 
@@ -78,9 +79,11 @@ const ScrollArea = forwardRef<
     },
     ref
   ) => {
-    const viewportRef = useRef<HTMLDivElement>(null);
+    const [viewportNode, setViewportNode] = useState<HTMLDivElement | null>(
+      null,
+    );
     const isTouch = useTouchPrimary();
-    const edges = useScrollEdges(viewportRef, {
+    const edges = useScrollEdges(viewportNode, {
       enabled: scrollFade,
       axis: orientation,
     });
@@ -138,12 +141,12 @@ const ScrollArea = forwardRef<
         {...props}
       >
         <div
-          ref={viewportRef}
+          ref={setViewportNode}
           data-slot="scroll-area-viewport"
           className={cn(
             "size-full rounded-[inherit]",
-            orientation === "vertical" && "overflow-y-auto",
-            orientation === "horizontal" && "overflow-x-auto",
+            orientation === "vertical" && "overflow-y-auto overflow-x-hidden",
+            orientation === "horizontal" && "overflow-x-auto overflow-y-hidden",
             orientation === "both" && "overflow-auto",
             viewportClassName
           )}
@@ -163,7 +166,7 @@ const ScrollArea = forwardRef<
         {...props}
       >
         <ScrollAreaPrimitive.Viewport
-          ref={viewportRef}
+          ref={setViewportNode}
           data-slot="scroll-area-viewport"
           className={cn(
             "size-full rounded-[inherit]",
