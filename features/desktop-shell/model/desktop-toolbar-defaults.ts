@@ -44,7 +44,6 @@ import type {
   DesktopLogoSourceMode,
   DesktopMotionSettings,
   DesktopPatternSettings,
-  DesktopRasterExportPresetId,
   DesktopShapeColorMode,
   DesktopShapeSettings,
   DesktopTextPresetId,
@@ -165,15 +164,6 @@ export const DESKTOP_EXPORT_TARGET_OPTIONS: Array<{ label: string; value: Deskto
 export const DESKTOP_DOWNLOAD_EXTENSIONS = ["svg", "png", "webp", "jpeg"] as const satisfies ReadonlyArray<
   QrFileExtension
 >
-
-export const DESKTOP_RASTER_EXPORT_PRESETS = [
-  { id: "quick-share", label: "Quick share", primaryUse: "chat, email, docs", sizePx: 512 },
-  { id: "web-social", label: "Web & social", primaryUse: "sites, posts, menus", sizePx: 1024 },
-  { id: "small-print", label: "Small print", primaryUse: "stickers, cards", sizePx: 1600 },
-  { id: "flyer-poster", label: "Flyer / poster", primaryUse: "nearby signage", sizePx: 2400 },
-  { id: "large-format", label: "Large format", primaryUse: "banners, walls", sizePx: 3200 },
-  { id: "max-quality", label: "Max quality", primaryUse: "handoff, archive", sizePx: 4096 },
-] as const
 
 export const DESKTOP_CROSS_ORIGIN_OPTIONS: Array<{ label: string; value: QrCrossOrigin }> = [
   { label: "Default", value: "" },
@@ -388,9 +378,9 @@ export const DEFAULT_DESKTOP_LAYERS_SETTINGS: DesktopLayersSettings = {
 
 export const DEFAULT_DESKTOP_EXPORT_SETTINGS: DesktopExportSettings = {
   extension: "png",
+  exportScale: 2,
   mediaKind: "photo",
-  qualityPresetId: "web-social",
-  target: "current",
+  target: "surface",
   videoDurationSeconds: 5,
   videoFormat: "mp4",
   videoFrameRate: 30,

@@ -27,7 +27,6 @@ import {
   toDesktopLayerRow,
   type DraftingDownloadTarget,
 } from "@/features/workspace/components/workspace-surface-helpers"
-import type { ExportPresetId } from "@/features/workspace/model/export-presets"
 
 export type DesktopToolbarSettingsSnapshots = {
   patternSettings: DesktopPatternSettings
@@ -88,7 +87,6 @@ export type BuildDesktopToolbarSettingsSnapshotsInput = {
   selectedDownloadExtension: string
   selectedDownloadTarget: DraftingDownloadTarget
   selectedExportMediaKind: DesktopExportSettings["mediaKind"]
-  selectedExportPresetId?: ExportPresetId
   selectedVideoDurationSeconds: DesktopExportSettings["videoDurationSeconds"]
   selectedVideoFormat: DesktopExportSettings["videoFormat"]
   selectedVideoFrameRate: DesktopExportSettings["videoFrameRate"]
@@ -121,9 +119,8 @@ export type BuildDesktopToolbarSettingsSnapshotsInput = {
   selectedQrFinderPatternInnerStyle: QrStudioState["cornerDotStyle"]
   selectedQrFinderPatternOuterStyle: QrStudioState["cornerSquareStyle"]
   selectedQrTypeNumber: QrStudioState["qrOptions"]["typeNumber"]
-  selectedRasterExportPresetId: string
+  selectedExportScale: ExportScale
   selectedTextLayer: DraftingCanvasLayer | null
-  selectedUsePlatformExportPreset: boolean
   selectedValueSegmentsText: string
 }
 
@@ -258,12 +255,10 @@ export function buildDesktopToolbarSettingsSnapshots(
   }
 
   const exportSettings: DesktopExportSettings = {
-    exportPresetId: input.selectedExportPresetId,
     extension: input.selectedDownloadExtension as DesktopExportSettings["extension"],
+    exportScale: input.selectedExportScale,
     mediaKind: input.selectedExportMediaKind,
-    qualityPresetId: input.selectedRasterExportPresetId as DesktopExportSettings["qualityPresetId"],
     target: getDesktopExportTarget(input.selectedDownloadTarget),
-    usePlatformPreset: input.selectedUsePlatformExportPreset,
     videoDurationSeconds: input.selectedVideoDurationSeconds,
     videoFormat: input.selectedVideoFormat,
     videoFrameRate: input.selectedVideoFrameRate,

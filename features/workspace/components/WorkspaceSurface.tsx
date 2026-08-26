@@ -66,11 +66,6 @@ import {
   type SceneCompositionByNodeId,
 } from "@/features/workspace/model/apply-scene-template"
 import {
-  getExportPreset,
-  resolveExportDimensions,
-  type ExportPresetId,
-} from "@/features/workspace/model/export-presets"
-import {
   createDefaultSceneComposition,
   normalizeSceneComposition,
 } from "@/features/workspace/model/scene-templates"
@@ -81,7 +76,7 @@ import {
   runWorkspaceBatchExport,
   runWorkspaceExport,
 } from "@/features/workspace/export/pipeline"
-import { resolveRasterTargetDimensions } from "@/features/workspace/export/pipeline/bounds"
+import { resolveScaledExportDimensions } from "@/features/workspace/export/pipeline/bounds"
 import { sceneHasVideoExportContent } from "@/features/workspace/export/pipeline/clock"
 import {
   buildDraftingWorkspaceDocumentFromState,
@@ -95,14 +90,12 @@ import {
 } from "@/features/workspace/components/workspace-desktop-settings-snapshots"
 import {
   DEFAULT_DRAFTING_PANE_QR_SIZE,
-  DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID,
   DEFAULT_DRAFTING_STUDIO_STATE,
   DEFAULT_DOWNLOAD_NAME,
+  DEFAULT_EXPORT_SCALE,
   DRAFTING_LAYER_PASTE_OFFSET,
-  DRAFTING_RASTER_EXPORT_PRESETS,
   replaceTrackedObjectUrl,
   type DraftingDownloadExtension,
-  type DraftingRasterExportPresetId,
 } from "@/features/workspace/components/workspace-surface.constants"
 import {
   Canvas,
@@ -333,9 +326,7 @@ export function WorkspaceSurface({
       selectedDownloadExtension,
       selectedDownloadTarget,
       exportDownloadError,
-      selectedRasterExportPresetId,
-      selectedExportPresetId,
-      selectedUsePlatformExportPreset,
+      selectedExportScale,
       selectedExportMediaKind,
       selectedVideoDurationSeconds,
       selectedVideoFormat,
@@ -431,9 +422,7 @@ export function WorkspaceSurface({
       setSelectedDownloadExtension,
       setSelectedDownloadTarget,
       setExportDownloadError,
-      setSelectedRasterExportPresetId,
-      setSelectedExportPresetId,
-      setSelectedUsePlatformExportPreset,
+      setSelectedExportScale,
       setSelectedExportMediaKind,
       setSelectedVideoDurationSeconds,
       setSelectedVideoFormat,
@@ -708,21 +697,7 @@ export function WorkspaceSurface({
   }
   const canDownload = selectedContentValidation.isValid && Boolean(draftingStudioState.data.trim())
   const isDraftingRasterExport = isRasterExportExtension(selectedDownloadExtension)
-  const selectedRasterExportPreset =
-    DRAFTING_RASTER_EXPORT_PRESETS.find(
-      (preset) => preset.id === selectedRasterExportPresetId,
-    ) ?? DRAFTING_RASTER_EXPORT_PRESETS[1]
-  const selectedRasterExportTargetSizePx = isDraftingRasterExport
-    ? selectedRasterExportPreset.sizePx
-    : undefined
-  const selectedPlatformExportDimensions = useMemo(() => {
-    if (!selectedUsePlatformExportPreset || !selectedExportPresetId) {
-      return undefined
-    }
-
-    const preset = getExportPreset(selectedExportPresetId)
-    return preset ? resolveExportDimensions(preset) : undefined
-  }, [selectedExportPresetId, selectedUsePlatformExportPreset])
+  const selectedRasterExportScale = isDraftingRasterExport ? selectedExportScale : undefined
   const activeSceneComposition = normalizeSceneComposition(
     sceneCompositionByNodeId[activeQrNodeId] ?? createDefaultSceneComposition(),
   )
@@ -1426,8 +1401,8 @@ export function WorkspaceSurface({
     selectSingleLayer(getDraftingQrLayerId(DASHBOARD_QR_NODE_ID))
 
     setSelectedDownloadExtension("png")
-    setSelectedDownloadTarget("current")
-    setSelectedRasterExportPresetId(DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID)
+    setSelectedDownloadTarget("surface")
+    setSelectedExportScale(DEFAULT_EXPORT_SCALE)
     setSelectedBackgroundTransparent(false)
     setSelectedBackgroundShapeId(nextState.backgroundShapeId)
   }
@@ -2561,15 +2536,11 @@ export function WorkspaceSurface({
   }
 
   function resolveWorkspaceExportTargetDimensions(cardLayer: DraftingCanvasLayer) {
-    if (selectedPlatformExportDimensions) {
-      return selectedPlatformExportDimensions
-    }
-
-    if (selectedRasterExportTargetSizePx) {
-      return resolveRasterTargetDimensions(
+    if (selectedRasterExportScale) {
+      return resolveScaledExportDimensions(
         cardLayer.width,
         cardLayer.height,
-        selectedRasterExportTargetSizePx,
+        selectedRasterExportScale,
       )
     }
 
@@ -2888,7 +2859,6 @@ export function WorkspaceSurface({
       selectedDownloadExtension,
       selectedDownloadTarget,
       selectedExportMediaKind,
-      selectedExportPresetId,
       selectedVideoDurationSeconds,
       selectedVideoFormat,
       selectedVideoFrameRate,
@@ -2921,9 +2891,8 @@ export function WorkspaceSurface({
       selectedQrFinderPatternInnerStyle,
       selectedQrFinderPatternOuterStyle,
       selectedQrTypeNumber,
-      selectedRasterExportPresetId,
+      selectedExportScale,
       selectedTextLayer,
-      selectedUsePlatformExportPreset,
       selectedValueSegmentsText,
     }),
   )
@@ -3366,10 +3335,8 @@ export function WorkspaceSurface({
 
   function updateDesktopExportSettings(patch: Partial<DesktopExportSettings>) {
     if (patch.extension) setSelectedDownloadExtension(patch.extension as DraftingDownloadExtension)
-    if (patch.qualityPresetId) setSelectedRasterExportPresetId(patch.qualityPresetId)
+    if (patch.exportScale) setSelectedExportScale(patch.exportScale)
     if (patch.target) setSelectedDownloadTarget(getDraftingDownloadTarget(patch.target))
-    if (patch.exportPresetId !== undefined) setSelectedExportPresetId(patch.exportPresetId)
-    if (patch.usePlatformPreset !== undefined) setSelectedUsePlatformExportPreset(patch.usePlatformPreset)
     if (patch.mediaKind) setSelectedExportMediaKind(patch.mediaKind)
     if (patch.videoDurationSeconds) setSelectedVideoDurationSeconds(patch.videoDurationSeconds)
     if (patch.videoFormat) setSelectedVideoFormat(patch.videoFormat)
@@ -3573,8 +3540,8 @@ export function WorkspaceSurface({
     onExportReset: () => {
       setExportDownloadError(null)
       setSelectedDownloadExtension("png")
-      setSelectedDownloadTarget("current")
-      setSelectedRasterExportPresetId(DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID)
+      setSelectedDownloadTarget("surface")
+      setSelectedExportScale(DEFAULT_EXPORT_SCALE)
       setSelectedExportMediaKind(DEFAULT_DESKTOP_EXPORT_SETTINGS.mediaKind)
       setSelectedVideoDurationSeconds(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoDurationSeconds)
       setSelectedVideoFormat(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFormat)

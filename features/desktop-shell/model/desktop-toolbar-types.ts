@@ -38,7 +38,6 @@ import {
   type StudioDataModulesStyle,
 } from "@/features/qr-code/model/state"
 import { type QrInputType } from "@/features/qr-code/content/input-options"
-import { type ExportPresetId } from "@/features/workspace/model/export-presets"
 import type { SceneLayoutPreset } from "@/features/workspace/model/scene-templates"
 import type { ScanSafetyResult } from "@/features/qr-code/scan-safety/types"
 import type { DraftingPaneCanvasTool } from "@/features/workspace/components/DraftingPaneSurface"
@@ -238,23 +237,15 @@ export type DesktopLayersSettings = {
 }
 
 export type DesktopExportTarget = "all-qr" | "current" | "surface"
-export type DesktopRasterExportPresetId =
-  | "flyer-poster"
-  | "large-format"
-  | "max-quality"
-  | "quick-share"
-  | "small-print"
-  | "web-social"
+export type DesktopExportScale = 1 | 2 | 3 | 4
 
 export type DesktopExportMediaKind = "photo" | "video"
 
 export type DesktopExportSettings = {
-  exportPresetId?: ExportPresetId
   extension: QrFileExtension
+  exportScale: DesktopExportScale
   mediaKind: DesktopExportMediaKind
-  qualityPresetId: DesktopRasterExportPresetId
   target: DesktopExportTarget
-  usePlatformPreset?: boolean
   videoDurationSeconds: 5 | 10
   videoFormat: "mp4" | "webm"
   videoFrameRate: 30 | 60

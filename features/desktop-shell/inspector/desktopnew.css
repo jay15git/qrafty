@@ -347,6 +347,18 @@
   background: color-mix(in srgb, var(--dn-muted) 40%, transparent);
 }
 
+.dn-option-scroll-row--fill {
+  overflow: visible;
+}
+
+.dn-option-scroll-row--fill .dn-option-scroll-chip {
+  display: inline-flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
 .dn-option-scroll-chip {
   flex-shrink: 0;
   height: 1.75rem;
@@ -752,6 +764,29 @@
 
 .desktopnew-root[data-theme="dark"] .t-tabs-pill {
   background: #ffffff;
+}
+
+.t-tabs--muted {
+  gap: 0;
+  padding: 2px;
+  background: color-mix(in srgb, var(--dn-line) 72%, transparent);
+}
+
+.t-tabs--muted .t-tabs-pill--muted {
+  inset-block: 2px;
+  background: color-mix(in srgb, var(--dn-fg) 10%, var(--dn-bg));
+}
+
+.desktopnew-root[data-theme="dark"] .t-tabs--muted .t-tabs-pill--muted {
+  background: color-mix(in srgb, var(--dn-fg) 16%, #1a1a1a);
+}
+
+.t-tabs--muted .dn-segment-tab--muted[aria-selected="true"] {
+  color: var(--dn-fg);
+}
+
+.desktopnew-root[data-theme="dark"] .t-tabs--muted .dn-segment-tab--muted[aria-selected="true"] {
+  color: #f5f5f5;
 }
 
 .dn-segment-tab[aria-selected="true"] {

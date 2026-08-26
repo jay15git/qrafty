@@ -27,10 +27,10 @@ import type { SceneCompositionByNodeId } from "@/features/workspace/model/apply-
 import { createDefaultSceneComposition } from "@/features/workspace/model/scene-templates"
 import {
   DEFAULT_DRAFTING_PANE_QR_SIZE,
-  DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID,
   DEFAULT_DRAFTING_STUDIO_STATE,
+  DEFAULT_EXPORT_SCALE,
   type DraftingDownloadExtension,
-  type DraftingRasterExportPresetId,
+  type ExportScale,
 } from "@/features/workspace/components/workspace-surface.constants"
 import type { DraftingPaneCanvasTool } from "@/features/workspace/components/Canvas"
 import type {
@@ -58,7 +58,6 @@ import {
   DEFAULT_QR_INPUT_TYPE,
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
-import type { ExportPresetId } from "@/features/workspace/model/export-presets"
 import type { DesktopExportMediaKind } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 import type { DraftingDownloadTarget } from "@/features/workspace/components/workspace-surface-helpers"
@@ -150,9 +149,7 @@ export type WorkspaceSurfaceState = {
   selectedDownloadExtension: DraftingDownloadExtension
   selectedDownloadTarget: DraftingDownloadTarget
   exportDownloadError: string | null
-  selectedRasterExportPresetId: DraftingRasterExportPresetId
-  selectedExportPresetId: ExportPresetId | undefined
-  selectedUsePlatformExportPreset: boolean
+  selectedExportScale: ExportScale
   selectedExportMediaKind: DesktopExportMediaKind
   selectedVideoDurationSeconds: 5 | 10
   selectedVideoFormat: "mp4" | "webm"
@@ -330,11 +327,9 @@ export function createInitialWorkspaceSurfaceState(
     desktopCanvasTool: "select",
     desktopSnapEnabled: true,
     selectedDownloadExtension: "png",
-    selectedDownloadTarget: "current",
+    selectedDownloadTarget: "surface",
     exportDownloadError: null,
-    selectedRasterExportPresetId: DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID,
-    selectedExportPresetId: undefined,
-    selectedUsePlatformExportPreset: false,
+    selectedExportScale: DEFAULT_EXPORT_SCALE,
     selectedExportMediaKind: DEFAULT_DESKTOP_EXPORT_SETTINGS.mediaKind,
     selectedVideoDurationSeconds: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoDurationSeconds,
     selectedVideoFormat: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFormat,
@@ -479,10 +474,7 @@ function createWorkspaceSurfaceSetters(
     setSelectedDownloadExtension: (value) => setField("selectedDownloadExtension", value),
     setSelectedDownloadTarget: (value) => setField("selectedDownloadTarget", value),
     setExportDownloadError: (value) => setField("exportDownloadError", value),
-    setSelectedRasterExportPresetId: (value) => setField("selectedRasterExportPresetId", value),
-    setSelectedExportPresetId: (value) => setField("selectedExportPresetId", value),
-    setSelectedUsePlatformExportPreset: (value) =>
-      setField("selectedUsePlatformExportPreset", value),
+    setSelectedExportScale: (value) => setField("selectedExportScale", value),
     setSelectedExportMediaKind: (value) => setField("selectedExportMediaKind", value),
     setSelectedVideoDurationSeconds: (value) => setField("selectedVideoDurationSeconds", value),
     setSelectedVideoFormat: (value) => setField("selectedVideoFormat", value),

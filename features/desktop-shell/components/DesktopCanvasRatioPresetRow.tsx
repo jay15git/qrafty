@@ -85,11 +85,11 @@ export function DesktopCanvasRatioPresetPopoverContent({
                       aria-label={`${section.label} ${template.label}, ${template.width} by ${template.height} pixels`}
                       aria-pressed={isSelected}
                       className={cn(
-                        "relative flex h-[64px] min-w-0 items-center gap-2 rounded-[8px] border border-transparent p-2 text-left transition-[border-color,box-shadow,transform] duration-200 ease-out",
-                        "hover:bg-transparent hover:text-inherit",
+                        "relative flex h-[64px] min-w-0 items-center gap-2 rounded-[8px] border border-transparent p-2 text-left transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
-                        isSelected &&
-                          "border-[var(--desktop-inspector-fg-primary)] shadow-[inset_0_0_0_1px_var(--desktop-inspector-fg-primary)]",
+                        isSelected
+                          ? "bg-[var(--desktop-inspector-option-selected-bg,var(--desktop-inspector-control-hover-bg))]"
+                          : "hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-inherit",
                         "active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100",
                       )}
                       title={`${template.label} · ${template.ratioLabel}`}

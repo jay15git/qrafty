@@ -157,11 +157,13 @@ export function SegmentTabs({
   value,
   onChange,
   className,
+  variant = "primary",
 }: {
   items: string[]
   value: string
   onChange: (value: string) => void
   className?: string
+  variant?: "primary" | "muted"
 }) {
   const tablistRef = useRef<HTMLDivElement>(null)
   const pillRef = useRef<HTMLSpanElement>(null)
@@ -209,11 +211,16 @@ export function SegmentTabs({
       ref={tablistRef}
       className={cn(
         "t-tabs flex h-8 w-full max-w-full gap-1 overflow-hidden bg-transparent p-0 dn-squircle-xs",
+        variant === "muted" && "t-tabs--muted",
         className,
       )}
       role="tablist"
     >
-      <span ref={pillRef} aria-hidden className="t-tabs-pill dn-squircle-xs" />
+      <span
+        ref={pillRef}
+        aria-hidden
+        className={cn("t-tabs-pill dn-squircle-xs", variant === "muted" && "t-tabs-pill--muted")}
+      />
       {items.map((item) => {
         const active = value === item
         return (
@@ -225,6 +232,7 @@ export function SegmentTabs({
             }}
             className={cn(
               "t-tab dn-segment-tab dn-pressable-press-only flex min-w-0 flex-1 items-center justify-center px-2 text-[11px] font-medium dn-squircle-xs",
+              variant === "muted" && "dn-segment-tab--muted",
               active ? "text-[var(--dn-fg)]" : "bg-transparent text-[var(--dn-muted)]",
             )}
             role="tab"
@@ -498,16 +506,18 @@ export function ContentTypePicker({
 }
 
 export function OptionScrollRow({
+  fill = false,
   items,
   onSelect,
   selected,
 }: {
+  fill?: boolean
   items: string[]
   onSelect?: (item: string) => void
   selected: string
 }) {
   return (
-    <div className="dn-option-scroll-row">
+    <div className={cn("dn-option-scroll-row", fill && "dn-option-scroll-row--fill")}>
       {items.map((item) => {
         const isSelected = selected === item
 

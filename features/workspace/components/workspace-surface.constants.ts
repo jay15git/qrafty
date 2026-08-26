@@ -25,45 +25,10 @@ export function replaceTrackedObjectUrl(
   return nextUrl
 }
 
-export const DRAFTING_RASTER_EXPORT_PRESETS = [
-  {
-    id: "quick-share",
-    label: "Quick share",
-    primaryUse: "chat, email, docs, previews",
-    sizePx: 512,
-  },
-  {
-    id: "web-social",
-    label: "Web & social",
-    primaryUse: "websites, social posts, menus",
-    sizePx: 1024,
-  },
-  {
-    id: "small-print",
-    label: "Small print",
-    primaryUse: "stickers, cards, table tents",
-    sizePx: 1600,
-  },
-  {
-    id: "flyer-poster",
-    label: "Flyer / poster",
-    primaryUse: "flyers, posters, nearby signage",
-    sizePx: 2400,
-  },
-  {
-    id: "large-format",
-    label: "Large format",
-    primaryUse: "banners, wall signs, storefronts",
-    sizePx: 3200,
-  },
-  {
-    id: "max-quality",
-    label: "Max quality",
-    primaryUse: "designer handoff, archive, safest PNG",
-    sizePx: 4096,
-  },
-] as const
+export {
+  DEFAULT_EXPORT_SCALE,
+  EXPORT_SCALE_OPTIONS,
+  type ExportScale,
+} from "@/features/workspace/export/export-scale"
 
-export type DraftingRasterExportPresetId = (typeof DRAFTING_RASTER_EXPORT_PRESETS)[number]["id"]
 export type DraftingDownloadExtension = (typeof DRAFTING_DOWNLOAD_EXTENSIONS)[number]
-export const DEFAULT_DRAFTING_RASTER_EXPORT_PRESET_ID: DraftingRasterExportPresetId = "web-social"

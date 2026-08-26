@@ -58,6 +58,26 @@ export function resolveRasterTargetDimensions(
   }
 }
 
+export const EXPORT_MAX_DIMENSION = 4096
+
+export function resolveScaledExportDimensions(
+  artboardWidth: number,
+  artboardHeight: number,
+  scale: number,
+) {
+  let width = Math.max(1, Math.round(artboardWidth * scale))
+  let height = Math.max(1, Math.round(artboardHeight * scale))
+  const maxEdge = Math.max(width, height)
+
+  if (maxEdge > EXPORT_MAX_DIMENSION) {
+    const clampFactor = EXPORT_MAX_DIMENSION / maxEdge
+    width = Math.max(1, Math.round(width * clampFactor))
+    height = Math.max(1, Math.round(height * clampFactor))
+  }
+
+  return { height, width }
+}
+
 export function resolveVideoOutputDimensions(
   artboardWidth: number,
   artboardHeight: number,

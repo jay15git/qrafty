@@ -17,7 +17,6 @@ import {
   buildLayeredSvgParts,
 } from "@/features/workspace/export/layered-svg-parts"
 import { getArtboardExportBounds } from "@/features/workspace/export/pipeline/bounds"
-import { computeLetterboxFit } from "@/features/workspace/export/pipeline/bounds"
 import { cssFillToCanvasColor, isConicCssFill, paintConicCssFill } from "@/features/workspace/export/svg-css-fill"
 import {
   buildAnimatedQrMarkupAtTime,
@@ -73,11 +72,12 @@ function applyLayerCanvasTransform(
   context: CanvasRenderingContext2D,
   layer: DraftingCanvasLayer,
   bounds: { minX: number; minY: number },
+  renderScale = 1,
 ) {
-  const x = layer.x - bounds.minX
-  const y = layer.y - bounds.minY
-  const centerX = layer.width / 2
-  const centerY = layer.height / 2
+  const x = (layer.x - bounds.minX) * renderScale
+  const y = (layer.y - bounds.minY) * renderScale
+  const centerX = (layer.width / 2) * renderScale
+  const centerY = (layer.height / 2) * renderScale
   const rotation = Number.isFinite(layer.rotation) ? layer.rotation : 0
   const tiltX = clampBackgroundShapeTilt(layer.tiltX ?? 0)
   const tiltY = clampBackgroundShapeTilt(layer.tiltY ?? 0)
@@ -135,6 +135,8 @@ async function rasterizeLayerBatch({
   fontDefs,
   layers,
   nodeId,
+  outputHeight,
+  outputWidth,
   qrMarkup,
   state,
 }: {
@@ -143,6 +145,8 @@ async function rasterizeLayerBatch({
   fontDefs: string
   layers: DraftingCanvasLayer[]
   nodeId: string
+  outputHeight: number
+  outputWidth: number
   qrMarkup: string
   state: QrStudioState
 }) {
@@ -159,16 +163,25 @@ async function rasterizeLayerBatch({
     { idPrefix: nodeId },
   )
 
-  return rasterizeSvgMarkupToCanvas(svg, bounds.width, bounds.height)
+  return rasterizeSvgMarkupToCanvas(svg, outputWidth, outputHeight)
 }
 
 function clipCardRoundedRect(
   context: CanvasRenderingContext2D,
   layer: DraftingCanvasLayer,
   cardState: DraftingCardState,
+  renderScale = 1,
 ) {
   const cardRadii = resolveCornerRadii(cardState.cornerRadii, cardState.cornerRadius)
-  const clipPath = new Path2D(buildRoundedRectPath(layer.width, layer.height, cardRadii))
+  const scaledRadii = {
+    topLeft: cardRadii.topLeft * renderScale,
+    topRight: cardRadii.topRight * renderScale,
+    bottomRight: cardRadii.bottomRight * renderScale,
+    bottomLeft: cardRadii.bottomLeft * renderScale,
+  }
+  const clipPath = new Path2D(
+    buildRoundedRectPath(layer.width * renderScale, layer.height * renderScale, scaledRadii),
+  )
   context.clip(clipPath)
 }
 
@@ -191,23 +204,27 @@ function drawCanvasFace(
   cardState: DraftingCardState,
   bounds: { minX: number; minY: number },
   shaderBitmaps: Record<string, ImageBitmap>,
+  renderScale: number,
   cardImageBitmap?: ImageBitmap,
 ) {
   context.save()
-  applyLayerCanvasTransform(context, layer, bounds)
+  applyLayerCanvasTransform(context, layer, bounds, renderScale)
+
+  const layerWidth = layer.width * renderScale
+  const layerHeight = layer.height * renderScale
 
   if (layer.kind === "card" && cardState.styleMode === "image") {
     if (!cardImageBitmap) {
       throw new Error("Card image could not be captured for export.")
     }
 
-    clipCardRoundedRect(context, layer, cardState)
+    clipCardRoundedRect(context, layer, cardState, renderScale)
     context.globalAlpha *= cardState.cardImage.opacity / 100
     const fit = computeObjectFitRect(
       cardImageBitmap.width,
       cardImageBitmap.height,
-      layer.width,
-      layer.height,
+      layerWidth,
+      layerHeight,
       cardState.cardImage.fit,
     )
     context.drawImage(cardImageBitmap, fit.x, fit.y, fit.width, fit.height)
@@ -216,8 +233,8 @@ function drawCanvasFace(
   }
 
   if (layer.kind === "card" && cardState.styleMode === "solid" && isConicCssFill(cardState.fill)) {
-    clipCardRoundedRect(context, layer, cardState)
-    paintConicCssFill(context, cardState.fill, layer.width, layer.height)
+    clipCardRoundedRect(context, layer, cardState, renderScale)
+    paintConicCssFill(context, cardState.fill, layerWidth, layerHeight)
     context.restore()
     return
   }
@@ -229,10 +246,11 @@ function drawCanvasFace(
   }
 
   if (layer.kind === "card" && resolveCardShaderMode(cardState)) {
-    clipCardRoundedRect(context, layer, cardState)
+    clipCardRoundedRect(context, layer, cardState, renderScale)
   }
 
-  context.drawImage(bitmap, 0, 0, layer.width, layer.height)
+  context.imageSmoothingEnabled = renderScale !== 1
+  context.drawImage(bitmap, 0, 0, layerWidth, layerHeight)
   context.restore()
 }
 
@@ -283,6 +301,9 @@ export async function renderWorkspaceCompositorCanvas({
       : qrMarkup
 
     const artboardBounds = getArtboardExportBounds(cardLayer)
+    const outputWidth = targetDimensions?.width ?? artboardBounds.width
+    const outputHeight = targetDimensions?.height ?? artboardBounds.height
+    const renderScale = outputWidth / artboardBounds.width
     const visibleLayers = [...layers]
       .filter((layer) => layer.isVisible)
       .sort((a, b) => a.zIndex - b.zIndex)
@@ -291,8 +312,8 @@ export async function renderWorkspaceCompositorCanvas({
     const fontDefs = buildFontFaceDefs(collectFontRefsFromLayers(layers))
 
     const canvas = document.createElement("canvas")
-    canvas.width = artboardBounds.width
-    canvas.height = artboardBounds.height
+    canvas.width = outputWidth
+    canvas.height = outputHeight
     const context = canvas.getContext("2d")
 
     if (!context) {
@@ -317,6 +338,8 @@ export async function renderWorkspaceCompositorCanvas({
         fontDefs,
         layers: svgBatch,
         nodeId,
+        outputHeight,
+        outputWidth,
         qrMarkup: resolvedQrMarkup,
         state,
       })
@@ -335,6 +358,7 @@ export async function renderWorkspaceCompositorCanvas({
           cardState,
           artboardBounds,
           resolvedBitmaps,
+          renderScale,
           cardImageBitmap,
         )
         continue
@@ -345,35 +369,7 @@ export async function renderWorkspaceCompositorCanvas({
 
     await flushSvgBatch()
 
-    if (!targetDimensions) {
-      return canvas
-    }
-
-    const outputCanvas = document.createElement("canvas")
-    outputCanvas.width = targetDimensions.width
-    outputCanvas.height = targetDimensions.height
-    const outputContext = outputCanvas.getContext("2d")
-
-    if (!outputContext) {
-      throw new Error("Could not create scaled export canvas.")
-    }
-
-    if (backgroundColor && extension && extension !== "png") {
-      outputContext.fillStyle = cssFillToCanvasColor(backgroundColor)
-      outputContext.fillRect(0, 0, outputCanvas.width, outputCanvas.height)
-    }
-
-    const fit = computeLetterboxFit(
-      artboardBounds.width,
-      artboardBounds.height,
-      targetDimensions.width,
-      targetDimensions.height,
-    )
-
-    outputContext.imageSmoothingEnabled = true
-    outputContext.drawImage(canvas, fit.offsetX, fit.offsetY, fit.width, fit.height)
-
-    return outputCanvas
+    return canvas
   } finally {
     if (!shaderBitmaps) {
       for (const bitmap of uniqueBitmaps) {

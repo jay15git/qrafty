@@ -4,6 +4,7 @@ import {
   computeLetterboxFit,
   makeEvenDimension,
   resolveRasterTargetDimensions,
+  resolveScaledExportDimensions,
   resolveVideoOutputDimensions,
 } from "@/features/workspace/export/pipeline/bounds"
 
@@ -21,6 +22,13 @@ describe("export bounds", () => {
     expect(resolveRasterTargetDimensions(400, 800, 1080)).toEqual({
       width: 540,
       height: 1080,
+    })
+  })
+
+  it("clamps oversized scaled exports to the max dimension", () => {
+    expect(resolveScaledExportDimensions(1080, 1920, 4)).toEqual({
+      width: 2304,
+      height: 4096,
     })
   })
 
