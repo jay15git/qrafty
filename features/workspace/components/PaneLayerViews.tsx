@@ -26,7 +26,6 @@ import {
 } from "@/features/workspace/model/layers"
 import {
   getDraftingCardBorderStyle,
-  getDraftingLayerEffectStyle,
   getLayerPlacementStyle,
   getTextLayerStyle,
   getTextRunStyle,
@@ -44,8 +43,15 @@ import {
   DraftingShapeLayerContent,
 } from "@/features/workspace/rendering/shape-layer"
 import type { QrStudioState } from "@/features/qr-code/model/state"
+import { getDraftingQrLayerLayout } from "@/features/qr-code/rendering/svg-extension"
 import { useDraftingQrMarkup } from "@/features/workspace/hooks/use-drafting-qr-markup"
 import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
+import { usePreviewRuntime } from "@/features/workspace/preview/preview-context"
+import {
+  useDraftingLayerEffectStyle,
+  usePreviewShaderDisplaySize,
+} from "@/features/workspace/preview/use-preview-layer-effects"
+import { scaleNestedSvgMarkup } from "@/features/workspace/rendering/qr-artwork"
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
 import { cn } from "@/lib/utils"
 import type { ResizeDirection } from "@/features/workspace/components/pane-layer-geometry"
@@ -95,6 +101,9 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
   layer,
   nested = false,
 }: PaneDocumentCardLayerProps) {
+  const layerEffectStyle = useDraftingLayerEffectStyle(layer)
+  const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height)
+  const { isInteracting } = usePreviewRuntime()
   const cardImageStyle =
     (isImageMode || isImageFilterMode) && cardState.cardImage.value
       ? {
@@ -135,11 +144,13 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
         style={{
           ...surfaceStyle,
           ...getLayerPlacementStyle(layer, true),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
       >
         {isPaperShaderMode ? (
           <DraftingCardPaperShaderLayer
+            displayHeight={shaderDisplaySize.displayHeight}
+            displayWidth={shaderDisplaySize.displayWidth}
             layoutHeight={layer.height}
             layoutWidth={layer.width}
             paperShader={cardState.paperShader}
@@ -171,14 +182,15 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
       {...layerExportAttrs("card")}
       className={cn(
         "pointer-events-none absolute max-h-none max-w-none overflow-hidden",
-        isPaperShaderMode
-          ? "transition-[filter,border-radius] duration-150"
-          : "transition-[filter,background-color,border-radius] duration-150",
+        !isInteracting &&
+          (isPaperShaderMode
+            ? "transition-[filter,border-radius] duration-150"
+            : "transition-[filter,background-color,border-radius] duration-150"),
       )}
       style={{
         ...surfaceStyle,
         ...getLayerPlacementStyle(layer),
-        ...getDraftingLayerEffectStyle(layer),
+        ...layerEffectStyle,
       }}
     >
       <DraftingLayerTiltShell layer={layer}>
@@ -196,6 +208,8 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
         ) : null}
         {isPaperShaderMode ? (
           <DraftingCardPaperShaderLayer
+            displayHeight={shaderDisplaySize.displayHeight}
+            displayWidth={shaderDisplaySize.displayWidth}
             layoutHeight={layer.height}
             layoutWidth={layer.width}
             paperShader={cardState.paperShader}
@@ -203,6 +217,8 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
         ) : null}
         {isImageFilterMode ? (
           <DraftingCardPaperShaderLayer
+            displayHeight={shaderDisplaySize.displayHeight}
+            displayWidth={shaderDisplaySize.displayWidth}
             layoutHeight={layer.height}
             layoutWidth={layer.width}
             paperShader={imageFilterShader}
@@ -289,7 +305,18 @@ function PaneQrLayerSurface({
   layer: DraftingCanvasLayer
   qrState: QrStudioState
 }) {
+  const layout = useMemo(
+    () => getDraftingQrLayerLayout(layer.width, qrState, layer.height),
+    [layer.height, layer.width, qrState],
+  )
   const { markup } = useDraftingQrMarkup(qrState)
+  const displayMarkup = useMemo(() => {
+    if (!markup) {
+      return ""
+    }
+
+    return scaleNestedSvgMarkup(markup, layout.innerWidth, layout.innerHeight)
+  }, [layout.innerHeight, layout.innerWidth, markup])
   const shapeTiltPerspectiveStyle = getBackgroundShapeTiltPerspectiveStyle(
     qrState.backgroundShapeOptions,
   )
@@ -299,7 +326,7 @@ function PaneQrLayerSurface({
     <DraftingQrLayerContent
       canvasSvgMarkup={markup}
       layer={layer}
-      qrMarkup={markup ?? ""}
+      qrMarkup={displayMarkup}
       shapeTiltInnerStyle={shapeTiltInnerStyle}
       shapeTiltPerspectiveStyle={shapeTiltPerspectiveStyle}
       state={qrState}
@@ -338,6 +365,8 @@ export function PaneNestedLayerView({
   state,
 }: PaneNestedLayerViewProps) {
   const isLayerSelected = activeSelectedLayerIdSet.has(layer.id)
+  const layerEffectStyle = useDraftingLayerEffectStyle(layer)
+  const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height)
 
   if (layer.kind === "group") {
     return (
@@ -350,7 +379,7 @@ export function PaneNestedLayerView({
         className="absolute max-h-none max-w-none"
         style={{
           ...getLayerPlacementStyle(layer, true),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
       >
         {(layer.children ?? [])
@@ -389,7 +418,7 @@ export function PaneNestedLayerView({
         className="absolute max-h-none max-w-none"
         style={{
           ...getLayerPlacementStyle(layer, true),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
       >
         <PaneQrLayerSurface layer={layer} qrState={qrState} />
@@ -410,7 +439,7 @@ export function PaneNestedLayerView({
         className="absolute max-h-none max-w-none overflow-hidden"
         style={{
           ...getLayerPlacementStyle(layer, true),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
       >
         <div
@@ -435,7 +464,7 @@ export function PaneNestedLayerView({
         className="absolute max-h-none max-w-none overflow-hidden"
         style={{
           ...getLayerPlacementStyle(layer, true),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
       >
         <DraftingImageLayerContent layer={layer} />
@@ -455,7 +484,7 @@ export function PaneNestedLayerView({
         className="absolute max-h-none max-w-none overflow-visible"
         style={{
           ...getLayerPlacementStyle(layer, true),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
       >
         <DraftingShapeLayerContent layer={layer} />
@@ -478,10 +507,12 @@ export function PaneNestedLayerView({
         style={{
           ...getLayerPlacementStyle(layer, true),
           borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
       >
         <DraftingCardPaperShaderLayer
+          displayHeight={shaderDisplaySize.displayHeight}
+          displayWidth={shaderDisplaySize.displayWidth}
           layoutHeight={layer.height}
           layoutWidth={layer.width}
           paperShader={paperShader}
@@ -544,10 +575,22 @@ function arePaneLayerViewPropsEqual(
     previous.isImageFilterMode !== next.isImageFilterMode ||
     previous.isImageMode !== next.isImageMode ||
     previous.isPaperShaderMode !== next.isPaperShaderMode ||
-    previous.state !== next.state ||
     previous.textEditorRefs !== next.textEditorRefs
   ) {
     return false
+  }
+
+  if (previous.layer.kind === "qr" || next.layer.kind === "qr") {
+    if (previous.state !== next.state) {
+      return false
+    }
+
+    if (
+      previous.qrStateByLayerId[previous.layer.id] !==
+      next.qrStateByLayerId[next.layer.id]
+    ) {
+      return false
+    }
   }
 
   const wasSelected = previous.activeSelectedLayerIdSet.has(previous.layer.id)
@@ -565,9 +608,7 @@ function arePaneLayerViewPropsEqual(
     return false
   }
 
-  return (
-    previous.qrStateByLayerId[previous.layer.id] === next.qrStateByLayerId[next.layer.id]
-  )
+  return true
 }
 
 export const PaneLayerView = memo(function PaneLayerView({
@@ -596,6 +637,8 @@ export const PaneLayerView = memo(function PaneLayerView({
   textEditorRefs,
 }: PaneLayerViewProps) {
   const isLayerSelected = activeSelectedLayerIdSet.has(layer.id)
+  const layerEffectStyle = useDraftingLayerEffectStyle(layer)
+  const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height)
 
   if (layer.kind === "group") {
     return (
@@ -614,7 +657,7 @@ export const PaneLayerView = memo(function PaneLayerView({
         )}
         style={{
           ...getLayerPlacementStyle(layer),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
         onClick={(event) => onSelectLayerFromClick(event, layer)}
         onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
@@ -668,7 +711,7 @@ export const PaneLayerView = memo(function PaneLayerView({
         )}
         style={{
           ...getLayerPlacementStyle(layer),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
         onClick={(event) => onSelectLayerFromClick(event, layer, { qr: true })}
         onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
@@ -703,7 +746,7 @@ export const PaneLayerView = memo(function PaneLayerView({
         )}
         style={{
           ...getLayerPlacementStyle(layer),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
         onClick={(event) => onSelectLayerFromClick(event, layer)}
         onDoubleClick={(event) => onStartTextEditing(event, layer)}
@@ -766,7 +809,7 @@ export const PaneLayerView = memo(function PaneLayerView({
         style={{
           ...getLayerPlacementStyle(layer),
           borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
         onClick={(event) => onSelectLayerFromClick(event, layer)}
         onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
@@ -800,7 +843,7 @@ export const PaneLayerView = memo(function PaneLayerView({
         )}
         style={{
           ...getLayerPlacementStyle(layer),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
         onClick={(event) => onSelectLayerFromClick(event, layer)}
         onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
@@ -837,7 +880,7 @@ export const PaneLayerView = memo(function PaneLayerView({
         style={{
           ...getLayerPlacementStyle(layer),
           borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
-          ...getDraftingLayerEffectStyle(layer),
+          ...layerEffectStyle,
         }}
         onClick={(event) => onSelectLayerFromClick(event, layer)}
         onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
@@ -848,6 +891,8 @@ export const PaneLayerView = memo(function PaneLayerView({
       >
         <DraftingLayerTiltShell layer={layer}>
           <DraftingCardPaperShaderLayer
+            displayHeight={shaderDisplaySize.displayHeight}
+            displayWidth={shaderDisplaySize.displayWidth}
             layoutHeight={layer.height}
             layoutWidth={layer.width}
             paperShader={paperShader}

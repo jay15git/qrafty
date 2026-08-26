@@ -10,6 +10,7 @@ import {
 
 import { useControllableState } from "@/hooks/use-controllable-state"
 import { useTouchPrimary } from "@/hooks/use-touch-primary"
+import { previewSession } from "@/features/workspace/preview/preview-session"
 
 const CLICK_THRESHOLD = 3
 const DEAD_ZONE = 32
@@ -75,14 +76,47 @@ export function useElasticSlider({
   formatValue,
 }: UseElasticSliderOptions) {
   const isTouchPrimary = useTouchPrimary()
+  const shouldReduceMotion = useReducedMotion()
+  const onValueChangeRef = React.useRef(onValueChange)
+  const pendingExternalValueRef = React.useRef<number | null>(null)
+  const externalRafRef = React.useRef<number | null>(null)
+
+  onValueChangeRef.current = onValueChange
+
+  const flushExternalValue = React.useCallback(() => {
+    externalRafRef.current = null
+    const pending = pendingExternalValueRef.current
+    if (pending === null) {
+      return
+    }
+
+    pendingExternalValueRef.current = null
+    onValueChangeRef.current?.(pending)
+  }, [])
+
+  const isInteractingRef = React.useRef(false)
+
+  const batchedOnValueChange = React.useCallback(
+    (next: number) => {
+      if (!isInteractingRef.current) {
+        onValueChangeRef.current?.(next)
+        return
+      }
+
+      pendingExternalValueRef.current = next
+      if (externalRafRef.current === null) {
+        externalRafRef.current = requestAnimationFrame(flushExternalValue)
+      }
+    },
+    [flushExternalValue],
+  )
+
   const [value = min, setValue] = useControllableState({
     prop: valueProp,
     defaultProp: defaultValue ?? min,
-    onChange: onValueChange,
+    onChange: batchedOnValueChange,
     caller: "ElasticSlider",
   })
-
-  const shouldReduceMotion = useReducedMotion()
 
   const wrapperRef = React.useRef<HTMLDivElement>(null)
   const trackRef = React.useRef<HTMLDivElement>(null)
@@ -189,6 +223,8 @@ export function useElasticSlider({
     pointerDownPos.current = { x: e.clientX, y: e.clientY }
     isClickRef.current = true
     setIsInteracting(true)
+    isInteractingRef.current = true
+    previewSession.beginInteraction()
     pendingPointerFocusRef.current = true
     setKeyboardFocusRing(false)
 
@@ -274,10 +310,18 @@ export function useElasticSlider({
       }
 
       setIsInteracting(false)
+      isInteractingRef.current = false
       setIsDragging(false)
       pointerDownPos.current = null
+
+      if (externalRafRef.current !== null) {
+        cancelAnimationFrame(externalRafRef.current)
+        flushExternalValue()
+      }
+      previewSession.endInteraction()
     },
     [
+      flushExternalValue,
       isInteracting,
       positionToValue,
       percentFromValue,

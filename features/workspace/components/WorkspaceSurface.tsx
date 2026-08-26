@@ -1,7 +1,7 @@
 "use client"
 
 import { useLazyRef } from "@/hooks/use-lazy-ref"
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
+import { type ReactNode, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
 
 import type {
   QrErrorCorrectionLevel,
@@ -147,6 +147,7 @@ import {
   createIconstackIconGradientDataUrl,
 } from "@/features/qr-code/assets/iconstack-svg"
 import { useQrScanSafety } from "@/features/qr-code/hooks/useQrScanSafety"
+import { previewSession } from "@/features/workspace/preview/preview-session"
 import {
   createBrandIconDataUrl,
   createBrandIconGradientDataUrl,
@@ -1461,6 +1462,10 @@ export function WorkspaceSurface({
     }
 
     draftingWorkspaceHistoryTimerRef.current = window.setTimeout(() => {
+      if (previewSession.getIsInteracting()) {
+        return
+      }
+
       const snapshot = cloneDraftingWorkspaceDocument(draftingWorkspaceDocument)
       const serializedSnapshot = serializeDraftingWorkspaceDocument(snapshot)
       const currentIndex = draftingWorkspaceHistoryIndexRef.current
@@ -1750,6 +1755,10 @@ export function WorkspaceSurface({
     }
 
     draftingWorkspaceAutosaveTimerRef.current = window.setTimeout(() => {
+      if (previewSession.getIsInteracting()) {
+        return
+      }
+
       void writeDraftingWorkspaceDraft(draftingWorkspaceDocument)
     }, 240)
 
@@ -3344,9 +3353,16 @@ export function WorkspaceSurface({
     if (patch.videoLongEdge) setSelectedVideoLongEdge(patch.videoLongEdge)
   }
 
+  const isPreviewInteracting = useSyncExternalStore(
+    previewSession.subscribe,
+    previewSession.getIsInteracting,
+    () => false,
+  )
+
   const scanSafetyResult = useQrScanSafety(draftingStudioState, {
     cardFill: selectedCardState.fill,
     contentIsValid: selectedContentValidation.isValid,
+    enabled: !isPreviewInteracting,
   })
 
   const canRemoveQrCode =
@@ -3354,7 +3370,7 @@ export function WorkspaceSurface({
     qrCanvasLayers.length > 1 &&
     Boolean(selectedLayerId?.includes(":qr"))
 
-  const desktopController: DraftingWorkspaceController = {
+  const desktopController = useMemo<DraftingWorkspaceController>(() => ({
     activeTool: desktopActiveTool,
     canRedo: canRedoDraftingWorkspace,
     canUndo: canUndoDraftingWorkspace,
@@ -3572,7 +3588,50 @@ export function WorkspaceSurface({
     onShapeSettingsChange: updateDesktopShapeSettings,
     onTextReset: () => updateDesktopTextSettings({ ...DEFAULT_DRAFTING_TEXT_LAYER }),
     onTextSettingsChange: updateDesktopTextSettings,
-  }
+  }), [
+    activeQrNodeId,
+    appearanceTargetLayer,
+    backgroundInspectorTab,
+    canDownload,
+    canExportVideo,
+    canRedoDraftingWorkspace,
+    canRemoveQrCode,
+    canUndoDraftingWorkspace,
+    composeSidebarPanel,
+    desktopAccessibilitySettings,
+    desktopActiveTool,
+    desktopAppearanceSnapshot,
+    desktopBackgroundSettings,
+    desktopCanvasTool,
+    desktopCornersSettings,
+    desktopEffectsSettings,
+    desktopEncodingSettings,
+    desktopExportSettings,
+    desktopImageSettings,
+    desktopLayersSettings,
+    desktopLayoutSettings,
+    desktopLogoSettings,
+    desktopPatternSettings,
+    desktopSceneTemplateSettings,
+    desktopShapeSettings,
+    desktopSnapEnabled,
+    desktopTextSettings,
+    exportDownloadError,
+    exportInProgress,
+    exportProgressLabel,
+    paneToolbarVariant,
+    propertiesTransformLayer,
+    qrCanvasLayers.length,
+    scanSafetyResult,
+    selectedContentType,
+    selectedContentValidation,
+    selectedContentValue,
+    selectedContentValues,
+    selectedDotMatrixAnimation,
+    selectedElementLayer,
+    selectedLayerId,
+    selectedTransformLayer,
+  ])
 
   return (
     <section

@@ -77,6 +77,13 @@ import {
   type SnapGuides,
 } from "@/features/workspace/components/pane-layer-geometry"
 import { PaneSurfaceInteractive } from "@/features/workspace/components/pane-layer-a11y"
+import { useTouchPrimary } from "@/hooks/use-touch-primary"
+import { PreviewRuntimeProvider } from "@/features/workspace/preview/preview-context"
+import {
+  getPreviewCameraStyle,
+  getPreviewStageSize,
+  scalePreviewCornerRadiiState,
+} from "@/features/workspace/preview/preview-camera"
 
 export type PaneWorkspaceProps = {
   cardState?: DraftingCardState
@@ -186,6 +193,7 @@ export function PaneWorkspace({
   selectedLayerIds,
   theme = "dark",
 }: PaneWorkspaceProps) {
+  const preferLowPowerShaders = useTouchPrimary()
   const [hasError, setHasError] = useState(false)
   const [rotatingLayerId, setRotatingLayerId] = useState<string | null>(null)
   const [isLayerInteracting, setIsLayerInteracting] = useState(false)
@@ -364,6 +372,15 @@ export function PaneWorkspace({
   // Desktop compose zoom belongs to content layers. Keep card/background fixed.
   const artboardInteractionScale = contentOnlyZoom ? 1 : interactionScale
   const artboardScale = viewFitScale * artboardInteractionScale
+  const previewStageSize = getPreviewStageSize(cardState.width, cardState.height, artboardScale)
+  const previewCameraStyle = getPreviewCameraStyle(
+    cardState.width,
+    cardState.height,
+    artboardScale,
+  )
+  const previewStageBorderRadius = cornerRadiiToCss(
+    scalePreviewCornerRadiiState(cardState.cornerRadii, artboardScale),
+  )
   const contentTransformStyle: CSSProperties | undefined = contentOnlyZoom
     ? buildContentTransformStyle(contentPan, interactionScale)
     : undefined
@@ -1352,6 +1369,10 @@ export function PaneWorkspace({
   }
 
   return (
+    <PreviewRuntimeProvider
+      artboardScale={artboardScale}
+      preferLowPowerShaders={preferLowPowerShaders}
+    >
     <PaneSurfaceInteractive
       data-slot="qr-pane"
       data-selected={isSelected ? "true" : "false"}
@@ -1400,18 +1421,22 @@ export function PaneWorkspace({
           <>
             <div
               className="absolute left-1/2 top-1/2 overflow-hidden"
-              data-slot="desktop-compose-artboard"
+              data-slot="desktop-compose-artboard-stage"
               style={{
-                borderRadius: cornerRadiiToCss(cardState.cornerRadii),
-                height: cardState.height,
-                transform:
-                  artboardScale !== 1
-                    ? `translate(-50%, -50%) scale(${artboardScale})`
-                    : "translate(-50%, -50%)",
-                transformOrigin: "center center",
-                width: cardState.width,
+                borderRadius: previewStageBorderRadius,
+                height: previewStageSize.height,
+                transform: "translate(-50%, -50%)",
+                width: previewStageSize.width,
               }}
             >
+              <div
+                className="overflow-hidden"
+                data-slot="desktop-compose-artboard"
+                style={{
+                  ...previewCameraStyle,
+                  borderRadius: cornerRadiiToCss(cardState.cornerRadii),
+                }}
+              >
               {contentOnlyZoom ? (
                 <div className="relative h-full w-full" data-export-root>
                   {cardLayers.map((layer) => (
@@ -1445,6 +1470,7 @@ export function PaneWorkspace({
                 </SceneCompositionTransform>
               )}
             </div>
+            </div>
             {contextMenu && typeof document !== "undefined"
               ? createPortal(
                   <LayerContextMenu
@@ -1463,4 +1489,6 @@ export function PaneWorkspace({
         )}
       </PaneSurfaceInteractive>
     </PaneSurfaceInteractive>
-  )}
+    </PreviewRuntimeProvider>
+  )
+}

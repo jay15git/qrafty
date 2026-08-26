@@ -14,18 +14,22 @@ import {
 } from "react"
 
 import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
+import { getLivePaperShaderRenderOptions } from "@/features/workspace/preview/preview-shader-budget"
+import { acquireRunningShaderSlot } from "@/features/workspace/preview/preview-shader-slots"
+import { usePreviewRuntime } from "@/features/workspace/preview/preview-context"
 import { getPaperShaderDefinition } from "@/features/workspace/rendering/paper-shaders"
 import {
   hasValidPaperShaderLayout,
   readPaperShaderFallbackColor,
 } from "@/features/workspace/rendering/paper-shader-runtime"
 import {
-  LIVE_PAPER_SHADER_RENDER_OPTIONS,
   buildPaperShaderWorldSize,
   usePaperShaderWorldSize,
 } from "@new-qr/qr-internal/scene"
 
 type DraftingCardPaperShaderLayerProps = {
+  displayHeight?: number
+  displayWidth?: number
   layoutHeight?: number
   layoutWidth?: number
   paperShader: DraftingCardPaperShaderState
@@ -38,9 +42,12 @@ type DraftingCardPaperShaderRendererProps = {
   layoutWidth?: number
   mountGeneration: number
   onError: () => void
+  onPausedSnapshot: (dataUrl: string) => void
   onRecover: () => void
   paperShader: DraftingCardPaperShaderState
   renderOptions?: Record<string, unknown>
+  shouldAnimate: boolean
+  shouldSnapshotWhenPaused: boolean
   style: CSSProperties
 }
 
@@ -117,7 +124,6 @@ function buildDraftingPaperShaderRenderProps(
       : {}),
     speed: playbackSpeed,
     ...definition.renderOptions,
-    ...LIVE_PAPER_SHADER_RENDER_OPTIONS,
     ...renderOptions,
     ...(worldSize ?? {}),
   }
@@ -171,6 +177,32 @@ function usePaperShaderContextRecovery(
   }, [hostRef, onRecover])
 }
 
+function useShaderVisibility(hostRef: RefObject<HTMLDivElement | null>) {
+  const [isVisible, setIsVisible] = useState(true)
+
+  useEffect(() => {
+    const host = hostRef.current
+    if (!host || typeof IntersectionObserver === "undefined") {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry?.isIntersecting ?? true)
+      },
+      { threshold: 0.05 },
+    )
+
+    observer.observe(host)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [hostRef])
+
+  return isVisible
+}
+
 function DraftingCardPaperShaderRenderer({
   dataExportShader,
   dataSlot,
@@ -178,16 +210,22 @@ function DraftingCardPaperShaderRenderer({
   layoutWidth,
   mountGeneration,
   onError,
+  onPausedSnapshot,
   onRecover,
   paperShader,
   renderOptions,
+  shouldAnimate,
+  shouldSnapshotWhenPaused,
   style,
 }: DraftingCardPaperShaderRendererProps) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const definition = getPaperShaderDefinition(paperShader.shaderId)
   const ShaderComponent = definition.component
   const worldSize = usePaperShaderWorldSize(layoutWidth, layoutHeight)
-  const playbackSpeed = paperShader.paused ? 0 : paperShader.speed
+  const isVisible = useShaderVisibility(hostRef)
+  const releaseSlotRef = useRef<(() => void) | null>(null)
+  const snapshotCapturedRef = useRef(false)
+  const playbackSpeed = shouldAnimate && isVisible ? (paperShader.paused ? 0 : paperShader.speed) : 0
   const shaderProps = useMemo(
     () =>
       buildDraftingPaperShaderRenderProps(
@@ -201,12 +239,66 @@ function DraftingCardPaperShaderRenderer({
 
   usePaperShaderContextRecovery(hostRef, onRecover)
 
+  useEffect(() => {
+    if (!shouldAnimate) {
+      releaseSlotRef.current?.()
+      releaseSlotRef.current = null
+      return
+    }
+
+    const release = acquireRunningShaderSlot()
+    releaseSlotRef.current = release
+
+    return () => {
+      releaseSlotRef.current?.()
+      releaseSlotRef.current = null
+    }
+  }, [shouldAnimate])
+
+  useEffect(() => {
+    if (!shouldSnapshotWhenPaused || playbackSpeed !== 0 || snapshotCapturedRef.current) {
+      return
+    }
+
+    const host = hostRef.current
+    if (!host) {
+      return
+    }
+
+    const frame = requestAnimationFrame(() => {
+      const canvas = host.querySelector("canvas")
+      if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
+        return
+      }
+
+      try {
+        const dataUrl = canvas.toDataURL("image/png")
+        snapshotCapturedRef.current = true
+        onPausedSnapshot(dataUrl)
+      } catch {
+        // Canvas may be tainted or not ready yet.
+      }
+    })
+
+    return () => {
+      cancelAnimationFrame(frame)
+    }
+  }, [onPausedSnapshot, playbackSpeed, shouldSnapshotWhenPaused])
+
+  if (!shouldAnimate && releaseSlotRef.current === null) {
+    // Paused shaders on mobile may be replaced by snapshots in the parent.
+  }
+
   return (
     <PaperShaderErrorBoundary
       key={`${paperShader.shaderId}:${mountGeneration}`}
       onError={onError}
     >
-      <div ref={hostRef} data-shader-canvas-host-root="" style={style}>
+      <div
+        ref={hostRef}
+        data-shader-canvas-host-root=""
+        style={style}
+      >
         <ShaderComponent
           {...shaderProps}
           aria-hidden="true"
@@ -225,10 +317,13 @@ function DraftingCardPaperShaderRenderer({
 }
 
 export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShaderLayer({
+  displayHeight,
+  displayWidth,
   layoutHeight,
   layoutWidth,
   paperShader,
 }: DraftingCardPaperShaderLayerProps) {
+  const { preferLowPowerShaders } = usePreviewRuntime()
   const canRenderShader = useSyncExternalStore(
     subscribeToPaperShaderSupport,
     getPaperShaderSupportSnapshot,
@@ -237,15 +332,29 @@ export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShade
   const shaderMountKey = `${paperShader.shaderId}:${paperShader.presetName}`
   const [shaderErrorId, setShaderErrorId] = useState<string | null>(null)
   const [recoverEpoch, setRecoverEpoch] = useState(0)
+  const [pausedSnapshotUrl, setPausedSnapshotUrl] = useState<string | null>(null)
   const [prevShaderMountKey, setPrevShaderMountKey] = useState(shaderMountKey)
   if (shaderMountKey !== prevShaderMountKey) {
     setPrevShaderMountKey(shaderMountKey)
     setShaderErrorId(null)
     setRecoverEpoch(0)
+    setPausedSnapshotUrl(null)
   }
   const hasLayout = hasValidPaperShaderLayout(layoutWidth, layoutHeight)
   const hasShaderError = shaderErrorId === paperShader.shaderId
   const fallbackColor = readPaperShaderFallbackColor(paperShader)
+  const isPaused = paperShader.paused || paperShader.speed === 0
+  const shouldSnapshotWhenPaused = preferLowPowerShaders && isPaused
+  const shouldAnimate = !isPaused || !shouldSnapshotWhenPaused
+  const renderOptions = useMemo(
+    () =>
+      getLivePaperShaderRenderOptions({
+        displayHeight,
+        displayWidth,
+        preferLowPower: preferLowPowerShaders,
+      }),
+    [displayHeight, displayWidth, preferLowPowerShaders],
+  )
 
   if (!canRenderShader || !hasLayout) {
     return null
@@ -258,6 +367,28 @@ export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShade
         data-slot="desktop-compose-card-paper-shader-fallback"
         style={{
           backgroundColor: fallbackColor,
+          borderRadius: "inherit",
+          height: displayHeight ? "100%" : "100%",
+          inset: 0,
+          pointerEvents: "none",
+          position: "absolute",
+          width: displayWidth ? "100%" : "100%",
+          zIndex: 0,
+        }}
+      />
+    )
+  }
+
+  if (pausedSnapshotUrl && shouldSnapshotWhenPaused) {
+    return (
+      <div
+        aria-hidden="true"
+        data-slot="desktop-compose-card-paper-shader-snapshot"
+        style={{
+          backgroundImage: `url("${pausedSnapshotUrl}")`,
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
           borderRadius: "inherit",
           height: "100%",
           inset: 0,
@@ -279,11 +410,16 @@ export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShade
       layoutWidth={layoutWidth}
       mountGeneration={recoverEpoch}
       onError={() => setShaderErrorId(paperShader.shaderId)}
+      onPausedSnapshot={setPausedSnapshotUrl}
       onRecover={() => {
         setShaderErrorId(null)
         setRecoverEpoch((current) => current + 1)
+        setPausedSnapshotUrl(null)
       }}
       paperShader={paperShader}
+      renderOptions={renderOptions}
+      shouldAnimate={shouldAnimate}
+      shouldSnapshotWhenPaused={shouldSnapshotWhenPaused}
       style={{
         borderRadius: "inherit",
         height: "100%",
@@ -298,4 +434,6 @@ export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShade
 }, (previous, next) =>
   previous.paperShader === next.paperShader &&
   previous.layoutWidth === next.layoutWidth &&
-  previous.layoutHeight === next.layoutHeight)
+  previous.layoutHeight === next.layoutHeight &&
+  previous.displayWidth === next.displayWidth &&
+  previous.displayHeight === next.displayHeight)

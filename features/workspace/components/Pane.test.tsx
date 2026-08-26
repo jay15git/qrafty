@@ -4,7 +4,7 @@ import { act } from "react"
 import { createRoot } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-const buildDashboardQrNodePayloadSpy = vi.fn()
+const buildDraftingQrStudioMarkupSpy = vi.fn()
 
 vi.mock("@/features/qr-code/components/DotMatrixAnimatedQr", () => ({
   DotMatrixAnimatedQr: ({
@@ -19,14 +19,18 @@ vi.mock("@/features/qr-code/components/DotMatrixAnimatedQr", () => ({
   ),
 }))
 
-vi.mock("@/features/qr-code/rendering/qr-svg", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/features/qr-code/rendering/qr-svg")>()
+vi.mock("@/features/qr-code/rendering/qr-studio-markup", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/features/qr-code/rendering/qr-studio-markup")>()
 
   return {
     ...actual,
-    buildDashboardQrNodePayload: (
-      ...args: Parameters<typeof buildDashboardQrNodePayloadSpy>
-    ) => buildDashboardQrNodePayloadSpy(...args),
+    buildDraftingQrStudioMarkup: (
+      ...args: Parameters<typeof buildDraftingQrStudioMarkupSpy>
+    ) => buildDraftingQrStudioMarkupSpy(...args),
+    buildDraftingQrStudioPreviewMarkup: (
+      ...args: Parameters<typeof buildDraftingQrStudioMarkupSpy>
+    ) => buildDraftingQrStudioMarkupSpy(...args[0], args[1], args[2]),
   }
 })
 
@@ -74,12 +78,10 @@ const TEST_CANVAS_CARD_STATE: DraftingCardState = {
 
 beforeEach(() => {
   clearDraftingQrMarkupCache()
-  buildDashboardQrNodePayloadSpy.mockReset()
-  buildDashboardQrNodePayloadSpy.mockImplementation(async (state) => ({
-    markup: `<svg data-width="${state.width}" data-height="${state.height}" />`,
-    naturalHeight: state.height,
-    naturalWidth: state.width,
-  }))
+  buildDraftingQrStudioMarkupSpy.mockReset()
+  buildDraftingQrStudioMarkupSpy.mockImplementation((state) => {
+    return `<svg data-width="${state.width}" data-height="${state.height}" />`
+  })
   HTMLElement.prototype.setPointerCapture = vi.fn()
   vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
     callback(0)
@@ -109,7 +111,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalledTimes(1)
+    expect(buildDraftingQrStudioMarkupSpy).toHaveBeenCalledTimes(1)
     expect(container.querySelector('[data-slot="desktop-compose-node"]')).not.toBeNull()
 
     await act(async () => {
@@ -127,7 +129,7 @@ describe("Pane", () => {
       await flushPromises()
     })
 
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalledTimes(1)
+    expect(buildDraftingQrStudioMarkupSpy).toHaveBeenCalledTimes(1)
 
     await act(async () => {
       reactRoot.render(
@@ -144,7 +146,7 @@ describe("Pane", () => {
       await flushPromises()
     })
 
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalledTimes(2)
+    expect(buildDraftingQrStudioMarkupSpy).toHaveBeenCalledTimes(2)
   })
 
   it("renders card canvas background from card state only", async () => {
@@ -282,12 +284,10 @@ describe("Pane", () => {
   })
 
   it("renders selected qr backing shapes as a qr-layer background without changing the card", async () => {
-    buildDashboardQrNodePayloadSpy.mockImplementationOnce(async () => ({
-      markup:
+    buildDraftingQrStudioMarkupSpy.mockImplementationOnce(
+      () =>
         '<svg width="240" height="240" viewBox="0 0 240 240"><defs><filter data-qr-layer="background-shape-blur-filter" id="background-shape-blur-filter"/></defs><path data-qr-layer="background-shape-blur" d="M0 0h240v240H0z"/><path data-qr-layer="background-shape" d="M0 0h240v240H0z"/><rect width="240" height="240" clip-path="url(\'#clip-path-background-color-0\')" fill="#fff"/><path data-qr-layer="dot" d="M20 20h40v40H20z" fill="#111"/></svg>',
-      naturalHeight: 240,
-      naturalWidth: 240,
-    }))
+    )
     const state = setSquareQrSize(createDefaultQrStudioState(), 240)
     state.backgroundShapeId = "flower"
     state.backgroundShapeOptions = {
@@ -333,7 +333,7 @@ describe("Pane", () => {
     expect(qrComponent).not.toBeNull()
     expect(qrComponent?.querySelector("svg")).not.toBeNull()
     expect(container.querySelector('[data-slot="new-qr-code"]')).toBeNull()
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalledWith(
+    expect(buildDraftingQrStudioMarkupSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         backgroundGradient: expect.objectContaining({ enabled: false }),
         backgroundImage: {
@@ -1389,12 +1389,10 @@ describe("Pane", () => {
   })
 
   it("applies qr layer shadow to foreground qr shapes instead of the background rect", async () => {
-    buildDashboardQrNodePayloadSpy.mockImplementationOnce(async () => ({
-      markup:
+    buildDraftingQrStudioMarkupSpy.mockImplementationOnce(
+      () =>
         '<svg width="240" height="240" viewBox="0 0 240 240"><defs><clipPath id="clip-path-background-color-0"><rect x="0" y="0" width="240" height="240"/></clipPath><clipPath id="clip-path-dot-color-0"><path d="M0 0h10v10z"/></clipPath></defs><rect x="0" y="0" width="240" height="240" clip-path="url(\'#clip-path-background-color-0\')" fill="#f8fafc"/><rect x="20" y="20" width="200" height="200" clip-path="url(\'#clip-path-dot-color-0\')" fill="#111827"/></svg>',
-      naturalHeight: 240,
-      naturalWidth: 240,
-    }))
+    )
     const qrLayer = {
       blur: 0,
       height: 240,
@@ -1741,11 +1739,7 @@ describe("Pane", () => {
     const baseState = setSquareQrSize(createDefaultQrStudioState(), 240)
     const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(baseState))
 
-    buildDashboardQrNodePayloadSpy.mockResolvedValue({
-      markup: canvasMarkup,
-      naturalHeight: baseState.height,
-      naturalWidth: baseState.width,
-    })
+    buildDraftingQrStudioMarkupSpy.mockReturnValue(canvasMarkup)
 
     const motionState = setDotMatrixAnimationOptions(baseState, {
       enabled: true,
@@ -1756,7 +1750,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalledTimes(1)
+    expect(buildDraftingQrStudioMarkupSpy).toHaveBeenCalledTimes(1)
 
     const animatedPreview = container.querySelector('[data-testid="dot-matrix-animated-qr"]')
 
@@ -1780,7 +1774,7 @@ describe("Pane", () => {
       await flushPromises()
     })
 
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalledTimes(2)
+    expect(buildDraftingQrStudioMarkupSpy).toHaveBeenCalledTimes(2)
   })
 })
 

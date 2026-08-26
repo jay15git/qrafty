@@ -2,6 +2,7 @@ import type { CSSProperties } from "react"
 import Image from "next/image"
 
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import { usePreviewRuntime } from "@/features/workspace/preview/preview-context"
 import {
   buildRoundedRectPath,
   cornerRadiiToCss,
@@ -188,9 +189,11 @@ export function DraftingShapeLayerContent({ layer }: { layer: DraftingCanvasLaye
 }
 
 export function DraftingImageLayerContent({ layer }: { layer: DraftingCanvasLayer }) {
+  const { artboardScale } = usePreviewRuntime()
   const imageValue = layer.imageValue
   const cornerStyle = cornerRadiiToCss(resolveLayerCornerRadii(layer, 0))
   const fit = layer.imageFit ?? "cover"
+  const previewWidth = Math.max(1, Math.round(layer.width * artboardScale))
 
   if (!imageValue) {
     return (
@@ -219,7 +222,7 @@ export function DraftingImageLayerContent({ layer }: { layer: DraftingCanvasLaye
         className="h-full w-full"
         draggable={false}
         fill
-        sizes="(max-width: 768px) 100vw, 320px"
+        sizes={`${previewWidth}px`}
         src={imageValue}
         style={{
           borderRadius: cornerStyle,

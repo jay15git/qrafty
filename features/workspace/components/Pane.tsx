@@ -16,7 +16,6 @@ export const Pane = memo(function Pane(props: PaneProps) {
 (previousProps, nextProps) =>
   previousProps.cardState === nextProps.cardState &&
   previousProps.sceneComposition === nextProps.sceneComposition &&
-  previousProps.state === nextProps.state &&
   previousProps.isSelected === nextProps.isSelected &&
   previousProps.viewFitScale === nextProps.viewFitScale &&
   previousProps.contentPan?.x === nextProps.contentPan?.x &&

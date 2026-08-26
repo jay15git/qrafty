@@ -1,11 +1,10 @@
 "use client"
 
-import { memo, useMemo, type CSSProperties } from "react"
+import { memo, type CSSProperties } from "react"
 
 import { DotMatrixAnimatedQr } from "@/features/qr-code/components/DotMatrixAnimatedQr"
 import { shouldUseDotMatrixMotionPreview } from "@/features/qr-code/motion/dot-matrix-bridge"
 import type { QrStudioState } from "@/features/qr-code/model/state"
-import { buildDraftingQrStudioPreviewMarkup } from "@/features/qr-code/rendering/drafting-qr-preview"
 import {
   getDraftingQrDomPlacementStyle,
   getDraftingQrLayerLayout,
@@ -33,10 +32,6 @@ export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({
   const layout = getDraftingQrLayerLayout(layer.width, state, layer.height)
   const qrPlacementStyle = getDraftingQrDomPlacementStyle(layout)
   const useAnimatedQr = shouldUseDotMatrixMotionPreview(state) && Boolean(canvasSvgMarkup)
-  const qrSvgMarkup = useMemo(
-    () => buildDraftingQrStudioPreviewMarkup(state, layout.innerWidth, layout.innerHeight),
-    [layout.innerHeight, layout.innerWidth, state],
-  )
 
   if (useAnimatedQr) {
     return (
@@ -70,7 +65,7 @@ export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({
             ...qrPlacementStyle,
             transformStyle: shapeTiltInnerStyle.transformStyle,
           }}
-          {...(qrSvgMarkup ? { dangerouslySetInnerHTML: { __html: qrSvgMarkup } } : {})}
+          {...(qrMarkup ? { dangerouslySetInnerHTML: { __html: qrMarkup } } : {})}
         />
       </div>
     </div>

@@ -3,11 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 
 import type { QrStudioState } from "@/features/qr-code/model/state"
-import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg"
-import {
-  createDraftingQrArtworkState,
-  sanitizeDraftingQrArtworkMarkup,
-} from "@/features/workspace/rendering/qr-artwork"
+import { buildDraftingQrStudioMarkup } from "@/features/qr-code/rendering/qr-studio-markup"
+import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-artwork"
 
 const markupCache = new Map<string, string>()
 
@@ -32,19 +29,23 @@ export function useDraftingQrMarkup(state: QrStudioState) {
       return
     }
 
-    void buildDashboardQrNodePayload(qrArtworkState)
-      .then((payload) => {
-        if (requestRef.current !== requestId) return
-        const nextMarkup = sanitizeDraftingQrArtworkMarkup(payload.markup)
-        markupCache.set(stateCacheKey, nextMarkup)
-        setMarkup(nextMarkup)
-        setHasError(false)
-      })
-      .catch(() => {
-        if (requestRef.current !== requestId) return
-        setMarkup(null)
-        setHasError(true)
-      })
+    try {
+      const nextMarkup = buildDraftingQrStudioMarkup(qrArtworkState)
+      if (requestRef.current !== requestId) {
+        return
+      }
+
+      markupCache.set(stateCacheKey, nextMarkup)
+      setMarkup(nextMarkup)
+      setHasError(false)
+    } catch {
+      if (requestRef.current !== requestId) {
+        return
+      }
+
+      setMarkup(null)
+      setHasError(true)
+    }
   }, [qrArtworkState, stateCacheKey])
 
   return { hasError, isLoading: markup === null && !hasError, markup }

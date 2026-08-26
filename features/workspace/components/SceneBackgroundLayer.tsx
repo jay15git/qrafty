@@ -4,6 +4,7 @@ import type { CSSProperties } from "react"
 
 import { DraftingCardPaperShaderLayer } from "@/features/workspace/components/CardPaperShaderLayer"
 import type { SceneBackground, SceneLayoutPreset } from "@/features/workspace/model/scene-templates"
+import { usePreviewShaderDisplaySize } from "@/features/workspace/preview/use-preview-layer-effects"
 import {
   createScenePaperShaderState,
   getSceneBackgroundStyle,
@@ -28,6 +29,7 @@ function SceneBackgroundLayer({
 }: SceneBackgroundLayerProps) {
   const backgroundStyle = getSceneBackgroundStyle(background)
   const layoutStyle = layout ? getSceneLayoutTransformStyle(layout) : undefined
+  const shaderDisplaySize = usePreviewShaderDisplaySize(width, height)
 
   return (
     <div
@@ -44,6 +46,8 @@ function SceneBackgroundLayer({
     >
       {background.kind === "paper-shader" ? (
         <DraftingCardPaperShaderLayer
+          displayHeight={shaderDisplaySize.displayHeight}
+          displayWidth={shaderDisplaySize.displayWidth}
           layoutHeight={height}
           layoutWidth={width}
           paperShader={createScenePaperShaderState(background.shaderId)}

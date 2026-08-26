@@ -5,6 +5,11 @@ import { renderToStaticMarkup } from "react-dom/server.browser"
 import { toReactQrCodeProps } from "@/features/qr-code/adapters/react-qr-adapter"
 import { type QrStudioState } from "@/features/qr-code/model/state"
 import {
+  getQrEncodeCacheKey,
+  readCachedQrEncodeMarkup,
+  writeCachedQrEncodeMarkup,
+} from "@/features/qr-code/rendering/qr-encode-cache"
+import {
   applyStudioQrSvgMarkupExtensions,
   buildDashboardQrNodePayloadFromBaseMarkup,
   createDashboardSurfaceQrState,
@@ -13,10 +18,19 @@ import {
 
 function renderReactQrBaseMarkup(state: QrStudioState) {
   const dashboardState = createDashboardSurfaceQrState(state)
+  const cacheKey = getQrEncodeCacheKey(dashboardState)
+  const cached = readCachedQrEncodeMarkup(cacheKey)
 
-  return stripXmlDeclaration(
+  if (cached) {
+    return cached
+  }
+
+  const markup = stripXmlDeclaration(
     renderToStaticMarkup(createElement(ReactQRCode, toReactQrCodeProps(dashboardState))),
   )
+  writeCachedQrEncodeMarkup(cacheKey, markup)
+
+  return markup
 }
 
 export async function buildDashboardQrNodePayload(state: QrStudioState) {
