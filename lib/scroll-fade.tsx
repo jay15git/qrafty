@@ -8,6 +8,8 @@ import {
 } from "react";
 import { useSurface } from "@/lib/surface-context";
 
+import "./scroll-fade.css";
+
 // ---------------------------------------------------------------------------
 // Scroll-edge primitives
 //
@@ -229,11 +231,12 @@ export function ScrollEdgeCue({
       }
     >
       <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: `linear-gradient(${dir}, transparent 0%, color-mix(in srgb, ${fadeColor} 16%, transparent) 38%, color-mix(in srgb, ${fadeColor} 42%, transparent) 64%, color-mix(in srgb, ${fadeColor} 72%, transparent) 86%, ${fadeColor} 100%)`,
-        }}
+        className="scroll-edge-cue-gradient"
+        style={
+          {
+            "--scroll-edge-cue-direction": dir,
+          } as CSSProperties
+        }
       />
       {chevron && (
         <svg

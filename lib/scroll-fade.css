@@ -1,0 +1,22 @@
+.scroll-edge-cue-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    var(--scroll-edge-cue-direction, to bottom),
+    transparent 0%,
+    var(--scroll-edge-fade-color, var(--surface-1)) 100%
+  );
+}
+
+@supports (background: color-mix(in srgb, #000 50%, #fff)) {
+  .scroll-edge-cue-gradient {
+    background: linear-gradient(
+      var(--scroll-edge-cue-direction, to bottom),
+      transparent 0%,
+      color-mix(in srgb, var(--scroll-edge-fade-color, var(--surface-1)) 16%, transparent) 38%,
+      color-mix(in srgb, var(--scroll-edge-fade-color, var(--surface-1)) 42%, transparent) 64%,
+      color-mix(in srgb, var(--scroll-edge-fade-color, var(--surface-1)) 72%, transparent) 86%,
+      var(--scroll-edge-fade-color, var(--surface-1)) 100%
+    );
+  }
+}

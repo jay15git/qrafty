@@ -5,8 +5,7 @@ import { useSearchParams } from "next/navigation"
 
 import { DesktopWorkspace } from "@/features/desktop-shell/components/DesktopWorkspace"
 import type { DesktopThemeMode, DesktopToolbarToolId } from "@/features/desktop-shell/components/FloatingToolbar"
-
-const DESKTOP_THEME_KEY = "new-qr:studio-theme"
+import { DESKTOP_THEME_STORAGE_KEY } from "@/features/desktop-shell/hooks/use-desktop-workspace-theme-sync"
 
 type DesktopPageClientProps = {
   fontClassName: string
@@ -23,7 +22,7 @@ export function DesktopPageClient({ fontClassName }: DesktopPageClientProps) {
     if (typeof window === "undefined") return "dark"
 
     try {
-      return window.localStorage.getItem(DESKTOP_THEME_KEY) === "light" ? "light" : "dark"
+      return window.localStorage.getItem(DESKTOP_THEME_STORAGE_KEY) === "light" ? "light" : "dark"
     } catch {
       return "dark"
     }

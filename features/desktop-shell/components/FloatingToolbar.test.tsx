@@ -297,6 +297,29 @@ describe("FloatingToolbar", () => {
     ).toBe("true")
   })
 
+  it("uses workspace chrome tokens for mobile undo/redo when the root theme disagrees", async () => {
+    document.documentElement.classList.remove("dark")
+    document.documentElement.classList.add("light")
+    stubMatchMedia(true)
+
+    const surface = await renderPrototype({ theme: "dark" })
+    const undo = surface.container.querySelector('[data-slot="mobile-workspace-top-bar"] button[aria-label="Undo"]')
+
+    expect(undo).not.toBeNull()
+    expect(undo?.className).toContain("text-[var(--desktop-glass-fg)]")
+    expect(undo?.className).not.toContain("text-foreground")
+  })
+
+  it("renders scroll fade cues inside the mobile drawer scroll areas", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+
+    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
+    const scrollFadeGradients = drawerRoot?.querySelectorAll(".scroll-edge-cue-gradient") ?? []
+
+    expect(scrollFadeGradients.length).toBeGreaterThan(0)
+  })
+
   it("opens the QR section from the mobile family drawer menu", async () => {
     stubMatchMedia(true)
     await renderPrototype()
@@ -349,11 +372,16 @@ describe("FloatingToolbar", () => {
 
 async function renderPrototype({
   controller,
+  theme = "dark",
 }: {
   controller?: Partial<NonNullable<ComponentProps<typeof FloatingToolbar>>["controller"]>
+  theme?: "light" | "dark"
 } = {}) {
   return renderWithAsyncJsdomRoot(
-    <FloatingToolbar controller={controller as NonNullable<ComponentProps<typeof FloatingToolbar>>["controller"]} />,
+    <FloatingToolbar
+      controller={controller as NonNullable<ComponentProps<typeof FloatingToolbar>>["controller"]}
+      theme={theme}
+    />,
   )
 }
 

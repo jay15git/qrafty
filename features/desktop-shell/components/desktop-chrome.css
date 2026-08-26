@@ -523,6 +523,11 @@ body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]
   --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
 }
 
+[data-slot="mobile-family-drawer-root"] [data-slot="scroll-area"] {
+  --scroll-edge-fade-color: var(--dn-bg);
+  --scroll-edge-chevron-color: var(--dn-muted);
+}
+
 
 
 body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"] [data-slot="elastic-slider"] {

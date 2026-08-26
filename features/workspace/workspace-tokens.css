@@ -2,6 +2,14 @@
 
 [data-slot="desktop-workspace"] {
   --ws-ink-rgb: 15 23 42;
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.18 0 0);
+  --border: oklch(0.9 0 0 / 0.9);
+  --accent: oklch(0.94 0 0);
+  --accent-foreground: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --scroll-edge-fade-color: var(--ws-page-bg);
+  --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
   --ws-paper-rgb: 255 255 255;
   --ws-page-bg: #ffffff;
   --ws-surface-bg: #f0f1f2;
@@ -85,6 +93,14 @@
 
 [data-slot="desktop-workspace"][data-desktop-theme="dark"] {
   --ws-ink-rgb: 245 245 245;
+  --background: oklch(0.15 0 0);
+  --foreground: oklch(0.96 0 0);
+  --border: oklch(0.33 0 0 / 0.75);
+  --accent: oklch(0.25 0 0);
+  --accent-foreground: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.72 0 0);
+  --scroll-edge-fade-color: var(--ws-page-bg);
+  --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
   --ws-paper-rgb: 7 8 10;
   --ws-page-bg: #07080a;
   --ws-surface-bg: #1f1f1f;

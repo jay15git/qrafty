@@ -50,11 +50,11 @@ export function MobileWorkspaceTopBar({
       className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-2.5 pt-[max(0.625rem,env(safe-area-inset-top,0px))]"
       data-slot="mobile-workspace-top-bar"
     >
-      <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-border/60 bg-background/90 p-1 shadow-sm backdrop-blur-md">
+      <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-[var(--desktop-glass-border)] bg-[var(--desktop-glass-bg)] p-1 text-[var(--desktop-glass-fg)] shadow-sm backdrop-blur-md">
         <button
           aria-label="Undo"
           className={cn(
-            "flex size-9 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent disabled:opacity-40",
+            "flex size-9 items-center justify-center rounded-full text-[var(--desktop-glass-fg)] transition-colors hover:bg-[var(--desktop-glass-button-hover-bg)] hover:text-[var(--desktop-glass-button-hover-fg)] disabled:opacity-40",
           )}
           disabled={!controller?.canUndo || !controller?.onUndo}
           type="button"
@@ -65,7 +65,7 @@ export function MobileWorkspaceTopBar({
         <button
           aria-label="Redo"
           className={cn(
-            "flex size-9 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent disabled:opacity-40",
+            "flex size-9 items-center justify-center rounded-full text-[var(--desktop-glass-fg)] transition-colors hover:bg-[var(--desktop-glass-button-hover-bg)] hover:text-[var(--desktop-glass-button-hover-fg)] disabled:opacity-40",
           )}
           disabled={!controller?.canRedo || !controller?.onRedo}
           type="button"
