@@ -232,35 +232,32 @@ function FamilyDrawerContent({
       ? "fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-h-[min(70dvh,32rem)] overflow-hidden rounded-t-[28px] bg-background outline-none pb-[env(safe-area-inset-bottom,0px)]"
       : "fixed bottom-[max(1rem,env(safe-area-inset-bottom,0px))] z-30 overflow-hidden rounded-[36px] bg-background outline-none"
 
-  const resizeHeightStyle =
-    bounds.height > 0 ? { height: bounds.height } : undefined
-
-  const animated = (
-    <div
-      className="t-resize overflow-hidden"
-      style={resizeHeightStyle}
+  const content = (
+    <m.div
+      animate={{
+        height: bounds.height,
+        transition: {
+          duration: 0.27,
+          ease: [0.25, 1, 0.5, 1],
+        },
+      }}
     >
+      <Drawer.Title className="sr-only">{dialogTitle}</Drawer.Title>
       {children}
-    </div>
-  )
-
-  const accessibilityLabel = (
-    <Drawer.Title className="sr-only">{dialogTitle}</Drawer.Title>
+    </m.div>
   )
 
   if (asChild) {
     return (
       <Drawer.Content asChild className={cn(variantClass, className)} {...rest}>
-        {accessibilityLabel}
-        {animated}
+        <Slot>{content}</Slot>
       </Drawer.Content>
     )
   }
 
   return (
-    <Drawer.Content className={cn(variantClass, className)} {...rest}>
-      {accessibilityLabel}
-      {animated}
+    <Drawer.Content asChild className={cn(variantClass, className)} {...rest}>
+      {content}
     </Drawer.Content>
   )
 }
@@ -280,7 +277,7 @@ function FamilyDrawerAnimatedWrapper({
   return (
     <div
       ref={elementRef}
-      className={cn("relative px-6 pb-6 pt-2.5 antialiased", className)}
+      className={cn("px-6 pb-6 pt-2.5 antialiased", className)}
       {...rest}
     >
       {children}
@@ -289,33 +286,31 @@ function FamilyDrawerAnimatedWrapper({
 }
 
 interface FamilyDrawerAnimatedContentProps {
-  children: ReactNode
+  children?: ReactNode
+  views?: ViewsRegistry
 }
 
-function FamilyDrawerAnimatedContent({ children }: FamilyDrawerAnimatedContentProps) {
+function FamilyDrawerAnimatedContent({
+  children,
+  views: propViews,
+}: FamilyDrawerAnimatedContentProps) {
   const { view, opacityDuration } = useFamilyDrawer()
 
   return (
-    <AnimatePresence initial={false}>
+    <AnimatePresence custom={view} initial={false} mode="popLayout">
       <m.div
         key={view}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="w-full"
-        exit={{
-          left: 0,
-          opacity: 0,
-          position: "absolute",
-          right: 0,
-          scale: 0.96,
-          top: 0,
-        }}
+        exit={{ opacity: 0, scale: 0.96 }}
         initial={{ opacity: 0, scale: 0.96 }}
         transition={{
           duration: opacityDuration,
           ease: [0.26, 0.08, 0.25, 1],
         }}
       >
-        {children}
+        {children ?? (
+          <FamilyDrawerViewContent viewName={view} views={propViews} />
+        )}
       </m.div>
     </AnimatePresence>
   )
@@ -450,12 +445,17 @@ function FamilyDrawerSecondaryButton({
 
 interface FamilyDrawerViewContentProps {
   views?: ViewsRegistry
+  /** Pin a view for exit animations; defaults to the active drawer view. */
+  viewName?: string
 }
 
 function FamilyDrawerViewContent({
   views: propViews,
+  viewName: propViewName,
 }: FamilyDrawerViewContentProps = {} as FamilyDrawerViewContentProps) {
-  const { view, views: contextViews } = useFamilyDrawer()
+  const { view: contextView, views: contextViews } = useFamilyDrawer()
+  const frozenViewRef = useRef(propViewName ?? contextView)
+  const view = propViewName ?? frozenViewRef.current
 
   const views = propViews || contextViews
 
