@@ -4,6 +4,7 @@
   --desktop-settings-toolbar-corner-radius: 0px;
   --desktop-top-chrome-right: 0.75rem;
   --desktop-compose-rail-width: 4.5rem;
+  --desktop-mobile-drawer-height: 12rem;
   --desktop-workspace-canvas-inset-top: 0px;
   --desktop-workspace-canvas-inset-right: 0px;
   --desktop-workspace-canvas-inset-bottom: 0px;
@@ -47,7 +48,7 @@
   overflow: visible;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   [data-slot="desktop-dynamic-island-anchor"] {
     left: 50%;
     top: 0.75rem;
@@ -57,11 +58,36 @@
   [data-slot="desktop-workspace"],
   [data-slot="desktop-floating-toolbar-root"] {
     --desktop-settings-toolbar-chrome-gap: 0.625rem;
+    --desktop-settings-toolbar-width: 0px;
     --desktop-top-chrome-right: 0.625rem;
-    --desktop-workspace-canvas-inset-top: 0px;
+    --desktop-workspace-canvas-inset-top: calc(3.25rem + env(safe-area-inset-top, 0px));
     --desktop-workspace-canvas-inset-right: 0px;
-    --desktop-workspace-canvas-inset-bottom: 0px;
-    --desktop-workspace-canvas-inset-left: calc(0.625rem + var(--desktop-settings-toolbar-width));
+    --desktop-workspace-canvas-inset-bottom: var(--desktop-mobile-drawer-height);
+    --desktop-workspace-canvas-inset-left: 0px;
+  }
+
+  [data-slot="desktop-workspace"][data-mobile-workspace="true"],
+  [data-slot="desktop-floating-toolbar-root"][data-mobile-workspace="true"] {
+    --desktop-settings-toolbar-width: 0px;
+    --desktop-workspace-canvas-inset-left: 0px;
+  }
+
+  [data-slot="desktop-dynamic-island-anchor"],
+  [data-slot="desktop-utility-toolbar-anchor"] {
+    display: none;
+  }
+
+  [data-slot="desktop-settings-toolbar-anchor"],
+  [data-slot="desktop-left-toolbar-shell"] {
+    display: none;
+  }
+
+  [data-slot="mobile-workspace-top-bar"] {
+    pointer-events: none;
+  }
+
+  [data-slot="mobile-family-drawer"] {
+    pointer-events: auto;
   }
 }
 

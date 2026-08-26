@@ -7,6 +7,8 @@ import { DesktopExportDownloadPopover } from "@/features/desktop-shell/component
 import {
   DesktopUtilityToolbar,
 } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
+import { MobileFamilyDrawer } from "@/features/desktop-shell/components/MobileFamilyDrawer"
+import { MobileWorkspaceTopBar } from "@/features/desktop-shell/components/MobileWorkspaceTopBar"
 import { DESKTOP_UTILITY_TOOLBAR_SHELL_CLASS } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
 import { DesktopNewFloatingInspector } from "@/features/desktop-shell/inspector/DesktopNewFloatingInspector"
 import { useDesktopToolbarInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
@@ -47,6 +49,7 @@ export type {
 export type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 export { useDesktopToolbarInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 
+import { DESKTOP_WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/hooks/use-media-query"
 import { cn } from "@/lib/utils"
 
 export function FloatingToolbar({
@@ -63,66 +66,79 @@ export function FloatingToolbar({
     actualActiveTool,
     actualDesktopTheme,
   } = model
+  const isMobileWorkspace = useMediaQuery(DESKTOP_WORKSPACE_MOBILE_QUERY)
 
   return (
       <section
         aria-label="Desktop workspace prototype"
         data-desktop-theme={actualDesktopTheme}
+        data-mobile-workspace={isMobileWorkspace ? "true" : "false"}
         data-slot="desktop-floating-toolbar-root"
         className={cn(
           "relative min-h-dvh overflow-hidden transition-colors duration-200",
           actualDesktopTheme === "light" ? "bg-[#f4f6f9]" : "bg-[#07080a]",
         )}
         >
-        <div
-          data-slot="desktop-dynamic-island-anchor"
-        >
-          <div
-            className={cn(
-              DESKTOP_UTILITY_TOOLBAR_SHELL_CLASS,
-              "pointer-events-auto",
-            )}
-            data-slot="desktop-dynamic-island"
-            data-toolbar-appearance="desktop-glass"
-          >
-            <DesktopDynamicIslandChrome
-              appearance={controller?.appearanceSnapshot}
-              appearanceLayer={controller?.selectedAppearanceLayer}
-              activeCanvasTool={controller?.canvasTool}
-              activePaneId={controller?.insertNodeId}
-              canRedo={controller?.canRedo}
-              canUndo={controller?.canUndo}
-              onCanvasToolChange={controller?.onCanvasToolChange}
-              onElementLayerPatch={controller?.onElementLayerPatch}
-              onAppearancePatch={controller?.onAppearancePatch}
-              onRedo={controller?.onRedo}
-              onSelectSizeTemplate={controller?.onSceneTemplateSizeTemplateSelect}
-              onSnapEnabledChange={controller?.onSnapEnabledChange}
-              onThemeChange={model.onDesktopThemeChange}
-              onTransformLayerPatch={controller?.onTransformLayerPatch}
-              onUndo={controller?.onUndo}
-              selectedElementLayer={controller?.selectedElementLayer}
-              selectedTransformLayer={controller?.selectedTransformLayer}
-              snapEnabled={controller?.snapEnabled}
-              sizePresetId={controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId}
+        {isMobileWorkspace ? (
+          <>
+            <MobileWorkspaceTopBar
+              controller={controller}
+              model={model}
               theme={actualDesktopTheme}
             />
-          </div>
-        </div>
-        <div data-slot="desktop-utility-toolbar-anchor">
-          <DesktopUtilityToolbar
-            data-slot="desktop-utility-toolbar"
-            className="pointer-events-auto gap-0 p-0"
-          >
-            <DesktopExportDownloadPopover model={model} theme={actualDesktopTheme} />
-          </DesktopUtilityToolbar>
-        </div>
-        <DesktopSettingsToolbarShell
-          showInspector
-          inspector={
-            <DesktopNewFloatingInspector activeTool={actualActiveTool} model={model} />
-          }
-        />
+            <MobileFamilyDrawer model={model} />
+          </>
+        ) : (
+          <>
+            <div data-slot="desktop-dynamic-island-anchor">
+              <div
+                className={cn(
+                  DESKTOP_UTILITY_TOOLBAR_SHELL_CLASS,
+                  "pointer-events-auto",
+                )}
+                data-slot="desktop-dynamic-island"
+                data-toolbar-appearance="desktop-glass"
+              >
+                <DesktopDynamicIslandChrome
+                  appearance={controller?.appearanceSnapshot}
+                  appearanceLayer={controller?.selectedAppearanceLayer}
+                  activeCanvasTool={controller?.canvasTool}
+                  activePaneId={controller?.insertNodeId}
+                  canRedo={controller?.canRedo}
+                  canUndo={controller?.canUndo}
+                  onCanvasToolChange={controller?.onCanvasToolChange}
+                  onElementLayerPatch={controller?.onElementLayerPatch}
+                  onAppearancePatch={controller?.onAppearancePatch}
+                  onRedo={controller?.onRedo}
+                  onSelectSizeTemplate={controller?.onSceneTemplateSizeTemplateSelect}
+                  onSnapEnabledChange={controller?.onSnapEnabledChange}
+                  onThemeChange={model.onDesktopThemeChange}
+                  onTransformLayerPatch={controller?.onTransformLayerPatch}
+                  onUndo={controller?.onUndo}
+                  selectedElementLayer={controller?.selectedElementLayer}
+                  selectedTransformLayer={controller?.selectedTransformLayer}
+                  snapEnabled={controller?.snapEnabled}
+                  sizePresetId={controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId}
+                  theme={actualDesktopTheme}
+                />
+              </div>
+            </div>
+            <div data-slot="desktop-utility-toolbar-anchor">
+              <DesktopUtilityToolbar
+                data-slot="desktop-utility-toolbar"
+                className="pointer-events-auto gap-0 p-0"
+              >
+                <DesktopExportDownloadPopover model={model} theme={actualDesktopTheme} />
+              </DesktopUtilityToolbar>
+            </div>
+            <DesktopSettingsToolbarShell
+              showInspector
+              inspector={
+                <DesktopNewFloatingInspector activeTool={actualActiveTool} model={model} />
+              }
+            />
+          </>
+        )}
       </section>
   )
 }

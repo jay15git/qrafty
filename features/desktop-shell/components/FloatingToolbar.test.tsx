@@ -16,21 +16,7 @@ const NODE_ID = "test-node"
 
 beforeEach(() => {
   sessionStorage.clear()
-
-  Object.defineProperty(window, "matchMedia", {
-    configurable: true,
-    writable: true,
-    value: vi.fn().mockImplementation((query: string) => ({
-      addEventListener: vi.fn(),
-      addListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-      matches: false,
-      media: query,
-      onchange: null,
-      removeEventListener: vi.fn(),
-      removeListener: vi.fn(),
-    })),
-  })
+  stubMatchMedia(false)
 
   class MockResizeObserver {
     observe() {}
@@ -196,7 +182,9 @@ describe("FloatingToolbar", () => {
     expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").textContent?.trim()).toBe(
       "Download",
     )
-    expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").className).toContain("bg-white")
+    expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").className).toContain(
+      "bg-[var(--desktop-glass-bg)]",
+    )
     expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
 
@@ -286,6 +274,40 @@ describe("FloatingToolbar", () => {
 
     expect(surface.container.querySelector('[data-slot="desktop-scan-safety-trigger"]')).toBeNull()
   })
+
+  it("renders the mobile family drawer instead of the left settings rail", async () => {
+    stubMatchMedia(true)
+    const surface = await renderPrototype()
+
+    expect(document.querySelector('[data-slot="mobile-family-drawer"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="mobile-workspace-top-bar"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-left-toolbar-shell"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-dynamic-island-anchor"]')).toBeNull()
+    expect(
+      surface.container.querySelector('[data-slot="desktop-floating-toolbar-root"]')?.getAttribute(
+        "data-mobile-workspace",
+      ),
+    ).toBe("true")
+  })
+
+  it("opens the QR section from the mobile family drawer menu", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+
+    const drawer = document.querySelector('[data-slot="mobile-family-drawer"]')
+    const qrButton = Array.from(drawer?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
+      (button) => button.textContent?.trim() === "QR",
+    )
+
+    expect(qrButton).not.toBeNull()
+
+    await act(async () => {
+      qrButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(drawer?.querySelector("h2")?.textContent?.trim()).toBe("QR")
+  })
 })
 
 async function renderPrototype({
@@ -347,4 +369,21 @@ function getRequiredButton(container: HTMLElement, label: string) {
   }
 
   return button
+}
+
+function stubMatchMedia(matches: boolean) {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      addEventListener: vi.fn(),
+      addListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+      matches,
+      media: query,
+      onchange: null,
+      removeEventListener: vi.fn(),
+      removeListener: vi.fn(),
+    })),
+  })
 }
