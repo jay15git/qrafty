@@ -185,7 +185,9 @@
   touch-action: pan-y;
 }
 
-[data-mobile-inspector][data-slot="scroll-area"] > [data-slot="scroll-area-viewport"] > div {
+[data-mobile-inspector][data-slot="scroll-area"]:not([data-orientation="horizontal"])
+  > [data-slot="scroll-area-viewport"]
+  > [data-slot="scroll-area-inner"] {
   display: flex !important;
   flex-direction: column;
   min-width: 0 !important;

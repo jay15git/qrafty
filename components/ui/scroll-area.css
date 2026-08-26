@@ -8,7 +8,7 @@
   max-width: 100%;
 }
 
-[data-slot="scroll-area"][data-orientation="horizontal"] [data-slot="scroll-area-viewport"] > div {
+[data-slot="scroll-area"][data-orientation="horizontal"] [data-slot="scroll-area-inner"] {
   display: block !important;
   width: max-content;
   min-width: 100%;

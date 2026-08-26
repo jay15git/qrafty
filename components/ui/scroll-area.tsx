@@ -149,7 +149,7 @@ const ScrollArea = forwardRef<
           )}
           {...(orientation === "vertical" ? {} : { tabIndex: 0 })}
         >
-          {children}
+          <div data-slot="scroll-area-inner">{children}</div>
         </div>
         {cues}
       </div>
@@ -173,7 +173,7 @@ const ScrollArea = forwardRef<
             viewportClassName,
           )}
         >
-          {children}
+          <div data-slot="scroll-area-inner">{children}</div>
         </ScrollAreaPrimitive.Viewport>
         {cues}
         {orientation !== "horizontal" && <ScrollBar orientation="vertical" />}
