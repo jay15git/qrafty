@@ -84,6 +84,7 @@ export function ElasticSliderTrack({
       data-active={isActive}
       data-dragging={isDragging}
       data-focus-visible={keyboardFocusRing}
+      data-vaul-no-drag=""
       aria-label={ariaLabel ?? label}
       aria-orientation="horizontal"
       aria-valuemin={min}

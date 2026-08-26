@@ -174,3 +174,16 @@
   height: auto;
   border-radius: 16px;
 }
+
+[data-mobile-inspector] [data-slot="scroll-area"] {
+  min-width: 0;
+}
+
+[data-mobile-inspector] [data-slot="scroll-area-viewport"] {
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+
+[data-mobile-inspector] [data-slot="elastic-slider-track"] {
+  touch-action: pan-x;
+}

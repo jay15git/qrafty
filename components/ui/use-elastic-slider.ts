@@ -9,6 +9,7 @@ import {
 } from "motion/react"
 
 import { useControllableState } from "@/hooks/use-controllable-state"
+import { useTouchPrimary } from "@/hooks/use-touch-primary"
 
 const CLICK_THRESHOLD = 3
 const DEAD_ZONE = 32
@@ -73,6 +74,7 @@ export function useElasticSlider({
   step,
   formatValue,
 }: UseElasticSliderOptions) {
+  const isTouchPrimary = useTouchPrimary()
   const [value = min, setValue] = useControllableState({
     prop: valueProp,
     defaultProp: defaultValue ?? min,
@@ -380,13 +382,19 @@ export function useElasticSlider({
   }, [label, displayValue])
 
   const valueDodge = percentage < dodge.left || percentage > dodge.right
-  const handleOpacity = !isActive
-    ? 0
-    : valueDodge
-      ? 0.1
-      : isDragging
-        ? 0.8
+  const handleOpacity = isTouchPrimary
+    ? isDragging
+      ? 0.85
+      : valueDodge
+        ? 0.35
         : 0.5
+    : !isActive
+      ? 0
+      : valueDodge
+        ? 0.1
+        : isDragging
+          ? 0.8
+          : 0.5
 
   const discreteSteps = (max - min) / step
   const hashMarkCount = discreteSteps <= 10 ? discreteSteps - 1 : 9

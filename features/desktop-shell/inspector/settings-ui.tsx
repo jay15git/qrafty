@@ -6,6 +6,9 @@ import {
   useContext,
   useLayoutEffect,
   useRef,
+  cloneElement,
+  isValidElement,
+  type ReactElement,
   type ReactNode,
 } from "react"
 
@@ -34,6 +37,7 @@ import {
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
+import { useMobileDrawerNavigation } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
 import { cn } from "@/lib/utils"
@@ -72,6 +76,37 @@ function useDesktopnewTheme() {
 
 function desktopnewPortalClass(theme: "light" | "dark", className?: string) {
   return cn(className, theme === "dark" && "dark")
+}
+
+function mergeMobileDetailChildClose(
+  children: ReactNode,
+  onClose: () => void,
+): ReactNode {
+  if (!isValidElement(children)) {
+    return children
+  }
+
+  const childProps = children.props as {
+    onAfterSelect?: () => void
+    onClose?: () => void
+  }
+
+  return cloneElement(
+    children as ReactElement<{
+      onAfterSelect?: () => void
+      onClose?: () => void
+    }>,
+    {
+      onAfterSelect: () => {
+        childProps.onAfterSelect?.()
+        onClose()
+      },
+      onClose: () => {
+        childProps.onClose?.()
+        onClose()
+      },
+    },
+  )
 }
 
 export function SettingsPanelShell({
@@ -295,6 +330,30 @@ export function SettingsTabPanel({
   children: ReactNode
 }) {
   const reduceMotion = useReducedMotion()
+  const mobileDensity = useMobileInspectorDensity()
+  const useReducedTabTransition = mobileDensity || reduceMotion
+
+  if (useReducedTabTransition) {
+    return (
+      <div className="relative w-full min-w-0 overflow-hidden">
+        <AnimatePresence mode="wait" initial={false}>
+          <m.div
+            key={activeKey}
+            className={cn(
+              "dn-settings-tab-panel flex w-full min-w-0 flex-col gap-2.5",
+              className,
+            )}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.16, ease: TAB_PANEL_EASE_ENTER }}
+          >
+            {children}
+          </m.div>
+        </AnimatePresence>
+      </div>
+    )
+  }
 
   return (
     <div className="relative w-full min-w-0 overflow-hidden">
@@ -361,6 +420,57 @@ export function SettingsFillPopover({
 }) {
   const theme = useDesktopnewTheme()
   const mobileDensity = useMobileInspectorDensity()
+  const mobileNav = useMobileDrawerNavigation()
+
+  const pickerBody = (
+    <>
+      {title ? (
+        <p className="dn-type-meta mb-2">{title}</p>
+      ) : null}
+      <DesktopNewFillPicker
+        moduleImage={moduleImage}
+        modulePattern={modulePattern}
+        qrGradient={qrGradient}
+        solidOnly={solidOnly}
+        value={value}
+        onValueChange={onValueChange}
+      />
+    </>
+  )
+
+  if (mobileDensity && mobileNav) {
+    const detailTitle = title ?? hint
+
+    const openDetail = () => {
+      mobileNav.openDetail({
+        title: detailTitle,
+        content: pickerBody,
+      })
+    }
+
+    if (variant === "swatch") {
+      return (
+        <FillSwatchButton
+          ariaLabel={hint}
+          className={triggerClassName}
+          fill={value}
+          imageUrl={fillPreviewImageUrl}
+          data-vaul-no-drag=""
+          onClick={openDetail}
+        />
+      )
+    }
+
+    return (
+      <ColorRowButton
+        fill={value}
+        hint={hint}
+        imageUrl={fillPreviewImageUrl}
+        data-vaul-no-drag=""
+        onClick={openDetail}
+      />
+    )
+  }
 
   return (
     <Popover>
@@ -383,17 +493,7 @@ export function SettingsFillPopover({
         sideOffset={10}
         collisionPadding={collisionPadding}
       >
-        {title ? (
-          <p className="dn-type-meta mb-2">{title}</p>
-        ) : null}
-        <DesktopNewFillPicker
-          moduleImage={moduleImage}
-          modulePattern={modulePattern}
-          qrGradient={qrGradient}
-          solidOnly={solidOnly}
-          value={value}
-          onValueChange={onValueChange}
-        />
+        {pickerBody}
       </PopoverContent>
     </Popover>
   )
@@ -428,27 +528,67 @@ export function SettingsRowPopover({
 }) {
   const theme = useDesktopnewTheme()
   const mobileDensity = useMobileInspectorDensity()
+  const mobileNav = useMobileDrawerNavigation()
+
+  const rowTrigger = (
+    <>
+      {leading ? (
+        <span className="flex min-w-0 items-center gap-2">
+          {leading}
+          <span className={cn("truncate", DN_LABEL)}>{trigger}</span>
+        </span>
+      ) : (
+        <span className={cn("truncate", DN_VALUE)}>{trigger}</span>
+      )}
+      {hideHint ? (
+        <ChevronRight aria-hidden className={cn("size-3 shrink-0 opacity-50", DN_HINT)} />
+      ) : (
+        <span className={cn("flex shrink-0 items-center gap-1", DN_HINT)}>
+          {hint}
+          <ChevronRight aria-hidden className="size-3 opacity-50" />
+        </span>
+      )}
+    </>
+  )
+
+  if (mobileDensity && mobileNav) {
+    const closeDetail = () => {
+      mobileNav.closeDetail()
+      onOpenChange?.(false)
+    }
+
+    const openDetail = () => {
+      const detailTitle =
+        title ??
+        (typeof trigger === "string" ? trigger : undefined) ??
+        hint ??
+        "Setting"
+
+      mobileNav.openDetail({
+        title: detailTitle,
+        content: (
+          <>
+            {title ? <p className="dn-popover-heading">{title}</p> : null}
+            {mergeMobileDetailChildClose(children, closeDetail)}
+          </>
+        ),
+        onAfterClose: () => onOpenChange?.(false),
+      })
+      onOpenChange?.(true)
+    }
+
+    return (
+      <SettingsRowButton data-vaul-no-drag="" type="button" onClick={openDetail}>
+        {rowTrigger}
+      </SettingsRowButton>
+    )
+  }
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <SettingsRowButton>
-          {leading ? (
-            <span className="flex min-w-0 items-center gap-2">
-              {leading}
-              <span className={cn("truncate", DN_LABEL)}>{trigger}</span>
-            </span>
-          ) : (
-            <span className={cn("truncate", DN_VALUE)}>{trigger}</span>
-          )}
-          {hideHint ? (
-            <ChevronRight aria-hidden className={cn("size-3 shrink-0 opacity-50", DN_HINT)} />
-          ) : (
-            <span className={cn("flex shrink-0 items-center gap-1", DN_HINT)}>
-              {hint}
-              <ChevronRight aria-hidden className="size-3 opacity-50" />
-            </span>
-          )}
+          {rowTrigger}
         </SettingsRowButton>
       </PopoverTrigger>
       <PopoverContent

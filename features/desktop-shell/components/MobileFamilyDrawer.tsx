@@ -1,6 +1,12 @@
 "use client"
 
-import { createContext, useContext, useEffect, type ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  type ReactNode,
+} from "react"
 
 import {
   FamilyDrawerAnimatedContent,
@@ -14,6 +20,7 @@ import {
   useFamilyDrawer,
   type ViewsRegistry,
 } from "@/components/ui/family-drawer"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { DesktopElementInspector } from "@/features/desktop-shell/components/DesktopElementInspector"
 import { DesktopPexelsPhotoInspector } from "@/features/desktop-shell/components/DesktopPexelsPhotoInspector"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
@@ -28,6 +35,10 @@ import { SettingsSectionBody } from "@/features/desktop-shell/inspector/desktopn
 import {
   MobileInspectorDensityContext,
 } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
+import {
+  MobileDrawerNavigationProvider,
+  useMobileDrawerNavigation,
+} from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
 import { cn } from "@/lib/utils"
 
@@ -35,6 +46,7 @@ import "@/features/desktop-shell/inspector/desktopnew.css"
 import "@/features/desktop-shell/inspector/mobile-inspector.css"
 
 const MOBILE_DRAWER_BOTTOM_GAP_PX = 16
+const HEIGHT_SYNC_THRESHOLD_PX = 8
 
 const MobileInspectorContext = createContext<DesktopInspectorModel | null>(null)
 
@@ -63,13 +75,32 @@ function syncMobileDrawerHeight(height: number) {
 
 function MobileDrawerHeightSync() {
   const { bounds } = useFamilyDrawer()
+  const lastSyncedHeightRef = useRef(0)
+  const rafRef = useRef<number | null>(null)
 
   useEffect(() => {
-    syncMobileDrawerHeight(bounds.height)
+    const nextHeight = bounds.height
+    const delta = Math.abs(nextHeight - lastSyncedHeightRef.current)
+    if (delta < HEIGHT_SYNC_THRESHOLD_PX && lastSyncedHeightRef.current > 0) {
+      return
+    }
+
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current)
+    }
+
+    rafRef.current = requestAnimationFrame(() => {
+      lastSyncedHeightRef.current = nextHeight
+      syncMobileDrawerHeight(nextHeight)
+      rafRef.current = null
+    })
   }, [bounds.height])
 
   useEffect(() => {
     return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current)
+      }
       syncMobileDrawerHeight(0)
     }
   }, [])
@@ -129,13 +160,23 @@ function MobileNestedHeader({
 }
 
 function MobileInspectorScroll({ children }: { children: ReactNode }) {
+  const scrollKeyRef = useRef(0)
+  const { view } = useFamilyDrawer()
+
+  useEffect(() => {
+    scrollKeyRef.current += 1
+  }, [view])
+
   return (
-    <div
-      className="max-h-[min(52dvh,24rem)] overflow-y-auto overflow-x-hidden"
+    <ScrollArea
+      key={view}
+      className="max-h-[min(52dvh,24rem)] w-full min-w-0"
       data-mobile-inspector=""
+      scrollFade
+      viewportClassName="overscroll-y-contain"
     >
       {children}
-    </div>
+    </ScrollArea>
   )
 }
 
@@ -153,6 +194,30 @@ function MobileSectionView({ section }: { section: DesktopSettingsSectionId }) {
       </DesktopnewThemeContext.Provider>
     </div>
   )
+}
+
+function MobileContentSectionView() {
+  return <MobileSectionView section="Content" />
+}
+
+function MobileQrSectionView() {
+  return <MobileSectionView section="QR" />
+}
+
+function MobileMotionSectionView() {
+  return <MobileSectionView section="Motion" />
+}
+
+function MobileShapeSectionView() {
+  return <MobileSectionView section="Shape" />
+}
+
+function MobileBackgroundSectionView() {
+  return <MobileSectionView section="Background" />
+}
+
+function MobileElementsSectionView() {
+  return <MobileSectionView section="Elements" />
 }
 
 function MobileMenuView() {
@@ -244,18 +309,38 @@ function MobileStockPhotosView() {
   )
 }
 
-function createMobileViews(): ViewsRegistry {
-  return {
-    default: MobileMenuView,
-    content: () => <MobileSectionView section="Content" />,
-    qr: () => <MobileSectionView section="QR" />,
-    motion: () => <MobileSectionView section="Motion" />,
-    shape: () => <MobileSectionView section="Shape" />,
-    background: () => <MobileSectionView section="Background" />,
-    elements: () => <MobileSectionView section="Elements" />,
-    element: MobileElementView,
-    "stock-photos": MobileStockPhotosView,
+function MobileSettingDetailView() {
+  const model = useMobileInspectorModel()
+  const navigation = useMobileDrawerNavigation()
+  const payload = navigation?.detailPayload
+
+  if (!payload) {
+    return null
   }
+
+  return (
+    <div className="desktopnew-root w-full min-w-0" data-theme={model.actualDesktopTheme}>
+      <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
+        <MobileNestedHeader title={payload.title} onClose={() => navigation?.closeDetail()} />
+        <MobileInspectorScroll>
+          <div className="dn-portal-surface w-full min-w-0">{payload.content}</div>
+        </MobileInspectorScroll>
+      </DesktopnewThemeContext.Provider>
+    </div>
+  )
+}
+
+const MOBILE_VIEWS: ViewsRegistry = {
+  default: MobileMenuView,
+  content: MobileContentSectionView,
+  qr: MobileQrSectionView,
+  motion: MobileMotionSectionView,
+  shape: MobileShapeSectionView,
+  background: MobileBackgroundSectionView,
+  elements: MobileElementsSectionView,
+  element: MobileElementView,
+  "stock-photos": MobileStockPhotosView,
+  "setting-detail": MobileSettingDetailView,
 }
 
 function MobileDrawerViewRouter({ model }: { model: DesktopInspectorModel }) {
@@ -271,6 +356,60 @@ function MobileDrawerViewRouter({ model }: { model: DesktopInspectorModel }) {
   return null
 }
 
+function MobileFamilyDrawerChrome({
+  className,
+  theme,
+}: {
+  className?: string
+  theme: "light" | "dark"
+}) {
+  const { view } = useFamilyDrawer()
+  const navigation = useMobileDrawerNavigation()
+  const accessibilityTitle =
+    view === "setting-detail" ? navigation?.detailPayload?.title : undefined
+
+  return (
+    <FamilyDrawerPortal>
+      <FamilyDrawerContent
+        accessibilityTitle={accessibilityTitle}
+        className={cn(
+          "desktopnew-root shadow-[var(--dn-popover-shadow)]",
+          className,
+        )}
+        data-desktop-theme={theme}
+        data-slot="mobile-family-drawer-root"
+        data-theme={theme}
+        variant="card"
+      >
+        <MobileDrawerHeightSync />
+        <FamilyDrawerAnimatedWrapper className="px-5 pb-5 pt-4">
+          <FamilyDrawerAnimatedContent>
+            <FamilyDrawerViewContent />
+          </FamilyDrawerAnimatedContent>
+        </FamilyDrawerAnimatedWrapper>
+      </FamilyDrawerContent>
+    </FamilyDrawerPortal>
+  )
+}
+
+function MobileFamilyDrawerShell({
+  className,
+  model,
+}: {
+  className?: string
+  model: DesktopInspectorModel
+}) {
+  const { view, setView } = useFamilyDrawer()
+  const theme = model.actualDesktopTheme
+
+  return (
+    <MobileDrawerNavigationProvider currentView={view} setView={setView}>
+      <MobileDrawerViewRouter model={model} />
+      <MobileFamilyDrawerChrome className={className} theme={theme} />
+    </MobileDrawerNavigationProvider>
+  )
+}
+
 export function MobileFamilyDrawer({
   className,
   model,
@@ -278,39 +417,18 @@ export function MobileFamilyDrawer({
   className?: string
   model: DesktopInspectorModel
 }) {
-  const views = createMobileViews()
-  const theme = model.actualDesktopTheme
-
   return (
     <MobileInspectorContext.Provider value={model}>
       <MobileInspectorDensityContext.Provider value={true}>
         <FamilyDrawerRoot
           dismissible={false}
           defaultOpen
+          layoutAnimation="reduced"
           modal={false}
           open
-          views={views}
+          views={MOBILE_VIEWS}
         >
-          <MobileDrawerViewRouter model={model} />
-          <FamilyDrawerPortal>
-            <FamilyDrawerContent
-              className={cn(
-                "desktopnew-root shadow-[var(--dn-popover-shadow)]",
-                className,
-              )}
-              data-desktop-theme={theme}
-              data-slot="mobile-family-drawer-root"
-              data-theme={theme}
-              variant="card"
-            >
-              <MobileDrawerHeightSync />
-              <FamilyDrawerAnimatedWrapper className="px-5 pb-5 pt-4">
-                <FamilyDrawerAnimatedContent>
-                  <FamilyDrawerViewContent />
-                </FamilyDrawerAnimatedContent>
-              </FamilyDrawerAnimatedWrapper>
-            </FamilyDrawerContent>
-          </FamilyDrawerPortal>
+          <MobileFamilyDrawerShell className={className} model={model} />
         </FamilyDrawerRoot>
       </MobileInspectorDensityContext.Provider>
     </MobileInspectorContext.Provider>

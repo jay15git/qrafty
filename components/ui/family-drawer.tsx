@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useMemo,
   useRef,
@@ -21,6 +22,8 @@ interface ViewsRegistry {
   [viewName: string]: ViewComponent
 }
 
+export type FamilyDrawerLayoutAnimation = "full" | "reduced"
+
 interface FamilyDrawerContextValue {
   isOpen: boolean
   view: string
@@ -29,6 +32,7 @@ interface FamilyDrawerContextValue {
   elementRef: ReturnType<typeof useMeasure>[0]
   bounds: ReturnType<typeof useMeasure>[1]
   views: ViewsRegistry | undefined
+  layoutAnimation: FamilyDrawerLayoutAnimation
 }
 
 const FamilyDrawerContext = createContext<FamilyDrawerContextValue | undefined>(undefined)
@@ -51,6 +55,8 @@ interface FamilyDrawerRootProps {
   views?: ViewsRegistry
   modal?: boolean
   dismissible?: boolean
+  /** Reduced skips height layout animation and uses lighter view transitions. */
+  layoutAnimation?: FamilyDrawerLayoutAnimation
 }
 
 function FamilyDrawerRoot({
@@ -63,6 +69,7 @@ function FamilyDrawerRoot({
   views: customViews,
   modal = true,
   dismissible = true,
+  layoutAnimation = "full",
 }: FamilyDrawerRootProps) {
   const [internalOpen, setInternalOpen] = useState(defaultOpen)
   const [view, setView] = useState(defaultView)
@@ -90,23 +97,39 @@ function FamilyDrawerRoot({
     return Math.min(Math.max(heightDifference / 500, MIN_DURATION), MAX_DURATION)
   }, [bounds.height])
 
-  const handleViewChange = (newView: string) => {
-    setView(newView)
-    onViewChange?.(newView)
-  }
+  const handleViewChange = useCallback(
+    (newView: string) => {
+      setView(newView)
+      onViewChange?.(newView)
+    },
+    [onViewChange],
+  )
 
   const views =
     customViews && Object.keys(customViews).length > 0 ? customViews : undefined
 
-  const contextValue: FamilyDrawerContextValue = {
-    isOpen,
-    view,
-    setView: handleViewChange,
-    opacityDuration,
-    elementRef,
-    bounds,
-    views,
-  }
+  const contextValue: FamilyDrawerContextValue = useMemo(
+    () => ({
+      isOpen,
+      view,
+      setView: handleViewChange,
+      opacityDuration,
+      elementRef,
+      bounds,
+      views,
+      layoutAnimation,
+    }),
+    [
+      isOpen,
+      view,
+      handleViewChange,
+      opacityDuration,
+      elementRef,
+      bounds,
+      views,
+      layoutAnimation,
+    ],
+  )
 
   return (
     <FamilyDrawerContext.Provider value={contextValue}>
@@ -186,6 +209,7 @@ const DEFAULT_VIEW_ACCESSIBILITY_TITLES: Record<string, string> = {
   elements: "Elements",
   element: "Layer style",
   "stock-photos": "Stock photos",
+  "setting-detail": "Setting",
 }
 
 type FamilyDrawerContentProps = {
@@ -205,18 +229,21 @@ function FamilyDrawerContent({
   accessibilityTitle,
   ...rest
 }: FamilyDrawerContentProps) {
-  const { bounds, view } = useFamilyDrawer()
+  const { bounds, view, layoutAnimation } = useFamilyDrawer()
   const dialogTitle =
     accessibilityTitle ??
     DEFAULT_VIEW_ACCESSIBILITY_TITLES[view] ??
     DEFAULT_VIEW_ACCESSIBILITY_TITLES.default
+  const reduceLayoutAnimation = layoutAnimation === "reduced"
 
   const variantClass =
     variant === "sheet"
       ? "fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-h-[min(70dvh,32rem)] overflow-hidden rounded-t-[28px] bg-background outline-none pb-[env(safe-area-inset-bottom,0px)]"
       : "fixed bottom-[max(1rem,env(safe-area-inset-bottom,0px))] z-30 overflow-hidden rounded-[36px] bg-background outline-none"
 
-  const animated = (
+  const animated = reduceLayoutAnimation ? (
+    <div style={{ height: bounds.height }}>{children}</div>
+  ) : (
     <m.div
       animate={{
         height: bounds.height,
@@ -279,7 +306,27 @@ interface FamilyDrawerAnimatedContentProps {
 }
 
 function FamilyDrawerAnimatedContent({ children }: FamilyDrawerAnimatedContentProps) {
-  const { view, opacityDuration } = useFamilyDrawer()
+  const { view, opacityDuration, layoutAnimation } = useFamilyDrawer()
+  const reduceLayoutAnimation = layoutAnimation === "reduced"
+
+  if (reduceLayoutAnimation) {
+    return (
+      <AnimatePresence initial={false} mode="wait">
+        <m.div
+          key={view}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          initial={{ opacity: 0 }}
+          transition={{
+            duration: Math.min(opacityDuration, 0.18),
+            ease: [0.26, 0.08, 0.25, 1],
+          }}
+        >
+          {children}
+        </m.div>
+      </AnimatePresence>
+    )
+  }
 
   return (
     <AnimatePresence initial={false} mode="popLayout">

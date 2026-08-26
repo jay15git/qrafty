@@ -315,6 +315,36 @@ describe("FloatingToolbar", () => {
     expect(drawerRoot?.querySelector("h2")?.textContent?.trim()).toBe("QR")
     expect(drawerRoot?.querySelector('button[aria-label="Back"]')).not.toBeNull()
   })
+
+  it("opens fill settings inside the mobile drawer instead of a portalled popover", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+
+    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
+    const shapeButton = Array.from(drawerRoot?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
+      (button) => button.textContent?.trim() === "Shape",
+    )
+
+    expect(shapeButton).not.toBeNull()
+
+    await act(async () => {
+      shapeButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    const fillRow = Array.from(drawerRoot?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
+      (button) => button.textContent?.includes("Fill"),
+    )
+
+    expect(fillRow).not.toBeNull()
+
+    await act(async () => {
+      fillRow?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(drawerRoot?.querySelector("header h2")?.textContent?.trim()).toBe("Fill")
+    expect(document.querySelector('[data-slot="popover-content"]')).toBeNull()
+    expect(drawerRoot?.querySelector(".dn-fill-picker-panel")).not.toBeNull()
+  })
 })
 
 async function renderPrototype({
