@@ -33,6 +33,7 @@ import {
   isGradientFill,
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
 import { cn } from "@/lib/utils"
@@ -359,6 +360,7 @@ export function SettingsFillPopover({
   }
 }) {
   const theme = useDesktopnewTheme()
+  const mobileDensity = useMobileInspectorDensity()
 
   return (
     <Popover>
@@ -375,6 +377,7 @@ export function SettingsFillPopover({
           theme,
           "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
         )}
+        data-mobile-inspector={mobileDensity ? "" : undefined}
         data-theme={theme}
         side={side}
         sideOffset={10}
@@ -424,6 +427,7 @@ export function SettingsRowPopover({
   onOpenChange?: (open: boolean) => void
 }) {
   const theme = useDesktopnewTheme()
+  const mobileDensity = useMobileInspectorDensity()
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
@@ -453,6 +457,7 @@ export function SettingsRowPopover({
           theme,
           cn("dn-portal-surface desktopnew-popover-content w-56 gap-3 p-3.5 dn-squircle-md", contentClassName),
         )}
+        data-mobile-inspector={mobileDensity ? "" : undefined}
         data-theme={theme}
         side="right"
         sideOffset={10}

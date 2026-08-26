@@ -72,6 +72,22 @@
     --desktop-workspace-canvas-inset-left: 0px;
   }
 
+  [data-slot="desktop-workspace"][data-mobile-workspace="true"][data-desktop-theme="dark"] {
+    background-color: var(--ws-surface-bg, #1f1f1f);
+  }
+
+  [data-slot="desktop-workspace"][data-mobile-workspace="true"][data-desktop-theme="dark"] [data-slot="drafting-surface"] {
+    background: var(--ws-surface-bg, #1f1f1f);
+  }
+
+  [data-slot="desktop-workspace"][data-mobile-workspace="true"][data-desktop-theme="light"] {
+    background-color: var(--ws-workspace-bg, #f0f1f2);
+  }
+
+  [data-slot="desktop-workspace"][data-mobile-workspace="true"][data-desktop-theme="light"] [data-slot="drafting-surface"] {
+    background: var(--ws-workspace-bg, #f0f1f2);
+  }
+
   [data-slot="desktop-dynamic-island-anchor"],
   [data-slot="desktop-utility-toolbar-anchor"] {
     display: none;
@@ -86,7 +102,7 @@
     pointer-events: none;
   }
 
-  [data-slot="mobile-family-drawer"] {
+  [data-slot="mobile-family-drawer-root"] {
     pointer-events: auto;
   }
 }

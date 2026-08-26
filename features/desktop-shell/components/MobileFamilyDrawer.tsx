@@ -1,6 +1,5 @@
 "use client"
 
-import { ArrowLeftIcon } from "lucide-react"
 import { createContext, useContext, useEffect, type ReactNode } from "react"
 
 import {
@@ -8,6 +7,7 @@ import {
   FamilyDrawerAnimatedWrapper,
   FamilyDrawerButton,
   FamilyDrawerContent,
+  FamilyDrawerHeader,
   FamilyDrawerPortal,
   FamilyDrawerRoot,
   FamilyDrawerViewContent,
@@ -25,10 +25,16 @@ import {
   type DesktopSettingsSectionId,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
 import { SettingsSectionBody } from "@/features/desktop-shell/inspector/desktopnew-settings-sections"
+import {
+  MobileInspectorDensityContext,
+} from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
 import { cn } from "@/lib/utils"
 
 import "@/features/desktop-shell/inspector/desktopnew.css"
+import "@/features/desktop-shell/inspector/mobile-inspector.css"
+
+const MOBILE_DRAWER_BOTTOM_GAP_PX = 16
 
 const MobileInspectorContext = createContext<DesktopInspectorModel | null>(null)
 
@@ -41,7 +47,8 @@ function useMobileInspectorModel() {
 }
 
 function syncMobileDrawerHeight(height: number) {
-  const value = `${Math.max(0, Math.round(height))}px`
+  const inset = Math.max(0, Math.round(height + MOBILE_DRAWER_BOTTOM_GAP_PX))
+  const value = `${inset}px`
   const targets: Array<HTMLElement | null> = [
     document.documentElement,
     document.querySelector<HTMLElement>('[data-slot="desktop-workspace"]'),
@@ -70,26 +77,65 @@ function MobileDrawerHeightSync() {
   return null
 }
 
-function MobileSectionHeader({
+function MobileDrawerCloseIcon() {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <path
+        d="M10.4854 1.99998L2.00007 10.4853"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10.4854 10.4844L2.00007 1.99908"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function MobileNestedHeader({
   title,
-  onBack,
+  onClose,
 }: {
   title: string
-  onBack: () => void
+  onClose: () => void
 }) {
   return (
-    <header className="mb-3 flex items-center gap-2 border-b border-border pb-3">
+    <header className="mb-3 flex items-center justify-between gap-3 border-b border-border pb-3">
+      <h2 className="text-[19px] font-semibold text-foreground">{title}</h2>
       <button
         aria-label="Back"
-        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-foreground transition-colors hover:bg-accent"
+        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         data-vaul-no-drag=""
         type="button"
-        onClick={onBack}
+        onClick={onClose}
       >
-        <ArrowLeftIcon className="size-4" />
+        <MobileDrawerCloseIcon />
       </button>
-      <h2 className="text-[17px] font-semibold text-foreground">{title}</h2>
     </header>
+  )
+}
+
+function MobileInspectorScroll({ children }: { children: ReactNode }) {
+  return (
+    <div
+      className="max-h-[min(52dvh,24rem)] overflow-y-auto overflow-x-hidden"
+      data-mobile-inspector=""
+    >
+      {children}
+    </div>
   )
 }
 
@@ -98,12 +144,12 @@ function MobileSectionView({ section }: { section: DesktopSettingsSectionId }) {
   const { setView } = useFamilyDrawer()
 
   return (
-    <div className="desktopnew-root desktopnew-embedded w-full min-w-0" data-theme={model.actualDesktopTheme}>
+    <div className="desktopnew-root w-full min-w-0" data-theme={model.actualDesktopTheme}>
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
-        <MobileSectionHeader title={section} onBack={() => setView("default")} />
-        <div className="max-h-[min(52dvh,24rem)] overflow-y-auto overflow-x-hidden">
+        <MobileNestedHeader title={section} onClose={() => setView("default")} />
+        <MobileInspectorScroll>
           <SettingsSectionBody id={section} model={model} />
-        </div>
+        </MobileInspectorScroll>
       </DesktopnewThemeContext.Provider>
     </div>
   )
@@ -124,18 +170,21 @@ function MobileMenuView() {
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <h2 className="mb-1 text-[17px] font-semibold text-foreground">Settings</h2>
+    <div className="flex flex-col">
+      <FamilyDrawerHeader
+        className="mb-3 gap-0 border-b border-border pb-3"
+        title="Settings"
+      />
       <div className="flex flex-col gap-2">
         {DESKTOP_SETTINGS_SECTIONS.map((section) => (
           <FamilyDrawerButton key={section} onClick={() => openSection(section)}>
-            <SettingsSectionIconFor className="text-foreground" section={section} size={18} />
+            <SettingsSectionIconFor className="text-foreground" section={section} size={22} />
             <span>{section}</span>
           </FamilyDrawerButton>
         ))}
         {selectedLayer && controller?.onElementLayerPatch ? (
           <FamilyDrawerButton onClick={() => setView("element")}>
-            <SettingsSectionIconFor className="text-foreground" section="Effects" size={18} />
+            <SettingsSectionIconFor className="text-foreground" section="Effects" size={22} />
             <span>Layer style</span>
           </FamilyDrawerButton>
         ) : null}
@@ -152,20 +201,17 @@ function MobileElementView() {
 
   if (!layer || !onPatch) {
     return (
-      <MobileSectionHeader title="Layer style" onBack={() => setView("default")} />
+      <MobileNestedHeader title="Layer style" onClose={() => setView("default")} />
     )
   }
 
   return (
-    <div
-      className="desktopnew-root desktopnew-embedded w-full min-w-0"
-      data-theme={model.actualDesktopTheme}
-    >
+    <div className="desktopnew-root w-full min-w-0" data-theme={model.actualDesktopTheme}>
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
-        <MobileSectionHeader title="Layer style" onBack={() => setView("default")} />
-        <div className="max-h-[min(52dvh,24rem)] overflow-y-auto overflow-x-hidden">
+        <MobileNestedHeader title="Layer style" onClose={() => setView("default")} />
+        <MobileInspectorScroll>
           <DesktopElementInspector layer={layer} onPatch={onPatch} />
-        </div>
+        </MobileInspectorScroll>
       </DesktopnewThemeContext.Provider>
     </div>
   )
@@ -178,14 +224,14 @@ function MobileStockPhotosView() {
 
   return (
     <div className="flex min-h-0 flex-col">
-      <MobileSectionHeader
+      <MobileNestedHeader
         title="Stock photos"
-        onBack={() => {
+        onClose={() => {
           controller?.onCloseComposeSidebar?.()
           setView("elements")
         }}
       />
-      <div className="max-h-[min(52dvh,24rem)] overflow-y-auto overflow-x-hidden">
+      <MobileInspectorScroll>
         <DesktopPexelsPhotoInspector
           onClose={() => {
             controller?.onCloseComposeSidebar?.()
@@ -193,7 +239,7 @@ function MobileStockPhotosView() {
           }}
           onSelectPhoto={(imageUrl) => controller?.onSelectStockPhoto?.(imageUrl)}
         />
-      </div>
+      </MobileInspectorScroll>
     </div>
   )
 }
@@ -233,37 +279,40 @@ export function MobileFamilyDrawer({
   model: DesktopInspectorModel
 }) {
   const views = createMobileViews()
+  const theme = model.actualDesktopTheme
 
   return (
     <MobileInspectorContext.Provider value={model}>
-      <FamilyDrawerRoot
-        dismissible={false}
-        defaultOpen
-        modal={false}
-        open
-        views={views}
-      >
-        <MobileDrawerViewRouter model={model} />
-        <FamilyDrawerPortal>
-          <FamilyDrawerContent
-            className={cn(
-              "border-t border-border shadow-[0_-8px_32px_rgba(0,0,0,0.12)]",
-              className,
-            )}
-            variant="sheet"
-          >
-            <MobileDrawerHeightSync />
-            <FamilyDrawerAnimatedWrapper
-              className="px-4 pb-4 pt-3"
-              data-slot="mobile-family-drawer"
+      <MobileInspectorDensityContext.Provider value={true}>
+        <FamilyDrawerRoot
+          dismissible={false}
+          defaultOpen
+          modal={false}
+          open
+          views={views}
+        >
+          <MobileDrawerViewRouter model={model} />
+          <FamilyDrawerPortal>
+            <FamilyDrawerContent
+              className={cn(
+                "desktopnew-root shadow-[var(--dn-popover-shadow)]",
+                className,
+              )}
+              data-desktop-theme={theme}
+              data-slot="mobile-family-drawer-root"
+              data-theme={theme}
+              variant="card"
             >
-              <FamilyDrawerAnimatedContent>
-                <FamilyDrawerViewContent />
-              </FamilyDrawerAnimatedContent>
-            </FamilyDrawerAnimatedWrapper>
-          </FamilyDrawerContent>
-        </FamilyDrawerPortal>
-      </FamilyDrawerRoot>
+              <MobileDrawerHeightSync />
+              <FamilyDrawerAnimatedWrapper className="px-5 pb-5 pt-4">
+                <FamilyDrawerAnimatedContent>
+                  <FamilyDrawerViewContent />
+                </FamilyDrawerAnimatedContent>
+              </FamilyDrawerAnimatedWrapper>
+            </FamilyDrawerContent>
+          </FamilyDrawerPortal>
+        </FamilyDrawerRoot>
+      </MobileInspectorDensityContext.Provider>
     </MobileInspectorContext.Provider>
   )
 }

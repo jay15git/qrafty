@@ -176,25 +176,45 @@ function FamilyDrawerOverlay({ className, onClick }: FamilyDrawerOverlayProps) {
   )
 }
 
-interface FamilyDrawerContentProps {
+const DEFAULT_VIEW_ACCESSIBILITY_TITLES: Record<string, string> = {
+  default: "Settings",
+  content: "Content",
+  qr: "QR",
+  motion: "Motion",
+  shape: "Shape",
+  background: "Background",
+  elements: "Elements",
+  element: "Layer style",
+  "stock-photos": "Stock photos",
+}
+
+type FamilyDrawerContentProps = {
   children: ReactNode
   className?: string
   asChild?: boolean
   variant?: "card" | "sheet"
-}
+  /** Screen-reader label for the drawer dialog. Falls back to the active view name. */
+  accessibilityTitle?: string
+} & Record<string, unknown>
 
 function FamilyDrawerContent({
   children,
   className,
   asChild = false,
   variant = "card",
+  accessibilityTitle,
+  ...rest
 }: FamilyDrawerContentProps) {
-  const { bounds } = useFamilyDrawer()
+  const { bounds, view } = useFamilyDrawer()
+  const dialogTitle =
+    accessibilityTitle ??
+    DEFAULT_VIEW_ACCESSIBILITY_TITLES[view] ??
+    DEFAULT_VIEW_ACCESSIBILITY_TITLES.default
 
   const variantClass =
     variant === "sheet"
       ? "fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-h-[min(70dvh,32rem)] overflow-hidden rounded-t-[28px] bg-background outline-none pb-[env(safe-area-inset-bottom,0px)]"
-      : "fixed inset-x-4 bottom-4 z-10 mx-auto max-w-[361px] overflow-hidden rounded-[36px] bg-background outline-none md:mx-auto md:w-full"
+      : "fixed bottom-[max(1rem,env(safe-area-inset-bottom,0px))] z-30 overflow-hidden rounded-[36px] bg-background outline-none"
 
   const animated = (
     <m.div
@@ -210,16 +230,22 @@ function FamilyDrawerContent({
     </m.div>
   )
 
+  const accessibilityLabel = (
+    <Drawer.Title className="sr-only">{dialogTitle}</Drawer.Title>
+  )
+
   if (asChild) {
     return (
-      <Drawer.Content asChild className={cn(variantClass, className)}>
+      <Drawer.Content asChild className={cn(variantClass, className)} {...rest}>
+        {accessibilityLabel}
         {animated}
       </Drawer.Content>
     )
   }
 
   return (
-    <Drawer.Content className={cn(variantClass, className)}>
+    <Drawer.Content className={cn(variantClass, className)} {...rest}>
+      {accessibilityLabel}
       {animated}
     </Drawer.Content>
   )
@@ -349,7 +375,7 @@ function FamilyDrawerButton({
     <button
       data-vaul-no-drag=""
       className={cn(
-        "flex h-12 w-full items-center gap-[15px] rounded-[16px] bg-muted px-4 text-[17px] font-semibold text-foreground transition-transform focus:scale-95 focus-visible:shadow-focus-ring-button active:scale-95 cursor-pointer",
+        "flex min-h-14 h-14 w-full items-center gap-[15px] rounded-[16px] bg-muted px-4 text-[17px] font-semibold text-foreground transition-transform focus:scale-95 focus-visible:shadow-focus-ring-button active:scale-95 cursor-pointer",
         className,
       )}
       onClick={onClick}

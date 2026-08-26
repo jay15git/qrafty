@@ -1,0 +1,176 @@
+/* Phone-scale settings density — scoped to mobile FamilyDrawer interiors and their portalled popovers. */
+
+[data-slot="mobile-family-drawer-root"].desktopnew-root {
+  min-height: 0;
+  height: auto;
+  background: var(--dn-bg);
+  color: var(--dn-fg);
+  font-family: var(--dn-font);
+}
+
+[data-slot="mobile-family-drawer-root"].desktopnew-root[data-theme="light"] {
+  color-scheme: light;
+  --muted: var(--dn-control);
+}
+
+[data-slot="mobile-family-drawer-root"].desktopnew-root[data-theme="dark"] {
+  color-scheme: dark;
+  --muted: var(--dn-surface);
+}
+
+[data-slot="mobile-family-drawer-root"] {
+  width: calc(
+    100% - max(1rem, env(safe-area-inset-left, 0px)) - max(1rem, env(safe-area-inset-right, 0px))
+  );
+  max-width: none;
+  left: max(1rem, env(safe-area-inset-left, 0px));
+  right: auto;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+[data-slot="mobile-family-drawer-root"] .desktopnew-root:not([data-slot="mobile-family-drawer-root"]) {
+  min-height: 0;
+  background: transparent;
+  color: var(--dn-fg);
+}
+
+[data-mobile-inspector] {
+  --dn-type-caption: 13px;
+  --dn-type-label: 16px;
+  --dn-type-body: 16px;
+  --dn-type-section: 19px;
+  --dn-type-meta: 13px;
+  --dn-type-label-size: 16px;
+  --dn-type-meta-size: 13px;
+  --dn-type-value-size: 16px;
+  --dn-radius-xs: 12px;
+  --dn-radius-sm: 14px;
+  --dn-radius-md: 16px;
+  --dn-radius-lg: 16px;
+  --elastic-slider-height: 3rem;
+}
+
+[data-mobile-inspector] .dn-type-label,
+[data-mobile-inspector] .dn-type-value,
+[data-mobile-inspector] .dn-type-body {
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+[data-mobile-inspector] .dn-type-meta {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+[data-mobile-inspector] .dn-settings-row {
+  min-height: 3rem;
+  height: auto;
+  border-radius: 16px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+[data-mobile-inspector] .dn-settings-input {
+  min-height: 3rem;
+  font-size: 16px;
+  border-radius: 16px;
+}
+
+[data-mobile-inspector] .dn-settings-primary,
+[data-mobile-inspector] .dn-settings-row.dn-settings-primary {
+  min-height: 3rem;
+  height: 3rem;
+  font-size: 16px;
+}
+
+[data-mobile-inspector] .t-tabs {
+  min-height: 2.75rem;
+  height: auto;
+}
+
+[data-mobile-inspector] .t-tab,
+[data-mobile-inspector] .dn-segment-tab {
+  min-height: 2.75rem;
+  font-size: 15px;
+}
+
+[data-mobile-inspector] .dn-option-tile {
+  border-radius: 12px;
+}
+
+[data-mobile-inspector] .dn-option-tile.h-9,
+[data-mobile-inspector] .h-9 {
+  min-height: 3rem;
+  height: 3rem;
+}
+
+[data-mobile-inspector] .text-\[11px\] {
+  font-size: 15px !important;
+}
+
+[data-mobile-inspector] .text-\[10px\] {
+  font-size: 13px !important;
+}
+
+[data-mobile-inspector] .dn-preview-tile,
+[data-mobile-inspector] .dn-preview-tile.size-14,
+[data-mobile-inspector] [class*="size-14"] {
+  width: 4.5rem !important;
+  height: 4.5rem !important;
+  min-width: 4.5rem;
+  min-height: 4.5rem;
+  border-radius: 12px;
+}
+
+[data-mobile-inspector] .desktop-elastic-slider,
+[data-mobile-inspector] .dn-settings-elastic-slider {
+  --elastic-slider-height: 3rem;
+  --elastic-slider-radius: 16px;
+}
+
+[data-mobile-inspector] [data-slot="switch"] {
+  transform: scale(1.1);
+}
+
+[data-mobile-inspector] .dn-preset-item {
+  min-height: 3rem;
+  height: 3rem;
+  font-size: 15px;
+}
+
+[data-mobile-inspector] .dn-insert-menu-popover .dn-settings-row {
+  min-height: 3rem;
+}
+
+/* Portalled popovers opened from mobile inspector */
+.dn-portal-surface[data-mobile-inspector] {
+  --dn-type-caption: 13px;
+  --dn-type-label: 16px;
+  --dn-type-body: 16px;
+  --dn-type-section: 19px;
+  --dn-type-meta: 13px;
+  --dn-type-label-size: 16px;
+  --dn-type-meta-size: 13px;
+  --dn-type-value-size: 16px;
+}
+
+.dn-portal-surface[data-mobile-inspector] .text-\[11px\] {
+  font-size: 15px !important;
+}
+
+.dn-portal-surface[data-mobile-inspector] .text-\[10px\] {
+  font-size: 13px !important;
+}
+
+.dn-portal-surface[data-mobile-inspector] .h-9,
+.dn-portal-surface[data-mobile-inspector] .dn-option-tile.h-9 {
+  min-height: 3rem;
+  height: 3rem;
+}
+
+.dn-portal-surface[data-mobile-inspector] .dn-settings-row {
+  min-height: 3rem;
+  height: auto;
+  border-radius: 16px;
+}

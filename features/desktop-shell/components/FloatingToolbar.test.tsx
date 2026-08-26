@@ -279,7 +279,13 @@ describe("FloatingToolbar", () => {
     stubMatchMedia(true)
     const surface = await renderPrototype()
 
-    expect(document.querySelector('[data-slot="mobile-family-drawer"]')).not.toBeNull()
+    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
+    expect(drawerRoot).not.toBeNull()
+    expect(drawerRoot?.className).toContain("rounded-[36px]")
+    expect(drawerRoot?.className).not.toContain("max-w-[361px]")
+    expect(drawerRoot?.className).toContain("desktopnew-root")
+    expect(drawerRoot?.getAttribute("data-desktop-theme")).toBe("dark")
+    expect(drawerRoot?.getAttribute("data-theme")).toBe("dark")
     expect(surface.container.querySelector('[data-slot="mobile-workspace-top-bar"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-left-toolbar-shell"]')).toBeNull()
@@ -295,8 +301,8 @@ describe("FloatingToolbar", () => {
     stubMatchMedia(true)
     await renderPrototype()
 
-    const drawer = document.querySelector('[data-slot="mobile-family-drawer"]')
-    const qrButton = Array.from(drawer?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
+    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
+    const qrButton = Array.from(drawerRoot?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
       (button) => button.textContent?.trim() === "QR",
     )
 
@@ -306,7 +312,8 @@ describe("FloatingToolbar", () => {
       qrButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
-    expect(drawer?.querySelector("h2")?.textContent?.trim()).toBe("QR")
+    expect(drawerRoot?.querySelector("h2")?.textContent?.trim()).toBe("QR")
+    expect(drawerRoot?.querySelector('button[aria-label="Back"]')).not.toBeNull()
   })
 })
 
