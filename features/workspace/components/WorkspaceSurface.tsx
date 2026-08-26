@@ -148,6 +148,7 @@ import {
 } from "@/features/qr-code/assets/iconstack-svg"
 import { useQrScanSafety } from "@/features/qr-code/hooks/useQrScanSafety"
 import { previewSession } from "@/features/workspace/preview/preview-session"
+import { MobileWorkspaceInsetTransitionBridge } from "@/features/workspace/components/MobileWorkspaceInsetTransitionBridge"
 import {
   createBrandIconDataUrl,
   createBrandIconGradientDataUrl,
@@ -3658,6 +3659,7 @@ export function WorkspaceSurface({
       data-compose-edit-mode="false"
       data-compose-selected-node-id={activeQrNodeId ?? ""}
     >
+      <MobileWorkspaceInsetTransitionBridge />
 
       <div
         data-slot="drafting-content-grid"

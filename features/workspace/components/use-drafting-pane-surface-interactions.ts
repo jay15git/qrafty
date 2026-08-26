@@ -20,6 +20,7 @@ import {
   DESKTOP_CANVAS_FIT_PADDING,
   MOBILE_ARTBOARD_VIEW_INSETS,
 } from "@/features/workspace/model/template-preview-fit"
+import { previewDrawerResize } from "@/features/workspace/preview/preview-drawer-resize"
 
 const CANVAS_PAN_CURSOR_LOCK_CLASS = "drafting-canvas-panning"
 
@@ -118,6 +119,7 @@ export function useDraftingPaneSurfaceInteractions({
       ? "workspace"
       : "neutral"
   const hasSeededFitZoomRef = useRef(false)
+  const updateFitScaleRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     if (!shouldAutoFitViewport && !isFreeEditWorkspace) {
@@ -131,6 +133,10 @@ export function useDraftingPaneSurfaceInteractions({
     }
 
     const updateFitScale = () => {
+      if (previewDrawerResize.getIsResizing()) {
+        return
+      }
+
       const rect = surface.getBoundingClientRect()
 
       if (rect.width <= 0 || rect.height <= 0) {
@@ -171,13 +177,20 @@ export function useDraftingPaneSurfaceInteractions({
       }
     }
 
+    updateFitScaleRef.current = updateFitScale
     updateFitScale()
 
     const observer = new ResizeObserver(updateFitScale)
     observer.observe(surface)
 
+    const unsubscribeDrawerResizeEnded = previewDrawerResize.subscribeOnEnded(() => {
+      updateFitScaleRef.current?.()
+    })
+
     return () => {
       observer.disconnect()
+      unsubscribeDrawerResizeEnded()
+      updateFitScaleRef.current = null
     }
   }, [
     fitCanvasToViewport,

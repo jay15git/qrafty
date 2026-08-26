@@ -84,6 +84,7 @@ import {
   getPreviewStageSize,
   scalePreviewCornerRadiiState,
 } from "@/features/workspace/preview/preview-camera"
+import { previewDrawerResize } from "@/features/workspace/preview/preview-drawer-resize"
 
 export type PaneWorkspaceProps = {
   cardState?: DraftingCardState
@@ -274,6 +275,10 @@ export function PaneWorkspace({
     }
 
     const updateCanvasHeight = () => {
+      if (previewDrawerResize.getIsResizing()) {
+        return
+      }
+
       setCanvasHeight(canvas.getBoundingClientRect().height)
       setCanvasWidth(canvas.getBoundingClientRect().width)
     }
@@ -282,13 +287,22 @@ export function PaneWorkspace({
 
     if (typeof ResizeObserver === "undefined") {
       window.addEventListener("resize", updateCanvasHeight)
-      return () => window.removeEventListener("resize", updateCanvasHeight)
+      const unsubscribeDrawerResizeEnded = previewDrawerResize.subscribeOnEnded(updateCanvasHeight)
+
+      return () => {
+        window.removeEventListener("resize", updateCanvasHeight)
+        unsubscribeDrawerResizeEnded()
+      }
     }
 
     const observer = new ResizeObserver(updateCanvasHeight)
     observer.observe(canvas)
+    const unsubscribeDrawerResizeEnded = previewDrawerResize.subscribeOnEnded(updateCanvasHeight)
 
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      unsubscribeDrawerResizeEnded()
+    }
   }, [])
 
   useEffect(() => {

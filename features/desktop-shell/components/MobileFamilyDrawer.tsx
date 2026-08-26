@@ -6,6 +6,7 @@ import {
   startTransition,
   useContext,
   useEffect,
+  useRef,
   type ReactNode,
 } from "react"
 
@@ -40,6 +41,7 @@ import {
   MobileDrawerNavigationProvider,
   useMobileDrawerNavigation,
 } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
+import { previewDrawerResize } from "@/features/workspace/preview/preview-drawer-resize"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
 import { cn } from "@/lib/utils"
 
@@ -75,11 +77,17 @@ function syncMobileDrawerHeight(height: number) {
 
 function MobileDrawerHeightSync() {
   const { bounds } = useFamilyDrawer()
+  const lastSyncedHeightRef = useRef(0)
 
   useEffect(() => {
     const nextHeight = bounds.height
     if (nextHeight <= 0) {
       return
+    }
+
+    if (nextHeight !== lastSyncedHeightRef.current) {
+      previewDrawerResize.beginResize()
+      lastSyncedHeightRef.current = nextHeight
     }
 
     syncMobileDrawerHeight(nextHeight)

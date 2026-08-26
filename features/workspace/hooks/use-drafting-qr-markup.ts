@@ -1,9 +1,15 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import type { QrStudioState } from "@/features/qr-code/model/state"
 import { buildDraftingQrStudioMarkup } from "@/features/qr-code/rendering/qr-studio-markup"
+import { previewSession } from "@/features/workspace/preview/preview-session"
+import {
+  markPreviewPerformance,
+  measurePreviewPerformance,
+  PREVIEW_PERF_MARKS,
+} from "@/features/workspace/preview/preview-performance"
 import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-artwork"
 
 const markupCache = new Map<string, string>()
@@ -18,10 +24,17 @@ export function useDraftingQrMarkup(state: QrStudioState) {
   const requestRef = useRef(0)
   const qrArtworkState = useMemo(() => createDraftingQrArtworkState(state), [state])
   const stateCacheKey = useMemo(() => JSON.stringify(qrArtworkState), [qrArtworkState])
+  const qrArtworkStateRef = useRef(qrArtworkState)
+  const stateCacheKeyRef = useRef(stateCacheKey)
 
-  useEffect(() => {
+  qrArtworkStateRef.current = qrArtworkState
+  stateCacheKeyRef.current = stateCacheKey
+
+  const buildMarkupForCurrentState = useCallback(() => {
     const requestId = ++requestRef.current
-    const cachedMarkup = markupCache.get(stateCacheKey)
+    const cacheKey = stateCacheKeyRef.current
+    const artworkState = qrArtworkStateRef.current
+    const cachedMarkup = markupCache.get(cacheKey)
 
     if (cachedMarkup) {
       setMarkup(cachedMarkup)
@@ -30,12 +43,19 @@ export function useDraftingQrMarkup(state: QrStudioState) {
     }
 
     try {
-      const nextMarkup = buildDraftingQrStudioMarkup(qrArtworkState)
+      markPreviewPerformance(PREVIEW_PERF_MARKS.qrMarkupBuildBegin)
+      const nextMarkup = buildDraftingQrStudioMarkup(artworkState)
+      markPreviewPerformance(PREVIEW_PERF_MARKS.qrMarkupBuildEnd)
+      measurePreviewPerformance(
+        "qr-markup-build",
+        PREVIEW_PERF_MARKS.qrMarkupBuildBegin,
+        PREVIEW_PERF_MARKS.qrMarkupBuildEnd,
+      )
       if (requestRef.current !== requestId) {
         return
       }
 
-      markupCache.set(stateCacheKey, nextMarkup)
+      markupCache.set(cacheKey, nextMarkup)
       setMarkup(nextMarkup)
       setHasError(false)
     } catch {
@@ -46,7 +66,23 @@ export function useDraftingQrMarkup(state: QrStudioState) {
       setMarkup(null)
       setHasError(true)
     }
-  }, [qrArtworkState, stateCacheKey])
+  }, [])
+
+  useEffect(() => {
+    if (previewSession.getIsInteracting()) {
+      return
+    }
+
+    buildMarkupForCurrentState()
+  }, [buildMarkupForCurrentState, stateCacheKey])
+
+  useEffect(() => {
+    return previewSession.subscribe(() => {
+      if (!previewSession.getIsInteracting()) {
+        buildMarkupForCurrentState()
+      }
+    })
+  }, [buildMarkupForCurrentState])
 
   return { hasError, isLoading: markup === null && !hasError, markup }
 }
