@@ -15,7 +15,6 @@ import {
   FamilyDrawerAnimatedWrapper,
   FamilyDrawerButton,
   FamilyDrawerContent,
-  FamilyDrawerHeader,
   FamilyDrawerPortal,
   FamilyDrawerRoot,
   useFamilyDrawer,
@@ -168,7 +167,7 @@ function MobileElementsSectionView() {
   return <MobileSectionView section="Elements" />
 }
 
-const MOBILE_MENU_ROW_CLASS = "flex min-w-max gap-2 px-1 py-1"
+const MOBILE_MENU_ROW_CLASS = "flex min-w-max gap-1.5 px-1 py-0.5"
 
 function MobileMenuView() {
   const model = useMobileInspectorModel()
@@ -187,41 +186,38 @@ function MobileMenuView() {
   }
 
   return (
-    <div className="flex flex-col">
-      <FamilyDrawerHeader
-        className="dn-mobile-drawer-header gap-0"
-        title="Settings"
-      />
-      <ScrollArea
-        className="w-full min-w-0 max-w-full overflow-hidden"
-        chevron={false}
-        cueSize="tight"
-        orientation="horizontal"
-        persistKey="mobile-drawer-menu"
-        scrollFade
-        showScrollbar={false}
-        viewportClassName="min-w-0"
-      >
-        <div className={MOBILE_MENU_ROW_CLASS}>
-          {DESKTOP_SETTINGS_SECTIONS.map((section) => (
-            <FamilyDrawerButton
-              key={section}
-              className="h-14 w-auto shrink-0"
-              onClick={() => openSection(section)}
-            >
-              <SettingsSectionIconFor className="text-foreground" section={section} size={22} />
-              <span>{section}</span>
-            </FamilyDrawerButton>
-          ))}
-          {selectedLayer && controller?.onElementLayerPatch ? (
-            <FamilyDrawerButton className="h-14 w-auto shrink-0" onClick={() => setView("element")}>
-              <SettingsSectionIconFor className="text-foreground" section="Effects" size={22} />
-              <span>Layer style</span>
-            </FamilyDrawerButton>
-          ) : null}
-        </div>
-      </ScrollArea>
-    </div>
+    <ScrollArea
+      className="w-full min-w-0 max-w-full overflow-hidden"
+      chevron={false}
+      cueSize="tight"
+      orientation="horizontal"
+      persistKey="mobile-drawer-menu"
+      scrollFade
+      showScrollbar={false}
+      viewportClassName="min-w-0"
+    >
+      <div className={MOBILE_MENU_ROW_CLASS}>
+        {DESKTOP_SETTINGS_SECTIONS.map((section) => (
+          <FamilyDrawerButton
+            key={section}
+            className="dn-mobile-drawer-menu-tile shrink-0"
+            onClick={() => openSection(section)}
+          >
+            <SettingsSectionIconFor className="text-foreground" section={section} size={22} />
+            <span className="dn-mobile-drawer-menu-tile__label">{section}</span>
+          </FamilyDrawerButton>
+        ))}
+        {selectedLayer && controller?.onElementLayerPatch ? (
+          <FamilyDrawerButton
+            className="dn-mobile-drawer-menu-tile shrink-0"
+            onClick={() => setView("element")}
+          >
+            <SettingsSectionIconFor className="text-foreground" section="Effects" size={22} />
+            <span className="dn-mobile-drawer-menu-tile__label">Layer style</span>
+          </FamilyDrawerButton>
+        ) : null}
+      </div>
+    </ScrollArea>
   )
 }
 
