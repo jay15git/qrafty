@@ -37,7 +37,7 @@ import { getLogoSelectionLabel } from "@/features/desktop-shell/inspector/settin
 import {
   LogoIconPicker,
   LogoSelectionIcon,
-  PexelsPhotoPicker,
+  WallpaperPicker,
 } from "@/features/desktop-shell/inspector/settings-pickers"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import {
@@ -572,11 +572,11 @@ export function SceneSection({ model }: { model: DesktopInspectorModel }) {
               trigger={imageLabel}
               onOpenChange={setImagePopoverOpen}
             >
-              <PexelsPhotoPicker
+              <WallpaperPicker
                 onAfterSelect={() => setImagePopoverOpen(false)}
                 onClear={() => onImageSettingsChange({ remoteUrl: "" })}
-                onSelectPhoto={(imageUrl) =>
-                  onImageSettingsChange({ remoteUrl: imageUrl, sourceMode: "url" })
+                onSelectWallpaper={(imagePath) =>
+                  onImageSettingsChange({ remoteUrl: imagePath, sourceMode: "url" })
                 }
               />
             </SettingsRowPopover>

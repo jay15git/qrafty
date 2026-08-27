@@ -18,7 +18,7 @@ type InsertMenuProps = {
   onInsertLayer: (layer: ReturnType<typeof createDraftingTextLayer>) => void
   canAddQrCode?: boolean
   onAddQrCode?: () => void
-  onBrowseStockPhotos?: () => void
+  onBrowseWallpapers?: () => void
   triggerClassName?: string
   suppressTooltip?: boolean
   theme?: DesktopThemeMode
@@ -30,7 +30,7 @@ export function InsertMenu({
   onInsertLayer,
   canAddQrCode = true,
   onAddQrCode,
-  onBrowseStockPhotos,
+  onBrowseWallpapers,
   triggerClassName,
   suppressTooltip = false,
   theme = "dark",
@@ -100,7 +100,7 @@ export function InsertMenu({
           isDesktopPopover
           nodeId={nodeId}
           onAddQrCode={onAddQrCode}
-          onBrowseStockPhotos={onBrowseStockPhotos}
+          onBrowseWallpapers={onBrowseWallpapers}
           onInsertLayer={onInsertLayer}
           popoverSide={variant === "bottom-toolbar" ? "top" : "bottom"}
           theme={theme}
@@ -111,7 +111,7 @@ export function InsertMenu({
           isDesktopPopover={false}
           nodeId={nodeId}
           onAddQrCode={onAddQrCode}
-          onBrowseStockPhotos={onBrowseStockPhotos}
+          onBrowseWallpapers={onBrowseWallpapers}
           onInsertLayer={onInsertLayer}
           theme={theme}
         />

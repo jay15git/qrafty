@@ -100,7 +100,7 @@ type ComposeToolbarControlsProps = {
   isMaximized: boolean
   placement?: ComposeToolbarPlacement
   onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
-  onBrowseStockPhotos?: () => void
+  onBrowseWallpapers?: () => void
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
   onRemoveQrCode?: (paneId: string) => void
@@ -128,7 +128,7 @@ export function ComposeToolbarControls({
   isMaximized,
   placement = "canvas-floating",
   onAddTextLayerAt,
-  onBrowseStockPhotos,
+  onBrowseWallpapers,
   onInsertLayer,
   onRemoveQrCode,
   onResetView,
@@ -262,7 +262,7 @@ export function ComposeToolbarControls({
               }
               variant={insertMenuVariant}
               onAddQrCode={onAddQrCode}
-              onBrowseStockPhotos={onBrowseStockPhotos}
+              onBrowseWallpapers={onBrowseWallpapers}
               onInsertLayer={onInsertLayer}
             />
           ) : onAddQrCode ? (

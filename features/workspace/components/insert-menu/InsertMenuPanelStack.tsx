@@ -31,7 +31,7 @@ type InsertMenuPanelStackProps = {
   onInsertLayer: (layer: DraftingCanvasLayer) => void
   canAddQrCode?: boolean
   onAddQrCode?: () => void
-  onBrowseStockPhotos?: () => void
+  onBrowseWallpapers?: () => void
   isDesktopPopover?: boolean
   onClose?: () => void
   theme?: DesktopThemeMode
@@ -42,7 +42,7 @@ export function InsertMenuPanelStack({
   onInsertLayer,
   canAddQrCode = true,
   onAddQrCode,
-  onBrowseStockPhotos,
+  onBrowseWallpapers,
   isDesktopPopover = true,
   onClose,
   theme = "dark",
@@ -98,8 +98,8 @@ export function InsertMenuPanelStack({
     closeMenu()
   }
 
-  function browseStockPhotos() {
-    onBrowseStockPhotos?.()
+  function browseWallpapers() {
+    onBrowseWallpapers?.()
     closeMenu()
   }
 
@@ -159,7 +159,7 @@ export function InsertMenuPanelStack({
             imageUrl={imageUrl}
             isDesktopPopover={isDesktopPopover}
             onBack={() => setPanel("root")}
-            onBrowseStockPhotos={onBrowseStockPhotos ? browseStockPhotos : undefined}
+            onBrowseWallpapers={onBrowseWallpapers ? browseWallpapers : undefined}
             onImageUrlChange={setImageUrl}
             onInsertImage={insertImage}
             theme={theme}
@@ -213,7 +213,7 @@ export function InsertMenuPanelStack({
           imageUrl={imageUrl}
           isDesktopPopover={isDesktopPopover}
           onBack={() => setPanel("root")}
-          onBrowseStockPhotos={onBrowseStockPhotos ? browseStockPhotos : undefined}
+          onBrowseWallpapers={onBrowseWallpapers ? browseWallpapers : undefined}
           onImageUrlChange={setImageUrl}
           onInsertImage={insertImage}
           theme={theme}

@@ -20,7 +20,7 @@ type InsertMenuPopoverContentProps = {
   onInsertLayer: (layer: ReturnType<typeof createDraftingTextLayer>) => void
   canAddQrCode?: boolean
   onAddQrCode?: () => void
-  onBrowseStockPhotos?: () => void
+  onBrowseWallpapers?: () => void
   isDesktopPopover?: boolean
   popoverSide?: "top" | "bottom" | "left" | "right"
   theme?: DesktopThemeMode
@@ -31,7 +31,7 @@ export function InsertMenuPopoverContent({
   onInsertLayer,
   canAddQrCode = true,
   onAddQrCode,
-  onBrowseStockPhotos,
+  onBrowseWallpapers,
   isDesktopPopover = true,
   popoverSide = "bottom",
   theme = "dark",
@@ -65,7 +65,7 @@ export function InsertMenuPopoverContent({
         isDesktopPopover={isDesktopPopover}
         nodeId={nodeId}
         onAddQrCode={onAddQrCode}
-        onBrowseStockPhotos={onBrowseStockPhotos}
+        onBrowseWallpapers={onBrowseWallpapers}
         onClose={closeMenu}
         onInsertLayer={onInsertLayer}
         theme={theme}

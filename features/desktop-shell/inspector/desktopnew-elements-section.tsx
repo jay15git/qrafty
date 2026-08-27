@@ -30,9 +30,9 @@ export function ElementsSection({ model }: { model: DesktopInspectorModel }) {
             isDesktopPopover
             nodeId={nodeId}
             onAddQrCode={controller?.onAddQrCode}
-            onBrowseStockPhotos={
+            onBrowseWallpapers={
               controller?.onOpenComposeSidebar
-                ? () => controller.onOpenComposeSidebar?.("stock-photos")
+                ? () => controller.onOpenComposeSidebar?.("wallpapers")
                 : undefined
             }
             onClose={() => setAddElementOpen(false)}

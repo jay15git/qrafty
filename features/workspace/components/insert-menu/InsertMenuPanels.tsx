@@ -307,7 +307,7 @@ export function InsertMenuImagePanel({
   imageUrl,
   isDesktopPopover,
   onBack,
-  onBrowseStockPhotos,
+  onBrowseWallpapers,
   onImageUrlChange,
   onInsertImage,
   theme = "dark",
@@ -315,7 +315,7 @@ export function InsertMenuImagePanel({
   imageUrl: string
   isDesktopPopover: boolean
   onBack: () => void
-  onBrowseStockPhotos?: () => void
+  onBrowseWallpapers?: () => void
   onImageUrlChange: (value: string) => void
   onInsertImage: (value: string, source: "upload" | "url") => void
   theme?: DesktopThemeMode
@@ -323,14 +323,14 @@ export function InsertMenuImagePanel({
   return (
     <div className="space-y-3">
       <InsertMenuPanelHeader isDesktopPopover={isDesktopPopover} title="Image" onBack={onBack} />
-      {onBrowseStockPhotos ? (
+      {onBrowseWallpapers ? (
         <InsertMenuActionButton
           isDesktopPopover={isDesktopPopover}
-          onClick={onBrowseStockPhotos}
-          slot="drafting-insert-menu-browse-photos"
+          onClick={onBrowseWallpapers}
+          slot="drafting-insert-menu-browse-wallpapers"
         >
           <ImageIcon className="size-4 shrink-0" data-icon="inline-start" />
-          Browse photos
+          Browse wallpapers
         </InsertMenuActionButton>
       ) : null}
       <ImageCropper

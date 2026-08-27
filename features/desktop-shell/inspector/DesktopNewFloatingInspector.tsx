@@ -1,6 +1,6 @@
 "use client"
 
-import { DesktopPexelsPhotoInspector } from "@/features/desktop-shell/components/DesktopPexelsPhotoInspector"
+import { DesktopWallpaperInspector } from "@/features/desktop-shell/components/DesktopWallpaperInspector"
 import type {
   DesktopInspectorModel,
   DesktopToolbarToolId,
@@ -21,18 +21,18 @@ export function DesktopNewFloatingInspector({
   model: DesktopInspectorModel
 }) {
   const { actualDesktopTheme, controller } = model
-  const showStockPhotosInspector = controller?.composeSidebarPanel === "stock-photos"
+  const showWallpapersInspector = controller?.composeSidebarPanel === "wallpapers"
 
-  if (showStockPhotosInspector) {
+  if (showWallpapersInspector) {
     return (
       <aside
-        aria-label="Stock photos"
+        aria-label="Wallpapers"
         className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden", className)}
         data-slot="desktop-floating-inspector"
       >
-        <DesktopPexelsPhotoInspector
+        <DesktopWallpaperInspector
           onClose={() => controller?.onCloseComposeSidebar?.()}
-          onSelectPhoto={(imageUrl) => controller?.onSelectStockPhoto?.(imageUrl)}
+          onSelectWallpaper={(imagePath) => controller?.onSelectWallpaper?.(imagePath)}
         />
       </aside>
     )

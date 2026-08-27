@@ -206,8 +206,8 @@
   min-height: var(--dn-control-height);
 }
 
-/* Layer inspector + stock photos under drawer host */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-pexels-photo-inspector"] input,
+/* Layer inspector + wallpapers under drawer host */
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-wallpaper-inspector"] button,
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-layer-properties-body"] input,
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-layer-properties-body"] textarea,
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-layer-properties-body"] button {
@@ -362,7 +362,7 @@
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-layer-row"],
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-pexels-photo-inspector"] input {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-wallpaper-inspector"] button {
   min-height: var(--dn-control-height);
   font-size: var(--dn-type-value);
 }

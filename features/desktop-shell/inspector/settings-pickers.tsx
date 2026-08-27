@@ -1,15 +1,9 @@
 "use client"
 
-import { Filter, Search } from "lucide-react"
+import { Search } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useMemo, useState, type ReactNode } from "react"
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import {
   findBrandIconById,
@@ -29,12 +23,6 @@ import { normalizeIconstackSvgMarkup } from "@/features/qr-code/assets/iconstack
 import { filterCuratedIconstackIcons } from "@/features/qr-code/assets/iconstack-curated"
 import { useIconstackCuratedIcons } from "@/features/qr-code/hooks/useIconstackCuratedIcons"
 import { useIconstackIconSearch } from "@/features/qr-code/hooks/useIconstackIconSearch"
-import { usePexelsPhotos } from "@/features/stock-photos/hooks/usePexelsPhotos"
-import {
-  PEXELS_ORIENTATION_FILTER_OPTIONS,
-  type PexelsPhoto,
-  type PexelsPhotoOrientationFilter,
-} from "@/features/stock-photos/model/pexels"
 import { RaycastWallpaperGrid } from "@/features/workspace/components/RaycastWallpaperGrid"
 import { usePersistedScrollNode } from "@/lib/persisted-element-scroll"
 import { cn } from "@/lib/utils"
@@ -277,56 +265,17 @@ export function LogoIconPicker({
   )
 }
 
-function PexelsPhotoTile({
-  onClick,
-  photo,
-}: {
-  onClick: () => void
-  photo: PexelsPhoto
-}) {
-  return (
-    <button
-      aria-label={`Use photo by ${photo.photographer}`}
-      className="dn-pressable-pickable relative aspect-[4/3] min-w-0 overflow-hidden dn-squircle-xs"
-      type="button"
-      onClick={onClick}
-    >
-      <Image
-        alt={photo.alt}
-        className="absolute inset-0 size-full object-cover"
-        fill
-        sizes="160px"
-        src={photo.previewUrl}
-      />
-    </button>
-  )
-}
-
-export function PexelsPhotoPicker({
+export function WallpaperPicker({
   onAfterSelect,
   onClear,
-  onSelectPhoto,
+  onSelectWallpaper,
 }: {
   onAfterSelect?: () => void
   onClear?: () => void
-  onSelectPhoto: (imageUrl: string) => void
+  onSelectWallpaper: (imagePath: string) => void
 }) {
-  const mobileDensity = useMobileInspectorDensity()
-  const [query, setQuery] = useState("")
-  const [orientation, setOrientation] = useState<PexelsPhotoOrientationFilter>("all")
-  const isOrientationFilterActive = orientation !== "all"
-  const { canSearch, error, hasMore, isLoading, isLoadingMore, loadMore, photos } = usePexelsPhotos({
-    orientation,
-    query,
-  })
-
-  const activeOrientationLabel =
-    PEXELS_ORIENTATION_FILTER_OPTIONS.find((option) => option.value === orientation)?.label ?? "All"
-
-  const setPhotoScrollNode = usePersistedScrollNode("pexels-photo-grid")
-
-  const selectPhoto = (imageUrl: string) => {
-    onSelectPhoto(imageUrl)
+  const selectWallpaper = (imagePath: string) => {
+    onSelectWallpaper(imagePath)
     onAfterSelect?.()
   }
 
@@ -347,121 +296,7 @@ export function PexelsPhotoPicker({
         <p className="dn-type-meta px-0.5 font-semibold uppercase tracking-[0.08em] text-[var(--dn-popover-muted)]">
           Wallpapers
         </p>
-        <RaycastWallpaperGrid
-          onSelectWallpaper={(imagePath) => selectPhoto(imagePath)}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <p className="dn-type-meta px-0.5 font-semibold uppercase tracking-[0.08em] text-[var(--dn-popover-muted)]">
-          Photos
-        </p>
-      <div className="flex items-center gap-1.5">
-        <div className="relative min-w-0 flex-1">
-          <Search
-            aria-hidden
-            className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--dn-popover-muted)]"
-          />
-          <input
-            aria-label="Search photos"
-            className="dn-content-type-search-input dn-squircle-xs"
-            placeholder="Search"
-            value={query}
-            onChange={(event) => setQuery(event.currentTarget.value)}
-          />
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              aria-label={`Filter photo orientation (${activeOrientationLabel})`}
-              className="dn-content-type-filter-trigger dn-pressable-press-only inline-flex size-[length:var(--dn-icon-hit)] shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
-              data-active={isOrientationFilterActive ? "true" : undefined}
-              type="button"
-            >
-              <Filter aria-hidden className="size-3.5" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="desktopnew-popover-content dn-portal-surface min-w-36 border p-1 dn-squircle-sm"
-            data-mobile-inspector={mobileDensity ? "" : undefined}
-          >
-            {PEXELS_ORIENTATION_FILTER_OPTIONS.map((option) => (
-              <DropdownMenuItem
-                key={option.value}
-                className={cn(
-                  "dn-type-meta dn-squircle-xs px-2 py-1.5 font-medium",
-                  orientation === option.value
-                    ? "bg-[var(--dn-popover-tile-hover)] text-[var(--dn-fg)]"
-                    : "text-[var(--dn-popover-muted)] focus:bg-[var(--dn-popover-tile-hover)] focus:text-[var(--dn-fg)]",
-                )}
-                onClick={() => setOrientation(option.value)}
-              >
-                {option.label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      <div
-        ref={setPhotoScrollNode}
-        className="grid max-h-72 grid-cols-2 gap-[length:var(--dn-space-inline)] overflow-y-auto pr-0.5"
-      >
-        {isLoading
-          ? Array.from({ length: 8 }, (_, index) => (
-              <div
-                key={`skeleton-${index}`}
-                aria-hidden
-                className="aspect-[4/3] min-w-0 animate-pulse rounded-[9px] bg-[var(--dn-popover-tile)]"
-              />
-            ))
-          : null}
-        {!isLoading && error ? (
-          <p className="col-span-2 px-1 py-6 text-center text-[var(--dn-popover-muted)] dn-type-meta">
-            {error}
-          </p>
-        ) : null}
-        {!isLoading && !error && photos.length === 0 ? (
-          <p className="col-span-2 px-1 py-6 text-center text-[var(--dn-popover-muted)] dn-type-meta">
-            {canSearch ? "No matches" : "No photos available"}
-          </p>
-        ) : null}
-        {!isLoading && !error
-          ? photos.map((photo) => (
-              <PexelsPhotoTile
-                key={photo.id}
-                photo={photo}
-                onClick={() => selectPhoto(photo.imageUrl)}
-              />
-            ))
-          : null}
-      </div>
-
-      {hasMore && !isLoading && !error ? (
-        <button
-          className="dn-pressable-press-only dn-type-meta w-full px-2 py-2 text-center font-medium text-[var(--dn-popover-muted)] dn-squircle-xs hover:bg-[var(--dn-popover-tile-hover)] hover:text-[var(--dn-fg)]"
-          disabled={isLoadingMore}
-          type="button"
-          onClick={() => {
-            void loadMore()
-          }}
-        >
-          {isLoadingMore ? "Loading…" : "Load more"}
-        </button>
-      ) : null}
-
-      <p className="dn-type-meta px-1 text-center text-[var(--dn-popover-muted)]">
-        Photos provided by{" "}
-        <a
-          className="underline underline-offset-2 hover:text-[var(--dn-fg)]"
-          href="https://www.pexels.com"
-          rel="noreferrer"
-          target="_blank"
-        >
-          Pexels
-        </a>
-      </p>
+        <RaycastWallpaperGrid onSelectWallpaper={selectWallpaper} />
       </div>
     </div>
   )

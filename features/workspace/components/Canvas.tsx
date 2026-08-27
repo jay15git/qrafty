@@ -32,7 +32,7 @@ type CanvasProps = {
   qr?: CanvasQrControls
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
   insertNodeId?: string
-  onBrowseStockPhotos?: () => void
+  onBrowseWallpapers?: () => void
   onRemoveQrCode?: (layerId: string) => void
   onPaneSelect: (paneId: string) => void
   onPaneQrClick: (paneId: string) => void
@@ -83,7 +83,7 @@ export function Canvas({
   qr = { canAdd: true },
   onInsertLayer,
   insertNodeId,
-  onBrowseStockPhotos,
+  onBrowseWallpapers,
   onRemoveQrCode,
   onPaneSelect,
   onPaneQrClick,
@@ -227,7 +227,7 @@ export function Canvas({
           isMaximized={false}
           qr={qr}
           onAddTextLayerAt={onAddTextLayerAt}
-          onBrowseStockPhotos={onBrowseStockPhotos}
+          onBrowseWallpapers={onBrowseWallpapers}
           onCanvasToolChange={onCanvasToolChange}
           onInsertLayer={onInsertLayer}
           onRemoveQrCode={

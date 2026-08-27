@@ -201,7 +201,7 @@ const DEFAULT_VIEW_ACCESSIBILITY_TITLES: Record<string, string> = {
   background: "Background",
   elements: "Elements",
   element: "Layer style",
-  "stock-photos": "Stock photos",
+  "wallpapers": "Wallpapers",
   "setting-detail": "Setting",
 }
 

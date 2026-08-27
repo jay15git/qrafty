@@ -43,7 +43,7 @@ import type { ScanSafetyResult } from "@/features/qr-code/scan-safety/types"
 import type { DraftingPaneCanvasTool } from "@/features/workspace/components/DraftingPaneSurface"
 
 type DesktopToolbarGroup = "QR" | "Add" | "Manage"
-export type ComposeSidebarPanel = "stock-photos" | null
+export type ComposeSidebarPanel = "wallpapers" | null
 export type DesktopToolbarToolId =
   | "layout"
   | "content"
@@ -308,9 +308,9 @@ export type DesktopToolbarController = {
   onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
   canRemoveQrCode?: boolean
   onRemoveQrCode?: () => void
-  onOpenComposeSidebar?: (panel: "stock-photos") => void
+  onOpenComposeSidebar?: (panel: "wallpapers") => void
   onCloseComposeSidebar?: () => void
-  onSelectStockPhoto?: (imageUrl: string) => void
+  onSelectWallpaper?: (imagePath: string) => void
   onCanvasBackgroundTabChange?: (tab: "shader" | "image" | "color") => void
   onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void

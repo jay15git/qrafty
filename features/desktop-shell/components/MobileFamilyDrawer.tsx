@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/family-drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DesktopElementInspector } from "@/features/desktop-shell/components/DesktopElementInspector"
-import { DesktopPexelsPhotoInspector } from "@/features/desktop-shell/components/DesktopPexelsPhotoInspector"
+import { DesktopWallpaperInspector } from "@/features/desktop-shell/components/DesktopWallpaperInspector"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import {
@@ -270,7 +270,7 @@ function MobileElementView() {
   )
 }
 
-function MobileStockPhotosView() {
+function MobileWallpapersView() {
   const model = useMobileInspectorModel()
   const { setView } = useFamilyDrawer()
   const controller = model.controller
@@ -278,19 +278,19 @@ function MobileStockPhotosView() {
   return (
     <div className="flex min-h-0 flex-col">
       <MobileNestedHeader
-        title="Stock photos"
+        title="Wallpapers"
         onClose={() => {
           controller?.onCloseComposeSidebar?.()
           setView("elements")
         }}
       />
-      <ScrollPersistScope id="drawer:stock-photos">
-        <DesktopPexelsPhotoInspector
+      <ScrollPersistScope id="drawer:wallpapers">
+        <DesktopWallpaperInspector
           onClose={() => {
             controller?.onCloseComposeSidebar?.()
             setView("elements")
           }}
-          onSelectPhoto={(imageUrl) => controller?.onSelectStockPhoto?.(imageUrl)}
+          onSelectWallpaper={(imagePath) => controller?.onSelectWallpaper?.(imagePath)}
         />
       </ScrollPersistScope>
     </div>
@@ -329,7 +329,7 @@ const MOBILE_VIEWS: ViewsRegistry = {
   background: MobileBackgroundSectionView,
   elements: MobileElementsSectionView,
   element: MobileElementView,
-  "stock-photos": MobileStockPhotosView,
+  "wallpapers": MobileWallpapersView,
   "setting-detail": MobileSettingDetailView,
 }
 
@@ -338,8 +338,8 @@ function MobileDrawerViewRouter({ model }: { model: DesktopInspectorModel }) {
   const composePanel = model.controller?.composeSidebarPanel
 
   useEffect(() => {
-    if (composePanel === "stock-photos") {
-      setView("stock-photos")
+    if (composePanel === "wallpapers") {
+      setView("wallpapers")
     }
   }, [composePanel, setView])
 

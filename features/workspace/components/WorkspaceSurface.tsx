@@ -1959,8 +1959,8 @@ export function WorkspaceSurface({
     selectSingleLayer(fallbackLayerId)
   }
 
-  function handleBrowseStockPhotos() {
-    setComposeSidebarPanel("stock-photos")
+  function handleBrowseWallpapers() {
+    setComposeSidebarPanel("wallpapers")
     selectSingleLayer(null)
   }
 
@@ -3459,8 +3459,8 @@ export function WorkspaceSurface({
     onCloseComposeSidebar: () => {
       setComposeSidebarPanel(null)
     },
-    onSelectStockPhoto: (imageUrl) => {
-      updateDesktopImageSettings({ remoteUrl: imageUrl, sourceMode: "url" })
+    onSelectWallpaper: (imagePath) => {
+      updateDesktopImageSettings({ remoteUrl: imagePath, sourceMode: "url" })
       setComposeSidebarPanel(null)
     },
     onCanvasBackgroundTabChange: (tab) => {
@@ -3729,7 +3729,7 @@ export function WorkspaceSurface({
               }}
               qrLayerCount={qrCanvasLayers.length}
               insertNodeId={activeQrNodeId}
-              onBrowseStockPhotos={handleBrowseStockPhotos}
+              onBrowseWallpapers={handleBrowseWallpapers}
               onInsertLayer={handleInsertLayer}
               layerEditingEnabled
               onLayerChange={handleLayerChange}
