@@ -17,7 +17,7 @@ import {
 import { ElementsSection } from "@/features/desktop-shell/inspector/desktopnew-elements-section"
 import { DesktopNewContentFields } from "@/features/desktop-shell/inspector/desktopnew-content-fields"
 import {
-  ContentTypePicker,
+  ContentTypeBrowser,
   SegmentTabs,
   SettingsFillPopover,
   SettingsRowPopover,
@@ -25,8 +25,7 @@ import {
   SettingsSwitchRow,
   SettingsTabPanel,
 } from "@/features/desktop-shell/inspector/settings-ui"
-import { ContentTypeGridIcon } from "@/features/qr-code/content/ContentTypeGridIcon"
-import { getContentTypeLabel } from "@/features/qr-code/content/input-options"
+import { normalizeContentTypeForPicker } from "@/features/qr-code/content/input-options"
 import {
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
   type QrDotMatrixSquareLoader,
@@ -290,35 +289,20 @@ export function ContentSection({ model }: { model: DesktopInspectorModel }) {
     onContentTypeChange,
     onContentValueChange,
   } = model
-  const [typePopoverOpen, setTypePopoverOpen] = useState(false)
+  const normalizedContentType = normalizeContentTypeForPicker(actualContentType)
 
   return (
     <div className={SECTION_STACK}>
-      <SettingsRowPopover
-        contentClassName="w-[17.25rem] p-0"
-        hint="Type"
-        open={typePopoverOpen}
-        trigger={
-          <span className="flex min-w-0 items-center gap-2">
-            <ContentTypeGridIcon className="size-4 shrink-0" type={actualContentType} />
-            <span className="truncate">{getContentTypeLabel(actualContentType)}</span>
-          </span>
-        }
-        onOpenChange={setTypePopoverOpen}
-      >
-        <ContentTypePicker
-          selected={actualContentType}
-          onAfterSelect={() => setTypePopoverOpen(false)}
-          onSelect={onContentTypeChange}
+      <ContentTypeBrowser selected={actualContentType} onSelect={onContentTypeChange} />
+      <SettingsTabPanel activeKey={normalizedContentType}>
+        <DesktopNewContentFields
+          contentType={actualContentType}
+          contentValues={actualContentValues}
+          validation={actualContentValidation}
+          onContentPasteApply={onContentPasteApply}
+          onContentValueChange={onContentValueChange}
         />
-      </SettingsRowPopover>
-      <DesktopNewContentFields
-        contentType={actualContentType}
-        contentValues={actualContentValues}
-        validation={actualContentValidation}
-        onContentPasteApply={onContentPasteApply}
-        onContentValueChange={onContentValueChange}
-      />
+      </SettingsTabPanel>
     </div>
   )
 }

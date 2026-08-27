@@ -4,6 +4,7 @@ import { ChevronRight } from "lucide-react"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
 import {
   useContext,
+  useEffect,
   useLayoutEffect,
   useRef,
   cloneElement,
@@ -24,7 +25,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Switch } from "@/components/ui/switch"
 import { ContentTypeGridIcon } from "@/features/qr-code/content/ContentTypeGridIcon"
 import {
-  getContentTypeLabel,
+  normalizeContentTypeForPicker,
   PICKER_QR_INPUT_TYPES,
   QR_INPUT_OPTIONS,
   type QrInputType,
@@ -41,7 +42,6 @@ import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mo
 import { useMobileDrawerNavigation } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
-import { usePersistedScrollNode } from "@/lib/persisted-element-scroll"
 import { cn } from "@/lib/utils"
 
 import "./desktopnew.css"
@@ -229,27 +229,56 @@ export function SettingsAccordion({
   )
 }
 
+export type SegmentTabItem = {
+  ariaLabel?: string
+  icon?: ReactNode
+  id: string
+  label: string
+}
+
+type SegmentTabInput = string | SegmentTabItem
+
+function normalizeSegmentTabItems(items: SegmentTabInput[]): SegmentTabItem[] {
+  return items.map((item) =>
+    typeof item === "string" ? { id: item, label: item } : item,
+  )
+}
+
+function resolveActiveSegmentTab(items: SegmentTabItem[], value: string) {
+  return items.find((item) => item.id === value || item.label === value)
+}
+
 export function SegmentTabs({
   items,
   value,
   onChange,
   className,
   variant = "primary",
+  scrollable = false,
+  persistKey,
 }: {
-  items: string[]
+  items: SegmentTabInput[]
   value: string
   onChange: (value: string) => void
   className?: string
   variant?: "primary" | "muted"
+  scrollable?: boolean
+  persistKey?: string
 }) {
   const tablistRef = useRef<HTMLDivElement>(null)
   const pillRef = useRef<HTMLSpanElement>(null)
   const tabRefs = useRef(new Map<string, HTMLButtonElement>())
+  const activeKeyRef = useRef("")
   const hasPositionedPill = useRef(false)
+  const normalizedItems = normalizeSegmentTabItems(items)
+  const activeItem = resolveActiveSegmentTab(normalizedItems, value) ?? normalizedItems[0]
+  const activeKey = activeItem?.id ?? value
 
-  const movePill = (item: string, animate: boolean) => {
+  activeKeyRef.current = activeKey
+
+  const movePill = (key: string, animate: boolean) => {
     const pill = pillRef.current
-    const tab = tabRefs.current.get(item)
+    const tab = tabRefs.current.get(key)
     if (!pill || !tab) return
 
     if (!animate) {
@@ -267,27 +296,42 @@ export function SegmentTabs({
   }
 
   useLayoutEffect(() => {
-    movePill(value, hasPositionedPill.current)
+    movePill(activeKey, hasPositionedPill.current)
     hasPositionedPill.current = true
-  }, [value])
+  }, [activeKey])
+
+  useEffect(() => {
+    if (!scrollable) return
+
+    const tab = tabRefs.current.get(activeKey)
+    if (!tab) return
+
+    const timeout = window.setTimeout(() => {
+      tab.scrollIntoView({ block: "nearest", inline: "nearest" })
+    }, 220)
+
+    return () => window.clearTimeout(timeout)
+  }, [activeKey, scrollable])
 
   useLayoutEffect(() => {
     const tablist = tablistRef.current
     if (!tablist) return
 
     const observer = new ResizeObserver(() => {
-      const activeTab = tablist.querySelector<HTMLButtonElement>('[role="tab"][aria-selected="true"]')
-      if (activeTab) movePill(activeTab.textContent ?? "", false)
+      movePill(activeKeyRef.current, false)
     })
     observer.observe(tablist)
     return () => observer.disconnect()
   }, [])
 
-  return (
+  const tablist = (
     <div
       ref={tablistRef}
       className={cn(
-        "t-tabs dn-tab-bar flex w-full max-w-full gap-1 overflow-hidden bg-transparent p-0 dn-squircle-xs",
+        "t-tabs dn-tab-bar flex gap-1 bg-transparent p-0 dn-squircle-xs",
+        scrollable
+          ? "dn-content-type-tab-bar min-w-max max-w-none"
+          : "w-full max-w-full overflow-hidden",
         variant === "muted" && "t-tabs--muted",
         className,
       )}
@@ -298,31 +342,63 @@ export function SegmentTabs({
         aria-hidden
         className={cn("t-tabs-pill dn-squircle-xs", variant === "muted" && "t-tabs-pill--muted")}
       />
-      {items.map((item) => {
-        const active = value === item
+      {normalizedItems.map((item) => {
+        const active = item.id === activeKey
+        const hasIcon = Boolean(item.icon)
+
         return (
           <button
-            key={item}
+            key={item.id}
             ref={(element) => {
-              if (element) tabRefs.current.set(item, element)
-              else tabRefs.current.delete(item)
+              if (element) tabRefs.current.set(item.id, element)
+              else tabRefs.current.delete(item.id)
             }}
+            aria-label={item.ariaLabel ?? item.label}
             className={cn(
-              "t-tab dn-segment-tab dn-pressable-press-only dn-type-chip flex min-w-0 flex-1 items-center justify-center px-2 dn-squircle-xs",
+              "t-tab dn-segment-tab dn-pressable-press-only dn-type-chip flex items-center dn-squircle-xs",
+              scrollable || hasIcon
+                ? "dn-content-type-segment-tab shrink-0 gap-1.5 px-2.5"
+                : "min-w-0 flex-1 justify-center px-2",
               variant === "muted" && "dn-segment-tab--muted",
               active ? "text-[var(--dn-fg)]" : "bg-transparent text-[var(--dn-muted)]",
             )}
             role="tab"
             type="button"
             aria-selected={active}
-            onClick={() => onChange(item)}
+            onClick={() => onChange(item.id)}
           >
-            {item}
+            {item.icon ? (
+              <>
+                {item.icon}
+                <span className="dn-content-type-segment-label">{item.label}</span>
+              </>
+            ) : (
+              item.label
+            )}
           </button>
         )
       })}
     </div>
   )
+
+  if (scrollable) {
+    return (
+      <ScrollArea
+        className="w-full min-w-0 max-w-full overflow-hidden"
+        chevron={false}
+        cueSize="tight"
+        orientation="horizontal"
+        persistKey={persistKey ?? "segment-tabs"}
+        scrollFade
+        showScrollbar={false}
+        viewportClassName="min-w-0"
+      >
+        {tablist}
+      </ScrollArea>
+    )
+  }
+
+  return tablist
 }
 
 const TAB_PANEL_EASE_ENTER = [0.16, 1, 0.3, 1] as const
@@ -626,6 +702,39 @@ export function SettingsRowPopover({
   )
 }
 
+const OPTION_TILE_SCROLL_ROW = "dn-preview-row dn-option-tile-scroll-row"
+
+export function ContentTypeBrowser({
+  onAfterSelect,
+  selected,
+  onSelect,
+}: {
+  onAfterSelect?: () => void
+  selected: QrInputType
+  onSelect: (type: QrInputType) => void
+}) {
+  const normalizedSelected = normalizeContentTypeForPicker(selected)
+  const types = PICKER_QR_INPUT_TYPES.map((type) => QR_INPUT_OPTIONS[type])
+
+  return (
+    <SegmentTabs
+      persistKey="content-type"
+      scrollable
+      items={types.map((option) => ({
+        id: option.value,
+        label: option.label,
+        icon: <ContentTypeGridIcon className="dn-content-type-segment-icon" type={option.value} />,
+      }))}
+      value={normalizedSelected}
+      onChange={(next) => {
+        onSelect(next as QrInputType)
+        onAfterSelect?.()
+      }}
+    />
+  )
+}
+
+/** Popover grid — kept for compact surfaces that still use `SettingsRowPopover`. */
 export function ContentTypePicker({
   onAfterSelect,
   selected,
@@ -680,29 +789,48 @@ export function OptionScrollRow({
   persistKey?: string
   selected: string
 }) {
-  const setNode = usePersistedScrollNode(persistKey)
+  const tiles = items.map((item) => {
+    const isSelected = selected === item
+
+    return (
+      <button
+        key={item}
+        aria-pressed={isSelected}
+        className={cn(
+          "dn-option-scroll-tile dn-option-tile dn-control-surface shrink-0 px-3 dn-type-chip dn-squircle-xs",
+          isSelected && "text-[var(--dn-fg)]",
+        )}
+        type="button"
+        onClick={() => onSelect?.(item)}
+      >
+        {item}
+      </button>
+    )
+  })
+
+  if (fill) {
+    return (
+      <div className="dn-option-scroll-row dn-option-scroll-row--fill">
+        {tiles}
+      </div>
+    )
+  }
 
   return (
-    <div
-      ref={setNode}
-      className={cn("dn-option-scroll-row", fill && "dn-option-scroll-row--fill")}
+    <ScrollArea
+      className="w-full min-w-0 max-w-full overflow-hidden"
+      chevron={false}
+      cueSize="tight"
+      orientation="horizontal"
+      persistKey={persistKey}
+      scrollFade
+      showScrollbar={false}
+      viewportClassName="min-w-0"
     >
-      {items.map((item) => {
-        const isSelected = selected === item
-
-        return (
-          <button
-            key={item}
-            aria-pressed={isSelected}
-            className="dn-option-tile dn-option-scroll-chip dn-squircle-xs"
-            type="button"
-            onClick={() => onSelect?.(item)}
-          >
-            {item}
-          </button>
-        )
-      })}
-    </div>
+      <div className={OPTION_TILE_SCROLL_ROW}>
+        {tiles}
+      </div>
+    </ScrollArea>
   )
 }
 

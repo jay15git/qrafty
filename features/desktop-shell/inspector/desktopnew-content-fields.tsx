@@ -98,17 +98,19 @@ function ContentFieldRow({
   }
 
   if (field.type === "segmented") {
+    const options = field.options ?? []
+    const selectedLabel =
+      options.find((option) => option.value === field.value)?.label ?? options[0]?.label ?? ""
+
     return (
       <div className="flex flex-col gap-1">
         {field.label ? <span className="dn-type-meta px-0.5">{field.label}</span> : null}
         <OptionScrollRow
           persistKey={field.id}
-          items={field.options?.map((option) => option.label) ?? []}
-          selected={
-            field.options?.find((option) => option.value === field.value)?.label ?? ""
-          }
+          items={options.map((option) => option.label)}
+          selected={selectedLabel}
           onSelect={(label) => {
-            const option = field.options?.find((entry) => entry.label === label)
+            const option = options.find((entry) => entry.label === label)
             if (option) {
               onContentValueChange(field.id, option.value)
             }
@@ -287,7 +289,6 @@ export function DesktopNewContentFields({
   return (
     <SpellUiScope>
       <div
-        key={contentType}
         className={cn("flex min-w-0 flex-col gap-3 pt-1")}
         data-slot="desktopnew-content-fields"
         onPaste={handlePaste}
