@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useLayoutEffect,
   useRef,
   useState,
@@ -20,6 +21,11 @@ import {
   type DesktopInspectorOptionGridSpacing,
 } from "@/features/desktop-shell/inspector/inspector-option-grid.classes"
 import { cn } from "@/lib/utils"
+import {
+  resolveScrollPersistKey,
+  usePersistedElementScroll,
+  useScrollPersistScope,
+} from "@/lib/persisted-element-scroll"
 
 function desktopInspectorOptionRowClass(className?: string) {
   return cn(
@@ -337,6 +343,17 @@ export function DesktopInspectorOptionGridScrollArea({
     rowKind,
     variant,
   })
+  const [horizontalNode, setHorizontalNode] = useState<HTMLDivElement | null>(null)
+  const persistScope = useScrollPersistScope()
+  const persistReactId = useId()
+  usePersistedElementScroll(
+    isHorizontal ? horizontalNode : null,
+    resolveScrollPersistKey({
+      dataSlot,
+      scope: persistScope,
+      reactId: persistReactId,
+    }),
+  )
   const shelfProps = {
     "aria-label": ariaLabel,
     "data-slot": shelfDataSlot ?? dataSlot.replace(/-scroll-area$/, ""),
@@ -349,6 +366,7 @@ export function DesktopInspectorOptionGridScrollArea({
       <SurfaceProvider value={2}>
         <div className="min-w-0 w-full max-w-full" style={{ width: "100%" }}>
           <div
+            ref={setHorizontalNode}
             className={cn(
               "min-w-0 w-full max-w-full overflow-x-auto overflow-y-hidden overscroll-x-contain [-webkit-overflow-scrolling:touch]",
               heightClass,

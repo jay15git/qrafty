@@ -232,6 +232,7 @@ function ModulePatternPicker({
         chevron={false}
         cueSize="tight"
         orientation="horizontal"
+        persistKey="module-pattern-palettes"
         scrollFade
         showScrollbar={false}
         viewportClassName="min-w-0"

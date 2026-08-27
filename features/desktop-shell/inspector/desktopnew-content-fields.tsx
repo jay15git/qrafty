@@ -102,6 +102,7 @@ function ContentFieldRow({
       <div className="flex flex-col gap-1">
         {field.label ? <span className="dn-type-meta px-0.5">{field.label}</span> : null}
         <OptionScrollRow
+          persistKey={field.id}
           items={field.options?.map((option) => option.label) ?? []}
           selected={
             field.options?.find((option) => option.value === field.value)?.label ?? ""

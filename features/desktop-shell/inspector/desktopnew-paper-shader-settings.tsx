@@ -35,11 +35,13 @@ const SECTION_GAP = "dn-section-stack"
 function HorizontalShaderOptionRow({
   label,
   items,
+  persistKey,
   selected,
   onSelect,
 }: {
   label?: string
   items: Array<{ value: string; label: string }>
+  persistKey: string
   selected: string
   onSelect: (value: string) => void
 }) {
@@ -51,6 +53,7 @@ function HorizontalShaderOptionRow({
         chevron={false}
         cueSize="tight"
         orientation="horizontal"
+        persistKey={persistKey}
         scrollFade
         showScrollbar={false}
         viewportClassName="min-w-0"
@@ -286,6 +289,7 @@ export function SettingsPaperShaderControls({
         {shapeControl ? (
           <HorizontalShaderOptionRow
             label="Shape"
+            persistKey={`paper-shader-shape:${paperShader.shaderId}`}
             items={shapeControl.options.map((option) => ({
               value: option,
               label: formatPaperShaderParamLabel(option),
@@ -360,6 +364,7 @@ export function SettingsPaperShaderControls({
   return (
     <div className={SECTION_GAP}>
       <HorizontalShaderOptionRow
+        persistKey={`paper-shader-presets:${paperShader.shaderId}`}
         items={definition.presets.map((preset) => ({
           value: preset.name,
           label: preset.name,

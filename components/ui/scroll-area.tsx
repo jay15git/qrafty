@@ -11,12 +11,18 @@ import {
   createContext,
   forwardRef,
   useContext,
+  useId,
   useState,
   type ComponentPropsWithoutRef,
   type ComponentRef,
 } from "react";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import { cn } from "@/lib/utils";
+import {
+  resolveScrollPersistKey,
+  usePersistedElementScroll,
+  useScrollPersistScope,
+} from "@/lib/persisted-element-scroll";
 import { useShape } from "@/lib/shape-context";
 import {
   useScrollEdges,
@@ -57,6 +63,11 @@ interface ScrollAreaProps
    *  Set `false` on horizontal carousels to drop the invisible bottom
    *  track hit area. */
   showScrollbar?: boolean;
+  /** Stable id for restoring scroll after accordion collapse, tab
+   *  switches, and family-drawer remounts. Falls back to `data-slot`
+   *  or the nearest `ScrollPersistScope`. */
+  persistKey?: string;
+  "data-slot"?: string;
 }
 
 const ScrollArea = forwardRef<
@@ -75,12 +86,25 @@ const ScrollArea = forwardRef<
       chevronOutside = false,
       orientation = "vertical",
       showScrollbar = true,
+      persistKey,
+      "data-slot": dataSlot,
       ...props
     },
     ref
   ) => {
     const [viewportNode, setViewportNode] = useState<HTMLDivElement | null>(
       null,
+    );
+    const persistScope = useScrollPersistScope();
+    const persistReactId = useId();
+    usePersistedElementScroll(
+      viewportNode,
+      resolveScrollPersistKey({
+        persistKey,
+        dataSlot,
+        scope: persistScope,
+        reactId: persistReactId,
+      }),
     );
     const isTouch = useTouchPrimary();
     const edges = useScrollEdges(viewportNode, {
@@ -134,7 +158,7 @@ const ScrollArea = forwardRef<
       <div
         ref={ref}
         role="group"
-        data-slot="scroll-area"
+        data-slot={dataSlot ?? "scroll-area"}
         data-orientation={orientation}
         aria-roledescription="scroll area"
         className={cn("relative overflow-hidden", className)}
@@ -159,7 +183,7 @@ const ScrollArea = forwardRef<
     ) : (
       <ScrollAreaPrimitive.Root
         ref={ref}
-        data-slot="scroll-area"
+        data-slot={dataSlot ?? "scroll-area"}
         data-orientation={orientation}
         scrollHideDelay={scrollHideDelay}
         className={cn("relative overflow-hidden", className)}

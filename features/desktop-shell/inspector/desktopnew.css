@@ -1012,8 +1012,9 @@
   backface-visibility: hidden;
 }
 
-/* Radix ScrollArea's generated table wrapper sizes itself to the widest
- * accordion child. The settings rail must stay pinned to its sidebar width. */
+/* Radix Viewport injects a display:table wrap; our ScrollArea then wraps
+ * children in [data-slot="scroll-area-inner"]. Flex + min-height must land
+ * on the inner so short rails can center and tall ones still scroll. */
 .dn-settings-scroll [data-slot="scroll-area-viewport"] > div {
   display: flex !important;
   flex-direction: column;
@@ -1022,8 +1023,17 @@
   width: 100% !important;
 }
 
+.dn-settings-scroll [data-slot="scroll-area-inner"] {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+  min-width: 0;
+  width: 100%;
+}
+
 .dn-settings-scroll .dn-settings-accordion {
-  margin-block: auto;
   flex-shrink: 0;
 }
 

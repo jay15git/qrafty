@@ -60,6 +60,7 @@ import {
 } from "@/features/workspace/rendering/paper-shaders"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
+import { ScrollPersistScope } from "@/lib/persisted-element-scroll"
 
 export const SECTION_STACK = "dn-section-stack"
 const PREVIEW_TILE =
@@ -83,6 +84,7 @@ function QrStylePreviewGrid({
       chevron={false}
       cueSize="tight"
       orientation="horizontal"
+      persistKey={`qr-style:${previewKind}`}
       scrollFade
       showScrollbar={false}
       viewportClassName="min-w-0"
@@ -130,6 +132,7 @@ function ShapeTypePreviewRow({
       chevron={false}
       cueSize="tight"
       orientation="horizontal"
+      persistKey="qr-background-shapes"
       scrollFade
       showScrollbar={false}
       viewportClassName="min-w-0"
@@ -200,6 +203,7 @@ function PaperShaderPreviewRow({
       chevron={false}
       cueSize="tight"
       orientation="horizontal"
+      persistKey="paper-shader-gallery"
       scrollFade
       showScrollbar={false}
       viewportClassName="min-w-0"
@@ -244,6 +248,7 @@ function MotionLoaderPresetGrid({
       chevron={false}
       cueSize="tight"
       orientation="horizontal"
+      persistKey="motion-loader-presets"
       scrollFade
       showScrollbar={false}
       viewportClassName="min-w-0"
@@ -657,20 +662,29 @@ export function SettingsSectionBody({
   id: string
   model: DesktopInspectorModel
 }) {
+  let body = null
   switch (id) {
     case "Content":
-      return <ContentSection model={model} />
+      body = <ContentSection model={model} />
+      break
     case "QR":
-      return <QrStyleSection model={model} />
+      body = <QrStyleSection model={model} />
+      break
     case "Shape":
-      return <CardSection model={model} />
+      body = <CardSection model={model} />
+      break
     case "Background":
-      return <SceneSection model={model} />
+      body = <SceneSection model={model} />
+      break
     case "Motion":
-      return <MotionSection model={model} />
+      body = <MotionSection model={model} />
+      break
     case "Elements":
-      return <ElementsSection model={model} />
+      body = <ElementsSection model={model} />
+      break
     default:
-      return null
+      body = null
   }
+
+  return <ScrollPersistScope id={`settings:${id}`}>{body}</ScrollPersistScope>
 }

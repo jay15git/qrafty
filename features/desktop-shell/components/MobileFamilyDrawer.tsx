@@ -43,6 +43,7 @@ import {
 } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import { previewDrawerResize } from "@/features/workspace/preview/preview-drawer-resize"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
+import { ScrollPersistScope } from "@/lib/persisted-element-scroll"
 import { cn } from "@/lib/utils"
 
 import "@/features/desktop-shell/inspector/desktopnew.css"
@@ -197,6 +198,7 @@ function MobileMenuView() {
         chevron={false}
         cueSize="tight"
         orientation="horizontal"
+        persistKey="mobile-drawer-menu"
         scrollFade
         showScrollbar={false}
         viewportClassName="min-w-0"
@@ -240,7 +242,9 @@ function MobileElementView() {
     <div className="desktopnew-root w-full min-w-0" data-theme={model.actualDesktopTheme}>
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
         <MobileNestedHeader title="Layer style" onClose={() => setView("default")} />
-        <DesktopElementInspector layer={layer} onPatch={onPatch} />
+        <ScrollPersistScope id="drawer:element">
+          <DesktopElementInspector layer={layer} onPatch={onPatch} />
+        </ScrollPersistScope>
       </DesktopnewThemeContext.Provider>
     </div>
   )
@@ -260,13 +264,15 @@ function MobileStockPhotosView() {
           setView("elements")
         }}
       />
-      <DesktopPexelsPhotoInspector
-        onClose={() => {
-          controller?.onCloseComposeSidebar?.()
-          setView("elements")
-        }}
-        onSelectPhoto={(imageUrl) => controller?.onSelectStockPhoto?.(imageUrl)}
-      />
+      <ScrollPersistScope id="drawer:stock-photos">
+        <DesktopPexelsPhotoInspector
+          onClose={() => {
+            controller?.onCloseComposeSidebar?.()
+            setView("elements")
+          }}
+          onSelectPhoto={(imageUrl) => controller?.onSelectStockPhoto?.(imageUrl)}
+        />
+      </ScrollPersistScope>
     </div>
   )
 }
@@ -284,9 +290,11 @@ function MobileSettingDetailView() {
     <div className="desktopnew-root w-full min-w-0" data-theme={model.actualDesktopTheme}>
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
         <MobileNestedHeader title={payload.title} onClose={() => navigation?.closeDetail()} />
-        <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
-          {payload.content}
-        </div>
+        <ScrollPersistScope id="drawer:setting-detail">
+          <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
+            {payload.content}
+          </div>
+        </ScrollPersistScope>
       </DesktopnewThemeContext.Provider>
     </div>
   )
