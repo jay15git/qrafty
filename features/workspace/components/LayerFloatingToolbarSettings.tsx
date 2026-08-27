@@ -76,7 +76,7 @@ const LayerFloatingSettingsButton = forwardRef<
       aria-label={ariaLabel}
       aria-pressed={active}
       className={cn(
-        "flex size-9 cursor-pointer items-center justify-center rounded-xl text-current transition-[background-color,color] duration-150 hover:bg-[var(--ws-layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--ws-layer-toolbar-button-hover-text,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45",
+        "flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl text-current transition-[background-color,color] duration-150 hover:bg-[var(--ws-layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--ws-layer-toolbar-button-hover-text,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45",
         active && "bg-white/[0.16] text-white",
         className,
       )}
@@ -144,7 +144,7 @@ function FillColorToolbarButton({
 }) {
   return (
     <div
-      className="flex size-8 items-center justify-center"
+      className="flex size-9 shrink-0 items-center justify-center"
       data-slot="drafting-layer-floating-toolbar-color"
       onPointerDown={(event) => event.stopPropagation()}
     >

@@ -70,7 +70,7 @@ export function IllustrationFloatingColorControl({
   if (sourceColors.length === 1) {
     return (
       <div
-        className="flex size-8 items-center justify-center"
+        className="flex size-9 shrink-0 items-center justify-center"
         data-slot="drafting-layer-floating-toolbar-color"
         onPointerDown={(event) => event.stopPropagation()}
       >
@@ -85,6 +85,7 @@ export function IllustrationFloatingColorControl({
             title="Illustration color"
             value={displayColors[0] ?? "#171717"}
             variant="swatch"
+            triggerClassName="size-9 rounded-xl [&>span]:size-7 [&>span]:rounded-xl"
             onValueChange={(_fill: Fill, css: string) => {
               patchStop(0, fillPreviewHex(css))
             }}
@@ -96,7 +97,7 @@ export function IllustrationFloatingColorControl({
 
   return (
     <div
-      className="flex size-8 items-center justify-center"
+      className="flex size-9 shrink-0 items-center justify-center"
       data-slot="drafting-layer-floating-toolbar-color"
       onPointerDown={(event) => event.stopPropagation()}
     >

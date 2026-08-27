@@ -35,6 +35,8 @@ vi.mock("@/features/qr-code/rendering/qr-studio-markup", async (importOriginal) 
 })
 
 import { Pane } from "@/features/workspace/components/Pane"
+import { RESIZE_CONTROL_PADDING_PX, ROTATE_HANDLE_OFFSET_PX, ROTATE_HANDLE_RADIUS_PX, ROTATE_LABEL_GAP_PX } from "@/features/workspace/components/pane-layer-chrome.constants"
+import { getChromeFrameRect } from "@/features/workspace/components/pane-layer-chrome-overlay"
 import {
   createDefaultDraftingCardPaperShader,
   createDefaultDraftingCardState,
@@ -429,12 +431,14 @@ describe("Pane", () => {
       container.querySelectorAll('[data-slot="drafting-layer-resize-edge"]'),
     ).map((handle) => handle.getAttribute("data-resize-direction"))
     const resizeHandle = container.querySelector('[data-slot="drafting-layer-resize-handle"]')
+    const resizeKnob = container.querySelector('[data-slot="drafting-layer-resize-handle-knob"]')
 
     expect(cornerDirections).toEqual(["ne", "se", "sw", "nw"])
     expect(edgeDirections).toEqual(["n", "e", "s", "w"])
-    expect(resizeHandle?.className).toContain("rounded-full")
-    expect(resizeHandle?.className).toContain("border-[#a8b0bb]")
-    expect(resizeHandle?.className).toContain("bg-white")
+    expect(resizeHandle?.className).toContain("size-4")
+    expect(resizeKnob?.className).toContain("rounded-[2px]")
+    expect(resizeKnob?.className).toContain("border-[var(--ws-resize-frame)]")
+    expect(resizeKnob?.className).toContain("bg-white")
   })
 
   it("keeps resize control padding equal around selected qr layers", async () => {
@@ -452,17 +456,77 @@ describe("Pane", () => {
 
     const card = container.querySelector('[data-slot="desktop-compose-card"]') as HTMLElement
     const frame = container.querySelector('[data-slot="drafting-layer-resize-frame"]') as HTMLElement
+    const artboard = container.querySelector('[data-slot="desktop-compose-artboard"]') as HTMLElement
+    const overlay = container.querySelector('[data-slot="drafting-layer-chrome-overlay"]') as HTMLElement
+    const layers = createDefaultDraftingLayers("preview", state, cardState)
+    const qrLayer = layers.find((layer) => layer.id === getDraftingQrLayerId("preview"))
+    const frameRect = getChromeFrameRect(
+      qrLayer!,
+      RESIZE_CONTROL_PADDING_PX,
+      {
+        contentOnlyZoom: false,
+        contentPanX: 0,
+        contentPanY: 0,
+        interactionScale: 1,
+        viewFitScale: 1,
+      },
+    )
 
     expect(card).not.toBeNull()
     expect(card.className).toContain("overflow-hidden")
     expect(card.className).toContain("pointer-events-none")
     expect(card.className).not.toContain("outline")
     expect(frame).not.toBeNull()
-    expect(frame.className).toContain("border")
-    expect(frame.style.width).toBe("264px")
-    expect(frame.style.height).toBe("264px")
-    expect(frame.style.transform).toBe("translate3d(-132px, -180px, 0)")
+    expect(overlay).not.toBeNull()
+    expect(artboard.contains(frame)).toBe(false)
+    expect(overlay.contains(frame)).toBe(true)
+    expect(frame.className).toContain("border-2")
+    expect(frame.style.width).toBe(`${frameRect.width}px`)
+    expect(frame.style.height).toBe(`${frameRect.height}px`)
+    expect(frame.style.transform).toBe(`translate3d(${frameRect.x}px, ${frameRect.y}px, 0)`)
     expect(frame.style.zIndex).toBe("10000")
+  })
+
+  it("keeps overlay chrome screen-sized when the artboard is fitted down", async () => {
+    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const cardState = createAutoSizedCardState({
+      bottomSpace: 96,
+      padding: 20,
+    })
+    const viewFitScale = 0.5
+    const { container } = renderPane(state, true, cardState, {
+      onLayerChange: () => undefined,
+      selectedLayerId: getDraftingQrLayerId("preview"),
+      viewFitScale,
+    })
+
+    await waitForQrPaneRender()
+
+    const layers = createDefaultDraftingLayers("preview", state, cardState)
+    const qrLayer = layers.find((layer) => layer.id === getDraftingQrLayerId("preview"))
+    const frame = container.querySelector('[data-slot="drafting-layer-resize-frame"]') as HTMLElement
+    const toolbar = container.querySelector('[data-slot="drafting-layer-floating-toolbar"]') as HTMLElement
+    const handle = container.querySelector('[data-slot="drafting-layer-resize-handle"]')
+    const artboard = container.querySelector('[data-slot="desktop-compose-artboard"]') as HTMLElement
+    const frameRect = getChromeFrameRect(
+      qrLayer!,
+      RESIZE_CONTROL_PADDING_PX,
+      {
+        contentOnlyZoom: false,
+        contentPanX: 0,
+        contentPanY: 0,
+        interactionScale: 1,
+        viewFitScale,
+      },
+    )
+
+    expect(artboard.contains(frame)).toBe(false)
+    expect(artboard.contains(toolbar)).toBe(false)
+    expect(frame.style.width).toBe(`${frameRect.width}px`)
+    expect(frame.style.height).toBe(`${frameRect.height}px`)
+    expect(handle?.className).toContain("size-4")
+    expect(toolbar.className).toContain("h-12")
+    expect(toolbar.className).toContain("min-w-48")
   })
 
   it("snaps moving layers to nearby layer center guides", async () => {
@@ -677,15 +741,16 @@ describe("Pane", () => {
     await waitForQrPaneRender()
 
     const rotateHandle = container.querySelector('[data-slot="drafting-layer-rotate-handle"]')
+    const rotateKnob = container.querySelector('[data-slot="drafting-layer-rotate-handle-knob"]')
 
     expect(rotateHandle).not.toBeNull()
     expect(rotateHandle?.querySelector("svg")).toBeNull()
-    expect(rotateHandle?.className).toContain("rounded-full")
-    expect(rotateHandle?.className).toContain("border-[#a8b0bb]")
-    expect(rotateHandle?.className).toContain("bg-white")
-    expect(rotateHandle?.className).toContain("size-3")
+    expect(rotateHandle?.className).toContain("size-4")
+    expect(rotateKnob?.className).toContain("rounded-full")
+    expect(rotateKnob?.className).toContain("border-[var(--ws-resize-frame)]")
+    expect(rotateKnob?.className).toContain("bg-white")
     expect((rotateHandle as HTMLElement | null)?.style.transform).toBe(
-      "translate(-50%, calc(-34px - 50%))",
+      `translate(-50%, calc(-${ROTATE_HANDLE_OFFSET_PX}px - 50%))`,
     )
     expect(container.querySelector('[data-slot="drafting-layer-rotation-value"]')).toBeNull()
     expect(container.innerHTML).toContain('aria-label="Rotate QR code"')
@@ -1192,7 +1257,7 @@ describe("Pane", () => {
 
     expect(rotationValue).not.toBeNull()
     expect(rotationValue.style.transform).toBe(
-      "translate(-50%, calc(-34px - 6px - 8px - 100%))",
+      `translate(-50%, calc(-${ROTATE_HANDLE_OFFSET_PX}px - ${ROTATE_HANDLE_RADIUS_PX}px - ${ROTATE_LABEL_GAP_PX}px - 100%))`,
     )
     expect(rotationValue.textContent).toBe("0°")
 
@@ -1601,7 +1666,7 @@ describe("Pane", () => {
       rotateHandle.dispatchEvent(createPointerEvent("pointermove", 337, 100))
     })
 
-    expect(frame.style.transform).toBe("translate3d(-112px, -62px, 0) rotate(90deg)")
+    expect(frame.style.transform).toBe("translate3d(-104px, -54px, 0) rotate(90deg)")
     expect(container.querySelector('[data-slot="drafting-layer-rotation-value"]')?.textContent).toBe(
       "90°",
     )
@@ -1671,9 +1736,9 @@ describe("Pane", () => {
       '[data-slot="drafting-layer-multi-select-frame"]',
     ) as HTMLElement
 
-    expect(activeFrame.style.width).toBe("274px")
-    expect(activeFrame.style.height).toBe("124px")
-    expect(activeFrame.style.transform).toBe("translate3d(-112px, -62px, 0) rotate(90deg)")
+    expect(activeFrame.style.width).toBe("258px")
+    expect(activeFrame.style.height).toBe("108px")
+    expect(activeFrame.style.transform).toBe("translate3d(-104px, -54px, 0) rotate(90deg)")
   })
 
   it("matches the combined selector to already rotated selected layers", async () => {
@@ -1692,9 +1757,9 @@ describe("Pane", () => {
       '[data-slot="drafting-layer-multi-select-frame"]',
     ) as HTMLElement
 
-    expect(activeFrame.style.width).toBe("274px")
-    expect(activeFrame.style.height).toBe("124px")
-    expect(activeFrame.style.transform).toBe("translate3d(-112px, -62px, 0) rotate(90deg)")
+    expect(activeFrame.style.width).toBe("258px")
+    expect(activeFrame.style.height).toBe("108px")
+    expect(activeFrame.style.transform).toBe("translate3d(-104px, -54px, 0) rotate(90deg)")
   })
 
   it("moves every selected layer without collapsing the combined selector", async () => {
@@ -1794,6 +1859,8 @@ function renderPane(
     selectedLayerId?: string | null
     selectedLayerIds?: string[]
     snapEnabled?: boolean
+    viewFitScale?: number
+    interactionScale?: number
     sceneComposition?: import("@/features/workspace/model/scene-templates").SceneCompositionState
   } = {},
 ) {
@@ -1822,6 +1889,8 @@ function renderPane(
         selectedLayerId={props.selectedLayerId}
         selectedLayerIds={props.selectedLayerIds}
         snapEnabled={props.snapEnabled}
+        viewFitScale={props.viewFitScale}
+        interactionScale={props.interactionScale}
       />,
     )
   })

@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -26,7 +27,6 @@ import {
 import {
   ensureDraftingFontsForLayers,
 } from "@/features/workspace/model/fonts"
-import { DraftingLayerTiltShell } from "@/features/workspace/components/DraftingLayerTiltShell"
 import {
   SceneCompositionTransform,
 } from "@/features/workspace/components/SceneBackgroundLayer"
@@ -45,17 +45,25 @@ import {
   CONTEXT_MENU_POINTER_OFFSET_PX,
   FLOATING_TOOLBAR_GAP_PX,
   FLOATING_TOOLBAR_HEIGHT_PX,
+  FLOATING_TOOLBAR_MIN_WIDTH_PX,
   RESIZE_CONTROL_PADDING_PX,
   FLOATING_TOOLBAR_EDGE_GUTTER_PX,
   RESIZE_SNAP_THRESHOLD_PX,
   ROTATE_HANDLE_OFFSET_PX,
   ROTATE_HANDLE_RADIUS_PX,
+  ROTATE_HANDLE_STEM_PX,
   ROTATE_LABEL_GAP_PX,
   type DraftingLayerMenuAction,
 } from "@/features/workspace/components/pane-layer-chrome.constants"
 import {
+  documentToChromeOffset,
+  documentToChromeSize,
+  getChromeFrameRect,
+  getFloatingToolbarChromePosition,
+  type ChromeSpace,
+} from "@/features/workspace/components/pane-layer-chrome-overlay"
+import {
   getDraftingCardBorderStyle,
-  getLayerControlShellStyle,
 } from "@/features/workspace/rendering/layer-dom-styles"
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
@@ -201,6 +209,7 @@ export function PaneWorkspace({
   const [isMovingLayers, setIsMovingLayers] = useState(false)
   const [canvasHeight, setCanvasHeight] = useState(0)
   const [canvasWidth, setCanvasWidth] = useState(0)
+  const [toolbarWidth, setToolbarWidth] = useState(FLOATING_TOOLBAR_MIN_WIDTH_PX)
   const [rotationPreviewDegrees, setRotationPreviewDegrees] = useState<number | null>(null)
   const [multiSelectionPreview, setMultiSelectionPreview] = useState<{
     bounds: Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> & { rotation?: number }
@@ -250,6 +259,7 @@ export function PaneWorkspace({
   } | null>(null)
   const rotationLabelTimeoutRef = useRef<number | null>(null)
   const canvasRef = useRef<HTMLDivElement | null>(null)
+  const toolbarRef = useRef<HTMLDivElement | null>(null)
   const textEditorRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
   const marqueeRef = useRef<typeof marquee>(null)
   const suppressCanvasClickRef = useRef(false)
@@ -395,6 +405,13 @@ export function PaneWorkspace({
   const previewStageBorderRadius = cornerRadiiToCss(
     scalePreviewCornerRadiiState(cardState.cornerRadii, artboardScale),
   )
+  const chromeSpace: ChromeSpace = {
+    contentOnlyZoom,
+    contentPanX: contentPan?.x ?? 0,
+    contentPanY: contentPan?.y ?? 0,
+    interactionScale,
+    viewFitScale,
+  }
   const contentTransformStyle: CSSProperties | undefined = contentOnlyZoom
     ? buildContentTransformStyle(contentPan, interactionScale)
     : undefined
@@ -407,6 +424,28 @@ export function PaneWorkspace({
     ? resolvedLayers.filter((layer) => contextMenuLayerIdSet?.has(layer.id))
     : []
   const combinedLayerBounds = getCombinedLayerBounds(selectedVisibleLayers)
+  const chromeSnapGuides: SnapGuides = {
+    horizontal: snapGuides.horizontal.map(
+      (y) => documentToChromeOffset(0, y, chromeSpace).y,
+    ),
+    vertical: snapGuides.vertical.map(
+      (x) => documentToChromeOffset(x, 0, chromeSpace).x,
+    ),
+  }
+
+  useLayoutEffect(() => {
+    const toolbar = toolbarRef.current
+
+    if (!toolbar) {
+      return
+    }
+
+    const width = toolbar.getBoundingClientRect().width
+
+    if (Number.isFinite(width) && width > 0) {
+      setToolbarWidth(width)
+    }
+  }, [selectedVisibleLayerIds, chromeSpace.interactionScale, chromeSpace.viewFitScale])
   const isPaperShaderMode = cardState.styleMode === "paper-shader"
   const isImageMode = cardState.styleMode === "image"
   const isImageFilterMode = cardState.styleMode === "image-filter"
@@ -1130,31 +1169,22 @@ export function PaneWorkspace({
       return null
     }
 
-    const x = bounds.x + bounds.width / 2
-    const rawY =
-      bounds.y -
-      RESIZE_CONTROL_PADDING_PX -
-      ROTATE_HANDLE_OFFSET_PX -
-      ROTATE_HANDLE_RADIUS_PX -
-      FLOATING_TOOLBAR_GAP_PX -
-      FLOATING_TOOLBAR_HEIGHT_PX
-    const topBoundary = canvasHeight > 0 ? -canvasHeight / 2 + FLOATING_TOOLBAR_EDGE_GUTTER_PX : rawY
-    const bottomBoundary = canvasHeight > 0
-      ? canvasHeight / 2 - FLOATING_TOOLBAR_HEIGHT_PX - FLOATING_TOOLBAR_EDGE_GUTTER_PX
-      : rawY
-    const yAbove = Math.min(rawY, bottomBoundary)
-    const yBelow = Math.min(bounds.y + bounds.height + FLOATING_TOOLBAR_GAP_PX, bottomBoundary)
-    const y = rawY < topBoundary ? Math.max(yBelow, topBoundary) : Math.max(yAbove, topBoundary)
-    const horizontalLimit = canvasWidth > 0
-      ? Math.max(0, canvasWidth / 2 - 132 - FLOATING_TOOLBAR_EDGE_GUTTER_PX)
-      : Number.POSITIVE_INFINITY
-    const clampedX = Math.min(horizontalLimit, Math.max(-horizontalLimit, x))
-    const layerToolbarStyle = {
-      transform: `translate3d(${clampedX}px, ${y}px, 0) translateX(-50%)`,
-    }
+    const { x, y } = getFloatingToolbarChromePosition({
+      bounds,
+      canvasHeight,
+      canvasWidth,
+      gapPx: FLOATING_TOOLBAR_GAP_PX,
+      gutterPx: FLOATING_TOOLBAR_EDGE_GUTTER_PX,
+      paddingPx: RESIZE_CONTROL_PADDING_PX,
+      rotateStemPx: ROTATE_HANDLE_STEM_PX,
+      space: chromeSpace,
+      toolbarHeightPx: FLOATING_TOOLBAR_HEIGHT_PX,
+      toolbarWidthPx: toolbarWidth,
+    })
 
     return (
       <LayerFloatingToolbar
+        ref={toolbarRef}
         layers={selectedVisibleLayers}
         onAction={onLayerAction ? runSelectedLayerAction : undefined}
         onCopy={onLayerCopy ? runSelectedLayerCopy : undefined}
@@ -1164,7 +1194,9 @@ export function PaneWorkspace({
             : undefined
         }
         onMore={(event) => openFloatingLayerContextMenu(event, selectedVisibleLayerIds)}
-        style={layerToolbarStyle}
+        style={{
+          transform: `translate3d(${x}px, ${y}px, 0) translateX(-50%)`,
+        }}
         theme={theme}
       />
     )
@@ -1176,15 +1208,16 @@ export function PaneWorkspace({
     }
 
     const bounds = getMarqueeBounds(marquee.start, marquee.end)
+    const origin = documentToChromeOffset(bounds.x, bounds.y, chromeSpace)
 
     return (
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 z-[9998] border border-[var(--ws-ink)] bg-[var(--ws-ink)]/10"
+        className="pointer-events-none absolute left-1/2 top-1/2 z-[9998] border-2 border-[var(--ws-ink)] bg-[var(--ws-ink)]/10"
         data-slot="drafting-layer-marquee"
         style={{
-          height: bounds.height,
-          transform: `translate3d(${bounds.x}px, ${bounds.y}px, 0)`,
-          width: bounds.width,
+          height: documentToChromeSize(bounds.height, chromeSpace),
+          transform: `translate3d(${origin.x}px, ${origin.y}px, 0)`,
+          width: documentToChromeSize(bounds.width, chromeSpace),
         }}
       />
     )
@@ -1199,66 +1232,74 @@ export function PaneWorkspace({
       return null
     }
 
-    const controlHeight = layer.height + RESIZE_CONTROL_PADDING_PX * 2
-    const controlWidth = layer.width + RESIZE_CONTROL_PADDING_PX * 2
+    const frame = getChromeFrameRect(layer, RESIZE_CONTROL_PADDING_PX, chromeSpace)
     const isRotating = rotatingLayerId === layer.id
     const rotationDegrees = rotationPreviewDegrees ?? getLayerRotationLabel(layer.rotation)
+    const rotation =
+      Number.isFinite(layer.rotation) && layer.rotation !== 0
+        ? ` rotate(${layer.rotation}deg)`
+        : ""
 
     return (
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 touch-none overflow-visible border border-[var(--ws-resize-frame)]"
+        className="pointer-events-none absolute left-1/2 top-1/2 touch-none overflow-visible border-2 border-[var(--ws-resize-frame)]"
         data-layer-id={layer.id}
         data-slot="drafting-layer-resize-frame"
         key={`${layer.id}:controls`}
         style={{
-          height: controlHeight,
-          width: controlWidth,
+          height: frame.height,
+          transform: `translate3d(${frame.x}px, ${frame.y}px, 0)${rotation}`,
+          transformOrigin: "center center",
+          width: frame.width,
           zIndex: 10000,
-          ...getLayerControlShellStyle(layer, RESIZE_CONTROL_PADDING_PX),
         }}
         onContextMenu={(event) => openLayerContextMenu(event, [layer.id])}
       >
-        <DraftingLayerTiltShell className="relative" layer={layer}>
+        <div
+          className="pointer-events-none absolute left-1/2 top-0 w-0.5 -translate-x-1/2 -translate-y-full bg-[var(--ws-resize-frame)]"
+          style={{ height: ROTATE_HANDLE_OFFSET_PX }}
+        />
+        {isRotating ? (
           <div
-            className="pointer-events-none absolute left-1/2 top-0 w-px -translate-x-1/2 -translate-y-full bg-[var(--ws-resize-frame)]"
-            style={{ height: ROTATE_HANDLE_OFFSET_PX }}
-          />
-          {isRotating ? (
-            <div
-              className="pointer-events-none absolute left-1/2 top-0 rounded-full border border-white/[0.12] bg-[var(--desktop-glass-bg)] px-2.5 py-1 text-[0.68rem] font-semibold text-white/82 shadow-[var(--desktop-glass-shadow)] backdrop-blur-2xl"
-              data-slot="drafting-layer-rotation-value"
-              data-toolbar-appearance="desktop-glass"
-              style={{
-                transform: `translate(-50%, calc(-${ROTATE_HANDLE_OFFSET_PX}px - ${ROTATE_HANDLE_RADIUS_PX}px - ${ROTATE_LABEL_GAP_PX}px - 100%))`,
-              }}
-            >
-              {rotationDegrees}°
-            </div>
-          ) : null}
-          <button
-            aria-label={`Rotate ${layer.name}`}
-            className="pointer-events-auto absolute left-1/2 top-0 z-30 size-3 rounded-full border border-[#a8b0bb] bg-white shadow-[var(--ws-shadow-rest)]"
-            data-slot="drafting-layer-rotate-handle"
-            onClick={(event) => event.stopPropagation()}
-            onPointerCancel={endLayerInteraction}
-            onPointerDown={(event) => startLayerInteraction(event, layer, "rotate")}
-            onPointerMove={updateLayerInteraction}
-            onPointerUp={endLayerInteraction}
+            className="pointer-events-none absolute left-1/2 top-0 rounded-full border border-white/[0.12] bg-[var(--desktop-glass-bg)] px-2.5 py-1 text-[0.68rem] font-semibold text-white/82 shadow-[var(--desktop-glass-shadow)] backdrop-blur-2xl"
+            data-slot="drafting-layer-rotation-value"
+            data-toolbar-appearance="desktop-glass"
             style={{
-              transform: `translate(-50%, calc(-${ROTATE_HANDLE_OFFSET_PX}px - 50%))`,
+              transform: `translate(-50%, calc(-${ROTATE_HANDLE_OFFSET_PX}px - ${ROTATE_HANDLE_RADIUS_PX}px - ${ROTATE_LABEL_GAP_PX}px - 100%))`,
             }}
-            type="button"
+          >
+            {rotationDegrees}°
+          </div>
+        ) : null}
+        <button
+          aria-label={`Rotate ${layer.name}`}
+          className="pointer-events-auto absolute left-1/2 top-0 z-30 flex size-4 items-center justify-center border-0 bg-transparent p-0"
+          data-slot="drafting-layer-rotate-handle"
+          onClick={(event) => event.stopPropagation()}
+          onPointerCancel={endLayerInteraction}
+          onPointerDown={(event) => startLayerInteraction(event, layer, "rotate")}
+          onPointerMove={updateLayerInteraction}
+          onPointerUp={endLayerInteraction}
+          style={{
+            transform: `translate(-50%, calc(-${ROTATE_HANDLE_OFFSET_PX}px - 50%))`,
+          }}
+          type="button"
+        >
+          <span
+            aria-hidden="true"
+            className="size-2 rounded-full border-2 border-[var(--ws-resize-frame)] bg-white shadow-[var(--ws-shadow-rest)]"
+            data-slot="drafting-layer-rotate-handle-knob"
           />
-          <ResizeFrameControls
-            onPointerCancel={endLayerInteraction}
-            onPointerMove={updateLayerInteraction}
-            onPointerUp={endLayerInteraction}
-            onResizePointerDown={(event, direction) =>
-              startLayerInteraction(event, layer, "resize", direction)
-            }
-            targetLabel={layer.name}
-          />
-        </DraftingLayerTiltShell>
+        </button>
+        <ResizeFrameControls
+          onPointerCancel={endLayerInteraction}
+          onPointerMove={updateLayerInteraction}
+          onPointerUp={endLayerInteraction}
+          onResizePointerDown={(event, direction) =>
+            startLayerInteraction(event, layer, "resize", direction)
+          }
+          targetLabel={layer.name}
+        />
       </div>
     )
   }
@@ -1270,28 +1311,27 @@ export function PaneWorkspace({
       return null
     }
 
-    const controlHeight = bounds.height + RESIZE_CONTROL_PADDING_PX * 2
-    const controlWidth = bounds.width + RESIZE_CONTROL_PADDING_PX * 2
+    const frame = getChromeFrameRect(bounds, RESIZE_CONTROL_PADDING_PX, chromeSpace)
     const isRotating = rotatingLayerId === "selection"
     const rotationDegrees = multiSelectionPreview?.rotation ?? bounds.rotation ?? rotationPreviewDegrees ?? 0
     const rotationTransform = rotationDegrees ? ` rotate(${rotationDegrees}deg)` : ""
 
     return (
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 touch-none overflow-visible border border-[var(--ws-resize-frame)]"
+        className="pointer-events-none absolute left-1/2 top-1/2 touch-none overflow-visible border-2 border-[var(--ws-resize-frame)]"
         data-layer-ids={activeSelectedLayerIds.join(" ")}
         data-slot="drafting-layer-multi-select-frame"
         style={{
-          height: controlHeight,
-          transform: `translate3d(${bounds.x - RESIZE_CONTROL_PADDING_PX}px, ${bounds.y - RESIZE_CONTROL_PADDING_PX}px, 0)${rotationTransform}`,
+          height: frame.height,
+          transform: `translate3d(${frame.x}px, ${frame.y}px, 0)${rotationTransform}`,
           transformOrigin: "center center",
-          width: controlWidth,
+          width: frame.width,
           zIndex: 50,
         }}
         onContextMenu={(event) => openLayerContextMenu(event, activeSelectedLayerIds)}
       >
         <div
-          className="pointer-events-none absolute left-1/2 top-0 w-px -translate-x-1/2 -translate-y-full bg-[var(--ws-resize-frame)]"
+          className="pointer-events-none absolute left-1/2 top-0 w-0.5 -translate-x-1/2 -translate-y-full bg-[var(--ws-resize-frame)]"
           style={{ height: ROTATE_HANDLE_OFFSET_PX }}
         />
         {isRotating ? (
@@ -1308,7 +1348,7 @@ export function PaneWorkspace({
         ) : null}
         <button
           aria-label="Rotate selection"
-          className="pointer-events-auto absolute left-1/2 top-0 z-30 size-3 rounded-full border border-[#a8b0bb] bg-white shadow-[var(--ws-shadow-rest)]"
+          className="pointer-events-auto absolute left-1/2 top-0 z-30 flex size-4 items-center justify-center border-0 bg-transparent p-0"
           data-slot="drafting-layer-rotate-handle"
           onClick={(event) => event.stopPropagation()}
           onPointerCancel={endLayerInteraction}
@@ -1319,7 +1359,13 @@ export function PaneWorkspace({
             transform: `translate(-50%, calc(-${ROTATE_HANDLE_OFFSET_PX}px - 50%))`,
           }}
           type="button"
-        />
+        >
+          <span
+            aria-hidden="true"
+            className="size-2 rounded-full border-2 border-[var(--ws-resize-frame)] bg-white shadow-[var(--ws-shadow-rest)]"
+            data-slot="drafting-layer-rotate-handle-knob"
+          />
+        </button>
         <ResizeFrameControls
           onPointerCancel={endLayerInteraction}
           onPointerMove={updateLayerInteraction}
@@ -1371,7 +1417,7 @@ export function PaneWorkspace({
   function renderContentChrome() {
     return (
       <>
-        <SnapGuideOverlay guides={snapGuides} />
+        <SnapGuideOverlay guides={chromeSnapGuides} />
         {renderMarquee()}
         {activeSelectedLayerIds.length > 0
           ? contentLayers.map((layer) => renderLayerControls(layer))
@@ -1471,7 +1517,6 @@ export function PaneWorkspace({
                       style={contentTransformStyle}
                     >
                       {contentLayers.map((layer) => renderLayerView(layer))}
-                      {renderContentChrome()}
                     </div>
                   </SceneCompositionTransform>
                 </div>
@@ -1479,11 +1524,16 @@ export function PaneWorkspace({
                 <SceneCompositionTransform layout={sceneComposition.layout}>
                   <div className="relative h-full w-full" data-export-root>
                     {visibleLayers.map((layer) => renderLayerView(layer))}
-                    {renderContentChrome()}
                   </div>
                 </SceneCompositionTransform>
               )}
             </div>
+            </div>
+            <div
+              className="pointer-events-none absolute inset-0 z-[10000] overflow-visible"
+              data-slot="drafting-layer-chrome-overlay"
+            >
+              {renderContentChrome()}
             </div>
             {contextMenu && typeof document !== "undefined"
               ? createPortal(

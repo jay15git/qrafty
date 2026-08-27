@@ -1,6 +1,12 @@
 "use client"
 
-import type { CSSProperties, MouseEvent, PointerEvent, ReactNode } from "react"
+import {
+  forwardRef,
+  type CSSProperties,
+  type MouseEvent,
+  type PointerEvent,
+  type ReactNode,
+} from "react"
 import {
   CopyIcon,
   MoreHorizontalIcon,
@@ -18,7 +24,7 @@ import {
   type SnapGuides,
 } from "@/features/workspace/components/pane-layer-geometry"
 import {
-  RESIZE_CORNER_HANDLE_SIZE_PX,
+  RESIZE_CORNER_HIT_SIZE_PX,
   RESIZE_EDGE_HIT_SIZE_PX,
   type DraftingLayerMenuAction,
 } from "@/features/workspace/components/pane-layer-chrome.constants"
@@ -70,8 +76,8 @@ const EDGE_RESIZE_ZONES: Array<{
     label: "top",
     style: {
       height: RESIZE_EDGE_HIT_SIZE_PX,
-      left: RESIZE_CORNER_HANDLE_SIZE_PX,
-      right: RESIZE_CORNER_HANDLE_SIZE_PX,
+      left: RESIZE_CORNER_HIT_SIZE_PX,
+      right: RESIZE_CORNER_HIT_SIZE_PX,
     },
   },
   {
@@ -80,8 +86,8 @@ const EDGE_RESIZE_ZONES: Array<{
     direction: "e",
     label: "right",
     style: {
-      bottom: RESIZE_CORNER_HANDLE_SIZE_PX,
-      top: RESIZE_CORNER_HANDLE_SIZE_PX,
+      bottom: RESIZE_CORNER_HIT_SIZE_PX,
+      top: RESIZE_CORNER_HIT_SIZE_PX,
       width: RESIZE_EDGE_HIT_SIZE_PX,
     },
   },
@@ -92,8 +98,8 @@ const EDGE_RESIZE_ZONES: Array<{
     label: "bottom",
     style: {
       height: RESIZE_EDGE_HIT_SIZE_PX,
-      left: RESIZE_CORNER_HANDLE_SIZE_PX,
-      right: RESIZE_CORNER_HANDLE_SIZE_PX,
+      left: RESIZE_CORNER_HIT_SIZE_PX,
+      right: RESIZE_CORNER_HIT_SIZE_PX,
     },
   },
   {
@@ -102,8 +108,8 @@ const EDGE_RESIZE_ZONES: Array<{
     direction: "w",
     label: "left",
     style: {
-      bottom: RESIZE_CORNER_HANDLE_SIZE_PX,
-      top: RESIZE_CORNER_HANDLE_SIZE_PX,
+      bottom: RESIZE_CORNER_HIT_SIZE_PX,
+      top: RESIZE_CORNER_HIT_SIZE_PX,
       width: RESIZE_EDGE_HIT_SIZE_PX,
     },
   },
@@ -148,7 +154,7 @@ export function ResizeFrameControls({
         <button
           aria-label={`Resize ${targetLabel} from ${handle.label}`}
           className={cn(
-            "pointer-events-auto absolute z-30 size-3 rounded-full border border-[#a8b0bb] bg-white shadow-[var(--ws-shadow-rest)]",
+            "pointer-events-auto absolute z-30 flex size-4 items-center justify-center border-0 bg-transparent p-0",
             handle.className,
             handle.cursorClassName,
           )}
@@ -161,7 +167,13 @@ export function ResizeFrameControls({
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           type="button"
-        />
+        >
+          <span
+            aria-hidden="true"
+            className="size-2 rounded-[2px] border-2 border-[var(--ws-resize-frame)] bg-white shadow-[var(--ws-shadow-rest)]"
+            data-slot="drafting-layer-resize-handle-knob"
+          />
+        </button>
       ))}
     </>
   )
@@ -283,23 +295,29 @@ function LayerContextMenuSeparator() {
   )
 }
 
-export function LayerFloatingToolbar({
-  layers,
-  onAction,
-  onCopy,
-  onLayerChange,
-  onMore,
-  style,
-  theme = "dark",
-}: {
-  layers: DraftingCanvasLayer[]
-  onAction?: (action: DraftingLayerMenuAction) => void
-  onCopy?: () => void
-  onLayerChange?: (patch: Partial<DraftingCanvasLayer>) => void
-  onMore: (event: MouseEvent<HTMLButtonElement>) => void
-  style: CSSProperties
-  theme?: DesktopThemeMode
-}) {
+export const LayerFloatingToolbar = forwardRef<
+  HTMLDivElement,
+  {
+    layers: DraftingCanvasLayer[]
+    onAction?: (action: DraftingLayerMenuAction) => void
+    onCopy?: () => void
+    onLayerChange?: (patch: Partial<DraftingCanvasLayer>) => void
+    onMore: (event: MouseEvent<HTMLButtonElement>) => void
+    style: CSSProperties
+    theme?: DesktopThemeMode
+  }
+>(function LayerFloatingToolbar(
+  {
+    layers,
+    onAction,
+    onCopy,
+    onLayerChange,
+    onMore,
+    style,
+    theme = "dark",
+  },
+  ref,
+) {
   const hasRemovableLayer = layers.some(
     (layer) => !isProtectedDraftingLayerId(layer.id, layers),
   )
@@ -308,7 +326,8 @@ export function LayerFloatingToolbar({
 
   return (
     <div
-      className="absolute left-1/2 top-1/2 z-[10001] inline-flex min-h-12 min-w-48 items-center justify-center gap-1.5 rounded-2xl border border-white/[0.12] bg-[#171717] px-2.5 text-white/78 shadow-[var(--desktop-glass-shadow)]"
+      ref={ref}
+      className="pointer-events-auto absolute left-1/2 top-1/2 z-[10001] inline-flex h-12 min-w-48 items-center justify-center gap-1 rounded-2xl border border-white/[0.12] bg-[#171717] px-1.5 text-white/78 shadow-[var(--desktop-glass-shadow)]"
       data-slot="drafting-layer-floating-toolbar"
       data-toolbar-appearance="desktop-glass"
       role="toolbar"
@@ -352,7 +371,7 @@ export function LayerFloatingToolbar({
       </LayerFloatingToolbarButton>
     </div>
   )
-}
+})
 
 function LayerFloatingToolbarButton({
   children,
@@ -368,7 +387,7 @@ function LayerFloatingToolbarButton({
   return (
     <button
       aria-label={label}
-        className="flex size-9 cursor-pointer items-center justify-center rounded-xl text-current transition-[background-color,color] duration-150 hover:bg-[var(--ws-layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--ws-layer-toolbar-button-hover-text,white)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
+        className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl text-current transition-[background-color,color] duration-150 hover:bg-[var(--ws-layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--ws-layer-toolbar-button-hover-text,white)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
       data-slot="drafting-layer-floating-toolbar-button"
       disabled={disabled}
       type="button"
