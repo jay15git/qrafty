@@ -4,7 +4,9 @@ import { type ReactNode } from "react"
 
 import { ElasticSlider } from "@/components/ui/elastic-slider"
 import {
+  DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
   DESKTOP_INSPECTOR_LABEL_CLASS,
+  DESKTOP_INSPECTOR_RADIUS_CLASS,
 } from "@/features/desktop-shell/components/desktop-inspector-tokens"
 import { SETTINGS_ELASTIC_SLIDER_CLASS } from "@/features/desktop-shell/inspector/settings-ui"
 import {
@@ -133,9 +135,16 @@ export function DesktopInspectorNumberField({
       </span>
       <DesktopInspectorScrubNumberInput
         aria-label={label}
-        className={cn("h-7", fill ? "w-full min-w-0" : "w-[4.75rem]")}
+        className={cn(
+          fill ? "w-full min-w-0" : "w-[4.75rem]",
+          DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+        )}
         disabled={disabled}
-        inputClassName="h-7 w-full rounded-[6px] px-1.5"
+        inputClassName={cn(
+          DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+          "w-full px-1.5",
+          DESKTOP_INSPECTOR_RADIUS_CLASS,
+        )}
         scrub={scrub}
         step={step}
       />

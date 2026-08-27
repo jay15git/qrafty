@@ -3,6 +3,7 @@
 import { useRef } from "react"
 import { PopoverClose, PopoverContent } from "@/components/ui/popover"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
+import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { InsertMenuPanelStack } from "@/features/workspace/components/insert-menu/InsertMenuPanelStack"
 import {
   INSERT_MENU_POPOVER_SHELL,
@@ -36,6 +37,7 @@ export function InsertMenuPopoverContent({
   theme = "dark",
 }: InsertMenuPopoverContentProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
+  const mobileDensity = useMobileInspectorDensity()
 
   function closeMenu() {
     closeRef.current?.click()
@@ -53,6 +55,7 @@ export function InsertMenuPopoverContent({
           : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--ws-line)] bg-[var(--ws-panel-bg)] p-3"
       }
       data-slot={isDesktopPopover ? "desktop-insert-menu-popover" : "drafting-insert-menu"}
+      data-mobile-inspector={isDesktopPopover && mobileDensity ? "" : undefined}
       data-theme={isDesktopPopover ? theme : undefined}
       side={popoverSide}
       sideOffset={isDesktopPopover ? 12 : undefined}

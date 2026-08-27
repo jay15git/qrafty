@@ -1,6 +1,19 @@
 /* Element-inspector tokens — scoped to desktop-floating-inspector side panels. */
 
 [data-slot="desktop-floating-inspector"] {
+  --dn-type-caption: 0.625rem;
+  --dn-type-meta: 0.6875rem;
+  --dn-type-value: 0.75rem;
+  --dn-type-section: 1rem;
+  --dn-type-body: 0.8125rem;
+  --dn-control-height: 2.25rem;
+  --dn-control-height-compact: 2rem;
+  --dn-tab-height: 2rem;
+  --dn-icon-hit: 2rem;
+  --dn-preview-tile: 3.5rem;
+  --dn-space-stack: 0.625rem;
+  --dn-space-inline: 0.375rem;
+  --dn-row-px: 0.75rem;
   --desktop-inspector-bg: #000000;
   --desktop-inspector-surface: #0a0a0a;
   --desktop-inspector-control: #141414;
@@ -33,10 +46,11 @@
   --desktop-inspector-morph-filter-bg: var(--desktop-inspector-elevated);
   --desktop-inspector-focus: rgba(255, 255, 255, 0.36);
   --desktop-inspector-swatch-ring: #ffffff;
-  --desktop-inspector-type-panel: 0.9375rem;
-  --desktop-inspector-type-value: 0.8125rem;
-  --desktop-inspector-type-label: 0.6875rem;
-  --desktop-inspector-type-caption: 0.625rem;
+  --desktop-inspector-radius: 0.375rem;
+  --desktop-inspector-type-caption: var(--dn-type-caption, 0.625rem);
+  --desktop-inspector-type-label: var(--dn-type-meta, 0.6875rem);
+  --desktop-inspector-type-value: var(--dn-type-value, 0.75rem);
+  --desktop-inspector-type-panel: var(--dn-type-section, 1rem);
   --color-hover: var(--desktop-inspector-control-hover-bg);
   --color-active: var(--desktop-inspector-accent);
   --scroll-edge-fade-color: var(--desktop-inspector-bg);
@@ -76,7 +90,7 @@
 [data-slot="desktop-floating-inspector"] .desktop-inspector-input-bg,
 [data-slot="desktop-floating-inspector"] :is(input, textarea, select):not([type="color"]) {
   border: none !important;
-  border-radius: 6px !important;
+  border-radius: var(--desktop-inspector-radius) !important;
   background: var(--desktop-inspector-control) !important;
 }
 

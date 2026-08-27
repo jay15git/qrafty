@@ -14,9 +14,13 @@ import {
 import FileUpload from "@/components/vendor/kokonutui/file-upload"
 import {
   DESKTOP_INSPECTOR_CONTROL_CLASS,
+  DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+  DESKTOP_INSPECTOR_RADIUS_CLASS,
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
   DESKTOP_INSPECTOR_SECTION_HEADING_CLASS,
   DESKTOP_INSPECTOR_SELECTED_CLASS,
+  DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
+  DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 } from "@/features/desktop-shell/components/desktop-inspector-tokens"
 import {
   DesktopInspectorLabel,
@@ -147,7 +151,7 @@ export function DesktopTransformInspector({
           <DesktopTransformSection layer={layer} onPatch={onPatch} />
         ) : (
           <DesktopInspectorSection>
-            <p className="text-center text-[12px] font-semibold text-[var(--desktop-inspector-fg-muted)]">
+            <p className="dn-type-value text-center font-semibold text-[var(--desktop-inspector-fg-muted)]">
               Select a layer to edit position, size, and rotation.
             </p>
           </DesktopInspectorSection>
@@ -328,10 +332,12 @@ function DesktopLayerTextInspector({
               aria-expanded={fontMenuOpen}
               aria-haspopup="listbox"
               aria-label="Text font"
-              className={cn(
-                "flex h-8 w-full min-w-0 items-center justify-between gap-2 px-2.5 text-left text-[12px] font-semibold",
-                DESKTOP_INSPECTOR_CONTROL_CLASS,
-              )}
+        className={cn(
+          DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+          "w-full min-w-0 items-center justify-between gap-[length:var(--dn-space-inline)] px-2.5 text-left font-semibold",
+          DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
+          DESKTOP_INSPECTOR_CONTROL_CLASS,
+        )}
               style={{ fontFamily: getDraftingFontCssFamily({ fontId: selectedFont.id }) }}
               type="button"
               onClick={() => setFontMenuOpen((open) => !open)}
@@ -344,7 +350,12 @@ function DesktopLayerTextInspector({
           </div>
           <DesktopInspectorScrubbableNumberInput
             aria-label="Text font size"
-            className="h-8 rounded-[6px] px-2 text-[12px] font-semibold"
+            className={cn(
+              DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+              "px-2 font-semibold",
+              DESKTOP_INSPECTOR_RADIUS_CLASS,
+              DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
+            )}
             max={300}
             min={6}
             value={layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}
@@ -365,7 +376,9 @@ function DesktopLayerTextInspector({
                 aria-label={`Use ${font.label} text font`}
                 aria-selected={selectedFont.id === font.id}
                 className={cn(
-                  "flex h-8 min-w-0 items-center px-2.5 text-left text-[12px] font-semibold",
+                  "flex min-w-0 items-center px-2.5 text-left font-semibold",
+                  DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+                  DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
                   desktopInspectorOptionGridItemClass(),
                   DESKTOP_INSPECTOR_CONTROL_CLASS,
                   selectedFont.id === font.id && DESKTOP_INSPECTOR_SELECTED_CLASS,
@@ -461,7 +474,9 @@ function DesktopLayerTextInspector({
               aria-label={`Align text ${option.value}`}
               aria-pressed={(layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign) === option.value}
               className={cn(
-                "h-8 px-2 text-[11px] font-semibold",
+                DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+                "px-2 font-semibold",
+                DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
                 desktopInspectorOptionGridItemClass(),
                 DESKTOP_INSPECTOR_CONTROL_CLASS,
                 (layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign) === option.value &&
@@ -698,7 +713,9 @@ function DesktopIconToggleButton({
       aria-label={label}
       aria-pressed={active}
       className={cn(
-        "grid h-8 place-items-center px-2 text-[11px] font-semibold",
+        "grid place-items-center px-2 font-semibold",
+        DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+        DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
         desktopInspectorOptionGridItemClass(),
         DESKTOP_INSPECTOR_CONTROL_CLASS,
         active && DESKTOP_INSPECTOR_SELECTED_CLASS,

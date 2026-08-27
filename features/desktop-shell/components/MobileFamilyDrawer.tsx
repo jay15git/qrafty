@@ -134,7 +134,7 @@ function MobileSectionView({ section }: { section: DesktopSettingsSectionId }) {
   const { setView } = useFamilyDrawer()
 
   return (
-    <div className="desktopnew-root w-full min-w-0" data-theme={model.actualDesktopTheme}>
+    <div className="desktopnew-root w-full min-w-0" data-mobile-inspector="" data-theme={model.actualDesktopTheme}>
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
         <MobileNestedHeader title={section} onClose={() => setView("default")} />
         <SettingsSectionBody id={section} model={model} />
@@ -234,7 +234,7 @@ function MobileElementView() {
   }
 
   return (
-    <div className="desktopnew-root w-full min-w-0" data-theme={model.actualDesktopTheme}>
+    <div className="desktopnew-root w-full min-w-0" data-mobile-inspector="" data-theme={model.actualDesktopTheme}>
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
         <MobileNestedHeader title="Layer style" onClose={() => setView("default")} />
         <ScrollPersistScope id="drawer:element">
@@ -282,7 +282,7 @@ function MobileSettingDetailView() {
   }
 
   return (
-    <div className="desktopnew-root w-full min-w-0" data-theme={model.actualDesktopTheme}>
+    <div className="desktopnew-root w-full min-w-0" data-mobile-inspector="" data-theme={model.actualDesktopTheme}>
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
         <MobileNestedHeader title={payload.title} onClose={() => navigation?.closeDetail()} />
         <ScrollPersistScope id="drawer:setting-detail">

@@ -11,17 +11,19 @@ export const INSERT_MENU_SCROLL_CLASS = "dn-insert-menu-scroll h-[min(20rem,60dv
 export const INSERT_MENU_EMOJI_SHELL_CLASS =
   "dn-insert-menu-emoji flex h-[min(20rem,60dvh)] min-w-0 flex-col"
 
-export const INSERT_MENU_PANEL_CONTENT_CLASS = "dn-insert-menu-panel-content flex flex-col gap-3 p-3.5"
+export const INSERT_MENU_PANEL_CONTENT_CLASS =
+  "dn-insert-menu-panel-content flex flex-col gap-[length:var(--dn-space-stack)] p-[length:var(--dn-row-px)]"
 
 export const INSERT_MENU_ITEM_CLASS =
-  "dn-settings-row dn-squircle-sm dn-pressable flex h-10 w-full items-center gap-2 px-2 text-left font-semibold"
+  "dn-settings-row dn-squircle-sm dn-pressable flex h-[length:var(--dn-control-height)] w-full items-center gap-[length:var(--dn-space-inline)] px-[length:var(--dn-space-inline)] text-left font-semibold"
 
 export const INSERT_MENU_PANEL_TITLE = "dn-insert-menu-panel-heading"
 
 export const INSERT_MENU_BACK_BUTTON =
   "dn-insert-menu-panel-back dn-pressable-subtle shrink-0"
 
-export const INSERT_MENU_INPUT_CLASS = "dn-settings-input h-10 min-w-0 px-3 shadow-none"
+export const INSERT_MENU_INPUT_CLASS =
+  "dn-settings-input h-[length:var(--dn-control-height)] min-w-0 px-[length:var(--dn-row-px)] shadow-none"
 
 export function insertMenuPortalClass(theme: DesktopThemeMode, className?: string) {
   return cn(className, theme === "dark" && "dark")

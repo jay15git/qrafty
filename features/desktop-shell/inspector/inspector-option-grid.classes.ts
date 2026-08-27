@@ -9,8 +9,8 @@ const DESKTOP_INSPECTOR_OPTION_GRID_COLS_CLASS = {
 export type DesktopInspectorOptionGridColumns = keyof typeof DESKTOP_INSPECTOR_OPTION_GRID_COLS_CLASS
 
 const DESKTOP_INSPECTOR_OPTION_GRID_ITEM_PADDING_CLASS = {
-  tight: "p-[3px]",
-  loose: "p-1",
+  tight: "p-[length:var(--dn-space-inline)]",
+  loose: "p-[length:var(--dn-space-stack)]",
 } as const
 
 export type DesktopInspectorOptionGridSpacing = keyof typeof DESKTOP_INSPECTOR_OPTION_GRID_ITEM_PADDING_CLASS

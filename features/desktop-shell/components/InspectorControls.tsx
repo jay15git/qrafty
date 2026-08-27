@@ -43,24 +43,25 @@ import "./desktop-inspector-motion.css"
 import {
   DESKTOP_INSPECTOR_CAPTION_CLASS,
   DESKTOP_INSPECTOR_CONTROL_CLASS,
+  DESKTOP_INSPECTOR_CONTROL_HEIGHT_CLASS,
+  DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
   DESKTOP_INSPECTOR_FG_MUTED,
   DESKTOP_INSPECTOR_INPUT_CLASS,
   DESKTOP_INSPECTOR_LABEL_CLASS,
+  DESKTOP_INSPECTOR_RADIUS_CLASS,
   DESKTOP_INSPECTOR_RESET_CLASS,
   DESKTOP_INSPECTOR_ROW_CLASS,
   DESKTOP_INSPECTOR_ROW_GAP_CLASS,
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
   DESKTOP_INSPECTOR_SELECTED_CLASS,
+  DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
   DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
+  DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
   DESKTOP_INSPECTOR_VALUE_CLASS,
 } from "@/features/desktop-shell/components/desktop-inspector-tokens"
 
 const DESKTOP_INSPECTOR_IMAGE_UPLOAD_MAX_SIZE = 5 * 1024 * 1024
 
-const DESKTOP_INSPECTOR_TYPE_VALUE_CLASS =
-  "text-[length:var(--desktop-inspector-type-value)] leading-[1.45]"
-const DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS =
-  "text-[length:var(--desktop-inspector-type-caption)]"
 const DESKTOP_INSPECTOR_SECTION_CLASS = "min-w-0 flex flex-col gap-2"
 const DESKTOP_INSPECTOR_SCRUB_NUMBER_FIELD_CLASS = cn(
   "text-center tabular-nums",
@@ -260,7 +261,9 @@ export function DesktopInspectorTextInput({
   const input = (
     <input
       className={cn(
-        "t-input h-9 w-full min-w-0 max-w-full rounded-[7px] px-3",
+        "t-input w-full min-w-0 max-w-full px-3",
+        DESKTOP_INSPECTOR_CONTROL_HEIGHT_CLASS,
+        DESKTOP_INSPECTOR_RADIUS_CLASS,
         pasteErrorActive && "is-error",
         shaking && "is-shaking",
         pasteable && "pr-9",
@@ -867,10 +870,12 @@ export function DesktopInspectorScrubbableNumberInput({
     <div className="min-w-0">
       <DesktopInspectorScrubNumberInput
         {...props}
-        className={cn("h-9 w-full", className)}
+        className={cn(DESKTOP_INSPECTOR_CONTROL_HEIGHT_CLASS, "w-full", className)}
         disabled={disabled}
         inputClassName={cn(
-          "h-9 w-full rounded-[7px] px-3",
+          DESKTOP_INSPECTOR_CONTROL_HEIGHT_CLASS,
+          "w-full px-3",
+          DESKTOP_INSPECTOR_RADIUS_CLASS,
           DESKTOP_INSPECTOR_NUMBER_SPINNER_HIDE_CLASS,
         )}
         scrub={scrub}
@@ -899,7 +904,8 @@ export function DesktopInspectorTextarea({
   const textarea = (
     <textarea
       className={cn(
-        "t-input min-h-24 w-full min-w-0 max-w-full resize-none rounded-[7px] px-3 py-2.5",
+        "t-input min-h-24 w-full min-w-0 max-w-full resize-none px-3 py-2.5",
+        DESKTOP_INSPECTOR_RADIUS_CLASS,
         pasteErrorActive && "is-error",
         shaking && "is-shaking",
         pasteable && "pr-9",
@@ -959,7 +965,9 @@ export function DesktopInspectorNativeSelect<TValue extends string>({
     <div className={cn("relative min-w-0", rootClassName)}>
       <select
         className={cn(
-          "h-8 w-full cursor-pointer appearance-none rounded-[6px] px-2.5 pr-7 font-medium transition",
+          DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+          "w-full cursor-pointer appearance-none px-2.5 pr-7 font-medium transition",
+          DESKTOP_INSPECTOR_RADIUS_CLASS,
           DESKTOP_INSPECTOR_INPUT_CLASS,
           className,
         )}
@@ -1000,7 +1008,8 @@ type DesktopInspectorSegmentedControlProps<TValue extends string> = {
 }
 
 const DESKTOP_INSPECTOR_TAB_ITEM_CLASS = cn(
-  "h-8 min-w-0 flex-1 justify-center px-2 py-0 [&_span]:font-medium [&_span]:text-[var(--desktop-inspector-fg-tertiary)]",
+  DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+  "min-w-0 flex-1 justify-center px-2 py-0 [&_span]:font-medium [&_span]:text-[var(--desktop-inspector-fg-tertiary)]",
   "[&_span]:text-[length:var(--desktop-inspector-type-label)]",
   "[&[aria-selected=true]_span]:text-[length:var(--desktop-inspector-type-value)] [&[aria-selected=true]_span]:text-[var(--desktop-inspector-fg-primary)]",
 )
@@ -1071,7 +1080,7 @@ export function DesktopInspectorSearchInput({
   ...props
 }: DesktopInspectorSearchInputProps) {
   return (
-    <div className={cn("relative h-8 w-24 shrink-0", className)}>
+    <div className={cn("relative w-24 shrink-0", DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS, className)}>
       <SearchIcon
         className={cn(
           "pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2",
@@ -1081,7 +1090,8 @@ export function DesktopInspectorSearchInput({
       />
       <Input
         className={cn(
-          "h-full w-full rounded-[6px] border-transparent pl-7 pr-2",
+          "h-full w-full border-transparent pl-7 pr-2",
+          DESKTOP_INSPECTOR_RADIUS_CLASS,
           DESKTOP_INSPECTOR_INPUT_CLASS,
           inputClassName,
           "focus-visible:ring-0 focus-visible:shadow-none",
@@ -1186,7 +1196,11 @@ export function DesktopInspectorMorphFilterMenu<T extends string>({
                   <MenuItem
                     key={option.value}
                     checked={option.value === value}
-                    className="h-8 w-full min-w-0 px-3 py-0 text-[12px]"
+                    className={cn(
+                      DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+                      "w-full min-w-0 px-3 py-0",
+                      DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
+                    )}
                     index={index}
                     label={option.label}
                     onSelect={() => {
@@ -1254,7 +1268,9 @@ export function DesktopInspectorImageFileUpload({
         </p>
         <FileUploadTrigger
           className={cn(
-            "mt-3 inline-flex h-8 cursor-pointer items-center justify-center rounded-[6px] px-3",
+            DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+            "mt-3 inline-flex cursor-pointer items-center justify-center px-3",
+            DESKTOP_INSPECTOR_RADIUS_CLASS,
             DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
             DESKTOP_INSPECTOR_CONTROL_CLASS,
           )}

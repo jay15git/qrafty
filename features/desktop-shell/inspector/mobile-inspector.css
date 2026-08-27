@@ -37,20 +37,24 @@
 
 /* ── Mobile token scale ─────────────────────────────────────────── */
 
+/* Beat desktopnew portal token reset on nested .desktopnew-root / .dn-portal-surface. */
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector],
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] *,
-.dn-portal-surface[data-mobile-inspector] {
-  --dn-type-caption: 15px;
-  --dn-type-label: 16px;
-  --dn-type-body: 16px;
-  --dn-type-section: 19px;
-  --dn-type-meta: 13px;
-  --dn-type-label-size: 16px;
-  --dn-type-meta-size: 13px;
-  --dn-type-value-size: 16px;
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  :is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover),
+.dn-portal-surface[data-mobile-inspector],
+.dn-portal-surface[data-mobile-inspector] *,
+.dn-portal-surface[data-mobile-inspector]
+  :is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover) {
+  --dn-type-caption: 0.9375rem;
+  --dn-type-meta: 0.8125rem;
+  --dn-type-value: 1rem;
+  --dn-type-section: 1.1875rem;
+  --dn-type-body: 1rem;
   --dn-space-stack: 0.75rem;
   --dn-space-inline: 0.375rem;
   --dn-control-height: 3rem;
+  --dn-control-height-compact: 3rem;
   --dn-tab-height: 2.75rem;
   --dn-preview-tile: 4.5rem;
   --dn-icon-hit: 2.75rem;
@@ -67,9 +71,13 @@
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-type-label,
+.dn-portal-surface[data-mobile-inspector] .dn-type-label {
+  font-size: var(--dn-type-value);
+  line-height: 1.35;
+}
+
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-type-value,
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-type-body,
-.dn-portal-surface[data-mobile-inspector] .dn-type-label,
 .dn-portal-surface[data-mobile-inspector] .dn-type-value,
 .dn-portal-surface[data-mobile-inspector] .dn-type-body {
   line-height: 1.35;
@@ -90,7 +98,7 @@
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-settings-input,
 .dn-portal-surface[data-mobile-inspector] .dn-settings-input {
   min-height: var(--dn-control-height);
-  font-size: var(--dn-type-value-size);
+  font-size: var(--dn-type-value);
   border-radius: var(--dn-radius-md);
 }
 
@@ -100,7 +108,7 @@
 .dn-portal-surface[data-mobile-inspector] .dn-settings-row.dn-settings-primary {
   min-height: var(--dn-control-height);
   height: var(--dn-control-height);
-  font-size: var(--dn-type-value-size);
+  font-size: var(--dn-type-value);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .t-tabs,
@@ -312,45 +320,16 @@
   touch-action: pan-x;
 }
 
-/* Legacy hardcoded utilities inside drawer + portalled detail surfaces */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] :is(.text-\[11px\], .text-\[12px\]),
-.dn-portal-surface[data-mobile-inspector] :is(.text-\[11px\], .text-\[12px\]) {
-  font-size: var(--dn-type-caption);
-  line-height: 1.35;
-}
-
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .text-\[10px\],
-.dn-portal-surface[data-mobile-inspector] .text-\[10px\] {
-  font-size: var(--dn-type-meta-size);
-  line-height: 1.35;
-}
-
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] :is(.h-8, .h-9):not(.dn-preview-tile):not(.dn-preview-tile-size),
-.dn-portal-surface[data-mobile-inspector] :is(.h-8, .h-9):not(.dn-preview-tile):not(.dn-preview-tile-size) {
-  min-height: var(--dn-control-height);
-  height: var(--dn-control-height);
-}
-
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .size-7,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .size-8,
-.dn-portal-surface[data-mobile-inspector] .size-7,
-.dn-portal-surface[data-mobile-inspector] .size-8 {
-  width: var(--dn-icon-hit);
-  height: var(--dn-icon-hit);
-  min-width: var(--dn-icon-hit);
-  min-height: var(--dn-icon-hit);
-}
-
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .spell-ui-scope input,
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .spell-ui-scope textarea,
 .dn-portal-surface[data-mobile-inspector] .spell-ui-scope input,
 .dn-portal-surface[data-mobile-inspector] .spell-ui-scope textarea {
   min-height: var(--dn-control-height);
-  font-size: var(--dn-type-value-size);
+  font-size: var(--dn-type-value);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-layer-row"],
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-pexels-photo-inspector"] input {
   min-height: var(--dn-control-height);
-  font-size: var(--dn-type-value-size);
+  font-size: var(--dn-type-value);
 }

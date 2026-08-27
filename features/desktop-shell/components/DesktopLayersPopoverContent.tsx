@@ -164,7 +164,7 @@ export function DesktopLayersPopoverContent({
                     className={cn(
                       "min-w-0 flex-1 truncate font-medium",
                       embedded
-                        ? "text-[length:var(--dn-type-value-size)] text-[var(--dn-type-value-color)]"
+                        ? "dn-type-value text-[var(--dn-type-value-color)]"
                         : cn(
                             DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
                             isSelected

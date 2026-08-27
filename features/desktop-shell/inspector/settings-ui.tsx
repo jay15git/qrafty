@@ -688,7 +688,7 @@ export function SettingsRowPopover({
         align={align}
         className={desktopnewPortalClass(
           theme,
-          cn("dn-portal-surface desktopnew-popover-content w-56 gap-3 p-3.5 dn-squircle-md", contentClassName),
+          cn("dn-portal-surface desktopnew-popover-content w-56 gap-[length:var(--dn-space-stack)] p-[length:var(--dn-row-px)] dn-squircle-md", contentClassName),
         )}
         data-mobile-inspector={mobileDensity ? "" : undefined}
         data-theme={theme}
@@ -927,7 +927,7 @@ function FillSwatchButton({
     <button
       aria-label={ariaLabel}
       className={cn(
-        "relative flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-focus,var(--ring))]",
+        "relative flex size-[length:var(--dn-icon-hit)] shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-focus,var(--ring))]",
         className,
       )}
       data-slot="desktop-fill-swatch-trigger"

@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import {
   findBrandIconById,
   getBrandIconById,
@@ -54,7 +55,7 @@ function LogoIconTile({
       aria-label={ariaLabel}
       aria-pressed={isSelected}
       className={cn(
-        "dn-pressable-pickable grid h-11 min-w-0 place-items-center dn-squircle-xs",
+        "dn-pressable-pickable grid h-[length:var(--dn-control-height)] min-w-0 place-items-center dn-squircle-xs",
         isSelected
           ? "bg-[var(--dn-popover-tile)] text-[var(--dn-fg)] ring-2 ring-inset ring-[var(--dn-fg)]"
           : "bg-[var(--dn-popover-tile)] text-[var(--dn-fg)]",
@@ -139,7 +140,7 @@ function IconstackIconPreview({
   }
 
   return (
-    <span className="max-w-full truncate px-1 text-[8px] font-medium leading-none">
+    <span className="dn-type-caption max-w-full truncate px-1 font-medium leading-none">
       {result.name}
     </span>
   )
@@ -199,7 +200,7 @@ export function LogoIconPicker({
 
       <div
         ref={setScrollNode}
-        className="grid max-h-72 grid-cols-4 gap-1.5 overflow-y-auto px-0.5 py-px"
+        className="grid max-h-72 grid-cols-4 gap-[length:var(--dn-space-inline)] overflow-y-auto px-0.5 py-px"
       >
         {!canSearch ? (
           <>
@@ -223,7 +224,7 @@ export function LogoIconPicker({
                   <div
                     key={`${icon.library}-${icon.id}`}
                     aria-hidden
-                    className="h-11 min-w-0 animate-pulse rounded-[9px] bg-[var(--dn-popover-tile)]"
+                    className="h-[length:var(--dn-control-height)] min-w-0 animate-pulse dn-squircle-xs bg-[var(--dn-popover-tile)]"
                   />
                 ))
               : curatedIcons.map((result) => (
@@ -240,21 +241,21 @@ export function LogoIconPicker({
                   </LogoIconTile>
                 ))}
             {curatedError ? (
-              <p className="col-span-4 px-1 py-3 text-center text-[11px] text-[var(--dn-popover-muted)]">
+              <p className="col-span-4 px-1 py-3 text-center text-[var(--dn-popover-muted)] dn-type-meta">
                 {curatedError}
               </p>
             ) : null}
           </>
         ) : isLoading ? (
-          <p className="col-span-4 px-1 py-6 text-center text-[11px] text-[var(--dn-popover-muted)]">
+          <p className="col-span-4 px-1 py-6 text-center text-[var(--dn-popover-muted)] dn-type-meta">
             Searching icons…
           </p>
         ) : error ? (
-          <p className="col-span-4 px-1 py-6 text-center text-[11px] text-[var(--dn-popover-muted)]">
+          <p className="col-span-4 px-1 py-6 text-center text-[var(--dn-popover-muted)] dn-type-meta">
             {error}
           </p>
         ) : results.length === 0 ? (
-          <p className="col-span-4 px-1 py-6 text-center text-[11px] text-[var(--dn-popover-muted)]">
+          <p className="col-span-4 px-1 py-6 text-center text-[var(--dn-popover-muted)] dn-type-meta">
             No matches
           </p>
         ) : (
@@ -308,6 +309,7 @@ export function PexelsPhotoPicker({
   onClear?: () => void
   onSelectPhoto: (imageUrl: string) => void
 }) {
+  const mobileDensity = useMobileInspectorDensity()
   const [query, setQuery] = useState("")
   const [orientation, setOrientation] = useState<PexelsPhotoOrientationFilter>("all")
   const isOrientationFilterActive = orientation !== "all"
@@ -329,7 +331,7 @@ export function PexelsPhotoPicker({
   return (
     <div className="dn-section-stack">
       <button
-        className="dn-pressable-press-only w-full px-2 py-1.5 text-left text-[11px] font-medium text-[var(--dn-popover-muted)] dn-squircle-xs hover:bg-[var(--dn-popover-tile-hover)] hover:text-[var(--dn-fg)]"
+        className="dn-pressable-press-only dn-type-meta w-full px-2 py-1.5 text-left font-medium text-[var(--dn-popover-muted)] dn-squircle-xs hover:bg-[var(--dn-popover-tile-hover)] hover:text-[var(--dn-fg)]"
         type="button"
         onClick={() => {
           onClear?.()
@@ -340,7 +342,7 @@ export function PexelsPhotoPicker({
       </button>
 
       <div className="flex flex-col gap-1.5">
-        <p className="px-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--dn-popover-muted)]">
+        <p className="dn-type-meta px-0.5 font-semibold uppercase tracking-[0.08em] text-[var(--dn-popover-muted)]">
           Wallpapers
         </p>
         <RaycastWallpaperGrid
@@ -349,7 +351,7 @@ export function PexelsPhotoPicker({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <p className="px-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--dn-popover-muted)]">
+        <p className="dn-type-meta px-0.5 font-semibold uppercase tracking-[0.08em] text-[var(--dn-popover-muted)]">
           Photos
         </p>
       <div className="flex items-center gap-1.5">
@@ -370,7 +372,7 @@ export function PexelsPhotoPicker({
           <DropdownMenuTrigger asChild>
             <button
               aria-label={`Filter photo orientation (${activeOrientationLabel})`}
-              className="dn-content-type-filter-trigger dn-pressable-press-only inline-flex size-8 shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
+              className="dn-content-type-filter-trigger dn-pressable-press-only inline-flex size-[length:var(--dn-icon-hit)] shrink-0 items-center justify-center border border-[var(--dn-popover-border)] bg-[var(--dn-popover-control)] text-[var(--dn-popover-muted)] dn-squircle-xs"
               data-active={isOrientationFilterActive ? "true" : undefined}
               type="button"
             >
@@ -380,12 +382,13 @@ export function PexelsPhotoPicker({
           <DropdownMenuContent
             align="end"
             className="desktopnew-popover-content dn-portal-surface min-w-36 border p-1 dn-squircle-sm"
+            data-mobile-inspector={mobileDensity ? "" : undefined}
           >
             {PEXELS_ORIENTATION_FILTER_OPTIONS.map((option) => (
               <DropdownMenuItem
                 key={option.value}
                 className={cn(
-                  "rounded-[8px] px-2 py-1.5 text-[11px] font-medium",
+                  "dn-type-meta dn-squircle-xs px-2 py-1.5 font-medium",
                   orientation === option.value
                     ? "bg-[var(--dn-popover-tile-hover)] text-[var(--dn-fg)]"
                     : "text-[var(--dn-popover-muted)] focus:bg-[var(--dn-popover-tile-hover)] focus:text-[var(--dn-fg)]",
@@ -401,7 +404,7 @@ export function PexelsPhotoPicker({
 
       <div
         ref={setPhotoScrollNode}
-        className="grid max-h-72 grid-cols-2 gap-1.5 overflow-y-auto pr-0.5"
+        className="grid max-h-72 grid-cols-2 gap-[length:var(--dn-space-inline)] overflow-y-auto pr-0.5"
       >
         {isLoading
           ? Array.from({ length: 8 }, (_, index) => (
@@ -413,12 +416,12 @@ export function PexelsPhotoPicker({
             ))
           : null}
         {!isLoading && error ? (
-          <p className="col-span-2 px-1 py-6 text-center text-[11px] text-[var(--dn-popover-muted)]">
+          <p className="col-span-2 px-1 py-6 text-center text-[var(--dn-popover-muted)] dn-type-meta">
             {error}
           </p>
         ) : null}
         {!isLoading && !error && photos.length === 0 ? (
-          <p className="col-span-2 px-1 py-6 text-center text-[11px] text-[var(--dn-popover-muted)]">
+          <p className="col-span-2 px-1 py-6 text-center text-[var(--dn-popover-muted)] dn-type-meta">
             {canSearch ? "No matches" : "No photos available"}
           </p>
         ) : null}
@@ -435,7 +438,7 @@ export function PexelsPhotoPicker({
 
       {hasMore && !isLoading && !error ? (
         <button
-          className="dn-pressable-press-only w-full px-2 py-2 text-center text-[11px] font-medium text-[var(--dn-popover-muted)] dn-squircle-xs hover:bg-[var(--dn-popover-tile-hover)] hover:text-[var(--dn-fg)]"
+          className="dn-pressable-press-only dn-type-meta w-full px-2 py-2 text-center font-medium text-[var(--dn-popover-muted)] dn-squircle-xs hover:bg-[var(--dn-popover-tile-hover)] hover:text-[var(--dn-fg)]"
           disabled={isLoadingMore}
           type="button"
           onClick={() => {
@@ -446,7 +449,7 @@ export function PexelsPhotoPicker({
         </button>
       ) : null}
 
-      <p className="px-1 text-center text-[10px] text-[var(--dn-popover-muted)]">
+      <p className="dn-type-meta px-1 text-center text-[var(--dn-popover-muted)]">
         Photos provided by{" "}
         <a
           className="underline underline-offset-2 hover:text-[var(--dn-fg)]"

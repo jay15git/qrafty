@@ -168,7 +168,7 @@ export function DesktopExportSettingsPanel({ model }: { model: DesktopInspectorM
       </SettingsPrimaryButton>
       {exportInProgress ? (
         <button
-          className="text-center text-[11px] text-[var(--desktop-inspector-fg-secondary)] underline-offset-2 hover:underline"
+          className="dn-type-meta text-center text-[var(--desktop-inspector-fg-secondary)] underline-offset-2 hover:underline"
           type="button"
           onClick={() => controller?.onExportCancel?.()}
         >
@@ -179,7 +179,7 @@ export function DesktopExportSettingsPanel({ model }: { model: DesktopInspectorM
         <p className="dn-type-meta text-center">{controller.exportProgressLabel}</p>
       ) : null}
       {controller?.exportDownloadError ? (
-        <p className="text-center text-[11px] text-red-500">{controller.exportDownloadError}</p>
+        <p className="dn-type-meta text-center text-red-500">{controller.exportDownloadError}</p>
       ) : null}
     </div>
   )

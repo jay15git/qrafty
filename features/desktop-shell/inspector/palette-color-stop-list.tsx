@@ -93,12 +93,12 @@ function PaletteColorStopRow({
         backgroundImage: `linear-gradient(${formatColor(parsed, "oklch")}, ${formatColor(parsed, "oklch")}), ${CHECKERBOARD_SM}`,
         backgroundSize: "auto, 6px 6px",
       }}
-      className="size-7 shrink-0 rounded-xs border border-border outline-none transition-shadow hover:ring-2 hover:ring-ring focus-visible:ring-2 focus-visible:ring-ring"
+      className="size-[length:var(--dn-icon-hit)] shrink-0 rounded-xs border border-border outline-none transition-shadow hover:ring-2 hover:ring-ring focus-visible:ring-2 focus-visible:ring-ring"
     />
   )
 
   return (
-    <div className="flex items-center gap-2 rounded-md border border-border p-1 text-xs">
+    <div className="dn-type-meta flex items-center gap-[length:var(--dn-space-inline)] rounded-md border border-border p-[length:var(--dn-space-inline)]">
       <PaletteColorStopEditor
         color={color}
         onColorChange={(next) => onColorChange(index, next)}
@@ -107,7 +107,7 @@ function PaletteColorStopRow({
       >
         {swatch}
       </PaletteColorStopEditor>
-      <FieldShell className="h-7 min-w-0 flex-1">
+      <FieldShell className="h-[length:var(--dn-control-height-compact)] min-w-0 flex-1">
         <FieldInputGroup>
           <span className="sr-only">Color value</span>
           <FieldInput

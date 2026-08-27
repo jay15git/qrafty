@@ -14,14 +14,12 @@
   --dn-font: "Inter", system-ui, sans-serif;
   --dn-panel-width: 300px;
   --dn-popover-shadow: 0 12px 48px rgb(0 0 0 / 50%);
-  --dn-type-caption: 10px;
-  --dn-type-label: 11px;
-  --dn-type-body: 13px;
-  --dn-type-section: 16px;
+  --dn-type-caption: 0.625rem;
+  --dn-type-meta: 0.6875rem;
+  --dn-type-value: 0.75rem;
+  --dn-type-section: 1rem;
+  --dn-type-body: 0.8125rem;
   --dn-tracking-tight: -0.015em;
-  --dn-type-label-size: 12px;
-  --dn-type-meta-size: 11px;
-  --dn-type-value-size: 12px;
   --dn-type-label-weight: 400;
   --dn-type-value-weight: 500;
   --dn-type-label-color: color-mix(in srgb, var(--dn-fg) 46%, transparent);
@@ -33,6 +31,7 @@
   --dn-space-stack: 0.625rem;
   --dn-space-inline: 0.375rem;
   --dn-control-height: 2.25rem;
+  --dn-control-height-compact: 2rem;
   --dn-tab-height: 2rem;
   --dn-preview-tile: 3.5rem;
   --dn-icon-hit: 2rem;
@@ -70,6 +69,19 @@
 
 /* Motion + interaction tokens — shared by in-tree settings and portalled surfaces. */
 :is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover) {
+  --dn-type-caption: 0.625rem;
+  --dn-type-meta: 0.6875rem;
+  --dn-type-value: 0.75rem;
+  --dn-type-section: 1rem;
+  --dn-type-body: 0.8125rem;
+  --dn-space-stack: 0.625rem;
+  --dn-space-inline: 0.375rem;
+  --dn-control-height: 2.25rem;
+  --dn-control-height-compact: 2rem;
+  --dn-tab-height: 2rem;
+  --dn-preview-tile: 3.5rem;
+  --dn-icon-hit: 2rem;
+  --dn-row-px: 0.75rem;
   --dn-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   /* Near-critically-damped stand-in for beui SPRING_PRESS (k=500, c=30, m=0.6). */
   --dn-ease-press: cubic-bezier(0.16, 1, 0.3, 1);
@@ -167,6 +179,15 @@
   background: var(--dn-bg);
   color: var(--dn-fg);
   box-shadow: none;
+  container-type: inline-size;
+  container-name: dn-settings;
+}
+
+@container dn-settings (max-width: 280px) {
+  .dn-settings-panel .grid-cols-4,
+  .dn-settings-panel .dn-content-type-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-panel {
@@ -386,7 +407,7 @@
 
 .dn-content-type-segment-label {
   white-space: nowrap;
-  font-size: 10px;
+  font-size: var(--dn-type-caption);
   font-weight: 500;
   line-height: 1;
   letter-spacing: var(--dn-tracking-tight);
@@ -409,7 +430,7 @@
   flex-shrink: 0;
   height: 1.75rem;
   padding-inline: 0.625rem;
-  font-size: 10px;
+  font-size: var(--dn-type-caption);
   font-weight: 500;
   letter-spacing: var(--dn-tracking-tight);
   white-space: nowrap;
@@ -509,8 +530,16 @@
 
 /* ── Settings typography ─────────────────────────────────────────── */
 
+.dn-type-caption {
+  font-size: var(--dn-type-caption);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-label-color);
+}
+
 .dn-type-label {
-  font-size: var(--dn-type-label-size);
+  font-size: var(--dn-type-meta);
   font-weight: var(--dn-type-label-weight);
   line-height: 1;
   letter-spacing: var(--dn-tracking-tight);
@@ -518,7 +547,7 @@
 }
 
 .dn-type-meta {
-  font-size: var(--dn-type-meta-size);
+  font-size: var(--dn-type-meta);
   font-weight: var(--dn-type-label-weight);
   line-height: 1;
   letter-spacing: var(--dn-tracking-tight);
@@ -526,12 +555,28 @@
 }
 
 .dn-type-value {
-  font-size: var(--dn-type-value-size);
+  font-size: var(--dn-type-value);
   font-weight: var(--dn-type-value-weight);
   line-height: 1;
   letter-spacing: var(--dn-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--dn-type-value-color);
+}
+
+.dn-type-section {
+  font-size: var(--dn-type-section);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-fg);
+}
+
+.dn-type-body {
+  font-size: var(--dn-type-body);
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-label-color);
 }
 
 /* ── Row controls ────────────────────────────────────────────────── */
@@ -626,7 +671,7 @@
   height: var(--dn-control-height);
   border: 1px solid var(--dn-line);
   background: var(--dn-control) !important;
-  font-size: var(--dn-type-value-size);
+  font-size: var(--dn-type-value);
   font-weight: var(--dn-type-value-weight);
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -656,7 +701,7 @@
   padding: 0.625rem 0.75rem;
   border: 1px solid var(--dn-line);
   background: var(--dn-control) !important;
-  font-size: var(--dn-type-value-size);
+  font-size: var(--dn-type-value);
   font-weight: var(--dn-type-value-weight);
   line-height: 1.35;
   letter-spacing: var(--dn-tracking-tight);
@@ -678,7 +723,7 @@
 }
 
 .dn-field-error {
-  font-size: 10px;
+  font-size: var(--dn-type-caption);
   font-weight: 500;
   line-height: 1.2;
   color: #f87171;
@@ -727,7 +772,7 @@
   border: none !important;
   border-radius: var(--dn-radius-xs);
   background: var(--spell-ui-input-bg) !important;
-  font-size: var(--dn-type-value-size);
+  font-size: var(--dn-type-value);
   font-weight: var(--dn-type-value-weight);
   letter-spacing: var(--dn-tracking-tight);
   color: var(--dn-type-value-color) !important;
@@ -738,7 +783,7 @@
   border: none !important;
   border-radius: var(--dn-radius-xs);
   background: var(--spell-ui-input-bg) !important;
-  font-size: var(--dn-type-value-size);
+  font-size: var(--dn-type-value);
   font-weight: var(--dn-type-value-weight);
   line-height: 1.25;
   letter-spacing: var(--dn-tracking-tight);
@@ -788,7 +833,7 @@
 
 .desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-label"] {
   font-family: inherit;
-  font-size: var(--dn-type-label-size);
+  font-size: var(--dn-type-meta);
   font-weight: var(--dn-type-label-weight);
   line-height: 1;
   letter-spacing: var(--dn-tracking-tight);
@@ -797,7 +842,7 @@
 
 .desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-value"] {
   font-family: inherit;
-  font-size: var(--dn-type-value-size);
+  font-size: var(--dn-type-value);
   font-weight: var(--dn-type-value-weight);
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -1216,11 +1261,11 @@
 }
 
 .desktopnew-popover-content .dn-content-type-search-input {
-  height: 2rem;
+  height: var(--dn-control-height-compact);
   border: 1px solid var(--dn-popover-border);
   background: var(--dn-popover-control);
   padding-left: 2rem;
-  font-size: 12px;
+  font-size: var(--dn-type-value);
   font-weight: 500;
   letter-spacing: var(--dn-tracking-tight);
   color: inherit;
@@ -1287,7 +1332,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 9px;
+  font-size: var(--dn-type-caption);
   font-weight: 500;
   line-height: 1;
   letter-spacing: var(--dn-tracking-tight);
@@ -1303,7 +1348,7 @@
   grid-column: 1 / -1;
   padding: 0.75rem 0.25rem;
   text-align: center;
-  font-size: 11px;
+  font-size: var(--dn-type-meta);
   color: var(--dn-popover-muted);
 }
 
@@ -1534,7 +1579,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   white-space: normal;
-  font-size: 10px;
+  font-size: var(--dn-type-caption);
   font-weight: 500;
   line-height: 1.15;
   letter-spacing: var(--dn-tracking-tight);

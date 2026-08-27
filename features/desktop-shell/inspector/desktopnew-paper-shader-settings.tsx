@@ -182,7 +182,7 @@ function DesktopNewPaperShaderParamControl({
           <button
             aria-label={`Add ${label}`}
             className={cn(
-              "dn-pressable-pickable grid size-8 place-items-center border border-dashed border-[color-mix(in_srgb,var(--dn-line)_55%,transparent)] dn-squircle-xs text-[var(--dn-muted)]",
+              "dn-pressable-pickable grid size-[length:var(--dn-icon-hit)] place-items-center border border-dashed border-[color-mix(in_srgb,var(--dn-line)_55%,transparent)] dn-squircle-xs text-[var(--dn-muted)]",
               colors.length >= (maxColorCount ?? 10) && "cursor-not-allowed opacity-40",
             )}
             disabled={colors.length >= (maxColorCount ?? 10)}

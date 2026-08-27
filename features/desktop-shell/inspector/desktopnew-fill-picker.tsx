@@ -231,7 +231,7 @@ function ModulePatternPicker({
   onPaletteColorChange: (index: number, color: string) => void
 }) {
   const PATTERN_TILE =
-    "dn-option-tile relative flex size-12 shrink-0 items-center justify-center p-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
+    "dn-option-tile relative flex size-[length:var(--dn-preview-tile)] shrink-0 items-center justify-center p-[length:var(--dn-space-inline)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-2">
@@ -280,7 +280,7 @@ function PatternPalettePreview({ colors }: { colors: string[] }) {
   return (
     <span
       aria-hidden
-      className="grid size-8 grid-cols-2 gap-px overflow-hidden dn-squircle-xs"
+      className="grid size-[length:var(--dn-icon-hit)] grid-cols-2 gap-px overflow-hidden dn-squircle-xs"
     >
       {colors.map((color, index) => (
         <span

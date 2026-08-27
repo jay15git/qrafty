@@ -343,8 +343,8 @@ export function InsertMenuImagePanel({
         />
         <span
           className={cn(
-            "text-xs font-medium",
-            isDesktopPopover ? "dn-type-meta" : "text-[var(--ws-ink-muted)]",
+            "font-medium",
+            isDesktopPopover ? "dn-type-meta" : "text-xs text-[var(--ws-ink-muted)]",
           )}
         >
           or
