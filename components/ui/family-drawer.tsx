@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -211,6 +212,8 @@ type FamilyDrawerContentProps = {
   variant?: "card" | "sheet"
   /** Screen-reader label for the drawer dialog. Falls back to the active view name. */
   accessibilityTitle?: string
+  /** Pixel cap for the animated frame; overflowing content uses this frame's native scroller. */
+  maxHeight?: number
 } & Record<string, unknown>
 
 function FamilyDrawerContent({
@@ -219,13 +222,27 @@ function FamilyDrawerContent({
   asChild = false,
   variant = "card",
   accessibilityTitle,
+  maxHeight,
   ...rest
 }: FamilyDrawerContentProps) {
   const { bounds, view } = useFamilyDrawer()
+  const scrollFrameRef = useRef<HTMLDivElement>(null)
+  const previousViewRef = useRef(view)
+  const isCapped = maxHeight !== undefined
   const dialogTitle =
     accessibilityTitle ??
     DEFAULT_VIEW_ACCESSIBILITY_TITLES[view] ??
     DEFAULT_VIEW_ACCESSIBILITY_TITLES.default
+  const displayedHeight =
+    isCapped ? Math.min(bounds.height, maxHeight) : bounds.height
+
+  useEffect(() => {
+    const previousView = previousViewRef.current
+    previousViewRef.current = view
+    if (isCapped && previousView !== view) {
+      scrollFrameRef.current?.scrollTo({ top: 0 })
+    }
+  }, [isCapped, view])
 
   const variantClass =
     variant === "sheet"
@@ -235,19 +252,34 @@ function FamilyDrawerContent({
   const content = (
     <m.div
       animate={{
-        height: bounds.height,
+        height: displayedHeight,
         transition: {
           duration: 0.27,
           ease: [0.25, 1, 0.5, 1],
         },
       }}
+      className={
+        isCapped
+          ? "min-w-0 overflow-hidden"
+          : undefined
+      }
     >
       <Drawer.Title className="sr-only">{dialogTitle}</Drawer.Title>
-      {children}
+      {isCapped ? (
+        <div
+          ref={scrollFrameRef}
+          className="h-full min-w-0 overflow-x-clip overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          data-vaul-no-drag=""
+        >
+          {children}
+        </div>
+      ) : (
+        children
+      )}
     </m.div>
   )
 
-  if (asChild) {
+  if (asChild && !isCapped) {
     return (
       <Drawer.Content asChild className={cn(variantClass, className)} {...rest}>
         <Slot>{content}</Slot>
@@ -256,7 +288,7 @@ function FamilyDrawerContent({
   }
 
   return (
-    <Drawer.Content asChild className={cn(variantClass, className)} {...rest}>
+    <Drawer.Content className={cn(variantClass, className)} {...rest}>
       {content}
     </Drawer.Content>
   )

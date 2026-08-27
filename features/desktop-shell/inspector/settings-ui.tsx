@@ -355,10 +355,10 @@ export function SegmentTabs({
             }}
             aria-label={item.ariaLabel ?? item.label}
             className={cn(
-              "t-tab dn-segment-tab dn-pressable-press-only dn-type-chip flex items-center dn-squircle-xs",
+              "t-tab dn-segment-tab dn-pressable-press-only dn-type-chip flex dn-squircle-xs",
               scrollable || hasIcon
-                ? "dn-content-type-segment-tab shrink-0 gap-1.5 px-2.5"
-                : "min-w-0 flex-1 justify-center px-2",
+                ? "dn-content-type-segment-tab shrink-0 flex-col items-center justify-center gap-1 px-2.5"
+                : "min-w-0 flex-1 items-center justify-center px-2",
               variant === "muted" && "dn-segment-tab--muted",
               active ? "text-[var(--dn-fg)]" : "bg-transparent text-[var(--dn-muted)]",
             )}

@@ -18,6 +18,7 @@ export function InsertMenuDesktopScroll({
   return (
     <ScrollArea
       className={cn(INSERT_MENU_SCROLL_CLASS, className)}
+      chevron={false}
       scrollFade
       showScrollbar={false}
       viewportClassName="px-0"

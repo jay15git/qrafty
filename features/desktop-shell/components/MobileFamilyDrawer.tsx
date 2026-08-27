@@ -6,7 +6,9 @@ import {
   startTransition,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
+  useState,
   type ReactNode,
 } from "react"
 
@@ -48,6 +50,7 @@ import "@/features/desktop-shell/inspector/desktopnew.css"
 import "@/features/desktop-shell/inspector/mobile-inspector.css"
 
 const MOBILE_DRAWER_BOTTOM_GAP_PX = 16
+const MOBILE_DRAWER_MAX_VIEWPORT_RATIO = 0.5
 
 const MobileInspectorContext = createContext<DesktopInspectorModel | null>(null)
 
@@ -74,12 +77,34 @@ function syncMobileDrawerHeight(height: number) {
   }
 }
 
-function MobileDrawerHeightSync() {
+function useMobileDrawerMaxHeight() {
+  const [maxHeight, setMaxHeight] = useState<number>()
+
+  useLayoutEffect(() => {
+    const updateMaxHeight = () => {
+      setMaxHeight((window.visualViewport?.height ?? window.innerHeight) * MOBILE_DRAWER_MAX_VIEWPORT_RATIO)
+    }
+
+    updateMaxHeight()
+    window.addEventListener("resize", updateMaxHeight)
+    window.visualViewport?.addEventListener("resize", updateMaxHeight)
+
+    return () => {
+      window.removeEventListener("resize", updateMaxHeight)
+      window.visualViewport?.removeEventListener("resize", updateMaxHeight)
+    }
+  }, [])
+
+  return maxHeight
+}
+
+function MobileDrawerHeightSync({ maxHeight }: { maxHeight?: number }) {
   const { bounds } = useFamilyDrawer()
   const lastSyncedHeightRef = useRef(0)
 
   useEffect(() => {
-    const nextHeight = bounds.height
+    const nextHeight =
+      maxHeight === undefined ? bounds.height : Math.min(bounds.height, maxHeight)
     if (nextHeight <= 0) {
       return
     }
@@ -90,7 +115,7 @@ function MobileDrawerHeightSync() {
     }
 
     syncMobileDrawerHeight(nextHeight)
-  }, [bounds.height])
+  }, [bounds.height, maxHeight])
 
   useEffect(() => {
     return () => {
@@ -330,6 +355,7 @@ function MobileFamilyDrawerChrome({
 }) {
   const { view } = useFamilyDrawer()
   const navigation = useMobileDrawerNavigation()
+  const maxHeight = useMobileDrawerMaxHeight()
   const accessibilityTitle =
     view === "setting-detail" ? navigation?.detailPayload?.title : undefined
 
@@ -345,9 +371,10 @@ function MobileFamilyDrawerChrome({
         data-mobile-inspector=""
         data-slot="mobile-family-drawer-root"
         data-theme={theme}
+        maxHeight={maxHeight}
         variant="card"
       >
-        <MobileDrawerHeightSync />
+        <MobileDrawerHeightSync maxHeight={maxHeight} />
         <FamilyDrawerAnimatedWrapper className="dn-mobile-drawer-body px-5 pt-4">
           <FamilyDrawerAnimatedContent />
         </FamilyDrawerAnimatedWrapper>

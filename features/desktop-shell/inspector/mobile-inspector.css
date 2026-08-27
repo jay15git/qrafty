@@ -125,6 +125,12 @@
   font-size: var(--dn-type-caption);
 }
 
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-tab,
+.dn-portal-surface[data-mobile-inspector] .dn-content-type-segment-tab {
+  min-height: 3.25rem;
+  height: auto;
+}
+
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-option-tile,
 .dn-portal-surface[data-mobile-inspector] .dn-option-tile {
   border-radius: var(--dn-radius-xs);

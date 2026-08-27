@@ -8,6 +8,8 @@ export const INSERT_MENU_POPOVER_SHELL =
 
 export const INSERT_MENU_SCROLL_CLASS = "dn-insert-menu-scroll h-[min(20rem,60dvh)]"
 
+export const INSERT_MENU_ROOT_SCROLL_CLASS = "dn-insert-menu-root-scroll w-full min-w-0"
+
 export const INSERT_MENU_EMOJI_SHELL_CLASS =
   "dn-insert-menu-emoji flex h-[min(20rem,60dvh)] min-w-0 flex-col"
 

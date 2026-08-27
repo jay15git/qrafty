@@ -119,25 +119,26 @@ export function InsertMenuPanelStack({
       )
     }
 
+    if (panel === "root") {
+      return (
+        <InsertMenuRootPanel
+          canAddQrCode={canAddQrCode}
+          isDesktopPopover={isDesktopPopover}
+          onAddQrCode={onAddQrCode ? addQrCode : undefined}
+          onInsertText={insertText}
+          onOpenEmojiPanel={() => setPanel("emoji")}
+          onOpenIllustrationSet={(setId) => {
+            setIllustrationSetId(setId)
+            setPanel("illustration-set")
+          }}
+          onOpenImagePanel={() => setPanel("image")}
+          onOpenShapePanel={() => setPanel("shape")}
+        />
+      )
+    }
+
     return (
-      <InsertMenuDesktopScroll
-        contentClassName={panel === "root" ? undefined : INSERT_MENU_PANEL_CONTENT_CLASS}
-      >
-        {panel === "root" ? (
-          <InsertMenuRootPanel
-            canAddQrCode={canAddQrCode}
-            isDesktopPopover={isDesktopPopover}
-            onAddQrCode={onAddQrCode ? addQrCode : undefined}
-            onInsertText={insertText}
-            onOpenEmojiPanel={() => setPanel("emoji")}
-            onOpenIllustrationSet={(setId) => {
-              setIllustrationSetId(setId)
-              setPanel("illustration-set")
-            }}
-            onOpenImagePanel={() => setPanel("image")}
-            onOpenShapePanel={() => setPanel("shape")}
-          />
-        ) : null}
+      <InsertMenuDesktopScroll contentClassName={INSERT_MENU_PANEL_CONTENT_CLASS}>
         {panel === "shape" ? (
           <InsertMenuShapePanel
             isDesktopPopover={isDesktopPopover}

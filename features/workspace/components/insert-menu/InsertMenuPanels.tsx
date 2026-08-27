@@ -19,6 +19,7 @@ import {
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import { ImageCropper } from "@/components/ui/image-cropper"
 import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { SecondaryButton } from "@/components/ui/secondary-button"
 import { ElementShapeOptionGrid } from "@/features/workspace/components/ElementShapeOptionGrid"
 import { InsertMenuFanPreview } from "@/features/workspace/components/insert-menu/InsertMenuFanPreview"
@@ -37,6 +38,7 @@ import {
   INSERT_MENU_INPUT_CLASS,
   INSERT_MENU_ITEM_CLASS,
   INSERT_MENU_PANEL_TITLE,
+  INSERT_MENU_ROOT_SCROLL_CLASS,
 } from "@/features/workspace/components/insert-menu/insert-menu-styles"
 import { IllustrationOptionGrid } from "@/features/workspace/components/IllustrationOptionGrid"
 import {
@@ -178,47 +180,57 @@ export function InsertMenuRootPanel({
 }) {
   if (isDesktopPopover) {
     return (
-      <div className="dn-insert-menu-root-grid p-3.5">
-        <InsertMenuRootOptionTile
-          label="Text"
-          previews={INSERT_MENU_TEXT_PREVIEWS}
-          onClick={onInsertText}
-        />
-        <InsertMenuRootOptionTile
-          label="Shape"
-          previews={INSERT_MENU_SHAPE_PREVIEWS}
-          onClick={onOpenShapePanel}
-        />
-        <InsertMenuRootOptionTile
-          label="Emoji"
-          previews={INSERT_MENU_EMOJI_FAN_PREVIEWS}
-          slot="drafting-insert-menu-emoji"
-          onClick={onOpenEmojiPanel}
-        />
-        <InsertMenuRootOptionTile
-          label="Image"
-          previews={INSERT_MENU_IMAGE_PREVIEWS}
-          onClick={onOpenImagePanel}
-        />
-        {ILLUSTRATION_SETS.map((set) => (
+      <ScrollArea
+        className={INSERT_MENU_ROOT_SCROLL_CLASS}
+        chevron={false}
+        cueSize="tight"
+        orientation="horizontal"
+        scrollFade
+        showScrollbar={false}
+        viewportClassName="min-w-0 px-0"
+      >
+        <div className="dn-insert-menu-root-grid p-3.5">
           <InsertMenuRootOptionTile
-            key={set.id}
-            label={set.label}
-            previews={INSERT_MENU_ILLUSTRATION_SET_PREVIEWS[set.id]}
-            slot={`drafting-insert-menu-illustration-${set.id}`}
-            onClick={() => onOpenIllustrationSet(set.id)}
+            label="Text"
+            previews={INSERT_MENU_TEXT_PREVIEWS}
+            onClick={onInsertText}
           />
-        ))}
-        {onAddQrCode ? (
           <InsertMenuRootOptionTile
-            disabled={!canAddQrCode}
-            label={canAddQrCode ? "QR code" : "Max 10 QR codes"}
-            previews={INSERT_MENU_QR_PREVIEWS}
-            slot="drafting-insert-menu-add-qr"
-            onClick={onAddQrCode}
+            label="Shape"
+            previews={INSERT_MENU_SHAPE_PREVIEWS}
+            onClick={onOpenShapePanel}
           />
-        ) : null}
-      </div>
+          <InsertMenuRootOptionTile
+            label="Emoji"
+            previews={INSERT_MENU_EMOJI_FAN_PREVIEWS}
+            slot="drafting-insert-menu-emoji"
+            onClick={onOpenEmojiPanel}
+          />
+          <InsertMenuRootOptionTile
+            label="Image"
+            previews={INSERT_MENU_IMAGE_PREVIEWS}
+            onClick={onOpenImagePanel}
+          />
+          {ILLUSTRATION_SETS.map((set) => (
+            <InsertMenuRootOptionTile
+              key={set.id}
+              label={set.label}
+              previews={INSERT_MENU_ILLUSTRATION_SET_PREVIEWS[set.id]}
+              slot={`drafting-insert-menu-illustration-${set.id}`}
+              onClick={() => onOpenIllustrationSet(set.id)}
+            />
+          ))}
+          {onAddQrCode ? (
+            <InsertMenuRootOptionTile
+              disabled={!canAddQrCode}
+              label={canAddQrCode ? "QR code" : "Max 10 QR codes"}
+              previews={INSERT_MENU_QR_PREVIEWS}
+              slot="drafting-insert-menu-add-qr"
+              onClick={onAddQrCode}
+            />
+          ) : null}
+        </div>
+      </ScrollArea>
     )
   }
 
