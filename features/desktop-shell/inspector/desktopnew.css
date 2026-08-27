@@ -1277,8 +1277,26 @@
   color: inherit;
 }
 
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-content-type-search-input {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--dn-control-height-compact);
+  height: var(--dn-control-height-compact);
+  border: 1px solid var(--dn-line);
+  background: var(--dn-control);
+  padding-inline: calc(var(--dn-row-px) + 1.125rem) var(--dn-row-px);
+  font-size: var(--dn-type-value);
+  font-weight: 500;
+  letter-spacing: var(--dn-tracking-tight);
+  color: inherit;
+}
+
 .desktopnew-popover-content .dn-content-type-search-input::placeholder {
   color: var(--dn-popover-muted);
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-content-type-search-input::placeholder {
+  color: var(--dn-muted);
 }
 
 .desktopnew-popover-content .dn-content-type-filter-trigger[data-active="true"] {
@@ -1356,6 +1374,47 @@
   text-align: center;
   font-size: var(--dn-type-meta);
   color: var(--dn-popover-muted);
+}
+
+/* Logo icon picker — token-sized tiles + search aligned to settings surfaces */
+.dn-logo-icon-picker {
+  width: 100%;
+  min-width: 0;
+}
+
+.dn-logo-icon-picker-search {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.dn-logo-icon-picker-search-icon {
+  position: absolute;
+  top: 50%;
+  left: var(--dn-row-px);
+  z-index: 1;
+  width: 0.875rem;
+  height: 0.875rem;
+  transform: translateY(-50%);
+}
+
+.dn-logo-icon-picker-grid {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--dn-space-inline);
+  padding-inline: 0.125rem;
+}
+
+.dn-logo-icon-picker-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+.dn-logo-icon-picker-grid .dn-type-meta {
+  color: var(--dn-muted);
 }
 
 /* Insert menu popover — solid accordion surface + option tiles */

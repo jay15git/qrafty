@@ -55,10 +55,8 @@ function LogoIconTile({
       aria-label={ariaLabel}
       aria-pressed={isSelected}
       className={cn(
-        "dn-pressable-pickable grid h-[length:var(--dn-control-height)] min-w-0 place-items-center dn-squircle-xs",
-        isSelected
-          ? "bg-[var(--dn-popover-tile)] text-[var(--dn-fg)] ring-2 ring-inset ring-[var(--dn-fg)]"
-          : "bg-[var(--dn-popover-tile)] text-[var(--dn-fg)]",
+        "dn-logo-icon-picker-tile dn-option-tile dn-preview-tile dn-preview-tile-size dn-pressable-pickable grid min-w-0 place-items-center dn-squircle-xs",
+        isSelected && "text-[var(--dn-fg)]",
       )}
       type="button"
       onClick={onClick}
@@ -133,7 +131,7 @@ function IconstackIconPreview({
     return (
       <span
         aria-hidden
-        className="flex size-4 items-center justify-center text-[var(--dn-fg)] [&_svg]:size-full"
+        className="dn-logo-icon-picker-icon flex items-center justify-center text-[var(--dn-fg)] [&_svg]:size-full"
         dangerouslySetInnerHTML={{ __html: normalizeIconstackSvgMarkup(previewSvg) }}
       />
     )
@@ -175,6 +173,7 @@ export function LogoIconPicker({
     library: "all",
   })
 
+  const mobileDensity = useMobileInspectorDensity()
   const setScrollNode = usePersistedScrollNode("logo-icon-grid")
 
   const selectLogo = (nextId: string) => {
@@ -183,15 +182,15 @@ export function LogoIconPicker({
   }
 
   return (
-    <div className="dn-section-stack">
-      <div className="relative w-full">
+    <div className="dn-logo-icon-picker dn-section-stack">
+      <div className="dn-logo-icon-picker-search">
         <Search
           aria-hidden
-          className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--dn-popover-muted)]"
+          className="dn-logo-icon-picker-search-icon pointer-events-none text-[var(--dn-muted)]"
         />
         <input
           aria-label="Search logo icons"
-          className="dn-content-type-search-input dn-squircle-xs w-full"
+          className="dn-content-type-search-input dn-squircle-xs w-full min-w-0"
           placeholder="Search"
           value={query}
           onChange={(event) => setQuery(event.currentTarget.value)}
@@ -200,7 +199,10 @@ export function LogoIconPicker({
 
       <div
         ref={setScrollNode}
-        className="grid max-h-72 grid-cols-4 gap-[length:var(--dn-space-inline)] overflow-y-auto px-0.5 py-px"
+        className={cn(
+          "dn-logo-icon-picker-grid",
+          !mobileDensity && "max-h-72 overflow-y-auto",
+        )}
       >
         {!canSearch ? (
           <>
@@ -215,7 +217,7 @@ export function LogoIconPicker({
                   isSelected={isSelected}
                   onClick={() => selectLogo(brandIcon.id)}
                 >
-                  <Icon aria-hidden className="size-4" />
+                  <Icon aria-hidden className="dn-logo-icon-picker-icon" />
                 </LogoIconTile>
               )
             })}
@@ -224,7 +226,7 @@ export function LogoIconPicker({
                   <div
                     key={`${icon.library}-${icon.id}`}
                     aria-hidden
-                    className="h-[length:var(--dn-control-height)] min-w-0 animate-pulse dn-squircle-xs bg-[var(--dn-popover-tile)]"
+                    className="dn-logo-icon-picker-tile dn-preview-tile-size min-w-0 animate-pulse dn-squircle-xs bg-[var(--dn-control)]"
                   />
                 ))
               : curatedIcons.map((result) => (
