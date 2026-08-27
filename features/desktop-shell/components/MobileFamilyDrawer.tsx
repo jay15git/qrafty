@@ -18,7 +18,6 @@ import {
   FamilyDrawerHeader,
   FamilyDrawerPortal,
   FamilyDrawerRoot,
-  FamilyDrawerViewContent,
   useFamilyDrawer,
   type ViewsRegistry,
 } from "@/components/ui/family-drawer"
@@ -354,9 +353,7 @@ function MobileFamilyDrawerChrome({
       >
         <MobileDrawerHeightSync />
         <FamilyDrawerAnimatedWrapper className="dn-mobile-drawer-body px-5 pt-4">
-          <FamilyDrawerAnimatedContent>
-            <FamilyDrawerViewContent />
-          </FamilyDrawerAnimatedContent>
+          <FamilyDrawerAnimatedContent />
         </FamilyDrawerAnimatedWrapper>
       </FamilyDrawerContent>
     </FamilyDrawerPortal>

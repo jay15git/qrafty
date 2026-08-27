@@ -3,14 +3,20 @@
 import Image from "next/image"
 
 import { RAYCAST_WALLPAPERS } from "@/features/workspace/assets/raycast-wallpapers"
+import { usePersistedScrollNode } from "@/lib/persisted-element-scroll"
 
 export function RaycastWallpaperGrid({
   onSelectWallpaper,
 }: {
   onSelectWallpaper: (imagePath: string) => void
 }) {
+  const setScrollNode = usePersistedScrollNode("raycast-wallpapers")
+
   return (
-    <div className="grid max-h-52 grid-cols-3 gap-1.5 overflow-y-auto pr-0.5">
+    <div
+      ref={setScrollNode}
+      className="grid max-h-52 grid-cols-3 gap-1.5 overflow-y-auto pr-0.5"
+    >
       {RAYCAST_WALLPAPERS.map((wallpaper) => (
         <button
           key={wallpaper.id}

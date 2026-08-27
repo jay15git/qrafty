@@ -4,10 +4,8 @@ import { ChevronRight } from "lucide-react"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
 import {
   useContext,
-  useId,
   useLayoutEffect,
   useRef,
-  useState,
   cloneElement,
   isValidElement,
   Children,
@@ -43,11 +41,7 @@ import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mo
 import { useMobileDrawerNavigation } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
-import {
-  resolveScrollPersistKey,
-  usePersistedElementScroll,
-  useScrollPersistScope,
-} from "@/lib/persisted-element-scroll"
+import { usePersistedScrollNode } from "@/lib/persisted-element-scroll"
 import { cn } from "@/lib/utils"
 
 import "./desktopnew.css"
@@ -190,6 +184,7 @@ export function SettingsScroll({
         "dn-settings-scroll",
         fillHeight ? "h-full min-h-0" : "h-[min(72dvh,40rem)]",
       )}
+      persistKey="settings-panel"
       viewportClassName="px-0"
     >
       {children}
@@ -685,17 +680,7 @@ export function OptionScrollRow({
   persistKey?: string
   selected: string
 }) {
-  const [node, setNode] = useState<HTMLDivElement | null>(null)
-  const persistScope = useScrollPersistScope()
-  const persistReactId = useId()
-  usePersistedElementScroll(
-    node,
-    resolveScrollPersistKey({
-      persistKey,
-      scope: persistScope,
-      reactId: persistReactId,
-    }),
-  )
+  const setNode = usePersistedScrollNode(persistKey)
 
   return (
     <div

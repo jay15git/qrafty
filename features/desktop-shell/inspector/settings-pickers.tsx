@@ -35,6 +35,7 @@ import {
   type PexelsPhotoOrientationFilter,
 } from "@/features/stock-photos/model/pexels"
 import { RaycastWallpaperGrid } from "@/features/workspace/components/RaycastWallpaperGrid"
+import { usePersistedScrollNode } from "@/lib/persisted-element-scroll"
 import { cn } from "@/lib/utils"
 
 function LogoIconTile({
@@ -173,6 +174,8 @@ export function LogoIconPicker({
     library: "all",
   })
 
+  const setScrollNode = usePersistedScrollNode("logo-icon-grid")
+
   const selectLogo = (nextId: string) => {
     onSelect(nextId)
     onAfterSelect?.()
@@ -194,7 +197,10 @@ export function LogoIconPicker({
         />
       </div>
 
-      <div className="grid max-h-72 grid-cols-4 gap-1.5 overflow-y-auto px-0.5 py-px">
+      <div
+        ref={setScrollNode}
+        className="grid max-h-72 grid-cols-4 gap-1.5 overflow-y-auto px-0.5 py-px"
+      >
         {!canSearch ? (
           <>
             {popularBrandIcons.map((brandIcon) => {
@@ -313,6 +319,8 @@ export function PexelsPhotoPicker({
   const activeOrientationLabel =
     PEXELS_ORIENTATION_FILTER_OPTIONS.find((option) => option.value === orientation)?.label ?? "All"
 
+  const setPhotoScrollNode = usePersistedScrollNode("pexels-photo-grid")
+
   const selectPhoto = (imageUrl: string) => {
     onSelectPhoto(imageUrl)
     onAfterSelect?.()
@@ -391,7 +399,10 @@ export function PexelsPhotoPicker({
         </DropdownMenu>
       </div>
 
-      <div className="grid max-h-72 grid-cols-2 gap-1.5 overflow-y-auto pr-0.5">
+      <div
+        ref={setPhotoScrollNode}
+        className="grid max-h-72 grid-cols-2 gap-1.5 overflow-y-auto pr-0.5"
+      >
         {isLoading
           ? Array.from({ length: 8 }, (_, index) => (
               <div

@@ -300,6 +300,7 @@ export function DesktopInspectorScrollArea({ children }: { children: ReactNode }
       chevron
       cueSize="comfortable"
       data-slot="desktop-inspector-scroll-area"
+      persistKey="inspector-body"
       scrollFade
       className="desktop-inspector-scroll-area min-h-0 min-w-0 w-full max-w-full flex-1"
       viewportClassName="min-w-0"

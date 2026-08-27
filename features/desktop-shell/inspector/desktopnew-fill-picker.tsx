@@ -2,6 +2,8 @@
 
 import { useContext, useRef, useState } from "react"
 
+import { usePersistedScrollNode } from "@/lib/persisted-element-scroll"
+
 import {
   ColorPicker,
 } from "@/components/ui/fill-picker-base/color-picker"
@@ -78,6 +80,7 @@ export function DesktopNewFillPicker({
   const fillPickerInitialMode = initialMode === "gradient" ? "gradient" : "color"
   const [activeMode, setActiveMode] = useState<ModuleFillTabMode>(initialMode)
   const pickerMode = activeMode === "gradient" ? "gradient" : "color"
+  const setScrollNode = usePersistedScrollNode("fill-picker")
 
   const handleValueChange = (fill: Fill, css: string) => {
     if (!qrGradient) {
@@ -90,11 +93,15 @@ export function DesktopNewFillPicker({
   }
 
   return (
-    <FillPicker.Root
+    <div
+      ref={setScrollNode}
       className={cn(
-        "dn-fill-picker-panel max-h-[min(72dvh,40rem)] max-w-none overflow-y-auto border-0 bg-transparent shadow-none",
+        "dn-fill-picker-panel max-h-[min(72dvh,40rem)] max-w-none overflow-y-auto",
         className,
       )}
+    >
+    <FillPicker.Root
+      className="max-w-none border-0 bg-transparent shadow-none"
       defaultMode={fillPickerInitialMode}
       defaultValue={initialFill}
       mode={pickerMode}
@@ -174,6 +181,7 @@ export function DesktopNewFillPicker({
         </>
       )}
     </FillPicker.Root>
+    </div>
   )
 }
 

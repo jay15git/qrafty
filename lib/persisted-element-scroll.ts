@@ -5,8 +5,10 @@ import {
   createElement,
   useContext,
   useEffect,
+  useId,
   useLayoutEffect,
   useRef,
+  useState,
   type ReactNode,
 } from "react"
 
@@ -46,7 +48,7 @@ export function resolveScrollPersistKey({
   }
 
   if (dataSlot) {
-    return dataSlot
+    return scope ? `${scope}:${dataSlot}` : dataSlot
   }
 
   if (scope) {
@@ -68,6 +70,17 @@ function writePos(element: HTMLElement, pos: ScrollPos) {
   if (element.scrollTop !== pos.top) {
     element.scrollTop = pos.top
   }
+}
+
+function isLaidOut(element: HTMLElement) {
+  return element.clientWidth > 1 && element.clientHeight > 1
+}
+
+function canOverflow(element: HTMLElement) {
+  return (
+    element.scrollWidth > element.clientWidth + 1 ||
+    element.scrollHeight > element.clientHeight + 1
+  )
 }
 
 function isIntersecting(entry: IntersectionObserverEntry) {
@@ -103,6 +116,7 @@ export function usePersistedElementScroll(
     }
 
     let visible = true
+    let raf = 0
 
     const restore = () => {
       const pos =
@@ -111,11 +125,19 @@ export function usePersistedElementScroll(
         return
       }
 
+      if (!isLaidOut(element)) {
+        return
+      }
+
+      if ((pos.left > 0 || pos.top > 0) && !canOverflow(element)) {
+        return
+      }
+
       writePos(element, pos)
     }
 
     const save = () => {
-      if (!visible) {
+      if (!visible || !isLaidOut(element) || !canOverflow(element)) {
         return
       }
 
@@ -126,12 +148,26 @@ export function usePersistedElementScroll(
       }
     }
 
-    restore()
+    const scheduleRestore = () => {
+      restore()
+      if (typeof cancelAnimationFrame === "function") {
+        cancelAnimationFrame(raf)
+      }
+      if (typeof requestAnimationFrame !== "function") {
+        return
+      }
+      raf = requestAnimationFrame(() => {
+        restore()
+        raf = requestAnimationFrame(() => restore())
+      })
+    }
+
+    scheduleRestore()
     element.addEventListener("scroll", save, { passive: true })
 
-    let observer: IntersectionObserver | undefined
+    let intersectionObserver: IntersectionObserver | undefined
     if (typeof IntersectionObserver !== "undefined") {
-      observer = new IntersectionObserver((entries) => {
+      intersectionObserver = new IntersectionObserver((entries) => {
         const entry = entries[0]
         if (!entry) {
           return
@@ -139,18 +175,49 @@ export function usePersistedElementScroll(
 
         visible = isIntersecting(entry)
         if (visible) {
-          restore()
+          scheduleRestore()
         }
       }, { threshold: 0 })
-      observer.observe(element)
+      intersectionObserver.observe(element)
+    }
+
+    let resizeObserver: ResizeObserver | undefined
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => {
+        scheduleRestore()
+      })
+      resizeObserver.observe(element)
+      const inner = element.firstElementChild
+      if (inner instanceof HTMLElement) {
+        resizeObserver.observe(inner)
+      }
     }
 
     return () => {
       save()
       element.removeEventListener("scroll", save)
-      observer?.disconnect()
+      intersectionObserver?.disconnect()
+      resizeObserver?.disconnect()
+      if (typeof cancelAnimationFrame === "function") {
+        cancelAnimationFrame(raf)
+      }
     }
   }, [element, persistKey])
+}
+
+export function usePersistedScrollNode(persistKey?: string) {
+  const [node, setNode] = useState<HTMLElement | null>(null)
+  const persistScope = useScrollPersistScope()
+  const persistReactId = useId()
+  usePersistedElementScroll(
+    node,
+    resolveScrollPersistKey({
+      persistKey,
+      scope: persistScope,
+      reactId: persistReactId,
+    }),
+  )
+  return setNode
 }
 
 export function resetPersistedElementScrollForTests() {
