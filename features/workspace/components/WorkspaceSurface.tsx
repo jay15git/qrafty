@@ -83,7 +83,12 @@ import {
   mergeLiveQrStateByLayerId,
   resolveActiveQrLayerIdFromLayers,
 } from "@/features/workspace/components/workspace-surface-document"
+import {
+  applyCornersSettingsPatchToStudioState,
+  applyPatternSettingsPatchToStudioState,
+} from "@/features/workspace/components/workspace-qr-settings-patch"
 import { clearDraftingQrMarkupCache } from "@/features/workspace/hooks/use-drafting-qr-markup"
+import { clearQrEncodeMarkupCache } from "@/features/qr-code/rendering/qr-encode-cache"
 import {
   buildDesktopToolbarSettingsSnapshots,
   pickDesktopToolbarSettingsSnapshots,
@@ -625,6 +630,7 @@ export function WorkspaceSurface({
       selectedDotsColorMode,
       selectedDotsGradient,
       selectedDotsPalette,
+      selectedDotsPalettePreset,
       selectedModuleFillImageUrl,
       selectedModuleFillImageSourceMode,
       selectedModuleFillRemoteUrl,
@@ -2919,6 +2925,8 @@ export function WorkspaceSurface({
   }
 
   function updateDesktopPatternSettings(patch: DesktopPatternSettingsPatch) {
+    let moduleFillUploadValue: string | undefined
+
     if (patch.uploadedModuleFillFile) {
       ensureDotsColorItemExpanded("image")
       const uploadValue = replaceTrackedObjectUrl(
@@ -2929,6 +2937,7 @@ export function WorkspaceSurface({
       setSelectedDotsColorMode("image")
       setSelectedModuleFillImageSourceMode("upload")
       setSelectedModuleFillImageUrl(uploadValue)
+      moduleFillUploadValue = uploadValue
     }
     if (patch.qrDotType) setSelectedDotType(patch.qrDotType)
     if (patch.moduleRoundSize !== undefined) setSelectedModuleRoundSize(patch.moduleRoundSize)
@@ -2975,6 +2984,25 @@ export function WorkspaceSurface({
       setSelectedDotsColorMode("image")
       setSelectedModuleFillImageSourceMode(patch.moduleFillImageSourceMode)
     }
+
+    let nextState = applyPatternSettingsPatchToStudioState(draftingStudioState, patch)
+
+    if (moduleFillUploadValue !== undefined) {
+      nextState = {
+        ...nextState,
+        dotsColorMode: "image",
+        moduleFillImage: {
+          presetColor: undefined,
+          presetId: undefined,
+          source: "upload",
+          value: moduleFillUploadValue,
+        },
+      }
+    }
+
+    clearQrEncodeMarkupCache()
+    clearDraftingQrMarkupCache()
+    persistActiveQrLayerState(nextState)
   }
 
   function resetDesktopPatternSettings() {
@@ -3079,6 +3107,11 @@ export function WorkspaceSurface({
       setSelectedCornerDotColorMode("gradient")
       setSelectedCornerDotGradient({ ...patch.cornerDotGradient, enabled: true })
     }
+
+    const nextState = applyCornersSettingsPatchToStudioState(draftingStudioState, patch)
+    clearQrEncodeMarkupCache()
+    clearDraftingQrMarkupCache()
+    persistActiveQrLayerState(nextState)
   }
 
   function updateDesktopShapeSettings(patch: Partial<DesktopShapeSettings>) {

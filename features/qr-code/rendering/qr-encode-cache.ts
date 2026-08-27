@@ -6,9 +6,23 @@ export function getQrEncodeCacheKey(state: QrStudioState) {
     ariaLabel: state.ariaLabel,
     boostLevel: state.qrOptions.boostLevel,
     data: state.data,
+    dotColor: state.dataModulesSettings.color,
     dotType: state.dataModulesSettings.type,
+    dotsColorMode: state.dotsColorMode,
+    dotsPalette: state.dotsPalette,
+    dataModulesGradient:
+      state.dotsColorMode === "gradient" ? state.dataModulesGradient : null,
+    finderInnerColor: state.finderPatternInnerSettings.color,
+    finderInnerGradient: state.finderPatternInnerGradient.enabled
+      ? state.finderPatternInnerGradient
+      : null,
     finderInnerStyle: state.finderPatternInnerSettings.type,
+    finderOuterColor: state.finderPatternOuterSettings.color,
+    finderOuterGradient: state.finderPatternOuterGradient.enabled
+      ? state.finderPatternOuterGradient
+      : null,
     finderOuterStyle: state.finderPatternOuterSettings.type,
+    gradientLinkMode: state.gradientLinkMode,
     height: state.height,
     hideBackgroundDots: state.imageOptions.hideBackgroundDots,
     level: state.qrOptions.errorCorrectionLevel,

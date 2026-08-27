@@ -9,7 +9,7 @@ import {
 } from "@/features/qr-code/rendering/qr-encode-cache"
 
 describe("qr encode cache", () => {
-  it("changes cache key when data changes but not when only color changes", () => {
+  it("changes cache key when module color or type changes", () => {
     const base = createDefaultQrStudioState()
     const recolored = {
       ...base,
@@ -18,12 +18,20 @@ describe("qr encode cache", () => {
         color: "#ff0000",
       },
     }
+    const restyled = {
+      ...base,
+      dataModulesSettings: {
+        ...base.dataModulesSettings,
+        type: "pinched-square" as const,
+      },
+    }
     const newData = {
       ...base,
       data: "https://example.com/other",
     }
 
-    expect(getQrEncodeCacheKey(base)).toBe(getQrEncodeCacheKey(recolored))
+    expect(getQrEncodeCacheKey(base)).not.toBe(getQrEncodeCacheKey(recolored))
+    expect(getQrEncodeCacheKey(base)).not.toBe(getQrEncodeCacheKey(restyled))
     expect(getQrEncodeCacheKey(base)).not.toBe(getQrEncodeCacheKey(newData))
   })
 
