@@ -1,40 +1,38 @@
 import qrcode from "qrcode-generator"
 
-export const STYLE_PREVIEW_SAMPLE_DATA = "https://example.com"
+/**
+ * Payload tuned for a dense, mixed data-module patch in the style picker.
+ * Crop coords are chosen to avoid finder/alignment cells while keeping ~50% fill.
+ */
+export const STYLE_PREVIEW_SAMPLE_DATA = "https://github.com/qrafty/studio"
 
-const STYLE_PREVIEW_CROP_SIZE = 9
-const STYLE_PREVIEW_CROP_START_COLUMN = 0
-const STYLE_PREVIEW_CROP_START_ROW = 8
-const STYLE_PREVIEW_ERROR_CORRECTION_LEVEL = "Q"
+export const STYLE_PREVIEW_ERROR_CORRECTION_LEVEL = "Q"
 const STYLE_PREVIEW_MODE = "Byte"
 
-export const DOT_STYLE_PREVIEW_ROWS = Object.freeze(
-  buildDotStylePreviewRows(),
-) as ReadonlyArray<string>
+/** Visible module window inside the encoded QR (0-based matrix coordinates). */
+export const MODULE_STYLE_PREVIEW_CROP = {
+  row: 7,
+  col: 3,
+  size: 11,
+} as const
 
-export function isDotStylePreviewDark(rowIndex: number, columnIndex: number) {
-  return DOT_STYLE_PREVIEW_ROWS[rowIndex]?.[columnIndex] === "1"
-}function buildDotStylePreviewRows() {
+/** Extra viewBox margin in module units around the crop for breathing room in tiles. */
+export const MODULE_STYLE_PREVIEW_VIEWBOX_PADDING = 0.75
+
+export function getStylePreviewQrModuleCount() {
   const qr = qrcode(0, STYLE_PREVIEW_ERROR_CORRECTION_LEVEL)
   qr.addData(STYLE_PREVIEW_SAMPLE_DATA, STYLE_PREVIEW_MODE)
   qr.make()
+  return qr.getModuleCount()
+}
 
-  const moduleCount = qr.getModuleCount()
-  const startColumn = STYLE_PREVIEW_CROP_START_COLUMN
-  const startRow = STYLE_PREVIEW_CROP_START_ROW
+export function getModuleStylePreviewViewBox(
+  crop: typeof MODULE_STYLE_PREVIEW_CROP = MODULE_STYLE_PREVIEW_CROP,
+  padding: number = MODULE_STYLE_PREVIEW_VIEWBOX_PADDING,
+) {
+  const x = crop.col - padding
+  const y = crop.row - padding
+  const size = crop.size + padding * 2
 
-  if (
-    startRow < 0 ||
-    startColumn < 0 ||
-    startRow + STYLE_PREVIEW_CROP_SIZE > moduleCount ||
-    startColumn + STYLE_PREVIEW_CROP_SIZE > moduleCount
-  ) {
-    throw new Error("QR preview crop exceeds the generated module matrix.")
-  }
-
-  return Array.from({ length: STYLE_PREVIEW_CROP_SIZE }, (_, rowOffset) =>
-    Array.from({ length: STYLE_PREVIEW_CROP_SIZE }, (_, columnOffset) =>
-      qr.isDark(startRow + rowOffset, startColumn + columnOffset) ? "1" : "0",
-    ).join(""),
-  )
+  return `${x} ${y} ${size} ${size}`
 }

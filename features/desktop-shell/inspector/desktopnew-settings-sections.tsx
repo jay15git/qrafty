@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { StylePreview, type StylePreviewKind } from "@/features/qr-code/components/StylePreview"
+import { QrStyleOptionPreview } from "@/features/qr-code/components/QrStyleOptionPreview"
+import type { StylePreviewKind } from "@/features/qr-code/components/StylePreview"
 import {
   CORNER_DOT_STYLE_OPTIONS,
   CORNER_SQUARE_STYLE_OPTIONS,
@@ -105,11 +106,13 @@ function QrStylePreviewGrid({
             >
               <span
                 aria-hidden="true"
-                className="grid size-full place-items-center overflow-hidden dn-squircle-xs"
+                className="grid size-full place-items-center overflow-hidden p-1.5 text-foreground/80 dn-squircle-xs dark:text-white"
               >
-                <span className="grid size-full place-items-center [&_svg]:size-full [&_svg]:text-current">
-                  <StylePreview previewKind={previewKind} value={option.value} />
-                </span>
+                <QrStyleOptionPreview
+                  className="size-full max-h-full max-w-full"
+                  previewKind={previewKind}
+                  value={option.value}
+                />
               </span>
             </button>
           )

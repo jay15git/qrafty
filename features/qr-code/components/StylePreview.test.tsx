@@ -2,9 +2,10 @@ import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
 
 import { StylePreview } from "@/features/qr-code/components/StylePreview"
+import { getModuleStylePreviewViewBox } from "@/features/qr-code/styles/style-preview"
 
 describe("StylePreview", () => {
-  it("renders the extracted qr fragment preview for native dot styles", () => {
+  it("renders module previews from a real qr code cropped to the center data region", () => {
     const markup = renderToStaticMarkup(
       <StylePreview previewKind="dots" value="circuit-board" />,
     )
@@ -12,13 +13,12 @@ describe("StylePreview", () => {
     expect(markup).toContain('data-slot="style-preview-fragment"')
     expect(markup).toContain('data-preview-kind="dots"')
     expect(markup).toContain('data-preview-style="circuit-board"')
-    expect(markup).toContain('data-preview-fragment-size="9"')
-    expect(markup).toContain('data-preview-module-pitch="4"')
-    expect(markup).toContain('data-preview-module-size="4"')
-    expect(markup).toContain('data-slot="style-preview-native-module"')
+    expect(markup).toContain('data-preview-renderer="real-qr"')
+    expect(markup).toContain(`viewBox="${getModuleStylePreviewViewBox()}"`)
+    expect(markup).toContain('data-testid="data-modules"')
   })
 
-  it("renders custom dot previews for diamond and heart through the shared renderer", () => {
+  it("renders custom dot previews through the real qr renderer", () => {
     const diamondMarkup = renderToStaticMarkup(
       <StylePreview previewKind="dots" value="diamond" />,
     )
@@ -27,9 +27,9 @@ describe("StylePreview", () => {
     )
 
     expect(diamondMarkup).toContain('data-preview-style="diamond"')
-    expect(diamondMarkup).toContain('data-slot="style-preview-custom-module"')
+    expect(diamondMarkup).toContain('data-testid="data-modules"')
     expect(heartMarkup).toContain('data-preview-style="heart"')
-    expect(heartMarkup).toContain('data-slot="style-preview-custom-module"')
+    expect(heartMarkup).toContain('data-testid="data-modules"')
   })
 
   it("renders corner-dot previews from a real qr code, cropped to the inner finder dot", () => {
@@ -53,10 +53,7 @@ describe("StylePreview", () => {
       expect(markup).toContain('data-testid="finder-patterns-outer"')
     }
 
-    // circle renders a rounded rect (the lib maps style="circle" to a square rect
-    // with rx=3 inside the 3x3 finder block).
     expect(circleMarkup).toContain("<rect")
-    // leaf renders a real <path> from the library's leaf helper.
     expect(leafMarkup).toContain("<path")
     expect(circleMarkup).not.toBe(leafMarkup)
     expect(leafMarkup).not.toBe(squareMarkup)

@@ -32,7 +32,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - **Use available MCP tools for every task** instead of falling back to raw bash commands when a tool fits.
 - **Codebase intelligence:** use GitNexus only. Do not configure or run other repository indexing/search tools.
 - **Other MCPs:** `context7_*` for library/framework docs; `pencil_*` for `.pen` design files in `designs/`.
-- **Do not use in this repo:** `paper`, `react-grab-mcp`, `supabase_*`, `cocoindex-code`, `ccc`, `codedb`, `graphify`, `code-review-graph`.
+- **Do not use in this repo:** `paper`, `react-grab-mcp`, `supabase_*`, `ccc`, `codedb`, `graphify`, `code-review-graph`.
 - If a tool exists for the job, use it. Do not manually `cat`, `grep`, or `sed` when a structured tool is available.
 
 ## Testing Notes

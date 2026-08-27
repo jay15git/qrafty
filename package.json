@@ -12,7 +12,8 @@
     "doctor": "react-doctor . --verbose",
     "test": "vitest run",
     "knip": "knip",
-    "sync:raycast-wallpapers": "node scripts/sync-raycast-wallpapers.mjs"
+    "sync:raycast-wallpapers": "node scripts/sync-raycast-wallpapers.mjs",
+    "generate:qr-style-previews": "GENERATE_QR_STYLE_PREVIEWS=1 vitest run features/qr-code/styles/generate-style-option-previews.test.tsx"
   },
   "dependencies": {
     "@ark-ui/react": "^5.37.2",
