@@ -23,7 +23,12 @@ export function DesktopWorkspaceStyles() {
 
       [data-slot="desktop-workspace"] [data-slot="desktop-canvas-viewport"],
       [data-slot="desktop-workspace"] [data-slot="desktop-compose-surface"] {
-        overscroll-behavior: none;
+        overscroll-behavior: auto;
+      }
+
+      [data-slot="desktop-workspace"] [data-slot="desktop-compose-canvas"],
+      [data-slot="desktop-workspace"] [data-slot="desktop-compose-canvas"] [data-layer-id] {
+        touch-action: auto;
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-surface"] {

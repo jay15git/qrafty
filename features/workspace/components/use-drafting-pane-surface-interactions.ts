@@ -398,7 +398,7 @@ export function useDraftingPaneSurfaceInteractions({
 
   const handleWheel = useCallback(
     (event: Pick<WheelEvent<HTMLDivElement>, "preventDefault" | "stopPropagation" | "deltaY">) => {
-      if (previewLocked) {
+      if (previewLocked || isFreeEditWorkspace) {
         return
       }
 
@@ -409,13 +409,13 @@ export function useDraftingPaneSurfaceInteractions({
       const nextZoom = clampPreviewZoom(paneZoom * Math.exp(-event.deltaY * WHEEL_ZOOM_SENSITIVITY))
       onPaneZoom(pane.id, nextZoom)
     },
-    [onPaneZoom, pane.id, paneZoom, previewLocked],
+    [isFreeEditWorkspace, onPaneZoom, pane.id, paneZoom, previewLocked],
   )
 
   useEffect(() => {
     const surface = surfaceRef.current
 
-    if (!surface || previewLocked) {
+    if (!surface || previewLocked || isFreeEditWorkspace) {
       return
     }
 
@@ -428,11 +428,11 @@ export function useDraftingPaneSurfaceInteractions({
     return () => {
       surface.removeEventListener("wheel", onWheel)
     }
-  }, [handleWheel, previewLocked])
+  }, [handleWheel, isFreeEditWorkspace, previewLocked])
 
   const handleTouchStart = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
-      if (previewLocked) {
+      if (previewLocked || isFreeEditWorkspace) {
         return
       }
 
@@ -448,12 +448,12 @@ export function useDraftingPaneSurfaceInteractions({
       pinchDistanceRef.current = distance
       pinchZoomRef.current = paneZoom
     },
-    [pane.id, paneZoom, previewLocked],
+    [isFreeEditWorkspace, pane.id, paneZoom, previewLocked],
   )
 
   const handleTouchMove = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
-      if (previewLocked) {
+      if (previewLocked || isFreeEditWorkspace) {
         return
       }
 
@@ -468,7 +468,7 @@ export function useDraftingPaneSurfaceInteractions({
       event.stopPropagation()
       onPaneZoom(pane.id, clampPreviewZoom(pinchZoomRef.current * (nextDistance / startDistance)))
     },
-    [onPaneZoom, pane.id, previewLocked],
+    [isFreeEditWorkspace, onPaneZoom, pane.id, previewLocked],
   )
 
   const handleTouchEnd = useCallback((event: TouchEvent<HTMLDivElement>) => {
