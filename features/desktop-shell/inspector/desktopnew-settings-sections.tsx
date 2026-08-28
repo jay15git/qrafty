@@ -32,12 +32,12 @@ import {
 } from "@/features/qr-code/model/state"
 import { SettingsPaperShaderControls } from "@/features/desktop-shell/inspector/desktopnew-paper-shader-settings"
 import { PaperShaderOptionPreview } from "@/features/workspace/components/PaperShaderOptionPreview"
+import { WallpaperOptionPreview } from "@/features/workspace/components/WallpaperOptionPreview"
 import { cn } from "@/lib/utils"
 import { getLogoSelectionLabel } from "@/features/desktop-shell/inspector/settings-pickers.utils"
 import {
   LogoIconPicker,
   LogoSelectionIcon,
-  WallpaperPicker,
 } from "@/features/desktop-shell/inspector/settings-pickers"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import {
@@ -59,6 +59,7 @@ import {
   type PaperShaderId,
 } from "@/features/workspace/rendering/paper-shaders"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
+import { RAYCAST_WALLPAPERS } from "@/features/workspace/assets/raycast-wallpapers"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 import { ScrollPersistScope } from "@/lib/persisted-element-scroll"
 
@@ -228,6 +229,51 @@ function PaperShaderPreviewRow({
                 className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
                 isSelected={isSelected}
                 shaderId={option.id}
+              />
+            </button>
+          )
+        })}
+      </div>
+    </ScrollArea>
+  )
+}
+
+function WallpaperPreviewRow({
+  selectedPath,
+  onSelect,
+}: {
+  selectedPath: string
+  onSelect: (imagePath: string) => void
+}) {
+  return (
+    <ScrollArea
+      className="w-full min-w-0 max-w-full overflow-hidden"
+      chevron={false}
+      cueSize="tight"
+      orientation="horizontal"
+      persistKey="wallpaper-gallery"
+      scrollFade
+      showScrollbar={false}
+      viewportClassName="min-w-0"
+    >
+      <div className={PREVIEW_ROW}>
+        {RAYCAST_WALLPAPERS.map((wallpaper) => {
+          const isSelected = selectedPath === wallpaper.path
+
+          return (
+            <button
+              key={wallpaper.id}
+              aria-label={`Use ${wallpaper.label} wallpaper`}
+              aria-pressed={isSelected}
+              className={cn(PREVIEW_TILE)}
+              title={wallpaper.label}
+              type="button"
+              onClick={() => onSelect(wallpaper.path)}
+            >
+              <WallpaperOptionPreview
+                alt={wallpaper.label}
+                className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
+                previewPath={wallpaper.previewPath}
               />
             </button>
           )
@@ -522,11 +568,9 @@ export function SceneSection({ model }: { model: DesktopInspectorModel }) {
     onImageSettingsChange,
     onShapeSettingsChange,
   } = model
-  const [imagePopoverOpen, setImagePopoverOpen] = useState(false)
   const [tab, setTab] = useState(() => backgroundTabFromStyleMode(actualBackgroundSettings.styleMode))
   const paperShader = actualBackgroundSettings.paperShader
   const backgroundFill = actualShapeSettings.cardFill
-  const imageLabel = actualImageSettings.remoteUrl ? "Photo" : "None"
 
   useEffect(() => {
     setTab(backgroundTabFromStyleMode(actualBackgroundSettings.styleMode))
@@ -563,30 +607,12 @@ export function SceneSection({ model }: { model: DesktopInspectorModel }) {
             />
           </>
         ) : tab === "Image" ? (
-          <>
-            <SettingsRowPopover
-              contentClassName="w-[19rem]"
-              hint="Image"
-              open={imagePopoverOpen}
-              title="Image"
-              trigger={imageLabel}
-              onOpenChange={setImagePopoverOpen}
-            >
-              <WallpaperPicker
-                onAfterSelect={() => setImagePopoverOpen(false)}
-                onClear={() => onImageSettingsChange({ remoteUrl: "" })}
-                onSelectWallpaper={(imagePath) =>
-                  onImageSettingsChange({ remoteUrl: imagePath, sourceMode: "url" })
-                }
-              />
-            </SettingsRowPopover>
-            <SettingsSlider
-              label="Opacity"
-              max={100}
-              value={actualImageSettings.opacity}
-              onChange={(opacity) => onImageSettingsChange({ opacity })}
-            />
-          </>
+          <WallpaperPreviewRow
+            selectedPath={actualImageSettings.remoteUrl ?? ""}
+            onSelect={(imagePath) =>
+              onImageSettingsChange({ remoteUrl: imagePath, sourceMode: "url" })
+            }
+          />
         ) : (
           <SettingsFillPopover
             hint="Fill"

@@ -19,6 +19,7 @@ import {
   type DraftingTextFontStyle,
   type DraftingTextFontWeight,
 } from "@/features/workspace/model/layers"
+import type { DraftingLayerMenuAction } from "@/features/workspace/components/pane-layer-chrome.constants"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import {
   validateStaticQrContent,
@@ -295,6 +296,7 @@ export type DesktopToolbarController = {
   insertNodeId?: string
   composeSidebarPanel?: ComposeSidebarPanel
   selectedElementLayer?: DraftingCanvasLayer | null
+  selectedLayerIds?: string[]
   selectedTransformLayer?: DraftingCanvasLayer | null
   selectedAppearanceLayer?: DraftingCanvasLayer | null
   appearanceSnapshot?: DesktopAppearanceSnapshot | null
@@ -349,6 +351,9 @@ export type DesktopToolbarController = {
   onLayersSettingsChange: (patch: Partial<DesktopLayersSettings>) => void
   onLayersReorder?: (orderedIds: string[]) => void
   onLayerDelete?: (layerId: string) => void
+  onLayerMenuAction?: (action: DraftingLayerMenuAction) => void
+  onLayerCopy?: () => void
+  canCopyLayers?: boolean
   canDeleteLayer?: (layerId: string) => boolean
   onExportReset: () => void
   onExportSettingsChange: (patch: Partial<DesktopExportSettings>) => void

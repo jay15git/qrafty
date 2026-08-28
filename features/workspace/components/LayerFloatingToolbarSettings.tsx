@@ -23,6 +23,8 @@ import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { useMobileDrawerNavigation } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
+import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { SettingsFillPopover, SettingsSlider } from "@/features/desktop-shell/inspector/settings-ui"
 import {
   getDesktopLayerFontWeight,
@@ -105,6 +107,32 @@ function LayerFloatingSettingsPopover({
   onOpenChange?: (open: boolean) => void
   trigger: ReactNode
 }) {
+  const mobileDensity = useMobileInspectorDensity()
+  const mobileNav = useMobileDrawerNavigation()
+
+  if (mobileDensity && mobileNav) {
+    return (
+      <LayerFloatingSettingsButton
+        ariaLabel={ariaLabel}
+        data-vaul-no-drag=""
+        onClick={() => {
+          mobileNav.openDetail({
+            title: ariaLabel,
+            content: (
+              <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
+                {children ?? content}
+              </div>
+            ),
+            onAfterClose: () => onOpenChange?.(false),
+          })
+          onOpenChange?.(true)
+        }}
+      >
+        {trigger}
+      </LayerFloatingSettingsButton>
+    )
+  }
+
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
@@ -127,7 +155,7 @@ function LayerFloatingSettingsPopover({
   )
 }
 
-function FillColorToolbarButton({
+export function FillColorToolbarButton({
   ariaLabel,
   onValueChange,
   solidOnly = true,
@@ -166,7 +194,7 @@ function FillColorToolbarButton({
   )
 }
 
-function TextTypographySettings({
+export function TextTypographySettings({
   layer,
   onPatch,
 }: {
@@ -248,7 +276,7 @@ function TextTypographySettings({
   )
 }
 
-function TextSizeSettings({
+export function TextSizeSettings({
   layer,
   onPatch,
   onSelect,
@@ -296,14 +324,64 @@ function TextSizeSettings({
   )
 }
 
+export function EmojiPickerSettingsContent({
+  onPatch,
+  onSelect,
+}: {
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  onSelect?: () => void
+}) {
+  return (
+    <div className="w-full min-w-0">
+      <EmojiPicker
+        className="h-[min(16rem,40dvh)] min-w-0 w-full border-0 bg-transparent p-0 shadow-none [--frimousse-row-height:2rem]"
+        columns={8}
+        onEmojiSelect={({ emoji }) => {
+          onPatch({ text: emoji, textRuns: undefined })
+          onSelect?.()
+        }}
+      >
+        <EmojiPickerSearch placeholder="Search emoji…" />
+        <EmojiPickerContent className="[&_[data-slot=emoji-picker-category-header]]:hidden" />
+      </EmojiPicker>
+    </div>
+  )
+}
+
 function EmojiPickerSettings({
-  layer,
   onPatch,
 }: {
-  layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
 }) {
   const [open, setOpen] = useState(false)
+  const mobileDensity = useMobileInspectorDensity()
+  const mobileNav = useMobileDrawerNavigation()
+
+  if (mobileDensity && mobileNav) {
+    return (
+      <LayerFloatingSettingsButton
+        ariaLabel="Change emoji"
+        data-vaul-no-drag=""
+        onClick={() => {
+          mobileNav.openDetail({
+            title: "Change emoji",
+            content: (
+              <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
+                <EmojiPickerSettingsContent
+                  onPatch={onPatch}
+                  onSelect={() => mobileNav.closeDetail()}
+                />
+              </div>
+            ),
+            onAfterClose: () => setOpen(false),
+          })
+          setOpen(true)
+        }}
+      >
+        <SmileIcon className="size-4" strokeWidth={2} />
+      </LayerFloatingSettingsButton>
+    )
+  }
 
   return (
     <LayerFloatingSettingsPopover
@@ -333,7 +411,7 @@ function EmojiPickerSettings({
   )
 }
 
-function ImageFitSettings({
+export function ImageFitSettings({
   layer,
   onPatch,
 }: {
@@ -384,7 +462,7 @@ function TextLayerFloatingSettings({
   if (isDraftingEmojiLayer(layer)) {
     return (
       <>
-        <EmojiPickerSettings layer={layer} onPatch={onPatch} />
+        <EmojiPickerSettings onPatch={onPatch} />
         <LayerFloatingSettingsPopover
           ariaLabel="Emoji size"
           content={

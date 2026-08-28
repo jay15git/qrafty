@@ -41,8 +41,13 @@ import {
   MobileDrawerNavigationProvider,
   useMobileDrawerNavigation,
 } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
-import { previewDrawerResize } from "@/features/workspace/preview/preview-drawer-resize"
+import { MobileLayerToolbar } from "@/features/desktop-shell/components/MobileLayerToolbar"
+import {
+  clearMobileWorkspaceChromeInsets,
+  syncMobileWorkspaceChromeInsets,
+} from "@/features/desktop-shell/components/mobile-layer-toolbar-sync"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
+import { previewDrawerResize } from "@/features/workspace/preview/preview-drawer-resize"
 import { ScrollPersistScope } from "@/lib/persisted-element-scroll"
 import { cn } from "@/lib/utils"
 
@@ -60,21 +65,6 @@ function useMobileInspectorModel() {
     throw new Error("MobileFamilyDrawer views require MobileInspectorContext")
   }
   return model
-}
-
-function syncMobileDrawerHeight(height: number) {
-  const inset = Math.max(0, Math.round(height + MOBILE_DRAWER_BOTTOM_GAP_PX))
-  const value = `${inset}px`
-  const targets: Array<HTMLElement | null> = [
-    document.documentElement,
-    document.querySelector<HTMLElement>('[data-slot="desktop-workspace"]'),
-    document.querySelector<HTMLElement>('[data-slot="desktop-floating-toolbar-root"]'),
-  ]
-
-  for (const target of targets) {
-    target?.style.setProperty("--desktop-mobile-drawer-height", value)
-    target?.style.setProperty("--desktop-workspace-canvas-inset-bottom", value)
-  }
 }
 
 function useMobileDrawerMaxHeight() {
@@ -98,7 +88,13 @@ function useMobileDrawerMaxHeight() {
   return maxHeight
 }
 
-function MobileDrawerHeightSync({ maxHeight }: { maxHeight?: number }) {
+function MobileDrawerHeightSync({
+  maxHeight,
+  onHeightChange,
+}: {
+  maxHeight?: number
+  onHeightChange: (height: number) => void
+}) {
   const { bounds } = useFamilyDrawer()
   const lastSyncedHeightRef = useRef(0)
 
@@ -114,14 +110,8 @@ function MobileDrawerHeightSync({ maxHeight }: { maxHeight?: number }) {
       lastSyncedHeightRef.current = nextHeight
     }
 
-    syncMobileDrawerHeight(nextHeight)
-  }, [bounds.height, maxHeight])
-
-  useEffect(() => {
-    return () => {
-      syncMobileDrawerHeight(0)
-    }
-  }, [])
+    onHeightChange(nextHeight)
+  }, [bounds.height, maxHeight, onHeightChange])
 
   return null
 }
@@ -348,9 +338,11 @@ function MobileDrawerViewRouter({ model }: { model: DesktopInspectorModel }) {
 
 function MobileFamilyDrawerChrome({
   className,
+  onDrawerHeightChange,
   theme,
 }: {
   className?: string
+  onDrawerHeightChange: (height: number) => void
   theme: "light" | "dark"
 }) {
   const { view } = useFamilyDrawer()
@@ -374,7 +366,7 @@ function MobileFamilyDrawerChrome({
         maxHeight={maxHeight}
         variant="card"
       >
-        <MobileDrawerHeightSync maxHeight={maxHeight} />
+        <MobileDrawerHeightSync maxHeight={maxHeight} onHeightChange={onDrawerHeightChange} />
         <FamilyDrawerAnimatedWrapper className="dn-mobile-drawer-body px-5 pt-4">
           <FamilyDrawerAnimatedContent />
         </FamilyDrawerAnimatedWrapper>
@@ -392,11 +384,36 @@ function MobileFamilyDrawerShell({
 }) {
   const { view, setView } = useFamilyDrawer()
   const theme = model.actualDesktopTheme
+  const [drawerHeight, setDrawerHeight] = useState(0)
+  const [toolbarHeight, setToolbarHeight] = useState(0)
+
+  useEffect(() => {
+    syncMobileWorkspaceChromeInsets({
+      drawerHeight,
+      toolbarHeight,
+      drawerBottomGapPx: MOBILE_DRAWER_BOTTOM_GAP_PX,
+    })
+  }, [drawerHeight, toolbarHeight])
+
+  useEffect(() => {
+    return () => {
+      clearMobileWorkspaceChromeInsets()
+    }
+  }, [])
 
   return (
     <MobileDrawerNavigationProvider currentView={view} setView={setView}>
       <MobileDrawerViewRouter model={model} />
-      <MobileFamilyDrawerChrome className={className} theme={theme} />
+      <MobileLayerToolbar
+        onToolbarHeightChange={setToolbarHeight}
+        model={model}
+        theme={theme}
+      />
+      <MobileFamilyDrawerChrome
+        className={className}
+        onDrawerHeightChange={setDrawerHeight}
+        theme={theme}
+      />
     </MobileDrawerNavigationProvider>
   )
 }

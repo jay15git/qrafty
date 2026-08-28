@@ -5,6 +5,8 @@
   --desktop-top-chrome-right: 0.75rem;
   --desktop-compose-rail-width: 4.5rem;
   --desktop-mobile-drawer-height: 12rem;
+  --desktop-mobile-layer-toolbar-height: 0px;
+  --desktop-mobile-layer-toolbar-gap: 8px;
   --desktop-workspace-canvas-inset-top: 0px;
   --desktop-workspace-canvas-inset-right: 0px;
   --desktop-workspace-canvas-inset-bottom: 0px;
@@ -62,7 +64,10 @@
     --desktop-top-chrome-right: 0.625rem;
     --desktop-workspace-canvas-inset-top: env(safe-area-inset-top, 0px);
     --desktop-workspace-canvas-inset-right: 0px;
-    --desktop-workspace-canvas-inset-bottom: var(--desktop-mobile-drawer-height);
+    --desktop-workspace-canvas-inset-bottom: calc(
+      var(--desktop-mobile-drawer-height) + var(--desktop-mobile-layer-toolbar-height) +
+        var(--desktop-mobile-layer-toolbar-gap)
+    );
     --desktop-workspace-canvas-inset-left: 0px;
   }
 
@@ -104,6 +109,10 @@
 
   [data-slot="mobile-family-drawer-root"] {
     pointer-events: auto;
+  }
+
+  [data-slot="drafting-layer-floating-toolbar"] {
+    display: none !important;
   }
 }
 

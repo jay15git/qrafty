@@ -3431,6 +3431,7 @@ export function WorkspaceSurface({
     insertNodeId: activeQrNodeId,
     composeSidebarPanel,
     selectedElementLayer,
+    selectedLayerIds,
     selectedTransformLayer: propertiesTransformLayer,
     selectedAppearanceLayer: appearanceTargetLayer,
     appearanceSnapshot: desktopAppearanceSnapshot,
@@ -3611,6 +3612,13 @@ export function WorkspaceSurface({
     onLayerDelete: (layerId: string) => {
       handleLayerAction(activeQrNodeId, [layerId], "delete")
     },
+    onLayerMenuAction: (action) => {
+      handleLayerAction(activeQrNodeId, selectedLayerIds, action)
+    },
+    onLayerCopy: () => {
+      void copySelectedDraftingLayers(selectedLayerIds)
+    },
+    canCopyLayers: selectedLayerIds.length > 0,
     canDeleteLayer: (layerId: string) => isLayerDeletable(layerId, activeCanvasLayers),
     onLogoReset: resetDesktopLogoSettings,
     onLogoSettingsChange: updateDesktopLogoSettings,
@@ -3664,6 +3672,7 @@ export function WorkspaceSurface({
     selectedDotMatrixAnimation,
     selectedElementLayer,
     selectedLayerId,
+    selectedLayerIds,
     selectedTransformLayer,
   ])
 

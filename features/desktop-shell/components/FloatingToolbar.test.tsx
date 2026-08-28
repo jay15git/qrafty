@@ -17,6 +17,7 @@ const NODE_ID = "test-node"
 beforeEach(() => {
   sessionStorage.clear()
   stubMatchMedia(false)
+  Element.prototype.scrollTo = vi.fn()
 
   class MockResizeObserver {
     observe() {}

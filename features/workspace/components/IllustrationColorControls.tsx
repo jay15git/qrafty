@@ -5,6 +5,8 @@ import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { useMobileDrawerNavigation } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
+import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette-color-stop-list"
 import { SettingsFillPopover } from "@/features/desktop-shell/inspector/settings-ui"
 import {
@@ -45,6 +47,8 @@ export function IllustrationFloatingColorControl({
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
   theme: DesktopThemeMode
 }) {
+  const mobileDensity = useMobileInspectorDensity()
+  const mobileNav = useMobileDrawerNavigation()
   const markup = useIllustrationSvgMarkup(layer.imageValue)
   const sourceColors = markup ? extractSvgPaintColors(markup) : []
   const displayColors = resolveIllustrationDisplayColors(
@@ -95,6 +99,62 @@ export function IllustrationFloatingColorControl({
     )
   }
 
+  const multiColorBody = (
+    <>
+      <p className="dn-type-meta mb-2">Colors</p>
+      <PaletteColorStopList
+        colors={displayColors}
+        onPaletteColorChange={(index, color) => patchStop(index, color)}
+      />
+    </>
+  )
+
+  const multiColorSwatch = (
+    <span
+      aria-hidden
+      className="grid size-7 grid-cols-2 overflow-hidden rounded-xl border-2 border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)]"
+    >
+      {displayColors.slice(0, 4).map((color, index) => (
+        <span
+          key={`${color}-${index}`}
+          className="size-full min-h-0 min-w-0"
+          style={{ backgroundColor: color }}
+        />
+      ))}
+    </span>
+  )
+
+  if (mobileDensity && mobileNav) {
+    return (
+      <div
+        className="flex size-9 shrink-0 items-center justify-center"
+        data-slot="drafting-layer-floating-toolbar-color"
+        onPointerDown={(event) => event.stopPropagation()}
+      >
+        <DesktopnewThemeContext.Provider value={theme}>
+          <button
+            aria-label="Illustration colors"
+            className="relative flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-fg)]/30"
+            data-vaul-no-drag=""
+            type="button"
+            onClick={() => {
+              mobileNav.openDetail({
+                title: "Illustration colors",
+                content: (
+                  <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
+                    {multiColorBody}
+                  </div>
+                ),
+              })
+            }}
+          >
+            {multiColorSwatch}
+          </button>
+        </DesktopnewThemeContext.Provider>
+      </div>
+    )
+  }
+
   return (
     <div
       className="flex size-9 shrink-0 items-center justify-center"
@@ -109,18 +169,7 @@ export function IllustrationFloatingColorControl({
               className="relative flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
               type="button"
             >
-              <span
-                aria-hidden
-                className="grid size-7 grid-cols-2 overflow-hidden rounded-xl border-2 border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)]"
-              >
-                {displayColors.slice(0, 4).map((color, index) => (
-                  <span
-                    key={`${color}-${index}`}
-                    className="size-full min-h-0 min-w-0"
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </span>
+              {multiColorSwatch}
             </button>
           </PopoverTrigger>
           <PopoverContent
@@ -135,11 +184,7 @@ export function IllustrationFloatingColorControl({
             onClick={(event) => event.stopPropagation()}
             onPointerDown={(event) => event.stopPropagation()}
           >
-            <p className="dn-type-meta mb-2">Colors</p>
-            <PaletteColorStopList
-              colors={displayColors}
-              onPaletteColorChange={(index, color) => patchStop(index, color)}
-            />
+            {multiColorBody}
           </PopoverContent>
         </Popover>
       </DesktopnewThemeContext.Provider>
