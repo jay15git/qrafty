@@ -46,6 +46,10 @@ import {
   clearMobileWorkspaceChromeInsets,
   syncMobileWorkspaceChromeInsets,
 } from "@/features/desktop-shell/components/mobile-layer-toolbar-sync"
+import {
+  getMobileDrawerMaxHeightPx,
+  getMobileKeyboardInsetPx,
+} from "@/features/desktop-shell/components/mobile-family-drawer-viewport"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
 import { previewDrawerResize } from "@/features/workspace/preview/preview-drawer-resize"
 import { ScrollPersistScope } from "@/lib/persisted-element-scroll"
@@ -67,25 +71,50 @@ function useMobileInspectorModel() {
   return model
 }
 
-function useMobileDrawerMaxHeight() {
+function useMobileDrawerViewport() {
   const [maxHeight, setMaxHeight] = useState<number>()
+  const [keyboardInset, setKeyboardInset] = useState(0)
 
   useLayoutEffect(() => {
-    const updateMaxHeight = () => {
-      setMaxHeight((window.visualViewport?.height ?? window.innerHeight) * MOBILE_DRAWER_MAX_VIEWPORT_RATIO)
+    let remeasureTimer = 0
+
+    const update = () => {
+      const visualViewport = window.visualViewport
+      setMaxHeight(
+        getMobileDrawerMaxHeightPx(
+          window.innerHeight,
+          visualViewport,
+          MOBILE_DRAWER_MAX_VIEWPORT_RATIO,
+        ),
+      )
+      setKeyboardInset(getMobileKeyboardInsetPx(window.innerHeight, visualViewport))
     }
 
-    updateMaxHeight()
-    window.addEventListener("resize", updateMaxHeight)
-    window.visualViewport?.addEventListener("resize", updateMaxHeight)
+    const remeasureAfterKeyboard = () => {
+      update()
+      window.clearTimeout(remeasureTimer)
+      // iOS often skips visualViewport.resize after blur; trailing pass catches close.
+      remeasureTimer = window.setTimeout(update, 280)
+    }
+
+    update()
+    window.addEventListener("resize", remeasureAfterKeyboard)
+    window.visualViewport?.addEventListener("resize", remeasureAfterKeyboard)
+    window.visualViewport?.addEventListener("scroll", update)
+    document.addEventListener("focusout", remeasureAfterKeyboard)
+    document.addEventListener("focusin", remeasureAfterKeyboard)
 
     return () => {
-      window.removeEventListener("resize", updateMaxHeight)
-      window.visualViewport?.removeEventListener("resize", updateMaxHeight)
+      window.clearTimeout(remeasureTimer)
+      window.removeEventListener("resize", remeasureAfterKeyboard)
+      window.visualViewport?.removeEventListener("resize", remeasureAfterKeyboard)
+      window.visualViewport?.removeEventListener("scroll", update)
+      document.removeEventListener("focusout", remeasureAfterKeyboard)
+      document.removeEventListener("focusin", remeasureAfterKeyboard)
     }
   }, [])
 
-  return maxHeight
+  return { keyboardInset, maxHeight }
 }
 
 function MobileDrawerHeightSync({
@@ -338,16 +367,17 @@ function MobileDrawerViewRouter({ model }: { model: DesktopInspectorModel }) {
 
 function MobileFamilyDrawerChrome({
   className,
+  maxHeight,
   onDrawerHeightChange,
   theme,
 }: {
   className?: string
+  maxHeight?: number
   onDrawerHeightChange: (height: number) => void
   theme: "light" | "dark"
 }) {
   const { view } = useFamilyDrawer()
   const navigation = useMobileDrawerNavigation()
-  const maxHeight = useMobileDrawerMaxHeight()
   const accessibilityTitle =
     view === "setting-detail" ? navigation?.detailPayload?.title : undefined
 
@@ -364,6 +394,10 @@ function MobileFamilyDrawerChrome({
         data-slot="mobile-family-drawer-root"
         data-theme={theme}
         maxHeight={maxHeight}
+        style={{
+          bottom:
+            "max(1rem, env(safe-area-inset-bottom, 0px), var(--mobile-drawer-keyboard-inset, 0px))",
+        }}
         variant="card"
       >
         <MobileDrawerHeightSync maxHeight={maxHeight} onHeightChange={onDrawerHeightChange} />
@@ -384,6 +418,7 @@ function MobileFamilyDrawerShell({
 }) {
   const { view, setView } = useFamilyDrawer()
   const theme = model.actualDesktopTheme
+  const { keyboardInset, maxHeight } = useMobileDrawerViewport()
   const [drawerHeight, setDrawerHeight] = useState(0)
   const [toolbarHeight, setToolbarHeight] = useState(0)
 
@@ -392,8 +427,9 @@ function MobileFamilyDrawerShell({
       drawerHeight,
       toolbarHeight,
       drawerBottomGapPx: MOBILE_DRAWER_BOTTOM_GAP_PX,
+      keyboardInsetPx: keyboardInset,
     })
-  }, [drawerHeight, toolbarHeight])
+  }, [drawerHeight, keyboardInset, toolbarHeight])
 
   useEffect(() => {
     return () => {
@@ -411,6 +447,7 @@ function MobileFamilyDrawerShell({
       />
       <MobileFamilyDrawerChrome
         className={className}
+        maxHeight={maxHeight}
         onDrawerHeightChange={setDrawerHeight}
         theme={theme}
       />
@@ -433,6 +470,7 @@ export function MobileFamilyDrawer({
           defaultOpen
           modal={false}
           open
+          repositionInputs={false}
           views={MOBILE_VIEWS}
         >
           <MobileFamilyDrawerShell className={className} model={model} />

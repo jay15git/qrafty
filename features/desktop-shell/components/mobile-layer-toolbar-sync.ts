@@ -1,15 +1,20 @@
+import { getMobileDrawerBottomOffsetPx } from "@/features/desktop-shell/components/mobile-family-drawer-viewport"
+
 export const MOBILE_LAYER_TOOLBAR_GAP_PX = 8
 
 export function syncMobileWorkspaceChromeInsets({
   drawerHeight,
   toolbarHeight,
   drawerBottomGapPx = 16,
+  keyboardInsetPx = 0,
 }: {
   drawerHeight: number
   toolbarHeight: number
   drawerBottomGapPx?: number
+  keyboardInsetPx?: number
 }) {
-  const drawerInset = Math.max(0, Math.round(drawerHeight + drawerBottomGapPx))
+  const bottomOffset = getMobileDrawerBottomOffsetPx(drawerBottomGapPx, keyboardInsetPx)
+  const drawerInset = Math.max(0, Math.round(drawerHeight + bottomOffset))
   const toolbarInset = Math.max(0, Math.round(toolbarHeight))
   const combinedInset = Math.max(
     0,
@@ -26,6 +31,7 @@ export function syncMobileWorkspaceChromeInsets({
     target?.style.setProperty("--desktop-mobile-drawer-height", `${drawerInset}px`)
     target?.style.setProperty("--desktop-mobile-layer-toolbar-height", `${toolbarInset}px`)
     target?.style.setProperty("--desktop-workspace-canvas-inset-bottom", `${combinedInset}px`)
+    target?.style.setProperty("--mobile-drawer-keyboard-inset", `${Math.max(0, Math.round(keyboardInsetPx))}px`)
   }
 }
 

@@ -6,6 +6,11 @@
   background: var(--dn-bg);
   color: var(--dn-fg);
   font-family: var(--dn-font);
+  bottom: max(
+    1rem,
+    env(safe-area-inset-bottom, 0px),
+    var(--mobile-drawer-keyboard-inset, 0px)
+  );
 }
 
 [data-slot="mobile-family-drawer-root"].desktopnew-root[data-theme="light"] {

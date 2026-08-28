@@ -369,6 +369,19 @@ describe("FloatingToolbar", () => {
     expect(document.querySelector('[data-slot="popover-content"]')).toBeNull()
     expect(drawerRoot?.querySelector(".dn-fill-picker-panel")).not.toBeNull()
   })
+
+  it("anchors the mobile family drawer with a keyboard inset token instead of vaul leftover bottom", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+
+    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
+
+    expect(drawerRoot).not.toBeNull()
+    expect(drawerRoot?.getAttribute("style") ?? "").toContain("--mobile-drawer-keyboard-inset")
+    expect(document.documentElement.style.getPropertyValue("--mobile-drawer-keyboard-inset")).toBe(
+      "0px",
+    )
+  })
 })
 
 async function renderPrototype({

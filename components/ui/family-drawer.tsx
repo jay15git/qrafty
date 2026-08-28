@@ -53,6 +53,12 @@ interface FamilyDrawerRootProps {
   views?: ViewsRegistry
   modal?: boolean
   dismissible?: boolean
+  /**
+   * Vaul writes leftover inline `height`/`bottom` on keyboard dismiss.
+   * This card animates its own height, so keyboard lift belongs to the host.
+   * @default false
+   */
+  repositionInputs?: boolean
 }
 
 function FamilyDrawerRoot({
@@ -65,6 +71,7 @@ function FamilyDrawerRoot({
   views: customViews,
   modal = true,
   dismissible = true,
+  repositionInputs = false,
 }: FamilyDrawerRootProps) {
   const [internalOpen, setInternalOpen] = useState(defaultOpen)
   const [view, setView] = useState(defaultView)
@@ -131,6 +138,7 @@ function FamilyDrawerRoot({
         modal={modal}
         open={isOpen}
         onOpenChange={setIsOpen}
+        repositionInputs={repositionInputs}
       >
         {children}
       </Drawer.Root>
