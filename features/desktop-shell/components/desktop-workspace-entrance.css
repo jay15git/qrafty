@@ -1,49 +1,131 @@
-/* /desktop workspace entrance — CSS-only fade + blur */
+/* /desktop workspace entrance — blur + fade only, no movement */
 
 :root {
-  --desktop-entrance-dur: 400ms;
-  --desktop-entrance-blur: 8px;
+  --desktop-entrance-dur: 680ms;
   --desktop-entrance-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --desktop-entrance-blur-canvas: 12px;
+  --desktop-entrance-blur-chrome: 8px;
+  --desktop-entrance-stagger-canvas: 0ms;
+  --desktop-entrance-stagger-sidebar: 90ms;
+  --desktop-entrance-stagger-island: 180ms;
+  --desktop-entrance-stagger-utility: 270ms;
+  --desktop-entrance-stagger-mobile-bar: 150ms;
+  --desktop-entrance-stagger-mobile-drawer: 240ms;
 }
 
-[data-slot="desktop-entrance-content"] {
+@keyframes desktop-entrance-fade-canvas {
+  from {
+    opacity: 0;
+    filter: blur(var(--desktop-entrance-blur-canvas));
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes desktop-entrance-fade-chrome {
+  from {
+    opacity: 0;
+    filter: blur(var(--desktop-entrance-blur-chrome));
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* loading — hide until ready */
+[data-slot="desktop-entrance-root"][data-desktop-entrance="loading"] [data-slot="drafting-surface"],
+[data-slot="desktop-entrance-root"][data-desktop-entrance="loading"] [data-slot="desktop-left-toolbar-shell"],
+[data-slot="desktop-entrance-root"][data-desktop-entrance="loading"] [data-slot="desktop-dynamic-island"],
+[data-slot="desktop-entrance-root"][data-desktop-entrance="loading"] [data-slot="desktop-utility-toolbar"],
+[data-slot="desktop-entrance-root"][data-desktop-entrance="loading"] [data-slot="mobile-workspace-top-bar"],
+[data-slot="desktop-entrance-root"][data-desktop-entrance="loading"] [data-slot="mobile-family-drawer-root"] {
   opacity: 0;
-  filter: blur(var(--desktop-entrance-blur));
-}
-
-[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="desktop-entrance-content"],
-[data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="desktop-entrance-content"] {
-  opacity: 1;
-  filter: blur(0);
-}
-
-[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="desktop-entrance-content"] {
-  transition:
-    opacity var(--desktop-entrance-dur) var(--desktop-entrance-ease),
-    filter var(--desktop-entrance-dur) var(--desktop-entrance-ease);
-}
-
-[data-slot="desktop-entrance-veil"] {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
   pointer-events: none;
+}
+
+/* no layout shift during entrance — inset padding must not animate */
+[data-slot="desktop-workspace"]:has([data-slot="desktop-entrance-root"]:not([data-desktop-entrance="done"]))
+  [data-slot="drafting-workspace-inset"] {
+  transition: none !important;
+}
+
+/* revealing — staggered blur + fade */
+[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="drafting-surface"] {
+  animation: desktop-entrance-fade-canvas var(--desktop-entrance-dur) var(--desktop-entrance-ease)
+    var(--desktop-entrance-stagger-canvas) both;
+}
+
+[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="desktop-left-toolbar-shell"] {
+  animation: desktop-entrance-fade-chrome var(--desktop-entrance-dur) var(--desktop-entrance-ease)
+    var(--desktop-entrance-stagger-sidebar) both;
+}
+
+[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="desktop-dynamic-island"] {
+  animation: desktop-entrance-fade-chrome var(--desktop-entrance-dur) var(--desktop-entrance-ease)
+    var(--desktop-entrance-stagger-island) both;
+}
+
+[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="desktop-utility-toolbar"] {
+  animation: desktop-entrance-fade-chrome var(--desktop-entrance-dur) var(--desktop-entrance-ease)
+    var(--desktop-entrance-stagger-utility) both;
+}
+
+[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="mobile-workspace-top-bar"] {
+  animation: desktop-entrance-fade-chrome var(--desktop-entrance-dur) var(--desktop-entrance-ease)
+    var(--desktop-entrance-stagger-mobile-bar) both;
+}
+
+[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="mobile-family-drawer-root"] {
+  animation: desktop-entrance-fade-chrome var(--desktop-entrance-dur) var(--desktop-entrance-ease)
+    var(--desktop-entrance-stagger-mobile-drawer) both;
+}
+
+/* done — lock final state (opacity + filter only, never touch transform) */
+[data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="drafting-surface"],
+[data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="desktop-left-toolbar-shell"],
+[data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="desktop-dynamic-island"],
+[data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="desktop-utility-toolbar"],
+[data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="mobile-workspace-top-bar"],
+[data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="mobile-family-drawer-root"] {
   opacity: 1;
-  background: #07080a;
-  transition: opacity var(--desktop-entrance-dur) var(--desktop-entrance-ease);
-}
-
-[data-slot="desktop-entrance-root"][data-desktop-theme="light"] [data-slot="desktop-entrance-veil"] {
-  background: #f0f1f2;
-}
-
-[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="desktop-entrance-veil"] {
-  opacity: 0;
+  filter: none;
+  pointer-events: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --desktop-entrance-dur: 150ms;
-    --desktop-entrance-blur: 0px;
+    --desktop-entrance-dur: 220ms;
+    --desktop-entrance-blur-canvas: 0px;
+    --desktop-entrance-blur-chrome: 0px;
+    --desktop-entrance-stagger-sidebar: 50ms;
+    --desktop-entrance-stagger-island: 100ms;
+    --desktop-entrance-stagger-utility: 150ms;
+    --desktop-entrance-stagger-mobile-bar: 75ms;
+    --desktop-entrance-stagger-mobile-drawer: 125ms;
+  }
+
+  @keyframes desktop-entrance-fade-canvas {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes desktop-entrance-fade-chrome {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 }

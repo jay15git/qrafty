@@ -9,6 +9,36 @@ describe("syncMobileWorkspaceChromeInsets", () => {
     document.documentElement.style.cssText = ""
   })
 
+  it("keeps css fallback insets before mobile chrome is measured", () => {
+    document.documentElement.style.setProperty("--desktop-workspace-canvas-inset-bottom", "240px")
+
+    syncMobileWorkspaceChromeInsets({
+      drawerHeight: 0,
+      toolbarHeight: 0,
+      drawerBottomGapPx: 16,
+      keyboardInsetPx: 0,
+    })
+
+    expect(
+      document.documentElement.style.getPropertyValue("--desktop-workspace-canvas-inset-bottom"),
+    ).toBe("")
+  })
+
+  it("skips partial inset sync when only the toolbar is measured", () => {
+    document.documentElement.style.setProperty("--desktop-workspace-canvas-inset-bottom", "240px")
+
+    syncMobileWorkspaceChromeInsets({
+      drawerHeight: 0,
+      toolbarHeight: 54,
+      drawerBottomGapPx: 16,
+      keyboardInsetPx: 0,
+    })
+
+    expect(
+      document.documentElement.style.getPropertyValue("--desktop-workspace-canvas-inset-bottom"),
+    ).toBe("")
+  })
+
   it("keeps the resting bottom gap when the keyboard is closed", () => {
     syncMobileWorkspaceChromeInsets({
       drawerHeight: 120,

@@ -21,6 +21,7 @@ import {
   MOBILE_ARTBOARD_VIEW_INSETS,
 } from "@/features/workspace/model/template-preview-fit"
 import { previewDrawerResize } from "@/features/workspace/preview/preview-drawer-resize"
+import { DESKTOP_ENTRANCE_COMPLETE_EVENT, DESKTOP_ENTRANCE_PRE_REVEAL_EVENT } from "@/features/desktop-shell/components/DesktopWorkspaceEntrance"
 
 const CANVAS_PAN_CURSOR_LOCK_CLASS = "drafting-canvas-panning"
 
@@ -150,15 +151,23 @@ export function useDraftingPaneSurfaceInteractions({
         return
       }
 
+      const isMobileViewport =
+        typeof window !== "undefined" &&
+        window.matchMedia(DESKTOP_WORKSPACE_MOBILE_QUERY).matches
+      const entrancePhase = document
+        .querySelector('[data-slot="desktop-entrance-root"]')
+        ?.getAttribute("data-desktop-entrance")
+
+      if (isMobileViewport && entrancePhase === "revealing") {
+        return
+      }
+
       const rect = surface.getBoundingClientRect()
 
       if (rect.width <= 0 || rect.height <= 0) {
         return
       }
 
-      const isMobileViewport =
-        typeof window !== "undefined" &&
-        window.matchMedia(DESKTOP_WORKSPACE_MOBILE_QUERY).matches
       const artboardInsets =
         isMobileViewport && isFreeEditWorkspace
           ? MOBILE_ARTBOARD_VIEW_INSETS
@@ -200,9 +209,22 @@ export function useDraftingPaneSurfaceInteractions({
       updateFitScaleRef.current?.()
     })
 
+    const handleEntrancePreReveal = () => {
+      updateFitScaleRef.current?.()
+    }
+
+    const handleEntranceComplete = () => {
+      updateFitScaleRef.current?.()
+    }
+
+    window.addEventListener(DESKTOP_ENTRANCE_PRE_REVEAL_EVENT, handleEntrancePreReveal)
+    window.addEventListener(DESKTOP_ENTRANCE_COMPLETE_EVENT, handleEntranceComplete)
+
     return () => {
       observer.disconnect()
       unsubscribeDrawerResizeEnded()
+      window.removeEventListener(DESKTOP_ENTRANCE_PRE_REVEAL_EVENT, handleEntrancePreReveal)
+      window.removeEventListener(DESKTOP_ENTRANCE_COMPLETE_EVENT, handleEntranceComplete)
       updateFitScaleRef.current = null
     }
   }, [

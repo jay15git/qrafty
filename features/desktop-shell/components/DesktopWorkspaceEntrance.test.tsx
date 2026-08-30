@@ -56,7 +56,6 @@ describe("DesktopWorkspaceEntrance", () => {
 
     const root = document.querySelector('[data-slot="desktop-entrance-root"]')
     expect(root?.getAttribute("data-desktop-entrance")).toBe("loading")
-    expect(document.querySelector('[data-slot="desktop-entrance-veil"]')).not.toBeNull()
   })
 
   it("reveals once drafting-surface is mounted and loading is gone", () => {
@@ -72,7 +71,7 @@ describe("DesktopWorkspaceEntrance", () => {
     expect(root?.getAttribute("data-desktop-entrance")).toBe("revealing")
   })
 
-  it("marks the entrance done after the css reveal window", () => {
+  it("marks the entrance done after the staggered reveal window", () => {
     vi.useFakeTimers()
 
     mount(
@@ -84,11 +83,10 @@ describe("DesktopWorkspaceEntrance", () => {
     )
 
     act(() => {
-      vi.advanceTimersByTime(450)
+      vi.advanceTimersByTime(950)
     })
 
     const root = document.querySelector('[data-slot="desktop-entrance-root"]')
     expect(root?.getAttribute("data-desktop-entrance")).toBe("done")
-    expect(document.querySelector('[data-slot="desktop-entrance-veil"]')).toBeNull()
   })
 })

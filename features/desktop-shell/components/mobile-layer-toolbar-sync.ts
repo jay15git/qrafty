@@ -27,11 +27,25 @@ export function syncMobileWorkspaceChromeInsets({
     document.querySelector<HTMLElement>('[data-slot="desktop-floating-toolbar-root"]'),
   ]
 
+  const chromeUnmeasured = drawerHeight === 0
+
   for (const target of targets) {
+    target?.style.setProperty(
+      "--mobile-drawer-keyboard-inset",
+      `${Math.max(0, Math.round(keyboardInsetPx))}px`,
+    )
+
+    if (chromeUnmeasured) {
+      // Keep CSS fallback inset (12rem drawer reserve) until chrome is measured.
+      target?.style.removeProperty("--desktop-mobile-drawer-height")
+      target?.style.removeProperty("--desktop-mobile-layer-toolbar-height")
+      target?.style.removeProperty("--desktop-workspace-canvas-inset-bottom")
+      continue
+    }
+
     target?.style.setProperty("--desktop-mobile-drawer-height", `${drawerInset}px`)
     target?.style.setProperty("--desktop-mobile-layer-toolbar-height", `${toolbarInset}px`)
     target?.style.setProperty("--desktop-workspace-canvas-inset-bottom", `${combinedInset}px`)
-    target?.style.setProperty("--mobile-drawer-keyboard-inset", `${Math.max(0, Math.round(keyboardInsetPx))}px`)
   }
 }
 
