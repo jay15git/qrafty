@@ -1,6 +1,6 @@
 import type { SVGProps } from "react"
 
-import { ReactQRCode } from "@new-qr/qr-internal/react-qr-code"
+import { DataModules, ReactQRCode } from "@new-qr/qr-internal/react-qr-code"
 
 import {
   buildCustomCornerDotTransform,
@@ -9,10 +9,8 @@ import {
   type CustomCornerDotShape,
 } from "@/features/qr-code/styles/custom-corner-dot-shapes"
 import {
+  buildModuleStylePreviewMatrix,
   getModuleStylePreviewViewBox,
-  getStylePreviewQrModuleCount,
-  STYLE_PREVIEW_ERROR_CORRECTION_LEVEL,
-  STYLE_PREVIEW_SAMPLE_DATA,
 } from "@/features/qr-code/styles/style-preview"
 
 export type StylePreviewKind = "corner-dot" | "corner-square" | "dots"
@@ -51,6 +49,9 @@ export function StylePreview({
   return <ModuleStylePreview color={color} value={value} />
 }
 
+const MODULE_STYLE_PREVIEW_GRADIENT_ID = "module-style-preview-gradient"
+const MODULE_STYLE_PREVIEW_MATRIX = buildModuleStylePreviewMatrix()
+
 function ModuleStylePreview({
   color,
   value,
@@ -59,32 +60,26 @@ function ModuleStylePreview({
   value: string
 }) {
   const previewColor = color ?? "currentColor"
-  const moduleCount = getStylePreviewQrModuleCount()
 
   return (
-    <ReactQRCode
-      background="transparent"
-      boostLevel
-      dataModulesSettings={{ color: previewColor, style: value as never }}
-      finderPatternInnerSettings={{ color: "transparent", style: "square" }}
-      finderPatternOuterSettings={{ color: "transparent", style: "square" }}
-      level={STYLE_PREVIEW_ERROR_CORRECTION_LEVEL}
-      marginSize={0}
-      minVersion={1}
-      size={moduleCount}
-      value={STYLE_PREVIEW_SAMPLE_DATA}
-      svgProps={
-        {
-          "aria-hidden": "true",
-          className: PREVIEW_ICON_CLASS_NAME,
-          "data-preview-kind": "dots",
-          "data-preview-renderer": "real-qr",
-          "data-preview-style": value,
-          "data-slot": "style-preview-fragment",
-          viewBox: getModuleStylePreviewViewBox(),
-        } as SVGProps<SVGSVGElement>
-      }
-    />
+    <svg
+      aria-hidden="true"
+      className={PREVIEW_ICON_CLASS_NAME}
+      data-preview-kind="dots"
+      data-preview-renderer="synthetic-grid"
+      data-preview-style={value}
+      data-slot="style-preview-fragment"
+      viewBox={getModuleStylePreviewViewBox()}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <DataModules
+        gradient={undefined}
+        gradientId={MODULE_STYLE_PREVIEW_GRADIENT_ID}
+        margin={0}
+        modules={MODULE_STYLE_PREVIEW_MATRIX}
+        settings={{ color: previewColor, style: value as never }}
+      />
+    </svg>
   )
 }
 

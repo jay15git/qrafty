@@ -1038,6 +1038,32 @@
   padding-inline: 0.75rem;
 }
 
+/* Pin QRafty to the top chrome row; spacer keeps accordion stack vertically centered. */
+.dn-settings-scroll [data-slot="scroll-area-viewport"] {
+  position: relative;
+}
+
+.dn-settings-brand-row {
+  flex-shrink: 0;
+  min-height: calc(0.625rem + 2rem);
+}
+
+.dn-settings-brand-row > .dn-settings-rail-track__inner {
+  position: absolute;
+  top: var(--desktop-top-chrome-right, 0.75rem);
+  right: 0;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  margin-inline: auto;
+  width: min(100%, 17.25rem);
+  max-width: calc(100% - 1.25rem);
+  min-height: 2.75rem;
+  padding-inline: 0.75rem;
+}
+
 .dn-settings-accordion > div {
   display: flex;
   flex-direction: column;

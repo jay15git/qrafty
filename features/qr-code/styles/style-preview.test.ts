@@ -1,23 +1,37 @@
 import { describe, expect, it } from "vitest"
 
 import {
+  buildModuleStylePreviewMatrix,
   getModuleStylePreviewViewBox,
-  getStylePreviewQrModuleCount,
-  MODULE_STYLE_PREVIEW_CROP,
+  MODULE_STYLE_PREVIEW_MATRIX_SIZE,
+  MODULE_STYLE_PREVIEW_PATTERN,
+  MODULE_STYLE_PREVIEW_PATTERN_ORIGIN,
   MODULE_STYLE_PREVIEW_VIEWBOX_PADDING,
-  STYLE_PREVIEW_SAMPLE_DATA,
 } from "@/features/qr-code/styles/style-preview"
 
 describe("qr style preview helper", () => {
-  it("builds a stable curated crop from the sample payload", () => {
-    const moduleCount = getStylePreviewQrModuleCount()
-    const { row, col, size } = MODULE_STYLE_PREVIEW_CROP
+  it("builds a stable art-directed module matrix for picker tiles", () => {
+    const matrix = buildModuleStylePreviewMatrix()
+    const { row, col } = MODULE_STYLE_PREVIEW_PATTERN_ORIGIN
     const padding = MODULE_STYLE_PREVIEW_VIEWBOX_PADDING
 
-    expect(STYLE_PREVIEW_SAMPLE_DATA).toBe("https://github.com/qrafty/studio")
-    expect(moduleCount).toBe(29)
+    expect(matrix).toHaveLength(MODULE_STYLE_PREVIEW_MATRIX_SIZE)
+    expect(matrix[0]).toHaveLength(MODULE_STYLE_PREVIEW_MATRIX_SIZE)
+
+    for (let patternRow = 0; patternRow < MODULE_STYLE_PREVIEW_PATTERN.length; patternRow++) {
+      for (let patternCol = 0; patternCol < MODULE_STYLE_PREVIEW_PATTERN[patternRow].length; patternCol++) {
+        expect(matrix[row + patternRow][col + patternCol]).toBe(
+          MODULE_STYLE_PREVIEW_PATTERN[patternRow][patternCol],
+        )
+      }
+    }
+
+    const darkModules = MODULE_STYLE_PREVIEW_PATTERN.flat().filter(Boolean).length
+    expect(darkModules).toBe(35)
+    expect(darkModules / MODULE_STYLE_PREVIEW_PATTERN.flat().length).toBeCloseTo(0.71, 2)
+
     expect(getModuleStylePreviewViewBox()).toBe(
-      `${col - padding} ${row - padding} ${size + padding * 2} ${size + padding * 2}`,
+      `${col - padding} ${row - padding} ${MODULE_STYLE_PREVIEW_PATTERN.length + padding * 2} ${MODULE_STYLE_PREVIEW_PATTERN.length + padding * 2}`,
     )
   })
 })

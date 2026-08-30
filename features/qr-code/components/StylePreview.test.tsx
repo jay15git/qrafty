@@ -5,7 +5,7 @@ import { StylePreview } from "@/features/qr-code/components/StylePreview"
 import { getModuleStylePreviewViewBox } from "@/features/qr-code/styles/style-preview"
 
 describe("StylePreview", () => {
-  it("renders module previews from a real qr code cropped to the center data region", () => {
+  it("renders module previews from a synthetic art-directed module grid", () => {
     const markup = renderToStaticMarkup(
       <StylePreview previewKind="dots" value="circuit-board" />,
     )
@@ -13,7 +13,7 @@ describe("StylePreview", () => {
     expect(markup).toContain('data-slot="style-preview-fragment"')
     expect(markup).toContain('data-preview-kind="dots"')
     expect(markup).toContain('data-preview-style="circuit-board"')
-    expect(markup).toContain('data-preview-renderer="real-qr"')
+    expect(markup).toContain('data-preview-renderer="synthetic-grid"')
     expect(markup).toContain(`viewBox="${getModuleStylePreviewViewBox()}"`)
     expect(markup).toContain('data-testid="data-modules"')
   })
