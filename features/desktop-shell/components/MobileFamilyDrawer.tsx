@@ -399,7 +399,7 @@ function MobileFamilyDrawerChrome({
       <FamilyDrawerContent
         accessibilityTitle={accessibilityTitle}
         className={cn(
-          "desktopnew-root shadow-[var(--dn-popover-shadow)]",
+          "desktopnew-root shadow-none",
           className,
         )}
         data-desktop-theme={theme}
