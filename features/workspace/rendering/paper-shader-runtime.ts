@@ -16,16 +16,6 @@ export function hasValidPaperShaderLayout(
   )
 }
 
-function hasLiveCanvasPaperShaderMount(): boolean {
-  if (typeof document === "undefined") {
-    return false
-  }
-
-  return Boolean(
-    document.querySelector('[data-slot="desktop-compose-card-paper-shader"] canvas'),
-  )
-}
-
 export function readPaperShaderFallbackColor(paperShader: DraftingCardPaperShaderState): string {
   const colors = paperShader.params.colors
   if (Array.isArray(colors)) {

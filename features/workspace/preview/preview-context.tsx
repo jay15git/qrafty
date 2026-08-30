@@ -12,13 +12,11 @@ import { previewSession } from "@/features/workspace/preview/preview-session"
 
 export type PreviewRuntimeValue = {
   artboardScale: number
-  isInteracting: boolean
   preferLowPowerShaders: boolean
 }
 
 const PreviewRuntimeContext = createContext<PreviewRuntimeValue>({
   artboardScale: 1,
-  isInteracting: false,
   preferLowPowerShaders: false,
 })
 
@@ -31,19 +29,12 @@ export function PreviewRuntimeProvider({
   children: ReactNode
   preferLowPowerShaders: boolean
 }) {
-  const isInteracting = useSyncExternalStore(
-    previewSession.subscribe,
-    previewSession.getIsInteracting,
-    () => false,
-  )
-
   const value = useMemo(
     () => ({
       artboardScale,
-      isInteracting,
       preferLowPowerShaders,
     }),
-    [artboardScale, isInteracting, preferLowPowerShaders],
+    [artboardScale, preferLowPowerShaders],
   )
 
   return (
@@ -53,4 +44,12 @@ export function PreviewRuntimeProvider({
 
 export function usePreviewRuntime() {
   return useContext(PreviewRuntimeContext)
+}
+
+export function usePreviewInteraction() {
+  return useSyncExternalStore(
+    previewSession.subscribe,
+    previewSession.getIsInteracting,
+    () => false,
+  )
 }

@@ -46,7 +46,7 @@ import type { QrStudioState } from "@/features/qr-code/model/state"
 import { getDraftingQrLayerLayout } from "@/features/qr-code/rendering/svg-extension"
 import { useDraftingQrMarkup } from "@/features/workspace/hooks/use-drafting-qr-markup"
 import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
-import { usePreviewRuntime } from "@/features/workspace/preview/preview-context"
+import { usePreviewInteraction } from "@/features/workspace/preview/preview-context"
 import {
   useDraftingLayerEffectStyle,
   usePreviewShaderDisplaySize,
@@ -103,7 +103,7 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
 }: PaneDocumentCardLayerProps) {
   const layerEffectStyle = useDraftingLayerEffectStyle(layer)
   const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height)
-  const { isInteracting } = usePreviewRuntime()
+  const isInteracting = usePreviewInteraction()
   const cardImageStyle =
     (isImageMode || isImageFilterMode) && cardState.cardImage.value
       ? {

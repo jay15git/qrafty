@@ -10,6 +10,7 @@ import {
   type CSSProperties,
   type ReactNode,
   type RefObject,
+  useCallback,
   useMemo,
 } from "react"
 
@@ -24,6 +25,7 @@ import {
 } from "@/features/workspace/rendering/paper-shader-runtime"
 import {
   buildPaperShaderWorldSize,
+  hasPaperShaderWebGlSupport,
   usePaperShaderWorldSize,
 } from "@new-qr/qr-internal/scene"
 
@@ -83,29 +85,27 @@ function subscribeToPaperShaderSupport(_onStoreChange: () => void) {
   return () => {}
 }
 
-function getPaperShaderSupportSnapshot() {
-  return hasDraftingPaperShaderWebGlSupport()
-}
-
 function getPaperShaderSupportServerSnapshot() {
   return false
 }
 
-function hasDraftingPaperShaderWebGlSupport() {
-  if (typeof document === "undefined") return false
-  if (
-    typeof navigator !== "undefined" &&
-    navigator.userAgent.toLowerCase().includes("jsdom")
-  ) {
-    return false
-  }
-
-  const canvas = document.createElement("canvas")
-  try {
-    return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"))
-  } catch {
-    return false
-  }
+function PaperShaderFallback({ color }: { color: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      data-slot="desktop-compose-card-paper-shader-fallback"
+      style={{
+        backgroundColor: color,
+        borderRadius: "inherit",
+        height: "100%",
+        inset: 0,
+        pointerEvents: "none",
+        position: "absolute",
+        width: "100%",
+        zIndex: 0,
+      }}
+    />
+  )
 }
 
 function buildDraftingPaperShaderRenderProps(
@@ -326,7 +326,7 @@ export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShade
   const { preferLowPowerShaders } = usePreviewRuntime()
   const canRenderShader = useSyncExternalStore(
     subscribeToPaperShaderSupport,
-    getPaperShaderSupportSnapshot,
+    hasPaperShaderWebGlSupport,
     getPaperShaderSupportServerSnapshot,
   )
   const shaderMountKey = `${paperShader.shaderId}:${paperShader.presetName}`
@@ -355,28 +355,17 @@ export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShade
       }),
     [displayHeight, displayWidth, preferLowPowerShaders],
   )
+  const onError = useCallback(() => {
+    setShaderErrorId(paperShader.shaderId)
+  }, [paperShader.shaderId])
+  const onRecover = useCallback(() => {
+    setShaderErrorId(null)
+    setRecoverEpoch((current) => current + 1)
+    setPausedSnapshotUrl(null)
+  }, [])
 
-  if (!canRenderShader || !hasLayout) {
-    return null
-  }
-
-  if (hasShaderError) {
-    return (
-      <div
-        aria-hidden="true"
-        data-slot="desktop-compose-card-paper-shader-fallback"
-        style={{
-          backgroundColor: fallbackColor,
-          borderRadius: "inherit",
-          height: displayHeight ? "100%" : "100%",
-          inset: 0,
-          pointerEvents: "none",
-          position: "absolute",
-          width: displayWidth ? "100%" : "100%",
-          zIndex: 0,
-        }}
-      />
-    )
+  if (!canRenderShader || !hasLayout || hasShaderError) {
+    return <PaperShaderFallback color={fallbackColor} />
   }
 
   if (pausedSnapshotUrl && shouldSnapshotWhenPaused) {
@@ -409,13 +398,9 @@ export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShade
       layoutHeight={layoutHeight}
       layoutWidth={layoutWidth}
       mountGeneration={recoverEpoch}
-      onError={() => setShaderErrorId(paperShader.shaderId)}
+      onError={onError}
       onPausedSnapshot={setPausedSnapshotUrl}
-      onRecover={() => {
-        setShaderErrorId(null)
-        setRecoverEpoch((current) => current + 1)
-        setPausedSnapshotUrl(null)
-      }}
+      onRecover={onRecover}
       paperShader={paperShader}
       renderOptions={renderOptions}
       shouldAnimate={shouldAnimate}

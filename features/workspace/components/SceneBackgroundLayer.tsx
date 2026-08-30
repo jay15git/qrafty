@@ -1,6 +1,6 @@
 "use client"
 
-import type { CSSProperties } from "react"
+import { useMemo, type CSSProperties, type ReactNode } from "react"
 
 import { DraftingCardPaperShaderLayer } from "@/features/workspace/components/CardPaperShaderLayer"
 import type { SceneBackground, SceneLayoutPreset } from "@/features/workspace/model/scene-templates"
@@ -30,6 +30,11 @@ function SceneBackgroundLayer({
   const backgroundStyle = getSceneBackgroundStyle(background)
   const layoutStyle = layout ? getSceneLayoutTransformStyle(layout) : undefined
   const shaderDisplaySize = usePreviewShaderDisplaySize(width, height)
+  const shaderId = background.kind === "paper-shader" ? background.shaderId : null
+  const paperShader = useMemo(
+    () => (shaderId ? createScenePaperShaderState(shaderId) : null),
+    [shaderId],
+  )
 
   return (
     <div
@@ -44,13 +49,13 @@ function SceneBackgroundLayer({
         ...backgroundStyle,
       }}
     >
-      {background.kind === "paper-shader" ? (
+      {paperShader ? (
         <DraftingCardPaperShaderLayer
           displayHeight={shaderDisplaySize.displayHeight}
           displayWidth={shaderDisplaySize.displayWidth}
           layoutHeight={height}
           layoutWidth={width}
-          paperShader={createScenePaperShaderState(background.shaderId)}
+          paperShader={paperShader}
         />
       ) : null}
       {layoutStyle ? (
@@ -67,7 +72,7 @@ export function SceneCompositionTransform({
   children,
   layout,
 }: {
-  children: React.ReactNode
+  children: ReactNode
   layout: SceneLayoutPreset
 }) {
   const layoutStyle = getSceneLayoutTransformStyle(layout)
