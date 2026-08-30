@@ -612,6 +612,11 @@
   height: var(--dn-tab-height);
 }
 
+.dn-tab-bar.dn-content-type-tab-bar {
+  height: auto;
+  min-height: 0;
+}
+
 .dn-type-chip {
   font-size: var(--dn-type-caption);
   font-weight: 500;

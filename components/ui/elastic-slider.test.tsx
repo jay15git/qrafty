@@ -7,6 +7,7 @@ import { ElasticSlider } from "@/components/ui/elastic-slider"
 import { renderWithJsdomRoot } from "@/test-utils/jsdom-react-root"
 
 beforeEach(() => {
+  vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true)
   vi.stubGlobal(
     "ResizeObserver",
     class ResizeObserver {
@@ -15,6 +16,9 @@ beforeEach(() => {
       unobserve() {}
     },
   )
+  HTMLElement.prototype.setPointerCapture = vi.fn()
+  HTMLElement.prototype.releasePointerCapture = vi.fn()
+  HTMLElement.prototype.hasPointerCapture = vi.fn(() => false)
 })
 
 afterEach(() => {
@@ -164,6 +168,54 @@ describe("ElasticSlider", () => {
     expect(slider.getAttribute("aria-valuenow")).toBe("24")
     expect(slider.getAttribute("aria-valuetext")).toBe("24")
   })
+
+  it("yields vertical touch drags so the settings panel can scroll", () => {
+    const onValueChange = vi.fn()
+    const { container } = renderSlider(
+      <ElasticSlider
+        label="Spread"
+        max={100}
+        min={0}
+        step={1}
+        value={40}
+        onValueChange={onValueChange}
+      />,
+    )
+    const slider = stubSliderGeometry(getRequiredSlider(container, "Spread"))
+
+    act(() => {
+      slider.dispatchEvent(createPointerEvent("pointerdown", 80, 10, "touch"))
+      slider.dispatchEvent(createPointerEvent("pointermove", 82, 40, "touch"))
+      slider.dispatchEvent(createPointerEvent("pointerup", 82, 40, "touch"))
+    })
+
+    expect(onValueChange).not.toHaveBeenCalled()
+    expect(slider.getAttribute("aria-valuenow")).toBe("40")
+  })
+
+  it("scrubs on a horizontal touch drag after the axis lock", () => {
+    const onValueChange = vi.fn()
+    const { container } = renderSlider(
+      <ElasticSlider
+        label="Spread"
+        max={100}
+        min={0}
+        step={1}
+        value={40}
+        onValueChange={onValueChange}
+      />,
+    )
+    const slider = stubSliderGeometry(getRequiredSlider(container, "Spread"))
+
+    act(() => {
+      slider.dispatchEvent(createPointerEvent("pointerdown", 80, 10, "touch"))
+      slider.dispatchEvent(createPointerEvent("pointermove", 140, 12, "touch"))
+      slider.dispatchEvent(createPointerEvent("pointerup", 140, 12, "touch"))
+    })
+
+    expect(onValueChange).toHaveBeenCalled()
+    expect(Number(onValueChange.mock.calls.at(-1)?.[0])).toBeGreaterThan(40)
+  })
 })
 
 function renderSlider(element: ReactElement) {
@@ -178,4 +230,46 @@ function getRequiredSlider(container: HTMLElement, name: string) {
   }
 
   return slider
+}
+
+function stubSliderGeometry(slider: HTMLElement) {
+  const wrapper = slider.parentElement
+  const rect = {
+    x: 0,
+    y: 0,
+    width: 200,
+    height: 36,
+    top: 0,
+    left: 0,
+    right: 200,
+    bottom: 36,
+    toJSON() {
+      return this
+    },
+  } as DOMRect
+
+  if (wrapper) {
+    Object.defineProperty(wrapper, "offsetWidth", { configurable: true, value: 200 })
+    wrapper.getBoundingClientRect = () => rect
+  }
+
+  slider.getBoundingClientRect = () => rect
+  return slider
+}
+
+function createPointerEvent(
+  type: string,
+  clientX: number,
+  clientY: number,
+  pointerType: "mouse" | "touch" | "pen",
+) {
+  return new PointerEvent(type, {
+    bubbles: true,
+    button: 0,
+    cancelable: true,
+    clientX,
+    clientY,
+    pointerId: 1,
+    pointerType,
+  })
 }

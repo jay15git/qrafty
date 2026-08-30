@@ -1,21 +1,24 @@
 packages:
-  - "."
-  - "packages/*"
-
-minimumReleaseAge: 10080
-
-# trustPolicy: no-downgrade blocked by calligraph@1.4.1 and 4 transitive trust downgrades in lockfile.
-trustPolicy: warn
+  - .
+  - packages/*
 
 allowBuilds:
   esbuild: true
   msw: true
   sharp: true
   unrs-resolver: true
+
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+
+minimumReleaseAge: 10080
+
 onlyBuiltDependencies:
   - msw
+
 patchedDependencies:
   calligraph@1.4.1: patches/calligraph@1.4.1.patch
+  next-themes@0.4.6: patches/next-themes@0.4.6.patch
+
+trustPolicy: warn

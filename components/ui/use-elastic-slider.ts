@@ -13,6 +13,7 @@ import { useTouchPrimary } from "@/hooks/use-touch-primary"
 import { previewSession } from "@/features/workspace/preview/preview-session"
 
 const CLICK_THRESHOLD = 3
+const AXIS_LOCK_THRESHOLD_PX = 10
 const DEAD_ZONE = 32
 const MAX_CURSOR_RANGE = 200
 const MAX_STRETCH = 8
@@ -43,6 +44,17 @@ function snapToDecile(rawValue: number, min: number, max: number): number {
     return min + nearest * (max - min)
   }
   return rawValue
+}
+
+function isTouchLikePointer(event: { pointerType: string }) {
+  return event.pointerType === "touch" || event.pointerType === "pen"
+}
+
+function releasePointerCaptureSafe(event: React.PointerEvent) {
+  const target = event.currentTarget as HTMLElement
+  if (typeof target.hasPointerCapture === "function" && target.hasPointerCapture(event.pointerId)) {
+    target.releasePointerCapture(event.pointerId)
+  }
 }
 
 export function splitSignedDisplayValue(value: string) {
@@ -129,6 +141,7 @@ export function useElasticSlider({
   const [keyboardFocusRing, setKeyboardFocusRing] = React.useState(false)
 
   const pointerDownPos = React.useRef<{ x: number; y: number } | null>(null)
+  const axisLockRef = React.useRef<"pending" | "scrub" | "scroll" | null>(null)
   const pendingPointerFocusRef = React.useRef(false)
   const isClickRef = React.useRef(true)
   const animRef = React.useRef<ReturnType<typeof animate> | null>(null)
@@ -217,16 +230,20 @@ export function useElasticSlider({
   }, [])
 
   const handlePointerDown = React.useCallback((e: React.PointerEvent) => {
-    e.preventDefault()
-    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
-
+    const touchLike = isTouchLikePointer(e)
+    axisLockRef.current = touchLike ? "pending" : "scrub"
     pointerDownPos.current = { x: e.clientX, y: e.clientY }
     isClickRef.current = true
-    setIsInteracting(true)
-    isInteractingRef.current = true
-    previewSession.beginInteraction()
     pendingPointerFocusRef.current = true
     setKeyboardFocusRing(false)
+
+    if (!touchLike) {
+      e.preventDefault()
+      e.currentTarget.setPointerCapture(e.pointerId)
+      setIsInteracting(true)
+      isInteractingRef.current = true
+      previewSession.beginInteraction()
+    }
 
     trackRef.current?.focus({ preventScroll: true })
     requestAnimationFrame(() => {
@@ -243,10 +260,36 @@ export function useElasticSlider({
 
   const handlePointerMove = React.useCallback(
     (e: React.PointerEvent) => {
-      if (!isInteracting || !pointerDownPos.current) return
+      if (!pointerDownPos.current || axisLockRef.current === "scroll") {
+        return
+      }
 
       const dx = e.clientX - pointerDownPos.current.x
       const dy = e.clientY - pointerDownPos.current.y
+
+      if (axisLockRef.current === "pending") {
+        if (Math.hypot(dx, dy) < AXIS_LOCK_THRESHOLD_PX) {
+          return
+        }
+
+        if (Math.abs(dx) >= Math.abs(dy)) {
+          axisLockRef.current = "scrub"
+          e.currentTarget.setPointerCapture(e.pointerId)
+          isClickRef.current = false
+          setIsInteracting(true)
+          isInteractingRef.current = true
+          setIsDragging(true)
+          previewSession.beginInteraction()
+        } else {
+          axisLockRef.current = "scroll"
+          pointerDownPos.current = null
+          return
+        }
+      }
+
+      if (!isInteractingRef.current) {
+        return
+      }
 
       if (isClickRef.current && Math.hypot(dx, dy) > CLICK_THRESHOLD) {
         isClickRef.current = false
@@ -273,7 +316,6 @@ export function useElasticSlider({
       setValue(roundValue(newValue, step))
     },
     [
-      isInteracting,
       positionToValue,
       percentFromValue,
       setValue,
@@ -285,9 +327,27 @@ export function useElasticSlider({
     ],
   )
 
+  const endPointerSession = React.useCallback((e: React.PointerEvent) => {
+    releasePointerCaptureSafe(e)
+    setIsInteracting(false)
+    isInteractingRef.current = false
+    setIsDragging(false)
+    pointerDownPos.current = null
+    axisLockRef.current = null
+  }, [])
+
   const handlePointerUp = React.useCallback(
     (e: React.PointerEvent) => {
-      if (!isInteracting) return
+      if (axisLockRef.current === "scroll") {
+        endPointerSession(e)
+        return
+      }
+
+      const canCommit = isInteractingRef.current || axisLockRef.current === "pending"
+      if (!canCommit) {
+        endPointerSession(e)
+        return
+      }
 
       if (isClickRef.current) {
         const rawValue = positionToValue(e.clientX)
@@ -309,30 +369,43 @@ export function useElasticSlider({
         })
       }
 
-      setIsInteracting(false)
-      isInteractingRef.current = false
-      setIsDragging(false)
-      pointerDownPos.current = null
-
-      if (externalRafRef.current !== null) {
-        cancelAnimationFrame(externalRafRef.current)
-        flushExternalValue()
+      if (isInteractingRef.current) {
+        if (externalRafRef.current !== null) {
+          cancelAnimationFrame(externalRafRef.current)
+          flushExternalValue()
+        }
+        previewSession.endInteraction()
       }
-      previewSession.endInteraction()
+
+      endPointerSession(e)
     },
     [
-      flushExternalValue,
-      isInteracting,
-      positionToValue,
-      percentFromValue,
-      setValue,
-      min,
-      max,
-      step,
       animateFillTo,
+      endPointerSession,
+      flushExternalValue,
+      max,
+      min,
+      percentFromValue,
+      positionToValue,
       rubberStretch,
+      setValue,
       shouldReduceMotion,
+      step,
     ],
+  )
+
+  const handlePointerCancel = React.useCallback(
+    (e: React.PointerEvent) => {
+      if (isInteractingRef.current) {
+        if (externalRafRef.current !== null) {
+          cancelAnimationFrame(externalRafRef.current)
+          flushExternalValue()
+        }
+        previewSession.endInteraction()
+      }
+      endPointerSession(e)
+    },
+    [endPointerSession, flushExternalValue],
   )
 
   const handleKeyDown = React.useCallback(
@@ -473,6 +546,7 @@ export function useElasticSlider({
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
+    handlePointerCancel,
     handleTrackFocus,
     handleTrackBlur,
     handleKeyDown,

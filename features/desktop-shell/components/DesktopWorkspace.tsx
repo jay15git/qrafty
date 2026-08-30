@@ -31,7 +31,7 @@ export function DesktopWorkspace({
 }: DesktopWorkspaceProps) {
   const [desktopTheme, setDesktopTheme] = useState<DesktopThemeMode>(initialTheme)
   const isMobileWorkspace = useMediaQuery(DESKTOP_WORKSPACE_MOBILE_QUERY)
-  useDesktopWorkspaceThemeSync(desktopTheme)
+  useDesktopWorkspaceThemeSync(desktopTheme, setDesktopTheme)
   const workspaceTone = {
     "--workspace-shell": desktopTheme === "light" ? "#ffffff" : "#07080a",
     "--workspace-page": desktopTheme === "light" ? "#ffffff" : "#07080a",

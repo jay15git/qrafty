@@ -1,5 +1,7 @@
 import { LandingCardWheel } from "@/components/landing/landing-card-wheel"
+import { LandingFeatureCards } from "@/components/landing/landing-feature-cards"
 import { LandingHeroText } from "@/components/landing/landing-hero-text"
+import { LandingHorizontalDepthFade } from "@/components/landing/landing-horizontal-depth-fade"
 import { LandingMeshGradientBackground } from "@/components/landing/landing-mesh-gradient-background"
 import { LandingShaderFadeOverlay } from "@/components/landing/landing-shader-fade-overlay"
 
@@ -19,6 +21,10 @@ export default function LandingPage() {
       </section>
 
       <LandingCardWheel />
+
+      <LandingFeatureCards />
+
+      <LandingHorizontalDepthFade />
     </div>
   )
 }

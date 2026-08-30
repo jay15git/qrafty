@@ -216,7 +216,7 @@ describe("Canvas", () => {
     expect(viewport.style.transform).toBe("translate3d(40px, 25px, 0) scale(1)")
   })
 
-  it("does not zoom desktop compose content with wheel or pinch", async () => {
+  it("does not zoom desktop compose content with wheel", async () => {
     const workspace = renderWorkspace({
       paneCount: 1,
       toolbarVariant: "desktop-zoom",
@@ -238,6 +238,24 @@ describe("Canvas", () => {
         cancelable: true,
         deltaY: -100,
       }))
+      await flushPromises()
+    })
+
+    expect(contentZoom?.style.transform ?? "").toBe(transformBefore)
+    expect(pane.className).toContain("touch-none")
+  })
+
+  it("pinch-zooms desktop compose content", async () => {
+    const workspace = renderWorkspace({
+      paneCount: 1,
+      toolbarVariant: "desktop-zoom",
+    })
+    const [pane] = getPaneSurfaces(workspace.container, 1)
+    const contentZoom = pane.querySelector(
+      '[data-slot="desktop-compose-content-zoom"]',
+    ) as HTMLElement
+
+    await act(async () => {
       pane.dispatchEvent(createTouchEvent("touchstart", [
         { clientX: 0, clientY: 0 },
         { clientX: 100, clientY: 0 },
@@ -249,8 +267,31 @@ describe("Canvas", () => {
       await flushPromises()
     })
 
-    expect(contentZoom?.style.transform ?? "").toBe(transformBefore)
-    expect(pane.className).not.toContain("touch-none")
+    expect(contentZoom?.style.transform).toContain("scale(1.5)")
+  })
+
+  it("pans empty canvas with a touch drag in desktop zoom mode", async () => {
+    const workspace = renderWorkspace({
+      paneCount: 1,
+      toolbarVariant: "desktop-zoom",
+    })
+    const [pane] = getPaneSurfaces(workspace.container, 1)
+    const contentZoom = pane.querySelector(
+      '[data-slot="desktop-compose-content-zoom"]',
+    ) as HTMLElement
+
+    await act(async () => {
+      await flushPromises()
+    })
+
+    await act(async () => {
+      pane.dispatchEvent(createPointerEvent("pointerdown", 100, 120, "touch"))
+      pane.dispatchEvent(createPointerEvent("pointermove", 140, 145, "touch"))
+      pane.dispatchEvent(createPointerEvent("pointerup", 140, 145, "touch"))
+      await flushPromises()
+    })
+
+    expect(contentZoom.style.transform).toBe("translate3d(40px, 25px, 0)")
   })
 
   it("pans only compose content in desktop zoom mode while the card stays fixed", async () => {
@@ -826,7 +867,12 @@ function createTouchEvent(
   return event
 }
 
-function createPointerEvent(type: string, clientX: number, clientY: number) {
+function createPointerEvent(
+  type: string,
+  clientX: number,
+  clientY: number,
+  pointerType: "mouse" | "touch" | "pen" = "mouse",
+) {
   const PointerEventConstructor = window.PointerEvent ?? window.MouseEvent
 
   return new PointerEventConstructor(type, {
@@ -836,7 +882,7 @@ function createPointerEvent(type: string, clientX: number, clientY: number) {
     clientX,
     clientY,
     pointerId: 1,
-    pointerType: "mouse",
+    pointerType,
   } as PointerEventInit)
 }
 

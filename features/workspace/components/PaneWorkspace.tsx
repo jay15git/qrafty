@@ -134,6 +134,18 @@ function unlockLayerMoveCursor() {
 const ROTATION_LABEL_HIDE_DELAY_MS = 2000
 const SNAP_THRESHOLD_PX = 6
 const INTERACTION_START_THRESHOLD_PX = 3
+const INTERACTION_START_THRESHOLD_TOUCH_PX = 8
+
+function isTouchLikePointer(event: { pointerType: string }) {
+  return event.pointerType === "touch" || event.pointerType === "pen"
+}
+
+function releasePointerCaptureSafe(event: PointerEvent<HTMLElement>) {
+  const target = event.currentTarget
+  if (typeof target.hasPointerCapture === "function" && target.hasPointerCapture(event.pointerId)) {
+    target.releasePointerCapture(event.pointerId)
+  }
+}
 
 function overlayLayerGeometry(
   layers: DraftingCanvasLayer[],
@@ -251,6 +263,7 @@ export function PaneWorkspace({
     lockedResizeAxis?: "horizontal" | "vertical"
     mode: "move" | "resize" | "rotate"
     pointerId: number
+    pointerType?: string
     resizeDirection?: ResizeDirection
     startAngle?: number
     startRotation?: number
@@ -585,6 +598,7 @@ export function PaneWorkspace({
       layer,
       mode,
       pointerId: event.pointerId,
+      pointerType: event.pointerType,
       resizeDirection,
       startAngle:
         (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) /
@@ -711,6 +725,10 @@ export function PaneWorkspace({
       return
     }
 
+    if (isTouchLikePointer(event)) {
+      return
+    }
+
     if (editingTextLayerId) {
       commitEditingTextDraft()
     }
@@ -807,6 +825,7 @@ export function PaneWorkspace({
       layers: selectedVisibleLayers,
       mode,
       pointerId: event.pointerId,
+      pointerType: event.pointerType,
       resizeDirection,
       startAngle:
         (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) /
@@ -842,6 +861,7 @@ export function PaneWorkspace({
     }
 
     event.stopPropagation()
+    event.preventDefault()
     const scale =
       (interactionScale > 0 ? interactionScale : 1) * (viewFitScale > 0 ? viewFitScale : 1)
     const snapThreshold = SNAP_THRESHOLD_PX / scale
@@ -849,9 +869,12 @@ export function PaneWorkspace({
     const deltaX = (event.clientX - interaction.startX) / scale
     const deltaY = (event.clientY - interaction.startY) / scale
     const layer = interaction.layer
+    const startThreshold = isTouchLikePointer({ pointerType: interaction.pointerType ?? "mouse" })
+      ? INTERACTION_START_THRESHOLD_TOUCH_PX
+      : INTERACTION_START_THRESHOLD_PX
     const hasStartedInteraction =
       Math.hypot(event.clientX - interaction.startX, event.clientY - interaction.startY) >=
-      INTERACTION_START_THRESHOLD_PX
+      startThreshold
 
     if (!hasStartedInteraction && interaction.mode !== "rotate") {
       setSnapGuides({ horizontal: [], vertical: [] })
@@ -1076,6 +1099,7 @@ export function PaneWorkspace({
       setIsMovingLayers(false)
       unlockLayerMoveCursor()
       interactionRef.current = null
+      releasePointerCaptureSafe(event)
     }
   }
 
@@ -1273,7 +1297,7 @@ export function PaneWorkspace({
         ) : null}
         <button
           aria-label={`Rotate ${layer.name}`}
-          className="pointer-events-auto absolute left-1/2 top-0 z-30 flex size-4 items-center justify-center border-0 bg-transparent p-0"
+          className="pointer-events-auto absolute left-1/2 top-0 z-30 flex size-4 touch-none items-center justify-center border-0 bg-transparent p-0"
           data-slot="drafting-layer-rotate-handle"
           onClick={(event) => event.stopPropagation()}
           onPointerCancel={endLayerInteraction}
@@ -1348,7 +1372,7 @@ export function PaneWorkspace({
         ) : null}
         <button
           aria-label="Rotate selection"
-          className="pointer-events-auto absolute left-1/2 top-0 z-30 flex size-4 items-center justify-center border-0 bg-transparent p-0"
+          className="pointer-events-auto absolute left-1/2 top-0 z-30 flex size-4 touch-none items-center justify-center border-0 bg-transparent p-0"
           data-slot="drafting-layer-rotate-handle"
           onClick={(event) => event.stopPropagation()}
           onPointerCancel={endLayerInteraction}

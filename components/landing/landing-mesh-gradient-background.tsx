@@ -9,6 +9,11 @@ import {
 } from "react"
 import dynamic from "next/dynamic"
 
+import {
+  LANDING_SHADER_ARC_CENTER_Y,
+  LANDING_SHADER_ARC_RADIUS,
+} from "@/components/landing/landing-shader-config"
+
 const MeshGradient = dynamic(
   () =>
     import("@paper-design/shaders-react").then((mod) => mod.MeshGradient),
@@ -112,9 +117,13 @@ export function LandingMeshGradientBackground() {
         <style>{landingShaderStyles}</style>
         <div
           aria-hidden="true"
-          className="landing-shader-fallback pointer-events-none absolute inset-0"
-          style={{ backgroundColor: LANDING_MESH_GRADIENT_FALLBACK }}
-        />
+          className="landing-shader-arc pointer-events-none absolute"
+        >
+          <div
+            className="landing-shader-fallback h-full w-full"
+            style={{ backgroundColor: LANDING_MESH_GRADIENT_FALLBACK }}
+          />
+        </div>
       </>
     )
   }
@@ -125,31 +134,47 @@ export function LandingMeshGradientBackground() {
       <div
         ref={hostRef}
         aria-hidden="true"
-        className="landing-shader-host pointer-events-none absolute inset-0 overflow-hidden"
+        className="landing-shader-arc pointer-events-none absolute"
       >
-        <LandingMeshGradientErrorBoundary onError={() => setHasError(true)}>
-          <MeshGradient
-            {...LANDING_MESH_GRADIENT_RENDER_OPTIONS}
-            aria-hidden="true"
-            colors={LANDING_MESH_GRADIENT_COLORS}
-            distortion={0.32}
-            fit="cover"
-            frame={42}
-            grainMixer={0}
-            grainOverlay={0}
-            scale={0.88}
-            speed={speed}
-            style={{ height: "100%", width: "100%" }}
-            swirl={0}
-          />
-        </LandingMeshGradientErrorBoundary>
+        <div className="landing-shader-host h-full w-full overflow-hidden">
+          <LandingMeshGradientErrorBoundary onError={() => setHasError(true)}>
+            <MeshGradient
+              {...LANDING_MESH_GRADIENT_RENDER_OPTIONS}
+              aria-hidden="true"
+              colors={LANDING_MESH_GRADIENT_COLORS}
+              distortion={0.32}
+              fit="cover"
+              frame={42}
+              grainMixer={0}
+              grainOverlay={0}
+              scale={0.88}
+              speed={speed}
+              style={{ height: "100%", width: "100%" }}
+              swirl={0}
+            />
+          </LandingMeshGradientErrorBoundary>
+        </div>
       </div>
     </>
   )
 }
 
-/** Paper mounts canvas at z-index:-1; lift it so shader is visible as a page background. */
+/**
+ * Paper mounts canvas at z-index:-1; lift it so shader is visible as a page background.
+ * Filled circle of the same R as the card wheel, hub mirrored above the join —
+ * bottom edge is a ∪ through the hero, symmetrical to the carousel ∩.
+ */
 const landingShaderStyles = `
+.landing-shader-arc {
+  --shader-r: ${LANDING_SHADER_ARC_RADIUS};
+  inset: 0;
+  width: auto;
+  height: auto;
+  transform: none;
+  clip-path: circle(var(--shader-r) at 50% ${LANDING_SHADER_ARC_CENTER_Y});
+  overflow: hidden;
+  contain: paint;
+}
 .landing-shader-host {
   contain: paint;
 }

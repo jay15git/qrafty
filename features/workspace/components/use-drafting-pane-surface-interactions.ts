@@ -27,6 +27,11 @@ const CANVAS_PAN_CURSOR_LOCK_CLASS = "drafting-canvas-panning"
 const MIN_PREVIEW_ZOOM = 0.1
 const MAX_PREVIEW_ZOOM = 4
 const WHEEL_ZOOM_SENSITIVITY = 0.001
+const TOUCH_PAN_THRESHOLD_PX = 8
+
+function isTouchLikePointer(event: { pointerType: string }) {
+  return event.pointerType === "touch" || event.pointerType === "pen"
+}
 
 function lockCanvasPanCursor() {
   document.documentElement.classList.add(CANVAS_PAN_CURSOR_LOCK_CLASS)
@@ -107,6 +112,14 @@ export function useDraftingPaneSurfaceInteractions({
   } | null>(null)
   const pinchDistanceRef = useRef<number | null>(null)
   const pinchZoomRef = useRef(paneZoom)
+  const pendingTouchPanRef = useRef<{
+    pointerId: number
+    startClientX: number
+    startClientY: number
+    startPanX: number
+    startPanY: number
+  } | null>(null)
+  const didTouchPanRef = useRef(false)
   const [viewFitScale, setViewFitScale] = useState(1)
   const effectiveZoom = paneZoom
   const effectivePan = previewLocked ? { x: 0, y: 0 } : panePan
@@ -254,6 +267,13 @@ export function useDraftingPaneSurfaceInteractions({
 
   const handleSurfaceClick = useCallback(
     (event: ReactMouseEvent<HTMLDivElement>) => {
+      if (didTouchPanRef.current) {
+        didTouchPanRef.current = false
+        event.preventDefault()
+        event.stopPropagation()
+        return
+      }
+
       if (activeCanvasTool === "text" && onAddTextLayerAt && isPlacementTarget(event)) {
         event.preventDefault()
         event.stopPropagation()
@@ -328,7 +348,7 @@ export function useDraftingPaneSurfaceInteractions({
 
   const handlePanePointerDownCapture = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (activeCanvasTool !== "pan" || event.button !== 0 || event.pointerType === "touch") {
+      if (activeCanvasTool !== "pan" || event.button !== 0 || isTouchLikePointer(event)) {
         return
       }
 
@@ -347,7 +367,7 @@ export function useDraftingPaneSurfaceInteractions({
 
   const handlePanePointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (event.button !== 0 || event.pointerType === "touch") {
+      if (event.pointerType === "mouse" && event.button !== 0) {
         return
       }
 
@@ -361,17 +381,61 @@ export function useDraftingPaneSurfaceInteractions({
         return
       }
 
+      if (isTouchLikePointer(event) && !previewLocked) {
+        pendingTouchPanRef.current = {
+          pointerId: event.pointerId,
+          startClientX: event.clientX,
+          startClientY: event.clientY,
+          startPanX: panePan.x,
+          startPanY: panePan.y,
+        }
+        didTouchPanRef.current = false
+        return
+      }
+
       if (activeCanvasTool !== "pan") {
         onPaneSelectRef.current(pane.id)
         onLayerSelect?.(pane.id, null)
-        return
       }
     },
-    [activeCanvasTool, isPlacementTarget, onAddTextLayerAt, onLayerSelect, pane.id],
+    [
+      activeCanvasTool,
+      isPlacementTarget,
+      onAddTextLayerAt,
+      onLayerSelect,
+      pane.id,
+      panePan.x,
+      panePan.y,
+      previewLocked,
+    ],
   )
 
   const handlePanePointerMove = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
+      const pending = pendingTouchPanRef.current
+
+      if (pending && pending.pointerId === event.pointerId) {
+        const distance = Math.hypot(
+          event.clientX - pending.startClientX,
+          event.clientY - pending.startClientY,
+        )
+
+        if (distance < TOUCH_PAN_THRESHOLD_PX) {
+          return
+        }
+
+        pendingTouchPanRef.current = null
+        event.preventDefault()
+        event.stopPropagation()
+        const captureTarget = panOverlayRef.current ?? event.currentTarget
+        captureTarget.setPointerCapture(event.pointerId)
+        onPaneSelectRef.current(pane.id)
+        panInteractionRef.current = pending
+        didTouchPanRef.current = true
+        lockCanvasPanCursor()
+        setIsPanning(true)
+      }
+
       const interaction = panInteractionRef.current
 
       if (!interaction || interaction.pointerId !== event.pointerId) {
@@ -389,6 +453,10 @@ export function useDraftingPaneSurfaceInteractions({
   )
 
   const handlePanePointerEnd = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    if (pendingTouchPanRef.current?.pointerId === event.pointerId) {
+      pendingTouchPanRef.current = null
+    }
+
     if (panInteractionRef.current?.pointerId === event.pointerId) {
       panInteractionRef.current = null
       unlockCanvasPanCursor()
@@ -432,7 +500,7 @@ export function useDraftingPaneSurfaceInteractions({
 
   const handleTouchStart = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
-      if (previewLocked || isFreeEditWorkspace) {
+      if (previewLocked) {
         return
       }
 
@@ -444,16 +512,22 @@ export function useDraftingPaneSurfaceInteractions({
 
       event.preventDefault()
       event.stopPropagation()
+      pendingTouchPanRef.current = null
+      if (panInteractionRef.current) {
+        panInteractionRef.current = null
+        unlockCanvasPanCursor()
+        setIsPanning(false)
+      }
       onPaneSelectRef.current(pane.id)
       pinchDistanceRef.current = distance
       pinchZoomRef.current = paneZoom
     },
-    [isFreeEditWorkspace, pane.id, paneZoom, previewLocked],
+    [pane.id, paneZoom, previewLocked],
   )
 
   const handleTouchMove = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
-      if (previewLocked || isFreeEditWorkspace) {
+      if (previewLocked) {
         return
       }
 
@@ -466,9 +540,10 @@ export function useDraftingPaneSurfaceInteractions({
 
       event.preventDefault()
       event.stopPropagation()
+      didTouchPanRef.current = true
       onPaneZoom(pane.id, clampPreviewZoom(pinchZoomRef.current * (nextDistance / startDistance)))
     },
-    [isFreeEditWorkspace, onPaneZoom, pane.id, previewLocked],
+    [onPaneZoom, pane.id, previewLocked],
   )
 
   const handleTouchEnd = useCallback((event: TouchEvent<HTMLDivElement>) => {

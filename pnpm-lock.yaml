@@ -8,6 +8,9 @@ patchedDependencies:
   calligraph@1.4.1:
     hash: 0d35df8b24e9581aafd5b810a0bc26e9d9d8935ed136554ddf57832720541314
     path: patches/calligraph@1.4.1.patch
+  next-themes@0.4.6:
+    hash: 983c334c944dfaa33add5c77deaeb2c555ad196455d97b6216f4d23f70806dff
+    path: patches/next-themes@0.4.6.patch
 
 importers:
 
@@ -108,7 +111,7 @@ importers:
         version: 16.2.6(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       next-themes:
         specifier: ^0.4.6
-        version: 0.4.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 0.4.6(patch_hash=983c334c944dfaa33add5c77deaeb2c555ad196455d97b6216f4d23f70806dff)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       poly-decomp:
         specifier: ^0.3.0
         version: 0.3.0
@@ -10117,7 +10120,7 @@ snapshots:
 
   negotiator@1.0.0: {}
 
-  next-themes@0.4.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  next-themes@0.4.6(patch_hash=983c334c944dfaa33add5c77deaeb2c555ad196455d97b6216f4d23f70806dff)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)

@@ -1,0 +1,397 @@
+.lfc {
+  position: relative;
+  padding: 48px 0 72px;
+  background: #efeeec;
+  color: #201d1d;
+}
+
+.lfc-intro {
+  max-width: 42rem;
+  padding: 0 28px 28px;
+}
+
+.lfc-heading {
+  margin: 0 0 8px;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.lfc-lede {
+  margin: 0;
+  max-width: 36rem;
+  font-family: var(--font-body), sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: oklch(0.32 0.03 40 / 0.78);
+}
+
+.lfc-strip {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: max(24px, calc((100vw - 380px) / 2));
+  padding-inline: max(24px, calc((100vw - 380px) / 2));
+  padding-block: 8px 28px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.lfc-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.lfc-strip:focus-visible {
+  outline: 2px solid oklch(0.45 0.12 304);
+  outline-offset: 4px;
+}
+
+.lfc-card {
+  position: relative;
+  display: flex;
+  flex: 0 0 min(380px, 86vw);
+  flex-direction: column;
+  min-height: 520px;
+  overflow: hidden;
+  scroll-snap-align: center;
+  padding: 26px 26px 0;
+  border-radius: 28px;
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.45);
+}
+
+.lfc-card[data-tone="lilac"] {
+  background: oklch(0.9 0.04 304);
+}
+
+.lfc-card[data-tone="blush"] {
+  background: oklch(0.9 0.05 12);
+}
+
+.lfc-card[data-tone="peach"] {
+  background: oklch(0.9 0.05 55);
+}
+
+.lfc-card[data-tone="sage"] {
+  background: oklch(0.91 0.035 125);
+}
+
+.lfc-card[data-tone="ink"] {
+  background: oklch(0.28 0.05 304);
+  color: oklch(0.97 0.01 90);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.12);
+}
+
+.lfc-card[data-tone="ink"] .lfc-desc {
+  color: oklch(0.92 0.02 90 / 0.72);
+}
+
+.lfc-card[data-tone="sand"] {
+  background: oklch(0.91 0.03 80);
+}
+
+.lfc-copy {
+  flex: 0 0 auto;
+  margin-bottom: 18px;
+}
+
+.lfc-name {
+  margin: 0 0 6px;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.lfc-desc {
+  margin: 0;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: oklch(0.32 0.03 40 / 0.72);
+}
+
+.lfc-stage {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.lfc-qr {
+  width: 100%;
+  height: 100%;
+}
+
+.lfc-qr [data-slot="new-qr-code"],
+.lfc-qr svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lfc-shaped {
+  position: relative;
+  width: 100%;
+}
+
+.lfc-shaped-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.lfc-shaped-qr {
+  position: absolute;
+  display: grid;
+  place-items: center;
+}
+
+.lfc-shaped-qr [data-slot="new-qr-code"],
+.lfc-shaped-qr svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lfc-style-stage,
+.lfc-shape-stage,
+.lfc-scene-stage,
+.lfc-dress-stage,
+.lfc-motion-stage,
+.lfc-take-stage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  width: 100%;
+  min-height: 0;
+  padding-bottom: 22px;
+}
+
+.lfc-qr-plate,
+.lfc-motion-plate {
+  width: min(68%, 228px);
+  aspect-ratio: 1;
+  padding: 14px;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow:
+    0 18px 40px oklch(0.28 0.08 304 / 0.16),
+    0 2px 6px oklch(0.25 0.04 304 / 0.08);
+}
+
+.lfc-card[data-tone="ink"] .lfc-motion-plate {
+  background: oklch(0.18 0.04 304);
+  box-shadow: 0 18px 40px oklch(0.1 0.04 304 / 0.5);
+}
+
+.lfc-shape-hero {
+  width: min(78%, 260px);
+}
+
+.lfc-chip-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.lfc-style-chip,
+.lfc-shape-chip {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  padding: 6px;
+  border: 0;
+  border-radius: 12px;
+  background: oklch(1 0 0 / 0.45);
+  color: inherit;
+  cursor: pointer;
+}
+
+.lfc-style-chip-on,
+.lfc-shape-chip-on {
+  background: #fff;
+  box-shadow: 0 4px 12px oklch(0.28 0.04 304 / 0.14);
+}
+
+.lfc-style-chip img,
+.lfc-shape-chip svg {
+  width: 100%;
+  height: 100%;
+}
+
+.lfc-shape-chip svg {
+  fill: currentColor;
+}
+
+.lfc-text-chip {
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: oklch(1 0 0 / 0.4);
+  color: inherit;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lfc-text-chip-on {
+  background: #fff;
+  box-shadow: 0 3px 10px oklch(0.28 0.04 304 / 0.12);
+}
+
+.lfc-card[data-tone="ink"] .lfc-text-chip {
+  background: oklch(1 0 0 / 0.1);
+  color: oklch(0.97 0.01 90);
+}
+
+.lfc-card[data-tone="ink"] .lfc-text-chip-on {
+  background: oklch(1 0 0 / 0.16);
+}
+
+.lfc-scene-well {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 220px;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.lfc-scene-shader {
+  position: absolute;
+  inset: 0;
+}
+
+.lfc-scene-qr {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(58%, 190px);
+  translate: -50% -50%;
+}
+
+.lfc-dress-board {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 260px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: oklch(0.96 0.02 125);
+}
+
+.lfc-dress-headline {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  font-family: var(--font-caveat), cursive;
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: oklch(0.28 0.05 140);
+}
+
+.lfc-dress-qr {
+  position: absolute;
+  top: 54%;
+  left: 46%;
+  width: min(58%, 180px);
+  translate: -50% -50%;
+}
+
+.lfc-dress-spark {
+  position: absolute;
+  top: 18%;
+  right: 10%;
+  width: 72px;
+  rotate: 12deg;
+}
+
+.lfc-dress-heart {
+  position: absolute;
+  bottom: 14%;
+  left: 10%;
+  width: 64px;
+  rotate: -18deg;
+}
+
+.lfc-motion-qr {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lfc-take-art {
+  width: min(70%, 220px);
+}
+
+.lfc-take-files {
+  display: flex;
+  gap: 8px;
+}
+
+.lfc-file {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: oklch(1 0 0 / 0.55);
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.lfc-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: #201d1d;
+  color: #efeeec;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.9rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.lfc-cta:hover {
+  background: oklch(0.22 0.02 40);
+}
+
+.lfc-cta:focus-visible {
+  outline: 2px solid #201d1d;
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .lfc {
+    padding: 28px 0 48px;
+  }
+
+  .lfc-intro {
+    padding: 0 20px 20px;
+  }
+
+  .lfc-card {
+    flex-basis: min(320px, 88vw);
+    min-height: 480px;
+    padding: 22px 20px 0;
+  }
+
+  .lfc-name {
+    font-size: 1.4rem;
+  }
+}

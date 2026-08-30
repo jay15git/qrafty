@@ -384,14 +384,14 @@ export function SegmentTabs({
   if (scrollable) {
     return (
       <ScrollArea
-        className="w-full min-w-0 max-w-full overflow-hidden"
+        className="h-auto w-full min-w-0 max-w-full overflow-hidden"
         chevron={false}
         cueSize="tight"
         orientation="horizontal"
         persistKey={persistKey ?? "segment-tabs"}
         scrollFade
         showScrollbar={false}
-        viewportClassName="min-w-0"
+        viewportClassName="min-w-0 overscroll-x-contain"
       >
         {tablist}
       </ScrollArea>

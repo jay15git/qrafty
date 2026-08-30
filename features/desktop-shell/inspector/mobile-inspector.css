@@ -393,7 +393,15 @@
 }
 
 [data-mobile-inspector] [data-slot="elastic-slider-track"] {
-  touch-action: pan-x;
+  touch-action: pan-y;
+}
+
+[data-mobile-inspector] [data-slot="elastic-slider-track"][data-dragging="true"] {
+  touch-action: none;
+}
+
+[data-mobile-inspector] [data-slot="desktop-inspector-scrubbable-number"] {
+  touch-action: pan-y;
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .spell-ui-scope input,

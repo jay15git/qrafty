@@ -93,6 +93,7 @@ export function ElasticSlider({
         onPointerDown={slider.handlePointerDown}
         onPointerMove={slider.handlePointerMove}
         onPointerUp={slider.handlePointerUp}
+        onPointerCancel={slider.handlePointerCancel}
         onFocus={slider.handleTrackFocus}
         onBlur={slider.handleTrackBlur}
         onKeyDown={slider.handleKeyDown}

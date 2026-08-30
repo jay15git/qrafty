@@ -34,6 +34,7 @@ export type ElasticSliderTrackProps = {
   onPointerDown: (event: React.PointerEvent) => void
   onPointerMove: (event: React.PointerEvent) => void
   onPointerUp: (event: React.PointerEvent) => void
+  onPointerCancel: (event: React.PointerEvent) => void
   onFocus: () => void
   onBlur: () => void
   onKeyDown: (event: React.KeyboardEvent) => void
@@ -69,6 +70,7 @@ export function ElasticSliderTrack({
   onPointerDown,
   onPointerMove,
   onPointerUp,
+  onPointerCancel,
   onFocus,
   onBlur,
   onKeyDown,
@@ -92,13 +94,14 @@ export function ElasticSliderTrack({
       aria-valuenow={value}
       aria-valuetext={displayValue}
       className={cn(
-        "group/elastic-slider absolute inset-0 cursor-ew-resize touch-none overflow-hidden rounded-(--elastic-slider-radius) bg-(--elastic-slider-bg) outline-none select-none",
+        "group/elastic-slider absolute inset-0 cursor-ew-resize touch-pan-y overflow-hidden rounded-(--elastic-slider-radius) bg-(--elastic-slider-bg) outline-none select-none data-[dragging=true]:touch-none",
         "data-[focus-visible=true]:ring-2 data-[focus-visible=true]:ring-ring/50 data-[focus-visible=true]:ring-offset-1 data-[focus-visible=true]:ring-offset-background",
       )}
       style={{ width: rubberWidth, x: rubberX }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
+      onPointerCancel={onPointerCancel}
       onFocus={onFocus}
       onBlur={onBlur}
       onKeyDown={onKeyDown}

@@ -143,7 +143,7 @@ function AccordionItem({
             damping: 30,
             mass: 0.8,
           }}
-          className="px-7 pb-7"
+          className="min-w-0 px-7 pb-7"
         >
           {item.answer}
         </m.div>

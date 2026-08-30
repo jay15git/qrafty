@@ -143,8 +143,7 @@ export function DraftingPaneViewport({
       data-snap-target={isSnapTarget ? "true" : "false"}
       draggable={canSwap}
       className={cn(
-        "relative flex h-full w-full flex-col items-center justify-center overflow-hidden transition-opacity duration-150 ease-out",
-        !isFreeEditWorkspace && "touch-none overscroll-none",
+        "relative flex h-full w-full flex-col items-center justify-center overflow-hidden touch-none overscroll-none transition-opacity duration-150 ease-out",
         isFreeEditWorkspace
           ? "bg-[var(--ws-workspace-bg,#f0f1f2)]"
           : "bg-[var(--ws-canvas-bg,#f0f1f2)]",
@@ -176,9 +175,9 @@ export function DraftingPaneViewport({
       onPointerDown={onSurfacePointerDown}
       onPointerMove={onSurfacePointerMove}
       onPointerUp={onSurfacePointerUp}
-      onTouchEnd={isFreeEditWorkspace ? undefined : onSurfaceTouchEnd}
-      onTouchMove={isFreeEditWorkspace ? undefined : onSurfaceTouchMove}
-      onTouchStart={isFreeEditWorkspace ? undefined : onSurfaceTouchStart}
+      onTouchEnd={onSurfaceTouchEnd}
+      onTouchMove={onSurfaceTouchMove}
+      onTouchStart={onSurfaceTouchStart}
     >
       <div
         data-slot={

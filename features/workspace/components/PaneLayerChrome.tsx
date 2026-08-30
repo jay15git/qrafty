@@ -23,11 +23,7 @@ import {
   type ResizeDirection,
   type SnapGuides,
 } from "@/features/workspace/components/pane-layer-geometry"
-import {
-  RESIZE_CORNER_HIT_SIZE_PX,
-  RESIZE_EDGE_HIT_SIZE_PX,
-  type DraftingLayerMenuAction,
-} from "@/features/workspace/components/pane-layer-chrome.constants"
+import { type DraftingLayerMenuAction } from "@/features/workspace/components/pane-layer-chrome.constants"
 import { cn } from "@/lib/utils"
 
 const CORNER_RESIZE_HANDLES: Array<{
@@ -75,9 +71,9 @@ const EDGE_RESIZE_ZONES: Array<{
     direction: "n",
     label: "top",
     style: {
-      height: RESIZE_EDGE_HIT_SIZE_PX,
-      left: RESIZE_CORNER_HIT_SIZE_PX,
-      right: RESIZE_CORNER_HIT_SIZE_PX,
+      height: "var(--ws-resize-edge-hit, 8px)",
+      left: "var(--ws-resize-corner-hit, 16px)",
+      right: "var(--ws-resize-corner-hit, 16px)",
     },
   },
   {
@@ -86,9 +82,9 @@ const EDGE_RESIZE_ZONES: Array<{
     direction: "e",
     label: "right",
     style: {
-      bottom: RESIZE_CORNER_HIT_SIZE_PX,
-      top: RESIZE_CORNER_HIT_SIZE_PX,
-      width: RESIZE_EDGE_HIT_SIZE_PX,
+      bottom: "var(--ws-resize-corner-hit, 16px)",
+      top: "var(--ws-resize-corner-hit, 16px)",
+      width: "var(--ws-resize-edge-hit, 8px)",
     },
   },
   {
@@ -97,9 +93,9 @@ const EDGE_RESIZE_ZONES: Array<{
     direction: "s",
     label: "bottom",
     style: {
-      height: RESIZE_EDGE_HIT_SIZE_PX,
-      left: RESIZE_CORNER_HIT_SIZE_PX,
-      right: RESIZE_CORNER_HIT_SIZE_PX,
+      height: "var(--ws-resize-edge-hit, 8px)",
+      left: "var(--ws-resize-corner-hit, 16px)",
+      right: "var(--ws-resize-corner-hit, 16px)",
     },
   },
   {
@@ -108,9 +104,9 @@ const EDGE_RESIZE_ZONES: Array<{
     direction: "w",
     label: "left",
     style: {
-      bottom: RESIZE_CORNER_HIT_SIZE_PX,
-      top: RESIZE_CORNER_HIT_SIZE_PX,
-      width: RESIZE_EDGE_HIT_SIZE_PX,
+      bottom: "var(--ws-resize-corner-hit, 16px)",
+      top: "var(--ws-resize-corner-hit, 16px)",
+      width: "var(--ws-resize-edge-hit, 8px)",
     },
   },
 ]
@@ -134,7 +130,7 @@ export function ResizeFrameControls({
         <button
           aria-label={`Resize ${targetLabel} from ${zone.label}`}
           className={cn(
-            "pointer-events-auto absolute z-20 border-0 bg-transparent p-0",
+            "pointer-events-auto absolute z-20 touch-none border-0 bg-transparent p-0",
             zone.className,
             zone.cursorClassName,
           )}
@@ -154,7 +150,7 @@ export function ResizeFrameControls({
         <button
           aria-label={`Resize ${targetLabel} from ${handle.label}`}
           className={cn(
-            "pointer-events-auto absolute z-30 flex size-4 items-center justify-center border-0 bg-transparent p-0",
+            "pointer-events-auto absolute z-30 flex size-4 touch-none items-center justify-center border-0 bg-transparent p-0",
             handle.className,
             handle.cursorClassName,
           )}

@@ -21,14 +21,46 @@ export function DesktopWorkspaceStyles() {
         background: var(--workspace-page);
       }
 
-      [data-slot="desktop-workspace"] [data-slot="desktop-canvas-viewport"],
-      [data-slot="desktop-workspace"] [data-slot="desktop-compose-surface"] {
+      [data-slot="desktop-workspace"] [data-slot="desktop-canvas-viewport"] {
         overscroll-behavior: auto;
       }
 
+      [data-slot="desktop-workspace"] [data-slot="desktop-compose-surface"] {
+        overscroll-behavior: none;
+      }
+
+      [data-slot="desktop-workspace"] [data-slot="desktop-compose-surface"],
       [data-slot="desktop-workspace"] [data-slot="desktop-compose-canvas"],
-      [data-slot="desktop-workspace"] [data-slot="desktop-compose-canvas"] [data-layer-id] {
-        touch-action: auto;
+      [data-slot="desktop-workspace"] [data-slot="desktop-compose-canvas"] [data-layer-id],
+      [data-slot="desktop-workspace"] [data-slot="drafting-layer-resize-frame"],
+      [data-slot="desktop-workspace"] [data-slot="drafting-layer-multi-select-frame"] {
+        touch-action: none;
+      }
+
+      [data-slot="drafting-layer-resize-frame"],
+      [data-slot="drafting-layer-multi-select-frame"] {
+        --ws-resize-corner-hit: 16px;
+        --ws-resize-edge-hit: 8px;
+      }
+
+      @media (pointer: coarse) {
+        [data-slot="drafting-layer-resize-frame"],
+        [data-slot="drafting-layer-multi-select-frame"] {
+          --ws-resize-corner-hit: 28px;
+          --ws-resize-edge-hit: 22px;
+        }
+
+        [data-slot="drafting-layer-resize-handle"],
+        [data-slot="drafting-layer-rotate-handle"] {
+          width: var(--ws-resize-corner-hit) !important;
+          height: var(--ws-resize-corner-hit) !important;
+        }
+
+        [data-slot="drafting-layer-resize-handle-knob"],
+        [data-slot="drafting-layer-rotate-handle-knob"] {
+          width: 10px;
+          height: 10px;
+        }
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-surface"] {

@@ -199,6 +199,15 @@ const ScrollArea = forwardRef<
             orientation === "both" && "overflow-auto",
             viewportClassName,
           )}
+          style={
+            orientation === "horizontal"
+              ? { overflowX: "scroll" }
+              : orientation === "vertical"
+                ? { overflowY: "scroll" }
+                : orientation === "both"
+                  ? { overflow: "scroll" }
+                  : undefined
+          }
         >
           <div data-slot="scroll-area-inner">{children}</div>
         </ScrollAreaPrimitive.Viewport>

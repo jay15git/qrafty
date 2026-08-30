@@ -357,12 +357,14 @@ export function useDesktopInspectorNumberScrub({
   const inputRef = useRef<HTMLInputElement>(null)
   const surfaceRef = useRef<HTMLDivElement>(null)
   const scrubRef = useRef<{
+    axisLock: "pending" | "scrub" | "scroll"
     captureTarget: HTMLElement | null
     pointerId: number
     scrubbing: boolean
     source: "input" | "label"
     startValue: number
     startX: number
+    startY: number
   } | null>(null)
 
   useEffect(() => {
@@ -474,15 +476,42 @@ export function useDesktopInspectorNumberScrub({
     (event: PointerEvent<HTMLElement>) => {
       const state = scrubRef.current
 
-      if (!state) {
+      if (!state || state.pointerId !== event.pointerId) {
+        return
+      }
+
+      if (state.axisLock === "scroll") {
         return
       }
 
       const deltaX = event.clientX - state.startX
+      const deltaY = event.clientY - state.startY
+
+      if (state.axisLock === "pending") {
+        if (Math.hypot(deltaX, deltaY) <= 10) {
+          return
+        }
+
+        if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+          state.axisLock = "scrub"
+          state.captureTarget = event.currentTarget
+          event.preventDefault()
+          event.currentTarget.setPointerCapture(event.pointerId)
+        } else {
+          state.axisLock = "scroll"
+          scrubRef.current = null
+          return
+        }
+      }
 
       if (!state.scrubbing && Math.abs(deltaX) > 3) {
         state.scrubbing = true
         interactingRef.current = true
+        if (!state.captureTarget) {
+          state.captureTarget = event.currentTarget
+          event.preventDefault()
+          event.currentTarget.setPointerCapture(event.pointerId)
+        }
       }
 
       if (state.scrubbing) {
@@ -509,16 +538,21 @@ export function useDesktopInspectorNumberScrub({
         return
       }
 
+      const touchLike = event.pointerType === "touch" || event.pointerType === "pen"
       scrubRef.current = {
-        captureTarget: event.currentTarget,
+        axisLock: touchLike ? "pending" : "scrub",
+        captureTarget: touchLike ? null : event.currentTarget,
         pointerId: event.pointerId,
         scrubbing: false,
         source: "label",
         startValue: current,
         startX: event.clientX,
+        startY: event.clientY,
       }
-      event.preventDefault()
-      event.currentTarget.setPointerCapture(event.pointerId)
+      if (!touchLike) {
+        event.preventDefault()
+        event.currentTarget.setPointerCapture(event.pointerId)
+      }
     },
     [canScrub, draft],
   )
@@ -539,37 +573,31 @@ export function useDesktopInspectorNumberScrub({
         return
       }
 
+      const touchLike = event.pointerType === "touch" || event.pointerType === "pen"
       scrubRef.current = {
+        axisLock: touchLike ? "pending" : "scrub",
         captureTarget: null,
         pointerId: event.pointerId,
         scrubbing: false,
         source: "input",
         startValue: current,
         startX: event.clientX,
+        startY: event.clientY,
       }
-      event.preventDefault()
+      if (!touchLike) {
+        event.preventDefault()
+      }
     },
     [canScrub, draft],
   )
 
   const onInputPointerMove = useCallback(
     (event: PointerEvent<HTMLElement>) => {
-      const state = scrubRef.current
-
-      if (!state) {
-        return
-      }
-
-      if (!state.scrubbing && Math.abs(event.clientX - state.startX) > 3) {
-        state.scrubbing = true
-        interactingRef.current = true
-        state.captureTarget = event.currentTarget
-        event.currentTarget.blur()
-        event.preventDefault()
-        event.currentTarget.setPointerCapture(event.pointerId)
-      }
-
       applyScrubDelta(event)
+      const state = scrubRef.current
+      if (state?.scrubbing && state.source === "input") {
+        event.currentTarget.blur()
+      }
     },
     [applyScrubDelta],
   )
@@ -801,7 +829,7 @@ export function DesktopInspectorScrubNumberInput({
           aria-label={typeof ariaLabel === "string" ? ariaLabel : undefined}
           className={cn(
             fieldClass,
-            "relative z-[1] flex items-center justify-center",
+            "relative z-[1] flex items-center justify-center touch-pan-y",
             scrub.canScrub && "cursor-ew-resize select-none",
             disabled && "cursor-not-allowed opacity-50",
           )}

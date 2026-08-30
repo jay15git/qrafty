@@ -127,7 +127,7 @@ export function DesktopInspectorNumberField({
           DESKTOP_INSPECTOR_LABEL_CLASS,
           fill && "truncate-none",
           labelClassName,
-          scrub.canScrub && "cursor-ew-resize select-none",
+          scrub.canScrub && "cursor-ew-resize touch-pan-y select-none",
         )}
         {...scrub.labelScrubHandlers}
       >
