@@ -396,13 +396,13 @@
 
 .dn-content-type-segment-tab {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  min-height: 3.125rem;
-  height: auto;
-  padding-inline: 0.625rem;
+  gap: 0.375rem;
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+  padding-inline: 0.75rem;
 }
 
 .dn-content-type-segment-icon {
@@ -496,7 +496,7 @@
 }
 
 /* Settings surfaces — flat press (no hover/active scale) */
-:is(.desktopnew-root, .dn-portal-surface, .desktopnew-fill-popover)
+:is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover)
   :is(
     .dn-pressable,
     .dn-pressable-pickable,
@@ -514,7 +514,7 @@
   will-change: auto;
 }
 
-:is(.desktopnew-root, .dn-portal-surface, .desktopnew-fill-popover)
+:is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover)
   :is(
     .dn-pressable,
     .dn-pressable-pickable,
@@ -529,7 +529,7 @@
     .dn-content-type-filter-trigger,
     .dn-settings-row
   ):is(:hover, :active),
-:is(.desktopnew-root, .dn-portal-surface, .desktopnew-fill-popover)
+:is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover)
   .dn-pressable-press-only[data-pressed] {
   transform: none !important;
 }
@@ -870,6 +870,76 @@
   height: 1.125rem;
   border-radius: 999px;
   opacity: 0.92;
+}
+
+/* Portalled settings popovers — same slider/switch/row tokens as in-tree settings. */
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider {
+  --elastic-slider-bg: var(--dn-slider-bg);
+  --elastic-slider-fill: color-mix(in srgb, var(--dn-fg) 4%, transparent);
+  --elastic-slider-fill-active: color-mix(in srgb, var(--dn-fg) 9%, transparent);
+  --elastic-slider-hash: color-mix(in srgb, var(--dn-fg) 7%, transparent);
+  --elastic-slider-handle: color-mix(in srgb, var(--dn-fg) 85%, transparent);
+  --elastic-slider-label: var(--dn-type-label-color);
+  --elastic-slider-focus: var(--dn-type-value-color);
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
+  border-radius: var(--dn-radius-sm);
+  corner-shape: squircle;
+  border: none;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-label"] {
+  font-family: inherit;
+  font-size: var(--dn-type-meta);
+  font-weight: var(--dn-type-label-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-label-color) !important;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-value"] {
+  font-family: inherit;
+  font-size: var(--dn-type-value);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color) !important;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-handle"] {
+  width: 3px;
+  height: 1.125rem;
+  border-radius: 999px;
+  opacity: 0.92;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) [data-slot="switch"] {
+  transition: background-color var(--dn-motion-ui) var(--dn-ease-out) !important;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) [data-slot="switch"][data-state="checked"] {
+  background: var(--dn-fg) !important;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) [data-slot="switch"][data-state="unchecked"] {
+  background: var(--dn-line) !important;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) [data-slot="switch-thumb"] {
+  background: var(--dn-bg) !important;
+  border-color: color-mix(in srgb, var(--dn-fg) 12%, transparent) !important;
+  backface-visibility: hidden;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-row:hover,
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-row:focus-visible,
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-row:active {
+  background: var(--dn-control) !important;
+  color: var(--dn-fg) !important;
+  box-shadow: none !important;
+  outline: none;
 }
 
 /* ── Switch ──────────────────────────────────────────────────────── */
@@ -1236,6 +1306,29 @@
   --dn-radius-sm: 12px;
   --dn-radius-md: 14px;
   --dn-radius-lg: 14px;
+  --dn-tracking-tight: -0.015em;
+  --dn-type-label-weight: 400;
+  --dn-type-value-weight: 500;
+  --dn-type-label-color: color-mix(in srgb, var(--dn-fg) 44%, transparent);
+  --dn-type-value-color: var(--dn-fg);
+  --dn-slider-bg: #f1f1f2;
+  --background: var(--dn-bg);
+  --foreground: var(--dn-fg);
+  --card: var(--dn-bg);
+  --card-foreground: var(--dn-fg);
+  --popover: var(--dn-bg);
+  --popover-foreground: var(--dn-fg);
+  --primary: var(--dn-fg);
+  --primary-foreground: var(--dn-bg);
+  --secondary: var(--dn-control);
+  --secondary-foreground: var(--dn-fg);
+  --muted: var(--dn-control);
+  --muted-foreground: var(--dn-muted);
+  --accent: var(--dn-control-hover);
+  --accent-foreground: var(--dn-fg);
+  --border: var(--dn-line);
+  --input: var(--dn-control);
+  --ring: var(--dn-fg);
 }
 
 .desktopnew-popover-content[data-theme="dark"] {
@@ -1261,6 +1354,29 @@
   --dn-radius-sm: 12px;
   --dn-radius-md: 14px;
   --dn-radius-lg: 14px;
+  --dn-tracking-tight: -0.015em;
+  --dn-type-label-weight: 400;
+  --dn-type-value-weight: 500;
+  --dn-type-label-color: color-mix(in srgb, var(--dn-fg) 46%, transparent);
+  --dn-type-value-color: var(--dn-fg);
+  --dn-slider-bg: #161616;
+  --background: var(--dn-bg);
+  --foreground: var(--dn-fg);
+  --card: var(--dn-bg);
+  --card-foreground: var(--dn-fg);
+  --popover: var(--dn-bg);
+  --popover-foreground: var(--dn-fg);
+  --primary: var(--dn-fg);
+  --primary-foreground: var(--dn-bg);
+  --secondary: var(--dn-control);
+  --secondary-foreground: var(--dn-fg);
+  --muted: var(--dn-control);
+  --muted-foreground: var(--dn-muted);
+  --accent: var(--dn-control-hover);
+  --accent-foreground: var(--dn-fg);
+  --border: var(--dn-line);
+  --input: var(--dn-control);
+  --ring: var(--dn-fg);
 }
 
 .desktopnew-popover-content .dn-popover-heading {
@@ -1809,7 +1925,8 @@
     corner-shape: round;
   }
 
-  .desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
+  .desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"],
+  :is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
     corner-shape: round;
   }
 }

@@ -15,10 +15,20 @@ export function DesktopWorkspaceStyles() {
         inset: 0;
         height: 100dvh;
         min-height: 100dvh;
+        display: grid;
+        grid-template: 1fr / 1fr;
         grid-template-rows: 1fr;
+        grid-template-columns: 1fr;
         overflow: hidden;
         overscroll-behavior: none;
         background: var(--workspace-page);
+      }
+
+      [data-slot="desktop-workspace"] [data-slot="drafting-surface"] > * {
+        grid-row: 1;
+        grid-column: 1;
+        min-height: 0;
+        min-width: 0;
       }
 
       [data-slot="desktop-workspace"] [data-slot="desktop-canvas-viewport"] {

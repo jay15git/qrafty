@@ -1020,6 +1020,12 @@ export function getPaperShaderDefinition(shaderId: PaperShaderId | string) {
   )
 }
 
+export function paperShaderHasPlayback(shaderId: PaperShaderId | string) {
+  return getPaperShaderDefinition(shaderId).controls.some(
+    (control) => control.key === "speed",
+  )
+}
+
 export function getAllPaperShaderDefinitions() {
   return PAPER_SHADER_DEFINITIONS
 }

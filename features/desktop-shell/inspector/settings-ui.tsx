@@ -38,6 +38,7 @@ import {
   isGradientFill,
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { DESKTOP_INSPECTOR_SECTION_HEADING_CLASS } from "@/features/desktop-shell/components/desktop-inspector-tokens"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { useMobileDrawerNavigation } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
@@ -357,7 +358,7 @@ export function SegmentTabs({
             className={cn(
               "t-tab dn-segment-tab dn-pressable-press-only dn-type-chip flex dn-squircle-xs",
               scrollable || hasIcon
-                ? "dn-content-type-segment-tab shrink-0 flex-col items-center justify-center gap-1 px-2.5"
+                ? "dn-content-type-segment-tab shrink-0 flex-row items-center justify-center gap-1.5 px-2.5"
                 : "min-w-0 flex-1 items-center justify-center px-2",
               variant === "muted" && "dn-segment-tab--muted",
               active ? "text-[var(--dn-fg)]" : "bg-transparent text-[var(--dn-muted)]",
@@ -697,6 +698,118 @@ export function SettingsRowPopover({
       >
         {title ? <p className="dn-popover-heading">{title}</p> : null}
         {children}
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+export function DesktopInspectorSettingsPopover({
+  children,
+  contentClassName,
+  dataSlot = "desktop-inspector-settings-popover",
+  hint,
+  hideHint = false,
+  leading,
+  onOpenChange,
+  open,
+  title,
+  trigger,
+}: {
+  children: ReactNode
+  contentClassName?: string
+  dataSlot?: string
+  hint?: string
+  hideHint?: boolean
+  leading?: ReactNode
+  onOpenChange?: (open: boolean) => void
+  open?: boolean
+  title?: string
+  trigger: ReactNode
+}) {
+  const theme = useDesktopnewTheme()
+  const mobileDensity = useMobileInspectorDensity()
+  const mobileNav = useMobileDrawerNavigation()
+
+  const rowTrigger = (
+    <>
+      {leading ? (
+        <span className="flex min-w-0 items-center gap-2">
+          {leading}
+          <span className={cn("truncate", DN_LABEL)}>{trigger}</span>
+        </span>
+      ) : (
+        <span className={cn("truncate", DN_VALUE)}>{trigger}</span>
+      )}
+      {hideHint ? (
+        <ChevronRight aria-hidden className={cn("size-3 shrink-0 opacity-50", DN_HINT)} />
+      ) : (
+        <span className={cn("flex shrink-0 items-center gap-1", DN_HINT)}>
+          {hint}
+          <ChevronRight aria-hidden className="size-3 opacity-50" />
+        </span>
+      )}
+    </>
+  )
+
+  if (mobileDensity && mobileNav) {
+    const closeDetail = () => {
+      mobileNav.closeDetail()
+      onOpenChange?.(false)
+    }
+
+    const openDetail = () => {
+      const detailTitle =
+        title ??
+        (typeof trigger === "string" ? trigger : undefined) ??
+        hint ??
+        "Setting"
+
+      mobileNav.openDetail({
+        title: detailTitle,
+        content: (
+          <>
+            {title ? <p className="dn-popover-heading">{title}</p> : null}
+            {mergeMobileDetailChildClose(children, closeDetail)}
+          </>
+        ),
+        onAfterClose: () => onOpenChange?.(false),
+      })
+      onOpenChange?.(true)
+    }
+
+    return (
+      <SettingsRowButton data-vaul-no-drag="" type="button" onClick={openDetail}>
+        {rowTrigger}
+      </SettingsRowButton>
+    )
+  }
+
+  return (
+    <Popover open={open} onOpenChange={onOpenChange}>
+      <PopoverTrigger asChild>
+        <SettingsRowButton>{rowTrigger}</SettingsRowButton>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        data-slot={dataSlot}
+        side="right"
+        sideOffset={10}
+        className={cn(
+          "z-[20000] flex max-h-[min(28rem,calc(100dvh-8rem))] w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[16px] border border-[var(--desktop-appearance-popover-border)] bg-[var(--desktop-appearance-popover-bg)] p-0 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-appearance-popover-shadow)]",
+          contentClassName,
+        )}
+      >
+        <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3" data-slot="desktop-inspector-scroll">
+          <DesktopnewThemeContext.Provider value={theme}>
+            <div
+              className="desktopnew-root desktopnew-embedded flex min-h-0 flex-col"
+              data-theme={theme}
+            >
+              {title ? <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>{title}</p> : null}
+              {children}
+            </div>
+          </DesktopnewThemeContext.Provider>
+        </div>
       </PopoverContent>
     </Popover>
   )

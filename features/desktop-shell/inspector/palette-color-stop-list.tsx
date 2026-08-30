@@ -1,5 +1,8 @@
 "use client"
 
+import { Minus, Plus } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
 import {
   useCallback,
   useEffect,
@@ -25,11 +28,22 @@ import { StopPopover } from "@/components/ui/fill-picker/parts/gradient/stop-pop
 
 export function PaletteColorStopList({
   colors,
+  maxCount,
+  minCount,
+  onAdd,
   onPaletteColorChange,
+  onRemove,
 }: {
   colors: string[]
+  maxCount?: number
+  minCount?: number
+  onAdd?: () => void
   onPaletteColorChange: (index: number, color: string) => void
+  onRemove?: (index: number) => void
 }) {
+  const canRemove = onRemove != null && colors.length > (minCount ?? 1)
+  const canAdd = onAdd != null && colors.length < (maxCount ?? Number.POSITIVE_INFINITY)
+
   return (
     <div
       className="flex flex-col gap-1 px-1"
@@ -38,23 +52,42 @@ export function PaletteColorStopList({
       {colors.map((color, index) => (
         <PaletteColorStopRow
           key={`palette-color-${index}`}
+          canRemove={canRemove}
           color={color}
           index={index}
           onColorChange={onPaletteColorChange}
+          onRemove={onRemove}
         />
       ))}
+      {onAdd ? (
+        <Button
+          type="button"
+          variant="outline"
+          disabled={!canAdd}
+          onClick={onAdd}
+          aria-label="Add color"
+          className="h-8 cursor-pointer font-mono text-xs tracking-wide shadow-xs"
+        >
+          <Plus aria-hidden className="size-3.5" />
+          Add color
+        </Button>
+      ) : null}
     </div>
   )
 }
 
 function PaletteColorStopRow({
+  canRemove,
   color,
   index,
   onColorChange,
+  onRemove,
 }: {
+  canRemove: boolean
   color: string
   index: number
   onColorChange: (index: number, color: string) => void
+  onRemove?: (index: number) => void
 }) {
   const [open, setOpen] = useState(false)
   const parsed = useMemo(
@@ -137,6 +170,20 @@ function PaletteColorStopRow({
           />
         </FieldInputGroup>
       </FieldShell>
+      {onRemove ? (
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation()
+            onRemove(index)
+          }}
+          disabled={!canRemove}
+          className="inline-flex size-7 items-center justify-center rounded-md border border-input text-muted-foreground shadow-xs hover:text-foreground disabled:opacity-30"
+          aria-label={`Remove color ${index + 1}`}
+        >
+          <Minus className="size-3.5" />
+        </button>
+      ) : null}
     </div>
   )
 }

@@ -51,8 +51,8 @@ export function DesktopWorkspace({
       className={cn(
         fontClassName,
         desktopTheme === "dark" && "dark",
-        "relative h-dvh min-h-dvh overflow-hidden transition-colors duration-200",
-        desktopTheme === "light" ? "bg-white text-neutral-950" : "bg-workspace-page text-white",
+        "relative h-dvh min-h-0 overflow-hidden transition-colors duration-200",
+        desktopTheme === "light" ? "bg-[#f0f1f2] text-neutral-950" : "bg-workspace-page text-white",
       )}
     >
       <WorkspaceSurface

@@ -1,23 +1,31 @@
 "use client"
 
-import { PlusIcon } from "lucide-react"
-
-import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   applyDraftingCardPaperShaderPreset,
   DEFAULT_DRAFTING_PAPER_SHADER_IMAGE,
   type DraftingCardPaperShaderState,
 } from "@/features/workspace/model/card-state"
 import {
+  addPaperShaderColor,
+  DEFAULT_PAPER_SHADER_MAX_COLOR_COUNT,
+  DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT,
+  removePaperShaderColor,
+} from "@/features/workspace/rendering/paper-shader-colors"
+import {
+  formatPaperShaderNumberValue,
   formatPaperShaderParamLabel,
   getPaperShaderDefinition,
+  paperShaderHasPlayback,
   type PaperShaderControlDefinition,
   type PaperShaderEnumControl,
   type PaperShaderParamValue,
 } from "@/features/workspace/rendering/paper-shaders"
 import { cn } from "@/lib/utils"
 
+import { DesktopInspectorElasticSliderRow } from "@/features/desktop-shell/components/DesktopInspectorShell"
+import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette-color-stop-list"
 import {
+  DesktopInspectorSettingsPopover,
   PresetList,
   SettingsFillPopover,
   SettingsPrimaryButton,
@@ -27,10 +35,107 @@ import {
 } from "@/features/desktop-shell/inspector/settings-ui"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 
+import { ScrollArea } from "@/components/ui/scroll-area"
+
 const PAPER_SHADER_COLOR_FALLBACK = "#000000"
 const PAPER_SHADER_NEW_COLOR = "#ffffff"
 const HORIZONTAL_OPTION_ROW = "dn-preview-row"
 const SECTION_GAP = "dn-section-stack"
+const DESKTOP_SHADER_LIST_GAP = "flex flex-col gap-2.5"
+
+type PaperShaderSettingsSurface = "settings" | "desktop"
+
+function ShaderSettingsPopover({
+  children,
+  contentClassName,
+  hint,
+  leading,
+  surface,
+  title,
+  trigger,
+}: {
+  children: React.ReactNode
+  contentClassName?: string
+  hint?: string
+  leading?: React.ReactNode
+  surface: PaperShaderSettingsSurface
+  title?: string
+  trigger: React.ReactNode
+}) {
+  if (surface === "desktop") {
+    return (
+      <DesktopInspectorSettingsPopover
+        contentClassName={contentClassName}
+        dataSlot="desktop-shader-settings-popover"
+        hint={hint}
+        leading={leading}
+        title={title}
+        trigger={trigger}
+      >
+        {children}
+      </DesktopInspectorSettingsPopover>
+    )
+  }
+
+  return (
+    <SettingsRowPopover
+      contentClassName={contentClassName}
+      hint={hint}
+      leading={leading}
+      title={title}
+      trigger={trigger}
+    >
+      {children}
+    </SettingsRowPopover>
+  )
+}
+
+function ShaderSettingsSlider({
+  label,
+  max,
+  min,
+  onChange,
+  paramKey,
+  step = 1,
+  surface,
+  value,
+  valueLabel,
+}: {
+  label: string
+  max: number
+  min: number
+  onChange?: (value: number) => void
+  paramKey?: string
+  step?: number
+  surface: PaperShaderSettingsSurface
+  value: number
+  valueLabel?: string
+}) {
+  if (surface === "desktop") {
+    return (
+      <DesktopInspectorElasticSliderRow
+        label={label}
+        max={max}
+        min={min}
+        step={step}
+        value={value}
+        valueLabel={valueLabel ?? formatPaperShaderNumberValue(paramKey ?? label, value)}
+        onChange={onChange ?? (() => undefined)}
+      />
+    )
+  }
+
+  return (
+    <SettingsSlider
+      label={label}
+      max={max}
+      min={min}
+      step={step}
+      value={value}
+      onChange={onChange}
+    />
+  )
+}
 
 function HorizontalShaderOptionRow({
   label,
@@ -88,14 +193,84 @@ function isPaperShaderHexColor(value: string) {
   return /^#[0-9a-f]{6}$/i.test(value)
 }
 
+function PaperShaderColorsSwatch({ colors }: { colors: string[] }) {
+  return (
+    <span
+      aria-hidden
+      className="grid size-[length:var(--dn-icon-hit)] grid-cols-2 gap-px overflow-hidden dn-squircle-xs border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)]"
+    >
+      {colors.slice(0, 4).map((color, index) => (
+        <span
+          key={`${color}-${index}`}
+          className="size-full min-h-0 min-w-0"
+          style={{
+            backgroundColor: isPaperShaderHexColor(color)
+              ? color
+              : PAPER_SHADER_COLOR_FALLBACK,
+          }}
+        />
+      ))}
+    </span>
+  )
+}
+
+function PaperShaderColorsControl({
+  colors,
+  maxColorCount,
+  onChange,
+  surface,
+}: {
+  colors: string[]
+  maxColorCount?: number
+  onChange: (colors: string[]) => void
+  surface: PaperShaderSettingsSurface
+}) {
+  const maxCount = maxColorCount ?? DEFAULT_PAPER_SHADER_MAX_COLOR_COUNT
+  const minCount = DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT
+
+  return (
+    <ShaderSettingsPopover
+      contentClassName="w-[19rem]"
+      hint={`${colors.length}`}
+      leading={<PaperShaderColorsSwatch colors={colors} />}
+      surface={surface}
+      title="Colors"
+      trigger="Colors"
+    >
+      <PaletteColorStopList
+        colors={colors}
+        maxCount={maxCount}
+        minCount={minCount}
+        onAdd={() => {
+          const next = addPaperShaderColor(colors, maxCount, PAPER_SHADER_NEW_COLOR)
+          if (next) {
+            onChange(next)
+          }
+        }}
+        onPaletteColorChange={(index, color) => {
+          const next = [...colors]
+          next[index] = color
+          onChange(next)
+        }}
+        onRemove={(index) => {
+          const next = removePaperShaderColor(colors, index, minCount)
+          if (next) {
+            onChange(next)
+          }
+        }}
+      />
+    </ShaderSettingsPopover>
+  )
+}
+
 function DesktopNewPaperShaderParamControl({
   control,
-  maxColorCount,
+  surface,
   value,
   onChange,
 }: {
   control: PaperShaderControlDefinition
-  maxColorCount?: number
+  surface: PaperShaderSettingsSurface
   value: PaperShaderParamValue
   onChange: (value: DraftingCardPaperShaderState["image"] | PaperShaderParamValue) => void
 }) {
@@ -148,51 +323,16 @@ function DesktopNewPaperShaderParamControl({
     const step = control.step ?? 0.01
 
     return (
-      <SettingsSlider
+      <ShaderSettingsSlider
         label={label}
         max={control.max}
         min={control.min}
+        paramKey={control.key}
         step={step}
+        surface={surface}
         value={value}
         onChange={onChange}
       />
-    )
-  }
-
-  if (control.type === "colors" && Array.isArray(value)) {
-    const colors = value as string[]
-
-    return (
-      <div className="flex flex-col gap-2">
-        <span className="dn-type-label">{label}</span>
-        <div className="flex flex-wrap items-center gap-1.5">
-          {colors.map((color, index) => (
-            <SettingsFillPopover
-              key={`shader-color-${color}`}
-              hint={`${index + 1}`}
-              solidOnly
-              value={isPaperShaderHexColor(color) ? color : PAPER_SHADER_COLOR_FALLBACK}
-              onValueChange={(_fill, css) => {
-                const nextColors = [...colors]
-                nextColors[index] = fillPreviewHex(css)
-                onChange(nextColors)
-              }}
-            />
-          ))}
-          <button
-            aria-label={`Add ${label}`}
-            className={cn(
-              "dn-pressable-pickable grid size-[length:var(--dn-icon-hit)] place-items-center border border-dashed border-[color-mix(in_srgb,var(--dn-line)_55%,transparent)] dn-squircle-xs text-[var(--dn-muted)]",
-              colors.length >= (maxColorCount ?? 10) && "cursor-not-allowed opacity-40",
-            )}
-            disabled={colors.length >= (maxColorCount ?? 10)}
-            type="button"
-            onClick={() => onChange([...colors, PAPER_SHADER_NEW_COLOR])}
-          >
-            <PlusIcon className="size-3.5" aria-hidden />
-          </button>
-        </div>
-      </div>
     )
   }
 
@@ -233,11 +373,14 @@ function DesktopNewPaperShaderParamControl({
 export function SettingsPaperShaderControls({
   paperShader,
   onPaperShaderChange,
+  surface = "desktop",
 }: {
   paperShader: DraftingCardPaperShaderState
   onPaperShaderChange: (paperShader: DraftingCardPaperShaderState) => void
+  surface?: PaperShaderSettingsSurface
 }) {
   const definition = getPaperShaderDefinition(paperShader.shaderId)
+  const hasPlayback = paperShaderHasPlayback(paperShader.shaderId)
   const selectedPreset =
     definition.presets.find((preset) => preset.name === paperShader.presetName) ??
     definition.presets[0]
@@ -254,9 +397,8 @@ export function SettingsPaperShaderControls({
       control.type !== "color" &&
       control.type !== "colors",
   )
-  const colorControls = definition.controls.filter(
-    (control) => control.type === "color" || control.type === "colors",
-  )
+  const colorsControl = definition.controls.find((control) => control.type === "colors")
+  const namedColorControls = definition.controls.filter((control) => control.type === "color")
 
   const updatePaperShader = (patch: Partial<DraftingCardPaperShaderState>) => {
     onPaperShaderChange({
@@ -278,14 +420,18 @@ export function SettingsPaperShaderControls({
 
   const hasPresetOptions = definition.presets.length > 0
 
+  const settingsListClassName =
+    surface === "desktop" ? DESKTOP_SHADER_LIST_GAP : "dn-section-stack"
+
   const settingsPopover = (
-    <SettingsRowPopover
+    <ShaderSettingsPopover
       contentClassName="w-[19rem]"
       hint="Settings"
+      surface={surface}
       title="Shader settings"
       trigger="Options"
     >
-      <div className="flex flex-col gap-2.5">
+      <div className={settingsListClassName}>
         {shapeControl ? (
           <HorizontalShaderOptionRow
             label="Shape"
@@ -303,43 +449,63 @@ export function SettingsPaperShaderControls({
           />
         ) : null}
 
-        <SettingsSlider
-          label="Speed"
-          max={100}
-          min={1}
-          value={Math.round(paperShader.speed * 100)}
-          onChange={(value) => updatePaperShader({ speed: value / 100 })}
-        />
+        {hasPlayback ? (
+          <ShaderSettingsSlider
+            label="Speed"
+            max={100}
+            min={1}
+            surface={surface}
+            value={Math.round(paperShader.speed * 100)}
+            valueLabel={`${Math.round(paperShader.speed * 100)}`}
+            onChange={(value) => updatePaperShader({ speed: value / 100 })}
+          />
+        ) : null}
 
-        {colorControls.map((control) => (
+        {colorsControl && Array.isArray(paperShader.params[colorsControl.key]) ? (
+          <PaperShaderColorsControl
+            colors={paperShader.params[colorsControl.key] as string[]}
+            maxColorCount={definition.maxColorCount}
+            surface={surface}
+            onChange={(nextColors) => updateParam(colorsControl.key, nextColors)}
+          />
+        ) : null}
+
+        {namedColorControls.map((control) => (
           <DesktopNewPaperShaderParamControl
             key={control.key}
             control={control}
-            maxColorCount={definition.maxColorCount}
+            surface={surface}
             value={paperShader.params[control.key]}
             onChange={(nextValue) => updateParam(control.key, nextValue as PaperShaderParamValue)}
           />
         ))}
 
-        <SettingsSwitchRow
-          checked={paperShader.paused}
-          label="Pause"
-          onChange={(paused) => updatePaperShader({ paused })}
-        />
+        {hasPlayback ? (
+          <SettingsSwitchRow
+            checked={paperShader.paused}
+            label="Pause"
+            onChange={(paused) => updatePaperShader({ paused })}
+          />
+        ) : null}
 
-        <SettingsSlider
-          label="Frame"
-          max={10000}
-          min={0}
-          step={1}
-          value={Math.round(paperShader.frame)}
-          onChange={(frame) => updatePaperShader({ frame })}
-        />
+        {hasPlayback ? (
+          <ShaderSettingsSlider
+            label="Frame"
+            max={10000}
+            min={0}
+            paramKey="frame"
+            step={1}
+            surface={surface}
+            value={Math.round(paperShader.frame)}
+            onChange={(frame) => updatePaperShader({ frame })}
+          />
+        ) : null}
 
         {advancedControls.map((control) => (
           <DesktopNewPaperShaderParamControl
             key={control.key}
             control={control}
+            surface={surface}
             value={paperShader.params[control.key]}
             onChange={(nextValue) => {
               if (control.type === "image") {
@@ -354,7 +520,7 @@ export function SettingsPaperShaderControls({
           />
         ))}
       </div>
-    </SettingsRowPopover>
+    </ShaderSettingsPopover>
   )
 
   if (!hasPresetOptions) {

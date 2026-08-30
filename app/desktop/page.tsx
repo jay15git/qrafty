@@ -31,8 +31,8 @@ export default async function DesktopPage() {
       data-slot="desktop-page"
       className={cn(
         satoshi.className,
-        "min-h-dvh overflow-hidden",
-        initialTheme === "light" ? "bg-white text-neutral-950" : "bg-[#07080a] text-white",
+        "h-dvh min-h-0 overflow-hidden",
+        initialTheme === "light" ? "bg-[#f0f1f2] text-neutral-950" : "bg-[#07080a] text-white",
       )}
     >
       <Suspense fallback={null}>

@@ -18,7 +18,10 @@ import type { DraftingCardPaperShaderState } from "@/features/workspace/model/ca
 import { getLivePaperShaderRenderOptions } from "@/features/workspace/preview/preview-shader-budget"
 import { acquireRunningShaderSlot } from "@/features/workspace/preview/preview-shader-slots"
 import { usePreviewRuntime } from "@/features/workspace/preview/preview-context"
-import { getPaperShaderDefinition } from "@/features/workspace/rendering/paper-shaders"
+import {
+  getPaperShaderDefinition,
+  paperShaderHasPlayback,
+} from "@/features/workspace/rendering/paper-shaders"
 import {
   hasValidPaperShaderLayout,
   readPaperShaderFallbackColor,
@@ -343,7 +346,9 @@ export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShade
   const hasLayout = hasValidPaperShaderLayout(layoutWidth, layoutHeight)
   const hasShaderError = shaderErrorId === paperShader.shaderId
   const fallbackColor = readPaperShaderFallbackColor(paperShader)
-  const isPaused = paperShader.paused || paperShader.speed === 0
+  const hasPlayback = paperShaderHasPlayback(paperShader.shaderId)
+  const isPaused =
+    hasPlayback && (paperShader.paused || paperShader.speed === 0)
   const shouldSnapshotWhenPaused = preferLowPowerShaders && isPaused
   const shouldAnimate = !isPaused || !shouldSnapshotWhenPaused
   const renderOptions = useMemo(

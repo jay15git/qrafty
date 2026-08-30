@@ -120,6 +120,7 @@
   box-sizing: border-box;
   height: 100%;
   min-height: 0;
+  background: var(--ws-surface-bg, #1f1f1f);
   /* Left padding = expanding white column. Grey squircle shrinks as this grows. */
   padding:
     var(--desktop-workspace-canvas-inset-top)

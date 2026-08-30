@@ -74,10 +74,7 @@ export function FloatingToolbar({
         data-desktop-theme={actualDesktopTheme}
         data-mobile-workspace={isMobileWorkspace ? "true" : "false"}
         data-slot="desktop-floating-toolbar-root"
-        className={cn(
-          "relative min-h-dvh overflow-hidden transition-colors duration-200",
-          actualDesktopTheme === "light" ? "bg-[#f4f6f9]" : "bg-[#07080a]",
-        )}
+        className="pointer-events-none absolute inset-0 z-[60] min-h-0 overflow-hidden"
         >
         {isMobileWorkspace ? (
           <>
