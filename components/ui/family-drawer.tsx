@@ -377,20 +377,18 @@ function FamilyDrawerAnimatedContent({
             className={cn(!isActive && "pointer-events-none hidden")}
             inert={isActive ? undefined : true}
           >
-            {isActive ? (
-              <m.div
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                initial={false}
-                transition={{
-                  duration: opacityDuration,
-                  ease: [0.26, 0.08, 0.25, 1],
-                }}
-              >
-                <FamilyDrawerViewContent viewName={viewName} views={propViews} />
-              </m.div>
-            ) : (
+            <m.div
+              animate={
+                isActive ? { opacity: 1, scale: 1, y: 0 } : false
+              }
+              initial={false}
+              transition={{
+                duration: opacityDuration,
+                ease: [0.26, 0.08, 0.25, 1],
+              }}
+            >
               <FamilyDrawerViewContent viewName={viewName} views={propViews} />
-            )}
+            </m.div>
           </div>
         )
       })}

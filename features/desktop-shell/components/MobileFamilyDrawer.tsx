@@ -38,6 +38,7 @@ import {
   MobileInspectorDensityContext,
 } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import {
+  MobileDetailStackOutlets,
   MobileDrawerNavigationProvider,
   useMobileDrawerNavigation,
 } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
@@ -333,7 +334,7 @@ function MobileSettingDetailView() {
         {payload ? (
           <ScrollPersistScope id="drawer:setting-detail">
             <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
-              {payload.content}
+              <MobileDetailStackOutlets />
             </div>
           </ScrollPersistScope>
         ) : (

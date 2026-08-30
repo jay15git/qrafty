@@ -1,0 +1,49 @@
+/* /desktop workspace entrance — CSS-only fade + blur */
+
+:root {
+  --desktop-entrance-dur: 400ms;
+  --desktop-entrance-blur: 8px;
+  --desktop-entrance-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-slot="desktop-entrance-content"] {
+  opacity: 0;
+  filter: blur(var(--desktop-entrance-blur));
+}
+
+[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="desktop-entrance-content"],
+[data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="desktop-entrance-content"] {
+  opacity: 1;
+  filter: blur(0);
+}
+
+[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="desktop-entrance-content"] {
+  transition:
+    opacity var(--desktop-entrance-dur) var(--desktop-entrance-ease),
+    filter var(--desktop-entrance-dur) var(--desktop-entrance-ease);
+}
+
+[data-slot="desktop-entrance-veil"] {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  opacity: 1;
+  background: #07080a;
+  transition: opacity var(--desktop-entrance-dur) var(--desktop-entrance-ease);
+}
+
+[data-slot="desktop-entrance-root"][data-desktop-theme="light"] [data-slot="desktop-entrance-veil"] {
+  background: #f0f1f2;
+}
+
+[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="desktop-entrance-veil"] {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --desktop-entrance-dur: 150ms;
+    --desktop-entrance-blur: 0px;
+  }
+}

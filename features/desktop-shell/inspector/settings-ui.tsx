@@ -40,7 +40,10 @@ import {
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { DESKTOP_INSPECTOR_SECTION_HEADING_CLASS } from "@/features/desktop-shell/components/desktop-inspector-tokens"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
-import { useMobileDrawerNavigation } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
+import {
+  useMobileDrawerNavigation,
+  useMobileLiveDetail,
+} from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
 import { cn } from "@/lib/utils"
@@ -531,37 +534,40 @@ export function SettingsFillPopover({
     </>
   )
 
+  const liveDetail = useMobileLiveDetail({
+    content: pickerBody,
+    enabled: Boolean(mobileDensity && mobileNav),
+    title: title ?? hint,
+  })
+
   if (mobileDensity && mobileNav) {
-    const detailTitle = title ?? hint
-
-    const openDetail = () => {
-      mobileNav.openDetail({
-        title: detailTitle,
-        content: pickerBody,
-      })
-    }
-
     if (variant === "swatch") {
       return (
-        <FillSwatchButton
-          ariaLabel={hint}
-          className={triggerClassName}
-          fill={value}
-          imageUrl={fillPreviewImageUrl}
-          data-vaul-no-drag=""
-          onClick={openDetail}
-        />
+        <>
+          <FillSwatchButton
+            ariaLabel={hint}
+            className={triggerClassName}
+            fill={value}
+            imageUrl={fillPreviewImageUrl}
+            data-vaul-no-drag=""
+            onClick={liveDetail.open}
+          />
+          {liveDetail.portal}
+        </>
       )
     }
 
     return (
-      <ColorRowButton
-        fill={value}
-        hint={hint}
-        imageUrl={fillPreviewImageUrl}
-        data-vaul-no-drag=""
-        onClick={openDetail}
-      />
+      <>
+        <ColorRowButton
+          fill={value}
+          hint={hint}
+          imageUrl={fillPreviewImageUrl}
+          data-vaul-no-drag=""
+          onClick={liveDetail.open}
+        />
+        {liveDetail.portal}
+      </>
     )
   }
 
@@ -622,6 +628,28 @@ export function SettingsRowPopover({
   const theme = useDesktopnewTheme()
   const mobileDensity = useMobileInspectorDensity()
   const mobileNav = useMobileDrawerNavigation()
+  const detailTitle =
+    title ??
+    (typeof trigger === "string" ? trigger : undefined) ??
+    hint ??
+    "Setting"
+
+  const closeDetail = () => {
+    mobileNav?.closeDetail()
+    onOpenChange?.(false)
+  }
+
+  const liveDetail = useMobileLiveDetail({
+    content: (
+      <>
+        {title ? <p className="dn-popover-heading">{title}</p> : null}
+        {mergeMobileDetailChildClose(children, closeDetail)}
+      </>
+    ),
+    enabled: Boolean(mobileDensity && mobileNav),
+    onOpenChange,
+    title: detailTitle,
+  })
 
   const rowTrigger = (
     <>
@@ -645,35 +673,13 @@ export function SettingsRowPopover({
   )
 
   if (mobileDensity && mobileNav) {
-    const closeDetail = () => {
-      mobileNav.closeDetail()
-      onOpenChange?.(false)
-    }
-
-    const openDetail = () => {
-      const detailTitle =
-        title ??
-        (typeof trigger === "string" ? trigger : undefined) ??
-        hint ??
-        "Setting"
-
-      mobileNav.openDetail({
-        title: detailTitle,
-        content: (
-          <>
-            {title ? <p className="dn-popover-heading">{title}</p> : null}
-            {mergeMobileDetailChildClose(children, closeDetail)}
-          </>
-        ),
-        onAfterClose: () => onOpenChange?.(false),
-      })
-      onOpenChange?.(true)
-    }
-
     return (
-      <SettingsRowButton data-vaul-no-drag="" type="button" onClick={openDetail}>
-        {rowTrigger}
-      </SettingsRowButton>
+      <>
+        <SettingsRowButton data-vaul-no-drag="" type="button" onClick={liveDetail.open}>
+          {rowTrigger}
+        </SettingsRowButton>
+        {liveDetail.portal}
+      </>
     )
   }
 
@@ -739,6 +745,28 @@ export function DesktopInspectorSettingsPopover({
   const theme = useDesktopnewTheme()
   const mobileDensity = useMobileInspectorDensity()
   const mobileNav = useMobileDrawerNavigation()
+  const detailTitle =
+    title ??
+    (typeof trigger === "string" ? trigger : undefined) ??
+    hint ??
+    "Setting"
+
+  const closeDetail = () => {
+    mobileNav?.closeDetail()
+    onOpenChange?.(false)
+  }
+
+  const liveDetail = useMobileLiveDetail({
+    content: (
+      <>
+        {title ? <p className="dn-popover-heading">{title}</p> : null}
+        {mergeMobileDetailChildClose(children, closeDetail)}
+      </>
+    ),
+    enabled: Boolean(mobileDensity && mobileNav),
+    onOpenChange,
+    title: detailTitle,
+  })
 
   const rowTrigger = (
     <>
@@ -762,35 +790,13 @@ export function DesktopInspectorSettingsPopover({
   )
 
   if (mobileDensity && mobileNav) {
-    const closeDetail = () => {
-      mobileNav.closeDetail()
-      onOpenChange?.(false)
-    }
-
-    const openDetail = () => {
-      const detailTitle =
-        title ??
-        (typeof trigger === "string" ? trigger : undefined) ??
-        hint ??
-        "Setting"
-
-      mobileNav.openDetail({
-        title: detailTitle,
-        content: (
-          <>
-            {title ? <p className="dn-popover-heading">{title}</p> : null}
-            {mergeMobileDetailChildClose(children, closeDetail)}
-          </>
-        ),
-        onAfterClose: () => onOpenChange?.(false),
-      })
-      onOpenChange?.(true)
-    }
-
     return (
-      <SettingsRowButton data-vaul-no-drag="" type="button" onClick={openDetail}>
-        {rowTrigger}
-      </SettingsRowButton>
+      <>
+        <SettingsRowButton data-vaul-no-drag="" type="button" onClick={liveDetail.open}>
+          {rowTrigger}
+        </SettingsRowButton>
+        {liveDetail.portal}
+      </>
     )
   }
 

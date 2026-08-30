@@ -35,7 +35,7 @@ describe("desktop page", () => {
     expect(isValidElement(page)).toBe(true)
     expect(page.type).toBe("main")
     expect(page.props.className).toContain("mock-satoshi-font")
-    expect(page.props.className).toContain("min-h-dvh")
+    expect(page.props.className).toContain("h-dvh")
     expect(page.props["data-slot"]).toBe("desktop-page")
 
     const suspense = page.props.children

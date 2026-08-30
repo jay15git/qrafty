@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act } from "react"
+import { act, useState } from "react"
 import { beforeEach, describe, expect, it } from "vitest"
 
 import {
@@ -70,6 +70,56 @@ describe("FamilyDrawerAnimatedContent", () => {
 
     expect(surface.container.querySelector('[data-slot="qr-view"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="default-view"]')).not.toBeNull()
+  })
+
+  it("keeps visited view instances when they become inactive", async () => {
+    function StatefulView() {
+      const [count, setCount] = useState(0)
+
+      return (
+        <div data-slot="stateful-view">
+          <span data-slot="stateful-count">{count}</span>
+          <button
+            data-slot="stateful-increment"
+            type="button"
+            onClick={() => setCount((current) => current + 1)}
+          >
+            Increment
+          </button>
+        </div>
+      )
+    }
+
+    const views = {
+      default: StatefulView,
+      qr: () => <ViewProbe slot="qr-view" />,
+    }
+
+    const surface = await renderWithAsyncJsdomRoot(
+      <FamilyDrawerRoot defaultOpen defaultView="default" views={views}>
+        <FamilyDrawerAnimatedWrapper>
+          <FamilyDrawerAnimatedContent />
+        </FamilyDrawerAnimatedWrapper>
+        <ViewSwitcher />
+      </FamilyDrawerRoot>,
+    )
+
+    await act(async () => {
+      surface.container
+        .querySelector<HTMLButtonElement>('[data-slot="stateful-increment"]')
+        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(surface.container.querySelector('[data-slot="stateful-count"]')?.textContent).toBe("1")
+
+    await act(async () => {
+      surface.container
+        .querySelector<HTMLButtonElement>('[data-slot="switch-to-qr"]')
+        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(surface.container.querySelector('[data-slot="qr-view"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="stateful-count"]')?.textContent).toBe("1")
   })
 
   it("renders a newly visited view on the first paint", async () => {

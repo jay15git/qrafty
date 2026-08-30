@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
 
-import { act } from "react"
+import { act, useState } from "react"
 import { beforeEach, describe, expect, it } from "vitest"
 
+import { ElasticSlider } from "@/components/ui/elastic-slider"
 import {
+  MobileDetailStackOutlets,
   MobileDrawerNavigationProvider,
   useMobileDrawerNavigation,
 } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
@@ -171,6 +173,7 @@ describe("MobileDrawerNavigationProvider", () => {
               onSelect={() => {}}
             />
           </SettingsRowPopover>
+          <MobileDetailStackOutlets />
         </MobileDrawerNavigationProvider>
       </MobileInspectorDensityContext.Provider>,
     )
@@ -194,5 +197,119 @@ describe("MobileDrawerNavigationProvider", () => {
     })
 
     expect(currentView).toBe("setting-detail")
+  })
+
+  it("keeps nested setting-detail sliders live after parent state changes", async () => {
+    HTMLElement.prototype.setPointerCapture = () => {}
+    HTMLElement.prototype.releasePointerCapture = () => {}
+    HTMLElement.prototype.hasPointerCapture = () => false
+
+    let currentView = "element"
+    const setView = (view: string) => {
+      currentView = view
+    }
+
+    function ShaderSliderHarness() {
+      const [value, setValue] = useState(0.13)
+
+      return (
+        <MobileInspectorDensityContext.Provider value={true}>
+          <MobileDrawerNavigationProvider currentView={currentView} setView={setView}>
+            <SettingsRowPopover title="Shader settings" trigger="Options">
+              <ElasticSlider
+                label="Distortion"
+                max={1}
+                min={0}
+                step={0.01}
+                value={value}
+                onValueChange={setValue}
+              />
+            </SettingsRowPopover>
+            <MobileDetailStackOutlets />
+          </MobileDrawerNavigationProvider>
+        </MobileInspectorDensityContext.Provider>
+      )
+    }
+
+    const surface = await renderWithAsyncJsdomRoot(<ShaderSliderHarness />)
+    const openButton = surface.container.querySelector<HTMLButtonElement>(
+      'button[type="button"]',
+    )
+
+    await act(async () => {
+      openButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(currentView).toBe("setting-detail")
+
+    const slider = surface.container.querySelector<HTMLElement>(
+      '[role="slider"][aria-label="Distortion"]',
+    )
+
+    if (!slider) {
+      throw new Error("Missing Distortion slider")
+    }
+
+    const wrapper = slider.parentElement
+    const rect = {
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 36,
+      top: 0,
+      left: 0,
+      right: 200,
+      bottom: 36,
+      toJSON() {
+        return this
+      },
+    } as DOMRect
+
+    if (wrapper) {
+      Object.defineProperty(wrapper, "offsetWidth", { configurable: true, value: 200 })
+      wrapper.getBoundingClientRect = () => rect
+    }
+
+    slider.getBoundingClientRect = () => rect
+
+    expect(slider.getAttribute("aria-valuenow")).toBe("0.13")
+
+    await act(async () => {
+      slider.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          bubbles: true,
+          button: 0,
+          cancelable: true,
+          clientX: 26,
+          clientY: 10,
+          pointerId: 1,
+          pointerType: "mouse",
+        }),
+      )
+      slider.dispatchEvent(
+        new PointerEvent("pointermove", {
+          bubbles: true,
+          button: 0,
+          cancelable: true,
+          clientX: 160,
+          clientY: 10,
+          pointerId: 1,
+          pointerType: "mouse",
+        }),
+      )
+      slider.dispatchEvent(
+        new PointerEvent("pointerup", {
+          bubbles: true,
+          button: 0,
+          cancelable: true,
+          clientX: 160,
+          clientY: 10,
+          pointerId: 1,
+          pointerType: "mouse",
+        }),
+      )
+    })
+
+    expect(Number(slider.getAttribute("aria-valuenow"))).toBeGreaterThan(0.13)
   })
 })

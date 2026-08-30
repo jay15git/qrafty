@@ -1,21 +1,24 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 
 export const DESKTOP_WORKSPACE_MOBILE_QUERY = "(max-width: 767px)"
 
+function subscribeToMediaQuery(query: string, onStoreChange: () => void) {
+  const mediaQueryList = window.matchMedia(query)
+  mediaQueryList.addEventListener("change", onStoreChange)
+
+  return () => mediaQueryList.removeEventListener("change", onStoreChange)
+}
+
+function getMediaQuerySnapshot(query: string) {
+  return window.matchMedia(query).matches
+}
+
 export function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(false)
-
-  useEffect(() => {
-    const mediaQueryList = window.matchMedia(query)
-    const updateMatches = () => setMatches(mediaQueryList.matches)
-
-    updateMatches()
-    mediaQueryList.addEventListener("change", updateMatches)
-
-    return () => mediaQueryList.removeEventListener("change", updateMatches)
-  }, [query])
-
-  return matches
+  return useSyncExternalStore(
+    (onStoreChange) => subscribeToMediaQuery(query, onStoreChange),
+    () => getMediaQuerySnapshot(query),
+    () => false,
+  )
 }
