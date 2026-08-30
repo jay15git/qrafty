@@ -3,7 +3,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **new-qr** (4704 symbols, 13274 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **qrafty** (5760 symbols, 16443 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -27,10 +27,10 @@ This project is indexed by GitNexus as **new-qr** (4704 symbols, 13274 relations
 
 | Resource | Use for |
 |----------|---------|
-| `gitnexus://repo/new-qr/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/new-qr/clusters` | All functional areas |
-| `gitnexus://repo/new-qr/processes` | All execution flows |
-| `gitnexus://repo/new-qr/process/{name}` | Step-by-step execution trace |
+| `gitnexus://repo/qrafty/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/qrafty/clusters` | All functional areas |
+| `gitnexus://repo/qrafty/processes` | All execution flows |
+| `gitnexus://repo/qrafty/process/{name}` | Step-by-step execution trace |
 
 ## CLI
 

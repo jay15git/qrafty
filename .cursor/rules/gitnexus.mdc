@@ -1,0 +1,23 @@
+---
+description: GitNexus MCP must target this repo, never Adaptive-Rag
+alwaysApply: true
+---
+
+# GitNexus — this workspace
+
+`~/.gitnexus/registry.json` also lists **Adaptive-Rag**. Omit `repo` → MCP errors (or silently hits Adaptive-Rag if that is the only registered index).
+
+**Always pass `repo: "qrafty"`** on `query`, `impact`, `context`, `detect_changes`, `explain`, `cypher`, `rename`, `check`, and related tools.
+
+```
+impact({ target: "useElasticSlider", direction: "upstream", repo: "qrafty" })
+query({ search_query: "canvas pan", repo: "qrafty" })
+```
+
+If `list_repos` has no path `/Users/jayant/Documents/projects/qrafty`:
+
+```
+node .gitnexus/run.cjs analyze --force
+```
+
+Hung `incrementalInProgress` in `.gitnexus/gitnexus.json` → `--force` rebuild. After folder rename, re-analyze so registry `path` matches this checkout.

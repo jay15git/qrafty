@@ -31,6 +31,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 ## MCP Tools
 - **Use available MCP tools for every task** instead of falling back to raw bash commands when a tool fits.
 - **Codebase intelligence:** use GitNexus only. Do not configure or run other repository indexing/search tools.
+- **GitNexus repo:** always pass `repo: "qrafty"` (`query` / `impact` / `context` / `detect_changes` / `explain`). Registry also has Adaptive-Rag — omit `repo` hits the wrong graph or errors. Missing from `list_repos`? `node .gitnexus/run.cjs analyze --force`.
 - **Other MCPs:** `context7_*` for library/framework docs; `pencil_*` for `.pen` design files in `designs/`.
 - **Do not use in this repo:** `paper`, `react-grab-mcp`, `supabase_*`, `ccc`, `codedb`, `graphify`, `code-review-graph`.
 - If a tool exists for the job, use it. Do not manually `cat`, `grep`, or `sed` when a structured tool is available.
@@ -75,7 +76,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **new-qr** (4704 symbols, 13274 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **qrafty** (5760 symbols, 16443 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -99,10 +100,10 @@ This project is indexed by GitNexus as **new-qr** (4704 symbols, 13274 relations
 
 | Resource | Use for |
 |----------|---------|
-| `gitnexus://repo/new-qr/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/new-qr/clusters` | All functional areas |
-| `gitnexus://repo/new-qr/processes` | All execution flows |
-| `gitnexus://repo/new-qr/process/{name}` | Step-by-step execution trace |
+| `gitnexus://repo/qrafty/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/qrafty/clusters` | All functional areas |
+| `gitnexus://repo/qrafty/processes` | All execution flows |
+| `gitnexus://repo/qrafty/process/{name}` | Step-by-step execution trace |
 
 ## CLI
 
