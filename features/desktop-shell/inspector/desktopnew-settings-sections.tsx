@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { QrStyleOptionPreview } from "@/features/qr-code/components/QrStyleOptionPreview"
@@ -61,6 +61,10 @@ import {
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import { RAYCAST_WALLPAPERS } from "@/features/workspace/assets/raycast-wallpapers"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
+import {
+  getInspectorSectionTab,
+  setInspectorSectionTab,
+} from "@/features/desktop-shell/inspector/inspector-chrome-state"
 import { ScrollPersistScope } from "@/lib/persisted-element-scroll"
 
 export const SECTION_STACK = "dn-section-stack"
@@ -354,7 +358,7 @@ export function ContentSection({ model }: { model: DesktopInspectorModel }) {
 }
 
 export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
-  const [tab, setTab] = useState("Module")
+  const [tab, setTab] = useState(() => getInspectorSectionTab("qr-style", "Module"))
   const [logoPopoverOpen, setLogoPopoverOpen] = useState(false)
   const {
     actualCornersSettings,
@@ -413,7 +417,14 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
 
   return (
     <div className="dn-section-stack w-full min-w-0 max-w-full">
-      <SegmentTabs items={["Module", "Eye", "Frame", "Logo"]} value={tab} onChange={setTab} />
+      <SegmentTabs
+        items={["Module", "Eye", "Frame", "Logo"]}
+        value={tab}
+        onChange={(nextTab) => {
+          setTab(nextTab)
+          setInspectorSectionTab("qr-style", nextTab)
+        }}
+      />
 
       <SettingsTabPanel activeKey={tab}>
         {tab === "Logo" ? (
@@ -568,18 +579,20 @@ export function SceneSection({ model }: { model: DesktopInspectorModel }) {
     onImageSettingsChange,
     onShapeSettingsChange,
   } = model
-  const [tab, setTab] = useState(() => backgroundTabFromStyleMode(actualBackgroundSettings.styleMode))
+  const [tab, setTab] = useState(() =>
+    getInspectorSectionTab(
+      "background",
+      backgroundTabFromStyleMode(actualBackgroundSettings.styleMode),
+    ),
+  )
   const paperShader = actualBackgroundSettings.paperShader
   const backgroundFill = actualShapeSettings.cardFill
-
-  useEffect(() => {
-    setTab(backgroundTabFromStyleMode(actualBackgroundSettings.styleMode))
-  }, [actualBackgroundSettings.styleMode])
 
   function handleBackgroundTabChange(nextTab: string) {
     const resolvedTab =
       nextTab === "Image" || nextTab === "Color" ? nextTab : ("Shader" as const)
     setTab(resolvedTab)
+    setInspectorSectionTab("background", resolvedTab)
     controller?.onCanvasBackgroundTabChange?.(
       resolvedTab === "Shader" ? "shader" : resolvedTab === "Image" ? "image" : "color",
     )

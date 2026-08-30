@@ -7,6 +7,9 @@ import {
   MobileDrawerNavigationProvider,
   useMobileDrawerNavigation,
 } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
+import { LogoIconPicker } from "@/features/desktop-shell/inspector/settings-pickers"
+import { MobileInspectorDensityContext } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
+import { SettingsRowPopover } from "@/features/desktop-shell/inspector/settings-ui"
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root"
 
 function NavigationProbe({
@@ -71,5 +74,45 @@ describe("MobileDrawerNavigationProvider", () => {
 
     expect(currentView).toBe("qr")
     expect(navigation?.detailPayload).toBeNull()
+  })
+
+  it("does not close setting detail when a logo is selected", async () => {
+    let currentView = "qr"
+    const setView = (view: string) => {
+      currentView = view
+    }
+
+    const surface = await renderWithAsyncJsdomRoot(
+      <MobileInspectorDensityContext.Provider value={true}>
+        <MobileDrawerNavigationProvider currentView={currentView} setView={setView}>
+          <SettingsRowPopover hideHint open trigger="Logo">
+            <LogoIconPicker
+              selectedId="github"
+              onSelect={() => {}}
+            />
+          </SettingsRowPopover>
+        </MobileDrawerNavigationProvider>
+      </MobileInspectorDensityContext.Provider>,
+    )
+
+    const openButton = surface.container.querySelector<HTMLButtonElement>(
+      'button[type="button"]',
+    )
+
+    await act(async () => {
+      openButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(currentView).toBe("setting-detail")
+
+    const logoTile = surface.container.querySelector<HTMLButtonElement>(
+      'button[aria-label*="brand icon"]',
+    )
+
+    await act(async () => {
+      logoTile?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(currentView).toBe("setting-detail")
   })
 })

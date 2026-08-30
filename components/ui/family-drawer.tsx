@@ -15,6 +15,7 @@ import { AnimatePresence, m } from "motion/react"
 import useMeasure from "react-use-measure"
 import { Drawer } from "vaul"
 
+import { usePersistedScrollNode } from "@/lib/persisted-element-scroll"
 import { cn } from "@/lib/utils"
 
 type ViewComponent = React.ComponentType<Record<string, unknown>>
@@ -234,8 +235,7 @@ function FamilyDrawerContent({
   ...rest
 }: FamilyDrawerContentProps) {
   const { bounds, view } = useFamilyDrawer()
-  const scrollFrameRef = useRef<HTMLDivElement>(null)
-  const previousViewRef = useRef(view)
+  const setScrollFrameRef = usePersistedScrollNode(`family-drawer-frame:${view}`)
   const isCapped = maxHeight !== undefined
   const dialogTitle =
     accessibilityTitle ??
@@ -243,14 +243,6 @@ function FamilyDrawerContent({
     DEFAULT_VIEW_ACCESSIBILITY_TITLES.default
   const displayedHeight =
     isCapped ? Math.min(bounds.height, maxHeight) : bounds.height
-
-  useEffect(() => {
-    const previousView = previousViewRef.current
-    previousViewRef.current = view
-    if (isCapped && previousView !== view) {
-      scrollFrameRef.current?.scrollTo({ top: 0 })
-    }
-  }, [isCapped, view])
 
   const variantClass =
     variant === "sheet"
@@ -275,7 +267,7 @@ function FamilyDrawerContent({
       <Drawer.Title className="sr-only">{dialogTitle}</Drawer.Title>
       {isCapped ? (
         <div
-          ref={scrollFrameRef}
+          ref={setScrollFrameRef}
           className="h-full min-w-0 overflow-x-clip overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           data-vaul-no-drag=""
         >
@@ -335,24 +327,59 @@ function FamilyDrawerAnimatedContent({
   views: propViews,
 }: FamilyDrawerAnimatedContentProps) {
   const { view, opacityDuration } = useFamilyDrawer()
+  const [visitedViews, setVisitedViews] = useState<string[]>(() => [view])
+
+  useEffect(() => {
+    setVisitedViews((current) =>
+      current.includes(view) ? current : [...current, view],
+    )
+  }, [view])
+
+  if (children) {
+    return (
+      <AnimatePresence custom={view} initial={false} mode="popLayout">
+        <m.div
+          key={view}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          initial={{ opacity: 0, scale: 0.96 }}
+          transition={{
+            duration: opacityDuration,
+            ease: [0.26, 0.08, 0.25, 1],
+          }}
+        >
+          {children}
+        </m.div>
+      </AnimatePresence>
+    )
+  }
 
   return (
-    <AnimatePresence custom={view} initial={false} mode="popLayout">
-      <m.div
-        key={view}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96 }}
-        initial={{ opacity: 0, scale: 0.96 }}
-        transition={{
-          duration: opacityDuration,
-          ease: [0.26, 0.08, 0.25, 1],
-        }}
-      >
-        {children ?? (
-          <FamilyDrawerViewContent viewName={view} views={propViews} />
-        )}
-      </m.div>
-    </AnimatePresence>
+    <>
+      {visitedViews.map((viewName) => {
+        const isActive = viewName === view
+
+        return (
+          <m.div
+            key={viewName}
+            aria-hidden={!isActive}
+            className={cn(!isActive && "hidden")}
+            animate={
+              isActive
+                ? { opacity: 1, scale: 1, y: 0 }
+                : { opacity: 0, scale: 0.96 }
+            }
+            initial={false}
+            transition={{
+              duration: opacityDuration,
+              ease: [0.26, 0.08, 0.25, 1],
+            }}
+          >
+            <FamilyDrawerViewContent viewName={viewName} views={propViews} />
+          </m.div>
+        )
+      })}
+    </>
   )
 }
 
@@ -494,8 +521,7 @@ function FamilyDrawerViewContent({
   viewName: propViewName,
 }: FamilyDrawerViewContentProps = {} as FamilyDrawerViewContentProps) {
   const { view: contextView, views: contextViews } = useFamilyDrawer()
-  const frozenViewRef = useRef(propViewName ?? contextView)
-  const view = propViewName ?? frozenViewRef.current
+  const view = propViewName ?? contextView
 
   const views = propViews || contextViews
 

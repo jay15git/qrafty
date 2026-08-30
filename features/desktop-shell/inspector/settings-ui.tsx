@@ -105,24 +105,20 @@ function mapMobileDetailCloseChildren(
     }
 
     const childProps = child.props as {
-      onAfterSelect?: () => void
       onClose?: () => void
       children?: ReactNode
     }
 
     const patchedProps: {
-      onAfterSelect: () => void
-      onClose: () => void
+      onClose?: () => void
       children?: ReactNode
-    } = {
-      onAfterSelect: () => {
-        childProps.onAfterSelect?.()
-        onClose()
-      },
-      onClose: () => {
+    } = {}
+
+    if (childProps.onClose) {
+      patchedProps.onClose = () => {
         childProps.onClose?.()
         onClose()
-      },
+      }
     }
 
     if (childProps.children !== undefined) {
@@ -132,9 +128,12 @@ function mapMobileDetailCloseChildren(
       )
     }
 
+    if (Object.keys(patchedProps).length === 0) {
+      return child
+    }
+
     return cloneElement(
       child as ReactElement<{
-        onAfterSelect?: () => void
         onClose?: () => void
         children?: ReactNode
       }>,
@@ -679,7 +678,15 @@ export function SettingsRowPopover({
   }
 
   return (
-    <Popover open={open} onOpenChange={onOpenChange}>
+    <Popover
+      modal={false}
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (nextOpen) {
+          onOpenChange?.(true)
+        }
+      }}
+    >
       <PopoverTrigger asChild>
         <SettingsRowButton>
           {rowTrigger}
@@ -695,6 +702,9 @@ export function SettingsRowPopover({
         data-theme={theme}
         side="right"
         sideOffset={10}
+        onEscapeKeyDown={() => onOpenChange?.(false)}
+        onInteractOutside={() => onOpenChange?.(false)}
+        onPointerDownOutside={() => onOpenChange?.(false)}
       >
         {title ? <p className="dn-popover-heading">{title}</p> : null}
         {children}

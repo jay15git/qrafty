@@ -1,13 +1,12 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 
 import { DesktopBrandMark } from "@/features/desktop-shell/components/DesktopBrandMark"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 import {
   DESKTOP_SETTINGS_SECTIONS,
   SECTION_TO_TOOL,
-  sectionForTool,
   type DesktopSettingsSectionId,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
 import { SettingsSectionBody } from "@/features/desktop-shell/inspector/desktopnew-settings-sections"
@@ -33,16 +32,6 @@ export function DesktopNewSettingsPanel({
   const [internalOpenSection, setInternalOpenSection] = useState<string | undefined>(undefined)
   const openSection = openSectionProp ?? internalOpenSection
   const setOpenSection = onOpenSectionChange ?? setInternalOpenSection
-  const skipInitialAccordionSyncRef = useRef(true)
-
-  useEffect(() => {
-    if (skipInitialAccordionSyncRef.current) {
-      skipInitialAccordionSyncRef.current = false
-      return
-    }
-
-    setOpenSection(sectionForTool(model.actualActiveTool))
-  }, [model.actualActiveTool, setOpenSection])
 
   function handleSectionChange(section: string | undefined) {
     setOpenSection(section)

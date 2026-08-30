@@ -2,13 +2,14 @@
 
 import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
-import { act, type ComponentProps } from "react"
+import { act, type ComponentProps, useEffect, useState } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
 import { DesktopSettingsToolbarShell } from "@/features/desktop-shell/components/DesktopSettingsToolbarShell"
 import { getDesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { DEFAULT_DESKTOP_LAYERS_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
+import type { DesktopToolbarToolId } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import { createDraftingTextLayer } from "@/features/workspace/model/layers"
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root"
 
@@ -61,6 +62,46 @@ describe("FloatingToolbar", () => {
 
     await act(async () => {
       qrHeader.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(getRequiredAccordionHeader(surface.container, "QR").getAttribute("aria-expanded")).toBe(
+      "true",
+    )
+  })
+
+  it("keeps the open accordion section when canvas activeTool changes", async () => {
+    let setActiveTool: ((toolId: DesktopToolbarToolId) => void) | null = null
+
+    function AccordionStickyProbe() {
+      const [activeTool, setTool] = useState<DesktopToolbarToolId>("content")
+
+      useEffect(() => {
+        setActiveTool = setTool
+      }, [])
+
+      return (
+        <FloatingToolbar
+          controller={{
+            activeTool,
+            onActiveToolChange: setTool,
+          }}
+        />
+      )
+    }
+
+    const surface = await renderWithAsyncJsdomRoot(<AccordionStickyProbe />)
+    const qrHeader = getRequiredAccordionHeader(surface.container, "QR")
+
+    await act(async () => {
+      qrHeader.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(getRequiredAccordionHeader(surface.container, "QR").getAttribute("aria-expanded")).toBe(
+      "true",
+    )
+
+    await act(async () => {
+      setActiveTool?.("shape")
     })
 
     expect(getRequiredAccordionHeader(surface.container, "QR").getAttribute("aria-expanded")).toBe(
@@ -336,7 +377,11 @@ describe("FloatingToolbar", () => {
       qrButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
-    expect(drawerRoot?.querySelector("h2")?.textContent?.trim()).toBe("QR")
+    expect(
+      Array.from(drawerRoot?.querySelectorAll("h2") ?? []).find(
+        (heading) => !heading.closest(".hidden"),
+      )?.textContent?.trim(),
+    ).toBe("QR")
     expect(drawerRoot?.querySelector('button[aria-label="Back"]')).not.toBeNull()
   })
 
@@ -365,7 +410,11 @@ describe("FloatingToolbar", () => {
       fillRow?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
-    expect(drawerRoot?.querySelector("header h2")?.textContent?.trim()).toBe("Fill")
+    expect(
+      Array.from(drawerRoot?.querySelectorAll("header h2") ?? []).find(
+        (heading) => !heading.closest(".hidden"),
+      )?.textContent?.trim(),
+    ).toBe("Fill")
     expect(document.querySelector('[data-slot="popover-content"]')).toBeNull()
     expect(drawerRoot?.querySelector(".dn-fill-picker-panel")).not.toBeNull()
   })
