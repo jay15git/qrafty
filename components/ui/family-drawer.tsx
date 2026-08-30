@@ -206,7 +206,7 @@ function FamilyDrawerOverlay({ className, onClick }: FamilyDrawerOverlayProps) {
 const DEFAULT_VIEW_ACCESSIBILITY_TITLES: Record<string, string> = {
   default: "Settings",
   content: "Content",
-  qr: "QR",
+  qr: "Style",
   motion: "Motion",
   shape: "Shape",
   background: "Background",

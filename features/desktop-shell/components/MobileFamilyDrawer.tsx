@@ -31,6 +31,7 @@ import {
   DESKTOP_SETTINGS_SECTIONS,
   MOBILE_DRAWER_VIEW_FOR_SECTION,
   SECTION_TO_TOOL,
+  getDesktopSettingsSectionLabel,
   type DesktopSettingsSectionId,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
 import { SettingsSectionBody } from "@/features/desktop-shell/inspector/desktopnew-settings-sections"
@@ -249,7 +250,9 @@ function MobileMenuView() {
             onClick={() => openSection(section)}
           >
             <SettingsSectionIconFor className="text-foreground" section={section} size={22} />
-            <span className="dn-mobile-drawer-menu-tile__label">{section}</span>
+            <span className="dn-mobile-drawer-menu-tile__label">
+              {getDesktopSettingsSectionLabel(section)}
+            </span>
           </FamilyDrawerButton>
         ))}
         {selectedLayer && controller?.onElementLayerPatch ? (

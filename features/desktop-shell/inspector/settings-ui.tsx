@@ -45,6 +45,10 @@ import {
   useMobileLiveDetail,
 } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
+import {
+  getDesktopSettingsSectionLabel,
+  type DesktopSettingsSectionId,
+} from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
 import { cn } from "@/lib/utils"
 
@@ -210,7 +214,7 @@ export function SettingsAccordion({
   const openIndex = sectionIndex >= 0 ? sectionIndex : null
 
   const items = sections.map((section) => ({
-    question: section,
+    question: getDesktopSettingsSectionLabel(section as DesktopSettingsSectionId),
     icon: <SettingsSectionIconFor section={section} />,
     answer: (
       <div className={cn("flex w-full min-w-0 flex-col", DN_SECTION_GAP)}>

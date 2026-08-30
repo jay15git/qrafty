@@ -42,7 +42,7 @@ describe("FloatingToolbar", () => {
     expect(inspector).not.toBeNull()
     expect(sectionHeaders.map((header) => header.textContent?.trim())).toEqual([
       "Content",
-      "QR",
+      "Style",
       "Motion",
       "Shape",
       "Background",
@@ -55,7 +55,7 @@ describe("FloatingToolbar", () => {
   it("opens a settings section from the accordion", async () => {
     const surface = await renderPrototype()
     const contentHeader = getRequiredAccordionHeader(surface.container, "Content")
-    const qrHeader = getRequiredAccordionHeader(surface.container, "QR")
+    const qrHeader = getRequiredAccordionHeader(surface.container, "Style")
 
     expect(contentHeader.getAttribute("aria-expanded")).toBe("false")
     expect(qrHeader.getAttribute("aria-expanded")).toBe("false")
@@ -64,7 +64,7 @@ describe("FloatingToolbar", () => {
       qrHeader.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
-    expect(getRequiredAccordionHeader(surface.container, "QR").getAttribute("aria-expanded")).toBe(
+    expect(getRequiredAccordionHeader(surface.container, "Style").getAttribute("aria-expanded")).toBe(
       "true",
     )
   })
@@ -90,13 +90,13 @@ describe("FloatingToolbar", () => {
     }
 
     const surface = await renderWithAsyncJsdomRoot(<AccordionStickyProbe />)
-    const qrHeader = getRequiredAccordionHeader(surface.container, "QR")
+    const qrHeader = getRequiredAccordionHeader(surface.container, "Style")
 
     await act(async () => {
       qrHeader.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
-    expect(getRequiredAccordionHeader(surface.container, "QR").getAttribute("aria-expanded")).toBe(
+    expect(getRequiredAccordionHeader(surface.container, "Style").getAttribute("aria-expanded")).toBe(
       "true",
     )
 
@@ -104,7 +104,7 @@ describe("FloatingToolbar", () => {
       setActiveTool?.("shape")
     })
 
-    expect(getRequiredAccordionHeader(surface.container, "QR").getAttribute("aria-expanded")).toBe(
+    expect(getRequiredAccordionHeader(surface.container, "Style").getAttribute("aria-expanded")).toBe(
       "true",
     )
   })
@@ -368,7 +368,7 @@ describe("FloatingToolbar", () => {
 
     const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
     const qrButton = Array.from(drawerRoot?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
-      (button) => button.textContent?.trim() === "QR",
+      (button) => button.textContent?.trim() === "Style",
     )
 
     expect(qrButton).not.toBeNull()
@@ -381,7 +381,7 @@ describe("FloatingToolbar", () => {
       Array.from(drawerRoot?.querySelectorAll("h2") ?? []).find(
         (heading) => !heading.closest(".hidden"),
       )?.textContent?.trim(),
-    ).toBe("QR")
+    ).toBe("Style")
     expect(drawerRoot?.querySelector('button[aria-label="Back"]')).not.toBeNull()
   })
 
@@ -461,7 +461,7 @@ function getRequiredElement(container: HTMLElement, selector: string) {
 function getAccordionHeaders(container: HTMLElement) {
   const sectionLabels = new Set([
     "Content",
-    "QR",
+    "Style",
     "Motion",
     "Shape",
     "Background",

@@ -11,6 +11,19 @@ export const DESKTOP_SETTINGS_SECTIONS = [
 
 export type DesktopSettingsSectionId = (typeof DESKTOP_SETTINGS_SECTIONS)[number]
 
+export const DESKTOP_SETTINGS_SECTION_LABELS: Record<DesktopSettingsSectionId, string> = {
+  Content: "Content",
+  QR: "Style",
+  Motion: "Motion",
+  Shape: "Shape",
+  Background: "Background",
+  Elements: "Elements",
+}
+
+export function getDesktopSettingsSectionLabel(section: DesktopSettingsSectionId): string {
+  return DESKTOP_SETTINGS_SECTION_LABELS[section]
+}
+
 export const SECTION_TO_TOOL: Partial<Record<DesktopSettingsSectionId, DesktopToolbarToolId>> = {
   Content: "content",
   QR: "pattern",
