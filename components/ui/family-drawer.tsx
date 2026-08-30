@@ -4,7 +4,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -100,16 +99,19 @@ function FamilyDrawerRoot({
     return Math.min(Math.max(heightDifference / 500, MIN_DURATION), MAX_DURATION)
   }, [bounds.height])
 
+  const views =
+    customViews && Object.keys(customViews).length > 0 ? customViews : undefined
+
   const handleViewChange = useCallback(
     (newView: string) => {
+      if (views && !(newView in views)) {
+        return
+      }
       setView(newView)
       onViewChange?.(newView)
     },
-    [onViewChange],
+    [onViewChange, views],
   )
-
-  const views =
-    customViews && Object.keys(customViews).length > 0 ? customViews : undefined
 
   const contextValue: FamilyDrawerContextValue = useMemo(
     () => ({
@@ -236,13 +238,22 @@ function FamilyDrawerContent({
 }: FamilyDrawerContentProps) {
   const { bounds, view } = useFamilyDrawer()
   const setScrollFrameRef = usePersistedScrollNode(`family-drawer-frame:${view}`)
+  const lastPositiveHeightRef = useRef(0)
   const isCapped = maxHeight !== undefined
   const dialogTitle =
     accessibilityTitle ??
     DEFAULT_VIEW_ACCESSIBILITY_TITLES[view] ??
     DEFAULT_VIEW_ACCESSIBILITY_TITLES.default
-  const displayedHeight =
-    isCapped ? Math.min(bounds.height, maxHeight) : bounds.height
+
+  if (bounds.height > 0) {
+    lastPositiveHeightRef.current = bounds.height
+  }
+
+  const measuredHeight =
+    bounds.height > 0 ? bounds.height : lastPositiveHeightRef.current
+  const displayedHeight = isCapped
+    ? Math.min(measuredHeight, maxHeight)
+    : measuredHeight
 
   const variantClass =
     variant === "sheet"
@@ -329,11 +340,11 @@ function FamilyDrawerAnimatedContent({
   const { view, opacityDuration } = useFamilyDrawer()
   const [visitedViews, setVisitedViews] = useState<string[]>(() => [view])
 
-  useEffect(() => {
+  if (!visitedViews.includes(view)) {
     setVisitedViews((current) =>
       current.includes(view) ? current : [...current, view],
     )
-  }, [view])
+  }
 
   if (children) {
     return (
@@ -360,23 +371,27 @@ function FamilyDrawerAnimatedContent({
         const isActive = viewName === view
 
         return (
-          <m.div
+          <div
             key={viewName}
             aria-hidden={!isActive}
-            className={cn(!isActive && "hidden")}
-            animate={
-              isActive
-                ? { opacity: 1, scale: 1, y: 0 }
-                : { opacity: 0, scale: 0.96 }
-            }
-            initial={false}
-            transition={{
-              duration: opacityDuration,
-              ease: [0.26, 0.08, 0.25, 1],
-            }}
+            className={cn(!isActive && "pointer-events-none hidden")}
+            inert={isActive ? undefined : true}
           >
-            <FamilyDrawerViewContent viewName={viewName} views={propViews} />
-          </m.div>
+            {isActive ? (
+              <m.div
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                initial={false}
+                transition={{
+                  duration: opacityDuration,
+                  ease: [0.26, 0.08, 0.25, 1],
+                }}
+              >
+                <FamilyDrawerViewContent viewName={viewName} views={propViews} />
+              </m.div>
+            ) : (
+              <FamilyDrawerViewContent viewName={viewName} views={propViews} />
+            )}
+          </div>
         )
       })}
     </>

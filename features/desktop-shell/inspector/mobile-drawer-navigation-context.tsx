@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useLayoutEffect,
   useRef,
   useState,
   type ReactNode,
@@ -27,6 +28,26 @@ type MobileDrawerNavigationContextValue = {
 const MobileDrawerNavigationContext =
   createContext<MobileDrawerNavigationContextValue | null>(null)
 
+function resolveReturnView(
+  explicitReturnView: string | undefined,
+  currentView: string,
+  stack: MobileDrawerDetailPayload[],
+): string {
+  if (explicitReturnView && explicitReturnView !== "setting-detail") {
+    return explicitReturnView
+  }
+
+  if (stack.length > 0) {
+    return stack[0].returnView
+  }
+
+  if (currentView !== "setting-detail") {
+    return currentView
+  }
+
+  return "default"
+}
+
 export function MobileDrawerNavigationProvider({
   children,
   currentView,
@@ -36,11 +57,15 @@ export function MobileDrawerNavigationProvider({
   currentView: string
   setView: (view: string) => void
 }) {
-  const [detailPayload, setDetailPayload] = useState<MobileDrawerDetailPayload | null>(null)
+  const [detailStack, setDetailStack] = useState<MobileDrawerDetailPayload[]>([])
   const currentViewRef = useRef(currentView)
-  const detailPayloadRef = useRef<MobileDrawerDetailPayload | null>(null)
+  const detailStackRef = useRef<MobileDrawerDetailPayload[]>([])
+  const suppressRecoveryRef = useRef(false)
   currentViewRef.current = currentView
-  detailPayloadRef.current = detailPayload
+  detailStackRef.current = detailStack
+
+  const detailPayload =
+    detailStack.length > 0 ? detailStack[detailStack.length - 1] : null
 
   const openDetail = useCallback(
     (
@@ -48,23 +73,61 @@ export function MobileDrawerNavigationProvider({
     ) => {
       const resolved: MobileDrawerDetailPayload = {
         ...payload,
-        returnView: payload.returnView ?? currentViewRef.current,
+        returnView: resolveReturnView(
+          payload.returnView,
+          currentViewRef.current,
+          detailStackRef.current,
+        ),
       }
-      setDetailPayload(resolved)
+      setDetailStack((current) => [...current, resolved])
       setView("setting-detail")
     },
     [setView],
   )
 
   const closeDetail = useCallback(() => {
-    const current = detailPayloadRef.current
-    if (!current) {
+    const stack = detailStackRef.current
+    if (stack.length === 0) {
+      if (currentViewRef.current === "setting-detail") {
+        setView("default")
+      }
       return
     }
-    setDetailPayload(null)
-    setView(current.returnView)
-    current.onAfterClose?.()
+
+    const popped = stack[stack.length - 1]
+    const nextStack = stack.slice(0, -1)
+
+    suppressRecoveryRef.current = true
+
+    if (nextStack.length > 0) {
+      setDetailStack(nextStack)
+      setView("setting-detail")
+      popped.onAfterClose?.()
+      queueMicrotask(() => {
+        suppressRecoveryRef.current = false
+      })
+      return
+    }
+
+    const returnView =
+      popped.returnView !== "setting-detail" ? popped.returnView : "default"
+    setView(returnView)
+    setDetailStack(nextStack)
+    popped.onAfterClose?.()
+    queueMicrotask(() => {
+      suppressRecoveryRef.current = false
+    })
   }, [setView])
+
+  useLayoutEffect(() => {
+    if (suppressRecoveryRef.current) {
+      return
+    }
+
+    if (currentView === "setting-detail" && detailStack.length === 0) {
+      setView("default")
+    }
+  }, [currentView, detailStack.length, setView])
 
   return (
     <MobileDrawerNavigationContext.Provider

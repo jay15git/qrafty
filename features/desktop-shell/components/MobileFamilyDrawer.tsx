@@ -320,20 +320,29 @@ function MobileSettingDetailView() {
   const model = useMobileInspectorModel()
   const navigation = useMobileDrawerNavigation()
   const payload = navigation?.detailPayload
-
-  if (!payload) {
-    return null
-  }
+  const title = payload?.title ?? "Settings"
 
   return (
-    <div className="desktopnew-root w-full min-w-0" data-mobile-inspector="" data-theme={model.actualDesktopTheme}>
+    <div
+      className="desktopnew-root w-full min-h-[4.5rem] min-w-0"
+      data-mobile-inspector=""
+      data-theme={model.actualDesktopTheme}
+    >
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
-        <MobileNestedHeader title={payload.title} onClose={() => navigation?.closeDetail()} />
-        <ScrollPersistScope id="drawer:setting-detail">
-          <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
-            {payload.content}
-          </div>
-        </ScrollPersistScope>
+        <MobileNestedHeader title={title} onClose={() => navigation?.closeDetail()} />
+        {payload ? (
+          <ScrollPersistScope id="drawer:setting-detail">
+            <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
+              {payload.content}
+            </div>
+          </ScrollPersistScope>
+        ) : (
+          <div
+            aria-hidden
+            className="min-h-[2rem]"
+            data-slot="mobile-setting-detail-placeholder"
+          />
+        )}
       </DesktopnewThemeContext.Provider>
     </div>
   )

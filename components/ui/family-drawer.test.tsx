@@ -71,4 +71,80 @@ describe("FamilyDrawerAnimatedContent", () => {
     expect(surface.container.querySelector('[data-slot="qr-view"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="default-view"]')).not.toBeNull()
   })
+
+  it("renders a newly visited view on the first paint", async () => {
+    const views = {
+      default: () => <ViewProbe slot="default-view" />,
+      background: () => <ViewProbe slot="background-view" />,
+    }
+
+    function BackgroundSwitcher() {
+      const { setView } = useFamilyDrawer()
+
+      return (
+        <button
+          data-slot="switch-to-background"
+          type="button"
+          onClick={() => setView("background")}
+        >
+          Background
+        </button>
+      )
+    }
+
+    const surface = await renderWithAsyncJsdomRoot(
+      <FamilyDrawerRoot defaultOpen defaultView="default" views={views}>
+        <FamilyDrawerAnimatedWrapper>
+          <FamilyDrawerAnimatedContent />
+        </FamilyDrawerAnimatedWrapper>
+        <BackgroundSwitcher />
+      </FamilyDrawerRoot>,
+    )
+
+    await act(async () => {
+      surface.container
+        .querySelector<HTMLButtonElement>('[data-slot="switch-to-background"]')
+        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(surface.container.querySelector('[data-slot="background-view"]')).not.toBeNull()
+  })
+
+  it("ignores unknown view names", async () => {
+    const views = {
+      default: () => <ViewProbe slot="default-view" />,
+    }
+
+    function UnknownViewSwitcher() {
+      const { setView } = useFamilyDrawer()
+
+      return (
+        <button
+          data-slot="switch-to-unknown"
+          type="button"
+          onClick={() => setView("missing-view")}
+        >
+          Missing
+        </button>
+      )
+    }
+
+    const surface = await renderWithAsyncJsdomRoot(
+      <FamilyDrawerRoot defaultOpen defaultView="default" views={views}>
+        <FamilyDrawerAnimatedWrapper>
+          <FamilyDrawerAnimatedContent />
+        </FamilyDrawerAnimatedWrapper>
+        <UnknownViewSwitcher />
+      </FamilyDrawerRoot>,
+    )
+
+    await act(async () => {
+      surface.container
+        .querySelector<HTMLButtonElement>('[data-slot="switch-to-unknown"]')
+        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(surface.container.querySelector('[data-slot="default-view"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="missing-view"]')).toBeNull()
+  })
 })

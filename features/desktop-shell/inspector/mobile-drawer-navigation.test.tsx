@@ -76,6 +76,86 @@ describe("MobileDrawerNavigationProvider", () => {
     expect(navigation?.detailPayload).toBeNull()
   })
 
+  it("pops nested setting details before returning to the section view", async () => {
+    let currentView = "background"
+    const setView = (view: string) => {
+      currentView = view
+    }
+
+    let navigation: ReturnType<typeof useMobileDrawerNavigation> = null
+
+    await renderWithAsyncJsdomRoot(
+      <MobileDrawerNavigationProvider currentView={currentView} setView={setView}>
+        <NavigationProbe
+          onReady={(nav) => {
+            navigation = nav
+          }}
+        />
+      </MobileDrawerNavigationProvider>,
+    )
+
+    await act(async () => {
+      navigation?.openDetail({
+        title: "Shader settings",
+        content: <div data-slot="shader-options">Options</div>,
+      })
+    })
+
+    expect(currentView).toBe("setting-detail")
+    expect(navigation?.detailPayload?.title).toBe("Shader settings")
+
+    await act(async () => {
+      currentView = "setting-detail"
+      navigation?.openDetail({
+        title: "Colors",
+        content: <div data-slot="shader-colors">Colors</div>,
+      })
+    })
+
+    expect(currentView).toBe("setting-detail")
+    expect(navigation?.detailPayload?.title).toBe("Colors")
+
+    await act(async () => {
+      navigation?.closeDetail()
+    })
+
+    expect(currentView).toBe("setting-detail")
+    expect(navigation?.detailPayload?.title).toBe("Shader settings")
+
+    await act(async () => {
+      navigation?.closeDetail()
+    })
+
+    expect(currentView).toBe("background")
+    expect(navigation?.detailPayload).toBeNull()
+  })
+
+  it("recovers to default when closing an empty setting-detail view", async () => {
+    let currentView = "setting-detail"
+    const setView = (view: string) => {
+      currentView = view
+    }
+
+    let navigation: ReturnType<typeof useMobileDrawerNavigation> = null
+
+    await renderWithAsyncJsdomRoot(
+      <MobileDrawerNavigationProvider currentView={currentView} setView={setView}>
+        <NavigationProbe
+          onReady={(nav) => {
+            navigation = nav
+          }}
+        />
+      </MobileDrawerNavigationProvider>,
+    )
+
+    await act(async () => {
+      navigation?.closeDetail()
+    })
+
+    expect(currentView).toBe("default")
+    expect(navigation?.detailPayload).toBeNull()
+  })
+
   it("does not close setting detail when a logo is selected", async () => {
     let currentView = "qr"
     const setView = (view: string) => {
