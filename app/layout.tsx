@@ -28,6 +28,24 @@ const monoFont = Geist_Mono({
 export const metadata: Metadata = {
   title: "QR Studio",
   description: "A premium QR studio for branded codes, live refinement, and export.",
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png", sizes: "32x32" },
+      {
+        url: "/icon-dark.png",
+        type: "image/png",
+        sizes: "32x32",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+    apple: [
+      {
+        url: "/apple-icon.png",
+        type: "image/png",
+        sizes: "180x180",
+      },
+    ],
+  },
 }
 
 export const viewport: Viewport = {
