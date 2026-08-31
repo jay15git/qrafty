@@ -50,6 +50,7 @@ import {
   type DesktopSettingsSectionId,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
+import { CUELUME_PRESS, CUELUME_TOGGLE } from "@/features/desktop-shell/audio/desktop-cuelume"
 import { cn } from "@/lib/utils"
 
 import "./desktopnew.css"
@@ -73,6 +74,7 @@ function SettingsRowButton({
         className,
       )}
       type="button"
+      {...CUELUME_PRESS}
       {...props}
     >
       {children}
@@ -372,6 +374,7 @@ export function SegmentTabs({
             role="tab"
             type="button"
             aria-selected={active}
+            {...CUELUME_TOGGLE}
             onClick={() => onChange(item.id)}
           >
             {item.icon ? (

@@ -10,6 +10,7 @@ import { useDesktopWorkspaceThemeSync } from "@/features/desktop-shell/hooks/use
 import "@/features/workspace/workspace-tokens.css"
 import { DesktopWorkspaceStyles } from "@/features/desktop-shell/components/desktop-workspace-styles"
 import { DesktopWorkspaceEntrance } from "@/features/desktop-shell/components/DesktopWorkspaceEntrance"
+import { DesktopCuelumeProvider } from "@/features/desktop-shell/hooks/use-desktop-cuelume"
 import { DESKTOP_WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/hooks/use-media-query"
 import { cn } from "@/lib/utils"
 import { useState, type CSSProperties } from "react"
@@ -56,22 +57,24 @@ export function DesktopWorkspace({
         desktopTheme === "light" ? "bg-[#f0f1f2] text-neutral-950" : "bg-workspace-page text-white",
       )}
     >
-      <DesktopWorkspaceEntrance theme={desktopTheme}>
-        <WorkspaceSurface
-          desktopTheme={desktopTheme}
-          fontClassName={fontClassName}
-          initialActiveTool={initialActiveTool}
-          onDesktopThemeChange={setDesktopTheme}
-          paneToolbarVariant="desktop-zoom"
-          renderOverlay={(controller) => (
-            <FloatingToolbar
-              controller={controller}
-              theme={desktopTheme}
-              onThemeChange={setDesktopTheme}
-            />
-          )}
-        />
-      </DesktopWorkspaceEntrance>
+      <DesktopCuelumeProvider>
+        <DesktopWorkspaceEntrance theme={desktopTheme}>
+          <WorkspaceSurface
+            desktopTheme={desktopTheme}
+            fontClassName={fontClassName}
+            initialActiveTool={initialActiveTool}
+            onDesktopThemeChange={setDesktopTheme}
+            paneToolbarVariant="desktop-zoom"
+            renderOverlay={(controller) => (
+              <FloatingToolbar
+                controller={controller}
+                theme={desktopTheme}
+                onThemeChange={setDesktopTheme}
+              />
+            )}
+          />
+        </DesktopWorkspaceEntrance>
+      </DesktopCuelumeProvider>
       <DesktopWorkspaceStyles />
     </section>
   )

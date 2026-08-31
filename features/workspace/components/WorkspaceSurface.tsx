@@ -1,6 +1,7 @@
 "use client"
 
 import { useLazyRef } from "@/hooks/use-lazy-ref"
+import { playDesktopSound } from "@/features/desktop-shell/audio/desktop-cuelume"
 import { type ReactNode, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
 
 import type {
@@ -2576,6 +2577,7 @@ export function WorkspaceSurface({
       setExportDownloadError(null)
       setExportInProgress(true)
       setExportProgressLabel("Preparing export...")
+      playDesktopSound("loading")
 
       const exportLayers =
         layerStateByNodeId[activeQrNodeId] ??
@@ -2709,13 +2711,17 @@ export function WorkspaceSurface({
             : undefined,
         })
       }
+
+      playDesktopSound("success")
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
         setExportDownloadError("Export cancelled.")
+        playDesktopSound("droplet")
         return
       }
 
       setExportDownloadError(error instanceof Error ? error.message : "Export failed.")
+      playDesktopSound("error")
     } finally {
       setExportInProgress(false)
       setExportProgressLabel(null)

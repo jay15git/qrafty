@@ -23,6 +23,7 @@ import {
 import { DesktopUtilityToolbarButton } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
 import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
 import { DRAFTING_KEYBOARD_SHORTCUT_GROUPS } from "@/features/workspace/model/keyboard-shortcuts"
+import { CUELUME_NAV, CUELUME_PRESS, CUELUME_TOGGLE } from "@/features/desktop-shell/audio/desktop-cuelume"
 import { cn } from "@/lib/utils"
 
 type DesktopShortcutPlatform = "apple" | "windows"
@@ -75,22 +76,36 @@ function getShortcutKeyCombos(keys: string, platform: DesktopShortcutPlatform): 
 
 function ChromeControlButton({
   className,
+  cuelume = "nav",
   variant = "utility",
   ...props
 }: ComponentProps<"button"> & {
+  cuelume?: "nav" | "none" | "press" | "toggle"
   variant?: ChromeControlVariant
 }) {
   if (variant === "glass") {
+    const glassCuelume =
+      cuelume === "toggle"
+        ? CUELUME_TOGGLE
+        : cuelume === "press"
+          ? CUELUME_PRESS
+          : cuelume === "none"
+            ? {}
+            : CUELUME_NAV
+
     return (
       <button
         className={cn(DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_CLASS, className)}
         type="button"
+        {...glassCuelume}
         {...props}
       />
     )
   }
 
-  return <DesktopUtilityToolbarButton className={className} type="button" {...props} />
+  return (
+    <DesktopUtilityToolbarButton className={className} cuelume={cuelume} type="button" {...props} />
+  )
 }
 
 export function DesktopKeyboardShortcutsPopoverContent({
@@ -299,6 +314,7 @@ export function DesktopThemeToggleButton({
       <ChromeControlButton
         aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
         className={className}
+        cuelume="toggle"
         data-slot="desktop-theme-toggle"
         onClick={onToggle}
         variant={variant}

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { m } from "motion/react";
 
+import { CUELUME_ACCORDION } from "@/features/desktop-shell/audio/desktop-cuelume";
 import { cn } from "@/lib/utils";
 
 export interface MotionAccordionItem {
@@ -64,6 +65,7 @@ function AccordionItem({
         aria-controls={panelId}
         aria-expanded={isOpen}
         onClick={onToggle}
+        {...CUELUME_ACCORDION}
         className="flex w-full cursor-pointer select-none items-center justify-between gap-4 px-7 py-5 text-left"
       >
         <span className="inline-flex min-w-0 items-center gap-2 font-medium tracking-tight">

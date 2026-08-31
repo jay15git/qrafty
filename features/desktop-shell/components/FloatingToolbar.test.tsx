@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
 import { DesktopSettingsToolbarShell } from "@/features/desktop-shell/components/DesktopSettingsToolbarShell"
+import { DesktopCuelumeProvider } from "@/features/desktop-shell/hooks/use-desktop-cuelume"
 import { getDesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { DEFAULT_DESKTOP_LAYERS_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 import type { DesktopToolbarToolId } from "@/features/desktop-shell/model/desktop-toolbar-types"
@@ -80,12 +81,14 @@ describe("FloatingToolbar", () => {
       }, [])
 
       return (
-        <FloatingToolbar
-          controller={{
-            activeTool,
-            onActiveToolChange: setTool,
-          }}
-        />
+        <DesktopCuelumeProvider>
+          <FloatingToolbar
+            controller={{
+              activeTool,
+              onActiveToolChange: setTool,
+            }}
+          />
+        </DesktopCuelumeProvider>
       )
     }
 
@@ -441,10 +444,12 @@ async function renderPrototype({
   theme?: "light" | "dark"
 } = {}) {
   return renderWithAsyncJsdomRoot(
-    <FloatingToolbar
-      controller={controller as NonNullable<ComponentProps<typeof FloatingToolbar>>["controller"]}
-      theme={theme}
-    />,
+    <DesktopCuelumeProvider>
+      <FloatingToolbar
+        controller={controller as NonNullable<ComponentProps<typeof FloatingToolbar>>["controller"]}
+        theme={theme}
+      />
+    </DesktopCuelumeProvider>,
   )
 }
 

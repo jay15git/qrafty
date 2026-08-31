@@ -4,6 +4,7 @@ import { AnimatePresence, m } from "motion/react";
 import { useRef, useState, type ReactNode } from "react";
 
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
+import { CUELUME_NAV, CUELUME_TOGGLE } from "@/features/desktop-shell/audio/desktop-cuelume";
 import { cn } from "@/lib/utils";
 
 export type TooltipItem = {
@@ -18,6 +19,7 @@ export type TooltipItem = {
   popover?: ReactNode;
   variant?: "icon" | "text";
   pressed?: boolean;
+  cuelume?: "nav" | "none" | "toggle";
 };
 
 import {
@@ -89,6 +91,12 @@ export const TooltipNavbar = ({
 
   const renderItemButton = (item: TooltipItem, index: number) => {
     const isText = item.variant === "text";
+    const cuelumeAttrs =
+      item.cuelume === "toggle"
+        ? CUELUME_TOGGLE
+        : item.cuelume === "none"
+          ? {}
+          : CUELUME_NAV;
 
     return (
       <button
@@ -102,6 +110,7 @@ export const TooltipNavbar = ({
           buttonRefs.current[index] = el;
         }}
         aria-pressed={item.pressed || undefined}
+        {...cuelumeAttrs}
         className={cn(
           isText
             ? "flex h-8 cursor-pointer items-center justify-center rounded-full px-2.5 text-xs font-medium whitespace-nowrap transition-colors hover:bg-[var(--desktop-glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--desktop-glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"

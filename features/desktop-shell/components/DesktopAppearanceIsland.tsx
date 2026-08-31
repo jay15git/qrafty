@@ -6,6 +6,8 @@ import {
   MoonIcon,
   SlidersHorizontalIcon,
   SunIcon,
+  Volume2Icon,
+  VolumeXIcon,
 } from "lucide-react"
 import { KeyboardIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -18,6 +20,7 @@ import type { DesktopThemeMode } from "@/features/desktop-shell/components/Float
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { getDesktopLayerToolbarCapabilities } from "@/features/desktop-shell/model/layer-toolbar-capabilities"
 import { TooltipNavbar, type TooltipItem } from "@/components/ui/tooltip-navbar"
+import { useDesktopCuelume } from "@/features/desktop-shell/hooks/use-desktop-cuelume"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import type { SizeTemplate } from "@/features/workspace/model/size-templates"
 import type { DraftingPaneCanvasTool } from "@/features/workspace/components/DraftingPaneSurface"
@@ -139,6 +142,7 @@ export function DesktopDynamicIslandChrome({
     Boolean(activePaneId) &&
     typeof snapEnabled === "boolean" &&
     Boolean(onSnapEnabledChange)
+  const { soundsEnabled, toggleSoundsEnabled } = useDesktopCuelume()
 
   const items = useMemo(() => {
     const nextItems: TooltipItem[] = [
@@ -224,9 +228,24 @@ export function DesktopDynamicIslandChrome({
       popover: <DesktopKeyboardShortcutsPopoverContent popoverSide="bottom" />,
     })
 
+    nextItems.push({
+      ariaLabel: soundsEnabled ? "Mute interaction sounds" : "Enable interaction sounds",
+      cuelume: "toggle",
+      dataSlot: "desktop-sounds-toggle",
+      icon: soundsEnabled ? (
+        <Volume2Icon className={ICON_CLASS} />
+      ) : (
+        <VolumeXIcon className={ICON_CLASS} />
+      ),
+      label: soundsEnabled ? "Sounds on" : "Sounds off",
+      onClick: toggleSoundsEnabled,
+      pressed: soundsEnabled,
+    })
+
     if (onThemeChange) {
       nextItems.push({
         ariaLabel: `Switch to ${theme === "light" ? "dark" : "light"} mode`,
+        cuelume: "toggle",
         dataSlot: "desktop-theme-toggle",
         icon:
           theme === "light" ? (
@@ -262,7 +281,9 @@ export function DesktopDynamicIslandChrome({
     selectedTransformLayer,
     sizePresetId,
     snapEnabled,
+    soundsEnabled,
     theme,
+    toggleSoundsEnabled,
   ])
 
   return (
