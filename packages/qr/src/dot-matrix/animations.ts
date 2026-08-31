@@ -890,9 +890,21 @@ const scaleKeyframe = (offset: number, value: number) => ({ offset, value });
 const matrixEntityAnimation = (
   targets: any,
   entity: QRCodeEntity,
-  duration: number = 520
-) =>
-  matrixSourceStyle(targets, entity, 0, duration, [1, 0.86, 1], 'ease-in-out');
+  duration: number = 520,
+): DotMatrixAnimationFrame => {
+  if (
+    entity === QRCodeEntity.PositionRing ||
+    entity === QRCodeEntity.PositionCenter
+  ) {
+    return {
+      targets,
+      duration,
+      web: { opacity: [1], scale: [1] },
+    };
+  }
+
+  return matrixSourceStyle(targets, entity, 0, duration, [1, 0.86, 1], 'ease-in-out');
+};
 
 const trBlPathNormFromCoord = (row: number, col: number) =>
   (row + (MATRIX_LAST - col)) / (MATRIX_LAST * 2);

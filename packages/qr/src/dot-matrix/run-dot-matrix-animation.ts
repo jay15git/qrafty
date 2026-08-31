@@ -74,8 +74,8 @@ export function buildDotMatrixAnimationTargets(
   const animation =
     typeof preset === "string" ? getAnimationPreset(preset) : preset
 
-  const { modules, rings, centers, icons } = collectAnimatableElements(root)
-  const targets = [...modules, ...rings, ...centers, ...icons]
+  const { modules, icons } = collectAnimatableElements(root)
+  const targets = [...modules, ...icons]
 
   if (targets.length === 0) {
     return []
@@ -90,8 +90,6 @@ export function buildDotMatrixAnimationTargets(
 
   const animationAdditions = [
     ...setEntityType(modules, QRCodeEntity.Module),
-    ...setEntityType(rings, QRCodeEntity.PositionRing),
-    ...setEntityType(centers, QRCodeEntity.PositionCenter),
     ...setEntityType(icons, QRCodeEntity.Icon),
   ].flatMap(({ element, entityType }) => [
     animation(
