@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useEffect, useState } from "react"
 import { SlotText } from "slot-text/react"
 
@@ -40,7 +41,18 @@ export function LandingHeroText() {
       </p>
       <h1 className="lh-brand">
         <span className="lh-support">make it</span>
-        <span className="lh-qrafty">QRafty</span>
+        <span className="lh-qrafty-mark" aria-label="QRafty">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={168}
+            height={168}
+            className="lh-qrafty-logo"
+            aria-hidden
+            priority
+          />
+          <span className="lh-qrafty-text">QRafty</span>
+        </span>
       </h1>
     </div>
   )
@@ -58,8 +70,8 @@ const css = `
 }
 .lh-brand {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  flex-wrap: nowrap;
+  align-items: center;
   justify-content: center;
   gap: 0.28em;
   margin: 0.35em 0 0;
@@ -68,27 +80,42 @@ const css = `
 .lh-support {
   display: inline-flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: center;
   gap: 0.28em;
   font-weight: 600;
   letter-spacing: -0.035em;
-  line-height: 1.05;
+  line-height: 1;
   font-size: clamp(52px, 8.2vw, 132px);
   color: rgba(32, 29, 29, 0.88);
 }
 .lh-support .slot-text {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   vertical-align: baseline;
 }
-.lh-qrafty {
+.lh-qrafty-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1em;
+  flex-shrink: 0;
+  font-size: clamp(64px, 10vw, 168px);
+  line-height: 1;
+}
+.lh-qrafty-text {
   font-family: var(--font-caveat), "Caveat", cursive;
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1;
-  font-size: clamp(64px, 10vw, 168px);
   color: #201d1d;
+}
+.lh-qrafty-logo {
+  display: block;
+  width: 1em;
+  height: 1em;
+  border-radius: 0.1em;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -98,6 +125,6 @@ const css = `
 
 @media (max-width: 700px) {
   .lh-support { font-size: clamp(36px, 10vw, 64px); }
-  .lh-qrafty { font-size: clamp(44px, 12vw, 80px); }
+  .lh-qrafty-mark { font-size: clamp(44px, 12vw, 80px); }
 }
 `

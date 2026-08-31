@@ -59,6 +59,17 @@ export function landingQrProps(
   }
 }
 
+/** Landing wheel cards — transparent QR surface on dark card chrome. */
+export function wheelQrProps(
+  overrides: Partial<QraftyQrCodeProps> = {},
+): QraftyQrCodeProps {
+  return landingQrProps(undefined, {
+    background: "transparent",
+    logo: undefined,
+    ...overrides,
+  })
+}
+
 export function renderLandingQrSvg(
   logoSrc: string | undefined,
   overrides: Partial<QraftyQrCodeProps> = {},

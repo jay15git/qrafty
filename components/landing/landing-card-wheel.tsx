@@ -1,60 +1,40 @@
 "use client"
 
-const IMG = [
-  "https://res.cloudinary.com/dakrfj1oh/image/upload/v1781973295/09_b5kt8t.png",
-  "https://res.cloudinary.com/dakrfj1oh/image/upload/v1781973294/06_p0lonf.png",
-  "https://res.cloudinary.com/dakrfj1oh/image/upload/v1781973295/08_bu1urh.png",
-  "https://res.cloudinary.com/dakrfj1oh/image/upload/v1781973294/03_sceom4.png",
-  "https://res.cloudinary.com/dakrfj1oh/image/upload/v1781973294/02_efyml3.png",
-  "https://res.cloudinary.com/dakrfj1oh/image/upload/v1781973294/05_ccn9so.png",
-  "https://res.cloudinary.com/dakrfj1oh/image/upload/v1781973294/01_wvqrxz.png",
-  "https://res.cloudinary.com/dakrfj1oh/image/upload/v1781876069/5_bgrt7d.jpg",
-  "https://res.cloudinary.com/dakrfj1oh/image/upload/v1781876068/2_jogaln.jpg",
-]
+import { useEffect, useState } from "react"
 
-const LABELS = [
-  "WebGL Hero Sections",
-  "Smooth Scroll Layouts",
-  "3D Card Carousels",
-  "Cursor Trail Effects",
-  "Animated Typography",
-  "Bento Grid Systems",
-  "Navbar Components",
-  "Motion Hover Effects",
-  "Copy-Paste Registry",
-]
+import { LANDING_WHEEL_CARD_PRESETS } from "@/components/landing/landing-card-wheel-presets"
+import { LandingWheelQr } from "@/components/landing/landing-wheel-qr"
 
-const N = 16
+const N = LANDING_WHEEL_CARD_PRESETS.length
 const SPACING = 360 / N
 
-type Card = { label: string; img: string }
-const CARDS: Card[] = Array.from({ length: N }, (_, i) => ({
-  label: LABELS[i % LABELS.length],
-  img: IMG[i % IMG.length],
-}))
-
 export function LandingCardWheel() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   return (
     <div className="os-root">
       <style>{css}</style>
 
       <div className="os-wheel">
         <div className="os-spin">
-          {CARDS.map((c, i) => (
+          {LANDING_WHEEL_CARD_PRESETS.map((preset, i) => (
             <div
-              key={i}
+              key={preset.id}
               className="os-card"
               style={{
                 transform: `rotate(${i * SPACING}deg) translateY(calc(var(--R) * -1))`,
               }}
             >
               <div className="os-card-inner">
-                <img src={c.img} alt="" draggable={false} />
-                <span>{c.label}</span>
+                <LandingWheelQr mounted={mounted} preset={preset} />
               </div>
             </div>
           ))}
-          {CARDS.map((_, i) => (
+          {LANDING_WHEEL_CARD_PRESETS.map((_, i) => (
             <div
               key={`t${i}`}
               className="os-tick"
@@ -68,9 +48,8 @@ export function LandingCardWheel() {
 
       <section className="os-about">
         <p>
-          Zepa is an ever-growing open-source library of hero sections, WebGL
-          effects, and motion components. Copy, paste, and ship
-          production-ready UI in seconds — no config, no lock-in.
+          Style modules, eyes, gradients, palettes, and die-cut shapes on a
+          live canvas — then export PNG, WebP, or video straight from the studio.
         </p>
       </section>
     </div>
@@ -122,24 +101,49 @@ const css = `
   transform-origin: 50% 0;
 }
 .os-card-inner {
-  background: #131212;
-  border-radius: 16px;
-  padding: 10px 10px 0;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16);
-}
-.os-card-inner img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 10px;
-  display: block;
+  aspect-ratio: 1;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
 }
-.os-card-inner span {
+.os-wheel-qr-plain {
+  width: 82%;
+  aspect-ratio: 1;
+}
+.os-wheel-qr-plain [data-slot="qrafty-code"],
+.os-wheel-qr-plain svg {
   display: block;
-  color: #efeeec;
-  font-size: 13px;
-  letter-spacing: 0.01em;
-  padding: 9px 4px 11px;
+  width: 100%;
+  height: 100%;
+}
+.os-wheel-shaped {
+  position: relative;
+  width: 86%;
+  max-height: 100%;
+}
+.os-wheel-shaped-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.os-wheel-shaped-qr {
+  position: absolute;
+  display: grid;
+  place-items: center;
+}
+.os-wheel-qr-markup {
+  width: 100%;
+  height: 100%;
+}
+.os-wheel-qr-markup [data-slot="qrafty-code"],
+.os-wheel-qr-markup svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .os-tick {
