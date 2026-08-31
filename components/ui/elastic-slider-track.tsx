@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { Calligraph } from "calligraph"
 import { m, type MotionValue } from "motion/react"
 
 import { cn } from "@/lib/utils"
@@ -21,7 +20,6 @@ export type ElasticSliderTrackProps = {
   displayValue: string
   displaySign: string
   displayBody: string
-  useCalligraphAnimation: boolean
   shouldReduceMotion: boolean | null
   rubberWidth: MotionValue<string>
   rubberX: MotionValue<number>
@@ -57,7 +55,6 @@ export function ElasticSliderTrack({
   displayValue,
   displaySign,
   displayBody,
-  useCalligraphAnimation,
   shouldReduceMotion,
   rubberWidth,
   rubberX,
@@ -176,7 +173,6 @@ export function ElasticSliderTrack({
         className={cn(
           "pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 font-mono text-sm/none font-medium transition-colors",
           "text-(--elastic-slider-label) group-data-[active=true]/elastic-slider:text-(--elastic-slider-focus)",
-          "elastic-slider-calligraph-value",
         )}
       >
         {displaySign ? (
@@ -184,18 +180,7 @@ export function ElasticSliderTrack({
             {displaySign}
           </span>
         ) : null}
-        {useCalligraphAnimation ? (
-          <Calligraph
-            variant="slots"
-            animation="snappy"
-            autoSize={false}
-            className="elastic-slider-calligraph inline-flex leading-none"
-          >
-            {displayBody}
-          </Calligraph>
-        ) : (
-          displayBody
-        )}
+        {displayBody}
       </span>
     </m.div>
   )

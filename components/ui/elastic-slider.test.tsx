@@ -49,7 +49,7 @@ describe("ElasticSlider", () => {
     expect(slider.getAttribute("aria-valuenow")).toBe("0.5")
   })
 
-  it("uses slots animation for formatted numeric labels", () => {
+  it("renders formatted numeric labels as plain text", () => {
     const { container } = renderSlider(
       <ElasticSlider
         label="Opacity"
@@ -63,8 +63,10 @@ describe("ElasticSlider", () => {
     )
 
     const valueSlot = container.querySelector('[data-slot="elastic-slider-value"]')
+    const slider = getRequiredSlider(container, "Opacity")
 
-    expect(valueSlot?.querySelectorAll('[aria-hidden="true"]').length).toBeGreaterThan(0)
+    expect(slider.getAttribute("aria-valuetext")).toBe("50%")
+    expect(valueSlot?.textContent).toBe("50%")
   })
 
   it("nudges controlled values from keyboard input", () => {
@@ -116,7 +118,7 @@ describe("ElasticSlider", () => {
     expect(root?.className).toContain("desktop-elastic-slider")
   })
 
-  it("renders signed formatted values without animating the minus sign in slots mode", () => {
+  it("renders signed formatted values with the minus sign outside the numeric body", () => {
     const { container } = renderSlider(
       <ElasticSlider
         label="Rotation"
@@ -130,14 +132,14 @@ describe("ElasticSlider", () => {
     )
 
     const valueSlot = container.querySelector('[data-slot="elastic-slider-value"]')
-    const calligraph = valueSlot?.querySelector(".elastic-slider-calligraph")
+    const slider = getRequiredSlider(container, "Rotation")
 
-    expect(valueSlot?.textContent?.startsWith("-")).toBe(true)
-    expect(calligraph?.getAttribute("aria-label")).toBe("18°")
+    expect(slider.getAttribute("aria-valuetext")).toBe("-18°")
+    expect(valueSlot?.textContent).toBe("-18°")
     expect(valueSlot?.querySelector(':scope > span[aria-hidden="true"]')?.textContent).toBe("-")
   })
 
-  it("updates the animated value readout when the controlled value changes", () => {
+  it("updates the value readout when the controlled value changes", () => {
     const { container, rerender } = renderSlider(
       <ElasticSlider
         label="Radius"

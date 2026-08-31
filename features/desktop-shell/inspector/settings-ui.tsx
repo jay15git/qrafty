@@ -1216,7 +1216,6 @@ export function SettingsSlider({
 
   return (
     <ElasticSlider
-      animateValue={false}
       aria-label={label}
       className={SETTINGS_ELASTIC_SLIDER_CLASS}
       label={label}

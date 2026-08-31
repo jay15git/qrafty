@@ -75,7 +75,6 @@ type UseElasticSliderOptions = {
   max: number
   step: number
   formatValue?: (value: number) => string
-  animateValue?: boolean
 }
 
 export function useElasticSlider({

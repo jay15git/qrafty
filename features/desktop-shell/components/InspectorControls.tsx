@@ -16,8 +16,7 @@ import {
   type ReactNode,
 } from "react"
 import { ChevronDownIcon, SearchIcon } from "lucide-react"
-import { Calligraph } from "calligraph"
-import { AnimatePresence, m, useReducedMotion, type Transition } from "motion/react"
+import { AnimatePresence, m, type Transition } from "motion/react"
 
 import { DesktopInspectorPasteButton } from "@/features/desktop-shell/components/DesktopInspectorPasteButton"
 import "./desktop-inspector-input-error.css"
@@ -709,7 +708,7 @@ function mirrorInputTypography(source: HTMLElement): CSSProperties {
   }
 }
 
-function mirrorCalligraphTypography(source: HTMLElement): CSSProperties {
+function mirrorDisplayTypography(source: HTMLElement): CSSProperties {
   const computed = getComputedStyle(source)
   const { lineHeight: _lineHeight, ...typography } = mirrorInputTypography(source)
 
@@ -720,36 +719,23 @@ function mirrorCalligraphTypography(source: HTMLElement): CSSProperties {
   }
 }
 
-function DesktopInspectorCalligraphNumber({
+function DesktopInspectorDisplayNumber({
   style,
   value,
 }: {
   style?: CSSProperties
   value: string
 }) {
-  const shouldReduceMotion = useReducedMotion()
   const { body, sign } = splitSignedDisplayValue(value)
 
-  if (shouldReduceMotion) {
-    return <span style={style}>{value}</span>
-  }
-
   return (
-    <span className="inline-flex items-center justify-center" style={style}>
+    <span className="inline-flex items-center justify-center leading-none" style={style}>
       {sign ? (
         <span aria-hidden="true" className="inline-block" style={style}>
           {sign}
         </span>
       ) : null}
-      <Calligraph
-        animation="snappy"
-        autoSize={false}
-        className="desktop-inspector-calligraph inline-flex items-center justify-center leading-none"
-        style={style}
-        variant="slots"
-      >
-        {body}
-      </Calligraph>
+      <span style={style}>{body}</span>
     </span>
   )
 }
@@ -778,7 +764,7 @@ export function DesktopInspectorScrubNumberInput({
       return
     }
 
-    setMirroredTypography(mirrorCalligraphTypography(source))
+    setMirroredTypography(mirrorDisplayTypography(source))
   }, [scrub.editing, scrub.inputRef])
 
   useLayoutEffect(() => {
@@ -850,10 +836,10 @@ export function DesktopInspectorScrubNumberInput({
         >
           <div
             className="pointer-events-none flex w-full items-center justify-center"
-            data-slot="desktop-inspector-calligraph-value"
+            data-slot="desktop-inspector-number-value"
             style={mirroredTypography}
           >
-            <DesktopInspectorCalligraphNumber
+            <DesktopInspectorDisplayNumber
               style={mirroredTypography}
               value={scrub.displayValue}
             />

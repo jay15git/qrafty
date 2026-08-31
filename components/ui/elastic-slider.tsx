@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { useReducedMotion } from "motion/react"
 
 import { ElasticSliderTrack } from "@/components/ui/elastic-slider-track"
 import { useElasticSlider } from "@/components/ui/use-elastic-slider"
@@ -18,7 +17,6 @@ export type ElasticSliderProps = {
   step?: number
   formatValue?: (value: number) => string
   className?: string
-  animateValue?: boolean
   "aria-label"?: string
 }
 
@@ -33,12 +31,8 @@ export function ElasticSlider({
   step = 0.01,
   formatValue,
   className,
-  animateValue = true,
   "aria-label": ariaLabel,
 }: ElasticSliderProps) {
-  const shouldReduceMotion = useReducedMotion()
-  const useCalligraphAnimation = animateValue && !shouldReduceMotion
-
   const slider = useElasticSlider({
     label,
     value: valueProp,
@@ -83,7 +77,6 @@ export function ElasticSlider({
         displayValue={slider.displayValue}
         displaySign={slider.displaySign}
         displayBody={slider.displayBody}
-        useCalligraphAnimation={useCalligraphAnimation}
         shouldReduceMotion={slider.shouldReduceMotion}
         rubberWidth={slider.rubberWidth}
         rubberX={slider.rubberX}
