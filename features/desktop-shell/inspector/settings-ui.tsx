@@ -50,7 +50,12 @@ import {
   type DesktopSettingsSectionId,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
-import { CUELUME_PRESS, CUELUME_TOGGLE } from "@/features/desktop-shell/audio/desktop-cuelume"
+import {
+  CUELUME_OPTION,
+  CUELUME_PRESS,
+  CUELUME_TOGGLE,
+  playDesktopPressSound,
+} from "@/features/desktop-shell/audio/desktop-cuelume"
 import { cn } from "@/lib/utils"
 
 import "./desktopnew.css"
@@ -897,6 +902,7 @@ export function ContentTypePicker({
                 isSelected && "dn-content-type-tile--selected",
               )}
               type="button"
+              {...CUELUME_OPTION}
               onClick={() => {
                 onSelect(type)
                 onAfterSelect?.()
@@ -937,6 +943,7 @@ export function OptionScrollRow({
           isSelected && "text-[var(--dn-fg)]",
         )}
         type="button"
+        {...CUELUME_OPTION}
         onClick={() => onSelect?.(item)}
       >
         {item}
@@ -1007,6 +1014,7 @@ export function OptionGrid({
             )}
             type="button"
             aria-pressed={isSelected}
+            {...CUELUME_OPTION}
             onClick={() => onSelect?.(item)}
           >
             {item}
@@ -1037,6 +1045,7 @@ export function PresetList({
           )}
           type="button"
           aria-pressed={selected === item}
+          {...CUELUME_OPTION}
           onClick={() => onSelect(item)}
         >
           {item}
@@ -1068,6 +1077,7 @@ function FillSwatchButton({
       )}
       data-slot="desktop-fill-swatch-trigger"
       type="button"
+      {...CUELUME_PRESS}
       {...props}
     >
       <span
@@ -1212,6 +1222,7 @@ export function SettingsSlider({
       label={label}
       max={max}
       min={min}
+      onInteractionTick={playDesktopPressSound}
       step={step}
       value={normalizedValue}
       onValueChange={onChange}

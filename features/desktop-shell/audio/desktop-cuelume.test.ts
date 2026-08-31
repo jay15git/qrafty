@@ -14,9 +14,12 @@ import { bind, play, setEnabled, setVolume } from "cuelume"
 
 import {
   applyDesktopSoundPreferences,
+  DESKTOP_SOUND_PRESS,
+  DESKTOP_SOUND_RELEASE,
   DESKTOP_SOUNDS_STORAGE_KEY,
   enhanceDesktopSoundTargets,
   persistDesktopSoundsEnabled,
+  playDesktopPressSound,
   playDesktopSound,
   readDesktopSoundsEnabled,
 } from "@/features/desktop-shell/audio/desktop-cuelume"
@@ -101,6 +104,13 @@ describe("desktop-cuelume preferences", () => {
 
     expect(play).toHaveBeenCalledWith("success", undefined)
   })
+
+  it("plays press sound for slider steps", () => {
+    persistDesktopSoundsEnabled(true)
+    playDesktopPressSound()
+
+    expect(play).toHaveBeenCalledWith(DESKTOP_SOUND_PRESS, { volume: 0.45 })
+  })
 })
 
 describe("enhanceDesktopSoundTargets", () => {
@@ -110,47 +120,36 @@ describe("enhanceDesktopSoundTargets", () => {
     return document.body
   }
 
-  it("tags segment tabs as toggles", () => {
+  it("tags option tiles with press even inside the floating toolbar shell", () => {
     const root = mountScope(`
-      <div data-slot="desktop-workspace">
-        <button class="dn-segment-tab" type="button">Photo</button>
-      </div>
-    `)
-
-    const button = root.querySelector("button")
-    expect(button?.getAttribute("data-cuelume-toggle")).toBe("")
-    expect(button?.hasAttribute("data-cuelume-press")).toBe(false)
-  })
-
-  it("tags option tiles with press and release only", () => {
-    const root = mountScope(`
-      <div class="desktopnew-root">
-        <button class="dn-option-tile" type="button">PNG</button>
-      </div>
-    `)
-
-    const button = root.querySelector("button")
-    expect(button?.getAttribute("data-cuelume-press")).toBe("")
-    expect(button?.getAttribute("data-cuelume-release")).toBe("")
-    expect(button?.hasAttribute("data-cuelume-hover")).toBe(false)
-  })
-
-  it("tags accordion headers with press and release only", () => {
-    const root = mountScope(`
-      <div data-slot="desktop-workspace">
-        <div class="dn-settings-accordion">
-          <button aria-expanded="false" type="button">Content</button>
+      <div data-slot="desktop-floating-toolbar-root">
+        <div data-slot="desktop-left-toolbar-shell">
+          <button class="dn-option-tile" type="button">PNG</button>
         </div>
       </div>
     `)
 
     const button = root.querySelector("button")
-    expect(button?.getAttribute("data-cuelume-press")).toBe("")
-    expect(button?.getAttribute("data-cuelume-release")).toBe("")
+    expect(button?.getAttribute("data-cuelume-press")).toBe(DESKTOP_SOUND_PRESS)
+    expect(button?.hasAttribute("data-cuelume-release")).toBe(false)
+  })
+
+  it("tags accordion headers with release only", () => {
+    const root = mountScope(`
+      <div data-slot="desktop-workspace">
+        <div class="dn-settings-accordion">
+          <button aria-controls="panel" aria-expanded="false" type="button">Content</button>
+        </div>
+      </div>
+    `)
+
+    const button = root.querySelector("button")
+    expect(button?.getAttribute("data-cuelume-release")).toBe(DESKTOP_SOUND_RELEASE)
+    expect(button?.hasAttribute("data-cuelume-press")).toBe(false)
     expect(button?.hasAttribute("data-cuelume-hover")).toBe(false)
   })
 
-  it("tags dynamic island buttons with press and release only", () => {
+  it("tags chrome toolbar buttons with release only", () => {
     const root = mountScope(`
       <div data-slot="desktop-floating-toolbar-root">
         <div data-slot="desktop-dynamic-island">
@@ -160,9 +159,22 @@ describe("enhanceDesktopSoundTargets", () => {
     `)
 
     const button = root.querySelector("button")
-    expect(button?.getAttribute("data-cuelume-press")).toBe("")
-    expect(button?.getAttribute("data-cuelume-release")).toBe("")
+    expect(button?.getAttribute("data-cuelume-release")).toBe(DESKTOP_SOUND_RELEASE)
+    expect(button?.hasAttribute("data-cuelume-press")).toBe(false)
     expect(button?.hasAttribute("data-cuelume-hover")).toBe(false)
+  })
+
+  it("tags segment tabs with press only", () => {
+    const root = mountScope(`
+      <div data-slot="desktop-workspace">
+        <button class="dn-segment-tab" type="button">Photo</button>
+      </div>
+    `)
+
+    const button = root.querySelector("button")
+    expect(button?.getAttribute("data-cuelume-press")).toBe(DESKTOP_SOUND_PRESS)
+    expect(button?.hasAttribute("data-cuelume-release")).toBe(false)
+    expect(button?.hasAttribute("data-cuelume-toggle")).toBe(false)
   })
 
   it("strips legacy hover attrs during enhancement", () => {
@@ -174,19 +186,19 @@ describe("enhanceDesktopSoundTargets", () => {
 
     const button = root.querySelector("button")
     expect(button?.hasAttribute("data-cuelume-hover")).toBe(false)
-    expect(button?.getAttribute("data-cuelume-press")).toBe("")
+    expect(button?.getAttribute("data-cuelume-press")).toBe(DESKTOP_SOUND_PRESS)
   })
 
   it("does not retag buttons that already have cuelume attrs", () => {
     const root = mountScope(`
       <div data-slot="desktop-workspace">
-        <button data-cuelume-toggle="" type="button">Already tagged</button>
+        <button data-cuelume-release="${DESKTOP_SOUND_RELEASE}" type="button">Already tagged</button>
       </div>
     `)
 
     enhanceDesktopSoundTargets(document)
     const button = root.querySelector("button")
-    expect(button?.getAttribute("data-cuelume-toggle")).toBe("")
+    expect(button?.getAttribute("data-cuelume-release")).toBe(DESKTOP_SOUND_RELEASE)
     expect(button?.hasAttribute("data-cuelume-press")).toBe(false)
   })
 
@@ -201,6 +213,7 @@ describe("enhanceDesktopSoundTargets", () => {
 
     const button = root.querySelector("button")
     expect(button?.hasAttribute("data-cuelume-press")).toBe(false)
+    expect(button?.hasAttribute("data-cuelume-release")).toBe(false)
   })
 })
 

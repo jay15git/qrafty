@@ -12,6 +12,7 @@ export type ElasticSliderProps = {
   value?: number
   defaultValue?: number
   onValueChange?: (value: number) => void
+  onInteractionTick?: () => void
   min?: number
   max?: number
   step?: number
@@ -26,6 +27,7 @@ export function ElasticSlider({
   value: valueProp,
   defaultValue,
   onValueChange,
+  onInteractionTick,
   min = 0,
   max = 1,
   step = 0.01,
@@ -42,6 +44,7 @@ export function ElasticSlider({
     value: valueProp,
     defaultValue,
     onValueChange,
+    onInteractionTick,
     min,
     max,
     step,

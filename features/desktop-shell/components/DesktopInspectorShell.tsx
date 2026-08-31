@@ -8,6 +8,7 @@ import {
   DESKTOP_INSPECTOR_LABEL_CLASS,
   DESKTOP_INSPECTOR_RADIUS_CLASS,
 } from "@/features/desktop-shell/components/desktop-inspector-tokens"
+import { playDesktopPressSound } from "@/features/desktop-shell/audio/desktop-cuelume"
 import { SETTINGS_ELASTIC_SLIDER_CLASS } from "@/features/desktop-shell/inspector/settings-ui"
 import {
   DesktopInspectorScrubNumberInput,
@@ -51,6 +52,7 @@ export function DesktopInspectorElasticSliderRow({
           label={label}
           max={max}
           min={min}
+          onInteractionTick={playDesktopPressSound}
           step={step}
           value={value}
           onValueChange={onChange}

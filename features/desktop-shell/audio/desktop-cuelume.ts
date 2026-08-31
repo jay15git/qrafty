@@ -3,24 +3,31 @@ import { play, setEnabled, setVolume, type SoundName } from "cuelume"
 export const DESKTOP_SOUNDS_STORAGE_KEY = "qrafty:desktop-sounds"
 export const DEFAULT_DESKTOP_SOUND_VOLUME = 0.65
 
+export const DESKTOP_SOUND_PRESS = "press" satisfies SoundName
+export const DESKTOP_SOUND_RELEASE = "release" satisfies SoundName
+
 export const CUELUME_PRESS = {
-  "data-cuelume-press": "",
-  "data-cuelume-release": "",
+  "data-cuelume-press": DESKTOP_SOUND_PRESS,
 } as const
 
-export const CUELUME_TOGGLE = {
-  "data-cuelume-toggle": "",
+export const CUELUME_RELEASE = {
+  "data-cuelume-release": DESKTOP_SOUND_RELEASE,
 } as const
 
-export const CUELUME_NAV = CUELUME_PRESS
-
-export const CUELUME_ACCORDION = CUELUME_PRESS
+export const CUELUME_NAV = CUELUME_RELEASE
+export const CUELUME_ACCORDION = CUELUME_RELEASE
+export const CUELUME_CHROME = CUELUME_RELEASE
+export const CUELUME_TOGGLE = CUELUME_PRESS
+export const CUELUME_ROW = CUELUME_PRESS
+export const CUELUME_COLOR = CUELUME_PRESS
+export const CUELUME_OPTION = CUELUME_PRESS
 
 const DESKTOP_SOUND_SCOPE_SELECTORS = [
   '[data-slot="desktop-workspace"]',
   '[data-slot="desktop-floating-toolbar-root"]',
   '[data-slot^="desktop-"]',
   ".desktopnew-root",
+  ".desktopnew-fill-popover",
   '[data-slot="mobile-family-drawer-root"]',
   '[data-slot="mobile-layer-toolbar"]',
   '[data-slot="desktop-compose-toolbar"]',
@@ -91,9 +98,14 @@ export function playDesktopSound(name: SoundName, options?: { volume?: number })
   play(name, options)
 }
 
+export function playDesktopPressSound() {
+  playDesktopSound(DESKTOP_SOUND_PRESS, { volume: 0.45 })
+}
+
 function isAlreadyTagged(button: HTMLButtonElement): boolean {
   return (
     button.hasAttribute("data-cuelume-press") ||
+    button.hasAttribute("data-cuelume-release") ||
     button.hasAttribute("data-cuelume-toggle")
   )
 }
@@ -110,36 +122,70 @@ function shouldSkipButton(button: HTMLButtonElement): boolean {
   return isAlreadyTagged(button)
 }
 
-function applyPressRelease(button: HTMLButtonElement) {
-  button.setAttribute("data-cuelume-press", "")
-  button.setAttribute("data-cuelume-release", "")
+function applyPress(button: HTMLButtonElement) {
+  button.removeAttribute("data-cuelume-hover")
+  button.removeAttribute("data-cuelume-release")
+  button.removeAttribute("data-cuelume-toggle")
+  button.setAttribute("data-cuelume-press", DESKTOP_SOUND_PRESS)
 }
 
-function applyToggle(button: HTMLButtonElement) {
-  button.setAttribute("data-cuelume-toggle", "")
+function applyRelease(button: HTMLButtonElement) {
+  button.removeAttribute("data-cuelume-hover")
+  button.removeAttribute("data-cuelume-press")
+  button.removeAttribute("data-cuelume-toggle")
+  button.setAttribute("data-cuelume-release", DESKTOP_SOUND_RELEASE)
 }
 
-function isSegmentTab(button: HTMLButtonElement): boolean {
-  return button.classList.contains("dn-segment-tab") || button.getAttribute("role") === "tab"
+function isAccordionHeader(button: HTMLButtonElement): boolean {
+  return (
+    button.hasAttribute("aria-expanded") &&
+    button.hasAttribute("aria-controls") &&
+    Boolean(button.closest(".dn-settings-accordion"))
+  )
 }
 
-function isSwitch(button: HTMLButtonElement): boolean {
-  return button.getAttribute("role") === "switch" || Boolean(button.closest('[role="switch"]'))
+function isOptionTile(button: HTMLButtonElement): boolean {
+  return (
+    button.classList.contains("dn-option-tile") ||
+    button.classList.contains("dn-preset-item") ||
+    button.classList.contains("dn-preview-tile")
+  )
+}
+
+function isChromeToolbarButton(button: HTMLButtonElement): boolean {
+  return Boolean(
+    button.closest(
+      [
+        '[data-slot="desktop-dynamic-island"]',
+        '[data-slot="desktop-utility-toolbar"]',
+        '[data-slot="desktop-compose-toolbar"]',
+        '[data-slot="drafting-layer-floating-toolbar"]',
+        '[data-slot="mobile-layer-toolbar"]',
+      ].join(","),
+    ),
+  )
+}
+
+function isReleaseTierButton(button: HTMLButtonElement): boolean {
+  return isAccordionHeader(button) || isChromeToolbarButton(button)
 }
 
 function enhanceDesktopSoundButton(button: HTMLButtonElement) {
-  button.removeAttribute("data-cuelume-hover")
-
   if (shouldSkipButton(button)) {
     return
   }
 
-  if (isSegmentTab(button) || isSwitch(button)) {
-    applyToggle(button)
+  if (isOptionTile(button)) {
+    applyPress(button)
     return
   }
 
-  applyPressRelease(button)
+  if (isReleaseTierButton(button)) {
+    applyRelease(button)
+    return
+  }
+
+  applyPress(button)
 }
 
 function collectDesktopSoundScopeRoots(root: ParentNode): HTMLElement[] {

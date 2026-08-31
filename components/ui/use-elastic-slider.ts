@@ -70,6 +70,7 @@ type UseElasticSliderOptions = {
   value?: number
   defaultValue?: number
   onValueChange?: (value: number) => void
+  onInteractionTick?: () => void
   min: number
   max: number
   step: number
@@ -82,6 +83,7 @@ export function useElasticSlider({
   value: valueProp,
   defaultValue,
   onValueChange,
+  onInteractionTick,
   min,
   max,
   step,
@@ -90,10 +92,23 @@ export function useElasticSlider({
   const isTouchPrimary = useTouchPrimary()
   const shouldReduceMotion = useReducedMotion()
   const onValueChangeRef = React.useRef(onValueChange)
+  const onInteractionTickRef = React.useRef(onInteractionTick)
   const pendingExternalValueRef = React.useRef<number | null>(null)
   const externalRafRef = React.useRef<number | null>(null)
+  const lastInteractionTickAtRef = React.useRef(0)
 
   onValueChangeRef.current = onValueChange
+  onInteractionTickRef.current = onInteractionTick
+
+  const maybePlayInteractionTick = React.useCallback(() => {
+    const now = Date.now()
+    if (now - lastInteractionTickAtRef.current < 80) {
+      return
+    }
+
+    lastInteractionTickAtRef.current = now
+    onInteractionTickRef.current?.()
+  }, [])
 
   const flushExternalValue = React.useCallback(() => {
     externalRafRef.current = null
@@ -129,6 +144,23 @@ export function useElasticSlider({
     onChange: batchedOnValueChange,
     caller: "ElasticSlider",
   })
+  const valueRefForTick = React.useRef(value)
+
+  const setValueWithTick = React.useCallback(
+    (next: number) => {
+      const rounded = roundValue(next, step)
+      if (rounded !== valueRefForTick.current) {
+        valueRefForTick.current = rounded
+        maybePlayInteractionTick()
+      }
+      setValue(rounded)
+    },
+    [maybePlayInteractionTick, setValue, step],
+  )
+
+  React.useEffect(() => {
+    valueRefForTick.current = value
+  }, [value])
 
   const wrapperRef = React.useRef<HTMLDivElement>(null)
   const trackRef = React.useRef<HTMLDivElement>(null)
@@ -313,12 +345,12 @@ export function useElasticSlider({
       animRef.current?.stop()
       animRef.current = null
       fillPercent.jump(percentFromValue(newValue))
-      setValue(roundValue(newValue, step))
+      setValueWithTick(newValue)
     },
     [
       positionToValue,
       percentFromValue,
-      setValue,
+      setValueWithTick,
       step,
       fillPercent,
       rubberStretch,
@@ -358,7 +390,7 @@ export function useElasticSlider({
             : snapToDecile(rawValue, min, max)
 
         animateFillTo(percentFromValue(snapped))
-        setValue(roundValue(snapped, step))
+        setValueWithTick(snapped)
       }
 
       if (!shouldReduceMotion && rubberStretch.get() !== 0) {
@@ -388,7 +420,7 @@ export function useElasticSlider({
       percentFromValue,
       positionToValue,
       rubberStretch,
-      setValue,
+      setValueWithTick,
       shouldReduceMotion,
       step,
     ],
@@ -437,9 +469,9 @@ export function useElasticSlider({
 
       const snapped = roundValue(clamp(next, min, max), step)
       animateFillTo(percentFromValue(snapped))
-      setValue(snapped)
+      setValueWithTick(snapped)
     },
-    [value, min, max, step, animateFillTo, percentFromValue, setValue],
+    [value, min, max, step, animateFillTo, percentFromValue, setValueWithTick],
   )
 
   const handleTrackFocus = React.useCallback(() => {
