@@ -1,9 +1,9 @@
 import {
   DEFAULT_BACKGROUND_SHAPE_OPTIONS,
-  type QrStudioState,
+  type QraftyState,
 } from "@/features/qr-code/model/state"
 
-export function createDraftingQrArtworkState(state: QrStudioState): QrStudioState {
+export function createDraftingQrArtworkState(state: QraftyState): QraftyState {
   return {
     ...state,
     backgroundGradient: {

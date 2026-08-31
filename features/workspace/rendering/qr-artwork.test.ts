@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest"
 
 import { toReactQrCodeProps } from "@/features/qr-code/adapters/react-qr-adapter"
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 import { buildDraftingLayeredNodePayload } from "@/features/workspace/export/layered-export"
 import { DEFAULT_DRAFTING_CARD_STATE } from "@/features/workspace/model/card-state"
 import { createDefaultDraftingLayers } from "@/features/workspace/model/layers"
@@ -47,7 +47,7 @@ describe("drafting qr artwork helpers", () => {
   })
 
   it("derives resized qr layout metrics from the layer width", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundShapeId = "ghost"
     state.backgroundShapeOptions = {
       ...state.backgroundShapeOptions,
@@ -64,7 +64,7 @@ describe("drafting qr artwork helpers", () => {
   })
 
   it("preserves palette module paint after svg id prefixing in layered export", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.width = 240
     state.height = 240
     state.dotsColorMode = "palette"
@@ -92,7 +92,7 @@ describe("drafting qr artwork helpers", () => {
   })
 
   it("preserves qr foreground geometry in layered svg export", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dataModulesSettings.type = "square"
     state.finderPatternOuterSettings.type = "square"
     state.finderPatternInnerSettings.type = "square"
@@ -120,7 +120,7 @@ describe("drafting qr artwork helpers", () => {
 
 describe("drafting qr artwork helpers (legacy)", () => {
   it("creates foreground-only ReactQRCode state for drafting artwork", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundImage = {
       source: "url",
       value: "https://example.com/background.png",

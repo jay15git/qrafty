@@ -1,16 +1,16 @@
-import { ReactQRCode } from "@new-qr/qr-internal/react-qr-code"
+import { ReactQRCode } from "@qrafty/qr-internal/react-qr-code"
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server.browser"
 
 import { toReactQrCodeProps } from "@/features/qr-code/adapters/react-qr-adapter"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import {
   getQrEncodeCacheKey,
   readCachedQrEncodeMarkup,
   writeCachedQrEncodeMarkup,
 } from "@/features/qr-code/rendering/qr-encode-cache"
 import {
-  applyStudioQrSvgMarkupExtensions,
+  applyQraftyQrSvgMarkupExtensions,
   stripXmlDeclaration,
 } from "@/features/qr-code/rendering/qr-svg-markup"
 import {
@@ -19,7 +19,7 @@ import {
   scaleNestedSvgMarkup,
 } from "@/features/workspace/rendering/qr-artwork"
 
-function renderReactQrBaseMarkupCached(state: QrStudioState) {
+function renderReactQrBaseMarkupCached(state: QraftyState) {
   const cacheKey = getQrEncodeCacheKey(state)
   const cached = readCachedQrEncodeMarkup(cacheKey)
 
@@ -35,14 +35,14 @@ function renderReactQrBaseMarkupCached(state: QrStudioState) {
   return markup
 }
 
-export function buildDraftingQrStudioPreviewMarkup(
-  state: QrStudioState,
+export function buildDraftingQraftyPreviewMarkup(
+  state: QraftyState,
   targetWidth: number,
   targetHeight: number,
 ) {
   const artworkState = createDraftingQrArtworkState(state)
   const baseMarkup = renderReactQrBaseMarkupCached(artworkState)
-  const enhanced = applyStudioQrSvgMarkupExtensions(baseMarkup, artworkState)
+  const enhanced = applyQraftyQrSvgMarkupExtensions(baseMarkup, artworkState)
 
   return scaleNestedSvgMarkup(
     sanitizeDraftingQrArtworkMarkup(enhanced),
@@ -51,11 +51,11 @@ export function buildDraftingQrStudioPreviewMarkup(
   )
 }
 
-export function buildDraftingQrStudioMarkup(state: QrStudioState) {
+export function buildDraftingQraftyMarkup(state: QraftyState) {
   const artworkState = createDraftingQrArtworkState(state)
   const baseMarkup = renderReactQrBaseMarkupCached(artworkState)
 
   return sanitizeDraftingQrArtworkMarkup(
-    applyStudioQrSvgMarkupExtensions(baseMarkup, artworkState),
+    applyQraftyQrSvgMarkupExtensions(baseMarkup, artworkState),
   )
 }

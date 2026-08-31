@@ -153,7 +153,7 @@ const LINK_CONTENT_TYPES = new Set<QrInputType>([
 
 export function getDefaultStaticQrValues(type: QrInputType): StaticQrContentValues {
   if (type === "auto") {
-    return { text: "https://new-qr-studio.local/launch" }
+    return { text: "https://qrafty.local/launch" }
   }
 
   if (isPlatformType(type)) {

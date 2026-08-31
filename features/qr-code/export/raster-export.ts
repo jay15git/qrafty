@@ -10,7 +10,7 @@ import {
 import {
   clampQrSize,
   clampRasterExportQualityPercent,
-  type QrStudioState,
+  type QraftyState,
 } from "@/features/qr-code/model/state"
 import qrcode from "qrcode-generator"
 import type { QrFileExtension } from "@/features/qr-code/model/types"
@@ -22,7 +22,7 @@ import {
 } from "@/features/workspace/rendering/qr-artwork"
 const DASHBOARD_RASTER_EXPORT_MAX_DIMENSION = 4096
 
-function getQrModuleCount(state: QrStudioState): number {
+function getQrModuleCount(state: QraftyState): number {
   const qr = qrcode(state.qrOptions.typeNumber || 0, state.qrOptions.errorCorrectionLevel)
   qr.addData(state.data.trim() || "https://example.com", state.qrOptions.mode)
   qr.make()
@@ -36,7 +36,7 @@ type DashboardRasterExportOptions = {
   extension: DashboardRasterExtension
   name: string
   qualityPercent: number
-  state: QrStudioState
+  state: QraftyState
   targetSizePx?: number
 }
 
@@ -81,7 +81,7 @@ export function clampDashboardRasterTargetSize(value: number) {
   return Math.max(1, Math.min(DASHBOARD_RASTER_EXPORT_MAX_DIMENSION, Math.round(value)))
 }
 
-function resolveQrModuleUnitsForRasterSnap(markup: string, state: QrStudioState) {
+function resolveQrModuleUnitsForRasterSnap(markup: string, state: QraftyState) {
   const nested = parseNestedQrSvgMetrics(markup)
 
   if (nested) {
@@ -100,7 +100,7 @@ function resolveQrModuleUnitsForRasterSnap(markup: string, state: QrStudioState)
 }
 
 export function getDashboardRasterExportDimensions(
-  state: QrStudioState,
+  state: QraftyState,
   qualityPercent: number,
   targetSizePx?: number,
 ) {

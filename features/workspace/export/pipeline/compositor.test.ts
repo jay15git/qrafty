@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { formatFill } from "@/components/ui/fill-picker-base/public-api"
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
 import {
   createDefaultDraftingLayers,
@@ -14,7 +14,7 @@ import {
 
 describe("export compositor faces", () => {
   it("paints shader and image card faces on canvas, not via nested svg images", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const shaderCard = createDefaultDraftingCardState()
     const layers = createDefaultDraftingLayers("node", state, shaderCard)
     const cardLayer = layers.find((layer) => layer.kind === "card")

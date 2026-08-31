@@ -1,5 +1,5 @@
-export { NewQrCode } from "./NewQrCode"
-export type { NewQrCodeProps, PortableQrConfig } from "./NewQrCode"
+export { QraftyQrCode } from "./QraftyQrCode"
+export type { QraftyQrCodeProps, QraftyQrConfig } from "./QraftyQrCode"
 
 export { ReactQRCode } from "../react-qr-code"
 export type {

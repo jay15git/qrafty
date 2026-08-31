@@ -5,7 +5,7 @@ import { createRoot } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { DesktopNewFillPicker } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
-import { studioGradientToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+import { qraftyGradientToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
 import { degreesToRadians } from "@/features/qr-code/styles/gradient-controls"
 
 describe("DesktopNewFillPicker", () => {
@@ -65,7 +65,7 @@ describe("DesktopNewFillPicker", () => {
   it("opens on the gradient tab when the value is a gradient", () => {
     const container = document.createElement("div")
     const root = createRoot(container)
-    const css = studioGradientToFillCss({
+    const css = qraftyGradientToFillCss({
       enabled: true,
       type: "linear",
       rotation: degreesToRadians(90),

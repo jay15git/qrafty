@@ -1,16 +1,16 @@
 import {
   getAssetValue,
   hasActiveBackgroundShapeOptions,
-  type QrStudioState,
+  type QraftyState,
 } from "@/features/qr-code/model/state"
 import type {
-  NewQrCodeProps,
+  QraftyQrCodeProps,
   QrFinderInnerStyle,
   QrFinderOuterStyle,
   QrModuleStyle,
-} from "@new-qr/qr"
+} from "@qrafty/qr"
 
-function mapBackground(state: QrStudioState): NewQrCodeProps["background"] {
+function mapBackground(state: QraftyState): QraftyQrCodeProps["background"] {
   const backgroundImage = getAssetValue(state.backgroundImage)
   const customBackgroundSurfaceActive =
     !backgroundImage &&
@@ -28,10 +28,10 @@ function mapBackground(state: QrStudioState): NewQrCodeProps["background"] {
   return state.backgroundOptions.color
 }
 
-function mapStudioGradient(
-  gradient: QrStudioState["dataModulesGradient"],
+function mapQraftyGradient(
+  gradient: QraftyState["dataModulesGradient"],
   enabled: boolean,
-): NewQrCodeProps["gradient"] {
+): QraftyQrCodeProps["gradient"] {
   if (!enabled || !gradient.enabled) {
     return "none"
   }
@@ -53,7 +53,7 @@ function mapStudioGradient(
   }
 }
 
-function mapBackgroundGradient(state: QrStudioState): NewQrCodeProps["backgroundGradient"] {
+function mapBackgroundGradient(state: QraftyState): QraftyQrCodeProps["backgroundGradient"] {
   const backgroundImage = getAssetValue(state.backgroundImage)
   const customBackgroundSurfaceActive =
     !backgroundImage &&
@@ -68,24 +68,24 @@ function mapBackgroundGradient(state: QrStudioState): NewQrCodeProps["background
     return "none"
   }
 
-  return mapStudioGradient(state.backgroundGradient, state.backgroundGradient.enabled)
+  return mapQraftyGradient(state.backgroundGradient, state.backgroundGradient.enabled)
 }
 
-function mapGradient(state: QrStudioState): NewQrCodeProps["gradient"] {
+function mapGradient(state: QraftyState): QraftyQrCodeProps["gradient"] {
   if (state.dotsColorMode !== "gradient") {
     return "none"
   }
 
-  return mapStudioGradient(state.dataModulesGradient, true)
+  return mapQraftyGradient(state.dataModulesGradient, true)
 }
 
-function mapLogo(state: QrStudioState): NewQrCodeProps["logo"] | undefined {
+function mapLogo(state: QraftyState): QraftyQrCodeProps["logo"] | undefined {
   const src = getAssetValue(state.logo)
   if (!src) {
     return undefined
   }
 
-  const logo: NonNullable<NewQrCodeProps["logo"]> = {
+  const logo: NonNullable<QraftyQrCodeProps["logo"]> = {
     crossOrigin: state.imageOptions.crossOrigin || undefined,
     excavate: state.imageOptions.hideBackgroundDots,
     src,
@@ -118,7 +118,7 @@ function mapLogo(state: QrStudioState): NewQrCodeProps["logo"] | undefined {
   return logo
 }
 
-function mapValue(state: QrStudioState): NewQrCodeProps["value"] {
+function mapValue(state: QraftyState): QraftyQrCodeProps["value"] {
   if (state.valueSegments?.length) {
     return state.valueSegments.flatMap((segment) => {
       const trimmed = segment.trim()
@@ -129,7 +129,7 @@ function mapValue(state: QrStudioState): NewQrCodeProps["value"] {
   return state.data.trim()
 }
 
-function mapModuleFillImage(state: QrStudioState): string | undefined {
+function mapModuleFillImage(state: QraftyState): string | undefined {
   if (state.dotsColorMode !== "image") {
     return undefined
   }
@@ -137,7 +137,7 @@ function mapModuleFillImage(state: QrStudioState): string | undefined {
   return getAssetValue(state.moduleFillImage) || undefined
 }
 
-export function toPortableQrConfig(state: QrStudioState): NewQrCodeProps {
+export function toQraftyQrConfig(state: QraftyState): QraftyQrCodeProps {
   const logo = mapLogo(state)
   const unifiedGradient =
     state.gradientLinkMode === "unified" && state.dotsColorMode === "gradient"
@@ -155,13 +155,13 @@ export function toPortableQrConfig(state: QrStudioState): NewQrCodeProps {
     finderOuterColor: state.finderPatternOuterSettings.color,
     finderInnerGradient: unifiedGradient
       ? "none"
-      : mapStudioGradient(
+      : mapQraftyGradient(
           state.finderPatternInnerGradient,
           state.finderPatternInnerGradient.enabled,
         ),
     finderOuterGradient: unifiedGradient
       ? "none"
-      : mapStudioGradient(
+      : mapQraftyGradient(
           state.finderPatternOuterGradient,
           state.finderPatternOuterGradient.enabled,
         ),

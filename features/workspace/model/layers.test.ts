@@ -27,12 +27,12 @@ import {
   type DraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 
 describe("drafting layer state actions", () => {
   it("keeps the card background layer visible and protected", () => {
     const cardState = { ...createDefaultDraftingCardState(), enabled: false }
-    const layers = createDefaultDraftingLayers("preview", createDefaultQrStudioState(), cardState)
+    const layers = createDefaultDraftingLayers("preview", createDefaultQraftyState(), cardState)
     const cardLayer = layers.find((layer) => layer.kind === "card")
 
     expect(cardLayer?.isVisible).toBe(true)
@@ -40,7 +40,7 @@ describe("drafting layer state actions", () => {
   })
 
   it("relayouts card and qr layers when card inset padding changes", () => {
-    const qrState = createDefaultQrStudioState()
+    const qrState = createDefaultQraftyState()
     const cardState = {
       ...createDefaultDraftingCardState(),
       sizeMode: "auto" as const,
@@ -66,7 +66,7 @@ describe("drafting layer state actions", () => {
   })
 
   it("detects custom qr placement outside the default card inset", () => {
-    const qrState = createDefaultQrStudioState()
+    const qrState = createDefaultQraftyState()
     const cardState = {
       ...createDefaultDraftingCardState(),
       sizeMode: "fixed" as const,
@@ -106,7 +106,7 @@ describe("drafting layer state actions", () => {
   })
 
   it("uses fixed card dimensions and fits the qr inside padding and bottom space", () => {
-    const qrState = createDefaultQrStudioState()
+    const qrState = createDefaultQraftyState()
     const cardState = {
       ...createDefaultDraftingCardState(),
       sizeMode: "fixed" as const,
@@ -145,7 +145,7 @@ describe("drafting layer state actions", () => {
   })
 
   it("centers the qr vertically in a fixed card when bottom space is zero", () => {
-    const qrState = createDefaultQrStudioState()
+    const qrState = createDefaultQraftyState()
     const cardState = {
       ...createDefaultDraftingCardState(),
       sizeMode: "fixed" as const,
@@ -166,7 +166,7 @@ describe("drafting layer state actions", () => {
   })
 
   it("keeps auto card sizing derived from qr dimensions", () => {
-    const qrState = createDefaultQrStudioState()
+    const qrState = createDefaultQraftyState()
     const cardState = {
       ...createDefaultDraftingCardState(),
       sizeMode: "auto" as const,
@@ -370,7 +370,7 @@ describe("drafting layer state actions", () => {
           zIndex: 2,
         },
       ],
-      createDefaultQrStudioState(),
+      createDefaultQraftyState(),
       createDefaultDraftingCardState(),
     )
 
@@ -413,7 +413,7 @@ describe("drafting layer state actions", () => {
           width: 72,
         },
       ],
-      createDefaultQrStudioState(),
+      createDefaultQraftyState(),
       createDefaultDraftingCardState(),
     )
 
@@ -449,7 +449,7 @@ describe("drafting layer state actions", () => {
           tiltY: -90,
         },
       ],
-      createDefaultQrStudioState(),
+      createDefaultQraftyState(),
       createDefaultDraftingCardState(),
     )
 
@@ -488,7 +488,7 @@ describe("drafting layer state actions", () => {
           zIndex: 2,
         },
       ],
-      createDefaultQrStudioState(),
+      createDefaultQraftyState(),
       createDefaultDraftingCardState(),
     )
 
@@ -532,7 +532,7 @@ describe("drafting layer state actions", () => {
           fontId: undefined,
         },
       ],
-      createDefaultQrStudioState(),
+      createDefaultQraftyState(),
       createDefaultDraftingCardState(),
     )
 
@@ -561,7 +561,7 @@ describe("drafting layer state actions", () => {
           }),
         },
       ],
-      createDefaultQrStudioState(),
+      createDefaultQraftyState(),
       createDefaultDraftingCardState(),
     )
 
@@ -636,7 +636,7 @@ describe("drafting layer state actions", () => {
           zIndex: 5,
         },
       ],
-      createDefaultQrStudioState(),
+      createDefaultQraftyState(),
       createDefaultDraftingCardState(),
     )
 
@@ -695,7 +695,7 @@ describe("drafting layer state actions", () => {
           zIndex: 4,
         },
       ],
-      createDefaultQrStudioState(),
+      createDefaultQraftyState(),
       createDefaultDraftingCardState(),
     )
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { adaptExternalQRCodeSVG } from "@new-qr/qr/dot-matrix";
+import { adaptExternalQRCodeSVG } from "@qrafty/qr/dot-matrix";
 import { QRCodeSVG } from "qrcode.react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server.browser";
@@ -16,7 +16,7 @@ import {
   getAssetValue,
   resolveDotMatrixMotionPreset,
   type QrDotMatrixAnimationOptions,
-  type QrStudioState,
+  type QraftyState,
 } from "@/features/qr-code/model/state";
 import { sanitizeDraftingQrArtworkMarkup } from "@/features/workspace/rendering/qr-artwork";
 
@@ -45,7 +45,7 @@ function coerceNumber(value: number, min: number, max: number, fallback: number)
 }
 
 
-export function toQrcodeReactProps(state: QrStudioState) {
+export function toQrcodeReactProps(state: QraftyState) {
   const logoImage = getAssetValue(state.logo);
   const qrSize = clampQrSize(state.width);
   const logoSize = Math.max(
@@ -73,11 +73,11 @@ export function toQrcodeReactProps(state: QrStudioState) {
   };
 }
 
-export function renderQrcodeReactSvg(state: QrStudioState) {
+export function renderQrcodeReactSvg(state: QraftyState) {
   return renderToStaticMarkup(createElement(QRCodeSVG, toQrcodeReactProps(state)));
 }
 
-export function adaptQrcodeReactSvgForDotMatrix(state: QrStudioState) {
+export function adaptQrcodeReactSvgForDotMatrix(state: QraftyState) {
   const externalSvg = renderQrcodeReactSvg(state);
 
   return adaptExternalQRCodeSVG(externalSvg, {
@@ -90,7 +90,7 @@ export function adaptQrcodeReactSvgForDotMatrix(state: QrStudioState) {
 
 
 export function toDotMatrixQrConfig(
-  state: QrStudioState,
+  state: QraftyState,
   options: { canvasSvgMarkup?: string | null } = {},
 ): DotMatrixQrConfig {
   const animation = state.dotMatrixAnimation;
@@ -124,6 +124,6 @@ export function toDotMatrixQrConfig(
   };
 }
 
-export function shouldUseDotMatrixMotionPreview(state: QrStudioState) {
+export function shouldUseDotMatrixMotionPreview(state: QraftyState) {
   return state.dotMatrixAnimation.enabled && state.dotMatrixAnimation.animated;
 }

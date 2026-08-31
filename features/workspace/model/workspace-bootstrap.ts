@@ -6,7 +6,7 @@ import {
 } from "@/features/workspace/model/document"
 import { readDraftingWorkspaceDraft, writeDraftingWorkspaceDraft } from "@/features/workspace/model/storage"
 
-const WORKSPACE_BOOTSTRAP_SNAPSHOT_KEY = "new-qr:workspace-bootstrap-snapshot"
+const WORKSPACE_BOOTSTRAP_SNAPSHOT_KEY = "qrafty:workspace-bootstrap-snapshot"
 
 export function writeWorkspaceBootstrapSnapshot(document: DraftingWorkspaceDocumentV1): void {
   if (typeof window === "undefined") {

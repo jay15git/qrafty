@@ -1,20 +1,20 @@
 import decodeQR from "qr/decode.js"
 
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import {
   DECODE_PREVIEW_SIZE,
-  rasterizeStudioPreview,
+  rasterizeQraftyPreview,
 } from "@/features/qr-code/scan-safety/rasterize-preview"
 
-export async function decodeStudioPreview(
-  state: QrStudioState,
+export async function decodeQraftyPreview(
+  state: QraftyState,
   backgroundColor = "#ffffff",
 ): Promise<string | null> {
   if (typeof window === "undefined") {
     return null
   }
 
-  const canvas = await rasterizeStudioPreview(state, DECODE_PREVIEW_SIZE, backgroundColor)
+  const canvas = await rasterizeQraftyPreview(state, DECODE_PREVIEW_SIZE, backgroundColor)
   const context = canvas.getContext("2d")
 
   if (!context) {

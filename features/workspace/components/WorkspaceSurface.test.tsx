@@ -171,7 +171,7 @@ import { WorkspaceSurface } from "@/features/workspace/components/WorkspaceSurfa
 import { FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
 import { clearDraftingQrMarkupCache } from "@/features/workspace/hooks/use-drafting-qr-markup"
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr-code/rendering/compose-scene"
-import { createDefaultQrStudioState, type QrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState, type QraftyState } from "@/features/qr-code/model/state"
 
 const QR_PAYLOAD = {
   markup:
@@ -398,7 +398,7 @@ describe("WorkspaceSurface", () => {
   })
 
   it("keeps independent qr layer content on one canvas", async () => {
-    buildDashboardQrNodePayloadSpy.mockImplementation((state?: QrStudioState) =>
+    buildDashboardQrNodePayloadSpy.mockImplementation((state?: QraftyState) =>
       Promise.resolve({
         markup: `<svg data-value="${state?.data ?? ""}" />`,
         naturalHeight: 320,
@@ -455,7 +455,7 @@ describe("WorkspaceSurface", () => {
     })
 
     const initialCall = buildDashboardQrNodePayloadSpy.mock.calls as unknown as Array<
-      [QrStudioState]
+      [QraftyState]
     >
     const initialState = initialCall[0]?.[0]
 
@@ -518,7 +518,7 @@ describe("WorkspaceSurface", () => {
       getRequiredElement(surface.container, '[data-slot="drafting-surface"]').getAttribute(
         "data-qr-content-value",
       ),
-    ).toBe("https://new-qr-studio.local/launch")
+    ).toBe("https://qrafty.local/launch")
     expect(redoButton.disabled).toBe(false)
 
     act(() => {
@@ -565,7 +565,7 @@ describe("WorkspaceSurface", () => {
       getRequiredElement(surface.container, '[data-slot="drafting-surface"]').getAttribute(
         "data-qr-content-value",
       ),
-    ).toBe("https://new-qr-studio.local/launch")
+    ).toBe("https://qrafty.local/launch")
 
     act(() => {
       getRequiredElement(surface.container, '[data-slot="drafting-surface"]').dispatchEvent(
@@ -677,7 +677,7 @@ describe("WorkspaceSurface", () => {
     expect(writeText).toHaveBeenCalledOnce()
     expect(JSON.parse(clipboardText)).toMatchObject({
       sourceNodeId: "dashboard-qr-node",
-      type: "new-qr/drafting-layers",
+      type: "qrafty/drafting-layers",
       version: 1,
     })
     expect(JSON.parse(clipboardText).layers).toHaveLength(1)
@@ -927,7 +927,7 @@ describe("WorkspaceSurface", () => {
       document.body.dispatchEvent(copyEvent)
     })
 
-    expect(copiedText).toContain('"type":"new-qr/drafting-layers"')
+    expect(copiedText).toContain('"type":"qrafty/drafting-layers"')
 
     const pasteEvent = new Event("paste", { bubbles: true, cancelable: true })
     Object.defineProperty(pasteEvent, "clipboardData", {
@@ -1022,7 +1022,7 @@ describe("WorkspaceSurface", () => {
       getRequiredElement(surface.container, '[data-slot="drafting-surface"]').getAttribute(
         "data-qr-content-value",
       ),
-    ).toBe("https://new-qr-studio.local/launch")
+    ).toBe("https://qrafty.local/launch")
   })
 
   it("restores the autosaved drafting workspace after remount", async () => {

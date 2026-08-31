@@ -4,10 +4,10 @@ import {
   createAlignedCornerGradientExtension,
   getQrRenderedDimensions,
 } from "@/features/qr-code/rendering/svg-extension"
-import { type QrStudioState } from "@/features/qr-code/model/state"
+import { type QraftyState } from "@/features/qr-code/model/state"
 import { alignReactQrSvgToModuleGrid } from "@/features/workspace/rendering/qr-artwork"
 
-export function createDashboardSurfaceQrState(state: QrStudioState): QrStudioState {
+export function createDashboardSurfaceQrState(state: QraftyState): QraftyState {
   return {
     ...state,
     type: "svg",
@@ -21,7 +21,7 @@ export function stripXmlDeclaration(markup: string) {
     .trim()
 }
 
-export function applyStudioQrSvgMarkupExtensions(markup: string, state: QrStudioState) {
+export function applyQraftyQrSvgMarkupExtensions(markup: string, state: QraftyState) {
   let result = markup
   const extension = buildQrExtension(state)
 
@@ -46,12 +46,12 @@ export function applyStudioQrSvgMarkupExtensions(markup: string, state: QrStudio
 
 export function buildDashboardQrNodePayloadFromBaseMarkup(
   markup: string,
-  state: QrStudioState,
+  state: QraftyState,
 ): DashboardQrNodePayload {
   const dashboardState = createDashboardSurfaceQrState(state)
 
   return {
-    markup: applyStudioQrSvgMarkupExtensions(markup, dashboardState),
+    markup: applyQraftyQrSvgMarkupExtensions(markup, dashboardState),
     naturalHeight: getQrRenderedDimensions(dashboardState).height,
     naturalWidth: getQrRenderedDimensions(dashboardState).width,
   }
@@ -60,7 +60,7 @@ export function buildDashboardQrNodePayloadFromBaseMarkup(
 function applyQrSvgExtension(
   markup: string,
   extension: (svg: SVGElement, options: { height?: number; width?: number }) => void,
-  state: QrStudioState,
+  state: QraftyState,
 ) {
   const parser = new DOMParser()
   const document = parser.parseFromString(markup, "image/svg+xml")

@@ -10,7 +10,7 @@ import {
   createBrandIconDataUrl,
   createBrandIconGradientDataUrl,
 } from "@/features/qr-code/assets/brand-icon-svg"
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 
 describe("brand icon catalog", () => {
   it("ships the curated brand icon catalog without unavailable brands", () => {
@@ -60,7 +60,7 @@ describe("brand icon catalog", () => {
     const neutralDataUrl = createBrandIconDataUrl(icon, "#111827")
     const accentDataUrl = createBrandIconDataUrl(icon, "#ff4f00")
     const gradientDataUrl = createBrandIconGradientDataUrl(icon, {
-      ...createDefaultQrStudioState().logoGradient,
+      ...createDefaultQraftyState().logoGradient,
       enabled: true,
       colorStops: [
         { offset: 0, color: "#ff4f00" },

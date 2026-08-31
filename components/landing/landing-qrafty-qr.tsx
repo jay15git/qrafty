@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useId, useMemo, useState } from "react"
-import { NewQrCode, type NewQrCodeProps } from "@new-qr/qr/react"
-import { renderNewQrSvg } from "@new-qr/qr-internal/core"
+import { QraftyQrCode, type QraftyQrCodeProps } from "@qrafty/qr/react"
+import { renderQraftyQrSvg } from "@qrafty/qr-internal/core"
 
 import { createBrandIconDataUrl } from "@/features/qr-code/assets/brand-icon-svg"
 import { findBrandIconById } from "@/features/qr-code/assets/brand-icons"
@@ -33,8 +33,8 @@ export function useBrandLogoSrc(brandId = "instagram", color = "#ffffff") {
 
 export function landingQrProps(
   logoSrc: string | undefined,
-  overrides: Partial<NewQrCodeProps> = {},
-): NewQrCodeProps {
+  overrides: Partial<QraftyQrCodeProps> = {},
+): QraftyQrCodeProps {
   return {
     ariaLabel: LANDING_QR_LABEL,
     background: "#ffffff",
@@ -61,15 +61,15 @@ export function landingQrProps(
 
 export function renderLandingQrSvg(
   logoSrc: string | undefined,
-  overrides: Partial<NewQrCodeProps> = {},
+  overrides: Partial<QraftyQrCodeProps> = {},
 ) {
-  return renderNewQrSvg(landingQrProps(logoSrc, overrides))
+  return renderQraftyQrSvg(landingQrProps(logoSrc, overrides))
 }
 
-export function StudioQr({
+export function QraftyQr({
   className,
   ...overrides
-}: Partial<NewQrCodeProps> & { className?: string }) {
+}: Partial<QraftyQrCodeProps> & { className?: string }) {
   const logoSrc = useBrandLogoSrc()
   const [mounted, setMounted] = useState(false)
 
@@ -79,18 +79,18 @@ export function StudioQr({
 
   return (
     <div className={cn("lfc-qr", className)}>
-      {mounted ? <NewQrCode {...landingQrProps(logoSrc, overrides)} /> : null}
+      {mounted ? <QraftyQrCode {...landingQrProps(logoSrc, overrides)} /> : null}
     </div>
   )
 }
 
-export function StudioShapedQr({
+export function QraftyShapedQr({
   className,
   fill,
   padding = 16,
   shapeId,
   ...overrides
-}: Partial<NewQrCodeProps> & {
+}: Partial<QraftyQrCodeProps> & {
   className?: string
   fill: string
   padding?: number
@@ -106,7 +106,7 @@ export function StudioShapedQr({
   }, [])
 
   if (!shape) {
-    return <StudioQr className={className} {...overrides} />
+    return <QraftyQr className={className} {...overrides} />
   }
 
   const { width, height } = shape.viewBox
@@ -144,7 +144,7 @@ export function StudioShapedQr({
           className="lfc-shaped-qr"
           style={{ inset: `${padding}%` }}
         >
-          <NewQrCode
+          <QraftyQrCode
             {...landingQrProps(logoSrc, {
               background: "transparent",
               ...overrides,

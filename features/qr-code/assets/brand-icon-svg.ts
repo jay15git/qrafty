@@ -2,11 +2,11 @@ import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server.browser"
 
 import type { BrandIconEntry } from "@/features/qr-code/assets/brand-icons"
-import type { StudioGradient } from "@/features/qr-code/model/state"
+import type { QraftyGradient } from "@/features/qr-code/model/state"
 import {
-  getStudioGradientCenter,
-  studioRadialCenterAsPercent,
-} from "@/features/qr-code/styles/studio-gradient-geometry"
+  getQraftyGradientCenter,
+  qraftyRadialCenterAsPercent,
+} from "@/features/qr-code/styles/qrafty-gradient-geometry"
 
 export const DEFAULT_BRAND_ICON_COLOR = "#111827"
 const BRAND_ICON_SIZE = 256
@@ -42,7 +42,7 @@ export function createBrandIconDataUrl(
 
 function createBrandIconGradientSvgMarkup(
   brandIcon: BrandIconEntry,
-  gradient: StudioGradient,
+  gradient: QraftyGradient,
 ) {
   const baseMarkup = renderBrandIconMarkup(brandIcon, DEFAULT_BRAND_ICON_COLOR)
   const gradientMarkup = createSvgGradientMarkup(gradient)
@@ -56,7 +56,7 @@ function createBrandIconGradientSvgMarkup(
 
 export function createBrandIconGradientDataUrl(
   brandIcon: BrandIconEntry,
-  gradient: StudioGradient,
+  gradient: QraftyGradient,
 ) {
   return svgMarkupToDataUrl(createBrandIconGradientSvgMarkup(brandIcon, gradient))
 }
@@ -68,7 +68,7 @@ function injectSvgDefinitions(markup: string, definitionsMarkup: string) {
   )
 }
 
-function createSvgGradientMarkup(gradient: StudioGradient) {
+function createSvgGradientMarkup(gradient: QraftyGradient) {
   const colorStopsMarkup = gradient.colorStops
     .map(
       (colorStop) =>
@@ -77,7 +77,7 @@ function createSvgGradientMarkup(gradient: StudioGradient) {
     .join("")
 
   if (gradient.type === "radial") {
-    const { cx, cy } = studioRadialCenterAsPercent(getStudioGradientCenter(gradient))
+    const { cx, cy } = qraftyRadialCenterAsPercent(getQraftyGradientCenter(gradient))
     return `<radialGradient id="${BRAND_ICON_GRADIENT_ID}" cx="${cx}" cy="${cy}" r="50%">${colorStopsMarkup}</radialGradient>`
   }
 

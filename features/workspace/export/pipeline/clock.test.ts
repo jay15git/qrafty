@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
 import {
   frameIndexToTimeMs,
@@ -39,7 +39,7 @@ describe("export clock", () => {
   })
 
   it("detects time-varying QR and shader scenes", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotMatrixAnimation.enabled = true
     state.dotMatrixAnimation.animated = true
 
@@ -53,7 +53,7 @@ describe("export clock", () => {
   })
 
   it("scales QR export time by animation speed in video mode", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotMatrixAnimation.enabled = true
     state.dotMatrixAnimation.animated = true
     state.dotMatrixAnimation.speed = 2

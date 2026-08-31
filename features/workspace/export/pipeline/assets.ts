@@ -2,9 +2,9 @@ import {
   blobUrlToDataUrl,
   isBlobUrl,
   isDataUrl,
-} from "@new-qr/qr-internal/scene"
+} from "@qrafty/qr-internal/scene"
 
-import type { SceneIrFontRef } from "@new-qr/qr-internal/codegen"
+import type { SceneIrFontRef } from "@qrafty/qr-internal/codegen"
 
 const REMOTE_IMAGE_PATTERN = /href="(https?:\/\/[^"]+)"/g
 

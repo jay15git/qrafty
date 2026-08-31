@@ -1,4 +1,4 @@
-import type { StudioDataModulesStyle } from "@/features/qr-code/model/state"
+import type { QraftyDataModulesStyle } from "@/features/qr-code/model/state"
 
 export type CustomDotShape = "diamond" | "heart"
 
@@ -67,6 +67,6 @@ export function getCustomDotShapeGeometry(
   }
 }
 
-export function getActiveCustomDotShape(type: StudioDataModulesStyle): CustomDotShape | null {
+export function getActiveCustomDotShape(type: QraftyDataModulesStyle): CustomDotShape | null {
   return isCustomDotShape(type) ? type : null
 }

@@ -1,4 +1,4 @@
-import { emitSvg, preprocessSvg } from "@new-qr/qr-internal/codegen"
+import { emitSvg, preprocessSvg } from "@qrafty/qr-internal/codegen"
 
 import { buildSceneIr } from "@/features/qr-code/export/build-scene-ir"
 import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg-render"
@@ -10,7 +10,7 @@ import { rasterizeSvgMarkupToCanvas } from "@/features/qr-code/rendering/svg-ras
 import type { QrFileExtension } from "@/features/qr-code/model/types"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-artwork"
 import { computeLetterboxFit } from "@/features/workspace/export/pipeline/bounds"
 import { inlineSvgImageHrefs } from "@/features/workspace/export/pipeline/assets"
@@ -37,7 +37,7 @@ export type RenderWorkspaceSvgOptions = {
   nodeId: string
   qrMarkup: string
   shaderSession?: WorkspaceShaderCaptureSession
-  state: QrStudioState
+  state: QraftyState
   videoTimeMs?: number
 }
 
@@ -163,7 +163,7 @@ export async function buildWorkspaceExportPayload({
   shaderSession,
   state,
   videoTimeMs = 0,
-}: Omit<RenderWorkspaceSvgOptions, "qrMarkup"> & { state: QrStudioState }) {
+}: Omit<RenderWorkspaceSvgOptions, "qrMarkup"> & { state: QraftyState }) {
   const qrPayload = await buildDashboardQrNodePayload(createDraftingQrArtworkState(state))
   const { ir, svg } = await renderWorkspaceSvgMarkup({
     cardLayer,
@@ -211,7 +211,7 @@ export async function renderWorkspaceRasterBlob({
   nodeId: string
   qualityPercent: number
   shaderSession?: WorkspaceShaderCaptureSession
-  state: QrStudioState
+  state: QraftyState
   targetDimensions?: { height: number; width: number }
   videoTimeMs?: number
 }) {

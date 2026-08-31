@@ -3,11 +3,11 @@
 import { describe, expect, it } from "vitest"
 
 import { getFinderCornerRegions } from "./finder-gradient-overlays"
-import { renderNewQrSvg } from "./render-svg"
+import { renderQraftyQrSvg } from "./render-svg"
 
-describe("@new-qr/qr core renderer", () => {
+describe("@qrafty/qr core renderer", () => {
   it("renders svg from portable props", () => {
-    const markup = renderNewQrSvg({
+    const markup = renderQraftyQrSvg({
       value: "https://example.com",
       module: "diamond",
       finderInner: "rounded",
@@ -22,7 +22,7 @@ describe("@new-qr/qr core renderer", () => {
   })
 
   it("renders localized finder outer gradients from portable props", () => {
-    const markup = renderNewQrSvg({
+    const markup = renderQraftyQrSvg({
       value: "https://example.com",
       finderOuter: "rounded-lg",
       finderOuterColor: "#111827",
@@ -50,7 +50,7 @@ describe("@new-qr/qr core renderer", () => {
   })
 
   it("renders localized finder inner gradients from portable props", () => {
-    const markup = renderNewQrSvg({
+    const markup = renderQraftyQrSvg({
       value: "https://example.com",
       finderInner: "circle",
       finderInnerColor: "#111827",
@@ -87,7 +87,7 @@ describe("@new-qr/qr core renderer", () => {
       ],
     }
 
-    const markup = renderNewQrSvg({
+    const markup = renderQraftyQrSvg({
       value: "https://example.com",
       colorMode: "gradient",
       gradient: moduleGradient,
@@ -102,8 +102,8 @@ describe("@new-qr/qr core renderer", () => {
     const finderOuter = resultDoc.querySelectorAll('[data-testid="finder-patterns-outer"]')
     const finderInner = resultDoc.querySelectorAll('[data-testid="finder-patterns-inner"]')
 
-    expect(markup).toContain('id="new-qr-dots-gradient"')
-    expect(markup).toContain('fill="url(#new-qr-dots-gradient)"')
+    expect(markup).toContain('id="qrafty-dots-gradient"')
+    expect(markup).toContain('fill="url(#qrafty-dots-gradient)"')
     expect(markup).not.toContain('data-qr-layer="corner-frame-gradient"')
     expect(markup).not.toContain('data-qr-layer="corner-dot-gradient"')
     expect(unifiedFills.length).toBeGreaterThan(0)
@@ -121,7 +121,7 @@ describe("@new-qr/qr core renderer", () => {
       ],
     }
 
-    const markup = renderNewQrSvg({
+    const markup = renderQraftyQrSvg({
       value: "https://example.com",
       colorMode: "gradient",
       gradient: moduleGradient,

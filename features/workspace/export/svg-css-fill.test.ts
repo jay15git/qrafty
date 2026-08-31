@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { formatFill } from "@/components/ui/fill-picker-base/public-api"
-import { studioGradientToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+import { qraftyGradientToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
 import { degreesToRadians } from "@/features/qr-code/styles/gradient-controls"
 import {
   cssFillToCanvasColor,
@@ -38,7 +38,7 @@ describe("svg css fill", () => {
   })
 
   it("emits svg linearGradient defs for css background fills", () => {
-    const css = studioGradientToFillCss({
+    const css = qraftyGradientToFillCss({
       enabled: true,
       type: "linear",
       rotation: degreesToRadians(45),
@@ -57,7 +57,7 @@ describe("svg css fill", () => {
   })
 
   it("emits svg radialGradient defs for radial css fills", () => {
-    const css = studioGradientToFillCss({
+    const css = qraftyGradientToFillCss({
       enabled: true,
       type: "radial",
       rotation: 0,

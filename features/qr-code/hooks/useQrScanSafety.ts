@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react"
 
-import type { QrStudioState } from "@/features/qr-code/model/state"
-import { decodeStudioPreview } from "@/features/qr-code/scan-safety/decode-studio-preview"
+import type { QraftyState } from "@/features/qr-code/model/state"
+import { decodeQraftyPreview } from "@/features/qr-code/scan-safety/decode-qrafty-preview"
 import { getEffectiveBackgroundForScanSafety } from "@/features/qr-code/scan-safety/effective-background"
 import {
   createPendingScannabilityResult,
@@ -22,7 +22,7 @@ type UseQrScanSafetyOptions = {
 }
 
 export function useQrScanSafety(
-  state: QrStudioState,
+  state: QraftyState,
   { cardFill, contentIsValid = true, enabled = true }: UseQrScanSafetyOptions,
 ): ScanSafetyResult {
   const effectiveBackgroundColor = useMemo(
@@ -51,7 +51,7 @@ export function useQrScanSafety(
     const timer = window.setTimeout(() => {
       void (async () => {
         try {
-          const decoded = await decodeStudioPreview(state, effectiveBackgroundColor)
+          const decoded = await decodeQraftyPreview(state, effectiveBackgroundColor)
 
           if (cancelled) {
             return

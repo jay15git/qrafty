@@ -1,8 +1,8 @@
 import { parse, wcagContrast } from "culori"
 
-import type { QrStudioState, StudioGradient } from "@/features/qr-code/model/state"
+import type { QraftyState, QraftyGradient } from "@/features/qr-code/model/state"
 
-function collectGradientColors(gradient: StudioGradient): string[] {
+function collectGradientColors(gradient: QraftyGradient): string[] {
   if (!gradient.enabled) {
     return []
   }
@@ -38,7 +38,7 @@ function getWorstContrast(colors: string[], background: string): number | null {
 }
 
 export function getEffectiveBackgroundForScanSafety(
-  state: QrStudioState,
+  state: QraftyState,
   cardFill: string,
 ): string {
   if (state.backgroundOptions.transparent) {

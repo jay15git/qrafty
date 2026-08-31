@@ -1,4 +1,4 @@
-export type StudioWallpaper = {
+export type QraftyWallpaper = {
   id: string
   label: string
   path: string
@@ -7,7 +7,7 @@ export type StudioWallpaper = {
   sourceUrl: string
 }
 
-export const STUDIO_WALLPAPERS: readonly StudioWallpaper[] = [
+export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
   {
     "id": "aqua-glow",
     "label": "Aqua Glow",
@@ -226,6 +226,6 @@ export const STUDIO_WALLPAPERS: readonly StudioWallpaper[] = [
   }
 ] as const
 
-export function getStudioWallpaper(id: string): StudioWallpaper | undefined {
-  return STUDIO_WALLPAPERS.find((wallpaper) => wallpaper.id === id)
+export function getQraftyWallpaper(id: string): QraftyWallpaper | undefined {
+  return QRAFTY_WALLPAPERS.find((wallpaper) => wallpaper.id === id)
 }

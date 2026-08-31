@@ -1,4 +1,4 @@
-import type { NewQrGradientConfig } from "../types"
+import type { QraftyQrGradientConfig } from "../types"
 
 const SVG_NS = "http://www.w3.org/2000/svg"
 
@@ -172,7 +172,7 @@ function getLinearGradientEndpoints({
 
 export function createCornerGradientElement(
   document: Document,
-  gradient: NewQrGradientConfig,
+  gradient: QraftyQrGradientConfig,
   {
     height,
     id,
@@ -239,7 +239,7 @@ function applyFinderGradientOverlay(
     margin,
     testId,
   }: {
-    gradient: NewQrGradientConfig
+    gradient: QraftyQrGradientConfig
     gradientIdPrefix: string
     groupLayer: string
     kind: FinderCornerKind
@@ -336,8 +336,8 @@ export function applyPortableFinderGradientOverlays(
     finderOuterGradient,
     margin,
   }: {
-    finderInnerGradient?: NewQrGradientConfig | "none"
-    finderOuterGradient?: NewQrGradientConfig | "none"
+    finderInnerGradient?: QraftyQrGradientConfig | "none"
+    finderOuterGradient?: QraftyQrGradientConfig | "none"
     margin: number
   },
 ) {

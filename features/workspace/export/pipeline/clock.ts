@@ -1,5 +1,5 @@
 import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 
 export type ExportClockMode = "photo" | "video"
 
@@ -24,7 +24,7 @@ export function resolveShaderExportFrameMs(
 }
 
 export function resolveQrExportTimeMs(
-  state: QrStudioState,
+  state: QraftyState,
   mode: ExportClockMode,
   videoTimeMs: number,
 ) {
@@ -47,14 +47,14 @@ export function isShaderTimeVarying(
   return !shader.paused && shader.speed !== 0
 }
 
-export function isQrTimeVarying(state: QrStudioState) {
+export function isQrTimeVarying(state: QraftyState) {
   return state.dotMatrixAnimation.enabled && state.dotMatrixAnimation.animated
 }
 
 export function sceneHasVideoExportContent(
   cardState: import("@/features/workspace/model/card-state").DraftingCardState,
   layers: import("@/features/workspace/model/layers").DraftingCanvasLayer[],
-  state: QrStudioState,
+  state: QraftyState,
 ) {
   if (isQrTimeVarying(state)) {
     return true

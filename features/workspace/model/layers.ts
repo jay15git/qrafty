@@ -37,8 +37,8 @@ import type { QrBackgroundShapeId } from "@/features/qr-code/styles/background-s
 import {
   clampBackgroundShapeTilt,
   clampQrSize,
-  type QrStudioState,
-  type StudioGradient,
+  type QraftyState,
+  type QraftyGradient,
 } from "@/features/qr-code/model/state"
 import {
   cloneDraftingCardPaperShaderState,
@@ -91,7 +91,7 @@ export type DraftingCanvasLayer = {
   cornerRadius?: number
   cornerRadii?: DraftingCornerRadiiState
   fill?: string
-  fillGradient?: StudioGradient
+  fillGradient?: QraftyGradient
   fillMode?: DraftingShapeFillMode
   fontFamily?: string
   fontId?: string
@@ -265,7 +265,7 @@ export function isProtectedDraftingLayerId(
 
 export function createDraftingQrLayer(
   nodeId: string,
-  qrState: QrStudioState,
+  qrState: QraftyState,
   cardState: Pick<DraftingCardState, "bottomSpace" | "height" | "padding" | "sizeMode" | "width">,
   options: {
     id?: string
@@ -304,7 +304,7 @@ export function createDraftingQrLayer(
 }
 
 export function fitQrSizeInCard(
-  qrState: QrStudioState,
+  qrState: QraftyState,
   cardState: Pick<DraftingCardState, "bottomSpace" | "height" | "padding" | "sizeMode" | "width">,
 ) {
   const qrDimensions = getQrRenderedDimensions(qrState)
@@ -349,7 +349,7 @@ export function clampLayerGeometryToCanvas(
 }
 
 export function getDraftingCardInsetLayout(
-  qrState: QrStudioState,
+  qrState: QraftyState,
   cardState: Pick<
     DraftingCardState,
     "bottomSpace" | "height" | "padding" | "sizeMode" | "width"
@@ -415,7 +415,7 @@ function hasAuthoredLayerComposition(layers: DraftingCanvasLayer[]): boolean {
 export function hasCustomDraftingQrPlacement(
   layers: DraftingCanvasLayer[],
   nodeId: string,
-  qrState: QrStudioState,
+  qrState: QraftyState,
   cardState: Pick<
     DraftingCardState,
     "bottomSpace" | "height" | "padding" | "sizeMode" | "width"
@@ -446,7 +446,7 @@ export type LayoutDraftingCardInsetLayersOptions = {
 
 export function layoutDraftingCardInsetLayers(
   layers: DraftingCanvasLayer[],
-  qrState: QrStudioState,
+  qrState: QraftyState,
   cardState: Pick<
     DraftingCardState,
     "bottomSpace" | "height" | "padding" | "sizeMode" | "width"
@@ -478,7 +478,7 @@ export function layoutDraftingCardInsetLayers(
 
 export function createDefaultDraftingLayers(
   nodeId: string,
-  qrState: QrStudioState,
+  qrState: QraftyState,
   cardState: DraftingCardState,
 ): DraftingCanvasLayer[] {
   const qrDimensions = fitQrSizeInCard(qrState, cardState)
@@ -651,7 +651,7 @@ export function cloneDraftingLayerStateByNodeId(
 export function normalizeDraftingCanvasLayers(
   nodeId: string,
   value: unknown,
-  qrState: QrStudioState,
+  qrState: QraftyState,
   cardState: DraftingCardState,
 ): DraftingCanvasLayer[] {
   const fallback = createDefaultDraftingLayers(nodeId, qrState, cardState)
@@ -1453,7 +1453,7 @@ function normalizeDraftingLayerBorderSides(
 
 function migrateLegacyQrLayerShadow(
   layer: DraftingCanvasLayer,
-  qrState: QrStudioState,
+  qrState: QraftyState,
 ): DraftingCanvasLayer {
   if (layer.kind !== "qr") {
     return layer
@@ -1756,8 +1756,8 @@ function normalizeElementShapeId(
 
 function normalizeShapeFillGradient(
   value: unknown,
-  fallback: StudioGradient | undefined,
-): StudioGradient | undefined {
+  fallback: QraftyGradient | undefined,
+): QraftyGradient | undefined {
   if (!isRecord(value)) {
     return fallback
   }

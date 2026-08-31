@@ -5,7 +5,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 <!-- END:nextjs-agent-rules -->
 
 ## Stack
-- Single-package `pnpm` app using Next.js `16.2.3`, React `19`, Tailwind CSS `4`, Vitest `4`, shadcn/ui (`radix-nova`), and `@new-qr/qr` (vendored react-qr + scene tooling).
+- Single-package `pnpm` app using Next.js `16.2.3`, React `19`, Tailwind CSS `4`, Vitest `4`, shadcn/ui (`radix-nova`), and `@qrafty/qr` (vendored react-qr + scene tooling).
 - Use `pnpm`; the repo is locked with `pnpm-lock.yaml`.
 
 ## Commands
@@ -14,8 +14,8 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - Typecheck: `pnpm exec tsc --noEmit` (`package.json` has no `typecheck` script)
 - Tests: `pnpm test`
 - Production build: `pnpm build`
-- Single test file: `pnpm exec vitest run components/qr/qr-studio-state.test.ts`
-- Single test by name: `pnpm exec vitest run components/qr/qr-studio-state.test.ts -t "builds svg options from the default state"`
+- Single test file: `pnpm exec vitest run features/qr-code/model/state.test.ts`
+- Single test by name: `pnpm exec vitest run features/qr-code/model/state.test.ts -t "builds svg options from the default state"`
 
 ## App Structure
 - `app/layout.tsx` defines the root shell, Geist/Bricolage Grotesque/Manrope fonts, and global CSS.
@@ -37,7 +37,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - If a tool exists for the job, use it. Do not manually `cat`, `grep`, or `sed` when a structured tool is available.
 
 ## Testing Notes
-- Current tests only cover `components/qr/qr-studio-state.ts` and a growing set of adjacent modules.
+- Current tests only cover `features/qr-code/model/state.ts` and a growing set of adjacent modules.
 - Vitest is configured with `environment: "node"`, so browser/client behavior is not covered by default.
 - If you change React UI behavior, do not assume existing tests cover it.
 
@@ -58,15 +58,15 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - shadcn config lives in `components.json` and uses the `radix-nova` style.
 - There is no checked-in CI workflow, formatter config, or pre-commit hook config in this repo, so verify locally with lint, typecheck, tests, and build before claiming completion.
 
-## `@new-qr/qr` package layout
-- Internal QR library lives in `packages/qr/`. One package, three component families used by the studio:
-  - `@new-qr/qr/react` — `NewQrCode`
-  - `@new-qr/qr/animated` — `AnimatedQr`
-  - `@new-qr/qr/shaders` — `PaperShaderLayer`
-  - `@new-qr/qr` — shared types and `NewQrCode` re-export
-- Studio-only code (SVG scene emit, export, scene schema, vendored renderers) is imported via `@new-qr/qr-internal/*` paths in `tsconfig.json`. These are **not** in `packages/qr/package.json` exports.
+## `@qrafty/qr` package layout
+- Internal QR library lives in `packages/qr/`. One package, three component families used by QRafty:
+  - `@qrafty/qr/react` — `QraftyQrCode`
+  - `@qrafty/qr/animated` — `AnimatedQr`
+  - `@qrafty/qr/shaders` — `PaperShaderLayer`
+  - `@qrafty/qr` — shared types and `QraftyQrCode` re-export
+- QRafty-only code (SVG scene emit, export, scene schema, vendored renderers) is imported via `@qrafty/qr-internal/*` paths in `tsconfig.json`. These are **not** in `packages/qr/package.json` exports.
 - Vendored fork: `packages/qr/vendor/react-qr-code`.
-- Build library: `pnpm build:packages` (or `pnpm --filter @new-qr/qr build`).
+- Build library: `pnpm build:packages` (or `pnpm --filter @qrafty/qr build`).
 
 ## Search / Editing Gotchas
 - Exclude `.next` and `node_modules` when searching; they create noisy false positives.

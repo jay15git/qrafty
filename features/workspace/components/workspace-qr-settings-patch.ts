@@ -1,11 +1,11 @@
 import type { DesktopPatternSettingsPatch } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import type { DesktopCornersSettings } from "@/features/desktop-shell/model/desktop-toolbar-types"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 
-export function applyPatternSettingsPatchToStudioState(
-  state: QrStudioState,
+export function applyPatternSettingsPatchToQraftyState(
+  state: QraftyState,
   patch: DesktopPatternSettingsPatch,
-): QrStudioState {
+): QraftyState {
   let next = state
 
   if (patch.qrDotType) {
@@ -117,10 +117,10 @@ export function applyPatternSettingsPatchToStudioState(
   return next
 }
 
-export function applyCornersSettingsPatchToStudioState(
-  state: QrStudioState,
+export function applyCornersSettingsPatchToQraftyState(
+  state: QraftyState,
   patch: Partial<DesktopCornersSettings>,
-): QrStudioState {
+): QraftyState {
   let next = state
 
   if (patch.cornerSquareType) {

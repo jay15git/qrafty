@@ -6,7 +6,7 @@ import type {
   QrMode,
   QrTypeNumber,
 } from "@/features/qr-code/model/types"
-import type { StudioCornerDotStyle } from "@/features/qr-code/model/state"
+import type { QraftyCornerDotStyle } from "@/features/qr-code/model/state"
 import {
   createDefaultDraftingCardState,
   type DraftingCardState,
@@ -49,8 +49,8 @@ import {
   type QrGradientLinkMode,
   type QrLogoPositionMode,
   type QrLogoSizeMode,
-  type StudioDataModulesStyle,
-  type StudioGradient,
+  type QraftyDataModulesStyle,
+  type QraftyGradient,
 } from "@/features/qr-code/model/state"
 import { type QrBackgroundShapeId } from "@/features/qr-code/styles/background-shapes"
 import { getDefaultStaticQrValues } from "@/features/qr-code/content/static-payload"
@@ -77,10 +77,10 @@ export type WorkspaceSurfaceState = {
   selectedQrRadius: number
   selectedRasterExportQualityPercent: number
   selectedQrSize: number
-  selectedDotType: StudioDataModulesStyle
+  selectedDotType: QraftyDataModulesStyle
   selectedDotsColorMode: DotsColorMode
   selectedDotColor: string
-  selectedDotsGradient: StudioGradient
+  selectedDotsGradient: QraftyGradient
   selectedDotsPalette: string[]
   selectedDotsPalettePreset: string | "custom"
   selectedModuleFillImageUrl: string
@@ -90,15 +90,15 @@ export type WorkspaceSurfaceState = {
   selectedQrFinderPatternOuterStyle: QrFinderPatternOuterStyle
   selectedCornerSquareColorMode: DraftingBinaryColorMode
   selectedCornerSquareColor: string
-  selectedCornerSquareGradient: StudioGradient
-  selectedQrFinderPatternInnerStyle: StudioCornerDotStyle
+  selectedCornerSquareGradient: QraftyGradient
+  selectedQrFinderPatternInnerStyle: QraftyCornerDotStyle
   selectedCornerDotColorMode: DraftingBinaryColorMode
   selectedCornerDotColor: string
-  selectedCornerDotGradient: StudioGradient
+  selectedCornerDotGradient: QraftyGradient
   selectedBackgroundColorMode: DraftingBinaryColorMode
   selectedBackgroundColor: string
   selectedBackgroundTransparent: boolean
-  selectedBackgroundGradient: StudioGradient
+  selectedBackgroundGradient: QraftyGradient
   selectedBackgroundShapeId: QrBackgroundShapeId
   selectedBackgroundShapeOptions: BackgroundShapeOptions
   selectedBackgroundAssetSourceMode: DraftingAssetSourceMode
@@ -106,7 +106,7 @@ export type WorkspaceSurfaceState = {
   selectedLogoColorMode: DraftingBinaryColorMode
   selectedLogoSourceMode: AssetSourceMode
   selectedLogoColor: string
-  selectedLogoGradient: StudioGradient
+  selectedLogoGradient: QraftyGradient
   selectedLogoPresetId: string | undefined
   selectedLogoPresetValue: string | undefined
   selectedLogoAssetSourceMode: DraftingAssetSourceMode

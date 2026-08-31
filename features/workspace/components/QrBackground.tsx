@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import { buildDraftingQrBackgroundSvgPayload } from "@/features/workspace/components/drafting-qr-background.utils"
 
 function getDraftingQrBackgroundFrame(layer: DraftingCanvasLayer) {
@@ -20,7 +20,7 @@ export function DraftingQrBackground({
   state,
 }: {
   layer: DraftingCanvasLayer
-  state: QrStudioState
+  state: QraftyState
 }) {
   const frame = getDraftingQrBackgroundFrame(layer)
   const payload = useMemo(

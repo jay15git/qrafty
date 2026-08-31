@@ -6,16 +6,16 @@ const pkg = (subpath: string) =>
   fileURLToPath(new URL(`./packages/qr/src/${subpath}`, import.meta.url));
 
 const qrAliases = [
-  { find: "@new-qr/qr-internal/codegen", replacement: pkg("scene/codegen/index.ts") },
-  { find: "@new-qr/qr-internal/export", replacement: pkg("scene/export/index.ts") },
-  { find: "@new-qr/qr-internal/scene", replacement: pkg("scene/index.ts") },
-  { find: "@new-qr/qr-internal/react-qr-code", replacement: pkg("react-qr-code/index.ts") },
-  { find: "@new-qr/qr-internal/core", replacement: pkg("core/index.ts") },
-  { find: "@new-qr/qr/dot-matrix", replacement: pkg("dot-matrix/index.ts") },
-  { find: "@new-qr/qr/animated", replacement: pkg("animated/index.ts") },
-  { find: "@new-qr/qr/shaders", replacement: pkg("shaders/index.ts") },
-  { find: "@new-qr/qr/react", replacement: pkg("react/index.ts") },
-  { find: "@new-qr/qr", replacement: pkg("index.ts") },
+  { find: "@qrafty/qr-internal/codegen", replacement: pkg("scene/codegen/index.ts") },
+  { find: "@qrafty/qr-internal/export", replacement: pkg("scene/export/index.ts") },
+  { find: "@qrafty/qr-internal/scene", replacement: pkg("scene/index.ts") },
+  { find: "@qrafty/qr-internal/react-qr-code", replacement: pkg("react-qr-code/index.ts") },
+  { find: "@qrafty/qr-internal/core", replacement: pkg("core/index.ts") },
+  { find: "@qrafty/qr/dot-matrix", replacement: pkg("dot-matrix/index.ts") },
+  { find: "@qrafty/qr/animated", replacement: pkg("animated/index.ts") },
+  { find: "@qrafty/qr/shaders", replacement: pkg("shaders/index.ts") },
+  { find: "@qrafty/qr/react", replacement: pkg("react/index.ts") },
+  { find: "@qrafty/qr", replacement: pkg("index.ts") },
 ];
 
 export default defineConfig({
@@ -38,7 +38,7 @@ export default defineConfig({
     environment: "node",
     server: {
       deps: {
-        inline: ["@new-qr/qr"],
+        inline: ["@qrafty/qr"],
       },
     },
   },

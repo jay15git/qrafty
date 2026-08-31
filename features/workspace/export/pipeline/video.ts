@@ -19,7 +19,7 @@ import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg
 import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-artwork"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import type {
   VideoExportDuration,
   VideoExportFormat,
@@ -172,7 +172,7 @@ export async function exportWorkspaceVideo({
   nodeId: string
   onProgress?: (progress: WorkspaceVideoExportProgress) => void
   request: WorkspaceVideoExportRequest
-  state: QrStudioState
+  state: QraftyState
 }) {
   const output = resolveVideoOutputDimensions(
     cardLayer.width,

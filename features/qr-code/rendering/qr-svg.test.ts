@@ -13,9 +13,9 @@ import {
 } from "@/features/qr-code/assets/brand-icon-svg"
 import { getBrandIconById } from "@/features/qr-code/assets/brand-icons"
 import {
-  createDefaultQrStudioState,
+  createDefaultQraftyState,
   setSquareQrSize,
-  type StudioGradient,
+  type QraftyGradient,
 } from "@/features/qr-code/model/state"
 import {
   CORNER_DOT_STYLE_OPTIONS,
@@ -30,7 +30,7 @@ const TEST_FRAME_GRADIENT = {
     { offset: 0, color: "#ff0000" },
     { offset: 1, color: "#0000ff" },
   ],
-} satisfies StudioGradient
+} satisfies QraftyGradient
 
 const TEST_DOT_GRADIENT = {
   enabled: true,
@@ -40,7 +40,7 @@ const TEST_DOT_GRADIENT = {
     { offset: 0, color: "#00ff00" },
     { offset: 1, color: "#ffff00" },
   ],
-} satisfies StudioGradient
+} satisfies QraftyGradient
 
 function getLocalizedFinderGradientRegionSizes(markup: string, gradientIdPrefix: string) {
   const document = new DOMParser().parseFromString(markup, "image/svg+xml")
@@ -73,7 +73,7 @@ function getSvgNumCells(markup: string) {
 
 describe("dashboard qr svg helpers", () => {
   it("forces svg rendering for the dashboard surface without mutating the original state", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.type = "canvas"
 
     const dashboardState = createDashboardSurfaceQrState(state)
@@ -94,7 +94,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("uses the canonical qr size when building the dashboard payload", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 512)
+    const state = setSquareQrSize(createDefaultQraftyState(), 512)
 
     const payload = await buildDashboardQrNodePayload(state)
 
@@ -106,7 +106,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("renders ReactQRCode finder pattern styles into the dashboard payload", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.finderPatternInnerSettings.type = "heart"
     state.finderPatternOuterSettings.type = "rounded-lg"
 
@@ -119,7 +119,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("applies palette module colors to the rendered dashboard qr payload", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "palette"
     state.dotsPalette = ["#04879c", "#0c3c78", "#f30a49"]
 
@@ -133,7 +133,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("applies palette module colors to direct qr svg markup", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "palette"
     state.dotsPalette = ["#04879c", "#0c3c78", "#f30a49"]
 
@@ -148,7 +148,7 @@ describe("dashboard qr svg helpers", () => {
   it.each(["circle", "diamond", "circuit-board"] as const)(
     "keeps all palette colors visible for %s data module shapes",
     (style) => {
-      const state = createDefaultQrStudioState()
+      const state = createDefaultQraftyState()
       state.dotsColorMode = "palette"
       state.dotsPalette = ["#111111", "#222222", "#333333", "#444444"]
       state.dataModulesSettings.type = style
@@ -163,7 +163,7 @@ describe("dashboard qr svg helpers", () => {
   )
 
   it("applies corner frame gradients to finder outer patterns", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.finderPatternOuterGradient = TEST_FRAME_GRADIENT
 
     const markup = renderDashboardQrSvgMarkup(state)
@@ -184,7 +184,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("renders custom corner dot shapes into the dashboard payload", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.finderPatternInnerSettings.type = "orbit-weave"
 
     const markup = renderDashboardQrSvgMarkup(state)
@@ -198,7 +198,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("applies corner dot gradients to custom inner patterns", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.finderPatternInnerSettings.type = "rounded-plus"
     state.finderPatternInnerGradient = TEST_DOT_GRADIENT
 
@@ -214,7 +214,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("applies corner dot gradients to finder inner patterns", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.finderPatternInnerGradient = TEST_DOT_GRADIENT
 
     const markup = renderDashboardQrSvgMarkup(state)
@@ -231,7 +231,7 @@ describe("dashboard qr svg helpers", () => {
   it.each(CORNER_SQUARE_STYLE_OPTIONS.map((option) => option.value))(
     "localizes corner frame gradients for %s outer styles",
     (style) => {
-      const state = createDefaultQrStudioState()
+      const state = createDefaultQraftyState()
       state.finderPatternOuterSettings.type = style
       state.finderPatternOuterGradient = TEST_FRAME_GRADIENT
 
@@ -257,7 +257,7 @@ describe("dashboard qr svg helpers", () => {
   it.each(CORNER_DOT_STYLE_OPTIONS.map((option) => option.value))(
     "localizes corner dot gradients for %s inner styles",
     (style) => {
-      const state = createDefaultQrStudioState()
+      const state = createDefaultQraftyState()
       state.finderPatternInnerSettings.type = style
       state.finderPatternInnerGradient = TEST_DOT_GRADIENT
 
@@ -281,7 +281,7 @@ describe("dashboard qr svg helpers", () => {
   )
 
   it("keeps module gradients isolated when corner frame gradients are enabled", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "gradient"
     state.dataModulesGradient = {
       enabled: true,
@@ -312,7 +312,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("applies unified module gradients to corner frames and corner dots", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "gradient"
     state.gradientLinkMode = "unified"
     state.dataModulesGradient = {
@@ -343,7 +343,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("applies unified module image fills to corner frames and corner dots", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "image"
     state.moduleFillImage = {
       source: "url",
@@ -370,7 +370,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("leaves logo images untouched when unified module gradients are active", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "gradient"
     state.gradientLinkMode = "unified"
     state.dataModulesGradient = {
@@ -397,7 +397,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("applies module gradients without repainting finder patterns", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "gradient"
     state.dataModulesGradient = {
       enabled: true,
@@ -424,7 +424,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("renders a standalone svg with namespace and visible default qr geometry", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dataModulesSettings.type = "square"
     state.finderPatternOuterSettings.type = "square"
     state.finderPatternInnerSettings.type = "square"
@@ -445,7 +445,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("reports expanded natural size when background effects grow outside the qr", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 320)
+    const state = setSquareQrSize(createDefaultQraftyState(), 320)
     state.backgroundShapeId = "circle"
     state.backgroundShapeOptions = {
       edgeBlur: 8,

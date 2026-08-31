@@ -42,7 +42,7 @@ import {
   DraftingImageLayerContent,
   DraftingShapeLayerContent,
 } from "@/features/workspace/rendering/shape-layer"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import { getDraftingQrLayerLayout } from "@/features/qr-code/rendering/svg-extension"
 import { useDraftingQrMarkup } from "@/features/workspace/hooks/use-drafting-qr-markup"
 import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
@@ -293,7 +293,7 @@ function renderTextLayerContent(layer: DraftingCanvasLayer) {
 function resolveQrLayerState(
   layerId: string,
   qrStateByLayerId: DraftingQrStateByLayerId,
-  fallbackState: QrStudioState,
+  fallbackState: QraftyState,
 ) {
   return qrStateByLayerId[layerId] ?? fallbackState
 }
@@ -303,7 +303,7 @@ function PaneQrLayerSurface({
   qrState,
 }: {
   layer: DraftingCanvasLayer
-  qrState: QrStudioState
+  qrState: QraftyState
 }) {
   const layout = useMemo(
     () => getDraftingQrLayerLayout(layer.width, qrState, layer.height),
@@ -344,7 +344,7 @@ export type PaneLayerViewSharedProps = {
   isImageMode: boolean
   isPaperShaderMode: boolean
   qrStateByLayerId: DraftingQrStateByLayerId
-  state: QrStudioState
+  state: QraftyState
 }
 
 export type PaneNestedLayerViewProps = PaneLayerViewSharedProps & {

@@ -4,23 +4,23 @@ import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import {
-  fillCssToStudioGradient,
+  fillCssToQraftyGradient,
   solidColorToFillCss,
-  studioGradientToFillCss,
+  qraftyGradientToFillCss,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   type DraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
-import type { StudioGradient } from "@/features/qr-code/model/state"
+import type { QraftyGradient } from "@/features/qr-code/model/state"
 import {
-  getStudioGradientCenter,
-  studioRadialCenterAsPercent,
-} from "@/features/qr-code/styles/studio-gradient-geometry"
+  getQraftyGradientCenter,
+  qraftyRadialCenterAsPercent,
+} from "@/features/qr-code/styles/qrafty-gradient-geometry"
 
 export function getShapeLayerFillCssValue(layer: DraftingCanvasLayer) {
   if (layer.fillMode === "gradient" && layer.fillGradient) {
-    return studioGradientToFillCss(layer.fillGradient)
+    return qraftyGradientToFillCss(layer.fillGradient)
   }
 
   return solidColorToFillCss(layer.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill)
@@ -37,7 +37,7 @@ export function patchShapeLayerFillFromPicker(
   if (fill.kind === "gradient") {
     return {
       fill: fillPreviewHex(css),
-      fillGradient: fillCssToStudioGradient(css, fallbackGradient),
+      fillGradient: fillCssToQraftyGradient(css, fallbackGradient),
       fillMode: "gradient",
     }
   }
@@ -72,7 +72,7 @@ export function ShapeFillGradientDefs({
   gradient,
   layerId,
 }: {
-  gradient: StudioGradient
+  gradient: QraftyGradient
   layerId: string
 }) {
   const gradientId = getShapeLayerGradientId(layerId)
@@ -85,7 +85,7 @@ export function ShapeFillGradientDefs({
   ))
 
   if (gradient.type === "radial") {
-    const { cx, cy } = studioRadialCenterAsPercent(getStudioGradientCenter(gradient))
+    const { cx, cy } = qraftyRadialCenterAsPercent(getQraftyGradientCenter(gradient))
 
     return (
       <radialGradient cx={`${cx}%`} cy={`${cy}%`} id={gradientId} r="50%">

@@ -1,9 +1,9 @@
-import { adaptExternalQRCodeSVG } from "@new-qr/qr/dot-matrix";
+import { adaptExternalQRCodeSVG } from "@qrafty/qr/dot-matrix";
 
 import { annotateCanvasSvgForDotMatrixMotion as annotateSvgElementForDotMatrixMotion } from "@/features/qr-code/rendering/svg-extension";
-import type { QrStudioState } from "@/features/qr-code/model/state";
+import type { QraftyState } from "@/features/qr-code/model/state";
 
-export function adaptCanvasSvgMarkupForDotMatrixMotion(markup: string, state: QrStudioState) {
+export function adaptCanvasSvgMarkupForDotMatrixMotion(markup: string, state: QraftyState) {
   if (!markup.trim()) {
     return undefined;
   }

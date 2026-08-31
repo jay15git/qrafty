@@ -12,9 +12,9 @@ import {
   type DraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
 import type { DraftingQrStateByNodeId } from "@/features/workspace/model/document"
-import type { AssetSourceMode, QrStudioState } from "@/features/qr-code/model/state"
+import type { AssetSourceMode, QraftyState } from "@/features/qr-code/model/state"
 
-export const DRAFTING_LAYER_CLIPBOARD_TYPE = "new-qr/drafting-layers"
+export const DRAFTING_LAYER_CLIPBOARD_TYPE = "qrafty/drafting-layers"
 export const DRAFTING_LAYER_CLIPBOARD_VERSION = 1
 
 export type DraftingDownloadTarget = "all-qr" | "current" | "surface" | `qr:${string}`
@@ -37,7 +37,7 @@ export function swapDraftingQrNodeOrder(
   sourceNodeId: string,
   targetNodeId: string,
   activeNodeId: string,
-  activeState: QrStudioState,
+  activeState: QraftyState,
 ) {
   if (sourceNodeId === targetNodeId) {
     return current

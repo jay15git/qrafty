@@ -127,7 +127,7 @@
   height: 100%;
 }
 
-.lfc-qr [data-slot="new-qr-code"],
+.lfc-qr [data-slot="qrafty-code"],
 .lfc-qr svg {
   display: block;
   width: 100%;
@@ -151,7 +151,7 @@
   place-items: center;
 }
 
-.lfc-shaped-qr [data-slot="new-qr-code"],
+.lfc-shaped-qr [data-slot="qrafty-code"],
 .lfc-shaped-qr svg {
   display: block;
   width: 100%;

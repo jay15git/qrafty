@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
 import { createDefaultDraftingLayers } from "@/features/workspace/model/layers"
 import {
@@ -11,7 +11,7 @@ import {
 
 describe("ensureMandatoryDesktopLayerRows", () => {
   it("re-appends the card layer when layer patches omit it", () => {
-    const qrState = createDefaultQrStudioState()
+    const qrState = createDefaultQraftyState()
     const cardState = createDefaultDraftingCardState()
     const layers = createDefaultDraftingLayers("preview", qrState, cardState)
     const cardLayer = layers.find((layer) => layer.kind === "card")
@@ -32,7 +32,7 @@ describe("ensureMandatoryDesktopLayerRows", () => {
 
 describe("patchDraftingLayerById", () => {
   it("keeps untouched sibling layer object identity", () => {
-    const qrState = createDefaultQrStudioState()
+    const qrState = createDefaultQraftyState()
     const cardState = createDefaultDraftingCardState()
     const layers = createDefaultDraftingLayers("preview", qrState, cardState)
     const cardLayer = layers.find((layer) => layer.kind === "card")

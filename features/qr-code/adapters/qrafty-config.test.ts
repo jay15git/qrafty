@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 
-import { toPortableQrConfig } from "@/features/qr-code/adapters/portable-config"
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { toQraftyQrConfig } from "@/features/qr-code/adapters/qrafty-config"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 
-describe("toPortableQrConfig", () => {
+describe("toQraftyQrConfig", () => {
   it("maps default studio state to readable portable props", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
 
-    expect(toPortableQrConfig(state)).toEqual({
+    expect(toQraftyQrConfig(state)).toEqual({
       background: "#f8fafc",
       backgroundGradient: "none",
       boostLevel: true,
@@ -27,18 +27,18 @@ describe("toPortableQrConfig", () => {
       moduleRoundSize: true,
       palette: ["#04879c", "#0c3c78", "#090030", "#f30a49"],
       size: 320,
-      value: "https://new-qr-studio.local/launch",
+      value: "https://qrafty.local/launch",
     })
   })
 
   it("maps separate finder colors and module round size", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dataModulesSettings.color = "#ff0000"
     state.finderPatternInnerSettings.color = "#00ff00"
     state.finderPatternOuterSettings.color = "#0000ff"
     state.dataModulesSettings.roundSize = false
 
-    const config = toPortableQrConfig(state)
+    const config = toQraftyQrConfig(state)
 
     expect(config.foreground).toBe("#ff0000")
     expect(config.finderInnerColor).toBe("#00ff00")
@@ -47,19 +47,19 @@ describe("toPortableQrConfig", () => {
   })
 
   it("uses a transparent qr background when a decorative shape is active", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundShapeId = "flower"
 
-    expect(toPortableQrConfig(state).background).toBe("transparent")
+    expect(toQraftyQrConfig(state).background).toBe("transparent")
   })
 
   it("maps diamond module and rounded finder styles", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dataModulesSettings.type = "diamond"
     state.finderPatternInnerSettings.type = "rounded"
     state.finderPatternOuterSettings.type = "rounded-lg"
 
-    const config = toPortableQrConfig(state)
+    const config = toQraftyQrConfig(state)
 
     expect(config.module).toBe("diamond")
     expect(config.finderInner).toBe("rounded")
@@ -67,7 +67,7 @@ describe("toPortableQrConfig", () => {
   })
 
   it("maps gradient settings without QR effects", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "gradient"
     state.dataModulesGradient.enabled = true
     state.dataModulesGradient.type = "linear"
@@ -81,7 +81,7 @@ describe("toPortableQrConfig", () => {
     state.dotMatrixAnimation.presetCategory = "standard"
     state.dotMatrixAnimation.preset = "FadeInTopDown"
 
-    const config = toPortableQrConfig(state)
+    const config = toQraftyQrConfig(state)
 
     expect(config.colorMode).toBe("gradient")
     expect(config.gradient).toEqual({
@@ -95,7 +95,7 @@ describe("toPortableQrConfig", () => {
   })
 
   it("maps boostLevel, module tuning, logo advanced fields, and ariaLabel", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.qrOptions.boostLevel = false
     state.dataModulesSettings.moduleSize = 0.9
     state.dataModulesSettings.lineWidth = 0.75
@@ -109,7 +109,7 @@ describe("toPortableQrConfig", () => {
     state.imageOptions.y = 12
     state.logo = { source: "url", value: "https://example.com/logo.png" }
 
-    expect(toPortableQrConfig(state)).toMatchObject({
+    expect(toQraftyQrConfig(state)).toMatchObject({
       ariaLabel: "Scan to pay",
       boostLevel: false,
       logo: {

@@ -1,7 +1,7 @@
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import { getAssetValue } from "@/features/qr-code/model/state"
 
-export function getQrEncodeCacheKey(state: QrStudioState) {
+export function getQrEncodeCacheKey(state: QraftyState) {
   return JSON.stringify({
     ariaLabel: state.ariaLabel,
     boostLevel: state.qrOptions.boostLevel,

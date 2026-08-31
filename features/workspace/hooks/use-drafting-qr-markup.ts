@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import type { QrStudioState } from "@/features/qr-code/model/state"
-import { buildDraftingQrStudioMarkup } from "@/features/qr-code/rendering/qr-studio-markup"
+import type { QraftyState } from "@/features/qr-code/model/state"
+import { buildDraftingQraftyMarkup } from "@/features/qr-code/rendering/qrafty-markup"
 import { previewSession } from "@/features/workspace/preview/preview-session"
 import {
   markPreviewPerformance,
@@ -18,7 +18,7 @@ export function clearDraftingQrMarkupCache() {
   markupCache.clear()
 }
 
-export function useDraftingQrMarkup(state: QrStudioState) {
+export function useDraftingQrMarkup(state: QraftyState) {
   const [markup, setMarkup] = useState<string | null>(null)
   const [hasError, setHasError] = useState(false)
   const requestRef = useRef(0)
@@ -44,7 +44,7 @@ export function useDraftingQrMarkup(state: QrStudioState) {
 
     try {
       markPreviewPerformance(PREVIEW_PERF_MARKS.qrMarkupBuildBegin)
-      const nextMarkup = buildDraftingQrStudioMarkup(artworkState)
+      const nextMarkup = buildDraftingQraftyMarkup(artworkState)
       markPreviewPerformance(PREVIEW_PERF_MARKS.qrMarkupBuildEnd)
       measurePreviewPerformance(
         "qr-markup-build",

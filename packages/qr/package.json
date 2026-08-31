@@ -1,5 +1,5 @@
 {
-  "name": "@new-qr/qr",
+  "name": "@qrafty/qr",
   "version": "0.1.0",
   "private": true,
   "description": "Customizable QR code, animated QR, and paper shader React components",

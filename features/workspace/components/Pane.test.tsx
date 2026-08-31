@@ -4,7 +4,7 @@ import { act } from "react"
 import { createRoot } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-const buildDraftingQrStudioMarkupSpy = vi.fn()
+const buildDraftingQraftyMarkupSpy = vi.fn()
 
 vi.mock("@/features/qr-code/components/DotMatrixAnimatedQr", () => ({
   DotMatrixAnimatedQr: ({
@@ -19,18 +19,18 @@ vi.mock("@/features/qr-code/components/DotMatrixAnimatedQr", () => ({
   ),
 }))
 
-vi.mock("@/features/qr-code/rendering/qr-studio-markup", async (importOriginal) => {
+vi.mock("@/features/qr-code/rendering/qrafty-markup", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("@/features/qr-code/rendering/qr-studio-markup")>()
+    await importOriginal<typeof import("@/features/qr-code/rendering/qrafty-markup")>()
 
   return {
     ...actual,
-    buildDraftingQrStudioMarkup: (
-      ...args: Parameters<typeof buildDraftingQrStudioMarkupSpy>
-    ) => buildDraftingQrStudioMarkupSpy(...args),
-    buildDraftingQrStudioPreviewMarkup: (
-      ...args: Parameters<typeof buildDraftingQrStudioMarkupSpy>
-    ) => buildDraftingQrStudioMarkupSpy(...args[0], args[1], args[2]),
+    buildDraftingQraftyMarkup: (
+      ...args: Parameters<typeof buildDraftingQraftyMarkupSpy>
+    ) => buildDraftingQraftyMarkupSpy(...args),
+    buildDraftingQraftyPreviewMarkup: (
+      ...args: Parameters<typeof buildDraftingQraftyMarkupSpy>
+    ) => buildDraftingQraftyMarkupSpy(...args[0], args[1], args[2]),
   }
 })
 
@@ -49,10 +49,10 @@ import {
   type DraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
 import {
-  createDefaultQrStudioState,
+  createDefaultQraftyState,
   setDotMatrixAnimationOptions,
   setSquareQrSize,
-  type QrStudioState,
+  type QraftyState,
 } from "@/features/qr-code/model/state"
 import { renderDashboardQrSvgMarkup } from "@/features/qr-code/rendering/qr-svg"
 import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-artwork"
@@ -80,8 +80,8 @@ const TEST_CANVAS_CARD_STATE: DraftingCardState = {
 
 beforeEach(() => {
   clearDraftingQrMarkupCache()
-  buildDraftingQrStudioMarkupSpy.mockReset()
-  buildDraftingQrStudioMarkupSpy.mockImplementation((state) => {
+  buildDraftingQraftyMarkupSpy.mockReset()
+  buildDraftingQraftyMarkupSpy.mockImplementation((state) => {
     return `<svg data-width="${state.width}" data-height="${state.height}" />`
   })
   HTMLElement.prototype.setPointerCapture = vi.fn()
@@ -105,7 +105,7 @@ afterEach(() => {
 
 describe("Pane", () => {
   it("reuses cached markup for an equal state and rebuilds when state changes", async () => {
-    const firstState = createDefaultQrStudioState()
+    const firstState = createDefaultQraftyState()
     const secondState = structuredClone(firstState)
     const thirdState = setSquareQrSize(firstState, firstState.width + 40)
 
@@ -113,7 +113,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    expect(buildDraftingQrStudioMarkupSpy).toHaveBeenCalledTimes(1)
+    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalledTimes(1)
     expect(container.querySelector('[data-slot="desktop-compose-node"]')).not.toBeNull()
 
     await act(async () => {
@@ -131,7 +131,7 @@ describe("Pane", () => {
       await flushPromises()
     })
 
-    expect(buildDraftingQrStudioMarkupSpy).toHaveBeenCalledTimes(1)
+    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalledTimes(1)
 
     await act(async () => {
       reactRoot.render(
@@ -148,11 +148,11 @@ describe("Pane", () => {
       await flushPromises()
     })
 
-    expect(buildDraftingQrStudioMarkupSpy).toHaveBeenCalledTimes(2)
+    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalledTimes(2)
   })
 
   it("renders card canvas background from card state only", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     const cardState = createDefaultDraftingCardState()
     const nodeId = "preview"
     const layers = createDefaultDraftingLayers(nodeId, state, cardState)
@@ -173,7 +173,7 @@ describe("Pane", () => {
   })
 
   it("lets the qr canvas fill the preview pane", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     const { container } = renderPane(state)
 
     await waitForQrPaneRender()
@@ -206,7 +206,7 @@ describe("Pane", () => {
   })
 
   it("sizes the preview from rendered qr bounds using padding and stroke only", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     state.backgroundShapeOptions = {
       edgeBlur: 10,
       paddingPx: 20,
@@ -240,7 +240,7 @@ describe("Pane", () => {
   })
 
   it("renders the editable card layer behind the qr artwork", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     const cardState = createAutoSizedCardState({
       bottomSpace: 96,
       border: {
@@ -286,11 +286,11 @@ describe("Pane", () => {
   })
 
   it("renders selected qr backing shapes as a qr-layer background without changing the card", async () => {
-    buildDraftingQrStudioMarkupSpy.mockImplementationOnce(
+    buildDraftingQraftyMarkupSpy.mockImplementationOnce(
       () =>
         '<svg width="240" height="240" viewBox="0 0 240 240"><defs><filter data-qr-layer="background-shape-blur-filter" id="background-shape-blur-filter"/></defs><path data-qr-layer="background-shape-blur" d="M0 0h240v240H0z"/><path data-qr-layer="background-shape" d="M0 0h240v240H0z"/><rect width="240" height="240" clip-path="url(\'#clip-path-background-color-0\')" fill="#fff"/><path data-qr-layer="dot" d="M20 20h40v40H20z" fill="#111"/></svg>',
     )
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     state.backgroundShapeId = "flower"
     state.backgroundShapeOptions = {
       edgeBlur: 20,
@@ -334,8 +334,8 @@ describe("Pane", () => {
     expect(qrBackground?.querySelector("path")).not.toBeNull()
     expect(qrComponent).not.toBeNull()
     expect(qrComponent?.querySelector("svg")).not.toBeNull()
-    expect(container.querySelector('[data-slot="new-qr-code"]')).toBeNull()
-    expect(buildDraftingQrStudioMarkupSpy).toHaveBeenCalledWith(
+    expect(container.querySelector('[data-slot="qrafty-code"]')).toBeNull()
+    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         backgroundGradient: expect.objectContaining({ enabled: false }),
         backgroundImage: {
@@ -351,7 +351,7 @@ describe("Pane", () => {
   })
 
   it("marks the card layer with the selected paper shader", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     const cardState = {
       ...createDefaultDraftingCardState(),
       paperShader: createDefaultDraftingCardPaperShader("warp"),
@@ -369,7 +369,7 @@ describe("Pane", () => {
   })
 
   it("renders qr artwork without the card wrapper when the card is disabled", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     const cardState = createAutoSizedCardState({
       enabled: false,
       styleMode: "solid",
@@ -386,7 +386,7 @@ describe("Pane", () => {
   })
 
   it("keeps the qr canvas unshadowed when selected", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     const { container } = renderPane(state, true)
 
     await waitForQrPaneRender()
@@ -404,7 +404,7 @@ describe("Pane", () => {
   })
 
   it("sizes the preview wrapper from the qr state", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 320)
+    const state = setSquareQrSize(createDefaultQraftyState(), 320)
     const { container } = renderPane(state)
 
     await waitForQrPaneRender()
@@ -417,7 +417,7 @@ describe("Pane", () => {
   })
 
   it("shows corner resize handles and grabbable edge zones for the selected layer", async () => {
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       onLayerChange: () => undefined,
       selectedLayerId: "preview:qr",
     })
@@ -442,7 +442,7 @@ describe("Pane", () => {
   })
 
   it("keeps resize control padding equal around selected qr layers", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     const cardState = createAutoSizedCardState({
       bottomSpace: 96,
       padding: 20,
@@ -488,7 +488,7 @@ describe("Pane", () => {
   })
 
   it("keeps overlay chrome screen-sized when the artboard is fitted down", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     const cardState = createAutoSizedCardState({
       bottomSpace: 96,
       padding: 20,
@@ -535,7 +535,7 @@ describe("Pane", () => {
       createLayer({ height: 300, id: "preview:card", kind: "card", width: 300, x: -150, y: -150, zIndex: 0 }),
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: -100, y: -80, zIndex: 1 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers,
       onLayerChange,
       selectedLayerId: "preview:qr",
@@ -563,7 +563,7 @@ describe("Pane", () => {
       createLayer({ height: 300, id: "preview:card", kind: "card", width: 300, x: -150, y: -150, zIndex: 0 }),
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: -100, y: -80, zIndex: 1 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers,
       onLayerChange,
       selectedLayerId: "preview:qr",
@@ -591,7 +591,7 @@ describe("Pane", () => {
       createLayer({ height: 300, id: "preview:card", kind: "card", width: 300, x: -150, y: -150, zIndex: 0 }),
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: -50, y: -50, zIndex: 1 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers,
       onLayerChange,
       selectedLayerId: "preview:qr",
@@ -616,7 +616,7 @@ describe("Pane", () => {
       createLayer({ height: 240, id: "preview:card", kind: "card", width: 240, x: -120, y: -120, zIndex: 0 }),
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: 0, y: 0, zIndex: 1 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers,
       onLayerChange,
       selectedLayerId: "preview:qr",
@@ -648,7 +648,7 @@ describe("Pane", () => {
       createLayer({ height: 240, id: "preview:card", kind: "card", width: 240, x: -120, y: -120, zIndex: 0 }),
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: 0, y: 0, zIndex: 1 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers,
       onLayerChange,
       selectedLayerId: "preview:qr",
@@ -680,7 +680,7 @@ describe("Pane", () => {
       createLayer({ height: 300, id: "preview:card", kind: "card", width: 300, x: -150, y: -150, zIndex: 0 }),
       createLayer({ height: 250, id: "preview:qr", kind: "qr", width: 250, x: -125, y: -125, zIndex: 1 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers,
       onLayerChange,
       selectedLayerId: "preview:qr",
@@ -707,7 +707,7 @@ describe("Pane", () => {
   })
 
   it("renders selected layer controls above higher z-index layer content", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const cardState = createDefaultDraftingCardState()
     const layers = createDefaultDraftingLayers("preview", state, cardState).map((layer) =>
       layer.id === "preview:qr"
@@ -733,7 +733,7 @@ describe("Pane", () => {
   })
 
   it("shows a rotation handle above the selected layer controls", async () => {
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       onLayerChange: () => undefined,
       selectedLayerId: "preview:qr",
     })
@@ -769,8 +769,8 @@ describe("Pane", () => {
       width: 260,
       zIndex: 2,
     })
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
-      layers: [...createDefaultDraftingLayers("preview", createDefaultQrStudioState(), createDefaultDraftingCardState()), textLayer],
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
+      layers: [...createDefaultDraftingLayers("preview", createDefaultQraftyState(), createDefaultDraftingCardState()), textLayer],
       onLayerChange,
       onLayerSelect,
       selectedLayerId: "preview:text",
@@ -828,10 +828,10 @@ describe("Pane", () => {
     })
     const defaultLayers = createDefaultDraftingLayers(
       "preview",
-      createDefaultQrStudioState(),
+      createDefaultQraftyState(),
       createDefaultDraftingCardState(),
     )
-    const { container, reactRoot } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container, reactRoot } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers: [...defaultLayers, textLayer],
       onLayerChange,
       selectedLayerId: "preview:text",
@@ -861,12 +861,12 @@ describe("Pane", () => {
           cardState={createDefaultDraftingCardState()}
           isSelected
           layers={[...defaultLayers, textLayer]}
-          qrStateByLayerId={createTestQrStateByLayerId(createDefaultQrStudioState(), [
+          qrStateByLayerId={createTestQrStateByLayerId(createDefaultQraftyState(), [
             ...defaultLayers,
             textLayer,
           ])}
           selectedLayerId="preview:text"
-          state={createDefaultQrStudioState()}
+          state={createDefaultQraftyState()}
           onLayerChange={onLayerChange}
           onQrClick={() => undefined}
           onSelect={() => undefined}
@@ -896,10 +896,10 @@ describe("Pane", () => {
     })
     const defaultLayers = createDefaultDraftingLayers(
       "preview",
-      createDefaultQrStudioState(),
+      createDefaultQraftyState(),
       createDefaultDraftingCardState(),
     )
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers: [...defaultLayers, textLayer],
       onLayerChange,
       selectedLayerId: "preview:text",
@@ -927,8 +927,8 @@ describe("Pane", () => {
       text: "Scan here",
       zIndex: 2,
     })
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
-      layers: [...createDefaultDraftingLayers("preview", createDefaultQrStudioState(), createDefaultDraftingCardState()), textLayer],
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
+      layers: [...createDefaultDraftingLayers("preview", createDefaultQraftyState(), createDefaultDraftingCardState()), textLayer],
       onLayerAction,
       onLayerCopy,
       onLayerChange,
@@ -978,7 +978,7 @@ describe("Pane", () => {
 
   it("opens the existing context menu from the floating more button", async () => {
     const onLayerAction = vi.fn()
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       onLayerAction,
       selectedLayerId: "preview:qr",
     })
@@ -1022,7 +1022,7 @@ describe("Pane", () => {
     const selectedLayerIds = [getDraftingQrLayerId("preview"), "preview:text"]
     const layers = createDefaultDraftingLayers(
       "preview",
-      createDefaultQrStudioState(),
+      createDefaultQraftyState(),
       createDefaultDraftingCardState(),
     ).concat(
       createDraftingTextLayer("preview", {
@@ -1034,7 +1034,7 @@ describe("Pane", () => {
         zIndex: 2,
       }),
     )
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers,
       onLayerAction,
       onLayerCopy,
@@ -1057,7 +1057,7 @@ describe("Pane", () => {
 
   it("opens a selected layer context menu and emits layer actions", async () => {
     const onLayerAction = vi.fn()
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       onLayerAction,
       selectedLayerId: "preview:qr",
     })
@@ -1114,7 +1114,7 @@ describe("Pane", () => {
   })
 
   it("closes the layer context menu after clicking outside it", async () => {
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       selectedLayerId: "preview:qr",
     })
 
@@ -1144,7 +1144,7 @@ describe("Pane", () => {
 
   it("opens an empty canvas context menu without paste actions", async () => {
     const onLayerPaste = vi.fn()
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       onLayerPaste,
       selectedLayerId: null,
     })
@@ -1195,7 +1195,7 @@ describe("Pane", () => {
         zIndex: 1,
       }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers,
       onLayerSelect,
       onLayerSelectionChange,
@@ -1220,7 +1220,7 @@ describe("Pane", () => {
 
   it("updates layer rotation when dragging the rotation handle", async () => {
     const onLayerChange = vi.fn()
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       onLayerChange,
       selectedLayerId: "preview:qr",
     })
@@ -1271,7 +1271,7 @@ describe("Pane", () => {
 
   it("soft-snaps rotation near cardinal angles", async () => {
     const onLayerChange = vi.fn()
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       onLayerChange,
       selectedLayerId: "preview:qr",
     })
@@ -1305,7 +1305,7 @@ describe("Pane", () => {
 
   it("keeps rotation freeform outside the soft snap threshold", async () => {
     const onLayerChange = vi.fn()
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       onLayerChange,
       selectedLayerId: "preview:qr",
     })
@@ -1341,7 +1341,7 @@ describe("Pane", () => {
 
   it("keeps the rotation value visible for two seconds after rotation ends", async () => {
     const onLayerChange = vi.fn()
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       onLayerChange,
       selectedLayerId: "preview:qr",
     })
@@ -1393,7 +1393,7 @@ describe("Pane", () => {
   })
 
   it("wraps the rotation value label from 359 degrees back to zero", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const cardState = createDefaultDraftingCardState()
     const layers = createDefaultDraftingLayers("preview", state, cardState).map((layer) =>
       layer.id === "preview:qr" ? { ...layer, rotation: 359.6 } : layer,
@@ -1434,7 +1434,7 @@ describe("Pane", () => {
 
   it("clears layer selection when clicking empty preview canvas space", async () => {
     const onLayerSelect = vi.fn()
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       onLayerChange: () => undefined,
       onLayerSelect,
       selectedLayerId: "preview:qr",
@@ -1454,7 +1454,7 @@ describe("Pane", () => {
   })
 
   it("applies qr layer shadow to foreground qr shapes instead of the background rect", async () => {
-    buildDraftingQrStudioMarkupSpy.mockImplementationOnce(
+    buildDraftingQraftyMarkupSpy.mockImplementationOnce(
       () =>
         '<svg width="240" height="240" viewBox="0 0 240 240"><defs><clipPath id="clip-path-background-color-0"><rect x="0" y="0" width="240" height="240"/></clipPath><clipPath id="clip-path-dot-color-0"><path d="M0 0h10v10z"/></clipPath></defs><rect x="0" y="0" width="240" height="240" clip-path="url(\'#clip-path-background-color-0\')" fill="#f8fafc"/><rect x="20" y="20" width="200" height="200" clip-path="url(\'#clip-path-dot-color-0\')" fill="#111827"/></svg>',
     )
@@ -1482,7 +1482,7 @@ describe("Pane", () => {
       y: -120,
       zIndex: 1,
     } satisfies DraftingCanvasLayer
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers: [qrLayer],
       selectedLayerId: "preview:qr",
     })
@@ -1493,11 +1493,11 @@ describe("Pane", () => {
 
     expect(qrComponent).not.toBeNull()
     expect(qrComponent?.querySelector("svg")).not.toBeNull()
-    expect(container.querySelector('[data-slot="new-qr-code"]')).toBeNull()
+    expect(container.querySelector('[data-slot="qrafty-code"]')).toBeNull()
   })
 
   it("keeps the qr canvas unshadowed when not selected", async () => {
-    const { container } = renderPane(createDefaultQrStudioState(), false)
+    const { container } = renderPane(createDefaultQraftyState(), false)
 
     await waitForQrPaneRender()
 
@@ -1509,7 +1509,7 @@ describe("Pane", () => {
 
   it("does not select the card canvas when clicked", async () => {
     const onLayerSelect = vi.fn()
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       onLayerSelect,
     })
 
@@ -1526,7 +1526,7 @@ describe("Pane", () => {
 
   it("renders padded resize and rotate controls around multiple selected layers", async () => {
     const selectedLayerIds = [getDraftingQrLayerId("preview")]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       selectedLayerIds,
     })
 
@@ -1544,7 +1544,7 @@ describe("Pane", () => {
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: 50, y: -50, zIndex: 1 }),
       createLayer({ height: 40, id: "preview:text", kind: "text", width: 120, x: -60, y: 20, zIndex: 2 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, TEST_CANVAS_CARD_STATE, {
+    const { container } = renderPane(createDefaultQraftyState(), true, TEST_CANVAS_CARD_STATE, {
       layers,
       onLayerChange,
       selectedLayerIds: ["preview:qr", "preview:text"],
@@ -1584,7 +1584,7 @@ describe("Pane", () => {
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: 50, y: -50, zIndex: 1 }),
       createLayer({ height: 40, id: "preview:text", kind: "text", width: 120, x: -60, y: 20, zIndex: 2 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, TEST_CANVAS_CARD_STATE, {
+    const { container } = renderPane(createDefaultQraftyState(), true, TEST_CANVAS_CARD_STATE, {
       layers,
       onLayerChange,
       selectedLayerIds: ["preview:qr", "preview:text"],
@@ -1634,7 +1634,7 @@ describe("Pane", () => {
       createLayer({ height: 100, id: "preview:card", kind: "card", width: 100, x: -100, y: -50, zIndex: 0 }),
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: 50, y: -50, zIndex: 1 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers,
       onLayerChange,
       selectedLayerIds: ["preview:card", "preview:qr"],
@@ -1678,7 +1678,7 @@ describe("Pane", () => {
       createLayer({ height: 100, id: "preview:card", kind: "card", width: 100, x: -100, y: -50, zIndex: 0 }),
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: 50, y: -50, zIndex: 1 }),
     ]
-    const { container, reactRoot } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container, reactRoot } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers,
       onLayerChange,
       selectedLayerIds: ["preview:card", "preview:qr"],
@@ -1718,11 +1718,11 @@ describe("Pane", () => {
             createLayer({ height: 100, id: "preview:card", kind: "card", rotation: 90, width: 100, x: -25, y: -125, zIndex: 0 }),
             createLayer({ height: 100, id: "preview:qr", kind: "qr", rotation: 90, width: 100, x: -25, y: 25, zIndex: 1 }),
           ]}
-          qrStateByLayerId={createTestQrStateByLayerId(createDefaultQrStudioState(), [
+          qrStateByLayerId={createTestQrStateByLayerId(createDefaultQraftyState(), [
             createLayer({ height: 100, id: "preview:card", kind: "card", rotation: 90, width: 100, x: -25, y: -125, zIndex: 0 }),
             createLayer({ height: 100, id: "preview:qr", kind: "qr", rotation: 90, width: 100, x: -25, y: 25, zIndex: 1 }),
           ])}
-          state={createDefaultQrStudioState()}
+          state={createDefaultQraftyState()}
           isSelected={true}
           onLayerChange={onLayerChange}
           onQrClick={() => undefined}
@@ -1746,7 +1746,7 @@ describe("Pane", () => {
       createLayer({ height: 100, id: "preview:card", kind: "card", rotation: 90, width: 100, x: -25, y: -125, zIndex: 0 }),
       createLayer({ height: 100, id: "preview:qr", kind: "qr", rotation: 90, width: 100, x: -25, y: 25, zIndex: 1 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, createDefaultDraftingCardState(), {
+    const { container } = renderPane(createDefaultQraftyState(), true, createDefaultDraftingCardState(), {
       layers,
       selectedLayerIds: ["preview:card", "preview:qr"],
     })
@@ -1770,7 +1770,7 @@ describe("Pane", () => {
       createLayer({ height: 100, id: "preview:qr", kind: "qr", width: 100, x: 50, y: -50, zIndex: 1 }),
       createLayer({ height: 40, id: "preview:text", kind: "text", width: 120, x: -60, y: 20, zIndex: 2 }),
     ]
-    const { container } = renderPane(createDefaultQrStudioState(), true, TEST_CANVAS_CARD_STATE, {
+    const { container } = renderPane(createDefaultQraftyState(), true, TEST_CANVAS_CARD_STATE, {
       layers,
       onLayerChange,
       onLayerSelect,
@@ -1801,10 +1801,10 @@ describe("Pane", () => {
   })
 
   it("keeps building canvas markup and mounts dot matrix preview when motion is enabled", async () => {
-    const baseState = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const baseState = setSquareQrSize(createDefaultQraftyState(), 240)
     const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(baseState))
 
-    buildDraftingQrStudioMarkupSpy.mockReturnValue(canvasMarkup)
+    buildDraftingQraftyMarkupSpy.mockReturnValue(canvasMarkup)
 
     const motionState = setDotMatrixAnimationOptions(baseState, {
       enabled: true,
@@ -1815,7 +1815,7 @@ describe("Pane", () => {
 
     await waitForQrPaneRender()
 
-    expect(buildDraftingQrStudioMarkupSpy).toHaveBeenCalledTimes(1)
+    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalledTimes(1)
 
     const animatedPreview = container.querySelector('[data-testid="dot-matrix-animated-qr"]')
 
@@ -1839,12 +1839,12 @@ describe("Pane", () => {
       await flushPromises()
     })
 
-    expect(buildDraftingQrStudioMarkupSpy).toHaveBeenCalledTimes(2)
+    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalledTimes(2)
   })
 })
 
 function renderPane(
-  state = createDefaultQrStudioState(),
+  state = createDefaultQraftyState(),
   isSelected = false,
   cardState = createDefaultDraftingCardState(),
   props: {
@@ -1906,7 +1906,7 @@ function renderPane(
   return { container, reactRoot }
 }
 
-function createDefaultPaneQrStateByLayerId(state: QrStudioState) {
+function createDefaultPaneQrStateByLayerId(state: QraftyState) {
   return createTestQrStateByLayerId(
     state,
     createDefaultDraftingLayers("preview", state, createDefaultDraftingCardState()),
@@ -1914,7 +1914,7 @@ function createDefaultPaneQrStateByLayerId(state: QrStudioState) {
 }
 
 function createTestQrStateByLayerId(
-  state: QrStudioState,
+  state: QraftyState,
   layers: DraftingCanvasLayer[],
 ): DraftingQrStateByLayerId {
   const qrStateByLayerId: DraftingQrStateByLayerId = {}

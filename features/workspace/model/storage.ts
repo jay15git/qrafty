@@ -4,11 +4,11 @@ import {
   type DraftingWorkspaceDocumentV1,
 } from "@/features/workspace/model/document"
 
-const DB_NAME = "new-qr-drafting-workspace"
+const DB_NAME = "qrafty-drafting-workspace"
 const DB_VERSION = 1
 const STORE_NAME = "drafts"
 const DRAFT_ID = "new"
-const LOCAL_STORAGE_KEY = "new-qr:drafting-workspace:new"
+const LOCAL_STORAGE_KEY = "qrafty:drafting-workspace:new"
 
 type StoredDraftingWorkspaceRecord = {
   document: unknown

@@ -2,9 +2,9 @@ import { ReactQRCode } from "../react-qr-code"
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 
-import type { NewQrCodeProps } from "../types"
-import { applyPortableQrSvgExtensions } from "./svg-extension"
-import { portablePropsToReactQrProps } from "./map-props"
+import type { QraftyQrCodeProps } from "../types"
+import { applyQraftyQrSvgExtensions } from "./svg-extension"
+import { qraftyPropsToReactQrProps } from "./map-props"
 
 export function stripXmlDeclaration(markup: string) {
   return markup
@@ -13,9 +13,9 @@ export function stripXmlDeclaration(markup: string) {
     .trim()
 }
 
-export function renderNewQrSvg(props: NewQrCodeProps) {
+export function renderQraftyQrSvg(props: QraftyQrCodeProps) {
   const markup = stripXmlDeclaration(
-    renderToStaticMarkup(createElement(ReactQRCode, portablePropsToReactQrProps(props))),
+    renderToStaticMarkup(createElement(ReactQRCode, qraftyPropsToReactQrProps(props))),
   )
 
   if (typeof DOMParser === "undefined") {
@@ -29,6 +29,6 @@ export function renderNewQrSvg(props: NewQrCodeProps) {
     return markup
   }
 
-  applyPortableQrSvgExtensions(svg as unknown as SVGElement, props)
+  applyQraftyQrSvgExtensions(svg as unknown as SVGElement, props)
   return new XMLSerializer().serializeToString(svg)
 }

@@ -1,12 +1,12 @@
 "use client";
 
-import { DotMatrixAnimatedSvg } from "@new-qr/qr/dot-matrix";
+import { DotMatrixAnimatedSvg } from "@qrafty/qr/dot-matrix";
 import { useMemo } from "react";
 
 import {
   toDotMatrixQrConfig,
 } from "@/features/qr-code/motion/dot-matrix-bridge";
-import type { QrStudioState } from "@/features/qr-code/model/state";
+import type { QraftyState } from "@/features/qr-code/model/state";
 import { cn } from "@/lib/utils";
 
 export function DotMatrixAnimatedQr({
@@ -20,7 +20,7 @@ export function DotMatrixAnimatedQr({
   canvasSvgMarkup?: string | null;
   className?: string;
   height: number;
-  state: QrStudioState;
+  state: QraftyState;
   style?: React.CSSProperties;
   width: number;
 }) {

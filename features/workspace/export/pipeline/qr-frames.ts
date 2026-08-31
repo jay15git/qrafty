@@ -1,16 +1,16 @@
-import { seekDotMatrixAnimation } from "@new-qr/qr/dot-matrix"
+import { seekDotMatrixAnimation } from "@qrafty/qr/dot-matrix"
 
 import { toDotMatrixQrConfig } from "@/features/qr-code/motion/dot-matrix-bridge"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import { sanitizeDraftingQrArtworkMarkup } from "@/features/workspace/rendering/qr-artwork"
 
-export function shouldExportAnimatedQr(state: QrStudioState) {
+export function shouldExportAnimatedQr(state: QraftyState) {
   return state.dotMatrixAnimation.enabled && state.dotMatrixAnimation.animated
 }
 
 export function buildAnimatedQrMarkupAtTime(
   qrMarkup: string,
-  state: QrStudioState,
+  state: QraftyState,
   timeMs: number,
 ) {
   const config = toDotMatrixQrConfig(state, {

@@ -12,7 +12,7 @@ import {
   SOURCE_MID_OPACITY,
   SOURCE_PEAK_OPACITY,
   type QRCodeAnimationSettings,
-} from "@new-qr/qr/dot-matrix";
+} from "@qrafty/qr/dot-matrix";
 
 const defaultOpacitySettings: QRCodeAnimationSettings = {
   dotMatrixOpacityBase: 1,

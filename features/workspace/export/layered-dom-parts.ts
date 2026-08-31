@@ -1,4 +1,4 @@
-import { type DomLayerNode } from "@new-qr/qr-internal/codegen"
+import { type DomLayerNode } from "@qrafty/qr-internal/codegen"
 
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/workspace/model/corner-radius"
@@ -21,8 +21,8 @@ import {
   getTextRunStyle,
   serializeCssProperties,
 } from "@/features/workspace/rendering/layer-dom-styles"
-import { toPortableQrConfig } from "@/features/qr-code/adapters/portable-config"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import { toQraftyQrConfig } from "@/features/qr-code/adapters/qrafty-config"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import { getDraftingQrLayerLayout } from "@/features/qr-code/rendering/svg-extension"
 import { buildDraftingQrBackgroundSvgPayload } from "@/features/workspace/components/drafting-qr-background.utils"
 
@@ -53,7 +53,7 @@ export async function buildLayeredDomParts({
   cardState: DraftingCardState
   layers: DraftingCanvasLayer[]
   qrMarkup: string
-  state: QrStudioState
+  state: QraftyState
 }): Promise<LayeredDomParts> {
   await preloadIllustrationSvgMarkup(collectIllustrationAssetPaths(layers))
   const bounds = getDraftingLayerBounds(layers, state)
@@ -70,7 +70,7 @@ function getDraftingLayerDomNode(
   layer: DraftingCanvasLayer,
   cardState: DraftingCardState,
   qrMarkup: string,
-  state: QrStudioState,
+  state: QraftyState,
 ): DomLayerNode | null {
   if (!layer.isVisible) {
     return null
@@ -107,7 +107,7 @@ function getDraftingGroupLayerDom(
   layer: DraftingCanvasLayer,
   cardState: DraftingCardState,
   qrMarkup: string,
-  state: QrStudioState,
+  state: QraftyState,
 ): DomLayerNode {
   const children = (layer.children ?? [])
     .filter((child) => child.isVisible)
@@ -255,7 +255,7 @@ function getDraftingShapeLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
 
 function buildDraftingQrForegroundDomNode(
   layer: DraftingCanvasLayer,
-  state: QrStudioState,
+  state: QraftyState,
 ): DomLayerNode | null {
   const layout = getDraftingQrLayerLayout(layer.width, state, layer.height)
 
@@ -278,7 +278,7 @@ function buildDraftingQrForegroundDomNode(
       zIndex: 10,
     },
     qrProps: {
-      ...toPortableQrConfig(state),
+      ...toQraftyQrConfig(state),
       size: layout.innerWidth,
       style: {
         display: "block",
@@ -292,7 +292,7 @@ function buildDraftingQrForegroundDomNode(
 function getDraftingQrLayerDom(
   layer: DraftingCanvasLayer,
   _qrMarkup: string,
-  state: QrStudioState,
+  state: QraftyState,
 ): DomLayerNode {
   const background = buildDraftingQrBackgroundSvgPayload(layer, state)
   const foreground = buildDraftingQrForegroundDomNode(layer, state)

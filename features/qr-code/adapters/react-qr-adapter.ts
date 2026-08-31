@@ -4,13 +4,13 @@ import {
   clampQrSize,
   getAssetValue,
   hasActiveBackgroundShapeOptions,
-  type QrStudioState,
-  type StudioCornerDotStyle,
-  type StudioGradient,
+  type QraftyState,
+  type QraftyCornerDotStyle,
+  type QraftyGradient,
 } from "@/features/qr-code/model/state";
 import { isCustomCornerDotShape } from "@/features/qr-code/styles/custom-corner-dot-shapes";
 
-export function toReactQrCodeProps(state: QrStudioState): ReactQRCodeProps {
+export function toReactQrCodeProps(state: QraftyState): ReactQRCodeProps {
   const logoImage = getAssetValue(state.logo);
   const backgroundImage = getAssetValue(state.backgroundImage);
   const customBackgroundSurfaceActive =
@@ -105,11 +105,11 @@ export function toReactQrCodeProps(state: QrStudioState): ReactQRCodeProps {
   };
 }
 
-function resolveFinderInnerStyle(type: StudioCornerDotStyle): QrFinderPatternInnerStyle {
+function resolveFinderInnerStyle(type: QraftyCornerDotStyle): QrFinderPatternInnerStyle {
   return isCustomCornerDotShape(type) ? "square" : type;
 }
 
-function getDotsColor(state: QrStudioState, unifiedFill: boolean) {
+function getDotsColor(state: QraftyState, unifiedFill: boolean) {
   if (unifiedFill || state.dotsColorMode !== "solid") {
     return undefined;
   }
@@ -117,7 +117,7 @@ function getDotsColor(state: QrStudioState, unifiedFill: boolean) {
   return state.dataModulesSettings.color;
 }
 
-function buildGradient(gradient: StudioGradient): QrGradientSettings | undefined {
+function buildGradient(gradient: QraftyGradient): QrGradientSettings | undefined {
   if (!gradient.enabled) {
     return undefined;
   }

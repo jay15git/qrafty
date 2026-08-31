@@ -1,5 +1,5 @@
 import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr-code/content/input-options"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr-code/rendering/compose-scene"
 import {
   type DraftingCardStateByNodeId,
@@ -40,18 +40,18 @@ export function mergeLiveQrStateByLayerId({
   qrStateByLayerId,
   activeQrLayerId,
   canvasLayers,
-  draftingStudioState,
+  draftingQraftyState,
   selectedLayerId = null,
 }: {
   qrStateByLayerId: DraftingQrStateByLayerId
   activeQrLayerId: string
   canvasLayers: DraftingCanvasLayer[]
-  draftingStudioState: QrStudioState
+  draftingQraftyState: QraftyState
   selectedLayerId?: string | null
 }): DraftingQrStateByLayerId {
   const merged: DraftingQrStateByLayerId = {
     ...qrStateByLayerId,
-    [activeQrLayerId]: draftingStudioState,
+    [activeQrLayerId]: draftingQraftyState,
   }
   const qrLayers = getQrCanvasLayers(canvasLayers)
   const activeLayerOnCanvas = qrLayers.some((layer) => layer.id === activeQrLayerId)
@@ -63,12 +63,12 @@ export function mergeLiveQrStateByLayerId({
       (!activeLayerOnCanvas && qrLayers.length === 1)
 
     if (isLiveEditingTarget) {
-      merged[layer.id] = draftingStudioState
+      merged[layer.id] = draftingQraftyState
       continue
     }
 
     if (!merged[layer.id]) {
-      merged[layer.id] = qrStateByLayerId[layer.id] ?? draftingStudioState
+      merged[layer.id] = qrStateByLayerId[layer.id] ?? draftingQraftyState
     }
   }
 
@@ -82,7 +82,7 @@ export type BuildDraftingWorkspaceDocumentInput = {
   contentTypeByLayerId: Record<string, QrInputType>
   contentTypeByNodeId: Record<string, QrInputType>
   contentValuesByType: DraftingContentValuesByType
-  draftingStudioState: QrStudioState
+  draftingQraftyState: QraftyState
   layerStateByNodeId: DraftingLayerStateByNodeId
   qrStateByLayerId: DraftingQrStateByLayerId
   sceneCompositionByNodeId: SceneCompositionByNodeId
@@ -97,7 +97,7 @@ export function buildDraftingWorkspaceDocumentFromState({
   contentTypeByLayerId,
   contentTypeByNodeId,
   contentValuesByType,
-  draftingStudioState,
+  draftingQraftyState,
   layerStateByNodeId,
   qrStateByLayerId,
   sceneCompositionByNodeId,
@@ -107,12 +107,12 @@ export function buildDraftingWorkspaceDocumentFromState({
   const nodeId = DASHBOARD_QR_NODE_ID
   const layers =
     layerStateByNodeId[nodeId] ??
-    createDefaultDraftingLayers(nodeId, draftingStudioState, selectedCardState)
+    createDefaultDraftingLayers(nodeId, draftingQraftyState, selectedCardState)
   const nextQrStateByLayerId = mergeLiveQrStateByLayerId({
     qrStateByLayerId,
     activeQrLayerId,
     canvasLayers: layers,
-    draftingStudioState,
+    draftingQraftyState,
   })
 
   const primaryQrLayerId = getDraftingQrLayerId(nodeId)
@@ -130,7 +130,7 @@ export function buildDraftingWorkspaceDocumentFromState({
   const primaryState =
     nextQrStateByLayerId[primaryQrLayerId] ??
     nextQrStateByLayerId[activeQrLayerId] ??
-    draftingStudioState
+    draftingQraftyState
 
   return {
     activeQrLayerId,

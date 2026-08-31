@@ -1,4 +1,4 @@
-import type { NewQrCodeProps } from "../types"
+import type { QraftyQrCodeProps } from "../types"
 import { applyPortableFinderGradientOverlays } from "./finder-gradient-overlays"
 import { applyUnifiedQrGradientFill } from "./unified-gradient"
 import { applyUnifiedQrImageFill } from "./unified-image"
@@ -6,14 +6,14 @@ import { applyUnifiedQrImageFill } from "./unified-image"
 const SVG_NS = "http://www.w3.org/2000/svg"
 const DOTS_CLIP_PATH_PREFIX = "clip-path-dot-color-"
 
-function getActivePalette(props: NewQrCodeProps) {
+function getActivePalette(props: QraftyQrCodeProps) {
   return (props.palette ?? []).filter(Boolean)
 }
 
 function createLinearGradient(
   document: Document,
   id: string,
-  gradient: NonNullable<NewQrCodeProps["gradient"]> & object,
+  gradient: NonNullable<QraftyQrCodeProps["gradient"]> & object,
 ) {
   const element = document.createElementNS(SVG_NS, "linearGradient")
   element.setAttribute("id", id)
@@ -44,7 +44,7 @@ function createLinearGradient(
 function createRadialGradient(
   document: Document,
   id: string,
-  gradient: NonNullable<NewQrCodeProps["gradient"]> & object,
+  gradient: NonNullable<QraftyQrCodeProps["gradient"]> & object,
 ) {
   const element = document.createElementNS(SVG_NS, "radialGradient")
   element.setAttribute("id", id)
@@ -63,7 +63,7 @@ function createRadialGradient(
   return element
 }
 
-function applyDotsGradientExtension(svg: SVGElement, props: NewQrCodeProps) {
+function applyDotsGradientExtension(svg: SVGElement, props: QraftyQrCodeProps) {
   if (props.colorMode !== "gradient" || props.gradient === "none" || !props.gradient) {
     return
   }
@@ -79,7 +79,7 @@ function applyDotsGradientExtension(svg: SVGElement, props: NewQrCodeProps) {
     svg.insertBefore(defs, svg.firstChild)
   }
 
-  const gradientId = "new-qr-dots-gradient"
+  const gradientId = "qrafty-dots-gradient"
   const gradientElement =
     props.gradient.type === "radial"
       ? createRadialGradient(document, gradientId, props.gradient)
@@ -94,7 +94,7 @@ function applyDotsGradientExtension(svg: SVGElement, props: NewQrCodeProps) {
   }
 }
 
-function applyDotsPaletteExtension(svg: SVGElement, props: NewQrCodeProps) {
+function applyDotsPaletteExtension(svg: SVGElement, props: QraftyQrCodeProps) {
   const palette = getActivePalette(props)
   if (props.colorMode !== "palette" || palette.length === 0) {
     return
@@ -144,7 +144,7 @@ function applyDotsPaletteExtension(svg: SVGElement, props: NewQrCodeProps) {
   dotsGroup.setAttribute("data-qr-layer", "dot-palette")
 }
 
-export function applyPortableQrSvgExtensions(svg: SVGElement, props: NewQrCodeProps) {
+export function applyQraftyQrSvgExtensions(svg: SVGElement, props: QraftyQrCodeProps) {
   const unifiedModuleGradient =
     props.gradientMode === "unified" &&
     props.colorMode === "gradient" &&
@@ -164,7 +164,7 @@ export function applyPortableQrSvgExtensions(svg: SVGElement, props: NewQrCodePr
   if (unifiedModuleImage && props.moduleFillImage) {
     applyUnifiedQrImageFill(svg, {
       imageHref: props.moduleFillImage,
-      imageId: "new-qr-dots-image",
+      imageId: "qrafty-dots-image",
       margin: props.margin ?? 12,
     })
 
@@ -174,7 +174,7 @@ export function applyPortableQrSvgExtensions(svg: SVGElement, props: NewQrCodePr
   if (unifiedModuleGradient && props.gradient && props.gradient !== "none") {
     applyUnifiedQrGradientFill(svg, {
       gradient: props.gradient,
-      gradientId: "new-qr-dots-gradient",
+      gradientId: "qrafty-dots-gradient",
       margin: props.margin ?? 12,
     })
 

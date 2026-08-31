@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
 import { Canvas } from "@/features/workspace/components/Canvas"
 import { DynamicIslandComposeToolbar } from "@/features/workspace/components/canvas-compose-toolbar"
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 
 vi.mock("@/features/qr-code/rendering/qr-svg", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/features/qr-code/rendering/qr-svg")>()
@@ -748,7 +748,7 @@ function renderComposeToolbar(
 
 function createPanes(_paneCount = 1) {
   const state = {
-    ...createDefaultQrStudioState(),
+    ...createDefaultQraftyState(),
     data: "https://1.example",
   }
 

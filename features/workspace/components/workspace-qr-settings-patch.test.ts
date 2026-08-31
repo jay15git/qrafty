@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest"
 
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 import {
-  applyCornersSettingsPatchToStudioState,
-  applyPatternSettingsPatchToStudioState,
+  applyCornersSettingsPatchToQraftyState,
+  applyPatternSettingsPatchToQraftyState,
 } from "@/features/workspace/components/workspace-qr-settings-patch"
 
 describe("workspace qr settings patch", () => {
-  it("applies module style and color patches to studio state", () => {
-    const base = createDefaultQrStudioState()
+  it("applies module style and color patches to QRafty state", () => {
+    const base = createDefaultQraftyState()
 
-    const next = applyPatternSettingsPatchToStudioState(base, {
+    const next = applyPatternSettingsPatchToQraftyState(base, {
       qrDotType: "pinched-square",
       dotsSolidColor: "#51a4b7",
     })
@@ -20,10 +20,10 @@ describe("workspace qr settings patch", () => {
     expect(next.dotsColorMode).toBe("solid")
   })
 
-  it("applies corner style and color patches to studio state", () => {
-    const base = createDefaultQrStudioState()
+  it("applies corner style and color patches to QRafty state", () => {
+    const base = createDefaultQraftyState()
 
-    const next = applyCornersSettingsPatchToStudioState(base, {
+    const next = applyCornersSettingsPatchToQraftyState(base, {
       cornerDotType: "circle",
       cornerDotSolidColor: "#ff00aa",
       cornerSquareType: "rounded-lg",

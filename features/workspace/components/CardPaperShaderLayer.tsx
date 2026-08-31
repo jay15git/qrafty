@@ -30,7 +30,7 @@ import {
   buildPaperShaderWorldSize,
   hasPaperShaderWebGlSupport,
   usePaperShaderWorldSize,
-} from "@new-qr/qr-internal/scene"
+} from "@qrafty/qr-internal/scene"
 
 type DraftingCardPaperShaderLayerProps = {
   displayHeight?: number

@@ -1,5 +1,5 @@
 import { buildDashboardQrNodePayload } from "@/features/qr-code/rendering/qr-svg-render"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-artwork"
 import { buildDraftingLayeredNodePayloadCore } from "@/features/workspace/export/layered-export-core"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
@@ -19,7 +19,7 @@ export async function buildDraftingLayeredNodePayload({
   name: string
   nodeId: string
   sceneComposition?: import("@/features/workspace/model/scene-templates").SceneCompositionState
-  state: QrStudioState
+  state: QraftyState
   shaderSnapshots?: Record<string, string>
 }) {
   const qrPayload = await buildDashboardQrNodePayload(createDraftingQrArtworkState(state))
@@ -41,7 +41,7 @@ async function downloadDraftingSvgExport({
   state,
 }: {
   name: string
-  state: QrStudioState
+  state: QraftyState
 }) {
   const payload = await buildDashboardQrNodePayload(state)
   const blob = new Blob([payload.markup], { type: "image/svg+xml;charset=utf-8" })

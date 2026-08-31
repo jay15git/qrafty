@@ -3,16 +3,16 @@ import { describe, expect, it } from "vitest"
 import { formatFill, parseFill, type Fill } from "@/components/ui/fill-picker-base/public-api"
 import { fillFromHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { degreesToRadians } from "@/features/qr-code/styles/gradient-controls"
-import type { StudioGradient } from "@/features/qr-code/model/state"
+import type { QraftyGradient } from "@/features/qr-code/model/state"
 import {
   applyCardFill,
   applyPatternModuleFill,
-  fillCssToStudioGradient,
-  studioGradientToFillCss,
+  fillCssToQraftyGradient,
+  qraftyGradientToFillCss,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
 
-const SAMPLE_GRADIENT: StudioGradient = {
+const SAMPLE_GRADIENT: QraftyGradient = {
   enabled: true,
   type: "linear",
   rotation: degreesToRadians(45),
@@ -27,7 +27,7 @@ const BLACK = { l: 0, c: 0, h: 0, alpha: 1 }
 
 describe("desktopnew fill bridge", () => {
   it("round-trips studio gradients through parseFill", () => {
-    const css = studioGradientToFillCss(SAMPLE_GRADIENT)
+    const css = qraftyGradientToFillCss(SAMPLE_GRADIENT)
     const parsed = parseFill(css)
 
     expect(parsed?.kind).toBe("gradient")
@@ -42,7 +42,7 @@ describe("desktopnew fill bridge", () => {
 
     expect(parsed.gradient.angle).toBeCloseTo(135)
 
-    const back = fillCssToStudioGradient(css, SAMPLE_GRADIENT)
+    const back = fillCssToQraftyGradient(css, SAMPLE_GRADIENT)
     expect(back.enabled).toBe(true)
     expect(back.type).toBe("linear")
     expect(back.rotation).toBeCloseTo(SAMPLE_GRADIENT.rotation)
@@ -51,7 +51,7 @@ describe("desktopnew fill bridge", () => {
   })
 
   it("maps picker fill onto module fill mode", () => {
-    const fill = parseFill(studioGradientToFillCss(SAMPLE_GRADIENT))
+    const fill = parseFill(qraftyGradientToFillCss(SAMPLE_GRADIENT))
     expect(fill).not.toBeNull()
     const patch = applyPatternModuleFill(fill as Fill, {
       dotsColorMode: "solid",
@@ -80,7 +80,7 @@ describe("desktopnew fill bridge", () => {
       },
     }
 
-    const studio = fillCssToStudioGradient(formatFill(fill), SAMPLE_GRADIENT)
+    const studio = fillCssToQraftyGradient(formatFill(fill), SAMPLE_GRADIENT)
     expect(studio.rotation).toBeCloseTo(0)
   })
 
@@ -99,7 +99,7 @@ describe("desktopnew fill bridge", () => {
       },
     }
 
-    const studio = fillCssToStudioGradient(formatFill(fill), SAMPLE_GRADIENT)
+    const studio = fillCssToQraftyGradient(formatFill(fill), SAMPLE_GRADIENT)
     expect(studio.type).toBe("radial")
   })
 
@@ -154,12 +154,12 @@ describe("desktopnew fill bridge", () => {
       },
     }
 
-    const studio = fillCssToStudioGradient(formatFill(fill), SAMPLE_GRADIENT)
+    const studio = fillCssToQraftyGradient(formatFill(fill), SAMPLE_GRADIENT)
     expect(studio.type).toBe("radial")
     expect(studio.center?.x).toBeCloseTo(0.35)
     expect(studio.center?.y).toBeCloseTo(0.65)
 
-    const css = studioGradientToFillCss(studio)
+    const css = qraftyGradientToFillCss(studio)
     const parsed = parseFill(css)
     expect(parsed?.kind).toBe("gradient")
     if (parsed?.kind === "gradient" && parsed.gradient.type === "radial") {
@@ -169,14 +169,14 @@ describe("desktopnew fill bridge", () => {
   })
 
   it("keeps card fill CSS for gradients", () => {
-    const fill = parseFill(studioGradientToFillCss(SAMPLE_GRADIENT))
+    const fill = parseFill(qraftyGradientToFillCss(SAMPLE_GRADIENT))
     expect(fill).not.toBeNull()
     expect(applyCardFill(fill as Fill)).toEqual({ cardFill: formatFill(fill as Fill) })
     expect(applyCardFill(fillFromHex("#ff0000")).cardFill.toLowerCase()).toBe("#ff0000")
   })
 
   it("paints gradient card fills as background-image", () => {
-    const css = studioGradientToFillCss(SAMPLE_GRADIENT)
+    const css = qraftyGradientToFillCss(SAMPLE_GRADIENT)
     expect(cssFillToBackgroundStyle(css)).toEqual({
       backgroundColor: "transparent",
       backgroundImage: css,

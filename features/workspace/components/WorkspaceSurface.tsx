@@ -9,7 +9,7 @@ import type {
   QrMode,
   QrTypeNumber,
 } from "@/features/qr-code/model/types"
-import type { StudioCornerDotStyle } from "@/features/qr-code/model/state"
+import type { QraftyCornerDotStyle } from "@/features/qr-code/model/state"
 
 import {
   cloneDraftingCardState,
@@ -84,8 +84,8 @@ import {
   resolveActiveQrLayerIdFromLayers,
 } from "@/features/workspace/components/workspace-surface-document"
 import {
-  applyCornersSettingsPatchToStudioState,
-  applyPatternSettingsPatchToStudioState,
+  applyCornersSettingsPatchToQraftyState,
+  applyPatternSettingsPatchToQraftyState,
 } from "@/features/workspace/components/workspace-qr-settings-patch"
 import { clearDraftingQrMarkupCache } from "@/features/workspace/hooks/use-drafting-qr-markup"
 import { clearQrEncodeMarkupCache } from "@/features/qr-code/rendering/qr-encode-cache"
@@ -180,9 +180,9 @@ import {
   type QrGradientLinkMode,
   type QrLogoPositionMode,
   type QrLogoSizeMode,
-  type QrStudioState,
-  type StudioDataModulesStyle,
-  type StudioGradient,
+  type QraftyState,
+  type QraftyDataModulesStyle,
+  type QraftyGradient,
   setDotMatrixAnimationOptions,
 } from "@/features/qr-code/model/state"
 import { type QrBackgroundShapeId } from "@/features/qr-code/styles/background-shapes"
@@ -486,7 +486,7 @@ export function WorkspaceSurface({
     () => validateStaticQrContent(selectedContentType, selectedContentValues),
     [selectedContentType, selectedContentValues],
   )
-  const draftingStudioState = useMemo<QrStudioState>(
+  const draftingQraftyState = useMemo<QraftyState>(
     () => ({
       ...DEFAULT_DRAFTING_STUDIO_STATE,
       data: selectedContentValue,
@@ -673,11 +673,11 @@ export function WorkspaceSurface({
   const keyboardStateRef = useRef({
     activeQrLayerId,
     activeQrNodeId,
-    draftingStudioState,
+    draftingQraftyState,
     layerStateByNodeId,
     qrLayerCount: getQrCanvasLayers(
       layerStateByNodeId[activeQrNodeId] ??
-        createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState),
+        createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState),
     ).length,
     selectedCardState,
     selectedLayerIds,
@@ -703,7 +703,7 @@ export function WorkspaceSurface({
   const ensureLogoUploadItemExpanded = (itemId: DraftingAssetSourceMode) => {
     openLogoUploadItemsRef.current.add(itemId)
   }
-  const canDownload = selectedContentValidation.isValid && Boolean(draftingStudioState.data.trim())
+  const canDownload = selectedContentValidation.isValid && Boolean(draftingQraftyState.data.trim())
   const isDraftingRasterExport = isRasterExportExtension(selectedDownloadExtension)
   const selectedRasterExportScale = isDraftingRasterExport ? selectedExportScale : undefined
   const activeSceneComposition = normalizeSceneComposition(
@@ -713,7 +713,7 @@ export function WorkspaceSurface({
   const qrNodeIds = useMemo(() => [DASHBOARD_QR_NODE_ID], [])
   const activeCanvasLayers =
     layerStateByNodeId[activeQrNodeId] ??
-    createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+    createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
   const qrCanvasLayers = useMemo(
     () => getQrCanvasLayers(activeCanvasLayers),
     [activeCanvasLayers],
@@ -721,7 +721,7 @@ export function WorkspaceSurface({
   const canExportVideo = sceneHasVideoExportContent(
     selectedCardState,
     activeCanvasLayers,
-    draftingStudioState,
+    draftingQraftyState,
   )
   const qrPaneNamesById = useMemo(() => {
     const next = new Map<string, string>()
@@ -748,7 +748,7 @@ export function WorkspaceSurface({
       contentTypeByLayerId,
       contentTypeByNodeId,
       contentValuesByType,
-      draftingStudioState,
+      draftingQraftyState,
       layerStateByNodeId,
       qrStateByLayerId,
       sceneCompositionByNodeId,
@@ -763,7 +763,7 @@ export function WorkspaceSurface({
     draftingWorkspaceHistoryIndexRef.current <
       draftingWorkspaceHistoryRef.current.length - 1
 
-  function syncDraftingLogoAsset(nextState: QrStudioState) {
+  function syncDraftingLogoAsset(nextState: QraftyState) {
     setSelectedLogoSourceMode(nextState.logo.source)
     setSelectedLogoPresetId(nextState.logo.presetId)
     setSelectedLogoPresetValue(
@@ -781,7 +781,7 @@ export function WorkspaceSurface({
     }
   }
 
-  function syncDraftingLogoControlsFromState(nextState: QrStudioState) {
+  function syncDraftingLogoControlsFromState(nextState: QraftyState) {
     syncDraftingLogoAsset(nextState)
     setSelectedLogoColor(nextState.logo.presetColor ?? DEFAULT_BRAND_ICON_COLOR)
     setSelectedLogoColorMode(nextState.logoGradient.enabled ? "gradient" : "solid")
@@ -800,7 +800,7 @@ export function WorkspaceSurface({
     setSelectedLogoCrossOrigin(nextState.imageOptions.crossOrigin)
   }
 
-  function commitActiveQrStudioState(nextState: QrStudioState) {
+  function commitActiveQraftyState(nextState: QraftyState) {
     syncDraftingLogoControlsFromState(nextState)
     persistActiveQrLayerState(nextState)
     clearDraftingQrMarkupCache()
@@ -823,7 +823,7 @@ export function WorkspaceSurface({
       | "crossOrigin"
     >,
   ) {
-    const nextImageOptions = { ...draftingStudioState.imageOptions }
+    const nextImageOptions = { ...draftingQraftyState.imageOptions }
     let changed = false
 
     if (patch.size !== undefined) {
@@ -879,19 +879,19 @@ export function WorkspaceSurface({
       return
     }
 
-    commitActiveQrStudioState({
-      ...draftingStudioState,
+    commitActiveQraftyState({
+      ...draftingQraftyState,
       imageOptions: nextImageOptions,
     })
   }
 
   function clearDraftingLogoPreset(nextSourceMode: DraftingAssetSourceMode) {
-    const clearedState = applyAssetNoneSelection(draftingStudioState, "logo")
+    const clearedState = applyAssetNoneSelection(draftingQraftyState, "logo")
 
     setSelectedLogoAssetSourceMode(nextSourceMode)
 
     if (nextSourceMode === "upload") {
-      commitActiveQrStudioState({
+      commitActiveQraftyState({
         ...clearedState,
         logo: {
           ...clearedState.logo,
@@ -902,7 +902,7 @@ export function WorkspaceSurface({
       return
     }
 
-    commitActiveQrStudioState(clearedState)
+    commitActiveQraftyState(clearedState)
   }
 
   async function resolveIconstackSvgMarkup(selectionId: string) {
@@ -939,13 +939,13 @@ export function WorkspaceSurface({
           })
         : createIconstackIconDataUrl(svg, selectedLogoColor)
     const nextState = applyIconstackLogoPresetSelection(
-      draftingStudioState,
+      draftingQraftyState,
       selectionId,
       nextValue,
       selectedLogoColor,
     )
 
-    commitActiveQrStudioState(nextState)
+    commitActiveQraftyState(nextState)
   }
 
   function handleDraftingBrandIconSelection(brandIcon: BrandIconEntry) {
@@ -957,13 +957,13 @@ export function WorkspaceSurface({
           })
         : createBrandIconDataUrl(brandIcon, selectedLogoColor)
     const nextState = applyLogoPresetSelection(
-      draftingStudioState,
+      draftingQraftyState,
       brandIcon,
       nextValue,
       selectedLogoColor,
     )
 
-    commitActiveQrStudioState(nextState)
+    commitActiveQraftyState(nextState)
   }
 
   async function handleDraftingLogoColorChange(value: string) {
@@ -980,12 +980,12 @@ export function WorkspaceSurface({
       }
 
       const nextState = applyLogoPresetColor(
-        draftingStudioState,
+        draftingQraftyState,
         createIconstackIconDataUrl(svg, value),
         value,
       )
 
-      commitActiveQrStudioState(nextState)
+      commitActiveQraftyState(nextState)
       return
     }
 
@@ -996,15 +996,15 @@ export function WorkspaceSurface({
     }
 
     const nextState = applyLogoPresetColor(
-      draftingStudioState,
+      draftingQraftyState,
       createBrandIconDataUrl(selectedIcon, value),
       value,
     )
 
-    commitActiveQrStudioState(nextState)
+    commitActiveQraftyState(nextState)
   }
 
-  async function handleDraftingLogoGradientChange(value: StudioGradient) {
+  async function handleDraftingLogoGradientChange(value: QraftyGradient) {
     const nextGradient = {
       ...structuredClone(value),
       enabled: true,
@@ -1023,12 +1023,12 @@ export function WorkspaceSurface({
       }
 
       const nextState = applyLogoPresetGradient(
-        draftingStudioState,
+        draftingQraftyState,
         createIconstackIconGradientDataUrl(svg, nextGradient),
         nextGradient,
       )
 
-      commitActiveQrStudioState(nextState)
+      commitActiveQraftyState(nextState)
       return
     }
 
@@ -1039,12 +1039,12 @@ export function WorkspaceSurface({
     }
 
     const nextState = applyLogoPresetGradient(
-      draftingStudioState,
+      draftingQraftyState,
       createBrandIconGradientDataUrl(selectedIcon, nextGradient),
       nextGradient,
     )
 
-    commitActiveQrStudioState(nextState)
+    commitActiveQraftyState(nextState)
   }
 
   function handleDraftingContentTypeChange(type: QrInputType) {
@@ -1106,7 +1106,7 @@ export function WorkspaceSurface({
     }))
   }
 
-  function applyDraftingQrStateToControls(nextState: QrStudioState) {
+  function applyDraftingQrStateToControls(nextState: QraftyState) {
     setSelectedQrMargin(nextState.margin)
     setSelectedQrRadius(clampQrBackgroundRound(nextState.backgroundOptions.round))
     setSelectedRasterExportQualityPercent(nextState.rasterExportQualityPercent)
@@ -1208,7 +1208,7 @@ export function WorkspaceSurface({
       contentTypeByLayerId,
       contentTypeByNodeId,
       contentValuesByType,
-      draftingStudioState,
+      draftingQraftyState,
       layerStateByNodeId,
       qrStateByLayerId,
       sceneCompositionByNodeId,
@@ -1217,7 +1217,7 @@ export function WorkspaceSurface({
     })
   }
 
-  function persistActiveQrLayerState(nextState: QrStudioState = draftingStudioState) {
+  function persistActiveQrLayerState(nextState: QraftyState = draftingQraftyState) {
     setQrStateByLayerId((current) => ({
       ...current,
       [activeQrLayerId]: cloneDraftingQrState(nextState),
@@ -1518,7 +1518,7 @@ export function WorkspaceSurface({
     keyboardStateRef.current = {
       activeQrLayerId,
       activeQrNodeId,
-      draftingStudioState,
+      draftingQraftyState,
       layerStateByNodeId,
       qrLayerCount: qrCanvasLayers.length,
       selectedCardState,
@@ -1527,7 +1527,7 @@ export function WorkspaceSurface({
   }, [
     activeQrLayerId,
     activeQrNodeId,
-    draftingStudioState,
+    draftingQraftyState,
     layerStateByNodeId,
     qrCanvasLayers.length,
     selectedCardState,
@@ -1702,7 +1702,7 @@ export function WorkspaceSurface({
 
       const {
         activeQrNodeId: currentActiveQrNodeId,
-        draftingStudioState: currentDraftingStudioState,
+        draftingQraftyState: currentDraftingQraftyState,
         layerStateByNodeId: currentLayerStateByNodeId,
         selectedCardState: currentSelectedCardState,
         selectedLayerIds: currentSelectedLayerIds,
@@ -1713,7 +1713,7 @@ export function WorkspaceSurface({
           currentLayerStateByNodeId[currentActiveQrNodeId] ??
           createDefaultDraftingLayers(
             currentActiveQrNodeId,
-            currentDraftingStudioState,
+            currentDraftingQraftyState,
             currentSelectedCardState,
           ),
         paneId: currentActiveQrNodeId,
@@ -1796,7 +1796,7 @@ export function WorkspaceSurface({
     const freshState = createDefaultDraftingWorkspaceQrState()
     const layers =
       layerStateByNodeId[activeQrNodeId] ??
-      createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+      createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
     const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1)
     const nearLayer =
       findDraftingLayerById(layers, activeQrLayerId) ??
@@ -1840,7 +1840,7 @@ export function WorkspaceSurface({
 
     const layers =
       layerStateByNodeId[activeQrNodeId] ??
-      createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+      createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
     const selectedIdSet = new Set(layerIds)
     const selectedLayers = layers.filter((layer) => selectedIdSet.has(layer.id))
 
@@ -1850,7 +1850,7 @@ export function WorkspaceSurface({
 
     const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1)
     const duplicatedLayers: DraftingCanvasLayer[] = []
-    const nextQrStateByLayerId: Record<string, QrStudioState> = {}
+    const nextQrStateByLayerId: Record<string, QraftyState> = {}
     const nextContentTypeByLayerId: Record<string, QrInputType> = {}
 
     selectedLayers.forEach((layer, index) => {
@@ -1869,8 +1869,8 @@ export function WorkspaceSurface({
       if (layer.kind === "qr") {
         const sourceState =
           layer.id === activeQrLayerId
-            ? draftingStudioState
-            : (qrStateByLayerId[layer.id] ?? draftingStudioState)
+            ? draftingQraftyState
+            : (qrStateByLayerId[layer.id] ?? draftingQraftyState)
         nextQrStateByLayerId[duplicatedLayer.id] = cloneDraftingQrState(sourceState)
         nextContentTypeByLayerId[duplicatedLayer.id] =
           contentTypeByLayerId[layer.id] ?? selectedContentType
@@ -1900,7 +1900,7 @@ export function WorkspaceSurface({
     const nextActiveState =
       nextQrStateByLayerId[nextActiveLayerId] ??
       qrStateByLayerId[nextActiveLayerId] ??
-      draftingStudioState
+      draftingQraftyState
 
     if (nextActiveLayerId !== activeQrLayerId) {
       setActiveQrLayerId(nextActiveLayerId)
@@ -1919,7 +1919,7 @@ export function WorkspaceSurface({
   function handleRemoveQrCode(layerId: string) {
     const layers =
       layerStateByNodeId[activeQrNodeId] ??
-      createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+      createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
 
     if (!isLayerDeletable(layerId, layers)) {
       return
@@ -1967,7 +1967,7 @@ export function WorkspaceSurface({
   function handleInsertLayer(layer: DraftingCanvasLayer) {
     const layers =
       layerStateByNodeId[activeQrNodeId] ??
-      createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+      createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
     const maxZIndex = layers.reduce((max, currentLayer) => Math.max(max, currentLayer.zIndex), -1)
     const nextLayer = patchDraftingCanvasLayer(
       {
@@ -1994,7 +1994,7 @@ export function WorkspaceSurface({
   function handleAddTextLayerAt(paneId: string, point: { x: number; y: number }) {
     const targetQrState =
       paneId === activeQrNodeId
-        ? draftingStudioState
+        ? draftingQraftyState
         : (qrStateByNodeId[paneId] ?? createDefaultDraftingWorkspaceQrState())
     const targetCardState =
       paneId === activeQrNodeId
@@ -2024,7 +2024,7 @@ export function WorkspaceSurface({
       shouldReplaceCurrentDraftingHistoryEntryRef.current = true
       setQrStateByNodeId((current) => ({
         ...current,
-        [activeQrNodeId]: cloneDraftingQrState(draftingStudioState),
+        [activeQrNodeId]: cloneDraftingQrState(draftingQraftyState),
         [paneId]: cloneDraftingQrState(targetQrState),
       }))
       setCardStateByNodeId((current) => ({
@@ -2049,7 +2049,7 @@ export function WorkspaceSurface({
     const cardLayerId = getDraftingCardLayerId(activeQrNodeId)
     const layers =
       layerStateByNodeId[activeQrNodeId] ??
-      createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+      createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
 
     setSelectedCardState((current) => ({
       ...current,
@@ -2103,7 +2103,7 @@ export function WorkspaceSurface({
 
     const selectedLayer = findDraftingLayerById(
       layerStateByNodeId[paneId] ??
-        createDefaultDraftingLayers(paneId, draftingStudioState, selectedCardState),
+        createDefaultDraftingLayers(paneId, draftingQraftyState, selectedCardState),
       layerId,
     )
 
@@ -2149,7 +2149,7 @@ export function WorkspaceSurface({
   function getActiveSelectableLayers() {
     const {
       activeQrNodeId: currentActiveQrNodeId,
-      draftingStudioState: currentDraftingStudioState,
+      draftingQraftyState: currentDraftingQraftyState,
       layerStateByNodeId: currentLayerStateByNodeId,
       selectedCardState: currentSelectedCardState,
     } = keyboardStateRef.current
@@ -2157,7 +2157,7 @@ export function WorkspaceSurface({
       currentLayerStateByNodeId[currentActiveQrNodeId] ??
       createDefaultDraftingLayers(
         currentActiveQrNodeId,
-        currentDraftingStudioState,
+        currentDraftingQraftyState,
         currentSelectedCardState,
       )
 
@@ -2167,7 +2167,7 @@ export function WorkspaceSurface({
   function getSelectedActiveLayers() {
     const {
       activeQrNodeId: currentActiveQrNodeId,
-      draftingStudioState: currentDraftingStudioState,
+      draftingQraftyState: currentDraftingQraftyState,
       layerStateByNodeId: currentLayerStateByNodeId,
       selectedCardState: currentSelectedCardState,
       selectedLayerIds: currentSelectedLayerIds,
@@ -2177,7 +2177,7 @@ export function WorkspaceSurface({
       currentLayerStateByNodeId[currentActiveQrNodeId] ??
       createDefaultDraftingLayers(
         currentActiveQrNodeId,
-        currentDraftingStudioState,
+        currentDraftingQraftyState,
         currentSelectedCardState,
       )
 
@@ -2197,7 +2197,7 @@ export function WorkspaceSurface({
   function deleteSelectedLayersOrPane() {
     const {
       activeQrNodeId: currentActiveQrNodeId,
-      draftingStudioState: currentDraftingStudioState,
+      draftingQraftyState: currentDraftingQraftyState,
       layerStateByNodeId: currentLayerStateByNodeId,
       selectedCardState: currentSelectedCardState,
       selectedLayerIds: currentSelectedLayerIds,
@@ -2206,7 +2206,7 @@ export function WorkspaceSurface({
       currentLayerStateByNodeId[currentActiveQrNodeId] ??
       createDefaultDraftingLayers(
         currentActiveQrNodeId,
-        currentDraftingStudioState,
+        currentDraftingQraftyState,
         currentSelectedCardState,
       )
     const selectedLayerIdSet = new Set(currentSelectedLayerIds)
@@ -2243,7 +2243,7 @@ export function WorkspaceSurface({
         current[currentActiveQrNodeId] ??
         createDefaultDraftingLayers(
           currentActiveQrNodeId,
-          currentDraftingStudioState,
+          currentDraftingQraftyState,
           currentSelectedCardState,
         )
 
@@ -2283,7 +2283,7 @@ export function WorkspaceSurface({
   ) {
     const layers =
       layerStateByNodeId[paneId] ??
-      createDefaultDraftingLayers(paneId, draftingStudioState, selectedCardState)
+      createDefaultDraftingLayers(paneId, draftingQraftyState, selectedCardState)
 
     if (isProtectedDraftingLayerId(layerId, layers)) {
       const { isVisible: _isVisible, ...safePatch } = patch
@@ -2299,7 +2299,7 @@ export function WorkspaceSurface({
     setLayerStateByNodeId((current) => {
       const currentLayers =
         current[paneId] ??
-        createDefaultDraftingLayers(paneId, draftingStudioState, selectedCardState)
+        createDefaultDraftingLayers(paneId, draftingQraftyState, selectedCardState)
 
       return {
         ...current,
@@ -2312,7 +2312,7 @@ export function WorkspaceSurface({
     setLayerStateByNodeId((current) => {
       const currentLayers =
         current[activeQrNodeId] ??
-        createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+        createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
       const layerById = new Map(currentLayers.map((layer) => [layer.id, layer]))
       const cardLayerId = currentLayers.find((layer) => layer.kind === "card")?.id
       const orderedIdSet = new Set(orderedIds)
@@ -2346,13 +2346,13 @@ export function WorkspaceSurface({
     paneId = keyboardStateRef.current.activeQrNodeId,
   ) {
     const {
-      draftingStudioState: currentDraftingStudioState,
+      draftingQraftyState: currentDraftingQraftyState,
       layerStateByNodeId: currentLayerStateByNodeId,
       selectedCardState: currentSelectedCardState,
     } = keyboardStateRef.current
     const layers =
       currentLayerStateByNodeId[paneId] ??
-      createDefaultDraftingLayers(paneId, currentDraftingStudioState, currentSelectedCardState)
+      createDefaultDraftingLayers(paneId, currentDraftingQraftyState, currentSelectedCardState)
     const payload = getDraftingLayerClipboardPayload({
       layerIds,
       layers,
@@ -2383,12 +2383,12 @@ export function WorkspaceSurface({
     }
 
     const {
-      draftingStudioState: currentDraftingStudioState,
+      draftingQraftyState: currentDraftingQraftyState,
       selectedCardState: currentSelectedCardState,
     } = keyboardStateRef.current
     const layers =
       layerStateByNodeId[paneId] ??
-      createDefaultDraftingLayers(paneId, currentDraftingStudioState, currentSelectedCardState)
+      createDefaultDraftingLayers(paneId, currentDraftingQraftyState, currentSelectedCardState)
     const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1)
     const offset = point
       ? {
@@ -2408,7 +2408,7 @@ export function WorkspaceSurface({
     setLayerStateByNodeId((current) => {
       const currentLayers =
         current[paneId] ??
-        createDefaultDraftingLayers(paneId, currentDraftingStudioState, currentSelectedCardState)
+        createDefaultDraftingLayers(paneId, currentDraftingQraftyState, currentSelectedCardState)
 
       return {
         ...current,
@@ -2428,7 +2428,7 @@ export function WorkspaceSurface({
 
     const currentLayers =
       layerStateByNodeId[paneId] ??
-      createDefaultDraftingLayers(paneId, draftingStudioState, selectedCardState)
+      createDefaultDraftingLayers(paneId, draftingQraftyState, selectedCardState)
 
     if (action === "delete") {
       const removableLayerIds = new Set(
@@ -2463,7 +2463,7 @@ export function WorkspaceSurface({
     setLayerStateByNodeId((current) => {
       const layers =
         current[paneId] ??
-        createDefaultDraftingLayers(paneId, draftingStudioState, selectedCardState)
+        createDefaultDraftingLayers(paneId, draftingQraftyState, selectedCardState)
       const reorderActions: DraftingLayerReorderAction[] = [
         "back",
         "backward",
@@ -2579,7 +2579,7 @@ export function WorkspaceSurface({
 
       const exportLayers =
         layerStateByNodeId[activeQrNodeId] ??
-        createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+        createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
       const cardLayer = exportLayers.find((layer) => layer.kind === "card" && layer.isVisible)
 
       if (!cardLayer) {
@@ -2587,11 +2587,11 @@ export function WorkspaceSurface({
       }
 
       const targetDimensions = resolveWorkspaceExportTargetDimensions(cardLayer)
-      const qualityPercent = draftingStudioState.rasterExportQualityPercent
+      const qualityPercent = draftingQraftyState.rasterExportQualityPercent
       const backgroundColor = selectedCardState.fill || "#ffffff"
       const isVideoExport =
         selectedExportMediaKind === "video" &&
-        sceneHasVideoExportContent(selectedCardState, exportLayers, draftingStudioState)
+        sceneHasVideoExportContent(selectedCardState, exportLayers, draftingQraftyState)
 
       const onProgress = (
         progress: import("@/features/workspace/export/pipeline").WorkspaceExportProgress,
@@ -2618,8 +2618,8 @@ export function WorkspaceSurface({
           name: qrPaneNamesById.get(layer.id) ?? "QR Code",
           state:
             layer.id === activeQrLayerId
-              ? draftingStudioState
-              : (qrStateByLayerId[layer.id] ?? draftingStudioState),
+              ? draftingQraftyState
+              : (qrStateByLayerId[layer.id] ?? draftingQraftyState),
         }))
 
         if (items.length === 0) {
@@ -2648,7 +2648,7 @@ export function WorkspaceSurface({
             : selectedDownloadTarget.slice("qr:".length)
         const state =
           layerId === activeQrLayerId
-            ? draftingStudioState
+            ? draftingQraftyState
             : qrStateByLayerId[layerId]
 
         if (!state) {
@@ -2697,7 +2697,7 @@ export function WorkspaceSurface({
           nodeId: activeQrNodeId,
           onProgress,
           qualityPercent,
-          state: draftingStudioState,
+          state: draftingQraftyState,
           targetDimensions: isVideoExport ? undefined : targetDimensions,
           videoRequest: isVideoExport
             ? {
@@ -2745,7 +2745,7 @@ export function WorkspaceSurface({
       qrStateByLayerId,
       activeQrLayerId,
       canvasLayers: activeCanvasLayers,
-      draftingStudioState,
+      draftingQraftyState,
       selectedLayerId,
     })
 
@@ -2757,7 +2757,7 @@ export function WorkspaceSurface({
         name: "QR Code",
         qrStateByLayerId: mergedQrStateByLayerId,
         sceneComposition: activeSceneComposition,
-        state: draftingStudioState,
+        state: draftingQraftyState,
       },
     ]
   }, [
@@ -2765,7 +2765,7 @@ export function WorkspaceSurface({
     activeQrLayerId,
     activeQrNodeId,
     activeSceneComposition,
-    draftingStudioState,
+    draftingQraftyState,
     qrStateByLayerId,
     selectedCardState,
     selectedLayerId,
@@ -2786,7 +2786,7 @@ export function WorkspaceSurface({
           appearanceTargetLayer.kind === "card" ? selectedCardState.cornerRadii : undefined,
         qrBackgroundShapeOptions:
           appearanceTargetLayer.kind === "qr"
-            ? draftingStudioState.backgroundShapeOptions
+            ? draftingQraftyState.backgroundShapeOptions
             : undefined,
       })
     : null
@@ -2799,7 +2799,7 @@ export function WorkspaceSurface({
     const result = buildDesktopAppearancePatch(appearanceTargetLayer, patch, {
       qrBackgroundShapeOptions:
         appearanceTargetLayer.kind === "qr"
-          ? draftingStudioState.backgroundShapeOptions
+          ? draftingQraftyState.backgroundShapeOptions
           : undefined,
     })
 
@@ -2848,7 +2848,7 @@ export function WorkspaceSurface({
       activeCanvasLayers,
       activeCanvasLayerRows,
       activeSceneComposition,
-      draftingStudioState,
+      draftingQraftyState,
       selectedAriaLabel,
       selectedBackgroundColor,
       selectedBackgroundColorMode,
@@ -2985,7 +2985,7 @@ export function WorkspaceSurface({
       setSelectedModuleFillImageSourceMode(patch.moduleFillImageSourceMode)
     }
 
-    let nextState = applyPatternSettingsPatchToStudioState(draftingStudioState, patch)
+    let nextState = applyPatternSettingsPatchToQraftyState(draftingQraftyState, patch)
 
     if (moduleFillUploadValue !== undefined) {
       nextState = {
@@ -3029,22 +3029,22 @@ export function WorkspaceSurface({
         patch.uploadedFile,
         setLogoUploadObjectUrl,
       )
-      const nextState = applyAssetUploadValue(draftingStudioState, "logo", uploadValue)
-      commitActiveQrStudioState(nextState)
+      const nextState = applyAssetUploadValue(draftingQraftyState, "logo", uploadValue)
+      commitActiveQraftyState(nextState)
     }
     if (patch.sourceMode) {
       if (patch.sourceMode === "none") {
-        commitActiveQrStudioState(applyAssetNoneSelection(draftingStudioState, "logo"))
+        commitActiveQraftyState(applyAssetNoneSelection(draftingQraftyState, "logo"))
       } else if (patch.sourceMode === "brand") {
         setSelectedLogoSourceMode("preset")
       } else if (patch.sourceMode === "url") {
         ensureLogoUploadItemExpanded("url")
         const nextState = applyAssetUrlValue(
-          draftingStudioState,
+          draftingQraftyState,
           "logo",
           selectedLogoRemoteUrl,
         )
-        commitActiveQrStudioState(nextState)
+        commitActiveQraftyState(nextState)
       } else {
         ensureLogoUploadItemExpanded("upload")
         clearDraftingLogoPreset("upload")
@@ -3054,19 +3054,19 @@ export function WorkspaceSurface({
       ensureLogoUploadItemExpanded(patch.uploadMode)
       if (patch.uploadMode === "url") {
         const nextState = applyAssetUrlValue(
-          draftingStudioState,
+          draftingQraftyState,
           "logo",
           selectedLogoRemoteUrl,
         )
-        commitActiveQrStudioState(nextState)
+        commitActiveQraftyState(nextState)
       } else {
         clearDraftingLogoPreset("upload")
       }
     }
     if (patch.remoteUrl !== undefined) {
       ensureLogoUploadItemExpanded("url")
-      const nextState = applyAssetUrlValue(draftingStudioState, "logo", patch.remoteUrl)
-      commitActiveQrStudioState(nextState)
+      const nextState = applyAssetUrlValue(draftingQraftyState, "logo", patch.remoteUrl)
+      commitActiveQraftyState(nextState)
     }
     if (patch.selectedBrandIconId) {
       if (parseIconstackSelectionId(patch.selectedBrandIconId)) {
@@ -3108,7 +3108,7 @@ export function WorkspaceSurface({
       setSelectedCornerDotGradient({ ...patch.cornerDotGradient, enabled: true })
     }
 
-    const nextState = applyCornersSettingsPatchToStudioState(draftingStudioState, patch)
+    const nextState = applyCornersSettingsPatchToQraftyState(draftingQraftyState, patch)
     clearQrEncodeMarkupCache()
     clearDraftingQrMarkupCache()
     persistActiveQrLayerState(nextState)
@@ -3210,9 +3210,9 @@ export function WorkspaceSurface({
     setSelectedCardState(normalizedCardState)
 
     if (shouldRelayoutCardInset) {
-      const fittedQr = fitQrSizeInCard(draftingStudioState, normalizedCardState)
+      const fittedQr = fitQrSizeInCard(draftingQraftyState, normalizedCardState)
       const nextQrState = {
-        ...draftingStudioState,
+        ...draftingQraftyState,
         height: fittedQr.height,
         width: fittedQr.width,
       }
@@ -3324,7 +3324,7 @@ export function WorkspaceSurface({
     }
     const layers =
       layerStateByNodeId[activeQrNodeId] ??
-      createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState)
+      createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
     const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1)
     const textLayer = createDraftingTextLayer(activeQrNodeId, {
       ...patch,
@@ -3393,7 +3393,7 @@ export function WorkspaceSurface({
     () => false,
   )
 
-  const scanSafetyResult = useQrScanSafety(draftingStudioState, {
+  const scanSafetyResult = useQrScanSafety(draftingQraftyState, {
     cardFill: selectedCardState.fill,
     contentIsValid: selectedContentValidation.isValid,
     enabled: !isPreviewInteracting,
@@ -3605,7 +3605,7 @@ export function WorkspaceSurface({
     onLayersReset: () =>
       setLayerStateByNodeId((current) => ({
         ...current,
-        [activeQrNodeId]: createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState),
+        [activeQrNodeId]: createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState),
       })),
     onLayersSettingsChange: updateDesktopLayersSettings,
     onLayersReorder: handleLayerReorder,

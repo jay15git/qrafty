@@ -1,14 +1,14 @@
 import type { MutableRefObject } from "react"
 
 import type { QrFileExtension } from "@/features/qr-code/model/types"
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 
-export const DEFAULT_DRAFTING_STUDIO_STATE = createDefaultQrStudioState()
+export const DEFAULT_DRAFTING_STUDIO_STATE = createDefaultQraftyState()
 
 export const DEFAULT_DRAFTING_PANE_QR_SIZE = 240
 export const DRAFTING_LAYER_PASTE_OFFSET = 24
 export const IGNORE_DRAFTING_UPLOAD_ERROR: (message: string) => void = () => undefined
-export const DEFAULT_DOWNLOAD_NAME = "new-qr-studio"
+export const DEFAULT_DOWNLOAD_NAME = "qrafty"
 export const DRAFTING_DOWNLOAD_EXTENSIONS = ["svg", "png", "webp", "jpeg"] as const satisfies ReadonlyArray<
   QrFileExtension
 >

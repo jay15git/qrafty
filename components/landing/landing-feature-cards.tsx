@@ -2,23 +2,23 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import Link from "next/link"
-import { AnimatedQr } from "@new-qr/qr/animated"
-import { PaperShaderLayer } from "@new-qr/qr/shaders"
+import { AnimatedQr } from "@qrafty/qr/animated"
+import { PaperShaderLayer } from "@qrafty/qr/shaders"
 
 import { QrStyleOptionPreview } from "@/features/qr-code/components/QrStyleOptionPreview"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import { getQrBackgroundShapeDefinition } from "@/features/qr-code/styles/background-shapes"
 import { DOT_STYLE_OPTIONS } from "@/features/qr-code/styles/style-options"
-import type { StudioDataModulesStyle } from "@/features/qr-code/model/state"
+import type { QraftyDataModulesStyle } from "@/features/qr-code/model/state"
 import { cn } from "@/lib/utils"
 
 import {
   LANDING_QR_VALUE,
-  StudioQr,
-  StudioShapedQr,
+  QraftyQr,
+  QraftyShapedQr,
   renderLandingQrSvg,
   useBrandLogoSrc,
-} from "@/components/landing/landing-studio-qr"
+} from "@/components/landing/landing-qrafty-qr"
 
 import "./landing-feature-cards.css"
 
@@ -165,7 +165,7 @@ function StyleCard() {
         onMouseLeave={() => setHover(false)}
       >
         <div className="lfc-qr-plate">
-          <StudioQr module={module as StudioDataModulesStyle} size={200} />
+          <QraftyQr module={module as QraftyDataModulesStyle} size={200} />
         </div>
         <div className="lfc-chip-row" role="list">
           {MODULE_CYCLE.map((option, optionIndex) => (
@@ -213,7 +213,7 @@ function ShapeCard() {
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
       >
-        <StudioShapedQr
+        <QraftyShapedQr
           className="lfc-shape-hero"
           fill={current.fill}
           padding={18}
@@ -287,7 +287,7 @@ function SceneCard() {
             layoutWidth={360}
             paperShader={paperShader}
           />
-          <StudioShapedQr
+          <QraftyShapedQr
             className="lfc-scene-qr"
             fill="#fff7f2"
             padding={20}
@@ -326,7 +326,7 @@ function DressCard() {
       <div className="lfc-dress-stage">
         <div className="lfc-dress-board">
           <span className="lfc-dress-headline">OPEN</span>
-          <StudioShapedQr
+          <QraftyShapedQr
             className="lfc-dress-qr"
             fill="#d8e4c8"
             padding={18}
@@ -386,7 +386,7 @@ function MotionCard() {
               width={220}
             />
           ) : mounted ? (
-            <StudioQr size={220} />
+            <QraftyQr size={220} />
           ) : null}
         </div>
         <span className="lfc-text-chip lfc-text-chip-on">Neon Drift</span>
@@ -404,7 +404,7 @@ function TakeCard() {
     >
       <div className="lfc-take-stage">
         <div className="lfc-take-art">
-          <StudioShapedQr
+          <QraftyShapedQr
             fill="#f4a7c3"
             padding={18}
             shapeId="atom"

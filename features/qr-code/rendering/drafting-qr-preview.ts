@@ -1,4 +1,4 @@
 export {
-  buildDraftingQrStudioMarkup,
-  buildDraftingQrStudioPreviewMarkup,
-} from "@/features/qr-code/rendering/qr-studio-markup"
+  buildDraftingQraftyMarkup,
+  buildDraftingQraftyPreviewMarkup,
+} from "@/features/qr-code/rendering/qrafty-markup"

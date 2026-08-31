@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 import {
   mergeLiveQrStateByLayerId,
   resolveActiveQrLayerIdFromLayers,
@@ -36,16 +36,16 @@ describe("mergeLiveQrStateByLayerId", () => {
     const staleLayerId = "dashboard-qr-node-880b8d02-eaad-4e45-93d0-4e037f693cee:qr"
     const staleActiveLayerId = "dashboard-qr-node:qr"
     const staleState = {
-      ...createDefaultQrStudioState(),
+      ...createDefaultQraftyState(),
       dataModulesSettings: {
-        ...createDefaultQrStudioState().dataModulesSettings,
+        ...createDefaultQraftyState().dataModulesSettings,
         type: "circle" as const,
       },
     }
     const liveState = {
-      ...createDefaultQrStudioState(),
+      ...createDefaultQraftyState(),
       dataModulesSettings: {
-        ...createDefaultQrStudioState().dataModulesSettings,
+        ...createDefaultQraftyState().dataModulesSettings,
         type: "pinched-square" as const,
       },
     }
@@ -57,7 +57,7 @@ describe("mergeLiveQrStateByLayerId", () => {
       },
       activeQrLayerId: staleActiveLayerId,
       canvasLayers: [createQrLayer(staleLayerId)],
-      draftingStudioState: liveState,
+      draftingQraftyState: liveState,
     })
 
     expect(merged[staleActiveLayerId]?.dataModulesSettings.type).toBe("pinched-square")

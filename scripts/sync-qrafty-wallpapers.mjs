@@ -106,7 +106,7 @@ for (const wallpaper of collectSources()) {
   })
 }
 
-const ts = `export type StudioWallpaper = {
+const ts = `export type QraftyWallpaper = {
   id: string
   label: string
   path: string
@@ -115,15 +115,15 @@ const ts = `export type StudioWallpaper = {
   sourceUrl: string
 }
 
-export const STUDIO_WALLPAPERS: readonly StudioWallpaper[] = ${JSON.stringify(manifest, null, 2)} as const
+export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = ${JSON.stringify(manifest, null, 2)} as const
 
-export function getStudioWallpaper(id: string): StudioWallpaper | undefined {
-  return STUDIO_WALLPAPERS.find((wallpaper) => wallpaper.id === id)
+export function getQraftyWallpaper(id: string): QraftyWallpaper | undefined {
+  return QRAFTY_WALLPAPERS.find((wallpaper) => wallpaper.id === id)
 }
 `
 
 ensureDir("features/workspace/assets")
-fs.writeFileSync("features/workspace/assets/studio-wallpapers.ts", ts)
+fs.writeFileSync("features/workspace/assets/qrafty-wallpapers.ts", ts)
 
 const fullBytes = manifest.reduce((total, item) => {
   return total + fs.statSync(path.join("public", item.path)).size

@@ -12,7 +12,7 @@ import {
   clampRasterExportQualityPercent,
   clampQrBackgroundRound,
   clampQrSize,
-  createDefaultQrStudioState,
+  createDefaultQraftyState,
   DEFAULT_DOT_MATRIX_ANIMATION,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
   setDotMatrixAnimationOptions,
@@ -20,9 +20,9 @@ import {
   setSquareQrSize,
 } from "@/features/qr-code/model/state";
 
-describe("qr studio state helpers", () => {
+describe("QRafty state helpers", () => {
   it("starts with shared asset state for logo and background", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
 
     expect(state.backgroundShapeId).toBe("none");
     expect(state.backgroundShapeOptions).toEqual({
@@ -53,7 +53,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("passes boostLevel, moduleSize, lineWidth, logo opacity, and aria-label to ReactQRCode", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.qrOptions.boostLevel = false
     state.dataModulesSettings.moduleSize = 0.85
     state.dataModulesSettings.lineWidth = 0.5
@@ -71,7 +71,7 @@ describe("qr studio state helpers", () => {
   })
 
   it("builds ReactQRCode props from the default state", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     const props = toReactQrCodeProps(state);
 
     expect(props.size).toBe(320);
@@ -83,7 +83,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("keeps upstream qr background transparent when a vector background shape is active", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.backgroundShapeId = "circle";
     state.backgroundOptions.color = "#d0bcff";
 
@@ -93,7 +93,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("maps qr background radius onto upstream background round", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.backgroundOptions.round = 0.42;
 
     const props = toReactQrCodeProps(state);
@@ -104,10 +104,10 @@ describe("qr studio state helpers", () => {
   });
 
   it("clamps qr background radius to the upstream round range", () => {
-    const lowRadiusState = createDefaultQrStudioState();
+    const lowRadiusState = createDefaultQraftyState();
     lowRadiusState.backgroundOptions.round = -0.5;
 
-    const highRadiusState = createDefaultQrStudioState();
+    const highRadiusState = createDefaultQraftyState();
     highRadiusState.backgroundOptions.round = 2;
 
     expect(toReactQrCodeProps(lowRadiusState).svgProps?.style).toEqual(
@@ -120,7 +120,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("clamps shared qr size updates to the supported square range", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     const undersized = setSquareQrSize(state, 24);
     const oversized = setSquareQrSize(state, 2400);
 
@@ -132,13 +132,13 @@ describe("qr studio state helpers", () => {
   });
 
   it("starts dashboard raster export quality at 100 percent", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
 
     expect(state.rasterExportQualityPercent).toBe(100);
   });
 
   it("starts with dot matrix animation disabled and SVG export static", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
 
     expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(20);
     expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => option.label)).toEqual([
@@ -176,7 +176,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("normalizes unknown dot matrix loader values", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
 
     expect(setDotMatrixAnimationOptions(state, { loader: "vortex-rotate" }).dotMatrixAnimation.loader).toBe("vortex-rotate");
     expect(setDotMatrixAnimationOptions(state, { loader: "vortex" }).dotMatrixAnimation.loader).toBe("neon-drift");
@@ -184,7 +184,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("clamps dot matrix animation updates to supported ranges", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     const lowAnimation = setDotMatrixAnimationOptions(state, {
       opacityBase: -1,
       opacityMid: -2,
@@ -256,7 +256,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("drops removed dot matrix animation options from legacy state", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     const legacyState = {
       ...state,
       dotMatrixAnimation: {
@@ -278,7 +278,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("restores missing dot matrix density from legacy state", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     const legacyState = {
       ...state,
       dotMatrixAnimation: {
@@ -293,7 +293,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("keeps loader color controls independent and persists opacity anchors", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
 
     const custom = setDotMatrixAnimationOptions(state, {
       colorPreset: "mint",
@@ -331,7 +331,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("seeds missing loader anchor colors from the legacy custom color", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     const legacyState = {
       ...state,
       dotMatrixAnimation: {
@@ -352,7 +352,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("persists zero opacity anchors as literal zero values", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
 
     const zeroOpacity = setDotMatrixAnimationOptions(state, {
       opacityBase: 0,
@@ -366,7 +366,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("clamps raster export quality updates to the supported range", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     const lowQuality = setRasterExportQualityPercent(state, 10);
     const highQuality = setRasterExportQualityPercent(state, 240);
 
@@ -400,7 +400,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("uses the reference swatch colors as the default body palette", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
 
     expect(state.dotsPalette).toEqual([
       "#04879c",
@@ -411,7 +411,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("keeps solid colors when gradients are disabled", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.dataModulesSettings.color = "#112233";
     state.dotsColorMode = "solid";
 
@@ -422,7 +422,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("keeps module solid colors when finder pattern gradients are enabled", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.dataModulesSettings.color = "#112233";
     state.dotsColorMode = "solid";
     state.finderPatternOuterGradient.enabled = true;
@@ -435,7 +435,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("omits upstream gradients for module gradient mode so finder patterns stay solid", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.dotsColorMode = "gradient";
     state.dataModulesGradient.enabled = true;
     state.dataModulesGradient.type = "radial";
@@ -452,7 +452,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("omits upstream dot colors when palette mode is enabled", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.dotsColorMode = "palette";
     state.dataModulesSettings.color = "#112233";
     state.dataModulesGradient.enabled = true;
@@ -470,7 +470,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("still emits background gradient payloads when enabled", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.backgroundGradient.enabled = true;
     state.backgroundGradient.type = "radial";
     state.backgroundGradient.rotation = 1.2;
@@ -492,7 +492,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("omits empty image values from the QR options", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.logo = {
       source: "url",
       value: "   ",
@@ -504,7 +504,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("preserves intentionally blank content instead of swapping in a hidden URL", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.data = "   ";
 
     const options = toReactQrCodeProps(state);
@@ -513,7 +513,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("passes native heart dots to the ReactQRCode renderer", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.dataModulesSettings.type = "heart" as typeof state.dataModulesSettings.type;
 
     const options = toReactQrCodeProps(state);
@@ -522,7 +522,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("passes native diamond dots to the ReactQRCode renderer", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.dataModulesSettings.type = "diamond" as typeof state.dataModulesSettings.type;
 
     const options = toReactQrCodeProps(state);
@@ -531,7 +531,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("maps the shared logo asset onto ReactQRCode image settings", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.logo = {
       source: "url",
       value: "https://example.com/logo.png",
@@ -543,10 +543,10 @@ describe("qr studio state helpers", () => {
   });
 
   it("keeps upstream logo size coefficients within the full 0 to 1 range", () => {
-    const zeroSizeState = createDefaultQrStudioState();
+    const zeroSizeState = createDefaultQraftyState();
     zeroSizeState.imageOptions.imageSize = -0.2;
 
-    const fullSizeState = createDefaultQrStudioState();
+    const fullSizeState = createDefaultQraftyState();
     fullSizeState.imageOptions.imageSize = 1.4;
 
     expect(toReactQrCodeProps(zeroSizeState).imageSettings).toBeUndefined();
@@ -555,7 +555,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("maps preset logo assets onto the upstream image field", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.logo = {
       source: "preset",
       presetId: "whatsapp" as never,
@@ -571,7 +571,7 @@ describe("qr studio state helpers", () => {
   });
 
   it("suppresses background fill and gradient when a background image is active", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.backgroundOptions.color = "#112233";
     state.backgroundGradient.enabled = true;
     state.backgroundGradient.type = "radial";
@@ -581,7 +581,7 @@ describe("qr studio state helpers", () => {
     ];
     state.backgroundImage = {
       source: "upload",
-      value: "blob:https://new-qr-studio.local/background.png",
+      value: "blob:https://qrafty.local/background.png",
     };
 
     const options = toReactQrCodeProps(state);

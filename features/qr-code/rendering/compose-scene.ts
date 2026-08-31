@@ -1,4 +1,4 @@
-import type { StudioGradient } from "@/features/qr-code/model/state"
+import type { QraftyGradient } from "@/features/qr-code/model/state"
 
 export const DASHBOARD_COMPOSE_CANVAS_SIZE = 960
 export const DASHBOARD_COMPOSE_CANVAS_HEIGHT = 640
@@ -13,7 +13,7 @@ export type DashboardComposeBackgroundMode = "transparent" | "solid" | "gradient
 export type DashboardComposeBackground = {
   mode: DashboardComposeBackgroundMode
   color: string
-  gradient: StudioGradient
+  gradient: QraftyGradient
 }
 
 export type DashboardDocumentPresetId = "letter" | "a4" | "square" | "social-post"
@@ -592,7 +592,7 @@ function normalizeDashboardComposeDocument(
   }
 }
 
-function createDefaultDashboardComposeBackgroundGradient(): StudioGradient {
+function createDefaultDashboardComposeBackgroundGradient(): QraftyGradient {
   return {
     enabled: false,
     type: "linear",

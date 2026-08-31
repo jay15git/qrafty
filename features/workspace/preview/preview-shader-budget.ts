@@ -2,7 +2,7 @@ import {
   LIVE_PAPER_SHADER_MAX_PIXEL_COUNT,
   LIVE_PAPER_SHADER_MIN_PIXEL_RATIO,
   LIVE_PAPER_SHADER_WEBGL_CONTEXT_ATTRIBUTES,
-} from "@new-qr/qr-internal/scene"
+} from "@qrafty/qr-internal/scene"
 
 const MOBILE_PREVIEW_MAX_PIXEL_COUNT = 1280 * 720
 

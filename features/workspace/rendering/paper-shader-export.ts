@@ -1,4 +1,4 @@
-import { EXPORT_PAPER_SHADER_MAX_PIXEL_COUNT } from "@new-qr/qr/shaders"
+import { EXPORT_PAPER_SHADER_MAX_PIXEL_COUNT } from "@qrafty/qr/shaders"
 
 const PAPER_SHADER_RENDER_OPTIONS: Record<string, Record<string, unknown>> = {
   waves: { maxPixelCount: EXPORT_PAPER_SHADER_MAX_PIXEL_COUNT },

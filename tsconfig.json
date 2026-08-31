@@ -20,16 +20,16 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@new-qr/qr": ["./packages/qr/src/index.ts"],
-      "@new-qr/qr/react": ["./packages/qr/src/react/index.ts"],
-      "@new-qr/qr/shaders": ["./packages/qr/src/shaders/index.ts"],
-      "@new-qr/qr/animated": ["./packages/qr/src/animated/index.ts"],
-      "@new-qr/qr/dot-matrix": ["./packages/qr/src/dot-matrix/index.ts"],
-      "@new-qr/qr-internal/codegen": ["./packages/qr/src/scene/codegen/index.ts"],
-      "@new-qr/qr-internal/export": ["./packages/qr/src/scene/export/index.ts"],
-      "@new-qr/qr-internal/scene": ["./packages/qr/src/scene/index.ts"],
-      "@new-qr/qr-internal/core": ["./packages/qr/src/core/index.ts"],
-      "@new-qr/qr-internal/react-qr-code": ["./packages/qr/src/react-qr-code/index.ts"]
+      "@qrafty/qr": ["./packages/qr/src/index.ts"],
+      "@qrafty/qr/react": ["./packages/qr/src/react/index.ts"],
+      "@qrafty/qr/shaders": ["./packages/qr/src/shaders/index.ts"],
+      "@qrafty/qr/animated": ["./packages/qr/src/animated/index.ts"],
+      "@qrafty/qr/dot-matrix": ["./packages/qr/src/dot-matrix/index.ts"],
+      "@qrafty/qr-internal/codegen": ["./packages/qr/src/scene/codegen/index.ts"],
+      "@qrafty/qr-internal/export": ["./packages/qr/src/scene/export/index.ts"],
+      "@qrafty/qr-internal/scene": ["./packages/qr/src/scene/index.ts"],
+      "@qrafty/qr-internal/core": ["./packages/qr/src/core/index.ts"],
+      "@qrafty/qr-internal/react-qr-code": ["./packages/qr/src/react-qr-code/index.ts"]
     }
   },
   "include": [

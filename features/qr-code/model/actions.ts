@@ -1,7 +1,7 @@
 import type { BrandIconEntry } from "@/features/qr-code/assets/brand-icons"
 import type {
-  QrStudioState,
-  StudioGradient,
+  QraftyState,
+  QraftyGradient,
 } from "@/features/qr-code/model/state"
 
 export type DashboardCornerColorKey = "cornersSquare" | "cornersDot"
@@ -20,7 +20,7 @@ export function ensureDashboardAccordionItemExpanded(
     : [...openItemIds, selectedItemId]
 }
 
-export function applyDotsSolidColor(state: QrStudioState, color: string) {
+export function applyDotsSolidColor(state: QraftyState, color: string) {
   return {
     ...state,
     dotsColorMode: "solid" as const,
@@ -31,7 +31,7 @@ export function applyDotsSolidColor(state: QrStudioState, color: string) {
   }
 }
 
-export function applyDotsGradient(state: QrStudioState, gradient: StudioGradient) {
+export function applyDotsGradient(state: QraftyState, gradient: QraftyGradient) {
   return {
     ...state,
     dotsColorMode: "gradient" as const,
@@ -42,7 +42,7 @@ export function applyDotsGradient(state: QrStudioState, gradient: StudioGradient
   }
 }
 
-export function applyDotsPaletteSelection(state: QrStudioState) {
+export function applyDotsPaletteSelection(state: QraftyState) {
   return {
     ...state,
     dotsColorMode: "palette" as const,
@@ -50,7 +50,7 @@ export function applyDotsPaletteSelection(state: QrStudioState) {
 }
 
 export function applyCornerSolidColor(
-  state: QrStudioState,
+  state: QraftyState,
   cornerKey: DashboardCornerColorKey,
   color: string,
 ) {
@@ -82,9 +82,9 @@ export function applyCornerSolidColor(
 }
 
 export function applyCornerGradient(
-  state: QrStudioState,
+  state: QraftyState,
   cornerKey: DashboardCornerColorKey,
-  gradient: StudioGradient,
+  gradient: QraftyGradient,
 ) {
   if (cornerKey === "cornersSquare") {
     return {
@@ -105,7 +105,7 @@ export function applyCornerGradient(
   }
 }
 
-export function applyBackgroundSolidColor(state: QrStudioState, color: string) {
+export function applyBackgroundSolidColor(state: QraftyState, color: string) {
   return {
     ...state,
     backgroundOptions: {
@@ -121,8 +121,8 @@ export function applyBackgroundSolidColor(state: QrStudioState, color: string) {
 }
 
 export function applyBackgroundGradient(
-  state: QrStudioState,
-  gradient: StudioGradient,
+  state: QraftyState,
+  gradient: QraftyGradient,
 ) {
   return {
     ...state,
@@ -137,7 +137,7 @@ export function applyBackgroundGradient(
   }
 }
 
-export function applyBackgroundTransparentSelection(state: QrStudioState) {
+export function applyBackgroundTransparentSelection(state: QraftyState) {
   return {
     ...state,
     backgroundOptions: {
@@ -152,7 +152,7 @@ export function applyBackgroundTransparentSelection(state: QrStudioState) {
 }
 
 export function applyAssetNoneSelection(
-  state: QrStudioState,
+  state: QraftyState,
   assetKey: DashboardAssetKey,
 ) {
   return {
@@ -167,7 +167,7 @@ export function applyAssetNoneSelection(
 }
 
 export function applyAssetUrlValue(
-  state: QrStudioState,
+  state: QraftyState,
   assetKey: DashboardAssetKey,
   value: string,
 ) {
@@ -183,7 +183,7 @@ export function applyAssetUrlValue(
 }
 
 export function applyAssetUploadValue(
-  state: QrStudioState,
+  state: QraftyState,
   assetKey: DashboardAssetKey,
   value: string,
 ) {
@@ -199,7 +199,7 @@ export function applyAssetUploadValue(
 }
 
 export function applyIconstackLogoPresetSelection(
-  state: QrStudioState,
+  state: QraftyState,
   presetId: string,
   value: string,
   presetColor: string,
@@ -216,7 +216,7 @@ export function applyIconstackLogoPresetSelection(
 }
 
 export function applyLogoPresetSelection(
-  state: QrStudioState,
+  state: QraftyState,
   brandIcon: BrandIconEntry,
   value: string,
   presetColor: string,
@@ -225,7 +225,7 @@ export function applyLogoPresetSelection(
     ...state,
     logo: {
       presetColor,
-      presetId: brandIcon.id as QrStudioState["logo"]["presetId"],
+      presetId: brandIcon.id as QraftyState["logo"]["presetId"],
       source: "preset" as const,
       value,
     },
@@ -233,7 +233,7 @@ export function applyLogoPresetSelection(
 }
 
 export function applyLogoPresetColor(
-  state: QrStudioState,
+  state: QraftyState,
   value: string | undefined,
   presetColor: string,
 ) {
@@ -253,9 +253,9 @@ export function applyLogoPresetColor(
 }
 
 export function applyLogoPresetGradient(
-  state: QrStudioState,
+  state: QraftyState,
   value: string | undefined,
-  gradient: StudioGradient,
+  gradient: QraftyGradient,
 ) {
   return {
     ...state,

@@ -28,7 +28,7 @@ import {
   getCachedIllustrationDisplaySrc,
   preloadIllustrationSvgMarkup,
 } from "@/features/workspace/assets/illustration-recolor"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 
 export type LayeredSvgParts = {
   bounds: {
@@ -45,7 +45,7 @@ export type BuildLayeredSvgPartsOptions = {
   cardState: DraftingCardState
   layers: DraftingCanvasLayer[]
   qrMarkup: string
-  state: QrStudioState
+  state: QraftyState
   shaderSnapshots?: Record<string, string>
   /** When true, shader layers and card shader images are omitted (canvas compositor draws them). */
   omitShaderLayers?: boolean
@@ -86,7 +86,7 @@ export async function buildLayeredSvgParts({
   return { bounds: resolvedBounds, defs, body }
 }
 
-export function getDraftingLayerBounds(layers: DraftingCanvasLayer[], state: QrStudioState) {
+export function getDraftingLayerBounds(layers: DraftingCanvasLayer[], state: QraftyState) {
   if (layers.length === 0) {
     return {
       height: 1,
@@ -125,7 +125,7 @@ function getDraftingLayerSvg(
   layer: DraftingCanvasLayer,
   cardState: DraftingCardState,
   qrMarkup: string,
-  state: QrStudioState,
+  state: QraftyState,
   shaderSnapshots?: Record<string, string>,
   options?: {
     clipDefs?: string[]
@@ -251,7 +251,7 @@ function getDraftingGroupLayerSvg(
   layer: DraftingCanvasLayer,
   cardState: DraftingCardState,
   qrMarkup: string,
-  state: QrStudioState,
+  state: QraftyState,
   shaderSnapshots?: Record<string, string>,
   options?: {
     clipDefs?: string[]
@@ -347,7 +347,7 @@ function getDraftingShapeLayerSvg(layer: DraftingCanvasLayer) {
 function getDraftingQrLayerSvg(
   layer: DraftingCanvasLayer,
   qrMarkup: string,
-  state: QrStudioState,
+  state: QraftyState,
 ) {
   const filter = getDraftingLayerFilterMarkup(layer)
     ? ` filter="url(#${getSvgId(layer.id)}-filter)"`

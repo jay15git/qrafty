@@ -1,22 +1,22 @@
-import { ReactQRCode } from "@new-qr/qr-internal/react-qr-code"
+import { ReactQRCode } from "@qrafty/qr-internal/react-qr-code"
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server.browser"
 
 import { toReactQrCodeProps } from "@/features/qr-code/adapters/react-qr-adapter"
-import { type QrStudioState } from "@/features/qr-code/model/state"
+import { type QraftyState } from "@/features/qr-code/model/state"
 import {
   getQrEncodeCacheKey,
   readCachedQrEncodeMarkup,
   writeCachedQrEncodeMarkup,
 } from "@/features/qr-code/rendering/qr-encode-cache"
 import {
-  applyStudioQrSvgMarkupExtensions,
+  applyQraftyQrSvgMarkupExtensions,
   buildDashboardQrNodePayloadFromBaseMarkup,
   createDashboardSurfaceQrState,
   stripXmlDeclaration,
 } from "@/features/qr-code/rendering/qr-svg-markup"
 
-function renderReactQrBaseMarkup(state: QrStudioState) {
+function renderReactQrBaseMarkup(state: QraftyState) {
   const dashboardState = createDashboardSurfaceQrState(state)
   const cacheKey = getQrEncodeCacheKey(dashboardState)
   const cached = readCachedQrEncodeMarkup(cacheKey)
@@ -33,10 +33,10 @@ function renderReactQrBaseMarkup(state: QrStudioState) {
   return markup
 }
 
-export async function buildDashboardQrNodePayload(state: QrStudioState) {
+export async function buildDashboardQrNodePayload(state: QraftyState) {
   return buildDashboardQrNodePayloadFromBaseMarkup(renderReactQrBaseMarkup(state), state)
 }
 
-export function renderDashboardQrSvgMarkup(state: QrStudioState) {
-  return applyStudioQrSvgMarkupExtensions(renderReactQrBaseMarkup(state), createDashboardSurfaceQrState(state))
+export function renderDashboardQrSvgMarkup(state: QraftyState) {
+  return applyQraftyQrSvgMarkupExtensions(renderReactQrBaseMarkup(state), createDashboardSurfaceQrState(state))
 }

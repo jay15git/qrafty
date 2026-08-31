@@ -4,13 +4,13 @@ import {
 } from "@/features/qr-code/styles/background-shapes"
 import {
   hasActiveBackgroundShapeOptions,
-  type QrStudioState,
-  type StudioGradient,
+  type QraftyState,
+  type QraftyGradient,
 } from "@/features/qr-code/model/state"
 import {
-  getStudioGradientCenter,
-  studioRadialCenterAsPercent,
-} from "@/features/qr-code/styles/studio-gradient-geometry"
+  getQraftyGradientCenter,
+  qraftyRadialCenterAsPercent,
+} from "@/features/qr-code/styles/qrafty-gradient-geometry"
 import {
   getDraftingQrBackgroundPathTransform,
   getDraftingQrLayerLayout,
@@ -35,7 +35,7 @@ type DraftingQrBackgroundFrame = {
 
 export function buildDraftingQrBackgroundSvgPayload(
   layer: DraftingCanvasLayer,
-  state: QrStudioState,
+  state: QraftyState,
 ): DraftingQrBackgroundSvgPayload | null {
   const markup = buildDraftingQrBackgroundPreviewSvgMarkup(layer, state)
   if (!markup) {
@@ -54,7 +54,7 @@ export function buildDraftingQrBackgroundSvgPayload(
 
 export function getDraftingQrBackgroundSvgMarkup(
   layer: DraftingCanvasLayer,
-  state: QrStudioState,
+  state: QraftyState,
 ) {
   if (!shouldRenderDraftingQrBackground(state)) {
     return ""
@@ -92,7 +92,7 @@ export function getDraftingQrBackgroundSvgMarkup(
 
 export function getDraftingQrBackgroundBounds(
   layer: DraftingCanvasLayer,
-  state: QrStudioState,
+  state: QraftyState,
 ) {
   const frame = getDraftingQrBackgroundFrame(layer)
   const strokeOutset = Math.ceil(state.backgroundShapeOptions.strokeWidth / 2)
@@ -105,7 +105,7 @@ export function getDraftingQrBackgroundBounds(
   }
 }
 
-function shouldRenderDraftingQrBackground(state: QrStudioState) {
+function shouldRenderDraftingQrBackground(state: QraftyState) {
   if (getQrBackgroundShapeDefinition(state.backgroundShapeId)) {
     return true
   }
@@ -123,7 +123,7 @@ function shouldRenderDraftingQrBackground(state: QrStudioState) {
 
 function buildDraftingQrBackgroundPreviewSvgMarkup(
   layer: DraftingCanvasLayer,
-  state: QrStudioState,
+  state: QraftyState,
 ) {
   if (!shouldRenderDraftingQrBackground(state)) {
     return null
@@ -183,7 +183,7 @@ function getDraftingQrBackgroundFrame(
   }
 }
 
-function getDraftingQrBackgroundFill(state: QrStudioState, ids: DraftingQrBackgroundIds) {
+function getDraftingQrBackgroundFill(state: QraftyState, ids: DraftingQrBackgroundIds) {
   if (getDraftingQrBackgroundImageHref(state)) {
     return `url(#${ids.imagePatternId})`
   }
@@ -199,7 +199,7 @@ function getDraftingQrBackgroundFill(state: QrStudioState, ids: DraftingQrBackgr
   return state.backgroundOptions.color
 }
 
-function getDraftingQrBackgroundStroke(shapeOptions: QrStudioState["backgroundShapeOptions"]) {
+function getDraftingQrBackgroundStroke(shapeOptions: QraftyState["backgroundShapeOptions"]) {
   const width = Math.max(0, shapeOptions.strokeWidth)
 
   return {
@@ -211,7 +211,7 @@ function getDraftingQrBackgroundStroke(shapeOptions: QrStudioState["backgroundSh
 
 function getDraftingQrBackgroundDefsMarkup(
   ids: DraftingQrBackgroundIds,
-  state: QrStudioState,
+  state: QraftyState,
 ) {
   const parts: string[] = []
   const imageHref = getDraftingQrBackgroundImageHref(state)
@@ -229,21 +229,21 @@ function getDraftingQrBackgroundDefsMarkup(
   return parts.join("")
 }
 
-function getDraftingQrBackgroundGradientMarkup(id: string, gradient: StudioGradient) {
+function getDraftingQrBackgroundGradientMarkup(id: string, gradient: QraftyGradient) {
   const stops = gradient.colorStops
     .map((stop) => `<stop offset="${stop.offset}" stop-color="${escapeXml(stop.color)}"/>`)
     .join("")
 
   if (gradient.type === "radial") {
-    const center = getStudioGradientCenter(gradient)
-    const { cx, cy } = studioRadialCenterAsPercent(center)
+    const center = getQraftyGradientCenter(gradient)
+    const { cx, cy } = qraftyRadialCenterAsPercent(center)
     return `<radialGradient id="${id}" cx="${cx}" cy="${cy}" r="50%">${stops}</radialGradient>`
   }
 
   return `<linearGradient id="${id}" x1="0%" x2="100%" y1="0%" y2="100%" gradientTransform="rotate(${(gradient.rotation * 180) / Math.PI} .5 .5)">${stops}</linearGradient>`
 }
 
-function getDraftingQrBackgroundImageHref(state: QrStudioState) {
+function getDraftingQrBackgroundImageHref(state: QraftyState) {
   return state.backgroundImage.source !== "none" ? state.backgroundImage.value : undefined
 }
 

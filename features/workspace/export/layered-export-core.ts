@@ -1,11 +1,11 @@
-import { emitSvg, preprocessSvg } from "@new-qr/qr-internal/codegen"
+import { emitSvg, preprocessSvg } from "@qrafty/qr-internal/codegen"
 
 import { buildSceneIr } from "@/features/qr-code/export/build-scene-ir"
 import type { DashboardQrNodePayload } from "@/features/qr-code/rendering/compose-scene"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import { sanitizeDraftingQrArtworkMarkup } from "@/features/workspace/rendering/qr-artwork"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 
 export async function buildDraftingLayeredNodePayloadCore({
   cardState,
@@ -23,7 +23,7 @@ export async function buildDraftingLayeredNodePayloadCore({
   nodeId: string
   qrPayload: DashboardQrNodePayload
   sceneComposition?: import("@/features/workspace/model/scene-templates").SceneCompositionState
-  state: QrStudioState
+  state: QraftyState
   shaderSnapshots?: Record<string, string>
 }) {
   const qrArtworkMarkup = sanitizeDraftingQrArtworkMarkup(qrPayload.markup)

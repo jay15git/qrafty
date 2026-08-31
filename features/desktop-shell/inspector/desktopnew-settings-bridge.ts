@@ -6,11 +6,11 @@ import type {
   DesktopPatternSettings,
   DesktopShapeSettings,
 } from "@/features/desktop-shell/components/FloatingToolbar"
-import type { StudioGradient } from "@/features/qr-code/model/state"
+import type { QraftyGradient } from "@/features/qr-code/model/state"
 import {
-  clampStudioGradientCenter,
-  getStudioGradientCenter,
-} from "@/features/qr-code/styles/studio-gradient-geometry"
+  clampQraftyGradientCenter,
+  getQraftyGradientCenter,
+} from "@/features/qr-code/styles/qrafty-gradient-geometry"
 import { degreesToRadians, radiansToDegrees } from "@/features/qr-code/styles/gradient-controls"
 import { fillFromHex, fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 
@@ -24,11 +24,11 @@ function normalizeDegrees(value: number) {
   return mod < 0 ? mod + 360 : mod
 }
 
-function cssAngleToStudioRotation(angleDeg: number) {
+function cssAngleToQraftyRotation(angleDeg: number) {
   return degreesToRadians(normalizeDegrees(angleDeg - CSS_STUDIO_ROTATION_OFFSET_DEG))
 }
 
-function studioRotationToCssAngle(rotationRad: number) {
+function qraftyRotationToCssAngle(rotationRad: number) {
   return normalizeDegrees(radiansToDegrees(rotationRad) + CSS_STUDIO_ROTATION_OFFSET_DEG)
 }
 
@@ -36,7 +36,7 @@ function parseStopColor(color: string) {
   return parseColor(color) ?? FALLBACK_OKLCH
 }
 
-function studioStopsToFillStops(gradient: StudioGradient): GradientStop[] {
+function qraftyStopsToFillStops(gradient: QraftyGradient): GradientStop[] {
   const start = gradient.colorStops[0]
   const end = gradient.colorStops[1] ?? start
 
@@ -54,11 +54,11 @@ function studioStopsToFillStops(gradient: StudioGradient): GradientStop[] {
   ]
 }
 
-function studioGradientToFill(gradient: StudioGradient): Fill {
-  const stops = studioStopsToFillStops(gradient)
+function qraftyGradientToFill(gradient: QraftyGradient): Fill {
+  const stops = qraftyStopsToFillStops(gradient)
 
   if (gradient.type === "radial") {
-    const center = getStudioGradientCenter(gradient)
+    const center = getQraftyGradientCenter(gradient)
     return {
       kind: "gradient",
       gradient: {
@@ -76,7 +76,7 @@ function studioGradientToFill(gradient: StudioGradient): Fill {
     kind: "gradient",
     gradient: {
       type: "linear",
-      angle: studioRotationToCssAngle(gradient.rotation),
+      angle: qraftyRotationToCssAngle(gradient.rotation),
       interp: "oklch",
       stops,
     },
@@ -87,12 +87,12 @@ export function solidColorToFillCss(color: string): string {
   return formatFill(fillFromHex(color))
 }
 
-export function studioGradientToFillCss(gradient: StudioGradient): string {
+export function qraftyGradientToFillCss(gradient: QraftyGradient): string {
   if (!gradient.enabled) {
     return solidColorToFillCss(gradient.colorStops[0]?.color ?? "#171717")
   }
 
-  return formatFill(studioGradientToFill(gradient))
+  return formatFill(qraftyGradientToFill(gradient))
 }
 
 export function readPatternModuleFillCss(settings: DesktopPatternSettings): string {
@@ -101,7 +101,7 @@ export function readPatternModuleFillCss(settings: DesktopPatternSettings): stri
   }
 
   if (settings.dotsColorMode === "gradient") {
-    return studioGradientToFillCss(settings.dataModulesGradient)
+    return qraftyGradientToFillCss(settings.dataModulesGradient)
   }
 
   return solidColorToFillCss(settings.dotsSolidColor)
@@ -114,10 +114,10 @@ export function isPatternModuleImageFill(settings: DesktopPatternSettings): bool
 export function readCornerFillCss(
   mode: "solid" | "gradient",
   solidColor: string,
-  gradient: StudioGradient,
+  gradient: QraftyGradient,
 ): string {
   if (mode === "gradient") {
-    return studioGradientToFillCss(gradient)
+    return qraftyGradientToFillCss(gradient)
   }
 
   return solidColorToFillCss(solidColor)
@@ -125,7 +125,7 @@ export function readCornerFillCss(
 
 export function readShapeFillCss(settings: DesktopShapeSettings): string {
   if (settings.shapeColorMode === "gradient") {
-    return studioGradientToFillCss(settings.shapeGradient)
+    return qraftyGradientToFillCss(settings.shapeGradient)
   }
 
   return solidColorToFillCss(settings.shapeSolidColor)
@@ -133,16 +133,16 @@ export function readShapeFillCss(settings: DesktopShapeSettings): string {
 
 export function readLogoFillCss(settings: DesktopLogoSettings): string {
   if (settings.colorMode === "gradient") {
-    return studioGradientToFillCss(settings.gradient)
+    return qraftyGradientToFillCss(settings.gradient)
   }
 
   return solidColorToFillCss(settings.solidColor)
 }
 
-function fillGradientToStudio(
+function fillGradientToQrafty(
   gradient: Gradient,
-  fallback: StudioGradient,
-): StudioGradient {
+  fallback: QraftyGradient,
+): QraftyGradient {
   const stops = [...gradient.stops].sort((a, b) => a.position - b.position)
   const first = stops[0]
   const second = stops[stops.length - 1] ?? first
@@ -151,7 +151,7 @@ function fillGradientToStudio(
     return fallback
   }
 
-  const colorStops: StudioGradient["colorStops"] = [
+  const colorStops: QraftyGradient["colorStops"] = [
     {
       offset: Math.min(1, Math.max(0, first.position)),
       color: formatColor(first.color, "hex"),
@@ -166,7 +166,7 @@ function fillGradientToStudio(
     return {
       enabled: true,
       type: "linear",
-      rotation: cssAngleToStudioRotation(gradient.angle ?? 0),
+      rotation: cssAngleToQraftyRotation(gradient.angle ?? 0),
       colorStops,
     }
   }
@@ -177,14 +177,14 @@ function fillGradientToStudio(
       type: "radial",
       rotation: fallback.rotation,
       colorStops,
-      center: clampStudioGradientCenter(gradient.center),
+      center: clampQraftyGradientCenter(gradient.center),
     }
   }
 
   const center =
     gradient.type === "radial"
-      ? clampStudioGradientCenter(gradient.center)
-      : clampStudioGradientCenter(fallback.center ?? getStudioGradientCenter(fallback))
+      ? clampQraftyGradientCenter(gradient.center)
+      : clampQraftyGradientCenter(fallback.center ?? getQraftyGradientCenter(fallback))
 
   return {
     enabled: true,
@@ -195,10 +195,10 @@ function fillGradientToStudio(
   }
 }
 
-export function fillCssToStudioGradient(
+export function fillCssToQraftyGradient(
   css: string,
-  fallback: StudioGradient,
-): StudioGradient {
+  fallback: QraftyGradient,
+): QraftyGradient {
   const parsed = parseFill(css)
 
   if (!parsed || parsed.kind === "color") {
@@ -213,7 +213,7 @@ export function fillCssToStudioGradient(
     }
   }
 
-  return fillGradientToStudio(parsed.gradient, fallback)
+  return fillGradientToQrafty(parsed.gradient, fallback)
 }
 
 function solidHexFromFill(fill: Fill): string {
@@ -233,7 +233,7 @@ export function applyPatternModuleFill(
   if (fill.kind === "gradient") {
     return {
       dotsColorMode: "gradient",
-      dataModulesGradient: fillGradientToStudio(fill.gradient, settings.dataModulesGradient),
+      dataModulesGradient: fillGradientToQrafty(fill.gradient, settings.dataModulesGradient),
     }
   }
 
@@ -263,7 +263,7 @@ export function applyCornerFill(
     part === "eye" ? settings.cornerDotGradient : settings.cornerSquareGradient
 
   if (fill.kind === "gradient") {
-    const nextGradient = fillGradientToStudio(fill.gradient, gradient)
+    const nextGradient = fillGradientToQrafty(fill.gradient, gradient)
     return part === "eye"
       ? { cornerDotColorMode: "gradient", cornerDotGradient: nextGradient }
       : { cornerSquareColorMode: "gradient", cornerSquareGradient: nextGradient }
@@ -282,7 +282,7 @@ export function applyShapeFill(
   if (fill.kind === "gradient") {
     return {
       shapeColorMode: "gradient",
-      shapeGradient: fillGradientToStudio(fill.gradient, settings.shapeGradient),
+      shapeGradient: fillGradientToQrafty(fill.gradient, settings.shapeGradient),
     }
   }
 
@@ -299,7 +299,7 @@ export function applyLogoFill(
   if (fill.kind === "gradient") {
     return {
       colorMode: "gradient",
-      gradient: fillGradientToStudio(fill.gradient, settings.gradient),
+      gradient: fillGradientToQrafty(fill.gradient, settings.gradient),
     }
   }
 

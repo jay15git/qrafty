@@ -23,7 +23,7 @@ import {
   createBrandIconDataUrl,
   createBrandIconGradientDataUrl,
 } from "@/features/qr-code/assets/brand-icon-svg"
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 
 describe("dashboard settings state helpers", () => {
   it("initializes dashboard accordions with the selected item expanded", () => {
@@ -37,7 +37,7 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("applies solid dots editing without changing other fields", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "gradient"
 
     const nextState = applyDotsSolidColor(state, "#ff0000")
@@ -48,7 +48,7 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("applies gradient dots editing without selecting on panel open alone", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
 
     const nextState = applyDotsGradient(state, {
       ...state.dataModulesGradient,
@@ -64,7 +64,7 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("applies explicit palette selection without mutating the palette", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
 
     const nextState = applyDotsPaletteSelection(state)
 
@@ -73,7 +73,7 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("applies solid corner edits by disabling the matching gradient", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.finderPatternOuterGradient.enabled = true
 
     const nextState = applyCornerSolidColor(state, "cornersSquare", "#00ff00")
@@ -83,7 +83,7 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("applies gradient corner edits by enabling the matching gradient", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
 
     const nextState = applyCornerGradient(state, "cornersDot", {
       ...state.finderPatternInnerGradient,
@@ -99,7 +99,7 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("applies solid background edits by clearing transparency and gradient mode", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundOptions.transparent = true
     state.backgroundGradient.enabled = true
 
@@ -111,7 +111,7 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("applies background gradient edits by clearing transparency", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundOptions.transparent = true
 
     const nextState = applyBackgroundGradient(state, {
@@ -124,7 +124,7 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("applies transparent background selection immediately", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundGradient.enabled = true
 
     const nextState = applyBackgroundTransparentSelection(state)
@@ -134,7 +134,7 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("applies remote asset URL editing as the selected source", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
 
     const nextState = applyAssetUrlValue(
       state,
@@ -149,24 +149,24 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("applies upload asset value for logo", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
 
     const nextState = applyAssetUploadValue(
       state,
       "logo",
-      "blob:https://new-qr-studio.local/logo.png",
+      "blob:https://qrafty.local/logo.png",
     )
 
     expect(nextState.logo).toEqual({
       source: "upload",
-      value: "blob:https://new-qr-studio.local/logo.png",
+      value: "blob:https://qrafty.local/logo.png",
       presetId: undefined,
       presetColor: undefined,
     })
   })
 
   it("applies none selection immediately for empty asset items", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.logo = {
       source: "url",
       value: "https://example.com/logo.png",
@@ -183,7 +183,7 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("applies preset logo selection with serialized svg data", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const brandIcon = getBrandIconById("whatsapp")
 
     const nextState = applyLogoPresetSelection(
@@ -200,7 +200,7 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("updates preset logo color while preserving the selected brand", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const brandIcon = getBrandIconById("github")
     const selectedState = applyLogoPresetSelection(
       state,
@@ -223,7 +223,7 @@ describe("dashboard settings state helpers", () => {
   })
 
   it("applies preset logo gradient editing without replacing the saved solid color", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const brandIcon = getBrandIconById("github")
     const selectedState = applyLogoPresetSelection(
       state,

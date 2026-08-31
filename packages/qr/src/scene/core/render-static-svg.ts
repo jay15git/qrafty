@@ -40,7 +40,7 @@ export function buildSceneDependencyManifest(scene: SceneDocumentV1) {
   const animatedQr = usesAnimatedQr(node?.qr)
 
   const dependencies: Record<string, string> = {
-    "@new-qr/qr": "0.1.0",
+    "@qrafty/qr": "0.1.0",
   }
 
   if (paperShaders) {

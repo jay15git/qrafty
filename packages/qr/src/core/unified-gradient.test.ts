@@ -24,14 +24,14 @@ describe("unified qr gradient fill", () => {
           { offset: 1, color: "#fafafa" },
         ],
       },
-      gradientId: "new-qr-dots-gradient",
+      gradientId: "qrafty-dots-gradient",
       margin: 12,
     })
 
     const serialized = new XMLSerializer().serializeToString(svg)
 
-    expect(serialized).toContain('id="new-qr-dots-gradient"')
-    expect(serialized).toContain('fill="url(#new-qr-dots-gradient)"')
+    expect(serialized).toContain('id="qrafty-dots-gradient"')
+    expect(serialized).toContain('fill="url(#qrafty-dots-gradient)"')
     expect(serialized).toContain('data-qr-layer="unified-gradient-fill"')
     expect(serialized).not.toContain('corner-frame-gradient')
     expect(serialized).not.toContain('corner-dot-gradient')
@@ -55,7 +55,7 @@ describe("unified qr gradient fill", () => {
           { offset: 1, color: "#fafafa" },
         ],
       },
-      gradientId: "new-qr-dots-gradient",
+      gradientId: "qrafty-dots-gradient",
       margin: 12,
     })
 

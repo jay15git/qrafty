@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactQRCode } from "@new-qr/qr-internal/react-qr-code"
+import { ReactQRCode } from "@qrafty/qr-internal/react-qr-code"
 import type { ReactNode } from "react"
 
 import {

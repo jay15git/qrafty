@@ -17,12 +17,12 @@ describe("unified qr image fill", () => {
 
     applyUnifiedQrImageFill(svg, {
       imageHref: "https://example.com/texture.png",
-      imageId: "new-qr-dots-image",
+      imageId: "qrafty-dots-image",
       margin: 12,
     })
 
-    const image = svg.querySelector("#new-qr-dots-image")
-    const clipPath = svg.querySelector("#new-qr-dots-image-clip")
+    const image = svg.querySelector("#qrafty-dots-image")
+    const clipPath = svg.querySelector("#qrafty-dots-image-clip")
     const modules = svg.querySelector('[data-testid="data-modules"]')
     const finderOuter = svg.querySelector('[data-testid="finder-patterns-outer"]')
     const finderInner = svg.querySelector('[data-testid="finder-patterns-inner"]')
@@ -35,7 +35,7 @@ describe("unified qr image fill", () => {
     expect(image?.getAttribute("width")).toBe("25")
     expect(image?.getAttribute("height")).toBe("25")
     expect(image?.getAttribute("preserveAspectRatio")).toBe("xMidYMid slice")
-    expect(image?.getAttribute("clip-path")).toBe("url(#new-qr-dots-image-clip)")
+    expect(image?.getAttribute("clip-path")).toBe("url(#qrafty-dots-image-clip)")
     expect(image?.getAttribute("href")).toBe("https://example.com/texture.png")
     expect(modules?.getAttribute("opacity")).toBe("0")
     expect(finderOuter?.getAttribute("opacity")).toBe("0")
@@ -54,26 +54,26 @@ describe("unified qr image fill", () => {
 
     applyUnifiedQrImageFill(svg, {
       imageHref: "https://example.com/texture.png",
-      imageId: "new-qr-dots-image",
+      imageId: "qrafty-dots-image",
       margin: 12,
     })
 
-    const clipPath = svg.querySelector("#new-qr-dots-image-clip")
-    const logoMask = svg.querySelector("#new-qr-dots-image-logo-mask")
-    const logoFill = svg.querySelector("#new-qr-dots-image-logo")
-    const cover = svg.querySelector("#new-qr-dots-image")
+    const clipPath = svg.querySelector("#qrafty-dots-image-clip")
+    const logoMask = svg.querySelector("#qrafty-dots-image-logo-mask")
+    const logoFill = svg.querySelector("#qrafty-dots-image-logo")
+    const cover = svg.querySelector("#qrafty-dots-image")
     const logo = Array.from(svg.children).find(
       (child) =>
         child.tagName.toLowerCase() === "image" &&
-        child.id !== "new-qr-dots-image" &&
-        child.id !== "new-qr-dots-image-logo",
+        child.id !== "qrafty-dots-image" &&
+        child.id !== "qrafty-dots-image-logo",
     )
 
     expect(clipPath?.querySelector("rect")).toBeNull()
     expect(logoMask?.getAttribute("maskUnits")).toBe("userSpaceOnUse")
     expect(logoMask?.querySelector("image")?.getAttribute("href")).toBe("https://example.com/logo.png")
     expect(logoFill?.getAttribute("href")).toBe("https://example.com/texture.png")
-    expect(logoFill?.getAttribute("mask")).toBe("url(#new-qr-dots-image-logo-mask)")
+    expect(logoFill?.getAttribute("mask")).toBe("url(#qrafty-dots-image-logo-mask)")
     expect(logoFill?.getAttribute("preserveAspectRatio")).toBe("xMidYMid slice")
     expect(logo?.getAttribute("opacity")).toBe("0")
     expect(cover?.nextSibling).toBe(logoFill)

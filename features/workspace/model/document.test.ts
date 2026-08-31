@@ -106,7 +106,7 @@ describe("drafting workspace document", () => {
     expect(parsed.qrOrder).toEqual([DASHBOARD_QR_NODE_ID])
     expect(parsed.activeQrNodeId).toBe(DASHBOARD_QR_NODE_ID)
     expect(parsed.qrStateByNodeId[DASHBOARD_QR_NODE_ID]?.data).toBe(
-      "https://new-qr-studio.local/launch",
+      "https://qrafty.local/launch",
     )
     expect(parsed.cardStateByNodeId[DASHBOARD_QR_NODE_ID]?.enabled).toBe(true)
   })

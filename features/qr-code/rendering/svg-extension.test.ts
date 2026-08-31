@@ -9,7 +9,7 @@ import {
   getQrSvgNumCells,
 } from "./svg-extension"
 import {
-  createDefaultQrStudioState,
+  createDefaultQraftyState,
   setDotMatrixAnimationOptions,
   type QrDotMatrixAnimationPatch,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
@@ -279,11 +279,11 @@ function getPaletteLayerAnchors(_svg: StubElement, colorLayers: StubElement[]) {
 }
 
 function renderDotMatrixTracks(
-  loader: NonNullable<ReturnType<typeof createDefaultQrStudioState>["dotMatrixAnimation"]["loader"]>,
-  pattern: ReturnType<typeof createDefaultQrStudioState>["dotMatrixAnimation"]["pattern"] = "full",
+  loader: NonNullable<ReturnType<typeof createDefaultQraftyState>["dotMatrixAnimation"]["loader"]>,
+  pattern: ReturnType<typeof createDefaultQraftyState>["dotMatrixAnimation"]["pattern"] = "full",
   patch: QrDotMatrixAnimationPatch = {},
 ) {
-  const state = setDotMatrixAnimationOptions(createDefaultQrStudioState(), {
+  const state = setDotMatrixAnimationOptions(createDefaultQraftyState(), {
     ...patch,
     enabled: true,
     loader,
@@ -380,8 +380,8 @@ describe("qr rendering helpers", () => {
   })
 
   it("keeps logo-only changes on the upstream image path instead of the extension pipeline", () => {
-    const defaultState = createDefaultQrStudioState()
-    const stateWithLogo = createDefaultQrStudioState()
+    const defaultState = createDefaultQraftyState()
+    const stateWithLogo = createDefaultQraftyState()
     stateWithLogo.logo = {
       source: "url",
       value: "https://example.com/logo.png",
@@ -392,7 +392,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("builds unified module gradient extensions without touching logo assets", () => {
-    const stateWithUnifiedLogo = createDefaultQrStudioState()
+    const stateWithUnifiedLogo = createDefaultQraftyState()
     stateWithUnifiedLogo.dotsColorMode = "gradient"
     stateWithUnifiedLogo.gradientLinkMode = "unified"
     stateWithUnifiedLogo.dataModulesGradient = {
@@ -408,7 +408,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("does not create an alignment extension in unified gradient mode", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "gradient"
     state.gradientLinkMode = "unified"
     state.dataModulesGradient = {
@@ -420,11 +420,11 @@ describe("qr rendering helpers", () => {
   })
 
   it("changes the extension key when a background image is active", () => {
-    const defaultState = createDefaultQrStudioState()
-    const stateWithBackgroundImage = createDefaultQrStudioState()
+    const defaultState = createDefaultQraftyState()
+    const stateWithBackgroundImage = createDefaultQraftyState()
     stateWithBackgroundImage.backgroundImage = {
       source: "upload",
-      value: "blob:https://new-qr-studio.local/background.png",
+      value: "blob:https://qrafty.local/background.png",
     }
 
     expect(getQrExtensionKey(stateWithBackgroundImage)).not.toBe(
@@ -433,8 +433,8 @@ describe("qr rendering helpers", () => {
   })
 
   it("changes the extension key when a vector background shape is active", () => {
-    const defaultState = createDefaultQrStudioState()
-    const stateWithBackgroundShape = createDefaultQrStudioState()
+    const defaultState = createDefaultQraftyState()
+    const stateWithBackgroundShape = createDefaultQraftyState()
     stateWithBackgroundShape.backgroundShapeId = "circle"
 
     expect(getQrExtensionKey(stateWithBackgroundShape)).not.toBe(
@@ -443,7 +443,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("applies palette module colors as qr dot layers", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "palette"
     state.dotsPalette = ["#111111", "#eeeeee"]
 
@@ -477,7 +477,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("scatters palette colors without sorted bands or checkerboard repetition", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "palette"
     state.dotsPalette = ["#111111", "#222222", "#333333", "#444444"]
 
@@ -536,7 +536,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("keeps same-coordinate palette path fragments grouped together", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "palette"
     state.dotsPalette = ["#111111", "#222222", "#333333", "#444444"]
 
@@ -575,7 +575,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("applies module gradients only to data modules", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotsColorMode = "gradient"
     state.dataModulesGradient = {
       enabled: true,
@@ -626,7 +626,7 @@ describe("qr rendering helpers", () => {
 
 
   it("retires css dot matrix animation in favor of runtime dot matrix preview", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.dotMatrixAnimation = {
       ...state.dotMatrixAnimation,
       enabled: true,
@@ -640,8 +640,8 @@ describe("qr rendering helpers", () => {
 
 
   it("changes the extension key when corner gradients are enabled", () => {
-    const defaultState = createDefaultQrStudioState()
-    const stateWithCornerGradient = createDefaultQrStudioState()
+    const defaultState = createDefaultQraftyState()
+    const stateWithCornerGradient = createDefaultQraftyState()
     stateWithCornerGradient.finderPatternOuterGradient = {
       ...stateWithCornerGradient.finderPatternOuterGradient,
       enabled: true,
@@ -655,10 +655,10 @@ describe("qr rendering helpers", () => {
   })
 
   it("adds a background image layer to the svg extension output", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundImage = {
       source: "upload",
-      value: "blob:https://new-qr-studio.local/background.png",
+      value: "blob:https://qrafty.local/background.png",
     }
 
     const extension = buildQrExtension(state)
@@ -682,18 +682,18 @@ describe("qr rendering helpers", () => {
 
     expect(backgroundImage).not.toBeNull()
     expect(backgroundImage?.getAttribute("href")).toBe(
-      "blob:https://new-qr-studio.local/background.png",
+      "blob:https://qrafty.local/background.png",
     )
     expect(backgroundImage?.getAttribute("clip-path")).toBeNull()
     expect(svg.children[2]?.getAttribute("data-qr-layer")).toBe("background-image")
   })
 
   it("clips background images with the configured qr background radius", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundOptions.round = 0.5
     state.backgroundImage = {
       source: "upload",
-      value: "blob:https://new-qr-studio.local/background.png",
+      value: "blob:https://qrafty.local/background.png",
     }
 
     const extension = buildQrExtension(state)
@@ -730,7 +730,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("adds a solid vector background shape fitted to the svg viewport", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundShapeId = "hexagon"
     state.backgroundOptions.color = "#d0bcff"
 
@@ -762,7 +762,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("applies background shape tilt to the vector transform", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundShapeId = "hexagon"
     state.backgroundOptions.color = "#d0bcff"
     state.backgroundShapeOptions = {
@@ -797,7 +797,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("expands vector background shape bounds with padding and stroke", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundShapeId = "circle"
     state.backgroundOptions.color = "#d0bcff"
     state.backgroundShapeOptions = {
@@ -851,7 +851,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("expands the default qr background surface with padding and stroke", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundOptions.color = "#f8fafc"
     state.backgroundOptions.round = 0.25
     state.backgroundShapeOptions = {
@@ -911,7 +911,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("keeps qr background geometry unchanged when legacy shadow fields differ", () => {
-    const visibleShadowState = createDefaultQrStudioState()
+    const visibleShadowState = createDefaultQraftyState()
     visibleShadowState.backgroundOptions.color = "#f8fafc"
     visibleShadowState.backgroundShapeOptions = {
       edgeBlur: 10,
@@ -960,7 +960,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("fills vector background shapes with the active background gradient", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundShapeId = "circle"
     state.backgroundGradient = {
       enabled: true,
@@ -1002,11 +1002,11 @@ describe("qr rendering helpers", () => {
   })
 
   it("lets background images override vector background shapes", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundShapeId = "circle"
     state.backgroundImage = {
       source: "upload",
-      value: "blob:https://new-qr-studio.local/background.png",
+      value: "blob:https://qrafty.local/background.png",
     }
 
     const extension = buildQrExtension(state)
@@ -1031,7 +1031,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("normalizes all corner-frame linear gradients to the same relative direction", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.finderPatternOuterGradient = {
       ...state.finderPatternOuterGradient,
       enabled: true,
@@ -1090,7 +1090,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("normalizes all corner-dot linear gradients to the same relative direction", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.finderPatternInnerGradient = {
       ...state.finderPatternInnerGradient,
       enabled: true,
@@ -1149,7 +1149,7 @@ describe("qr rendering helpers", () => {
   })
 
   it("does not create an alignment extension for radial corner gradients", () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.finderPatternOuterGradient = {
       ...state.finderPatternOuterGradient,
       enabled: true,

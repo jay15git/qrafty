@@ -1,6 +1,6 @@
-import type { NewQrCodeProps } from "../types"
+import type { QraftyQrCodeProps } from "../types"
 
-const DEFAULTS: Partial<NewQrCodeProps> = {
+const DEFAULTS: Partial<QraftyQrCodeProps> = {
   boostLevel: true,
   level: "Q",
   minVersion: 1,
@@ -16,12 +16,12 @@ const DEFAULTS: Partial<NewQrCodeProps> = {
   backgroundGradient: "none",
 }
 
-export function formatPortableQrPropsForCodegen(props: NewQrCodeProps) {
+export function formatQraftyQrPropsForCodegen(props: QraftyQrCodeProps) {
   const formatted: Record<string, unknown> = {
     value: props.value,
   }
 
-  const entries: Array<keyof NewQrCodeProps> = [
+  const entries: Array<keyof QraftyQrCodeProps> = [
     "level",
     "minVersion",
     "boostLevel",
@@ -70,6 +70,6 @@ export function formatPortableQrPropsForCodegen(props: NewQrCodeProps) {
   return formatted
 }
 
-export { portablePropsToReactQrProps } from "./map-props"
-export { applyPortableQrSvgExtensions } from "./svg-extension"
-export { renderNewQrSvg, stripXmlDeclaration } from "./render-svg"
+export { qraftyPropsToReactQrProps } from "./map-props"
+export { applyQraftyQrSvgExtensions } from "./svg-extension"
+export { renderQraftyQrSvg, stripXmlDeclaration } from "./render-svg"

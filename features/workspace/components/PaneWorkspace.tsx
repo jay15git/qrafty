@@ -67,7 +67,7 @@ import {
 } from "@/features/workspace/rendering/layer-dom-styles"
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
 import { createDefaultSceneComposition, type SceneCompositionState } from "@/features/workspace/model/scene-templates"
 import {
@@ -115,7 +115,7 @@ export type PaneWorkspaceProps = {
   selectedLayerId?: string | null
   selectedLayerIds?: string[]
   snapEnabled?: boolean
-  state: QrStudioState
+  state: QraftyState
   theme?: DesktopThemeMode
 }
 

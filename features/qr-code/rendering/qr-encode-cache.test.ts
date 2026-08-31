@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 import {
   clearQrEncodeMarkupCache,
   getQrEncodeCacheKey,
@@ -10,7 +10,7 @@ import {
 
 describe("qr encode cache", () => {
   it("changes cache key when module color or type changes", () => {
-    const base = createDefaultQrStudioState()
+    const base = createDefaultQraftyState()
     const recolored = {
       ...base,
       dataModulesSettings: {
@@ -37,7 +37,7 @@ describe("qr encode cache", () => {
 
   it("stores and reads cached base markup", () => {
     clearQrEncodeMarkupCache()
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const key = getQrEncodeCacheKey(state)
 
     expect(readCachedQrEncodeMarkup(key)).toBeUndefined()

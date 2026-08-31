@@ -12,7 +12,7 @@ import type {
   DesktopShapeSettings,
   DesktopTextSettings,
 } from "@/features/desktop-shell/model/desktop-toolbar-types"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import {
   createDefaultDraftingLayers,
@@ -60,25 +60,25 @@ export type BuildDesktopToolbarSettingsSnapshotsInput = {
   activeCanvasLayers: DraftingCanvasLayer[]
   activeCanvasLayerRows: DraftingCanvasLayer[]
   activeSceneComposition: SceneCompositionState
-  draftingStudioState: QrStudioState
+  draftingQraftyState: QraftyState
   selectedAriaLabel: string
   selectedBackgroundColor: string
   selectedBackgroundColorMode: "solid" | "gradient"
-  selectedBackgroundGradient: QrStudioState["backgroundGradient"]
-  selectedBackgroundShapeId: QrStudioState["backgroundShapeId"]
-  selectedBackgroundShapeOptions: QrStudioState["backgroundShapeOptions"]
+  selectedBackgroundGradient: QraftyState["backgroundGradient"]
+  selectedBackgroundShapeId: QraftyState["backgroundShapeId"]
+  selectedBackgroundShapeOptions: QraftyState["backgroundShapeOptions"]
   selectedBoostLevel: boolean
   selectedCardState: DraftingCardState
   selectedCornerDotColor: string
   selectedCornerDotColorMode: "solid" | "gradient"
-  selectedCornerDotGradient: QrStudioState["cornerDotGradient"]
+  selectedCornerDotGradient: QraftyState["cornerDotGradient"]
   selectedCornerSquareColor: string
   selectedCornerSquareColorMode: "solid" | "gradient"
-  selectedCornerSquareGradient: QrStudioState["cornerSquareGradient"]
+  selectedCornerSquareGradient: QraftyState["cornerSquareGradient"]
   selectedDotColor: string
-  selectedDotType: QrStudioState["dataModulesSettings"]["type"]
-  selectedDotsColorMode: QrStudioState["dotsColorMode"]
-  selectedDotsGradient: QrStudioState["dataModulesGradient"]
+  selectedDotType: QraftyState["dataModulesSettings"]["type"]
+  selectedDotsColorMode: QraftyState["dotsColorMode"]
+  selectedDotsGradient: QraftyState["dataModulesGradient"]
   selectedDotsPalette: string[]
   selectedDotsPalettePreset: string | "custom"
   selectedModuleFillImageUrl: string
@@ -91,34 +91,34 @@ export type BuildDesktopToolbarSettingsSnapshotsInput = {
   selectedVideoFormat: DesktopExportSettings["videoFormat"]
   selectedVideoFrameRate: DesktopExportSettings["videoFrameRate"]
   selectedVideoLongEdge: DesktopExportSettings["videoLongEdge"]
-  selectedGradientLinkMode: QrStudioState["gradientLinkMode"]
+  selectedGradientLinkMode: QraftyState["gradientLinkMode"]
   selectedHideBackgroundDots: boolean
   selectedLayerId: string | null
   selectedLogoAssetSourceMode: "upload" | "url"
   selectedLogoColor: string
   selectedLogoColorMode: "solid" | "gradient"
-  selectedLogoCrossOrigin: QrStudioState["imageOptions"]["crossOrigin"]
-  selectedLogoGradient: QrStudioState["logoGradient"]
+  selectedLogoCrossOrigin: QraftyState["imageOptions"]["crossOrigin"]
+  selectedLogoGradient: QraftyState["logoGradient"]
   selectedLogoHeightPx?: number
   selectedLogoLockAspect: boolean
   selectedLogoMargin: number
   selectedLogoOffsetX: number
   selectedLogoOffsetY: number
   selectedLogoOpacity: number
-  selectedLogoPositionMode: QrStudioState["imageOptions"]["logoPositionMode"]
+  selectedLogoPositionMode: QraftyState["imageOptions"]["logoPositionMode"]
   selectedLogoPresetId: string | null
   selectedLogoRemoteUrl: string
   selectedLogoSize: number
-  selectedLogoSizeMode: QrStudioState["imageOptions"]["sizeMode"]
-  selectedLogoSourceMode: QrStudioState["logo"]["source"]
+  selectedLogoSizeMode: QraftyState["imageOptions"]["sizeMode"]
+  selectedLogoSourceMode: QraftyState["logo"]["source"]
   selectedLogoWidthPx?: number
   selectedModuleLineWidth?: number
   selectedModuleRoundSize: boolean
   selectedModuleSize?: number
-  selectedQrErrorCorrectionLevel: QrStudioState["qrOptions"]["errorCorrectionLevel"]
-  selectedQrFinderPatternInnerStyle: QrStudioState["cornerDotStyle"]
-  selectedQrFinderPatternOuterStyle: QrStudioState["cornerSquareStyle"]
-  selectedQrTypeNumber: QrStudioState["qrOptions"]["typeNumber"]
+  selectedQrErrorCorrectionLevel: QraftyState["qrOptions"]["errorCorrectionLevel"]
+  selectedQrFinderPatternInnerStyle: QraftyState["cornerDotStyle"]
+  selectedQrFinderPatternOuterStyle: QraftyState["cornerSquareStyle"]
+  selectedQrTypeNumber: QraftyState["qrOptions"]["typeNumber"]
   selectedExportScale: ExportScale
   selectedTextLayer: DraftingCanvasLayer | null
   selectedValueSegmentsText: string
@@ -132,7 +132,7 @@ export function buildDesktopToolbarSettingsSnapshots(
     activeCanvasLayers,
     activeCanvasLayerRows,
     activeSceneComposition,
-    draftingStudioState,
+    draftingQraftyState,
     selectedCardState,
     selectedTextLayer,
   } = input
@@ -190,7 +190,7 @@ export function buildDesktopToolbarSettingsSnapshots(
 
   const activeQrLayer =
     activeCanvasLayers.find((layer) => layer.kind === "qr") ??
-    createDefaultDraftingLayers(activeQrNodeId, draftingStudioState, selectedCardState).find(
+    createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState).find(
       (layer) => layer.kind === "qr",
     )
 

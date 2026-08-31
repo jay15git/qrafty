@@ -3,9 +3,9 @@
 import { createElement, createRef } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { isPaperShaderElement, type PaperShaderElement } from "@paper-design/shaders"
-import { buildPaperShaderRenderProps } from "@new-qr/qr/shaders"
-import { shaderRequiresImage } from "@new-qr/qr/shaders"
-import { hasPaperShaderWebGlSupport } from "@new-qr/qr-internal/scene"
+import { buildPaperShaderRenderProps } from "@qrafty/qr/shaders"
+import { shaderRequiresImage } from "@qrafty/qr/shaders"
+import { hasPaperShaderWebGlSupport } from "@qrafty/qr-internal/scene"
 
 import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
 import { getPaperShaderDefinition } from "@/features/workspace/rendering/paper-shaders"

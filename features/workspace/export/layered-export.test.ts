@@ -10,7 +10,7 @@ vi.mock("@/features/qr-code/rendering/qr-svg-render", () => ({
   ) => buildDashboardQrNodePayloadSpy(...args),
 }))
 
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 import { buildDraftingLayeredNodePayload } from "@/features/workspace/export/layered-export"
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
 import { createDefaultDraftingLayers } from "@/features/workspace/model/layers"
@@ -19,11 +19,11 @@ describe("drafting layered export", () => {
   it("exports app-owned qr background shapes without qr-library backing artifacts", async () => {
     buildDashboardQrNodePayloadSpy.mockResolvedValue({
       markup:
-        '<svg width="240" height="240" viewBox="0 0 240 240" data-testid="studio-markup"><defs><filter data-qr-layer="background-shape-blur-filter" id="background-shape-blur-filter"/><clipPath id="clip-path-background-color-0"><rect width="240" height="240"/></clipPath><clipPath id="clip-path-dot-color-0"><path d="M20 20h40v40H20z"/></clipPath></defs><path data-qr-layer="background-shape" d="M0 0h240v240H0z"/><rect width="240" height="240" clip-path="url(\'#clip-path-background-color-0\')" fill="#fff"/><path data-qr-layer="dot" clip-path="url(\'#clip-path-dot-color-0\')" d="M20 20h40v40H20z" fill="#111"/></svg>',
+        '<svg width="240" height="240" viewBox="0 0 240 240" data-testid="qrafty-markup"><defs><filter data-qr-layer="background-shape-blur-filter" id="background-shape-blur-filter"/><clipPath id="clip-path-background-color-0"><rect width="240" height="240"/></clipPath><clipPath id="clip-path-dot-color-0"><path d="M20 20h40v40H20z"/></clipPath></defs><path data-qr-layer="background-shape" d="M0 0h240v240H0z"/><rect width="240" height="240" clip-path="url(\'#clip-path-background-color-0\')" fill="#fff"/><path data-qr-layer="dot" clip-path="url(\'#clip-path-dot-color-0\')" d="M20 20h40v40H20z" fill="#111"/></svg>',
       naturalHeight: 240,
       naturalWidth: 240,
     })
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     state.backgroundShapeId = "flower"
     state.backgroundImage = {
       source: "url",
@@ -63,7 +63,7 @@ describe("drafting layered export", () => {
       }),
     )
     expect(payload.originalSvgMarkup).toContain('data-drafting-qr-background="flower"')
-    expect(payload.originalSvgMarkup).toContain('data-testid="studio-markup"')
+    expect(payload.originalSvgMarkup).toContain('data-testid="qrafty-markup"')
     expect(payload.originalSvgMarkup).toContain('data-qr-layer="dot"')
     expect(payload.originalSvgMarkup).not.toContain('data-qr-layer="background-shape"')
     expect(payload.originalSvgMarkup).not.toContain("clip-path-background-color")
@@ -75,7 +75,7 @@ describe("drafting layered export", () => {
       naturalHeight: 240,
       naturalWidth: 240,
     })
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const cardState = createDefaultDraftingCardState()
     const layers = [
       ...createDefaultDraftingLayers("preview", state, cardState),
@@ -145,7 +145,7 @@ describe("drafting layered export", () => {
       naturalHeight: 240,
       naturalWidth: 240,
     })
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const cardState = createDefaultDraftingCardState()
     const layers = createDefaultDraftingLayers("preview", state, cardState).map((layer) =>
       layer.kind === "qr"

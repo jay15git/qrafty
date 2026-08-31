@@ -1,8 +1,8 @@
 import type { QrFinderPatternOuterStyle } from "@/features/qr-code/model/types"
-import type { StudioCornerDotStyle, StudioDataModulesStyle } from "@/features/qr-code/model/state"
+import type { QraftyCornerDotStyle, QraftyDataModulesStyle } from "@/features/qr-code/model/state"
 import { CUSTOM_CORNER_DOT_SHAPE_OPTIONS } from "@/features/qr-code/styles/custom-corner-dot-shapes"
 
-export const DOT_STYLE_OPTIONS: Array<{ label: string; value: StudioDataModulesStyle }> = [
+export const DOT_STYLE_OPTIONS: Array<{ label: string; value: QraftyDataModulesStyle }> = [
   { label: "Square", value: "square" },
   { label: "Small square", value: "square-sm" },
   { label: "Pinched square", value: "pinched-square" },
@@ -41,7 +41,7 @@ export const CORNER_SQUARE_STYLE_OPTIONS: Array<{
 
 export const CORNER_DOT_STYLE_OPTIONS: Array<{
   label: string
-  value: StudioCornerDotStyle
+  value: QraftyCornerDotStyle
 }> = [
   { label: "Square", value: "square" },
   { label: "Pinched square", value: "pinched-square" },

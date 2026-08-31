@@ -26,8 +26,8 @@ const monoFont = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "QR Studio",
-  description: "A premium QR studio for branded codes, live refinement, and export.",
+  title: "QRafty",
+  description: "QRafty — premium branded QR codes, live refinement, and export.",
   icons: {
     icon: [
       { url: "/icon.png", type: "image/png", sizes: "32x32" },

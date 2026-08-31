@@ -6,7 +6,7 @@ import {
 import type { QrFileExtension } from "@/features/qr-code/model/types"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import {
   buildWorkspaceExportPayload,
   isWorkspaceRasterExtension,
@@ -34,7 +34,7 @@ export type RunWorkspaceExportOptions = {
   nodeId: string
   onProgress?: (progress: WorkspaceExportProgress) => void
   qualityPercent: number
-  state: QrStudioState
+  state: QraftyState
   targetDimensions?: { height: number; width: number }
   videoRequest?: WorkspaceVideoExportRequest
 }
@@ -160,7 +160,7 @@ export async function runWorkspaceBatchExport({
   backgroundColor?: string
   cardState: DraftingCardState
   extension: QrFileExtension
-  items: Array<{ layerId: string; name: string; state: QrStudioState }>
+  items: Array<{ layerId: string; name: string; state: QraftyState }>
   layers: DraftingCanvasLayer[]
   name: string
   nodeId: string

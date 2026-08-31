@@ -1,29 +1,29 @@
-# @new-qr/qr
+# @qrafty/qr
 
-Internal QR rendering library used by the studio:
+Internal QRafty QR rendering library used by QRafty:
 
-- **QR rendering** — `NewQrCode`
+- **QRafty QR rendering** — `QraftyQrCode`
 - **Paper shaders** — `PaperShaderLayer`
 - **Animated QR** — `AnimatedQr`
 
 ## Usage
 
 ```tsx
-import { NewQrCode } from "@new-qr/qr/react"
-import { AnimatedQr } from "@new-qr/qr/animated"
-import { PaperShaderLayer } from "@new-qr/qr/shaders"
+import { QraftyQrCode } from "@qrafty/qr/react"
+import { AnimatedQr } from "@qrafty/qr/animated"
+import { PaperShaderLayer } from "@qrafty/qr/shaders"
 ```
 
 ## Exports
 
 | Import | Components |
 |--------|------------|
-| `@new-qr/qr` | Shared types, `NewQrCode` |
-| `@new-qr/qr/react` | `NewQrCode`, `ReactQRCode` (upstream primitive) |
-| `@new-qr/qr/shaders` | `PaperShaderLayer`, shader helpers |
-| `@new-qr/qr/animated` | `AnimatedQr` |
+| `@qrafty/qr` | Shared types, `QraftyQrCode` |
+| `@qrafty/qr/react` | `QraftyQrCode`, `ReactQRCode` (upstream primitive) |
+| `@qrafty/qr/shaders` | `PaperShaderLayer`, shader helpers |
+| `@qrafty/qr/animated` | `AnimatedQr` |
 
-`NewQrCode` is a flat portable API over vendored `@lglab/react-qr-code`. For full upstream parity (nested props, `ref.download`), use `ReactQRCode` from `@new-qr/qr/react`.
+`QraftyQrCode` is a flat portable API over vendored `@lglab/react-qr-code`. For full upstream parity (nested props, `ref.download`), use `ReactQRCode` from `@qrafty/qr/react`.
 
 ### Portable props (upstream-aligned)
 
@@ -47,5 +47,5 @@ import { PaperShaderLayer } from "@new-qr/qr/shaders"
 ## Build
 
 ```bash
-pnpm --filter @new-qr/qr build
+pnpm --filter @qrafty/qr build
 ```

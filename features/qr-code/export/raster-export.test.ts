@@ -11,7 +11,7 @@ import {
   measureDashboardRasterExport,
 } from "@/features/qr-code/export/raster-export"
 import {
-  createDefaultQrStudioState,
+  createDefaultQraftyState,
   setSquareQrSize,
 } from "@/features/qr-code/model/state"
 
@@ -109,7 +109,7 @@ describe("dashboard raster export helper", () => {
   })
 
   it("uses scale-based sizing for png exports", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 320)
+    const state = setSquareQrSize(createDefaultQraftyState(), 320)
 
     await downloadDashboardRasterExport({
       extension: "png",
@@ -124,7 +124,7 @@ describe("dashboard raster export helper", () => {
   })
 
   it("uses fixed target sizing when requested", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 320)
+    const state = setSquareQrSize(createDefaultQraftyState(), 320)
 
     await downloadDashboardRasterExport({
       extension: "png",
@@ -144,7 +144,7 @@ describe("dashboard raster export helper", () => {
   })
 
   it("expands natural raster dimensions for background shape effects", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 320)
+    const state = setSquareQrSize(createDefaultQraftyState(), 320)
     state.backgroundShapeId = "circle"
     state.backgroundShapeOptions = {
       edgeBlur: 8,
@@ -181,7 +181,7 @@ describe("dashboard raster export helper", () => {
   })
 
   it("treats fixed raster target size as final outer bounds", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 320)
+    const state = setSquareQrSize(createDefaultQraftyState(), 320)
     state.backgroundShapeId = "circle"
     state.backgroundShapeOptions = {
       edgeBlur: 8,
@@ -218,7 +218,7 @@ describe("dashboard raster export helper", () => {
   })
 
   it("passes lossy encoder quality for jpeg and webp exports", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 320)
+    const state = setSquareQrSize(createDefaultQraftyState(), 320)
 
     await downloadDashboardRasterExport({
       extension: "jpeg",
@@ -248,7 +248,7 @@ describe("dashboard raster export helper", () => {
   })
 
   it("returns measured blob size metadata for raster preview", async () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 320)
+    const state = setSquareQrSize(createDefaultQraftyState(), 320)
 
     const result = await measureDashboardRasterExport({
       extension: "webp",
@@ -267,7 +267,7 @@ describe("dashboard raster export helper", () => {
   })
 
   it("caps export dimensions at the configured maximum", () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 1200)
+    const state = setSquareQrSize(createDefaultQraftyState(), 1200)
 
     expect(getDashboardRasterExportDimensions(state, 100)).toEqual({
       height: 4096,

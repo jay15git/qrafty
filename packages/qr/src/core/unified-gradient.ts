@@ -1,4 +1,4 @@
-import type { NewQrGradientConfig } from "../types"
+import type { QraftyQrGradientConfig } from "../types"
 import { applyDirectGradientFill, getModuleGradientCoverRect } from "./gradient-fill-utils"
 import { createCornerGradientElement } from "./finder-gradient-overlays"
 
@@ -43,7 +43,7 @@ function ensureUnifiedGradientDefinition(
     gradientLayer,
     margin,
   }: {
-    gradient: NewQrGradientConfig
+    gradient: QraftyQrGradientConfig
     gradientId: string
     gradientLayer: string
     margin: number
@@ -102,7 +102,7 @@ export function applyUnifiedQrGradientFill(
     margin,
     modulePaintTargets,
   }: {
-    gradient: NewQrGradientConfig
+    gradient: QraftyQrGradientConfig
     gradientId: string
     gradientLayer?: string
     margin: number

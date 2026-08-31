@@ -7,7 +7,7 @@ import type {
   ReactQRCodeProps,
 } from "../react-qr-code"
 
-import type { NewQrCodeProps, NewQrGradientConfig } from "../types"
+import type { QraftyQrCodeProps, QraftyQrGradientConfig } from "../types"
 
 function coerceNumber(value: number | undefined, min: number, max: number, fallback: number) {
   if (value === undefined || Number.isNaN(value)) {
@@ -17,7 +17,7 @@ function coerceNumber(value: number | undefined, min: number, max: number, fallb
   return Math.min(max, Math.max(min, value))
 }
 
-function toUpstreamGradient(gradient: NewQrGradientConfig): GradientSettings {
+function toUpstreamGradient(gradient: QraftyQrGradientConfig): GradientSettings {
   return {
     rotation: gradient.rotation,
     stops: gradient.stops.map((stop) => ({
@@ -28,7 +28,7 @@ function toUpstreamGradient(gradient: NewQrGradientConfig): GradientSettings {
   }
 }
 
-function resolveModuleStyle(module: NewQrCodeProps["module"]) {
+function resolveModuleStyle(module: QraftyQrCodeProps["module"]) {
   if (module === ("dots" as QrModuleStyle)) {
     return { randomSizeDefault: true, style: "circle" as DataModulesStyle }
   }
@@ -39,9 +39,9 @@ function resolveModuleStyle(module: NewQrCodeProps["module"]) {
   }
 }
 
-type QrModuleStyle = NewQrCodeProps["module"]
+type QrModuleStyle = QraftyQrCodeProps["module"]
 
-function resolveBackground(props: NewQrCodeProps): ReactQRCodeProps["background"] {
+function resolveBackground(props: QraftyQrCodeProps): ReactQRCodeProps["background"] {
   if (props.background === "transparent" || !props.background) {
     return "transparent"
   }
@@ -53,7 +53,7 @@ function resolveBackground(props: NewQrCodeProps): ReactQRCodeProps["background"
   return props.background
 }
 
-function resolveImageSettings(props: NewQrCodeProps, size: number): ImageSettings | undefined {
+function resolveImageSettings(props: QraftyQrCodeProps, size: number): ImageSettings | undefined {
   const logo = props.logo
   if (!logo?.src) {
     return undefined
@@ -74,7 +74,7 @@ function resolveImageSettings(props: NewQrCodeProps, size: number): ImageSetting
   }
 }
 
-function resolveValue(value: NewQrCodeProps["value"]) {
+function resolveValue(value: QraftyQrCodeProps["value"]) {
   if (Array.isArray(value)) {
     return value.map((segment) => segment.trim())
   }
@@ -82,7 +82,7 @@ function resolveValue(value: NewQrCodeProps["value"]) {
   return value.trim()
 }
 
-export function portablePropsToReactQrProps(props: NewQrCodeProps): ReactQRCodeProps {
+export function qraftyPropsToReactQrProps(props: QraftyQrCodeProps): ReactQRCodeProps {
   const size = coerceNumber(props.size, 120, 1200, 320)
   const margin = coerceNumber(props.margin, 0, 80, 12)
   const { randomSizeDefault, style: moduleStyle } = resolveModuleStyle(props.module)

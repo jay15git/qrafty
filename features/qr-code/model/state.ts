@@ -1,5 +1,5 @@
 import type { QrBackgroundShapeId } from "@/features/qr-code/styles/background-shapes";
-import { dotMatrixLoaderToPresetName as mapLoaderToPresetName } from "@new-qr/qr/dot-matrix";
+import { dotMatrixLoaderToPresetName as mapLoaderToPresetName } from "@qrafty/qr/dot-matrix";
 import type { CustomCornerDotShape } from "@/features/qr-code/styles/custom-corner-dot-shapes";
 import type {
   QrDataModulesStyle,
@@ -12,28 +12,28 @@ import type {
   QrTypeNumber,
 } from "@/features/qr-code/model/types";
 
-export type StudioCornerDotStyle = QrFinderPatternInnerStyle | CustomCornerDotShape;
+export type QraftyCornerDotStyle = QrFinderPatternInnerStyle | CustomCornerDotShape;
 
 export type GradientStop = {
   offset: number;
   color: string;
 };
 
-export type StudioGradientCenter = {
+export type QraftyGradientCenter = {
   x: number;
   y: number;
 };
 
-export type StudioGradient = {
+export type QraftyGradient = {
   enabled: boolean;
   type: QrGradientType;
   rotation: number;
   colorStops: [GradientStop, GradientStop];
   /** Normalized radial center in 0..1. Defaults to the box center. */
-  center?: StudioGradientCenter;
+  center?: QraftyGradientCenter;
 };
 
-export type StudioDataModulesStyle = QrDataModulesStyle;
+export type QraftyDataModulesStyle = QrDataModulesStyle;
 export type DotsColorMode = "solid" | "gradient" | "palette" | "image";
 export type QrLogoPositionMode = "center" | "custom";
 export type QrLogoSizeMode = "ratio" | "pixels";
@@ -116,7 +116,7 @@ export type QrDotMatrixAnimationPatch =
     preset?: QrMotionStandardPreset | QrDotMatrixSquareLoader | string;
   };
 
-export type StudioAsset = {
+export type QraftyAsset = {
   presetColor?: string;
   presetId?: string;
   source: AssetSourceMode;
@@ -137,16 +137,16 @@ export type BackgroundShapeOptions = {
   tiltY: number;
 };
 
-export type QrStudioState = {
+export type QraftyState = {
   data: string;
   type: QrDrawType;
   width: number;
   height: number;
   margin: number;
   rasterExportQualityPercent: number;
-  logo: StudioAsset;
-  moduleFillImage: StudioAsset;
-  backgroundImage: StudioAsset;
+  logo: QraftyAsset;
+  moduleFillImage: QraftyAsset;
+  backgroundImage: QraftyAsset;
   backgroundShapeId: QrBackgroundShapeId;
   backgroundShapeOptions: BackgroundShapeOptions;
   qrOptions: {
@@ -170,7 +170,7 @@ export type QrStudioState = {
     y?: number;
   };
   dataModulesSettings: {
-    type: StudioDataModulesStyle;
+    type: QraftyDataModulesStyle;
     color: string;
     roundSize: boolean;
     moduleSize?: number;
@@ -187,7 +187,7 @@ export type QrStudioState = {
     color: string;
   };
   finderPatternInnerSettings: {
-    type: StudioCornerDotStyle;
+    type: QraftyCornerDotStyle;
     color: string;
   };
   backgroundOptions: {
@@ -195,11 +195,11 @@ export type QrStudioState = {
     round: number;
     transparent: boolean;
   };
-  logoGradient: StudioGradient;
-  dataModulesGradient: StudioGradient;
-  finderPatternOuterGradient: StudioGradient;
-  finderPatternInnerGradient: StudioGradient;
-  backgroundGradient: StudioGradient;
+  logoGradient: QraftyGradient;
+  dataModulesGradient: QraftyGradient;
+  finderPatternOuterGradient: QraftyGradient;
+  finderPatternInnerGradient: QraftyGradient;
+  backgroundGradient: QraftyGradient;
 };const QR_SIZE_MIN = 120;
 const QR_SIZE_MAX = 1200;
 const DEFAULT_QR_SIZE = 320;
@@ -230,7 +230,7 @@ export const QR_MODULE_LINE_WIDTH_MAX = 1;
 const QR_LOGO_OPACITY_MIN = 0;
 const QR_LOGO_OPACITY_MAX = 1;
 
-const DEFAULT_GRADIENT: StudioGradient = {
+const DEFAULT_GRADIENT: QraftyGradient = {
   enabled: false,
   type: "linear",
   rotation: 0,
@@ -364,9 +364,9 @@ export const DEFAULT_BACKGROUND_SHAPE_OPTIONS: BackgroundShapeOptions = {
   tiltY: 0,
 };
 
-export function createDefaultQrStudioState(): QrStudioState {
+export function createDefaultQraftyState(): QraftyState {
   return {
-    data: "https://new-qr-studio.local/launch",
+    data: "https://qrafty.local/launch",
     type: "svg",
     width: DEFAULT_QR_SIZE,
     height: DEFAULT_QR_SIZE,
@@ -612,7 +612,7 @@ export function clampQrBackgroundRound(value: number) {
   return coerceNumber(value, 0, 1, 0);
 }
 
-export function setSquareQrSize(state: QrStudioState, size: number): QrStudioState {
+export function setSquareQrSize(state: QraftyState, size: number): QraftyState {
   const nextSize = clampQrSize(size);
 
   if (state.width === nextSize && state.height === nextSize) {
@@ -627,9 +627,9 @@ export function setSquareQrSize(state: QrStudioState, size: number): QrStudioSta
 }
 
 export function setRasterExportQualityPercent(
-  state: QrStudioState,
+  state: QraftyState,
   qualityPercent: number,
-): QrStudioState {
+): QraftyState {
   const nextQualityPercent = clampRasterExportQualityPercent(qualityPercent);
 
   if (state.rasterExportQualityPercent === nextQualityPercent) {
@@ -643,9 +643,9 @@ export function setRasterExportQualityPercent(
 }
 
 export function setDotMatrixAnimationOptions(
-  state: QrStudioState,
+  state: QraftyState,
   patch: QrDotMatrixAnimationPatch,
-): QrStudioState {
+): QraftyState {
   const hasRemovedAnimationOptions =
     Object.prototype.hasOwnProperty.call(state.dotMatrixAnimation, "bloom") ||
     Object.prototype.hasOwnProperty.call(state.dotMatrixAnimation, "halo") ||
@@ -758,13 +758,13 @@ export function setDotMatrixAnimationOptions(
   };
 }
 
-export function getAssetValue(asset?: StudioAsset) {
+export function getAssetValue(asset?: QraftyAsset) {
   const trimmed = asset?.value?.trim();
 
   return trimmed ? trimmed : undefined;
 }
 
-export function hasBackgroundImage(state: QrStudioState) {
+export function hasBackgroundImage(state: QraftyState) {
   return Boolean(getAssetValue(state.backgroundImage));
 }
 

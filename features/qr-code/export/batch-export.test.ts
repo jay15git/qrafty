@@ -32,7 +32,7 @@ describe("dashboard qr batch export", () => {
 
     await downloadDashboardQrBatchZipExport({
       extension: "svg",
-      name: "new-qr-studio",
+      name: "qrafty",
       nodes: [
         QR_NODE,
         {

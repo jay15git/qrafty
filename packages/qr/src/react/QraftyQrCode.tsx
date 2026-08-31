@@ -2,18 +2,18 @@
 
 import { memo, useMemo } from "react"
 
-import { renderNewQrSvg } from "../core/render-svg"
-import type { NewQrCodeProps } from "../types"
+import { renderQraftyQrSvg } from "../core/render-svg"
+import type { QraftyQrCodeProps } from "../types"
 
-export type { NewQrCodeProps, PortableQrConfig } from "../types"
+export type { QraftyQrCodeProps, QraftyQrConfig } from "../types"
 
-export const NewQrCode = memo(function NewQrCode({
+export const QraftyQrCode = memo(function QraftyQrCode({
   className,
   style,
   ...props
-}: NewQrCodeProps) {
+}: QraftyQrCodeProps) {
   const svgMarkup = useMemo(
-    () => renderNewQrSvg(props),
+    () => renderQraftyQrSvg(props),
     // eslint-disable-next-line react-doctor/exhaustive-deps -- explicit QR render inputs listed below
     [
       props.ariaLabel,
@@ -46,7 +46,7 @@ export const NewQrCode = memo(function NewQrCode({
   return (
     <div
       className={className}
-      data-slot="new-qr-code"
+      data-slot="qrafty-code"
       style={{
         display: "block",
         height: "100%",

@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     if (body.byteLength > MAX_UPLOAD_BYTES) return Response.json({ error: "Video source exceeds 64 MB limit." }, { status: 413 })
     const metadata = request.headers.get("x-animated-qr-export")
     const options = validateVideoExportRequest(metadata ? JSON.parse(metadata) : null)
-    dir = join(tmpdir(), `new-qr-${randomUUID()}`)
+    dir = join(tmpdir(), `qrafty-${randomUUID()}`)
     await fs.mkdir(dir, { recursive: true })
     const inputPath = join(dir, "input.webm")
     const outputPath = join(dir, `output.${options.format}`)

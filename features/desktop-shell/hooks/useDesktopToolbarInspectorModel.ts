@@ -15,7 +15,7 @@ import {
   isPlatformType,
 } from "@/features/qr-code/content/platform-intents"
 import {
-  createDefaultQrStudioState,
+  createDefaultQraftyState,
   setDotMatrixAnimationOptions,
   type QrDotMatrixAnimationPatch,
 } from "@/features/qr-code/model/state"
@@ -302,7 +302,7 @@ export function useDesktopToolbarInspectorModel({
       ((patch: QrDotMatrixAnimationPatch) =>
         setMotionSettings((current) =>
           setDotMatrixAnimationOptions(
-            { ...createDefaultQrStudioState(), dotMatrixAnimation: current },
+            { ...createDefaultQraftyState(), dotMatrixAnimation: current },
             patch,
           ).dotMatrixAnimation,
         )),

@@ -16,14 +16,14 @@ export type QrFinderStyle = QrFinderInnerStyle | QrFinderOuterStyle
 
 export type { CrossOrigin, ErrorCorrectionLevel }
 
-export type NewQrGradientConfig = {
+export type QraftyQrGradientConfig = {
   type: "linear" | "radial"
   rotation?: number
   center?: { x: number; y: number }
   stops: [{ offset: number; color: string }, { offset: number; color: string }]
 }
 
-export type NewQrLogoConfig = {
+export type QraftyQrLogoConfig = {
   src: string
   /** Logo size as a fraction of QR size (0–1). Ignored when `width` / `height` are set. */
   size?: number
@@ -38,12 +38,12 @@ export type NewQrLogoConfig = {
   crossOrigin?: CrossOrigin
 }
 
-export type NewQrShaderConfig = {
+export type QraftyQrShaderConfig = {
   shaderId: string
   params?: Record<string, unknown>
 }
 
-export type NewQrCodeProps = {
+export type QraftyQrCodeProps = {
   value: string | string[]
   size?: number
   level?: ErrorCorrectionLevel
@@ -57,14 +57,14 @@ export type NewQrCodeProps = {
   finderOuter?: QrFinderOuterStyle
   finderInnerColor?: string
   finderOuterColor?: string
-  finderInnerGradient?: NewQrGradientConfig | "none"
-  finderOuterGradient?: NewQrGradientConfig | "none"
+  finderInnerGradient?: QraftyQrGradientConfig | "none"
+  finderOuterGradient?: QraftyQrGradientConfig | "none"
   foreground?: string
   background?: string
-  backgroundGradient?: NewQrGradientConfig | "none"
+  backgroundGradient?: QraftyQrGradientConfig | "none"
   margin?: number
-  logo?: NewQrLogoConfig
-  gradient?: NewQrGradientConfig | "none"
+  logo?: QraftyQrLogoConfig
+  gradient?: QraftyQrGradientConfig | "none"
   colorMode?: "solid" | "gradient" | "palette" | "image"
   palette?: string[]
   moduleFillImage?: string
@@ -74,4 +74,4 @@ export type NewQrCodeProps = {
   style?: CSSProperties
 }
 
-export type PortableQrConfig = NewQrCodeProps
+export type QraftyQrConfig = QraftyQrCodeProps

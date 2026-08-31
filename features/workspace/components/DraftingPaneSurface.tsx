@@ -8,7 +8,7 @@ import { type DraftingLayerMenuAction } from "@/features/workspace/components/Pa
 import { DraftingPaneViewport } from "@/features/workspace/components/drafting-pane-viewport"
 import { useDraftingPaneSurfaceInteractions } from "@/features/workspace/components/use-drafting-pane-surface-interactions"
 import type { DraftingPaneInteractionState } from "@/features/workspace/components/canvas-control-props"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
 
 export type DraftingPaneToolbarVariant = "default" | "desktop-zoom"
@@ -27,7 +27,7 @@ export type DraftingPane = {
   name: string
   qrStateByLayerId: DraftingQrStateByLayerId
   sceneComposition?: import("@/features/workspace/model/scene-templates").SceneCompositionState
-  state: QrStudioState
+  state: QraftyState
 }
 
 type DraftingPaneSurfaceProps = {

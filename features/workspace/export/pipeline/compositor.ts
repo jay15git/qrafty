@@ -1,10 +1,10 @@
-import { preprocessSvg } from "@new-qr/qr-internal/codegen"
+import { preprocessSvg } from "@qrafty/qr-internal/codegen"
 import { clampBackgroundShapeTilt } from "@/features/qr-code/model/state"
 import { rasterizeSvgMarkupToCanvas } from "@/features/qr-code/rendering/svg-raster"
 import type { QrFileExtension } from "@/features/qr-code/model/types"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import {
   buildRoundedRectPath,
   resolveCornerRadii,
@@ -52,7 +52,7 @@ export type CompositorRenderOptions = {
   qrMarkup: string
   shaderBitmaps?: Record<string, ImageBitmap>
   shaderSession?: ShaderSession
-  state: QrStudioState
+  state: QraftyState
   targetDimensions?: { height: number; width: number }
   videoTimeMs?: number
 }
@@ -148,7 +148,7 @@ async function rasterizeLayerBatch({
   outputHeight: number
   outputWidth: number
   qrMarkup: string
-  state: QrStudioState
+  state: QraftyState
 }) {
   const parts = await buildLayeredSvgParts({
     bounds,

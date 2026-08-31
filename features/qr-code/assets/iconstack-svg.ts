@@ -1,8 +1,8 @@
-import type { StudioGradient } from "@/features/qr-code/model/state"
+import type { QraftyGradient } from "@/features/qr-code/model/state"
 import {
-  getStudioGradientCenter,
-  studioRadialCenterAsPercent,
-} from "@/features/qr-code/styles/studio-gradient-geometry"
+  getQraftyGradientCenter,
+  qraftyRadialCenterAsPercent,
+} from "@/features/qr-code/styles/qrafty-gradient-geometry"
 
 const ICONSTACK_GRADIENT_ID = "iconstack-icon-gradient"
 const ICONSTACK_SHAPE_TAG =
@@ -70,7 +70,7 @@ export function createIconstackIconDataUrl(svg: string, color: string) {
   return svgMarkupToDataUrl(recolorSvgMarkup(normalizeIconstackSvgMarkup(svg), color))
 }
 
-export function createIconstackIconGradientDataUrl(svg: string, gradient: StudioGradient) {
+export function createIconstackIconGradientDataUrl(svg: string, gradient: QraftyGradient) {
   const gradientMarkup = createSvgGradientMarkup(gradient)
   const fillValue = `url(#${ICONSTACK_GRADIENT_ID})`
   const withDefinitions = injectSvgDefinitions(normalizeIconstackSvgMarkup(svg), gradientMarkup)
@@ -90,7 +90,7 @@ function injectSvgDefinitions(markup: string, definitionsMarkup: string) {
   )
 }
 
-function createSvgGradientMarkup(gradient: StudioGradient) {
+function createSvgGradientMarkup(gradient: QraftyGradient) {
   const colorStopsMarkup = gradient.colorStops
     .map(
       (colorStop) =>
@@ -99,7 +99,7 @@ function createSvgGradientMarkup(gradient: StudioGradient) {
     .join("")
 
   if (gradient.type === "radial") {
-    const { cx, cy } = studioRadialCenterAsPercent(getStudioGradientCenter(gradient))
+    const { cx, cy } = qraftyRadialCenterAsPercent(getQraftyGradientCenter(gradient))
     return `<radialGradient id="${ICONSTACK_GRADIENT_ID}" cx="${cx}" cy="${cy}" r="50%">${colorStopsMarkup}</radialGradient>`
   }
 

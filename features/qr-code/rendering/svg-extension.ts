@@ -21,8 +21,8 @@ import {
   hasActiveBackgroundShapeOptions,
   type QrDotMatrixAnimationOptions,
   type QrDotMatrixSquareLoader,
-  type QrStudioState,
-  type StudioGradient,
+  type QraftyState,
+  type QraftyGradient,
 } from "@/features/qr-code/model/state"
 import {
   heartExpansionMetric,
@@ -30,16 +30,16 @@ import {
   rippleRingIndex,
   starExpansionMetric,
   starMaxExpansionMetric,
-} from "@new-qr/qr/dot-matrix"
+} from "@qrafty/qr/dot-matrix"
 import {
   resolveMotionColors,
 } from "@/features/qr-code/motion/motion-color"
 import { getBackgroundShapeSkewTransform } from "@/features/workspace/rendering/layer-transform"
 import {
-  getStudioGradientCenter,
-  studioRadialCenterInUserSpace,
-} from "@/features/qr-code/styles/studio-gradient-geometry"
-import { applyUnifiedQrGradientFill, applyUnifiedQrImageFill } from "@new-qr/qr-internal/core"
+  getQraftyGradientCenter,
+  qraftyRadialCenterInUserSpace,
+} from "@/features/qr-code/styles/qrafty-gradient-geometry"
+import { applyUnifiedQrGradientFill, applyUnifiedQrImageFill } from "@qrafty/qr-internal/core"
 import {
   buildCustomCornerDotTransform,
   getCustomCornerDotShapeGeometry,
@@ -62,7 +62,7 @@ const QR_MODULE_CLIP_PATH_PREFIXES = [DOTS_CLIP_PATH_PREFIX]
 const DEFAULT_DOT_MATRIX_TILE_SIZE = 5
 const DOT_MATRIX_QUIET_TRACK_INDEX = -1
 
-export function buildQrExtension(state: QrStudioState) {
+export function buildQrExtension(state: QraftyState) {
   const extensions: QrSvgExtensionFunction[] = []
   const customCornerDotExtension = createCustomCornerDotExtension(state)
 
@@ -154,7 +154,7 @@ export function buildQrExtension(state: QrStudioState) {
   }
 }
 
-export function getQrExtensionKey(state: QrStudioState) {
+export function getQrExtensionKey(state: QraftyState) {
   return JSON.stringify({
     animation: null,
     backgroundImage: getAssetValue(state.backgroundImage),
@@ -185,7 +185,7 @@ export function getQrExtensionKey(state: QrStudioState) {
 }
 
 export function createDotMatrixAnimationExtension(
-  _state: QrStudioState,
+  _state: QraftyState,
   _mode: QrAnimationRenderMode,
 ): QrSvgExtensionFunction | null {
   void _state
@@ -195,7 +195,7 @@ export function createDotMatrixAnimationExtension(
 
 export function annotateCanvasSvgForDotMatrixMotion(
   svg: SVGElement,
-  state?: Pick<QrStudioState, "dotsColorMode" | "data" | "dotsPalette">,
+  state?: Pick<QraftyState, "dotsColorMode" | "data" | "dotsPalette">,
 ): number | null {
   materializeDataModulePaths(svg, state)
   const dotShapes = collectCanvasDotModuleShapes(svg)
@@ -265,7 +265,7 @@ export function annotateCanvasSvgForDotMatrixMotion(
 
 function materializeDataModulePaths(
   svg: SVGElement,
-  state?: Pick<QrStudioState, "dotsColorMode" | "data" | "dotsPalette">,
+  state?: Pick<QraftyState, "dotsColorMode" | "data" | "dotsPalette">,
 ) {
   if (svg.querySelector('[data-qr-layer="dot-matrix-motion-modules"]')) {
     return
@@ -330,7 +330,7 @@ function materializeDataModulePaths(
 function resolveMotionModuleFill(
   shape: SVGElement,
   fallbackFill: string,
-  state?: Pick<QrStudioState, "dotsColorMode">,
+  state?: Pick<QraftyState, "dotsColorMode">,
 ) {
   if (!state || state.dotsColorMode === "solid") {
     return fallbackFill
@@ -352,7 +352,7 @@ type PaletteColorAssignment = {
 type PalettePaintGroupLayer = "dot-matrix-motion-modules" | "dot-palette"
 
 function buildPaletteColorAssignments(
-  state: Pick<QrStudioState, "data" | "dotsPalette">,
+  state: Pick<QraftyState, "data" | "dotsPalette">,
   allDotShapes: SVGElement[],
   metrics: DotMatrixMetrics | null,
 ) {
@@ -444,7 +444,7 @@ function removeOrphanedModuleClipPaths(svg: SVGElement) {
 
 function applyDirectPalettePaint(
   svg: SVGElement,
-  state: Pick<QrStudioState, "data" | "dotsPalette">,
+  state: Pick<QraftyState, "data" | "dotsPalette">,
   allDotShapes: SVGElement[],
   dotClipLayers: DotClipLayer[],
   dotPathLayers: DotPathLayer[],
@@ -541,7 +541,7 @@ function annotateFinderPatternsForDotMatrix(svg: SVGElement) {
 }
 
 function createCustomCornerDotExtension(
-  state: Pick<QrStudioState, "finderPatternInnerSettings">,
+  state: Pick<QraftyState, "finderPatternInnerSettings">,
 ): QrSvgExtensionFunction | null {
   const shape = state.finderPatternInnerSettings.type
 
@@ -658,7 +658,7 @@ function getFinderInnerElementRegion(element: SVGElement): FinderInnerElementReg
 }
 
 function createDotsPaletteExtension(
-  state: Pick<QrStudioState, "data" | "dotsPalette">,
+  state: Pick<QraftyState, "data" | "dotsPalette">,
 ): QrSvgExtensionFunction {
   return (svg) => {
     const palette = getActiveDotsPalette(state)
@@ -690,7 +690,7 @@ function createDotsPaletteExtension(
 }
 
 function createDotsGradientExtension(
-  state: Pick<QrStudioState, "dataModulesGradient">,
+  state: Pick<QraftyState, "dataModulesGradient">,
 ): QrSvgExtensionFunction {
   return (svg) => {
     removeLegacyDotGradientOverlay(svg)
@@ -808,7 +808,7 @@ function getDotShapeCoverRect(metrics: DotMatrixMetrics) {
 }
 
 function shouldApplyDotMatrixAnimation(
-  state: QrStudioState,
+  state: QraftyState,
   mode: QrAnimationRenderMode,
 ) {
   if (!state.dotMatrixAnimation.enabled || state.type !== "svg") {
@@ -1166,7 +1166,7 @@ function getClipPathId(clipPath: string | null) {
   return /url\(['"]?#([^'")]+)['"]?\)/.exec(clipPath ?? "")?.[1] ?? null
 }
 
-function getActiveDotsPalette(state: Pick<QrStudioState, "dotsPalette">) {
+function getActiveDotsPalette(state: Pick<QraftyState, "dotsPalette">) {
   const seen = new Set<string>()
 
   return state.dotsPalette.flatMap((color) => {
@@ -1971,7 +1971,7 @@ function applyDotMatrixOverlayScale(
   )
 }
 
-function resolveDotMatrixColors(state: QrStudioState) {
+function resolveDotMatrixColors(state: QraftyState) {
   const animation = state.dotMatrixAnimation
 
   return resolveMotionColors(animation, state.dataModulesSettings.color)
@@ -2137,7 +2137,7 @@ function findDotMatrixLayerAnchor(svg: SVGElement) {
 }
 
 function createUnifiedImageExtension(
-  state: Pick<QrStudioState, "dotsColorMode" | "margin" | "moduleFillImage">,
+  state: Pick<QraftyState, "dotsColorMode" | "margin" | "moduleFillImage">,
 ): QrSvgExtensionFunction {
   return (svg) => {
     removeLegacyDotGradientOverlay(svg)
@@ -2175,7 +2175,7 @@ function createUnifiedImageExtension(
 
 function createUnifiedGradientExtension(
   state: Pick<
-    QrStudioState,
+    QraftyState,
     "gradientLinkMode" | "dotsColorMode" | "dataModulesGradient" | "margin"
   >,
 ): QrSvgExtensionFunction {
@@ -2226,7 +2226,7 @@ function createUnifiedGradientExtension(
 
 function createBackgroundShapeExtension(
   shape: QrBackgroundShapeDefinition,
-  state: Pick<QrStudioState, "backgroundGradient" | "backgroundOptions" | "backgroundShapeOptions">,
+  state: Pick<QraftyState, "backgroundGradient" | "backgroundOptions" | "backgroundShapeOptions">,
 ): QrSvgExtensionFunction {
   return (svg, options) => {
     const document = svg.ownerDocument
@@ -2287,7 +2287,7 @@ function createBackgroundShapeExtension(
 
 function normalizeBackgroundShapeOptions(
   options:
-    | (Partial<QrStudioState["backgroundShapeOptions"]> & {
+    | (Partial<QraftyState["backgroundShapeOptions"]> & {
         sizePercent?: number
       })
     | undefined,
@@ -2369,7 +2369,7 @@ function applyBackgroundShapeStroke(
 }
 
 function hasActiveBackgroundSurfaceOptions(
-  options: Partial<QrStudioState["backgroundShapeOptions"]> | undefined,
+  options: Partial<QraftyState["backgroundShapeOptions"]> | undefined,
 ) {
   return hasActiveBackgroundShapeOptions(normalizeBackgroundShapeOptions(options))
 }
@@ -2427,7 +2427,7 @@ function getBackgroundRenderMetrics(
   }
 }export function getQrRenderedDimensions(
   state: Pick<
-    QrStudioState,
+    QraftyState,
     "backgroundImage" | "backgroundShapeId" | "backgroundShapeOptions" | "height" | "width"
   >,
 ) {
@@ -2462,13 +2462,13 @@ export type DraftingQrLayerLayout = {
   innerWidth: number
   metrics: BackgroundRenderMetrics
   scale: number
-  shapeOptions: QrStudioState["backgroundShapeOptions"]
+  shapeOptions: QraftyState["backgroundShapeOptions"]
 }
 
 export function getDraftingQrLayerLayout(
   layerWidth: number,
   state: Pick<
-    QrStudioState,
+    QraftyState,
     "backgroundImage" | "backgroundShapeId" | "backgroundShapeOptions" | "height" | "width"
   >,
   layerHeight?: number,
@@ -2578,7 +2578,7 @@ function getDraftingQrDomStretchScale(
 export function getDraftingQrBackgroundPathTransform(
   shape: QrBackgroundShapeDefinition,
   backingRegion: BackgroundRenderMetrics["backingRegion"],
-  shapeOptions: QrStudioState["backgroundShapeOptions"],
+  shapeOptions: QraftyState["backgroundShapeOptions"],
 ) {
   return getBackgroundShapeTransform(
     shape,
@@ -2588,9 +2588,9 @@ export function getDraftingQrBackgroundPathTransform(
 }
 
 export function scaleQrBackgroundShapeOptions(
-  options: QrStudioState["backgroundShapeOptions"],
+  options: QraftyState["backgroundShapeOptions"],
   scale: number,
-): QrStudioState["backgroundShapeOptions"] {
+): QraftyState["backgroundShapeOptions"] {
   const shapeOptions = normalizeBackgroundShapeOptions(options)
 
   return {
@@ -2676,7 +2676,7 @@ function isManagedBackgroundLayer(node: Element) {
 }
 
 function createBackgroundSurfaceExtension(
-  state: Pick<QrStudioState, "backgroundGradient" | "backgroundOptions" | "backgroundShapeOptions">,
+  state: Pick<QraftyState, "backgroundGradient" | "backgroundOptions" | "backgroundShapeOptions">,
 ): QrSvgExtensionFunction {
   return (svg, options) => {
     const document = svg.ownerDocument
@@ -2926,7 +2926,7 @@ function createBackgroundShapeShadowFilter({
 
 function getBackgroundShapeFill(
   svg: SVGElement,
-  state: Pick<QrStudioState, "backgroundGradient" | "backgroundOptions">,
+  state: Pick<QraftyState, "backgroundGradient" | "backgroundOptions">,
   width: number,
   height: number,
 ) {
@@ -2951,7 +2951,7 @@ function getBackgroundShapeFill(
 
 function createBackgroundShapeGradient(
   svg: SVGElement,
-  gradient: StudioGradient,
+  gradient: QraftyGradient,
   {
     height,
     id,
@@ -2984,7 +2984,7 @@ function createBackgroundShapeGradient(
   gradientElement.setAttribute("gradientUnits", "userSpaceOnUse")
 
   if (gradient.type === "radial") {
-    const { cx, cy, r } = studioRadialCenterInUserSpace(getStudioGradientCenter(gradient), {
+    const { cx, cy, r } = qraftyRadialCenterInUserSpace(getQraftyGradientCenter(gradient), {
       x,
       y,
       width,
@@ -3021,7 +3021,7 @@ function createBackgroundShapeGradient(
 function getBackgroundShapeTransform(
   shape: QrBackgroundShapeDefinition,
   region: BackgroundRenderMetrics["backingRegion"],
-  shapeOptions: QrStudioState["backgroundShapeOptions"],
+  shapeOptions: QraftyState["backgroundShapeOptions"],
 ) {
   const scale =
     Math.min(region.width / shape.viewBox.width, region.height / shape.viewBox.height)
@@ -3051,7 +3051,7 @@ function formatSvgOpacity(value: number) {
 }
 
 function getBackgroundShapeGradientKey(
-  state: Pick<QrStudioState, "backgroundGradient" | "backgroundShapeId" | "backgroundShapeOptions">,
+  state: Pick<QraftyState, "backgroundGradient" | "backgroundShapeId" | "backgroundShapeOptions">,
 ) {
   if (
     !state.backgroundGradient.enabled ||
@@ -3159,7 +3159,7 @@ export function getFinderCornerRegions(
 
 function createFinderPatternGradientExtension(
   testId: "finder-patterns-inner" | "finder-patterns-outer",
-  gradient: StudioGradient,
+  gradient: QraftyGradient,
   margin: number,
   {
     gradientIdPrefix,
@@ -3470,7 +3470,7 @@ function getSvgViewBoxRegion(svg: SVGElement) {
 
 export function createAlignedCornerGradientExtension(
   state: Pick<
-    QrStudioState,
+    QraftyState,
     | "finderPatternInnerGradient"
     | "finderPatternOuterGradient"
     | "gradientLinkMode"
@@ -3624,7 +3624,7 @@ function getBackgroundImageInsertReference(svg: SVGElement) {
 }
 
 function getAlignedCornerGradientRotation(
-  gradient: Pick<StudioGradient, "enabled" | "rotation" | "type">,
+  gradient: Pick<QraftyGradient, "enabled" | "rotation" | "type">,
 ) {
   if (!gradient.enabled || gradient.type !== "linear") {
     return null

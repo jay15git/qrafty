@@ -23,7 +23,7 @@ import {
   type QrGradientLinkMode,
   type QrLogoPositionMode,
   type QrLogoSizeMode,
-  type StudioGradient,
+  type QraftyGradient,
 } from "@/features/qr-code/model/state"
 import { type QrErrorCorrectionLevel, type QrFileExtension } from "@/features/qr-code/model/types"
 import type {
@@ -50,7 +50,7 @@ import type {
   DesktopTextSettings,
 } from "@/features/desktop-shell/model/desktop-toolbar-types"
 
-export const DEFAULT_DESKTOP_DOTS_GRADIENT: StudioGradient = {
+export const DEFAULT_DESKTOP_DOTS_GRADIENT: QraftyGradient = {
   enabled: true,
   type: "linear",
   rotation: 0,
@@ -133,7 +133,7 @@ export const DESKTOP_SHAPE_COLOR_MODES: Array<{ label: string; value: DesktopSha
   { label: "Gradient", value: "gradient" },
 ]
 
-export const DESKTOP_GRADIENT_TYPE_OPTIONS: Array<{ label: string; value: StudioGradient["type"] }> = [
+export const DESKTOP_GRADIENT_TYPE_OPTIONS: Array<{ label: string; value: QraftyGradient["type"] }> = [
   { label: "Linear", value: "linear" },
   { label: "Radial", value: "radial" },
 ]

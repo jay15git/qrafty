@@ -1,4 +1,4 @@
-import { shaderRequiresImage } from "@new-qr/qr/shaders"
+import { shaderRequiresImage } from "@qrafty/qr/shaders"
 
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"

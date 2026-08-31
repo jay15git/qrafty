@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 
-import { portablePropsToReactQrProps } from "./map-props"
+import { qraftyPropsToReactQrProps } from "./map-props"
 
-describe("portablePropsToReactQrProps", () => {
+describe("qraftyPropsToReactQrProps", () => {
   it("maps flat portable props to upstream ReactQRCode props", () => {
-    const result = portablePropsToReactQrProps({
+    const result = qraftyPropsToReactQrProps({
       value: "https://example.com",
       size: 256,
       margin: 8,
@@ -27,7 +27,7 @@ describe("portablePropsToReactQrProps", () => {
   })
 
   it("passes through upstream encoding and module tuning props", () => {
-    const result = portablePropsToReactQrProps({
+    const result = qraftyPropsToReactQrProps({
       value: ["https://a.com", "extra"],
       level: "H",
       minVersion: 5,
@@ -52,7 +52,7 @@ describe("portablePropsToReactQrProps", () => {
   })
 
   it("maps logo ratio and pixel sizing to imageSettings", () => {
-    const ratioResult = portablePropsToReactQrProps({
+    const ratioResult = qraftyPropsToReactQrProps({
       value: "x",
       size: 200,
       logo: {
@@ -70,7 +70,7 @@ describe("portablePropsToReactQrProps", () => {
       width: 50,
     })
 
-    const pixelResult = portablePropsToReactQrProps({
+    const pixelResult = qraftyPropsToReactQrProps({
       value: "x",
       logo: {
         crossOrigin: "use-credentials",
@@ -96,7 +96,7 @@ describe("portablePropsToReactQrProps", () => {
   })
 
   it("maps backgroundGradient to upstream background gradient settings", () => {
-    const result = portablePropsToReactQrProps({
+    const result = qraftyPropsToReactQrProps({
       value: "x",
       background: "#ffffff",
       backgroundGradient: {
@@ -120,7 +120,7 @@ describe("portablePropsToReactQrProps", () => {
   })
 
   it("keeps legacy dots module alias as circle with random sizing", () => {
-    const result = portablePropsToReactQrProps({
+    const result = qraftyPropsToReactQrProps({
       value: "x",
       module: "dots" as never,
     })
@@ -130,7 +130,7 @@ describe("portablePropsToReactQrProps", () => {
   })
 
   it("maps unified gradientMode to upstream gradient prop", () => {
-    const result = portablePropsToReactQrProps({
+    const result = qraftyPropsToReactQrProps({
       value: "x",
       colorMode: "gradient",
       gradient: {

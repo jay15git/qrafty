@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
-  transpilePackages: ["@new-qr/qr"],
+  transpilePackages: ["@qrafty/qr"],
 };
 
 export default nextConfig;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 import {
   createDefaultDraftingCardState,
   type DraftingCardState,
@@ -10,12 +10,12 @@ import {
   createDraftingShaderLayer,
 } from "@/features/workspace/model/layers"
 import { buildLayeredSvgParts } from "@/features/workspace/export/layered-svg-parts"
-import { studioGradientToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+import { qraftyGradientToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
 import { degreesToRadians } from "@/features/qr-code/styles/gradient-controls"
 
 describe("layered svg z-order", () => {
   it("renders overlay shader markup after the qr layer", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const cardState = createDefaultDraftingCardState()
     const layers = createDefaultDraftingLayers("node", state, cardState)
     const qrLayer = layers.find((layer) => layer.kind === "qr")
@@ -51,7 +51,7 @@ describe("layered svg z-order", () => {
   })
 
   it("places card shader clip paths in defs", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const cardState: DraftingCardState = {
       ...createDefaultDraftingCardState(),
       styleMode: "paper-shader",
@@ -80,7 +80,7 @@ describe("layered svg z-order", () => {
   })
 
   it("omits shader layers when requested for compositor svg", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const cardState = createDefaultDraftingCardState()
     const layers = createDefaultDraftingLayers("node", state, cardState)
     const qrLayer = layers.find((layer) => layer.kind === "qr")
@@ -114,7 +114,7 @@ describe("layered svg z-order", () => {
   })
 
   it("omits nested card image hrefs when compositor rasterizes svg", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const cardState: DraftingCardState = {
       ...createDefaultDraftingCardState(),
       styleMode: "image",
@@ -140,7 +140,7 @@ describe("layered svg z-order", () => {
   })
 
   it("keeps nested card image hrefs in svg document exports", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const cardState: DraftingCardState = {
       ...createDefaultDraftingCardState(),
       styleMode: "image",
@@ -164,11 +164,11 @@ describe("layered svg z-order", () => {
   })
 
   it("puts card css gradient fills in defs as svg paint servers", async () => {
-    const state = createDefaultQrStudioState()
+    const state = createDefaultQraftyState()
     const cardState: DraftingCardState = {
       ...createDefaultDraftingCardState(),
       styleMode: "solid",
-      fill: studioGradientToFillCss({
+      fill: qraftyGradientToFillCss({
         enabled: true,
         type: "linear",
         rotation: degreesToRadians(45),

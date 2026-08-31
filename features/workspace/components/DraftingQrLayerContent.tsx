@@ -4,7 +4,7 @@ import { memo, type CSSProperties } from "react"
 
 import { DotMatrixAnimatedQr } from "@/features/qr-code/components/DotMatrixAnimatedQr"
 import { shouldUseDotMatrixMotionPreview } from "@/features/qr-code/motion/dot-matrix-bridge"
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import {
   getDraftingQrDomPlacementStyle,
   getDraftingQrLayerLayout,
@@ -18,7 +18,7 @@ type DraftingQrLayerContentProps = {
   qrMarkup: string
   shapeTiltInnerStyle: CSSProperties
   shapeTiltPerspectiveStyle: CSSProperties
-  state: QrStudioState
+  state: QraftyState
 }
 
 export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({

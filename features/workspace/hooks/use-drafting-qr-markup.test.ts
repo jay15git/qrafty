@@ -3,20 +3,20 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { createDefaultQrStudioState } from "@/features/qr-code/model/state"
-import { buildDraftingQrStudioMarkup } from "@/features/qr-code/rendering/qr-studio-markup"
+import { createDefaultQraftyState } from "@/features/qr-code/model/state"
+import { buildDraftingQraftyMarkup } from "@/features/qr-code/rendering/qrafty-markup"
 import { clearDraftingQrMarkupCache } from "@/features/workspace/hooks/use-drafting-qr-markup"
 import { previewSession } from "@/features/workspace/preview/preview-session"
 
-vi.mock("@/features/qr-code/rendering/qr-studio-markup", () => ({
-  buildDraftingQrStudioMarkup: vi.fn(() => "<svg data-testid='qr-markup'></svg>"),
+vi.mock("@/features/qr-code/rendering/qrafty-markup", () => ({
+  buildDraftingQraftyMarkup: vi.fn(() => "<svg data-testid='qr-markup'></svg>"),
 }))
 
 describe("useDraftingQrMarkup interaction deferral", () => {
   beforeEach(() => {
     clearDraftingQrMarkupCache()
     previewSession.endInteraction()
-    vi.mocked(buildDraftingQrStudioMarkup).mockClear()
+    vi.mocked(buildDraftingQraftyMarkup).mockClear()
   })
 
   afterEach(() => {
@@ -34,19 +34,19 @@ describe("useDraftingQrMarkup interaction deferral", () => {
 
     let latestMarkup: string | null = null
 
-    function TestHarness({ state }: { state: ReturnType<typeof createDefaultQrStudioState> }) {
+    function TestHarness({ state }: { state: ReturnType<typeof createDefaultQraftyState> }) {
       const result = useDraftingQrMarkup(state)
       latestMarkup = result.markup
       return null
     }
 
-    const initialState = createDefaultQrStudioState()
+    const initialState = createDefaultQraftyState()
 
     await act(async () => {
       root.render(React.createElement(TestHarness, { state: initialState }))
     })
 
-    expect(vi.mocked(buildDraftingQrStudioMarkup)).toHaveBeenCalledTimes(1)
+    expect(vi.mocked(buildDraftingQraftyMarkup)).toHaveBeenCalledTimes(1)
     expect(latestMarkup).toContain("qr-markup")
 
     previewSession.beginInteraction()
@@ -63,13 +63,13 @@ describe("useDraftingQrMarkup interaction deferral", () => {
       root.render(React.createElement(TestHarness, { state: nextState }))
     })
 
-    expect(vi.mocked(buildDraftingQrStudioMarkup)).toHaveBeenCalledTimes(1)
+    expect(vi.mocked(buildDraftingQraftyMarkup)).toHaveBeenCalledTimes(1)
 
     await act(async () => {
       previewSession.endInteraction()
     })
 
-    expect(vi.mocked(buildDraftingQrStudioMarkup)).toHaveBeenCalledTimes(2)
+    expect(vi.mocked(buildDraftingQraftyMarkup)).toHaveBeenCalledTimes(2)
     expect(latestMarkup).toContain("qr-markup")
 
     await act(async () => {

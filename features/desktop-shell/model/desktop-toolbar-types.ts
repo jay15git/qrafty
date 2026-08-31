@@ -5,7 +5,7 @@ import type {
   QrFileExtension,
   QrTypeNumber,
 } from "@/features/qr-code/model/types"
-import type { StudioCornerDotStyle } from "@/features/qr-code/model/state"
+import type { QraftyCornerDotStyle } from "@/features/qr-code/model/state"
 import type { DesktopCardSizeSettings } from "@/features/desktop-shell/model/card-size-settings"
 import {
   type DraftingCardPaperShaderState,
@@ -35,8 +35,8 @@ import {
   type QrLogoSizeMode,
   type QrDotMatrixAnimationOptions,
   type QrDotMatrixAnimationPatch,
-  type StudioGradient,
-  type StudioDataModulesStyle,
+  type QraftyGradient,
+  type QraftyDataModulesStyle,
 } from "@/features/qr-code/model/state"
 import { type QrInputType } from "@/features/qr-code/content/input-options"
 import type { SceneLayoutPreset } from "@/features/workspace/model/scene-templates"
@@ -81,13 +81,13 @@ export type DesktopThemeMode = "dark" | "light"
 
 export type DesktopPatternSettings = {
   dotsColorMode: DotsColorMode
-  dataModulesGradient: StudioGradient
+  dataModulesGradient: QraftyGradient
   dotsPalette: string[]
   dotsPalettePreset: string | "custom"
   dotsSolidColor: string
   moduleFillImageUrl: string
   moduleFillImageSourceMode: DesktopAssetSourceMode
-  qrDotType: StudioDataModulesStyle
+  qrDotType: QraftyDataModulesStyle
   moduleRoundSize: boolean
   moduleSize?: number
   moduleLineWidth?: number
@@ -103,7 +103,7 @@ export type DesktopAssetSourceMode = "upload" | "url"
 
 export type DesktopLogoSettings = {
   colorMode: DesktopCornerColorMode
-  gradient: StudioGradient
+  gradient: QraftyGradient
   hideBackgroundDots: boolean
   margin: number
   remoteUrl: string
@@ -129,11 +129,11 @@ export type DesktopLogoSettingsPatch = Partial<DesktopLogoSettings> & {
 
 export type DesktopCornersSettings = {
   cornerDotColorMode: DesktopCornerColorMode
-  cornerDotGradient: StudioGradient
+  cornerDotGradient: QraftyGradient
   cornerDotSolidColor: string
-  cornerDotType: StudioCornerDotStyle
+  cornerDotType: QraftyCornerDotStyle
   cornerSquareColorMode: DesktopCornerColorMode
-  cornerSquareGradient: StudioGradient
+  cornerSquareGradient: QraftyGradient
   cornerSquareSolidColor: string
   cornerSquareType: QrFinderPatternOuterStyle
 }
@@ -151,7 +151,7 @@ export type DesktopShapeSettings = {
   cardWidth: number
   lockAspectRatio: boolean
   shapeColorMode: DesktopShapeColorMode
-  shapeGradient: StudioGradient
+  shapeGradient: QraftyGradient
   shapePadding: number
   shapeShadowBlur: number
   shapeShadowColor: string

@@ -1,6 +1,6 @@
 {
   "ignorePatterns": ["archive/**"],
-  "publicPackages": ["@new-qr/qr"],
+  "publicPackages": ["@qrafty/qr"],
   "ignoreDependencies": ["@paper-design/shaders"],
   "ignoreExports": [
     {

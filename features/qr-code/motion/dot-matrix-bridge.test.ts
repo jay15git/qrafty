@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { describe, expect, it } from "vitest";
-import { dotMatrixLoaderToPresetName } from "@new-qr/qr/dot-matrix";
+import { dotMatrixLoaderToPresetName } from "@qrafty/qr/dot-matrix";
 
 import {
   adaptQrcodeReactSvgForDotMatrix,
@@ -12,7 +12,7 @@ import {
 import { adaptCanvasSvgMarkupForDotMatrixMotion } from "@/features/qr-code/motion/canvas-svg-adapter";
 import { renderDashboardQrSvgMarkup } from "@/features/qr-code/rendering/qr-svg";
 import {
-  createDefaultQrStudioState,
+  createDefaultQraftyState,
   resolveDotMatrixMotionPreset,
   setDotMatrixAnimationOptions,
 } from "@/features/qr-code/model/state";
@@ -29,7 +29,7 @@ describe("dot matrix motion bridge", () => {
   });
 
   it("renders qrcode.react svg markup for desktop state", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
 
     const markup = renderQrcodeReactSvg(state);
 
@@ -38,7 +38,7 @@ describe("dot matrix motion bridge", () => {
   });
 
   it("adapts qrcode.react svg into animatable modules", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     const adapted = adaptQrcodeReactSvgForDotMatrix(state);
 
     expect(adapted?.moduleCount).toBeGreaterThan(0);
@@ -47,7 +47,7 @@ describe("dot matrix motion bridge", () => {
   });
 
   it("maps dot matrix state to animated qr config", () => {
-    const state = setDotMatrixAnimationOptions(createDefaultQrStudioState(), {
+    const state = setDotMatrixAnimationOptions(createDefaultQraftyState(), {
       enabled: true,
       animated: true,
       preset: "neon-drift",
@@ -69,7 +69,7 @@ describe("dot matrix motion bridge", () => {
   });
 
   it("builds qrcode.react props from studio state", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.data = "https://example.com";
     state.margin = 8;
 
@@ -81,7 +81,7 @@ describe("dot matrix motion bridge", () => {
   });
 
   it("adapts canvas svg for dot matrix motion while preserving styled markers", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.data = "https://styled.example";
     state.finderPatternInnerSettings.type = "heart";
     state.finderPatternOuterSettings.type = "rounded-lg";
@@ -108,7 +108,7 @@ describe("dot matrix motion bridge", () => {
   });
 
   it("groups fragmented module paths into one animatable target per grid cell", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
     const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
 
@@ -124,7 +124,7 @@ describe("dot matrix motion bridge", () => {
   });
 
   it("prefers canvas svg markup over qrcode.react when building config", () => {
-    const state = setDotMatrixAnimationOptions(createDefaultQrStudioState(), {
+    const state = setDotMatrixAnimationOptions(createDefaultQraftyState(), {
       enabled: true,
       animated: true,
     });
@@ -140,7 +140,7 @@ describe("dot matrix motion bridge", () => {
   });
 
   it("uses gradient fills on motion modules instead of solid module color", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.dotsColorMode = "gradient";
     state.dataModulesGradient = {
       enabled: true,
@@ -160,7 +160,7 @@ describe("dot matrix motion bridge", () => {
   });
 
   it("uses palette colors on motion modules instead of solid module color", () => {
-    const state = createDefaultQrStudioState();
+    const state = createDefaultQraftyState();
     state.dotsColorMode = "palette";
     state.dotsPalette = ["#ff0000", "#00ff00", "#0000ff", "#ffff00"];
 
@@ -172,13 +172,13 @@ describe("dot matrix motion bridge", () => {
   });
 
   it("enables preserve mode for gradient and palette qr colors", () => {
-    const gradientState = createDefaultQrStudioState();
+    const gradientState = createDefaultQraftyState();
     gradientState.dotsColorMode = "gradient";
 
-    const paletteState = createDefaultQrStudioState();
+    const paletteState = createDefaultQraftyState();
     paletteState.dotsColorMode = "palette";
 
-    const solidState = createDefaultQrStudioState();
+    const solidState = createDefaultQraftyState();
     solidState.dotsColorMode = "solid";
 
     expect(toDotMatrixQrConfig(gradientState).preserveModuleFills).toBe(true);

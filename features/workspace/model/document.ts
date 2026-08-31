@@ -23,11 +23,11 @@ import {
   clampBackgroundShapePaddingPx,
   clampBackgroundShapeStrokeWidth,
   clampBackgroundShapeTilt,
-  createDefaultQrStudioState,
+  createDefaultQraftyState,
   DEFAULT_BACKGROUND_SHAPE_OPTIONS,
   setDotMatrixAnimationOptions,
   type BackgroundShapeOptions,
-  type QrStudioState,
+  type QraftyState,
 } from "@/features/qr-code/model/state"
 import {
   DEFAULT_QR_INPUT_TYPE,
@@ -48,11 +48,11 @@ import {
   type StaticQrContentValues,
 } from "@/features/qr-code/content/static-payload"
 
-export type DraftingQrStateByNodeId = Record<string, QrStudioState>
+export type DraftingQrStateByNodeId = Record<string, QraftyState>
 export type DraftingCardStateByNodeId = Record<string, DraftingCardState>
 export type DraftingContentValuesByType = Partial<Record<QrInputType, StaticQrContentValues>>
 
-export type DraftingQrStateByLayerId = Record<string, QrStudioState>
+export type DraftingQrStateByLayerId = Record<string, QraftyState>
 
 export type DraftingWorkspaceDocumentV1 = {
   activeQrLayerId: string
@@ -279,8 +279,8 @@ export function serializeDraftingWorkspaceDocument(
   return JSON.stringify(cloneDraftingWorkspaceDocument(document))
 }
 
-export function createDefaultDraftingWorkspaceQrState(): QrStudioState {
-  const state = createDefaultQrStudioState()
+export function createDefaultDraftingWorkspaceQrState(): QraftyState {
+  const state = createDefaultQraftyState()
 
   state.width = DEFAULT_DRAFTING_PANE_QR_SIZE
   state.height = DEFAULT_DRAFTING_PANE_QR_SIZE
@@ -288,11 +288,11 @@ export function createDefaultDraftingWorkspaceQrState(): QrStudioState {
   return state
 }
 
-export function cloneDraftingQrState(state: QrStudioState): QrStudioState {
+export function cloneDraftingQrState(state: QraftyState): QraftyState {
   return structuredClone(state)
 }
 
-function parseQrState(value: unknown): QrStudioState {
+function parseQrState(value: unknown): QraftyState {
   const fallback = createDefaultDraftingWorkspaceQrState()
 
   if (!isRecord(value)) {
@@ -321,12 +321,12 @@ function parseQrState(value: unknown): QrStudioState {
       isRecord(value.backgroundShapeOptions) ? value.backgroundShapeOptions : undefined,
       fallback,
     ),
-  } as QrStudioState
+  } as QraftyState
 }
 
 function parseBackgroundShapeOptions(
   value: Record<string, unknown> | undefined,
-  fallback: QrStudioState,
+  fallback: QraftyState,
 ): BackgroundShapeOptions {
   const legacySizePercent =
     typeof value?.sizePercent === "number" ? value.sizePercent : undefined

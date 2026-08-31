@@ -2,14 +2,14 @@
 
 import { describe, expect, it } from "vitest"
 
-import { createDefaultQrStudioState, setSquareQrSize } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState, setSquareQrSize } from "@/features/qr-code/model/state"
 import { buildDraftingQrBackgroundSvgPayload } from "@/features/workspace/components/QrBackground"
 import { createDefaultDraftingLayers } from "@/features/workspace/model/layers"
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
 
 describe("background shape svg payload", () => {
   it("renders decorative shapes as inline svg markup", () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     state.backgroundShapeId = "flower"
     const [layer] = createDefaultDraftingLayers(
       "preview",
@@ -27,7 +27,7 @@ describe("background shape svg payload", () => {
   })
 
   it("keeps gradient and stroke attributes in inline svg markup", () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     state.backgroundShapeId = "circle"
     state.backgroundShapeOptions = {
       ...state.backgroundShapeOptions,
@@ -53,7 +53,7 @@ describe("background shape svg payload", () => {
   })
 
   it("keeps decorative shape layout proportional when the qr layer is resized", () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     state.backgroundShapeId = "flower"
     state.backgroundShapeOptions = {
       ...state.backgroundShapeOptions,
@@ -81,7 +81,7 @@ describe("background shape svg payload", () => {
   })
 
   it("fits background outer metrics to the layer box at small resize sizes", () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     state.backgroundShapeId = "flower"
     state.backgroundShapeOptions = {
       ...state.backgroundShapeOptions,
@@ -107,7 +107,7 @@ describe("background shape svg payload", () => {
   })
 
   it("skips background markup when shape is none and surface options are inactive", () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     state.backgroundOptions.round = 0.2
     const [layer] = createDefaultDraftingLayers(
       "preview",
@@ -121,7 +121,7 @@ describe("background shape svg payload", () => {
   })
 
   it("uses rounded rect markup when shape is none but surface options are active", () => {
-    const state = setSquareQrSize(createDefaultQrStudioState(), 240)
+    const state = setSquareQrSize(createDefaultQraftyState(), 240)
     state.backgroundOptions.round = 0.2
     state.backgroundShapeOptions = {
       ...state.backgroundShapeOptions,

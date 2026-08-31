@@ -1,7 +1,7 @@
-import type { SceneIr, SceneIrFontRef, SceneIrShaderNode } from "@new-qr/qr-internal/codegen"
-import { shaderRequiresImage } from "@new-qr/qr/shaders"
+import type { SceneIr, SceneIrFontRef, SceneIrShaderNode } from "@qrafty/qr-internal/codegen"
+import { shaderRequiresImage } from "@qrafty/qr/shaders"
 
-import type { QrStudioState } from "@/features/qr-code/model/state"
+import type { QraftyState } from "@/features/qr-code/model/state"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import type { SceneCompositionState } from "@/features/workspace/model/scene-templates"
@@ -23,7 +23,7 @@ export type BuildSceneIrOptions = {
   cardState: DraftingCardState
   layers: DraftingCanvasLayer[]
   sceneComposition?: SceneCompositionState
-  state: QrStudioState
+  state: QraftyState
   qrMarkup: string
   componentName?: string
   shaderSnapshots?: Record<string, string>
