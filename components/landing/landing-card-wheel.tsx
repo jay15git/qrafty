@@ -1,20 +1,10 @@
-"use client"
-
-import { useEffect, useState } from "react"
-
 import { LANDING_WHEEL_CARD_PRESETS } from "@/components/landing/landing-card-wheel-presets"
-import { LandingWheelQr } from "@/components/landing/landing-wheel-qr"
+import { getLandingWheelCardSrc } from "@/components/landing/landing-wheel-qr-render"
 
 const N = LANDING_WHEEL_CARD_PRESETS.length
 const SPACING = 360 / N
 
 export function LandingCardWheel() {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
   return (
     <div className="os-root">
       <style>{css}</style>
@@ -30,7 +20,12 @@ export function LandingCardWheel() {
               }}
             >
               <div className="os-card-inner">
-                <LandingWheelQr mounted={mounted} preset={preset} />
+                <img
+                  alt=""
+                  className="os-wheel-card-image"
+                  draggable={false}
+                  src={getLandingWheelCardSrc(preset.id)}
+                />
               </div>
             </div>
           ))}
@@ -108,42 +103,13 @@ const css = `
   aspect-ratio: 1;
   background: transparent;
   padding: 0;
-  box-shadow: none;
 }
-.os-wheel-qr-plain {
-  width: 82%;
-  aspect-ratio: 1;
-}
-.os-wheel-qr-plain [data-slot="qrafty-code"],
-.os-wheel-qr-plain svg {
+.os-wheel-card-image {
   display: block;
-  width: 100%;
-  height: 100%;
-}
-.os-wheel-shaped {
-  position: relative;
   width: 86%;
-  max-height: 100%;
-}
-.os-wheel-shaped-svg {
-  display: block;
-  width: 100%;
   height: auto;
-}
-.os-wheel-shaped-qr {
-  position: absolute;
-  display: grid;
-  place-items: center;
-}
-.os-wheel-qr-markup {
-  width: 100%;
-  height: 100%;
-}
-.os-wheel-qr-markup [data-slot="qrafty-code"],
-.os-wheel-qr-markup svg {
-  display: block;
-  width: 100%;
-  height: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .os-tick {
