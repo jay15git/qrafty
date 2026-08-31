@@ -14,6 +14,7 @@ import {
   clampQrSize,
   createDefaultQraftyState,
   DEFAULT_DOT_MATRIX_ANIMATION,
+  isScaleOnlyDotMatrixLoader,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
   setDotMatrixAnimationOptions,
   setRasterExportQualityPercent,
@@ -181,6 +182,15 @@ describe("QRafty state helpers", () => {
     expect(setDotMatrixAnimationOptions(state, { loader: "vortex-rotate" }).dotMatrixAnimation.loader).toBe("vortex-rotate");
     expect(setDotMatrixAnimationOptions(state, { loader: "vortex" }).dotMatrixAnimation.loader).toBe("neon-drift");
     expect(setDotMatrixAnimationOptions(state, { loader: "honey-gate" }).dotMatrixAnimation.loader).toBe("neon-drift");
+  });
+
+  it("marks fan, tunnel, wave, and scan as scale-only motion loaders", () => {
+    expect(isScaleOnlyDotMatrixLoader("fan-rotate")).toBe(true);
+    expect(isScaleOnlyDotMatrixLoader("tunnel")).toBe(true);
+    expect(isScaleOnlyDotMatrixLoader("wave")).toBe(true);
+    expect(isScaleOnlyDotMatrixLoader("scan")).toBe(true);
+    expect(isScaleOnlyDotMatrixLoader("neon-drift")).toBe(false);
+    expect(isScaleOnlyDotMatrixLoader("vortex-rotate")).toBe(false);
   });
 
   it("clamps dot matrix animation updates to supported ranges", () => {

@@ -2355,6 +2355,16 @@ const resolvePresetAnimationSettings = (
   };
 };
 
+const SCALE_ONLY_ANIMATION_PRESETS = new Set<AnimationPreset>([
+  AnimationPreset.FanRotate,
+  AnimationPreset.Tunnel,
+  AnimationPreset.Wave,
+  AnimationPreset.Scan,
+]);
+
+const isScaleOnlyAnimationPreset = (presetName?: AnimationPreset) =>
+  presetName !== undefined && SCALE_ONLY_ANIMATION_PRESETS.has(presetName);
+
 const applyPresetSettings = (
   animation: DotMatrixAnimationFrame,
   settings: QRCodeAnimationSettings | undefined,
@@ -2363,9 +2373,10 @@ const applyPresetSettings = (
 ): DotMatrixAnimationFrame => {
   const resolvedSettings = resolvePresetAnimationSettings(settings, isDotMatrixPreset);
   const speed = safeAnimationSpeed(resolvedSettings);
-  const dotMatrixFill = isDotMatrixPreset
-    ? remapDotMatrixFill(animation.web && animation.web.opacity, resolvedSettings)
-    : undefined;
+  const dotMatrixFill =
+    isDotMatrixPreset && !isScaleOnlyAnimationPreset(presetName)
+      ? remapDotMatrixFill(animation.web && animation.web.opacity, resolvedSettings)
+      : undefined;
   const web = isDotMatrixPreset
     ? {
         ...animation.web,

@@ -294,6 +294,20 @@ const QR_DOT_MATRIX_SQUARE_LOADER_VALUES = new Set<string>(
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => option.value),
 );
 
+/** Dot-matrix loaders that pulse size/opacity only — no accent color pass. */
+export const SCALE_ONLY_DOT_MATRIX_LOADERS = [
+  "fan-rotate",
+  "tunnel",
+  "wave",
+  "scan",
+] as const satisfies readonly QrDotMatrixSquareLoader[];
+
+const SCALE_ONLY_DOT_MATRIX_LOADER_VALUES = new Set<string>(SCALE_ONLY_DOT_MATRIX_LOADERS);
+
+export function isScaleOnlyDotMatrixLoader(loader: QrDotMatrixSquareLoader) {
+  return SCALE_ONLY_DOT_MATRIX_LOADER_VALUES.has(loader);
+}
+
 
 export const QR_DOT_MATRIX_COLOR_PRESET_OPTIONS: Array<{
   label: string;

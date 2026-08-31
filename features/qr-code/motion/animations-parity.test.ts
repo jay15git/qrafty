@@ -217,17 +217,23 @@ describe("matrix animation parity", () => {
   });
 
   describe("Scan", () => {
-    it("rides a smooth sine band down the rows", () => {
+    it("rests small, sends a growing wave down the rows, then breathes up and down in sync", () => {
       const preset = getAnimationPreset(AnimationPreset.Scan);
-      const animation = preset({}, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const from = typeof animation.from === "number" ? animation.from : 0;
-      const trough = sampleDotMatrixAnimationFrame(animation, from + 875);
-      const peak = sampleDotMatrixAnimationFrame(animation, from + 2625);
+      const top = preset({}, 0, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const bottom = preset({}, 20, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const cycleMs = typeof top.duration === "number" ? top.duration : 3500;
 
-      expect(trough.scale).toBeCloseTo(0.34, 2);
-      expect(peak.scale).toBeCloseTo(0.9, 2);
-      expect(trough.opacityMultiplier).toBeCloseTo(0.34, 2);
-      expect(peak.opacityMultiplier).toBeCloseTo(0.9, 2);
+      const topRest = sampleDotMatrixAnimationFrame(top, 200);
+      const topPeak = sampleDotMatrixAnimationFrame(top, 1900);
+      const bottomPeak = sampleDotMatrixAnimationFrame(bottom, 1900);
+      const finaleUp = sampleDotMatrixAnimationFrame(top, cycleMs * 0.8);
+      const finaleUpBottom = sampleDotMatrixAnimationFrame(bottom, cycleMs * 0.8);
+
+      expect(topRest.scale).toBeCloseTo(0.34, 2);
+      expect(topPeak.scale ?? 0).toBeGreaterThan(0.8);
+      expect(bottomPeak.scale ?? 0).toBeGreaterThan(topRest.scale ?? 0);
+      expect(finaleUp.scale).toBeCloseTo(finaleUpBottom.scale ?? 0, 2);
+      expect(finaleUp.scale ?? 0).toBeGreaterThan(0.8);
     });
   });
 

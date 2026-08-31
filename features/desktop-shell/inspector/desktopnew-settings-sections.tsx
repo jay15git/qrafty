@@ -27,6 +27,7 @@ import {
 } from "@/features/desktop-shell/inspector/settings-ui"
 import { normalizeContentTypeForPicker } from "@/features/qr-code/content/input-options"
 import {
+  isScaleOnlyDotMatrixLoader,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
   type QrDotMatrixSquareLoader,
 } from "@/features/qr-code/model/state"
@@ -644,6 +645,7 @@ export function MotionSection({ model }: { model: DesktopInspectorModel }) {
     actualMotionSettings.presetCategory === "dotMatrix"
       ? actualMotionSettings.loader
       : ("neon-drift" satisfies QrDotMatrixSquareLoader)
+  const usesPeakColor = !isScaleOnlyDotMatrixLoader(loader)
 
   return (
     <div className={SECTION_STACK}>
@@ -664,17 +666,19 @@ export function MotionSection({ model }: { model: DesktopInspectorModel }) {
               })
             }
           />
-          <SettingsFillPopover
-            hint="Peak"
-            value={solidColorToFillCss(actualMotionSettings.customColorPeak)}
-            onValueChange={(_fill, css) =>
-              onMotionSettingsChange({
-                colorPreset: "theme",
-                customColorMid: fillPreviewHex(css),
-                customColorPeak: fillPreviewHex(css),
-              })
-            }
-          />
+          {usesPeakColor ? (
+            <SettingsFillPopover
+              hint="Peak"
+              value={solidColorToFillCss(actualMotionSettings.customColorPeak)}
+              onValueChange={(_fill, css) =>
+                onMotionSettingsChange({
+                  colorPreset: "theme",
+                  customColorMid: fillPreviewHex(css),
+                  customColorPeak: fillPreviewHex(css),
+                })
+              }
+            />
+          ) : null}
         </>
       ) : null}
     </div>

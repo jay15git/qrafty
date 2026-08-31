@@ -38,4 +38,24 @@ describe("preserve module fills", () => {
     expect(values).toContain(PRESERVE_MODULE_FILL);
     expect(values).toContain("#22d3ee");
   });
+
+  it("does not inject peak accent fills for scale-only presets", () => {
+    const preset = getAnimationPreset(AnimationPreset.FanRotate);
+    const animation = preset(
+      {},
+      10,
+      10,
+      21,
+      QRCodeEntity.Module,
+      {
+        dotMatrixOpacityBase: 1,
+        dotMatrixOpacityMid: 1,
+        dotMatrixOpacityPeak: 1,
+        dotMatrixColorPeak: "#22d3ee",
+        preserveModuleFills: true,
+      },
+    );
+
+    expect(animation.web?.fill).toBeUndefined();
+  });
 });

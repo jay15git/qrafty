@@ -68,6 +68,24 @@ describe("dot matrix motion bridge", () => {
     expect(resolveDotMatrixMotionPreset(state.dotMatrixAnimation)).toBe("NeonDrift");
   });
 
+  it("keeps module color for scale-only loaders instead of peak accent", () => {
+    const state = setDotMatrixAnimationOptions(createDefaultQraftyState(), {
+      enabled: true,
+      animated: true,
+      loader: "fan-rotate",
+      preset: "fan-rotate",
+      presetCategory: "dotMatrix",
+      colorPreset: "neon",
+    });
+    state.dataModulesSettings.color = "#334155";
+
+    const config = toDotMatrixQrConfig(state);
+
+    expect(config.dotMatrixColorBase).toBe("#334155");
+    expect(config.dotMatrixColorPeak).toBe("#334155");
+    expect(config.dotMatrixOpacityPeak).toBe(config.dotMatrixOpacityBase);
+  });
+
   it("builds qrcode.react props from studio state", () => {
     const state = createDefaultQraftyState();
     state.data = "https://example.com";

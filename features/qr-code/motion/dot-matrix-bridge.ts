@@ -14,6 +14,7 @@ import {
   DEFAULT_DOT_MATRIX_ANIMATION,
   clampQrSize,
   getAssetValue,
+  isScaleOnlyDotMatrixLoader,
   resolveDotMatrixMotionPreset,
   type QrDotMatrixAnimationOptions,
   type QraftyState,
@@ -97,6 +98,7 @@ export function toDotMatrixQrConfig(
   const qrModuleColor = state.dataModulesSettings.color;
   const motionColors = resolveMotionColors(animation, qrModuleColor);
   const motionOpacity = resolveMotionOpacityAnchors(animation, qrModuleColor);
+  const scaleOnlyMotion = isScaleOnlyDotMatrixLoader(animation.loader);
   const canvasSvgMarkup = options.canvasSvgMarkup?.trim();
   const adapted = canvasSvgMarkup
     ? adaptCanvasSvgMarkupForDotMatrixMotion(sanitizeDraftingQrArtworkMarkup(canvasSvgMarkup), state)
@@ -108,11 +110,11 @@ export function toDotMatrixQrConfig(
     animationSpeed: animation.speed / DEFAULT_DOT_MATRIX_ANIMATION.speed,
     contents: state.data.trim() || "https://example.com",
     dotMatrixColorBase: motionColors.base,
-    dotMatrixColorMid: motionColors.accent,
-    dotMatrixColorPeak: motionColors.accent,
+    dotMatrixColorMid: scaleOnlyMotion ? motionColors.base : motionColors.accent,
+    dotMatrixColorPeak: scaleOnlyMotion ? motionColors.base : motionColors.accent,
     dotMatrixOpacityBase: motionOpacity.base,
     dotMatrixOpacityMid: motionOpacity.base,
-    dotMatrixOpacityPeak: motionOpacity.peak,
+    dotMatrixOpacityPeak: scaleOnlyMotion ? motionOpacity.base : motionOpacity.peak,
     externalSvg: adapted?.svg ?? "",
     logoSrc,
     moduleColor: state.dataModulesSettings.color,
