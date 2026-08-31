@@ -14,7 +14,7 @@ import {
 import { DesktopInspectorSection } from "@/features/desktop-shell/components/InspectorControls"
 import { DesktopInspectorAnimatedOptionGrid } from "@/features/desktop-shell/inspector/inspector-option-grid"
 import { desktopInspectorOptionGridItemClass } from "@/features/desktop-shell/inspector/inspector-option-grid.classes"
-import { RAYCAST_WALLPAPERS } from "@/features/workspace/assets/raycast-wallpapers"
+import { SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
 import { cn } from "@/lib/utils"
 
 function DesktopWallpaperButton({
@@ -73,7 +73,7 @@ export function DesktopWallpaperInspector({
             variant="compact"
           >
             <DesktopInspectorAnimatedOptionGrid columns={2}>
-              {RAYCAST_WALLPAPERS.map((wallpaper) => (
+              {SCENE_WALLPAPERS.map((wallpaper) => (
                 <DesktopWallpaperButton
                   key={wallpaper.id}
                   alt={wallpaper.label}

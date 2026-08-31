@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 
-import { RAYCAST_WALLPAPERS } from "@/features/workspace/assets/raycast-wallpapers"
+import { SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
 import { usePersistedScrollNode } from "@/lib/persisted-element-scroll"
 
 export function RaycastWallpaperGrid({
@@ -17,7 +17,7 @@ export function RaycastWallpaperGrid({
       ref={setScrollNode}
       className="grid max-h-52 grid-cols-3 gap-1.5 overflow-y-auto pr-0.5"
     >
-      {RAYCAST_WALLPAPERS.map((wallpaper) => (
+      {SCENE_WALLPAPERS.map((wallpaper) => (
         <button
           key={wallpaper.id}
           aria-label={`Use ${wallpaper.label} wallpaper`}

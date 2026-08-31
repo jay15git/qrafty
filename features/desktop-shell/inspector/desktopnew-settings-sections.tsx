@@ -59,7 +59,7 @@ import {
   type PaperShaderId,
 } from "@/features/workspace/rendering/paper-shaders"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
-import { RAYCAST_WALLPAPERS } from "@/features/workspace/assets/raycast-wallpapers"
+import { SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 import {
   getInspectorSectionTab,
@@ -261,7 +261,7 @@ function WallpaperPreviewRow({
       viewportClassName="min-w-0"
     >
       <div className={PREVIEW_ROW}>
-        {RAYCAST_WALLPAPERS.map((wallpaper) => {
+        {SCENE_WALLPAPERS.map((wallpaper) => {
           const isSelected = selectedPath === wallpaper.path
 
           return (
