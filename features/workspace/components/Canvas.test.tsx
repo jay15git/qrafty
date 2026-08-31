@@ -159,33 +159,6 @@ describe("Canvas", () => {
     expect(workspace.container.textContent).toContain("150%")
   })
 
-  it("toggles layer snapping from the preview toolbar", async () => {
-    const workspace = renderWorkspace({ paneCount: 1 })
-
-    await act(async () => {
-      await flushPromises()
-    })
-
-    const snapButton = workspace.container.querySelector(
-      'button[aria-label="Disable snapping"]',
-    ) as HTMLButtonElement | null
-
-    expect(snapButton).not.toBeNull()
-    expect(snapButton?.getAttribute("aria-pressed")).toBe("true")
-
-    await act(async () => {
-      snapButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-      await flushPromises()
-    })
-
-    const disabledSnapButton = workspace.container.querySelector(
-      'button[aria-label="Enable snapping"]',
-    ) as HTMLButtonElement | null
-
-    expect(disabledSnapButton).not.toBeNull()
-    expect(disabledSnapButton?.getAttribute("aria-pressed")).toBe("false")
-  })
-
   it("does not pan empty canvas space while the select tool is active", async () => {
     const workspace = renderWorkspace({ activeCanvasTool: "select", paneCount: 1 })
     const [pane] = getPaneSurfaces(workspace.container, 1)
@@ -477,8 +450,6 @@ describe("Canvas", () => {
       onZoomOut: vi.fn(),
       paneCount: 1,
       qr: { canAdd: true, onAdd: vi.fn() },
-      snapEnabled: true,
-      onSnapEnabledChange: vi.fn(),
       zoomPercent: "100%",
     })
     const composeToolbar = container.querySelector('[data-slot="desktop-compose-toolbar"]')
@@ -491,8 +462,6 @@ describe("Canvas", () => {
       ),
     ).toBe(true)
     expect(Array.from(composeToolbar?.querySelectorAll("button") ?? []).map((button) => button.getAttribute("aria-label"))).toEqual([
-      "Select and move elements",
-      "Disable snapping",
       "Add content",
     ])
   })
@@ -512,8 +481,6 @@ describe("Canvas", () => {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
       paneCount: 1,
-      snapEnabled: true,
-      onSnapEnabledChange: vi.fn(),
       zoomPercent: "100%",
     })
     const selectButton = container.querySelector(
@@ -547,8 +514,6 @@ describe("Canvas", () => {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
       paneCount: 1,
-      snapEnabled: true,
-      onSnapEnabledChange: vi.fn(),
       zoomPercent: "100%",
     })
     const selectButton = container.querySelector(

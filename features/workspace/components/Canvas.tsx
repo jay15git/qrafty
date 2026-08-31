@@ -68,8 +68,6 @@ type CanvasProps = {
   previewLocked?: boolean
   fitCanvasToViewport?: boolean
   qrLayerCount?: number
-  snapEnabled?: boolean
-  onSnapEnabledChange?: (enabled: boolean) => void
 }
 
 function clampPreviewZoom(value: number) {
@@ -103,14 +101,9 @@ export function Canvas({
   previewLocked = false,
   fitCanvasToViewport = false,
   qrLayerCount = 1,
-  snapEnabled: snapEnabledProp,
-  onSnapEnabledChange,
 }: CanvasProps) {
   const [zoomLevels, setZoomLevels] = useState<Record<string, number>>({})
   const [panOffsets, setPanOffsets] = useState<Record<string, { x: number; y: number }>>({})
-  const [internalSnapEnabled, setInternalSnapEnabled] = useState(true)
-  const snapEnabled = snapEnabledProp ?? internalSnapEnabled
-  const handleSnapEnabledChange = onSnapEnabledChange ?? setInternalSnapEnabled
 
   const activePane = panes.find((pane) => pane.id === activePaneId) ?? panes[0]
   const activeZoom = zoomLevels[activePaneId] ?? 1
@@ -210,7 +203,7 @@ export function Canvas({
               previewLocked={previewLocked}
               selectedLayerId={selectedLayerId}
               selectedLayerIds={selectedLayerIds}
-              snapEnabled={snapEnabled}
+              snapEnabled
               toolbarVariant={toolbarVariant}
             />
           )}
@@ -241,8 +234,6 @@ export function Canvas({
           onZoomOut={handleZoomOut}
           paneCount={1}
           previewLocked={previewLocked}
-          snapEnabled={snapEnabled}
-          onSnapEnabledChange={handleSnapEnabledChange}
           zoomPercent={zoomPercent}
         />
       </div>

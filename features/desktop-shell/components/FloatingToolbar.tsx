@@ -99,22 +99,17 @@ export function FloatingToolbar({
                 <DesktopDynamicIslandChrome
                   appearance={controller?.appearanceSnapshot}
                   appearanceLayer={controller?.selectedAppearanceLayer}
-                  activeCanvasTool={controller?.canvasTool}
-                  activePaneId={controller?.insertNodeId}
                   canRedo={controller?.canRedo}
                   canUndo={controller?.canUndo}
-                  onCanvasToolChange={controller?.onCanvasToolChange}
                   onElementLayerPatch={controller?.onElementLayerPatch}
                   onAppearancePatch={controller?.onAppearancePatch}
                   onRedo={controller?.onRedo}
                   onSelectSizeTemplate={controller?.onSceneTemplateSizeTemplateSelect}
-                  onSnapEnabledChange={controller?.onSnapEnabledChange}
                   onThemeChange={model.onDesktopThemeChange}
                   onTransformLayerPatch={controller?.onTransformLayerPatch}
                   onUndo={controller?.onUndo}
                   selectedElementLayer={controller?.selectedElementLayer}
                   selectedTransformLayer={controller?.selectedTransformLayer}
-                  snapEnabled={controller?.snapEnabled}
                   sizePresetId={controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId}
                   theme={actualDesktopTheme}
                 />

@@ -2,7 +2,6 @@
 
 import { useMemo, type ReactNode } from "react"
 import {
-  MagnetIcon,
   MoonIcon,
   SlidersHorizontalIcon,
   SunIcon,
@@ -23,7 +22,6 @@ import { TooltipNavbar, type TooltipItem } from "@/components/ui/tooltip-navbar"
 import { useDesktopCuelume } from "@/features/desktop-shell/hooks/use-desktop-cuelume"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import type { SizeTemplate } from "@/features/workspace/model/size-templates"
-import type { DraftingPaneCanvasTool } from "@/features/workspace/components/DraftingPaneSurface"
 
 function DesktopToolbarSvgIcon({
   className,
@@ -91,44 +89,34 @@ const ICON_CLASS = "size-3.5 shrink-0"
 
 export function DesktopDynamicIslandChrome({
   appearance,
-  activeCanvasTool,
-  activePaneId,
   appearanceLayer,
   canRedo,
   canUndo,
-  onCanvasToolChange,
   onAppearancePatch,
   onRedo,
   onElementLayerPatch,
   onTransformLayerPatch,
   onSelectSizeTemplate,
-  onSnapEnabledChange,
   onThemeChange,
   onUndo,
   selectedElementLayer,
   selectedTransformLayer,
-  snapEnabled,
   sizePresetId,
   theme = "dark",
 }: {
   appearance?: DesktopAppearanceSnapshot | null
-  activeCanvasTool?: DraftingPaneCanvasTool | null
-  activePaneId?: string
   appearanceLayer?: DraftingCanvasLayer | null
   canRedo?: boolean
   canUndo?: boolean
-  onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
   onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onRedo?: () => void
   onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onSelectSizeTemplate?: (template: SizeTemplate) => void
-  onSnapEnabledChange?: (enabled: boolean) => void
   onThemeChange?: (theme: DesktopThemeMode) => void
   onUndo?: () => void
   selectedElementLayer?: DraftingCanvasLayer | null
   selectedTransformLayer?: DraftingCanvasLayer | null
-  snapEnabled?: boolean
   sizePresetId?: string
   theme?: DesktopThemeMode
 }) {
@@ -138,10 +126,6 @@ export function DesktopDynamicIslandChrome({
     Boolean(appearance && onAppearancePatch)
   const propertyLayer = selectedTransformLayer ?? selectedElementLayer ?? appearanceLayer ?? null
   const propertyCapabilities = getDesktopLayerToolbarCapabilities(propertyLayer, appearance)
-  const hasComposeControls =
-    Boolean(activePaneId) &&
-    typeof snapEnabled === "boolean" &&
-    Boolean(onSnapEnabledChange)
   const { soundsEnabled, toggleSoundsEnabled } = useDesktopCuelume()
 
   const items = useMemo(() => {
@@ -175,17 +159,6 @@ export function DesktopDynamicIslandChrome({
           />
         ),
       })
-    }
-
-    if (hasComposeControls) {
-      nextItems.push(
-        {
-          ariaLabel: snapEnabled ? "Disable snapping" : "Enable snapping",
-          icon: <MagnetIcon className={ICON_CLASS} />,
-          label: snapEnabled ? "Snapping on" : "Snapping off",
-          onClick: () => onSnapEnabledChange?.(!snapEnabled),
-        },
-      )
     }
 
     if (hasProperties) {
@@ -264,7 +237,6 @@ export function DesktopDynamicIslandChrome({
     appearanceLayer,
     canRedo,
     canUndo,
-    hasComposeControls,
     hasProperties,
     propertyCapabilities.maxEffects,
     propertyCapabilities.propertyTabs,
@@ -273,14 +245,12 @@ export function DesktopDynamicIslandChrome({
     onElementLayerPatch,
     onRedo,
     onSelectSizeTemplate,
-    onSnapEnabledChange,
     onThemeChange,
     onTransformLayerPatch,
     onUndo,
     selectedElementLayer,
     selectedTransformLayer,
     sizePresetId,
-    snapEnabled,
     soundsEnabled,
     theme,
     toggleSoundsEnabled,

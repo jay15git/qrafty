@@ -145,7 +145,6 @@ export type WorkspaceSurfaceState = {
   selectedLayerId: string | null
   selectedLayerIds: string[]
   desktopCanvasTool: DraftingPaneCanvasTool | null
-  desktopSnapEnabled: boolean
   selectedDownloadExtension: DraftingDownloadExtension
   selectedDownloadTarget: DraftingDownloadTarget
   exportDownloadError: string | null
@@ -325,7 +324,6 @@ export function createInitialWorkspaceSurfaceState(
     selectedLayerId: getDraftingQrLayerId(DASHBOARD_QR_NODE_ID),
     selectedLayerIds: [getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)],
     desktopCanvasTool: "select",
-    desktopSnapEnabled: true,
     selectedDownloadExtension: "png",
     selectedDownloadTarget: "surface",
     exportDownloadError: null,
@@ -470,7 +468,6 @@ function createWorkspaceSurfaceSetters(
     setSelectedLayerId: (value) => setField("selectedLayerId", value),
     setSelectedLayerIds: (value) => setField("selectedLayerIds", value),
     setDesktopCanvasTool: (value) => setField("desktopCanvasTool", value),
-    setDesktopSnapEnabled: (value) => setField("desktopSnapEnabled", value),
     setSelectedDownloadExtension: (value) => setField("selectedDownloadExtension", value),
     setSelectedDownloadTarget: (value) => setField("selectedDownloadTarget", value),
     setExportDownloadError: (value) => setField("exportDownloadError", value),

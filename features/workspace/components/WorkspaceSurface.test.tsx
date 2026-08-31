@@ -304,7 +304,6 @@ describe("WorkspaceSurface", () => {
     expect(composeToolbar.querySelector('button[aria-label="Add text on canvas"]')).not.toBeNull()
     expect(Array.from(composeToolbar.querySelectorAll("button")).map((button) => button.getAttribute("aria-label"))).toEqual([
       "Select and move elements",
-      "Disable snapping",
       "Hide canvas grid",
       "Add text on canvas",
       "Add content",

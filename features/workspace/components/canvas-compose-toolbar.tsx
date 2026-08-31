@@ -4,7 +4,6 @@ import type { ReactElement, ReactNode } from "react"
 import {
   CopyPlusIcon,
   CrosshairIcon,
-  MagnetIcon,
   Maximize2Icon,
   Minimize2Icon,
   Redo2Icon,
@@ -17,7 +16,6 @@ import {
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import {
   DESKTOP_COMPOSE_TOOLBAR_ICON_BUTTON_CLASS,
-  DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_ACTIVE_CLASS,
 } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
 import type {
   CanvasHistoryControls,
@@ -111,8 +109,6 @@ type ComposeToolbarControlsProps = {
   paneCount: number
   previewLocked?: boolean
   showDesktopInteractionTools?: boolean
-  snapEnabled: boolean
-  onSnapEnabledChange: (enabled: boolean) => void
   toolbarVariant?: DraftingPaneToolbarVariant
   zoomPercent: string
 }
@@ -138,8 +134,6 @@ export function ComposeToolbarControls({
   paneCount,
   previewLocked = false,
   showDesktopInteractionTools = true,
-  snapEnabled,
-  onSnapEnabledChange,
   toolbarVariant = "default",
   zoomPercent,
 }: ComposeToolbarControlsProps) {
@@ -207,27 +201,6 @@ export function ComposeToolbarControls({
           <div className="mx-1 h-4 w-px bg-[var(--ws-line)]" />
         </>
       ) : null}
-
-      <ComposeToolbarTooltip
-        content={snapEnabled ? "Snapping on" : "Snapping off"}
-        desktop={isDesktopGlassToolbar}
-        placement={placement}
-      >
-        <Button
-          aria-label={snapEnabled ? "Disable snapping" : "Enable snapping"}
-          aria-pressed={snapEnabled}
-          className={getComposeToolbarIconButtonClass(
-            isDesktopGlassToolbar,
-            snapEnabled && DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_ACTIVE_CLASS,
-          )}
-          onClick={() => onSnapEnabledChange(!snapEnabled)}
-          size="icon"
-          type="button"
-          variant="ghost"
-        >
-          <MagnetIcon />
-        </Button>
-      </ComposeToolbarTooltip>
 
       {paneCount > 1 && (
         <>

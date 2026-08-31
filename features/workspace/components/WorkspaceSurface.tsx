@@ -330,7 +330,6 @@ export function WorkspaceSurface({
       selectedLayerId,
       selectedLayerIds,
       desktopCanvasTool,
-      desktopSnapEnabled,
       selectedDownloadExtension,
       selectedDownloadTarget,
       exportDownloadError,
@@ -426,7 +425,6 @@ export function WorkspaceSurface({
       setSelectedLayerId,
       setSelectedLayerIds,
       setDesktopCanvasTool,
-      setDesktopSnapEnabled,
       setSelectedDownloadExtension,
       setSelectedDownloadTarget,
       setExportDownloadError,
@@ -3445,9 +3443,6 @@ export function WorkspaceSurface({
     canvasTool: paneToolbarVariant === "desktop-zoom" ? desktopCanvasTool : undefined,
     onCanvasToolChange:
       paneToolbarVariant === "desktop-zoom" ? setDesktopCanvasTool : undefined,
-    snapEnabled: paneToolbarVariant === "desktop-zoom" ? desktopSnapEnabled : undefined,
-    onSnapEnabledChange:
-      paneToolbarVariant === "desktop-zoom" ? setDesktopSnapEnabled : undefined,
     canAddQrCode: qrCanvasLayers.length < 10,
     onAddQrCode: () => {
       void handleAddQrCode()
@@ -3662,7 +3657,6 @@ export function WorkspaceSurface({
     desktopPatternSettings,
     desktopSceneTemplateSettings,
     desktopShapeSettings,
-    desktopSnapEnabled,
     desktopTextSettings,
     exportDownloadError,
     exportInProgress,
@@ -3765,10 +3759,6 @@ export function WorkspaceSurface({
               onRemoveQrCode={handleRemoveQrCode}
               panes={panes}
               fitCanvasToViewport
-              snapEnabled={paneToolbarVariant === "desktop-zoom" ? desktopSnapEnabled : undefined}
-              onSnapEnabledChange={
-                paneToolbarVariant === "desktop-zoom" ? setDesktopSnapEnabled : undefined
-              }
               toolbarVariant={paneToolbarVariant}
               selectedLayerId={selectedLayerId}
               selectedLayerIds={selectedLayerIds}

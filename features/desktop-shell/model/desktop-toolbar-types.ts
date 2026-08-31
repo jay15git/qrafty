@@ -303,8 +303,6 @@ export type DesktopToolbarController = {
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
   canvasTool?: DraftingPaneCanvasTool | null
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
-  snapEnabled?: boolean
-  onSnapEnabledChange?: (enabled: boolean) => void
   canAddQrCode?: boolean
   onAddQrCode?: () => void
   onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
