@@ -3,12 +3,18 @@ import {
   Bricolage_Grotesque,
   Geist_Mono,
   Manrope,
+  Reddit_Sans,
 } from "next/font/google"
 
 import { ThemeProvider } from "@/components/theme-provider"
 import { MotionProvider } from "@/components/motion-provider"
 
 import "./globals.css"
+
+const heroSupportFont = Reddit_Sans({
+  variable: "--font-reddit-sans",
+  subsets: ["latin"],
+})
 
 const displayFont = Bricolage_Grotesque({
   variable: "--font-display",
@@ -66,7 +72,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable} h-full antialiased`}
+      className={`${heroSupportFont.variable} ${displayFont.variable} ${bodyFont.variable} ${monoFont.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full cursor-default flex-col">

@@ -83,8 +83,9 @@ const css = `
   align-items: center;
   justify-content: center;
   gap: 0.28em;
+  font-family: var(--font-reddit-sans), "Reddit Sans", sans-serif;
   font-weight: 600;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
   line-height: 1;
   font-size: clamp(52px, 8.2vw, 132px);
   color: rgba(32, 29, 29, 0.88);

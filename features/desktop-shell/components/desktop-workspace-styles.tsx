@@ -617,10 +617,9 @@ export function DesktopWorkspaceStyles() {
       }
 
       @media (max-width: 1100px) {
-        [data-slot="desktop-workspace"] [data-slot="desktop-dynamic-island"] {
+        [data-slot="desktop-workspace"] [data-slot="desktop-dynamic-island"],
+        [data-slot="desktop-floating-toolbar-root"] [data-slot="desktop-dynamic-island"] {
           max-width: calc(100vw - 15rem);
-          overflow-x: auto;
-          overflow-y: visible;
         }
 
         [data-slot="desktop-workspace"] [data-slot="desktop-compose-surface"] {

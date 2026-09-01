@@ -297,7 +297,7 @@ export const TooltipNavbar = ({
 
           <div
             aria-hidden
-            className="pointer-events-none absolute top-full left-0 mt-1 flex h-8 overflow-hidden whitespace-nowrap opacity-0"
+            className="pointer-events-none fixed top-0 left-[-10000px] flex h-8 overflow-hidden whitespace-nowrap opacity-0"
           >
             {items.map((item, index) => (
               <div
