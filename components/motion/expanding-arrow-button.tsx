@@ -9,9 +9,11 @@ import {
 import {
   forwardRef,
   useState,
+  type ElementType,
   type FocusEvent,
   type MouseEvent,
   type ReactNode,
+  type Ref,
 } from "react";
 import { EASE_OUT, SPRING_LAYOUT, SPRING_PRESS } from "@/lib/ease";
 import { useHoverCapable } from "@/lib/hooks/use-hover-capable";
@@ -24,6 +26,9 @@ export interface ExpandingArrowButtonProps extends Omit<
   children: ReactNode;
   accentClassName?: string;
   labelClassName?: string;
+  href?: string;
+  as?: ElementType;
+  sweep?: { palette?: string };
 }
 
 const ARROW_OPACITY = [1, 0.78, 0.54, 0.32, 0.16] as const;
@@ -46,7 +51,7 @@ function DottedChevron({ className }: { className?: string }) {
 }
 
 export const ExpandingArrowButton = forwardRef<
-  HTMLButtonElement,
+  HTMLButtonElement | HTMLAnchorElement,
   ExpandingArrowButtonProps
 >(function ExpandingArrowButton(
   {
@@ -55,6 +60,9 @@ export const ExpandingArrowButton = forwardRef<
     accentClassName,
     labelClassName,
     disabled,
+    href,
+    as,
+    sweep,
     onMouseEnter,
     onMouseLeave,
     onFocus,
@@ -69,6 +77,8 @@ export const ExpandingArrowButton = forwardRef<
   const [focused, setFocused] = useState(false);
   const active = !disabled && ((canHover && hovered) || focused);
   const layoutTransition = reduce ? { duration: 0 } : SPRING_LAYOUT;
+  const Comp = as ?? (href ? "a" : m.button);
+  const isNativeButton = Comp === m.button;
 
   const handleMouseEnter = (event: MouseEvent<HTMLButtonElement>) => {
     setHovered(true);
@@ -90,25 +100,16 @@ export const ExpandingArrowButton = forwardRef<
     onBlur?.(event);
   };
 
-  return (
-    <m.button
-      ref={ref}
-      type="button"
-      disabled={disabled}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      whileTap={reduce || disabled ? undefined : { scale: 0.97 }}
-      transition={SPRING_PRESS}
-      className={cn(
-        "relative inline-flex h-16 min-w-72 cursor-pointer items-center overflow-hidden rounded-[22px] bg-neutral-950 p-1.5 text-white select-none",
-        "outline-none focus-visible:ring-2 focus-visible:ring-lime-300 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-        className,
-      )}
-      {...rest}
-    >
+  const shellClassName = cn(
+    "relative inline-flex h-16 min-w-72 cursor-pointer items-center overflow-hidden rounded-[22px] bg-neutral-950 p-1.5 text-white no-underline select-none",
+    "outline-none focus-visible:ring-2 focus-visible:ring-lime-300 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+    disabled && "pointer-events-none cursor-not-allowed opacity-50",
+    className,
+  );
+
+  const body = (
+    <>
       <m.span
         layout="size"
         aria-hidden="true"
@@ -167,6 +168,49 @@ export const ExpandingArrowButton = forwardRef<
       >
         {children}
       </m.span>
+    </>
+  );
+
+  if (!isNativeButton) {
+    return (
+      <m.span
+        className="inline-flex"
+        whileTap={reduce || disabled ? undefined : { scale: 0.97 }}
+        transition={SPRING_PRESS}
+      >
+        <Comp
+          ref={ref}
+          href={href}
+          sweep={sweep}
+          aria-disabled={disabled || undefined}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          className={shellClassName}
+          {...rest}
+        >
+          {body}
+        </Comp>
+      </m.span>
+    );
+  }
+
+  return (
+    <m.button
+      ref={ref as Ref<HTMLButtonElement>}
+      type="button"
+      disabled={disabled}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      whileTap={reduce || disabled ? undefined : { scale: 0.97 }}
+      transition={SPRING_PRESS}
+      className={shellClassName}
+      {...rest}
+    >
+      {body}
     </m.button>
   );
 });

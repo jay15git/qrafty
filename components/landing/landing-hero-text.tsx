@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useTransitionRouter } from "glimm/next"
+import { TransitionLink } from "glimm/next"
 import { useEffect, useState } from "react"
 import { SlotText } from "slot-text/react"
 
@@ -16,7 +16,6 @@ import { ExpandingArrowButton } from "@/components/motion/expanding-arrow-button
 import "slot-text/style.css"
 
 export function LandingHeroText() {
-  const router = useTransitionRouter()
   const [wordIndex, setWordIndex] = useState(0)
 
   useEffect(() => {
@@ -60,10 +59,12 @@ export function LandingHeroText() {
 
       <div className="lh-cta">
         <ExpandingArrowButton
+          as={TransitionLink}
+          href="/design"
+          sweep={{ palette: "berry" }}
           accentClassName="bg-lime-300 text-neutral-950"
           className="h-16 w-[14.75rem] min-w-0 focus-visible:ring-lime-300"
           labelClassName="absolute inset-y-0 left-[3.625rem] right-3 z-0 ml-0 mr-0 flex items-center justify-center text-xl font-semibold tracking-[-0.02em]"
-          onClick={() => router.push("/design", { palette: "berry" })}
         >
           Design QR
         </ExpandingArrowButton>
