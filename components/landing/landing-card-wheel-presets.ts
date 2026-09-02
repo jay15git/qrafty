@@ -167,7 +167,7 @@ export const LANDING_WHEEL_CARD_PRESETS: LandingWheelCardPreset[] = [
     "rounded",
     "rounded",
     "rounded",
-    { id: "diamond", fill: "#ECFEFF", padding: 20 },
+    { id: "wave-square", fill: "#ECFEFF", padding: 18 },
   ),
   brand(
     "discord",

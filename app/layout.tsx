@@ -2,18 +2,20 @@ import type { Metadata, Viewport } from "next"
 import {
   Bricolage_Grotesque,
   Geist_Mono,
+  Kodchasan,
   Manrope,
-  Reddit_Sans,
 } from "next/font/google"
 
+import { GlimmRootProvider } from "@/components/glimm-root-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { MotionProvider } from "@/components/motion-provider"
 
 import "./globals.css"
 
-const heroSupportFont = Reddit_Sans({
-  variable: "--font-reddit-sans",
+const heroSupportFont = Kodchasan({
+  variable: "--font-kodchasan",
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
 })
 
 const displayFont = Bricolage_Grotesque({
@@ -77,7 +79,9 @@ export default function RootLayout({
     >
       <body className="flex min-h-full cursor-default flex-col">
         <ThemeProvider>
-          <MotionProvider>{children}</MotionProvider>
+          <GlimmRootProvider>
+            <MotionProvider>{children}</MotionProvider>
+          </GlimmRootProvider>
         </ThemeProvider>
       </body>
     </html>

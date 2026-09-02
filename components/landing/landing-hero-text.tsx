@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import { useTransitionRouter } from "glimm/next"
 import { useEffect, useState } from "react"
 import { SlotText } from "slot-text/react"
 
@@ -10,10 +11,12 @@ import {
   HERO_ROTATING_WORDS,
   HERO_SLOT_TEXT_OPTIONS,
 } from "@/components/home/hero-rotating-words"
+import { ExpandingArrowButton } from "@/components/motion/expanding-arrow-button"
 
 import "slot-text/style.css"
 
 export function LandingHeroText() {
+  const router = useTransitionRouter()
   const [wordIndex, setWordIndex] = useState(0)
 
   useEffect(() => {
@@ -54,6 +57,17 @@ export function LandingHeroText() {
           <span className="lh-qrafty-text">QRafty</span>
         </span>
       </h1>
+
+      <div className="lh-cta">
+        <ExpandingArrowButton
+          accentClassName="bg-lime-300 text-neutral-950"
+          className="h-16 w-[14.75rem] min-w-0 focus-visible:ring-lime-300"
+          labelClassName="absolute inset-y-0 left-[3.625rem] right-3 z-0 ml-0 mr-0 flex items-center justify-center text-xl font-semibold tracking-[-0.02em]"
+          onClick={() => router.push("/desktop", { palette: "berry" })}
+        >
+          Design QR
+        </ExpandingArrowButton>
+      </div>
     </div>
   )
 }
@@ -77,13 +91,19 @@ const css = `
   margin: 0.35em 0 0;
   animation: lh-in 600ms ease-out 900ms both;
 }
+.lh-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+  animation: lh-in 600ms ease-out 1200ms both;
+}
 .lh-support {
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 0.28em;
-  font-family: var(--font-reddit-sans), "Reddit Sans", sans-serif;
+  font-family: var(--font-kodchasan), "Kodchasan", sans-serif;
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -121,7 +141,8 @@ const css = `
 
 @media (prefers-reduced-motion: reduce) {
   .lh-line,
-  .lh-brand { animation: none; opacity: 1; }
+  .lh-brand,
+  .lh-cta { animation: none; opacity: 1; }
 }
 
 @media (max-width: 700px) {

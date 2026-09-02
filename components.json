@@ -33,6 +33,7 @@
     "@shark": "https://shark.vini.one/r/{name}.json",
     "@soundcn": "https://soundcn.xyz/r/{name}.json",
     "@smoothui": "https://smoothui.dev/r/{name}.json",
-    "@diceui": "https://diceui.com/r/{style}/{name}.json"
+    "@diceui": "https://diceui.com/r/{style}/{name}.json",
+    "@beui": "https://beui.dev/r/{name}.json"
   }
 }

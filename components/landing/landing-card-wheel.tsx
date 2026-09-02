@@ -29,22 +29,14 @@ export function LandingCardWheel() {
               </div>
             </div>
           ))}
-          {LANDING_WHEEL_CARD_PRESETS.map((_, i) => (
-            <div
-              key={`t${i}`}
-              className="os-tick"
-              style={{
-                transform: `rotate(${i * SPACING + SPACING / 2}deg) translateY(calc(140px - var(--R)))`,
-              }}
-            />
-          ))}
         </div>
       </div>
 
       <section className="os-about">
         <p>
-          Style modules, eyes, gradients, palettes, and die-cut shapes on a
-          live canvas — then export PNG, WebP, or video straight from the studio.
+          QR codes don&apos;t have to look generic. Layer shaders, images, and
+          custom shapes on a live canvas. Save a still for print and websites,
+          or export an animated video for social.
         </p>
       </section>
     </div>
@@ -112,16 +104,6 @@ const css = `
   object-fit: contain;
 }
 
-.os-tick {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 44px;
-  margin-left: -22px;
-  transform-origin: 50% 0;
-  border-top: 1px dashed rgba(32, 29, 29, 0.28);
-}
-
 .os-about {
   position: absolute;
   left: 50%;
@@ -133,11 +115,12 @@ const css = `
 }
 .os-about p {
   margin: 0;
-  font-weight: 500;
+  font-family: var(--font-kodchasan), "Kodchasan", sans-serif;
+  font-weight: 600;
   font-size: clamp(30px, 3.3vw, 54px);
   line-height: 1.16;
-  letter-spacing: -0.015em;
-  color: #201d1d;
+  letter-spacing: -0.02em;
+  color: rgba(32, 29, 29, 0.88);
 }
 
 @media (prefers-reduced-motion: reduce) {
