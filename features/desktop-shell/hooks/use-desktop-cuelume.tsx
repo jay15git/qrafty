@@ -13,7 +13,6 @@ import {
 
 import {
   applyDesktopSoundPreferences,
-  enhanceDesktopSoundTargets,
   readDesktopSoundsEnabled,
   setDesktopSoundsEnabled,
 } from "@/features/desktop-shell/audio/desktop-cuelume"
@@ -30,16 +29,9 @@ export function DesktopCuelumeProvider({ children }: { children: ReactNode }) {
   const [soundsEnabled, setSoundsEnabledState] = useState(true)
 
   useEffect(() => {
-    bind(document)
+    bind()
     applyDesktopSoundPreferences()
-    enhanceDesktopSoundTargets(document)
-
     setSoundsEnabledState(readDesktopSoundsEnabled())
-
-    const observer = new MutationObserver(() => {
-      enhanceDesktopSoundTargets(document)
-    })
-    observer.observe(document.body, { childList: true, subtree: true })
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
     const handleMotionChange = () => {
@@ -49,7 +41,6 @@ export function DesktopCuelumeProvider({ children }: { children: ReactNode }) {
     motionQuery.addEventListener("change", handleMotionChange)
 
     return () => {
-      observer.disconnect()
       motionQuery.removeEventListener("change", handleMotionChange)
     }
   }, [])

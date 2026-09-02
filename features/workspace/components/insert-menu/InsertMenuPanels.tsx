@@ -48,6 +48,7 @@ import {
   type IllustrationSetId,
 } from "@/features/workspace/assets/illustration-sets"
 import type { DraftingElementShapeId } from "@/features/workspace/model/layers"
+import { CUELUME_BUTTON, CUELUME_TOGGLE } from "@/features/desktop-shell/audio/desktop-cuelume"
 import { cn } from "@/lib/utils"
 
 export function InsertMenuActionButton({
@@ -71,6 +72,7 @@ export function InsertMenuActionButton({
         disabled={disabled}
         type="button"
         onClick={onClick}
+        {...CUELUME_BUTTON}
       >
         {children}
       </button>
@@ -116,6 +118,7 @@ function InsertMenuPanelHeader({
         }
         type="button"
         onClick={onBack}
+        {...CUELUME_BUTTON}
       >
         Back
       </button>
@@ -150,6 +153,7 @@ export function InsertMenuRootOptionTile({
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      {...CUELUME_TOGGLE}
     >
       <span className="dn-insert-menu-root-tile-preview">
         <InsertMenuFanPreview isHovered={isHovered} previews={previews} />

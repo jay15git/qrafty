@@ -49,6 +49,7 @@ import {
   patchShapeLayerFillFromPicker,
 } from "@/features/workspace/rendering/shape-fill"
 import { cn } from "@/lib/utils"
+import { CUELUME_TOGGLE } from "@/features/desktop-shell/audio/desktop-cuelume"
 
 import "@/features/desktop-shell/inspector/desktopnew.css"
 
@@ -85,6 +86,7 @@ const LayerFloatingSettingsButton = forwardRef<
       data-slot="drafting-layer-floating-toolbar-button"
       type={type}
       onPointerDown={(event) => event.stopPropagation()}
+      {...CUELUME_TOGGLE}
       {...props}
     >
       {children}

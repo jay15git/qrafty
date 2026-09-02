@@ -6,7 +6,7 @@ import type { ComponentProps } from "react"
 import {
   DESKTOP_UTILITY_TOOLBAR_SHELL_CLASS,
 } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
-import { CUELUME_NAV, CUELUME_PRESS, CUELUME_TOGGLE } from "@/features/desktop-shell/audio/desktop-cuelume"
+import { desktopCuelumeAttrs } from "@/features/desktop-shell/audio/desktop-cuelume"
 
 const DESKTOP_UTILITY_TOOLBAR_BUTTON_CLASS =
   "relative grid size-9 cursor-pointer place-items-center overflow-visible rounded-none border-0 bg-transparent p-0 text-current shadow-none transition-colors duration-150 hover:bg-transparent hover:text-[var(--desktop-glass-button-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-glass-button-focus-ring)] disabled:cursor-not-allowed max-md:size-8 [&_svg]:size-3.5"
@@ -26,20 +26,13 @@ export function DesktopUtilityToolbar({
 
 export function DesktopUtilityToolbarButton({
   className,
-  cuelume = "nav",
+  cuelume = "button",
   type = "button",
   ...props
 }: ComponentProps<"button"> & {
-  cuelume?: "nav" | "none" | "press" | "toggle"
+  cuelume?: "button" | "none" | "toggle"
 }) {
-  const cuelumeAttrs =
-    cuelume === "nav"
-      ? CUELUME_NAV
-      : cuelume === "press"
-        ? CUELUME_PRESS
-        : cuelume === "toggle"
-          ? CUELUME_TOGGLE
-          : {}
+  const cuelumeAttrs = desktopCuelumeAttrs(cuelume)
 
   return (
     <button

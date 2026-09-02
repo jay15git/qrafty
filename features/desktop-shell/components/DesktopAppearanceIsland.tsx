@@ -203,6 +203,7 @@ export function DesktopDynamicIslandChrome({
 
     nextItems.push({
       ariaLabel: soundsEnabled ? "Mute interaction sounds" : "Enable interaction sounds",
+      cuelume: "toggle",
       dataSlot: "desktop-sounds-toggle",
       icon: soundsEnabled ? (
         <Volume2Icon className={ICON_CLASS} />
@@ -216,6 +217,7 @@ export function DesktopDynamicIslandChrome({
     if (onThemeChange) {
       nextItems.push({
         ariaLabel: `Switch to ${theme === "light" ? "dark" : "light"} mode`,
+        cuelume: "toggle",
         dataSlot: "desktop-theme-toggle",
         icon:
           theme === "light" ? (

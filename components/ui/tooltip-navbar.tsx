@@ -4,7 +4,7 @@ import { AnimatePresence, m } from "motion/react";
 import { useRef, useState, type ReactNode } from "react";
 
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
-import { CUELUME_NAV, CUELUME_TOGGLE } from "@/features/desktop-shell/audio/desktop-cuelume";
+import { desktopCuelumeAttrs } from "@/features/desktop-shell/audio/desktop-cuelume";
 import { cn } from "@/lib/utils";
 
 export type TooltipItem = {
@@ -19,7 +19,7 @@ export type TooltipItem = {
   popover?: ReactNode;
   variant?: "icon" | "text";
   pressed?: boolean;
-  cuelume?: "nav" | "none" | "toggle";
+  cuelume?: "button" | "none" | "toggle";
 };
 
 import {
@@ -91,12 +91,7 @@ export const TooltipNavbar = ({
 
   const renderItemButton = (item: TooltipItem, index: number) => {
     const isText = item.variant === "text";
-    const cuelumeAttrs =
-      item.cuelume === "toggle"
-        ? CUELUME_TOGGLE
-        : item.cuelume === "none"
-          ? {}
-          : CUELUME_NAV;
+    const cuelumeAttrs = desktopCuelumeAttrs(item.cuelume ?? "button");
 
     return (
       <button

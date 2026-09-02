@@ -14,10 +14,13 @@ import { bind, play, setEnabled, setVolume } from "cuelume"
 
 import {
   applyDesktopSoundPreferences,
+  CUELUME_BUTTON,
+  CUELUME_TOGGLE,
   DESKTOP_SOUND_PRESS,
   DESKTOP_SOUND_RELEASE,
+  DESKTOP_SOUND_TOGGLE,
   DESKTOP_SOUNDS_STORAGE_KEY,
-  enhanceDesktopSoundTargets,
+  desktopCuelumeAttrs,
   persistDesktopSoundsEnabled,
   playDesktopPressSound,
   playDesktopSound,
@@ -61,7 +64,6 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
-  document.body.innerHTML = ""
 })
 
 describe("desktop-cuelume preferences", () => {
@@ -113,107 +115,24 @@ describe("desktop-cuelume preferences", () => {
   })
 })
 
-describe("enhanceDesktopSoundTargets", () => {
-  function mountScope(html: string) {
-    document.body.innerHTML = html
-    enhanceDesktopSoundTargets(document)
-    return document.body
-  }
-
-  it("tags option tiles with press even inside the floating toolbar shell", () => {
-    const root = mountScope(`
-      <div data-slot="desktop-floating-toolbar-root">
-        <div data-slot="desktop-left-toolbar-shell">
-          <button class="dn-option-tile" type="button">PNG</button>
-        </div>
-      </div>
-    `)
-
-    const button = root.querySelector("button")
-    expect(button?.getAttribute("data-cuelume-press")).toBe(DESKTOP_SOUND_PRESS)
-    expect(button?.hasAttribute("data-cuelume-release")).toBe(false)
+describe("desktopCuelumeAttrs", () => {
+  it("maps button kind to press and release attrs", () => {
+    expect(desktopCuelumeAttrs("button")).toEqual(CUELUME_BUTTON)
+    expect(desktopCuelumeAttrs("button")).toEqual({
+      "data-cuelume-press": DESKTOP_SOUND_PRESS,
+      "data-cuelume-release": DESKTOP_SOUND_RELEASE,
+    })
   })
 
-  it("tags accordion headers with release only", () => {
-    const root = mountScope(`
-      <div data-slot="desktop-workspace">
-        <div class="dn-settings-accordion">
-          <button aria-controls="panel" aria-expanded="false" type="button">Content</button>
-        </div>
-      </div>
-    `)
-
-    const button = root.querySelector("button")
-    expect(button?.getAttribute("data-cuelume-release")).toBe(DESKTOP_SOUND_RELEASE)
-    expect(button?.hasAttribute("data-cuelume-press")).toBe(false)
-    expect(button?.hasAttribute("data-cuelume-hover")).toBe(false)
+  it("maps toggle kind to data-cuelume-toggle", () => {
+    expect(desktopCuelumeAttrs("toggle")).toEqual(CUELUME_TOGGLE)
+    expect(desktopCuelumeAttrs("toggle")).toEqual({
+      "data-cuelume-toggle": DESKTOP_SOUND_TOGGLE,
+    })
   })
 
-  it("tags chrome toolbar buttons with release only", () => {
-    const root = mountScope(`
-      <div data-slot="desktop-floating-toolbar-root">
-        <div data-slot="desktop-dynamic-island">
-          <button type="button">Undo</button>
-        </div>
-      </div>
-    `)
-
-    const button = root.querySelector("button")
-    expect(button?.getAttribute("data-cuelume-release")).toBe(DESKTOP_SOUND_RELEASE)
-    expect(button?.hasAttribute("data-cuelume-press")).toBe(false)
-    expect(button?.hasAttribute("data-cuelume-hover")).toBe(false)
-  })
-
-  it("tags segment tabs with press only", () => {
-    const root = mountScope(`
-      <div data-slot="desktop-workspace">
-        <button class="dn-segment-tab" type="button">Photo</button>
-      </div>
-    `)
-
-    const button = root.querySelector("button")
-    expect(button?.getAttribute("data-cuelume-press")).toBe(DESKTOP_SOUND_PRESS)
-    expect(button?.hasAttribute("data-cuelume-release")).toBe(false)
-    expect(button?.hasAttribute("data-cuelume-toggle")).toBe(false)
-  })
-
-  it("strips legacy hover attrs during enhancement", () => {
-    const root = mountScope(`
-      <div data-slot="desktop-workspace">
-        <button data-cuelume-hover="tick" type="button">Undo</button>
-      </div>
-    `)
-
-    const button = root.querySelector("button")
-    expect(button?.hasAttribute("data-cuelume-hover")).toBe(false)
-    expect(button?.getAttribute("data-cuelume-press")).toBe(DESKTOP_SOUND_PRESS)
-  })
-
-  it("does not retag buttons that already have cuelume attrs", () => {
-    const root = mountScope(`
-      <div data-slot="desktop-workspace">
-        <button data-cuelume-release="${DESKTOP_SOUND_RELEASE}" type="button">Already tagged</button>
-      </div>
-    `)
-
-    enhanceDesktopSoundTargets(document)
-    const button = root.querySelector("button")
-    expect(button?.getAttribute("data-cuelume-release")).toBe(DESKTOP_SOUND_RELEASE)
-    expect(button?.hasAttribute("data-cuelume-press")).toBe(false)
-  })
-
-  it("ignores buttons inside skipped subtrees", () => {
-    const root = mountScope(`
-      <div data-slot="desktop-workspace">
-        <div data-cuelume-skip="">
-          <button type="button">Skip me</button>
-        </div>
-      </div>
-    `)
-
-    const button = root.querySelector("button")
-    expect(button?.hasAttribute("data-cuelume-press")).toBe(false)
-    expect(button?.hasAttribute("data-cuelume-release")).toBe(false)
+  it("maps none kind to an empty object", () => {
+    expect(desktopCuelumeAttrs("none")).toEqual({})
   })
 })
 
@@ -221,17 +140,6 @@ describe("useDesktopCuelume bootstrap", () => {
   it("binds cuelume on provider mount", async () => {
     const { renderWithAsyncJsdomRoot } = await import("@/test-utils/jsdom-react-root")
     const { DesktopCuelumeProvider } = await import("@/features/desktop-shell/hooks/use-desktop-cuelume")
-
-    class MockMutationObserver {
-      observe() {}
-      disconnect() {}
-    }
-
-    Object.defineProperty(window, "MutationObserver", {
-      configurable: true,
-      writable: true,
-      value: MockMutationObserver,
-    })
 
     await renderWithAsyncJsdomRoot(
       createElement(
@@ -241,7 +149,7 @@ describe("useDesktopCuelume bootstrap", () => {
       ),
     )
 
-    expect(bind).toHaveBeenCalledWith(document)
+    expect(bind).toHaveBeenCalledWith()
     expect(setEnabled).toHaveBeenCalled()
   })
 })

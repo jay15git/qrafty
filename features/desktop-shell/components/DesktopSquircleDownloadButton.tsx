@@ -6,7 +6,7 @@ import { BorderBeam, type BorderBeamTheme } from "border-beam"
 import { forwardRef, type ComponentPropsWithoutRef } from "react"
 
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
-import { CUELUME_RELEASE } from "@/features/desktop-shell/audio/desktop-cuelume"
+import { CUELUME_BUTTON } from "@/features/desktop-shell/audio/desktop-cuelume"
 import { cn } from "@/lib/utils"
 
 type DesktopSquircleDownloadButtonProps = Omit<ComponentPropsWithoutRef<"button">, "children"> & {
@@ -43,7 +43,7 @@ export const DesktopSquircleDownloadButton = forwardRef<
         data-slot="desktop-download-trigger"
         type={type}
         onClick={onClick}
-        {...CUELUME_RELEASE}
+        {...CUELUME_BUTTON}
         {...props}
       >
         <HugeiconsIcon icon={Download02Icon} size={16} color="currentColor" strokeWidth={1.8} />
