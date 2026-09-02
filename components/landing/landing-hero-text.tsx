@@ -63,7 +63,7 @@ export function LandingHeroText() {
           accentClassName="bg-lime-300 text-neutral-950"
           className="h-16 w-[14.75rem] min-w-0 focus-visible:ring-lime-300"
           labelClassName="absolute inset-y-0 left-[3.625rem] right-3 z-0 ml-0 mr-0 flex items-center justify-center text-xl font-semibold tracking-[-0.02em]"
-          onClick={() => router.push("/desktop", { palette: "berry" })}
+          onClick={() => router.push("/design", { palette: "berry" })}
         >
           Design QR
         </ExpandingArrowButton>

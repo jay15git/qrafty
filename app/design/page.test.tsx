@@ -24,8 +24,8 @@ import { DesktopPageClient } from "@/features/desktop-shell/components/DesktopPa
 import DesktopPage, { metadata } from "./page"
 
 describe("desktop page", () => {
-  it("exposes metadata for the desktop workspace", () => {
-    expect(metadata.title).toBe("Desktop Workspace")
+  it("exposes metadata for the design workspace", () => {
+    expect(metadata.title).toBe("Design QR")
     expect(metadata.description).toContain("floating toolbar")
   })
 

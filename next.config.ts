@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
     root: path.join(__dirname),
   },
   transpilePackages: ["@qrafty/qr"],
+  async redirects() {
+    return [
+      { source: "/landing", destination: "/", permanent: true },
+      { source: "/desktop", destination: "/design", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

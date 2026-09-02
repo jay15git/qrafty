@@ -19,8 +19,8 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 
 ## App Structure
 - `app/layout.tsx` defines the root shell, Geist/Bricolage Grotesque/Manrope fonts, and global CSS.
-- `app/page.tsx` is the home route; renders `HomePage` from `components/home/home-page.tsx`.
-- `/desktop` is the active desktop workspace (`DesktopWorkspace` → `WorkspaceSurface` canvas + `FloatingToolbar` settings).
+- `app/page.tsx` is the home route; renders the marketing landing (`LandingHeroText` + `LandingCardWheel`).
+- `/design` is the active desktop workspace (`DesktopWorkspace` → `WorkspaceSurface` canvas + `FloatingToolbar` settings). `/desktop` redirects to `/design`.
 - `/new`, `/dashboard`, and `/settings` have been removed. Do not re-add features or fixes there unless explicitly asked.
 - `features/qr-code/model/state.ts` is the core QR state and mapper layer. Update this first when adding new controls, defaults, or renderer options.
 - Desktop QR settings live in `features/desktop-shell/components/FloatingToolbar.tsx` and `features/desktop-shell/inspector/DesktopNewSettingsPanel.tsx`.

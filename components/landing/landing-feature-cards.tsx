@@ -419,7 +419,7 @@ function TakeCard() {
             MP4 · 4K
           </span>
         </div>
-        <Link className="lfc-cta" href="/desktop">
+        <Link className="lfc-cta" href="/design">
           Open studio
         </Link>
       </div>

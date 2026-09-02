@@ -18,7 +18,7 @@ const satoshi = localFont({
 })
 
 export const metadata: Metadata = {
-  title: "Desktop Workspace",
+  title: "Design QR",
   description: "A desktop QR workspace with the full drafting canvas and floating toolbar.",
 }
 
