@@ -14,7 +14,6 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@qrafty/qr"],
   async redirects() {
     return [
-      { source: "/landing", destination: "/", permanent: true },
       { source: "/desktop", destination: "/design", permanent: true },
     ];
   },
