@@ -111,7 +111,7 @@ function QrStylePreviewGrid({
             >
               <span
                 aria-hidden="true"
-                className="grid size-full place-items-center overflow-hidden p-1.5 text-foreground/80 dn-squircle-xs dark:text-white"
+                className="grid size-full place-items-center overflow-hidden p-1.5 dn-squircle-xs"
               >
                 <QrStyleOptionPreview
                   className="size-full max-h-full max-w-full"

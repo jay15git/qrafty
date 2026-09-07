@@ -495,6 +495,31 @@
   color: var(--dn-fg);
 }
 
+.dn-qr-style-option-preview {
+  opacity: 0.8;
+  filter: none;
+}
+
+.desktopnew-root[data-theme="dark"] .dn-qr-style-option-preview {
+  opacity: 1;
+  filter: invert(1);
+}
+
+.dn-style-preview-icon,
+[data-slot^="style-preview"] {
+  color: rgb(24 24 27 / 0.8);
+}
+
+.desktopnew-root[data-theme="light"] .dn-style-preview-icon,
+.desktopnew-root[data-theme="light"] [data-slot^="style-preview"] {
+  color: color-mix(in srgb, var(--dn-fg) 80%, transparent);
+}
+
+.desktopnew-root[data-theme="dark"] .dn-style-preview-icon,
+.desktopnew-root[data-theme="dark"] [data-slot^="style-preview"] {
+  color: #ffffff;
+}
+
 /* Settings surfaces — flat press (no hover/active scale) */
 :is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover)
   :is(

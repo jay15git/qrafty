@@ -1,0 +1,11 @@
+{
+  "components": {
+    "arrow-fill-button": {
+      "version": "1.1.0",
+      "installedAt": "2026-09-03T21:09:35.521Z",
+      "files": {
+        "src/components/effects/arrow-fill-button/index.tsx": "sha256:426bebab4aca9800a82ee096e96dc623d7f50cbd8902dcaa65a6e16eec2869ae"
+      }
+    }
+  }
+}

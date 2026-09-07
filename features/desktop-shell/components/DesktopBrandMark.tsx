@@ -1,9 +1,12 @@
 "use client"
 
 import Image from "next/image"
+import { TransitionLink } from "glimm/next"
 
 import type { DesktopThemeMode } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import { cn } from "@/lib/utils"
+
+const homeSweep = { palette: "berry", midpoint: 0.92 } as const
 
 export function DesktopBrandMark({
   theme,
@@ -13,9 +16,12 @@ export function DesktopBrandMark({
   className?: string
 }) {
   return (
-    <span
+    <TransitionLink
+      href="/"
+      sweep={homeSweep}
+      aria-label="QRafty home"
       className={cn(
-        "inline-flex items-center gap-2 font-caveat text-[2rem] font-semibold leading-none tracking-tight select-none",
+        "inline-flex items-center gap-2 font-caveat text-[2rem] font-semibold leading-none tracking-tight select-none outline-none focus-visible:ring-2 focus-visible:ring-white/30",
         theme === "light" ? "text-neutral-950" : "text-white",
         className,
       )}
@@ -31,6 +37,6 @@ export function DesktopBrandMark({
         priority
       />
       QRafty
-    </span>
+    </TransitionLink>
   )
 }

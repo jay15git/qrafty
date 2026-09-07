@@ -231,7 +231,7 @@ const css = `
   vertical-align: baseline;
 }
 .os-hero-qrafty {
-  font-family: var(--font-caveat), "Caveat", cursive;
+  font-family: var(--font-caveat-family), "Caveat", cursive;
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1;

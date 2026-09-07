@@ -81,6 +81,7 @@
     "eslint-config-next": "16.2.6",
     "jsdom": "^29.0.2",
     "knip": "^6.16.1",
+    "postcss": "^8.5.26",
     "tailwindcss": "^4",
     "typescript": "^5.9.3",
     "vitest": "^4.1.4"

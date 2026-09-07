@@ -1,17 +1,27 @@
 "use client"
 
 import Image from "next/image"
-import { TransitionLink } from "glimm/next"
 import { useEffect, useState } from "react"
 import { SlotText } from "slot-text/react"
 
+import ArrowFillButton from "@/components/effects/arrow-fill-button"
 import {
   getHeroIndefiniteArticle,
   HERO_ROTATE_MS,
   HERO_ROTATING_WORDS,
   HERO_SLOT_TEXT_OPTIONS,
 } from "@/components/home/hero-rotating-words"
-import { ExpandingArrowButton } from "@/components/motion/expanding-arrow-button"
+
+const arrowFillButtonProps = {
+  btnText: "Craft my QR",
+  bgColor: "#ff0088",
+  textColor: "#ffffff",
+  fillBgColor: "#ffffff",
+  fillTextColor: "#ff5f00",
+  hoverFillBgColor: "#ffffff",
+  hoverFillTextColor: "#ff0095",
+  sweep: { palette: "berry", midpoint: 0.92 },
+} as const
 
 import "slot-text/style.css"
 
@@ -53,21 +63,16 @@ export function LandingHeroText() {
             aria-hidden
             priority
           />
-          <span className="lh-qrafty-text">QRafty</span>
+          <span className="lh-qrafty-text font-caveat">QRafty</span>
         </span>
       </h1>
 
       <div className="lh-cta">
-        <ExpandingArrowButton
-          as={TransitionLink}
+        <ArrowFillButton
           href="/design"
-          sweep={{ palette: "berry" }}
-          accentClassName="bg-lime-300 text-neutral-950"
-          className="h-16 w-[14.75rem] min-w-0 focus-visible:ring-lime-300"
-          labelClassName="absolute inset-y-0 left-[3.625rem] right-3 z-0 ml-0 mr-0 flex items-center justify-center text-xl font-semibold tracking-[-0.02em]"
-        >
-          Design QR
-        </ExpandingArrowButton>
+          {...arrowFillButtonProps}
+          className="lh-cta-btn"
+        />
       </div>
     </div>
   )
@@ -98,6 +103,38 @@ const css = `
   margin-top: clamp(1.5rem, 4vw, 2.5rem);
   animation: lh-in 600ms ease-out 1200ms both;
 }
+.lh-cta-btn {
+  height: 2.75rem !important;
+  padding-left: 1.25rem !important;
+  padding-right: calc(var(--icon-circle) + var(--icon-right) + 0.65rem) !important;
+  font-size: 0.9375rem !important;
+  font-weight: 600;
+  --icon-circle: 2rem;
+  --icon-right: 0.35rem;
+}
+.lh-cta-btn svg {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+.lh-cta-btn > div[aria-hidden="true"]:nth-of-type(2) {
+  padding-left: 1.25rem !important;
+  padding-right: calc(var(--icon-circle) + var(--icon-right) + 0.65rem) !important;
+}
+@media (min-width: 640px) {
+  .lh-cta-btn {
+    height: 3rem !important;
+    padding-left: 1.5rem !important;
+    font-size: 1rem !important;
+    --icon-circle: 2.125rem;
+  }
+  .lh-cta-btn svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+  .lh-cta-btn > div[aria-hidden="true"]:nth-of-type(2) {
+    padding-left: 1.5rem !important;
+  }
+}
 .lh-support {
   display: inline-flex;
   flex-wrap: wrap;
@@ -125,7 +162,6 @@ const css = `
   line-height: 1;
 }
 .lh-qrafty-text {
-  font-family: var(--font-caveat), "Caveat", cursive;
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1;

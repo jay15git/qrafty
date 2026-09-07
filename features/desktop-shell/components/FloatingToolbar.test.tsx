@@ -5,6 +5,19 @@ import { resolve } from "node:path"
 import { act, type ComponentProps, useEffect, useState } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+vi.mock("glimm/next", () => ({
+  TransitionLink: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode
+    href: string
+  }) => (
+    <a href={href} {...props}>{children}</a>
+  ),
+}))
+
 import { FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
 import { DesktopSettingsToolbarShell } from "@/features/desktop-shell/components/DesktopSettingsToolbarShell"
 import { DesktopCuelumeProvider } from "@/features/desktop-shell/hooks/use-desktop-cuelume"
@@ -197,6 +210,8 @@ describe("FloatingToolbar", () => {
     const brandMark = surface.container.querySelector('[data-slot="desktop-brand-mark"]')
 
     expect(brandMark?.textContent).toBe("QRafty")
+    expect(brandMark?.tagName).toBe("A")
+    expect(brandMark?.getAttribute("href")).toBe("/")
     expect(brandMark?.className).toContain("font-caveat")
     expect(
       surface.container.querySelector(

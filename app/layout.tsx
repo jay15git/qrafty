@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import {
   Bricolage_Grotesque,
+  Caveat,
   Geist_Mono,
   Kodchasan,
   Manrope,
@@ -16,6 +17,12 @@ const heroSupportFont = Kodchasan({
   variable: "--font-kodchasan",
   subsets: ["latin"],
   weight: ["400", "600", "700"],
+})
+
+const brandFont = Caveat({
+  variable: "--font-caveat-family",
+  subsets: ["latin"],
+  weight: ["600", "700"],
 })
 
 const displayFont = Bricolage_Grotesque({
@@ -74,7 +81,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${heroSupportFont.variable} ${displayFont.variable} ${bodyFont.variable} ${monoFont.variable} h-full antialiased`}
+      className={`${heroSupportFont.variable} ${brandFont.variable} ${displayFont.variable} ${bodyFont.variable} ${monoFont.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full cursor-default flex-col">

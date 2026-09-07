@@ -1,0 +1,20 @@
+{
+  "$schema": "https://vault.hyperiux.com/schema.json",
+  "framework": "next",
+  "router": "app",
+  "tailwind": {
+    "config": null,
+    "css": "app/globals.css"
+  },
+  "aliases": {
+    "components": "@/components",
+    "effects": "@/components/effects",
+    "hooks": "@/hooks",
+    "lib": "@/lib"
+  },
+  "installedEffects": {
+    "arrow-fill-button": {
+      "installedAt": "2026-09-03T21:09:35.522Z"
+    }
+  }
+}

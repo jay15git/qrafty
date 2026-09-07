@@ -20,10 +20,7 @@ export function QrStyleOptionPreview({
   return (
     <Image
       alt=""
-      className={cn(
-        "size-full object-contain opacity-80 dark:opacity-100 dark:invert",
-        className,
-      )}
+      className={cn("dn-qr-style-option-preview size-full object-contain", className)}
       data-preview-kind={previewKind}
       data-preview-style={value}
       data-slot="qr-style-option-preview"
