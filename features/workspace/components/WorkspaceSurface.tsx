@@ -185,6 +185,7 @@ import {
   type QraftyDataModulesStyle,
   type QraftyGradient,
   setDotMatrixAnimationOptions,
+  getAssetValue,
 } from "@/features/qr-code/model/state"
 import { type QrBackgroundShapeId } from "@/features/qr-code/styles/background-shapes"
 import {
@@ -799,8 +800,67 @@ export function WorkspaceSurface({
     setSelectedLogoCrossOrigin(nextState.imageOptions.crossOrigin)
   }
 
+  function syncDraftingModuleFillControlsFromState(nextState: QraftyState) {
+    if (nextState.dotsColorMode !== "image") {
+      return
+    }
+
+    const fillValue = getAssetValue(nextState.moduleFillImage) ?? ""
+    const source =
+      nextState.moduleFillImage.source === "url"
+        ? "url"
+        : nextState.moduleFillImage.source === "upload"
+          ? "upload"
+          : "upload"
+
+    if (source === "url") {
+      setSelectedModuleFillImageSourceMode("url")
+      setSelectedModuleFillRemoteUrl(fillValue)
+      setSelectedModuleFillImageUrl("")
+      return
+    }
+
+    setSelectedModuleFillImageSourceMode("upload")
+    setSelectedModuleFillImageUrl((current) => fillValue || current)
+    setSelectedModuleFillRemoteUrl("")
+  }
+
+  function resolveLiveQrPersistState(): QraftyState {
+    const live = draftingQraftyState
+    const persisted = qrStateByLayerId[activeQrLayerId]
+    if (!persisted) {
+      return live
+    }
+
+    const liveModuleFill = getAssetValue(live.moduleFillImage)
+    const persistedModuleFill = getAssetValue(persisted.moduleFillImage)
+    if (!persistedModuleFill) {
+      return live
+    }
+
+    const shouldPreferPersistedModuleFill =
+      (live.dotsColorMode === "image" && !liveModuleFill) ||
+      (persisted.dotsColorMode === "image" && live.dotsColorMode !== "image")
+
+    if (!shouldPreferPersistedModuleFill) {
+      return live
+    }
+
+    return {
+      ...live,
+      dotsColorMode: "image",
+      moduleFillImage: {
+        ...live.moduleFillImage,
+        ...persisted.moduleFillImage,
+        source: persisted.moduleFillImage.source === "url" ? "url" : "upload",
+        value: persistedModuleFill,
+      },
+    }
+  }
+
   function commitActiveQraftyState(nextState: QraftyState) {
     syncDraftingLogoControlsFromState(nextState)
+    syncDraftingModuleFillControlsFromState(nextState)
     persistActiveQrLayerState(nextState)
     clearDraftingQrMarkupCache()
   }
@@ -1197,6 +1257,7 @@ export function WorkspaceSurface({
     setSelectedLogoOffsetX(nextState.imageOptions.x ?? 0)
     setSelectedLogoOffsetY(nextState.imageOptions.y ?? 0)
     setSelectedLogoCrossOrigin(nextState.imageOptions.crossOrigin)
+    syncDraftingModuleFillControlsFromState(nextState)
   }
 
   function buildDraftingWorkspaceDocument(): DraftingWorkspaceDocumentV1 {
@@ -1216,7 +1277,7 @@ export function WorkspaceSurface({
     })
   }
 
-  function persistActiveQrLayerState(nextState: QraftyState = draftingQraftyState) {
+  function persistActiveQrLayerState(nextState: QraftyState = resolveLiveQrPersistState()) {
     setQrStateByLayerId((current) => ({
       ...current,
       [activeQrLayerId]: cloneDraftingQrState(nextState),
@@ -1433,6 +1494,41 @@ export function WorkspaceSurface({
       URL.revokeObjectURL(moduleFillUploadObjectUrl)
     }
   }, [moduleFillUploadObjectUrl])
+
+  useEffect(() => {
+    const persisted = qrStateByLayerId[activeQrLayerId]
+    if (!persisted || persisted.dotsColorMode !== "image") {
+      return
+    }
+
+    const persistedFill = getAssetValue(persisted.moduleFillImage)
+    if (!persistedFill) {
+      return
+    }
+
+    const liveFill =
+      selectedDotsColorMode === "image"
+        ? selectedModuleFillImageSourceMode === "url"
+          ? selectedModuleFillRemoteUrl
+          : selectedModuleFillImageUrl
+        : ""
+
+    if (liveFill === persistedFill) {
+      return
+    }
+
+    if (selectedDotsColorMode !== "image") {
+      setSelectedDotsColorMode("image")
+    }
+    syncDraftingModuleFillControlsFromState(persisted)
+  }, [
+    activeQrLayerId,
+    qrStateByLayerId,
+    selectedDotsColorMode,
+    selectedModuleFillImageSourceMode,
+    selectedModuleFillImageUrl,
+    selectedModuleFillRemoteUrl,
+  ])
 
   useEffect(() => {
     let cancelled = false
@@ -2929,20 +3025,6 @@ export function WorkspaceSurface({
   }
 
   function updateDesktopPatternSettings(patch: DesktopPatternSettingsPatch) {
-    let moduleFillUploadValue: string | undefined
-
-    if (patch.uploadedModuleFillFile) {
-      ensureDotsColorItemExpanded("image")
-      const uploadValue = replaceTrackedObjectUrl(
-        moduleFillUploadObjectUrlRef,
-        patch.uploadedModuleFillFile,
-        setModuleFillUploadObjectUrl,
-      )
-      setSelectedDotsColorMode("image")
-      setSelectedModuleFillImageSourceMode("upload")
-      setSelectedModuleFillImageUrl(uploadValue)
-      moduleFillUploadValue = uploadValue
-    }
     if (patch.qrDotType) setSelectedDotType(patch.qrDotType)
     if (patch.moduleRoundSize !== undefined) setSelectedModuleRoundSize(patch.moduleRoundSize)
     if (patch.moduleSize !== undefined) setSelectedModuleSize(patch.moduleSize)
@@ -2989,24 +3071,12 @@ export function WorkspaceSurface({
       setSelectedModuleFillImageSourceMode(patch.moduleFillImageSourceMode)
     }
 
-    let nextState = applyPatternSettingsPatchToQraftyState(draftingQraftyState, patch)
-
-    if (moduleFillUploadValue !== undefined) {
-      nextState = {
-        ...nextState,
-        dotsColorMode: "image",
-        moduleFillImage: {
-          presetColor: undefined,
-          presetId: undefined,
-          source: "upload",
-          value: moduleFillUploadValue,
-        },
-      }
-    }
+    let nextState = applyPatternSettingsPatchToQraftyState(resolveLiveQrPersistState(), patch)
 
     clearQrEncodeMarkupCache()
     clearDraftingQrMarkupCache()
     persistActiveQrLayerState(nextState)
+    syncDraftingModuleFillControlsFromState(nextState)
   }
 
   function resetDesktopPatternSettings() {
@@ -3112,7 +3182,7 @@ export function WorkspaceSurface({
       setSelectedCornerDotGradient({ ...patch.cornerDotGradient, enabled: true })
     }
 
-    const nextState = applyCornersSettingsPatchToQraftyState(draftingQraftyState, patch)
+    const nextState = applyCornersSettingsPatchToQraftyState(resolveLiveQrPersistState(), patch)
     clearQrEncodeMarkupCache()
     clearDraftingQrMarkupCache()
     persistActiveQrLayerState(nextState)
@@ -3214,9 +3284,10 @@ export function WorkspaceSurface({
     setSelectedCardState(normalizedCardState)
 
     if (shouldRelayoutCardInset) {
-      const fittedQr = fitQrSizeInCard(draftingQraftyState, normalizedCardState)
+      const baseQrState = resolveLiveQrPersistState()
+      const fittedQr = fitQrSizeInCard(baseQrState, normalizedCardState)
       const nextQrState = {
-        ...draftingQraftyState,
+        ...baseQrState,
         height: fittedQr.height,
         width: fittedQr.width,
       }

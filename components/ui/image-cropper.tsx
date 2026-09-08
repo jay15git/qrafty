@@ -389,10 +389,11 @@ export function ImageCropper({
       )
 
       setTimeout(() => {
+        const nextCroppedImageUrl = canvas.toDataURL("image/jpeg", 0.9)
+
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              const nextCroppedImageUrl = URL.createObjectURL(blob)
               const croppedFile = blobToFile(blob, `cropped-${originalFile.name}`)
 
               setCroppedImageUrl(nextCroppedImageUrl)
@@ -468,14 +469,22 @@ export function ImageCropper({
 
   useEffect(() => {
     return () => {
-      if (croppedImageUrl && croppedImageUrl.startsWith("blob:")) {
+      if (
+        croppedImageUrl &&
+        croppedImageUrl.startsWith("blob:") &&
+        croppedImageUrl !== value
+      ) {
         URL.revokeObjectURL(croppedImageUrl)
       }
-      if (selectedImage && selectedImage.startsWith("blob:")) {
+      if (
+        selectedImage &&
+        selectedImage.startsWith("blob:") &&
+        selectedImage !== value
+      ) {
         URL.revokeObjectURL(selectedImage)
       }
     }
-  }, [croppedImageUrl, selectedImage])
+  }, [croppedImageUrl, selectedImage, value])
 
   const displayError = error || validationError
   const currentAspectRatio =

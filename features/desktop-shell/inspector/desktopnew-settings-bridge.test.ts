@@ -9,6 +9,7 @@ import {
   applyPatternModuleFill,
   fillCssToQraftyGradient,
   qraftyGradientToFillCss,
+  readPatternModuleFillCss,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
 
@@ -48,6 +49,18 @@ describe("desktopnew fill bridge", () => {
     expect(back.rotation).toBeCloseTo(SAMPLE_GRADIENT.rotation)
     expect(back.colorStops[0].color.toLowerCase()).toBe("#111111")
     expect(back.colorStops[1].color.toLowerCase()).toBe("#eeeeee")
+  })
+
+  it("keeps image module fills out of fill-picker CSS", () => {
+    const css = readPatternModuleFillCss({
+      dotsColorMode: "image",
+      dotsSolidColor: "#336699",
+      moduleFillImageUrl: "blob:http://localhost/fake",
+      moduleFillImageSourceMode: "upload",
+    } as never)
+
+    expect(css).not.toContain("blob:")
+    expect(parseFill(css)?.kind).toBe("color")
   })
 
   it("maps picker fill onto module fill mode", () => {

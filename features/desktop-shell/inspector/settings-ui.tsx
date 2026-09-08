@@ -521,7 +521,7 @@ export function SettingsFillPopover({
   }
   moduleImage?: {
     imageUrl: string
-    onUpload: (file: File) => void
+    onUpload: (imageUrl: string) => void
     onClear: () => void
   }
 }) {

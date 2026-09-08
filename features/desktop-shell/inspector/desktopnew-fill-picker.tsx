@@ -29,6 +29,7 @@ import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/deskt
 import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette-color-stop-list"
 import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-ui"
 import { cn } from "@/lib/utils"
+import { blobUrlToDataUrl } from "@qrafty/qr-internal/scene"
 
 const QR_GRADIENT_TYPES = ["linear", "radial"] as const
 
@@ -57,7 +58,7 @@ export function DesktopNewFillPicker({
   }
   moduleImage?: {
     imageUrl: string
-    onUpload: (file: File) => void
+    onUpload: (imageUrl: string) => void
     onClear: () => void
   }
 }) {
@@ -83,6 +84,10 @@ export function DesktopNewFillPicker({
   const setScrollNode = usePersistedScrollNode("fill-picker")
 
   const handleValueChange = (fill: Fill, css: string) => {
+    if (moduleImage?.imageUrl && (activeMode === "image" || activeMode === "pattern")) {
+      return
+    }
+
     if (!qrGradient) {
       onValueChange(fill, css)
       return
@@ -191,7 +196,7 @@ function ModuleImagePicker({
   onClear,
 }: {
   imageUrl: string
-  onUpload: (file: File) => void
+  onUpload: (imageUrl: string) => void
   onClear: () => void
 }) {
   const theme = useContext(DesktopnewThemeContext)
@@ -205,12 +210,14 @@ function ModuleImagePicker({
       placeholder="Drop image or click to upload"
       showFormatHint
       value={imageUrl || null}
+      onImageCropped={({ url }) => {
+        void (async () => {
+          const normalizedUrl =
+            url.startsWith("blob:") ? (await blobUrlToDataUrl(url)) ?? url : url
+          onUpload(normalizedUrl)
+        })()
+      }}
       onChange={(value) => {
-        if (value instanceof File) {
-          onUpload(value)
-          return
-        }
-
         if (value === null) {
           onClear()
         }

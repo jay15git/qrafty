@@ -97,7 +97,9 @@ export function qraftyGradientToFillCss(gradient: QraftyGradient): string {
 
 export function readPatternModuleFillCss(settings: DesktopPatternSettings): string {
   if (settings.dotsColorMode === "image") {
-    return settings.moduleFillImageUrl || "transparent"
+    // Image fill uses the Image tab + swatch preview URL. Blob/data URLs are not
+    // valid fill-picker CSS and would coerce to black on remount.
+    return solidColorToFillCss(settings.dotsSolidColor)
   }
 
   if (settings.dotsColorMode === "gradient") {
