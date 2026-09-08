@@ -11,6 +11,10 @@ import {
   useState,
   type ReactNode,
 } from "react"
+import {
+  getHorizontalContentWidth,
+  isHorizontalLayoutStable,
+} from "@/lib/scroll-horizontal-metrics"
 
 type ScrollPos = { left: number; top: number }
 
@@ -77,10 +81,26 @@ function isLaidOut(element: HTMLElement) {
 }
 
 function canOverflow(element: HTMLElement) {
+  const contentWidth = getHorizontalContentWidth(element)
+  const contentHeight = getVerticalContentHeight(element)
   return (
-    element.scrollWidth > element.clientWidth + 1 ||
-    element.scrollHeight > element.clientHeight + 1
+    contentWidth > element.clientWidth + 1 ||
+    contentHeight > element.clientHeight + 1
   )
+}
+
+function getVerticalContentHeight(element: HTMLElement) {
+  const inner = element.firstElementChild
+  if (!(inner instanceof HTMLElement)) {
+    return element.scrollHeight
+  }
+
+  const content = inner.firstElementChild
+  if (content instanceof HTMLElement) {
+    return content.scrollHeight
+  }
+
+  return inner.scrollHeight
 }
 
 function isIntersecting(entry: IntersectionObserverEntry) {
@@ -129,11 +149,22 @@ export function usePersistedElementScroll(
         return
       }
 
+      if (!isHorizontalLayoutStable(element)) {
+        if (element.scrollLeft !== 0) {
+          element.scrollLeft = 0
+        }
+        return
+      }
+
       if ((pos.left > 0 || pos.top > 0) && !canOverflow(element)) {
         return
       }
 
-      writePos(element, pos)
+      const maxLeft = Math.max(0, getHorizontalContentWidth(element) - element.clientWidth)
+      writePos(element, {
+        left: Math.min(pos.left, maxLeft),
+        top: pos.top,
+      })
     }
 
     const save = () => {

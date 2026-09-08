@@ -1202,6 +1202,24 @@
   box-shadow: none !important;
 }
 
+.dn-settings-accordion [role="region"] [data-slot="scroll-area"][data-orientation="horizontal"] [data-slot="scroll-area-inner"] {
+  min-width: 0 !important;
+  width: max-content;
+}
+
+.dn-settings-accordion [role="region"] .dn-preview-row {
+  width: max-content;
+  max-width: none;
+  flex: none;
+}
+
+.dn-settings-accordion [role="region"] .dn-preview-tile-size {
+  flex: 0 0 var(--dn-preview-tile);
+  width: var(--dn-preview-tile);
+  min-width: var(--dn-preview-tile);
+  max-width: var(--dn-preview-tile);
+}
+
 .dn-settings-accordion [role="region"] .dn-preview-tile {
   background: transparent;
 }

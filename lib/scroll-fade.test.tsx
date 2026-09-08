@@ -114,4 +114,76 @@ describe("useScrollEdges", () => {
 
     expect(container.querySelector("[data-right]")?.getAttribute("data-right")).toBe("true")
   })
+
+  it("uses preview tile tokens instead of stretched offset widths", () => {
+    const viewport = document.createElement("div")
+    mockScrollBox(viewport, { scrollWidth: 3783, clientWidth: 248, scrollLeft: 245 })
+
+    const host = document.createElement("div")
+    host.className = "desktopnew-root"
+    host.style.setProperty("--dn-preview-tile", "3.5rem")
+    host.style.setProperty("--dn-space-inline", "0.375rem")
+
+    const inner = document.createElement("div")
+    const row = document.createElement("div")
+    row.className = "dn-preview-row"
+
+    for (let index = 0; index < 5; index += 1) {
+      const tile = document.createElement("button")
+      tile.className = "dn-preview-tile dn-preview-tile-size"
+      Object.defineProperty(tile, "offsetWidth", {
+        configurable: true,
+        get: () => 700,
+      })
+      row.appendChild(tile)
+    }
+
+    inner.appendChild(row)
+    viewport.appendChild(inner)
+    host.appendChild(viewport)
+    document.body.appendChild(host)
+
+    const { container } = renderWithJsdomRoot(
+      createElement(EdgesProbe, { element: viewport }),
+    )
+
+    expect(container.querySelector("[data-left]")?.getAttribute("data-left")).toBe("false")
+    expect(container.querySelector("[data-right]")?.getAttribute("data-right")).toBe("false")
+
+    host.remove()
+  })
+
+  it("shows the right cue once horizontal layout is stable", () => {
+    const viewport = document.createElement("div")
+    mockScrollBox(viewport, { scrollWidth: 300, clientWidth: 248, scrollLeft: 0 })
+
+    const host = document.createElement("div")
+    host.className = "desktopnew-root"
+    host.style.setProperty("--dn-preview-tile", "3.5rem")
+    host.style.setProperty("--dn-space-inline", "0.375rem")
+
+    const inner = document.createElement("div")
+    const row = document.createElement("div")
+    row.className = "dn-preview-row"
+
+    for (let index = 0; index < 5; index += 1) {
+      const tile = document.createElement("button")
+      tile.className = "dn-preview-tile dn-preview-tile-size"
+      row.appendChild(tile)
+    }
+
+    inner.appendChild(row)
+    viewport.appendChild(inner)
+    host.appendChild(viewport)
+    document.body.appendChild(host)
+
+    const { container } = renderWithJsdomRoot(
+      createElement(EdgesProbe, { element: viewport }),
+    )
+
+    expect(container.querySelector("[data-left]")?.getAttribute("data-left")).toBe("false")
+    expect(container.querySelector("[data-right]")?.getAttribute("data-right")).toBe("true")
+
+    host.remove()
+  })
 })

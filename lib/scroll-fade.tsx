@@ -7,6 +7,10 @@ import {
   type CSSProperties,
 } from "react";
 import { useSurface } from "@/lib/surface-context";
+import {
+  getHorizontalContentWidth,
+  isHorizontalLayoutStable,
+} from "@/lib/scroll-horizontal-metrics";
 
 import "./scroll-fade.css";
 
@@ -46,6 +50,40 @@ export interface UseScrollEdgesOptions {
 const useIsoLayoutEffect =
   typeof window === "undefined" ? useEffect : useLayoutEffect;
 
+function measureScrollEdges(
+  element: HTMLElement,
+  axis: "vertical" | "horizontal" | "both",
+): ScrollEdges {
+  const next = { ...NO_EDGES };
+  if (axis !== "horizontal") {
+    const { scrollTop, scrollHeight, clientHeight } = element;
+    const overflowing = scrollHeight - clientHeight > 1;
+    next.top = overflowing && scrollTop > 1;
+    next.bottom = overflowing && scrollTop + clientHeight < scrollHeight - 1;
+  }
+  if (axis !== "vertical") {
+    const { scrollLeft, clientWidth } = element;
+    const contentWidth = getHorizontalContentWidth(element);
+    const layoutUnstable = !isHorizontalLayoutStable(element);
+
+    if (!layoutUnstable) {
+      const overflowing = contentWidth - clientWidth > 1;
+      next.left = overflowing && scrollLeft > 1;
+      next.right = overflowing && scrollLeft + clientWidth < contentWidth - 1;
+    }
+  }
+  return next;
+}
+
+function edgesEqual(a: ScrollEdges, b: ScrollEdges) {
+  return (
+    a.top === b.top &&
+    a.bottom === b.bottom &&
+    a.left === b.left &&
+    a.right === b.right
+  );
+}
+
 export function useScrollEdges(
   element: HTMLElement | null,
   { enabled = true, axis = "vertical" }: UseScrollEdgesOptions = {}
@@ -64,28 +102,8 @@ export function useScrollEdges(
     if (!element) return;
 
     const update = () => {
-      const next = { ...NO_EDGES };
-      if (axis !== "horizontal") {
-        const { scrollTop, scrollHeight, clientHeight } = element;
-        const overflowing = scrollHeight - clientHeight > 1;
-        next.top = overflowing && scrollTop > 1;
-        next.bottom = overflowing && scrollTop + clientHeight < scrollHeight - 1;
-      }
-      if (axis !== "vertical") {
-        const { scrollLeft, scrollWidth, clientWidth } = element;
-        const overflowing = scrollWidth - clientWidth > 1;
-        next.left = overflowing && scrollLeft > 1;
-        next.right = overflowing && scrollLeft + clientWidth < scrollWidth - 1;
-      }
-      // Bail out on no-op updates so observer churn doesn't re-render.
-      setEdges((prev) =>
-        prev.top === next.top &&
-        prev.bottom === next.bottom &&
-        prev.left === next.left &&
-        prev.right === next.right
-          ? prev
-          : next
-      );
+      const next = measureScrollEdges(element, axis);
+      setEdges((prev) => (edgesEqual(prev, next) ? prev : next));
     };
 
     update();
