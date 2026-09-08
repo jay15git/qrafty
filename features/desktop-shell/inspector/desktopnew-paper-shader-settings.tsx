@@ -214,51 +214,74 @@ function PaperShaderColorsSwatch({ colors }: { colors: string[] }) {
   )
 }
 
-function PaperShaderColorsControl({
+function PaperShaderColorsPopover({
   colors,
   maxColorCount,
-  onChange,
+  namedColorControls,
+  paperShader,
+  showPalette,
   surface,
+  onColorsChange,
+  onParamChange,
 }: {
-  colors: string[]
+  colors?: string[]
   maxColorCount?: number
-  onChange: (colors: string[]) => void
+  namedColorControls: PaperShaderControlDefinition[]
+  paperShader: DraftingCardPaperShaderState
+  showPalette: boolean
   surface: PaperShaderSettingsSurface
+  onColorsChange: (colors: string[]) => void
+  onParamChange: (key: string, value: PaperShaderParamValue) => void
 }) {
   const maxCount = maxColorCount ?? DEFAULT_PAPER_SHADER_MAX_COLOR_COUNT
   const minCount = DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT
+  const paletteColors = colors ?? []
 
   return (
     <ShaderSettingsPopover
       contentClassName="w-[19rem]"
-      hint={`${colors.length}`}
-      leading={<PaperShaderColorsSwatch colors={colors} />}
+      hint={showPalette ? `${paletteColors.length}` : undefined}
+      leading={showPalette ? <PaperShaderColorsSwatch colors={paletteColors} /> : undefined}
       surface={surface}
       title="Colors"
       trigger="Colors"
     >
-      <PaletteColorStopList
-        colors={colors}
-        maxCount={maxCount}
-        minCount={minCount}
-        onAdd={() => {
-          const next = addPaperShaderColor(colors, maxCount, PAPER_SHADER_NEW_COLOR)
-          if (next) {
-            onChange(next)
-          }
-        }}
-        onPaletteColorChange={(index, color) => {
-          const next = [...colors]
-          next[index] = color
-          onChange(next)
-        }}
-        onRemove={(index) => {
-          const next = removePaperShaderColor(colors, index, minCount)
-          if (next) {
-            onChange(next)
-          }
-        }}
-      />
+      <div className={surface === "desktop" ? DESKTOP_SHADER_LIST_GAP : "dn-section-stack"}>
+        {showPalette ? (
+          <PaletteColorStopList
+            colors={paletteColors}
+            maxCount={maxCount}
+            minCount={minCount}
+            onAdd={() => {
+              const next = addPaperShaderColor(paletteColors, maxCount, PAPER_SHADER_NEW_COLOR)
+              if (next) {
+                onColorsChange(next)
+              }
+            }}
+            onPaletteColorChange={(index, color) => {
+              const next = [...paletteColors]
+              next[index] = color
+              onColorsChange(next)
+            }}
+            onRemove={(index) => {
+              const next = removePaperShaderColor(paletteColors, index, minCount)
+              if (next) {
+                onColorsChange(next)
+              }
+            }}
+          />
+        ) : null}
+
+        {namedColorControls.map((control) => (
+          <DesktopNewPaperShaderParamControl
+            key={control.key}
+            control={control}
+            surface={surface}
+            value={paperShader.params[control.key]}
+            onChange={(nextValue) => onParamChange(control.key, nextValue as PaperShaderParamValue)}
+          />
+        ))}
+      </div>
     </ShaderSettingsPopover>
   )
 }
@@ -420,6 +443,29 @@ export function SettingsPaperShaderControls({
 
   const hasPresetOptions = definition.presets.length > 0
 
+  const hasPaletteColors =
+    colorsControl != null && Array.isArray(paperShader.params[colorsControl.key])
+  const hasColorSettings = hasPaletteColors || namedColorControls.length > 0
+
+  const colorsPopover = hasColorSettings
+    ? (
+        <PaperShaderColorsPopover
+          colors={hasPaletteColors ? (paperShader.params[colorsControl!.key] as string[]) : undefined}
+          maxColorCount={definition.maxColorCount}
+          namedColorControls={namedColorControls}
+          paperShader={paperShader}
+          showPalette={hasPaletteColors}
+          surface={surface}
+          onColorsChange={(nextColors) => {
+            if (colorsControl) {
+              updateParam(colorsControl.key, nextColors)
+            }
+          }}
+          onParamChange={updateParam}
+        />
+      )
+    : null
+
   const settingsListClassName =
     surface === "desktop" ? DESKTOP_SHADER_LIST_GAP : "dn-section-stack"
 
@@ -460,25 +506,6 @@ export function SettingsPaperShaderControls({
             onChange={(value) => updatePaperShader({ speed: value / 100 })}
           />
         ) : null}
-
-        {colorsControl && Array.isArray(paperShader.params[colorsControl.key]) ? (
-          <PaperShaderColorsControl
-            colors={paperShader.params[colorsControl.key] as string[]}
-            maxColorCount={definition.maxColorCount}
-            surface={surface}
-            onChange={(nextColors) => updateParam(colorsControl.key, nextColors)}
-          />
-        ) : null}
-
-        {namedColorControls.map((control) => (
-          <DesktopNewPaperShaderParamControl
-            key={control.key}
-            control={control}
-            surface={surface}
-            value={paperShader.params[control.key]}
-            onChange={(nextValue) => updateParam(control.key, nextValue as PaperShaderParamValue)}
-          />
-        ))}
 
         {hasPlayback ? (
           <SettingsSwitchRow
@@ -524,7 +551,12 @@ export function SettingsPaperShaderControls({
   )
 
   if (!hasPresetOptions) {
-    return settingsPopover
+    return (
+      <div className={SECTION_GAP}>
+        {colorsPopover}
+        {settingsPopover}
+      </div>
+    )
   }
 
   return (
@@ -540,6 +572,7 @@ export function SettingsPaperShaderControls({
           onPaperShaderChange(applyDraftingCardPaperShaderPreset(paperShader, presetName))
         }
       />
+      {colorsPopover}
       {settingsPopover}
     </div>
   )
