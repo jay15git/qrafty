@@ -15,14 +15,17 @@ import { DesktopInspectorSection } from "@/features/desktop-shell/components/Ins
 import { DesktopInspectorAnimatedOptionGrid } from "@/features/desktop-shell/inspector/inspector-option-grid"
 import { desktopInspectorOptionGridItemClass } from "@/features/desktop-shell/inspector/inspector-option-grid.classes"
 import { SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
+import { preloadRasterImage } from "@/features/workspace/rendering/preload-raster-image"
 import { cn } from "@/lib/utils"
 
 function DesktopWallpaperButton({
   alt,
+  imagePath,
   onClick,
   previewPath,
 }: {
   alt: string
+  imagePath: string
   onClick: () => void
   previewPath: string
 }) {
@@ -39,6 +42,9 @@ function DesktopWallpaperButton({
       data-slot="desktop-wallpaper-button"
       type="button"
       onClick={onClick}
+      onPointerEnter={() => {
+        void preloadRasterImage(imagePath)
+      }}
     >
       <Image
         alt={alt}
@@ -77,6 +83,7 @@ export function DesktopWallpaperInspector({
                 <DesktopWallpaperButton
                   key={wallpaper.id}
                   alt={wallpaper.label}
+                  imagePath={wallpaper.path}
                   previewPath={wallpaper.previewPath}
                   onClick={() => onSelectWallpaper(wallpaper.path)}
                 />

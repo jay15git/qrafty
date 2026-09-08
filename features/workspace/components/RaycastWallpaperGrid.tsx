@@ -3,6 +3,7 @@
 import Image from "next/image"
 
 import { SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
+import { preloadRasterImage } from "@/features/workspace/rendering/preload-raster-image"
 import { usePersistedScrollNode } from "@/lib/persisted-element-scroll"
 
 export function RaycastWallpaperGrid({
@@ -24,6 +25,9 @@ export function RaycastWallpaperGrid({
           className="dn-pressable-pickable relative aspect-[4/3] min-w-0 overflow-hidden dn-squircle-xs"
           type="button"
           onClick={() => onSelectWallpaper(wallpaper.path)}
+          onPointerEnter={() => {
+            void preloadRasterImage(wallpaper.path)
+          }}
         >
           <Image
             alt={wallpaper.label}

@@ -340,7 +340,7 @@ export function InsertMenuImagePanel({
       <ImageCropper
         className="w-full"
         compact
-        dialogContentClassName={theme === "dark" ? "dark" : undefined}
+        dialogTheme={theme}
         maxFileSize={5 * 1024 * 1024}
         placeholder="Drop image or click to upload"
         showFormatHint

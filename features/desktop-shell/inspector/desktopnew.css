@@ -627,6 +627,24 @@
   padding: var(--dn-space-inline) 0.25rem;
 }
 
+/* Horizontal preview rows — edge fades (override tight default). */
+.desktopnew-root [data-slot="scroll-area"][data-orientation="horizontal"] {
+  --scroll-edge-cue-band-size: 3.75rem;
+}
+
+@supports (background: color-mix(in srgb, #000 50%, #fff)) {
+  .desktopnew-root [data-slot="scroll-area"][data-orientation="horizontal"] .scroll-edge-cue-gradient {
+    background: linear-gradient(
+      var(--scroll-edge-cue-direction, to right),
+      transparent 0%,
+      color-mix(in srgb, var(--scroll-edge-fade-color, var(--surface-1)) 20%, transparent) 20%,
+      color-mix(in srgb, var(--scroll-edge-fade-color, var(--surface-1)) 45%, transparent) 42%,
+      color-mix(in srgb, var(--scroll-edge-fade-color, var(--surface-1)) 72%, transparent) 68%,
+      var(--scroll-edge-fade-color, var(--surface-1)) 100%
+    );
+  }
+}
+
 .dn-control-surface {
   min-height: var(--dn-control-height);
   height: var(--dn-control-height);
@@ -1428,6 +1446,28 @@
   --border: var(--dn-line);
   --input: var(--dn-control);
   --ring: var(--dn-fg);
+}
+
+.desktopnew-crop-dialog > button.absolute {
+  top: 0.75rem;
+  right: 0.75rem;
+  border-radius: var(--dn-radius-xs);
+  color: var(--dn-muted);
+  opacity: 1;
+}
+
+.desktopnew-crop-dialog > button.absolute:hover,
+.desktopnew-crop-dialog > button.absolute:focus-visible {
+  background: var(--dn-control);
+  color: var(--dn-fg);
+  opacity: 1;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-primary:hover,
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-primary:focus-visible,
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-primary:active {
+  background: var(--dn-fg) !important;
+  color: var(--dn-bg) !important;
 }
 
 .desktopnew-popover-content .dn-popover-heading {

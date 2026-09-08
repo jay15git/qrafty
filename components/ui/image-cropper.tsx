@@ -42,6 +42,8 @@ interface ImageUploaderProps {
   aspectRatio?: number
   className?: string
   dialogContentClassName?: string
+  /** Applies /design inspector portal tokens to the crop dialog. */
+  dialogTheme?: "light" | "dark"
   maxFileSize?: number
   supportedFormats?: string[]
   name?: string
@@ -61,6 +63,7 @@ export function ImageCropper({
   aspectRatio,
   className,
   dialogContentClassName,
+  dialogTheme,
   maxFileSize = MAX_FILE_SIZE,
   supportedFormats = SUPPORTED_FORMATS,
   value,
@@ -491,24 +494,33 @@ export function ImageCropper({
     cropArea.width > 0 && cropArea.height > 0
       ? (cropArea.width / cropArea.height).toFixed(2)
       : "1.00"
+  const usesDesktopTheme = Boolean(dialogTheme)
+  const previewSurfaceClass =
+    compact && dialogTheme === "dark"
+      ? "bg-black"
+      : compact && dialogTheme === "light"
+        ? "bg-white"
+        : "bg-background"
 
   return (
     <>
       <div
         className={cn(
-          "group overflow-hidden rounded-lg border-2 border-dashed bg-background text-center transition-colors",
-          compact ? "h-28" : "h-52",
+          "group overflow-hidden rounded-lg border-2 border-dashed text-center transition-colors",
+          compact ? "aspect-square w-full" : "h-52",
+          previewSurfaceClass,
           disabled
-            ? "cursor-not-allowed border-muted-foreground/10 bg-muted/5"
+            ? "cursor-not-allowed border-muted-foreground/10"
             : "cursor-pointer",
           !disabled && isDragging
-            ? "border-primary bg-primary/5"
+            ? "border-primary"
             : "border-muted-foreground/25 hover:border-primary/50",
-          displayError && "border-destructive bg-destructive/5",
+          displayError && "border-destructive",
           className,
         )}
       >
         <div
+          className={cn(compact && croppedImageUrl ? "size-full" : undefined)}
           onDrop={!disabled ? handleDrop : undefined}
           onDragOver={!disabled ? handleDragOver : undefined}
           onDragLeave={!disabled ? handleDragLeave : undefined}
@@ -519,11 +531,17 @@ export function ImageCropper({
           }
         >
           {croppedImageUrl ? (
-            <div className="relative">
+            <div className={cn("relative", compact ? "size-full" : undefined)}>
               <img
                 src={croppedImageUrl}
                 alt="Uploaded image"
-                className={cn("h-[204px] w-full rounded-lg object-cover", imgClassName)}
+                className={cn(
+                  compact
+                    ? "size-full object-contain"
+                    : "h-[204px] w-full rounded-lg object-cover",
+                  previewSurfaceClass,
+                  imgClassName,
+                )}
               />
               {!disabled ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
@@ -535,7 +553,14 @@ export function ImageCropper({
                   variant="ghost"
                   size="icon-md"
                   type="button"
-                  className="absolute top-2 right-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background"
+                  className={cn(
+                    "absolute top-2 right-2 rounded-full backdrop-blur-sm",
+                    compact && dialogTheme === "dark"
+                      ? "bg-black/70 text-white hover:bg-black/85"
+                      : compact && dialogTheme === "light"
+                        ? "bg-white/85 text-black hover:bg-white"
+                        : "bg-background/80 hover:bg-background",
+                  )}
                   onClick={(event) => {
                     event.stopPropagation()
                     handleRemoveImage()
@@ -548,8 +573,8 @@ export function ImageCropper({
           ) : (
             <div
               className={cn(
-                "relative flex w-full flex-1 flex-col items-center justify-center",
-                compact ? "px-3 py-3" : "px-4 py-8",
+                "relative flex w-full flex-col items-center justify-center",
+                compact ? "size-full px-3 py-3" : "px-4 py-8",
               )}
             >
               <Upload
@@ -604,13 +629,32 @@ export function ImageCropper({
       <Dialog open={showCropDialog} onOpenChange={handleDialogClose}>
         <DialogContent
           className={cn(
-            "max-h-[90vh] w-fit max-w-7xl! overflow-hidden",
+            usesDesktopTheme
+              ? cn(
+                  "desktopnew-crop-dialog dn-portal-surface desktopnew-popover-content",
+                  "w-[min(calc(100vw-2rem),26rem)] max-w-none gap-0 overflow-hidden border-0 p-0 shadow-none outline-none dn-squircle-md",
+                  dialogTheme === "dark" && "dark",
+                )
+              : "max-h-[90vh] w-fit max-w-7xl! overflow-hidden",
             dialogContentClassName,
           )}
+          data-theme={dialogTheme}
         >
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Crop className="size-5" />
+          <DialogHeader
+            className={cn(
+              usesDesktopTheme
+                ? "desktopnew-crop-dialog__header gap-2 space-y-0 border-b border-[var(--dn-line)] px-[length:var(--dn-row-px)] py-3 text-left"
+                : undefined,
+            )}
+          >
+            <DialogTitle
+              className={cn(
+                "flex items-center gap-2",
+                usesDesktopTheme &&
+                  "text-[length:var(--dn-type-value)] font-semibold tracking-[var(--dn-tracking-tight)] text-[var(--dn-fg)]",
+              )}
+            >
+              <Crop className={cn("size-5", usesDesktopTheme && "text-[var(--dn-muted)]")} />
               Crop Image
               {fixedSize ? (
                 <Badge variant="secondary" className="ml-2">
@@ -625,10 +669,15 @@ export function ImageCropper({
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className={cn(usesDesktopTheme ? "desktopnew-crop-dialog__body p-[length:var(--dn-row-px)]" : "space-y-4")}>
             <div
               ref={cropContainerRef}
-              className="relative max-h-[80vh] overflow-hidden rounded-lg border bg-muted/10 select-none"
+              className={cn(
+                "relative overflow-hidden select-none",
+                usesDesktopTheme
+                  ? "desktopnew-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--dn-radius-sm)] border border-[var(--dn-line)] bg-[var(--dn-control)]"
+                  : "max-h-[80vh] rounded-lg border bg-muted/10",
+              )}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
@@ -639,7 +688,10 @@ export function ImageCropper({
                     ref={imageRef}
                     src={selectedImage}
                     alt="Crop preview"
-                    className="max-h-[70vh] w-full max-w-full object-contain"
+                    className={cn(
+                      "w-full max-w-full object-contain",
+                      usesDesktopTheme ? "max-h-[min(60vh,28rem)]" : "max-h-[70vh]",
+                    )}
                     onLoad={handleImageLoad}
                     draggable={false}
                   />
@@ -667,7 +719,14 @@ export function ImageCropper({
                       />
                     ) : null}
 
-                    <div className="absolute -top-8 left-0 rounded bg-primary px-2 py-1 text-xs whitespace-nowrap text-primary-foreground">
+                    <div
+                      className={cn(
+                        "absolute -top-8 left-0 rounded px-2 py-1 text-xs whitespace-nowrap",
+                        usesDesktopTheme
+                          ? "bg-[var(--dn-fg)] text-[var(--dn-bg)]"
+                          : "bg-primary text-primary-foreground",
+                      )}
+                    >
                       {Math.round(cropArea.width)}×{Math.round(cropArea.height)}
                       <span className="ml-2 opacity-75">{currentAspectRatio}:1</span>
                       {aspectRatio ? (
@@ -682,19 +741,50 @@ export function ImageCropper({
             </div>
           </div>
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => handleDialogClose(false)}
-              disabled={isProcessing}
-            >
-              <X className="mr-2 size-4" />
-              Cancel
-            </Button>
-            <Button onClick={cropImage} disabled={isProcessing}>
-              <Crop className="mr-2 size-4" />
-              {isProcessing ? "Processing..." : "Crop Image"}
-            </Button>
+          <DialogFooter
+            className={cn(
+              usesDesktopTheme
+                ? "desktopnew-crop-dialog__footer gap-2 border-t border-[var(--dn-line)] p-[length:var(--dn-row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
+                : undefined,
+            )}
+          >
+            {usesDesktopTheme ? (
+              <>
+                <button
+                  className="dn-control-surface dn-pressable-subtle dn-squircle-sm flex h-[length:var(--dn-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--dn-type-value)] font-medium tracking-[var(--dn-tracking-tight)] text-[var(--dn-fg)]"
+                  disabled={isProcessing}
+                  type="button"
+                  onClick={() => handleDialogClose(false)}
+                >
+                  <X className="size-4" />
+                  Cancel
+                </button>
+                <button
+                  className="dn-settings-primary dn-control-surface dn-pressable-press-only dn-squircle-sm flex h-[length:var(--dn-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--dn-type-value)] font-medium tracking-[var(--dn-tracking-tight)]"
+                  disabled={isProcessing}
+                  type="button"
+                  onClick={cropImage}
+                >
+                  <Crop className="size-4" />
+                  {isProcessing ? "Processing..." : "Crop Image"}
+                </button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => handleDialogClose(false)}
+                  disabled={isProcessing}
+                >
+                  <X className="mr-2 size-4" />
+                  Cancel
+                </Button>
+                <Button onClick={cropImage} disabled={isProcessing}>
+                  <Crop className="mr-2 size-4" />
+                  {isProcessing ? "Processing..." : "Crop Image"}
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

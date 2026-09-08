@@ -138,7 +138,9 @@ const CHEVRON_PATHS: Record<string, string> = {
 };
 
 // Band size presets along the scroll axis. The chevron stays 16px in both.
-const CUE_SIZES = { tight: 32, comfortable: 60 } as const;
+export const SCROLL_EDGE_CUE_SIZES = { tight: 32, comfortable: 60 } as const;
+
+const CUE_SIZES = SCROLL_EDGE_CUE_SIZES;
 
 export type ScrollEdgeCueSize = keyof typeof CUE_SIZES;
 
@@ -214,6 +216,7 @@ export function ScrollEdgeCue({
   const fadeColor = `var(--scroll-edge-fade-color, ${surface})`;
   const vertical = edge === "top" || edge === "bottom";
   const sizePx = CUE_SIZES[size];
+  const bandSize = `var(--scroll-edge-cue-band-size, ${sizePx}px)`;
   // Gradient direction where 100% == the hard outer edge.
   const dir = `to ${edge}`;
 
@@ -227,11 +230,11 @@ export function ScrollEdgeCue({
           transition: `opacity ${visible ? 160 : 120}ms ease`,
           ...(mode === "sticky"
             ? vertical
-              ? { left: -inset, right: -inset, [edge]: -inset, height: sizePx }
-              : { top: -inset, bottom: -inset, [edge]: -inset, width: sizePx }
+              ? { left: -inset, right: -inset, [edge]: -inset, height: bandSize }
+              : { top: -inset, bottom: -inset, [edge]: -inset, width: bandSize }
             : vertical
-              ? { left: 0, right: 0, [edge]: 0, height: sizePx }
-              : { top: 0, bottom: 0, [edge]: 0, width: sizePx }),
+              ? { left: 0, right: 0, [edge]: 0, height: bandSize }
+              : { top: 0, bottom: 0, [edge]: 0, width: bandSize }),
         } as CSSProperties
       }
     >

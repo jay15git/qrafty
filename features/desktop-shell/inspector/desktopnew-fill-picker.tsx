@@ -30,10 +30,24 @@ import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette
 import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-ui"
 import { cn } from "@/lib/utils"
 import { blobUrlToDataUrl } from "@qrafty/qr-internal/scene"
+import type { DotsColorMode } from "@/features/qr-code/model/state"
 
 const QR_GRADIENT_TYPES = ["linear", "radial"] as const
 
 type ModuleFillTabMode = "color" | "gradient" | "pattern" | "image"
+
+function moduleFillTabFromDotsColorMode(mode: DotsColorMode): ModuleFillTabMode {
+  switch (mode) {
+    case "image":
+      return "image"
+    case "palette":
+      return "pattern"
+    case "gradient":
+      return "gradient"
+    default:
+      return "color"
+  }
+}
 
 export function DesktopNewFillPicker({
   value,
@@ -41,6 +55,7 @@ export function DesktopNewFillPicker({
   className,
   modulePattern,
   moduleImage,
+  moduleFillMode,
   solidOnly = false,
   qrGradient = false,
 }: {
@@ -50,6 +65,7 @@ export function DesktopNewFillPicker({
   solidOnly?: boolean
   /** Limits gradients to linear/radial circle — for module, eye, frame, logo. */
   qrGradient?: boolean
+  moduleFillMode?: DotsColorMode
   modulePattern?: {
     selectedPalette: string[]
     selectedPreset: string | "custom"
@@ -73,8 +89,8 @@ export function DesktopNewFillPicker({
   const initialFill = initialFillRef.current
   const initialMode: ModuleFillTabMode = solidOnly
     ? "color"
-    : moduleImage?.imageUrl
-      ? "image"
+    : moduleFillMode
+      ? moduleFillTabFromDotsColorMode(moduleFillMode)
       : initialFill.kind === "gradient"
         ? "gradient"
         : "color"
@@ -205,7 +221,7 @@ function ModuleImagePicker({
     <ImageCropper
       className="w-full"
       compact
-      dialogContentClassName={theme === "dark" ? "dark" : undefined}
+      dialogTheme={theme}
       maxFileSize={5 * 1024 * 1024}
       placeholder="Drop image or click to upload"
       showFormatHint

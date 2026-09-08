@@ -34,6 +34,7 @@ import {
 import { SettingsPaperShaderControls } from "@/features/desktop-shell/inspector/desktopnew-paper-shader-settings"
 import { PaperShaderOptionPreview } from "@/features/workspace/components/PaperShaderOptionPreview"
 import { WallpaperOptionPreview } from "@/features/workspace/components/WallpaperOptionPreview"
+import { preloadRasterImage } from "@/features/workspace/rendering/preload-raster-image"
 import { cn } from "@/lib/utils"
 import { getLogoSelectionLabel } from "@/features/desktop-shell/inspector/settings-pickers.utils"
 import {
@@ -274,6 +275,9 @@ function WallpaperPreviewRow({
               title={wallpaper.label}
               type="button"
               onClick={() => onSelect(wallpaper.path)}
+              onPointerEnter={() => {
+                void preloadRasterImage(wallpaper.path)
+              }}
             >
               <WallpaperOptionPreview
                 alt={wallpaper.label}
@@ -474,6 +478,7 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
                     : undefined
                 }
                 hint="Fill"
+                moduleFillMode={actualPatternSettings.dotsColorMode}
                 moduleImage={{
                   imageUrl: actualPatternSettings.moduleFillImageUrl,
                   onUpload: (imageUrl) =>

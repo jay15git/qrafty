@@ -10,6 +10,10 @@ import {
   type PointerEvent,
 } from "react"
 
+import {
+  CardBackgroundLayers,
+  cardBackgroundSurfaceStyle,
+} from "@/features/workspace/components/CardBackgroundLayers"
 import { DraftingCardPaperShaderLayer } from "@/features/workspace/components/CardPaperShaderLayer"
 import { DraftingLayerTiltShell } from "@/features/workspace/components/DraftingLayerTiltShell"
 import { DraftingQrLayerContent } from "@/features/workspace/components/DraftingQrLayerContent"
@@ -52,7 +56,6 @@ import {
   usePreviewShaderDisplaySize,
 } from "@/features/workspace/preview/use-preview-layer-effects"
 import { scaleNestedSvgMarkup } from "@/features/workspace/rendering/qr-artwork"
-import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
 import { cn } from "@/lib/utils"
 import type { ResizeDirection } from "@/features/workspace/components/pane-layer-geometry"
 import { PaneLayerInteractive } from "@/features/workspace/components/pane-layer-a11y"
@@ -72,11 +75,8 @@ function buildPaneDocumentCardSurfaceStyle(
   isImageMode: boolean,
   isPaperShaderMode: boolean,
 ): CSSProperties {
-  const usesShaderOrImageSurface = isPaperShaderMode || isImageFilterMode || isImageMode
   return {
-    ...(usesShaderOrImageSurface
-      ? { backgroundColor: "transparent" }
-      : cssFillToBackgroundStyle(cardState.fill)),
+    ...cardBackgroundSurfaceStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
     ...getDraftingCardBorderStyle(cardState),
     borderRadius: cornerRadiiToCss(cardState.cornerRadii),
   }
@@ -104,15 +104,6 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
   const layerEffectStyle = useDraftingLayerEffectStyle(layer)
   const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height)
   const isInteracting = usePreviewInteraction()
-  const cardImageStyle =
-    (isImageMode || isImageFilterMode) && cardState.cardImage.value
-      ? {
-          backgroundImage: `url("${cardState.cardImage.value}")`,
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: cardState.cardImage.fit,
-        }
-      : undefined
   const imageFilterShader = useMemo(
     () => ({
       ...cardState.imageFilter,
@@ -147,15 +138,18 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
           ...layerEffectStyle,
         }}
       >
-        {isPaperShaderMode ? (
-          <DraftingCardPaperShaderLayer
-            displayHeight={shaderDisplaySize.displayHeight}
-            displayWidth={shaderDisplaySize.displayWidth}
-            layoutHeight={layer.height}
-            layoutWidth={layer.width}
-            paperShader={cardState.paperShader}
-          />
-        ) : null}
+        <CardBackgroundLayers
+          animateTransitions={!isInteracting}
+          cardState={cardState}
+          imageFilterShader={imageFilterShader}
+          isImageFilterMode={isImageFilterMode}
+          isImageMode={isImageMode}
+          isPaperShaderMode={isPaperShaderMode}
+          layoutHeight={layer.height}
+          layoutWidth={layer.width}
+          shaderDisplayHeight={shaderDisplaySize.displayHeight}
+          shaderDisplayWidth={shaderDisplaySize.displayWidth}
+        />
       </div>
     )
   }
@@ -182,10 +176,7 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
       {...layerExportAttrs("card")}
       className={cn(
         "pointer-events-none absolute max-h-none max-w-none overflow-hidden",
-        !isInteracting &&
-          (isPaperShaderMode
-            ? "transition-[filter,border-radius] duration-150"
-            : "transition-[filter,background-color,border-radius] duration-150"),
+        !isInteracting && "transition-[filter,background-color,border-radius] duration-150",
       )}
       style={{
         ...surfaceStyle,
@@ -194,36 +185,18 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
       }}
     >
       <DraftingLayerTiltShell layer={layer}>
-        {isImageMode && cardState.cardImage.value ? (
-          <div
-            aria-hidden="true"
-            data-slot="desktop-compose-card-image"
-            className="pointer-events-none absolute inset-0 z-0"
-            style={{
-              ...cardImageStyle,
-              borderRadius: "inherit",
-              opacity: cardState.cardImage.opacity / 100,
-            }}
-          />
-        ) : null}
-        {isPaperShaderMode ? (
-          <DraftingCardPaperShaderLayer
-            displayHeight={shaderDisplaySize.displayHeight}
-            displayWidth={shaderDisplaySize.displayWidth}
-            layoutHeight={layer.height}
-            layoutWidth={layer.width}
-            paperShader={cardState.paperShader}
-          />
-        ) : null}
-        {isImageFilterMode ? (
-          <DraftingCardPaperShaderLayer
-            displayHeight={shaderDisplaySize.displayHeight}
-            displayWidth={shaderDisplaySize.displayWidth}
-            layoutHeight={layer.height}
-            layoutWidth={layer.width}
-            paperShader={imageFilterShader}
-          />
-        ) : null}
+        <CardBackgroundLayers
+          animateTransitions={!isInteracting}
+          cardState={cardState}
+          imageFilterShader={imageFilterShader}
+          isImageFilterMode={isImageFilterMode}
+          isImageMode={isImageMode}
+          isPaperShaderMode={isPaperShaderMode}
+          layoutHeight={layer.height}
+          layoutWidth={layer.width}
+          shaderDisplayHeight={shaderDisplaySize.displayHeight}
+          shaderDisplayWidth={shaderDisplaySize.displayWidth}
+        />
       </DraftingLayerTiltShell>
     </div>
   )

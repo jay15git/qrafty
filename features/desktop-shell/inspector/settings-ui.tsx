@@ -23,6 +23,7 @@ import {
 import { ElasticSlider } from "@/components/ui/elastic-slider"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Switch } from "@/components/ui/switch"
+import type { DotsColorMode } from "@/features/qr-code/model/state"
 import { ContentTypeGridIcon } from "@/features/qr-code/content/ContentTypeGridIcon"
 import {
   normalizeContentTypeForPicker,
@@ -493,6 +494,7 @@ export function SettingsFillPopover({
   modulePattern,
   moduleImage,
   fillPreviewImageUrl,
+  moduleFillMode,
   solidOnly = false,
   qrGradient = false,
   variant = "row",
@@ -524,6 +526,7 @@ export function SettingsFillPopover({
     onUpload: (imageUrl: string) => void
     onClear: () => void
   }
+  moduleFillMode?: DotsColorMode
 }) {
   const theme = useDesktopnewTheme()
   const mobileDensity = useMobileInspectorDensity()
@@ -535,6 +538,7 @@ export function SettingsFillPopover({
         <p className="dn-type-meta mb-2">{title}</p>
       ) : null}
       <DesktopNewFillPicker
+        moduleFillMode={moduleFillMode}
         moduleImage={moduleImage}
         modulePattern={modulePattern}
         qrGradient={qrGradient}

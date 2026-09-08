@@ -15,6 +15,7 @@ import {
   useState,
   type ComponentPropsWithoutRef,
   type ComponentRef,
+  type CSSProperties,
 } from "react";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import { cn } from "@/lib/utils";
@@ -88,6 +89,7 @@ const ScrollArea = forwardRef<
       showScrollbar = true,
       persistKey,
       "data-slot": dataSlot,
+      style,
       ...props
     },
     ref
@@ -159,9 +161,11 @@ const ScrollArea = forwardRef<
         ref={ref}
         role="group"
         data-slot={dataSlot ?? "scroll-area"}
+        data-cue-size={cueSize}
         data-orientation={orientation}
         aria-roledescription="scroll area"
         className={cn("relative overflow-hidden", className)}
+        style={style}
         {...props}
       >
         <div
@@ -184,9 +188,11 @@ const ScrollArea = forwardRef<
       <ScrollAreaPrimitive.Root
         ref={ref}
         data-slot={dataSlot ?? "scroll-area"}
+        data-cue-size={cueSize}
         data-orientation={orientation}
         scrollHideDelay={scrollHideDelay}
         className={cn("relative overflow-hidden", className)}
+        style={style}
         {...props}
       >
         <ScrollAreaPrimitive.Viewport
