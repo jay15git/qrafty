@@ -39,6 +39,7 @@ import {
   dualAccentMixFromOpacity,
   isMixableHexColor,
   mixHexColors,
+  smoothBlendProgress,
 } from './color-mix';
 import {
   heartExpansionMetric,
@@ -136,8 +137,6 @@ export enum AnimationPreset {
   StarExpand = 'StarExpand',
   CrossBloom = 'CrossBloom',
   ChevronSweep = 'ChevronSweep',
-  WaveRide = 'WaveRide',
-  CornerPop = 'CornerPop',
 }
 
 export const standardAnimationPresets = [
@@ -190,8 +189,6 @@ export const dotMatrixAnimationPresets = [
   AnimationPreset.StarExpand,
   AnimationPreset.CrossBloom,
   AnimationPreset.ChevronSweep,
-  AnimationPreset.WaveRide,
-  AnimationPreset.CornerPop,
   AnimationPreset.FluxColumns,
 ];
 
@@ -587,7 +584,7 @@ export const keyframeOpacityAt = (
     if (clampedPhase <= offset) {
       const span = offset - previousOffset;
       if (span <= 0) return value;
-      const progress = (clampedPhase - previousOffset) / span;
+      const progress = smoothBlendProgress((clampedPhase - previousOffset) / span);
       return previousValue + (value - previousValue) * progress;
     }
     previousOffset = offset;
@@ -620,7 +617,7 @@ const keyframeFillAt = (frames: WebKeyframeValue[], phase: number) => {
       if (span <= 0) {
         return value;
       }
-      const progress = (clampedPhase - previousOffset) / span;
+      const progress = smoothBlendProgress((clampedPhase - previousOffset) / span);
       if (
         isMixableHexColor(previousValue) &&
         isMixableHexColor(value)
@@ -655,8 +652,10 @@ const sampleShapeRevealFrame = (
   const revealPhase =
     animation.easing === 'ease-in-out' ? easeInOut(pingPong) : pingPong;
   const threshold = revealPhase * shapeReveal.maxMetric;
-  const edgeWidth = shapeReveal.edgeWidth ?? 1.4;
-  const blend = clamp((threshold - shapeReveal.metric) / edgeWidth, 0, 1);
+  const edgeWidth = shapeReveal.edgeWidth ?? 2.25;
+  const blend = smoothBlendProgress(
+    clamp((threshold - shapeReveal.metric) / edgeWidth, 0, 1),
+  );
 
   const baseFill = String(
     typeof fillFrames[0] === 'string'
@@ -1588,6 +1587,16 @@ const FluxColumns: QRCodeAnimation = (targets, x, y, count, entity) => {
   );
 };
 
+const ECHO_RING_BLEND_KEYFRAMES = [
+  matrixCssKeyframe(0, 0, 0, 1),
+  matrixCssKeyframe(0.2, 0.12, 0.28, 0.6),
+  matrixCssKeyframe(0.32, 0.72, 0.18, 0.1),
+  matrixCssKeyframe(0.45, 0.22, 0.48, 0.3),
+  matrixCssKeyframe(0.58, 0.05, 0.32, 0.63),
+  matrixCssKeyframe(0.72, 0.02, 0.14, 0.84),
+  matrixCssKeyframe(1, 0, 0, 1),
+];
+
 const EchoRing: QRCodeAnimation = (targets, x, y, count, entity) => {
   if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
   const { fRow, fCol } = matrixFracCoord(x, y, count);
@@ -1600,13 +1609,7 @@ const EchoRing: QRCodeAnimation = (targets, x, y, count, entity) => {
     entity,
     (ring * 0.14 + parity * 0.03) * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
-    [
-      matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.28, 0.98, 0, 0),
-      matrixCssKeyframe(0.56, 0, 1, 0),
-      matrixCssKeyframe(0.78, 0.68, 0.32, 0),
-      matrixCssKeyframe(1, 0, 0, 1),
-    ],
+    ECHO_RING_BLEND_KEYFRAMES,
     'ease-in-out'
   );
 };
@@ -1681,17 +1684,6 @@ const crossBloomDistance = (row: number, col: number) =>
 const chevronDistance = (row: number, col: number) =>
   MATRIX_LAST - row + Math.abs(col - MATRIX_CENTER);
 
-const waveRidePhase = (row: number, col: number) =>
-  row + Math.sin(col * 1.1) * 0.75;
-
-const cornerDistance = (row: number, col: number) =>
-  Math.min(
-    row + col,
-    row + (MATRIX_LAST - col),
-    MATRIX_LAST - row + col,
-    MATRIX_LAST - row + (MATRIX_LAST - col)
-  );
-
 const RadialExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
   if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
   const { fRow, fCol } = matrixFracCoord(x, y, count);
@@ -1701,12 +1693,7 @@ const RadialExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
     entity,
     radius * 0.14 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
-    [
-      matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.28, 1, 0, 0),
-      matrixCssKeyframe(0.52, 0, 0, 1),
-      matrixCssKeyframe(1, 0, 0, 1),
-    ],
+    ECHO_RING_BLEND_KEYFRAMES,
     'ease-in-out'
   );
 };
@@ -1848,14 +1835,9 @@ const DiamondExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
   return matrixSourceStyle(
     targets,
     entity,
-    distance * 0.12 * MATRIX_CYCLE_MS,
+    distance * 0.14 * MATRIX_CYCLE_MS,
     MATRIX_CYCLE_MS,
-    [
-      matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.3, 1, 0, 0),
-      matrixCssKeyframe(0.55, 0, 0, 1),
-      matrixCssKeyframe(1, 0, 0, 1),
-    ],
+    ECHO_RING_BLEND_KEYFRAMES,
     'ease-in-out'
   );
 };
@@ -1873,12 +1855,7 @@ const shapeRevealAnimation = (
   duration: MATRIX_CYCLE_MS,
   easing: 'ease-in-out',
   web: {
-    opacity: [
-      matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.12, 1, 0, 0),
-      matrixCssKeyframe(0.24, 0, 0, 1),
-      matrixCssKeyframe(1, 0, 0, 1),
-    ],
+    opacity: ECHO_RING_BLEND_KEYFRAMES,
   },
 });
 
@@ -1933,46 +1910,6 @@ const ChevronSweep: QRCodeAnimation = (targets, x, y, count, entity) => {
       matrixCssKeyframe(0.18, 0.4, 0.45, 0.15),
       matrixCssKeyframe(0.32, 1, 0, 0),
       matrixCssKeyframe(0.5, 0, 0.5, 0.5),
-      matrixCssKeyframe(1, 0, 0, 1),
-    ],
-    'ease-in-out'
-  );
-};
-
-const WaveRide: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  const phase = sampleCellField(fRow, fCol, waveRidePhase);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    phase * 0.1 * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
-    [
-      matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.22, 0.55, 0.35, 0.1),
-      matrixCssKeyframe(0.4, 1, 0, 0),
-      matrixCssKeyframe(0.62, 0, 0.5, 0.5),
-      matrixCssKeyframe(1, 0, 0, 1),
-    ],
-    'ease-in-out'
-  );
-};
-
-const CornerPop: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  const distance = sampleCellField(fRow, fCol, cornerDistance);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    distance * 0.12 * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
-    [
-      matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.16, 0.5, 0.4, 0.1),
-      matrixCssKeyframe(0.3, 1, 0, 0),
-      matrixCssKeyframe(0.48, 0, 0.45, 0.1),
       matrixCssKeyframe(1, 0, 0, 1),
     ],
     'ease-in-out'
@@ -2419,10 +2356,6 @@ const resolveAnimationPreset = (name: string) => {
       return CrossBloom;
     case AnimationPreset.ChevronSweep:
       return ChevronSweep;
-    case AnimationPreset.WaveRide:
-      return WaveRide;
-    case AnimationPreset.CornerPop:
-      return CornerPop;
     default:
       throw new Error(`${name} is not a valid AnimationPreset.`);
   }

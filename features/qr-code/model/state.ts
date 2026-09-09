@@ -54,9 +54,7 @@ export type QrDotMatrixSquareLoader =
   | "heart-expand"
   | "star-expand"
   | "cross-bloom"
-  | "chevron-sweep"
-  | "wave-ride"
-  | "corner-pop";
+  | "chevron-sweep";
 export type QrDotMatrixColorPreset =
   | "theme"
   | "mint"
@@ -204,6 +202,8 @@ const RASTER_EXPORT_QUALITY_MAX = 100;
 const DEFAULT_RASTER_EXPORT_QUALITY = 100;
 export const QR_DOT_MATRIX_ANIMATION_SPEED_MIN = 1;
 export const QR_DOT_MATRIX_ANIMATION_SPEED_MAX = 10;
+export const QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MIN = 0;
+export const QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MAX = 100;
 export const QR_DOT_MATRIX_MATRIX_SIZE_MIN = 5;
 export const QR_DOT_MATRIX_MATRIX_SIZE_MAX = 25;
 export const QR_DOT_MATRIX_MATRIX_SIZE_STEP = 5;
@@ -273,8 +273,6 @@ export const QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS: Array<{
   { label: "Star Expand", value: "star-expand" },
   { label: "Cross Bloom", value: "cross-bloom" },
   { label: "Chevron Sweep", value: "chevron-sweep" },
-  { label: "Wave Ride", value: "wave-ride" },
-  { label: "Corner Pop", value: "corner-pop" },
 ];
 
 export const QR_MOTION_DOT_MATRIX_PRESET_OPTIONS: Array<{
@@ -495,6 +493,46 @@ export function clampDotMatrixAnimationSpeed(value: number) {
     QR_DOT_MATRIX_ANIMATION_SPEED_MAX,
     DEFAULT_DOT_MATRIX_ANIMATION.speed,
   );
+}
+
+function clampDotMatrixAnimationSpeedSliderPercent(value: number) {
+  return coerceNumber(
+    value,
+    QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MIN,
+    QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MAX,
+    dotMatrixAnimationSpeedToSliderPercent(DEFAULT_DOT_MATRIX_ANIMATION.speed),
+  );
+}
+
+/** Maps internal motion speed (1–10) to a perceptually even 0–100 slider value. */
+export function dotMatrixAnimationSpeedToSliderPercent(speed: number) {
+  const clampedSpeed = clampDotMatrixAnimationSpeed(speed);
+  const normalized =
+    (Math.log(clampedSpeed) - Math.log(QR_DOT_MATRIX_ANIMATION_SPEED_MIN)) /
+    (Math.log(QR_DOT_MATRIX_ANIMATION_SPEED_MAX) -
+      Math.log(QR_DOT_MATRIX_ANIMATION_SPEED_MIN));
+
+  return Math.round(
+    normalized *
+      (QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MAX -
+        QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MIN) +
+      QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MIN,
+  );
+}
+
+/** Maps a 0–100 slider value back to internal motion speed (1–10). */
+export function sliderPercentToDotMatrixAnimationSpeed(percent: number) {
+  const clampedPercent = clampDotMatrixAnimationSpeedSliderPercent(percent);
+  const normalized =
+    (clampedPercent - QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MIN) /
+    (QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MAX -
+      QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MIN);
+  const speed =
+    QR_DOT_MATRIX_ANIMATION_SPEED_MIN *
+    (QR_DOT_MATRIX_ANIMATION_SPEED_MAX / QR_DOT_MATRIX_ANIMATION_SPEED_MIN) **
+      normalized;
+
+  return clampDotMatrixAnimationSpeed(speed);
 }
 
 function clampDotMatrixAnimationMatrixSize(value: number) {

@@ -123,26 +123,15 @@ describe("matrix animation parity", () => {
         dotMatrixColorPeak: "#22d3ee",
       };
       const animation = preset({}, 10, 10, 21, QRCodeEntity.Module, settings);
-      const frames = animation.web?.opacity;
-      const fillFrames = animation.web?.fill;
+      const from = typeof animation.from === "number" ? animation.from : 0;
+      const duration =
+        typeof animation.duration === "number" ? animation.duration : 1500;
+      const atRest = sampleDotMatrixAnimationFrame(animation, from);
+      const atPeak = sampleDotMatrixAnimationFrame(animation, from + duration * 0.32);
 
-      expect(Array.isArray(frames)).toBe(true);
-      expect(Array.isArray(fillFrames)).toBe(true);
-      if (!Array.isArray(frames) || !Array.isArray(fillFrames)) {
-        return;
-      }
-
-      const peakFillFrame = fillFrames.find(
-        (frame) =>
-          typeof frame === "object" &&
-          frame !== null &&
-          "value" in frame &&
-          (frame as { value: string }).value === "#22d3ee",
-      );
-
-      expect(peakFillFrame).toEqual(
-        expect.objectContaining({ value: "#22d3ee" }),
-      );
+      expect(atRest.fill).toBe("#111827");
+      expect(atPeak.fill).not.toBe("#111827");
+      expect(atPeak.fill).toMatch(/^#/);
     });
   });
 

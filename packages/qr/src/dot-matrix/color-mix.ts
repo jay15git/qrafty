@@ -2,6 +2,12 @@ function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
 }
 
+/** Perlin smootherstep — eases color/opacity ramps at wave edges. */
+export function smoothBlendProgress(value: number) {
+  const t = clamp01(value);
+  return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
 function componentToHex(value: number) {
   return Math.round(clamp01(value / 255) * 255)
     .toString(16)
@@ -65,7 +71,7 @@ export function dualAccentMixFromCssBlend(blend: {
     return 0;
   }
 
-  return clamp01(accentWeight / total);
+  return smoothBlendProgress(accentWeight / total);
 }
 
 export function dualAccentMixFromOpacity(
@@ -81,5 +87,5 @@ export function dualAccentMixFromOpacity(
     return opacity >= peakAnchor ? 1 : 0;
   }
 
-  return clamp01((opacity - baseAnchor) / (peakAnchor - baseAnchor));
+  return smoothBlendProgress((opacity - baseAnchor) / (peakAnchor - baseAnchor));
 }

@@ -900,6 +900,7 @@ type DotMatrixTrack = {
   modules: DotMatrixModule[]
   opacity?: number
   region: string
+  speedMultiplier: number
   state: "active" | "quiet"
   styleVars: Record<string, number | string>
   timingFunction: string
@@ -1383,10 +1384,8 @@ type DotMatrixSquareLoaderId =
   | "dotm-square-23"
   | "dotm-square-25"
   | "dotm-square-26"
-  | "dotm-square-27"
   | "dotm-square-28"
   | "dotm-square-30"
-  | "dotm-square-29"
   | "dotm-square-33"
   | "dotm-square-34"
   | "dotm-square-35"
@@ -1463,16 +1462,6 @@ const DOT_MATRIX_LOADER_SPECS: Record<QrDotMatrixSquareLoader, DotMatrixLoaderSp
   "chevron-sweep": createDotMatrixLoaderSpec("dotm-square-26", "chevron-sweep", (cell) =>
     createClassCellAnimation("dotm-square-26", "chevron-sweep", "dmx-chevron-sweep", "dmx-chevron-sweep", 1500, {
       "--dmx-chevron-distance": chevronDistance(cell),
-    }),
-  ),
-  "wave-ride": createDotMatrixLoaderSpec("dotm-square-27", "wave-ride", (cell) =>
-    createClassCellAnimation("dotm-square-27", "wave-ride", "dmx-wave-ride", "dmx-wave-ride", 1500, {
-      "--dmx-wave-phase": waveRidePhase(cell),
-    }),
-  ),
-  "corner-pop": createDotMatrixLoaderSpec("dotm-square-29", "corner-pop", (cell) =>
-    createClassCellAnimation("dotm-square-29", "corner-pop", "dmx-corner-pop", "dmx-corner-pop", 1500, {
-      "--dmx-corner-distance": cornerDistance(cell),
     }),
   ),
 }
@@ -1624,6 +1613,7 @@ function createDotMatrixLoaderTracks(
       modules: [qrModule],
       opacity: assignment.opacity,
       region,
+      speedMultiplier,
       state: assignment.active ? "active" : "quiet",
       styleVars,
       timingFunction: assignment.timingFunction,
@@ -1752,20 +1742,6 @@ function chevronDistance(cell: DotMatrixCell) {
   return cell.matrixSize - 1 - cell.row + Math.abs(cell.col - center)
 }
 
-function waveRidePhase(cell: DotMatrixCell) {
-  return cell.row + Math.sin(cell.col * 1.1) * 0.75
-}
-
-function cornerDistance(cell: DotMatrixCell) {
-  const last = cell.matrixSize - 1
-  return Math.min(
-    cell.row + cell.col,
-    cell.row + (last - cell.col),
-    last - cell.row + cell.col,
-    last - cell.row + (last - cell.col),
-  )
-}
-
 function trBlPathNormFromIndex(cell: DotMatrixCell) {
   const { col, matrixSize, row } = cell
 
@@ -1864,6 +1840,7 @@ function getDotMatrixTrackStyle(track: DotMatrixTrack) {
   const style = [
     `--qr-dot-track:${track.index}`,
     `--qr-dot-duration-ms:${track.durationMs}`,
+    `--qr-dot-speed-multiplier:${formatSvgNumber(track.speedMultiplier)}`,
     `--qr-dot-easing:${track.timingFunction}`,
     `--qr-dot-keyframes-name:${track.keyframes}`,
     ...Object.entries(track.styleVars).map(([key, value]) => `${key}:${value}`),
@@ -1994,6 +1971,12 @@ function getDotMatrixAnchorValue(sourceOpacity: number) {
   return "peak"
 }
 
+const SOFT_ECHO_WAVE_KEYFRAME_BODY =
+  "0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 20% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 82%, var(--qr-dot-matrix-color-peak)); } 32% { opacity: var(--qr-dot-matrix-opacity-peak); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 28%, var(--qr-dot-matrix-color-peak)); } 45% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 58%, var(--qr-dot-matrix-color-peak)); } 58% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 72%, var(--qr-dot-matrix-color-peak)); } 72% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 88%, var(--qr-dot-matrix-color-peak)); }"
+
+const SOFT_COLOR_WAVE_KEYFRAME_BODY =
+  "0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 24% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 84%, var(--qr-dot-matrix-color-peak)); } 38% { opacity: var(--qr-dot-matrix-opacity-peak); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 32%, var(--qr-dot-matrix-color-peak)); } 54% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 62%, var(--qr-dot-matrix-color-peak)); } 68% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 78%, var(--qr-dot-matrix-color-peak)); }"
+
 function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrack[]) {
   const style = document.createElementNS(SVG_NS, "style")
   const generatedKeyframes = tracks
@@ -2031,39 +2014,35 @@ function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrac
   opacity: var(--qr-dot-matrix-opacity-base);
   filter: none;
 }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-diagonal-alt-sweep"] { animation-delay: calc((var(--dmx-path, 0) + var(--dmx-diagonal-parity, 0) * .08) * -1.5s); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-square6-col-snake"] { animation-delay: calc(var(--dmx-col-pos, 0) * -110ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-ripple-echo"] { animation-delay: calc(var(--dmx-ripple-ring, 0) * -120ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-center-origin-ripple"] { animation-delay: calc(var(--dmx-center-ripple-ring, 0) * -120ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-radial-expand"] { animation-delay: calc(var(--dmx-radial-radius, 0) * -140ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-fan-rotate"] { animation-delay: calc(var(--dmx-fan-phase, 0) * -3500ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-tunnel"] { animation-delay: calc(var(--dmx-tunnel-phase, 0) * -1800ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-wave"] { animation-delay: calc(var(--dmx-wave-field-phase, 0) * -3500ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-scan"] { animation-delay: calc(var(--dmx-scan-phase, 0) * -3500ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-diamond-expand"] { animation-delay: calc(var(--dmx-diamond-radius, 0) * -120ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-heart-expand"] { animation-delay: calc(var(--dmx-heart-progress, 0) * -630ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-star-expand"] { animation-delay: calc(var(--dmx-star-progress, 0) * -630ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-cross-bloom"] { animation-delay: calc(var(--dmx-cross-distance, 0) * -140ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-chevron-sweep"] { animation-delay: calc(var(--dmx-chevron-distance, 0) * -110ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-wave-ride"] { animation-delay: calc(var(--dmx-wave-phase, 0) * -100ms); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-corner-pop"] { animation-delay: calc(var(--dmx-corner-distance, 0) * -120ms); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-diagonal-alt-sweep"] { animation-delay: calc((var(--dmx-path, 0) + var(--dmx-diagonal-parity, 0) * .08) * -1.5s * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-square6-col-snake"] { animation-delay: calc(var(--dmx-col-pos, 0) * -110ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-ripple-echo"] { animation-delay: calc(var(--dmx-ripple-ring, 0) * -120ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-center-origin-ripple"] { animation-delay: calc(var(--dmx-center-ripple-ring, 0) * -120ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-radial-expand"] { animation-delay: calc(var(--dmx-radial-radius, 0) * -120ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-fan-rotate"] { animation-delay: calc(var(--dmx-fan-phase, 0) * -3500ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-tunnel"] { animation-delay: calc(var(--dmx-tunnel-phase, 0) * -1800ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-wave"] { animation-delay: calc(var(--dmx-wave-field-phase, 0) * -3500ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-scan"] { animation-delay: calc(var(--dmx-scan-phase, 0) * -3500ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-diamond-expand"] { animation-delay: calc(var(--dmx-diamond-radius, 0) * -120ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-heart-expand"] { animation-delay: calc(var(--dmx-heart-progress, 0) * -630ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-star-expand"] { animation-delay: calc(var(--dmx-star-progress, 0) * -630ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-cross-bloom"] { animation-delay: calc(var(--dmx-cross-distance, 0) * -140ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-chevron-sweep"] { animation-delay: calc(var(--dmx-chevron-distance, 0) * -110ms * var(--qr-dot-speed-multiplier, 1)); }
 @keyframes qr-dot-loader-legacy { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 50% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } }
-@keyframes dmx-diagonal-alt-sweep { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 44% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 68% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 45%, var(--qr-dot-matrix-color-peak)); } }
-@keyframes dmx-square6-col-snake { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 18% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 42% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 45%, var(--qr-dot-matrix-color-peak)); } }
-@keyframes dmx-ripple-echo { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 35% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 60% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 50%, var(--qr-dot-matrix-color-peak)); } }
-@keyframes dmx-center-origin-ripple { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 32% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 62% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 50%, var(--qr-dot-matrix-color-peak)); } }
-@keyframes dmx-radial-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 28% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 52% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
+@keyframes dmx-diagonal-alt-sweep { ${SOFT_COLOR_WAVE_KEYFRAME_BODY} }
+@keyframes dmx-square6-col-snake { ${SOFT_COLOR_WAVE_KEYFRAME_BODY} }
+@keyframes dmx-ripple-echo { ${SOFT_ECHO_WAVE_KEYFRAME_BODY} }
+@keyframes dmx-center-origin-ripple { ${SOFT_ECHO_WAVE_KEYFRAME_BODY} }
+@keyframes dmx-radial-expand { ${SOFT_ECHO_WAVE_KEYFRAME_BODY} }
 @keyframes dmx-fan-rotate { 0%, 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .75); fill: var(--qr-dot-matrix-color-base); transform: scale(.625); } 12.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .5732); fill: var(--qr-dot-matrix-color-base); transform: scale(.3952); } 25% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .5); fill: var(--qr-dot-matrix-color-base); transform: scale(.3); } 37.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .5732); fill: var(--qr-dot-matrix-color-base); transform: scale(.3952); } 50% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .75); fill: var(--qr-dot-matrix-color-base); transform: scale(.625); } 62.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9268); fill: var(--qr-dot-matrix-color-base); transform: scale(.8548); } 75% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); transform: scale(.95); } 87.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9268); fill: var(--qr-dot-matrix-color-base); transform: scale(.8548); } }
 @keyframes dmx-tunnel { 0%, 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .62); fill: var(--qr-dot-matrix-color-base); transform: scale(.6); } 12.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .422); fill: var(--qr-dot-matrix-color-base); transform: scale(.388); } 25% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.3); } 37.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .422); fill: var(--qr-dot-matrix-color-base); transform: scale(.388); } 50% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .62); fill: var(--qr-dot-matrix-color-base); transform: scale(.6); } 62.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .818); fill: var(--qr-dot-matrix-color-base); transform: scale(.812); } 75% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9); fill: var(--qr-dot-matrix-color-base); transform: scale(.9); } 87.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .818); fill: var(--qr-dot-matrix-color-base); transform: scale(.812); } }
 @keyframes dmx-wave { 0%, 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .41); fill: var(--qr-dot-matrix-color-base); transform: scale(.41); } 12.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .342); fill: var(--qr-dot-matrix-color-base); transform: scale(.342); } 25% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.34); } 37.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .342); fill: var(--qr-dot-matrix-color-base); transform: scale(.342); } 50% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .41); fill: var(--qr-dot-matrix-color-base); transform: scale(.41); } 62.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .688); fill: var(--qr-dot-matrix-color-base); transform: scale(.688); } 75% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9); fill: var(--qr-dot-matrix-color-base); transform: scale(.9); } 87.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .688); fill: var(--qr-dot-matrix-color-base); transform: scale(.688); } }
 @keyframes dmx-scan { 0%, 9% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .41); fill: var(--qr-dot-matrix-color-base); transform: scale(.41); } 18% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.34); } 27% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .342); fill: var(--qr-dot-matrix-color-base); transform: scale(.342); } 36% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .41); fill: var(--qr-dot-matrix-color-base); transform: scale(.41); } 45% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .688); fill: var(--qr-dot-matrix-color-base); transform: scale(.688); } 54% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9); fill: var(--qr-dot-matrix-color-base); transform: scale(.9); } 63% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .688); fill: var(--qr-dot-matrix-color-base); transform: scale(.688); } 72%, 75% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.34); } 85% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9); fill: var(--qr-dot-matrix-color-base); transform: scale(.9); } 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.34); } }
-@keyframes dmx-diamond-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 30% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 55% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
-@keyframes dmx-heart-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 12% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 24% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
-@keyframes dmx-star-expand { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 12% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 24% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } }
-@keyframes dmx-cross-bloom { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 26% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 48% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 45%, var(--qr-dot-matrix-color-peak)); } }
-@keyframes dmx-chevron-sweep { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 32% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 50% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 40%, var(--qr-dot-matrix-color-peak)); } }
-@keyframes dmx-wave-ride { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 40% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 62% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 50%, var(--qr-dot-matrix-color-peak)); } }
-@keyframes dmx-corner-pop { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 30% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } 48% { opacity: var(--qr-dot-matrix-opacity-base); fill: color-mix(in srgb, var(--qr-dot-matrix-color-base) 40%, var(--qr-dot-matrix-color-peak)); } }
+@keyframes dmx-diamond-expand { ${SOFT_ECHO_WAVE_KEYFRAME_BODY} }
+@keyframes dmx-heart-expand { ${SOFT_ECHO_WAVE_KEYFRAME_BODY} }
+@keyframes dmx-star-expand { ${SOFT_ECHO_WAVE_KEYFRAME_BODY} }
+@keyframes dmx-cross-bloom { ${SOFT_COLOR_WAVE_KEYFRAME_BODY} }
+@keyframes dmx-chevron-sweep { ${SOFT_COLOR_WAVE_KEYFRAME_BODY} }
 ${generatedKeyframes}
 @media (prefers-reduced-motion: reduce) {
   .qr-dot-matrix-layer {

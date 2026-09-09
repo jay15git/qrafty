@@ -17,7 +17,7 @@ describe("color-mix", () => {
     expect(dualAccentMixFromCssBlend({ base: 1, mid: 0, peak: 0 })).toBe(0);
     expect(dualAccentMixFromCssBlend({ base: 0, mid: 0, peak: 1 })).toBe(1);
     expect(dualAccentMixFromCssBlend({ base: 0.5, mid: 0.5, peak: 0 })).toBeCloseTo(
-      0.25,
+      0.103515625,
       5,
     );
   });

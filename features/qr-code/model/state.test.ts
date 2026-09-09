@@ -14,11 +14,13 @@ import {
   clampQrSize,
   createDefaultQraftyState,
   DEFAULT_DOT_MATRIX_ANIMATION,
+  dotMatrixAnimationSpeedToSliderPercent,
   isScaleOnlyDotMatrixLoader,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
   setDotMatrixAnimationOptions,
   setRasterExportQualityPercent,
   setSquareQrSize,
+  sliderPercentToDotMatrixAnimationSpeed,
 } from "@/features/qr-code/model/state";
 
 describe("QRafty state helpers", () => {
@@ -141,7 +143,7 @@ describe("QRafty state helpers", () => {
   it("starts with dot matrix animation disabled and SVG export static", () => {
     const state = createDefaultQraftyState();
 
-    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(16);
+    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(14);
     expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => option.label)).toEqual([
       "Neon Drift",
       "Flux Columns",
@@ -157,8 +159,6 @@ describe("QRafty state helpers", () => {
       "Star Expand",
       "Cross Bloom",
       "Chevron Sweep",
-      "Wave Ride",
-      "Corner Pop",
     ]);
     expect(state.dotMatrixAnimation).toEqual(DEFAULT_DOT_MATRIX_ANIMATION);
     expect(state.dotMatrixAnimation.enabled).toBe(false);
@@ -258,6 +258,26 @@ describe("QRafty state helpers", () => {
     expect(clampDotMatrixAnimationSpeed(Number.NaN)).toBe(
       DEFAULT_DOT_MATRIX_ANIMATION.speed,
     );
+  });
+
+  it("maps dot matrix speed to a perceptual 0-100 slider and back", () => {
+    expect(dotMatrixAnimationSpeedToSliderPercent(1)).toBe(0);
+    expect(dotMatrixAnimationSpeedToSliderPercent(10)).toBe(100);
+    expect(dotMatrixAnimationSpeedToSliderPercent(DEFAULT_DOT_MATRIX_ANIMATION.speed)).toBe(
+      48,
+    );
+
+    expect(sliderPercentToDotMatrixAnimationSpeed(0)).toBe(1);
+    expect(sliderPercentToDotMatrixAnimationSpeed(100)).toBe(10);
+    expect(sliderPercentToDotMatrixAnimationSpeed(48)).toBeCloseTo(
+      DEFAULT_DOT_MATRIX_ANIMATION.speed,
+      1,
+    );
+
+    for (const percent of [0, 25, 48, 75, 100]) {
+      const speed = sliderPercentToDotMatrixAnimationSpeed(percent);
+      expect(dotMatrixAnimationSpeedToSliderPercent(speed)).toBe(percent);
+    }
   });
 
   it("drops removed dot matrix animation options from legacy state", () => {

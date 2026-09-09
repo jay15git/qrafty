@@ -27,6 +27,10 @@ import {
 } from "@/features/desktop-shell/inspector/settings-ui"
 import { normalizeContentTypeForPicker } from "@/features/qr-code/content/input-options"
 import {
+  dotMatrixAnimationSpeedToSliderPercent,
+  sliderPercentToDotMatrixAnimationSpeed,
+} from "@/features/qr-code/model/state"
+import {
   isScaleOnlyDotMatrixLoader,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
   type QrDotMatrixSquareLoader,
@@ -666,6 +670,17 @@ export function MotionSection({ model }: { model: DesktopInspectorModel }) {
                 loader: nextLoader,
                 preset: nextLoader,
                 presetCategory: "dotMatrix",
+              })
+            }
+          />
+          <SettingsSlider
+            label="Speed"
+            max={100}
+            min={0}
+            value={dotMatrixAnimationSpeedToSliderPercent(actualMotionSettings.speed)}
+            onChange={(speedPercent) =>
+              onMotionSettingsChange({
+                speed: sliderPercentToDotMatrixAnimationSpeed(speedPercent),
               })
             }
           />

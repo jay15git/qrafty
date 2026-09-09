@@ -7,6 +7,11 @@ import {
   type QRCodeAnimationSettings,
 } from "./animations"
 import {
+  runMotionFieldAnimation,
+  seekMotionFieldAnimation,
+  shouldUseMotionFieldLayer,
+} from "./motion-field"
+import {
   captureDotMatrixOriginalFills,
   seekDotMatrixTargets,
   startDotMatrixLoop,
@@ -114,6 +119,12 @@ export function seekDotMatrixAnimation(
   globalTimeMs: number,
   settings: QRCodeAnimationSettings = {},
 ) {
+  const presetName = typeof preset === "string" ? preset : ""
+
+  if (typeof preset === "string" && shouldUseMotionFieldLayer(presetName, settings)) {
+    return seekMotionFieldAnimation(root, presetName, globalTimeMs, settings)
+  }
+
   const loopTargets = buildDotMatrixAnimationTargets(root, preset, settings)
   if (loopTargets.length === 0) {
     return undefined
@@ -129,6 +140,12 @@ export function runDotMatrixAnimation(
   preset: string | QRCodeAnimation,
   settings: QRCodeAnimationSettings = {},
 ): DotMatrixAnimationHandle | undefined {
+  const presetName = typeof preset === "string" ? preset : ""
+
+  if (typeof preset === "string" && shouldUseMotionFieldLayer(presetName, settings)) {
+    return runMotionFieldAnimation(root, presetName, settings)
+  }
+
   const loopTargets = buildDotMatrixAnimationTargets(root, preset, settings)
 
   if (loopTargets.length === 0) {

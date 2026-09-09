@@ -1,3 +1,4 @@
+export * from "./motion-field"
 export * from "./DotMatrixAnimatedSvg"
 export * from "./animations"
 export * from "./dot-matrix-loop"
