@@ -141,24 +141,20 @@ describe("QRafty state helpers", () => {
   it("starts with dot matrix animation disabled and SVG export static", () => {
     const state = createDefaultQraftyState();
 
-    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(20);
+    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(16);
     expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => option.label)).toEqual([
       "Neon Drift",
       "Flux Columns",
       "Echo Ring",
       "Origin Wave",
       "Radial Expand",
-      "Vortex Rotate",
       "Fan Rotate",
       "Tunnel",
       "Wave",
       "Scan",
-      "Radius Ping",
       "Diamond Expand",
       "Heart Expand",
       "Star Expand",
-      "Ripple Expand",
-      "Zigzag Flow",
       "Cross Bloom",
       "Chevron Sweep",
       "Wave Ride",
@@ -179,7 +175,7 @@ describe("QRafty state helpers", () => {
   it("normalizes unknown dot matrix loader values", () => {
     const state = createDefaultQraftyState();
 
-    expect(setDotMatrixAnimationOptions(state, { loader: "vortex-rotate" }).dotMatrixAnimation.loader).toBe("vortex-rotate");
+    expect(setDotMatrixAnimationOptions(state, { loader: "vortex-rotate" }).dotMatrixAnimation.loader).toBe("neon-drift");
     expect(setDotMatrixAnimationOptions(state, { loader: "vortex" }).dotMatrixAnimation.loader).toBe("neon-drift");
     expect(setDotMatrixAnimationOptions(state, { loader: "honey-gate" }).dotMatrixAnimation.loader).toBe("neon-drift");
   });
@@ -190,7 +186,6 @@ describe("QRafty state helpers", () => {
     expect(isScaleOnlyDotMatrixLoader("wave")).toBe(true);
     expect(isScaleOnlyDotMatrixLoader("scan")).toBe(true);
     expect(isScaleOnlyDotMatrixLoader("neon-drift")).toBe(false);
-    expect(isScaleOnlyDotMatrixLoader("vortex-rotate")).toBe(false);
   });
 
   it("clamps dot matrix animation updates to supported ranges", () => {

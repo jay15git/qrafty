@@ -146,32 +146,6 @@ describe("matrix animation parity", () => {
     });
   });
 
-  describe("VortexRotate", () => {
-    it("pulses dot scale with opacity during the sweep", () => {
-      const preset = getAnimationPreset(AnimationPreset.VortexRotate);
-      const animation = preset({}, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const from = typeof animation.from === "number" ? animation.from : 0;
-      const atRest = sampleDotMatrixAnimationFrame(animation, from);
-      const atPeak = sampleDotMatrixAnimationFrame(animation, from + 240);
-
-      expect(atRest.scale).toBeDefined();
-      expect(atPeak.scale).toBeDefined();
-      expect(atPeak.scale!).toBeGreaterThan(atRest.scale!);
-    });
-
-    it("gives center dots a larger pulse than outer dots", () => {
-      const preset = getAnimationPreset(AnimationPreset.VortexRotate);
-      const center = preset({}, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const corner = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const centerFrom = typeof center.from === "number" ? center.from : 0;
-      const cornerFrom = typeof corner.from === "number" ? corner.from : 0;
-      const centerPeak = sampleDotMatrixAnimationFrame(center, centerFrom + 240).scale ?? 0;
-      const cornerPeak = sampleDotMatrixAnimationFrame(corner, cornerFrom + 240).scale ?? 0;
-
-      expect(centerPeak).toBeGreaterThan(cornerPeak);
-    });
-  });
-
   describe("FanRotate", () => {
     it("maps one sinusoidal field to both dot size and alpha", () => {
       const preset = getAnimationPreset(AnimationPreset.FanRotate);
@@ -244,16 +218,6 @@ describe("matrix animation parity", () => {
       const corner = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
 
       expect(corner.from).toBeGreaterThan(center.from ?? 0);
-    });
-  });
-
-  describe("ZigzagFlow", () => {
-    it("travels in serpentine order across the matrix", () => {
-      const preset = getAnimationPreset(AnimationPreset.ZigzagFlow);
-      const first = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const later = preset({}, 0, 20, 21, QRCodeEntity.Module, defaultOpacitySettings);
-
-      expect(later.from).toBeGreaterThan(first.from ?? 0);
     });
   });
 

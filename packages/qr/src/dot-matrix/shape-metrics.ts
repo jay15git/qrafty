@@ -111,14 +111,6 @@ export function starExpansionMetric(
   return (r / Math.max(boundary, 0.1)) * radius;
 }
 
-/** Integer ring index for concentric circular ripples. */
-export function rippleRingIndex(row: number, col: number, matrixSize: number) {
-  const center = (matrixSize - 1) / 2;
-  const dx = col - center;
-  const dy = row - center;
-  return Math.round(Math.hypot(dx, dy));
-}
-
 function maxShapeExpansionMetric(
   matrixSize: number,
   metricAt: (row: number, col: number, matrixSize: number) => number,

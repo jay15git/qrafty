@@ -43,7 +43,6 @@ import {
 import {
   heartExpansionMetric,
   heartMaxExpansionMetric,
-  rippleRingIndex,
   starExpansionMetric,
   starMaxExpansionMetric,
 } from './shape-metrics';
@@ -128,17 +127,13 @@ export enum AnimationPreset {
   EchoRing = 'EchoRing',
   OriginWave = 'OriginWave',
   RadialExpand = 'RadialExpand',
-  VortexRotate = 'VortexRotate',
   FanRotate = 'FanRotate',
   Tunnel = 'Tunnel',
   Wave = 'Wave',
   Scan = 'Scan',
-  RadiusPing = 'RadiusPing',
   DiamondExpand = 'DiamondExpand',
   HeartExpand = 'HeartExpand',
   StarExpand = 'StarExpand',
-  RippleExpand = 'RippleExpand',
-  ZigzagFlow = 'ZigzagFlow',
   CrossBloom = 'CrossBloom',
   ChevronSweep = 'ChevronSweep',
   WaveRide = 'WaveRide',
@@ -186,17 +181,13 @@ export const dotMatrixAnimationPresets = [
   AnimationPreset.EchoRing,
   AnimationPreset.OriginWave,
   AnimationPreset.RadialExpand,
-  AnimationPreset.VortexRotate,
   AnimationPreset.FanRotate,
   AnimationPreset.Tunnel,
   AnimationPreset.Wave,
   AnimationPreset.Scan,
-  AnimationPreset.RadiusPing,
   AnimationPreset.DiamondExpand,
   AnimationPreset.HeartExpand,
   AnimationPreset.StarExpand,
-  AnimationPreset.RippleExpand,
-  AnimationPreset.ZigzagFlow,
   AnimationPreset.CrossBloom,
   AnimationPreset.ChevronSweep,
   AnimationPreset.WaveRide,
@@ -1646,15 +1637,6 @@ const MATRIX_CENTER = 2;
 const radialDistanceFromCenter = (row: number, col: number) =>
   Math.hypot(row - MATRIX_CENTER, col - MATRIX_CENTER);
 
-const vortexAnglePhase = (x: number, y: number, count: number) => {
-  const center = count / 2;
-  const angle = Math.atan2(y - center, x - center);
-  return (angle + Math.PI) / (Math.PI * 2);
-};
-
-const clockwiseAnglePhase = (x: number, y: number, count: number) =>
-  1 - vortexAnglePhase(x, y, count);
-
 const FAN_ROTATE_CYCLE_MS = 3500;
 
 const normalizedRadiusFromCenter = (x: number, y: number, count: number) => {
@@ -1693,9 +1675,6 @@ const motionScaleKeyframes = (rest: number, peak: number) => [
 const diamondDistanceFromCenter = (row: number, col: number) =>
   Math.abs(row - MATRIX_CENTER) + Math.abs(col - MATRIX_CENTER);
 
-const zigzagOrder = (row: number, col: number) =>
-  row * MATRIX_SIZE + (row % 2 === 0 ? col : MATRIX_LAST - col);
-
 const crossBloomDistance = (row: number, col: number) =>
   Math.max(Math.abs(row - MATRIX_CENTER), Math.abs(col - MATRIX_CENTER));
 
@@ -1729,27 +1708,6 @@ const RadialExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
       matrixCssKeyframe(1, 0, 0, 1),
     ],
     'ease-in-out'
-  );
-};
-
-const VortexRotate: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const phase = vortexAnglePhase(x, y, count);
-  const { rest, peak } = dotMotionScale(x, y, count);
-  return matrixMotionStyle(
-    targets,
-    phase * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
-    [
-      matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.08, 0.35, 0.45, 0.12),
-      matrixCssKeyframe(0.16, 1, 0, 0),
-      matrixCssKeyframe(0.38, 1, 0, 0),
-      matrixCssKeyframe(0.5, 0, 0.35, 0.15),
-      matrixCssKeyframe(1, 0, 0, 1),
-    ],
-    motionScaleKeyframes(rest, peak),
-    'linear',
   );
 };
 
@@ -1883,25 +1841,6 @@ const Scan: QRCodeAnimation = (targets, _x, y, count, entity) => {
   );
 };
 
-const RadiusPing: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  const radius = sampleCellField(fRow, fCol, radialDistanceFromCenter);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    radius * 0.18 * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
-    [
-      matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.1, 1, 0, 0),
-      matrixCssKeyframe(0.2, 0, 0, 1),
-      matrixCssKeyframe(1, 0, 0, 1),
-    ],
-    'ease-in-out'
-  );
-};
-
 const DiamondExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
   if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
   const { fRow, fCol } = matrixFracCoord(x, y, count);
@@ -1958,45 +1897,6 @@ const StarExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
     targets,
     starExpansionMetric(y, x, count),
     starMaxExpansionMetric(count),
-  );
-};
-
-const RippleExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const ring = rippleRingIndex(y, x, count);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    ring * 0.09 * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
-    [
-      matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.07, 1, 0, 0),
-      matrixCssKeyframe(0.14, 0.35, 0.45, 0.2),
-      matrixCssKeyframe(0.28, 0, 0, 1),
-      matrixCssKeyframe(1, 0, 0, 1),
-    ],
-    'ease-in-out'
-  );
-};
-
-const ZigzagFlow: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  const order = sampleCellField(fRow, fCol, zigzagOrder);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    order * 0.035 * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
-    [
-      matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.12, 0.35, 0.55, 0.1),
-      matrixCssKeyframe(0.24, 1, 0, 0),
-      matrixCssKeyframe(0.38, 0, 0.5, 0.5),
-      matrixCssKeyframe(1, 0, 0, 1),
-    ],
-    'ease-in-out'
   );
 };
 
@@ -2501,8 +2401,6 @@ const resolveAnimationPreset = (name: string) => {
       return OriginWave;
     case AnimationPreset.RadialExpand:
       return RadialExpand;
-    case AnimationPreset.VortexRotate:
-      return VortexRotate;
     case AnimationPreset.FanRotate:
       return FanRotate;
     case AnimationPreset.Tunnel:
@@ -2511,18 +2409,12 @@ const resolveAnimationPreset = (name: string) => {
       return Wave;
     case AnimationPreset.Scan:
       return Scan;
-    case AnimationPreset.RadiusPing:
-      return RadiusPing;
     case AnimationPreset.DiamondExpand:
       return DiamondExpand;
     case AnimationPreset.HeartExpand:
       return HeartExpand;
     case AnimationPreset.StarExpand:
       return StarExpand;
-    case AnimationPreset.RippleExpand:
-      return RippleExpand;
-    case AnimationPreset.ZigzagFlow:
-      return ZigzagFlow;
     case AnimationPreset.CrossBloom:
       return CrossBloom;
     case AnimationPreset.ChevronSweep:

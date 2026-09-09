@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   heartExpansionMetric,
   heartImplicit,
-  rippleRingIndex,
   starExpansionMetric,
 } from "./shape-metrics";
 
@@ -42,18 +41,6 @@ describe("shape-metrics", () => {
     const indent = starExpansionMetric(indentRow, indentCol, size);
 
     expect(tip).toBeGreaterThan(indent);
-  });
-
-  it("groups modules into discrete circular ripple rings", () => {
-    const size = 25;
-    const center = (size - 1) / 2;
-    const ring0 = rippleRingIndex(center, center, size);
-    const ring1 = rippleRingIndex(center, center + 1, size);
-    const ring2 = rippleRingIndex(center, center + 2, size);
-
-    expect(ring0).toBe(0);
-    expect(ring1).toBe(1);
-    expect(ring2).toBe(2);
   });
 
   it("heart implicit is negative at center", () => {

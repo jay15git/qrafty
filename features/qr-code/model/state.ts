@@ -46,17 +46,13 @@ export type QrDotMatrixSquareLoader =
   | "echo-ring"
   | "origin-wave"
   | "radial-expand"
-  | "vortex-rotate"
   | "fan-rotate"
   | "tunnel"
   | "wave"
   | "scan"
-  | "radius-ping"
   | "diamond-expand"
   | "heart-expand"
   | "star-expand"
-  | "ripple-expand"
-  | "zigzag-flow"
   | "cross-bloom"
   | "chevron-sweep"
   | "wave-ride"
@@ -268,17 +264,13 @@ export const QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS: Array<{
   { label: "Echo Ring", value: "echo-ring" },
   { label: "Origin Wave", value: "origin-wave" },
   { label: "Radial Expand", value: "radial-expand" },
-  { label: "Vortex Rotate", value: "vortex-rotate" },
   { label: "Fan Rotate", value: "fan-rotate" },
   { label: "Tunnel", value: "tunnel" },
   { label: "Wave", value: "wave" },
   { label: "Scan", value: "scan" },
-  { label: "Radius Ping", value: "radius-ping" },
   { label: "Diamond Expand", value: "diamond-expand" },
   { label: "Heart Expand", value: "heart-expand" },
   { label: "Star Expand", value: "star-expand" },
-  { label: "Ripple Expand", value: "ripple-expand" },
-  { label: "Zigzag Flow", value: "zigzag-flow" },
   { label: "Cross Bloom", value: "cross-bloom" },
   { label: "Chevron Sweep", value: "chevron-sweep" },
   { label: "Wave Ride", value: "wave-ride" },
