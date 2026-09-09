@@ -6,6 +6,7 @@ import { useColorPickerContext } from "../context";
 import { formatColor, parseColor } from "../lib/color";
 import type { OklchColor } from "../lib/types";
 import { cn } from "@/lib/utils";
+import { colorPickerControlShellClass } from "../lib/surface";
 
 // Inline SVG checkerboard so transparent / partially-opaque presets read as
 // translucent rather than solid against the popover bg.
@@ -84,7 +85,8 @@ export const Swatches = React.forwardRef<HTMLDivElement, SwatchesProps>(function
           aria-label="Add current color to swatches"
           onClick={() => onAdd(color, formatColor(color, "hex"))}
           className={cn(
-            "inline-flex size-5 cursor-pointer items-center justify-center rounded-md border border-dashed border-[var(--color-picker-control-border,var(--border))] bg-[var(--color-picker-control-bg,transparent)] text-[var(--color-picker-muted-fg,var(--muted-foreground))] outline-none transition-colors",
+            "inline-flex size-5 cursor-pointer items-center justify-center rounded-md border border-dashed text-[var(--color-picker-muted-fg,var(--muted-foreground))] outline-none transition-colors",
+            colorPickerControlShellClass,
             "hover:border-[var(--color-picker-fg,var(--foreground))] hover:bg-[var(--color-picker-control-hover-bg,var(--muted))] hover:text-[var(--color-picker-fg,var(--foreground))] focus-visible:ring-2 focus-visible:ring-[var(--color-picker-focus,var(--ring))]",
           )}
         >

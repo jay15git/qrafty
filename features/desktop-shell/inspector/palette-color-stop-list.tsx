@@ -25,6 +25,16 @@ import { Area as ColorArea } from "@/components/ui/fill-picker/parts/area"
 import { EyeDropper } from "@/components/ui/fill-picker/parts/eye-dropper"
 import { FieldInput, FieldInputGroup, FieldShell } from "@/components/ui/fill-picker/parts/field"
 import { StopPopover } from "@/components/ui/fill-picker/parts/gradient/stop-popover"
+import { cn } from "@/lib/utils"
+
+const PALETTE_COLOR_ROW =
+  "flex items-center gap-[length:var(--dn-space-inline)] rounded-[length:var(--dn-radius-sm)] bg-[var(--dn-control)] px-[length:var(--dn-space-inline)]"
+
+const PALETTE_COLOR_FIELD =
+  "h-[length:var(--dn-control-height-compact)] min-w-0 flex-1 border border-[var(--dn-line)] bg-[var(--dn-control)] shadow-none focus-within:border-[color-mix(in_srgb,var(--dn-fg)_18%,transparent)] focus-within:ring-0"
+
+const PALETTE_COLOR_SWATCH =
+  "size-8 shrink-0 dn-squircle-xs outline-none transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--dn-fg)_18%,transparent)]"
 
 export function PaletteColorStopList({
   colors,
@@ -66,7 +76,7 @@ export function PaletteColorStopList({
           disabled={!canAdd}
           onClick={onAdd}
           aria-label="Add color"
-          className="h-8 cursor-pointer font-mono text-xs tracking-wide shadow-xs"
+          className="h-[length:var(--dn-control-height-compact)] cursor-pointer border-[var(--dn-line)] bg-[var(--dn-control)] font-mono text-xs tracking-wide shadow-none hover:bg-[var(--dn-control-hover)]"
         >
           <Plus aria-hidden className="size-3.5" />
           Add color
@@ -126,12 +136,12 @@ function PaletteColorStopRow({
         backgroundImage: `linear-gradient(${formatColor(parsed, "oklch")}, ${formatColor(parsed, "oklch")}), ${CHECKERBOARD_SM}`,
         backgroundSize: "auto, 6px 6px",
       }}
-      className="size-[length:var(--dn-icon-hit)] shrink-0 rounded-xs border border-border outline-none transition-shadow hover:ring-2 hover:ring-ring focus-visible:ring-2 focus-visible:ring-ring"
+      className={PALETTE_COLOR_SWATCH}
     />
   )
 
   return (
-    <div className="dn-type-meta flex items-center gap-[length:var(--dn-space-inline)] rounded-md border border-border p-[length:var(--dn-space-inline)]">
+    <div className={cn("dn-type-meta", PALETTE_COLOR_ROW)}>
       <PaletteColorStopEditor
         color={color}
         onColorChange={(next) => onColorChange(index, next)}
@@ -140,7 +150,7 @@ function PaletteColorStopRow({
       >
         {swatch}
       </PaletteColorStopEditor>
-      <FieldShell className="h-[length:var(--dn-control-height-compact)] min-w-0 flex-1">
+      <FieldShell className={PALETTE_COLOR_FIELD}>
         <FieldInputGroup>
           <span className="sr-only">Color value</span>
           <FieldInput
@@ -178,7 +188,7 @@ function PaletteColorStopRow({
             onRemove(index)
           }}
           disabled={!canRemove}
-          className="inline-flex size-7 items-center justify-center rounded-md border border-input text-muted-foreground shadow-xs hover:text-foreground disabled:opacity-30"
+          className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-[var(--dn-muted)] transition-colors hover:text-[var(--dn-fg)] disabled:opacity-30"
           aria-label={`Remove color ${index + 1}`}
         >
           <Minus className="size-3.5" />
@@ -220,7 +230,6 @@ function PaletteColorStopEditor({
     defaultFormat: "hex",
     formats: ["hex", "rgb", "hsl", "oklch"],
   })
-
   return (
     <StopPopover
       open={open}

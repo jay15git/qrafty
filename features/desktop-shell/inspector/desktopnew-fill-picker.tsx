@@ -8,6 +8,9 @@ import {
   ColorPicker,
 } from "@/components/ui/fill-picker-base/color-picker"
 import {
+  FillPickerPortalSurfaceProvider,
+} from "@/components/ui/fill-picker-base/contexts/portal-surface"
+import {
   FillPicker,
 } from "@/components/ui/fill-picker-base/fill"
 import {
@@ -26,6 +29,7 @@ import {
   normalizeFillForQrTarget,
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { PaletteColorBarPreview } from "@/features/desktop-shell/inspector/palette-color-bar-preview"
 import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette-color-stop-list"
 import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-ui"
 import { cn } from "@/lib/utils"
@@ -98,6 +102,7 @@ export function DesktopNewFillPicker({
   const [activeMode, setActiveMode] = useState<ModuleFillTabMode>(initialMode)
   const pickerMode = activeMode === "gradient" ? "gradient" : "color"
   const setScrollNode = usePersistedScrollNode("fill-picker")
+  const theme = useContext(DesktopnewThemeContext)
 
   const handleValueChange = (fill: Fill, css: string) => {
     if (moduleImage?.imageUrl && (activeMode === "image" || activeMode === "pattern")) {
@@ -114,6 +119,16 @@ export function DesktopNewFillPicker({
   }
 
   return (
+    <FillPickerPortalSurfaceProvider
+      value={{
+        portaledSurfaceDataTheme: theme,
+        portaledSurfaceClassName: cn(
+          "desktopnew-fill-picker-portal dn-portal-surface desktopnew-popover-content",
+          "outline-none dn-squircle-sm",
+          theme === "dark" && "dark",
+        ),
+      }}
+    >
     <div
       ref={setScrollNode}
       className={cn(
@@ -203,6 +218,7 @@ export function DesktopNewFillPicker({
       )}
     </FillPicker.Root>
     </div>
+    </FillPickerPortalSurfaceProvider>
   )
 }
 
@@ -285,7 +301,7 @@ function ModulePatternPicker({
                 type="button"
                 onClick={() => onSelect(option)}
               >
-                <PatternPalettePreview colors={option.colors} />
+                <PaletteColorBarPreview colors={option.colors} size="md" />
               </button>
             )
           })}
@@ -296,22 +312,5 @@ function ModulePatternPicker({
         onPaletteColorChange={onPaletteColorChange}
       />
     </div>
-  )
-}
-
-function PatternPalettePreview({ colors }: { colors: string[] }) {
-  return (
-    <span
-      aria-hidden
-      className="grid size-[length:var(--dn-icon-hit)] grid-cols-2 gap-px overflow-hidden dn-squircle-xs"
-    >
-      {colors.map((color, index) => (
-        <span
-          key={`${color}-${index}`}
-          className="size-full min-h-0 min-w-0"
-          style={{ backgroundColor: color }}
-        />
-      ))}
-    </span>
   )
 }

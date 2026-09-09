@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { colorPickerControlShellClass } from "../lib/surface";
 
 /**
  * Bordered, h-8 shell every multi-field input inside the picker shares.
@@ -18,7 +19,8 @@ export const FieldShell = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "flex h-8 items-stretch overflow-hidden rounded-md border border-input bg-transparent font-mono text-xs shadow-xs",
+        "flex h-8 items-stretch overflow-hidden rounded-md border font-mono text-xs shadow-xs",
+        colorPickerControlShellClass,
         "focus-within:ring-1 focus-within:ring-ring",
         className,
       )}

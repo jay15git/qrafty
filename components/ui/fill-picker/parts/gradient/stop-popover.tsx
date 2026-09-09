@@ -3,6 +3,11 @@
 import * as React from "react";
 import { Popover } from "@base-ui/react/popover";
 import { cn } from "@/lib/utils";
+import { useFillPickerPortalSurface } from "@/components/ui/fill-picker-base/contexts/portal-surface";
+import {
+  colorPickerControlBorderClass,
+  colorPickerPopupSurfaceClass,
+} from "../../lib/surface";
 
 export interface StopPopoverProps {
   /** Controlled open — the caller owns it; this is never a self-triggering popover. */
@@ -43,6 +48,7 @@ export function StopPopover({
   children,
   onContentClick,
 }: StopPopoverProps) {
+  const portalSurface = useFillPickerPortalSurface();
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   const child = React.Children.only(anchor);
 
@@ -63,9 +69,13 @@ export function StopPopover({
             className="z-50"
           >
             <Popover.Popup
+              data-theme={portalSurface.portaledSurfaceDataTheme}
               onClick={onContentClick}
               className={cn(
-                "origin-[var(--transform-origin)] rounded-md border border-border bg-popover p-3 text-popover-foreground shadow-md outline-none",
+                "origin-[var(--transform-origin)] rounded-md border p-3 shadow-md outline-none",
+                colorPickerPopupSurfaceClass,
+                colorPickerControlBorderClass,
+                portalSurface.portaledSurfaceClassName,
                 className,
               )}
             >

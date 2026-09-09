@@ -4,6 +4,7 @@ import * as React from "react";
 import { useColorPickerContext } from "../context";
 import type { ColorFormat } from "../lib/types";
 import { cn } from "@/lib/utils";
+import { colorPickerControlShellClass } from "../lib/surface";
 
 interface FormatSwitcherProps
   extends Omit<
@@ -40,7 +41,8 @@ export const FormatSwitcher = React.forwardRef<
         value={format}
         onChange={(e) => setFormat(e.target.value as ColorFormat)}
         className={cn(
-          "h-8 w-full appearance-none rounded-lg border border-[var(--color-picker-control-border,var(--input))] bg-[var(--color-picker-control-bg,transparent)] pl-2.5 pr-7 font-mono text-xs uppercase tracking-wide text-[var(--color-picker-fg,var(--foreground))] shadow-xs outline-none transition-colors",
+          "h-8 w-full appearance-none rounded-lg border pl-2.5 pr-7 font-mono text-xs uppercase tracking-wide text-[var(--color-picker-fg,var(--foreground))] shadow-xs outline-none transition-colors",
+          colorPickerControlShellClass,
           "hover:bg-[var(--color-picker-control-hover-bg,var(--muted))] focus-visible:border-[var(--color-picker-focus,var(--ring))] focus-visible:ring-2 focus-visible:ring-[var(--color-picker-focus,var(--ring))]/30",
           "cursor-pointer",
           selectClassName,

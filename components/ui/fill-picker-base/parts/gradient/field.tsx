@@ -4,6 +4,12 @@ import * as React from "react";
 import { Select } from "@base-ui/react/select";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFillPickerPortalSurface } from "../../contexts/portal-surface";
+import {
+  colorPickerControlBgClass,
+  colorPickerControlBorderClass,
+  colorPickerPopupSurfaceClass,
+} from "@/components/ui/fill-picker/lib/surface";
 
 // Base UI variant of the gradient field shell.
 //
@@ -86,6 +92,7 @@ export const FieldSelect = React.forwardRef<
   ref,
 ) {
   const inline = variant === "inline";
+  const portalSurface = useFillPickerPortalSurface();
   const { className: wrapperClassName, ...wrapperRest } = wrapperProps ?? {};
   return (
     <div
@@ -114,7 +121,11 @@ export const FieldSelect = React.forwardRef<
             "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
             inline
               ? "h-full rounded-none border-0 bg-transparent px-2 focus-visible:ring-0"
-              : "h-8 w-full rounded-md border border-input bg-transparent px-3 shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+              : cn(
+                  "h-8 w-full rounded-md border px-3 shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                  colorPickerControlBorderClass,
+                  colorPickerControlBgClass,
+                ),
             className,
           )}
         >
@@ -126,9 +137,13 @@ export const FieldSelect = React.forwardRef<
         <Select.Portal>
           <Select.Positioner sideOffset={4} className="z-50 outline-none">
             <Select.Popup
+              data-theme={portalSurface.portaledSurfaceDataTheme}
               className={cn(
-                "min-w-[var(--anchor-width)] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md outline-none",
+                "min-w-[var(--anchor-width)] overflow-hidden rounded-md border p-1 shadow-md outline-none",
                 "font-mono text-xs tracking-wide",
+                colorPickerPopupSurfaceClass,
+                colorPickerControlBorderClass,
+                portalSurface.portaledSurfaceClassName,
                 contentClassName,
               )}
             >

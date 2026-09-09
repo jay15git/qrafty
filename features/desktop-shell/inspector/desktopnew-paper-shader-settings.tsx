@@ -23,6 +23,7 @@ import {
 import { cn } from "@/lib/utils"
 
 import { DesktopInspectorElasticSliderRow } from "@/features/desktop-shell/components/DesktopInspectorShell"
+import { PaletteColorBarPreview } from "@/features/desktop-shell/inspector/palette-color-bar-preview"
 import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette-color-stop-list"
 import {
   DesktopInspectorSettingsPopover,
@@ -193,27 +194,6 @@ function isPaperShaderHexColor(value: string) {
   return /^#[0-9a-f]{6}$/i.test(value)
 }
 
-function PaperShaderColorsSwatch({ colors }: { colors: string[] }) {
-  return (
-    <span
-      aria-hidden
-      className="grid size-[length:var(--dn-icon-hit)] grid-cols-2 gap-px overflow-hidden dn-squircle-xs border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)]"
-    >
-      {colors.slice(0, 4).map((color, index) => (
-        <span
-          key={`${color}-${index}`}
-          className="size-full min-h-0 min-w-0"
-          style={{
-            backgroundColor: isPaperShaderHexColor(color)
-              ? color
-              : PAPER_SHADER_COLOR_FALLBACK,
-          }}
-        />
-      ))}
-    </span>
-  )
-}
-
 function PaperShaderColorsPopover({
   colors,
   maxColorCount,
@@ -241,7 +221,7 @@ function PaperShaderColorsPopover({
     <ShaderSettingsPopover
       contentClassName="w-[19rem]"
       hint={showPalette ? `${paletteColors.length}` : undefined}
-      leading={showPalette ? <PaperShaderColorsSwatch colors={paletteColors} /> : undefined}
+      leading={showPalette ? <PaletteColorBarPreview colors={paletteColors} /> : undefined}
       surface={surface}
       title="Colors"
       trigger="Colors"

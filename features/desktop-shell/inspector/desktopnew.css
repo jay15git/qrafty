@@ -2001,6 +2001,110 @@
   background: transparent;
 }
 
+/* Fill picker — calm accordion-aligned surfaces */
+:is(.desktopnew-fill-popover, .desktopnew-fill-picker-portal) {
+  --color-picker-control-border: var(--dn-line);
+  --color-picker-control-bg: var(--dn-control);
+  --color-picker-control-hover-bg: var(--dn-control-hover);
+  --color-picker-fg: var(--dn-fg);
+  --color-picker-muted-fg: var(--dn-muted);
+  --color-picker-focus: color-mix(in srgb, var(--dn-fg) 24%, transparent);
+  --color-picker-highlight: transparent;
+  --border: var(--dn-line);
+  --input: var(--dn-line);
+  --ring: color-mix(in srgb, var(--dn-fg) 24%, transparent);
+  --muted: var(--dn-control);
+  --muted-foreground: var(--dn-muted);
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel [data-slot="fill-picker"] {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .shadow-xs,
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .shadow-sm,
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .shadow-md {
+  box-shadow: none !important;
+}
+
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .cursor-crosshair.rounded-md.border,
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .bg-muted.rounded-md.border {
+  border-color: var(--dn-line) !important;
+  background-color: var(--dn-control) !important;
+}
+
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .cursor-ew-resize.rounded-full {
+  box-shadow: 0 0 0 1px var(--dn-line) !important;
+}
+
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .border-border,
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .border-input {
+  border-color: var(--dn-line) !important;
+}
+
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .rounded-md.border.font-mono,
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .rounded-lg.border.font-mono {
+  border-color: var(--dn-line) !important;
+  background: var(--dn-control) !important;
+  box-shadow: none !important;
+}
+
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .rounded-md.border.font-mono:focus-within,
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .rounded-lg.border.font-mono:focus-within {
+  border-color: color-mix(in srgb, var(--dn-fg) 18%, transparent) !important;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+}
+
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .bg-muted,
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .bg-muted\/30 {
+  background: var(--dn-control) !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel [role="option"] {
+  border: 1px solid transparent !important;
+  background: var(--dn-control) !important;
+  box-shadow: none !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel [role="option"][aria-selected="true"] {
+  border-color: color-mix(in srgb, var(--dn-fg) 16%, transparent) !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel [role="option"] .rounded-xs.border {
+  border-color: transparent !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel [role="option"] > button.rounded-md.border {
+  border: none !important;
+  color: var(--dn-muted) !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel [role="option"]:focus-visible {
+  outline: none;
+  border-color: color-mix(in srgb, var(--dn-fg) 16%, transparent) !important;
+  --tw-ring-shadow: 0 0 #0000;
+}
+
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .rounded-full.border.border-border {
+  border-color: var(--dn-line) !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel [data-slot="gradient-type-switcher"] button,
+.desktopnew-fill-popover .dn-fill-picker-panel [data-slot="gradient-interp-switcher"] button,
+.desktopnew-fill-popover .dn-fill-picker-panel [data-slot="gradient-radial-size-select"] button {
+  border-color: var(--dn-line) !important;
+  background: var(--dn-control) !important;
+  box-shadow: none !important;
+}
+
+.desktopnew-fill-picker-portal [data-highlighted] {
+  background: var(--dn-control-hover) !important;
+  color: var(--dn-fg) !important;
+}
+
 .t-tabs {
   position: relative;
 }

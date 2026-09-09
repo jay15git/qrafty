@@ -10,6 +10,7 @@ import {
 } from "../lib/channels";
 import type { ColorFormat } from "../lib/types";
 import { cn } from "@/lib/utils";
+import { colorPickerControlShellClass } from "../lib/surface";
 
 interface ChannelInputProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
@@ -58,7 +59,8 @@ export const ChannelInput = React.forwardRef<
       ref={ref}
       data-slot="color-picker-channel-input"
       className={cn(
-        "flex h-8 items-stretch overflow-hidden rounded-lg border border-[var(--color-picker-control-border,var(--input))] bg-[var(--color-picker-control-bg,transparent)] font-mono text-xs text-[var(--color-picker-fg,var(--foreground))] shadow-xs",
+        "flex h-8 items-stretch overflow-hidden rounded-lg border font-mono text-xs text-[var(--color-picker-fg,var(--foreground))] shadow-xs",
+        colorPickerControlShellClass,
         "focus-within:border-[var(--color-picker-focus,var(--ring))] focus-within:ring-2 focus-within:ring-[var(--color-picker-focus,var(--ring))]/30",
         className,
       )}
