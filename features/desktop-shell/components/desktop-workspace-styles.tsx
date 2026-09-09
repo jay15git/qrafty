@@ -47,6 +47,17 @@ export function DesktopWorkspaceStyles() {
         touch-action: none;
       }
 
+      [data-slot="desktop-workspace"] [data-slot="drafting-surface"]:focus,
+      [data-slot="desktop-workspace"] [data-slot="drafting-surface"]:focus-visible,
+      [data-slot="desktop-workspace"] [data-slot="desktop-compose-surface"]:focus,
+      [data-slot="desktop-workspace"] [data-slot="desktop-compose-surface"]:focus-visible,
+      [data-slot="desktop-workspace"] [data-slot="qr-pane"]:focus,
+      [data-slot="desktop-workspace"] [data-slot="qr-pane"]:focus-visible,
+      [data-slot="desktop-workspace"] [data-slot="desktop-compose-canvas"]:focus,
+      [data-slot="desktop-workspace"] [data-slot="desktop-compose-canvas"]:focus-visible {
+        outline: none !important;
+      }
+
       [data-slot="drafting-layer-resize-frame"],
       [data-slot="drafting-layer-multi-select-frame"] {
         --ws-resize-corner-hit: 16px;

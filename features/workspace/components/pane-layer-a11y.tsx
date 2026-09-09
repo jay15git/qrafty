@@ -1,6 +1,7 @@
 import { forwardRef, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react"
 
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import { cn } from "@/lib/utils"
 
 function getPaneLayerA11yLabel(layer: DraftingCanvasLayer) {
   const name = layer.name?.trim()
@@ -73,7 +74,7 @@ export function PaneLayerInteractive({
       tabIndex={isSelected ? 0 : -1}
       aria-label={getPaneLayerA11yLabel(layer)}
       aria-pressed={isSelected}
-      className={className}
+      className={cn("outline-none", className)}
       style={style}
       onClick={onClick}
       onContextMenu={onContextMenu}
@@ -116,16 +117,23 @@ export const PaneSurfaceInteractive = forwardRef(function PaneSurfaceInteractive
     onActivate()
   }
 
+  const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.button === 0) {
+      event.preventDefault()
+    }
+  }
+
   return (
     <div
       {...rest}
       ref={ref}
       role="group"
       aria-label={label}
-      tabIndex={0}
-      className={className}
+      tabIndex={-1}
+      className={cn("outline-none focus:outline-none focus-visible:outline-none", className)}
       onClick={onClick}
       onKeyDown={handleKeyDown}
+      onMouseDown={handleMouseDown}
     >
       {children}
     </div>
@@ -161,7 +169,7 @@ export function getPaneSurfaceA11yProps(options: {
   return {
     role: "group" as const,
     "aria-label": options.label,
-    tabIndex: 0,
+    tabIndex: -1,
     onKeyDown: (event: KeyboardEvent<HTMLElement>) => {
       if (event.target !== event.currentTarget) {
         return

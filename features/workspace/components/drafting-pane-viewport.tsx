@@ -143,7 +143,7 @@ export function DraftingPaneViewport({
       data-snap-target={isSnapTarget ? "true" : "false"}
       draggable={canSwap}
       className={cn(
-        "relative flex h-full w-full flex-col items-center justify-center overflow-hidden touch-none overscroll-none transition-opacity duration-150 ease-out",
+        "relative flex h-full w-full flex-col items-center justify-center overflow-hidden touch-none overscroll-none outline-none transition-opacity duration-150 ease-out",
         isFreeEditWorkspace
           ? "bg-[var(--ws-workspace-bg,#f0f1f2)]"
           : "bg-[var(--ws-canvas-bg,#f0f1f2)]",
