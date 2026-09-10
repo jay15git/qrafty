@@ -1,12 +1,14 @@
 "use client"
 
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, X } from "lucide-react"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
 import {
   useContext,
   useEffect,
+  useId,
   useLayoutEffect,
   useRef,
+  useState,
   cloneElement,
   isValidElement,
   Children,
@@ -24,8 +26,6 @@ import { ElasticSlider } from "@/components/ui/elastic-slider"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Switch } from "@/components/ui/switch"
 import type { DotsColorMode } from "@/features/qr-code/model/state"
-import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
-import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
 import { ContentTypeGridIcon } from "@/features/qr-code/content/ContentTypeGridIcon"
 import {
   normalizeContentTypeForPicker,
@@ -41,7 +41,6 @@ import {
   isGradientFill,
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
-import { DESKTOP_INSPECTOR_SECTION_HEADING_CLASS } from "@/features/desktop-shell/components/desktop-inspector-tokens"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import {
   useMobileDrawerNavigation,
@@ -53,6 +52,10 @@ import {
   type DesktopSettingsSectionId,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
+import {
+  SettingsAccordionPopoverOverlay,
+  useSettingsAccordionPopover,
+} from "@/features/desktop-shell/inspector/settings-accordion-popover-context"
 import {
   CUELUME_BUTTON,
   CUELUME_TOGGLE,
@@ -95,6 +98,36 @@ function useDesktopnewTheme() {
 
 function desktopnewPortalClass(theme: "light" | "dark", className?: string) {
   return cn(className, theme === "dark" && "dark")
+}
+
+function SettingsPopoverChrome({
+  title,
+  onClose,
+  children,
+  bodyClassName,
+}: {
+  title: string
+  onClose: () => void
+  children: ReactNode
+  bodyClassName?: string
+}) {
+  return (
+    <div className="dn-settings-popover-shell">
+      <div className="dn-settings-popover-header">
+        <p className="dn-settings-popover-title">{title}</p>
+        <button
+          aria-label={`Close ${title}`}
+          className="dn-settings-popover-close"
+          type="button"
+          onClick={onClose}
+          {...CUELUME_BUTTON}
+        >
+          <X aria-hidden className="size-3.5" strokeWidth={2} />
+        </button>
+      </div>
+      <div className={cn("dn-settings-popover-body", bodyClassName)}>{children}</div>
+    </div>
+  )
 }
 
 function mapMobileDetailCloseChildren(
@@ -495,7 +528,6 @@ export function SettingsFillPopover({
   title,
   modulePattern,
   moduleImage,
-  moduleShader,
   fillPreviewImageUrl,
   moduleFillMode,
   solidOnly = false,
@@ -529,40 +561,32 @@ export function SettingsFillPopover({
     onUpload: (imageUrl: string) => void
     onClear: () => void
   }
-  moduleShader?: {
-    paperShader: DraftingCardPaperShaderState
-    onTabActivate: () => void
-    onSelectShader: (shaderId: PaperShaderId) => void
-    onPaperShaderChange: (paperShader: DraftingCardPaperShaderState) => void
-  }
   moduleFillMode?: DotsColorMode
 }) {
   const theme = useDesktopnewTheme()
   const mobileDensity = useMobileInspectorDensity()
   const mobileNav = useMobileDrawerNavigation()
+  const accordion = useSettingsAccordionPopover()
+  const popoverKey = useId()
+  const [radixOpen, setRadixOpen] = useState(false)
+  const popoverTitle = title ?? hint
 
   const pickerBody = (
-    <>
-      {title ? (
-        <p className="dn-type-meta mb-2">{title}</p>
-      ) : null}
-      <DesktopNewFillPicker
-        moduleFillMode={moduleFillMode}
-        moduleImage={moduleImage}
-        moduleShader={moduleShader}
-        modulePattern={modulePattern}
-        qrGradient={qrGradient}
-        solidOnly={solidOnly}
-        value={value}
-        onValueChange={onValueChange}
-      />
-    </>
+    <DesktopNewFillPicker
+      moduleFillMode={moduleFillMode}
+      moduleImage={moduleImage}
+      modulePattern={modulePattern}
+      qrGradient={qrGradient}
+      solidOnly={solidOnly}
+      value={value}
+      onValueChange={onValueChange}
+    />
   )
 
   const liveDetail = useMobileLiveDetail({
     content: pickerBody,
     enabled: Boolean(mobileDensity && mobileNav),
-    title: title ?? hint,
+    title: popoverTitle,
   })
 
   if (mobileDensity && mobileNav) {
@@ -596,8 +620,54 @@ export function SettingsFillPopover({
     )
   }
 
+  const accordionPanelClassName = desktopnewPortalClass(
+    theme,
+    "desktopnew-fill-popover desktopnew-popover-content w-full border-0 bg-transparent p-0 shadow-none outline-none",
+  )
+
+  if (accordion) {
+    const isOpen = accordion.openKey === popoverKey
+    const toggleOpen = () => accordion.setOpenKey(isOpen ? null : popoverKey)
+
+    return (
+      <>
+        {variant === "swatch" ? (
+          <FillSwatchButton
+            ariaLabel={hint}
+            className={triggerClassName}
+            fill={value}
+            imageUrl={fillPreviewImageUrl}
+            type="button"
+            onClick={toggleOpen}
+          />
+        ) : (
+          <ColorRowButton
+            fill={value}
+            hint={hint}
+            imageUrl={fillPreviewImageUrl}
+            type="button"
+            onClick={toggleOpen}
+          />
+        )}
+        <SettingsAccordionPopoverOverlay
+          className={accordionPanelClassName}
+          openKey={popoverKey}
+          theme={theme}
+        >
+          <SettingsPopoverChrome
+            bodyClassName="dn-settings-popover-body-fill"
+            title={popoverTitle}
+            onClose={() => accordion.setOpenKey(null)}
+          >
+            {pickerBody}
+          </SettingsPopoverChrome>
+        </SettingsAccordionPopoverOverlay>
+      </>
+    )
+  }
+
   return (
-    <Popover>
+    <Popover open={radixOpen} onOpenChange={setRadixOpen}>
       <PopoverTrigger asChild>
         {variant === "swatch" ? (
           <FillSwatchButton ariaLabel={hint} className={triggerClassName} fill={value} imageUrl={fillPreviewImageUrl} />
@@ -617,7 +687,13 @@ export function SettingsFillPopover({
         sideOffset={10}
         collisionPadding={collisionPadding}
       >
-        {pickerBody}
+        <SettingsPopoverChrome
+          bodyClassName="dn-settings-popover-body-fill"
+          title={popoverTitle}
+          onClose={() => setRadixOpen(false)}
+        >
+          {pickerBody}
+        </SettingsPopoverChrome>
       </PopoverContent>
     </Popover>
   )
@@ -638,6 +714,7 @@ export function SettingsRowPopover({
   contentClassName,
   open,
   onOpenChange,
+  side = "right",
 }: {
   hint?: string
   title?: string
@@ -649,15 +726,28 @@ export function SettingsRowPopover({
   contentClassName?: string
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  side?: "top" | "right" | "bottom" | "left"
 }) {
   const theme = useDesktopnewTheme()
   const mobileDensity = useMobileInspectorDensity()
   const mobileNav = useMobileDrawerNavigation()
+  const accordion = useSettingsAccordionPopover()
+  const popoverKey = useId()
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlledOpen = open !== undefined
+  const popoverOpen = isControlledOpen ? open : internalOpen
   const detailTitle =
     title ??
     (typeof trigger === "string" ? trigger : undefined) ??
     hint ??
     "Setting"
+
+  const setPopoverOpen = (nextOpen: boolean) => {
+    if (!isControlledOpen) {
+      setInternalOpen(nextOpen)
+    }
+    onOpenChange?.(nextOpen)
+  }
 
   const closeDetail = () => {
     mobileNav?.closeDetail()
@@ -665,12 +755,7 @@ export function SettingsRowPopover({
   }
 
   const liveDetail = useMobileLiveDetail({
-    content: (
-      <>
-        {title ? <p className="dn-popover-heading">{title}</p> : null}
-        {mergeMobileDetailChildClose(children, closeDetail)}
-      </>
-    ),
+    content: mergeMobileDetailChildClose(children, closeDetail),
     enabled: Boolean(mobileDensity && mobileNav),
     onOpenChange,
     title: detailTitle,
@@ -697,6 +782,36 @@ export function SettingsRowPopover({
     </>
   )
 
+  useEffect(() => {
+    if (!accordion || open === undefined) {
+      return
+    }
+
+    if (open) {
+      accordion.setOpenKey(popoverKey)
+      return
+    }
+
+    if (accordion.openKey === popoverKey) {
+      accordion.setOpenKey(null)
+    }
+  }, [accordion, open, popoverKey])
+
+  useEffect(() => {
+    if (!accordion || open === undefined) {
+      return
+    }
+
+    if (open && accordion.openKey !== popoverKey) {
+      onOpenChange?.(false)
+    }
+  }, [accordion, onOpenChange, open, popoverKey])
+
+  const accordionPanelClassName = desktopnewPortalClass(
+    theme,
+    cn("desktopnew-popover-content w-full overflow-hidden p-0 dn-squircle-md", contentClassName),
+  )
+
   if (mobileDensity && mobileNav) {
     return (
       <>
@@ -708,16 +823,36 @@ export function SettingsRowPopover({
     )
   }
 
+  if (accordion) {
+    const isOpen = accordion.openKey === popoverKey
+    const setOpen = (nextOpen: boolean) => {
+      accordion.setOpenKey(nextOpen ? popoverKey : null)
+      setPopoverOpen(nextOpen)
+    }
+
+    return (
+      <>
+        <SettingsRowButton type="button" onClick={() => setOpen(!isOpen)}>
+          {rowTrigger}
+        </SettingsRowButton>
+        <SettingsAccordionPopoverOverlay
+          className={accordionPanelClassName}
+          openKey={popoverKey}
+          theme={theme}
+        >
+          <SettingsPopoverChrome
+            title={detailTitle}
+            onClose={() => setOpen(false)}
+          >
+            {children}
+          </SettingsPopoverChrome>
+        </SettingsAccordionPopoverOverlay>
+      </>
+    )
+  }
+
   return (
-    <Popover
-      modal={false}
-      open={open}
-      onOpenChange={(nextOpen) => {
-        if (nextOpen) {
-          onOpenChange?.(true)
-        }
-      }}
-    >
+    <Popover modal={false} open={popoverOpen} onOpenChange={setPopoverOpen}>
       <PopoverTrigger asChild>
         <SettingsRowButton>
           {rowTrigger}
@@ -727,18 +862,22 @@ export function SettingsRowPopover({
         align={align}
         className={desktopnewPortalClass(
           theme,
-          cn("dn-portal-surface desktopnew-popover-content w-56 gap-[length:var(--dn-space-stack)] p-[length:var(--dn-row-px)] dn-squircle-md", contentClassName),
+          cn("dn-portal-surface desktopnew-popover-content w-56 overflow-hidden p-0 dn-squircle-md", contentClassName),
         )}
         data-mobile-inspector={mobileDensity ? "" : undefined}
         data-theme={theme}
-        side="right"
+        side={side}
         sideOffset={10}
-        onEscapeKeyDown={() => onOpenChange?.(false)}
-        onInteractOutside={() => onOpenChange?.(false)}
-        onPointerDownOutside={() => onOpenChange?.(false)}
+        onEscapeKeyDown={() => setPopoverOpen(false)}
+        onInteractOutside={() => setPopoverOpen(false)}
+        onPointerDownOutside={() => setPopoverOpen(false)}
       >
-        {title ? <p className="dn-popover-heading">{title}</p> : null}
-        {children}
+        <SettingsPopoverChrome
+          title={detailTitle}
+          onClose={() => setPopoverOpen(false)}
+        >
+          {children}
+        </SettingsPopoverChrome>
       </PopoverContent>
     </Popover>
   )
@@ -781,13 +920,19 @@ export function DesktopInspectorSettingsPopover({
     onOpenChange?.(false)
   }
 
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlledOpen = open !== undefined
+  const popoverOpen = isControlledOpen ? open : internalOpen
+
+  const setPopoverOpen = (nextOpen: boolean) => {
+    if (!isControlledOpen) {
+      setInternalOpen(nextOpen)
+    }
+    onOpenChange?.(nextOpen)
+  }
+
   const liveDetail = useMobileLiveDetail({
-    content: (
-      <>
-        {title ? <p className="dn-popover-heading">{title}</p> : null}
-        {mergeMobileDetailChildClose(children, closeDetail)}
-      </>
-    ),
+    content: mergeMobileDetailChildClose(children, closeDetail),
     enabled: Boolean(mobileDensity && mobileNav),
     onOpenChange,
     title: detailTitle,
@@ -826,7 +971,7 @@ export function DesktopInspectorSettingsPopover({
   }
 
   return (
-    <Popover open={open} onOpenChange={onOpenChange}>
+    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
       <PopoverTrigger asChild>
         <SettingsRowButton>{rowTrigger}</SettingsRowButton>
       </PopoverTrigger>
@@ -840,17 +985,21 @@ export function DesktopInspectorSettingsPopover({
           contentClassName,
         )}
       >
-        <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3" data-slot="desktop-inspector-scroll">
-          <DesktopnewThemeContext.Provider value={theme}>
-            <div
-              className="desktopnew-root desktopnew-embedded flex min-h-0 flex-col"
-              data-theme={theme}
+        <DesktopnewThemeContext.Provider value={theme}>
+          <div
+            className="desktopnew-root desktopnew-embedded flex min-h-0 flex-1 flex-col"
+            data-theme={theme}
+          >
+            <SettingsPopoverChrome
+              title={detailTitle}
+              onClose={() => setPopoverOpen(false)}
             >
-              {title ? <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>{title}</p> : null}
-              {children}
-            </div>
-          </DesktopnewThemeContext.Provider>
-        </div>
+              <div className="min-h-0" data-slot="desktop-inspector-scroll">
+                {children}
+              </div>
+            </SettingsPopoverChrome>
+          </div>
+        </DesktopnewThemeContext.Provider>
       </PopoverContent>
     </Popover>
   )
@@ -1195,10 +1344,13 @@ export function SettingsSwitchRow({
   onChange: (checked: boolean) => void
 }) {
   return (
-    <div className="dn-switch-row">
-      <span className={DN_LABEL}>{label}</span>
-      <Switch checked={checked} onCheckedChange={onChange} />
-    </div>
+    <Switch
+      checked={checked}
+      label={label}
+      onToggle={() => onChange(!checked)}
+      size="compact"
+      className="dn-switch-row"
+    />
   )
 }
 

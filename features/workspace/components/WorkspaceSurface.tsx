@@ -272,7 +272,6 @@ export function WorkspaceSurface({
       selectedModuleFillImageUrl,
       selectedModuleFillImageSourceMode,
       selectedModuleFillRemoteUrl,
-      selectedModuleFillShader,
       selectedDotMatrixAnimation,
       selectedQrFinderPatternOuterStyle,
       selectedCornerSquareColorMode,
@@ -368,7 +367,6 @@ export function WorkspaceSurface({
       setSelectedModuleFillImageUrl,
       setSelectedModuleFillImageSourceMode,
       setSelectedModuleFillRemoteUrl,
-      setSelectedModuleFillShader,
       setSelectedDotMatrixAnimation,
       setSelectedQrFinderPatternOuterStyle,
       setSelectedCornerSquareColorMode,
@@ -573,7 +571,6 @@ export function WorkspaceSurface({
       gradientLinkMode: selectedGradientLinkMode,
       dotsColorMode: selectedDotsColorMode,
       dotsPalette: [...selectedDotsPalette],
-      moduleFillShader: structuredClone(selectedModuleFillShader),
       dotMatrixAnimation: { ...selectedDotMatrixAnimation },
       finderPatternOuterSettings: {
         type: selectedQrFinderPatternOuterStyle,
@@ -637,7 +634,6 @@ export function WorkspaceSurface({
       selectedModuleFillImageUrl,
       selectedModuleFillImageSourceMode,
       selectedModuleFillRemoteUrl,
-      selectedModuleFillShader,
       selectedDotType,
       selectedQrErrorCorrectionLevel,
       selectedBoostLevel,
@@ -805,11 +801,6 @@ export function WorkspaceSurface({
   }
 
   function syncDraftingModuleFillControlsFromState(nextState: QraftyState) {
-    if (nextState.dotsColorMode === "shader") {
-      setSelectedModuleFillShader(structuredClone(nextState.moduleFillShader))
-      return
-    }
-
     if (nextState.dotsColorMode !== "image") {
       return
     }
@@ -1184,11 +1175,6 @@ export function WorkspaceSurface({
     setSelectedDotsPalette([...nextState.dotsPalette])
     setSelectedDotColor(nextState.dataModulesSettings.color)
     setSelectedDotsGradient(structuredClone(nextState.dataModulesGradient))
-    setSelectedModuleFillShader(
-      structuredClone(
-        nextState.moduleFillShader ?? DEFAULT_DRAFTING_STUDIO_STATE.moduleFillShader,
-      ),
-    )
     setSelectedDotMatrixAnimation({ ...nextState.dotMatrixAnimation })
     openDotsColorItemsRef.current = new Set([nextState.dotsColorMode])
     setSelectedQrFinderPatternOuterStyle(nextState.finderPatternOuterSettings.type)
@@ -2986,7 +2972,6 @@ export function WorkspaceSurface({
       selectedModuleFillImageUrl,
       selectedModuleFillImageSourceMode,
       selectedModuleFillRemoteUrl,
-      selectedModuleFillShader,
       selectedDownloadExtension,
       selectedDownloadTarget,
       selectedExportMediaKind,
@@ -3085,12 +3070,6 @@ export function WorkspaceSurface({
       setSelectedDotsColorMode("image")
       setSelectedModuleFillImageSourceMode(patch.moduleFillImageSourceMode)
     }
-    if (patch.moduleFillShader) {
-      ensureDotsColorItemExpanded("shader")
-      setSelectedDotsColorMode("shader")
-      setSelectedModuleFillShader(structuredClone(patch.moduleFillShader))
-    }
-
     let nextState = applyPatternSettingsPatchToQraftyState(resolveLiveQrPersistState(), patch)
 
     clearQrEncodeMarkupCache()
@@ -3109,9 +3088,6 @@ export function WorkspaceSurface({
     setSelectedModuleFillImageUrl("")
     setSelectedModuleFillRemoteUrl("")
     setSelectedModuleFillImageSourceMode("upload")
-    setSelectedModuleFillShader(
-      structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.moduleFillShader),
-    )
     setSelectedModuleRoundSize(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.roundSize)
     setSelectedModuleSize(undefined)
     setSelectedModuleLineWidth(undefined)

@@ -4,7 +4,6 @@ import {
   clampQrSize,
   getAssetValue,
   hasActiveBackgroundShapeOptions,
-  shouldUseModuleShaderFill,
   type QraftyState,
   type QraftyCornerDotStyle,
   type QraftyGradient,
@@ -31,8 +30,7 @@ export function toReactQrCodeProps(state: QraftyState): ReactQRCodeProps {
     state.dataModulesGradient.enabled
   const unifiedImage =
     state.dotsColorMode === "image" && Boolean(getAssetValue(state.moduleFillImage))
-  const unifiedShader = shouldUseModuleShaderFill(state)
-  const unifiedFill = unifiedGradient || unifiedImage || unifiedShader
+  const unifiedFill = unifiedGradient || unifiedImage
 
   return {
     background:

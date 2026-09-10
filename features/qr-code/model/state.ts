@@ -39,7 +39,7 @@ export type QraftyGradient = {
 };
 
 export type QraftyDataModulesStyle = QrDataModulesStyle;
-export type DotsColorMode = "solid" | "gradient" | "palette" | "image" | "shader";
+export type DotsColorMode = "solid" | "gradient" | "palette" | "image";
 export type QrLogoPositionMode = "center" | "custom";
 export type QrLogoSizeMode = "ratio" | "pixels";
 export type QrCrossOrigin = "anonymous" | "use-credentials" | "";
@@ -139,7 +139,6 @@ export type QraftyState = {
   rasterExportQualityPercent: number;
   logo: QraftyAsset;
   moduleFillImage: QraftyAsset;
-  moduleFillShader: DraftingCardPaperShaderState;
   backgroundImage: QraftyAsset;
   backgroundShapeId: QrBackgroundShapeId;
   backgroundShapeOptions: BackgroundShapeOptions;
@@ -304,15 +303,6 @@ function coerceMotionPresetCategory(value: unknown): QrMotionPresetCategory {
   return "dotMatrix";
 }
 
-export function shouldUseModuleShaderFill(state: QraftyState) {
-  return state.dotsColorMode === "shader";
-}
-
-export function shouldUseModuleShaderPreview(state: QraftyState) {
-  return shouldUseModuleShaderFill(state);
-}
-
-
 export const QR_DOT_MATRIX_COLOR_PRESET_OPTIONS: Array<{
   label: string;
   value: QrDotMatrixColorPreset;
@@ -403,7 +393,6 @@ export function createDefaultQraftyState(): QraftyState {
       source: "none",
       value: undefined,
     },
-    moduleFillShader: createDefaultDraftingCardPaperShader("mesh-gradient"),
     backgroundImage: {
       presetColor: undefined,
       presetId: undefined,

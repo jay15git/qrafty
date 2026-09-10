@@ -40,15 +40,12 @@ export function ModeToggle({ appearance = "default", className }: ModeToggleProp
   if (isDrafting) {
     return (
       <Switch
-        aria-label="Toggle dark mode"
         checked={isDark}
-        className={cn(
-          "dark:data-checked:bg-foreground dark:[&_[data-slot=switch-thumb]]:data-checked:bg-background",
-          className,
-        )}
+        className={cn("[&>span]:sr-only", className)}
         disabled={!mounted}
-        onCheckedChange={(checked) => {
-          setTheme(checked ? "dark" : "light")
+        label="Toggle dark mode"
+        onToggle={() => {
+          setTheme(isDark ? "light" : "dark")
         }}
       />
     )
@@ -75,12 +72,12 @@ export function ModeToggle({ appearance = "default", className }: ModeToggleProp
         className={cn("size-4 transition-colors", lightIconClassName)}
       />
       <Switch
-        aria-label="Toggle dark mode"
         checked={isDark}
-        className="dark:data-checked:bg-foreground dark:[&_[data-slot=switch-thumb]]:data-checked:bg-background"
+        className="[&>span]:sr-only"
         disabled={!mounted}
-        onCheckedChange={(checked) => {
-          setTheme(checked ? "dark" : "light")
+        label="Toggle dark mode"
+        onToggle={() => {
+          setTheme(isDark ? "light" : "dark")
         }}
       />
       <MoonIcon

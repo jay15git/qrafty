@@ -13,13 +13,6 @@ import {
 } from "@/features/qr-code/styles/qrafty-gradient-geometry"
 import { degreesToRadians, radiansToDegrees } from "@/features/qr-code/styles/gradient-controls"
 import { fillFromHex, fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
-import {
-  cloneDraftingCardPaperShaderState,
-  createDefaultDraftingCardPaperShader,
-  type DraftingCardPaperShaderState,
-} from "@/features/workspace/model/card-state"
-import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
-
 const FALLBACK_OKLCH = { l: 0, c: 0, h: 0, alpha: 1 } as const
 
 /** CSS `linear-gradient` angles are 90° ahead of studio SVG rotation. */
@@ -102,8 +95,8 @@ export function qraftyGradientToFillCss(gradient: QraftyGradient): string {
 }
 
 export function readPatternModuleFillCss(settings: DesktopPatternSettings): string {
-  if (settings.dotsColorMode === "image" || settings.dotsColorMode === "shader") {
-    // Image/shader fills use dedicated tabs. Blob/data URLs are not valid fill-picker CSS.
+  if (settings.dotsColorMode === "image") {
+    // Image fills use a dedicated tab. Blob/data URLs are not valid fill-picker CSS.
     return solidColorToFillCss(settings.dotsSolidColor)
   }
 
@@ -116,10 +109,6 @@ export function readPatternModuleFillCss(settings: DesktopPatternSettings): stri
 
 export function isPatternModuleImageFill(settings: DesktopPatternSettings): boolean {
   return settings.dotsColorMode === "image" && Boolean(settings.moduleFillImageUrl)
-}
-
-export function isPatternModuleShaderFill(settings: DesktopPatternSettings): boolean {
-  return settings.dotsColorMode === "shader"
 }
 
 export function readCornerFillCss(
@@ -262,22 +251,6 @@ export function applyPatternModuleImageUrl(
     dotsColorMode: "image",
     moduleFillImageUrl: imageUrl,
     moduleFillImageSourceMode: sourceMode,
-  }
-}
-
-export function applyPatternModuleShader(shaderId: PaperShaderId): Partial<DesktopPatternSettings> {
-  return {
-    dotsColorMode: "shader",
-    moduleFillShader: createDefaultDraftingCardPaperShader(shaderId),
-  }
-}
-
-export function applyPatternModuleShaderState(
-  paperShader: DraftingCardPaperShaderState,
-): Partial<DesktopPatternSettings> {
-  return {
-    dotsColorMode: "shader",
-    moduleFillShader: cloneDraftingCardPaperShaderState(paperShader),
   }
 }
 

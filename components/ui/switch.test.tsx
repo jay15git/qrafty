@@ -4,16 +4,13 @@ import { describe, expect, it } from "vitest"
 import { Switch } from "@/components/ui/switch"
 
 describe("Switch", () => {
-  it("renders square-leaning shared switch geometry for the track and thumb", () => {
-    const markup = renderToStaticMarkup(<Switch aria-label="Toggle feature" checked />)
+  it("renders a labeled toggle with track geometry", () => {
+    const markup = renderToStaticMarkup(
+      <Switch checked label="Notifications" onToggle={() => {}} />,
+    )
 
-    expect(markup).toContain('data-slot="switch"')
-    expect(markup).toContain('data-slot="switch-thumb"')
-    expect(markup).toContain("rounded-[3px]")
-    expect(markup).toContain("p-[2px]")
-    expect(markup).toContain("rounded-[2px]")
-    expect(markup).toContain("border-black/8")
-    expect(markup).toContain("shadow-[0_1px_2px_rgba(15,23,42,0.18)]")
-    expect(markup).toContain("translate-x-[14px]")
+    expect(markup).toContain("Notifications")
+    expect(markup).toContain("rounded-full")
+    expect(markup).toContain('role="switch"')
   })
 })

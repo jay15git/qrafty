@@ -1052,6 +1052,7 @@ export function getCardImageFilterDefinitions() {
 export function getCardGeneratedShaderDefinitions() {
   return PAPER_SHADER_DEFINITIONS.filter(
     (definition) =>
+      definition.group !== "image-filter" &&
       !definition.requiresImage &&
       !CARD_IMAGE_FILTER_SHADER_IDS.includes(
         definition.id as (typeof CARD_IMAGE_FILTER_SHADER_IDS)[number],

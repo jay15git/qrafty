@@ -1,8 +1,6 @@
 import type { DesktopPatternSettingsPatch } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import type { DesktopCornersSettings } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import type { QraftyState } from "@/features/qr-code/model/state"
-import { cloneDraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
-
 export function applyPatternSettingsPatchToQraftyState(
   state: QraftyState,
   patch: DesktopPatternSettingsPatch,
@@ -112,14 +110,6 @@ export function applyPatternSettingsPatchToQraftyState(
         ...next.moduleFillImage,
         source: patch.moduleFillImageSourceMode === "url" ? "url" : "upload",
       },
-    }
-  }
-
-  if (patch.moduleFillShader) {
-    next = {
-      ...next,
-      dotsColorMode: "shader",
-      moduleFillShader: cloneDraftingCardPaperShaderState(patch.moduleFillShader),
     }
   }
 

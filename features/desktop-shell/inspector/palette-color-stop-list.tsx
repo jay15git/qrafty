@@ -56,7 +56,7 @@ export function PaletteColorStopList({
 
   return (
     <div
-      className="flex flex-col gap-1 px-1"
+      className="flex flex-col gap-1"
       data-slot="palette-color-stop-list"
     >
       {colors.map((color, index) => (

@@ -186,10 +186,4 @@ describe("dot matrix motion bridge", () => {
     expect(toDotMatrixQrConfig(solidState).preserveModuleFills).toBe(false);
   });
 
-  it("enables preserve mode for module shader fill mode", () => {
-    const shaderState = createDefaultQraftyState();
-    shaderState.dotsColorMode = "shader";
-
-    expect(toDotMatrixQrConfig(shaderState).preserveModuleFills).toBe(true);
-  });
 });

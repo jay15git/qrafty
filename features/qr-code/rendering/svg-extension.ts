@@ -19,7 +19,6 @@ import {
   clampQrSize,
   getAssetValue,
   hasActiveBackgroundShapeOptions,
-  shouldUseModuleShaderFill,
   type QrDotMatrixAnimationOptions,
   type QrDotMatrixSquareLoader,
   type QraftyState,
@@ -36,14 +35,7 @@ import {
 import {
   resolveMotionColors,
 } from "@/features/qr-code/motion/motion-color"
-import {
-  MODULE_SHADER_FILL_IMAGE_ID,
-  MODULE_SHADER_FILL_LAYER,
-  MODULE_SHADER_SOURCE_LAYER,
-  solidColorImageDataUrl,
-} from "@/features/qr-code/motion/module-shader-fill"
 import { getBackgroundShapeSkewTransform } from "@/features/workspace/rendering/layer-transform"
-import { readPaperShaderFallbackColor } from "@/features/workspace/rendering/paper-shader-runtime"
 import {
   getQraftyGradientCenter,
   qraftyRadialCenterInUserSpace,
@@ -106,7 +98,6 @@ export function buildQrExtension(state: QraftyState) {
 
   const unifiedModuleImage =
     state.dotsColorMode === "image" && Boolean(getAssetValue(state.moduleFillImage))
-  const unifiedModuleShader = shouldUseModuleShaderFill(state)
 
   if (state.dotsColorMode === "gradient" && !unifiedModuleGradient) {
     extensions.push(createDotsGradientExtension(state))
@@ -116,9 +107,7 @@ export function buildQrExtension(state: QraftyState) {
     extensions.push(createDotsPaletteExtension(state))
   }
 
-  if (unifiedModuleShader) {
-    extensions.push(createUnifiedShaderExtension(state))
-  } else if (unifiedModuleImage) {
+  if (unifiedModuleImage) {
     extensions.push(createUnifiedImageExtension(state))
   } else if (unifiedModuleGradient) {
     extensions.push(createUnifiedGradientExtension(state))
@@ -168,7 +157,6 @@ export function buildQrExtension(state: QraftyState) {
 
 export function getQrExtensionKey(state: QraftyState) {
   return JSON.stringify({
-    moduleFillShader: shouldUseModuleShaderFill(state) ? state.moduleFillShader : null,
     backgroundImage: getAssetValue(state.backgroundImage),
     backgroundRound: state.backgroundOptions.round,
     backgroundShapeGradient: getBackgroundShapeGradientKey(state),
@@ -1997,31 +1985,6 @@ function collectModuleUnifiedFillTargets(svg: SVGElement) {
   }
 
   return { moduleClipShapes, modulePaintTargets }
-}
-
-function createUnifiedShaderExtension(
-  state: Pick<QraftyState, "margin" | "moduleFillShader">,
-): QrSvgExtensionFunction {
-  return (svg) => {
-    removeLegacyDotGradientOverlay(svg)
-
-    const { moduleClipShapes, modulePaintTargets } = collectModuleUnifiedFillTargets(svg)
-
-    const placeholder = solidColorImageDataUrl(
-      readPaperShaderFallbackColor(state.moduleFillShader),
-    )
-
-    applyUnifiedQrImageFill(svg, {
-      hidePaintTargets: false,
-      imageHref: placeholder,
-      imageId: MODULE_SHADER_FILL_IMAGE_ID,
-      imageLayer: MODULE_SHADER_FILL_LAYER,
-      margin: state.margin,
-      moduleClipShapes,
-      modulePaintTargets,
-      sourceLayer: MODULE_SHADER_SOURCE_LAYER,
-    })
-  }
 }
 
 function createUnifiedImageExtension(

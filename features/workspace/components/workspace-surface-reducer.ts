@@ -8,9 +8,7 @@ import type {
 } from "@/features/qr-code/model/types"
 import type { QraftyCornerDotStyle } from "@/features/qr-code/model/state"
 import {
-  createDefaultDraftingCardPaperShader,
   createDefaultDraftingCardState,
-  type DraftingCardPaperShaderState,
   type DraftingCardState,
 } from "@/features/workspace/model/card-state"
 import {
@@ -88,7 +86,6 @@ export type WorkspaceSurfaceState = {
   selectedModuleFillImageUrl: string
   selectedModuleFillImageSourceMode: DraftingAssetSourceMode
   selectedModuleFillRemoteUrl: string
-  selectedModuleFillShader: DraftingCardPaperShaderState
   selectedDotMatrixAnimation: QrDotMatrixAnimationOptions
   selectedQrFinderPatternOuterStyle: QrFinderPatternOuterStyle
   selectedCornerSquareColorMode: DraftingBinaryColorMode
@@ -231,7 +228,6 @@ export function createInitialWorkspaceSurfaceState(
     selectedModuleFillImageUrl: "",
     selectedModuleFillImageSourceMode: "upload",
     selectedModuleFillRemoteUrl: "",
-    selectedModuleFillShader: createDefaultDraftingCardPaperShader("mesh-gradient"),
     selectedDotMatrixAnimation: {
       ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation,
     },
@@ -406,7 +402,6 @@ function createWorkspaceSurfaceSetters(
     setSelectedModuleFillImageSourceMode: (value) =>
       setField("selectedModuleFillImageSourceMode", value),
     setSelectedModuleFillRemoteUrl: (value) => setField("selectedModuleFillRemoteUrl", value),
-    setSelectedModuleFillShader: (value) => setField("selectedModuleFillShader", value),
     setSelectedDotMatrixAnimation: (value) => setField("selectedDotMatrixAnimation", value),
     setSelectedQrFinderPatternOuterStyle: (value) =>
       setField("selectedQrFinderPatternOuterStyle", value),

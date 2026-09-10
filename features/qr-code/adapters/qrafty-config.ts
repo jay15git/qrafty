@@ -1,7 +1,6 @@
 import {
   getAssetValue,
   hasActiveBackgroundShapeOptions,
-  shouldUseModuleShaderFill,
   type QraftyState,
 } from "@/features/qr-code/model/state"
 import type {
@@ -143,8 +142,7 @@ export function toQraftyQrConfig(state: QraftyState): QraftyQrCodeProps {
   const unifiedGradient =
     state.gradientLinkMode === "unified" && state.dotsColorMode === "gradient"
   const unifiedImage = state.dotsColorMode === "image" && Boolean(mapModuleFillImage(state))
-  const unifiedShader = shouldUseModuleShaderFill(state)
-  const unifiedFill = unifiedGradient || unifiedImage || unifiedShader
+  const unifiedFill = unifiedGradient || unifiedImage
 
   return {
     ...(state.ariaLabel ? { ariaLabel: state.ariaLabel } : {}),

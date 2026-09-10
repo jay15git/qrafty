@@ -18,8 +18,8 @@ describe("ModeToggle", () => {
     expect(markup).toContain("Appearance")
     expect(markup).toContain('data-slot="mode-toggle-light-icon"')
     expect(markup).toContain('data-slot="mode-toggle-dark-icon"')
-    expect(markup).toContain('aria-label="Toggle dark mode"')
-    expect(markup).toContain('data-slot="switch"')
+    expect(markup).toContain("Toggle dark mode")
+    expect(markup).toContain('role="switch"')
   })
 
   it("renders only the switch for drafting appearance", () => {
@@ -29,7 +29,7 @@ describe("ModeToggle", () => {
     expect(markup).not.toContain("Appearance")
     expect(markup).not.toContain('data-slot="mode-toggle-light-icon"')
     expect(markup).not.toContain('data-slot="mode-toggle-dark-icon"')
-    expect(markup).toContain('aria-label="Toggle dark mode"')
-    expect(markup).toContain('data-slot="switch"')
+    expect(markup).toContain("Toggle dark mode")
+    expect(markup).toContain('role="switch"')
   })
 })

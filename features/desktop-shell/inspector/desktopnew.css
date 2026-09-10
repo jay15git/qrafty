@@ -2,6 +2,8 @@
 
 .desktopnew-root {
   color-scheme: dark;
+  --overlay: 255 255 255;
+  --focus-ring: #6b97ff;
   --dn-bg: #090909;
   --dn-surface: #111111;
   --dn-control: #1a1a1a;
@@ -100,6 +102,8 @@
 
 .desktopnew-root[data-theme="light"] {
   color-scheme: light;
+  --overlay: 0 0 0;
+  --focus-ring: #6b97ff;
   --dn-bg: #ffffff;
   --dn-surface: #fafafa;
   --dn-control: #f6f6f6;
@@ -675,11 +679,21 @@
 
 .dn-switch-row {
   display: flex;
+  width: 100%;
   min-height: var(--dn-control-height);
   height: var(--dn-control-height);
+  flex-direction: row-reverse;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  padding: 0 !important;
+}
+
+.dn-switch-row > span {
+  font-size: var(--dn-type-meta);
+  font-weight: var(--dn-type-label-weight);
+  letter-spacing: 0.02em;
+  color: var(--dn-type-label-color) !important;
 }
 
 .dn-settings-row {
@@ -1122,6 +1136,136 @@
   transition: opacity var(--dn-motion-ui) var(--dn-ease-out);
 }
 
+.dn-accordion-popover-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  background: transparent;
+}
+
+.dn-accordion-popover-overlay {
+  position: fixed;
+  z-index: 20001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  pointer-events: none;
+  transform-origin: bottom center;
+  box-sizing: border-box;
+}
+
+.dn-accordion-popover-panel {
+  display: flex;
+  width: 100%;
+  max-height: min(72dvh, calc(100dvh - 2rem));
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+  box-sizing: border-box;
+  border: none;
+  background: var(--dn-surface);
+  color: var(--dn-fg);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 18%);
+  border-radius: 1rem;
+  corner-shape: squircle;
+}
+
+.dn-accordion-popover-panel.desktopnew-fill-popover .dn-fill-picker-panel {
+  max-height: min(72dvh, calc(100% - 0.5rem));
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.dn-settings-popover-shell {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dn-settings-popover-header {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 2.75rem 0.5rem;
+}
+
+.dn-settings-popover-title {
+  margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: var(--dn-type-meta);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--dn-fg);
+}
+
+.dn-settings-popover-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--dn-line);
+  border-radius: 9999px;
+  background: var(--dn-control);
+  color: var(--dn-fg);
+  cursor: pointer;
+  transition:
+    background-color var(--dn-motion-fast) var(--dn-ease-out),
+    color var(--dn-motion-fast) var(--dn-ease-out);
+}
+
+.dn-settings-popover-close:hover,
+.dn-settings-popover-close:focus-visible {
+  background: var(--dn-control-hover);
+  color: var(--dn-fg);
+}
+
+.dn-settings-popover-body {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  padding: 0 0.625rem 0.625rem;
+}
+
+.dn-settings-popover-body-fill {
+  padding: 0 0 0.5rem;
+}
+
+:is(.desktopnew-fill-popover, .desktopnew-popover-content, .dn-accordion-popover-panel)
+  .dn-settings-popover-body-fill
+  .dn-fill-picker-panel {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+:is(.desktopnew-fill-popover, .dn-accordion-popover-panel)
+  .dn-settings-popover-body-fill
+  .dn-fill-picker-panel
+  [data-slot="fill-picker"]
+  > div {
+  padding: 0.625rem;
+}
+
+:is(.desktopnew-fill-popover, .dn-accordion-popover-panel)
+  .dn-settings-popover-body-fill
+  [data-slot="palette-color-stop-list"] {
+  padding-inline: 0;
+}
+
 .dn-settings-accordion > div > div > button {
   gap: 0.625rem;
   padding: 1rem 1.125rem;
@@ -1152,15 +1296,15 @@
 }
 
 .dn-settings-accordion > div > div > button > span:last-child {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2rem;
+  height: 2rem;
   color: var(--dn-muted);
   opacity: 0.42;
 }
 
 .dn-settings-accordion > div > div > button > span:last-child svg {
-  width: 12px;
-  height: 12px;
+  width: 18px;
+  height: 18px;
 }
 
 .dn-settings-accordion > div > div > button:hover > span:last-child,
@@ -1266,7 +1410,20 @@
   background: var(--dn-surface, #111111);
 }
 
-.dn-settings-accordion:has([data-focused="true"]) > div > div:not([data-focused="true"]) {
+.dn-settings-accordion > div > div {
+  transition:
+    filter var(--dn-motion-ui) var(--dn-ease-out),
+    opacity var(--dn-motion-ui) var(--dn-ease-out);
+}
+
+.dn-settings-accordion[data-popover-open="true"] > div > div {
+  filter: blur(1.25px);
+  opacity: 0.38;
+}
+
+.dn-settings-accordion:has([data-focused="true"]):not([data-popover-open="true"])
+  > div
+  > div:not([data-focused="true"]) {
   filter: blur(1.25px);
   opacity: 0.38;
 }
@@ -1368,15 +1525,13 @@
 }
 
 .desktopnew-popover-content {
-  border-color: #ececee !important;
+  border: none !important;
   background: #fafafa !important;
   color: #18181b !important;
   --tw-shadow: 0 0 #0000;
   --tw-ring-shadow: 0 0 #0000;
   --tw-ring-offset-shadow: 0 0 #0000;
-  box-shadow:
-    0 0 0 1px rgb(0 0 0 / 3%),
-    0 8px 32px rgb(0 0 0 / 8%) !important;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 8%) !important;
   --dn-bg: #fafafa;
   --dn-fg: #18181b;
   --dn-control: #f6f6f6;
@@ -1419,12 +1574,10 @@
 }
 
 .desktopnew-popover-content[data-theme="dark"] {
-  border-color: #252525 !important;
+  border: none !important;
   background: #111111 !important;
   color: #f5f5f5 !important;
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 4%),
-    0 12px 48px rgb(0 0 0 / 50%) !important;
+  box-shadow: 0 12px 48px rgb(0 0 0 / 50%) !important;
   --dn-bg: #111111;
   --dn-fg: #f5f5f5;
   --dn-control: #1a1a1a;
@@ -1955,20 +2108,16 @@
 }
 
 .desktopnew-fill-popover .dn-fill-picker-panel {
-  border: 1px solid var(--dn-line) !important;
+  border: none !important;
   background: var(--dn-surface) !important;
   color: var(--dn-fg) !important;
-  box-shadow:
-    0 0 0 1px rgb(0 0 0 / 3%),
-    0 8px 32px rgb(0 0 0 / 8%);
+  box-shadow: none !important;
   border-radius: var(--dn-radius-md);
   corner-shape: squircle;
 }
 
 .desktopnew-fill-popover[data-theme="dark"] .dn-fill-picker-panel {
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 4%),
-    0 12px 48px rgb(0 0 0 / 50%);
+  box-shadow: none !important;
 }
 
 .desktopnew-fill-popover .dn-fill-picker-panel > div {

@@ -132,4 +132,15 @@ describe("drafting paper shader metadata", () => {
       expect(generatedShaderIds).not.toContain(filterId)
     }
   })
+
+  it("keeps logo-animation image filters out of generated shader choices", () => {
+    const generatedShaderIds = getCardGeneratedShaderDefinitions().map(
+      (definition) => definition.id,
+    )
+
+    expect(generatedShaderIds).not.toContain("heatmap")
+    expect(generatedShaderIds).not.toContain("liquid-metal")
+    expect(generatedShaderIds).not.toContain("gem-smoke")
+    expect(generatedShaderIds.at(-1)).toBe("static-radial-gradient")
+  })
 })

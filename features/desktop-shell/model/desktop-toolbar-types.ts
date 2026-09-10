@@ -85,7 +85,6 @@ export type DesktopPatternSettings = {
   dotsPalette: string[]
   dotsPalettePreset: string | "custom"
   dotsSolidColor: string
-  moduleFillShader: DraftingCardPaperShaderState
   moduleFillImageUrl: string
   moduleFillImageSourceMode: DesktopAssetSourceMode
   qrDotType: QraftyDataModulesStyle

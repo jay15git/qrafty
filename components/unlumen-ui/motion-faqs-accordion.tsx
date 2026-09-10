@@ -1,9 +1,14 @@
 "use client";
 
 import * as React from "react";
+import { ChevronRight } from "lucide-react";
 import { m } from "motion/react";
 
 import { CUELUME_BUTTON } from "@/features/desktop-shell/audio/desktop-cuelume";
+import {
+  SettingsAccordionPopoverOpenMarker,
+  SettingsAccordionPopoverProvider,
+} from "@/features/desktop-shell/inspector/settings-accordion-popover-context";
 import { cn } from "@/lib/utils";
 
 export interface MotionAccordionItem {
@@ -81,43 +86,13 @@ function AccordionItem({
           aria-hidden="true"
           initial={false}
           animate={{
-            rotate: isOpen ? 180 : 0,
+            rotate: isOpen ? 90 : 0,
             scale: isOpen ? 1.05 : 1,
           }}
           transition={{ type: "spring", stiffness: 480, damping: 28 }}
           className="inline-flex size-12 shrink-0 items-center justify-center text-foreground"
         >
-          {isOpen ? (
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 14 2"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M1 1h12"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-              />
-            </svg>
-          ) : (
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M7 1v12M1 7h12"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-              />
-            </svg>
-          )}
+          <ChevronRight className="size-4.5" strokeWidth={1.75} />
         </m.span>
       </button>
 
@@ -202,9 +177,12 @@ export function MotionAccordion({
     setInternalOpenIndex(next);
   };
 
+  const accordionRef = React.useRef<HTMLDivElement>(null);
+
   return (
-    <div className={cn("w-full min-w-0 max-w-full", className)}>
-      <div className="flex flex-col rounded-[34px] p-3" style={{ gap }}>
+    <SettingsAccordionPopoverProvider cardRef={accordionRef}>
+      <SettingsAccordionPopoverOpenMarker className={cn("w-full min-w-0 max-w-full", className)}>
+        <div ref={accordionRef} className="flex flex-col rounded-[34px] p-3" style={{ gap }}>
         {items.map((item, i) => {
           const itemKey = getStableItemKey(item);
 
@@ -219,7 +197,8 @@ export function MotionAccordion({
             />
           )
         })}
-      </div>
-    </div>
+        </div>
+      </SettingsAccordionPopoverOpenMarker>
+    </SettingsAccordionPopoverProvider>
   );
 }

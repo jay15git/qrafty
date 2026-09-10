@@ -369,30 +369,6 @@ describe("dashboard qr svg helpers", () => {
     expect(markup).toContain('href="https://example.com/module-texture.png"')
   })
 
-  it("applies module shader clip fills when shader fill mode is enabled", () => {
-    const state = createDefaultQraftyState()
-    state.dotsColorMode = "shader"
-
-    const markup = renderDashboardQrSvgMarkup(state)
-
-    expect(markup).toContain('id="module-shader-fill"')
-    expect(markup).toContain('data-qr-layer="unified-shader-fill"')
-    expect(markup).toContain('clip-path="url(#module-shader-fill-clip)"')
-  })
-
-  it("clips module shader fills through many star module shapes", () => {
-    const state = createDefaultQraftyState()
-    state.dataModulesSettings.type = "star"
-    state.dotsColorMode = "shader"
-
-    const markup = renderDashboardQrSvgMarkup(state)
-    const document = new DOMParser().parseFromString(markup, "image/svg+xml")
-    const clipPath = document.querySelector("#module-shader-fill-clip")
-
-    expect(clipPath).not.toBeNull()
-    expect((clipPath?.children.length ?? 0)).toBeGreaterThan(10)
-  })
-
   it("leaves logo images untouched when unified module gradients are active", () => {
     const state = createDefaultQraftyState()
     state.dotsColorMode = "gradient"

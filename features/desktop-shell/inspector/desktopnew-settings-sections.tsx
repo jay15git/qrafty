@@ -51,8 +51,6 @@ import {
   applyLogoFill,
   applyPatternModuleFill,
   applyPatternModuleImageUrl,
-  applyPatternModuleShader,
-  applyPatternModuleShaderState,
   applyCardFill,
   applyShapeFill,
   isPatternModuleImageFill,
@@ -63,7 +61,7 @@ import {
   solidColorToFillCss,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
 import {
-  getAllPaperShaderDefinitions,
+  getCardGeneratedShaderDefinitions,
   type PaperShaderId,
 } from "@/features/workspace/rendering/paper-shaders"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
@@ -210,7 +208,7 @@ function PaperShaderPreviewRow({
   selected: PaperShaderId
   onSelect: (shaderId: PaperShaderId) => void
 }) {
-  const shaders = getAllPaperShaderDefinitions()
+  const shaders = getCardGeneratedShaderDefinitions()
 
   return (
     <ScrollArea
@@ -493,17 +491,6 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
                     onPatternSettingsChange(applyPatternModuleImageUrl("", "upload")),
                 }}
                 qrGradient
-                moduleShader={{
-                  paperShader: actualPatternSettings.moduleFillShader,
-                  onTabActivate: () =>
-                    onPatternSettingsChange(
-                      applyPatternModuleShaderState(actualPatternSettings.moduleFillShader),
-                    ),
-                  onSelectShader: (shaderId) =>
-                    onPatternSettingsChange(applyPatternModuleShader(shaderId)),
-                  onPaperShaderChange: (paperShader) =>
-                    onPatternSettingsChange(applyPatternModuleShaderState(paperShader)),
-                }}
                 modulePattern={{
                   selectedPalette: actualPatternSettings.dotsPalette,
                   selectedPreset: actualPatternSettings.dotsPalettePreset,
