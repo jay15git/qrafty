@@ -6,6 +6,7 @@ import { dotMatrixLoaderToPresetName } from "@qrafty/qr/dot-matrix";
 import {
   adaptQrcodeReactSvgForDotMatrix,
   renderQrcodeReactSvg,
+  shouldUseDotMatrixMotionPreview,
   toDotMatrixQrConfig,
   toQrcodeReactProps,
 } from "@/features/qr-code/motion/dot-matrix-bridge";
@@ -21,10 +22,10 @@ import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-
 describe("dot matrix motion bridge", () => {
   it("maps desktop loaders to preset names", () => {
     expect(dotMatrixLoaderToPresetName("neon-drift")).toBe("NeonDrift");
-    expect(dotMatrixLoaderToPresetName("fan-rotate")).toBe("FanRotate");
-    expect(dotMatrixLoaderToPresetName("tunnel")).toBe("Tunnel");
-    expect(dotMatrixLoaderToPresetName("wave")).toBe("Wave");
-    expect(dotMatrixLoaderToPresetName("scan")).toBe("Scan");
+    expect(dotMatrixLoaderToPresetName("fan-rotate")).toBe("NeonDrift");
+    expect(dotMatrixLoaderToPresetName("tunnel")).toBe("NeonDrift");
+    expect(dotMatrixLoaderToPresetName("wave")).toBe("NeonDrift");
+    expect(dotMatrixLoaderToPresetName("scan")).toBe("NeonDrift");
   });
 
   it("renders qrcode.react svg markup for desktop state", () => {
@@ -65,24 +66,6 @@ describe("dot matrix motion bridge", () => {
     expect(config.dotMatrixColorBase).toBe("#334155");
     expect(config.dotMatrixColorPeak).toBe("#f8fafc");
     expect(resolveDotMatrixMotionPreset(state.dotMatrixAnimation)).toBe("NeonDrift");
-  });
-
-  it("keeps module color for scale-only loaders instead of peak accent", () => {
-    const state = setDotMatrixAnimationOptions(createDefaultQraftyState(), {
-      enabled: true,
-      animated: true,
-      loader: "fan-rotate",
-      preset: "fan-rotate",
-      presetCategory: "dotMatrix",
-      colorPreset: "neon",
-    });
-    state.dataModulesSettings.color = "#334155";
-
-    const config = toDotMatrixQrConfig(state);
-
-    expect(config.dotMatrixColorBase).toBe("#334155");
-    expect(config.dotMatrixColorPeak).toBe("#334155");
-    expect(config.dotMatrixOpacityPeak).toBe(config.dotMatrixOpacityBase);
   });
 
   it("builds qrcode.react props from studio state", () => {
@@ -201,5 +184,12 @@ describe("dot matrix motion bridge", () => {
     expect(toDotMatrixQrConfig(gradientState).preserveModuleFills).toBe(true);
     expect(toDotMatrixQrConfig(paletteState).preserveModuleFills).toBe(true);
     expect(toDotMatrixQrConfig(solidState).preserveModuleFills).toBe(false);
+  });
+
+  it("enables preserve mode for module shader fill mode", () => {
+    const shaderState = createDefaultQraftyState();
+    shaderState.dotsColorMode = "shader";
+
+    expect(toDotMatrixQrConfig(shaderState).preserveModuleFills).toBe(true);
   });
 });

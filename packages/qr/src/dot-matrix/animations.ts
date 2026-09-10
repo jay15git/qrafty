@@ -42,6 +42,8 @@ import {
   smoothBlendProgress,
 } from './color-mix';
 import {
+  diamondExpansionMetric,
+  diamondMaxExpansionMetric,
   heartExpansionMetric,
   heartMaxExpansionMetric,
   starExpansionMetric,
@@ -177,17 +179,10 @@ export const standardAnimationPresets = [
 
 export const dotMatrixAnimationPresets = [
   AnimationPreset.NeonDrift,
-  AnimationPreset.EchoRing,
-  AnimationPreset.OriginWave,
   AnimationPreset.RadialExpand,
-  AnimationPreset.FanRotate,
-  AnimationPreset.Tunnel,
-  AnimationPreset.Wave,
-  AnimationPreset.Scan,
   AnimationPreset.DiamondExpand,
   AnimationPreset.HeartExpand,
   AnimationPreset.StarExpand,
-  AnimationPreset.CrossBloom,
   AnimationPreset.ChevronSweep,
   AnimationPreset.FluxColumns,
 ];
@@ -783,9 +778,6 @@ export const sampleDotMatrixAnimationFrame = (
 
 const rowMajorIndex = (row: number, col: number) => row * MATRIX_SIZE + col;
 
-const matrixManhattanDistance = (row: number, col: number) =>
-  Math.abs(row - 2) + Math.abs(col - 2);
-
 const cloneCssBlendKeyframe = (
   frame: DotMatrixCssBlendKeyframe
 ): DotMatrixCssBlendKeyframe => ({
@@ -874,8 +866,6 @@ const matrixMotionStyle = (
     scale: scale as any,
   },
 });
-
-const scaleKeyframe = (offset: number, value: number) => ({ offset, value });
 
 const matrixEntityAnimation = (
   targets: any,
@@ -1597,89 +1587,10 @@ const ECHO_RING_BLEND_KEYFRAMES = [
   matrixCssKeyframe(1, 0, 0, 1),
 ];
 
-const EchoRing: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  const ring = sampleCellField(fRow, fCol, (row, col) =>
-    clamp(matrixManhattanDistance(row, col), 0, 4)
-  );
-  const parity = Math.round(ring) % 2;
-  return matrixSourceStyle(
-    targets,
-    entity,
-    (ring * 0.14 + parity * 0.03) * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
-    ECHO_RING_BLEND_KEYFRAMES,
-    'ease-in-out'
-  );
-};
-
-const OriginWave: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  const ring = sampleCellField(fRow, fCol, (row, col) =>
-    clamp(Math.abs(row - 1) + Math.abs(col - 1), 0, 6)
-  );
-  return matrixSourceStyle(
-    targets,
-    entity,
-    ring * 0.16 * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
-    [
-      matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.34, 1, 0, 0),
-      matrixCssKeyframe(0.6, 0, 0.5, 0.5),
-      matrixCssKeyframe(1, 0, 0, 1),
-    ],
-    'ease-in-out'
-  );
-};
-
 const MATRIX_CENTER = 2;
 
 const radialDistanceFromCenter = (row: number, col: number) =>
   Math.hypot(row - MATRIX_CENTER, col - MATRIX_CENTER);
-
-const FAN_ROTATE_CYCLE_MS = 3500;
-
-const normalizedRadiusFromCenter = (x: number, y: number, count: number) => {
-  const center = count / 2;
-  const maxRadius = Math.hypot(center, center);
-  const radius = Math.hypot(x - center, y - center);
-  return maxRadius > 0 ? clamp(radius / maxRadius, 0, 1) : 0;
-};
-
-const fanFieldPhase = (x: number, y: number, count: number) => {
-  const center = (count - 1) / 2;
-  const normalizedRadius =
-    Math.hypot(x - center, y - center) / Math.max(1, Math.hypot(center, center));
-  const angle = Math.atan2(y - center, x - center);
-  const phase = (angle * 4 + normalizedRadius * 8) / (Math.PI * 2);
-  return phase - Math.floor(phase);
-};
-
-const dotMotionScale = (x: number, y: number, count: number) => {
-  const inward = 1 - normalizedRadiusFromCenter(x, y, count);
-  return {
-    rest: 0.4 + inward * 0.2,
-    peak: 1.1 + inward * 0.45,
-  };
-};
-
-const motionScaleKeyframes = (rest: number, peak: number) => [
-  scaleKeyframe(0, rest),
-  scaleKeyframe(0.08, rest * 1.08),
-  scaleKeyframe(0.16, peak),
-  scaleKeyframe(0.38, peak * 0.94),
-  scaleKeyframe(0.5, rest),
-  scaleKeyframe(1, rest),
-];
-
-const diamondDistanceFromCenter = (row: number, col: number) =>
-  Math.abs(row - MATRIX_CENTER) + Math.abs(col - MATRIX_CENTER);
-
-const crossBloomDistance = (row: number, col: number) =>
-  Math.max(Math.abs(row - MATRIX_CENTER), Math.abs(col - MATRIX_CENTER));
 
 const chevronDistance = (row: number, col: number) =>
   MATRIX_LAST - row + Math.abs(col - MATRIX_CENTER);
@@ -1698,147 +1609,12 @@ const RadialExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
   );
 };
 
-const fanActivityKeyframes = [
-  { offset: 0, value: 0.5 },
-  { offset: 0.125, value: 0.1464 },
-  { offset: 0.25, value: 0 },
-  { offset: 0.375, value: 0.1464 },
-  { offset: 0.5, value: 0.5 },
-  { offset: 0.625, value: 0.8536 },
-  { offset: 0.75, value: 1 },
-  { offset: 0.875, value: 0.8536 },
-  { offset: 1, value: 0.5 },
-];
-
-const fanScaleKeyframes = fanActivityKeyframes.map(({ offset, value }) =>
-  scaleKeyframe(offset, 0.3 + value * 0.65),
-);
-
-const fanOpacityMultiplierKeyframes = fanActivityKeyframes.map(
-  ({ offset, value }) => ({ offset, value: 0.5 + value * 0.5 }),
-);
-
-const wrapUnitPhase = (value: number) => value - Math.floor(value);
-
-const qrmoveStaticEntity = (
-  targets: any,
-  duration: number,
-): DotMatrixAnimationFrame => ({
-  targets,
-  duration,
-  web: { opacity: [1], scale: [1] },
-});
-
-const qrmoveFieldAnimation = (
-  targets: any,
-  phase: number,
-  cycleMs: number,
-  scaleAt: (unit: number) => number,
-  alphaAt: (unit: number) => number,
-): DotMatrixAnimationFrame => ({
-  targets,
-  from: -(1 - phase) * cycleMs,
-  duration: cycleMs,
-  easing: 'linear',
-  web: {
-    opacity: [1],
-    opacityMultiplier: fanActivityKeyframes.map(({ offset, value }) => ({
-      offset,
-      value: alphaAt(value),
-    })),
-    scale: fanActivityKeyframes.map(({ offset, value }) =>
-      scaleKeyframe(offset, scaleAt(value)),
-    ),
-  },
-});
-
-const TUNNEL_CYCLE_MS = 1800;
-const WAVE_CYCLE_MS = 3500;
-const SCAN_CYCLE_MS = 3500;
-
-const tunnelFieldPhase = (x: number, y: number, count: number) => {
-  const center = (count - 1) / 2;
-  const normalizedRadius =
-    Math.hypot(x - center, y - center) / Math.max(1, Math.hypot(center, center));
-  return wrapUnitPhase((normalizedRadius * 16) / (Math.PI * 2));
-};
-
-const waveFieldPhase = (x: number, y: number, count: number) => {
-  const diagonal = (x + y) / Math.max(1, (count - 1) * 2);
-  return wrapUnitPhase((diagonal * 6) / (Math.PI * 2));
-};
-
-const scanFieldPhase = (y: number, count: number) =>
-  count > 1 ? y / (count - 1) : 0;
-
-const FanRotate: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) {
-    return qrmoveStaticEntity(targets, FAN_ROTATE_CYCLE_MS);
-  }
-  const phase = fanFieldPhase(x, y, count);
-  return {
-    targets,
-    from: -(1 - phase) * FAN_ROTATE_CYCLE_MS,
-    duration: FAN_ROTATE_CYCLE_MS,
-    easing: 'linear',
-    web: {
-      opacity: [1],
-      opacityMultiplier: fanOpacityMultiplierKeyframes,
-      scale: fanScaleKeyframes,
-    },
-  };
-};
-
-const Tunnel: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) {
-    return qrmoveStaticEntity(targets, TUNNEL_CYCLE_MS);
-  }
-  return qrmoveFieldAnimation(
-    targets,
-    tunnelFieldPhase(x, y, count),
-    TUNNEL_CYCLE_MS,
-    (unit) => 0.3 + unit * 0.6,
-    (unit) => 0.34 + unit * 0.56,
-  );
-};
-
-const Wave: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) {
-    return qrmoveStaticEntity(targets, WAVE_CYCLE_MS);
-  }
-  return qrmoveFieldAnimation(
-    targets,
-    waveFieldPhase(x, y, count),
-    WAVE_CYCLE_MS,
-    (unit) => 0.34 + unit * unit * unit * 0.56,
-    (unit) => 0.34 + unit * unit * unit * 0.56,
-  );
-};
-
-const Scan: QRCodeAnimation = (targets, _x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) {
-    return qrmoveStaticEntity(targets, SCAN_CYCLE_MS);
-  }
-  return qrmoveFieldAnimation(
-    targets,
-    scanFieldPhase(y, count),
-    SCAN_CYCLE_MS,
-    (unit) => 0.34 + unit * unit * unit * 0.56,
-    (unit) => 0.34 + unit * unit * unit * 0.56,
-  );
-};
-
 const DiamondExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
   if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  const distance = sampleCellField(fRow, fCol, diamondDistanceFromCenter);
-  return matrixSourceStyle(
+  return shapeRevealAnimation(
     targets,
-    entity,
-    distance * 0.14 * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
-    ECHO_RING_BLEND_KEYFRAMES,
-    'ease-in-out'
+    diamondExpansionMetric(y, x, count),
+    diamondMaxExpansionMetric(count),
   );
 };
 
@@ -1874,25 +1650,6 @@ const StarExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
     targets,
     starExpansionMetric(y, x, count),
     starMaxExpansionMetric(count),
-  );
-};
-
-const CrossBloom: QRCodeAnimation = (targets, x, y, count, entity) => {
-  if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
-  const { fRow, fCol } = matrixFracCoord(x, y, count);
-  const distance = sampleCellField(fRow, fCol, crossBloomDistance);
-  return matrixSourceStyle(
-    targets,
-    entity,
-    distance * 0.14 * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
-    [
-      matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.26, 1, 0, 0),
-      matrixCssKeyframe(0.48, 0, 0.55, 0.1),
-      matrixCssKeyframe(1, 0, 0, 1),
-    ],
-    'ease-in-out'
   );
 };
 
@@ -2204,26 +1961,15 @@ const resolvePresetAnimationSettings = (
   };
 };
 
-const SCALE_ONLY_ANIMATION_PRESETS = new Set<AnimationPreset>([
-  AnimationPreset.FanRotate,
-  AnimationPreset.Tunnel,
-  AnimationPreset.Wave,
-  AnimationPreset.Scan,
-]);
-
-const isScaleOnlyAnimationPreset = (presetName?: AnimationPreset) =>
-  presetName !== undefined && SCALE_ONLY_ANIMATION_PRESETS.has(presetName);
-
 const applyPresetSettings = (
   animation: DotMatrixAnimationFrame,
   settings: QRCodeAnimationSettings | undefined,
   isDotMatrixPreset: boolean,
-  presetName?: AnimationPreset
+  _presetName?: AnimationPreset
 ): DotMatrixAnimationFrame => {
   const resolvedSettings = resolvePresetAnimationSettings(settings, isDotMatrixPreset);
   const speed = safeAnimationSpeed(resolvedSettings);
-  const dotMatrixFill =
-    isDotMatrixPreset && !isScaleOnlyAnimationPreset(presetName)
+  const dotMatrixFill = isDotMatrixPreset
       ? remapDotMatrixFill(animation.web && animation.web.opacity, resolvedSettings)
       : undefined;
   const web = isDotMatrixPreset
@@ -2333,27 +2079,21 @@ const resolveAnimationPreset = (name: string) => {
     case AnimationPreset.FluxColumns:
       return FluxColumns;
     case AnimationPreset.EchoRing:
-      return EchoRing;
     case AnimationPreset.OriginWave:
-      return OriginWave;
+    case AnimationPreset.CrossBloom:
     case AnimationPreset.RadialExpand:
       return RadialExpand;
     case AnimationPreset.FanRotate:
-      return FanRotate;
     case AnimationPreset.Tunnel:
-      return Tunnel;
     case AnimationPreset.Wave:
-      return Wave;
     case AnimationPreset.Scan:
-      return Scan;
+      return NeonDrift;
     case AnimationPreset.DiamondExpand:
       return DiamondExpand;
     case AnimationPreset.HeartExpand:
       return HeartExpand;
     case AnimationPreset.StarExpand:
       return StarExpand;
-    case AnimationPreset.CrossBloom:
-      return CrossBloom;
     case AnimationPreset.ChevronSweep:
       return ChevronSweep;
     default:

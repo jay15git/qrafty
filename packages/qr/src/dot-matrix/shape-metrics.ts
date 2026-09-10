@@ -111,6 +111,26 @@ export function starExpansionMetric(
   return (r / Math.max(boundary, 0.1)) * radius;
 }
 
+/** L1 diamond boundary radius along a ray from center (normalized coords). */
+export function diamondBoundaryRadius(angle: number) {
+  const cosine = Math.abs(Math.cos(angle));
+  const sine = Math.abs(Math.sin(angle));
+  return 1 / Math.max(cosine + sine, 1e-6);
+}
+
+/** Distance to diamond boundary along the ray from center (grid units). */
+export function diamondExpansionMetric(
+  row: number,
+  col: number,
+  matrixSize: number,
+) {
+  const { nx, ny, radius } = normalizedGridCoords(row, col, matrixSize);
+  const r = Math.hypot(nx, ny);
+  if (r < 1e-6) return 0;
+  const boundary = diamondBoundaryRadius(Math.atan2(ny, nx));
+  return (r / boundary) * radius;
+}
+
 function maxShapeExpansionMetric(
   matrixSize: number,
   metricAt: (row: number, col: number, matrixSize: number) => number,
@@ -141,6 +161,7 @@ function getCachedMaxExpansionMetric(
 
 const heartMaxExpansionMetricCache = new Map<number, number>();
 const starMaxExpansionMetricCache = new Map<number, number>();
+const diamondMaxExpansionMetricCache = new Map<number, number>();
 
 export function heartMaxExpansionMetric(matrixSize: number) {
   return getCachedMaxExpansionMetric(
@@ -155,6 +176,14 @@ export function starMaxExpansionMetric(matrixSize: number) {
     matrixSize,
     starMaxExpansionMetricCache,
     starExpansionMetric,
+  );
+}
+
+export function diamondMaxExpansionMetric(matrixSize: number) {
+  return getCachedMaxExpansionMetric(
+    matrixSize,
+    diamondMaxExpansionMetricCache,
+    diamondExpansionMetric,
   );
 }
 

@@ -1,4 +1,9 @@
 import type { QrBackgroundShapeId } from "@/features/qr-code/styles/background-shapes";
+import {
+  cloneDraftingCardPaperShaderState,
+  createDefaultDraftingCardPaperShader,
+  type DraftingCardPaperShaderState,
+} from "@/features/workspace/model/card-state";
 import { dotMatrixLoaderToPresetName as mapLoaderToPresetName } from "@qrafty/qr/dot-matrix";
 import type { CustomCornerDotShape } from "@/features/qr-code/styles/custom-corner-dot-shapes";
 import type {
@@ -34,7 +39,7 @@ export type QraftyGradient = {
 };
 
 export type QraftyDataModulesStyle = QrDataModulesStyle;
-export type DotsColorMode = "solid" | "gradient" | "palette" | "image";
+export type DotsColorMode = "solid" | "gradient" | "palette" | "image" | "shader";
 export type QrLogoPositionMode = "center" | "custom";
 export type QrLogoSizeMode = "ratio" | "pixels";
 export type QrCrossOrigin = "anonymous" | "use-credentials" | "";
@@ -43,17 +48,10 @@ export type AssetSourceMode = "none" | "preset" | "url" | "upload";
 export type QrDotMatrixSquareLoader =
   | "neon-drift"
   | "flux-columns"
-  | "echo-ring"
-  | "origin-wave"
   | "radial-expand"
-  | "fan-rotate"
-  | "tunnel"
-  | "wave"
-  | "scan"
   | "diamond-expand"
   | "heart-expand"
   | "star-expand"
-  | "cross-bloom"
   | "chevron-sweep";
 export type QrDotMatrixColorPreset =
   | "theme"
@@ -67,7 +65,7 @@ export type QrDotMatrixColorPreset =
 export type QrDotMatrixPattern = "cross" | "diamond" | "full" | "outline" | "rings" | "rose";
 export type QrDotMatrixDotShape = "circle" | "diamond" | "hearts" | "square";
 
-export type QrMotionPresetCategory = "dotMatrix" | "standard";
+export type QrMotionPresetCategory = "dotMatrix" | "shader" | "standard";
 export type QrMotionStandardPreset = string;
 export type QrMotionHoverEffect = string;
 export type QrMotionHoverColorMode = "both" | "modules" | "overlay";
@@ -99,6 +97,7 @@ export type QrDotMatrixAnimationOptions = {
   overlayScale: number;
   pattern: QrDotMatrixPattern;
   preset: QrMotionStandardPreset | QrDotMatrixSquareLoader;
+  paperShader: DraftingCardPaperShaderState;
   presetCategory: QrMotionPresetCategory;
   respectReducedMotion: boolean;
   speed: number;
@@ -140,6 +139,7 @@ export type QraftyState = {
   rasterExportQualityPercent: number;
   logo: QraftyAsset;
   moduleFillImage: QraftyAsset;
+  moduleFillShader: DraftingCardPaperShaderState;
   backgroundImage: QraftyAsset;
   backgroundShapeId: QrBackgroundShapeId;
   backgroundShapeOptions: BackgroundShapeOptions;
@@ -261,19 +261,22 @@ export const QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS: Array<{
 }> = [
   { label: "Neon Drift", value: "neon-drift" },
   { label: "Flux Columns", value: "flux-columns" },
-  { label: "Echo Ring", value: "echo-ring" },
-  { label: "Origin Wave", value: "origin-wave" },
-  { label: "Radial Expand", value: "radial-expand" },
-  { label: "Fan Rotate", value: "fan-rotate" },
-  { label: "Tunnel", value: "tunnel" },
-  { label: "Wave", value: "wave" },
-  { label: "Scan", value: "scan" },
-  { label: "Diamond Expand", value: "diamond-expand" },
-  { label: "Heart Expand", value: "heart-expand" },
-  { label: "Star Expand", value: "star-expand" },
-  { label: "Cross Bloom", value: "cross-bloom" },
+  { label: "Radial", value: "radial-expand" },
+  { label: "Diamond", value: "diamond-expand" },
+  { label: "Heart", value: "heart-expand" },
+  { label: "Star", value: "star-expand" },
   { label: "Chevron Sweep", value: "chevron-sweep" },
 ];
+
+const DEPRECATED_DOT_MATRIX_LOADERS: Record<string, QrDotMatrixSquareLoader> = {
+  "cross-bloom": "radial-expand",
+  "echo-ring": "radial-expand",
+  "fan-rotate": "neon-drift",
+  "origin-wave": "radial-expand",
+  "scan": "neon-drift",
+  "tunnel": "neon-drift",
+  "wave": "neon-drift",
+};
 
 export const QR_MOTION_DOT_MATRIX_PRESET_OPTIONS: Array<{
   label: string;
@@ -285,17 +288,28 @@ const QR_DOT_MATRIX_SQUARE_LOADER_VALUES = new Set<string>(
 );
 
 /** Dot-matrix loaders that pulse size/opacity only — no accent color pass. */
-export const SCALE_ONLY_DOT_MATRIX_LOADERS = [
-  "fan-rotate",
-  "tunnel",
-  "wave",
-  "scan",
-] as const satisfies readonly QrDotMatrixSquareLoader[];
+export const SCALE_ONLY_DOT_MATRIX_LOADERS = [] as const satisfies readonly QrDotMatrixSquareLoader[];
 
 const SCALE_ONLY_DOT_MATRIX_LOADER_VALUES = new Set<string>(SCALE_ONLY_DOT_MATRIX_LOADERS);
 
 export function isScaleOnlyDotMatrixLoader(loader: QrDotMatrixSquareLoader) {
   return SCALE_ONLY_DOT_MATRIX_LOADER_VALUES.has(loader);
+}
+
+function coerceMotionPresetCategory(value: unknown): QrMotionPresetCategory {
+  if (value === "shader" || value === "standard") {
+    return value;
+  }
+
+  return "dotMatrix";
+}
+
+export function shouldUseModuleShaderFill(state: QraftyState) {
+  return state.dotsColorMode === "shader";
+}
+
+export function shouldUseModuleShaderPreview(state: QraftyState) {
+  return shouldUseModuleShaderFill(state);
 }
 
 
@@ -348,6 +362,7 @@ export const QR_DOT_MATRIX_PATTERN_OPTIONS: Array<{
   opacityPeak: 1,
   overlayScale: 100,
   pattern: "full",
+  paperShader: createDefaultDraftingCardPaperShader("mesh-gradient"),
   preset: "neon-drift",
   presetCategory: "dotMatrix",
   respectReducedMotion: true,
@@ -388,6 +403,7 @@ export function createDefaultQraftyState(): QraftyState {
       source: "none",
       value: undefined,
     },
+    moduleFillShader: createDefaultDraftingCardPaperShader("mesh-gradient"),
     backgroundImage: {
       presetColor: undefined,
       presetId: undefined,
@@ -569,6 +585,10 @@ export function clampDotMatrixAnimationOpacity(value: number, fallback: number) 
 }
 
 function coerceDotMatrixSquareLoader(value: string | undefined) {
+  if (value && DEPRECATED_DOT_MATRIX_LOADERS[value]) {
+    return DEPRECATED_DOT_MATRIX_LOADERS[value];
+  }
+
   return value && QR_DOT_MATRIX_SQUARE_LOADER_VALUES.has(value)
     ? (value as QrDotMatrixSquareLoader)
     : DEFAULT_DOT_MATRIX_ANIMATION.loader;
@@ -761,7 +781,14 @@ export function setDotMatrixAnimationOptions(
       patch.preset ?? state.dotMatrixAnimation.preset,
       nextLoader,
     ),
-    presetCategory: "dotMatrix",
+    paperShader: patch.paperShader
+      ? cloneDraftingCardPaperShaderState(patch.paperShader)
+      : cloneDraftingCardPaperShaderState(
+          state.dotMatrixAnimation.paperShader ?? DEFAULT_DOT_MATRIX_ANIMATION.paperShader,
+        ),
+    presetCategory: coerceMotionPresetCategory(
+      patch.presetCategory ?? state.dotMatrixAnimation.presetCategory,
+    ),
     respectReducedMotion:
       patch.respectReducedMotion ?? state.dotMatrixAnimation.respectReducedMotion,
     speed: clampDotMatrixAnimationSpeed(
@@ -788,6 +815,8 @@ export function setDotMatrixAnimationOptions(
     state.dotMatrixAnimation.pattern === nextAnimation.pattern &&
     state.dotMatrixAnimation.preset === nextAnimation.preset &&
     state.dotMatrixAnimation.presetCategory === nextAnimation.presetCategory &&
+    JSON.stringify(state.dotMatrixAnimation.paperShader) ===
+      JSON.stringify(nextAnimation.paperShader) &&
     state.dotMatrixAnimation.respectReducedMotion === nextAnimation.respectReducedMotion &&
     state.dotMatrixAnimation.speed === nextAnimation.speed &&
     !hasRemovedAnimationOptions &&

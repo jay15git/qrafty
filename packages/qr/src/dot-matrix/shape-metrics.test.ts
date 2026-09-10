@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  diamondExpansionMetric,
   heartExpansionMetric,
   heartImplicit,
   starExpansionMetric,
@@ -45,5 +46,17 @@ describe("shape-metrics", () => {
 
   it("heart implicit is negative at center", () => {
     expect(heartImplicit(0, 0)).toBeLessThan(0);
+  });
+
+  it("increases diamond expansion metric from center toward the tips", () => {
+    const size = 25;
+    const center = (size - 1) / 2;
+    const topTip = diamondExpansionMetric(0, center, size);
+    const upperInner = diamondExpansionMetric(2, center, size);
+    const centerMetric = diamondExpansionMetric(center, center, size);
+
+    expect(centerMetric).toBe(0);
+    expect(topTip).toBeGreaterThan(upperInner);
+    expect(upperInner).toBeGreaterThan(centerMetric);
   });
 });

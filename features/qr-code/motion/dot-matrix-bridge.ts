@@ -120,12 +120,17 @@ export function toDotMatrixQrConfig(
     moduleColor: state.dataModulesSettings.color,
     positionCenterColor: state.finderPatternInnerSettings.color,
     positionRingColor: state.finderPatternOuterSettings.color,
-    preserveModuleFills: state.dotsColorMode !== "solid",
+    preserveModuleFills:
+      state.dotsColorMode !== "solid",
     respectReducedMotion: animation.respectReducedMotion,
     useExternalSvg: Boolean(adapted?.svg),
   };
 }
 
 export function shouldUseDotMatrixMotionPreview(state: QraftyState) {
-  return state.dotMatrixAnimation.enabled && state.dotMatrixAnimation.animated;
+  return (
+    state.dotMatrixAnimation.enabled &&
+    state.dotMatrixAnimation.animated &&
+    state.dotMatrixAnimation.presetCategory === "dotMatrix"
+  );
 }

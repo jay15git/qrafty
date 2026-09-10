@@ -10,11 +10,12 @@ import {
 import { AnimationPreset } from "./animations"
 
 describe("motion field", () => {
-  it("targets radial expand presets", () => {
+  it("targets only radial expand for the shared center field", () => {
     expect(shouldUseMotionFieldLayer(AnimationPreset.RadialExpand)).toBe(true)
+    expect(shouldUseMotionFieldLayer(AnimationPreset.DiamondExpand)).toBe(false)
+    expect(shouldUseMotionFieldLayer(AnimationPreset.EchoRing)).toBe(false)
     expect(shouldUseMotionFieldLayer(AnimationPreset.NeonDrift)).toBe(false)
     expect(shouldUseMotionFieldLayer(AnimationPreset.HeartExpand)).toBe(false)
-    expect(shouldUseMotionFieldLayer(AnimationPreset.FanRotate)).toBe(false)
   })
 
   it("keeps neighboring radii close in accent mix", () => {

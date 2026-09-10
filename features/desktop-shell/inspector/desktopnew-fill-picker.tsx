@@ -31,19 +31,31 @@ import {
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { PaletteColorBarPreview } from "@/features/desktop-shell/inspector/palette-color-bar-preview"
 import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette-color-stop-list"
+import { SettingsPaperShaderControls } from "@/features/desktop-shell/inspector/desktopnew-paper-shader-settings"
 import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-ui"
+import { PaperShaderOptionPreview } from "@/features/workspace/components/PaperShaderOptionPreview"
+import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
+import {
+  getAllPaperShaderDefinitions,
+  type PaperShaderId,
+} from "@/features/workspace/rendering/paper-shaders"
 import { cn } from "@/lib/utils"
 import { blobUrlToDataUrl } from "@qrafty/qr-internal/scene"
 import type { DotsColorMode } from "@/features/qr-code/model/state"
 
 const QR_GRADIENT_TYPES = ["linear", "radial"] as const
+const PREVIEW_TILE =
+  "dn-preview-tile dn-preview-tile-size group relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
+const PREVIEW_ROW = "dn-preview-row"
 
-type ModuleFillTabMode = "color" | "gradient" | "pattern" | "image"
+type ModuleFillTabMode = "color" | "gradient" | "pattern" | "image" | "shader"
 
 function moduleFillTabFromDotsColorMode(mode: DotsColorMode): ModuleFillTabMode {
   switch (mode) {
     case "image":
       return "image"
+    case "shader":
+      return "shader"
     case "palette":
       return "pattern"
     case "gradient":
@@ -59,6 +71,7 @@ export function DesktopNewFillPicker({
   className,
   modulePattern,
   moduleImage,
+  moduleShader,
   moduleFillMode,
   solidOnly = false,
   qrGradient = false,
@@ -80,6 +93,12 @@ export function DesktopNewFillPicker({
     imageUrl: string
     onUpload: (imageUrl: string) => void
     onClear: () => void
+  }
+  moduleShader?: {
+    paperShader: DraftingCardPaperShaderState
+    onTabActivate: () => void
+    onSelectShader: (shaderId: PaperShaderId) => void
+    onPaperShaderChange: (paperShader: DraftingCardPaperShaderState) => void
   }
 }) {
   // Snapshot on mount. Controlled CSS round-trips through formatGradient,
@@ -105,7 +124,14 @@ export function DesktopNewFillPicker({
   const theme = useContext(DesktopnewThemeContext)
 
   const handleValueChange = (fill: Fill, css: string) => {
-    if (moduleImage?.imageUrl && (activeMode === "image" || activeMode === "pattern")) {
+    if (
+      moduleImage?.imageUrl &&
+      (activeMode === "image" || activeMode === "pattern" || activeMode === "shader")
+    ) {
+      return
+    }
+
+    if (activeMode === "shader") {
       return
     }
 
@@ -150,7 +176,9 @@ export function DesktopNewFillPicker({
           items={
             modulePattern
               ? moduleImage
-                ? ["Solid", "Gradient", "Pattern", "Image"]
+                ? moduleShader
+                  ? ["Solid", "Gradient", "Pattern", "Image", "Shader"]
+                  : ["Solid", "Gradient", "Pattern", "Image"]
                 : ["Solid", "Gradient", "Pattern"]
               : ["Solid", "Gradient"]
           }
@@ -161,12 +189,18 @@ export function DesktopNewFillPicker({
                 ? "Gradient"
                 : activeMode === "image"
                   ? "Image"
-                  : "Pattern"
+                  : activeMode === "shader"
+                    ? "Shader"
+                    : "Pattern"
           }
           onChange={(item) => {
             if (item === "Solid") setActiveMode("color")
             else if (item === "Gradient") setActiveMode("gradient")
             else if (item === "Image") setActiveMode("image")
+            else if (item === "Shader") {
+              setActiveMode("shader")
+              moduleShader?.onTabActivate()
+            }
             else setActiveMode("pattern")
           }}
         />
@@ -175,6 +209,8 @@ export function DesktopNewFillPicker({
         <ModulePatternPicker {...modulePattern} />
       ) : !solidOnly && activeMode === "image" && moduleImage ? (
         <ModuleImagePicker {...moduleImage} />
+      ) : !solidOnly && activeMode === "shader" && moduleShader ? (
+        <ModuleShaderPicker {...moduleShader} />
       ) : (
         <>
           <FillPicker.Pane
@@ -255,6 +291,61 @@ function ModuleImagePicker({
         }
       }}
     />
+  )
+}
+
+function ModuleShaderPicker({
+  paperShader,
+  onSelectShader,
+  onPaperShaderChange,
+}: {
+  paperShader: DraftingCardPaperShaderState
+  onSelectShader: (shaderId: PaperShaderId) => void
+  onPaperShaderChange: (paperShader: DraftingCardPaperShaderState) => void
+}) {
+  const shaders = getAllPaperShaderDefinitions()
+
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-2.5">
+      <ScrollArea
+        className="w-full min-w-0 max-w-full overflow-hidden"
+        chevron={false}
+        cueSize="tight"
+        orientation="horizontal"
+        persistKey="module-shader-gallery"
+        scrollFade
+        showScrollbar={false}
+        viewportClassName="min-w-0"
+      >
+        <div className={PREVIEW_ROW}>
+          {shaders.map((option) => {
+            const isSelected = paperShader.shaderId === option.id
+
+            return (
+              <button
+                key={option.id}
+                aria-label={`Use ${option.label} shader`}
+                aria-pressed={isSelected}
+                className={cn(PREVIEW_TILE)}
+                title={option.label}
+                type="button"
+                onClick={() => onSelectShader(option.id)}
+              >
+                <PaperShaderOptionPreview
+                  className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
+                  isSelected={isSelected}
+                  shaderId={option.id}
+                />
+              </button>
+            )
+          })}
+        </div>
+      </ScrollArea>
+      <SettingsPaperShaderControls
+        paperShader={paperShader}
+        onPaperShaderChange={onPaperShaderChange}
+      />
+    </div>
   )
 }
 

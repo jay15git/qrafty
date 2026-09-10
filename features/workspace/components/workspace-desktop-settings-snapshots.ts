@@ -84,6 +84,7 @@ export type BuildDesktopToolbarSettingsSnapshotsInput = {
   selectedModuleFillImageUrl: string
   selectedModuleFillImageSourceMode: "upload" | "url"
   selectedModuleFillRemoteUrl: string
+  selectedModuleFillShader: QraftyState["moduleFillShader"]
   selectedDownloadExtension: string
   selectedDownloadTarget: DraftingDownloadTarget
   selectedExportMediaKind: DesktopExportSettings["mediaKind"]
@@ -148,6 +149,7 @@ export function buildDesktopToolbarSettingsSnapshots(
         ? input.selectedModuleFillRemoteUrl
         : input.selectedModuleFillImageUrl,
     moduleFillImageSourceMode: input.selectedModuleFillImageSourceMode,
+    moduleFillShader: structuredClone(input.selectedModuleFillShader),
     qrDotType: input.selectedDotType,
     moduleRoundSize: input.selectedModuleRoundSize,
     moduleSize: input.selectedModuleSize,

@@ -15,7 +15,10 @@ import {
 } from "react"
 
 import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
-import { getLivePaperShaderRenderOptions } from "@/features/workspace/preview/preview-shader-budget"
+import {
+  getLivePaperShaderRenderOptions,
+  getMotionShaderFillRenderOptions,
+} from "@/features/workspace/preview/preview-shader-budget"
 import { acquireRunningShaderSlot } from "@/features/workspace/preview/preview-shader-slots"
 import { usePreviewRuntime } from "@/features/workspace/preview/preview-context"
 import {
@@ -32,21 +35,29 @@ import {
   usePaperShaderWorldSize,
 } from "@qrafty/qr-internal/scene"
 
+const MOTION_SHADER_CAPTURE_BOOTSTRAP_FRAMES = 120
+
 type DraftingCardPaperShaderLayerProps = {
+  captureFrames?: boolean
   displayHeight?: number
   displayWidth?: number
+  ignoreVisibilityGate?: boolean
   layoutHeight?: number
   layoutWidth?: number
+  onFrame?: (dataUrl: string, sourceCanvas: HTMLCanvasElement) => boolean | void
   paperShader: DraftingCardPaperShaderState
 }
 
 type DraftingCardPaperShaderRendererProps = {
+  captureFrames?: boolean
   dataExportShader?: string
   dataSlot: string
+  ignoreVisibilityGate?: boolean
   layoutHeight?: number
   layoutWidth?: number
   mountGeneration: number
   onError: () => void
+  onFrame?: (dataUrl: string, sourceCanvas: HTMLCanvasElement) => boolean | void
   onPausedSnapshot: (dataUrl: string) => void
   onRecover: () => void
   paperShader: DraftingCardPaperShaderState
@@ -54,6 +65,13 @@ type DraftingCardPaperShaderRendererProps = {
   shouldAnimate: boolean
   shouldSnapshotWhenPaused: boolean
   style: CSSProperties
+}
+
+export function resolveShaderPlaybackVisible(
+  observedVisible: boolean,
+  ignoreVisibilityGate?: boolean,
+) {
+  return ignoreVisibilityGate ? true : observedVisible
 }
 
 type PaperShaderErrorBoundaryProps = {
@@ -207,12 +225,15 @@ function useShaderVisibility(hostRef: RefObject<HTMLDivElement | null>) {
 }
 
 function DraftingCardPaperShaderRenderer({
+  captureFrames = false,
   dataExportShader,
   dataSlot,
+  ignoreVisibilityGate,
   layoutHeight,
   layoutWidth,
   mountGeneration,
   onError,
+  onFrame,
   onPausedSnapshot,
   onRecover,
   paperShader,
@@ -225,7 +246,8 @@ function DraftingCardPaperShaderRenderer({
   const definition = getPaperShaderDefinition(paperShader.shaderId)
   const ShaderComponent = definition.component
   const worldSize = usePaperShaderWorldSize(layoutWidth, layoutHeight)
-  const isVisible = useShaderVisibility(hostRef)
+  const observedVisible = useShaderVisibility(hostRef)
+  const isVisible = resolveShaderPlaybackVisible(observedVisible, ignoreVisibilityGate)
   const releaseSlotRef = useRef<(() => void) | null>(null)
   const snapshotCapturedRef = useRef(false)
   const playbackSpeed = shouldAnimate && isVisible ? (paperShader.paused ? 0 : paperShader.speed) : 0
@@ -288,6 +310,60 @@ function DraftingCardPaperShaderRenderer({
     }
   }, [onPausedSnapshot, playbackSpeed, shouldSnapshotWhenPaused])
 
+  useEffect(() => {
+    if (!onFrame || !shouldAnimate) {
+      return
+    }
+
+    let active = true
+    let frameId = 0
+    let frames = 0
+    let hasSynced = false
+
+    const tick = () => {
+      if (!active) {
+        return
+      }
+
+      frames += 1
+      const host = hostRef.current
+      const canvas = host?.querySelector("canvas")
+
+      if (canvas instanceof HTMLCanvasElement) {
+        try {
+          const dataUrl = canvas.toDataURL("image/png")
+          if (onFrame(dataUrl, canvas) === true) {
+            hasSynced = true
+          }
+        } catch {
+          // Canvas may be tainted or not ready yet.
+        }
+      }
+
+      const keepPolling =
+        playbackSpeed > 0 ||
+        (captureFrames && !hasSynced && frames < MOTION_SHADER_CAPTURE_BOOTSTRAP_FRAMES)
+
+      if (keepPolling) {
+        frameId = requestAnimationFrame(tick)
+      }
+    }
+
+    frameId = requestAnimationFrame(tick)
+
+    return () => {
+      active = false
+      cancelAnimationFrame(frameId)
+    }
+  }, [
+    captureFrames,
+    mountGeneration,
+    onFrame,
+    paperShader.shaderId,
+    playbackSpeed,
+    shouldAnimate,
+  ])
+
   if (!shouldAnimate && releaseSlotRef.current === null) {
     // Paused shaders on mobile may be replaced by snapshots in the parent.
   }
@@ -320,10 +396,13 @@ function DraftingCardPaperShaderRenderer({
 }
 
 export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShaderLayer({
+  captureFrames = false,
   displayHeight,
   displayWidth,
+  ignoreVisibilityGate = false,
   layoutHeight,
   layoutWidth,
+  onFrame,
   paperShader,
 }: DraftingCardPaperShaderLayerProps) {
   const { preferLowPowerShaders } = usePreviewRuntime()
@@ -349,16 +428,21 @@ export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShade
   const hasPlayback = paperShaderHasPlayback(paperShader.shaderId)
   const isPaused =
     hasPlayback && (paperShader.paused || paperShader.speed === 0)
-  const shouldSnapshotWhenPaused = preferLowPowerShaders && isPaused
-  const shouldAnimate = !isPaused || !shouldSnapshotWhenPaused
+  const shouldSnapshotWhenPaused = preferLowPowerShaders && isPaused && !onFrame
+  const shouldAnimate = onFrame ? true : !isPaused || !shouldSnapshotWhenPaused
   const renderOptions = useMemo(
     () =>
-      getLivePaperShaderRenderOptions({
-        displayHeight,
-        displayWidth,
-        preferLowPower: preferLowPowerShaders,
-      }),
-    [displayHeight, displayWidth, preferLowPowerShaders],
+      captureFrames
+        ? getMotionShaderFillRenderOptions({
+            displayHeight,
+            displayWidth,
+          })
+        : getLivePaperShaderRenderOptions({
+            displayHeight,
+            displayWidth,
+            preferLowPower: preferLowPowerShaders,
+          }),
+    [captureFrames, displayHeight, displayWidth, preferLowPowerShaders],
   )
   const onError = useCallback(() => {
     setShaderErrorId(paperShader.shaderId)
@@ -398,12 +482,15 @@ export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShade
   return (
     <DraftingCardPaperShaderRenderer
       key={`${shaderMountKey}:${recoverEpoch}`}
+      captureFrames={captureFrames}
       dataSlot="desktop-compose-card-paper-shader"
       dataExportShader={paperShader.shaderId}
+      ignoreVisibilityGate={ignoreVisibilityGate}
       layoutHeight={layoutHeight}
       layoutWidth={layoutWidth}
       mountGeneration={recoverEpoch}
       onError={onError}
+      onFrame={onFrame}
       onPausedSnapshot={setPausedSnapshotUrl}
       onRecover={onRecover}
       paperShader={paperShader}
@@ -426,4 +513,7 @@ export const DraftingCardPaperShaderLayer = memo(function DraftingCardPaperShade
   previous.layoutWidth === next.layoutWidth &&
   previous.layoutHeight === next.layoutHeight &&
   previous.displayWidth === next.displayWidth &&
-  previous.displayHeight === next.displayHeight)
+  previous.displayHeight === next.displayHeight &&
+  previous.captureFrames === next.captureFrames &&
+  previous.ignoreVisibilityGate === next.ignoreVisibilityGate &&
+  previous.onFrame === next.onFrame)

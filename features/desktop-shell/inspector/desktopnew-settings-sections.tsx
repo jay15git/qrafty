@@ -51,6 +51,8 @@ import {
   applyLogoFill,
   applyPatternModuleFill,
   applyPatternModuleImageUrl,
+  applyPatternModuleShader,
+  applyPatternModuleShaderState,
   applyCardFill,
   applyShapeFill,
   isPatternModuleImageFill,
@@ -491,6 +493,17 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
                     onPatternSettingsChange(applyPatternModuleImageUrl("", "upload")),
                 }}
                 qrGradient
+                moduleShader={{
+                  paperShader: actualPatternSettings.moduleFillShader,
+                  onTabActivate: () =>
+                    onPatternSettingsChange(
+                      applyPatternModuleShaderState(actualPatternSettings.moduleFillShader),
+                    ),
+                  onSelectShader: (shaderId) =>
+                    onPatternSettingsChange(applyPatternModuleShader(shaderId)),
+                  onPaperShaderChange: (paperShader) =>
+                    onPatternSettingsChange(applyPatternModuleShaderState(paperShader)),
+                }}
                 modulePattern={{
                   selectedPalette: actualPatternSettings.dotsPalette,
                   selectedPreset: actualPatternSettings.dotsPalettePreset,
@@ -648,10 +661,7 @@ export function SceneSection({ model }: { model: DesktopInspectorModel }) {
 
 export function MotionSection({ model }: { model: DesktopInspectorModel }) {
   const { actualMotionSettings, onMotionSettingsChange } = model
-  const loader =
-    actualMotionSettings.presetCategory === "dotMatrix"
-      ? actualMotionSettings.loader
-      : ("neon-drift" satisfies QrDotMatrixSquareLoader)
+  const loader = actualMotionSettings.loader
   const usesPeakColor = !isScaleOnlyDotMatrixLoader(loader)
 
   return (

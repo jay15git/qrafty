@@ -54,35 +54,6 @@ describe("matrix animation parity", () => {
     });
   });
 
-  describe("OriginWave", () => {
-    it("matches upstream css-blend keyframes at idle and peak", () => {
-      const idle = resolveDotMatrixKeyframeOpacity(
-        { cssBlend: { base: 1, mid: 0, peak: 0 }, offset: 0 },
-        defaultOpacitySettings,
-      );
-      const peak = resolveDotMatrixKeyframeOpacity(
-        { cssBlend: { base: 0, mid: 0, peak: 1 }, offset: 0.34 },
-        defaultOpacitySettings,
-      );
-      const mid = resolveDotMatrixKeyframeOpacity(
-        { cssBlend: { base: 0.5, mid: 0.5, peak: 0 }, offset: 0.6 },
-        defaultOpacitySettings,
-      );
-
-      expect(idle).toBeCloseTo(1, 5);
-      expect(peak).toBeCloseTo(1, 5);
-      expect(mid).toBeCloseTo(0.825, 5);
-    });
-
-    it("staggers rings with interpolated origin distance", () => {
-      const preset = getAnimationPreset(AnimationPreset.OriginWave);
-      const origin = preset({}, 20, 20, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const outer = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
-
-      expect(origin.from).toBeGreaterThan(outer.from ?? 0);
-    });
-  });
-
   describe("RadialExpand", () => {
     it("staggers by euclidean radius from center", () => {
       const preset = getAnimationPreset(AnimationPreset.RadialExpand);
@@ -135,78 +106,14 @@ describe("matrix animation parity", () => {
     });
   });
 
-  describe("FanRotate", () => {
-    it("maps one sinusoidal field to both dot size and alpha", () => {
-      const preset = getAnimationPreset(AnimationPreset.FanRotate);
-      const animation = preset({}, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const from = typeof animation.from === "number" ? animation.from : 0;
-      const trough = sampleDotMatrixAnimationFrame(animation, from + 875);
-      const peak = sampleDotMatrixAnimationFrame(animation, from + 2625);
-
-      expect(trough.scale).toBeCloseTo(0.3, 3);
-      expect(peak.scale).toBeCloseTo(0.95, 3);
-      expect(trough.opacityMultiplier).toBeCloseTo(0.5, 3);
-      expect(peak.opacityMultiplier).toBeCloseTo(1, 3);
-    });
-  });
-
-  describe("Tunnel", () => {
-    it("rings expand from radius with size and alpha on one field", () => {
-      const preset = getAnimationPreset(AnimationPreset.Tunnel);
-      const animation = preset({}, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const from = typeof animation.from === "number" ? animation.from : 0;
-      const trough = sampleDotMatrixAnimationFrame(animation, from + 450);
-      const peak = sampleDotMatrixAnimationFrame(animation, from + 1350);
-
-      expect(trough.scale).toBeCloseTo(0.3, 2);
-      expect(peak.scale).toBeCloseTo(0.9, 2);
-      expect(trough.opacityMultiplier).toBeCloseTo(0.34, 2);
-      expect(peak.opacityMultiplier).toBeCloseTo(0.9, 2);
-    });
-  });
-
-  describe("Wave", () => {
-    it("sharpens a diagonal sine into a traveling pulse", () => {
-      const preset = getAnimationPreset(AnimationPreset.Wave);
-      const animation = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const from = typeof animation.from === "number" ? animation.from : 0;
-      const trough = sampleDotMatrixAnimationFrame(animation, from + 875);
-      const peak = sampleDotMatrixAnimationFrame(animation, from + 2625);
-
-      expect(trough.scale).toBeCloseTo(0.34, 2);
-      expect(peak.scale).toBeCloseTo(0.9, 2);
-      expect(peak.scale ?? 0).toBeGreaterThan(trough.scale ?? 0);
-    });
-  });
-
-  describe("Scan", () => {
-    it("rests small, sends a growing wave down the rows, then breathes up and down in sync", () => {
-      const preset = getAnimationPreset(AnimationPreset.Scan);
-      const top = preset({}, 0, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const bottom = preset({}, 20, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const cycleMs = typeof top.duration === "number" ? top.duration : 3500;
-
-      const topRest = sampleDotMatrixAnimationFrame(top, 200);
-      const topPeak = sampleDotMatrixAnimationFrame(top, 1900);
-      const bottomPeak = sampleDotMatrixAnimationFrame(bottom, 1900);
-      const finaleUp = sampleDotMatrixAnimationFrame(top, cycleMs * 0.8);
-      const finaleUpBottom = sampleDotMatrixAnimationFrame(bottom, cycleMs * 0.8);
-
-      expect(topRest.scale).toBeCloseTo(0.34, 2);
-      expect(topPeak.scale ?? 0).toBeGreaterThan(0.8);
-      expect(bottomPeak.scale ?? 0).toBeGreaterThan(topRest.scale ?? 0);
-      expect(finaleUp.scale).toBeCloseTo(finaleUpBottom.scale ?? 0, 2);
-      expect(finaleUp.scale ?? 0).toBeGreaterThan(0.8);
-    });
-  });
-
   describe("DiamondExpand", () => {
-    it("staggers by manhattan diamond distance from center", () => {
+    it("staggers outward across the diamond contour like heart and star", () => {
       const preset = getAnimationPreset(AnimationPreset.DiamondExpand);
       const center = preset({}, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const corner = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const tip = preset({}, 0, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
 
-      expect(corner.from).toBeGreaterThan(center.from ?? 0);
+      expect(center.from).toBe(0);
+      expect(tip.from).toBeGreaterThan(center.from ?? 0);
     });
   });
 

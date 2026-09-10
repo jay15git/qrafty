@@ -19,12 +19,15 @@ import {
   clampQrSize,
   getAssetValue,
   hasActiveBackgroundShapeOptions,
+  shouldUseModuleShaderFill,
   type QrDotMatrixAnimationOptions,
   type QrDotMatrixSquareLoader,
   type QraftyState,
   type QraftyGradient,
 } from "@/features/qr-code/model/state"
 import {
+  diamondExpansionMetric,
+  diamondMaxExpansionMetric,
   heartExpansionMetric,
   heartMaxExpansionMetric,
   starExpansionMetric,
@@ -33,7 +36,14 @@ import {
 import {
   resolveMotionColors,
 } from "@/features/qr-code/motion/motion-color"
+import {
+  MODULE_SHADER_FILL_IMAGE_ID,
+  MODULE_SHADER_FILL_LAYER,
+  MODULE_SHADER_SOURCE_LAYER,
+  solidColorImageDataUrl,
+} from "@/features/qr-code/motion/module-shader-fill"
 import { getBackgroundShapeSkewTransform } from "@/features/workspace/rendering/layer-transform"
+import { readPaperShaderFallbackColor } from "@/features/workspace/rendering/paper-shader-runtime"
 import {
   getQraftyGradientCenter,
   qraftyRadialCenterInUserSpace,
@@ -96,6 +106,7 @@ export function buildQrExtension(state: QraftyState) {
 
   const unifiedModuleImage =
     state.dotsColorMode === "image" && Boolean(getAssetValue(state.moduleFillImage))
+  const unifiedModuleShader = shouldUseModuleShaderFill(state)
 
   if (state.dotsColorMode === "gradient" && !unifiedModuleGradient) {
     extensions.push(createDotsGradientExtension(state))
@@ -105,7 +116,9 @@ export function buildQrExtension(state: QraftyState) {
     extensions.push(createDotsPaletteExtension(state))
   }
 
-  if (unifiedModuleImage) {
+  if (unifiedModuleShader) {
+    extensions.push(createUnifiedShaderExtension(state))
+  } else if (unifiedModuleImage) {
     extensions.push(createUnifiedImageExtension(state))
   } else if (unifiedModuleGradient) {
     extensions.push(createUnifiedGradientExtension(state))
@@ -155,7 +168,7 @@ export function buildQrExtension(state: QraftyState) {
 
 export function getQrExtensionKey(state: QraftyState) {
   return JSON.stringify({
-    animation: null,
+    moduleFillShader: shouldUseModuleShaderFill(state) ? state.moduleFillShader : null,
     backgroundImage: getAssetValue(state.backgroundImage),
     backgroundRound: state.backgroundOptions.round,
     backgroundShapeGradient: getBackgroundShapeGradientKey(state),
@@ -1378,26 +1391,13 @@ function getDotMatrixOverlayScale(animation: QrDotMatrixAnimationOptions) {
 type DotMatrixSquareLoaderId =
   | "dotm-square-1"
   | "dotm-square-6"
-  | "dotm-square-11"
-  | "dotm-square-12"
   | "dotm-square-21"
   | "dotm-square-23"
-  | "dotm-square-25"
   | "dotm-square-26"
   | "dotm-square-28"
   | "dotm-square-30"
-  | "dotm-square-33"
-  | "dotm-square-34"
-  | "dotm-square-35"
-  | "dotm-square-36"
 
 const DOT_MATRIX_LOADER_SPECS: Record<QrDotMatrixSquareLoader, DotMatrixLoaderSpec> = {
-  "echo-ring": createDotMatrixLoaderSpec("dotm-square-11", "ripple-echo", (cell) =>
-    createClassCellAnimation("dotm-square-11", "ripple-echo", "dmx-ripple-echo", "dmx-ripple-echo", 1500, {
-      "--dmx-ripple-ring": Math.max(Math.abs(cell.col - getDotMatrixCenter(cell.matrixSize)), Math.abs(cell.row - getDotMatrixCenter(cell.matrixSize))),
-      "--dmx-ripple-parity": (cell.row + cell.col) % 2,
-    }),
-  ),
   "flux-columns": createDotMatrixLoaderSpec("dotm-square-6", "column-snake", (cell) =>
     createClassCellAnimation("dotm-square-6", "column-snake", "dmx-square6-col-snake", "dmx-square6-col-snake", 1500, {
       "--dmx-col-pos": cell.col % 2 === 0 ? cell.matrixSize - 1 - cell.row : cell.row,
@@ -1409,39 +1409,14 @@ const DOT_MATRIX_LOADER_SPECS: Record<QrDotMatrixSquareLoader, DotMatrixLoaderSp
       "--dmx-path": trBlPathNormFromIndex(cell),
     }),
   ),
-  "origin-wave": createDotMatrixLoaderSpec("dotm-square-12", "center-origin-ripple", (cell) =>
-    createClassCellAnimation("dotm-square-12", "center-origin-ripple", "dmx-center-origin-ripple", "dmx-center-origin-ripple", 1500, {
-      "--dmx-center-ripple-ring": Math.abs(cell.row - getDotMatrixCenter(cell.matrixSize)) + Math.abs(cell.col - getDotMatrixCenter(cell.matrixSize)),
-    }),
-  ),
   "radial-expand": createDotMatrixLoaderSpec("dotm-square-21", "radial-expand", (cell) =>
     createClassCellAnimation("dotm-square-21", "radial-expand", "dmx-radial-expand", "dmx-radial-expand", 1500, {
       "--dmx-radial-radius": radialDistanceFromCenter(cell),
     }),
   ),
-  "fan-rotate": createDotMatrixLoaderSpec("dotm-square-33", "fan-rotate", (cell) =>
-    createClassCellAnimation("dotm-square-33", "fan-rotate", "dmx-fan-rotate", "dmx-fan-rotate", 3500, {
-      "--dmx-fan-phase": fanFieldPhase(cell),
-    }, "linear"),
-  ),
-  "tunnel": createDotMatrixLoaderSpec("dotm-square-34", "tunnel", (cell) =>
-    createClassCellAnimation("dotm-square-34", "tunnel", "dmx-tunnel", "dmx-tunnel", 1800, {
-      "--dmx-tunnel-phase": tunnelFieldPhase(cell),
-    }, "linear"),
-  ),
-  "wave": createDotMatrixLoaderSpec("dotm-square-35", "wave", (cell) =>
-    createClassCellAnimation("dotm-square-35", "wave", "dmx-wave", "dmx-wave", 3500, {
-      "--dmx-wave-field-phase": waveFieldPhase(cell),
-    }, "linear"),
-  ),
-  "scan": createDotMatrixLoaderSpec("dotm-square-36", "scan", (cell) =>
-    createClassCellAnimation("dotm-square-36", "scan", "dmx-scan", "dmx-scan", 3500, {
-      "--dmx-scan-phase": scanFieldPhase(cell),
-    }, "linear"),
-  ),
   "diamond-expand": createDotMatrixLoaderSpec("dotm-square-23", "diamond-expand", (cell) =>
     createClassCellAnimation("dotm-square-23", "diamond-expand", "dmx-diamond-expand", "dmx-diamond-expand", 1500, {
-      "--dmx-diamond-radius": diamondDistanceFromCenter(cell),
+      "--dmx-diamond-progress": getShapeExpansionProgress(cell, diamondExpansionMetric, diamondMaxExpansionMetric),
     }),
   ),
   "heart-expand": createDotMatrixLoaderSpec("dotm-square-28", "heart-expand", (cell) =>
@@ -1452,11 +1427,6 @@ const DOT_MATRIX_LOADER_SPECS: Record<QrDotMatrixSquareLoader, DotMatrixLoaderSp
   "star-expand": createDotMatrixLoaderSpec("dotm-square-30", "star-expand", (cell) =>
     createClassCellAnimation("dotm-square-30", "star-expand", "dmx-star-expand", "dmx-star-expand", 1500, {
       "--dmx-star-progress": getShapeExpansionProgress(cell, starExpansionMetric, starMaxExpansionMetric),
-    }),
-  ),
-  "cross-bloom": createDotMatrixLoaderSpec("dotm-square-25", "cross-bloom", (cell) =>
-    createClassCellAnimation("dotm-square-25", "cross-bloom", "dmx-cross-bloom", "dmx-cross-bloom", 1500, {
-      "--dmx-cross-distance": crossBloomDistance(cell),
     }),
   ),
   "chevron-sweep": createDotMatrixLoaderSpec("dotm-square-26", "chevron-sweep", (cell) =>
@@ -1672,57 +1642,6 @@ function radialDistanceFromCenter(cell: DotMatrixCell) {
   return Math.hypot(cell.row - center, cell.col - center)
 }
 
-function fanFieldPhase(cell: DotMatrixCell) {
-  const center = getDotMatrixCenter(cell.matrixSize)
-  const normalizedRadius =
-    Math.hypot(cell.row - center, cell.col - center) /
-    Math.max(1, Math.hypot(center, center))
-  const angle = Math.atan2(cell.row - center, cell.col - center)
-  const phase = (angle * 4 + normalizedRadius * 8) / (Math.PI * 2)
-  return phase - Math.floor(phase)
-}
-
-function wrapUnitPhase(value: number) {
-  return value - Math.floor(value)
-}
-
-function tunnelFieldPhase(cell: DotMatrixCell) {
-  const center = getDotMatrixCenter(cell.matrixSize)
-  const normalizedRadius =
-    Math.hypot(cell.row - center, cell.col - center) /
-    Math.max(1, Math.hypot(center, center))
-  return wrapUnitPhase((normalizedRadius * 16) / (Math.PI * 2))
-}
-
-function waveFieldPhase(cell: DotMatrixCell) {
-  const diagonal = (cell.row + cell.col) / Math.max(1, (cell.matrixSize - 1) * 2)
-  return wrapUnitPhase((diagonal * 6) / (Math.PI * 2))
-}
-
-function scanFieldPhase(cell: DotMatrixCell) {
-  return cell.matrixSize > 1 ? cell.row / (cell.matrixSize - 1) : 0
-}
-
-function normalizedRadiusFromCenter(cell: DotMatrixCell) {
-  const center = getDotMatrixCenter(cell.matrixSize)
-  const maxRadius = Math.hypot(center, center)
-  const radius = Math.hypot(cell.row - center, cell.col - center)
-  return maxRadius > 0 ? Math.max(0, Math.min(1, radius / maxRadius)) : 0
-}
-
-function dotMotionScaleVars(cell: DotMatrixCell) {
-  const inward = 1 - normalizedRadiusFromCenter(cell)
-  return {
-    "--dmx-dot-rest-scale": 0.4 + inward * 0.2,
-    "--dmx-dot-peak-scale": 1.1 + inward * 0.45,
-  }
-}
-
-function diamondDistanceFromCenter(cell: DotMatrixCell) {
-  const center = getDotMatrixCenter(cell.matrixSize)
-  return Math.abs(cell.row - center) + Math.abs(cell.col - center)
-}
-
 function getShapeExpansionProgress(
   cell: DotMatrixCell,
   metricAt: (row: number, col: number, matrixSize: number) => number,
@@ -1730,11 +1649,6 @@ function getShapeExpansionProgress(
 ) {
   const maxMetric = maxMetricAt(cell.matrixSize)
   return maxMetric > 0 ? metricAt(cell.row, cell.col, cell.matrixSize) / maxMetric : 0
-}
-
-function crossBloomDistance(cell: DotMatrixCell) {
-  const center = getDotMatrixCenter(cell.matrixSize)
-  return Math.max(Math.abs(cell.row - center), Math.abs(cell.col - center))
 }
 
 function chevronDistance(cell: DotMatrixCell) {
@@ -2016,32 +1930,18 @@ function createDotMatrixAnimationStyle(document: Document, tracks: DotMatrixTrac
 }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-diagonal-alt-sweep"] { animation-delay: calc((var(--dmx-path, 0) + var(--dmx-diagonal-parity, 0) * .08) * -1.5s * var(--qr-dot-speed-multiplier, 1)); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-square6-col-snake"] { animation-delay: calc(var(--dmx-col-pos, 0) * -110ms * var(--qr-dot-speed-multiplier, 1)); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-ripple-echo"] { animation-delay: calc(var(--dmx-ripple-ring, 0) * -120ms * var(--qr-dot-speed-multiplier, 1)); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-center-origin-ripple"] { animation-delay: calc(var(--dmx-center-ripple-ring, 0) * -120ms * var(--qr-dot-speed-multiplier, 1)); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-radial-expand"] { animation-delay: calc(var(--dmx-radial-radius, 0) * -120ms * var(--qr-dot-speed-multiplier, 1)); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-fan-rotate"] { animation-delay: calc(var(--dmx-fan-phase, 0) * -3500ms * var(--qr-dot-speed-multiplier, 1)); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-tunnel"] { animation-delay: calc(var(--dmx-tunnel-phase, 0) * -1800ms * var(--qr-dot-speed-multiplier, 1)); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-wave"] { animation-delay: calc(var(--dmx-wave-field-phase, 0) * -3500ms * var(--qr-dot-speed-multiplier, 1)); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-scan"] { animation-delay: calc(var(--dmx-scan-phase, 0) * -3500ms * var(--qr-dot-speed-multiplier, 1)); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-diamond-expand"] { animation-delay: calc(var(--dmx-diamond-radius, 0) * -120ms * var(--qr-dot-speed-multiplier, 1)); }
+.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-diamond-expand"] { animation-delay: calc(var(--dmx-diamond-progress, 0) * -630ms * var(--qr-dot-speed-multiplier, 1)); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-heart-expand"] { animation-delay: calc(var(--dmx-heart-progress, 0) * -630ms * var(--qr-dot-speed-multiplier, 1)); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-star-expand"] { animation-delay: calc(var(--dmx-star-progress, 0) * -630ms * var(--qr-dot-speed-multiplier, 1)); }
-.qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-cross-bloom"] { animation-delay: calc(var(--dmx-cross-distance, 0) * -140ms * var(--qr-dot-speed-multiplier, 1)); }
 .qr-dot-matrix-track[data-qr-dot-upstream-class="dmx-chevron-sweep"] { animation-delay: calc(var(--dmx-chevron-distance, 0) * -110ms * var(--qr-dot-speed-multiplier, 1)); }
 @keyframes qr-dot-loader-legacy { 0%, 100% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); } 50% { opacity: var(--qr-dot-matrix-opacity-peak); fill: var(--qr-dot-matrix-color-peak); } }
 @keyframes dmx-diagonal-alt-sweep { ${SOFT_COLOR_WAVE_KEYFRAME_BODY} }
 @keyframes dmx-square6-col-snake { ${SOFT_COLOR_WAVE_KEYFRAME_BODY} }
-@keyframes dmx-ripple-echo { ${SOFT_ECHO_WAVE_KEYFRAME_BODY} }
-@keyframes dmx-center-origin-ripple { ${SOFT_ECHO_WAVE_KEYFRAME_BODY} }
 @keyframes dmx-radial-expand { ${SOFT_ECHO_WAVE_KEYFRAME_BODY} }
-@keyframes dmx-fan-rotate { 0%, 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .75); fill: var(--qr-dot-matrix-color-base); transform: scale(.625); } 12.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .5732); fill: var(--qr-dot-matrix-color-base); transform: scale(.3952); } 25% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .5); fill: var(--qr-dot-matrix-color-base); transform: scale(.3); } 37.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .5732); fill: var(--qr-dot-matrix-color-base); transform: scale(.3952); } 50% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .75); fill: var(--qr-dot-matrix-color-base); transform: scale(.625); } 62.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9268); fill: var(--qr-dot-matrix-color-base); transform: scale(.8548); } 75% { opacity: var(--qr-dot-matrix-opacity-base); fill: var(--qr-dot-matrix-color-base); transform: scale(.95); } 87.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9268); fill: var(--qr-dot-matrix-color-base); transform: scale(.8548); } }
-@keyframes dmx-tunnel { 0%, 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .62); fill: var(--qr-dot-matrix-color-base); transform: scale(.6); } 12.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .422); fill: var(--qr-dot-matrix-color-base); transform: scale(.388); } 25% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.3); } 37.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .422); fill: var(--qr-dot-matrix-color-base); transform: scale(.388); } 50% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .62); fill: var(--qr-dot-matrix-color-base); transform: scale(.6); } 62.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .818); fill: var(--qr-dot-matrix-color-base); transform: scale(.812); } 75% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9); fill: var(--qr-dot-matrix-color-base); transform: scale(.9); } 87.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .818); fill: var(--qr-dot-matrix-color-base); transform: scale(.812); } }
-@keyframes dmx-wave { 0%, 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .41); fill: var(--qr-dot-matrix-color-base); transform: scale(.41); } 12.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .342); fill: var(--qr-dot-matrix-color-base); transform: scale(.342); } 25% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.34); } 37.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .342); fill: var(--qr-dot-matrix-color-base); transform: scale(.342); } 50% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .41); fill: var(--qr-dot-matrix-color-base); transform: scale(.41); } 62.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .688); fill: var(--qr-dot-matrix-color-base); transform: scale(.688); } 75% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9); fill: var(--qr-dot-matrix-color-base); transform: scale(.9); } 87.5% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .688); fill: var(--qr-dot-matrix-color-base); transform: scale(.688); } }
-@keyframes dmx-scan { 0%, 9% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .41); fill: var(--qr-dot-matrix-color-base); transform: scale(.41); } 18% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.34); } 27% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .342); fill: var(--qr-dot-matrix-color-base); transform: scale(.342); } 36% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .41); fill: var(--qr-dot-matrix-color-base); transform: scale(.41); } 45% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .688); fill: var(--qr-dot-matrix-color-base); transform: scale(.688); } 54% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9); fill: var(--qr-dot-matrix-color-base); transform: scale(.9); } 63% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .688); fill: var(--qr-dot-matrix-color-base); transform: scale(.688); } 72%, 75% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.34); } 85% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .9); fill: var(--qr-dot-matrix-color-base); transform: scale(.9); } 100% { opacity: calc(var(--qr-dot-matrix-opacity-base) * .34); fill: var(--qr-dot-matrix-color-base); transform: scale(.34); } }
 @keyframes dmx-diamond-expand { ${SOFT_ECHO_WAVE_KEYFRAME_BODY} }
 @keyframes dmx-heart-expand { ${SOFT_ECHO_WAVE_KEYFRAME_BODY} }
 @keyframes dmx-star-expand { ${SOFT_ECHO_WAVE_KEYFRAME_BODY} }
-@keyframes dmx-cross-bloom { ${SOFT_COLOR_WAVE_KEYFRAME_BODY} }
 @keyframes dmx-chevron-sweep { ${SOFT_COLOR_WAVE_KEYFRAME_BODY} }
 ${generatedKeyframes}
 @media (prefers-reduced-motion: reduce) {
@@ -2067,6 +1967,63 @@ function findDotMatrixLayerAnchor(svg: SVGElement) {
   }) ?? null
 }
 
+function collectModuleUnifiedFillTargets(svg: SVGElement) {
+  const dotClipLayers = getQrModuleClipLayers(svg)
+  const dotPathLayers = getQrModulePathLayers(svg)
+  const modulePaintTargets = [
+    ...dotClipLayers.map((layer) => layer.element),
+    ...dotPathLayers.map((layer) => layer.element),
+  ]
+  const moduleClipShapes = [
+    ...dotClipLayers.flatMap((layer) => layer.shapes),
+    ...dotPathLayers.flatMap((layer) => layer.shapes),
+  ]
+
+  const dataModules = svg.querySelector('[data-testid="data-modules"]')
+
+  if (modulePaintTargets.length === 0 && isSvgElementLike(dataModules)) {
+    modulePaintTargets.push(dataModules)
+  }
+
+  if (moduleClipShapes.length === 0 && isSvgElementLike(dataModules)) {
+    const pathData = dataModules.getAttribute("d")
+    const document = svg.ownerDocument
+
+    if (pathData && document) {
+      const fallbackShape = document.createElementNS(SVG_NS, "path")
+      fallbackShape.setAttribute("d", pathData)
+      moduleClipShapes.push(fallbackShape)
+    }
+  }
+
+  return { moduleClipShapes, modulePaintTargets }
+}
+
+function createUnifiedShaderExtension(
+  state: Pick<QraftyState, "margin" | "moduleFillShader">,
+): QrSvgExtensionFunction {
+  return (svg) => {
+    removeLegacyDotGradientOverlay(svg)
+
+    const { moduleClipShapes, modulePaintTargets } = collectModuleUnifiedFillTargets(svg)
+
+    const placeholder = solidColorImageDataUrl(
+      readPaperShaderFallbackColor(state.moduleFillShader),
+    )
+
+    applyUnifiedQrImageFill(svg, {
+      hidePaintTargets: false,
+      imageHref: placeholder,
+      imageId: MODULE_SHADER_FILL_IMAGE_ID,
+      imageLayer: MODULE_SHADER_FILL_LAYER,
+      margin: state.margin,
+      moduleClipShapes,
+      modulePaintTargets,
+      sourceLayer: MODULE_SHADER_SOURCE_LAYER,
+    })
+  }
+}
+
 function createUnifiedImageExtension(
   state: Pick<QraftyState, "dotsColorMode" | "margin" | "moduleFillImage">,
 ): QrSvgExtensionFunction {
@@ -2079,26 +2036,14 @@ function createUnifiedImageExtension(
       return
     }
 
-    const dotClipLayers = getQrModuleClipLayers(svg)
-    const dotPathLayers = getQrModulePathLayers(svg)
-    const modulePaintTargets = [
-      ...dotClipLayers.map((layer) => layer.element),
-      ...dotPathLayers.map((layer) => layer.element),
-    ]
-
-    if (modulePaintTargets.length === 0) {
-      const dataModules = svg.querySelector('[data-testid="data-modules"]')
-
-      if (isSvgElementLike(dataModules)) {
-        modulePaintTargets.push(dataModules)
-      }
-    }
+    const { moduleClipShapes, modulePaintTargets } = collectModuleUnifiedFillTargets(svg)
 
     applyUnifiedQrImageFill(svg, {
       imageHref,
       imageId: "unified-image-definition",
       imageLayer: "unified-image-definition",
       margin: state.margin,
+      moduleClipShapes,
       modulePaintTargets,
     })
   }

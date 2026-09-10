@@ -1,6 +1,7 @@
 import {
   getAssetValue,
   hasActiveBackgroundShapeOptions,
+  shouldUseModuleShaderFill,
   type QraftyState,
 } from "@/features/qr-code/model/state"
 import type {
@@ -142,6 +143,8 @@ export function toQraftyQrConfig(state: QraftyState): QraftyQrCodeProps {
   const unifiedGradient =
     state.gradientLinkMode === "unified" && state.dotsColorMode === "gradient"
   const unifiedImage = state.dotsColorMode === "image" && Boolean(mapModuleFillImage(state))
+  const unifiedShader = shouldUseModuleShaderFill(state)
+  const unifiedFill = unifiedGradient || unifiedImage || unifiedShader
 
   return {
     ...(state.ariaLabel ? { ariaLabel: state.ariaLabel } : {}),
@@ -153,19 +156,19 @@ export function toQraftyQrConfig(state: QraftyState): QraftyQrCodeProps {
     finderOuter: state.finderPatternOuterSettings.type as QrFinderOuterStyle,
     finderInnerColor: state.finderPatternInnerSettings.color,
     finderOuterColor: state.finderPatternOuterSettings.color,
-    finderInnerGradient: unifiedGradient
+    finderInnerGradient: unifiedFill
       ? "none"
       : mapQraftyGradient(
           state.finderPatternInnerGradient,
           state.finderPatternInnerGradient.enabled,
         ),
-    finderOuterGradient: unifiedGradient
+    finderOuterGradient: unifiedFill
       ? "none"
       : mapQraftyGradient(
           state.finderPatternOuterGradient,
           state.finderPatternOuterGradient.enabled,
         ),
-    foreground: state.dataModulesSettings.color,
+    foreground: unifiedFill ? undefined : state.dataModulesSettings.color,
     gradient: mapGradient(state),
     level: state.qrOptions.errorCorrectionLevel,
     margin: state.margin,

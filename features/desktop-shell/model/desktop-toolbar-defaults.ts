@@ -192,6 +192,7 @@ export const DEFAULT_DESKTOP_PATTERN_SETTINGS: DesktopPatternSettings = {
   dotsPalette: DEFAULT_DESKTOP_DOTS_PALETTE,
   dotsPalettePreset: "Signal",
   dotsSolidColor: "#18181b",
+  moduleFillShader: createDefaultDraftingCardPaperShader("mesh-gradient"),
   moduleFillImageUrl: "",
   moduleFillImageSourceMode: "upload",
   qrDotType: "rounded",

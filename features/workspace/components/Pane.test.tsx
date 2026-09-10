@@ -1825,10 +1825,10 @@ describe("Pane", () => {
     await act(async () => {
       reactRoot.render(
         <Pane
-          state={setDotMatrixAnimationOptions(motionState, { loader: "echo-ring" })}
+          state={setDotMatrixAnimationOptions(motionState, { loader: "radial-expand" })}
           cardState={createDefaultDraftingCardState()}
           qrStateByLayerId={createDefaultPaneQrStateByLayerId(
-            setDotMatrixAnimationOptions(motionState, { loader: "echo-ring" }),
+            setDotMatrixAnimationOptions(motionState, { loader: "radial-expand" }),
           )}
           isSelected={false}
           onQrClick={() => undefined}

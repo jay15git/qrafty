@@ -70,7 +70,11 @@ describe("shape reveal sampling", () => {
     const size = 21;
     const center = (size - 1) / 2;
 
-    for (const preset of [AnimationPreset.HeartExpand, AnimationPreset.StarExpand]) {
+    for (const preset of [
+      AnimationPreset.DiamondExpand,
+      AnimationPreset.HeartExpand,
+      AnimationPreset.StarExpand,
+    ]) {
       const animation = getAnimationPreset(preset);
       const centerWave = animation({} as HTMLElement, center, center, size, QRCodeEntity.Module);
       const outerWave = animation({} as HTMLElement, center, 0, size, QRCodeEntity.Module);

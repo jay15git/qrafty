@@ -94,7 +94,8 @@ export function qraftyPropsToReactQrProps(props: QraftyQrCodeProps): ReactQRCode
   const unifiedImage =
     (props.gradientMode === "unified-image" || props.colorMode === "image") &&
     Boolean(props.moduleFillImage)
-  const unifiedFill = unifiedGradient || unifiedImage
+  const unifiedShader = props.colorMode === "shader"
+  const unifiedFill = unifiedGradient || unifiedImage || unifiedShader
 
   const dotsColor =
     !unifiedFill && (props.colorMode === "solid" || !props.colorMode)

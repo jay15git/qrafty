@@ -143,21 +143,14 @@ describe("QRafty state helpers", () => {
   it("starts with dot matrix animation disabled and SVG export static", () => {
     const state = createDefaultQraftyState();
 
-    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(14);
+    expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS).toHaveLength(7);
     expect(QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => option.label)).toEqual([
       "Neon Drift",
       "Flux Columns",
-      "Echo Ring",
-      "Origin Wave",
-      "Radial Expand",
-      "Fan Rotate",
-      "Tunnel",
-      "Wave",
-      "Scan",
-      "Diamond Expand",
-      "Heart Expand",
-      "Star Expand",
-      "Cross Bloom",
+      "Radial",
+      "Diamond",
+      "Heart",
+      "Star",
       "Chevron Sweep",
     ]);
     expect(state.dotMatrixAnimation).toEqual(DEFAULT_DOT_MATRIX_ANIMATION);
@@ -178,14 +171,18 @@ describe("QRafty state helpers", () => {
     expect(setDotMatrixAnimationOptions(state, { loader: "vortex-rotate" }).dotMatrixAnimation.loader).toBe("neon-drift");
     expect(setDotMatrixAnimationOptions(state, { loader: "vortex" }).dotMatrixAnimation.loader).toBe("neon-drift");
     expect(setDotMatrixAnimationOptions(state, { loader: "honey-gate" }).dotMatrixAnimation.loader).toBe("neon-drift");
+    expect(setDotMatrixAnimationOptions(state, { loader: "echo-ring" }).dotMatrixAnimation.loader).toBe("radial-expand");
+    expect(setDotMatrixAnimationOptions(state, { loader: "origin-wave" }).dotMatrixAnimation.loader).toBe("radial-expand");
+    expect(setDotMatrixAnimationOptions(state, { loader: "cross-bloom" }).dotMatrixAnimation.loader).toBe("radial-expand");
+    expect(setDotMatrixAnimationOptions(state, { loader: "fan-rotate" }).dotMatrixAnimation.loader).toBe("neon-drift");
+    expect(setDotMatrixAnimationOptions(state, { loader: "tunnel" }).dotMatrixAnimation.loader).toBe("neon-drift");
+    expect(setDotMatrixAnimationOptions(state, { loader: "wave" }).dotMatrixAnimation.loader).toBe("neon-drift");
+    expect(setDotMatrixAnimationOptions(state, { loader: "scan" }).dotMatrixAnimation.loader).toBe("neon-drift");
   });
 
-  it("marks fan, tunnel, wave, and scan as scale-only motion loaders", () => {
-    expect(isScaleOnlyDotMatrixLoader("fan-rotate")).toBe(true);
-    expect(isScaleOnlyDotMatrixLoader("tunnel")).toBe(true);
-    expect(isScaleOnlyDotMatrixLoader("wave")).toBe(true);
-    expect(isScaleOnlyDotMatrixLoader("scan")).toBe(true);
+  it("does not mark any motion loader as scale-only", () => {
     expect(isScaleOnlyDotMatrixLoader("neon-drift")).toBe(false);
+    expect(isScaleOnlyDotMatrixLoader("radial-expand")).toBe(false);
   });
 
   it("clamps dot matrix animation updates to supported ranges", () => {
@@ -219,7 +216,7 @@ describe("QRafty state helpers", () => {
     expect(lowAnimation.dotMatrixAnimation.matrixSize).toBe(5);
     expect(lowAnimation.dotMatrixAnimation.overlayScale).toBe(100);
     expect(lowAnimation.dotMatrixAnimation.speed).toBe(1);
-    expect(highAnimation.dotMatrixAnimation).toEqual({
+    expect(highAnimation.dotMatrixAnimation).toMatchObject({
       animated: true,
       autoAnimate: "",
       autoAnimateInterval: 5000,
@@ -249,6 +246,7 @@ describe("QRafty state helpers", () => {
       respectReducedMotion: true,
       speed: 10,
     });
+    expect(highAnimation.dotMatrixAnimation.paperShader.shaderId).toBe("mesh-gradient");
     expect(clampDotMatrixAnimationOpacity(Number.NaN, DEFAULT_DOT_MATRIX_ANIMATION.opacityMid)).toBe(
       DEFAULT_DOT_MATRIX_ANIMATION.opacityMid,
     );

@@ -49,3 +49,19 @@ export function getLivePaperShaderRenderOptions(input?: {
     },
   }
 }
+
+/** Motion QR fill snapshots need a readable WebGL buffer for canvas.toDataURL(). */
+export function getMotionShaderFillRenderOptions(input?: {
+  displayHeight?: number
+  displayWidth?: number
+}): LivePaperShaderRenderOptions {
+  const live = getLivePaperShaderRenderOptions(input)
+
+  return {
+    ...live,
+    webGlContextAttributes: {
+      ...live.webGlContextAttributes,
+      preserveDrawingBuffer: true,
+    },
+  }
+}

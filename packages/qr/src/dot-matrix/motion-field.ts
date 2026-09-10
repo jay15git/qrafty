@@ -14,21 +14,8 @@ const MOTION_FIELD_CLIP_ID = "qrafty-motion-field-clip"
 const MOTION_FIELD_GRADIENT_ID = "qrafty-motion-field-gradient"
 const MOTION_CYCLE_MS = 1500
 const PAINTABLE_SELECTOR = "path,circle,rect,polygon,ellipse"
-const SCALE_ONLY_PRESETS = new Set<string>([
-  AnimationPreset.FanRotate,
-  AnimationPreset.Tunnel,
-  AnimationPreset.Wave,
-  AnimationPreset.Scan,
-])
-
 /** Presets that expand from center — use a continuous field instead of per-module fill. */
-const MOTION_FIELD_PRESETS = new Set<string>([
-  AnimationPreset.EchoRing,
-  AnimationPreset.OriginWave,
-  AnimationPreset.RadialExpand,
-  AnimationPreset.CrossBloom,
-  AnimationPreset.DiamondExpand,
-])
+const MOTION_FIELD_PRESETS = new Set<string>([AnimationPreset.RadialExpand])
 
 export type MotionFieldHandle = {
   stop: () => void
@@ -245,10 +232,6 @@ export function shouldUseMotionFieldLayer(
   settings?: QRCodeAnimationSettings,
 ) {
   if (settings?.preserveModuleFills) {
-    return false
-  }
-
-  if (SCALE_ONLY_PRESETS.has(preset)) {
     return false
   }
 

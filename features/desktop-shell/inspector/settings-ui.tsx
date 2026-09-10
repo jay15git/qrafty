@@ -24,6 +24,8 @@ import { ElasticSlider } from "@/components/ui/elastic-slider"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Switch } from "@/components/ui/switch"
 import type { DotsColorMode } from "@/features/qr-code/model/state"
+import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
+import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
 import { ContentTypeGridIcon } from "@/features/qr-code/content/ContentTypeGridIcon"
 import {
   normalizeContentTypeForPicker,
@@ -493,6 +495,7 @@ export function SettingsFillPopover({
   title,
   modulePattern,
   moduleImage,
+  moduleShader,
   fillPreviewImageUrl,
   moduleFillMode,
   solidOnly = false,
@@ -526,6 +529,12 @@ export function SettingsFillPopover({
     onUpload: (imageUrl: string) => void
     onClear: () => void
   }
+  moduleShader?: {
+    paperShader: DraftingCardPaperShaderState
+    onTabActivate: () => void
+    onSelectShader: (shaderId: PaperShaderId) => void
+    onPaperShaderChange: (paperShader: DraftingCardPaperShaderState) => void
+  }
   moduleFillMode?: DotsColorMode
 }) {
   const theme = useDesktopnewTheme()
@@ -540,6 +549,7 @@ export function SettingsFillPopover({
       <DesktopNewFillPicker
         moduleFillMode={moduleFillMode}
         moduleImage={moduleImage}
+        moduleShader={moduleShader}
         modulePattern={modulePattern}
         qrGradient={qrGradient}
         solidOnly={solidOnly}

@@ -65,7 +65,7 @@ export type QraftyQrCodeProps = {
   margin?: number
   logo?: QraftyQrLogoConfig
   gradient?: QraftyQrGradientConfig | "none"
-  colorMode?: "solid" | "gradient" | "palette" | "image"
+  colorMode?: "solid" | "gradient" | "palette" | "image" | "shader"
   palette?: string[]
   moduleFillImage?: string
   moduleRoundSize?: boolean

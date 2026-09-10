@@ -26,6 +26,8 @@ function cleanupStaleUnifiedImageLayers(svg: SVGElement) {
     "unified-image-fill",
     "unified-image-logo-mask",
     "unified-image-logo-fill",
+    "unified-shader-fill",
+    "unified-shader-source",
     "logo-unified-image",
   ]) {
     svg.querySelectorAll(`[data-qr-layer="${layer}"]`).forEach((node) => {
@@ -90,13 +92,34 @@ function cloneShapeForClipPath(source: SVGElement) {
   return clone
 }
 
-function hideOriginalPaintTarget(target: SVGElement) {
-  target.setAttribute("opacity", "0")
-  target.setAttribute("data-qr-layer", "unified-image-source")
+function hideOriginalPaintTarget(
+  target: SVGElement,
+  sourceLayer = "unified-image-source",
+  hidePaintTargets = true,
+) {
+  target.setAttribute("data-qr-layer", sourceLayer)
+
+  if (hidePaintTargets) {
+    target.setAttribute("opacity", "0")
+  }
 }
 
 function getDefaultModulePaintTargets(svg: SVGElement) {
   return Array.from(svg.querySelectorAll('[data-testid="data-modules"]')).filter(isSvgElementLike)
+}
+
+function collectFinderPatternMaskTargets(svg: SVGElement) {
+  const finderOuter = Array.from(
+    svg.querySelectorAll('[data-testid="finder-patterns-outer"]'),
+  ).filter(isSvgElementLike)
+  const finderInner = Array.from(
+    svg.querySelectorAll('[data-testid="finder-patterns-inner"]'),
+  ).filter(isSvgElementLike)
+  const customCornerDots = Array.from(
+    svg.querySelectorAll('[data-qr-layer="custom-corner-dot"]'),
+  ).filter(isSvgElementLike)
+
+  return [...finderOuter, ...finderInner, ...customCornerDots]
 }
 
 function collectUnifiedImageMaskTargets(
@@ -108,17 +131,22 @@ function collectUnifiedImageMaskTargets(
       ? modulePaintTargets
       : getDefaultModulePaintTargets(svg)
 
-  const finderOuter = Array.from(
-    svg.querySelectorAll('[data-testid="finder-patterns-outer"]'),
-  ).filter(isSvgElementLike)
-  const finderInner = Array.from(
-    svg.querySelectorAll('[data-testid="finder-patterns-inner"]'),
-  ).filter(isSvgElementLike)
-  const customCornerDots = Array.from(
-    svg.querySelectorAll('[data-qr-layer="custom-corner-dot"]'),
-  ).filter(isSvgElementLike)
+  return [...moduleTargets, ...collectFinderPatternMaskTargets(svg)]
+}
 
-  return [...moduleTargets, ...finderOuter, ...finderInner, ...customCornerDots]
+function collectUnifiedImageClipShapes(
+  svg: SVGElement,
+  modulePaintTargets: SVGElement[] | undefined,
+  moduleClipShapes: SVGElement[] | undefined,
+) {
+  const moduleTargets =
+    modulePaintTargets && modulePaintTargets.length > 0
+      ? modulePaintTargets
+      : getDefaultModulePaintTargets(svg)
+  const moduleSources =
+    moduleClipShapes && moduleClipShapes.length > 0 ? moduleClipShapes : moduleTargets
+
+  return [...moduleSources, ...collectFinderPatternMaskTargets(svg)]
 }
 
 function resolveLogoImageHref(logo: SVGElement) {
@@ -208,15 +236,21 @@ export function applyUnifiedQrImageFill(
     imageHref,
     imageId,
     imageLayer = "unified-image-definition",
+    hidePaintTargets = true,
     margin,
+    moduleClipShapes,
     modulePaintTargets,
+    sourceLayer = "unified-image-source",
   }: {
     imageHref: string
     imageId: string
     imageLayer?: string
+    hidePaintTargets?: boolean
     margin: number
     coverRect?: ModuleFillCoverRect | null
+    moduleClipShapes?: SVGElement[]
     modulePaintTargets?: SVGElement[]
+    sourceLayer?: string
   },
 ) {
   cleanupStaleUnifiedImageLayers(svg)
@@ -243,8 +277,10 @@ export function applyUnifiedQrImageFill(
   clipPath.setAttribute("clipPathUnits", "userSpaceOnUse")
   clipPath.setAttribute("data-qr-layer", "unified-image-clip")
 
-  for (const target of maskTargets) {
-    clipPath.appendChild(cloneShapeForClipPath(target))
+  const clipShapes = collectUnifiedImageClipShapes(svg, modulePaintTargets, moduleClipShapes)
+
+  for (const shape of clipShapes) {
+    clipPath.appendChild(cloneShapeForClipPath(shape))
   }
 
   getOrCreateSvgDefs(svg, document).appendChild(clipPath)
@@ -262,7 +298,7 @@ export function applyUnifiedQrImageFill(
   image.setAttribute("data-qr-layer", imageLayer)
 
   for (const target of maskTargets) {
-    hideOriginalPaintTarget(target)
+    hideOriginalPaintTarget(target, sourceLayer, hidePaintTargets)
   }
 
   const logo = findLogoImage(svg)
