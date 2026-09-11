@@ -6,6 +6,8 @@ export type FillPickerPortalSurface = {
   /** Theme + design tokens for any fill-picker UI portaled to `document.body`. */
   portaledSurfaceClassName?: string
   portaledSurfaceDataTheme?: "light" | "dark"
+  /** Desktop accordion / settings popover — borderless controls + app Select. */
+  desktopAccordion?: boolean
 }
 
 export const FillPickerPortalSurfaceContext =

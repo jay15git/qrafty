@@ -5,6 +5,7 @@ import { Select } from "@base-ui/react/select";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFillPickerPortalSurface } from "../../contexts/portal-surface";
+import { DesktopAccordionFieldSelect } from "../../parts/desktop-accordion-field-select";
 import {
   colorPickerControlBgClass,
   colorPickerControlBorderClass,
@@ -94,6 +95,25 @@ export const FieldSelect = React.forwardRef<
   const inline = variant === "inline";
   const portalSurface = useFillPickerPortalSurface();
   const { className: wrapperClassName, ...wrapperRest } = wrapperProps ?? {};
+
+  if (portalSurface.desktopAccordion) {
+    return (
+      <DesktopAccordionFieldSelect
+        ref={ref}
+        aria-label={ariaLabel}
+        className={className}
+        disabled={disabled}
+        placeholder={placeholder}
+        value={value ?? defaultValue}
+        variant={variant}
+        wrapperProps={wrapperProps}
+        onValueChange={onValueChange}
+      >
+        {children}
+      </DesktopAccordionFieldSelect>
+    );
+  }
+
   return (
     <div
       className={cn(

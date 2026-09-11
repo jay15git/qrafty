@@ -16,6 +16,11 @@ import {
   FieldDivider,
   FieldShell,
 } from "@/components/ui/fill-picker/parts/field";
+import { useFillPickerPortalSurface } from "@/components/ui/fill-picker-base/contexts/portal-surface";
+import {
+  DesktopAccordionFieldSelect,
+  DesktopAccordionFieldSelectOption,
+} from "@/components/ui/fill-picker-base/parts/desktop-accordion-field-select";
 import { cn } from "@/lib/utils";
 
 interface ChannelInputProps
@@ -109,6 +114,26 @@ function FormatSelect({
   formats: ColorFormat[];
   onChange: (next: ColorFormat) => void;
 }) {
+  const { desktopAccordion } = useFillPickerPortalSurface();
+
+  if (desktopAccordion) {
+    return (
+      <DesktopAccordionFieldSelect
+        aria-label="Color format"
+        variant="inline"
+        value={format}
+        onValueChange={(next) => onChange(next as ColorFormat)}
+        wrapperProps={{ "data-slot": "color-picker-channel-input-format" }}
+      >
+        {formats.map((f) => (
+          <DesktopAccordionFieldSelectOption key={f} value={f}>
+            {f}
+          </DesktopAccordionFieldSelectOption>
+        ))}
+      </DesktopAccordionFieldSelect>
+    );
+  }
+
   // Kept as a plain <select> rather than Base UI's Select: this is a dense
   // inline control inside the channel-input row, and the standalone
   // FormatSwitcher part already demonstrates the Base UI Select port.

@@ -384,7 +384,7 @@ export function SegmentTabs({
     <div
       ref={tablistRef}
       className={cn(
-        "t-tabs dn-tab-bar flex gap-1 bg-transparent p-0 dn-squircle-xs",
+        "t-tabs dn-tab-bar flex bg-transparent p-0 dn-squircle-xs",
         scrollable
           ? "dn-content-type-tab-bar min-w-max max-w-none"
           : "w-full max-w-full overflow-hidden",
@@ -1061,7 +1061,13 @@ export function ContentTypeBrowser({
             placeholder="Content type"
             variant="borderless"
           />
-          <SelectContent className={desktopnewPortalClass(theme, "dn-portal-surface")}>
+          <SelectContent
+            className={desktopnewPortalClass(
+              theme,
+              "dn-portal-surface desktopnew-popover-content overflow-hidden p-0 dn-squircle-md",
+            )}
+            data-theme={theme}
+          >
             {types.map((option, index) => (
               <SelectItem
                 key={option.value}
@@ -1216,7 +1222,7 @@ export function OptionGrid({
   return (
     <div
       className={cn(
-        "grid gap-1.5",
+        "dn-option-grid grid gap-[length:var(--dn-space-inline)]",
         columns === 4 ? "grid-cols-4" : "grid-cols-3",
       )}
     >

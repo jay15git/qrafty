@@ -31,6 +31,10 @@ import {
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { PaletteColorBarPreview } from "@/features/desktop-shell/inspector/palette-color-bar-preview"
 import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette-color-stop-list"
+import {
+  DesktopGradientInterpRow,
+  DesktopGradientTypeRow,
+} from "@/features/desktop-shell/inspector/desktopnew-gradient-controls"
 import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-ui"
 import { cn } from "@/lib/utils"
 import { blobUrlToDataUrl } from "@qrafty/qr-internal/scene"
@@ -124,6 +128,7 @@ export function DesktopNewFillPicker({
   return (
     <FillPickerPortalSurfaceProvider
       value={{
+        desktopAccordion: true,
         portaledSurfaceDataTheme: theme,
         portaledSurfaceClassName: cn(
           "desktopnew-fill-picker-portal dn-portal-surface desktopnew-popover-content",
@@ -140,7 +145,7 @@ export function DesktopNewFillPicker({
       )}
     >
     <FillPicker.Root
-      className="max-w-none border-0 bg-transparent shadow-none"
+      className="dn-fill-picker-root max-w-none border-0 bg-transparent shadow-none"
       defaultMode={fillPickerInitialMode}
       defaultValue={initialFill}
       mode={pickerMode}
@@ -149,7 +154,7 @@ export function DesktopNewFillPicker({
     >
       {solidOnly ? null : (
         <SegmentTabs
-          className="self-stretch"
+          className="dn-fill-picker-mode-tabs self-stretch"
           items={
             modulePattern
               ? moduleImage
@@ -181,40 +186,39 @@ export function DesktopNewFillPicker({
       ) : (
         <>
           <FillPicker.Pane
-            className="dn-settings-tab-panel flex w-full min-w-0 flex-col gap-2.5"
+            className="dn-settings-tab-panel dn-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
             mode="color"
           >
-            <ColorPicker.Area />
-            <ColorPicker.Hue />
-            <ColorPicker.Alpha />
-            <ColorPicker.ChannelInput />
+            <ColorPicker.Area className="dn-fill-picker-area" />
+            <ColorPicker.Hue className="dn-fill-picker-slider" />
+            <ColorPicker.Alpha className="dn-fill-picker-slider" />
+            <ColorPicker.ChannelInput className="dn-fill-picker-channel-input" />
           </FillPicker.Pane>
           {solidOnly ? null : (
             <FillPicker.Pane
-              className="dn-settings-tab-panel flex w-full min-w-0 flex-col gap-2.5"
+              className="dn-settings-tab-panel dn-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
               mode="gradient"
             >
-              <div className="grid w-full min-w-0 grid-cols-2 gap-2">
-                {qrGradient ? (
-                  <GradientPicker.TypeSwitcher
-                    allowedTypes={[...QR_GRADIENT_TYPES]}
-                    className="w-full"
-                  />
-                ) : (
-                  <GradientPicker.TypeSwitcher className="w-full" />
-                )}
-                <GradientPicker.InterpSwitcher className="w-full" />
+              <div className="flex w-full min-w-0 gap-2">
+                <DesktopGradientTypeRow
+                  allowedTypes={qrGradient ? [...QR_GRADIENT_TYPES] : undefined}
+                />
+                <DesktopGradientInterpRow />
               </div>
-              <GradientPicker.Bar editOnClick />
-              <GradientPicker.Area />
-              {qrGradient ? null : (
-                <>
-                  <GradientPicker.ShapeSwitcher />
-                  <GradientPicker.EllipseRadiiInput />
-                </>
-              )}
-              <GradientPicker.StopList showPosition={false} />
-              <GradientPicker.Presets />
+              <GradientPicker.AngleGroup className="dn-fill-picker-angle-group">
+                <GradientPicker.AnglePad
+                  className="dn-fill-picker-angle-pad"
+                  size={32}
+                />
+                <GradientPicker.AngleInput className="dn-fill-picker-field" />
+              </GradientPicker.AngleGroup>
+              <GradientPicker.Bar className="dn-fill-picker-gradient-bar" />
+              <GradientPicker.StopColor>
+                <ColorPicker.Area className="dn-fill-picker-area" />
+                <ColorPicker.Hue className="dn-fill-picker-slider" />
+                <ColorPicker.Alpha className="dn-fill-picker-slider" />
+                <ColorPicker.ChannelInput className="dn-fill-picker-channel-input" />
+              </GradientPicker.StopColor>
             </FillPicker.Pane>
           )}
         </>
@@ -287,7 +291,7 @@ function ModulePatternPicker({
         showScrollbar={false}
         viewportClassName="min-w-0"
       >
-        <div className="flex min-w-max gap-1.5 py-2">
+        <div className="dn-preview-row py-2">
           {DESKTOP_DOTS_PALETTE_PRESETS.map((option) => {
             const isSelected =
               selectedPreset === option.label ||

@@ -1,3 +1,11 @@
+/**
+ * Plain px max-height for popup shells. Base UI's select popup reads
+ * `getComputedStyle(el).maxHeight` and only accepts values ending in `px`
+ * (`min()`, `calc()`, etc. parse as unlimited), so arbitrary min()/var()
+ * caps are ignored and the list grows to full height.
+ */
+export const popupMaxHeightClass = "max-h-52";
+
 export const popupMotionClass =
   "origin-top [--popup-enter-y:-4px] " +
   "data-[side=top]:origin-bottom data-[side=top]:[--popup-enter-y:4px] " +

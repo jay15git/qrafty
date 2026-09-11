@@ -25,6 +25,7 @@ import { useShape, shapeMap } from "@/lib/shape-context";
 import { SizeProvider, useSize, type SizeVariant } from "@/lib/size-context";
 import { Elevated } from "@/lib/elevated";
 import {
+  popupMaxHeightClass,
   popupMotionClass,
   popupScrollAreaClass,
   popupViewportClass,
@@ -336,13 +337,14 @@ SelectTrigger.displayName = "SelectTrigger";
 // SelectContent
 // ---------------------------------------------------------------------------
 
-interface SelectContentProps {
-  className?: string;
+interface SelectContentProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
+  /** Applied to the portalled positioner (e.g. `z-[20002]` above accordion popovers). */
+  positionerClassName?: string;
 }
 
 const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
-  ({ className, children }, ref) => {
+  ({ className, children, positionerClassName, ...props }, ref) => {
     const { open, value, actionsRef } = useSelectContext();
     const shape = popupShape;
     const containerRef = useRef<HTMLDivElement>(null);
@@ -454,7 +456,7 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
           align="start"
           sideOffset={6}
           alignItemWithTrigger={false}
-          className="z-50 outline-none"
+          className={cn("z-50 outline-none", positionerClassName)}
         >
           <motion.div
             className={popupMotionClass}
@@ -516,9 +518,10 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                 className={cn(
                   // min-w tracks the trigger via the Positioner's --anchor-width
                   // var, matching the pre-migration minWidth: triggerRect.width.
-                  `flex flex-col min-w-[var(--anchor-width)] max-h-[min(300px,var(--available-height))] overflow-hidden ${shape.container} select-none outline-none`,
+                  `flex flex-col min-w-[var(--anchor-width)] ${popupMaxHeightClass} overflow-hidden ${shape.container} select-none outline-none`,
                   className
                 )}
+                {...props}
               >
                 {/* The list scrolls inside a ScrollArea; this wrapper is the rows'
                     offsetParent, so the overlays scroll with them. */}

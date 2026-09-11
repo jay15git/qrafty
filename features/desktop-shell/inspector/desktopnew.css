@@ -364,7 +364,8 @@
 
 .dn-option-scroll-row {
   display: flex;
-  gap: 0.375rem;
+  --dn-option-gap: var(--dn-space-inline);
+  gap: var(--dn-option-gap);
   overflow-x: auto;
   overflow-y: hidden;
   padding-block: 0.125rem;
@@ -433,6 +434,44 @@
 }
 
 .dn-content-type-select .dn-content-type-select-trigger [data-placeholder] {
+  color: var(--dn-muted);
+}
+
+.dn-fill-picker-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.dn-fill-picker-select > div {
+  width: 100%;
+}
+
+.dn-fill-picker-select .dn-fill-picker-select-trigger {
+  width: 100%;
+  min-width: 0;
+  border: none !important;
+  background: var(--dn-control) !important;
+  color: var(--dn-type-value-color) !important;
+  box-shadow: none !important;
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+  padding-inline: var(--dn-row-px);
+  font-size: var(--dn-type-value);
+  font-weight: var(--dn-type-value-weight);
+  letter-spacing: var(--dn-tracking-tight);
+}
+
+.dn-fill-picker-select .dn-fill-picker-select-trigger:hover,
+.dn-fill-picker-select .dn-fill-picker-select-trigger:focus,
+.dn-fill-picker-select .dn-fill-picker-select-trigger:focus-visible {
+  border: none !important;
+  background: var(--dn-control) !important;
+  box-shadow: none !important;
+  outline: none;
+  --tw-ring-shadow: 0 0 #0000;
+}
+
+.dn-fill-picker-select .dn-fill-picker-select-trigger [data-placeholder] {
   color: var(--dn-muted);
 }
 
@@ -672,8 +711,52 @@
 .dn-preview-row {
   display: flex;
   min-width: max-content;
-  gap: var(--dn-space-inline);
+  --dn-option-gap: var(--dn-space-inline);
+  gap: var(--dn-option-gap);
   padding: var(--dn-space-inline) 0.25rem;
+}
+
+/* Keep visual tile gaps but extend each option's hit box through half the
+   gap so the pointer never drops to default between tiles. */
+:is(.dn-preview-row, .dn-option-scroll-row) > :is(button, a, [role="button"]) {
+  margin-inline: calc(var(--dn-option-gap, var(--dn-space-inline)) / -2);
+  margin-block: 0;
+  position: relative;
+  z-index: 0;
+}
+
+.t-tabs > [role="tab"] {
+  margin-inline: calc(var(--dn-option-gap, 0.25rem) / -2);
+  margin-block: 0;
+}
+
+:is(
+    .dn-content-type-grid,
+    .dn-logo-icon-picker-grid,
+    .dn-insert-menu-option-grid,
+    .dn-option-grid
+  )
+  > :is(button, a, [role="button"]) {
+  margin: calc(var(--dn-option-gap, var(--dn-space-inline)) / -2);
+  position: relative;
+  z-index: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :is(.dn-preview-row, .dn-option-scroll-row) > :is(button, a, [role="button"]):is(:hover, :focus-visible),
+  :is(
+      .dn-content-type-grid,
+      .dn-logo-icon-picker-grid,
+      .dn-insert-menu-option-grid,
+      .dn-option-grid
+    )
+    > :is(button, a, [role="button"]):is(:hover, :focus-visible) {
+    z-index: 1;
+  }
+
+  .t-tabs > [role="tab"]:is(:hover, :focus-visible) {
+    z-index: 2;
+  }
 }
 
 /* Horizontal preview rows — edge fades (override tight default). */
@@ -1034,6 +1117,7 @@
 }
 
 .t-tabs--muted {
+  --dn-option-gap: 0;
   gap: 0;
   padding: 2px;
   background: color-mix(in srgb, var(--dn-line) 72%, transparent);
@@ -1685,7 +1769,8 @@
 .dn-content-type-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.375rem;
+  --dn-option-gap: var(--dn-space-inline);
+  gap: var(--dn-option-gap);
   max-height: 13.5rem;
   overflow-y: auto;
   padding-right: 0.125rem;
@@ -1772,7 +1857,8 @@
   width: 100%;
   min-width: 0;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--dn-space-inline);
+  --dn-option-gap: var(--dn-space-inline);
+  gap: var(--dn-option-gap);
   padding-inline: 0.125rem;
 }
 
@@ -1973,7 +2059,8 @@
 .dn-insert-menu-option-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.125rem;
+  --dn-option-gap: 0.125rem;
+  gap: var(--dn-option-gap);
 }
 
 .dn-insert-menu-option-grid--3 {
@@ -2107,32 +2194,16 @@
 }
 
 .desktopnew-fill-popover .dn-fill-picker-panel > div {
-  gap: 0.625rem;
+  gap: var(--dn-space-stack);
 }
 
-.desktopnew-fill-popover .t-tabs-pill {
-  background: #171717;
-}
-
-.desktopnew-fill-popover[data-theme="dark"] .t-tabs-pill {
-  background: #ffffff;
-}
-
-.desktopnew-fill-popover .dn-segment-tab[aria-selected="true"] {
-  color: #ffffff;
-}
-
-.desktopnew-fill-popover[data-theme="dark"] .dn-segment-tab[aria-selected="true"] {
-  color: #0a0a0a;
-}
-
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile:not(.dn-option-scroll-chip) {
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-fill-picker-chip) {
   background: transparent;
   border: 2px solid transparent;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile:not(.dn-option-scroll-chip)[aria-pressed="true"],
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile:not(.dn-option-scroll-chip)[data-selected="true"] {
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-fill-picker-chip)[aria-pressed="true"],
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-fill-picker-chip)[data-selected="true"] {
   background: transparent;
 }
 
@@ -2152,10 +2223,110 @@
   --muted-foreground: var(--dn-muted);
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel [data-slot="fill-picker"] {
+/* Fill picker — borderless accordion surfaces */
+.desktopnew-fill-popover .dn-fill-picker-panel [data-slot="fill-picker"],
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-root {
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-root > div {
+  gap: var(--dn-space-stack);
+  padding: 0.625rem;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-mode-tabs {
+  width: 100%;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-mode-tabs .t-tabs-pill {
+  background: #171717;
+}
+
+.desktopnew-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .t-tabs-pill {
+  background: #ffffff;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
+  color: #ffffff;
+}
+
+.desktopnew-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
+  color: #0a0a0a;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-chip-row {
+  --dn-option-gap: 0.5rem;
+  gap: var(--dn-option-gap);
+  padding-inline: 0;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-chip {
+  border: 0;
+  background: var(--dn-control);
+  color: var(--dn-muted);
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-chip--selected,
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-chip[aria-pressed="true"] {
+  background: var(--dn-control);
+  color: var(--dn-fg);
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-pane {
+  gap: 0.5rem;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-area {
+  border: 0 !important;
+  border-radius: var(--dn-radius-xs) !important;
+  corner-shape: squircle;
+  box-shadow: none !important;
+  background-color: var(--dn-control) !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input,
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input:focus-within {
+  height: var(--dn-control-height);
+  border: 0 !important;
+  border-radius: var(--dn-radius-xs);
+  corner-shape: squircle;
+  background: var(--dn-control) !important;
+  box-shadow: none !important;
+  font-family: inherit;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input .bg-border {
+  background: color-mix(in srgb, var(--dn-line) 55%, transparent) !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input [data-slot="color-picker-channel-input-field"] {
+  color: var(--dn-type-value-color, var(--dn-fg));
+  font-size: var(--dn-type-value);
+  font-weight: var(--dn-type-value-weight);
+  letter-spacing: var(--dn-tracking-tight);
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input [data-slot="color-picker-channel-input-format"] button {
+  min-width: 0;
+  padding-inline: 0.5rem;
+  color: var(--dn-muted);
+  text-transform: uppercase;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider [data-slot="color-picker-hue"],
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider [data-slot="color-picker-alpha"] {
+  --tw-ring-shadow: 0 0 #0000;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider .rounded-full.border-2 {
+  border-color: rgb(255 255 255 / 0.92) !important;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.28) !important;
 }
 
 :is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .shadow-xs,
@@ -2164,31 +2335,18 @@
   box-shadow: none !important;
 }
 
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .cursor-crosshair.rounded-md.border,
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .bg-muted.rounded-md.border {
-  border-color: var(--dn-line) !important;
-  background-color: var(--dn-control) !important;
-}
-
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .cursor-ew-resize.rounded-full {
-  box-shadow: 0 0 0 1px var(--dn-line) !important;
-}
-
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .border-border,
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .border-input {
-  border-color: var(--dn-line) !important;
-}
-
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .rounded-md.border.font-mono,
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .rounded-lg.border.font-mono {
-  border-color: var(--dn-line) !important;
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal)
+  :is(.rounded-md.border.font-mono, .rounded-lg.border.font-mono, .flex.h-8.items-stretch.overflow-hidden.rounded-md.border) {
+  height: var(--dn-control-height);
+  border: 0 !important;
+  border-radius: var(--dn-radius-xs) !important;
+  corner-shape: squircle;
   background: var(--dn-control) !important;
   box-shadow: none !important;
 }
 
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .rounded-md.border.font-mono:focus-within,
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .rounded-lg.border.font-mono:focus-within {
-  border-color: color-mix(in srgb, var(--dn-fg) 18%, transparent) !important;
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal)
+  :is(.rounded-md.border.font-mono, .rounded-lg.border.font-mono, .flex.h-8.items-stretch.overflow-hidden.rounded-md.border):focus-within {
   --tw-ring-shadow: 0 0 #0000;
   --tw-ring-offset-shadow: 0 0 #0000;
 }
@@ -2198,41 +2356,65 @@
   background: var(--dn-control) !important;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel [role="option"] {
-  border: 1px solid transparent !important;
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-gradient-bar .border-border {
+  border-color: color-mix(in srgb, var(--dn-line) 70%, transparent) !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-field {
+  height: var(--dn-control-height);
+  border: 0 !important;
+  border-radius: var(--dn-radius-xs);
+  corner-shape: squircle;
   background: var(--dn-control) !important;
   box-shadow: none !important;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel [role="option"][aria-selected="true"] {
-  border-color: color-mix(in srgb, var(--dn-fg) 16%, transparent) !important;
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-group {
+  min-height: var(--dn-control-height);
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel [role="option"] .rounded-xs.border {
-  border-color: transparent !important;
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-pad {
+  border: 0 !important;
+  background: var(--dn-control) !important;
+  box-shadow: none !important;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel [role="option"] > button.rounded-md.border {
-  border: none !important;
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-pad .bg-foreground {
+  background: var(--dn-fg) !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-stop-list {
+  gap: 0.625rem;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-stop-row {
+  padding: 0;
+  background: transparent;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-stop-input {
+  font-size: var(--dn-type-value);
+  font-weight: var(--dn-type-value-weight);
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color, var(--dn-fg));
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-add-stop {
+  margin-top: 0.125rem;
+  background: transparent;
+  border: 0;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-presets button {
+  border: 0 !important;
+  border-radius: var(--dn-radius-xs) !important;
+  corner-shape: squircle;
+  box-shadow: none !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-presets button[aria-label="Save current gradient as preset"] {
+  background: var(--dn-control) !important;
   color: var(--dn-muted) !important;
-}
-
-.desktopnew-fill-popover .dn-fill-picker-panel [role="option"]:focus-visible {
-  outline: none;
-  border-color: color-mix(in srgb, var(--dn-fg) 16%, transparent) !important;
-  --tw-ring-shadow: 0 0 #0000;
-}
-
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .desktopnew-fill-picker-portal) .rounded-full.border.border-border {
-  border-color: var(--dn-line) !important;
-}
-
-.desktopnew-fill-popover .dn-fill-picker-panel [data-slot="gradient-type-switcher"] button,
-.desktopnew-fill-popover .dn-fill-picker-panel [data-slot="gradient-interp-switcher"] button,
-.desktopnew-fill-popover .dn-fill-picker-panel [data-slot="gradient-radial-size-select"] button {
-  border-color: var(--dn-line) !important;
-  background: var(--dn-control) !important;
-  box-shadow: none !important;
 }
 
 .desktopnew-fill-picker-portal [data-highlighted] {
@@ -2242,6 +2424,11 @@
 
 .t-tabs {
   position: relative;
+  --dn-option-gap: 0.25rem;
+}
+
+.t-tabs:not(.t-tabs--muted) {
+  gap: var(--dn-option-gap);
 }
 
 .dn-squircle-xs {
