@@ -54,6 +54,9 @@ interface ScrollAreaProps
   /** Show the directional chevron in the cues. The gradient fade always
    *  renders; set to `false` for fade-only cues. Defaults to `true`. */
   chevron?: boolean;
+  /** Show edge fades on the first frame (no opacity tween on mount).
+   *  Defaults to `true` for horizontal / both orientations. */
+  instantFade?: boolean;
   /** Place the bottom/right chevron just outside the scroll viewport instead
    *  of overlaying content. Fade stays inside. Defaults to `false`. */
   chevronOutside?: boolean;
@@ -84,6 +87,7 @@ const ScrollArea = forwardRef<
       scrollFade = true,
       cueSize = "comfortable",
       chevron = true,
+      instantFade,
       chevronOutside = false,
       orientation = "vertical",
       showScrollbar = true,
@@ -109,6 +113,8 @@ const ScrollArea = forwardRef<
       }),
     );
     const isTouch = useTouchPrimary();
+    const resolvedInstantFade =
+      instantFade ?? (orientation === "horizontal" || orientation === "both");
     const edges = useScrollEdges(viewportNode, {
       enabled: scrollFade,
       axis: orientation,
@@ -126,14 +132,14 @@ const ScrollArea = forwardRef<
       >
         {orientation !== "horizontal" && (
           <>
-            <ScrollEdgeCue mode="absolute" edge="top" visible={edges.top} size={cueSize} chevron={chevron} />
-            <ScrollEdgeCue mode="absolute" edge="bottom" visible={edges.bottom} size={cueSize} chevron={chevron} />
+            <ScrollEdgeCue mode="absolute" edge="top" visible={edges.top} size={cueSize} chevron={chevron} instantReveal={resolvedInstantFade} />
+            <ScrollEdgeCue mode="absolute" edge="bottom" visible={edges.bottom} size={cueSize} chevron={chevron} instantReveal={resolvedInstantFade} />
           </>
         )}
         {orientation !== "vertical" && (
           <>
-            <ScrollEdgeCue mode="absolute" edge="left" visible={edges.left} size={cueSize} chevron={chevron} />
-            <ScrollEdgeCue mode="absolute" edge="right" visible={edges.right} size={cueSize} chevron={chevron} />
+            <ScrollEdgeCue mode="absolute" edge="left" visible={edges.left} size={cueSize} chevron={chevron} instantReveal={resolvedInstantFade} />
+            <ScrollEdgeCue mode="absolute" edge="right" visible={edges.right} size={cueSize} chevron={chevron} instantReveal={resolvedInstantFade} />
           </>
         )}
       </div>

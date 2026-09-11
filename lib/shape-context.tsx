@@ -13,9 +13,9 @@ import {
 
 type ShapeVariant = "pill" | "rounded";
 
-const shapeOrder: ShapeVariant[] = ["rounded", "pill"];
-
 interface ShapeClasses {
+  /** The variant these classes belong to — handy for conditionals. */
+  variant: ShapeVariant;
   item: string;
   bg: string;
   focusRing: string;
@@ -32,6 +32,7 @@ interface ShapeClasses {
 
 const shapeMap: Record<ShapeVariant, ShapeClasses> = {
   pill: {
+    variant: "pill",
     item: "rounded-[20px]",
     bg: "rounded-[20px]",
     // +2px over `item` because the focus ring sits 2px outside the element
@@ -46,6 +47,7 @@ const shapeMap: Record<ShapeVariant, ShapeClasses> = {
     mergedRadius: 16,
   },
   rounded: {
+    variant: "rounded",
     item: "rounded-lg",
     bg: "rounded-lg",
     focusRing: "rounded-[10px]",
@@ -66,9 +68,13 @@ interface ShapeContextValue {
 
 const ShapeContext = createContext<ShapeContextValue | null>(null);
 
+// Rounded is the default on every path: the site demos render under
+// <ShapeProvider defaultShape="rounded">, the shipped :focus-visible fallback
+// ring assumes its 8px radius, and the preset generators only emit a provider
+// for pill. A consumer with no provider gets the corners the docs show.
 function useShape(): ShapeClasses {
   const ctx = useContext(ShapeContext);
-  if (!ctx) return shapeMap.pill;
+  if (!ctx) return shapeMap.rounded;
   return ctx.classes;
 }
 
@@ -80,7 +86,7 @@ function useShapeContext() {
 
 function ShapeProvider({
   children,
-  defaultShape = "pill",
+  defaultShape = "rounded",
 }: {
   children: ReactNode;
   defaultShape?: ShapeVariant;
@@ -110,24 +116,16 @@ function ShapeProvider({
     [transitionShape]
   );
 
-  // Global keyboard shortcut: R to cycle radius
+  // Publish the current element radius as a CSS custom property so plain-CSS
+  // consumers that can't read React context stay in sync with the shape
+  // system — e.g. the @layer base :focus-visible fallback ring in
+  // globals.css. Set on <html> so portalled content sees it too.
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "r" && e.key !== "R") return;
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return;
-      e.preventDefault();
-      transitionShape(() => {
-        setShapeState((prev) => {
-          const idx = shapeOrder.indexOf(prev);
-          return shapeOrder[(idx + 1) % shapeOrder.length];
-        });
-      });
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [transitionShape]);
+    document.documentElement.style.setProperty(
+      "--shape-input-radius",
+      `${shapeMap[shape].bgRadius}px`
+    );
+  }, [shape]);
 
   const value = useMemo(
     () => ({ shape, setShape, classes: shapeMap[shape] }),
@@ -141,5 +139,5 @@ function ShapeProvider({
   );
 }
 
-export { useShape, shapeMap };
+export { ShapeProvider, useShape, useShapeContext, shapeMap };
 export type { ShapeVariant, ShapeClasses };

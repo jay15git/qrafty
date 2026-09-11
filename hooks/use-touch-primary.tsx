@@ -18,17 +18,9 @@ export function useTouchPrimary() {
 
     const handleTouch = () => {
       const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-      const prefersTouch =
-        typeof window.matchMedia === "function"
-          ? window.matchMedia("(pointer: coarse)").matches
-          : false;
+      const prefersTouch = window.matchMedia("(pointer: coarse)").matches;
       setIsTouchPrimary(hasTouch && prefersTouch);
     };
-
-    if (typeof window.matchMedia !== "function") {
-      handleTouch();
-      return () => controller.abort();
-    }
 
     const mq = window.matchMedia("(pointer: coarse)");
     mq.addEventListener("change", handleTouch, { signal });

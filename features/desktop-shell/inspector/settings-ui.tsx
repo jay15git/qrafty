@@ -23,8 +23,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { ElasticSlider } from "@/components/ui/elastic-slider"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Switch } from "@/components/ui/switch"
+import type { IconComponent, IconComponentProps } from "@/lib/icon-context"
 import type { DotsColorMode } from "@/features/qr-code/model/state"
 import { ContentTypeGridIcon } from "@/features/qr-code/content/ContentTypeGridIcon"
 import {
@@ -1007,6 +1014,21 @@ export function DesktopInspectorSettingsPopover({
 
 const OPTION_TILE_SCROLL_ROW = "dn-preview-row dn-option-tile-scroll-row"
 
+function createContentTypeSelectIcon(type: QrInputType): IconComponent {
+  function ContentTypeSelectIcon({ className }: IconComponentProps) {
+    return (
+      <ContentTypeGridIcon className={cn("!size-4 shrink-0", className)} type={type} />
+    )
+  }
+
+  ContentTypeSelectIcon.displayName = `ContentTypeSelectIcon_${type}`
+  return ContentTypeSelectIcon
+}
+
+const CONTENT_TYPE_SELECT_ICONS = Object.fromEntries(
+  PICKER_QR_INPUT_TYPES.map((type) => [type, createContentTypeSelectIcon(type)]),
+) as Record<(typeof PICKER_QR_INPUT_TYPES)[number], IconComponent>
+
 export function ContentTypeBrowser({
   onAfterSelect,
   selected,
@@ -1016,8 +1038,45 @@ export function ContentTypeBrowser({
   selected: QrInputType
   onSelect: (type: QrInputType) => void
 }) {
+  const mobileDensity = useMobileInspectorDensity()
+  const theme = useDesktopnewTheme()
   const normalizedSelected = normalizeContentTypeForPicker(selected)
   const types = PICKER_QR_INPUT_TYPES.map((type) => QR_INPUT_OPTIONS[type])
+
+  if (!mobileDensity) {
+    const selectedIcon = CONTENT_TYPE_SELECT_ICONS[normalizedSelected]
+
+    return (
+      <div className="dn-content-type-select w-full min-w-0">
+        <Select
+          value={normalizedSelected}
+          onValueChange={(next) => {
+            onSelect(next as QrInputType)
+            onAfterSelect?.()
+          }}
+        >
+          <SelectTrigger
+            className="dn-content-type-select-trigger w-full min-w-0 dn-squircle-sm"
+            icon={selectedIcon}
+            placeholder="Content type"
+            variant="borderless"
+          />
+          <SelectContent className={desktopnewPortalClass(theme, "dn-portal-surface")}>
+            {types.map((option, index) => (
+              <SelectItem
+                key={option.value}
+                icon={CONTENT_TYPE_SELECT_ICONS[option.value]}
+                index={index}
+                value={option.value}
+              >
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    )
+  }
 
   return (
     <SegmentTabs

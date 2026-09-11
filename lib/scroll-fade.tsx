@@ -66,10 +66,15 @@ function measureScrollEdges(
     const contentWidth = getHorizontalContentWidth(element);
     const layoutUnstable = !isHorizontalLayoutStable(element);
 
+    const overflowing = contentWidth - clientWidth > 1;
+
     if (!layoutUnstable) {
-      const overflowing = contentWidth - clientWidth > 1;
       next.left = overflowing && scrollLeft > 1;
       next.right = overflowing && scrollLeft + clientWidth < contentWidth - 1;
+    } else if (scrollLeft <= 1 && overflowing) {
+      // Radix/table-wrap inflation during accordion open: token width is
+      // trustworthy at scroll origin, so show the trailing fade immediately.
+      next.right = true;
     }
   }
   return next;
@@ -107,8 +112,17 @@ export function useScrollEdges(
     };
 
     update();
-    // Recompute once layout settles after enter animations.
-    const raf = requestAnimationFrame(update);
+    // Recompute across a few frames so popups that mount mid-animation
+    // (select menus, portalled lists) get correct edges before first paint.
+    let raf2 = 0;
+    let raf3 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      update();
+      raf2 = requestAnimationFrame(() => {
+        update();
+        raf3 = requestAnimationFrame(update);
+      });
+    });
     element.addEventListener("scroll", update, { passive: true });
 
     const ro =
@@ -133,7 +147,9 @@ export function useScrollEdges(
         : null;
     mo?.observe(element, { childList: true, subtree: true, characterData: true });
     return () => {
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      cancelAnimationFrame(raf3);
       if (moRaf) cancelAnimationFrame(moRaf);
       element.removeEventListener("scroll", update);
       ro?.disconnect();
@@ -183,6 +199,9 @@ export interface ScrollEdgeCueProps {
   /** Show the directional chevron in the band. The gradient fade always
    *  renders; set to `false` for a fade-only cue. Defaults to `true`. */
   chevron?: boolean;
+  /** Skip opacity enter/exit tweens — for portalled popups that should
+   *  show edge fades on the first frame. */
+  instantReveal?: boolean;
 }
 
 /** Standalone directional chevron for placement outside a scroll viewport. */
@@ -225,6 +244,7 @@ export function ScrollEdgeCue({
   size = "comfortable",
   inset = 4,
   chevron = true,
+  instantReveal = false,
 }: ScrollEdgeCueProps) {
   const contextLevel = useSurface();
   // Clamp to the ladder (1–8), mirroring SurfaceProvider — an out-of-range
@@ -245,7 +265,10 @@ export function ScrollEdgeCue({
           position: "absolute",
           opacity: visible ? 1 : 0,
           // Exit slightly faster than enter, per the animation guidelines.
-          transition: `opacity ${visible ? 160 : 120}ms ease`,
+          // instantReveal skips the mount tween that made popover fades pop in late.
+          transition: instantReveal
+            ? "none"
+            : `opacity ${visible ? 160 : 120}ms ease`,
           ...(mode === "sticky"
             ? vertical
               ? { left: -inset, right: -inset, [edge]: -inset, height: bandSize }
