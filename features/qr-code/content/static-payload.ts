@@ -513,6 +513,25 @@ export function validateStaticQrContent(
   }
 }
 
+const CONTENT_VALIDATION_OVERLAY_FALLBACK =
+  "Fill in the content fields to generate your QR code."
+
+export function getContentValidationOverlayMessage(
+  validation: StaticQrValidationResult,
+  encodedData: string,
+): string | null {
+  if (!validation.isValid) {
+    const firstError = Object.values(validation.fieldErrors)[0]
+    return firstError ?? CONTENT_VALIDATION_OVERLAY_FALLBACK
+  }
+
+  if (!encodedData.trim()) {
+    return CONTENT_VALIDATION_OVERLAY_FALLBACK
+  }
+
+  return null
+}
+
 function buildMailtoPayload(values: StaticQrContentValues) {
   const email = stringValue(values.email)
   const query = toQueryString({

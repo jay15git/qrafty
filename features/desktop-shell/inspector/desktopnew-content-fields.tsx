@@ -3,9 +3,11 @@
 import { Sparkles } from "lucide-react"
 import { useMemo, useState, type ClipboardEvent } from "react"
 
-import { LabelInput } from "@/components/label-input"
-import { LabelTextarea } from "@/components/label-textarea"
-import { findBrandIconById } from "@/features/qr-code/assets/brand-icons"
+import {
+  OptionScrollRow,
+  SettingsInput,
+  SettingsSwitchRow,
+} from "@/features/desktop-shell/inspector/settings-ui"
 import {
   getDetectionChipLabel,
   getLinkDetectionSource,
@@ -29,14 +31,8 @@ import {
   type StaticQrContentValue,
   type StaticQrContentValues,
 } from "@/features/qr-code/content/static-payload"
-import { SpellUiScope } from "@/features/desktop-shell/inspector/spell-ui-scope"
-import {
-  OptionScrollRow,
-  SettingsSwitchRow,
-} from "@/features/desktop-shell/inspector/settings-ui"
+import { findBrandIconById } from "@/features/qr-code/assets/brand-icons"
 import { cn } from "@/lib/utils"
-
-const FLOATING_LABEL_PLACEHOLDER = " "
 
 type ContentFieldGroup =
   | { fields: [ContentFieldDefinition, ContentFieldDefinition]; kind: "pair" }
@@ -120,14 +116,13 @@ function ContentFieldRow({
     )
   }
 
-  if (field.type === "textarea") {
+  if (field.type === "textarea" || field.type === "text") {
     return (
-      <div className="min-w-0">
-        <LabelTextarea
+      <div className="dn-content-field min-w-0">
+        {field.label ? <span className="dn-type-meta px-0.5">{field.label}</span> : null}
+        <SettingsInput
           id={controlId}
-          label={field.label}
-          placeholder={FLOATING_LABEL_PLACEHOLDER}
-          rows={2}
+          type={field.inputKind ?? "text"}
           value={stringContentValue(field.value)}
           onChange={(event) => onContentValueChange(field.id, event.currentTarget.value)}
         />
@@ -135,18 +130,7 @@ function ContentFieldRow({
     )
   }
 
-  return (
-    <div className="min-w-0">
-      <LabelInput
-        id={controlId}
-        label={field.label}
-        placeholder={FLOATING_LABEL_PLACEHOLDER}
-        type={field.inputKind ?? "text"}
-        value={stringContentValue(field.value)}
-        onChange={(event) => onContentValueChange(field.id, event.currentTarget.value)}
-      />
-    </div>
-  )
+  return null
 }
 
 function ContentDetectionChip({
@@ -287,12 +271,11 @@ export function DesktopNewContentFields({
   const fieldGroups = useMemo(() => groupContentFields(fields), [fields])
 
   return (
-    <SpellUiScope>
-      <div
-        className={cn("flex min-w-0 flex-col gap-3 pt-1")}
-        data-slot="desktopnew-content-fields"
-        onPaste={handlePaste}
-      >
+    <div
+      className={cn("dn-section-stack pt-1")}
+      data-slot="desktopnew-content-fields"
+      onPaste={handlePaste}
+    >
         {fieldGroups.map((group) => {
           if (group.kind === "pair") {
             const [leftField, rightField] = group.fields
@@ -324,7 +307,6 @@ export function DesktopNewContentFields({
           onApplyDetectedType={handleApplyDetectedType}
           onDismiss={() => setDismissedDetectionSource(linkSource)}
         />
-      </div>
-    </SpellUiScope>
+    </div>
   )
 }

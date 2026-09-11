@@ -2851,7 +2851,9 @@ export function WorkspaceSurface({
 
     return [
       {
+        activeQrLayerId,
         cardState: selectedCardState,
+        contentValidation: selectedContentValidation,
         id: activeQrNodeId,
         layers: activeCanvasLayers,
         name: "QR Code",
@@ -2868,6 +2870,7 @@ export function WorkspaceSurface({
     draftingQraftyState,
     qrStateByLayerId,
     selectedCardState,
+    selectedContentValidation,
     selectedLayerId,
   ])
 

@@ -294,11 +294,14 @@
 .dn-option-tile {
   position: relative;
   isolation: isolate;
+  box-sizing: border-box;
+  border: 2px solid transparent;
   background: var(--dn-control);
   color: var(--dn-muted);
   transition:
     color 160ms var(--dn-ease-out),
-    background-color 160ms var(--dn-ease-out);
+    background-color 160ms var(--dn-ease-out),
+    border-color 160ms var(--dn-ease-out);
 }
 
 .dn-option-tile::after,
@@ -307,6 +310,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
+  corner-shape: inherit;
   pointer-events: none;
   border: 2px solid var(--dn-fg);
   opacity: 0;
@@ -469,9 +473,12 @@
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
+  border: 2px solid transparent;
   padding: 5px;
   color: color-mix(in srgb, var(--dn-fg) 65%, transparent);
-  transition: color 160ms var(--dn-ease-out);
+  transition:
+    color 160ms var(--dn-ease-out),
+    border-color 160ms var(--dn-ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -797,82 +804,24 @@
   color: #f87171;
 }
 
-/* Spell UI components expect app-level shadcn tokens, not desktopnew remaps. */
-.desktopnew-root .spell-ui-scope {
-  color-scheme: light;
-  --spell-ui-label-bg: #ffffff;
-  --spell-ui-input-bg: var(--dn-control);
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.18 0 0);
-  --primary: oklch(0.18 0 0);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0 0);
-  --secondary-foreground: oklch(0.22 0 0);
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.94 0 0);
-  --accent-foreground: oklch(0.22 0 0);
-  --border: oklch(0.9 0 0 / 0.9);
-  --input: oklch(0.96 0 0);
-  --ring: oklch(0.65 0 0);
+[data-slot="desktopnew-content-fields"] .dn-content-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--dn-space-inline);
 }
 
-.desktopnew-root .spell-ui-scope.dark {
-  color-scheme: dark;
-  --spell-ui-label-bg: var(--dn-surface);
-  --spell-ui-input-bg: var(--dn-control);
-  --background: oklch(0.15 0 0);
-  --foreground: oklch(0.96 0 0);
-  --primary: oklch(0.92 0 0);
-  --primary-foreground: oklch(0.18 0 0);
-  --secondary: oklch(0.24 0 0);
-  --secondary-foreground: oklch(0.96 0 0);
-  --muted: oklch(0.22 0 0);
-  --muted-foreground: oklch(0.72 0 0);
-  --accent: oklch(0.25 0 0);
-  --accent-foreground: oklch(0.96 0 0);
-  --border: oklch(0.33 0 0 / 0.75);
-  --input: oklch(0.28 0 0 / 0.95);
-  --ring: oklch(0.72 0 0);
+[data-slot="desktopnew-content-fields"] .dn-settings-input {
+  border: none;
+  padding-inline: var(--dn-row-px);
 }
 
-.desktopnew-root .spell-ui-scope input {
-  border: none !important;
-  border-radius: var(--dn-radius-xs);
-  background: var(--spell-ui-input-bg) !important;
-  font-size: var(--dn-type-value);
-  font-weight: var(--dn-type-value-weight);
-  letter-spacing: var(--dn-tracking-tight);
-  color: var(--dn-type-value-color) !important;
-  box-shadow: none !important;
-}
-
-.desktopnew-root .spell-ui-scope textarea {
-  border: none !important;
-  border-radius: var(--dn-radius-xs);
-  background: var(--spell-ui-input-bg) !important;
-  font-size: var(--dn-type-value);
-  font-weight: var(--dn-type-value-weight);
-  line-height: 1.25;
-  letter-spacing: var(--dn-tracking-tight);
-  color: var(--dn-type-value-color) !important;
-  box-shadow: none !important;
-}
-
-.desktopnew-root .spell-ui-scope input:focus,
-.desktopnew-root .spell-ui-scope input:focus-visible,
-.desktopnew-root .spell-ui-scope textarea:focus,
-.desktopnew-root .spell-ui-scope textarea:focus-visible {
-  border: none !important;
+[data-slot="desktopnew-content-fields"] .dn-settings-input:focus,
+[data-slot="desktopnew-content-fields"] .dn-settings-input:focus-visible,
+[data-slot="desktopnew-content-fields"] .dn-settings-input[aria-invalid="true"] {
+  border: none;
+  box-shadow: none;
   outline: none;
-  box-shadow: none !important;
-  --tw-ring-shadow: 0 0 #0000 !important;
-  --tw-ring-offset-shadow: 0 0 #0000 !important;
-}
-
-.desktopnew-root .spell-ui-scope label {
-  background: transparent !important;
-  color: var(--dn-type-label-color) !important;
 }
 
 .dn-content-detection-chip {
@@ -1370,13 +1319,13 @@
 
 .dn-settings-accordion [role="region"] .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(.dn-option-scroll-tile) {
   background: transparent;
-  border: none;
+  border: 2px solid transparent;
 }
 
 .dn-settings-accordion [role="region"] .dn-option-scroll-chip,
 .dn-settings-accordion [role="region"] .dn-option-scroll-tile {
   background: var(--dn-control);
-  border: none;
+  border: 2px solid transparent;
 }
 
 .dn-settings-accordion [role="region"] .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(.dn-option-scroll-tile)[aria-pressed="true"],
@@ -1389,7 +1338,6 @@
 .dn-settings-accordion [role="region"] .dn-option-scroll-tile[aria-pressed="true"],
 .dn-settings-accordion [role="region"] .dn-option-scroll-tile[data-selected="true"] {
   background: var(--dn-control-hover);
-  border: none;
   box-shadow: none;
   color: var(--dn-fg);
 }
@@ -1855,7 +1803,7 @@
 
 .dn-insert-menu-popover .dn-option-tile:not(.dn-option-scroll-chip) {
   background: transparent;
-  border: none;
+  border: 2px solid transparent;
 }
 
 .dn-insert-menu-popover .dn-settings-row {
@@ -2142,7 +2090,7 @@
 
 .desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile:not(.dn-option-scroll-chip) {
   background: transparent;
-  border: none;
+  border: 2px solid transparent;
 }
 
 .desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile:not(.dn-option-scroll-chip)[aria-pressed="true"],

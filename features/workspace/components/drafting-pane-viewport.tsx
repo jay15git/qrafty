@@ -197,9 +197,11 @@ export function DraftingPaneViewport({
         className="flex h-full w-full items-center justify-center"
       >
         <Pane
+          activeQrLayerId={pane.activeQrLayerId}
           cardState={pane.cardState}
           contentPan={isFreeEditWorkspace ? effectivePan : undefined}
           contentOnlyZoom={isFreeEditWorkspace}
+          contentValidation={pane.contentValidation}
           interactionScale={effectiveZoom}
           viewFitScale={viewFitScale}
           layers={pane.layers}

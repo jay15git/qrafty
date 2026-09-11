@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import {
   buildStaticQrPayload,
+  getContentValidationOverlayMessage,
   getContentValuesForTypeChange,
   getDefaultStaticQrValues,
   resolveContentValuesForType,
@@ -288,5 +289,26 @@ describe("static QR content payloads", () => {
       fieldErrors: { phone: "Enter a valid phone number." },
       isValid: false,
     })
+  })
+
+  it("returns overlay messages for invalid or empty encoded content", () => {
+    expect(
+      getContentValidationOverlayMessage(validateStaticQrContent("link", { url: "" }), ""),
+    ).toBe("Enter a URL.")
+
+    expect(
+      getContentValidationOverlayMessage(
+        validateStaticQrContent("phone", { phone: "123" }),
+        "tel:123",
+      ),
+    ).toBe("Enter a valid phone number.")
+
+    expect(getContentValidationOverlayMessage(validateStaticQrContent("text", { text: "" }), "")).toBe(
+      "Fill in the content fields to generate your QR code.",
+    )
+
+    expect(
+      getContentValidationOverlayMessage(validateStaticQrContent("link", { url: "https://qrafty.app" }), "https://qrafty.app"),
+    ).toBeNull()
   })
 })

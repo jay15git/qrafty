@@ -24,6 +24,8 @@ export const Pane = memo(function Pane(props: PaneProps) {
   previousProps.interactionScale === nextProps.interactionScale &&
   previousProps.layers === nextProps.layers &&
   previousProps.qrStateByLayerId === nextProps.qrStateByLayerId &&
+  previousProps.contentValidation === nextProps.contentValidation &&
+  previousProps.activeQrLayerId === nextProps.activeQrLayerId &&
   previousProps.onLayerAction === nextProps.onLayerAction &&
   previousProps.selectedLayerId === nextProps.selectedLayerId &&
   previousProps.selectedLayerIds === nextProps.selectedLayerIds &&

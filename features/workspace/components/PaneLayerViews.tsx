@@ -47,6 +47,8 @@ import {
   DraftingShapeLayerContent,
 } from "@/features/workspace/rendering/shape-layer"
 import type { QraftyState } from "@/features/qr-code/model/state"
+import { getContentValidationOverlayMessage } from "@/features/qr-code/content/static-payload"
+import type { StaticQrValidationResult } from "@/features/qr-code/content/static-payload"
 import { getDraftingQrLayerLayout } from "@/features/qr-code/rendering/svg-extension"
 import { useDraftingQrMarkup } from "@/features/workspace/hooks/use-drafting-qr-markup"
 import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
@@ -272,9 +274,13 @@ function resolveQrLayerState(
 }
 
 function PaneQrLayerSurface({
+  activeQrLayerId,
+  contentValidation,
   layer,
   qrState,
 }: {
+  activeQrLayerId?: string
+  contentValidation?: StaticQrValidationResult
   layer: DraftingCanvasLayer
   qrState: QraftyState
 }) {
@@ -294,11 +300,16 @@ function PaneQrLayerSurface({
     qrState.backgroundShapeOptions,
   )
   const shapeTiltInnerStyle = getBackgroundShapeTiltInnerStyle(qrState.backgroundShapeOptions)
+  const overlayMessage =
+    activeQrLayerId && contentValidation && layer.id === activeQrLayerId
+      ? getContentValidationOverlayMessage(contentValidation, qrState.data)
+      : null
 
   return (
     <DraftingQrLayerContent
       canvasSvgMarkup={markup}
       layer={layer}
+      overlayMessage={overlayMessage}
       qrMarkup={displayMarkup}
       shapeTiltInnerStyle={shapeTiltInnerStyle}
       shapeTiltPerspectiveStyle={shapeTiltPerspectiveStyle}
@@ -308,10 +319,12 @@ function PaneQrLayerSurface({
 }
 
 export type PaneLayerViewSharedProps = {
+  activeQrLayerId?: string
   activeSelectedLayerIdSet: Set<string>
   cardImageStyle: CSSProperties | undefined
   cardState: DraftingCardState
   cardStyle: CSSProperties
+  contentValidation?: StaticQrValidationResult
   imageFilterShader: DraftingCardPaperShaderState
   isImageFilterMode: boolean
   isImageMode: boolean
@@ -325,10 +338,12 @@ export type PaneNestedLayerViewProps = PaneLayerViewSharedProps & {
 }
 
 export function PaneNestedLayerView({
+  activeQrLayerId,
   activeSelectedLayerIdSet,
   cardImageStyle,
   cardState,
   cardStyle,
+  contentValidation,
   imageFilterShader,
   isImageFilterMode,
   isImageMode,
@@ -361,10 +376,12 @@ export function PaneNestedLayerView({
           .map((child) => (
             <PaneNestedLayerView
               key={child.id}
+              activeQrLayerId={activeQrLayerId}
               activeSelectedLayerIdSet={activeSelectedLayerIdSet}
               cardImageStyle={cardImageStyle}
               cardState={cardState}
               cardStyle={cardStyle}
+              contentValidation={contentValidation}
               imageFilterShader={imageFilterShader}
               isImageFilterMode={isImageFilterMode}
               isImageMode={isImageMode}
@@ -394,7 +411,12 @@ export function PaneNestedLayerView({
           ...layerEffectStyle,
         }}
       >
-        <PaneQrLayerSurface layer={layer} qrState={qrState} />
+        <PaneQrLayerSurface
+          activeQrLayerId={activeQrLayerId}
+          contentValidation={contentValidation}
+          layer={layer}
+          qrState={qrState}
+        />
       </div>
     )
   }
@@ -558,6 +580,14 @@ function arePaneLayerViewPropsEqual(
       return false
     }
 
+    if (previous.contentValidation !== next.contentValidation) {
+      return false
+    }
+
+    if (previous.activeQrLayerId !== next.activeQrLayerId) {
+      return false
+    }
+
     if (
       previous.qrStateByLayerId[previous.layer.id] !==
       next.qrStateByLayerId[next.layer.id]
@@ -585,10 +615,12 @@ function arePaneLayerViewPropsEqual(
 }
 
 export const PaneLayerView = memo(function PaneLayerView({
+  activeQrLayerId,
   activeSelectedLayerIdSet,
   cardImageStyle,
   cardState,
   cardStyle,
+  contentValidation,
   editingTextDraft,
   editingTextLayerId,
   imageFilterShader,
@@ -646,10 +678,12 @@ export const PaneLayerView = memo(function PaneLayerView({
             .map((child) => (
               <PaneNestedLayerView
                 key={child.id}
+                activeQrLayerId={activeQrLayerId}
                 activeSelectedLayerIdSet={activeSelectedLayerIdSet}
                 cardImageStyle={cardImageStyle}
                 cardState={cardState}
                 cardStyle={cardStyle}
+                contentValidation={contentValidation}
                 imageFilterShader={imageFilterShader}
                 isImageFilterMode={isImageFilterMode}
                 isImageMode={isImageMode}
@@ -694,7 +728,12 @@ export const PaneLayerView = memo(function PaneLayerView({
         onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
       >
         <DraftingLayerTiltShell layer={layer}>
-          <PaneQrLayerSurface layer={layer} qrState={qrState} />
+          <PaneQrLayerSurface
+          activeQrLayerId={activeQrLayerId}
+          contentValidation={contentValidation}
+          layer={layer}
+          qrState={qrState}
+        />
         </DraftingLayerTiltShell>
       </PaneLayerInteractive>
     )

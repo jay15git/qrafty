@@ -9,6 +9,7 @@ import { DraftingPaneViewport } from "@/features/workspace/components/drafting-p
 import { useDraftingPaneSurfaceInteractions } from "@/features/workspace/components/use-drafting-pane-surface-interactions"
 import type { DraftingPaneInteractionState } from "@/features/workspace/components/canvas-control-props"
 import type { QraftyState } from "@/features/qr-code/model/state"
+import type { StaticQrValidationResult } from "@/features/qr-code/content/static-payload"
 import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
 
 export type DraftingPaneToolbarVariant = "default" | "desktop-zoom"
@@ -21,7 +22,9 @@ export function resolveDraftingCanvasTool(
 }
 
 export type DraftingPane = {
+  activeQrLayerId?: string
   cardState: DraftingCardState
+  contentValidation?: StaticQrValidationResult
   id: string
   layers?: DraftingCanvasLayer[]
   name: string

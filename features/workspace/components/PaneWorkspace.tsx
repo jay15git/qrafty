@@ -68,6 +68,7 @@ import {
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import type { QraftyState } from "@/features/qr-code/model/state"
+import type { StaticQrValidationResult } from "@/features/qr-code/content/static-payload"
 import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
 import { createDefaultSceneComposition, type SceneCompositionState } from "@/features/workspace/model/scene-templates"
 import {
@@ -95,9 +96,11 @@ import {
 import { previewDrawerResize } from "@/features/workspace/preview/preview-drawer-resize"
 
 export type PaneWorkspaceProps = {
+  activeQrLayerId?: string
   cardState?: DraftingCardState
   contentPan?: { x: number; y: number }
   contentOnlyZoom?: boolean
+  contentValidation?: StaticQrValidationResult
   interactionScale?: number
   viewFitScale?: number
   isSelected: boolean
@@ -192,9 +195,11 @@ function buildContentTransformStyle(
 }
 
 export function PaneWorkspace({
+  activeQrLayerId,
   cardState = DEFAULT_DRAFTING_CARD_STATE,
   contentPan,
   contentOnlyZoom = false,
+  contentValidation,
   interactionScale = 1,
   viewFitScale = 1,
   snapEnabled = true,
@@ -1404,10 +1409,12 @@ export function PaneWorkspace({
   }
 
   const layerViewSharedProps: PaneLayerViewSharedProps = {
+    activeQrLayerId,
     activeSelectedLayerIdSet,
     cardImageStyle,
     cardState,
     cardStyle,
+    contentValidation,
     imageFilterShader,
     isImageFilterMode,
     isImageMode,
