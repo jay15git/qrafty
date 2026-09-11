@@ -93,6 +93,115 @@ function applyUnifiedFillToPaintTargets(targets: SVGElement[], gradientRef: stri
   }
 }
 
+function formatSvgNumber(value: number) {
+  if (Math.abs(value) < 0.000001) {
+    return "0"
+  }
+
+  return Number(value.toFixed(4)).toString()
+}
+
+function findLogoImage(svg: SVGElement) {
+  return (
+    Array.from(svg.children).find((child) => {
+      if (child.tagName.toLowerCase() !== "image") {
+        return false
+      }
+
+      const layer = child.getAttribute("data-qr-layer")
+
+      return !layer
+    }) ?? null
+  )
+}
+
+function resolveLogoImageHref(logo: SVGElement) {
+  return logo.getAttribute("href") ?? logo.getAttributeNS("http://www.w3.org/1999/xlink", "href")
+}
+
+function hideOriginalPaintTarget(target: SVGElement) {
+  target.setAttribute("data-qr-layer", "unified-gradient-source")
+  target.setAttribute("opacity", "0")
+}
+
+function applyUnifiedGradientLogoFill(
+  svg: SVGElement,
+  document: Document,
+  {
+    coverRect,
+    gradientRef,
+    gradientId,
+    logo,
+  }: {
+    coverRect: ReturnType<typeof getModuleGradientCoverRect>
+    gradientRef: string
+    gradientId: string
+    logo: SVGElement
+  },
+) {
+  if (!coverRect) {
+    return
+  }
+
+  const logoHref = resolveLogoImageHref(logo)
+  const logoX = logo.getAttribute("x")
+  const logoY = logo.getAttribute("y")
+  const logoWidth = logo.getAttribute("width")
+  const logoHeight = logo.getAttribute("height")
+
+  if (!logoHref || !logoX || !logoY || !logoWidth || !logoHeight) {
+    return
+  }
+
+  const maskId = `${gradientId}-logo-mask`
+  const logoFillId = `${gradientId}-logo-gradient-fill`
+
+  svg.querySelector(`#${maskId}`)?.remove()
+  svg.querySelector(`#${logoFillId}`)?.remove()
+
+  const mask = document.createElementNS(SVG_NS, "mask")
+  mask.setAttribute("id", maskId)
+  mask.setAttribute("maskUnits", "userSpaceOnUse")
+  mask.setAttribute("maskContentUnits", "userSpaceOnUse")
+  mask.setAttribute("data-qr-layer", "logo-unified-gradient")
+
+  const maskImage = document.createElementNS(SVG_NS, "image")
+  maskImage.setAttribute("href", logoHref)
+  maskImage.setAttributeNS("http://www.w3.org/1999/xlink", "href", logoHref)
+  maskImage.setAttribute("x", logoX)
+  maskImage.setAttribute("y", logoY)
+  maskImage.setAttribute("width", logoWidth)
+  maskImage.setAttribute("height", logoHeight)
+
+  const preserveAspectRatio = logo.getAttribute("preserveAspectRatio")
+
+  if (preserveAspectRatio) {
+    maskImage.setAttribute("preserveAspectRatio", preserveAspectRatio)
+  }
+
+  mask.appendChild(maskImage)
+  getOrCreateSvgDefs(svg, document).appendChild(mask)
+
+  const logoFill = document.createElementNS(SVG_NS, "rect")
+  logoFill.setAttribute("id", logoFillId)
+  logoFill.setAttribute("x", formatSvgNumber(coverRect.x))
+  logoFill.setAttribute("y", formatSvgNumber(coverRect.y))
+  logoFill.setAttribute("width", formatSvgNumber(coverRect.width))
+  logoFill.setAttribute("height", formatSvgNumber(coverRect.height))
+  logoFill.setAttribute("fill", gradientRef)
+  logoFill.setAttribute("mask", `url(#${maskId})`)
+  logoFill.setAttribute("data-qr-layer", "logo-unified-gradient-fill")
+
+  const logoOpacity = logo.getAttribute("opacity")
+
+  if (logoOpacity) {
+    logoFill.setAttribute("opacity", logoOpacity)
+  }
+
+  hideOriginalPaintTarget(logo)
+  svg.insertBefore(logoFill, logo)
+}
+
 export function applyUnifiedQrGradientFill(
   svg: SVGElement,
   {
@@ -141,4 +250,17 @@ export function applyUnifiedQrGradientFill(
     [...moduleTargets, ...finderOuter, ...finderInner, ...customCornerDots],
     gradientRef,
   )
+
+  const document = svg.ownerDocument
+  const coverRect = getModuleGradientCoverRect(svg, margin)
+  const logo = findLogoImage(svg)
+
+  if (document && coverRect && logo) {
+    applyUnifiedGradientLogoFill(svg, document, {
+      coverRect,
+      gradientId,
+      gradientRef,
+      logo,
+    })
+  }
 }

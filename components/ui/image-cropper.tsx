@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
-import { Crop, Upload, UploadCloud, X } from "lucide-react"
+import { Crop, Plus, Upload, UploadCloud, X } from "lucide-react"
 import type React from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
@@ -55,6 +55,8 @@ interface ImageUploaderProps {
   placeholder?: string
   showFormatHint?: boolean
   compact?: boolean
+  /** Square option-grid tile: plus empty state, no dashed frame. */
+  tile?: boolean
 }
 
 export function ImageCropper({
@@ -75,6 +77,7 @@ export function ImageCropper({
   placeholder = "Drag and drop an image here, or click to select",
   showFormatHint = true,
   compact = false,
+  tile = false,
 }: ImageUploaderProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [originalFile, setOriginalFile] = useState<File | null>(null)
@@ -506,9 +509,12 @@ export function ImageCropper({
     <>
       <div
         className={cn(
-          "group overflow-hidden rounded-lg border-2 border-dashed text-center transition-colors",
-          compact ? "aspect-square w-full" : "h-52",
-          previewSurfaceClass,
+          "group overflow-hidden text-center transition-colors",
+          tile
+            ? "size-full border-0 bg-transparent"
+            : "rounded-lg border-2 border-dashed",
+          !tile && (compact ? "aspect-square w-full" : "h-52"),
+          !tile && previewSurfaceClass,
           disabled
             ? "cursor-not-allowed border-muted-foreground/10"
             : "cursor-pointer",
@@ -536,14 +542,14 @@ export function ImageCropper({
                 src={croppedImageUrl}
                 alt="Uploaded image"
                 className={cn(
-                  compact
-                    ? "size-full object-contain"
+                  tile || compact
+                    ? "size-full object-cover"
                     : "h-[204px] w-full rounded-lg object-cover",
-                  previewSurfaceClass,
+                  !tile && previewSurfaceClass,
                   imgClassName,
                 )}
               />
-              {!disabled ? (
+              {!disabled && !tile ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                   <UploadCloud className="size-8 text-white/80" />
                 </div>
@@ -554,7 +560,8 @@ export function ImageCropper({
                   size="icon-md"
                   type="button"
                   className={cn(
-                    "absolute top-2 right-2 rounded-full backdrop-blur-sm",
+                    "absolute rounded-full backdrop-blur-sm",
+                    tile ? "top-1 right-1 size-6" : "top-2 right-2",
                     compact && dialogTheme === "dark"
                       ? "bg-black/70 text-white hover:bg-black/85"
                       : compact && dialogTheme === "light"
@@ -566,7 +573,7 @@ export function ImageCropper({
                     handleRemoveImage()
                   }}
                 >
-                  <X className="size-4" />
+                  <X className={cn(tile ? "size-3" : "size-4")} />
                 </Button>
               ) : null}
             </div>
@@ -574,16 +581,25 @@ export function ImageCropper({
             <div
               className={cn(
                 "relative flex w-full flex-col items-center justify-center",
-                compact ? "size-full px-3 py-3" : "px-4 py-8",
+                tile || compact ? "size-full px-1.5 py-1.5" : "px-4 py-8",
               )}
             >
-              <Upload
-                className={cn(
-                  compact ? "mb-1 size-7" : "mx-auto mb-4 size-12",
-                  disabled ? "text-muted-foreground/50" : "text-muted-foreground",
-                )}
-              />
-              {placeholder ? (
+              {tile ? (
+                <Plus
+                  className={cn(
+                    "size-5",
+                    disabled ? "text-muted-foreground/50" : "text-muted-foreground",
+                  )}
+                />
+              ) : (
+                <Upload
+                  className={cn(
+                    compact ? "mb-1 size-7" : "mx-auto mb-4 size-12",
+                    disabled ? "text-muted-foreground/50" : "text-muted-foreground",
+                  )}
+                />
+              )}
+              {!tile && placeholder ? (
                 <p
                   className={cn(
                     compact ? "text-xs" : "mb-2 line-clamp-2 text-sm",
@@ -593,7 +609,7 @@ export function ImageCropper({
                   {isProcessing ? "Processing…" : placeholder}
                 </p>
               ) : null}
-              {showFormatHint ? (
+              {!tile && showFormatHint ? (
                 <p
                   className={cn(
                     "line-clamp-1 text-xs",

@@ -3,6 +3,7 @@ import type { DesktopToolbarToolId } from "@/features/desktop-shell/model/deskto
 export const DESKTOP_SETTINGS_SECTIONS = [
   "Content",
   "QR",
+  "Color",
   "Motion",
   "Shape",
   "Background",
@@ -14,6 +15,7 @@ export type DesktopSettingsSectionId = (typeof DESKTOP_SETTINGS_SECTIONS)[number
 export const DESKTOP_SETTINGS_SECTION_LABELS: Record<DesktopSettingsSectionId, string> = {
   Content: "Content",
   QR: "Style",
+  Color: "Color",
   Motion: "Motion",
   Shape: "Shape",
   Background: "Background",
@@ -27,6 +29,7 @@ export function getDesktopSettingsSectionLabel(section: DesktopSettingsSectionId
 export const SECTION_TO_TOOL: Partial<Record<DesktopSettingsSectionId, DesktopToolbarToolId>> = {
   Content: "content",
   QR: "pattern",
+  Color: "pattern",
   Shape: "shape",
   Background: "background",
   Motion: "motion",
@@ -50,6 +53,7 @@ export function sectionForTool(tool: DesktopToolbarToolId | null): DesktopSettin
 export const MOBILE_DRAWER_VIEW_FOR_SECTION: Record<DesktopSettingsSectionId, string> = {
   Content: "content",
   QR: "qr",
+  Color: "color",
   Motion: "motion",
   Shape: "shape",
   Background: "background",

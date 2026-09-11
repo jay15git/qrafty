@@ -45,7 +45,9 @@ import {
   LogoIconPicker,
   LogoSelectionIcon,
 } from "@/features/desktop-shell/inspector/settings-pickers"
+import { parseFill } from "@/components/ui/fill-picker-base/public-api"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import { QrColorFillControls } from "@/features/desktop-shell/inspector/qr-color-fill-controls"
 import {
   applyCornerFill,
   applyLogoFill,
@@ -53,12 +55,17 @@ import {
   applyPatternModuleImageUrl,
   applyCardFill,
   applyShapeFill,
+  applyUnifiedQrFill,
+  applyUnifiedQrModuleImageUrl,
+  applyUnifiedQrModulePatternPatch,
   isPatternModuleImageFill,
   readCornerFillCss,
   readLogoFillCss,
   readPatternModuleFillCss,
   readShapeFillCss,
   solidColorToFillCss,
+  type UnifiedQrFillPatches,
+  type UnifiedQrFillSettings,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
 import {
   getCardGeneratedShaderDefinitions,
@@ -380,19 +387,6 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
     onPatternSettingsChange,
   } = model
 
-  const moduleFill = readPatternModuleFillCss(actualPatternSettings)
-  const eyeFill = readCornerFillCss(
-    actualCornersSettings.cornerDotColorMode,
-    actualCornersSettings.cornerDotSolidColor,
-    actualCornersSettings.cornerDotGradient,
-  )
-  const frameFill = readCornerFillCss(
-    actualCornersSettings.cornerSquareColorMode,
-    actualCornersSettings.cornerSquareSolidColor,
-    actualCornersSettings.cornerSquareGradient,
-  )
-  const logoFill = readLogoFillCss(actualLogoSettings)
-
   const part =
     tab === "Module"
       ? {
@@ -461,89 +455,267 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
               value={actualLogoSettings.size}
               onChange={(size) => onLogoSettingsChange({ size })}
             />
-            <SettingsFillPopover
-              hint="Fill"
-              qrGradient
-              value={logoFill}
-              onValueChange={(fill) => onLogoSettingsChange(applyLogoFill(fill, actualLogoSettings))}
-            />
           </>
         ) : part ? (
-          <>
-            <QrStylePreviewGrid
-              options={part.options}
-              previewKind={part.previewKind}
-              selected={part.selected}
-              onSelect={part.onSelect}
-            />
-            {tab === "Module" ? (
-              <SettingsFillPopover
-                fillPreviewImageUrl={
-                  isPatternModuleImageFill(actualPatternSettings)
-                    ? actualPatternSettings.moduleFillImageUrl
-                    : undefined
-                }
-                hint="Fill"
-                moduleFillMode={actualPatternSettings.dotsColorMode}
-                moduleImage={{
-                  imageUrl: actualPatternSettings.moduleFillImageUrl,
-                  onUpload: (imageUrl) =>
-                    onPatternSettingsChange(applyPatternModuleImageUrl(imageUrl, "upload")),
-                  onClear: () =>
-                    onPatternSettingsChange(applyPatternModuleImageUrl("", "upload")),
-                }}
-                qrGradient
-                modulePattern={{
-                  selectedPalette: actualPatternSettings.dotsPalette,
-                  selectedPreset: actualPatternSettings.dotsPalettePreset,
-                  onSelect: (preset) =>
-                    onPatternSettingsChange(
-                      preset === "custom"
-                        ? { dotsColorMode: "palette", dotsPalettePreset: "custom" }
-                        : {
-                            dotsColorMode: "palette",
-                            dotsPalette: [...preset.colors],
-                            dotsPalettePreset: preset.label,
-                          },
-                    ),
-                  onPaletteColorChange: (index, color) =>
-                    onPatternSettingsChange({
-                      dotsColorMode: "palette",
-                      dotsPalettePreset: "custom",
-                      dotsPalette: actualPatternSettings.dotsPalette.map((current, paletteIndex) =>
-                        paletteIndex === index ? color : current,
-                      ),
-                    }),
-                }}
-                value={moduleFill}
-                onValueChange={(fill) =>
-                  onPatternSettingsChange(applyPatternModuleFill(fill, actualPatternSettings))
-                }
-              />
-            ) : (
-              <SettingsFillPopover
-                hint="Fill"
-                qrGradient
-                value={tab === "Eye" ? eyeFill : frameFill}
-                onValueChange={(fill) =>
-                  onCornersSettingsChange(
-                    applyCornerFill(fill, tab === "Eye" ? "eye" : "frame", actualCornersSettings),
-                  )
-                }
-              />
-            )}
-          </>
+          <QrStylePreviewGrid
+            options={part.options}
+            previewKind={part.previewKind}
+            selected={part.selected}
+            onSelect={part.onSelect}
+          />
         ) : null}
       </SettingsTabPanel>
-      <SettingsSwitchRow
-        checked={actualPatternSettings.gradientLinkMode === "unified"}
-        label="Unified color"
-        onChange={(unified) =>
-          onPatternSettingsChange({
-            gradientLinkMode: unified ? "unified" : "split",
-          })
-        }
+    </div>
+  )
+}
+
+function QrColorUnifiedSettings({
+  model,
+  unifiedSettings,
+  onApplyUnifiedPatches,
+}: {
+  model: DesktopInspectorModel
+  unifiedSettings: UnifiedQrFillSettings
+  onApplyUnifiedPatches: (patches: UnifiedQrFillPatches) => void
+}) {
+  const { actualPatternSettings } = model
+  const moduleFill = readPatternModuleFillCss(actualPatternSettings)
+
+  return (
+    <QrColorFillControls
+      moduleCapable
+      fillPreviewImageUrl={
+        isPatternModuleImageFill(actualPatternSettings)
+          ? actualPatternSettings.moduleFillImageUrl
+          : undefined
+      }
+      moduleFillMode={actualPatternSettings.dotsColorMode}
+      moduleImage={{
+        imageUrl: actualPatternSettings.moduleFillImageUrl,
+        onUpload: (imageUrl, sourceMode = "upload") =>
+          onApplyUnifiedPatches(
+            applyUnifiedQrModuleImageUrl(imageUrl, sourceMode, unifiedSettings),
+          ),
+        onClear: () =>
+          onApplyUnifiedPatches(
+            applyUnifiedQrModuleImageUrl("", "upload", unifiedSettings),
+          ),
+      }}
+      modulePattern={{
+        selectedPalette: actualPatternSettings.dotsPalette,
+        selectedPreset: actualPatternSettings.dotsPalettePreset,
+        onSelect: (preset) =>
+          onApplyUnifiedPatches(
+            applyUnifiedQrModulePatternPatch(
+              preset === "custom"
+                ? { dotsColorMode: "palette", dotsPalettePreset: "custom" }
+                : {
+                    dotsColorMode: "palette",
+                    dotsPalette: [...preset.colors],
+                    dotsPalettePreset: preset.label,
+                  },
+              unifiedSettings,
+            ),
+          ),
+        onPaletteColorChange: (index, color) =>
+          onApplyUnifiedPatches(
+            applyUnifiedQrModulePatternPatch(
+              {
+                dotsColorMode: "palette",
+                dotsPalettePreset: "custom",
+                dotsPalette: actualPatternSettings.dotsPalette.map((current, paletteIndex) =>
+                  paletteIndex === index ? color : current,
+                ),
+              },
+              unifiedSettings,
+            ),
+          ),
+      }}
+      persistKey="qr-color-unified"
+      qrGradient
+      value={moduleFill}
+      onValueChange={(fill) => onApplyUnifiedPatches(applyUnifiedQrFill(fill, unifiedSettings))}
+    />
+  )
+}
+
+function QrColorPerPartSettings({
+  model,
+  tab,
+  onTabChange,
+}: {
+  model: DesktopInspectorModel
+  tab: string
+  onTabChange: (nextTab: string) => void
+}) {
+  const {
+    actualCornersSettings,
+    actualLogoSettings,
+    actualPatternSettings,
+    onCornersSettingsChange,
+    onLogoSettingsChange,
+    onPatternSettingsChange,
+  } = model
+
+  const moduleFill = readPatternModuleFillCss(actualPatternSettings)
+  const eyeFill = readCornerFillCss(
+    actualCornersSettings.cornerDotColorMode,
+    actualCornersSettings.cornerDotSolidColor,
+    actualCornersSettings.cornerDotGradient,
+  )
+  const frameFill = readCornerFillCss(
+    actualCornersSettings.cornerSquareColorMode,
+    actualCornersSettings.cornerSquareSolidColor,
+    actualCornersSettings.cornerSquareGradient,
+  )
+  const logoFill = readLogoFillCss(actualLogoSettings)
+
+  return (
+    <>
+      <SegmentTabs
+        items={["Module", "Eye", "Frame", "Logo"]}
+        value={tab}
+        onChange={onTabChange}
       />
+
+      <SettingsTabPanel activeKey={tab}>
+        {tab === "Logo" ? (
+          <QrColorFillControls
+            persistKey="qr-color-logo"
+            qrGradient
+            value={logoFill}
+            onValueChange={(fill) => onLogoSettingsChange(applyLogoFill(fill, actualLogoSettings))}
+          />
+        ) : tab === "Module" ? (
+          <QrColorFillControls
+            moduleCapable
+            fillPreviewImageUrl={
+              isPatternModuleImageFill(actualPatternSettings)
+                ? actualPatternSettings.moduleFillImageUrl
+                : undefined
+            }
+            moduleFillMode={actualPatternSettings.dotsColorMode}
+            moduleImage={{
+              imageUrl: actualPatternSettings.moduleFillImageUrl,
+              onUpload: (imageUrl, sourceMode = "upload") =>
+                onPatternSettingsChange(applyPatternModuleImageUrl(imageUrl, sourceMode)),
+              onClear: () =>
+                onPatternSettingsChange(applyPatternModuleImageUrl("", "upload")),
+            }}
+            modulePattern={{
+              selectedPalette: actualPatternSettings.dotsPalette,
+              selectedPreset: actualPatternSettings.dotsPalettePreset,
+              onSelect: (preset) =>
+                onPatternSettingsChange(
+                  preset === "custom"
+                    ? { dotsColorMode: "palette", dotsPalettePreset: "custom" }
+                    : {
+                        dotsColorMode: "palette",
+                        dotsPalette: [...preset.colors],
+                        dotsPalettePreset: preset.label,
+                      },
+                ),
+              onPaletteColorChange: (index, color) =>
+                onPatternSettingsChange({
+                  dotsColorMode: "palette",
+                  dotsPalettePreset: "custom",
+                  dotsPalette: actualPatternSettings.dotsPalette.map((current, paletteIndex) =>
+                    paletteIndex === index ? color : current,
+                  ),
+                }),
+            }}
+            persistKey="qr-color-module"
+            qrGradient
+            value={moduleFill}
+            onValueChange={(fill) =>
+              onPatternSettingsChange(applyPatternModuleFill(fill, actualPatternSettings))
+            }
+          />
+        ) : tab === "Eye" || tab === "Frame" ? (
+          <QrColorFillControls
+            persistKey={`qr-color-${tab.toLowerCase()}`}
+            qrGradient
+            value={tab === "Eye" ? eyeFill : frameFill}
+            onValueChange={(fill) =>
+              onCornersSettingsChange(
+                applyCornerFill(fill, tab === "Eye" ? "eye" : "frame", actualCornersSettings),
+              )
+            }
+          />
+        ) : null}
+      </SettingsTabPanel>
+    </>
+  )
+}
+
+export function QrColorSection({ model }: { model: DesktopInspectorModel }) {
+  const [tab, setTab] = useState(() => getInspectorSectionTab("qr-style", "Module"))
+  const {
+    actualCornersSettings,
+    actualLogoSettings,
+    actualPatternSettings,
+    onCornersSettingsChange,
+    onLogoSettingsChange,
+    onPatternSettingsChange,
+  } = model
+
+  const isUnified = actualPatternSettings.gradientLinkMode === "unified"
+  const colorMode = isUnified ? "Whole QR" : "Per part"
+  const unifiedSettings: UnifiedQrFillSettings = {
+    pattern: actualPatternSettings,
+    corners: actualCornersSettings,
+    logo: actualLogoSettings,
+  }
+
+  function applyUnifiedPatches(patches: UnifiedQrFillPatches) {
+    if (model.onUnifiedQrFillSettingsChange) {
+      model.onUnifiedQrFillSettingsChange(patches)
+      return
+    }
+
+    onPatternSettingsChange(patches.pattern)
+    onCornersSettingsChange(patches.corners)
+    onLogoSettingsChange(patches.logo)
+  }
+
+  function handleColorModeChange(nextMode: string) {
+    if (nextMode === "Whole QR") {
+      const moduleFillCss = readPatternModuleFillCss(actualPatternSettings)
+      const fill = parseFill(moduleFillCss)
+
+      if (fill) {
+        applyUnifiedPatches(applyUnifiedQrFill(fill, unifiedSettings))
+        return
+      }
+
+      onPatternSettingsChange({ gradientLinkMode: "unified" })
+      return
+    }
+
+    onPatternSettingsChange({ gradientLinkMode: "split" })
+  }
+
+  function handlePartTabChange(nextTab: string) {
+    setTab(nextTab)
+    setInspectorSectionTab("qr-style", nextTab)
+  }
+
+  return (
+    <div className="dn-section-stack w-full min-w-0 max-w-full">
+      <SegmentTabs
+        items={["Whole QR", "Per part"]}
+        value={colorMode}
+        onChange={handleColorModeChange}
+      />
+      {isUnified ? (
+        <QrColorUnifiedSettings
+          model={model}
+          unifiedSettings={unifiedSettings}
+          onApplyUnifiedPatches={applyUnifiedPatches}
+        />
+      ) : (
+        <QrColorPerPartSettings model={model} tab={tab} onTabChange={handlePartTabChange} />
+      )}
     </div>
   )
 }
@@ -726,6 +898,9 @@ export function SettingsSectionBody({
       break
     case "QR":
       body = <QrStyleSection model={model} />
+      break
+    case "Color":
+      body = <QrColorSection model={model} />
       break
     case "Shape":
       body = <CardSection model={model} />

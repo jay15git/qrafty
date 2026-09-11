@@ -1,5 +1,8 @@
-import type { DesktopPatternSettingsPatch } from "@/features/desktop-shell/model/desktop-toolbar-types"
-import type { DesktopCornersSettings } from "@/features/desktop-shell/model/desktop-toolbar-types"
+import type {
+  DesktopCornersSettings,
+  DesktopLogoSettings,
+  DesktopPatternSettingsPatch,
+} from "@/features/desktop-shell/model/desktop-toolbar-types"
 import type { QraftyState } from "@/features/qr-code/model/state"
 export function applyPatternSettingsPatchToQraftyState(
   state: QraftyState,
@@ -201,6 +204,36 @@ export function applyCornersSettingsPatchToQraftyState(
     next = {
       ...next,
       finderPatternInnerGradient: { ...patch.cornerDotGradient, enabled: true },
+    }
+  }
+
+  return next
+}
+
+export function applyLogoSettingsPatchToQraftyState(
+  state: QraftyState,
+  patch: Partial<DesktopLogoSettings>,
+): QraftyState {
+  let next = state
+
+  if (patch.colorMode === "solid" || patch.solidColor) {
+    next = {
+      ...next,
+      logo: {
+        ...next.logo,
+        presetColor: patch.solidColor ?? next.logo.presetColor,
+      },
+      logoGradient: {
+        ...next.logoGradient,
+        enabled: false,
+      },
+    }
+  }
+
+  if (patch.colorMode === "gradient" && patch.gradient) {
+    next = {
+      ...next,
+      logoGradient: { ...patch.gradient, enabled: true },
     }
   }
 

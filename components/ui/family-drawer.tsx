@@ -207,6 +207,7 @@ const DEFAULT_VIEW_ACCESSIBILITY_TITLES: Record<string, string> = {
   default: "Settings",
   content: "Content",
   qr: "Style",
+  color: "Color",
   motion: "Motion",
   shape: "Shape",
   background: "Background",

@@ -37,7 +37,7 @@ describe("unified qr gradient fill", () => {
     expect(serialized).not.toContain('corner-dot-gradient')
   })
 
-  it("does not modify logo images in unified mode", () => {
+  it("applies unified gradients through logo alpha masks", () => {
     const svgMarkup = `<svg viewBox="0 0 49 49" xmlns="http://www.w3.org/2000/svg">
       <path data-testid="data-modules" fill="#111827" d="M12 12h1v1h-1z" />
       <image href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23111827' d='M12 2h10v20H12z'/%3E%3C/svg%3E" x="18" y="18" width="12" height="12" />
@@ -61,8 +61,8 @@ describe("unified qr gradient fill", () => {
 
     const serialized = new XMLSerializer().serializeToString(svg)
 
-    expect(serialized).toContain("<image")
-    expect(serialized).not.toContain('data-qr-layer="logo-unified-gradient"')
-    expect(serialized).not.toContain('data-qr-layer="logo-unified-gradient-fill"')
+    expect(serialized).toContain('data-qr-layer="logo-unified-gradient"')
+    expect(serialized).toContain('data-qr-layer="logo-unified-gradient-fill"')
+    expect(serialized).toContain('fill="url(#qrafty-dots-gradient)"')
   })
 })

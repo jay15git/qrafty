@@ -2397,6 +2397,52 @@
   background: transparent;
 }
 
+.dn-pattern-option-grid [data-slot="scroll-area-viewport"] {
+  padding-block: 0.125rem;
+}
+
+.dn-pattern-option-grid .dn-preview-row {
+  align-items: center;
+  padding-block: 0.25rem;
+}
+
+.dn-pattern-option-grid .dn-pattern-option-tile {
+  flex: 0 0 3.5rem;
+  width: 3.5rem;
+  min-width: 3.5rem;
+  max-width: 3.5rem;
+  height: 2rem;
+  min-height: 2rem;
+  max-height: 2rem;
+  box-sizing: border-box;
+  padding: 3px;
+  background: transparent;
+}
+
+.dn-pattern-option-grid .dn-fill-option-tile {
+  flex: 0 0 2rem;
+  width: 2rem;
+  min-width: 2rem;
+  max-width: 2rem;
+  height: 2rem;
+  min-height: 2rem;
+  max-height: 2rem;
+  aspect-ratio: 1 / 1;
+  padding: 3px;
+}
+
+.dn-image-upload-tile {
+  padding: 0;
+  background: transparent;
+}
+
+.dn-settings-accordion [role="region"] .dn-image-upload-tile {
+  flex: 0 0 var(--dn-preview-tile);
+  width: var(--dn-preview-tile);
+  min-width: var(--dn-preview-tile);
+  max-width: var(--dn-preview-tile);
+}
+
 .dn-paper-shader-color-grid .dn-paper-shader-color-chip {
   flex: 0 0 var(--dn-icon-hit);
   width: var(--dn-icon-hit);

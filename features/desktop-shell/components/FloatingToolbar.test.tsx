@@ -57,6 +57,7 @@ describe("FloatingToolbar", () => {
     expect(sectionHeaders.map((header) => header.textContent?.trim())).toEqual([
       "Content",
       "Style",
+      "Color",
       "Motion",
       "Shape",
       "Background",
@@ -81,6 +82,20 @@ describe("FloatingToolbar", () => {
     expect(getRequiredAccordionHeader(surface.container, "Style").getAttribute("aria-expanded")).toBe(
       "true",
     )
+  })
+
+  it("shows whole-QR color mode controls in the Color accordion", async () => {
+    const surface = await renderPrototype()
+    const colorHeader = getRequiredAccordionHeader(surface.container, "Color")
+
+    await act(async () => {
+      colorHeader.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    const inspector = surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')
+
+    expect(inspector?.textContent).toContain("Whole QR")
+    expect(inspector?.textContent).toContain("Per part")
   })
 
   it("keeps the open accordion section when canvas activeTool changes", async () => {
@@ -408,24 +423,25 @@ describe("FloatingToolbar", () => {
     await renderPrototype()
 
     const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
-    const shapeButton = Array.from(drawerRoot?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
-      (button) => button.textContent?.trim() === "Shape",
+    const colorButton = Array.from(drawerRoot?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
+      (button) => button.textContent?.trim() === "Color",
     )
 
-    expect(shapeButton).not.toBeNull()
+    expect(colorButton).not.toBeNull()
 
     await act(async () => {
-      shapeButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      colorButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
-    const fillRow = Array.from(drawerRoot?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
-      (button) => button.textContent?.includes("Fill"),
+    const sectionRoot = drawerRoot?.querySelector('[data-mobile-inspector=""]')
+    const customFillButton = sectionRoot?.querySelector<HTMLButtonElement>(
+      'button[aria-label="Custom fill"]',
     )
 
-    expect(fillRow).not.toBeNull()
+    expect(customFillButton).not.toBeNull()
 
     await act(async () => {
-      fillRow?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      customFillButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
     expect(
@@ -482,6 +498,7 @@ function getAccordionHeaders(container: HTMLElement) {
   const sectionLabels = new Set([
     "Content",
     "Style",
+    "Color",
     "Motion",
     "Shape",
     "Background",

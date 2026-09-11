@@ -3,9 +3,11 @@
 import { ChevronRight, X } from "lucide-react"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
 import {
+  forwardRef,
   useContext,
   useEffect,
   useId,
+  useImperativeHandle,
   useLayoutEffect,
   useRef,
   useState,
@@ -529,48 +531,59 @@ export function SettingsTabPanel({
   )
 }
 
-export function SettingsFillPopover({
-  value,
-  onValueChange,
-  hint = "Fill",
-  title,
-  modulePattern,
-  moduleImage,
-  fillPreviewImageUrl,
-  moduleFillMode,
-  solidOnly = false,
-  qrGradient = false,
-  variant = "row",
-  side = "right",
-  align = "start",
-  collisionPadding,
-  triggerClassName,
-}: {
-  value: string
-  onValueChange: (fill: Fill, css: string) => void
-  hint?: string
-  title?: string
-  solidOnly?: boolean
-  qrGradient?: boolean
-  variant?: "row" | "swatch" | "grid"
-  side?: "top" | "right" | "bottom" | "left"
-  align?: "start" | "center" | "end"
-  collisionPadding?: number
-  triggerClassName?: string
-  fillPreviewImageUrl?: string
-  modulePattern?: {
-    selectedPalette: string[]
-    selectedPreset: string | "custom"
-    onSelect: (preset: { label: string; colors: string[] } | "custom") => void
-    onPaletteColorChange: (index: number, color: string) => void
-  }
-  moduleImage?: {
-    imageUrl: string
-    onUpload: (imageUrl: string) => void
-    onClear: () => void
-  }
-  moduleFillMode?: DotsColorMode
-}) {
+export type SettingsFillPopoverHandle = {
+  openPicker: () => void
+}
+
+export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
+  {
+    value,
+    onValueChange,
+    hint = "Fill",
+    title,
+    modulePattern,
+    moduleImage,
+    fillPreviewImageUrl,
+    moduleFillMode,
+    lockedFillMode,
+    solidOnly = false,
+    qrGradient = false,
+    variant = "row",
+    gridPresets,
+    side = "right",
+    align = "start",
+    collisionPadding,
+    triggerClassName,
+  }: {
+    value: string
+    onValueChange: (fill: Fill, css: string) => void
+    hint?: string
+    title?: string
+    solidOnly?: boolean
+    qrGradient?: boolean
+    variant?: "row" | "swatch" | "grid" | "picker-only"
+    gridPresets?: readonly string[]
+    side?: "top" | "right" | "bottom" | "left"
+    align?: "start" | "center" | "end"
+    collisionPadding?: number
+    triggerClassName?: string
+    fillPreviewImageUrl?: string
+    modulePattern?: {
+      selectedPalette: string[]
+      selectedPreset: string | "custom"
+      onSelect: (preset: { label: string; colors: string[] } | "custom") => void
+      onPaletteColorChange: (index: number, color: string) => void
+    }
+    moduleImage?: {
+      imageUrl: string
+      onUpload: (imageUrl: string) => void
+      onClear: () => void
+    }
+    moduleFillMode?: DotsColorMode
+    lockedFillMode?: import("@/features/desktop-shell/inspector/desktopnew-fill-picker").LockedFillPickerMode
+  },
+  ref: React.Ref<SettingsFillPopoverHandle>,
+) {
   const theme = useDesktopnewTheme()
   const mobileDensity = useMobileInspectorDensity()
   const mobileNav = useMobileDrawerNavigation()
@@ -581,7 +594,9 @@ export function SettingsFillPopover({
 
   const pickerBody = (
     <DesktopNewFillPicker
-      moduleFillMode={moduleFillMode}
+      key={lockedFillMode ?? moduleFillMode ?? "default"}
+      lockedFillMode={lockedFillMode}
+      moduleFillMode={lockedFillMode ? undefined : moduleFillMode}
       moduleImage={moduleImage}
       modulePattern={modulePattern}
       qrGradient={qrGradient}
@@ -597,12 +612,38 @@ export function SettingsFillPopover({
     title: popoverTitle,
   })
 
+  const accordionPanelClassName = desktopnewPortalClass(
+    theme,
+    "desktopnew-fill-popover desktopnew-popover-content w-full border-0 bg-transparent p-0 shadow-none outline-none",
+  )
+
+  const openPicker = () => {
+    if (mobileDensity && mobileNav) {
+      liveDetail.open()
+      return
+    }
+
+    if (accordion) {
+      accordion.setOpenKey(popoverKey)
+      return
+    }
+
+    setRadixOpen(true)
+  }
+
+  useImperativeHandle(ref, () => ({ openPicker }), [accordion, liveDetail, mobileDensity, mobileNav, popoverKey])
+
   if (mobileDensity && mobileNav) {
+    if (variant === "picker-only") {
+      return liveDetail.portal
+    }
+
     if (variant === "grid") {
       return (
         <>
           <SettingsFillOptionGrid
             persistKey={`fill-grid:${hint}`}
+            presets={gridPresets}
             value={value}
             onOpenPicker={liveDetail.open}
             onSelect={onValueChange}
@@ -642,20 +683,34 @@ export function SettingsFillPopover({
     )
   }
 
-  const accordionPanelClassName = desktopnewPortalClass(
-    theme,
-    "desktopnew-fill-popover desktopnew-popover-content w-full border-0 bg-transparent p-0 shadow-none outline-none",
-  )
-
   if (accordion) {
     const isOpen = accordion.openKey === popoverKey
     const toggleOpen = () => accordion.setOpenKey(isOpen ? null : popoverKey)
+
+    if (variant === "picker-only") {
+      return (
+        <SettingsAccordionPopoverOverlay
+          className={accordionPanelClassName}
+          openKey={popoverKey}
+          theme={theme}
+        >
+          <SettingsPopoverChrome
+            bodyClassName="dn-settings-popover-body-fill"
+            title={popoverTitle}
+            onClose={() => accordion.setOpenKey(null)}
+          >
+            {pickerBody}
+          </SettingsPopoverChrome>
+        </SettingsAccordionPopoverOverlay>
+      )
+    }
 
     return (
       <>
         {variant === "grid" ? (
           <SettingsFillOptionGrid
             persistKey={`fill-grid:${hint}`}
+            presets={gridPresets}
             value={value}
             onOpenPicker={toggleOpen}
             onSelect={onValueChange}
@@ -695,11 +750,39 @@ export function SettingsFillPopover({
     )
   }
 
+  if (variant === "picker-only") {
+    return (
+      <Popover open={radixOpen} onOpenChange={setRadixOpen}>
+        <PopoverContent
+          align={align}
+          className={desktopnewPortalClass(
+            theme,
+            "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
+          )}
+          data-mobile-inspector={mobileDensity ? "" : undefined}
+          data-theme={theme}
+          side={side}
+          sideOffset={10}
+          collisionPadding={collisionPadding}
+        >
+          <SettingsPopoverChrome
+            bodyClassName="dn-settings-popover-body-fill"
+            title={popoverTitle}
+            onClose={() => setRadixOpen(false)}
+          >
+            {pickerBody}
+          </SettingsPopoverChrome>
+        </PopoverContent>
+      </Popover>
+    )
+  }
+
   if (variant === "grid") {
     return (
       <Popover open={radixOpen} onOpenChange={setRadixOpen}>
         <SettingsFillOptionGrid
           persistKey={`fill-grid:${hint}`}
+          presets={gridPresets}
           value={value}
           onOpenPicker={() => setRadixOpen(true)}
           onSelect={onValueChange}
@@ -759,7 +842,7 @@ export function SettingsFillPopover({
       </PopoverContent>
     </Popover>
   )
-}
+})
 
 export function SettingsAccordionColorPicker({
   title,

@@ -111,7 +111,7 @@ describe("@qrafty/qr core renderer", () => {
     expect(finderInner.length).toBeGreaterThan(0)
   })
 
-  it("leaves logo images untouched when unified module gradients are active", () => {
+  it("applies unified module gradients through logo alpha masks", () => {
     const moduleGradient = {
       type: "linear" as const,
       rotation: Math.PI / 4,
@@ -138,8 +138,8 @@ describe("@qrafty/qr core renderer", () => {
     const resultDoc = new DOMParser().parseFromString(markup, "image/svg+xml")
 
     expect(resultDoc.querySelector("image")).not.toBeNull()
-    expect(markup).not.toContain('data-qr-layer="logo-unified-gradient"')
-    expect(markup).not.toContain('data-qr-layer="logo-unified-gradient-fill"')
+    expect(markup).toContain('data-qr-layer="logo-unified-gradient"')
+    expect(markup).toContain('data-qr-layer="logo-unified-gradient-fill"')
   })
 
   it("renders localized finder regions for portable rendering", () => {

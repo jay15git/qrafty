@@ -86,6 +86,7 @@ import {
 } from "@/features/workspace/components/workspace-surface-document"
 import {
   applyCornersSettingsPatchToQraftyState,
+  applyLogoSettingsPatchToQraftyState,
   applyPatternSettingsPatchToQraftyState,
 } from "@/features/workspace/components/workspace-qr-settings-patch"
 import { clearDraftingQrMarkupCache } from "@/features/workspace/hooks/use-drafting-qr-markup"
@@ -133,6 +134,7 @@ import type {
   DesktopToolbarToolId,
   ComposeSidebarPanel,
 } from "@/features/desktop-shell/components/FloatingToolbar"
+import type { UnifiedQrFillPatches } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
 import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 import {
   buildDesktopAppearancePatch,
@@ -476,6 +478,7 @@ export function WorkspaceSurface({
   const draftingLayerClipboardRef = useRef<string>("")
   const logoUploadObjectUrlRef = useRef<string | null>(null)
   const moduleFillUploadObjectUrlRef = useRef<string | null>(null)
+  const pendingQrPersistStateRef = useRef<QraftyState | null>(null)
   const selectedContentValues =
     contentValuesByType[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType)
   const selectedContentValue = useMemo(
@@ -821,11 +824,15 @@ export function WorkspaceSurface({
     }
 
     setSelectedModuleFillImageSourceMode("upload")
-    setSelectedModuleFillImageUrl((current) => fillValue || current)
+    setSelectedModuleFillImageUrl(fillValue)
     setSelectedModuleFillRemoteUrl("")
   }
 
   function resolveLiveQrPersistState(): QraftyState {
+    if (pendingQrPersistStateRef.current) {
+      return pendingQrPersistStateRef.current
+    }
+
     const live = draftingQraftyState
     const persisted = qrStateByLayerId[activeQrLayerId]
     if (!persisted) {
@@ -839,8 +846,7 @@ export function WorkspaceSurface({
     }
 
     const shouldPreferPersistedModuleFill =
-      (live.dotsColorMode === "image" && !liveModuleFill) ||
-      (persisted.dotsColorMode === "image" && live.dotsColorMode !== "image")
+      live.dotsColorMode === "image" && !liveModuleFill && Boolean(persistedModuleFill)
 
     if (!shouldPreferPersistedModuleFill) {
       return live
@@ -859,9 +865,17 @@ export function WorkspaceSurface({
   }
 
   function commitActiveQraftyState(nextState: QraftyState) {
-    syncDraftingLogoControlsFromState(nextState)
-    syncDraftingModuleFillControlsFromState(nextState)
-    persistActiveQrLayerState(nextState)
+    const committed = resolveLiveQrPersistState()
+    const merged: QraftyState = {
+      ...committed,
+      logo: nextState.logo,
+      logoGradient: nextState.logoGradient,
+      imageOptions: nextState.imageOptions,
+    }
+
+    syncDraftingLogoControlsFromState(merged)
+    syncDraftingModuleFillControlsFromState(merged)
+    persistActiveQrLayerState(merged)
     clearDraftingQrMarkupCache()
   }
 
@@ -1278,18 +1292,24 @@ export function WorkspaceSurface({
   }
 
   function persistActiveQrLayerState(nextState: QraftyState = resolveLiveQrPersistState()) {
+    const cloned = cloneDraftingQrState(nextState)
+    pendingQrPersistStateRef.current = cloned
     setQrStateByLayerId((current) => ({
       ...current,
-      [activeQrLayerId]: cloneDraftingQrState(nextState),
+      [activeQrLayerId]: cloned,
     }))
     setContentTypeByLayerId((current) => ({
       ...current,
       [activeQrLayerId]: selectedContentType,
     }))
     setQrStateByNodeId({
-      [DASHBOARD_QR_NODE_ID]: cloneDraftingQrState(nextState),
+      [DASHBOARD_QR_NODE_ID]: cloned,
     })
   }
+
+  useEffect(() => {
+    pendingQrPersistStateRef.current = null
+  })
 
   function activateQrLayer(layerId: string) {
     if (!isDraftingQrLayerId(layerId) || layerId === activeQrLayerId) {
@@ -1494,41 +1514,6 @@ export function WorkspaceSurface({
       URL.revokeObjectURL(moduleFillUploadObjectUrl)
     }
   }, [moduleFillUploadObjectUrl])
-
-  useEffect(() => {
-    const persisted = qrStateByLayerId[activeQrLayerId]
-    if (!persisted || persisted.dotsColorMode !== "image") {
-      return
-    }
-
-    const persistedFill = getAssetValue(persisted.moduleFillImage)
-    if (!persistedFill) {
-      return
-    }
-
-    const liveFill =
-      selectedDotsColorMode === "image"
-        ? selectedModuleFillImageSourceMode === "url"
-          ? selectedModuleFillRemoteUrl
-          : selectedModuleFillImageUrl
-        : ""
-
-    if (liveFill === persistedFill) {
-      return
-    }
-
-    if (selectedDotsColorMode !== "image") {
-      setSelectedDotsColorMode("image")
-    }
-    syncDraftingModuleFillControlsFromState(persisted)
-  }, [
-    activeQrLayerId,
-    qrStateByLayerId,
-    selectedDotsColorMode,
-    selectedModuleFillImageSourceMode,
-    selectedModuleFillImageUrl,
-    selectedModuleFillRemoteUrl,
-  ])
 
   useEffect(() => {
     let cancelled = false
@@ -3027,7 +3012,7 @@ export function WorkspaceSurface({
     }))
   }
 
-  function updateDesktopPatternSettings(patch: DesktopPatternSettingsPatch) {
+  function applyDesktopPatternPatchToControls(patch: DesktopPatternSettingsPatch) {
     if (patch.qrDotType) setSelectedDotType(patch.qrDotType)
     if (patch.moduleRoundSize !== undefined) setSelectedModuleRoundSize(patch.moduleRoundSize)
     if (patch.moduleSize !== undefined) setSelectedModuleSize(patch.moduleSize)
@@ -3062,10 +3047,15 @@ export function WorkspaceSurface({
       setSelectedDotsColorMode("image")
       const sourceMode = patch.moduleFillImageSourceMode ?? selectedModuleFillImageSourceMode
       setSelectedModuleFillImageSourceMode(sourceMode)
-      if (sourceMode === "url") {
+      if (!patch.moduleFillImageUrl) {
+        setSelectedModuleFillImageUrl("")
+        setSelectedModuleFillRemoteUrl("")
+      } else if (sourceMode === "url") {
         setSelectedModuleFillRemoteUrl(patch.moduleFillImageUrl)
+        setSelectedModuleFillImageUrl("")
       } else {
         setSelectedModuleFillImageUrl(patch.moduleFillImageUrl)
+        setSelectedModuleFillRemoteUrl("")
       }
     }
     if (patch.moduleFillImageSourceMode && patch.moduleFillImageUrl === undefined) {
@@ -3073,12 +3063,68 @@ export function WorkspaceSurface({
       setSelectedDotsColorMode("image")
       setSelectedModuleFillImageSourceMode(patch.moduleFillImageSourceMode)
     }
-    let nextState = applyPatternSettingsPatchToQraftyState(resolveLiveQrPersistState(), patch)
+  }
+
+  function applyDesktopCornersPatchToControls(patch: Partial<DesktopCornersSettings>) {
+    if (patch.cornerSquareType) setSelectedQrFinderPatternOuterStyle(patch.cornerSquareType)
+    if (patch.cornerSquareColorMode) setSelectedCornerSquareColorMode(patch.cornerSquareColorMode)
+    if (patch.cornerSquareSolidColor) {
+      setSelectedCornerSquareColorMode("solid")
+      setSelectedCornerSquareColor(patch.cornerSquareSolidColor)
+    }
+    if (patch.cornerSquareGradient) {
+      setSelectedCornerSquareColorMode("gradient")
+      setSelectedCornerSquareGradient({ ...patch.cornerSquareGradient, enabled: true })
+    }
+    if (patch.cornerDotType) setSelectedQrFinderPatternInnerStyle(patch.cornerDotType)
+    if (patch.cornerDotColorMode) setSelectedCornerDotColorMode(patch.cornerDotColorMode)
+    if (patch.cornerDotSolidColor) {
+      setSelectedCornerDotColorMode("solid")
+      setSelectedCornerDotColor(patch.cornerDotSolidColor)
+    }
+    if (patch.cornerDotGradient) {
+      setSelectedCornerDotColorMode("gradient")
+      setSelectedCornerDotGradient({ ...patch.cornerDotGradient, enabled: true })
+    }
+  }
+
+  function applyDesktopUnifiedLogoPatchToControls(patch: Partial<DesktopLogoSettings>) {
+    if (patch.colorMode) setSelectedLogoColorMode(patch.colorMode)
+    if (patch.solidColor) {
+      setSelectedLogoColorMode("solid")
+      setSelectedLogoColor(patch.solidColor)
+    }
+    if (patch.gradient) {
+      setSelectedLogoColorMode("gradient")
+      setSelectedLogoGradient({ ...patch.gradient, enabled: true })
+    }
+  }
+
+  function updateDesktopPatternSettings(patch: DesktopPatternSettingsPatch) {
+    applyDesktopPatternPatchToControls(patch)
+    const nextState = applyPatternSettingsPatchToQraftyState(resolveLiveQrPersistState(), patch)
 
     clearQrEncodeMarkupCache()
     clearDraftingQrMarkupCache()
     persistActiveQrLayerState(nextState)
     syncDraftingModuleFillControlsFromState(nextState)
+  }
+
+  function updateDesktopUnifiedQrFillSettings(patches: UnifiedQrFillPatches) {
+    applyDesktopPatternPatchToControls(patches.pattern)
+    applyDesktopCornersPatchToControls(patches.corners)
+    applyDesktopUnifiedLogoPatchToControls(patches.logo)
+
+    let nextState = resolveLiveQrPersistState()
+    nextState = applyPatternSettingsPatchToQraftyState(nextState, patches.pattern)
+    nextState = applyCornersSettingsPatchToQraftyState(nextState, patches.corners)
+    nextState = applyLogoSettingsPatchToQraftyState(nextState, patches.logo)
+
+    clearQrEncodeMarkupCache()
+    clearDraftingQrMarkupCache()
+    persistActiveQrLayerState(nextState)
+    syncDraftingModuleFillControlsFromState(nextState)
+    syncDraftingLogoControlsFromState(nextState)
   }
 
   function resetDesktopPatternSettings() {
@@ -3163,26 +3209,7 @@ export function WorkspaceSurface({
   }
 
   function updateDesktopCornersSettings(patch: Partial<DesktopCornersSettings>) {
-    if (patch.cornerSquareType) setSelectedQrFinderPatternOuterStyle(patch.cornerSquareType)
-    if (patch.cornerSquareColorMode) setSelectedCornerSquareColorMode(patch.cornerSquareColorMode)
-    if (patch.cornerSquareSolidColor) {
-      setSelectedCornerSquareColorMode("solid")
-      setSelectedCornerSquareColor(patch.cornerSquareSolidColor)
-    }
-    if (patch.cornerSquareGradient) {
-      setSelectedCornerSquareColorMode("gradient")
-      setSelectedCornerSquareGradient({ ...patch.cornerSquareGradient, enabled: true })
-    }
-    if (patch.cornerDotType) setSelectedQrFinderPatternInnerStyle(patch.cornerDotType)
-    if (patch.cornerDotColorMode) setSelectedCornerDotColorMode(patch.cornerDotColorMode)
-    if (patch.cornerDotSolidColor) {
-      setSelectedCornerDotColorMode("solid")
-      setSelectedCornerDotColor(patch.cornerDotSolidColor)
-    }
-    if (patch.cornerDotGradient) {
-      setSelectedCornerDotColorMode("gradient")
-      setSelectedCornerDotGradient({ ...patch.cornerDotGradient, enabled: true })
-    }
+    applyDesktopCornersPatchToControls(patch)
 
     const nextState = applyCornersSettingsPatchToQraftyState(resolveLiveQrPersistState(), patch)
     clearQrEncodeMarkupCache()
@@ -3705,6 +3732,7 @@ export function WorkspaceSurface({
     onMotionSettingsChange: updateDesktopMotionSettings,
     onPatternReset: resetDesktopPatternSettings,
     onPatternSettingsChange: updateDesktopPatternSettings,
+    onUnifiedQrFillSettingsChange: updateDesktopUnifiedQrFillSettings,
     onShapeReset: resetDesktopShapeSettings,
     onShapeSettingsChange: updateDesktopShapeSettings,
     onTextReset: () => updateDesktopTextSettings({ ...DEFAULT_DRAFTING_TEXT_LAYER }),

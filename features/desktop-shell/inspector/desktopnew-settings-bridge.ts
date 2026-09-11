@@ -316,3 +316,90 @@ export function applyCardFill(fill: Fill): { cardFill: string } {
 
   return { cardFill: solidHexFromFill(fill) }
 }
+
+export type UnifiedQrFillSettings = {
+  pattern: DesktopPatternSettings
+  corners: DesktopCornersSettings
+  logo: DesktopLogoSettings
+}
+
+export type UnifiedQrFillPatches = {
+  pattern: Partial<DesktopPatternSettings>
+  corners: Partial<DesktopCornersSettings>
+  logo: Partial<DesktopLogoSettings>
+}
+
+function mergeCornerFills(
+  fill: Fill,
+  settings: DesktopCornersSettings,
+): Partial<DesktopCornersSettings> {
+  return {
+    ...applyCornerFill(fill, "eye", settings),
+    ...applyCornerFill(fill, "frame", settings),
+  }
+}
+
+export function applyUnifiedQrFill(
+  fill: Fill,
+  settings: UnifiedQrFillSettings,
+): UnifiedQrFillPatches {
+  return {
+    pattern: {
+      ...applyPatternModuleFill(fill, settings.pattern),
+      gradientLinkMode: "unified",
+    },
+    corners: mergeCornerFills(fill, settings.corners),
+    logo: applyLogoFill(fill, settings.logo),
+  }
+}
+
+export function applyUnifiedQrModuleImageUrl(
+  imageUrl: string,
+  sourceMode: DesktopPatternSettings["moduleFillImageSourceMode"],
+  settings: UnifiedQrFillSettings,
+): UnifiedQrFillPatches {
+  const representativeFill = fillFromHex(settings.pattern.dotsSolidColor)
+
+  return {
+    pattern: {
+      ...applyPatternModuleImageUrl(imageUrl, sourceMode),
+      gradientLinkMode: "unified",
+    },
+    corners: mergeCornerFills(representativeFill, settings.corners),
+    logo: applyLogoFill(representativeFill, settings.logo),
+  }
+}
+
+export function applyUnifiedQrModulePatternPatch(
+  patternPatch: Partial<DesktopPatternSettings>,
+  settings: UnifiedQrFillSettings,
+): UnifiedQrFillPatches {
+  const mergedPattern: DesktopPatternSettings = {
+    ...settings.pattern,
+    ...patternPatch,
+    gradientLinkMode: "unified",
+  }
+
+  if (mergedPattern.dotsColorMode === "gradient") {
+    const fill = parseFill(qraftyGradientToFillCss(mergedPattern.dataModulesGradient))
+
+    if (fill) {
+      return applyUnifiedQrFill(fill, { ...settings, pattern: mergedPattern })
+    }
+  }
+
+  const representativeHex =
+    mergedPattern.dotsColorMode === "palette"
+      ? (mergedPattern.dotsPalette[0] ?? mergedPattern.dotsSolidColor)
+      : mergedPattern.dotsSolidColor
+  const representativeFill = fillFromHex(representativeHex)
+
+  return {
+    pattern: {
+      ...patternPatch,
+      gradientLinkMode: "unified",
+    },
+    corners: mergeCornerFills(representativeFill, settings.corners),
+    logo: applyLogoFill(representativeFill, settings.logo),
+  }
+}

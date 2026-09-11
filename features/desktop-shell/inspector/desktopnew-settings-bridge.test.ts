@@ -7,10 +7,18 @@ import type { QraftyGradient } from "@/features/qr-code/model/state"
 import {
   applyCardFill,
   applyPatternModuleFill,
+  applyUnifiedQrFill,
+  applyUnifiedQrModuleImageUrl,
+  applyUnifiedQrModulePatternPatch,
   fillCssToQraftyGradient,
   qraftyGradientToFillCss,
   readPatternModuleFillCss,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+import {
+  DEFAULT_DESKTOP_CORNERS_SETTINGS,
+  DEFAULT_DESKTOP_LOGO_SETTINGS,
+  DEFAULT_DESKTOP_PATTERN_SETTINGS,
+} from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
 
 const SAMPLE_GRADIENT: QraftyGradient = {
@@ -197,5 +205,74 @@ describe("desktopnew fill bridge", () => {
     expect(cssFillToBackgroundStyle("#ffffff")).toEqual({
       backgroundColor: "#ffffff",
     })
+  })
+
+  it("propagates solid unified fills to module, corners, and logo", () => {
+    const fill = fillFromHex("#336699")
+    const patches = applyUnifiedQrFill(fill, {
+      pattern: DEFAULT_DESKTOP_PATTERN_SETTINGS,
+      corners: DEFAULT_DESKTOP_CORNERS_SETTINGS,
+      logo: DEFAULT_DESKTOP_LOGO_SETTINGS,
+    })
+
+    expect(patches.pattern.gradientLinkMode).toBe("unified")
+    expect(patches.pattern.dotsColorMode).toBe("solid")
+    expect(patches.pattern.dotsSolidColor?.toLowerCase()).toBe("#336699")
+    expect(patches.corners.cornerDotSolidColor?.toLowerCase()).toBe("#336699")
+    expect(patches.corners.cornerSquareSolidColor?.toLowerCase()).toBe("#336699")
+    expect(patches.logo.solidColor?.toLowerCase()).toBe("#336699")
+  })
+
+  it("propagates gradient unified fills to module, corners, and logo", () => {
+    const fill = parseFill(qraftyGradientToFillCss(SAMPLE_GRADIENT))
+    expect(fill).not.toBeNull()
+
+    const patches = applyUnifiedQrFill(fill as Fill, {
+      pattern: DEFAULT_DESKTOP_PATTERN_SETTINGS,
+      corners: DEFAULT_DESKTOP_CORNERS_SETTINGS,
+      logo: DEFAULT_DESKTOP_LOGO_SETTINGS,
+    })
+
+    expect(patches.pattern.gradientLinkMode).toBe("unified")
+    expect(patches.pattern.dotsColorMode).toBe("gradient")
+    expect(patches.pattern.dataModulesGradient?.enabled).toBe(true)
+    expect(patches.corners.cornerDotColorMode).toBe("gradient")
+    expect(patches.corners.cornerSquareColorMode).toBe("gradient")
+    expect(patches.logo.colorMode).toBe("gradient")
+  })
+
+  it("propagates unified module image fills with representative solids", () => {
+    const patches = applyUnifiedQrModuleImageUrl("https://example.com/texture.png", "upload", {
+      pattern: DEFAULT_DESKTOP_PATTERN_SETTINGS,
+      corners: DEFAULT_DESKTOP_CORNERS_SETTINGS,
+      logo: DEFAULT_DESKTOP_LOGO_SETTINGS,
+    })
+
+    expect(patches.pattern.gradientLinkMode).toBe("unified")
+    expect(patches.pattern.dotsColorMode).toBe("image")
+    expect(patches.pattern.moduleFillImageUrl).toBe("https://example.com/texture.png")
+    expect(patches.corners.cornerDotColorMode).toBe("solid")
+    expect(patches.logo.colorMode).toBe("solid")
+  })
+
+  it("propagates unified palette fills using the first palette color", () => {
+    const patches = applyUnifiedQrModulePatternPatch(
+      {
+        dotsColorMode: "palette",
+        dotsPalette: ["#ff0000", "#00ff00", "#0000ff"],
+        dotsPalettePreset: "custom",
+      },
+      {
+        pattern: DEFAULT_DESKTOP_PATTERN_SETTINGS,
+        corners: DEFAULT_DESKTOP_CORNERS_SETTINGS,
+        logo: DEFAULT_DESKTOP_LOGO_SETTINGS,
+      },
+    )
+
+    expect(patches.pattern.gradientLinkMode).toBe("unified")
+    expect(patches.pattern.dotsColorMode).toBe("palette")
+    expect(patches.corners.cornerDotSolidColor?.toLowerCase()).toBe("#ff0000")
+    expect(patches.corners.cornerSquareSolidColor?.toLowerCase()).toBe("#ff0000")
+    expect(patches.logo.solidColor?.toLowerCase()).toBe("#ff0000")
   })
 })

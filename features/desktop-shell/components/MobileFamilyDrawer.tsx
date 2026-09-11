@@ -197,6 +197,10 @@ function MobileQrSectionView() {
   return <MobileSectionView section="QR" />
 }
 
+function MobileColorSectionView() {
+  return <MobileSectionView section="Color" />
+}
+
 function MobileMotionSectionView() {
   return <MobileSectionView section="Motion" />
 }
@@ -356,6 +360,7 @@ const MOBILE_VIEWS: ViewsRegistry = {
   default: MobileMenuView,
   content: MobileContentSectionView,
   qr: MobileQrSectionView,
+  color: MobileColorSectionView,
   motion: MobileMotionSectionView,
   shape: MobileShapeSectionView,
   background: MobileBackgroundSectionView,

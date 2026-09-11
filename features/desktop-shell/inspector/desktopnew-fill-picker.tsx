@@ -1,6 +1,6 @@
 "use client"
 
-import { useContext, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 
 import { usePersistedScrollNode } from "@/lib/persisted-element-scroll"
 
@@ -32,6 +32,10 @@ import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/deskt
 import { PaletteColorBarPreview } from "@/features/desktop-shell/inspector/palette-color-bar-preview"
 import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette-color-stop-list"
 import {
+  SETTINGS_PATTERN_OPTION_TILE,
+  SETTINGS_PATTERN_OPTION_TILE_INNER,
+} from "@/features/desktop-shell/inspector/settings-preview-tiles"
+import {
   DesktopGradientInterpRow,
   DesktopGradientTypeRow,
 } from "@/features/desktop-shell/inspector/desktopnew-gradient-controls"
@@ -43,6 +47,21 @@ import type { DotsColorMode } from "@/features/qr-code/model/state"
 const QR_GRADIENT_TYPES = ["linear", "radial"] as const
 
 type ModuleFillTabMode = "color" | "gradient" | "pattern" | "image"
+
+export type LockedFillPickerMode = "solid" | "gradient" | "pattern" | "image"
+
+function lockedFillModeToTab(mode: LockedFillPickerMode): ModuleFillTabMode {
+  switch (mode) {
+    case "image":
+      return "image"
+    case "pattern":
+      return "pattern"
+    case "gradient":
+      return "gradient"
+    default:
+      return "color"
+  }
+}
 
 function moduleFillTabFromDotsColorMode(mode: DotsColorMode): ModuleFillTabMode {
   switch (mode) {
@@ -64,6 +83,7 @@ export function DesktopNewFillPicker({
   modulePattern,
   moduleImage,
   moduleFillMode,
+  lockedFillMode,
   solidOnly = false,
   qrGradient = false,
 }: {
@@ -71,6 +91,7 @@ export function DesktopNewFillPicker({
   onValueChange: (fill: Fill, css: string) => void
   className?: string
   solidOnly?: boolean
+  lockedFillMode?: LockedFillPickerMode
   /** Limits gradients to linear/radial circle — for module, eye, frame, logo. */
   qrGradient?: boolean
   moduleFillMode?: DotsColorMode
@@ -95,21 +116,36 @@ export function DesktopNewFillPicker({
     qrGradient ? normalizeFillForQrTarget(parsedInitialFill) : parsedInitialFill,
   )
   const initialFill = initialFillRef.current
-  const initialMode: ModuleFillTabMode = solidOnly
-    ? "color"
-    : moduleFillMode
-      ? moduleFillTabFromDotsColorMode(moduleFillMode)
-      : initialFill.kind === "gradient"
-        ? "gradient"
-        : "color"
+  const resolvedSolidOnly = solidOnly || lockedFillMode === "solid"
+  const initialMode: ModuleFillTabMode = lockedFillMode
+    ? lockedFillModeToTab(lockedFillMode)
+    : resolvedSolidOnly
+      ? "color"
+      : moduleFillMode
+        ? moduleFillTabFromDotsColorMode(moduleFillMode)
+        : initialFill.kind === "gradient"
+          ? "gradient"
+          : "color"
   const fillPickerInitialMode = initialMode === "gradient" ? "gradient" : "color"
   const [activeMode, setActiveMode] = useState<ModuleFillTabMode>(initialMode)
   const pickerMode = activeMode === "gradient" ? "gradient" : "color"
   const setScrollNode = usePersistedScrollNode("fill-picker")
   const theme = useContext(DesktopnewThemeContext)
+  const showModeTabs = !resolvedSolidOnly && !lockedFillMode
+  const showSolidPane = resolvedSolidOnly || lockedFillMode !== "gradient"
+  const showGradientPane = !resolvedSolidOnly && lockedFillMode !== "solid"
+
+  useEffect(() => {
+    if (!lockedFillMode) {
+      return
+    }
+
+    setActiveMode(lockedFillModeToTab(lockedFillMode))
+  }, [lockedFillMode])
 
   const handleValueChange = (fill: Fill, css: string) => {
     if (
+      !lockedFillMode &&
       moduleImage?.imageUrl &&
       (activeMode === "image" || activeMode === "pattern")
     ) {
@@ -152,7 +188,7 @@ export function DesktopNewFillPicker({
       onModeChange={(mode) => setActiveMode(mode)}
       onValueChange={handleValueChange}
     >
-      {solidOnly ? null : (
+      {showModeTabs ? (
         <SegmentTabs
           className="dn-fill-picker-mode-tabs self-stretch"
           items={
@@ -178,23 +214,25 @@ export function DesktopNewFillPicker({
             else setActiveMode("pattern")
           }}
         />
-      )}
-      {!solidOnly && activeMode === "pattern" && modulePattern ? (
+      ) : null}
+      {activeMode === "pattern" && modulePattern ? (
         <ModulePatternPicker {...modulePattern} />
-      ) : !solidOnly && activeMode === "image" && moduleImage ? (
+      ) : activeMode === "image" && moduleImage ? (
         <ModuleImagePicker {...moduleImage} />
       ) : (
         <>
-          <FillPicker.Pane
-            className="dn-settings-tab-panel dn-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
-            mode="color"
-          >
-            <ColorPicker.Area className="dn-fill-picker-area" />
-            <ColorPicker.Hue className="dn-fill-picker-slider" />
-            <ColorPicker.Alpha className="dn-fill-picker-slider" />
-            <ColorPicker.ChannelInput className="dn-fill-picker-channel-input" />
-          </FillPicker.Pane>
-          {solidOnly ? null : (
+          {showSolidPane ? (
+            <FillPicker.Pane
+              className="dn-settings-tab-panel dn-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
+              mode="color"
+            >
+              <ColorPicker.Area className="dn-fill-picker-area" />
+              <ColorPicker.Hue className="dn-fill-picker-slider" />
+              <ColorPicker.Alpha className="dn-fill-picker-slider" />
+              <ColorPicker.ChannelInput className="dn-fill-picker-channel-input" />
+            </FillPicker.Pane>
+          ) : null}
+          {showGradientPane ? (
             <FillPicker.Pane
               className="dn-settings-tab-panel dn-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
               mode="gradient"
@@ -220,7 +258,7 @@ export function DesktopNewFillPicker({
                 <ColorPicker.ChannelInput className="dn-fill-picker-channel-input" />
               </GradientPicker.StopColor>
             </FillPicker.Pane>
-          )}
+          ) : null}
         </>
       )}
     </FillPicker.Root>
@@ -276,13 +314,10 @@ function ModulePatternPicker({
   onSelect: (preset: { label: string; colors: string[] } | "custom") => void
   onPaletteColorChange: (index: number, color: string) => void
 }) {
-  const PATTERN_TILE =
-    "dn-option-tile relative flex size-[length:var(--dn-preview-tile)] shrink-0 items-center justify-center p-[length:var(--dn-space-inline)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
-
   return (
     <div className="flex w-full min-w-0 flex-col gap-2">
       <ScrollArea
-        className="w-full min-w-0 max-w-full overflow-hidden"
+        className="dn-pattern-option-grid w-full min-w-0 max-w-full overflow-hidden"
         chevron={false}
         cueSize="tight"
         orientation="horizontal"
@@ -291,7 +326,7 @@ function ModulePatternPicker({
         showScrollbar={false}
         viewportClassName="min-w-0"
       >
-        <div className="dn-preview-row py-2">
+        <div className="dn-preview-row items-center py-2">
           {DESKTOP_DOTS_PALETTE_PRESETS.map((option) => {
             const isSelected =
               selectedPreset === option.label ||
@@ -303,12 +338,14 @@ function ModulePatternPicker({
                 key={option.label}
                 aria-label={`Use ${option.label} pattern palette`}
                 aria-pressed={isSelected}
-                className={PATTERN_TILE}
+                className={SETTINGS_PATTERN_OPTION_TILE}
                 title={option.label}
                 type="button"
                 onClick={() => onSelect(option)}
               >
-                <PaletteColorBarPreview colors={option.colors} size="md" />
+                <span aria-hidden className={SETTINGS_PATTERN_OPTION_TILE_INNER}>
+                  <PaletteColorBarPreview className="size-full" colors={option.colors} size="md" />
+                </span>
               </button>
             )
           })}

@@ -369,7 +369,7 @@ describe("dashboard qr svg helpers", () => {
     expect(markup).toContain('href="https://example.com/module-texture.png"')
   })
 
-  it("leaves logo images untouched when unified module gradients are active", () => {
+  it("applies unified module gradients through logo alpha masks", () => {
     const state = createDefaultQraftyState()
     state.dotsColorMode = "gradient"
     state.gradientLinkMode = "unified"
@@ -392,8 +392,8 @@ describe("dashboard qr svg helpers", () => {
     const document = new DOMParser().parseFromString(markup, "image/svg+xml")
 
     expect(document.querySelector("image")).not.toBeNull()
-    expect(markup).not.toContain('data-qr-layer="logo-unified-gradient"')
-    expect(markup).not.toContain('data-qr-layer="logo-unified-gradient-fill"')
+    expect(markup).toContain('data-qr-layer="logo-unified-gradient"')
+    expect(markup).toContain('data-qr-layer="logo-unified-gradient-fill"')
   })
 
   it("applies module gradients without repainting finder patterns", () => {

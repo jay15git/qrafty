@@ -39,6 +39,14 @@ export function EditContentIcon({ className, size = 14 }: SettingsSectionIconPro
   )
 }
 
+export function ColorSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
+  return (
+    <SettingsSectionSvg className={className} size={size}>
+      <path d="M12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22ZM7.25 10.75C7.25 9.92 7.92 9.25 8.75 9.25C9.58 9.25 10.25 9.92 10.25 10.75C10.25 11.58 9.58 12.25 8.75 12.25C7.92 12.25 7.25 11.58 7.25 10.75ZM13.75 7.25C13.75 6.42 14.42 5.75 15.25 5.75C16.08 5.75 16.75 6.42 16.75 7.25C16.75 8.08 16.08 8.75 15.25 8.75C14.42 8.75 13.75 8.08 13.75 7.25ZM13.75 16.75C13.75 15.92 14.42 15.25 15.25 15.25C16.08 15.25 16.75 15.92 16.75 16.75C16.75 17.58 16.08 18.25 15.25 18.25C14.42 18.25 13.75 17.58 13.75 16.75ZM8.75 15.25C7.92 15.25 7.25 15.92 7.25 16.75C7.25 17.58 7.92 18.25 8.75 18.25C9.58 18.25 10.25 17.58 10.25 16.75C10.25 15.92 9.58 15.25 8.75 15.25Z" />
+    </SettingsSectionSvg>
+  )
+}
+
 export function QrSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
   return (
     <SettingsSectionSvg className={className} size={size}>
@@ -115,6 +123,7 @@ export function ExportSectionIcon({ className, size = 14 }: SettingsSectionIconP
 const SETTINGS_SECTION_ICON_MAP = {
   Content: EditContentIcon,
   QR: QrSectionIcon,
+  Color: ColorSectionIcon,
   Shape: ShapeSectionIcon,
   Effects: EffectsSectionIcon,
   Background: BackgroundSectionIcon,

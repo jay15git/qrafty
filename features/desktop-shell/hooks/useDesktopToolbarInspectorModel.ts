@@ -96,6 +96,9 @@ export type DesktopInspectorModel = {
   onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void
   onContentValueChange: (field: string, value: StaticQrContentValue) => void
   onPatternSettingsChange: (patch: DesktopPatternSettingsPatch) => void
+  onUnifiedQrFillSettingsChange?: (
+    patches: import("@/features/desktop-shell/inspector/desktopnew-settings-bridge").UnifiedQrFillPatches,
+  ) => void
   onLogoSettingsChange: (patch: DesktopLogoSettingsPatch) => void
   onCornersSettingsChange: (patch: Partial<DesktopCornersSettings>) => void
   onShapeSettingsChange: (patch: Partial<DesktopShapeSettings>) => void
@@ -285,6 +288,7 @@ export function useDesktopToolbarInspectorModel({
       controller?.onPatternSettingsChange ??
       ((patch: DesktopPatternSettingsPatch) =>
         setPatternSettings((current) => ({ ...current, ...patch }))),
+    onUnifiedQrFillSettingsChange: controller?.onUnifiedQrFillSettingsChange,
     onLogoSettingsChange:
       controller?.onLogoSettingsChange ??
       ((patch: DesktopLogoSettingsPatch) =>
