@@ -2,7 +2,7 @@
 
 import { Search } from "lucide-react"
 import Image from "next/image"
-import { useEffect, useMemo, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react"
 
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import {
@@ -18,6 +18,8 @@ import {
 import {
   fetchAndCacheIconstackSvg,
   getCachedIconstackSvg,
+  listCachedIconstackSelectionIds,
+  subscribeIconstackSvgCache,
 } from "@/features/qr-code/assets/iconstack-svg-cache"
 import { normalizeIconstackSvgMarkup } from "@/features/qr-code/assets/iconstack-svg"
 import { filterCuratedIconstackIcons } from "@/features/qr-code/assets/iconstack-curated"
@@ -51,6 +53,56 @@ function LogoIconTile({
     >
       {children}
     </button>
+  )
+}
+
+export function LogoPickerTileIcon({
+  iconId,
+  previewSvg,
+}: {
+  iconId: string
+  previewSvg?: string
+}) {
+  const brandIcon = findBrandIconById(iconId)
+  const parsed = parseIconstackSelectionId(iconId)
+
+  useSyncExternalStore(
+    subscribeIconstackSvgCache,
+    listCachedIconstackSelectionIds,
+    listCachedIconstackSelectionIds,
+  )
+
+  const cachedSvg = parsed ? getCachedIconstackSvg(iconId) : undefined
+  const iconstackSvg = previewSvg ?? cachedSvg
+
+  useEffect(() => {
+    if (!parsed || iconstackSvg) {
+      return
+    }
+
+    void fetchAndCacheIconstackSvg({ library: parsed.library, id: parsed.iconId })
+  }, [iconstackSvg, parsed, iconId])
+
+  if (brandIcon) {
+    const Icon = brandIcon.icon
+    return <Icon aria-hidden className="dn-logo-icon-picker-icon" />
+  }
+
+  if (iconstackSvg) {
+    return (
+      <span
+        aria-hidden
+        className="dn-logo-icon-picker-icon flex items-center justify-center text-[var(--dn-fg)] [&_svg]:size-full"
+        dangerouslySetInnerHTML={{ __html: normalizeIconstackSvgMarkup(iconstackSvg) }}
+      />
+    )
+  }
+
+  return (
+    <span
+      aria-hidden
+      className="dn-logo-icon-picker-icon border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] dn-squircle-xs"
+    />
   )
 }
 
@@ -117,11 +169,7 @@ function IconstackIconPreview({
 }) {
   if (previewSvg) {
     return (
-      <span
-        aria-hidden
-        className="dn-logo-icon-picker-icon flex items-center justify-center text-[var(--dn-fg)] [&_svg]:size-full"
-        dangerouslySetInnerHTML={{ __html: normalizeIconstackSvgMarkup(previewSvg) }}
-      />
+      <LogoPickerTileIcon iconId={toIconstackSelectionId(result)} previewSvg={previewSvg} />
     )
   }
 
@@ -195,7 +243,6 @@ export function LogoIconPicker({
         {!canSearch ? (
           <>
             {popularBrandIcons.map((brandIcon) => {
-              const Icon = brandIcon.icon
               const isSelected = selectedId === brandIcon.id
 
               return (
@@ -205,7 +252,7 @@ export function LogoIconPicker({
                   isSelected={isSelected}
                   onClick={() => selectLogo(brandIcon.id)}
                 >
-                  <Icon aria-hidden className="dn-logo-icon-picker-icon" />
+                  <LogoPickerTileIcon iconId={brandIcon.id} />
                 </LogoIconTile>
               )
             })}

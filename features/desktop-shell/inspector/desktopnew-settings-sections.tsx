@@ -72,11 +72,13 @@ import {
   setInspectorSectionTab,
 } from "@/features/desktop-shell/inspector/inspector-chrome-state"
 import { ScrollPersistScope } from "@/lib/persisted-element-scroll"
+import {
+  SETTINGS_PREVIEW_ROW,
+  SETTINGS_PREVIEW_TILE,
+  SETTINGS_PREVIEW_TILE_INNER,
+} from "@/features/desktop-shell/inspector/settings-preview-tiles"
 
 export const SECTION_STACK = "dn-section-stack"
-const PREVIEW_TILE =
-  "dn-preview-tile dn-preview-tile-size group relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
-const PREVIEW_ROW = "dn-preview-row"
 
 function QrStylePreviewGrid({
   options,
@@ -100,7 +102,7 @@ function QrStylePreviewGrid({
       showScrollbar={false}
       viewportClassName="min-w-0"
     >
-      <div className={PREVIEW_ROW}>
+      <div className={SETTINGS_PREVIEW_ROW}>
         {options.map((option) => {
           const isSelected = selected === option.value
 
@@ -109,14 +111,14 @@ function QrStylePreviewGrid({
               key={option.value}
               aria-label={option.label}
               aria-pressed={isSelected}
-              className={cn(PREVIEW_TILE, "text-center")}
+              className={cn(SETTINGS_PREVIEW_TILE, "text-center")}
               title={option.label}
               type="button"
               onClick={() => onSelect(option.value)}
             >
               <span
                 aria-hidden="true"
-                className="grid size-full place-items-center overflow-hidden p-1.5 dn-squircle-xs"
+                className={SETTINGS_PREVIEW_TILE_INNER}
               >
                 <QrStyleOptionPreview
                   className="size-full max-h-full max-w-full"
@@ -150,11 +152,11 @@ function ShapeTypePreviewRow({
       showScrollbar={false}
       viewportClassName="min-w-0"
     >
-      <div className={PREVIEW_ROW}>
+      <div className={SETTINGS_PREVIEW_ROW}>
         <button
           aria-label="Use no shape"
           aria-pressed={selected === "none"}
-          className={cn(PREVIEW_TILE)}
+          className={cn(SETTINGS_PREVIEW_TILE)}
           title="None"
           type="button"
           onClick={() => onSelect("none")}
@@ -178,7 +180,7 @@ function ShapeTypePreviewRow({
               key={option.id}
               aria-label={`Use ${option.label} shape`}
               aria-pressed={isSelected}
-              className={cn(PREVIEW_TILE)}
+              className={cn(SETTINGS_PREVIEW_TILE)}
               title={option.label}
               type="button"
               onClick={() => onSelect(option.id)}
@@ -221,7 +223,7 @@ function PaperShaderPreviewRow({
       showScrollbar={false}
       viewportClassName="min-w-0"
     >
-      <div className={PREVIEW_ROW}>
+      <div className={SETTINGS_PREVIEW_ROW}>
         {shaders.map((option) => {
           const isSelected = selected === option.id
 
@@ -230,7 +232,7 @@ function PaperShaderPreviewRow({
               key={option.id}
               aria-label={`Use ${option.label} shader`}
               aria-pressed={isSelected}
-              className={cn(PREVIEW_TILE)}
+              className={cn(SETTINGS_PREVIEW_TILE)}
               title={option.label}
               type="button"
               onClick={() => onSelect(option.id)}
@@ -266,7 +268,7 @@ function WallpaperPreviewRow({
       showScrollbar={false}
       viewportClassName="min-w-0"
     >
-      <div className={PREVIEW_ROW}>
+      <div className={SETTINGS_PREVIEW_ROW}>
         {SCENE_WALLPAPERS.map((wallpaper) => {
           const isSelected = selectedPath === wallpaper.path
 
@@ -275,7 +277,7 @@ function WallpaperPreviewRow({
               key={wallpaper.id}
               aria-label={`Use ${wallpaper.label} wallpaper`}
               aria-pressed={isSelected}
-              className={cn(PREVIEW_TILE)}
+              className={cn(SETTINGS_PREVIEW_TILE)}
               title={wallpaper.label}
               type="button"
               onClick={() => onSelect(wallpaper.path)}
@@ -314,7 +316,7 @@ function MotionLoaderPresetGrid({
       showScrollbar={false}
       viewportClassName="min-w-0"
     >
-      <div className={PREVIEW_ROW}>
+      <div className={SETTINGS_PREVIEW_ROW}>
         {QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => {
           const isSelected = selected === option.value
 
@@ -533,6 +535,15 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
           </>
         ) : null}
       </SettingsTabPanel>
+      <SettingsSwitchRow
+        checked={actualPatternSettings.gradientLinkMode === "unified"}
+        label="Unified color"
+        onChange={(unified) =>
+          onPatternSettingsChange({
+            gradientLinkMode: unified ? "unified" : "split",
+          })
+        }
+      />
     </div>
   )
 }
@@ -550,6 +561,7 @@ export function CardSection({ model }: { model: DesktopInspectorModel }) {
       <SettingsFillPopover
         hint="Fill"
         qrGradient
+        variant="grid"
         value={cardFill}
         onValueChange={(fill) => onShapeSettingsChange(applyShapeFill(fill, actualShapeSettings))}
       />

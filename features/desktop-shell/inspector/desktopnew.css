@@ -2383,6 +2383,39 @@
   background: var(--dn-fg) !important;
 }
 
+.dn-fill-option-grid .dn-fill-option-tile {
+  flex: 0 0 var(--dn-icon-hit);
+  width: var(--dn-icon-hit);
+  height: var(--dn-icon-hit);
+  min-width: var(--dn-icon-hit);
+  min-height: var(--dn-icon-hit);
+  max-width: var(--dn-icon-hit);
+  max-height: var(--dn-icon-hit);
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  padding: 3px;
+  background: transparent;
+}
+
+.dn-paper-shader-color-grid .dn-paper-shader-color-chip {
+  flex: 0 0 var(--dn-icon-hit);
+  width: var(--dn-icon-hit);
+  height: var(--dn-icon-hit);
+  min-width: var(--dn-icon-hit);
+  min-height: var(--dn-icon-hit);
+  max-width: var(--dn-icon-hit);
+  max-height: var(--dn-icon-hit);
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  padding: 3px;
+  background: transparent;
+}
+
+.dn-paper-shader-color-grid .dn-paper-shader-color-chip__fill {
+  border: 1px solid color-mix(in srgb, var(--dn-line) 40%, transparent);
+  background-color: var(--dn-control);
+}
+
 .desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-stop-list {
   gap: 0.625rem;
 }

@@ -43,6 +43,7 @@ import {
 import {
   DesktopNewFillPicker,
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import { SettingsFillOptionGrid } from "@/features/desktop-shell/inspector/settings-fill-option-grid"
 import {
   fillPreviewHex,
   isGradientFill,
@@ -551,7 +552,7 @@ export function SettingsFillPopover({
   title?: string
   solidOnly?: boolean
   qrGradient?: boolean
-  variant?: "row" | "swatch"
+  variant?: "row" | "swatch" | "grid"
   side?: "top" | "right" | "bottom" | "left"
   align?: "start" | "center" | "end"
   collisionPadding?: number
@@ -597,6 +598,20 @@ export function SettingsFillPopover({
   })
 
   if (mobileDensity && mobileNav) {
+    if (variant === "grid") {
+      return (
+        <>
+          <SettingsFillOptionGrid
+            persistKey={`fill-grid:${hint}`}
+            value={value}
+            onOpenPicker={liveDetail.open}
+            onSelect={onValueChange}
+          />
+          {liveDetail.portal}
+        </>
+      )
+    }
+
     if (variant === "swatch") {
       return (
         <>
@@ -638,7 +653,14 @@ export function SettingsFillPopover({
 
     return (
       <>
-        {variant === "swatch" ? (
+        {variant === "grid" ? (
+          <SettingsFillOptionGrid
+            persistKey={`fill-grid:${hint}`}
+            value={value}
+            onOpenPicker={toggleOpen}
+            onSelect={onValueChange}
+          />
+        ) : variant === "swatch" ? (
           <FillSwatchButton
             ariaLabel={hint}
             className={triggerClassName}
@@ -673,6 +695,39 @@ export function SettingsFillPopover({
     )
   }
 
+  if (variant === "grid") {
+    return (
+      <Popover open={radixOpen} onOpenChange={setRadixOpen}>
+        <SettingsFillOptionGrid
+          persistKey={`fill-grid:${hint}`}
+          value={value}
+          onOpenPicker={() => setRadixOpen(true)}
+          onSelect={onValueChange}
+        />
+        <PopoverContent
+          align={align}
+          className={desktopnewPortalClass(
+            theme,
+            "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
+          )}
+          data-mobile-inspector={mobileDensity ? "" : undefined}
+          data-theme={theme}
+          side={side}
+          sideOffset={10}
+          collisionPadding={collisionPadding}
+        >
+          <SettingsPopoverChrome
+            bodyClassName="dn-settings-popover-body-fill"
+            title={popoverTitle}
+            onClose={() => setRadixOpen(false)}
+          >
+            {pickerBody}
+          </SettingsPopoverChrome>
+        </PopoverContent>
+      </Popover>
+    )
+  }
+
   return (
     <Popover open={radixOpen} onOpenChange={setRadixOpen}>
       <PopoverTrigger asChild>
@@ -697,6 +752,95 @@ export function SettingsFillPopover({
         <SettingsPopoverChrome
           bodyClassName="dn-settings-popover-body-fill"
           title={popoverTitle}
+          onClose={() => setRadixOpen(false)}
+        >
+          {pickerBody}
+        </SettingsPopoverChrome>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+export function SettingsAccordionColorPicker({
+  title,
+  value,
+  onValueChange,
+  children,
+}: {
+  title: string
+  value: string
+  onValueChange: (fill: Fill, css: string) => void
+  children: ReactElement<{ onClick?: React.MouseEventHandler<HTMLElement> }>
+}) {
+  const theme = useDesktopnewTheme()
+  const accordion = useSettingsAccordionPopover()
+  const popoverKey = useId()
+  const [radixOpen, setRadixOpen] = useState(false)
+
+  const pickerBody = (
+    <DesktopNewFillPicker solidOnly value={value} onValueChange={onValueChange} />
+  )
+
+  const accordionPanelClassName = desktopnewPortalClass(
+    theme,
+    "desktopnew-fill-popover desktopnew-popover-content w-full border-0 bg-transparent p-0 shadow-none outline-none",
+  )
+
+  const attachTrigger = (onClick: React.MouseEventHandler<HTMLElement>) => {
+    if (!isValidElement(children)) {
+      return children
+    }
+
+    return cloneElement(children, {
+      onClick: (event: React.MouseEvent<HTMLElement>) => {
+        children.props.onClick?.(event)
+        if (event.defaultPrevented) {
+          return
+        }
+        onClick(event)
+      },
+    })
+  }
+
+  if (accordion) {
+    const isOpen = accordion.openKey === popoverKey
+
+    return (
+      <>
+        {attachTrigger(() => accordion.setOpenKey(isOpen ? null : popoverKey))}
+        <SettingsAccordionPopoverOverlay
+          className={accordionPanelClassName}
+          openKey={popoverKey}
+          theme={theme}
+        >
+          <SettingsPopoverChrome
+            bodyClassName="dn-settings-popover-body-fill"
+            title={title}
+            onClose={() => accordion.setOpenKey(null)}
+          >
+            {pickerBody}
+          </SettingsPopoverChrome>
+        </SettingsAccordionPopoverOverlay>
+      </>
+    )
+  }
+
+  return (
+    <Popover open={radixOpen} onOpenChange={setRadixOpen}>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className={desktopnewPortalClass(
+          theme,
+          "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
+        )}
+        data-theme={theme}
+        side="right"
+        sideOffset={10}
+      >
+        <SettingsPopoverChrome
+          bodyClassName="dn-settings-popover-body-fill"
+          title={title}
           onClose={() => setRadixOpen(false)}
         >
           {pickerBody}

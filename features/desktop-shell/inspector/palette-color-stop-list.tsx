@@ -142,14 +142,14 @@ function PaletteColorStopRow({
 
   return (
     <div className={cn("dn-type-meta", PALETTE_COLOR_ROW)}>
-      <PaletteColorStopEditor
+      <PaletteColorEditorPopover
         color={color}
         onColorChange={(next) => onColorChange(index, next)}
         open={open}
         onOpenChange={setOpen}
       >
         {swatch}
-      </PaletteColorStopEditor>
+      </PaletteColorEditorPopover>
       <FieldShell className={PALETTE_COLOR_FIELD}>
         <FieldInputGroup>
           <span className="sr-only">Color value</span>
@@ -198,7 +198,7 @@ function PaletteColorStopRow({
   )
 }
 
-function PaletteColorStopEditor({
+export function PaletteColorEditorPopover({
   color,
   onColorChange,
   open,

@@ -5,7 +5,7 @@ import { RadioGroup } from "@base-ui/react/radio-group";
 import { Radio } from "@base-ui/react/radio";
 import { Plus } from "lucide-react";
 import { useColorPickerContext } from "@/components/ui/fill-picker/context";
-import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color";
+import { formatColor } from "@/components/ui/fill-picker/lib/color";
 import type { OklchColor } from "@/components/ui/fill-picker/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/fill-picker/lib/constants";
 import {
   DEFAULT_SWATCH_PRESETS,
-  isSameSwatchColor,
+  getActiveSwatchPreset,
 } from "@/components/ui/fill-picker/lib/swatch-presets";
 
 interface SwatchesProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -45,13 +45,10 @@ export const Swatches = React.forwardRef<HTMLDivElement, SwatchesProps>(function
 ) {
   const { color, setColor } = useColorPickerContext();
 
-  const activeValue = React.useMemo(() => {
-    for (const p of presets) {
-      const parsed = parseColor(p);
-      if (parsed && isSameSwatchColor(parsed, color)) return p;
-    }
-    return NONE;
-  }, [presets, color]);
+  const activeValue = React.useMemo(
+    () => getActiveSwatchPreset(color, presets) ?? NONE,
+    [presets, color],
+  );
 
   return (
     <div

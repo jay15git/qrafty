@@ -1,0 +1,50 @@
+import { formatFill, parseFill } from "@/components/ui/fill-picker/lib/gradient"
+import {
+  applyShapeFill,
+  readShapeFillCss,
+} from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+import { SETTINGS_FILL_PRESETS } from "@/features/desktop-shell/inspector/settings-fill-presets"
+import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
+
+/** Match presets against shape fill after the same storage path as CardSection. */
+export function canonicalShapeFillCssFromPreset(preset: string): string | null {
+  const fill = parseFill(preset)
+  if (!fill) {
+    return null
+  }
+
+  const nextSettings = {
+    ...DEFAULT_DESKTOP_SHAPE_SETTINGS,
+    ...applyShapeFill(fill, DEFAULT_DESKTOP_SHAPE_SETTINGS),
+  }
+
+  return readShapeFillCss(nextSettings)
+}
+
+function storedFillCssMatches(value: string, preset: string): boolean {
+  const canonical = canonicalShapeFillCssFromPreset(preset)
+  if (!canonical) {
+    return false
+  }
+
+  const current = parseFill(value)
+  const stored = parseFill(canonical)
+  if (!current || !stored) {
+    return value.trim() === canonical.trim()
+  }
+
+  return formatFill(current) === formatFill(stored)
+}
+
+export function getActiveFillPresetForStoredValue(
+  value: string,
+  presets: readonly string[] = SETTINGS_FILL_PRESETS,
+): string | null {
+  for (const preset of presets) {
+    if (storedFillCssMatches(value, preset)) {
+      return preset
+    }
+  }
+
+  return null
+}

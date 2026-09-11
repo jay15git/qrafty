@@ -1,3 +1,4 @@
+import { parseColor } from "./color";
 import type { OklchColor } from "./types";
 
 /** Default swatch presets shared by both Swatches variants. */
@@ -22,6 +23,22 @@ export const DEFAULT_SWATCH_PRESETS = [
  * either side has near-zero chroma so swatches like `oklch(0.5 0 0)` match
  * the current gray regardless of its drifted hue.
  */
+export function getActiveSwatchPreset(
+  color: OklchColor | null | undefined,
+  presets: readonly string[] = DEFAULT_SWATCH_PRESETS,
+): string | null {
+  if (!color) return null;
+
+  for (const preset of presets) {
+    const parsed = parseColor(preset);
+    if (parsed && isSameSwatchColor(parsed, color)) {
+      return preset;
+    }
+  }
+
+  return null;
+}
+
 export function isSameSwatchColor(
   preset: OklchColor,
   color: OklchColor,

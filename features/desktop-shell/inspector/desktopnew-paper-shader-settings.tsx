@@ -8,8 +8,6 @@ import {
 import {
   addPaperShaderColor,
   DEFAULT_PAPER_SHADER_MAX_COLOR_COUNT,
-  DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT,
-  removePaperShaderColor,
 } from "@/features/workspace/rendering/paper-shader-colors"
 import {
   formatPaperShaderNumberValue,
@@ -23,8 +21,7 @@ import {
 import { cn } from "@/lib/utils"
 
 import { DesktopInspectorElasticSliderRow } from "@/features/desktop-shell/components/DesktopInspectorShell"
-import { PaletteColorBarPreview } from "@/features/desktop-shell/inspector/palette-color-bar-preview"
-import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette-color-stop-list"
+import { PaperShaderColorGrid } from "@/features/desktop-shell/inspector/paper-shader-color-grid"
 import {
   DesktopInspectorSettingsPopover,
   PresetList,
@@ -194,78 +191,6 @@ function isPaperShaderHexColor(value: string) {
   return /^#[0-9a-f]{6}$/i.test(value)
 }
 
-function PaperShaderColorsPopover({
-  colors,
-  maxColorCount,
-  namedColorControls,
-  paperShader,
-  showPalette,
-  surface,
-  onColorsChange,
-  onParamChange,
-}: {
-  colors?: string[]
-  maxColorCount?: number
-  namedColorControls: PaperShaderControlDefinition[]
-  paperShader: DraftingCardPaperShaderState
-  showPalette: boolean
-  surface: PaperShaderSettingsSurface
-  onColorsChange: (colors: string[]) => void
-  onParamChange: (key: string, value: PaperShaderParamValue) => void
-}) {
-  const maxCount = maxColorCount ?? DEFAULT_PAPER_SHADER_MAX_COLOR_COUNT
-  const minCount = DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT
-  const paletteColors = colors ?? []
-
-  return (
-    <ShaderSettingsPopover
-      contentClassName="w-[19rem]"
-      hint={showPalette ? `${paletteColors.length}` : undefined}
-      leading={showPalette ? <PaletteColorBarPreview colors={paletteColors} /> : undefined}
-      surface={surface}
-      title="Colors"
-      trigger="Colors"
-    >
-      <div className={surface === "desktop" ? DESKTOP_SHADER_LIST_GAP : "dn-section-stack"}>
-        {showPalette ? (
-          <PaletteColorStopList
-            colors={paletteColors}
-            maxCount={maxCount}
-            minCount={minCount}
-            onAdd={() => {
-              const next = addPaperShaderColor(paletteColors, maxCount, PAPER_SHADER_NEW_COLOR)
-              if (next) {
-                onColorsChange(next)
-              }
-            }}
-            onPaletteColorChange={(index, color) => {
-              const next = [...paletteColors]
-              next[index] = color
-              onColorsChange(next)
-            }}
-            onRemove={(index) => {
-              const next = removePaperShaderColor(paletteColors, index, minCount)
-              if (next) {
-                onColorsChange(next)
-              }
-            }}
-          />
-        ) : null}
-
-        {namedColorControls.map((control) => (
-          <DesktopNewPaperShaderParamControl
-            key={control.key}
-            control={control}
-            surface={surface}
-            value={paperShader.params[control.key]}
-            onChange={(nextValue) => onParamChange(control.key, nextValue as PaperShaderParamValue)}
-          />
-        ))}
-      </div>
-    </ShaderSettingsPopover>
-  )
-}
-
 function DesktopNewPaperShaderParamControl({
   control,
   surface,
@@ -427,21 +352,40 @@ export function SettingsPaperShaderControls({
     colorsControl != null && Array.isArray(paperShader.params[colorsControl.key])
   const hasColorSettings = hasPaletteColors || namedColorControls.length > 0
 
-  const colorsPopover = hasColorSettings
+  const paletteColors = hasPaletteColors
+    ? (paperShader.params[colorsControl!.key] as string[])
+    : undefined
+  const maxColorCount = definition.maxColorCount ?? DEFAULT_PAPER_SHADER_MAX_COLOR_COUNT
+
+  const colorsGrid = hasColorSettings
     ? (
-        <PaperShaderColorsPopover
-          colors={hasPaletteColors ? (paperShader.params[colorsControl!.key] as string[]) : undefined}
-          maxColorCount={definition.maxColorCount}
+        <PaperShaderColorGrid
+          colors={paletteColors}
+          maxColorCount={maxColorCount}
           namedColorControls={namedColorControls}
-          paperShader={paperShader}
+          paperShaderParams={paperShader.params}
+          persistKey={`paper-shader-colors:${paperShader.shaderId}`}
           showPalette={hasPaletteColors}
-          surface={surface}
+          onAddColor={
+            hasPaletteColors
+              ? () => {
+                  const next = addPaperShaderColor(
+                    paletteColors ?? [],
+                    maxColorCount,
+                    PAPER_SHADER_NEW_COLOR,
+                  )
+                  if (next && colorsControl) {
+                    updateParam(colorsControl.key, next)
+                  }
+                }
+              : undefined
+          }
           onColorsChange={(nextColors) => {
             if (colorsControl) {
               updateParam(colorsControl.key, nextColors)
             }
           }}
-          onParamChange={updateParam}
+          onNamedColorChange={(key, color) => updateParam(key, color)}
         />
       )
     : null
@@ -533,7 +477,7 @@ export function SettingsPaperShaderControls({
   if (!hasPresetOptions) {
     return (
       <div className={SECTION_GAP}>
-        {colorsPopover}
+        {colorsGrid}
         {settingsPopover}
       </div>
     )
@@ -552,7 +496,7 @@ export function SettingsPaperShaderControls({
           onPaperShaderChange(applyDraftingCardPaperShaderPreset(paperShader, presetName))
         }
       />
-      {colorsPopover}
+      {colorsGrid}
       {settingsPopover}
     </div>
   )
