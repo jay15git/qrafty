@@ -62,14 +62,10 @@ next-env.d.ts
 !.cursor/hooks/
 !.cursor/hooks.json
 
-# cocoindex local index artifacts
-.cocoindex_code/
-
 # Local agent / IDE tooling (not app source)
 .agents/
 .claude/settings.json
 .claude/skills/*
-!.claude/skills/gitnexus/
 skills-lock.json
 .mcp.json
 .cursorrules
