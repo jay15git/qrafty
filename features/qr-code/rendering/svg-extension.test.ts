@@ -4,16 +4,25 @@ import {
   buildQrExtension,
   createAlignedCornerGradientExtension,
   createDotMatrixAnimationExtension,
+  getDraftingQrLayerLayout,
   getFinderCornerRegions,
   getQrExtensionKey,
+  getQrRenderedDimensions,
   getQrSvgNumCells,
 } from "./svg-extension"
+import { getQraftyQrQuietZonePx } from "@/features/qr-code/model/qr-module-metrics"
 import {
   createDefaultQraftyState,
   setDotMatrixAnimationOptions,
+  setSquareQrSize,
   type QrDotMatrixAnimationPatch,
+  type QraftyState,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
 } from "@/features/qr-code/model/state"
+import {
+  getQrBackgroundShapeContentFrame,
+  getQrBackgroundShapeDefinition,
+} from "@/features/qr-code/styles/background-shapes"
 
 type StubElement = {
   tagName: string
@@ -382,6 +391,8 @@ describe("qr rendering helpers", () => {
   it("keeps logo-only changes on the upstream image path instead of the extension pipeline", () => {
     const defaultState = createDefaultQraftyState()
     const stateWithLogo = createDefaultQraftyState()
+    defaultState.backgroundOptions.transparent = true
+    stateWithLogo.backgroundOptions.transparent = true
     stateWithLogo.logo = {
       source: "url",
       value: "https://example.com/logo.png",
@@ -793,7 +804,7 @@ describe("qr rendering helpers", () => {
 
     expect(transform).toContain("skewX")
     expect(transform).toContain("skewY")
-    expect(transform).not.toBe("translate(0 33) scale(1)")
+    expect(transform).not.toBe("translate(0 0) scale(1.6)")
   })
 
   it("expands vector background shape bounds with padding and stroke", () => {
@@ -1157,5 +1168,89 @@ describe("qr rendering helpers", () => {
     }
 
     expect(createAlignedCornerGradientExtension(state)).toBeNull()
+  })
+})
+
+describe("shape padding geometry", () => {
+  function createShapeState(paddingPx: number, data = "https://qrafty.app") {
+    const state = setSquareQrSize(createDefaultQraftyState(), 320)
+    state.data = data
+    state.backgroundShapeId = "circle"
+    state.backgroundShapeOptions = {
+      ...state.backgroundShapeOptions,
+      paddingPx,
+    }
+
+    return state
+  }
+
+  function measureInkToShapeGap(state: QraftyState) {
+    const shape = getQrBackgroundShapeDefinition(state.backgroundShapeId)
+
+    if (!shape) {
+      throw new Error("test requires a background shape")
+    }
+
+    const layout = getDraftingQrLayerLayout(400, state)
+    const contentFrame = getQrBackgroundShapeContentFrame(shape)
+    const scale = layout.metrics.backingRegion.width / shape.viewBox.width
+    const quietZonePx = getQraftyQrQuietZonePx(state, layout.innerWidth)
+    const contentFrameLeft = layout.metrics.backingRegion.x + contentFrame.x * scale
+
+    return (layout.metrics.translateX + quietZonePx - contentFrameLeft) / layout.scale
+  }
+
+  it("fits the square surface to the qr ink at slider 0", () => {
+    const state = setSquareQrSize(createDefaultQraftyState(), 320)
+    const layout = getDraftingQrLayerLayout(320, state)
+    const quietZonePx = getQraftyQrQuietZonePx(state, layout.innerWidth)
+
+    expect(layout.metrics.backingRegion.x).toBeCloseTo(quietZonePx, 6)
+    expect(layout.metrics.backingRegion.y).toBeCloseTo(quietZonePx, 6)
+    expect(layout.metrics.backingRegion.width).toBeCloseTo(
+      layout.innerWidth - quietZonePx * 2,
+      6,
+    )
+    expect(layout.metrics.backingRegion.height).toBeCloseTo(
+      layout.innerHeight - quietZonePx * 2,
+      6,
+    )
+  })
+
+  it("adds square-surface padding outside the qr ink", () => {
+    const state = setSquareQrSize(createDefaultQraftyState(), 320)
+    state.backgroundShapeOptions = { ...state.backgroundShapeOptions, paddingPx: 24 }
+    const layout = getDraftingQrLayerLayout(320, state)
+    const quietZonePx = getQraftyQrQuietZonePx(state, layout.innerWidth)
+
+    expect(layout.metrics.backingRegion.x).toBeCloseTo(quietZonePx - 24, 6)
+    expect(layout.metrics.backingRegion.width).toBeCloseTo(
+      layout.innerWidth - quietZonePx * 2 + 48,
+      6,
+    )
+  })
+
+  it("starts with no minimum ink-to-shape gap at slider 0", () => {
+    expect(measureInkToShapeGap(createShapeState(0))).toBeCloseTo(0, 6)
+  })
+
+  it("adds the slider value as minimum ink-to-shape padding", () => {
+    expect(measureInkToShapeGap(createShapeState(24))).toBeCloseTo(24, 6)
+    expect(measureInkToShapeGap(createShapeState(60))).toBeCloseTo(60, 6)
+  })
+
+  it("keeps the qr centered in asymmetric shapes", () => {
+    const state = createShapeState(40)
+    state.backgroundShapeId = "ghost"
+
+    const shape = getQrBackgroundShapeDefinition("ghost")
+    const layout = getDraftingQrLayerLayout(400, state)
+    const contentFrame = getQrBackgroundShapeContentFrame(shape!)
+    const scale = layout.metrics.backingRegion.width / shape!.viewBox.width
+    const contentFrameCenterX =
+      layout.metrics.backingRegion.x + (contentFrame.x + contentFrame.width / 2) * scale
+    const qrCenterX = layout.metrics.translateX + layout.innerWidth / 2
+
+    expect(contentFrameCenterX).toBeCloseTo(qrCenterX, 6)
   })
 })

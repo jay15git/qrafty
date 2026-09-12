@@ -15,22 +15,12 @@ import {
   getDraftingQrBackgroundPathTransform,
   getDraftingQrLayerLayout,
 } from "@/features/qr-code/rendering/svg-extension"
-import {
-  getBackgroundShapeSkewTransform,
-} from "@/features/workspace/rendering/layer-transform"
 
 export type DraftingQrBackgroundSvgPayload = {
   height: number
   markup: string
   shapeId: string
   width: number
-}
-
-type DraftingQrBackgroundFrame = {
-  height: number
-  width: number
-  x: number
-  y: number
 }
 
 export function buildDraftingQrBackgroundSvgPayload(
@@ -60,12 +50,13 @@ export function getDraftingQrBackgroundSvgMarkup(
     return ""
   }
 
-  const frame = getDraftingQrBackgroundFrame(layer)
   const shape = getQrBackgroundShapeDefinition(state.backgroundShapeId)
+  const layout = getDraftingQrLayerLayout(layer.width, state, layer.height)
+  const { metrics, shapeOptions } = layout
   const ids = getDraftingQrBackgroundIds(layer.id)
   const defs = getDraftingQrBackgroundDefsMarkup(ids, state)
   const fill = getDraftingQrBackgroundFill(state, ids)
-  const stroke = getDraftingQrBackgroundStroke(state.backgroundShapeOptions)
+  const stroke = getDraftingQrBackgroundStroke(shapeOptions)
   const strokeMarkup =
     stroke.width > 0
       ? ` stroke="${escapeXml(stroke.color)}" stroke-opacity="${stroke.opacity}" stroke-width="${stroke.width}" stroke-linejoin="round"`
@@ -73,35 +64,34 @@ export function getDraftingQrBackgroundSvgMarkup(
   const shapeName = shape?.id ?? "rect"
 
   if (shape) {
-    const scaleX = frame.width / shape.viewBox.width
-    const scaleY = frame.height / shape.viewBox.height
-    const transform = getBackgroundShapeSkewTransform(
-      `translate(${frame.x} ${frame.y}) scale(${scaleX} ${scaleY})`,
-      state.backgroundShapeOptions,
-      shape.viewBox.width / 2,
-      shape.viewBox.height / 2,
+    const transform = getDraftingQrBackgroundPathTransform(
+      shape,
+      metrics.backingRegion,
+      shapeOptions,
     )
 
     return `<g data-drafting-qr-background="${escapeXml(shapeName)}"><defs>${defs}</defs><path d="${escapeXml(shape.path)}" fill="${escapeXml(fill)}"${strokeMarkup} transform="${transform}"/></g>`
   }
 
-  const radius = (Math.min(frame.width, frame.height) / 2) * state.backgroundOptions.round
+  const radius =
+    (Math.min(metrics.backingRegion.width, metrics.backingRegion.height) / 2) *
+    state.backgroundOptions.round
 
-  return `<g data-drafting-qr-background="${escapeXml(shapeName)}"><defs>${defs}</defs><rect x="${frame.x}" y="${frame.y}" width="${frame.width}" height="${frame.height}" rx="${radius}" fill="${escapeXml(fill)}"${strokeMarkup}/></g>`
+  return `<g data-drafting-qr-background="${escapeXml(shapeName)}"><defs>${defs}</defs><rect x="${metrics.backingRegion.x}" y="${metrics.backingRegion.y}" width="${metrics.backingRegion.width}" height="${metrics.backingRegion.height}" rx="${radius}" fill="${escapeXml(fill)}"${strokeMarkup}/></g>`
 }
 
 export function getDraftingQrBackgroundBounds(
   layer: DraftingCanvasLayer,
   state: QraftyState,
 ) {
-  const frame = getDraftingQrBackgroundFrame(layer)
-  const strokeOutset = Math.ceil(state.backgroundShapeOptions.strokeWidth / 2)
+  const layout = getDraftingQrLayerLayout(layer.width, state, layer.height)
+  const strokeOutset = Math.ceil(layout.shapeOptions.strokeWidth / 2)
 
   return {
-    maxX: layer.x + frame.x + frame.width + strokeOutset,
-    maxY: layer.y + frame.y + frame.height + strokeOutset,
-    minX: layer.x + frame.x - strokeOutset,
-    minY: layer.y + frame.y - strokeOutset,
+    maxX: layer.x + layer.width + strokeOutset,
+    maxY: layer.y + layer.height + strokeOutset,
+    minX: layer.x - strokeOutset,
+    minY: layer.y - strokeOutset,
   }
 }
 
@@ -169,17 +159,6 @@ function getDraftingQrBackgroundIds(layerId: string): DraftingQrBackgroundIds {
   return {
     gradientId: `${id}-qr-background-gradient`,
     imagePatternId: `${id}-qr-background-image`,
-  }
-}
-
-function getDraftingQrBackgroundFrame(
-  layer: DraftingCanvasLayer,
-): DraftingQrBackgroundFrame {
-  return {
-    height: layer.height,
-    width: layer.width,
-    x: 0,
-    y: 0,
   }
 }
 

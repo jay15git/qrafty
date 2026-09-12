@@ -22,6 +22,7 @@ import {
   getDraftingQrBackgroundBounds,
   getDraftingQrBackgroundSvgMarkup,
 } from "@/features/workspace/components/drafting-qr-background.utils"
+import { getDraftingQrLayerLayout } from "@/features/qr-code/rendering/svg-extension"
 
 import {
   collectIllustrationAssetPaths,
@@ -352,8 +353,15 @@ function getDraftingQrLayerSvg(
   const filter = getDraftingLayerFilterMarkup(layer)
     ? ` filter="url(#${getSvgId(layer.id)}-filter)"`
     : ""
+  const layout = getDraftingQrLayerLayout(layer.width, state, layer.height)
+  const { metrics, innerWidth, innerHeight } = layout
+  const qrSvg = scaleNestedSvgMarkup(qrMarkup, innerWidth, innerHeight)
+  const qrGroup =
+    metrics.translateX || metrics.translateY
+      ? `<g transform="translate(${metrics.translateX} ${metrics.translateY})">${qrSvg}</g>`
+      : qrSvg
 
-  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}>${getDraftingQrBackgroundSvgMarkup(layer, state)}${scaleNestedSvgMarkup(qrMarkup, layer.width, layer.height)}</g>`
+  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}>${getDraftingQrBackgroundSvgMarkup(layer, state)}${qrGroup}</g>`
 }
 
 function getDraftingTextLayerSvg(layer: DraftingCanvasLayer) {

@@ -1,9 +1,12 @@
 import type { CSSProperties } from "react"
 
 import {
+  getQrBackgroundShapeContentFrame,
   getQrBackgroundShapeDefinition,
+  type QrBackgroundShapeContentFrame,
   type QrBackgroundShapeDefinition,
 } from "@/features/qr-code/styles/background-shapes"
+import { getQraftyQrQuietZonePx } from "@/features/qr-code/model/qr-module-metrics"
 import {
   clampBackgroundShapeOffset,
   clampBackgroundShapeOpacity,
@@ -85,12 +88,6 @@ export function buildQrExtension(state: QraftyState) {
     )
   }
 
-  if (backgroundShape) {
-    extensions.push(createBackgroundShapeExtension(backgroundShape, state))
-  } else if (!backgroundImage && hasActiveBackgroundSurfaceOptions(state.backgroundShapeOptions)) {
-    extensions.push(createBackgroundSurfaceExtension(state))
-  }
-
   const unifiedModuleGradient =
     state.gradientLinkMode === "unified" &&
     state.dotsColorMode === "gradient" &&
@@ -139,6 +136,17 @@ export function buildQrExtension(state: QraftyState) {
         ),
       )
     }
+  }
+
+  if (backgroundShape) {
+    extensions.push(createBackgroundShapeExtension(backgroundShape, state))
+  } else if (
+    !backgroundImage &&
+    (!state.backgroundOptions.transparent ||
+      state.backgroundGradient.enabled ||
+      hasActiveBackgroundSurfaceOptions(state.backgroundShapeOptions))
+  ) {
+    extensions.push(createBackgroundSurfaceExtension(state))
   }
 
   if (extensions.length === 0) {
@@ -2063,9 +2071,60 @@ function createUnifiedGradientExtension(
   }
 }
 
+function coerceQrMarginCells(margin: number) {
+  return Math.min(80, Math.max(0, Math.floor(Number.isFinite(margin) ? margin : 12)))
+}
+
+/**
+ * QR svg children are authored in module-cell units (viewBox = numCells), while
+ * shape options are pixel values. Metrics are computed in cell space so the
+ * background shape, quiet zone, and stroke align with the encoded modules.
+ */
+function getCellSpaceBackgroundMetrics(
+  svg: SVGElement,
+  options: QrSvgExtensionOptions,
+  shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>,
+  layout: {
+    contentFrame?: QrBackgroundShapeContentFrame
+    marginCells: number
+    viewBox?: { height: number; width: number }
+  },
+) {
+  const innerWidth = options.width ?? 300
+  const innerHeight = options.height ?? 300
+  const numCells = getQrSvgNumCells(svg)
+
+  if (numCells === null || numCells <= 0 || innerWidth <= 0) {
+    return {
+      metrics: getBackgroundRenderMetrics(innerWidth, innerHeight, shapeOptions),
+      shapeOptions,
+    }
+  }
+
+  const cellScale = numCells / innerWidth
+  const cellShapeOptions = scaleQrBackgroundShapeOptions(shapeOptions, cellScale)
+
+  return {
+    metrics: getBackgroundRenderMetrics(
+      numCells,
+      Math.max(1, innerHeight * cellScale),
+      cellShapeOptions,
+      {
+        contentFrame: layout.contentFrame,
+        quietZonePx: layout.marginCells,
+        viewBox: layout.viewBox,
+      },
+    ),
+    shapeOptions: cellShapeOptions,
+  }
+}
+
 function createBackgroundShapeExtension(
   shape: QrBackgroundShapeDefinition,
-  state: Pick<QraftyState, "backgroundGradient" | "backgroundOptions" | "backgroundShapeOptions">,
+  state: Pick<
+    QraftyState,
+    "backgroundGradient" | "backgroundOptions" | "backgroundShapeOptions" | "margin"
+  >,
 ): QrSvgExtensionFunction {
   return (svg, options) => {
     const document = svg.ownerDocument
@@ -2087,10 +2146,16 @@ function createBackgroundShapeExtension(
       node.remove()
     })
 
-    const width = options.width ?? 300
-    const height = options.height ?? 300
-    const shapeOptions = normalizeBackgroundShapeOptions(state.backgroundShapeOptions)
-    const metrics = getBackgroundRenderMetrics(width, height, shapeOptions)
+    const { metrics, shapeOptions } = getCellSpaceBackgroundMetrics(
+      svg,
+      options,
+      normalizeBackgroundShapeOptions(state.backgroundShapeOptions),
+      {
+        contentFrame: getQrBackgroundShapeContentFrame(shape),
+        marginCells: coerceQrMarginCells(state.margin),
+        viewBox: shape.viewBox,
+      },
+    )
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path")
     const transform = getBackgroundShapeTransform(
       shape,
@@ -2232,31 +2297,77 @@ type BackgroundRenderMetrics = {
   translateY: number
 }
 
+type BackgroundShapeLayout = {
+  contentFrame?: QrBackgroundShapeContentFrame
+  quietZonePx?: number
+  viewBox?: { height: number; width: number }
+}
+
 function getBackgroundRenderMetrics(
   width: number,
   height: number,
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>,
+  layout?: BackgroundShapeLayout,
 ): BackgroundRenderMetrics {
-  const shapeOutset = shapeOptions.paddingPx
+  const quietZonePx = Math.max(0, layout?.quietZonePx ?? 0)
+  const paddingPx = shapeOptions.paddingPx
+  const gap = paddingPx
+  const shapeOutset = paddingPx
   const strokeOutset = Math.ceil(shapeOptions.strokeWidth / 2)
   const leftEffectOutset = strokeOutset
   const rightEffectOutset = strokeOutset
   const topEffectOutset = strokeOutset
   const bottomEffectOutset = strokeOutset
-  const translateX = shapeOutset + leftEffectOutset
-  const translateY = shapeOutset + topEffectOutset
+
+  let shapeBounds: {
+    height: number
+    width: number
+    x: number
+    y: number
+  }
+
+  if (layout?.viewBox && layout.contentFrame) {
+    const contentFrame = layout.contentFrame
+    const contentTargetWidth = Math.max(0, width - quietZonePx * 2) + gap * 2
+    const contentTargetHeight = Math.max(0, height - quietZonePx * 2) + gap * 2
+    const scale = Math.min(
+      contentTargetWidth / Math.max(1, contentFrame.width),
+      contentTargetHeight / Math.max(1, contentFrame.height),
+    )
+
+    shapeBounds = {
+      height: layout.viewBox.height * scale,
+      width: layout.viewBox.width * scale,
+      x: width / 2 - (contentFrame.x + contentFrame.width / 2) * scale,
+      y: height / 2 - (contentFrame.y + contentFrame.height / 2) * scale,
+    }
+  } else {
+    shapeBounds = {
+      height: Math.max(0, height - quietZonePx * 2) + paddingPx * 2,
+      width: Math.max(0, width - quietZonePx * 2) + paddingPx * 2,
+      x: quietZonePx - paddingPx,
+      y: quietZonePx - paddingPx,
+    }
+  }
+
+  const minX = Math.min(0, shapeBounds.x)
+  const minY = Math.min(0, shapeBounds.y)
+  const maxX = Math.max(width, shapeBounds.x + shapeBounds.width)
+  const maxY = Math.max(height, shapeBounds.y + shapeBounds.height)
+  const translateX = leftEffectOutset - minX
+  const translateY = topEffectOutset - minY
 
   return {
     backingRegion: {
-      height: height + shapeOutset * 2,
-      width: width + shapeOutset * 2,
-      x: leftEffectOutset,
-      y: topEffectOutset,
+      height: shapeBounds.height,
+      width: shapeBounds.width,
+      x: shapeBounds.x + translateX,
+      y: shapeBounds.y + translateY,
     },
     bottomEffectOutset,
     leftEffectOutset,
-    outerHeight: height + shapeOutset * 2 + topEffectOutset + bottomEffectOutset,
-    outerWidth: width + shapeOutset * 2 + leftEffectOutset + rightEffectOutset,
+    outerHeight: maxY - minY + topEffectOutset + bottomEffectOutset,
+    outerWidth: maxX - minX + leftEffectOutset + rightEffectOutset,
     rightEffectOutset,
     shapeOutset,
     topEffectOutset,
@@ -2264,20 +2375,46 @@ function getBackgroundRenderMetrics(
     translateX,
     translateY,
   }
-}export function getQrRenderedDimensions(
+}
+
+function getBackgroundRenderLayout(
   state: Pick<
     QraftyState,
-    "backgroundImage" | "backgroundShapeId" | "backgroundShapeOptions" | "height" | "width"
+    | "backgroundShapeId"
+    | "data"
+    | "margin"
+    | "qrOptions"
+    | "valueSegments"
+  >,
+  boxPx: number,
+): BackgroundShapeLayout {
+  const shape = getQrBackgroundShapeDefinition(state.backgroundShapeId)
+
+  return {
+    contentFrame: shape ? getQrBackgroundShapeContentFrame(shape) : undefined,
+    quietZonePx: getQraftyQrQuietZonePx(state, boxPx),
+    viewBox: shape?.viewBox,
+  }
+}
+
+export function getQrRenderedDimensions(
+  state: Pick<
+    QraftyState,
+    | "backgroundImage"
+    | "backgroundShapeId"
+    | "backgroundShapeOptions"
+    | "data"
+    | "height"
+    | "margin"
+    | "qrOptions"
+    | "valueSegments"
+    | "width"
   >,
 ) {
   const width = clampQrSize(state.width)
   const height = clampQrSize(state.height)
 
-  if (
-    getAssetValue(state.backgroundImage) ||
-    (state.backgroundShapeId === "none" &&
-      !hasActiveBackgroundSurfaceOptions(state.backgroundShapeOptions))
-  ) {
+  if (getAssetValue(state.backgroundImage)) {
     return {
       height,
       width,
@@ -2288,6 +2425,7 @@ function getBackgroundRenderMetrics(
     width,
     height,
     normalizeBackgroundShapeOptions(state.backgroundShapeOptions),
+    getBackgroundRenderLayout(state, width),
   )
 
   return {
@@ -2308,7 +2446,15 @@ export function getDraftingQrLayerLayout(
   layerWidth: number,
   state: Pick<
     QraftyState,
-    "backgroundImage" | "backgroundShapeId" | "backgroundShapeOptions" | "height" | "width"
+    | "backgroundImage"
+    | "backgroundShapeId"
+    | "backgroundShapeOptions"
+    | "data"
+    | "height"
+    | "margin"
+    | "qrOptions"
+    | "valueSegments"
+    | "width"
   >,
   layerHeight?: number,
 ): DraftingQrLayerLayout {
@@ -2324,6 +2470,7 @@ export function getDraftingQrLayerLayout(
     innerWidth,
     innerHeight,
     normalizeBackgroundShapeOptions(shapeOptions),
+    getBackgroundRenderLayout(state, innerWidth),
   )
   const fitted = fitBackgroundRenderMetricsToLayer(
     metrics,
@@ -2515,7 +2662,10 @@ function isManagedBackgroundLayer(node: Element) {
 }
 
 function createBackgroundSurfaceExtension(
-  state: Pick<QraftyState, "backgroundGradient" | "backgroundOptions" | "backgroundShapeOptions">,
+  state: Pick<
+    QraftyState,
+    "backgroundGradient" | "backgroundOptions" | "backgroundShapeOptions" | "margin"
+  >,
 ): QrSvgExtensionFunction {
   return (svg, options) => {
     const document = svg.ownerDocument
@@ -2531,10 +2681,12 @@ function createBackgroundSurfaceExtension(
       node.remove()
     })
 
-    const width = options.width ?? 300
-    const height = options.height ?? 300
-    const shapeOptions = normalizeBackgroundShapeOptions(state.backgroundShapeOptions)
-    const metrics = getBackgroundRenderMetrics(width, height, shapeOptions)
+    const { metrics, shapeOptions } = getCellSpaceBackgroundMetrics(
+      svg,
+      options,
+      normalizeBackgroundShapeOptions(state.backgroundShapeOptions),
+      { marginCells: coerceQrMarginCells(state.margin) },
+    )
     const region = metrics.backingRegion
     const radius = (Math.min(region.width, region.height) / 2) * state.backgroundOptions.round
     const backgroundRect =
@@ -2571,7 +2723,8 @@ function getQrBackgroundSurfaceRect(svg: SVGElement) {
   return Array.from(svg.children).find(
     (child) =>
       child.tagName.toLowerCase() === "rect" &&
-      child.getAttribute("data-qr-layer") !== "background-surface-blur",
+      (child.getAttribute("data-qr-layer") === "background-surface" ||
+        child.getAttribute("clip-path")?.includes("clip-path-background-color")),
   )
 }
 
@@ -2862,8 +3015,10 @@ function getBackgroundShapeTransform(
   region: BackgroundRenderMetrics["backingRegion"],
   shapeOptions: QraftyState["backgroundShapeOptions"],
 ) {
-  const scale =
-    Math.min(region.width / shape.viewBox.width, region.height / shape.viewBox.height)
+  const scale = Math.min(
+    region.width / shape.viewBox.width,
+    region.height / shape.viewBox.height,
+  )
   const x = region.x + (region.width - shape.viewBox.width * scale) / 2
   const y = region.y + (region.height - shape.viewBox.height * scale) / 2
   const baseTransform = `translate(${formatSvgNumber(x)} ${formatSvgNumber(y)}) scale(${formatSvgNumber(scale)})`

@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest"
 
 import { createDefaultQraftyState, setSquareQrSize } from "@/features/qr-code/model/state"
-import { buildDraftingQrBackgroundSvgPayload } from "@/features/workspace/components/QrBackground"
+import { buildDraftingQrBackgroundSvgPayload } from "@/features/workspace/components/drafting-qr-background.utils"
 import { createDefaultDraftingLayers } from "@/features/workspace/model/layers"
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
 
@@ -109,6 +109,8 @@ describe("background shape svg payload", () => {
   it("skips background markup when shape is none and surface options are inactive", () => {
     const state = setSquareQrSize(createDefaultQraftyState(), 240)
     state.backgroundOptions.round = 0.2
+    state.backgroundOptions.transparent = true
+    state.backgroundOptions.color = ""
     const [layer] = createDefaultDraftingLayers(
       "preview",
       state,

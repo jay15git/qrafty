@@ -5,3 +5,8 @@ export { applyUnifiedQrImageFill } from "./unified-image"
 export { applyDirectGradientFill, getModuleGradientCoverRect } from "./gradient-fill-utils"
 export { applyQraftyQrSvgExtensions } from "./svg-extension"
 export { renderQraftyQrSvg, stripXmlDeclaration } from "./render-svg"
+export {
+  getQrModuleMetrics,
+  type QrModuleMetrics,
+  type QrModuleMetricsInput,
+} from "./qr-matrix"

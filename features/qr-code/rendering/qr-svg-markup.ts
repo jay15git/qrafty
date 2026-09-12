@@ -4,7 +4,7 @@ import {
   createAlignedCornerGradientExtension,
   getQrRenderedDimensions,
 } from "@/features/qr-code/rendering/svg-extension"
-import { type QraftyState } from "@/features/qr-code/model/state"
+import { clampQrSize, type QraftyState } from "@/features/qr-code/model/state"
 import { alignReactQrSvgToModuleGrid } from "@/features/workspace/rendering/qr-artwork"
 
 export function createDashboardSurfaceQrState(state: QraftyState): QraftyState {
@@ -71,8 +71,8 @@ function applyQrSvgExtension(
   }
 
   extension(svg, {
-    height: getQrRenderedDimensions(state).height,
-    width: getQrRenderedDimensions(state).width,
+    height: clampQrSize(state.height),
+    width: clampQrSize(state.width),
   })
 
   return new XMLSerializer().serializeToString(svg)

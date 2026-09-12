@@ -61,6 +61,13 @@ export type QrBackgroundShapeId =
   | "woven-bloom"
   | "pinched-seal"
 
+export type QrBackgroundShapeContentFrame = {
+  height: number
+  width: number
+  x: number
+  y: number
+}
+
 export type QrBackgroundShapeDefinition = {
   id: Exclude<QrBackgroundShapeId, "none">
   label: string
@@ -434,10 +441,90 @@ export const QR_BACKGROUND_SHAPES: QrBackgroundShapeDefinition[] = [
   },
 ]
 
+const QR_BACKGROUND_SHAPE_CONTENT_FRAMES: Record<
+  QrBackgroundShapeDefinition["id"],
+  readonly [x: number, y: number, size: number]
+> = {
+  circle: [46.86, 46.86, 226.27],
+  atom: [58.51, 58.51, 202.98],
+  ghost: [38.73, 48.23, 226.54],
+  hexagon: [49.39, 16.39, 221.21],
+  flower: [52.98, 40.98, 198.04],
+  "skew-card": [32, 22, 256.01],
+  "ornate-star": [56.74, 64.74, 206.52],
+  "rounded-square": [29.29, 29.29, 261.42],
+  "notched-badge": [49.79, 49.79, 240.41],
+  "eight-point-star": [46.87, 46.87, 226.27],
+  "folded-pentagon": [48.54, 70.54, 222.92],
+  "diagonal-pill": [66.32, 51.32, 182.37],
+  spark: [79.13, 79.13, 161.73],
+  hourglass: [56.17, 69.17, 197.66],
+  arch: [31.21, 59.71, 241.57],
+  "organic-seal": [48.79, 45.79, 222.42],
+  "soft-cross": [54.87, 54.87, 210.26],
+  "wavy-badge": [51.41, 45.46, 217.18],
+  "scallop-seal": [39.87, 49.87, 216.27],
+  propeller: [21.39, 21.39, 237.21],
+  "four-lobes": [26.31, 26.31, 243.38],
+  "gear-bloom": [56.3, 56.3, 207.39],
+  heart: [3.59, 3.19, 8.73],
+  "burst-star": [51.43, 51.43, 97.14],
+  blob: [43.59, 40.46, 114.08],
+  dome: [32.48, 16.23, 133.78],
+  pentagon: [44.85, 59.85, 110.31],
+  plus: [49.05, 49.05, 101.89],
+  "sun-scallop": [52.94, 50.44, 99.11],
+  sparkle: [52.7, 52.7, 94.61],
+  rosette: [55.82, 52.07, 88.36],
+  "cross-burst": [74.01, 74.01, 51.99],
+  diamond: [51.12, 50.49, 97.77],
+  "octagon-star": [56.1, 54.85, 90.3],
+  "seal-badge": [59.35, 59.35, 81.29],
+  "hexagon-flat": [44.85, 44.85, 110.3],
+  "octagon-flat": [40.95, 40.95, 118.1],
+  "quarter-circle": [41.01, 41.01, 117.99],
+  tag: [41.18, 19.93, 117.64],
+  "soft-star": [40.64, 40.64, 118.72],
+  teardrop: [46.66, 61.03, 106.69],
+  "squircle-octagon": [40.82, 40.82, 118.36],
+  "clover-cross": [52.62, 51.37, 96.01],
+  "notched-diamond": [76.1, 76.1, 327.8],
+  "bubble-plus": [80.12, 80.12, 319.75],
+  "pointed-shield": [67.48, 67.48, 345.04],
+  "arc-cross": [99.05, 100.55, 278.91],
+  "disc-clover": [47.99, 47.99, 384.02],
+  "orb-flower": [104.86, 104.86, 270.29],
+  "orb-bloom": [73.87, 73.87, 332.26],
+  "triple-bloom": [146.59, 288.34, 503.32],
+  butterfly: [269.21, 326.59, 548.33],
+  "curved-squircle": [189.33, 189.33, 701.34],
+  "quarter-cross": [79.62, 79.62, 317.77],
+  "soft-quarter-cross": [79.62, 79.62, 317.77],
+  "wave-square": [118.29, 118.29, 243.42],
+  "diamond-ring": [123.04, 123.04, 233.92],
+  "quad-bloom": [82.61, 79.61, 317.77],
+  "woven-bloom": [93.2, 93.2, 293.61],
+  "pinched-seal": [94.23, 94.23, 291.53],
+}
+
 export function getQrBackgroundShapeDefinition(shapeId: QrBackgroundShapeId) {
   if (shapeId === "none") {
     return null
   }
 
   return QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId) ?? null
+}
+
+export function getQrBackgroundShapeContentFrame(
+  shape: QrBackgroundShapeDefinition,
+): QrBackgroundShapeContentFrame {
+  const [x, y, size] = QR_BACKGROUND_SHAPE_CONTENT_FRAMES[shape.id]
+  const safetyInset = Math.min(0.5, size * 0.0025)
+
+  return {
+    height: size - safetyInset * 2,
+    width: size - safetyInset * 2,
+    x: x + safetyInset,
+    y: y + safetyInset,
+  }
 }

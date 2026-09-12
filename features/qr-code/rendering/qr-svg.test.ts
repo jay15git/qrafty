@@ -444,6 +444,19 @@ describe("dashboard qr svg helpers", () => {
     expect(markup).toContain('data-testid="finder-patterns-inner"')
   })
 
+  it("fits the default square background to the qr ink at zero padding", () => {
+    const state = createDefaultQraftyState()
+    const markup = renderDashboardQrSvgMarkup(state)
+    const document = new DOMParser().parseFromString(markup, "image/svg+xml")
+    const background = document.querySelector('[data-qr-layer="background-surface"]')
+    const numCells = Number(document.documentElement.getAttribute("viewBox")?.split(/\s+/)[2])
+
+    expect(background?.getAttribute("x")).toBe(String(state.margin))
+    expect(background?.getAttribute("y")).toBe(String(state.margin))
+    expect(background?.getAttribute("width")).toBe(String(numCells - state.margin * 2))
+    expect(background?.getAttribute("height")).toBe(String(numCells - state.margin * 2))
+  })
+
   it("reports expanded natural size when background effects grow outside the qr", async () => {
     const state = setSquareQrSize(createDefaultQraftyState(), 320)
     state.backgroundShapeId = "circle"
@@ -463,8 +476,8 @@ describe("dashboard qr svg helpers", () => {
 
     const payload = await buildDashboardQrNodePayload(state)
 
-    expect(payload.naturalWidth).toBe(406)
-    expect(payload.naturalHeight).toBe(406)
+    expect(payload.naturalWidth).toBeCloseTo(326, 3)
+    expect(payload.naturalHeight).toBeCloseTo(326, 3)
     expect(payload.markup).toContain('data-qr-layer="background-shape"')
   })
 })

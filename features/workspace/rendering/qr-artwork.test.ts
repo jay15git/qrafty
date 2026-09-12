@@ -4,6 +4,11 @@ import { describe, expect, it } from "vitest"
 
 import { toReactQrCodeProps } from "@/features/qr-code/adapters/react-qr-adapter"
 import { createDefaultQraftyState } from "@/features/qr-code/model/state"
+import { getQraftyQrQuietZonePx } from "@/features/qr-code/model/qr-module-metrics"
+import {
+  getQrBackgroundShapeContentFrame,
+  getQrBackgroundShapeDefinition,
+} from "@/features/qr-code/styles/background-shapes"
 import { buildDraftingLayeredNodePayload } from "@/features/workspace/export/layered-export"
 import { DEFAULT_DRAFTING_CARD_STATE } from "@/features/workspace/model/card-state"
 import { createDefaultDraftingLayers } from "@/features/workspace/model/layers"
@@ -57,10 +62,18 @@ describe("drafting qr artwork helpers", () => {
 
     const naturalOuter = getQrRenderedDimensions(state)
     const layout = getDraftingQrLayerLayout(naturalOuter.width * 0.75, state)
+    const shape = getQrBackgroundShapeDefinition("ghost")!
+    const contentFrame = getQrBackgroundShapeContentFrame(shape)
+    const shapeScale = layout.metrics.backingRegion.width / shape.viewBox.width
+    const safeAreaWidth = contentFrame.width * shapeScale
+    const quietZonePx = getQraftyQrQuietZonePx(state, layout.innerWidth)
 
     expect(layout.metrics.outerWidth).toBeCloseTo(naturalOuter.width * 0.75, 4)
     expect(layout.metrics.translateX).toBeGreaterThan(0)
-    expect(layout.metrics.backingRegion.width).toBeGreaterThanOrEqual(layout.innerWidth)
+    expect(safeAreaWidth).toBeCloseTo(
+      layout.innerWidth - quietZonePx * 2 + layout.shapeOptions.paddingPx * 2,
+      0,
+    )
   })
 
   it("preserves palette module paint after svg id prefixing in layered export", async () => {
