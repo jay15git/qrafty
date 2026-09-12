@@ -56,7 +56,7 @@ function AccordionItem({
       layout
       data-focused={isOpen ? "true" : undefined}
       className={cn(
-        "overflow-hidden rounded-[30px] bg-surface text-foreground shadow-xs",
+        "rounded-[30px] bg-surface text-foreground shadow-xs",
         isOpen && " ",
       )}
       transition={{ type: "spring", stiffness: 280, damping: 28, mass: 0.9 }}
@@ -182,7 +182,11 @@ export function MotionAccordion({
   return (
     <SettingsAccordionPopoverProvider cardRef={accordionRef}>
       <SettingsAccordionPopoverOpenMarker className={cn("w-full min-w-0 max-w-full", className)}>
-        <div ref={accordionRef} className="flex flex-col rounded-[34px] p-3" style={{ gap }}>
+        <div
+          ref={accordionRef}
+          className="flex flex-col rounded-[34px] p-3"
+          style={{ gap, "--dn-accordion-gap": `${gap}px` } as React.CSSProperties}
+        >
         {items.map((item, i) => {
           const itemKey = getStableItemKey(item);
 

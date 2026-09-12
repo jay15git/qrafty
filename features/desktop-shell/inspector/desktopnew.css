@@ -1339,8 +1339,20 @@
 }
 
 .dn-settings-accordion > div > div > button {
+  position: relative;
   gap: 0.625rem;
   padding: 1rem 1.125rem;
+}
+
+/* Extend each trigger's hit zone into the gap above its card so the
+ * pointer + click area stays continuous between sections. */
+.dn-settings-accordion > div > div > button::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--dn-accordion-gap, 8px));
+  right: 0;
+  left: 0;
+  height: var(--dn-accordion-gap, 8px);
 }
 
 .dn-settings-accordion > div > div > button > span:first-child {
