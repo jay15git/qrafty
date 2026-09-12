@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
 import {
   AlignCenterIcon,
   AlignLeftIcon,
@@ -71,11 +71,14 @@ import {
 } from "@/features/workspace/model/layers"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import {
-  DRAFTING_FONT_REGISTRY,
+  DRAFTING_FONT_CATEGORY_LABELS,
   getDraftingFontCssFamily,
+  groupDraftingFonts,
   loadDraftingFont,
+  loadDraftingFontPreview,
   resolveDraftingFont,
 } from "@/features/workspace/model/fonts"
+import { useFontPreviewObserver } from "@/features/desktop-shell/inspector/use-font-preview-observer"
 import { IllustrationInspectorColorSection } from "@/features/workspace/components/IllustrationColorControls"
 import { isDraftingIllustrationLayer } from "@/features/workspace/model/layer-floating-settings"
 import { cn } from "@/lib/utils"
@@ -296,6 +299,9 @@ function DesktopLayerTextInspector({
   const supportedWeights = selectedFont.weights
   const fontWeight = getDesktopLayerFontWeight(layer.fontWeight, supportedWeights)
   const [fontMenuOpen, setFontMenuOpen] = useState(false)
+  const [fontQuery, setFontQuery] = useState("")
+  const fontGroups = useMemo(() => groupDraftingFonts(fontQuery), [fontQuery])
+  const bindFontPreview = useFontPreviewObserver()
 
   useEffect(() => {
     void loadDraftingFont(selectedFont.id)
@@ -364,37 +370,71 @@ function DesktopLayerTextInspector({
         </div>
         {fontMenuOpen ? (
           <div
-            id="desktop-layer-text-font-listbox"
-            aria-label="Text font options"
-            className={cn("mt-2 max-h-40 overflow-y-auto pr-1", desktopInspectorOptionStackClass())}
-            data-slot="desktop-layer-text-font-listbox"
-            role="listbox"
+            className="mt-2 flex flex-col gap-1"
+            data-slot="desktop-layer-text-font-menu"
           >
-            {DRAFTING_FONT_REGISTRY.map((font) => (
-              <button
-                key={font.id}
-                aria-label={`Use ${font.label} text font`}
-                aria-selected={selectedFont.id === font.id}
-                className={cn(
-                  "flex min-w-0 items-center px-2.5 text-left font-semibold",
-                  DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-                  DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
-                  desktopInspectorOptionGridItemClass(),
-                  DESKTOP_INSPECTOR_CONTROL_CLASS,
-                  selectedFont.id === font.id && DESKTOP_INSPECTOR_SELECTED_CLASS,
-                )}
-                role="option"
-                style={{ fontFamily: getDraftingFontCssFamily({ fontId: font.id }) }}
-                type="button"
-                onClick={() => {
-                  void loadDraftingFont(font.id)
-                  patchTextLayer({ fontFamily: font.family, fontId: font.id })
-                  setFontMenuOpen(false)
-                }}
-              >
-                <span className="min-w-0 flex-1 truncate">{font.label}</span>
-              </button>
-            ))}
+            <input
+              aria-label="Search fonts"
+              autoComplete="off"
+              className={cn(
+                DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+                "w-full min-w-0 shrink-0 px-2.5 text-left font-semibold",
+                DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
+                DESKTOP_INSPECTOR_CONTROL_CLASS,
+              )}
+              placeholder="Search fonts…"
+              type="search"
+              value={fontQuery}
+              onChange={(event) => setFontQuery(event.currentTarget.value)}
+            />
+            <div
+              id="desktop-layer-text-font-listbox"
+              aria-label="Text font options"
+              className={cn("max-h-56 overflow-y-auto pr-1", desktopInspectorOptionStackClass())}
+              data-slot="desktop-layer-text-font-listbox"
+              role="listbox"
+            >
+              {fontGroups.map((group) => (
+                <div className="flex flex-col" key={group.category}>
+                  <p className="px-2.5 pt-1.5 pb-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--dn-muted)]">
+                    {DRAFTING_FONT_CATEGORY_LABELS[group.category]}
+                  </p>
+                  {group.fonts.map((font) => (
+                    <button
+                      key={font.id}
+                      ref={bindFontPreview(font.id)}
+                      aria-label={`Use ${font.label} text font`}
+                      aria-selected={selectedFont.id === font.id}
+                      className={cn(
+                        "flex min-w-0 items-center px-2.5 text-left font-semibold",
+                        DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+                        DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
+                        desktopInspectorOptionGridItemClass(),
+                        DESKTOP_INSPECTOR_CONTROL_CLASS,
+                        selectedFont.id === font.id && DESKTOP_INSPECTOR_SELECTED_CLASS,
+                      )}
+                      role="option"
+                      style={{ fontFamily: getDraftingFontCssFamily({ fontId: font.id }) }}
+                      type="button"
+                      onClick={() => {
+                        void loadDraftingFont(font.id)
+                        patchTextLayer({ fontFamily: font.family, fontId: font.id })
+                        setFontMenuOpen(false)
+                        setFontQuery("")
+                      }}
+                      onPointerEnter={() => loadDraftingFontPreview(font.id)}
+                    >
+                      <span className="min-w-0 flex-1 truncate">{font.label}</span>
+                    </button>
+                  ))}
+                </div>
+              ))}
+              {fontGroups.length === 0 ? (
+                <p className="px-2.5 py-3 text-center text-xs text-[var(--dn-muted)]">
+                  No matching fonts
+                </p>
+              ) : null}
+            </div>
           </div>
         ) : null}
 

@@ -1,14 +1,31 @@
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import {
+  DRAFTING_FONT_CATEGORY_FALLBACKS,
+  DRAFTING_FONT_CATEGORY_ORDER,
+  GOOGLE_FONT_SPECS,
+  googleFontCssUrl,
+  googleFontPreviewCssUrl,
+  googleFontSlug,
+  type DraftingFontCategory,
+} from "@/features/workspace/model/font-catalog"
 
-export type DraftingFontSource = "fontshare" | "local" | "system"
+export {
+  DRAFTING_FONT_CATEGORY_LABELS,
+  DRAFTING_FONT_CATEGORY_ORDER,
+} from "@/features/workspace/model/font-catalog"
+export type { DraftingFontCategory } from "@/features/workspace/model/font-catalog"
+
+export type DraftingFontSource = "fontshare" | "google" | "local" | "system"
 
 type DraftingFontRegistryEntry = {
+  category: DraftingFontCategory
   cssText?: string
   cssUrl?: string
   fallback: string
   family: string
   id: string
   label: string
+  previewCssUrl?: string
   source: DraftingFontSource
   styles: readonly ("italic" | "normal")[]
   weights: readonly number[]
@@ -18,8 +35,9 @@ const DRAFTING_FONT_FALLBACK = "system-ui, Arial, sans-serif"
 
 export const DEFAULT_DRAFTING_FONT_ID = "local:satoshi"
 
-export const DRAFTING_FONT_REGISTRY = [
+const STATIC_FONT_ENTRIES: readonly DraftingFontRegistryEntry[] = [
   {
+    category: "sans",
     cssText: [
       "@font-face {",
       "font-family: 'Satoshi';",
@@ -45,93 +63,63 @@ export const DRAFTING_FONT_REGISTRY = [
     weights: [300, 400, 500, 600, 700, 900],
   },
   {
+    category: "sans",
+    cssUrl: "https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap",
     fallback: DRAFTING_FONT_FALLBACK,
     family: "General Sans",
     id: "fontshare:general-sans",
     label: "General Sans",
     source: "fontshare",
-    cssUrl: "https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap",
     styles: ["normal", "italic"],
     weights: [400, 500, 600, 700],
   },
   {
+    category: "sans",
+    cssUrl: "https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700&display=swap",
     fallback: DRAFTING_FONT_FALLBACK,
     family: "Cabinet Grotesk",
     id: "fontshare:cabinet-grotesk",
     label: "Cabinet Grotesk",
     source: "fontshare",
-    cssUrl: "https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700&display=swap",
     styles: ["normal"],
     weights: [400, 500, 700],
   },
   {
+    category: "display",
+    cssUrl: "https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap",
     fallback: DRAFTING_FONT_FALLBACK,
     family: "Clash Display",
     id: "fontshare:clash-display",
     label: "Clash Display",
     source: "fontshare",
-    cssUrl: "https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap",
     styles: ["normal"],
     weights: [400, 500, 600, 700],
   },
   {
+    category: "sans",
+    cssUrl: "https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap",
     fallback: DRAFTING_FONT_FALLBACK,
     family: "Switzer",
     id: "fontshare:switzer",
     label: "Switzer",
     source: "fontshare",
-    cssUrl: "https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap",
     styles: ["normal", "italic"],
     weights: [400, 500, 600, 700],
   },
   {
-    fallback: DRAFTING_FONT_FALLBACK,
+    category: "serif",
+    cssUrl: "https://api.fontshare.com/v2/css?f[]=author@400,500,600,700&display=swap",
+    fallback: DRAFTING_FONT_CATEGORY_FALLBACKS.serif,
     family: "Author",
     id: "fontshare:author",
     label: "Author",
     source: "fontshare",
-    cssUrl: "https://api.fontshare.com/v2/css?f[]=author@400,500,600,700&display=swap",
     styles: ["normal", "italic"],
     weights: [400, 500, 600, 700],
   },
   {
-    fallback: DRAFTING_FONT_FALLBACK,
-    family: "Inter",
-    id: "system:inter",
-    label: "Inter",
-    source: "system",
-    styles: ["normal", "italic"],
-    weights: [400, 500, 600, 700],
-  },
-  {
-    fallback: DRAFTING_FONT_FALLBACK,
-    family: "Geist",
-    id: "system:geist",
-    label: "Geist",
-    source: "system",
-    styles: ["normal"],
-    weights: [400, 500, 600, 700],
-  },
-  {
-    fallback: DRAFTING_FONT_FALLBACK,
-    family: "Manrope",
-    id: "system:manrope",
-    label: "Manrope",
-    source: "system",
-    styles: ["normal"],
-    weights: [400, 500, 600, 700],
-  },
-  {
-    fallback: DRAFTING_FONT_FALLBACK,
-    family: "Bricolage Grotesque",
-    id: "system:bricolage-grotesque",
-    label: "Bricolage Grotesque",
-    source: "system",
-    styles: ["normal"],
-    weights: [400, 500, 600, 700],
-  },
-  {
-    fallback: DRAFTING_FONT_FALLBACK,
+    category: "system",
+    fallback: "Arial, Helvetica, sans-serif",
     family: "Arial",
     id: "system:arial",
     label: "Arial",
@@ -139,7 +127,27 @@ export const DRAFTING_FONT_REGISTRY = [
     styles: ["normal", "italic"],
     weights: [400, 700],
   },
-] as const satisfies readonly DraftingFontRegistryEntry[]
+]
+
+const GOOGLE_FONT_ENTRIES: readonly DraftingFontRegistryEntry[] = GOOGLE_FONT_SPECS.map(
+  (spec) => ({
+    category: spec.category,
+    cssUrl: googleFontCssUrl(spec),
+    fallback: DRAFTING_FONT_CATEGORY_FALLBACKS[spec.category],
+    family: spec.family,
+    id: `google:${googleFontSlug(spec.family)}`,
+    label: spec.family,
+    previewCssUrl: googleFontPreviewCssUrl(spec),
+    source: "google" as const,
+    styles: spec.italic ? (["normal", "italic"] as const) : (["normal"] as const),
+    weights: spec.weights,
+  }),
+)
+
+export const DRAFTING_FONT_REGISTRY: readonly DraftingFontRegistryEntry[] = [
+  ...STATIC_FONT_ENTRIES,
+  ...GOOGLE_FONT_ENTRIES,
+]
 
 const FONT_BY_ID: Map<string, DraftingFontRegistryEntry> = new Map(
   DRAFTING_FONT_REGISTRY.map((font) => [font.id, font]),
@@ -175,7 +183,35 @@ export function getDraftingFontCssFamily(
   const family = font?.family ?? normalizeUnknownFontFamily(options.fontFamily)
 
   return `"${family}", ${font?.fallback ?? DRAFTING_FONT_FALLBACK}`
-}export function loadDraftingFont(fontId: string | null | undefined): Promise<void> {
+}
+
+/**
+ * Groups the registry by category for the font pickers. An empty query returns
+ * every font; a non-empty query filters by label/family within each category.
+ */
+export function groupDraftingFonts(query?: string) {
+  const normalizedQuery = query?.trim().toLowerCase()
+  const fonts = normalizedQuery
+    ? DRAFTING_FONT_REGISTRY.filter(
+        (font) =>
+          font.label.toLowerCase().includes(normalizedQuery) ||
+          font.family.toLowerCase().includes(normalizedQuery),
+      )
+    : DRAFTING_FONT_REGISTRY
+
+  const groups = new Map<DraftingFontCategory, DraftingFontRegistryEntry[]>()
+  for (const font of fonts) {
+    const list = groups.get(font.category) ?? []
+    list.push(font)
+    groups.set(font.category, list)
+  }
+
+  return DRAFTING_FONT_CATEGORY_ORDER.filter((category) => groups.has(category)).map(
+    (category) => ({ category, fonts: groups.get(category)! }),
+  )
+}
+
+export function loadDraftingFont(fontId: string | null | undefined): Promise<void> {
   const font = getDraftingFontById(fontId) ?? getDraftingFontById(DEFAULT_DRAFTING_FONT_ID)!
 
   if (typeof document === "undefined") {
@@ -188,9 +224,9 @@ export function getDraftingFontCssFamily(
   }
 
   const task = (async () => {
-    if (font.source === "fontshare" && font.cssUrl) {
+    if (font.cssUrl) {
       await injectDraftingFontStylesheet(font)
-    } else if (font.source === "local" && font.cssText) {
+    } else if (font.cssText) {
       injectDraftingFontStyle(font)
     }
 
@@ -206,6 +242,34 @@ export function getDraftingFontCssFamily(
   })
 
   return task
+}
+
+/**
+ * Loads a glyph-subset stylesheet (Google Fonts `text=` param) so picker rows
+ * can render in the real typeface for a few KB each. For sources without a
+ * dedicated preview URL, falls back to the full font load.
+ */
+export function loadDraftingFontPreview(fontId: string | null | undefined) {
+  const font = getDraftingFontById(fontId)
+  if (!font || typeof document === "undefined") {
+    return
+  }
+
+  if (!font.previewCssUrl) {
+    void loadDraftingFont(font.id)
+    return
+  }
+
+  const linkId = `${getDraftingFontElementId(font.id)}-preview`
+  if (document.getElementById(linkId)) {
+    return
+  }
+
+  const link = document.createElement("link")
+  link.id = linkId
+  link.rel = "stylesheet"
+  link.href = font.previewCssUrl
+  document.head.appendChild(link)
 }
 
 export async function ensureDraftingFontsForLayers(layers: readonly DraftingCanvasLayer[]) {
