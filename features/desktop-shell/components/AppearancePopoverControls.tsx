@@ -16,7 +16,11 @@ import {
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { SegmentTabs, SettingsFillPopover, SettingsSlider } from "@/features/desktop-shell/inspector/settings-ui"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
-import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
+import type {
+  DesktopAppearanceBorderSnapshot,
+  DesktopAppearancePatch,
+  DesktopAppearanceSnapshot,
+} from "@/features/desktop-shell/model/appearance"
 import {
   DRAFTING_BORDER_STYLES,
   type DraftingBorderStyle,
@@ -35,7 +39,7 @@ import {
 } from "@/features/workspace/model/corner-radius"
 import { cn } from "@/lib/utils"
 
-export function AppearanceOutlineControls({
+export function AppearanceBorderControls({
   appearance,
   className,
   onPatch,
@@ -43,63 +47,52 @@ export function AppearanceOutlineControls({
 }: {
   appearance: DesktopAppearanceSnapshot
   className?: string
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  onPatch: (patch: DesktopAppearancePatch) => void
   theme?: "dark" | "light"
 }) {
-  if (!appearance.supportsOutline) {
-    return null
-  }
+  const border = appearance.border
 
-  const outline = appearance.outline
+  const emit = (patch: Partial<DesktopAppearanceBorderSnapshot>) =>
+    onPatch({ border: { ...border, ...patch } })
 
   return (
     <DesktopInspectorSection
       className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, className)}
-      dataSlot="desktop-appearance-outline-controls"
+      dataSlot="desktop-appearance-border-controls"
     >
-      <DesktopInspectorLabel>Outline</DesktopInspectorLabel>
-      <SegmentTabs
-        items={[...DRAFTING_BORDER_STYLES]}
-        value={outline.style}
-        onChange={(style) =>
-          onPatch({ outline: { ...outline, style: style as DraftingBorderStyle } })
-        }
-      />
+      <DesktopInspectorLabel>Border</DesktopInspectorLabel>
+      {appearance.supportsBorderStyle ? (
+        <SegmentTabs
+          items={[...DRAFTING_BORDER_STYLES]}
+          value={border.style}
+          onChange={(style) => emit({ style: style as DraftingBorderStyle })}
+        />
+      ) : null}
       <DesktopnewThemeContext.Provider value={theme}>
         <SettingsFillPopover
-          hint="Outline color"
+          hint="Border color"
           solidOnly
-          title="Outline color"
-          value={outline.color}
-          onValueChange={(_fill, css) =>
-            onPatch({ outline: { ...outline, color: fillPreviewHex(css) || "#111827" } })
-          }
+          title="Border color"
+          value={border.color}
+          onValueChange={(_fill, css) => emit({ color: fillPreviewHex(css) || "#111827" })}
         />
       </DesktopnewThemeContext.Provider>
       <div className="mt-2 grid gap-2">
         <DesktopInspectorElasticSliderRow
-          label="Outline width"
+          label="Width"
           max={64}
           min={0}
-          value={outline.width}
-          valueLabel={`${Math.round(outline.width)}`}
-          onChange={(width) => onPatch({ outline: { ...outline, width, visible: width > 0 } })}
+          value={border.width}
+          valueLabel={`${Math.round(border.width)}`}
+          onChange={(width) => emit({ width })}
         />
         <DesktopInspectorElasticSliderRow
-          label="Outline offset"
-          max={64}
-          min={-64}
-          value={outline.offset}
-          valueLabel={`${Math.round(outline.offset)}`}
-          onChange={(offset) => onPatch({ outline: { ...outline, offset } })}
-        />
-        <DesktopInspectorElasticSliderRow
-          label="Outline opacity"
+          label="Opacity"
           max={100}
           min={0}
-          value={outline.opacity}
-          valueLabel={`${Math.round(outline.opacity)}%`}
-          onChange={(opacity) => onPatch({ outline: { ...outline, opacity } })}
+          value={border.opacity}
+          valueLabel={`${Math.round(border.opacity)}%`}
+          onChange={(opacity) => emit({ opacity })}
         />
       </div>
     </DesktopInspectorSection>

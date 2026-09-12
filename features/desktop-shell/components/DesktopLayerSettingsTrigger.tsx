@@ -15,7 +15,10 @@ import {
 } from "@/features/desktop-shell/components/DesktopLayerSettingsPanel"
 import { DesktopToolbarPopover } from "@/features/desktop-shell/components/DesktopToolbarPopover"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
-import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
+import type {
+  DesktopAppearancePatch,
+  DesktopAppearanceSnapshot,
+} from "@/features/desktop-shell/model/appearance"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import { listLayerEffects } from "@/features/workspace/model/layer-effects"
 
@@ -32,7 +35,7 @@ export function DesktopLayerSettingsTrigger({
 }: {
   appearance?: DesktopAppearanceSnapshot | null
   appearanceLayer?: DraftingCanvasLayer | null
-  onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void
+  onAppearancePatch?: (patch: DesktopAppearancePatch) => void
   onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   selectedElementLayer?: DraftingCanvasLayer | null

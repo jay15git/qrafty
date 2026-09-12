@@ -1,5 +1,9 @@
 import type { CSSProperties } from "react"
 
+import {
+  cornerRadiiToCss,
+  resolveLayerCornerRadii,
+} from "@/features/workspace/model/corner-radius"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import {
   buildCssFilterString,
@@ -7,6 +11,7 @@ import {
   getDraftingLayerDropShadowFilter,
   getDraftingOutlineStyle,
   getDraftingPerSideBorderStyle,
+  hasVisibleBorderSide,
   mergeCssFilterStrings,
 } from "@/features/workspace/rendering/layer-appearance"
 
@@ -65,7 +70,12 @@ export function getPreviewLayerEffectStyle(
     (shadow) => shadow.inset || (shadow.spread ?? 0) !== 0 || shadows.length > 1,
   )
   const layerFilters = buildCssFilterString(layer.layerFilters ?? [])
-  const borderStyle = layer.borderSides ? getDraftingPerSideBorderStyle(layer.borderSides) : {}
+  const usesBoxBorder = layer.kind !== "qr" && layer.kind !== "shape" && layer.kind !== "card"
+  const hasBorderSides = usesBoxBorder && hasVisibleBorderSide(layer.borderSides)
+  const borderStyle = hasBorderSides ? getDraftingPerSideBorderStyle(layer.borderSides!) : {}
+  const borderRadius = hasBorderSides
+    ? cornerRadiiToCss(resolveLayerCornerRadii(layer, 0))
+    : undefined
   const boxShadow =
     preferBoxShadow || usesComplexShadow
       ? getPreviewScaledBoxShadowStyle(layer, previewScale)
@@ -77,6 +87,7 @@ export function getPreviewLayerEffectStyle(
 
   return {
     ...borderStyle,
+    ...(borderRadius ? { borderRadius } : {}),
     ...getDraftingOutlineStyle(layer.outline),
     ...(boxShadow ? { boxShadow } : {}),
     ...(filter ? { filter } : {}),

@@ -17,8 +17,8 @@ import {
   getDraftingOutlineStyle,
   getDraftingPerSideBorderStyle,
   getDraftingUniformBorderStyle,
+  hasVisibleBorderSide,
   mergeCssFilterStrings,
-  toRgba,
 } from "@/features/workspace/rendering/layer-appearance"
 import { clampBackgroundShapeTilt } from "@/features/qr-code/model/state"
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
@@ -75,11 +75,17 @@ export function getDraftingLayerEffectStyle(layer: DraftingCanvasLayer): CSSProp
         buildCssFilterString(layer.layerFilters ?? []),
         getDraftingLayerDropShadowFilter(shadows),
       )
-  const borderStyle = layer.borderSides ? getDraftingPerSideBorderStyle(layer.borderSides) : {}
+  const usesBoxBorder = layer.kind !== "qr" && layer.kind !== "shape" && layer.kind !== "card"
+  const hasBorderSides = usesBoxBorder && hasVisibleBorderSide(layer.borderSides)
+  const borderStyle = hasBorderSides ? getDraftingPerSideBorderStyle(layer.borderSides!) : {}
   const boxShadow = usesBoxShadow ? getDraftingLayerBoxShadowStyle(shadows) : undefined
+  const borderRadius = hasBorderSides
+    ? cornerRadiiToCss(resolveLayerCornerRadii(layer, 0))
+    : undefined
 
   return {
     ...borderStyle,
+    ...(borderRadius ? { borderRadius } : {}),
     ...getDraftingOutlineStyle(layer.outline),
     ...(boxShadow ? { boxShadow } : {}),
     ...(filter ? { filter } : {}),

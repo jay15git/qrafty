@@ -11,6 +11,7 @@ import {
 } from "@/features/qr-code/rendering/svg-extension"
 import { DraftingQrBackground } from "@/features/workspace/components/QrBackground"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import { getDraftingPerSideBorderStyle } from "@/features/workspace/rendering/layer-appearance"
 import { cn } from "@/lib/utils"
 
 type DraftingQrLayerContentProps = {
@@ -27,11 +28,13 @@ const QR_OVERLAY_PILL_CLASS =
   "max-w-[calc(100%-0.5rem)] rounded-full border border-white/[0.12] bg-[var(--desktop-glass-bg)] px-2.5 py-1 text-center text-[0.68rem] font-semibold leading-snug text-white/82 shadow-[var(--desktop-glass-shadow)] backdrop-blur-2xl"
 
 function QrModulesWithOverlay({
+  borderStyle,
   children,
   overlayMessage,
   qrPlacementStyle,
   transformStyle,
 }: {
+  borderStyle?: CSSProperties
   children: ReactNode
   overlayMessage?: string | null
   qrPlacementStyle: CSSProperties
@@ -45,6 +48,7 @@ function QrModulesWithOverlay({
         className={cn("pointer-events-none z-10 overflow-hidden", showOverlay && "blur-sm")}
         style={{
           ...qrPlacementStyle,
+          ...borderStyle,
           transformStyle,
         }}
       >
@@ -78,6 +82,9 @@ export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({
 }: DraftingQrLayerContentProps) {
   const layout = getDraftingQrLayerLayout(layer.width, state, layer.height)
   const qrPlacementStyle = getDraftingQrDomPlacementStyle(layout)
+  const qrBorderStyle = layer.borderSides
+    ? getDraftingPerSideBorderStyle(layer.borderSides)
+    : undefined
   const useAnimatedQr = shouldUseDotMatrixMotionPreview(state) && Boolean(canvasSvgMarkup)
 
   if (useAnimatedQr) {
@@ -86,6 +93,7 @@ export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({
         <div className="relative h-full w-full" style={shapeTiltInnerStyle}>
           <DraftingQrBackground layer={layer} state={state} />
           <QrModulesWithOverlay
+            borderStyle={qrBorderStyle}
             overlayMessage={overlayMessage}
             qrPlacementStyle={qrPlacementStyle}
             transformStyle={shapeTiltInnerStyle.transformStyle}
@@ -111,6 +119,7 @@ export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({
       <div className="relative h-full w-full" style={shapeTiltInnerStyle}>
         <DraftingQrBackground layer={layer} state={state} />
         <QrModulesWithOverlay
+          borderStyle={qrBorderStyle}
           overlayMessage={overlayMessage}
           qrPlacementStyle={qrPlacementStyle}
           transformStyle={shapeTiltInnerStyle.transformStyle}

@@ -54,7 +54,7 @@ export function getDesktopLayerToolbarCapabilities(
     default:
       return {
         ...DEFAULT_CAPABILITIES,
-        showStyleInDesign: Boolean(appearance?.supportsOutline || appearance?.supportsCornerRadius),
+        showStyleInDesign: Boolean(appearance),
       }
   }
 }

@@ -1,7 +1,11 @@
 import type { BackgroundShapeOptions } from "@/features/qr-code/model/state"
-import type { DraftingCardShadowState } from "@/features/workspace/model/card-state"
+import {
+  normalizeDraftingCardBorder,
+  type DraftingCardBorderState,
+  type DraftingCardShadowState,
+} from "@/features/workspace/model/card-state"
 import type {
-  DraftingOutlineState,
+  DraftingBorderSideValue,
   DraftingShadowLayerState,
 } from "@/features/workspace/model/effects"
 import type { DraftingFilterEffect } from "@/features/workspace/model/filters"
@@ -15,61 +19,122 @@ import {
   type DraftingCornerRadiiState,
 } from "@/features/workspace/model/corner-radius"
 import {
-  DEFAULT_DRAFTING_OUTLINE,
+  createUniformPerSideBorder,
   legacyShadowToShadowLayer,
 } from "@/features/workspace/model/effects"
 
+export type DesktopAppearanceBorderSnapshot = DraftingBorderSideValue
+
+export type DesktopAppearancePatch = Partial<DraftingCanvasLayer> & {
+  border?: DesktopAppearanceBorderSnapshot
+}
+
 export type DesktopAppearanceSnapshot = {
   blur: number
+  border: DesktopAppearanceBorderSnapshot
   cornerRadius?: number
   cornerRadii?: DraftingCornerRadiiState
   layerFilters: DraftingFilterEffect[]
   opacity: number
-  outline: DraftingOutlineState
   shadow: DraftingCardShadowState
   shadows: DraftingShadowLayerState[]
+  supportsBorderStyle: boolean
   supportsCornerRadius: boolean
-  supportsOutline: boolean
+}
+
+const DEFAULT_APPEARANCE_BORDER: DesktopAppearanceBorderSnapshot = {
+  color: "#111827",
+  opacity: 100,
+  style: "solid",
+  width: 0,
+}
+
+function qrHasVisibleBackgroundShape(options?: {
+  qrBackgroundShapeId?: string
+}) {
+  return Boolean(options?.qrBackgroundShapeId && options.qrBackgroundShapeId !== "none")
+}
+
+function getLayerBorderSnapshot(
+  layer: DraftingCanvasLayer,
+  options?: {
+    cardBorder?: DraftingCardBorderState
+    qrBackgroundShapeId?: string
+    qrBackgroundShapeOptions?: BackgroundShapeOptions
+  },
+): DesktopAppearanceBorderSnapshot {
+  if (layer.kind === "qr" && qrHasVisibleBackgroundShape(options) && options?.qrBackgroundShapeOptions) {
+    return {
+      color: options.qrBackgroundShapeOptions.strokeColor,
+      opacity: options.qrBackgroundShapeOptions.strokeOpacity,
+      style: "solid",
+      width: options.qrBackgroundShapeOptions.strokeWidth,
+    }
+  }
+
+  if (layer.kind === "card") {
+    const border = normalizeDraftingCardBorder(options?.cardBorder)
+    return {
+      color: border.color,
+      opacity: border.opacity,
+      style: border.style,
+      width: border.width,
+    }
+  }
+
+  if (layer.kind === "shape") {
+    return {
+      color: layer.stroke ?? DEFAULT_DRAFTING_SHAPE_LAYER.stroke ?? "#171717",
+      opacity: layer.strokeOpacity ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeOpacity ?? 100,
+      style: layer.strokeStyle ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeStyle ?? "solid",
+      width: layer.strokeWidth ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeWidth ?? 0,
+    }
+  }
+
+  return { ...DEFAULT_APPEARANCE_BORDER, ...layer.borderSides?.top }
 }
 
 export function getDesktopAppearanceSnapshot(
   layer: DraftingCanvasLayer,
   options?: {
+    cardBorder?: DraftingCardBorderState
     cardCornerRadius?: number
     cardCornerRadii?: DraftingCornerRadiiState
+    qrBackgroundShapeId?: string
     qrBackgroundShapeOptions?: BackgroundShapeOptions
   },
 ): DesktopAppearanceSnapshot {
   const layerFilters = layer.layerFilters ?? []
-  const outline = layer.outline ?? DEFAULT_DRAFTING_OUTLINE
+  const border = getLayerBorderSnapshot(layer, options)
   const shadows = layer.shadows ?? [legacyShadowToShadowLayer(layer.shadow)]
+  const supportsBorderStyle = !(layer.kind === "qr" && qrHasVisibleBackgroundShape(options))
 
   if (layer.kind === "card" && options?.cardCornerRadius !== undefined) {
     const cornerRadii = resolveCornerRadii(options.cardCornerRadii, options.cardCornerRadius)
     return {
       blur: layer.blur,
+      border,
       cornerRadius: cornerRadii.topLeft,
       cornerRadii,
       layerFilters,
       opacity: layer.opacity,
-      outline,
       shadow: layer.shadow,
       shadows,
+      supportsBorderStyle,
       supportsCornerRadius: true,
-      supportsOutline: true,
     }
   }
 
   if (layer.kind === "qr" && options?.qrBackgroundShapeOptions) {
     return {
       blur: layer.blur,
+      border,
       layerFilters,
       opacity: layer.opacity,
-      outline,
       shadow: layer.shadow,
       shadows,
+      supportsBorderStyle,
       supportsCornerRadius: false,
-      supportsOutline: false,
     }
   }
 
@@ -87,19 +152,20 @@ export function getDesktopAppearanceSnapshot(
 
   return {
     blur: layer.blur,
+    border,
     cornerRadius: cornerRadii.topLeft,
     cornerRadii,
     layerFilters,
     opacity: layer.opacity,
-    outline,
     shadow: layer.shadow,
     shadows,
+    supportsBorderStyle,
     supportsCornerRadius: layerSupportsCornerRadius(layer),
-    supportsOutline: layer.kind === "card" || layer.kind === "image" || layer.kind === "text" || isRectShape,
   }
 }
 
 export type DesktopAppearancePatchResult = {
+  cardBorder?: DraftingCardBorderState
   cardCornerRadius?: number
   cardCornerRadii?: DraftingCornerRadiiState
   cardShadow?: Partial<DraftingCardShadowState>
@@ -109,13 +175,41 @@ export type DesktopAppearancePatchResult = {
 
 export function buildDesktopAppearancePatch(
   layer: DraftingCanvasLayer,
-  patch: Partial<DraftingCanvasLayer>,
-  _options?: {
+  patch: DesktopAppearancePatch,
+  options?: {
     cardBorder?: unknown
+    qrBackgroundShapeId?: string
     qrBackgroundShapeOptions?: BackgroundShapeOptions
   },
 ): DesktopAppearancePatchResult {
   const layerPatch: Partial<DraftingCanvasLayer> = {}
+  let cardBorder: DraftingCardBorderState | undefined
+  let qrBackgroundShapeOptions: Partial<BackgroundShapeOptions> | undefined
+
+  if (patch.border !== undefined) {
+    if (layer.kind === "card") {
+      cardBorder = normalizeDraftingCardBorder({
+        ...patch.border,
+        sides: createUniformPerSideBorder(patch.border),
+      })
+      layerPatch.borderSides = createUniformPerSideBorder({ width: 0 })
+    } else if (layer.kind === "shape") {
+      layerPatch.stroke = patch.border.color
+      layerPatch.strokeWidth = patch.border.width
+      layerPatch.strokeOpacity = patch.border.opacity
+      layerPatch.strokeStyle = patch.border.style
+      layerPatch.borderSides = createUniformPerSideBorder({ width: 0 })
+    } else if (layer.kind === "qr" && qrHasVisibleBackgroundShape(options)) {
+      qrBackgroundShapeOptions = {
+        strokeColor: patch.border.color,
+        strokeOpacity: patch.border.opacity,
+        strokeWidth: patch.border.width,
+      }
+      layerPatch.borderSides = createUniformPerSideBorder({ width: 0 })
+    } else {
+      layerPatch.borderSides = createUniformPerSideBorder(patch.border)
+    }
+  }
 
   if (patch.blur !== undefined) {
     layerPatch.blur = patch.blur
@@ -156,6 +250,7 @@ export function buildDesktopAppearancePatch(
     const primaryShadow = patch.shadows?.[0] ?? (patch.shadow ? { ...layer.shadow, ...patch.shadow } : undefined)
 
     return {
+      cardBorder,
       cardCornerRadius: patch.cornerRadius,
       cardCornerRadii: patch.cornerRadii,
       cardShadow: primaryShadow,
@@ -164,7 +259,7 @@ export function buildDesktopAppearancePatch(
   }
 
   if (layer.kind === "qr") {
-    return { layerPatch }
+    return { layerPatch, qrBackgroundShapeOptions }
   }
 
   return { layerPatch }

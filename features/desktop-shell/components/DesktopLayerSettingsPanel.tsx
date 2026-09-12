@@ -3,7 +3,7 @@
 import type { ReactNode } from "react"
 
 import {
-  AppearanceOutlineControls,
+  AppearanceBorderControls,
   AppearanceOpacityControls,
   AppearanceRadiusControls,
 } from "@/features/desktop-shell/components/AppearancePopoverControls"
@@ -13,7 +13,10 @@ import {
   DesktopTransformSection,
 } from "@/features/desktop-shell/components/DesktopElementInspector"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
-import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
+import type {
+  DesktopAppearancePatch,
+  DesktopAppearanceSnapshot,
+} from "@/features/desktop-shell/model/appearance"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 
@@ -95,14 +98,14 @@ export function DesktopLayerAppearancePanel({
   theme,
 }: {
   appearance: DesktopAppearanceSnapshot
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  onPatch: (patch: DesktopAppearancePatch) => void
   theme: DesktopThemeMode
 }) {
   return (
     <LayerSettingsPanelShell dataSlot="desktop-layer-appearance-panel" theme={theme}>
       <div className="grid gap-2">
         <AppearanceOpacityControls appearance={appearance} onPatch={onPatch} />
-        <AppearanceOutlineControls appearance={appearance} onPatch={onPatch} theme={theme} />
+        <AppearanceBorderControls appearance={appearance} onPatch={onPatch} theme={theme} />
         <AppearanceRadiusControls appearance={appearance} onPatch={onPatch} />
       </div>
     </LayerSettingsPanelShell>

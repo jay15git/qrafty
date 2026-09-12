@@ -8,7 +8,7 @@ import type {
 } from "@/features/workspace/model/effects"
 import type { DraftingFilterEffect } from "@/features/workspace/model/filters"
 
-function toRgba(color: string, opacity: number) {
+export function toRgba(color: string, opacity: number) {
   const normalizedOpacity = Math.min(1, Math.max(0, Number.isFinite(opacity) ? opacity : 1))
   const hex = color.trim().replace(/^#/, "")
 
@@ -138,6 +138,15 @@ export function getDraftingOutlineStyle(outline: DraftingOutlineState | undefine
     outline: `${outline.width}px ${outline.style} ${toRgba(outline.color, outline.opacity / 100)}`,
     outlineOffset: `${outline.offset}px`,
   }
+}
+
+export function hasVisibleBorderSide(sides: DraftingPerSideBorderState | undefined) {
+  if (!sides) {
+    return false
+  }
+
+  const sideKeys: DraftingBorderSideKey[] = ["top", "right", "bottom", "left"]
+  return sideKeys.some((key) => sides[key].width > 0 && sides[key].opacity > 0)
 }
 
 export function getDraftingPerSideBorderStyle(sides: DraftingPerSideBorderState) {

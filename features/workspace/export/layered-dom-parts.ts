@@ -9,6 +9,7 @@ import {
 } from "@/features/workspace/model/layers"
 import { layoutDraftingText } from "@/features/workspace/rendering/text-layout"
 import { getShapeSvgPath } from "@/features/workspace/rendering/shape-layer-paths"
+import { getDraftingPerSideBorderStyle } from "@/features/workspace/rendering/layer-appearance"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
 import {
   cssPropertiesToInlineStyle,
@@ -276,6 +277,7 @@ function buildDraftingQrForegroundDomNode(
       top: layout.metrics.translateY,
       width: layout.innerWidth,
       zIndex: 10,
+      ...(layer.borderSides ? getDraftingPerSideBorderStyle(layer.borderSides) : {}),
     },
     qrProps: {
       ...toQraftyQrConfig(state),

@@ -4,8 +4,8 @@ import { useState } from "react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
+  AppearanceBorderControls,
   AppearanceOpacityControls,
-  AppearanceOutlineControls,
   AppearanceRadiusControls,
 } from "@/features/desktop-shell/components/AppearancePopoverControls"
 import { DesktopEffectsAccordion } from "@/features/desktop-shell/components/DesktopEffectsAccordion"
@@ -18,7 +18,10 @@ import {
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
 } from "@/features/desktop-shell/components/desktop-inspector-tokens"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
-import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
+import type {
+  DesktopAppearancePatch,
+  DesktopAppearanceSnapshot,
+} from "@/features/desktop-shell/model/appearance"
 import {
   getDesktopLayerToolbarCapabilities,
   getLayerPropertyTabLabel,
@@ -48,7 +51,7 @@ export function DesktopLayerPropertiesPanel({
   appearanceLayer?: DraftingCanvasLayer | null
   elementLayer?: DraftingCanvasLayer | null
   maxEffects?: number
-  onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void
+  onAppearancePatch?: (patch: DesktopAppearancePatch) => void
   onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   propertyTabs?: LayerPropertyTab[]
@@ -136,7 +139,7 @@ export function DesktopLayerPropertiesPanel({
                   />
                 )}
                 <DesktopnewThemeContext.Provider value={theme}>
-                  <AppearanceOutlineControls
+                  <AppearanceBorderControls
                     appearance={appearance}
                     onPatch={onAppearancePatch}
                     theme={theme}

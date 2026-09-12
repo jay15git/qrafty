@@ -139,6 +139,7 @@ import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/desktop-shell/model/
 import {
   buildDesktopAppearancePatch,
   getDesktopAppearanceSnapshot,
+  type DesktopAppearancePatch,
 } from "@/features/desktop-shell/model/appearance"
 import type { DraftingLayerMenuAction } from "@/features/workspace/components/Pane"
 import {
@@ -2868,10 +2869,16 @@ export function WorkspaceSurface({
     (selectedLayerIds.length === 0 ? appearanceTargetLayer : null)
   const desktopAppearanceSnapshot = appearanceTargetLayer
     ? getDesktopAppearanceSnapshot(appearanceTargetLayer, {
+        cardBorder:
+          appearanceTargetLayer.kind === "card" ? selectedCardState.border : undefined,
         cardCornerRadius:
           appearanceTargetLayer.kind === "card" ? selectedCardState.cornerRadius : undefined,
         cardCornerRadii:
           appearanceTargetLayer.kind === "card" ? selectedCardState.cornerRadii : undefined,
+        qrBackgroundShapeId:
+          appearanceTargetLayer.kind === "qr"
+            ? draftingQraftyState.backgroundShapeId
+            : undefined,
         qrBackgroundShapeOptions:
           appearanceTargetLayer.kind === "qr"
             ? draftingQraftyState.backgroundShapeOptions
@@ -2879,12 +2886,16 @@ export function WorkspaceSurface({
       })
     : null
 
-  function handleDesktopAppearancePatch(patch: Partial<DraftingCanvasLayer>) {
+  function handleDesktopAppearancePatch(patch: DesktopAppearancePatch) {
     if (!appearanceTargetLayer) {
       return
     }
 
     const result = buildDesktopAppearancePatch(appearanceTargetLayer, patch, {
+      qrBackgroundShapeId:
+        appearanceTargetLayer.kind === "qr"
+          ? draftingQraftyState.backgroundShapeId
+          : undefined,
       qrBackgroundShapeOptions:
         appearanceTargetLayer.kind === "qr"
           ? draftingQraftyState.backgroundShapeOptions
@@ -2895,14 +2906,23 @@ export function WorkspaceSurface({
       handleLayerChange(activeQrNodeId, appearanceTargetLayer.id, result.layerPatch)
     }
 
+    if (result.qrBackgroundShapeOptions) {
+      setSelectedBackgroundShapeOptions((current) => ({
+        ...current,
+        ...result.qrBackgroundShapeOptions,
+      }))
+    }
+
     if (
       appearanceTargetLayer.kind === "card" &&
-      (result.cardCornerRadius !== undefined ||
+      (result.cardBorder !== undefined ||
+        result.cardCornerRadius !== undefined ||
         result.cardCornerRadii !== undefined ||
         result.cardShadow)
     ) {
       setSelectedCardState((current) => ({
         ...current,
+        border: result.cardBorder ?? current.border,
         cornerRadius: result.cardCornerRadius ?? current.cornerRadius,
         cornerRadii: result.cardCornerRadii ?? current.cornerRadii,
         shadow: result.cardShadow
