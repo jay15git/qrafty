@@ -1,7 +1,7 @@
 import type { CardItem } from "@/components/ui/DiagonalMarqueeCarousel"
 import { SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
 import { getPaperShaderOptionPreviewUrl } from "@/features/workspace/components/paper-shader-option-preview.utils"
-import { getAllPaperShaderDefinitions } from "@/features/workspace/rendering/paper-shaders"
+import { getAllPaperShaderDefinitions } from "@/features/workspace/rendering/paper-shader-definitions"
 
 export function buildBackgroundBentoCards(): CardItem[] {
   const shaderCards = getAllPaperShaderDefinitions().map((shader) => ({

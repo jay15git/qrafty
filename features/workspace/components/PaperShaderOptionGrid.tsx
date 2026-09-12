@@ -12,7 +12,7 @@ import { PaperShaderOptionPreview } from "@/features/workspace/components/PaperS
 import {
   getAllPaperShaderDefinitions,
   type PaperShaderId,
-} from "@/features/workspace/rendering/paper-shaders"
+} from "@/features/workspace/rendering/paper-shader-definitions"
 import { cn } from "@/lib/utils"
 
 export type PaperShaderOptionGridVariant = "inspector" | "insert-desktop" | "insert-drafting"

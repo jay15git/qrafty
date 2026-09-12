@@ -526,7 +526,7 @@ export function ImageCropper({
         )}
       >
         <div
-          className={cn(compact && croppedImageUrl ? "size-full" : undefined)}
+          className={cn(tile || compact ? "size-full min-h-0" : undefined)}
           onDrop={!disabled ? handleDrop : undefined}
           onDragOver={!disabled ? handleDragOver : undefined}
           onDragLeave={!disabled ? handleDragLeave : undefined}
@@ -555,42 +555,59 @@ export function ImageCropper({
                 </div>
               ) : null}
               {!disabled ? (
-                <Button
-                  variant="ghost"
-                  size="icon-md"
-                  type="button"
+                <div
                   className={cn(
-                    "absolute rounded-full backdrop-blur-sm",
-                    tile ? "top-1 right-1 size-6" : "top-2 right-2",
-                    compact && dialogTheme === "dark"
-                      ? "bg-black/70 text-white hover:bg-black/85"
-                      : compact && dialogTheme === "light"
-                        ? "bg-white/85 text-black hover:bg-white"
-                        : "bg-background/80 hover:bg-background",
+                    "absolute",
+                    tile
+                      ? "inset-0 flex items-center justify-center pointer-events-none"
+                      : "top-2 right-2",
                   )}
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    handleRemoveImage()
-                  }}
                 >
-                  <X className={cn(tile ? "size-3" : "size-4")} />
-                </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-md"
+                    type="button"
+                    className={cn(
+                      "rounded-full backdrop-blur-sm",
+                      tile ? "pointer-events-auto size-6" : "size-8",
+                      compact && dialogTheme === "dark"
+                        ? "bg-black/70 text-white hover:bg-black/85"
+                        : compact && dialogTheme === "light"
+                          ? "bg-white/85 text-black hover:bg-white"
+                          : "bg-background/80 hover:bg-background",
+                    )}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      handleRemoveImage()
+                    }}
+                  >
+                    <X className={cn(tile ? "size-3" : "size-4")} />
+                  </Button>
+                </div>
               ) : null}
             </div>
           ) : (
             <div
               className={cn(
-                "relative flex w-full flex-col items-center justify-center",
-                tile || compact ? "size-full px-1.5 py-1.5" : "px-4 py-8",
+                "relative w-full",
+                tile
+                  ? "grid size-full place-items-center"
+                  : "flex flex-col items-center justify-center",
+                !tile && (compact ? "size-full px-1.5 py-1.5" : "px-4 py-8"),
               )}
             >
               {tile ? (
-                <Plus
+                <span
+                  aria-hidden
                   className={cn(
-                    "size-5",
-                    disabled ? "text-muted-foreground/50" : "text-muted-foreground",
+                    "grid size-full place-items-center dn-squircle-xs",
+                    disabled
+                      ? "bg-[color-mix(in_srgb,var(--dn-muted)_20%,transparent)] text-[var(--dn-muted)]"
+                      : "bg-[color-mix(in_srgb,var(--dn-muted)_38%,transparent)] text-[var(--dn-fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--dn-muted)_55%,transparent)]",
                   )}
-                />
+                >
+                  <Plus className="size-4" strokeWidth={2.5} />
+                </span>
               ) : (
                 <Upload
                   className={cn(

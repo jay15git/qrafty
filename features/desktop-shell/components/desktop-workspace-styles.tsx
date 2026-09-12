@@ -399,6 +399,45 @@ export function DesktopWorkspaceStyles() {
         box-shadow: none !important;
       }
 
+      /* ── canvas ratio morph ─────────────────────────────────
+         Picking a size preset flips data-ratio-morph on the compose
+         canvas for ~640ms; every box that carries the new shape —
+         stage, camera, layers, selection chrome — eases width,
+         height and position on the same curve so the canvas reads
+         as one crop changing rather than parts snapping.
+
+         Width and height, NEVER a scale: a scaled box drags its
+         corner radius with it. Numbers from Bencho's Aspect block —
+         520ms, cubic-bezier(0.22, 1, 0.36, 1). */
+      [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-slot="desktop-compose-artboard-stage"],
+      [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-slot="desktop-compose-artboard"] {
+        transition:
+          width 520ms cubic-bezier(0.22, 1, 0.36, 1),
+          height 520ms cubic-bezier(0.22, 1, 0.36, 1),
+          border-radius 520ms cubic-bezier(0.22, 1, 0.36, 1),
+          transform 520ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+      }
+
+      [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-layer-id],
+      [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-layer-ids] {
+        transition:
+          left 520ms cubic-bezier(0.22, 1, 0.36, 1),
+          top 520ms cubic-bezier(0.22, 1, 0.36, 1),
+          width 520ms cubic-bezier(0.22, 1, 0.36, 1),
+          height 520ms cubic-bezier(0.22, 1, 0.36, 1),
+          transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+          border-radius 520ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-slot="desktop-compose-artboard-stage"],
+        [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-slot="desktop-compose-artboard"],
+        [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-layer-id],
+        [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-layer-ids] {
+          transition-duration: 1ms !important;
+        }
+      }
+
       [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-resize-toolbar"],
       [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-document-toolbar"],
       [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-action-toolbar"] {

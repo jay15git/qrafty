@@ -4,7 +4,7 @@ import {
   getCardGeneratedShaderDefinitions,
   getCardImageFilterDefinitions,
   getPaperShaderDefinition,
-} from "@/features/workspace/rendering/paper-shaders"
+} from "@/features/workspace/rendering/paper-shader-definitions"
 
 function getNumberControl(shaderId: string, key: string) {
   const control = getPaperShaderDefinition(shaderId).controls.find(

@@ -4,7 +4,7 @@ import {
   addPaperShaderColor,
   removePaperShaderColor,
 } from "@/features/workspace/rendering/paper-shader-colors"
-import { paperShaderHasPlayback } from "@/features/workspace/rendering/paper-shaders"
+import { paperShaderHasPlayback } from "@/features/workspace/rendering/paper-shader-definitions"
 
 describe("paperShaderHasPlayback", () => {
   const staticShaderIds = [

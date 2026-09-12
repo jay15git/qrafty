@@ -135,6 +135,12 @@ function unlockLayerMoveCursor() {
 }
 
 const ROTATION_LABEL_HIDE_DELAY_MS = 2000
+/* Bencho-style crop morph: frame and document move on
+   width/height with the same curve, never a scale — see
+   components/ui/aspect-ratio.tsx for where the number and
+   the easing come from. */
+const RATIO_MORPH_MS = 520
+const RATIO_MORPH_FLAG_MS = RATIO_MORPH_MS + 120
 const SNAP_THRESHOLD_PX = 6
 const INTERACTION_START_THRESHOLD_PX = 3
 const INTERACTION_START_THRESHOLD_TOUCH_PX = 8
@@ -226,6 +232,18 @@ export function PaneWorkspace({
   const [isMovingLayers, setIsMovingLayers] = useState(false)
   const [canvasHeight, setCanvasHeight] = useState(0)
   const [canvasWidth, setCanvasWidth] = useState(0)
+  /* data-ratio-morph has to be on in the same commit that moves
+     the card, or the first frame paints the new size before the
+     transition exists. So the flag is set during render — the
+     documented "adjust state when props change" pattern — and
+     only the timeout that clears it lives in an effect. */
+  const [ratioMorph, setRatioMorph] = useState({
+    active: false,
+    height: cardState.height,
+    sizePresetId: cardState.sizePresetId,
+    width: cardState.width,
+  })
+  const ratioMorphTimeoutRef = useRef<number | null>(null)
   const [toolbarWidth, setToolbarWidth] = useState(FLOATING_TOOLBAR_MIN_WIDTH_PX)
   const [rotationPreviewDegrees, setRotationPreviewDegrees] = useState<number | null>(null)
   const [multiSelectionPreview, setMultiSelectionPreview] = useState<{
@@ -291,9 +309,29 @@ export function PaneWorkspace({
       if (documentLayerChangeRafRef.current !== null) {
         window.cancelAnimationFrame(documentLayerChangeRafRef.current)
       }
+      if (ratioMorphTimeoutRef.current !== null) {
+        window.clearTimeout(ratioMorphTimeoutRef.current)
+      }
     },
     [],
   )
+
+  useEffect(() => {
+    if (!ratioMorph.active) {
+      return
+    }
+
+    ratioMorphTimeoutRef.current = window.setTimeout(() => {
+      ratioMorphTimeoutRef.current = null
+      setRatioMorph((current) => ({ ...current, active: false }))
+    }, RATIO_MORPH_FLAG_MS)
+
+    return () => {
+      if (ratioMorphTimeoutRef.current !== null) {
+        window.clearTimeout(ratioMorphTimeoutRef.current)
+      }
+    }
+  }, [ratioMorph])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -492,6 +530,21 @@ export function PaneWorkspace({
       source: cardState.cardImage.source === "none" ? cardState.imageFilter.image.source : cardState.cardImage.source,
       value: cardState.cardImage.value ?? cardState.imageFilter.image.value,
     },
+  }
+
+  if (
+    ratioMorph.width !== cardState.width ||
+    ratioMorph.height !== cardState.height ||
+    ratioMorph.sizePresetId !== cardState.sizePresetId
+  ) {
+    setRatioMorph({
+      /* Auto mode re-derives the card from the QR on every
+         content change — only fixed-mode size jumps morph. */
+      active: cardState.sizeMode === "fixed",
+      height: cardState.height,
+      sizePresetId: cardState.sizePresetId,
+      width: cardState.width,
+    })
   }
 
   function constrainLayerPatch(
@@ -1481,6 +1534,7 @@ export function PaneWorkspace({
         ref={canvasRef}
         data-slot="desktop-compose-canvas"
         data-compose-mode="compose"
+        data-ratio-morph={ratioMorph.active ? "true" : "false"}
         className="relative h-full w-full overflow-visible"
         label="Compose canvas"
         onActivate={() => {

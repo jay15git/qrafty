@@ -6,13 +6,17 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants"
 import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import {
+  SETTINGS_FILL_OPTION_TILE,
+  SETTINGS_FILL_OPTION_TILE_INNER,
+} from "@/features/desktop-shell/inspector/settings-preview-tiles"
 import { SettingsAccordionColorPicker } from "@/features/desktop-shell/inspector/settings-ui"
+import { cn } from "@/lib/utils"
 import {
   formatPaperShaderParamLabel,
   type PaperShaderControlDefinition,
-} from "@/features/workspace/rendering/paper-shaders"
-const COLOR_GRID_CHIP =
-  "dn-paper-shader-color-chip dn-preview-tile group relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dn-squircle-xs"
+} from "@/features/workspace/rendering/paper-shader-definitions"
+const COLOR_GRID_CHIP = cn("dn-paper-shader-color-chip", SETTINGS_FILL_OPTION_TILE)
 
 function PaperShaderColorGridSwatch({
   color,
@@ -32,14 +36,15 @@ function PaperShaderColorGridSwatch({
       onValueChange={(_fill, css) => onColorChange(fillPreviewHex(css))}
     >
       <button aria-label={title} className={COLOR_GRID_CHIP} type="button">
-        <span
-          aria-hidden
-          className="dn-paper-shader-color-chip__fill relative z-10 block size-full overflow-hidden dn-squircle-xs"
-          style={{
-            backgroundImage: `linear-gradient(${formatColor(parsed, "oklch")}, ${formatColor(parsed, "oklch")}), ${CHECKERBOARD_SM}`,
-            backgroundSize: "auto, 6px 6px",
-          }}
-        />
+        <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
+          <span
+            className="block size-full dn-squircle-xs"
+            style={{
+              backgroundImage: `linear-gradient(${formatColor(parsed, "oklch")}, ${formatColor(parsed, "oklch")}), ${CHECKERBOARD_SM}`,
+              backgroundSize: "auto, 6px 6px",
+            }}
+          />
+        </span>
       </button>
     </SettingsAccordionColorPicker>
   )
@@ -97,11 +102,10 @@ export function PaperShaderColorGrid({
             type="button"
             onClick={onAddColor}
           >
-            <span
-              aria-hidden
-              className="dn-paper-shader-color-chip__fill relative z-10 grid size-full place-items-center text-[var(--dn-muted)] transition-colors hover:text-[var(--dn-fg)]"
-            >
-              <Plus className="size-3.5" />
+            <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
+              <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--dn-muted)_38%,transparent)] text-[var(--dn-fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--dn-muted)_55%,transparent)] dn-squircle-xs">
+                <Plus className="size-4" strokeWidth={2.5} />
+              </span>
             </span>
           </button>
         ) : null}

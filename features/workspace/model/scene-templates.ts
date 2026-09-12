@@ -1,7 +1,7 @@
 import type { DraftingCardBorderState, DraftingCardShadowState, DraftingCardState } from "@/features/workspace/model/card-state"
 import { createUniformPerSideBorder } from "@/features/workspace/model/effects"
 import type { ExportPresetId } from "@/features/workspace/model/export-presets"
-import type { PaperShaderId, PaperShaderParams } from "@/features/workspace/rendering/paper-shaders"
+import type { PaperShaderId, PaperShaderParams } from "@/features/workspace/rendering/paper-shader-definitions"
 
 export type SceneLayoutPreset = {
   id: string

@@ -8,7 +8,7 @@ import { shaderRequiresImage } from "@qrafty/qr/shaders"
 import { hasPaperShaderWebGlSupport } from "@qrafty/qr-internal/scene"
 
 import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
-import { getPaperShaderDefinition } from "@/features/workspace/rendering/paper-shaders"
+import { getPaperShaderComponent } from "@/features/workspace/rendering/paper-shaders"
 import { getPaperShaderRenderOptions } from "@/features/workspace/rendering/paper-shader-export"
 
 export type ShaderFrameCaptureOptions = {
@@ -240,8 +240,7 @@ export class ShaderFrameRenderer {
       return
     }
 
-    const definition = getPaperShaderDefinition(this.shader.shaderId)
-    const ShaderComponent = definition.component
+    const ShaderComponent = getPaperShaderComponent(this.shader.shaderId)
     const renderOptions = getPaperShaderRenderOptions(this.shader.shaderId)
     const shaderProps = buildPaperShaderRenderProps(
       {

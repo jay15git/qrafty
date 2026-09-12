@@ -22,12 +22,21 @@ export function canonicalShapeFillCssFromPreset(preset: string): string | null {
 }
 
 function storedFillCssMatches(value: string, preset: string): boolean {
+  const current = parseFill(value)
+  const presetFill = parseFill(preset)
+
+  // Direct fill comparison first — surfaces like the card background store
+  // the picker output verbatim via applyCardFill (formatFill), not the
+  // lossy qrafty-gradient round-trip the canonical path emulates.
+  if (current && presetFill && formatFill(current) === formatFill(presetFill)) {
+    return true
+  }
+
   const canonical = canonicalShapeFillCssFromPreset(preset)
   if (!canonical) {
     return false
   }
 
-  const current = parseFill(value)
   const stored = parseFill(canonical)
   if (!current || !stored) {
     return value.trim() === canonical.trim()

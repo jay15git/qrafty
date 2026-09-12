@@ -28,11 +28,11 @@ import { preloadRasterImage } from "@/features/workspace/rendering/preload-raste
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { cn } from "@/lib/utils"
 
-function isSceneWallpaperPath(path: string) {
+export function isSceneWallpaperPath(path: string) {
   return SCENE_WALLPAPERS.some((wallpaper) => wallpaper.path === path)
 }
 
-function SettingsImageUploadTile({
+export function SettingsImageUploadTile({
   imageUrl,
   onClear,
   onUpload,
@@ -46,7 +46,7 @@ function SettingsImageUploadTile({
   return (
     <div
       aria-label="Upload custom image"
-      className={cn(SETTINGS_PREVIEW_TILE, "dn-image-upload-tile overflow-hidden p-0")}
+      className={cn(SETTINGS_PREVIEW_TILE, "dn-image-upload-tile overflow-hidden")}
       data-slot="image-upload-tile"
     >
       <ImageCropper
@@ -86,14 +86,10 @@ function FillOptionGridPlusButton({ onOpenPicker }: { onOpenPicker: () => void }
       type="button"
       onClick={onOpenPicker}
     >
-      <span
-        aria-hidden
-        className={cn(
-          SETTINGS_FILL_OPTION_TILE_INNER,
-          "text-[var(--dn-muted)] transition-colors hover:text-[var(--dn-fg)]",
-        )}
-      >
-        <Plus className="size-3.5" />
+      <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
+        <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--dn-muted)_38%,transparent)] text-[var(--dn-fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--dn-muted)_55%,transparent)] dn-squircle-xs">
+          <Plus className="size-4" strokeWidth={2.5} />
+        </span>
       </span>
     </button>
   )
@@ -130,7 +126,11 @@ export function SettingsFillOptionGrid({
       showScrollbar={false}
       viewportClassName="min-w-0"
     >
-      <div aria-label="Fill options" className={SETTINGS_PREVIEW_ROW} role="group">
+      <div
+        aria-label="Fill options"
+        className={cn(SETTINGS_PREVIEW_ROW, "items-center")}
+        role="group"
+      >
         <FillOptionGridPlusButton onOpenPicker={onOpenPicker} />
 
         {presets.map((preset) => {
@@ -252,7 +252,11 @@ export function SettingsImageOptionGrid({
       showScrollbar={false}
       viewportClassName="min-w-0"
     >
-      <div aria-label="Image options" className={SETTINGS_PREVIEW_ROW} role="group">
+      <div
+        aria-label="Image options"
+        className={cn(SETTINGS_PREVIEW_ROW, "items-center")}
+        role="group"
+      >
         <SettingsImageUploadTile
           imageUrl={customImageUrl}
           onClear={onClear}

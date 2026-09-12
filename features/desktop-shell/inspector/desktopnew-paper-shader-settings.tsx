@@ -17,7 +17,7 @@ import {
   type PaperShaderControlDefinition,
   type PaperShaderEnumControl,
   type PaperShaderParamValue,
-} from "@/features/workspace/rendering/paper-shaders"
+} from "@/features/workspace/rendering/paper-shader-definitions"
 import { cn } from "@/lib/utils"
 
 import { DesktopInspectorElasticSliderRow } from "@/features/desktop-shell/components/DesktopInspectorShell"

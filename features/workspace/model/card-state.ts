@@ -23,7 +23,7 @@ import {
   getPaperShaderPreset,
   type PaperShaderId,
   type PaperShaderParams,
-} from "@/features/workspace/rendering/paper-shaders"
+} from "@/features/workspace/rendering/paper-shader-definitions"
 
 type DraftingCardShadowPreset = "none" | "soft" | "medium" | "strong"
 export type DraftingCardStyleMode = "solid" | "image" | "image-filter" | "paper-shader"

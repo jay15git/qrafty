@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { getPaperShaderOptionPreviewUrl } from "@/features/workspace/components/paper-shader-option-preview.utils"
-import { getAllPaperShaderDefinitions } from "@/features/workspace/rendering/paper-shaders"
+import { getAllPaperShaderDefinitions } from "@/features/workspace/rendering/paper-shader-definitions"
 
 describe("paper shader option previews", () => {
   it("provides a shipped WebP path for every shader option", () => {

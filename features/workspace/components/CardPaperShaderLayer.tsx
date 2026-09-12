@@ -24,7 +24,8 @@ import { usePreviewRuntime } from "@/features/workspace/preview/preview-context"
 import {
   getPaperShaderDefinition,
   paperShaderHasPlayback,
-} from "@/features/workspace/rendering/paper-shaders"
+} from "@/features/workspace/rendering/paper-shader-definitions"
+import { getPaperShaderComponent } from "@/features/workspace/rendering/paper-shaders"
 import {
   hasValidPaperShaderLayout,
   readPaperShaderFallbackColor,
@@ -243,8 +244,7 @@ function DraftingCardPaperShaderRenderer({
   style,
 }: DraftingCardPaperShaderRendererProps) {
   const hostRef = useRef<HTMLDivElement | null>(null)
-  const definition = getPaperShaderDefinition(paperShader.shaderId)
-  const ShaderComponent = definition.component
+  const ShaderComponent = getPaperShaderComponent(paperShader.shaderId)
   const worldSize = usePaperShaderWorldSize(layoutWidth, layoutHeight)
   const observedVisible = useShaderVisibility(hostRef)
   const isVisible = resolveShaderPlaybackVisible(observedVisible, ignoreVisibilityGate)

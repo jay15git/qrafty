@@ -84,7 +84,7 @@ describe("FloatingToolbar", () => {
     )
   })
 
-  it("shows whole-QR color mode controls in the Color accordion", async () => {
+  it("shows the color separately switch in the Color accordion", async () => {
     const surface = await renderPrototype()
     const colorHeader = getRequiredAccordionHeader(surface.container, "Color")
 
@@ -94,8 +94,7 @@ describe("FloatingToolbar", () => {
 
     const inspector = surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')
 
-    expect(inspector?.textContent).toContain("Whole QR")
-    expect(inspector?.textContent).toContain("Per part")
+    expect(inspector?.textContent).toContain("Color separately")
   })
 
   it("keeps the open accordion section when canvas activeTool changes", async () => {

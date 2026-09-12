@@ -1,4 +1,4 @@
-import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
+import type { PaperShaderId } from "@/features/workspace/rendering/paper-shader-definitions"
 
 const PAPER_SHADER_OPTION_PREVIEW_PATH = "/shader-previews"
 

@@ -12,7 +12,7 @@ import {
   createDefaultDraftingCardPaperShader,
   DEFAULT_DRAFTING_CARD_STATE,
 } from "@/features/workspace/model/card-state"
-import { getCardImageFilterDefinitions } from "@/features/workspace/rendering/paper-shaders"
+import { getCardImageFilterDefinitions } from "@/features/workspace/rendering/paper-shader-definitions"
 import { ERROR_CORRECTION_LEVEL_OPTIONS } from "@/features/qr-code/styles/encoding-options"
 import {
   DEFAULT_DOT_MATRIX_ANIMATION,

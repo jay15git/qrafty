@@ -12,7 +12,7 @@ import {
   type DraftingCardSizeMode,
   type DraftingCardStyleMode,
 } from "@/features/workspace/model/card-state"
-import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
+import type { PaperShaderId } from "@/features/workspace/rendering/paper-shader-definitions"
 import {
   type DraftingCanvasLayer,
   type DraftingTextAlign,

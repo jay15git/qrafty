@@ -718,7 +718,8 @@
 
 /* Keep visual tile gaps but extend each option's hit box through half the
    gap so the pointer never drops to default between tiles. */
-:is(.dn-preview-row, .dn-option-scroll-row) > :is(button, a, [role="button"]) {
+:is(.dn-preview-row, .dn-option-scroll-row)
+  > :is(button, a, [role="button"], [data-slot="image-upload-tile"]) {
   margin-inline: calc(var(--dn-option-gap, var(--dn-space-inline)) / -2);
   margin-block: 0;
   position: relative;
@@ -2432,7 +2433,7 @@
 }
 
 .dn-image-upload-tile {
-  padding: 0;
+  display: grid;
   background: transparent;
 }
 
@@ -2455,11 +2456,6 @@
   box-sizing: border-box;
   padding: 3px;
   background: transparent;
-}
-
-.dn-paper-shader-color-grid .dn-paper-shader-color-chip__fill {
-  border: 1px solid color-mix(in srgb, var(--dn-line) 40%, transparent);
-  background-color: var(--dn-control);
 }
 
 .desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-stop-list {

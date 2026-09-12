@@ -18,6 +18,7 @@ import { ElementsSection } from "@/features/desktop-shell/inspector/desktopnew-e
 import { DesktopNewContentFields } from "@/features/desktop-shell/inspector/desktopnew-content-fields"
 import {
   ContentTypeBrowser,
+  QrColorPartBrowser,
   SegmentTabs,
   SettingsFillPopover,
   SettingsRowPopover,
@@ -70,7 +71,7 @@ import {
 import {
   getCardGeneratedShaderDefinitions,
   type PaperShaderId,
-} from "@/features/workspace/rendering/paper-shaders"
+} from "@/features/workspace/rendering/paper-shader-definitions"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import { SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
@@ -84,6 +85,10 @@ import {
   SETTINGS_PREVIEW_TILE,
   SETTINGS_PREVIEW_TILE_INNER,
 } from "@/features/desktop-shell/inspector/settings-preview-tiles"
+import {
+  isSceneWallpaperPath,
+  SettingsImageUploadTile,
+} from "@/features/desktop-shell/inspector/settings-fill-option-grid"
 
 export const SECTION_STACK = "dn-section-stack"
 
@@ -258,12 +263,19 @@ function PaperShaderPreviewRow({
 }
 
 function WallpaperPreviewRow({
-  selectedPath,
+  onClear,
   onSelect,
+  onUpload,
+  selectedPath,
 }: {
-  selectedPath: string
+  onClear: () => void
   onSelect: (imagePath: string) => void
+  onUpload: (imageUrl: string) => void
+  selectedPath: string
 }) {
+  const customImageUrl =
+    selectedPath && !isSceneWallpaperPath(selectedPath) ? selectedPath : ""
+
   return (
     <ScrollArea
       className="w-full min-w-0 max-w-full overflow-hidden"
@@ -276,6 +288,12 @@ function WallpaperPreviewRow({
       viewportClassName="min-w-0"
     >
       <div className={SETTINGS_PREVIEW_ROW}>
+        <SettingsImageUploadTile
+          imageUrl={customImageUrl}
+          onClear={onClear}
+          onUpload={onUpload}
+        />
+
         {SCENE_WALLPAPERS.map((wallpaper) => {
           const isSelected = selectedPath === wallpaper.path
 
@@ -572,10 +590,9 @@ function QrColorPerPartSettings({
 
   return (
     <>
-      <SegmentTabs
-        items={["Module", "Eye", "Frame", "Logo"]}
-        value={tab}
-        onChange={onTabChange}
+      <QrColorPartBrowser
+        selected={tab}
+        onSelect={(nextPart) => onTabChange(nextPart)}
       />
 
       <SettingsTabPanel activeKey={tab}>
@@ -660,7 +677,6 @@ export function QrColorSection({ model }: { model: DesktopInspectorModel }) {
   } = model
 
   const isUnified = actualPatternSettings.gradientLinkMode === "unified"
-  const colorMode = isUnified ? "Whole QR" : "Per part"
   const unifiedSettings: UnifiedQrFillSettings = {
     pattern: actualPatternSettings,
     corners: actualCornersSettings,
@@ -678,8 +694,8 @@ export function QrColorSection({ model }: { model: DesktopInspectorModel }) {
     onLogoSettingsChange(patches.logo)
   }
 
-  function handleColorModeChange(nextMode: string) {
-    if (nextMode === "Whole QR") {
+  function handleColorSeparatelyChange(checked: boolean) {
+    if (!checked) {
       const moduleFillCss = readPatternModuleFillCss(actualPatternSettings)
       const fill = parseFill(moduleFillCss)
 
@@ -702,10 +718,10 @@ export function QrColorSection({ model }: { model: DesktopInspectorModel }) {
 
   return (
     <div className="dn-section-stack w-full min-w-0 max-w-full">
-      <SegmentTabs
-        items={["Whole QR", "Per part"]}
-        value={colorMode}
-        onChange={handleColorModeChange}
+      <SettingsSwitchRow
+        checked={!isUnified}
+        label="Color separately"
+        onChange={handleColorSeparatelyChange}
       />
       {isUnified ? (
         <QrColorUnifiedSettings
@@ -814,13 +830,21 @@ export function SceneSection({ model }: { model: DesktopInspectorModel }) {
         ) : tab === "Image" ? (
           <WallpaperPreviewRow
             selectedPath={actualImageSettings.remoteUrl ?? ""}
+            onClear={() =>
+              onImageSettingsChange({ remoteUrl: "", sourceMode: "upload" })
+            }
             onSelect={(imagePath) =>
               onImageSettingsChange({ remoteUrl: imagePath, sourceMode: "url" })
+            }
+            onUpload={(imageUrl) =>
+              onImageSettingsChange({ remoteUrl: imageUrl, sourceMode: "upload" })
             }
           />
         ) : (
           <SettingsFillPopover
             hint="Fill"
+            qrGradient
+            variant="grid"
             value={backgroundFill}
             onValueChange={(fill) => onShapeSettingsChange(applyCardFill(fill))}
           />

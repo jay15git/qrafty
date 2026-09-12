@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 
-import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
+import type { PaperShaderId } from "@/features/workspace/rendering/paper-shader-definitions"
 import { getPaperShaderOptionPreviewUrl } from "@/features/workspace/components/paper-shader-option-preview.utils"
 
 export function PaperShaderOptionPreview({

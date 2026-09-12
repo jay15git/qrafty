@@ -3120,6 +3120,19 @@ export function WorkspaceSurface({
     nextState = applyCornersSettingsPatchToQraftyState(nextState, patches.corners)
     nextState = applyLogoSettingsPatchToQraftyState(nextState, patches.logo)
 
+    // A preset logo stores its rendered SVG in `logo.value`. Updating only
+    // `presetColor` leaves that SVG painted with its previous color.
+    if (patches.logo.solidColor) {
+      const brandIcon = findBrandIconById(nextState.logo.presetId)
+      if (brandIcon) {
+        nextState = applyLogoPresetColor(
+          nextState,
+          createBrandIconDataUrl(brandIcon, patches.logo.solidColor),
+          patches.logo.solidColor,
+        )
+      }
+    }
+
     clearQrEncodeMarkupCache()
     clearDraftingQrMarkupCache()
     persistActiveQrLayerState(nextState)

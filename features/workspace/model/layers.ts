@@ -46,7 +46,7 @@ import {
   normalizeDraftingCardShadow,
   type DraftingCardPaperShaderState,
 } from "@/features/workspace/model/card-state"
-import type { PaperShaderId } from "@/features/workspace/rendering/paper-shaders"
+import type { PaperShaderId } from "@/features/workspace/rendering/paper-shader-definitions"
 import {
   buildCornerRadiusLayerPatch,
   cornerRadiiToLegacyRadius,
