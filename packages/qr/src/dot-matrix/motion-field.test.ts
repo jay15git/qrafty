@@ -47,11 +47,39 @@ describe("motion field", () => {
     expect(handle).toBeDefined()
     expect(root.querySelector('[data-qr-layer="motion-field"]')).not.toBeNull()
     expect(root.querySelector("#qrafty-motion-field-gradient")).not.toBeNull()
-    expect(root.querySelector(".module")?.style.fill).toBe("none")
+    expect(root.querySelector<SVGElement>("svg > .module")?.style.fill).toBe("none")
+    expect(handle?.clipModules).toHaveLength(2)
+    expect(handle?.clipModules.map((module) => module.getAttribute("data-column"))).toEqual([
+      "0",
+      "1",
+    ])
 
     handle?.stop()
 
     expect(root.querySelector('[data-qr-layer="motion-field"]')).toBeNull()
     expect(root.querySelector(".module")?.getAttribute("fill")).toBe("#111827")
+  })
+
+  it("uses the svg viewBox for detached path-module export frames", () => {
+    document.body.innerHTML = `
+      <div id="qr-root">
+        <svg viewBox="0 0 53 53">
+          <path class="module" data-column="0" data-row="0" d="M12 12h1v1h-1z" fill="#111827"></path>
+          <path class="module" data-column="1" data-row="0" d="M13 12h1v1h-1z" fill="#111827"></path>
+        </svg>
+      </div>
+    `
+
+    const root = document.getElementById("qr-root")!
+    const handle = runMotionFieldAnimation(root, AnimationPreset.RadialExpand)
+    const field = root.querySelector<SVGRectElement>('[data-qr-layer="motion-field"] rect')
+
+    expect(handle).toBeDefined()
+    expect(field?.getAttribute("x")).toBe("0")
+    expect(field?.getAttribute("y")).toBe("0")
+    expect(field?.getAttribute("width")).toBe("53")
+    expect(field?.getAttribute("height")).toBe("53")
+
+    handle?.stop()
   })
 })

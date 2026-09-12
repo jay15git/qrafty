@@ -17,6 +17,7 @@ import {
   resolveDotMatrixMotionPreset,
   setDotMatrixAnimationOptions,
 } from "@/features/qr-code/model/state";
+import { buildAnimatedQrMarkupAtTime } from "@/features/workspace/export/pipeline/qr-frames";
 import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-artwork";
 
 describe("dot matrix motion bridge", () => {
@@ -137,6 +138,45 @@ describe("dot matrix motion bridge", () => {
     expect(config.externalSvg).toContain('class="module"');
     expect(config.externalSvg).toContain('data-testid="finder-patterns-outer"');
     expect(config.contents).toBe("https://canvas.example");
+  });
+
+  it("serializes non-rest module transforms into animated export frames", () => {
+    const state = setDotMatrixAnimationOptions(createDefaultQraftyState(), {
+      enabled: true,
+      animated: true,
+      loader: "neon-drift",
+      preset: "neon-drift",
+    });
+    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+
+    const frameMarkup = buildAnimatedQrMarkupAtTime(canvasMarkup, state, 500);
+    const document = new DOMParser().parseFromString(frameMarkup, "image/svg+xml");
+    const transforms = Array.from(document.querySelectorAll<SVGElement>(".module"))
+      .map((moduleElement) => moduleElement.style.transform)
+      .filter(Boolean);
+
+    expect(transforms.some((transform) => /^translate\([^,]+, [^)]+\) scale\([^)]+\)$/.test(transform))).toBe(
+      true,
+    );
+  });
+
+  it("keeps radial modules visible in detached video frames", () => {
+    const state = setDotMatrixAnimationOptions(createDefaultQraftyState(), {
+      enabled: true,
+      animated: true,
+      loader: "radial-expand",
+      preset: "radial-expand",
+    });
+    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+
+    const frameMarkup = buildAnimatedQrMarkupAtTime(canvasMarkup, state, 500);
+    const document = new DOMParser().parseFromString(frameMarkup, "image/svg+xml");
+    const field = document.querySelector<SVGRectElement>('[data-qr-layer="motion-field"] rect');
+    const clipModules = document.querySelectorAll("#qrafty-motion-field-clip > .module");
+
+    expect(Number(field?.getAttribute("width"))).toBeGreaterThan(1);
+    expect(Number(field?.getAttribute("height"))).toBeGreaterThan(1);
+    expect(clipModules.length).toBeGreaterThan(0);
   });
 
   it("uses gradient fills on motion modules instead of solid module color", () => {

@@ -75,12 +75,14 @@ export function buildDotMatrixAnimationTargets(
   root: ParentNode,
   preset: string | QRCodeAnimation,
   settings: QRCodeAnimationSettings = {},
+  modulesOverride?: Element[],
 ): DotMatrixLoopTarget[] {
   const animation =
     typeof preset === "string" ? getAnimationPreset(preset) : preset
 
   const { modules, icons } = collectAnimatableElements(root)
-  const targets = [...modules, ...icons]
+  const moduleTargets = modulesOverride ?? modules
+  const targets = [...moduleTargets, ...icons]
 
   if (targets.length === 0) {
     return []
@@ -94,7 +96,7 @@ export function buildDotMatrixAnimationTargets(
     array.map((element) => ({ element, entityType: entity }))
 
   const animationAdditions = [
-    ...setEntityType(modules, QRCodeEntity.Module),
+    ...setEntityType(moduleTargets, QRCodeEntity.Module),
     ...setEntityType(icons, QRCodeEntity.Icon),
   ].flatMap(({ element, entityType }) => [
     animation(
@@ -122,7 +124,23 @@ export function seekDotMatrixAnimation(
   const presetName = typeof preset === "string" ? preset : ""
 
   if (typeof preset === "string" && shouldUseMotionFieldLayer(presetName, settings)) {
-    return seekMotionFieldAnimation(root, presetName, globalTimeMs, settings)
+    const mount = seekMotionFieldAnimation(root, presetName, globalTimeMs, settings)
+    if (!mount) {
+      return undefined
+    }
+    // Field paints module color; clip clones carry the visible transform so
+    // modules still physically move with the wave front.
+    const loopTargets = buildDotMatrixAnimationTargets(
+      root,
+      preset,
+      settings,
+      mount.clipModules,
+    )
+    if (loopTargets.length > 0) {
+      const originalFills = captureDotMatrixOriginalFills(loopTargets)
+      seekDotMatrixTargets(loopTargets, globalTimeMs, originalFills, true)
+    }
+    return mount
   }
 
   const loopTargets = buildDotMatrixAnimationTargets(root, preset, settings)
@@ -143,7 +161,31 @@ export function runDotMatrixAnimation(
   const presetName = typeof preset === "string" ? preset : ""
 
   if (typeof preset === "string" && shouldUseMotionFieldLayer(presetName, settings)) {
-    return runMotionFieldAnimation(root, presetName, settings)
+    const field = runMotionFieldAnimation(root, presetName, settings)
+    if (!field) {
+      return undefined
+    }
+    const loopTargets = buildDotMatrixAnimationTargets(
+      root,
+      preset,
+      settings,
+      field.clipModules,
+    )
+    if (loopTargets.length === 0) {
+      return field
+    }
+    const loop = startDotMatrixLoop(
+      loopTargets,
+      (callback) => requestAnimationFrame(callback),
+      (frame) => cancelAnimationFrame(frame),
+      true,
+    )
+    return {
+      stop: () => {
+        loop.stop()
+        field.stop()
+      },
+    }
   }
 
   const loopTargets = buildDotMatrixAnimationTargets(root, preset, settings)

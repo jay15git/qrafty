@@ -12,6 +12,9 @@ export interface DotMatrixLoopAnimation {
     fill?: any;
     opacityMultiplier?: any;
     scale?: any;
+    x?: any;
+    y?: any;
+    rotate?: any;
   };
 }
 
@@ -57,6 +60,27 @@ function applyPaintTargetFill(element: SVGElement, fill: string) {
   element.style.setProperty('fill', fill);
 }
 
+function composeTransform(sample: {
+  scale?: number;
+  x?: number;
+  y?: number;
+  rotate?: number;
+}) {
+  const parts: string[] = [];
+  const x = Number.isFinite(sample.x) ? (sample.x as number) : 0;
+  const y = Number.isFinite(sample.y) ? (sample.y as number) : 0;
+  if (x !== 0 || y !== 0) {
+    parts.push(`translate(${x * 100}%, ${y * 100}%)`);
+  }
+  if (Number.isFinite(sample.rotate) && sample.rotate !== 0) {
+    parts.push(`rotate(${sample.rotate}deg)`);
+  }
+  if (Number.isFinite(sample.scale)) {
+    parts.push(`scale(${sample.scale})`);
+  }
+  return parts.join(' ');
+}
+
 function applyDotMatrixSample(
   element: SVGElement,
   sample: {
@@ -64,9 +88,24 @@ function applyDotMatrixSample(
     fill?: string;
     opacityMultiplier?: number;
     scale?: number;
+    x?: number;
+    y?: number;
+    rotate?: number;
   },
   originalFills: WeakMap<SVGElement, string>,
+  transformOnly = false,
 ) {
+  const transform = composeTransform(sample);
+  if (transform) {
+    element.style.transform = transform;
+  } else {
+    element.style.removeProperty('transform');
+  }
+
+  if (transformOnly) {
+    return;
+  }
+
   const opacityMultiplier =
     sample.opacityMultiplier !== undefined && Number.isFinite(sample.opacityMultiplier)
       ? sample.opacityMultiplier
@@ -74,12 +113,6 @@ function applyDotMatrixSample(
   element.style.opacity = String(
     Math.max(0, Math.min(1, sample.opacity * opacityMultiplier)),
   );
-
-  if (sample.scale !== undefined && Number.isFinite(sample.scale)) {
-    element.style.transform = `scale(${sample.scale})`;
-  } else {
-    element.style.removeProperty('transform');
-  }
 
   const paintTargets = getPaintTargets(element);
   const shouldPreserve =
@@ -133,18 +166,20 @@ export function seekDotMatrixTargets(
   targets: DotMatrixLoopTarget[],
   globalTimeMs: number,
   originalFills: WeakMap<SVGElement, string>,
+  transformOnly = false,
 ) {
   targets.forEach(({ element, animation }) => {
     if (!element || !element.style) return;
     const sample = sampleDotMatrixAnimationFrame(animation as any, globalTimeMs);
-    applyDotMatrixSample(element, sample, originalFills);
+    applyDotMatrixSample(element, sample, originalFills, transformOnly);
   });
 }
 
 export function startDotMatrixLoop(
   targets: DotMatrixLoopTarget[],
   requestFrame: (callback: () => void) => number,
-  cancelFrame: (frame: number) => void
+  cancelFrame: (frame: number) => void,
+  transformOnly = false
 ): DotMatrixLoopHandle {
   let frameId: number | undefined;
   let stopped = false;
@@ -160,7 +195,7 @@ export function startDotMatrixLoop(
     targets.forEach(({ element, animation }) => {
       if (!element || !element.style) return;
       const sample = sampleDotMatrixAnimationFrame(animation as any, globalTimeMs);
-      applyDotMatrixSample(element, sample, originalFills);
+      applyDotMatrixSample(element, sample, originalFills, transformOnly);
     });
 
     frameId = requestFrame(tick);

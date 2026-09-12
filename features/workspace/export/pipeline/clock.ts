@@ -35,10 +35,10 @@ export function resolveQrExportTimeMs(
   }
 
   if (mode === "video") {
-    return videoTimeMs * animation.speed
+    return videoTimeMs
   }
 
-  return performance.now() * animation.speed
+  return performance.now()
 }
 
 export function isShaderTimeVarying(

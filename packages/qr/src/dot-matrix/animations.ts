@@ -483,7 +483,11 @@ type WebKeyframeValue =
 const MATRIX_SIZE = 5;
 const MATRIX_LAST = MATRIX_SIZE - 1;
 const MATRIX_CELLS = MATRIX_SIZE * MATRIX_SIZE;
-const MATRIX_CYCLE_MS = 1500;
+const NEON_DRIFT_CYCLE_MS = 2400;
+const FLUX_COLUMNS_CYCLE_MS = 1100;
+const RADIAL_EXPAND_CYCLE_MS = 1800;
+const SHAPE_EXPAND_CYCLE_MS = 2000;
+const CHEVRON_SWEEP_CYCLE_MS = 1300;
 
 const matrixFracCoord = (x: number, y: number, count: number) => {
   const max = Math.max(1, count - 1);
@@ -548,6 +552,66 @@ const parseStepsEasing = (easing?: string) => {
 
 const easeInOut = (phase: number) =>
   phase < 0.5 ? 2 * phase * phase : 1 - Math.pow(-2 * phase + 2, 2) / 2;
+
+const CUBIC_BEZIER_RE =
+  /^cubic-bezier\(\s*(-?[\d.eE]+)\s*,\s*(-?[\d.eE]+)\s*,\s*(-?[\d.eE]+)\s*,\s*(-?[\d.eE]+)\s*\)$/;
+
+const cubicBezierCache = new Map<string, ((x: number) => number) | null>();
+
+const bezierCurveAt = (t: number, a1: number, a2: number) =>
+  ((1 - 3 * a2 + 3 * a1) * t + (3 * a2 - 6 * a1)) * t * t + 3 * a1 * t;
+
+const bezierSlopeAt = (t: number, a1: number, a2: number) =>
+  3 * (1 - 3 * a2 + 3 * a1) * t * t + 2 * (3 * a2 - 6 * a1) * t + 3 * a1;
+
+/** Solve cubic-bezier(x1,y1,x2,y2) progress for a linear phase, memoized per easing string. */
+const cubicBezierEasing = (easing?: string) => {
+  if (!easing) return null;
+  const cached = cubicBezierCache.get(easing);
+  if (cached !== undefined) return cached;
+
+  const match = easing.match(CUBIC_BEZIER_RE);
+  let fn: ((x: number) => number) | null = null;
+  if (match) {
+    const x1 = Number(match[1]);
+    const y1 = Number(match[2]);
+    const x2 = Number(match[3]);
+    const y2 = Number(match[4]);
+    fn = (x: number) => {
+      const target = clamp(x, 0, 1);
+      if (target === 0 || target === 1) return target;
+
+      let t = target;
+      for (let i = 0; i < 8; i += 1) {
+        const error = bezierCurveAt(t, x1, x2) - target;
+        if (Math.abs(error) < 1e-6) return bezierCurveAt(t, y1, y2);
+        const slope = bezierSlopeAt(t, x1, x2);
+        if (Math.abs(slope) < 1e-6) break;
+        t -= error / slope;
+      }
+
+      let lo = 0;
+      let hi = 1;
+      t = target;
+      while (hi - lo > 1e-6) {
+        const estimate = bezierCurveAt(t, x1, x2);
+        if (Math.abs(estimate - target) < 1e-6) break;
+        if (estimate < target) lo = t;
+        else hi = t;
+        t = (lo + hi) / 2;
+      }
+      return bezierCurveAt(t, y1, y2);
+    };
+  }
+  cubicBezierCache.set(easing, fn);
+  return fn;
+};
+
+const easedCyclePhase = (easing: string | undefined, linearPhase: number) => {
+  const bezier = cubicBezierEasing(easing);
+  if (bezier) return bezier(linearPhase);
+  return easing === 'ease-in-out' ? easeInOut(linearPhase) : linearPhase;
+};
 
 const keyframeValueAt = (frame: WebKeyframeValue): number | string => {
   if (typeof frame === 'number') return frame;
@@ -692,10 +756,23 @@ const sampleShapeRevealFrame = (
   return { opacity, fill };
 };
 
+export type DotMatrixSample = {
+  opacity: number;
+  fill?: string;
+  opacityMultiplier?: number;
+  scale?: number;
+  x?: number;
+  y?: number;
+  rotate?: number;
+};
+
+const numericChannel = (value: unknown): WebKeyframeValue[] | undefined =>
+  Array.isArray(value) ? (value as WebKeyframeValue[]) : undefined;
+
 export const sampleDotMatrixAnimationFrame = (
   animation: DotMatrixAnimationFrame,
   globalTimeMs: number
-): { opacity: number; fill?: string; opacityMultiplier?: number; scale?: number } => {
+): DotMatrixSample => {
   const from = typeof animation.from === 'number' ? animation.from : 0;
   const duration =
     typeof animation.duration === 'number' && animation.duration > 0
@@ -716,18 +793,14 @@ export const sampleDotMatrixAnimationFrame = (
   const frames = Array.isArray(rawFrames)
     ? (rawFrames as WebKeyframeValue[])
     : [];
-  const rawFillFrames = web && web.fill;
-  const fillFrames = Array.isArray(rawFillFrames)
-    ? (rawFillFrames as WebKeyframeValue[])
-    : undefined;
-  const rawOpacityMultiplierFrames = web && web.opacityMultiplier;
-  const opacityMultiplierFrames = Array.isArray(rawOpacityMultiplierFrames)
-    ? (rawOpacityMultiplierFrames as WebKeyframeValue[])
-    : undefined;
-  const rawScaleFrames = web && web.scale;
-  const scaleFrames = Array.isArray(rawScaleFrames)
-    ? (rawScaleFrames as WebKeyframeValue[])
-    : undefined;
+  const fillFrames = numericChannel(web && web.fill);
+  const opacityMultiplierFrames = numericChannel(
+    web && web.opacityMultiplier,
+  );
+  const scaleFrames = numericChannel(web && web.scale);
+  const xFrames = numericChannel(web && web.x);
+  const yFrames = numericChannel(web && web.y);
+  const rotateFrames = numericChannel(web && web.rotate);
   const steps = parseStepsEasing(animation.easing);
 
   if (frames.length === 0) {
@@ -738,42 +811,40 @@ export const sampleDotMatrixAnimationFrame = (
     const stepMs = duration / steps;
     const stepIndex = Math.floor(cycleElapsed / stepMs) % frames.length;
     const stepProgress = (cycleElapsed % stepMs) / stepMs;
+    const steppedPhase =
+      (stepIndex + stepProgress) / Math.max(1, frames.length - 1);
     const opacity = Number(keyframeValueAt(frames[stepIndex]));
-    const fill = fillFrames
-      ? keyframeFillAt(
-          fillFrames,
-          (stepIndex + stepProgress) / Math.max(1, frames.length - 1),
-        )
-      : undefined;
-    const scale = scaleFrames
-      ? keyframeOpacityAt(
-          scaleFrames,
-          (stepIndex + stepProgress) / Math.max(1, frames.length - 1),
-        )
-      : undefined;
-    const opacityMultiplier = opacityMultiplierFrames
-      ? keyframeOpacityAt(
-          opacityMultiplierFrames,
-          (stepIndex + stepProgress) / Math.max(1, frames.length - 1),
-        )
-      : undefined;
-    return { opacity, fill, opacityMultiplier, scale };
+    const fill = fillFrames ? keyframeFillAt(fillFrames, steppedPhase) : undefined;
+    const sampleChannel = (channel?: WebKeyframeValue[]) =>
+      channel ? keyframeOpacityAt(channel, steppedPhase) : undefined;
+    return {
+      opacity,
+      fill,
+      opacityMultiplier: sampleChannel(opacityMultiplierFrames),
+      scale: sampleChannel(scaleFrames),
+      x: sampleChannel(xFrames),
+      y: sampleChannel(yFrames),
+      rotate: sampleChannel(rotateFrames),
+    };
   }
 
-  const linearPhase = cycleElapsed / duration;
-  const easedPhase =
-    animation.easing === 'ease-in-out'
-      ? easeInOut(linearPhase)
-      : linearPhase;
+  const easedPhase = easedCyclePhase(
+    animation.easing,
+    cycleElapsed / duration,
+  );
   const opacity = keyframeOpacityAt(frames, easedPhase);
   const fill = fillFrames ? keyframeFillAt(fillFrames, easedPhase) : undefined;
-  const scale = scaleFrames
-    ? keyframeOpacityAt(scaleFrames, easedPhase)
-    : undefined;
-  const opacityMultiplier = opacityMultiplierFrames
-    ? keyframeOpacityAt(opacityMultiplierFrames, easedPhase)
-    : undefined;
-  return { opacity, fill, opacityMultiplier, scale };
+  const sampleChannel = (channel?: WebKeyframeValue[]) =>
+    channel ? keyframeOpacityAt(channel, easedPhase) : undefined;
+  return {
+    opacity,
+    fill,
+    opacityMultiplier: sampleChannel(opacityMultiplierFrames),
+    scale: sampleChannel(scaleFrames),
+    x: sampleChannel(xFrames),
+    y: sampleChannel(yFrames),
+    rotate: sampleChannel(rotateFrames),
+  };
 };
 
 const rowMajorIndex = (row: number, col: number) => row * MATRIX_SIZE + col;
@@ -832,23 +903,6 @@ export const closeCssBlendLoop = (
   return closed;
 };
 
-const matrixSourceStyle = (
-  targets: any,
-  _entity: QRCodeEntity,
-  from: number,
-  duration: number,
-  opacity: WebKeyframeValue[],
-  easing: string = 'linear'
-): DotMatrixAnimationFrame => ({
-  targets,
-  from,
-  duration,
-  easing,
-  web: {
-    opacity: opacity as any,
-  },
-});
-
 const matrixMotionStyle = (
   targets: any,
   from: number,
@@ -856,6 +910,11 @@ const matrixMotionStyle = (
   opacity: WebKeyframeValue[],
   scale: WebKeyframeValue[],
   easing: string = 'linear',
+  spatial?: {
+    x?: WebKeyframeValue[];
+    y?: WebKeyframeValue[];
+    rotate?: WebKeyframeValue[];
+  },
 ): DotMatrixAnimationFrame => ({
   targets,
   from,
@@ -864,13 +923,16 @@ const matrixMotionStyle = (
   web: {
     opacity: opacity as any,
     scale: scale as any,
+    ...(spatial?.x ? { x: spatial.x as any } : {}),
+    ...(spatial?.y ? { y: spatial.y as any } : {}),
+    ...(spatial?.rotate ? { rotate: spatial.rotate as any } : {}),
   },
 });
 
 const matrixEntityAnimation = (
   targets: any,
   entity: QRCodeEntity,
-  duration: number = 520,
+  duration: number = 560,
 ): DotMatrixAnimationFrame => {
   if (
     entity === QRCodeEntity.PositionRing ||
@@ -879,11 +941,19 @@ const matrixEntityAnimation = (
     return {
       targets,
       duration,
-      web: { opacity: [1], scale: [1] },
+      easing: 'ease-in-out',
+      web: { opacity: [1, 0.94, 1], scale: [1, 1.025, 1] },
     };
   }
 
-  return matrixSourceStyle(targets, entity, 0, duration, [1, 0.86, 1], 'ease-in-out');
+  return matrixMotionStyle(
+    targets,
+    0,
+    duration,
+    [1, 0.9, 1],
+    [1, 1.02, 1],
+    'ease-in-out',
+  );
 };
 
 const trBlPathNormFromCoord = (row: number, col: number) =>
@@ -1540,17 +1610,40 @@ const NeonDrift: QRCodeAnimation = (targets, x, y, count, entity) => {
   const parity = sampleCellField(fRow, fCol, (row, col) =>
     (row + (MATRIX_LAST - col)) % 2
   );
-  return matrixSourceStyle(
+  return matrixMotionStyle(
     targets,
-    entity,
-    (path * 0.2 + parity * 0.5) * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
+    (path * 0.2 + parity * 0.5) * NEON_DRIFT_CYCLE_MS,
+    NEON_DRIFT_CYCLE_MS,
     [
       matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.14, 1, 0, 0),
-      matrixCssKeyframe(0.3, 0, 0, 0.75),
+      matrixCssKeyframe(0.13, 1, 0, 0),
+      matrixCssKeyframe(0.28, 0, 0.5, 0.4),
+      matrixCssKeyframe(0.48, 0, 0.12, 0.88),
       matrixCssKeyframe(1, 0, 0, 1),
-    ]
+    ],
+    [
+      { offset: 0, value: 1 },
+      { offset: 0.13, value: 1.14 },
+      { offset: 0.3, value: 0.97 },
+      { offset: 0.48, value: 1 },
+      { offset: 1, value: 1 },
+    ],
+    'ease-in-out',
+    {
+      // Surge up-right as the wave front passes, then settle back.
+      x: [
+        { offset: 0, value: 0 },
+        { offset: 0.13, value: -0.34 },
+        { offset: 0.42, value: 0.08 },
+        { offset: 1, value: 0 },
+      ],
+      y: [
+        { offset: 0, value: 0 },
+        { offset: 0.13, value: -0.34 },
+        { offset: 0.42, value: 0.08 },
+        { offset: 1, value: 0 },
+      ],
+    }
   );
 };
 
@@ -1560,11 +1653,10 @@ const FluxColumns: QRCodeAnimation = (targets, x, y, count, entity) => {
   const position = sampleCellField(fRow, fCol, (row, col) =>
     col % 2 === 0 ? MATRIX_LAST - row : row
   );
-  return matrixSourceStyle(
+  return matrixMotionStyle(
     targets,
-    entity,
-    position * 0.2 * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
+    position * 0.2 * FLUX_COLUMNS_CYCLE_MS,
+    FLUX_COLUMNS_CYCLE_MS,
     [
       matrixCssKeyframe(0, 0, 0, 1),
       matrixCssKeyframe(0.2, 0.3, 0.5, 0.2),
@@ -1573,7 +1665,12 @@ const FluxColumns: QRCodeAnimation = (targets, x, y, count, entity) => {
       matrixCssKeyframe(0.8, 0, 0, 1),
       matrixCssKeyframe(1, 0, 0, 1),
     ],
-    'steps(5, end)'
+    [1, 0.86, 1.12, 0.92, 1.06, 1],
+    'steps(5, end)',
+    {
+      // Stepped vertical jitter — reads as mechanical actuation, not smooth drift.
+      y: [0, -0.3, 0.16, -0.2, 0.1, 0],
+    }
   );
 };
 
@@ -1595,18 +1692,58 @@ const radialDistanceFromCenter = (row: number, col: number) =>
 const chevronDistance = (row: number, col: number) =>
   MATRIX_LAST - row + Math.abs(col - MATRIX_CENTER);
 
+const RADIAL_MAX_DISTANCE = Math.hypot(MATRIX_CENTER, MATRIX_CENTER);
+
 const RadialExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
   if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
   const { fRow, fCol } = matrixFracCoord(x, y, count);
   const radius = sampleCellField(fRow, fCol, radialDistanceFromCenter);
-  return matrixSourceStyle(
+  // Decelerating front: compress outer delays so the ring loses speed as it expands.
+  const easedRadius = Math.pow(radius / RADIAL_MAX_DISTANCE, 0.72);
+  const center = (count - 1) / 2;
+  const dirX = x - center;
+  const dirY = y - center;
+  const dist = Math.hypot(dirX, dirY);
+  // Physical shove: modules push outward along their own radius as the front passes.
+  const push = dist > 0 ? 0.36 : 0;
+  const outX = dist > 0 ? (dirX / dist) * push : 0;
+  const outY = dist > 0 ? (dirY / dist) * push : 0;
+  return matrixMotionStyle(
     targets,
-    entity,
-    radius * 0.14 * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
+    easedRadius * 0.3 * RADIAL_EXPAND_CYCLE_MS,
+    RADIAL_EXPAND_CYCLE_MS,
     ECHO_RING_BLEND_KEYFRAMES,
-    'ease-in-out'
+    [
+      { offset: 0, value: 1 },
+      { offset: 0.32, value: 1.16 },
+      { offset: 0.62, value: 1 },
+      { offset: 1, value: 1 },
+    ],
+    'ease-in-out',
+    {
+      x: [
+        { offset: 0, value: 0 },
+        { offset: 0.32, value: outX },
+        { offset: 0.62, value: 0 },
+        { offset: 1, value: 0 },
+      ],
+      y: [
+        { offset: 0, value: 0 },
+        { offset: 0.32, value: outY },
+        { offset: 0.62, value: 0 },
+        { offset: 1, value: 0 },
+      ],
+    }
   );
+};
+
+const moduleDirectionFromCenter = (x: number, y: number, count: number) => {
+  const center = (count - 1) / 2;
+  const dirX = x - center;
+  const dirY = y - center;
+  const dist = Math.hypot(dirX, dirY);
+  if (dist === 0) return { dirX: 0, dirY: 0 };
+  return { dirX: dirX / dist, dirY: dirY / dist };
 };
 
 const DiamondExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
@@ -1615,23 +1752,58 @@ const DiamondExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
     targets,
     diamondExpansionMetric(y, x, count),
     diamondMaxExpansionMetric(count),
+    moduleDirectionFromCenter(x, y, count),
   );
 };
+
+const SHAPE_BLOOM_BLEND_KEYFRAMES = [
+  matrixCssKeyframe(0, 0, 0, 1),
+  matrixCssKeyframe(0.16, 0.6, 0.3, 0.1),
+  matrixCssKeyframe(0.26, 1, 0, 0),
+  matrixCssKeyframe(0.42, 0.85, 0.15, 0),
+  matrixCssKeyframe(0.68, 0, 0.3, 0.7),
+  matrixCssKeyframe(1, 0, 0, 1),
+];
+
+const SHAPE_BLOOM_SCALE_KEYFRAMES: WebKeyframeValue[] = [
+  { offset: 0, value: 1 },
+  { offset: 0.26, value: 1.2 },
+  { offset: 0.42, value: 1.07 },
+  { offset: 0.7, value: 1 },
+  { offset: 1, value: 1 },
+];
+
+const SHAPE_PUSH_UNITS = 0.3;
 
 const shapeRevealAnimation = (
   targets: any,
   metric: number,
   maxMetric: number,
+  direction: { dirX: number; dirY: number },
 ): DotMatrixAnimationFrame => ({
   targets,
   // Keep the full contour travel inside one cycle. Raw shape metrics scale
   // with the QR size; using them directly starts additional hearts/stars
   // before the first one has left the QR.
-  from: (maxMetric > 0 ? metric / maxMetric : 0) * 0.42 * MATRIX_CYCLE_MS,
-  duration: MATRIX_CYCLE_MS,
+  from: (maxMetric > 0 ? metric / maxMetric : 0) * 0.42 * SHAPE_EXPAND_CYCLE_MS,
+  duration: SHAPE_EXPAND_CYCLE_MS,
   easing: 'ease-in-out',
   web: {
-    opacity: ECHO_RING_BLEND_KEYFRAMES,
+    opacity: SHAPE_BLOOM_BLEND_KEYFRAMES,
+    scale: SHAPE_BLOOM_SCALE_KEYFRAMES,
+    // Modules shove outward as the contour blooms through them, then settle.
+    x: [
+      { offset: 0, value: 0 },
+      { offset: 0.26, value: direction.dirX * SHAPE_PUSH_UNITS },
+      { offset: 0.55, value: direction.dirX * SHAPE_PUSH_UNITS * 0.25 },
+      { offset: 1, value: 0 },
+    ],
+    y: [
+      { offset: 0, value: 0 },
+      { offset: 0.26, value: direction.dirY * SHAPE_PUSH_UNITS },
+      { offset: 0.55, value: direction.dirY * SHAPE_PUSH_UNITS * 0.25 },
+      { offset: 1, value: 0 },
+    ],
   },
 });
 
@@ -1641,6 +1813,7 @@ const HeartExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
     targets,
     heartExpansionMetric(y, x, count),
     heartMaxExpansionMetric(count),
+    moduleDirectionFromCenter(x, y, count),
   );
 };
 
@@ -1650,26 +1823,52 @@ const StarExpand: QRCodeAnimation = (targets, x, y, count, entity) => {
     targets,
     starExpansionMetric(y, x, count),
     starMaxExpansionMetric(count),
+    moduleDirectionFromCenter(x, y, count),
   );
 };
+
+const CHEVRON_MAX_DISTANCE = MATRIX_LAST + MATRIX_CENTER;
 
 const ChevronSweep: QRCodeAnimation = (targets, x, y, count, entity) => {
   if (entity !== QRCodeEntity.Module) return matrixEntityAnimation(targets, entity);
   const { fRow, fCol } = matrixFracCoord(x, y, count);
   const distance = sampleCellField(fRow, fCol, chevronDistance);
-  return matrixSourceStyle(
+  // Ease the delay field so the sweep gathers speed out of the top edge.
+  const easedDistance = Math.pow(distance / CHEVRON_MAX_DISTANCE, 0.8);
+  // Crest travels bottom-center → top corners; modules kick along it.
+  const spread = x - (count - 1) / 2 >= 0 ? 0.12 : -0.12;
+  return matrixMotionStyle(
     targets,
-    entity,
-    distance * 0.11 * MATRIX_CYCLE_MS,
-    MATRIX_CYCLE_MS,
+    easedDistance * 0.32 * CHEVRON_SWEEP_CYCLE_MS,
+    CHEVRON_SWEEP_CYCLE_MS,
     [
       matrixCssKeyframe(0, 0, 0, 1),
-      matrixCssKeyframe(0.18, 0.4, 0.45, 0.15),
-      matrixCssKeyframe(0.32, 1, 0, 0),
-      matrixCssKeyframe(0.5, 0, 0.5, 0.5),
+      matrixCssKeyframe(0.2, 1, 0, 0),
+      matrixCssKeyframe(0.3, 1, 0, 0),
+      matrixCssKeyframe(0.52, 0, 0.45, 0.55),
       matrixCssKeyframe(1, 0, 0, 1),
     ],
-    'ease-in-out'
+    [
+      { offset: 0, value: 1 },
+      { offset: 0.25, value: 1.15 },
+      { offset: 0.55, value: 1 },
+      { offset: 1, value: 1 },
+    ],
+    'ease-in-out',
+    {
+      x: [
+        { offset: 0, value: 0 },
+        { offset: 0.25, value: spread },
+        { offset: 0.55, value: 0 },
+        { offset: 1, value: 0 },
+      ],
+      y: [
+        { offset: 0, value: 0 },
+        { offset: 0.25, value: -0.32 },
+        { offset: 0.55, value: 0 },
+        { offset: 1, value: 0 },
+      ],
+    }
   );
 };
 

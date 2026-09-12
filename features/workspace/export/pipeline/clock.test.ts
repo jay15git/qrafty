@@ -52,12 +52,12 @@ describe("export clock", () => {
     expect(sceneHasVideoExportContent(cardState, [], state)).toBe(true)
   })
 
-  it("scales QR export time by animation speed in video mode", () => {
+  it("uses the raw video clock because the animation sampler applies speed", () => {
     const state = createDefaultQraftyState()
     state.dotMatrixAnimation.enabled = true
     state.dotMatrixAnimation.animated = true
     state.dotMatrixAnimation.speed = 2
 
-    expect(resolveQrExportTimeMs(state, "video", 500)).toBe(1000)
+    expect(resolveQrExportTimeMs(state, "video", 500)).toBe(500)
   })
 })

@@ -12,13 +12,14 @@ const SVG_NS = "http://www.w3.org/2000/svg"
 const MOTION_FIELD_LAYER = "motion-field"
 const MOTION_FIELD_CLIP_ID = "qrafty-motion-field-clip"
 const MOTION_FIELD_GRADIENT_ID = "qrafty-motion-field-gradient"
-const MOTION_CYCLE_MS = 1500
+const MOTION_CYCLE_MS = 1800
 const PAINTABLE_SELECTOR = "path,circle,rect,polygon,ellipse"
 /** Presets that expand from center — use a continuous field instead of per-module fill. */
 const MOTION_FIELD_PRESETS = new Set<string>([AnimationPreset.RadialExpand])
 
 export type MotionFieldHandle = {
   stop: () => void
+  clipModules: SVGElement[]
 }
 
 function clamp01(value: number) {
@@ -100,19 +101,18 @@ function hideModuleFill(element: SVGElement) {
 }
 
 function cloneIntoClipPath(source: SVGElement, clipPath: SVGElement) {
-  const document = clipPath.ownerDocument
-  if (!document) {
-    return
+  const clone = source.cloneNode(true) as SVGElement
+  const elements = [clone, ...Array.from(clone.querySelectorAll<SVGElement>("*"))]
+
+  for (const element of elements) {
+    element.removeAttribute("id")
+    element.removeAttribute("style")
+    if (element.matches(PAINTABLE_SELECTOR)) {
+      element.setAttribute("fill", "#ffffff")
+    }
   }
 
-  for (const target of getPaintTargets(source)) {
-    const clone = target.cloneNode(true) as SVGElement
-    clone.removeAttribute("id")
-    clone.removeAttribute("class")
-    clone.removeAttribute("style")
-    clone.setAttribute("fill", "#ffffff")
-    clipPath.appendChild(clone)
-  }
+  clipPath.appendChild(clone)
 }
 
 function getSvgRoot(container: ParentNode) {
@@ -161,9 +161,12 @@ function getModuleBounds(svg: SVGSVGElement, modules: SVGElement[]) {
   let maxX = Number.NEGATIVE_INFINITY
   let maxY = Number.NEGATIVE_INFINITY
 
-  for (const module of modules) {
-    for (const target of getPaintTargets(module)) {
+  for (const moduleElement of modules) {
+    for (const target of getPaintTargets(moduleElement)) {
       const box = readTargetBounds(target)
+      if (box.width <= 0 || box.height <= 0) {
+        continue
+      }
       minX = Math.min(minX, box.x)
       minY = Math.min(minY, box.y)
       maxX = Math.max(maxX, box.x + box.width)
@@ -172,16 +175,25 @@ function getModuleBounds(svg: SVGSVGElement, modules: SVGElement[]) {
   }
 
   if (!Number.isFinite(minX)) {
-    const viewBox = svg.viewBox.baseVal
-    if (viewBox.width > 0 && viewBox.height > 0) {
+    const values = (svg.getAttribute("viewBox") ?? "")
+      .trim()
+      .split(/[\s,]+/)
+      .map(Number.parseFloat)
+    if (
+      values.length === 4 &&
+      values.every(Number.isFinite) &&
+      values[2] > 0 &&
+      values[3] > 0
+    ) {
+      const [x, y, width, height] = values
       return {
-        centerX: viewBox.x + viewBox.width / 2,
-        centerY: viewBox.y + viewBox.height / 2,
-        height: viewBox.height,
-        minX: viewBox.x,
-        minY: viewBox.y,
-        radius: Math.hypot(viewBox.width, viewBox.height) / 2,
-        width: viewBox.width,
+        centerX: x + width / 2,
+        centerY: y + height / 2,
+        height,
+        minX: x,
+        minY: y,
+        radius: Math.hypot(width, height) / 2,
+        width,
       }
     }
 
@@ -200,10 +212,17 @@ function getModuleBounds(svg: SVGSVGElement, modules: SVGElement[]) {
 function updateGradientStops(
   gradient: SVGRadialGradientElement,
   cyclePhase: number,
+  baseRadius: number,
   settings?: QRCodeAnimationSettings,
 ) {
   const { base, peak, opacityBase, opacityPeak } = resolveFieldColors(settings)
   const stopCount = 24
+
+  // Breathing radius: the field pushes outward as the front travels, then eases back.
+  gradient.setAttribute(
+    "r",
+    String(baseRadius * (1 + 0.04 * Math.sin(cyclePhase * Math.PI))),
+  )
 
   while (gradient.firstChild) {
     gradient.removeChild(gradient.firstChild)
@@ -241,6 +260,8 @@ export function shouldUseMotionFieldLayer(
 type MotionFieldMount = {
   destroy: () => void
   update: (globalTimeMs: number) => void
+  /** Clip-path clones of module shapes — transform targets for module motion. */
+  clipModules: SVGElement[]
 }
 
 function mountMotionField(
@@ -265,10 +286,10 @@ function mountMotionField(
   }
 
   const originalFills = new Map<SVGElement, string>()
-  for (const module of modules) {
-    for (const target of getPaintTargets(module)) {
+  for (const moduleElement of modules) {
+    for (const target of getPaintTargets(moduleElement)) {
       originalFills.set(target, readFill(target))
-      hideModuleFill(module)
+      hideModuleFill(moduleElement)
     }
   }
 
@@ -282,9 +303,12 @@ function mountMotionField(
   clipPath.setAttribute("id", MOTION_FIELD_CLIP_ID)
   clipPath.setAttribute("clipPathUnits", "userSpaceOnUse")
 
-  for (const module of modules) {
-    cloneIntoClipPath(module, clipPath)
+  for (const moduleElement of modules) {
+    cloneIntoClipPath(moduleElement, clipPath)
   }
+  const clipModules = Array.from(clipPath.children).filter(
+    (child): child is SVGElement => child instanceof SVGElement,
+  )
 
   defs.appendChild(clipPath)
 
@@ -319,9 +343,10 @@ function mountMotionField(
   const cycleMs = MOTION_CYCLE_MS / animationSpeed(settings)
 
   return {
+    clipModules,
     update: (globalTimeMs: number) => {
       const cyclePhase = (globalTimeMs / cycleMs) % 1
-      updateGradientStops(gradient, cyclePhase, settings)
+      updateGradientStops(gradient, cyclePhase, bounds.radius, settings)
     },
     destroy: () => {
       layer.remove()
@@ -383,6 +408,7 @@ export function runMotionFieldAnimation(
   frameId = requestAnimationFrame(tick)
 
   return {
+    clipModules: mount.clipModules,
     stop: () => {
       stopped = true
       if (frameId !== undefined) {
