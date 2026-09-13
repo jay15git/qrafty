@@ -82,7 +82,6 @@ export function DesktopEffectsAccordion({
   effectKinds?: readonly LayerEffectKind[]
   layer: DraftingCanvasLayer
   layerOpacity?: number
-  maxEffects?: number
   onLayerOpacityChange?: (opacity: number) => void
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
   variant?: "default" | "flat"

@@ -253,7 +253,6 @@ export function DesktopDynamicIslandChrome({
           >
             <DesktopLayerShadowsPanel
               layer={effectsLayer!}
-              maxEffects={propertyCapabilities.maxEffects}
               onPatch={effectsPatch!}
               theme={theme}
             />
@@ -346,7 +345,6 @@ export function DesktopDynamicIslandChrome({
     onThemeChange,
     onTransformLayerPatch,
     onUndo,
-    propertyCapabilities.maxEffects,
     selectedElementLayer,
     selectedTransformLayer,
     sizePresetId,

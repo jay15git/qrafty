@@ -95,18 +95,16 @@ export function DesktopLayerEffectsPanel({
 
 export function DesktopLayerShadowsPanel({
   layer,
-  maxEffects,
   onPatch,
   theme,
 }: {
   layer: DraftingCanvasLayer
-  maxEffects?: number
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
   theme: DesktopThemeMode
 }) {
   return (
     <LayerSettingsPanelShell dataSlot="desktop-layer-shadows-panel" theme={theme}>
-      <DesktopShadowsList layer={layer} maxEffects={maxEffects} onPatch={onPatch} />
+      <DesktopShadowsList layer={layer} onPatch={onPatch} />
     </LayerSettingsPanelShell>
   )
 }
