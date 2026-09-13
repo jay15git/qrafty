@@ -104,6 +104,7 @@ export type DesktopAssetSourceMode = "upload" | "url"
 
 export type DesktopLogoSettings = {
   colorMode: DesktopCornerColorMode
+  customImageUrl: string
   gradient: QraftyGradient
   hideBackgroundDots: boolean
   margin: number
@@ -126,6 +127,7 @@ export type DesktopLogoSettings = {
 
 export type DesktopLogoSettingsPatch = Partial<DesktopLogoSettings> & {
   uploadedFile?: File
+  uploadedImageUrl?: string
 }
 
 export type DesktopCornersSettings = {

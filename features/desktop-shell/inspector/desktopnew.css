@@ -1865,6 +1865,14 @@
   transform: translateY(-50%);
 }
 
+/* Taller search field — comfortable touch target. */
+:is(.desktopnew-popover-content, .dn-portal-surface, .dn-settings-accordion)
+  .dn-logo-icon-picker
+  .dn-content-type-search-input {
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+}
+
 .dn-logo-icon-picker-grid {
   display: grid;
   width: 100%;
@@ -1872,7 +1880,41 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   --dn-option-gap: var(--dn-space-inline);
   gap: var(--dn-option-gap);
-  padding-inline: 0.125rem;
+  /* Padding ≥ half the option gap keeps the selected ring inside the
+     scrollport while tile hitboxes extend through every gap. */
+  padding: 0.25rem;
+}
+
+/* Tiles span their grid column so the hit target stays large on touch. */
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile,
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-skeleton {
+  width: 100%;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+}
+
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile {
+  background: transparent;
+  color: color-mix(in srgb, var(--dn-fg) 78%, transparent);
+  cursor: pointer;
+}
+
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile:is(:hover, :focus-visible) {
+  color: var(--dn-fg);
+}
+
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile[aria-pressed="true"] {
+  background: transparent;
+  color: var(--dn-fg);
+}
+
+/* The flat-press rule above suppresses :active scale inside settings
+   surfaces; restore it here so taps give tactile feedback. */
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile:active:not(:disabled) {
+  transform: scale(0.92) !important;
+  transition-duration: var(--dn-press-active-dur);
 }
 
 .dn-logo-icon-picker-icon {
@@ -2454,6 +2496,18 @@
   width: var(--dn-preview-tile);
   min-width: var(--dn-preview-tile);
   max-width: var(--dn-preview-tile);
+}
+
+/* Logo tab upload tile — row-height square beside the picker trigger. */
+.dn-logo-upload-tile.dn-image-upload-tile {
+  flex: 0 0 var(--dn-control-height);
+  width: var(--dn-control-height);
+  min-width: var(--dn-control-height);
+  max-width: var(--dn-control-height);
+  height: var(--dn-control-height);
+  min-height: var(--dn-control-height);
+  max-height: var(--dn-control-height);
+  padding: 3px;
 }
 
 .dn-paper-shader-color-grid .dn-paper-shader-color-chip {

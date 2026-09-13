@@ -3204,6 +3204,14 @@ export function WorkspaceSurface({
       const nextState = applyAssetUploadValue(draftingQraftyState, "logo", uploadValue)
       commitActiveQraftyState(nextState)
     }
+    if (patch.uploadedImageUrl !== undefined) {
+      ensureLogoUploadItemExpanded("upload")
+      commitActiveQraftyState(
+        patch.uploadedImageUrl
+          ? applyAssetUploadValue(draftingQraftyState, "logo", patch.uploadedImageUrl)
+          : applyAssetNoneSelection(draftingQraftyState, "logo"),
+      )
+    }
     if (patch.sourceMode) {
       if (patch.sourceMode === "none") {
         commitActiveQraftyState(applyAssetNoneSelection(draftingQraftyState, "logo"))

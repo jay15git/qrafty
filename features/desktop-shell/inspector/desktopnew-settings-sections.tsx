@@ -452,21 +452,51 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
       <SettingsTabPanel activeKey={tab}>
         {tab === "Logo" ? (
           <>
-            <SettingsRowPopover
-              contentClassName="w-[18rem]"
-              hideHint
-              leading={<LogoSelectionIcon selectedId={actualLogoSettings.selectedBrandIconId} />}
-              open={logoPopoverOpen}
-              trigger={getLogoSelectionLabel(actualLogoSettings.selectedBrandIconId)}
-              onOpenChange={setLogoPopoverOpen}
-            >
-              <LogoIconPicker
-                selectedId={actualLogoSettings.selectedBrandIconId}
-                onSelect={(selectedBrandIconId) => {
-                  onLogoSettingsChange({ selectedBrandIconId, sourceMode: "brand" })
-                }}
+            <div className="flex w-full min-w-0 items-center gap-1.5">
+              <SettingsImageUploadTile
+                ariaLabel="Upload custom logo"
+                className="dn-logo-upload-tile"
+                imageUrl={actualLogoSettings.customImageUrl}
+                onClear={() => onLogoSettingsChange({ uploadedImageUrl: "" })}
+                onUpload={(imageUrl) =>
+                  onLogoSettingsChange({ uploadedImageUrl: imageUrl })
+                }
               />
-            </SettingsRowPopover>
+              <div className="min-w-0 flex-1">
+                <SettingsRowPopover
+                  contentClassName="w-[18rem]"
+                  hideHint
+                  leading={
+                    actualLogoSettings.customImageUrl ? (
+                      <img
+                        alt=""
+                        aria-hidden
+                        className="size-3.5 shrink-0 object-cover dn-squircle-xs"
+                        src={actualLogoSettings.customImageUrl}
+                      />
+                    ) : (
+                      <LogoSelectionIcon
+                        selectedId={actualLogoSettings.selectedBrandIconId}
+                      />
+                    )
+                  }
+                  open={logoPopoverOpen}
+                  trigger={
+                    actualLogoSettings.customImageUrl
+                      ? "Custom logo"
+                      : getLogoSelectionLabel(actualLogoSettings.selectedBrandIconId)
+                  }
+                  onOpenChange={setLogoPopoverOpen}
+                >
+                  <LogoIconPicker
+                    selectedId={actualLogoSettings.selectedBrandIconId}
+                    onSelect={(selectedBrandIconId) => {
+                      onLogoSettingsChange({ selectedBrandIconId, sourceMode: "brand" })
+                    }}
+                  />
+                </SettingsRowPopover>
+              </div>
+            </div>
             <SettingsSlider
               label="Size"
               max={100}

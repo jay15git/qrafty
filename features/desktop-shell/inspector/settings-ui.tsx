@@ -844,29 +844,28 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
   )
 })
 
-export function SettingsAccordionColorPicker({
+export function SettingsTilePopover({
   title,
-  value,
-  onValueChange,
   children,
+  content,
+  contentClassName,
 }: {
   title: string
-  value: string
-  onValueChange: (fill: Fill, css: string) => void
   children: ReactElement<{ onClick?: React.MouseEventHandler<HTMLElement> }>
+  content: ReactNode
+  contentClassName?: string
 }) {
   const theme = useDesktopnewTheme()
   const accordion = useSettingsAccordionPopover()
   const popoverKey = useId()
   const [radixOpen, setRadixOpen] = useState(false)
 
-  const pickerBody = (
-    <DesktopNewFillPicker solidOnly value={value} onValueChange={onValueChange} />
-  )
-
   const accordionPanelClassName = desktopnewPortalClass(
     theme,
-    "desktopnew-fill-popover desktopnew-popover-content w-full border-0 bg-transparent p-0 shadow-none outline-none",
+    cn(
+      "desktopnew-fill-popover desktopnew-popover-content w-full border-0 bg-transparent p-0 shadow-none outline-none",
+      contentClassName,
+    ),
   )
 
   const attachTrigger = (onClick: React.MouseEventHandler<HTMLElement>) => {
@@ -901,7 +900,7 @@ export function SettingsAccordionColorPicker({
             title={title}
             onClose={() => accordion.setOpenKey(null)}
           >
-            {pickerBody}
+            {content}
           </SettingsPopoverChrome>
         </SettingsAccordionPopoverOverlay>
       </>
@@ -915,7 +914,10 @@ export function SettingsAccordionColorPicker({
         align="start"
         className={desktopnewPortalClass(
           theme,
-          "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
+          cn(
+            "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
+            contentClassName,
+          ),
         )}
         data-theme={theme}
         side="right"
@@ -926,10 +928,33 @@ export function SettingsAccordionColorPicker({
           title={title}
           onClose={() => setRadixOpen(false)}
         >
-          {pickerBody}
+          {content}
         </SettingsPopoverChrome>
       </PopoverContent>
     </Popover>
+  )
+}
+
+export function SettingsAccordionColorPicker({
+  title,
+  value,
+  onValueChange,
+  children,
+}: {
+  title: string
+  value: string
+  onValueChange: (fill: Fill, css: string) => void
+  children: ReactElement<{ onClick?: React.MouseEventHandler<HTMLElement> }>
+}) {
+  return (
+    <SettingsTilePopover
+      title={title}
+      content={
+        <DesktopNewFillPicker solidOnly value={value} onValueChange={onValueChange} />
+      }
+    >
+      {children}
+    </SettingsTilePopover>
   )
 }
 

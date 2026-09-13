@@ -157,6 +157,11 @@ export function buildDesktopToolbarSettingsSnapshots(
 
   const logoSettings: DesktopLogoSettings = {
     colorMode: input.selectedLogoColorMode,
+    customImageUrl:
+      draftingQraftyState.logo.source === "upload" ||
+      draftingQraftyState.logo.source === "url"
+        ? (draftingQraftyState.logo.value ?? "")
+        : "",
     gradient: input.selectedLogoGradient,
     hideBackgroundDots: input.selectedHideBackgroundDots,
     margin: input.selectedLogoMargin,

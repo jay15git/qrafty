@@ -1,7 +1,7 @@
 "use client"
 
 import { useContext, useMemo } from "react"
-import type { CSSProperties } from "react"
+import type { CSSProperties, ReactNode } from "react"
 import { Plus } from "lucide-react"
 import { blobUrlToDataUrl } from "@qrafty/qr-internal/scene"
 
@@ -33,10 +33,14 @@ export function isSceneWallpaperPath(path: string) {
 }
 
 export function SettingsImageUploadTile({
+  ariaLabel = "Upload custom image",
+  className,
   imageUrl,
   onClear,
   onUpload,
 }: {
+  ariaLabel?: string
+  className?: string
   imageUrl: string
   onClear: () => void
   onUpload: (imageUrl: string) => void
@@ -45,8 +49,8 @@ export function SettingsImageUploadTile({
 
   return (
     <div
-      aria-label="Upload custom image"
-      className={cn(SETTINGS_PREVIEW_TILE, "dn-image-upload-tile overflow-hidden")}
+      aria-label={ariaLabel}
+      className={cn(SETTINGS_PREVIEW_TILE, "dn-image-upload-tile overflow-hidden", className)}
       data-slot="image-upload-tile"
     >
       <ImageCropper
@@ -165,13 +169,13 @@ export function SettingsFillOptionGrid({
 }
 
 export function SettingsPatternOptionGrid({
-  onOpenPicker,
+  leadingAction,
   onSelect,
   persistKey,
   selectedPalette,
   selectedPreset,
 }: {
-  onOpenPicker: () => void
+  leadingAction?: ReactNode
   onSelect: (preset: { label: string; colors: string[] }) => void
   persistKey?: string
   selectedPalette: string[]
@@ -195,7 +199,7 @@ export function SettingsPatternOptionGrid({
         className={cn(SETTINGS_PREVIEW_ROW, "items-center")}
         role="group"
       >
-        <FillOptionGridPlusButton onOpenPicker={onOpenPicker} />
+        {leadingAction}
 
         {DESKTOP_DOTS_PALETTE_PRESETS.map((option) => {
           const isSelected =

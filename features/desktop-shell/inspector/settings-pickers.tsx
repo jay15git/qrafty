@@ -261,7 +261,7 @@ export function LogoIconPicker({
                   <div
                     key={`${icon.library}-${icon.id}`}
                     aria-hidden
-                    className="dn-logo-icon-picker-tile dn-preview-tile-size min-w-0 animate-pulse dn-squircle-xs bg-[var(--dn-control)]"
+                    className="dn-logo-icon-picker-skeleton min-w-0 animate-pulse dn-squircle-xs bg-[var(--dn-control)]"
                   />
                 ))
               : curatedIcons.map((result) => (

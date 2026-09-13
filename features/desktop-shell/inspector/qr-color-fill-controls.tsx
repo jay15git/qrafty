@@ -1,7 +1,10 @@
 "use client"
 
+import { Plus } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
+import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants"
+import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import type { DotsColorMode } from "@/features/qr-code/model/state"
 import { isGradientFill } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
@@ -15,12 +18,76 @@ import {
   SETTINGS_FILL_SOLID_PRESETS,
 } from "@/features/desktop-shell/inspector/settings-fill-presets"
 import {
+  SETTINGS_FILL_OPTION_TILE,
+  SETTINGS_FILL_OPTION_TILE_INNER,
+} from "@/features/desktop-shell/inspector/settings-preview-tiles"
+import { DesktopNewFillPicker } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import {
   SegmentTabs,
   SettingsFillPopover,
+  SettingsTilePopover,
   type SettingsFillPopoverHandle,
 } from "@/features/desktop-shell/inspector/settings-ui"
 
 export type QrColorFillModeTab = "Solid" | "Gradient" | "Pattern" | "Image"
+
+const PATTERN_COLOR_SWATCH =
+  "dn-preview-tile dn-squircle-xs size-9 shrink-0 p-1 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+
+function PatternColorPickerContent({
+  selectedPalette,
+  onPaletteColorChange,
+}: {
+  selectedPalette: string[]
+  onPaletteColorChange: (index: number, color: string) => void
+}) {
+  const [index, setIndex] = useState(0)
+  const active = Math.min(index, selectedPalette.length - 1)
+
+  return (
+    <div className="flex w-full flex-col gap-3">
+      <div
+        aria-label="Pattern colors"
+        className="flex w-full items-center justify-between"
+        role="group"
+      >
+        {selectedPalette.map((color, i) => {
+          const parsed = parseColor(color) ?? { l: 0, c: 0, h: 0, alpha: 1 }
+          const preview = formatColor(parsed, "oklch")
+          return (
+            <button
+              key={`pattern-color-${i}`}
+              type="button"
+              aria-label={`Edit color ${i + 1}`}
+              aria-pressed={i === active}
+              className={PATTERN_COLOR_SWATCH}
+              onClick={() => setIndex(i)}
+            >
+              <span
+                aria-hidden
+                className="block size-full dn-squircle-xs"
+                style={{
+                  backgroundImage: `linear-gradient(${preview}, ${preview}), ${CHECKERBOARD_SM}`,
+                  backgroundSize: "auto, 6px 6px",
+                }}
+              />
+            </button>
+          )
+        })}
+      </div>
+      <DesktopNewFillPicker
+        key={active}
+        solidOnly
+        value={selectedPalette[active] ?? "#000000"}
+        onValueChange={(fill) => {
+          if (fill.kind === "color") {
+            onPaletteColorChange(active, formatColor(fill.color, "hex"))
+          }
+        }}
+      />
+    </div>
+  )
+}
 
 function moduleFillModeToTab(mode: DotsColorMode): QrColorFillModeTab {
   switch (mode) {
@@ -37,21 +104,6 @@ function moduleFillModeToTab(mode: DotsColorMode): QrColorFillModeTab {
 
 function fillValueToTab(value: string): "Solid" | "Gradient" {
   return isGradientFill(value) ? "Gradient" : "Solid"
-}
-
-function modeTabToLockedFillMode(
-  tab: QrColorFillModeTab,
-): "solid" | "gradient" | "pattern" | "image" {
-  switch (tab) {
-    case "Image":
-      return "image"
-    case "Pattern":
-      return "pattern"
-    case "Gradient":
-      return "gradient"
-    default:
-      return "solid"
-  }
 }
 
 export function QrColorFillControls({
@@ -139,10 +191,28 @@ export function QrColorFillControls({
         />
       ) : modeTab === "Pattern" && modulePattern ? (
         <SettingsPatternOptionGrid
+          leadingAction={
+            <SettingsTilePopover
+              title="Pattern colors"
+              content={
+                <PatternColorPickerContent
+                  selectedPalette={modulePattern.selectedPalette}
+                  onPaletteColorChange={modulePattern.onPaletteColorChange}
+                />
+              }
+            >
+              <button aria-label="Edit pattern colors" className={SETTINGS_FILL_OPTION_TILE} type="button">
+                <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
+                  <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--dn-muted)_38%,transparent)] text-[var(--dn-fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--dn-muted)_55%,transparent)] dn-squircle-xs">
+                    <Plus className="size-4" strokeWidth={2.5} />
+                  </span>
+                </span>
+              </button>
+            </SettingsTilePopover>
+          }
           persistKey={`${persistKey}:pattern`}
           selectedPalette={modulePattern.selectedPalette}
           selectedPreset={modulePattern.selectedPreset}
-          onOpenPicker={openPicker}
           onSelect={(preset) => modulePattern.onSelect(preset)}
         />
       ) : modeTab === "Image" && moduleImage ? (
@@ -155,19 +225,18 @@ export function QrColorFillControls({
         />
       ) : null}
 
-      {modeTab === "Image" ? null : (
+      {modeTab === "Solid" || modeTab === "Gradient" ? (
         <SettingsFillPopover
           ref={pickerRef}
           fillPreviewImageUrl={fillPreviewImageUrl}
           hint="Fill"
-          lockedFillMode={modeTabToLockedFillMode(modeTab)}
-          modulePattern={modeTab === "Pattern" ? modulePattern : undefined}
+          lockedFillMode={modeTab === "Gradient" ? "gradient" : "solid"}
           qrGradient={qrGradient}
           variant="picker-only"
           value={value}
           onValueChange={onValueChange}
         />
-      )}
+      ) : null}
     </div>
   )
 }

@@ -201,6 +201,7 @@ export const DEFAULT_DESKTOP_PATTERN_SETTINGS: DesktopPatternSettings = {
 
 export const DEFAULT_DESKTOP_LOGO_SETTINGS: DesktopLogoSettings = {
   colorMode: "solid",
+  customImageUrl: "",
   gradient: structuredClone(DEFAULT_DESKTOP_DOTS_GRADIENT),
   hideBackgroundDots: true,
   margin: 12,
