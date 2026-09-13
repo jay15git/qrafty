@@ -10,19 +10,14 @@ import {
   SettingsPrimaryButton,
   SettingsTabPanel,
 } from "@/features/desktop-shell/inspector/settings-ui"
-import type {
-  DesktopExportMediaKind,
-  DesktopExportScale,
-} from "@/features/desktop-shell/model/desktop-toolbar-types"
+import type { DesktopExportMediaKind } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 import {
-  formatExportPixelDimensions,
-  resolveActiveExportDimensions,
-} from "@/features/workspace/export/export-labels"
-import {
-  clampExportScale,
-  formatExportScaleLabel,
-} from "@/features/workspace/export/export-scale"
+  clampVideoExportDuration,
+  type VideoExportLongEdge,
+  VIDEO_EXPORT_MAX_DURATION_SECONDS,
+  VIDEO_EXPORT_MIN_DURATION_SECONDS,
+} from "@/features/qr-code/export/video-export"
 import type { QrFileExtension } from "@/features/qr-code/model/types"
 
 const SECTION_STACK = "flex flex-col gap-2.5"
@@ -30,9 +25,22 @@ const SECTION_STACK = "flex flex-col gap-2.5"
 const MEDIA_TABS = ["Photo", "Video"] as const
 const PHOTO_FORMAT_OPTIONS = ["PNG", "JPEG", "WebP"] as const
 const VIDEO_FORMAT_OPTIONS = ["MP4", "WebM"] as const
-const VIDEO_DURATION_OPTIONS = ["5 sec", "10 sec"] as const
 const VIDEO_FPS_OPTIONS = ["30 fps", "60 fps"] as const
-const VIDEO_SIZE_OPTIONS = ["1080p", "2160p"] as const
+const SIZE_OPTIONS = ["720p", "1080p", "2K", "4K"] as const
+
+const SIZE_LABEL_TO_LONG_EDGE: Record<(typeof SIZE_OPTIONS)[number], VideoExportLongEdge> = {
+  "720p": 720,
+  "1080p": 1080,
+  "2K": 1440,
+  "4K": 2160,
+}
+
+function longEdgeToSizeLabel(longEdge: VideoExportLongEdge): (typeof SIZE_OPTIONS)[number] {
+  if (longEdge === 720) return "720p"
+  if (longEdge === 1440) return "2K"
+  if (longEdge === 2160) return "4K"
+  return "1080p"
+}
 
 function photoFormatToExtension(format: (typeof PHOTO_FORMAT_OPTIONS)[number]): QrFileExtension {
   if (format === "JPEG") return "jpeg"
@@ -52,25 +60,17 @@ function mediaKindToTab(mediaKind: DesktopExportMediaKind): (typeof MEDIA_TABS)[
 
 export function DesktopExportSettingsPanel({ model }: { model: DesktopInspectorModel }) {
   const { actualExportSettings, controller, onExportSettingsChange } = model
-  const artboardWidth = model.actualSceneTemplateSettings.sizeSettings.cardWidth
-  const artboardHeight = model.actualSceneTemplateSettings.sizeSettings.cardHeight
-  const activeExportDimensions = resolveActiveExportDimensions({
-    artboardHeight,
-    artboardWidth,
-    exportScale: actualExportSettings.exportScale,
-  })
   const mediaTab = mediaKindToTab(actualExportSettings.mediaKind)
   const isVideoExport = actualExportSettings.mediaKind === "video"
   const canExportVideo = controller?.canExportVideo ?? false
   const canDownload = controller?.canExportDownload ?? true
   const exportInProgress = controller?.exportInProgress ?? false
   const selectedPhotoFormat = extensionToPhotoFormat(actualExportSettings.extension)
-  const resolutionLabel = `${formatExportScaleLabel(actualExportSettings.exportScale)} · ${formatExportPixelDimensions(activeExportDimensions.width, activeExportDimensions.height)}`
+  const photoSizeLabel = longEdgeToSizeLabel(actualExportSettings.photoLongEdge)
 
-  const durationLabel = actualExportSettings.videoDurationSeconds === 10 ? "10 sec" : "5 sec"
   const fpsLabel = actualExportSettings.videoFrameRate === 60 ? "60 fps" : "30 fps"
   const videoFormatLabel = actualExportSettings.videoFormat === "webm" ? "WebM" : "MP4"
-  const videoSizeLabel = actualExportSettings.videoLongEdge === 2160 ? "2160p" : "1080p"
+  const videoSizeLabel = longEdgeToSizeLabel(actualExportSettings.videoLongEdge)
 
   return (
     <div className={SECTION_STACK} data-slot="desktop-export-settings-panel">
@@ -100,16 +100,14 @@ export function DesktopExportSettingsPanel({ model }: { model: DesktopInspectorM
                 })
               }
             />
-            <DesktopInspectorElasticSliderRow
-              label="Resolution"
-              max={4}
-              min={1}
-              step={1}
-              value={actualExportSettings.exportScale}
-              valueLabel={resolutionLabel}
-              onChange={(value) =>
+            <SegmentTabs
+              items={[...SIZE_OPTIONS]}
+              value={photoSizeLabel}
+              variant="muted"
+              onChange={(label) =>
                 onExportSettingsChange({
-                  exportScale: clampExportScale(value) as DesktopExportScale,
+                  photoLongEdge:
+                    SIZE_LABEL_TO_LONG_EDGE[label as (typeof SIZE_OPTIONS)[number]],
                 })
               }
             />
@@ -126,13 +124,16 @@ export function DesktopExportSettingsPanel({ model }: { model: DesktopInspectorM
                 })
               }
             />
-            <SegmentTabs
-              items={[...VIDEO_DURATION_OPTIONS]}
-              value={durationLabel}
-              variant="muted"
-              onChange={(label) =>
+            <DesktopInspectorElasticSliderRow
+              label="Duration"
+              max={VIDEO_EXPORT_MAX_DURATION_SECONDS}
+              min={VIDEO_EXPORT_MIN_DURATION_SECONDS}
+              step={1}
+              value={actualExportSettings.videoDurationSeconds}
+              valueLabel={`${actualExportSettings.videoDurationSeconds} sec`}
+              onChange={(value) =>
                 onExportSettingsChange({
-                  videoDurationSeconds: label.startsWith("10") ? 10 : 5,
+                  videoDurationSeconds: clampVideoExportDuration(value),
                 })
               }
             />
@@ -147,12 +148,12 @@ export function DesktopExportSettingsPanel({ model }: { model: DesktopInspectorM
               }
             />
             <SegmentTabs
-              items={[...VIDEO_SIZE_OPTIONS]}
+              items={[...SIZE_OPTIONS]}
               value={videoSizeLabel}
               variant="muted"
               onChange={(label) =>
                 onExportSettingsChange({
-                  videoLongEdge: label === "2160p" ? 2160 : 1080,
+                  videoLongEdge: SIZE_LABEL_TO_LONG_EDGE[label as (typeof SIZE_OPTIONS)[number]],
                 })
               }
             />

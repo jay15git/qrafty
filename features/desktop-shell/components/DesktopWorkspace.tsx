@@ -1,6 +1,7 @@
 "use client"
 
 import { WorkspaceSurface } from "@/features/workspace/components/WorkspaceSurface"
+import BlurFadeThemeTransition from "@/components/ui/BlurFadeThemeTransition"
 import {
   FloatingToolbar,
   type DesktopThemeMode,
@@ -58,22 +59,24 @@ export function DesktopWorkspace({
       )}
     >
       <DesktopCuelumeProvider>
-        <DesktopWorkspaceEntrance theme={desktopTheme}>
-          <WorkspaceSurface
-            desktopTheme={desktopTheme}
-            fontClassName={fontClassName}
-            initialActiveTool={initialActiveTool}
-            onDesktopThemeChange={setDesktopTheme}
-            paneToolbarVariant="desktop-zoom"
-            renderOverlay={(controller) => (
-              <FloatingToolbar
-                controller={controller}
-                theme={desktopTheme}
-                onThemeChange={setDesktopTheme}
-              />
-            )}
-          />
-        </DesktopWorkspaceEntrance>
+        <BlurFadeThemeTransition theme={desktopTheme} onThemeChange={setDesktopTheme}>
+          <DesktopWorkspaceEntrance theme={desktopTheme}>
+            <WorkspaceSurface
+              desktopTheme={desktopTheme}
+              fontClassName={fontClassName}
+              initialActiveTool={initialActiveTool}
+              onDesktopThemeChange={setDesktopTheme}
+              paneToolbarVariant="desktop-zoom"
+              renderOverlay={(controller) => (
+                <FloatingToolbar
+                  controller={controller}
+                  theme={desktopTheme}
+                  onThemeChange={setDesktopTheme}
+                />
+              )}
+            />
+          </DesktopWorkspaceEntrance>
+        </BlurFadeThemeTransition>
       </DesktopCuelumeProvider>
       <DesktopWorkspaceStyles />
     </section>

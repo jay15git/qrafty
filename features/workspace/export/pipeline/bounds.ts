@@ -81,7 +81,7 @@ export function resolveScaledExportDimensions(
 export function resolveVideoOutputDimensions(
   artboardWidth: number,
   artboardHeight: number,
-  longEdge: 1080 | 2160,
+  longEdge: number,
 ) {
   const maxEdge = Math.max(artboardWidth, artboardHeight)
   const scale = longEdge / maxEdge

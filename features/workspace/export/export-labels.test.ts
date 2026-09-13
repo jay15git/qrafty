@@ -8,18 +8,18 @@ import { clampExportScale } from "@/features/workspace/export/export-scale"
 import { resolveScaledExportDimensions } from "@/features/workspace/export/pipeline/bounds"
 
 describe("export labels", () => {
-  it("resolves scaled export dimensions from artboard size", () => {
+  it("resolves export dimensions from the long edge", () => {
     expect(
       resolveActiveExportDimensions({
         artboardHeight: 1920,
         artboardWidth: 1080,
-        exportScale: 2,
+        photoLongEdge: 2160,
       }),
-    ).toEqual({ width: 2160, height: 3840 })
+    ).toEqual({ width: 1216, height: 2160 })
   })
 
   it("formats scaled export summaries", () => {
-    expect(formatScaledExportSummary(2, 1080, 1920)).toBe("2x — 2160 × 3840 px")
+    expect(formatScaledExportSummary(2160, 1080, 1920)).toBe("2160p — 1216 × 2160 px")
   })
 })
 

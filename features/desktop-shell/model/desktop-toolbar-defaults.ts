@@ -378,7 +378,7 @@ export const DEFAULT_DESKTOP_LAYERS_SETTINGS: DesktopLayersSettings = {
 
 export const DEFAULT_DESKTOP_EXPORT_SETTINGS: DesktopExportSettings = {
   extension: "png",
-  exportScale: 2,
+  photoLongEdge: 1080,
   mediaKind: "photo",
   target: "surface",
   videoDurationSeconds: 5,

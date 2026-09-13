@@ -6,6 +6,7 @@ import type {
   QrTypeNumber,
 } from "@/features/qr-code/model/types"
 import type { QraftyCornerDotStyle } from "@/features/qr-code/model/state"
+import type { VideoExportLongEdge } from "@/features/qr-code/export/video-export"
 import type { DesktopCardSizeSettings } from "@/features/desktop-shell/model/card-size-settings"
 import {
   type DraftingCardPaperShaderState,
@@ -238,19 +239,17 @@ export type DesktopLayersSettings = {
 }
 
 export type DesktopExportTarget = "all-qr" | "current" | "surface"
-export type DesktopExportScale = 1 | 2 | 3 | 4
-
 export type DesktopExportMediaKind = "photo" | "video"
 
 export type DesktopExportSettings = {
   extension: QrFileExtension
-  exportScale: DesktopExportScale
+  photoLongEdge: VideoExportLongEdge
   mediaKind: DesktopExportMediaKind
   target: DesktopExportTarget
-  videoDurationSeconds: 5 | 10
+  videoDurationSeconds: number
   videoFormat: "mp4" | "webm"
   videoFrameRate: 30 | 60
-  videoLongEdge: 1080 | 2160
+  videoLongEdge: VideoExportLongEdge
 }
 
 export type DesktopTextSettings = {

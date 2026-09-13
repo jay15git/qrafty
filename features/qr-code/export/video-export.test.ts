@@ -23,12 +23,40 @@ describe("animated video export", () => {
     })
   })
 
+  it("accepts durations across the supported range", () => {
+    for (const durationSeconds of [5, 30, 60]) {
+      expect(
+        validateVideoExportRequest({
+          durationSeconds,
+          frameRate: 30,
+          format: "mp4",
+          longEdge: 1080,
+          width: 1080,
+          height: 1080,
+        }).durationSeconds,
+      ).toBe(durationSeconds)
+    }
+  })
+
   it("rejects unsupported settings", () => {
     expect(() =>
       validateVideoExportRequest({
         durationSeconds: 3,
         frameRate: 24,
         format: "gif",
+        longEdge: 1080,
+        width: 1080,
+        height: 1080,
+      }),
+    ).toThrow("Unsupported video export duration.")
+  })
+
+  it.each([0, 4, 61, 120, 7.5])("rejects out-of-range duration %s", (durationSeconds) => {
+    expect(() =>
+      validateVideoExportRequest({
+        durationSeconds,
+        frameRate: 30,
+        format: "mp4",
         longEdge: 1080,
         width: 1080,
         height: 1080,

@@ -7,6 +7,7 @@ import type {
   QrTypeNumber,
 } from "@/features/qr-code/model/types"
 import type { QraftyCornerDotStyle } from "@/features/qr-code/model/state"
+import type { VideoExportLongEdge } from "@/features/qr-code/export/video-export"
 import {
   createDefaultDraftingCardState,
   type DraftingCardState,
@@ -28,9 +29,7 @@ import { createDefaultSceneComposition } from "@/features/workspace/model/scene-
 import {
   DEFAULT_DRAFTING_PANE_QR_SIZE,
   DEFAULT_DRAFTING_STUDIO_STATE,
-  DEFAULT_EXPORT_SCALE,
   type DraftingDownloadExtension,
-  type ExportScale,
 } from "@/features/workspace/components/workspace-surface.constants"
 import type { DraftingPaneCanvasTool } from "@/features/workspace/components/Canvas"
 import type {
@@ -148,12 +147,12 @@ export type WorkspaceSurfaceState = {
   selectedDownloadExtension: DraftingDownloadExtension
   selectedDownloadTarget: DraftingDownloadTarget
   exportDownloadError: string | null
-  selectedExportScale: ExportScale
+  selectedPhotoLongEdge: VideoExportLongEdge
   selectedExportMediaKind: DesktopExportMediaKind
-  selectedVideoDurationSeconds: 5 | 10
+  selectedVideoDurationSeconds: number
   selectedVideoFormat: "mp4" | "webm"
   selectedVideoFrameRate: 30 | 60
-  selectedVideoLongEdge: 1080 | 2160
+  selectedVideoLongEdge: VideoExportLongEdge
   isDraftingWorkspaceReady: boolean
   draftingHistoryRevision: number
   logoUploadObjectUrl: string | null
@@ -327,7 +326,7 @@ export function createInitialWorkspaceSurfaceState(
     selectedDownloadExtension: "png",
     selectedDownloadTarget: "surface",
     exportDownloadError: null,
-    selectedExportScale: DEFAULT_EXPORT_SCALE,
+    selectedPhotoLongEdge: DEFAULT_DESKTOP_EXPORT_SETTINGS.photoLongEdge,
     selectedExportMediaKind: DEFAULT_DESKTOP_EXPORT_SETTINGS.mediaKind,
     selectedVideoDurationSeconds: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoDurationSeconds,
     selectedVideoFormat: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFormat,
@@ -471,7 +470,7 @@ function createWorkspaceSurfaceSetters(
     setSelectedDownloadExtension: (value) => setField("selectedDownloadExtension", value),
     setSelectedDownloadTarget: (value) => setField("selectedDownloadTarget", value),
     setExportDownloadError: (value) => setField("exportDownloadError", value),
-    setSelectedExportScale: (value) => setField("selectedExportScale", value),
+    setSelectedPhotoLongEdge: (value) => setField("selectedPhotoLongEdge", value),
     setSelectedExportMediaKind: (value) => setField("selectedExportMediaKind", value),
     setSelectedVideoDurationSeconds: (value) => setField("selectedVideoDurationSeconds", value),
     setSelectedVideoFormat: (value) => setField("selectedVideoFormat", value),

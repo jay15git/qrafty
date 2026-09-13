@@ -37,7 +37,6 @@ export type {
   DesktopMotionSettings,
   DesktopPatternSettings,
   DesktopPatternSettingsPatch,
-  DesktopExportScale,
   DesktopSceneTemplateSettings,
   DesktopShapeSettings,
   DesktopTextSettings,

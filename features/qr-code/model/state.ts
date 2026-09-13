@@ -83,7 +83,7 @@ export type QrDotMatrixAnimationOptions = {
   dotShape: QrDotMatrixDotShape;
   enabled: boolean;
   exportAnimatedSvg: boolean;
-  durationSeconds: 5 | 10;
+  durationSeconds: number;
   frameRate: 30 | 60;
   videoFormat: "mp4" | "webm";
   hoverColorMode: QrMotionHoverColorMode;

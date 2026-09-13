@@ -19,6 +19,7 @@ import {
   isProtectedDraftingLayerId,
   type DraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
+import type { ChromeBounds } from "@/features/workspace/components/pane-layer-chrome-overlay"
 import {
   type ResizeDirection,
   type SnapGuides,
@@ -175,7 +176,13 @@ export function ResizeFrameControls({
   )
 }
 
-export function SnapGuideOverlay({ guides }: { guides: SnapGuides }) {
+export function SnapGuideOverlay({
+  clipBounds,
+  guides,
+}: {
+  clipBounds?: ChromeBounds | null
+  guides: SnapGuides
+}) {
   if (guides.horizontal.length === 0 && guides.vertical.length === 0) {
     return null
   }
@@ -185,21 +192,37 @@ export function SnapGuideOverlay({ guides }: { guides: SnapGuides }) {
       {guides.vertical.map((x) => (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 z-[9999] w-px bg-[var(--ws-ink)] opacity-55"
+          className="pointer-events-none absolute z-[9999] w-px bg-[var(--ws-resize-frame)]"
           data-slot="drafting-layer-snap-guide"
           data-axis="vertical"
           key={`v-${x}`}
-          style={{ left: `calc(50% + ${x}px)` }}
+          style={
+            clipBounds
+              ? {
+                  height: `${clipBounds.height}px`,
+                  left: `calc(50% + ${x}px)`,
+                  top: `calc(50% + ${clipBounds.y}px)`,
+                }
+              : { bottom: 0, left: `calc(50% + ${x}px)`, top: 0 }
+          }
         />
       ))}
       {guides.horizontal.map((y) => (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 z-[9999] h-px bg-[var(--ws-ink)] opacity-55"
+          className="pointer-events-none absolute z-[9999] h-px bg-[var(--ws-resize-frame)]"
           data-slot="drafting-layer-snap-guide"
           data-axis="horizontal"
           key={`h-${y}`}
-          style={{ top: `calc(50% + ${y}px)` }}
+          style={
+            clipBounds
+              ? {
+                  left: `calc(50% + ${clipBounds.x}px)`,
+                  top: `calc(50% + ${y}px)`,
+                  width: `${clipBounds.width}px`,
+                }
+              : { left: 0, right: 0, top: `calc(50% + ${y}px)` }
+          }
         />
       ))}
     </>

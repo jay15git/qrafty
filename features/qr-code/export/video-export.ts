@@ -1,9 +1,11 @@
-const VIDEO_EXPORT_DURATIONS = [5, 10] as const
+export const VIDEO_EXPORT_MIN_DURATION_SECONDS = 5
+export const VIDEO_EXPORT_MAX_DURATION_SECONDS = 60
+
 const VIDEO_EXPORT_FRAME_RATES = [30, 60] as const
 const VIDEO_EXPORT_FORMATS = ["mp4", "webm"] as const
-const VIDEO_EXPORT_LONG_EDGES = [1080, 2160] as const
+const VIDEO_EXPORT_LONG_EDGES = [720, 1080, 1440, 2160] as const
 
-export type VideoExportDuration = (typeof VIDEO_EXPORT_DURATIONS)[number]
+export type VideoExportDuration = number
 export type VideoExportFrameRate = (typeof VIDEO_EXPORT_FRAME_RATES)[number]
 export type VideoExportFormat = (typeof VIDEO_EXPORT_FORMATS)[number]
 export type VideoExportLongEdge = (typeof VIDEO_EXPORT_LONG_EDGES)[number]
@@ -28,7 +30,12 @@ export function validateVideoExportRequest(value: unknown): VideoExportRequest {
   const width = input.width
   const height = input.height
 
-  if (!VIDEO_EXPORT_DURATIONS.includes(durationSeconds as VideoExportDuration)) {
+  if (
+    typeof durationSeconds !== "number" ||
+    !Number.isInteger(durationSeconds) ||
+    durationSeconds < VIDEO_EXPORT_MIN_DURATION_SECONDS ||
+    durationSeconds > VIDEO_EXPORT_MAX_DURATION_SECONDS
+  ) {
     throw new Error("Unsupported video export duration.")
   }
   if (!VIDEO_EXPORT_FRAME_RATES.includes(frameRate as VideoExportFrameRate)) {
@@ -59,6 +66,13 @@ export function validateVideoExportRequest(value: unknown): VideoExportRequest {
     width,
     height,
   } as VideoExportRequest
+}
+
+export function clampVideoExportDuration(value: number): VideoExportDuration {
+  return Math.min(
+    Math.max(Math.round(value), VIDEO_EXPORT_MIN_DURATION_SECONDS),
+    VIDEO_EXPORT_MAX_DURATION_SECONDS,
+  )
 }
 
 export function getVideoExportMimeType(format: VideoExportFormat) {

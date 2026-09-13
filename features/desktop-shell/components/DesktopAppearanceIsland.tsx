@@ -29,6 +29,7 @@ import type { DesktopThemeMode } from "@/features/desktop-shell/components/Float
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { getDesktopLayerToolbarCapabilities } from "@/features/desktop-shell/model/layer-toolbar-capabilities"
 import { TooltipNavbar, type TooltipItem } from "@/components/ui/tooltip-navbar"
+import { useOptionalBlurFadeThemeTransition } from "@/components/ui/BlurFadeThemeTransition"
 import { useDesktopCuelume } from "@/features/desktop-shell/hooks/use-desktop-cuelume"
 import { LAYER_FILTER_EFFECT_KINDS } from "@/features/workspace/model/layer-effects"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
@@ -142,6 +143,7 @@ export function DesktopDynamicIslandChrome({
     effectsLayer && effectsPatch && propertyCapabilities.maxEffects > 0,
   )
   const { soundsEnabled, toggleSoundsEnabled } = useDesktopCuelume()
+  const themeTransition = useOptionalBlurFadeThemeTransition()
 
   const items = useMemo(() => {
     const nextItems: TooltipItem[] = [
@@ -323,7 +325,13 @@ export function DesktopDynamicIslandChrome({
             <SunIcon className={ICON_CLASS} />
           ),
         label: `Switch to ${theme === "light" ? "dark" : "light"} mode`,
-        onClick: () => onThemeChange(theme === "light" ? "dark" : "light"),
+        onClick: () => {
+          if (themeTransition) {
+            themeTransition.triggerTransition()
+          } else {
+            onThemeChange(theme === "light" ? "dark" : "light")
+          }
+        },
       })
     }
 
@@ -350,6 +358,7 @@ export function DesktopDynamicIslandChrome({
     sizePresetId,
     soundsEnabled,
     theme,
+    themeTransition,
     toggleSoundsEnabled,
   ])
 

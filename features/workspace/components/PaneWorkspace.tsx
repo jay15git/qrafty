@@ -488,6 +488,10 @@ export function PaneWorkspace({
       (x) => documentToChromeOffset(x, 0, chromeSpace).x,
     ),
   }
+  const snapGuideClipLayer = visibleLayers.find((layer) => layer.kind === "card") ?? null
+  const snapGuideClipBounds = snapGuideClipLayer
+    ? getChromeFrameRect(snapGuideClipLayer, 0, chromeSpace)
+    : null
 
   useLayoutEffect(() => {
     const toolbar = toolbarRef.current
@@ -1501,7 +1505,7 @@ export function PaneWorkspace({
   function renderContentChrome() {
     return (
       <>
-        <SnapGuideOverlay guides={chromeSnapGuides} />
+        <SnapGuideOverlay clipBounds={snapGuideClipBounds} guides={chromeSnapGuides} />
         {renderMarquee()}
         {activeSelectedLayerIds.length > 0
           ? contentLayers.map((layer) => renderLayerControls(layer))

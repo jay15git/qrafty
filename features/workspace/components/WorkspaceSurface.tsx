@@ -77,7 +77,7 @@ import {
   runWorkspaceBatchExport,
   runWorkspaceExport,
 } from "@/features/workspace/export/pipeline"
-import { resolveScaledExportDimensions } from "@/features/workspace/export/pipeline/bounds"
+import { resolveVideoOutputDimensions } from "@/features/workspace/export/pipeline/bounds"
 import { sceneHasVideoExportContent } from "@/features/workspace/export/pipeline/clock"
 import {
   buildDraftingWorkspaceDocumentFromState,
@@ -99,7 +99,6 @@ import {
   DEFAULT_DRAFTING_PANE_QR_SIZE,
   DEFAULT_DRAFTING_STUDIO_STATE,
   DEFAULT_DOWNLOAD_NAME,
-  DEFAULT_EXPORT_SCALE,
   DRAFTING_LAYER_PASTE_OFFSET,
   replaceTrackedObjectUrl,
   type DraftingDownloadExtension,
@@ -339,7 +338,7 @@ export function WorkspaceSurface({
       selectedDownloadExtension,
       selectedDownloadTarget,
       exportDownloadError,
-      selectedExportScale,
+      selectedPhotoLongEdge,
       selectedExportMediaKind,
       selectedVideoDurationSeconds,
       selectedVideoFormat,
@@ -434,7 +433,7 @@ export function WorkspaceSurface({
       setSelectedDownloadExtension,
       setSelectedDownloadTarget,
       setExportDownloadError,
-      setSelectedExportScale,
+      setSelectedPhotoLongEdge,
       setSelectedExportMediaKind,
       setSelectedVideoDurationSeconds,
       setSelectedVideoFormat,
@@ -712,7 +711,7 @@ export function WorkspaceSurface({
   }
   const canDownload = selectedContentValidation.isValid && Boolean(draftingQraftyState.data.trim())
   const isDraftingRasterExport = isRasterExportExtension(selectedDownloadExtension)
-  const selectedRasterExportScale = isDraftingRasterExport ? selectedExportScale : undefined
+  const selectedRasterPhotoLongEdge = isDraftingRasterExport ? selectedPhotoLongEdge : undefined
   const activeSceneComposition = normalizeSceneComposition(
     sceneCompositionByNodeId[activeQrNodeId] ?? createDefaultSceneComposition(),
   )
@@ -1494,7 +1493,7 @@ export function WorkspaceSurface({
 
     setSelectedDownloadExtension("png")
     setSelectedDownloadTarget("surface")
-    setSelectedExportScale(DEFAULT_EXPORT_SCALE)
+    setSelectedPhotoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.photoLongEdge)
     setSelectedBackgroundTransparent(false)
     setSelectedBackgroundShapeId(nextState.backgroundShapeId)
   }
@@ -2636,11 +2635,11 @@ export function WorkspaceSurface({
   }
 
   function resolveWorkspaceExportTargetDimensions(cardLayer: DraftingCanvasLayer) {
-    if (selectedRasterExportScale) {
-      return resolveScaledExportDimensions(
+    if (selectedRasterPhotoLongEdge) {
+      return resolveVideoOutputDimensions(
         cardLayer.width,
         cardLayer.height,
-        selectedRasterExportScale,
+        selectedRasterPhotoLongEdge,
       )
     }
 
@@ -3033,7 +3032,7 @@ export function WorkspaceSurface({
       selectedQrFinderPatternInnerStyle,
       selectedQrFinderPatternOuterStyle,
       selectedQrTypeNumber,
-      selectedExportScale,
+      selectedPhotoLongEdge,
       selectedTextLayer,
       selectedValueSegmentsText,
     }),
@@ -3538,7 +3537,7 @@ export function WorkspaceSurface({
 
   function updateDesktopExportSettings(patch: Partial<DesktopExportSettings>) {
     if (patch.extension) setSelectedDownloadExtension(patch.extension as DraftingDownloadExtension)
-    if (patch.exportScale) setSelectedExportScale(patch.exportScale)
+    if (patch.photoLongEdge) setSelectedPhotoLongEdge(patch.photoLongEdge)
     if (patch.target) setSelectedDownloadTarget(getDraftingDownloadTarget(patch.target))
     if (patch.mediaKind) setSelectedExportMediaKind(patch.mediaKind)
     if (patch.videoDurationSeconds) setSelectedVideoDurationSeconds(patch.videoDurationSeconds)
@@ -3750,7 +3749,7 @@ export function WorkspaceSurface({
       setExportDownloadError(null)
       setSelectedDownloadExtension("png")
       setSelectedDownloadTarget("surface")
-      setSelectedExportScale(DEFAULT_EXPORT_SCALE)
+      setSelectedPhotoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.photoLongEdge)
       setSelectedExportMediaKind(DEFAULT_DESKTOP_EXPORT_SETTINGS.mediaKind)
       setSelectedVideoDurationSeconds(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoDurationSeconds)
       setSelectedVideoFormat(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFormat)

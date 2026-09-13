@@ -1,5 +1,4 @@
-import type { ExportScale } from "@/features/workspace/export/export-scale"
-import { resolveScaledExportDimensions } from "@/features/workspace/export/pipeline/bounds"
+import { resolveVideoOutputDimensions } from "@/features/workspace/export/pipeline/bounds"
 
 export function formatExportPixelDimensions(width: number, height: number) {
   return `${width} × ${height} px`
@@ -8,25 +7,25 @@ export function formatExportPixelDimensions(width: number, height: number) {
 export function resolveActiveExportDimensions({
   artboardHeight,
   artboardWidth,
-  exportScale,
+  photoLongEdge,
 }: {
   artboardHeight: number
   artboardWidth: number
-  exportScale: ExportScale
+  photoLongEdge: number
 }) {
-  return resolveScaledExportDimensions(artboardWidth, artboardHeight, exportScale)
+  return resolveVideoOutputDimensions(artboardWidth, artboardHeight, photoLongEdge)
 }
 
 export function formatScaledExportSummary(
-  exportScale: ExportScale,
+  photoLongEdge: number,
   artboardWidth: number,
   artboardHeight: number,
 ) {
   const dimensions = resolveActiveExportDimensions({
     artboardHeight,
     artboardWidth,
-    exportScale,
+    photoLongEdge,
   })
 
-  return `${exportScale}x — ${formatExportPixelDimensions(dimensions.width, dimensions.height)}`
+  return `${photoLongEdge}p — ${formatExportPixelDimensions(dimensions.width, dimensions.height)}`
 }

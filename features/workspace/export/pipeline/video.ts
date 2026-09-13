@@ -24,13 +24,14 @@ import type {
   VideoExportDuration,
   VideoExportFormat,
   VideoExportFrameRate,
+  VideoExportLongEdge,
 } from "@/features/qr-code/export/video-export"
 
 export type WorkspaceVideoExportRequest = {
   durationSeconds: VideoExportDuration
   format: VideoExportFormat
   frameRate: VideoExportFrameRate
-  longEdge: 1080 | 2160
+  longEdge: VideoExportLongEdge
 }
 
 export type WorkspaceVideoExportProgress = {

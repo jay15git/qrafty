@@ -119,7 +119,7 @@ export type BuildDesktopToolbarSettingsSnapshotsInput = {
   selectedQrFinderPatternInnerStyle: QraftyState["cornerDotStyle"]
   selectedQrFinderPatternOuterStyle: QraftyState["cornerSquareStyle"]
   selectedQrTypeNumber: QraftyState["qrOptions"]["typeNumber"]
-  selectedExportScale: ExportScale
+  selectedPhotoLongEdge: DesktopExportSettings["photoLongEdge"]
   selectedTextLayer: DraftingCanvasLayer | null
   selectedValueSegmentsText: string
 }
@@ -256,7 +256,7 @@ export function buildDesktopToolbarSettingsSnapshots(
 
   const exportSettings: DesktopExportSettings = {
     extension: input.selectedDownloadExtension as DesktopExportSettings["extension"],
-    exportScale: input.selectedExportScale,
+    photoLongEdge: input.selectedPhotoLongEdge,
     mediaKind: input.selectedExportMediaKind,
     target: getDesktopExportTarget(input.selectedDownloadTarget),
     videoDurationSeconds: input.selectedVideoDurationSeconds,
