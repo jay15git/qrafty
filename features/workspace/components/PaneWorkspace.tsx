@@ -341,10 +341,6 @@ export function PaneWorkspace({
     }
 
     const updateCanvasHeight = () => {
-      if (previewDrawerResize.getIsResizing()) {
-        return
-      }
-
       setCanvasHeight(canvas.getBoundingClientRect().height)
       setCanvasWidth(canvas.getBoundingClientRect().width)
     }

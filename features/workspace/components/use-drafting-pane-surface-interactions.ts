@@ -147,10 +147,6 @@ export function useDraftingPaneSurfaceInteractions({
     }
 
     const updateFitScale = () => {
-      if (previewDrawerResize.getIsResizing()) {
-        return
-      }
-
       const isMobileViewport =
         typeof window !== "undefined" &&
         window.matchMedia(DESKTOP_WORKSPACE_MOBILE_QUERY).matches

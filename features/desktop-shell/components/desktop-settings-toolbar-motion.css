@@ -1,4 +1,6 @@
 :root {
+  --resize-dur: 270ms;
+  --resize-ease: cubic-bezier(0.25, 1, 0.5, 1);
   --desktop-settings-toolbar-chrome-gap: 0.75rem;
   --desktop-settings-toolbar-width: 0px;
   --desktop-settings-toolbar-corner-radius: 0px;
@@ -135,8 +137,13 @@
     will-change: padding;
   }
 
+  [data-slot="mobile-layer-toolbar"] {
+    transition: bottom var(--resize-dur) var(--resize-ease);
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    [data-slot="desktop-workspace"] [data-slot="drafting-workspace"][data-desktop-canvas-frame="true"] [data-slot="drafting-workspace-inset"] {
+    [data-slot="desktop-workspace"] [data-slot="drafting-workspace"][data-desktop-canvas-frame="true"] [data-slot="drafting-workspace-inset"],
+    [data-slot="mobile-layer-toolbar"] {
       transition: none !important;
     }
   }
