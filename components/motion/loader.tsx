@@ -43,6 +43,10 @@ export interface LoaderProps {
   speed?: number;
   /** Accessible label announced to screen readers. */
   label?: string;
+  /** 0–100 value for the `percent` variant. Omit for the self-animating demo loop. */
+  progress?: number;
+  /** Stretch the `percent` variant's track to its container instead of `size * 1.4`. */
+  fullWidth?: boolean;
   className?: string;
 }
 
@@ -57,6 +61,8 @@ export function Loader({
   size = 32,
   speed = 1,
   label = "Loading",
+  progress,
+  fullWidth = false,
   className,
 }: LoaderProps) {
   const reduce = useReducedMotion() ?? false;
@@ -91,7 +97,13 @@ export function Loader({
       {variant === "newton" && <Newton size={size} speed={speed} reduce={reduce} />}
       {variant === "helix" && <Helix size={size} speed={speed} reduce={reduce} />}
       {variant === "percent" && (
-        <Percent size={size} speed={speed} reduce={reduce} />
+        <Percent
+          size={size}
+          speed={speed}
+          reduce={reduce}
+          progress={progress}
+          fullWidth={fullWidth}
+        />
       )}
       <span className="sr-only">{label}</span>
     </span>
@@ -478,9 +490,17 @@ function Helix({ size, speed, reduce }: PartProps) {
   );
 }
 
-function Percent({ size, speed, reduce }: PartProps) {
+function Percent({
+  size,
+  speed,
+  reduce,
+  progress,
+  fullWidth,
+}: PartProps & { progress?: number; fullWidth?: boolean }) {
   const [p, setP] = useState(0);
+  const controlled = progress !== undefined;
   useEffect(() => {
+    if (controlled) return;
     const dur = (reduce ? speed * 2 : speed) * 1000;
     const start = { t: 0 };
     const tickMs = 40;
@@ -491,26 +511,30 @@ function Percent({ size, speed, reduce }: PartProps) {
       if (next >= 100) start.t = 0;
     }, tickMs);
     return () => clearInterval(id);
-  }, [speed, reduce]);
+  }, [speed, reduce, controlled]);
+
+  const shown = controlled
+    ? Math.min(100, Math.max(0, Math.round(progress)))
+    : p;
 
   return (
     <span
-      className="flex flex-col items-center"
-      style={{ gap: size * 0.14, width: size * 1.4 }}
+      className={cn("flex flex-col items-center", fullWidth && "w-full")}
+      style={{ gap: size * 0.14, width: fullWidth ? "100%" : size * 1.4 }}
     >
       <span
         className="font-mono font-medium tabular-nums"
         style={{ fontSize: size * 0.42, lineHeight: 1 }}
       >
-        {p}%
+        {shown}%
       </span>
       <span
         className="w-full overflow-hidden rounded-full bg-current/15"
         style={{ height: Math.max(3, size * 0.1) }}
       >
         <span
-          className="block h-full rounded-full bg-current"
-          style={{ width: `${p}%` }}
+          className="block h-full rounded-full bg-current transition-[width] duration-300 ease-out"
+          style={{ width: `${shown}%` }}
         />
       </span>
     </span>

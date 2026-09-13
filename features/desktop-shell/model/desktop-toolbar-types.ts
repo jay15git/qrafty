@@ -368,6 +368,7 @@ export type DesktopToolbarController = {
   canExportVideo?: boolean
   exportInProgress?: boolean
   exportProgressLabel?: string | null
+  exportProgressRatio?: number | null
   onExportCancel?: () => void
   onTextReset: () => void
   onTextSettingsChange: (patch: Partial<DesktopTextSettings>) => void

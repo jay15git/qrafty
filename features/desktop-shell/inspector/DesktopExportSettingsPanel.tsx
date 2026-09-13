@@ -1,5 +1,9 @@
 "use client"
 
+import { AnimatePresence, m } from "motion/react"
+
+import { Loader } from "@/components/motion/loader"
+import { EASE_OUT } from "@/lib/ease"
 import { DesktopInspectorElasticSliderRow } from "@/features/desktop-shell/components/DesktopInspectorShell"
 import {
   SegmentTabs,
@@ -164,7 +168,41 @@ export function DesktopExportSettingsPanel({ model }: { model: DesktopInspectorM
         disabled={!canDownload || exportInProgress || (isVideoExport && !canExportVideo)}
         onClick={() => controller?.onExportDownload?.()}
       >
-        {exportInProgress ? "Exporting..." : "Download"}
+        <AnimatePresence initial={false} mode="wait">
+          {exportInProgress ? (
+            <m.span
+              key="export-progress"
+              animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+              className="flex w-full items-center justify-center"
+              exit={{ opacity: 0, filter: "blur(4px)", y: -4 }}
+              initial={{ opacity: 0, filter: "blur(4px)", y: 4 }}
+              transition={{ duration: 0.18, ease: EASE_OUT }}
+            >
+              <Loader
+                className="w-full text-current"
+                fullWidth
+                label={controller?.exportProgressLabel ?? "Exporting"}
+                progress={
+                  controller?.exportProgressRatio != null
+                    ? controller.exportProgressRatio * 100
+                    : undefined
+                }
+                size={30}
+                variant="percent"
+              />
+            </m.span>
+          ) : (
+            <m.span
+              key="download-label"
+              animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+              exit={{ opacity: 0, filter: "blur(4px)", y: -4 }}
+              initial={{ opacity: 0, filter: "blur(4px)", y: 4 }}
+              transition={{ duration: 0.18, ease: EASE_OUT }}
+            >
+              Download
+            </m.span>
+          )}
+        </AnimatePresence>
       </SettingsPrimaryButton>
       {exportInProgress ? (
         <button
@@ -174,9 +212,6 @@ export function DesktopExportSettingsPanel({ model }: { model: DesktopInspectorM
         >
           Cancel export
         </button>
-      ) : null}
-      {controller?.exportProgressLabel ? (
-        <p className="dn-type-meta text-center">{controller.exportProgressLabel}</p>
       ) : null}
       {controller?.exportDownloadError ? (
         <p className="dn-type-meta text-center text-red-500">{controller.exportDownloadError}</p>

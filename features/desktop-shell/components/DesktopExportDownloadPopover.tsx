@@ -37,7 +37,7 @@ export function DesktopExportDownloadPopover({
       <PopoverContent
         align="end"
         data-slot="desktop-export-popover"
-        side="left"
+        side="bottom"
         sideOffset={12}
         className="z-[20000] flex max-h-[min(28rem,calc(100dvh-8rem))] w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[16px] border border-[var(--desktop-appearance-popover-border)] bg-[var(--desktop-appearance-popover-bg)] p-0 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-appearance-popover-shadow)]"
       >

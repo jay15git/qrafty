@@ -448,6 +448,7 @@ export function WorkspaceSurface({
   ] = useWorkspaceSurfaceReducer(initialActiveTool)
   const [exportInProgress, setExportInProgress] = useState(false)
   const [exportProgressLabel, setExportProgressLabel] = useState<string | null>(null)
+  const [exportProgressRatio, setExportProgressRatio] = useState<number | null>(null)
   const exportAbortControllerRef = useRef<AbortController | null>(null)
   const openDotsColorItemsRef = useLazyRef(() => new Set<DotsColorMode>(["solid"]))
   const openCornerSquareColorItemsRef = useLazyRef(
@@ -2659,6 +2660,7 @@ export function WorkspaceSurface({
       setExportDownloadError(null)
       setExportInProgress(true)
       setExportProgressLabel("Preparing export...")
+      setExportProgressRatio(0.05)
       playDesktopSound("loading")
 
       const exportLayers =
@@ -2684,12 +2686,16 @@ export function WorkspaceSurface({
           setExportProgressLabel(
             `Encoding video ${progress.frameIndex}/${progress.frameCount}...`,
           )
+          setExportProgressRatio(
+            progress.frameCount > 0 ? progress.frameIndex / progress.frameCount : null,
+          )
           return
         }
 
         setExportProgressLabel(
           progress.stage === "building" ? "Building export..." : "Encoding image...",
         )
+        setExportProgressRatio(progress.stage === "building" ? 0.45 : 0.85)
       }
 
       if (selectedDownloadTarget === "all-qr") {
@@ -2807,6 +2813,7 @@ export function WorkspaceSurface({
     } finally {
       setExportInProgress(false)
       setExportProgressLabel(null)
+      setExportProgressRatio(null)
       exportAbortControllerRef.current = null
     }
   }
@@ -3737,6 +3744,7 @@ export function WorkspaceSurface({
     canExportVideo,
     exportInProgress,
     exportProgressLabel,
+    exportProgressRatio,
     exportDownloadError,
     onExportReset: () => {
       setExportDownloadError(null)
@@ -3811,6 +3819,7 @@ export function WorkspaceSurface({
     exportDownloadError,
     exportInProgress,
     exportProgressLabel,
+    exportProgressRatio,
     paneToolbarVariant,
     propertiesTransformLayer,
     qrCanvasLayers.length,
