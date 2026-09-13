@@ -62,16 +62,16 @@ function measureScrollEdges(
     next.bottom = overflowing && scrollTop + clientHeight < scrollHeight - 1;
   }
   if (axis !== "vertical") {
-    const { scrollLeft, clientWidth } = element;
+    const { scrollLeft, scrollWidth, clientWidth } = element;
     const contentWidth = getHorizontalContentWidth(element);
     const layoutUnstable = !isHorizontalLayoutStable(element);
 
-    const overflowing = contentWidth - clientWidth > 1;
+    const overflowing = scrollWidth - clientWidth > 1;
 
     if (!layoutUnstable) {
       next.left = overflowing && scrollLeft > 1;
-      next.right = overflowing && scrollLeft + clientWidth < contentWidth - 1;
-    } else if (scrollLeft <= 1 && overflowing) {
+      next.right = overflowing && scrollLeft + clientWidth < scrollWidth - 1;
+    } else if (scrollLeft <= 1 && overflowing && contentWidth - clientWidth > 1) {
       // Radix/table-wrap inflation during accordion open: token width is
       // trustworthy at scroll origin, so show the trailing fade immediately.
       next.right = true;

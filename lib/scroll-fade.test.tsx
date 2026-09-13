@@ -220,4 +220,42 @@ describe("useScrollEdges", () => {
 
     host.remove()
   })
+
+  it.each([
+    { scrollWidth: 730, clientWidth: 248, scrollLeft: 0, left: false, right: true },
+    { scrollWidth: 730, clientWidth: 248, scrollLeft: 200, left: true, right: true },
+    { scrollWidth: 730, clientWidth: 248, scrollLeft: 482, left: true, right: false },
+    { scrollWidth: 730, clientWidth: 248, scrollLeft: 481.5, left: true, right: false },
+    { scrollWidth: 730, clientWidth: 248, scrollLeft: 492, left: true, right: false },
+    { scrollWidth: 730, clientWidth: 248, scrollLeft: -10, left: false, right: true },
+    { scrollWidth: 780, clientWidth: 780, scrollLeft: 0, left: false, right: false },
+  ])("uses native horizontal bounds at $scrollLeft with viewport width $clientWidth", ({ scrollWidth, clientWidth, scrollLeft, left, right }) => {
+    const viewport = document.createElement("div")
+    const host = document.createElement("div")
+    host.className = "desktopnew-root"
+    host.style.setProperty("--dn-preview-tile", "56px")
+    host.style.setProperty("--dn-space-inline", "6px")
+    const inner = document.createElement("div")
+    const row = document.createElement("div")
+    row.className = "dn-preview-row"
+    row.style.padding = "6px 4px"
+    for (let index = 0; index < 13; index += 1) {
+      const tile = document.createElement("button")
+      tile.style.marginInline = "-3px"
+      row.appendChild(tile)
+    }
+    inner.appendChild(row)
+    viewport.appendChild(inner)
+    host.appendChild(viewport)
+    document.body.appendChild(host)
+    mockScrollBox(viewport, { scrollWidth, clientWidth, scrollLeft: 0 })
+    const { container } = renderWithJsdomRoot(createElement(EdgesProbe, { element: viewport }))
+    act(() => {
+      mockScrollBox(viewport, { scrollWidth, clientWidth, scrollLeft })
+      viewport.dispatchEvent(new Event("scroll"))
+    })
+    expect(container.querySelector("[data-left]")?.getAttribute("data-left")).toBe(String(left))
+    expect(container.querySelector("[data-right]")?.getAttribute("data-right")).toBe(String(right))
+    host.remove()
+  })
 })
