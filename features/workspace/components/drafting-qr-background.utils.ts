@@ -57,41 +57,32 @@ export function getDraftingQrBackgroundSvgMarkup(
   const defs = getDraftingQrBackgroundDefsMarkup(ids, state)
   const fill = getDraftingQrBackgroundFill(state, ids)
   const stroke = getDraftingQrBackgroundStroke(shapeOptions)
-  const strokeMarkup =
-    stroke.width > 0
-      ? ` stroke="${escapeXml(stroke.color)}" stroke-opacity="${stroke.opacity}" stroke-width="${stroke.width}" stroke-linejoin="round"`
-      : ""
   const shapeName = shape?.id ?? "rect"
+  const geometry = shape
+    ? `<path d="${escapeXml(shape.path)}" transform="${getDraftingQrBackgroundPathTransform(shape, metrics.backingRegion, shapeOptions)}"/>`
+    : `<rect x="${metrics.backingRegion.x}" y="${metrics.backingRegion.y}" width="${metrics.backingRegion.width}" height="${metrics.backingRegion.height}" rx="${(Math.min(metrics.backingRegion.width, metrics.backingRegion.height) / 2) * state.backgroundOptions.round}"/>`
+  const { clipMarkup, contentMarkup } = wrapInnerStrokeMarkup({
+    fillMarkup: ` fill="${escapeXml(fill)}"`,
+    geometryMarkup: geometry,
+    stroke,
+    strokeClipId: ids.strokeClipId,
+    strokeScale: shape
+      ? Math.min(
+          metrics.backingRegion.width / shape.viewBox.width,
+          metrics.backingRegion.height / shape.viewBox.height,
+        )
+      : 1,
+  })
 
-  if (shape) {
-    const transform = getDraftingQrBackgroundPathTransform(
-      shape,
-      metrics.backingRegion,
-      shapeOptions,
-    )
-
-    return `<g data-drafting-qr-background="${escapeXml(shapeName)}"><defs>${defs}</defs><path d="${escapeXml(shape.path)}" fill="${escapeXml(fill)}"${strokeMarkup} transform="${transform}"/></g>`
-  }
-
-  const radius =
-    (Math.min(metrics.backingRegion.width, metrics.backingRegion.height) / 2) *
-    state.backgroundOptions.round
-
-  return `<g data-drafting-qr-background="${escapeXml(shapeName)}"><defs>${defs}</defs><rect x="${metrics.backingRegion.x}" y="${metrics.backingRegion.y}" width="${metrics.backingRegion.width}" height="${metrics.backingRegion.height}" rx="${radius}" fill="${escapeXml(fill)}"${strokeMarkup}/></g>`
+  return `<g data-drafting-qr-background="${escapeXml(shapeName)}"><defs>${defs}${clipMarkup}</defs>${contentMarkup}</g>`
 }
 
-export function getDraftingQrBackgroundBounds(
-  layer: DraftingCanvasLayer,
-  state: QraftyState,
-) {
-  const layout = getDraftingQrLayerLayout(layer.width, state, layer.height)
-  const strokeOutset = Math.ceil(layout.shapeOptions.strokeWidth / 2)
-
+export function getDraftingQrBackgroundBounds(layer: DraftingCanvasLayer) {
   return {
-    maxX: layer.x + layer.width + strokeOutset,
-    maxY: layer.y + layer.height + strokeOutset,
-    minX: layer.x - strokeOutset,
-    minY: layer.y - strokeOutset,
+    maxX: layer.x + layer.width,
+    maxY: layer.y + layer.height,
+    minX: layer.x,
+    minY: layer.y,
   }
 }
 
@@ -126,31 +117,65 @@ function buildDraftingQrBackgroundPreviewSvgMarkup(
   const defs = getDraftingQrBackgroundDefsMarkup(ids, state)
   const fill = getDraftingQrBackgroundFill(state, ids)
   const stroke = getDraftingQrBackgroundStroke(shapeOptions)
-  const strokeMarkup =
-    stroke.width > 0
-      ? ` stroke="${escapeXml(stroke.color)}" stroke-opacity="${stroke.opacity}" stroke-width="${stroke.width}" stroke-linejoin="round"`
-      : ""
   const pathShapeOptions = {
     ...shapeOptions,
     tiltX: 0,
     tiltY: 0,
   }
-  const innerMarkup = shape
-    ? `<path data-shape-view-box="${shape.viewBox.width} ${shape.viewBox.height}" d="${escapeXml(shape.path)}" fill="${escapeXml(fill)}"${strokeMarkup} transform="${getDraftingQrBackgroundPathTransform(shape, metrics.backingRegion, pathShapeOptions)}"/>`
-    : (() => {
-        const radius =
-          (Math.min(metrics.backingRegion.width, metrics.backingRegion.height) / 2) *
-          state.backgroundOptions.round
+  const geometry = shape
+    ? `<path data-shape-view-box="${shape.viewBox.width} ${shape.viewBox.height}" d="${escapeXml(shape.path)}" transform="${getDraftingQrBackgroundPathTransform(shape, metrics.backingRegion, pathShapeOptions)}"/>`
+    : `<rect x="${metrics.backingRegion.x}" y="${metrics.backingRegion.y}" width="${metrics.backingRegion.width}" height="${metrics.backingRegion.height}" rx="${(Math.min(metrics.backingRegion.width, metrics.backingRegion.height) / 2) * state.backgroundOptions.round}"/>`
+  const { clipMarkup, contentMarkup } = wrapInnerStrokeMarkup({
+    fillMarkup: ` fill="${escapeXml(fill)}"`,
+    geometryMarkup: geometry,
+    stroke,
+    strokeClipId: ids.strokeClipId,
+    strokeScale: shape
+      ? Math.min(
+          metrics.backingRegion.width / shape.viewBox.width,
+          metrics.backingRegion.height / shape.viewBox.height,
+        )
+      : 1,
+  })
 
-        return `<rect x="${metrics.backingRegion.x}" y="${metrics.backingRegion.y}" width="${metrics.backingRegion.width}" height="${metrics.backingRegion.height}" rx="${radius}" fill="${escapeXml(fill)}"${strokeMarkup}/>`
-      })()
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${metrics.outerWidth}" height="${metrics.outerHeight}" viewBox="0 0 ${metrics.outerWidth} ${metrics.outerHeight}"><defs>${defs}${clipMarkup}</defs>${contentMarkup}</svg>`
+}
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${metrics.outerWidth}" height="${metrics.outerHeight}" viewBox="0 0 ${metrics.outerWidth} ${metrics.outerHeight}"><defs>${defs}</defs>${innerMarkup}</svg>`
+function wrapInnerStrokeMarkup({
+  fillMarkup,
+  geometryMarkup,
+  stroke,
+  strokeClipId,
+  strokeScale = 1,
+}: {
+  fillMarkup: string
+  geometryMarkup: string
+  stroke: { color: string; opacity: number; width: number }
+  strokeClipId: string
+  strokeScale?: number
+}) {
+  const renderedStrokeWidth =
+    Math.round((stroke.width / Math.max(0.000001, strokeScale)) * 10000) / 10000
+  const strokeAttrs =
+    stroke.width > 0
+      ? ` stroke="${escapeXml(stroke.color)}" stroke-opacity="${stroke.opacity}" stroke-width="${renderedStrokeWidth * 2}" stroke-linejoin="round"`
+      : ""
+  const paintedMarkup = geometryMarkup.replace("/>", `${fillMarkup}${strokeAttrs}/>`)
+
+  if (stroke.width <= 0) {
+    return { clipMarkup: "", contentMarkup: paintedMarkup }
+  }
+
+  return {
+    clipMarkup: `<clipPath id="${strokeClipId}">${geometryMarkup}</clipPath>`,
+    contentMarkup: `<g clip-path="url(#${strokeClipId})">${paintedMarkup}</g>`,
+  }
 }
 
 type DraftingQrBackgroundIds = {
   gradientId: string
   imagePatternId: string
+  strokeClipId: string
 }
 
 function getDraftingQrBackgroundIds(layerId: string): DraftingQrBackgroundIds {
@@ -159,6 +184,7 @@ function getDraftingQrBackgroundIds(layerId: string): DraftingQrBackgroundIds {
   return {
     gradientId: `${id}-qr-background-gradient`,
     imagePatternId: `${id}-qr-background-image`,
+    strokeClipId: `${id}-qr-background-stroke-clip`,
   }
 }
 

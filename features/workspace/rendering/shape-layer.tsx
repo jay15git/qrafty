@@ -10,6 +10,7 @@ import {
   scaleCornerRadiiToBounds,
 } from "@/features/workspace/model/corner-radius"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
+import { getShapeStrokeViewBoxScale } from "@/features/workspace/rendering/shape-layer-paths"
 import { IllustrationLayerImage } from "@/features/workspace/components/IllustrationColorControls"
 import { isDraftingIllustrationLayer } from "@/features/workspace/model/layer-floating-settings"
 import { getStrokeDasharray } from "@/features/workspace/rendering/layer-appearance"
@@ -18,6 +19,10 @@ import {
   ShapeFillGradientDefs,
   shouldRenderShapeFillGradient,
 } from "@/features/workspace/rendering/shape-fill"
+
+function getInnerStrokeClipId(layerId: string) {
+  return `${layerId}-inner-stroke-clip`
+}
 
 function getShapeDefinition(shapeId: NonNullable<DraftingCanvasLayer["shapeId"]>) {
   if (shapeId === "rect" || shapeId === "ellipse" || shapeId === "line" || shapeId === "arrow") {
@@ -65,6 +70,7 @@ function renderPrimitiveShape(
 ) {
   const stroke = layer.stroke ?? "#171717"
   const strokeWidth = layer.strokeWidth ?? 0
+  const strokeWidthVb = strokeWidth * getShapeStrokeViewBoxScale(layer, 100, 100)
   const strokeOpacity = (layer.strokeOpacity ?? 100) / 100
   const fill = resolveShapeSvgFill(layer)
   const strokeDasharray = getStrokeDasharray(layer.strokeStyle)
@@ -78,7 +84,7 @@ function renderPrimitiveShape(
           strokeDasharray={strokeDasharray}
           strokeLinecap="round"
           strokeOpacity={strokeOpacity}
-          strokeWidth={Math.max(1, strokeWidth || 4)}
+          strokeWidth={Math.max(1, strokeWidthVb || 4)}
           x1="8"
           x2="92"
           y1="50"
@@ -100,7 +106,7 @@ function renderPrimitiveShape(
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeOpacity={strokeOpacity}
-          strokeWidth={Math.max(1, strokeWidth || 4)}
+          strokeWidth={Math.max(1, strokeWidthVb || 4)}
         />
       </svg>
     )
@@ -109,17 +115,25 @@ function renderPrimitiveShape(
   if (shapeId === "ellipse") {
     return (
       <svg aria-hidden="true" className="h-full w-full" viewBox="0 0 100 100">
-        <defs>{renderShapeGradientDefs(layer)}</defs>
+        <defs>
+          {renderShapeGradientDefs(layer)}
+          {strokeWidthVb > 0 ? (
+            <clipPath id={getInnerStrokeClipId(layer.id)}>
+              <ellipse cx="50" cy="50" rx="42" ry="42" />
+            </clipPath>
+          ) : null}
+        </defs>
         <ellipse
           cx="50"
           cy="50"
+          clipPath={strokeWidthVb > 0 ? `url(#${getInnerStrokeClipId(layer.id)})` : undefined}
           fill={fill}
           rx="42"
           ry="42"
           stroke={stroke}
           strokeDasharray={strokeDasharray}
           strokeOpacity={strokeOpacity}
-          strokeWidth={strokeWidth}
+          strokeWidth={strokeWidthVb * 2}
         />
       </svg>
     )
@@ -137,14 +151,22 @@ function renderPrimitiveShape(
 
     return (
       <svg aria-hidden="true" className="h-full w-full" viewBox="0 0 100 100">
-        <defs>{renderShapeGradientDefs(layer)}</defs>
+        <defs>
+          {renderShapeGradientDefs(layer)}
+          {strokeWidthVb > 0 ? (
+            <clipPath id={getInnerStrokeClipId(layer.id)}>
+              <path d={path} />
+            </clipPath>
+          ) : null}
+        </defs>
         <path
+          clipPath={strokeWidthVb > 0 ? `url(#${getInnerStrokeClipId(layer.id)})` : undefined}
           d={path}
           fill={fill}
           stroke={stroke}
           strokeDasharray={strokeDasharray}
           strokeOpacity={strokeOpacity}
-          strokeWidth={strokeWidth}
+          strokeWidth={strokeWidthVb * 2}
         />
       </svg>
     )
@@ -159,6 +181,11 @@ export function DraftingShapeLayerContent({ layer }: { layer: DraftingCanvasLaye
   const fillStyle = getShapeFillStyle(layer)
 
   if (definition) {
+    const strokeWidth = layer.strokeWidth ?? 0
+    const strokeWidthVb =
+      strokeWidth *
+      getShapeStrokeViewBoxScale(layer, definition.viewBox.width, definition.viewBox.height)
+
     return (
       <div className="relative h-full w-full" style={fillStyle}>
         <svg
@@ -167,14 +194,22 @@ export function DraftingShapeLayerContent({ layer }: { layer: DraftingCanvasLaye
           preserveAspectRatio="none"
           viewBox={`0 0 ${definition.viewBox.width} ${definition.viewBox.height}`}
         >
-          <defs>{renderShapeGradientDefs(layer)}</defs>
+          <defs>
+            {renderShapeGradientDefs(layer)}
+            {strokeWidthVb > 0 ? (
+              <clipPath id={getInnerStrokeClipId(layer.id)}>
+                <path d={definition.path} />
+              </clipPath>
+            ) : null}
+          </defs>
           <path
+            clipPath={strokeWidthVb > 0 ? `url(#${getInnerStrokeClipId(layer.id)})` : undefined}
             d={definition.path}
             fill={getShapePathFill(layer)}
             stroke={layer.stroke ?? "#171717"}
             strokeDasharray={getStrokeDasharray(layer.strokeStyle)}
             strokeOpacity={(layer.strokeOpacity ?? 100) / 100}
-            strokeWidth={layer.strokeWidth ?? 0}
+            strokeWidth={strokeWidthVb * 2}
           />
         </svg>
       </div>

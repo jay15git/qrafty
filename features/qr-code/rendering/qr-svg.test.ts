@@ -457,7 +457,7 @@ describe("dashboard qr svg helpers", () => {
     expect(background?.getAttribute("height")).toBe(String(numCells - state.margin * 2))
   })
 
-  it("reports expanded natural size when background effects grow outside the qr", async () => {
+  it("keeps natural size when the background stroke draws inside the qr bounds", async () => {
     const state = setSquareQrSize(createDefaultQraftyState(), 320)
     state.backgroundShapeId = "circle"
     state.backgroundShapeOptions = {
@@ -476,8 +476,8 @@ describe("dashboard qr svg helpers", () => {
 
     const payload = await buildDashboardQrNodePayload(state)
 
-    expect(payload.naturalWidth).toBeCloseTo(326, 3)
-    expect(payload.naturalHeight).toBeCloseTo(326, 3)
+    expect(payload.naturalWidth).toBeCloseTo(320, 3)
+    expect(payload.naturalHeight).toBeCloseTo(320, 3)
     expect(payload.markup).toContain('data-qr-layer="background-shape"')
   })
 })

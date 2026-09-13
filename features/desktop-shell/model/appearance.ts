@@ -38,6 +38,7 @@ export type DesktopAppearanceSnapshot = {
   opacity: number
   shadow: DraftingCardShadowState
   shadows: DraftingShadowLayerState[]
+  supportsBorder: boolean
   supportsBorderStyle: boolean
   supportsCornerRadius: boolean
 }
@@ -49,10 +50,14 @@ const DEFAULT_APPEARANCE_BORDER: DesktopAppearanceBorderSnapshot = {
   width: 0,
 }
 
-function qrHasVisibleBackgroundShape(options?: {
+function qrHasBorderableBackdrop(options?: {
   qrBackgroundShapeId?: string
+  qrBackgroundSurfaceVisible?: boolean
 }) {
-  return Boolean(options?.qrBackgroundShapeId && options.qrBackgroundShapeId !== "none")
+  return Boolean(
+    (options?.qrBackgroundShapeId && options.qrBackgroundShapeId !== "none") ||
+      options?.qrBackgroundSurfaceVisible,
+  )
 }
 
 function getLayerBorderSnapshot(
@@ -60,10 +65,11 @@ function getLayerBorderSnapshot(
   options?: {
     cardBorder?: DraftingCardBorderState
     qrBackgroundShapeId?: string
+    qrBackgroundSurfaceVisible?: boolean
     qrBackgroundShapeOptions?: BackgroundShapeOptions
   },
 ): DesktopAppearanceBorderSnapshot {
-  if (layer.kind === "qr" && qrHasVisibleBackgroundShape(options) && options?.qrBackgroundShapeOptions) {
+  if (layer.kind === "qr" && qrHasBorderableBackdrop(options) && options?.qrBackgroundShapeOptions) {
     return {
       color: options.qrBackgroundShapeOptions.strokeColor,
       opacity: options.qrBackgroundShapeOptions.strokeOpacity,
@@ -101,13 +107,18 @@ export function getDesktopAppearanceSnapshot(
     cardCornerRadius?: number
     cardCornerRadii?: DraftingCornerRadiiState
     qrBackgroundShapeId?: string
+    qrBackgroundSurfaceVisible?: boolean
     qrBackgroundShapeOptions?: BackgroundShapeOptions
   },
 ): DesktopAppearanceSnapshot {
   const layerFilters = layer.layerFilters ?? []
   const border = getLayerBorderSnapshot(layer, options)
   const shadows = layer.shadows ?? [legacyShadowToShadowLayer(layer.shadow)]
-  const supportsBorderStyle = !(layer.kind === "qr" && qrHasVisibleBackgroundShape(options))
+  const supportsBorderStyle = !(layer.kind === "qr" && qrHasBorderableBackdrop(options))
+  const supportsBorder =
+    layer.kind === "card" ||
+    layer.kind === "shape" ||
+    (layer.kind === "qr" && qrHasBorderableBackdrop(options))
 
   if (layer.kind === "card" && options?.cardCornerRadius !== undefined) {
     const cornerRadii = resolveCornerRadii(options.cardCornerRadii, options.cardCornerRadius)
@@ -120,6 +131,7 @@ export function getDesktopAppearanceSnapshot(
       opacity: layer.opacity,
       shadow: layer.shadow,
       shadows,
+      supportsBorder,
       supportsBorderStyle,
       supportsCornerRadius: true,
     }
@@ -133,6 +145,7 @@ export function getDesktopAppearanceSnapshot(
       opacity: layer.opacity,
       shadow: layer.shadow,
       shadows,
+      supportsBorder,
       supportsBorderStyle,
       supportsCornerRadius: false,
     }
@@ -159,6 +172,7 @@ export function getDesktopAppearanceSnapshot(
     opacity: layer.opacity,
     shadow: layer.shadow,
     shadows,
+    supportsBorder,
     supportsBorderStyle,
     supportsCornerRadius: layerSupportsCornerRadius(layer),
   }
@@ -179,6 +193,7 @@ export function buildDesktopAppearancePatch(
   options?: {
     cardBorder?: unknown
     qrBackgroundShapeId?: string
+    qrBackgroundSurfaceVisible?: boolean
     qrBackgroundShapeOptions?: BackgroundShapeOptions
   },
 ): DesktopAppearancePatchResult {
@@ -199,7 +214,7 @@ export function buildDesktopAppearancePatch(
       layerPatch.strokeOpacity = patch.border.opacity
       layerPatch.strokeStyle = patch.border.style
       layerPatch.borderSides = createUniformPerSideBorder({ width: 0 })
-    } else if (layer.kind === "qr" && qrHasVisibleBackgroundShape(options)) {
+    } else if (layer.kind === "qr" && qrHasBorderableBackdrop(options)) {
       qrBackgroundShapeOptions = {
         strokeColor: patch.border.color,
         strokeOpacity: patch.border.opacity,

@@ -79,7 +79,21 @@ function buildPaneDocumentCardSurfaceStyle(
 ): CSSProperties {
   return {
     ...cardBackgroundSurfaceStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
-    ...getDraftingCardBorderStyle(cardState),
+    borderRadius: cornerRadiiToCss(cardState.cornerRadii),
+  }
+}
+
+function buildPaneDocumentCardBorderOverlayStyle(
+  cardState: DraftingCardState,
+): CSSProperties | undefined {
+  const borderStyle = getDraftingCardBorderStyle(cardState)
+
+  if (!borderStyle || Object.keys(borderStyle).length === 0) {
+    return undefined
+  }
+
+  return {
+    ...borderStyle,
     borderRadius: cornerRadiiToCss(cardState.cornerRadii),
   }
 }
@@ -124,6 +138,10 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
     () => buildPaneDocumentCardSurfaceStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
     [cardState, isImageFilterMode, isImageMode, isPaperShaderMode],
   )
+  const borderOverlayStyle = useMemo(
+    () => buildPaneDocumentCardBorderOverlayStyle(cardState),
+    [cardState],
+  )
 
   if (nested) {
     return (
@@ -152,6 +170,14 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
           shaderDisplayHeight={shaderDisplaySize.displayHeight}
           shaderDisplayWidth={shaderDisplaySize.displayWidth}
         />
+        {borderOverlayStyle ? (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-[3]"
+            data-slot="desktop-compose-card-border"
+            style={borderOverlayStyle}
+          />
+        ) : null}
       </div>
     )
   }
@@ -199,6 +225,14 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
           shaderDisplayHeight={shaderDisplaySize.displayHeight}
           shaderDisplayWidth={shaderDisplaySize.displayWidth}
         />
+        {borderOverlayStyle ? (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-[3]"
+            data-slot="desktop-compose-card-border"
+            style={borderOverlayStyle}
+          />
+        ) : null}
       </DraftingLayerTiltShell>
     </div>
   )

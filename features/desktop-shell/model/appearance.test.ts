@@ -196,7 +196,32 @@ describe("desktop appearance model", () => {
       style: "solid",
       width: 5,
     })
+    expect(snapshot.supportsBorder).toBe(true)
     expect(snapshot.supportsBorderStyle).toBe(false)
+  })
+
+  it("flags border support only for card, shape, and qr backdrop targets", () => {
+    const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const }
+    const textLayer = createDraftingTextLayer(NODE_ID)
+
+    expect(
+      getDesktopAppearanceSnapshot(qrLayer, {
+        qrBackgroundShapeId: "leaf",
+        qrBackgroundShapeOptions: DEFAULT_BACKGROUND_SHAPE_OPTIONS,
+      }).supportsBorder,
+    ).toBe(true)
+    expect(getDesktopAppearanceSnapshot(qrLayer).supportsBorder).toBe(false)
+    expect(
+      getDesktopAppearanceSnapshot(qrLayer, {
+        qrBackgroundShapeId: "none",
+        qrBackgroundShapeOptions: DEFAULT_BACKGROUND_SHAPE_OPTIONS,
+        qrBackgroundSurfaceVisible: true,
+      }).supportsBorder,
+    ).toBe(true)
+    expect(getDesktopAppearanceSnapshot(textLayer).supportsBorder).toBe(false)
+    expect(
+      getDesktopAppearanceSnapshot(createDraftingShapeLayer(NODE_ID)).supportsBorder,
+    ).toBe(true)
   })
 
   it("reads shape stroke fields into the border snapshot", () => {

@@ -15,7 +15,7 @@ import { layoutDraftingText } from "@/features/workspace/rendering/text-layout"
 import { hasDraftingLayerShadow } from "@/features/workspace/rendering/qr-layer-shadow"
 import { scaleNestedSvgMarkup } from "@/features/workspace/rendering/qr-artwork"
 import { getLayerSvgTransform } from "@/features/workspace/rendering/layer-transform"
-import { getShapeSvgPath } from "@/features/workspace/rendering/shape-layer-paths"
+import { getShapeStrokeViewBoxScale, getShapeSvgPath } from "@/features/workspace/rendering/shape-layer-paths"
 import { cssFillToSvgPaint, isConicCssFill, rasterizeConicCssFillToDataUrl } from "@/features/workspace/export/svg-css-fill"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
 import {
@@ -71,7 +71,7 @@ export async function buildLayeredSvgParts({
   const visibleLayers = [...layers]
     .filter((layer) => layer.isVisible)
     .sort((a, b) => a.zIndex - b.zIndex)
-  const resolvedBounds = bounds ?? getDraftingLayerBounds(visibleLayers, state)
+  const resolvedBounds = bounds ?? getDraftingLayerBounds(visibleLayers)
   const clipDefs: string[] = []
   const body = visibleLayers
     .map((layer) =>
@@ -87,7 +87,7 @@ export async function buildLayeredSvgParts({
   return { bounds: resolvedBounds, defs, body }
 }
 
-export function getDraftingLayerBounds(layers: DraftingCanvasLayer[], state: QraftyState) {
+export function getDraftingLayerBounds(layers: DraftingCanvasLayer[]) {
   if (layers.length === 0) {
     return {
       height: 1,
@@ -99,7 +99,7 @@ export function getDraftingLayerBounds(layers: DraftingCanvasLayer[], state: Qra
 
   const visualBounds = layers.map((layer) => {
     if (layer.kind === "qr") {
-      return getDraftingQrBackgroundBounds(layer, state)
+      return getDraftingQrBackgroundBounds(layer)
     }
 
     return {
@@ -195,9 +195,10 @@ function getDraftingCardLayerSvg(
     ? ` filter="url(#${getSvgId(layer.id)}-filter)"`
     : ""
   const strokeWidth = Math.max(0, cardState.border.width)
+  const borderClipId = `${getSvgId(layer.id)}-border-clip`
   const stroke =
     strokeWidth > 0
-      ? ` stroke="${escapeXml(cardState.border.color)}" stroke-opacity="${cardState.border.opacity / 100}" stroke-width="${strokeWidth}"`
+      ? ` stroke="${escapeXml(cardState.border.color)}" stroke-opacity="${cardState.border.opacity / 100}" stroke-width="${strokeWidth * 2}" clip-path="url(#${borderClipId})"`
       : ""
 
   const cardImage =
@@ -209,6 +210,8 @@ function getDraftingCardLayerSvg(
 
   const cardRadii = resolveCornerRadii(cardState.cornerRadii, cardState.cornerRadius)
   const cardPath = buildRoundedRectPath(layer.width, layer.height, cardRadii)
+  const strokeClip =
+    strokeWidth > 0 ? `<clipPath id="${borderClipId}"><path d="${cardPath}"/></clipPath>` : ""
   const fillGradientId = `${getSvgId(layer.id)}-fill-gradient`
   const fillPaint = cssFillToSvgPaint(cardState.fill, fillGradientId)
   if (fillPaint.def && options?.clipDefs) {
@@ -245,7 +248,7 @@ function getDraftingCardLayerSvg(
     ? `<image href="${escapeXml(shaderSnapshot)}" x="0" y="0" width="${layer.width}" height="${layer.height}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})" />`
     : ""
 
-  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><path d="${cardPath}" fill="${escapeXml(fillPaint.fill)}"${stroke}/>${conicMarkup}${cardImage}${shaderMarkup}</g>`
+  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}>${strokeClip}<path d="${cardPath}" fill="${escapeXml(fillPaint.fill)}"${stroke}/>${conicMarkup}${cardImage}${shaderMarkup}</g>`
 }
 
 function getDraftingGroupLayerSvg(
@@ -325,16 +328,37 @@ function getDraftingShapeLayerSvg(layer: DraftingCanvasLayer) {
   const definition = QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId)
   const fill = layer.fillMode === "none" ? "none" : escapeXml(layer.fill ?? "#E8E8E8")
   const strokeWidth = layer.strokeWidth ?? 0
+  const isStrokeOnlyShape = shapeId === "line" || shapeId === "arrow"
+  const strokeClipId = `${getSvgId(layer.id)}-stroke-clip`
+  const viewBoxSize =
+    shapeId === "rect"
+      ? { height: layer.height, width: layer.width }
+      : definition
+        ? definition.viewBox
+        : { height: 100, width: 100 }
+  const strokeWidthVb =
+    strokeWidth *
+    getShapeStrokeViewBoxScale(layer, viewBoxSize.width, viewBoxSize.height)
+  const useInnerStroke = strokeWidthVb > 0 && !isStrokeOnlyShape
   const strokeAttrs =
-    strokeWidth > 0
-      ? ` stroke="${escapeXml(layer.stroke ?? "#171717")}" stroke-width="${strokeWidth}" stroke-opacity="${(layer.strokeOpacity ?? 100) / 100}"`
+    strokeWidthVb > 0
+      ? ` stroke="${escapeXml(layer.stroke ?? "#171717")}" stroke-width="${useInnerStroke ? strokeWidthVb * 2 : strokeWidthVb}" stroke-opacity="${(layer.strokeOpacity ?? 100) / 100}"${useInnerStroke ? ` clip-path="url(#${strokeClipId})"` : ""}`
       : ""
+  const clipGeometry =
+    shapeId === "rect"
+      ? `<path d="${buildRoundedRectPath(layer.width, layer.height, resolveLayerCornerRadii(layer, 0))}"/>`
+      : definition
+        ? `<path d="${definition.path}"/>`
+        : getShapeSvgPath(shapeId)
   const innerMarkup =
     shapeId === "rect"
       ? `<path d="${buildRoundedRectPath(layer.width, layer.height, resolveLayerCornerRadii(layer, 0))}" fill="${fill}"${strokeAttrs}/>`
       : definition
         ? `<path d="${definition.path}" fill="${fill}"${strokeAttrs}/>`
         : getShapeSvgPath(shapeId).replace("/>", ` fill="${fill}"${strokeAttrs}/>`)
+  const strokeClip = useInnerStroke
+    ? `<clipPath id="${strokeClipId}">${clipGeometry}</clipPath>`
+    : ""
   const viewBox =
     shapeId === "rect"
       ? `0 0 ${layer.width} ${layer.height}`
@@ -342,7 +366,7 @@ function getDraftingShapeLayerSvg(layer: DraftingCanvasLayer) {
         ? `0 0 ${definition.viewBox.width} ${definition.viewBox.height}`
         : "0 0 100 100"
 
-  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><svg x="0" y="0" width="${layer.width}" height="${layer.height}" viewBox="${viewBox}" preserveAspectRatio="none">${innerMarkup}</svg></g>`
+  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><svg x="0" y="0" width="${layer.width}" height="${layer.height}" viewBox="${viewBox}" preserveAspectRatio="none">${strokeClip}${innerMarkup}</svg></g>`
 }
 
 function getDraftingQrLayerSvg(

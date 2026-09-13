@@ -189,6 +189,8 @@ import {
   type QraftyGradient,
   setDotMatrixAnimationOptions,
   getAssetValue,
+  hasActiveBackgroundShapeOptions,
+  hasBackgroundImage,
 } from "@/features/qr-code/model/state"
 import { type QrBackgroundShapeId } from "@/features/qr-code/styles/background-shapes"
 import {
@@ -2864,6 +2866,11 @@ export function WorkspaceSurface({
   const fallbackAppearanceLayer =
     activeCanvasLayers.find((layer) => layer.kind === "card") ?? null
   const appearanceTargetLayer = selectedTransformLayer ?? fallbackAppearanceLayer
+  const qrBackgroundSurfaceVisible =
+    !hasBackgroundImage(draftingQraftyState) &&
+    (!draftingQraftyState.backgroundOptions.transparent ||
+      draftingQraftyState.backgroundGradient.enabled ||
+      hasActiveBackgroundShapeOptions(draftingQraftyState.backgroundShapeOptions))
   const propertiesTransformLayer =
     selectedTransformLayer ??
     (selectedLayerIds.length === 0 ? appearanceTargetLayer : null)
@@ -2883,6 +2890,8 @@ export function WorkspaceSurface({
           appearanceTargetLayer.kind === "qr"
             ? draftingQraftyState.backgroundShapeOptions
             : undefined,
+        qrBackgroundSurfaceVisible:
+          appearanceTargetLayer.kind === "qr" ? qrBackgroundSurfaceVisible : undefined,
       })
     : null
 
@@ -2900,6 +2909,8 @@ export function WorkspaceSurface({
         appearanceTargetLayer.kind === "qr"
           ? draftingQraftyState.backgroundShapeOptions
           : undefined,
+      qrBackgroundSurfaceVisible:
+        appearanceTargetLayer.kind === "qr" ? qrBackgroundSurfaceVisible : undefined,
     })
 
     if (Object.keys(result.layerPatch).length > 0) {

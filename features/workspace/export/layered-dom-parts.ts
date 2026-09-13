@@ -8,7 +8,7 @@ import {
   type DraftingTextRun,
 } from "@/features/workspace/model/layers"
 import { layoutDraftingText } from "@/features/workspace/rendering/text-layout"
-import { getShapeSvgPath } from "@/features/workspace/rendering/shape-layer-paths"
+import { getShapeStrokeViewBoxScale, getShapeSvgPath } from "@/features/workspace/rendering/shape-layer-paths"
 import { getDraftingPerSideBorderStyle } from "@/features/workspace/rendering/layer-appearance"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
 import {
@@ -57,7 +57,7 @@ export async function buildLayeredDomParts({
   state: QraftyState
 }): Promise<LayeredDomParts> {
   await preloadIllustrationSvgMarkup(collectIllustrationAssetPaths(layers))
-  const bounds = getDraftingLayerBounds(layers, state)
+  const bounds = getDraftingLayerBounds(layers)
   const domLayers = layers
     .filter((layer) => layer.isVisible)
     .sort((a, b) => a.zIndex - b.zIndex)
@@ -224,10 +224,22 @@ function getDraftingShapeLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
   const strokeWidth = layer.strokeWidth ?? 0
   const stroke = layer.stroke ?? "#171717"
   const strokeOpacity = (layer.strokeOpacity ?? 100) / 100
+  const isStrokeOnlyShape = shapeId === "line" || shapeId === "arrow"
+  const strokeClipId = `${layer.id}-stroke-clip`
+  const viewBoxSize = definition
+    ? definition.viewBox
+    : { height: 100, width: 100 }
+  const strokeWidthVb =
+    strokeWidth *
+    getShapeStrokeViewBoxScale(layer, viewBoxSize.width, viewBoxSize.height)
+  const useInnerStroke = strokeWidthVb > 0 && !isStrokeOnlyShape
   const strokeAttrs =
-    strokeWidth > 0
-      ? ` stroke="${escapeXml(stroke)}" stroke-width="${strokeWidth}" stroke-opacity="${strokeOpacity}"`
+    strokeWidthVb > 0
+      ? ` stroke="${escapeXml(stroke)}" stroke-width="${useInnerStroke ? strokeWidthVb * 2 : strokeWidthVb}" stroke-opacity="${strokeOpacity}"${useInnerStroke ? ` clip-path="url(#${strokeClipId})"` : ""}`
       : ""
+  const strokeClip = useInnerStroke
+    ? `<clipPath id="${strokeClipId}">${definition ? `<path d="${definition.path}"/>` : getShapeSvgPath(shapeId)}</clipPath>`
+    : ""
   const innerMarkup = definition
     ? `<path d="${definition.path}" fill="${fill}"${strokeAttrs}/>`
     : getShapeSvgPath(shapeId).replace("/>", ` fill="${fill}"${strokeAttrs}/>`)
@@ -250,7 +262,7 @@ function getDraftingShapeLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
       ...getDraftingShapeDomStyle(layer),
       overflow: "visible",
     },
-    svgInner: `<svg aria-hidden="true" width="${layer.width}" height="${layer.height}" viewBox="${viewBox}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">${innerMarkup}</svg>`,
+    svgInner: `<svg aria-hidden="true" width="${layer.width}" height="${layer.height}" viewBox="${viewBox}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">${strokeClip}${innerMarkup}</svg>`,
   }
 }
 

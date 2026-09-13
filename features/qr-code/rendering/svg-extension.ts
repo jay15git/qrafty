@@ -2136,6 +2136,9 @@ function createBackgroundShapeExtension(
     svg.querySelectorAll('[data-qr-layer="background-shape"]').forEach((node) => {
       node.remove()
     })
+    svg.querySelectorAll('[data-qr-layer="background-shape-stroke"]').forEach((node) => {
+      node.remove()
+    })
     svg.querySelectorAll('[data-qr-layer="background-shape-gradient"]').forEach((node) => {
       node.remove()
     })
@@ -2171,7 +2174,17 @@ function createBackgroundShapeExtension(
     path.setAttribute("d", shape.path)
     path.setAttribute("transform", transform)
     path.setAttribute("fill", fill)
-    applyBackgroundShapeStroke(path, shapeOptions)
+    const strokedShape = applyBackgroundShapeStroke(
+      path,
+      shapeOptions,
+      svg,
+      "clip-path-background-shape-stroke",
+      "background-shape-stroke",
+      Math.min(
+        metrics.backingRegion.width / shape.viewBox.width,
+        metrics.backingRegion.height / shape.viewBox.height,
+      ),
+    )
 
     const blurPath = createBackgroundShapeBlurPath({
       d: shape.path,
@@ -2185,7 +2198,7 @@ function createBackgroundShapeExtension(
       svg.insertBefore(blurPath, insertReference)
     }
 
-    svg.insertBefore(path, insertReference)
+    svg.insertBefore(strokedShape ?? path, insertReference)
   }
 }
 
@@ -2255,21 +2268,57 @@ function getLegacyBackgroundShapePaddingPx(sizePercent: number) {
 }
 
 function applyBackgroundShapeStroke(
-  path: Element,
+  element: Element,
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>,
+  svg: SVGElement,
+  clipPathId: string,
+  strokeLayerTag: string,
+  strokeScale = 1,
 ) {
   if (shapeOptions.strokeWidth <= 0) {
-    path.removeAttribute("stroke")
-    path.removeAttribute("stroke-width")
-    path.removeAttribute("stroke-opacity")
-    path.removeAttribute("stroke-linejoin")
-    return
+    element.removeAttribute("stroke")
+    element.removeAttribute("stroke-width")
+    element.removeAttribute("stroke-opacity")
+    element.removeAttribute("stroke-linejoin")
+    return null
   }
 
-  path.setAttribute("stroke", shapeOptions.strokeColor)
-  path.setAttribute("stroke-width", formatSvgNumber(shapeOptions.strokeWidth))
-  path.setAttribute("stroke-opacity", formatSvgNumber(shapeOptions.strokeOpacity / 100))
-  path.setAttribute("stroke-linejoin", "round")
+  const renderedStrokeWidth =
+    shapeOptions.strokeWidth / Math.max(0.000001, strokeScale)
+
+  element.setAttribute("stroke", shapeOptions.strokeColor)
+  element.setAttribute("stroke-opacity", formatSvgNumber(shapeOptions.strokeOpacity / 100))
+  element.setAttribute("stroke-linejoin", "round")
+
+  const ownerDocument = svg.ownerDocument
+
+  if (!ownerDocument) {
+    element.setAttribute("stroke-width", formatSvgNumber(renderedStrokeWidth))
+    return null
+  }
+
+  element.setAttribute("stroke-width", formatSvgNumber(renderedStrokeWidth * 2))
+
+  const clipPath = ownerDocument.createElementNS("http://www.w3.org/2000/svg", "clipPath")
+  const clipShape = element.cloneNode(false) as Element
+
+  clipPath.setAttribute("id", clipPathId)
+  clipPath.setAttribute("data-qr-layer", strokeLayerTag)
+  clipShape.setAttribute("data-qr-layer", strokeLayerTag)
+  clipShape.removeAttribute("clip-path")
+  clipShape.removeAttribute("stroke")
+  clipShape.removeAttribute("stroke-width")
+  clipShape.removeAttribute("stroke-opacity")
+  clipShape.removeAttribute("stroke-linejoin")
+  clipPath.appendChild(clipShape)
+  getOrCreateSvgDefs(svg).appendChild(clipPath)
+
+  const group = ownerDocument.createElementNS("http://www.w3.org/2000/svg", "g")
+  group.setAttribute("clip-path", `url(#${clipPathId})`)
+  group.setAttribute("data-qr-layer", strokeLayerTag)
+  group.appendChild(element)
+
+  return group
 }
 
 function hasActiveBackgroundSurfaceOptions(
@@ -2313,7 +2362,7 @@ function getBackgroundRenderMetrics(
   const paddingPx = shapeOptions.paddingPx
   const gap = paddingPx
   const shapeOutset = paddingPx
-  const strokeOutset = Math.ceil(shapeOptions.strokeWidth / 2)
+  const strokeOutset = 0
   const leftEffectOutset = strokeOutset
   const rightEffectOutset = strokeOutset
   const topEffectOutset = strokeOutset
@@ -2680,6 +2729,9 @@ function createBackgroundSurfaceExtension(
     svg.querySelectorAll('[data-qr-layer="background-surface-blur-filter"]').forEach((node) => {
       node.remove()
     })
+    svg.querySelectorAll('[data-qr-layer="background-surface-stroke"]').forEach((node) => {
+      node.remove()
+    })
 
     const { metrics, shapeOptions } = getCellSpaceBackgroundMetrics(
       svg,
@@ -2702,7 +2754,13 @@ function createBackgroundSurfaceExtension(
     const insertReference = wrapQrContent(svg, metrics.translateX, metrics.translateY)
 
     applyBackgroundSurfaceRect(backgroundRect, region, radius)
-    applyBackgroundShapeStroke(backgroundRect, shapeOptions)
+    const strokedSurface = applyBackgroundShapeStroke(
+      backgroundRect,
+      shapeOptions,
+      svg,
+      "clip-path-background-surface-stroke",
+      "background-surface-stroke",
+    )
 
     const blurRect = createBackgroundSurfaceBlurRect({
       radius,
@@ -2715,7 +2773,7 @@ function createBackgroundSurfaceExtension(
       svg.insertBefore(blurRect, insertReference)
     }
 
-    svg.insertBefore(backgroundRect, insertReference)
+    svg.insertBefore(strokedSurface ?? backgroundRect, insertReference)
   }
 }
 
@@ -3607,7 +3665,9 @@ function getOrCreateSvgDefs(svg: SVGElement) {
 function getBackgroundImageInsertReference(svg: SVGElement) {
   const children = Array.from(svg.children)
   const backgroundRectIndex = children.findIndex(
-    (child) => child.tagName.toLowerCase() === "rect",
+    (child) =>
+      child.tagName.toLowerCase() === "rect" ||
+      child.getAttribute("data-qr-layer") === "background-surface-stroke",
   )
 
   if (backgroundRectIndex >= 0) {

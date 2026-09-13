@@ -137,11 +137,7 @@ export function DesktopDynamicIslandChrome({
   const effectsPatch = selectedElementLayer ? onElementLayerPatch : onAppearancePatch
   const hasTransform = Boolean(selectedTransformLayer && onTransformLayerPatch)
   const hasStyle = Boolean(selectedElementLayer && onElementLayerPatch)
-  const hasBorder = Boolean(
-    appearance &&
-      onAppearancePatch &&
-      (propertyLayer?.kind === "card" || propertyLayer?.kind === "shape"),
-  )
+  const hasBorder = Boolean(appearance?.supportsBorder && onAppearancePatch)
   const hasEffects = Boolean(
     effectsLayer && effectsPatch && propertyCapabilities.maxEffects > 0,
   )

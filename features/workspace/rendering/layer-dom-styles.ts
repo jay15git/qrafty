@@ -285,8 +285,9 @@ export function getDraftingCardDomStyle(
         }
       : undefined
   const border = normalizeDraftingCardBorder(cardState.border)
-  const borderStyle = getDraftingCardBorder(cardState)
-    ? { border: getDraftingCardBorder(cardState) }
+  const uniformBorder = getDraftingCardBorder(cardState)
+  const borderStyle = uniformBorder
+    ? { border: uniformBorder }
     : getDraftingPerSideBorderStyle(border.sides)
 
   return serializeCssProperties({

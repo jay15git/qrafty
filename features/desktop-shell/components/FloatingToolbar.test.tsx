@@ -23,6 +23,7 @@ import { DesktopSettingsToolbarShell } from "@/features/desktop-shell/components
 import { DesktopCuelumeProvider } from "@/features/desktop-shell/hooks/use-desktop-cuelume"
 import { getDesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { DEFAULT_DESKTOP_LAYERS_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
+import { DEFAULT_BACKGROUND_SHAPE_OPTIONS } from "@/features/qr-code/model/state"
 import type { DesktopToolbarToolId } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import {
   createDraftingShapeLayer,
@@ -351,6 +352,25 @@ describe("FloatingToolbar", () => {
         selectedAppearanceLayer: shapeLayer,
         selectedElementLayer: shapeLayer,
         selectedTransformLayer: shapeLayer,
+        onTransformLayerPatch: vi.fn(),
+      },
+    })
+
+    expect(surface.container.querySelector('[data-slot="desktop-layer-border-trigger"]')).not.toBeNull()
+  })
+
+  it("shows the border trigger for a qr layer with a background shape", async () => {
+    const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const }
+    const surface = await renderPrototype({
+      controller: {
+        activeTool: null,
+        appearanceSnapshot: getDesktopAppearanceSnapshot(qrLayer, {
+          qrBackgroundShapeId: "leaf",
+          qrBackgroundShapeOptions: DEFAULT_BACKGROUND_SHAPE_OPTIONS,
+        }),
+        onAppearancePatch: vi.fn(),
+        selectedAppearanceLayer: qrLayer,
+        selectedTransformLayer: qrLayer,
         onTransformLayerPatch: vi.fn(),
       },
     })

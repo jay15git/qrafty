@@ -166,10 +166,10 @@ function ShapeTypePreviewRow({
     >
       <div className={SETTINGS_PREVIEW_ROW}>
         <button
-          aria-label="Use no shape"
+          aria-label="Use square shape"
           aria-pressed={selected === "none"}
           className={cn(SETTINGS_PREVIEW_TILE)}
-          title="None"
+          title="Square"
           type="button"
           onClick={() => onSelect("none")}
         >

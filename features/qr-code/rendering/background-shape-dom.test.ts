@@ -48,8 +48,9 @@ describe("background shape svg payload", () => {
     const markup = payload?.markup ?? ""
 
     expect(markup).toContain("linearGradient")
-    expect(markup).toContain('stroke-width="6"')
+    expect(markup).toContain('stroke-width="20.585"')
     expect(markup).toContain('stroke="#ff00aa"')
+    expect(markup).toContain('clip-path="url(#preview-qr-qr-background-stroke-clip)"')
   })
 
   it("keeps decorative shape layout proportional when the qr layer is resized", () => {
