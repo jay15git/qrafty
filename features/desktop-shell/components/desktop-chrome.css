@@ -282,7 +282,10 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
 }
 
 [data-slot="desktop-layers-popover"],
-[data-slot="desktop-layer-properties-popover"],
+[data-slot="desktop-layer-transform-popover"],
+[data-slot="desktop-layer-style-popover"],
+[data-slot="desktop-layer-border-popover"],
+[data-slot="desktop-layer-shadows-popover"],
 [data-slot="desktop-layer-effects-popover"],
 [data-slot="desktop-shader-settings-popover"],
 [data-slot="desktop-toolbar-popover"] {
@@ -302,12 +305,18 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
 }
 
 body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layers-popover"],
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-properties-popover"],
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-transform-popover"],
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-style-popover"],
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-border-popover"],
+body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-shadows-popover"],
 body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-effects-popover"],
 body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-shader-settings-popover"],
 body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-toolbar-popover"],
 body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layers-popover"],
-body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-properties-popover"],
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-transform-popover"],
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-style-popover"],
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-border-popover"],
+body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-shadows-popover"],
 body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-effects-popover"],
 body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-shader-settings-popover"],
 body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-toolbar-popover"] {
@@ -323,43 +332,19 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot
   --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
 }
 
-[data-slot="desktop-layer-properties-popover"] .desktopnew-root.desktopnew-embedded[data-theme="dark"],
-[data-slot="desktop-layer-properties-popover"] [data-slot="desktop-layer-properties-body"] {
-  background: var(--desktop-appearance-popover-bg, #0a0a0a);
-}
-
-[data-slot="desktop-layer-properties-popover"] [data-slot="desktop-layer-properties-panel"] {
-  height: 100%;
-  min-height: 0;
-}
-
-[data-slot="desktop-layer-properties-scroll-area"] [data-slot="scroll-area-viewport"] > div {
-  display: block !important;
-  box-sizing: border-box !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-}
-
-[data-slot="desktop-layer-properties-popover"] [data-slot="desktop-layer-properties-body"] [data-slot="desktop-transform-section"] {
+[data-slot^="desktop-layer-"][data-slot$="-popover"] [data-slot="desktop-transform-section"],
+[data-slot^="desktop-layer-"][data-slot$="-popover"] [data-slot="desktop-effects-accordion"] {
   gap: 0.625rem;
 }
 
-[data-slot="desktop-layer-properties-popover"] [data-slot="desktop-layer-properties-body"] [data-slot="desktop-effect-row-body"] {
+[data-slot^="desktop-layer-"][data-slot$="-popover"] [data-slot="desktop-effect-row-body"] {
   min-width: 0;
-}
-
-[data-slot="desktop-layer-properties-popover"] [data-slot="desktop-layer-properties-body"] [data-slot="desktop-effects-accordion"] {
-  gap: 0.625rem;
-}
-
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-properties-popover"] .desktopnew-root.desktopnew-embedded[data-theme="light"],
-body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-properties-popover"] [data-slot="desktop-layer-properties-body"] {
-  background: var(--desktop-appearance-popover-bg, #ffffff);
 }
 
 [data-slot="desktop-layers-popover"] .desktopnew-root.desktopnew-embedded,
 [data-slot="desktop-layer-style-popover"] .desktopnew-root.desktopnew-embedded,
+[data-slot="desktop-layer-border-popover"] .desktopnew-root.desktopnew-embedded,
+[data-slot="desktop-layer-shadows-popover"] .desktopnew-root.desktopnew-embedded,
 [data-slot="desktop-layer-effects-popover"] .desktopnew-root.desktopnew-embedded,
 [data-slot="desktop-shader-settings-popover"] .desktopnew-root.desktopnew-embedded,
 [data-slot="desktop-layer-transform-popover"] .desktopnew-root.desktopnew-embedded,

@@ -12,7 +12,6 @@ export function useDraftingLayerEffectStyle(layer: DraftingCanvasLayer) {
   return useMemo(
     () =>
       getPreviewLayerEffectStyle(layer, {
-        preferBoxShadow: true,
         previewScale: artboardScale,
       }),
     [artboardScale, layer],

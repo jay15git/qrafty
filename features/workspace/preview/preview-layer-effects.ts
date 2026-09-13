@@ -5,6 +5,8 @@ import {
   resolveLayerCornerRadii,
 } from "@/features/workspace/model/corner-radius"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import type { DraftingCardShadowState } from "@/features/workspace/model/card-state"
+import type { DraftingShadowLayerState } from "@/features/workspace/model/effects"
 import {
   buildCssFilterString,
   getDraftingLayerBoxShadowStyle,
@@ -16,7 +18,6 @@ import {
 } from "@/features/workspace/rendering/layer-appearance"
 
 export type PreviewLayerEffectOptions = {
-  preferBoxShadow?: boolean
   previewScale?: number
 }
 
@@ -28,30 +29,17 @@ function scaleShadowNumber(value: number, previewScale: number) {
   return value * previewScale
 }
 
-function getPreviewScaledBoxShadowStyle(
-  layer: DraftingCanvasLayer,
+function scalePreviewShadow(
+  shadow: DraftingCardShadowState | DraftingShadowLayerState,
   previewScale: number,
-): string | undefined {
-  const shadows =
-    layer.shadows && layer.shadows.length > 0
-      ? layer.shadows
-      : layer.shadow
-        ? [layer.shadow]
-        : []
-
-  if (shadows.length === 0) {
-    return undefined
-  }
-
-  const scaledShadows = shadows.map((shadow) => ({
+) {
+  return {
     ...shadow,
     blur: scaleShadowNumber(shadow.blur, previewScale),
     offsetX: scaleShadowNumber(shadow.offsetX, previewScale),
     offsetY: scaleShadowNumber(shadow.offsetY, previewScale),
     spread: scaleShadowNumber(shadow.spread ?? 0, previewScale),
-  }))
-
-  return getDraftingLayerBoxShadowStyle(scaledShadows)
+  }
 }
 
 export function getPreviewLayerEffectStyle(
@@ -59,16 +47,14 @@ export function getPreviewLayerEffectStyle(
   options: PreviewLayerEffectOptions = {},
 ): CSSProperties {
   const previewScale = options.previewScale ?? 1
-  const preferBoxShadow = options.preferBoxShadow ?? true
   const shadows =
     layer.shadows && layer.shadows.length > 0
       ? layer.shadows
       : layer.shadow
         ? [layer.shadow]
         : []
-  const usesComplexShadow = shadows.some(
-    (shadow) => shadow.inset || (shadow.spread ?? 0) !== 0 || shadows.length > 1,
-  )
+  const insetShadows = shadows.filter((shadow) => shadow.inset)
+  const dropShadows = shadows.filter((shadow) => !shadow.inset)
   const layerFilters = buildCssFilterString(layer.layerFilters ?? [])
   const usesBoxBorder = layer.kind !== "qr" && layer.kind !== "shape" && layer.kind !== "card"
   const hasBorderSides = usesBoxBorder && hasVisibleBorderSide(layer.borderSides)
@@ -77,13 +63,17 @@ export function getPreviewLayerEffectStyle(
     ? cornerRadiiToCss(resolveLayerCornerRadii(layer, 0))
     : undefined
   const boxShadow =
-    preferBoxShadow || usesComplexShadow
-      ? getPreviewScaledBoxShadowStyle(layer, previewScale)
+    insetShadows.length > 0
+      ? getDraftingLayerBoxShadowStyle(
+          insetShadows.map((shadow) => scalePreviewShadow(shadow, previewScale)),
+        )
       : undefined
-  const filter =
-    usesComplexShadow || !preferBoxShadow
-      ? layerFilters || undefined
-      : mergeCssFilterStrings(layerFilters, getDraftingLayerDropShadowFilter(shadows)) || undefined
+  const filter = mergeCssFilterStrings(
+    layerFilters,
+    getDraftingLayerDropShadowFilter(
+      dropShadows.map((shadow) => scalePreviewShadow(shadow, previewScale)),
+    ),
+  )
 
   return {
     ...borderStyle,

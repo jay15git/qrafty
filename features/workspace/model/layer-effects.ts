@@ -44,10 +44,7 @@ export type LayerFilterEffectItem = {
 
 export type LayerEffectItem = LayerShadowEffectItem | LayerFilterEffectItem
 
-export const LAYER_SHADOW_EFFECT_KINDS: LayerShadowEffectKind[] = [
-  "drop-shadow",
-  "inner-shadow",
-]
+export const LAYER_SHADOW_EFFECT_KINDS: LayerShadowEffectKind[] = ["drop-shadow"]
 
 export const LAYER_FILTER_EFFECT_KINDS: LayerFilterEffectKind[] = [
   "layer-blur",

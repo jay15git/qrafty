@@ -66,19 +66,17 @@ export function getDraftingLayerEffectStyle(layer: DraftingCanvasLayer): CSSProp
       : layer.shadow
         ? [layer.shadow]
         : []
-  const usesBoxShadow = shadows.some(
-    (shadow) => shadow.inset || (shadow.spread ?? 0) !== 0 || shadows.length > 1,
+  const insetShadows = shadows.filter((shadow) => shadow.inset)
+  const dropShadows = shadows.filter((shadow) => !shadow.inset)
+  const filter = mergeCssFilterStrings(
+    buildCssFilterString(layer.layerFilters ?? []),
+    getDraftingLayerDropShadowFilter(dropShadows),
   )
-  const filter = usesBoxShadow
-    ? buildCssFilterString(layer.layerFilters ?? [])
-    : mergeCssFilterStrings(
-        buildCssFilterString(layer.layerFilters ?? []),
-        getDraftingLayerDropShadowFilter(shadows),
-      )
   const usesBoxBorder = layer.kind !== "qr" && layer.kind !== "shape" && layer.kind !== "card"
   const hasBorderSides = usesBoxBorder && hasVisibleBorderSide(layer.borderSides)
   const borderStyle = hasBorderSides ? getDraftingPerSideBorderStyle(layer.borderSides!) : {}
-  const boxShadow = usesBoxShadow ? getDraftingLayerBoxShadowStyle(shadows) : undefined
+  const boxShadow =
+    insetShadows.length > 0 ? getDraftingLayerBoxShadowStyle(insetShadows) : undefined
   const borderRadius = hasBorderSides
     ? cornerRadiiToCss(resolveLayerCornerRadii(layer, 0))
     : undefined

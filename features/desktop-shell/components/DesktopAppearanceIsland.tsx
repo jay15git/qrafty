@@ -2,8 +2,12 @@
 
 import { useMemo, type ReactNode } from "react"
 import {
+  EclipseIcon,
   MoonIcon,
-  SlidersHorizontalIcon,
+  MoveIcon,
+  PaletteIcon,
+  SparklesIcon,
+  SquareDashedIcon,
   SunIcon,
   Volume2Icon,
   VolumeXIcon,
@@ -13,13 +17,20 @@ import { HugeiconsIcon } from "@hugeicons/react"
 
 import { DesktopKeyboardShortcutsPopoverContent } from "@/features/desktop-shell/components/DesktopChromeControls"
 import { DesktopCanvasRatioPresetPopoverContent } from "@/features/desktop-shell/components/DesktopCanvasRatioPresetRow"
-import { DesktopLayerPropertiesPanel } from "@/features/desktop-shell/components/DesktopLayerPropertiesPanel"
+import {
+  DesktopLayerBorderPanel,
+  DesktopLayerEffectsPanel,
+  DesktopLayerShadowsPanel,
+  DesktopLayerStylePanel,
+  DesktopLayerTransformPanel,
+} from "@/features/desktop-shell/components/DesktopLayerSettingsPanel"
 import { DesktopToolbarPopoverContent } from "@/features/desktop-shell/components/DesktopToolbarPopover"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { getDesktopLayerToolbarCapabilities } from "@/features/desktop-shell/model/layer-toolbar-capabilities"
 import { TooltipNavbar, type TooltipItem } from "@/components/ui/tooltip-navbar"
 import { useDesktopCuelume } from "@/features/desktop-shell/hooks/use-desktop-cuelume"
+import { LAYER_FILTER_EFFECT_KINDS } from "@/features/workspace/model/layer-effects"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import type { SizeTemplate } from "@/features/workspace/model/size-templates"
 
@@ -120,12 +131,20 @@ export function DesktopDynamicIslandChrome({
   sizePresetId?: string
   theme?: DesktopThemeMode
 }) {
-  const hasProperties =
-    Boolean(selectedTransformLayer && onTransformLayerPatch) ||
-    Boolean(selectedElementLayer && onElementLayerPatch) ||
-    Boolean(appearance && onAppearancePatch)
   const propertyLayer = selectedTransformLayer ?? selectedElementLayer ?? appearanceLayer ?? null
-  const propertyCapabilities = getDesktopLayerToolbarCapabilities(propertyLayer, appearance)
+  const propertyCapabilities = getDesktopLayerToolbarCapabilities(propertyLayer)
+  const effectsLayer = selectedElementLayer ?? appearanceLayer ?? null
+  const effectsPatch = selectedElementLayer ? onElementLayerPatch : onAppearancePatch
+  const hasTransform = Boolean(selectedTransformLayer && onTransformLayerPatch)
+  const hasStyle = Boolean(selectedElementLayer && onElementLayerPatch)
+  const hasBorder = Boolean(
+    appearance &&
+      onAppearancePatch &&
+      (propertyLayer?.kind === "card" || propertyLayer?.kind === "shape"),
+  )
+  const hasEffects = Boolean(
+    effectsLayer && effectsPatch && propertyCapabilities.maxEffects > 0,
+  )
   const { soundsEnabled, toggleSoundsEnabled } = useDesktopCuelume()
 
   const items = useMemo(() => {
@@ -161,30 +180,113 @@ export function DesktopDynamicIslandChrome({
       })
     }
 
-    if (hasProperties) {
+    if (hasTransform) {
       nextItems.push({
-        ariaLabel: "Properties",
-        dataSlot: "desktop-layer-properties-trigger",
-        icon: <SlidersHorizontalIcon className={ICON_CLASS} />,
-        label: "Properties",
+        ariaLabel: "Transform",
+        dataSlot: "desktop-layer-transform-trigger",
+        icon: <MoveIcon className={ICON_CLASS} />,
+        label: "Transform",
         popover: (
           <DesktopToolbarPopoverContent
-            dataSlot="desktop-layer-properties-popover"
-            disableScroll
-            flush
+            dataSlot="desktop-layer-transform-popover"
+            fitContent
           >
-            <DesktopLayerPropertiesPanel
-              appearance={appearance}
-              appearanceLayer={appearanceLayer}
-              elementLayer={selectedElementLayer}
-              maxEffects={propertyCapabilities.maxEffects}
-              onAppearancePatch={onAppearancePatch}
-              onElementLayerPatch={onElementLayerPatch}
-              onTransformLayerPatch={onTransformLayerPatch}
-              propertyTabs={propertyCapabilities.propertyTabs}
-              showStyleInDesign={propertyCapabilities.showStyleInDesign}
+            <DesktopLayerTransformPanel
+              layer={selectedTransformLayer!}
+              onPatch={onTransformLayerPatch!}
               theme={theme}
-              transformLayer={selectedTransformLayer}
+              variant="flat"
+            />
+          </DesktopToolbarPopoverContent>
+        ),
+      })
+    }
+
+    if (hasStyle) {
+      nextItems.push({
+        ariaLabel: "Style",
+        dataSlot: "desktop-layer-style-trigger",
+        icon: <PaletteIcon className={ICON_CLASS} />,
+        label: "Style",
+        popover: (
+          <DesktopToolbarPopoverContent
+            dataSlot="desktop-layer-style-popover"
+            fitContent
+          >
+            <DesktopLayerStylePanel
+              layer={selectedElementLayer!}
+              onPatch={onElementLayerPatch!}
+              theme={theme}
+            />
+          </DesktopToolbarPopoverContent>
+        ),
+      })
+    }
+
+    if (hasBorder) {
+      nextItems.push({
+        ariaLabel: "Border",
+        dataSlot: "desktop-layer-border-trigger",
+        icon: <SquareDashedIcon className={ICON_CLASS} />,
+        label: "Border",
+        popover: (
+          <DesktopToolbarPopoverContent
+            dataSlot="desktop-layer-border-popover"
+            fitContent
+          >
+            <DesktopLayerBorderPanel
+              appearance={appearance!}
+              onPatch={onAppearancePatch!}
+              theme={theme}
+            />
+          </DesktopToolbarPopoverContent>
+        ),
+      })
+    }
+
+    if (hasEffects) {
+      nextItems.push({
+        ariaLabel: "Shadows",
+        dataSlot: "desktop-layer-shadows-trigger",
+        icon: <EclipseIcon className={ICON_CLASS} />,
+        label: "Shadows",
+        popover: (
+          <DesktopToolbarPopoverContent
+            dataSlot="desktop-layer-shadows-popover"
+            fitContent
+          >
+            <DesktopLayerShadowsPanel
+              layer={effectsLayer!}
+              maxEffects={propertyCapabilities.maxEffects}
+              onPatch={effectsPatch!}
+              theme={theme}
+            />
+          </DesktopToolbarPopoverContent>
+        ),
+      })
+
+      nextItems.push({
+        ariaLabel: "Effects",
+        dataSlot: "desktop-layer-effects-trigger",
+        icon: <SparklesIcon className={ICON_CLASS} />,
+        label: "Effects",
+        popover: (
+          <DesktopToolbarPopoverContent
+            dataSlot="desktop-layer-effects-popover"
+            fitContent
+          >
+            <DesktopLayerEffectsPanel
+              effectKinds={LAYER_FILTER_EFFECT_KINDS}
+              layer={effectsLayer!}
+              layerOpacity={appearance?.opacity}
+              onLayerOpacityChange={
+                appearance && onAppearancePatch
+                  ? (opacity) => onAppearancePatch({ opacity })
+                  : undefined
+              }
+              onPatch={effectsPatch!}
+              theme={theme}
+              variant="flat"
             />
           </DesktopToolbarPopoverContent>
         ),
@@ -233,13 +335,14 @@ export function DesktopDynamicIslandChrome({
     return nextItems
   }, [
     appearance,
-    appearanceLayer,
     canRedo,
     canUndo,
-    hasProperties,
-    propertyCapabilities.maxEffects,
-    propertyCapabilities.propertyTabs,
-    propertyCapabilities.showStyleInDesign,
+    effectsLayer,
+    effectsPatch,
+    hasBorder,
+    hasEffects,
+    hasStyle,
+    hasTransform,
     onAppearancePatch,
     onElementLayerPatch,
     onRedo,
@@ -247,6 +350,7 @@ export function DesktopDynamicIslandChrome({
     onThemeChange,
     onTransformLayerPatch,
     onUndo,
+    propertyCapabilities.maxEffects,
     selectedElementLayer,
     selectedTransformLayer,
     sizePresetId,

@@ -24,7 +24,10 @@ import { DesktopCuelumeProvider } from "@/features/desktop-shell/hooks/use-deskt
 import { getDesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { DEFAULT_DESKTOP_LAYERS_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 import type { DesktopToolbarToolId } from "@/features/desktop-shell/model/desktop-toolbar-types"
-import { createDraftingTextLayer } from "@/features/workspace/model/layers"
+import {
+  createDraftingShapeLayer,
+  createDraftingTextLayer,
+} from "@/features/workspace/model/layers"
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root"
 
 const NODE_ID = "test-node"
@@ -157,10 +160,12 @@ describe("FloatingToolbar", () => {
     })
 
     expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-appearance-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-border-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-shadows-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
   })
@@ -324,14 +329,33 @@ describe("FloatingToolbar", () => {
     })
 
     expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-appearance-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-border-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-shadows-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-appearance-outline-trigger"]')).toBeNull()
+  })
+
+  it("shows the border trigger for shape layers but not text layers", async () => {
+    const shapeLayer = createDraftingShapeLayer(NODE_ID, "rect")
+    const surface = await renderPrototype({
+      controller: {
+        activeTool: null,
+        appearanceSnapshot: getDesktopAppearanceSnapshot(shapeLayer),
+        onAppearancePatch: vi.fn(),
+        onElementLayerPatch: vi.fn(),
+        selectedAppearanceLayer: shapeLayer,
+        selectedElementLayer: shapeLayer,
+        selectedTransformLayer: shapeLayer,
+        onTransformLayerPatch: vi.fn(),
+      },
+    })
+
+    expect(surface.container.querySelector('[data-slot="desktop-layer-border-trigger"]')).not.toBeNull()
   })
 
   it("does not render scan safety in the dynamic island", async () => {

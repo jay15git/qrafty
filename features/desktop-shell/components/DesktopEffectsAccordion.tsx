@@ -72,12 +72,14 @@ function renderSliderRow({
 }
 
 export function DesktopEffectsAccordion({
+  effectKinds = LAYER_EFFECT_KINDS,
   layer,
   layerOpacity,
   onLayerOpacityChange,
   onPatch,
   variant = "default",
 }: {
+  effectKinds?: readonly LayerEffectKind[]
   layer: DraftingCanvasLayer
   layerOpacity?: number
   maxEffects?: number
@@ -108,7 +110,7 @@ export function DesktopEffectsAccordion({
           </div>
         ) : null}
 
-        {LAYER_EFFECT_KINDS.map((kind) => {
+        {effectKinds.map((kind) => {
           const label = getLayerEffectKindLabel(kind)
 
           if (isShadowEffectKind(kind)) {
