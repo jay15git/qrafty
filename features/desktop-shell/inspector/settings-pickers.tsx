@@ -11,6 +11,7 @@ import {
 } from "react"
 
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
+import { SettingsInput } from "@/features/desktop-shell/inspector/settings-ui"
 import {
   findBrandIconById,
   getBrandIconById,
@@ -417,7 +418,7 @@ export function LogoIconPicker({
           aria-hidden
           className="dn-logo-icon-picker-search-icon pointer-events-none text-[var(--dn-muted)]"
         />
-        <input
+        <SettingsInput
           aria-label="Search logo icons"
           autoComplete="off"
           className="dn-settings-input dn-squircle-sm w-full min-w-0"

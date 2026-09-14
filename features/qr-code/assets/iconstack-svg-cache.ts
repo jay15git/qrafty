@@ -54,7 +54,7 @@ export function clearIconstackSvgCache() {
   notifyIconstackSvgCacheListeners()
 }
 
-export async function fetchAndCacheIconstackSvg({
+export function fetchAndCacheIconstackSvg({
   library,
   id,
 }: {
@@ -65,7 +65,7 @@ export async function fetchAndCacheIconstackSvg({
   const cached = getCachedIconstackSvg(selectionId)
 
   if (cached) {
-    return cached
+    return Promise.resolve(cached)
   }
 
   return enqueueIconstackRequest(`svg:${selectionId}`, async () => {

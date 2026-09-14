@@ -181,6 +181,14 @@ export function parseIconstackSelectionId(
   }
 }
 
+const SEARCH_CACHE_LIMIT = 60
+
+const searchCache = new Map<string, Promise<IconstackSearchResponse>>()
+
+export function clearIconstackSearchCache() {
+  searchCache.clear()
+}
+
 export async function searchIcons({
   q,
   library,
@@ -203,20 +211,43 @@ export async function searchIcons({
     params.set("style", style)
   }
 
-  const response = await iconstackFetch(
-    `${ICONSTACK_API_BASE}/icon-search?${params.toString()}`,
-    signal,
-  )
+  const cacheKey = params.toString()
+  const cached = searchCache.get(cacheKey)
 
-  if (!response.ok) {
-    throw new IconstackApiError(
-      "http",
-      `Iconstack search failed (${response.status})`,
-      response.status,
-    )
+  if (cached) {
+    return cached
   }
 
-  return (await response.json()) as IconstackSearchResponse
+  const request = iconstackFetch(
+    `${ICONSTACK_API_BASE}/icon-search?${cacheKey}`,
+    signal,
+  ).then(async (response) => {
+    if (!response.ok) {
+      throw new IconstackApiError(
+        "http",
+        `Iconstack search failed (${response.status})`,
+        response.status,
+      )
+    }
+
+    return (await response.json()) as IconstackSearchResponse
+  })
+
+  searchCache.set(cacheKey, request)
+
+  if (searchCache.size > SEARCH_CACHE_LIMIT) {
+    const oldestKey = searchCache.keys().next().value
+    if (oldestKey !== undefined) {
+      searchCache.delete(oldestKey)
+    }
+  }
+
+  try {
+    return await request
+  } catch (error) {
+    searchCache.delete(cacheKey)
+    throw error
+  }
 }
 
 export async function fetchIconSvg({
