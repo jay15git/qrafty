@@ -1830,13 +1830,23 @@
   transform: translateY(-50%);
 }
 
-/* Search field uses the shared settings input; icon reserves left padding. */
+/* Search field uses the shared settings input; icon reserves left padding.
+   Borderless like the content-accordion fields. */
 :is(.desktopnew-popover-content, .dn-portal-surface, .dn-settings-accordion)
   .dn-logo-icon-picker
   .dn-settings-input {
   min-height: var(--dn-control-height);
   height: var(--dn-control-height);
+  border: none;
+  background: var(--dn-control) !important;
   padding-inline: calc(var(--dn-row-px) + 1.125rem) var(--dn-row-px);
+}
+
+/* ScrollArea owns the viewport + fades; the grid itself must keep an
+   automatic height — a definite height makes Chromium drop aspect-ratio
+   contributions to auto rows and the tiles overlap. */
+.dn-logo-icon-picker-scroll-fixed {
+  height: 16.5rem;
 }
 
 .dn-logo-icon-picker-grid {
@@ -1845,18 +1855,9 @@
   min-width: 0;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.5rem;
+  align-content: start;
   /* Inner padding keeps the selected ring inside the scrollport. */
   padding: 0.25rem;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--dn-popover-muted, var(--dn-muted)) 45%, transparent) transparent;
-}
-
-/* Fixed-height scrollport — popover size stays constant across loading,
-   error, empty, and paginated result states. */
-.dn-logo-icon-picker-grid-fixed {
-  height: 16.5rem;
-  overflow-y: auto;
-  align-content: start;
 }
 
 .dn-logo-icon-picker-state {
@@ -1867,6 +1868,12 @@
   justify-content: center;
   gap: 0.5rem;
   text-align: center;
+}
+
+/* Empty / searching states fill the fixed scrollport so they sit centered. */
+.dn-logo-icon-picker-empty {
+  min-height: 15rem;
+  gap: 0.875rem;
 }
 
 .dn-logo-icon-picker-sentinel {
@@ -1894,16 +1901,19 @@
   cursor: pointer;
 }
 
+/* Tiles are fluid squares sized by the grid cell — a fixed preset width made
+   the selected ring overflow onto neighboring icons. */
 .dn-logo-icon-picker-tile-inner {
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
   display: grid;
-  width: var(--dn-preview-tile);
-  height: var(--dn-preview-tile);
-  min-width: var(--dn-preview-tile);
-  min-height: var(--dn-preview-tile);
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
   place-items: center;
+  transition: transform var(--dn-press-active-dur) var(--dn-ease-out);
 }
 
 .dn-logo-icon-picker-tile-inner::after {
@@ -1921,9 +1931,24 @@
     transform var(--dn-select-ring-dur) var(--dn-ease-press);
 }
 
+/* No grey wash behind icons — hover lifts the glyph itself instead. */
 .dn-logo-icon-picker-grid .dn-logo-icon-picker-tile:is(:hover, :focus-visible) {
-  background: var(--dn-popover-tile-hover, var(--dn-control));
   color: var(--dn-fg);
+}
+
+.dn-logo-icon-picker-grid
+  .dn-logo-icon-picker-tile:is(:hover, :focus-visible)
+  .dn-logo-icon-picker-tile-inner {
+  transform: scale(1.08);
+}
+
+/* Keyboard users still get a ring; mouse hover stays chromeless. */
+.dn-logo-icon-picker-grid
+  .dn-logo-icon-picker-tile:focus-visible
+  .dn-logo-icon-picker-tile-inner::after {
+  border-color: color-mix(in srgb, var(--dn-fg) 35%, transparent);
+  opacity: 1;
+  transform: scale(1);
 }
 
 .dn-logo-icon-picker-grid .dn-logo-icon-picker-tile[aria-pressed="true"] {
@@ -1946,9 +1971,10 @@
 }
 
 .dn-logo-icon-picker-grid .dn-logo-icon-picker-skeleton {
-  width: var(--dn-preview-tile);
-  height: var(--dn-preview-tile);
-  place-self: center;
+  width: 100%;
+  height: auto;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
 }
 
 .dn-logo-icon-picker-icon {

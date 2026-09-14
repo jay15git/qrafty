@@ -7,6 +7,7 @@ import {
   Manrope,
 } from "next/font/google"
 
+import { AgentationDev } from "@/components/agentation-dev"
 import { GlimmRootProvider } from "@/components/glimm-root-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { MotionProvider } from "@/components/motion-provider"
@@ -92,6 +93,7 @@ export default function RootLayout({
             <MotionProvider>{children}</MotionProvider>
           </GlimmRootProvider>
         </ThemeProvider>
+        <AgentationDev />
       </body>
     </html>
   )

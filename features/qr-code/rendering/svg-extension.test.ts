@@ -846,16 +846,18 @@ describe("qr rendering helpers", () => {
     const backgroundShape = svg.querySelector('[data-qr-layer="background-shape"]')
     const qrContent = svg.querySelector('[data-qr-layer="qr-content"]')
 
-    expect(svg.getAttribute("width")).toBe("368")
-    expect(svg.getAttribute("height")).toBe("368")
-    expect(svg.getAttribute("viewBox")).toBe("0 0 368 368")
-    expect(qrContent?.getAttribute("transform")).toBe("translate(24 24)")
+    expect(svg.getAttribute("width")).toBe("320")
+    expect(svg.getAttribute("height")).toBe("320")
+    expect(svg.getAttribute("viewBox")).toBe("0 0 320 320")
+    expect(qrContent?.getAttribute("transform")).toBe(
+      "translate(24 24) scale(0.85)",
+    )
     expect(qrContent?.children).toContain(qrPath)
     expect(backgroundShape?.getAttribute("transform")).toBe(
-      "translate(0 0) scale(1.15)",
+      "translate(0 0) scale(1)",
     )
     expect(backgroundShape?.getAttribute("stroke")).toBe("#111827")
-    expect(backgroundShape?.getAttribute("stroke-width")).toBe("10.4348")
+    expect(backgroundShape?.getAttribute("stroke-width")).toBe("12")
     expect(backgroundShape?.getAttribute("stroke-opacity")).toBe("0.42")
     expect(svg.querySelector('[data-qr-layer="background-shape-blur"]')).toBeNull()
     expect(svg.children[1]?.getAttribute("data-qr-layer")).toBe("background-shape-stroke")
@@ -907,16 +909,18 @@ describe("qr rendering helpers", () => {
 
     const qrContent = svg.querySelector('[data-qr-layer="qr-content"]')
 
-    expect(svg.getAttribute("width")).toBe("360")
-    expect(svg.getAttribute("height")).toBe("360")
-    expect(svg.getAttribute("viewBox")).toBe("0 0 360 360")
-    expect(qrContent?.getAttribute("transform")).toBe("translate(20 20)")
+    expect(svg.getAttribute("width")).toBe("320")
+    expect(svg.getAttribute("height")).toBe("320")
+    expect(svg.getAttribute("viewBox")).toBe("0 0 320 320")
+    expect(qrContent?.getAttribute("transform")).toBe(
+      "translate(20 20) scale(0.875)",
+    )
     expect(qrContent?.children).toContain(qrPath)
     expect(backgroundRect.getAttribute("x")).toBe("0")
     expect(backgroundRect.getAttribute("y")).toBe("0")
-    expect(backgroundRect.getAttribute("width")).toBe("360")
-    expect(backgroundRect.getAttribute("height")).toBe("360")
-    expect(backgroundRect.getAttribute("rx")).toBe("45")
+    expect(backgroundRect.getAttribute("width")).toBe("320")
+    expect(backgroundRect.getAttribute("height")).toBe("320")
+    expect(backgroundRect.getAttribute("rx")).toBe("40")
     expect(backgroundRect.getAttribute("stroke")).toBe("#0f172a")
     expect(backgroundRect.getAttribute("stroke-width")).toBe("16")
     expect(backgroundRect.getAttribute("stroke-opacity")).toBe("0.55")
@@ -1207,34 +1211,32 @@ describe("shape padding geometry", () => {
     return (layout.metrics.translateX + quietZonePx - contentFrameLeft) / layout.scale
   }
 
-  it("fits the square surface to the qr ink at slider 0", () => {
+  it("fills the layer box with the square surface and qr ink at slider 0", () => {
     const state = setSquareQrSize(createDefaultQraftyState(), 320)
     const layout = getDraftingQrLayerLayout(320, state)
     const quietZonePx = getQraftyQrQuietZonePx(state, layout.innerWidth)
+    const inkLeft = layout.metrics.translateX + quietZonePx
+    const inkRight = layout.metrics.translateX + layout.innerWidth - quietZonePx
 
-    expect(layout.metrics.backingRegion.x).toBeCloseTo(quietZonePx, 6)
-    expect(layout.metrics.backingRegion.y).toBeCloseTo(quietZonePx, 6)
-    expect(layout.metrics.backingRegion.width).toBeCloseTo(
-      layout.innerWidth - quietZonePx * 2,
-      6,
-    )
-    expect(layout.metrics.backingRegion.height).toBeCloseTo(
-      layout.innerHeight - quietZonePx * 2,
-      6,
-    )
+    expect(layout.metrics.backingRegion.x).toBeCloseTo(0, 6)
+    expect(layout.metrics.backingRegion.y).toBeCloseTo(0, 6)
+    expect(layout.metrics.backingRegion.width).toBeCloseTo(320, 6)
+    expect(layout.metrics.backingRegion.height).toBeCloseTo(320, 6)
+    expect(inkLeft).toBeCloseTo(0, 6)
+    expect(inkRight).toBeCloseTo(320, 6)
   })
 
-  it("adds square-surface padding outside the qr ink", () => {
+  it("insets the qr inside the square surface by the slider padding", () => {
     const state = setSquareQrSize(createDefaultQraftyState(), 320)
     state.backgroundShapeOptions = { ...state.backgroundShapeOptions, paddingPx: 24 }
     const layout = getDraftingQrLayerLayout(320, state)
     const quietZonePx = getQraftyQrQuietZonePx(state, layout.innerWidth)
+    const inkLeft = layout.metrics.translateX + quietZonePx
+    const inkRight = layout.metrics.translateX + layout.innerWidth - quietZonePx
 
-    expect(layout.metrics.backingRegion.x).toBeCloseTo(quietZonePx - 24, 6)
-    expect(layout.metrics.backingRegion.width).toBeCloseTo(
-      layout.innerWidth - quietZonePx * 2 + 48,
-      6,
-    )
+    expect(inkLeft).toBeCloseTo(24, 6)
+    expect(inkRight).toBeCloseTo(296, 6)
+    expect(layout.metrics.translateX + layout.innerWidth / 2).toBeCloseTo(160, 6)
   })
 
   it("starts with no minimum ink-to-shape gap at slider 0", () => {

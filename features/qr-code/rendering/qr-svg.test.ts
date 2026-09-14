@@ -444,17 +444,17 @@ describe("dashboard qr svg helpers", () => {
     expect(markup).toContain('data-testid="finder-patterns-inner"')
   })
 
-  it("fits the default square background to the qr ink at zero padding", () => {
+  it("fills the svg bounds with the default square background at zero padding", () => {
     const state = createDefaultQraftyState()
     const markup = renderDashboardQrSvgMarkup(state)
     const document = new DOMParser().parseFromString(markup, "image/svg+xml")
     const background = document.querySelector('[data-qr-layer="background-surface"]')
     const numCells = Number(document.documentElement.getAttribute("viewBox")?.split(/\s+/)[2])
 
-    expect(background?.getAttribute("x")).toBe(String(state.margin))
-    expect(background?.getAttribute("y")).toBe(String(state.margin))
-    expect(background?.getAttribute("width")).toBe(String(numCells - state.margin * 2))
-    expect(background?.getAttribute("height")).toBe(String(numCells - state.margin * 2))
+    expect(background?.getAttribute("x")).toBe("0")
+    expect(background?.getAttribute("y")).toBe("0")
+    expect(background?.getAttribute("width")).toBe(String(numCells))
+    expect(background?.getAttribute("height")).toBe(String(numCells))
   })
 
   it("keeps natural size when the background stroke draws inside the qr bounds", async () => {

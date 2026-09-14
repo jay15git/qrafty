@@ -10,6 +10,9 @@ import {
   type ReactNode,
 } from "react"
 
+import { Loader } from "@/components/motion/loader"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { SearchIcon, type SearchIconHandle } from "@/components/ui/search-icon"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { SettingsInput } from "@/features/desktop-shell/inspector/settings-ui"
 import {
@@ -35,7 +38,6 @@ import { filterCuratedIconstackIcons } from "@/features/qr-code/assets/iconstack
 import { useIconstackCuratedIcons } from "@/features/qr-code/hooks/useIconstackCuratedIcons"
 import { useIconstackIconSearch } from "@/features/qr-code/hooks/useIconstackIconSearch"
 import { RaycastWallpaperGrid } from "@/features/workspace/components/RaycastWallpaperGrid"
-import { usePersistedScrollNode } from "@/lib/persisted-element-scroll"
 import { cn } from "@/lib/utils"
 
 function LogoIconTile({
@@ -217,7 +219,7 @@ function LazyIconstackIcon({ result }: { result: IconstackSearchResult }) {
         }
       },
       {
-        root: node.closest(".dn-logo-icon-picker-grid"),
+        root: node.closest(".dn-logo-icon-picker-viewport"),
         rootMargin: "200px",
       },
     )
@@ -260,6 +262,33 @@ function LazyIconstackIcon({ result }: { result: IconstackSearchResult }) {
       aria-hidden
       className="dn-logo-icon-picker-icon dn-logo-icon-picker-icon-pending animate-pulse dn-squircle-xs"
     />
+  )
+}
+
+function LogoIconPickerEmpty() {
+  const iconRef = useRef<SearchIconHandle>(null)
+
+  useEffect(() => {
+    iconRef.current?.startAnimation()
+  }, [])
+
+  return (
+    <div className="dn-logo-icon-picker-state dn-logo-icon-picker-empty col-span-full">
+      <SearchIcon
+        ref={iconRef}
+        aria-hidden
+        className="text-[var(--dn-muted)]"
+        size={44}
+      />
+      <div className="flex flex-col items-center gap-0.5">
+        <p className="dn-type-meta font-semibold text-[var(--dn-fg)]">
+          No matches found
+        </p>
+        <p className="dn-type-meta text-[var(--dn-popover-muted)]">
+          Try a different keyword or spelling
+        </p>
+      </div>
+    </div>
   )
 }
 
@@ -329,7 +358,7 @@ function LogoIconPickerLoadMore({
         }
       },
       {
-        root: node.closest(".dn-logo-icon-picker-grid"),
+        root: node.closest(".dn-logo-icon-picker-viewport"),
         rootMargin: "160px",
       },
     )
@@ -396,7 +425,6 @@ export function LogoIconPicker({
   })
 
   const mobileDensity = useMobileInspectorDensity()
-  const setScrollNode = usePersistedScrollNode("logo-icon-grid")
 
   const isSearching = isLoading || isLoadingMore
   const showSearchSkeleton = canSearch && isLoading && results.length === 0
@@ -431,11 +459,22 @@ export function LogoIconPicker({
         />
       </div>
 
+      <ScrollArea
+        chevron
+        className={cn(
+          "dn-logo-icon-picker-scroll min-w-0 w-full",
+          !mobileDensity && "dn-logo-icon-picker-scroll-fixed",
+        )}
+        cueSize="tight"
+        orientation="vertical"
+        persistKey="logo-icon-grid"
+        scrollFade
+        viewportClassName="dn-logo-icon-picker-viewport"
+      >
       <div
-        ref={setScrollNode}
         className={cn(
           "dn-logo-icon-picker-grid",
-          !mobileDensity && "dn-logo-icon-picker-grid-fixed",
+          mobileDensity && "dn-logo-icon-picker-grid-mobile",
         )}
       >
         {!canSearch ? (
@@ -478,13 +517,18 @@ export function LogoIconPicker({
             ) : null}
           </>
         ) : showSearchSkeleton ? (
-          <LogoIconPickerSkeletonTiles count={12} />
+          <div className="dn-logo-icon-picker-state dn-logo-icon-picker-empty col-span-full">
+            <Loader
+              className="text-[var(--dn-muted)]"
+              label="Searching icons"
+              size={32}
+              variant="dots"
+            />
+          </div>
         ) : showSearchError ? (
           <LogoIconPickerError error={error} onRetry={retry} />
         ) : showSearchEmpty ? (
-          <div className="dn-logo-icon-picker-state col-span-4">
-            <p className="dn-type-meta text-[var(--dn-popover-muted)]">No matches</p>
-          </div>
+          <LogoIconPickerEmpty />
         ) : (
           <>
             {results.map((result) => (
@@ -497,7 +541,7 @@ export function LogoIconPicker({
                 <LazyIconstackIcon result={result} />
               </LogoIconTile>
             ))}
-            {isLoadingMore ? <LogoIconPickerSkeletonTiles count={4} /> : null}
+            {isLoadingMore ? <LogoIconPickerSkeletonTiles count={5} /> : null}
             {error ? <LogoIconPickerError error={error} onRetry={retry} /> : null}
             <LogoIconPickerLoadMore
               enabled={!isSearching && error === null}
@@ -514,6 +558,7 @@ export function LogoIconPicker({
           </>
         )}
       </div>
+      </ScrollArea>
     </div>
   )
 }

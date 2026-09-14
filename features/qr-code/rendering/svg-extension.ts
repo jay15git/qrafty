@@ -6,7 +6,7 @@ import {
   type QrBackgroundShapeContentFrame,
   type QrBackgroundShapeDefinition,
 } from "@/features/qr-code/styles/background-shapes"
-import { getQraftyQrQuietZonePx } from "@/features/qr-code/model/qr-module-metrics"
+import { getQraftyQrQuietZoneFraction } from "@/features/qr-code/model/qr-module-metrics"
 import {
   clampBackgroundShapeOffset,
   clampBackgroundShapeOpacity,
@@ -2107,11 +2107,11 @@ function getCellSpaceBackgroundMetrics(
   return {
     metrics: getBackgroundRenderMetrics(
       numCells,
-      Math.max(1, innerHeight * cellScale),
+      numCells,
       cellShapeOptions,
       {
         contentFrame: layout.contentFrame,
-        quietZonePx: layout.marginCells,
+        quietZoneFraction: layout.marginCells / numCells,
         viewBox: layout.viewBox,
       },
     ),
@@ -2168,7 +2168,12 @@ function createBackgroundShapeExtension(
     const fill = getBackgroundShapeFill(svg, state, metrics.outerWidth, metrics.outerHeight)
 
     applySvgRenderBounds(svg, metrics)
-    const insertReference = wrapQrContent(svg, metrics.translateX, metrics.translateY)
+    const insertReference = wrapQrContent(
+      svg,
+      metrics.translateX,
+      metrics.translateY,
+      metrics.contentScale,
+    )
 
     path.setAttribute("data-qr-layer", "background-shape")
     path.setAttribute("d", shape.path)
@@ -2334,23 +2339,20 @@ type BackgroundRenderMetrics = {
     x: number
     y: number
   }
-  bottomEffectOutset: number
+  contentScale: number
   outerHeight: number
   outerWidth: number
-  leftEffectOutset: number
-  rightEffectOutset: number
-  shapeOutset: number
-  topEffectOutset: number
-  totalOutset: number
   translateX: number
   translateY: number
 }
 
 type BackgroundShapeLayout = {
   contentFrame?: QrBackgroundShapeContentFrame
-  quietZonePx?: number
+  quietZoneFraction?: number
   viewBox?: { height: number; width: number }
 }
+
+const MIN_QR_CONTENT_TARGET = 8
 
 function getBackgroundRenderMetrics(
   width: number,
@@ -2358,71 +2360,63 @@ function getBackgroundRenderMetrics(
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>,
   layout?: BackgroundShapeLayout,
 ): BackgroundRenderMetrics {
-  const quietZonePx = Math.max(0, layout?.quietZonePx ?? 0)
-  const paddingPx = shapeOptions.paddingPx
-  const gap = paddingPx
-  const shapeOutset = paddingPx
-  const strokeOutset = 0
-  const leftEffectOutset = strokeOutset
-  const rightEffectOutset = strokeOutset
-  const topEffectOutset = strokeOutset
-  const bottomEffectOutset = strokeOutset
+  const quietZoneFraction = Math.min(
+    0.49,
+    Math.max(0, layout?.quietZoneFraction ?? 0),
+  )
+  const inkFraction = 1 - quietZoneFraction * 2
+  const contentFrame = layout?.contentFrame
+  const viewBox = layout?.viewBox
+  let target: { height: number; width: number; x: number; y: number }
 
-  let shapeBounds: {
-    height: number
-    width: number
-    x: number
-    y: number
-  }
-
-  if (layout?.viewBox && layout.contentFrame) {
-    const contentFrame = layout.contentFrame
-    const contentTargetWidth = Math.max(0, width - quietZonePx * 2) + gap * 2
-    const contentTargetHeight = Math.max(0, height - quietZonePx * 2) + gap * 2
-    const scale = Math.min(
-      contentTargetWidth / Math.max(1, contentFrame.width),
-      contentTargetHeight / Math.max(1, contentFrame.height),
+  if (viewBox && contentFrame) {
+    const shapeScale = Math.min(
+      width / Math.max(1, viewBox.width),
+      height / Math.max(1, viewBox.height),
     )
+    const shapeOffsetX = (width - viewBox.width * shapeScale) / 2
+    const shapeOffsetY = (height - viewBox.height * shapeScale) / 2
 
-    shapeBounds = {
-      height: layout.viewBox.height * scale,
-      width: layout.viewBox.width * scale,
-      x: width / 2 - (contentFrame.x + contentFrame.width / 2) * scale,
-      y: height / 2 - (contentFrame.y + contentFrame.height / 2) * scale,
+    target = {
+      height: contentFrame.height * shapeScale,
+      width: contentFrame.width * shapeScale,
+      x: shapeOffsetX + contentFrame.x * shapeScale,
+      y: shapeOffsetY + contentFrame.y * shapeScale,
     }
   } else {
-    shapeBounds = {
-      height: Math.max(0, height - quietZonePx * 2) + paddingPx * 2,
-      width: Math.max(0, width - quietZonePx * 2) + paddingPx * 2,
-      x: quietZonePx - paddingPx,
-      y: quietZonePx - paddingPx,
+    target = {
+      height,
+      width,
+      x: 0,
+      y: 0,
     }
   }
 
-  const minX = Math.min(0, shapeBounds.x)
-  const minY = Math.min(0, shapeBounds.y)
-  const maxX = Math.max(width, shapeBounds.x + shapeBounds.width)
-  const maxY = Math.max(height, shapeBounds.y + shapeBounds.height)
-  const translateX = leftEffectOutset - minX
-  const translateY = topEffectOutset - minY
+  const frameSize = Math.min(target.width, target.height)
+  const paddingPx = Math.max(
+    0,
+    Math.min(shapeOptions.paddingPx, (frameSize - MIN_QR_CONTENT_TARGET) / 2),
+  )
+  const contentTarget = Math.max(
+    MIN_QR_CONTENT_TARGET,
+    frameSize - paddingPx * 2,
+  )
+  const contentCenterX = target.x + target.width / 2
+  const contentCenterY = target.y + target.height / 2
+  const renderedSpan = contentTarget / Math.max(0.01, inkFraction)
 
   return {
     backingRegion: {
-      height: shapeBounds.height,
-      width: shapeBounds.width,
-      x: shapeBounds.x + translateX,
-      y: shapeBounds.y + translateY,
+      height,
+      width,
+      x: 0,
+      y: 0,
     },
-    bottomEffectOutset,
-    leftEffectOutset,
-    outerHeight: maxY - minY + topEffectOutset + bottomEffectOutset,
-    outerWidth: maxX - minX + leftEffectOutset + rightEffectOutset,
-    rightEffectOutset,
-    shapeOutset,
-    topEffectOutset,
-    totalOutset: Math.max(translateX, translateY),
-    translateX,
-    translateY,
+    contentScale: renderedSpan / Math.max(1, width),
+    outerHeight: height,
+    outerWidth: width,
+    translateX: contentCenterX - renderedSpan / 2,
+    translateY: contentCenterY - renderedSpan / 2,
   }
 }
 
@@ -2435,13 +2429,12 @@ function getBackgroundRenderLayout(
     | "qrOptions"
     | "valueSegments"
   >,
-  boxPx: number,
 ): BackgroundShapeLayout {
   const shape = getQrBackgroundShapeDefinition(state.backgroundShapeId)
 
   return {
     contentFrame: shape ? getQrBackgroundShapeContentFrame(shape) : undefined,
-    quietZonePx: getQraftyQrQuietZonePx(state, boxPx),
+    quietZoneFraction: getQraftyQrQuietZoneFraction(state),
     viewBox: shape?.viewBox,
   }
 }
@@ -2460,26 +2453,9 @@ export function getQrRenderedDimensions(
     | "width"
   >,
 ) {
-  const width = clampQrSize(state.width)
-  const height = clampQrSize(state.height)
-
-  if (getAssetValue(state.backgroundImage)) {
-    return {
-      height,
-      width,
-    }
-  }
-
-  const metrics = getBackgroundRenderMetrics(
-    width,
-    height,
-    normalizeBackgroundShapeOptions(state.backgroundShapeOptions),
-    getBackgroundRenderLayout(state, width),
-  )
-
   return {
-    height: metrics.outerHeight,
-    width: metrics.outerWidth,
+    height: clampQrSize(state.height),
+    width: clampQrSize(state.width),
   }
 }
 
@@ -2512,71 +2488,21 @@ export function getDraftingQrLayerLayout(
     layerHeight ??
     (naturalOuter.width > 0 ? layerWidth * (naturalOuter.height / naturalOuter.width) : layerWidth)
   const scale = naturalOuter.width > 0 ? layerWidth / naturalOuter.width : 1
-  const innerWidth = Math.max(1, state.width * scale)
-  const innerHeight = Math.max(1, state.height * scale)
   const shapeOptions = scaleQrBackgroundShapeOptions(state.backgroundShapeOptions, scale)
   const metrics = getBackgroundRenderMetrics(
-    innerWidth,
-    innerHeight,
-    normalizeBackgroundShapeOptions(shapeOptions),
-    getBackgroundRenderLayout(state, innerWidth),
-  )
-  const fitted = fitBackgroundRenderMetricsToLayer(
-    metrics,
-    innerWidth,
-    innerHeight,
     layerWidth,
     targetHeight,
+    normalizeBackgroundShapeOptions(shapeOptions),
+    getBackgroundRenderLayout(state),
   )
+  const innerSpan = Math.max(1, metrics.contentScale * layerWidth)
 
   return {
-    innerHeight: fitted.innerHeight,
-    innerWidth: fitted.innerWidth,
-    metrics: fitted.metrics,
+    innerHeight: innerSpan,
+    innerWidth: innerSpan,
+    metrics,
     scale,
     shapeOptions,
-  }
-}
-
-function fitBackgroundRenderMetricsToLayer(
-  metrics: BackgroundRenderMetrics,
-  innerWidth: number,
-  innerHeight: number,
-  layerWidth: number,
-  layerHeight: number,
-) {
-  const widthScale = layerWidth / Math.max(1, metrics.outerWidth)
-  const heightScale = layerHeight / Math.max(1, metrics.outerHeight)
-
-  if (Math.abs(widthScale - 1) < 1e-6 && Math.abs(heightScale - 1) < 1e-6) {
-    return { innerWidth, innerHeight, metrics }
-  }
-
-  const scaleX = (value: number) => value * widthScale
-  const scaleY = (value: number) => value * heightScale
-  const uniformScale = Math.min(widthScale, heightScale)
-
-  return {
-    innerWidth: Math.max(1, innerWidth * widthScale),
-    innerHeight: Math.max(1, innerHeight * heightScale),
-    metrics: {
-      backingRegion: {
-        height: scaleY(metrics.backingRegion.height),
-        width: scaleX(metrics.backingRegion.width),
-        x: scaleX(metrics.backingRegion.x),
-        y: scaleY(metrics.backingRegion.y),
-      },
-      bottomEffectOutset: scaleY(metrics.bottomEffectOutset),
-      leftEffectOutset: scaleX(metrics.leftEffectOutset),
-      outerHeight: layerHeight,
-      outerWidth: layerWidth,
-      rightEffectOutset: scaleX(metrics.rightEffectOutset),
-      shapeOutset: metrics.shapeOutset * uniformScale,
-      topEffectOutset: scaleY(metrics.topEffectOutset),
-      totalOutset: Math.max(scaleX(metrics.translateX), scaleY(metrics.translateY)),
-      translateX: scaleX(metrics.translateX),
-      translateY: scaleY(metrics.translateY),
-    },
   }
 }
 
@@ -2658,19 +2584,26 @@ function coerceSvgNumber(value: number, fallback: number) {
   return value
 }
 
-function wrapQrContent(svg: SVGElement, translateX: number, translateY: number) {
-  if (translateX <= 0 && translateY <= 0) {
-    return getFirstDrawableSvgChild(svg)
-  }
+function wrapQrContent(
+  svg: SVGElement,
+  translateX: number,
+  translateY: number,
+  contentScale = 1,
+) {
+  const hasScale = Math.abs(contentScale - 1) > 1e-9
+  const transform = hasScale
+    ? `translate(${formatSvgNumber(translateX)} ${formatSvgNumber(translateY)}) scale(${formatSvgNumber(contentScale)})`
+    : `translate(${formatSvgNumber(translateX)} ${formatSvgNumber(translateY)})`
 
   const existingGroup = svg.querySelector('[data-qr-layer="qr-content"]')
 
   if (existingGroup) {
-    existingGroup.setAttribute(
-      "transform",
-      `translate(${formatSvgNumber(translateX)} ${formatSvgNumber(translateY)})`,
-    )
+    existingGroup.setAttribute("transform", transform)
     return existingGroup
+  }
+
+  if (!hasScale && translateX === 0 && translateY === 0) {
+    return getFirstDrawableSvgChild(svg)
   }
 
   const document = svg.ownerDocument
@@ -2681,10 +2614,7 @@ function wrapQrContent(svg: SVGElement, translateX: number, translateY: number) 
   )
 
   group.setAttribute("data-qr-layer", "qr-content")
-  group.setAttribute(
-    "transform",
-    `translate(${formatSvgNumber(translateX)} ${formatSvgNumber(translateY)})`,
-  )
+  group.setAttribute("transform", transform)
 
   for (const child of children) {
     group.appendChild(child)
@@ -2751,7 +2681,12 @@ function createBackgroundSurfaceExtension(
     backgroundRect.setAttribute("fill", fill)
     backgroundRect.removeAttribute("clip-path")
     applySvgRenderBounds(svg, metrics)
-    const insertReference = wrapQrContent(svg, metrics.translateX, metrics.translateY)
+    const insertReference = wrapQrContent(
+      svg,
+      metrics.translateX,
+      metrics.translateY,
+      metrics.contentScale,
+    )
 
     applyBackgroundSurfaceRect(backgroundRect, region, radius)
     const strokedSurface = applyBackgroundShapeStroke(

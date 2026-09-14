@@ -69,7 +69,9 @@ describe("drafting qr artwork helpers", () => {
     const quietZonePx = getQraftyQrQuietZonePx(state, layout.innerWidth)
 
     expect(layout.metrics.outerWidth).toBeCloseTo(naturalOuter.width * 0.75, 4)
-    expect(layout.metrics.translateX).toBeGreaterThan(0)
+    expect(
+      layout.metrics.translateX + layout.innerWidth / 2,
+    ).toBeCloseTo(layout.metrics.outerWidth / 2, 4)
     expect(safeAreaWidth).toBeCloseTo(
       layout.innerWidth - quietZonePx * 2 + layout.shapeOptions.paddingPx * 2,
       0,

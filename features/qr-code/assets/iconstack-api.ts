@@ -3,6 +3,9 @@ import { isValidIconstackSvgMarkup, normalizeIconstackSvgMarkup } from "@/featur
 export const ICONSTACK_API_BASE =
   "https://sglpxftkuzsqdpdhftwv.supabase.co/functions/v1"
 
+/** Server-side search proxy — validates params and rate-limits per client. */
+export const ICONSTACK_SEARCH_PATH = "/api/icons/search"
+
 export const ICONSTACK_SELECTION_PREFIX = "iconstack:"
 
 export const ICONSTACK_LIBRARIES = [
@@ -219,7 +222,7 @@ export async function searchIcons({
   }
 
   const request = iconstackFetch(
-    `${ICONSTACK_API_BASE}/icon-search?${cacheKey}`,
+    `${ICONSTACK_SEARCH_PATH}?${cacheKey}`,
     signal,
   ).then(async (response) => {
     if (!response.ok) {

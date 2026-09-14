@@ -4,6 +4,7 @@ import {
   fetchIconSvg,
   getIconstackErrorMessage,
   ICONSTACK_API_BASE,
+  ICONSTACK_SEARCH_PATH,
   IconstackApiError,
   isIconstackAbortError,
   parseIconstackResultIconId,
@@ -68,7 +69,7 @@ describe("iconstack-api", () => {
     const response = await searchIcons({ q: "heart", library: "lucide", limit: 24 })
 
     expect(fetchMock).toHaveBeenCalledWith(
-      `${ICONSTACK_API_BASE}/icon-search?q=heart&limit=24&offset=0&library=lucide`,
+      `${ICONSTACK_SEARCH_PATH}?q=heart&limit=24&offset=0&library=lucide`,
       { signal: expect.any(AbortSignal) },
     )
     expect(response.results).toHaveLength(1)

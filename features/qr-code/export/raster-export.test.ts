@@ -143,7 +143,7 @@ describe("dashboard raster export helper", () => {
     })
   })
 
-  it("expands natural raster dimensions for background shape effects", async () => {
+  it("keeps natural raster dimensions when background shape effects stay in bounds", async () => {
     const state = setSquareQrSize(createDefaultQraftyState(), 320)
     state.backgroundShapeId = "circle"
     state.backgroundShapeOptions = {
@@ -161,10 +161,10 @@ describe("dashboard raster export helper", () => {
     }
 
     expect(getDashboardRasterExportDimensions(state, 25)).toEqual({
-      height: 326,
+      height: 320,
       requestedScale: 1,
       scale: 1,
-      width: 326,
+      width: 320,
     })
 
     await downloadDashboardRasterExport({
@@ -175,8 +175,8 @@ describe("dashboard raster export helper", () => {
     })
 
     expect(createdCanvases[0]).toEqual(expect.objectContaining({
-      height: 326,
-      width: 326,
+      height: 320,
+      width: 320,
     }))
   })
 
@@ -206,14 +206,14 @@ describe("dashboard raster export helper", () => {
     })
 
     expect(getDashboardRasterExportDimensions(state, 100, 812)).toEqual({
-      height: 825,
-      requestedScale: 2.5306748466257667,
-      scale: 2.5306748466257667,
-      width: 825,
+      height: 795,
+      requestedScale: 2.484375,
+      scale: 2.484375,
+      width: 795,
     })
     expect(createdCanvases[0]).toEqual(expect.objectContaining({
-      height: 825,
-      width: 825,
+      height: 795,
+      width: 795,
     }))
   })
 
