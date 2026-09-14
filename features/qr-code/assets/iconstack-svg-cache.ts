@@ -2,6 +2,7 @@ import {
   fetchIconSvg,
   ICONSTACK_SELECTION_PREFIX,
 } from "@/features/qr-code/assets/iconstack-api"
+import { enqueueIconstackRequest } from "@/features/qr-code/assets/iconstack-request-queue"
 
 const iconstackSvgCache = new Map<string, string>()
 const iconstackSvgCacheListeners = new Set<() => void>()
@@ -67,7 +68,9 @@ export async function fetchAndCacheIconstackSvg({
     return cached
   }
 
-  const response = await fetchIconSvg({ library, id })
-  setCachedIconstackSvg(selectionId, response.svg)
-  return response.svg
+  return enqueueIconstackRequest(`svg:${selectionId}`, async () => {
+    const response = await fetchIconSvg({ library, id })
+    setCachedIconstackSvg(selectionId, response.svg)
+    return response.svg
+  })
 }

@@ -65,6 +65,86 @@ export type IconstackSearchParams = {
   style?: "outline" | "filled"
   limit?: number
   offset?: number
+  signal?: AbortSignal
+}
+
+export type IconstackErrorKind = "aborted" | "http" | "invalid" | "network" | "timeout"
+
+export class IconstackApiError extends Error {
+  readonly kind: IconstackErrorKind
+  readonly status?: number
+
+  constructor(kind: IconstackErrorKind, message: string, status?: number) {
+    super(message)
+    this.name = "IconstackApiError"
+    this.kind = kind
+    this.status = status
+  }
+}
+
+export function isIconstackAbortError(error: unknown) {
+  return error instanceof IconstackApiError && error.kind === "aborted"
+}
+
+export function getIconstackErrorMessage(error: unknown) {
+  if (error instanceof IconstackApiError) {
+    switch (error.kind) {
+      case "timeout":
+        return "Icon request timed out"
+      case "network":
+        return "Connection failed — check your network"
+      case "http":
+        return error.status === 429
+          ? "Too many requests — try again"
+          : "Icon service unavailable"
+      case "invalid":
+        return "Icon service returned invalid data"
+      case "aborted":
+        return "Icon request cancelled"
+    }
+  }
+
+  return "Icon search failed"
+}
+
+const ICONSTACK_REQUEST_TIMEOUT_MS = 10_000
+const ICONSTACK_MAX_QUERY_LENGTH = 80
+const TIMEOUT_ABORT_REASON = "iconstack-timeout"
+const CALLER_ABORT_REASON = "iconstack-caller-abort"
+
+async function iconstackFetch(url: string, callerSignal?: AbortSignal) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(
+    () => controller.abort(TIMEOUT_ABORT_REASON),
+    ICONSTACK_REQUEST_TIMEOUT_MS,
+  )
+  const onCallerAbort = () => controller.abort(CALLER_ABORT_REASON)
+
+  if (callerSignal) {
+    if (callerSignal.aborted) {
+      clearTimeout(timeoutId)
+      throw new IconstackApiError("aborted", "Iconstack request aborted")
+    }
+    callerSignal.addEventListener("abort", onCallerAbort, { once: true })
+  }
+
+  try {
+    return await fetch(url, { signal: controller.signal })
+  } catch (error) {
+    const reason = controller.signal.reason
+    if (reason === TIMEOUT_ABORT_REASON) {
+      throw new IconstackApiError("timeout", "Iconstack request timed out")
+    }
+    if (reason === CALLER_ABORT_REASON || callerSignal?.aborted) {
+      throw new IconstackApiError("aborted", "Iconstack request aborted")
+    }
+    throw error instanceof IconstackApiError
+      ? error
+      : new IconstackApiError("network", "Iconstack request failed")
+  } finally {
+    clearTimeout(timeoutId)
+    callerSignal?.removeEventListener("abort", onCallerAbort)
+  }
 }
 
 export function toIconstackSelectionId(result: Pick<IconstackSearchResult, "library" | "id">) {
@@ -107,9 +187,10 @@ export async function searchIcons({
   style,
   limit = 24,
   offset = 0,
+  signal,
 }: IconstackSearchParams): Promise<IconstackSearchResponse> {
   const params = new URLSearchParams({
-    q: q.trim(),
+    q: q.trim().slice(0, ICONSTACK_MAX_QUERY_LENGTH),
     limit: String(limit),
     offset: String(offset),
   })
@@ -122,10 +203,17 @@ export async function searchIcons({
     params.set("style", style)
   }
 
-  const response = await fetch(`${ICONSTACK_API_BASE}/icon-search?${params.toString()}`)
+  const response = await iconstackFetch(
+    `${ICONSTACK_API_BASE}/icon-search?${params.toString()}`,
+    signal,
+  )
 
   if (!response.ok) {
-    throw new Error(`Iconstack search failed (${response.status})`)
+    throw new IconstackApiError(
+      "http",
+      `Iconstack search failed (${response.status})`,
+      response.status,
+    )
   }
 
   return (await response.json()) as IconstackSearchResponse
@@ -134,22 +222,34 @@ export async function searchIcons({
 export async function fetchIconSvg({
   library,
   id,
+  signal,
 }: {
   library: string
   id: string
+  signal?: AbortSignal
 }): Promise<IconstackSvgResponse> {
   const params = new URLSearchParams({ library, id })
-  const response = await fetch(`${ICONSTACK_API_BASE}/icon-svg?${params.toString()}`)
+  const response = await iconstackFetch(
+    `${ICONSTACK_API_BASE}/icon-svg?${params.toString()}`,
+    signal,
+  )
 
   if (!response.ok) {
-    throw new Error(`Iconstack SVG fetch failed (${response.status})`)
+    throw new IconstackApiError(
+      "http",
+      `Iconstack SVG fetch failed (${response.status})`,
+      response.status,
+    )
   }
 
   const payload = (await response.json()) as IconstackSvgResponse
   const svg = normalizeIconstackSvgMarkup(payload.svg ?? "")
 
   if (!isValidIconstackSvgMarkup(svg)) {
-    throw new Error(`Iconstack SVG fetch returned invalid markup for ${library}/${id}`)
+    throw new IconstackApiError(
+      "invalid",
+      `Iconstack SVG fetch returned invalid markup for ${library}/${id}`,
+    )
   }
 
   return {

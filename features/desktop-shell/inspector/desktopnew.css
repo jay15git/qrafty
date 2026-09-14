@@ -1865,12 +1865,13 @@
   transform: translateY(-50%);
 }
 
-/* Taller search field — comfortable touch target. */
+/* Search field uses the shared settings input; icon reserves left padding. */
 :is(.desktopnew-popover-content, .dn-portal-surface, .dn-settings-accordion)
   .dn-logo-icon-picker
-  .dn-content-type-search-input {
+  .dn-settings-input {
   min-height: var(--dn-control-height);
   height: var(--dn-control-height);
+  padding-inline: calc(var(--dn-row-px) + 1.125rem) var(--dn-row-px);
 }
 
 .dn-logo-icon-picker-grid {
@@ -1885,20 +1886,73 @@
   padding: 0.25rem;
 }
 
-/* Tiles span their grid column so the hit target stays large on touch. */
-.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile,
-.dn-logo-icon-picker-grid .dn-logo-icon-picker-skeleton {
+/* Fixed-height scrollport — popover size stays constant across loading,
+   error, empty, and paginated result states. */
+.dn-logo-icon-picker-grid-fixed {
+  height: 16.5rem;
+  overflow-y: auto;
+  align-content: start;
+}
+
+.dn-logo-icon-picker-state {
+  display: flex;
+  min-height: 6rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.dn-logo-icon-picker-sentinel {
+  grid-column: 1 / -1;
+  height: 1px;
+}
+
+.dn-logo-icon-picker-icon-pending {
+  background: color-mix(in srgb, var(--dn-muted) 14%, transparent);
+}
+
+/* Tiles are full-cell hitboxes; the visible square is a fixed preset tile
+   centered inside. Degrades to the preset size even if aspect-ratio is lost. */
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile {
   width: 100%;
   height: auto;
   min-width: 0;
   min-height: 0;
   aspect-ratio: 1 / 1;
-}
-
-.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile {
+  padding: 0;
+  border: none;
   background: transparent;
   color: color-mix(in srgb, var(--dn-fg) 78%, transparent);
   cursor: pointer;
+}
+
+.dn-logo-icon-picker-tile-inner {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  display: grid;
+  width: var(--dn-preview-tile);
+  height: var(--dn-preview-tile);
+  min-width: var(--dn-preview-tile);
+  min-height: var(--dn-preview-tile);
+  place-items: center;
+}
+
+.dn-logo-icon-picker-tile-inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  corner-shape: inherit;
+  pointer-events: none;
+  border: 2px solid var(--dn-fg);
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity var(--dn-select-ring-dur) var(--dn-ease-out),
+    transform var(--dn-select-ring-dur) var(--dn-ease-press);
 }
 
 .dn-logo-icon-picker-grid .dn-logo-icon-picker-tile:is(:hover, :focus-visible) {
@@ -1906,15 +1960,28 @@
 }
 
 .dn-logo-icon-picker-grid .dn-logo-icon-picker-tile[aria-pressed="true"] {
-  background: transparent;
   color: var(--dn-fg);
 }
 
-/* The flat-press rule above suppresses :active scale inside settings
-   surfaces; restore it here so taps give tactile feedback. */
-.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile:active:not(:disabled) {
-  transform: scale(0.92) !important;
-  transition-duration: var(--dn-press-active-dur);
+.dn-logo-icon-picker-grid
+  .dn-logo-icon-picker-tile[aria-pressed="true"]
+  .dn-logo-icon-picker-tile-inner::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Press feedback scales the preset tile, not the full-cell hitbox. */
+.dn-logo-icon-picker-grid
+  .dn-logo-icon-picker-tile:active:not(:disabled)
+  .dn-logo-icon-picker-tile-inner {
+  transform: scale(0.92);
+  transition: transform var(--dn-press-active-dur) var(--dn-ease-out);
+}
+
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-skeleton {
+  width: var(--dn-preview-tile);
+  height: var(--dn-preview-tile);
+  place-self: center;
 }
 
 .dn-logo-icon-picker-icon {

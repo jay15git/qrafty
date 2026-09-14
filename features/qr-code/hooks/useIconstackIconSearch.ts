@@ -1,28 +1,40 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import {
-  parseIconstackResultIconId,
+  IconstackApiError,
+  isIconstackAbortError,
   searchIcons,
-  toIconstackSelectionId,
   type IconstackLibraryId,
   type IconstackSearchResult,
 } from "@/features/qr-code/assets/iconstack-api"
-import {
-  fetchAndCacheIconstackSvg,
-  getCachedIconstackSvg,
-} from "@/features/qr-code/assets/iconstack-svg-cache"
-import { isValidIconstackSvgMarkup } from "@/features/qr-code/assets/iconstack-svg"
 
 const SEARCH_DEBOUNCE_MS = 300
+const SEARCH_MIN_INTERVAL_MS = 400
 const MIN_QUERY_LENGTH = 2
-const PREVIEW_LIMIT = 24
+const PAGE_LIMIT = 32
+const MAX_RESULTS = 256
+const API_MAX_OFFSET = 1000
 
 type UseIconstackIconSearchParams = {
   enabled?: boolean
   library: IconstackLibraryId | "all"
   query: string
+}
+
+function delay(ms: number) {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
+
+function mergeResults(
+  previous: IconstackSearchResult[],
+  next: IconstackSearchResult[],
+) {
+  const seen = new Set(previous.map((result) => result.id))
+  return [...previous, ...next.filter((result) => !seen.has(result.id))]
 }
 
 export function useIconstackIconSearch({
@@ -33,111 +45,143 @@ export function useIconstackIconSearch({
   const [results, setResults] = useState<IconstackSearchResult[]>([])
   const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [previewSvgs, setPreviewSvgs] = useState<Record<string, string>>({})
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [error, setError] = useState<IconstackApiError | null>(null)
+
+  const abortRef = useRef<AbortController | null>(null)
+  const lastRequestAtRef = useRef(0)
+  const nextOffsetRef = useRef(0)
 
   const trimmedQuery = query.trim()
   const canSearch = enabled && trimmedQuery.length >= MIN_QUERY_LENGTH
 
+  const runSearch = useCallback(
+    async ({ append = false }: { append?: boolean } = {}) => {
+      abortRef.current?.abort()
+      const controller = new AbortController()
+      abortRef.current = controller
+
+      const offset = append ? nextOffsetRef.current : 0
+
+      if (append) {
+        setIsLoadingMore(true)
+      } else {
+        setIsLoading(true)
+      }
+      setError(null)
+
+      const waitMs = lastRequestAtRef.current + SEARCH_MIN_INTERVAL_MS - Date.now()
+      if (waitMs > 0) {
+        await delay(waitMs)
+      }
+      if (controller.signal.aborted) {
+        return
+      }
+      lastRequestAtRef.current = Date.now()
+
+      try {
+        const response = await searchIcons({
+          q: trimmedQuery,
+          library,
+          limit: PAGE_LIMIT,
+          offset,
+          signal: controller.signal,
+        })
+
+        if (controller.signal.aborted) {
+          return
+        }
+
+        nextOffsetRef.current = offset + response.results.length
+        setTotal(response.total)
+        setResults((previous) =>
+          append ? mergeResults(previous, response.results) : response.results,
+        )
+      } catch (searchError) {
+        if (controller.signal.aborted || isIconstackAbortError(searchError)) {
+          return
+        }
+
+        setError(
+          searchError instanceof IconstackApiError
+            ? searchError
+            : new IconstackApiError("network", "Icon search failed"),
+        )
+        if (!append) {
+          nextOffsetRef.current = 0
+          setResults([])
+          setTotal(0)
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+          setIsLoadingMore(false)
+        }
+      }
+    },
+    [library, trimmedQuery],
+  )
+
   useEffect(() => {
     if (!canSearch) {
+      abortRef.current?.abort()
+      abortRef.current = null
+      nextOffsetRef.current = 0
       setResults([])
       setTotal(0)
       setIsLoading(false)
+      setIsLoadingMore(false)
       setError(null)
-      setPreviewSvgs({})
       return
     }
 
-    let cancelled = false
     const timeoutId = window.setTimeout(() => {
-      void (async () => {
-        setIsLoading(true)
-        setError(null)
-
-        try {
-          const response = await searchIcons({
-            q: trimmedQuery,
-            library,
-            limit: PREVIEW_LIMIT,
-          })
-
-          if (cancelled) {
-            return
-          }
-
-          const previewEntries = await Promise.all(
-            response.results.map(async (result) => {
-              try {
-                const iconId = parseIconstackResultIconId(result)
-                const selectionId = toIconstackSelectionId(result)
-                const cachedSvg = getCachedIconstackSvg(selectionId)
-                const svg =
-                  cachedSvg ??
-                  (await fetchAndCacheIconstackSvg({
-                    library: result.library,
-                    id: iconId,
-                  }))
-
-                if (!isValidIconstackSvgMarkup(svg)) {
-                  return null
-                }
-
-                return [result.id, svg] as const
-              } catch {
-                return null
-              }
-            }),
-          )
-
-          if (cancelled) {
-            return
-          }
-
-          const nextPreviewSvgs = Object.fromEntries(
-            previewEntries.filter(
-              (entry): entry is readonly [string, string] => entry !== null,
-            ),
-          )
-          const svgResults = response.results.filter((result) => result.id in nextPreviewSvgs)
-
-          setPreviewSvgs(nextPreviewSvgs)
-          setResults(svgResults)
-          setTotal(svgResults.length)
-        } catch (searchError) {
-          if (cancelled) {
-            return
-          }
-
-          setResults([])
-          setTotal(0)
-          setPreviewSvgs({})
-          setError(
-            searchError instanceof Error
-              ? searchError.message
-              : "Icon search failed",
-          )
-        } finally {
-          setIsLoading(false)
-        }
-      })()
+      void runSearch()
     }, SEARCH_DEBOUNCE_MS)
 
     return () => {
-      cancelled = true
       window.clearTimeout(timeoutId)
     }
-  }, [canSearch, library, trimmedQuery])
+  }, [canSearch, runSearch])
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort()
+    }
+  }, [])
+
+  const hasMore =
+    canSearch &&
+    results.length > 0 &&
+    results.length < Math.min(total, MAX_RESULTS) &&
+    nextOffsetRef.current <= API_MAX_OFFSET
+
+  const loadMore = useCallback(() => {
+    if (!hasMore || isLoading || isLoadingMore) {
+      return
+    }
+    void runSearch({ append: true })
+  }, [hasMore, isLoading, isLoadingMore, runSearch])
+
+  const retry = useCallback(() => {
+    if (!canSearch) {
+      return
+    }
+    void runSearch()
+  }, [canSearch, runSearch])
 
   return useMemo(
     () => ({
       canSearch,
       error,
+      hasMore,
       isLoading,
-      previewSvgs,
+      isLoadingMore,
+      loadMore,
       results,
+      retry,
       total,
     }),
-    [canSearch, error, isLoading, previewSvgs, results, total],
+    [canSearch, error, hasMore, isLoading, isLoadingMore, loadMore, results, retry, total],
   )
 }

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import * as iconstackApi from "@/features/qr-code/assets/iconstack-api"
+import { resetIconstackRequestQueue } from "@/features/qr-code/assets/iconstack-request-queue"
 import {
   clearIconstackSvgCache,
   fetchAndCacheIconstackSvg,
@@ -13,6 +14,7 @@ import {
 describe("iconstack-svg-cache", () => {
   afterEach(() => {
     clearIconstackSvgCache()
+    resetIconstackRequestQueue()
     vi.restoreAllMocks()
   })
 

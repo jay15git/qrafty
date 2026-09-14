@@ -2,7 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 
 import {
   fetchIconSvg,
+  getIconstackErrorMessage,
   ICONSTACK_API_BASE,
+  IconstackApiError,
+  isIconstackAbortError,
   parseIconstackResultIconId,
   parseIconstackSelectionId,
   searchIcons,
@@ -66,6 +69,7 @@ describe("iconstack-api", () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       `${ICONSTACK_API_BASE}/icon-search?q=heart&limit=24&offset=0&library=lucide`,
+      { signal: expect.any(AbortSignal) },
     )
     expect(response.results).toHaveLength(1)
     expect(response.results[0]?.name).toBe("Heart")
@@ -89,8 +93,67 @@ describe("iconstack-api", () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       `${ICONSTACK_API_BASE}/icon-svg?library=lucide&id=heart`,
+      { signal: expect.any(AbortSignal) },
     )
     expect(response.svg).toContain("<svg")
     expect(response.svg).toContain("<path")
+  })
+
+  it("rejects with a typed http error on non-ok responses", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("nope", { status: 500 }),
+    )
+
+    const error = await searchIcons({ q: "heart" }).catch(
+      (caught: unknown) => caught,
+    )
+
+    expect(error).toBeInstanceOf(IconstackApiError)
+    expect((error as IconstackApiError).kind).toBe("http")
+    expect((error as IconstackApiError).status).toBe(500)
+    expect(getIconstackErrorMessage(error)).toBe("Icon service unavailable")
+  })
+
+  it("rejects with a typed aborted error when the caller aborts", async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(
+      (_input, init) =>
+        new Promise<Response>((_resolve, reject) => {
+          const signal = init?.signal
+          signal?.addEventListener("abort", () => {
+            reject(signal.reason)
+          })
+        }),
+    )
+
+    const controller = new AbortController()
+    const pending = searchIcons({ q: "heart", signal: controller.signal })
+    controller.abort()
+
+    const error = await pending.catch((caught: unknown) => caught)
+
+    expect(error).toBeInstanceOf(IconstackApiError)
+    expect(isIconstackAbortError(error)).toBe(true)
+  })
+
+  it("rejects with a typed timeout error when the request stalls", async () => {
+    vi.useFakeTimers()
+    vi.spyOn(globalThis, "fetch").mockImplementation(
+      (_input, init) =>
+        new Promise<Response>((_resolve, reject) => {
+          const signal = init?.signal
+          signal?.addEventListener("abort", () => {
+            reject(signal.reason)
+          })
+        }),
+    )
+
+    const pending = searchIcons({ q: "heart" })
+    const assertion = expect(pending).rejects.toMatchObject({
+      kind: "timeout",
+      name: "IconstackApiError",
+    })
+    await vi.advanceTimersByTimeAsync(10_000)
+    await assertion
+    vi.useRealTimers()
   })
 })
