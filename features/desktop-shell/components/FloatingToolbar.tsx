@@ -98,10 +98,24 @@ export function FloatingToolbar({
                 <DesktopDynamicIslandChrome
                   appearance={controller?.appearanceSnapshot}
                   appearanceLayer={controller?.selectedAppearanceLayer}
+                  canAddQrCode={controller?.canAddQrCode}
+                  canDeleteLayer={controller?.canDeleteLayer}
                   canRedo={controller?.canRedo}
                   canUndo={controller?.canUndo}
+                  insertNodeId={controller?.insertNodeId}
+                  layersSettings={model.actualLayersSettings}
+                  onAddQrCode={controller?.onAddQrCode}
+                  onBrowseWallpapers={
+                    controller?.onOpenComposeSidebar
+                      ? () => controller.onOpenComposeSidebar?.("wallpapers")
+                      : undefined
+                  }
                   onElementLayerPatch={controller?.onElementLayerPatch}
                   onAppearancePatch={controller?.onAppearancePatch}
+                  onInsertLayer={controller?.onInsertLayer}
+                  onLayerDelete={controller?.onLayerDelete}
+                  onLayersReorder={model.onLayersReorder}
+                  onLayersSettingsChange={model.onLayersSettingsChange}
                   onRedo={controller?.onRedo}
                   onSelectSizeTemplate={controller?.onSceneTemplateSizeTemplateSelect}
                   onThemeChange={model.onDesktopThemeChange}

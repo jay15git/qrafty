@@ -1,7 +1,14 @@
 "use client"
 
 import { Plus } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select"
 
 import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants"
 import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"
@@ -22,6 +29,9 @@ import {
   SETTINGS_FILL_OPTION_TILE_INNER,
 } from "@/features/desktop-shell/inspector/settings-preview-tiles"
 import { DesktopNewFillPicker } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
+import { cn } from "@/lib/utils"
 import {
   SegmentTabs,
   SettingsFillPopover,
@@ -137,6 +147,8 @@ export function QrColorFillControls({
   }
 }) {
   const pickerRef = useRef<SettingsFillPopoverHandle>(null)
+  const mobileDensity = useMobileInspectorDensity()
+  const theme = useContext(DesktopnewThemeContext)
   const modeTabs = moduleCapable
     ? (["Solid", "Gradient", "Pattern", "Image"] as const)
     : (["Solid", "Gradient"] as const)
@@ -167,11 +179,39 @@ export function QrColorFillControls({
 
   return (
     <div className="dn-section-stack w-full min-w-0 max-w-full">
-      <SegmentTabs
-        items={[...modeTabs]}
-        value={modeTab}
-        onChange={(nextTab) => setModeTab(nextTab as QrColorFillModeTab)}
-      />
+      {mobileDensity ? (
+        <SegmentTabs
+          items={[...modeTabs]}
+          value={modeTab}
+          onChange={(nextTab) => setModeTab(nextTab as QrColorFillModeTab)}
+        />
+      ) : (
+        <div className="dn-content-type-select w-full min-w-0">
+          <Select
+            value={modeTab}
+            onValueChange={(next) => setModeTab(next as QrColorFillModeTab)}
+          >
+            <SelectTrigger
+              className="dn-content-type-select-trigger w-full min-w-0 dn-squircle-sm"
+              placeholder="Fill"
+              variant="borderless"
+            />
+            <SelectContent
+              className={cn(
+                "dn-portal-surface desktopnew-popover-content overflow-hidden p-0 dn-squircle-md",
+                theme === "dark" && "dark",
+              )}
+              data-theme={theme}
+            >
+              {modeTabs.map((item, index) => (
+                <SelectItem key={item} index={index} value={item}>
+                  {item}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {modeTab === "Solid" ? (
         <SettingsFillOptionGrid

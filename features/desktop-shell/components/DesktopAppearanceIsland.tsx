@@ -3,9 +3,11 @@
 import { useMemo, type ReactNode } from "react"
 import {
   EclipseIcon,
+  LayersIcon,
   MoonIcon,
   MoveIcon,
   PaletteIcon,
+  PlusIcon,
   SparklesIcon,
   SquareDashedIcon,
   SunIcon,
@@ -24,8 +26,11 @@ import {
   DesktopLayerStylePanel,
   DesktopLayerTransformPanel,
 } from "@/features/desktop-shell/components/DesktopLayerSettingsPanel"
+import { DesktopLayersPopoverContent } from "@/features/desktop-shell/components/DesktopLayersPopoverContent"
 import { DesktopToolbarPopoverContent } from "@/features/desktop-shell/components/DesktopToolbarPopover"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
+import type { DesktopLayersSettings } from "@/features/desktop-shell/model/desktop-toolbar-types"
+import { InsertMenuPopoverContent } from "@/features/workspace/components/insert-menu/InsertMenuPopoverContent"
 import type { DesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { getDesktopLayerToolbarCapabilities } from "@/features/desktop-shell/model/layer-toolbar-capabilities"
 import { TooltipNavbar, type TooltipItem } from "@/components/ui/tooltip-navbar"
@@ -102,11 +107,21 @@ const ICON_CLASS = "size-3.5 shrink-0"
 export function DesktopDynamicIslandChrome({
   appearance,
   appearanceLayer,
+  canAddQrCode,
+  canDeleteLayer,
   canRedo,
   canUndo,
+  insertNodeId,
+  layersSettings,
+  onAddQrCode,
   onAppearancePatch,
+  onBrowseWallpapers,
   onRedo,
   onElementLayerPatch,
+  onInsertLayer,
+  onLayerDelete,
+  onLayersReorder,
+  onLayersSettingsChange,
   onTransformLayerPatch,
   onSelectSizeTemplate,
   onThemeChange,
@@ -118,11 +133,21 @@ export function DesktopDynamicIslandChrome({
 }: {
   appearance?: DesktopAppearanceSnapshot | null
   appearanceLayer?: DraftingCanvasLayer | null
+  canAddQrCode?: boolean
+  canDeleteLayer?: (layerId: string) => boolean
   canRedo?: boolean
   canUndo?: boolean
+  insertNodeId?: string
+  layersSettings?: DesktopLayersSettings
+  onAddQrCode?: () => void
   onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void
+  onBrowseWallpapers?: () => void
   onRedo?: () => void
   onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
+  onInsertLayer?: (layer: DraftingCanvasLayer) => void
+  onLayerDelete?: (layerId: string) => void
+  onLayersReorder?: (orderedIds: string[]) => void
+  onLayersSettingsChange?: (patch: Partial<DesktopLayersSettings>) => void
   onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onSelectSizeTemplate?: (template: SizeTemplate) => void
   onThemeChange?: (theme: DesktopThemeMode) => void
@@ -142,6 +167,8 @@ export function DesktopDynamicIslandChrome({
   const hasEffects = Boolean(
     effectsLayer && effectsPatch && propertyCapabilities.maxEffects > 0,
   )
+  const canInsert = Boolean(insertNodeId && onInsertLayer)
+  const hasLayers = Boolean(layersSettings && onLayersSettingsChange)
   const { soundsEnabled, toggleSoundsEnabled } = useDesktopCuelume()
   const themeTransition = useOptionalBlurFadeThemeTransition()
 
@@ -290,6 +317,49 @@ export function DesktopDynamicIslandChrome({
       })
     }
 
+    if (canInsert) {
+      nextItems.push({
+        ariaLabel: "Add element",
+        dataSlot: "desktop-insert-trigger",
+        icon: <PlusIcon className={ICON_CLASS} />,
+        label: "Add element",
+        popover: (
+          <InsertMenuPopoverContent
+            canAddQrCode={canAddQrCode}
+            isDesktopPopover
+            nodeId={insertNodeId!}
+            onAddQrCode={onAddQrCode}
+            onBrowseWallpapers={onBrowseWallpapers}
+            onInsertLayer={onInsertLayer!}
+            theme={theme}
+          />
+        ),
+      })
+    }
+
+    if (hasLayers) {
+      nextItems.push({
+        ariaLabel: "Layers",
+        dataSlot: "desktop-layers-trigger",
+        icon: <LayersIcon className={ICON_CLASS} />,
+        label: "Layers",
+        popover: (
+          <DesktopToolbarPopoverContent
+            dataSlot="desktop-layers-popover"
+            fitContent
+          >
+            <DesktopLayersPopoverContent
+              canDeleteLayer={canDeleteLayer}
+              layersSettings={layersSettings!}
+              onLayerDelete={onLayerDelete}
+              onLayersReorder={onLayersReorder}
+              onLayersSettingsChange={onLayersSettingsChange!}
+            />
+          </DesktopToolbarPopoverContent>
+        ),
+      })
+    }
+
     nextItems.push({
       ariaLabel: "Open keyboard shortcuts",
       dataSlot: "desktop-keyboard-shortcuts-trigger",
@@ -338,16 +408,28 @@ export function DesktopDynamicIslandChrome({
     return nextItems
   }, [
     appearance,
+    canAddQrCode,
+    canDeleteLayer,
+    canInsert,
     canRedo,
     canUndo,
     effectsLayer,
     effectsPatch,
     hasBorder,
     hasEffects,
+    hasLayers,
     hasStyle,
     hasTransform,
+    insertNodeId,
+    layersSettings,
+    onAddQrCode,
     onAppearancePatch,
+    onBrowseWallpapers,
     onElementLayerPatch,
+    onInsertLayer,
+    onLayerDelete,
+    onLayersReorder,
+    onLayersSettingsChange,
     onRedo,
     onSelectSizeTemplate,
     onThemeChange,

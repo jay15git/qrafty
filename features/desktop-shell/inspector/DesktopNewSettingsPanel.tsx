@@ -58,7 +58,9 @@ export function DesktopNewSettingsPanel({
           renderSection={(section) => (
             <SettingsSectionBody id={section} model={model} />
           )}
-          sections={DESKTOP_SETTINGS_SECTIONS}
+          sections={DESKTOP_SETTINGS_SECTIONS.filter(
+            (section) => section !== "Elements",
+          )}
           onOpenSectionChange={handleSectionChange}
         />
       </SettingsScroll>

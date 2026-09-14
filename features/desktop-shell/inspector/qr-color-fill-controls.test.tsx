@@ -101,6 +101,45 @@ vi.mock("@/features/desktop-shell/inspector/settings-ui", async () => {
   }
 })
 
+vi.mock("@/components/ui/select", async () => {
+  const React = await import("react")
+  const SelectContext = React.createContext<{
+    onValueChange?: (value: string) => void
+  }>({})
+
+  return {
+    Select: ({
+      children,
+      onValueChange,
+    }: {
+      children: ReactNode
+      onValueChange?: (value: string) => void
+    }) => (
+      <SelectContext.Provider value={{ onValueChange }}>
+        {children}
+      </SelectContext.Provider>
+    ),
+    SelectTrigger: ({ placeholder }: { placeholder?: string }) => (
+      <button aria-label="Fill type" type="button">
+        {placeholder}
+      </button>
+    ),
+    SelectContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    SelectItem: ({ children, value }: { children: ReactNode; value: string }) => {
+      const { onValueChange } = React.useContext(SelectContext)
+      return (
+        <button
+          aria-label={value}
+          type="button"
+          onClick={() => onValueChange?.(value)}
+        >
+          {children}
+        </button>
+      )
+    },
+  }
+})
+
 vi.mock("@/components/ui/scroll-area", () => ({
   ScrollArea: ({
     children,

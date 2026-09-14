@@ -65,7 +65,6 @@ describe("FloatingToolbar", () => {
       "Motion",
       "Shape",
       "Background",
-      "Elements",
     ])
     expect(surface.container.querySelector('[data-slot="desktop-inspector-accordion"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-prototype-canvas"]')).toBeNull()
@@ -160,7 +159,7 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
@@ -329,7 +328,7 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).not.toBeNull()

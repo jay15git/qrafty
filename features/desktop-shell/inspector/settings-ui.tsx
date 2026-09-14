@@ -1292,41 +1292,9 @@ export function QrColorPartBrowser({
   onSelect: (part: QrColorPartOption) => void
   selected: string
 }) {
-  const mobileDensity = useMobileInspectorDensity()
-  const theme = useDesktopnewTheme()
   const normalizedSelected = QR_COLOR_PART_OPTIONS.includes(selected as QrColorPartOption)
     ? (selected as QrColorPartOption)
     : "Module"
-
-  if (!mobileDensity) {
-    return (
-      <div className="dn-content-type-select w-full min-w-0">
-        <Select
-          value={normalizedSelected}
-          onValueChange={(next) => onSelect(next as QrColorPartOption)}
-        >
-          <SelectTrigger
-            className="dn-content-type-select-trigger w-full min-w-0 dn-squircle-sm"
-            placeholder="Part"
-            variant="borderless"
-          />
-          <SelectContent
-            className={desktopnewPortalClass(
-              theme,
-              "dn-portal-surface desktopnew-popover-content overflow-hidden p-0 dn-squircle-md",
-            )}
-            data-theme={theme}
-          >
-            {QR_COLOR_PART_OPTIONS.map((part, index) => (
-              <SelectItem key={part} index={index} value={part}>
-                {part}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    )
-  }
 
   return (
     <SegmentTabs
