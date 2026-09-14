@@ -59,6 +59,7 @@ import {
   documentToChromeOffset,
   documentToChromeSize,
   getChromeFrameRect,
+  getChromeVisualScale,
   getFloatingToolbarChromePosition,
   type ChromeSpace,
 } from "@/features/workspace/components/pane-layer-chrome-overlay"
@@ -484,6 +485,11 @@ export function PaneWorkspace({
       (x) => documentToChromeOffset(x, 0, chromeSpace).x,
     ),
   }
+  const sceneLayoutZoom =
+    Number.isFinite(sceneComposition.layout.zoom) && sceneComposition.layout.zoom > 0
+      ? sceneComposition.layout.zoom
+      : 1
+  const qrOverlayScale = getChromeVisualScale(chromeSpace) * sceneLayoutZoom
   const snapGuideClipLayer = visibleLayers.find((layer) => layer.kind === "card") ?? null
   const snapGuideClipBounds = snapGuideClipLayer
     ? getChromeFrameRect(snapGuideClipLayer, 0, chromeSpace)
@@ -1472,6 +1478,7 @@ export function PaneWorkspace({
     isImageFilterMode,
     isImageMode,
     isPaperShaderMode,
+    qrOverlayScale,
     qrStateByLayerId,
     state,
   }

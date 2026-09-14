@@ -311,11 +311,13 @@ function PaneQrLayerSurface({
   activeQrLayerId,
   contentValidation,
   layer,
+  qrOverlayScale,
   qrState,
 }: {
   activeQrLayerId?: string
   contentValidation?: StaticQrValidationResult
   layer: DraftingCanvasLayer
+  qrOverlayScale?: number
   qrState: QraftyState
 }) {
   const layout = useMemo(
@@ -344,6 +346,7 @@ function PaneQrLayerSurface({
       canvasSvgMarkup={markup}
       layer={layer}
       overlayMessage={overlayMessage}
+      overlayScale={qrOverlayScale}
       qrMarkup={displayMarkup}
       shapeTiltInnerStyle={shapeTiltInnerStyle}
       shapeTiltPerspectiveStyle={shapeTiltPerspectiveStyle}
@@ -363,6 +366,7 @@ export type PaneLayerViewSharedProps = {
   isImageFilterMode: boolean
   isImageMode: boolean
   isPaperShaderMode: boolean
+  qrOverlayScale?: number
   qrStateByLayerId: DraftingQrStateByLayerId
   state: QraftyState
 }
@@ -383,6 +387,7 @@ export function PaneNestedLayerView({
   isImageMode,
   isPaperShaderMode,
   layer,
+  qrOverlayScale,
   qrStateByLayerId,
   state,
 }: PaneNestedLayerViewProps) {
@@ -421,6 +426,7 @@ export function PaneNestedLayerView({
               isImageMode={isImageMode}
               isPaperShaderMode={isPaperShaderMode}
               layer={child}
+              qrOverlayScale={qrOverlayScale}
               qrStateByLayerId={qrStateByLayerId}
               state={state}
             />
@@ -449,6 +455,7 @@ export function PaneNestedLayerView({
           activeQrLayerId={activeQrLayerId}
           contentValidation={contentValidation}
           layer={layer}
+          qrOverlayScale={qrOverlayScale}
           qrState={qrState}
         />
       </div>
@@ -622,6 +629,10 @@ function arePaneLayerViewPropsEqual(
       return false
     }
 
+    if (previous.qrOverlayScale !== next.qrOverlayScale) {
+      return false
+    }
+
     if (
       previous.qrStateByLayerId[previous.layer.id] !==
       next.qrStateByLayerId[next.layer.id]
@@ -672,6 +683,7 @@ export const PaneLayerView = memo(function PaneLayerView({
   onStartLayerInteraction,
   onStartTextEditing,
   onUpdateLayerInteraction,
+  qrOverlayScale,
   state,
   textEditorRefs,
 }: PaneLayerViewProps) {
@@ -723,6 +735,7 @@ export const PaneLayerView = memo(function PaneLayerView({
                 isImageMode={isImageMode}
                 isPaperShaderMode={isPaperShaderMode}
                 layer={child}
+                qrOverlayScale={qrOverlayScale}
                 qrStateByLayerId={qrStateByLayerId}
                 state={state}
               />
@@ -766,6 +779,7 @@ export const PaneLayerView = memo(function PaneLayerView({
           activeQrLayerId={activeQrLayerId}
           contentValidation={contentValidation}
           layer={layer}
+          qrOverlayScale={qrOverlayScale}
           qrState={qrState}
         />
         </DraftingLayerTiltShell>

@@ -18,6 +18,7 @@ type DraftingQrLayerContentProps = {
   canvasSvgMarkup: string | null
   layer: DraftingCanvasLayer
   overlayMessage?: string | null
+  overlayScale?: number
   qrMarkup: string
   shapeTiltInnerStyle: CSSProperties
   shapeTiltPerspectiveStyle: CSSProperties
@@ -25,22 +26,28 @@ type DraftingQrLayerContentProps = {
 }
 
 const QR_OVERLAY_PILL_CLASS =
-  "max-w-[calc(100%-0.5rem)] rounded-full border border-white/[0.12] bg-[var(--desktop-glass-bg)] px-2.5 py-1 text-center text-[0.68rem] font-semibold leading-snug text-white/82 shadow-[var(--desktop-glass-shadow)] backdrop-blur-2xl"
+  "max-w-[calc(100%-0.5rem)] rounded-full border border-black/10 bg-white px-5 py-2.5 text-center text-xl font-semibold leading-snug text-black shadow-[var(--desktop-glass-shadow)] dark:border-white/15 dark:bg-black dark:text-white"
 
 function QrModulesWithOverlay({
   borderStyle,
   children,
   overlayMessage,
+  overlayScale = 1,
   qrPlacementStyle,
   transformStyle,
 }: {
   borderStyle?: CSSProperties
   children: ReactNode
   overlayMessage?: string | null
+  overlayScale?: number
   qrPlacementStyle: CSSProperties
   transformStyle?: CSSProperties["transformStyle"]
 }) {
   const showOverlay = Boolean(overlayMessage)
+  const pillScale =
+    Number.isFinite(overlayScale) && overlayScale > 0 && overlayScale !== 1
+      ? `scale(${1 / overlayScale})`
+      : undefined
 
   return (
     <>
@@ -64,7 +71,15 @@ function QrModulesWithOverlay({
             transformStyle,
           }}
         >
-          <p className={QR_OVERLAY_PILL_CLASS}>{overlayMessage}</p>
+          <p
+            className={QR_OVERLAY_PILL_CLASS}
+            style={{
+              transform: pillScale,
+              transformOrigin: "center center",
+            }}
+          >
+            {overlayMessage}
+          </p>
         </div>
       ) : null}
     </>
@@ -75,6 +90,7 @@ export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({
   canvasSvgMarkup,
   layer,
   overlayMessage,
+  overlayScale,
   qrMarkup,
   shapeTiltInnerStyle,
   shapeTiltPerspectiveStyle,
@@ -95,6 +111,7 @@ export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({
           <QrModulesWithOverlay
             borderStyle={qrBorderStyle}
             overlayMessage={overlayMessage}
+            overlayScale={overlayScale}
             qrPlacementStyle={qrPlacementStyle}
             transformStyle={shapeTiltInnerStyle.transformStyle}
           >
@@ -121,6 +138,7 @@ export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({
         <QrModulesWithOverlay
           borderStyle={qrBorderStyle}
           overlayMessage={overlayMessage}
+          overlayScale={overlayScale}
           qrPlacementStyle={qrPlacementStyle}
           transformStyle={shapeTiltInnerStyle.transformStyle}
         >
