@@ -53,7 +53,9 @@ export function clearIconstackSvgCache() {
   notifyIconstackSvgCacheListeners()
 }
 
-export async function fetchAndCacheIconstackSvg({
+const iconstackSvgInflight = new Map<string, Promise<string>>()
+
+export function fetchAndCacheIconstackSvg({
   library,
   id,
 }: {
@@ -64,10 +66,25 @@ export async function fetchAndCacheIconstackSvg({
   const cached = getCachedIconstackSvg(selectionId)
 
   if (cached) {
-    return cached
+    return Promise.resolve(cached)
   }
 
-  const response = await fetchIconSvg({ library, id })
-  setCachedIconstackSvg(selectionId, response.svg)
-  return response.svg
+  const inflight = iconstackSvgInflight.get(selectionId)
+
+  if (inflight) {
+    return inflight
+  }
+
+  const request = fetchIconSvg({ library, id }).then((response) => {
+    iconstackSvgInflight.delete(selectionId)
+    setCachedIconstackSvg(selectionId, response.svg)
+    return response.svg
+  })
+
+  request.catch(() => {
+    iconstackSvgInflight.delete(selectionId)
+  })
+  iconstackSvgInflight.set(selectionId, request)
+
+  return request
 }

@@ -733,7 +733,6 @@
 
 :is(
     .dn-content-type-grid,
-    .dn-logo-icon-picker-grid,
     .dn-insert-menu-option-grid,
     .dn-option-grid
   )
@@ -747,7 +746,6 @@
   :is(.dn-preview-row, .dn-option-scroll-row) > :is(button, a, [role="button"]):is(:hover, :focus-visible),
   :is(
       .dn-content-type-grid,
-      .dn-logo-icon-picker-grid,
       .dn-insert-menu-option-grid,
       .dn-option-grid
     )
@@ -1732,39 +1730,6 @@
   color: var(--dn-popover-muted);
 }
 
-.desktopnew-popover-content .dn-content-type-search-input {
-  height: var(--dn-control-height-compact);
-  border: 1px solid var(--dn-popover-border);
-  background: var(--dn-popover-control);
-  padding-left: 2rem;
-  font-size: var(--dn-type-value);
-  font-weight: 500;
-  letter-spacing: var(--dn-tracking-tight);
-  color: inherit;
-}
-
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-content-type-search-input {
-  width: 100%;
-  min-width: 0;
-  min-height: var(--dn-control-height-compact);
-  height: var(--dn-control-height-compact);
-  border: 1px solid var(--dn-line);
-  background: var(--dn-control);
-  padding-inline: calc(var(--dn-row-px) + 1.125rem) var(--dn-row-px);
-  font-size: var(--dn-type-value);
-  font-weight: 500;
-  letter-spacing: var(--dn-tracking-tight);
-  color: inherit;
-}
-
-.desktopnew-popover-content .dn-content-type-search-input::placeholder {
-  color: var(--dn-popover-muted);
-}
-
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-content-type-search-input::placeholder {
-  color: var(--dn-muted);
-}
-
 .desktopnew-popover-content .dn-content-type-filter-trigger[data-active="true"] {
   color: inherit;
   background: var(--dn-popover-tile-hover);
@@ -1865,33 +1830,41 @@
   transform: translateY(-50%);
 }
 
-/* Taller search field — comfortable touch target. */
-:is(.desktopnew-popover-content, .dn-portal-surface, .dn-settings-accordion)
-  .dn-logo-icon-picker
-  .dn-content-type-search-input {
-  min-height: var(--dn-control-height);
-  height: var(--dn-control-height);
+/* Standard settings input with room for the leading search icon. */
+.dn-logo-icon-picker .dn-logo-icon-picker-search-input {
+  padding-inline: calc(var(--dn-row-px) + 1.25rem) var(--dn-row-px);
 }
 
 .dn-logo-icon-picker-grid {
   display: grid;
   width: 100%;
   min-width: 0;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  --dn-option-gap: var(--dn-space-inline);
-  gap: var(--dn-option-gap);
-  /* Padding ≥ half the option gap keeps the selected ring inside the
-     scrollport while tile hitboxes extend through every gap. */
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+  /* Inner padding keeps the selected ring inside the scrollport. */
   padding: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--dn-popover-muted, var(--dn-muted)) 45%, transparent) transparent;
 }
 
-/* Tiles span their grid column so the hit target stays large on touch. */
+.dn-logo-icon-picker-grid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dn-logo-icon-picker-grid::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--dn-popover-muted, var(--dn-muted)) 45%, transparent);
+}
+
+/* Tiles span their grid column so spacing stays even and the selected
+   ring clears its neighbours. */
 .dn-logo-icon-picker-grid .dn-logo-icon-picker-tile,
 .dn-logo-icon-picker-grid .dn-logo-icon-picker-skeleton {
   width: 100%;
   height: auto;
   min-width: 0;
   min-height: 0;
+  margin: 0;
   aspect-ratio: 1 / 1;
 }
 
@@ -1902,12 +1875,20 @@
 }
 
 .dn-logo-icon-picker-grid .dn-logo-icon-picker-tile:is(:hover, :focus-visible) {
+  background: var(--dn-popover-tile-hover, var(--dn-control));
   color: var(--dn-fg);
 }
 
-.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile[aria-pressed="true"] {
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile[aria-pressed="true"],
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile[aria-pressed="true"]:is(:hover, :focus-visible) {
   background: transparent;
   color: var(--dn-fg);
+}
+
+/* Selected ring hugs the icon — inset clears the tile's transparent
+   border instead of spanning the whole cell. */
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile::after {
+  inset: 3px;
 }
 
 /* The flat-press rule above suppresses :active scale inside settings
@@ -1918,9 +1899,20 @@
 }
 
 .dn-logo-icon-picker-icon {
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1.375rem;
+  height: 1.375rem;
   flex-shrink: 0;
+}
+
+/* Status cell (loading / error / empty) — fills the fixed-height grid so
+   the popover never resizes between states. */
+.dn-logo-icon-picker-status {
+  grid-column: 1 / -1;
+  display: grid;
+  min-height: 17.5rem;
+  place-items: center;
+  text-align: center;
+  color: var(--dn-popover-muted, var(--dn-muted));
 }
 
 .dn-logo-icon-picker-grid .dn-type-meta {

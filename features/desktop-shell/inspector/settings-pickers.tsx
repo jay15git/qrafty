@@ -4,7 +4,9 @@ import { Search } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react"
 
+import { Loader } from "@/components/motion/loader"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
+import { SettingsInput } from "@/features/desktop-shell/inspector/settings-ui"
 import {
   findBrandIconById,
   getBrandIconById,
@@ -45,7 +47,7 @@ function LogoIconTile({
       aria-label={ariaLabel}
       aria-pressed={isSelected}
       className={cn(
-        "dn-logo-icon-picker-tile dn-option-tile dn-preview-tile dn-preview-tile-size dn-pressable-pickable grid min-w-0 place-items-center dn-squircle-xs",
+        "dn-logo-icon-picker-tile dn-option-tile dn-preview-tile dn-pressable-pickable grid min-w-0 place-items-center dn-squircle-xs",
         isSelected && "text-[var(--dn-fg)]",
       )}
       type="button"
@@ -224,10 +226,10 @@ export function LogoIconPicker({
           aria-hidden
           className="dn-logo-icon-picker-search-icon pointer-events-none text-[var(--dn-muted)]"
         />
-        <input
+        <SettingsInput
           aria-label="Search logo icons"
-          className="dn-content-type-search-input dn-squircle-xs w-full min-w-0"
-          placeholder="Search"
+          className="dn-logo-icon-picker-search-input"
+          placeholder="Search icons"
           value={query}
           onChange={(event) => setQuery(event.currentTarget.value)}
         />
@@ -237,7 +239,7 @@ export function LogoIconPicker({
         ref={setScrollNode}
         className={cn(
           "dn-logo-icon-picker-grid",
-          !mobileDensity && "max-h-72 overflow-y-auto",
+          !mobileDensity && "h-72 overflow-y-auto",
         )}
       >
         {!canSearch ? (
@@ -284,17 +286,22 @@ export function LogoIconPicker({
             ) : null}
           </>
         ) : isLoading ? (
-          <p className="col-span-4 px-1 py-6 text-center text-[var(--dn-popover-muted)] dn-type-meta">
-            Searching icons…
-          </p>
+          <div className="dn-logo-icon-picker-status">
+            <Loader
+              className="text-[var(--dn-fg)]"
+              label="Searching icons"
+              size={32}
+              variant="dots"
+            />
+          </div>
         ) : error ? (
-          <p className="col-span-4 px-1 py-6 text-center text-[var(--dn-popover-muted)] dn-type-meta">
-            {error}
-          </p>
+          <div className="dn-logo-icon-picker-status">
+            <p className="dn-type-meta">{error}</p>
+          </div>
         ) : results.length === 0 ? (
-          <p className="col-span-4 px-1 py-6 text-center text-[var(--dn-popover-muted)] dn-type-meta">
-            No matches
-          </p>
+          <div className="dn-logo-icon-picker-status">
+            <p className="dn-type-meta">No matches</p>
+          </div>
         ) : (
           results.map((result) => (
             <LogoIconTile

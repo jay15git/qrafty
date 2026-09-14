@@ -1,3 +1,4 @@
+import { scheduleIconstackRequest } from "@/features/qr-code/assets/iconstack-rate-limit"
 import { isValidIconstackSvgMarkup, normalizeIconstackSvgMarkup } from "@/features/qr-code/assets/iconstack-svg"
 
 export const ICONSTACK_API_BASE =
@@ -101,6 +102,47 @@ export function parseIconstackSelectionId(
   }
 }
 
+const RETRY_DELAY_MS = 500
+const SEARCH_CACHE_LIMIT = 60
+
+const searchCache = new Map<string, Promise<IconstackSearchResponse>>()
+
+export function clearIconstackSearchCache() {
+  searchCache.clear()
+}
+
+function isRetryableStatus(status: number) {
+  return status === 429 || status >= 500
+}
+
+async function fetchIconstack(url: string, errorLabel: string) {
+  let lastError: unknown
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    if (attempt > 0) {
+      await new Promise<void>((resolve) => setTimeout(resolve, RETRY_DELAY_MS))
+    }
+
+    try {
+      const response = await scheduleIconstackRequest(() => fetch(url))
+
+      if (response.ok) {
+        return response
+      }
+
+      lastError = new Error(`${errorLabel} (${response.status})`)
+
+      if (!isRetryableStatus(response.status)) {
+        break
+      }
+    } catch (error) {
+      lastError = error
+    }
+  }
+
+  throw lastError
+}
+
 export async function searchIcons({
   q,
   library,
@@ -122,13 +164,33 @@ export async function searchIcons({
     params.set("style", style)
   }
 
-  const response = await fetch(`${ICONSTACK_API_BASE}/icon-search?${params.toString()}`)
+  const cacheKey = params.toString()
+  const cached = searchCache.get(cacheKey)
 
-  if (!response.ok) {
-    throw new Error(`Iconstack search failed (${response.status})`)
+  if (cached) {
+    return cached
   }
 
-  return (await response.json()) as IconstackSearchResponse
+  const request = fetchIconstack(
+    `${ICONSTACK_API_BASE}/icon-search?${cacheKey}`,
+    "Iconstack search failed",
+  ).then(async (response) => (await response.json()) as IconstackSearchResponse)
+
+  searchCache.set(cacheKey, request)
+
+  if (searchCache.size > SEARCH_CACHE_LIMIT) {
+    const oldestKey = searchCache.keys().next().value
+    if (oldestKey !== undefined) {
+      searchCache.delete(oldestKey)
+    }
+  }
+
+  try {
+    return await request
+  } catch (error) {
+    searchCache.delete(cacheKey)
+    throw error
+  }
 }
 
 export async function fetchIconSvg({
@@ -139,11 +201,10 @@ export async function fetchIconSvg({
   id: string
 }): Promise<IconstackSvgResponse> {
   const params = new URLSearchParams({ library, id })
-  const response = await fetch(`${ICONSTACK_API_BASE}/icon-svg?${params.toString()}`)
-
-  if (!response.ok) {
-    throw new Error(`Iconstack SVG fetch failed (${response.status})`)
-  }
+  const response = await fetchIconstack(
+    `${ICONSTACK_API_BASE}/icon-svg?${params.toString()}`,
+    "Iconstack SVG fetch failed",
+  )
 
   const payload = (await response.json()) as IconstackSvgResponse
   const svg = normalizeIconstackSvgMarkup(payload.svg ?? "")
