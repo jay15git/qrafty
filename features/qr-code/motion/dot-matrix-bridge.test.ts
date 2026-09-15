@@ -211,6 +211,113 @@ describe("dot matrix motion bridge", () => {
     expect(adapted?.svg).not.toMatch(/class="module"[^>]*fill="#111827"/);
   });
 
+  it("keeps one animatable module per cell for palette fills", () => {
+    const state = createDefaultQraftyState();
+    state.dotsColorMode = "palette";
+    state.dotsPalette = ["#ff0000", "#00ff00", "#0000ff", "#ffff00"];
+
+    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
+
+    const moduleTags = adapted!.svg.match(/<[^>]*class="module"[^>]*>/g) ?? [];
+    const coordinates = moduleTags.map((tag) => {
+      const col = tag.match(/data-column="(\d+)"/)?.[1];
+      const row = tag.match(/data-row="(\d+)"/)?.[1];
+      return `${col}:${row}`;
+    });
+
+    expect(moduleTags.length).toBeGreaterThan(state.dotsPalette.length);
+    expect(new Set(coordinates).size).toBe(coordinates.length);
+  });
+
+  it("expands merged palette fill paths back into per-cell modules", () => {
+    const state = createDefaultQraftyState();
+    state.dotsColorMode = "palette";
+    state.dotsPalette = ["#ff0000", "#00ff00"];
+
+    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
+    const document = new DOMParser().parseFromString(adapted!.svg, "image/svg+xml");
+    const palettePaths = document.querySelectorAll(
+      '[data-qr-layer="dot-palette-fill"] > path',
+    );
+    const modulesInsideDefs = document.querySelectorAll("defs .module");
+
+    expect(palettePaths.length).toBeGreaterThan(state.dotsPalette.length);
+    expect(modulesInsideDefs.length).toBe(0);
+  });
+
+  it("animates per-cell image slices for module image fills", () => {
+    const state = createDefaultQraftyState();
+    state.dotsColorMode = "image";
+    state.moduleFillImage = {
+      source: "upload",
+      value: "data:image/png;base64,iVBORw0KGgo=",
+    };
+
+    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
+    const document = new DOMParser().parseFromString(adapted!.svg, "image/svg+xml");
+
+    const coveringImage = document.querySelector('[data-qr-layer="unified-image-definition"]');
+    const cells = document.querySelectorAll(
+      '[data-qr-layer="dot-matrix-motion-modules"] > path, [data-qr-layer="dot-matrix-motion-modules"] > rect, [data-qr-layer="dot-matrix-motion-modules"] > circle',
+    );
+    const modules = document.querySelectorAll(".module");
+    const pattern = document.querySelector("#dot-matrix-motion-image-fill");
+    const patternImage = pattern?.querySelector("image");
+
+    expect(coveringImage?.getAttribute("opacity")).toBe("0");
+    expect(cells.length).toBeGreaterThan(1);
+    expect(modules.length).toBeGreaterThan(1);
+    expect(document.querySelectorAll("defs .module, clipPath .module").length).toBe(0);
+    expect(pattern?.getAttribute("patternUnits")).toBe("userSpaceOnUse");
+    expect(patternImage?.getAttribute("href")).toBe(state.moduleFillImage.value);
+
+    for (const cell of Array.from(cells)) {
+      expect(cell.getAttribute("fill")).toBe("url(#dot-matrix-motion-image-fill)");
+      expect(cell.getAttribute("clip-path")).toBeNull();
+    }
+
+    const finderSources = document.querySelectorAll(
+      '[data-qr-layer="unified-image-source"][data-testid^="finder-patterns-"]',
+    );
+    expect(finderSources.length).toBeGreaterThan(0);
+    for (const finder of Array.from(finderSources)) {
+      expect(finder.getAttribute("fill")).toBe("url(#dot-matrix-motion-image-fill)");
+      expect(finder.getAttribute("opacity")).not.toBe("0");
+    }
+
+    const coordinates = new Set(
+      Array.from(modules).map(
+        (element) =>
+          `${element.getAttribute("data-column")}:${element.getAttribute("data-row")}`,
+      ),
+    );
+    expect(coordinates.size).toBe(modules.length);
+  });
+
+  it("keeps unified gradient fills on motion modules", () => {
+    const state = createDefaultQraftyState();
+    state.dotsColorMode = "gradient";
+    state.gradientLinkMode = "unified";
+    state.dataModulesGradient = {
+      enabled: true,
+      type: "linear",
+      rotation: 0,
+      colorStops: [
+        { offset: 0, color: "#101010" },
+        { offset: 1, color: "#fafafa" },
+      ],
+    };
+
+    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
+
+    expect(adapted?.svg).toContain('class="module"');
+    expect(adapted?.svg).toContain('fill="url(#unified-gradient-definition)"');
+  });
+
   it("enables preserve mode for gradient and palette qr colors", () => {
     const gradientState = createDefaultQraftyState();
     gradientState.dotsColorMode = "gradient";

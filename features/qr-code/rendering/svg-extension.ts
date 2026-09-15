@@ -284,11 +284,18 @@ function materializeDataModulePaths(
   }
 
   if (svg.querySelector('[data-qr-layer="dot-palette"]')) {
+    expandMergedPaletteFillPaths(svg)
     return
   }
 
   const clipLayers = getQrModuleClipLayers(svg)
   const pathLayers = getQrModulePathLayers(svg)
+  const unifiedImage = svg.querySelector('[data-qr-layer="unified-image-definition"]')
+
+  if (unifiedImage && isSvgElementLike(unifiedImage) && unifiedImage.tagName.toLowerCase() === "image") {
+    materializeUnifiedImageMotionModules(svg, unifiedImage, clipLayers, pathLayers)
+    return
+  }
 
   if (state?.dotsColorMode === "palette" && getActiveDotsPalette(state).length > 0) {
     const allDotShapes = [
@@ -339,6 +346,124 @@ function materializeDataModulePaths(
   }
 }
 
+function expandMergedPaletteFillPaths(svg: SVGElement) {
+  const document = svg.ownerDocument
+
+  if (!document) {
+    return
+  }
+
+  for (const colorGroup of svg.querySelectorAll('[data-qr-layer="dot-palette-fill"]')) {
+    for (const child of Array.from(colorGroup.children)) {
+      if (!isSvgElementLike(child) || child.tagName.toLowerCase() !== "path") {
+        continue
+      }
+
+      const segments = splitSvgPathData(child.getAttribute("d"))
+
+      if (segments.length <= 1) {
+        continue
+      }
+
+      const fill = child.getAttribute("fill") ?? colorGroup.getAttribute("fill") ?? "currentColor"
+      const paletteIndex = child.getAttribute("data-qr-palette-index")
+
+      for (const segment of segments) {
+        const path = document.createElementNS(SVG_NS, "path")
+        path.setAttribute("d", segment)
+        path.setAttribute("fill", fill)
+        if (paletteIndex) {
+          path.setAttribute("data-qr-palette-index", paletteIndex)
+        }
+        colorGroup.insertBefore(path, child)
+      }
+
+      child.remove()
+    }
+  }
+}
+
+function materializeUnifiedImageMotionModules(
+  svg: SVGElement,
+  image: SVGElement,
+  clipLayers: DotClipLayer[],
+  pathLayers: DotPathLayer[],
+) {
+  const document = svg.ownerDocument
+  const shapes = [
+    ...clipLayers.flatMap((layer) => layer.shapes),
+    ...pathLayers.flatMap((layer) => layer.shapes),
+  ]
+  const coverRect = getSvgShapeBounds(image)
+
+  if (
+    !document ||
+    shapes.length === 0 ||
+    !coverRect ||
+    coverRect.width <= 0 ||
+    coverRect.height <= 0
+  ) {
+    return
+  }
+
+  const patternId = "dot-matrix-motion-image-fill"
+  const pattern = document.createElementNS(SVG_NS, "pattern")
+  pattern.setAttribute("id", patternId)
+  pattern.setAttribute("patternUnits", "userSpaceOnUse")
+  pattern.setAttribute("x", formatSvgNumber(coverRect.x))
+  pattern.setAttribute("y", formatSvgNumber(coverRect.y))
+  pattern.setAttribute("width", formatSvgNumber(coverRect.width))
+  pattern.setAttribute("height", formatSvgNumber(coverRect.height))
+
+  const patternImage = image.cloneNode(true) as SVGElement
+  patternImage.removeAttribute("id")
+  patternImage.removeAttribute("clip-path")
+  patternImage.removeAttribute("data-qr-layer")
+  patternImage.removeAttribute("opacity")
+  patternImage.setAttribute("x", "0")
+  patternImage.setAttribute("y", "0")
+  patternImage.setAttribute("width", formatSvgNumber(coverRect.width))
+  patternImage.setAttribute("height", formatSvgNumber(coverRect.height))
+  pattern.appendChild(patternImage)
+  getOrCreateSvgDefs(svg).appendChild(pattern)
+
+  const patternFill = `url(#${patternId})`
+  const group = document.createElementNS(SVG_NS, "g")
+  group.setAttribute("data-qr-layer", "dot-matrix-motion-modules")
+
+  for (const shape of shapes) {
+    const cell = shape.cloneNode(true) as SVGElement
+    cell.removeAttribute("id")
+    cell.removeAttribute("clip-path")
+    cell.removeAttribute("opacity")
+    cell.removeAttribute("style")
+    cell.removeAttribute("data-testid")
+    cell.removeAttribute("data-qr-layer")
+    cell.setAttribute("fill", patternFill)
+    group.appendChild(cell)
+  }
+
+  removeDotMatrixBaseLayers(clipLayers, pathLayers)
+  removeOrphanedModuleClipPaths(svg)
+
+  for (const target of svg.querySelectorAll('[data-qr-layer="unified-image-source"]')) {
+    if (!isSvgElementLike(target)) {
+      continue
+    }
+
+    if (!target.getAttribute("data-testid")?.startsWith("finder-patterns-")) {
+      continue
+    }
+
+    target.setAttribute("fill", patternFill)
+    target.removeAttribute("opacity")
+    target.removeAttribute("clip-path")
+  }
+
+  image.setAttribute("opacity", "0")
+  svg.insertBefore(group, image.nextSibling)
+}
+
 function resolveMotionModuleFill(
   shape: SVGElement,
   fallbackFill: string,
@@ -349,7 +474,7 @@ function resolveMotionModuleFill(
   }
 
   if (state.dotsColorMode === "gradient") {
-    return "url('#dot-gradient-definition')"
+    return fallbackFill.startsWith("url(") ? fallbackFill : "url('#dot-gradient-definition')"
   }
 
   return fallbackFill
@@ -420,7 +545,8 @@ function createPaletteModuleGroup(
     const paintedShapes: SVGElement[] = []
 
     for (const shape of shapes) {
-      const pathData = getMergeableClipPathData(shape)
+      const pathData =
+        groupLayer === "dot-palette" ? getMergeableClipPathData(shape) : null
 
       if (pathData) {
         mergedPathData.push(pathData)
@@ -524,7 +650,7 @@ function suppressGradientPaletteOverlayLayers(svg: SVGElement) {
 function collectCanvasDotModuleShapes(svg: SVGElement): SVGElement[] {
   const fromMaterialized = [
     ...svg.querySelectorAll(
-      '[data-qr-layer="dot-matrix-motion-modules"] path, [data-qr-layer="dot-matrix-motion-modules"] rect, [data-qr-layer="dot-matrix-motion-modules"] circle',
+      '[data-qr-layer="dot-matrix-motion-modules"] > path, [data-qr-layer="dot-matrix-motion-modules"] > rect, [data-qr-layer="dot-matrix-motion-modules"] > circle, [data-qr-layer="dot-matrix-motion-modules"] > svg, [data-qr-layer="dot-matrix-motion-modules"] > g[clip-path]',
     ),
     ...svg.querySelectorAll(
       '[data-qr-layer="dot-palette"] [data-qr-layer="dot-palette-fill"] > *',
@@ -1294,6 +1420,20 @@ function resolveDotMatrixCoordinates(shape: SVGElement, metrics: DotMatrixMetric
 }
 
 function getDotMatrixAnchor(shape: SVGElement): DotMatrixAnchor | null {
+  const anchorTag = shape.tagName.toLowerCase()
+
+  if (anchorTag === "g" || anchorTag === "svg") {
+    const x = getDotNumericAttribute(shape, "data-anchor-x")
+    const y = getDotNumericAttribute(shape, "data-anchor-y")
+
+    if (x !== null && y !== null) {
+      const size = getDotNumericAttribute(shape, "data-anchor-size")
+      return { size: size ?? undefined, x, y }
+    }
+
+    return null
+  }
+
   if (shape.tagName.toLowerCase() === "rect") {
     const x = getDotNumericAttribute(shape, "x")
     const y = getDotNumericAttribute(shape, "y")
@@ -1342,6 +1482,213 @@ function getPathAnchor(pathDefinition: string | null): DotMatrixAnchor | null {
   }
 
   return { size: 1, x: Math.floor(x), y: Math.floor(y) }
+}
+
+type SvgShapeBounds = {
+  height: number
+  width: number
+  x: number
+  y: number
+}
+
+const PATH_COMMAND_ARG_COUNTS: Record<string, number> = {
+  a: 7,
+  c: 6,
+  h: 1,
+  l: 2,
+  m: 2,
+  q: 4,
+  s: 4,
+  t: 2,
+  v: 1,
+  z: 0,
+}
+
+function getPathDataBounds(pathDefinition: string | null): SvgShapeBounds | null {
+  const tokens = pathDefinition?.match(/[a-zA-Z]|[-+]?(?:\d*\.?\d+)(?:e[-+]?\d+)?/gi)
+
+  if (!tokens) {
+    return null
+  }
+
+  let command = ""
+  let cursorX = 0
+  let cursorY = 0
+  let index = 0
+  let minX = Number.POSITIVE_INFINITY
+  let minY = Number.POSITIVE_INFINITY
+  let maxX = Number.NEGATIVE_INFINITY
+  let maxY = Number.NEGATIVE_INFINITY
+
+  const pushPoint = (x: number, y: number) => {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
+      return
+    }
+
+    minX = Math.min(minX, x)
+    minY = Math.min(minY, y)
+    maxX = Math.max(maxX, x)
+    maxY = Math.max(maxY, y)
+  }
+
+  while (index < tokens.length) {
+    const token = tokens[index]!
+
+    if (/^[a-zA-Z]$/.test(token)) {
+      command = token
+      index += 1
+
+      if (command.toLowerCase() === "z") {
+        continue
+      }
+    }
+
+    const normalized = command.toLowerCase()
+    const arity = PATH_COMMAND_ARG_COUNTS[normalized]
+
+    if (arity === undefined || arity === 0) {
+      index += 1
+      continue
+    }
+
+    if (index + arity > tokens.length) {
+      break
+    }
+
+    const params = tokens.slice(index, index + arity).map(Number)
+    index += arity
+    const isRelative = command !== normalized
+
+    if (normalized === "h") {
+      cursorX = isRelative ? cursorX + params[0]! : params[0]!
+      pushPoint(cursorX, cursorY)
+      continue
+    }
+
+    if (normalized === "v") {
+      cursorY = isRelative ? cursorY + params[0]! : params[0]!
+      pushPoint(cursorX, cursorY)
+      continue
+    }
+
+    if (normalized === "a") {
+      const endX = isRelative ? cursorX + params[5]! : params[5]!
+      const endY = isRelative ? cursorY + params[6]! : params[6]!
+      cursorX = endX
+      cursorY = endY
+      pushPoint(endX, endY)
+      continue
+    }
+
+    const baseX = cursorX
+    const baseY = cursorY
+
+    for (let pair = 0; pair + 1 < arity; pair += 2) {
+      let x = params[pair]!
+      let y = params[pair + 1]!
+
+      if (isRelative) {
+        x += baseX
+        y += baseY
+      }
+
+      pushPoint(x, y)
+
+      if (pair === arity - 2) {
+        cursorX = x
+        cursorY = y
+      }
+    }
+
+    if (normalized === "m") {
+      command = isRelative ? "l" : "L"
+    }
+  }
+
+  if (!Number.isFinite(minX) || !Number.isFinite(minY)) {
+    return null
+  }
+
+  return { height: maxY - minY, width: maxX - minX, x: minX, y: minY }
+}
+
+function getSvgShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+  const tagName = shape.tagName.toLowerCase()
+
+  if (tagName === "path") {
+    return getPathDataBounds(shape.getAttribute("d"))
+  }
+
+  if (tagName === "rect" || tagName === "image" || tagName === "svg") {
+    const x = getDotNumericAttribute(shape, "x") ?? 0
+    const y = getDotNumericAttribute(shape, "y") ?? 0
+    const width = getDotNumericAttribute(shape, "width")
+    const height = getDotNumericAttribute(shape, "height")
+
+    if (width !== null && height !== null) {
+      return { height, width, x, y }
+    }
+
+    return null
+  }
+
+  if (tagName === "circle") {
+    const cx = getDotNumericAttribute(shape, "cx")
+    const cy = getDotNumericAttribute(shape, "cy")
+    const r = getDotNumericAttribute(shape, "r")
+
+    if (cx !== null && cy !== null && r !== null) {
+      return { height: r * 2, width: r * 2, x: cx - r, y: cy - r }
+    }
+
+    return null
+  }
+
+  if (tagName === "ellipse") {
+    const cx = getDotNumericAttribute(shape, "cx")
+    const cy = getDotNumericAttribute(shape, "cy")
+    const rx = getDotNumericAttribute(shape, "rx")
+    const ry = getDotNumericAttribute(shape, "ry")
+
+    if (cx !== null && cy !== null && rx !== null && ry !== null) {
+      return { height: ry * 2, width: rx * 2, x: cx - rx, y: cy - ry }
+    }
+
+    return null
+  }
+
+  if (tagName === "g") {
+    let combined: SvgShapeBounds | null = null
+
+    for (const child of Array.from(shape.children)) {
+      if (!isSvgElementLike(child)) {
+        continue
+      }
+
+      const childBounds = getSvgShapeBounds(child)
+
+      if (!childBounds) {
+        continue
+      }
+
+      combined = combined
+        ? {
+            height:
+              Math.max(combined.y + combined.height, childBounds.y + childBounds.height) -
+              Math.min(combined.y, childBounds.y),
+            width:
+              Math.max(combined.x + combined.width, childBounds.x + childBounds.width) -
+              Math.min(combined.x, childBounds.x),
+            x: Math.min(combined.x, childBounds.x),
+            y: Math.min(combined.y, childBounds.y),
+          }
+        : childBounds
+    }
+
+    return combined
+  }
+
+  return null
 }
 
 function getDotNumericAttribute(shape: SVGElement, attributeName: string) {
