@@ -24,6 +24,13 @@ export interface MotionAccordionProps {
   className?: string;
   openIndex?: number | null;
   onOpenIndexChange?: (index: number | null) => void;
+  /**
+   * Pins the whole accordion card to a fixed pixel height. Open panels are
+   * capped so every section header stays visible; tall panels scroll inside.
+   */
+  cardHeight?: number | null;
+  /** Pinned content rendered at the bottom of the card, inside the surface. */
+  footer?: React.ReactNode;
 }
 
 function AccordionItem({
@@ -32,12 +39,14 @@ function AccordionItem({
   onToggle,
   itemId,
   panelId,
+  maxPanelHeight,
 }: {
   item: MotionAccordionItem;
   isOpen: boolean;
   onToggle: () => void;
   itemId: string;
   panelId: string;
+  maxPanelHeight?: number | null;
 }) {
   const contentRef = React.useRef<HTMLDivElement>(null);
   const [contentH, setContentH] = React.useState(0);
@@ -51,12 +60,17 @@ function AccordionItem({
     return () => ro.disconnect();
   }, []);
 
+  const panelHeight =
+    maxPanelHeight != null ? Math.min(contentH, maxPanelHeight) : contentH;
+  const panelScrolls = isOpen && contentH > panelHeight + 1;
+
   return (
     <m.div
       layout
       data-focused={isOpen ? "true" : undefined}
       className={cn(
         "rounded-[30px] bg-surface text-foreground shadow-xs",
+        maxPanelHeight != null && "shrink-0",
         isOpen && " ",
       )}
       transition={{ type: "spring", stiffness: 280, damping: 28, mass: 0.9 }}
@@ -99,7 +113,7 @@ function AccordionItem({
         role="region"
         aria-labelledby={itemId}
         animate={{
-          height: isOpen ? contentH : 0,
+          height: isOpen ? panelHeight : 0,
           opacity: isOpen ? 1 : 0,
         }}
         initial={false}
@@ -107,7 +121,10 @@ function AccordionItem({
           height: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
           opacity: { duration: 0.2, ease: "easeOut" },
         }}
-        style={{ overflow: "hidden" }}
+        style={{
+          overflow: "hidden",
+          overflowY: panelScrolls ? "auto" : "hidden",
+        }}
       >
         <m.div
           ref={contentRef}
@@ -133,6 +150,8 @@ export function MotionAccordion({
   className,
   openIndex = null,
   onOpenIndexChange,
+  cardHeight = null,
+  footer,
 }: MotionAccordionProps) {
   const rawId = React.useId();
   const baseId = `accordion-${rawId.replace(/:/g, "")}`;
@@ -177,13 +196,62 @@ export function MotionAccordion({
 
   const accordionRef = React.useRef<HTMLDivElement>(null);
 
+  // Space left for the open panel once every header + card chrome is paid for.
+  const [panelCapPx, setPanelCapPx] = React.useState<number | null>(null);
+
+  React.useLayoutEffect(() => {
+    const el = accordionRef.current;
+    if (!el || cardHeight == null) {
+      setPanelCapPx(null);
+      return;
+    }
+
+    const measure = () => {
+      let headers = 0;
+      el.querySelectorAll<HTMLElement>(":scope > div > button").forEach(
+        (button) => {
+          headers += button.offsetHeight;
+        },
+      );
+      const style = getComputedStyle(el);
+      const padY =
+        parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+      const footerH =
+        el.querySelector<HTMLElement>('[data-slot="motion-accordion-footer"]')
+          ?.offsetHeight ?? 0;
+      setPanelCapPx(
+        Math.max(
+          0,
+          cardHeight -
+            headers -
+            padY -
+            footerH -
+            gap * Math.max(0, items.length - 1 + (footer ? 1 : 0)),
+        ),
+      );
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [cardHeight, gap, items.length, footer]);
+
+  const maxPanelHeight = cardHeight == null ? null : (panelCapPx ?? cardHeight);
+
   return (
     <SettingsAccordionPopoverProvider cardRef={accordionRef}>
       <SettingsAccordionPopoverOpenMarker className={cn("w-full min-w-0 max-w-full", className)}>
         <div
           ref={accordionRef}
           className="flex flex-col rounded-[34px] p-3"
-          style={{ gap, "--dn-accordion-gap": `${gap}px` } as React.CSSProperties}
+          style={
+            {
+              gap,
+              height: cardHeight ?? undefined,
+              "--dn-accordion-gap": `${gap}px`,
+            } as React.CSSProperties
+          }
         >
         {items.map((item, i) => {
           const itemKey = getStableItemKey(item);
@@ -196,9 +264,18 @@ export function MotionAccordion({
               onToggle={() => toggle(i)}
               itemId={`${baseId}-trigger-${i}`}
               panelId={`${baseId}-panel-${i}`}
+              maxPanelHeight={maxPanelHeight}
             />
           )
         })}
+        {footer ? (
+          <div
+            data-slot="motion-accordion-footer"
+            className="mt-auto shrink-0"
+          >
+            {footer}
+          </div>
+        ) : null}
         </div>
       </SettingsAccordionPopoverOpenMarker>
     </SettingsAccordionPopoverProvider>

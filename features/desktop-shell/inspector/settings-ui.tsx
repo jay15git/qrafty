@@ -251,19 +251,65 @@ export function SettingsScroll({
   )
 }
 
+/** Tracks the compose artboard's rendered height so the settings card shares
+ * the canvas edge line at every aspect ratio. */
+function useCanvasCardHeight(enabled: boolean) {
+  const [height, setHeight] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!enabled) {
+      setHeight(null)
+      return
+    }
+
+    let ro: ResizeObserver | undefined
+    let raf = 0
+    let attempts = 0
+
+    const attach = () => {
+      const el = document.querySelector<HTMLElement>(
+        '[data-slot="desktop-compose-artboard-stage"]',
+      )
+      if (!el) {
+        if (attempts++ < 120) {
+          raf = requestAnimationFrame(attach)
+        }
+        return
+      }
+      const update = () => setHeight(el.getBoundingClientRect().height)
+      update()
+      ro = new ResizeObserver(update)
+      ro.observe(el)
+    }
+
+    raf = requestAnimationFrame(attach)
+    return () => {
+      ro?.disconnect()
+      cancelAnimationFrame(raf)
+    }
+  }, [enabled])
+
+  return height
+}
+
 export function SettingsAccordion({
   openSection,
   onOpenSectionChange,
   sections,
   renderSection,
+  matchCanvasHeight = false,
+  footer,
 }: {
   openSection: string | undefined
   onOpenSectionChange: (value: string | undefined) => void
   sections: readonly string[]
   renderSection: (section: string) => ReactNode
+  matchCanvasHeight?: boolean
+  footer?: ReactNode
 }) {
   const sectionIndex = openSection ? sections.indexOf(openSection) : -1
   const openIndex = sectionIndex >= 0 ? sectionIndex : null
+  const canvasCardHeight = useCanvasCardHeight(matchCanvasHeight)
 
   const items = sections.map((section) => ({
     question: getDesktopSettingsSectionLabel(section as DesktopSettingsSectionId),
@@ -277,9 +323,11 @@ export function SettingsAccordion({
 
   return (
     <MotionAccordion
+      cardHeight={matchCanvasHeight ? canvasCardHeight : null}
       className="dn-settings-accordion w-full min-w-0 max-w-full"
-      gap={8}
+      gap={0}
       items={items}
+      footer={footer}
       openIndex={openIndex}
       onOpenIndexChange={(index) => {
         onOpenSectionChange(index === null ? undefined : sections[index])
@@ -1583,6 +1631,7 @@ export function SettingsSlider({
   min = 0,
   max = 100,
   step = 1,
+  formatValue,
 }: {
   label: string
   value: number
@@ -1590,6 +1639,7 @@ export function SettingsSlider({
   min?: number
   max?: number
   step?: number
+  formatValue?: (value: number) => string
 }) {
   const stepDecimals = step.toString().includes(".")
     ? (step.toString().split(".")[1]?.length ?? 0)
@@ -1602,6 +1652,7 @@ export function SettingsSlider({
     <ElasticSlider
       aria-label={label}
       className={SETTINGS_ELASTIC_SLIDER_CLASS}
+      formatValue={formatValue}
       label={label}
       max={max}
       min={min}

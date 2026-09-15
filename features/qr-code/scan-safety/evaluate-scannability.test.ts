@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   createPendingScannabilityResult,
   createSkippedScannabilityResult,
+  createUnavailableScannabilityResult,
   evaluateScannability,
   shouldSkipScannabilityCheck,
 } from "@/features/qr-code/scan-safety/evaluate-scannability"
@@ -46,6 +47,14 @@ describe("scannability helpers", () => {
     expect(result.status).toBe("pending")
     expect(result.summary).toBe("Checking…")
     expect(result.expectedText).toBe("hello")
+  })
+
+  it("keeps analyzer failures unavailable instead of falsely invalid", () => {
+    const result = createUnavailableScannabilityResult("hello")
+
+    expect(result.status).toBe("unavailable")
+    expect(result.summary).toBe("Unavailable")
+    expect(result.score).toBeNull()
   })
 
   it("skips when content is invalid or empty", () => {

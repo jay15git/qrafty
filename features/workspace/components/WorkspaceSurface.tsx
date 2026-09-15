@@ -3562,10 +3562,84 @@ export function WorkspaceSurface({
     () => false,
   )
 
-  const scanSafetyResult = useQrScanSafety(draftingQraftyState, {
-    cardFill: selectedCardState.fill,
+  const scanSafetyQrLayer = useMemo(() => {
+    const targetLayerId = selectedDownloadTarget.startsWith("qr:")
+      ? selectedDownloadTarget.slice("qr:".length)
+      : activeQrLayerId
+
+    return (
+      activeCanvasLayers.find((layer) => layer.id === targetLayerId) ??
+      activeCanvasLayers.find((layer) => layer.id === activeQrLayerId) ??
+      qrCanvasLayers[0]
+    )
+  }, [
+    activeCanvasLayers,
+    activeQrLayerId,
+    qrCanvasLayers,
+    selectedDownloadTarget,
+  ])
+  const scanSafetyState = useMemo(
+    () =>
+      scanSafetyQrLayer && scanSafetyQrLayer.id !== activeQrLayerId
+        ? (qrStateByLayerId[scanSafetyQrLayer.id] ?? draftingQraftyState)
+        : draftingQraftyState,
+    [activeQrLayerId, draftingQraftyState, qrStateByLayerId, scanSafetyQrLayer],
+  )
+  const scanSafetyLayers = useMemo(
+    () =>
+      selectedDownloadTarget === "surface"
+        ? activeCanvasLayers
+        : activeCanvasLayers.map((layer) =>
+            cloneDraftingCanvasLayer({
+              ...layer,
+              isVisible:
+                layer.kind === "card" || layer.id === scanSafetyQrLayer?.id
+                  ? layer.isVisible
+                  : false,
+            }),
+          ),
+    [activeCanvasLayers, scanSafetyQrLayer?.id, selectedDownloadTarget],
+  )
+  const scanSafetyCardLayer = useMemo(
+    () =>
+      scanSafetyLayers.find((layer) => layer.kind === "card" && layer.isVisible),
+    [scanSafetyLayers],
+  )
+  const scanSafetyTargetDimensions = useMemo(
+    () =>
+      scanSafetyCardLayer
+        ? resolveWorkspaceExportTargetDimensions(scanSafetyCardLayer)
+        : undefined,
+    [scanSafetyCardLayer, selectedRasterPhotoLongEdge],
+  )
+  const scanSafetyScene = useMemo(
+    () =>
+      scanSafetyCardLayer
+        ? {
+            backgroundColor: selectedCardState.fill || "#ffffff",
+            cardState: selectedCardState,
+            extension: selectedDownloadExtension,
+            layers: scanSafetyLayers,
+            nodeId: activeQrNodeId,
+            qualityPercent: draftingQraftyState.rasterExportQualityPercent,
+            targetDimensions: scanSafetyTargetDimensions,
+          }
+        : undefined,
+    [
+      activeQrNodeId,
+      draftingQraftyState.rasterExportQualityPercent,
+      scanSafetyCardLayer,
+      scanSafetyLayers,
+      scanSafetyTargetDimensions,
+      selectedCardState,
+      selectedDownloadExtension,
+    ],
+  )
+  const scanSafetyResult = useQrScanSafety(scanSafetyState, {
     contentIsValid: selectedContentValidation.isValid,
     enabled: !isPreviewInteracting,
+    layer: scanSafetyQrLayer,
+    scene: scanSafetyScene,
   })
 
   const canRemoveQrCode =

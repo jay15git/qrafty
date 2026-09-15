@@ -11,6 +11,13 @@ import {
   DOT_STYLE_OPTIONS,
 } from "@/features/qr-code/styles/style-options"
 import {
+  ERROR_CORRECTION_LEVEL_OPTIONS,
+  formatQrTypeNumberLabel,
+  TYPE_NUMBER_MAX,
+  TYPE_NUMBER_MIN,
+} from "@/features/qr-code/styles/encoding-options"
+import type { QrTypeNumber } from "@/features/qr-code/model/types"
+import {
   QR_BACKGROUND_SHAPES,
   type QrBackgroundShapeId,
 } from "@/features/qr-code/styles/background-shapes"
@@ -398,12 +405,21 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
   const [logoPopoverOpen, setLogoPopoverOpen] = useState(false)
   const {
     actualCornersSettings,
+    actualEncodingSettings,
     actualLogoSettings,
     actualPatternSettings,
     onCornersSettingsChange,
+    onEncodingSettingsChange,
     onLogoSettingsChange,
     onPatternSettingsChange,
   } = model
+
+  const errorCorrectionIndex = Math.max(
+    0,
+    ERROR_CORRECTION_LEVEL_OPTIONS.findIndex(
+      (option) => option.value === actualEncodingSettings.errorCorrectionLevel,
+    ),
+  )
 
   const part =
     tab === "Module"
@@ -513,6 +529,33 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
           />
         ) : null}
       </SettingsTabPanel>
+
+      <SettingsSlider
+        formatValue={formatQrTypeNumberLabel}
+        label="Min version"
+        max={TYPE_NUMBER_MAX}
+        min={TYPE_NUMBER_MIN}
+        step={1}
+        value={actualEncodingSettings.typeNumber}
+        onChange={(typeNumber) =>
+          onEncodingSettingsChange({ typeNumber: typeNumber as QrTypeNumber })
+        }
+      />
+
+      <SettingsSlider
+        formatValue={(index) =>
+          ERROR_CORRECTION_LEVEL_OPTIONS[index]?.label ?? "Q"
+        }
+        label="Error correction"
+        max={ERROR_CORRECTION_LEVEL_OPTIONS.length - 1}
+        min={0}
+        step={1}
+        value={errorCorrectionIndex}
+        onChange={(index) => {
+          const option = ERROR_CORRECTION_LEVEL_OPTIONS[index]
+          if (option) onEncodingSettingsChange({ errorCorrectionLevel: option.value })
+        }}
+      />
     </div>
   )
 }

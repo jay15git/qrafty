@@ -385,6 +385,7 @@ describe("FloatingToolbar", () => {
           summary: "Not scannable",
           expectedText: "https://example.com",
           decodedText: null,
+          score: 0,
         },
       },
     })

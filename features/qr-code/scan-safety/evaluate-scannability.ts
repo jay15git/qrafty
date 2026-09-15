@@ -2,6 +2,7 @@ import type { ScanSafetyResult } from "@/features/qr-code/scan-safety/types"
 import {
   PENDING_SCAN_SAFETY_RESULT,
   SKIPPED_SCAN_SAFETY_RESULT,
+  UNAVAILABLE_SCAN_SAFETY_RESULT,
 } from "@/features/qr-code/scan-safety/types"
 
 export function createSkippedScannabilityResult(expectedText = ""): ScanSafetyResult {
@@ -18,9 +19,19 @@ export function createPendingScannabilityResult(expectedText: string): ScanSafet
   }
 }
 
+export function createUnavailableScannabilityResult(
+  expectedText: string,
+): ScanSafetyResult {
+  return {
+    ...UNAVAILABLE_SCAN_SAFETY_RESULT,
+    expectedText,
+  }
+}
+
 export function evaluateScannability(
   expectedText: string,
   decodedText: string | null,
+  score: number | null = null,
 ): ScanSafetyResult {
   if (decodedText === expectedText) {
     return {
@@ -28,6 +39,7 @@ export function evaluateScannability(
       summary: "Valid",
       expectedText,
       decodedText,
+      score,
     }
   }
 
@@ -36,6 +48,7 @@ export function evaluateScannability(
     summary: "Not scannable",
     expectedText,
     decodedText,
+    score,
   }
 }
 

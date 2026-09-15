@@ -1,9 +1,9 @@
 export const TEMPLATE_PREVIEW_FIT_PADDING = 48
 export const DESKTOP_CANVAS_FIT_PADDING = 20
 export const DESKTOP_ARTBOARD_VIEW_INSETS = {
-  top: 56,
+  top: 88,
   right: 72,
-  bottom: 56,
+  bottom: 88,
   left: 40,
 } as const
 

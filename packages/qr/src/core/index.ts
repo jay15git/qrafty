@@ -6,7 +6,9 @@ export { applyDirectGradientFill, getModuleGradientCoverRect } from "./gradient-
 export { applyQraftyQrSvgExtensions } from "./svg-extension"
 export { renderQraftyQrSvg, stripXmlDeclaration } from "./render-svg"
 export {
+  getQrModuleGrid,
   getQrModuleMetrics,
+  type QrModuleGrid,
   type QrModuleMetrics,
   type QrModuleMetricsInput,
 } from "./qr-matrix"

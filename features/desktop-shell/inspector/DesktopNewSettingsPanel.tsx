@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 
+import { AdaptiveSlider } from "@/components/watermelon/adaptive-slider"
 import { DesktopBrandMark } from "@/features/desktop-shell/components/DesktopBrandMark"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 import {
@@ -32,6 +33,7 @@ export function DesktopNewSettingsPanel({
   const [internalOpenSection, setInternalOpenSection] = useState<string | undefined>(undefined)
   const openSection = openSectionProp ?? internalOpenSection
   const setOpenSection = onOpenSectionChange ?? setInternalOpenSection
+  const scanSafetyScore = model.controller?.scanSafetyResult?.score ?? null
 
   function handleSectionChange(section: string | undefined) {
     setOpenSection(section)
@@ -54,6 +56,19 @@ export function DesktopNewSettingsPanel({
           </div>
         </div>
         <SettingsAccordion
+          footer={
+            <div className="px-4 pb-3 pt-2">
+              <AdaptiveSlider
+                max={100}
+                min={0}
+                readOnly
+                step={1}
+                indeterminate={scanSafetyScore === null}
+                value={scanSafetyScore ?? 50}
+              />
+            </div>
+          }
+          matchCanvasHeight={fillHeight}
           openSection={openSection}
           renderSection={(section) => (
             <SettingsSectionBody id={section} model={model} />

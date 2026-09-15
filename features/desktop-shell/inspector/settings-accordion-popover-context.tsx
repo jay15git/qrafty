@@ -77,18 +77,9 @@ export function SettingsAccordionPopoverOpenMarker({
 function measureAccordionPopoverMetrics(
   stack: HTMLElement,
 ): AccordionPopoverMetrics | null {
-  const card =
-    stack.querySelector<HTMLElement>('[data-focused="true"]') ??
-    (stack.firstElementChild instanceof HTMLElement ? stack.firstElementChild : null)
-
-  if (!card) {
-    return null
-  }
-
-  return {
-    stack: stack.getBoundingClientRect(),
-    card: card.getBoundingClientRect(),
-  }
+  // The accordion is a single card now — anchor overlays to the stack itself.
+  const rect = stack.getBoundingClientRect()
+  return { stack: rect, card: rect }
 }
 
 function useAccordionPopoverMetrics(

@@ -50,6 +50,7 @@ export type CompositorRenderOptions = {
   mode: ExportClockMode
   nodeId: string
   qrMarkup: string
+  renderBounds?: { height: number; minX: number; minY: number; width: number }
   shaderBitmaps?: Record<string, ImageBitmap>
   shaderSession?: ShaderSession
   state: QraftyState
@@ -263,6 +264,7 @@ export async function renderWorkspaceCompositorCanvas({
   mode,
   nodeId,
   qrMarkup,
+  renderBounds,
   shaderBitmaps,
   shaderSession,
   state,
@@ -300,10 +302,10 @@ export async function renderWorkspaceCompositorCanvas({
       ? buildAnimatedQrMarkupAtTime(qrMarkup, state, qrTimeMs)
       : qrMarkup
 
-    const artboardBounds = getArtboardExportBounds(cardLayer)
-    const outputWidth = targetDimensions?.width ?? artboardBounds.width
-    const outputHeight = targetDimensions?.height ?? artboardBounds.height
-    const renderScale = outputWidth / artboardBounds.width
+    const sceneBounds = renderBounds ?? getArtboardExportBounds(cardLayer)
+    const outputWidth = targetDimensions?.width ?? sceneBounds.width
+    const outputHeight = targetDimensions?.height ?? sceneBounds.height
+    const renderScale = outputWidth / sceneBounds.width
     const visibleLayers = [...layers]
       .filter((layer) => layer.isVisible)
       .sort((a, b) => a.zIndex - b.zIndex)
@@ -333,7 +335,7 @@ export async function renderWorkspaceCompositorCanvas({
       }
 
       const batchCanvas = await rasterizeLayerBatch({
-        bounds: artboardBounds,
+        bounds: sceneBounds,
         cardState,
         fontDefs,
         layers: svgBatch,
@@ -356,7 +358,7 @@ export async function renderWorkspaceCompositorCanvas({
           context,
           layer,
           cardState,
-          artboardBounds,
+          sceneBounds,
           resolvedBitmaps,
           renderScale,
           cardImageBitmap,
