@@ -6,7 +6,7 @@ import {
 
 import type { SceneIrFontRef } from "@qrafty/qr-internal/codegen"
 
-const REMOTE_IMAGE_PATTERN = /href="(https?:\/\/[^"]+)"/g
+const REMOTE_IMAGE_PATTERN = /href="(?!#|data:)([^"]+)"/g
 
 export async function inlineRemoteUrl(url: string, label = "asset") {
   if (!url || isDataUrl(url)) {

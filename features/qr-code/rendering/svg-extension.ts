@@ -43,7 +43,11 @@ import {
   getQraftyGradientCenter,
   qraftyRadialCenterInUserSpace,
 } from "@/features/qr-code/styles/qrafty-gradient-geometry"
-import { applyUnifiedQrGradientFill, applyUnifiedQrImageFill } from "@qrafty/qr-internal/core"
+import {
+  applyUnifiedQrGradientFill,
+  applyUnifiedQrImageFill,
+  getMergeableClipPathData,
+} from "@qrafty/qr-internal/core"
 import {
   buildCustomCornerDotTransform,
   getCustomCornerDotShapeGeometry,
@@ -412,10 +416,33 @@ function createPaletteModuleGroup(
     colorGroup.setAttribute("data-qr-layer", "dot-palette-fill")
     colorGroup.setAttribute("data-qr-palette-index", String(paletteIndex))
 
+    const mergedPathData: string[] = []
+    const paintedShapes: SVGElement[] = []
+
     for (const shape of shapes) {
+      const pathData = getMergeableClipPathData(shape)
+
+      if (pathData) {
+        mergedPathData.push(pathData)
+        continue
+      }
+
       const painted = shape.cloneNode(true) as SVGElement
       painted.removeAttribute("clip-path")
       painted.removeAttribute("opacity")
+      paintedShapes.push(painted)
+    }
+
+    if (mergedPathData.length > 0) {
+      const mergedPath = document.createElementNS(SVG_NS, "path")
+      mergedPath.setAttribute("d", mergedPathData.join(" "))
+      mergedPath.setAttribute("fill", color)
+      mergedPath.setAttribute("fill-rule", "nonzero")
+      mergedPath.setAttribute("data-qr-palette-index", String(paletteIndex))
+      colorGroup.appendChild(mergedPath)
+    }
+
+    for (const painted of paintedShapes) {
       painted.setAttribute("fill", color)
       painted.setAttribute("data-qr-palette-index", String(paletteIndex))
       colorGroup.appendChild(painted)

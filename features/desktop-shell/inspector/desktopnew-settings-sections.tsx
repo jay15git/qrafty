@@ -42,6 +42,7 @@ import {
   isScaleOnlyDotMatrixLoader,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
   type QrDotMatrixSquareLoader,
+  type QraftyDataModulesStyle,
 } from "@/features/qr-code/model/state"
 import { SettingsPaperShaderControls } from "@/features/desktop-shell/inspector/desktopnew-paper-shader-settings"
 import { PaperShaderOptionPreview } from "@/features/workspace/components/PaperShaderOptionPreview"
@@ -400,6 +401,65 @@ export function ContentSection({ model }: { model: DesktopInspectorModel }) {
   )
 }
 
+const QR_MODULE_SIZE_STYLES = new Set<QraftyDataModulesStyle>([
+  "circle",
+  "diamond",
+  "hashtag",
+  "heart",
+  "pinched-square",
+  "square",
+  "star",
+])
+
+const QR_MODULE_LINE_WIDTH_STYLES = new Set<QraftyDataModulesStyle>([
+  "circuit-board",
+  "horizontal-line",
+  "rounded",
+  "vertical-line",
+])
+
+function formatModuleScaleValue(value: number) {
+  return `${Math.round(value * 100)}%`
+}
+
+function QrModuleGeometrySlider({ model }: { model: DesktopInspectorModel }) {
+  const { actualPatternSettings, onPatternSettingsChange } = model
+  const dotType = actualPatternSettings.qrDotType
+
+  if (QR_MODULE_SIZE_STYLES.has(dotType)) {
+    return (
+      <SettingsSlider
+        formatValue={formatModuleScaleValue}
+        label="Module size"
+        max={1}
+        min={0.25}
+        step={0.05}
+        value={actualPatternSettings.moduleSize ?? 1}
+        onChange={(moduleSize) => onPatternSettingsChange({ moduleSize })}
+      />
+    )
+  }
+
+  if (QR_MODULE_LINE_WIDTH_STYLES.has(dotType)) {
+    return (
+      <SettingsSlider
+        formatValue={formatModuleScaleValue}
+        label="Line width"
+        max={1}
+        min={0.1}
+        step={0.05}
+        value={
+          actualPatternSettings.moduleLineWidth ??
+          (dotType === "circuit-board" ? 0.5 : 1)
+        }
+        onChange={(moduleLineWidth) => onPatternSettingsChange({ moduleLineWidth })}
+      />
+    )
+  }
+
+  return null
+}
+
 export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
   const [tab, setTab] = useState(() => getInspectorSectionTab("qr-style", "Module"))
   const [logoPopoverOpen, setLogoPopoverOpen] = useState(false)
@@ -529,6 +589,10 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
           />
         ) : null}
       </SettingsTabPanel>
+
+      {tab === "Module" ? (
+        <QrModuleGeometrySlider model={model} />
+      ) : null}
 
       <SettingsSlider
         formatValue={formatQrTypeNumberLabel}

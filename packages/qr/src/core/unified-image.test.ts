@@ -80,6 +80,42 @@ describe("unified qr image fill", () => {
     expect(logoFill?.nextSibling).toBe(logo)
   })
 
+  it("merges module clip segments into one path so adjacent cells stay seamless", () => {
+    const svgMarkup = `<svg viewBox="0 0 49 49" xmlns="http://www.w3.org/2000/svg">
+      <path data-testid="data-modules" fill="#111827" d="M12 12h1v1h-1zM13 12h1v1h-1zM12 13h1v1h-1z" />
+    </svg>`
+
+    const document = new DOMParser().parseFromString(svgMarkup, "image/svg+xml")
+    const svg = document.documentElement as unknown as SVGElement
+    const moduleShapes = [
+      "M12 12h1v1h-1z",
+      "M13 12h1v1h-1z",
+      "M12 13h1v1h-1z",
+    ].map((d) => {
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path")
+      path.setAttribute("d", d)
+      return path as unknown as SVGElement
+    })
+
+    applyUnifiedQrImageFill(svg, {
+      imageHref: "https://example.com/texture.png",
+      imageId: "qrafty-dots-image",
+      margin: 12,
+      moduleClipShapes: moduleShapes,
+      modulePaintTargets: [svg.querySelector('[data-testid="data-modules"]') as SVGElement],
+    })
+
+    const clipPath = svg.querySelector("#qrafty-dots-image-clip")
+
+    expect(clipPath?.children.length).toBe(1)
+    const merged = clipPath?.children[0]
+    expect(merged?.tagName.toLowerCase()).toBe("path")
+    expect(merged?.getAttribute("clip-rule")).toBe("nonzero")
+    expect(merged?.getAttribute("d")).toBe(
+      "M12 12h1v1h-1z M13 12h1v1h-1z M12 13h1v1h-1z",
+    )
+  })
+
   it("clips through inner module shapes instead of wrapper rects", () => {
     const svgMarkup = `<svg viewBox="0 0 49 49" xmlns="http://www.w3.org/2000/svg">
       <defs>

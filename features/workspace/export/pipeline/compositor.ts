@@ -12,6 +12,7 @@ import {
 import {
   buildFontFaceDefs,
   inlineRemoteUrl,
+  inlineSvgImageHrefs,
 } from "@/features/workspace/export/pipeline/assets"
 import {
   buildLayeredSvgParts,
@@ -159,9 +160,10 @@ async function rasterizeLayerBatch({
     qrMarkup,
     state,
   })
-  const svg = preprocessSvg(
-    wrapLayeredSvgMarkup(bounds, parts.defs, parts.body, fontDefs),
-    { idPrefix: nodeId },
+  const svg = await inlineSvgImageHrefs(
+    preprocessSvg(wrapLayeredSvgMarkup(bounds, parts.defs, parts.body, fontDefs), {
+      idPrefix: nodeId,
+    }),
   )
 
   return rasterizeSvgMarkupToCanvas(svg, outputWidth, outputHeight)

@@ -73,6 +73,34 @@ function findLogoImage(svg: SVGElement) {
   )
 }
 
+export function getMergeableClipPathData(shape: SVGElement) {
+  if (shape.getAttribute("transform")) {
+    return null
+  }
+
+  const tagName = shape.tagName.toLowerCase()
+
+  if (tagName === "path") {
+    return shape.getAttribute("d")
+  }
+
+  if (tagName === "rect") {
+    const x = Number.parseFloat(shape.getAttribute("x") ?? "0") || 0
+    const y = Number.parseFloat(shape.getAttribute("y") ?? "0") || 0
+    const width = Number.parseFloat(shape.getAttribute("width") ?? "0") || 0
+    const height = Number.parseFloat(shape.getAttribute("height") ?? "0") || 0
+    const hasRadius = Boolean(shape.getAttribute("rx") ?? shape.getAttribute("ry"))
+
+    if (width <= 0 || height <= 0 || hasRadius) {
+      return null
+    }
+
+    return `M${x} ${y}h${width}v${height}h${-width}Z`
+  }
+
+  return null
+}
+
 function cloneShapeForClipPath(source: SVGElement) {
   const clone = source.cloneNode(true) as SVGElement
 
@@ -278,9 +306,32 @@ export function applyUnifiedQrImageFill(
   clipPath.setAttribute("data-qr-layer", "unified-image-clip")
 
   const clipShapes = collectUnifiedImageClipShapes(svg, modulePaintTargets, moduleClipShapes)
+  const finderCount = collectFinderPatternMaskTargets(svg).length
+  const moduleClipCount = clipShapes.length - finderCount
+  const mergedPathData: string[] = []
+  const clonedShapes: SVGElement[] = []
 
-  for (const shape of clipShapes) {
-    clipPath.appendChild(cloneShapeForClipPath(shape))
+  for (const [index, shape] of clipShapes.entries()) {
+    const pathData =
+      index < moduleClipCount ? getMergeableClipPathData(shape) : null
+
+    if (pathData) {
+      mergedPathData.push(pathData)
+      continue
+    }
+
+    clonedShapes.push(cloneShapeForClipPath(shape))
+  }
+
+  if (mergedPathData.length > 0) {
+    const mergedPath = document.createElementNS(SVG_NS, "path")
+    mergedPath.setAttribute("d", mergedPathData.join(" "))
+    mergedPath.setAttribute("clip-rule", "nonzero")
+    clipPath.appendChild(mergedPath)
+  }
+
+  for (const shape of clonedShapes) {
+    clipPath.appendChild(shape)
   }
 
   getOrCreateSvgDefs(svg, document).appendChild(clipPath)
