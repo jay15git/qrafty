@@ -945,15 +945,18 @@ describe("Pane", () => {
     expect(toolbar.getAttribute("role")).toBe("toolbar")
     expect((toolbar as HTMLElement).style.transform).toContain("translate3d")
     expect(getRequiredElement(toolbar, 'button[aria-label="Text color"]')).toBeTruthy()
-    expect(getRequiredElement(toolbar, 'button[aria-label="Text formatting"]')).toBeTruthy()
+    expect(getRequiredElement(toolbar, 'button[aria-label="Bold"]')).toBeTruthy()
+    expect(getRequiredElement(toolbar, 'button[aria-label="Italic"]')).toBeTruthy()
+    expect(getRequiredElement(toolbar, 'button[aria-label="Underline"]')).toBeTruthy()
+    expect(getRequiredElement(toolbar, 'button[aria-label="Text alignment"]')).toBeTruthy()
     expect(getRequiredElement(toolbar, 'button[aria-label="Text size"]')).toBeTruthy()
 
     act(() => {
-      clickElement(getRequiredElement(toolbar, 'button[aria-label="Text formatting"]'))
+      clickElement(getRequiredElement(toolbar, 'button[aria-label="Text alignment"]'))
     })
 
     expect(
-      document.querySelector('[data-slot="drafting-layer-text-typography-settings"]'),
+      document.querySelector('[data-slot="drafting-layer-text-align-settings"]'),
     ).toBeTruthy()
 
     act(() => {

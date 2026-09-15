@@ -10,7 +10,6 @@ import {
   DEFAULT_PAPER_SHADER_MAX_COLOR_COUNT,
 } from "@/features/workspace/rendering/paper-shader-colors"
 import {
-  formatPaperShaderNumberValue,
   formatPaperShaderParamLabel,
   getPaperShaderDefinition,
   paperShaderHasPlayback,
@@ -20,10 +19,8 @@ import {
 } from "@/features/workspace/rendering/paper-shader-definitions"
 import { cn } from "@/lib/utils"
 
-import { DesktopInspectorElasticSliderRow } from "@/features/desktop-shell/components/DesktopInspectorShell"
 import { PaperShaderColorGrid } from "@/features/desktop-shell/inspector/paper-shader-color-grid"
 import {
-  DesktopInspectorSettingsPopover,
   PresetList,
   SettingsFillPopover,
   SettingsPrimaryButton,
@@ -39,90 +36,22 @@ const PAPER_SHADER_COLOR_FALLBACK = "#000000"
 const PAPER_SHADER_NEW_COLOR = "#ffffff"
 const HORIZONTAL_OPTION_ROW = "dn-preview-row"
 const SECTION_GAP = "dn-section-stack"
-const DESKTOP_SHADER_LIST_GAP = "flex flex-col gap-2.5"
-
-type PaperShaderSettingsSurface = "settings" | "desktop"
-
-function ShaderSettingsPopover({
-  children,
-  contentClassName,
-  hint,
-  leading,
-  surface,
-  title,
-  trigger,
-}: {
-  children: React.ReactNode
-  contentClassName?: string
-  hint?: string
-  leading?: React.ReactNode
-  surface: PaperShaderSettingsSurface
-  title?: string
-  trigger: React.ReactNode
-}) {
-  if (surface === "desktop") {
-    return (
-      <DesktopInspectorSettingsPopover
-        contentClassName={contentClassName}
-        dataSlot="desktop-shader-settings-popover"
-        hint={hint}
-        leading={leading}
-        title={title}
-        trigger={trigger}
-      >
-        {children}
-      </DesktopInspectorSettingsPopover>
-    )
-  }
-
-  return (
-    <SettingsRowPopover
-      contentClassName={contentClassName}
-      hint={hint}
-      leading={leading}
-      title={title}
-      trigger={trigger}
-    >
-      {children}
-    </SettingsRowPopover>
-  )
-}
 
 function ShaderSettingsSlider({
   label,
   max,
   min,
   onChange,
-  paramKey,
   step = 1,
-  surface,
   value,
-  valueLabel,
 }: {
   label: string
   max: number
   min: number
   onChange?: (value: number) => void
-  paramKey?: string
   step?: number
-  surface: PaperShaderSettingsSurface
   value: number
-  valueLabel?: string
 }) {
-  if (surface === "desktop") {
-    return (
-      <DesktopInspectorElasticSliderRow
-        label={label}
-        max={max}
-        min={min}
-        step={step}
-        value={value}
-        valueLabel={valueLabel ?? formatPaperShaderNumberValue(paramKey ?? label, value)}
-        onChange={onChange ?? (() => undefined)}
-      />
-    )
-  }
-
   return (
     <SettingsSlider
       label={label}
@@ -193,12 +122,10 @@ function isPaperShaderHexColor(value: string) {
 
 function DesktopNewPaperShaderParamControl({
   control,
-  surface,
   value,
   onChange,
 }: {
   control: PaperShaderControlDefinition
-  surface: PaperShaderSettingsSurface
   value: PaperShaderParamValue
   onChange: (value: DraftingCardPaperShaderState["image"] | PaperShaderParamValue) => void
 }) {
@@ -255,9 +182,7 @@ function DesktopNewPaperShaderParamControl({
         label={label}
         max={control.max}
         min={control.min}
-        paramKey={control.key}
         step={step}
-        surface={surface}
         value={value}
         onChange={onChange}
       />
@@ -301,11 +226,9 @@ function DesktopNewPaperShaderParamControl({
 export function SettingsPaperShaderControls({
   paperShader,
   onPaperShaderChange,
-  surface = "desktop",
 }: {
   paperShader: DraftingCardPaperShaderState
   onPaperShaderChange: (paperShader: DraftingCardPaperShaderState) => void
-  surface?: PaperShaderSettingsSurface
 }) {
   const definition = getPaperShaderDefinition(paperShader.shaderId)
   const hasPlayback = paperShaderHasPlayback(paperShader.shaderId)
@@ -390,18 +313,14 @@ export function SettingsPaperShaderControls({
       )
     : null
 
-  const settingsListClassName =
-    surface === "desktop" ? DESKTOP_SHADER_LIST_GAP : "dn-section-stack"
-
   const settingsPopover = (
-    <ShaderSettingsPopover
+    <SettingsRowPopover
       contentClassName="w-[19rem]"
       hint="Settings"
-      surface={surface}
       title="Shader settings"
       trigger="Options"
     >
-      <div className={settingsListClassName}>
+      <div className="dn-section-stack">
         {shapeControl ? (
           <HorizontalShaderOptionRow
             label="Shape"
@@ -424,9 +343,7 @@ export function SettingsPaperShaderControls({
             label="Speed"
             max={100}
             min={1}
-            surface={surface}
             value={Math.round(paperShader.speed * 100)}
-            valueLabel={`${Math.round(paperShader.speed * 100)}`}
             onChange={(value) => updatePaperShader({ speed: value / 100 })}
           />
         ) : null}
@@ -444,9 +361,7 @@ export function SettingsPaperShaderControls({
             label="Frame"
             max={10000}
             min={0}
-            paramKey="frame"
             step={1}
-            surface={surface}
             value={Math.round(paperShader.frame)}
             onChange={(frame) => updatePaperShader({ frame })}
           />
@@ -456,7 +371,6 @@ export function SettingsPaperShaderControls({
           <DesktopNewPaperShaderParamControl
             key={control.key}
             control={control}
-            surface={surface}
             value={paperShader.params[control.key]}
             onChange={(nextValue) => {
               if (control.type === "image") {
@@ -471,7 +385,7 @@ export function SettingsPaperShaderControls({
           />
         ))}
       </div>
-    </ShaderSettingsPopover>
+    </SettingsRowPopover>
   )
 
   if (!hasPresetOptions) {

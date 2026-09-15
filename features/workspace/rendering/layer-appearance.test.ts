@@ -8,17 +8,10 @@ import {
   getDraftingOutlineStyle,
   getDraftingPerSideBorderStyle,
   getDraftingUniformBorderStyle,
-  getStrokeDasharray,
   mergeCssFilterStrings,
 } from "@/features/workspace/rendering/layer-appearance"
 
 describe("layer appearance css builders", () => {
-  it("builds dashed stroke dash arrays", () => {
-    expect(getStrokeDasharray("dashed")).toBe("8 4")
-    expect(getStrokeDasharray("dotted")).toBe("2 2")
-    expect(getStrokeDasharray("solid")).toBeUndefined()
-  })
-
   it("builds drop shadows", () => {
     expect(
       getDraftingLayerDropShadowFilter([
@@ -43,12 +36,12 @@ describe("layer appearance css builders", () => {
         color: "#000000",
         offset: 4,
         opacity: 100,
-        style: "dashed",
+        style: "solid",
         visible: true,
         width: 2,
       }),
     ).toEqual({
-      outline: "2px dashed rgba(0, 0, 0, 1)",
+      outline: "2px solid rgba(0, 0, 0, 1)",
       outlineOffset: "4px",
     })
   })
@@ -60,14 +53,14 @@ describe("layer appearance css builders", () => {
       style: "solid",
       width: 0,
     })
-    sides.bottom = { color: "#111827", opacity: 100, style: "dashed", width: 2 }
+    sides.bottom = { color: "#111827", opacity: 100, style: "solid", width: 2 }
 
     expect(getDraftingPerSideBorderStyle(sides)).toEqual({
       borderTopWidth: "0",
       borderRightWidth: "0",
       borderLeftWidth: "0",
       borderBottomWidth: "2px",
-      borderBottomStyle: "dashed",
+      borderBottomStyle: "solid",
       borderBottomColor: "rgba(17, 24, 39, 1)",
     })
   })
@@ -77,10 +70,10 @@ describe("layer appearance css builders", () => {
       getDraftingUniformBorderStyle({
         color: "#111827",
         opacity: 100,
-        style: "dotted",
+        style: "solid",
         width: 1,
       }),
-    ).toBe("1px dotted rgba(17, 24, 39, 1)")
+    ).toBe("1px solid rgba(17, 24, 39, 1)")
   })
 
   it("chains css filters and drop shadows", () => {

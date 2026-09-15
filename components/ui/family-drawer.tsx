@@ -412,7 +412,7 @@ function FamilyDrawerClose({
     <button
       data-vaul-no-drag=""
       className={cn(
-        "absolute right-8 top-7 z-10 flex size-8 items-center justify-center rounded-full bg-muted text-muted-foreground transition-transform focus:scale-95 focus-visible:shadow-focus-ring-button active:scale-75 cursor-pointer",
+        "absolute right-8 top-7 z-10 flex size-8 items-center justify-center rounded-full bg-muted text-muted-foreground focus-visible:shadow-focus-ring-button cursor-pointer",
         className,
       )}
       type="button"
@@ -473,7 +473,7 @@ function FamilyDrawerButton({
     <button
       data-vaul-no-drag=""
       className={cn(
-        "flex min-h-14 h-14 w-full items-center gap-[15px] rounded-[16px] bg-muted px-4 text-[17px] font-semibold text-foreground transition-transform focus:scale-95 focus-visible:shadow-focus-ring-button active:scale-95 cursor-pointer",
+        "flex min-h-14 h-14 w-full items-center gap-[15px] rounded-[16px] bg-muted px-4 text-[17px] font-semibold text-foreground focus-visible:shadow-focus-ring-button cursor-pointer",
         className,
       )}
       onClick={onClick}
@@ -508,7 +508,7 @@ function FamilyDrawerSecondaryButton({
       data-vaul-no-drag=""
       type="button"
       className={cn(
-        "flex h-12 w-full items-center justify-center gap-[15px] rounded-full text-center text-[19px] font-semibold transition-transform focus:scale-95 focus-visible:shadow-focus-ring-button active:scale-95 cursor-pointer",
+        "flex h-12 w-full items-center justify-center gap-[15px] rounded-full text-center text-[19px] font-semibold focus-visible:shadow-focus-ring-button cursor-pointer",
         className,
       )}
       onClick={onClick}

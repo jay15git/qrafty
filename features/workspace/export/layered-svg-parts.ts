@@ -17,6 +17,8 @@ import { scaleNestedSvgMarkup } from "@/features/workspace/rendering/qr-artwork"
 import { getLayerSvgTransform } from "@/features/workspace/rendering/layer-transform"
 import { getShapeStrokeViewBoxScale, getShapeSvgPath } from "@/features/workspace/rendering/shape-layer-paths"
 import { cssFillToSvgPaint, isConicCssFill, rasterizeConicCssFillToDataUrl } from "@/features/workspace/export/svg-css-fill"
+import { qraftyGradientToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+import { shouldRenderShapeFillGradient } from "@/features/workspace/rendering/shape-fill"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
 import {
   getDraftingQrBackgroundBounds,
@@ -142,7 +144,7 @@ function getDraftingLayerSvg(
   }
 
   if (layer.kind === "text") {
-    return getDraftingTextLayerSvg(layer)
+    return getDraftingTextLayerSvg(layer, options)
   }
 
   if (layer.kind === "image") {
@@ -363,7 +365,7 @@ function getDraftingShapeLayerSvg(layer: DraftingCanvasLayer) {
     shapeId === "rect"
       ? `0 0 ${layer.width} ${layer.height}`
       : definition
-        ? `0 0 ${definition.viewBox.width} ${definition.viewBox.height}`
+        ? `${definition.viewBox.x ?? 0} ${definition.viewBox.y ?? 0} ${definition.viewBox.width} ${definition.viewBox.height}`
         : "0 0 100 100"
 
   return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><svg x="0" y="0" width="${layer.width}" height="${layer.height}" viewBox="${viewBox}" preserveAspectRatio="none">${strokeClip}${innerMarkup}</svg></g>`
@@ -388,7 +390,12 @@ function getDraftingQrLayerSvg(
   return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}>${getDraftingQrBackgroundSvgMarkup(layer, state)}${qrGroup}</g>`
 }
 
-function getDraftingTextLayerSvg(layer: DraftingCanvasLayer) {
+function getDraftingTextLayerSvg(
+  layer: DraftingCanvasLayer,
+  options?: {
+    clipDefs?: string[]
+  },
+) {
   const filter = getDraftingLayerFilterMarkup(layer)
     ? ` filter="url(#${getSvgId(layer.id)}-filter)"`
     : ""
@@ -401,6 +408,17 @@ function getDraftingTextLayerSvg(layer: DraftingCanvasLayer) {
     Boolean(layer.textRuns?.length) &&
     layer.textRuns?.map((run) => run.text).join("") === (layer.text ?? "")
 
+  const fillPaint =
+    shouldRenderShapeFillGradient(layer) && layer.fillGradient
+      ? cssFillToSvgPaint(
+          qraftyGradientToFillCss(layer.fillGradient),
+          `${getSvgId(layer.id)}-text-fill-gradient`,
+        )
+      : { def: "", fill: layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill }
+  if (fillPaint.def && options?.clipDefs) {
+    options.clipDefs.push(fillPaint.def)
+  }
+
   if (!hasTextRuns) {
     const lines = layoutDraftingText(layer).lines
     const tspans = lines
@@ -412,14 +430,16 @@ function getDraftingTextLayerSvg(layer: DraftingCanvasLayer) {
       .join("")
     const decoration = layer.underline ? ` text-decoration="underline"` : ""
 
-    return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><text fill="${escapeXml(layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill)}" font-family="${escapeXml(getDraftingFontCssFamily({ fontFamily: layer.fontFamily, fontId: layer.fontId }))}" font-size="${fontSize}" font-style="${layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle}" font-weight="${layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight}" letter-spacing="${layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing}" text-anchor="${anchor}"${decoration}>${tspans}</text></g>`
+    return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><text fill="${escapeXml(fillPaint.fill)}" font-family="${escapeXml(getDraftingFontCssFamily({ fontFamily: layer.fontFamily, fontId: layer.fontId }))}" font-size="${fontSize}" font-style="${layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle}" font-weight="${layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight}" letter-spacing="${layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing}" text-anchor="${anchor}"${decoration}>${tspans}</text></g>`
   }
 
   const lineRuns = splitDraftingTextRunsByLine(layer)
   const tspans = lineRuns
     .map((runs, lineIndex) => {
       const dy = lineIndex === 0 ? fontSize : fontSize * lineHeight
-      const content = runs.map((run) => getDraftingTextRunSvg(layer, run)).join("")
+      const content = runs
+        .map((run) => getDraftingTextRunSvg(layer, run, fillPaint.fill))
+        .join("")
 
       return `<tspan x="${x}" dy="${dy}">${content}</tspan>`
     })
@@ -459,10 +479,14 @@ function getDraftingTextLayerRuns(layer: DraftingCanvasLayer): DraftingTextRun[]
   return layer.textRuns
 }
 
-function getDraftingTextRunSvg(layer: DraftingCanvasLayer, run: DraftingTextRun) {
+function getDraftingTextRunSvg(
+  layer: DraftingCanvasLayer,
+  run: DraftingTextRun,
+  layerFillPaint: string,
+) {
   const decoration = (run.underline ?? layer.underline) ? ` text-decoration="underline"` : ""
 
-  return `<tspan fill="${escapeXml(run.fill ?? layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill)}" font-family="${escapeXml(getDraftingFontCssFamily({ fontFamily: run.fontFamily ?? layer.fontFamily, fontId: run.fontId ?? layer.fontId }))}" font-size="${run.fontSize ?? layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}" font-style="${run.fontStyle ?? layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle}" font-weight="${run.fontWeight ?? layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight}"${decoration}>${escapeXml(run.text)}</tspan>`
+  return `<tspan fill="${escapeXml(run.fill ?? layerFillPaint)}" font-family="${escapeXml(getDraftingFontCssFamily({ fontFamily: run.fontFamily ?? layer.fontFamily, fontId: run.fontId ?? layer.fontId }))}" font-size="${run.fontSize ?? layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}" font-style="${run.fontStyle ?? layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle}" font-weight="${run.fontWeight ?? layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight}"${decoration}>${escapeXml(run.text)}</tspan>`
 }
 
 function getDraftingLayerSvgTransform(layer: DraftingCanvasLayer) {

@@ -8,6 +8,8 @@ import {
 import {
   createDefaultDraftingLayers,
   createDraftingShaderLayer,
+  createDraftingTextLayer,
+  patchDraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
 import { buildLayeredSvgParts } from "@/features/workspace/export/layered-svg-parts"
 import { qraftyGradientToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
@@ -195,5 +197,43 @@ describe("layered svg z-order", () => {
     expect(parts.defs).toContain("<linearGradient")
     expect(parts.body).toContain("fill=\"url(#")
     expect(parts.body).not.toContain("linear-gradient(")
+  })
+
+  it("exports gradient text fills as svg paint servers in defs", async () => {
+    const state = createDefaultQraftyState()
+    const cardState = createDefaultDraftingCardState()
+    const layers = createDefaultDraftingLayers("node", state, cardState)
+    const textLayer = patchDraftingCanvasLayer(
+      createDraftingTextLayer("node", {
+        fillGradient: {
+          enabled: true,
+          type: "linear",
+          rotation: degreesToRadians(45),
+          colorStops: [
+            { offset: 0, color: "#ff0000" },
+            { offset: 1, color: "#0000ff" },
+          ],
+        },
+        fillMode: "gradient",
+        height: 60,
+        text: "Gradient heading",
+        width: 320,
+        x: 10,
+        y: 10,
+        zIndex: layers.length + 1,
+      }),
+      {},
+    )
+
+    const parts = await buildLayeredSvgParts({
+      cardState,
+      layers: [...layers, textLayer],
+      qrMarkup: '<svg data-testid="qr"><rect width="10" height="10"/></svg>',
+      state,
+    })
+
+    expect(parts.defs).toContain("-text-fill-gradient")
+    expect(parts.body).toContain("<text")
+    expect(parts.body).toContain('fill="url(#')
   })
 })

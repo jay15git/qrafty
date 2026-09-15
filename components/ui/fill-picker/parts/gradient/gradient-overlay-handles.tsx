@@ -108,8 +108,8 @@ function Handle({ label, position, className, style, ...rest }: HandleProps) {
         "absolute -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full",
         "before:absolute before:-inset-1.5 before:content-['']",
         "pointer-events-auto border-2 border-white bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.55),0_2px_6px_rgba(0,0,0,0.35)]",
-        "outline-none motion-safe:transition-transform",
-        "motion-safe:hover:scale-110 active:cursor-grabbing motion-safe:active:scale-95",
+        "outline-none",
+        "active:cursor-grabbing",
         "focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}

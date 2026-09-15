@@ -1344,6 +1344,8 @@ function normalizeTextDraftingCanvasLayer(
   return {
     ...normalizeSharedDraftingCanvasLayerFields(context),
     fill: normalizeHexColor(value.fill, fallback.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill),
+    fillGradient: normalizeShapeFillGradient(value.fillGradient, fallback.fillGradient),
+    fillMode: normalizeTextFillMode(value.fillMode, fallback.fillMode),
     fontFamily: normalizeTextFontFamily(value, fallback),
     fontId: normalizeTextFontId(value, fallback),
     fontSize: clamp(
@@ -1499,7 +1501,12 @@ function createFallbackLayer(
             ? createUniformCornerRadii(DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius)
             : undefined,
     fill: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.fill : kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.fill : undefined,
-    fillMode: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode : undefined,
+    fillMode:
+      kind === "shape"
+        ? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode
+        : kind === "text"
+          ? "solid"
+          : undefined,
     height: kind === "text" ? 48 : kind === "image" || kind === "shape" || kind === "shader" ? 180 : 240,
     id:
       kind === "card"
@@ -1667,6 +1674,17 @@ function normalizeShapeFillMode(
   }
 
   return fallback ?? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode
+}
+
+function normalizeTextFillMode(
+  value: unknown,
+  fallback: DraftingShapeFillMode | undefined,
+): DraftingShapeFillMode {
+  if (value === "gradient" || value === "solid") {
+    return value
+  }
+
+  return fallback === "gradient" ? "gradient" : "solid"
 }
 
 const DRAFTING_SHAPE_PRIMITIVE_IDS = new Set<DraftingShapePrimitiveId>([

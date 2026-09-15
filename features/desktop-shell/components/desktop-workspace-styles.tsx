@@ -231,53 +231,13 @@ export function DesktopWorkspaceStyles() {
         rotate: none !important;
       }
 
-      [data-slot="desktop-workspace"] [data-toolbar-appearance="desktop-glass"] button svg,
-      [data-slot="desktop-workspace"] button[data-toolbar-appearance="desktop-glass"] svg {
-        transform-origin: center;
-        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms ease, opacity 180ms ease;
-      }
-
-      body:has([data-slot="desktop-workspace"]) [data-slot="drafting-layer-floating-toolbar"][data-toolbar-appearance="desktop-glass"] button svg,
-      body:has([data-slot="desktop-workspace"]) [data-slot="drafting-layer-context-menu"][data-toolbar-appearance="desktop-glass"] button svg {
-        transform-origin: center;
-        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms ease, opacity 180ms ease;
-      }
-
-      [data-slot="desktop-workspace"] [data-toolbar-appearance="desktop-glass"] button:active svg,
-      [data-slot="desktop-workspace"] button[data-toolbar-appearance="desktop-glass"]:active svg {
-        transform: scale(0.84) !important;
-      }
-
-      /* Settings sidebar — glass chrome resets icon-button transform; SVG glyphs squash on press.
-         Row/tile press classes (.dn-pressable-*) keep whole-control scale from desktopnew.css. */
-      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button:not(.dn-pressable-press-only):not(.dn-pressable):not(.dn-pressable-pickable):not(.dn-pressable-subtle):not(.dn-option-tile):not(.dn-preset-item):not(.dn-preview-tile) {
+      /* Settings sidebar — glass chrome resets icon-button transforms so
+         no press/hover scale sneaks back in. */
+      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button {
         transform: none !important;
         translate: none !important;
         scale: none !important;
         rotate: none !important;
-      }
-
-      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button:not(.dn-pressable-press-only):not(.dn-pressable):not(.dn-pressable-pickable):not(.dn-pressable-subtle):not(.dn-option-tile):not(.dn-preset-item):not(.dn-preview-tile) svg {
-        transform-origin: center;
-        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms ease, opacity 180ms ease;
-      }
-
-      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] button:not(.dn-pressable-press-only):not(.dn-pressable):not(.dn-pressable-pickable):not(.dn-pressable-subtle):not(.dn-option-tile):not(.dn-preset-item):not(.dn-preview-tile):active svg {
-        transform: scale(0.84) !important;
-      }
-
-      /* Option tiles already use soft preview scale — don't also squash their glyphs. */
-      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] [data-slot="desktop-floating-inspector"] button:is([data-desktop-preview-option="true"], [data-desktop-content-type-option="true"], [data-desktop-motion-loader-option="true"], [data-desktop-option-tile="true"]):active svg {
-        transform: none !important;
-      }
-
-      [data-slot="desktop-workspace"] [data-slot="desktop-left-toolbar-shell"] [data-slot="desktop-floating-inspector"] button:is([data-desktop-preview-option="true"], [data-desktop-content-type-option="true"], [data-desktop-motion-loader-option="true"], [data-desktop-option-tile="true"]) svg {
-        transition: color 180ms ease, opacity 180ms ease !important;
-      }
-
-      body:has([data-slot="desktop-workspace"]) [data-slot="drafting-layer-floating-toolbar"][data-toolbar-appearance="desktop-glass"] button:active svg,
-      body:has([data-slot="desktop-workspace"]) [data-slot="drafting-layer-context-menu"][data-toolbar-appearance="desktop-glass"] button:active svg {
-        transform: scale(0.84) !important;
       }
 
       [data-slot="desktop-workspace"] [data-slot="desktop-document-toolbar"][data-toolbar-appearance="desktop-glass"],
@@ -345,15 +305,6 @@ export function DesktopWorkspaceStyles() {
       [data-slot="desktop-workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="desktop-glass"] button > svg {
         position: relative;
         z-index: 1;
-      }
-
-      [data-slot="desktop-workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="desktop-glass"] button svg {
-        transform-origin: center;
-        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms ease, opacity 180ms ease;
-      }
-
-      [data-slot="desktop-workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="desktop-glass"] button:active svg {
-        transform: scale(0.84) !important;
       }
 
       [data-slot="desktop-workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="desktop-glass"] button:hover {
@@ -546,8 +497,7 @@ export function DesktopWorkspaceStyles() {
         border-color: rgba(15, 23, 42, 0.12) !important;
       }
 
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-context-menu-separator"],
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-toolbar-separator"] {
+      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-context-menu-separator"] {
         background: rgba(15, 23, 42, 0.12) !important;
       }
 

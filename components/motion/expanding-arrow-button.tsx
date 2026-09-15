@@ -15,7 +15,7 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
-import { EASE_OUT, SPRING_LAYOUT, SPRING_PRESS } from "@/lib/ease";
+import { EASE_OUT, SPRING_LAYOUT } from "@/lib/ease";
 import { useHoverCapable } from "@/lib/hooks/use-hover-capable";
 import { cn } from "@/lib/utils";
 
@@ -175,8 +175,6 @@ export const ExpandingArrowButton = forwardRef<
     return (
       <m.span
         className="inline-flex"
-        whileTap={reduce || disabled ? undefined : { scale: 0.97 }}
-        transition={SPRING_PRESS}
       >
         <Comp
           ref={ref}
@@ -205,8 +203,6 @@ export const ExpandingArrowButton = forwardRef<
       onMouseLeave={handleMouseLeave}
       onFocus={handleFocus}
       onBlur={handleBlur}
-      whileTap={reduce || disabled ? undefined : { scale: 0.97 }}
-      transition={SPRING_PRESS}
       className={shellClassName}
       {...rest}
     >

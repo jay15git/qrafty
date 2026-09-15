@@ -113,7 +113,7 @@ describe("desktop appearance model", () => {
   it("routes border patches to card border state", () => {
     const cardLayer = { ...createDraftingShapeLayer(NODE_ID), kind: "card" as const }
     const patch = buildDesktopAppearancePatch(cardLayer, {
-      border: { color: "#ff0000", opacity: 80, style: "dashed", width: 6 },
+      border: { color: "#ff0000", opacity: 80, style: "solid", width: 6 },
     })
 
     expect(patch.cardBorder?.width).toBe(6)
@@ -125,13 +125,13 @@ describe("desktop appearance model", () => {
   it("routes border patches to stroke fields for shape layers", () => {
     const shapeLayer = createDraftingShapeLayer(NODE_ID)
     const patch = buildDesktopAppearancePatch(shapeLayer, {
-      border: { color: "#00ff00", opacity: 50, style: "dotted", width: 4 },
+      border: { color: "#00ff00", opacity: 50, style: "solid", width: 4 },
     })
 
     expect(patch.layerPatch.stroke).toBe("#00ff00")
     expect(patch.layerPatch.strokeWidth).toBe(4)
     expect(patch.layerPatch.strokeOpacity).toBe(50)
-    expect(patch.layerPatch.strokeStyle).toBe("dotted")
+    expect(patch.layerPatch.strokeStyle).toBe("solid")
     expect(patch.layerPatch.borderSides?.top.width).toBe(0)
   })
 
@@ -153,11 +153,11 @@ describe("desktop appearance model", () => {
   it("routes border patches to borderSides for qr layers", () => {
     const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const }
     const patch = buildDesktopAppearancePatch(qrLayer, {
-      border: { color: "#111111", opacity: 90, style: "dashed", width: 3 },
+      border: { color: "#111111", opacity: 90, style: "solid", width: 3 },
     })
 
     expect(patch.layerPatch.borderSides?.top.width).toBe(3)
-    expect(patch.layerPatch.borderSides?.top.style).toBe("dashed")
+    expect(patch.layerPatch.borderSides?.top.style).toBe("solid")
     expect(patch.layerPatch.strokeWidth).toBeUndefined()
   })
 
@@ -197,7 +197,6 @@ describe("desktop appearance model", () => {
       width: 5,
     })
     expect(snapshot.supportsBorder).toBe(true)
-    expect(snapshot.supportsBorderStyle).toBe(false)
   })
 
   it("flags border support only for card, shape, and qr backdrop targets", () => {
@@ -229,7 +228,7 @@ describe("desktop appearance model", () => {
       ...createDraftingShapeLayer(NODE_ID),
       stroke: "#123456",
       strokeOpacity: 70,
-      strokeStyle: "dashed" as const,
+      strokeStyle: "solid" as const,
       strokeWidth: 3,
     }
     const snapshot = getDesktopAppearanceSnapshot(shapeLayer)
@@ -237,7 +236,7 @@ describe("desktop appearance model", () => {
     expect(snapshot.border).toEqual({
       color: "#123456",
       opacity: 70,
-      style: "dashed",
+      style: "solid",
       width: 3,
     })
   })

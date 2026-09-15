@@ -1,15 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState, type ReactNode } from "react"
-import {
-  AlignCenterIcon,
-  AlignLeftIcon,
-  AlignRightIcon,
-  BoldIcon,
-  ChevronDownIcon,
-  ItalicIcon,
-  UnderlineIcon,
-} from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { ChevronDownIcon } from "lucide-react"
 
 import FileUpload from "@/components/vendor/kokonutui/file-upload"
 import {
@@ -19,7 +11,6 @@ import {
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
   DESKTOP_INSPECTOR_SECTION_HEADING_CLASS,
   DESKTOP_INSPECTOR_SELECTED_CLASS,
-  DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 } from "@/features/desktop-shell/components/desktop-inspector-tokens"
 import {
@@ -30,7 +21,6 @@ import {
   DesktopInspectorScrubbableNumberInput,
 } from "@/features/desktop-shell/components/InspectorControls"
 import {
-  desktopInspectorOptionGridClass,
   desktopInspectorOptionGridItemClass,
   desktopInspectorOptionStackClass,
 } from "@/features/desktop-shell/inspector/inspector-option-grid.classes"
@@ -39,10 +29,11 @@ import {
   SettingsFillPopover,
   SettingsSlider,
 } from "@/features/desktop-shell/inspector/settings-ui"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import {
   getShapeLayerFillCssValue,
+  getTextLayerFillCssValue,
   patchShapeLayerFillFromPicker,
+  patchTextLayerFillFromPicker,
 } from "@/features/workspace/rendering/shape-fill"
 import {
   DesktopInspectorElasticSliderRow,
@@ -67,7 +58,6 @@ import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
   type DraftingShapeFillMode,
-  type DraftingTextAlign,
 } from "@/features/workspace/model/layers"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
 import {
@@ -82,12 +72,6 @@ import { useFontPreviewObserver } from "@/features/desktop-shell/inspector/use-f
 import { IllustrationInspectorColorSection } from "@/features/workspace/components/IllustrationColorControls"
 import { isDraftingIllustrationLayer } from "@/features/workspace/model/layer-floating-settings"
 import { cn } from "@/lib/utils"
-
-const DESKTOP_TEXT_ALIGN_OPTIONS: Array<{ label: string; value: DraftingTextAlign }> = [
-  { label: "Left", value: "left" },
-  { label: "Center", value: "center" },
-  { label: "Right", value: "right" },
-]
 
 export function DesktopLayerStyleInspector({
   layer,
@@ -182,47 +166,39 @@ export function DesktopTransformSection({
       dataSlot="desktop-transform-section"
     >
       {flat ? null : <DesktopInspectorLabel>Transform</DesktopInspectorLabel>}
-      <DesktopInspectorValueGrid
-        className={
-          flat
-            ? "gap-x-3 gap-y-2 [&>:nth-child(even)]:justify-self-stretch [&>:nth-child(odd)]:justify-self-stretch"
-            : undefined
-        }
-      >
-        <DesktopInspectorNumberField
-          fill={flat}
-          label="X"
-          value={Math.round(layer.x)}
-          onChange={(x) => onPatch({ x })}
-        />
-        <DesktopInspectorNumberField
-          fill={flat}
-          label="Y"
-          value={Math.round(layer.y)}
-          onChange={(y) => onPatch({ y })}
-        />
-        <DesktopInspectorNumberField
-          fill={flat}
-          label="W"
-          min={1}
-          value={Math.round(layer.width)}
-          onChange={(width) =>
-            onPatch({
-              width,
-              ...(lockAspect ? { height: width } : {}),
-              ...(layer.kind === "qr" ? { height: width } : {}),
-            })
-          }
-        />
-        <DesktopInspectorNumberField
-          disabled={layer.kind === "qr" || lockAspect}
-          fill={flat}
-          label="H"
-          min={1}
-          value={Math.round(layer.height)}
-          onChange={(height) => onPatch({ height })}
-        />
-      </DesktopInspectorValueGrid>
+      {flat ? null : (
+        <DesktopInspectorValueGrid>
+          <DesktopInspectorNumberField
+            label="X"
+            value={Math.round(layer.x)}
+            onChange={(x) => onPatch({ x })}
+          />
+          <DesktopInspectorNumberField
+            label="Y"
+            value={Math.round(layer.y)}
+            onChange={(y) => onPatch({ y })}
+          />
+          <DesktopInspectorNumberField
+            label="W"
+            min={1}
+            value={Math.round(layer.width)}
+            onChange={(width) =>
+              onPatch({
+                width,
+                ...(lockAspect ? { height: width } : {}),
+                ...(layer.kind === "qr" ? { height: width } : {}),
+              })
+            }
+          />
+          <DesktopInspectorNumberField
+            disabled={layer.kind === "qr" || lockAspect}
+            label="H"
+            min={1}
+            value={Math.round(layer.height)}
+            onChange={(height) => onPatch({ height })}
+          />
+        </DesktopInspectorValueGrid>
+      )}
 
       <div className={flat ? "grid gap-2" : DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
         {flat ? (
@@ -452,40 +428,6 @@ function DesktopLayerTextInspector({
           }
         />
 
-        <div className={cn("mt-2", desktopInspectorOptionGridClass(3))} data-slot="desktop-layer-text-emphasis">
-          <DesktopIconToggleButton
-            active={fontWeight >= 700}
-            icon={<BoldIcon className="size-3.5" />}
-            label="Bold"
-            onClick={() =>
-              patchTextLayer({
-                fontWeight:
-                  fontWeight >= 700
-                    ? getNearestDesktopFontWeight(400, supportedWeights)
-                    : getNearestDesktopFontWeight(700, supportedWeights),
-              })
-            }
-          />
-          <DesktopIconToggleButton
-            active={(layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle) === "italic"}
-            icon={<ItalicIcon className="size-3.5" />}
-            label="Italic"
-            onClick={() =>
-              patchTextLayer({
-                fontStyle:
-                  (layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle) === "italic"
-                    ? "normal"
-                    : "italic",
-              })
-            }
-          />
-          <DesktopIconToggleButton
-            active={Boolean(layer.underline)}
-            icon={<UnderlineIcon className="size-3.5" />}
-            label="Underline"
-            onClick={() => patchTextLayer({ underline: !layer.underline })}
-          />
-        </div>
       </DesktopInspectorSection>
 
       <DesktopInspectorSection
@@ -495,40 +437,12 @@ function DesktopLayerTextInspector({
         <p className={cn("mb-3", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Color</p>
         <SettingsFillPopover
           hint="Text fill"
-          solidOnly
           title="Text fill"
-          value={layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill}
-          onValueChange={(_fill, css) => patchTextLayer({ fill: fillPreviewHex(css) })}
+          value={getTextLayerFillCssValue(layer)}
+          onValueChange={(fill, css) =>
+            patchTextLayer(patchTextLayerFillFromPicker(layer, fill, css))
+          }
         />
-      </DesktopInspectorSection>
-
-      <DesktopInspectorSection
-        className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
-        dataSlot="desktop-layer-text-alignment"
-      >
-        <p className={cn("mb-3", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Alignment</p>
-        <div className={desktopInspectorOptionGridClass(3)}>
-          {DESKTOP_TEXT_ALIGN_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              aria-label={`Align text ${option.value}`}
-              aria-pressed={(layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign) === option.value}
-              className={cn(
-                DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-                "px-2 font-semibold",
-                DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
-                desktopInspectorOptionGridItemClass(),
-                DESKTOP_INSPECTOR_CONTROL_CLASS,
-                (layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign) === option.value &&
-                  DESKTOP_INSPECTOR_SELECTED_CLASS,
-              )}
-              type="button"
-              onClick={() => patchTextLayer({ textAlign: option.value })}
-            >
-              <DesktopTextAlignIcon value={option.value} />
-            </button>
-          ))}
-        </div>
       </DesktopInspectorSection>
 
       <DesktopInspectorSection
@@ -737,45 +651,3 @@ function DesktopLayerShaderInspector({
   )
 }
 
-function DesktopIconToggleButton({
-  active,
-  icon,
-  label,
-  onClick,
-}: {
-  active: boolean
-  icon: ReactNode
-  label: string
-  onClick: () => void
-}) {
-  return (
-    <button
-      aria-label={label}
-      aria-pressed={active}
-      className={cn(
-        "grid place-items-center px-2 font-semibold",
-        DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-        DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
-        desktopInspectorOptionGridItemClass(),
-        DESKTOP_INSPECTOR_CONTROL_CLASS,
-        active && DESKTOP_INSPECTOR_SELECTED_CLASS,
-      )}
-      type="button"
-      onClick={onClick}
-    >
-      {icon}
-    </button>
-  )
-}
-
-function DesktopTextAlignIcon({ value }: { value: DraftingTextAlign }) {
-  if (value === "center") {
-    return <AlignCenterIcon className="mx-auto size-3.5" />
-  }
-
-  if (value === "right") {
-    return <AlignRightIcon className="mx-auto size-3.5" />
-  }
-
-  return <AlignLeftIcon className="mx-auto size-3.5" />
-}

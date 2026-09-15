@@ -13,7 +13,6 @@ import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shape
 import { getShapeStrokeViewBoxScale } from "@/features/workspace/rendering/shape-layer-paths"
 import { IllustrationLayerImage } from "@/features/workspace/components/IllustrationColorControls"
 import { isDraftingIllustrationLayer } from "@/features/workspace/model/layer-floating-settings"
-import { getStrokeDasharray } from "@/features/workspace/rendering/layer-appearance"
 import {
   resolveShapeSvgFill,
   ShapeFillGradientDefs,
@@ -73,7 +72,6 @@ function renderPrimitiveShape(
   const strokeWidthVb = strokeWidth * getShapeStrokeViewBoxScale(layer, 100, 100)
   const strokeOpacity = (layer.strokeOpacity ?? 100) / 100
   const fill = resolveShapeSvgFill(layer)
-  const strokeDasharray = getStrokeDasharray(layer.strokeStyle)
 
   if (shapeId === "line") {
     return (
@@ -81,7 +79,6 @@ function renderPrimitiveShape(
         <defs>{renderShapeGradientDefs(layer)}</defs>
         <line
           stroke={stroke}
-          strokeDasharray={strokeDasharray}
           strokeLinecap="round"
           strokeOpacity={strokeOpacity}
           strokeWidth={Math.max(1, strokeWidthVb || 4)}
@@ -102,7 +99,6 @@ function renderPrimitiveShape(
           d="M10 50 H62 M62 50 L44 34 M62 50 L44 66"
           fill="none"
           stroke={stroke}
-          strokeDasharray={strokeDasharray}
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeOpacity={strokeOpacity}
@@ -131,7 +127,6 @@ function renderPrimitiveShape(
           rx="42"
           ry="42"
           stroke={stroke}
-          strokeDasharray={strokeDasharray}
           strokeOpacity={strokeOpacity}
           strokeWidth={strokeWidthVb * 2}
         />
@@ -164,7 +159,6 @@ function renderPrimitiveShape(
           d={path}
           fill={fill}
           stroke={stroke}
-          strokeDasharray={strokeDasharray}
           strokeOpacity={strokeOpacity}
           strokeWidth={strokeWidthVb * 2}
         />
@@ -192,7 +186,7 @@ export function DraftingShapeLayerContent({ layer }: { layer: DraftingCanvasLaye
           aria-hidden="true"
           className="h-full w-full"
           preserveAspectRatio="none"
-          viewBox={`0 0 ${definition.viewBox.width} ${definition.viewBox.height}`}
+          viewBox={`${definition.viewBox.x ?? 0} ${definition.viewBox.y ?? 0} ${definition.viewBox.width} ${definition.viewBox.height}`}
         >
           <defs>
             {renderShapeGradientDefs(layer)}
@@ -207,7 +201,6 @@ export function DraftingShapeLayerContent({ layer }: { layer: DraftingCanvasLaye
             d={definition.path}
             fill={getShapePathFill(layer)}
             stroke={layer.stroke ?? "#171717"}
-            strokeDasharray={getStrokeDasharray(layer.strokeStyle)}
             strokeOpacity={(layer.strokeOpacity ?? 100) / 100}
             strokeWidth={strokeWidthVb * 2}
           />

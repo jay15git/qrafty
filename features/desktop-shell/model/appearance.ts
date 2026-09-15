@@ -39,7 +39,6 @@ export type DesktopAppearanceSnapshot = {
   shadow: DraftingCardShadowState
   shadows: DraftingShadowLayerState[]
   supportsBorder: boolean
-  supportsBorderStyle: boolean
   supportsCornerRadius: boolean
 }
 
@@ -114,7 +113,6 @@ export function getDesktopAppearanceSnapshot(
   const layerFilters = layer.layerFilters ?? []
   const border = getLayerBorderSnapshot(layer, options)
   const shadows = layer.shadows ?? [legacyShadowToShadowLayer(layer.shadow)]
-  const supportsBorderStyle = !(layer.kind === "qr" && qrHasBorderableBackdrop(options))
   const supportsBorder =
     layer.kind === "card" ||
     layer.kind === "shape" ||
@@ -132,7 +130,6 @@ export function getDesktopAppearanceSnapshot(
       shadow: layer.shadow,
       shadows,
       supportsBorder,
-      supportsBorderStyle,
       supportsCornerRadius: true,
     }
   }
@@ -146,7 +143,6 @@ export function getDesktopAppearanceSnapshot(
       shadow: layer.shadow,
       shadows,
       supportsBorder,
-      supportsBorderStyle,
       supportsCornerRadius: false,
     }
   }
@@ -173,7 +169,6 @@ export function getDesktopAppearanceSnapshot(
     shadow: layer.shadow,
     shadows,
     supportsBorder,
-    supportsBorderStyle,
     supportsCornerRadius: layerSupportsCornerRadius(layer),
   }
 }

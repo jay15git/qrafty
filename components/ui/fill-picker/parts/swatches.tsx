@@ -65,8 +65,8 @@ export const Swatches = React.forwardRef<HTMLDivElement, SwatchesProps>(function
             aria-label={p}
             onClick={() => setColor(p)}
             className={cn(
-              "relative size-5 cursor-pointer overflow-hidden rounded-full border-0 outline-none transition-transform",
-              "focus-visible:ring-2 focus-visible:ring-[var(--color-picker-focus,var(--ring))] hover:scale-110",
+              "relative size-5 cursor-pointer overflow-hidden rounded-full border-0 outline-none",
+              "focus-visible:ring-2 focus-visible:ring-[var(--color-picker-focus,var(--ring))]",
               active && "ring-2 ring-[var(--color-picker-focus,var(--ring))]",
             )}
             style={{ backgroundImage: CHECKERBOARD, backgroundSize: "8px 8px" }}

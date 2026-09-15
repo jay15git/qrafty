@@ -2877,9 +2877,11 @@ export function WorkspaceSurface({
     (!draftingQraftyState.backgroundOptions.transparent ||
       draftingQraftyState.backgroundGradient.enabled ||
       hasActiveBackgroundShapeOptions(draftingQraftyState.backgroundShapeOptions))
-  const propertiesTransformLayer =
+  const transformTargetLayer =
     selectedTransformLayer ??
     (selectedLayerIds.length === 0 ? appearanceTargetLayer : null)
+  const propertiesTransformLayer =
+    transformTargetLayer?.kind === "card" ? null : transformTargetLayer
   const desktopAppearanceSnapshot = appearanceTargetLayer
     ? getDesktopAppearanceSnapshot(appearanceTargetLayer, {
         cardBorder:

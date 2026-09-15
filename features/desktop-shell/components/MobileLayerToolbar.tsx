@@ -2,13 +2,19 @@
 
 import {
   ALargeSmallIcon,
+  AlignCenterIcon,
+  AlignLeftIcon,
+  AlignRightIcon,
   ArrowDown,
   ArrowDownToLine,
   ArrowUp,
   ArrowUpToLine,
+  Bold,
   Copy,
+  Italic,
   Trash2,
   Type,
+  Underline,
 } from "lucide-react"
 import { useEffect, useRef, type ReactNode } from "react"
 
@@ -18,7 +24,6 @@ import {
   MOBILE_LAYER_TOOLBAR_GAP_PX,
 } from "@/features/desktop-shell/components/mobile-layer-toolbar-sync"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { useMobileDrawerNavigation } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import { TextFontPickerContent } from "@/features/desktop-shell/inspector/text-font-picker-content"
@@ -29,18 +34,29 @@ import {
 import {
   FillColorToolbarButton,
   LayerFloatingToolbarSettings,
+  TextAlignmentSettings,
   TextSizeSettings,
-  TextTypographySettings,
 } from "@/features/workspace/components/LayerFloatingToolbarSettings"
+import {
+  getTextLayerFillCssValue,
+  patchTextLayerFillFromPicker,
+} from "@/features/workspace/rendering/shape-fill"
+import {
+  getDesktopLayerFontWeight,
+  getNearestDesktopFontWeight,
+} from "@/features/desktop-shell/model/font-weight"
+import { resolveDraftingFont } from "@/features/workspace/model/fonts"
 import { isDraftingEmojiLayer } from "@/features/workspace/model/layer-floating-settings"
 import { cn } from "@/lib/utils"
 
 function MobileLayerToolbarButton({
+  active = false,
   ariaLabel,
   children,
   disabled = false,
   onClick,
 }: {
+  active?: boolean
   ariaLabel: string
   children: ReactNode
   disabled?: boolean
@@ -49,7 +65,8 @@ function MobileLayerToolbarButton({
   return (
     <button
       aria-label={ariaLabel}
-      className="dn-mobile-layer-toolbar-button flex size-[var(--dn-icon-hit)] shrink-0 cursor-pointer items-center justify-center rounded-full text-[var(--dn-fg)] transition-colors hover:bg-[var(--dn-control)] disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-fg)]/20"
+      aria-pressed={active}
+      className="dn-mobile-layer-toolbar-button flex size-[var(--dn-icon-hit)] shrink-0 cursor-pointer items-center justify-center rounded-full text-[var(--dn-fg)] transition-colors hover:bg-[var(--dn-control)] aria-[pressed=true]:bg-[var(--dn-fg)] aria-[pressed=true]:text-[var(--dn-bg)] disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-fg)]/20"
       data-slot="mobile-layer-toolbar-button"
       data-vaul-no-drag=""
       disabled={disabled}
@@ -122,15 +139,35 @@ function MobileLayerTextTools({
     )
   }
 
+  const selectedFont = resolveDraftingFont({
+    fontFamily: layer.fontFamily,
+    fontId: layer.fontId,
+  })
+  const supportedWeights = selectedFont.weights
+  const fontWeight = getDesktopLayerFontWeight(layer.fontWeight, supportedWeights)
+  const fontStyle = layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle
+  const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign
+  const AlignIcon =
+    textAlign === "center"
+      ? AlignCenterIcon
+      : textAlign === "right"
+        ? AlignRightIcon
+        : AlignLeftIcon
+
+  function patchText(patch: Partial<DraftingCanvasLayer>) {
+    onPatch({ ...patch, textRuns: undefined })
+  }
+
   return (
     <div className="flex shrink-0 items-center gap-0.5" data-slot="mobile-layer-toolbar-settings">
       <FillColorToolbarButton
         ariaLabel="Text color"
+        solidOnly={false}
         theme={theme}
         title="Text color"
-        value={layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill}
-        onValueChange={(_fill, css) =>
-          onPatch({ fill: fillPreviewHex(css), textRuns: undefined })
+        value={getTextLayerFillCssValue(layer)}
+        onValueChange={(fill, css) =>
+          patchText(patchTextLayerFillFromPicker(layer, fill, css))
         }
       />
       <MobileLayerToolbarDetailButton
@@ -146,17 +183,59 @@ function MobileLayerTextTools({
       >
         <Type className="size-4" strokeWidth={2} />
       </MobileLayerToolbarDetailButton>
-      <MobileLayerToolbarDetailButton
-        ariaLabel="Text formatting"
-        content={<TextTypographySettings layer={layer} onPatch={onPatch} />}
-        title="Text formatting"
+      <MobileLayerToolbarButton
+        active={fontWeight >= 700}
+        ariaLabel="Bold"
+        onClick={() =>
+          patchText({
+            fontWeight:
+              fontWeight >= 700
+                ? getNearestDesktopFontWeight(400, supportedWeights)
+                : getNearestDesktopFontWeight(700, supportedWeights),
+          })
+        }
       >
-        <span aria-hidden className="text-[15px] font-semibold leading-none">A</span>
+        <Bold className="size-4" strokeWidth={2} />
+      </MobileLayerToolbarButton>
+      <MobileLayerToolbarButton
+        active={fontStyle === "italic"}
+        ariaLabel="Italic"
+        onClick={() =>
+          patchText({ fontStyle: fontStyle === "italic" ? "normal" : "italic" })
+        }
+      >
+        <Italic className="size-4" strokeWidth={2} />
+      </MobileLayerToolbarButton>
+      <MobileLayerToolbarButton
+        active={Boolean(layer.underline)}
+        ariaLabel="Underline"
+        onClick={() => patchText({ underline: !layer.underline })}
+      >
+        <Underline className="size-4" strokeWidth={2} />
+      </MobileLayerToolbarButton>
+      <MobileLayerToolbarDetailButton
+        ariaLabel="Text alignment"
+        content={
+          <TextAlignmentSettings
+            layer={layer}
+            onPatch={onPatch}
+            onSelect={() => mobileNav?.closeDetail()}
+          />
+        }
+        title="Alignment"
+      >
+        <AlignIcon className="size-4" strokeWidth={2} />
       </MobileLayerToolbarDetailButton>
       <MobileLayerToolbarDetailButton
         ariaLabel="Text size"
-        content={<TextSizeSettings layer={layer} onPatch={onPatch} />}
-        title="Text size"
+        content={
+          <TextSizeSettings
+            layer={layer}
+            onPatch={onPatch}
+            onSelect={() => mobileNav?.closeDetail()}
+          />
+        }
+        title="Size"
       >
         <ALargeSmallIcon className="size-4" strokeWidth={2} />
       </MobileLayerToolbarDetailButton>

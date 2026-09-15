@@ -27,18 +27,6 @@ export function toRgba(color: string, opacity: number) {
   return color
 }
 
-export function getStrokeDasharray(style: DraftingBorderStyle | undefined) {
-  switch (style) {
-    case "dashed":
-      return "8 4"
-    case "dotted":
-      return "2 2"
-    case "solid":
-    default:
-      return undefined
-  }
-}
-
 function getDraftingShadowLayerCss(shadow: DraftingShadowLayerState | DraftingCardShadowState) {
   if (
     shadow.visible === false ||

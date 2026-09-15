@@ -60,7 +60,7 @@ export const Presets = React.forwardRef<HTMLDivElement, PresetsProps>(
             className={cn(
               "relative size-8 cursor-pointer rounded-md outline-none transition-shadow",
               SAMPLE_EDGE,
-              "focus-visible:ring-2 focus-visible:ring-ring hover:scale-110",
+              "focus-visible:ring-2 focus-visible:ring-ring",
             )}
             style={{ background: formatGradient(gradient) }}
             aria-label="Apply gradient preset"

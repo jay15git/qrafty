@@ -19,13 +19,20 @@ const SAMPLES_PER_EDGE = 16
 function extractShapes(source) {
   const shapes = []
   const entryRe =
-    /id:\s*"([^"]+)",\s*label:\s*"[^"]*",\s*viewBox:\s*\{\s*width:\s*([\d.]+),\s*height:\s*([\d.]+)\s*\},\s*path:\s*"((?:[^"\\]|\\.)*)"/g
+    /id:\s*"([^"]+)",\s*label:\s*"[^"]*",\s*viewBox:\s*\{([^}]*)\},\s*path:\s*"((?:[^"\\]|\\.)*)"/g
 
   for (const match of source.matchAll(entryRe)) {
+    const viewBox = {}
+    const viewBoxRe = /(height|width|x|y):\s*([\d.]+)/g
+
+    for (const field of match[2].matchAll(viewBoxRe)) {
+      viewBox[field[1]] = Number(field[2])
+    }
+
     shapes.push({
       id: match[1],
-      viewBox: { width: Number(match[2]), height: Number(match[3]) },
-      path: match[4],
+      viewBox,
+      path: match[3],
     })
   }
 
@@ -152,6 +159,8 @@ function polygonCentroid(polygon) {
 function measureFrame(shape) {
   const verifierPolygon = strictPolygon(shape.path, shape.viewBox)
   const { width, height } = shape.viewBox
+  const viewBoxX = shape.viewBox.x ?? 0
+  const viewBoxY = shape.viewBox.y ?? 0
   const maxHalf = Math.min(width, height) / 2
   const safety = Math.max(0.02, Math.min(width, height) / 300)
   const centroid = polygonCentroid(verifierPolygon)
@@ -161,7 +170,7 @@ function measureFrame(shape) {
     candidates.push(centroid)
   }
 
-  candidates.push({ cx: width / 2, cy: height / 2 })
+  candidates.push({ cx: viewBoxX + width / 2, cy: viewBoxY + height / 2 })
 
   for (const candidate of candidates) {
     const half = strictMaxSquareAt(
@@ -180,7 +189,7 @@ function measureFrame(shape) {
     }
   }
 
-  return { x: width / 2, y: height / 2, size: 0 }
+  return { x: viewBoxX + width / 2, y: viewBoxY + height / 2, size: 0 }
 }
 
 const source = readFileSync(SOURCE, "utf8")

@@ -1,4 +1,4 @@
-export type DraftingBorderStyle = "solid" | "dashed" | "dotted"
+export type DraftingBorderStyle = "solid"
 
 export type DraftingBorderSideKey = "top" | "right" | "bottom" | "left"
 
@@ -35,7 +35,7 @@ export type DraftingShadowLayerState = {
   visible: boolean
 }
 
-export const DRAFTING_BORDER_STYLES: DraftingBorderStyle[] = ["solid", "dashed", "dotted"]
+export const DRAFTING_BORDER_STYLES: DraftingBorderStyle[] = ["solid"]
 
 export const DRAFTING_BORDER_SIDE_KEYS: DraftingBorderSideKey[] = [
   "top",
@@ -105,7 +105,7 @@ export function createUniformPerSideBorder(
 }
 
 export function normalizeBorderStyle(value: unknown, fallback: DraftingBorderStyle): DraftingBorderStyle {
-  return value === "solid" || value === "dashed" || value === "dotted" ? value : fallback
+  return value === "solid" ? value : fallback
 }
 
 function normalizeShadowKind(_value: unknown, _fallback: DraftingShadowKind): DraftingShadowKind {

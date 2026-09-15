@@ -1206,7 +1206,8 @@ describe("shape padding geometry", () => {
     const contentFrame = getQrBackgroundShapeContentFrame(shape)
     const scale = layout.metrics.backingRegion.width / shape.viewBox.width
     const quietZonePx = getQraftyQrQuietZonePx(state, layout.innerWidth)
-    const contentFrameLeft = layout.metrics.backingRegion.x + contentFrame.x * scale
+    const contentFrameLeft =
+      layout.metrics.backingRegion.x + (contentFrame.x - (shape.viewBox.x ?? 0)) * scale
 
     return (layout.metrics.translateX + quietZonePx - contentFrameLeft) / layout.scale
   }
@@ -1257,7 +1258,8 @@ describe("shape padding geometry", () => {
     const contentFrame = getQrBackgroundShapeContentFrame(shape!)
     const scale = layout.metrics.backingRegion.width / shape!.viewBox.width
     const contentFrameCenterX =
-      layout.metrics.backingRegion.x + (contentFrame.x + contentFrame.width / 2) * scale
+      layout.metrics.backingRegion.x +
+      (contentFrame.x - (shape!.viewBox.x ?? 0) + contentFrame.width / 2) * scale
     const qrCenterX = layout.metrics.translateX + layout.innerWidth / 2
 
     expect(contentFrameCenterX).toBeCloseTo(qrCenterX, 6)

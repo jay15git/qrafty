@@ -201,7 +201,7 @@ function ShapeTypePreviewRow({
                 <svg
                   aria-hidden="true"
                   className="size-[90%] fill-current"
-                  viewBox={`0 0 ${option.viewBox.width} ${option.viewBox.height}`}
+                  viewBox={`${option.viewBox.x ?? 0} ${option.viewBox.y ?? 0} ${option.viewBox.width} ${option.viewBox.height}`}
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path d={option.path} />

@@ -287,7 +287,7 @@ export function KokonutFileUploadDropzone({
                     type="button"
                   >
                     <span>Upload File</span>
-                    <UploadCloud className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+                    <UploadCloud className="h-4 w-4" />
                   </button>
 
                   <p className="mt-3 text-gray-500 text-xs dark:text-gray-400">

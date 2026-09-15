@@ -47,7 +47,7 @@ function ElementShapeDecorativePreview({
       aria-hidden="true"
       className={sizeClassName}
       fill="none"
-      viewBox={`0 0 ${shape.viewBox.width} ${shape.viewBox.height}`}
+      viewBox={`${shape.viewBox.x ?? 0} ${shape.viewBox.y ?? 0} ${shape.viewBox.width} ${shape.viewBox.height}`}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d={shape.path} fill={fill} />

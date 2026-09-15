@@ -123,7 +123,7 @@ function buildDraftingQrBackgroundPreviewSvgMarkup(
     tiltY: 0,
   }
   const geometry = shape
-    ? `<path data-shape-view-box="${shape.viewBox.width} ${shape.viewBox.height}" d="${escapeXml(shape.path)}" transform="${getDraftingQrBackgroundPathTransform(shape, metrics.backingRegion, pathShapeOptions)}"/>`
+    ? `<path data-shape-view-box="${shape.viewBox.x ?? 0} ${shape.viewBox.y ?? 0} ${shape.viewBox.width} ${shape.viewBox.height}" d="${escapeXml(shape.path)}" transform="${getDraftingQrBackgroundPathTransform(shape, metrics.backingRegion, pathShapeOptions)}"/>`
     : `<rect x="${metrics.backingRegion.x}" y="${metrics.backingRegion.y}" width="${metrics.backingRegion.width}" height="${metrics.backingRegion.height}" rx="${(Math.min(metrics.backingRegion.width, metrics.backingRegion.height) / 2) * state.backgroundOptions.round}"/>`
   const { clipMarkup, contentMarkup } = wrapInnerStrokeMarkup({
     fillMarkup: ` fill="${escapeXml(fill)}"`,

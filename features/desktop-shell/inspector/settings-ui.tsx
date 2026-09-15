@@ -110,7 +110,7 @@ function desktopnewPortalClass(theme: "light" | "dark", className?: string) {
   return cn(className, theme === "dark" && "dark")
 }
 
-function SettingsPopoverChrome({
+export function SettingsPopoverChrome({
   title,
   onClose,
   children,
@@ -1137,128 +1137,6 @@ export function SettingsRowPopover({
         >
           {children}
         </SettingsPopoverChrome>
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-export function DesktopInspectorSettingsPopover({
-  children,
-  contentClassName,
-  dataSlot = "desktop-inspector-settings-popover",
-  hint,
-  hideHint = false,
-  leading,
-  onOpenChange,
-  open,
-  title,
-  trigger,
-}: {
-  children: ReactNode
-  contentClassName?: string
-  dataSlot?: string
-  hint?: string
-  hideHint?: boolean
-  leading?: ReactNode
-  onOpenChange?: (open: boolean) => void
-  open?: boolean
-  title?: string
-  trigger: ReactNode
-}) {
-  const theme = useDesktopnewTheme()
-  const mobileDensity = useMobileInspectorDensity()
-  const mobileNav = useMobileDrawerNavigation()
-  const detailTitle =
-    title ??
-    (typeof trigger === "string" ? trigger : undefined) ??
-    hint ??
-    "Setting"
-
-  const closeDetail = () => {
-    mobileNav?.closeDetail()
-    onOpenChange?.(false)
-  }
-
-  const [internalOpen, setInternalOpen] = useState(false)
-  const isControlledOpen = open !== undefined
-  const popoverOpen = isControlledOpen ? open : internalOpen
-
-  const setPopoverOpen = (nextOpen: boolean) => {
-    if (!isControlledOpen) {
-      setInternalOpen(nextOpen)
-    }
-    onOpenChange?.(nextOpen)
-  }
-
-  const liveDetail = useMobileLiveDetail({
-    content: mergeMobileDetailChildClose(children, closeDetail),
-    enabled: Boolean(mobileDensity && mobileNav),
-    onOpenChange,
-    title: detailTitle,
-  })
-
-  const rowTrigger = (
-    <>
-      {leading ? (
-        <span className="flex min-w-0 items-center gap-2">
-          {leading}
-          <span className={cn("truncate", DN_LABEL)}>{trigger}</span>
-        </span>
-      ) : (
-        <span className={cn("truncate", DN_VALUE)}>{trigger}</span>
-      )}
-      {hideHint ? (
-        <ChevronRight aria-hidden className={cn("size-3 shrink-0 opacity-50", DN_HINT)} />
-      ) : (
-        <span className={cn("flex shrink-0 items-center gap-1", DN_HINT)}>
-          {hint}
-          <ChevronRight aria-hidden className="size-3 opacity-50" />
-        </span>
-      )}
-    </>
-  )
-
-  if (mobileDensity && mobileNav) {
-    return (
-      <>
-        <SettingsRowButton data-vaul-no-drag="" type="button" onClick={liveDetail.open}>
-          {rowTrigger}
-        </SettingsRowButton>
-        {liveDetail.portal}
-      </>
-    )
-  }
-
-  return (
-    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-      <PopoverTrigger asChild>
-        <SettingsRowButton>{rowTrigger}</SettingsRowButton>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        data-slot={dataSlot}
-        side="right"
-        sideOffset={10}
-        className={cn(
-          "z-[20000] flex max-h-[min(28rem,calc(100dvh-8rem))] w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[16px] border border-[var(--desktop-appearance-popover-border)] bg-[var(--desktop-appearance-popover-bg)] p-0 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-appearance-popover-shadow)]",
-          contentClassName,
-        )}
-      >
-        <DesktopnewThemeContext.Provider value={theme}>
-          <div
-            className="desktopnew-root desktopnew-embedded flex min-h-0 flex-1 flex-col"
-            data-theme={theme}
-          >
-            <SettingsPopoverChrome
-              title={detailTitle}
-              onClose={() => setPopoverOpen(false)}
-            >
-              <div className="min-h-0" data-slot="desktop-inspector-scroll">
-                {children}
-              </div>
-            </SettingsPopoverChrome>
-          </div>
-        </DesktopnewThemeContext.Provider>
       </PopoverContent>
     </Popover>
   )

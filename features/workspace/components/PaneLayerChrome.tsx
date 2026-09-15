@@ -346,7 +346,7 @@ export const LayerFloatingToolbar = forwardRef<
   return (
     <div
       ref={ref}
-      className="pointer-events-auto absolute left-1/2 top-1/2 z-[10001] inline-flex h-12 min-w-48 items-center justify-center gap-1 rounded-2xl border border-white/[0.12] bg-[#171717] px-1.5 text-white/78 shadow-[var(--desktop-glass-shadow)]"
+      className="pointer-events-auto absolute left-1/2 top-1/2 z-[10001] inline-flex h-12 items-center justify-center gap-1 rounded-2xl border border-white/[0.12] bg-[#171717] px-1.5 text-white/78 shadow-[var(--desktop-glass-shadow)]"
       data-slot="drafting-layer-floating-toolbar"
       data-toolbar-appearance="desktop-glass"
       role="toolbar"
@@ -358,17 +358,11 @@ export const LayerFloatingToolbar = forwardRef<
       onPointerDown={(event) => event.stopPropagation()}
     >
       {showLayerSettings ? (
-        <>
-          <LayerFloatingToolbarSettings
-            layer={settingsLayer!}
-            theme={theme}
-            onPatch={onLayerChange!}
-          />
-          <div
-            className="mx-0.5 h-4 w-px bg-white/[0.12]"
-            data-slot="drafting-layer-toolbar-settings-separator"
-          />
-        </>
+        <LayerFloatingToolbarSettings
+          layer={settingsLayer!}
+          theme={theme}
+          onPatch={onLayerChange!}
+        />
       ) : null}
       <LayerFloatingToolbarButton
         label="Copy selection"
@@ -384,7 +378,6 @@ export const LayerFloatingToolbar = forwardRef<
       >
         <Trash2Icon aria-hidden="true" className="size-4" strokeWidth={2} />
       </LayerFloatingToolbarButton>
-      <div className="mx-0.5 h-4 w-px bg-white/[0.12]" data-slot="drafting-layer-toolbar-separator" />
       <LayerFloatingToolbarButton label="More layer actions" onClick={onMore}>
         <MoreHorizontalIcon aria-hidden="true" className="size-4" strokeWidth={2} />
       </LayerFloatingToolbarButton>

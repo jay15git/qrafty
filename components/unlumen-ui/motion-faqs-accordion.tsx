@@ -60,7 +60,6 @@ function AccordionItem({
         isOpen && " ",
       )}
       transition={{ type: "spring", stiffness: 280, damping: 28, mass: 0.9 }}
-      animate={{ scale: isOpen ? 1 : 0.985 }}
       initial={false}
       style={{ originX: 0.5, originY: 0 }}
     >
@@ -87,7 +86,6 @@ function AccordionItem({
           initial={false}
           animate={{
             rotate: isOpen ? 90 : 0,
-            scale: isOpen ? 1.05 : 1,
           }}
           transition={{ type: "spring", stiffness: 480, damping: 28 }}
           className="inline-flex size-12 shrink-0 items-center justify-center text-foreground"

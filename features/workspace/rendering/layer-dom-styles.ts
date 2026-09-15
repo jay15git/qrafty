@@ -22,6 +22,8 @@ import {
 } from "@/features/workspace/rendering/layer-appearance"
 import { clampBackgroundShapeTilt } from "@/features/qr-code/model/state"
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
+import { qraftyGradientToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+import { shouldRenderShapeFillGradient } from "@/features/workspace/rendering/shape-fill"
 import {
   getBackgroundShapeCssTiltTransform,
   getLayerPlacementTransform,
@@ -189,8 +191,20 @@ export function getExportLayerEffectStyle(layer: DraftingCanvasLayer): Record<st
 }
 
 export function getTextLayerStyle(layer: DraftingCanvasLayer): CSSProperties {
+  const gradient =
+    shouldRenderShapeFillGradient(layer) && layer.fillGradient ? layer.fillGradient : null
+
   return {
-    color: layer.fill ?? "#171717",
+    ...(gradient
+      ? {
+          backgroundImage: qraftyGradientToFillCss(gradient),
+          WebkitBackgroundClip: "text",
+          backgroundClip: "text",
+          color: "transparent",
+          WebkitTextFillColor: "transparent",
+          caretColor: layer.fill ?? "#171717",
+        }
+      : { color: layer.fill ?? "#171717" }),
     fontFamily: getDraftingTextFontFamily(layer),
     fontSize: layer.fontSize ?? 32,
     fontStyle: layer.fontStyle ?? "normal",
@@ -208,8 +222,13 @@ export function getTextRunStyle(
   layer: DraftingCanvasLayer,
   run: DraftingTextRun,
 ): Record<string, string | number> {
+  const hasLayerGradient =
+    shouldRenderShapeFillGradient(layer) && Boolean(layer.fillGradient)
+
   return {
-    color: run.fill ?? layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill,
+    color:
+      run.fill ??
+      (hasLayerGradient ? "transparent" : (layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill)),
     fontFamily: getDraftingFontCssFamily({
       fontFamily: run.fontFamily ?? layer.fontFamily,
       fontId: run.fontId ?? layer.fontId,

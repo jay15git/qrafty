@@ -75,7 +75,9 @@ export function renderLandingWheelCardSvg(preset: LandingWheelCardPreset) {
     throw new Error(`Unknown landing wheel shape: ${preset.shape.id}`)
   }
 
-  const { width, height } = shape.viewBox
+  const { height, width } = shape.viewBox
+  const viewBoxX = shape.viewBox.x ?? 0
+  const viewBoxY = shape.viewBox.y ?? 0
   const padding = preset.shape.padding / 100
   const insetX = width * padding
   const insetY = height * padding
@@ -90,11 +92,11 @@ export function renderLandingWheelCardSvg(preset: LandingWheelCardPreset) {
   const scale = Math.min(innerWidth / viewBox.width, innerHeight / viewBox.height)
   const drawWidth = viewBox.width * scale
   const drawHeight = viewBox.height * scale
-  const offsetX = insetX + (innerWidth - drawWidth) / 2
-  const offsetY = insetY + (innerHeight - drawHeight) / 2
+  const offsetX = viewBoxX + insetX + (innerWidth - drawWidth) / 2
+  const offsetY = viewBoxY + insetY + (innerHeight - drawHeight) / 2
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="${preset.id} QR code">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBoxX} ${viewBoxY} ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="${preset.id} QR code">
   <path d="${shape.path}" fill="${preset.shape.fill}" />
   <svg x="${offsetX}" y="${offsetY}" width="${drawWidth}" height="${drawHeight}" viewBox="${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}" xmlns="http://www.w3.org/2000/svg">
     ${qrInner}

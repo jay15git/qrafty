@@ -2349,7 +2349,7 @@ type BackgroundRenderMetrics = {
 type BackgroundShapeLayout = {
   contentFrame?: QrBackgroundShapeContentFrame
   quietZoneFraction?: number
-  viewBox?: { height: number; width: number }
+  viewBox?: { height: number; width: number; x?: number; y?: number }
 }
 
 const MIN_QR_CONTENT_TARGET = 8
@@ -2380,8 +2380,8 @@ function getBackgroundRenderMetrics(
     target = {
       height: contentFrame.height * shapeScale,
       width: contentFrame.width * shapeScale,
-      x: shapeOffsetX + contentFrame.x * shapeScale,
-      y: shapeOffsetY + contentFrame.y * shapeScale,
+      x: shapeOffsetX + (contentFrame.x - (viewBox.x ?? 0)) * shapeScale,
+      y: shapeOffsetY + (contentFrame.y - (viewBox.y ?? 0)) * shapeScale,
     }
   } else {
     target = {
@@ -3012,11 +3012,13 @@ function getBackgroundShapeTransform(
     region.width / shape.viewBox.width,
     region.height / shape.viewBox.height,
   )
-  const x = region.x + (region.width - shape.viewBox.width * scale) / 2
-  const y = region.y + (region.height - shape.viewBox.height * scale) / 2
+  const viewBoxX = shape.viewBox.x ?? 0
+  const viewBoxY = shape.viewBox.y ?? 0
+  const x = region.x + (region.width - shape.viewBox.width * scale) / 2 - viewBoxX * scale
+  const y = region.y + (region.height - shape.viewBox.height * scale) / 2 - viewBoxY * scale
   const baseTransform = `translate(${formatSvgNumber(x)} ${formatSvgNumber(y)}) scale(${formatSvgNumber(scale)})`
-  const centerX = shape.viewBox.width / 2
-  const centerY = shape.viewBox.height / 2
+  const centerX = viewBoxX + shape.viewBox.width / 2
+  const centerY = viewBoxY + shape.viewBox.height / 2
 
   return getBackgroundShapeSkewTransform(baseTransform, shapeOptions, centerX, centerY)
 }

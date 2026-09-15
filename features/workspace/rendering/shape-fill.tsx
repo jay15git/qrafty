@@ -10,6 +10,7 @@ import {
 } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
+  DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
 import type { QraftyGradient } from "@/features/qr-code/model/state"
@@ -27,6 +28,36 @@ export function getShapeLayerFillCssValue(layer: DraftingCanvasLayer) {
 }
 
 export function patchShapeLayerFillFromPicker(
+  layer: DraftingCanvasLayer,
+  fill: Fill,
+  css: string,
+): Partial<DraftingCanvasLayer> {
+  const fallbackGradient =
+    layer.fillGradient ?? DEFAULT_DESKTOP_SHAPE_SETTINGS.shapeGradient
+
+  if (fill.kind === "gradient") {
+    return {
+      fill: fillPreviewHex(css),
+      fillGradient: fillCssToQraftyGradient(css, fallbackGradient),
+      fillMode: "gradient",
+    }
+  }
+
+  return {
+    fill: fillPreviewHex(css),
+    fillMode: "solid",
+  }
+}
+
+export function getTextLayerFillCssValue(layer: DraftingCanvasLayer) {
+  if (layer.fillMode === "gradient" && layer.fillGradient) {
+    return qraftyGradientToFillCss(layer.fillGradient)
+  }
+
+  return solidColorToFillCss(layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill)
+}
+
+export function patchTextLayerFillFromPicker(
   layer: DraftingCanvasLayer,
   fill: Fill,
   css: string,

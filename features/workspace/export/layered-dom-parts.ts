@@ -244,7 +244,7 @@ function getDraftingShapeLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
     ? `<path d="${definition.path}" fill="${fill}"${strokeAttrs}/>`
     : getShapeSvgPath(shapeId).replace("/>", ` fill="${fill}"${strokeAttrs}/>`)
   const viewBox = definition
-    ? `0 0 ${definition.viewBox.width} ${definition.viewBox.height}`
+    ? `${definition.viewBox.x ?? 0} ${definition.viewBox.y ?? 0} ${definition.viewBox.width} ${definition.viewBox.height}`
     : "0 0 100 100"
 
   return {

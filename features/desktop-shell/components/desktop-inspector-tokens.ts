@@ -1,7 +1,5 @@
 import { cn } from "@/lib/utils"
 
-export const DESKTOP_INSPECTOR_PRESS_CLASS = "desktop-inspector-press"
-
 export const DESKTOP_INSPECTOR_CONTROL_HEIGHT_CLASS =
   "h-[length:var(--dn-control-height)]"
 export const DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS =
@@ -47,7 +45,7 @@ export const DESKTOP_INSPECTOR_LABEL_CLASS = cn(
   DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
 )
 export const DESKTOP_INSPECTOR_CONTROL_CLASS =
-  "desktop-inspector-press cursor-pointer rounded-[length:var(--desktop-inspector-radius)] border border-transparent bg-transparent text-[var(--desktop-inspector-fg-tertiary)] transition-[background-color,border-color,color] duration-150 ease-out hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] active:bg-[var(--desktop-inspector-control-active-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)] disabled:cursor-not-allowed"
+  "cursor-pointer rounded-[length:var(--desktop-inspector-radius)] border border-transparent bg-transparent text-[var(--desktop-inspector-fg-tertiary)] transition-[background-color,border-color,color] duration-150 ease-out hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] active:bg-[var(--desktop-inspector-control-active-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)] disabled:cursor-not-allowed"
 export const DESKTOP_INSPECTOR_SELECTED_CLASS =
   "border-transparent bg-[var(--desktop-inspector-option-selected-bg)] text-[var(--desktop-inspector-option-selected-fg)] hover:border-transparent hover:bg-[var(--desktop-inspector-option-selected-bg)] hover:text-[var(--desktop-inspector-option-selected-fg)]"
 export const DESKTOP_INSPECTOR_INPUT_CLASS = cn(
@@ -57,7 +55,7 @@ export const DESKTOP_INSPECTOR_INPUT_CLASS = cn(
 export const DESKTOP_INSPECTOR_FOOTER_CLASS =
   "px-3 py-3"
 export const DESKTOP_INSPECTOR_RESET_CLASS = cn(
-  "desktop-inspector-press flex h-[length:var(--dn-control-height)] w-full cursor-pointer items-center justify-center gap-[length:var(--dn-space-inline)] rounded-[length:var(--desktop-inspector-radius)] border border-transparent bg-transparent px-[length:var(--dn-row-px)] font-medium text-[var(--desktop-inspector-fg-secondary)] transition-[background-color,border-color,color] duration-150 ease-out hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] active:bg-[var(--desktop-inspector-control-active-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
+  "flex h-[length:var(--dn-control-height)] w-full cursor-pointer items-center justify-center gap-[length:var(--dn-space-inline)] rounded-[length:var(--desktop-inspector-radius)] border border-transparent bg-transparent px-[length:var(--dn-row-px)] font-medium text-[var(--desktop-inspector-fg-secondary)] transition-[background-color,border-color,color] duration-150 ease-out hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] active:bg-[var(--desktop-inspector-control-active-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 )
 export const DESKTOP_INSPECTOR_DROPDOWN_ITEM_CLASS = cn(
@@ -65,15 +63,14 @@ export const DESKTOP_INSPECTOR_DROPDOWN_ITEM_CLASS = cn(
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 )
 export const DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS =
-  "desktop-inspector-press cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
-/** Option tiles: no grey hover fill. Selected chrome stays white pill; preview scales via SCALE_PREVIEW. */
+  "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
+/** Option tiles: no grey hover fill. Selected chrome stays white pill. */
 export const DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS = cn(
   "rounded-[length:var(--desktop-inspector-radius)] border-2 border-transparent bg-transparent font-medium text-[var(--desktop-inspector-fg-tertiary)] transition-colors hover:bg-transparent hover:text-[var(--desktop-inspector-fg-primary)]",
   DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
 )
 export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_SURFACE_CLASS =
   DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS
-/** Preview scale timing lives in desktop-inspector-motion.css */
 export const DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS = ""
 export const DESKTOP_INSPECTOR_LAYER_ROW_CLASS =
   "group grid h-[length:var(--dn-control-height-compact)] min-w-0 grid-cols-[1fr_auto] items-center gap-[length:var(--dn-space-inline)] rounded-[length:var(--desktop-inspector-radius)] px-[length:var(--dn-space-inline)] transition-[background-color,color] duration-150 ease-out"

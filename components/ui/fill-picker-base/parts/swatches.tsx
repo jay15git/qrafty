@@ -74,10 +74,10 @@ export const Swatches = React.forwardRef<HTMLDivElement, SwatchesProps>(function
             className={cn(
               // before pseudo-padding: 20px visual chip, 28px hit area
               // (WCAG 2.5.8). No overflow-hidden — it would clip the inset.
-              "relative size-5 cursor-pointer rounded-sm outline-none transition-transform",
+              "relative size-5 cursor-pointer rounded-sm outline-none",
               "before:absolute before:-inset-1 before:content-['']",
               SAMPLE_EDGE,
-              "focus-visible:ring-2 focus-visible:ring-ring hover:scale-110",
+              "focus-visible:ring-2 focus-visible:ring-ring",
               "data-[checked]:ring-2 data-[checked]:ring-ring",
             )}
             style={{ backgroundImage: CHECKERBOARD, backgroundSize: "8px 8px" }}

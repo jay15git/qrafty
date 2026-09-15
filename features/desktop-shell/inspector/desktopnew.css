@@ -91,10 +91,6 @@
   --dn-motion-ui: 180ms;
   --dn-motion-enter: 180ms;
   --dn-motion-exit: 120ms;
-  --dn-press-dur: 140ms;
-  --dn-press-active-dur: 75ms;
-  --dn-press-spring-dur: 180ms;
-  --dn-press-scale: 0.93;
   --dn-select-ring-dur: 340ms;
   --tabs-dur: var(--dn-motion-ui);
   --tabs-ease: var(--dn-ease-out);
@@ -240,55 +236,6 @@
   box-sizing: border-box;
 }
 
-/* ── Microinteractions ───────────────────────────────────────────── */
-
-.dn-pressable,
-.dn-pressable-pickable {
-  transform-origin: center;
-  transition: transform var(--dn-press-dur) var(--dn-ease-out);
-  will-change: transform;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .dn-pressable:hover:not(:disabled):not([disabled]):not([aria-disabled="true"]) {
-    transform: scale(1.012);
-  }
-
-  .dn-pressable-pickable:hover:not(:disabled):not([disabled]):not([aria-disabled="true"]) {
-    transform: scale(1.008);
-  }
-}
-
-.dn-pressable:active:not(:disabled):not([disabled]):not([aria-disabled="true"]),
-.dn-pressable-pickable:active:not(:disabled):not([disabled]):not([aria-disabled="true"]) {
-  transform: scale(0.97);
-  transition-duration: var(--dn-press-active-dur);
-}
-
-/* Rows, presets, segment tabs — press only (high-frequency; no hover lift).
-   `[data-pressed]` mirrors whileTap when Radix opens overlays on pointerdown. */
-.dn-pressable-press-only {
-  transform-origin: center;
-  transition: transform var(--dn-press-spring-dur) var(--dn-ease-press);
-}
-
-.dn-pressable-press-only:active:not(:disabled):not([disabled]):not([aria-disabled="true"]),
-.dn-pressable-press-only[data-pressed]:not(:disabled):not([disabled]):not([aria-disabled="true"]) {
-  transform: scale(var(--dn-press-scale));
-  transition-duration: var(--dn-press-active-dur);
-  transition-timing-function: var(--dn-ease-out);
-}
-
-.dn-pressable-subtle {
-  transform-origin: center;
-  transition: transform var(--dn-press-dur) var(--dn-ease-out);
-}
-
-.dn-pressable-subtle:active:not(:disabled):not([disabled]):not([aria-disabled="true"]) {
-  transform: scale(0.994);
-  transition-duration: var(--dn-press-active-dur);
-}
-
 /* ── Option tiles (grids, chips, presets) ────────────────────────── */
 
 .dn-option-tile {
@@ -320,30 +267,9 @@
     transform var(--dn-select-ring-dur) var(--dn-ease-press);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .dn-option-tile:not(.dn-option-tile--press-only):hover:not(:disabled) {
-    transform: scale(1.012);
-  }
-}
-
-.dn-option-tile:active:not(:disabled) {
-  transform: scale(0.97);
-  transition-duration: var(--dn-press-active-dur);
-}
-
-.dn-option-tile--press-only:active:not(:disabled) {
-  transform: scale(0.97);
-}
-
 .dn-preset-item {
   background: var(--dn-control);
   color: var(--dn-muted);
-  transition: transform var(--dn-press-dur) var(--dn-ease-out);
-}
-
-.dn-preset-item:active:not(:disabled) {
-  transform: scale(0.97);
-  transition-duration: var(--dn-press-active-dur);
 }
 
 .dn-preset-item[aria-pressed="true"] {
@@ -536,16 +462,6 @@
   background: transparent;
 }
 
-@media (hover: hover) {
-  .dn-option-scroll-chip:hover:not(:disabled) {
-    transform: none;
-  }
-}
-
-.dn-option-scroll-chip:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
 .dn-preview-tile {
   position: relative;
   isolation: isolate;
@@ -556,17 +472,6 @@
   transition:
     color 160ms var(--dn-ease-out),
     border-color 160ms var(--dn-ease-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .dn-preview-tile:hover:not(:disabled) {
-    transform: scale(1.012);
-  }
-}
-
-.dn-preview-tile:active:not(:disabled) {
-  transform: scale(0.97);
-  transition-duration: var(--dn-press-active-dur);
 }
 
 .dn-preview-tile[aria-pressed="true"] {
@@ -606,45 +511,6 @@
 .desktopnew-root[data-theme="dark"] .dn-style-preview-icon,
 .desktopnew-root[data-theme="dark"] [data-slot^="style-preview"] {
   color: #ffffff;
-}
-
-/* Settings surfaces — flat press (no hover/active scale) */
-:is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover)
-  :is(
-    .dn-pressable,
-    .dn-pressable-pickable,
-    .dn-pressable-press-only,
-    .dn-pressable-subtle,
-    .dn-option-tile,
-    .dn-option-scroll-chip,
-    .dn-preset-item,
-    .dn-preview-tile,
-    .t-tab,
-    .dn-segment-tab,
-    .dn-content-type-filter-trigger,
-    .dn-settings-row
-  ) {
-  will-change: auto;
-}
-
-:is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover)
-  :is(
-    .dn-pressable,
-    .dn-pressable-pickable,
-    .dn-pressable-press-only,
-    .dn-pressable-subtle,
-    .dn-option-tile,
-    .dn-option-scroll-chip,
-    .dn-preset-item,
-    .dn-preview-tile,
-    .t-tab,
-    .dn-segment-tab,
-    .dn-content-type-filter-trigger,
-    .dn-settings-row
-  ):is(:hover, :active),
-:is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover)
-  .dn-pressable-press-only[data-pressed] {
-  transform: none !important;
 }
 
 /* ── Settings typography ─────────────────────────────────────────── */
@@ -1254,6 +1120,19 @@
   flex: 1;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* Radix fill popovers render on a transparent shell — the chrome (header +
+ * picker) needs its own surface so the title is readable over the canvas. */
+.desktopnew-fill-popover .dn-settings-popover-shell {
+  background: var(--dn-surface);
+  border-radius: var(--dn-radius-md);
+  corner-shape: squircle;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 18%);
+}
+
+.desktopnew-fill-popover[data-theme="dark"] .dn-settings-popover-shell {
+  box-shadow: 0 12px 48px rgb(0 0 0 / 50%);
 }
 
 .dn-settings-popover-header {
@@ -1913,7 +1792,6 @@
   min-width: 0;
   min-height: 0;
   place-items: center;
-  transition: transform var(--dn-press-active-dur) var(--dn-ease-out);
 }
 
 .dn-logo-icon-picker-tile-inner::after {
@@ -1931,15 +1809,9 @@
     transform var(--dn-select-ring-dur) var(--dn-ease-press);
 }
 
-/* No grey wash behind icons — hover lifts the glyph itself instead. */
+/* No grey wash behind icons — hover only lifts the glyph color. */
 .dn-logo-icon-picker-grid .dn-logo-icon-picker-tile:is(:hover, :focus-visible) {
   color: var(--dn-fg);
-}
-
-.dn-logo-icon-picker-grid
-  .dn-logo-icon-picker-tile:is(:hover, :focus-visible)
-  .dn-logo-icon-picker-tile-inner {
-  transform: scale(1.08);
 }
 
 /* Keyboard users still get a ring; mouse hover stays chromeless. */
@@ -1960,14 +1832,6 @@
   .dn-logo-icon-picker-tile-inner::after {
   opacity: 1;
   transform: scale(1);
-}
-
-/* Press feedback scales the preset tile, not the full-cell hitbox. */
-.dn-logo-icon-picker-grid
-  .dn-logo-icon-picker-tile:active:not(:disabled)
-  .dn-logo-icon-picker-tile-inner {
-  transform: scale(0.92);
-  transition: transform var(--dn-press-active-dur) var(--dn-ease-out);
 }
 
 .dn-logo-icon-picker-grid .dn-logo-icon-picker-skeleton {
@@ -2668,10 +2532,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dn-pressable,
-  .dn-pressable-pickable,
-  .dn-pressable-press-only,
-  .dn-pressable-subtle,
   .dn-option-tile,
   .dn-preset-item,
   .dn-preview-tile,
@@ -2694,22 +2554,6 @@
 
   .dn-settings-tab-panel {
     will-change: auto;
-  }
-
-  .dn-pressable:hover,
-  .dn-pressable:active,
-  .dn-pressable-pickable:hover,
-  .dn-pressable-pickable:active,
-  .dn-pressable-press-only:active,
-  .dn-pressable-press-only[data-pressed],
-  .dn-pressable-subtle:hover,
-  .dn-pressable-subtle:active,
-  .dn-option-tile:hover,
-  .dn-option-tile:active,
-  .dn-preset-item:active,
-  .dn-preview-tile:hover,
-  .dn-preview-tile:active {
-    transform: none !important;
   }
 
   .dn-option-tile::after,

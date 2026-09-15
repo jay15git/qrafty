@@ -21,11 +21,14 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { useMobileDrawerNavigation } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
-import { SettingsFillPopover, SettingsSlider } from "@/features/desktop-shell/inspector/settings-ui"
+import {
+  SettingsFillPopover,
+  SettingsPopoverChrome,
+  SettingsSlider,
+} from "@/features/desktop-shell/inspector/settings-ui"
 import {
   getDesktopLayerFontWeight,
   getNearestDesktopFontWeight,
@@ -46,7 +49,9 @@ import { IllustrationFloatingColorControl } from "@/features/workspace/component
 import { resolveDraftingFont } from "@/features/workspace/model/fonts"
 import {
   getShapeLayerFillCssValue,
+  getTextLayerFillCssValue,
   patchShapeLayerFillFromPicker,
+  patchTextLayerFillFromPicker,
 } from "@/features/workspace/rendering/shape-fill"
 import { cn } from "@/lib/utils"
 import { CUELUME_TOGGLE } from "@/features/desktop-shell/audio/desktop-cuelume"
@@ -59,8 +64,11 @@ const COMPACT_POPOVER_CLASS =
 const ICON_TOGGLE_CLASS =
   "grid size-9 place-items-center rounded-xl text-white/78 transition-[background-color,color] duration-150 hover:bg-white/[0.11] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 aria-pressed:bg-white/[0.16] aria-pressed:text-white"
 
-const SIZE_OPTION_CLASS =
-  "flex h-8 w-full min-w-[5.5rem] items-center justify-between rounded-lg px-2.5 text-[12px] font-semibold text-white/78 transition-[background-color,color] duration-150 hover:bg-white/[0.11] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 aria-pressed:bg-white/[0.16] aria-pressed:text-white"
+const DN_POPOVER_CLASS =
+  "dn-portal-surface desktopnew-popover-content z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-[min(100vw-2rem,15.5rem)] overflow-hidden border-0 p-0 dn-squircle-md"
+
+const DN_OPTION_TILE_CLASS =
+  "dn-option-tile dn-control-surface dn-squircle-xs flex cursor-pointer items-center justify-center border-0"
 
 const LayerFloatingSettingsButton = forwardRef<
   HTMLButtonElement,
@@ -100,6 +108,8 @@ function LayerFloatingSettingsPopover({
   content,
   open,
   onOpenChange,
+  theme = "dark",
+  title,
   trigger,
 }: {
   ariaLabel: string
@@ -107,6 +117,8 @@ function LayerFloatingSettingsPopover({
   content: ReactNode
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  theme?: DesktopThemeMode
+  title?: string
   trigger: ReactNode
 }) {
   const mobileDensity = useMobileInspectorDensity()
@@ -119,7 +131,7 @@ function LayerFloatingSettingsPopover({
         data-vaul-no-drag=""
         onClick={() => {
           mobileNav.openDetail({
-            title: ariaLabel,
+            title: title ?? ariaLabel,
             content: (
               <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
                 {children ?? content}
@@ -132,6 +144,37 @@ function LayerFloatingSettingsPopover({
       >
         {trigger}
       </LayerFloatingSettingsButton>
+    )
+  }
+
+  if (title) {
+    return (
+      <Popover open={open} onOpenChange={onOpenChange}>
+        <PopoverTrigger asChild>
+          <LayerFloatingSettingsButton ariaLabel={ariaLabel}>{trigger}</LayerFloatingSettingsButton>
+        </PopoverTrigger>
+        <PopoverContent
+          align="center"
+          className={cn(DN_POPOVER_CLASS, theme === "dark" && "dark")}
+          data-slot="drafting-layer-floating-settings-popover"
+          data-theme={theme}
+          side="top"
+          avoidCollisions
+          collisionPadding={12}
+          sideOffset={10}
+          onClick={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
+        >
+          <DesktopnewThemeContext.Provider value={theme}>
+            <SettingsPopoverChrome
+              title={title}
+              onClose={() => onOpenChange?.(false)}
+            >
+              {children ?? content}
+            </SettingsPopoverChrome>
+          </DesktopnewThemeContext.Provider>
+        </PopoverContent>
+      </Popover>
     )
   }
 
@@ -196,84 +239,49 @@ export function FillColorToolbarButton({
   )
 }
 
-export function TextTypographySettings({
+const TEXT_ALIGN_OPTIONS = [
+  { label: "Align left", value: "left", icon: AlignLeftIcon },
+  { label: "Align center", value: "center", icon: AlignCenterIcon },
+  { label: "Align right", value: "right", icon: AlignRightIcon },
+] as const
+
+export function TextAlignmentSettings({
   layer,
   onPatch,
+  onSelect,
 }: {
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  onSelect?: () => void
 }) {
-  const selectedFont = resolveDraftingFont({
-    fontFamily: layer.fontFamily,
-    fontId: layer.fontId,
-  })
-  const supportedWeights = selectedFont.weights
-  const fontWeight = getDesktopLayerFontWeight(layer.fontWeight, supportedWeights)
-  const fontStyle = layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle
   const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign
 
-  function patchText(patch: Partial<DraftingCanvasLayer>) {
-    onPatch({ ...patch, textRuns: undefined })
-  }
-
   return (
-    <div className="grid gap-2" data-slot="drafting-layer-text-typography-settings">
-      <div className="grid grid-cols-3 gap-1">
-        <LayerFloatingSettingsButton
-          active={fontWeight >= 700}
-          ariaLabel="Bold"
-          className={ICON_TOGGLE_CLASS}
-          onClick={() =>
-            patchText({
-              fontWeight:
-                fontWeight >= 700
-                  ? getNearestDesktopFontWeight(400, supportedWeights)
-                  : getNearestDesktopFontWeight(700, supportedWeights),
+    <div
+      aria-label="Text alignment"
+      className="grid grid-cols-3 gap-1"
+      data-slot="drafting-layer-text-align-settings"
+      role="group"
+    >
+      {TEXT_ALIGN_OPTIONS.map((option) => (
+        <button
+          aria-label={option.label}
+          aria-pressed={textAlign === option.value}
+          className={DN_OPTION_TILE_CLASS}
+          key={option.value}
+          type="button"
+          {...CUELUME_TOGGLE}
+          onClick={() => {
+            onPatch({
+              textAlign: option.value as DraftingTextAlign,
+              textRuns: undefined,
             })
-          }
+            onSelect?.()
+          }}
         >
-          <BoldIcon className="size-3.5" />
-        </LayerFloatingSettingsButton>
-        <LayerFloatingSettingsButton
-          active={fontStyle === "italic"}
-          ariaLabel="Italic"
-          className={ICON_TOGGLE_CLASS}
-          onClick={() =>
-            patchText({
-              fontStyle: fontStyle === "italic" ? "normal" : "italic",
-            })
-          }
-        >
-          <ItalicIcon className="size-3.5" />
-        </LayerFloatingSettingsButton>
-        <LayerFloatingSettingsButton
-          active={Boolean(layer.underline)}
-          ariaLabel="Underline"
-          className={ICON_TOGGLE_CLASS}
-          onClick={() => patchText({ underline: !layer.underline })}
-        >
-          <UnderlineIcon className="size-3.5" />
-        </LayerFloatingSettingsButton>
-      </div>
-      <div className="grid grid-cols-3 gap-1">
-        {(
-          [
-            { label: "Align left", value: "left", icon: AlignLeftIcon },
-            { label: "Align center", value: "center", icon: AlignCenterIcon },
-            { label: "Align right", value: "right", icon: AlignRightIcon },
-          ] as const
-        ).map((option) => (
-          <LayerFloatingSettingsButton
-            active={textAlign === option.value}
-            ariaLabel={option.label}
-            className={ICON_TOGGLE_CLASS}
-            key={option.value}
-            onClick={() => patchText({ textAlign: option.value as DraftingTextAlign })}
-          >
-            <option.icon className="size-3.5" />
-          </LayerFloatingSettingsButton>
-        ))}
-      </div>
+          <option.icon aria-hidden className="size-4" strokeWidth={2} />
+        </button>
+      ))}
     </div>
   )
 }
@@ -290,38 +298,48 @@ export function TextSizeSettings({
   const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize
   const isEmojiLayer = isDraftingEmojiLayer(layer)
 
+  function applySize(size: number, close = false) {
+    onPatch(
+      isEmojiLayer
+        ? { ...getDraftingEmojiLayerSizePatch(layer, size), textRuns: undefined }
+        : { fontSize: size, textRuns: undefined },
+    )
+    if (close) {
+      onSelect?.()
+    }
+  }
+
   return (
     <div
-      className="flex max-h-52 flex-col gap-0.5 overflow-y-auto pr-0.5"
+      className="grid w-full gap-2.5"
       data-slot="drafting-layer-text-size-settings"
-      role="listbox"
-      aria-label="Text size options"
     >
-      {COMPACT_TEXT_FONT_SIZES.map((size) => (
-        <button
-          aria-label={`${size}px`}
-          aria-pressed={fontSize === size}
-          aria-selected={fontSize === size}
-          className={SIZE_OPTION_CLASS}
-          key={size}
-          role="option"
-          type="button"
-          onClick={() => {
-            onPatch(
-              isEmojiLayer
-                ? {
-                    ...getDraftingEmojiLayerSizePatch(layer, size),
-                    textRuns: undefined,
-                  }
-                : { fontSize: size, textRuns: undefined },
-            )
-            onSelect?.()
-          }}
-        >
-          <span>{size}</span>
-          <span className="text-[10px] font-medium text-white/45">px</span>
-        </button>
-      ))}
+      <SettingsSlider
+        label="Size"
+        max={300}
+        min={6}
+        value={fontSize}
+        onChange={(size) => applySize(size)}
+      />
+      <div
+        aria-label="Preset text sizes"
+        className="grid grid-cols-4 gap-1"
+        role="group"
+      >
+        {COMPACT_TEXT_FONT_SIZES.map((size) => (
+          <button
+            aria-label={`${size}px`}
+            aria-pressed={fontSize === size}
+            className={cn(DN_OPTION_TILE_CLASS, "dn-type-chip")}
+            key={size}
+            type="button"
+            {...CUELUME_TOGGLE}
+            onClick={() => applySize(size, true)}
+          >
+            {size}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
@@ -458,7 +476,7 @@ function TextLayerFloatingSettings({
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
   theme: DesktopThemeMode
 }) {
-  const [formatOpen, setFormatOpen] = useState(false)
+  const [alignOpen, setAlignOpen] = useState(false)
   const [sizeOpen, setSizeOpen] = useState(false)
 
   if (isDraftingEmojiLayer(layer)) {
@@ -476,31 +494,86 @@ function TextLayerFloatingSettings({
           }
           open={sizeOpen}
           onOpenChange={setSizeOpen}
+          theme={theme}
+          title="Size"
           trigger={<ALargeSmallIcon className="size-4" strokeWidth={2} />}
         />
       </>
     )
   }
 
+  const selectedFont = resolveDraftingFont({
+    fontFamily: layer.fontFamily,
+    fontId: layer.fontId,
+  })
+  const supportedWeights = selectedFont.weights
+  const fontWeight = getDesktopLayerFontWeight(layer.fontWeight, supportedWeights)
+  const fontStyle = layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle
+  const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign
+  const AlignIcon = TEXT_ALIGN_OPTIONS.find(
+    (option) => option.value === textAlign,
+  )?.icon ?? AlignLeftIcon
+
+  function patchText(patch: Partial<DraftingCanvasLayer>) {
+    onPatch({ ...patch, textRuns: undefined })
+  }
+
   return (
     <>
       <FillColorToolbarButton
         ariaLabel="Text color"
+        solidOnly={false}
         theme={theme}
         title="Text color"
-        value={layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill}
-        onValueChange={(_fill, css) => onPatch({ fill: fillPreviewHex(css), textRuns: undefined })}
-      />
-      <LayerFloatingSettingsPopover
-        ariaLabel="Text formatting"
-        content={<TextTypographySettings layer={layer} onPatch={onPatch} />}
-        open={formatOpen}
-        onOpenChange={setFormatOpen}
-        trigger={
-          <span aria-hidden className="text-[15px] font-semibold leading-none">
-            A
-          </span>
+        value={getTextLayerFillCssValue(layer)}
+        onValueChange={(fill, css) =>
+          patchText(patchTextLayerFillFromPicker(layer, fill, css))
         }
+      />
+      <LayerFloatingSettingsButton
+        active={fontWeight >= 700}
+        ariaLabel="Bold"
+        onClick={() =>
+          patchText({
+            fontWeight:
+              fontWeight >= 700
+                ? getNearestDesktopFontWeight(400, supportedWeights)
+                : getNearestDesktopFontWeight(700, supportedWeights),
+          })
+        }
+      >
+        <BoldIcon className="size-4" strokeWidth={2} />
+      </LayerFloatingSettingsButton>
+      <LayerFloatingSettingsButton
+        active={fontStyle === "italic"}
+        ariaLabel="Italic"
+        onClick={() =>
+          patchText({ fontStyle: fontStyle === "italic" ? "normal" : "italic" })
+        }
+      >
+        <ItalicIcon className="size-4" strokeWidth={2} />
+      </LayerFloatingSettingsButton>
+      <LayerFloatingSettingsButton
+        active={Boolean(layer.underline)}
+        ariaLabel="Underline"
+        onClick={() => patchText({ underline: !layer.underline })}
+      >
+        <UnderlineIcon className="size-4" strokeWidth={2} />
+      </LayerFloatingSettingsButton>
+      <LayerFloatingSettingsPopover
+        ariaLabel="Text alignment"
+        content={
+          <TextAlignmentSettings
+            layer={layer}
+            onPatch={onPatch}
+            onSelect={() => setAlignOpen(false)}
+          />
+        }
+        open={alignOpen}
+        onOpenChange={setAlignOpen}
+        theme={theme}
+        title="Alignment"
+        trigger={<AlignIcon className="size-4" strokeWidth={2} />}
       />
       <LayerFloatingSettingsPopover
         ariaLabel="Text size"
@@ -513,6 +586,8 @@ function TextLayerFloatingSettings({
         }
         open={sizeOpen}
         onOpenChange={setSizeOpen}
+        theme={theme}
+        title="Size"
         trigger={<ALargeSmallIcon className="size-4" strokeWidth={2} />}
       />
     </>

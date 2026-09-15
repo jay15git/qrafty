@@ -14,17 +14,13 @@ import {
   DesktopInspectorValueGrid,
 } from "@/features/desktop-shell/components/DesktopInspectorShell"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
-import { SegmentTabs, SettingsFillPopover, SettingsSlider } from "@/features/desktop-shell/inspector/settings-ui"
+import { SettingsFillPopover, SettingsSlider } from "@/features/desktop-shell/inspector/settings-ui"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import type {
   DesktopAppearanceBorderSnapshot,
   DesktopAppearancePatch,
   DesktopAppearanceSnapshot,
 } from "@/features/desktop-shell/model/appearance"
-import {
-  DRAFTING_BORDER_STYLES,
-  type DraftingBorderStyle,
-} from "@/features/workspace/model/effects"
 import {
   type DraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
@@ -61,13 +57,6 @@ export function AppearanceBorderControls({
       dataSlot="desktop-appearance-border-controls"
     >
       <DesktopInspectorLabel>Border</DesktopInspectorLabel>
-      {appearance.supportsBorderStyle ? (
-        <SegmentTabs
-          items={[...DRAFTING_BORDER_STYLES]}
-          value={border.style}
-          onChange={(style) => emit({ style: style as DraftingBorderStyle })}
-        />
-      ) : null}
       <DesktopnewThemeContext.Provider value={theme}>
         <SettingsFillPopover
           hint="Border color"

@@ -107,10 +107,14 @@ describe("getQrBackgroundShapeContentFrame", () => {
 
       expect(frame.width).toBeGreaterThan(0)
       expect(frame.height).toBe(frame.width)
-      expect(frame.x).toBeGreaterThanOrEqual(0)
-      expect(frame.y).toBeGreaterThanOrEqual(0)
-      expect(frame.x + frame.width).toBeLessThanOrEqual(shape.viewBox.width)
-      expect(frame.y + frame.height).toBeLessThanOrEqual(shape.viewBox.height)
+      expect(frame.x).toBeGreaterThanOrEqual(shape.viewBox.x ?? 0)
+      expect(frame.y).toBeGreaterThanOrEqual(shape.viewBox.y ?? 0)
+      expect(frame.x + frame.width).toBeLessThanOrEqual(
+        (shape.viewBox.x ?? 0) + shape.viewBox.width,
+      )
+      expect(frame.y + frame.height).toBeLessThanOrEqual(
+        (shape.viewBox.y ?? 0) + shape.viewBox.height,
+      )
 
       for (let index = 0; index <= 16; index += 1) {
         const ratio = index / 16
