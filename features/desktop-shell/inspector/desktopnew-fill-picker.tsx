@@ -22,7 +22,6 @@ import {
   type Fill,
 } from "@/components/ui/fill-picker-base/public-api"
 import { ImageCropper } from "@/components/ui/image-cropper"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { DESKTOP_DOTS_PALETTE_PRESETS } from "@/features/desktop-shell/inspector/desktopnew-pattern-palettes"
 import {
   fillFromHex,
@@ -316,41 +315,34 @@ function ModulePatternPicker({
 }) {
   return (
     <div className="flex w-full min-w-0 flex-col gap-2">
-      <ScrollArea
-        className="dn-pattern-option-grid w-full min-w-0 max-w-full overflow-hidden"
-        chevron={false}
-        cueSize="tight"
-        orientation="horizontal"
-        persistKey="module-pattern-palettes"
-        scrollFade
-        showScrollbar={false}
-        viewportClassName="min-w-0"
+      <div
+        aria-label="Pattern options"
+        className="dn-pattern-option-grid grid grid-cols-6 gap-0"
+        role="group"
       >
-        <div className="dn-preview-row items-center py-2">
-          {DESKTOP_DOTS_PALETTE_PRESETS.map((option) => {
-            const isSelected =
-              selectedPreset === option.label ||
-              (selectedPreset === "custom" &&
-                selectedPalette.join() === option.colors.join())
+        {DESKTOP_DOTS_PALETTE_PRESETS.map((option) => {
+          const isSelected =
+            selectedPreset === option.label ||
+            (selectedPreset === "custom" &&
+              selectedPalette.join() === option.colors.join())
 
-            return (
-              <button
-                key={option.label}
-                aria-label={`Use ${option.label} pattern palette`}
-                aria-pressed={isSelected}
-                className={SETTINGS_PATTERN_OPTION_TILE}
-                title={option.label}
-                type="button"
-                onClick={() => onSelect(option)}
-              >
-                <span aria-hidden className={SETTINGS_PATTERN_OPTION_TILE_INNER}>
-                  <PaletteColorBarPreview className="size-full" colors={option.colors} size="md" />
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      </ScrollArea>
+          return (
+            <button
+              key={option.label}
+              aria-label={`Use ${option.label} pattern palette`}
+              aria-pressed={isSelected}
+              className={SETTINGS_PATTERN_OPTION_TILE}
+              title={option.label}
+              type="button"
+              onClick={() => onSelect(option)}
+            >
+              <span aria-hidden className={SETTINGS_PATTERN_OPTION_TILE_INNER}>
+                <PaletteColorBarPreview className="size-full" colors={option.colors} size="md" />
+              </span>
+            </button>
+          )
+        })}
+      </div>
       <PaletteColorStopList
         colors={selectedPalette}
         onPaletteColorChange={onPaletteColorChange}

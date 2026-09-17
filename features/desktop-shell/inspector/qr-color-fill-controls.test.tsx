@@ -190,7 +190,7 @@ function renderColorControls(
 }
 
 function patternRow(surface: { container: HTMLElement }) {
-  return surface.container.querySelector('[data-slot="pattern-option-grid"] [role="group"]')
+  return surface.container.querySelector('[data-slot="pattern-option-grid"][role="group"]')
 }
 
 function patternPopover(surface: { container: HTMLElement }) {

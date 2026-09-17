@@ -14,7 +14,7 @@
   --dn-accent: #fafafa;
   --dn-on-accent: #090909;
   --dn-font: "Inter", system-ui, sans-serif;
-  --dn-panel-width: 300px;
+  --dn-panel-width: 100%;
   --dn-popover-shadow: 0 12px 48px rgb(0 0 0 / 50%);
   --dn-type-caption: 0.625rem;
   --dn-type-meta: 0.6875rem;
@@ -474,6 +474,14 @@
     border-color 160ms var(--dn-ease-out);
 }
 
+.dn-preview-tile.dn-preview-tile--fluid {
+  padding: 4px;
+}
+
+.dn-preview-tile::after {
+  z-index: 20;
+}
+
 .dn-preview-tile[aria-pressed="true"] {
   color: var(--dn-fg);
 }
@@ -683,10 +691,13 @@
 }
 
 .dn-switch-row > span {
-  font-size: var(--dn-type-meta);
-  font-weight: var(--dn-type-label-weight);
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--dn-type-body);
+  font-weight: var(--dn-type-value-weight);
   letter-spacing: 0.02em;
-  color: var(--dn-type-label-color) !important;
+  line-height: 1;
+  color: color-mix(in srgb, var(--dn-fg) 78%, transparent) !important;
 }
 
 .dn-settings-row {
@@ -1027,7 +1038,7 @@
 
 .dn-settings-rail-track__inner {
   box-sizing: border-box;
-  width: min(100%, 17.25rem);
+  width: min(100%, 19.2rem);
   padding-inline: 0.75rem;
 }
 
@@ -1051,7 +1062,7 @@
   align-items: center;
   box-sizing: border-box;
   margin-inline: auto;
-  width: min(100%, 17.25rem);
+  width: min(100%, 19.2rem);
   max-width: calc(100% - 1.25rem);
   min-height: 2.75rem;
   padding-inline: 0.75rem;
@@ -1064,13 +1075,15 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  width: min(100%, 17.25rem);
+  width: min(100%, 19.2rem);
   margin-inline: auto;
   padding: 0.375rem;
   border-radius: 2rem;
   corner-shape: squircle;
   background: #ffffff;
-  overflow: hidden;
+  height: var(--dn-card-height, auto);
+  overflow-x: hidden;
+  overflow-y: auto;
   transition: height 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -2403,36 +2416,13 @@
   background: transparent;
 }
 
-.dn-pattern-option-grid [data-slot="scroll-area-viewport"] {
-  padding-block: 0.125rem;
-}
-
-.dn-pattern-option-grid .dn-preview-row {
-  align-items: center;
-  padding-block: 0.25rem;
-}
-
 .dn-pattern-option-grid .dn-pattern-option-tile {
-  flex: 0 0 3.5rem;
-  width: 3.5rem;
-  min-width: 3.5rem;
-  max-width: 3.5rem;
-  height: 2rem;
-  min-height: 2rem;
-  max-height: 2rem;
+  aspect-ratio: 1 / 1;
   box-sizing: border-box;
-  padding: 3px;
   background: transparent;
 }
 
 .dn-pattern-option-grid .dn-fill-option-tile {
-  flex: 0 0 2rem;
-  width: 2rem;
-  min-width: 2rem;
-  max-width: 2rem;
-  height: 2rem;
-  min-height: 2rem;
-  max-height: 2rem;
   aspect-ratio: 1 / 1;
   padding: 3px;
 }
@@ -2449,9 +2439,18 @@
   max-width: var(--dn-preview-tile);
 }
 
+.dn-settings-accordion [role="region"] .dn-image-upload-tile.dn-image-upload-tile--fluid {
+  flex: none;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+}
+
 /* Logo tab upload tile — row-height square beside the picker trigger. */
-.dn-settings-accordion [role="region"] .dn-logo-upload-tile.dn-image-upload-tile,
-.dn-logo-upload-tile.dn-image-upload-tile {
+.dn-settings-accordion
+  [role="region"]
+  .dn-logo-upload-tile.dn-image-upload-tile:not(.dn-image-upload-tile--fluid),
+.dn-logo-upload-tile.dn-image-upload-tile:not(.dn-image-upload-tile--fluid) {
   flex: 0 0 var(--dn-control-height);
   width: var(--dn-control-height);
   min-width: var(--dn-control-height);

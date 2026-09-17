@@ -21,7 +21,8 @@ import {
   SettingsPatternOptionGrid,
 } from "@/features/desktop-shell/inspector/settings-fill-option-grid"
 import {
-  SETTINGS_FILL_GRADIENT_PRESETS,
+  SETTINGS_FILL_LINEAR_PRESETS,
+  SETTINGS_FILL_RADIAL_PRESETS,
   SETTINGS_FILL_SOLID_PRESETS,
 } from "@/features/desktop-shell/inspector/settings-fill-presets"
 import {
@@ -39,7 +40,12 @@ import {
   type SettingsFillPopoverHandle,
 } from "@/features/desktop-shell/inspector/settings-ui"
 
-export type QrColorFillModeTab = "Solid" | "Gradient" | "Pattern" | "Image"
+export type QrColorFillModeTab =
+  | "Solid"
+  | "Linear"
+  | "Radial"
+  | "Pattern"
+  | "Image"
 
 const PATTERN_COLOR_SWATCH =
   "dn-preview-tile dn-squircle-xs size-9 shrink-0 p-1 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -99,21 +105,23 @@ function PatternColorPickerContent({
   )
 }
 
-function moduleFillModeToTab(mode: DotsColorMode): QrColorFillModeTab {
+function moduleFillModeToTab(mode: DotsColorMode, value: string): QrColorFillModeTab {
   switch (mode) {
     case "image":
       return "Image"
     case "palette":
       return "Pattern"
     case "gradient":
-      return "Gradient"
+      return value.startsWith("radial-gradient") ? "Radial" : "Linear"
     default:
       return "Solid"
   }
 }
 
-function fillValueToTab(value: string): "Solid" | "Gradient" {
-  return isGradientFill(value) ? "Gradient" : "Solid"
+function fillValueToTab(value: string): "Solid" | "Linear" | "Radial" {
+  if (value.startsWith("radial-gradient")) return "Radial"
+  if (isGradientFill(value)) return "Linear"
+  return "Solid"
 }
 
 export function QrColorFillControls({
@@ -150,11 +158,11 @@ export function QrColorFillControls({
   const mobileDensity = useMobileInspectorDensity()
   const theme = useContext(DesktopnewThemeContext)
   const modeTabs = moduleCapable
-    ? (["Solid", "Gradient", "Pattern", "Image"] as const)
-    : (["Solid", "Gradient"] as const)
+    ? (["Solid", "Linear", "Radial", "Pattern", "Image"] as const)
+    : (["Solid", "Linear", "Radial"] as const)
   const [modeTab, setModeTab] = useState<QrColorFillModeTab>(() =>
     moduleCapable
-      ? moduleFillModeToTab(moduleFillMode ?? "solid")
+      ? moduleFillModeToTab(moduleFillMode ?? "solid", value)
       : fillValueToTab(value),
   )
   const previousModuleFillModeRef = useRef(moduleFillMode)
@@ -170,7 +178,7 @@ export function QrColorFillControls({
     }
 
     previousModuleFillModeRef.current = moduleFillMode
-    setModeTab(moduleFillModeToTab(moduleFillMode))
+    setModeTab(moduleFillModeToTab(moduleFillMode, value))
   }, [moduleCapable, moduleFillMode, value])
 
   function openPicker() {
@@ -221,10 +229,18 @@ export function QrColorFillControls({
           onOpenPicker={openPicker}
           onSelect={onValueChange}
         />
-      ) : modeTab === "Gradient" ? (
+      ) : modeTab === "Linear" ? (
         <SettingsFillOptionGrid
-          persistKey={`${persistKey}:gradient`}
-          presets={SETTINGS_FILL_GRADIENT_PRESETS}
+          persistKey={`${persistKey}:linear`}
+          presets={SETTINGS_FILL_LINEAR_PRESETS}
+          value={value}
+          onOpenPicker={openPicker}
+          onSelect={onValueChange}
+        />
+      ) : modeTab === "Radial" ? (
+        <SettingsFillOptionGrid
+          persistKey={`${persistKey}:radial`}
+          presets={SETTINGS_FILL_RADIAL_PRESETS}
           value={value}
           onOpenPicker={openPicker}
           onSelect={onValueChange}
@@ -265,12 +281,12 @@ export function QrColorFillControls({
         />
       ) : null}
 
-      {modeTab === "Solid" || modeTab === "Gradient" ? (
+      {modeTab === "Solid" || modeTab === "Linear" || modeTab === "Radial" ? (
         <SettingsFillPopover
           ref={pickerRef}
           fillPreviewImageUrl={fillPreviewImageUrl}
           hint="Fill"
-          lockedFillMode={modeTab === "Gradient" ? "gradient" : "solid"}
+          lockedFillMode={modeTab === "Solid" ? "solid" : "gradient"}
           qrGradient={qrGradient}
           variant="picker-only"
           value={value}

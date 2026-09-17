@@ -12,9 +12,9 @@ import "./desktop-settings-toolbar-motion.css"
 
 /** Expanded column leaves enough room to keep the canvas legible on compact desktops. */
 const DESKTOP_SHELL_EXPANDED_WIDTH_RATIO = 0.28
-const DESKTOP_SHELL_EXPANDED_WIDTH_MIN_PX = 300
-const DESKTOP_SHELL_EXPANDED_WIDTH_MAX_PX = 380
-const DESKTOP_SHELL_EXPANDED_WIDTH_FALLBACK_PX = 340
+const DESKTOP_SHELL_EXPANDED_WIDTH_MIN_PX = 320
+const DESKTOP_SHELL_EXPANDED_WIDTH_MAX_PX = 400
+const DESKTOP_SHELL_EXPANDED_WIDTH_FALLBACK_PX = 360
 
 function getExpandedSidebarWidthPx(): number {
   if (typeof window === "undefined") {

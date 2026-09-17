@@ -115,12 +115,19 @@ function collectSelectItems(
 ) {
   Children.forEach(node, (child) => {
     if (!isValidElement(child)) return;
-    const props = child.props as { value?: unknown; children?: ReactNode };
+    const props = child.props as {
+      value?: unknown;
+      label?: ReactNode;
+      triggerLabel?: ReactNode;
+      children?: ReactNode;
+    };
     if (typeof props.value === "string") {
       out.push({
         value: props.value,
         label:
-          typeof props.children === "string" ? props.children : props.value,
+          props.triggerLabel ??
+          props.label ??
+          (typeof props.children === "string" ? props.children : props.value),
       });
     } else if (props.children) {
       collectSelectItems(props.children, out);
@@ -341,15 +348,32 @@ interface SelectContentProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   /** Applied to the portalled positioner (e.g. `z-[20002]` above accordion popovers). */
   positionerClassName?: string;
+  /** Overrides the inner item container layout (e.g. `grid grid-cols-4` for tile grids). */
+  listClassName?: string;
+  /** Hit-test axis for the fluid hover overlay — pass "xy" when the list is a grid. */
+  listAxis?: "x" | "y" | "xy";
 }
 
 const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
-  ({ className, children, positionerClassName, ...props }, ref) => {
+  (
+    {
+      className,
+      children,
+      positionerClassName,
+      listClassName,
+      listAxis = "y",
+      ...props
+    },
+    ref
+  ) => {
     const { open, value, actionsRef } = useSelectContext();
     const shape = popupShape;
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const hover = useFluidHover(containerRef, { isItemDisabled: isDisabledRow });
+    const hover = useFluidHover(containerRef, {
+      axis: listAxis,
+      isItemDisabled: isDisabledRow,
+    });
     const {
       activeIndex,
       setActiveIndex,
@@ -535,7 +559,10 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                 >
                   <div
                     ref={containerRef}
-                    className="relative flex flex-col gap-0.5 p-1"
+                    className={cn(
+                      "relative flex flex-col gap-0.5 p-1",
+                      listClassName,
+                    )}
                   >
                 {/* The three overlays are torn down as the close begins rather
                     than exit-animated, because an overlay still mounted when the
@@ -626,6 +653,10 @@ interface SelectItemProps extends HTMLAttributes<HTMLDivElement> {
   index: number;
   value: string;
   disabled?: boolean;
+  /** Trigger label when children aren't a string (e.g. icon tiles). */
+  label?: string;
+  /** Rich trigger content (icon + text) when `label` alone isn't enough. */
+  triggerLabel?: ReactNode;
 }
 
 const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
@@ -634,6 +665,8 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
       className,
       children,
       icon: Icon,
+      label,
+      triggerLabel,
       value,
       index,
       disabled = false,
@@ -669,7 +702,14 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
       <SelectPrimitive.Item
         value={value}
         disabled={disabled}
-        label={typeof children === "string" ? children : undefined}
+        label={
+          label ??
+          (typeof triggerLabel === "string"
+            ? triggerLabel
+            : typeof children === "string"
+              ? children
+              : undefined)
+        }
         render={
           <div
             ref={(node: HTMLDivElement | null) => {

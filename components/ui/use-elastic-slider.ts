@@ -536,13 +536,11 @@ export function useElasticSlider({
       : valueDodge
         ? 0.35
         : 0.5
-    : !isActive
-      ? 0
-      : valueDodge
-        ? 0.1
-        : isDragging
-          ? 0.8
-          : 0.5
+    : valueDodge
+      ? 0.1
+      : isDragging
+        ? 0.8
+        : 0.5
 
   const discreteSteps = (max - min) / step
   const hashMarkCount = discreteSteps <= 10 ? discreteSteps - 1 : 9

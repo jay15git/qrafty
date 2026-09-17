@@ -1,7 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useContext, useRef, useState } from "react"
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { QrStyleOptionPreview } from "@/features/qr-code/components/QrStyleOptionPreview"
 import type { StylePreviewKind } from "@/features/qr-code/components/StylePreview"
@@ -23,15 +29,17 @@ import {
 } from "@/features/qr-code/styles/background-shapes"
 import { ElementsSection } from "@/features/desktop-shell/inspector/desktopnew-elements-section"
 import { DesktopNewContentFields } from "@/features/desktop-shell/inspector/desktopnew-content-fields"
+import { Ellipsis } from "lucide-react"
 import {
   ContentTypeBrowser,
   QrColorPartBrowser,
   SegmentTabs,
   SettingsFillPopover,
-  SettingsRowPopover,
   SettingsSlider,
+  SettingsTilePopover,
   SettingsSwitchRow,
   SettingsTabPanel,
+  type SettingsFillPopoverHandle,
 } from "@/features/desktop-shell/inspector/settings-ui"
 import { normalizeContentTypeForPicker } from "@/features/qr-code/content/input-options"
 import {
@@ -49,12 +57,15 @@ import { PaperShaderOptionPreview } from "@/features/workspace/components/PaperS
 import { WallpaperOptionPreview } from "@/features/workspace/components/WallpaperOptionPreview"
 import { preloadRasterImage } from "@/features/workspace/rendering/preload-raster-image"
 import { cn } from "@/lib/utils"
-import { getLogoSelectionLabel } from "@/features/desktop-shell/inspector/settings-pickers.utils"
+import {
+  getBrandIconById,
+  POPULAR_BRAND_ICON_IDS,
+} from "@/features/qr-code/assets/brand-icons"
 import {
   LogoIconPicker,
-  LogoSelectionIcon,
+  LogoPickerTileIcon,
 } from "@/features/desktop-shell/inspector/settings-pickers"
-import { parseFill } from "@/components/ui/fill-picker-base/public-api"
+import { parseFill, type Fill } from "@/components/ui/fill-picker-base/public-api"
 import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { QrColorFillControls } from "@/features/desktop-shell/inspector/qr-color-fill-controls"
 import {
@@ -88,15 +99,22 @@ import {
   setInspectorSectionTab,
 } from "@/features/desktop-shell/inspector/inspector-chrome-state"
 import { ScrollPersistScope } from "@/lib/persisted-element-scroll"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import {
   SETTINGS_PREVIEW_ROW,
-  SETTINGS_PREVIEW_TILE,
-  SETTINGS_PREVIEW_TILE_INNER,
+  SETTINGS_PREVIEW_TILE_FLUID,
 } from "@/features/desktop-shell/inspector/settings-preview-tiles"
 import {
   isSceneWallpaperPath,
+  SettingsFillOptionGrid,
   SettingsImageUploadTile,
 } from "@/features/desktop-shell/inspector/settings-fill-option-grid"
+import {
+  SETTINGS_FILL_LINEAR_PRESETS,
+  SETTINGS_FILL_RADIAL_PRESETS,
+  SETTINGS_FILL_SOLID_PRESETS,
+} from "@/features/desktop-shell/inspector/settings-fill-presets"
 
 export const SECTION_STACK = "dn-section-stack"
 
@@ -112,114 +130,178 @@ function QrStylePreviewGrid({
   onSelect: (value: string) => void
 }) {
   return (
-    <ScrollArea
-      className="w-full min-w-0 max-w-full overflow-hidden"
-      chevron={false}
-      cueSize="tight"
-      orientation="horizontal"
-      persistKey={`qr-style:${previewKind}`}
-      scrollFade
-      showScrollbar={false}
-      viewportClassName="min-w-0"
+    <div
+      aria-label="Style options"
+      className="grid grid-cols-6 gap-0"
+      data-slot={`qr-style-grid:${previewKind}`}
+      role="group"
     >
-      <div className={SETTINGS_PREVIEW_ROW}>
-        {options.map((option) => {
-          const isSelected = selected === option.value
+      {options.map((option) => {
+        const isSelected = selected === option.value
 
-          return (
-            <button
-              key={option.value}
-              aria-label={option.label}
-              aria-pressed={isSelected}
-              className={cn(SETTINGS_PREVIEW_TILE, "text-center")}
-              title={option.label}
-              type="button"
-              onClick={() => onSelect(option.value)}
+        return (
+          <button
+            key={option.value}
+            aria-label={option.label}
+            aria-pressed={isSelected}
+            className={cn(SETTINGS_PREVIEW_TILE_FLUID, "text-center")}
+            title={option.label}
+            type="button"
+            onClick={() => onSelect(option.value)}
+          >
+            <span
+              aria-hidden="true"
+              className="grid size-full place-items-center overflow-hidden p-0.5 dn-squircle-xs"
             >
-              <span
-                aria-hidden="true"
-                className={SETTINGS_PREVIEW_TILE_INNER}
-              >
-                <QrStyleOptionPreview
-                  className="size-full max-h-full max-w-full"
-                  previewKind={previewKind}
-                  value={option.value}
-                />
-              </span>
-            </button>
-          )
-        })}
-      </div>
-    </ScrollArea>
+              <QrStyleOptionPreview
+                className="size-full max-h-full max-w-full"
+                previewKind={previewKind}
+                value={option.value}
+              />
+            </span>
+          </button>
+        )
+      })}
+    </div>
   )
 }
 
-function ShapeTypePreviewRow({
+const SQUARE_SHAPE_VIEWBOX = "0 0 24 24"
+
+function ShapeGlyph({
+  className,
+  path,
+  viewBox,
+}: {
+  className?: string
+  path?: string
+  viewBox: string
+}) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={cn("size-[90%] fill-current", className)}
+      viewBox={viewBox}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {path ? <path d={path} /> : <rect width="24" height="24" />}
+    </svg>
+  )
+}
+
+function shapeViewBox(option: (typeof QR_BACKGROUND_SHAPES)[number]) {
+  return `${option.viewBox.x ?? 0} ${option.viewBox.y ?? 0} ${option.viewBox.width} ${option.viewBox.height}`
+}
+
+const SHAPE_SELECT_TILE =
+  "aspect-square h-auto justify-center gap-0 px-0 [&>span]:grid [&>span]:place-items-center [&>span:last-child]:hidden"
+
+function ShapeCatalogueSelect({
   selected,
   onSelect,
 }: {
   selected: QrBackgroundShapeId
   onSelect: (shapeId: QrBackgroundShapeId) => void
 }) {
-  return (
-    <ScrollArea
-      className="w-full min-w-0 max-w-full overflow-hidden"
-      chevron={false}
-      cueSize="tight"
-      orientation="horizontal"
-      persistKey="qr-background-shapes"
-      scrollFade
-      showScrollbar={false}
-      viewportClassName="min-w-0"
-    >
-      <div className={SETTINGS_PREVIEW_ROW}>
+  const theme = useContext(DesktopnewThemeContext)
+  const mobileDensity = useMobileInspectorDensity()
+
+  if (mobileDensity) {
+    return (
+      <div className="grid grid-cols-4 gap-0" role="group">
         <button
           aria-label="Use square shape"
           aria-pressed={selected === "none"}
-          className={cn(SETTINGS_PREVIEW_TILE)}
+          className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
           title="Square"
           type="button"
           onClick={() => onSelect("none")}
         >
           <span className="relative z-10 grid size-full place-items-center p-0.5 dn-preview-icon">
-            <svg
-              aria-hidden="true"
-              className="size-[90%] fill-current"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect width="24" height="24" />
-            </svg>
+            <ShapeGlyph viewBox={SQUARE_SHAPE_VIEWBOX} />
           </span>
         </button>
-        {QR_BACKGROUND_SHAPES.map((option) => {
-          const isSelected = selected === option.id
-
-          return (
-            <button
-              key={option.id}
-              aria-label={`Use ${option.label} shape`}
-              aria-pressed={isSelected}
-              className={cn(SETTINGS_PREVIEW_TILE)}
-              title={option.label}
-              type="button"
-              onClick={() => onSelect(option.id)}
-            >
-              <span className="relative z-10 grid size-full place-items-center p-0.5 dn-preview-icon">
-                <svg
-                  aria-hidden="true"
-                  className="size-[90%] fill-current"
-                  viewBox={`${option.viewBox.x ?? 0} ${option.viewBox.y ?? 0} ${option.viewBox.width} ${option.viewBox.height}`}
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d={option.path} />
-                </svg>
-              </span>
-            </button>
-          )
-        })}
+        {QR_BACKGROUND_SHAPES.map((option) => (
+          <button
+            key={option.id}
+            aria-label={`Use ${option.label} shape`}
+            aria-pressed={selected === option.id}
+            className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
+            title={option.label}
+            type="button"
+            onClick={() => onSelect(option.id)}
+          >
+            <span className="relative z-10 grid size-full place-items-center p-0.5 dn-preview-icon">
+              <ShapeGlyph path={option.path} viewBox={shapeViewBox(option)} />
+            </span>
+          </button>
+        ))}
       </div>
-    </ScrollArea>
+    )
+  }
+
+  return (
+    <div className="dn-content-type-select w-full min-w-0">
+      <Select
+        value={selected}
+        onValueChange={(next) => onSelect(next as QrBackgroundShapeId)}
+      >
+        <SelectTrigger
+          className="dn-content-type-select-trigger w-full min-w-0 dn-squircle-sm"
+          placeholder="Shape"
+          variant="borderless"
+        />
+        <SelectContent
+          className={cn(
+            "dn-portal-surface desktopnew-popover-content overflow-hidden p-0 dn-squircle-md",
+            theme === "dark" && "dark",
+          )}
+          data-theme={theme}
+          listAxis="xy"
+          listClassName="grid grid-cols-4 gap-0.5 p-1"
+        >
+          <SelectItem
+            className={SHAPE_SELECT_TILE}
+            index={0}
+            label="Square"
+            triggerLabel={
+              <span className="flex min-w-0 items-center gap-2">
+                <ShapeGlyph className="size-4 shrink-0" viewBox={SQUARE_SHAPE_VIEWBOX} />
+                <span className="min-w-0 truncate">Square</span>
+              </span>
+            }
+            value="none"
+          >
+            <ShapeGlyph className="size-7" viewBox={SQUARE_SHAPE_VIEWBOX} />
+          </SelectItem>
+          {QR_BACKGROUND_SHAPES.map((option, optionIndex) => (
+            <SelectItem
+              key={option.id}
+              className={SHAPE_SELECT_TILE}
+              index={optionIndex + 1}
+              label={option.label}
+              triggerLabel={
+                <span className="flex min-w-0 items-center gap-2">
+                  <ShapeGlyph
+                    className="size-4 shrink-0"
+                    path={option.path}
+                    viewBox={shapeViewBox(option)}
+                  />
+                  <span className="min-w-0 truncate">{option.label}</span>
+                </span>
+              }
+              value={option.id}
+            >
+              <ShapeGlyph
+                className="size-7"
+                path={option.path}
+                viewBox={shapeViewBox(option)}
+              />
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   )
 }
 
@@ -233,40 +315,34 @@ function PaperShaderPreviewRow({
   const shaders = getCardGeneratedShaderDefinitions()
 
   return (
-    <ScrollArea
-      className="w-full min-w-0 max-w-full overflow-hidden"
-      chevron={false}
-      cueSize="tight"
-      orientation="horizontal"
-      persistKey="paper-shader-gallery"
-      scrollFade
-      showScrollbar={false}
-      viewportClassName="min-w-0"
+    <div
+      aria-label="Shader options"
+      className="grid grid-cols-6 gap-0"
+      data-slot="paper-shader-grid"
+      role="group"
     >
-      <div className={SETTINGS_PREVIEW_ROW}>
-        {shaders.map((option) => {
-          const isSelected = selected === option.id
+      {shaders.map((option) => {
+        const isSelected = selected === option.id
 
-          return (
-            <button
-              key={option.id}
-              aria-label={`Use ${option.label} shader`}
-              aria-pressed={isSelected}
-              className={cn(SETTINGS_PREVIEW_TILE)}
-              title={option.label}
-              type="button"
-              onClick={() => onSelect(option.id)}
-            >
-              <PaperShaderOptionPreview
-                className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
-                isSelected={isSelected}
-                shaderId={option.id}
-              />
-            </button>
-          )
-        })}
-      </div>
-    </ScrollArea>
+        return (
+          <button
+            key={option.id}
+            aria-label={`Use ${option.label} shader`}
+            aria-pressed={isSelected}
+            className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
+            title={option.label}
+            type="button"
+            onClick={() => onSelect(option.id)}
+          >
+            <PaperShaderOptionPreview
+              className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
+              isSelected={isSelected}
+              shaderId={option.id}
+            />
+          </button>
+        )
+      })}
+    </div>
   )
 }
 
@@ -285,49 +361,44 @@ function WallpaperPreviewRow({
     selectedPath && !isSceneWallpaperPath(selectedPath) ? selectedPath : ""
 
   return (
-    <ScrollArea
-      className="w-full min-w-0 max-w-full overflow-hidden"
-      chevron={false}
-      cueSize="tight"
-      orientation="horizontal"
-      persistKey="wallpaper-gallery"
-      scrollFade
-      showScrollbar={false}
-      viewportClassName="min-w-0"
+    <div
+      aria-label="Image options"
+      className="grid grid-cols-6 gap-0"
+      data-slot="wallpaper-grid"
+      role="group"
     >
-      <div className={SETTINGS_PREVIEW_ROW}>
-        <SettingsImageUploadTile
-          imageUrl={customImageUrl}
-          onClear={onClear}
-          onUpload={onUpload}
-        />
+      <SettingsImageUploadTile
+        fluid
+        imageUrl={customImageUrl}
+        onClear={onClear}
+        onUpload={onUpload}
+      />
 
-        {SCENE_WALLPAPERS.map((wallpaper) => {
-          const isSelected = selectedPath === wallpaper.path
+      {SCENE_WALLPAPERS.map((wallpaper) => {
+        const isSelected = selectedPath === wallpaper.path
 
-          return (
-            <button
-              key={wallpaper.id}
-              aria-label={`Use ${wallpaper.label} wallpaper`}
-              aria-pressed={isSelected}
-              className={cn(SETTINGS_PREVIEW_TILE)}
-              title={wallpaper.label}
-              type="button"
-              onClick={() => onSelect(wallpaper.path)}
-              onPointerEnter={() => {
-                void preloadRasterImage(wallpaper.path)
-              }}
-            >
-              <WallpaperOptionPreview
-                alt={wallpaper.label}
-                className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
-                previewPath={wallpaper.previewPath}
-              />
-            </button>
-          )
-        })}
-      </div>
-    </ScrollArea>
+        return (
+          <button
+            key={wallpaper.id}
+            aria-label={`Use ${wallpaper.label} wallpaper`}
+            aria-pressed={isSelected}
+            className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
+            title={wallpaper.label}
+            type="button"
+            onClick={() => onSelect(wallpaper.path)}
+            onPointerEnter={() => {
+              void preloadRasterImage(wallpaper.path)
+            }}
+          >
+            <WallpaperOptionPreview
+              alt={wallpaper.label}
+              className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
+              previewPath={wallpaper.previewPath}
+            />
+          </button>
+        )
+      })}
+    </div>
   )
 }
 
@@ -462,7 +533,6 @@ function QrModuleGeometrySlider({ model }: { model: DesktopInspectorModel }) {
 
 export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
   const [tab, setTab] = useState(() => getInspectorSectionTab("qr-style", "Module"))
-  const [logoPopoverOpen, setLogoPopoverOpen] = useState(false)
   const {
     actualCornersSettings,
     actualEncodingSettings,
@@ -528,8 +598,9 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
       <SettingsTabPanel activeKey={tab}>
         {tab === "Logo" ? (
           <>
-            <div className="flex w-full min-w-0 items-center gap-1.5">
+            <div className="grid grid-cols-6 gap-0" role="group">
               <SettingsImageUploadTile
+                fluid
                 ariaLabel="Upload custom logo"
                 className="dn-logo-upload-tile"
                 imageUrl={actualLogoSettings.customImageUrl}
@@ -538,40 +609,56 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
                   onLogoSettingsChange({ uploadedImageUrl: imageUrl })
                 }
               />
-              <div className="min-w-0 flex-1">
-                <SettingsRowPopover
-                  contentClassName="w-[18rem]"
-                  hideHint
-                  leading={
-                    actualLogoSettings.customImageUrl ? (
-                      <img
-                        alt=""
-                        aria-hidden
-                        className="size-3.5 shrink-0 object-cover dn-squircle-xs"
-                        src={actualLogoSettings.customImageUrl}
-                      />
-                    ) : (
-                      <LogoSelectionIcon
-                        selectedId={actualLogoSettings.selectedBrandIconId}
-                      />
-                    )
-                  }
-                  open={logoPopoverOpen}
-                  trigger={
-                    actualLogoSettings.customImageUrl
-                      ? "Custom logo"
-                      : getLogoSelectionLabel(actualLogoSettings.selectedBrandIconId)
-                  }
-                  onOpenChange={setLogoPopoverOpen}
-                >
+              {POPULAR_BRAND_ICON_IDS.map((iconId) => {
+                const brandIcon = getBrandIconById(iconId)
+                const isSelected =
+                  !actualLogoSettings.customImageUrl &&
+                  actualLogoSettings.selectedBrandIconId === iconId
+
+                return (
+                  <button
+                    key={iconId}
+                    aria-label={`Use ${brandIcon.label} logo`}
+                    aria-pressed={isSelected}
+                    className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
+                    title={brandIcon.label}
+                    type="button"
+                    onClick={() =>
+                      onLogoSettingsChange({
+                        selectedBrandIconId: iconId,
+                        sourceMode: "brand",
+                      })
+                    }
+                  >
+                    <span className="relative z-10 grid size-full place-items-center">
+                      <LogoPickerTileIcon iconId={iconId} />
+                    </span>
+                  </button>
+                )
+              })}
+              <SettingsTilePopover
+                contentClassName="w-[18rem]"
+                title="Logo"
+                content={
                   <LogoIconPicker
                     selectedId={actualLogoSettings.selectedBrandIconId}
                     onSelect={(selectedBrandIconId) => {
                       onLogoSettingsChange({ selectedBrandIconId, sourceMode: "brand" })
                     }}
                   />
-                </SettingsRowPopover>
-              </div>
+                }
+              >
+                <button
+                  aria-label="More logo options"
+                  className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
+                  title="More"
+                  type="button"
+                >
+                  <span className="relative z-10 grid size-full place-items-center">
+                    <Ellipsis aria-hidden className="size-4" />
+                  </span>
+                </button>
+              </SettingsTilePopover>
             </div>
             <SettingsSlider
               label="Size"
@@ -876,19 +963,26 @@ export function QrColorSection({ model }: { model: DesktopInspectorModel }) {
 export function CardSection({ model }: { model: DesktopInspectorModel }) {
   const { actualShapeSettings, onShapeSettingsChange } = model
   const cardFill = readShapeFillCss(actualShapeSettings)
+  const [fillMode, setFillMode] = useState<BackgroundFillModeTab>(() =>
+    backgroundFillModeTab(cardFill),
+  )
 
   return (
     <div className={SECTION_STACK}>
-      <ShapeTypePreviewRow
+      <ShapeCatalogueSelect
         selected={actualShapeSettings.backgroundShapeId}
         onSelect={(backgroundShapeId) => onShapeSettingsChange({ backgroundShapeId })}
       />
-      <SettingsFillPopover
-        hint="Fill"
-        qrGradient
-        variant="grid"
+      <SettingsModeSelect
+        items={BACKGROUND_FILL_MODE_TABS}
+        placeholder="Fill"
+        value={fillMode}
+        onChange={(next) => setFillMode(next as BackgroundFillModeTab)}
+      />
+      <FillModePresetControls
+        mode={fillMode}
         value={cardFill}
-        onValueChange={(fill) => onShapeSettingsChange(applyShapeFill(fill, actualShapeSettings))}
+        applyFill={(fill) => onShapeSettingsChange(applyShapeFill(fill, actualShapeSettings))}
       />
       <SettingsSlider
         label="Padding"
@@ -900,9 +994,117 @@ export function CardSection({ model }: { model: DesktopInspectorModel }) {
   )
 }
 
+const BACKGROUND_FILL_MODE_TABS = ["Solid", "Linear", "Radial"] as const
+type BackgroundFillModeTab = (typeof BACKGROUND_FILL_MODE_TABS)[number]
+
+function backgroundFillModeTab(fill: string): BackgroundFillModeTab {
+  if (fill.startsWith("radial-gradient")) return "Radial"
+  if (fill.startsWith("linear-gradient")) return "Linear"
+  return "Solid"
+}
+
+function SettingsModeSelect({
+  items,
+  onChange,
+  placeholder,
+  value,
+}: {
+  items: readonly string[]
+  onChange: (value: string) => void
+  placeholder: string
+  value: string
+}) {
+  const theme = useContext(DesktopnewThemeContext)
+  const mobileDensity = useMobileInspectorDensity()
+
+  if (mobileDensity) {
+    return <SegmentTabs items={[...items]} value={value} onChange={onChange} />
+  }
+
+  return (
+    <div className="dn-content-type-select w-full min-w-0">
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger
+          className="dn-content-type-select-trigger w-full min-w-0 dn-squircle-sm"
+          placeholder={placeholder}
+          variant="borderless"
+        />
+        <SelectContent
+          className={cn(
+            "dn-portal-surface desktopnew-popover-content overflow-hidden p-0 dn-squircle-md",
+            theme === "dark" && "dark",
+          )}
+          data-theme={theme}
+        >
+          {items.map((item, index) => (
+            <SelectItem key={item} index={index} value={item}>
+              {item}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
+}
+
+function FillModePresetControls({
+  applyFill,
+  mode,
+  value,
+}: {
+  applyFill: (fill: Fill) => void
+  mode: BackgroundFillModeTab
+  value: string
+}) {
+  const pickerRef = useRef<SettingsFillPopoverHandle>(null)
+  const presets =
+    mode === "Solid"
+      ? SETTINGS_FILL_SOLID_PRESETS
+      : mode === "Linear"
+        ? SETTINGS_FILL_LINEAR_PRESETS
+        : SETTINGS_FILL_RADIAL_PRESETS
+
+  return (
+    <>
+      <SettingsFillOptionGrid
+        presets={presets}
+        value={value}
+        onOpenPicker={() => pickerRef.current?.openPicker()}
+        onSelect={(fill) => applyFill(fill)}
+      />
+      <SettingsFillPopover
+        ref={pickerRef}
+        hint="Fill"
+        lockedFillMode={mode === "Solid" ? "solid" : "gradient"}
+        qrGradient
+        variant="picker-only"
+        value={value}
+        onValueChange={(fill) => applyFill(fill)}
+      />
+    </>
+  )
+}
+
+type SceneBackgroundTab = "Shader" | "Image" | BackgroundFillModeTab
+
+const SCENE_BACKGROUND_TABS: readonly SceneBackgroundTab[] = [
+  "Shader",
+  "Image",
+  ...BACKGROUND_FILL_MODE_TABS,
+]
+
+function normalizeSceneBackgroundTab(tab: string, cardFill: string): SceneBackgroundTab {
+  if (tab === "Shader" || tab === "Image") return tab
+  if ((BACKGROUND_FILL_MODE_TABS as readonly string[]).includes(tab)) {
+    return tab as BackgroundFillModeTab
+  }
+  return backgroundFillModeTab(cardFill)
+}
+
 function backgroundTabFromStyleMode(
   styleMode: DesktopInspectorModel["actualBackgroundSettings"]["styleMode"],
-): "Shader" | "Image" | "Color" {
+  cardFill: string,
+): SceneBackgroundTab {
   if (styleMode === "image" || styleMode === "image-filter") {
     return "Image"
   }
@@ -911,7 +1113,7 @@ function backgroundTabFromStyleMode(
     return "Shader"
   }
 
-  return "Color"
+  return backgroundFillModeTab(cardFill)
 }
 
 export function SceneSection({ model }: { model: DesktopInspectorModel }) {
@@ -924,18 +1126,23 @@ export function SceneSection({ model }: { model: DesktopInspectorModel }) {
     onImageSettingsChange,
     onShapeSettingsChange,
   } = model
-  const [tab, setTab] = useState(() =>
-    getInspectorSectionTab(
-      "background",
-      backgroundTabFromStyleMode(actualBackgroundSettings.styleMode),
+  const [tab, setTab] = useState<SceneBackgroundTab>(() =>
+    normalizeSceneBackgroundTab(
+      getInspectorSectionTab(
+        "background",
+        backgroundTabFromStyleMode(
+          actualBackgroundSettings.styleMode,
+          actualShapeSettings.cardFill,
+        ),
+      ),
+      actualShapeSettings.cardFill,
     ),
   )
   const paperShader = actualBackgroundSettings.paperShader
   const backgroundFill = actualShapeSettings.cardFill
 
   function handleBackgroundTabChange(nextTab: string) {
-    const resolvedTab =
-      nextTab === "Image" || nextTab === "Color" ? nextTab : ("Shader" as const)
+    const resolvedTab = normalizeSceneBackgroundTab(nextTab, backgroundFill)
     setTab(resolvedTab)
     setInspectorSectionTab("background", resolvedTab)
     controller?.onCanvasBackgroundTabChange?.(
@@ -945,7 +1152,12 @@ export function SceneSection({ model }: { model: DesktopInspectorModel }) {
 
   return (
     <div className={SECTION_STACK}>
-      <SegmentTabs items={["Shader", "Image", "Color"]} value={tab} onChange={handleBackgroundTabChange} />
+      <SettingsModeSelect
+        items={SCENE_BACKGROUND_TABS}
+        placeholder="Background"
+        value={tab}
+        onChange={handleBackgroundTabChange}
+      />
       <SettingsTabPanel activeKey={tab}>
         {tab === "Shader" ? (
           <>
@@ -978,12 +1190,10 @@ export function SceneSection({ model }: { model: DesktopInspectorModel }) {
             }
           />
         ) : (
-          <SettingsFillPopover
-            hint="Fill"
-            qrGradient
-            variant="grid"
+          <FillModePresetControls
+            mode={tab}
             value={backgroundFill}
-            onValueChange={(fill) => onShapeSettingsChange(applyCardFill(fill))}
+            applyFill={(fill) => onShapeSettingsChange(applyCardFill(fill))}
           />
         )}
       </SettingsTabPanel>

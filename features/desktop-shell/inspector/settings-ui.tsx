@@ -14,6 +14,7 @@ import {
   cloneElement,
   isValidElement,
   Children,
+  type CSSProperties,
   type ReactElement,
   type ReactNode,
 } from "react"
@@ -322,17 +323,28 @@ export function SettingsAccordion({
   }))
 
   return (
-    <MotionAccordion
-      cardHeight={matchCanvasHeight ? canvasCardHeight : null}
-      className="dn-settings-accordion w-full min-w-0 max-w-full"
-      gap={0}
-      items={items}
-      footer={footer}
-      openIndex={openIndex}
-      onOpenIndexChange={(index) => {
-        onOpenSectionChange(index === null ? undefined : sections[index])
-      }}
-    />
+    <div
+      style={
+        {
+          "--dn-card-height":
+            matchCanvasHeight && canvasCardHeight != null
+              ? `${canvasCardHeight}px`
+              : undefined,
+        } as CSSProperties
+      }
+    >
+      <MotionAccordion
+        cardHeight={null}
+        className="dn-settings-accordion w-full min-w-0 max-w-full"
+        gap={0}
+        items={items}
+        footer={footer}
+        openIndex={openIndex}
+        onOpenIndexChange={(index) => {
+          onOpenSectionChange(index === null ? undefined : sections[index])
+        }}
+      />
+    </div>
   )
 }
 
@@ -1615,7 +1627,7 @@ export function SettingsSwitchRow({
       checked={checked}
       label={label}
       onToggle={() => onChange(!checked)}
-      size="compact"
+      size="default"
       className="dn-switch-row"
     />
   )
