@@ -33,10 +33,22 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - `context7_*` for library/framework docs; `pencil_*` for `.pen` design files in `designs/`; `deepwiki` for GitHub repo docs.
 - If a tool exists for the job, use it. Do not manually `cat`, `grep`, or `sed` when a structured tool is available.
 
+## Mobile FamilyDrawer
+- Mobile settings are **horizontal rails inside a fixed 50%-viewport drawer**, not vertical stacks of the desktop grids. Shared desktop sections are rendered through adaptive primitives, never forked per surface.
+- Primitives live in `features/desktop-shell/inspector/mobile-settings-rail.tsx`:
+  - `SettingsOptionShelf` — fixed-column grid on desktop, horizontal rail on mobile. Use this instead of a bare `grid grid-cols-6` for any option collection.
+  - `MobileSettingsRail` / `MobileCardRail` / `MobileChipRail` — square tiles, landscape cards (4:3), and text chips.
+  - `useSettingsOptionTileClass()` — fluid tile on desktop, fixed tile in a rail.
+- Rail geometry is CSS-driven in `features/desktop-shell/inspector/mobile-inspector.css` (`.dn-mobile-rail`, `.dn-mobile-card-rail`, `.dn-settings-shelf`). Rail rows are `min-width: max-content` and children are fixed-width, so the shelf overflows and peeks instead of compressing.
+- The drawer cap is `MOBILE_DRAWER_MAX_VIEWPORT_RATIO = 0.5` in `features/desktop-shell/components/MobileFamilyDrawer.tsx`. At ~390×844 every family fits the cap with no vertical overflow; at 320×568 the cap is only 284px, so families fall back to vertical scrolling. **Never set the capped frame to `overflow-y: hidden`** — that hides controls instead of scrolling them.
+- Layer style uses a category rail (`features/desktop-shell/components/MobileLayerStyleInspector.tsx`) backed by the `category` prop on `DesktopLayerStyleInspector`. Mobile renders one category per screen; desktop passes no `category` and renders all of them.
+- To re-check layouts, drive the drawer in a phone viewport and assert `scrollHeight === clientHeight` per family, plus `[data-slot="mobile-settings-rail"]` present and `[class*="grid-cols-6"]` absent. `FloatingToolbar.test.tsx` covers the rails and the six-column regression guard.
+
 ## Testing Notes
 - Current tests only cover `features/qr-code/model/state.ts` and a growing set of adjacent modules.
 - Vitest is configured with `environment: "node"`, so browser/client behavior is not covered by default.
 - If you change React UI behavior, do not assume existing tests cover it.
+- The repo has **87 pre-existing failing tests** across 15 files (as of commit `bfa0211`). Compare your run against that baseline before claiming a regression or a fix; `main` is not green.
 
 ## QR Card Templates
 

@@ -383,9 +383,18 @@ export function SettingsLabeledSelect({
 }) {
   const theme = useContext(DesktopnewThemeContext)
   const mobileDensity = useMobileInspectorDensity()
+  const mobilePersistKey = useId()
 
   if (mobileDensity) {
-    return <SegmentTabs items={[...items]} value={value} onChange={onChange} />
+    return (
+      <SegmentTabs
+        items={[...items]}
+        persistKey={mobilePersistKey}
+        scrollable={items.length > 3}
+        value={value}
+        onChange={onChange}
+      />
+    )
   }
 
   return (
@@ -461,12 +470,13 @@ export function SettingsFillPresetSection({
           onValueChange={onSelect}
         />
       </div>
-      <div className="flex flex-col gap-2">
-        <span className="dn-row-label-text flex h-[var(--dn-control-height)] items-center px-[var(--dn-row-px)]">
-          Presets
-        </span>
-        <SettingsFillOptionGrid presets={presets} value={value} onSelect={onSelect} />
-      </div>
+      <SettingsFillOptionGrid
+        label="Presets"
+        persistKey={`fill-presets:${lockedFillMode ?? "default"}`}
+        presets={presets}
+        value={value}
+        onSelect={onSelect}
+      />
     </>
   )
 }

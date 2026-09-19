@@ -10,6 +10,7 @@ import {
   SETTINGS_FILL_OPTION_TILE_INNER,
 } from "@/features/desktop-shell/inspector/settings-preview-tiles"
 import { SettingsAccordionColorPicker } from "@/features/desktop-shell/inspector/settings-ui"
+import { SettingsOptionShelf } from "@/features/desktop-shell/inspector/mobile-settings-rail"
 import { cn } from "@/lib/utils"
 import {
   formatPaperShaderParamLabel,
@@ -103,11 +104,11 @@ export function PaperShaderColorGrid({
   }
 
   return (
-    <div
-      aria-label="Shader colors"
-      className="dn-paper-shader-color-grid grid grid-cols-6 gap-0"
-      data-slot="paper-shader-color-grid"
-      role="group"
+    <SettingsOptionShelf
+      ariaLabel="Shader colors"
+      dataSlot="paper-shader-color-grid"
+      gridClassName="dn-paper-shader-color-grid"
+      persistKey="paper-shader-colors"
     >
       {canAdd ? (
         <button
@@ -154,6 +155,6 @@ export function PaperShaderColorGrid({
           />
         )
       })}
-    </div>
+    </SettingsOptionShelf>
   )
 }

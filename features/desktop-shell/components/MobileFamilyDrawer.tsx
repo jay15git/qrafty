@@ -23,8 +23,8 @@ import {
   type ViewsRegistry,
 } from "@/components/ui/family-drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { DesktopElementInspector } from "@/features/desktop-shell/components/DesktopElementInspector"
 import { DesktopWallpaperInspector } from "@/features/desktop-shell/components/DesktopWallpaperInspector"
+import { MobileLayerStyleInspector } from "@/features/desktop-shell/components/MobileLayerStyleInspector"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import {
@@ -290,7 +290,7 @@ function MobileElementView() {
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
         <MobileNestedHeader title="Layer style" onClose={() => setView("default")} />
         <ScrollPersistScope id="drawer:element">
-          <DesktopElementInspector layer={layer} onPatch={onPatch} />
+          <MobileLayerStyleInspector layer={layer} onPatch={onPatch} />
         </ScrollPersistScope>
       </DesktopnewThemeContext.Provider>
     </div>

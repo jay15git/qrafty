@@ -73,10 +73,32 @@ import { IllustrationInspectorColorSection } from "@/features/workspace/componen
 import { isDraftingIllustrationLayer } from "@/features/workspace/model/layer-floating-settings"
 import { cn } from "@/lib/utils"
 
+/** Layer-style categories. Mobile renders one at a time behind a rail; desktop
+ *  renders all of them (`category` undefined). */
+export type LayerStyleCategory =
+  | "content"
+  | "type"
+  | "color"
+  | "spacing"
+  | "shape"
+  | "fill"
+  | "image"
+  | "shader"
+  | "options"
+
+function showsCategory(
+  active: LayerStyleCategory | undefined,
+  id: LayerStyleCategory,
+) {
+  return active === undefined || active === id
+}
+
 export function DesktopLayerStyleInspector({
+  category,
   layer,
   onPatch,
 }: {
+  category?: LayerStyleCategory
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
 }) {
@@ -86,16 +108,16 @@ export function DesktopLayerStyleInspector({
       className="flex min-h-0 min-w-0 flex-1 flex-col"
     >
       {layer.kind === "text" ? (
-        <DesktopLayerTextInspector layer={layer} onPatch={onPatch} />
+        <DesktopLayerTextInspector category={category} layer={layer} onPatch={onPatch} />
       ) : null}
       {layer.kind === "shape" ? (
-        <DesktopLayerShapeInspector layer={layer} onPatch={onPatch} />
+        <DesktopLayerShapeInspector category={category} layer={layer} onPatch={onPatch} />
       ) : null}
       {layer.kind === "image" ? (
-        <DesktopLayerImageInspector layer={layer} onPatch={onPatch} />
+        <DesktopLayerImageInspector category={category} layer={layer} onPatch={onPatch} />
       ) : null}
       {layer.kind === "shader" ? (
-        <DesktopLayerShaderInspector layer={layer} onPatch={onPatch} />
+        <DesktopLayerShaderInspector category={category} layer={layer} onPatch={onPatch} />
       ) : null}
     </div>
   )
@@ -262,9 +284,11 @@ export function DesktopTransformSection({
 }
 
 function DesktopLayerTextInspector({
+  category,
   layer,
   onPatch,
 }: {
+  category?: LayerStyleCategory
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
 }) {
@@ -289,23 +313,26 @@ function DesktopLayerTextInspector({
 
   return (
     <>
-      <DesktopInspectorSection
-        className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
-        dataSlot="desktop-layer-text-content"
-      >
-        <DesktopInspectorLabel>Content</DesktopInspectorLabel>
-        <DesktopInspectorTextarea
-          aria-label="Text layer content"
-          className="min-h-16 py-2"
-          value={layer.text ?? ""}
-          onChange={(event) => patchTextLayer({ text: event.currentTarget.value })}
-        />
-      </DesktopInspectorSection>
+      {showsCategory(category, "content") ? (
+        <DesktopInspectorSection
+          className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
+          dataSlot="desktop-layer-text-content"
+        >
+          <DesktopInspectorLabel>Content</DesktopInspectorLabel>
+          <DesktopInspectorTextarea
+            aria-label="Text layer content"
+            className="min-h-16 py-2"
+            value={layer.text ?? ""}
+            onChange={(event) => patchTextLayer({ text: event.currentTarget.value })}
+          />
+        </DesktopInspectorSection>
+      ) : null}
 
-      <DesktopInspectorSection
-        className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
-        dataSlot="desktop-layer-text-inspector"
-      >
+      {showsCategory(category, "type") ? (
+        <DesktopInspectorSection
+          className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
+          dataSlot="desktop-layer-text-inspector"
+        >
         <p className={cn("mb-2", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Typography</p>
         <div className="grid grid-cols-[1fr_4.75rem] gap-1.5">
           <div className="min-w-0" data-slot="desktop-layer-text-font-selector">
@@ -429,55 +456,62 @@ function DesktopLayerTextInspector({
         />
 
       </DesktopInspectorSection>
+      ) : null}
 
-      <DesktopInspectorSection
-        className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
-        dataSlot="desktop-layer-text-color"
-      >
-        <p className={cn("mb-3", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Color</p>
-        <SettingsFillPopover
-          hint="Text fill"
-          title="Text fill"
-          value={getTextLayerFillCssValue(layer)}
-          onValueChange={(fill, css) =>
-            patchTextLayer(patchTextLayerFillFromPicker(layer, fill, css))
-          }
-        />
-      </DesktopInspectorSection>
+      {showsCategory(category, "color") ? (
+        <DesktopInspectorSection
+          className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
+          dataSlot="desktop-layer-text-color"
+        >
+          <p className={cn("mb-3", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Color</p>
+          <SettingsFillPopover
+            hint="Text fill"
+            title="Text fill"
+            value={getTextLayerFillCssValue(layer)}
+            onValueChange={(fill, css) =>
+              patchTextLayer(patchTextLayerFillFromPicker(layer, fill, css))
+            }
+          />
+        </DesktopInspectorSection>
+      ) : null}
 
-      <DesktopInspectorSection
-        className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
-        dataSlot="desktop-layer-text-spacing"
-      >
-        <p className={cn("mb-3", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Spacing</p>
-        <div className="grid gap-2">
-          <DesktopInspectorElasticSliderRow
-            label="Letter spacing"
-            max={200}
-            min={-50}
-            value={layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing}
-            valueLabel={`${Math.round(layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing)} px`}
-            onChange={(letterSpacing) => patchTextLayer({ letterSpacing })}
-          />
-          <DesktopInspectorElasticSliderRow
-            label="Line height"
-            max={4}
-            min={0.6}
-            step={0.05}
-            value={layer.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight}
-            valueLabel={(layer.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight).toFixed(2)}
-            onChange={(lineHeight) => patchTextLayer({ lineHeight })}
-          />
-        </div>
-      </DesktopInspectorSection>
+      {showsCategory(category, "spacing") ? (
+        <DesktopInspectorSection
+          className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
+          dataSlot="desktop-layer-text-spacing"
+        >
+          <p className={cn("mb-3", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Spacing</p>
+          <div className="grid gap-2">
+            <DesktopInspectorElasticSliderRow
+              label="Letter spacing"
+              max={200}
+              min={-50}
+              value={layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing}
+              valueLabel={`${Math.round(layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing)} px`}
+              onChange={(letterSpacing) => patchTextLayer({ letterSpacing })}
+            />
+            <DesktopInspectorElasticSliderRow
+              label="Line height"
+              max={4}
+              min={0.6}
+              step={0.05}
+              value={layer.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight}
+              valueLabel={(layer.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight).toFixed(2)}
+              onChange={(lineHeight) => patchTextLayer({ lineHeight })}
+            />
+          </div>
+        </DesktopInspectorSection>
+      ) : null}
     </>
   )
 }
 
 function DesktopLayerShapeInspector({
+  category,
   layer,
   onPatch,
 }: {
+  category?: LayerStyleCategory
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
 }) {
@@ -486,60 +520,65 @@ function DesktopLayerShapeInspector({
 
   return (
     <>
-      <DesktopInspectorSection
-        className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
-        dataSlot="desktop-layer-shape-inspector"
-        resize
-      >
-        <DesktopInspectorLabel>Shape</DesktopInspectorLabel>
-        <ElementShapeOptionGrid
-          selectedShapeId={shapeId}
-          variant="inspector"
-          onSelect={(nextShapeId) => onPatch({ shapeId: nextShapeId })}
-        />
-      </DesktopInspectorSection>
+      {showsCategory(category, "shape") ? (
+        <DesktopInspectorSection
+          className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
+          dataSlot="desktop-layer-shape-inspector"
+          resize
+        >
+          <DesktopInspectorLabel>Shape</DesktopInspectorLabel>
+          <ElementShapeOptionGrid
+            selectedShapeId={shapeId}
+            variant="inspector"
+            onSelect={(nextShapeId) => onPatch({ shapeId: nextShapeId })}
+          />
+        </DesktopInspectorSection>
+      ) : null}
 
-      <DesktopInspectorSection
-        className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
-        dataSlot="desktop-layer-shape-fill-mode"
-      >
-        <p className={cn("mb-2", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Fill mode</p>
-        <SegmentTabs
-          items={["solid", "gradient", "image", "none"]}
-          value={fillMode}
-          onChange={(mode) => onPatch({ fillMode: mode as DraftingShapeFillMode })}
-        />
+      {showsCategory(category, "fill") ? (
+        <DesktopInspectorSection
+          className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
+          dataSlot="desktop-layer-shape-fill-mode"
+        >
+          <p className={cn("mb-2", DESKTOP_INSPECTOR_SECTION_HEADING_CLASS)}>Fill mode</p>
+          <SegmentTabs
+            items={["solid", "gradient", "image", "none"]}
+            value={fillMode}
+            onChange={(mode) => onPatch({ fillMode: mode as DraftingShapeFillMode })}
+          />
 
-        {fillMode === "image" ? (
-          <div className={cn("mt-2.5 space-y-2", DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
-            <DesktopInspectorTextInput
-              aria-label="Shape fill image URL"
-              placeholder="https://example.com/texture.png"
-              value={layer.imageSource === "url" ? (layer.imageValue ?? "") : ""}
-              onChange={(event) =>
-                onPatch({
-                  imageSource: event.currentTarget.value ? "url" : "none",
-                  imageValue: event.currentTarget.value || undefined,
-                })
-              }
-            />
-            <FileUpload
-              acceptedFileTypes={["image/*"]}
-              className="mx-0 max-w-full"
-              onUploadError={() => undefined}
-              onUploadSuccess={(file) => {
-                onPatch({
-                  imageSource: "upload",
-                  imageValue: URL.createObjectURL(file),
-                })
-              }}
-              uploadDelay={0}
-            />
-          </div>
-        ) : null}
-      </DesktopInspectorSection>
+          {fillMode === "image" ? (
+            <div className={cn("mt-2.5 space-y-2", DESKTOP_INSPECTOR_SECTION_GAP_CLASS)}>
+              <DesktopInspectorTextInput
+                aria-label="Shape fill image URL"
+                placeholder="https://example.com/texture.png"
+                value={layer.imageSource === "url" ? (layer.imageValue ?? "") : ""}
+                onChange={(event) =>
+                  onPatch({
+                    imageSource: event.currentTarget.value ? "url" : "none",
+                    imageValue: event.currentTarget.value || undefined,
+                  })
+                }
+              />
+              <FileUpload
+                acceptedFileTypes={["image/*"]}
+                className="mx-0 max-w-full"
+                onUploadError={() => undefined}
+                onUploadSuccess={(file) => {
+                  onPatch({
+                    imageSource: "upload",
+                    imageValue: URL.createObjectURL(file),
+                  })
+                }}
+                uploadDelay={0}
+              />
+            </div>
+          ) : null}
+        </DesktopInspectorSection>
+      ) : null}
 
-      {fillMode === "solid" || fillMode === "gradient" ? (
+      {(fillMode === "solid" || fillMode === "gradient") &&
+      showsCategory(category, "fill") ? (
         <DesktopInspectorSection
           className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}
           dataSlot="desktop-layer-shape-fill"
@@ -559,13 +598,19 @@ function DesktopLayerShapeInspector({
 }
 
 function DesktopLayerImageInspector({
+  category,
   layer,
   onPatch,
 }: {
+  category?: LayerStyleCategory
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
 }) {
   const isIllustration = isDraftingIllustrationLayer(layer)
+
+  if (!showsCategory(category, "image")) {
+    return null
+  }
 
   return (
     <DesktopInspectorSection
@@ -621,9 +666,11 @@ function DesktopLayerImageInspector({
 }
 
 function DesktopLayerShaderInspector({
+  category,
   layer,
   onPatch,
 }: {
+  category?: LayerStyleCategory
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
 }) {
@@ -631,22 +678,26 @@ function DesktopLayerShaderInspector({
 
   return (
     <>
-      <DesktopInspectorSection className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
-        <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Shader</p>
-        <PaperShaderOptionGrid
-          selectedShaderId={paperShader.shaderId}
-          variant="inspector"
-          onSelect={(shaderId) =>
-            onPatch({ paperShader: createDefaultDraftingCardPaperShader(shaderId) })
-          }
-        />
-      </DesktopInspectorSection>
-      <div className="min-w-0 px-3 pb-3">
-        <SettingsPaperShaderControls
-          paperShader={paperShader}
-          onPaperShaderChange={(nextPaperShader) => onPatch({ paperShader: nextPaperShader })}
-        />
-      </div>
+      {showsCategory(category, "shader") ? (
+        <DesktopInspectorSection className={DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
+          <p className={DESKTOP_INSPECTOR_SECTION_HEADING_CLASS}>Shader</p>
+          <PaperShaderOptionGrid
+            selectedShaderId={paperShader.shaderId}
+            variant="inspector"
+            onSelect={(shaderId) =>
+              onPatch({ paperShader: createDefaultDraftingCardPaperShader(shaderId) })
+            }
+          />
+        </DesktopInspectorSection>
+      ) : null}
+      {showsCategory(category, "options") ? (
+        <div className="min-w-0 px-3 pb-3">
+          <SettingsPaperShaderControls
+            paperShader={paperShader}
+            onPaperShaderChange={(nextPaperShader) => onPatch({ paperShader: nextPaperShader })}
+          />
+        </div>
+      ) : null}
     </>
   )
 }

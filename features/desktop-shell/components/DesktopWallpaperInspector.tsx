@@ -14,6 +14,8 @@ import {
 import { DesktopInspectorSection } from "@/features/desktop-shell/components/InspectorControls"
 import { DesktopInspectorAnimatedOptionGrid } from "@/features/desktop-shell/inspector/inspector-option-grid"
 import { desktopInspectorOptionGridItemClass } from "@/features/desktop-shell/inspector/inspector-option-grid.classes"
+import { MobileCardRail } from "@/features/desktop-shell/inspector/mobile-settings-rail"
+import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
 import { preloadRasterImage } from "@/features/workspace/rendering/preload-raster-image"
 import { cn } from "@/lib/utils"
@@ -66,6 +68,26 @@ export function DesktopWallpaperInspector({
   onClose?: () => void
   onSelectWallpaper: (imagePath: string) => void
 }) {
+  const mobileDensity = useMobileInspectorDensity()
+
+  if (mobileDensity) {
+    return (
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col" data-slot="desktop-wallpaper-inspector">
+        <MobileCardRail ariaLabel="Wallpapers" persistKey="drawer:wallpapers">
+          {SCENE_WALLPAPERS.map((wallpaper) => (
+            <DesktopWallpaperButton
+              key={wallpaper.id}
+              alt={wallpaper.label}
+              imagePath={wallpaper.path}
+              previewPath={wallpaper.previewPath}
+              onClick={() => onSelectWallpaper(wallpaper.path)}
+            />
+          ))}
+        </MobileCardRail>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col" data-slot="desktop-wallpaper-inspector">
       <DesktopInspectorScrollArea>

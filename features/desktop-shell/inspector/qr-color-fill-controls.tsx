@@ -213,17 +213,13 @@ export function QrColorFillControls({
               ))}
             </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <span className="dn-row-label-text flex h-[var(--dn-control-height)] items-center px-[var(--dn-row-px)]">
-              Presets
-            </span>
-            <SettingsPatternOptionGrid
-              persistKey={`${persistKey}:pattern`}
-              selectedPalette={modulePattern.selectedPalette}
-              selectedPreset={modulePattern.selectedPreset}
-              onSelect={(preset) => modulePattern.onSelect(preset)}
-            />
-          </div>
+          <SettingsPatternOptionGrid
+            label="Presets"
+            persistKey={`${persistKey}:pattern`}
+            selectedPalette={modulePattern.selectedPalette}
+            selectedPreset={modulePattern.selectedPreset}
+            onSelect={(preset) => modulePattern.onSelect(preset)}
+          />
         </>
       ) : modeTab === "Image" && moduleImage ? (
         <>
@@ -237,19 +233,15 @@ export function QrColorFillControls({
               onUpload={(imageUrl) => moduleImage.onUpload(imageUrl, "upload")}
             />
           </div>
-          <div className="flex flex-col gap-2">
-            <span className="dn-row-label-text flex h-[var(--dn-control-height)] items-center px-[var(--dn-row-px)]">
-              Presets
-            </span>
-            <SettingsImageOptionGrid
-              hideUploadTile
-              persistKey={`${persistKey}:image`}
-              selectedPath={moduleImage.imageUrl}
-              onClear={moduleImage.onClear}
-              onSelect={(imagePath) => moduleImage.onUpload(imagePath, "url")}
-              onUpload={(imageUrl) => moduleImage.onUpload(imageUrl, "upload")}
-            />
-          </div>
+          <SettingsImageOptionGrid
+            hideUploadTile
+            label="Presets"
+            persistKey={`${persistKey}:image`}
+            selectedPath={moduleImage.imageUrl}
+            onClear={moduleImage.onClear}
+            onSelect={(imagePath) => moduleImage.onUpload(imagePath, "url")}
+            onUpload={(imageUrl) => moduleImage.onUpload(imageUrl, "upload")}
+          />
         </>
       ) : null}
     </div>

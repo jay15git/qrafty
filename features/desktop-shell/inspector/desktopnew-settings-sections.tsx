@@ -102,10 +102,10 @@ import {
 import { ScrollPersistScope } from "@/lib/persisted-element-scroll"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
+import { SettingsOptionShelf } from "@/features/desktop-shell/inspector/mobile-settings-rail"
 import { SETTINGS_PREVIEW_TILE_FLUID } from "@/features/desktop-shell/inspector/settings-preview-tiles"
 import {
   isSceneWallpaperPath,
-  SettingsFillOptionGrid,
   SettingsImageUploadTile,
 } from "@/features/desktop-shell/inspector/settings-fill-option-grid"
 import {
@@ -129,11 +129,11 @@ function QrStylePreviewGrid({
   onSelect: (value: string) => void
 }) {
   return (
-    <div
-      aria-label="Style options"
-      className="grid grid-cols-6 gap-0"
-      data-slot={`qr-style-grid:${previewKind}`}
-      role="group"
+    <SettingsOptionShelf
+      activeKey={selected}
+      ariaLabel="Style options"
+      dataSlot={`qr-style-grid:${previewKind}`}
+      persistKey={`qr-style:${previewKind}`}
     >
       {options.map((option) => {
         const isSelected = selected === option.value
@@ -161,7 +161,7 @@ function QrStylePreviewGrid({
           </button>
         )
       })}
-    </div>
+    </SettingsOptionShelf>
   )
 }
 
@@ -207,7 +207,13 @@ function ShapeCatalogueSelect({
 
   if (mobileDensity) {
     return (
-      <div className="grid grid-cols-4 gap-0" role="group">
+      <SettingsOptionShelf
+        activeKey={selected}
+        ariaLabel="Background shapes"
+        columns={4}
+        dataSlot="shape-catalogue-grid"
+        persistKey="qr-background-shapes"
+      >
         <button
           aria-label="Use square shape"
           aria-pressed={selected === "none"}
@@ -235,7 +241,7 @@ function ShapeCatalogueSelect({
             </span>
           </button>
         ))}
-      </div>
+      </SettingsOptionShelf>
     )
   }
 
@@ -314,11 +320,11 @@ function PaperShaderPreviewRow({
   const shaders = getCardGeneratedShaderDefinitions()
 
   return (
-    <div
-      aria-label="Shader options"
-      className="grid grid-cols-6 gap-0"
-      data-slot="paper-shader-grid"
-      role="group"
+    <SettingsOptionShelf
+      activeKey={selected}
+      ariaLabel="Shader options"
+      dataSlot="paper-shader-grid"
+      persistKey="paper-shader-grid"
     >
       {shaders.map((option) => {
         const isSelected = selected === option.id
@@ -341,7 +347,7 @@ function PaperShaderPreviewRow({
           </button>
         )
       })}
-    </div>
+    </SettingsOptionShelf>
   )
 }
 
@@ -356,8 +362,55 @@ function WallpaperPreviewRow({
   onUpload: (imageUrl: string) => void
   selectedPath: string
 }) {
+  const mobileDensity = useMobileInspectorDensity()
   const customImageUrl =
     selectedPath && !isSceneWallpaperPath(selectedPath) ? selectedPath : ""
+
+  const wallpaperTiles = SCENE_WALLPAPERS.map((wallpaper) => {
+    const isSelected = selectedPath === wallpaper.path
+
+    return (
+      <button
+        key={wallpaper.id}
+        aria-label={`Use ${wallpaper.label} wallpaper`}
+        aria-pressed={isSelected}
+        className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
+        title={wallpaper.label}
+        type="button"
+        onClick={() => onSelect(wallpaper.path)}
+        onPointerEnter={() => {
+          void preloadRasterImage(wallpaper.path)
+        }}
+      >
+        <WallpaperOptionPreview
+          alt={wallpaper.label}
+          className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
+          previewPath={wallpaper.previewPath}
+        />
+      </button>
+    )
+  })
+
+  if (mobileDensity) {
+    return (
+      <SettingsOptionShelf
+        activeKey={selectedPath}
+        ariaLabel="Image options"
+        dataSlot="wallpaper-grid"
+        label="Presets"
+        persistKey="background-wallpapers"
+      >
+        <SettingsImageUploadTile
+          fluid
+          ariaLabel="Upload custom image"
+          imageUrl={customImageUrl}
+          onClear={onClear}
+          onUpload={onUpload}
+        />
+        {wallpaperTiles}
+      </SettingsOptionShelf>
+    )
+  }
 
   return (
     <>
@@ -371,42 +424,14 @@ function WallpaperPreviewRow({
           onUpload={onUpload}
         />
       </div>
-      <div className="flex flex-col gap-2">
-        <span className="dn-row-label-text flex h-[var(--dn-control-height)] items-center px-[var(--dn-row-px)]">
-          Presets
-        </span>
-        <div
-          aria-label="Image options"
-          className="grid grid-cols-6 gap-0"
-          data-slot="wallpaper-grid"
-          role="group"
-        >
-          {SCENE_WALLPAPERS.map((wallpaper) => {
-            const isSelected = selectedPath === wallpaper.path
-
-            return (
-              <button
-                key={wallpaper.id}
-                aria-label={`Use ${wallpaper.label} wallpaper`}
-                aria-pressed={isSelected}
-                className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
-                title={wallpaper.label}
-                type="button"
-                onClick={() => onSelect(wallpaper.path)}
-                onPointerEnter={() => {
-                  void preloadRasterImage(wallpaper.path)
-                }}
-              >
-                <WallpaperOptionPreview
-                  alt={wallpaper.label}
-                  className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
-                  previewPath={wallpaper.previewPath}
-                />
-              </button>
-            )
-          })}
-        </div>
-      </div>
+      <SettingsOptionShelf
+        activeKey={selectedPath}
+        ariaLabel="Image options"
+        dataSlot="wallpaper-grid"
+        label="Presets"
+      >
+        {wallpaperTiles}
+      </SettingsOptionShelf>
     </>
   )
 }
@@ -668,7 +693,11 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
             />
 
             {logoSource === "Upload" ? (
-              <div className="grid grid-cols-6 gap-0" role="group">
+              <SettingsOptionShelf
+                ariaLabel="Logo upload"
+                dataSlot="logo-upload-grid"
+                persistKey="qr-logo-upload"
+              >
                 <SettingsImageUploadTile
                   fluid
                   ariaLabel="Upload custom logo"
@@ -679,9 +708,14 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
                     onLogoSettingsChange({ uploadedImageUrl: imageUrl })
                   }
                 />
-              </div>
+              </SettingsOptionShelf>
             ) : logoSource === "None" ? null : (
-              <div className="grid grid-cols-6 gap-0" role="group">
+              <SettingsOptionShelf
+                activeKey={actualLogoSettings.selectedBrandIconId}
+                ariaLabel="Logo options"
+                dataSlot="logo-brand-grid"
+                persistKey="qr-logo-brands"
+              >
                 {POPULAR_BRAND_ICON_IDS.map((iconId) => {
                   const brandIcon = getBrandIconById(iconId)
                   const isSelected =
@@ -732,7 +766,7 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
                     </span>
                   </button>
                 </SettingsTilePopover>
-              </div>
+              </SettingsOptionShelf>
             )}
 
             {logoSource === "None" ? null : (

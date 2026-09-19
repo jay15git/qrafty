@@ -39,6 +39,7 @@ import {
   DesktopGradientTypeRow,
 } from "@/features/desktop-shell/inspector/desktopnew-gradient-controls"
 import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-ui"
+import { SettingsOptionShelf } from "@/features/desktop-shell/inspector/mobile-settings-rail"
 import { cn } from "@/lib/utils"
 import { blobUrlToDataUrl } from "@qrafty/qr-internal/scene"
 import type { DotsColorMode } from "@/features/qr-code/model/state"
@@ -315,10 +316,12 @@ function ModulePatternPicker({
 }) {
   return (
     <div className="flex w-full min-w-0 flex-col gap-2">
-      <div
-        aria-label="Pattern options"
-        className="dn-pattern-option-grid grid grid-cols-6 gap-0"
-        role="group"
+      <SettingsOptionShelf
+        activeKey={selectedPreset}
+        ariaLabel="Pattern options"
+        dataSlot="fill-picker-pattern-grid"
+        gridClassName="dn-pattern-option-grid"
+        persistKey="fill-picker-patterns"
       >
         {DESKTOP_DOTS_PALETTE_PRESETS.map((option) => {
           const isSelected =
@@ -342,7 +345,7 @@ function ModulePatternPicker({
             </button>
           )
         })}
-      </div>
+      </SettingsOptionShelf>
       <PaletteColorStopList
         colors={selectedPalette}
         onPaletteColorChange={onPaletteColorChange}

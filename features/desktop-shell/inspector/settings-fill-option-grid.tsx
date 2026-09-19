@@ -12,6 +12,7 @@ import { DESKTOP_DOTS_PALETTE_PRESETS } from "@/features/desktop-shell/inspector
 import { isGradientFill } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { getActiveFillPresetForStoredValue } from "@/features/desktop-shell/inspector/settings-fill-preset-match"
 import { SETTINGS_FILL_PRESETS } from "@/features/desktop-shell/inspector/settings-fill-presets"
+import { SettingsOptionShelf } from "@/features/desktop-shell/inspector/mobile-settings-rail"
 import { PaletteColorBarPreview } from "@/features/desktop-shell/inspector/palette-color-bar-preview"
 import {
   SETTINGS_FILL_OPTION_TILE_INNER,
@@ -105,11 +106,14 @@ function FillOptionGridPlusButton({ onOpenPicker }: { onOpenPicker: () => void }
 }
 
 export function SettingsFillOptionGrid({
+  label,
   onOpenPicker,
   onSelect,
+  persistKey,
   presets = SETTINGS_FILL_PRESETS,
   value,
 }: {
+  label?: string
   onOpenPicker?: () => void
   onSelect: (fill: Fill, css: string) => void
   persistKey?: string
@@ -122,11 +126,13 @@ export function SettingsFillOptionGrid({
   )
 
   return (
-    <div
-      aria-label="Fill options"
-      className="dn-fill-option-grid grid grid-cols-6 gap-0"
-      data-slot="fill-option-grid"
-      role="group"
+    <SettingsOptionShelf
+      activeKey={activePreset ?? undefined}
+      ariaLabel="Fill options"
+      dataSlot="fill-option-grid"
+      gridClassName="dn-fill-option-grid"
+      label={label}
+      persistKey={persistKey}
     >
       {onOpenPicker ? (
         <FillOptionGridPlusButton onOpenPicker={onOpenPicker} />
@@ -158,28 +164,39 @@ export function SettingsFillOptionGrid({
           </button>
         )
       })}
-    </div>
+    </SettingsOptionShelf>
   )
 }
 
 export function SettingsPatternOptionGrid({
+  label,
   leadingAction,
   onSelect,
+  persistKey,
   selectedPalette,
   selectedPreset,
 }: {
+  label?: string
   leadingAction?: ReactNode
   onSelect: (preset: { label: string; colors: string[] }) => void
   persistKey?: string
   selectedPalette: string[]
   selectedPreset: string | "custom"
 }) {
+  const activePreset = DESKTOP_DOTS_PALETTE_PRESETS.find(
+    (option) =>
+      selectedPreset === option.label ||
+      (selectedPreset === "custom" && selectedPalette.join() === option.colors.join()),
+  )
+
   return (
-    <div
-      aria-label="Pattern options"
-      className="dn-pattern-option-grid grid grid-cols-6 gap-0"
-      data-slot="pattern-option-grid"
-      role="group"
+    <SettingsOptionShelf
+      activeKey={activePreset?.label}
+      ariaLabel="Pattern options"
+      dataSlot="pattern-option-grid"
+      gridClassName="dn-pattern-option-grid"
+      label={label}
+      persistKey={persistKey}
     >
       {leadingAction}
 
@@ -204,18 +221,21 @@ export function SettingsPatternOptionGrid({
           </button>
         )
       })}
-    </div>
+    </SettingsOptionShelf>
   )
 }
 
 export function SettingsImageOptionGrid({
   hideUploadTile = false,
+  label,
   onClear,
   onSelect,
   onUpload,
+  persistKey,
   selectedPath,
 }: {
   hideUploadTile?: boolean
+  label?: string
   onClear: () => void
   onSelect: (imagePath: string) => void
   onUpload: (imageUrl: string) => void
@@ -226,11 +246,13 @@ export function SettingsImageOptionGrid({
     selectedPath && !isSceneWallpaperPath(selectedPath) ? selectedPath : ""
 
   return (
-    <div
-      aria-label="Image options"
-      className="dn-fill-option-grid grid grid-cols-6 gap-0"
-      data-slot="image-option-grid"
-      role="group"
+    <SettingsOptionShelf
+      activeKey={selectedPath}
+      ariaLabel="Image options"
+      dataSlot="image-option-grid"
+      gridClassName="dn-fill-option-grid"
+      label={label}
+      persistKey={persistKey}
     >
       {hideUploadTile ? null : (
         <SettingsImageUploadTile
@@ -265,6 +287,6 @@ export function SettingsImageOptionGrid({
           </button>
         )
       })}
-    </div>
+    </SettingsOptionShelf>
   )
 }

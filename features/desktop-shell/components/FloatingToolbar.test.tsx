@@ -508,6 +508,57 @@ describe("FloatingToolbar", () => {
       "0px",
     )
   })
+
+  it("keeps six-column desktop option grids out of mobile family pages", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
+
+    for (const label of ["Content", "Style", "Color", "Motion", "Shape", "Background"]) {
+      const section = await openMobileFamily(drawerRoot, label)
+
+      expect(
+        section.querySelectorAll('[class*="grid-cols-6"]').length,
+        `${label} should not lay options out in a six-column desktop grid`,
+      ).toBe(0)
+    }
+  })
+
+  it("lays visual option families out in horizontal rails", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
+
+    for (const label of ["Style", "Color", "Shape", "Background"]) {
+      const section = await openMobileFamily(drawerRoot, label)
+
+      expect(
+        section.querySelectorAll('[data-slot="mobile-settings-rail"]').length,
+        `${label} should expose at least one horizontal rail`,
+      ).toBeGreaterThan(0)
+    }
+  })
+
+  it("gives rail-laid family pages a scroll fallback instead of clipping them", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
+    const frame = drawerRoot?.querySelector("[data-overflow]")
+
+    // A capped drawer must never hide controls: overflow stays scrollable so a
+    // family that outgrows the cap on a short viewport degrades to scrolling
+    // rather than silently losing its last rows.
+    expect(frame).toBeNull()
+
+    await openMobileFamily(drawerRoot, "Style")
+
+    const scroller = Array.from(
+      drawerRoot?.querySelectorAll<HTMLElement>(".overflow-y-auto") ?? [],
+    ).find((node) => !node.closest(".hidden"))
+
+    expect(scroller).not.toBeUndefined()
+    expect(scroller?.className).not.toContain("overflow-y-hidden")
+  })
 })
 
 async function renderPrototype({
@@ -525,6 +576,30 @@ async function renderPrototype({
       />
     </DesktopCuelumeProvider>,
   )
+}
+
+async function openMobileFamily(drawerRoot: Element | null, label: string) {
+  const tile = Array.from(drawerRoot?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
+    (candidate) => candidate.textContent?.trim() === label,
+  )
+
+  if (!tile) {
+    throw new Error(`Missing mobile drawer menu tile: ${label}`)
+  }
+
+  await act(async () => {
+    tile.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+  })
+
+  const section = Array.from(
+    drawerRoot?.querySelectorAll<HTMLElement>(".desktopnew-root[data-mobile-inspector]") ?? [],
+  ).find((node) => node !== drawerRoot && !node.closest(".hidden"))
+
+  if (!section) {
+    throw new Error(`Missing mobile drawer section view: ${label}`)
+  }
+
+  return section
 }
 
 function getRequiredElement(container: HTMLElement, selector: string) {
