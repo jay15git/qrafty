@@ -29,7 +29,7 @@ const STOP_COUNT = 10;
 const DRAG_COMMIT_MIN_INTERVAL_MS = 90;
 const HANDLE_START = 8;
 const HANDLE_END_INSET = 12;
-const TEXT_INSET = 20;
+const TEXT_INSET = 12;
 // Matches RangeSlider's bouncy grab and release feedback.
 const SPRING_BOUNCY = { type: "spring", stiffness: 500, damping: 14, mass: 0.7 } as const;
 
@@ -336,13 +336,13 @@ export function InlineSlider({
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 text-foreground">
         <span
           ref={labelRef}
-          className="absolute left-5 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-sm font-medium leading-5"
+          className="absolute left-3 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-sm font-medium leading-5"
         >
           {label}
         </span>
         <span
           ref={readoutRef}
-          className="absolute right-5 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-[13px] font-semibold leading-[18px] tracking-tight tabular-nums"
+          className="absolute right-3 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-[13px] font-semibold leading-[18px] tracking-tight tabular-nums"
         >
           {format(current)}
         </span>
@@ -358,7 +358,7 @@ export function InlineSlider({
         aria-hidden="true"
         animate={reduce ? undefined : { scaleY: dragging ? 1.35 : 1 }}
         transition={SPRING_BOUNCY}
-        className="pointer-events-none absolute left-0 top-2 h-6 w-1 text-foreground"
+        className="pointer-events-none absolute left-0 top-1/2 h-[1.125rem] w-1 -translate-y-1/2 text-foreground"
         style={{ x: handleX }}
       >
         <motion.span className="absolute top-0 size-1 rounded-full bg-current" style={{ y: reduce ? 0 : capTop }} />

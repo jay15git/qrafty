@@ -579,8 +579,10 @@
    registers (bg-muted, bg-foreground/*), so its track, fill and tick dots
    render transparent. Paint them from the dn tokens instead. */
 .dn-settings-inline-slider {
-  background: var(--dn-control);
+  background: var(--dn-slider-bg);
   color: var(--dn-fg);
+  border-radius: var(--dn-radius-sm);
+  corner-shape: squircle;
   /* Horizontal-drag affordance only: no grab/grabbing hand. Unlayered, so it
      also beats the component's `active:cursor-grabbing`. */
   cursor: ew-resize;
@@ -592,21 +594,34 @@
   cursor: ew-resize !important;
 }
 
+.dn-settings-inline-slider > div[aria-hidden="true"]:first-child {
+  border-radius: calc(var(--dn-radius-sm) - 2px);
+  corner-shape: squircle;
+}
+
 .dn-settings-inline-slider [class*="bg-foreground/15"] {
-  background: color-mix(in srgb, var(--dn-fg) 15%, transparent);
+  background: color-mix(in srgb, var(--dn-fg) 7%, transparent);
 }
 
 .dn-settings-inline-slider [class*="bg-foreground/25"] {
-  background: color-mix(in srgb, var(--dn-fg) 25%, transparent);
+  background: color-mix(in srgb, var(--dn-fg) 12%, transparent);
 }
 
 /* Inline label and readout follow the settings label tokens instead of the
    component's text-sm / text-[13px] pair. */
-.dn-settings-inline-slider > div[aria-hidden="true"]:nth-of-type(2) > span:nth-child(1),
+.dn-settings-inline-slider > div[aria-hidden="true"]:nth-of-type(2) > span:nth-child(1) {
+  font-size: var(--dn-type-meta);
+  font-weight: var(--dn-type-label-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color);
+}
+
 .dn-settings-inline-slider > div[aria-hidden="true"]:nth-of-type(2) > span:nth-child(2) {
-  font-size: var(--dn-type-body);
+  font-size: var(--dn-type-value);
   font-weight: var(--dn-type-value-weight);
   line-height: 1;
+  font-variant-numeric: tabular-nums;
   letter-spacing: var(--dn-tracking-tight);
   color: var(--dn-type-value-color);
 }

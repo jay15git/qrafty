@@ -1738,7 +1738,7 @@ export function SettingsSwitchRow({
   )
 }
 
-export const SETTINGS_INLINE_SLIDER_CLASS = "dn-settings-inline-slider w-full"
+export const SETTINGS_INLINE_SLIDER_CLASS = "dn-settings-inline-slider h-9 w-full"
 
 const INLINE_SLIDER_TICK_INTERVAL_MS = 80
 
