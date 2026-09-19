@@ -504,7 +504,14 @@ function MotionColorControls({
   )
 }
 
-export function ContentSection({ model }: { model: DesktopInspectorModel }) {
+export function ContentSection({
+  model,
+  hideContentTypeBrowser = false,
+}: {
+  model: DesktopInspectorModel
+  /** The mobile rail owns content-type choice, so the drawer drops the browser. */
+  hideContentTypeBrowser?: boolean
+}) {
   const {
     actualContentType,
     actualContentValues,
@@ -517,7 +524,9 @@ export function ContentSection({ model }: { model: DesktopInspectorModel }) {
 
   return (
     <div className={SECTION_STACK}>
-      <ContentTypeBrowser selected={actualContentType} onSelect={onContentTypeChange} />
+      {hideContentTypeBrowser ? null : (
+        <ContentTypeBrowser selected={actualContentType} onSelect={onContentTypeChange} />
+      )}
       <SettingsTabPanel activeKey={normalizedContentType}>
         <DesktopNewContentFields
           contentType={actualContentType}
@@ -1309,14 +1318,16 @@ export function MotionSection({ model }: { model: DesktopInspectorModel }) {
 export function SettingsSectionBody({
   id,
   model,
+  hideContentTypeBrowser = false,
 }: {
   id: string
   model: DesktopInspectorModel
+  hideContentTypeBrowser?: boolean
 }) {
   let body = null
   switch (id) {
     case "Content":
-      body = <ContentSection model={model} />
+      body = <ContentSection hideContentTypeBrowser={hideContentTypeBrowser} model={model} />
       break
     case "QR":
       body = <QrStyleSection model={model} />

@@ -30,7 +30,7 @@ function isMobileChromeInsetsReady() {
     return true
   }
 
-  if (document.querySelector('[data-slot="mobile-family-drawer-root"]') === null) {
+  if (document.querySelector('[data-slot="mobile-settings-rail-root"]') === null) {
     return true
   }
 

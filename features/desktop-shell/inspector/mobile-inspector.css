@@ -1,5 +1,14 @@
 /* Phone-scale settings density — scoped to mobile FamilyDrawer host and its portalled surfaces. */
 
+/* Mobile icon-button fill: pure white on light, pure black on dark. */
+[data-mobile-inspector] {
+  --dn-mobile-button-bg: #ffffff;
+}
+
+[data-mobile-inspector][data-theme="dark"] {
+  --dn-mobile-button-bg: #000000;
+}
+
 [data-slot="mobile-family-drawer-root"].desktopnew-root {
   min-height: 0;
   height: auto;
@@ -66,17 +75,17 @@
   --dn-type-caption: 0.9375rem;
   --dn-type-meta: 0.8125rem;
   --dn-type-value: 1rem;
-  --dn-type-section: 1.1875rem;
+  --dn-type-section: 1.125rem;
   --dn-type-body: 1rem;
-  --dn-space-stack: 0.5rem;
-  --dn-space-inline: 0.375rem;
-  --dn-control-height: 3rem;
-  --dn-control-height-compact: 3rem;
-  --dn-tab-height: 2.75rem;
-  --dn-preview-tile: 4.25rem;
-  --dn-card-tile: 9rem;
-  --dn-icon-hit: 2.75rem;
-  --dn-row-px: 1rem;
+  --dn-space-stack: 0.4375rem;
+  --dn-space-inline: 0.3125rem;
+  --dn-control-height: 2.5rem;
+  --dn-control-height-compact: 2.25rem;
+  --dn-tab-height: 2.25rem;
+  --dn-preview-tile: 3rem;
+  --dn-card-tile: 6.5rem;
+  --dn-icon-hit: 2.5rem;
+  --dn-row-px: 0.875rem;
   --dn-radius-xs: 12px;
   --dn-radius-sm: 14px;
   --dn-radius-md: 16px;
@@ -151,21 +160,39 @@
   min-height: 0;
 }
 
+/* Content-type tabs read as icon-over-label circles, matching the settings
+   rail. The sliding pill is retired for this bar. */
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-tab-bar .t-tabs-pill,
+.dn-portal-surface[data-mobile-inspector] .dn-content-type-tab-bar .t-tabs-pill,
+.desktopnew-root[data-mobile-inspector] .dn-content-type-tab-bar .t-tabs-pill {
+  display: none;
+}
+
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-tab,
 .dn-portal-surface[data-mobile-inspector] .dn-content-type-segment-tab,
 .desktopnew-root[data-mobile-inspector] .dn-content-type-segment-tab {
-  min-width: 0;
-  min-height: var(--dn-control-height);
-  height: var(--dn-control-height);
-  padding-inline: 0.875rem;
-  gap: 0.5rem;
+  width: 3.5rem;
+  min-width: 3.5rem;
+  min-height: 0;
+  height: auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.3125rem;
+  padding: 0;
+  background: transparent;
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-icon,
 .dn-portal-surface[data-mobile-inspector] .dn-content-type-segment-icon,
 .desktopnew-root[data-mobile-inspector] .dn-content-type-segment-icon {
-  width: 1.25rem;
-  height: 1.25rem;
+  box-sizing: border-box;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.75rem;
+  border-radius: 9999px;
+  corner-shape: round;
+  background: color-mix(in srgb, var(--dn-fg) 8%, transparent);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-label,
@@ -173,6 +200,19 @@
 .desktopnew-root[data-mobile-inspector] .dn-content-type-segment-label {
   font-size: var(--dn-type-caption);
   line-height: 1.15;
+  color: var(--dn-muted);
+}
+
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  .dn-content-type-segment-tab[aria-selected="true"]
+  .dn-content-type-segment-label,
+.dn-portal-surface[data-mobile-inspector]
+  .dn-content-type-segment-tab[aria-selected="true"]
+  .dn-content-type-segment-label,
+.desktopnew-root[data-mobile-inspector]
+  .dn-content-type-segment-tab[aria-selected="true"]
+  .dn-content-type-segment-label {
+  color: var(--dn-fg);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-option-tile,
@@ -368,18 +408,18 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.375rem;
+  gap: 0.25rem;
   width: auto;
-  min-width: 4.25rem;
+  min-width: 3.25rem;
   height: auto;
-  min-height: 4.25rem;
-  padding: 0.5rem 0.625rem;
-  font-size: 0.6875rem;
+  min-height: 3.25rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.625rem;
   font-weight: 500;
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-menu-tile__label {
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   font-weight: 500;
   line-height: 1.15;
   text-align: center;
@@ -597,4 +637,224 @@
 [data-slot="mobile-settings-rail"] > [data-slot="scroll-area-viewport"] {
   touch-action: pan-x pinch-zoom;
   overscroll-behavior-x: contain;
+}
+
+/* ── Tab dock ────────────────────────────────────────────────────────
+   Family tabs sit at the bottom of the drawer, under the options they
+   switch, and stay pinned while the options scroll. */
+
+.dn-mobile-tab-dock {
+  position: sticky;
+  bottom: calc(-1 * max(1.25rem, env(safe-area-inset-bottom, 0px)));
+  z-index: 2;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-inline: -1.25rem;
+  padding: 0.5rem 1.25rem max(1.25rem, env(safe-area-inset-bottom, 0px));
+  background: var(--dn-bg);
+  border-top: 1px solid color-mix(in srgb, var(--dn-line) 70%, transparent);
+}
+
+.dn-mobile-tab-dock:empty {
+  display: none;
+}
+
+/* One row per docked tab bar, outermost navigation first. */
+.dn-mobile-tab-dock > * {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Sliding tabs: no track, the selected tab carries the grey pill and the
+   pill slides between tabs. Sized for a docked bar, not a control row. */
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-tab-dock .t-tabs {
+  min-height: 0;
+  height: auto;
+  gap: 0.25rem;
+  padding: 0;
+  background: transparent;
+}
+
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-tab-dock .t-tabs-pill {
+  inset-block: 0;
+  border-radius: 9999px;
+  corner-shape: round;
+  background: var(--dn-control);
+}
+
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  .dn-mobile-tab-dock
+  .t-tabs
+  > [role="tab"] {
+  margin-inline: 0;
+}
+
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-tab-dock .dn-segment-tab,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  .dn-mobile-tab-dock
+  .dn-content-type-segment-tab {
+  min-height: 2rem;
+  height: 2rem;
+  gap: 0.375rem;
+  padding-inline: 0.8125rem;
+  border-radius: 9999px;
+  corner-shape: round;
+  font-size: var(--dn-type-caption);
+  color: var(--dn-muted);
+}
+
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  .dn-mobile-tab-dock
+  .dn-segment-tab[aria-selected="true"] {
+  color: var(--dn-fg);
+}
+
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  .dn-mobile-tab-dock
+  .dn-content-type-segment-label {
+  font-size: var(--dn-type-caption);
+  line-height: 1.1;
+}
+
+/* ── Mobile settings rail ────────────────────────────────────────────
+   Persistent bottom navigation: circular icon over a short label in a
+   horizontally scrolling rail. Replaces the FamilyDrawer shell. */
+
+/* Specificity must beat `.desktopnew-root[data-theme="light"]` (0,2,0), which
+   resets the fade to `var(--dn-bg)` — pure white in light mode. */
+[data-slot="mobile-settings-rail-root"].desktopnew-root[data-mobile-inspector] {
+  left: env(safe-area-inset-left, 0px);
+  right: env(safe-area-inset-right, 0px);
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px), var(--mobile-drawer-keyboard-inset, 0px));
+  width: auto;
+  height: auto;
+  /* `.desktopnew-root` forces min-height: 100dvh; a fixed rail must not inherit it. */
+  min-height: 0;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  /* No plate behind the rail — fade into the workspace surface behind it. */
+  --scroll-edge-fade-color: var(--ws-workspace-bg, var(--dn-bg));
+  --scroll-edge-chevron-color: var(--dn-muted);
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__scroll {
+  background: transparent;
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__row {
+  display: flex;
+  /* `max-content` keeps a long row scrollable; `min-width: 100%` plus
+     `space-around` spreads a short row (e.g. Module/Eye/Frame/Logo) evenly. */
+  width: max-content;
+  min-width: 100%;
+  align-items: flex-start;
+  justify-content: space-around;
+  gap: 0.25rem;
+  padding: 0.5rem 0.625rem;
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__item {
+  display: flex;
+  flex: 0 0 auto;
+  width: 3.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--dn-fg);
+  -webkit-tap-highlight-color: transparent;
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__circle {
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  corner-shape: round;
+  background: color-mix(in srgb, var(--dn-fg) 8%, transparent);
+  color: var(--dn-fg);
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* Text pill variant: no icon, fixed slot so every pill is the same size. */
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__item--pill {
+  width: 4.25rem;
+  min-width: 4.25rem;
+  align-self: center;
+  gap: 0;
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__pill {
+  display: flex;
+  width: 100%;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 0.375rem;
+  border-radius: 9999px;
+  corner-shape: round;
+  background: color-mix(in srgb, var(--dn-fg) 8%, transparent);
+  color: var(--dn-fg);
+  font-size: var(--dn-type-caption);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* Corner actions under a drilled-in option row. The `margin-inline` centres
+   each button inside a row item slot, so X and tick line up with the first and
+   last option circles instead of with the scroller edge. */
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Horizontal padding only: vertical padding would survive a `height: 0`
+     animation under `box-sizing: border-box` and leave the rail short. */
+  overflow: hidden;
+  padding: 0 0.625rem;
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__action {
+  display: flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  margin-block: 0 0.5rem;
+  margin-inline: 0.625rem;
+  border: 0;
+  border-radius: 9999px;
+  corner-shape: round;
+  background: var(--dn-mobile-button-bg, #ffffff);
+  color: var(--dn-fg);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Labelled pill: names the family you drilled into. Inert, centred between the
+   two corner buttons by `space-between`. */
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__action--pill {
+  width: auto;
+  min-width: 0;
+  padding-inline: 0.875rem;
+  margin-inline: 0;
+  font-size: var(--dn-type-meta);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }

@@ -1,11 +1,13 @@
 "use client"
 
+import { Plus } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants"
 import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import type { DotsColorMode } from "@/features/qr-code/model/state"
+import { DesktopNewFillPicker } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
 import { isGradientFill } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import {
   SettingsImageOptionGrid,
@@ -18,12 +20,15 @@ import {
   SETTINGS_FILL_SOLID_PRESETS,
 } from "@/features/desktop-shell/inspector/settings-fill-presets"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
+import { SETTINGS_FILL_OPTION_TILE_INNER, SETTINGS_PREVIEW_TILE_FLUID } from "@/features/desktop-shell/inspector/settings-preview-tiles"
 import {
   SegmentTabs,
   SettingsAccordionColorPicker,
   SettingsFillPresetSection,
   SettingsLabeledSelect,
+  SettingsTilePopover,
 } from "@/features/desktop-shell/inspector/settings-ui"
+import { cn } from "@/lib/utils"
 
 export type QrColorFillModeTab =
   | "Solid"
@@ -35,6 +40,26 @@ export type QrColorFillModeTab =
 const PATTERN_ROW_SWATCH =
   "size-7 shrink-0 cursor-pointer overflow-hidden dn-squircle-xs outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-focus,var(--ring))]"
 
+const PATTERN_COLOR_SWATCH =
+  "size-8 shrink-0 cursor-pointer overflow-hidden dn-squircle-xs outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-focus,var(--ring))]"
+
+function PatternColorSwatchPreview({ color }: { color: string }) {
+  const parsed = parseColor(color) ?? { l: 0, c: 0, h: 0, alpha: 1 }
+  const preview = formatColor(parsed, "oklch")
+
+  return (
+    <span
+      aria-hidden
+      className="block size-full dn-squircle-xs"
+      style={{
+        backgroundImage: `linear-gradient(${preview}, ${preview}), ${CHECKERBOARD_SM}`,
+        backgroundSize: "auto, 6px 6px",
+      }}
+    />
+  )
+}
+
+/** Desktop accordion row: each palette swatch opens its own picker. */
 function PatternRowSwatch({
   color,
   index,
@@ -44,9 +69,6 @@ function PatternRowSwatch({
   index: number
   onPaletteColorChange: (index: number, color: string) => void
 }) {
-  const parsed = parseColor(color) ?? { l: 0, c: 0, h: 0, alpha: 1 }
-  const preview = formatColor(parsed, "oklch")
-
   return (
     <SettingsAccordionColorPicker
       title={`Color ${index + 1}`}
@@ -62,16 +84,88 @@ function PatternRowSwatch({
         className={PATTERN_ROW_SWATCH}
         type="button"
       >
-        <span
-          aria-hidden
-          className="block size-full dn-squircle-xs"
-          style={{
-            backgroundImage: `linear-gradient(${preview}, ${preview}), ${CHECKERBOARD_SM}`,
-            backgroundSize: "auto, 6px 6px",
-          }}
-        />
+        <PatternColorSwatchPreview color={color} />
       </button>
     </SettingsAccordionColorPicker>
+  )
+}
+
+/** Palette editing for the Pattern fill: swatch strip on top, solid picker
+ *  below, retargeted by the selected swatch. */
+function PatternColorPickerContent({
+  onPaletteColorChange,
+  selectedPalette,
+}: {
+  onPaletteColorChange: (index: number, color: string) => void
+  selectedPalette: string[]
+}) {
+  const [index, setIndex] = useState(0)
+  const active = Math.min(index, selectedPalette.length - 1)
+
+  return (
+    <div className="flex w-full flex-col gap-3">
+      <div
+        aria-label="Pattern colors"
+        className="flex w-full items-center justify-between gap-2"
+        role="group"
+      >
+        {selectedPalette.map((color, colorIndex) => (
+          <button
+            key={`pattern-color-${colorIndex}`}
+            aria-label={`Edit color ${colorIndex + 1}`}
+            aria-pressed={colorIndex === active}
+            className={cn(PATTERN_COLOR_SWATCH, "dn-preview-tile")}
+            type="button"
+            onClick={() => setIndex(colorIndex)}
+          >
+            <PatternColorSwatchPreview color={color} />
+          </button>
+        ))}
+      </div>
+      <DesktopNewFillPicker
+        key={active}
+        solidOnly
+        value={selectedPalette[active] ?? "#000000"}
+        onValueChange={(fill) => {
+          if (fill.kind === "color") {
+            onPaletteColorChange(active, formatColor(fill.color, "hex"))
+          }
+        }}
+      />
+    </div>
+  )
+}
+
+/** Mobile drawer: one plus tile ahead of the presets opens palette editing. */
+function PatternColorsPlusTile({
+  onPaletteColorChange,
+  selectedPalette,
+}: {
+  onPaletteColorChange: (index: number, color: string) => void
+  selectedPalette: string[]
+}) {
+  return (
+    <SettingsTilePopover
+      title="Pattern colors"
+      content={
+        <PatternColorPickerContent
+          selectedPalette={selectedPalette}
+          onPaletteColorChange={onPaletteColorChange}
+        />
+      }
+    >
+      <button
+        aria-label="Edit pattern colors"
+        className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
+        type="button"
+      >
+        <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
+          <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--dn-muted)_38%,transparent)] text-[var(--dn-fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--dn-muted)_55%,transparent)] dn-squircle-xs">
+            <Plus className="size-4" strokeWidth={2.5} />
+          </span>
+        </span>
+      </button>
+    </SettingsTilePopover>
   )
 }
 
@@ -195,32 +289,48 @@ export function QrColorFillControls({
           onSelect={onValueChange}
         />
       ) : modeTab === "Pattern" && modulePattern ? (
-        <>
-          <div className="flex min-h-[var(--dn-control-height)] items-center">
-            <span className="dn-row-label-text pl-[var(--dn-row-px)]">Pattern</span>
-            <div
-              aria-label="Pattern colors"
-              className="ml-auto flex items-center gap-1.5"
-              role="group"
-            >
-              {modulePattern.selectedPalette.map((color, index) => (
-                <PatternRowSwatch
-                  key={`pattern-color-${index}`}
-                  color={color}
-                  index={index}
-                  onPaletteColorChange={modulePattern.onPaletteColorChange}
-                />
-              ))}
-            </div>
-          </div>
+        mobileDensity ? (
           <SettingsPatternOptionGrid
+            leadingAction={
+              <PatternColorsPlusTile
+                selectedPalette={modulePattern.selectedPalette}
+                onPaletteColorChange={modulePattern.onPaletteColorChange}
+              />
+            }
             label="Presets"
             persistKey={`${persistKey}:pattern`}
             selectedPalette={modulePattern.selectedPalette}
             selectedPreset={modulePattern.selectedPreset}
             onSelect={(preset) => modulePattern.onSelect(preset)}
           />
-        </>
+        ) : (
+          <>
+            <div className="flex min-h-[var(--dn-control-height)] items-center">
+              <span className="dn-row-label-text pl-[var(--dn-row-px)]">Pattern</span>
+              <div
+                aria-label="Pattern colors"
+                className="ml-auto flex items-center gap-1.5"
+                role="group"
+              >
+                {modulePattern.selectedPalette.map((color, index) => (
+                  <PatternRowSwatch
+                    key={`pattern-color-${index}`}
+                    color={color}
+                    index={index}
+                    onPaletteColorChange={modulePattern.onPaletteColorChange}
+                  />
+                ))}
+              </div>
+            </div>
+            <SettingsPatternOptionGrid
+              label="Presets"
+              persistKey={`${persistKey}:pattern`}
+              selectedPalette={modulePattern.selectedPalette}
+              selectedPreset={modulePattern.selectedPreset}
+              onSelect={(preset) => modulePattern.onSelect(preset)}
+            />
+          </>
+        )
       ) : modeTab === "Image" && moduleImage ? (
         <>
           <div className="flex min-h-[var(--dn-control-height)] items-center">

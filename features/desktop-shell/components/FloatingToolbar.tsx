@@ -7,7 +7,7 @@ import { DesktopExportDownloadPopover } from "@/features/desktop-shell/component
 import {
   DesktopUtilityToolbar,
 } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
-import { MobileFamilyDrawer } from "@/features/desktop-shell/components/MobileFamilyDrawer"
+import { MobileSettingsRail } from "@/features/desktop-shell/components/MobileSettingsRail"
 import { MobileWorkspaceTopBar } from "@/features/desktop-shell/components/MobileWorkspaceTopBar"
 import { DESKTOP_UTILITY_TOOLBAR_SHELL_CLASS } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
 import { DesktopNewFloatingInspector } from "@/features/desktop-shell/inspector/DesktopNewFloatingInspector"
@@ -82,7 +82,7 @@ export function FloatingToolbar({
               model={model}
               theme={actualDesktopTheme}
             />
-            <MobileFamilyDrawer model={model} />
+            <MobileSettingsRail model={model} />
           </>
         ) : (
           <>

@@ -2,6 +2,7 @@
 
 import { ChevronRight, X } from "lucide-react"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
+import { createPortal } from "react-dom"
 import {
   forwardRef,
   useCallback,
@@ -54,6 +55,7 @@ import {
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
+import { useMobileSettingsTabDock } from "@/features/desktop-shell/inspector/mobile-settings-tab-dock"
 import {
   useMobileDrawerNavigation,
   useMobileLiveDetail,
@@ -447,35 +449,39 @@ export function SettingsFillPresetSection({
   onSelect: (fill: Fill, css: string) => void
 }) {
   const pickerRef = useRef<SettingsFillPopoverHandle>(null)
+  const mobileDensity = useMobileInspectorDensity()
 
   return (
     <>
-      <div className="flex min-h-[var(--dn-control-height)] items-center">
-        <span className="dn-row-label-text pl-[var(--dn-row-px)]">Color</span>
-        <button
-          aria-label="Color"
-          className="ml-auto size-7 shrink-0 cursor-pointer overflow-hidden dn-squircle-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-focus,var(--ring))]"
-          style={{ background: value }}
-          type="button"
-          onClick={() => pickerRef.current?.openPicker()}
-        />
-        <SettingsFillPopover
-          ref={pickerRef}
-          fillPreviewImageUrl={fillPreviewImageUrl}
-          hint="Color"
-          lockedFillMode={lockedFillMode}
-          qrGradient={qrGradient}
-          value={value}
-          variant="picker-only"
-          onValueChange={onSelect}
-        />
-      </div>
+      {mobileDensity ? null : (
+        <div className="flex min-h-[var(--dn-control-height)] items-center">
+          <span className="dn-row-label-text pl-[var(--dn-row-px)]">Color</span>
+          <button
+            aria-label="Color"
+            className="ml-auto size-7 shrink-0 cursor-pointer overflow-hidden dn-squircle-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-focus,var(--ring))]"
+            style={{ background: value }}
+            type="button"
+            onClick={() => pickerRef.current?.openPicker()}
+          />
+        </div>
+      )}
       <SettingsFillOptionGrid
         label="Presets"
         persistKey={`fill-presets:${lockedFillMode ?? "default"}`}
         presets={presets}
         value={value}
+        onOpenPicker={mobileDensity ? () => pickerRef.current?.openPicker() : undefined}
         onSelect={onSelect}
+      />
+      <SettingsFillPopover
+        ref={pickerRef}
+        fillPreviewImageUrl={fillPreviewImageUrl}
+        hint="Color"
+        lockedFillMode={lockedFillMode}
+        qrGradient={qrGradient}
+        value={value}
+        variant="picker-only"
+        onValueChange={onSelect}
       />
     </>
   )
@@ -503,6 +509,8 @@ export function SegmentTabs({
   const tabRefs = useRef(new Map<string, HTMLButtonElement>())
   const activeKeyRef = useRef("")
   const hasPositionedPill = useRef(false)
+  const mobileDensity = useMobileInspectorDensity()
+  const dockTarget = useMobileSettingsTabDock({ enabled: mobileDensity })
   const normalizedItems = normalizeSegmentTabItems(items)
   const activeItem = resolveActiveSegmentTab(normalizedItems, value) ?? normalizedItems[0]
   const activeKey = activeItem?.id ?? value
@@ -615,7 +623,7 @@ export function SegmentTabs({
     </div>
   )
 
-  if (scrollable) {
+  function wrapInScroller() {
     return (
       <ScrollArea
         className="h-auto w-full min-w-0 max-w-full overflow-hidden"
@@ -630,6 +638,14 @@ export function SegmentTabs({
         {tablist}
       </ScrollArea>
     )
+  }
+
+  if (dockTarget) {
+    return createPortal(scrollable ? wrapInScroller() : tablist, dockTarget)
+  }
+
+  if (scrollable) {
+    return wrapInScroller()
   }
 
   return tablist

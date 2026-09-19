@@ -43,7 +43,7 @@
 [data-slot="desktop-entrance-root"][data-desktop-entrance="loading"] [data-slot="desktop-dynamic-island"],
 [data-slot="desktop-entrance-root"][data-desktop-entrance="loading"] [data-slot="desktop-utility-toolbar"],
 [data-slot="desktop-entrance-root"][data-desktop-entrance="loading"] [data-slot="mobile-workspace-top-bar"],
-[data-slot="desktop-entrance-root"][data-desktop-entrance="loading"] [data-slot="mobile-family-drawer-root"] {
+[data-slot="desktop-entrance-root"][data-desktop-entrance="loading"] [data-slot="mobile-settings-rail-root"] {
   opacity: 0;
   pointer-events: none;
 }
@@ -80,7 +80,7 @@
     var(--desktop-entrance-stagger-mobile-bar) both;
 }
 
-[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="mobile-family-drawer-root"] {
+[data-slot="desktop-entrance-root"][data-desktop-entrance="revealing"] [data-slot="mobile-settings-rail-root"] {
   animation: desktop-entrance-fade-chrome var(--desktop-entrance-dur) var(--desktop-entrance-ease)
     var(--desktop-entrance-stagger-mobile-drawer) both;
 }
@@ -91,7 +91,7 @@
 [data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="desktop-dynamic-island"],
 [data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="desktop-utility-toolbar"],
 [data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="mobile-workspace-top-bar"],
-[data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="mobile-family-drawer-root"] {
+[data-slot="desktop-entrance-root"][data-desktop-entrance="done"] [data-slot="mobile-settings-rail-root"] {
   opacity: 1;
   filter: none;
   pointer-events: auto;

@@ -393,17 +393,15 @@ describe("FloatingToolbar", () => {
     expect(surface.container.querySelector('[data-slot="desktop-scan-safety-trigger"]')).toBeNull()
   })
 
-  it("renders the mobile family drawer instead of the left settings rail", async () => {
+  it("renders the mobile settings rail instead of the desktop inspector", async () => {
     stubMatchMedia(true)
     const surface = await renderPrototype()
 
-    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
-    expect(drawerRoot).not.toBeNull()
-    expect(drawerRoot?.className).toContain("rounded-[36px]")
-    expect(drawerRoot?.className).not.toContain("max-w-[361px]")
-    expect(drawerRoot?.className).toContain("desktopnew-root")
-    expect(drawerRoot?.getAttribute("data-desktop-theme")).toBe("dark")
-    expect(drawerRoot?.getAttribute("data-theme")).toBe("dark")
+    const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
+    expect(railRoot).not.toBeNull()
+    expect(railRoot?.className).toContain("desktopnew-root")
+    expect(railRoot?.getAttribute("data-desktop-theme")).toBe("dark")
+    expect(railRoot?.getAttribute("data-theme")).toBe("dark")
     expect(surface.container.querySelector('[data-slot="mobile-workspace-top-bar"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-left-toolbar-shell"]')).toBeNull()
@@ -413,6 +411,48 @@ describe("FloatingToolbar", () => {
         "data-mobile-workspace",
       ),
     ).toBe("true")
+  })
+
+  it("lists every settings family as a circular icon button in the mobile rail", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+
+    const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
+    const tabs = Array.from(
+      railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+    )
+
+    expect(tabs.map((tab) => tab.textContent?.trim())).toEqual([
+      "Content",
+      "Style",
+      "Color",
+      "Motion",
+      "Shape",
+      "Background",
+      "Elements",
+    ])
+
+    for (const tab of tabs) {
+      expect(tab.querySelector(".dn-mobile-settings-rail__circle")).not.toBeNull()
+      expect(tab.querySelector(".dn-mobile-settings-rail__label")).not.toBeNull()
+    }
+  })
+
+  it("keeps every rail button unselected so no item carries an active state", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+
+    const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
+    const tabs = Array.from(
+      railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+    )
+
+    expect(tabs).toHaveLength(7)
+
+    for (const tab of tabs) {
+      expect(tab.hasAttribute("data-active")).toBe(false)
+      expect(tab.getAttribute("aria-selected")).toBeNull()
+    }
   })
 
   it("uses workspace chrome tokens for mobile undo/redo when the root theme disagrees", async () => {
@@ -428,136 +468,79 @@ describe("FloatingToolbar", () => {
     expect(undo?.className).not.toContain("text-foreground")
   })
 
-  it("renders scroll fade cues inside the mobile drawer scroll areas", async () => {
+  it("renders scroll fade cues inside the mobile settings rail", async () => {
     stubMatchMedia(true)
     await renderPrototype()
 
-    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
-    const scrollFadeGradients = drawerRoot?.querySelectorAll(".scroll-edge-cue-gradient") ?? []
+    const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
+    const scrollFadeGradients = railRoot?.querySelectorAll(".scroll-edge-cue-gradient") ?? []
 
     expect(scrollFadeGradients.length).toBeGreaterThan(0)
   })
 
-  it("opens the QR section from the mobile family drawer menu", async () => {
+  it("swaps the mobile rail into a family's options and back", async () => {
     stubMatchMedia(true)
     await renderPrototype()
 
-    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
-    const qrButton = Array.from(drawerRoot?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
-      (button) => button.textContent?.trim() === "Style",
-    )
+    const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
+    const getLabels = () =>
+      Array.from(
+        railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+      ).map((item) => item.textContent?.trim())
 
-    expect(qrButton).not.toBeNull()
+    const contentButton = Array.from(
+      railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+    ).find((item) => item.textContent?.trim() === "Content")
+
+    expect(contentButton).not.toBeUndefined()
+    expect(getLabels()).toContain("Style")
 
     await act(async () => {
-      qrButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      contentButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
+    const optionLabels = getLabels()
+    expect(optionLabels).toContain("Link")
+    expect(optionLabels).toContain("Text")
+    expect(optionLabels).toContain("Phone")
+    expect(optionLabels).not.toContain("Style")
+    // The drilled-in row has no back item; corners carry close/next instead.
+    expect(optionLabels).not.toContain("Content")
+
+    const linkButton = Array.from(
+      railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+    ).find((item) => item.textContent?.trim() === "Link")
+
+    expect(linkButton?.querySelector(".dn-mobile-settings-rail__circle")).not.toBeNull()
+
+    const actions = railRoot?.querySelector(".dn-mobile-settings-rail__actions")
+    expect(actions).not.toBeNull()
+    expect(actions?.children).toHaveLength(3)
     expect(
-      Array.from(drawerRoot?.querySelectorAll("h2") ?? []).find(
-        (heading) => !heading.closest(".hidden"),
-      )?.textContent?.trim(),
-    ).toBe("Style")
-    expect(drawerRoot?.querySelector('button[aria-label="Back"]')).not.toBeNull()
+      actions?.querySelector('[data-slot="mobile-rail-family-pill"]')?.textContent?.trim(),
+    ).toBe("Content")
+    expect(actions?.querySelector('button[aria-label="Close options"]')).not.toBeNull()
+
+    await act(async () => {
+      actions
+        ?.querySelector<HTMLButtonElement>('button[aria-label="Close options"]')
+        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    })
+
+    expect(getLabels()).toContain("Style")
+    expect(railRoot?.querySelector(".dn-mobile-settings-rail__actions")).toBeNull()
   })
 
-  it("opens fill settings inside the mobile drawer instead of a portalled popover", async () => {
+  it("anchors the mobile settings rail above the safe area with a keyboard inset", async () => {
     stubMatchMedia(true)
     await renderPrototype()
 
-    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
-    const colorButton = Array.from(drawerRoot?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
-      (button) => button.textContent?.trim() === "Color",
-    )
+    const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
 
-    expect(colorButton).not.toBeNull()
-
-    await act(async () => {
-      colorButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-    })
-
-    const sectionRoot = drawerRoot?.querySelector('[data-mobile-inspector=""]')
-    const customFillButton = sectionRoot?.querySelector<HTMLButtonElement>(
-      'button[aria-label="Custom fill"]',
-    )
-
-    expect(customFillButton).not.toBeNull()
-
-    await act(async () => {
-      customFillButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-    })
-
-    expect(
-      Array.from(drawerRoot?.querySelectorAll("header h2") ?? []).find(
-        (heading) => !heading.closest(".hidden"),
-      )?.textContent?.trim(),
-    ).toBe("Fill")
-    expect(document.querySelector('[data-slot="popover-content"]')).toBeNull()
-    expect(drawerRoot?.querySelector(".dn-fill-picker-panel")).not.toBeNull()
-  })
-
-  it("anchors the mobile family drawer with a keyboard inset token instead of vaul leftover bottom", async () => {
-    stubMatchMedia(true)
-    await renderPrototype()
-
-    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
-
-    expect(drawerRoot).not.toBeNull()
-    expect(drawerRoot?.getAttribute("style") ?? "").toContain("--mobile-drawer-keyboard-inset")
+    expect(railRoot).not.toBeNull()
     expect(document.documentElement.style.getPropertyValue("--mobile-drawer-keyboard-inset")).toBe(
       "0px",
     )
-  })
-
-  it("keeps six-column desktop option grids out of mobile family pages", async () => {
-    stubMatchMedia(true)
-    await renderPrototype()
-    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
-
-    for (const label of ["Content", "Style", "Color", "Motion", "Shape", "Background"]) {
-      const section = await openMobileFamily(drawerRoot, label)
-
-      expect(
-        section.querySelectorAll('[class*="grid-cols-6"]').length,
-        `${label} should not lay options out in a six-column desktop grid`,
-      ).toBe(0)
-    }
-  })
-
-  it("lays visual option families out in horizontal rails", async () => {
-    stubMatchMedia(true)
-    await renderPrototype()
-    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
-
-    for (const label of ["Style", "Color", "Shape", "Background"]) {
-      const section = await openMobileFamily(drawerRoot, label)
-
-      expect(
-        section.querySelectorAll('[data-slot="mobile-settings-rail"]').length,
-        `${label} should expose at least one horizontal rail`,
-      ).toBeGreaterThan(0)
-    }
-  })
-
-  it("gives rail-laid family pages a scroll fallback instead of clipping them", async () => {
-    stubMatchMedia(true)
-    await renderPrototype()
-    const drawerRoot = document.querySelector('[data-slot="mobile-family-drawer-root"]')
-    const frame = drawerRoot?.querySelector("[data-overflow]")
-
-    // A capped drawer must never hide controls: overflow stays scrollable so a
-    // family that outgrows the cap on a short viewport degrades to scrolling
-    // rather than silently losing its last rows.
-    expect(frame).toBeNull()
-
-    await openMobileFamily(drawerRoot, "Style")
-
-    const scroller = Array.from(
-      drawerRoot?.querySelectorAll<HTMLElement>(".overflow-y-auto") ?? [],
-    ).find((node) => !node.closest(".hidden"))
-
-    expect(scroller).not.toBeUndefined()
-    expect(scroller?.className).not.toContain("overflow-y-hidden")
   })
 })
 
@@ -576,30 +559,6 @@ async function renderPrototype({
       />
     </DesktopCuelumeProvider>,
   )
-}
-
-async function openMobileFamily(drawerRoot: Element | null, label: string) {
-  const tile = Array.from(drawerRoot?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
-    (candidate) => candidate.textContent?.trim() === label,
-  )
-
-  if (!tile) {
-    throw new Error(`Missing mobile drawer menu tile: ${label}`)
-  }
-
-  await act(async () => {
-    tile.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-  })
-
-  const section = Array.from(
-    drawerRoot?.querySelectorAll<HTMLElement>(".desktopnew-root[data-mobile-inspector]") ?? [],
-  ).find((node) => node !== drawerRoot && !node.closest(".hidden"))
-
-  if (!section) {
-    throw new Error(`Missing mobile drawer section view: ${label}`)
-  }
-
-  return section
 }
 
 function getRequiredElement(container: HTMLElement, selector: string) {

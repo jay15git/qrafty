@@ -88,7 +88,13 @@ function fillPresetStyle(preset: string): CSSProperties {
   return isGradientFill(preset) ? { background: preset } : { background: preset }
 }
 
-function FillOptionGridPlusButton({ onOpenPicker }: { onOpenPicker: () => void }) {
+function FillOptionGridPlusButton({
+  customValue,
+  onOpenPicker,
+}: {
+  customValue?: string
+  onOpenPicker: () => void
+}) {
   return (
     <button
       aria-label="Custom fill"
@@ -97,8 +103,19 @@ function FillOptionGridPlusButton({ onOpenPicker }: { onOpenPicker: () => void }
       onClick={onOpenPicker}
     >
       <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
-        <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--dn-muted)_38%,transparent)] text-[var(--dn-fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--dn-muted)_55%,transparent)] dn-squircle-xs">
-          <Plus className="size-4" strokeWidth={2.5} />
+        <span
+          className="relative grid size-full place-items-center dn-squircle-xs"
+          style={customValue ? { background: customValue } : undefined}
+        >
+          {customValue ? (
+            <span className="grid size-5 place-items-center rounded-full bg-[color-mix(in_srgb,var(--dn-bg)_85%,transparent)] text-[var(--dn-fg)]">
+              <Plus className="size-3.5" strokeWidth={2.5} />
+            </span>
+          ) : (
+            <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--dn-muted)_38%,transparent)] text-[var(--dn-fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--dn-muted)_55%,transparent)] dn-squircle-xs">
+              <Plus className="size-4" strokeWidth={2.5} />
+            </span>
+          )}
         </span>
       </span>
     </button>
@@ -135,7 +152,10 @@ export function SettingsFillOptionGrid({
       persistKey={persistKey}
     >
       {onOpenPicker ? (
-        <FillOptionGridPlusButton onOpenPicker={onOpenPicker} />
+        <FillOptionGridPlusButton
+          customValue={activePreset ? undefined : value}
+          onOpenPicker={onOpenPicker}
+        />
       ) : null}
 
       {presets.map((preset) => {

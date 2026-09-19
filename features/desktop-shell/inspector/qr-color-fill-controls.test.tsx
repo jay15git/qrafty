@@ -4,6 +4,7 @@ import React, { act, type ComponentProps, type ReactNode } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { QrColorFillControls } from "@/features/desktop-shell/inspector/qr-color-fill-controls"
+import { MobileInspectorDensityContext } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { renderWithJsdomRoot } from "@/test-utils/jsdom-react-root"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 
@@ -31,10 +32,33 @@ vi.mock("@/features/desktop-shell/inspector/desktopnew-fill-picker", () => ({
   ),
 }))
 
-vi.mock("@/features/desktop-shell/inspector/settings-ui", async () => {
+vi.mock("@/features/desktop-shell/inspector/settings-ui", async (importOriginal) => {
   const React = await import("react")
+  const { SettingsFillOptionGrid } = await import(
+    "@/features/desktop-shell/inspector/settings-fill-option-grid"
+  )
+  const actual =
+    await importOriginal<typeof import("@/features/desktop-shell/inspector/settings-ui")>()
+
+  const SettingsFillPopover = React.forwardRef(function MockSettingsFillPopover(
+    { lockedFillMode }: { lockedFillMode?: string },
+    ref: React.Ref<{ openPicker: () => void }>,
+  ) {
+    const [open, setOpen] = React.useState(false)
+    React.useImperativeHandle(ref, () => ({
+      openPicker: () => setOpen(true),
+    }))
+    return (
+      <div
+        data-open={open}
+        data-locked-fill-mode={lockedFillMode}
+        data-slot="settings-fill-popover"
+      />
+    )
+  })
 
   return {
+    ...actual,
     SegmentTabs: ({
       items,
       value,
@@ -63,25 +87,32 @@ vi.mock("@/features/desktop-shell/inspector/settings-ui", async () => {
         })}
       </div>
     ),
-    SettingsFillPopover: Object.assign(
-      React.forwardRef(function MockSettingsFillPopover(
-        { lockedFillMode }: { lockedFillMode?: string },
-        ref: React.Ref<{ openPicker: () => void }>,
-      ) {
-        const [open, setOpen] = React.useState(false)
-        React.useImperativeHandle(ref, () => ({
-          openPicker: () => setOpen(true),
-        }))
-        return (
-          <div
-            data-open={open}
-            data-locked-fill-mode={lockedFillMode}
-            data-slot="settings-fill-popover"
+    SettingsFillPopover,
+    SettingsFillPresetSection: ({
+      lockedFillMode,
+      presets,
+      value,
+      onSelect,
+    }: {
+      lockedFillMode?: string
+      presets: readonly string[]
+      value: string
+      onSelect: (fill: Fill, css: string) => void
+    }) => {
+      const pickerRef = React.useRef<{ openPicker: () => void }>(null)
+
+      return (
+        <>
+          <SettingsFillOptionGrid
+            presets={presets}
+            value={value}
+            onOpenPicker={() => pickerRef.current?.openPicker()}
+            onSelect={onSelect}
           />
-        )
-      }),
-      { displayName: "SettingsFillPopover" },
-    ),
+          <SettingsFillPopover ref={pickerRef} lockedFillMode={lockedFillMode} />
+        </>
+      )
+    },
     SettingsTilePopover: ({
       title,
       content,
@@ -168,29 +199,33 @@ function renderColorControls(
 ) {
   const onValueChange = vi.fn()
   const element = (
-    <QrColorFillControls
-      moduleCapable={props.moduleCapable ?? true}
-      moduleFillMode={props.moduleFillMode ?? "palette"}
-      moduleImage={props.moduleImage}
-      modulePattern={
-        props.modulePattern ?? {
-          selectedPalette: AURORA.colors,
-          selectedPreset: AURORA.label,
-          onSelect: vi.fn(),
-          onPaletteColorChange: vi.fn(),
+    <MobileInspectorDensityContext.Provider value={true}>
+      <QrColorFillControls
+        moduleCapable={props.moduleCapable ?? true}
+        moduleFillMode={props.moduleFillMode ?? "palette"}
+        moduleImage={props.moduleImage}
+        modulePattern={
+          props.modulePattern ?? {
+            selectedPalette: AURORA.colors,
+            selectedPreset: AURORA.label,
+            onSelect: vi.fn(),
+            onPaletteColorChange: vi.fn(),
+          }
         }
-      }
-      persistKey="test"
-      value={props.value ?? "#67e8f9"}
-      onValueChange={onValueChange}
-    />
+        persistKey="test"
+        value={props.value ?? "#67e8f9"}
+        onValueChange={onValueChange}
+      />
+    </MobileInspectorDensityContext.Provider>
   )
   const surface = renderWithJsdomRoot(element)
   return { ...surface, onValueChange }
 }
 
 function patternRow(surface: { container: HTMLElement }) {
-  return surface.container.querySelector('[data-slot="pattern-option-grid"][role="group"]')
+  // Desktop renders the option grid itself; the mobile drawer renders a rail
+  // row inside the shelf, so both carry the group role and label.
+  return surface.container.querySelector('[role="group"][aria-label="Pattern options"]')
 }
 
 function patternPopover(surface: { container: HTMLElement }) {
@@ -330,19 +365,21 @@ describe("QrColorFillControls Pattern tab", () => {
     expect(onSelect).toHaveBeenCalledWith(FIRE)
 
     surface.rerender(
-      <QrColorFillControls
-        moduleCapable
-        moduleFillMode="palette"
-        modulePattern={{
-          selectedPalette: FIRE.colors,
-          selectedPreset: FIRE.label,
-          onSelect,
-          onPaletteColorChange: vi.fn(),
-        }}
-        persistKey="test"
-        value="#f97316"
-        onValueChange={vi.fn()}
-      />,
+      <MobileInspectorDensityContext.Provider value={true}>
+        <QrColorFillControls
+          moduleCapable
+          moduleFillMode="palette"
+          modulePattern={{
+            selectedPalette: FIRE.colors,
+            selectedPreset: FIRE.label,
+            onSelect,
+            onPaletteColorChange: vi.fn(),
+          }}
+          persistKey="test"
+          value="#f97316"
+          onValueChange={vi.fn()}
+        />
+      </MobileInspectorDensityContext.Provider>,
     )
 
     const fireTile = surface.container.querySelector<HTMLButtonElement>(
@@ -439,5 +476,31 @@ describe("QrColorFillControls Solid/Gradient/Image tabs", () => {
     expect(surface.container.querySelector('[aria-label="Pattern"]')).toBeNull()
     expect(surface.container.querySelector('[aria-label="Image"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="pattern-colors-popover"]')).toBeNull()
+  })
+})
+
+describe("QrColorFillControls desktop accordion", () => {
+  it("keeps per-swatch pattern pickers and no plus tiles outside the drawer", () => {
+    const surface = renderWithJsdomRoot(
+      <QrColorFillControls
+        moduleCapable
+        moduleFillMode="palette"
+        modulePattern={{
+          selectedPalette: AURORA.colors,
+          selectedPreset: AURORA.label,
+          onSelect: vi.fn(),
+          onPaletteColorChange: vi.fn(),
+        }}
+        persistKey="test"
+        value="#67e8f9"
+        onValueChange={vi.fn()}
+      />,
+    )
+
+    expect(surface.container.querySelector('[aria-label="Edit pattern colors"]')).toBeNull()
+    expect(
+      surface.container.querySelectorAll('[aria-label^="Edit color "]').length,
+    ).toBe(AURORA.colors.length)
+    expect(surface.container.querySelector('button[aria-label="Custom fill"]')).toBeNull()
   })
 })
