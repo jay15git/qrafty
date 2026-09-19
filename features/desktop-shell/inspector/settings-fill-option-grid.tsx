@@ -110,7 +110,7 @@ export function SettingsFillOptionGrid({
   presets = SETTINGS_FILL_PRESETS,
   value,
 }: {
-  onOpenPicker: () => void
+  onOpenPicker?: () => void
   onSelect: (fill: Fill, css: string) => void
   persistKey?: string
   presets?: readonly string[]
@@ -128,7 +128,9 @@ export function SettingsFillOptionGrid({
       data-slot="fill-option-grid"
       role="group"
     >
-      <FillOptionGridPlusButton onOpenPicker={onOpenPicker} />
+      {onOpenPicker ? (
+        <FillOptionGridPlusButton onOpenPicker={onOpenPicker} />
+      ) : null}
 
       {presets.map((preset) => {
         const isSelected = activePreset === preset
@@ -207,11 +209,13 @@ export function SettingsPatternOptionGrid({
 }
 
 export function SettingsImageOptionGrid({
+  hideUploadTile = false,
   onClear,
   onSelect,
   onUpload,
   selectedPath,
 }: {
+  hideUploadTile?: boolean
   onClear: () => void
   onSelect: (imagePath: string) => void
   onUpload: (imageUrl: string) => void
@@ -228,12 +232,14 @@ export function SettingsImageOptionGrid({
       data-slot="image-option-grid"
       role="group"
     >
-      <SettingsImageUploadTile
-        fluid
-        imageUrl={customImageUrl}
-        onClear={onClear}
-        onUpload={onUpload}
-      />
+      {hideUploadTile ? null : (
+        <SettingsImageUploadTile
+          fluid
+          imageUrl={customImageUrl}
+          onClear={onClear}
+          onUpload={onUpload}
+        />
+      )}
 
       {SCENE_WALLPAPERS.map((wallpaper) => {
         const isSelected = selectedPath === wallpaper.path

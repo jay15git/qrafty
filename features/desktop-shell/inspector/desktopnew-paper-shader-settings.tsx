@@ -8,6 +8,8 @@ import {
 import {
   addPaperShaderColor,
   DEFAULT_PAPER_SHADER_MAX_COLOR_COUNT,
+  DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT,
+  removePaperShaderColor,
 } from "@/features/workspace/rendering/paper-shader-colors"
 import {
   formatPaperShaderParamLabel,
@@ -23,6 +25,7 @@ import { PaperShaderColorGrid } from "@/features/desktop-shell/inspector/paper-s
 import {
   PresetList,
   SettingsFillPopover,
+  SettingsLabeledSelect,
   SettingsPrimaryButton,
   SettingsRowPopover,
   SettingsSlider,
@@ -79,7 +82,7 @@ function HorizontalShaderOptionRow({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      {label ? <span className="dn-type-label">{label}</span> : null}
+      {label ? <span className="dn-row-label-text">{label}</span> : null}
       <ScrollArea
         className="w-full min-w-0 max-w-full overflow-hidden"
         chevron={false}
@@ -204,7 +207,7 @@ function DesktopNewPaperShaderParamControl({
   if (control.type === "enum" && typeof value === "string") {
     return (
       <div className="flex flex-col gap-1.5">
-        <span className="dn-type-label">{label}</span>
+        <span className="dn-row-label-text">{label}</span>
         <PresetList
           items={control.options.map((option) => formatPaperShaderParamLabel(option))}
           selected={formatPaperShaderParamLabel(value)}
@@ -287,7 +290,6 @@ export function SettingsPaperShaderControls({
           maxColorCount={maxColorCount}
           namedColorControls={namedColorControls}
           paperShaderParams={paperShader.params}
-          persistKey={`paper-shader-colors:${paperShader.shaderId}`}
           showPalette={hasPaletteColors}
           onAddColor={
             hasPaletteColors
@@ -309,6 +311,16 @@ export function SettingsPaperShaderControls({
             }
           }}
           onNamedColorChange={(key, color) => updateParam(key, color)}
+          onRemoveColor={(index) => {
+            const next = removePaperShaderColor(
+              paletteColors ?? [],
+              index,
+              DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT,
+            )
+            if (next && colorsControl) {
+              updateParam(colorsControl.key, next)
+            }
+          }}
         />
       )
     : null
@@ -399,14 +411,12 @@ export function SettingsPaperShaderControls({
 
   return (
     <div className={SECTION_GAP}>
-      <HorizontalShaderOptionRow
-        persistKey={`paper-shader-presets:${paperShader.shaderId}`}
-        items={definition.presets.map((preset) => ({
-          value: preset.name,
-          label: preset.name,
-        }))}
-        selected={selectedPreset?.name ?? paperShader.presetName}
-        onSelect={(presetName) =>
+      <SettingsLabeledSelect
+        items={definition.presets.map((preset) => preset.name)}
+        label="Preset"
+        placeholder="Preset"
+        value={selectedPreset?.name ?? paperShader.presetName}
+        onChange={(presetName) =>
           onPaperShaderChange(applyDraftingCardPaperShaderPreset(paperShader, presetName))
         }
       />

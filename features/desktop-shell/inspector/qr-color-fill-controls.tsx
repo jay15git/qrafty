@@ -1,14 +1,6 @@
 "use client"
 
-import { Plus } from "lucide-react"
-import { useContext, useEffect, useRef, useState } from "react"
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select"
+import { useEffect, useRef, useState } from "react"
 
 import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants"
 import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"
@@ -16,8 +8,8 @@ import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import type { DotsColorMode } from "@/features/qr-code/model/state"
 import { isGradientFill } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import {
-  SettingsFillOptionGrid,
   SettingsImageOptionGrid,
+  SettingsImageUploadTile,
   SettingsPatternOptionGrid,
 } from "@/features/desktop-shell/inspector/settings-fill-option-grid"
 import {
@@ -25,19 +17,12 @@ import {
   SETTINGS_FILL_RADIAL_PRESETS,
   SETTINGS_FILL_SOLID_PRESETS,
 } from "@/features/desktop-shell/inspector/settings-fill-presets"
-import {
-  SETTINGS_FILL_OPTION_TILE,
-  SETTINGS_FILL_OPTION_TILE_INNER,
-} from "@/features/desktop-shell/inspector/settings-preview-tiles"
-import { DesktopNewFillPicker } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
-import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
-import { cn } from "@/lib/utils"
 import {
   SegmentTabs,
-  SettingsFillPopover,
-  SettingsTilePopover,
-  type SettingsFillPopoverHandle,
+  SettingsAccordionColorPicker,
+  SettingsFillPresetSection,
+  SettingsLabeledSelect,
 } from "@/features/desktop-shell/inspector/settings-ui"
 
 export type QrColorFillModeTab =
@@ -47,61 +32,46 @@ export type QrColorFillModeTab =
   | "Pattern"
   | "Image"
 
-const PATTERN_COLOR_SWATCH =
-  "dn-preview-tile dn-squircle-xs size-9 shrink-0 p-1 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+const PATTERN_ROW_SWATCH =
+  "size-7 shrink-0 cursor-pointer overflow-hidden dn-squircle-xs outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-focus,var(--ring))]"
 
-function PatternColorPickerContent({
-  selectedPalette,
+function PatternRowSwatch({
+  color,
+  index,
   onPaletteColorChange,
 }: {
-  selectedPalette: string[]
+  color: string
+  index: number
   onPaletteColorChange: (index: number, color: string) => void
 }) {
-  const [index, setIndex] = useState(0)
-  const active = Math.min(index, selectedPalette.length - 1)
+  const parsed = parseColor(color) ?? { l: 0, c: 0, h: 0, alpha: 1 }
+  const preview = formatColor(parsed, "oklch")
 
   return (
-    <div className="flex w-full flex-col gap-3">
-      <div
-        aria-label="Pattern colors"
-        className="flex w-full items-center justify-between"
-        role="group"
+    <SettingsAccordionColorPicker
+      title={`Color ${index + 1}`}
+      value={color}
+      onValueChange={(fill) => {
+        if (fill.kind === "color") {
+          onPaletteColorChange(index, formatColor(fill.color, "hex"))
+        }
+      }}
+    >
+      <button
+        aria-label={`Edit color ${index + 1}`}
+        className={PATTERN_ROW_SWATCH}
+        type="button"
       >
-        {selectedPalette.map((color, i) => {
-          const parsed = parseColor(color) ?? { l: 0, c: 0, h: 0, alpha: 1 }
-          const preview = formatColor(parsed, "oklch")
-          return (
-            <button
-              key={`pattern-color-${i}`}
-              type="button"
-              aria-label={`Edit color ${i + 1}`}
-              aria-pressed={i === active}
-              className={PATTERN_COLOR_SWATCH}
-              onClick={() => setIndex(i)}
-            >
-              <span
-                aria-hidden
-                className="block size-full dn-squircle-xs"
-                style={{
-                  backgroundImage: `linear-gradient(${preview}, ${preview}), ${CHECKERBOARD_SM}`,
-                  backgroundSize: "auto, 6px 6px",
-                }}
-              />
-            </button>
-          )
-        })}
-      </div>
-      <DesktopNewFillPicker
-        key={active}
-        solidOnly
-        value={selectedPalette[active] ?? "#000000"}
-        onValueChange={(fill) => {
-          if (fill.kind === "color") {
-            onPaletteColorChange(active, formatColor(fill.color, "hex"))
-          }
-        }}
-      />
-    </div>
+        <span
+          aria-hidden
+          className="block size-full dn-squircle-xs"
+          style={{
+            backgroundImage: `linear-gradient(${preview}, ${preview}), ${CHECKERBOARD_SM}`,
+            backgroundSize: "auto, 6px 6px",
+          }}
+        />
+      </button>
+    </SettingsAccordionColorPicker>
   )
 }
 
@@ -154,9 +124,7 @@ export function QrColorFillControls({
     onClear: () => void
   }
 }) {
-  const pickerRef = useRef<SettingsFillPopoverHandle>(null)
   const mobileDensity = useMobileInspectorDensity()
-  const theme = useContext(DesktopnewThemeContext)
   const modeTabs = moduleCapable
     ? (["Solid", "Linear", "Radial", "Pattern", "Image"] as const)
     : (["Solid", "Linear", "Radial"] as const)
@@ -181,10 +149,6 @@ export function QrColorFillControls({
     setModeTab(moduleFillModeToTab(moduleFillMode, value))
   }, [moduleCapable, moduleFillMode, value])
 
-  function openPicker() {
-    pickerRef.current?.openPicker()
-  }
-
   return (
     <div className="dn-section-stack w-full min-w-0 max-w-full">
       {mobileDensity ? (
@@ -194,104 +158,99 @@ export function QrColorFillControls({
           onChange={(nextTab) => setModeTab(nextTab as QrColorFillModeTab)}
         />
       ) : (
-        <div className="dn-content-type-select w-full min-w-0">
-          <Select
-            value={modeTab}
-            onValueChange={(next) => setModeTab(next as QrColorFillModeTab)}
-          >
-            <SelectTrigger
-              className="dn-content-type-select-trigger w-full min-w-0 dn-squircle-sm"
-              placeholder="Fill"
-              variant="borderless"
-            />
-            <SelectContent
-              className={cn(
-                "dn-portal-surface desktopnew-popover-content overflow-hidden p-0 dn-squircle-md",
-                theme === "dark" && "dark",
-              )}
-              data-theme={theme}
-            >
-              {modeTabs.map((item, index) => (
-                <SelectItem key={item} index={index} value={item}>
-                  {item}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SettingsLabeledSelect
+          items={modeTabs}
+          label="Fill"
+          placeholder="Fill"
+          value={modeTab}
+          onChange={(next) => setModeTab(next as QrColorFillModeTab)}
+        />
       )}
 
       {modeTab === "Solid" ? (
-        <SettingsFillOptionGrid
-          persistKey={`${persistKey}:solid`}
+        <SettingsFillPresetSection
+          fillPreviewImageUrl={fillPreviewImageUrl}
+          lockedFillMode="solid"
           presets={SETTINGS_FILL_SOLID_PRESETS}
+          qrGradient={qrGradient}
           value={value}
-          onOpenPicker={openPicker}
           onSelect={onValueChange}
         />
       ) : modeTab === "Linear" ? (
-        <SettingsFillOptionGrid
-          persistKey={`${persistKey}:linear`}
+        <SettingsFillPresetSection
+          fillPreviewImageUrl={fillPreviewImageUrl}
+          lockedFillMode="gradient"
           presets={SETTINGS_FILL_LINEAR_PRESETS}
+          qrGradient={qrGradient}
           value={value}
-          onOpenPicker={openPicker}
           onSelect={onValueChange}
         />
       ) : modeTab === "Radial" ? (
-        <SettingsFillOptionGrid
-          persistKey={`${persistKey}:radial`}
+        <SettingsFillPresetSection
+          fillPreviewImageUrl={fillPreviewImageUrl}
+          lockedFillMode="gradient"
           presets={SETTINGS_FILL_RADIAL_PRESETS}
+          qrGradient={qrGradient}
           value={value}
-          onOpenPicker={openPicker}
           onSelect={onValueChange}
         />
       ) : modeTab === "Pattern" && modulePattern ? (
-        <SettingsPatternOptionGrid
-          leadingAction={
-            <SettingsTilePopover
-              title="Pattern colors"
-              content={
-                <PatternColorPickerContent
-                  selectedPalette={modulePattern.selectedPalette}
+        <>
+          <div className="flex min-h-[var(--dn-control-height)] items-center">
+            <span className="dn-row-label-text pl-[var(--dn-row-px)]">Pattern</span>
+            <div
+              aria-label="Pattern colors"
+              className="ml-auto flex items-center gap-1.5"
+              role="group"
+            >
+              {modulePattern.selectedPalette.map((color, index) => (
+                <PatternRowSwatch
+                  key={`pattern-color-${index}`}
+                  color={color}
+                  index={index}
                   onPaletteColorChange={modulePattern.onPaletteColorChange}
                 />
-              }
-            >
-              <button aria-label="Edit pattern colors" className={SETTINGS_FILL_OPTION_TILE} type="button">
-                <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
-                  <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--dn-muted)_38%,transparent)] text-[var(--dn-fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--dn-muted)_55%,transparent)] dn-squircle-xs">
-                    <Plus className="size-4" strokeWidth={2.5} />
-                  </span>
-                </span>
-              </button>
-            </SettingsTilePopover>
-          }
-          persistKey={`${persistKey}:pattern`}
-          selectedPalette={modulePattern.selectedPalette}
-          selectedPreset={modulePattern.selectedPreset}
-          onSelect={(preset) => modulePattern.onSelect(preset)}
-        />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="dn-row-label-text flex h-[var(--dn-control-height)] items-center px-[var(--dn-row-px)]">
+              Presets
+            </span>
+            <SettingsPatternOptionGrid
+              persistKey={`${persistKey}:pattern`}
+              selectedPalette={modulePattern.selectedPalette}
+              selectedPreset={modulePattern.selectedPreset}
+              onSelect={(preset) => modulePattern.onSelect(preset)}
+            />
+          </div>
+        </>
       ) : modeTab === "Image" && moduleImage ? (
-        <SettingsImageOptionGrid
-          persistKey={`${persistKey}:image`}
-          selectedPath={moduleImage.imageUrl}
-          onClear={moduleImage.onClear}
-          onSelect={(imagePath) => moduleImage.onUpload(imagePath, "url")}
-          onUpload={(imageUrl) => moduleImage.onUpload(imageUrl, "upload")}
-        />
-      ) : null}
-
-      {modeTab === "Solid" || modeTab === "Linear" || modeTab === "Radial" ? (
-        <SettingsFillPopover
-          ref={pickerRef}
-          fillPreviewImageUrl={fillPreviewImageUrl}
-          hint="Fill"
-          lockedFillMode={modeTab === "Solid" ? "solid" : "gradient"}
-          qrGradient={qrGradient}
-          variant="picker-only"
-          value={value}
-          onValueChange={onValueChange}
-        />
+        <>
+          <div className="flex min-h-[var(--dn-control-height)] items-center">
+            <span className="dn-row-label-text pl-[var(--dn-row-px)]">Upload</span>
+            <SettingsImageUploadTile
+              ariaLabel="Upload custom image"
+              className="dn-row-upload-tile ml-auto"
+              imageUrl={moduleImage.imageUrl}
+              onClear={moduleImage.onClear}
+              onUpload={(imageUrl) => moduleImage.onUpload(imageUrl, "upload")}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="dn-row-label-text flex h-[var(--dn-control-height)] items-center px-[var(--dn-row-px)]">
+              Presets
+            </span>
+            <SettingsImageOptionGrid
+              hideUploadTile
+              persistKey={`${persistKey}:image`}
+              selectedPath={moduleImage.imageUrl}
+              onClear={moduleImage.onClear}
+              onSelect={(imagePath) => moduleImage.onUpload(imagePath, "url")}
+              onUpload={(imageUrl) => moduleImage.onUpload(imageUrl, "upload")}
+            />
+          </div>
+        </>
       ) : null}
     </div>
   )

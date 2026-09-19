@@ -2,14 +2,12 @@
 
 import { type ReactNode } from "react"
 
-import { ElasticSlider } from "@/components/ui/elastic-slider"
 import {
   DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
   DESKTOP_INSPECTOR_LABEL_CLASS,
   DESKTOP_INSPECTOR_RADIUS_CLASS,
 } from "@/features/desktop-shell/components/desktop-inspector-tokens"
-import { playDesktopPressSound } from "@/features/desktop-shell/audio/desktop-cuelume"
-import { SETTINGS_ELASTIC_SLIDER_CLASS } from "@/features/desktop-shell/inspector/settings-ui"
+import { SettingsInlineSlider } from "@/features/desktop-shell/inspector/settings-ui"
 import {
   DesktopInspectorScrubNumberInput,
   useDesktopInspectorNumberScrub,
@@ -45,17 +43,15 @@ export function DesktopInspectorElasticSliderRow({
   return (
     <div data-slot="desktop-elastic-slider-row" className="grid min-w-0 py-1.5">
       <div data-slot="desktop-elastic-slider">
-        <ElasticSlider
-          aria-label={ariaLabel ?? label}
-          className={SETTINGS_ELASTIC_SLIDER_CLASS}
+        <SettingsInlineSlider
+          ariaLabel={ariaLabel}
           formatValue={() => valueLabel}
           label={label}
           max={max}
           min={min}
-          onInteractionTick={playDesktopPressSound}
           step={step}
           value={value}
-          onValueChange={onChange}
+          onChange={onChange}
         />
       </div>
     </div>

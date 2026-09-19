@@ -334,6 +334,17 @@
   width: 100%;
 }
 
+.dn-content-type-select--split {
+  display: flex;
+  align-items: center;
+}
+
+.dn-content-type-select--split > div {
+  width: 50%;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 .dn-content-type-select .dn-content-type-select-trigger {
   width: 100%;
   min-width: 0;
@@ -468,7 +479,7 @@
   box-sizing: border-box;
   border: 2px solid transparent;
   padding: 5px;
-  color: color-mix(in srgb, var(--dn-fg) 65%, transparent);
+  color: var(--dn-fg);
   transition:
     color 160ms var(--dn-ease-out),
     border-color 160ms var(--dn-ease-out);
@@ -497,7 +508,7 @@
 }
 
 .dn-qr-style-option-preview {
-  opacity: 0.8;
+  opacity: 1;
   filter: none;
 }
 
@@ -562,6 +573,50 @@
   line-height: 1.3;
   letter-spacing: var(--dn-tracking-tight);
   color: var(--dn-fg);
+}
+
+/* beui InlineSlider ships with shadcn color utilities this project never
+   registers (bg-muted, bg-foreground/*), so its track, fill and tick dots
+   render transparent. Paint them from the dn tokens instead. */
+.dn-settings-inline-slider {
+  background: var(--dn-control);
+  color: var(--dn-fg);
+  /* Horizontal-drag affordance only: no grab/grabbing hand. Unlayered, so it
+     also beats the component's `active:cursor-grabbing`. */
+  cursor: ew-resize;
+}
+
+/* The component's `cursor-inherit` is not a Tailwind utility, so the focusable
+   track button falls back to the button default. Force the drag cursor. */
+.dn-settings-inline-slider [role="slider"] {
+  cursor: ew-resize !important;
+}
+
+.dn-settings-inline-slider [class*="bg-foreground/15"] {
+  background: color-mix(in srgb, var(--dn-fg) 15%, transparent);
+}
+
+.dn-settings-inline-slider [class*="bg-foreground/25"] {
+  background: color-mix(in srgb, var(--dn-fg) 25%, transparent);
+}
+
+/* Inline label and readout follow the settings label tokens instead of the
+   component's text-sm / text-[13px] pair. */
+.dn-settings-inline-slider > div[aria-hidden="true"]:nth-of-type(2) > span:nth-child(1),
+.dn-settings-inline-slider > div[aria-hidden="true"]:nth-of-type(2) > span:nth-child(2) {
+  font-size: var(--dn-type-body);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color);
+}
+
+.dn-row-label-text {
+  font-size: var(--dn-type-body);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color);
 }
 
 .dn-type-body {
@@ -996,7 +1051,7 @@
   --dn-option-gap: 0;
   gap: 0;
   padding: 2px;
-  background: color-mix(in srgb, var(--dn-line) 72%, transparent);
+  background: transparent;
 }
 
 .t-tabs--muted .t-tabs-pill--muted {
@@ -1328,7 +1383,10 @@
   --tabs-ease: var(--dn-ease-out, cubic-bezier(0.16, 1, 0.3, 1));
 }
 
-.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-accordion [role="region"] .t-tabs-pill {
+.desktopnew-root.desktopnew-embedded[data-theme="dark"]
+  .dn-settings-accordion
+  [role="region"]
+  .t-tabs-pill:not(.t-tabs-pill--muted) {
   background: #ffffff;
 }
 
@@ -1816,7 +1874,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: color-mix(in srgb, var(--dn-fg) 78%, transparent);
+  color: var(--dn-fg);
   cursor: pointer;
 }
 
@@ -2446,11 +2504,11 @@
   max-width: none;
 }
 
-/* Logo tab upload tile — row-height square beside the picker trigger. */
+/* Upload tile sitting at the end of a labelled row — row-height square. */
 .dn-settings-accordion
   [role="region"]
-  .dn-logo-upload-tile.dn-image-upload-tile:not(.dn-image-upload-tile--fluid),
-.dn-logo-upload-tile.dn-image-upload-tile:not(.dn-image-upload-tile--fluid) {
+  .dn-row-upload-tile.dn-image-upload-tile:not(.dn-image-upload-tile--fluid),
+.dn-row-upload-tile.dn-image-upload-tile:not(.dn-image-upload-tile--fluid) {
   flex: 0 0 var(--dn-control-height);
   width: var(--dn-control-height);
   min-width: var(--dn-control-height);
@@ -2463,22 +2521,31 @@
 }
 
 /* Match the adjacent picker trigger row: same fill, same height. */
-.dn-logo-upload-tile.dn-image-upload-tile span[aria-hidden] {
+.dn-row-upload-tile.dn-image-upload-tile span[aria-hidden] {
   background: var(--dn-control);
 }
 
 .dn-paper-shader-color-grid .dn-paper-shader-color-chip {
-  flex: 0 0 var(--dn-icon-hit);
-  width: var(--dn-icon-hit);
-  height: var(--dn-icon-hit);
-  min-width: var(--dn-icon-hit);
-  min-height: var(--dn-icon-hit);
-  max-width: var(--dn-icon-hit);
-  max-height: var(--dn-icon-hit);
+  width: 100%;
+  height: 100%;
+  min-width: 0;
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
-  padding: 3px;
+  padding: 4px;
   background: transparent;
+}
+
+/* Chip cell + its hover remove overlay. Matches the shader option tiles:
+   fluid square in the six-column grid. */
+.dn-paper-shader-color-grid .dn-paper-shader-color-chip-wrap {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+}
+
+.dn-paper-shader-color-grid .dn-paper-shader-color-chip-wrap:hover,
+.dn-paper-shader-color-grid .dn-paper-shader-color-chip-wrap:focus-within {
+  z-index: 2;
 }
 
 .desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-stop-list {
@@ -2547,6 +2614,14 @@
 .dn-squircle-lg {
   border-radius: var(--dn-radius-lg);
   corner-shape: squircle;
+}
+
+/* Option-grid tiles (shaders, images, fill presets, pattern, shader colors)
+   paint a fill inset from the tile edge. The selection ring and focus outline
+   inherit the tile radius, so the tile radius has to clear the inner fill's
+   radius by that inset for ring and fill to read as concentric. */
+.dn-preview-tile {
+  border-radius: calc(var(--dn-radius-xs) + 6px);
 }
 
 @supports not (corner-shape: squircle) {

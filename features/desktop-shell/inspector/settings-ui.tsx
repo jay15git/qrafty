@@ -4,6 +4,7 @@ import { ChevronRight, X } from "lucide-react"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
 import {
   forwardRef,
+  useCallback,
   useContext,
   useEffect,
   useId,
@@ -25,7 +26,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { ElasticSlider } from "@/components/ui/elastic-slider"
+import { InlineSlider } from "@/components/motion/range-slider-inline"
 import {
   Select,
   SelectContent,
@@ -365,6 +366,109 @@ function normalizeSegmentTabItems(items: SegmentTabInput[]): SegmentTabItem[] {
 
 function resolveActiveSegmentTab(items: SegmentTabItem[], value: string) {
   return items.find((item) => item.id === value || item.label === value)
+}
+
+export function SettingsLabeledSelect({
+  items,
+  label,
+  onChange,
+  placeholder,
+  value,
+}: {
+  items: readonly string[]
+  label?: string
+  onChange: (value: string) => void
+  placeholder: string
+  value: string
+}) {
+  const theme = useContext(DesktopnewThemeContext)
+  const mobileDensity = useMobileInspectorDensity()
+
+  if (mobileDensity) {
+    return <SegmentTabs items={[...items]} value={value} onChange={onChange} />
+  }
+
+  return (
+    <div
+      className={cn(
+        "dn-content-type-select w-full min-w-0",
+        label && "dn-content-type-select--split",
+      )}
+    >
+      {label ? (
+        <span className="dn-row-label-text shrink-0 pl-[var(--dn-row-px)]">{label}</span>
+      ) : null}
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger
+          className="dn-content-type-select-trigger w-full min-w-0 dn-squircle-sm"
+          placeholder={placeholder}
+          variant="borderless"
+        />
+        <SelectContent
+          className={cn(
+            "dn-portal-surface desktopnew-popover-content overflow-hidden p-0 dn-squircle-md",
+            theme === "dark" && "dark",
+          )}
+          data-theme={theme}
+        >
+          {items.map((item, index) => (
+            <SelectItem key={item} index={index} value={item}>
+              {item}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
+}
+
+export function SettingsFillPresetSection({
+  fillPreviewImageUrl,
+  lockedFillMode,
+  presets,
+  qrGradient,
+  value,
+  onSelect,
+}: {
+  fillPreviewImageUrl?: string
+  lockedFillMode?: import("@/features/desktop-shell/inspector/desktopnew-fill-picker").LockedFillPickerMode
+  presets: readonly string[]
+  qrGradient?: boolean
+  value: string
+  onSelect: (fill: Fill, css: string) => void
+}) {
+  const pickerRef = useRef<SettingsFillPopoverHandle>(null)
+
+  return (
+    <>
+      <div className="flex min-h-[var(--dn-control-height)] items-center">
+        <span className="dn-row-label-text pl-[var(--dn-row-px)]">Color</span>
+        <button
+          aria-label="Color"
+          className="ml-auto size-7 shrink-0 cursor-pointer overflow-hidden dn-squircle-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dn-focus,var(--ring))]"
+          style={{ background: value }}
+          type="button"
+          onClick={() => pickerRef.current?.openPicker()}
+        />
+        <SettingsFillPopover
+          ref={pickerRef}
+          fillPreviewImageUrl={fillPreviewImageUrl}
+          hint="Color"
+          lockedFillMode={lockedFillMode}
+          qrGradient={qrGradient}
+          value={value}
+          variant="picker-only"
+          onValueChange={onSelect}
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <span className="dn-row-label-text flex h-[var(--dn-control-height)] items-center px-[var(--dn-row-px)]">
+          Presets
+        </span>
+        <SettingsFillOptionGrid presets={presets} value={value} onSelect={onSelect} />
+      </div>
+    </>
+  )
 }
 
 export function SegmentTabs({
@@ -1235,8 +1339,9 @@ export function QrColorPartBrowser({
     : "Module"
 
   return (
-    <SegmentTabs
-      items={[...QR_COLOR_PART_OPTIONS]}
+    <SettingsLabeledSelect
+      items={QR_COLOR_PART_OPTIONS}
+      placeholder="Part"
       value={normalizedSelected}
       onChange={(next) => onSelect(next as QrColorPartOption)}
     />
@@ -1633,18 +1738,69 @@ export function SettingsSwitchRow({
   )
 }
 
-export const SETTINGS_ELASTIC_SLIDER_CLASS =
-  "desktop-elastic-slider dn-settings-elastic-slider w-full [--elastic-slider-height:var(--dn-control-height)] [--elastic-slider-radius:var(--dn-radius-sm)]"
+export const SETTINGS_INLINE_SLIDER_CLASS = "dn-settings-inline-slider w-full"
 
-export function SettingsSlider({
-  label,
-  value,
-  onChange,
-  min = 0,
-  max = 100,
-  step = 1,
+const INLINE_SLIDER_TICK_INTERVAL_MS = 80
+
+function useThrottledPressSound() {
+  const lastTickAtRef = useRef(0)
+
+  return useCallback(() => {
+    const now = Date.now()
+    if (now - lastTickAtRef.current < INLINE_SLIDER_TICK_INTERVAL_MS) return
+    lastTickAtRef.current = now
+    playDesktopPressSound()
+  }, [])
+}
+
+export function SettingsInlineSlider({
+  ariaLabel,
   formatValue,
+  label,
+  max = 100,
+  min = 0,
+  onChange,
+  step = 1,
+  value,
 }: {
+  ariaLabel?: string
+  formatValue?: (value: number) => string
+  label: string
+  max?: number
+  min?: number
+  onChange?: (value: number) => void
+  step?: number
+  value: number
+}) {
+  const tick = useThrottledPressSound()
+  const stepDecimals = step.toString().includes(".")
+    ? (step.toString().split(".")[1]?.length ?? 0)
+    : 0
+  const normalizedValue = parseFloat(
+    (Math.round(value / step) * step).toFixed(stepDecimals),
+  )
+  const format = formatValue ?? ((next: number) => `${next}`)
+
+  return (
+    <InlineSlider
+      aria-label={ariaLabel ?? label}
+      className={SETTINGS_INLINE_SLIDER_CLASS}
+      format={format}
+      formatValueText={format}
+      label={label}
+      max={max}
+      min={min}
+      step={step}
+      value={normalizedValue}
+      onValueChange={(next) => {
+        tick()
+        onChange?.(next)
+      }}
+    />
+  )
+}
+
+export function SettingsSlider(props: {
   label: string
   value: number
   onChange?: (value: number) => void
@@ -1653,27 +1809,7 @@ export function SettingsSlider({
   step?: number
   formatValue?: (value: number) => string
 }) {
-  const stepDecimals = step.toString().includes(".")
-    ? (step.toString().split(".")[1]?.length ?? 0)
-    : 0
-  const normalizedValue = parseFloat(
-    (Math.round(value / step) * step).toFixed(stepDecimals),
-  )
-
-  return (
-    <ElasticSlider
-      aria-label={label}
-      className={SETTINGS_ELASTIC_SLIDER_CLASS}
-      formatValue={formatValue}
-      label={label}
-      max={max}
-      min={min}
-      onInteractionTick={playDesktopPressSound}
-      step={step}
-      value={normalizedValue}
-      onValueChange={onChange}
-    />
-  )
+  return <SettingsInlineSlider {...props} />
 }
 
 export function SettingsPrimaryButton({

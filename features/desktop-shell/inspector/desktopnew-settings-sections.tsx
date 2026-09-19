@@ -1,6 +1,6 @@
 "use client"
 
-import { useContext, useRef, useState } from "react"
+import { useContext, useState } from "react"
 
 import {
   Select,
@@ -33,13 +33,13 @@ import { Ellipsis } from "lucide-react"
 import {
   ContentTypeBrowser,
   QrColorPartBrowser,
-  SegmentTabs,
   SettingsFillPopover,
+  SettingsFillPresetSection,
+  SettingsLabeledSelect,
   SettingsSlider,
   SettingsTilePopover,
   SettingsSwitchRow,
   SettingsTabPanel,
-  type SettingsFillPopoverHandle,
 } from "@/features/desktop-shell/inspector/settings-ui"
 import { normalizeContentTypeForPicker } from "@/features/qr-code/content/input-options"
 import {
@@ -115,6 +115,7 @@ import {
   SETTINGS_FILL_RADIAL_PRESETS,
   SETTINGS_FILL_SOLID_PRESETS,
 } from "@/features/desktop-shell/inspector/settings-fill-presets"
+import type { DesktopLogoSettings } from "@/features/desktop-shell/model/desktop-toolbar-types"
 
 export const SECTION_STACK = "dn-section-stack"
 
@@ -361,44 +362,54 @@ function WallpaperPreviewRow({
     selectedPath && !isSceneWallpaperPath(selectedPath) ? selectedPath : ""
 
   return (
-    <div
-      aria-label="Image options"
-      className="grid grid-cols-6 gap-0"
-      data-slot="wallpaper-grid"
-      role="group"
-    >
-      <SettingsImageUploadTile
-        fluid
-        imageUrl={customImageUrl}
-        onClear={onClear}
-        onUpload={onUpload}
-      />
+    <>
+      <div className="flex min-h-[var(--dn-control-height)] items-center">
+        <span className="dn-row-label-text pl-[var(--dn-row-px)]">Upload</span>
+        <SettingsImageUploadTile
+          ariaLabel="Upload custom image"
+          className="dn-row-upload-tile ml-auto"
+          imageUrl={customImageUrl}
+          onClear={onClear}
+          onUpload={onUpload}
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <span className="dn-row-label-text flex h-[var(--dn-control-height)] items-center px-[var(--dn-row-px)]">
+          Presets
+        </span>
+        <div
+          aria-label="Image options"
+          className="grid grid-cols-6 gap-0"
+          data-slot="wallpaper-grid"
+          role="group"
+        >
+          {SCENE_WALLPAPERS.map((wallpaper) => {
+            const isSelected = selectedPath === wallpaper.path
 
-      {SCENE_WALLPAPERS.map((wallpaper) => {
-        const isSelected = selectedPath === wallpaper.path
-
-        return (
-          <button
-            key={wallpaper.id}
-            aria-label={`Use ${wallpaper.label} wallpaper`}
-            aria-pressed={isSelected}
-            className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
-            title={wallpaper.label}
-            type="button"
-            onClick={() => onSelect(wallpaper.path)}
-            onPointerEnter={() => {
-              void preloadRasterImage(wallpaper.path)
-            }}
-          >
-            <WallpaperOptionPreview
-              alt={wallpaper.label}
-              className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
-              previewPath={wallpaper.previewPath}
-            />
-          </button>
-        )
-      })}
-    </div>
+            return (
+              <button
+                key={wallpaper.id}
+                aria-label={`Use ${wallpaper.label} wallpaper`}
+                aria-pressed={isSelected}
+                className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
+                title={wallpaper.label}
+                type="button"
+                onClick={() => onSelect(wallpaper.path)}
+                onPointerEnter={() => {
+                  void preloadRasterImage(wallpaper.path)
+                }}
+              >
+                <WallpaperOptionPreview
+                  alt={wallpaper.label}
+                  className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
+                  previewPath={wallpaper.previewPath}
+                />
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    </>
   )
 }
 
@@ -531,6 +542,15 @@ function QrModuleGeometrySlider({ model }: { model: DesktopInspectorModel }) {
   return null
 }
 
+const LOGO_SOURCE_TABS = ["Brand", "Upload", "None"] as const
+type LogoSettingsTab = (typeof LOGO_SOURCE_TABS)[number]
+
+function logoSourceTab(sourceMode: DesktopLogoSettings["sourceMode"]): LogoSettingsTab {
+  if (sourceMode === "brand") return "Brand"
+  if (sourceMode === "none") return "None"
+  return "Upload"
+}
+
 export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
   const [tab, setTab] = useState(() => getInspectorSectionTab("qr-style", "Module"))
   const {
@@ -550,6 +570,7 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
       (option) => option.value === actualEncodingSettings.errorCorrectionLevel,
     ),
   )
+  const logoSource = logoSourceTab(actualLogoSettings.sourceMode)
 
   const part =
     tab === "Module"
@@ -586,8 +607,9 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
 
   return (
     <div className="dn-section-stack w-full min-w-0 max-w-full">
-      <SegmentTabs
+      <SettingsLabeledSelect
         items={["Module", "Eye", "Frame", "Logo"]}
+        placeholder="Part"
         value={tab}
         onChange={(nextTab) => {
           setTab(nextTab)
@@ -598,74 +620,106 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
       <SettingsTabPanel activeKey={tab}>
         {tab === "Logo" ? (
           <>
-            <div className="grid grid-cols-6 gap-0" role="group">
-              <SettingsImageUploadTile
-                fluid
-                ariaLabel="Upload custom logo"
-                className="dn-logo-upload-tile"
-                imageUrl={actualLogoSettings.customImageUrl}
-                onClear={() => onLogoSettingsChange({ uploadedImageUrl: "" })}
-                onUpload={(imageUrl) =>
-                  onLogoSettingsChange({ uploadedImageUrl: imageUrl })
-                }
-              />
-              {POPULAR_BRAND_ICON_IDS.map((iconId) => {
-                const brandIcon = getBrandIconById(iconId)
-                const isSelected =
-                  !actualLogoSettings.customImageUrl &&
-                  actualLogoSettings.selectedBrandIconId === iconId
+            <SettingsLabeledSelect
+              items={LOGO_SOURCE_TABS}
+              label="Source"
+              placeholder="Source"
+              value={logoSourceTab(actualLogoSettings.sourceMode)}
+              onChange={(next) => {
+                const nextSource = next as LogoSettingsTab
 
-                return (
+                if (nextSource === "Brand") {
+                  onLogoSettingsChange({
+                    sourceMode: "brand",
+                    selectedBrandIconId:
+                      actualLogoSettings.selectedBrandIconId ||
+                      POPULAR_BRAND_ICON_IDS[0],
+                  })
+                  return
+                }
+
+                onLogoSettingsChange({
+                  sourceMode: nextSource === "Upload" ? "upload" : "none",
+                })
+              }}
+            />
+
+            {logoSource === "Upload" ? (
+              <div className="grid grid-cols-6 gap-0" role="group">
+                <SettingsImageUploadTile
+                  fluid
+                  ariaLabel="Upload custom logo"
+                  className="dn-row-upload-tile"
+                  imageUrl={actualLogoSettings.customImageUrl}
+                  onClear={() => onLogoSettingsChange({ uploadedImageUrl: "" })}
+                  onUpload={(imageUrl) =>
+                    onLogoSettingsChange({ uploadedImageUrl: imageUrl })
+                  }
+                />
+              </div>
+            ) : logoSource === "None" ? null : (
+              <div className="grid grid-cols-6 gap-0" role="group">
+                {POPULAR_BRAND_ICON_IDS.map((iconId) => {
+                  const brandIcon = getBrandIconById(iconId)
+                  const isSelected =
+                    !actualLogoSettings.customImageUrl &&
+                    actualLogoSettings.selectedBrandIconId === iconId
+
+                  return (
+                    <button
+                      key={iconId}
+                      aria-label={`Use ${brandIcon.label} logo`}
+                      aria-pressed={isSelected}
+                      className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
+                      title={brandIcon.label}
+                      type="button"
+                      onClick={() =>
+                        onLogoSettingsChange({
+                          selectedBrandIconId: iconId,
+                          sourceMode: "brand",
+                        })
+                      }
+                    >
+                      <span className="relative z-10 grid size-full place-items-center">
+                        <LogoPickerTileIcon iconId={iconId} />
+                      </span>
+                    </button>
+                  )
+                })}
+                <SettingsTilePopover
+                  contentClassName="w-[18rem]"
+                  title="Logo"
+                  content={
+                    <LogoIconPicker
+                      selectedId={actualLogoSettings.selectedBrandIconId}
+                      onSelect={(selectedBrandIconId) => {
+                        onLogoSettingsChange({ selectedBrandIconId, sourceMode: "brand" })
+                      }}
+                    />
+                  }
+                >
                   <button
-                    key={iconId}
-                    aria-label={`Use ${brandIcon.label} logo`}
-                    aria-pressed={isSelected}
+                    aria-label="More logo options"
                     className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
-                    title={brandIcon.label}
+                    title="More"
                     type="button"
-                    onClick={() =>
-                      onLogoSettingsChange({
-                        selectedBrandIconId: iconId,
-                        sourceMode: "brand",
-                      })
-                    }
                   >
                     <span className="relative z-10 grid size-full place-items-center">
-                      <LogoPickerTileIcon iconId={iconId} />
+                      <Ellipsis aria-hidden className="size-4" />
                     </span>
                   </button>
-                )
-              })}
-              <SettingsTilePopover
-                contentClassName="w-[18rem]"
-                title="Logo"
-                content={
-                  <LogoIconPicker
-                    selectedId={actualLogoSettings.selectedBrandIconId}
-                    onSelect={(selectedBrandIconId) => {
-                      onLogoSettingsChange({ selectedBrandIconId, sourceMode: "brand" })
-                    }}
-                  />
-                }
-              >
-                <button
-                  aria-label="More logo options"
-                  className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
-                  title="More"
-                  type="button"
-                >
-                  <span className="relative z-10 grid size-full place-items-center">
-                    <Ellipsis aria-hidden className="size-4" />
-                  </span>
-                </button>
-              </SettingsTilePopover>
-            </div>
-            <SettingsSlider
-              label="Size"
-              max={100}
-              value={actualLogoSettings.size}
-              onChange={(size) => onLogoSettingsChange({ size })}
-            />
+                </SettingsTilePopover>
+              </div>
+            )}
+
+            {logoSource === "None" ? null : (
+              <SettingsSlider
+                label="Size"
+                max={100}
+                value={actualLogoSettings.size}
+                onChange={(size) => onLogoSettingsChange({ size })}
+              />
+            )}
           </>
         ) : part ? (
           <QrStylePreviewGrid
@@ -973,8 +1027,9 @@ export function CardSection({ model }: { model: DesktopInspectorModel }) {
         selected={actualShapeSettings.backgroundShapeId}
         onSelect={(backgroundShapeId) => onShapeSettingsChange({ backgroundShapeId })}
       />
-      <SettingsModeSelect
+      <SettingsLabeledSelect
         items={BACKGROUND_FILL_MODE_TABS}
+        label="Fill"
         placeholder="Fill"
         value={fillMode}
         onChange={(next) => setFillMode(next as BackgroundFillModeTab)}
@@ -1003,50 +1058,6 @@ function backgroundFillModeTab(fill: string): BackgroundFillModeTab {
   return "Solid"
 }
 
-function SettingsModeSelect({
-  items,
-  onChange,
-  placeholder,
-  value,
-}: {
-  items: readonly string[]
-  onChange: (value: string) => void
-  placeholder: string
-  value: string
-}) {
-  const theme = useContext(DesktopnewThemeContext)
-  const mobileDensity = useMobileInspectorDensity()
-
-  if (mobileDensity) {
-    return <SegmentTabs items={[...items]} value={value} onChange={onChange} />
-  }
-
-  return (
-    <div className="dn-content-type-select w-full min-w-0">
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger
-          className="dn-content-type-select-trigger w-full min-w-0 dn-squircle-sm"
-          placeholder={placeholder}
-          variant="borderless"
-        />
-        <SelectContent
-          className={cn(
-            "dn-portal-surface desktopnew-popover-content overflow-hidden p-0 dn-squircle-md",
-            theme === "dark" && "dark",
-          )}
-          data-theme={theme}
-        >
-          {items.map((item, index) => (
-            <SelectItem key={item} index={index} value={item}>
-              {item}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-  )
-}
-
 function FillModePresetControls({
   applyFill,
   mode,
@@ -1056,7 +1067,6 @@ function FillModePresetControls({
   mode: BackgroundFillModeTab
   value: string
 }) {
-  const pickerRef = useRef<SettingsFillPopoverHandle>(null)
   const presets =
     mode === "Solid"
       ? SETTINGS_FILL_SOLID_PRESETS
@@ -1065,23 +1075,13 @@ function FillModePresetControls({
         : SETTINGS_FILL_RADIAL_PRESETS
 
   return (
-    <>
-      <SettingsFillOptionGrid
-        presets={presets}
-        value={value}
-        onOpenPicker={() => pickerRef.current?.openPicker()}
-        onSelect={(fill) => applyFill(fill)}
-      />
-      <SettingsFillPopover
-        ref={pickerRef}
-        hint="Fill"
-        lockedFillMode={mode === "Solid" ? "solid" : "gradient"}
-        qrGradient
-        variant="picker-only"
-        value={value}
-        onValueChange={(fill) => applyFill(fill)}
-      />
-    </>
+    <SettingsFillPresetSection
+      lockedFillMode={mode === "Solid" ? "solid" : "gradient"}
+      presets={presets}
+      qrGradient
+      value={value}
+      onSelect={(fill) => applyFill(fill)}
+    />
   )
 }
 
@@ -1152,8 +1152,9 @@ export function SceneSection({ model }: { model: DesktopInspectorModel }) {
 
   return (
     <div className={SECTION_STACK}>
-      <SettingsModeSelect
+      <SettingsLabeledSelect
         items={SCENE_BACKGROUND_TABS}
+        label="Fill"
         placeholder="Background"
         value={tab}
         onChange={handleBackgroundTabChange}
