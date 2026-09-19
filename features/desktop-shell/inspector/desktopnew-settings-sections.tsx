@@ -8,7 +8,6 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { QrStyleOptionPreview } from "@/features/qr-code/components/QrStyleOptionPreview"
 import type { StylePreviewKind } from "@/features/qr-code/components/StylePreview"
 import {
@@ -33,7 +32,6 @@ import { Ellipsis } from "lucide-react"
 import {
   ContentTypeBrowser,
   QrColorPartBrowser,
-  SettingsFillPopover,
   SettingsFillPresetSection,
   SettingsLabeledSelect,
   SettingsSlider,
@@ -48,7 +46,10 @@ import {
 } from "@/features/qr-code/model/state"
 import {
   isScaleOnlyDotMatrixLoader,
+  MOTION_COLOR_SWATCHES,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
+  type QrDotMatrixAnimationOptions,
+  type QrDotMatrixColorPreset,
   type QrDotMatrixSquareLoader,
   type QraftyDataModulesStyle,
 } from "@/features/qr-code/model/state"
@@ -101,10 +102,7 @@ import {
 import { ScrollPersistScope } from "@/lib/persisted-element-scroll"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
-import {
-  SETTINGS_PREVIEW_ROW,
-  SETTINGS_PREVIEW_TILE_FLUID,
-} from "@/features/desktop-shell/inspector/settings-preview-tiles"
+import { SETTINGS_PREVIEW_TILE_FLUID } from "@/features/desktop-shell/inspector/settings-preview-tiles"
 import {
   isSceneWallpaperPath,
   SettingsFillOptionGrid,
@@ -413,46 +411,71 @@ function WallpaperPreviewRow({
   )
 }
 
-function MotionLoaderPresetGrid({
+function MotionPresetSelect({
   selected,
   onSelect,
 }: {
   selected: QrDotMatrixSquareLoader
   onSelect: (loader: QrDotMatrixSquareLoader) => void
 }) {
-  return (
-    <ScrollArea
-      className="w-full min-w-0 max-w-full overflow-hidden"
-      chevron={false}
-      cueSize="tight"
-      orientation="horizontal"
-      persistKey="motion-loader-presets"
-      scrollFade
-      showScrollbar={false}
-      viewportClassName="min-w-0"
-    >
-      <div className={SETTINGS_PREVIEW_ROW}>
-        {QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => {
-          const isSelected = selected === option.value
+  const options = QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS
+  const selectedLabel =
+    options.find((option) => option.value === selected)?.label ?? options[0].label
 
-          return (
-            <button
-              key={option.value}
-              aria-label={option.label}
-              aria-pressed={isSelected}
-              className={cn(
-                "dn-option-tile dn-control-surface shrink-0 px-3 dn-type-chip dn-squircle-xs",
-                isSelected && "text-[var(--dn-fg)]",
-              )}
-              type="button"
-              onClick={() => onSelect(option.value)}
-            >
-              {option.label}
-            </button>
-          )
-        })}
-      </div>
-    </ScrollArea>
+  return (
+    <SettingsLabeledSelect
+      items={options.map((option) => option.label)}
+      label="Preset"
+      placeholder="Preset"
+      value={selectedLabel}
+      onChange={(label) => {
+        const option = options.find((item) => item.label === label)
+        if (option) onSelect(option.value)
+      }}
+    />
+  )
+}
+
+/** Motion animates a single accent color, so presets are solids: the accent
+ *  each named motion preset resolves to (see `resolveMotionColors`). The
+ *  `theme` slot is the custom color and lives on the swatch instead. */
+const MOTION_COLOR_PRESETS = (
+  (Object.keys(MOTION_COLOR_SWATCHES) as QrDotMatrixColorPreset[]).filter(
+    (preset) => preset !== "theme",
+  )
+).map((preset) => ({
+  preset,
+  fill: solidColorToFillCss(MOTION_COLOR_SWATCHES[preset][1]),
+}))
+
+function MotionColorControls({
+  animation,
+  onChange,
+}: {
+  animation: QrDotMatrixAnimationOptions
+  onChange: (patch: Partial<QrDotMatrixAnimationOptions>) => void
+}) {
+  const customFill = solidColorToFillCss(animation.customColorPeak)
+  const activeFill = MOTION_COLOR_PRESETS.find(
+    (option) => option.preset === animation.colorPreset,
+  )?.fill
+
+  return (
+    <SettingsFillPresetSection
+      lockedFillMode="solid"
+      presets={MOTION_COLOR_PRESETS.map((option) => option.fill)}
+      value={activeFill ?? customFill}
+      onSelect={(_fill, css) => {
+        const hex = fillPreviewHex(css)
+        const preset = MOTION_COLOR_PRESETS.find((option) => option.fill === css)
+
+        onChange({
+          colorPreset: preset?.preset ?? "theme",
+          customColorMid: hex,
+          customColorPeak: hex,
+        })
+      }}
+    />
   )
 }
 
@@ -1216,7 +1239,7 @@ export function MotionSection({ model }: { model: DesktopInspectorModel }) {
       />
       {actualMotionSettings.enabled ? (
         <>
-          <MotionLoaderPresetGrid
+          <MotionPresetSelect
             selected={loader}
             onSelect={(nextLoader) =>
               onMotionSettingsChange({
@@ -1238,16 +1261,9 @@ export function MotionSection({ model }: { model: DesktopInspectorModel }) {
             }
           />
           {usesPeakColor ? (
-            <SettingsFillPopover
-              hint="Peak"
-              value={solidColorToFillCss(actualMotionSettings.customColorPeak)}
-              onValueChange={(_fill, css) =>
-                onMotionSettingsChange({
-                  colorPreset: "theme",
-                  customColorMid: fillPreviewHex(css),
-                  customColorPeak: fillPreviewHex(css),
-                })
-              }
+            <MotionColorControls
+              animation={actualMotionSettings}
+              onChange={onMotionSettingsChange}
             />
           ) : null}
         </>

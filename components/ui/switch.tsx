@@ -221,6 +221,8 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
           }}
           disabled={disabled}
           tabIndex={0}
+          data-slot="switch"
+          data-state={checked ? "checked" : "unchecked"}
           className={cn(
             "relative shrink-0 rounded-full outline-none cursor-pointer",
             "transition-colors duration-80",
@@ -252,6 +254,7 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
               return (
                 <m.span
                   {...rest}
+                  data-slot="switch-thumb"
                   className="absolute top-0 left-0 block rounded-full bg-white shadow-sm"
                   initial={false}
                   style={{

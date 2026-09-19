@@ -757,7 +757,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0 !important;
+  padding: 0 var(--dn-row-px) !important;
 }
 
 .dn-switch-row > span {
@@ -765,9 +765,27 @@
   align-items: center;
   font-size: var(--dn-type-body);
   font-weight: var(--dn-type-value-weight);
-  letter-spacing: 0.02em;
+  letter-spacing: var(--dn-tracking-tight);
   line-height: 1;
-  color: color-mix(in srgb, var(--dn-fg) 78%, transparent) !important;
+  color: var(--dn-type-value-color) !important;
+}
+
+/* Track + thumb follow the same tokens as the portalled switches. */
+.desktopnew-root .dn-switch-row [data-slot="switch"] {
+  transition: background-color var(--dn-motion-ui) var(--dn-ease-out) !important;
+}
+
+.desktopnew-root .dn-switch-row [data-slot="switch"][data-state="checked"] {
+  background: var(--dn-fg) !important;
+}
+
+.desktopnew-root .dn-switch-row [data-slot="switch"][data-state="unchecked"] {
+  background: var(--dn-line) !important;
+}
+
+.desktopnew-root .dn-switch-row [data-slot="switch-thumb"] {
+  background: var(--dn-bg) !important;
+  border-color: color-mix(in srgb, var(--dn-fg) 12%, transparent) !important;
 }
 
 .dn-settings-row {
