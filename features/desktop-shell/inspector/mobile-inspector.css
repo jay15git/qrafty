@@ -745,6 +745,16 @@
   background: transparent;
 }
 
+/* Style catalogue tiles drilled into from the Style family. Sized to the rail
+   scale rather than the drawer's, so a drilled row keeps the rail's density. */
+[data-slot="mobile-settings-rail-root"] {
+  --dn-preview-tile: 3rem;
+}
+
+[data-slot="mobile-settings-rail-root"] [data-slot="mobile-rail-style-option"] {
+  align-self: center;
+}
+
 [data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__row {
   display: flex;
   /* `max-content` keeps a long row scrollable; `min-width: 100%` plus
@@ -846,15 +856,19 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Labelled pill: names the family you drilled into. Inert, centred between the
-   two corner buttons by `space-between`. */
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__action--pill {
-  width: auto;
-  min-width: 0;
-  padding-inline: 0.875rem;
+/* Undo/redo sit in the thumb zone between the corners, so history is reachable
+   without a trip to the top bar. */
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__history {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__action--history {
   margin-inline: 0;
-  font-size: var(--dn-type-meta);
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
+}
+
+[data-slot="mobile-settings-rail-root"]
+  .dn-mobile-settings-rail__action--history:disabled {
+  opacity: 0.4;
 }

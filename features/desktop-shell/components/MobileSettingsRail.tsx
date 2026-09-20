@@ -5,6 +5,10 @@ import { AnimatePresence, m } from "motion/react"
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  MobileRedoIcon,
+  MobileUndoIcon,
+} from "@/features/desktop-shell/components/MobileHistoryIcons"
 import { MobileLayerToolbar } from "@/features/desktop-shell/components/MobileLayerToolbar"
 import { MobileSettingsDrawer } from "@/features/desktop-shell/components/MobileSettingsDrawer"
 import {
@@ -19,10 +23,20 @@ import {
   type DesktopSettingsSectionId,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import {
+  QR_STYLE_PART_DEFINITIONS,
+  type QrStylePartId,
+} from "@/features/desktop-shell/inspector/qr-style-parts"
+import { SETTINGS_PREVIEW_TILE } from "@/features/desktop-shell/inspector/settings-preview-tiles"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
+import { QrStyleOptionPreview } from "@/features/qr-code/components/QrStyleOptionPreview"
 import { ContentTypeGridIcon } from "@/features/qr-code/content/ContentTypeGridIcon"
-import { PICKER_QR_INPUT_TYPES, QR_INPUT_OPTIONS } from "@/features/qr-code/content/input-options"
-import type { QrInputType } from "@/features/qr-code/model/state"
+import {
+  PICKER_QR_INPUT_TYPES,
+  QR_INPUT_OPTIONS,
+  type QrInputType,
+} from "@/features/qr-code/content/input-options"
+import { cn } from "@/lib/utils"
 
 import "@/features/desktop-shell/inspector/desktopnew.css"
 import "@/features/desktop-shell/inspector/mobile-inspector.css"
@@ -35,15 +49,17 @@ type MobileRailOption = {
   icon?: ReactNode
   /** Circle + label (default) or a plain text pill. */
   shape?: "circle" | "pill"
+  /** Style part this option drills into, swapping the row for its catalogue. */
+  drillsTo?: QrStylePartId
 }
 
 const RAIL_OPTION_ICON_CLASS = "dn-mobile-settings-rail__icon"
 
 /** QR style parts, mirroring the `Part` control in the Style section. */
 const QR_STYLE_PART_OPTIONS: MobileRailOption[] = [
-  { id: "Module", label: "Module", shape: "pill" },
-  { id: "Eye", label: "Eye", shape: "pill" },
-  { id: "Frame", label: "Frame", shape: "pill" },
+  { id: "Module", label: "Module", shape: "pill", drillsTo: "Module" },
+  { id: "Eye", label: "Eye", shape: "pill", drillsTo: "Eye" },
+  { id: "Frame", label: "Frame", shape: "pill", drillsTo: "Frame" },
   { id: "Logo", label: "Logo", shape: "pill" },
 ]
 
@@ -58,6 +74,46 @@ const MOBILE_FAMILY_OPTIONS: Partial<Record<DesktopSettingsSectionId, MobileRail
     icon: <ContentTypeGridIcon className={RAIL_OPTION_ICON_CLASS} type={type} />,
   })),
   QR: QR_STYLE_PART_OPTIONS,
+}
+
+/**
+ * Second drill level: the style catalogue for one part, rendered in place of
+ * the part row. Picking a tile applies it straight to the QR, so the rail stays
+ * a quick-pick surface and the drawer is only needed for the long tail.
+ */
+function QrStylePartOptions({
+  model,
+  partId,
+}: {
+  model: DesktopInspectorModel
+  partId: QrStylePartId
+}) {
+  const part = QR_STYLE_PART_DEFINITIONS[partId]
+  const selected = part.readSelected(model)
+
+  return part.options.map((option) => (
+    <button
+      key={option.value}
+      aria-label={option.label}
+      aria-pressed={selected === option.value}
+      className={cn(SETTINGS_PREVIEW_TILE, "text-center")}
+      data-slot="mobile-rail-style-option"
+      title={option.label}
+      type="button"
+      onClick={() => part.applySelected(model, option.value)}
+    >
+      <span
+        aria-hidden="true"
+        className="grid size-full place-items-center overflow-hidden p-0.5 dn-squircle-xs"
+      >
+        <QrStyleOptionPreview
+          className="size-full max-h-full max-w-full"
+          previewKind={part.previewKind}
+          value={option.value}
+        />
+      </span>
+    </button>
+  ))
 }
 
 function useMobileKeyboardInset() {
@@ -134,19 +190,24 @@ function useMeasuredHeight<T extends HTMLElement>() {
 }
 
 export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) {
+  const { controller } = model
   const theme = model.actualDesktopTheme
   const { height: railHeight, ref: railRef } = useMeasuredHeight<HTMLDivElement>()
   const [toolbarHeight, setToolbarHeight] = useState(0)
   const [openFamily, setOpenFamily] = useState<DesktopSettingsSectionId | null>(null)
+  const [openPart, setOpenPart] = useState<QrStylePartId | null>(null)
   const [drawerSection, setDrawerSection] = useState<DesktopSettingsSectionId | null>(null)
   const keyboardInset = useMobileKeyboardInset()
 
   const options = openFamily ? MOBILE_FAMILY_OPTIONS[openFamily] : undefined
+  const part = openPart ? QR_STYLE_PART_DEFINITIONS[openPart] : undefined
+  const railViewKey = part ? `part:${openPart}` : options ? `family:${openFamily}` : "families"
 
   const goToNextFamily = useCallback(() => {
     if (!openFamily) {
       return
     }
+    setOpenPart(null)
     const index = DESKTOP_SETTINGS_SECTIONS.indexOf(openFamily)
     for (let step = 1; step <= DESKTOP_SETTINGS_SECTIONS.length; step += 1) {
       const candidate =
@@ -157,6 +218,15 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
       }
     }
   }, [openFamily])
+
+  // The corner cross steps back one drill level before it leaves the family.
+  const goBack = useCallback(() => {
+    if (openPart) {
+      setOpenPart(null)
+      return
+    }
+    setOpenFamily(null)
+  }, [openPart])
 
   useEffect(() => {
     syncMobileWorkspaceChromeInsets({
@@ -189,23 +259,31 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
           chevron={false}
           cueSize="tight"
           orientation="horizontal"
-          persistKey={`mobile-settings-rail:${options ? openFamily : "families"}`}
+          persistKey={`mobile-settings-rail:${railViewKey}`}
           scrollFade
           showScrollbar={false}
           viewportClassName="min-w-0"
         >
           <AnimatePresence initial={false} mode="wait">
             <m.div
-              key={options ? openFamily : "families"}
+              key={railViewKey}
               animate={{ opacity: 1 }}
-              aria-label={options ? `${openFamily} options` : "Settings sections"}
+              aria-label={
+                part
+                  ? `${openPart} options`
+                  : options
+                    ? `${openFamily} options`
+                    : "Settings sections"
+              }
               className="dn-mobile-settings-rail__row"
               exit={{ opacity: 0, transition: { duration: 0.1, ease: "easeIn" } }}
               initial={{ opacity: 0 }}
               role="group"
               transition={{ duration: 0.16, ease: "easeOut" }}
             >
-              {options ? (
+              {part && openPart ? (
+                <QrStylePartOptions model={model} partId={openPart} />
+              ) : options ? (
                 options.map((option) => (
                   <button
                     key={option.id}
@@ -216,6 +294,10 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
                     }
                     type="button"
                     onClick={() => {
+                      if (option.drillsTo) {
+                        setOpenPart(option.drillsTo)
+                        return
+                      }
                       if (openFamily === "Content") {
                         model.onContentTypeChange(option.id as QrInputType)
                       }
@@ -272,16 +354,33 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
                 aria-label="Close options"
                 className="dn-mobile-settings-rail__action"
                 type="button"
-                onClick={() => setOpenFamily(null)}
+                onClick={goBack}
               >
                 <X aria-hidden size={18} strokeWidth={2.25} />
               </button>
-              {/* Inert: names the family you are in. Not focusable on purpose. */}
+              {/* History lives in the thumb zone, between the corners. */}
               <span
-                className="dn-mobile-settings-rail__action dn-mobile-settings-rail__action--pill"
-                data-slot="mobile-rail-family-pill"
+                className="dn-mobile-settings-rail__history"
+                data-slot="mobile-rail-history"
               >
-                {openFamily ? getDesktopSettingsSectionLabel(openFamily) : ""}
+                <button
+                  aria-label="Undo"
+                  className="dn-mobile-settings-rail__action dn-mobile-settings-rail__action--history"
+                  disabled={!controller?.canUndo || !controller?.onUndo}
+                  type="button"
+                  onClick={() => controller?.onUndo?.()}
+                >
+                  <MobileUndoIcon className="size-4" />
+                </button>
+                <button
+                  aria-label="Redo"
+                  className="dn-mobile-settings-rail__action dn-mobile-settings-rail__action--history"
+                  disabled={!controller?.canRedo || !controller?.onRedo}
+                  type="button"
+                  onClick={() => controller?.onRedo?.()}
+                >
+                  <MobileRedoIcon className="size-4" />
+                </button>
               </span>
               <button
                 aria-label="Next settings family"

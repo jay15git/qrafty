@@ -11,11 +11,6 @@ import {
 import { QrStyleOptionPreview } from "@/features/qr-code/components/QrStyleOptionPreview"
 import type { StylePreviewKind } from "@/features/qr-code/components/StylePreview"
 import {
-  CORNER_DOT_STYLE_OPTIONS,
-  CORNER_SQUARE_STYLE_OPTIONS,
-  DOT_STYLE_OPTIONS,
-} from "@/features/qr-code/styles/style-options"
-import {
   ERROR_CORRECTION_LEVEL_OPTIONS,
   formatQrTypeNumberLabel,
   TYPE_NUMBER_MAX,
@@ -27,6 +22,10 @@ import {
   type QrBackgroundShapeId,
 } from "@/features/qr-code/styles/background-shapes"
 import { ElementsSection } from "@/features/desktop-shell/inspector/desktopnew-elements-section"
+import {
+  isQrStylePartId,
+  QR_STYLE_PART_DEFINITIONS,
+} from "@/features/desktop-shell/inspector/qr-style-parts"
 import { DesktopNewContentFields } from "@/features/desktop-shell/inspector/desktopnew-content-fields"
 import { Ellipsis } from "lucide-react"
 import {
@@ -611,14 +610,10 @@ function logoSourceTab(sourceMode: DesktopLogoSettings["sourceMode"]): LogoSetti
 export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
   const [tab, setTab] = useState(() => getInspectorSectionTab("qr-style", "Module"))
   const {
-    actualCornersSettings,
     actualEncodingSettings,
     actualLogoSettings,
-    actualPatternSettings,
-    onCornersSettingsChange,
     onEncodingSettingsChange,
     onLogoSettingsChange,
-    onPatternSettingsChange,
   } = model
 
   const errorCorrectionIndex = Math.max(
@@ -629,38 +624,7 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
   )
   const logoSource = logoSourceTab(actualLogoSettings.sourceMode)
 
-  const part =
-    tab === "Module"
-      ? {
-          options: DOT_STYLE_OPTIONS,
-          previewKind: "dots" as const,
-          selected: actualPatternSettings.qrDotType,
-          onSelect: (value: string) =>
-            onPatternSettingsChange({
-              qrDotType: value as typeof actualPatternSettings.qrDotType,
-            }),
-        }
-      : tab === "Eye"
-        ? {
-            options: CORNER_DOT_STYLE_OPTIONS,
-            previewKind: "corner-dot" as const,
-            selected: actualCornersSettings.cornerDotType,
-            onSelect: (value: string) =>
-              onCornersSettingsChange({
-                cornerDotType: value as typeof actualCornersSettings.cornerDotType,
-              }),
-          }
-        : tab === "Frame"
-          ? {
-              options: CORNER_SQUARE_STYLE_OPTIONS,
-              previewKind: "corner-square" as const,
-              selected: actualCornersSettings.cornerSquareType,
-              onSelect: (value: string) =>
-                onCornersSettingsChange({
-                  cornerSquareType: value as typeof actualCornersSettings.cornerSquareType,
-                }),
-            }
-          : null
+  const part = isQrStylePartId(tab) ? QR_STYLE_PART_DEFINITIONS[tab] : null
 
   return (
     <div className="dn-section-stack w-full min-w-0 max-w-full">
@@ -791,8 +755,8 @@ export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
           <QrStylePreviewGrid
             options={part.options}
             previewKind={part.previewKind}
-            selected={part.selected}
-            onSelect={part.onSelect}
+            selected={part.readSelected(model)}
+            onSelect={(value) => part.applySelected(model, value)}
           />
         ) : null}
       </SettingsTabPanel>

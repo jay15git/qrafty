@@ -24,6 +24,7 @@ import { DesktopCuelumeProvider } from "@/features/desktop-shell/hooks/use-deskt
 import { getDesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { DEFAULT_DESKTOP_LAYERS_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 import { DEFAULT_BACKGROUND_SHAPE_OPTIONS } from "@/features/qr-code/model/state"
+import { DOT_STYLE_OPTIONS } from "@/features/qr-code/styles/style-options"
 import type { DesktopToolbarToolId } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import {
   createDraftingShapeLayer,
@@ -516,9 +517,13 @@ describe("FloatingToolbar", () => {
     const actions = railRoot?.querySelector(".dn-mobile-settings-rail__actions")
     expect(actions).not.toBeNull()
     expect(actions?.children).toHaveLength(3)
+    // History replaces the old inert family pill between the corners.
     expect(
-      actions?.querySelector('[data-slot="mobile-rail-family-pill"]')?.textContent?.trim(),
-    ).toBe("Content")
+      Array.from(
+        actions?.querySelectorAll<HTMLButtonElement>('[data-slot="mobile-rail-history"] button') ??
+          [],
+      ).map((button) => button.getAttribute("aria-label")),
+    ).toEqual(["Undo", "Redo"])
     expect(actions?.querySelector('button[aria-label="Close options"]')).not.toBeNull()
 
     await act(async () => {
@@ -528,6 +533,66 @@ describe("FloatingToolbar", () => {
     })
 
     expect(getLabels()).toContain("Style")
+    expect(railRoot?.querySelector(".dn-mobile-settings-rail__actions")).toBeNull()
+  })
+
+  it("drills the mobile rail from a style part into its catalogue and back", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+
+    const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
+    const getItems = () =>
+      Array.from(
+        railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+      )
+    const getLabels = () => getItems().map((item) => item.textContent?.trim())
+    const getRailLabel = () => {
+      const rows = railRoot?.querySelectorAll(".dn-mobile-settings-rail__row")
+      return rows?.[rows.length - 1]?.getAttribute("aria-label")
+    }
+    const click = async (element: Element | null | undefined) => {
+      await act(async () => {
+        element?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      })
+    }
+
+    await click(getItems().find((item) => item.textContent?.trim() === "Style"))
+
+    expect(getLabels()).toEqual(["Module", "Eye", "Frame", "Logo"])
+    expect(getRailLabel()).toBe("QR options")
+
+    await click(getItems().find((item) => item.textContent?.trim() === "Module"))
+
+    // The part row fades out and the catalogue takes its place.
+    expect(getItems()).toHaveLength(0)
+    expect(getRailLabel()).toBe("Module options")
+
+    const getStyleOptions = () =>
+      Array.from(
+        railRoot?.querySelectorAll<HTMLButtonElement>(
+          '[data-slot="mobile-rail-style-option"]',
+        ) ?? [],
+      )
+
+    expect(getStyleOptions()).toHaveLength(DOT_STYLE_OPTIONS.length)
+
+    await click(getStyleOptions().find((option) => option.getAttribute("aria-label") === "Circle"))
+
+    expect(
+      getStyleOptions()
+        .find((option) => option.getAttribute("aria-label") === "Circle")
+        ?.getAttribute("aria-pressed"),
+    ).toBe("true")
+
+    // The corner cross steps back one level, not straight out of the family.
+    await click(railRoot?.querySelector('button[aria-label="Close options"]'))
+
+    expect(getLabels()).toEqual(["Module", "Eye", "Frame", "Logo"])
+    expect(getRailLabel()).toBe("QR options")
+
+    await click(railRoot?.querySelector('button[aria-label="Close options"]'))
+
+    expect(getLabels()).toContain("Color")
     expect(railRoot?.querySelector(".dn-mobile-settings-rail__actions")).toBeNull()
   })
 
