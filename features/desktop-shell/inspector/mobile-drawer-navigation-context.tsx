@@ -34,6 +34,8 @@ type MobileDrawerNavigationContextValue = {
     },
   ) => void
   closeDetail: () => void
+  /** Drops every pending detail — used when the host drawer closes. */
+  clearDetails: () => void
   registerOutlet: (id: string, node: HTMLElement | null) => void
 }
 
@@ -157,6 +159,19 @@ export function MobileDrawerNavigationProvider({
     })
   }, [setView])
 
+  const clearDetails = useCallback(() => {
+    // Bail on an empty stack — a fresh [] would churn context identity and
+    // retrigger every effect keyed on the navigation object.
+    if (detailStackRef.current.length === 0) {
+      return
+    }
+    suppressRecoveryRef.current = true
+    setDetailStack([])
+    queueMicrotask(() => {
+      suppressRecoveryRef.current = false
+    })
+  }, [])
+
   useLayoutEffect(() => {
     if (suppressRecoveryRef.current) {
       return
@@ -169,6 +184,7 @@ export function MobileDrawerNavigationProvider({
 
   const value = useMemo(
     () => ({
+      clearDetails,
       closeDetail,
       detailPayload,
       detailStack,
@@ -176,7 +192,7 @@ export function MobileDrawerNavigationProvider({
       outlets,
       registerOutlet,
     }),
-    [closeDetail, detailPayload, detailStack, openDetail, outlets, registerOutlet],
+    [clearDetails, closeDetail, detailPayload, detailStack, openDetail, outlets, registerOutlet],
   )
 
   return (

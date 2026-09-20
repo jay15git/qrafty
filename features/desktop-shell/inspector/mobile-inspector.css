@@ -872,3 +872,45 @@
   .dn-mobile-settings-rail__action--history:disabled {
   opacity: 0.4;
 }
+
+/* Family-row option tiles (color swatches, shape glyphs, picker symbols) reuse
+   the preview-tile slot so they sit in the same rhythm as the style catalogue.
+   `dn-fill-option-tile` only sizes itself inside `.dn-fill-option-grid`. */
+[data-slot="mobile-settings-rail-root"] [data-slot="mobile-rail-option"] {
+  flex: 0 0 var(--dn-preview-tile);
+  width: var(--dn-preview-tile);
+  height: var(--dn-preview-tile);
+  min-width: var(--dn-preview-tile);
+  min-height: var(--dn-preview-tile);
+  padding: 3px;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Pressed pills read selected the way segment tabs do — stronger fill. */
+[data-slot="mobile-settings-rail-root"]
+  .dn-mobile-settings-rail__item--pill[aria-pressed="true"]
+  .dn-mobile-settings-rail__pill {
+  background: color-mix(in srgb, var(--dn-fg) 18%, transparent);
+}
+
+/* Fill-mode pill row under the options scrollarea (Color / Background). The
+   options scroll above it; the pills pick which set is shown. */
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__subrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 0.25rem;
+  overflow: hidden;
+  padding: 0 0.625rem 0.25rem;
+}
+
+/* Image-upload tiles only size themselves inside `.dn-fill-option-grid` — give
+   them the rail tile slot like the other `mobile-rail-option` tiles. */
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__upload-tile {
+  flex: 0 0 var(--dn-preview-tile);
+  width: var(--dn-preview-tile);
+  height: var(--dn-preview-tile);
+  min-width: var(--dn-preview-tile);
+  min-height: var(--dn-preview-tile);
+}

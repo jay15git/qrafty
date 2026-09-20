@@ -164,9 +164,9 @@ function QrStylePreviewGrid({
   )
 }
 
-const SQUARE_SHAPE_VIEWBOX = "0 0 24 24"
+export const SQUARE_SHAPE_VIEWBOX = "0 0 24 24"
 
-function ShapeGlyph({
+export function ShapeGlyph({
   className,
   path,
   viewBox,
@@ -187,7 +187,7 @@ function ShapeGlyph({
   )
 }
 
-function shapeViewBox(option: (typeof QR_BACKGROUND_SHAPES)[number]) {
+export function shapeViewBox(option: (typeof QR_BACKGROUND_SHAPES)[number]) {
   return `${option.viewBox.x ?? 0} ${option.viewBox.y ?? 0} ${option.viewBox.width} ${option.viewBox.height}`
 }
 

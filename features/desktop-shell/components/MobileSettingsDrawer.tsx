@@ -1,7 +1,14 @@
 "use client"
 
-import { Check, X } from "lucide-react"
-import { useCallback, useLayoutEffect, useMemo, useState } from "react"
+import { Check, ChevronLeft, X } from "lucide-react"
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react"
 
 import {
   FamilyDrawerAnimatedContent,
@@ -9,6 +16,7 @@ import {
   FamilyDrawerContent,
   FamilyDrawerPortal,
   FamilyDrawerRoot,
+  useFamilyDrawer,
   type ViewsRegistry,
 } from "@/components/ui/family-drawer"
 import { getMobileDrawerMaxHeightPx } from "@/features/desktop-shell/components/mobile-family-drawer-viewport"
@@ -18,6 +26,10 @@ import {
   getDesktopSettingsSectionLabel,
   type DesktopSettingsSectionId,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
+import {
+  MobileDetailStackOutlets,
+  useMobileDrawerNavigation,
+} from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import { SettingsSectionBody } from "@/features/desktop-shell/inspector/desktopnew-settings-sections"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { MobileInspectorDensityContext } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
@@ -28,7 +40,8 @@ import "@/features/desktop-shell/inspector/desktopnew.css"
 import "@/features/desktop-shell/inspector/mobile-inspector.css"
 
 const MOBILE_DRAWER_MAX_VIEWPORT_RATIO = 0.5
-const MOBILE_DRAWER_VIEW = "section"
+export const MOBILE_DRAWER_SECTION_VIEW = "section"
+export const MOBILE_DRAWER_DETAIL_VIEW = "setting-detail"
 
 function useMobileDrawerMaxHeight() {
   const [maxHeight, setMaxHeight] = useState<number>()
@@ -93,6 +106,72 @@ function MobileDrawerHeader({
   )
 }
 
+/**
+ * Pushes the view the rail-level navigation provider asks for into the drawer's
+ * internal view state (owned by `FamilyDrawerRoot`, which has no controlled
+ * `view` prop). One-way only — nothing inside the drawer sets the view itself,
+ * and reporting inner→outer caused a mount/commit flap loop.
+ */
+function FamilyDrawerViewBridge({ children, view }: { children: ReactNode; view: string }) {
+  const { setView, view: innerView } = useFamilyDrawer()
+
+  useEffect(() => {
+    if (innerView !== view) {
+      setView(view)
+    }
+  }, [innerView, setView, view])
+
+  return <>{children}</>
+}
+
+/** Detail page pushed on top of a section — pickers, insert menus, layer tools. */
+function MobileSettingDetailView({
+  model,
+  onClose,
+}: {
+  model: DesktopInspectorModel
+  onClose: () => void
+}) {
+  const navigation = useMobileDrawerNavigation()
+  const theme = model.actualDesktopTheme
+  const title = navigation?.detailPayload?.title ?? "Setting"
+
+  return (
+    <div
+      className="desktopnew-root w-full min-w-0"
+      data-mobile-inspector=""
+      data-theme={theme}
+    >
+      <DesktopnewThemeContext.Provider value={theme}>
+        <MobileInspectorDensityContext.Provider value={true}>
+          <header className="dn-mobile-drawer-nested-header">
+            <button
+              aria-label="Back"
+              className="dn-mobile-drawer-back"
+              data-vaul-no-drag=""
+              type="button"
+              onClick={() => navigation?.closeDetail()}
+            >
+              <ChevronLeft aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
+            </button>
+            <h2 className="dn-mobile-drawer-nested-header__title">{title}</h2>
+            <button
+              aria-label="Close settings"
+              className="dn-mobile-drawer-back"
+              data-vaul-no-drag=""
+              type="button"
+              onClick={onClose}
+            >
+              <X aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
+            </button>
+          </header>
+          <MobileDetailStackOutlets />
+        </MobileInspectorDensityContext.Provider>
+      </DesktopnewThemeContext.Provider>
+    </div>
+  )
+}
+
 function MobileSettingsSectionView({
   model,
   onClose,
@@ -129,15 +208,18 @@ export function MobileSettingsDrawer({
   onClose,
   onSectionChange,
   section,
+  view,
 }: {
   model: DesktopInspectorModel
   onClose: () => void
   onSectionChange: (section: DesktopSettingsSectionId) => void
   section: DesktopSettingsSectionId | null
+  /** `"section"` or `"setting-detail"` — the rail-level nav provider drives it. */
+  view: string
 }) {
   const theme = model.actualDesktopTheme
   const maxHeight = useMobileDrawerMaxHeight()
-  const open = section !== null
+  const open = section !== null || view === MOBILE_DRAWER_DETAIL_VIEW
 
   // Content is reached by picking a content type on the rail, so its heading
   // names the option ("Link", "Text", …) rather than the section.
@@ -170,14 +252,22 @@ export function MobileSettingsDrawer({
     )
   }, [goToNextSection, model, onClose, section, title])
 
+  const detailView = useCallback(
+    () => <MobileSettingDetailView model={model} onClose={onClose} />,
+    [model, onClose],
+  )
+
   const views = useMemo<ViewsRegistry>(
-    () => ({ [MOBILE_DRAWER_VIEW]: sectionView }),
-    [sectionView],
+    () => ({
+      [MOBILE_DRAWER_SECTION_VIEW]: sectionView,
+      [MOBILE_DRAWER_DETAIL_VIEW]: detailView,
+    }),
+    [detailView, sectionView],
   )
 
   return (
     <FamilyDrawerRoot
-      defaultView={MOBILE_DRAWER_VIEW}
+      defaultView={MOBILE_DRAWER_SECTION_VIEW}
       dismissible={false}
       modal={false}
       open={open}
@@ -201,7 +291,9 @@ export function MobileSettingsDrawer({
           variant="card"
         >
           <FamilyDrawerAnimatedWrapper className="dn-mobile-drawer-body px-5 pt-4">
-            <FamilyDrawerAnimatedContent />
+            <FamilyDrawerViewBridge view={view}>
+              <FamilyDrawerAnimatedContent />
+            </FamilyDrawerViewBridge>
           </FamilyDrawerAnimatedWrapper>
         </FamilyDrawerContent>
       </FamilyDrawerPortal>

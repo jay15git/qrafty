@@ -23,8 +23,14 @@ import { DesktopSettingsToolbarShell } from "@/features/desktop-shell/components
 import { DesktopCuelumeProvider } from "@/features/desktop-shell/hooks/use-desktop-cuelume"
 import { getDesktopAppearanceSnapshot } from "@/features/desktop-shell/model/appearance"
 import { DEFAULT_DESKTOP_LAYERS_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
-import { DEFAULT_BACKGROUND_SHAPE_OPTIONS } from "@/features/qr-code/model/state"
+import { DEFAULT_BACKGROUND_SHAPE_OPTIONS, QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS } from "@/features/qr-code/model/state"
+import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
 import { DOT_STYLE_OPTIONS } from "@/features/qr-code/styles/style-options"
+import {
+  SETTINGS_FILL_LINEAR_PRESETS,
+  SETTINGS_FILL_SOLID_PRESETS,
+} from "@/features/desktop-shell/inspector/settings-fill-presets"
+import { getCardGeneratedShaderDefinitions } from "@/features/workspace/rendering/paper-shader-definitions"
 import type { DesktopToolbarToolId } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import {
   createDraftingShapeLayer,
@@ -594,6 +600,158 @@ describe("FloatingToolbar", () => {
 
     expect(getLabels()).toContain("Color")
     expect(railRoot?.querySelector(".dn-mobile-settings-rail__actions")).toBeNull()
+  })
+
+  it("serves quick-pick rows for the remaining families in the mobile rail", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+
+    const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
+    const getItems = () =>
+      Array.from(
+        railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+      )
+    const getLabels = () => getItems().map((item) => item.textContent?.trim())
+    const getTiles = () =>
+      Array.from(
+        railRoot?.querySelectorAll<HTMLButtonElement>(
+          '[data-slot="mobile-rail-option"]',
+        ) ?? [],
+      )
+    const getRailLabel = () => {
+      const rows = railRoot?.querySelectorAll(".dn-mobile-settings-rail__row")
+      return rows?.[rows.length - 1]?.getAttribute("aria-label")
+    }
+    const click = async (element: Element | null | undefined) => {
+      await act(async () => {
+        element?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      })
+    }
+    const closeRow = () =>
+      click(railRoot?.querySelector('button[aria-label="Close options"]'))
+
+    // Color: fill-mode pills under the row browse the option sets above them.
+    await click(getItems().find((item) => item.textContent?.trim() === "Color"))
+
+    const getModePills = () =>
+      Array.from(
+        railRoot?.querySelectorAll<HTMLButtonElement>(
+          '[aria-label$="fill modes"] .dn-mobile-settings-rail__item--pill',
+        ) ?? [],
+      )
+    const getModePillLabels = () =>
+      getModePills().map((pill) => pill.textContent?.trim())
+
+    expect(getRailLabel()).toBe("Color options")
+    expect(
+      railRoot?.querySelector('button[aria-label="Custom color"]'),
+    ).not.toBeNull()
+    expect(getTiles()).toHaveLength(SETTINGS_FILL_SOLID_PRESETS.length + 1)
+    expect(getModePillLabels()).toEqual([
+      "Solid",
+      "Linear",
+      "Radial",
+      "Image",
+      "Pattern",
+    ])
+
+    // Browsing another mode swaps the option set above the pills.
+    await click(getModePills().find((pill) => pill.textContent?.trim() === "Linear"))
+
+    expect(getTiles()).toHaveLength(SETTINGS_FILL_LINEAR_PRESETS.length + 1)
+    expect(
+      getModePills()
+        .find((pill) => pill.textContent?.trim() === "Linear")
+        ?.getAttribute("aria-pressed"),
+    ).toBe("true")
+
+    await closeRow()
+
+    // Motion: Off plus every loader preset plus a drawer escape hatch.
+    await click(getItems().find((item) => item.textContent?.trim() === "Motion"))
+
+    expect(getRailLabel()).toBe("Motion options")
+    expect(getLabels()).toEqual([
+      "Off",
+      ...QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => option.label),
+      "More",
+    ])
+
+    await closeRow()
+
+    // Shape: square + every background shape glyph, then a Fill drawer entry.
+    await click(getItems().find((item) => item.textContent?.trim() === "Shape"))
+
+    expect(getRailLabel()).toBe("Shape options")
+    expect(getTiles()).toHaveLength(QR_BACKGROUND_SHAPES.length + 1)
+    expect(getLabels()).toContain("Fill")
+
+    await closeRow()
+
+    // Background: same fill-mode pills — solid/linear/radial swatches, plus
+    // wallpaper and shader option sets.
+    await click(getItems().find((item) => item.textContent?.trim() === "Background"))
+
+    expect(getRailLabel()).toBe("Background options")
+    // The card defaults to a paper shader, so the shader set opens first.
+    expect(getTiles()).toHaveLength(getCardGeneratedShaderDefinitions().length)
+    expect(getModePillLabels()).toEqual([
+      "Solid",
+      "Linear",
+      "Radial",
+      "Image",
+      "Shader",
+    ])
+    expect(
+      getModePills()
+        .find((pill) => pill.textContent?.trim() === "Shader")
+        ?.getAttribute("aria-pressed"),
+    ).toBe("true")
+
+    await click(getModePills().find((pill) => pill.textContent?.trim() === "Solid"))
+
+    expect(
+      railRoot?.querySelector('button[aria-label="Custom background"]'),
+    ).not.toBeNull()
+    expect(getTiles()).toHaveLength(SETTINGS_FILL_SOLID_PRESETS.length + 1)
+
+    await closeRow()
+
+    // Elements: Add and Layers push insert/layers content as drawer details.
+    await click(getItems().find((item) => item.textContent?.trim() === "Elements"))
+
+    expect(getRailLabel()).toBe("Elements options")
+    expect(getLabels()).toEqual(expect.arrayContaining(["Add", "Layers"]))
+
+    await closeRow()
+
+    expect(getRailLabel()).toBe("Settings sections")
+  })
+
+  it("opens the color picker inside the family drawer as a detail page", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+
+    const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
+    const click = async (element: Element | null | undefined) => {
+      await act(async () => {
+        element?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      })
+    }
+
+    await click(
+      Array.from(
+        railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+      ).find((item) => item.textContent?.trim() === "Color"),
+    )
+    await click(railRoot?.querySelector('button[aria-label="Custom color"]'))
+
+    const drawer = document.querySelector('[data-slot="mobile-family-drawer-root"]')
+    expect(drawer).not.toBeNull()
+    expect(
+      Array.from(drawer?.querySelectorAll(".dn-mobile-drawer-nested-header__title") ?? [])
+        .map((node) => node.textContent?.trim()),
+    ).toContain("Color")
   })
 
   it("anchors the mobile settings rail above the safe area with a keyboard inset", async () => {
