@@ -38,8 +38,8 @@
   --ws-shadow-active: 0 1px 4px rgb(var(--ws-ink-rgb) / 0.08);
   --ws-shadow-selected: 0 0 22px 2px rgb(var(--ws-ink-rgb) / 0.14);
   --ws-shadow-shell: none;
-  --ws-panel-bg: rgb(var(--ws-paper-rgb) / 0.8);
-  --ws-panel-bg-hover: rgb(var(--ws-paper-rgb) / 0.95);
+  --ws-panel-bg: rgb(255 255 255 / 0.8);
+  --ws-panel-bg-hover: rgb(255 255 255 / 0.95);
   --ws-panel-bg-active: #ffffff;
   --ws-button-bg: var(--ws-control-bg);
   --ws-button-bg-hover: var(--ws-control-bg-hover);
@@ -102,10 +102,10 @@
   --scroll-edge-fade-color: var(--ws-page-bg);
   --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
   --ws-paper-rgb: 7 8 10;
-  --ws-page-bg: #07080a;
-  --ws-surface-bg: #1f1f1f;
-  --ws-canvas-bg: #1f1f1f;
-  --ws-workspace-bg: #1f1f1f;
+  --ws-page-bg: #000000;
+  --ws-surface-bg: #000000;
+  --ws-canvas-bg: #000000;
+  --ws-workspace-bg: #000000;
   --ws-canvas-dot-opacity: 0.075;
   --ws-ink: #f5f5f5;
   --ws-resize-frame: #4ab8ff;
@@ -125,9 +125,9 @@
   --ws-shadow-hover: 0 0 24px 3px rgb(0 0 0 / 0.14);
   --ws-shadow-active: 0 0 14px 1px rgb(0 0 0 / 0.12);
   --ws-shadow-selected: 0 0 24px 3px rgb(0 0 0 / 0.14);
-  --ws-panel-bg: rgb(255 255 255 / 0.05);
-  --ws-panel-bg-hover: rgb(255 255 255 / 0.08);
-  --ws-panel-bg-active: #1f1f1f;
+  --ws-panel-bg: rgb(22 22 22 / 0.85);
+  --ws-panel-bg-hover: rgb(29 29 29 / 0.9);
+  --ws-panel-bg-active: #1c1c1c;
   --ws-button-bg-selected: #f5f5f5;
   --ws-button-icon-selected: #101216;
   --ws-button-label-selected: #f5f5f5;

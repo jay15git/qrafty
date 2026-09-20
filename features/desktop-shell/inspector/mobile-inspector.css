@@ -6,7 +6,7 @@
 }
 
 [data-mobile-inspector][data-theme="dark"] {
-  --dn-mobile-button-bg: #000000;
+  --dn-mobile-button-bg: #161616;
 }
 
 [data-slot="mobile-family-drawer-root"].desktopnew-root {

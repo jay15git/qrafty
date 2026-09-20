@@ -32,7 +32,7 @@ export default async function DesktopPage() {
       className={cn(
         satoshi.className,
         "h-dvh min-h-0 overflow-hidden",
-        initialTheme === "light" ? "bg-[#f0f1f2] text-neutral-950" : "bg-[#07080a] text-white",
+        initialTheme === "light" ? "bg-[#f0f1f2] text-neutral-950" : "bg-black text-white",
       )}
     >
       <Suspense fallback={null}>

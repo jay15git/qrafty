@@ -36,11 +36,11 @@ export function DesktopWorkspace({
   const isMobileWorkspace = useMediaQuery(DESKTOP_WORKSPACE_MOBILE_QUERY)
   useDesktopWorkspaceThemeSync(desktopTheme, setDesktopTheme)
   const workspaceTone = {
-    "--workspace-shell": desktopTheme === "light" ? "#ffffff" : "#07080a",
-    "--workspace-page": desktopTheme === "light" ? "#ffffff" : "#07080a",
-    "--ws-canvas-bg": desktopTheme === "light" ? "#f0f1f2" : "#1f1f1f",
-    "--ws-workspace-bg": desktopTheme === "light" ? "#f0f1f2" : "#1f1f1f",
-    "--ws-surface-bg": desktopTheme === "light" ? "#f0f1f2" : "#1f1f1f",
+    "--workspace-shell": desktopTheme === "light" ? "#f0f1f2" : "#000000",
+    "--workspace-page": desktopTheme === "light" ? "#f0f1f2" : "#000000",
+    "--ws-canvas-bg": desktopTheme === "light" ? "#f0f1f2" : "#000000",
+    "--ws-workspace-bg": desktopTheme === "light" ? "#f0f1f2" : "#000000",
+    "--ws-surface-bg": desktopTheme === "light" ? "#f0f1f2" : "#000000",
   } as CSSProperties
 
   return (

@@ -1,5 +1,5 @@
 body:has([data-slot="desktop-floating-toolbar-root"]) {
-  --desktop-glass-bg: rgba(0, 0, 0, 0.95);
+  --desktop-glass-bg: rgba(22, 22, 22, 0.95);
   --desktop-glass-border: rgba(255, 255, 255, 0.06);
   --desktop-glass-fg: rgba(255, 255, 255, 0.72);
   --desktop-glass-shadow: 0 24px 64px rgba(0, 0, 0, 0.34);
@@ -8,7 +8,7 @@ body:has([data-slot="desktop-floating-toolbar-root"]) {
   --desktop-glass-button-hover-bg: rgba(255, 255, 255, 0.11);
   --desktop-glass-button-hover-fg: rgba(255, 255, 255, 1);
   --desktop-glass-button-focus-ring: rgba(255, 255, 255, 0.45);
-  --desktop-appearance-popover-bg: #0a0a0a;
+  --desktop-appearance-popover-bg: #161616;
   --desktop-appearance-popover-border: rgba(255, 255, 255, 0.06);
   --desktop-appearance-popover-shadow: var(--desktop-glass-shadow);
   --desktop-inspector-fg-primary: rgba(255, 255, 255, 0.94);
@@ -18,7 +18,7 @@ body:has([data-slot="desktop-floating-toolbar-root"]) {
   --desktop-inspector-fg-label: var(--desktop-inspector-fg-secondary);
   --desktop-inspector-error: rgba(248, 113, 113, 0.92);
   --desktop-inspector-dropdown-bg: rgba(0, 0, 0, 0.9);
-  --desktop-inspector-morph-filter-bg: var(--workspace-shell, #1f1f1f);
+  --desktop-inspector-morph-filter-bg: var(--workspace-shell, #000000);
   --desktop-inspector-dropdown-border: rgba(255, 255, 255, 0.06);
   --desktop-inspector-control-hover-bg: rgba(255, 255, 255, 0.09);
   --desktop-inspector-option-selected-bg: rgba(255, 255, 255, 0.14);
@@ -200,7 +200,7 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
 }
 
 [data-desktop-theme="dark"] [data-slot="tooltip-navbar-shell"] {
-  background: rgba(0, 0, 0, 0.95) !important;
+  background: rgba(22, 22, 22, 0.95) !important;
   border-color: rgba(255, 255, 255, 0.06) !important;
   color: rgba(255, 255, 255, 0.72) !important;
   border-radius: 1rem !important;

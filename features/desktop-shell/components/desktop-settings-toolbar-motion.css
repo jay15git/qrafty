@@ -80,11 +80,11 @@
   }
 
   [data-slot="desktop-workspace"][data-mobile-workspace="true"][data-desktop-theme="dark"] {
-    background-color: var(--ws-surface-bg, #1f1f1f);
+    background-color: var(--ws-surface-bg, #000000);
   }
 
   [data-slot="desktop-workspace"][data-mobile-workspace="true"][data-desktop-theme="dark"] [data-slot="drafting-surface"] {
-    background: var(--ws-surface-bg, #1f1f1f);
+    background: var(--ws-surface-bg, #000000);
   }
 
   [data-slot="desktop-workspace"][data-mobile-workspace="true"][data-desktop-theme="light"] {
@@ -122,7 +122,7 @@
   box-sizing: border-box;
   height: 100%;
   min-height: 0;
-  background: var(--ws-surface-bg, #1f1f1f);
+  background: var(--ws-surface-bg, #000000);
   /* Left padding = expanding white column. Grey squircle shrinks as this grows. */
   padding:
     var(--desktop-workspace-canvas-inset-top)
@@ -159,7 +159,7 @@
 }
 
 [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-canvas-viewport"] {
-  background: var(--ws-surface-bg, #1f1f1f);
+  background: var(--ws-surface-bg, #000000);
   box-shadow: none;
 }
 
@@ -240,12 +240,12 @@
 }
 
 [data-slot="desktop-left-toolbar-shell"]:has([data-slot="desktopnew-settings-inspector"]) {
-  background: #ffffff;
+  background: transparent;
 }
 
 [data-slot="desktop-workspace"][data-desktop-theme="dark"]
   [data-slot="desktop-left-toolbar-shell"]:has([data-slot="desktopnew-settings-inspector"]) {
-  background: #090909;
+  background: transparent;
 }
 
 [data-slot="desktop-left-toolbar-shell"]:has([data-slot="desktopnew-settings-inspector"])

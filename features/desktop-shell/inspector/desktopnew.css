@@ -4,13 +4,13 @@
   color-scheme: dark;
   --overlay: 255 255 255;
   --focus-ring: #6b97ff;
-  --dn-bg: #090909;
-  --dn-surface: #111111;
-  --dn-control: #1a1a1a;
-  --dn-control-hover: #1a1a1a;
+  --dn-bg: #161616;
+  --dn-surface: #1d1d1d;
+  --dn-control: #232323;
+  --dn-control-hover: #232323;
   --dn-fg: #f5f5f5;
   --dn-muted: #6b6b6b;
-  --dn-line: #252525;
+  --dn-line: #2c2c2c;
   --dn-accent: #fafafa;
   --dn-on-accent: #090909;
   --dn-font: "Inter", system-ui, sans-serif;
@@ -59,7 +59,7 @@
   --ring: var(--dn-accent);
   --scroll-edge-fade-color: var(--dn-bg);
   --scroll-edge-chevron-color: var(--dn-muted);
-  --dn-slider-bg: #161616;
+  --dn-slider-bg: #202020;
 
   min-height: 100dvh;
   background: var(--dn-bg);
@@ -151,11 +151,12 @@
   justify-content: flex-start;
   padding: 0;
   isolation: isolate;
-  background: #f0f1f2;
+  background: transparent;
 }
 
 .desktopnew-root.desktopnew-embedded[data-theme="dark"] {
-  background: #1f1f1f;
+  background: transparent;
+  --scroll-edge-fade-color: #000000;
 }
 
 .desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-panel {
@@ -163,13 +164,13 @@
   border: none;
   border-radius: 0;
   corner-shape: round;
-  background: #1f1f1f;
+  background: transparent;
 }
 
 .desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-scroll,
 .desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-scroll [data-slot="scroll-area-viewport"],
 [data-slot="desktopnew-settings-inspector"] > .desktopnew-root.desktopnew-embedded[data-theme="dark"] {
-  background: #1f1f1f;
+  background: transparent;
 }
 
 .dn-settings-panel {
@@ -190,17 +191,21 @@
   }
 }
 
+.desktopnew-root.desktopnew-embedded[data-theme="light"] {
+  --scroll-edge-fade-color: #f0f1f2;
+}
+
 .desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-panel {
   width: 100%;
   border: none;
   border-radius: 0;
   corner-shape: round;
-  background: #f0f1f2;
+  background: transparent;
 }
 
 .desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-scroll,
 .desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-scroll [data-slot="scroll-area-viewport"] {
-  background: #f0f1f2;
+  background: transparent;
 }
 
 [data-slot="desktopnew-settings-inspector"] {
@@ -213,7 +218,7 @@
   height: 100%;
   min-height: 0;
   width: 100%;
-  background: #f0f1f2;
+  background: transparent;
   color: var(--dn-fg);
 }
 
@@ -1690,7 +1695,7 @@
   --dn-type-value-weight: 500;
   --dn-type-label-color: color-mix(in srgb, var(--dn-fg) 46%, transparent);
   --dn-type-value-color: var(--dn-fg);
-  --dn-slider-bg: #161616;
+  --dn-slider-bg: #202020;
   --background: var(--dn-bg);
   --foreground: var(--dn-fg);
   --card: var(--dn-bg);
@@ -2281,13 +2286,13 @@
 }
 
 .desktopnew-fill-popover[data-theme="dark"] {
-  --dn-bg: #090909;
-  --dn-surface: #111111;
-  --dn-control: #1a1a1a;
-  --dn-control-hover: #1a1a1a;
+  --dn-bg: #161616;
+  --dn-surface: #1d1d1d;
+  --dn-control: #232323;
+  --dn-control-hover: #232323;
   --dn-fg: #f5f5f5;
   --dn-muted: #6b6b6b;
-  --dn-line: #252525;
+  --dn-line: #2c2c2c;
 }
 
 .desktopnew-fill-popover .dn-fill-picker-panel {

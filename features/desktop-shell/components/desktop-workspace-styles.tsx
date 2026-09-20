@@ -91,7 +91,7 @@ export function DesktopWorkspaceStyles() {
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="drafting-surface"] {
-        background: #07080a;
+        background: #000000;
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-floating-inspector"] {
@@ -106,7 +106,7 @@ export function DesktopWorkspaceStyles() {
       }
 
       [data-slot="desktop-workspace"][data-desktop-theme="dark"] [data-slot="desktop-compose-surface"] {
-        background-color: var(--ws-canvas-bg, #1f1f1f) !important;
+        background-color: var(--ws-canvas-bg, #000000) !important;
         border: 0 !important;
         border-radius: 0 !important;
         box-shadow: none !important;
