@@ -2,7 +2,8 @@
 
 import { Check, ChevronLeft, X } from "lucide-react"
 import {
-  useCallback,
+  createContext,
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -41,6 +42,18 @@ import "@/features/desktop-shell/inspector/mobile-inspector.css"
 const MOBILE_DRAWER_MAX_VIEWPORT_RATIO = 0.5
 export const MOBILE_DRAWER_SECTION_VIEW = "section"
 export const MOBILE_DRAWER_DETAIL_VIEW = "setting-detail"
+
+type MobileDrawerViewProps = {
+  model: DesktopInspectorModel
+  onDiscard: () => void
+  onSave: () => void
+  section: DesktopSettingsSectionId | null
+  title: string | undefined
+}
+
+const MobileDrawerViewPropsContext = createContext<MobileDrawerViewProps | null>(
+  null,
+)
 
 function useMobileDrawerMaxHeight() {
   const [maxHeight, setMaxHeight] = useState<number>()
@@ -232,32 +245,42 @@ export function MobileSettingsDrawer({
       : getDesktopSettingsSectionLabel(section)
     : undefined
 
-  const sectionView = useCallback(() => {
-    if (!section) {
-      return null
-    }
-    return (
-      <MobileSettingsSectionView
-        model={model}
-        onDiscard={onDiscard}
-        onSave={onSave}
-        section={section}
-        title={title ?? getDesktopSettingsSectionLabel(section)}
-      />
-    )
-  }, [model, onDiscard, onSave, section, title])
-
-  const detailView = useCallback(
-    () => <MobileSettingDetailView model={model} onDiscard={onDiscard} />,
-    [model, onDiscard],
-  )
-
+  // `views` entries are rendered as component types — if they change identity
+  // on every render (e.g. model updates per keystroke/color-drag tick),
+  // FamilyDrawerViewContent remounts the whole view and inputs lose focus.
+  // Keep the registry components stable and feed them the latest props through
+  // context, which propagates across renders without remounting.
   const views = useMemo<ViewsRegistry>(
     () => ({
-      [MOBILE_DRAWER_SECTION_VIEW]: sectionView,
-      [MOBILE_DRAWER_DETAIL_VIEW]: detailView,
+      [MOBILE_DRAWER_SECTION_VIEW]: function MobileDrawerSectionView() {
+        const p = useContext(MobileDrawerViewPropsContext)
+        if (!p?.section) {
+          return null
+        }
+        return (
+          <MobileSettingsSectionView
+            model={p.model}
+            onDiscard={p.onDiscard}
+            onSave={p.onSave}
+            section={p.section}
+            title={p.title ?? getDesktopSettingsSectionLabel(p.section)}
+          />
+        )
+      },
+      [MOBILE_DRAWER_DETAIL_VIEW]: function MobileDrawerDetailView() {
+        const p = useContext(MobileDrawerViewPropsContext)
+        if (!p) {
+          return null
+        }
+        return <MobileSettingDetailView model={p.model} onDiscard={p.onDiscard} />
+      },
     }),
-    [detailView, sectionView],
+    [],
+  )
+
+  const viewProps = useMemo(
+    () => ({ model, onDiscard, onSave, section, title }),
+    [model, onDiscard, onSave, section, title],
   )
 
   return (
@@ -286,9 +309,11 @@ export function MobileSettingsDrawer({
           variant="card"
         >
           <FamilyDrawerAnimatedWrapper className="dn-mobile-drawer-body px-5 pt-4">
-            <FamilyDrawerViewBridge view={view}>
-              <FamilyDrawerAnimatedContent />
-            </FamilyDrawerViewBridge>
+            <MobileDrawerViewPropsContext.Provider value={viewProps}>
+              <FamilyDrawerViewBridge view={view}>
+                <FamilyDrawerAnimatedContent />
+              </FamilyDrawerViewBridge>
+            </MobileDrawerViewPropsContext.Provider>
           </FamilyDrawerAnimatedWrapper>
         </FamilyDrawerContent>
       </FamilyDrawerPortal>

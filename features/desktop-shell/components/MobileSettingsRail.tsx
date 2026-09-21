@@ -119,6 +119,7 @@ const LazyDesktopNewFillPicker = lazy(() =>
     (module) => ({ default: module.DesktopNewFillPicker }),
   ),
 )
+type LockedFillPickerMode = import("@/features/desktop-shell/inspector/desktopnew-fill-picker").LockedFillPickerMode
 const LazyInsertMenuPanelStack = lazy(() =>
   import("@/features/workspace/components/insert-menu/InsertMenuPanelStack").then(
     (module) => ({ default: module.InsertMenuPanelStack }),
@@ -511,6 +512,18 @@ function fillPresetsForMode(mode: string): readonly string[] {
   return SETTINGS_FILL_SOLID_PRESETS
 }
 
+/** The rail already picked a fill mode — the detail picker locks to it instead
+ *  of re-showing Solid/Gradient tabs. */
+function lockedFillModeForRailMode(mode: string): LockedFillPickerMode | undefined {
+  if (mode === "solid") {
+    return "solid"
+  }
+  if (mode === "linear" || mode === "radial") {
+    return "gradient"
+  }
+  return undefined
+}
+
 /** Solid/gradient swatch tile for the rail. */
 function MobileRailSwatchTile({
   ariaLabel,
@@ -861,8 +874,12 @@ function MobileColorRailRow({ model, openDrawer }: MobileRailRowProps) {
             title: "Color",
             content: (
               <Suspense fallback={null}>
-                <div className="w-full min-w-0">
+                <div
+                  className="desktopnew-fill-popover w-full min-w-0"
+                  data-theme={model.actualDesktopTheme}
+                >
                   <LazyDesktopNewFillPicker
+                    lockedFillMode={lockedFillModeForRailMode(mode)}
                     qrGradient
                     value={value}
                     onValueChange={(fill) => applyQrFill(modelRef.current, fill)}
@@ -1009,8 +1026,12 @@ function MobileShapeRailRow({ model }: MobileRailRowProps) {
               title: "Shape fill",
               content: (
                 <Suspense fallback={null}>
-                  <div className="w-full min-w-0">
+                  <div
+                    className="desktopnew-fill-popover w-full min-w-0"
+                    data-theme={model.actualDesktopTheme}
+                  >
                     <LazyDesktopNewFillPicker
+                      lockedFillMode={lockedFillModeForRailMode(shapeFillSubMode(mode))}
                       qrGradient
                       value={value}
                       onValueChange={(fill) => applyFill(fill)}
@@ -1218,8 +1239,12 @@ function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
             title: "Background",
             content: (
               <Suspense fallback={null}>
-                <div className="w-full min-w-0">
+                <div
+                  className="desktopnew-fill-popover w-full min-w-0"
+                  data-theme={model.actualDesktopTheme}
+                >
                   <LazyDesktopNewFillPicker
+                    lockedFillMode={lockedFillModeForRailMode(mode)}
                     qrGradient
                     value={value}
                     onValueChange={(fill, css) => applyBackground(fill, css)}

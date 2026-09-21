@@ -783,17 +783,22 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
   const popoverTitle = title ?? hint
 
   const pickerBody = (
-    <DesktopNewFillPicker
-      key={lockedFillMode ?? moduleFillMode ?? "default"}
-      lockedFillMode={lockedFillMode}
-      moduleFillMode={lockedFillMode ? undefined : moduleFillMode}
-      moduleImage={moduleImage}
-      modulePattern={modulePattern}
-      qrGradient={qrGradient}
-      solidOnly={solidOnly}
-      value={value}
-      onValueChange={onValueChange}
-    />
+    // `.desktopnew-fill-popover` scopes the calm-surface fill-picker rules —
+    // without it the picker renders raw base styles (white borders) when it
+    // portals into the mobile drawer detail outlet.
+    <div className="desktopnew-fill-popover w-full min-w-0" data-theme={theme}>
+      <DesktopNewFillPicker
+        key={lockedFillMode ?? moduleFillMode ?? "default"}
+        lockedFillMode={lockedFillMode}
+        moduleFillMode={lockedFillMode ? undefined : moduleFillMode}
+        moduleImage={moduleImage}
+        modulePattern={modulePattern}
+        qrGradient={qrGradient}
+        solidOnly={solidOnly}
+        value={value}
+        onValueChange={onValueChange}
+      />
+    </div>
   )
 
   const liveDetail = useMobileLiveDetail({
