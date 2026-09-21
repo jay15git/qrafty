@@ -137,9 +137,7 @@ function unlockLayerMoveCursor() {
 
 const ROTATION_LABEL_HIDE_DELAY_MS = 2000
 /* Bencho-style crop morph: frame and document move on
-   width/height with the same curve, never a scale — see
-   components/ui/aspect-ratio.tsx for where the number and
-   the easing come from. */
+   width/height with the same curve, never a scale. */
 const RATIO_MORPH_MS = 520
 const RATIO_MORPH_FLAG_MS = RATIO_MORPH_MS + 120
 const SNAP_THRESHOLD_PX = 6

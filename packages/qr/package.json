@@ -22,10 +22,6 @@
       "types": "./src/react/index.ts",
       "import": "./src/react/index.ts"
     },
-    "./animated": {
-      "types": "./src/animated/index.ts",
-      "import": "./src/animated/index.ts"
-    },
     "./dot-matrix": {
       "types": "./src/dot-matrix/index.ts",
       "import": "./src/dot-matrix/index.ts"

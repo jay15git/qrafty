@@ -26,30 +26,6 @@ export const SETTINGS_FILL_SOLID_PRESETS = [
   "oklch(0.76 0.14 160)",
 ] as const
 
-/** Linear and radial gradient fills for the settings fill option grid. */
-export const SETTINGS_FILL_GRADIENT_PRESETS = [
-  "linear-gradient(in oklch 125deg, oklch(0.82 0.18 45) 0%, oklch(0.58 0.22 15) 100%)",
-  "linear-gradient(in oklch 200deg, oklch(0.78 0.12 210) 0%, oklch(0.45 0.18 265) 100%)",
-  "linear-gradient(in oklch 160deg, oklch(0.82 0.16 130) 0%, oklch(0.52 0.14 195) 100%)",
-  "linear-gradient(in oklch 315deg, oklch(0.75 0.2 330) 0%, oklch(0.55 0.22 280) 100%)",
-  "linear-gradient(in oklch 35deg, oklch(0.9 0.14 95) 0%, oklch(0.65 0.2 55) 100%)",
-  "linear-gradient(in oklch 270deg, oklch(0.72 0.16 300) 0%, oklch(0.42 0.12 260) 100%)",
-  "radial-gradient(circle farthest-corner at 50% 35% in oklch, oklch(0.88 0.14 85) 0%, oklch(0.55 0.2 25) 100%)",
-  "radial-gradient(circle farthest-corner at 50% 50% in oklch, oklch(0.75 0.15 200) 0%, oklch(0.38 0.16 265) 100%)",
-  "radial-gradient(circle farthest-corner at 50% 50% in oklch, oklch(0.8 0.17 155) 0%, oklch(0.42 0.14 170) 100%)",
-  "radial-gradient(circle farthest-corner at 50% 50% in oklch, oklch(0.78 0.2 330) 0%, oklch(0.48 0.22 15) 100%)",
-  "linear-gradient(in oklch 90deg, oklch(0.85 0.16 95) 0%, oklch(0.62 0.22 25) 100%)",
-  "linear-gradient(in oklch 240deg, oklch(0.7 0.18 330) 0%, oklch(0.48 0.16 250) 100%)",
-  "linear-gradient(in oklch 15deg, oklch(0.8 0.12 200) 0%, oklch(0.58 0.2 280) 100%)",
-  "linear-gradient(in oklch 145deg, oklch(0.84 0.15 125) 0%, oklch(0.5 0.18 300) 100%)",
-  "linear-gradient(in oklch 300deg, oklch(0.76 0.2 50) 0%, oklch(0.42 0.14 220) 100%)",
-  "radial-gradient(circle farthest-corner at 30% 30% in oklch, oklch(0.86 0.14 95) 0%, oklch(0.5 0.2 320) 100%)",
-  "radial-gradient(circle farthest-corner at 70% 30% in oklch, oklch(0.8 0.17 175) 0%, oklch(0.45 0.18 250) 100%)",
-  "radial-gradient(circle farthest-corner at 50% 65% in oklch, oklch(0.82 0.18 60) 0%, oklch(0.48 0.22 10) 100%)",
-  "radial-gradient(circle farthest-corner at 50% 50% in oklch, oklch(0.72 0.2 145) 0%, oklch(0.4 0.12 200) 100%)",
-  "linear-gradient(in oklch 55deg, oklch(0.88 0.15 110) 0%, oklch(0.52 0.2 340) 100%)",
-] as const
-
 /** Linear gradients — multi-stop, contrasting hues, varied angles. */
 export const SETTINGS_FILL_LINEAR_PRESETS = [
   // sunset fire → dusk

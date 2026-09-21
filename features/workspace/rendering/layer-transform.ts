@@ -37,23 +37,6 @@ export type BackgroundShapeTiltContainerStyle = {
   transformStyle?: "preserve-3d"
 }
 
-export function getBackgroundShapeTiltContainerStyle(
-  shapeOptions: Pick<BackgroundShapeOptions, "tiltX" | "tiltY">,
-): BackgroundShapeTiltContainerStyle {
-  const tiltTransform = getBackgroundShapeCssTiltTransform(shapeOptions)
-
-  if (!tiltTransform) {
-    return {}
-  }
-
-  return {
-    perspective: "600px",
-    transform: tiltTransform,
-    transformOrigin: "center center",
-    transformStyle: "preserve-3d",
-  }
-}
-
 export function getBackgroundShapeTiltPerspectiveStyle(
   shapeOptions: Pick<BackgroundShapeOptions, "tiltX" | "tiltY">,
 ): Pick<BackgroundShapeTiltContainerStyle, "perspective"> {
@@ -95,13 +78,6 @@ export function getLayerPlacementTransform(
   const rotationPart = rotation !== 0 ? ` rotate(${rotation}deg)` : ""
 
   return `${translation}${scale}${rotationPart}`
-}
-
-/** @deprecated Use getLayerPlacementTransform for shell placement; tilt is applied via DraftingLayerTiltShell. */
-export function getLayerCssTransform(
-  layer: LayerTransformInput & Pick<DraftingCanvasLayer, "scaleX" | "scaleY">,
-) {
-  return getLayerPlacementTransform(layer)
 }
 
 export function getLayerTiltPerspectiveStyle(

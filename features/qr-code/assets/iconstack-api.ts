@@ -188,10 +188,6 @@ const SEARCH_CACHE_LIMIT = 60
 
 const searchCache = new Map<string, Promise<IconstackSearchResponse>>()
 
-export function clearIconstackSearchCache() {
-  searchCache.clear()
-}
-
 export async function searchIcons({
   q,
   library,

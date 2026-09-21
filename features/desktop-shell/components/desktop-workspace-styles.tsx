@@ -134,10 +134,6 @@ export function DesktopWorkspaceStyles() {
         --elastic-slider-focus: rgba(15, 23, 42, 0.78);
       }
 
-      [data-slot="desktop-workspace"] [data-slot="drafting-pane-layout"] [data-slot="resizable-panel"] {
-        flex: 1 1 0 !important;
-      }
-
       [data-slot="desktop-workspace"] [data-slot="desktop-floating-toolbar-root"] {
         position: absolute;
         inset: 0;

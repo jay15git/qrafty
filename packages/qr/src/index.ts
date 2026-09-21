@@ -8,8 +8,5 @@ export type {
   QraftyQrConfig,
   QrFinderInnerStyle,
   QrFinderOuterStyle,
-  QrFinderStyle,
   QrModuleStyle,
 } from "./types"
-
-export { QraftyQrCode } from "./react/QraftyQrCode"

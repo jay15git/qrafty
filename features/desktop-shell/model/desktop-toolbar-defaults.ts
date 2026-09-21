@@ -1,52 +1,29 @@
 import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr-code/assets/brand-icon-svg"
-import {
-  ICONSTACK_LIBRARIES,
-  type IconstackLibraryId,
-} from "@/features/qr-code/assets/iconstack-api"
-import {
-  DEFAULT_DRAFTING_TEXT_LAYER,
-  type DraftingTextAlign,
-  type DraftingTextFontWeight,
-} from "@/features/workspace/model/layers"
+import { DEFAULT_DRAFTING_TEXT_LAYER } from "@/features/workspace/model/layers"
 import {
   createDefaultDraftingCardPaperShader,
   DEFAULT_DRAFTING_CARD_STATE,
 } from "@/features/workspace/model/card-state"
 import { getCardImageFilterDefinitions } from "@/features/workspace/rendering/paper-shader-definitions"
-import { ERROR_CORRECTION_LEVEL_OPTIONS } from "@/features/qr-code/styles/encoding-options"
 import {
   DEFAULT_DOT_MATRIX_ANIMATION,
   DEFAULT_BACKGROUND_SHAPE_OPTIONS,
-  MOTION_COLOR_SWATCHES,
-  type DotsColorMode,
-  type QrCrossOrigin,
-  type QrGradientLinkMode,
-  type QrLogoPositionMode,
-  type QrLogoSizeMode,
   type QraftyGradient,
 } from "@/features/qr-code/model/state"
-import { type QrErrorCorrectionLevel, type QrFileExtension } from "@/features/qr-code/model/types"
 import type {
   DesktopAccessibilitySettings,
-  DesktopAssetSourceMode,
   DesktopBackgroundSettings,
-  DesktopCornerColorMode,
   DesktopCornersSettings,
   DesktopEffectsSettings,
   DesktopEncodingSettings,
   DesktopExportSettings,
-  DesktopExportTarget,
-  DesktopImageIntent,
   DesktopImageSettings,
   DesktopLayerRow,
   DesktopLayersSettings,
   DesktopLogoSettings,
-  DesktopLogoSourceMode,
   DesktopMotionSettings,
   DesktopPatternSettings,
-  DesktopShapeColorMode,
   DesktopShapeSettings,
-  DesktopTextPresetId,
   DesktopTextSettings,
 } from "@/features/desktop-shell/model/desktop-toolbar-types"
 
@@ -96,94 +73,6 @@ export const DESKTOP_DOTS_PALETTE_PRESETS: Array<{
   { label: "Ember", colors: ["#ff6b35", "#e85d04", "#3d2314", "#1a1108"] },
   { label: "Frost", colors: ["#b8c5d6", "#d6deeb", "#eef2f7", "#93c5fd"] },
   { label: "Tropical", colors: ["#00c9a7", "#00b4d8", "#48cae4", "#0077b6"] },
-]
-
-export const DESKTOP_ICONSTACK_LIBRARY_OPTIONS: Array<{
-  label: string
-  value: IconstackLibraryId | "all"
-}> = [
-  { label: "All libraries", value: "all" },
-  ...ICONSTACK_LIBRARIES.map((library) => ({
-    label: library.label,
-    value: library.id,
-  })),
-]
-
-export const DESKTOP_DOTS_COLOR_MODES: Array<{ label: string; value: DotsColorMode }> = [
-  { label: "Solid", value: "solid" },
-  { label: "Gradient", value: "gradient" },
-  { label: "Patterns", value: "palette" },
-]
-
-export const DESKTOP_ERROR_CORRECTION_LEVEL_OPTIONS: Array<{
-  label: string
-  value: QrErrorCorrectionLevel
-}> = ERROR_CORRECTION_LEVEL_OPTIONS.map((option) => ({
-  label: option.label,
-  value: option.value,
-}))
-
-export const DESKTOP_CORNER_COLOR_MODES: Array<{ label: string; value: DesktopCornerColorMode }> = [
-  { label: "Solid", value: "solid" },
-  { label: "Gradient", value: "gradient" },
-]
-
-export const DESKTOP_SHAPE_COLOR_MODES: Array<{ label: string; value: DesktopShapeColorMode }> = [
-  { label: "Solid", value: "solid" },
-  { label: "Gradient", value: "gradient" },
-]
-
-export const DESKTOP_GRADIENT_TYPE_OPTIONS: Array<{ label: string; value: QraftyGradient["type"] }> = [
-  { label: "Linear", value: "linear" },
-  { label: "Radial", value: "radial" },
-]
-
-export const DESKTOP_LOGO_SOURCE_OPTIONS: Array<{ label: string; value: DesktopLogoSourceMode }> = [
-  { label: "None", value: "none" },
-  { label: "Brand", value: "brand" },
-  { label: "Upload", value: "upload" },
-]
-
-export const DESKTOP_ASSET_SOURCE_OPTIONS: Array<{ label: string; value: DesktopAssetSourceMode }> = [
-  { label: "Upload", value: "upload" },
-  { label: "URL", value: "url" },
-]
-
-export const DESKTOP_IMAGE_INTENT_OPTIONS: Array<{ label: string; value: DesktopImageIntent }> = [
-  { label: "Object", value: "image-object" },
-  { label: "Shape fill", value: "shape-fill" },
-  { label: "Logo", value: "logo" },
-]
-
-export const DESKTOP_EXPORT_TARGET_OPTIONS: Array<{ label: string; value: DesktopExportTarget }> = [
-  { label: "Current QR", value: "current" },
-  { label: "All QR codes", value: "all-qr" },
-  { label: "Full surface", value: "surface" },
-]
-
-export const DESKTOP_DOWNLOAD_EXTENSIONS = ["svg", "png", "webp", "jpeg"] as const satisfies ReadonlyArray<
-  QrFileExtension
->
-
-export const DESKTOP_CROSS_ORIGIN_OPTIONS: Array<{ label: string; value: QrCrossOrigin }> = [
-  { label: "Default", value: "" },
-  { label: "Anonymous", value: "anonymous" },
-  { label: "Credentials", value: "use-credentials" },
-]
-
-export const DESKTOP_GRADIENT_LINK_OPTIONS: Array<{ label: string; value: QrGradientLinkMode }> = [
-  { label: "Split", value: "split" },
-  { label: "Unified", value: "unified" },
-]
-
-export const DESKTOP_LOGO_SIZE_MODE_OPTIONS: Array<{ label: string; value: QrLogoSizeMode }> = [
-  { label: "Ratio", value: "ratio" },
-  { label: "Pixels", value: "pixels" },
-]
-
-export const DESKTOP_LOGO_POSITION_OPTIONS: Array<{ label: string; value: QrLogoPositionMode }> = [
-  { label: "Center", value: "center" },
-  { label: "Custom", value: "custom" },
 ]
 
 export const DEFAULT_DESKTOP_PATTERN_SETTINGS: DesktopPatternSettings = {
@@ -401,24 +290,3 @@ export const DEFAULT_DESKTOP_TEXT_SETTINGS: DesktopTextSettings = {
   textAlign: DEFAULT_DRAFTING_TEXT_LAYER.textAlign,
   underline: DEFAULT_DRAFTING_TEXT_LAYER.underline,
 }
-
-export const DESKTOP_TEXT_PRESETS: Array<{
-  fontSize: number
-  fontWeight: DraftingTextFontWeight
-  id: DesktopTextPresetId
-  label: string
-  lineHeight: number
-}> = [
-  { fontSize: 32, fontWeight: "normal", id: "body", label: "Body", lineHeight: 1.22 },
-  { fontSize: 52, fontWeight: 700, id: "title", label: "Title", lineHeight: 1.05 },
-  { fontSize: 18, fontWeight: 500, id: "caption", label: "Caption", lineHeight: 1.35 },
-]
-
-export const DESKTOP_TEXT_ALIGN_OPTIONS: Array<{ label: string; value: DraftingTextAlign }> = [
-  { label: "Left", value: "left" },
-  { label: "Center", value: "center" },
-  { label: "Right", value: "right" },
-]
-
-export const DESKTOP_MOTION_COLOR_SWATCHES: Record<DesktopMotionSettings["colorPreset"], string[]> =
-  MOTION_COLOR_SWATCHES

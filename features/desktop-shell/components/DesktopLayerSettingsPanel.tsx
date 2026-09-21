@@ -4,7 +4,6 @@ import type { ReactNode } from "react"
 
 import {
   AppearanceBorderControls,
-  AppearanceOpacityControls,
   AppearanceRadiusControls,
 } from "@/features/desktop-shell/components/AppearancePopoverControls"
 import { DesktopEffectsAccordion } from "@/features/desktop-shell/components/DesktopEffectsAccordion"
@@ -139,26 +138,6 @@ export function DesktopLayerBorderPanel({
   return (
     <LayerSettingsPanelShell dataSlot="desktop-layer-border-panel" theme={theme}>
       <div className="grid gap-2">
-        <AppearanceBorderControls appearance={appearance} onPatch={onPatch} theme={theme} />
-        <AppearanceRadiusControls appearance={appearance} onPatch={onPatch} />
-      </div>
-    </LayerSettingsPanelShell>
-  )
-}
-
-export function DesktopLayerAppearancePanel({
-  appearance,
-  onPatch,
-  theme,
-}: {
-  appearance: DesktopAppearanceSnapshot
-  onPatch: (patch: DesktopAppearancePatch) => void
-  theme: DesktopThemeMode
-}) {
-  return (
-    <LayerSettingsPanelShell dataSlot="desktop-layer-appearance-panel" theme={theme}>
-      <div className="grid gap-2">
-        <AppearanceOpacityControls appearance={appearance} onPatch={onPatch} />
         <AppearanceBorderControls appearance={appearance} onPatch={onPatch} theme={theme} />
         <AppearanceRadiusControls appearance={appearance} onPatch={onPatch} />
       </div>

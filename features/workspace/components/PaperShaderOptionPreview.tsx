@@ -26,5 +26,4 @@ export function PaperShaderOptionPreview({
   )
 }
 
-/** @deprecated Use PaperShaderOptionPreview */
-const DraftingPaperShaderOptionPreview = PaperShaderOptionPreview
+

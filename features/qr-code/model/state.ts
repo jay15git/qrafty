@@ -242,7 +242,6 @@ const DEFAULT_DOTS_PALETTE = [
   "#f30a49",
 ];
 
-
 export const MOTION_COLOR_SWATCHES: Record<QrDotMatrixColorPreset, [string, string]> = {
   aurora: ["#67e8f9", "#f0abfc"],
   fire: ["#f97316", "#facc15"],
@@ -277,23 +276,9 @@ const DEPRECATED_DOT_MATRIX_LOADERS: Record<string, QrDotMatrixSquareLoader> = {
   "wave": "neon-drift",
 };
 
-export const QR_MOTION_DOT_MATRIX_PRESET_OPTIONS: Array<{
-  label: string;
-  value: QrDotMatrixSquareLoader;
-}> = QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS;
-
 const QR_DOT_MATRIX_SQUARE_LOADER_VALUES = new Set<string>(
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS.map((option) => option.value),
 );
-
-/** Dot-matrix loaders that pulse size/opacity only — no accent color pass. */
-export const SCALE_ONLY_DOT_MATRIX_LOADERS = [] as const satisfies readonly QrDotMatrixSquareLoader[];
-
-const SCALE_ONLY_DOT_MATRIX_LOADER_VALUES = new Set<string>(SCALE_ONLY_DOT_MATRIX_LOADERS);
-
-export function isScaleOnlyDotMatrixLoader(loader: QrDotMatrixSquareLoader) {
-  return SCALE_ONLY_DOT_MATRIX_LOADER_VALUES.has(loader);
-}
 
 function coerceMotionPresetCategory(value: unknown): QrMotionPresetCategory {
   if (value === "shader" || value === "standard") {
@@ -303,31 +288,7 @@ function coerceMotionPresetCategory(value: unknown): QrMotionPresetCategory {
   return "dotMatrix";
 }
 
-export const QR_DOT_MATRIX_COLOR_PRESET_OPTIONS: Array<{
-  label: string;
-  value: QrDotMatrixColorPreset;
-}> = [
-  { label: "Theme", value: "theme" },
-  { label: "Mint", value: "mint" },
-  { label: "Sunset", value: "sunset" },
-  { label: "Ocean", value: "ocean" },
-  { label: "Neon", value: "neon" },
-  { label: "Aurora", value: "aurora" },
-  { label: "Fire", value: "fire" },
-  { label: "Prism", value: "prism" },
-];
-
-export const QR_DOT_MATRIX_PATTERN_OPTIONS: Array<{
-  label: string;
-  value: QrDotMatrixPattern;
-}> = [
-  { label: "Full", value: "full" },
-  { label: "Diamond", value: "diamond" },
-  { label: "Outline", value: "outline" },
-  { label: "Rose", value: "rose" },
-  { label: "Cross", value: "cross" },
-  { label: "Rings", value: "rings" },
-];export const DEFAULT_DOT_MATRIX_ANIMATION: QrDotMatrixAnimationOptions = {
+export const DEFAULT_DOT_MATRIX_ANIMATION: QrDotMatrixAnimationOptions = {
   animated: true,
   autoAnimate: "",
   autoAnimateInterval: 5000,
@@ -663,36 +624,6 @@ export function clampBackgroundShapeTilt(value: number) {
 
 export function clampQrBackgroundRound(value: number) {
   return coerceNumber(value, 0, 1, 0);
-}
-
-export function setSquareQrSize(state: QraftyState, size: number): QraftyState {
-  const nextSize = clampQrSize(size);
-
-  if (state.width === nextSize && state.height === nextSize) {
-    return state;
-  }
-
-  return {
-    ...state,
-    width: nextSize,
-    height: nextSize,
-  };
-}
-
-export function setRasterExportQualityPercent(
-  state: QraftyState,
-  qualityPercent: number,
-): QraftyState {
-  const nextQualityPercent = clampRasterExportQualityPercent(qualityPercent);
-
-  if (state.rasterExportQualityPercent === nextQualityPercent) {
-    return state;
-  }
-
-  return {
-    ...state,
-    rasterExportQualityPercent: nextQualityPercent,
-  };
 }
 
 export function setDotMatrixAnimationOptions(

@@ -287,15 +287,3 @@ export class ShaderFrameRenderer {
     )
   }
 }
-
-export async function captureShaderSnapshot(
-  options: ShaderFrameCaptureOptions,
-): Promise<string> {
-  const renderer = new ShaderFrameRenderer()
-  try {
-    await renderer.mount(options)
-    return renderer.captureDataUrl()
-  } finally {
-    renderer.dispose()
-  }
-}

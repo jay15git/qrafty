@@ -9,8 +9,8 @@ import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shape
 import { renderDashboardQrSvgMarkup } from "@/features/qr-code/rendering/qr-svg"
 import {
   createDefaultQraftyState,
-  setSquareQrSize,
   type QraftyState,
+  clampQrSize,
 } from "@/features/qr-code/model/state"
 
 const OUT_DIR = path.join(process.cwd(), ".render/qr-shapes")
@@ -22,7 +22,7 @@ const DENSE_DATA =
   "https://qrafty.example.com/cards/summer-collection-2026?utm_source=qr&utm_medium=print&utm_campaign=launch&variant=dense-payload-for-version-growth"
 
 function buildTileState(shapeId: QraftyState["backgroundShapeId"], data: string) {
-  const state = setSquareQrSize(createDefaultQraftyState(), 320)
+  const state = { ...createDefaultQraftyState(), width: clampQrSize(320), height: clampQrSize(320) }
   state.backgroundShapeId = shapeId
   state.backgroundOptions.color = "#e2e8f0"
   state.data = data

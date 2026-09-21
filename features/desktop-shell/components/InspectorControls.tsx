@@ -3,7 +3,6 @@
 import {
   useCallback,
   useEffect,
-  useId,
   useLayoutEffect,
   useRef,
   useState,
@@ -15,51 +14,24 @@ import {
   type PointerEvent,
   type ReactNode,
 } from "react"
-import { ChevronDownIcon, SearchIcon } from "lucide-react"
-import { AnimatePresence, m, type Transition } from "motion/react"
 
 import { DesktopInspectorPasteButton } from "@/features/desktop-shell/components/DesktopInspectorPasteButton"
 import "./desktop-inspector-input-error.css"
 
-import { TabsSubtle, TabsSubtleItem } from "@/components/ui/tabs-subtle"
-import { useDesktopSettingsPanelMotionFrozen } from "@/features/desktop-shell/components/desktop-settings-panel-motion-frozen-context"
-import {
-  FileUpload,
-  FileUploadDropzone,
-  FileUploadTrigger,
-} from "@/components/ui/file-upload"
 import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Dropdown } from "@/components/ui/dropdown"
-import { MenuItem } from "@/components/ui/menu-item"
 import { cn } from "@/lib/utils"
-import { SurfaceProvider } from "@/lib/surface-context"
 
 import "./desktop-inspector-design-system.css"
-import "./desktop-inspector-morph-filter.css"
 import "./desktop-inspector-motion.css"
 
 import {
   DESKTOP_INSPECTOR_CAPTION_CLASS,
-  DESKTOP_INSPECTOR_CONTROL_CLASS,
   DESKTOP_INSPECTOR_CONTROL_HEIGHT_CLASS,
-  DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-  DESKTOP_INSPECTOR_FG_MUTED,
   DESKTOP_INSPECTOR_INPUT_CLASS,
   DESKTOP_INSPECTOR_LABEL_CLASS,
   DESKTOP_INSPECTOR_RADIUS_CLASS,
-  DESKTOP_INSPECTOR_RESET_CLASS,
-  DESKTOP_INSPECTOR_ROW_CLASS,
-  DESKTOP_INSPECTOR_ROW_GAP_CLASS,
-  DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
-  DESKTOP_INSPECTOR_SELECTED_CLASS,
-  DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
-  DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
-  DESKTOP_INSPECTOR_VALUE_CLASS,
 } from "@/features/desktop-shell/components/desktop-inspector-tokens"
-
-const DESKTOP_INSPECTOR_IMAGE_UPLOAD_MAX_SIZE = 5 * 1024 * 1024
 
 const DESKTOP_INSPECTOR_SECTION_CLASS = "min-w-0 flex flex-col gap-2"
 const DESKTOP_INSPECTOR_SCRUB_NUMBER_FIELD_CLASS = cn(
@@ -68,12 +40,6 @@ const DESKTOP_INSPECTOR_SCRUB_NUMBER_FIELD_CLASS = cn(
 )
 const DESKTOP_INSPECTOR_FOCUS_CLASS =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]"
-const DESKTOP_INSPECTOR_DROPDOWN_MENU_CLASS =
-  "desktop-inspector-dropdown-menu z-50 min-w-0 rounded-[14px] border-0 bg-[var(--desktop-inspector-elevated)] p-1 text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-inspector-popover-shadow)] ring-0 backdrop-blur-xl"
-const DESKTOP_INSPECTOR_DROPDOWN_TRIGGER_CLASS = cn(
-  "desktop-inspector-input-bg cursor-pointer bg-[var(--desktop-inspector-field-bg)] font-medium text-[var(--desktop-inspector-fg-tertiary)] outline-none transition hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)] data-[state=open]:bg-[var(--desktop-inspector-control-hover-bg)] data-[state=open]:text-[var(--desktop-inspector-fg-primary)]",
-  DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
-)
 
 
 type DesktopInspectorSectionElement = "section" | "div" | "details"
@@ -952,347 +918,5 @@ export function DesktopInspectorTextarea({
     </div>,
     error,
     pasteErrorActive,
-  )
-}
-
-type DesktopInspectorNativeSelectProps<TValue extends string> =
-  Omit<ComponentProps<"select">, "onChange" | "value"> & {
-    iconClassName?: string
-    options: Array<{ label: string; value: TValue }>
-    onValueChange: (value: TValue) => void
-    rootClassName?: string
-    showIcon?: boolean
-    value: TValue
-  }
-
-export function DesktopInspectorNativeSelect<TValue extends string>({
-  className,
-  iconClassName,
-  onValueChange,
-  options,
-  rootClassName,
-  showIcon = true,
-  value,
-  ...props
-}: DesktopInspectorNativeSelectProps<TValue>) {
-  return (
-    <div className={cn("relative min-w-0", rootClassName)}>
-      <select
-        className={cn(
-          DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-          "w-full cursor-pointer appearance-none px-2.5 pr-7 font-medium transition",
-          DESKTOP_INSPECTOR_RADIUS_CLASS,
-          DESKTOP_INSPECTOR_INPUT_CLASS,
-          className,
-        )}
-        value={value}
-        onChange={(event) => onValueChange(event.currentTarget.value as TValue)}
-        {...props}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      {showIcon ? (
-        <ChevronDownIcon
-          className={cn(
-            "pointer-events-none absolute right-2 top-1/2 size-3.5 -translate-y-1/2",
-            DESKTOP_INSPECTOR_FG_MUTED,
-            iconClassName,
-          )}
-        />
-      ) : null}
-    </div>
-  )
-}
-
-type DesktopInspectorSegmentedControlProps<TValue extends string> = {
-  ariaLabelPrefix?: string
-  className?: string
-  columns?: 2 | 3 | 4
-  dataSlot?: string
-  itemClassName?: string
-  items: Array<{ icon?: ReactNode; label: string; value: TValue }>
-  itemAriaLabel?: (item: { icon?: ReactNode; label: string; value: TValue }) => string
-  onValueChange: (value: TValue) => void
-  selectedClassName?: string
-  value: TValue
-}
-
-const DESKTOP_INSPECTOR_TAB_ITEM_CLASS = cn(
-  DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-  "min-w-0 flex-1 justify-center px-2 py-0 [&_span]:font-medium [&_span]:text-[var(--desktop-inspector-fg-tertiary)]",
-  "[&_span]:text-[length:var(--desktop-inspector-type-label)]",
-  "[&[aria-selected=true]_span]:text-[length:var(--desktop-inspector-type-value)] [&[aria-selected=true]_span]:text-[var(--desktop-inspector-fg-primary)]",
-)
-
-export function DesktopInspectorSegmentedControl<TValue extends string>({
-  ariaLabelPrefix,
-  className,
-  columns = 2,
-  dataSlot,
-  itemClassName,
-  itemAriaLabel,
-  items,
-  onValueChange,
-  selectedClassName: _selectedClassName = DESKTOP_INSPECTOR_SELECTED_CLASS,
-  value,
-}: DesktopInspectorSegmentedControlProps<TValue>) {
-  const generatedId = useId()
-  const idPrefix = (dataSlot ?? generatedId).replace(/:/g, "")
-  const selectedIndex = Math.max(
-    0,
-    items.findIndex((item) => item.value === value),
-  )
-  const compactItemClass =
-    columns === 4 ? "px-1 [&_span]:text-[length:var(--desktop-inspector-type-caption)]" : columns === 3 ? "px-1.5 [&_span]:text-[length:var(--desktop-inspector-type-caption)]" : undefined
-  const pauseSelectionMotion = useDesktopSettingsPanelMotionFrozen()
-
-  return (
-    <TabsSubtle
-      className={cn("w-full gap-0 py-0 my-0", className)}
-      data-slot={dataSlot ?? "desktop-inspector-segmented-control"}
-      idPrefix={idPrefix}
-      pauseSelectionMotion={pauseSelectionMotion}
-      selectedIndex={selectedIndex}
-      onSelect={(index) => {
-        const next = items[index]
-        if (next) onValueChange(next.value)
-      }}
-    >
-      {items.map((item, index) => (
-        <TabsSubtleItem
-          key={item.value}
-          aria-label={
-            itemAriaLabel?.(item) ??
-            (ariaLabelPrefix ? `${ariaLabelPrefix} ${item.label}` : undefined)
-          }
-          className={cn(DESKTOP_INSPECTOR_TAB_ITEM_CLASS, compactItemClass, itemClassName)}
-          index={index}
-          label={item.label}
-        />
-      ))}
-    </TabsSubtle>
-  )
-}
-
-type DesktopInspectorSearchInputProps =
-  Omit<ComponentProps<"input">, "onChange"> & {
-    iconClassName?: string
-    inputClassName?: string
-    onValueChange: (value: string) => void
-  }
-
-export function DesktopInspectorSearchInput({
-  className,
-  iconClassName,
-  inputClassName,
-  onValueChange,
-  type = "text",
-  ...props
-}: DesktopInspectorSearchInputProps) {
-  return (
-    <div className={cn("relative w-24 shrink-0", DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS, className)}>
-      <SearchIcon
-        className={cn(
-          "pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2",
-          DESKTOP_INSPECTOR_FG_MUTED,
-          iconClassName,
-        )}
-      />
-      <Input
-        className={cn(
-          "h-full w-full border-transparent pl-7 pr-2",
-          DESKTOP_INSPECTOR_RADIUS_CLASS,
-          DESKTOP_INSPECTOR_INPUT_CLASS,
-          inputClassName,
-          "focus-visible:ring-0 focus-visible:shadow-none",
-        )}
-        type={type}
-        onChange={(event) => onValueChange(event.currentTarget.value)}
-        {...props}
-      />
-    </div>
-  )
-}
-
-export function DesktopInspectorMorphFilterMenu<T extends string>({
-  ariaLabel,
-  className,
-  "data-slot": dataSlot = "desktop-inspector-morph-filter-menu",
-  icon,
-  isActive = false,
-  menuDataSlot = "desktop-inspector-filter-menu",
-  morphClassName,
-  morphStyle,
-  options,
-  triggerDataSlot = "desktop-inspector-filter-trigger",
-  value,
-  onValueChange,
-}: {
-  ariaLabel: string
-  className?: string
-  "data-slot"?: string
-  icon: ReactNode
-  isActive?: boolean
-  menuDataSlot?: string
-  morphClassName?: string
-  morphStyle?: CSSProperties
-  options: ReadonlyArray<{ label: string; value: T }>
-  triggerDataSlot?: string
-  value: T
-  onValueChange: (value: T) => void
-}) {
-  const [open, setOpen] = useState(false)
-  const rootRef = useRef<HTMLDivElement>(null)
-  const checkedIndex = options.findIndex((option) => option.value === value)
-
-  useEffect(() => {
-    if (!open) {
-      return
-    }
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false)
-      }
-    }
-
-    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false)
-      }
-    }
-
-    document.addEventListener("pointerdown", handlePointerDown)
-    document.addEventListener("keydown", handleKeyDown)
-
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown)
-      document.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [open])
-
-  return (
-    <div className={cn("relative size-8 shrink-0 overflow-visible", className)} ref={rootRef}>
-      <div
-        className={cn(
-          "desktop-inspector-morph-filter border-0 bg-[var(--desktop-inspector-field-bg)] text-[var(--desktop-inspector-fg-secondary)] shadow-[var(--desktop-inspector-popover-shadow)]",
-          morphClassName,
-          isActive &&
-            !open &&
-            "bg-[var(--desktop-inspector-control-hover-bg)] text-[var(--desktop-inspector-fg-primary)]",
-        )}
-        data-open={open ? "true" : "false"}
-        data-slot={dataSlot}
-        style={morphStyle}
-      >
-        <div className="t-morph-menu p-1" data-slot={menuDataSlot}>
-          <SurfaceProvider value={2}>
-            <ScrollArea
-              chevron
-              cueSize="tight"
-              data-slot={`${dataSlot}-scroll-area`}
-              scrollFade
-              className="min-h-0 flex-1 overflow-hidden"
-              viewportClassName="pr-0.5"
-            >
-              <Dropdown
-                aria-label={ariaLabel}
-                checkedIndex={checkedIndex >= 0 ? checkedIndex : undefined}
-                flat
-                shapeVariant="pill"
-                className="w-full gap-0 p-0"
-              >
-                {options.map((option, index) => (
-                  <MenuItem
-                    key={option.value}
-                    checked={option.value === value}
-                    className={cn(
-                      DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-                      "w-full min-w-0 px-3 py-0",
-                      DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
-                    )}
-                    index={index}
-                    label={option.label}
-                    onSelect={() => {
-                      onValueChange(option.value)
-                      setOpen(false)
-                    }}
-                  />
-                ))}
-              </Dropdown>
-            </ScrollArea>
-          </SurfaceProvider>
-        </div>
-        <button
-          aria-expanded={open}
-          aria-label={ariaLabel}
-          className={cn(
-            "t-morph-plus outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
-            isActive && "text-[var(--desktop-inspector-fg-primary)]",
-          )}
-          data-slot={triggerDataSlot}
-          type="button"
-          onClick={() => setOpen((current) => !current)}
-        >
-          {icon}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-export function DesktopInspectorImageFileUpload({
-  className,
-  "data-slot": dataSlot = "desktop-inspector-image-file-upload",
-  label = "Image file upload",
-  onFileAccept,
-}: {
-  className?: string
-  "data-slot"?: string
-  label?: string
-  onFileAccept: (file: File) => void
-}) {
-  return (
-    <FileUpload
-      accept="image/*"
-      className={cn("gap-2", className)}
-      data-slot={dataSlot}
-      label={label}
-      maxFiles={1}
-      maxSize={DESKTOP_INSPECTOR_IMAGE_UPLOAD_MAX_SIZE}
-      onFileAccept={onFileAccept}
-    >
-      <FileUploadDropzone
-        className={cn(
-          "rounded-[8px] border border-dashed border-white/[0.12] bg-[var(--desktop-inspector-field-bg)] p-4 text-center shadow-none outline-none transition-colors",
-          "hover:bg-[var(--desktop-inspector-control-hover-bg)]",
-          "data-[dragging]:border-[var(--desktop-inspector-focus)] data-[dragging]:bg-[var(--desktop-inspector-control-hover-bg)]",
-          "data-[invalid]:border-red-400/70",
-        )}
-      >
-        <p className={DESKTOP_INSPECTOR_VALUE_CLASS}>
-          Drag & drop image here
-        </p>
-        <p className={cn("mt-1", DESKTOP_INSPECTOR_CAPTION_CLASS)}>
-          Or click to browse (max 5MB)
-        </p>
-        <FileUploadTrigger
-          className={cn(
-            DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-            "mt-3 inline-flex cursor-pointer items-center justify-center px-3",
-            DESKTOP_INSPECTOR_RADIUS_CLASS,
-            DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
-            DESKTOP_INSPECTOR_CONTROL_CLASS,
-          )}
-          type="button"
-        >
-          Browse files
-        </FileUploadTrigger>
-      </FileUploadDropzone>
-    </FileUpload>
   )
 }

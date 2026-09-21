@@ -3,12 +3,13 @@
 import { m } from "motion/react"
 import { useCallback, useEffect, useState, type ReactNode } from "react"
 
-import { EXPANDABLE_PANEL_SPRING } from "@/components/atomixui/expandable-panel-shell.constants"
 import {
   DesktopSettingsPanelMotionFrozenProvider,
 } from "@/features/desktop-shell/components/desktop-settings-panel-motion-frozen-context"
 
 import "./desktop-settings-toolbar-motion.css"
+
+const EXPANDABLE_PANEL_SPRING = { type: "spring" as const, stiffness: 340, damping: 28 }
 
 /** Expanded column leaves enough room to keep the canvas legible on compact desktops. */
 const DESKTOP_SHELL_EXPANDED_WIDTH_RATIO = 0.28

@@ -596,7 +596,6 @@
 }
 
 .dn-mobile-rail,
-.dn-mobile-chip-rail,
 .dn-mobile-card-rail {
   display: flex;
   min-width: max-content;
@@ -609,16 +608,11 @@
   align-items: stretch;
 }
 
-.dn-mobile-chip-rail {
-  align-items: center;
-}
-
 .dn-mobile-card-rail {
   align-items: stretch;
 }
 
 .dn-mobile-rail > *,
-.dn-mobile-chip-rail > *,
 .dn-mobile-card-rail > * {
   flex: 0 0 auto;
 }

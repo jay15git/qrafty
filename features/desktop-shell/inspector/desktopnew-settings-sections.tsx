@@ -44,7 +44,6 @@ import {
   sliderPercentToDotMatrixAnimationSpeed,
 } from "@/features/qr-code/model/state"
 import {
-  isScaleOnlyDotMatrixLoader,
   MOTION_COLOR_SWATCHES,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
   type QrDotMatrixAnimationOptions,
@@ -1235,7 +1234,6 @@ export function SceneSection({ model }: { model: DesktopInspectorModel }) {
 export function MotionSection({ model }: { model: DesktopInspectorModel }) {
   const { actualMotionSettings, onMotionSettingsChange } = model
   const loader = actualMotionSettings.loader
-  const usesPeakColor = !isScaleOnlyDotMatrixLoader(loader)
 
   return (
     <div className={SECTION_STACK}>
@@ -1267,12 +1265,10 @@ export function MotionSection({ model }: { model: DesktopInspectorModel }) {
               })
             }
           />
-          {usesPeakColor ? (
-            <MotionColorControls
-              animation={actualMotionSettings}
-              onChange={onMotionSettingsChange}
-            />
-          ) : null}
+          <MotionColorControls
+            animation={actualMotionSettings}
+            onChange={onMotionSettingsChange}
+          />
         </>
       ) : null}
     </div>

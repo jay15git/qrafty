@@ -27,12 +27,6 @@ export function normalizedGridCoords(
   };
 }
 
-/** Classic implicit heart: inside when value <= 0. */
-export function heartImplicit(x: number, y: number) {
-  const a = x * x + y * y - 1;
-  return a * a * a - x * x * y * y * y;
-}
-
 const HEART_BOUNDARY = Array.from({ length: Math.ceil((Math.PI * 2) / HEART_BOUNDARY_STEP) }, (_, index) => {
   const t = index * HEART_BOUNDARY_STEP;
   const nx = Math.pow(Math.sin(t), 3);
@@ -185,11 +179,4 @@ export function diamondMaxExpansionMetric(matrixSize: number) {
     diamondMaxExpansionMetricCache,
     diamondExpansionMetric,
   );
-}
-
-export function heartBoundarySamples() {
-  return HEART_BOUNDARY.map((sample) => ({
-    angle: Math.atan2(sample.y, sample.x),
-    r: Math.hypot(sample.x, sample.y),
-  }));
 }

@@ -18,12 +18,6 @@ export function getPreviewStageSize(
   }
 }
 
-export function getPreviewDisplaySize(documentSize: number, artboardScale: number) {
-  const safeScale = Number.isFinite(artboardScale) && artboardScale > 0 ? artboardScale : 1
-
-  return Math.max(1, Math.round(documentSize * safeScale))
-}
-
 export function getPreviewCameraStyle(
   documentWidth: number,
   documentHeight: number,

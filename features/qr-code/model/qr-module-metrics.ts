@@ -66,8 +66,3 @@ export function getQraftyQrQuietZoneFraction(state: QrModuleMetricsState) {
 
   return fraction
 }
-
-/** Pixel inset of the QR ink (module area) inside a `boxPx`-sized QR box. */
-export function getQraftyQrQuietZonePx(state: QrModuleMetricsState, boxPx: number) {
-  return getQraftyQrQuietZoneFraction(state) * boxPx
-}

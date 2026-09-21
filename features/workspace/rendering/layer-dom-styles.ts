@@ -30,7 +30,6 @@ import {
   getLayerTiltPerspectiveStyle,
 } from "@/features/workspace/rendering/layer-transform"
 
-
 function getDraftingCardBorder(cardState: DraftingCardState) {
   const border = normalizeDraftingCardBorder(cardState.border)
   const hasPerSideOverrides = border.sides.top.width !== border.width ||
@@ -108,22 +107,6 @@ export function getLayerPlacementStyle(
     transformStyle: tiltPerspectiveStyle.perspective ? "preserve-3d" : undefined,
     width: layer.width,
     zIndex: layer.zIndex,
-    ...tiltPerspectiveStyle,
-  }
-}
-
-export function getLayerControlShellStyle(
-  layer: Pick<DraftingCanvasLayer, "rotation" | "tiltX" | "tiltY" | "x" | "y">,
-  paddingPx = 0,
-): CSSProperties {
-  const rotation = Number.isFinite(layer.rotation) ? layer.rotation : 0
-  const tiltPerspectiveStyle = getLayerTiltPerspectiveStyle(layer)
-  const rotationPart = rotation !== 0 ? ` rotate(${rotation}deg)` : ""
-
-  return {
-    transform: `translate3d(${layer.x - paddingPx}px, ${layer.y - paddingPx}px, 0)${rotationPart}`,
-    transformOrigin: "center center",
-    transformStyle: tiltPerspectiveStyle.perspective ? "preserve-3d" : undefined,
     ...tiltPerspectiveStyle,
   }
 }
@@ -267,21 +250,6 @@ export function cssPropertiesToInlineStyle(
       return `${cssKey}:${value}${unit}`
     })
     .join(";")
-}
-
-function cssPropertiesToReactStyle(
-  properties: Record<string, string | number>,
-): string {
-  return Object.entries(properties)
-    .map(([key, value]) => {
-      const serialized =
-        typeof value === "string" && value.includes('"')
-          ? `{\`${value.replaceAll("`", "\\`")}\`}`
-          : JSON.stringify(value)
-
-      return `${key}: ${serialized}`
-    })
-    .join(", ")
 }
 
 export function getDraftingCardDomStyle(

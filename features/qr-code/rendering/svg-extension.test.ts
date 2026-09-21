@@ -3,21 +3,19 @@ import { describe, expect, it } from "vitest"
 import {
   buildQrExtension,
   createAlignedCornerGradientExtension,
-  createDotMatrixAnimationExtension,
   getDraftingQrLayerLayout,
   getFinderCornerRegions,
-  getQrExtensionKey,
   getQrRenderedDimensions,
   getQrSvgNumCells,
 } from "./svg-extension"
-import { getQraftyQrQuietZonePx } from "@/features/qr-code/model/qr-module-metrics"
+import { getQraftyQrQuietZoneFraction } from "@/features/qr-code/model/qr-module-metrics"
 import {
   createDefaultQraftyState,
   setDotMatrixAnimationOptions,
-  setSquareQrSize,
   type QrDotMatrixAnimationPatch,
   type QraftyState,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
+  clampQrSize,
 } from "@/features/qr-code/model/state"
 import {
   getQrBackgroundShapeContentFrame,
@@ -299,8 +297,6 @@ function renderDotMatrixTracks(
     pattern,
     speed: patch.speed ?? 3,
   })
-  const extension = createDotMatrixAnimationExtension(state, "preview")
-  expect(extension).toBeNull()
   return { animationLayer: null, tracks: [] as StubElement[] }
 }
 
@@ -399,7 +395,6 @@ describe("qr rendering helpers", () => {
     }
 
     expect(buildQrExtension(stateWithLogo)).toBeNull()
-    expect(getQrExtensionKey(stateWithLogo)).not.toBe(getQrExtensionKey(defaultState))
   })
 
   it("builds unified module gradient extensions without touching logo assets", () => {
@@ -430,28 +425,7 @@ describe("qr rendering helpers", () => {
     expect(createAlignedCornerGradientExtension(state)).toBeNull()
   })
 
-  it("changes the extension key when a background image is active", () => {
-    const defaultState = createDefaultQraftyState()
-    const stateWithBackgroundImage = createDefaultQraftyState()
-    stateWithBackgroundImage.backgroundImage = {
-      source: "upload",
-      value: "blob:https://qrafty.local/background.png",
-    }
 
-    expect(getQrExtensionKey(stateWithBackgroundImage)).not.toBe(
-      getQrExtensionKey(defaultState),
-    )
-  })
-
-  it("changes the extension key when a vector background shape is active", () => {
-    const defaultState = createDefaultQraftyState()
-    const stateWithBackgroundShape = createDefaultQraftyState()
-    stateWithBackgroundShape.backgroundShapeId = "circle"
-
-    expect(getQrExtensionKey(stateWithBackgroundShape)).not.toBe(
-      getQrExtensionKey(defaultState),
-    )
-  })
 
   it("applies palette module colors as qr dot layers", () => {
     const state = createDefaultQraftyState()
@@ -636,34 +610,8 @@ describe("qr rendering helpers", () => {
   })
 
 
-  it("retires css dot matrix animation in favor of runtime dot matrix preview", () => {
-    const state = createDefaultQraftyState()
-    state.dotMatrixAnimation = {
-      ...state.dotMatrixAnimation,
-      enabled: true,
-      animated: true,
-      exportAnimatedSvg: true,
-    }
-
-    expect(createDotMatrixAnimationExtension(state, "preview")).toBeNull()
-    expect(createDotMatrixAnimationExtension(state, "export")).toBeNull()
-  })
 
 
-  it("changes the extension key when corner gradients are enabled", () => {
-    const defaultState = createDefaultQraftyState()
-    const stateWithCornerGradient = createDefaultQraftyState()
-    stateWithCornerGradient.finderPatternOuterGradient = {
-      ...stateWithCornerGradient.finderPatternOuterGradient,
-      enabled: true,
-      rotation: Math.PI / 3,
-      type: "linear",
-    }
-
-    expect(getQrExtensionKey(stateWithCornerGradient)).not.toBe(
-      getQrExtensionKey(defaultState),
-    )
-  })
 
   it("adds a background image layer to the svg extension output", () => {
     const state = createDefaultQraftyState()
@@ -1184,7 +1132,7 @@ describe("qr rendering helpers", () => {
 
 describe("shape padding geometry", () => {
   function createShapeState(paddingPx: number, data = "https://qrafty.app") {
-    const state = setSquareQrSize(createDefaultQraftyState(), 320)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(320), height: clampQrSize(320) }
     state.data = data
     state.backgroundShapeId = "circle"
     state.backgroundShapeOptions = {
@@ -1205,7 +1153,7 @@ describe("shape padding geometry", () => {
     const layout = getDraftingQrLayerLayout(400, state)
     const contentFrame = getQrBackgroundShapeContentFrame(shape)
     const scale = layout.metrics.backingRegion.width / shape.viewBox.width
-    const quietZonePx = getQraftyQrQuietZonePx(state, layout.innerWidth)
+    const quietZonePx = getQraftyQrQuietZoneFraction(state) * layout.innerWidth
     const contentFrameLeft =
       layout.metrics.backingRegion.x + (contentFrame.x - (shape.viewBox.x ?? 0)) * scale
 
@@ -1213,9 +1161,9 @@ describe("shape padding geometry", () => {
   }
 
   it("fills the layer box with the square surface and qr ink at slider 0", () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 320)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(320), height: clampQrSize(320) }
     const layout = getDraftingQrLayerLayout(320, state)
-    const quietZonePx = getQraftyQrQuietZonePx(state, layout.innerWidth)
+    const quietZonePx = getQraftyQrQuietZoneFraction(state) * layout.innerWidth
     const inkLeft = layout.metrics.translateX + quietZonePx
     const inkRight = layout.metrics.translateX + layout.innerWidth - quietZonePx
 
@@ -1228,10 +1176,10 @@ describe("shape padding geometry", () => {
   })
 
   it("insets the qr inside the square surface by the slider padding", () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 320)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(320), height: clampQrSize(320) }
     state.backgroundShapeOptions = { ...state.backgroundShapeOptions, paddingPx: 24 }
     const layout = getDraftingQrLayerLayout(320, state)
-    const quietZonePx = getQraftyQrQuietZonePx(state, layout.innerWidth)
+    const quietZonePx = getQraftyQrQuietZoneFraction(state) * layout.innerWidth
     const inkLeft = layout.metrics.translateX + quietZonePx
     const inkRight = layout.metrics.translateX + layout.innerWidth - quietZonePx
 

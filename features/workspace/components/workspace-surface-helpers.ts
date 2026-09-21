@@ -11,8 +11,7 @@ import {
   patchDraftingCanvasLayer,
   type DraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
-import type { DraftingQrStateByNodeId } from "@/features/workspace/model/document"
-import type { AssetSourceMode, QraftyState } from "@/features/qr-code/model/state"
+import type { AssetSourceMode } from "@/features/qr-code/model/state"
 
 export const DRAFTING_LAYER_CLIPBOARD_TYPE = "qrafty/drafting-layers"
 export const DRAFTING_LAYER_CLIPBOARD_VERSION = 1
@@ -30,36 +29,6 @@ export function parseValueSegmentsText(text: string) {
 
 export function formatValueSegmentsText(segments: string[] | undefined) {
   return segments?.join("\n") ?? ""
-}
-
-export function swapDraftingQrNodeOrder(
-  current: DraftingQrStateByNodeId,
-  sourceNodeId: string,
-  targetNodeId: string,
-  activeNodeId: string,
-  activeState: QraftyState,
-) {
-  if (sourceNodeId === targetNodeId) {
-    return current
-  }
-
-  const entries = Object.entries(current).map(([nodeId, state]) => [
-    nodeId,
-    nodeId === activeNodeId ? activeState : state,
-  ] as const)
-  const sourceIndex = entries.findIndex(([nodeId]) => nodeId === sourceNodeId)
-  const targetIndex = entries.findIndex(([nodeId]) => nodeId === targetNodeId)
-
-  if (sourceIndex === -1 || targetIndex === -1) {
-    return current
-  }
-
-  const nextEntries = [...entries]
-  const sourceEntry = nextEntries[sourceIndex]
-  nextEntries[sourceIndex] = nextEntries[targetIndex]
-  nextEntries[targetIndex] = sourceEntry
-
-  return Object.fromEntries(nextEntries)
 }
 
 export function getDesktopLogoSourceMode(source: AssetSourceMode): DesktopLogoSourceMode {

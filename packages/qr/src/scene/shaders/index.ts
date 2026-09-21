@@ -1,11 +1,4 @@
-export {
-  DEFAULT_PAPER_SHADER_ID,
-  getShaderComponentExportName,
-  IMAGE_FILTER_SHADER_IDS,
-  SHADER_COMPONENT_EXPORT_NAMES,
-  shaderRequiresImage,
-  type PaperShaderId,
-} from "./registry"
+export { shaderRequiresImage } from "./registry"
 export {
   EXPORT_PAPER_SHADER_MAX_PIXEL_COUNT,
   EXPORT_PAPER_SHADER_RENDER_OPTIONS,

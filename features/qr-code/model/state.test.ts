@@ -15,11 +15,8 @@ import {
   createDefaultQraftyState,
   DEFAULT_DOT_MATRIX_ANIMATION,
   dotMatrixAnimationSpeedToSliderPercent,
-  isScaleOnlyDotMatrixLoader,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
   setDotMatrixAnimationOptions,
-  setRasterExportQualityPercent,
-  setSquareQrSize,
   sliderPercentToDotMatrixAnimationSpeed,
 } from "@/features/qr-code/model/state";
 
@@ -124,8 +121,8 @@ describe("QRafty state helpers", () => {
 
   it("clamps shared qr size updates to the supported square range", () => {
     const state = createDefaultQraftyState();
-    const undersized = setSquareQrSize(state, 24);
-    const oversized = setSquareQrSize(state, 2400);
+    const undersized = { ...state, width: clampQrSize(24), height: clampQrSize(24) };
+    const oversized = { ...state, width: clampQrSize(2400), height: clampQrSize(2400) };
 
     expect(undersized.width).toBe(120);
     expect(undersized.height).toBe(120);
@@ -178,11 +175,6 @@ describe("QRafty state helpers", () => {
     expect(setDotMatrixAnimationOptions(state, { loader: "tunnel" }).dotMatrixAnimation.loader).toBe("neon-drift");
     expect(setDotMatrixAnimationOptions(state, { loader: "wave" }).dotMatrixAnimation.loader).toBe("neon-drift");
     expect(setDotMatrixAnimationOptions(state, { loader: "scan" }).dotMatrixAnimation.loader).toBe("neon-drift");
-  });
-
-  it("does not mark any motion loader as scale-only", () => {
-    expect(isScaleOnlyDotMatrixLoader("neon-drift")).toBe(false);
-    expect(isScaleOnlyDotMatrixLoader("radial-expand")).toBe(false);
   });
 
   it("clamps dot matrix animation updates to supported ranges", () => {
@@ -390,8 +382,8 @@ describe("QRafty state helpers", () => {
 
   it("clamps raster export quality updates to the supported range", () => {
     const state = createDefaultQraftyState();
-    const lowQuality = setRasterExportQualityPercent(state, 10);
-    const highQuality = setRasterExportQualityPercent(state, 240);
+    const lowQuality = { ...state, rasterExportQualityPercent: clampRasterExportQualityPercent(10) };
+    const highQuality = { ...state, rasterExportQualityPercent: clampRasterExportQualityPercent(240) };
 
     expect(lowQuality.rasterExportQualityPercent).toBe(25);
     expect(highQuality.rasterExportQualityPercent).toBe(100);

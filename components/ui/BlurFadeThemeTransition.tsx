@@ -24,16 +24,6 @@ const BlurFadeThemeTransitionContext = createContext<
   BlurFadeThemeTransitionContextType | undefined
 >(undefined);
 
-export function useBlurFadeThemeTransition() {
-  const context = useContext(BlurFadeThemeTransitionContext);
-  if (!context) {
-    throw new Error(
-      "useBlurFadeThemeTransition must be used within a BlurFadeThemeTransition",
-    );
-  }
-  return context;
-}
-
 export function useOptionalBlurFadeThemeTransition() {
   return useContext(BlurFadeThemeTransitionContext);
 }

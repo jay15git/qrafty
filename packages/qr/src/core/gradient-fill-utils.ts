@@ -44,13 +44,6 @@ function hasReplaceablePaint(value: string | null) {
   return value !== null && value !== "none"
 }
 
-export function readSvgPaintContext(svg: Element): SvgPaintContext {
-  return {
-    fill: svg.getAttribute("fill"),
-    stroke: svg.getAttribute("stroke"),
-  }
-}
-
 export function applyDirectGradientFillWithContext(
   element: SVGElement,
   gradientRef: string,

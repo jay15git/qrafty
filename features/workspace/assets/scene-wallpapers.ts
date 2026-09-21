@@ -16,7 +16,3 @@ export const SCENE_WALLPAPERS: readonly SceneWallpaper[] = [
   ...MAC_WALLPAPERS,
   ...RAYCAST_WALLPAPERS,
 ] as const
-
-export function getSceneWallpaper(id: string): SceneWallpaper | undefined {
-  return SCENE_WALLPAPERS.find((wallpaper) => wallpaper.id === id)
-}

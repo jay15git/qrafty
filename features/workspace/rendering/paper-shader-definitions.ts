@@ -948,14 +948,6 @@ export function formatPaperShaderParamLabel(value: string) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
-export function formatPaperShaderNumberValue(paramKey: string, value: number) {
-  if (paramKey.toLowerCase().includes("angle") || paramKey === "rotation") {
-    return `${Math.round(value)}°`
-  }
-
-  return Number.isInteger(value) ? `${value}` : value.toFixed(2)
-}
-
 export function getCardImageFilterDefinitions() {
   return CARD_IMAGE_FILTER_SHADER_IDS.map((shaderId) => getPaperShaderDefinition(shaderId))
 }

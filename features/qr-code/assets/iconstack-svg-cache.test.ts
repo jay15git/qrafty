@@ -60,7 +60,6 @@ describe("iconstack-svg-cache", () => {
     expect(listener).toHaveBeenCalledTimes(1)
 
     unsubscribe()
-    clearIconstackSvgCache()
     expect(listener).toHaveBeenCalledTimes(1)
   })
 })

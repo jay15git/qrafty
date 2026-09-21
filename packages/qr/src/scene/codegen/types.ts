@@ -1,4 +1,3 @@
-import type { SerializablePaperShaderState } from "../shaders"
 import type { QraftyQrCodeProps } from "../../types"
 
 export type SceneIrBounds = {
@@ -6,23 +5,6 @@ export type SceneIrBounds = {
   minY: number
   width: number
   height: number
-}
-
-export type SceneIrShaderNode = {
-  kind: "shader"
-  shader: SerializablePaperShaderState
-  bounds: { x: number; y: number; width: number; height: number }
-  snapshotUrl?: string
-  fallbackFill?: string
-}
-
-export type SceneIrAnimatedQrNode = {
-  kind: "animated-qr"
-  contents: string
-  externalSvg: string
-  bounds: { x: number; y: number; width: number; height: number }
-  preset: string
-  hoverEffect: string
 }
 
 export type SceneIrFontRef = {
@@ -51,8 +33,6 @@ export type SceneIr = {
   defs: string
   body: string
   domLayers: DomLayerNode[]
-  shaders: SceneIrShaderNode[]
-  animatedQr?: SceneIrAnimatedQrNode
   fonts: SceneIrFontRef[]
   componentName?: string
 }

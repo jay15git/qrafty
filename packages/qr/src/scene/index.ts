@@ -1,10 +1,6 @@
-export * from "./schema"
 export * from "./core"
 export * from "./shaders"
-export { AnimatedQr, type AnimatedQrProps } from "./animated"
 export {
-  PaperShaderLayer,
   hasPaperShaderWebGlSupport,
   usePaperShaderWorldSize,
 } from "./paper"
-export { exportScene, exportSceneSvg } from "./export"

@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Root as FillRoot } from "@/components/ui/fill-picker/parts/fill/root";
-import { Tabs as FillTabs, Tab as FillTab } from "@/components/ui/fill-picker/parts/fill/tabs";
 import {
   Pane as EngineFillPane,
   type PaneProps,
@@ -28,8 +27,6 @@ const FillPane = React.forwardRef<HTMLDivElement, PaneProps>(function Pane(
 
 const FillPickerBase = {
   Root: FillRoot,
-  Tabs: FillTabs,
-  Tab: FillTab,
   Pane: FillPane,
 };
 

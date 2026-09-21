@@ -1,8 +1,5 @@
 import { zipSync } from "fflate"
 
-import {
-  getLossyRasterEncoderQuality,
-} from "@/features/qr-code/export/raster-export"
 import type { QrFileExtension } from "@/features/qr-code/model/types"
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
@@ -17,7 +14,6 @@ import {
   type WorkspaceVideoExportRequest,
   type WorkspaceVideoExportProgress,
 } from "@/features/workspace/export/pipeline/video"
-import { getArtboardExportBounds } from "@/features/workspace/export/pipeline/bounds"
 
 export type WorkspaceExportProgress =
   | ({ kind: "photo" } & { stage: "building" | "encoding" })
@@ -254,5 +250,3 @@ export async function runWorkspaceBatchExport({
     `${sanitizeDownloadFileName(name)}.zip`,
   )
 }
-
-export { getArtboardExportBounds }

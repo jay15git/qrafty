@@ -9,7 +9,6 @@ const sampleIr: SceneIr = {
   defs: "",
   body: '<rect x="10" y="10" width="20" height="20" fill="#111" />',
   domLayers: [],
-  shaders: [],
   fonts: [],
   componentName: "QrCard",
 }

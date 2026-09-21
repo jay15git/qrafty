@@ -3,7 +3,7 @@ import encodeQR from "qr"
 
 import {
   createDefaultQraftyState,
-  setSquareQrSize,
+  clampQrSize,
 } from "@/features/qr-code/model/state"
 import {
   getQraftyQrExpectedText,
@@ -32,7 +32,7 @@ describe("scan-safety QR metadata", () => {
   })
 
   it("exposes actual version and boosted error correction", () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 320)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(320), height: clampQrSize(320) }
     state.data = "https://qrafty.app"
     state.valueSegments = []
     state.qrOptions.errorCorrectionLevel = "L"

@@ -9,31 +9,17 @@ import {
   type DraftingPaneToolbarVariant,
 } from "@/features/workspace/components/DraftingPaneSurface"
 import { type DraftingLayerMenuAction } from "@/features/workspace/components/Pane"
-import {
-  CanvasComposeToolbar,
-  MAX_PREVIEW_ZOOM,
-  MIN_PREVIEW_ZOOM,
-} from "@/features/workspace/components/canvas-compose-toolbar"
-import type {
-  CanvasHistoryControls,
-  CanvasQrControls,
-} from "@/features/workspace/components/canvas-control-props"
 import { DraftingPaneSurface } from "@/features/workspace/components/DraftingPaneSurface"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
 export type { DraftingPaneCanvasTool, DraftingPaneToolbarVariant } from "@/features/workspace/components/DraftingPaneSurface"
 
-const PREVIEW_ZOOM_STEP = 0.1
+const MIN_PREVIEW_ZOOM = 0.1
+const MAX_PREVIEW_ZOOM = 4
 
 type CanvasProps = {
   panes: DraftingPane[]
   activePaneId: string
-  history?: CanvasHistoryControls
-  qr?: CanvasQrControls
-  onInsertLayer?: (layer: DraftingCanvasLayer) => void
-  insertNodeId?: string
-  onBrowseWallpapers?: () => void
-  onRemoveQrCode?: (layerId: string) => void
   onPaneSelect: (paneId: string) => void
   onPaneQrClick: (paneId: string) => void
   onLayerChange?: (
@@ -67,7 +53,6 @@ type CanvasProps = {
   layerEditingEnabled?: boolean
   previewLocked?: boolean
   fitCanvasToViewport?: boolean
-  qrLayerCount?: number
 }
 
 function clampPreviewZoom(value: number) {
@@ -77,12 +62,6 @@ function clampPreviewZoom(value: number) {
 export function Canvas({
   panes,
   activePaneId,
-  history = { canUndo: false, canRedo: false },
-  qr = { canAdd: true },
-  onInsertLayer,
-  insertNodeId,
-  onBrowseWallpapers,
-  onRemoveQrCode,
   onPaneSelect,
   onPaneQrClick,
   onLayerChange,
@@ -100,27 +79,11 @@ export function Canvas({
   layerEditingEnabled = true,
   previewLocked = false,
   fitCanvasToViewport = false,
-  qrLayerCount = 1,
 }: CanvasProps) {
   const [zoomLevels, setZoomLevels] = useState<Record<string, number>>({})
   const [panOffsets, setPanOffsets] = useState<Record<string, { x: number; y: number }>>({})
 
   const activePane = panes.find((pane) => pane.id === activePaneId) ?? panes[0]
-  const activeZoom = zoomLevels[activePaneId] ?? 1
-
-  const handleZoomOut = useCallback(() => {
-    setZoomLevels((current) => ({
-      ...current,
-      [activePaneId]: clampPreviewZoom((current[activePaneId] ?? 1) - PREVIEW_ZOOM_STEP),
-    }))
-  }, [activePaneId])
-
-  const handleZoomIn = useCallback(() => {
-    setZoomLevels((current) => ({
-      ...current,
-      [activePaneId]: clampPreviewZoom((current[activePaneId] ?? 1) + PREVIEW_ZOOM_STEP),
-    }))
-  }, [activePaneId])
 
   const handlePaneZoom = useCallback((paneId: string, nextZoom: number) => {
     setZoomLevels((current) => ({
@@ -129,37 +92,12 @@ export function Canvas({
     }))
   }, [])
 
-  const handleResetView = useCallback(() => {
-    setZoomLevels((current) => ({
-      ...current,
-      [activePaneId]: 1,
-    }))
-    setPanOffsets((current) => ({
-      ...current,
-      [activePaneId]: { x: 0, y: 0 },
-    }))
-  }, [activePaneId])
-
   const handlePanePan = useCallback((paneId: string, nextPan: { x: number; y: number }) => {
     setPanOffsets((current) => ({
       ...current,
       [paneId]: nextPan,
     }))
   }, [])
-
-  const zoomLevel = Math.round(activeZoom * 100)
-  const zoomPercent = `${zoomLevel}%`
-  const isDesktopZoomToolbar = toolbarVariant === "desktop-zoom"
-  const activeInteractionTool = activeCanvasTool === "select"
-    ? "select"
-    : activeCanvasTool === "text"
-      ? "text"
-      : "pan"
-  const canRemoveQr =
-    qrLayerCount > 1 &&
-    Boolean(onRemoveQrCode) &&
-    Boolean(selectedLayerId) &&
-    Boolean(selectedLayerId?.includes(":qr"))
 
   return (
     <TooltipProvider>
@@ -208,34 +146,6 @@ export function Canvas({
             />
           )}
         </div>
-
-        <CanvasComposeToolbar
-          activeCanvasTool={activeCanvasTool}
-          activeInteractionTool={activeInteractionTool}
-          activePaneId={activePaneId}
-          history={history}
-          canRemove={canRemoveQr}
-          insertNodeId={insertNodeId}
-          isDesktopZoomToolbar={isDesktopZoomToolbar}
-          isMaximized={false}
-          qr={qr}
-          onAddTextLayerAt={onAddTextLayerAt}
-          onBrowseWallpapers={onBrowseWallpapers}
-          onCanvasToolChange={onCanvasToolChange}
-          onInsertLayer={onInsertLayer}
-          onRemoveQrCode={
-            onRemoveQrCode && selectedLayerId
-              ? () => onRemoveQrCode(selectedLayerId)
-              : undefined
-          }
-          onResetView={handleResetView}
-          onToggleMaximize={() => undefined}
-          onZoomIn={handleZoomIn}
-          onZoomOut={handleZoomOut}
-          paneCount={1}
-          previewLocked={previewLocked}
-          zoomPercent={zoomPercent}
-        />
       </div>
     </TooltipProvider>
   )

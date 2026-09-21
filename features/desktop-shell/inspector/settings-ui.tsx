@@ -1153,10 +1153,6 @@ export function SettingsAccordionColorPicker({
   )
 }
 
-export function FieldLabel({ children }: { children: ReactNode }) {
-  return <span className="dn-type-meta -mb-1.5 mt-1 block tracking-wide">{children}</span>
-}
-
 export function SettingsRowPopover({
   hint,
   title,
@@ -1452,49 +1448,6 @@ export function ContentTypeBrowser({
   )
 }
 
-/** Popover grid — kept for compact surfaces that still use `SettingsRowPopover`. */
-export function ContentTypePicker({
-  onAfterSelect,
-  selected,
-  onSelect,
-}: {
-  onAfterSelect?: () => void
-  selected: QrInputType
-  onSelect: (type: QrInputType) => void
-}) {
-  return (
-    <div className="dn-content-type-picker">
-      <div className="dn-content-type-grid">
-        {PICKER_QR_INPUT_TYPES.map((type) => {
-          const option = QR_INPUT_OPTIONS[type]
-          const isSelected = selected === type
-
-          return (
-            <button
-              key={type}
-              aria-label={`Use ${option.label} content`}
-              aria-pressed={isSelected}
-              className={cn(
-                "dn-content-type-tile dn-option-tile dn-pressable-pickable dn-squircle-xs",
-                isSelected && "dn-content-type-tile--selected",
-              )}
-              type="button"
-              {...CUELUME_TOGGLE}
-              onClick={() => {
-                onSelect(type)
-                onAfterSelect?.()
-              }}
-            >
-              <ContentTypeGridIcon className="dn-content-type-tile-icon" type={type} />
-              <span className="dn-content-type-tile-label">{option.label}</span>
-            </button>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
 export function OptionScrollRow({
   fill = false,
   items,
@@ -1551,54 +1504,6 @@ export function OptionScrollRow({
         {tiles}
       </div>
     </ScrollArea>
-  )
-}
-
-export function OptionGrid({
-  columns = 3,
-  items,
-  onSelect,
-  outline,
-  animatedOutline,
-  selected,
-}: {
-  columns?: 3 | 4
-  items: string[]
-  onSelect?: (item: string) => void
-  outline?: boolean
-  animatedOutline?: boolean
-  selected: string
-}) {
-  return (
-    <div
-      className={cn(
-        "dn-option-grid grid gap-[length:var(--dn-space-inline)]",
-        columns === 4 ? "grid-cols-4" : "grid-cols-3",
-      )}
-    >
-      {items.map((item) => {
-        const isSelected = selected === item
-        return (
-          <button
-            key={item}
-            className={cn(
-              "dn-option-tile flex aspect-square items-center justify-center dn-type-chip dn-squircle-xs",
-              outline &&
-                isSelected &&
-                (animatedOutline
-                  ? "ring-2 ring-[var(--dn-fg)] ring-offset-2 ring-offset-[var(--dn-bg)]"
-                  : "ring-2 ring-[var(--dn-fg)] ring-inset"),
-            )}
-            type="button"
-            aria-pressed={isSelected}
-            {...CUELUME_TOGGLE}
-            onClick={() => onSelect?.(item)}
-          >
-            {item}
-          </button>
-        )
-      })}
-    </div>
   )
 }
 

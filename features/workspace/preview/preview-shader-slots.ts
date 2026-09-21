@@ -12,7 +12,3 @@ export function acquireRunningShaderSlot() {
     activeRunningShaderCount = Math.max(0, activeRunningShaderCount - 1)
   }
 }
-
-export function getActiveRunningShaderCount() {
-  return activeRunningShaderCount
-}

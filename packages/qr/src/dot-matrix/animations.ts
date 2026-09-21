@@ -141,42 +141,6 @@ export enum AnimationPreset {
   ChevronSweep = 'ChevronSweep',
 }
 
-export const standardAnimationPresets = [
-  AnimationPreset.FadeInTopDown,
-  AnimationPreset.FadeInCenterOut,
-  AnimationPreset.RadialRipple,
-  AnimationPreset.RadialRippleIn,
-  AnimationPreset.MaterializeIn,
-  AnimationPreset.SubtlePulse,
-  AnimationPreset.FinderPing,
-  AnimationPreset.SoftMaterialize,
-  AnimationPreset.CenterBloom,
-  AnimationPreset.CornerSweep,
-  AnimationPreset.OrbitReveal,
-  AnimationPreset.DiamondGlint,
-  AnimationPreset.SignalScan,
-  AnimationPreset.ConfettiPop,
-  AnimationPreset.SpiralBloom,
-  AnimationPreset.BubbleCascade,
-  AnimationPreset.KaleidoPulse,
-  AnimationPreset.FireflyTwinkle,
-  AnimationPreset.MagneticRipple,
-  AnimationPreset.ParallaxTiles,
-  AnimationPreset.ConstellationTrace,
-  AnimationPreset.ApertureReveal,
-  AnimationPreset.LensFocus,
-  AnimationPreset.ReceiptPrint,
-  AnimationPreset.FlipClock,
-  AnimationPreset.WaveInterference,
-  AnimationPreset.QuantumMaterialize,
-  AnimationPreset.MagneticSnap,
-  AnimationPreset.HoloFlicker,
-  AnimationPreset.SignalGlitch,
-  AnimationPreset.ShockwaveJolt,
-  AnimationPreset.TideRise,
-  AnimationPreset.GravityCollapse,
-];
-
 export const dotMatrixAnimationPresets = [
   AnimationPreset.NeonDrift,
   AnimationPreset.RadialExpand,
@@ -186,9 +150,6 @@ export const dotMatrixAnimationPresets = [
   AnimationPreset.ChevronSweep,
   AnimationPreset.FluxColumns,
 ];
-
-/** All square-loader presets use base + accent dual-color motion. */
-export const dualColorDotMatrixPresets = dotMatrixAnimationPresets;
 
 const FadeInTopDown: QRCodeAnimation = (targets, _x, y, _count, _entity) => {
   return {
@@ -482,7 +443,6 @@ type WebKeyframeValue =
 
 const MATRIX_SIZE = 5;
 const MATRIX_LAST = MATRIX_SIZE - 1;
-const MATRIX_CELLS = MATRIX_SIZE * MATRIX_SIZE;
 const NEON_DRIFT_CYCLE_MS = 2400;
 const FLUX_COLUMNS_CYCLE_MS = 1100;
 const RADIAL_EXPAND_CYCLE_MS = 1800;
@@ -495,16 +455,6 @@ const matrixFracCoord = (x: number, y: number, count: number) => {
     fRow: clamp((y / max) * MATRIX_LAST, 0, MATRIX_LAST),
     fCol: clamp((x / max) * MATRIX_LAST, 0, MATRIX_LAST),
   };
-};
-
-const discreteCellField = (
-  fRow: number,
-  fCol: number,
-  fn: (row: number, col: number) => number
-) => {
-  const row = clamp(Math.round(fRow), 0, MATRIX_LAST);
-  const col = clamp(Math.round(fCol), 0, MATRIX_LAST);
-  return fn(row, col);
 };
 
 /** Bilinear sample of a 5×5 cell field — smooth when mapped onto large QR grids. */
@@ -855,53 +805,6 @@ const cloneCssBlendKeyframe = (
   cssBlend: { ...frame.cssBlend },
   offset: frame.offset,
 });
-
-const cloneNumericKeyframe = (frame: WebKeyframeValue): WebKeyframeValue => {
-  if (typeof frame === 'number') return frame;
-  if (isCssBlendKeyframe(frame)) return cloneCssBlendKeyframe(frame);
-  if (typeof frame === 'object' && frame !== null && 'value' in frame) {
-    return { ...frame };
-  }
-  return frame;
-};
-
-export const closeOpacityLoop = (
-  frames: WebKeyframeValue[]
-): WebKeyframeValue[] => {
-  if (frames.length < 2) return frames;
-  const closed = frames.map((frame) => cloneNumericKeyframe(frame));
-  const first = closed[0];
-  const last = closed[closed.length - 1];
-  if (isCssBlendKeyframe(first) && isCssBlendKeyframe(last)) {
-    last.cssBlend = { ...first.cssBlend };
-    last.offset = 1;
-    return closed;
-  }
-  const firstValue = keyframeNumericValue(first);
-  if (typeof last === 'number') {
-    closed[closed.length - 1] = firstValue;
-  } else if (typeof last === 'object' && last !== null && 'value' in last) {
-    last.value = firstValue;
-    last.offset = 1;
-  }
-  return closed;
-};
-
-export const closeCssBlendLoop = (
-  frames: WebKeyframeValue[]
-): WebKeyframeValue[] => {
-  if (frames.length < 2) return frames;
-  const first = frames[0];
-  if (!isCssBlendKeyframe(first)) {
-    return closeOpacityLoop(frames);
-  }
-  const closed = frames.map((frame) => cloneNumericKeyframe(frame));
-  const closedFirst = closed[0] as DotMatrixCssBlendKeyframe;
-  const closedLast = closed[closed.length - 1] as DotMatrixCssBlendKeyframe;
-  closedLast.cssBlend = { ...closedFirst.cssBlend };
-  closedLast.offset = 1;
-  return closed;
-};
 
 const matrixMotionStyle = (
   targets: any,

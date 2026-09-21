@@ -4,8 +4,6 @@ import { createCornerGradientElement } from "./finder-gradient-overlays"
 
 const SVG_NS = "http://www.w3.org/2000/svg"
 
-export { applyDirectGradientFill, getModuleGradientCoverRect } from "./gradient-fill-utils"
-
 function isSvgElementLike(node: Element): node is SVGElement {
   return typeof node.getAttribute === "function" && typeof node.setAttribute === "function"
 }

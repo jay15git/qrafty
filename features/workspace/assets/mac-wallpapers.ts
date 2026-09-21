@@ -89,7 +89,3 @@ export const MAC_WALLPAPERS: readonly MacWallpaper[] = [
     "sourceUrl": "https://www.screenshot-studio.com/r2-assets/backgrounds/mac/mac-asset-10.jpg"
   }
 ] as const
-
-export function getMacWallpaper(id: string): MacWallpaper | undefined {
-  return MAC_WALLPAPERS.find((wallpaper) => wallpaper.id === id)
-}

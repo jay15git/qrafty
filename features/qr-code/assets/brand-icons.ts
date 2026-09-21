@@ -754,32 +754,3 @@ export function getBrandIconById(id: BrandIconId) {
 
   return brandIcon
 }
-
-export function filterBrandIcons(
-  query: string,
-  category: BrandIconCategory | "all" = "all",
-) {
-  const normalizedQuery = normalizeBrandIconSearchText(query)
-  const iconsInCategory =
-    category === "all"
-      ? BRAND_ICON_CATALOG
-      : BRAND_ICON_CATALOG.filter((entry) => entry.category === category)
-
-  if (!normalizedQuery) {
-    return iconsInCategory
-  }
-
-  const queryTerms = normalizedQuery.split(" ")
-
-  return iconsInCategory.filter((entry) => {
-    const haystack = normalizeBrandIconSearchText(
-      [entry.id, entry.label, entry.category, ...entry.keywords].join(" "),
-    )
-
-    return queryTerms.every((term) => haystack.includes(term))
-  })
-}
-
-function normalizeBrandIconSearchText(value: string) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()
-}

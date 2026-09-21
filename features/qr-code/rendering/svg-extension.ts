@@ -167,44 +167,6 @@ export function buildQrExtension(state: QraftyState) {
   }
 }
 
-export function getQrExtensionKey(state: QraftyState) {
-  return JSON.stringify({
-    backgroundImage: getAssetValue(state.backgroundImage),
-    backgroundRound: state.backgroundOptions.round,
-    backgroundShapeGradient: getBackgroundShapeGradientKey(state),
-    backgroundShapeId: getAssetValue(state.backgroundImage)
-      ? null
-      : state.backgroundShapeId,
-    backgroundShapeOptions: getAssetValue(state.backgroundImage)
-      ? null
-      : state.backgroundShapeOptions,
-    finderPatternInnerGradient: state.finderPatternInnerGradient.enabled
-      ? state.finderPatternInnerGradient
-      : null,
-    finderPatternInnerType: state.finderPatternInnerSettings.type,
-    finderPatternOuterGradient: state.finderPatternOuterGradient.enabled
-      ? state.finderPatternOuterGradient
-      : null,
-    customDotShape: null,
-    dataModulesGradient: state.dotsColorMode === "gradient" ? state.dataModulesGradient : null,
-    dotsColorMode: state.dotsColorMode,
-    dotsPalette: state.dotsPalette,
-    moduleFillImage: getAssetValue(state.moduleFillImage),
-    gradientLinkMode: state.gradientLinkMode,
-    logo: getAssetValue(state.logo),
-    seed: state.data.trim(),
-  })
-}
-
-export function createDotMatrixAnimationExtension(
-  _state: QraftyState,
-  _mode: QrAnimationRenderMode,
-): QrSvgExtensionFunction | null {
-  void _state
-  void _mode
-  return null
-}
-
 export function annotateCanvasSvgForDotMatrixMotion(
   svg: SVGElement,
   state?: Pick<QraftyState, "dotsColorMode" | "data" | "dotsPalette">,

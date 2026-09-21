@@ -16,18 +16,6 @@ import { createRoot } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 const buildDashboardQrNodePayloadSpy = vi.fn(() => new Promise(() => undefined))
-const downloadDashboardQrBatchZipExportSpy = vi.fn(() => Promise.resolve())
-const downloadDashboardQrNodeExportSpy = vi.fn(() => Promise.resolve())
-const downloadDashboardRasterExportSpy = vi.fn(() => Promise.resolve())
-const measureDashboardRasterExportSpy = vi.fn(() =>
-  Promise.resolve({
-    blobSizeBytes: 182000,
-    extension: "png" as const,
-    height: 1280,
-    qualityPercent: 100,
-    width: 1280,
-  }),
-)
 
 vi.mock("@/features/qr-code/rendering/qr-svg", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/features/qr-code/rendering/qr-svg")>()
@@ -38,26 +26,6 @@ vi.mock("@/features/qr-code/rendering/qr-svg", async (importOriginal) => {
       buildDashboardQrNodePayloadSpy(...args),
   }
 })
-
-vi.mock("@/features/qr-code/export/batch-export", () => ({
-  downloadDashboardQrBatchZipExport: (
-    ...args: Parameters<typeof downloadDashboardQrBatchZipExportSpy>
-  ) => downloadDashboardQrBatchZipExportSpy(...args),
-  downloadDashboardQrNodeExport: (
-    ...args: Parameters<typeof downloadDashboardQrNodeExportSpy>
-  ) => downloadDashboardQrNodeExportSpy(...args),
-}))
-
-vi.mock("@/features/qr-code/export/raster-export", () => ({
-  downloadDashboardRasterExport: (
-    ...args: Parameters<typeof downloadDashboardRasterExportSpy>
-  ) => downloadDashboardRasterExportSpy(...args),
-  formatDashboardExportFileSize: (bytes: number) => `${bytes} B`,
-  isRasterExportExtension: (extension: string) => extension !== "svg",
-  measureDashboardRasterExport: (
-    ...args: Parameters<typeof measureDashboardRasterExportSpy>
-  ) => measureDashboardRasterExportSpy(...args),
-}))
 
 type PopoverContextValue = {
   open: boolean
@@ -191,19 +159,6 @@ beforeEach(() => {
   })
   buildDashboardQrNodePayloadSpy.mockClear()
   buildDashboardQrNodePayloadSpy.mockImplementation(() => new Promise(() => undefined))
-  downloadDashboardQrBatchZipExportSpy.mockClear()
-  downloadDashboardQrNodeExportSpy.mockClear()
-  downloadDashboardRasterExportSpy.mockClear()
-  measureDashboardRasterExportSpy.mockClear()
-  measureDashboardRasterExportSpy.mockImplementation(() =>
-    Promise.resolve({
-      blobSizeBytes: 182000,
-      extension: "png",
-      height: 1280,
-      qualityPercent: 100,
-      width: 1280,
-    }),
-  )
   vi.stubGlobal(
     "ResizeObserver",
     class ResizeObserver {

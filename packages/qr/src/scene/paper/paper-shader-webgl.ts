@@ -48,7 +48,3 @@ export function hasPaperShaderWebGlSupport() {
     return false
   }
 }
-
-export function resetPaperShaderWebGlSupportCache() {
-  confirmedSupport = false
-}

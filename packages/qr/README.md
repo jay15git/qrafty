@@ -2,47 +2,20 @@
 
 Internal QRafty QR rendering library used by QRafty:
 
-- **QRafty QR rendering** — `QraftyQrCode`
-- **Paper shaders** — `PaperShaderLayer`
-- **Animated QR** — `AnimatedQr`
-
-## Usage
-
-```tsx
-import { QraftyQrCode } from "@qrafty/qr/react"
-import { AnimatedQr } from "@qrafty/qr/animated"
-import { PaperShaderLayer } from "@qrafty/qr/shaders"
-```
+- **QR primitives** — `ReactQRCode` (vendored `@lglab/react-qr-code` fork)
+- **Dot-matrix animation** — `DotMatrixAnimatedSvg`
+- **Paper shader helpers** — render options, world-size, WebGL support probes
 
 ## Exports
 
-| Import | Components |
-|--------|------------|
-| `@qrafty/qr` | Shared types, `QraftyQrCode` |
-| `@qrafty/qr/react` | `QraftyQrCode`, `ReactQRCode` (upstream primitive) |
-| `@qrafty/qr/shaders` | `PaperShaderLayer`, shader helpers |
-| `@qrafty/qr/animated` | `AnimatedQr` |
+| Import | Contents |
+|--------|----------|
+| `@qrafty/qr` | Shared types (`QraftyQrCodeProps`, `QraftyQrConfig`, …) |
+| `@qrafty/qr/react` | `ReactQRCode` (upstream primitive) |
+| `@qrafty/qr/shaders` | Shader helpers (`buildPaperShaderRenderProps`, render options) |
+| `@qrafty/qr/dot-matrix` | `DotMatrixAnimatedSvg` + animation utilities |
 
-`QraftyQrCode` is a flat portable API over vendored `@lglab/react-qr-code`. For full upstream parity (nested props, `ref.download`), use `ReactQRCode` from `@qrafty/qr/react`.
-
-### Portable props (upstream-aligned)
-
-| Portable | Upstream |
-|----------|----------|
-| `value` | `value` (`string \| string[]`) |
-| `level` | `level` |
-| `minVersion` | `minVersion` |
-| `boostLevel` | `boostLevel` |
-| `margin` | `marginSize` |
-| `module` | `dataModulesSettings.style` |
-| `moduleSize` | `dataModulesSettings.size` |
-| `moduleLineWidth` | `dataModulesSettings.lineWidth` |
-| `moduleRoundSize` | `!dataModulesSettings.randomSize` |
-| `foreground` | `dataModulesSettings.color` |
-| `finderOuter` / `finderInner` | `finderPattern*Settings.style` |
-| `backgroundGradient` | `background` (gradient) |
-| `logo` | `imageSettings` |
-| `ariaLabel` | `svgProps['aria-label']` |
+QRafty app code also imports QRafty-only internals via `@qrafty/qr-internal/*` path aliases (scene codegen, unified fills, vendored renderer). Those paths are **not** package exports.
 
 ## Build
 

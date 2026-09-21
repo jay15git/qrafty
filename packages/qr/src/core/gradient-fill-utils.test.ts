@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest"
 
 import {
   applyDirectGradientFillWithContext,
-  readSvgPaintContext,
 } from "./gradient-fill-utils"
 
 describe("gradient fill utils", () => {
@@ -16,7 +15,7 @@ describe("gradient fill utils", () => {
     const svg = document.documentElement as unknown as SVGElement
     const path = svg.querySelector("path") as SVGElement
 
-    applyDirectGradientFillWithContext(path, "url(#gradient)", readSvgPaintContext(svg))
+    applyDirectGradientFillWithContext(path, "url(#gradient)", { fill: "none", stroke: "#111827" })
 
     expect(path.getAttribute("stroke")).toBe("url(#gradient)")
     expect(path.getAttribute("fill")).toBeNull()
@@ -30,7 +29,7 @@ describe("gradient fill utils", () => {
     const svg = document.documentElement as unknown as SVGElement
     const path = svg.querySelector("path") as SVGElement
 
-    applyDirectGradientFillWithContext(path, "url(#gradient)", readSvgPaintContext(svg))
+    applyDirectGradientFillWithContext(path, "url(#gradient)", { fill: "#111827", stroke: null })
 
     expect(path.getAttribute("fill")).toBe("url(#gradient)")
   })

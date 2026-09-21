@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest"
 
 import {
   getPreviewCameraStyle,
-  getPreviewDisplaySize,
   getPreviewStageSize,
   scalePreviewCornerRadiiState,
 } from "@/features/workspace/preview/preview-camera"
@@ -39,9 +38,6 @@ describe("preview camera", () => {
     })
   })
 
-  it("derives on-screen shader display size from document size", () => {
-    expect(getPreviewDisplaySize(1080, 0.35)).toBe(378)
-  })
 })
 
 describe("preview shader budget", () => {

@@ -34,28 +34,3 @@ export const SECTION_TO_TOOL: Partial<Record<DesktopSettingsSectionId, DesktopTo
   Background: "background",
   Motion: "motion",
 }
-
-export const TOOL_TO_SECTION: Partial<Record<DesktopToolbarToolId, DesktopSettingsSectionId>> = {
-  content: "Content",
-  pattern: "QR",
-  corners: "QR",
-  logo: "QR",
-  shape: "Shape",
-  background: "Background",
-  motion: "Motion",
-}
-
-export function sectionForTool(tool: DesktopToolbarToolId | null): DesktopSettingsSectionId {
-  if (!tool) return "Content"
-  return TOOL_TO_SECTION[tool] ?? "Content"
-}
-
-export const MOBILE_DRAWER_VIEW_FOR_SECTION: Record<DesktopSettingsSectionId, string> = {
-  Content: "content",
-  QR: "qr",
-  Color: "color",
-  Motion: "motion",
-  Shape: "shape",
-  Background: "background",
-  Elements: "elements",
-}

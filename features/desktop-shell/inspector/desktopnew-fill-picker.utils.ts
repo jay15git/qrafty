@@ -1,5 +1,5 @@
 import { formatColor, parseColor } from "@/components/ui/fill-picker-base/color-picker"
-import { formatFill, parseFill, type Fill } from "@/components/ui/fill-picker-base/public-api"
+import { parseFill, type Fill } from "@/components/ui/fill-picker-base/public-api"
 
 export function fillFromHex(hex: string): Fill {
   const color = parseColor(hex)
@@ -68,13 +68,4 @@ export function normalizeFillForQrTarget(fill: Fill): Fill {
   }
 
   return fill
-}
-
-export function normalizeQrTargetFillCss(fillCss: string): string {
-  const parsed = parseFill(fillCss)
-  if (!parsed) {
-    return fillCss
-  }
-
-  return formatFill(normalizeFillForQrTarget(parsed))
 }

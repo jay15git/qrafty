@@ -45,8 +45,8 @@ export type {
   DesktopToolbarToolId,
   DesktopLayoutSettings,
 } from "@/features/desktop-shell/model/desktop-toolbar-types"
+
 export type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
-export { useDesktopToolbarInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 
 import { DESKTOP_WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/hooks/use-media-query"
 import { cn } from "@/lib/utils"

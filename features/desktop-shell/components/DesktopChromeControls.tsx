@@ -2,33 +2,19 @@
 
 import {
   AppleIcon,
-  KeyboardIcon,
   WindowsOldIcon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { MoonIcon, SunIcon } from "lucide-react"
 import { useState, type ComponentProps, type CSSProperties } from "react"
 
 import { Kbd } from "@/components/kbd"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { PopoverContent } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DesktopInspectorSection } from "@/features/desktop-shell/components/InspectorControls"
-import {
-  DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_CLASS,
-} from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
-import { DesktopUtilityToolbarButton } from "@/features/desktop-shell/components/DesktopUtilityToolbar"
-import { DesktopTooltip } from "@/features/desktop-shell/components/DesktopTooltip"
 import { DRAFTING_KEYBOARD_SHORTCUT_GROUPS } from "@/features/workspace/model/keyboard-shortcuts"
-import { desktopCuelumeAttrs } from "@/features/desktop-shell/audio/desktop-cuelume"
 import { cn } from "@/lib/utils"
 
 type DesktopShortcutPlatform = "apple" | "windows"
-
-type ChromeControlVariant = "utility" | "glass"
 
 const DESKTOP_SHORTCUT_PLATFORMS: Array<{
   icon: typeof WindowsOldIcon
@@ -71,31 +57,6 @@ function getShortcutKeyCombos(keys: string, platform: DesktopShortcutPlatform): 
 
       return key
     }),
-  )
-}
-
-function ChromeControlButton({
-  className,
-  cuelume = "button",
-  variant = "utility",
-  ...props
-}: ComponentProps<"button"> & {
-  cuelume?: "button" | "none" | "toggle"
-  variant?: ChromeControlVariant
-}) {
-  if (variant === "glass") {
-    return (
-      <button
-        className={cn(DESKTOP_GLASS_TOOLBAR_ICON_BUTTON_CLASS, className)}
-        type="button"
-        {...desktopCuelumeAttrs(cuelume)}
-        {...props}
-      />
-    )
-  }
-
-  return (
-    <DesktopUtilityToolbarButton className={className} cuelume={cuelume} type="button" {...props} />
   )
 }
 
@@ -234,88 +195,5 @@ export function DesktopKeyboardShortcutsPopoverContent({
         </div>
       </ScrollArea>
     </PopoverContent>
-  )
-}
-
-export function DesktopKeyboardShortcutsTrigger({
-  className,
-  popoverAlign = "end",
-  popoverSide = "bottom",
-  suppressTooltip = false,
-  variant = "utility",
-}: {
-  className?: string
-  popoverAlign?: ComponentProps<typeof PopoverContent>["align"]
-  popoverSide?: ComponentProps<typeof PopoverContent>["side"]
-  suppressTooltip?: boolean
-  variant?: ChromeControlVariant
-}) {
-  return (
-    <Popover>
-      {suppressTooltip ? (
-        <PopoverTrigger asChild>
-          <ChromeControlButton
-            aria-label="Open keyboard shortcuts"
-            className={cn("rounded-full hover:bg-white/10", className)}
-            data-slot="desktop-keyboard-shortcuts-trigger"
-            variant={variant}
-          >
-            <HugeiconsIcon icon={KeyboardIcon} size={16} color="currentColor" strokeWidth={1.8} />
-          </ChromeControlButton>
-        </PopoverTrigger>
-      ) : (
-        <DesktopTooltip content="Keyboard shortcuts" side="bottom" sideOffset={10}>
-          <PopoverTrigger asChild>
-            <ChromeControlButton
-              aria-label="Open keyboard shortcuts"
-              className={className}
-              data-slot="desktop-keyboard-shortcuts-trigger"
-              variant={variant}
-            >
-              <HugeiconsIcon icon={KeyboardIcon} size={16} color="currentColor" strokeWidth={1.8} />
-            </ChromeControlButton>
-          </PopoverTrigger>
-        </DesktopTooltip>
-      )}
-      <DesktopKeyboardShortcutsPopoverContent
-        popoverAlign={popoverAlign}
-        popoverSide={popoverSide}
-      />
-    </Popover>
-  )
-}
-
-export function DesktopThemeToggleButton({
-  className,
-  onToggle,
-  theme,
-  variant = "utility",
-}: {
-  className?: string
-  onToggle: () => void
-  theme: "dark" | "light"
-  variant?: ChromeControlVariant
-}) {
-  return (
-    <DesktopTooltip
-      content={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-      side="bottom"
-      sideOffset={10}
-    >
-      <ChromeControlButton
-        aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-        className={className}
-        cuelume="toggle"
-        data-slot="desktop-theme-toggle"
-        onClick={onToggle}
-        variant={variant}
-      >
-        {theme === "light" ? (
-          <MoonIcon className="size-3.5" />
-        ) : (
-          <SunIcon className="size-3.5" />
-        )}
-      </ChromeControlButton>
-    </DesktopTooltip>
   )
 }

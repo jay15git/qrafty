@@ -35,15 +35,6 @@ export type DraftingShadowLayerState = {
   visible: boolean
 }
 
-export const DRAFTING_BORDER_STYLES: DraftingBorderStyle[] = ["solid"]
-
-export const DRAFTING_BORDER_SIDE_KEYS: DraftingBorderSideKey[] = [
-  "top",
-  "right",
-  "bottom",
-  "left",
-]
-
 const DEFAULT_DRAFTING_BORDER_SIDE: DraftingBorderSideValue = {
   color: "#111827",
   opacity: 100,

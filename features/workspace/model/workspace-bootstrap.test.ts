@@ -3,30 +3,47 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { createDefaultDraftingWorkspaceDocument } from "@/features/workspace/model/document"
-import {
-  readWorkspaceBootstrapSnapshot,
-  resolveWorkspaceBootstrapDocument,
-  writeWorkspaceBootstrapSnapshot,
-} from "@/features/workspace/model/workspace-bootstrap"
+import { writeDraftingWorkspaceDraft } from "@/features/workspace/model/storage"
+import { resolveWorkspaceBootstrapDocument } from "@/features/workspace/model/workspace-bootstrap"
 
 describe("resolveWorkspaceBootstrapDocument", () => {
   beforeEach(() => {
-    window.sessionStorage.clear()
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      value: createMemoryStorage(),
+    })
     vi.restoreAllMocks()
   })
 
-  it("prefers the synchronous bootstrap snapshot over indexeddb", async () => {
+  it("returns the persisted draft when one exists", async () => {
     const seeded = createDefaultDraftingWorkspaceDocument()
     const nodeId = seeded.activeQrNodeId
 
-    writeWorkspaceBootstrapSnapshot(seeded)
+    await writeDraftingWorkspaceDraft(seeded)
 
     const result = await resolveWorkspaceBootstrapDocument()
 
-    expect(result.consumedSession).toBe(true)
-    expect(result.document.layerStateByNodeId[nodeId]?.length).toBe(
+    expect(result.layerStateByNodeId[nodeId]?.length).toBe(
       seeded.layerStateByNodeId[nodeId]?.length,
     )
-    expect(readWorkspaceBootstrapSnapshot()).toBeNull()
   })
 })
+
+function createMemoryStorage(): Storage {
+  const values = new Map<string, string>()
+
+  return {
+    get length() {
+      return values.size
+    },
+    clear: vi.fn(() => values.clear()),
+    getItem: vi.fn((key: string) => values.get(key) ?? null),
+    key: vi.fn((index: number) => Array.from(values.keys())[index] ?? null),
+    removeItem: vi.fn((key: string) => {
+      values.delete(key)
+    }),
+    setItem: vi.fn((key: string, value: string) => {
+      values.set(key, value)
+    }),
+  }
+}

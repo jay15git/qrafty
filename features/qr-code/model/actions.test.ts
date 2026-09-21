@@ -4,19 +4,9 @@ import {
   applyAssetNoneSelection,
   applyAssetUploadValue,
   applyAssetUrlValue,
-  applyBackgroundGradient,
-  applyBackgroundSolidColor,
-  applyBackgroundTransparentSelection,
-  applyCornerGradient,
-  applyCornerSolidColor,
-  applyDotsGradient,
-  applyDotsPaletteSelection,
-  applyDotsSolidColor,
   applyLogoPresetColor,
   applyLogoPresetGradient,
   applyLogoPresetSelection,
-  createDashboardAccordionOpenItemIds,
-  ensureDashboardAccordionItemExpanded,
 } from "@/features/qr-code/model/actions"
 import { getBrandIconById } from "@/features/qr-code/assets/brand-icons"
 import {
@@ -26,113 +16,6 @@ import {
 import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 
 describe("dashboard settings state helpers", () => {
-  it("initializes dashboard accordions with the selected item expanded", () => {
-    expect(createDashboardAccordionOpenItemIds("solid")).toEqual(["solid"])
-  })
-
-  it("ensures newly selected items are expanded without closing siblings", () => {
-    expect(
-      ensureDashboardAccordionItemExpanded(["solid"], "gradient"),
-    ).toEqual(["solid", "gradient"])
-  })
-
-  it("applies solid dots editing without changing other fields", () => {
-    const state = createDefaultQraftyState()
-    state.dotsColorMode = "gradient"
-
-    const nextState = applyDotsSolidColor(state, "#ff0000")
-
-    expect(nextState.dotsColorMode).toBe("solid")
-    expect(nextState.dataModulesSettings.color).toBe("#ff0000")
-    expect(nextState.dataModulesGradient).toEqual(state.dataModulesGradient)
-  })
-
-  it("applies gradient dots editing without selecting on panel open alone", () => {
-    const state = createDefaultQraftyState()
-
-    const nextState = applyDotsGradient(state, {
-      ...state.dataModulesGradient,
-      colorStops: [
-        { offset: 0, color: "#111111" },
-        { offset: 1, color: "#eeeeee" },
-      ],
-    })
-
-    expect(state.dotsColorMode).toBe("solid")
-    expect(nextState.dotsColorMode).toBe("gradient")
-    expect(nextState.dataModulesGradient.colorStops[0].color).toBe("#111111")
-  })
-
-  it("applies explicit palette selection without mutating the palette", () => {
-    const state = createDefaultQraftyState()
-
-    const nextState = applyDotsPaletteSelection(state)
-
-    expect(nextState.dotsColorMode).toBe("palette")
-    expect(nextState.dotsPalette).toEqual(state.dotsPalette)
-  })
-
-  it("applies solid corner edits by disabling the matching gradient", () => {
-    const state = createDefaultQraftyState()
-    state.finderPatternOuterGradient.enabled = true
-
-    const nextState = applyCornerSolidColor(state, "cornersSquare", "#00ff00")
-
-    expect(nextState.finderPatternOuterSettings.color).toBe("#00ff00")
-    expect(nextState.finderPatternOuterGradient.enabled).toBe(false)
-  })
-
-  it("applies gradient corner edits by enabling the matching gradient", () => {
-    const state = createDefaultQraftyState()
-
-    const nextState = applyCornerGradient(state, "cornersDot", {
-      ...state.finderPatternInnerGradient,
-      enabled: false,
-      colorStops: [
-        { offset: 0, color: "#222222" },
-        { offset: 1, color: "#dddddd" },
-      ],
-    })
-
-    expect(nextState.finderPatternInnerGradient.enabled).toBe(true)
-    expect(nextState.finderPatternInnerGradient.colorStops[1].color).toBe("#dddddd")
-  })
-
-  it("applies solid background edits by clearing transparency and gradient mode", () => {
-    const state = createDefaultQraftyState()
-    state.backgroundOptions.transparent = true
-    state.backgroundGradient.enabled = true
-
-    const nextState = applyBackgroundSolidColor(state, "#fafafa")
-
-    expect(nextState.backgroundOptions.color).toBe("#fafafa")
-    expect(nextState.backgroundOptions.transparent).toBe(false)
-    expect(nextState.backgroundGradient.enabled).toBe(false)
-  })
-
-  it("applies background gradient edits by clearing transparency", () => {
-    const state = createDefaultQraftyState()
-    state.backgroundOptions.transparent = true
-
-    const nextState = applyBackgroundGradient(state, {
-      ...state.backgroundGradient,
-      enabled: false,
-    })
-
-    expect(nextState.backgroundGradient.enabled).toBe(true)
-    expect(nextState.backgroundOptions.transparent).toBe(false)
-  })
-
-  it("applies transparent background selection immediately", () => {
-    const state = createDefaultQraftyState()
-    state.backgroundGradient.enabled = true
-
-    const nextState = applyBackgroundTransparentSelection(state)
-
-    expect(nextState.backgroundOptions.transparent).toBe(true)
-    expect(nextState.backgroundGradient.enabled).toBe(false)
-  })
-
   it("applies remote asset URL editing as the selected source", () => {
     const state = createDefaultQraftyState()
 

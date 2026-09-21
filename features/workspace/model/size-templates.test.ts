@@ -4,7 +4,6 @@ import {
   DRAFTING_CANVAS_BASELINE_MAX_EDGE,
   SIZE_TEMPLATE_GROUPS,
   SIZE_TEMPLATES,
-  findMatchingRatioTemplate,
   formatAspectRatio,
   getCanvasSizeFromTemplate,
   getSizeTemplate,
@@ -86,7 +85,6 @@ describe("size templates catalog", () => {
 
   it("formats aspect ratios and finds ratio presets", () => {
     expect(formatAspectRatio(1920, 1080)).toBe("16:9")
-    expect(findMatchingRatioTemplate(1920, 1080)?.id).toBe("ratio-16-9")
   })
 
   it("normalizes canvas sizes to a shared max-edge baseline", () => {

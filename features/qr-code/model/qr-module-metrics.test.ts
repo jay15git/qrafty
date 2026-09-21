@@ -2,11 +2,10 @@ import { describe, expect, it } from "vitest"
 
 import {
   getQraftyQrQuietZoneFraction,
-  getQraftyQrQuietZonePx,
 } from "@/features/qr-code/model/qr-module-metrics"
 import {
   createDefaultQraftyState,
-  setSquareQrSize,
+  clampQrSize,
 } from "@/features/qr-code/model/state"
 import {
   getQrBackgroundShapeContentFrame,
@@ -15,11 +14,11 @@ import {
 } from "@/features/qr-code/styles/background-shapes"
 import { parsePathToVertices } from "@/lib/svg-path-to-vertices"
 
-describe("getQraftyQrQuietZonePx", () => {
+describe("getQraftyQrQuietZoneFraction", () => {
   it("returns a larger quiet-zone share for sparse payloads than dense ones", () => {
-    const sparse = setSquareQrSize(createDefaultQraftyState(), 320)
+    const sparse = { ...createDefaultQraftyState(), width: clampQrSize(320), height: clampQrSize(320) }
     sparse.data = "https://q"
-    const dense = setSquareQrSize(createDefaultQraftyState(), 320)
+    const dense = { ...createDefaultQraftyState(), width: clampQrSize(320), height: clampQrSize(320) }
     dense.data = "x".repeat(400)
 
     const sparseFraction = getQraftyQrQuietZoneFraction(sparse)
@@ -31,17 +30,17 @@ describe("getQraftyQrQuietZonePx", () => {
   })
 
   it("scales the quiet zone with the rendered qr box size", () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 320)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(320), height: clampQrSize(320) }
     state.data = "https://qrafty.app"
 
     const fraction = getQraftyQrQuietZoneFraction(state)
 
-    expect(getQraftyQrQuietZonePx(state, 320)).toBeCloseTo(fraction * 320)
-    expect(getQraftyQrQuietZonePx(state, 160)).toBeCloseTo(fraction * 160)
+    expect(getQraftyQrQuietZoneFraction(state) * 320).toBeCloseTo(fraction * 320)
+    expect(getQraftyQrQuietZoneFraction(state) * 160).toBeCloseTo(fraction * 160)
   })
 
   it("falls back to zero when the payload cannot be encoded", () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 320)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(320), height: clampQrSize(320) }
     state.data = "x".repeat(6000)
     state.valueSegments = []
 

@@ -3,7 +3,7 @@
 import { act, useState } from "react"
 import { beforeEach, describe, expect, it } from "vitest"
 
-import { ElasticSlider } from "@/components/ui/elastic-slider"
+import { SettingsInlineSlider } from "@/features/desktop-shell/inspector/settings-ui"
 import {
   MobileDetailStackOutlets,
   MobileDrawerNavigationProvider,
@@ -216,13 +216,13 @@ describe("MobileDrawerNavigationProvider", () => {
         <MobileInspectorDensityContext.Provider value={true}>
           <MobileDrawerNavigationProvider currentView={currentView} setView={setView}>
             <SettingsRowPopover title="Shader settings" trigger="Options">
-              <ElasticSlider
+              <SettingsInlineSlider
                 label="Distortion"
                 max={1}
                 min={0}
                 step={0.01}
                 value={value}
-                onValueChange={setValue}
+                onChange={setValue}
               />
             </SettingsRowPopover>
             <MobileDetailStackOutlets />

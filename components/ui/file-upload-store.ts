@@ -8,7 +8,7 @@ export const FILE_UPLOAD_ROOT_NAME = "FileUpload";
 
 export type Direction = "ltr" | "rtl";
 
-export interface FileState {
+interface FileState {
   file: File;
   progress: number;
   error?: string;

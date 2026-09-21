@@ -285,11 +285,6 @@ export async function ensureDraftingFontsForLayers(layers: readonly DraftingCanv
   await Promise.all([...fontIds].map(loadDraftingFont))
 }
 
-export function isDraftingFontLoaded(fontId: string | null | undefined) {
-  const font = getDraftingFontById(fontId)
-  return font ? loadedFontIds.has(font.id) : false
-}
-
 function injectDraftingFontStylesheet(font: DraftingFontRegistryEntry) {
   const linkId = getDraftingFontElementId(font.id)
   const existing = document.getElementById(linkId) as HTMLLinkElement | null

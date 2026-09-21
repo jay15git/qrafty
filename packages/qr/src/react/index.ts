@@ -1,6 +1,3 @@
-export { QraftyQrCode } from "./QraftyQrCode"
-export type { QraftyQrCodeProps, QraftyQrConfig } from "./QraftyQrCode"
-
 export { ReactQRCode } from "../react-qr-code"
 export type {
   CrossOrigin,

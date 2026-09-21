@@ -9,7 +9,6 @@ import {
   getDraftingFontCssFamily,
   getDraftingFontById,
   groupDraftingFonts,
-  isDraftingFontLoaded,
   loadDraftingFont,
   loadDraftingFontPreview,
   resolveDraftingFont,
@@ -90,7 +89,6 @@ describe("drafting font registry", () => {
 
     expect(styles).toHaveLength(1)
     expect(styles[0]?.textContent).toContain("font-family: 'Satoshi'")
-    expect(isDraftingFontLoaded(DEFAULT_DRAFTING_FONT_ID)).toBe(true)
   })
 
   it("injects one Fontshare stylesheet and reuses in-flight loading", async () => {
@@ -107,8 +105,6 @@ describe("drafting font registry", () => {
 
     link?.dispatchEvent(new Event("load"))
     await Promise.all([firstLoad, secondLoad])
-
-    expect(isDraftingFontLoaded("fontshare:general-sans")).toBe(true)
   })
 
   it("injects a Google Fonts stylesheet through the shared cssUrl path", async () => {
@@ -119,8 +115,6 @@ describe("drafting font registry", () => {
 
     link?.dispatchEvent(new Event("load"))
     await load
-
-    expect(isDraftingFontLoaded("google:inter")).toBe(true)
   })
 
   it("injects a glyph-subset preview stylesheet without a full font load", () => {
@@ -134,8 +128,6 @@ describe("drafting font registry", () => {
     expect(previews).toHaveLength(1)
     expect(previews[0]?.href).toContain("family=Playfair+Display:wght@400")
     expect(previews[0]?.href).toContain("text=Playfair%20Display")
-    // Preview injection must not mark the font fully loaded.
-    expect(isDraftingFontLoaded("google:playfair-display")).toBe(false)
     expect(
       document.head.querySelector("link#drafting-font-google-playfair-display"),
     ).toBeNull()

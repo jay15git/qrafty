@@ -115,11 +115,6 @@ export function svgMarkupToDataUrl(markup: string) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(markup)}`
 }
 
-export function cacheIllustrationSvgMarkup(path: string, markup: string) {
-  markupCache.set(path, markup)
-  markupPromises.set(path, Promise.resolve(markup))
-}
-
 export function getCachedIllustrationSvgMarkup(path: string): string | null {
   return markupCache.get(path) ?? null
 }

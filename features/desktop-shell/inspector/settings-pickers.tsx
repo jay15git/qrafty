@@ -37,7 +37,6 @@ import { normalizeIconstackSvgMarkup } from "@/features/qr-code/assets/iconstack
 import { filterCuratedIconstackIcons } from "@/features/qr-code/assets/iconstack-curated"
 import { useIconstackCuratedIcons } from "@/features/qr-code/hooks/useIconstackCuratedIcons"
 import { useIconstackIconSearch } from "@/features/qr-code/hooks/useIconstackIconSearch"
-import { RaycastWallpaperGrid } from "@/features/workspace/components/RaycastWallpaperGrid"
 import { cn } from "@/lib/utils"
 
 function LogoIconTile({
@@ -112,57 +111,6 @@ export function LogoPickerTileIcon({
     <span
       aria-hidden
       className="dn-logo-icon-picker-icon border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] dn-squircle-xs"
-    />
-  )
-}
-
-export function LogoSelectionIcon({ selectedId }: { selectedId: string }) {
-  const brandIcon = findBrandIconById(selectedId)
-  const parsed = parseIconstackSelectionId(selectedId)
-  const [fetchedSvg, setFetchedSvg] = useState<{ id: string; svg: string } | null>(null)
-  const iconstackSvg = parsed
-    ? (getCachedIconstackSvg(selectedId) ??
-      (fetchedSvg?.id === selectedId ? fetchedSvg.svg : undefined))
-    : undefined
-
-  useEffect(() => {
-    if (!parsed || getCachedIconstackSvg(selectedId)) {
-      return
-    }
-
-    let cancelled = false
-    void fetchAndCacheIconstackSvg({ library: parsed.library, id: parsed.iconId })
-      .then((svg) => {
-        if (!cancelled) {
-          setFetchedSvg({ id: selectedId, svg })
-        }
-      })
-      .catch(() => undefined)
-
-    return () => {
-      cancelled = true
-    }
-  }, [parsed, selectedId])
-
-  if (brandIcon) {
-    const Icon = brandIcon.icon
-    return <Icon aria-hidden className="size-3.5 shrink-0" />
-  }
-
-  if (iconstackSvg) {
-    return (
-      <span
-        aria-hidden
-        className="flex size-3.5 shrink-0 items-center justify-center text-[var(--dn-fg)] [&_svg]:size-full"
-        dangerouslySetInnerHTML={{ __html: normalizeIconstackSvgMarkup(iconstackSvg) }}
-      />
-    )
-  }
-
-  return (
-    <span
-      aria-hidden
-      className="size-3.5 shrink-0 border border-[color-mix(in_srgb,var(--dn-line)_40%,transparent)] dn-squircle-xs"
     />
   )
 }
@@ -559,43 +507,6 @@ export function LogoIconPicker({
         )}
       </div>
       </ScrollArea>
-    </div>
-  )
-}
-
-export function WallpaperPicker({
-  onAfterSelect,
-  onClear,
-  onSelectWallpaper,
-}: {
-  onAfterSelect?: () => void
-  onClear?: () => void
-  onSelectWallpaper: (imagePath: string) => void
-}) {
-  const selectWallpaper = (imagePath: string) => {
-    onSelectWallpaper(imagePath)
-    onAfterSelect?.()
-  }
-
-  return (
-    <div className="dn-section-stack">
-      <button
-        className="dn-pressable-press-only dn-type-meta w-full px-2 py-1.5 text-left font-medium text-[var(--dn-popover-muted)] dn-squircle-xs hover:bg-[var(--dn-popover-tile-hover)] hover:text-[var(--dn-fg)]"
-        type="button"
-        onClick={() => {
-          onClear?.()
-          onAfterSelect?.()
-        }}
-      >
-        None
-      </button>
-
-      <div className="flex flex-col gap-1.5">
-        <p className="dn-type-meta px-0.5 font-semibold uppercase tracking-[0.08em] text-[var(--dn-popover-muted)]">
-          Wallpapers
-        </p>
-        <RaycastWallpaperGrid onSelectWallpaper={selectWallpaper} />
-      </div>
     </div>
   )
 }

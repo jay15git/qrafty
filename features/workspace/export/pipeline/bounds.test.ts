@@ -1,37 +1,11 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  computeLetterboxFit,
   makeEvenDimension,
-  resolveRasterTargetDimensions,
-  resolveScaledExportDimensions,
   resolveVideoOutputDimensions,
 } from "@/features/workspace/export/pipeline/bounds"
 
 describe("export bounds", () => {
-  it("letterboxes landscape art into portrait preset", () => {
-    const fit = computeLetterboxFit(400, 300, 1200, 630)
-
-    expect(fit.width).toBe(840)
-    expect(fit.height).toBe(630)
-    expect(fit.offsetX).toBe(180)
-    expect(fit.offsetY).toBe(0)
-  })
-
-  it("scales raster exports by long edge", () => {
-    expect(resolveRasterTargetDimensions(400, 800, 1080)).toEqual({
-      width: 540,
-      height: 1080,
-    })
-  })
-
-  it("clamps oversized scaled exports to the max dimension", () => {
-    expect(resolveScaledExportDimensions(1080, 1920, 4)).toEqual({
-      width: 2304,
-      height: 4096,
-    })
-  })
-
   it("returns even video dimensions", () => {
     expect(resolveVideoOutputDimensions(400, 801, 1080)).toEqual({
       width: 540,

@@ -178,40 +178,6 @@ export function serializeLayerEffects(effects: LayerEffectItem[]): Partial<Draft
   }
 }
 
-export function addLayerEffect(
-  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
-  kind: LayerEffectKind,
-): Partial<DraftingCanvasLayer> {
-  return serializeLayerEffects([...listLayerEffects(layer), createLayerEffect(kind)])
-}
-
-export function removeLayerEffect(
-  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
-  effectId: string,
-): Partial<DraftingCanvasLayer> {
-  return serializeLayerEffects(listLayerEffects(layer).filter((item) => item.id !== effectId))
-}
-
-export function setLayerEffectEnabled(
-  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
-  effectId: string,
-  enabled: boolean,
-): Partial<DraftingCanvasLayer> {
-  return serializeLayerEffects(
-    listLayerEffects(layer).map((item) => {
-      if (item.id !== effectId) {
-        return item
-      }
-
-      if (item.source === "shadow") {
-        return shadowToEffectItem({ ...item.shadow, visible: enabled })
-      }
-
-      return filterToEffectItem({ ...item.filter, enabled })
-    }),
-  )
-}
-
 export function patchLayerShadowEffect(
   layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
   effectId: string,
@@ -224,38 +190,6 @@ export function patchLayerShadowEffect(
       }
 
       return shadowToEffectItem({ ...item.shadow, ...patch })
-    }),
-  )
-}
-
-export function patchLayerFilterEffect(
-  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
-  effectId: string,
-  patch: Partial<DraftingFilterEffect>,
-): Partial<DraftingCanvasLayer> {
-  return serializeLayerEffects(
-    listLayerEffects(layer).map((item) => {
-      if (item.id !== effectId || item.source !== "filter") {
-        return item
-      }
-
-      return filterToEffectItem({ ...item.filter, ...patch })
-    }),
-  )
-}
-
-export function setLayerEffectKind(
-  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
-  effectId: string,
-  kind: LayerEffectKind,
-): Partial<DraftingCanvasLayer> {
-  return serializeLayerEffects(
-    listLayerEffects(layer).map((item) => {
-      if (item.id !== effectId) {
-        return item
-      }
-
-      return convertLayerEffect(item, kind)
     }),
   )
 }
@@ -365,32 +299,6 @@ function getLayerShadowByKind(
       !isPlaceholderShadowLayer(shadow) &&
       (kind === "inner-shadow" ? shadow.inset : !shadow.inset),
   )
-}
-
-function convertLayerEffect(item: LayerEffectItem, kind: LayerEffectKind): LayerEffectItem {
-  if (isLayerShadowEffectKind(kind) && item.source === "shadow") {
-    return shadowToEffectItem({ ...item.shadow, inset: kind === "inner-shadow" })
-  }
-
-  if (!isLayerShadowEffectKind(kind) && item.source === "filter") {
-    const type = FILTER_TYPE_BY_KIND[kind]
-    return filterToEffectItem({
-      ...item.filter,
-      amount: item.filter.type === type ? item.filter.amount : DRAFTING_FILTER_VISIBLE_DEFAULTS[type],
-      type,
-    })
-  }
-
-  const next = createLayerEffect(kind)
-  if (next.source === "shadow" && item.source === "shadow") {
-    return shadowToEffectItem({ ...next.shadow, id: item.shadow.id })
-  }
-
-  if (next.source === "filter" && item.source === "filter") {
-    return filterToEffectItem({ ...next.filter, id: item.filter.id })
-  }
-
-  return next
 }
 
 function shadowToEffectItem(shadow: DraftingShadowLayerState): LayerShadowEffectItem {

@@ -105,7 +105,6 @@ import {
 } from "@/features/workspace/components/workspace-surface.constants"
 import {
   Canvas,
-  type DraftingPaneCanvasTool,
   type DraftingPaneToolbarVariant,
 } from "@/features/workspace/components/Canvas"
 import type {
@@ -1521,7 +1520,7 @@ export function WorkspaceSurface({
   useEffect(() => {
     let cancelled = false
 
-    void resolveWorkspaceBootstrapDocument().then(({ document: nextDocument }) => {
+    void resolveWorkspaceBootstrapDocument().then((nextDocument) => {
       if (cancelled) {
         return
       }
@@ -2040,11 +2039,6 @@ export function WorkspaceSurface({
     }
 
     selectSingleLayer(fallbackLayerId)
-  }
-
-  function handleBrowseWallpapers() {
-    setComposeSidebarPanel("wallpapers")
-    selectSingleLayer(null)
   }
 
   function handleInsertLayer(layer: DraftingCanvasLayer) {
@@ -3966,22 +3960,6 @@ export function WorkspaceSurface({
             {isDraftingWorkspaceReady ? (
             <Canvas
               activePaneId={activeQrNodeId}
-              history={{
-                canRedo: canRedoDraftingWorkspace,
-                canUndo: canUndoDraftingWorkspace,
-                onRedo: handleRedoDraftingWorkspace,
-                onUndo: handleUndoDraftingWorkspace,
-              }}
-              qr={{
-                canAdd: qrCanvasLayers.length < 10,
-                onAdd: () => {
-                  void handleAddQrCode()
-                },
-              }}
-              qrLayerCount={qrCanvasLayers.length}
-              insertNodeId={activeQrNodeId}
-              onBrowseWallpapers={handleBrowseWallpapers}
-              onInsertLayer={handleInsertLayer}
               layerEditingEnabled
               onLayerChange={handleLayerChange}
               onLayerAction={handleLayerAction}
@@ -3998,7 +3976,6 @@ export function WorkspaceSurface({
               onLayerSelectionChange={handleLayerSelectionChange}
               onPaneQrClick={handlePaneQrClick}
               onPaneSelect={handlePaneSelection}
-              onRemoveQrCode={handleRemoveQrCode}
               panes={panes}
               fitCanvasToViewport
               toolbarVariant={paneToolbarVariant}

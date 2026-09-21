@@ -14,8 +14,8 @@ import {
 import { getBrandIconById } from "@/features/qr-code/assets/brand-icons"
 import {
   createDefaultQraftyState,
-  setSquareQrSize,
   type QraftyGradient,
+  clampQrSize,
 } from "@/features/qr-code/model/state"
 import {
   CORNER_DOT_STYLE_OPTIONS,
@@ -94,7 +94,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("uses the canonical qr size when building the dashboard payload", async () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 512)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(512), height: clampQrSize(512) }
 
     const payload = await buildDashboardQrNodePayload(state)
 
@@ -458,7 +458,7 @@ describe("dashboard qr svg helpers", () => {
   })
 
   it("keeps natural size when the background stroke draws inside the qr bounds", async () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 320)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(320), height: clampQrSize(320) }
     state.backgroundShapeId = "circle"
     state.backgroundShapeOptions = {
       edgeBlur: 8,

@@ -4,14 +4,11 @@ import { describe, expect, it } from "vitest"
 
 import { toReactQrCodeProps } from "@/features/qr-code/adapters/react-qr-adapter"
 import { createDefaultQraftyState } from "@/features/qr-code/model/state"
-import { getQraftyQrQuietZonePx } from "@/features/qr-code/model/qr-module-metrics"
+import { getQraftyQrQuietZoneFraction } from "@/features/qr-code/model/qr-module-metrics"
 import {
   getQrBackgroundShapeContentFrame,
   getQrBackgroundShapeDefinition,
 } from "@/features/qr-code/styles/background-shapes"
-import { buildDraftingLayeredNodePayload } from "@/features/workspace/export/layered-export"
-import { DEFAULT_DRAFTING_CARD_STATE } from "@/features/workspace/model/card-state"
-import { createDefaultDraftingLayers } from "@/features/workspace/model/layers"
 import {
   getDraftingQrLayerLayout,
   getQrRenderedDimensions,
@@ -66,7 +63,7 @@ describe("drafting qr artwork helpers", () => {
     const contentFrame = getQrBackgroundShapeContentFrame(shape)
     const shapeScale = layout.metrics.backingRegion.width / shape.viewBox.width
     const safeAreaWidth = contentFrame.width * shapeScale
-    const quietZonePx = getQraftyQrQuietZonePx(state, layout.innerWidth)
+    const quietZonePx = getQraftyQrQuietZoneFraction(state) * layout.innerWidth
 
     expect(layout.metrics.outerWidth).toBeCloseTo(naturalOuter.width * 0.75, 4)
     expect(
@@ -78,59 +75,6 @@ describe("drafting qr artwork helpers", () => {
     )
   })
 
-  it("preserves palette module paint after svg id prefixing in layered export", async () => {
-    const state = createDefaultQraftyState()
-    state.width = 240
-    state.height = 240
-    state.dotsColorMode = "palette"
-    state.dotsPalette = ["#04879c", "#0c3c78", "#f30a49"]
-    state.dataModulesSettings.type = "circle"
-
-    const layers = createDefaultDraftingLayers("node-1", state, DEFAULT_DRAFTING_CARD_STATE)
-    const payload = await buildDraftingLayeredNodePayload({
-      cardState: DEFAULT_DRAFTING_CARD_STATE,
-      layers,
-      name: "QR Code",
-      nodeId: "node-1",
-      state,
-    })
-    const document = new DOMParser().parseFromString(payload.originalSvgMarkup, "image/svg+xml")
-
-    expect(payload.originalSvgMarkup).toContain('data-qr-layer="dot-palette-fill"')
-    expect(payload.originalSvgMarkup).toContain('fill="#04879c"')
-    expect(payload.originalSvgMarkup).toContain('fill="#0c3c78"')
-    expect(payload.originalSvgMarkup).toContain('fill="#f30a49"')
-    expect(payload.originalSvgMarkup).not.toContain("qr-dot-palette-clip")
-
-    const paletteFills = document.querySelectorAll('[data-qr-layer="dot-palette-fill"]')
-    expect(paletteFills.length).toBeGreaterThan(0)
-  })
-
-  it("preserves qr foreground geometry in layered svg export", async () => {
-    const state = createDefaultQraftyState()
-    state.dataModulesSettings.type = "square"
-    state.finderPatternOuterSettings.type = "square"
-    state.finderPatternInnerSettings.type = "square"
-
-    const layers = createDefaultDraftingLayers("node-1", state, DEFAULT_DRAFTING_CARD_STATE)
-    const payload = await buildDraftingLayeredNodePayload({
-      cardState: DEFAULT_DRAFTING_CARD_STATE,
-      layers,
-      name: "QR Code",
-      nodeId: "node-1",
-      state,
-    })
-
-    const document = new DOMParser().parseFromString(payload.originalSvgMarkup, "image/svg+xml")
-
-    expect(document.querySelector("parsererror")).toBeNull()
-    const dataModules = document.querySelector('[data-testid="data-modules"]')
-    expect(dataModules?.tagName.toLowerCase()).toBe("path")
-    expect(dataModules?.getAttribute("fill")).toBe("#111827")
-    expect((dataModules?.getAttribute("d") ?? "").length).toBeGreaterThan(1000)
-    expect(payload.originalSvgMarkup).toContain('data-testid="finder-patterns-outer"')
-    expect(payload.originalSvgMarkup).toContain('data-testid="finder-patterns-inner"')
-  })
 })
 
 describe("drafting qr artwork helpers (legacy)", () => {

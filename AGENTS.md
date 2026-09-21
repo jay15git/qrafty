@@ -46,7 +46,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - Rail styling lives in the `Mobile settings rail` block at the end of `features/desktop-shell/inspector/mobile-inspector.css` (`.dn-mobile-settings-rail__row/__item/__circle/__label/__actions/__action`). Icon-button fill comes from `--dn-mobile-button-bg`, defined once as `#ffffff` on `[data-mobile-inspector]` and `#000000` on `[data-mobile-inspector][data-theme="dark"]`, and is used by the actions row (cross, family pill, tick). The option circles use `color-mix(in srgb, var(--dn-fg) 16%, transparent)` so they read as a soft grey; labels/icons use `--dn-fg`. Raise the percentage for more contrast, lower it for fainter — the mix resolves lighter in dark and darker in light.
 - The rail overrides `--scroll-edge-fade-color` to `var(--ws-workspace-bg, var(--dn-bg))`. That selector must stay at specificity ≥ (0,3,0): `.desktopnew-root[data-theme="light"]` (0,2,0) resets the fade to `var(--dn-bg)`, which is pure white in light mode and visibly wrong against the `#f0f1f2` workspace surface. Dark has no such block, so a (0,1,0) selector looks correct in dark and breaks only in light.
 - `MobileSettingsRail` measures itself with a `ResizeObserver` and feeds `syncMobileWorkspaceChromeInsets` so the workspace reserves the rail + layer-toolbar height. `DesktopWorkspaceEntrance` waits on `[data-slot="mobile-settings-rail-root"]` for the mobile entrance.
-- Layer style still uses `features/desktop-shell/components/MobileLayerStyleInspector.tsx`; `MobileLayerToolbar` is mounted from the rail component.
+- `MobileLayerToolbar` is mounted from the rail component.
 - `.desktopnew-root` sets `min-height: 100dvh`. Any `position: fixed` host that carries that class **must** reset `min-height: 0; height: auto` — otherwise it stretches to the full viewport and, because it feeds `--desktop-workspace-canvas-inset-bottom`, squashes the canvas to nothing.
 - `FloatingToolbar.test.tsx` covers the rail: family list, circular icon + label per item, selected state, scroll fade cues, the keyboard-inset token, and the family → part → style-catalogue drill (including the cross stepping back one level).
 
@@ -74,11 +74,11 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - There is no checked-in CI workflow, formatter config, or pre-commit hook config in this repo, so verify locally with lint, typecheck, tests, and build before claiming completion.
 
 ## `@qrafty/qr` package layout
-- Internal QR library lives in `packages/qr/`. One package, three component families used by QRafty:
-  - `@qrafty/qr/react` — `QraftyQrCode`
-  - `@qrafty/qr/animated` — `AnimatedQr`
-  - `@qrafty/qr/shaders` — `PaperShaderLayer`
-  - `@qrafty/qr` — shared types and `QraftyQrCode` re-export
+- Internal QR library lives in `packages/qr/`:
+  - `@qrafty/qr` — shared types (`QraftyQrCodeProps`, `QraftyQrConfig`)
+  - `@qrafty/qr/react` — `ReactQRCode` (vendored upstream primitive)
+  - `@qrafty/qr/shaders` — paper-shader helpers (`buildPaperShaderRenderProps`, render options)
+  - `@qrafty/qr/dot-matrix` — `DotMatrixAnimatedSvg` + animation utilities
 - QRafty-only code (SVG scene emit, export, scene schema, vendored renderers) is imported via `@qrafty/qr-internal/*` paths in `tsconfig.json`. These are **not** in `packages/qr/package.json` exports.
 - Vendored fork: `packages/qr/vendor/react-qr-code`.
 - Build library: `pnpm build:packages` (or `pnpm --filter @qrafty/qr build`).

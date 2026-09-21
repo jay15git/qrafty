@@ -11,8 +11,6 @@ import type {
 export type QrModuleStyle = DataModulesStyle
 export type QrFinderInnerStyle = FinderPatternInnerStyle
 export type QrFinderOuterStyle = FinderPatternOuterStyle
-/** @deprecated Use `QrFinderInnerStyle` or `QrFinderOuterStyle` instead. */
-export type QrFinderStyle = QrFinderInnerStyle | QrFinderOuterStyle
 
 export type { CrossOrigin, ErrorCorrectionLevel }
 

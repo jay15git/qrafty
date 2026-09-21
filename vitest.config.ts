@@ -7,12 +7,10 @@ const pkg = (subpath: string) =>
 
 const qrAliases = [
   { find: "@qrafty/qr-internal/codegen", replacement: pkg("scene/codegen/index.ts") },
-  { find: "@qrafty/qr-internal/export", replacement: pkg("scene/export/index.ts") },
   { find: "@qrafty/qr-internal/scene", replacement: pkg("scene/index.ts") },
   { find: "@qrafty/qr-internal/react-qr-code", replacement: pkg("react-qr-code/index.ts") },
   { find: "@qrafty/qr-internal/core", replacement: pkg("core/index.ts") },
   { find: "@qrafty/qr/dot-matrix", replacement: pkg("dot-matrix/index.ts") },
-  { find: "@qrafty/qr/animated", replacement: pkg("animated/index.ts") },
   { find: "@qrafty/qr/shaders", replacement: pkg("shaders/index.ts") },
   { find: "@qrafty/qr/react", replacement: pkg("react/index.ts") },
   { find: "@qrafty/qr", replacement: pkg("index.ts") },

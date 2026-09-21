@@ -4,7 +4,9 @@ import { act } from "react"
 import { createRoot } from "react-dom/client"
 import { afterEach, describe, expect, it } from "vitest"
 
-import { createDefaultQraftyState, setSquareQrSize } from "@/features/qr-code/model/state"
+import { createDefaultQraftyState,
+  clampQrSize,
+} from "@/features/qr-code/model/state"
 import { DraftingQrBackground } from "@/features/workspace/components/QrBackground"
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
 import { createDefaultDraftingLayers } from "@/features/workspace/model/layers"
@@ -21,7 +23,7 @@ afterEach(() => {
 
 describe("DraftingQrBackground", () => {
   it("renders the background card shape as a direct inline svg in preview", () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 240)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     state.backgroundShapeId = "flower"
     const [layer] = createDefaultDraftingLayers(
       "preview",

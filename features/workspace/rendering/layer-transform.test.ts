@@ -2,10 +2,8 @@ import { describe, expect, it } from "vitest"
 
 import {
   appendTiltSkewToSvgTransform,
-  getBackgroundShapeTiltContainerStyle,
   getBackgroundShapeTiltInnerStyle,
   getBackgroundShapeTiltPerspectiveStyle,
-  getLayerCssTransform,
   getLayerPlacementTransform,
   getLayerSvgTransform,
   getLayerTiltInnerStyle,
@@ -26,33 +24,10 @@ describe("layer transform helpers", () => {
     })
   })
 
-  it("builds shared css tilt container styles for background shapes", () => {
-    expect(getBackgroundShapeTiltContainerStyle({ tiltX: 0, tiltY: 0 })).toEqual({})
-    expect(getBackgroundShapeTiltContainerStyle({ tiltX: 12, tiltY: -8 })).toEqual({
-      perspective: "600px",
-      transform: "rotateX(-8deg) rotateY(12deg)",
-      transformOrigin: "center center",
-      transformStyle: "preserve-3d",
-    })
-  })
 
   it("builds placement transforms without tilt", () => {
     expect(
       getLayerPlacementTransform({
-        height: 100,
-        rotation: 45,
-        tiltX: 12,
-        tiltY: -8,
-        width: 100,
-        x: 10,
-        y: 20,
-        scaleX: 1,
-        scaleY: 1,
-      }),
-    ).toBe("translate3d(10px, 20px, 0) rotate(45deg)")
-
-    expect(
-      getLayerCssTransform({
         height: 100,
         rotation: 45,
         tiltX: 12,

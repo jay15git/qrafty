@@ -553,15 +553,6 @@ export function formatAspectRatio(width: number, height: number): string {
   return `${safeWidth / divisor}:${safeHeight / divisor}`
 }
 
-export function findMatchingRatioTemplate(width: number, height: number): SizeTemplate | undefined {
-  const targetRatio = width / Math.max(1, height)
-
-  return getSizeTemplatesByGroup("ratio").find((template) => {
-    const templateRatio = template.width / template.height
-    return Math.abs(templateRatio - targetRatio) < 0.01
-  })
-}
-
 function greatestCommonDivisor(left: number, right: number): number {
   let a = Math.abs(left)
   let b = Math.abs(right)

@@ -4,17 +4,10 @@ import { useLayoutEffect, useRef, type ReactNode } from "react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
-import {
-  SETTINGS_PREVIEW_TILE,
-  SETTINGS_PREVIEW_TILE_FLUID,
-} from "@/features/desktop-shell/inspector/settings-preview-tiles"
 import { cn } from "@/lib/utils"
 
 /** Row wrapper inside a horizontal settings rail. */
 export const MOBILE_SETTINGS_RAIL_ROW = "dn-mobile-rail"
-
-/** Row wrapper for non-square chip rails (text chips, compact actions). */
-export const MOBILE_SETTINGS_CHIP_ROW = "dn-mobile-chip-rail"
 
 /** Row wrapper for landscape card rails (wallpapers, previews). */
 export const MOBILE_SETTINGS_CARD_ROW = "dn-mobile-card-rail"
@@ -23,16 +16,6 @@ const OPTION_SHELF_COLUMNS: Record<number, string> = {
   3: "grid-cols-3",
   4: "grid-cols-4",
   6: "grid-cols-6",
-}
-
-/**
- * Tile class for option shelves. Mobile rails need fixed-width tiles so the row
- * overflows and peeks; desktop grids need fluid tiles so six of them fit.
- */
-export function useSettingsOptionTileClass() {
-  return useMobileInspectorDensity()
-    ? SETTINGS_PREVIEW_TILE
-    : SETTINGS_PREVIEW_TILE_FLUID
 }
 
 /**
@@ -177,39 +160,6 @@ export function SettingsOptionShelf({
         {children}
       </div>
     </div>
-  )
-}
-
-/** Horizontal rail for text-chip options, e.g. encoding levels. */
-export function MobileChipRail({
-  ariaLabel,
-  children,
-  persistKey,
-}: {
-  ariaLabel: string
-  children: ReactNode
-  persistKey?: string
-}) {
-  return (
-    <ScrollArea
-      className="w-full min-w-0 max-w-full overflow-hidden"
-      chevron={false}
-      cueSize="tight"
-      data-slot="mobile-settings-rail"
-      orientation="horizontal"
-      persistKey={persistKey}
-      scrollFade
-      showScrollbar={false}
-      viewportClassName="min-w-0"
-    >
-      <div
-        aria-label={ariaLabel}
-        className={MOBILE_SETTINGS_CHIP_ROW}
-        role="group"
-      >
-        {children}
-      </div>
-    </ScrollArea>
   )
 }
 

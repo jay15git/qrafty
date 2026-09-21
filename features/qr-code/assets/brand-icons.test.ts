@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest"
 import {
   BRAND_ICON_CATALOG,
   POPULAR_BRAND_ICON_IDS,
-  filterBrandIcons,
   getBrandIconById,
 } from "@/features/qr-code/assets/brand-icons"
 import {
@@ -36,24 +35,7 @@ describe("brand icon catalog", () => {
     ])
   })
 
-  it("matches search queries by label, id, and curated aliases", () => {
-    expect(filterBrandIcons("twitter").map((entry) => entry.id)).toContain("x")
-    expect(filterBrandIcons("wa.me").map((entry) => entry.id)).toContain("whatsapp")
-    expect(filterBrandIcons("gpay").map((entry) => entry.id)).toContain("google-pay")
-    expect(filterBrandIcons("google maps").map((entry) => entry.id)).toContain(
-      "google-maps",
-    )
-  })
 
-  it("narrows brand icon search results to the selected category", () => {
-    expect(filterBrandIcons("", "social").map((entry) => entry.id)).toContain("whatsapp")
-    expect(filterBrandIcons("", "social").map((entry) => entry.id)).not.toContain(
-      "github",
-    )
-    expect(filterBrandIcons("google", "travel").map((entry) => entry.id)).toEqual([
-      "google-maps",
-    ])
-  })
 
   it("serializes selected brand icons to svg data urls", () => {
     const icon = getBrandIconById("whatsapp")

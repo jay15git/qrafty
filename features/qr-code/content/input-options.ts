@@ -403,13 +403,6 @@ export const QR_CATEGORIES: readonly QrCategory[] = [
   },
 ] as const
 
-export function getNextOpenQrCategory(
-  current: QrCategoryKey | null,
-  next: QrCategoryKey
-): QrCategoryKey | null {
-  return current === next ? null : next
-}
-
 function toggleQuickInputType(
   current: QrInputType | null,
   next: QuickQrInputType

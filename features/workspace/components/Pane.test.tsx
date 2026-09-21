@@ -51,8 +51,8 @@ import {
 import {
   createDefaultQraftyState,
   setDotMatrixAnimationOptions,
-  setSquareQrSize,
   type QraftyState,
+  clampQrSize,
 } from "@/features/qr-code/model/state"
 import { renderDashboardQrSvgMarkup } from "@/features/qr-code/rendering/qr-svg"
 import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-artwork"
@@ -107,7 +107,7 @@ describe("Pane", () => {
   it("reuses cached markup for an equal state and rebuilds when state changes", async () => {
     const firstState = createDefaultQraftyState()
     const secondState = structuredClone(firstState)
-    const thirdState = setSquareQrSize(firstState, firstState.width + 40)
+    const thirdState = { ...firstState, width: clampQrSize(firstState.width + 40), height: clampQrSize(firstState.width + 40) }
 
     const { container, reactRoot } = renderPane(firstState)
 
@@ -152,7 +152,7 @@ describe("Pane", () => {
   })
 
   it("renders card canvas background from card state only", async () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 240)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     const cardState = createDefaultDraftingCardState()
     const nodeId = "preview"
     const layers = createDefaultDraftingLayers(nodeId, state, cardState)
@@ -173,7 +173,7 @@ describe("Pane", () => {
   })
 
   it("lets the qr canvas fill the preview pane", async () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 240)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     const { container } = renderPane(state)
 
     await waitForQrPaneRender()
@@ -206,7 +206,7 @@ describe("Pane", () => {
   })
 
   it("sizes the preview from rendered qr bounds using padding and stroke only", async () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 240)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     state.backgroundShapeOptions = {
       edgeBlur: 10,
       paddingPx: 20,
@@ -240,7 +240,7 @@ describe("Pane", () => {
   })
 
   it("renders the editable card layer behind the qr artwork", async () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 240)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     const cardState = createAutoSizedCardState({
       bottomSpace: 96,
       border: {
@@ -290,7 +290,7 @@ describe("Pane", () => {
       () =>
         '<svg width="240" height="240" viewBox="0 0 240 240"><defs><filter data-qr-layer="background-shape-blur-filter" id="background-shape-blur-filter"/></defs><path data-qr-layer="background-shape-blur" d="M0 0h240v240H0z"/><path data-qr-layer="background-shape" d="M0 0h240v240H0z"/><rect width="240" height="240" clip-path="url(\'#clip-path-background-color-0\')" fill="#fff"/><path data-qr-layer="dot" d="M20 20h40v40H20z" fill="#111"/></svg>',
     )
-    const state = setSquareQrSize(createDefaultQraftyState(), 240)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     state.backgroundShapeId = "flower"
     state.backgroundShapeOptions = {
       edgeBlur: 20,
@@ -351,7 +351,7 @@ describe("Pane", () => {
   })
 
   it("marks the card layer with the selected paper shader", async () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 240)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     const cardState = {
       ...createDefaultDraftingCardState(),
       paperShader: createDefaultDraftingCardPaperShader("warp"),
@@ -369,7 +369,7 @@ describe("Pane", () => {
   })
 
   it("renders qr artwork without the card wrapper when the card is disabled", async () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 240)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     const cardState = createAutoSizedCardState({
       enabled: false,
       styleMode: "solid",
@@ -386,7 +386,7 @@ describe("Pane", () => {
   })
 
   it("keeps the qr canvas unshadowed when selected", async () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 240)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     const { container } = renderPane(state, true)
 
     await waitForQrPaneRender()
@@ -404,7 +404,7 @@ describe("Pane", () => {
   })
 
   it("sizes the preview wrapper from the qr state", async () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 320)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(320), height: clampQrSize(320) }
     const { container } = renderPane(state)
 
     await waitForQrPaneRender()
@@ -442,7 +442,7 @@ describe("Pane", () => {
   })
 
   it("keeps resize control padding equal around selected qr layers", async () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 240)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     const cardState = createAutoSizedCardState({
       bottomSpace: 96,
       padding: 20,
@@ -488,7 +488,7 @@ describe("Pane", () => {
   })
 
   it("keeps overlay chrome screen-sized when the artboard is fitted down", async () => {
-    const state = setSquareQrSize(createDefaultQraftyState(), 240)
+    const state = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     const cardState = createAutoSizedCardState({
       bottomSpace: 96,
       padding: 20,
@@ -1804,7 +1804,7 @@ describe("Pane", () => {
   })
 
   it("keeps building canvas markup and mounts dot matrix preview when motion is enabled", async () => {
-    const baseState = setSquareQrSize(createDefaultQraftyState(), 240)
+    const baseState = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(baseState))
 
     buildDraftingQraftyMarkupSpy.mockReturnValue(canvasMarkup)

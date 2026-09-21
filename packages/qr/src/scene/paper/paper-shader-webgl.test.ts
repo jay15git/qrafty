@@ -1,12 +1,10 @@
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, afterEach, describe, expect, it, vi } from "vitest"
 
-import {
-  hasPaperShaderWebGlSupport,
-  resetPaperShaderWebGlSupportCache,
-} from "./paper-shader-webgl"
+beforeEach(() => {
+  vi.resetModules()
+})
 
 afterEach(() => {
-  resetPaperShaderWebGlSupportCache()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
 })
@@ -45,7 +43,8 @@ function stubWebGlDocument({
 }
 
 describe("hasPaperShaderWebGlSupport", () => {
-  it("probes once then returns the cached result", () => {
+  it("probes once then returns the cached result", async () => {
+    const { hasPaperShaderWebGlSupport } = await import("./paper-shader-webgl")
     const { createElement, getContext, loseContext } = stubWebGlDocument()
 
     expect(hasPaperShaderWebGlSupport()).toBe(true)
@@ -55,14 +54,16 @@ describe("hasPaperShaderWebGlSupport", () => {
     expect(loseContext).toHaveBeenCalledTimes(1)
   })
 
-  it("skips probing when a live shader canvas already exists", () => {
+  it("skips probing when a live shader canvas already exists", async () => {
+    const { hasPaperShaderWebGlSupport } = await import("./paper-shader-webgl")
     const { createElement } = stubWebGlDocument({ liveCanvas: true })
 
     expect(hasPaperShaderWebGlSupport()).toBe(true)
     expect(createElement).not.toHaveBeenCalled()
   })
 
-  it("does not cache a failed probe", () => {
+  it("does not cache a failed probe", async () => {
+    const { hasPaperShaderWebGlSupport } = await import("./paper-shader-webgl")
     const { createElement } = stubWebGlDocument({
       getContextImpl: vi.fn(() => null),
     })

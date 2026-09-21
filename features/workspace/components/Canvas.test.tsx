@@ -8,7 +8,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
 import { Canvas } from "@/features/workspace/components/Canvas"
-import { DynamicIslandComposeToolbar } from "@/features/workspace/components/canvas-compose-toolbar"
 import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 
 vi.mock("@/features/qr-code/rendering/qr-svg", async (importOriginal) => {
@@ -60,17 +59,6 @@ describe("Canvas", () => {
 
     expect(getPaneSurfaces(workspace.container)).toHaveLength(1)
     expect(workspace.container.querySelector('[data-slot="drafting-pane-layout"]')).toBeNull()
-  })
-
-  it("renders one pane without resize handles", async () => {
-    const workspace = renderWorkspace({ paneCount: 1 })
-
-    await act(async () => {
-      await flushPromises()
-    })
-
-    expect(getPaneSurfaces(workspace.container, 1)).toHaveLength(1)
-    expect(getResizeHandles(workspace.container)).toHaveLength(0)
   })
 
   it("uses a fixed white workspace surface in free edit mode", async () => {
@@ -127,6 +115,7 @@ describe("Canvas", () => {
   it("zooms the active preview with the mouse wheel", async () => {
     const workspace = renderWorkspace({ paneCount: 1 })
     const [pane] = getPaneSurfaces(workspace.container, 1)
+    const viewport = pane.firstElementChild as HTMLElement
 
     await act(async () => {
       pane.dispatchEvent(new WheelEvent("wheel", {
@@ -137,12 +126,13 @@ describe("Canvas", () => {
       await flushPromises()
     })
 
-    expect(workspace.container.textContent).toContain("111%")
+    expect(viewport.style.transform).toMatch(/scale\(1\.1/)
   })
 
   it("zooms the active preview with a two finger pinch", async () => {
     const workspace = renderWorkspace({ paneCount: 1 })
     const [pane] = getPaneSurfaces(workspace.container, 1)
+    const viewport = pane.firstElementChild as HTMLElement
 
     await act(async () => {
       pane.dispatchEvent(createTouchEvent("touchstart", [
@@ -156,7 +146,7 @@ describe("Canvas", () => {
       await flushPromises()
     })
 
-    expect(workspace.container.textContent).toContain("150%")
+    expect(viewport.style.transform).toContain("scale(1.5")
   })
 
   it("does not pan empty canvas space while the select tool is active", async () => {
@@ -381,154 +371,6 @@ describe("Canvas", () => {
     expect(onCanvasToolChange).toHaveBeenCalledWith(null)
   })
 
-  it("renders disabled undo and redo controls when history is unavailable", () => {
-    const workspace = renderWorkspace()
-    const undoButton = workspace.container.querySelector(
-      'button[aria-label="Undo"]',
-    ) as HTMLButtonElement | null
-    const redoButton = workspace.container.querySelector(
-      'button[aria-label="Redo"]',
-    ) as HTMLButtonElement | null
-
-    expect(undoButton).not.toBeNull()
-    expect(redoButton).not.toBeNull()
-    expect(undoButton?.disabled).toBe(true)
-    expect(redoButton?.disabled).toBe(true)
-  })
-
-  it("calls undo and redo toolbar handlers when history is available", () => {
-    const onUndo = vi.fn()
-    const onRedo = vi.fn()
-    const workspace = renderWorkspace({
-      history: {
-        canRedo: true,
-        canUndo: true,
-        onRedo,
-        onUndo,
-      },
-    })
-
-    act(() => {
-      workspace.container
-        .querySelector('button[aria-label="Undo"]')
-        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-      workspace.container
-        .querySelector('button[aria-label="Redo"]')
-        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-    })
-
-    expect(onUndo).toHaveBeenCalledTimes(1)
-    expect(onRedo).toHaveBeenCalledTimes(1)
-  })
-
-  it("does not render a floating compose toolbar in desktop zoom mode", () => {
-    const workspace = renderWorkspace({
-      canRedo: true,
-      canUndo: true,
-      onRedo: vi.fn(),
-      onUndo: vi.fn(),
-      toolbarVariant: "desktop-zoom",
-    })
-
-    expect(workspace.container.querySelector('[data-slot="desktop-compose-toolbar-anchor"]')).toBeNull()
-    expect(workspace.container.querySelector('[data-slot="desktop-compose-toolbar"]')).toBeNull()
-  })
-
-  it("orders desktop compose controls by interaction, view, and creation", () => {
-    const container = renderComposeToolbar({
-      activeInteractionTool: "select",
-      activePaneId: "pane-1",
-      canRemove: false,
-      insertNodeId: "pane-1",
-      isMaximized: false,
-      onAddTextLayerAt: vi.fn(),
-      onCanvasToolChange: vi.fn(),
-      onInsertLayer: vi.fn(),
-      onResetView: vi.fn(),
-      onToggleMaximize: vi.fn(),
-      onZoomIn: vi.fn(),
-      onZoomOut: vi.fn(),
-      paneCount: 1,
-      qr: { canAdd: true, onAdd: vi.fn() },
-      zoomPercent: "100%",
-    })
-    const composeToolbar = container.querySelector('[data-slot="desktop-compose-toolbar"]')
-
-    expect(composeToolbar?.className).toContain("gap-0.5")
-    expect(composeToolbar?.className).toContain("items-center")
-    expect(
-      Array.from(composeToolbar?.querySelectorAll("button") ?? []).every((button) =>
-        String(button.className).includes("size-9"),
-      ),
-    ).toBe(true)
-    expect(Array.from(composeToolbar?.querySelectorAll("button") ?? []).map((button) => button.getAttribute("aria-label"))).toEqual([
-      "Add content",
-    ])
-  })
-
-  it("renders a desktop select toggle that switches between pan and select", () => {
-    const onCanvasToolChange = vi.fn()
-    const container = renderComposeToolbar({
-      activeCanvasTool: "pan",
-      activeInteractionTool: "pan",
-      activePaneId: "pane-1",
-      canRemove: false,
-      insertNodeId: "pane-1",
-      isMaximized: false,
-      onCanvasToolChange,
-      onResetView: vi.fn(),
-      onToggleMaximize: vi.fn(),
-      onZoomIn: vi.fn(),
-      onZoomOut: vi.fn(),
-      paneCount: 1,
-      zoomPercent: "100%",
-    })
-    const selectButton = container.querySelector(
-      'button[aria-label="Select and move elements"]',
-    ) as HTMLButtonElement | null
-
-    expect(selectButton).not.toBeNull()
-    expect(container.querySelector('button[aria-label="Pan canvas"]')).toBeNull()
-    expect(selectButton?.getAttribute("aria-pressed")).toBe("false")
-
-    act(() => {
-      selectButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-    })
-
-    expect(onCanvasToolChange).toHaveBeenCalledTimes(1)
-    expect(onCanvasToolChange).toHaveBeenCalledWith("select")
-  })
-
-  it("toggles the desktop select tool back to pan when already selected", () => {
-    const onCanvasToolChange = vi.fn()
-    const container = renderComposeToolbar({
-      activeCanvasTool: "select",
-      activeInteractionTool: "select",
-      activePaneId: "pane-1",
-      canRemove: false,
-      insertNodeId: "pane-1",
-      isMaximized: false,
-      onCanvasToolChange,
-      onResetView: vi.fn(),
-      onToggleMaximize: vi.fn(),
-      onZoomIn: vi.fn(),
-      onZoomOut: vi.fn(),
-      paneCount: 1,
-      zoomPercent: "100%",
-    })
-    const selectButton = container.querySelector(
-      'button[aria-label="Select and move elements"]',
-    ) as HTMLButtonElement | null
-
-    expect(selectButton?.getAttribute("aria-pressed")).toBe("true")
-
-    act(() => {
-      selectButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-    })
-
-    expect(onCanvasToolChange).toHaveBeenCalledWith("pan")
-  })
-
   it("reflects workspace surface appearance on the pane surface", async () => {
     const workspace = renderWorkspace({
       toolbarVariant: "desktop-zoom",
@@ -615,14 +457,9 @@ describe("Canvas", () => {
 
 function renderWorkspace({
   activeCanvasTool,
-  history,
-  qr,
   onCanvasToolChange,
   onAddTextLayerAt,
-  onInsertLayer = vi.fn(),
-  insertNodeId = "pane-1",
   onLayerSelect,
-  onSwapPanes = vi.fn(),
   paneCount = 2,
   panes = createPanes(paneCount),
   selectedLayerId,
@@ -632,14 +469,9 @@ function renderWorkspace({
   previewLocked,
 }: {
   activeCanvasTool?: ComponentProps<typeof Canvas>["activeCanvasTool"]
-  history?: ComponentProps<typeof Canvas>["history"]
-  qr?: ComponentProps<typeof Canvas>["qr"]
   onCanvasToolChange?: ComponentProps<typeof Canvas>["onCanvasToolChange"]
   onAddTextLayerAt?: ComponentProps<typeof Canvas>["onAddTextLayerAt"]
-  onInsertLayer?: ComponentProps<typeof Canvas>["onInsertLayer"]
-  insertNodeId?: ComponentProps<typeof Canvas>["insertNodeId"]
   onLayerSelect?: (paneId: string, layerId: string | null) => void
-  onSwapPanes?: (sourcePaneId: string, targetPaneId: string) => void
   paneCount?: number
   panes?: ReturnType<typeof createPanes>
   selectedLayerId?: ComponentProps<typeof Canvas>["selectedLayerId"]
@@ -656,14 +488,10 @@ function renderWorkspace({
       <Canvas
         activePaneId="pane-1"
         activeCanvasTool={activeCanvasTool}
-        history={history}
-        qr={qr}
         onPaneQrClick={() => undefined}
         onPaneSelect={() => undefined}
         onLayerSelect={onLayerSelect}
         onCanvasToolChange={onCanvasToolChange}
-        onInsertLayer={onInsertLayer}
-        insertNodeId={insertNodeId}
         onAddTextLayerAt={onAddTextLayerAt}
         panes={nextPanes}
         selectedLayerId={selectedLayerId}
@@ -690,27 +518,6 @@ function renderWorkspace({
   return { container, render }
 }
 
-function renderComposeToolbar(
-  props: ComponentProps<typeof DynamicIslandComposeToolbar>,
-) {
-  const container = document.createElement("div")
-  const root = createRoot(container)
-
-  act(() => {
-    root.render(<DynamicIslandComposeToolbar {...props} />)
-  })
-
-  cleanupCallbacks.push(() => {
-    act(() => {
-      root.unmount()
-    })
-  })
-
-  document.body.appendChild(container)
-
-  return container
-}
-
 function createPanes(_paneCount = 1) {
   const state = {
     ...createDefaultQraftyState(),
@@ -728,35 +535,6 @@ function createPanes(_paneCount = 1) {
       state,
     },
   ]
-}
-
-function getPaneLayout(parent: ParentNode) {
-  const layout = parent.querySelector('[data-slot="drafting-pane-layout"]') as HTMLElement | null
-
-  expect(layout).not.toBeNull()
-
-  return layout as HTMLElement
-}
-
-function getLayoutGroups(parent: ParentNode) {
-  return Array.from(parent.querySelectorAll("[data-layout-group]")) as HTMLElement[]
-}
-
-function getNestedPanelGroups(parent: ParentNode) {
-  const layout = getPaneLayout(parent)
-  return Array.from(
-    layout.querySelectorAll('[data-slot="resizable-panel-group"]'),
-  ) as HTMLElement[]
-}
-
-function getResizeHandles(parent: ParentNode) {
-  return Array.from(
-    parent.querySelectorAll('[data-slot="drafting-resize-handle"]'),
-  ) as HTMLElement[]
-}
-
-function getResizablePanels(parent: ParentNode) {
-  return Array.from(parent.querySelectorAll("[data-panel]")) as HTMLElement[]
 }
 
 function getQrNodes(parent: ParentNode) {
@@ -784,32 +562,6 @@ function stubPortraitOrientation(matches: boolean) {
       removeEventListener: vi.fn(),
     })),
   })
-}
-
-function createDataTransfer() {
-  const values = new Map<string, string>()
-
-  return {
-    dropEffect: "none",
-    effectAllowed: "all",
-    getData: vi.fn((type: string) => values.get(type) ?? ""),
-    setData: vi.fn((type: string, value: string) => {
-      values.set(type, value)
-    }),
-  }
-}
-
-function createDragEvent(type: string, dataTransfer: ReturnType<typeof createDataTransfer>) {
-  const event = new Event(type, {
-    bubbles: true,
-    cancelable: true,
-  }) as Event & { dataTransfer: ReturnType<typeof createDataTransfer> }
-
-  Object.defineProperty(event, "dataTransfer", {
-    value: dataTransfer,
-  })
-
-  return event
 }
 
 function createTouchEvent(
