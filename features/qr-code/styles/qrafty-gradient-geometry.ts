@@ -5,7 +5,7 @@ export type QraftyGradientCenter = {
   y: number
 }
 
-export const DEFAULT_STUDIO_GRADIENT_CENTER: QraftyGradientCenter = {
+const DEFAULT_STUDIO_GRADIENT_CENTER: QraftyGradientCenter = {
   x: 0.5,
   y: 0.5,
 }

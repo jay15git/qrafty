@@ -13,8 +13,8 @@ import {
 } from "@/features/workspace/model/layers"
 import type { AssetSourceMode } from "@/features/qr-code/model/state"
 
-export const DRAFTING_LAYER_CLIPBOARD_TYPE = "qrafty/drafting-layers"
-export const DRAFTING_LAYER_CLIPBOARD_VERSION = 1
+const DRAFTING_LAYER_CLIPBOARD_TYPE = "qrafty/drafting-layers"
+const DRAFTING_LAYER_CLIPBOARD_VERSION = 1
 
 export type DraftingDownloadTarget = "all-qr" | "current" | "surface" | `qr:${string}`
 
@@ -123,10 +123,6 @@ export function getDesktopTextSettings(layer: DraftingCanvasLayer | null): Deskt
   }
 }
 
-export function getDraftingQrNodeDownloadTarget(nodeId: string): DraftingDownloadTarget {
-  return `qr:${nodeId}`
-}
-
 export function patchDraftingLayerById(
   layer: DraftingCanvasLayer,
   layerId: string,
@@ -193,7 +189,7 @@ export function isEditableShortcutTarget(target: EventTarget | null): boolean {
   )
 }
 
-export function getDraftingClipboardBounds(layers: DraftingCanvasLayer[]) {
+function getDraftingClipboardBounds(layers: DraftingCanvasLayer[]) {
   const left = Math.min(...layers.map((layer) => layer.x))
   const top = Math.min(...layers.map((layer) => layer.y))
   const right = Math.max(...layers.map((layer) => layer.x + layer.width))

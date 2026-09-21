@@ -113,7 +113,7 @@ import {
 } from "@/features/desktop-shell/inspector/settings-fill-presets"
 import type { DesktopLogoSettings } from "@/features/desktop-shell/model/desktop-toolbar-types"
 
-export const SECTION_STACK = "dn-section-stack"
+const SECTION_STACK = "dn-section-stack"
 
 function QrStylePreviewGrid({
   options,
@@ -502,7 +502,7 @@ function MotionColorControls({
   )
 }
 
-export function ContentSection({
+function ContentSection({
   model,
   hideContentTypeBrowser = false,
 }: {
@@ -606,7 +606,7 @@ function logoSourceTab(sourceMode: DesktopLogoSettings["sourceMode"]): LogoSetti
   return "Upload"
 }
 
-export function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
+function QrStyleSection({ model }: { model: DesktopInspectorModel }) {
   const [tab, setTab] = useState(() => getInspectorSectionTab("qr-style", "Module"))
   const {
     actualEncodingSettings,
@@ -972,7 +972,7 @@ function QrColorPerPartSettings({
   )
 }
 
-export function QrColorSection({ model }: { model: DesktopInspectorModel }) {
+function QrColorSection({ model }: { model: DesktopInspectorModel }) {
   const [tab, setTab] = useState(() => getInspectorSectionTab("qr-style", "Module"))
   const {
     actualCornersSettings,
@@ -1043,7 +1043,7 @@ export function QrColorSection({ model }: { model: DesktopInspectorModel }) {
   )
 }
 
-export function CardSection({ model }: { model: DesktopInspectorModel }) {
+function CardSection({ model }: { model: DesktopInspectorModel }) {
   const { actualShapeSettings, onShapeSettingsChange } = model
   const cardFill = readShapeFillCss(actualShapeSettings)
   const [fillMode, setFillMode] = useState<BackgroundFillModeTab>(() =>
@@ -1145,7 +1145,7 @@ function backgroundTabFromStyleMode(
   return backgroundFillModeTab(cardFill)
 }
 
-export function SceneSection({ model }: { model: DesktopInspectorModel }) {
+function SceneSection({ model }: { model: DesktopInspectorModel }) {
   const {
     actualBackgroundSettings,
     actualImageSettings,
@@ -1231,7 +1231,7 @@ export function SceneSection({ model }: { model: DesktopInspectorModel }) {
   )
 }
 
-export function MotionSection({ model }: { model: DesktopInspectorModel }) {
+function MotionSection({ model }: { model: DesktopInspectorModel }) {
   const { actualMotionSettings, onMotionSettingsChange } = model
   const loader = actualMotionSettings.loader
 

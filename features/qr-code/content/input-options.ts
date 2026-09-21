@@ -139,7 +139,7 @@ type QuickQrInputType =
   | "instagram"
   | "whatsapp"
 
-export type QrCategoryKey = "popular" | "more"
+type QrCategoryKey = "popular" | "more"
 
 const STRUCTURED_PICKER_TYPES = [
   "link",
@@ -235,7 +235,7 @@ type QuickQrInputOption = Omit<QrInputOption, "value"> & {
   value: QuickQrInputType
 }
 
-export type QrCategory = {
+type QrCategory = {
   icon: LucideIcon
   items: readonly QrInputOption[]
   key: QrCategoryKey
@@ -373,7 +373,7 @@ const QUICK_INPUT_OPTIONS = pickQrInputOptions(
   QUICK_INPUT_VALUES
 ) as readonly QuickQrInputOption[]
 
-export const QR_CATEGORIES: readonly QrCategory[] = [
+const QR_CATEGORIES: readonly QrCategory[] = [
   {
     key: "popular",
     label: "Essentials",

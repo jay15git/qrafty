@@ -12,7 +12,7 @@ import {
 } from "@/features/qr-code/styles/style-options"
 
 /** Style parts that carry a style catalogue, mirroring the `Part` control. */
-export const QR_STYLE_PARTS = ["Module", "Eye", "Frame"] as const
+const QR_STYLE_PARTS = ["Module", "Eye", "Frame"] as const
 
 export type QrStylePartId = (typeof QR_STYLE_PARTS)[number]
 

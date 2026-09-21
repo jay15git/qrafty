@@ -111,7 +111,7 @@ export function illustrationColorMapIsIdentity(replacements: Record<string, stri
   return Object.entries(replacements).every(([from, to]) => from.toLowerCase() === to.toLowerCase())
 }
 
-export function svgMarkupToDataUrl(markup: string) {
+function svgMarkupToDataUrl(markup: string) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(markup)}`
 }
 

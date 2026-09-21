@@ -39,7 +39,7 @@ export type RenderWorkspaceSvgOptions = {
   videoTimeMs?: number
 }
 
-export async function renderWorkspaceSvgMarkup({
+async function renderWorkspaceSvgMarkup({
   cardLayer,
   cardState,
   layers,

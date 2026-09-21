@@ -9,13 +9,9 @@ import {
   type DraftingFontCategory,
 } from "@/features/workspace/model/font-catalog"
 
-export {
-  DRAFTING_FONT_CATEGORY_LABELS,
-  DRAFTING_FONT_CATEGORY_ORDER,
-} from "@/features/workspace/model/font-catalog"
-export type { DraftingFontCategory } from "@/features/workspace/model/font-catalog"
+export { DRAFTING_FONT_CATEGORY_LABELS } from "@/features/workspace/model/font-catalog"
 
-export type DraftingFontSource = "fontshare" | "google" | "local" | "system"
+type DraftingFontSource = "fontshare" | "google" | "local" | "system"
 
 type DraftingFontRegistryEntry = {
   category: DraftingFontCategory

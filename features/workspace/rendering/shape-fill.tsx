@@ -79,7 +79,7 @@ export function patchTextLayerFillFromPicker(
   }
 }
 
-export function getShapeLayerGradientId(layerId: string) {
+function getShapeLayerGradientId(layerId: string) {
   return `${layerId.replace(/[^\w-]+/g, "-")}-shape-fill-gradient`
 }
 

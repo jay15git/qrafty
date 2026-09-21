@@ -804,58 +804,6 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
 SelectItem.displayName = "SelectItem";
 
 // ---------------------------------------------------------------------------
-// SelectGroup + SelectLabel + SelectSeparator
-// ---------------------------------------------------------------------------
-
-function SelectGroup({
-  children,
-  className,
-  ...props
-}: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div role="group" className={className} {...props}>
-      {children}
-    </div>
-  );
-}
-
-SelectGroup.displayName = "SelectGroup";
-
-const SelectLabel = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => {
-    // Group labels are the caption role of the type scale — see /docs/sizes.
-    const compact = useSize().variant === "compact";
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          "px-2 py-1.5 shrink-0 text-muted-foreground",
-          compact ? "text-[11px]" : "text-[12px]",
-          className
-        )}
-        {...props}
-      />
-    );
-  }
-);
-
-SelectLabel.displayName = "SelectLabel";
-
-const SelectSeparator = forwardRef<
-  HTMLDivElement,
-  HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    role="separator"
-    className={cn("my-1 -mx-1 h-px shrink-0 bg-border/60", className)}
-    {...props}
-  />
-));
-
-SelectSeparator.displayName = "SelectSeparator";
-
-// ---------------------------------------------------------------------------
 // Exports
 // ---------------------------------------------------------------------------
 
@@ -864,10 +812,6 @@ export {
   SelectTrigger,
   SelectContent,
   SelectItem,
-  SelectGroup,
-  SelectLabel,
-  SelectSeparator,
-  triggerVariants,
 };
 
-export type { SelectProps, SelectTriggerProps, SelectContentProps, SelectItemProps };
+export type { SelectProps };

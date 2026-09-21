@@ -226,6 +226,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
   }
 ] as const
 
-export function getQraftyWallpaper(id: string): QraftyWallpaper | undefined {
+function getQraftyWallpaper(id: string): QraftyWallpaper | undefined {
   return QRAFTY_WALLPAPERS.find((wallpaper) => wallpaper.id === id)
 }

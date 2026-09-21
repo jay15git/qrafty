@@ -8,7 +8,7 @@ import type {
 } from "@/features/workspace/model/effects"
 import type { DraftingFilterEffect } from "@/features/workspace/model/filters"
 
-export function toRgba(color: string, opacity: number) {
+function toRgba(color: string, opacity: number) {
   const normalizedOpacity = Math.min(1, Math.max(0, Number.isFinite(opacity) ? opacity : 1))
   const hex = color.trim().replace(/^#/, "")
 

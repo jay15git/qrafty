@@ -10,7 +10,7 @@ export type FillPickerPortalSurface = {
   desktopAccordion?: boolean
 }
 
-export const FillPickerPortalSurfaceContext =
+const FillPickerPortalSurfaceContext =
   React.createContext<FillPickerPortalSurface>({})
 
 export function useFillPickerPortalSurface() {

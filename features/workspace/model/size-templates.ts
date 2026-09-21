@@ -73,7 +73,7 @@ export const SIZE_TEMPLATE_GROUPS: readonly SizeTemplateGroup[] = [
   "qr-physical",
 ] as const
 
-export const SIZE_TEMPLATE_GROUP_LABELS: Record<SizeTemplateGroup, string> = {
+const SIZE_TEMPLATE_GROUP_LABELS: Record<SizeTemplateGroup, string> = {
   instagram: "Instagram",
   x: "X",
   youtube: "YouTube",

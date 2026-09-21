@@ -2311,13 +2311,14 @@ function collectModuleUnifiedFillTargets(svg: SVGElement) {
     ...dotPathLayers.flatMap((layer) => layer.shapes),
   ]
 
-  const dataModules = svg.querySelector('[data-testid="data-modules"]')
+  const dataModulesNode = svg.querySelector('[data-testid="data-modules"]')
+  const dataModules = isSvgElementLike(dataModulesNode) ? dataModulesNode : null
 
-  if (modulePaintTargets.length === 0 && isSvgElementLike(dataModules)) {
+  if (modulePaintTargets.length === 0 && dataModules) {
     modulePaintTargets.push(dataModules)
   }
 
-  if (moduleClipShapes.length === 0 && isSvgElementLike(dataModules)) {
+  if (moduleClipShapes.length === 0 && dataModules) {
     const pathData = dataModules.getAttribute("d")
     const document = svg.ownerDocument
 
@@ -2884,7 +2885,7 @@ export function getDraftingQrBackgroundPathTransform(
   )
 }
 
-export function scaleQrBackgroundShapeOptions(
+function scaleQrBackgroundShapeOptions(
   options: QraftyState["backgroundShapeOptions"],
   scale: number,
 ): QraftyState["backgroundShapeOptions"] {

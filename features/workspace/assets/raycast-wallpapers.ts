@@ -282,6 +282,6 @@ export const RAYCAST_WALLPAPERS: readonly RaycastWallpaper[] = [
   }
 ] as const
 
-export function getRaycastWallpaper(id: string): RaycastWallpaper | undefined {
+function getRaycastWallpaper(id: string): RaycastWallpaper | undefined {
   return RAYCAST_WALLPAPERS.find((wallpaper) => wallpaper.id === id)
 }

@@ -32,7 +32,7 @@ export function getQrStyleOptionPreviewFileName(
   return `${previewKind}-${value}.svg`
 }
 
-export const QR_STYLE_OPTION_PREVIEW_PATH = "/qr-style-previews"
+const QR_STYLE_OPTION_PREVIEW_PATH = "/qr-style-previews"
 
 export function getQrStyleOptionPreviewUrl(
   previewKind: StylePreviewKind,

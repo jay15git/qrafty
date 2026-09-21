@@ -371,11 +371,11 @@ export type PaneLayerViewSharedProps = {
   state: QraftyState
 }
 
-export type PaneNestedLayerViewProps = PaneLayerViewSharedProps & {
+type PaneNestedLayerViewProps = PaneLayerViewSharedProps & {
   layer: DraftingCanvasLayer
 }
 
-export function PaneNestedLayerView({
+function PaneNestedLayerView({
   activeQrLayerId,
   activeSelectedLayerIdSet,
   cardImageStyle,
@@ -570,7 +570,7 @@ export function PaneNestedLayerView({
   )
 }
 
-export type PaneLayerViewProps = PaneLayerViewSharedProps & {
+type PaneLayerViewProps = PaneLayerViewSharedProps & {
   editingTextDraft: string
   editingTextLayerId: string | null
   layer: DraftingCanvasLayer

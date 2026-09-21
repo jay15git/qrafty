@@ -218,7 +218,7 @@ export function isDraftingQrLayerId(layerId: string | null | undefined) {
   return /:qr(?::|$)/.test(layerId)
 }
 
-export function isQrCanvasLayer(
+function isQrCanvasLayer(
   layer: Pick<DraftingCanvasLayer, "kind">,
 ): layer is DraftingCanvasLayer & { kind: "qr" } {
   return layer.kind === "qr"
@@ -228,7 +228,7 @@ export function getQrCanvasLayers(layers: DraftingCanvasLayer[]) {
   return layers.filter(isQrCanvasLayer)
 }
 
-export function canDeleteQrLayer(layerId: string, layers: DraftingCanvasLayer[]) {
+function canDeleteQrLayer(layerId: string, layers: DraftingCanvasLayer[]) {
   if (!isDraftingQrLayerId(layerId)) {
     return false
   }

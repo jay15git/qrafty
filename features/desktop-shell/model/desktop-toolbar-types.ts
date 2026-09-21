@@ -268,8 +268,6 @@ export type DesktopTextSettings = {
   underline: boolean
 }
 
-export type DesktopTextPresetId = "body" | "caption" | "title"
-
 export type DesktopToolbarController = {
   activeTool: DesktopToolbarToolId | null
   canRedo?: boolean

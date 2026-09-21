@@ -27,7 +27,7 @@ function isShadowEffectKind(kind: LayerEffectKind): kind is LayerShadowEffectKin
 }
 
 function getFilterType(kind: LayerEffectKind): DraftingFilterType {
-  return kind === "layer-blur" ? "blur" : kind
+  return (kind === "layer-blur" ? "blur" : kind) as DraftingFilterType
 }
 
 function renderSliderRow({

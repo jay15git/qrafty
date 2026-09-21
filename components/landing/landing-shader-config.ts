@@ -2,7 +2,7 @@
 export const LANDING_SHADER_ARC_RADIUS = "max(780px, 64vw)"
 
 /** Matches carousel wheel inset (`top: calc(12vh + var(--R))`). */
-export const LANDING_SHADER_WHEEL_OFFSET = "12vh"
+const LANDING_SHADER_WHEEL_OFFSET = "12vh"
 
 /**
  * Mirror of the card-wheel hub. Wheel hub sits `12vh + R` below the carousel

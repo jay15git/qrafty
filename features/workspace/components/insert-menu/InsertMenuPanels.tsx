@@ -51,7 +51,7 @@ import type { DraftingElementShapeId } from "@/features/workspace/model/layers"
 import { CUELUME_BUTTON, CUELUME_TOGGLE } from "@/features/desktop-shell/audio/desktop-cuelume"
 import { cn } from "@/lib/utils"
 
-export function InsertMenuActionButton({
+function InsertMenuActionButton({
   children,
   disabled,
   isDesktopPopover,
@@ -126,7 +126,7 @@ function InsertMenuPanelHeader({
   )
 }
 
-export function InsertMenuRootOptionTile({
+function InsertMenuRootOptionTile({
   className,
   disabled,
   label,

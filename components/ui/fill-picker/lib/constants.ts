@@ -24,6 +24,6 @@ export const CHECKERBOARD_SM =
  *
  * Apply to a `relative` element; the chip's own `rounded-*` is inherited.
  */
-export const SAMPLE_EDGE =
+const SAMPLE_EDGE =
   "after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] " +
   "after:shadow-[inset_0_0_0_1px_rgb(0_0_0/0.16)] dark:after:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.18)]";

@@ -4,8 +4,6 @@ import { memo } from "react"
 
 import { PaneWorkspace, type PaneWorkspaceProps } from "@/features/workspace/components/PaneWorkspace"
 
-export type { ResizeDirection } from "@/features/workspace/components/pane-layer-geometry"
-export { resizeDraftingLayer } from "@/features/workspace/components/pane-layer-geometry"
 export type { DraftingLayerMenuAction } from "@/features/workspace/components/pane-layer-chrome.constants"
 
 type PaneProps = PaneWorkspaceProps

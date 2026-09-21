@@ -15,7 +15,7 @@ export type DraftingFilterEffect = {
   type: DraftingFilterType
 }
 
-export const DRAFTING_LAYER_FILTER_TYPES: DraftingFilterType[] = [
+const DRAFTING_LAYER_FILTER_TYPES: DraftingFilterType[] = [
   "blur",
   "brightness",
   "contrast",

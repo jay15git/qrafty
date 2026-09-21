@@ -35,7 +35,7 @@ function renderReactQrBaseMarkupCached(state: QraftyState) {
   return markup
 }
 
-export function buildDraftingQraftyPreviewMarkup(
+function buildDraftingQraftyPreviewMarkup(
   state: QraftyState,
   targetWidth: number,
   targetHeight: number,

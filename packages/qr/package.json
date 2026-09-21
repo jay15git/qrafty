@@ -31,10 +31,7 @@
       "import": "./src/shaders/index.ts"
     }
   },
-  "dependencies": {
-    "@paper-design/shaders": "0.0.76",
-    "@paper-design/shaders-react": "0.0.76"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "react": "^18 || ^19",
     "react-dom": "^18 || ^19"

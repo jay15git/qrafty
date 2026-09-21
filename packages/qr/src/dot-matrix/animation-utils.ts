@@ -1,4 +1,9 @@
-import { QRCodeEntity } from './animations';
+export enum QRCodeEntity {
+  Module = 'module',
+  PositionRing = 'position-ring',
+  PositionCenter = 'position-center',
+  Icon = 'icon',
+}
 
 export const distanceBetween = (
   x1: number,
@@ -19,7 +24,7 @@ enum VerticalFocalPoint {
   Bottom,
 }
 
-export const translatePoint = (edgeLength: number) => {
+const translatePoint = (edgeLength: number) => {
   return (
     x: number,
     y: number,
@@ -99,9 +104,9 @@ export const underdampedHarmonicOscillationMaximums = (
     throw new Error('This method only supports underdamped oscillation.');
   const omega = Math.sqrt(dampingRatio);
 
-  const amp = (t) => amplitude * Math.pow(Math.E, -damping * t);
-  const y = (t) => amp(t) * Math.cos(omega * t + offset);
-  const yMax = (p) =>
+  const amp = (t: number) => amplitude * Math.pow(Math.E, -damping * t);
+  const y = (t: number) => amp(t) * Math.cos(omega * t + offset);
+  const yMax = (p: number) =>
     (Math.atan(-damping / omega) + p * Math.PI - offset) / omega;
 
   const maximums: { time: number; amplitude: number }[] = [];
@@ -118,7 +123,7 @@ export const underdampedHarmonicOscillationMaximums = (
   return maximums;
 };
 
-export const range = (length: number, begin: number = 0) =>
+const range = (length: number, begin: number = 0) =>
   Array.from({ length }, (_, index) => begin + index);
 
 export const scaleOscillationsToOffset = (

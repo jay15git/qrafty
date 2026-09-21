@@ -1,4 +1,3 @@
-export { ColorPicker } from "./color-picker";
 
 export type { Fill } from "@/components/ui/fill-picker/lib/gradient";
 export { formatFill, parseFill } from "@/components/ui/fill-picker/lib/gradient";
@@ -8,7 +7,6 @@ export type {
   GradientType,
   GradientInterp,
   GradientStop,
-  RadialSizeKeyword,
 } from "@/components/ui/fill-picker/lib/gradient";
 
 export {

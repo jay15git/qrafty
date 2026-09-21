@@ -80,7 +80,7 @@ export function parseSvgViewBoxSize(markup: string) {
   return { height: parts[3], width: parts[2] }
 }
 
-export function snapDimensionToViewBoxGrid(target: number, viewBoxAxis: number) {
+function snapDimensionToViewBoxGrid(target: number, viewBoxAxis: number) {
   if (!Number.isFinite(target) || !Number.isFinite(viewBoxAxis) || viewBoxAxis <= 0) {
     return Math.max(1, Math.round(target))
   }
@@ -88,7 +88,7 @@ export function snapDimensionToViewBoxGrid(target: number, viewBoxAxis: number) 
   return viewBoxAxis * Math.max(1, Math.round(target / viewBoxAxis))
 }
 
-export function parseNestedQrSvgMetrics(markup: string) {
+function parseNestedQrSvgMetrics(markup: string) {
   const openTags = [...markup.matchAll(/<svg\b([^>]*)>/gi)]
 
   for (let index = 1; index < openTags.length; index += 1) {

@@ -152,11 +152,6 @@ export class ShaderFrameRenderer {
     return dataUrl
   }
 
-  async captureAtFrameMs(frameMs: number) {
-    await this.setFrameMs(frameMs)
-    return this.captureDataUrl()
-  }
-
   dispose() {
     this.root?.unmount()
     this.root = null

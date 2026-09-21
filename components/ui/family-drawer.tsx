@@ -585,17 +585,10 @@ function CloseIcon() {
 
 export {
   FamilyDrawerRoot,
-  FamilyDrawerTrigger,
   FamilyDrawerPortal,
-  FamilyDrawerOverlay,
   FamilyDrawerContent,
   FamilyDrawerAnimatedWrapper,
   FamilyDrawerAnimatedContent,
-  FamilyDrawerClose,
-  FamilyDrawerHeader,
-  FamilyDrawerButton,
-  FamilyDrawerSecondaryButton,
-  FamilyDrawerViewContent,
   useFamilyDrawer,
   type ViewsRegistry,
   type ViewComponent,

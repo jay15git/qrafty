@@ -198,7 +198,7 @@ function PaletteColorStopRow({
   )
 }
 
-export function PaletteColorEditorPopover({
+function PaletteColorEditorPopover({
   color,
   onColorChange,
   open,

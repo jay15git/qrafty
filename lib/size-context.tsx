@@ -76,53 +76,6 @@ const sizeMap: Record<SizeVariant, SizeClasses> = {
   },
 };
 
-/** One role of the type scale: px per ladder step. */
-interface TypeScaleStep {
-  default: number;
-  compact: number;
-}
-
-/**
- * Role-based type scale, per ladder step (px values).
- *
- * The default column is the system as shipped; the compact column steps each
- * role down one notch so dense regions read as a smaller sibling of the same
- * hierarchy, not a squeezed copy. `body`, `caption`, and `subtitle` are what
- * the sized components already render through `SizeClasses.text` and their
- * compact conditionals; `display` and `title` are the page-level roles
- * for consumers composing their own screens.
- */
-const typeScale = {
-  /** Page titles. */
-  display: { default: 28, compact: 24 },
-  /** Section headings, dialog titles. */
-  title: { default: 16, compact: 15 },
-  /** Card titles, chat bubbles, emphasized rows. */
-  subtitle: { default: 14, compact: 13 },
-  /** Control labels and body copy — `SizeClasses.text`. */
-  body: { default: 13, compact: 12 },
-  /** Secondary text: descriptions, meta rows, errors, eyebrows and group
-   *  labels (the former overline role — an uppercase or muted caption). */
-  caption: { default: 12, compact: 11 },
-} as const satisfies Record<string, TypeScaleStep>;
-
-type TypeScaleRole = keyof typeof typeScale;
-
-/** The type scale resolved for the active ladder step (px per role):
- *  explicit override > surrounding SizeProvider > "default". */
-function useTypeScale(
-  override?: SizeVariant | null
-): Record<TypeScaleRole, number> {
-  const variant = useSizeVariant(override);
-  return {
-    display: typeScale.display[variant],
-    title: typeScale.title[variant],
-    subtitle: typeScale.subtitle[variant],
-    body: typeScale.body[variant],
-    caption: typeScale.caption[variant],
-  };
-}
-
 interface SizeContextValue {
   size: SizeVariant;
   setSize: (size: SizeVariant) => void;
@@ -140,12 +93,6 @@ function useSizeVariant(override?: SizeVariant | null): SizeVariant {
 /** Resolve size classes: explicit prop > provider > "default". */
 function useSize(override?: SizeVariant | null): SizeClasses {
   return sizeMap[useSizeVariant(override)];
-}
-
-function useSizeContext() {
-  const ctx = useContext(SizeContext);
-  if (!ctx) throw new Error("useSizeContext must be used within a SizeProvider");
-  return ctx;
 }
 
 function SizeProvider({
@@ -182,13 +129,5 @@ function SizeProvider({
   return <SizeContext.Provider value={value}>{children}</SizeContext.Provider>;
 }
 
-export {
-  SizeProvider,
-  useSize,
-  useSizeVariant,
-  useSizeContext,
-  useTypeScale,
-  sizeMap,
-  typeScale,
-};
-export type { SizeVariant, SizeClasses, TypeScaleRole, TypeScaleStep };
+export { SizeProvider, useSize };
+export type { SizeVariant, SizeClasses };

@@ -10,7 +10,7 @@ import {
 
 import { previewSession } from "@/features/workspace/preview/preview-session"
 
-export type PreviewRuntimeValue = {
+type PreviewRuntimeValue = {
   artboardScale: number
   preferLowPowerShaders: boolean
 }

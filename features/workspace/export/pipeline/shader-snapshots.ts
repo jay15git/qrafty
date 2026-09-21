@@ -169,6 +169,7 @@ export class WorkspaceShaderCaptureSession {
     return snapshots
   }
 
+  // fallow-ignore-next-line unused-class-member
   async captureBitmaps(mode: ExportClockMode, videoTimeMs = 0) {
     const bitmaps: Record<string, ImageBitmap> = {}
 

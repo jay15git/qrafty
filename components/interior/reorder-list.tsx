@@ -32,7 +32,7 @@ export type UseReorderListOptions<T> = {
   disabled?: boolean
 }
 
-export function useReorderList<T>({
+function useReorderList<T>({
   items,
   getId,
   getLabel,

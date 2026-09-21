@@ -7,7 +7,7 @@ import { SETTINGS_FILL_PRESETS } from "@/features/desktop-shell/inspector/settin
 import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 
 /** Match presets against shape fill after the same storage path as CardSection. */
-export function canonicalShapeFillCssFromPreset(preset: string): string | null {
+function canonicalShapeFillCssFromPreset(preset: string): string | null {
   const fill = parseFill(preset)
   if (!fill) {
     return null

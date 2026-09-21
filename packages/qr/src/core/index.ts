@@ -4,6 +4,4 @@ export {
   getQrModuleGrid,
   getQrModuleMetrics,
   type QrModuleGrid,
-  type QrModuleMetrics,
-  type QrModuleMetricsInput,
 } from "./qr-matrix"

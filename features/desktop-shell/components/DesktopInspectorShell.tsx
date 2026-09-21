@@ -17,8 +17,6 @@ import { cn } from "@/lib/utils"
 export {
   DesktopInspectorOptionGridScrollArea,
   DesktopInspectorScrollArea,
-  type DesktopInspectorOptionGridRowKind,
-  type DesktopInspectorOptionGridVariant,
 } from "@/features/desktop-shell/inspector/inspector-option-grid"
 
 export function DesktopInspectorElasticSliderRow({

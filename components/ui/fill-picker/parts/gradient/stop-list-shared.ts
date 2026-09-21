@@ -17,7 +17,7 @@ import type { OklchColor } from "../../lib/types";
  * Backspace while editing the color text must edit text, not delete the
  * stop; ArrowUp/Down must nudge the numeric field, not move list focus.
  */
-export function isEventFromRowControl(
+function isEventFromRowControl(
   e: React.KeyboardEvent<HTMLElement>,
 ): boolean {
   return e.target !== e.currentTarget;
@@ -29,7 +29,7 @@ export function isEventFromRowControl(
  * follows focus — activation goes through `.click()` so the row's own
  * onClick (selectStop) runs.
  */
-export function stopListKeyNav(e: React.KeyboardEvent<HTMLElement>): void {
+function stopListKeyNav(e: React.KeyboardEvent<HTMLElement>): void {
   if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)) return;
   // Only navigate when the key originated on an option row itself. Keys
   // from nested controls (position/color inputs — where ArrowUp/Down mean
@@ -63,7 +63,7 @@ function isOption(target: EventTarget | null): boolean {
  * the stop — the neighbor's DOM node survives the re-render, so focus
  * stays in the list instead of being ejected to <body>.
  */
-export function focusNeighborOption(row: HTMLElement): void {
+function focusNeighborOption(row: HTMLElement): void {
   const neighbor =
     findOptionSibling(row, "nextElementSibling") ??
     findOptionSibling(row, "previousElementSibling");
@@ -114,7 +114,7 @@ function findOptionSibling(
  * instead of squeezing into a near-zero end gap). Samples the existing ramp
  * so the inserted color blends in.
  */
-export function insertStopAfterSelected<
+function insertStopAfterSelected<
   T extends { id: string; position: number; color: OklchColor },
 >(stops: readonly T[], selectedStopId: string | null): {
   position: number;

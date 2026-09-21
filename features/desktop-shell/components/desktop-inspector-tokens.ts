@@ -7,22 +7,22 @@ export const DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS =
 export const DESKTOP_INSPECTOR_RADIUS_CLASS =
   "rounded-[length:var(--desktop-inspector-radius)]"
 
-export const DESKTOP_INSPECTOR_FG_SECONDARY =
+const DESKTOP_INSPECTOR_FG_SECONDARY =
   "text-[var(--desktop-inspector-fg-secondary)]"
-export const DESKTOP_INSPECTOR_FG_MUTED =
+const DESKTOP_INSPECTOR_FG_MUTED =
   "text-[var(--desktop-inspector-fg-muted)]"
 export const DESKTOP_INSPECTOR_TYPE_VALUE_CLASS =
   "text-[length:var(--desktop-inspector-type-value)] leading-[1.45]"
-export const DESKTOP_INSPECTOR_TYPE_LABEL_CLASS =
+const DESKTOP_INSPECTOR_TYPE_LABEL_CLASS =
   "text-[length:var(--desktop-inspector-type-label)]"
-export const DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS =
+const DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS =
   "text-[length:var(--desktop-inspector-type-caption)]"
 export const DESKTOP_INSPECTOR_SECTION_HEADING_CLASS =
   cn(
     "mb-0 truncate pl-0.5 font-medium uppercase tracking-[0.05em] text-[var(--desktop-inspector-fg-muted)]",
     DESKTOP_INSPECTOR_TYPE_LABEL_CLASS,
   )
-export const DESKTOP_INSPECTOR_VALUE_CLASS = cn(
+const DESKTOP_INSPECTOR_VALUE_CLASS = cn(
   "font-medium tabular-nums text-[var(--desktop-inspector-fg-primary)]",
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 )
@@ -31,8 +31,8 @@ export const DESKTOP_INSPECTOR_CAPTION_CLASS = cn(
   DESKTOP_INSPECTOR_TYPE_CAPTION_CLASS,
 )
 export const DESKTOP_INSPECTOR_SECTION_GAP_CLASS = "mt-2"
-export const DESKTOP_INSPECTOR_ROW_GAP_CLASS = "gap-[length:var(--dn-space-inline)]"
-export const DESKTOP_INSPECTOR_ROW_CLASS =
+const DESKTOP_INSPECTOR_ROW_GAP_CLASS = "gap-[length:var(--dn-space-inline)]"
+const DESKTOP_INSPECTOR_ROW_CLASS =
   "flex min-h-[length:var(--dn-control-height)] min-w-0 items-center justify-between gap-[length:var(--dn-row-px)] rounded-[length:var(--desktop-inspector-radius)] bg-[var(--desktop-inspector-control)] px-[length:var(--dn-row-px)]"
 export const DESKTOP_INSPECTOR_LABEL_CLASS = cn(
   "truncate font-medium text-[var(--desktop-inspector-fg-label)]",
@@ -46,11 +46,11 @@ export const DESKTOP_INSPECTOR_INPUT_CLASS = cn(
   "desktop-inspector-input-bg bg-[var(--desktop-inspector-field-bg)] font-medium text-[var(--desktop-inspector-fg-primary)] outline-none placeholder:text-[var(--desktop-inspector-fg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 )
-export const DESKTOP_INSPECTOR_RESET_CLASS = cn(
+const DESKTOP_INSPECTOR_RESET_CLASS = cn(
   "flex h-[length:var(--dn-control-height)] w-full cursor-pointer items-center justify-center gap-[length:var(--dn-space-inline)] rounded-[length:var(--desktop-inspector-radius)] border border-transparent bg-transparent px-[length:var(--dn-row-px)] font-medium text-[var(--desktop-inspector-fg-secondary)] transition-[background-color,border-color,color] duration-150 ease-out hover:border-[var(--desktop-inspector-control-border-hover)] hover:bg-[var(--desktop-inspector-control-hover-bg)] hover:text-[var(--desktop-inspector-fg-primary)] active:bg-[var(--desktop-inspector-control-active-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--desktop-inspector-focus)]",
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 )
-export const DESKTOP_INSPECTOR_DROPDOWN_ITEM_CLASS = cn(
+const DESKTOP_INSPECTOR_DROPDOWN_ITEM_CLASS = cn(
   "h-[length:var(--dn-control-height-compact)] cursor-pointer rounded-[length:var(--desktop-inspector-radius)] px-[length:var(--dn-row-px)] font-medium text-[var(--desktop-inspector-fg-tertiary)] outline-none transition focus:bg-[var(--desktop-inspector-control-hover-bg)] focus:text-[var(--desktop-inspector-fg-primary)] focus:**:text-[var(--desktop-inspector-fg-primary)] data-[highlighted]:bg-[var(--desktop-inspector-control-hover-bg)] data-[highlighted]:text-[var(--desktop-inspector-fg-primary)] data-[highlighted]:**:text-[var(--desktop-inspector-fg-primary)] data-[state=checked]:bg-[var(--desktop-inspector-option-selected-bg)] data-[state=checked]:text-[var(--desktop-inspector-fg-primary)] data-[state=checked]:focus:bg-[var(--desktop-inspector-option-selected-bg)] data-[state=checked]:focus:text-[var(--desktop-inspector-fg-primary)] data-[state=checked]:data-[highlighted]:bg-[var(--desktop-inspector-option-selected-bg)] data-[state=checked]:data-[highlighted]:text-[var(--desktop-inspector-fg-primary)] [&_[data-slot=dropdown-menu-radio-item-indicator]]:hidden",
   DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
 )

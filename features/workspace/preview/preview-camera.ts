@@ -33,7 +33,7 @@ export function getPreviewCameraStyle(
   }
 }
 
-export function scalePreviewCornerRadius(radiusPx: number, artboardScale: number) {
+function scalePreviewCornerRadius(radiusPx: number, artboardScale: number) {
   const safeScale = Number.isFinite(artboardScale) && artboardScale > 0 ? artboardScale : 1
 
   return Math.max(0, radiusPx * safeScale)

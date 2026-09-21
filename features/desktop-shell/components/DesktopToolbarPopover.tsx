@@ -60,7 +60,7 @@ export function DesktopToolbarPopoverContent({
   )
 }
 
-export function DesktopToolbarPopover({
+function DesktopToolbarPopover({
   children,
   dataSlot = "desktop-toolbar-popover",
   label,

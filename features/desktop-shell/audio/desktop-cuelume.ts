@@ -1,7 +1,7 @@
 import { play, setEnabled, setVolume, type SoundName } from "cuelume"
 
 export const DESKTOP_SOUNDS_STORAGE_KEY = "qrafty:desktop-sounds"
-export const DEFAULT_DESKTOP_SOUND_VOLUME = 0.65
+const DEFAULT_DESKTOP_SOUND_VOLUME = 0.65
 
 export const DESKTOP_SOUND_PRESS = "press" satisfies SoundName
 export const DESKTOP_SOUND_RELEASE = "release" satisfies SoundName

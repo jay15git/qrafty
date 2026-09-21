@@ -9,9 +9,9 @@ import {
   parseDesktopTheme,
 } from "@/features/desktop-shell/model/desktop-theme"
 
-export { DESKTOP_THEME_COOKIE, DESKTOP_THEME_STORAGE_KEY, parseDesktopTheme }
+export { DESKTOP_THEME_COOKIE, DESKTOP_THEME_STORAGE_KEY }
 
-export function readStoredDesktopTheme(): DesktopThemeMode | null {
+function readStoredDesktopTheme(): DesktopThemeMode | null {
   try {
     const stored = window.localStorage.getItem(DESKTOP_THEME_STORAGE_KEY)
     return stored === "light" || stored === "dark" ? stored : null

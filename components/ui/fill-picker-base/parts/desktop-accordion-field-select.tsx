@@ -42,7 +42,7 @@ export function DesktopAccordionFieldSelectOption({
   return <span data-value={value}>{children}</span>;
 }
 
-export interface DesktopAccordionFieldSelectProps {
+interface DesktopAccordionFieldSelectProps {
   variant?: "standalone" | "inline";
   value?: string;
   onValueChange?: (value: string) => void;

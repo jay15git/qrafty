@@ -14,7 +14,7 @@ function componentToHex(value: number) {
     .padStart(2, "0");
 }
 
-export function parseHexColor(input: string) {
+function parseHexColor(input: string) {
   const value = input.trim();
   if (!value.startsWith("#")) {
     return null;

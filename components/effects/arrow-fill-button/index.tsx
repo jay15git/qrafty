@@ -10,7 +10,7 @@ const DEFAULT_HREF = "#";
 const COMPACT_LAYOUT_BREAKPOINT = 1280;
 const ANIMATION_DURATION_MS = 450;
 
-export interface ArrowFillButtonOwnProps {
+interface ArrowFillButtonOwnProps {
   btnText?: string;
   href?: string;
   className?: string;
@@ -28,7 +28,7 @@ export interface ArrowFillButtonOwnProps {
   noTransition?: boolean;
 }
 
-export type ArrowFillButtonProps = ArrowFillButtonOwnProps & Omit<ComponentPropsWithoutRef<'a'>, keyof ArrowFillButtonOwnProps>;
+type ArrowFillButtonProps = ArrowFillButtonOwnProps & Omit<ComponentPropsWithoutRef<'a'>, keyof ArrowFillButtonOwnProps>;
 
 function ArrowFillButton({
   btnText="Hover Me",

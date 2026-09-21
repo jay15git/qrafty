@@ -156,7 +156,7 @@ interface AdaptiveSliderTrackProps {
   readOnly?: boolean;
 }
 
-export const AdaptiveSliderTrack: FC<AdaptiveSliderTrackProps> = ({
+const AdaptiveSliderTrack: FC<AdaptiveSliderTrackProps> = ({
   value,
   min,
   max,

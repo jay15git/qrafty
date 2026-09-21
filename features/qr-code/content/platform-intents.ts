@@ -1354,7 +1354,7 @@ export function extractPlatformValuesFromUrl(
   return values
 }
 
-export const CONTENT_COLLECTIONS: ReadonlyArray<{
+const CONTENT_COLLECTIONS: ReadonlyArray<{
   id: ContentCollectionId
   label: string
   types: readonly QrInputType[]

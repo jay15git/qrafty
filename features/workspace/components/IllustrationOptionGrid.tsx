@@ -2,7 +2,7 @@
 
 import type { IllustrationAsset } from "@/features/workspace/assets/illustration-sets"
 
-export type IllustrationOptionGridVariant = "insert-desktop" | "insert-drafting"
+type IllustrationOptionGridVariant = "insert-desktop" | "insert-drafting"
 
 type IllustrationOptionGridProps = {
   assets: readonly IllustrationAsset[]

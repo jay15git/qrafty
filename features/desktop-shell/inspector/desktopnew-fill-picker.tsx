@@ -38,7 +38,7 @@ import {
   DesktopGradientInterpRow,
   DesktopGradientTypeRow,
 } from "@/features/desktop-shell/inspector/desktopnew-gradient-controls"
-import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-ui"
+import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-segment-tabs"
 import { SettingsOptionShelf } from "@/features/desktop-shell/inspector/mobile-settings-rail"
 import { cn } from "@/lib/utils"
 import { blobUrlToDataUrl } from "@qrafty/qr-internal/scene"

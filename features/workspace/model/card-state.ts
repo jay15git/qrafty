@@ -28,7 +28,7 @@ import {
 type DraftingCardShadowPreset = "none" | "soft" | "medium" | "strong"
 export type DraftingCardStyleMode = "solid" | "image" | "image-filter" | "paper-shader"
 
-export type LegacyDraftingCardStyleMode = DraftingCardStyleMode | "pattern"
+type LegacyDraftingCardStyleMode = DraftingCardStyleMode | "pattern"
 
 function normalizeDraftingCardStyleMode(
   value: LegacyDraftingCardStyleMode | undefined,
@@ -86,8 +86,8 @@ export const DEFAULT_DRAFTING_PAPER_SHADER_IMAGE =
 
 export type DraftingCardSizeMode = "auto" | "fixed"
 
-export const DRAFTING_CARD_SIZE_MIN = 320
-export const DRAFTING_CARD_SIZE_MAX = 8192
+const DRAFTING_CARD_SIZE_MIN = 320
+const DRAFTING_CARD_SIZE_MAX = 8192
 
 export type DraftingCardState = {
   border: DraftingCardBorderState

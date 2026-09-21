@@ -190,7 +190,7 @@ export type WorkspaceSurfaceSetters = {
   [K in WorkspaceSurfaceStateField as `set${Capitalize<string & K>}`]: WorkspaceSurfaceSetter<K>
 }
 
-export function createInitialWorkspaceSurfaceState(
+function createInitialWorkspaceSurfaceState(
   initialActiveTool?: DesktopToolbarToolId,
 ): WorkspaceSurfaceState {
   const defaultQrState = createDefaultDraftingWorkspaceQrState()
@@ -339,7 +339,7 @@ export function createInitialWorkspaceSurfaceState(
   }
 }
 
-export function workspaceSurfaceReducer(
+function workspaceSurfaceReducer(
   state: WorkspaceSurfaceState,
   action: WorkspaceSurfaceAction,
 ): WorkspaceSurfaceState {

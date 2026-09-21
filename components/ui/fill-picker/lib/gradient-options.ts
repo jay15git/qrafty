@@ -68,7 +68,7 @@ export const GRADIENT_INTERP_OPTIONS: {
  *
  * https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/radial-gradient#size
  */
-export const RADIAL_SIZE_OPTIONS: {
+const RADIAL_SIZE_OPTIONS: {
   value: RadialSizeKeyword;
   description: string;
 }[] = [

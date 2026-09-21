@@ -15,7 +15,7 @@ import type { DraftingQrStateByLayerId } from "@/features/workspace/model/docume
 export type DraftingPaneToolbarVariant = "default" | "desktop-zoom"
 export type DraftingPaneCanvasTool = "select" | "pan" | "text"
 
-export function resolveDraftingCanvasTool(
+function resolveDraftingCanvasTool(
   tool?: DraftingPaneCanvasTool | null,
 ): DraftingPaneCanvasTool {
   return tool === "select" || tool === "text" ? tool : "pan"

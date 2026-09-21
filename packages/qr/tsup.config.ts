@@ -1,7 +1,7 @@
-import { defineConfig } from "tsup"
+import { defineConfig, type Options } from "tsup"
 
-const shared = {
-  format: ["esm"] as const,
+const shared: Partial<Options> = {
+  format: ["esm"],
   splitting: false,
   sourcemap: true,
   external: [
@@ -11,7 +11,7 @@ const shared = {
     "@paper-design/shaders",
     "@paper-design/shaders-react",
   ],
-  esbuildOptions(options: { jsx?: string }) {
+  esbuildOptions(options) {
     options.jsx = "automatic"
   },
 }
@@ -27,4 +27,4 @@ export default defineConfig({
   entry: publicEntries,
   clean: true,
   dts: false,
-})
+} as Options)

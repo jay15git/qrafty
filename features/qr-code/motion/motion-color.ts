@@ -124,7 +124,7 @@ function resolveMotionPeakColorChannel(animation: QrDotMatrixAnimationOptions) {
   );
 }
 
-export function resolveMotionBaseColor(qrModuleColor: string) {
+function resolveMotionBaseColor(qrModuleColor: string) {
   return resolveMotionColorChannel(
     qrModuleColor,
     MOTION_OPACITY_ANCHORS.base,

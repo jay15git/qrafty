@@ -45,7 +45,7 @@ function sanitizeDownloadFileName(name: string) {
   return sanitized || "QR Code"
 }
 
-export function downloadBlob(blob: Blob, fileName: string) {
+function downloadBlob(blob: Blob, fileName: string) {
   const objectUrl = URL.createObjectURL(blob)
   const anchor = document.createElement("a")
 

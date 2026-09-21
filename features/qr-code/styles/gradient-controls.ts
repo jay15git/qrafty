@@ -84,7 +84,7 @@ function parseCssColor(input: string): { r: number; g: number; b: number; a: num
   return null
 }
 
-export function formatCssColor(input: string) {
+function formatCssColor(input: string) {
   const parsed = parseCssColor(input)
   if (!parsed) return input
 

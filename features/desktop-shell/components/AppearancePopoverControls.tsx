@@ -88,7 +88,7 @@ export function AppearanceBorderControls({
   )
 }
 
-export function AppearanceOpacityControls({
+function AppearanceOpacityControls({
   appearance,
   className,
   onPatch,

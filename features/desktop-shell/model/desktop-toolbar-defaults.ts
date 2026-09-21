@@ -27,7 +27,7 @@ import type {
   DesktopTextSettings,
 } from "@/features/desktop-shell/model/desktop-toolbar-types"
 
-export const DEFAULT_DESKTOP_DOTS_GRADIENT: QraftyGradient = {
+const DEFAULT_DESKTOP_DOTS_GRADIENT: QraftyGradient = {
   enabled: true,
   type: "linear",
   rotation: 0,
@@ -37,9 +37,9 @@ export const DEFAULT_DESKTOP_DOTS_GRADIENT: QraftyGradient = {
   ],
 }
 
-export const DEFAULT_DESKTOP_DOTS_PALETTE = ["#04879c", "#0c3c78", "#090030", "#f30a49"]
+const DEFAULT_DESKTOP_DOTS_PALETTE = ["#04879c", "#0c3c78", "#090030", "#f30a49"]
 
-export const DESKTOP_DOTS_PALETTE_PRESETS: Array<{
+const DESKTOP_DOTS_PALETTE_PRESETS: Array<{
   colors: string[]
   label: string
 }> = [
@@ -201,7 +201,7 @@ export const DEFAULT_DESKTOP_EFFECTS_SETTINGS: DesktopEffectsSettings = {
   filterPresetName: getCardImageFilterDefinitions()[0]?.presets[0]?.name ?? "",
 }
 
-export const DEFAULT_DESKTOP_LAYERS: DesktopLayerRow[] = [
+const DEFAULT_DESKTOP_LAYERS: DesktopLayerRow[] = [
   {
     blur: 0,
     height: 448,

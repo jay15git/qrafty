@@ -21,11 +21,8 @@ export type {
   ComposeSidebarPanel,
   DesktopAccessibilitySettings,
   DesktopBackgroundInspectorTab,
-  DesktopBackgroundSettings,
   DesktopCornersSettings,
-  DesktopEffectsSettings,
   DesktopEncodingSettings,
-  DesktopExportMediaKind,
   DesktopExportSettings,
   DesktopExportTarget,
   DesktopImageSettings,
@@ -37,13 +34,11 @@ export type {
   DesktopMotionSettings,
   DesktopPatternSettings,
   DesktopPatternSettingsPatch,
-  DesktopSceneTemplateSettings,
   DesktopShapeSettings,
   DesktopTextSettings,
   DesktopThemeMode,
   DesktopToolbarController,
   DesktopToolbarToolId,
-  DesktopLayoutSettings,
 } from "@/features/desktop-shell/model/desktop-toolbar-types"
 
 export type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
@@ -148,4 +143,3 @@ export function FloatingToolbar({
   )
 }
 
-export { DESKTOP_TOOLBAR_TOOLS }

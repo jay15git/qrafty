@@ -344,7 +344,7 @@ export function TextSizeSettings({
   )
 }
 
-export function EmojiPickerSettingsContent({
+function EmojiPickerSettingsContent({
   onPatch,
   onSelect,
 }: {
@@ -431,7 +431,7 @@ function EmojiPickerSettings({
   )
 }
 
-export function ImageFitSettings({
+function ImageFitSettings({
   layer,
   onPatch,
 }: {

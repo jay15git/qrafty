@@ -8,7 +8,7 @@ export const COMPACT_TEXT_FONT_SIZES = [
 const EMOJI_LAYER_TEXT_PATTERN =
   /^(?:\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)+$/u
 
-export const DEFAULT_DRAFTING_EMOJI_LAYER = {
+const DEFAULT_DRAFTING_EMOJI_LAYER = {
   fontFamily:
     "'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif",
   fontSize: 52,

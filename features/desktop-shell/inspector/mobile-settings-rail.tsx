@@ -7,10 +7,10 @@ import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mo
 import { cn } from "@/lib/utils"
 
 /** Row wrapper inside a horizontal settings rail. */
-export const MOBILE_SETTINGS_RAIL_ROW = "dn-mobile-rail"
+const MOBILE_SETTINGS_RAIL_ROW = "dn-mobile-rail"
 
 /** Row wrapper for landscape card rails (wallpapers, previews). */
-export const MOBILE_SETTINGS_CARD_ROW = "dn-mobile-card-rail"
+const MOBILE_SETTINGS_CARD_ROW = "dn-mobile-card-rail"
 
 const OPTION_SHELF_COLUMNS: Record<number, string> = {
   3: "grid-cols-3",

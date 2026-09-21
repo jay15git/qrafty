@@ -29,7 +29,7 @@ function SettingsSectionSvg({
   )
 }
 
-export function EditContentIcon({ className, size = 14 }: SettingsSectionIconProps) {
+function EditContentIcon({ className, size = 14 }: SettingsSectionIconProps) {
   return (
     <SettingsSectionSvg className={className} size={size}>
       <path d="M21 22H3C2.59 22 2.25 21.66 2.25 21.25C2.25 20.84 2.59 20.5 3 20.5H21C21.41 20.5 21.75 20.84 21.75 21.25C21.75 21.66 21.41 22 21 22Z" />
@@ -39,7 +39,7 @@ export function EditContentIcon({ className, size = 14 }: SettingsSectionIconPro
   )
 }
 
-export function ColorSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
+function ColorSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
   return (
     <SettingsSectionSvg className={className} size={size}>
       <g clipPath="url(#dn-color-icon-clip)">
@@ -56,7 +56,7 @@ export function ColorSectionIcon({ className, size = 14 }: SettingsSectionIconPr
   )
 }
 
-export function QrSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
+function QrSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
   return (
     <SettingsSectionSvg className={className} size={size}>
       <path d="M2 9.75C1.59 9.75 1.25 9.41 1.25 9V6.5C1.25 3.6 3.61 1.25 6.5 1.25H9C9.41 1.25 9.75 1.59 9.75 2C9.75 2.41 9.41 2.75 9 2.75H6.5C4.43 2.75 2.75 4.43 2.75 6.5V9C2.75 9.41 2.41 9.75 2 9.75Z" />
@@ -71,7 +71,7 @@ export function QrSectionIcon({ className, size = 14 }: SettingsSectionIconProps
   )
 }
 
-export function ShapeSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
+function ShapeSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
   return (
     <SettingsSectionSvg className={className} size={size}>
       <path d="M11.75 7H11H7C4.24 7 2 9.24 2 12V17C2 19.76 4.24 22 7 22H12C14.76 22 17 19.76 17 17V13V12.25C17 9.35 14.65 7 11.75 7Z" />
@@ -80,7 +80,7 @@ export function ShapeSectionIcon({ className, size = 14 }: SettingsSectionIconPr
   )
 }
 
-export function EffectsSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
+function EffectsSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
   return (
     <SettingsSectionSvg className={className} size={size}>
       <path d="M19.5 7.50086L18.01 8.99086L15.01 5.99086L16.5 4.50086C16.92 4.08086 17.46 3.88086 18 3.88086C18.54 3.88086 19.08 4.08086 19.5 4.50086C20.33 5.33086 20.33 6.67086 19.5 7.50086Z" />
@@ -92,7 +92,7 @@ export function EffectsSectionIcon({ className, size = 14 }: SettingsSectionIcon
   )
 }
 
-export function BackgroundSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
+function BackgroundSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
   return (
     <SettingsSectionSvg className={className} size={size}>
       <path d="M2.58005 19.0103L2.56005 19.0303C2.29005 18.4403 2.12005 17.7703 2.05005 17.0303C2.12005 17.7603 2.31005 18.4203 2.58005 19.0103Z" />
@@ -102,7 +102,7 @@ export function BackgroundSectionIcon({ className, size = 14 }: SettingsSectionI
   )
 }
 
-export function MotionSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
+function MotionSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
   return (
     <SettingsSectionSvg className={className} size={size}>
       <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM14.66 13.73L13.38 14.47L12.1 15.21C10.45 16.16 9.1 15.38 9.1 13.48V12V10.52C9.1 8.61 10.45 7.84 12.1 8.79L13.38 9.53L14.66 10.27C16.31 11.22 16.31 12.78 14.66 13.73Z" />
@@ -110,7 +110,7 @@ export function MotionSectionIcon({ className, size = 14 }: SettingsSectionIconP
   )
 }
 
-export function ElementsSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
+function ElementsSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
   return (
     <SettingsSectionSvg className={className} size={size}>
       <path d="M12 2.75L3.5 7.25L12 11.75L20.5 7.25L12 2.75Z" />
@@ -120,7 +120,7 @@ export function ElementsSectionIcon({ className, size = 14 }: SettingsSectionIco
   )
 }
 
-export function ExportSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
+function ExportSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
   return (
     <SettingsSectionSvg className={className} size={size}>
       <path d="M16.8 9H12.75V15.25C12.75 15.66 12.41 16 12 16C11.59 16 11.25 15.66 11.25 15.25V9H7.2C4 9 2 11 2 14.2V16.79C2 20 4 22 7.2 22H16.79C19.99 22 21.99 20 21.99 16.8V14.2C22 11 20 9 16.8 9Z" />

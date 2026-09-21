@@ -1,4 +1,4 @@
-export function flattenNestedSvgs(svg: string) {
+function flattenNestedSvgs(svg: string) {
   let result = svg
 
   while (true) {
@@ -66,7 +66,7 @@ export function flattenNestedSvgs(svg: string) {
   return result
 }
 
-export function prefixSvgIds(svg: string, prefix: string) {
+function prefixSvgIds(svg: string, prefix: string) {
   const ids = new Set<string>()
   const idRegex = /\bid\s*=\s*(['"])([^'"]+)\1/g
   let match: RegExpExecArray | null

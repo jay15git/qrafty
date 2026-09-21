@@ -109,11 +109,9 @@ import {
 } from "@/features/workspace/components/Canvas"
 import type {
   DesktopBackgroundInspectorTab,
-  DesktopBackgroundSettings,
   DesktopCornersSettings,
   DesktopEncodingSettings,
   DesktopAccessibilitySettings,
-  DesktopEffectsSettings,
   DesktopExportSettings,
   DesktopExportTarget,
   DesktopImageSettings,
@@ -218,7 +216,6 @@ import {
   getDesktopTextSettings,
   getDraftingDownloadTarget,
   getDraftingLayerClipboardPayload,
-  getDraftingQrNodeDownloadTarget,
   isEditableShortcutTarget,
   parseDraftingLayerClipboardPayload,
   parseValueSegmentsText,

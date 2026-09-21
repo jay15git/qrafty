@@ -22,7 +22,7 @@ import type { QrBackgroundShapeDefinition } from "@/features/qr-code/styles/back
 import { ElementShapePrimitivePreview } from "@/features/workspace/components/ElementShapePrimitivePreview"
 import { cn } from "@/lib/utils"
 
-export type ElementShapeOptionGridVariant = "inspector" | "insert-desktop" | "insert-drafting"
+type ElementShapeOptionGridVariant = "inspector" | "insert-desktop" | "insert-drafting"
 
 type ElementShapeOptionGridProps = {
   decorativeDataSlot?: string

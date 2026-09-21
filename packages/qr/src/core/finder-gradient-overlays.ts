@@ -61,7 +61,7 @@ export function getQrSvgNumCells(svg: SVGElement) {
   return null
 }
 
-export function getFinderCornerRegions(
+function getFinderCornerRegions(
   margin: number,
   numCells: number,
   kind: FinderCornerKind,
@@ -329,7 +329,7 @@ function applyFinderGradientOverlay(
   svg.insertBefore(group, findDotMatrixLayerAnchor(svg))
 }
 
-export function applyPortableFinderGradientOverlays(
+function applyPortableFinderGradientOverlays(
   svg: SVGElement,
   {
     finderInnerGradient,

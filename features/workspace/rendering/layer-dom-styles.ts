@@ -60,7 +60,7 @@ export function getDraftingCardBorderStyle(cardState: DraftingCardState): CSSPro
   return getDraftingPerSideBorderStyle(border.sides)
 }
 
-export function getDraftingLayerEffectStyle(layer: DraftingCanvasLayer): CSSProperties {
+function getDraftingLayerEffectStyle(layer: DraftingCanvasLayer): CSSProperties {
   const shadows =
     layer.shadows && layer.shadows.length > 0
       ? layer.shadows

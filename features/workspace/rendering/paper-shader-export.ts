@@ -13,4 +13,3 @@ export function getPaperShaderRenderOptions(shaderId: string) {
   )
 }
 
-export { EXPORT_PAPER_SHADER_MAX_PIXEL_COUNT }

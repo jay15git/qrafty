@@ -492,7 +492,7 @@ function sideOrCornerAngle(
   return 315; // top left
 }
 
-export function parseGradient(input: string): Gradient | null {
+function parseGradient(input: string): Gradient | null {
   const trimmed = input.trim();
   const m = trimmed.match(FN_RE);
   if (!m) return null;

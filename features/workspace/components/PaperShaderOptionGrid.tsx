@@ -15,7 +15,7 @@ import {
 } from "@/features/workspace/rendering/paper-shader-definitions"
 import { cn } from "@/lib/utils"
 
-export type PaperShaderOptionGridVariant = "inspector" | "insert-desktop" | "insert-drafting"
+type PaperShaderOptionGridVariant = "inspector" | "insert-desktop" | "insert-drafting"
 
 type PaperShaderOptionGridProps = {
   columns?: 2 | 3

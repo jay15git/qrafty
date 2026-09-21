@@ -44,7 +44,7 @@ export type LayerFilterEffectItem = {
 
 export type LayerEffectItem = LayerShadowEffectItem | LayerFilterEffectItem
 
-export const LAYER_SHADOW_EFFECT_KINDS: LayerShadowEffectKind[] = ["drop-shadow"]
+const LAYER_SHADOW_EFFECT_KINDS: LayerShadowEffectKind[] = ["drop-shadow"]
 
 export const LAYER_FILTER_EFFECT_KINDS: LayerFilterEffectKind[] = [
   "layer-blur",
@@ -121,7 +121,7 @@ function isPlaceholderShadowLayer(shadow: DraftingShadowLayerState) {
 }
 
 export function listLayerEffects(
-  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
+  layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
 ): LayerEffectItem[] {
   const shadows = (layer.shadows ?? []).filter((shadow) => !isPlaceholderShadowLayer(shadow))
   const filters = layer.layerFilters ?? []
@@ -179,7 +179,7 @@ export function serializeLayerEffects(effects: LayerEffectItem[]): Partial<Draft
 }
 
 export function patchLayerShadowEffect(
-  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
+  layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
   effectId: string,
   patch: Partial<DraftingShadowLayerState>,
 ): Partial<DraftingCanvasLayer> {
@@ -195,7 +195,7 @@ export function patchLayerShadowEffect(
 }
 
 export function getLayerFilterAmount(
-  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
+  layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
   kind: LayerFilterEffectKind,
 ): number {
   const type = FILTER_TYPE_BY_KIND[kind]
@@ -211,7 +211,7 @@ export function getLayerFilterAmount(
 }
 
 export function setLayerFilterAmount(
-  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
+  layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
   kind: LayerFilterEffectKind,
   amount: number,
 ): Partial<DraftingCanvasLayer> {
@@ -241,7 +241,7 @@ export function setLayerFilterAmount(
 }
 
 export function getLayerShadowOpacity(
-  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
+  layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
   kind: LayerShadowEffectKind,
 ): number {
   const shadow = getLayerShadowByKind(layer, kind)
@@ -253,7 +253,7 @@ export function getLayerShadowOpacity(
 }
 
 export function setLayerShadowOpacity(
-  layer: Pick<DraftingCanvasLayer, "layerFilters" | "shadows">,
+  layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
   kind: LayerShadowEffectKind,
   opacity: number,
 ): Partial<DraftingCanvasLayer> {
@@ -291,7 +291,7 @@ export function setLayerShadowOpacity(
 }
 
 function getLayerShadowByKind(
-  layer: Pick<DraftingCanvasLayer, "shadows">,
+  layer: Partial<Pick<DraftingCanvasLayer, "shadows">>,
   kind: LayerShadowEffectKind,
 ) {
   return (layer.shadows ?? []).find(

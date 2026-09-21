@@ -13,7 +13,7 @@ export const DESKTOP_ENTRANCE_PRE_REVEAL_EVENT = "desktop-entrance-pre-reveal"
 const REVEAL_MS = 940
 const MOBILE_INSET_QUERY = "(max-width: 767px)"
 
-export type DesktopEntrancePhase = "loading" | "revealing" | "done"
+type DesktopEntrancePhase = "loading" | "revealing" | "done"
 
 type DesktopWorkspaceEntranceProps = {
   theme: DesktopThemeMode

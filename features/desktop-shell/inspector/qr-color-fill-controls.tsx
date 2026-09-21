@@ -30,7 +30,7 @@ import {
 } from "@/features/desktop-shell/inspector/settings-ui"
 import { cn } from "@/lib/utils"
 
-export type QrColorFillModeTab =
+type QrColorFillModeTab =
   | "Solid"
   | "Linear"
   | "Radial"

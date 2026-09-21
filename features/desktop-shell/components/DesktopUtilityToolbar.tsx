@@ -24,7 +24,7 @@ export function DesktopUtilityToolbar({
   )
 }
 
-export function DesktopUtilityToolbarButton({
+function DesktopUtilityToolbarButton({
   className,
   cuelume = "button",
   type = "button",

@@ -62,7 +62,7 @@ function ensureSvgNamespace(svg: string) {
 }
 
 /** Strip runtime-only attrs and full QR data modules from baked picker SVGs. */
-export function normalizeBakedStylePreviewSvg(
+function normalizeBakedStylePreviewSvg(
   markup: string,
   previewKind: StylePreviewKind,
 ) {

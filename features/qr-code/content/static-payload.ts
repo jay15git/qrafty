@@ -135,7 +135,7 @@ function buildPlatformContentMeta(): Partial<Record<QrInputType, StaticQrContent
   return meta
 }
 
-export const STATIC_QR_CONTENT_META: Record<QrInputType, StaticQrContentMeta> = {
+const STATIC_QR_CONTENT_META: Record<QrInputType, StaticQrContentMeta> = {
   ...STRUCTURED_STATIC_QR_CONTENT_META,
   ...buildPlatformContentMeta(),
 } as Record<QrInputType, StaticQrContentMeta>

@@ -28,6 +28,7 @@ import {
   underdampedHarmonicOscillationMaximums,
   applyToValues,
   scaleOscillationsToOffset,
+  QRCodeEntity,
 } from './animation-utils';
 import {
   remapOpacityToTriplet,
@@ -57,12 +58,7 @@ export {
   SOURCE_PEAK_OPACITY,
 } from './opacity-triplet';
 
-export enum QRCodeEntity {
-  Module = 'module',
-  PositionRing = 'position-ring',
-  PositionCenter = 'position-center',
-  Icon = 'icon',
-}
+export { QRCodeEntity };
 
 export type QRCodeAnimation = (
   targets: any,

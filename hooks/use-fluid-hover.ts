@@ -90,7 +90,7 @@ export interface UseFluidHoverReturn {
   measureItems: () => void;
 }
 
-export interface PickNearestInput {
+interface PickNearestInput {
   axis: "x" | "y" | "xy";
   /** The pointer, in viewport coordinates. */
   point: { x: number; y: number };
@@ -117,7 +117,7 @@ export interface PickNearestInput {
  * first item. The hook calls this once per animation frame; the docs page
  * times it.
  */
-export function pickNearest({
+function pickNearest({
   axis,
   point,
   rects,
@@ -183,9 +183,9 @@ export function pickNearest({
 }
 
 /** Set on the highlighted item (boolean attribute). */
-export const ACTIVE_ATTR = "data-fluid-hover-active";
+const ACTIVE_ATTR = "data-fluid-hover-active";
 /** Set on the container: the highlighted index, or absent. */
-export const ACTIVE_INDEX_ATTR = "data-fluid-hover-active-index";
+const ACTIVE_INDEX_ATTR = "data-fluid-hover-active-index";
 
 const ACTIVATOR_SELECTOR =
   "a[href], button, [role='menuitem'], [role='menuitemradio'], [role='menuitemcheckbox'], [role='option'], [role='radio'], [role='checkbox'], [role='tab'], [role='link'], [role='button']";

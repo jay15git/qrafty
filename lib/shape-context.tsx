@@ -139,5 +139,5 @@ function ShapeProvider({
   );
 }
 
-export { ShapeProvider, useShape, useShapeContext, shapeMap };
+export { useShape, shapeMap };
 export type { ShapeVariant, ShapeClasses };
