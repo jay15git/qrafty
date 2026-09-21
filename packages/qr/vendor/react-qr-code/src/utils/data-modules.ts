@@ -41,7 +41,7 @@ export const getModuleNeighbours = (
   }
 }
 
-export const isRenderableDataModule = ({
+const isRenderableDataModule = ({
   x,
   y,
   modules,

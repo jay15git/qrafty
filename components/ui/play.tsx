@@ -3,11 +3,7 @@
 import type { Variants } from "motion/react";
 import { m } from "motion/react";
 
-import {
-  createAnimatedIcon,
-  type AnimatedIconHandle,
-  type AnimatedIconProps,
-} from "@/components/ui/animated-icon-controls";
+import { createAnimatedIcon } from "@/components/ui/animated-icon-controls";
 
 const PATH_VARIANTS: Variants = {
   normal: {
@@ -51,4 +47,3 @@ const PlayIcon = createAnimatedIcon({
 });
 
 export { PlayIcon };
-export type { AnimatedIconHandle as PlayIconHandle, AnimatedIconProps as PlayIconProps };

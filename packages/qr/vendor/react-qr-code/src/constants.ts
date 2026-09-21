@@ -22,7 +22,6 @@ export const ERROR_LEVEL_MAP: ERROR_LEVEL_MAPPED_TYPE = {
  */
 export const DEFAULT_SIZE = 128
 export const DEFAULT_LEVEL: ErrorCorrectionLevel = 'M'
-export const DEFAULT_BGCOLOR = '#FFFFFF'
 
 export const DEFAULT_MINVERSION = 1
 export const DEFAULT_MARGIN_SIZE = 4

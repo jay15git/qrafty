@@ -1,9 +1,4 @@
-import type { QraftyGradient } from "@/features/qr-code/model/state"
-
-export type QraftyGradientCenter = {
-  x: number
-  y: number
-}
+import type { QraftyGradient, QraftyGradientCenter } from "@/features/qr-code/model/state"
 
 const DEFAULT_STUDIO_GRADIENT_CENTER: QraftyGradientCenter = {
   x: 0.5,

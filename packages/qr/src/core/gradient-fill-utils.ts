@@ -44,7 +44,7 @@ function hasReplaceablePaint(value: string | null) {
   return value !== null && value !== "none"
 }
 
-export function applyDirectGradientFillWithContext(
+function applyDirectGradientFillWithContext(
   element: SVGElement,
   gradientRef: string,
   inherited: SvgPaintContext,

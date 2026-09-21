@@ -18,20 +18,8 @@
   },
   "ignoreExports": [
     {
-      "file": "packages/qr/vendor/react-qr-code/src/**",
-      "exports": ["*"]
-    },
-    {
-      "file": "components/ui/fill-picker/lib/gradient.ts",
-      "exports": ["*"]
-    },
-    {
-      "file": "features/qr-code/model/state.ts",
-      "exports": ["*"]
-    },
-    {
-      "file": "features/qr-code/styles/qrafty-gradient-geometry.ts",
-      "exports": ["*"]
+      "file": "packages/qr/vendor/react-qr-code/src/lib/qrcodegen/index.ts",
+      "exports": ["QrCode", "QrSegment", "Ecc", "Mode"]
     }
   ]
 }

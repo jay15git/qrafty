@@ -8,7 +8,7 @@ const WEBP_QUALITY = 85
 
 export const ALLOWED_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp"])
 
-export function ensureDir(dir) {
+function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true })
 }
 
@@ -30,7 +30,7 @@ export function titleCase(label) {
     .join(" ")
 }
 
-export async function download(url, dest) {
+async function download(url, dest) {
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`Failed to download ${url}: ${response.status}`)
@@ -39,7 +39,7 @@ export async function download(url, dest) {
   fs.writeFileSync(dest, buffer)
 }
 
-export function resizeToWebp(inputPath, outputPath, maxWidth) {
+function resizeToWebp(inputPath, outputPath, maxWidth) {
   execFileSync(
     "magick",
     [

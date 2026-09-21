@@ -3,11 +3,7 @@
 import type { Variants } from "motion/react";
 import { m } from "motion/react";
 
-import {
-  createAnimatedIcon,
-  type AnimatedIconHandle,
-  type AnimatedIconProps,
-} from "@/components/ui/animated-icon-controls";
+import { createAnimatedIcon } from "@/components/ui/animated-icon-controls";
 
 const ARROW_VARIANTS: Variants = {
   normal: { y: 0 },
@@ -47,4 +43,3 @@ const DownloadIcon = createAnimatedIcon({
 });
 
 export { DownloadIcon };
-export type { AnimatedIconHandle as DownloadIconHandle, AnimatedIconProps as DownloadIconProps };

@@ -3,11 +3,7 @@
 import type { Transition } from "motion/react";
 import { m } from "motion/react";
 
-import {
-  createAnimatedIcon,
-  type AnimatedIconHandle,
-  type AnimatedIconProps,
-} from "@/components/ui/animated-icon-controls";
+import { createAnimatedIcon } from "@/components/ui/animated-icon-controls";
 
 const DEFAULT_TRANSITION: Transition = {
   type: "spring",
@@ -60,4 +56,3 @@ const LayersIcon = createAnimatedIcon({
 });
 
 export { LayersIcon };
-export type { AnimatedIconHandle as LayersIconHandle, AnimatedIconProps as LayersIconProps };

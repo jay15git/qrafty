@@ -1,14 +1,19 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "project": [
-    "app/**/*.{js,jsx,ts,tsx,css}",
-    "components/**/*.{js,jsx,ts,tsx,css}",
-    "features/**/*.{js,jsx,ts,tsx,css}",
-    "hooks/**/*.{js,jsx,ts,tsx}",
-    "lib/**/*.{js,jsx,ts,tsx}",
-    "test-utils/**/*.{js,jsx,ts,tsx}",
-    "*.{js,mjs,cjs,ts,mts,cts}"
-  ],
+  "workspaces": {
+    ".": {
+      "project": [
+        "app/**/*.{js,jsx,ts,tsx,css}",
+        "components/**/*.{js,jsx,ts,tsx,css}",
+        "features/**/*.{js,jsx,ts,tsx,css}",
+        "hooks/**/*.{js,jsx,ts,tsx}",
+        "lib/**/*.{js,jsx,ts,tsx}",
+        "test-utils/**/*.{js,jsx,ts,tsx}",
+        "*.{js,mjs,cjs,ts,mts,cts}"
+      ]
+    },
+    "packages/qr": {}
+  },
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true

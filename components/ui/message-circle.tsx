@@ -3,11 +3,7 @@
 import type { Variants } from "motion/react";
 import { m } from "motion/react";
 
-import {
-  createAnimatedIcon,
-  type AnimatedIconHandle,
-  type AnimatedIconProps,
-} from "@/components/ui/animated-icon-controls";
+import { createAnimatedIcon } from "@/components/ui/animated-icon-controls";
 
 const ICON_VARIANTS: Variants = {
   normal: {
@@ -54,4 +50,3 @@ const MessageCircleIcon = createAnimatedIcon({
 });
 
 export { MessageCircleIcon };
-export type { AnimatedIconHandle as MessageCircleIconHandle, AnimatedIconProps as MessageCircleIconProps };

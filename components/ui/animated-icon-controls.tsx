@@ -6,18 +6,18 @@ import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 
-export interface AnimatedIconHandle {
+interface AnimatedIconHandle {
   startAnimation: () => void;
   stopAnimation: () => void;
 }
 
-export interface AnimatedIconProps extends HTMLAttributes<HTMLDivElement> {
+interface AnimatedIconProps extends HTMLAttributes<HTMLDivElement> {
   size?: number;
 }
 
 /** Shared hover/controlled animation wiring for the animate-ui style icons:
  *  imperative start/stop via ref, hover plays `play`, leave returns to normal. */
-export function useAnimatedIconControls({
+function useAnimatedIconControls({
   ref,
   onMouseEnter,
   onMouseLeave,
