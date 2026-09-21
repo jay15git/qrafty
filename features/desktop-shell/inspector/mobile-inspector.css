@@ -144,6 +144,18 @@
   height: auto;
 }
 
+/* Inactive tabs keep the full foreground color on mobile — no muted fade.
+   Selected-tab color rules still take precedence. */
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .t-tab:not([aria-selected="true"]),
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-segment-tab:not([aria-selected="true"]),
+.dn-portal-surface[data-mobile-inspector] .t-tab:not([aria-selected="true"]),
+.dn-portal-surface[data-mobile-inspector] .dn-segment-tab:not([aria-selected="true"]),
+.desktopnew-root[data-mobile-inspector] .t-tab:not([aria-selected="true"]),
+.desktopnew-root[data-mobile-inspector] .dn-segment-tab:not([aria-selected="true"]),
+[data-slot="mobile-settings-rail-root"] .t-tab:not([aria-selected="true"]) {
+  color: var(--dn-fg);
+}
+
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .t-tab,
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-segment-tab,
 .dn-portal-surface[data-mobile-inspector] .t-tab,
@@ -192,7 +204,7 @@
   padding: 0.875rem;
   border-radius: 9999px;
   corner-shape: round;
-  background: color-mix(in srgb, var(--dn-fg) 20%, transparent);
+  background: var(--dn-mobile-button-bg, #ffffff);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-label,
@@ -816,7 +828,7 @@
   justify-content: center;
   border-radius: 9999px;
   corner-shape: round;
-  background: color-mix(in srgb, var(--dn-fg) 20%, transparent);
+  background: var(--dn-mobile-button-bg, #ffffff);
   color: var(--dn-fg);
   transition: scale 150ms cubic-bezier(0.2, 0, 0, 1);
 }
@@ -850,7 +862,7 @@
   padding-inline: 0.5rem;
   border-radius: 9999px;
   corner-shape: round;
-  background: color-mix(in srgb, var(--dn-fg) 20%, transparent);
+  background: var(--dn-mobile-button-bg, #ffffff);
   color: var(--dn-fg);
   font-size: var(--dn-type-caption);
   font-weight: 500;
@@ -915,7 +927,7 @@
 [data-slot="mobile-settings-rail-root"]
   .dn-mobile-settings-rail__item--pill[aria-pressed="true"]
   .dn-mobile-settings-rail__pill {
-  background: color-mix(in srgb, var(--dn-fg) 32%, transparent);
+  background: color-mix(in srgb, var(--dn-fg) 16%, var(--dn-mobile-button-bg, #ffffff));
 }
 
 /* Fill-mode row under the options scrollarea (Color / Background). The
