@@ -232,6 +232,36 @@ export type DesktopInspectorOptionGridRowKind =
 
 export type DesktopInspectorOptionGridVariant = "preset" | "compact" | "content"
 
+const GRID_ROW_HEIGHT_HORIZONTAL: Record<DesktopInspectorOptionGridRowKind, string> = {
+  square: "h-[5.75rem]",
+  labeled: "h-[5.75rem]",
+  "h-12": "h-14",
+  "h-10": "h-12",
+  "h-9": "h-11",
+  "h-8": "h-10",
+  content: "h-[5.75rem]",
+}
+
+const GRID_ROW_HEIGHT_VERTICAL: Record<DesktopInspectorOptionGridRowKind, string> = {
+  "h-12": "h-[10.5rem]",
+  "h-10": "h-[7.125rem]",
+  "h-9": "h-[6.75rem]",
+  "h-8": "h-[6.375rem]",
+  content: "h-[11.625rem]",
+  square: "",
+  labeled: "",
+}
+
+function defaultRowKind(
+  variant: DesktopInspectorOptionGridVariant,
+  columns: DesktopInspectorOptionGridColumns,
+  orientation: "vertical" | "horizontal",
+): DesktopInspectorOptionGridRowKind {
+  if (variant === "preset") return "square"
+  if (variant === "content" && orientation === "vertical") return "content"
+  return columns === 4 ? "h-12" : "h-10"
+}
+
 function desktopOptionGridScrollHeightClass({
   columns = 3,
   orientation = "vertical",
@@ -243,55 +273,23 @@ function desktopOptionGridScrollHeightClass({
   rowKind?: DesktopInspectorOptionGridRowKind
   variant: DesktopInspectorOptionGridVariant
 }): string {
+  const resolvedRowKind = rowKind ?? defaultRowKind(variant, columns, orientation)
+
   if (orientation === "horizontal") {
-    const resolvedRowKind: DesktopInspectorOptionGridRowKind =
-      rowKind ?? (variant === "preset" ? "square" : columns === 4 ? "h-12" : "h-10")
-
-    switch (resolvedRowKind) {
-      case "square":
-      case "labeled":
-        return "h-[5.75rem]"
-      case "h-12":
-        return "h-14"
-      case "h-10":
-        return "h-12"
-      case "h-9":
-        return "h-11"
-      case "h-8":
-        return "h-10"
-      case "content":
-        return "h-[5.75rem]"
-    }
+    return GRID_ROW_HEIGHT_HORIZONTAL[resolvedRowKind]
   }
 
-  const resolvedRowKind: DesktopInspectorOptionGridRowKind =
-    rowKind ??
-    (variant === "content"
-      ? "content"
-      : variant === "preset"
-        ? "square"
-        : columns === 4
-          ? "h-12"
-          : "h-10")
-
-  switch (resolvedRowKind) {
-    case "square":
-      if (columns === 2) return "h-[24.75rem]"
-      if (columns === 4) return "h-[12.75rem]"
-      return "h-[16.5rem]"
-    case "labeled":
-      return columns === 2 ? "h-[20.25rem]" : "h-[16.5rem]"
-    case "h-12":
-      return "h-[10.5rem]"
-    case "h-10":
-      return "h-[7.125rem]"
-    case "h-9":
-      return "h-[6.75rem]"
-    case "h-8":
-      return "h-[6.375rem]"
-    case "content":
-      return "h-[11.625rem]"
+  if (resolvedRowKind === "square") {
+    if (columns === 2) return "h-[24.75rem]"
+    if (columns === 4) return "h-[12.75rem]"
+    return "h-[16.5rem]"
   }
+
+  if (resolvedRowKind === "labeled") {
+    return columns === 2 ? "h-[20.25rem]" : "h-[16.5rem]"
+  }
+
+  return GRID_ROW_HEIGHT_VERTICAL[resolvedRowKind]
 }
 
 export function DesktopInspectorScrollArea({ children }: { children: ReactNode }) {

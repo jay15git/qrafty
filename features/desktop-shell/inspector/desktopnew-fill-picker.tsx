@@ -26,6 +26,8 @@ import { DESKTOP_DOTS_PALETTE_PRESETS } from "@/features/desktop-shell/inspector
 import {
   fillFromHex,
   normalizeFillForQrTarget,
+  type ModuleImageControl,
+  type ModulePatternControl,
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { PaletteColorBarPreview } from "@/features/desktop-shell/inspector/palette-color-bar-preview"
@@ -76,6 +78,87 @@ function moduleFillTabFromDotsColorMode(mode: DotsColorMode): ModuleFillTabMode 
   }
 }
 
+const FILL_TAB_LABELS: Record<ModuleFillTabMode, string> = {
+  color: "Solid",
+  gradient: "Gradient",
+  image: "Image",
+  pattern: "Pattern",
+}
+
+const FILL_TAB_MODES: Record<string, ModuleFillTabMode> = {
+  Gradient: "gradient",
+  Image: "image",
+  Pattern: "pattern",
+  Solid: "color",
+}
+
+function resolveInitialFillPickerMode({
+  initialFill,
+  lockedFillMode,
+  moduleFillMode,
+  resolvedSolidOnly,
+}: {
+  initialFill: Fill
+  lockedFillMode?: LockedFillPickerMode
+  moduleFillMode?: DotsColorMode
+  resolvedSolidOnly: boolean
+}): ModuleFillTabMode {
+  if (lockedFillMode) {
+    return lockedFillModeToTab(lockedFillMode)
+  }
+  if (resolvedSolidOnly) {
+    return "color"
+  }
+  if (moduleFillMode) {
+    return moduleFillTabFromDotsColorMode(moduleFillMode)
+  }
+  return initialFill.kind === "gradient" ? "gradient" : "color"
+}
+
+function FillPickerColorPane() {
+  return (
+    <FillPicker.Pane
+      className="dn-settings-tab-panel dn-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
+      mode="color"
+    >
+      <ColorPicker.Area className="dn-fill-picker-area" />
+      <ColorPicker.Hue className="dn-fill-picker-slider" />
+      <ColorPicker.Alpha className="dn-fill-picker-slider" />
+      <ColorPicker.ChannelInput className="dn-fill-picker-channel-input" />
+    </FillPicker.Pane>
+  )
+}
+
+function FillPickerGradientPane({ qrGradient }: { qrGradient: boolean }) {
+  return (
+    <FillPicker.Pane
+      className="dn-settings-tab-panel dn-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
+      mode="gradient"
+    >
+      <div className="flex w-full min-w-0 gap-2">
+        <DesktopGradientTypeRow
+          allowedTypes={qrGradient ? [...QR_GRADIENT_TYPES] : undefined}
+        />
+        <DesktopGradientInterpRow />
+      </div>
+      <GradientPicker.AngleGroup className="dn-fill-picker-angle-group">
+        <GradientPicker.AnglePad
+          className="dn-fill-picker-angle-pad"
+          size={32}
+        />
+        <GradientPicker.AngleInput className="dn-fill-picker-field" />
+      </GradientPicker.AngleGroup>
+      <GradientPicker.Bar className="dn-fill-picker-gradient-bar" />
+      <GradientPicker.StopColor>
+        <ColorPicker.Area className="dn-fill-picker-area" />
+        <ColorPicker.Hue className="dn-fill-picker-slider" />
+        <ColorPicker.Alpha className="dn-fill-picker-slider" />
+        <ColorPicker.ChannelInput className="dn-fill-picker-channel-input" />
+      </GradientPicker.StopColor>
+    </FillPicker.Pane>
+  )
+}
+
 export function DesktopNewFillPicker({
   value,
   onValueChange,
@@ -95,17 +178,8 @@ export function DesktopNewFillPicker({
   /** Limits gradients to linear/radial circle — for module, eye, frame, logo. */
   qrGradient?: boolean
   moduleFillMode?: DotsColorMode
-  modulePattern?: {
-    selectedPalette: string[]
-    selectedPreset: string | "custom"
-    onSelect: (preset: { label: string; colors: string[] } | "custom") => void
-    onPaletteColorChange: (index: number, color: string) => void
-  }
-  moduleImage?: {
-    imageUrl: string
-    onUpload: (imageUrl: string) => void
-    onClear: () => void
-  }
+  modulePattern?: ModulePatternControl
+  moduleImage?: ModuleImageControl
 }) {
   // Snapshot on mount. Controlled CSS round-trips through formatGradient,
   // which bakes Area start/end into stop percentages. parseFill cannot
@@ -117,15 +191,12 @@ export function DesktopNewFillPicker({
   )
   const initialFill = initialFillRef.current
   const resolvedSolidOnly = solidOnly || lockedFillMode === "solid"
-  const initialMode: ModuleFillTabMode = lockedFillMode
-    ? lockedFillModeToTab(lockedFillMode)
-    : resolvedSolidOnly
-      ? "color"
-      : moduleFillMode
-        ? moduleFillTabFromDotsColorMode(moduleFillMode)
-        : initialFill.kind === "gradient"
-          ? "gradient"
-          : "color"
+  const initialMode = resolveInitialFillPickerMode({
+    initialFill,
+    lockedFillMode,
+    moduleFillMode,
+    resolvedSolidOnly,
+  })
   const fillPickerInitialMode = initialMode === "gradient" ? "gradient" : "color"
   const [activeMode, setActiveMode] = useState<ModuleFillTabMode>(initialMode)
   const pickerMode = activeMode === "gradient" ? "gradient" : "color"
@@ -133,7 +204,7 @@ export function DesktopNewFillPicker({
   const theme = useContext(DesktopnewThemeContext)
   const showModeTabs = !resolvedSolidOnly && !lockedFillMode
   const showSolidPane = resolvedSolidOnly || lockedFillMode !== "gradient"
-  const showGradientPane = !resolvedSolidOnly && lockedFillMode !== "solid"
+  const showGradientPane = !resolvedSolidOnly
 
   useEffect(() => {
     if (!lockedFillMode) {
@@ -191,28 +262,14 @@ export function DesktopNewFillPicker({
       {showModeTabs ? (
         <SegmentTabs
           className="dn-fill-picker-mode-tabs self-stretch"
-          items={
-            modulePattern
-              ? moduleImage
-                ? ["Solid", "Gradient", "Pattern", "Image"]
-                : ["Solid", "Gradient", "Pattern"]
-              : ["Solid", "Gradient"]
-          }
-          value={
-            activeMode === "color"
-              ? "Solid"
-              : activeMode === "gradient"
-                ? "Gradient"
-                : activeMode === "image"
-                  ? "Image"
-                  : "Pattern"
-          }
-          onChange={(item) => {
-            if (item === "Solid") setActiveMode("color")
-            else if (item === "Gradient") setActiveMode("gradient")
-            else if (item === "Image") setActiveMode("image")
-            else setActiveMode("pattern")
-          }}
+          items={[
+            "Solid",
+            "Gradient",
+            ...(modulePattern ? ["Pattern"] : []),
+            ...(modulePattern && moduleImage ? ["Image"] : []),
+          ]}
+          value={FILL_TAB_LABELS[activeMode]}
+          onChange={(item) => setActiveMode(FILL_TAB_MODES[item] ?? "color")}
         />
       ) : null}
       {activeMode === "pattern" && modulePattern ? (
@@ -221,44 +278,8 @@ export function DesktopNewFillPicker({
         <ModuleImagePicker {...moduleImage} />
       ) : (
         <>
-          {showSolidPane ? (
-            <FillPicker.Pane
-              className="dn-settings-tab-panel dn-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
-              mode="color"
-            >
-              <ColorPicker.Area className="dn-fill-picker-area" />
-              <ColorPicker.Hue className="dn-fill-picker-slider" />
-              <ColorPicker.Alpha className="dn-fill-picker-slider" />
-              <ColorPicker.ChannelInput className="dn-fill-picker-channel-input" />
-            </FillPicker.Pane>
-          ) : null}
-          {showGradientPane ? (
-            <FillPicker.Pane
-              className="dn-settings-tab-panel dn-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
-              mode="gradient"
-            >
-              <div className="flex w-full min-w-0 gap-2">
-                <DesktopGradientTypeRow
-                  allowedTypes={qrGradient ? [...QR_GRADIENT_TYPES] : undefined}
-                />
-                <DesktopGradientInterpRow />
-              </div>
-              <GradientPicker.AngleGroup className="dn-fill-picker-angle-group">
-                <GradientPicker.AnglePad
-                  className="dn-fill-picker-angle-pad"
-                  size={32}
-                />
-                <GradientPicker.AngleInput className="dn-fill-picker-field" />
-              </GradientPicker.AngleGroup>
-              <GradientPicker.Bar className="dn-fill-picker-gradient-bar" />
-              <GradientPicker.StopColor>
-                <ColorPicker.Area className="dn-fill-picker-area" />
-                <ColorPicker.Hue className="dn-fill-picker-slider" />
-                <ColorPicker.Alpha className="dn-fill-picker-slider" />
-                <ColorPicker.ChannelInput className="dn-fill-picker-channel-input" />
-              </GradientPicker.StopColor>
-            </FillPicker.Pane>
-          ) : null}
+          {showSolidPane ? <FillPickerColorPane /> : null}
+          {showGradientPane ? <FillPickerGradientPane qrGradient={qrGradient} /> : null}
         </>
       )}
     </FillPicker.Root>

@@ -82,59 +82,6 @@ vi.mock("@/components/ui/popover", () => ({
   },
 }))
 
-vi.mock("@/components/vendor/unlumen-ui/slider", () => ({
-  Slider: ({
-    "aria-label": ariaLabel,
-    formatValue,
-    label,
-    appearance,
-    disabled,
-    max,
-    min,
-    onChange,
-    showValue = true,
-    step,
-    value,
-    "data-slot": dataSlot,
-  }: {
-    "aria-label"?: string
-    "data-slot"?: string
-    appearance?: string
-    formatValue?: (value: number) => string
-    label?: string
-    disabled?: boolean
-    max?: number
-    min?: number
-    onChange?: (value: number | [number, number]) => void
-    showValue?: boolean
-    step?: number
-    value?: number | number[]
-  }) => (
-    <div data-slot={dataSlot} data-appearance={appearance}>
-      {label && showValue ? (
-        <span>
-          {label}
-          {formatValue
-            ? `: ${formatValue(Array.isArray(value) ? (value[0] ?? 0) : (value ?? 0))}`
-            : null}
-        </span>
-      ) : null}
-      <input
-        aria-label={ariaLabel}
-        disabled={disabled}
-        max={max}
-        min={min}
-        step={step}
-        type="range"
-        value={Array.isArray(value) ? (value[0] ?? min ?? 0) : (value ?? min ?? 0)}
-        onChange={(event) => {
-          onChange?.(Number(event.currentTarget.value))
-        }}
-      />
-    </div>
-  ),
-}))
-
 import { WorkspaceSurface } from "@/features/workspace/components/WorkspaceSurface"
 import { FloatingToolbar } from "@/features/desktop-shell/components/FloatingToolbar"
 import { clearDraftingQrMarkupCache } from "@/features/workspace/hooks/use-drafting-qr-markup"

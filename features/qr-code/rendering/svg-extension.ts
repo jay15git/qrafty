@@ -1520,25 +1520,24 @@ function getPathDataBounds(pathDefinition: string | null): SvgShapeBounds | null
     const params = tokens.slice(index, index + arity).map(Number)
     index += arity
     const isRelative = command !== normalized
+    const abs = (value: number, base: number) => (isRelative ? base + value : value)
 
     if (normalized === "h") {
-      cursorX = isRelative ? cursorX + params[0]! : params[0]!
+      cursorX = abs(params[0]!, cursorX)
       pushPoint(cursorX, cursorY)
       continue
     }
 
     if (normalized === "v") {
-      cursorY = isRelative ? cursorY + params[0]! : params[0]!
+      cursorY = abs(params[0]!, cursorY)
       pushPoint(cursorX, cursorY)
       continue
     }
 
     if (normalized === "a") {
-      const endX = isRelative ? cursorX + params[5]! : params[5]!
-      const endY = isRelative ? cursorY + params[6]! : params[6]!
-      cursorX = endX
-      cursorY = endY
-      pushPoint(endX, endY)
+      cursorX = abs(params[5]!, cursorX)
+      cursorY = abs(params[6]!, cursorY)
+      pushPoint(cursorX, cursorY)
       continue
     }
 
@@ -1546,13 +1545,8 @@ function getPathDataBounds(pathDefinition: string | null): SvgShapeBounds | null
     const baseY = cursorY
 
     for (let pair = 0; pair + 1 < arity; pair += 2) {
-      let x = params[pair]!
-      let y = params[pair + 1]!
-
-      if (isRelative) {
-        x += baseX
-        y += baseY
-      }
+      const x = abs(params[pair]!, baseX)
+      const y = abs(params[pair + 1]!, baseY)
 
       pushPoint(x, y)
 
@@ -1574,83 +1568,91 @@ function getPathDataBounds(pathDefinition: string | null): SvgShapeBounds | null
   return { height: maxY - minY, width: maxX - minX, x: minX, y: minY }
 }
 
+function getBoxShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+  const width = getDotNumericAttribute(shape, "width")
+  const height = getDotNumericAttribute(shape, "height")
+
+  if (width === null || height === null) {
+    return null
+  }
+
+  return {
+    height,
+    width,
+    x: getDotNumericAttribute(shape, "x") ?? 0,
+    y: getDotNumericAttribute(shape, "y") ?? 0,
+  }
+}
+
+function getCircleShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+  const cx = getDotNumericAttribute(shape, "cx")
+  const cy = getDotNumericAttribute(shape, "cy")
+  const r = getDotNumericAttribute(shape, "r")
+
+  if (cx === null || cy === null || r === null) {
+    return null
+  }
+
+  return { height: r * 2, width: r * 2, x: cx - r, y: cy - r }
+}
+
+function getEllipseShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+  const cx = getDotNumericAttribute(shape, "cx")
+  const cy = getDotNumericAttribute(shape, "cy")
+  const rx = getDotNumericAttribute(shape, "rx")
+  const ry = getDotNumericAttribute(shape, "ry")
+
+  if (cx === null || cy === null || rx === null || ry === null) {
+    return null
+  }
+
+  return { height: ry * 2, width: rx * 2, x: cx - rx, y: cy - ry }
+}
+
+function unionShapeBounds(a: SvgShapeBounds, b: SvgShapeBounds): SvgShapeBounds {
+  const x = Math.min(a.x, b.x)
+  const y = Math.min(a.y, b.y)
+  return {
+    height: Math.max(a.y + a.height, b.y + b.height) - y,
+    width: Math.max(a.x + a.width, b.x + b.width) - x,
+    x,
+    y,
+  }
+}
+
+function getGroupShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+  let combined: SvgShapeBounds | null = null
+
+  for (const child of Array.from(shape.children)) {
+    if (!isSvgElementLike(child)) {
+      continue
+    }
+
+    const childBounds = getSvgShapeBounds(child)
+
+    if (childBounds) {
+      combined = combined ? unionShapeBounds(combined, childBounds) : childBounds
+    }
+  }
+
+  return combined
+}
+
+const SVG_SHAPE_BOUNDS_READERS: Record<
+  string,
+  (shape: SVGElement) => SvgShapeBounds | null
+> = {
+  circle: getCircleShapeBounds,
+  ellipse: getEllipseShapeBounds,
+  g: getGroupShapeBounds,
+  image: getBoxShapeBounds,
+  path: (shape) => getPathDataBounds(shape.getAttribute("d")),
+  rect: getBoxShapeBounds,
+  svg: getBoxShapeBounds,
+}
+
 function getSvgShapeBounds(shape: SVGElement): SvgShapeBounds | null {
-  const tagName = shape.tagName.toLowerCase()
-
-  if (tagName === "path") {
-    return getPathDataBounds(shape.getAttribute("d"))
-  }
-
-  if (tagName === "rect" || tagName === "image" || tagName === "svg") {
-    const x = getDotNumericAttribute(shape, "x") ?? 0
-    const y = getDotNumericAttribute(shape, "y") ?? 0
-    const width = getDotNumericAttribute(shape, "width")
-    const height = getDotNumericAttribute(shape, "height")
-
-    if (width !== null && height !== null) {
-      return { height, width, x, y }
-    }
-
-    return null
-  }
-
-  if (tagName === "circle") {
-    const cx = getDotNumericAttribute(shape, "cx")
-    const cy = getDotNumericAttribute(shape, "cy")
-    const r = getDotNumericAttribute(shape, "r")
-
-    if (cx !== null && cy !== null && r !== null) {
-      return { height: r * 2, width: r * 2, x: cx - r, y: cy - r }
-    }
-
-    return null
-  }
-
-  if (tagName === "ellipse") {
-    const cx = getDotNumericAttribute(shape, "cx")
-    const cy = getDotNumericAttribute(shape, "cy")
-    const rx = getDotNumericAttribute(shape, "rx")
-    const ry = getDotNumericAttribute(shape, "ry")
-
-    if (cx !== null && cy !== null && rx !== null && ry !== null) {
-      return { height: ry * 2, width: rx * 2, x: cx - rx, y: cy - ry }
-    }
-
-    return null
-  }
-
-  if (tagName === "g") {
-    let combined: SvgShapeBounds | null = null
-
-    for (const child of Array.from(shape.children)) {
-      if (!isSvgElementLike(child)) {
-        continue
-      }
-
-      const childBounds = getSvgShapeBounds(child)
-
-      if (!childBounds) {
-        continue
-      }
-
-      combined = combined
-        ? {
-            height:
-              Math.max(combined.y + combined.height, childBounds.y + childBounds.height) -
-              Math.min(combined.y, childBounds.y),
-            width:
-              Math.max(combined.x + combined.width, childBounds.x + childBounds.width) -
-              Math.min(combined.x, childBounds.x),
-            x: Math.min(combined.x, childBounds.x),
-            y: Math.min(combined.y, childBounds.y),
-          }
-        : childBounds
-    }
-
-    return combined
-  }
-
-  return null
+  return SVG_SHAPE_BOUNDS_READERS[shape.tagName.toLowerCase()]?.(shape) ?? null
 }
 
 function getDotNumericAttribute(shape: SVGElement, attributeName: string) {
@@ -1994,28 +1996,50 @@ function trBlPathNormFromIndex(cell: DotMatrixCell) {
   return (row + (matrixSize - 1 - col)) / ((matrixSize - 1) * 2)
 }
 
+type DotMatrixPatternCellContext = {
+  row: number
+  col: number
+  center: number
+  distance: number
+  manhattan: number
+  angle: number
+  onEdge: boolean
+  diamondRadius: number
+}
+
+const DOT_MATRIX_PATTERN_PREDICATES: Record<
+  QrDotMatrixAnimationOptions["pattern"],
+  (cell: DotMatrixPatternCellContext) => boolean
+> = {
+  full: () => true,
+  diamond: (c) => c.manhattan <= c.diamondRadius,
+  outline: (c) => c.onEdge,
+  cross: (c) => Math.abs(c.row - c.center) < 0.5 || Math.abs(c.col - c.center) < 0.5,
+  rings: (c) => c.distance >= 1 || c.onEdge,
+  rose: (c) => Math.abs(Math.sin(3 * c.angle)) > 0.5 && c.distance >= 1,
+}
+
 function getDotMatrixPatternIndexes(pattern: QrDotMatrixAnimationOptions["pattern"], matrixSize: number) {
   const indexes: number[] = []
   const center = getDotMatrixCenter(matrixSize)
   const diamondRadius = Math.max(2, Math.floor(matrixSize / 2))
+  const predicate = DOT_MATRIX_PATTERN_PREDICATES[pattern]
 
   for (let row = 0; row < matrixSize; row += 1) {
     for (let col = 0; col < matrixSize; col += 1) {
-      const index = rowMajorIndex(row, col, matrixSize)
-      const distance = Math.hypot(row - center, col - center)
-      const manhattan = Math.abs(row - center) + Math.abs(col - center)
-      const angle = Math.atan2(row - center, col - center)
-      const active =
-        pattern === "full" ||
-        (pattern === "diamond" && manhattan <= diamondRadius) ||
-        (pattern === "outline" &&
-          (row === 0 || col === 0 || row === matrixSize - 1 || col === matrixSize - 1)) ||
-        (pattern === "cross" && (Math.abs(row - center) < 0.5 || Math.abs(col - center) < 0.5)) ||
-        (pattern === "rings" && (distance >= 1 || row === 0 || col === 0 || row === matrixSize - 1 || col === matrixSize - 1)) ||
-        (pattern === "rose" && Math.abs(Math.sin(3 * angle)) > 0.5 && distance >= 1)
+      const active = predicate({
+        row,
+        col,
+        center,
+        distance: Math.hypot(row - center, col - center),
+        manhattan: Math.abs(row - center) + Math.abs(col - center),
+        angle: Math.atan2(row - center, col - center),
+        onEdge: row === 0 || col === 0 || row === matrixSize - 1 || col === matrixSize - 1,
+        diamondRadius,
+      })
 
       if (active) {
-        indexes.push(index)
+        indexes.push(rowMajorIndex(row, col, matrixSize))
       }
     }
   }
@@ -2555,41 +2579,28 @@ function normalizeBackgroundShapeOptions(
     options?.paddingPx === undefined && typeof options?.sizePercent === "number"
       ? getLegacyBackgroundShapePaddingPx(options.sizePercent)
       : undefined
+  const numField = (
+    key: keyof typeof DEFAULT_BACKGROUND_SHAPE_OPTIONS,
+    normalize: (value: number, fallback: number) => number,
+    fallbackOverride?: number,
+  ) => {
+    const fallback = DEFAULT_BACKGROUND_SHAPE_OPTIONS[key] as number
+    return normalize((options?.[key] as number | undefined) ?? fallbackOverride ?? fallback, fallback)
+  }
 
   return {
     ...DEFAULT_BACKGROUND_SHAPE_OPTIONS,
     ...options,
-    edgeBlur: coerceNonNegativeSvgNumber(
-      options?.edgeBlur ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.edgeBlur,
-      DEFAULT_BACKGROUND_SHAPE_OPTIONS.edgeBlur,
-    ),
-    paddingPx: coerceNonNegativeSvgNumber(
-      options?.paddingPx ?? legacyPaddingPx ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.paddingPx,
-      DEFAULT_BACKGROUND_SHAPE_OPTIONS.paddingPx,
-    ),
+    edgeBlur: numField("edgeBlur", coerceNonNegativeSvgNumber),
+    paddingPx: numField("paddingPx", coerceNonNegativeSvgNumber, legacyPaddingPx),
     shadowColor: options?.shadowColor ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowColor,
-    shadowOffsetX: clampBackgroundShapeOffset(
-      options?.shadowOffsetX ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowOffsetX,
-    ),
-    shadowOffsetY: clampBackgroundShapeOffset(
-      options?.shadowOffsetY ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowOffsetY,
-    ),
-    shadowOpacity: clampBackgroundShapeOpacity(
-      options?.shadowOpacity ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowOpacity,
-    ),
-    strokeOpacity: clampBackgroundShapeOpacity(
-      options?.strokeOpacity ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.strokeOpacity,
-    ),
-    strokeWidth: coerceNonNegativeSvgNumber(
-      options?.strokeWidth ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.strokeWidth,
-      DEFAULT_BACKGROUND_SHAPE_OPTIONS.strokeWidth,
-    ),
-    tiltX: clampBackgroundShapeTilt(
-      options?.tiltX ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.tiltX,
-    ),
-    tiltY: clampBackgroundShapeTilt(
-      options?.tiltY ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.tiltY,
-    ),
+    shadowOffsetX: numField("shadowOffsetX", clampBackgroundShapeOffset),
+    shadowOffsetY: numField("shadowOffsetY", clampBackgroundShapeOffset),
+    shadowOpacity: numField("shadowOpacity", clampBackgroundShapeOpacity),
+    strokeOpacity: numField("strokeOpacity", clampBackgroundShapeOpacity),
+    strokeWidth: numField("strokeWidth", coerceNonNegativeSvgNumber),
+    tiltX: numField("tiltX", clampBackgroundShapeTilt),
+    tiltY: numField("tiltY", clampBackgroundShapeTilt),
   }
 }
 

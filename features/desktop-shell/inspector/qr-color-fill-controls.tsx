@@ -8,7 +8,11 @@ import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import type { DotsColorMode } from "@/features/qr-code/model/state"
 import { DesktopNewFillPicker } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
-import { isGradientFill } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import {
+  isGradientFill,
+  type ModuleImageControl,
+  type ModulePatternControl,
+} from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import {
   SettingsImageOptionGrid,
   SettingsImageUploadTile,
@@ -206,17 +210,8 @@ export function QrColorFillControls({
   moduleFillMode?: DotsColorMode
   fillPreviewImageUrl?: string
   qrGradient?: boolean
-  modulePattern?: {
-    selectedPalette: string[]
-    selectedPreset: string | "custom"
-    onSelect: (preset: { label: string; colors: string[] } | "custom") => void
-    onPaletteColorChange: (index: number, color: string) => void
-  }
-  moduleImage?: {
-    imageUrl: string
-    onUpload: (imageUrl: string, sourceMode?: "upload" | "url") => void
-    onClear: () => void
-  }
+  modulePattern?: ModulePatternControl
+  moduleImage?: ModuleImageControl
 }) {
   const mobileDensity = useMobileInspectorDensity()
   const modeTabs = moduleCapable

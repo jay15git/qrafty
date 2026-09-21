@@ -52,6 +52,8 @@ import { SettingsFillOptionGrid } from "@/features/desktop-shell/inspector/setti
 import {
   fillPreviewHex,
   isGradientFill,
+  type ModuleImageControl,
+  type ModulePatternControl,
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
@@ -543,6 +545,49 @@ type SettingsFillPopoverHandle = {
   openPicker: () => void
 }
 
+function FillPickerPopoverContent({
+  align,
+  collisionPadding,
+  children,
+  mobileDensity,
+  onClose,
+  side,
+  theme,
+  title,
+}: {
+  align?: "start" | "center" | "end"
+  collisionPadding?: number
+  children: ReactNode
+  mobileDensity: boolean
+  onClose: () => void
+  side?: "top" | "right" | "bottom" | "left"
+  theme: "light" | "dark"
+  title: string
+}) {
+  return (
+    <PopoverContent
+      align={align}
+      className={desktopnewPortalClass(
+        theme,
+        "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
+      )}
+      data-mobile-inspector={mobileDensity ? "" : undefined}
+      data-theme={theme}
+      side={side}
+      sideOffset={10}
+      collisionPadding={collisionPadding}
+    >
+      <SettingsPopoverChrome
+        bodyClassName="dn-settings-popover-body-fill"
+        title={title}
+        onClose={onClose}
+      >
+        {children}
+      </SettingsPopoverChrome>
+    </PopoverContent>
+  )
+}
+
 export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
   {
     value,
@@ -576,17 +621,8 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
     collisionPadding?: number
     triggerClassName?: string
     fillPreviewImageUrl?: string
-    modulePattern?: {
-      selectedPalette: string[]
-      selectedPreset: string | "custom"
-      onSelect: (preset: { label: string; colors: string[] } | "custom") => void
-      onPaletteColorChange: (index: number, color: string) => void
-    }
-    moduleImage?: {
-      imageUrl: string
-      onUpload: (imageUrl: string) => void
-      onClear: () => void
-    }
+    modulePattern?: ModulePatternControl
+    moduleImage?: ModuleImageControl
     moduleFillMode?: DotsColorMode
     lockedFillMode?: import("@/features/desktop-shell/inspector/desktopnew-fill-picker").LockedFillPickerMode
   },
@@ -766,26 +802,17 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
   if (variant === "picker-only") {
     return (
       <Popover open={radixOpen} onOpenChange={setRadixOpen}>
-        <PopoverContent
+        <FillPickerPopoverContent
           align={align}
-          className={desktopnewPortalClass(
-            theme,
-            "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
-          )}
-          data-mobile-inspector={mobileDensity ? "" : undefined}
-          data-theme={theme}
-          side={side}
-          sideOffset={10}
           collisionPadding={collisionPadding}
+          mobileDensity={mobileDensity}
+          onClose={() => setRadixOpen(false)}
+          side={side}
+          theme={theme}
+          title={popoverTitle}
         >
-          <SettingsPopoverChrome
-            bodyClassName="dn-settings-popover-body-fill"
-            title={popoverTitle}
-            onClose={() => setRadixOpen(false)}
-          >
-            {pickerBody}
-          </SettingsPopoverChrome>
-        </PopoverContent>
+          {pickerBody}
+        </FillPickerPopoverContent>
       </Popover>
     )
   }
@@ -800,26 +827,17 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
           onOpenPicker={() => setRadixOpen(true)}
           onSelect={onValueChange}
         />
-        <PopoverContent
+        <FillPickerPopoverContent
           align={align}
-          className={desktopnewPortalClass(
-            theme,
-            "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
-          )}
-          data-mobile-inspector={mobileDensity ? "" : undefined}
-          data-theme={theme}
-          side={side}
-          sideOffset={10}
           collisionPadding={collisionPadding}
+          mobileDensity={mobileDensity}
+          onClose={() => setRadixOpen(false)}
+          side={side}
+          theme={theme}
+          title={popoverTitle}
         >
-          <SettingsPopoverChrome
-            bodyClassName="dn-settings-popover-body-fill"
-            title={popoverTitle}
-            onClose={() => setRadixOpen(false)}
-          >
-            {pickerBody}
-          </SettingsPopoverChrome>
-        </PopoverContent>
+          {pickerBody}
+        </FillPickerPopoverContent>
       </Popover>
     )
   }
@@ -833,26 +851,17 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
           <ColorRowButton fill={value} hint={hint} imageUrl={fillPreviewImageUrl} />
         )}
       </PopoverTrigger>
-      <PopoverContent
+      <FillPickerPopoverContent
         align={align}
-        className={desktopnewPortalClass(
-          theme,
-          "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
-        )}
-        data-mobile-inspector={mobileDensity ? "" : undefined}
-        data-theme={theme}
-        side={side}
-        sideOffset={10}
         collisionPadding={collisionPadding}
+        mobileDensity={mobileDensity}
+        onClose={() => setRadixOpen(false)}
+        side={side}
+        theme={theme}
+        title={popoverTitle}
       >
-        <SettingsPopoverChrome
-          bodyClassName="dn-settings-popover-body-fill"
-          title={popoverTitle}
-          onClose={() => setRadixOpen(false)}
-        >
-          {pickerBody}
-        </SettingsPopoverChrome>
-      </PopoverContent>
+        {pickerBody}
+      </FillPickerPopoverContent>
     </Popover>
   )
 })

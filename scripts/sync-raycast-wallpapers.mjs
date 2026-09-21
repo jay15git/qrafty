@@ -1,12 +1,14 @@
-import { execFileSync } from "node:child_process"
-import fs from "node:fs"
 import path from "node:path"
+
+import {
+  cleanCache,
+  makeRemoteResolver,
+  syncWallpapers,
+} from "./lib/wallpaper-sync.mjs"
 
 const RAYCAST_BASE = "https://misc-assets.raycast.com/wallpapers"
 const OUT_DIR = "public/backgrounds/raycast"
-const PREVIEW_MAX_WIDTH = 640
-const FULL_MAX_WIDTH = 4096
-const WEBP_QUALITY = 85
+const CACHE_DIR = path.join(OUT_DIR, ".cache")
 
 /** Full-resolution sources from https://www.raycast.com/wallpapers */
 const WALLPAPERS = [
@@ -46,97 +48,25 @@ const WALLPAPERS = [
   { id: "rose-thorn", file: "rose-thorn.png", label: "Rose Thorn" },
 ]
 
-const CACHE_DIR = path.join(OUT_DIR, ".cache")
+const resolve = makeRemoteResolver({ baseUrl: RAYCAST_BASE, cacheDir: CACHE_DIR })
 
-function ensureDir(dir) {
-  fs.mkdirSync(dir, { recursive: true })
-}
+await syncWallpapers({
+  outDir: OUT_DIR,
+  publicPath: "/backgrounds/raycast",
+  source: "raycast",
+  items: WALLPAPERS.map(({ id, file, label }) => ({
+    id,
+    label,
+    sourceUrl: `${RAYCAST_BASE}/${file}`,
+    resolve: resolve(file),
+  })),
+  module: {
+    typeName: "RaycastWallpaper",
+    constName: "RAYCAST_WALLPAPERS",
+    getterName: "getRaycastWallpaper",
+    targetFile: "features/workspace/assets/raycast-wallpapers.ts",
+    summaryLabel: "Raycast wallpapers",
+  },
+})
 
-async function download(url, dest) {
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error(`Failed to download ${url}: ${response.status}`)
-  }
-  const buffer = Buffer.from(await response.arrayBuffer())
-  fs.writeFileSync(dest, buffer)
-}
-
-function resizeToWebp(inputPath, outputPath, maxWidth) {
-  execFileSync(
-    "magick",
-    [
-      inputPath,
-      "-resize",
-      `${maxWidth}x${maxWidth}>`,
-      "-quality",
-      String(WEBP_QUALITY),
-      outputPath,
-    ],
-    { stdio: "pipe" },
-  )
-}
-
-ensureDir(OUT_DIR)
-ensureDir(CACHE_DIR)
-
-const manifest = []
-
-for (const wallpaper of WALLPAPERS) {
-  const sourceUrl = `${RAYCAST_BASE}/${wallpaper.file}`
-  const cachePath = path.join(CACHE_DIR, wallpaper.file)
-  const fullPath = path.join(OUT_DIR, `${wallpaper.id}.webp`)
-  const previewPath = path.join(OUT_DIR, `${wallpaper.id}-preview.webp`)
-
-  if (!fs.existsSync(cachePath)) {
-    process.stdout.write(`Downloading ${wallpaper.file}...\n`)
-    await download(sourceUrl, cachePath)
-  }
-
-  if (!fs.existsSync(fullPath)) {
-    process.stdout.write(`Converting ${wallpaper.id} (${FULL_MAX_WIDTH}px)...\n`)
-    resizeToWebp(cachePath, fullPath, FULL_MAX_WIDTH)
-  }
-
-  if (!fs.existsSync(previewPath)) {
-    process.stdout.write(`Preview ${wallpaper.id}...\n`)
-    resizeToWebp(cachePath, previewPath, PREVIEW_MAX_WIDTH)
-  }
-
-  manifest.push({
-    id: wallpaper.id,
-    label: wallpaper.label,
-    path: `/backgrounds/raycast/${wallpaper.id}.webp`,
-    previewPath: `/backgrounds/raycast/${wallpaper.id}-preview.webp`,
-    source: "raycast",
-    sourceUrl,
-  })
-}
-
-const ts = `export type RaycastWallpaper = {
-  id: string
-  label: string
-  path: string
-  previewPath: string
-  source: "raycast"
-  sourceUrl: string
-}
-
-export const RAYCAST_WALLPAPERS: readonly RaycastWallpaper[] = ${JSON.stringify(manifest, null, 2)} as const
-
-export function getRaycastWallpaper(id: string): RaycastWallpaper | undefined {
-  return RAYCAST_WALLPAPERS.find((wallpaper) => wallpaper.id === id)
-}
-`
-
-ensureDir("features/workspace/assets")
-fs.writeFileSync("features/workspace/assets/raycast-wallpapers.ts", ts)
-
-const fullBytes = manifest.reduce((total, item) => {
-  return total + fs.statSync(path.join("public", item.path)).size
-}, 0)
-
-process.stdout.write(
-  `Synced ${manifest.length} Raycast wallpapers (${(fullBytes / 1024 / 1024).toFixed(1)} MB full-res webp)\n`,
-)
-
-fs.rmSync(CACHE_DIR, { recursive: true, force: true })
+cleanCache(CACHE_DIR)

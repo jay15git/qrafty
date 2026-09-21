@@ -2,13 +2,13 @@
 
 import { useCallback, useState } from "react"
 
-import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import type { DraftingLayerInteractionProps } from "@/features/workspace/components/canvas-control-props"
 import {
   type DraftingPane,
   type DraftingPaneCanvasTool,
   type DraftingPaneToolbarVariant,
 } from "@/features/workspace/components/DraftingPaneSurface"
-import { type DraftingLayerMenuAction } from "@/features/workspace/components/Pane"
+
 import { DraftingPaneSurface } from "@/features/workspace/components/DraftingPaneSurface"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
@@ -22,28 +22,12 @@ type CanvasProps = {
   activePaneId: string
   onPaneSelect: (paneId: string) => void
   onPaneQrClick: (paneId: string) => void
-  onLayerChange?: (
-    paneId: string,
-    layerId: string,
-    patch: Partial<DraftingCanvasLayer>,
-  ) => void
-  onLayerAction?: (
-    paneId: string,
-    layerIds: string[],
-    action: DraftingLayerMenuAction,
-  ) => void
-  onLayerCopy?: (paneId: string, layerIds: string[]) => void
-  onLayerPaste?: (paneId: string, point: { x: number; y: number }) => void
-  onLayerSelect?: (
-    paneId: string,
-    layerId: string | null,
-    options?: { additive?: boolean },
-  ) => void
-  onLayerSelectionChange?: (
-    paneId: string,
-    layerIds: string[],
-    options?: { additive?: boolean },
-  ) => void
+  onLayerChange?: DraftingLayerInteractionProps["onLayerChange"]
+  onLayerAction?: DraftingLayerInteractionProps["onLayerAction"]
+  onLayerCopy?: DraftingLayerInteractionProps["onLayerCopy"]
+  onLayerPaste?: DraftingLayerInteractionProps["onLayerPaste"]
+  onLayerSelect?: DraftingLayerInteractionProps["onLayerSelect"]
+  onLayerSelectionChange?: DraftingLayerInteractionProps["onLayerSelectionChange"]
   activeCanvasTool?: DraftingPaneCanvasTool | null
   onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void

@@ -117,58 +117,104 @@ export type DesktopInspectorModel = {
   onTextSettingsChange: (patch: Partial<DesktopTextSettings>) => void
 }
 
-export function useDesktopToolbarInspectorModel({
-  controller,
-  theme,
-  onThemeChange,
-}: {
-  controller?: DesktopToolbarController
-  theme?: DesktopThemeMode
-  onThemeChange?: (theme: DesktopThemeMode) => void
-} = {}): DesktopInspectorModel {
-  const [activeTool, setActiveTool] = useState<DesktopToolbarToolId | null>("content")
-  const [desktopTheme, setDesktopTheme] = useState<DesktopThemeMode>("dark")
-  const [patternSettings, setPatternSettings] = useState<DesktopPatternSettings>(
-    DEFAULT_DESKTOP_PATTERN_SETTINGS,
-  )
-  const [logoSettings, setLogoSettings] = useState<DesktopLogoSettings>(
-    DEFAULT_DESKTOP_LOGO_SETTINGS,
-  )
-  const [cornersSettings, setCornersSettings] = useState<DesktopCornersSettings>(
-    DEFAULT_DESKTOP_CORNERS_SETTINGS,
-  )
-  const [shapeSettings, setShapeSettings] = useState<DesktopShapeSettings>(
-    DEFAULT_DESKTOP_SHAPE_SETTINGS,
-  )
+/** `useState` + a merge-patch handler — the shared pattern for every
+ * `Desktop*Settings` slice that has no controller override. */
+function useSettingsSlice<T extends object>(defaults: T) {
+  const [value, setValue] = useState<T>(defaults)
+  const onChange = (patch: Partial<T>) =>
+    setValue((current) => ({ ...current, ...patch }))
+  return [value, onChange] as const
+}
+
+const DEFAULT_LAYOUT_SETTINGS: DesktopLayoutSettings = {
+  layout: { id: "flat", label: "Flat", rotation: 0, tiltX: 0, tiltY: 0, zoom: 1 },
+}
+
+const DEFAULT_SCENE_TEMPLATE_SETTINGS: DesktopSceneTemplateSettings = {
+  sizeSettings: {
+    cardHeight: 810,
+    cardWidth: 1080,
+    lockAspectRatio: true,
+    sizeMode: "fixed",
+    sizePresetId: "ratio-4-3",
+  },
+}
+
+function useInspectorSettingsSlices() {
+  const [patternSettings, onPatternPatch] = useSettingsSlice(DEFAULT_DESKTOP_PATTERN_SETTINGS)
+  const [logoSettings, onLogoPatch] = useSettingsSlice(DEFAULT_DESKTOP_LOGO_SETTINGS)
+  const [cornersSettings, onCornersPatch] = useSettingsSlice(DEFAULT_DESKTOP_CORNERS_SETTINGS)
+  const [shapeSettings, onShapePatch] = useSettingsSlice(DEFAULT_DESKTOP_SHAPE_SETTINGS)
   const [motionSettings, setMotionSettings] = useState<DesktopMotionSettings>(
     DEFAULT_DESKTOP_MOTION_SETTINGS,
   )
-  const [encodingSettings, setEncodingSettings] = useState<DesktopEncodingSettings>(
-    DEFAULT_DESKTOP_ENCODING_SETTINGS,
-  )
-  const [accessibilitySettings, setAccessibilitySettings] = useState<DesktopAccessibilitySettings>(
-    DEFAULT_DESKTOP_ACCESSIBILITY_SETTINGS,
-  )
-  const [imageSettings, setImageSettings] = useState<DesktopImageSettings>(
-    DEFAULT_DESKTOP_IMAGE_SETTINGS,
-  )
+  const [encodingSettings, onEncodingPatch] = useSettingsSlice(DEFAULT_DESKTOP_ENCODING_SETTINGS)
+  const [accessibilitySettings, onAccessibilityPatch] = useSettingsSlice(DEFAULT_DESKTOP_ACCESSIBILITY_SETTINGS)
+  const [imageSettings, onImagePatch] = useSettingsSlice(DEFAULT_DESKTOP_IMAGE_SETTINGS)
   const [backgroundInspectorTab, setBackgroundInspectorTab] =
     useState<DesktopBackgroundInspectorTab>("paper")
-  const [backgroundSettings, setBackgroundSettings] = useState<DesktopBackgroundSettings>(
-    DEFAULT_DESKTOP_BACKGROUND_SETTINGS,
-  )
-  const [effectsSettings, setEffectsSettings] = useState<DesktopEffectsSettings>(
-    DEFAULT_DESKTOP_EFFECTS_SETTINGS,
-  )
+  const [backgroundSettings, onBackgroundPatch] = useSettingsSlice(DEFAULT_DESKTOP_BACKGROUND_SETTINGS)
+  const [effectsSettings, onEffectsPatch] = useSettingsSlice(DEFAULT_DESKTOP_EFFECTS_SETTINGS)
   const [layersSettings, setLayersSettings] = useState<DesktopLayersSettings>(
     DEFAULT_DESKTOP_LAYERS_SETTINGS,
   )
-  const [exportSettings, setExportSettings] = useState<DesktopExportSettings>(
-    DEFAULT_DESKTOP_EXPORT_SETTINGS,
-  )
-  const [textSettings, setTextSettings] = useState<DesktopTextSettings>(
-    DEFAULT_DESKTOP_TEXT_SETTINGS,
-  )
+  const onLayersPatch = (patch: Partial<DesktopLayersSettings>) =>
+    setLayersSettings((current) => ({ ...current, ...patch }))
+  const handleLayersReorder = (orderedIds: string[]) =>
+    setLayersSettings((current) => {
+      const layerById = new Map(current.layers.map((layer) => [layer.id, layer]))
+
+      return {
+        ...current,
+        layers: orderedIds
+          .map((layerId) => layerById.get(layerId))
+          .filter((layer): layer is DesktopLayerRow => layer != null),
+      }
+    })
+  const [exportSettings, onExportPatch] = useSettingsSlice(DEFAULT_DESKTOP_EXPORT_SETTINGS)
+  const [textSettings, onTextPatch] = useSettingsSlice(DEFAULT_DESKTOP_TEXT_SETTINGS)
+  const onMotionPatch = (patch: QrDotMatrixAnimationPatch) =>
+    setMotionSettings((current) =>
+      setDotMatrixAnimationOptions(
+        { ...createDefaultQraftyState(), dotMatrixAnimation: current },
+        patch,
+      ).dotMatrixAnimation,
+    )
+
+  return {
+    accessibilitySettings,
+    backgroundInspectorTab,
+    backgroundSettings,
+    cornersSettings,
+    effectsSettings,
+    encodingSettings,
+    exportSettings,
+    imageSettings,
+    layersSettings,
+    logoSettings,
+    motionSettings,
+    onAccessibilityPatch,
+    onBackgroundPatch,
+    onCornersPatch,
+    onEffectsPatch,
+    onEncodingPatch,
+    onExportPatch,
+    onImagePatch,
+    onLayersPatch,
+    handleLayersReorder,
+    onLogoPatch,
+    onMotionPatch,
+    onPatternPatch,
+    onShapePatch,
+    onTextPatch,
+    patternSettings,
+    setBackgroundInspectorTab,
+    shapeSettings,
+    textSettings,
+  }
+}
+
+function useContentState() {
   const [selectedContentType, setSelectedContentType] =
     useState<QrInputType>(DEFAULT_QR_INPUT_TYPE)
   const [contentValuesByType, setContentValuesByType] = useState<
@@ -232,6 +278,39 @@ export function useDesktopToolbarInspectorModel({
     }))
   }
 
+  return {
+    handleContentPasteApply,
+    handleContentTypeChange,
+    handleContentValueChange,
+    selectedContentType,
+    selectedContentValidation,
+    selectedContentValue,
+    selectedContentValues,
+  }
+}
+
+export function useDesktopToolbarInspectorModel({
+  controller,
+  theme,
+  onThemeChange,
+}: {
+  controller?: DesktopToolbarController
+  theme?: DesktopThemeMode
+  onThemeChange?: (theme: DesktopThemeMode) => void
+} = {}): DesktopInspectorModel {
+  const [activeTool, setActiveTool] = useState<DesktopToolbarToolId | null>("content")
+  const [desktopTheme, setDesktopTheme] = useState<DesktopThemeMode>("dark")
+  const slices = useInspectorSettingsSlices()
+  const {
+    handleContentPasteApply,
+    handleContentTypeChange,
+    handleContentValueChange,
+    selectedContentType,
+    selectedContentValidation,
+    selectedContentValue,
+    selectedContentValues,
+  } = useContentState()
+
   const actualActiveTool =
     controller && "activeTool" in controller ? controller.activeTool : activeTool
   const actualDesktopTheme = theme ?? desktopTheme
@@ -241,125 +320,73 @@ export function useDesktopToolbarInspectorModel({
   )
   const activeToolConfig = visibleToolbarTools.find((tool) => tool.id === actualActiveTool)
 
+  const valueFields = [
+    ["actualContentType", "contentType", selectedContentType],
+    ["actualContentValues", "contentValues", selectedContentValues],
+    ["actualEncodedContentValue", "encodedContentValue", selectedContentValue],
+    ["actualContentValidation", "contentValidation", selectedContentValidation],
+    ["actualPatternSettings", "patternSettings", slices.patternSettings],
+    ["actualLogoSettings", "logoSettings", slices.logoSettings],
+    ["actualCornersSettings", "cornersSettings", slices.cornersSettings],
+    ["actualShapeSettings", "shapeSettings", slices.shapeSettings],
+    ["actualMotionSettings", "motionSettings", slices.motionSettings],
+    ["actualEncodingSettings", "encodingSettings", slices.encodingSettings],
+    ["actualAccessibilitySettings", "accessibilitySettings", slices.accessibilitySettings],
+    ["actualImageSettings", "imageSettings", slices.imageSettings],
+    ["actualBackgroundSettings", "backgroundSettings", slices.backgroundSettings],
+    ["actualBackgroundInspectorTab", "backgroundInspectorTab", slices.backgroundInspectorTab],
+    ["actualEffectsSettings", "effectsSettings", slices.effectsSettings],
+    ["actualLayersSettings", "layersSettings", slices.layersSettings],
+    ["actualExportSettings", "exportSettings", slices.exportSettings],
+    ["actualLayoutSettings", "layoutSettings", DEFAULT_LAYOUT_SETTINGS],
+    ["actualSceneTemplateSettings", "sceneTemplateSettings", DEFAULT_SCENE_TEMPLATE_SETTINGS],
+    ["actualTextSettings", "textSettings", slices.textSettings],
+  ] as const
+  const handlerFields = [
+    ["onActiveToolChange", "onActiveToolChange", setActiveTool],
+    ["onContentTypeChange", "onContentTypeChange", handleContentTypeChange],
+    ["onContentPasteApply", "onContentPasteApply", handleContentPasteApply],
+    ["onContentValueChange", "onContentValueChange", handleContentValueChange],
+    ["onPatternSettingsChange", "onPatternSettingsChange", slices.onPatternPatch],
+    ["onLogoSettingsChange", "onLogoSettingsChange", slices.onLogoPatch],
+    ["onCornersSettingsChange", "onCornersSettingsChange", slices.onCornersPatch],
+    ["onShapeSettingsChange", "onShapeSettingsChange", slices.onShapePatch],
+    ["onMotionSettingsChange", "onMotionSettingsChange", slices.onMotionPatch],
+    ["onEncodingSettingsChange", "onEncodingSettingsChange", slices.onEncodingPatch],
+    ["onAccessibilitySettingsChange", "onAccessibilitySettingsChange", slices.onAccessibilityPatch],
+    ["onImageSettingsChange", "onImageSettingsChange", slices.onImagePatch],
+    ["onBackgroundSettingsChange", "onBackgroundSettingsChange", slices.onBackgroundPatch],
+    ["onBackgroundInspectorTabChange", "onBackgroundInspectorTabChange", slices.setBackgroundInspectorTab],
+    ["onEffectsSettingsChange", "onEffectsSettingsChange", slices.onEffectsPatch],
+    ["onLayersSettingsChange", "onLayersSettingsChange", slices.onLayersPatch],
+    ["onLayersReorder", "onLayersReorder", slices.handleLayersReorder],
+    ["onExportSettingsChange", "onExportSettingsChange", slices.onExportPatch],
+    ["onLayoutSettingsChange", "onLayoutSettingsChange", () => undefined],
+    ["onSceneTemplateSizeChange", "onSceneTemplateSizeChange", () => undefined],
+    ["onTextSettingsChange", "onTextSettingsChange", slices.onTextPatch],
+  ] as const
+
+  const overrideFields = <Entries extends readonly (readonly [string, keyof DesktopToolbarController, unknown])[]>(
+    entries: Entries,
+  ) =>
+    Object.fromEntries(
+      entries.map(([modelKey, controllerKey, fallback]) => [
+        modelKey,
+        controller?.[controllerKey] ?? fallback,
+      ]),
+    ) as {
+      [K in Entries[number][0] & keyof DesktopInspectorModel]: DesktopInspectorModel[K]
+    }
+
   return {
     controller,
     actualActiveTool,
     actualDesktopTheme,
     activeToolConfig,
     visibleToolbarTools,
-    actualContentType: controller?.contentType ?? selectedContentType,
-    actualContentValues: controller?.contentValues ?? selectedContentValues,
-    actualEncodedContentValue: controller?.encodedContentValue ?? selectedContentValue,
-    actualContentValidation: controller?.contentValidation ?? selectedContentValidation,
-    actualPatternSettings: controller?.patternSettings ?? patternSettings,
-    actualLogoSettings: controller?.logoSettings ?? logoSettings,
-    actualCornersSettings: controller?.cornersSettings ?? cornersSettings,
-    actualShapeSettings: controller?.shapeSettings ?? shapeSettings,
-    actualMotionSettings: controller?.motionSettings ?? motionSettings,
-    actualEncodingSettings: controller?.encodingSettings ?? encodingSettings,
-    actualAccessibilitySettings: controller?.accessibilitySettings ?? accessibilitySettings,
-    actualImageSettings: controller?.imageSettings ?? imageSettings,
-    actualBackgroundSettings: controller?.backgroundSettings ?? backgroundSettings,
-    actualBackgroundInspectorTab: controller?.backgroundInspectorTab ?? backgroundInspectorTab,
-    actualEffectsSettings: controller?.effectsSettings ?? effectsSettings,
-    actualLayersSettings: controller?.layersSettings ?? layersSettings,
-    actualExportSettings: controller?.exportSettings ?? exportSettings,
-    actualLayoutSettings: controller?.layoutSettings ?? { layout: { id: "flat", label: "Flat", rotation: 0, tiltX: 0, tiltY: 0, zoom: 1 } },
-    actualSceneTemplateSettings: controller?.sceneTemplateSettings ?? {
-      sizeSettings: {
-        cardHeight: 810,
-        cardWidth: 1080,
-        lockAspectRatio: true,
-        sizeMode: "fixed",
-        sizePresetId: "ratio-4-3",
-      },
-    },
-    actualTextSettings: controller?.textSettings ?? textSettings,
-    onActiveToolChange: controller?.onActiveToolChange ?? setActiveTool,
-    onDesktopThemeChange:
-      onThemeChange ??
-      ((nextTheme: DesktopThemeMode) => {
-        setDesktopTheme(nextTheme)
-      }),
-    onContentTypeChange: controller?.onContentTypeChange ?? handleContentTypeChange,
-    onContentPasteApply: controller?.onContentPasteApply ?? handleContentPasteApply,
-    onContentValueChange: controller?.onContentValueChange ?? handleContentValueChange,
-    onPatternSettingsChange:
-      controller?.onPatternSettingsChange ??
-      ((patch: DesktopPatternSettingsPatch) =>
-        setPatternSettings((current) => ({ ...current, ...patch }))),
+    ...overrideFields(valueFields),
+    onDesktopThemeChange: onThemeChange ?? setDesktopTheme,
     onUnifiedQrFillSettingsChange: controller?.onUnifiedQrFillSettingsChange,
-    onLogoSettingsChange:
-      controller?.onLogoSettingsChange ??
-      ((patch: DesktopLogoSettingsPatch) =>
-        setLogoSettings((current) => ({ ...current, ...patch }))),
-    onCornersSettingsChange:
-      controller?.onCornersSettingsChange ??
-      ((patch: Partial<DesktopCornersSettings>) =>
-        setCornersSettings((current) => ({ ...current, ...patch }))),
-    onShapeSettingsChange:
-      controller?.onShapeSettingsChange ??
-      ((patch: Partial<DesktopShapeSettings>) =>
-        setShapeSettings((current) => ({ ...current, ...patch }))),
-    onMotionSettingsChange:
-      controller?.onMotionSettingsChange ??
-      ((patch: QrDotMatrixAnimationPatch) =>
-        setMotionSettings((current) =>
-          setDotMatrixAnimationOptions(
-            { ...createDefaultQraftyState(), dotMatrixAnimation: current },
-            patch,
-          ).dotMatrixAnimation,
-        )),
-    onEncodingSettingsChange:
-      controller?.onEncodingSettingsChange ??
-      ((patch: Partial<DesktopEncodingSettings>) =>
-        setEncodingSettings((current) => ({ ...current, ...patch }))),
-    onAccessibilitySettingsChange:
-      controller?.onAccessibilitySettingsChange ??
-      ((patch: Partial<DesktopAccessibilitySettings>) =>
-        setAccessibilitySettings((current) => ({ ...current, ...patch }))),
-    onImageSettingsChange:
-      controller?.onImageSettingsChange ??
-      ((patch: Partial<DesktopImageSettings>) =>
-        setImageSettings((current) => ({ ...current, ...patch }))),
-    onBackgroundSettingsChange:
-      controller?.onBackgroundSettingsChange ??
-      ((settings: Partial<DesktopBackgroundSettings>) =>
-        setBackgroundSettings((current) => ({ ...current, ...settings }))),
-    onBackgroundInspectorTabChange:
-      controller?.onBackgroundInspectorTabChange ?? setBackgroundInspectorTab,
-    onEffectsSettingsChange:
-      controller?.onEffectsSettingsChange ??
-      ((patch: Partial<DesktopEffectsSettings>) =>
-        setEffectsSettings((current) => ({ ...current, ...patch }))),
-    onLayersSettingsChange:
-      controller?.onLayersSettingsChange ??
-      ((patch: Partial<DesktopLayersSettings>) =>
-        setLayersSettings((current) => ({ ...current, ...patch }))),
-    onLayersReorder:
-      controller?.onLayersReorder ??
-      ((orderedIds: string[]) =>
-        setLayersSettings((current) => {
-          const layerById = new Map(current.layers.map((layer) => [layer.id, layer]))
-
-          return {
-            ...current,
-            layers: orderedIds
-              .map((layerId) => layerById.get(layerId))
-              .filter((layer): layer is DesktopLayerRow => layer != null),
-          }
-        })),
-    onExportSettingsChange:
-      controller?.onExportSettingsChange ??
-      ((patch: Partial<DesktopExportSettings>) =>
-        setExportSettings((current) => ({ ...current, ...patch }))),
-    onLayoutSettingsChange:
-      controller?.onLayoutSettingsChange ?? (() => undefined),
-    onSceneTemplateSizeChange:
-      controller?.onSceneTemplateSizeChange ?? (() => undefined),
-    onTextSettingsChange:
-      controller?.onTextSettingsChange ??
-      ((patch: Partial<DesktopTextSettings>) =>
-        setTextSettings((current) => ({ ...current, ...patch }))),
+    ...overrideFields(handlerFields),
   }
 }

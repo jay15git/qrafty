@@ -231,6 +231,13 @@ import {
 } from "@/features/workspace/components/workspace-surface-reducer"
 type DraftingBrandIconCategoryFilter = BrandIconCategory | "all"
 
+const ARROW_KEY_DELTAS: Record<string, readonly [number, number]> = {
+  arrowleft: [-1, 0],
+  arrowright: [1, 0],
+  arrowup: [0, -1],
+  arrowdown: [0, 1],
+}
+
 type DraftingWorkspaceController = DesktopToolbarController
 
 type WorkspaceSurfaceProps = {
@@ -1178,11 +1185,7 @@ export function WorkspaceSurface({
     }))
   }
 
-  function applyDraftingQrStateToControls(nextState: QraftyState) {
-    setSelectedQrMargin(nextState.margin)
-    setSelectedQrRadius(clampQrBackgroundRound(nextState.backgroundOptions.round))
-    setSelectedRasterExportQualityPercent(nextState.rasterExportQualityPercent)
-    setSelectedQrSize(nextState.width)
+  function syncDotsControlsFromState(nextState: QraftyState) {
     setSelectedDotType(nextState.dataModulesSettings.type)
     setSelectedDotsColorMode(nextState.dotsColorMode)
     setSelectedDotsPalette([...nextState.dotsPalette])
@@ -1190,6 +1193,9 @@ export function WorkspaceSurface({
     setSelectedDotsGradient(structuredClone(nextState.dataModulesGradient))
     setSelectedDotMatrixAnimation({ ...nextState.dotMatrixAnimation })
     openDotsColorItemsRef.current = new Set([nextState.dotsColorMode])
+  }
+
+  function syncCornerControlsFromState(nextState: QraftyState) {
     setSelectedQrFinderPatternOuterStyle(nextState.finderPatternOuterSettings.type)
     setSelectedCornerSquareColorMode(
       nextState.finderPatternOuterGradient.enabled ? "gradient" : "solid",
@@ -1206,6 +1212,9 @@ export function WorkspaceSurface({
     openCornerDotColorItemsRef.current = new Set([
       nextState.finderPatternInnerGradient.enabled ? "gradient" : "solid",
     ])
+  }
+
+  function syncBackgroundControlsFromState(nextState: QraftyState) {
     setSelectedBackgroundColorMode(
       nextState.backgroundGradient.enabled ? "gradient" : "solid",
     )
@@ -1229,6 +1238,9 @@ export function WorkspaceSurface({
     openBackgroundUploadItemsRef.current = new Set([
       nextState.backgroundImage.source === "url" ? "url" : "upload",
     ])
+  }
+
+  function syncLogoControlsFromState(nextState: QraftyState) {
     setSelectedLogoColorMode(nextState.logoGradient.enabled ? "gradient" : "solid")
     setSelectedLogoSourceMode(nextState.logo.source)
     setSelectedLogoColor(nextState.logo.presetColor ?? DEFAULT_BRAND_ICON_COLOR)
@@ -1251,6 +1263,26 @@ export function WorkspaceSurface({
     setSelectedLogoSize(Math.round(nextState.imageOptions.imageSize * 100))
     setSelectedLogoMargin(nextState.imageOptions.margin)
     setSelectedHideBackgroundDots(nextState.imageOptions.hideBackgroundDots)
+    setSelectedLogoOpacity(nextState.imageOptions.opacity * 100)
+    setSelectedLogoSizeMode(nextState.imageOptions.sizeMode)
+    setSelectedLogoWidthPx(nextState.imageOptions.widthPx)
+    setSelectedLogoHeightPx(nextState.imageOptions.heightPx)
+    setSelectedLogoLockAspect(nextState.imageOptions.lockAspect)
+    setSelectedLogoPositionMode(nextState.imageOptions.logoPositionMode)
+    setSelectedLogoOffsetX(nextState.imageOptions.x ?? 0)
+    setSelectedLogoOffsetY(nextState.imageOptions.y ?? 0)
+    setSelectedLogoCrossOrigin(nextState.imageOptions.crossOrigin)
+  }
+
+  function applyDraftingQrStateToControls(nextState: QraftyState) {
+    setSelectedQrMargin(nextState.margin)
+    setSelectedQrRadius(clampQrBackgroundRound(nextState.backgroundOptions.round))
+    setSelectedRasterExportQualityPercent(nextState.rasterExportQualityPercent)
+    setSelectedQrSize(nextState.width)
+    syncDotsControlsFromState(nextState)
+    syncCornerControlsFromState(nextState)
+    syncBackgroundControlsFromState(nextState)
+    syncLogoControlsFromState(nextState)
     setSelectedQrTypeNumber(nextState.qrOptions.typeNumber)
     setSelectedQrErrorCorrectionLevel(nextState.qrOptions.errorCorrectionLevel)
     setSelectedBoostLevel(nextState.qrOptions.boostLevel)
@@ -1261,15 +1293,6 @@ export function WorkspaceSurface({
     setSelectedModuleSize(nextState.dataModulesSettings.moduleSize)
     setSelectedModuleLineWidth(nextState.dataModulesSettings.lineWidth)
     setSelectedGradientLinkMode(nextState.gradientLinkMode)
-    setSelectedLogoOpacity(nextState.imageOptions.opacity * 100)
-    setSelectedLogoSizeMode(nextState.imageOptions.sizeMode)
-    setSelectedLogoWidthPx(nextState.imageOptions.widthPx)
-    setSelectedLogoHeightPx(nextState.imageOptions.heightPx)
-    setSelectedLogoLockAspect(nextState.imageOptions.lockAspect)
-    setSelectedLogoPositionMode(nextState.imageOptions.logoPositionMode)
-    setSelectedLogoOffsetX(nextState.imageOptions.x ?? 0)
-    setSelectedLogoOffsetY(nextState.imageOptions.y ?? 0)
-    setSelectedLogoCrossOrigin(nextState.imageOptions.crossOrigin)
     syncDraftingModuleFillControlsFromState(nextState)
   }
 
@@ -1614,6 +1637,105 @@ export function WorkspaceSurface({
   ])
 
   useEffect(() => {
+    const MODIFIER_SHORTCUTS: Record<string, (event: KeyboardEvent) => void> = {
+      z: (event) =>
+        event.shiftKey ? handleRedoDraftingWorkspace() : handleUndoDraftingWorkspace(),
+      y: () => handleRedoDraftingWorkspace(),
+      d: () => duplicateSelectedLayers(),
+      a: () => selectAllActiveDraftingLayers(),
+      v: () => void pasteDraftingLayers(),
+    }
+
+    const nudgeSelectedLayers = (event: KeyboardEvent, arrowDelta: readonly [number, number]) => {
+      const delta = event.shiftKey ? 10 : 1
+      const {
+        activeQrNodeId: currentActiveQrNodeId,
+        layerStateByNodeId: currentLayerStateByNodeId,
+        selectedLayerIds: currentSelectedLayerIds,
+      } = keyboardStateRef.current
+      const activeLayers = currentLayerStateByNodeId[currentActiveQrNodeId] ?? []
+      const activeLayerById = new Map(activeLayers.map((item) => [item.id, item]))
+
+      if (currentSelectedLayerIds.length === 0) {
+        return
+      }
+
+      event.preventDefault()
+      for (const layerId of currentSelectedLayerIds) {
+        const layer = activeLayerById.get(layerId)
+
+        if (layer) {
+          handleLayerChange(currentActiveQrNodeId, layerId, {
+            x: layer.x + arrowDelta[0] * delta,
+            y: layer.y + arrowDelta[1] * delta,
+          })
+        }
+      }
+    }
+
+    const handlePlainKey = (event: KeyboardEvent, key: string) => {
+      const arrowDelta = ARROW_KEY_DELTAS[key]
+      if (arrowDelta) {
+        nudgeSelectedLayers(event, arrowDelta)
+        return
+      }
+
+      if (key === "delete" || key === "backspace") {
+        event.preventDefault()
+        deleteSelectedLayersOrPane()
+        return
+      }
+
+      if (key === "escape") {
+        event.preventDefault()
+        clearDraftingLayerSelection()
+      }
+    }
+
+    const handleModifierKey = (event: KeyboardEvent, key: string) => {
+      const withSelection = (action: (selectedLayerIds: string[]) => void) => {
+        const selectedLayerIds = keyboardStateRef.current.selectedLayerIds
+        if (selectedLayerIds.length > 0) {
+          event.preventDefault()
+          action(selectedLayerIds)
+        }
+      }
+      const reorder = (shifted: string, plain: string) =>
+        withSelection((selectedLayerIds) =>
+          handleLayerAction(
+            keyboardStateRef.current.activeQrNodeId,
+            selectedLayerIds,
+            (event.shiftKey ? shifted : plain) as Parameters<typeof handleLayerAction>[2],
+          ),
+        )
+
+      const shortcut = MODIFIER_SHORTCUTS[key]
+      if (shortcut) {
+        event.preventDefault()
+        shortcut(event)
+        return
+      }
+
+      if (key === "c") {
+        withSelection((selectedLayerIds) => void copySelectedDraftingLayers(selectedLayerIds))
+        return
+      }
+
+      if (key === "[") {
+        reorder("back", "backward")
+        return
+      }
+
+      if (key === "]") {
+        reorder("front", "forward")
+        return
+      }
+
+      if (key === "g") {
+        reorder("ungroup", "group")
+      }
+    }
+
     const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target
       const isBodyOrDocumentTarget =
@@ -1630,126 +1752,11 @@ export function WorkspaceSurface({
       }
 
       const key = event.key.toLowerCase()
-      const usesModifier = event.metaKey || event.ctrlKey
 
-      if (!usesModifier) {
-        if (
-          key === "arrowleft" ||
-          key === "arrowright" ||
-          key === "arrowup" ||
-          key === "arrowdown"
-        ) {
-          const delta = event.shiftKey ? 10 : 1
-          const x = key === "arrowleft" ? -delta : key === "arrowright" ? delta : 0
-          const y = key === "arrowup" ? -delta : key === "arrowdown" ? delta : 0
-          const {
-            activeQrNodeId: currentActiveQrNodeId,
-            layerStateByNodeId: currentLayerStateByNodeId,
-            selectedLayerIds: currentSelectedLayerIds,
-          } = keyboardStateRef.current
-          const activeLayers = currentLayerStateByNodeId[currentActiveQrNodeId] ?? []
-
-          const activeLayerById = new Map(activeLayers.map((item) => [item.id, item]))
-
-          if (currentSelectedLayerIds.length > 0) {
-            event.preventDefault()
-            for (const layerId of currentSelectedLayerIds) {
-              const layer = activeLayerById.get(layerId)
-
-              if (layer) {
-                handleLayerChange(currentActiveQrNodeId, layerId, {
-                  x: layer.x + x,
-                  y: layer.y + y,
-                })
-              }
-            }
-          }
-          return
-        }
-
-        if (key === "delete" || key === "backspace") {
-          event.preventDefault()
-          deleteSelectedLayersOrPane()
-          return
-        }
-
-        if (key === "escape") {
-          event.preventDefault()
-          clearDraftingLayerSelection()
-        }
-
-        return
-      }
-
-      if (key === "z" && event.shiftKey) {
-        event.preventDefault()
-        handleRedoDraftingWorkspace()
-        return
-      }
-
-      if (key === "z") {
-        event.preventDefault()
-        handleUndoDraftingWorkspace()
-        return
-      }
-
-      if (key === "y") {
-        event.preventDefault()
-        handleRedoDraftingWorkspace()
-        return
-      }
-
-      if (key === "d") {
-        event.preventDefault()
-        duplicateSelectedLayers()
-        return
-      }
-
-      if (key === "a") {
-        event.preventDefault()
-        selectAllActiveDraftingLayers()
-        return
-      }
-
-      if (key === "c" && keyboardStateRef.current.selectedLayerIds.length > 0) {
-        event.preventDefault()
-        void copySelectedDraftingLayers(keyboardStateRef.current.selectedLayerIds)
-        return
-      }
-
-      if (key === "v") {
-        event.preventDefault()
-        void pasteDraftingLayers()
-        return
-      }
-
-      if (key === "[" && keyboardStateRef.current.selectedLayerIds.length > 0) {
-        event.preventDefault()
-        handleLayerAction(
-          keyboardStateRef.current.activeQrNodeId,
-          keyboardStateRef.current.selectedLayerIds,
-          event.shiftKey ? "back" : "backward",
-        )
-        return
-      }
-
-      if (key === "]" && keyboardStateRef.current.selectedLayerIds.length > 0) {
-        event.preventDefault()
-        handleLayerAction(
-          keyboardStateRef.current.activeQrNodeId,
-          keyboardStateRef.current.selectedLayerIds,
-          event.shiftKey ? "front" : "forward",
-        )
-        return
-      }
-
-      if (key === "g" && keyboardStateRef.current.selectedLayerIds.length > 0) {
-        event.preventDefault()
-        handleLayerAction(
-          keyboardStateRef.current.activeQrNodeId,
-          keyboardStateRef.current.selectedLayerIds,
-          event.shiftKey ? "ungroup" : "group",
-        )
+      if (event.metaKey || event.ctrlKey) {
+        handleModifierKey(event, key)
+      } else {
+        handlePlainKey(event, key)
       }
     }
 
@@ -2180,28 +2187,25 @@ export function WorkspaceSurface({
         createDefaultDraftingLayers(paneId, draftingQraftyState, selectedCardState),
       layerId,
     )
+    const selectedKind = selectedLayer?.kind
 
     if (
-      selectedLayer?.kind === "text" ||
-      selectedLayer?.kind === "image" ||
-      selectedLayer?.kind === "shape" ||
-      selectedLayer?.kind === "shader"
+      selectedKind === "text" ||
+      selectedKind === "image" ||
+      selectedKind === "shape" ||
+      selectedKind === "shader"
     ) {
       setDesktopRailTool(null)
       return
     }
 
-    if (selectedLayer?.kind === "group") {
-      setDesktopRailTool("layers")
-      return
-    }
-
-    if (isDraftingCardLayerId(layerId)) {
-      setDesktopRailTool("shape")
-      return
-    }
-
-    setDesktopRailTool("content")
+    setDesktopRailTool(
+      selectedKind === "group"
+        ? "layers"
+        : isDraftingCardLayerId(layerId)
+          ? "shape"
+          : "content",
+    )
   }
 
   function handleLayerSelectionChange(
@@ -2688,107 +2692,108 @@ export function WorkspaceSurface({
         setExportProgressRatio(progress.stage === "building" ? 0.45 : 0.85)
       }
 
-      if (selectedDownloadTarget === "all-qr") {
-        if (isVideoExport) {
-          throw new Error("Batch video export is not supported. Export one QR at a time.")
+      const runExport = (
+        overrides: Pick<
+          Parameters<typeof runWorkspaceExport>[0],
+          "layers" | "name" | "state"
+        >,
+      ) =>
+        runWorkspaceExport({
+          abortSignal: abortController.signal,
+          backgroundColor,
+          cardState: selectedCardState,
+          extension: selectedDownloadExtension,
+          mediaKind: isVideoExport ? "video" : "photo",
+          nodeId: activeQrNodeId,
+          onProgress,
+          qualityPercent,
+          targetDimensions: isVideoExport ? undefined : targetDimensions,
+          videoRequest: isVideoExport
+            ? {
+                durationSeconds: selectedVideoDurationSeconds,
+                format: selectedVideoFormat,
+                frameRate: selectedVideoFrameRate,
+                longEdge: selectedVideoLongEdge,
+              }
+            : undefined,
+          ...overrides,
+        })
+
+      const runTargetExport = async () => {
+        if (selectedDownloadTarget === "all-qr") {
+          if (isVideoExport) {
+            throw new Error("Batch video export is not supported. Export one QR at a time.")
+          }
+
+          const items = qrCanvasLayers.map((layer) => ({
+            layerId: layer.id,
+            name: qrPaneNamesById.get(layer.id) ?? "QR Code",
+            state:
+              layer.id === activeQrLayerId
+                ? draftingQraftyState
+                : (qrStateByLayerId[layer.id] ?? draftingQraftyState),
+          }))
+
+          if (items.length === 0) {
+            throw new Error("No QR codes are available for export.")
+          }
+
+          await runWorkspaceBatchExport({
+            abortSignal: abortController.signal,
+            backgroundColor,
+            cardState: selectedCardState,
+            extension: selectedDownloadExtension,
+            items,
+            layers: exportLayers,
+            name: DEFAULT_DOWNLOAD_NAME,
+            nodeId: activeQrNodeId,
+            qualityPercent,
+            targetDimensions,
+          })
+          return
         }
 
-        const items = qrCanvasLayers.map((layer) => ({
-          layerId: layer.id,
-          name: qrPaneNamesById.get(layer.id) ?? "QR Code",
-          state:
-            layer.id === activeQrLayerId
+        if (
+          selectedDownloadTarget === "current" ||
+          selectedDownloadTarget.startsWith("qr:")
+        ) {
+          const layerId =
+            selectedDownloadTarget === "current"
+              ? activeQrLayerId
+              : selectedDownloadTarget.slice("qr:".length)
+          const state =
+            layerId === activeQrLayerId
               ? draftingQraftyState
-              : (qrStateByLayerId[layer.id] ?? draftingQraftyState),
-        }))
+              : qrStateByLayerId[layerId]
 
-        if (items.length === 0) {
-          throw new Error("No QR codes are available for export.")
+          if (!state) {
+            throw new Error("The selected QR code is unavailable for export.")
+          }
+
+          await runExport({
+            layers: exportLayers.map((entry) =>
+              cloneDraftingCanvasLayer({
+                ...entry,
+                isVisible:
+                  entry.kind === "card" || entry.id === layerId ? entry.isVisible : false,
+              }),
+            ),
+            name: qrPaneNamesById.get(layerId) ?? "QR Code",
+            state,
+          })
+          return
         }
 
-        await runWorkspaceBatchExport({
-          abortSignal: abortController.signal,
-          backgroundColor,
-          cardState: selectedCardState,
-          extension: selectedDownloadExtension,
-          items,
-          layers: exportLayers,
-          name: DEFAULT_DOWNLOAD_NAME,
-          nodeId: activeQrNodeId,
-          qualityPercent,
-          targetDimensions,
-        })
-      } else if (
-        selectedDownloadTarget === "current" ||
-        selectedDownloadTarget.startsWith("qr:")
-      ) {
-        const layerId =
-          selectedDownloadTarget === "current"
-            ? activeQrLayerId
-            : selectedDownloadTarget.slice("qr:".length)
-        const state =
-          layerId === activeQrLayerId
-            ? draftingQraftyState
-            : qrStateByLayerId[layerId]
-
-        if (!state) {
-          throw new Error("The selected QR code is unavailable for export.")
+        if (selectedDownloadTarget === "surface") {
+          await runExport({
+            layers: exportLayers,
+            name: DEFAULT_DOWNLOAD_NAME,
+            state: draftingQraftyState,
+          })
         }
-
-        const isolatedLayers = exportLayers.map((entry) =>
-          cloneDraftingCanvasLayer({
-            ...entry,
-            isVisible:
-              entry.kind === "card" || entry.id === layerId ? entry.isVisible : false,
-          }),
-        )
-
-        await runWorkspaceExport({
-          abortSignal: abortController.signal,
-          backgroundColor,
-          cardState: selectedCardState,
-          extension: selectedDownloadExtension,
-          layers: isolatedLayers,
-          mediaKind: isVideoExport ? "video" : "photo",
-          name: qrPaneNamesById.get(layerId) ?? "QR Code",
-          nodeId: activeQrNodeId,
-          onProgress,
-          qualityPercent,
-          state,
-          targetDimensions: isVideoExport ? undefined : targetDimensions,
-          videoRequest: isVideoExport
-            ? {
-                durationSeconds: selectedVideoDurationSeconds,
-                format: selectedVideoFormat,
-                frameRate: selectedVideoFrameRate,
-                longEdge: selectedVideoLongEdge,
-              }
-            : undefined,
-        })
-      } else if (selectedDownloadTarget === "surface") {
-        await runWorkspaceExport({
-          abortSignal: abortController.signal,
-          backgroundColor,
-          cardState: selectedCardState,
-          extension: selectedDownloadExtension,
-          layers: exportLayers,
-          mediaKind: isVideoExport ? "video" : "photo",
-          name: DEFAULT_DOWNLOAD_NAME,
-          nodeId: activeQrNodeId,
-          onProgress,
-          qualityPercent,
-          state: draftingQraftyState,
-          targetDimensions: isVideoExport ? undefined : targetDimensions,
-          videoRequest: isVideoExport
-            ? {
-                durationSeconds: selectedVideoDurationSeconds,
-                format: selectedVideoFormat,
-                frameRate: selectedVideoFrameRate,
-                longEdge: selectedVideoLongEdge,
-              }
-            : undefined,
-        })
       }
+
+      await runTargetExport()
 
       playDesktopSound("success")
     } catch (error) {
@@ -3268,56 +3273,10 @@ export function WorkspaceSurface({
     persistActiveQrLayerState(nextState)
   }
 
-  function updateDesktopShapeSettings(patch: Partial<DesktopShapeSettings>) {
-    if (patch.backgroundShapeId !== undefined) setSelectedBackgroundShapeId(patch.backgroundShapeId)
-    if (patch.shapeColorMode) setSelectedBackgroundColorMode(patch.shapeColorMode)
-    if (patch.shapeSolidColor) {
-      setSelectedBackgroundColorMode("solid")
-      setSelectedBackgroundColor(patch.shapeSolidColor)
-      setSelectedBackgroundTransparent(false)
-    }
-    if (patch.shapeGradient) {
-      setSelectedBackgroundColorMode("gradient")
-      setSelectedBackgroundGradient({ ...patch.shapeGradient, enabled: true })
-      setSelectedBackgroundTransparent(false)
-    }
-    const shapeOptionsPatch: Partial<BackgroundShapeOptions> = {}
-    if (patch.shapePadding !== undefined) shapeOptionsPatch.paddingPx = patch.shapePadding
-    if (Object.keys(shapeOptionsPatch).length > 0) {
-      setSelectedBackgroundShapeOptions((current) => ({ ...current, ...shapeOptionsPatch }))
-    }
-
-    const qrShadowPatch =
-      patch.shapeShadowBlur !== undefined ||
-      patch.shapeShadowColor !== undefined ||
-      patch.shapeShadowOffsetX !== undefined ||
-      patch.shapeShadowOffsetY !== undefined ||
-      patch.shapeShadowOpacity !== undefined
-        ? {
-            blur: patch.shapeShadowBlur,
-            color: patch.shapeShadowColor,
-            offsetX: patch.shapeShadowOffsetX,
-            offsetY: patch.shapeShadowOffsetY,
-            opacity: patch.shapeShadowOpacity,
-          }
-        : null
-
-    if (qrShadowPatch) {
-      const qrLayerId = getDraftingQrLayerId(activeQrNodeId)
-      const currentQrLayer = findDraftingLayerById(activeCanvasLayers, qrLayerId)
-      if (currentQrLayer) {
-        handleLayerChange(activeQrNodeId, qrLayerId, {
-          shadow: {
-            ...currentQrLayer.shadow,
-            ...Object.fromEntries(
-              Object.entries(qrShadowPatch).filter(([, value]) => value !== undefined),
-            ),
-          },
-        })
-      }
-    }
+  function mergeCardStateFromShapePatch(patch: Partial<DesktopShapeSettings>) {
     const nextCornerRadius = patch.cardRadius ?? selectedCardState.cornerRadius
-    const nextCardState = {
+
+    return {
       ...selectedCardState,
       bottomSpace: patch.bottomSpace ?? selectedCardState.bottomSpace,
       cornerRadius: nextCornerRadius,
@@ -3335,14 +3294,7 @@ export function WorkspaceSurface({
       fill: patch.cardFill ?? selectedCardState.fill,
       height: patch.cardHeight ?? selectedCardState.height,
       lockAspectRatio: patch.lockAspectRatio ?? selectedCardState.lockAspectRatio,
-      shadow: {
-        ...selectedCardState.shadow,
-        blur: patch.shadowBlur ?? selectedCardState.shadow.blur,
-        color: patch.shadowColor ?? selectedCardState.shadow.color,
-        offsetX: patch.shadowOffsetX ?? selectedCardState.shadow.offsetX,
-        offsetY: patch.shadowOffsetY ?? selectedCardState.shadow.offsetY,
-        opacity: patch.shadowOpacity ?? selectedCardState.shadow.opacity,
-      },
+      shadow: cardShadowFromPatch(patch),
       sizeMode: patch.sizeMode ?? selectedCardState.sizeMode,
       sizePresetId:
         patch.sizePresetId !== undefined ? patch.sizePresetId : selectedCardState.sizePresetId,
@@ -3352,6 +3304,92 @@ export function WorkspaceSurface({
           : selectedCardState.styleMode,
       width: patch.cardWidth ?? selectedCardState.width,
     }
+  }
+
+  function cardShadowFromPatch(patch: Partial<DesktopShapeSettings>) {
+    return {
+      ...selectedCardState.shadow,
+      blur: patch.shadowBlur ?? selectedCardState.shadow.blur,
+      color: patch.shadowColor ?? selectedCardState.shadow.color,
+      offsetX: patch.shadowOffsetX ?? selectedCardState.shadow.offsetX,
+      offsetY: patch.shadowOffsetY ?? selectedCardState.shadow.offsetY,
+      opacity: patch.shadowOpacity ?? selectedCardState.shadow.opacity,
+    }
+  }
+
+  function relayoutCardInset(normalizedCardState: ReturnType<typeof normalizeDraftingCardState>) {
+    const baseQrState = resolveLiveQrPersistState()
+    const fittedQr = fitQrSizeInCard(baseQrState, normalizedCardState)
+    const nextQrState = {
+      ...baseQrState,
+      height: fittedQr.height,
+      width: fittedQr.width,
+    }
+
+    if (normalizedCardState.sizeMode === "fixed") {
+      setSelectedQrSize(fittedQr.width)
+    }
+
+    setLayerStateByNodeId((layerState) => {
+      const layers =
+        layerState[activeQrNodeId] ??
+        createDefaultDraftingLayers(activeQrNodeId, nextQrState, normalizedCardState)
+
+      return {
+        ...layerState,
+        [activeQrNodeId]: layoutDraftingCardInsetLayers(
+          layers.map(cloneDraftingCanvasLayer),
+          nextQrState,
+          normalizedCardState,
+        ),
+      }
+    })
+  }
+
+  function updateDesktopShapeSettings(patch: Partial<DesktopShapeSettings>) {
+    if (patch.backgroundShapeId !== undefined) setSelectedBackgroundShapeId(patch.backgroundShapeId)
+    if (patch.shapeColorMode) setSelectedBackgroundColorMode(patch.shapeColorMode)
+    if (patch.shapeSolidColor) {
+      setSelectedBackgroundColorMode("solid")
+      setSelectedBackgroundColor(patch.shapeSolidColor)
+      setSelectedBackgroundTransparent(false)
+    }
+    if (patch.shapeGradient) {
+      setSelectedBackgroundColorMode("gradient")
+      setSelectedBackgroundGradient({ ...patch.shapeGradient, enabled: true })
+      setSelectedBackgroundTransparent(false)
+    }
+    if (patch.shapePadding !== undefined) {
+      const paddingPx = patch.shapePadding
+      setSelectedBackgroundShapeOptions((current) => ({ ...current, paddingPx }))
+    }
+
+    const qrShadowPatch = Object.fromEntries(
+      (
+        [
+          ["blur", patch.shapeShadowBlur],
+          ["color", patch.shapeShadowColor],
+          ["offsetX", patch.shapeShadowOffsetX],
+          ["offsetY", patch.shapeShadowOffsetY],
+          ["opacity", patch.shapeShadowOpacity],
+        ] as const
+      ).filter(([, value]) => value !== undefined),
+    )
+
+    if (Object.keys(qrShadowPatch).length > 0) {
+      const qrLayerId = getDraftingQrLayerId(activeQrNodeId)
+      const currentQrLayer = findDraftingLayerById(activeCanvasLayers, qrLayerId)
+      if (currentQrLayer) {
+        handleLayerChange(activeQrNodeId, qrLayerId, {
+          shadow: { ...currentQrLayer.shadow, ...qrShadowPatch },
+        })
+      }
+    }
+
+    const normalizedCardState = normalizeDraftingCardState(
+      mergeCardStateFromShapePatch(patch),
+    )
+    setSelectedCardState(normalizedCardState)
 
     const shouldRelayoutCardInset =
       patch.bottomSpace !== undefined ||
@@ -3360,47 +3398,19 @@ export function WorkspaceSurface({
       patch.sizeMode !== undefined ||
       patch.sizePresetId !== undefined
 
-    const normalizedCardState = normalizeDraftingCardState(nextCardState)
-    setSelectedCardState(normalizedCardState)
-
     if (shouldRelayoutCardInset) {
-      const baseQrState = resolveLiveQrPersistState()
-      const fittedQr = fitQrSizeInCard(baseQrState, normalizedCardState)
-      const nextQrState = {
-        ...baseQrState,
-        height: fittedQr.height,
-        width: fittedQr.width,
-      }
-
-      if (normalizedCardState.sizeMode === "fixed") {
-        setSelectedQrSize(fittedQr.width)
-      }
-
-      setLayerStateByNodeId((layerState) => {
-        const layers =
-          layerState[activeQrNodeId] ??
-          createDefaultDraftingLayers(activeQrNodeId, nextQrState, normalizedCardState)
-
-        return {
-          ...layerState,
-          [activeQrNodeId]: layoutDraftingCardInsetLayers(
-            layers.map(cloneDraftingCanvasLayer),
-            nextQrState,
-            normalizedCardState,
-          ),
-        }
-      })
+      relayoutCardInset(normalizedCardState)
     }
-    if (patch.shadowBlur !== undefined || patch.shadowColor !== undefined || patch.shadowOffsetX !== undefined || patch.shadowOffsetY !== undefined || patch.shadowOpacity !== undefined) {
+
+    if (
+      patch.shadowBlur !== undefined ||
+      patch.shadowColor !== undefined ||
+      patch.shadowOffsetX !== undefined ||
+      patch.shadowOffsetY !== undefined ||
+      patch.shadowOpacity !== undefined
+    ) {
       handleLayerChange(activeQrNodeId, getDraftingCardLayerId(activeQrNodeId), {
-        shadow: {
-          ...selectedCardState.shadow,
-          blur: patch.shadowBlur ?? selectedCardState.shadow.blur,
-          color: patch.shadowColor ?? selectedCardState.shadow.color,
-          offsetX: patch.shadowOffsetX ?? selectedCardState.shadow.offsetX,
-          offsetY: patch.shadowOffsetY ?? selectedCardState.shadow.offsetY,
-          opacity: patch.shadowOpacity ?? selectedCardState.shadow.opacity,
-        },
+        shadow: cardShadowFromPatch(patch),
       })
     }
   }

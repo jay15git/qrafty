@@ -1133,10 +1133,7 @@ export function validatePlatformContent(
   const hasUrl = Boolean(stringFieldValue(values, "url"))
 
   for (const field of intent.fields) {
-    if (!field.required || hasUrl) {
-      continue
-    }
-    if (!stringFieldValue(values, field.key)) {
+    if (field.required && !hasUrl && !stringFieldValue(values, field.key)) {
       fieldErrors[field.key] = `Enter ${field.label.toLowerCase()}.`
     }
   }
@@ -1145,55 +1142,75 @@ export function validatePlatformContent(
     fieldErrors.url = "Enter a URL."
   }
 
-  if (resolved === "map-location") {
-    const latitude = stringFieldValue(values, "latitude")
-    const longitude = stringFieldValue(values, "longitude")
-
-    if (latitude || longitude) {
-      if (!isLatitude(latitude)) {
-        fieldErrors.latitude = "Latitude must be between -90 and 90."
-      }
-      if (!isLongitude(longitude)) {
-        fieldErrors.longitude = "Longitude must be between -180 and 180."
-      }
-    }
-  }
+  validateMapLocationFields(resolved, values, fieldErrors)
 
   const def = getPlatformDef(resolved)
 
-  for (const field of intent?.fields ?? []) {
-    const value = stringFieldValue(values, field.key)
-    if (!value || fieldErrors[field.key]) {
-      continue
-    }
-
-    switch (field.kind) {
-      case "url": {
-        const hosts = def?.hosts ?? []
-        const ok = hosts.length > 0 ? isValidPlatformUrl(value, hosts) : isValidUrl(value)
-        if (!ok) {
-          fieldErrors[field.key] = platformUrlErrorMessage(intent.label)
-        } else if (def && intent.matchPath && isWrongPlatformIntent(value, def, intent)) {
-          fieldErrors[field.key] = platformUrlErrorMessage(intent.label)
-        }
-        break
-      }
-      case "phone":
-        if (!isValidPhone(value)) {
-          fieldErrors[field.key] = VALIDATION_MESSAGES.phone
-        }
-        break
-      case "amount":
-        if (!isPositiveAmount(value)) {
-          fieldErrors[field.key] = VALIDATION_MESSAGES.amount
-        }
-        break
-      default:
-        break
-    }
+  for (const field of intent.fields) {
+    validateFieldValue(field, values, def, intent, fieldErrors)
   }
 
   return fieldErrors
+}
+
+function validateMapLocationFields(
+  resolved: QrInputType,
+  values: PlatformContentValues,
+  fieldErrors: Record<string, string>,
+) {
+  if (resolved !== "map-location") {
+    return
+  }
+
+  const latitude = stringFieldValue(values, "latitude")
+  const longitude = stringFieldValue(values, "longitude")
+
+  if (!latitude && !longitude) {
+    return
+  }
+
+  if (!isLatitude(latitude)) {
+    fieldErrors.latitude = "Latitude must be between -90 and 90."
+  }
+  if (!isLongitude(longitude)) {
+    fieldErrors.longitude = "Longitude must be between -180 and 180."
+  }
+}
+
+function validateFieldValue(
+  field: PlatformFieldDef,
+  values: PlatformContentValues,
+  def: PlatformDef | undefined,
+  intent: PlatformIntentDef,
+  fieldErrors: Record<string, string>,
+) {
+  const value = stringFieldValue(values, field.key)
+  if (!value || fieldErrors[field.key]) {
+    return
+  }
+
+  switch (field.kind) {
+    case "url": {
+      const hosts = def?.hosts ?? []
+      const ok = hosts.length > 0 ? isValidPlatformUrl(value, hosts) : isValidUrl(value)
+      if (!ok || (def && intent.matchPath && isWrongPlatformIntent(value, def, intent))) {
+        fieldErrors[field.key] = platformUrlErrorMessage(intent.label)
+      }
+      break
+    }
+    case "phone":
+      if (!isValidPhone(value)) {
+        fieldErrors[field.key] = VALIDATION_MESSAGES.phone
+      }
+      break
+    case "amount":
+      if (!isPositiveAmount(value)) {
+        fieldErrors[field.key] = VALIDATION_MESSAGES.amount
+      }
+      break
+    default:
+      break
+  }
 }
 
 function isWrongPlatformIntent(

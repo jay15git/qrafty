@@ -502,116 +502,124 @@ function parseGradient(input: string): Gradient | null {
   const parts = splitTopLevel(m[3]);
   if (parts.length === 0) return null;
 
-  if (type === "linear") {
-    // parts[0] for formatGradient output: "in oklch 90deg"
-    // For a hand-written gradient without interp: "90deg" or absent (just stops)
-    const { interp, rest } = extractInterp(parts[0]);
-    let angle = 180; // CSS default
-    let stopParts = parts.slice(1);
-
-    const angleMatch = rest.match(/^(-?\d+(?:\.\d+)?)deg$/i);
-    const toMatch = rest.match(
-      /^to\s+(top|bottom|left|right)(?:\s+(top|bottom|left|right))?$/i,
-    );
-    if (angleMatch) {
-      angle = parseFloat(angleMatch[1]);
-    } else if (toMatch) {
-      const dir = sideOrCornerAngle(toMatch[1], toMatch[2]);
-      if (dir === null) return null; // e.g. "to left right"
-      angle = dir;
-    } else if (rest.length > 0) {
-      // rest wasn't a direction — treat it as the first stop
-      stopParts = [rest, ...stopParts];
-    }
-
-    const stops = parseStops(stopParts);
-    if (!stops) return null;
-    return {
-      type: "linear",
-      angle,
-      interp,
-      stops,
-      ...(repeating ? { repeating: true } : {}),
-    };
+  switch (type) {
+    case "linear":
+      return parseLinearGradient(parts, repeating);
+    case "radial":
+      return parseRadialGradient(parts, repeating);
+    default:
+      return parseConicGradient(parts, repeating);
   }
+}
 
-  if (type === "radial") {
-    // formatGradient output parts[0]: "circle farthest-corner at 50% 50% in oklch"
-    //                            or:  "48% 30% at 50% 50% in oklch"
-    const { interp, rest } = extractInterp(parts[0]);
-    const head = rest;
-    const stopParts = parts.slice(1);
-
-    let shape: "circle" | "ellipse" = "ellipse";
-    let size: RadialSizeKeyword = "farthest-corner";
-    let cx = 0.5;
-    let cy = 0.5;
-    let radii: { x: number; y: number } | undefined;
-    let radiusPx: number | undefined;
-
-    if (/\bcircle\b/i.test(head)) shape = "circle";
-    else if (/\bellipse\b/i.test(head)) shape = "ellipse";
-    // Order matters: `closest-corner` and `farthest-side` must be checked
-    // before the shorter `closest-side` and `farthest-corner` to avoid the
-    // longer keyword being partially matched. Using anchored \b regexes
-    // sidesteps that issue regardless of order.
-    if (/\bclosest-corner\b/i.test(head)) size = "closest-corner";
-    else if (/\bclosest-side\b/i.test(head)) size = "closest-side";
-    else if (/\bfarthest-side\b/i.test(head)) size = "farthest-side";
-    else if (/\bfarthest-corner\b/i.test(head)) size = "farthest-corner";
-
-    const beforeAt = head.split(/\bat\b/i)[0] ?? head;
-
-    // Single `<px>` length form (e.g. "268px") — CSS spec requires this
-    // to be a circle, so set shape too. Check before the `%% %%` pair so a
-    // mixed `circle 100px` doesn't accidentally try to parse a pair.
-    const singleLenMatch = beforeAt.match(/(-?\d+(?:\.\d+)?)px(?!\s*-?\d+(?:\.\d+)?\s*(?:px|%))/);
-    if (singleLenMatch) {
-      radiusPx = parseFloat(singleLenMatch[1]);
-      shape = "circle";
-    }
-
-    // Explicit two-value ending shape (e.g. "48% 30%") — appears before `at`.
-    // We deliberately only match the percentage form formatGradient emits;
-    // raw lengths (`100px 80px`) are intentionally ignored here so they fall
-    // through to the keyword defaults instead of being silently rescaled.
-    if (!radiusPx) {
-      const radiiMatch = beforeAt.match(
-        /(-?\d+(?:\.\d+)?)%\s+(-?\d+(?:\.\d+)?)%/,
-      );
-      if (radiiMatch) {
-        radii = {
-          x: parseFloat(radiiMatch[1]) / 100,
-          y: parseFloat(radiiMatch[2]) / 100,
-        };
-      }
-    }
-
-    const atMatch = head.match(/\bat\s+(-?\d+(?:\.\d+)?)%\s+(-?\d+(?:\.\d+)?)%/i);
-    if (atMatch) {
-      cx = parseFloat(atMatch[1]) / 100;
-      cy = parseFloat(atMatch[2]) / 100;
-    }
-
-    const stops = parseStops(stopParts);
-    if (!stops) return null;
-    return {
-      type: "radial",
-      shape,
-      size,
-      center: { x: cx, y: cy },
-      ...(radii ? { radii } : {}),
-      ...(radiusPx !== undefined ? { radiusPx } : {}),
-      interp,
-      stops,
-      ...(repeating ? { repeating: true } : {}),
-    };
-  }
-
-  // conic
-  // formatGradient output parts[0]: "from 0deg at 50% 50% in oklch"
+function parseLinearGradient(parts: string[], repeating: boolean): Gradient | null {
+  // parts[0] for formatGradient output: "in oklch 90deg"
+  // For a hand-written gradient without interp: "90deg" or absent (just stops)
   const { interp, rest } = extractInterp(parts[0]);
-  const head = rest;
+  let angle = 180; // CSS default
+  let stopParts = parts.slice(1);
+
+  const angleMatch = rest.match(/^(-?\d+(?:\.\d+)?)deg$/i);
+  const toMatch = rest.match(
+    /^to\s+(top|bottom|left|right)(?:\s+(top|bottom|left|right))?$/i,
+  );
+  if (angleMatch) {
+    angle = parseFloat(angleMatch[1]);
+  } else if (toMatch) {
+    const dir = sideOrCornerAngle(toMatch[1], toMatch[2]);
+    if (dir === null) return null; // e.g. "to left right"
+    angle = dir;
+  } else if (rest.length > 0) {
+    // rest wasn't a direction — treat it as the first stop
+    stopParts = [rest, ...stopParts];
+  }
+
+  const stops = parseStops(stopParts);
+  if (!stops) return null;
+  return {
+    type: "linear",
+    angle,
+    interp,
+    stops,
+    ...(repeating ? { repeating: true } : {}),
+  };
+}
+
+function parseRadialGradient(parts: string[], repeating: boolean): Gradient | null {
+  // formatGradient output parts[0]: "circle farthest-corner at 50% 50% in oklch"
+  //                            or:  "48% 30% at 50% 50% in oklch"
+  const { interp, rest: head } = extractInterp(parts[0]);
+  const stopParts = parts.slice(1);
+
+  let shape: "circle" | "ellipse" = "ellipse";
+  let size: RadialSizeKeyword = "farthest-corner";
+  let cx = 0.5;
+  let cy = 0.5;
+  let radii: { x: number; y: number } | undefined;
+  let radiusPx: number | undefined;
+
+  if (/\bcircle\b/i.test(head)) shape = "circle";
+  else if (/\bellipse\b/i.test(head)) shape = "ellipse";
+  // Order matters: `closest-corner` and `farthest-side` must be checked
+  // before the shorter `closest-side` and `farthest-corner` to avoid the
+  // longer keyword being partially matched. Using anchored \b regexes
+  // sidesteps that issue regardless of order.
+  if (/\bclosest-corner\b/i.test(head)) size = "closest-corner";
+  else if (/\bclosest-side\b/i.test(head)) size = "closest-side";
+  else if (/\bfarthest-side\b/i.test(head)) size = "farthest-side";
+  else if (/\bfarthest-corner\b/i.test(head)) size = "farthest-corner";
+
+  const beforeAt = head.split(/\bat\b/i)[0] ?? head;
+
+  // Single `<px>` length form (e.g. "268px") — CSS spec requires this
+  // to be a circle, so set shape too. Check before the `%% %%` pair so a
+  // mixed `circle 100px` doesn't accidentally try to parse a pair.
+  const singleLenMatch = beforeAt.match(/(-?\d+(?:\.\d+)?)px(?!\s*-?\d+(?:\.\d+)?\s*(?:px|%))/);
+  if (singleLenMatch) {
+    radiusPx = parseFloat(singleLenMatch[1]);
+    shape = "circle";
+  }
+
+  // Explicit two-value ending shape (e.g. "48% 30%") — appears before `at`.
+  // We deliberately only match the percentage form formatGradient emits;
+  // raw lengths (`100px 80px`) are intentionally ignored here so they fall
+  // through to the keyword defaults instead of being silently rescaled.
+  if (!radiusPx) {
+    const radiiMatch = beforeAt.match(
+      /(-?\d+(?:\.\d+)?)%\s+(-?\d+(?:\.\d+)?)%/,
+    );
+    if (radiiMatch) {
+      radii = {
+        x: parseFloat(radiiMatch[1]) / 100,
+        y: parseFloat(radiiMatch[2]) / 100,
+      };
+    }
+  }
+
+  const atMatch = head.match(/\bat\s+(-?\d+(?:\.\d+)?)%\s+(-?\d+(?:\.\d+)?)%/i);
+  if (atMatch) {
+    cx = parseFloat(atMatch[1]) / 100;
+    cy = parseFloat(atMatch[2]) / 100;
+  }
+
+  const stops = parseStops(stopParts);
+  if (!stops) return null;
+  return {
+    type: "radial",
+    shape,
+    size,
+    center: { x: cx, y: cy },
+    ...(radii ? { radii } : {}),
+    ...(radiusPx !== undefined ? { radiusPx } : {}),
+    interp,
+    stops,
+    ...(repeating ? { repeating: true } : {}),
+  };
+}
+
+function parseConicGradient(parts: string[], repeating: boolean): Gradient | null {
+  // formatGradient output parts[0]: "from 0deg at 50% 50% in oklch"
+  const { interp, rest: head } = extractInterp(parts[0]);
   const stopParts = parts.slice(1);
 
   let startAngle = 0;

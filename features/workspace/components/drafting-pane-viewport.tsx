@@ -8,8 +8,8 @@ import type {
   TouchEvent,
 } from "react"
 
-import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
-import { Pane, type DraftingLayerMenuAction } from "@/features/workspace/components/Pane"
+import type { DraftingLayerInteractionProps } from "@/features/workspace/components/canvas-control-props"
+import { Pane } from "@/features/workspace/components/Pane"
 import type {
   DraftingPane,
   DraftingPaneCanvasTool,
@@ -36,28 +36,12 @@ type DraftingPaneViewportProps = {
   onPaneDragOver: (paneId: string, event: DragEvent<HTMLDivElement>) => void
   onPaneDragStart: (paneId: string, event: DragEvent<HTMLDivElement>) => void
   onPaneDrop: (paneId: string, event: DragEvent<HTMLDivElement>) => void
-  onLayerAction?: (
-    paneId: string,
-    layerIds: string[],
-    action: DraftingLayerMenuAction,
-  ) => void
-  onLayerChange?: (
-    paneId: string,
-    layerId: string,
-    patch: Partial<DraftingCanvasLayer>,
-  ) => void
-  onLayerCopy?: (paneId: string, layerIds: string[]) => void
-  onLayerPaste?: (paneId: string, point: { x: number; y: number }) => void
-  onLayerSelect?: (
-    paneId: string,
-    layerId: string | null,
-    options?: { additive?: boolean },
-  ) => void
-  onLayerSelectionChange?: (
-    paneId: string,
-    layerIds: string[],
-    options?: { additive?: boolean },
-  ) => void
+  onLayerAction?: DraftingLayerInteractionProps["onLayerAction"]
+  onLayerChange?: DraftingLayerInteractionProps["onLayerChange"]
+  onLayerCopy?: DraftingLayerInteractionProps["onLayerCopy"]
+  onLayerPaste?: DraftingLayerInteractionProps["onLayerPaste"]
+  onLayerSelect?: DraftingLayerInteractionProps["onLayerSelect"]
+  onLayerSelectionChange?: DraftingLayerInteractionProps["onLayerSelectionChange"]
   onQrClick: () => void
   onSelect: () => void
   onSurfaceClick: (event: ReactMouseEvent<HTMLDivElement>) => void

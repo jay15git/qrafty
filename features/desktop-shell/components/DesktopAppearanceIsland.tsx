@@ -182,6 +182,32 @@ export function DesktopDynamicIslandChrome({
   const themeTransition = useOptionalBlurFadeThemeTransition()
 
   const items = useMemo(() => {
+    const hugeIcon = (icon: Parameters<typeof HugeiconsIcon>[0]["icon"]) => (
+      <HugeiconsIcon
+        className={ICON_CLASS}
+        color="currentColor"
+        icon={icon}
+        size={14}
+        strokeWidth={1.8}
+      />
+    )
+    const panelItem = (
+      label: string,
+      slot: string,
+      icon: ReactNode,
+      panel: ReactNode,
+    ): TooltipItem => ({
+      ariaLabel: label,
+      dataSlot: `${slot}-trigger`,
+      icon,
+      label,
+      popover: (
+        <DesktopToolbarPopoverContent dataSlot={`${slot}-popover`} fitContent>
+          {panel}
+        </DesktopToolbarPopoverContent>
+      ),
+    })
+
     const nextItems: TooltipItem[] = [
       {
         ariaLabel: "Undo",
@@ -215,154 +241,89 @@ export function DesktopDynamicIslandChrome({
     }
 
     if (hasTransform) {
-      nextItems.push({
-        ariaLabel: "Transform",
-        dataSlot: "desktop-layer-transform-trigger",
-        icon: (
-          <HugeiconsIcon
-            className={ICON_CLASS}
-            color="currentColor"
-            icon={ScreenRotationIcon}
-            size={14}
-            strokeWidth={1.8}
-          />
+      nextItems.push(
+        panelItem(
+          "Transform",
+          "desktop-layer-transform",
+          hugeIcon(ScreenRotationIcon),
+          <DesktopLayerTransformPanel
+            layer={selectedTransformLayer!}
+            onPatch={onTransformLayerPatch!}
+            theme={theme}
+            variant="flat"
+          />,
         ),
-        label: "Transform",
-        popover: (
-          <DesktopToolbarPopoverContent
-            dataSlot="desktop-layer-transform-popover"
-            fitContent
-          >
-            <DesktopLayerTransformPanel
-              layer={selectedTransformLayer!}
-              onPatch={onTransformLayerPatch!}
-              theme={theme}
-              variant="flat"
-            />
-          </DesktopToolbarPopoverContent>
-        ),
-      })
+      )
     }
 
     if (hasStyle) {
-      nextItems.push({
-        ariaLabel: "Style",
-        dataSlot: "desktop-layer-style-trigger",
-        icon: <PaletteIcon className={ICON_CLASS} />,
-        label: "Style",
-        popover: (
-          <DesktopToolbarPopoverContent
-            dataSlot="desktop-layer-style-popover"
-            fitContent
-          >
-            <DesktopLayerStylePanel
-              layer={selectedElementLayer!}
-              onPatch={onElementLayerPatch!}
-              theme={theme}
-            />
-          </DesktopToolbarPopoverContent>
+      nextItems.push(
+        panelItem(
+          "Style",
+          "desktop-layer-style",
+          <PaletteIcon className={ICON_CLASS} />,
+          <DesktopLayerStylePanel
+            layer={selectedElementLayer!}
+            onPatch={onElementLayerPatch!}
+            theme={theme}
+          />,
         ),
-      })
+      )
     }
 
     if (hasBorder) {
-      nextItems.push({
-        ariaLabel: "Border",
-        dataSlot: "desktop-layer-border-trigger",
-        icon: (
-          <HugeiconsIcon
-            className={ICON_CLASS}
-            color="currentColor"
-            icon={BorderNone02Icon}
-            size={14}
-            strokeWidth={1.8}
-          />
+      nextItems.push(
+        panelItem(
+          "Border",
+          "desktop-layer-border",
+          hugeIcon(BorderNone02Icon),
+          <DesktopLayerBorderPanel
+            appearance={appearance!}
+            onPatch={onAppearancePatch!}
+            theme={theme}
+          />,
         ),
-        label: "Border",
-        popover: (
-          <DesktopToolbarPopoverContent
-            dataSlot="desktop-layer-border-popover"
-            fitContent
-          >
-            <DesktopLayerBorderPanel
-              appearance={appearance!}
-              onPatch={onAppearancePatch!}
-              theme={theme}
-            />
-          </DesktopToolbarPopoverContent>
-        ),
-      })
+      )
     }
 
     if (hasEffects) {
-      nextItems.push({
-        ariaLabel: "Shadows",
-        dataSlot: "desktop-layer-shadows-trigger",
-        icon: <DesktopShadowIcon className={ICON_CLASS} />,
-        label: "Shadows",
-        popover: (
-          <DesktopToolbarPopoverContent
-            dataSlot="desktop-layer-shadows-popover"
-            fitContent
-          >
-            <DesktopLayerShadowsPanel
-              layer={effectsLayer!}
-              onPatch={effectsPatch!}
-              theme={theme}
-            />
-          </DesktopToolbarPopoverContent>
+      nextItems.push(
+        panelItem(
+          "Shadows",
+          "desktop-layer-shadows",
+          <DesktopShadowIcon className={ICON_CLASS} />,
+          <DesktopLayerShadowsPanel
+            layer={effectsLayer!}
+            onPatch={effectsPatch!}
+            theme={theme}
+          />,
         ),
-      })
-
-      nextItems.push({
-        ariaLabel: "Effects",
-        dataSlot: "desktop-layer-effects-trigger",
-        icon: (
-          <HugeiconsIcon
-            className={ICON_CLASS}
-            color="currentColor"
-            icon={MagicWand05Icon}
-            size={14}
-            strokeWidth={1.8}
-          />
+        panelItem(
+          "Effects",
+          "desktop-layer-effects",
+          hugeIcon(MagicWand05Icon),
+          <DesktopLayerEffectsPanel
+            effectKinds={LAYER_FILTER_EFFECT_KINDS}
+            layer={effectsLayer!}
+            layerOpacity={appearance?.opacity}
+            onLayerOpacityChange={
+              appearance && onAppearancePatch
+                ? (opacity) => onAppearancePatch({ opacity })
+                : undefined
+            }
+            onPatch={effectsPatch!}
+            theme={theme}
+            variant="flat"
+          />,
         ),
-        label: "Effects",
-        popover: (
-          <DesktopToolbarPopoverContent
-            dataSlot="desktop-layer-effects-popover"
-            fitContent
-          >
-            <DesktopLayerEffectsPanel
-              effectKinds={LAYER_FILTER_EFFECT_KINDS}
-              layer={effectsLayer!}
-              layerOpacity={appearance?.opacity}
-              onLayerOpacityChange={
-                appearance && onAppearancePatch
-                  ? (opacity) => onAppearancePatch({ opacity })
-                  : undefined
-              }
-              onPatch={effectsPatch!}
-              theme={theme}
-              variant="flat"
-            />
-          </DesktopToolbarPopoverContent>
-        ),
-      })
+      )
     }
 
     if (canInsert) {
       nextItems.push({
         ariaLabel: "Add element",
         dataSlot: "desktop-insert-trigger",
-        icon: (
-          <HugeiconsIcon
-            className={ICON_CLASS}
-            color="currentColor"
-            icon={ResourcesAddIcon}
-            size={14}
-            strokeWidth={1.8}
-          />
-        ),
+        icon: hugeIcon(ResourcesAddIcon),
         label: "Add element",
         popover: (
           <InsertMenuPopoverContent
@@ -379,34 +340,20 @@ export function DesktopDynamicIslandChrome({
     }
 
     if (hasLayers) {
-      nextItems.push({
-        ariaLabel: "Layers",
-        dataSlot: "desktop-layers-trigger",
-        icon: (
-          <HugeiconsIcon
-            className={ICON_CLASS}
-            color="currentColor"
-            icon={Layers01Icon}
-            size={14}
-            strokeWidth={1.8}
-          />
+      nextItems.push(
+        panelItem(
+          "Layers",
+          "desktop-layers",
+          hugeIcon(Layers01Icon),
+          <DesktopLayersPopoverContent
+            canDeleteLayer={canDeleteLayer}
+            layersSettings={layersSettings!}
+            onLayerDelete={onLayerDelete}
+            onLayersReorder={onLayersReorder}
+            onLayersSettingsChange={onLayersSettingsChange!}
+          />,
         ),
-        label: "Layers",
-        popover: (
-          <DesktopToolbarPopoverContent
-            dataSlot="desktop-layers-popover"
-            fitContent
-          >
-            <DesktopLayersPopoverContent
-              canDeleteLayer={canDeleteLayer}
-              layersSettings={layersSettings!}
-              onLayerDelete={onLayerDelete}
-              onLayersReorder={onLayersReorder}
-              onLayersSettingsChange={onLayersSettingsChange!}
-            />
-          </DesktopToolbarPopoverContent>
-        ),
-      })
+      )
     }
 
     nextItems.push({

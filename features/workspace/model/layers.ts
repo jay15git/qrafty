@@ -1474,72 +1474,124 @@ function migrateLegacyQrLayerShadow(
   })
 }
 
+const FALLBACK_LAYER_NAMES: Record<DraftingCanvasLayerKind, string> = {
+  card: "Card",
+  qr: "QR code",
+  text: "Text",
+  image: "Image",
+  shape: "Shape",
+  shader: "Shader",
+  group: "Group",
+}
+
+function fallbackLayerId(nodeId: string, kind: DraftingCanvasLayerKind) {
+  if (kind === "card") {
+    return getDraftingCardLayerId(nodeId)
+  }
+
+  if (kind === "qr") {
+    return getDraftingQrLayerId(nodeId)
+  }
+
+  if (kind === "text" || kind === "image" || kind === "shape" || kind === "shader") {
+    return createDraftingLayerInstanceId(nodeId, kind)
+  }
+
+  return `${nodeId}:group`
+}
+
+/** Kind-specific fields for `createFallbackLayer`. Everything not listed
+ * here keeps the shared defaults in the base literal. */
+function fallbackLayerKindDefaults(
+  kind: DraftingCanvasLayerKind,
+): Partial<DraftingCanvasLayer> {
+  switch (kind) {
+    case "text":
+      return {
+        height: 48,
+        y: -24,
+        fill: DEFAULT_DRAFTING_TEXT_LAYER.fill,
+        fillMode: "solid",
+        fontFamily: DEFAULT_DRAFTING_TEXT_LAYER.fontFamily,
+        fontId: DEFAULT_DRAFTING_TEXT_LAYER.fontId,
+        fontSize: DEFAULT_DRAFTING_TEXT_LAYER.fontSize,
+        fontStyle: DEFAULT_DRAFTING_TEXT_LAYER.fontStyle,
+        fontWeight: DEFAULT_DRAFTING_TEXT_LAYER.fontWeight,
+        letterSpacing: DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing,
+        lineHeight: DEFAULT_DRAFTING_TEXT_LAYER.lineHeight,
+        text: DEFAULT_DRAFTING_TEXT_LAYER.text,
+        textAlign: DEFAULT_DRAFTING_TEXT_LAYER.textAlign,
+        underline: DEFAULT_DRAFTING_TEXT_LAYER.underline,
+      }
+    case "image":
+      return {
+        cornerRadius: DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius,
+        cornerRadii: createUniformCornerRadii(DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius),
+        height: 180,
+        width: 180,
+        x: -90,
+        y: -90,
+        imageFit: DEFAULT_DRAFTING_IMAGE_LAYER.imageFit,
+        imageSource: DEFAULT_DRAFTING_IMAGE_LAYER.imageSource,
+        imageValue: DEFAULT_DRAFTING_IMAGE_LAYER.imageValue,
+      }
+    case "shape":
+      return {
+        cornerRadius: DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius,
+        cornerRadii: createUniformCornerRadii(DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius),
+        height: 180,
+        width: 180,
+        x: -90,
+        y: -90,
+        fill: DEFAULT_DRAFTING_SHAPE_LAYER.fill,
+        fillMode: DEFAULT_DRAFTING_SHAPE_LAYER.fillMode,
+        shapeId: DEFAULT_DRAFTING_SHAPE_LAYER.shapeId,
+        stroke: DEFAULT_DRAFTING_SHAPE_LAYER.stroke,
+        strokeOpacity: DEFAULT_DRAFTING_SHAPE_LAYER.strokeOpacity,
+        strokeStyle: DEFAULT_DRAFTING_SHAPE_LAYER.strokeStyle,
+        strokeWidth: DEFAULT_DRAFTING_SHAPE_LAYER.strokeWidth,
+      }
+    case "shader":
+      return {
+        cornerRadius: DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius,
+        cornerRadii: createUniformCornerRadii(DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius),
+        height: 180,
+        width: 180,
+        x: -90,
+        y: -90,
+        paperShader: createDefaultDraftingCardPaperShader(),
+      }
+    default:
+      return {}
+  }
+}
+
 function createFallbackLayer(
   nodeId: string,
   kind: DraftingCanvasLayerKind,
 ): DraftingCanvasLayer {
   const defaultShadow = { ...DEFAULT_LAYER_SHADOW }
-  const defaultShadowLayer = legacyShadowToShadowLayer(defaultShadow)
 
   return {
     blur: 0,
     borderSides: undefined,
-    cornerRadius:
-      kind === "image"
-        ? DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius
-        : kind === "shape"
-          ? DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius
-          : kind === "shader"
-            ? DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius
-            : undefined,
-    cornerRadii:
-      kind === "image"
-        ? createUniformCornerRadii(DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius)
-        : kind === "shape"
-          ? createUniformCornerRadii(DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius)
-          : kind === "shader"
-            ? createUniformCornerRadii(DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius)
-            : undefined,
-    fill: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.fill : kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.fill : undefined,
-    fillMode:
-      kind === "shape"
-        ? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode
-        : kind === "text"
-          ? "solid"
-          : undefined,
-    height: kind === "text" ? 48 : kind === "image" || kind === "shape" || kind === "shader" ? 180 : 240,
-    id:
-      kind === "card"
-        ? getDraftingCardLayerId(nodeId)
-        : kind === "qr"
-          ? getDraftingQrLayerId(nodeId)
-          : kind === "text" || kind === "image" || kind === "shape" || kind === "shader"
-            ? createDraftingLayerInstanceId(nodeId, kind)
-            : `${nodeId}:group`,
+    cornerRadius: undefined,
+    cornerRadii: undefined,
+    fill: undefined,
+    fillMode: undefined,
+    height: 240,
+    id: fallbackLayerId(nodeId, kind),
     isVisible: true,
     kind,
-    fontFamily: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.fontFamily : undefined,
-    fontId: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.fontId : undefined,
-    fontSize: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.fontSize : undefined,
-    fontStyle: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle : undefined,
-    fontWeight: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight : undefined,
+    fontFamily: undefined,
+    fontId: undefined,
+    fontSize: undefined,
+    fontStyle: undefined,
+    fontWeight: undefined,
     layerFilters: [],
-    letterSpacing: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing : undefined,
-    lineHeight: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight : undefined,
-    name:
-      kind === "card"
-        ? "Card"
-        : kind === "qr"
-          ? "QR code"
-          : kind === "text"
-            ? "Text"
-            : kind === "image"
-              ? "Image"
-              : kind === "shape"
-                ? "Shape"
-                : kind === "shader"
-                  ? "Shader"
-                  : "Group",
+    letterSpacing: undefined,
+    lineHeight: undefined,
+    name: FALLBACK_LAYER_NAMES[kind],
     nodeId,
     opacity: 1,
     outline: { ...DEFAULT_DRAFTING_OUTLINE },
@@ -1547,24 +1599,25 @@ function createFallbackLayer(
     tiltX: 0,
     tiltY: 0,
     shadow: defaultShadow,
-    shadows: [defaultShadowLayer],
-    imageFit: kind === "image" ? DEFAULT_DRAFTING_IMAGE_LAYER.imageFit : undefined,
-    imageSource: kind === "image" ? DEFAULT_DRAFTING_IMAGE_LAYER.imageSource : undefined,
-    imageValue: kind === "image" ? DEFAULT_DRAFTING_IMAGE_LAYER.imageValue : undefined,
+    shadows: [legacyShadowToShadowLayer(defaultShadow)],
+    imageFit: undefined,
+    imageSource: undefined,
+    imageValue: undefined,
     illustrationColorStops: undefined,
-    paperShader: kind === "shader" ? createDefaultDraftingCardPaperShader() : undefined,
-    shapeId: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId : undefined,
-    stroke: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.stroke : undefined,
-    strokeOpacity: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.strokeOpacity : undefined,
-    strokeStyle: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.strokeStyle : undefined,
-    strokeWidth: kind === "shape" ? DEFAULT_DRAFTING_SHAPE_LAYER.strokeWidth : undefined,
-    text: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.text : undefined,
-    textAlign: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.textAlign : undefined,
-    underline: kind === "text" ? DEFAULT_DRAFTING_TEXT_LAYER.underline : undefined,
-    width: kind === "image" || kind === "shape" || kind === "shader" ? 180 : 240,
-    x: kind === "image" || kind === "shape" || kind === "shader" ? -90 : -120,
-    y: kind === "text" ? -24 : kind === "image" || kind === "shape" || kind === "shader" ? -90 : -120,
+    paperShader: undefined,
+    shapeId: undefined,
+    stroke: undefined,
+    strokeOpacity: undefined,
+    strokeStyle: undefined,
+    strokeWidth: undefined,
+    text: undefined,
+    textAlign: undefined,
+    underline: undefined,
+    width: 240,
+    x: -120,
+    y: -120,
     zIndex: kind === "card" ? 0 : 1,
+    ...fallbackLayerKindDefaults(kind),
   }
 }
 

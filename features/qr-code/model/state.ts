@@ -626,122 +626,131 @@ export function clampQrBackgroundRound(value: number) {
   return coerceNumber(value, 0, 1, 0);
 }
 
+const REMOVED_DOT_MATRIX_OPTION_KEYS = ["bloom", "halo", "hoverAnimated", "muted"] as const;
+
+const DOT_MATRIX_ANIMATION_COMPARE_FIELDS = [
+  "enabled",
+  "exportAnimatedSvg",
+  "animated",
+  "colorPreset",
+  "customColor",
+  "customColorBase",
+  "customColorMid",
+  "customColorPeak",
+  "dotShape",
+  "loader",
+  "matrixSize",
+  "opacityBase",
+  "opacityMid",
+  "opacityPeak",
+  "overlayScale",
+  "pattern",
+  "preset",
+  "presetCategory",
+  "respectReducedMotion",
+  "speed",
+] as const satisfies readonly (keyof QrDotMatrixAnimationOptions)[];
+
+function resolveDotMatrixAnimation(
+  current: QrDotMatrixAnimationOptions,
+  patch: QrDotMatrixAnimationPatch,
+): QrDotMatrixAnimationOptions {
+  const nextCustomColor = coerceDotMatrixAnimationColor(
+    patch.customColor ?? current.customColor,
+    DEFAULT_DOT_MATRIX_ANIMATION.customColor,
+  );
+  const nextLoader = coerceDotMatrixSquareLoader(
+    patch.loader ?? current.loader,
+  );
+  const take = <K extends keyof QrDotMatrixAnimationOptions>(key: K) =>
+    patch[key] ?? current[key];
+  const opacityField = (key: "opacityBase" | "opacityMid" | "opacityPeak") =>
+    clampDotMatrixAnimationOpacity(take(key), DEFAULT_DOT_MATRIX_ANIMATION[key]);
+
+  return {
+    animated: take("animated"),
+    autoAnimate: "",
+    autoAnimateInterval: 5000,
+    colorPreset: take("colorPreset"),
+    customColor: nextCustomColor,
+    customColorBase: coerceDotMatrixAnimationColor(
+      patch.customColorBase ?? current.customColorBase,
+      nextCustomColor,
+    ),
+    customColorPeak: coerceDotMatrixAnimationColor(
+      patch.customColorPeak ?? current.customColorPeak,
+      nextCustomColor,
+    ),
+    customColorMid: coerceDotMatrixAnimationColor(
+      patch.customColorMid ?? patch.customColorPeak ?? current.customColorMid,
+      coerceDotMatrixAnimationColor(
+        patch.customColorPeak ?? current.customColorPeak,
+        nextCustomColor,
+      ),
+    ),
+    dotShape: take("dotShape"),
+    enabled: take("enabled"),
+    exportAnimatedSvg: take("exportAnimatedSvg"),
+    durationSeconds: take("durationSeconds") ?? DEFAULT_DOT_MATRIX_ANIMATION.durationSeconds,
+    frameRate: take("frameRate") ?? DEFAULT_DOT_MATRIX_ANIMATION.frameRate,
+    videoFormat: take("videoFormat") ?? DEFAULT_DOT_MATRIX_ANIMATION.videoFormat,
+    hoverColorMode: "both",
+    hoverEffect: "",
+    loader: nextLoader,
+    matrixSize: clampDotMatrixAnimationMatrixSize(take("matrixSize")),
+    motionIntensity: "premium",
+    opacityBase: opacityField("opacityBase"),
+    opacityMid: opacityField("opacityMid"),
+    opacityPeak: opacityField("opacityPeak"),
+    overlayScale: clampDotMatrixAnimationOverlayScale(take("overlayScale")),
+    pattern: take("pattern"),
+    preset: coerceMotionPreset(take("preset"), nextLoader),
+    paperShader: cloneDraftingCardPaperShaderState(
+      take("paperShader") ?? DEFAULT_DOT_MATRIX_ANIMATION.paperShader,
+    ),
+    presetCategory: coerceMotionPresetCategory(take("presetCategory")),
+    respectReducedMotion: take("respectReducedMotion"),
+    speed: clampDotMatrixAnimationSpeed(take("speed")),
+  };
+}
+
+function dotMatrixAnimationNeedsUpdate(
+  current: QrDotMatrixAnimationOptions,
+  next: QrDotMatrixAnimationOptions,
+): boolean {
+  if (
+    REMOVED_DOT_MATRIX_OPTION_KEYS.some((key) =>
+      Object.prototype.hasOwnProperty.call(current, key),
+    )
+  ) {
+    return true;
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(current, "matrixSize")) {
+    return true;
+  }
+
+  if (
+    JSON.stringify(current.paperShader) !== JSON.stringify(next.paperShader)
+  ) {
+    return true;
+  }
+
+  return DOT_MATRIX_ANIMATION_COMPARE_FIELDS.some(
+    (field) => current[field] !== next[field],
+  );
+}
+
 export function setDotMatrixAnimationOptions(
   state: QraftyState,
   patch: QrDotMatrixAnimationPatch,
 ): QraftyState {
-  const hasRemovedAnimationOptions =
-    Object.prototype.hasOwnProperty.call(state.dotMatrixAnimation, "bloom") ||
-    Object.prototype.hasOwnProperty.call(state.dotMatrixAnimation, "halo") ||
-    Object.prototype.hasOwnProperty.call(state.dotMatrixAnimation, "hoverAnimated") ||
-    Object.prototype.hasOwnProperty.call(state.dotMatrixAnimation, "muted");
-  const hasMissingMatrixSize =
-    !Object.prototype.hasOwnProperty.call(state.dotMatrixAnimation, "matrixSize");
-  const nextCustomColor = coerceDotMatrixAnimationColor(
-    patch.customColor ?? state.dotMatrixAnimation.customColor,
-    DEFAULT_DOT_MATRIX_ANIMATION.customColor,
+  const nextAnimation = resolveDotMatrixAnimation(
+    state.dotMatrixAnimation,
+    patch,
   );
-  const nextLoader = coerceDotMatrixSquareLoader(
-    patch.loader ?? state.dotMatrixAnimation.loader,
-  );
-  const nextAnimation: QrDotMatrixAnimationOptions = {
-    animated: patch.animated ?? state.dotMatrixAnimation.animated,
-    autoAnimate: "",
-    autoAnimateInterval: 5000,
-    colorPreset: patch.colorPreset ?? state.dotMatrixAnimation.colorPreset,
-    customColor: nextCustomColor,
-    customColorBase: coerceDotMatrixAnimationColor(
-      patch.customColorBase ?? state.dotMatrixAnimation.customColorBase,
-      nextCustomColor,
-    ),
-    customColorPeak: coerceDotMatrixAnimationColor(
-      patch.customColorPeak ?? state.dotMatrixAnimation.customColorPeak,
-      nextCustomColor,
-    ),
-    customColorMid: coerceDotMatrixAnimationColor(
-      patch.customColorMid ??
-        patch.customColorPeak ??
-        state.dotMatrixAnimation.customColorMid,
-      coerceDotMatrixAnimationColor(
-        patch.customColorPeak ?? state.dotMatrixAnimation.customColorPeak,
-        nextCustomColor,
-      ),
-    ),
-    dotShape: patch.dotShape ?? state.dotMatrixAnimation.dotShape,
-    enabled: patch.enabled ?? state.dotMatrixAnimation.enabled,
-    exportAnimatedSvg:
-      patch.exportAnimatedSvg ?? state.dotMatrixAnimation.exportAnimatedSvg,
-    durationSeconds: patch.durationSeconds ?? state.dotMatrixAnimation.durationSeconds ?? DEFAULT_DOT_MATRIX_ANIMATION.durationSeconds,
-    frameRate: patch.frameRate ?? state.dotMatrixAnimation.frameRate ?? DEFAULT_DOT_MATRIX_ANIMATION.frameRate,
-    videoFormat: patch.videoFormat ?? state.dotMatrixAnimation.videoFormat ?? DEFAULT_DOT_MATRIX_ANIMATION.videoFormat,
-    hoverColorMode: "both",
-    hoverEffect: "",
-    loader: nextLoader,
-    matrixSize: clampDotMatrixAnimationMatrixSize(
-      patch.matrixSize ?? state.dotMatrixAnimation.matrixSize,
-    ),
-    motionIntensity: "premium",
-    opacityBase: clampDotMatrixAnimationOpacity(
-      patch.opacityBase ?? state.dotMatrixAnimation.opacityBase,
-      DEFAULT_DOT_MATRIX_ANIMATION.opacityBase,
-    ),
-    opacityMid: clampDotMatrixAnimationOpacity(
-      patch.opacityMid ?? state.dotMatrixAnimation.opacityMid,
-      DEFAULT_DOT_MATRIX_ANIMATION.opacityMid,
-    ),
-    opacityPeak: clampDotMatrixAnimationOpacity(
-      patch.opacityPeak ?? state.dotMatrixAnimation.opacityPeak,
-      DEFAULT_DOT_MATRIX_ANIMATION.opacityPeak,
-    ),
-    overlayScale: clampDotMatrixAnimationOverlayScale(
-      patch.overlayScale ?? state.dotMatrixAnimation.overlayScale,
-    ),
-    pattern: patch.pattern ?? state.dotMatrixAnimation.pattern,
-    preset: coerceMotionPreset(
-      patch.preset ?? state.dotMatrixAnimation.preset,
-      nextLoader,
-    ),
-    paperShader: patch.paperShader
-      ? cloneDraftingCardPaperShaderState(patch.paperShader)
-      : cloneDraftingCardPaperShaderState(
-          state.dotMatrixAnimation.paperShader ?? DEFAULT_DOT_MATRIX_ANIMATION.paperShader,
-        ),
-    presetCategory: coerceMotionPresetCategory(
-      patch.presetCategory ?? state.dotMatrixAnimation.presetCategory,
-    ),
-    respectReducedMotion:
-      patch.respectReducedMotion ?? state.dotMatrixAnimation.respectReducedMotion,
-    speed: clampDotMatrixAnimationSpeed(
-      patch.speed ?? state.dotMatrixAnimation.speed,
-    ),
-  };
 
-  if (
-    state.dotMatrixAnimation.enabled === nextAnimation.enabled &&
-    state.dotMatrixAnimation.exportAnimatedSvg === nextAnimation.exportAnimatedSvg &&
-    state.dotMatrixAnimation.animated === nextAnimation.animated &&
-    state.dotMatrixAnimation.colorPreset === nextAnimation.colorPreset &&
-    state.dotMatrixAnimation.customColor === nextAnimation.customColor &&
-    state.dotMatrixAnimation.customColorBase === nextAnimation.customColorBase &&
-    state.dotMatrixAnimation.customColorMid === nextAnimation.customColorMid &&
-    state.dotMatrixAnimation.customColorPeak === nextAnimation.customColorPeak &&
-    state.dotMatrixAnimation.dotShape === nextAnimation.dotShape &&
-    state.dotMatrixAnimation.loader === nextAnimation.loader &&
-    state.dotMatrixAnimation.matrixSize === nextAnimation.matrixSize &&
-    state.dotMatrixAnimation.opacityBase === nextAnimation.opacityBase &&
-    state.dotMatrixAnimation.opacityMid === nextAnimation.opacityMid &&
-    state.dotMatrixAnimation.opacityPeak === nextAnimation.opacityPeak &&
-    state.dotMatrixAnimation.overlayScale === nextAnimation.overlayScale &&
-    state.dotMatrixAnimation.pattern === nextAnimation.pattern &&
-    state.dotMatrixAnimation.preset === nextAnimation.preset &&
-    state.dotMatrixAnimation.presetCategory === nextAnimation.presetCategory &&
-    JSON.stringify(state.dotMatrixAnimation.paperShader) ===
-      JSON.stringify(nextAnimation.paperShader) &&
-    state.dotMatrixAnimation.respectReducedMotion === nextAnimation.respectReducedMotion &&
-    state.dotMatrixAnimation.speed === nextAnimation.speed &&
-    !hasRemovedAnimationOptions &&
-    !hasMissingMatrixSize
-  ) {
+  if (!dotMatrixAnimationNeedsUpdate(state.dotMatrixAnimation, nextAnimation)) {
     return state;
   }
 

@@ -915,6 +915,229 @@ export function PaneWorkspace({
     }
   }
 
+  function applyGroupMoveInteraction(
+    interaction: NonNullable<typeof interactionRef.current>,
+    deltaX: number,
+    deltaY: number,
+  ) {
+    const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {}
+
+    for (const selectedLayer of interaction.layers ?? []) {
+      if (selectedLayer.kind === "card") {
+        continue
+      }
+
+      geometryByLayerId[selectedLayer.id] = constrainLayerPatch(selectedLayer, {
+        x: roundLayerNumber(selectedLayer.x + deltaX),
+        y: roundLayerNumber(selectedLayer.y + deltaY),
+      })
+    }
+
+    publishLiveLayerGeometry(geometryByLayerId)
+  }
+
+  function applyGroupRotateInteraction(
+    interaction: NonNullable<typeof interactionRef.current>,
+    event: PointerEvent<HTMLElement>,
+  ) {
+    const groupCenter = interaction.groupCenter
+    if (!groupCenter || !interaction.layers) {
+      return
+    }
+
+    const centerClientX = interaction.centerClientX ?? event.clientX
+    const centerClientY = interaction.centerClientY ?? event.clientY
+    const angle =
+      (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) /
+      Math.PI
+    const freeRotation = normalizeLayerRotation(angle - (interaction.startAngle ?? angle))
+    const rotation = snapEnabled ? snapLayerRotation(freeRotation) : freeRotation
+
+    setRotationPreviewDegrees(getLayerRotationLabel(rotation))
+    setMultiSelectionPreview((current) =>
+      current
+        ? {
+            ...current,
+            rotation: getLayerRotationLabel((interaction.groupBounds?.rotation ?? 0) + rotation),
+          }
+        : current,
+    )
+
+    const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {}
+
+    for (const selectedLayer of interaction.layers) {
+      if (selectedLayer.kind === "card") {
+        continue
+      }
+
+      const center = {
+        x: selectedLayer.x + selectedLayer.width / 2,
+        y: selectedLayer.y + selectedLayer.height / 2,
+      }
+      const nextCenter = rotatePoint(center, groupCenter, rotation)
+      geometryByLayerId[selectedLayer.id] = constrainLayerPatch(selectedLayer, {
+        rotation: normalizeLayerRotation(selectedLayer.rotation + rotation),
+        x: roundLayerNumber(nextCenter.x - selectedLayer.width / 2),
+        y: roundLayerNumber(nextCenter.y - selectedLayer.height / 2),
+      })
+    }
+
+    publishLiveLayerGeometry(geometryByLayerId, {
+      horizontal: [],
+      vertical: snapEnabled && rotation !== freeRotation ? [0] : [],
+    })
+  }
+
+  function applyGroupResizeInteraction(
+    interaction: NonNullable<typeof interactionRef.current>,
+    deltaX: number,
+    deltaY: number,
+  ) {
+    const groupBounds = interaction.groupBounds
+    if (!groupBounds || !interaction.layers) {
+      return
+    }
+
+    const nextBounds = resizeDraftingLayer(
+      {
+        ...groupBounds,
+        blur: 0,
+        id: "selection",
+        isVisible: true,
+        kind: "card",
+        name: "Selection",
+        nodeId: "selection",
+        opacity: 1,
+        rotation: 0,
+        tiltX: 0,
+        tiltY: 0,
+        shadow: { blur: 0, color: "#000000", offsetX: 0, offsetY: 0, opacity: 0 },
+        zIndex: 0,
+      },
+      interaction.resizeDirection ?? "se",
+      deltaX,
+      deltaY,
+    )
+    const scaleX = groupBounds.width > 0 ? nextBounds.width / groupBounds.width : 1
+    const scaleY = groupBounds.height > 0 ? nextBounds.height / groupBounds.height : 1
+    const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {}
+
+    for (const selectedLayer of interaction.layers) {
+      if (selectedLayer.kind === "card") {
+        continue
+      }
+
+      geometryByLayerId[selectedLayer.id] = constrainLayerPatch(selectedLayer, {
+        height: roundLayerNumber(selectedLayer.height * scaleY),
+        width: roundLayerNumber(selectedLayer.width * scaleX),
+        x: roundLayerNumber(nextBounds.x + (selectedLayer.x - groupBounds.x) * scaleX),
+        y: roundLayerNumber(nextBounds.y + (selectedLayer.y - groupBounds.y) * scaleY),
+      })
+    }
+
+    publishLiveLayerGeometry(geometryByLayerId)
+  }
+
+  function applySingleRotateInteraction(
+    interaction: NonNullable<typeof interactionRef.current>,
+    event: PointerEvent<HTMLElement>,
+  ) {
+    const layer = interaction.layer
+    const centerClientX = interaction.centerClientX ?? event.clientX
+    const centerClientY = interaction.centerClientY ?? event.clientY
+    const angle =
+      (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) /
+      Math.PI
+
+    const freeRotation = normalizeLayerRotation(
+      angle - (interaction.startAngle ?? angle) + (interaction.startRotation ?? layer.rotation),
+    )
+    const rotation = snapEnabled ? snapLayerRotation(freeRotation) : freeRotation
+
+    setRotationPreviewDegrees(getLayerRotationLabel(rotation))
+    publishLiveLayerGeometry(
+      { [layer.id]: { rotation } },
+      {
+        horizontal: [],
+        vertical: snapEnabled && rotation !== freeRotation ? [0] : [],
+      },
+    )
+  }
+
+  function applySingleMoveInteraction(
+    interaction: NonNullable<typeof interactionRef.current>,
+    deltaX: number,
+    deltaY: number,
+    snapThreshold: number,
+  ) {
+    const layer = interaction.layer
+    const proposedX = layer.x + deltaX
+    const proposedY = layer.y + deltaY
+    const nextMove = snapEnabled
+      ? snapLayerMove({
+          layer,
+          layers: visibleLayers,
+          proposedX,
+          proposedY,
+          threshold: snapThreshold,
+        })
+      : { guides: { horizontal: [], vertical: [] }, x: proposedX, y: proposedY }
+
+    publishLiveLayerGeometry(
+      {
+        [layer.id]: constrainLayerPatch(layer, {
+          x: nextMove.x,
+          y: nextMove.y,
+        }),
+      },
+      nextMove.guides,
+    )
+  }
+
+  function applySingleResizeInteraction(
+    interaction: NonNullable<typeof interactionRef.current>,
+    deltaX: number,
+    deltaY: number,
+    resizeSnapThreshold: number,
+    hasStartedInteraction: boolean,
+  ) {
+    const layer = interaction.layer
+    const resizeDirection = interaction.resizeDirection ?? "se"
+    const isCornerResize = resizeDirection.length === 2
+
+    if (
+      isCornerResize &&
+      layer.kind === "qr" &&
+      interaction.lockedResizeAxis === undefined &&
+      hasStartedInteraction
+    ) {
+      interaction.lockedResizeAxis =
+        Math.abs(deltaX) >= Math.abs(deltaY) ? "horizontal" : "vertical"
+    }
+
+    const nextGeometry = resizeDraftingLayer(
+      layer,
+      resizeDirection,
+      deltaX,
+      deltaY,
+      interaction.lockedResizeAxis,
+    )
+    const snappedResize = snapEnabled
+      ? snapLayerResize({
+          direction: resizeDirection,
+          layer,
+          layers: visibleLayers,
+          geometry: nextGeometry,
+          threshold: resizeSnapThreshold,
+        })
+      : { geometry: nextGeometry, guides: { horizontal: [], vertical: [] } }
+
+    publishLiveLayerGeometry(
+      { [layer.id]: constrainLayerPatch(layer, snappedResize.geometry) },
+      snappedResize.guides,
+    )
+  }
+
   function updateLayerInteraction(event: PointerEvent<HTMLElement>) {
     const interaction = interactionRef.current
 
@@ -930,7 +1153,6 @@ export function PaneWorkspace({
     const resizeSnapThreshold = RESIZE_SNAP_THRESHOLD_PX / scale
     const deltaX = (event.clientX - interaction.startX) / scale
     const deltaY = (event.clientY - interaction.startY) / scale
-    const layer = interaction.layer
     const startThreshold = isTouchLikePointer({ pointerType: interaction.pointerType ?? "mouse" })
       ? INTERACTION_START_THRESHOLD_TOUCH_PX
       : INTERACTION_START_THRESHOLD_PX
@@ -945,193 +1167,37 @@ export function PaneWorkspace({
 
     if (interaction.layers && interaction.groupBounds && interaction.groupCenter) {
       if (interaction.mode === "move") {
-        const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {}
-
-        for (const selectedLayer of interaction.layers) {
-          if (selectedLayer.kind === "card") {
-            continue
-          }
-
-          geometryByLayerId[selectedLayer.id] = constrainLayerPatch(selectedLayer, {
-            x: roundLayerNumber(selectedLayer.x + deltaX),
-            y: roundLayerNumber(selectedLayer.y + deltaY),
-          })
-        }
-
-        publishLiveLayerGeometry(geometryByLayerId)
+        applyGroupMoveInteraction(interaction, deltaX, deltaY)
         return
       }
 
       if (interaction.mode === "rotate") {
-        const centerClientX = interaction.centerClientX ?? event.clientX
-        const centerClientY = interaction.centerClientY ?? event.clientY
-        const angle =
-          (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) /
-          Math.PI
-        const freeRotation = normalizeLayerRotation(angle - (interaction.startAngle ?? angle))
-        const rotation = snapEnabled ? snapLayerRotation(freeRotation) : freeRotation
-
-        setRotationPreviewDegrees(getLayerRotationLabel(rotation))
-        setMultiSelectionPreview((current) =>
-          current
-            ? {
-                ...current,
-                rotation: getLayerRotationLabel((interaction.groupBounds?.rotation ?? 0) + rotation),
-              }
-            : current,
-        )
-
-        const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {}
-
-        for (const selectedLayer of interaction.layers) {
-          if (selectedLayer.kind === "card") {
-            continue
-          }
-
-          const center = {
-            x: selectedLayer.x + selectedLayer.width / 2,
-            y: selectedLayer.y + selectedLayer.height / 2,
-          }
-          const nextCenter = rotatePoint(center, interaction.groupCenter, rotation)
-          geometryByLayerId[selectedLayer.id] = constrainLayerPatch(selectedLayer, {
-            rotation: normalizeLayerRotation(selectedLayer.rotation + rotation),
-            x: roundLayerNumber(nextCenter.x - selectedLayer.width / 2),
-            y: roundLayerNumber(nextCenter.y - selectedLayer.height / 2),
-          })
-        }
-
-        publishLiveLayerGeometry(geometryByLayerId, {
-          horizontal: [],
-          vertical: snapEnabled && rotation !== freeRotation ? [0] : [],
-        })
+        applyGroupRotateInteraction(interaction, event)
         return
       }
 
       if (interaction.mode === "resize") {
-        const nextBounds = resizeDraftingLayer(
-          {
-            ...interaction.groupBounds,
-            blur: 0,
-            id: "selection",
-            isVisible: true,
-            kind: "card",
-            name: "Selection",
-            nodeId: "selection",
-            opacity: 1,
-            rotation: 0,
-            tiltX: 0,
-            tiltY: 0,
-            shadow: { blur: 0, color: "#000000", offsetX: 0, offsetY: 0, opacity: 0 },
-            zIndex: 0,
-          },
-          interaction.resizeDirection ?? "se",
-          deltaX,
-          deltaY,
-        )
-        const scaleX = interaction.groupBounds.width > 0 ? nextBounds.width / interaction.groupBounds.width : 1
-        const scaleY = interaction.groupBounds.height > 0 ? nextBounds.height / interaction.groupBounds.height : 1
-        const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {}
-
-        for (const selectedLayer of interaction.layers) {
-          if (selectedLayer.kind === "card") {
-            continue
-          }
-
-          geometryByLayerId[selectedLayer.id] = constrainLayerPatch(selectedLayer, {
-            height: roundLayerNumber(selectedLayer.height * scaleY),
-            width: roundLayerNumber(selectedLayer.width * scaleX),
-            x: roundLayerNumber(nextBounds.x + (selectedLayer.x - interaction.groupBounds.x) * scaleX),
-            y: roundLayerNumber(nextBounds.y + (selectedLayer.y - interaction.groupBounds.y) * scaleY),
-          })
-        }
-
-        publishLiveLayerGeometry(geometryByLayerId)
+        applyGroupResizeInteraction(interaction, deltaX, deltaY)
         return
       }
     }
 
     if (interaction.mode === "rotate") {
-      const centerClientX = interaction.centerClientX ?? event.clientX
-      const centerClientY = interaction.centerClientY ?? event.clientY
-      const angle =
-        (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) /
-        Math.PI
-
-      const freeRotation = normalizeLayerRotation(
-        angle - (interaction.startAngle ?? angle) + (interaction.startRotation ?? layer.rotation),
-      )
-      const rotation = snapEnabled ? snapLayerRotation(freeRotation) : freeRotation
-
-      setRotationPreviewDegrees(getLayerRotationLabel(rotation))
-      publishLiveLayerGeometry(
-        { [layer.id]: { rotation } },
-        {
-          horizontal: [],
-          vertical: snapEnabled && rotation !== freeRotation ? [0] : [],
-        },
-      )
+      applySingleRotateInteraction(interaction, event)
       return
     }
 
     if (interaction.mode === "move") {
-      const proposedX = layer.x + deltaX
-      const proposedY = layer.y + deltaY
-      const nextMove = snapEnabled
-        ? snapLayerMove({
-            layer,
-            layers: visibleLayers,
-            proposedX,
-            proposedY,
-            threshold: snapThreshold,
-          })
-        : { guides: { horizontal: [], vertical: [] }, x: proposedX, y: proposedY }
-
-      publishLiveLayerGeometry(
-        {
-          [layer.id]: constrainLayerPatch(layer, {
-            x: nextMove.x,
-            y: nextMove.y,
-          }),
-        },
-        nextMove.guides,
-      )
+      applySingleMoveInteraction(interaction, deltaX, deltaY, snapThreshold)
       return
     }
 
-    const resizeDirection = interaction.resizeDirection ?? "se"
-    const isCornerResize = resizeDirection.length === 2
-
-    if (
-      interaction.mode === "resize" &&
-      isCornerResize &&
-      layer.kind === "qr" &&
-      interaction.lockedResizeAxis === undefined &&
-      hasStartedInteraction
-    ) {
-      interaction.lockedResizeAxis =
-        Math.abs(deltaX) >= Math.abs(deltaY) ? "horizontal" : "vertical"
-    }
-
-    const nextGeometry = resizeDraftingLayer(
-      layer,
-      interaction.resizeDirection ?? "se",
+    applySingleResizeInteraction(
+      interaction,
       deltaX,
       deltaY,
-      interaction.lockedResizeAxis,
-    )
-    const snappedResize = snapEnabled
-      ? snapLayerResize({
-          direction: interaction.resizeDirection ?? "se",
-          layer,
-          layers: visibleLayers,
-          geometry: nextGeometry,
-          threshold: resizeSnapThreshold,
-        })
-      : { geometry: nextGeometry, guides: { horizontal: [], vertical: [] } }
-
-    publishLiveLayerGeometry(
-      { [layer.id]: constrainLayerPatch(layer, snappedResize.geometry) },
-      snappedResize.guides,
+      resizeSnapThreshold,
+      hasStartedInteraction,
     )
   }
 

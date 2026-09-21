@@ -662,32 +662,22 @@ const sampleShapeRevealFrame = (
     clamp((threshold - shapeReveal.metric) / edgeWidth, 0, 1),
   );
 
-  const baseFill = String(
-    typeof fillFrames[0] === 'string'
-      ? fillFrames[0]
-      : keyframeValueAt(fillFrames[0] as WebKeyframeValue),
-  );
-  const accentFill = String(
-    typeof fillFrames[fillFrames.length > 1 ? 1 : 0] === 'string'
-      ? fillFrames[fillFrames.length > 1 ? 1 : 0]
-      : keyframeValueAt(
-          fillFrames[fillFrames.length > 1 ? 1 : 0] as WebKeyframeValue,
-        ),
-  );
-  const baseOpacity = Number(
-    keyframeValueAt(
-      Array.isArray(web?.opacity) ? (web.opacity as WebKeyframeValue[])[0] : 1,
-    ),
-  );
-  const accentOpacity = Number(
-    keyframeValueAt(
-      Array.isArray(web?.opacity)
-        ? (web.opacity as WebKeyframeValue[])[
-            web.opacity.length > 1 ? 1 : 0
-          ]
-        : 1,
-    ),
-  );
+  const fillFrameAt = (index: number) =>
+    String(
+      typeof fillFrames[index] === 'string'
+        ? fillFrames[index]
+        : keyframeValueAt(fillFrames[index] as WebKeyframeValue),
+    );
+  const opacityFrames = Array.isArray(web?.opacity)
+    ? (web.opacity as WebKeyframeValue[])
+    : undefined;
+  const opacityFrameAt = (index: number) =>
+    Number(keyframeValueAt(opacityFrames ? opacityFrames[index] : 1));
+
+  const baseFill = fillFrameAt(0);
+  const accentFill = fillFrameAt(fillFrames.length > 1 ? 1 : 0);
+  const baseOpacity = opacityFrameAt(0);
+  const accentOpacity = opacityFrameAt(opacityFrames && opacityFrames.length > 1 ? 1 : 0);
   const opacity = baseOpacity + (accentOpacity - baseOpacity) * blend;
   const fill = isPreserveModuleFill(baseFill)
     ? blend >= 0.5
@@ -2104,99 +2094,62 @@ const wrapPreset = (
     presetName
   );
 
+const ANIMATION_PRESET_MAP: Record<AnimationPreset, QRCodeAnimation> = {
+  [AnimationPreset.FadeInTopDown]: FadeInTopDown,
+  [AnimationPreset.FadeInCenterOut]: FadeInCenterOut,
+  [AnimationPreset.RadialRipple]: RadialRipple,
+  [AnimationPreset.RadialRippleIn]: RadialRippleIn,
+  [AnimationPreset.MaterializeIn]: MaterializeIn,
+  [AnimationPreset.SubtlePulse]: SubtlePulse,
+  [AnimationPreset.FinderPing]: FinderPing,
+  [AnimationPreset.SoftMaterialize]: SoftMaterialize,
+  [AnimationPreset.CenterBloom]: CenterBloom,
+  [AnimationPreset.CornerSweep]: CornerSweep,
+  [AnimationPreset.OrbitReveal]: OrbitReveal,
+  [AnimationPreset.DiamondGlint]: DiamondGlint,
+  [AnimationPreset.SignalScan]: SignalScan,
+  [AnimationPreset.ConfettiPop]: ConfettiPop,
+  [AnimationPreset.SpiralBloom]: SpiralBloom,
+  [AnimationPreset.BubbleCascade]: BubbleCascade,
+  [AnimationPreset.KaleidoPulse]: KaleidoPulse,
+  [AnimationPreset.FireflyTwinkle]: FireflyTwinkle,
+  [AnimationPreset.MagneticRipple]: MagneticRipple,
+  [AnimationPreset.ParallaxTiles]: ParallaxTiles,
+  [AnimationPreset.ConstellationTrace]: ConstellationTrace,
+  [AnimationPreset.ApertureReveal]: ApertureReveal,
+  [AnimationPreset.LensFocus]: LensFocus,
+  [AnimationPreset.ReceiptPrint]: ReceiptPrint,
+  [AnimationPreset.FlipClock]: FlipClock,
+  [AnimationPreset.WaveInterference]: WaveInterference,
+  [AnimationPreset.QuantumMaterialize]: QuantumMaterialize,
+  [AnimationPreset.MagneticSnap]: MagneticSnap,
+  [AnimationPreset.HoloFlicker]: HoloFlicker,
+  [AnimationPreset.SignalGlitch]: SignalGlitch,
+  [AnimationPreset.ShockwaveJolt]: ShockwaveJolt,
+  [AnimationPreset.TideRise]: TideRise,
+  [AnimationPreset.GravityCollapse]: GravityCollapse,
+  [AnimationPreset.NeonDrift]: NeonDrift,
+  [AnimationPreset.FluxColumns]: FluxColumns,
+  [AnimationPreset.EchoRing]: RadialExpand,
+  [AnimationPreset.OriginWave]: RadialExpand,
+  [AnimationPreset.CrossBloom]: RadialExpand,
+  [AnimationPreset.RadialExpand]: RadialExpand,
+  [AnimationPreset.FanRotate]: NeonDrift,
+  [AnimationPreset.Tunnel]: NeonDrift,
+  [AnimationPreset.Wave]: NeonDrift,
+  [AnimationPreset.Scan]: NeonDrift,
+  [AnimationPreset.DiamondExpand]: DiamondExpand,
+  [AnimationPreset.HeartExpand]: HeartExpand,
+  [AnimationPreset.StarExpand]: StarExpand,
+  [AnimationPreset.ChevronSweep]: ChevronSweep,
+};
+
 const resolveAnimationPreset = (name: string) => {
-  switch (name) {
-    case AnimationPreset.FadeInTopDown:
-      return FadeInTopDown;
-    case AnimationPreset.FadeInCenterOut:
-      return FadeInCenterOut;
-    case AnimationPreset.RadialRipple:
-      return RadialRipple;
-    case AnimationPreset.RadialRippleIn:
-      return RadialRippleIn;
-    case AnimationPreset.MaterializeIn:
-      return MaterializeIn;
-    case AnimationPreset.SubtlePulse:
-      return SubtlePulse;
-    case AnimationPreset.FinderPing:
-      return FinderPing;
-    case AnimationPreset.SoftMaterialize:
-      return SoftMaterialize;
-    case AnimationPreset.CenterBloom:
-      return CenterBloom;
-    case AnimationPreset.CornerSweep:
-      return CornerSweep;
-    case AnimationPreset.OrbitReveal:
-      return OrbitReveal;
-    case AnimationPreset.DiamondGlint:
-      return DiamondGlint;
-    case AnimationPreset.SignalScan:
-      return SignalScan;
-    case AnimationPreset.ConfettiPop:
-      return ConfettiPop;
-    case AnimationPreset.SpiralBloom:
-      return SpiralBloom;
-    case AnimationPreset.BubbleCascade:
-      return BubbleCascade;
-    case AnimationPreset.KaleidoPulse:
-      return KaleidoPulse;
-    case AnimationPreset.FireflyTwinkle:
-      return FireflyTwinkle;
-    case AnimationPreset.MagneticRipple:
-      return MagneticRipple;
-    case AnimationPreset.ParallaxTiles:
-      return ParallaxTiles;
-    case AnimationPreset.ConstellationTrace:
-      return ConstellationTrace;
-    case AnimationPreset.ApertureReveal:
-      return ApertureReveal;
-    case AnimationPreset.LensFocus:
-      return LensFocus;
-    case AnimationPreset.ReceiptPrint:
-      return ReceiptPrint;
-    case AnimationPreset.FlipClock:
-      return FlipClock;
-    case AnimationPreset.WaveInterference:
-      return WaveInterference;
-    case AnimationPreset.QuantumMaterialize:
-      return QuantumMaterialize;
-    case AnimationPreset.MagneticSnap:
-      return MagneticSnap;
-    case AnimationPreset.HoloFlicker:
-      return HoloFlicker;
-    case AnimationPreset.SignalGlitch:
-      return SignalGlitch;
-    case AnimationPreset.ShockwaveJolt:
-      return ShockwaveJolt;
-    case AnimationPreset.TideRise:
-      return TideRise;
-    case AnimationPreset.GravityCollapse:
-      return GravityCollapse;
-    case AnimationPreset.NeonDrift:
-      return NeonDrift;
-    case AnimationPreset.FluxColumns:
-      return FluxColumns;
-    case AnimationPreset.EchoRing:
-    case AnimationPreset.OriginWave:
-    case AnimationPreset.CrossBloom:
-    case AnimationPreset.RadialExpand:
-      return RadialExpand;
-    case AnimationPreset.FanRotate:
-    case AnimationPreset.Tunnel:
-    case AnimationPreset.Wave:
-    case AnimationPreset.Scan:
-      return NeonDrift;
-    case AnimationPreset.DiamondExpand:
-      return DiamondExpand;
-    case AnimationPreset.HeartExpand:
-      return HeartExpand;
-    case AnimationPreset.StarExpand:
-      return StarExpand;
-    case AnimationPreset.ChevronSweep:
-      return ChevronSweep;
-    default:
-      throw new Error(`${name} is not a valid AnimationPreset.`);
+  const animation = ANIMATION_PRESET_MAP[name as AnimationPreset];
+  if (!animation) {
+    throw new Error(`${name} is not a valid AnimationPreset.`);
   }
+  return animation;
 };
 
 export const getAnimationPreset = (name: string) => {

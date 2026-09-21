@@ -1,53 +1,17 @@
-import { execFileSync } from "node:child_process"
 import fs from "node:fs"
 import path from "node:path"
+
+import {
+  ALLOWED_EXTENSIONS,
+  slugifyBaseName,
+  syncWallpapers,
+  titleCase,
+} from "./lib/wallpaper-sync.mjs"
 
 const SOURCE_DIR =
   process.env.STUDIO_WALLPAPER_SOURCE_DIR ??
   path.join(process.env.HOME ?? "", "Downloads/New Folder With Items")
 const OUT_DIR = "public/backgrounds/studio"
-const PREVIEW_MAX_WIDTH = 640
-const FULL_MAX_WIDTH = 4096
-const WEBP_QUALITY = 85
-
-const ALLOWED_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp"])
-
-function ensureDir(dir) {
-  fs.mkdirSync(dir, { recursive: true })
-}
-
-function slugifyBaseName(fileName) {
-  const base = path.basename(fileName, path.extname(fileName))
-  return base
-    .replace(/-4096x4096$/i, "")
-    .replace(/\((\d+)\)/g, "-$1")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-}
-
-function titleCase(label) {
-  return label
-    .split("-")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ")
-}
-
-function resizeToWebp(inputPath, outputPath, maxWidth) {
-  execFileSync(
-    "magick",
-    [
-      inputPath,
-      "-resize",
-      `${maxWidth}x${maxWidth}>`,
-      "-quality",
-      String(WEBP_QUALITY),
-      outputPath,
-    ],
-    { stdio: "pipe" },
-  )
-}
 
 function collectSources() {
   if (!fs.existsSync(SOURCE_DIR)) {
@@ -78,57 +42,21 @@ function collectSources() {
   })
 }
 
-ensureDir(OUT_DIR)
-
-const manifest = []
-
-for (const wallpaper of collectSources()) {
-  const fullPath = path.join(OUT_DIR, `${wallpaper.id}.webp`)
-  const previewPath = path.join(OUT_DIR, `${wallpaper.id}-preview.webp`)
-
-  if (!fs.existsSync(fullPath)) {
-    process.stdout.write(`Converting ${wallpaper.file} (${FULL_MAX_WIDTH}px)...\n`)
-    resizeToWebp(wallpaper.sourcePath, fullPath, FULL_MAX_WIDTH)
-  }
-
-  if (!fs.existsSync(previewPath)) {
-    process.stdout.write(`Preview ${wallpaper.id}...\n`)
-    resizeToWebp(wallpaper.sourcePath, previewPath, PREVIEW_MAX_WIDTH)
-  }
-
-  manifest.push({
-    id: wallpaper.id,
-    label: wallpaper.label,
-    path: `/backgrounds/studio/${wallpaper.id}.webp`,
-    previewPath: `/backgrounds/studio/${wallpaper.id}-preview.webp`,
-    source: "studio",
-    sourceUrl: wallpaper.file,
-  })
-}
-
-const ts = `export type QraftyWallpaper = {
-  id: string
-  label: string
-  path: string
-  previewPath: string
-  source: "studio"
-  sourceUrl: string
-}
-
-export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = ${JSON.stringify(manifest, null, 2)} as const
-
-export function getQraftyWallpaper(id: string): QraftyWallpaper | undefined {
-  return QRAFTY_WALLPAPERS.find((wallpaper) => wallpaper.id === id)
-}
-`
-
-ensureDir("features/workspace/assets")
-fs.writeFileSync("features/workspace/assets/qrafty-wallpapers.ts", ts)
-
-const fullBytes = manifest.reduce((total, item) => {
-  return total + fs.statSync(path.join("public", item.path)).size
-}, 0)
-
-process.stdout.write(
-  `Synced ${manifest.length} studio wallpapers (${(fullBytes / 1024 / 1024).toFixed(1)} MB full-res webp)\n`,
-)
+await syncWallpapers({
+  outDir: OUT_DIR,
+  publicPath: "/backgrounds/studio",
+  source: "studio",
+  items: collectSources().map(({ id, file, label, sourcePath }) => ({
+    id,
+    label,
+    sourceUrl: file,
+    resolve: () => sourcePath,
+  })),
+  module: {
+    typeName: "QraftyWallpaper",
+    constName: "QRAFTY_WALLPAPERS",
+    getterName: "getQraftyWallpaper",
+    targetFile: "features/workspace/assets/qrafty-wallpapers.ts",
+    summaryLabel: "studio wallpapers",
+  },
+})

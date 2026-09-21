@@ -129,50 +129,41 @@ function pickNearest({
 }: PickNearestInput): number | null {
   const scaleX = layoutSize.width > 0 ? containerRect.width / layoutSize.width : 1;
   const scaleY = layoutSize.height > 0 ? containerRect.height / layoutSize.height : 1;
+  const horizontal = axis === "x";
   let closestIndex: number | null = null;
   let closestDistance = Infinity;
   let containingIndex: number | null = null;
+
+  const measure = (r: NonNullable<PickNearestInput["rects"][number]>) => {
+    const left = containerRect.left + (border.x + r.left - scroll.x) * scaleX;
+    const top = containerRect.top + (border.y + r.top - scroll.y) * scaleY;
+    const width = r.width * scaleX;
+    const height = r.height * scaleY;
+    if (axis === "xy") {
+      return {
+        contains:
+          point.x >= left && point.x <= left + width && point.y >= top && point.y <= top + height,
+        distance: Math.hypot(point.x - (left + width / 2), point.y - (top + height / 2)),
+      };
+    }
+    const mousePos = horizontal ? point.x : point.y;
+    const itemStart = horizontal ? left : top;
+    const itemSize = horizontal ? width : height;
+    return {
+      contains: mousePos >= itemStart && mousePos <= itemStart + itemSize,
+      distance: Math.abs(mousePos - (itemStart + itemSize / 2)),
+    };
+  };
 
   for (let index = 0; index < rects.length; index++) {
     const r = rects[index];
     if (!r) continue;
     if (isDisabled?.(index)) continue;
 
-    if (axis === "xy") {
-      const left = containerRect.left + (border.x + r.left - scroll.x) * scaleX;
-      const top = containerRect.top + (border.y + r.top - scroll.y) * scaleY;
-      const width = r.width * scaleX;
-      const height = r.height * scaleY;
-      if (
-        point.x >= left &&
-        point.x <= left + width &&
-        point.y >= top &&
-        point.y <= top + height
-      ) {
-        containingIndex = index;
-      }
-      const distance = Math.hypot(point.x - (left + width / 2), point.y - (top + height / 2));
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestIndex = index;
-      }
-      continue;
-    }
-
-    const horizontal = axis === "x";
-    const mousePos = horizontal ? point.x : point.y;
-    const scale = horizontal ? scaleX : scaleY;
-    const itemStart =
-      (horizontal ? containerRect.left : containerRect.top) +
-      ((horizontal ? border.x : border.y) +
-        (horizontal ? r.left : r.top) -
-        (horizontal ? scroll.x : scroll.y)) *
-        scale;
-    const itemSize = (horizontal ? r.width : r.height) * scale;
-    if (mousePos >= itemStart && mousePos <= itemStart + itemSize) {
+    const { contains, distance } = measure(r);
+    if (contains) {
       containingIndex = index;
     }
-    const distance = Math.abs(mousePos - (itemStart + itemSize / 2));
     if (distance < closestDistance) {
       closestDistance = distance;
       closestIndex = index;

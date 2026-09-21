@@ -602,34 +602,29 @@ function arePaneLayerViewPropsEqual(
   previous: PaneLayerViewProps,
   next: PaneLayerViewProps,
 ) {
-  if (
-    previous.layer !== next.layer ||
-    previous.cardState !== next.cardState ||
-    previous.cardStyle !== next.cardStyle ||
-    previous.cardImageStyle !== next.cardImageStyle ||
-    previous.imageFilterShader !== next.imageFilterShader ||
-    previous.isImageFilterMode !== next.isImageFilterMode ||
-    previous.isImageMode !== next.isImageMode ||
-    previous.isPaperShaderMode !== next.isPaperShaderMode ||
-    previous.textEditorRefs !== next.textEditorRefs
-  ) {
+  const alwaysComparedKeys = [
+    "layer",
+    "cardState",
+    "cardStyle",
+    "cardImageStyle",
+    "imageFilterShader",
+    "isImageFilterMode",
+    "isImageMode",
+    "isPaperShaderMode",
+    "textEditorRefs",
+  ] as const
+  if (alwaysComparedKeys.some((key) => previous[key] !== next[key])) {
     return false
   }
 
   if (previous.layer.kind === "qr" || next.layer.kind === "qr") {
-    if (previous.state !== next.state) {
-      return false
-    }
-
-    if (previous.contentValidation !== next.contentValidation) {
-      return false
-    }
-
-    if (previous.activeQrLayerId !== next.activeQrLayerId) {
-      return false
-    }
-
-    if (previous.qrOverlayScale !== next.qrOverlayScale) {
+    const qrKeys = [
+      "state",
+      "contentValidation",
+      "activeQrLayerId",
+      "qrOverlayScale",
+    ] as const
+    if (qrKeys.some((key) => previous[key] !== next[key])) {
       return false
     }
 

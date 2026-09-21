@@ -130,10 +130,7 @@ function getDraftingLayerSvg(
   qrMarkup: string,
   state: QraftyState,
   shaderSnapshots?: Record<string, string>,
-  options?: {
-    clipDefs?: string[]
-    omitShaderLayers?: boolean
-  },
+  options?: LayeredSvgOptions,
 ) {
   if (layer.kind === "group") {
     return getDraftingGroupLayerSvg(layer, cardState, qrMarkup, state, shaderSnapshots, options)
@@ -166,6 +163,12 @@ function getDraftingLayerSvg(
   return getDraftingQrLayerSvg(layer, qrMarkup, state)
 }
 
+function getDraftingLayerFilterAttr(layer: DraftingCanvasLayer) {
+  return getDraftingLayerFilterMarkup(layer)
+    ? ` filter="url(#${getSvgId(layer.id)}-filter)"`
+    : ""
+}
+
 function getDraftingLayerFilterMarkup(layer: DraftingCanvasLayer) {
   const hasShadow = hasDraftingLayerShadow(layer)
   const hasBlur = layer.blur > 0
@@ -184,42 +187,29 @@ function getDraftingLayerFilterMarkups(layer: DraftingCanvasLayer): string[] {
   ].filter(Boolean)
 }
 
-function getDraftingCardLayerSvg(
+type LayeredSvgOptions = {
+  clipDefs?: string[]
+  omitShaderLayers?: boolean
+}
+
+function cardImageLayerMarkup(
   layer: DraftingCanvasLayer,
   cardState: DraftingCardState,
-  shaderSnapshots?: Record<string, string>,
-  options?: {
-    clipDefs?: string[]
-    omitShaderLayers?: boolean
-  },
+  options?: LayeredSvgOptions,
 ) {
-  const filter = getDraftingLayerFilterMarkup(layer)
-    ? ` filter="url(#${getSvgId(layer.id)}-filter)"`
-    : ""
-  const strokeWidth = Math.max(0, cardState.border.width)
-  const borderClipId = `${getSvgId(layer.id)}-border-clip`
-  const stroke =
-    strokeWidth > 0
-      ? ` stroke="${escapeXml(cardState.border.color)}" stroke-opacity="${cardState.border.opacity / 100}" stroke-width="${strokeWidth * 2}" clip-path="url(#${borderClipId})"`
-      : ""
-
-  const cardImage =
-    !options?.omitShaderLayers &&
+  return !options?.omitShaderLayers &&
     cardState.styleMode === "image" &&
     cardState.cardImage.value
-      ? `<image href="${escapeXml(cardState.cardImage.value)}" x="0" y="0" width="${layer.width}" height="${layer.height}" preserveAspectRatio="${cardState.cardImage.fit === "contain" ? "xMidYMid meet" : "xMidYMid slice"}" opacity="${cardState.cardImage.opacity / 100}" />`
-      : ""
+    ? `<image href="${escapeXml(cardState.cardImage.value)}" x="0" y="0" width="${layer.width}" height="${layer.height}" preserveAspectRatio="${cardState.cardImage.fit === "contain" ? "xMidYMid meet" : "xMidYMid slice"}" opacity="${cardState.cardImage.opacity / 100}" />`
+    : ""
+}
 
-  const cardRadii = resolveCornerRadii(cardState.cornerRadii, cardState.cornerRadius)
-  const cardPath = buildRoundedRectPath(layer.width, layer.height, cardRadii)
-  const strokeClip =
-    strokeWidth > 0 ? `<clipPath id="${borderClipId}"><path d="${cardPath}"/></clipPath>` : ""
-  const fillGradientId = `${getSvgId(layer.id)}-fill-gradient`
-  const fillPaint = cssFillToSvgPaint(cardState.fill, fillGradientId)
-  if (fillPaint.def && options?.clipDefs) {
-    options.clipDefs.push(fillPaint.def)
-  }
-  const clipId = `${getSvgId(layer.id)}-shader-clip`
+function conicFillLayerMarkup(
+  layer: DraftingCanvasLayer,
+  cardState: DraftingCardState,
+  cardPath: string,
+  options?: LayeredSvgOptions,
+) {
   const conicClipId = `${getSvgId(layer.id)}-conic-clip`
   const conicSnapshot =
     !options?.omitShaderLayers && isConicCssFill(cardState.fill)
@@ -228,9 +218,19 @@ function getDraftingCardLayerSvg(
   if (conicSnapshot && options?.clipDefs) {
     options.clipDefs.push(`<clipPath id="${conicClipId}"><path d="${cardPath}"/></clipPath>`)
   }
-  const conicMarkup = conicSnapshot
+  return conicSnapshot
     ? `<image href="${escapeXml(conicSnapshot)}" x="0" y="0" width="${layer.width}" height="${layer.height}" preserveAspectRatio="none" clip-path="url(#${conicClipId})" />`
     : ""
+}
+
+function cardShaderLayerMarkup(
+  layer: DraftingCanvasLayer,
+  cardState: DraftingCardState,
+  cardPath: string,
+  shaderSnapshots: Record<string, string> | undefined,
+  options?: LayeredSvgOptions,
+) {
+  const clipId = `${getSvgId(layer.id)}-shader-clip`
   const shaderState =
     cardState.styleMode === "paper-shader"
       ? cardState.paperShader
@@ -246,9 +246,37 @@ function getDraftingCardLayerSvg(
   if (shaderSnapshot && options?.clipDefs) {
     options.clipDefs.push(`<clipPath id="${clipId}"><path d="${cardPath}"/></clipPath>`)
   }
-  const shaderMarkup = shaderSnapshot
+  return shaderSnapshot
     ? `<image href="${escapeXml(shaderSnapshot)}" x="0" y="0" width="${layer.width}" height="${layer.height}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})" />`
     : ""
+}
+
+function getDraftingCardLayerSvg(
+  layer: DraftingCanvasLayer,
+  cardState: DraftingCardState,
+  shaderSnapshots?: Record<string, string>,
+  options?: LayeredSvgOptions,
+) {
+  const filter = getDraftingLayerFilterAttr(layer)
+  const strokeWidth = Math.max(0, cardState.border.width)
+  const borderClipId = `${getSvgId(layer.id)}-border-clip`
+  const stroke =
+    strokeWidth > 0
+      ? ` stroke="${escapeXml(cardState.border.color)}" stroke-opacity="${cardState.border.opacity / 100}" stroke-width="${strokeWidth * 2}" clip-path="url(#${borderClipId})"`
+      : ""
+
+  const cardImage = cardImageLayerMarkup(layer, cardState, options)
+
+  const cardRadii = resolveCornerRadii(cardState.cornerRadii, cardState.cornerRadius)
+  const cardPath = buildRoundedRectPath(layer.width, layer.height, cardRadii)
+  const strokeClip =
+    strokeWidth > 0 ? `<clipPath id="${borderClipId}"><path d="${cardPath}"/></clipPath>` : ""
+  const fillPaint = cssFillToSvgPaint(cardState.fill, `${getSvgId(layer.id)}-fill-gradient`)
+  if (fillPaint.def && options?.clipDefs) {
+    options.clipDefs.push(fillPaint.def)
+  }
+  const conicMarkup = conicFillLayerMarkup(layer, cardState, cardPath, options)
+  const shaderMarkup = cardShaderLayerMarkup(layer, cardState, cardPath, shaderSnapshots, options)
 
   return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}>${strokeClip}<path d="${cardPath}" fill="${escapeXml(fillPaint.fill)}"${stroke}/>${conicMarkup}${cardImage}${shaderMarkup}</g>`
 }
@@ -259,14 +287,9 @@ function getDraftingGroupLayerSvg(
   qrMarkup: string,
   state: QraftyState,
   shaderSnapshots?: Record<string, string>,
-  options?: {
-    clipDefs?: string[]
-    omitShaderLayers?: boolean
-  },
+  options?: LayeredSvgOptions,
 ): string {
-  const filter = getDraftingLayerFilterMarkup(layer)
-    ? ` filter="url(#${getSvgId(layer.id)}-filter)"`
-    : ""
+  const filter = getDraftingLayerFilterAttr(layer)
   const body: string = (layer.children ?? [])
     .filter((child) => child.isVisible)
     .sort((a, b) => a.zIndex - b.zIndex)
@@ -282,9 +305,7 @@ function getDraftingShaderLayerSvg(
   layer: DraftingCanvasLayer,
   shaderSnapshots?: Record<string, string>,
 ) {
-  const filter = getDraftingLayerFilterMarkup(layer)
-    ? ` filter="url(#${getSvgId(layer.id)}-filter)"`
-    : ""
+  const filter = getDraftingLayerFilterAttr(layer)
   const paperShader = layer.paperShader
   const snapshot =
     paperShader &&
@@ -298,9 +319,7 @@ function getDraftingShaderLayerSvg(
 }
 
 function getDraftingImageLayerSvg(layer: DraftingCanvasLayer) {
-  const filter = getDraftingLayerFilterMarkup(layer)
-    ? ` filter="url(#${getSvgId(layer.id)}-filter)"`
-    : ""
+  const filter = getDraftingLayerFilterAttr(layer)
   const imageValue =
     getCachedIllustrationDisplaySrc(layer.imageValue, layer.illustrationColorStops) ??
     layer.imageValue ??
@@ -323,9 +342,7 @@ function getDraftingImageLayerSvg(layer: DraftingCanvasLayer) {
 }
 
 function getDraftingShapeLayerSvg(layer: DraftingCanvasLayer) {
-  const filter = getDraftingLayerFilterMarkup(layer)
-    ? ` filter="url(#${getSvgId(layer.id)}-filter)"`
-    : ""
+  const filter = getDraftingLayerFilterAttr(layer)
   const shapeId = layer.shapeId ?? "rounded-square"
   const definition = QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId)
   const fill = layer.fillMode === "none" ? "none" : escapeXml(layer.fill ?? "#E8E8E8")
@@ -346,18 +363,14 @@ function getDraftingShapeLayerSvg(layer: DraftingCanvasLayer) {
     strokeWidthVb > 0
       ? ` stroke="${escapeXml(layer.stroke ?? "#171717")}" stroke-width="${useInnerStroke ? strokeWidthVb * 2 : strokeWidthVb}" stroke-opacity="${(layer.strokeOpacity ?? 100) / 100}"${useInnerStroke ? ` clip-path="url(#${strokeClipId})"` : ""}`
       : ""
-  const clipGeometry =
+  const shapeMarkup = (attrs: string) =>
     shapeId === "rect"
-      ? `<path d="${buildRoundedRectPath(layer.width, layer.height, resolveLayerCornerRadii(layer, 0))}"/>`
+      ? `<path d="${buildRoundedRectPath(layer.width, layer.height, resolveLayerCornerRadii(layer, 0))}"${attrs}/>`
       : definition
-        ? `<path d="${definition.path}"/>`
-        : getShapeSvgPath(shapeId)
-  const innerMarkup =
-    shapeId === "rect"
-      ? `<path d="${buildRoundedRectPath(layer.width, layer.height, resolveLayerCornerRadii(layer, 0))}" fill="${fill}"${strokeAttrs}/>`
-      : definition
-        ? `<path d="${definition.path}" fill="${fill}"${strokeAttrs}/>`
-        : getShapeSvgPath(shapeId).replace("/>", ` fill="${fill}"${strokeAttrs}/>`)
+        ? `<path d="${definition.path}"${attrs}/>`
+        : getShapeSvgPath(shapeId).replace("/>", `${attrs}/>`)
+  const clipGeometry = shapeMarkup("")
+  const innerMarkup = shapeMarkup(` fill="${fill}"${strokeAttrs}`)
   const strokeClip = useInnerStroke
     ? `<clipPath id="${strokeClipId}">${clipGeometry}</clipPath>`
     : ""
@@ -376,9 +389,7 @@ function getDraftingQrLayerSvg(
   qrMarkup: string,
   state: QraftyState,
 ) {
-  const filter = getDraftingLayerFilterMarkup(layer)
-    ? ` filter="url(#${getSvgId(layer.id)}-filter)"`
-    : ""
+  const filter = getDraftingLayerFilterAttr(layer)
   const layout = getDraftingQrLayerLayout(layer.width, state, layer.height)
   const { metrics, innerWidth, innerHeight } = layout
   const qrSvg = scaleNestedSvgMarkup(qrMarkup, innerWidth, innerHeight)
@@ -390,19 +401,20 @@ function getDraftingQrLayerSvg(
   return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}>${getDraftingQrBackgroundSvgMarkup(layer, state)}${qrGroup}</g>`
 }
 
+const TEXT_ALIGN_ANCHORS: Record<string, string> = {
+  center: "middle",
+  right: "end",
+}
+
 function getDraftingTextLayerSvg(
   layer: DraftingCanvasLayer,
-  options?: {
-    clipDefs?: string[]
-  },
+  options?: Pick<LayeredSvgOptions, "clipDefs">,
 ) {
-  const filter = getDraftingLayerFilterMarkup(layer)
-    ? ` filter="url(#${getSvgId(layer.id)}-filter)"`
-    : ""
+  const filter = getDraftingLayerFilterAttr(layer)
   const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize
   const lineHeight = layer.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight
   const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign
-  const anchor = textAlign === "center" ? "middle" : textAlign === "right" ? "end" : "start"
+  const anchor = TEXT_ALIGN_ANCHORS[textAlign] ?? "start"
   const x = textAlign === "center" ? layer.width / 2 : textAlign === "right" ? layer.width : 0
   const hasTextRuns =
     Boolean(layer.textRuns?.length) &&
@@ -419,33 +431,24 @@ function getDraftingTextLayerSvg(
     options.clipDefs.push(fillPaint.def)
   }
 
-  if (!hasTextRuns) {
-    const lines = layoutDraftingText(layer).lines
-    const tspans = lines
-      .map((line, index) => {
-        const dy = index === 0 ? fontSize : fontSize * lineHeight
-
-        return `<tspan x="${x}" dy="${dy}">${escapeXml(line)}</tspan>`
-      })
-      .join("")
-    const decoration = layer.underline ? ` text-decoration="underline"` : ""
-
-    return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><text fill="${escapeXml(fillPaint.fill)}" font-family="${escapeXml(getDraftingFontCssFamily({ fontFamily: layer.fontFamily, fontId: layer.fontId }))}" font-size="${fontSize}" font-style="${layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle}" font-weight="${layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight}" letter-spacing="${layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing}" text-anchor="${anchor}"${decoration}>${tspans}</text></g>`
-  }
-
-  const lineRuns = splitDraftingTextRunsByLine(layer)
-  const tspans = lineRuns
-    .map((runs, lineIndex) => {
-      const dy = lineIndex === 0 ? fontSize : fontSize * lineHeight
-      const content = runs
-        .map((run) => getDraftingTextRunSvg(layer, run, fillPaint.fill))
-        .join("")
+  const lineContents = hasTextRuns
+    ? splitDraftingTextRunsByLine(layer).map((runs) =>
+        runs.map((run) => getDraftingTextRunSvg(layer, run, fillPaint.fill)).join(""),
+      )
+    : layoutDraftingText(layer).lines.map(escapeXml)
+  const tspans = lineContents
+    .map((content, index) => {
+      const dy = index === 0 ? fontSize : fontSize * lineHeight
 
       return `<tspan x="${x}" dy="${dy}">${content}</tspan>`
     })
     .join("")
+  const textAttrs = hasTextRuns
+    ? ""
+    : `fill="${escapeXml(fillPaint.fill)}" font-family="${escapeXml(getDraftingFontCssFamily({ fontFamily: layer.fontFamily, fontId: layer.fontId }))}" font-size="${fontSize}" font-style="${layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle}" font-weight="${layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight}" `
+  const decoration = !hasTextRuns && layer.underline ? ` text-decoration="underline"` : ""
 
-  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><text letter-spacing="${layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing}" text-anchor="${anchor}">${tspans}</text></g>`
+  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><text ${textAttrs}letter-spacing="${layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing}" text-anchor="${anchor}"${decoration}>${tspans}</text></g>`
 }
 
 function splitDraftingTextRunsByLine(layer: DraftingCanvasLayer) {

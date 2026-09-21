@@ -705,6 +705,21 @@ function computeGamutPaths(
   activeGamut: AreaGamut,
 ): string[] {
   const N = 128;
+  const sd = sampleGamutGrid(mode, base, chromaMax, warningGamut, activeGamut, N);
+  const segs = marchingSquaresSegments(sd, N);
+  if (segs.length === 0) return [];
+  return chainSegmentsToPaths(segs);
+}
+
+/** Fill `sd` with signed distance to `warningGamut` over an (N+1)² grid. */
+function sampleGamutGrid(
+  mode: AreaMode,
+  base: OklchColor,
+  chromaMax: number,
+  warningGamut: Gamut,
+  activeGamut: AreaGamut,
+  N: number,
+): Float32Array {
   const stride = N + 1;
   const sd = new Float32Array(stride * stride);
   // Precompute hsv-sv's cusp once; without this the 16 384 grid samples would
@@ -727,7 +742,29 @@ function computeGamutPaths(
       );
     }
   }
+  return sd;
+}
 
+const SEG_EDGES: Record<number, ReadonlyArray<readonly ["left" | "top" | "right" | "bottom", "left" | "top" | "right" | "bottom"]>> = {
+  1: [["left", "bottom"]],
+  2: [["bottom", "right"]],
+  3: [["left", "right"]],
+  4: [["top", "right"]],
+  5: [["left", "top"], ["bottom", "right"]],
+  6: [["top", "bottom"]],
+  7: [["left", "top"]],
+  8: [["left", "top"]],
+  9: [["top", "bottom"]],
+  10: [["left", "bottom"], ["top", "right"]],
+  11: [["top", "right"]],
+  12: [["left", "right"]],
+  13: [["bottom", "right"]],
+  14: [["left", "bottom"]],
+};
+
+/** Marching squares over the sampled grid → flat [ax, ay, bx, by, ...] segments. */
+function marchingSquaresSegments(sd: Float32Array, N: number): number[] {
+  const stride = N + 1;
   const interp = (
     ax: number, ay: number, av: number,
     bx: number, by: number, bv: number,
@@ -736,7 +773,7 @@ function computeGamutPaths(
     return [ax + (bx - ax) * t, ay + (by - ay) * t];
   };
 
-  const segs: number[] = []; // flat: [ax, ay, bx, by, ax, ay, bx, by, ...]
+  const segs: number[] = [];
   const pushSeg = (a: [number, number], b: [number, number]) => {
     if (a[0] === b[0] && a[1] === b[1]) return;
     segs.push(a[0], a[1], b[0], b[1]);
@@ -757,25 +794,23 @@ function computeGamutPaths(
       const y0 = j / N;
       const x1 = (i + 1) / N;
       const y1 = (j + 1) / N;
-      const top = () => interp(x0, y0, aTL, x1, y0, aTR);
-      const right = () => interp(x1, y0, aTR, x1, y1, aBR);
-      const bottom = () => interp(x0, y1, aBL, x1, y1, aBR);
-      const left = () => interp(x0, y0, aTL, x0, y1, aBL);
-      switch (code) {
-        case 1: case 14: pushSeg(left(), bottom()); break;
-        case 2: case 13: pushSeg(bottom(), right()); break;
-        case 3: case 12: pushSeg(left(), right()); break;
-        case 4: case 11: pushSeg(top(), right()); break;
-        case 6: case 9:  pushSeg(top(), bottom()); break;
-        case 7: case 8:  pushSeg(left(), top()); break;
-        case 5:  pushSeg(left(), top()); pushSeg(bottom(), right()); break;
-        case 10: pushSeg(left(), bottom()); pushSeg(top(), right()); break;
+      const edges = {
+        top: () => interp(x0, y0, aTL, x1, y0, aTR),
+        right: () => interp(x1, y0, aTR, x1, y1, aBR),
+        bottom: () => interp(x0, y1, aBL, x1, y1, aBR),
+        left: () => interp(x0, y0, aTL, x0, y1, aBL),
+      };
+      for (const [from, to] of SEG_EDGES[code] ?? []) {
+        pushSeg(edges[from](), edges[to]());
       }
     }
   }
+  return segs;
+}
 
+/** Join flat segments into polylines via shared endpoints, emit SVG path d. */
+function chainSegmentsToPaths(segs: number[]): string[] {
   const segCount = segs.length / 4;
-  if (segCount === 0) return [];
 
   // Build endpoint map keyed by quantized coords. Endpoints from adjacent cells
   // share the same `interp` inputs along their shared edge, so they collide
@@ -805,6 +840,10 @@ function computeGamutPaths(
     }
     return null;
   };
+  const segPoint = (e: Endpoint): [number, number] => {
+    const o = e.seg * 4;
+    return e.end === 0 ? [segs[o + 2], segs[o + 3]] : [segs[o], segs[o + 1]];
+  };
 
   const polylines: number[][] = [];
   for (let start = 0; start < segCount; start++) {
@@ -815,25 +854,17 @@ function computeGamutPaths(
 
     // Extend forward off the tail.
     while (true) {
-      const tx = pts[pts.length - 2];
-      const ty = pts[pts.length - 1];
-      const e = popEndpointAt(key(tx, ty));
+      const e = popEndpointAt(key(pts[pts.length - 2], pts[pts.length - 1]));
       if (!e) break;
       used[e.seg] = 1;
-      const no = e.seg * 4;
-      if (e.end === 0) pts.push(segs[no + 2], segs[no + 3]);
-      else pts.push(segs[no], segs[no + 1]);
+      pts.push(...segPoint(e));
     }
     // Extend backward off the head.
     while (true) {
-      const hx = pts[0];
-      const hy = pts[1];
-      const e = popEndpointAt(key(hx, hy));
+      const e = popEndpointAt(key(pts[0], pts[1]));
       if (!e) break;
       used[e.seg] = 1;
-      const no = e.seg * 4;
-      if (e.end === 0) pts.unshift(segs[no + 2], segs[no + 3]);
-      else pts.unshift(segs[no], segs[no + 1]);
+      pts.unshift(...segPoint(e));
     }
 
     polylines.push(pts);

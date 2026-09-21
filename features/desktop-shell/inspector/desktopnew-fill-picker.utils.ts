@@ -69,3 +69,16 @@ export function normalizeFillForQrTarget(fill: Fill): Fill {
 
   return fill
 }
+
+export type ModulePatternControl = {
+  selectedPalette: string[]
+  selectedPreset: string | "custom"
+  onSelect: (preset: { label: string; colors: string[] } | "custom") => void
+  onPaletteColorChange: (index: number, color: string) => void
+}
+
+export type ModuleImageControl = {
+  imageUrl: string
+  onUpload: (imageUrl: string, sourceMode?: "upload" | "url") => void
+  onClear: () => void
+}

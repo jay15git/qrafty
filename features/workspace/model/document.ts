@@ -13,6 +13,7 @@ import {
   getDraftingQrLayerId,
   getQrCanvasLayers,
   normalizeDraftingCanvasLayers,
+  type DraftingCanvasLayer,
   type DraftingLayerStateByNodeId,
 } from "@/features/workspace/model/layers"
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr-code/rendering/compose-scene"
@@ -335,60 +336,30 @@ function parseBackgroundShapeOptions(
       ? ((legacySizePercent - 100) / 200) * fallback.width
       : undefined
 
+  const num = (key: keyof BackgroundShapeOptions) =>
+    typeof value?.[key] === "number" ? (value[key] as number) : undefined
+  const str = (key: keyof BackgroundShapeOptions) =>
+    typeof value?.[key] === "string" ? (value[key] as string) : undefined
+  const numField = (
+    key: keyof BackgroundShapeOptions,
+    clamp: (n: number) => number,
+    fallbackValue?: number,
+  ) => clamp(num(key) ?? fallbackValue ?? (DEFAULT_BACKGROUND_SHAPE_OPTIONS[key] as number))
+  const strField = (key: keyof BackgroundShapeOptions) =>
+    str(key) ?? (DEFAULT_BACKGROUND_SHAPE_OPTIONS[key] as string)
+
   return {
-    edgeBlur: clampBackgroundShapeEdgeBlur(
-      typeof value?.edgeBlur === "number"
-        ? value.edgeBlur
-        : DEFAULT_BACKGROUND_SHAPE_OPTIONS.edgeBlur,
-    ),
-    paddingPx: clampBackgroundShapePaddingPx(
-      typeof value?.paddingPx === "number"
-        ? value.paddingPx
-        : legacyPaddingPx ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.paddingPx,
-    ),
-    shadowColor:
-      typeof value?.shadowColor === "string"
-        ? value.shadowColor
-        : DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowColor,
-    shadowOffsetX: clampBackgroundShapeOffset(
-      typeof value?.shadowOffsetX === "number"
-        ? value.shadowOffsetX
-        : DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowOffsetX,
-    ),
-    shadowOffsetY: clampBackgroundShapeOffset(
-      typeof value?.shadowOffsetY === "number"
-        ? value.shadowOffsetY
-        : DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowOffsetY,
-    ),
-    shadowOpacity: clampBackgroundShapeOpacity(
-      typeof value?.shadowOpacity === "number"
-        ? value.shadowOpacity
-        : DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowOpacity,
-    ),
-    strokeColor:
-      typeof value?.strokeColor === "string"
-        ? value.strokeColor
-        : DEFAULT_BACKGROUND_SHAPE_OPTIONS.strokeColor,
-    strokeOpacity: clampBackgroundShapeOpacity(
-      typeof value?.strokeOpacity === "number"
-        ? value.strokeOpacity
-        : DEFAULT_BACKGROUND_SHAPE_OPTIONS.strokeOpacity,
-    ),
-    strokeWidth: clampBackgroundShapeStrokeWidth(
-      typeof value?.strokeWidth === "number"
-        ? value.strokeWidth
-        : DEFAULT_BACKGROUND_SHAPE_OPTIONS.strokeWidth,
-    ),
-    tiltX: clampBackgroundShapeTilt(
-      typeof value?.tiltX === "number"
-        ? value.tiltX
-        : DEFAULT_BACKGROUND_SHAPE_OPTIONS.tiltX,
-    ),
-    tiltY: clampBackgroundShapeTilt(
-      typeof value?.tiltY === "number"
-        ? value.tiltY
-        : DEFAULT_BACKGROUND_SHAPE_OPTIONS.tiltY,
-    ),
+    edgeBlur: numField("edgeBlur", clampBackgroundShapeEdgeBlur),
+    paddingPx: numField("paddingPx", clampBackgroundShapePaddingPx, legacyPaddingPx),
+    shadowColor: strField("shadowColor"),
+    shadowOffsetX: numField("shadowOffsetX", clampBackgroundShapeOffset),
+    shadowOffsetY: numField("shadowOffsetY", clampBackgroundShapeOffset),
+    shadowOpacity: numField("shadowOpacity", clampBackgroundShapeOpacity),
+    strokeColor: strField("strokeColor"),
+    strokeOpacity: numField("strokeOpacity", clampBackgroundShapeOpacity),
+    strokeWidth: numField("strokeWidth", clampBackgroundShapeStrokeWidth),
+    tiltX: numField("tiltX", clampBackgroundShapeTilt),
+    tiltY: numField("tiltY", clampBackgroundShapeTilt),
   }
 }
 
@@ -462,6 +433,103 @@ function parseQrStateByLayerId(
   return qrStateByLayerId
 }
 
+function normalizeSingleNodeDocument(
+  document: DraftingWorkspaceDocumentV1,
+  primaryNodeId: string,
+): DraftingWorkspaceDocumentV1 {
+  const primaryQrLayerId = getDraftingQrLayerId(primaryNodeId)
+  const primaryLayers =
+    document.layerStateByNodeId[primaryNodeId] ??
+    createDefaultDraftingLayers(
+      primaryNodeId,
+      document.qrStateByLayerId[primaryQrLayerId] ??
+        document.qrStateByNodeId[primaryNodeId] ??
+        createDefaultDraftingWorkspaceQrState(),
+      document.cardStateByNodeId[primaryNodeId] ?? createDefaultDraftingCardState(),
+    )
+
+  return {
+    ...document,
+    activeQrLayerId: document.qrStateByLayerId[document.activeQrLayerId]
+      ? document.activeQrLayerId
+      : primaryQrLayerId,
+    activeQrNodeId: primaryNodeId,
+    cardStateByNodeId: {
+      [primaryNodeId]:
+        document.cardStateByNodeId[primaryNodeId] ?? createDefaultDraftingCardState(),
+    },
+    layerStateByNodeId: {
+      [primaryNodeId]: primaryLayers,
+    },
+    qrOrder: [primaryNodeId],
+    qrStateByNodeId: {
+      [primaryNodeId]:
+        document.qrStateByLayerId[primaryQrLayerId] ??
+        document.qrStateByNodeId[primaryNodeId] ??
+        createDefaultDraftingWorkspaceQrState(),
+    },
+    sceneCompositionByNodeId: {
+      [primaryNodeId]:
+        document.sceneCompositionByNodeId[primaryNodeId] ?? createDefaultSceneComposition(),
+    },
+  }
+}
+
+/** Copy each source node's QR into a new layer on the primary card. */
+function foldExtraNodesIntoPrimaryLayers(
+  document: DraftingWorkspaceDocumentV1,
+  orderedNodeIds: string[],
+  primaryNode: string,
+  primaryNodeId: string,
+  primaryLayers: DraftingCanvasLayer[],
+  primaryCardState: ReturnType<typeof createDefaultDraftingCardState>,
+  qrStateByLayerId: DraftingQrStateByLayerId,
+  contentTypeByLayerId: Record<string, QrInputType>,
+) {
+  let nextZIndex =
+    primaryLayers.reduce((max, layer) => Math.max(max, layer.zIndex), 0) + 1
+  let extraIndex = 0
+
+  for (const nodeId of orderedNodeIds) {
+    if (nodeId === primaryNode) {
+      continue
+    }
+
+    const nodeState =
+      document.qrStateByNodeId[nodeId] ?? createDefaultDraftingWorkspaceQrState()
+    const sourceQrLayer = document.layerStateByNodeId[nodeId]?.find(
+      (layer) => layer.kind === "qr",
+    )
+    const layerId = createAdditionalDraftingQrLayerId(primaryNodeId)
+    const nearLayer =
+      getQrCanvasLayers(primaryLayers).at(-1) ??
+      primaryLayers.find((layer) => layer.kind === "qr")
+
+    primaryLayers.push(
+      createDraftingQrLayer(primaryNodeId, nodeState, primaryCardState, {
+        id: layerId,
+        nearLayer,
+        zIndex: nextZIndex,
+      }),
+    )
+
+    const targetLayer = primaryLayers.at(-1)
+    if (sourceQrLayer && targetLayer) {
+      targetLayer.x = sourceQrLayer.x + extraIndex * 24
+      targetLayer.y = sourceQrLayer.y + extraIndex * 24
+      targetLayer.width = sourceQrLayer.width
+      targetLayer.height = sourceQrLayer.height
+      targetLayer.rotation = sourceQrLayer.rotation
+    }
+
+    qrStateByLayerId[layerId] = cloneDraftingQrState(nodeState)
+    contentTypeByLayerId[layerId] =
+      document.contentTypeByNodeId[nodeId] ?? document.selectedContentType
+    nextZIndex += 1
+    extraIndex += 1
+  }
+}
+
 function normalizeDraftingWorkspaceDocument(
   document: DraftingWorkspaceDocumentV1,
 ): DraftingWorkspaceDocumentV1 {
@@ -470,42 +538,7 @@ function normalizeDraftingWorkspaceDocument(
     document.qrOrder.length > 0 ? [...document.qrOrder] : Object.keys(document.qrStateByNodeId)
 
   if (orderedNodeIds.length <= 1 && orderedNodeIds[0] === primaryNodeId) {
-    const primaryQrLayerId = getDraftingQrLayerId(primaryNodeId)
-    const primaryLayers =
-      document.layerStateByNodeId[primaryNodeId] ??
-      createDefaultDraftingLayers(
-        primaryNodeId,
-        document.qrStateByLayerId[primaryQrLayerId] ??
-          document.qrStateByNodeId[primaryNodeId] ??
-          createDefaultDraftingWorkspaceQrState(),
-        document.cardStateByNodeId[primaryNodeId] ?? createDefaultDraftingCardState(),
-      )
-
-    return {
-      ...document,
-      activeQrLayerId: document.qrStateByLayerId[document.activeQrLayerId]
-        ? document.activeQrLayerId
-        : primaryQrLayerId,
-      activeQrNodeId: primaryNodeId,
-      cardStateByNodeId: {
-        [primaryNodeId]:
-          document.cardStateByNodeId[primaryNodeId] ?? createDefaultDraftingCardState(),
-      },
-      layerStateByNodeId: {
-        [primaryNodeId]: primaryLayers,
-      },
-      qrOrder: [primaryNodeId],
-      qrStateByNodeId: {
-        [primaryNodeId]:
-          document.qrStateByLayerId[primaryQrLayerId] ??
-          document.qrStateByNodeId[primaryNodeId] ??
-          createDefaultDraftingWorkspaceQrState(),
-      },
-      sceneCompositionByNodeId: {
-        [primaryNodeId]:
-          document.sceneCompositionByNodeId[primaryNodeId] ?? createDefaultSceneComposition(),
-      },
-    }
+    return normalizeSingleNodeDocument(document, primaryNodeId)
   }
 
   const primaryNode =
@@ -522,7 +555,6 @@ function normalizeDraftingWorkspaceDocument(
   ).map(cloneDraftingCanvasLayer)
   const qrStateByLayerId: DraftingQrStateByLayerId = {}
   const contentTypeByLayerId: Record<string, QrInputType> = {}
-  const maxZIndex = primaryLayers.reduce((max, layer) => Math.max(max, layer.zIndex), 0)
 
   for (const layer of primaryLayers) {
     if (layer.kind !== "qr") {
@@ -540,48 +572,16 @@ function normalizeDraftingWorkspaceDocument(
       document.selectedContentType
   }
 
-  let nextZIndex = maxZIndex + 1
-  let extraIndex = 0
-
-  for (const nodeId of orderedNodeIds) {
-    if (nodeId === primaryNode) {
-      continue
-    }
-
-    const nodeState =
-      document.qrStateByNodeId[nodeId] ?? createDefaultDraftingWorkspaceQrState()
-    const nodeLayers = document.layerStateByNodeId[nodeId]
-    const sourceQrLayer = nodeLayers?.find((layer) => layer.kind === "qr")
-    const layerId = createAdditionalDraftingQrLayerId(primaryNodeId)
-    const nearLayer =
-      getQrCanvasLayers(primaryLayers).at(-1) ??
-      primaryLayers.find((layer) => layer.kind === "qr")
-
-    primaryLayers.push(
-      createDraftingQrLayer(primaryNodeId, nodeState, primaryCardState, {
-        id: layerId,
-        nearLayer,
-        zIndex: nextZIndex,
-      }),
-    )
-
-    if (sourceQrLayer) {
-      const targetLayer = primaryLayers.at(-1)
-      if (targetLayer) {
-        targetLayer.x = sourceQrLayer.x + extraIndex * 24
-        targetLayer.y = sourceQrLayer.y + extraIndex * 24
-        targetLayer.width = sourceQrLayer.width
-        targetLayer.height = sourceQrLayer.height
-        targetLayer.rotation = sourceQrLayer.rotation
-      }
-    }
-
-    qrStateByLayerId[layerId] = cloneDraftingQrState(nodeState)
-    contentTypeByLayerId[layerId] =
-      document.contentTypeByNodeId[nodeId] ?? document.selectedContentType
-    nextZIndex += 1
-    extraIndex += 1
-  }
+  foldExtraNodesIntoPrimaryLayers(
+    document,
+    orderedNodeIds,
+    primaryNode,
+    primaryNodeId,
+    primaryLayers,
+    primaryCardState,
+    qrStateByLayerId,
+    contentTypeByLayerId,
+  )
 
   const primaryQrLayerId = getDraftingQrLayerId(primaryNodeId)
 

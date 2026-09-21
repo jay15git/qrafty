@@ -35,6 +35,123 @@ interface CroppedImageData {
 const MAX_FILE_SIZE = 4 * 1024 * 1024
 const SUPPORTED_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/webp"]
 
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (event) => resolve(event.target?.result as string)
+    reader.onerror = () => reject(new Error("Failed to read file"))
+    reader.readAsDataURL(file)
+  })
+}
+
+function loadImageElement(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = () => reject(new Error("Invalid or corrupted image file"))
+    img.src = src
+  })
+}
+
+function initialCropArea(
+  imgRect: { width: number; height: number },
+  fixedSize: { width: number; height: number } | undefined,
+  aspectRatio: number | undefined,
+): CropArea {
+  const targetRatio = fixedSize
+    ? fixedSize.width / fixedSize.height
+    : aspectRatio
+  let cropWidth = imgRect.width
+  let cropHeight = imgRect.height
+
+  if (targetRatio) {
+    cropHeight = cropWidth / targetRatio
+    if (cropHeight > imgRect.height) {
+      cropHeight = imgRect.height
+      cropWidth = cropHeight * targetRatio
+    }
+  }
+
+  return {
+    x: 0,
+    y: (imgRect.height - cropHeight) / 2,
+    width: cropWidth,
+    height: cropHeight,
+  }
+}
+
+function resizedCropArea(
+  prev: CropArea,
+  deltaX: number,
+  deltaY: number,
+  imgRect: { width: number; height: number },
+  aspectRatio: number | undefined,
+): CropArea {
+  let newWidth = Math.max(50, prev.width + deltaX)
+  let newHeight = Math.max(50, prev.height + deltaY)
+
+  if (aspectRatio) {
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      newHeight = newWidth / aspectRatio
+    } else {
+      newWidth = newHeight * aspectRatio
+    }
+  }
+
+  return {
+    ...prev,
+    width: Math.min(newWidth, imgRect.width - prev.x),
+    height: Math.min(newHeight, imgRect.height - prev.y),
+  }
+}
+
+function movedCropArea(
+  prev: CropArea,
+  deltaX: number,
+  deltaY: number,
+  imgRect: { width: number; height: number },
+): CropArea {
+  return {
+    ...prev,
+    x: Math.max(0, Math.min(imgRect.width - prev.width, prev.x + deltaX)),
+    y: Math.max(0, Math.min(imgRect.height - prev.height, prev.y + deltaY)),
+  }
+}
+
+function drawCropToCanvas(
+  img: HTMLImageElement,
+  canvas: HTMLCanvasElement,
+  cropArea: CropArea,
+  fixedSize: { width: number; height: number } | undefined,
+) {
+  const ctx = canvas.getContext("2d")
+  if (!ctx) throw new Error("Could not get canvas context")
+
+  const imgRect = img.getBoundingClientRect()
+  const scaleX = img.naturalWidth / imgRect.width
+  const scaleY = img.naturalHeight / imgRect.height
+  const outputWidth = fixedSize?.width || Math.round(cropArea.width * scaleX)
+  const outputHeight = fixedSize?.height || Math.round(cropArea.height * scaleY)
+
+  canvas.width = outputWidth
+  canvas.height = outputHeight
+  ctx.imageSmoothingEnabled = true
+  ctx.imageSmoothingQuality = "high"
+  ctx.drawImage(
+    img,
+    Math.round(cropArea.x * scaleX),
+    Math.round(cropArea.y * scaleY),
+    Math.round(cropArea.width * scaleX),
+    Math.round(cropArea.height * scaleY),
+    0,
+    0,
+    outputWidth,
+    outputHeight,
+  )
+
+  return { outputWidth, outputHeight }
+}
+
 function UploadTileIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -190,56 +307,45 @@ export function ImageCropper({
         const nextValidationError = validateFile(file)
         if (nextValidationError) {
           setValidationError(nextValidationError)
-          setIsProcessing(false)
           resetFileInput()
           return
         }
 
-        const reader = new FileReader()
-        reader.onload = (event) => {
-          const imageUrl = event.target?.result as string
-          setSelectedImage(imageUrl)
-          setOriginalFile(file)
+        const imageUrl = await readFileAsDataUrl(file)
+        setSelectedImage(imageUrl)
+        setOriginalFile(file)
 
-          const tempImg = new Image()
-          tempImg.onload = () => {
-            if (checkImageDimensions(tempImg)) {
-              const nextCroppedImageUrl = imageUrl
-              setCroppedImageUrl(nextCroppedImageUrl)
-              onChange?.(file)
-              onImageCropped?.({
-                url: nextCroppedImageUrl,
-                file,
-                metadata: {
-                  width: tempImg.naturalWidth,
-                  height: tempImg.naturalHeight,
-                },
-              })
-              onBlur?.()
-              setIsProcessing(false)
-            } else {
-              setShowCropDialog(true)
-              setIsProcessing(false)
-            }
+        try {
+          const tempImg = await loadImageElement(imageUrl)
+          if (checkImageDimensions(tempImg)) {
+            setCroppedImageUrl(imageUrl)
+            onChange?.(file)
+            onImageCropped?.({
+              url: imageUrl,
+              file,
+              metadata: {
+                width: tempImg.naturalWidth,
+                height: tempImg.naturalHeight,
+              },
+            })
+            onBlur?.()
+          } else {
+            setShowCropDialog(true)
           }
-          tempImg.onerror = () => {
-            setValidationError("Invalid or corrupted image file")
-            setIsProcessing(false)
-            resetFileInput()
-          }
-          tempImg.src = imageUrl
-        }
-        reader.onerror = () => {
-          setValidationError("Failed to read file")
-          setIsProcessing(false)
+        } catch {
+          setValidationError("Invalid or corrupted image file")
           resetFileInput()
         }
-        reader.readAsDataURL(file)
       } catch (processingError) {
         console.error("File processing error:", processingError)
-        setValidationError("An error occurred while processing the file")
-        setIsProcessing(false)
+        setValidationError(
+          processingError instanceof Error && processingError.message === "Failed to read file"
+            ? "Failed to read file"
+            : "An error occurred while processing the file",
+        )
         resetFileInput()
+      } finally {
+        setIsProcessing(false)
       }
     },
     [
@@ -285,35 +391,13 @@ export function ImageCropper({
 
   const handleImageLoad = useCallback(() => {
     if (imageRef.current && cropContainerRef.current) {
-      const img = imageRef.current
-      const imgRect = img.getBoundingClientRect()
-
-      let cropWidth = imgRect.width
-      let cropHeight = imgRect.height
-
-      if (fixedSize) {
-        const targetRatio = fixedSize.width / fixedSize.height
-        cropHeight = cropWidth / targetRatio
-
-        if (cropHeight > imgRect.height) {
-          cropHeight = imgRect.height
-          cropWidth = cropHeight * targetRatio
-        }
-      } else if (aspectRatio) {
-        cropHeight = cropWidth / aspectRatio
-
-        if (cropHeight > imgRect.height) {
-          cropHeight = imgRect.height
-          cropWidth = cropHeight * aspectRatio
-        }
-      }
-
-      setCropArea({
-        x: 0,
-        y: (imgRect.height - cropHeight) / 2,
-        width: cropWidth,
-        height: cropHeight,
-      })
+      setCropArea(
+        initialCropArea(
+          imageRef.current.getBoundingClientRect(),
+          fixedSize,
+          aspectRatio,
+        ),
+      )
     }
   }, [fixedSize, aspectRatio])
 
@@ -345,35 +429,9 @@ export function ImageCropper({
         const imgRect = imageRef.current!.getBoundingClientRect()
 
         if (isDragging) {
-          setCropArea((prev) => {
-            const newX = Math.max(
-              0,
-              Math.min(imgRect.width - prev.width, prev.x + deltaX),
-            )
-            const newY = Math.max(
-              0,
-              Math.min(imgRect.height - prev.height, prev.y + deltaY),
-            )
-            return { ...prev, x: newX, y: newY }
-          })
+          setCropArea((prev) => movedCropArea(prev, deltaX, deltaY, imgRect))
         } else if (isResizing) {
-          setCropArea((prev) => {
-            let newWidth = Math.max(50, prev.width + deltaX)
-            let newHeight = Math.max(50, prev.height + deltaY)
-
-            if (aspectRatio) {
-              if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                newHeight = newWidth / aspectRatio
-              } else {
-                newWidth = newHeight * aspectRatio
-              }
-            }
-
-            newWidth = Math.min(newWidth, imgRect.width - prev.x)
-            newHeight = Math.min(newHeight, imgRect.height - prev.y)
-
-            return { ...prev, width: newWidth, height: newHeight }
-          })
+          setCropArea((prev) => resizedCropArea(prev, deltaX, deltaY, imgRect, aspectRatio))
         }
 
         setDragStart({ x: event.clientX, y: event.clientY })
@@ -398,34 +456,11 @@ export function ImageCropper({
 
     try {
       const canvas = canvasRef.current
-      const ctx = canvas.getContext("2d")
-      if (!ctx) throw new Error("Could not get canvas context")
-
-      const img = imageRef.current
-      const imgRect = img.getBoundingClientRect()
-
-      const scaleX = img.naturalWidth / imgRect.width
-      const scaleY = img.naturalHeight / imgRect.height
-
-      const outputWidth = fixedSize?.width || Math.round(cropArea.width * scaleX)
-      const outputHeight = fixedSize?.height || Math.round(cropArea.height * scaleY)
-
-      canvas.width = outputWidth
-      canvas.height = outputHeight
-
-      ctx.imageSmoothingEnabled = true
-      ctx.imageSmoothingQuality = "high"
-
-      ctx.drawImage(
-        img,
-        Math.round(cropArea.x * scaleX),
-        Math.round(cropArea.y * scaleY),
-        Math.round(cropArea.width * scaleX),
-        Math.round(cropArea.height * scaleY),
-        0,
-        0,
-        outputWidth,
-        outputHeight,
+      const { outputWidth, outputHeight } = drawCropToCanvas(
+        imageRef.current,
+        canvas,
+        cropArea,
+        fixedSize,
       )
 
       setTimeout(() => {
@@ -541,29 +576,339 @@ export function ImageCropper({
 
   return (
     <>
-      <div
-        className={cn(
-          "group overflow-hidden text-center transition-colors",
-          tile
-            ? "size-full border-0 bg-transparent"
-            : "rounded-lg border-2 border-dashed",
-          !tile && (compact ? "aspect-square w-full" : "h-52"),
-          !tile && previewSurfaceClass,
-          disabled
-            ? "cursor-not-allowed border-muted-foreground/10"
-            : "cursor-pointer",
-          !disabled && isDragging
-            ? "border-primary"
-            : "border-muted-foreground/25 hover:border-primary/50",
-          displayError && "border-destructive",
-          className,
-        )}
-      >
+      <ImageDropzone
+        className={className}
+        compact={compact}
+        croppedImageUrl={croppedImageUrl}
+        dialogTheme={dialogTheme}
+        disabled={disabled}
+        displayError={displayError}
+        fileInputRef={fileInputRef}
+        imgClassName={imgClassName}
+        isDragging={isDragging}
+        isProcessing={isProcessing}
+        maxFileSizeMb={maxFileSizeMb}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onFileInputChange={handleFileInputChange}
+        onRemoveImage={handleRemoveImage}
+        placeholder={placeholder}
+        previewSurfaceClass={previewSurfaceClass}
+        showFormatHint={showFormatHint}
+        supportedFormats={supportedFormats}
+        tile={tile}
+        validationError={validationError}
+      />
+
+      <CropperDialog
+        aspectRatio={aspectRatio}
+        canvasRef={canvasRef}
+        cropArea={cropArea}
+        cropContainerRef={cropContainerRef}
+        currentAspectRatio={currentAspectRatio}
+        dialogContentClassName={dialogContentClassName}
+        dialogTheme={dialogTheme}
+        fixedSize={fixedSize}
+        imageRef={imageRef}
+        isProcessing={isProcessing}
+        onCrop={cropImage}
+        onDialogOpenChange={handleDialogClose}
+        onImageLoad={handleImageLoad}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        open={showCropDialog}
+        selectedImage={selectedImage}
+        usesDesktopTheme={usesDesktopTheme}
+      />
+    </>
+  )
+}
+
+function CropperDialog({
+  aspectRatio,
+  canvasRef,
+  cropArea,
+  cropContainerRef,
+  currentAspectRatio,
+  dialogContentClassName,
+  dialogTheme,
+  fixedSize,
+  imageRef,
+  isProcessing,
+  onCrop,
+  onDialogOpenChange,
+  onImageLoad,
+  onMouseDown,
+  onMouseMove,
+  onMouseUp,
+  open,
+  selectedImage,
+  usesDesktopTheme,
+}: {
+  aspectRatio?: number
+  canvasRef: React.RefObject<HTMLCanvasElement | null>
+  cropArea: CropArea
+  cropContainerRef: React.RefObject<HTMLDivElement | null>
+  currentAspectRatio: string
+  dialogContentClassName?: string
+  dialogTheme?: "light" | "dark"
+  fixedSize?: { width: number; height: number }
+  imageRef: React.RefObject<HTMLImageElement | null>
+  isProcessing: boolean
+  onCrop: () => void
+  onDialogOpenChange: (open: boolean) => void
+  onImageLoad: () => void
+  onMouseDown: (event: React.MouseEvent, type: "move" | "resize") => void
+  onMouseMove: (event: React.MouseEvent) => void
+  onMouseUp: () => void
+  open: boolean
+  selectedImage: string | null
+  usesDesktopTheme: boolean
+}) {
+  const handleDialogClose = onDialogOpenChange
+  return (
+    <>
+      <Dialog open={open} onOpenChange={handleDialogClose}>
+        <DialogContent
+          className={cn(
+            usesDesktopTheme
+              ? cn(
+                  "desktopnew-crop-dialog dn-portal-surface desktopnew-popover-content",
+                  "w-[min(calc(100vw-2rem),26rem)] max-w-none gap-0 overflow-hidden border-0 p-0 shadow-none outline-none dn-squircle-md",
+                  dialogTheme === "dark" && "dark",
+                )
+              : "max-h-[90vh] w-fit max-w-7xl! overflow-hidden",
+            dialogContentClassName,
+          )}
+          data-theme={dialogTheme}
+        >
+          <DialogHeader
+            className={cn(
+              usesDesktopTheme
+                ? "desktopnew-crop-dialog__header gap-2 space-y-0 border-b border-[var(--dn-line)] px-[length:var(--dn-row-px)] py-3 text-left"
+                : undefined,
+            )}
+          >
+            <DialogTitle
+              className={cn(
+                "flex items-center gap-2",
+                usesDesktopTheme &&
+                  "text-[length:var(--dn-type-value)] font-semibold tracking-[var(--dn-tracking-tight)] text-[var(--dn-fg)]",
+              )}
+            >
+              <Crop className={cn("size-5", usesDesktopTheme && "text-[var(--dn-muted)]")} />
+              Crop Image
+              {fixedSize ? (
+                <Badge variant="secondary" className="ml-2">
+                  {fixedSize.width}×{fixedSize.height}
+                </Badge>
+              ) : null}
+              {aspectRatio && !fixedSize ? (
+                <Badge variant="secondary" className="ml-2">
+                  Ratio {aspectRatio.toFixed(2)}:1
+                </Badge>
+              ) : null}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className={cn(usesDesktopTheme ? "desktopnew-crop-dialog__body p-[length:var(--dn-row-px)]" : "space-y-4")}>
+            <div
+              ref={cropContainerRef}
+              className={cn(
+                "relative overflow-hidden select-none",
+                usesDesktopTheme
+                  ? "desktopnew-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--dn-radius-sm)] border border-[var(--dn-line)] bg-[var(--dn-control)]"
+                  : "max-h-[80vh] rounded-lg border bg-muted/10",
+              )}
+              onMouseMove={onMouseMove}
+              onMouseUp={onMouseUp}
+              onMouseLeave={onMouseUp}
+            >
+              {selectedImage ? (
+                <>
+                  <img
+                    ref={imageRef}
+                    src={selectedImage}
+                    alt="Crop preview"
+                    className={cn(
+                      "w-full max-w-full object-contain",
+                      usesDesktopTheme ? "max-h-[min(60vh,28rem)]" : "max-h-[70vh]",
+                    )}
+                    onLoad={onImageLoad}
+                    draggable={false}
+                  />
+
+                  <div
+                    className={cn(
+                      "absolute border-2 border-primary bg-primary/10",
+                      fixedSize ? "cursor-default" : "cursor-move",
+                    )}
+                    style={{
+                      left: cropArea.x,
+                      top: cropArea.y,
+                      width: cropArea.width,
+                      height: cropArea.height,
+                    }}
+                    onMouseDown={(event) => onMouseDown(event, "move")}
+                  >
+                    {!fixedSize ? (
+                      <div
+                        className="absolute right-0 bottom-0 size-4 cursor-se-resize border border-primary-foreground bg-primary"
+                        onMouseDown={(event) => {
+                          event.stopPropagation()
+                          onMouseDown(event, "resize")
+                        }}
+                      />
+                    ) : null}
+
+                    <div
+                      className={cn(
+                        "absolute -top-8 left-0 rounded px-2 py-1 text-xs whitespace-nowrap",
+                        usesDesktopTheme
+                          ? "bg-[var(--dn-fg)] text-[var(--dn-bg)]"
+                          : "bg-primary text-primary-foreground",
+                      )}
+                    >
+                      {Math.round(cropArea.width)}×{Math.round(cropArea.height)}
+                      <span className="ml-2 opacity-75">{currentAspectRatio}:1</span>
+                      {aspectRatio ? (
+                        <span className="ml-1 opacity-75">
+                          (target: {aspectRatio.toFixed(2)}:1)
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                </>
+              ) : null}
+            </div>
+          </div>
+
+          <DialogFooter
+            className={cn(
+              usesDesktopTheme
+                ? "desktopnew-crop-dialog__footer gap-2 border-t border-[var(--dn-line)] p-[length:var(--dn-row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
+                : undefined,
+            )}
+          >
+            {usesDesktopTheme ? (
+              <>
+                <button
+                  className="dn-control-surface dn-pressable-subtle dn-squircle-sm flex h-[length:var(--dn-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--dn-type-value)] font-medium tracking-[var(--dn-tracking-tight)] text-[var(--dn-fg)]"
+                  disabled={isProcessing}
+                  type="button"
+                  onClick={() => handleDialogClose(false)}
+                >
+                  <X className="size-4" />
+                  Cancel
+                </button>
+                <button
+                  className="dn-settings-primary dn-control-surface dn-pressable-press-only dn-squircle-sm flex h-[length:var(--dn-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--dn-type-value)] font-medium tracking-[var(--dn-tracking-tight)]"
+                  disabled={isProcessing}
+                  type="button"
+                  onClick={onCrop}
+                >
+                  <Crop className="size-4" />
+                  {isProcessing ? "Processing..." : "Crop Image"}
+                </button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => handleDialogClose(false)}
+                  disabled={isProcessing}
+                >
+                  <X className="mr-2 size-4" />
+                  Cancel
+                </Button>
+                <Button onClick={onCrop} disabled={isProcessing}>
+                  <Crop className="mr-2 size-4" />
+                  {isProcessing ? "Processing..." : "Crop Image"}
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <canvas ref={canvasRef} className="hidden" />
+    </>
+  )
+}
+
+function ImageDropzone({
+  className,
+  compact,
+  croppedImageUrl,
+  dialogTheme,
+  disabled,
+  displayError,
+  fileInputRef,
+  imgClassName,
+  isDragging,
+  isProcessing,
+  maxFileSizeMb,
+  onDragLeave,
+  onDragOver,
+  onDrop,
+  onFileInputChange,
+  onRemoveImage,
+  placeholder,
+  previewSurfaceClass,
+  showFormatHint,
+  supportedFormats,
+  tile,
+  validationError,
+}: {
+  className?: string
+  compact: boolean
+  croppedImageUrl: string | null
+  dialogTheme?: "light" | "dark"
+  disabled: boolean
+  displayError: string | null
+  fileInputRef: React.RefObject<HTMLInputElement | null>
+  imgClassName?: string
+  isDragging: boolean
+  isProcessing: boolean
+  maxFileSizeMb: number
+  onDragLeave: (event: React.DragEvent) => void
+  onDragOver: (event: React.DragEvent) => void
+  onDrop: (event: React.DragEvent) => void
+  onFileInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onRemoveImage: () => void
+  placeholder?: string
+  previewSurfaceClass: string
+  showFormatHint: boolean
+  supportedFormats: string[]
+  tile: boolean
+  validationError: string | null
+}) {
+  return (
+    <div
+      className={cn(
+        "group overflow-hidden text-center transition-colors",
+        tile
+          ? "size-full border-0 bg-transparent"
+          : "rounded-lg border-2 border-dashed",
+        !tile && (compact ? "aspect-square w-full" : "h-52"),
+        !tile && previewSurfaceClass,
+        disabled
+          ? "cursor-not-allowed border-muted-foreground/10"
+          : "cursor-pointer",
+        !disabled && isDragging
+          ? "border-primary"
+          : "border-muted-foreground/25 hover:border-primary/50",
+        displayError && "border-destructive",
+        className,
+      )}
+    >
         <div
           className={cn(tile || compact ? "size-full min-h-0" : undefined)}
-          onDrop={!disabled ? handleDrop : undefined}
-          onDragOver={!disabled ? handleDragOver : undefined}
-          onDragLeave={!disabled ? handleDragLeave : undefined}
+          onDrop={!disabled ? onDrop : undefined}
+          onDragOver={!disabled ? onDragOver : undefined}
+          onDragLeave={!disabled ? onDragLeave : undefined}
           onClick={
             !disabled && !isProcessing
               ? () => fileInputRef.current?.click()
@@ -612,7 +957,7 @@ export function ImageCropper({
                     )}
                     onClick={(event) => {
                       event.stopPropagation()
-                      handleRemoveImage()
+                      onRemoveImage()
                     }}
                   >
                     <X className={cn(tile ? "size-3" : "size-4")} />
@@ -689,174 +1034,8 @@ export function ImageCropper({
           accept={supportedFormats.join(",")}
           className="hidden"
           disabled={disabled || isProcessing}
-          onChange={handleFileInputChange}
+          onChange={onFileInputChange}
         />
       </div>
-
-      <Dialog open={showCropDialog} onOpenChange={handleDialogClose}>
-        <DialogContent
-          className={cn(
-            usesDesktopTheme
-              ? cn(
-                  "desktopnew-crop-dialog dn-portal-surface desktopnew-popover-content",
-                  "w-[min(calc(100vw-2rem),26rem)] max-w-none gap-0 overflow-hidden border-0 p-0 shadow-none outline-none dn-squircle-md",
-                  dialogTheme === "dark" && "dark",
-                )
-              : "max-h-[90vh] w-fit max-w-7xl! overflow-hidden",
-            dialogContentClassName,
-          )}
-          data-theme={dialogTheme}
-        >
-          <DialogHeader
-            className={cn(
-              usesDesktopTheme
-                ? "desktopnew-crop-dialog__header gap-2 space-y-0 border-b border-[var(--dn-line)] px-[length:var(--dn-row-px)] py-3 text-left"
-                : undefined,
-            )}
-          >
-            <DialogTitle
-              className={cn(
-                "flex items-center gap-2",
-                usesDesktopTheme &&
-                  "text-[length:var(--dn-type-value)] font-semibold tracking-[var(--dn-tracking-tight)] text-[var(--dn-fg)]",
-              )}
-            >
-              <Crop className={cn("size-5", usesDesktopTheme && "text-[var(--dn-muted)]")} />
-              Crop Image
-              {fixedSize ? (
-                <Badge variant="secondary" className="ml-2">
-                  {fixedSize.width}×{fixedSize.height}
-                </Badge>
-              ) : null}
-              {aspectRatio && !fixedSize ? (
-                <Badge variant="secondary" className="ml-2">
-                  Ratio {aspectRatio.toFixed(2)}:1
-                </Badge>
-              ) : null}
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className={cn(usesDesktopTheme ? "desktopnew-crop-dialog__body p-[length:var(--dn-row-px)]" : "space-y-4")}>
-            <div
-              ref={cropContainerRef}
-              className={cn(
-                "relative overflow-hidden select-none",
-                usesDesktopTheme
-                  ? "desktopnew-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--dn-radius-sm)] border border-[var(--dn-line)] bg-[var(--dn-control)]"
-                  : "max-h-[80vh] rounded-lg border bg-muted/10",
-              )}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-            >
-              {selectedImage ? (
-                <>
-                  <img
-                    ref={imageRef}
-                    src={selectedImage}
-                    alt="Crop preview"
-                    className={cn(
-                      "w-full max-w-full object-contain",
-                      usesDesktopTheme ? "max-h-[min(60vh,28rem)]" : "max-h-[70vh]",
-                    )}
-                    onLoad={handleImageLoad}
-                    draggable={false}
-                  />
-
-                  <div
-                    className={cn(
-                      "absolute border-2 border-primary bg-primary/10",
-                      fixedSize ? "cursor-default" : "cursor-move",
-                    )}
-                    style={{
-                      left: cropArea.x,
-                      top: cropArea.y,
-                      width: cropArea.width,
-                      height: cropArea.height,
-                    }}
-                    onMouseDown={(event) => handleMouseDown(event, "move")}
-                  >
-                    {!fixedSize ? (
-                      <div
-                        className="absolute right-0 bottom-0 size-4 cursor-se-resize border border-primary-foreground bg-primary"
-                        onMouseDown={(event) => {
-                          event.stopPropagation()
-                          handleMouseDown(event, "resize")
-                        }}
-                      />
-                    ) : null}
-
-                    <div
-                      className={cn(
-                        "absolute -top-8 left-0 rounded px-2 py-1 text-xs whitespace-nowrap",
-                        usesDesktopTheme
-                          ? "bg-[var(--dn-fg)] text-[var(--dn-bg)]"
-                          : "bg-primary text-primary-foreground",
-                      )}
-                    >
-                      {Math.round(cropArea.width)}×{Math.round(cropArea.height)}
-                      <span className="ml-2 opacity-75">{currentAspectRatio}:1</span>
-                      {aspectRatio ? (
-                        <span className="ml-1 opacity-75">
-                          (target: {aspectRatio.toFixed(2)}:1)
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-                </>
-              ) : null}
-            </div>
-          </div>
-
-          <DialogFooter
-            className={cn(
-              usesDesktopTheme
-                ? "desktopnew-crop-dialog__footer gap-2 border-t border-[var(--dn-line)] p-[length:var(--dn-row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
-                : undefined,
-            )}
-          >
-            {usesDesktopTheme ? (
-              <>
-                <button
-                  className="dn-control-surface dn-pressable-subtle dn-squircle-sm flex h-[length:var(--dn-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--dn-type-value)] font-medium tracking-[var(--dn-tracking-tight)] text-[var(--dn-fg)]"
-                  disabled={isProcessing}
-                  type="button"
-                  onClick={() => handleDialogClose(false)}
-                >
-                  <X className="size-4" />
-                  Cancel
-                </button>
-                <button
-                  className="dn-settings-primary dn-control-surface dn-pressable-press-only dn-squircle-sm flex h-[length:var(--dn-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--dn-type-value)] font-medium tracking-[var(--dn-tracking-tight)]"
-                  disabled={isProcessing}
-                  type="button"
-                  onClick={cropImage}
-                >
-                  <Crop className="size-4" />
-                  {isProcessing ? "Processing..." : "Crop Image"}
-                </button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => handleDialogClose(false)}
-                  disabled={isProcessing}
-                >
-                  <X className="mr-2 size-4" />
-                  Cancel
-                </Button>
-                <Button onClick={cropImage} disabled={isProcessing}>
-                  <Crop className="mr-2 size-4" />
-                  {isProcessing ? "Processing..." : "Crop Image"}
-                </Button>
-              </>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <canvas ref={canvasRef} className="hidden" />
-    </>
   )
 }

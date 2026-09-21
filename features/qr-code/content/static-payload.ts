@@ -388,6 +388,91 @@ export function buildStaticQrPayload(
   }
 }
 
+type StaticFieldValidator = (
+  values: StaticQrContentValues,
+  fieldErrors: Record<string, string>,
+) => void
+
+const requireField =
+  (field: keyof StaticQrContentValues & string, message: string): StaticFieldValidator =>
+  (values, fieldErrors) => {
+    if (!stringValue(values[field])) {
+      fieldErrors[field] = message
+    }
+  }
+
+const requirePositiveAmount: StaticFieldValidator = (values, fieldErrors) => {
+  const amount = stringValue(values.amount)
+  if (amount && !isPositiveAmount(amount)) {
+    fieldErrors.amount = VALIDATION_MESSAGES.amount
+  }
+}
+
+const STATIC_FIELD_VALIDATORS: Partial<
+  Record<QrInputType, StaticFieldValidator[]>
+> = {
+  wifi: [requireField("ssid", "Enter a network name.")],
+  phone: [requireField("phone", "Enter a phone number.")],
+  sms: [requireField("phone", "Enter a phone number.")],
+  email: [requireField("email", "Enter an email address.")],
+  vcard: [
+    (values, fieldErrors) => {
+      const hasContactValue = [
+        values.firstName,
+        values.lastName,
+        values.phone,
+        values.email,
+        values.company,
+      ].some((value) => Boolean(stringValue(value)))
+
+      if (!hasContactValue) {
+        fieldErrors.firstName = "Add a name, phone, or email."
+      }
+    },
+  ],
+  event: [
+    (values, fieldErrors) => {
+      const eventMode = stringValue(values.eventMode) || "url"
+
+      if (eventMode === "url" && !stringValue(values.url)) {
+        fieldErrors.url = "Enter an event URL."
+      }
+
+      if (eventMode === "calendar") {
+        if (!stringValue(values.title)) {
+          fieldErrors.title = "Enter an event title."
+        }
+
+        if (!stringValue(values.start)) {
+          fieldErrors.start = "Enter a start date and time."
+        }
+      }
+    },
+  ],
+  coupon: [
+    (values, fieldErrors) => {
+      if (!stringValue(values.code) && !stringValue(values.url)) {
+        fieldErrors.code = "Enter a coupon code or URL."
+      }
+    },
+  ],
+  upi: [
+    (values, fieldErrors) => {
+      const vpa = stringValue(values.vpa)
+      if (!vpa) {
+        fieldErrors.vpa = "Enter a UPI ID."
+      } else if (!isValidUpiVpa(vpa)) {
+        fieldErrors.vpa = "Enter a valid UPI ID (name@bank)."
+      }
+    },
+    requirePositiveAmount,
+  ],
+  crypto: [
+    requireField("address", "Enter a wallet address."),
+    requirePositiveAmount,
+  ],
+}
+
 export function validateStaticQrContent(
   type: QrInputType,
   values: StaticQrContentValues,
@@ -402,85 +487,12 @@ export function validateStaticQrContent(
 
   const fieldErrors: Record<string, string> = {}
 
-  if (type === "wifi" && !stringValue(values.ssid)) {
-    fieldErrors.ssid = "Enter a network name."
-  }
-
   if (LINK_CONTENT_TYPES.has(type) && !stringValue(values.url)) {
     fieldErrors.url = "Enter a URL."
   }
 
-  if (type === "phone" && !stringValue(values.phone)) {
-    fieldErrors.phone = "Enter a phone number."
-  }
-
-  if (type === "email" && !stringValue(values.email)) {
-    fieldErrors.email = "Enter an email address."
-  }
-
-  if ((type === "sms") && !stringValue(values.phone)) {
-    fieldErrors.phone = "Enter a phone number."
-  }
-
-  if (type === "vcard") {
-    const hasContactValue = [
-      values.firstName,
-      values.lastName,
-      values.phone,
-      values.email,
-      values.company,
-    ].some((value) => Boolean(stringValue(value)))
-
-    if (!hasContactValue) {
-      fieldErrors.firstName = "Add a name, phone, or email."
-    }
-  }
-
-  if (type === "event") {
-    const eventMode = stringValue(values.eventMode) || "url"
-
-    if (eventMode === "url" && !stringValue(values.url)) {
-      fieldErrors.url = "Enter an event URL."
-    }
-
-    if (eventMode === "calendar") {
-      if (!stringValue(values.title)) {
-        fieldErrors.title = "Enter an event title."
-      }
-
-      if (!stringValue(values.start)) {
-        fieldErrors.start = "Enter a start date and time."
-      }
-    }
-  }
-
-  if (type === "coupon" && !stringValue(values.code) && !stringValue(values.url)) {
-    fieldErrors.code = "Enter a coupon code or URL."
-  }
-
-  if (type === "upi") {
-    const vpa = stringValue(values.vpa)
-    if (!vpa) {
-      fieldErrors.vpa = "Enter a UPI ID."
-    } else if (!isValidUpiVpa(vpa)) {
-      fieldErrors.vpa = "Enter a valid UPI ID (name@bank)."
-    }
-
-    const amount = stringValue(values.amount)
-    if (amount && !isPositiveAmount(amount)) {
-      fieldErrors.amount = VALIDATION_MESSAGES.amount
-    }
-  }
-
-  if (type === "crypto") {
-    if (!stringValue(values.address)) {
-      fieldErrors.address = "Enter a wallet address."
-    }
-
-    const amount = stringValue(values.amount)
-    if (amount && !isPositiveAmount(amount)) {
-      fieldErrors.amount = VALIDATION_MESSAGES.amount
-    }
+  for (const validate of STATIC_FIELD_VALIDATORS[type] ?? []) {
+    validate(values, fieldErrors)
   }
 
   const url = stringValue(values.url)

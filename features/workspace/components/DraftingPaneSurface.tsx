@@ -4,10 +4,13 @@ import type { DragEvent } from "react"
 
 import type { DraftingCardState } from "@/features/workspace/model/card-state"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
-import { type DraftingLayerMenuAction } from "@/features/workspace/components/Pane"
+
 import { DraftingPaneViewport } from "@/features/workspace/components/drafting-pane-viewport"
 import { useDraftingPaneSurfaceInteractions } from "@/features/workspace/components/use-drafting-pane-surface-interactions"
-import type { DraftingPaneInteractionState } from "@/features/workspace/components/canvas-control-props"
+import type {
+  DraftingLayerInteractionProps,
+  DraftingPaneInteractionState,
+} from "@/features/workspace/components/canvas-control-props"
 import type { QraftyState } from "@/features/qr-code/model/state"
 import type { StaticQrValidationResult } from "@/features/qr-code/content/static-payload"
 import type { DraftingQrStateByLayerId } from "@/features/workspace/model/document"
@@ -46,28 +49,12 @@ type DraftingPaneSurfaceProps = {
   onPaneDragLeave: (paneId: string, event: DragEvent<HTMLDivElement>) => void
   onPanePan: (paneId: string, nextPan: { x: number; y: number }) => void
   onPaneZoom: (paneId: string, nextZoom: number) => void
-  onLayerChange?: (
-    paneId: string,
-    layerId: string,
-    patch: Partial<DraftingCanvasLayer>,
-  ) => void
-  onLayerAction?: (
-    paneId: string,
-    layerIds: string[],
-    action: DraftingLayerMenuAction,
-  ) => void
-  onLayerCopy?: (paneId: string, layerIds: string[]) => void
-  onLayerPaste?: (paneId: string, point: { x: number; y: number }) => void
-  onLayerSelect?: (
-    paneId: string,
-    layerId: string | null,
-    options?: { additive?: boolean },
-  ) => void
-  onLayerSelectionChange?: (
-    paneId: string,
-    layerIds: string[],
-    options?: { additive?: boolean },
-  ) => void
+  onLayerChange?: DraftingLayerInteractionProps["onLayerChange"]
+  onLayerAction?: DraftingLayerInteractionProps["onLayerAction"]
+  onLayerCopy?: DraftingLayerInteractionProps["onLayerCopy"]
+  onLayerPaste?: DraftingLayerInteractionProps["onLayerPaste"]
+  onLayerSelect?: DraftingLayerInteractionProps["onLayerSelect"]
+  onLayerSelectionChange?: DraftingLayerInteractionProps["onLayerSelectionChange"]
   activeCanvasTool?: DraftingPaneCanvasTool | null
   onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
   onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void

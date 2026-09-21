@@ -44,6 +44,40 @@ function consumeRateSlot(key: string) {
 const VALID_LIBRARIES = new Set<string>(ICONSTACK_LIBRARIES.map((library) => library.id))
 const VALID_STYLES = new Set(["outline", "filled"])
 
+function clampedIntParam(
+  searchParams: URLSearchParams,
+  key: string,
+  min: number,
+  max: number,
+  fallback: number,
+) {
+  const parsed = Number.parseInt(searchParams.get(key) ?? "", 10)
+  return String(Number.isFinite(parsed) ? Math.min(Math.max(parsed, min), max) : fallback)
+}
+
+function buildUpstreamParams(url: URL) {
+  const q = (url.searchParams.get("q") ?? "").trim().slice(0, MAX_QUERY_LENGTH)
+  if (q.length < 2) {
+    return null
+  }
+
+  const params = new URLSearchParams({ q })
+  params.set("limit", clampedIntParam(url.searchParams, "limit", 1, MAX_LIMIT, 24))
+  params.set("offset", clampedIntParam(url.searchParams, "offset", 0, MAX_OFFSET, 0))
+
+  const library = url.searchParams.get("library")
+  if (library && VALID_LIBRARIES.has(library)) {
+    params.set("library", library)
+  }
+
+  const style = url.searchParams.get("style")
+  if (style && VALID_STYLES.has(style)) {
+    params.set("style", style)
+  }
+
+  return params
+}
+
 export async function GET(request: Request) {
   const rate = consumeRateSlot(clientRateKey(request))
   if (!rate.allowed) {
@@ -56,28 +90,9 @@ export async function GET(request: Request) {
     )
   }
 
-  const url = new URL(request.url)
-  const q = (url.searchParams.get("q") ?? "").trim().slice(0, MAX_QUERY_LENGTH)
-  if (q.length < 2) {
+  const params = buildUpstreamParams(new URL(request.url))
+  if (!params) {
     return Response.json({ error: "Query must be at least 2 characters" }, { status: 400 })
-  }
-
-  const params = new URLSearchParams({ q })
-
-  const limit = Number.parseInt(url.searchParams.get("limit") ?? "", 10)
-  params.set("limit", String(Number.isFinite(limit) ? Math.min(Math.max(limit, 1), MAX_LIMIT) : 24))
-
-  const offset = Number.parseInt(url.searchParams.get("offset") ?? "", 10)
-  params.set("offset", String(Number.isFinite(offset) ? Math.min(Math.max(offset, 0), MAX_OFFSET) : 0))
-
-  const library = url.searchParams.get("library")
-  if (library && VALID_LIBRARIES.has(library)) {
-    params.set("library", library)
-  }
-
-  const style = url.searchParams.get("style")
-  if (style && VALID_STYLES.has(style)) {
-    params.set("style", style)
   }
 
   try {

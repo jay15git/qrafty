@@ -8,24 +8,28 @@ export type { DraftingLayerMenuAction } from "@/features/workspace/components/pa
 
 type PaneProps = PaneWorkspaceProps
 
+const PANE_MEMO_COMPARE_KEYS = [
+  "cardState",
+  "sceneComposition",
+  "isSelected",
+  "viewFitScale",
+  "contentOnlyZoom",
+  "interactionScale",
+  "layers",
+  "qrStateByLayerId",
+  "contentValidation",
+  "activeQrLayerId",
+  "onLayerAction",
+  "selectedLayerId",
+  "selectedLayerIds",
+  "snapEnabled",
+] as const satisfies readonly (keyof PaneProps)[]
+
 export const Pane = memo(function Pane(props: PaneProps) {
   return <PaneWorkspace {...props} />
 },
 (previousProps, nextProps) =>
-  previousProps.cardState === nextProps.cardState &&
-  previousProps.sceneComposition === nextProps.sceneComposition &&
-  previousProps.isSelected === nextProps.isSelected &&
-  previousProps.viewFitScale === nextProps.viewFitScale &&
+  PANE_MEMO_COMPARE_KEYS.every((key) => previousProps[key] === nextProps[key]) &&
   previousProps.contentPan?.x === nextProps.contentPan?.x &&
-  previousProps.contentPan?.y === nextProps.contentPan?.y &&
-  previousProps.contentOnlyZoom === nextProps.contentOnlyZoom &&
-  previousProps.interactionScale === nextProps.interactionScale &&
-  previousProps.layers === nextProps.layers &&
-  previousProps.qrStateByLayerId === nextProps.qrStateByLayerId &&
-  previousProps.contentValidation === nextProps.contentValidation &&
-  previousProps.activeQrLayerId === nextProps.activeQrLayerId &&
-  previousProps.onLayerAction === nextProps.onLayerAction &&
-  previousProps.selectedLayerId === nextProps.selectedLayerId &&
-  previousProps.selectedLayerIds === nextProps.selectedLayerIds &&
-  previousProps.snapEnabled === nextProps.snapEnabled,
+  previousProps.contentPan?.y === nextProps.contentPan?.y,
 )
