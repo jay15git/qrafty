@@ -101,7 +101,10 @@ import {
 } from "@/features/qr-code/content/input-options"
 import { QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS } from "@/features/qr-code/model/state"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
-import type { DesktopPatternSettings } from "@/features/desktop-shell/model/desktop-toolbar-types"
+import type {
+  DesktopPatternSettings,
+  DesktopPatternSettingsPatch,
+} from "@/features/desktop-shell/model/desktop-toolbar-types"
 import { SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
 import { PaperShaderOptionPreview } from "@/features/workspace/components/PaperShaderOptionPreview"
 import { WallpaperOptionPreview } from "@/features/workspace/components/WallpaperOptionPreview"
@@ -145,6 +148,158 @@ import "@/features/desktop-shell/inspector/desktopnew.css"
 import "@/features/desktop-shell/inspector/mobile-inspector.css"
 
 const MOBILE_RAIL_BOTTOM_GAP_PX = 16
+
+/**
+ * State captured when a family opens. The corner cross restores it (discard);
+ * the tick closes the family and keeps the live-applied edits (save).
+ * Only the slices a family can touch are snapshotted.
+ */
+type MobileFamilySnapshot = {
+  contentType: QrInputType
+  contentValues: DesktopInspectorModel["actualContentValues"]
+  pattern: DesktopPatternSettings
+  logo: DesktopInspectorModel["actualLogoSettings"]
+  corners: DesktopInspectorModel["actualCornersSettings"]
+  shape: DesktopInspectorModel["actualShapeSettings"]
+  motion: DesktopInspectorModel["actualMotionSettings"]
+  image: DesktopInspectorModel["actualImageSettings"]
+  background: DesktopInspectorModel["actualBackgroundSettings"]
+  layers: DesktopInspectorModel["actualLayersSettings"]
+}
+
+function captureFamilySnapshot(model: DesktopInspectorModel): MobileFamilySnapshot {
+  return {
+    contentType: model.actualContentType,
+    contentValues: model.actualContentValues,
+    pattern: model.actualPatternSettings,
+    logo: model.actualLogoSettings,
+    corners: model.actualCornersSettings,
+    shape: model.actualShapeSettings,
+    motion: model.actualMotionSettings,
+    image: model.actualImageSettings,
+    background: model.actualBackgroundSettings,
+    layers: model.actualLayersSettings,
+  }
+}
+
+/**
+ * The workspace patch setters infer fill mode from field *presence* —
+ * `moduleFillImageUrl !== undefined` forces image mode, `cardFill` forces
+ * solid, `remoteUrl: ""` forces paper-shader. A restore patch must therefore
+ * only carry the fields of the mode that was actually active, or replaying
+ * the snapshot stomps the mode and the QR/card reads as reset to defaults.
+ */
+function patternRestorePatch(p: DesktopPatternSettings): DesktopPatternSettingsPatch {
+  const patch: DesktopPatternSettingsPatch = {
+    qrDotType: p.qrDotType,
+    moduleRoundSize: p.moduleRoundSize,
+    moduleSize: p.moduleSize,
+    moduleLineWidth: p.moduleLineWidth,
+    gradientLinkMode: p.gradientLinkMode,
+    dotsColorMode: p.dotsColorMode,
+  }
+  if (p.dotsColorMode === "solid") {
+    patch.dotsSolidColor = p.dotsSolidColor
+  } else if (p.dotsColorMode === "gradient") {
+    patch.dataModulesGradient = p.dataModulesGradient
+  } else if (p.dotsColorMode === "palette") {
+    patch.dotsPalette = [...p.dotsPalette]
+    patch.dotsPalettePreset = p.dotsPalettePreset
+  } else if (p.dotsColorMode === "image") {
+    patch.moduleFillImageUrl = p.moduleFillImageUrl
+    patch.moduleFillImageSourceMode = p.moduleFillImageSourceMode
+  }
+  return patch
+}
+
+function cornersRestorePatch(
+  c: DesktopInspectorModel["actualCornersSettings"],
+): Partial<DesktopInspectorModel["actualCornersSettings"]> {
+  return {
+    cornerSquareType: c.cornerSquareType,
+    cornerDotType: c.cornerDotType,
+    cornerSquareColorMode: c.cornerSquareColorMode,
+    ...(c.cornerSquareColorMode === "gradient"
+      ? { cornerSquareGradient: c.cornerSquareGradient }
+      : { cornerSquareSolidColor: c.cornerSquareSolidColor }),
+    cornerDotColorMode: c.cornerDotColorMode,
+    ...(c.cornerDotColorMode === "gradient"
+      ? { cornerDotGradient: c.cornerDotGradient }
+      : { cornerDotSolidColor: c.cornerDotSolidColor }),
+  }
+}
+
+function logoRestorePatch(
+  l: DesktopInspectorModel["actualLogoSettings"],
+): Partial<DesktopInspectorModel["actualLogoSettings"]> {
+  return l.colorMode === "gradient"
+    ? { colorMode: "gradient", gradient: l.gradient }
+    : { colorMode: "solid", solidColor: l.solidColor }
+}
+
+/** Shape rail edits: shape id, padding, and the shape's own fill — `cardFill`
+ *  belongs to Background, and sending it would stomp styleMode to solid. */
+function shapeRestorePatch(
+  s: DesktopInspectorModel["actualShapeSettings"],
+): Partial<DesktopInspectorModel["actualShapeSettings"]> {
+  return {
+    backgroundShapeId: s.backgroundShapeId,
+    shapePadding: s.shapePadding,
+    shapeColorMode: s.shapeColorMode,
+    ...(s.shapeColorMode === "gradient"
+      ? { shapeGradient: s.shapeGradient }
+      : { shapeSolidColor: s.shapeSolidColor }),
+  }
+}
+
+/** Replays the snapshotted slices for the discarded family. */
+function restoreFamilySnapshot(
+  family: DesktopSettingsSectionId,
+  snapshot: MobileFamilySnapshot,
+  model: DesktopInspectorModel,
+) {
+  switch (family) {
+    case "Content":
+      model.onContentPasteApply(snapshot.contentType, snapshot.contentValues)
+      break
+    case "QR":
+    case "Color":
+      if (model.onUnifiedQrFillSettingsChange) {
+        model.onUnifiedQrFillSettingsChange({
+          pattern: patternRestorePatch(snapshot.pattern),
+          corners: cornersRestorePatch(snapshot.corners),
+          logo: logoRestorePatch(snapshot.logo),
+        })
+      } else {
+        model.onPatternSettingsChange(patternRestorePatch(snapshot.pattern))
+        model.onCornersSettingsChange(cornersRestorePatch(snapshot.corners))
+        model.onLogoSettingsChange(logoRestorePatch(snapshot.logo))
+      }
+      break
+    case "Motion":
+      model.onMotionSettingsChange(snapshot.motion)
+      break
+    case "Shape":
+      model.onShapeSettingsChange(shapeRestorePatch(snapshot.shape))
+      break
+    case "Background":
+      // Order matters: the image setter forces paper-shader on empty url and
+      // the shape setter forces solid on cardFill — the background write goes
+      // last so the snapshotted styleMode wins.
+      model.onImageSettingsChange({
+        remoteUrl: snapshot.image.remoteUrl,
+        sourceMode: snapshot.image.sourceMode,
+        fit: snapshot.image.fit,
+        opacity: snapshot.image.opacity,
+      })
+      model.onShapeSettingsChange({ cardFill: snapshot.shape.cardFill })
+      model.onBackgroundSettingsChange(snapshot.background)
+      break
+    case "Elements":
+      model.onLayersSettingsChange(snapshot.layers)
+      break
+  }
+}
 
 type MobileRailOption = {
   id: string
@@ -1321,6 +1476,11 @@ function useMeasuredHeight<T extends HTMLElement>() {
 
 export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) {
   const theme = model.actualDesktopTheme
+  const modelRef = useLatestModel(model)
+  // Pre-edit state per section touched this session — X replays all of them,
+  // ✓ drops the map. The drawer can wander sections on its own tab dock, so
+  // the discard scope is "everything opened since the family opened".
+  const snapshotsRef = useRef(new Map<DesktopSettingsSectionId, MobileFamilySnapshot>())
   const { height: railHeight, ref: railRef } = useMeasuredHeight<HTMLDivElement>()
   const [toolbarHeight, setToolbarHeight] = useState(0)
   const [openFamily, setOpenFamily] = useState<DesktopSettingsSectionId | null>(null)
@@ -1416,33 +1576,74 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
     setDrawerView(MOBILE_DRAWER_SECTION_VIEW)
   }, [])
 
-  // Jumping sections always lands on the section view — a stale detail page
-  // can't survive the switch.
-  const openDrawerSection = useCallback((section: DesktopSettingsSectionId) => {
-    setDrawerView(MOBILE_DRAWER_SECTION_VIEW)
-    setDrawerSection(section)
-  }, [])
-
-  const goToNextFamily = useCallback(() => {
-    if (!openFamily) {
-      return
-    }
-    setOpenPart("Module")
-    const index = DESKTOP_SETTINGS_SECTIONS.indexOf(openFamily)
-    for (let step = 1; step <= DESKTOP_SETTINGS_SECTIONS.length; step += 1) {
-      const candidate =
-        DESKTOP_SETTINGS_SECTIONS[(index + step) % DESKTOP_SETTINGS_SECTIONS.length]
-      if (MOBILE_FAMILY_OPTIONS[candidate] || MOBILE_FAMILY_ROWS[candidate]) {
-        setOpenFamily(candidate)
-        return
+  // First touch of a section captures its slices; later touches keep the
+  // earliest snapshot so discard always returns to session start.
+  const captureSection = useCallback(
+    (section: DesktopSettingsSectionId) => {
+      if (!snapshotsRef.current.has(section)) {
+        snapshotsRef.current.set(section, captureFamilySnapshot(modelRef.current))
       }
-    }
-  }, [openFamily])
+    },
+    [modelRef],
+  )
 
-  // The corner cross leaves the drilled-in family.
-  const goBack = useCallback(() => {
+  // Jumping sections always lands on the section view — a stale detail page
+  // can't survive the switch. Each newly visited section joins the discard
+  // snapshot set so the drawer's own section hops stay revertible.
+  const openDrawerSection = useCallback(
+    (section: DesktopSettingsSectionId) => {
+      captureSection(section)
+      setDrawerView(MOBILE_DRAWER_SECTION_VIEW)
+      setDrawerSection(section)
+    },
+    [captureSection],
+  )
+
+  // Opening a family snapshots it so the corner cross can discard every
+  // change made while it was open.
+  const toggleFamily = useCallback(
+    (section: DesktopSettingsSectionId) => {
+      setOpenFamily((current) => {
+        if (current === section) {
+          snapshotsRef.current.clear()
+          return null
+        }
+        if (!snapshotsRef.current.has(section)) {
+          snapshotsRef.current.set(section, captureFamilySnapshot(modelRef.current))
+        }
+        return section
+      })
+    },
+    [modelRef],
+  )
+
+  // Discard: replay every section snapshot, then close drawer + family.
+  const discardFamily = useCallback(() => {
+    const snapshots = [...snapshotsRef.current.entries()]
+    snapshotsRef.current.clear()
+    for (const [section, snapshot] of snapshots) {
+      restoreFamilySnapshot(section, snapshot, modelRef.current)
+    }
+    setOpenFamily(null)
+  }, [modelRef])
+
+  // Save: edits already applied live — just close drawer + family.
+  const saveFamily = useCallback(() => {
+    snapshotsRef.current.clear()
     setOpenFamily(null)
   }, [])
+
+  // Drawer corner buttons mirror the rail's: X discards the session, ✓ saves
+  // it — both then close the drawer and the family behind it.
+  const discardFromDrawer = useCallback(() => {
+    discardFamily()
+    closeDrawer()
+  }, [closeDrawer, discardFamily])
+
+  const saveFromDrawer = useCallback(() => {
+    saveFamily()
+    closeDrawer()
+  }, [closeDrawer, saveFamily])
 
   const handleOptionClick = (option: MobileRailOption) => {
     if (option.drillsTo) {
@@ -1455,14 +1656,56 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
     openDrawerSection(viewFamily!)
   }
 
+  /* The settings drawer is portalled outside the rail's measured element, so
+     `--desktop-mobile-drawer-height` (which positions the layer toolbar above
+     the chrome) only saw the rail. Measure the open drawer too — the toolbar
+     must clear whichever surface is taller. */
+  const [drawerHeight, setDrawerHeight] = useState(0)
+  useEffect(() => {
+    let frame = 0
+    let retries = 0
+    let observer: ResizeObserver | null = null
+
+    const measure = () => {
+      if (!drawerOpen) {
+        setDrawerHeight(0)
+        return
+      }
+      const el = document.querySelector<HTMLElement>(
+        '[data-slot="mobile-family-drawer-root"]',
+      )
+      if (!el) {
+        // The portal mounts a beat after `drawerOpen` flips — retry briefly.
+        if (retries < 10) {
+          retries += 1
+          frame = window.requestAnimationFrame(measure)
+        }
+        return
+      }
+      setDrawerHeight(Math.round(el.getBoundingClientRect().height))
+      if (!observer) {
+        observer = new ResizeObserver(() =>
+          setDrawerHeight(Math.round(el.getBoundingClientRect().height)),
+        )
+        observer.observe(el)
+      }
+    }
+
+    frame = window.requestAnimationFrame(measure)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      observer?.disconnect()
+    }
+  }, [drawerOpen])
+
   useEffect(() => {
     syncMobileWorkspaceChromeInsets({
-      drawerHeight: railHeight,
+      drawerHeight: Math.max(railHeight, drawerHeight),
       toolbarHeight,
       drawerBottomGapPx: MOBILE_RAIL_BOTTOM_GAP_PX,
       keyboardInsetPx: keyboardInset,
     })
-  }, [keyboardInset, railHeight, toolbarHeight])
+  }, [drawerHeight, keyboardInset, railHeight, toolbarHeight])
 
   useEffect(() => {
     return () => {
@@ -1554,9 +1797,7 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
                         key={section}
                         className="dn-mobile-settings-rail__item"
                         type="button"
-                        onClick={() =>
-                          setOpenFamily((current) => (current === section ? null : section))
-                        }
+                        onClick={() => toggleFamily(section)}
                       >
                         <span className="dn-mobile-settings-rail__circle">
                           <SettingsSectionIconFor
@@ -1595,10 +1836,10 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
             {drilled ? (
               <div className="dn-mobile-settings-rail__actions">
                 <button
-                  aria-label="Close options"
+                  aria-label="Discard changes"
                   className="dn-mobile-settings-rail__action"
                   type="button"
-                  onClick={goBack}
+                  onClick={discardFamily}
                 >
                   <X aria-hidden size={18} strokeWidth={2.25} />
                 </button>
@@ -1610,10 +1851,10 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
                   {viewFamily ? getDesktopSettingsSectionLabel(viewFamily) : null}
                 </span>
                 <button
-                  aria-label="Next settings family"
+                  aria-label="Save changes"
                   className="dn-mobile-settings-rail__action"
                   type="button"
-                  onClick={goToNextFamily}
+                  onClick={saveFamily}
                 >
                   <Check aria-hidden size={18} strokeWidth={2.25} />
                 </button>
@@ -1625,7 +1866,8 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
             model={model}
             view={drawerView}
             onClose={closeDrawer}
-            onSectionChange={openDrawerSection}
+            onDiscard={discardFromDrawer}
+            onSave={saveFromDrawer}
             section={drawerSection}
           />
             </MobileRailPartContext.Provider>

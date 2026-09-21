@@ -22,7 +22,6 @@ import {
 import { getMobileDrawerMaxHeightPx } from "@/features/desktop-shell/components/mobile-family-drawer-viewport"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 import {
-  DESKTOP_SETTINGS_SECTIONS,
   getDesktopSettingsSectionLabel,
   type DesktopSettingsSectionId,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
@@ -73,32 +72,32 @@ function useMobileDrawerMaxHeight() {
 }
 
 function MobileDrawerHeader({
-  onClose,
-  onNext,
+  onDiscard,
+  onSave,
   title,
 }: {
-  onClose: () => void
-  onNext: () => void
+  onDiscard: () => void
+  onSave: () => void
   title: string
 }) {
   return (
     <header className="dn-mobile-drawer-nested-header">
       <button
-        aria-label="Close settings"
+        aria-label="Discard changes"
         className="dn-mobile-drawer-back"
         data-vaul-no-drag=""
         type="button"
-        onClick={onClose}
+        onClick={onDiscard}
       >
         <X aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
       </button>
       <h2 className="dn-mobile-drawer-nested-header__title">{title}</h2>
       <button
-        aria-label="Next settings section"
+        aria-label="Save changes"
         className="dn-mobile-drawer-back"
         data-vaul-no-drag=""
         type="button"
-        onClick={onNext}
+        onClick={onSave}
       >
         <Check aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
       </button>
@@ -127,10 +126,10 @@ function FamilyDrawerViewBridge({ children, view }: { children: ReactNode; view:
 /** Detail page pushed on top of a section — pickers, insert menus, layer tools. */
 function MobileSettingDetailView({
   model,
-  onClose,
+  onDiscard,
 }: {
   model: DesktopInspectorModel
-  onClose: () => void
+  onDiscard: () => void
 }) {
   const navigation = useMobileDrawerNavigation()
   const theme = model.actualDesktopTheme
@@ -156,11 +155,11 @@ function MobileSettingDetailView({
             </button>
             <h2 className="dn-mobile-drawer-nested-header__title">{title}</h2>
             <button
-              aria-label="Close settings"
+              aria-label="Discard changes"
               className="dn-mobile-drawer-back"
               data-vaul-no-drag=""
               type="button"
-              onClick={onClose}
+              onClick={onDiscard}
             >
               <X aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
             </button>
@@ -174,14 +173,14 @@ function MobileSettingDetailView({
 
 function MobileSettingsSectionView({
   model,
-  onClose,
-  onNext,
+  onDiscard,
+  onSave,
   section,
   title,
 }: {
   model: DesktopInspectorModel
-  onClose: () => void
-  onNext: () => void
+  onDiscard: () => void
+  onSave: () => void
   section: DesktopSettingsSectionId
   title: string
 }) {
@@ -194,7 +193,7 @@ function MobileSettingsSectionView({
       <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
         <MobileInspectorDensityContext.Provider value={true}>
           <MobileSettingsTabDockProvider active>
-            <MobileDrawerHeader onClose={onClose} onNext={onNext} title={title} />
+            <MobileDrawerHeader onDiscard={onDiscard} onSave={onSave} title={title} />
             <SettingsSectionBody hideContentTypeBrowser id={section} model={model} />
           </MobileSettingsTabDockProvider>
         </MobileInspectorDensityContext.Provider>
@@ -206,13 +205,17 @@ function MobileSettingsSectionView({
 export function MobileSettingsDrawer({
   model,
   onClose,
-  onSectionChange,
+  onDiscard,
+  onSave,
   section,
   view,
 }: {
   model: DesktopInspectorModel
   onClose: () => void
-  onSectionChange: (section: DesktopSettingsSectionId) => void
+  /** X in the header — replays the session snapshots, then closes. */
+  onDiscard: () => void
+  /** ✓ in the header — keeps the live-applied edits, then closes. */
+  onSave: () => void
   section: DesktopSettingsSectionId | null
   /** `"section"` or `"setting-detail"` — the rail-level nav provider drives it. */
   view: string
@@ -229,14 +232,6 @@ export function MobileSettingsDrawer({
       : getDesktopSettingsSectionLabel(section)
     : undefined
 
-  const goToNextSection = useCallback(() => {
-    if (!section) {
-      return
-    }
-    const index = DESKTOP_SETTINGS_SECTIONS.indexOf(section)
-    onSectionChange(DESKTOP_SETTINGS_SECTIONS[(index + 1) % DESKTOP_SETTINGS_SECTIONS.length])
-  }, [onSectionChange, section])
-
   const sectionView = useCallback(() => {
     if (!section) {
       return null
@@ -244,17 +239,17 @@ export function MobileSettingsDrawer({
     return (
       <MobileSettingsSectionView
         model={model}
-        onClose={onClose}
-        onNext={goToNextSection}
+        onDiscard={onDiscard}
+        onSave={onSave}
         section={section}
         title={title ?? getDesktopSettingsSectionLabel(section)}
       />
     )
-  }, [goToNextSection, model, onClose, section, title])
+  }, [model, onDiscard, onSave, section, title])
 
   const detailView = useCallback(
-    () => <MobileSettingDetailView model={model} onClose={onClose} />,
-    [model, onClose],
+    () => <MobileSettingDetailView model={model} onDiscard={onDiscard} />,
+    [model, onDiscard],
   )
 
   const views = useMemo<ViewsRegistry>(

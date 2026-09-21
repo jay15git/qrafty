@@ -337,7 +337,7 @@ export function MobileLayerToolbar({
         }}
       >
         <ScrollArea
-          className="dn-mobile-layer-toolbar-scroll h-fit w-full min-w-0 max-w-full overflow-hidden rounded-full border border-[color-mix(in_srgb,var(--dn-line)_45%,transparent)] bg-[var(--dn-bg)] shadow-[var(--dn-popover-shadow)]"
+          className="dn-mobile-layer-toolbar-scroll h-fit w-full min-w-0 max-w-full overflow-hidden rounded-full border border-[color-mix(in_srgb,var(--dn-line)_45%,transparent)] bg-[var(--dn-bg)]"
           chevron={false}
           cueSize="tight"
           orientation="horizontal"

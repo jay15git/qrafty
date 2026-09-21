@@ -513,7 +513,7 @@ describe("FloatingToolbar", () => {
     expect(optionLabels).toContain("Text")
     expect(optionLabels).toContain("Phone")
     expect(optionLabels).not.toContain("Style")
-    // The drilled-in row has no back item; corners carry close/next instead.
+    // The drilled-in row has no back item; corners carry discard/save instead.
     expect(optionLabels).not.toContain("Content")
 
     const linkButton = Array.from(
@@ -530,11 +530,11 @@ describe("FloatingToolbar", () => {
       actions?.querySelector('[data-slot="mobile-rail-family-label"]')
         ?.textContent,
     ).toBe("Content")
-    expect(actions?.querySelector('button[aria-label="Close options"]')).not.toBeNull()
+    expect(actions?.querySelector('button[aria-label="Discard changes"]')).not.toBeNull()
 
     await act(async () => {
       actions
-        ?.querySelector<HTMLButtonElement>('button[aria-label="Close options"]')
+        ?.querySelector<HTMLButtonElement>('button[aria-label="Discard changes"]')
         ?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
       await new Promise((resolve) => setTimeout(resolve, 250))
     })
@@ -610,8 +610,8 @@ describe("FloatingToolbar", () => {
         ?.getAttribute("aria-pressed"),
     ).toBe("true")
 
-    // The corner cross leaves the family — there is no inner drill level.
-    await click(railRoot?.querySelector('button[aria-label="Close options"]'))
+    // The corner cross discards the family's edits and leaves it.
+    await click(railRoot?.querySelector('button[aria-label="Discard changes"]'))
 
     expect(getLabels()).toContain("Color")
     expect(railRoot?.querySelector(".dn-mobile-settings-rail__actions")).toBeNull()
@@ -650,7 +650,7 @@ describe("FloatingToolbar", () => {
       })
     }
     const closeRow = () =>
-      click(railRoot?.querySelector('button[aria-label="Close options"]'))
+      click(railRoot?.querySelector('button[aria-label="Discard changes"]'))
 
     // Color: fill-mode pills under the row browse the option sets above them.
     await click(getItems().find((item) => item.textContent?.trim() === "Color"))
@@ -803,6 +803,48 @@ describe("FloatingToolbar", () => {
       Array.from(drawer?.querySelectorAll(".dn-mobile-drawer-nested-header__title") ?? [])
         .map((node) => node.textContent?.trim()),
     ).toContain("Color")
+  })
+
+  it("discards family edits on the corner cross and keeps them on the tick", async () => {
+    stubMatchMedia(true)
+    await renderPrototype()
+
+    const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
+    const click = async (element: Element | null | undefined) => {
+      await act(async () => {
+        element?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+        await new Promise((resolve) => setTimeout(resolve, 250))
+      })
+    }
+    const getItems = () =>
+      Array.from(
+        railRoot?.querySelectorAll<HTMLButtonElement>(
+          '.dn-mobile-settings-rail__item, .dn-mobile-settings-rail__row [role="tab"]',
+        ) ?? [],
+      )
+    const loaderPill = () =>
+      getItems().find(
+        (item) => item.textContent?.trim() === QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS[0].label,
+      )
+    const offPill = () => getItems().find((item) => item.textContent?.trim() === "Off")
+
+    // Open Motion, switch on a loader, then discard.
+    await click(getItems().find((item) => item.textContent?.trim() === "Motion"))
+    await click(loaderPill())
+    expect(loaderPill()?.getAttribute("aria-pressed")).toBe("true")
+
+    await click(railRoot?.querySelector('button[aria-label="Discard changes"]'))
+
+    // Reopen: the edit was rolled back — Off is pressed again.
+    await click(getItems().find((item) => item.textContent?.trim() === "Motion"))
+    expect(offPill()?.getAttribute("aria-pressed")).toBe("true")
+    expect(loaderPill()?.getAttribute("aria-pressed")).toBe("false")
+
+    // Edit again, this time save via the tick, then reopen: the loader sticks.
+    await click(loaderPill())
+    await click(railRoot?.querySelector('button[aria-label="Save changes"]'))
+    await click(getItems().find((item) => item.textContent?.trim() === "Motion"))
+    expect(loaderPill()?.getAttribute("aria-pressed")).toBe("true")
   })
 
   it("anchors the mobile settings rail above the safe area with a keyboard inset", async () => {
