@@ -82,3 +82,9 @@ GEMINI.md
 
 # Template PNG renders (pnpm render:templates)
 .render/
+
+# Codebase analyzer caches
+.fallow/
+
+# Local design-review tooling
+.impeccable/

@@ -133,14 +133,6 @@
   --scroll-edge-chevron-color: var(--dn-muted);
 }
 
-.desktopnew-shell {
-  display: flex;
-  min-height: 100dvh;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 2rem 1rem;
-}
-
 /* Embedded in /desktop toolbar — same token host, no preview padding. */
 .desktopnew-root.desktopnew-embedded {
   display: flex;
@@ -316,17 +308,6 @@
 
 .dn-option-scroll-row--fill {
   overflow: visible;
-}
-
-.dn-option-scroll-row--in-scroll-area {
-  overflow: visible;
-  margin-inline: 0;
-  padding-inline: 0.25rem;
-  scrollbar-width: auto;
-}
-
-.dn-option-scroll-row--in-scroll-area::-webkit-scrollbar {
-  display: none;
 }
 
 .dn-content-type-select {
@@ -569,14 +550,6 @@
   letter-spacing: var(--dn-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--dn-type-value-color);
-}
-
-.dn-type-section {
-  font-size: var(--dn-type-section);
-  font-weight: 500;
-  line-height: 1.3;
-  letter-spacing: var(--dn-tracking-tight);
-  color: var(--dn-fg);
 }
 
 /* beui InlineSlider ships with shadcn color utilities this project never
@@ -849,40 +822,6 @@
 
 .dn-settings-input::placeholder {
   color: var(--dn-muted);
-}
-
-.dn-settings-textarea {
-  min-height: 4.5rem;
-  resize: vertical;
-  padding: 0.625rem 0.75rem;
-  border: 1px solid var(--dn-line);
-  background: var(--dn-control) !important;
-  font-size: var(--dn-type-value);
-  font-weight: var(--dn-type-value-weight);
-  line-height: 1.35;
-  letter-spacing: var(--dn-tracking-tight);
-  color: var(--dn-type-value-color) !important;
-  box-shadow: none !important;
-  outline: none;
-  appearance: none;
-}
-
-.dn-settings-textarea:focus,
-.dn-settings-textarea:focus-visible {
-  border-color: var(--dn-line);
-  box-shadow: none !important;
-  outline: none;
-}
-
-.dn-settings-textarea::placeholder {
-  color: var(--dn-muted);
-}
-
-.dn-field-error {
-  font-size: var(--dn-type-caption);
-  font-weight: 500;
-  line-height: 1.2;
-  color: #f87171;
 }
 
 [data-slot="desktopnew-content-fields"] .dn-content-field {
@@ -1728,14 +1667,6 @@
   color: var(--dn-bg) !important;
 }
 
-.desktopnew-popover-content .dn-popover-heading {
-  font-size: var(--dn-type-caption);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--dn-popover-muted);
-}
-
 /* Logo icon picker — token-sized tiles + search aligned to settings surfaces */
 .dn-logo-icon-picker {
   width: 100%;
@@ -2095,10 +2026,6 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.dn-insert-menu-option-grid--2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
 .dn-insert-menu-popover[data-theme="dark"] img[src*="/illustrations/scribbles-doodles/"],
 .dn-insert-menu-popover[data-theme="dark"] img[src*="/illustrations/sketch-elements/"],
 .dn-insert-menu-popover[data-theme="dark"] img[src*="/illustrations/hand-drawn/"] {
@@ -2225,13 +2152,13 @@
   gap: var(--dn-space-stack);
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-fill-picker-chip) {
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile {
   background: transparent;
   border: 2px solid transparent;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-fill-picker-chip)[aria-pressed="true"],
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-fill-picker-chip)[data-selected="true"] {
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile[aria-pressed="true"],
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile[data-selected="true"] {
   background: transparent;
 }
 
@@ -2282,26 +2209,6 @@
 
 .desktopnew-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
   color: #0a0a0a;
-}
-
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-chip-row {
-  --dn-option-gap: 0.5rem;
-  gap: var(--dn-option-gap);
-  padding-inline: 0;
-}
-
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-chip {
-  border: 0;
-  background: var(--dn-control);
-  color: var(--dn-muted);
-  min-height: var(--dn-control-height);
-  height: var(--dn-control-height);
-}
-
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-chip--selected,
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-chip[aria-pressed="true"] {
-  background: var(--dn-control);
-  color: var(--dn-fg);
 }
 
 .desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-pane {
@@ -2497,40 +2404,6 @@
 .dn-paper-shader-color-grid .dn-paper-shader-color-chip-wrap:hover,
 .dn-paper-shader-color-grid .dn-paper-shader-color-chip-wrap:focus-within {
   z-index: 2;
-}
-
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-stop-list {
-  gap: 0.625rem;
-}
-
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-stop-row {
-  padding: 0;
-  background: transparent;
-}
-
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-stop-input {
-  font-size: var(--dn-type-value);
-  font-weight: var(--dn-type-value-weight);
-  letter-spacing: var(--dn-tracking-tight);
-  color: var(--dn-type-value-color, var(--dn-fg));
-}
-
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-add-stop {
-  margin-top: 0.125rem;
-  background: transparent;
-  border: 0;
-}
-
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-presets button {
-  border: 0 !important;
-  border-radius: var(--dn-radius-xs) !important;
-  corner-shape: squircle;
-  box-shadow: none !important;
-}
-
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-presets button[aria-label="Save current gradient as preset"] {
-  background: var(--dn-control) !important;
-  color: var(--dn-muted) !important;
 }
 
 .desktopnew-fill-picker-portal [data-highlighted] {

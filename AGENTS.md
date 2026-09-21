@@ -11,7 +11,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 ## Commands
 - Dev server: `pnpm dev`
 - Lint: `pnpm lint`
-- Typecheck: `pnpm exec tsc --noEmit` (`package.json` has no `typecheck` script)
+- Typecheck: `pnpm typecheck` (or `pnpm exec tsc --noEmit`)
 - Tests: `pnpm test`
 - Production build: `pnpm build`
 - Single test file: `pnpm exec vitest run features/qr-code/model/state.test.ts`
@@ -54,7 +54,13 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - Current tests only cover `features/qr-code/model/state.ts` and a growing set of adjacent modules.
 - Vitest is configured with `environment: "node"`, so browser/client behavior is not covered by default.
 - If you change React UI behavior, do not assume existing tests cover it.
-- The repo has **87 pre-existing failing tests** across 15 files (as of commit `bfa0211`). Compare your run against that baseline before claiming a regression or a fix; `main` is not green.
+- The repo has **62 pre-existing failing tests across 11 files**, plus 68 `tsc` errors across 44 files (as of commit `e510c1c`). `next.config.ts` sets `typescript.ignoreBuildErrors: true`, which is why `pnpm build` passes anyway. Compare your run against that baseline before claiming a regression or a fix; `main` is not green.
+
+## Dead-code tooling
+- `pnpm knip` is authoritative for this repo. `pnpm exec knip --production` is **not** — it fails to resolve the `@qrafty/qr-internal/*` tsconfig aliases and reports ~25 live barrel exports as unused, and it lists nearly every dependency as unused. Verify any `--production` hit against its real import sites before acting.
+- `fallow dead-code` complements knip (adds unused type exports, duplicate exports, unreachable files). Config lives in `.fallowrc.json`; keep `ignoreExports` narrow — a whole-file `"exports": ["*"]` entry hides real findings.
+- CSS dead-class detection: extract `\.([\w-]+)` selectors per file and require the exact class name to appear in a `.ts`/`.tsx`/`.json`/`.md` file **and** account for dynamic construction (`` `prefix-${x}` ``) before deleting. `components/bento/style-bento.tsx` builds `style-bento-row-${direction}`, which a naive scan marks dead.
+- A CSS class can also be dead because its **host attribute** is gone: `.desktop-elastic-slider` never matches because the element carries `data-slot="desktop-elastic-slider"`. Check `data-slot` values, not just class names.
 
 ## QR Card Templates
 

@@ -327,11 +327,6 @@
   min-height: var(--dn-control-height);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .desktop-inspector-layer-row,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [class*="DESKTOP_INSPECTOR_LAYER_ROW"] {
-  min-height: var(--dn-control-height);
-}
-
 /* Content field pairs stack on narrow drawer */
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktopnew-content-field-row"] {
   grid-template-columns: minmax(0, 1fr);
@@ -360,40 +355,6 @@
   color: var(--foreground, var(--dn-fg));
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-back-spacer {
-  width: var(--dn-nested-header-hit);
-  flex-shrink: 0;
-  pointer-events: none;
-}
-
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-header,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-header:has(h2) {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--dn-space-stack);
-  margin-bottom: var(--dn-space-stack);
-  padding-bottom: var(--dn-space-stack);
-  border-bottom: 1px solid var(--border, var(--dn-line));
-}
-
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-header h2 {
-  margin: 0;
-  font-size: var(--dn-type-section);
-  font-weight: 600;
-  line-height: 1.25;
-  color: var(--foreground, var(--dn-fg));
-}
-
-/* Drawer chrome */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-header__title {
-  font-size: var(--dn-type-section);
-  font-weight: 600;
-  line-height: 1.25;
-  color: var(--foreground, var(--dn-fg));
-}
-
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-back {
   display: flex;
   width: var(--dn-nested-header-hit, var(--dn-icon-hit));
@@ -414,28 +375,6 @@
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-body {
   padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
-}
-
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-menu-tile {
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  width: auto;
-  min-width: 3.75rem;
-  height: auto;
-  min-height: 3.75rem;
-  padding: 0.5rem 0.625rem;
-  font-size: 0.6875rem;
-  font-weight: 500;
-}
-
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-menu-tile__label {
-  font-size: 0.6875rem;
-  font-weight: 500;
-  line-height: 1.15;
-  text-align: center;
-  white-space: nowrap;
 }
 
 /* Scroll areas */

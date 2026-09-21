@@ -80,15 +80,8 @@
   --ws-option-card-shadow-active: var(--ws-shadow-active);
   --ws-option-card-shadow-selected: var(--ws-shadow-selected);
   --ws-option-card-shadow-selected-hover: 0 0 28px 3px rgb(var(--ws-ink-rgb) / 0.18);
-  --ws-type-panel-tab: 0.875rem;
-  --ws-type-section-title: 0.875rem;
   --ws-type-control-label: 0.875rem;
-  --ws-type-body: 0.9375rem;
   --ws-type-input: 1rem;
-  --ws-type-nav-label: 0.75rem;
-  --ws-type-meta: 0.875rem;
-  --ws-type-caption: 0.75rem;
-  --ws-type-display-data: 1.5rem;
 }
 
 [data-slot="desktop-workspace"][data-desktop-theme="dark"] {
@@ -153,51 +146,14 @@
   --ws-option-card-label-selected: #f5f5f5;
 }
 
-[data-slot="desktop-workspace"] .ws-type-panel-tab {
-  font-size: var(--ws-type-panel-tab);
-  line-height: 1.1;
-}
-
-[data-slot="desktop-workspace"] .ws-type-section-title {
-  font-size: var(--ws-type-section-title);
-  line-height: 1.15;
-  letter-spacing: 0.01em;
-}
-
 [data-slot="desktop-workspace"] .ws-type-control-label {
   font-size: var(--ws-type-control-label);
   line-height: 1.2;
 }
 
-[data-slot="desktop-workspace"] .ws-type-body {
-  font-size: var(--ws-type-body);
-  line-height: 1.55;
-}
-
 [data-slot="desktop-workspace"] .ws-type-input {
   font-size: var(--ws-type-input);
   line-height: 1.45;
-}
-
-[data-slot="desktop-workspace"] .ws-type-nav-label {
-  font-size: var(--ws-type-nav-label);
-  line-height: 1.05;
-}
-
-[data-slot="desktop-workspace"] .ws-type-meta {
-  font-size: var(--ws-type-meta);
-  line-height: 1.35;
-}
-
-[data-slot="desktop-workspace"] .ws-type-caption {
-  font-size: var(--ws-type-caption);
-  line-height: 1.25;
-}
-
-[data-slot="desktop-workspace"] .ws-type-data {
-  font-size: var(--ws-type-meta);
-  line-height: 1.35;
-  font-variant-numeric: tabular-nums;
 }
 
 [data-slot="desktop-workspace"] [data-slot="drafting-surface"] {

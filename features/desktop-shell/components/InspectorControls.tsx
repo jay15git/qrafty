@@ -22,7 +22,6 @@ import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 import "./desktop-inspector-design-system.css"
-import "./desktop-inspector-motion.css"
 
 import {
   DESKTOP_INSPECTOR_CAPTION_CLASS,

@@ -9,6 +9,7 @@
     "build:packages": "pnpm --filter @qrafty/qr build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "knip": "knip",
     "sync:raycast-wallpapers": "node scripts/sync-raycast-wallpapers.mjs",
