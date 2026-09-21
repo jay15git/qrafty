@@ -192,7 +192,7 @@
   padding: 0.75rem;
   border-radius: 9999px;
   corner-shape: round;
-  background: color-mix(in srgb, var(--dn-fg) 8%, transparent);
+  background: color-mix(in srgb, var(--dn-fg) 16%, transparent);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-label,
@@ -755,6 +755,24 @@
   align-self: center;
 }
 
+/* Two-phase stage swap: the whole rail block fades out showing the old view;
+   the snapshot commits while invisible, then it fades back in. One element,
+   one opacity transition — nothing unmounts, nothing reflows while visible. */
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__stage {
+  transition: opacity 0.3s ease-out;
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__stage.is-fading {
+  opacity: 0;
+  transition: opacity 0.18s ease-in;
+}
+
+/* Swap container for the option row. Mirrors the row's own sizing. */
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__swap {
+  width: max-content;
+  min-width: 100%;
+}
+
 [data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__row {
   display: flex;
   /* `max-content` keeps a long row scrollable; `min-width: 100%` plus
@@ -764,7 +782,16 @@
   align-items: flex-start;
   justify-content: space-around;
   gap: 0.25rem;
-  padding: 0.5rem 0.625rem;
+  /* Tighter bottom padding pulls the option row up so the mode tabs get
+     their own space below. */
+  padding: 0.375rem 0.625rem 0.125rem;
+  /* Mode/part tab swaps fade just the row; the stage stays fully visible. */
+  transition: opacity 0.3s ease-out;
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__row.is-fading {
+  opacity: 0;
+  transition: opacity 0.18s ease-in;
 }
 
 [data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__item {
@@ -789,7 +816,7 @@
   justify-content: center;
   border-radius: 9999px;
   corner-shape: round;
-  background: color-mix(in srgb, var(--dn-fg) 8%, transparent);
+  background: color-mix(in srgb, var(--dn-fg) 16%, transparent);
   color: var(--dn-fg);
 }
 
@@ -818,7 +845,7 @@
   padding-inline: 0.375rem;
   border-radius: 9999px;
   corner-shape: round;
-  background: color-mix(in srgb, var(--dn-fg) 8%, transparent);
+  background: color-mix(in srgb, var(--dn-fg) 16%, transparent);
   color: var(--dn-fg);
   font-size: var(--dn-type-caption);
   font-weight: 500;
@@ -856,21 +883,13 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Undo/redo sit in the thumb zone between the corners, so history is reachable
-   without a trip to the top bar. */
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__history {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__action--history {
-  margin-inline: 0;
-}
-
-[data-slot="mobile-settings-rail-root"]
-  .dn-mobile-settings-rail__action--history:disabled {
-  opacity: 0.4;
+/* The open family's name sits centred between the corner buttons. */
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__family {
+  color: var(--dn-fg);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 /* Family-row option tiles (color swatches, shape glyphs, picker symbols) reuse
@@ -891,18 +910,100 @@
 [data-slot="mobile-settings-rail-root"]
   .dn-mobile-settings-rail__item--pill[aria-pressed="true"]
   .dn-mobile-settings-rail__pill {
-  background: color-mix(in srgb, var(--dn-fg) 18%, transparent);
+  background: color-mix(in srgb, var(--dn-fg) 26%, transparent);
 }
 
-/* Fill-mode pill row under the options scrollarea (Color / Background). The
-   options scroll above it; the pills pick which set is shown. */
+/* Fill-mode row under the options scrollarea (Color / Background). The
+   options scroll above it; the row picks which set is shown. Color uses a
+   sliding-pill tab bar; Background keeps text pills. */
 [data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__subrow {
   display: flex;
   align-items: center;
   justify-content: space-around;
   gap: 0.25rem;
   overflow: hidden;
-  padding: 0 0.625rem 0.25rem;
+  padding: 0.125rem 0.625rem 0.5rem;
+}
+
+/* The tab bar centres natural-width tabs — no flex-1 spreading. */
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__tabs {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__tabs .t-tabs {
+  min-height: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  /* Equal-width tabs: a 1fr auto column grid sizes every tab to the widest
+     label, then the bar shrink-wraps and centres. */
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__tabs .t-tabs > [role="tab"] {
+  margin-inline: 0;
+}
+
+/* Pill-shaped tabs with a white sliding pill behind the active tab. */
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__tabs .t-tabs-pill {
+  inset-block: 3px;
+  border-radius: 9999px;
+  corner-shape: round;
+  background: #ffffff;
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__tabs .t-tab {
+  flex: 0 0 auto;
+  min-height: 2rem;
+  height: 2rem;
+  padding-inline: 0.875rem;
+  border-radius: 9999px;
+  corner-shape: round;
+  font-size: 0.8125rem;
+}
+
+[data-slot="mobile-settings-rail-root"]
+  .dn-mobile-settings-rail__tabs
+  .t-tab[aria-selected="true"] {
+  color: #0a0a0a;
+}
+
+/* Dark theme: the active pill drops to grey so it reads as a raised track
+   segment, and inactive tabs keep the full foreground color — no fade. */
+[data-slot="mobile-settings-rail-root"][data-theme="dark"]
+  .dn-mobile-settings-rail__tabs
+  .t-tabs-pill {
+  background: #3a3a3d;
+}
+
+[data-slot="mobile-settings-rail-root"][data-theme="dark"]
+  .dn-mobile-settings-rail__tabs
+  .t-tab,
+[data-slot="mobile-settings-rail-root"][data-theme="dark"]
+  .dn-mobile-settings-rail__tabs
+  .t-tab[aria-selected="true"] {
+  color: var(--dn-fg);
+}
+
+/* Shape family footer: the subrow stacks the padding slider (or fill sub-mode
+   tabs) above the Shape|Fill view tabs. */
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__shapefooter {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__slider {
+  min-width: 0;
+  padding: 0.25rem 0.375rem 0;
 }
 
 /* Image-upload tiles only size themselves inside `.dn-fill-option-grid` — give

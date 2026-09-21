@@ -2,13 +2,12 @@
 
 import {
   Check,
-  Droplet,
   Layers,
   Pipette,
   Plus,
   X,
 } from "lucide-react"
-import { AnimatePresence, m } from "motion/react"
+
 import {
   createContext,
   lazy,
@@ -27,10 +26,6 @@ import {
 import { parseFill } from "@/components/ui/fill-picker/lib/gradient"
 import type { Fill } from "@/components/ui/fill-picker-base/public-api"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  MobileRedoIcon,
-  MobileUndoIcon,
-} from "@/features/desktop-shell/components/MobileHistoryIcons"
 import { MobileLayerToolbar } from "@/features/desktop-shell/components/MobileLayerToolbar"
 import {
   MobileSettingsDrawer,
@@ -47,11 +42,13 @@ import {
   applyCardFill,
   applyPatternModuleFill,
   applyPatternModuleImageUrl,
+  applyShapeFill,
   applyUnifiedQrFill,
   applyUnifiedQrModuleImageUrl,
   applyUnifiedQrModulePatternPatch,
   isPatternModuleImageFill,
   readPatternModuleFillCss,
+  readShapeFillCss,
   type UnifiedQrFillPatches,
   type UnifiedQrFillSettings,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
@@ -91,6 +88,10 @@ import {
   SETTINGS_PREVIEW_TILE,
 } from "@/features/desktop-shell/inspector/settings-preview-tiles"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
+import {
+  SegmentTabs,
+  SettingsSlider,
+} from "@/features/desktop-shell/inspector/settings-ui"
 import { QrStyleOptionPreview } from "@/features/qr-code/components/QrStyleOptionPreview"
 import { ContentTypeGridIcon } from "@/features/qr-code/content/ContentTypeGridIcon"
 import {
@@ -132,6 +133,13 @@ const LazySettingsImageUploadTile = lazy(() =>
     (module) => ({ default: module.SettingsImageUploadTile }),
   ),
 )
+// Palette editing drags in the full fill picker — fetch it only when the
+// pattern-colors detail page is pushed.
+const LazyPatternColorPickerContent = lazy(() =>
+  import("@/features/desktop-shell/inspector/qr-color-fill-controls").then(
+    (module) => ({ default: module.PatternColorPickerContent }),
+  ),
+)
 
 import "@/features/desktop-shell/inspector/desktopnew.css"
 import "@/features/desktop-shell/inspector/mobile-inspector.css"
@@ -152,10 +160,10 @@ const RAIL_OPTION_ICON_CLASS = "dn-mobile-settings-rail__icon"
 
 /** QR style parts, mirroring the `Part` control in the Style section. */
 const QR_STYLE_PART_OPTIONS: MobileRailOption[] = [
-  { id: "Module", label: "Module", shape: "pill", drillsTo: "Module" },
-  { id: "Eye", label: "Eye", shape: "pill", drillsTo: "Eye" },
-  { id: "Frame", label: "Frame", shape: "pill", drillsTo: "Frame" },
-  { id: "Logo", label: "Logo", shape: "pill" },
+  { id: "Module", label: "Module", drillsTo: "Module" },
+  { id: "Eye", label: "Eye", drillsTo: "Eye" },
+  { id: "Frame", label: "Frame", drillsTo: "Frame" },
+  { id: "Logo", label: "Logo" },
 ]
 
 /**
@@ -168,7 +176,6 @@ const MOBILE_FAMILY_OPTIONS: Partial<Record<DesktopSettingsSectionId, MobileRail
     label: QR_INPUT_OPTIONS[type].label,
     icon: <ContentTypeGridIcon className={RAIL_OPTION_ICON_CLASS} type={type} />,
   })),
-  QR: QR_STYLE_PART_OPTIONS,
 }
 
 /**
@@ -235,8 +242,23 @@ function useLatestModel(model: DesktopInspectorModel) {
  * fills it with the value derived from the model when nothing was browsed yet.
  */
 const MobileRailModeContext = createContext<{
+  /** Mode the option row is currently displaying (lags during the fade-out
+      beat so exiting content never swaps in place). */
   mode: string | undefined
+  /** Mode the user picked — the footer pills highlight it immediately. */
+  selectedMode: string | undefined
   setMode: (mode: string) => void
+} | null>(null)
+
+/**
+ * Selected QR style part shared between the Style family's row (catalogue
+ * above) and its footer tabs. Always resolved — defaults to Module.
+ * `part` lags like `mode`; `selectedPart` is what the tabs highlight.
+ */
+const MobileRailPartContext = createContext<{
+  part: QrStylePartId
+  selectedPart: QrStylePartId
+  selectPart: (part: QrStylePartId) => void
 } | null>(null)
 
 const QR_COLOR_FILL_MODES = [
@@ -254,6 +276,25 @@ const SCENE_FILL_MODES = [
   { id: "image", label: "Image" },
   { id: "shader", label: "Shader" },
 ] as const
+
+/**
+ * Shape family's two views. The browsed fill sub-mode is folded into the mode
+ * string (`fill:<mode>`) so the row and footer share one mode context.
+ */
+const SHAPE_VIEW_MODES = [
+  { id: "shape", label: "Shape" },
+  { id: "fill", label: "Fill" },
+] as const
+
+const SHAPE_FILL_MODES = [
+  { id: "solid", label: "Solid" },
+  { id: "linear", label: "Linear" },
+  { id: "radial", label: "Radial" },
+] as const
+
+function shapeFillSubMode(mode: string): string {
+  return mode.startsWith("fill:") ? mode.slice("fill:".length) : "solid"
+}
 
 function qrFillModeFromPattern(settings: DesktopPatternSettings): string {
   if (isPatternModuleImageFill(settings)) {
@@ -298,6 +339,9 @@ function defaultFamilyMode(
   }
   if (family === "Background") {
     return sceneFillModeFromModel(model)
+  }
+  if (family === "Shape") {
+    return "shape"
   }
   return undefined
 }
@@ -456,19 +500,11 @@ function applyQrPalette(
   model: DesktopInspectorModel,
   preset: { label: string; colors: string[] },
 ) {
-  const patch: Partial<DesktopPatternSettings> = {
+  applyQrPalettePatch(model, {
     dotsColorMode: "palette",
     dotsPalette: [...preset.colors],
     dotsPalettePreset: preset.label,
-  }
-  if (model.actualPatternSettings.gradientLinkMode === "unified") {
-    applyUnifiedPatches(
-      model,
-      applyUnifiedQrModulePatternPatch(patch, unifiedQrSettings(model)),
-    )
-    return
-  }
-  model.onPatternSettingsChange(patch)
+  })
 }
 
 function applyQrImageFill(
@@ -484,6 +520,59 @@ function applyQrImageFill(
     return
   }
   model.onPatternSettingsChange(applyPatternModuleImageUrl(imageUrl, sourceMode))
+}
+
+/** Palette-mode patches are module-only, but unified mode still syncs the rest. */
+function applyQrPalettePatch(
+  model: DesktopInspectorModel,
+  patch: Partial<DesktopPatternSettings>,
+) {
+  if (model.actualPatternSettings.gradientLinkMode === "unified") {
+    applyUnifiedPatches(
+      model,
+      applyUnifiedQrModulePatternPatch(patch, unifiedQrSettings(model)),
+    )
+    return
+  }
+  model.onPatternSettingsChange(patch)
+}
+
+/**
+ * Palette editor pushed as a rail detail: the 4 wells on top, solid picker
+ * below. The palette is kept in local state because detail content is frozen
+ * at open time and can't re-read the model as the user picks colors.
+ */
+function MobileRailPatternPaletteDetail({
+  model,
+}: {
+  model: DesktopInspectorModel
+}) {
+  const [palette, setPalette] = useState(() => [
+    ...model.actualPatternSettings.dotsPalette,
+  ])
+
+  const applyColor = (index: number, color: string) => {
+    setPalette((current) => {
+      const next = current.map((entry, entryIndex) =>
+        entryIndex === index ? color : entry,
+      )
+      applyQrPalettePatch(model, {
+        dotsColorMode: "palette",
+        dotsPalettePreset: "custom",
+        dotsPalette: next,
+      })
+      return next
+    })
+  }
+
+  return (
+    <Suspense fallback={null}>
+      <LazyPatternColorPickerContent
+        selectedPalette={palette}
+        onPaletteColorChange={applyColor}
+      />
+    </Suspense>
+  )
 }
 
 /** Wallpaper + upload tiles for image fills — shared by Color and Background. */
@@ -544,6 +633,25 @@ function MobileColorRailRow({ model, openDrawer }: MobileRailRowProps) {
     const { dotsPalette, dotsPalettePreset } = model.actualPatternSettings
     return (
       <>
+        <MobileRailPickerTile
+          ariaLabel="Custom pattern colors"
+          onOpen={() => {
+            const m = modelRef.current
+            // Palette wells edit live on the QR — switch to palette mode so
+            // the preview reacts while the user picks.
+            if (m.actualPatternSettings.dotsColorMode !== "palette") {
+              applyQrPalettePatch(m, { dotsColorMode: "palette" })
+            }
+            if (navigation) {
+              navigation.openDetail({
+                title: "Pattern colors",
+                content: <MobileRailPatternPaletteDetail model={m} />,
+              })
+              return
+            }
+            openDrawer()
+          }}
+        />
         {DESKTOP_DOTS_PALETTE_PRESETS.map((preset) => {
           const isSelected =
             dotsPalettePreset === preset.label ||
@@ -569,7 +677,6 @@ function MobileColorRailRow({ model, openDrawer }: MobileRailRowProps) {
             </button>
           )
         })}
-        <MobileRailPill label="More" onClick={openDrawer} />
       </>
     )
   }
@@ -577,15 +684,12 @@ function MobileColorRailRow({ model, openDrawer }: MobileRailRowProps) {
   if (mode === "image") {
     const imageUrl = model.actualPatternSettings.moduleFillImageUrl
     return (
-      <>
-        <MobileRailImageOptions
-          imageUrl={imageUrl}
-          onClear={() => applyQrImageFill(modelRef.current, "", "upload")}
-          onSelect={(path) => applyQrImageFill(modelRef.current, path, "url")}
-          onUpload={(url) => applyQrImageFill(modelRef.current, url, "upload")}
-        />
-        <MobileRailPill label="More" onClick={openDrawer} />
-      </>
+      <MobileRailImageOptions
+        imageUrl={imageUrl}
+        onClear={() => applyQrImageFill(modelRef.current, "", "upload")}
+        onSelect={(path) => applyQrImageFill(modelRef.current, path, "url")}
+        onUpload={(url) => applyQrImageFill(modelRef.current, url, "upload")}
+      />
     )
   }
 
@@ -628,26 +732,68 @@ function MobileColorRailRow({ model, openDrawer }: MobileRailRowProps) {
           }}
         />
       ))}
-      <MobileRailPill label="More" onClick={openDrawer} />
     </>
   )
 }
 
-/** Pill switcher under the Color options row — browses the fill modes. */
+/** Sliding-tab mode switcher under the Color options row — the pill slides to
+ *  the browsed mode and the option set above crossfades with it. */
 function MobileColorRailFooter() {
   const railMode = useContext(MobileRailModeContext)
 
+  if (!railMode?.selectedMode) {
+    return null
+  }
+
   return (
-    <>
-      {QR_COLOR_FILL_MODES.map((mode) => (
-        <MobileRailPill
-          key={mode.id}
-          label={mode.label}
-          pressed={railMode?.mode === mode.id}
-          onClick={() => railMode?.setMode(mode.id)}
-        />
-      ))}
-    </>
+    <div className="dn-mobile-settings-rail__tabs">
+      <SegmentTabs
+        className="dn-mobile-settings-rail__tabbar"
+        items={QR_COLOR_FILL_MODES.map((mode) => ({
+          id: mode.id,
+          label: mode.label,
+        }))}
+        value={railMode.selectedMode}
+        onChange={railMode.setMode}
+      />
+    </div>
+  )
+}
+
+/** Style family row: the selected part's catalogue sits above the tabs. */
+function MobileQrRailRow({ model }: MobileRailRowProps) {
+  const part = useContext(MobileRailPartContext)?.part ?? "Module"
+  return <QrStylePartOptions model={model} partId={part} />
+}
+
+/** Part tabs pinned under the catalogue — parts with a catalogue swap the
+ *  row; Logo has none, so it keeps opening the drawer. */
+function MobileQrRailFooter({ openDrawer }: MobileRailRowProps) {
+  const railPart = useContext(MobileRailPartContext)
+  const part = railPart?.selectedPart ?? "Module"
+
+  return (
+    <div className="dn-mobile-settings-rail__tabs">
+      <SegmentTabs
+        className="dn-mobile-settings-rail__tabbar"
+        items={QR_STYLE_PART_OPTIONS.map((option) => ({
+          id: option.id,
+          label: option.label,
+        }))}
+        value={part}
+        onChange={(value) => {
+          const option = QR_STYLE_PART_OPTIONS.find((entry) => entry.id === value)
+          if (!option) {
+            return
+          }
+          if (option.drillsTo) {
+            railPart?.selectPart(option.drillsTo)
+            return
+          }
+          openDrawer()
+        }}
+      />
+    </div>
   )
 }
 
@@ -682,8 +828,61 @@ function MobileMotionRailRow({ model, openDrawer }: MobileRailRowProps) {
   )
 }
 
-function MobileShapeRailRow({ model, openDrawer }: MobileRailRowProps) {
+function MobileShapeRailRow({ model }: MobileRailRowProps) {
+  const navigation = useMobileDrawerNavigation()
+  const railMode = useContext(MobileRailModeContext)
+  const modelRef = useLatestModel(model)
+  const mode = railMode?.mode ?? "shape"
   const selected = model.actualShapeSettings.backgroundShapeId
+
+  if (mode.startsWith("fill:")) {
+    const value = readShapeFillCss(model.actualShapeSettings)
+    const presets = fillPresetsForMode(shapeFillSubMode(mode))
+    const activePreset = getActiveFillPresetForStoredValue(value, presets)
+    const applyFill = (fill: Fill) => {
+      const m = modelRef.current
+      m.onShapeSettingsChange(applyShapeFill(fill, m.actualShapeSettings))
+    }
+
+    return (
+      <>
+        <MobileRailPickerTile
+          ariaLabel="Custom shape color"
+          customFill={activePreset ? undefined : value}
+          onOpen={() =>
+            navigation?.openDetail({
+              title: "Shape fill",
+              content: (
+                <Suspense fallback={null}>
+                  <div className="w-full min-w-0">
+                    <LazyDesktopNewFillPicker
+                      qrGradient
+                      value={value}
+                      onValueChange={(fill) => applyFill(fill)}
+                    />
+                  </div>
+                </Suspense>
+              ),
+            })
+          }
+        />
+        {presets.map((preset) => (
+          <MobileRailSwatchTile
+            key={preset}
+            ariaLabel="Use this shape color"
+            fill={preset}
+            selected={activePreset === preset}
+            onSelect={() => {
+              const fill = parseFill(preset)
+              if (fill) {
+                applyFill(fill)
+              }
+            }}
+          />
+        ))}
+      </>
+    )
+  }
 
   return (
     <>
@@ -716,12 +915,60 @@ function MobileShapeRailRow({ model, openDrawer }: MobileRailRowProps) {
           </span>
         </button>
       ))}
-      <MobileRailCircleOption
-        icon={<Droplet className={RAIL_OPTION_ICON_CLASS} />}
-        label="Fill"
-        onClick={openDrawer}
-      />
     </>
+  )
+}
+
+/**
+ * Shape footer: Shape|Fill view tabs on the bottom; above them the subrow
+ * swaps between the padding slider (Shape view) and the fill sub-mode tabs
+ * (Fill view) — same sliding-tab treatment as Color/Background.
+ */
+function MobileShapeRailFooter({ model }: MobileRailRowProps) {
+  const railMode = useContext(MobileRailModeContext)
+  const mode = railMode?.selectedMode ?? "shape"
+  const view = mode.startsWith("fill:") ? "fill" : "shape"
+
+  return (
+    <div className="dn-mobile-settings-rail__shapefooter">
+      {view === "fill" ? (
+        <div className="dn-mobile-settings-rail__tabs">
+          <SegmentTabs
+            className="dn-mobile-settings-rail__tabbar"
+            items={SHAPE_FILL_MODES.map((subMode) => ({
+              id: subMode.id,
+              label: subMode.label,
+            }))}
+            value={shapeFillSubMode(mode)}
+            onChange={(value) => railMode?.setMode(`fill:${value}`)}
+          />
+        </div>
+      ) : (
+        <div className="dn-mobile-settings-rail__slider">
+          <SettingsSlider
+            label="Padding"
+            max={192}
+            value={model.actualShapeSettings.shapePadding}
+            onChange={(shapePadding) =>
+              model.onShapeSettingsChange({ shapePadding })
+            }
+          />
+        </div>
+      )}
+      <div className="dn-mobile-settings-rail__tabs">
+        <SegmentTabs
+          className="dn-mobile-settings-rail__tabbar"
+          items={SHAPE_VIEW_MODES.map((entry) => ({
+            id: entry.id,
+            label: entry.label,
+          }))}
+          value={view}
+          onChange={(value) =>
+            railMode?.setMode(value === "fill" ? "fill:solid" : "shape")
+          }
+        />
+      </div>
+    </div>
   )
 }
 
@@ -731,7 +978,7 @@ function backgroundFillTabName(css: string): "Solid" | "Linear" | "Radial" {
   return "Solid"
 }
 
-function MobileBackgroundRailRow({ model, openDrawer }: MobileRailRowProps) {
+function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
   const navigation = useMobileDrawerNavigation()
   const railMode = useContext(MobileRailModeContext)
   const modelRef = useLatestModel(model)
@@ -770,7 +1017,6 @@ function MobileBackgroundRailRow({ model, openDrawer }: MobileRailRowProps) {
             })
           }
         />
-        <MobileRailPill label="More" onClick={openDrawer} />
       </>
     )
   }
@@ -800,7 +1046,6 @@ function MobileBackgroundRailRow({ model, openDrawer }: MobileRailRowProps) {
             />
           </button>
         ))}
-        <MobileRailPill label="More" onClick={openDrawer} />
       </>
     )
   }
@@ -844,40 +1089,48 @@ function MobileBackgroundRailRow({ model, openDrawer }: MobileRailRowProps) {
           }}
         />
       ))}
-      <MobileRailPill label="More" onClick={openDrawer} />
     </>
   )
 }
 
 /**
- * Pill switcher under the Background options row. Mirrors
- * `SceneSection.handleBackgroundTabChange` — tapping a pill also activates
+ * Sliding-tab mode switcher under the Background options row. Mirrors
+ * `SceneSection.handleBackgroundTabChange` — tapping a tab also activates
  * that canvas background mode so the preview reacts immediately.
  */
 function MobileBackgroundRailFooter({ model }: MobileRailRowProps) {
   const railMode = useContext(MobileRailModeContext)
   const modelRef = useLatestModel(model)
 
+  if (!railMode?.selectedMode) {
+    return null
+  }
+
   return (
-    <>
-      {SCENE_FILL_MODES.map((mode) => (
-        <MobileRailPill
-          key={mode.id}
-          label={mode.label}
-          pressed={railMode?.mode === mode.id}
-          onClick={() => {
-            railMode?.setMode(mode.id)
-            setInspectorSectionTab(
-              "background",
-              mode.label as "Solid" | "Linear" | "Radial" | "Image" | "Shader",
-            )
-            modelRef.current.controller?.onCanvasBackgroundTabChange?.(
-              mode.id === "shader" ? "shader" : mode.id === "image" ? "image" : "color",
-            )
-          }}
-        />
-      ))}
-    </>
+    <div className="dn-mobile-settings-rail__tabs">
+      <SegmentTabs
+        className="dn-mobile-settings-rail__tabbar"
+        items={SCENE_FILL_MODES.map((mode) => ({
+          id: mode.id,
+          label: mode.label,
+        }))}
+        value={railMode.selectedMode}
+        onChange={(value) => {
+          const mode = SCENE_FILL_MODES.find((entry) => entry.id === value)
+          if (!mode) {
+            return
+          }
+          railMode.setMode(mode.id)
+          setInspectorSectionTab(
+            "background",
+            mode.label as "Solid" | "Linear" | "Radial" | "Image" | "Shader",
+          )
+          modelRef.current.controller?.onCanvasBackgroundTabChange?.(
+            mode.id === "shader" ? "shader" : mode.id === "image" ? "image" : "color",
+          )
+        }}
+      />
+    </div>
   )
 }
 
@@ -961,6 +1214,7 @@ function MobileElementsRailRow({ model, openDrawer }: MobileRailRowProps) {
 const MOBILE_FAMILY_ROWS: Partial<
   Record<DesktopSettingsSectionId, ComponentType<MobileRailRowProps>>
 > = {
+  QR: MobileQrRailRow,
   Color: MobileColorRailRow,
   Motion: MobileMotionRailRow,
   Shape: MobileShapeRailRow,
@@ -975,7 +1229,9 @@ const MOBILE_FAMILY_ROWS: Partial<
 const MOBILE_FAMILY_FOOTERS: Partial<
   Record<DesktopSettingsSectionId, ComponentType<MobileRailRowProps>>
 > = {
+  QR: MobileQrRailFooter,
   Color: MobileColorRailFooter,
+  Shape: MobileShapeRailFooter,
   Background: MobileBackgroundRailFooter,
 }
 
@@ -1064,12 +1320,12 @@ function useMeasuredHeight<T extends HTMLElement>() {
 }
 
 export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) {
-  const { controller } = model
   const theme = model.actualDesktopTheme
   const { height: railHeight, ref: railRef } = useMeasuredHeight<HTMLDivElement>()
   const [toolbarHeight, setToolbarHeight] = useState(0)
   const [openFamily, setOpenFamily] = useState<DesktopSettingsSectionId | null>(null)
-  const [openPart, setOpenPart] = useState<QrStylePartId | null>(null)
+  // Selected Style part — the QR row shows its catalogue, the tabs track it.
+  const [openPart, setOpenPart] = useState<QrStylePartId>("Module")
   const [drawerSection, setDrawerSection] = useState<DesktopSettingsSectionId | null>(null)
   const [drawerView, setDrawerView] = useState(MOBILE_DRAWER_SECTION_VIEW)
   // Browsed fill mode per family — unset entries derive from the model.
@@ -1078,34 +1334,75 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
   >({})
   const keyboardInset = useMobileKeyboardInset()
 
-  const options = openFamily ? MOBILE_FAMILY_OPTIONS[openFamily] : undefined
-  const FamilyRow = openFamily ? MOBILE_FAMILY_ROWS[openFamily] : undefined
-  const FamilyFooter = openFamily ? MOBILE_FAMILY_FOOTERS[openFamily] : undefined
-  const part = openPart ? QR_STYLE_PART_DEFINITIONS[openPart] : undefined
-  const drilled = Boolean(options || FamilyRow)
-  const drawerOpen = drawerSection !== null || drawerView === MOBILE_DRAWER_DETAIL_VIEW
-  const railMode =
-    openFamily && FamilyFooter
+  /* Two-phase stage swap: everything the rail renders — options, mode tabs,
+     X/label/tick — comes from `displayed`, a snapshot that only commits ~190ms
+     after the user picks something, while the stage sits at opacity 0. Nothing
+     re-renders mid-fade: the exiting content is frozen because it IS the
+     snapshot, not a dying AnimatePresence clone. `selectedMode`/`selectedPart`
+     stay live so the tab pill reacts instantly. */
+  const incomingMode =
+    openFamily && MOBILE_FAMILY_FOOTERS[openFamily]
       ? (familyModes[openFamily] ?? defaultFamilyMode(openFamily, model))
       : undefined
-  const railViewKey = part
-    ? `part:${openPart}`
-    : drilled
-      ? `family:${openFamily}:${railMode ?? ""}`
-      : "families"
+  const [displayed, setDisplayed] = useState({
+    family: openFamily,
+    mode: incomingMode,
+    part: openPart,
+  })
+  // "stage" fades the whole rail block (family open/close); "row" fades only
+  // the option row (mode/part tabs inside a family — tabs/actions stay lit).
+  const [fading, setFading] = useState<"stage" | "row" | false>(false)
+
+  useEffect(() => {
+    if (
+      displayed.family === openFamily &&
+      displayed.mode === incomingMode &&
+      displayed.part === openPart
+    ) {
+      return
+    }
+    setFading(displayed.family === openFamily ? "row" : "stage")
+    const timeout = window.setTimeout(() => {
+      setDisplayed({ family: openFamily, mode: incomingMode, part: openPart })
+      setFading(false)
+    }, 190)
+    return () => window.clearTimeout(timeout)
+  }, [openFamily, incomingMode, openPart, displayed])
+
+  const viewFamily = displayed.family
+  const options = viewFamily ? MOBILE_FAMILY_OPTIONS[viewFamily] : undefined
+  const FamilyRow = viewFamily ? MOBILE_FAMILY_ROWS[viewFamily] : undefined
+  const FamilyFooter = viewFamily ? MOBILE_FAMILY_FOOTERS[viewFamily] : undefined
+  const drilled = Boolean(options || FamilyRow)
+  const drawerOpen = drawerSection !== null || drawerView === MOBILE_DRAWER_DETAIL_VIEW
+  // Footer pill highlight: live for the displayed family so a tap slides the
+  // pill instantly; during a family fade it still describes the exiting view.
+  const railMode =
+    viewFamily && FamilyFooter
+      ? (familyModes[viewFamily] ?? defaultFamilyMode(viewFamily, model))
+      : undefined
 
   const setRailMode = useCallback(
     (mode: string) => {
       setFamilyModes((current) =>
-        openFamily ? { ...current, [openFamily]: mode } : current,
+        viewFamily ? { ...current, [viewFamily]: mode } : current,
       )
     },
-    [openFamily],
+    [viewFamily],
   )
 
   const railModeContext = useMemo(
-    () => ({ mode: railMode, setMode: setRailMode }),
-    [railMode, setRailMode],
+    () => ({ mode: displayed.mode, selectedMode: railMode, setMode: setRailMode }),
+    [displayed.mode, railMode, setRailMode],
+  )
+
+  const railPartContext = useMemo(
+    () => ({
+      part: displayed.part,
+      selectedPart: openPart,
+      selectPart: setOpenPart,
+    }),
+    [displayed.part, openPart],
   )
 
   const handleDrawerViewChange = useCallback((view: string) => {
@@ -1130,7 +1427,7 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
     if (!openFamily) {
       return
     }
-    setOpenPart(null)
+    setOpenPart("Module")
     const index = DESKTOP_SETTINGS_SECTIONS.indexOf(openFamily)
     for (let step = 1; step <= DESKTOP_SETTINGS_SECTIONS.length; step += 1) {
       const candidate =
@@ -1142,14 +1439,21 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
     }
   }, [openFamily])
 
-  // The corner cross steps back one drill level before it leaves the family.
+  // The corner cross leaves the drilled-in family.
   const goBack = useCallback(() => {
-    if (openPart) {
-      setOpenPart(null)
+    setOpenFamily(null)
+  }, [])
+
+  const handleOptionClick = (option: MobileRailOption) => {
+    if (option.drillsTo) {
+      setOpenPart(option.drillsTo)
       return
     }
-    setOpenFamily(null)
-  }, [openPart])
+    if (viewFamily === "Content") {
+      model.onContentTypeChange(option.id as QrInputType)
+    }
+    openDrawerSection(viewFamily!)
+  }
 
   useEffect(() => {
     syncMobileWorkspaceChromeInsets({
@@ -1174,6 +1478,7 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
           setView={handleDrawerViewChange}
         >
           <MobileRailModeContext.Provider value={railModeContext}>
+            <MobileRailPartContext.Provider value={railPartContext}>
             <MobileDrawerStackReset open={drawerOpen} />
           <MobileLayerToolbar onToolbarHeightChange={setToolbarHeight} model={model} theme={theme} />
           <div
@@ -1184,39 +1489,42 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
             data-slot="mobile-settings-rail-root"
             data-theme={theme}
           >
+            {/* One atomic swap: the whole rail block (options + tabs +
+                actions) fades out showing the old view, then the snapshot
+                commits at opacity 0 and the new view fades in already laid
+                out. Nothing re-renders mid-fade — no layout shifts, no live
+                state leaking into the exiting frame. */}
+            <div
+              className={
+                fading === "stage"
+                  ? "dn-mobile-settings-rail__stage is-fading"
+                  : "dn-mobile-settings-rail__stage"
+              }
+            >
             <ScrollArea
               className="dn-mobile-settings-rail__scroll w-full min-w-0 max-w-full overflow-hidden"
               chevron={false}
               cueSize="tight"
               orientation="horizontal"
-              persistKey={`mobile-settings-rail:${railViewKey}`}
+              persistKey={`mobile-settings-rail:${drilled ? `family:${viewFamily}` : "families"}`}
               scrollFade
               showScrollbar={false}
               viewportClassName="min-w-0"
             >
-              <AnimatePresence initial={false} mode="wait">
-                <m.div
-                  key={railViewKey}
-                  animate={{ opacity: 1 }}
-                  aria-label={
-                    part
-                      ? `${openPart} options`
-                      : drilled
-                        ? `${openFamily} options`
-                        : "Settings sections"
+              <div className="dn-mobile-settings-rail__swap">
+                <div
+                  aria-label={drilled ? `${viewFamily} options` : "Settings sections"}
+                  className={
+                    fading === "row"
+                      ? "dn-mobile-settings-rail__row is-fading"
+                      : "dn-mobile-settings-rail__row"
                   }
-                  className="dn-mobile-settings-rail__row"
-                  exit={{ opacity: 0, transition: { duration: 0.1, ease: "easeIn" } }}
-                  initial={{ opacity: 0 }}
                   role="group"
-                  transition={{ duration: 0.16, ease: "easeOut" }}
                 >
-                  {part && openPart ? (
-                    <QrStylePartOptions model={model} partId={openPart} />
-                  ) : FamilyRow && openFamily ? (
+                  {FamilyRow && viewFamily ? (
                     <FamilyRow
                       model={model}
-                      openDrawer={() => openDrawerSection(openFamily!)}
+                      openDrawer={() => openDrawerSection(viewFamily!)}
                     />
                   ) : options ? (
                     options.map((option) => (
@@ -1228,16 +1536,7 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
                             : "dn-mobile-settings-rail__item"
                         }
                         type="button"
-                        onClick={() => {
-                          if (option.drillsTo) {
-                            setOpenPart(option.drillsTo)
-                            return
-                          }
-                          if (openFamily === "Content") {
-                            model.onContentTypeChange(option.id as QrInputType)
-                          }
-                          openDrawerSection(openFamily!)
-                        }}
+                        onClick={() => handleOptionClick(option)}
                       >
                         {option.shape === "pill" ? (
                           <span className="dn-mobile-settings-rail__pill">{option.label}</span>
@@ -1272,81 +1571,55 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
                       </button>
                     ))
                   )}
-                </m.div>
-              </AnimatePresence>
+                </div>
+              </div>
             </ScrollArea>
-            <AnimatePresence initial={false}>
-              {drilled && FamilyFooter ? (
-                <m.div
-                  key={`modes:${openFamily}`}
-                  animate={{ opacity: 1 }}
-                  aria-label={`${openFamily} fill modes`}
-                  className="dn-mobile-settings-rail__subrow"
-                  exit={{ opacity: 0, transition: { duration: 0.1, ease: "easeIn" } }}
-                  initial={{ opacity: 0 }}
-                  role="group"
-                  transition={{ duration: 0.16, ease: "easeOut" }}
+            {drilled && FamilyFooter ? (
+              <div
+                aria-label={
+                  viewFamily === "QR"
+                    ? "QR parts"
+                    : viewFamily === "Shape"
+                      ? "Shape controls"
+                      : `${viewFamily} fill modes`
+                }
+                className="dn-mobile-settings-rail__subrow"
+                role="group"
+              >
+                <FamilyFooter
+                  model={model}
+                  openDrawer={() => openDrawerSection(viewFamily!)}
+                />
+              </div>
+            ) : null}
+            {drilled ? (
+              <div className="dn-mobile-settings-rail__actions">
+                <button
+                  aria-label="Close options"
+                  className="dn-mobile-settings-rail__action"
+                  type="button"
+                  onClick={goBack}
                 >
-                  <FamilyFooter
-                    model={model}
-                    openDrawer={() => openDrawerSection(openFamily!)}
-                  />
-                </m.div>
-              ) : null}
-            </AnimatePresence>
-            <AnimatePresence initial={false}>
-              {drilled ? (
-                <m.div
-                  key="rail-actions"
-                  animate={{ height: "auto", opacity: 1 }}
-                  className="dn-mobile-settings-rail__actions"
-                  exit={{ height: 0, opacity: 0 }}
-                  initial={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
+                  <X aria-hidden size={18} strokeWidth={2.25} />
+                </button>
+                {/* The open family's name sits centered between the corners. */}
+                <span
+                  className="dn-mobile-settings-rail__family"
+                  data-slot="mobile-rail-family-label"
                 >
-                  <button
-                    aria-label="Close options"
-                    className="dn-mobile-settings-rail__action"
-                    type="button"
-                    onClick={goBack}
-                  >
-                    <X aria-hidden size={18} strokeWidth={2.25} />
-                  </button>
-                  {/* History lives in the thumb zone, between the corners. */}
-                  <span
-                    className="dn-mobile-settings-rail__history"
-                    data-slot="mobile-rail-history"
-                  >
-                    <button
-                      aria-label="Undo"
-                      className="dn-mobile-settings-rail__action dn-mobile-settings-rail__action--history"
-                      disabled={!controller?.canUndo || !controller?.onUndo}
-                      type="button"
-                      onClick={() => controller?.onUndo?.()}
-                    >
-                      <MobileUndoIcon className="size-4" />
-                    </button>
-                    <button
-                      aria-label="Redo"
-                      className="dn-mobile-settings-rail__action dn-mobile-settings-rail__action--history"
-                      disabled={!controller?.canRedo || !controller?.onRedo}
-                      type="button"
-                      onClick={() => controller?.onRedo?.()}
-                    >
-                      <MobileRedoIcon className="size-4" />
-                    </button>
-                  </span>
-                  <button
-                    aria-label="Next settings family"
-                    className="dn-mobile-settings-rail__action"
-                    type="button"
-                    onClick={goToNextFamily}
-                  >
-                    <Check aria-hidden size={18} strokeWidth={2.25} />
-                  </button>
-                </m.div>
-              ) : null}
-            </AnimatePresence>
+                  {viewFamily ? getDesktopSettingsSectionLabel(viewFamily) : null}
+                </span>
+                <button
+                  aria-label="Next settings family"
+                  className="dn-mobile-settings-rail__action"
+                  type="button"
+                  onClick={goToNextFamily}
+                >
+                  <Check aria-hidden size={18} strokeWidth={2.25} />
+                </button>
+              </div>
+            ) : null}
+            </div>
           </div>
           <MobileSettingsDrawer
             model={model}
@@ -1355,6 +1628,7 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
             onSectionChange={openDrawerSection}
             section={drawerSection}
           />
+            </MobileRailPartContext.Provider>
           </MobileRailModeContext.Provider>
         </MobileDrawerNavigationProvider>
       </MobileInspectorDensityContext.Provider>

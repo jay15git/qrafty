@@ -548,7 +548,7 @@ export function SegmentTabs({
     if (!tab) return
 
     const timeout = window.setTimeout(() => {
-      tab.scrollIntoView({ block: "nearest", inline: "nearest" })
+      tab.scrollIntoView?.({ block: "nearest", inline: "nearest" })
     }, 220)
 
     return () => window.clearTimeout(timeout)
@@ -655,22 +655,22 @@ const TAB_PANEL_EASE_ENTER = [0.16, 1, 0.3, 1] as const
 const TAB_PANEL_EASE_EXIT = [0.4, 0, 0.2, 1] as const
 
 const settingsTabPanelVariants = {
-  initial: { opacity: 0, filter: "blur(6px)" },
+  initial: { opacity: 0, filter: "blur(3px)" },
   animate: {
     opacity: 1,
     filter: "blur(0px)",
     transition: {
-      opacity: { duration: 0.22, ease: TAB_PANEL_EASE_ENTER },
-      filter: { duration: 0.22, ease: TAB_PANEL_EASE_ENTER },
+      opacity: { duration: 0.3, ease: TAB_PANEL_EASE_ENTER },
+      filter: { duration: 0.3, ease: TAB_PANEL_EASE_ENTER },
     },
   },
   exit: {
     opacity: 0,
-    filter: "blur(4px)",
+    filter: "blur(2px)",
     pointerEvents: "none" as const,
     transition: {
-      opacity: { duration: 0.14, ease: TAB_PANEL_EASE_EXIT },
-      filter: { duration: 0.14, ease: TAB_PANEL_EASE_EXIT },
+      opacity: { duration: 0.2, ease: TAB_PANEL_EASE_EXIT },
+      filter: { duration: 0.2, ease: TAB_PANEL_EASE_EXIT },
     },
   },
 }

@@ -92,7 +92,7 @@ function PatternRowSwatch({
 
 /** Palette editing for the Pattern fill: swatch strip on top, solid picker
  *  below, retargeted by the selected swatch. */
-function PatternColorPickerContent({
+export function PatternColorPickerContent({
   onPaletteColorChange,
   selectedPalette,
 }: {

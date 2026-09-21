@@ -504,6 +504,8 @@ describe("FloatingToolbar", () => {
 
     await act(async () => {
       contentButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      // The rail's two-phase swap commits ~190ms after the tap.
+      await new Promise((resolve) => setTimeout(resolve, 250))
     })
 
     const optionLabels = getLabels()
@@ -523,19 +525,18 @@ describe("FloatingToolbar", () => {
     const actions = railRoot?.querySelector(".dn-mobile-settings-rail__actions")
     expect(actions).not.toBeNull()
     expect(actions?.children).toHaveLength(3)
-    // History replaces the old inert family pill between the corners.
+    // The open family's name sits between the corner buttons.
     expect(
-      Array.from(
-        actions?.querySelectorAll<HTMLButtonElement>('[data-slot="mobile-rail-history"] button') ??
-          [],
-      ).map((button) => button.getAttribute("aria-label")),
-    ).toEqual(["Undo", "Redo"])
+      actions?.querySelector('[data-slot="mobile-rail-family-label"]')
+        ?.textContent,
+    ).toBe("Content")
     expect(actions?.querySelector('button[aria-label="Close options"]')).not.toBeNull()
 
     await act(async () => {
       actions
         ?.querySelector<HTMLButtonElement>('button[aria-label="Close options"]')
         ?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      await new Promise((resolve) => setTimeout(resolve, 250))
     })
 
     expect(getLabels()).toContain("Style")
@@ -549,7 +550,9 @@ describe("FloatingToolbar", () => {
     const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
     const getItems = () =>
       Array.from(
-        railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+        railRoot?.querySelectorAll<HTMLButtonElement>(
+          '.dn-mobile-settings-rail__item, .dn-mobile-settings-rail__row [role="tab"]',
+        ) ?? [],
       )
     const getLabels = () => getItems().map((item) => item.textContent?.trim())
     const getRailLabel = () => {
@@ -560,19 +563,25 @@ describe("FloatingToolbar", () => {
       await act(async () => {
         element?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
       })
+      // Two-phase option swap: the displayed set commits ~190ms after a
+      // mode/part selection. Flush that timer.
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 250))
+      })
     }
 
     await click(getItems().find((item) => item.textContent?.trim() === "Style"))
 
-    expect(getLabels()).toEqual(["Module", "Eye", "Frame", "Logo"])
+    // The catalogue sits above the pinned part tabs — Module is selected by
+    // default, so its style options show immediately.
     expect(getRailLabel()).toBe("QR options")
 
-    await click(getItems().find((item) => item.textContent?.trim() === "Module"))
-
-    // The part row fades out and the catalogue takes its place.
-    expect(getItems()).toHaveLength(0)
-    expect(getRailLabel()).toBe("Module options")
-
+    const getPartTabs = () =>
+      Array.from(
+        railRoot?.querySelectorAll<HTMLButtonElement>(
+          '[aria-label="QR parts"] [role="tab"]',
+        ) ?? [],
+      )
     const getStyleOptions = () =>
       Array.from(
         railRoot?.querySelectorAll<HTMLButtonElement>(
@@ -580,6 +589,17 @@ describe("FloatingToolbar", () => {
         ) ?? [],
       )
 
+    expect(getPartTabs().map((tab) => tab.textContent?.trim())).toEqual([
+      "Module",
+      "Eye",
+      "Frame",
+      "Logo",
+    ])
+    expect(
+      getPartTabs()
+        .find((tab) => tab.textContent?.trim() === "Module")
+        ?.getAttribute("aria-selected"),
+    ).toBe("true")
     expect(getStyleOptions()).toHaveLength(DOT_STYLE_OPTIONS.length)
 
     await click(getStyleOptions().find((option) => option.getAttribute("aria-label") === "Circle"))
@@ -590,12 +610,7 @@ describe("FloatingToolbar", () => {
         ?.getAttribute("aria-pressed"),
     ).toBe("true")
 
-    // The corner cross steps back one level, not straight out of the family.
-    await click(railRoot?.querySelector('button[aria-label="Close options"]'))
-
-    expect(getLabels()).toEqual(["Module", "Eye", "Frame", "Logo"])
-    expect(getRailLabel()).toBe("QR options")
-
+    // The corner cross leaves the family — there is no inner drill level.
     await click(railRoot?.querySelector('button[aria-label="Close options"]'))
 
     expect(getLabels()).toContain("Color")
@@ -609,7 +624,9 @@ describe("FloatingToolbar", () => {
     const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
     const getItems = () =>
       Array.from(
-        railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+        railRoot?.querySelectorAll<HTMLButtonElement>(
+          '.dn-mobile-settings-rail__item, .dn-mobile-settings-rail__row [role="tab"]',
+        ) ?? [],
       )
     const getLabels = () => getItems().map((item) => item.textContent?.trim())
     const getTiles = () =>
@@ -626,6 +643,11 @@ describe("FloatingToolbar", () => {
       await act(async () => {
         element?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
       })
+      // Two-phase option swap: the displayed set commits ~190ms after a
+      // mode/part selection. Flush that timer.
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 250))
+      })
     }
     const closeRow = () =>
       click(railRoot?.querySelector('button[aria-label="Close options"]'))
@@ -636,7 +658,7 @@ describe("FloatingToolbar", () => {
     const getModePills = () =>
       Array.from(
         railRoot?.querySelectorAll<HTMLButtonElement>(
-          '[aria-label$="fill modes"] .dn-mobile-settings-rail__item--pill',
+          '[aria-label$="fill modes"] .dn-mobile-settings-rail__item, [aria-label$="fill modes"] [role="tab"]',
         ) ?? [],
       )
     const getModePillLabels = () =>
@@ -655,14 +677,14 @@ describe("FloatingToolbar", () => {
       "Pattern",
     ])
 
-    // Browsing another mode swaps the option set above the pills.
+    // Browsing another mode swaps the option set above the sliding tabs.
     await click(getModePills().find((pill) => pill.textContent?.trim() === "Linear"))
 
     expect(getTiles()).toHaveLength(SETTINGS_FILL_LINEAR_PRESETS.length + 1)
     expect(
       getModePills()
         .find((pill) => pill.textContent?.trim() === "Linear")
-        ?.getAttribute("aria-pressed"),
+        ?.getAttribute("aria-selected"),
     ).toBe("true")
 
     await closeRow()
@@ -679,12 +701,39 @@ describe("FloatingToolbar", () => {
 
     await closeRow()
 
-    // Shape: square + every background shape glyph, then a Fill drawer entry.
+    // Shape: square + every background shape glyph, with the padding slider
+    // and Shape|Fill view tabs pinned below.
     await click(getItems().find((item) => item.textContent?.trim() === "Shape"))
 
     expect(getRailLabel()).toBe("Shape options")
     expect(getTiles()).toHaveLength(QR_BACKGROUND_SHAPES.length + 1)
-    expect(getLabels()).toContain("Fill")
+    const shapeControls = () =>
+      railRoot?.querySelector('[aria-label="Shape controls"]')
+    expect(
+      shapeControls()?.querySelector(".dn-settings-inline-slider"),
+    ).not.toBeNull()
+    const shapeViewTabs = () =>
+      Array.from(
+        shapeControls()?.querySelectorAll<HTMLButtonElement>('[role="tab"]') ??
+          [],
+      )
+
+    // Fill view: swatch presets above Solid/Linear/Radial sub-tabs.
+    await click(shapeViewTabs().find((tab) => tab.textContent?.trim() === "Fill"))
+
+    expect(
+      railRoot?.querySelector('button[aria-label="Custom shape color"]'),
+    ).not.toBeNull()
+    expect(getTiles()).toHaveLength(SETTINGS_FILL_SOLID_PRESETS.length + 1)
+    expect(
+      shapeViewTabs()
+        .find((tab) => tab.textContent?.trim() === "Solid")
+        ?.getAttribute("aria-selected"),
+    ).toBe("true")
+
+    await click(shapeViewTabs().find((tab) => tab.textContent?.trim() === "Linear"))
+
+    expect(getTiles()).toHaveLength(SETTINGS_FILL_LINEAR_PRESETS.length + 1)
 
     await closeRow()
 
@@ -705,7 +754,7 @@ describe("FloatingToolbar", () => {
     expect(
       getModePills()
         .find((pill) => pill.textContent?.trim() === "Shader")
-        ?.getAttribute("aria-pressed"),
+        ?.getAttribute("aria-selected"),
     ).toBe("true")
 
     await click(getModePills().find((pill) => pill.textContent?.trim() === "Solid"))
@@ -736,6 +785,8 @@ describe("FloatingToolbar", () => {
     const click = async (element: Element | null | undefined) => {
       await act(async () => {
         element?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+        // The rail's two-phase swap commits ~190ms after the tap.
+        await new Promise((resolve) => setTimeout(resolve, 250))
       })
     }
 
