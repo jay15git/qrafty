@@ -1803,7 +1803,7 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
                           <SettingsSectionIconFor
                             className="dn-mobile-settings-rail__icon"
                             section={section}
-                            size={20}
+                            size={22}
                           />
                         </span>
                         <span className="dn-mobile-settings-rail__label">
@@ -1841,7 +1841,7 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
                   type="button"
                   onClick={discardFamily}
                 >
-                  <X aria-hidden size={18} strokeWidth={2.25} />
+                  <X aria-hidden size={20} strokeWidth={2.25} />
                 </button>
                 {/* The open family's name sits centered between the corners. */}
                 <span
@@ -1856,7 +1856,7 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
                   type="button"
                   onClick={saveFamily}
                 >
-                  <Check aria-hidden size={18} strokeWidth={2.25} />
+                  <Check aria-hidden size={20} strokeWidth={2.25} />
                 </button>
               </div>
             ) : null}
