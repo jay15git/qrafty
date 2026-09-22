@@ -34,6 +34,7 @@ export default defineConfig({
       "**/*.spec.ts",
     ],
     environment: "node",
+    setupFiles: ["./vitest.setup.ts"],
     server: {
       deps: {
         inline: ["@qrafty/qr"],

@@ -1,0 +1,2 @@
+pnpm lint baseline 2026-09-22: 515 problems (214 errors, 301 warnings)
+Mostly react-hooks/* from eslint-config-next 16, concentrated in packages/qr/vendor/, .agents/skills/, a few client components reading refs during render. app/ is lint-clean.
