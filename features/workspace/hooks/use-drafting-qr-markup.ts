@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useSyncExternalStore } from "react"
+import DOMPurify from "dompurify"
 
 import type { QraftyState } from "@/features/qr-code/model/state"
 import { buildDraftingQraftyMarkup } from "@/features/qr-code/rendering/qrafty-markup"
@@ -14,75 +15,65 @@ import { createDraftingQrArtworkState } from "@/features/workspace/rendering/qr-
 
 const markupCache = new Map<string, string>()
 
+// Markup is generated in-repo, but user content (QR data, logo URLs) flows
+// through it unescaped — sanitize before it reaches dangerouslySetInnerHTML.
+function sanitizeQrMarkup(markup: string) {
+  if (typeof window === "undefined") return markup
+  return DOMPurify.sanitize(markup, {
+    USE_PROFILES: { svg: true, svgFilters: true },
+  })
+}
+
 export function clearDraftingQrMarkupCache() {
   markupCache.clear()
 }
 
 export function useDraftingQrMarkup(state: QraftyState) {
-  const [markup, setMarkup] = useState<string | null>(null)
-  const [hasError, setHasError] = useState(false)
-  const requestRef = useRef(0)
   const qrArtworkState = useMemo(() => createDraftingQrArtworkState(state), [state])
   const stateCacheKey = useMemo(() => JSON.stringify(qrArtworkState), [qrArtworkState])
-  const qrArtworkStateRef = useRef(qrArtworkState)
-  const stateCacheKeyRef = useRef(stateCacheKey)
+  const lastMarkupRef = useRef<string | null>(null)
+  // Interaction state is a real render input: when a gesture ends the memo
+  // below recomputes, so a rebuild deferred mid-gesture actually lands.
+  const isInteracting = useSyncExternalStore(
+    previewSession.subscribe,
+    previewSession.getIsInteracting,
+  )
 
-  qrArtworkStateRef.current = qrArtworkState
-  stateCacheKeyRef.current = stateCacheKey
-
-  const buildMarkupForCurrentState = useCallback(() => {
-    const requestId = ++requestRef.current
-    const cacheKey = stateCacheKeyRef.current
-    const artworkState = qrArtworkStateRef.current
-    const cachedMarkup = markupCache.get(cacheKey)
-
+  const { markup, hasError } = useMemo(() => {
+    const cachedMarkup = markupCache.get(stateCacheKey)
     if (cachedMarkup) {
-      setMarkup(cachedMarkup)
-      setHasError(false)
-      return
+      return { markup: cachedMarkup, hasError: false }
+    }
+
+    // Defer the expensive rebuild while the user is mid-gesture; the
+    // subscription above re-renders once interaction ends.
+    if (isInteracting && lastMarkupRef.current !== null) {
+      return { markup: lastMarkupRef.current, hasError: false }
     }
 
     try {
       markPreviewPerformance(PREVIEW_PERF_MARKS.qrMarkupBuildBegin)
-      const nextMarkup = buildDraftingQraftyMarkup(artworkState)
+      const nextMarkup = sanitizeQrMarkup(buildDraftingQraftyMarkup(qrArtworkState))
       markPreviewPerformance(PREVIEW_PERF_MARKS.qrMarkupBuildEnd)
       measurePreviewPerformance(
         "qr-markup-build",
         PREVIEW_PERF_MARKS.qrMarkupBuildBegin,
         PREVIEW_PERF_MARKS.qrMarkupBuildEnd,
       )
-      if (requestRef.current !== requestId) {
-        return
-      }
-
-      markupCache.set(cacheKey, nextMarkup)
-      setMarkup(nextMarkup)
-      setHasError(false)
+      markupCache.set(stateCacheKey, nextMarkup)
+      return { markup: nextMarkup, hasError: false }
     } catch {
-      if (requestRef.current !== requestId) {
-        return
-      }
-
-      setMarkup(null)
-      setHasError(true)
+      return { markup: null, hasError: true }
     }
-  }, [])
+  }, [qrArtworkState, stateCacheKey, isInteracting])
 
+  // Render must stay pure: the "last good markup" fallback is recorded on
+  // commit, not while the memo runs.
   useEffect(() => {
-    if (previewSession.getIsInteracting()) {
-      return
+    if (markup !== null) {
+      lastMarkupRef.current = markup
     }
-
-    buildMarkupForCurrentState()
-  }, [buildMarkupForCurrentState, stateCacheKey])
-
-  useEffect(() => {
-    return previewSession.subscribe(() => {
-      if (!previewSession.getIsInteracting()) {
-        buildMarkupForCurrentState()
-      }
-    })
-  }, [buildMarkupForCurrentState])
+  }, [markup])
 
   return { hasError, isLoading: markup === null && !hasError, markup }
 }

@@ -1,6 +1,4 @@
-export function DesktopWorkspaceStyles() {
-  return (
-    <style>{`
+const WORKSPACE_SURFACE_STYLES = `
       html:has([data-slot="desktop-workspace"]),
       body:has([data-slot="desktop-workspace"]) {
         overflow: hidden;
@@ -225,7 +223,9 @@ export function DesktopWorkspaceStyles() {
         translate: none !important;
         scale: none !important;
         rotate: none !important;
-      }
+      }`
+
+const WORKSPACE_SIDEBAR_STYLES = `
 
       /* Settings sidebar — glass chrome resets icon-button transforms so
          no press/hover scale sneaks back in. */
@@ -344,7 +344,9 @@ export function DesktopWorkspaceStyles() {
         border-color: transparent !important;
         color: rgba(15, 23, 42, 0.76) !important;
         box-shadow: none !important;
-      }
+      }`
+
+const WORKSPACE_CANVAS_MORPH_STYLES = `
 
       /* ── canvas ratio morph ─────────────────────────────────
          Picking a size preset flips data-ratio-morph on the compose
@@ -631,6 +633,12 @@ export function DesktopWorkspaceStyles() {
           animation-duration: 0.01ms !important;
         }
       }
-    `}</style>
+    `
+
+export function DesktopWorkspaceStyles() {
+  return (
+    <style>
+      {WORKSPACE_SURFACE_STYLES + WORKSPACE_SIDEBAR_STYLES + WORKSPACE_CANVAS_MORPH_STYLES}
+    </style>
   )
 }

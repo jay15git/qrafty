@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useEffect,
   useId,
   useRef,
   useState,
@@ -45,11 +46,13 @@ function useReorderList<T>({
   const [spoken, setSpoken] = useState("")
 
   const emit = useRef(onReorder)
-  emit.current = onReorder
   const settle = useRef(onCommit)
-  settle.current = onCommit
   const live = useRef(items)
-  live.current = items
+  useEffect(() => {
+    emit.current = onReorder
+    settle.current = onCommit
+    live.current = items
+  })
   const snapshot = useRef<readonly T[] | null>(null)
 
   const indexOf = useCallback(
@@ -241,6 +244,16 @@ function ReorderListRow<T>({
     controls.start(event)
   }
 
+  // Non-draggable rows skip rowKeyDown (grab/drop keys); Enter/Space on the
+  // focused row activates it the way a click does.
+  const activateKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.target !== event.currentTarget) return
+    if (event.key === " " || event.key === "Enter") {
+      event.preventDefault()
+      onItemActivate?.(item)
+    }
+  }
+
   return (
     <Reorder.Item
       value={item}
@@ -249,11 +262,20 @@ function ReorderListRow<T>({
       dragListener={false}
       tabIndex={draggable ? 0 : -1}
       aria-describedby={draggable ? hintId : undefined}
-      aria-pressed={held}
       aria-selected={selected}
       data-slot={itemDataSlot}
       role="option"
-      onKeyDown={draggable ? rowKeyDown(id) : undefined}
+      onKeyDown={draggable ? rowKeyDown(id) : activateKeyDown}
+      onClick={(event) => {
+        const target = event.target as HTMLElement
+        if (
+          target.closest("[data-reorder-grip]") ||
+          target.closest('[data-slot="desktop-layer-row-actions"]')
+        ) {
+          return
+        }
+        onItemActivate?.(item)
+      }}
       onDragStart={() => onDragStart(id)}
       onDragEnd={() => onDragEnd(id)}
       onBlur={() => held && onBlurCancel()}
@@ -266,19 +288,7 @@ function ReorderListRow<T>({
         getItemClassName?.(item, { lifted, selected }),
       )}
     >
-      <div
-        className="flex w-full min-w-0 cursor-pointer items-center gap-1.5"
-        onClick={(event) => {
-          const target = event.target as HTMLElement
-          if (
-            target.closest("[data-reorder-grip]") ||
-            target.closest('[data-slot="desktop-layer-row-actions"]')
-          ) {
-            return
-          }
-          onItemActivate?.(item)
-        }}
-      >
+      <div className="flex w-full min-w-0 cursor-pointer items-center gap-1.5">
         {draggable ? (
           <button
             type="button"

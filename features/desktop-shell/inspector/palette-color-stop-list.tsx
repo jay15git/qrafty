@@ -12,19 +12,12 @@ import {
   type ReactElement,
 } from "react"
 
-import { Alpha } from "@/components/ui/fill-picker-base/parts/alpha"
-import { ChannelInput } from "@/components/ui/fill-picker-base/parts/channel-input"
-import { FormatSwitcher } from "@/components/ui/fill-picker-base/parts/format-switcher"
-import { Hue } from "@/components/ui/fill-picker-base/parts/hue"
-import { ColorPickerContext } from "@/components/ui/fill-picker/context"
+import { StopColorEditorPopover } from "@/components/ui/fill-picker-base/parts/gradient/stop-color-editor-popover"
 import { useColorPicker } from "@/components/ui/fill-picker/hooks/use-color-picker"
 import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants"
 import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"
 import type { OklchColor } from "@/components/ui/fill-picker/lib/types"
-import { Area as ColorArea } from "@/components/ui/fill-picker/parts/area"
-import { EyeDropper } from "@/components/ui/fill-picker/parts/eye-dropper"
 import { FieldInput, FieldInputGroup, FieldShell } from "@/components/ui/fill-picker/parts/field"
-import { StopPopover } from "@/components/ui/fill-picker/parts/gradient/stop-popover"
 import { cn } from "@/lib/utils"
 
 const PALETTE_COLOR_ROW =
@@ -231,25 +224,12 @@ function PaletteColorEditorPopover({
     formats: ["hex", "rgb", "hsl", "oklch"],
   })
   return (
-    <StopPopover
+    <StopColorEditorPopover
+      state={state}
       open={open}
       onOpenChange={onOpenChange}
-      anchor={children}
-      className="flex w-72 flex-col gap-3"
-      onContentClick={(event) => event.stopPropagation()}
     >
-      <ColorPickerContext.Provider value={state}>
-        <ColorArea mode="oklch-cl" />
-        <div className="flex flex-col gap-1.5">
-          <Hue />
-          <Alpha />
-        </div>
-        <div className="flex items-center gap-2">
-          <FormatSwitcher className="flex-1" />
-          <EyeDropper className="h-8 w-full flex-1" />
-        </div>
-        <ChannelInput showFormat={false} />
-      </ColorPickerContext.Provider>
-    </StopPopover>
+      {children}
+    </StopColorEditorPopover>
   )
 }

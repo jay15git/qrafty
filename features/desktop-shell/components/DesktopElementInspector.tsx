@@ -34,7 +34,7 @@ import {
   getTextLayerFillCssValue,
   patchShapeLayerFillFromPicker,
   patchTextLayerFillFromPicker,
-} from "@/features/workspace/rendering/shape-fill"
+} from "@/features/workspace/rendering/shape-fill.utils"
 import {
   DesktopInspectorElasticSliderRow,
   DesktopInspectorNumberField,
@@ -68,6 +68,7 @@ import {
   loadDraftingFontPreview,
   resolveDraftingFont,
 } from "@/features/workspace/model/fonts"
+import type { DraftingFontCategory } from "@/features/workspace/model/font-catalog"
 import { useFontPreviewObserver } from "@/features/desktop-shell/inspector/use-font-preview-observer"
 import { IllustrationInspectorColorSection } from "@/features/workspace/components/IllustrationColorControls"
 import { isDraftingIllustrationLayer } from "@/features/workspace/model/layer-floating-settings"
@@ -170,6 +171,120 @@ export function DesktopTransformInspector({
   )
 }
 
+function DesktopTransformValueGrid({
+  layer,
+  onPatch,
+}: {
+  layer: DraftingCanvasLayer
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+}) {
+  const lockAspect = layer.kind === "image" || layer.kind === "shape" || layer.kind === "shader" || layer.kind === "qr"
+
+  return (
+    <DesktopInspectorValueGrid>
+      <DesktopInspectorNumberField
+        label="X"
+        value={Math.round(layer.x)}
+        onChange={(x) => onPatch({ x })}
+      />
+      <DesktopInspectorNumberField
+        label="Y"
+        value={Math.round(layer.y)}
+        onChange={(y) => onPatch({ y })}
+      />
+      <DesktopInspectorNumberField
+        label="W"
+        min={1}
+        value={Math.round(layer.width)}
+        onChange={(width) =>
+          onPatch({
+            width,
+            ...(lockAspect ? { height: width } : {}),
+            ...(layer.kind === "qr" ? { height: width } : {}),
+          })
+        }
+      />
+      <DesktopInspectorNumberField
+        disabled={layer.kind === "qr" || lockAspect}
+        label="H"
+        min={1}
+        value={Math.round(layer.height)}
+        onChange={(height) => onPatch({ height })}
+      />
+    </DesktopInspectorValueGrid>
+  )
+}
+
+function DesktopTransformSliders({
+  flat,
+  layer,
+  onPatch,
+}: {
+  flat: boolean
+  layer: DraftingCanvasLayer
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+}) {
+  if (flat) {
+    return (
+      <>
+        <SettingsSlider
+          label="Rotation"
+          max={360}
+          min={-360}
+          step={1}
+          value={Math.round(layer.rotation)}
+          onChange={(rotation) => onPatch({ rotation })}
+        />
+        <SettingsSlider
+          label="Horizontal tilt"
+          max={60}
+          min={-60}
+          step={1}
+          value={Math.round(layer.tiltX ?? 0)}
+          onChange={(tiltX) => onPatch({ tiltX })}
+        />
+        <SettingsSlider
+          label="Vertical tilt"
+          max={60}
+          min={-60}
+          step={1}
+          value={Math.round(layer.tiltY ?? 0)}
+          onChange={(tiltY) => onPatch({ tiltY })}
+        />
+      </>
+    )
+  }
+
+  return (
+    <>
+      <DesktopInspectorElasticSliderRow
+        label="Rotation"
+        max={360}
+        min={-360}
+        value={Math.round(layer.rotation)}
+        valueLabel={`${Math.round(layer.rotation)}°`}
+        onChange={(rotation) => onPatch({ rotation })}
+      />
+      <DesktopInspectorElasticSliderRow
+        label="Horizontal tilt"
+        max={60}
+        min={-60}
+        value={layer.tiltX ?? 0}
+        valueLabel={`${Math.round(layer.tiltX ?? 0)}°`}
+        onChange={(tiltX) => onPatch({ tiltX })}
+      />
+      <DesktopInspectorElasticSliderRow
+        label="Vertical tilt"
+        max={60}
+        min={-60}
+        value={layer.tiltY ?? 0}
+        valueLabel={`${Math.round(layer.tiltY ?? 0)}°`}
+        onChange={(tiltY) => onPatch({ tiltY })}
+      />
+    </>
+  )
+}
+
 export function DesktopTransformSection({
   layer,
   onPatch,
@@ -179,7 +294,6 @@ export function DesktopTransformSection({
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
   variant?: "default" | "flat"
 }) {
-  const lockAspect = layer.kind === "image" || layer.kind === "shape" || layer.kind === "shader" || layer.kind === "qr"
   const flat = variant === "flat"
 
   return (
@@ -188,98 +302,104 @@ export function DesktopTransformSection({
       dataSlot="desktop-transform-section"
     >
       {flat ? null : <DesktopInspectorLabel>Transform</DesktopInspectorLabel>}
-      {flat ? null : (
-        <DesktopInspectorValueGrid>
-          <DesktopInspectorNumberField
-            label="X"
-            value={Math.round(layer.x)}
-            onChange={(x) => onPatch({ x })}
-          />
-          <DesktopInspectorNumberField
-            label="Y"
-            value={Math.round(layer.y)}
-            onChange={(y) => onPatch({ y })}
-          />
-          <DesktopInspectorNumberField
-            label="W"
-            min={1}
-            value={Math.round(layer.width)}
-            onChange={(width) =>
-              onPatch({
-                width,
-                ...(lockAspect ? { height: width } : {}),
-                ...(layer.kind === "qr" ? { height: width } : {}),
-              })
-            }
-          />
-          <DesktopInspectorNumberField
-            disabled={layer.kind === "qr" || lockAspect}
-            label="H"
-            min={1}
-            value={Math.round(layer.height)}
-            onChange={(height) => onPatch({ height })}
-          />
-        </DesktopInspectorValueGrid>
-      )}
+      {flat ? null : <DesktopTransformValueGrid layer={layer} onPatch={onPatch} />}
 
       <div className={flat ? "grid gap-2" : DESKTOP_INSPECTOR_SECTION_GAP_CLASS}>
-        {flat ? (
-          <>
-            <SettingsSlider
-              label="Rotation"
-              max={360}
-              min={-360}
-              step={1}
-              value={Math.round(layer.rotation)}
-              onChange={(rotation) => onPatch({ rotation })}
-            />
-            <SettingsSlider
-              label="Horizontal tilt"
-              max={60}
-              min={-60}
-              step={1}
-              value={Math.round(layer.tiltX ?? 0)}
-              onChange={(tiltX) => onPatch({ tiltX })}
-            />
-            <SettingsSlider
-              label="Vertical tilt"
-              max={60}
-              min={-60}
-              step={1}
-              value={Math.round(layer.tiltY ?? 0)}
-              onChange={(tiltY) => onPatch({ tiltY })}
-            />
-          </>
-        ) : (
-          <>
-            <DesktopInspectorElasticSliderRow
-              label="Rotation"
-              max={360}
-              min={-360}
-              value={Math.round(layer.rotation)}
-              valueLabel={`${Math.round(layer.rotation)}°`}
-              onChange={(rotation) => onPatch({ rotation })}
-            />
-            <DesktopInspectorElasticSliderRow
-              label="Horizontal tilt"
-              max={60}
-              min={-60}
-              value={layer.tiltX ?? 0}
-              valueLabel={`${Math.round(layer.tiltX ?? 0)}°`}
-              onChange={(tiltX) => onPatch({ tiltX })}
-            />
-            <DesktopInspectorElasticSliderRow
-              label="Vertical tilt"
-              max={60}
-              min={-60}
-              value={layer.tiltY ?? 0}
-              valueLabel={`${Math.round(layer.tiltY ?? 0)}°`}
-              onChange={(tiltY) => onPatch({ tiltY })}
-            />
-          </>
-        )}
+        <DesktopTransformSliders flat={flat} layer={layer} onPatch={onPatch} />
       </div>
     </DesktopInspectorSection>
+  )
+}
+
+type DesktopTextFontOption = {
+  family: string
+  id: string
+  label: string
+}
+
+type DesktopTextFontGroup = {
+  category: DraftingFontCategory
+  fonts: DesktopTextFontOption[]
+}
+
+function DesktopTextFontMenu({
+  bindFontPreview,
+  fontGroups,
+  fontQuery,
+  selectedFontId,
+  onFontQueryChange,
+  onSelectFont,
+}: {
+  bindFontPreview: (fontId: string) => (node: HTMLElement | null) => void
+  fontGroups: DesktopTextFontGroup[]
+  fontQuery: string
+  selectedFontId: string
+  onFontQueryChange: (query: string) => void
+  onSelectFont: (font: DesktopTextFontOption) => void
+}) {
+  return (
+    <div
+      className="mt-2 flex flex-col gap-1"
+      data-slot="desktop-layer-text-font-menu"
+    >
+      <input
+        aria-label="Search fonts"
+        autoComplete="off"
+        className={cn(
+          DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+          "w-full min-w-0 shrink-0 px-2.5 text-left font-semibold",
+          DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
+          DESKTOP_INSPECTOR_CONTROL_CLASS,
+        )}
+        placeholder="Search fonts…"
+        type="search"
+        value={fontQuery}
+        onChange={(event) => onFontQueryChange(event.currentTarget.value)}
+      />
+      <div
+        id="desktop-layer-text-font-listbox"
+        aria-label="Text font options"
+        className={cn("max-h-56 overflow-y-auto pr-1", desktopInspectorOptionStackClass())}
+        data-slot="desktop-layer-text-font-listbox"
+        role="listbox"
+      >
+        {fontGroups.map((group) => (
+          <div className="flex flex-col" key={group.category}>
+            <p className="px-2.5 pt-1.5 pb-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--dn-muted)]">
+              {DRAFTING_FONT_CATEGORY_LABELS[group.category]}
+            </p>
+            {group.fonts.map((font) => (
+              <button
+                key={font.id}
+                ref={bindFontPreview(font.id)}
+                aria-label={`Use ${font.label} text font`}
+                aria-selected={selectedFontId === font.id}
+                className={cn(
+                  "flex min-w-0 items-center px-2.5 text-left font-semibold",
+                  DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+                  DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
+                  desktopInspectorOptionGridItemClass(),
+                  DESKTOP_INSPECTOR_CONTROL_CLASS,
+                  selectedFontId === font.id && DESKTOP_INSPECTOR_SELECTED_CLASS,
+                )}
+                role="option"
+                style={{ fontFamily: getDraftingFontCssFamily({ fontId: font.id }) }}
+                type="button"
+                onClick={() => onSelectFont(font)}
+                onPointerEnter={() => loadDraftingFontPreview(font.id)}
+              >
+                <span className="min-w-0 flex-1 truncate">{font.label}</span>
+              </button>
+            ))}
+          </div>
+        ))}
+        {fontGroups.length === 0 ? (
+          <p className="px-2.5 py-3 text-center text-xs text-[var(--dn-muted)]">
+            No matching fonts
+          </p>
+        ) : null}
+      </div>
+    </div>
   )
 }
 
@@ -372,73 +492,19 @@ function DesktopLayerTextInspector({
           />
         </div>
         {fontMenuOpen ? (
-          <div
-            className="mt-2 flex flex-col gap-1"
-            data-slot="desktop-layer-text-font-menu"
-          >
-            <input
-              aria-label="Search fonts"
-              autoComplete="off"
-              className={cn(
-                DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-                "w-full min-w-0 shrink-0 px-2.5 text-left font-semibold",
-                DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
-                DESKTOP_INSPECTOR_CONTROL_CLASS,
-              )}
-              placeholder="Search fonts…"
-              type="search"
-              value={fontQuery}
-              onChange={(event) => setFontQuery(event.currentTarget.value)}
-            />
-            <div
-              id="desktop-layer-text-font-listbox"
-              aria-label="Text font options"
-              className={cn("max-h-56 overflow-y-auto pr-1", desktopInspectorOptionStackClass())}
-              data-slot="desktop-layer-text-font-listbox"
-              role="listbox"
-            >
-              {fontGroups.map((group) => (
-                <div className="flex flex-col" key={group.category}>
-                  <p className="px-2.5 pt-1.5 pb-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--dn-muted)]">
-                    {DRAFTING_FONT_CATEGORY_LABELS[group.category]}
-                  </p>
-                  {group.fonts.map((font) => (
-                    <button
-                      key={font.id}
-                      ref={bindFontPreview(font.id)}
-                      aria-label={`Use ${font.label} text font`}
-                      aria-selected={selectedFont.id === font.id}
-                      className={cn(
-                        "flex min-w-0 items-center px-2.5 text-left font-semibold",
-                        DESKTOP_INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-                        DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
-                        desktopInspectorOptionGridItemClass(),
-                        DESKTOP_INSPECTOR_CONTROL_CLASS,
-                        selectedFont.id === font.id && DESKTOP_INSPECTOR_SELECTED_CLASS,
-                      )}
-                      role="option"
-                      style={{ fontFamily: getDraftingFontCssFamily({ fontId: font.id }) }}
-                      type="button"
-                      onClick={() => {
-                        void loadDraftingFont(font.id)
-                        patchTextLayer({ fontFamily: font.family, fontId: font.id })
-                        setFontMenuOpen(false)
-                        setFontQuery("")
-                      }}
-                      onPointerEnter={() => loadDraftingFontPreview(font.id)}
-                    >
-                      <span className="min-w-0 flex-1 truncate">{font.label}</span>
-                    </button>
-                  ))}
-                </div>
-              ))}
-              {fontGroups.length === 0 ? (
-                <p className="px-2.5 py-3 text-center text-xs text-[var(--dn-muted)]">
-                  No matching fonts
-                </p>
-              ) : null}
-            </div>
-          </div>
+          <DesktopTextFontMenu
+            bindFontPreview={bindFontPreview}
+            fontGroups={fontGroups}
+            fontQuery={fontQuery}
+            selectedFontId={selectedFont.id}
+            onFontQueryChange={setFontQuery}
+            onSelectFont={(font) => {
+              void loadDraftingFont(font.id)
+              patchTextLayer({ fontFamily: font.family, fontId: font.id })
+              setFontMenuOpen(false)
+              setFontQuery("")
+            }}
+          />
         ) : null}
 
         <DesktopInspectorElasticSliderRow

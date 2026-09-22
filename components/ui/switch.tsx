@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { spring } from "@/lib/springs";
 import { useSize, type SizeVariant } from "@/lib/size-context";
 
-interface SwitchProps extends HTMLAttributes<HTMLDivElement> {
+interface SwitchProps extends HTMLAttributes<HTMLLabelElement> {
   label: string;
   checked: boolean;
   onToggle: () => void;
@@ -50,9 +50,46 @@ const METRICS = {
 const THUMB_OFFSET = 2;
 const DRAG_DEAD_ZONE = 2;
 
-const Switch = forwardRef<HTMLDivElement, SwitchProps>(
+// Thumb geometry per interaction state: hover extends the pill, press
+// squashes it wider and shorter, and the checked thumb shifts left by the
+// extra width so its trailing edge stays pinned to the track.
+function thumbGeometry(
+  metrics: (typeof METRICS)[keyof typeof METRICS],
+  checked: boolean,
+  hovered: boolean,
+  pressed: boolean
+) {
+  const thumbTravel = metrics.trackWidth - metrics.thumbSize - THUMB_OFFSET * 2;
+  const thumbWidth = pressed
+    ? metrics.thumbSize + metrics.pressExtend
+    : hovered
+      ? metrics.thumbSize + metrics.pillExtend
+      : metrics.thumbSize;
+  const thumbHeight = pressed
+    ? metrics.thumbSize - metrics.pressShrink
+    : metrics.thumbSize;
+  const thumbY = pressed
+    ? THUMB_OFFSET + metrics.pressShrink / 2
+    : THUMB_OFFSET;
+  const thumbX = checked
+    ? THUMB_OFFSET + thumbTravel - (thumbWidth - metrics.thumbSize)
+    : THUMB_OFFSET;
+  return { thumbTravel, thumbWidth, thumbHeight, thumbY, thumbX };
+}
+
+function trackColor(checked: boolean, hovered: boolean) {
+  return checked
+    ? hovered
+      ? "#5C89F2"
+      : "#6B97FF"
+    : hovered
+      ? "color-mix(in oklab, var(--accent), rgb(var(--overlay)) 10%)"
+      : "var(--accent)";
+}
+const Switch = forwardRef<HTMLLabelElement, SwitchProps>(
   ({ label, checked, onToggle, disabled = false, thumbTransition, size, className, ...props }, ref) => {
     const labelId = useId();
+    const switchId = useId();
     const hasMounted = useRef(false);
     const [hovered, setHovered] = useState(false);
     const [pressed, setPressed] = useState(false);
@@ -75,17 +112,12 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
       hasMounted.current = true;
     }, []);
 
-    const thumbWidth = pressed
-      ? metrics.thumbSize + metrics.pressExtend
-      : hovered
-        ? metrics.thumbSize + metrics.pillExtend
-        : metrics.thumbSize;
-    const thumbHeight = pressed ? metrics.thumbSize - metrics.pressShrink : metrics.thumbSize;
-    const thumbY = pressed ? THUMB_OFFSET + metrics.pressShrink / 2 : THUMB_OFFSET;
-    const extraWidth = thumbWidth - metrics.thumbSize;
-    const thumbX = checked
-      ? THUMB_OFFSET + thumbTravel - extraWidth
-      : THUMB_OFFSET;
+    const { thumbWidth, thumbHeight, thumbY, thumbX } = thumbGeometry(
+      metrics,
+      checked,
+      hovered,
+      pressed
+    );
 
     useEffect(() => {
       if (dragging.current) return;
@@ -97,7 +129,7 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
     }, [thumbX, motionX, thumbTransition]);
 
     const handlePointerDown = useCallback(
-      (e: React.PointerEvent<HTMLDivElement>) => {
+      (e: React.PointerEvent<HTMLLabelElement>) => {
         if (disabled) return;
         if (e.pointerType === "mouse" && e.button !== 0) return;
         setPressed(true);
@@ -113,7 +145,7 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
     );
 
     const handlePointerMove = useCallback(
-      (e: React.PointerEvent<HTMLDivElement>) => {
+      (e: React.PointerEvent<HTMLLabelElement>) => {
         if (!pointerStart.current) return;
         const delta = e.clientX - pointerStart.current.clientX;
 
@@ -186,8 +218,12 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
     );
 
     return (
-      <div
+      // <label> wrapping the primitive: the whole row is the switch's
+      // activation surface, so clicks on the text or padding forward to the
+      // button natively — no click handler needed on the wrapper.
+      <label
         ref={ref}
+        htmlFor={switchId}
         className={cn(
           "relative z-10 flex items-center cursor-pointer select-none touch-none",
           sizeClasses.gap,
@@ -204,14 +240,11 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
-        onClick={() => {
-          if (disabled || didDrag.current) return;
-          onToggle();
-        }}
         {...props}
       >
         {/* Switch */}
         <SwitchPrimitive.Root
+          id={switchId}
           checked={checked}
           aria-labelledby={labelId}
           // Base UI passes (checked, eventDetails); narrow to () => void for our onToggle.
@@ -231,11 +264,7 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
           style={{
             width: metrics.trackWidth,
             height: metrics.trackHeight,
-            backgroundColor: checked
-              ? hovered ? "#5C89F2" : "#6B97FF"
-              : hovered
-                ? "color-mix(in oklab, var(--accent), rgb(var(--overlay)) 10%)"
-                : "var(--accent)",
+            backgroundColor: trackColor(checked, hovered),
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -257,14 +286,15 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
                   data-slot="switch-thumb"
                   className="absolute top-0 left-0 block rounded-full bg-white shadow-sm"
                   initial={false}
+                  layout
                   style={{
                     ...(baseStyle as React.CSSProperties | undefined),
                     x: motionX,
+                    width: thumbWidth,
+                    height: thumbHeight,
                   }}
                   animate={{
                     y: thumbY,
-                    width: thumbWidth,
-                    height: thumbHeight,
                   }}
                   transition={hasMounted.current ? (thumbTransition ?? spring.moderate) : { duration: 0 }}
                 />
@@ -286,7 +316,7 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
         >
           {label}
         </span>
-      </div>
+      </label>
     );
   }
 );

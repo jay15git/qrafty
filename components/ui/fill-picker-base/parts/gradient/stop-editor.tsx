@@ -1,17 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { StopPopover } from "@/components/ui/fill-picker/parts/gradient/stop-popover";
-import { ColorPickerContext } from "@/components/ui/fill-picker/context";
 import type { GradientStopEditorRenderer } from "@/components/ui/fill-picker-base/public-api";
 import { useStopColorPickerState } from "@/components/ui/fill-picker/parts/gradient/stop-editor-shared";
-import { Area as ColorArea } from "@/components/ui/fill-picker/parts/area";
-import { EyeDropper } from "@/components/ui/fill-picker/parts/eye-dropper";
 
-import { Hue } from "../hue";
-import { Alpha } from "../alpha";
-import { ChannelInput } from "../channel-input";
-import { FormatSwitcher } from "../format-switcher";
+import { StopColorEditorPopover } from "./stop-color-editor-popover";
 
 interface StopEditorProps {
   /** Stop the popover edits — color + per-stop format are read/written via gradient context. */
@@ -29,18 +22,10 @@ interface StopEditorProps {
 }
 
 /**
- * Base UI variant of `<StopEditorPopover>`: same layout, same bound state
- * (`useStopColorPickerState`, shared with the original so the memoization
- * subtleties can't drift), but composed from this tree's Base UI parts —
- * Hue/Alpha on Slider, FormatSwitcher on Select, ChannelInput on NumberField.
- *
- * Area and EyeDropper come from the engine unchanged: they're pointer/canvas
- * logic and a plain shadcn Button, already shipped as-is by this variant's
- * `color-picker.tsx`.
- *
- * The popover shell is the engine's `StopPopover` — already built directly on
- * `@base-ui/react/popover` (anchor-without-trigger, z-50 positioner), so
- * there's nothing Radix-flavoured to re-do.
+ * Base UI variant of `<StopEditorPopover>`: binds `useStopColorPickerState`
+ * (shared with the original so the memoization subtleties can't drift) and
+ * renders the shared `StopColorEditorPopover` — the layout lives there so it
+ * stays identical to the palette color editor.
  */
 function StopEditor({
   stopId,
@@ -50,26 +35,13 @@ function StopEditor({
 }: StopEditorProps) {
   const state = useStopColorPickerState(stopId);
   return (
-    <StopPopover
+    <StopColorEditorPopover
+      state={state}
       open={open}
       onOpenChange={onOpenChange}
-      anchor={children}
-      className="flex w-72 flex-col gap-3"
-      onContentClick={(e) => e.stopPropagation()}
     >
-      <ColorPickerContext.Provider value={state}>
-        <ColorArea mode="oklch-cl" />
-        <div className="flex flex-col gap-1.5">
-          <Hue />
-          <Alpha />
-        </div>
-        <div className="flex items-center gap-2">
-          <FormatSwitcher className="flex-1" />
-          <EyeDropper className="h-8 w-full flex-1" />
-        </div>
-        <ChannelInput showFormat={false} />
-      </ColorPickerContext.Provider>
-    </StopPopover>
+      {children}
+    </StopColorEditorPopover>
   );
 }
 

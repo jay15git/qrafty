@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { resolveShaderPlaybackVisible } from "@/features/workspace/components/CardPaperShaderLayer"
+import { resolveShaderPlaybackVisible } from "@/features/workspace/components/card-paper-shader.utils"
 
 describe("resolveShaderPlaybackVisible", () => {
   it("forces visible playback when visibility gate is ignored", () => {

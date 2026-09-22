@@ -213,7 +213,9 @@ export function useFluidHover<T extends HTMLElement>(
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   // Mirrored for handlers that read it outside a render (the gap click).
   const activeIndexRef = useRef<number | null>(null);
-  activeIndexRef.current = activeIndex;
+  useEffect(() => {
+    activeIndexRef.current = activeIndex;
+  }, [activeIndex]);
 
   // The state, in the DOM: `data-fluid-hover-active` on the highlighted item
   // and `data-fluid-hover-active-index` on the container. Devtools shows it
@@ -354,20 +356,29 @@ export function useFluidHover<T extends HTMLElement>(
   // the container the effect below captured has since been remounted and the
   // ref points at a different element than the one being observed.
   const itemRoRef = useRef<ResizeObserver | null>(null);
-  const getItemRo = useCallback(() => {
-    if (itemRoRef.current === null && typeof ResizeObserver !== "undefined") {
-      itemRoRef.current = new ResizeObserver(() =>
-        scheduleMeasurement(measurementAttempts)
-      );
-    }
-    return itemRoRef.current;
+
+  // The observer lives and dies with the effect: it outlives any single
+  // item, so cleanup disconnects it on unmount and it never retains detached
+  // elements. A re-run (scheduleMeasurement identity change) re-observes the
+  // registered items so coverage survives the swap.
+  useEffect(() => {
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() =>
+      scheduleMeasurement(measurementAttempts)
+    );
+    itemRoRef.current = observer;
+    itemsRef.current.forEach((element) => observer.observe(element));
+    return () => {
+      observer.disconnect();
+      if (itemRoRef.current === observer) itemRoRef.current = null;
+    };
   }, [scheduleMeasurement]);
 
   const registerItem = useCallback(
     (index: number, element: HTMLElement | null) => {
       if (element) {
         itemsRef.current.set(index, element);
-        getItemRo()?.observe(element);
+        itemRoRef.current?.observe(element);
         if (index === activeIndexRef.current) element.setAttribute(ACTIVE_ATTR, "");
       } else {
         const previous = itemsRef.current.get(index);
@@ -392,7 +403,7 @@ export function useFluidHover<T extends HTMLElement>(
       // container's children swap.
       remeasure();
     },
-    [remeasure, getItemRo]
+    [remeasure]
   );
 
   const handleMouseMove = useCallback(

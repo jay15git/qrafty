@@ -115,6 +115,64 @@ function defaultsForType(type: GradientType): Gradient {
   return DEFAULT_CONIC;
 }
 
+/**
+ * Reconcile a new controlled `value` against the current internal state.
+ *
+ * `prev.stops` is always position-sorted (attachIds and every mutating
+ * setter sort), so the incoming array must be sorted the same way before
+ * the element-wise compare. Without this, a controlled consumer who keeps
+ * their stops in insertion order rather than position order fails the match
+ * on *every* update and gets fresh ids each time — which orphans
+ * `selectedStopId` and any per-stop color format.
+ *
+ * Without ids, stops are re-paired by index, so two sharing a position are
+ * disambiguated only by array order: swap two coincident stops and the ids
+ * stay put while the colors move between them. That is long-standing
+ * behavior (unchanged by the sort) and is pinned by the `stop identity with
+ * duplicate positions` tests. Consumers who need exactness opt into
+ * `GradientStop.id` and take the identity path below.
+ */
+function reconcileControlledValue(
+  value: Gradient,
+  prev: InternalState,
+): { next: InternalState; uniqueIds: boolean; structuralMatch: boolean } {
+  const incoming = [...value.stops].sort(
+    (a, b) => a.position - b.position,
+  );
+  // Identity path: when every incoming stop carries an id and that set is
+  // exactly what we hold, pair on the id. This is the only way to follow
+  // stops through a reorder that position+index cannot describe — two
+  // stops sharing a position, most obviously.
+  const prevIds = new Set(prev.stops.map((s) => s.id));
+  const sameLength = prev.stops.length === incoming.length;
+  // Ids, when supplied, are authoritative: a changed id set means the
+  // consumer is describing different stops, even if the positions happen
+  // to line up. Falling back to the position path there would ignore the
+  // identity the consumer just handed us.
+  const allHaveIds = incoming.length > 0 && incoming.every((s) => !!s.id);
+  // Duplicated ids can't identify anything — treat them as un-tagged
+  // rather than aliasing two stops onto one id.
+  const uniqueIds =
+    allHaveIds && new Set(incoming.map((s) => s.id)).size === incoming.length;
+  const byId =
+    uniqueIds && sameLength && incoming.every((s) => prevIds.has(s.id!));
+  const sameShape = uniqueIds
+    ? byId
+    : sameLength &&
+      incoming.length === prev.stops.length &&
+      prev.stops.every((s, i) => s.position === incoming[i]?.position);
+  const structuralMatch = prev.gradient.type === value.type && sameShape;
+  const next: InternalState = structuralMatch
+    ? {
+        gradient: value,
+        stops: byId
+          ? incoming.map((s) => ({ ...s, id: s.id as string }))
+          : prev.stops.map((s, i) => ({ ...incoming[i], id: s.id })),
+      }
+    : attachIds(value);
+  return { next, uniqueIds, structuralMatch };
+}
+
 // ---- Public API types -------------------------------------------------------
 
 export interface UseGradientPickerProps {
@@ -293,55 +351,10 @@ export function useGradientPicker(
   if (isControlled && value !== prevControlledValue) {
     setPrevControlledValue(value);
     if (value !== lastEmittedRef.current) {
-      const prev = stateRef.current;
-      // `prev.stops` is always position-sorted (attachIds and every mutating
-      // setter sort), so the incoming array must be sorted the same way
-      // before the element-wise compare. Without this, a controlled consumer
-      // who keeps their stops in insertion order rather than position order
-      // fails the match on *every* update and gets fresh ids each time —
-      // which orphans `selectedStopId` and any per-stop color format.
-      //
-      // Without ids, stops are re-paired by index, so two sharing a position
-      // are disambiguated only by array order: swap two coincident stops and
-      // the ids stay put while the colors move between them. That is
-      // long-standing behavior (unchanged by the sort) and is pinned by the
-      // `stop identity with duplicate positions` tests. Consumers who need
-      // exactness opt into `GradientStop.id` and take the identity path
-      // below.
-      const incoming = [...value.stops].sort(
-        (a, b) => a.position - b.position,
+      const { next, uniqueIds, structuralMatch } = reconcileControlledValue(
+        value,
+        stateRef.current,
       );
-      // Identity path: when every incoming stop carries an id and that set is
-      // exactly what we hold, pair on the id. This is the only way to follow
-      // stops through a reorder that position+index cannot describe — two
-      // stops sharing a position, most obviously.
-      const prevIds = new Set(prev.stops.map((s) => s.id));
-      const sameLength = prev.stops.length === incoming.length;
-      // Ids, when supplied, are authoritative: a changed id set means the
-      // consumer is describing different stops, even if the positions happen
-      // to line up. Falling back to the position path there would ignore the
-      // identity the consumer just handed us.
-      const allHaveIds = incoming.length > 0 && incoming.every((s) => !!s.id);
-      // Duplicated ids can't identify anything — treat them as un-tagged
-      // rather than aliasing two stops onto one id.
-      const uniqueIds =
-        allHaveIds && new Set(incoming.map((s) => s.id)).size === incoming.length;
-      const byId =
-        uniqueIds && sameLength && incoming.every((s) => prevIds.has(s.id!));
-      const sameShape = uniqueIds
-        ? byId
-        : sameLength &&
-          incoming.length === prev.stops.length &&
-          prev.stops.every((s, i) => s.position === incoming[i]?.position);
-      const structuralMatch = prev.gradient.type === value.type && sameShape;
-      const next: InternalState = structuralMatch
-        ? {
-            gradient: value,
-            stops: byId
-              ? incoming.map((s) => ({ ...s, id: s.id as string }))
-              : prev.stops.map((s, i) => ({ ...incoming[i], id: s.id })),
-          }
-        : attachIds(value);
       if (!structuralMatch) {
         /* eslint-disable react-doctor/no-ref-current-in-render -- controlled gradient sync */
         radiiStashRef.current = undefined;

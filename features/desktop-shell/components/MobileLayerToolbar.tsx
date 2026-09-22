@@ -40,7 +40,7 @@ import {
 import {
   getTextLayerFillCssValue,
   patchTextLayerFillFromPicker,
-} from "@/features/workspace/rendering/shape-fill"
+} from "@/features/workspace/rendering/shape-fill.utils"
 import {
   getDesktopLayerFontWeight,
   getNearestDesktopFontWeight,

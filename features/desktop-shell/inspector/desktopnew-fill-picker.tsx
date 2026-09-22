@@ -159,6 +159,63 @@ function FillPickerGradientPane({ qrGradient }: { qrGradient: boolean }) {
   )
 }
 
+function FillPickerModeTabs({
+  activeMode,
+  hasImage,
+  hasPattern,
+  onModeChange,
+}: {
+  activeMode: ModuleFillTabMode
+  hasImage: boolean
+  hasPattern: boolean
+  onModeChange: (mode: ModuleFillTabMode) => void
+}) {
+  return (
+    <SegmentTabs
+      className="dn-fill-picker-mode-tabs self-stretch"
+      items={[
+        "Solid",
+        "Gradient",
+        ...(hasPattern ? ["Pattern"] : []),
+        ...(hasPattern && hasImage ? ["Image"] : []),
+      ]}
+      value={FILL_TAB_LABELS[activeMode]}
+      onChange={(item) => onModeChange(FILL_TAB_MODES[item] ?? "color")}
+    />
+  )
+}
+
+function FillPickerModeContent({
+  activeMode,
+  moduleImage,
+  modulePattern,
+  qrGradient,
+  showGradientPane,
+  showSolidPane,
+}: {
+  activeMode: ModuleFillTabMode
+  moduleImage?: ModuleImageControl
+  modulePattern?: ModulePatternControl
+  qrGradient: boolean
+  showGradientPane: boolean
+  showSolidPane: boolean
+}) {
+  if (activeMode === "pattern" && modulePattern) {
+    return <ModulePatternPicker {...modulePattern} />
+  }
+
+  if (activeMode === "image" && moduleImage) {
+    return <ModuleImagePicker {...moduleImage} />
+  }
+
+  return (
+    <>
+      {showSolidPane ? <FillPickerColorPane /> : null}
+      {showGradientPane ? <FillPickerGradientPane qrGradient={qrGradient} /> : null}
+    </>
+  )
+}
+
 export function DesktopNewFillPicker({
   value,
   onValueChange,
@@ -260,28 +317,21 @@ export function DesktopNewFillPicker({
       onValueChange={handleValueChange}
     >
       {showModeTabs ? (
-        <SegmentTabs
-          className="dn-fill-picker-mode-tabs self-stretch"
-          items={[
-            "Solid",
-            "Gradient",
-            ...(modulePattern ? ["Pattern"] : []),
-            ...(modulePattern && moduleImage ? ["Image"] : []),
-          ]}
-          value={FILL_TAB_LABELS[activeMode]}
-          onChange={(item) => setActiveMode(FILL_TAB_MODES[item] ?? "color")}
+        <FillPickerModeTabs
+          activeMode={activeMode}
+          hasImage={Boolean(moduleImage)}
+          hasPattern={Boolean(modulePattern)}
+          onModeChange={setActiveMode}
         />
       ) : null}
-      {activeMode === "pattern" && modulePattern ? (
-        <ModulePatternPicker {...modulePattern} />
-      ) : activeMode === "image" && moduleImage ? (
-        <ModuleImagePicker {...moduleImage} />
-      ) : (
-        <>
-          {showSolidPane ? <FillPickerColorPane /> : null}
-          {showGradientPane ? <FillPickerGradientPane qrGradient={qrGradient} /> : null}
-        </>
-      )}
+      <FillPickerModeContent
+        activeMode={activeMode}
+        moduleImage={moduleImage}
+        modulePattern={modulePattern}
+        qrGradient={qrGradient}
+        showGradientPane={showGradientPane}
+        showSolidPane={showSolidPane}
+      />
     </FillPicker.Root>
     </div>
     </FillPickerPortalSurfaceProvider>

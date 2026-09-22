@@ -13,11 +13,11 @@ import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shape
 import { getShapeStrokeViewBoxScale } from "@/features/workspace/rendering/shape-layer-paths"
 import { IllustrationLayerImage } from "@/features/workspace/components/IllustrationColorControls"
 import { isDraftingIllustrationLayer } from "@/features/workspace/model/layer-floating-settings"
+import { ShapeFillGradientDefs } from "@/features/workspace/rendering/shape-fill"
 import {
   resolveShapeSvgFill,
-  ShapeFillGradientDefs,
   shouldRenderShapeFillGradient,
-} from "@/features/workspace/rendering/shape-fill"
+} from "@/features/workspace/rendering/shape-fill.utils"
 
 function getInnerStrokeClipId(layerId: string) {
   return `${layerId}-inner-stroke-clip`

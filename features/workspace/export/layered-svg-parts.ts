@@ -18,7 +18,7 @@ import { getLayerSvgTransform } from "@/features/workspace/rendering/layer-trans
 import { getShapeStrokeViewBoxScale, getShapeSvgPath } from "@/features/workspace/rendering/shape-layer-paths"
 import { cssFillToSvgPaint, isConicCssFill, rasterizeConicCssFillToDataUrl } from "@/features/workspace/export/svg-css-fill"
 import { qraftyGradientToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
-import { shouldRenderShapeFillGradient } from "@/features/workspace/rendering/shape-fill"
+import { shouldRenderShapeFillGradient } from "@/features/workspace/rendering/shape-fill.utils"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
 import {
   getDraftingQrBackgroundBounds,

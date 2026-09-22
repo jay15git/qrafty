@@ -135,15 +135,13 @@ export function SettingsAccordionPopoverOverlay({
 }) {
   const ctx = useSettingsAccordionPopover()
   const isOpen = Boolean(ctx && ctx.openKey === openKey)
-  const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null)
+  const [portalRoot] = useState<HTMLElement | null>(() =>
+    typeof document === "undefined" ? null : document.body,
+  )
   const metrics = useAccordionPopoverMetrics(
     ctx?.cardRef ?? { current: null },
     isOpen,
   )
-
-  useEffect(() => {
-    setPortalRoot(document.body)
-  }, [])
 
   useEffect(() => {
     if (!isOpen || !ctx) {

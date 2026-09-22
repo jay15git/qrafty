@@ -61,10 +61,14 @@ export async function inlineSvgImageHrefs(svgMarkup: string) {
     }
   }
 
+  const entries = [...urls]
+  const inlinedUrls = await Promise.all(
+    entries.map((url) => inlineRemoteUrl(url, "image")),
+  )
+
   let result = svgMarkup
-  for (const url of urls) {
-    const inlined = await inlineRemoteUrl(url, "image")
-    result = result.split(url).join(inlined)
+  for (const [index, url] of entries.entries()) {
+    result = result.split(url).join(inlinedUrls[index])
   }
 
   return result

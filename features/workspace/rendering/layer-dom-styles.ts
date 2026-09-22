@@ -23,7 +23,7 @@ import {
 import { clampBackgroundShapeTilt } from "@/features/qr-code/model/state"
 import { cssFillToBackgroundStyle } from "@/features/workspace/model/css-fill-style"
 import { qraftyGradientToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
-import { shouldRenderShapeFillGradient } from "@/features/workspace/rendering/shape-fill"
+import { shouldRenderShapeFillGradient } from "@/features/workspace/rendering/shape-fill.utils"
 import {
   getBackgroundShapeCssTiltTransform,
   getLayerPlacementTransform,

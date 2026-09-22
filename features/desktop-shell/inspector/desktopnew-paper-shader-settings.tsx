@@ -226,106 +226,88 @@ function DesktopNewPaperShaderParamControl({
   return null
 }
 
-export function SettingsPaperShaderControls({
+function PaperShaderColorsGrid({
+  colorsControl,
+  maxColorCount,
+  namedColorControls,
   paperShader,
-  onPaperShaderChange,
+  updateParam,
 }: {
+  colorsControl: PaperShaderControlDefinition | undefined
+  maxColorCount: number
+  namedColorControls: PaperShaderControlDefinition[]
   paperShader: DraftingCardPaperShaderState
-  onPaperShaderChange: (paperShader: DraftingCardPaperShaderState) => void
+  updateParam: (key: string, value: PaperShaderParamValue) => void
 }) {
-  const definition = getPaperShaderDefinition(paperShader.shaderId)
-  const hasPlayback = paperShaderHasPlayback(paperShader.shaderId)
-  const selectedPreset =
-    definition.presets.find((preset) => preset.name === paperShader.presetName) ??
-    definition.presets[0]
-
-  const shapeControl = definition.controls.find(
-    (control): control is PaperShaderEnumControl =>
-      control.type === "enum" && control.key === "shape",
-  )
-
-  const advancedControls = definition.controls.filter(
-    (control) =>
-      control.key !== "speed" &&
-      control.key !== "shape" &&
-      control.type !== "color" &&
-      control.type !== "colors",
-  )
-  const colorsControl = definition.controls.find((control) => control.type === "colors")
-  const namedColorControls = definition.controls.filter((control) => control.type === "color")
-
-  const updatePaperShader = (patch: Partial<DraftingCardPaperShaderState>) => {
-    onPaperShaderChange({
-      ...paperShader,
-      ...patch,
-      image: patch.image ? { ...patch.image } : { ...paperShader.image },
-      params: patch.params ? structuredClone(patch.params) : structuredClone(paperShader.params),
-    })
-  }
-
-  const updateParam = (key: string, value: PaperShaderParamValue) => {
-    updatePaperShader({
-      params: {
-        ...paperShader.params,
-        [key]: value,
-      },
-    })
-  }
-
-  const hasPresetOptions = definition.presets.length > 0
-
   const hasPaletteColors =
     colorsControl != null && Array.isArray(paperShader.params[colorsControl.key])
   const hasColorSettings = hasPaletteColors || namedColorControls.length > 0
 
+  if (!hasColorSettings) {
+    return null
+  }
+
   const paletteColors = hasPaletteColors
     ? (paperShader.params[colorsControl!.key] as string[])
     : undefined
-  const maxColorCount = definition.maxColorCount ?? DEFAULT_PAPER_SHADER_MAX_COLOR_COUNT
 
-  const colorsGrid = hasColorSettings
-    ? (
-        <PaperShaderColorGrid
-          colors={paletteColors}
-          maxColorCount={maxColorCount}
-          namedColorControls={namedColorControls}
-          paperShaderParams={paperShader.params}
-          showPalette={hasPaletteColors}
-          onAddColor={
-            hasPaletteColors
-              ? () => {
-                  const next = addPaperShaderColor(
-                    paletteColors ?? [],
-                    maxColorCount,
-                    PAPER_SHADER_NEW_COLOR,
-                  )
-                  if (next && colorsControl) {
-                    updateParam(colorsControl.key, next)
-                  }
-                }
-              : undefined
-          }
-          onColorsChange={(nextColors) => {
-            if (colorsControl) {
-              updateParam(colorsControl.key, nextColors)
+  return (
+    <PaperShaderColorGrid
+      colors={paletteColors}
+      maxColorCount={maxColorCount}
+      namedColorControls={namedColorControls}
+      paperShaderParams={paperShader.params}
+      showPalette={hasPaletteColors}
+      onAddColor={
+        hasPaletteColors
+          ? () => {
+              const next = addPaperShaderColor(
+                paletteColors ?? [],
+                maxColorCount,
+                PAPER_SHADER_NEW_COLOR,
+              )
+              if (next && colorsControl) {
+                updateParam(colorsControl.key, next)
+              }
             }
-          }}
-          onNamedColorChange={(key, color) => updateParam(key, color)}
-          onRemoveColor={(index) => {
-            const next = removePaperShaderColor(
-              paletteColors ?? [],
-              index,
-              DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT,
-            )
-            if (next && colorsControl) {
-              updateParam(colorsControl.key, next)
-            }
-          }}
-        />
-      )
-    : null
+          : undefined
+      }
+      onColorsChange={(nextColors) => {
+        if (colorsControl) {
+          updateParam(colorsControl.key, nextColors)
+        }
+      }}
+      onNamedColorChange={(key, color) => updateParam(key, color)}
+      onRemoveColor={(index) => {
+        const next = removePaperShaderColor(
+          paletteColors ?? [],
+          index,
+          DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT,
+        )
+        if (next && colorsControl) {
+          updateParam(colorsControl.key, next)
+        }
+      }}
+    />
+  )
+}
 
-  const settingsPopover = (
+function PaperShaderSettingsPopover({
+  advancedControls,
+  hasPlayback,
+  paperShader,
+  shapeControl,
+  updatePaperShader,
+  updateParam,
+}: {
+  advancedControls: PaperShaderControlDefinition[]
+  hasPlayback: boolean
+  paperShader: DraftingCardPaperShaderState
+  shapeControl: PaperShaderEnumControl | undefined
+  updatePaperShader: (patch: Partial<DraftingCardPaperShaderState>) => void
+  updateParam: (key: string, value: PaperShaderParamValue) => void
+}) {
+  return (
     <SettingsRowPopover
       contentClassName="w-[19rem]"
       hint="Settings"
@@ -398,6 +380,76 @@ export function SettingsPaperShaderControls({
         ))}
       </div>
     </SettingsRowPopover>
+  )
+}
+
+export function SettingsPaperShaderControls({
+  paperShader,
+  onPaperShaderChange,
+}: {
+  paperShader: DraftingCardPaperShaderState
+  onPaperShaderChange: (paperShader: DraftingCardPaperShaderState) => void
+}) {
+  const definition = getPaperShaderDefinition(paperShader.shaderId)
+  const hasPlayback = paperShaderHasPlayback(paperShader.shaderId)
+  const selectedPreset =
+    definition.presets.find((preset) => preset.name === paperShader.presetName) ??
+    definition.presets[0]
+
+  const shapeControl = definition.controls.find(
+    (control): control is PaperShaderEnumControl =>
+      control.type === "enum" && control.key === "shape",
+  )
+
+  const advancedControls = definition.controls.filter(
+    (control) =>
+      control.key !== "speed" &&
+      control.key !== "shape" &&
+      control.type !== "color" &&
+      control.type !== "colors",
+  )
+  const colorsControl = definition.controls.find((control) => control.type === "colors")
+  const namedColorControls = definition.controls.filter((control) => control.type === "color")
+
+  const updatePaperShader = (patch: Partial<DraftingCardPaperShaderState>) => {
+    onPaperShaderChange({
+      ...paperShader,
+      ...patch,
+      image: patch.image ? { ...patch.image } : { ...paperShader.image },
+      params: patch.params ? structuredClone(patch.params) : structuredClone(paperShader.params),
+    })
+  }
+
+  const updateParam = (key: string, value: PaperShaderParamValue) => {
+    updatePaperShader({
+      params: {
+        ...paperShader.params,
+        [key]: value,
+      },
+    })
+  }
+
+  const hasPresetOptions = definition.presets.length > 0
+
+  const colorsGrid = (
+    <PaperShaderColorsGrid
+      colorsControl={colorsControl}
+      maxColorCount={definition.maxColorCount ?? DEFAULT_PAPER_SHADER_MAX_COLOR_COUNT}
+      namedColorControls={namedColorControls}
+      paperShader={paperShader}
+      updateParam={updateParam}
+    />
+  )
+
+  const settingsPopover = (
+    <PaperShaderSettingsPopover
+      advancedControls={advancedControls}
+      hasPlayback={hasPlayback}
+      paperShader={paperShader}
+      shapeControl={shapeControl}
+      updatePaperShader={updatePaperShader}
+      updateParam={updateParam}
+    />
   )
 
   if (!hasPresetOptions) {

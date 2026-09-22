@@ -19,6 +19,7 @@ import {
   findBrandIconById,
   getBrandIconById,
   POPULAR_BRAND_ICON_IDS,
+  type BrandIconEntry,
 } from "@/features/qr-code/assets/brand-icons"
 import {
   getIconstackErrorMessage,
@@ -333,6 +334,188 @@ function LogoIconPickerLoadMore({
   return <div ref={ref} aria-hidden className="dn-logo-icon-picker-sentinel" />
 }
 
+function CuratedLogoIconGrid({
+  curatedError,
+  curatedIcons,
+  curatedPreviewSvgs,
+  isCuratedLoading,
+  popularBrandIcons,
+  selectedId,
+  skeletonCount,
+  onSelect,
+}: {
+  curatedError: string | null
+  curatedIcons: IconstackSearchResult[]
+  curatedPreviewSvgs: Record<string, string>
+  isCuratedLoading: boolean
+  popularBrandIcons: BrandIconEntry[]
+  selectedId: string
+  skeletonCount: number
+  onSelect: (id: string) => void
+}) {
+  return (
+    <>
+      {popularBrandIcons.map((brandIcon) => {
+        const isSelected = selectedId === brandIcon.id
+
+        return (
+          <LogoIconTile
+            key={brandIcon.id}
+            ariaLabel={`Use ${brandIcon.label} brand icon`}
+            isSelected={isSelected}
+            onClick={() => onSelect(brandIcon.id)}
+          >
+            <LogoPickerTileIcon iconId={brandIcon.id} />
+          </LogoIconTile>
+        )
+      })}
+      {isCuratedLoading ? (
+        <LogoIconPickerSkeletonTiles count={skeletonCount} />
+      ) : (
+        curatedIcons.map((result) => (
+            <LogoIconTile
+              key={result.id}
+              ariaLabel={`Use ${result.name} icon from ${result.libraryName}`}
+              isSelected={selectedId === toIconstackSelectionId(result)}
+              onClick={() => onSelect(toIconstackSelectionId(result))}
+            >
+              <IconstackIconPreview
+                previewSvg={curatedPreviewSvgs[result.id]}
+                result={result}
+              />
+            </LogoIconTile>
+          ))
+      )}
+      {curatedError ? (
+        <p className="col-span-4 px-1 py-3 text-center text-[var(--dn-popover-muted)] dn-type-meta">
+          {curatedError}
+        </p>
+      ) : null}
+    </>
+  )
+}
+
+function SearchLogoIconResults({
+  error,
+  hasMore,
+  isLoadingMore,
+  isSearching,
+  results,
+  retry,
+  selectedId,
+  total,
+  onLoadMore,
+  onSelect,
+}: {
+  error: unknown
+  hasMore: boolean
+  isLoadingMore: boolean
+  isSearching: boolean
+  results: IconstackSearchResult[]
+  retry: () => void
+  selectedId: string
+  total: number
+  onLoadMore: () => void
+  onSelect: (id: string) => void
+}) {
+  const showResultCap =
+    results.length > 0 && !hasMore && !isLoadingMore && total > results.length
+
+  return (
+    <>
+      {results.map((result) => (
+        <LogoIconTile
+          key={result.id}
+          ariaLabel={`Use ${result.name} icon from ${result.libraryName}`}
+          isSelected={selectedId === toIconstackSelectionId(result)}
+          onClick={() => onSelect(toIconstackSelectionId(result))}
+        >
+          <LazyIconstackIcon result={result} />
+        </LogoIconTile>
+      ))}
+      {isLoadingMore ? <LogoIconPickerSkeletonTiles count={5} /> : null}
+      {error ? <LogoIconPickerError error={error} onRetry={retry} /> : null}
+      <LogoIconPickerLoadMore
+        enabled={!isSearching && error === null}
+        hasMore={hasMore}
+        onLoadMore={onLoadMore}
+      />
+      {showResultCap ? (
+        <div className="dn-logo-icon-picker-state col-span-4">
+          <p className="dn-type-meta text-[var(--dn-popover-muted)]">
+            {total - results.length}+ more — refine search
+          </p>
+        </div>
+      ) : null}
+    </>
+  )
+}
+
+function SearchLogoIconGrid({
+  error,
+  hasMore,
+  isLoading,
+  isLoadingMore,
+  results,
+  retry,
+  selectedId,
+  total,
+  onLoadMore,
+  onSelect,
+}: {
+  error: unknown
+  hasMore: boolean
+  isLoading: boolean
+  isLoadingMore: boolean
+  results: IconstackSearchResult[]
+  retry: () => void
+  selectedId: string
+  total: number
+  onLoadMore: () => void
+  onSelect: (id: string) => void
+}) {
+  const isSearching = isLoading || isLoadingMore
+  const showSearchSkeleton = isLoading && results.length === 0
+  const showSearchError = error !== null && results.length === 0
+  const showSearchEmpty = !isLoading && error === null && results.length === 0
+
+  if (showSearchSkeleton) {
+    return (
+      <div className="dn-logo-icon-picker-state dn-logo-icon-picker-empty col-span-full">
+        <Loader
+          className="text-[var(--dn-muted)]"
+          label="Searching icons"
+          size={32}
+          variant="dots"
+        />
+      </div>
+    )
+  }
+
+  if (showSearchError) {
+    return <LogoIconPickerError error={error} onRetry={retry} />
+  }
+
+  if (showSearchEmpty) {
+    return <LogoIconPickerEmpty />
+  }
+
+  return (
+    <SearchLogoIconResults
+      error={error}
+      hasMore={hasMore}
+      isLoadingMore={isLoadingMore}
+      isSearching={isSearching}
+      results={results}
+      retry={retry}
+      selectedId={selectedId}
+      total={total}
+      onLoadMore={onLoadMore}
+      onSelect={onSelect}
+    />
+  )
+}
+
 export function LogoIconPicker({
   onAfterSelect,
   selectedId,
@@ -373,14 +556,6 @@ export function LogoIconPicker({
   })
 
   const mobileDensity = useMobileInspectorDensity()
-
-  const isSearching = isLoading || isLoadingMore
-  const showSearchSkeleton = canSearch && isLoading && results.length === 0
-  const showSearchError = canSearch && error !== null && results.length === 0
-  const showSearchEmpty =
-    canSearch && !isLoading && error === null && results.length === 0
-  const showResultCap =
-    results.length > 0 && !hasMore && !isLoadingMore && total > results.length
 
   const selectLogo = (nextId: string) => {
     onSelect(nextId)
@@ -426,84 +601,29 @@ export function LogoIconPicker({
         )}
       >
         {!canSearch ? (
-          <>
-            {popularBrandIcons.map((brandIcon) => {
-              const isSelected = selectedId === brandIcon.id
-
-              return (
-                <LogoIconTile
-                  key={brandIcon.id}
-                  ariaLabel={`Use ${brandIcon.label} brand icon`}
-                  isSelected={isSelected}
-                  onClick={() => selectLogo(brandIcon.id)}
-                >
-                  <LogoPickerTileIcon iconId={brandIcon.id} />
-                </LogoIconTile>
-              )
-            })}
-            {isCuratedLoading ? (
-              <LogoIconPickerSkeletonTiles count={curatedIconSlots.length} />
-            ) : (
-              curatedIcons.map((result) => (
-                  <LogoIconTile
-                    key={result.id}
-                    ariaLabel={`Use ${result.name} icon from ${result.libraryName}`}
-                    isSelected={selectedId === toIconstackSelectionId(result)}
-                    onClick={() => selectLogo(toIconstackSelectionId(result))}
-                  >
-                    <IconstackIconPreview
-                      previewSvg={curatedPreviewSvgs[result.id]}
-                      result={result}
-                    />
-                  </LogoIconTile>
-                ))
-            )}
-            {curatedError ? (
-              <p className="col-span-4 px-1 py-3 text-center text-[var(--dn-popover-muted)] dn-type-meta">
-                {curatedError}
-              </p>
-            ) : null}
-          </>
-        ) : showSearchSkeleton ? (
-          <div className="dn-logo-icon-picker-state dn-logo-icon-picker-empty col-span-full">
-            <Loader
-              className="text-[var(--dn-muted)]"
-              label="Searching icons"
-              size={32}
-              variant="dots"
-            />
-          </div>
-        ) : showSearchError ? (
-          <LogoIconPickerError error={error} onRetry={retry} />
-        ) : showSearchEmpty ? (
-          <LogoIconPickerEmpty />
+          <CuratedLogoIconGrid
+            curatedError={curatedError}
+            curatedIcons={curatedIcons}
+            curatedPreviewSvgs={curatedPreviewSvgs}
+            isCuratedLoading={isCuratedLoading}
+            popularBrandIcons={popularBrandIcons}
+            selectedId={selectedId}
+            skeletonCount={curatedIconSlots.length}
+            onSelect={selectLogo}
+          />
         ) : (
-          <>
-            {results.map((result) => (
-              <LogoIconTile
-                key={result.id}
-                ariaLabel={`Use ${result.name} icon from ${result.libraryName}`}
-                isSelected={selectedId === toIconstackSelectionId(result)}
-                onClick={() => selectLogo(toIconstackSelectionId(result))}
-              >
-                <LazyIconstackIcon result={result} />
-              </LogoIconTile>
-            ))}
-            {isLoadingMore ? <LogoIconPickerSkeletonTiles count={5} /> : null}
-            {error ? <LogoIconPickerError error={error} onRetry={retry} /> : null}
-            <LogoIconPickerLoadMore
-              enabled={!isSearching && error === null}
-              hasMore={hasMore}
-              onLoadMore={loadMore}
-            />
-            {showResultCap ? (
-              <div className="dn-logo-icon-picker-state col-span-4">
-                <p className="dn-type-meta text-[var(--dn-popover-muted)]">
-                  {total - results.length}+ more — refine search
-                </p>
-              </div>
-            ) : null}
-          </>
+          <SearchLogoIconGrid
+            error={error}
+            hasMore={hasMore}
+            isLoading={isLoading}
+            isLoadingMore={isLoadingMore}
+            results={results}
+            retry={retry}
+            selectedId={selectedId}
+            total={total}
+            onLoadMore={loadMore}
+            onSelect={selectLogo}
+          />
         )}
       </div>
       </ScrollArea>

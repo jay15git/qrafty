@@ -16,6 +16,7 @@ import {
   type ComponentPropsWithoutRef,
   type ComponentRef,
   type CSSProperties,
+  type ReactNode,
 } from "react";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ import {
   useScrollEdges,
   ScrollEdgeCue,
   ScrollEdgeOutsideChevron,
+  type ScrollEdges,
   type ScrollEdgeCueSize,
 } from "@/lib/scroll-fade";
 import { useTouchPrimary } from "@/hooks/use-touch-primary";
@@ -73,6 +75,227 @@ interface ScrollAreaProps
   persistKey?: string;
   "data-slot"?: string;
 }
+
+// Props the caller supplied that neither ScrollArea nor the root helpers
+// consume directly — forwarded verbatim onto the root element.
+type ScrollAreaRootPassthrough = Omit<
+  ScrollAreaProps,
+  | "children"
+  | "className"
+  | "scrollHideDelay"
+  | "viewportClassName"
+  | "scrollFade"
+  | "cueSize"
+  | "chevron"
+  | "instantFade"
+  | "chevronOutside"
+  | "orientation"
+  | "showScrollbar"
+  | "persistKey"
+  | "data-slot"
+  | "style"
+>;
+
+interface ScrollAreaRootSharedProps {
+  dataSlot?: string;
+  cueSize: ScrollEdgeCueSize;
+  orientation: Orientation;
+  viewportClassName?: string;
+  viewportRef: (node: HTMLDivElement | null) => void;
+  className?: string;
+  style?: CSSProperties;
+  cues: ReactNode;
+  children?: ReactNode;
+  rootProps: ScrollAreaRootPassthrough;
+}
+
+// Surface-gradient + chevron cues at edges with more content. Cues read the
+// substrate surface from context — ScrollArea doesn't elevate, so the
+// gradient matches whatever background it sits on.
+function ScrollAreaCues({
+  orientation,
+  edges,
+  cueSize,
+  chevron,
+  instantFade,
+}: {
+  orientation: Orientation;
+  edges: ScrollEdges;
+  cueSize: ScrollEdgeCueSize;
+  chevron: boolean;
+  instantFade: boolean;
+}) {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-[inherit]"
+    >
+      {orientation !== "horizontal" && (
+        <>
+          <ScrollEdgeCue mode="absolute" edge="top" visible={edges.top} size={cueSize} chevron={chevron} instantReveal={instantFade} />
+          <ScrollEdgeCue mode="absolute" edge="bottom" visible={edges.bottom} size={cueSize} chevron={chevron} instantReveal={instantFade} />
+        </>
+      )}
+      {orientation !== "vertical" && (
+        <>
+          <ScrollEdgeCue mode="absolute" edge="left" visible={edges.left} size={cueSize} chevron={chevron} instantReveal={instantFade} />
+          <ScrollEdgeCue mode="absolute" edge="right" visible={edges.right} size={cueSize} chevron={chevron} instantReveal={instantFade} />
+        </>
+      )}
+    </div>
+  );
+}
+
+// Outside-chevron mode: no overlay fades; edge tracking still runs for this
+// external chevron parked just past the viewport's trailing edge.
+function ScrollAreaOutsideChevron({
+  orientation,
+  edges,
+}: {
+  orientation: Orientation;
+  edges: ScrollEdges;
+}) {
+  return (
+    <div
+      aria-hidden
+      className={cn(
+        "pointer-events-none absolute z-10 flex items-center justify-center",
+        orientation === "horizontal"
+          ? "inset-y-0 left-full w-4 pl-0.5"
+          : "inset-x-0 top-full h-4 pt-0.5",
+      )}
+    >
+      <ScrollEdgeOutsideChevron
+        edge={orientation === "horizontal" ? "right" : "bottom"}
+        visible={orientation === "horizontal" ? edges.right : edges.bottom}
+      />
+    </div>
+  );
+}
+
+// Touch-primary devices skip the Radix machinery entirely in favour of
+// native overflow scrolling (better physics, momentum, rubber-banding).
+const TouchScrollRoot = forwardRef<HTMLDivElement, ScrollAreaRootSharedProps>(
+  (
+    {
+      dataSlot,
+      cueSize,
+      orientation,
+      viewportClassName,
+      viewportRef,
+      className,
+      style,
+      cues,
+      children,
+      rootProps,
+    },
+    ref
+  ) => (
+    <div
+      ref={ref}
+      role="group"
+      data-slot={dataSlot}
+      data-cue-size={cueSize}
+      data-orientation={orientation}
+      aria-roledescription="scroll area"
+      className={cn("relative overflow-hidden", className)}
+      style={style}
+      {...rootProps}
+    >
+      <div
+        ref={viewportRef}
+        data-slot="scroll-area-viewport"
+        className={cn(
+          "size-full rounded-[inherit]",
+          orientation === "vertical" && "overflow-y-auto overflow-x-hidden",
+          orientation === "horizontal" && "overflow-x-auto overflow-y-hidden",
+          orientation === "both" && "overflow-auto",
+          viewportClassName
+        )}
+        {...(orientation === "vertical" ? {} : { tabIndex: 0 })}
+      >
+        <div data-slot="scroll-area-inner">{children}</div>
+      </div>
+      {cues}
+    </div>
+  )
+);
+
+TouchScrollRoot.displayName = "TouchScrollRoot";
+
+const RadixScrollRoot = forwardRef<
+  ComponentRef<typeof ScrollAreaPrimitive.Root>,
+  ScrollAreaRootSharedProps & {
+    scrollHideDelay?: number;
+    showScrollbar: boolean;
+  }
+>(
+  (
+    {
+      dataSlot,
+      cueSize,
+      orientation,
+      viewportClassName,
+      viewportRef,
+      className,
+      style,
+      cues,
+      children,
+      rootProps,
+      scrollHideDelay,
+      showScrollbar,
+    },
+    ref
+  ) => (
+    <ScrollAreaPrimitive.Root
+      ref={ref}
+      data-slot={dataSlot}
+      data-cue-size={cueSize}
+      data-orientation={orientation}
+      scrollHideDelay={scrollHideDelay}
+      className={cn("relative overflow-hidden", className)}
+      style={style}
+      {...rootProps}
+    >
+      <ScrollAreaPrimitive.Viewport
+        ref={viewportRef}
+        data-slot="scroll-area-viewport"
+        className={cn(
+          "size-full rounded-[inherit]",
+          orientation === "vertical" && "overflow-x-hidden",
+          orientation === "horizontal" && "overflow-y-hidden",
+          orientation === "both" && "overflow-auto",
+          viewportClassName,
+        )}
+        style={
+          orientation === "horizontal"
+            ? { overflowX: "scroll" }
+            : orientation === "vertical"
+              ? { overflowY: "scroll" }
+              : orientation === "both"
+                ? { overflow: "scroll" }
+                : undefined
+        }
+      >
+        <div data-slot="scroll-area-inner">{children}</div>
+      </ScrollAreaPrimitive.Viewport>
+      {cues}
+      {orientation !== "horizontal" && <ScrollBar orientation="vertical" />}
+      {orientation !== "vertical" && (
+        <ScrollBar
+          className={cn(
+            !showScrollbar &&
+              "pointer-events-none !h-0 !min-h-0 overflow-hidden opacity-0",
+          )}
+          orientation="horizontal"
+        />
+      )}
+      {orientation === "both" && <ScrollAreaPrimitive.Corner />}
+    </ScrollAreaPrimitive.Root>
+  )
+);
+
+RadixScrollRoot.displayName = "RadixScrollRoot";
 
 const ScrollArea = forwardRef<
   ComponentRef<typeof ScrollAreaPrimitive.Root>,
@@ -121,121 +344,38 @@ const ScrollArea = forwardRef<
     });
     const showOutsideChevron = Boolean(scrollFade && chevron && chevronOutside);
 
-    // Cues read the substrate surface from context — ScrollArea doesn't
-    // elevate, so the gradient matches whatever background it sits on.
-    // Outside-chevron mode: no overlay fades; edge tracking still runs for
-    // the external chevron.
     const cues = scrollFade && !chevronOutside && (
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-[inherit]"
-      >
-        {orientation !== "horizontal" && (
-          <>
-            <ScrollEdgeCue mode="absolute" edge="top" visible={edges.top} size={cueSize} chevron={chevron} instantReveal={resolvedInstantFade} />
-            <ScrollEdgeCue mode="absolute" edge="bottom" visible={edges.bottom} size={cueSize} chevron={chevron} instantReveal={resolvedInstantFade} />
-          </>
-        )}
-        {orientation !== "vertical" && (
-          <>
-            <ScrollEdgeCue mode="absolute" edge="left" visible={edges.left} size={cueSize} chevron={chevron} instantReveal={resolvedInstantFade} />
-            <ScrollEdgeCue mode="absolute" edge="right" visible={edges.right} size={cueSize} chevron={chevron} instantReveal={resolvedInstantFade} />
-          </>
-        )}
-      </div>
+      <ScrollAreaCues
+        orientation={orientation}
+        edges={edges}
+        cueSize={cueSize}
+        chevron={chevron}
+        instantFade={resolvedInstantFade}
+      />
     );
 
-    const outsideChevrons = showOutsideChevron ? (
-      <div
-        aria-hidden
-        className={cn(
-          "pointer-events-none absolute z-10 flex items-center justify-center",
-          orientation === "horizontal"
-            ? "inset-y-0 left-full w-4 pl-0.5"
-            : "inset-x-0 top-full h-4 pt-0.5",
-        )}
-      >
-        <ScrollEdgeOutsideChevron
-          edge={orientation === "horizontal" ? "right" : "bottom"}
-          visible={orientation === "horizontal" ? edges.right : edges.bottom}
-        />
-      </div>
-    ) : null;
+    const sharedRootProps: ScrollAreaRootSharedProps = {
+      dataSlot: dataSlot ?? "scroll-area",
+      cueSize,
+      orientation,
+      viewportClassName,
+      viewportRef: setViewportNode,
+      className,
+      style,
+      cues,
+      children,
+      rootProps: props,
+    };
 
     const scrollRoot = isTouch ? (
-      <div
-        ref={ref}
-        role="group"
-        data-slot={dataSlot ?? "scroll-area"}
-        data-cue-size={cueSize}
-        data-orientation={orientation}
-        aria-roledescription="scroll area"
-        className={cn("relative overflow-hidden", className)}
-        style={style}
-        {...props}
-      >
-        <div
-          ref={setViewportNode}
-          data-slot="scroll-area-viewport"
-          className={cn(
-            "size-full rounded-[inherit]",
-            orientation === "vertical" && "overflow-y-auto overflow-x-hidden",
-            orientation === "horizontal" && "overflow-x-auto overflow-y-hidden",
-            orientation === "both" && "overflow-auto",
-            viewportClassName
-          )}
-          {...(orientation === "vertical" ? {} : { tabIndex: 0 })}
-        >
-          <div data-slot="scroll-area-inner">{children}</div>
-        </div>
-        {cues}
-      </div>
+      <TouchScrollRoot ref={ref} {...sharedRootProps} />
     ) : (
-      <ScrollAreaPrimitive.Root
+      <RadixScrollRoot
         ref={ref}
-        data-slot={dataSlot ?? "scroll-area"}
-        data-cue-size={cueSize}
-        data-orientation={orientation}
         scrollHideDelay={scrollHideDelay}
-        className={cn("relative overflow-hidden", className)}
-        style={style}
-        {...props}
-      >
-        <ScrollAreaPrimitive.Viewport
-          ref={setViewportNode}
-          data-slot="scroll-area-viewport"
-          className={cn(
-            "size-full rounded-[inherit]",
-            orientation === "vertical" && "overflow-x-hidden",
-            orientation === "horizontal" && "overflow-y-hidden",
-            orientation === "both" && "overflow-auto",
-            viewportClassName,
-          )}
-          style={
-            orientation === "horizontal"
-              ? { overflowX: "scroll" }
-              : orientation === "vertical"
-                ? { overflowY: "scroll" }
-                : orientation === "both"
-                  ? { overflow: "scroll" }
-                  : undefined
-          }
-        >
-          <div data-slot="scroll-area-inner">{children}</div>
-        </ScrollAreaPrimitive.Viewport>
-        {cues}
-        {orientation !== "horizontal" && <ScrollBar orientation="vertical" />}
-        {orientation !== "vertical" && (
-          <ScrollBar
-            className={cn(
-              !showScrollbar &&
-                "pointer-events-none !h-0 !min-h-0 overflow-hidden opacity-0",
-            )}
-            orientation="horizontal"
-          />
-        )}
-        {orientation === "both" && <ScrollAreaPrimitive.Corner />}
-      </ScrollAreaPrimitive.Root>
+        showScrollbar={showScrollbar}
+        {...sharedRootProps}
+      />
     );
 
     return (
@@ -243,7 +383,7 @@ const ScrollArea = forwardRef<
         {showOutsideChevron ? (
           <div className="relative min-w-0 w-full">
             {scrollRoot}
-            {outsideChevrons}
+            <ScrollAreaOutsideChevron orientation={orientation} edges={edges} />
           </div>
         ) : (
           scrollRoot

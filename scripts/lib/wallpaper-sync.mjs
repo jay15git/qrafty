@@ -64,32 +64,32 @@ function resizeToWebp(inputPath, outputPath, maxWidth) {
 export async function syncWallpapers({ outDir, publicPath, source, items, module }) {
   ensureDir(outDir)
 
-  const manifest = []
+  const manifest = await Promise.all(
+    items.map(async (item) => {
+      const sourcePath = await item.resolve()
+      const fullPath = path.join(outDir, `${item.id}.webp`)
+      const previewPath = path.join(outDir, `${item.id}-preview.webp`)
 
-  for (const item of items) {
-    const sourcePath = await item.resolve()
-    const fullPath = path.join(outDir, `${item.id}.webp`)
-    const previewPath = path.join(outDir, `${item.id}-preview.webp`)
+      if (!fs.existsSync(fullPath)) {
+        process.stdout.write(`Converting ${item.id} (${FULL_MAX_WIDTH}px)...\n`)
+        resizeToWebp(sourcePath, fullPath, FULL_MAX_WIDTH)
+      }
 
-    if (!fs.existsSync(fullPath)) {
-      process.stdout.write(`Converting ${item.id} (${FULL_MAX_WIDTH}px)...\n`)
-      resizeToWebp(sourcePath, fullPath, FULL_MAX_WIDTH)
-    }
+      if (!fs.existsSync(previewPath)) {
+        process.stdout.write(`Preview ${item.id}...\n`)
+        resizeToWebp(sourcePath, previewPath, PREVIEW_MAX_WIDTH)
+      }
 
-    if (!fs.existsSync(previewPath)) {
-      process.stdout.write(`Preview ${item.id}...\n`)
-      resizeToWebp(sourcePath, previewPath, PREVIEW_MAX_WIDTH)
-    }
-
-    manifest.push({
-      id: item.id,
-      label: item.label,
-      path: `${publicPath}/${item.id}.webp`,
-      previewPath: `${publicPath}/${item.id}-preview.webp`,
-      source,
-      sourceUrl: item.sourceUrl,
-    })
-  }
+      return {
+        id: item.id,
+        label: item.label,
+        path: `${publicPath}/${item.id}.webp`,
+        previewPath: `${publicPath}/${item.id}-preview.webp`,
+        source,
+        sourceUrl: item.sourceUrl,
+      }
+    }),
+  )
 
   const ts = `export type ${module.typeName} = {
   id: string

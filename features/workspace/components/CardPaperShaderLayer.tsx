@@ -11,10 +11,12 @@ import {
   type ReactNode,
   type RefObject,
   useCallback,
+  useEffectEvent,
   useMemo,
 } from "react"
 
 import type { DraftingCardPaperShaderState } from "@/features/workspace/model/card-state"
+import { resolveShaderPlaybackVisible } from "@/features/workspace/components/card-paper-shader.utils"
 import {
   getLivePaperShaderRenderOptions,
   getMotionShaderFillRenderOptions,
@@ -35,6 +37,7 @@ import {
   hasPaperShaderWebGlSupport,
   usePaperShaderWorldSize,
 } from "@qrafty/qr-internal/scene"
+
 
 const MOTION_SHADER_CAPTURE_BOOTSTRAP_FRAMES = 120
 
@@ -68,12 +71,6 @@ type DraftingCardPaperShaderRendererProps = {
   style: CSSProperties
 }
 
-export function resolveShaderPlaybackVisible(
-  observedVisible: boolean,
-  ignoreVisibilityGate?: boolean,
-) {
-  return ignoreVisibilityGate ? true : observedVisible
-}
 
 type PaperShaderErrorBoundaryProps = {
   children: ReactNode
@@ -280,6 +277,8 @@ function DraftingCardPaperShaderRenderer({
     }
   }, [shouldAnimate])
 
+  const emitPausedSnapshot = useEffectEvent(onPausedSnapshot)
+
   useEffect(() => {
     if (!shouldSnapshotWhenPaused || playbackSpeed !== 0 || snapshotCapturedRef.current) {
       return
@@ -299,7 +298,7 @@ function DraftingCardPaperShaderRenderer({
       try {
         const dataUrl = canvas.toDataURL("image/png")
         snapshotCapturedRef.current = true
-        onPausedSnapshot(dataUrl)
+        emitPausedSnapshot(dataUrl)
       } catch {
         // Canvas may be tainted or not ready yet.
       }
@@ -308,7 +307,7 @@ function DraftingCardPaperShaderRenderer({
     return () => {
       cancelAnimationFrame(frame)
     }
-  }, [onPausedSnapshot, playbackSpeed, shouldSnapshotWhenPaused])
+  }, [playbackSpeed, shouldSnapshotWhenPaused])
 
   useEffect(() => {
     if (!onFrame || !shouldAnimate) {

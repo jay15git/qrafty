@@ -66,6 +66,177 @@ type DraftingPaneViewportProps = {
   viewFitScale?: number
 }
 
+type DraftingPaneContentProps = Pick<
+  DraftingPaneViewportProps,
+  | "effectivePan"
+  | "effectiveZoom"
+  | "fitCanvasToViewport"
+  | "hideLayerSelectionChrome"
+  | "isFreeEditWorkspace"
+  | "isSelected"
+  | "layerEditingEnabled"
+  | "onLayerAction"
+  | "onLayerChange"
+  | "onLayerCopy"
+  | "onLayerPaste"
+  | "onLayerSelect"
+  | "onLayerSelectionChange"
+  | "onQrClick"
+  | "onSelect"
+  | "pane"
+  | "previewLocked"
+  | "selectedLayerId"
+  | "selectedLayerIds"
+  | "snapEnabled"
+  | "viewFitScale"
+>
+
+function DraftingPaneContent({
+  effectivePan,
+  effectiveZoom,
+  fitCanvasToViewport = false,
+  hideLayerSelectionChrome,
+  isFreeEditWorkspace,
+  isSelected,
+  layerEditingEnabled = true,
+  onLayerAction,
+  onLayerChange,
+  onLayerCopy,
+  onLayerPaste,
+  onLayerSelect,
+  onLayerSelectionChange,
+  onQrClick,
+  onSelect,
+  pane,
+  previewLocked = false,
+  selectedLayerId,
+  selectedLayerIds,
+  snapEnabled,
+  viewFitScale = 1,
+}: DraftingPaneContentProps) {
+  return (
+    <div
+      data-slot={
+        previewLocked || fitCanvasToViewport
+          ? "template-edit-zone"
+          : isFreeEditWorkspace
+            ? "free-edit-artboard"
+            : undefined
+      }
+      style={{
+        transform: isFreeEditWorkspace
+          ? undefined
+          : `translate3d(${effectivePan.x}px, ${effectivePan.y}px, 0) scale(${effectiveZoom})`,
+        transformOrigin: "center center",
+        transition: "transform 150ms ease-out",
+      }}
+      className="flex h-full w-full items-center justify-center"
+    >
+      <Pane
+        activeQrLayerId={pane.activeQrLayerId}
+        cardState={pane.cardState}
+        contentPan={isFreeEditWorkspace ? effectivePan : undefined}
+        contentOnlyZoom={isFreeEditWorkspace}
+        contentValidation={pane.contentValidation}
+        interactionScale={effectiveZoom}
+        viewFitScale={viewFitScale}
+        layers={pane.layers}
+        qrStateByLayerId={pane.qrStateByLayerId}
+        sceneComposition={pane.sceneComposition}
+        snapEnabled={snapEnabled}
+        state={pane.state}
+        isSelected={isSelected}
+        onLayerChange={
+          layerEditingEnabled
+            ? (layerId, patch) => onLayerChange?.(pane.id, layerId, patch)
+            : undefined
+        }
+        onLayerAction={
+          layerEditingEnabled
+            ? (layerIds, action) => onLayerAction?.(pane.id, layerIds, action)
+            : undefined
+        }
+        onLayerCopy={layerEditingEnabled ? (layerIds) => onLayerCopy?.(pane.id, layerIds) : undefined}
+        onLayerPaste={
+          layerEditingEnabled ? (point) => onLayerPaste?.(pane.id, point) : undefined
+        }
+        onLayerSelect={(layerId, options) => onLayerSelect?.(pane.id, layerId, options)}
+        onLayerSelectionChange={(layerIds, options) =>
+          onLayerSelectionChange?.(pane.id, layerIds, options)
+        }
+        onQrClick={onQrClick}
+        onSelect={onSelect}
+        selectedLayerId={isSelected && !hideLayerSelectionChrome ? selectedLayerId : null}
+        selectedLayerIds={isSelected && !hideLayerSelectionChrome ? selectedLayerIds : undefined}
+      />
+    </div>
+  )
+}
+
+type DraftingPanOverlayProps = Pick<
+  DraftingPaneViewportProps,
+  | "activeCanvasTool"
+  | "isPanning"
+  | "onBeginPanePan"
+  | "onSurfacePointerCancel"
+  | "onSurfacePointerMove"
+  | "onSurfacePointerUp"
+  | "panOverlayRef"
+  | "previewLocked"
+>
+
+function DraftingPanOverlay({
+  activeCanvasTool,
+  isPanning,
+  onBeginPanePan,
+  onSurfacePointerCancel,
+  onSurfacePointerMove,
+  onSurfacePointerUp,
+  panOverlayRef,
+  previewLocked = false,
+}: DraftingPanOverlayProps) {
+  if (activeCanvasTool !== "pan" || previewLocked) {
+    return null
+  }
+
+  return (
+    <div
+      ref={panOverlayRef}
+      aria-hidden="true"
+      className="absolute inset-0 z-[1] cursor-grab touch-none data-[panning=true]:cursor-move"
+      data-panning={isPanning ? "true" : "false"}
+      data-slot="drafting-pan-overlay"
+      onPointerCancel={onSurfacePointerCancel}
+      onPointerDown={onBeginPanePan}
+      onPointerMove={onSurfacePointerMove}
+      onPointerUp={onSurfacePointerUp}
+    />
+  )
+}
+
+type DraftingTextPlacementOverlayProps = Pick<
+  DraftingPaneViewportProps,
+  "activeCanvasTool" | "layerEditingEnabled" | "onAddTextLayerAt"
+>
+
+function DraftingTextPlacementOverlay({
+  activeCanvasTool,
+  layerEditingEnabled = true,
+  onAddTextLayerAt,
+}: DraftingTextPlacementOverlayProps) {
+  if (activeCanvasTool !== "text" || !layerEditingEnabled || !onAddTextLayerAt) {
+    return null
+  }
+
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute inset-0 z-[40] cursor-text touch-none"
+      data-slot="drafting-text-placement-overlay"
+    />
+  )
+}
+
 export function DraftingPaneViewport({
   areaName,
   activeCanvasTool,
@@ -163,81 +334,44 @@ export function DraftingPaneViewport({
       onTouchMove={onSurfaceTouchMove}
       onTouchStart={onSurfaceTouchStart}
     >
-      <div
-        data-slot={
-          previewLocked || fitCanvasToViewport
-            ? "template-edit-zone"
-            : isFreeEditWorkspace
-              ? "free-edit-artboard"
-              : undefined
-        }
-        style={{
-          transform: isFreeEditWorkspace
-            ? undefined
-            : `translate3d(${effectivePan.x}px, ${effectivePan.y}px, 0) scale(${effectiveZoom})`,
-          transformOrigin: "center center",
-          transition: "transform 150ms ease-out",
-        }}
-        className="flex h-full w-full items-center justify-center"
-      >
-        <Pane
-          activeQrLayerId={pane.activeQrLayerId}
-          cardState={pane.cardState}
-          contentPan={isFreeEditWorkspace ? effectivePan : undefined}
-          contentOnlyZoom={isFreeEditWorkspace}
-          contentValidation={pane.contentValidation}
-          interactionScale={effectiveZoom}
-          viewFitScale={viewFitScale}
-          layers={pane.layers}
-          qrStateByLayerId={pane.qrStateByLayerId}
-          sceneComposition={pane.sceneComposition}
-          snapEnabled={snapEnabled}
-          state={pane.state}
-          isSelected={isSelected}
-          onLayerChange={
-            layerEditingEnabled
-              ? (layerId, patch) => onLayerChange?.(pane.id, layerId, patch)
-              : undefined
-          }
-          onLayerAction={
-            layerEditingEnabled
-              ? (layerIds, action) => onLayerAction?.(pane.id, layerIds, action)
-              : undefined
-          }
-          onLayerCopy={layerEditingEnabled ? (layerIds) => onLayerCopy?.(pane.id, layerIds) : undefined}
-          onLayerPaste={
-            layerEditingEnabled ? (point) => onLayerPaste?.(pane.id, point) : undefined
-          }
-          onLayerSelect={(layerId, options) => onLayerSelect?.(pane.id, layerId, options)}
-          onLayerSelectionChange={(layerIds, options) =>
-            onLayerSelectionChange?.(pane.id, layerIds, options)
-          }
-          onQrClick={onQrClick}
-          onSelect={onSelect}
-          selectedLayerId={isSelected && !hideLayerSelectionChrome ? selectedLayerId : null}
-          selectedLayerIds={isSelected && !hideLayerSelectionChrome ? selectedLayerIds : undefined}
-        />
-      </div>
-      {activeCanvasTool === "pan" && !previewLocked ? (
-        <div
-          ref={panOverlayRef}
-          aria-hidden="true"
-          className="absolute inset-0 z-[1] cursor-grab touch-none data-[panning=true]:cursor-move"
-          data-panning={isPanning ? "true" : "false"}
-          data-slot="drafting-pan-overlay"
-          onPointerCancel={onSurfacePointerCancel}
-          onPointerDown={onBeginPanePan}
-          onPointerMove={onSurfacePointerMove}
-          onPointerUp={onSurfacePointerUp}
-        />
-      ) : null}
-      {activeCanvasTool === "text" && layerEditingEnabled && onAddTextLayerAt ? (
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 z-[40] cursor-text touch-none"
-          data-slot="drafting-text-placement-overlay"
-        />
-      ) : null}
+      <DraftingPaneContent
+        effectivePan={effectivePan}
+        effectiveZoom={effectiveZoom}
+        fitCanvasToViewport={fitCanvasToViewport}
+        hideLayerSelectionChrome={hideLayerSelectionChrome}
+        isFreeEditWorkspace={isFreeEditWorkspace}
+        isSelected={isSelected}
+        layerEditingEnabled={layerEditingEnabled}
+        onLayerAction={onLayerAction}
+        onLayerChange={onLayerChange}
+        onLayerCopy={onLayerCopy}
+        onLayerPaste={onLayerPaste}
+        onLayerSelect={onLayerSelect}
+        onLayerSelectionChange={onLayerSelectionChange}
+        onQrClick={onQrClick}
+        onSelect={onSelect}
+        pane={pane}
+        previewLocked={previewLocked}
+        selectedLayerId={selectedLayerId}
+        selectedLayerIds={selectedLayerIds}
+        snapEnabled={snapEnabled}
+        viewFitScale={viewFitScale}
+      />
+      <DraftingPanOverlay
+        activeCanvasTool={activeCanvasTool}
+        isPanning={isPanning}
+        onBeginPanePan={onBeginPanePan}
+        onSurfacePointerCancel={onSurfacePointerCancel}
+        onSurfacePointerMove={onSurfacePointerMove}
+        onSurfacePointerUp={onSurfacePointerUp}
+        panOverlayRef={panOverlayRef}
+        previewLocked={previewLocked}
+      />
+      <DraftingTextPlacementOverlay
+        activeCanvasTool={activeCanvasTool}
+        layerEditingEnabled={layerEditingEnabled}
+        onAddTextLayerAt={onAddTextLayerAt}
+      />
     </div>
   )
 }

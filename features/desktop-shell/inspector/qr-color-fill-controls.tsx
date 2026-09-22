@@ -192,6 +192,158 @@ function fillValueToTab(value: string): "Solid" | "Linear" | "Radial" {
   return "Solid"
 }
 
+function QrColorFillPatternSection({
+  mobileDensity,
+  modulePattern,
+  persistKey,
+}: {
+  mobileDensity: boolean
+  modulePattern: ModulePatternControl
+  persistKey: string
+}) {
+  if (mobileDensity) {
+    return (
+      <SettingsPatternOptionGrid
+        leadingAction={
+          <PatternColorsPlusTile
+            selectedPalette={modulePattern.selectedPalette}
+            onPaletteColorChange={modulePattern.onPaletteColorChange}
+          />
+        }
+        label="Presets"
+        persistKey={`${persistKey}:pattern`}
+        selectedPalette={modulePattern.selectedPalette}
+        selectedPreset={modulePattern.selectedPreset}
+        onSelect={(preset) => modulePattern.onSelect(preset)}
+      />
+    )
+  }
+
+  return (
+    <>
+      <div className="flex min-h-[var(--dn-control-height)] items-center">
+        <span className="dn-row-label-text pl-[var(--dn-row-px)]">Pattern</span>
+        <div
+          aria-label="Pattern colors"
+          className="ml-auto flex items-center gap-1.5"
+          role="group"
+        >
+          {modulePattern.selectedPalette.map((color, index) => (
+            <PatternRowSwatch
+              key={`pattern-color-${color}-${modulePattern.selectedPalette.slice(0, index).filter((entry) => entry === color).length}`}
+              color={color}
+              index={index}
+              onPaletteColorChange={modulePattern.onPaletteColorChange}
+            />
+          ))}
+        </div>
+      </div>
+      <SettingsPatternOptionGrid
+        label="Presets"
+        persistKey={`${persistKey}:pattern`}
+        selectedPalette={modulePattern.selectedPalette}
+        selectedPreset={modulePattern.selectedPreset}
+        onSelect={(preset) => modulePattern.onSelect(preset)}
+      />
+    </>
+  )
+}
+
+function QrColorFillImageSection({
+  moduleImage,
+  persistKey,
+}: {
+  moduleImage: ModuleImageControl
+  persistKey: string
+}) {
+  return (
+    <>
+      <div className="flex min-h-[var(--dn-control-height)] items-center">
+        <span className="dn-row-label-text pl-[var(--dn-row-px)]">Upload</span>
+        <SettingsImageUploadTile
+          ariaLabel="Upload custom image"
+          className="dn-row-upload-tile ml-auto"
+          imageUrl={moduleImage.imageUrl}
+          onClear={moduleImage.onClear}
+          onUpload={(imageUrl) => moduleImage.onUpload(imageUrl, "upload")}
+        />
+      </div>
+      <SettingsImageOptionGrid
+        hideUploadTile
+        label="Presets"
+        persistKey={`${persistKey}:image`}
+        selectedPath={moduleImage.imageUrl}
+        onClear={moduleImage.onClear}
+        onSelect={(imagePath) => moduleImage.onUpload(imagePath, "url")}
+        onUpload={(imageUrl) => moduleImage.onUpload(imageUrl, "upload")}
+      />
+    </>
+  )
+}
+
+function QrColorFillModeContent({
+  fillPreviewImageUrl,
+  mobileDensity,
+  modeTab,
+  moduleImage,
+  modulePattern,
+  persistKey,
+  qrGradient,
+  value,
+  onValueChange,
+}: {
+  fillPreviewImageUrl?: string
+  mobileDensity: boolean
+  modeTab: QrColorFillModeTab
+  moduleImage?: ModuleImageControl
+  modulePattern?: ModulePatternControl
+  persistKey: string
+  qrGradient: boolean
+  value: string
+  onValueChange: (fill: Fill, css: string) => void
+}) {
+  if (modeTab === "Pattern" && modulePattern) {
+    return (
+      <QrColorFillPatternSection
+        mobileDensity={mobileDensity}
+        modulePattern={modulePattern}
+        persistKey={persistKey}
+      />
+    )
+  }
+
+  if (modeTab === "Image" && moduleImage) {
+    return (
+      <QrColorFillImageSection
+        moduleImage={moduleImage}
+        persistKey={persistKey}
+      />
+    )
+  }
+
+  if (modeTab !== "Solid" && modeTab !== "Linear" && modeTab !== "Radial") {
+    return null
+  }
+
+  const presets =
+    modeTab === "Linear"
+      ? SETTINGS_FILL_LINEAR_PRESETS
+      : modeTab === "Radial"
+        ? SETTINGS_FILL_RADIAL_PRESETS
+        : SETTINGS_FILL_SOLID_PRESETS
+
+  return (
+    <SettingsFillPresetSection
+      fillPreviewImageUrl={fillPreviewImageUrl}
+      lockedFillMode={modeTab === "Solid" ? "solid" : "gradient"}
+      presets={presets}
+      qrGradient={qrGradient}
+      value={value}
+      onSelect={onValueChange}
+    />
+  )
+}
+
 export function QrColorFillControls({
   value,
   onValueChange,
@@ -256,99 +408,17 @@ export function QrColorFillControls({
         />
       )}
 
-      {modeTab === "Solid" ? (
-        <SettingsFillPresetSection
-          fillPreviewImageUrl={fillPreviewImageUrl}
-          lockedFillMode="solid"
-          presets={SETTINGS_FILL_SOLID_PRESETS}
-          qrGradient={qrGradient}
-          value={value}
-          onSelect={onValueChange}
-        />
-      ) : modeTab === "Linear" ? (
-        <SettingsFillPresetSection
-          fillPreviewImageUrl={fillPreviewImageUrl}
-          lockedFillMode="gradient"
-          presets={SETTINGS_FILL_LINEAR_PRESETS}
-          qrGradient={qrGradient}
-          value={value}
-          onSelect={onValueChange}
-        />
-      ) : modeTab === "Radial" ? (
-        <SettingsFillPresetSection
-          fillPreviewImageUrl={fillPreviewImageUrl}
-          lockedFillMode="gradient"
-          presets={SETTINGS_FILL_RADIAL_PRESETS}
-          qrGradient={qrGradient}
-          value={value}
-          onSelect={onValueChange}
-        />
-      ) : modeTab === "Pattern" && modulePattern ? (
-        mobileDensity ? (
-          <SettingsPatternOptionGrid
-            leadingAction={
-              <PatternColorsPlusTile
-                selectedPalette={modulePattern.selectedPalette}
-                onPaletteColorChange={modulePattern.onPaletteColorChange}
-              />
-            }
-            label="Presets"
-            persistKey={`${persistKey}:pattern`}
-            selectedPalette={modulePattern.selectedPalette}
-            selectedPreset={modulePattern.selectedPreset}
-            onSelect={(preset) => modulePattern.onSelect(preset)}
-          />
-        ) : (
-          <>
-            <div className="flex min-h-[var(--dn-control-height)] items-center">
-              <span className="dn-row-label-text pl-[var(--dn-row-px)]">Pattern</span>
-              <div
-                aria-label="Pattern colors"
-                className="ml-auto flex items-center gap-1.5"
-                role="group"
-              >
-                {modulePattern.selectedPalette.map((color, index) => (
-                  <PatternRowSwatch
-                    key={`pattern-color-${color}-${modulePattern.selectedPalette.slice(0, index).filter((entry) => entry === color).length}`}
-                    color={color}
-                    index={index}
-                    onPaletteColorChange={modulePattern.onPaletteColorChange}
-                  />
-                ))}
-              </div>
-            </div>
-            <SettingsPatternOptionGrid
-              label="Presets"
-              persistKey={`${persistKey}:pattern`}
-              selectedPalette={modulePattern.selectedPalette}
-              selectedPreset={modulePattern.selectedPreset}
-              onSelect={(preset) => modulePattern.onSelect(preset)}
-            />
-          </>
-        )
-      ) : modeTab === "Image" && moduleImage ? (
-        <>
-          <div className="flex min-h-[var(--dn-control-height)] items-center">
-            <span className="dn-row-label-text pl-[var(--dn-row-px)]">Upload</span>
-            <SettingsImageUploadTile
-              ariaLabel="Upload custom image"
-              className="dn-row-upload-tile ml-auto"
-              imageUrl={moduleImage.imageUrl}
-              onClear={moduleImage.onClear}
-              onUpload={(imageUrl) => moduleImage.onUpload(imageUrl, "upload")}
-            />
-          </div>
-          <SettingsImageOptionGrid
-            hideUploadTile
-            label="Presets"
-            persistKey={`${persistKey}:image`}
-            selectedPath={moduleImage.imageUrl}
-            onClear={moduleImage.onClear}
-            onSelect={(imagePath) => moduleImage.onUpload(imagePath, "url")}
-            onUpload={(imageUrl) => moduleImage.onUpload(imageUrl, "upload")}
-          />
-        </>
-      ) : null}
+      <QrColorFillModeContent
+        fillPreviewImageUrl={fillPreviewImageUrl}
+        mobileDensity={mobileDensity}
+        modeTab={modeTab}
+        moduleImage={moduleImage}
+        modulePattern={modulePattern}
+        persistKey={persistKey}
+        qrGradient={qrGradient}
+        value={value}
+        onValueChange={onValueChange}
+      />
     </div>
   )
 }

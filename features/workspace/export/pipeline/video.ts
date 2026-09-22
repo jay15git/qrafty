@@ -77,17 +77,25 @@ async function encodeVideoWithMediabunny({
 
   const frameDuration = 1 / frameRate
 
-  try {
-    for (let frameIndex = 0; frameIndex < frameCount; frameIndex += 1) {
-      if (abortSignal?.aborted) {
-        await output.cancel()
-        throw new DOMException("Export cancelled.", "AbortError")
-      }
-
-      await drawFrame(frameIndex)
-      await videoSource.add(frameIndex * frameDuration, frameDuration)
-      onProgress?.({ frameCount, frameIndex: frameIndex + 1 })
+  const encodeFrame = async (frameIndex: number) => {
+    if (abortSignal?.aborted) {
+      await output.cancel()
+      throw new DOMException("Export cancelled.", "AbortError")
     }
+
+    await drawFrame(frameIndex)
+    await videoSource.add(frameIndex * frameDuration, frameDuration)
+    onProgress?.({ frameCount, frameIndex: frameIndex + 1 })
+  }
+
+  try {
+    // Frames encode sequentially: drawFrame reuses the shared canvas and
+    // videoSource.add must observe frames in timestamp order.
+    let pipeline = Promise.resolve()
+    for (let frameIndex = 0; frameIndex < frameCount; frameIndex += 1) {
+      pipeline = pipeline.then(() => encodeFrame(frameIndex))
+    }
+    await pipeline
 
     await output.finalize()
   } catch (error) {

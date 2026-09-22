@@ -113,15 +113,16 @@ function AccordionItem({
         role="region"
         aria-labelledby={itemId}
         animate={{
-          height: isOpen ? panelHeight : 0,
           opacity: isOpen ? 1 : 0,
         }}
         initial={false}
+        layout
         transition={{
-          height: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
           opacity: { duration: 0.2, ease: "easeOut" },
+          layout: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
         }}
         style={{
+          height: isOpen ? panelHeight : 0,
           overflow: "hidden",
           overflowY: panelScrolls ? "auto" : "hidden",
         }}

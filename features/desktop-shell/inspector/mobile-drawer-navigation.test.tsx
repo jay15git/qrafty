@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act, useState } from "react"
+import { act, useEffect, useState } from "react"
 import { beforeEach, describe, expect, it } from "vitest"
 
 import { SettingsInlineSlider } from "@/features/desktop-shell/inspector/settings-ui"
@@ -20,7 +20,10 @@ function NavigationProbe({
   onReady: (nav: ReturnType<typeof useMobileDrawerNavigation>) => void
 }) {
   const nav = useMobileDrawerNavigation()
-  onReady(nav)
+  useEffect(() => {
+    onReady(nav)
+  })
+
   return <div data-slot="navigation-probe" />
 }
 

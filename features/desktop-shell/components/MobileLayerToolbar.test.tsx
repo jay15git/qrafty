@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act } from "react"
+import { act, useEffect } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MobileLayerToolbar } from "@/features/desktop-shell/components/MobileLayerToolbar"
@@ -22,7 +22,10 @@ function NavigationProbe({
   onReady: (nav: ReturnType<typeof useMobileDrawerNavigation>) => void
 }) {
   const nav = useMobileDrawerNavigation()
-  onReady(nav)
+  useEffect(() => {
+    onReady(nav)
+  })
+
   return null
 }
 

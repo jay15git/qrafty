@@ -48,7 +48,7 @@ export function useIconstackIconSearch({
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [error, setError] = useState<IconstackApiError | null>(null)
 
-  const abortRef = useRef<AbortController | null>(null)
+  const requestAbortRef = useRef<AbortController | null>(null)
   const lastRequestAtRef = useRef(0)
   const nextOffsetRef = useRef(0)
 
@@ -57,9 +57,10 @@ export function useIconstackIconSearch({
 
   const runSearch = useCallback(
     async ({ append = false }: { append?: boolean } = {}) => {
-      abortRef.current?.abort()
-      const controller = new AbortController()
-      abortRef.current = controller
+      requestAbortRef.current?.abort()
+      const requestController = new AbortController()
+      requestAbortRef.current = requestController
+      const requestToken = requestAbortRef.current
 
       const offset = append ? nextOffsetRef.current : 0
 
@@ -71,24 +72,25 @@ export function useIconstackIconSearch({
       setError(null)
 
       const waitMs = lastRequestAtRef.current + SEARCH_MIN_INTERVAL_MS - Date.now()
-      if (waitMs > 0) {
-        await delay(waitMs)
-      }
-      if (controller.signal.aborted) {
-        return
-      }
-      lastRequestAtRef.current = Date.now()
 
       try {
+        if (waitMs > 0) {
+          await delay(waitMs)
+        }
+        if (requestController.signal.aborted) {
+          return
+        }
+        lastRequestAtRef.current = Date.now()
+
         const response = await searchIcons({
           q: trimmedQuery,
           library,
           limit: PAGE_LIMIT,
           offset,
-          signal: controller.signal,
+          signal: requestController.signal,
         })
 
-        if (controller.signal.aborted) {
+        if (requestController.signal.aborted) {
           return
         }
 
@@ -98,7 +100,7 @@ export function useIconstackIconSearch({
           append ? mergeResults(previous, response.results) : response.results,
         )
       } catch (searchError) {
-        if (controller.signal.aborted || isIconstackAbortError(searchError)) {
+        if (requestController.signal.aborted || isIconstackAbortError(searchError)) {
           return
         }
 
@@ -113,7 +115,7 @@ export function useIconstackIconSearch({
           setTotal(0)
         }
       } finally {
-        if (!controller.signal.aborted) {
+        if (requestAbortRef.current === requestToken) {
           setIsLoading(false)
           setIsLoadingMore(false)
         }
@@ -124,8 +126,8 @@ export function useIconstackIconSearch({
 
   useEffect(() => {
     if (!canSearch) {
-      abortRef.current?.abort()
-      abortRef.current = null
+      requestAbortRef.current?.abort()
+      requestAbortRef.current = null
       nextOffsetRef.current = 0
       setResults([])
       setTotal(0)
@@ -146,7 +148,7 @@ export function useIconstackIconSearch({
 
   useEffect(() => {
     return () => {
-      abortRef.current?.abort()
+      requestAbortRef.current?.abort()
     }
   }, [])
 

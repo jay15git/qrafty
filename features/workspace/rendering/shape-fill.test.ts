@@ -12,7 +12,7 @@ import {
   getTextLayerFillCssValue,
   patchShapeLayerFillFromPicker,
   patchTextLayerFillFromPicker,
-} from "@/features/workspace/rendering/shape-fill"
+} from "@/features/workspace/rendering/shape-fill.utils"
 
 describe("shape-fill", () => {
   it("stores shape gradients on fillGradient instead of fill css", () => {

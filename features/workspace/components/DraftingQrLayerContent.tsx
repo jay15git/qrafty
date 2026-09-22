@@ -19,7 +19,8 @@ type DraftingQrLayerContentProps = {
   layer: DraftingCanvasLayer
   overlayMessage?: string | null
   overlayScale?: number
-  qrMarkup: string
+  /** SVG markup already sanitized by useDraftingQrMarkup (DOMPurify) upstream. */
+  sanitizedQrMarkup: string
   shapeTiltInnerStyle: CSSProperties
   shapeTiltPerspectiveStyle: CSSProperties
   state: QraftyState
@@ -91,7 +92,7 @@ export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({
   layer,
   overlayMessage,
   overlayScale,
-  qrMarkup,
+  sanitizedQrMarkup,
   shapeTiltInnerStyle,
   shapeTiltPerspectiveStyle,
   state,
@@ -145,7 +146,7 @@ export const DraftingQrLayerContent = memo(function DraftingQrLayerContent({
           <div
             className="h-full w-full"
             data-slot="drafting-qr-component"
-            {...(qrMarkup ? { dangerouslySetInnerHTML: { __html: qrMarkup } } : {})}
+            {...(sanitizedQrMarkup ? { dangerouslySetInnerHTML: { __html: sanitizedQrMarkup } } : {})}
           />
         </QrModulesWithOverlay>
       </div>

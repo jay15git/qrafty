@@ -10,10 +10,8 @@ import {
   type PointerEvent,
 } from "react"
 
-import {
-  CardBackgroundLayers,
-  cardBackgroundSurfaceStyle,
-} from "@/features/workspace/components/CardBackgroundLayers"
+import { CardBackgroundLayers } from "@/features/workspace/components/CardBackgroundLayers"
+import { cardBackgroundSurfaceStyle } from "@/features/workspace/components/card-background-layers.utils"
 import { DraftingCardPaperShaderLayer } from "@/features/workspace/components/CardPaperShaderLayer"
 import { DraftingLayerTiltShell } from "@/features/workspace/components/DraftingLayerTiltShell"
 import { DraftingQrLayerContent } from "@/features/workspace/components/DraftingQrLayerContent"
@@ -347,7 +345,7 @@ function PaneQrLayerSurface({
       layer={layer}
       overlayMessage={overlayMessage}
       overlayScale={qrOverlayScale}
-      qrMarkup={displayMarkup}
+      sanitizedQrMarkup={displayMarkup}
       shapeTiltInnerStyle={shapeTiltInnerStyle}
       shapeTiltPerspectiveStyle={shapeTiltPerspectiveStyle}
       state={qrState}
@@ -375,6 +373,217 @@ type PaneNestedLayerViewProps = PaneLayerViewSharedProps & {
   layer: DraftingCanvasLayer
 }
 
+type PaneNestedLayerKindProps = PaneNestedLayerViewProps & {
+  isLayerSelected: boolean
+  layerEffectStyle: CSSProperties
+  shaderDisplaySize: { displayHeight: number; displayWidth: number }
+}
+
+function PaneNestedGroupLayerView({
+  activeQrLayerId,
+  activeSelectedLayerIdSet,
+  cardImageStyle,
+  cardState,
+  cardStyle,
+  contentValidation,
+  imageFilterShader,
+  isImageFilterMode,
+  isImageMode,
+  isPaperShaderMode,
+  isLayerSelected,
+  layer,
+  layerEffectStyle,
+  qrOverlayScale,
+  qrStateByLayerId,
+  state,
+}: PaneNestedLayerKindProps) {
+  return (
+    <div
+      key={layer.id}
+      data-slot="drafting-layer-group"
+      data-layer-id={layer.id}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("group")}
+      className="absolute max-h-none max-w-none"
+      style={{
+        ...getLayerPlacementStyle(layer, true),
+        ...layerEffectStyle,
+      }}
+    >
+      {(layer.children ?? [])
+        .filter((child) => child.isVisible)
+        .sort((a, b) => a.zIndex - b.zIndex)
+        .map((child) => (
+          <PaneNestedLayerView
+            key={child.id}
+            activeQrLayerId={activeQrLayerId}
+            activeSelectedLayerIdSet={activeSelectedLayerIdSet}
+            cardImageStyle={cardImageStyle}
+            cardState={cardState}
+            cardStyle={cardStyle}
+            contentValidation={contentValidation}
+            imageFilterShader={imageFilterShader}
+            isImageFilterMode={isImageFilterMode}
+            isImageMode={isImageMode}
+            isPaperShaderMode={isPaperShaderMode}
+            layer={child}
+            qrOverlayScale={qrOverlayScale}
+            qrStateByLayerId={qrStateByLayerId}
+            state={state}
+          />
+        ))}
+    </div>
+  )
+}
+
+function PaneNestedQrLayerView({
+  activeQrLayerId,
+  contentValidation,
+  isLayerSelected,
+  layer,
+  layerEffectStyle,
+  qrOverlayScale,
+  qrStateByLayerId,
+  state,
+}: PaneNestedLayerKindProps) {
+  const qrState = resolveQrLayerState(layer.id, qrStateByLayerId, state)
+
+  return (
+    <div
+      key={layer.id}
+      data-slot="desktop-compose-node"
+      data-layer-id={layer.id}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("qr")}
+      className="absolute max-h-none max-w-none"
+      style={{
+        ...getLayerPlacementStyle(layer, true),
+        ...layerEffectStyle,
+      }}
+    >
+      <PaneQrLayerSurface
+        activeQrLayerId={activeQrLayerId}
+        contentValidation={contentValidation}
+        layer={layer}
+        qrOverlayScale={qrOverlayScale}
+        qrState={qrState}
+      />
+    </div>
+  )
+}
+
+function PaneNestedTextLayerView({
+  isLayerSelected,
+  layer,
+  layerEffectStyle,
+}: PaneNestedLayerKindProps) {
+  const isEmojiLayer = isDraftingEmojiLayer(layer)
+
+  return (
+    <div
+      key={layer.id}
+      data-slot="drafting-text-layer"
+      data-layer-id={layer.id}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("text")}
+      className="absolute max-h-none max-w-none overflow-hidden"
+      style={{
+        ...getLayerPlacementStyle(layer, true),
+        ...layerEffectStyle,
+      }}
+    >
+      <div
+        className={cn("h-full w-full", isEmojiLayer && "flex items-center justify-center")}
+        data-slot="drafting-text-content"
+        style={getTextLayerStyle(layer)}
+      >
+        {renderTextLayerContent(layer)}
+      </div>
+    </div>
+  )
+}
+
+function PaneNestedImageLayerView({
+  isLayerSelected,
+  layer,
+  layerEffectStyle,
+}: PaneNestedLayerKindProps) {
+  return (
+    <div
+      key={layer.id}
+      data-slot="drafting-image-layer"
+      data-layer-id={layer.id}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("image")}
+      className="absolute max-h-none max-w-none overflow-hidden"
+      style={{
+        ...getLayerPlacementStyle(layer, true),
+        ...layerEffectStyle,
+      }}
+    >
+      <DraftingImageLayerContent layer={layer} />
+    </div>
+  )
+}
+
+function PaneNestedShapeLayerView({
+  isLayerSelected,
+  layer,
+  layerEffectStyle,
+}: PaneNestedLayerKindProps) {
+  return (
+    <div
+      key={layer.id}
+      data-shape-id={layer.shapeId ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId}
+      data-slot="drafting-shape-layer"
+      data-layer-id={layer.id}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("shape")}
+      className="absolute max-h-none max-w-none overflow-visible"
+      style={{
+        ...getLayerPlacementStyle(layer, true),
+        ...layerEffectStyle,
+      }}
+    >
+      <DraftingShapeLayerContent layer={layer} />
+    </div>
+  )
+}
+
+function PaneNestedShaderLayerView({
+  isLayerSelected,
+  layer,
+  layerEffectStyle,
+  shaderDisplaySize,
+}: PaneNestedLayerKindProps) {
+  const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader()
+
+  return (
+    <div
+      key={layer.id}
+      data-slot="drafting-shader-layer"
+      data-layer-id={layer.id}
+      data-paper-shader-id={paperShader.shaderId}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("shader")}
+      className="absolute max-h-none max-w-none overflow-hidden"
+      style={{
+        ...getLayerPlacementStyle(layer, true),
+        borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
+        ...layerEffectStyle,
+      }}
+    >
+      <DraftingCardPaperShaderLayer
+        displayHeight={shaderDisplaySize.displayHeight}
+        displayWidth={shaderDisplaySize.displayWidth}
+        layoutHeight={layer.height}
+        layoutWidth={layer.width}
+        paperShader={paperShader}
+      />
+    </div>
+  )
+}
+
 function PaneNestedLayerView({
   activeQrLayerId,
   activeSelectedLayerIdSet,
@@ -394,167 +603,48 @@ function PaneNestedLayerView({
   const isLayerSelected = activeSelectedLayerIdSet.has(layer.id)
   const layerEffectStyle = useDraftingLayerEffectStyle(layer)
   const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height)
+  const kindProps: PaneNestedLayerKindProps = {
+    activeQrLayerId,
+    activeSelectedLayerIdSet,
+    cardImageStyle,
+    cardState,
+    cardStyle,
+    contentValidation,
+    imageFilterShader,
+    isImageFilterMode,
+    isImageMode,
+    isPaperShaderMode,
+    isLayerSelected,
+    layer,
+    layerEffectStyle,
+    qrOverlayScale,
+    qrStateByLayerId,
+    shaderDisplaySize,
+    state,
+  }
 
   if (layer.kind === "group") {
-    return (
-      <div
-        key={layer.id}
-        data-slot="drafting-layer-group"
-        data-layer-id={layer.id}
-        data-selected={isLayerSelected ? "true" : "false"}
-        {...layerExportAttrs("group")}
-        className="absolute max-h-none max-w-none"
-        style={{
-          ...getLayerPlacementStyle(layer, true),
-          ...layerEffectStyle,
-        }}
-      >
-        {(layer.children ?? [])
-          .filter((child) => child.isVisible)
-          .sort((a, b) => a.zIndex - b.zIndex)
-          .map((child) => (
-            <PaneNestedLayerView
-              key={child.id}
-              activeQrLayerId={activeQrLayerId}
-              activeSelectedLayerIdSet={activeSelectedLayerIdSet}
-              cardImageStyle={cardImageStyle}
-              cardState={cardState}
-              cardStyle={cardStyle}
-              contentValidation={contentValidation}
-              imageFilterShader={imageFilterShader}
-              isImageFilterMode={isImageFilterMode}
-              isImageMode={isImageMode}
-              isPaperShaderMode={isPaperShaderMode}
-              layer={child}
-              qrOverlayScale={qrOverlayScale}
-              qrStateByLayerId={qrStateByLayerId}
-              state={state}
-            />
-          ))}
-      </div>
-    )
+    return <PaneNestedGroupLayerView {...kindProps} />
   }
 
   if (layer.kind === "qr") {
-    const qrState = resolveQrLayerState(layer.id, qrStateByLayerId, state)
-
-    return (
-      <div
-        key={layer.id}
-        data-slot="desktop-compose-node"
-        data-layer-id={layer.id}
-        data-selected={isLayerSelected ? "true" : "false"}
-        {...layerExportAttrs("qr")}
-        className="absolute max-h-none max-w-none"
-        style={{
-          ...getLayerPlacementStyle(layer, true),
-          ...layerEffectStyle,
-        }}
-      >
-        <PaneQrLayerSurface
-          activeQrLayerId={activeQrLayerId}
-          contentValidation={contentValidation}
-          layer={layer}
-          qrOverlayScale={qrOverlayScale}
-          qrState={qrState}
-        />
-      </div>
-    )
+    return <PaneNestedQrLayerView {...kindProps} />
   }
 
   if (layer.kind === "text") {
-    const isEmojiLayer = isDraftingEmojiLayer(layer)
-
-    return (
-      <div
-        key={layer.id}
-        data-slot="drafting-text-layer"
-        data-layer-id={layer.id}
-        data-selected={isLayerSelected ? "true" : "false"}
-        {...layerExportAttrs("text")}
-        className="absolute max-h-none max-w-none overflow-hidden"
-        style={{
-          ...getLayerPlacementStyle(layer, true),
-          ...layerEffectStyle,
-        }}
-      >
-        <div
-          className={cn("h-full w-full", isEmojiLayer && "flex items-center justify-center")}
-          data-slot="drafting-text-content"
-          style={getTextLayerStyle(layer)}
-        >
-          {renderTextLayerContent(layer)}
-        </div>
-      </div>
-    )
+    return <PaneNestedTextLayerView {...kindProps} />
   }
 
   if (layer.kind === "image") {
-    return (
-      <div
-        key={layer.id}
-        data-slot="drafting-image-layer"
-        data-layer-id={layer.id}
-        data-selected={isLayerSelected ? "true" : "false"}
-        {...layerExportAttrs("image")}
-        className="absolute max-h-none max-w-none overflow-hidden"
-        style={{
-          ...getLayerPlacementStyle(layer, true),
-          ...layerEffectStyle,
-        }}
-      >
-        <DraftingImageLayerContent layer={layer} />
-      </div>
-    )
+    return <PaneNestedImageLayerView {...kindProps} />
   }
 
   if (layer.kind === "shape") {
-    return (
-      <div
-        key={layer.id}
-        data-shape-id={layer.shapeId ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId}
-        data-slot="drafting-shape-layer"
-        data-layer-id={layer.id}
-        data-selected={isLayerSelected ? "true" : "false"}
-        {...layerExportAttrs("shape")}
-        className="absolute max-h-none max-w-none overflow-visible"
-        style={{
-          ...getLayerPlacementStyle(layer, true),
-          ...layerEffectStyle,
-        }}
-      >
-        <DraftingShapeLayerContent layer={layer} />
-      </div>
-    )
+    return <PaneNestedShapeLayerView {...kindProps} />
   }
 
   if (layer.kind === "shader") {
-    const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader()
-
-    return (
-      <div
-        key={layer.id}
-        data-slot="drafting-shader-layer"
-        data-layer-id={layer.id}
-        data-paper-shader-id={paperShader.shaderId}
-        data-selected={isLayerSelected ? "true" : "false"}
-        {...layerExportAttrs("shader")}
-        className="absolute max-h-none max-w-none overflow-hidden"
-        style={{
-          ...getLayerPlacementStyle(layer, true),
-          borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
-          ...layerEffectStyle,
-        }}
-      >
-        <DraftingCardPaperShaderLayer
-          displayHeight={shaderDisplaySize.displayHeight}
-          displayWidth={shaderDisplaySize.displayWidth}
-          layoutHeight={layer.height}
-          layoutWidth={layer.width}
-          paperShader={paperShader}
-        />
-      </div>
-    )
+    return <PaneNestedShaderLayerView {...kindProps} />
   }
 
   return (
@@ -654,6 +744,368 @@ function arePaneLayerViewPropsEqual(
   return true
 }
 
+type PaneLayerKindViewProps = PaneLayerViewProps & {
+  isLayerSelected: boolean
+  layerEffectStyle: CSSProperties
+  shaderDisplaySize: { displayHeight: number; displayWidth: number }
+}
+
+function PaneGroupLayerView({
+  activeQrLayerId,
+  activeSelectedLayerIdSet,
+  cardImageStyle,
+  cardState,
+  cardStyle,
+  contentValidation,
+  imageFilterShader,
+  isImageFilterMode,
+  isImageMode,
+  isPaperShaderMode,
+  isLayerSelected,
+  layer,
+  layerEffectStyle,
+  onActivateLayerSelection,
+  onEndLayerInteraction,
+  onOpenLayerContextMenu,
+  onSelectLayerFromClick,
+  onStartLayerInteraction,
+  onUpdateLayerInteraction,
+  qrOverlayScale,
+  qrStateByLayerId,
+  state,
+}: PaneLayerKindViewProps) {
+  return (
+    <PaneLayerInteractive
+      key={layer.id}
+      layer={layer}
+      isSelected={isLayerSelected}
+      onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
+      data-slot="drafting-layer-group"
+      data-layer-id={layer.id}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("group")}
+      className={cn(
+        "absolute max-h-none max-w-none touch-none",
+        LAYER_MOVE_CURSOR_CLASS,
+      )}
+      style={{
+        ...getLayerPlacementStyle(layer),
+        ...layerEffectStyle,
+      }}
+      onClick={(event) => onSelectLayerFromClick(event, layer)}
+      onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
+      onPointerMove={onUpdateLayerInteraction}
+      onPointerUp={onEndLayerInteraction}
+      onPointerCancel={onEndLayerInteraction}
+      onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
+    >
+      <DraftingLayerTiltShell layer={layer}>
+        {(layer.children ?? [])
+          .filter((child) => child.isVisible)
+          .sort((a, b) => a.zIndex - b.zIndex)
+          .map((child) => (
+            <PaneNestedLayerView
+              key={child.id}
+              activeQrLayerId={activeQrLayerId}
+              activeSelectedLayerIdSet={activeSelectedLayerIdSet}
+              cardImageStyle={cardImageStyle}
+              cardState={cardState}
+              cardStyle={cardStyle}
+              contentValidation={contentValidation}
+              imageFilterShader={imageFilterShader}
+              isImageFilterMode={isImageFilterMode}
+              isImageMode={isImageMode}
+              isPaperShaderMode={isPaperShaderMode}
+              layer={child}
+              qrOverlayScale={qrOverlayScale}
+              qrStateByLayerId={qrStateByLayerId}
+              state={state}
+            />
+          ))}
+      </DraftingLayerTiltShell>
+    </PaneLayerInteractive>
+  )
+}
+
+function PaneQrLayerView({
+  activeQrLayerId,
+  contentValidation,
+  isLayerSelected,
+  layer,
+  layerEffectStyle,
+  onActivateLayerSelection,
+  onEndLayerInteraction,
+  onOpenLayerContextMenu,
+  onSelectLayerFromClick,
+  onStartLayerInteraction,
+  onUpdateLayerInteraction,
+  qrOverlayScale,
+  qrStateByLayerId,
+  state,
+}: PaneLayerKindViewProps) {
+  const qrState = resolveQrLayerState(layer.id, qrStateByLayerId, state)
+
+  return (
+    <PaneLayerInteractive
+      key={layer.id}
+      layer={layer}
+      isSelected={isLayerSelected}
+      onActivate={(additive) => onActivateLayerSelection(layer, { additive, qr: true })}
+      data-slot="desktop-compose-node"
+      data-layer-id={layer.id}
+      data-node-id={qrState.data}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("qr")}
+      className={cn(
+        "absolute max-h-none max-w-none touch-none",
+        LAYER_MOVE_CURSOR_CLASS,
+      )}
+      style={{
+        ...getLayerPlacementStyle(layer),
+        ...layerEffectStyle,
+      }}
+      onClick={(event) => onSelectLayerFromClick(event, layer, { qr: true })}
+      onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
+      onPointerMove={onUpdateLayerInteraction}
+      onPointerUp={onEndLayerInteraction}
+      onPointerCancel={onEndLayerInteraction}
+      onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
+    >
+      <DraftingLayerTiltShell layer={layer}>
+        <PaneQrLayerSurface
+        activeQrLayerId={activeQrLayerId}
+        contentValidation={contentValidation}
+        layer={layer}
+        qrOverlayScale={qrOverlayScale}
+        qrState={qrState}
+      />
+      </DraftingLayerTiltShell>
+    </PaneLayerInteractive>
+  )
+}
+
+function PaneTextLayerView({
+  editingTextDraft,
+  editingTextLayerId,
+  isLayerSelected,
+  layer,
+  layerEffectStyle,
+  onActivateLayerSelection,
+  onCommitEditingTextDraft,
+  onEndLayerInteraction,
+  onHandleTextEditorInput,
+  onOpenLayerContextMenu,
+  onSelectLayerFromClick,
+  onStartLayerInteraction,
+  onStartTextEditing,
+  onUpdateLayerInteraction,
+  textEditorRefs,
+}: PaneLayerKindViewProps) {
+  const isEditing = editingTextLayerId === layer.id
+
+  return (
+    <PaneLayerInteractive
+      key={layer.id}
+      layer={layer}
+      isSelected={isLayerSelected}
+      onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
+      data-slot="drafting-text-layer"
+      data-layer-id={layer.id}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("text")}
+      className={cn(
+        "absolute max-h-none max-w-none touch-none overflow-hidden",
+        isEditing ? "cursor-text" : LAYER_MOVE_CURSOR_CLASS,
+      )}
+      style={{
+        ...getLayerPlacementStyle(layer),
+        ...layerEffectStyle,
+      }}
+      onClick={(event) => onSelectLayerFromClick(event, layer)}
+      onDoubleClick={(event) => onStartTextEditing(event, layer)}
+      onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
+      onPointerMove={onUpdateLayerInteraction}
+      onPointerUp={onEndLayerInteraction}
+      onPointerCancel={onEndLayerInteraction}
+      onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
+    >
+      <DraftingLayerTiltShell layer={layer}>
+        {isEditing ? (
+          <textarea
+            aria-label="Edit text layer"
+            className="h-full w-full resize-none cursor-text overflow-hidden border-0 bg-transparent p-0 outline-none"
+            data-slot="drafting-text-editor"
+            ref={(element) => {
+              textEditorRefs.current[layer.id] = element
+            }}
+            spellCheck={false}
+            style={getTextLayerStyle(layer)}
+            value={editingTextDraft}
+            onBlur={onCommitEditingTextDraft}
+            onClick={(event) => event.stopPropagation()}
+            onDoubleClick={(event) => event.stopPropagation()}
+            onInput={onHandleTextEditorInput}
+            onKeyDown={(event) => {
+              event.stopPropagation()
+              if (event.key === "Escape") {
+                event.preventDefault()
+                onCommitEditingTextDraft()
+              }
+            }}
+            onPointerDown={(event) => event.stopPropagation()}
+          />
+        ) : (
+          <div className="h-full w-full" data-slot="drafting-text-content" style={getTextLayerStyle(layer)}>
+            {renderTextLayerContent(layer)}
+          </div>
+        )}
+      </DraftingLayerTiltShell>
+    </PaneLayerInteractive>
+  )
+}
+
+function PaneImageLayerView({
+  isLayerSelected,
+  layer,
+  layerEffectStyle,
+  onActivateLayerSelection,
+  onEndLayerInteraction,
+  onOpenLayerContextMenu,
+  onSelectLayerFromClick,
+  onStartLayerInteraction,
+  onUpdateLayerInteraction,
+}: PaneLayerKindViewProps) {
+  return (
+    <PaneLayerInteractive
+      key={layer.id}
+      layer={layer}
+      isSelected={isLayerSelected}
+      onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
+      data-slot="drafting-image-layer"
+      data-layer-id={layer.id}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("image")}
+      className={cn(
+        "absolute max-h-none max-w-none touch-none overflow-hidden",
+        LAYER_MOVE_CURSOR_CLASS,
+      )}
+      style={{
+        ...getLayerPlacementStyle(layer),
+        borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
+        ...layerEffectStyle,
+      }}
+      onClick={(event) => onSelectLayerFromClick(event, layer)}
+      onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
+      onPointerMove={onUpdateLayerInteraction}
+      onPointerUp={onEndLayerInteraction}
+      onPointerCancel={onEndLayerInteraction}
+      onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
+    >
+      <DraftingLayerTiltShell layer={layer}>
+        <DraftingImageLayerContent layer={layer} />
+      </DraftingLayerTiltShell>
+    </PaneLayerInteractive>
+  )
+}
+
+function PaneShapeLayerView({
+  isLayerSelected,
+  layer,
+  layerEffectStyle,
+  onActivateLayerSelection,
+  onEndLayerInteraction,
+  onOpenLayerContextMenu,
+  onSelectLayerFromClick,
+  onStartLayerInteraction,
+  onUpdateLayerInteraction,
+}: PaneLayerKindViewProps) {
+  return (
+    <PaneLayerInteractive
+      key={layer.id}
+      layer={layer}
+      isSelected={isLayerSelected}
+      onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
+      data-shape-id={layer.shapeId ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId}
+      data-slot="drafting-shape-layer"
+      data-layer-id={layer.id}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("shape")}
+      className={cn(
+        "absolute max-h-none max-w-none touch-none overflow-visible",
+        LAYER_MOVE_CURSOR_CLASS,
+      )}
+      style={{
+        ...getLayerPlacementStyle(layer),
+        ...layerEffectStyle,
+      }}
+      onClick={(event) => onSelectLayerFromClick(event, layer)}
+      onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
+      onPointerMove={onUpdateLayerInteraction}
+      onPointerUp={onEndLayerInteraction}
+      onPointerCancel={onEndLayerInteraction}
+      onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
+    >
+      <DraftingLayerTiltShell layer={layer}>
+        <DraftingShapeLayerContent layer={layer} />
+      </DraftingLayerTiltShell>
+    </PaneLayerInteractive>
+  )
+}
+
+function PaneShaderLayerView({
+  isLayerSelected,
+  layer,
+  layerEffectStyle,
+  onActivateLayerSelection,
+  onEndLayerInteraction,
+  onOpenLayerContextMenu,
+  onSelectLayerFromClick,
+  onStartLayerInteraction,
+  onUpdateLayerInteraction,
+  shaderDisplaySize,
+}: PaneLayerKindViewProps) {
+  const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader()
+
+  return (
+    <PaneLayerInteractive
+      key={layer.id}
+      layer={layer}
+      isSelected={isLayerSelected}
+      onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
+      data-slot="drafting-shader-layer"
+      data-layer-id={layer.id}
+      data-paper-shader-id={paperShader.shaderId}
+      data-selected={isLayerSelected ? "true" : "false"}
+      {...layerExportAttrs("shader")}
+      className={cn(
+        "absolute max-h-none max-w-none touch-none overflow-hidden",
+        LAYER_MOVE_CURSOR_CLASS,
+      )}
+      style={{
+        ...getLayerPlacementStyle(layer),
+        borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
+        ...layerEffectStyle,
+      }}
+      onClick={(event) => onSelectLayerFromClick(event, layer)}
+      onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
+      onPointerMove={onUpdateLayerInteraction}
+      onPointerUp={onEndLayerInteraction}
+      onPointerCancel={onEndLayerInteraction}
+      onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
+    >
+      <DraftingLayerTiltShell layer={layer}>
+        <DraftingCardPaperShaderLayer
+          displayHeight={shaderDisplaySize.displayHeight}
+          displayWidth={shaderDisplaySize.displayWidth}
+          layoutHeight={layer.height}
+          layoutWidth={layer.width}
+          paperShader={paperShader}
+        />
+      </DraftingLayerTiltShell>
+    </PaneLayerInteractive>
+  )
+}
+
 export const PaneLayerView = memo(function PaneLayerView({
   activeQrLayerId,
   activeSelectedLayerIdSet,
@@ -685,276 +1137,60 @@ export const PaneLayerView = memo(function PaneLayerView({
   const isLayerSelected = activeSelectedLayerIdSet.has(layer.id)
   const layerEffectStyle = useDraftingLayerEffectStyle(layer)
   const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height)
+  const kindProps: PaneLayerKindViewProps = {
+    activeQrLayerId,
+    activeSelectedLayerIdSet,
+    cardImageStyle,
+    cardState,
+    cardStyle,
+    contentValidation,
+    editingTextDraft,
+    editingTextLayerId,
+    imageFilterShader,
+    isImageFilterMode,
+    isImageMode,
+    isPaperShaderMode,
+    isLayerSelected,
+    layer,
+    layerEffectStyle,
+    onActivateLayerSelection,
+    onCommitEditingTextDraft,
+    onEndLayerInteraction,
+    onHandleTextEditorInput,
+    onOpenLayerContextMenu,
+    onSelectLayerFromClick,
+    onStartLayerInteraction,
+    onStartTextEditing,
+    onUpdateLayerInteraction,
+    qrOverlayScale,
+    qrStateByLayerId,
+    shaderDisplaySize,
+    state,
+    textEditorRefs,
+  }
 
   if (layer.kind === "group") {
-    return (
-      <PaneLayerInteractive
-        key={layer.id}
-        layer={layer}
-        isSelected={isLayerSelected}
-        onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
-        data-slot="drafting-layer-group"
-        data-layer-id={layer.id}
-        data-selected={isLayerSelected ? "true" : "false"}
-        {...layerExportAttrs("group")}
-        className={cn(
-          "absolute max-h-none max-w-none touch-none",
-          LAYER_MOVE_CURSOR_CLASS,
-        )}
-        style={{
-          ...getLayerPlacementStyle(layer),
-          ...layerEffectStyle,
-        }}
-        onClick={(event) => onSelectLayerFromClick(event, layer)}
-        onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
-        onPointerMove={onUpdateLayerInteraction}
-        onPointerUp={onEndLayerInteraction}
-        onPointerCancel={onEndLayerInteraction}
-        onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
-      >
-        <DraftingLayerTiltShell layer={layer}>
-          {(layer.children ?? [])
-            .filter((child) => child.isVisible)
-            .sort((a, b) => a.zIndex - b.zIndex)
-            .map((child) => (
-              <PaneNestedLayerView
-                key={child.id}
-                activeQrLayerId={activeQrLayerId}
-                activeSelectedLayerIdSet={activeSelectedLayerIdSet}
-                cardImageStyle={cardImageStyle}
-                cardState={cardState}
-                cardStyle={cardStyle}
-                contentValidation={contentValidation}
-                imageFilterShader={imageFilterShader}
-                isImageFilterMode={isImageFilterMode}
-                isImageMode={isImageMode}
-                isPaperShaderMode={isPaperShaderMode}
-                layer={child}
-                qrOverlayScale={qrOverlayScale}
-                qrStateByLayerId={qrStateByLayerId}
-                state={state}
-              />
-            ))}
-        </DraftingLayerTiltShell>
-      </PaneLayerInteractive>
-    )
+    return <PaneGroupLayerView {...kindProps} />
   }
 
   if (layer.kind === "qr") {
-    const qrState = resolveQrLayerState(layer.id, qrStateByLayerId, state)
-
-    return (
-      <PaneLayerInteractive
-        key={layer.id}
-        layer={layer}
-        isSelected={isLayerSelected}
-        onActivate={(additive) => onActivateLayerSelection(layer, { additive, qr: true })}
-        data-slot="desktop-compose-node"
-        data-layer-id={layer.id}
-        data-node-id={qrState.data}
-        data-selected={isLayerSelected ? "true" : "false"}
-        {...layerExportAttrs("qr")}
-        className={cn(
-          "absolute max-h-none max-w-none touch-none",
-          LAYER_MOVE_CURSOR_CLASS,
-        )}
-        style={{
-          ...getLayerPlacementStyle(layer),
-          ...layerEffectStyle,
-        }}
-        onClick={(event) => onSelectLayerFromClick(event, layer, { qr: true })}
-        onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
-        onPointerMove={onUpdateLayerInteraction}
-        onPointerUp={onEndLayerInteraction}
-        onPointerCancel={onEndLayerInteraction}
-        onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
-      >
-        <DraftingLayerTiltShell layer={layer}>
-          <PaneQrLayerSurface
-          activeQrLayerId={activeQrLayerId}
-          contentValidation={contentValidation}
-          layer={layer}
-          qrOverlayScale={qrOverlayScale}
-          qrState={qrState}
-        />
-        </DraftingLayerTiltShell>
-      </PaneLayerInteractive>
-    )
+    return <PaneQrLayerView {...kindProps} />
   }
 
   if (layer.kind === "text") {
-    const isEditing = editingTextLayerId === layer.id
-
-    return (
-      <PaneLayerInteractive
-        key={layer.id}
-        layer={layer}
-        isSelected={isLayerSelected}
-        onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
-        data-slot="drafting-text-layer"
-        data-layer-id={layer.id}
-        data-selected={isLayerSelected ? "true" : "false"}
-        {...layerExportAttrs("text")}
-        className={cn(
-          "absolute max-h-none max-w-none touch-none overflow-hidden",
-          isEditing ? "cursor-text" : LAYER_MOVE_CURSOR_CLASS,
-        )}
-        style={{
-          ...getLayerPlacementStyle(layer),
-          ...layerEffectStyle,
-        }}
-        onClick={(event) => onSelectLayerFromClick(event, layer)}
-        onDoubleClick={(event) => onStartTextEditing(event, layer)}
-        onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
-        onPointerMove={onUpdateLayerInteraction}
-        onPointerUp={onEndLayerInteraction}
-        onPointerCancel={onEndLayerInteraction}
-        onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
-      >
-        <DraftingLayerTiltShell layer={layer}>
-          {isEditing ? (
-            <textarea
-              aria-label="Edit text layer"
-              className="h-full w-full resize-none cursor-text overflow-hidden border-0 bg-transparent p-0 outline-none"
-              data-slot="drafting-text-editor"
-              ref={(element) => {
-                textEditorRefs.current[layer.id] = element
-              }}
-              spellCheck={false}
-              style={getTextLayerStyle(layer)}
-              value={editingTextDraft}
-              onBlur={onCommitEditingTextDraft}
-              onClick={(event) => event.stopPropagation()}
-              onDoubleClick={(event) => event.stopPropagation()}
-              onInput={onHandleTextEditorInput}
-              onKeyDown={(event) => {
-                event.stopPropagation()
-                if (event.key === "Escape") {
-                  event.preventDefault()
-                  onCommitEditingTextDraft()
-                }
-              }}
-              onPointerDown={(event) => event.stopPropagation()}
-            />
-          ) : (
-            <div className="h-full w-full" data-slot="drafting-text-content" style={getTextLayerStyle(layer)}>
-              {renderTextLayerContent(layer)}
-            </div>
-          )}
-        </DraftingLayerTiltShell>
-      </PaneLayerInteractive>
-    )
+    return <PaneTextLayerView {...kindProps} />
   }
 
   if (layer.kind === "image") {
-    return (
-      <PaneLayerInteractive
-        key={layer.id}
-        layer={layer}
-        isSelected={isLayerSelected}
-        onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
-        data-slot="drafting-image-layer"
-        data-layer-id={layer.id}
-        data-selected={isLayerSelected ? "true" : "false"}
-        {...layerExportAttrs("image")}
-        className={cn(
-          "absolute max-h-none max-w-none touch-none overflow-hidden",
-          LAYER_MOVE_CURSOR_CLASS,
-        )}
-        style={{
-          ...getLayerPlacementStyle(layer),
-          borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
-          ...layerEffectStyle,
-        }}
-        onClick={(event) => onSelectLayerFromClick(event, layer)}
-        onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
-        onPointerMove={onUpdateLayerInteraction}
-        onPointerUp={onEndLayerInteraction}
-        onPointerCancel={onEndLayerInteraction}
-        onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
-      >
-        <DraftingLayerTiltShell layer={layer}>
-          <DraftingImageLayerContent layer={layer} />
-        </DraftingLayerTiltShell>
-      </PaneLayerInteractive>
-    )
+    return <PaneImageLayerView {...kindProps} />
   }
 
   if (layer.kind === "shape") {
-    return (
-      <PaneLayerInteractive
-        key={layer.id}
-        layer={layer}
-        isSelected={isLayerSelected}
-        onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
-        data-shape-id={layer.shapeId ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId}
-        data-slot="drafting-shape-layer"
-        data-layer-id={layer.id}
-        data-selected={isLayerSelected ? "true" : "false"}
-        {...layerExportAttrs("shape")}
-        className={cn(
-          "absolute max-h-none max-w-none touch-none overflow-visible",
-          LAYER_MOVE_CURSOR_CLASS,
-        )}
-        style={{
-          ...getLayerPlacementStyle(layer),
-          ...layerEffectStyle,
-        }}
-        onClick={(event) => onSelectLayerFromClick(event, layer)}
-        onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
-        onPointerMove={onUpdateLayerInteraction}
-        onPointerUp={onEndLayerInteraction}
-        onPointerCancel={onEndLayerInteraction}
-        onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
-      >
-        <DraftingLayerTiltShell layer={layer}>
-          <DraftingShapeLayerContent layer={layer} />
-        </DraftingLayerTiltShell>
-      </PaneLayerInteractive>
-    )
+    return <PaneShapeLayerView {...kindProps} />
   }
 
   if (layer.kind === "shader") {
-    const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader()
-
-    return (
-      <PaneLayerInteractive
-        key={layer.id}
-        layer={layer}
-        isSelected={isLayerSelected}
-        onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
-        data-slot="drafting-shader-layer"
-        data-layer-id={layer.id}
-        data-paper-shader-id={paperShader.shaderId}
-        data-selected={isLayerSelected ? "true" : "false"}
-        {...layerExportAttrs("shader")}
-        className={cn(
-          "absolute max-h-none max-w-none touch-none overflow-hidden",
-          LAYER_MOVE_CURSOR_CLASS,
-        )}
-        style={{
-          ...getLayerPlacementStyle(layer),
-          borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
-          ...layerEffectStyle,
-        }}
-        onClick={(event) => onSelectLayerFromClick(event, layer)}
-        onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
-        onPointerMove={onUpdateLayerInteraction}
-        onPointerUp={onEndLayerInteraction}
-        onPointerCancel={onEndLayerInteraction}
-        onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
-      >
-        <DraftingLayerTiltShell layer={layer}>
-          <DraftingCardPaperShaderLayer
-            displayHeight={shaderDisplaySize.displayHeight}
-            displayWidth={shaderDisplaySize.displayWidth}
-            layoutHeight={layer.height}
-            layoutWidth={layer.width}
-            paperShader={paperShader}
-          />
-        </DraftingLayerTiltShell>
-      </PaneLayerInteractive>
-    )
+    return <PaneShaderLayerView {...kindProps} />
   }
 
   return (

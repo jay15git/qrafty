@@ -23,24 +23,35 @@ import type {
   TriggerProp,
 } from '@/components/vendor/animate-ui/icons/icon.types';
 
-function AnimateIcon({
-  asChild = false,
+// Owns the animation lifecycle for AnimateIcon: the localAnimate state, the
+// trigger callbacks, the prop/visibility-driven adjustments, and the runner
+// wiring. The component keeps only prop plumbing, event handlers, and JSX.
+function useAnimateIconTriggers({
   animate = false,
-  animateOnHover = false,
-  animateOnTap = false,
+  animation = 'default',
+  delay = 0,
+  loop = false,
+  loopDelay = 0,
+  completeOnStop = false,
+  persistOnAnimateEnd = false,
+  initialOnAnimateEnd = false,
   animateOnView = false,
   animateOnViewMargin = '0px',
   animateOnViewOnce = true,
-  animation = 'default',
-  loop = false,
-  loopDelay = 0,
-  initialOnAnimateEnd = false,
-  completeOnStop = false,
-  persistOnAnimateEnd = false,
-  delay = 0,
-  children,
-  ...props
-}: AnimateIconProps) {
+}: Pick<
+  AnimateIconProps,
+  | 'animate'
+  | 'animation'
+  | 'delay'
+  | 'loop'
+  | 'loopDelay'
+  | 'completeOnStop'
+  | 'persistOnAnimateEnd'
+  | 'initialOnAnimateEnd'
+  | 'animateOnView'
+  | 'animateOnViewMargin'
+  | 'animateOnViewOnce'
+>) {
   const controls = useAnimation();
 
   const [localAnimate, setLocalAnimate] = React.useState<boolean>(() => {
@@ -89,13 +100,13 @@ function AnimateIcon({
       }
       currentAnimationRef.current = next;
       bumpAnimationEpoch();
+      // localAnimate itself is set by the caller: event handlers set it
+      // synchronously, prop-driven callers adjust it during render, and the
+      // delayed start resolves through this timer.
       if (delay > 0) {
-        setLocalAnimate(false);
         delayRef.current = setTimeout(() => {
           setLocalAnimate(true);
         }, delay);
-      } else {
-        setLocalAnimate(true);
       }
     },
     [animation, delay, bumpGeneration],
@@ -111,23 +122,72 @@ function AnimateIcon({
       clearTimeout(loopDelayRef.current);
       loopDelayRef.current = null;
     }
-    setLocalAnimate(false);
   }, [bumpGeneration]);
 
   React.useEffect(() => {
     activeRef.current = localAnimate;
   }, [localAnimate]);
 
+  // The `animate` prop drives localAnimate through a guarded render update
+  // (React's prev-prop pattern) so the first committed frame already reflects
+  // it; this layout effect only runs the timer/ref side effects.
+  const [prevAnimateDeps, setPrevAnimateDeps] = React.useState<
+    readonly [
+      TriggerProp | undefined,
+      string | StaticAnimations | undefined,
+      number | undefined,
+    ]
+  >([animate, animation, delay]);
+  if (
+    prevAnimateDeps[0] !== animate ||
+    prevAnimateDeps[1] !== animation ||
+    prevAnimateDeps[2] !== delay
+  ) {
+    setPrevAnimateDeps([animate, animation, delay]);
+    if (animate !== undefined) {
+      setLocalAnimate(Boolean(animate) && delay <= 0);
+    }
+  }
+
   React.useLayoutEffect(() => {
     if (animate === undefined) return;
-    if (animate) startAnimation(animate as TriggerProp);
-    else stopAnimation();
-  }, [animate, animation, startAnimation, stopAnimation]);
+    if (animate) {
+      const next = typeof animate === 'string' ? animate : animation;
+      bumpGeneration();
+      if (delayRef.current) {
+        clearTimeout(delayRef.current);
+        delayRef.current = null;
+      }
+      currentAnimationRef.current = next;
+      bumpAnimationEpoch();
+      if (delay > 0) {
+        delayRef.current = setTimeout(() => {
+          setLocalAnimate(true);
+        }, delay);
+      }
+    } else {
+      bumpGeneration();
+      if (delayRef.current) {
+        clearTimeout(delayRef.current);
+        delayRef.current = null;
+      }
+      if (loopDelayRef.current) {
+        clearTimeout(loopDelayRef.current);
+        loopDelayRef.current = null;
+      }
+    }
+  }, [animate, animation, delay, bumpGeneration]);
 
   React.useEffect(() => {
     return () => {
-      if (delayRef.current) clearTimeout(delayRef.current);
-      if (loopDelayRef.current) clearTimeout(loopDelayRef.current);
+      if (delayRef.current) {
+        clearTimeout(delayRef.current);
+        delayRef.current = null;
+      }
+      if (loopDelayRef.current) {
+        clearTimeout(loopDelayRef.current);
+        loopDelayRef.current = null;
+      }
     };
   }, []);
 
@@ -150,12 +210,55 @@ function AnimateIcon({
     [controls],
   );
 
+  // Viewport visibility drives the animation lifecycle. localAnimate follows
+  // isInView through a guarded render update (initialized to a sentinel so the
+  // mount pass still applies the initial visibility); the effect below only
+  // runs the timer/ref side effects.
+  const [prevViewDeps, setPrevViewDeps] = React.useState<
+    readonly [boolean, TriggerProp | undefined, number | undefined] | null
+  >(null);
+  if (
+    prevViewDeps === null ||
+    prevViewDeps[0] !== isInView ||
+    prevViewDeps[1] !== animateOnView ||
+    prevViewDeps[2] !== delay
+  ) {
+    setPrevViewDeps([isInView, animateOnView, delay]);
+    if (animateOnView) {
+      setLocalAnimate(isInView && delay <= 0);
+    }
+  }
+
   React.useEffect(() => {
     if (!animateOnView) return;
-    if (isInView) startAnimation(animateOnView);
-    else stopAnimation();
+    if (isInView) {
+      const next =
+        typeof animateOnView === 'string' ? animateOnView : animation;
+      bumpGeneration();
+      if (delayRef.current) {
+        clearTimeout(delayRef.current);
+        delayRef.current = null;
+      }
+      currentAnimationRef.current = next;
+      bumpAnimationEpoch();
+      if (delay > 0) {
+        delayRef.current = setTimeout(() => {
+          setLocalAnimate(true);
+        }, delay);
+      }
+    } else {
+      bumpGeneration();
+      if (delayRef.current) {
+        clearTimeout(delayRef.current);
+        delayRef.current = null;
+      }
+      if (loopDelayRef.current) {
+        clearTimeout(loopDelayRef.current);
+        loopDelayRef.current = null;
+      }
+    }
     // eslint-disable-next-line react-doctor/no-derived-state-effect -- viewport visibility drives animation lifecycle
-  }, [isInView, animateOnView, startAnimation, stopAnimation]);
+  }, [isInView, animateOnView, animation, delay, bumpGeneration]);
 
   useAnimateIconRunner({
     localAnimate,
@@ -176,6 +279,59 @@ function AnimateIcon({
     delayRef,
   });
 
+  return {
+    controls,
+    localAnimate,
+    setLocalAnimate,
+    startAnimation,
+    stopAnimation,
+    inViewRef,
+    currentAnimationRef,
+    animationEpoch,
+  };
+}
+
+function AnimateIcon({
+  asChild = false,
+  animate = false,
+  animateOnHover = false,
+  animateOnTap = false,
+  animateOnView = false,
+  animateOnViewMargin = '0px',
+  animateOnViewOnce = true,
+  animation = 'default',
+  loop = false,
+  loopDelay = 0,
+  initialOnAnimateEnd = false,
+  completeOnStop = false,
+  persistOnAnimateEnd = false,
+  delay = 0,
+  children,
+  ...props
+}: AnimateIconProps) {
+  const {
+    controls,
+    localAnimate,
+    setLocalAnimate,
+    startAnimation,
+    stopAnimation,
+    inViewRef,
+    currentAnimationRef,
+    animationEpoch,
+  } = useAnimateIconTriggers({
+    animate,
+    animation,
+    delay,
+    loop,
+    loopDelay,
+    completeOnStop,
+    persistOnAnimateEnd,
+    initialOnAnimateEnd,
+    animateOnView,
+    animateOnViewMargin,
+    animateOnViewOnce,
+  });
+
   const childProps = (
     React.isValidElement(children) ? (children as React.ReactElement).props : {}
   ) as AnyProps;
@@ -183,27 +339,39 @@ function AnimateIcon({
   const handleMouseEnter = composeEventHandlers<React.MouseEvent<HTMLElement>>(
     childProps.onMouseEnter,
     () => {
-      if (animateOnHover) startAnimation(animateOnHover);
+      if (animateOnHover) {
+        startAnimation(animateOnHover);
+        setLocalAnimate(delay <= 0);
+      }
     },
   );
 
   const handleMouseLeave = composeEventHandlers<React.MouseEvent<HTMLElement>>(
     childProps.onMouseLeave,
     () => {
-      if (animateOnHover || animateOnTap) stopAnimation();
+      if (animateOnHover || animateOnTap) {
+        stopAnimation();
+        setLocalAnimate(false);
+      }
     },
   );
 
   const handlePointerDown = composeEventHandlers<
     React.PointerEvent<HTMLElement>
   >(childProps.onPointerDown, () => {
-    if (animateOnTap) startAnimation(animateOnTap);
+    if (animateOnTap) {
+      startAnimation(animateOnTap);
+      setLocalAnimate(delay <= 0);
+    }
   });
 
   const handlePointerUp = composeEventHandlers<React.PointerEvent<HTMLElement>>(
     childProps.onPointerUp,
     () => {
-      if (animateOnTap) stopAnimation();
+      if (animateOnTap) {
+        stopAnimation();
+        setLocalAnimate(false);
+      }
     },
   );
 
@@ -246,6 +414,7 @@ function AnimateIcon({
     [
       animationEpoch,
       controls,
+      currentAnimationRef,
       localAnimate,
       loop,
       loopDelay,
@@ -319,6 +488,240 @@ function AnimateIconNestedProvider<T extends string>({
   );
 }
 
+// Any animation-related prop set on the icon itself means it manages its own
+// AnimateIcon instead of inheriting the parent context wholesale.
+function hasAnimateOverrides<T extends string>(
+  props: Pick<
+    IconWrapperProps<T>,
+    | 'animate'
+    | 'animateOnHover'
+    | 'animateOnTap'
+    | 'animateOnView'
+    | 'loop'
+    | 'loopDelay'
+    | 'initialOnAnimateEnd'
+    | 'persistOnAnimateEnd'
+    | 'delay'
+    | 'completeOnStop'
+  >,
+) {
+  return (
+    props.animate !== undefined ||
+    props.animateOnHover !== undefined ||
+    props.animateOnTap !== undefined ||
+    props.animateOnView !== undefined ||
+    props.loop !== undefined ||
+    props.loopDelay !== undefined ||
+    props.initialOnAnimateEnd !== undefined ||
+    props.persistOnAnimateEnd !== undefined ||
+    props.delay !== undefined ||
+    props.completeOnStop !== undefined
+  );
+}
+
+function hasStandaloneAnimation<T extends string>(
+  props: Pick<
+    IconWrapperProps<T>,
+    'animate' | 'animateOnHover' | 'animateOnTap' | 'animateOnView' | 'animation'
+  >,
+) {
+  return (
+    props.animate !== undefined ||
+    props.animateOnHover !== undefined ||
+    props.animateOnTap !== undefined ||
+    props.animateOnView !== undefined ||
+    props.animation !== undefined
+  );
+}
+
+function iconClassName<T extends string>(
+  className: IconWrapperProps<T>['className'],
+  animation: string | StaticAnimations | undefined,
+) {
+  return cn(
+    className,
+    (animation === 'path' || animation === 'path-loop') && pathClassName,
+  );
+}
+
+// Merges the icon's own props over the parent AnimateIcon context: explicit
+// props win, then the parent's animate trigger, then the inherited animation
+// while the parent is active.
+function resolveContextualOverrides<T extends string>(
+  props: Pick<
+    IconWrapperProps<T>,
+    | 'animate'
+    | 'animation'
+    | 'loop'
+    | 'loopDelay'
+    | 'persistOnAnimateEnd'
+    | 'initialOnAnimateEnd'
+    | 'delay'
+    | 'completeOnStop'
+  >,
+  context: AnimateIconContextValue,
+) {
+  const inheritedAnimate: Trigger = context.active
+    ? (props.animation ?? context.animation ?? 'default')
+    : false;
+
+  return {
+    animate: (props.animate ?? context.animate ?? inheritedAnimate) as Trigger,
+    animation: props.animation ?? context.animation,
+    loop: props.loop ?? context.loop,
+    loopDelay: props.loopDelay ?? context.loopDelay,
+    persistOnAnimateEnd:
+      props.persistOnAnimateEnd ?? context.persistOnAnimateEnd,
+    initialOnAnimateEnd:
+      props.initialOnAnimateEnd ?? context.initialOnAnimateEnd,
+    delay: props.delay ?? context.delay,
+    completeOnStop: props.completeOnStop ?? context.completeOnStop,
+  };
+}
+
+// Icon rendered inside an AnimateIcon context: either it overrides the
+// parent's animation props and gets its own AnimateIcon, or it re-provides
+// the resolved animation to deeper nested icons.
+function ContextualIcon<T extends string>({
+  context,
+  ...props
+}: IconWrapperProps<T> & { context: AnimateIconContextValue }) {
+  const {
+    size = 28,
+    animation: animationProp,
+    animate,
+    animateOnHover,
+    animateOnTap,
+    animateOnView,
+    animateOnViewMargin,
+    animateOnViewOnce,
+    icon: IconComponent,
+    loop,
+    loopDelay,
+    persistOnAnimateEnd,
+    initialOnAnimateEnd,
+    delay,
+    completeOnStop,
+    className,
+    ...restProps
+  } = props;
+
+  if (
+    hasAnimateOverrides({
+      animate,
+      animateOnHover,
+      animateOnTap,
+      animateOnView,
+      loop,
+      loopDelay,
+      initialOnAnimateEnd,
+      persistOnAnimateEnd,
+      delay,
+      completeOnStop,
+    })
+  ) {
+    const resolved = resolveContextualOverrides(
+      {
+        animate,
+        animation: animationProp,
+        loop,
+        loopDelay,
+        persistOnAnimateEnd,
+        initialOnAnimateEnd,
+        delay,
+        completeOnStop,
+      },
+      context,
+    );
+
+    return (
+      <AnimateIcon
+        animate={resolved.animate}
+        animateOnHover={animateOnHover}
+        animateOnTap={animateOnTap}
+        animateOnView={animateOnView}
+        animateOnViewMargin={animateOnViewMargin}
+        animateOnViewOnce={animateOnViewOnce}
+        animation={resolved.animation}
+        loop={resolved.loop}
+        loopDelay={resolved.loopDelay}
+        persistOnAnimateEnd={resolved.persistOnAnimateEnd}
+        initialOnAnimateEnd={resolved.initialOnAnimateEnd}
+        delay={resolved.delay}
+        completeOnStop={resolved.completeOnStop}
+        asChild
+      >
+        <IconComponent
+          size={size}
+          className={iconClassName(className, resolved.animation)}
+          {...restProps}
+        />
+      </AnimateIcon>
+    );
+  }
+
+  const animationToUse = animationProp ?? context.animation;
+
+  return (
+    <AnimateIconNestedProvider
+      animationToUse={animationToUse}
+      // SVGMotionProps types `className` as MotionValueHelper; the nested
+      // provider only forwards it to `cn`, which expects a plain string.
+      className={className as string | undefined}
+      completeOnStop={props.completeOnStop}
+      context={context}
+      IconComponent={IconComponent}
+      size={size}
+      {...restProps}
+    />
+  );
+}
+// Icon with animation props but no surrounding AnimateIcon: it owns its
+// AnimateIcon wrapper directly.
+function StandaloneAnimatedIcon<T extends string>(props: IconWrapperProps<T>) {
+  const {
+    size = 28,
+    animation: animationProp,
+    animate,
+    animateOnHover,
+    animateOnTap,
+    animateOnView,
+    animateOnViewMargin,
+    animateOnViewOnce,
+    icon: IconComponent,
+    loop,
+    loopDelay,
+    delay,
+    completeOnStop,
+    className,
+    ...restProps
+  } = props;
+
+  return (
+    <AnimateIcon
+      animate={animate}
+      animateOnHover={animateOnHover}
+      animateOnTap={animateOnTap}
+      animateOnView={animateOnView}
+      animateOnViewMargin={animateOnViewMargin}
+      animateOnViewOnce={animateOnViewOnce}
+      animation={animationProp}
+      loop={loop}
+      loopDelay={loopDelay}
+      delay={delay}
+      completeOnStop={completeOnStop}
+      asChild
+    >
+      <IconComponent
+        size={size}
+        className={iconClassName(className, animationProp)}
+        {...restProps}
+      />
+    </AnimateIcon>
+  );
+}
+
+
 function IconWrapper<T extends string>({
   size = 28,
   animation: animationProp,
@@ -336,137 +739,70 @@ function IconWrapper<T extends string>({
   delay,
   completeOnStop,
   className,
-  ...props
+  ...restProps
 }: IconWrapperProps<T>) {
   const context = React.useContext(AnimateIconContext);
 
   if (context) {
-    const {
-      controls,
-      animation: parentAnimation,
-      loop: parentLoop,
-      loopDelay: parentLoopDelay,
-      active: parentActive,
-      animate: parentAnimate,
-      persistOnAnimateEnd: parentPersistOnAnimateEnd,
-      initialOnAnimateEnd: parentInitialOnAnimateEnd,
-      delay: parentDelay,
-      completeOnStop: parentCompleteOnStop,
-    } = context;
-
-    const hasOverrides =
-      animate !== undefined ||
-      animateOnHover !== undefined ||
-      animateOnTap !== undefined ||
-      animateOnView !== undefined ||
-      loop !== undefined ||
-      loopDelay !== undefined ||
-      initialOnAnimateEnd !== undefined ||
-      persistOnAnimateEnd !== undefined ||
-      delay !== undefined ||
-      completeOnStop !== undefined;
-
-    if (hasOverrides) {
-      const inheritedAnimate: Trigger = parentActive
-        ? (animationProp ?? parentAnimation ?? 'default')
-        : false;
-
-      const finalAnimate: Trigger = (animate ??
-        parentAnimate ??
-        inheritedAnimate) as Trigger;
-
-      return (
-        <AnimateIcon
-          animate={finalAnimate}
-          animateOnHover={animateOnHover}
-          animateOnTap={animateOnTap}
-          animateOnView={animateOnView}
-          animateOnViewMargin={animateOnViewMargin}
-          animateOnViewOnce={animateOnViewOnce}
-          animation={animationProp ?? parentAnimation}
-          loop={loop ?? parentLoop}
-          loopDelay={loopDelay ?? parentLoopDelay}
-          persistOnAnimateEnd={persistOnAnimateEnd ?? parentPersistOnAnimateEnd}
-          initialOnAnimateEnd={initialOnAnimateEnd ?? parentInitialOnAnimateEnd}
-          delay={delay ?? parentDelay}
-          completeOnStop={completeOnStop ?? parentCompleteOnStop}
-          asChild
-        >
-          <IconComponent
-            size={size}
-            className={cn(
-              className,
-              ((animationProp ?? parentAnimation) === 'path' ||
-                (animationProp ?? parentAnimation) === 'path-loop') &&
-                pathClassName,
-            )}
-            {...props}
-          />
-        </AnimateIcon>
-      );
-    }
-
-    const animationToUse = animationProp ?? parentAnimation;
-
     return (
-      <AnimateIconNestedProvider
-        animationToUse={animationToUse}
-          // SVGMotionProps types `className` as MotionValueHelper; the nested
-          // provider only forwards it to `cn`, which expects a plain string.
-          className={className as string | undefined}
-        completeOnStop={completeOnStop}
+      <ContextualIcon
         context={context}
-        IconComponent={IconComponent}
         size={size}
-        {...props}
-      />
-    );
-  }
-
-  if (
-    animate !== undefined ||
-    animateOnHover !== undefined ||
-    animateOnTap !== undefined ||
-    animateOnView !== undefined ||
-    animationProp !== undefined
-  ) {
-    return (
-      <AnimateIcon
+        animation={animationProp}
         animate={animate}
         animateOnHover={animateOnHover}
         animateOnTap={animateOnTap}
         animateOnView={animateOnView}
         animateOnViewMargin={animateOnViewMargin}
         animateOnViewOnce={animateOnViewOnce}
+        icon={IconComponent}
+        loop={loop}
+        loopDelay={loopDelay}
+        persistOnAnimateEnd={persistOnAnimateEnd}
+        initialOnAnimateEnd={initialOnAnimateEnd}
+        delay={delay}
+        completeOnStop={completeOnStop}
+        className={className}
+        {...restProps}
+      />
+    );
+  }
+
+  if (
+    hasStandaloneAnimation({
+      animate,
+      animateOnHover,
+      animateOnTap,
+      animateOnView,
+      animation: animationProp,
+    })
+  ) {
+    return (
+      <StandaloneAnimatedIcon
+        size={size}
         animation={animationProp}
+        animate={animate}
+        animateOnHover={animateOnHover}
+        animateOnTap={animateOnTap}
+        animateOnView={animateOnView}
+        animateOnViewMargin={animateOnViewMargin}
+        animateOnViewOnce={animateOnViewOnce}
+        icon={IconComponent}
         loop={loop}
         loopDelay={loopDelay}
         delay={delay}
         completeOnStop={completeOnStop}
-        asChild
-      >
-        <IconComponent
-          size={size}
-          className={cn(
-            className,
-            (animationProp === 'path' || animationProp === 'path-loop') &&
-              pathClassName,
-          )}
-          {...props}
-        />
-      </AnimateIcon>
+        className={className}
+        {...restProps}
+      />
     );
   }
 
   return (
     <IconComponent
       size={size}
-      className={cn(
-        className,
-        (animationProp === 'path' || animationProp === 'path-loop') &&
-          pathClassName,
-      )}
-      {...props}
+      className={iconClassName(className, animationProp)}
+      {...restProps}
     />
   );
 }

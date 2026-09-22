@@ -330,48 +330,71 @@ export async function renderWorkspaceCompositorCanvas({
     }
 
     let svgBatch: DraftingCanvasLayer[] = []
+    const drawOps: Array<
+      | { kind: "svg"; canvas?: HTMLCanvasElement; layers: DraftingCanvasLayer[] }
+      | { kind: "canvas"; layer: DraftingCanvasLayer }
+    > = []
 
-    const flushSvgBatch = async () => {
+    const flushSvgBatch = () => {
       if (svgBatch.length === 0) {
         return
       }
 
-      const batchCanvas = await rasterizeLayerBatch({
-        bounds: sceneBounds,
-        cardState,
-        fontDefs,
-        layers: svgBatch,
-        nodeId,
-        outputHeight,
-        outputWidth,
-        qrMarkup: resolvedQrMarkup,
-        state,
-      })
-
-      context.drawImage(batchCanvas, 0, 0)
+      drawOps.push({ kind: "svg", layers: svgBatch })
       svgBatch = []
     }
 
     for (const layer of visibleLayers) {
       if (cardLayerNeedsCanvasFace(layer, cardState)) {
         svgBatch.push(layer)
-        await flushSvgBatch()
-        drawCanvasFace(
-          context,
-          layer,
-          cardState,
-          sceneBounds,
-          resolvedBitmaps,
-          renderScale,
-          cardImageBitmap,
-        )
+        flushSvgBatch()
+        drawOps.push({ kind: "canvas", layer })
         continue
       }
 
       svgBatch.push(layer)
     }
 
-    await flushSvgBatch()
+    flushSvgBatch()
+
+    await Promise.all(
+      drawOps.map(async (op) => {
+        if (op.kind !== "svg") {
+          return
+        }
+
+        op.canvas = await rasterizeLayerBatch({
+          bounds: sceneBounds,
+          cardState,
+          fontDefs,
+          layers: op.layers,
+          nodeId,
+          outputHeight,
+          outputWidth,
+          qrMarkup: resolvedQrMarkup,
+          state,
+        })
+      }),
+    )
+
+    for (const op of drawOps) {
+      if (op.kind === "svg") {
+        if (op.canvas) {
+          context.drawImage(op.canvas, 0, 0)
+        }
+        continue
+      }
+
+      drawCanvasFace(
+        context,
+        op.layer,
+        cardState,
+        sceneBounds,
+        resolvedBitmaps,
+        renderScale,
+        cardImageBitmap,
+      )
+    }
 
     return canvas
   } finally {

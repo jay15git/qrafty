@@ -47,6 +47,7 @@ import {
 } from "@/features/qr-code/content/input-options"
 import {
   DesktopNewFillPicker,
+  type LockedFillPickerMode,
 } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
 import { SettingsFillOptionGrid } from "@/features/desktop-shell/inspector/settings-fill-option-grid"
 import {
@@ -426,7 +427,7 @@ export function SettingsFillPresetSection({
   onSelect,
 }: {
   fillPreviewImageUrl?: string
-  lockedFillMode?: import("@/features/desktop-shell/inspector/desktopnew-fill-picker").LockedFillPickerMode
+  lockedFillMode?: LockedFillPickerMode
   presets: readonly string[]
   qrGradient?: boolean
   value: string
@@ -591,6 +592,247 @@ function FillPickerPopoverContent({
   )
 }
 
+type SettingsFillPopoverVariantProps = {
+  value: string
+  onValueChange: (fill: Fill, css: string) => void
+  hint: string
+  variant: "row" | "swatch" | "grid" | "picker-only"
+  gridPresets?: readonly string[]
+  triggerClassName?: string
+  fillPreviewImageUrl?: string
+}
+
+function SettingsFillPopoverMobile({
+  fillPreviewImageUrl,
+  gridPresets,
+  hint,
+  liveDetail,
+  onValueChange,
+  triggerClassName,
+  value,
+  variant,
+}: SettingsFillPopoverVariantProps & {
+  liveDetail: { open: () => void; portal: ReactNode }
+}) {
+  if (variant === "picker-only") {
+    return liveDetail.portal
+  }
+
+  if (variant === "grid") {
+    return (
+      <>
+        <SettingsFillOptionGrid
+          persistKey={`fill-grid:${hint}`}
+          presets={gridPresets}
+          value={value}
+          onOpenPicker={liveDetail.open}
+          onSelect={onValueChange}
+        />
+        {liveDetail.portal}
+      </>
+    )
+  }
+
+  if (variant === "swatch") {
+    return (
+      <>
+        <FillSwatchButton
+          ariaLabel={hint}
+          className={triggerClassName}
+          fill={value}
+          imageUrl={fillPreviewImageUrl}
+          data-vaul-no-drag=""
+          onClick={liveDetail.open}
+        />
+        {liveDetail.portal}
+      </>
+    )
+  }
+
+  return (
+    <>
+      <ColorRowButton
+        fill={value}
+        hint={hint}
+        imageUrl={fillPreviewImageUrl}
+        data-vaul-no-drag=""
+        onClick={liveDetail.open}
+      />
+      {liveDetail.portal}
+    </>
+  )
+}
+
+function SettingsFillPopoverAccordion({
+  accordion,
+  accordionPanelClassName,
+  fillPreviewImageUrl,
+  gridPresets,
+  hint,
+  onValueChange,
+  pickerBody,
+  popoverKey,
+  popoverTitle,
+  theme,
+  triggerClassName,
+  value,
+  variant,
+}: SettingsFillPopoverVariantProps & {
+  accordion: NonNullable<ReturnType<typeof useSettingsAccordionPopover>>
+  accordionPanelClassName: string
+  pickerBody: ReactNode
+  popoverKey: string
+  popoverTitle: string
+  theme: "light" | "dark"
+}) {
+  const isOpen = accordion.openKey === popoverKey
+  const toggleOpen = () => accordion.setOpenKey(isOpen ? null : popoverKey)
+
+  if (variant === "picker-only") {
+    return (
+      <SettingsAccordionPopoverOverlay
+        className={accordionPanelClassName}
+        openKey={popoverKey}
+        theme={theme}
+      >
+        <SettingsPopoverChrome
+          bodyClassName="dn-settings-popover-body-fill"
+          title={popoverTitle}
+          onClose={() => accordion.setOpenKey(null)}
+        >
+          {pickerBody}
+        </SettingsPopoverChrome>
+      </SettingsAccordionPopoverOverlay>
+    )
+  }
+
+  return (
+    <>
+      {variant === "grid" ? (
+        <SettingsFillOptionGrid
+          persistKey={`fill-grid:${hint}`}
+          presets={gridPresets}
+          value={value}
+          onOpenPicker={toggleOpen}
+          onSelect={onValueChange}
+        />
+      ) : variant === "swatch" ? (
+        <FillSwatchButton
+          ariaLabel={hint}
+          className={triggerClassName}
+          fill={value}
+          imageUrl={fillPreviewImageUrl}
+          type="button"
+          onClick={toggleOpen}
+        />
+      ) : (
+        <ColorRowButton
+          fill={value}
+          hint={hint}
+          imageUrl={fillPreviewImageUrl}
+          type="button"
+          onClick={toggleOpen}
+        />
+      )}
+      <SettingsAccordionPopoverOverlay
+        className={accordionPanelClassName}
+        openKey={popoverKey}
+        theme={theme}
+      >
+        <SettingsPopoverChrome
+          bodyClassName="dn-settings-popover-body-fill"
+          title={popoverTitle}
+          onClose={() => accordion.setOpenKey(null)}
+        >
+          {pickerBody}
+        </SettingsPopoverChrome>
+      </SettingsAccordionPopoverOverlay>
+    </>
+  )
+}
+
+function SettingsFillPopoverRadix({
+  align,
+  avoidCollisions,
+  collisionPadding,
+  fillPreviewImageUrl,
+  gridPresets,
+  hint,
+  mobileDensity,
+  onOpenChange,
+  onValueChange,
+  open,
+  pickerBody,
+  popoverTitle,
+  side,
+  theme,
+  triggerClassName,
+  value,
+  variant,
+}: SettingsFillPopoverVariantProps & {
+  align: "start" | "center" | "end"
+  avoidCollisions?: boolean
+  collisionPadding?: number
+  mobileDensity: boolean
+  onOpenChange: (open: boolean) => void
+  open: boolean
+  pickerBody: ReactNode
+  popoverTitle: string
+  side: "top" | "right" | "bottom" | "left"
+  theme: "light" | "dark"
+}) {
+  const content = (
+    <FillPickerPopoverContent
+      align={align}
+      avoidCollisions={avoidCollisions}
+      collisionPadding={collisionPadding}
+      mobileDensity={mobileDensity}
+      onClose={() => onOpenChange(false)}
+      side={side}
+      theme={theme}
+      title={popoverTitle}
+    >
+      {pickerBody}
+    </FillPickerPopoverContent>
+  )
+
+  if (variant === "picker-only") {
+    return (
+      <Popover open={open} onOpenChange={onOpenChange}>
+        {content}
+      </Popover>
+    )
+  }
+
+  if (variant === "grid") {
+    return (
+      <Popover open={open} onOpenChange={onOpenChange}>
+        <SettingsFillOptionGrid
+          persistKey={`fill-grid:${hint}`}
+          presets={gridPresets}
+          value={value}
+          onOpenPicker={() => onOpenChange(true)}
+          onSelect={onValueChange}
+        />
+        {content}
+      </Popover>
+    )
+  }
+
+  return (
+    <Popover open={open} onOpenChange={onOpenChange}>
+      <PopoverTrigger asChild>
+        {variant === "swatch" ? (
+          <FillSwatchButton ariaLabel={hint} className={triggerClassName} fill={value} imageUrl={fillPreviewImageUrl} />
+        ) : (
+          <ColorRowButton fill={value} hint={hint} imageUrl={fillPreviewImageUrl} />
+        )}
+      </PopoverTrigger>
+      {content}
+    </Popover>
+  )
+}
+
 export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
   {
     value,
@@ -629,7 +871,7 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
     modulePattern?: ModulePatternControl
     moduleImage?: ModuleImageControl
     moduleFillMode?: DotsColorMode
-    lockedFillMode?: import("@/features/desktop-shell/inspector/desktopnew-fill-picker").LockedFillPickerMode
+    lockedFillMode?: LockedFillPickerMode
   },
   ref: React.Ref<SettingsFillPopoverHandle>,
 ) {
@@ -671,7 +913,7 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
     "desktopnew-fill-popover desktopnew-popover-content w-full border-0 bg-transparent p-0 shadow-none outline-none",
   )
 
-  const openPicker = () => {
+  const openPicker = useCallback(() => {
     if (mobileDensity && mobileNav) {
       liveDetail.open()
       return
@@ -683,194 +925,54 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
     }
 
     setRadixOpen(true)
+  }, [accordion, liveDetail.open, mobileDensity, mobileNav, popoverKey])
+
+  useImperativeHandle(ref, () => ({ openPicker }), [openPicker])
+
+  const variantProps: SettingsFillPopoverVariantProps = {
+    fillPreviewImageUrl,
+    gridPresets,
+    hint,
+    onValueChange,
+    triggerClassName,
+    value,
+    variant,
   }
 
-  useImperativeHandle(ref, () => ({ openPicker }), [accordion, liveDetail, mobileDensity, mobileNav, popoverKey])
-
   if (mobileDensity && mobileNav) {
-    if (variant === "picker-only") {
-      return liveDetail.portal
-    }
-
-    if (variant === "grid") {
-      return (
-        <>
-          <SettingsFillOptionGrid
-            persistKey={`fill-grid:${hint}`}
-            presets={gridPresets}
-            value={value}
-            onOpenPicker={liveDetail.open}
-            onSelect={onValueChange}
-          />
-          {liveDetail.portal}
-        </>
-      )
-    }
-
-    if (variant === "swatch") {
-      return (
-        <>
-          <FillSwatchButton
-            ariaLabel={hint}
-            className={triggerClassName}
-            fill={value}
-            imageUrl={fillPreviewImageUrl}
-            data-vaul-no-drag=""
-            onClick={liveDetail.open}
-          />
-          {liveDetail.portal}
-        </>
-      )
-    }
-
     return (
-      <>
-        <ColorRowButton
-          fill={value}
-          hint={hint}
-          imageUrl={fillPreviewImageUrl}
-          data-vaul-no-drag=""
-          onClick={liveDetail.open}
-        />
-        {liveDetail.portal}
-      </>
+      <SettingsFillPopoverMobile {...variantProps} liveDetail={liveDetail} />
     )
   }
 
   if (accordion) {
-    const isOpen = accordion.openKey === popoverKey
-    const toggleOpen = () => accordion.setOpenKey(isOpen ? null : popoverKey)
-
-    if (variant === "picker-only") {
-      return (
-        <SettingsAccordionPopoverOverlay
-          className={accordionPanelClassName}
-          openKey={popoverKey}
-          theme={theme}
-        >
-          <SettingsPopoverChrome
-            bodyClassName="dn-settings-popover-body-fill"
-            title={popoverTitle}
-            onClose={() => accordion.setOpenKey(null)}
-          >
-            {pickerBody}
-          </SettingsPopoverChrome>
-        </SettingsAccordionPopoverOverlay>
-      )
-    }
-
     return (
-      <>
-        {variant === "grid" ? (
-          <SettingsFillOptionGrid
-            persistKey={`fill-grid:${hint}`}
-            presets={gridPresets}
-            value={value}
-            onOpenPicker={toggleOpen}
-            onSelect={onValueChange}
-          />
-        ) : variant === "swatch" ? (
-          <FillSwatchButton
-            ariaLabel={hint}
-            className={triggerClassName}
-            fill={value}
-            imageUrl={fillPreviewImageUrl}
-            type="button"
-            onClick={toggleOpen}
-          />
-        ) : (
-          <ColorRowButton
-            fill={value}
-            hint={hint}
-            imageUrl={fillPreviewImageUrl}
-            type="button"
-            onClick={toggleOpen}
-          />
-        )}
-        <SettingsAccordionPopoverOverlay
-          className={accordionPanelClassName}
-          openKey={popoverKey}
-          theme={theme}
-        >
-          <SettingsPopoverChrome
-            bodyClassName="dn-settings-popover-body-fill"
-            title={popoverTitle}
-            onClose={() => accordion.setOpenKey(null)}
-          >
-            {pickerBody}
-          </SettingsPopoverChrome>
-        </SettingsAccordionPopoverOverlay>
-      </>
-    )
-  }
-
-  if (variant === "picker-only") {
-    return (
-      <Popover open={radixOpen} onOpenChange={setRadixOpen}>
-        <FillPickerPopoverContent
-          align={align}
-          avoidCollisions={avoidCollisions}
-          collisionPadding={collisionPadding}
-          mobileDensity={mobileDensity}
-          onClose={() => setRadixOpen(false)}
-          side={side}
-          theme={theme}
-          title={popoverTitle}
-        >
-          {pickerBody}
-        </FillPickerPopoverContent>
-      </Popover>
-    )
-  }
-
-  if (variant === "grid") {
-    return (
-      <Popover open={radixOpen} onOpenChange={setRadixOpen}>
-        <SettingsFillOptionGrid
-          persistKey={`fill-grid:${hint}`}
-          presets={gridPresets}
-          value={value}
-          onOpenPicker={() => setRadixOpen(true)}
-          onSelect={onValueChange}
-        />
-        <FillPickerPopoverContent
-          align={align}
-          avoidCollisions={avoidCollisions}
-          collisionPadding={collisionPadding}
-          mobileDensity={mobileDensity}
-          onClose={() => setRadixOpen(false)}
-          side={side}
-          theme={theme}
-          title={popoverTitle}
-        >
-          {pickerBody}
-        </FillPickerPopoverContent>
-      </Popover>
+      <SettingsFillPopoverAccordion
+        {...variantProps}
+        accordion={accordion}
+        accordionPanelClassName={accordionPanelClassName}
+        pickerBody={pickerBody}
+        popoverKey={popoverKey}
+        popoverTitle={popoverTitle}
+        theme={theme}
+      />
     )
   }
 
   return (
-    <Popover open={radixOpen} onOpenChange={setRadixOpen}>
-      <PopoverTrigger asChild>
-        {variant === "swatch" ? (
-          <FillSwatchButton ariaLabel={hint} className={triggerClassName} fill={value} imageUrl={fillPreviewImageUrl} />
-        ) : (
-          <ColorRowButton fill={value} hint={hint} imageUrl={fillPreviewImageUrl} />
-        )}
-      </PopoverTrigger>
-      <FillPickerPopoverContent
-        align={align}
-        avoidCollisions={avoidCollisions}
-        collisionPadding={collisionPadding}
-        mobileDensity={mobileDensity}
-        onClose={() => setRadixOpen(false)}
-        side={side}
-        theme={theme}
-        title={popoverTitle}
-      >
-        {pickerBody}
-      </FillPickerPopoverContent>
-    </Popover>
+    <SettingsFillPopoverRadix
+      {...variantProps}
+      align={align}
+      avoidCollisions={avoidCollisions}
+      collisionPadding={collisionPadding}
+      mobileDensity={mobileDensity}
+      open={radixOpen}
+      pickerBody={pickerBody}
+      popoverTitle={popoverTitle}
+      side={side}
+      theme={theme}
+      onOpenChange={setRadixOpen}
+    />
   )
 })
 

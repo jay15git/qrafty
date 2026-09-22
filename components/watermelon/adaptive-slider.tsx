@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, type FC, type ChangeEvent } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 interface AdaptiveSliderProps {
@@ -170,13 +170,16 @@ const AdaptiveSliderTrack: FC<AdaptiveSliderTrackProps> = ({
 }) => {
   return (
       <div className={cn("group relative flex h-10 w-full items-center overflow-hidden rounded-full bg-[#f1f3f5] transition-colors dark:bg-neutral-800", className)}>
-        <motion.div
+        <m.div
           className={cn(
             "pointer-events-none absolute top-0 left-0 h-full rounded-full",
             indeterminate && "animate-pulse",
           )}
-          animate={{
+          layout
+          style={{
             width: `calc((${percentage} / 100) * (100% - 40px) + 40px)`,
+          }}
+          animate={{
             background: colorSettings.gradient,
           }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
@@ -199,15 +202,16 @@ const AdaptiveSliderTrack: FC<AdaptiveSliderTrackProps> = ({
           )}
         />
 
-        <motion.div
+        <m.div
           className="pointer-events-none absolute top-0 z-40 flex size-10 items-center justify-center rounded-full border-none"
-          animate={{
+          layout
+          style={{
             left: `calc((${percentage} / 100) * (100% - 40px))`,
           }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
           <div className="size-8 rounded-full bg-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)]" />
-        </motion.div>
+        </m.div>
       </div>
   );
 };

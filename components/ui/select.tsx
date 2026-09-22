@@ -14,14 +14,15 @@ import {
   type ReactNode,
   type HTMLAttributes,
 } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "motion/react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import type { IconComponent } from "@/lib/icon-context";
 import { cn } from "@/lib/utils";
 import { spring, exitFallbackMs } from "@/lib/springs";
 import { useFluidHover, useRegisterFluidHoverItem } from "@/hooks/use-fluid-hover";
-import { useShape, shapeMap } from "@/lib/shape-context";
+import type { ItemRect, UseFluidHoverReturn } from "@/hooks/use-fluid-hover";
+import { useShape, shapeMap, type ShapeClasses } from "@/lib/shape-context";
 import { SizeProvider, useSize, type SizeVariant } from "@/lib/size-context";
 import { Elevated } from "@/lib/elevated";
 import {
@@ -341,6 +342,100 @@ const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
 SelectTrigger.displayName = "SelectTrigger";
 
 // ---------------------------------------------------------------------------
+// SelectOverlays
+//
+// The three absolutely positioned overlays inside the popup: the selected-row
+// background, the fluid hover pill, and the keyboard focus ring. They
+// exit-animate inside AnimatePresence boundaries that stay mounted across
+// opens; each child is keyed by the open epoch so a still-exiting overlay is
+// never re-adopted under its old key on reopen (`initial` would never run
+// again and it would spring from the stale row). The popup's own fade covers
+// their disappearance.
+// ---------------------------------------------------------------------------
+
+function SelectOverlays({
+  open,
+  openEpoch,
+  checkedRect,
+  focusRect,
+  shape,
+  hover,
+}: {
+  open: boolean;
+  openEpoch: number;
+  checkedRect: ItemRect | null;
+  focusRect: ItemRect | null;
+  shape: ShapeClasses;
+  hover: UseFluidHoverReturn;
+}) {
+  return (
+    <>
+      {/* Selected background */}
+      <AnimatePresence>
+        {open && checkedRect && (
+          <m.div
+            key={openEpoch}
+            className={`absolute ${shape.bg} bg-active pointer-events-none`}
+            // Position lives in `animate` so an in-session value
+            // change springs the marker to the picked row (the
+            // selection acknowledgment). Safe against the reopen
+            // slide: the epoch key means no marker survives a
+            // close, and a fresh mount with initial={false}
+            // renders snapped at these values.
+            initial={false}
+            layout
+            style={{
+              top: checkedRect.top,
+              left: checkedRect.left,
+              width: checkedRect.width,
+              height: checkedRect.height,
+            }}
+            animate={{
+              opacity: 1,
+            }}
+            exit={{ opacity: 0, transition: spring.moderate.exit }}
+            transition={{
+              ...spring.moderate,
+              opacity: { duration: 0.08 },
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Hover background */}
+      <FluidHoverHighlight
+        hover={hover}
+        hidden={!open}
+        className={shape.bg}
+      />
+
+      {/* Focus ring */}
+      <AnimatePresence>
+        {open && focusRect && (
+          <m.div
+            key={openEpoch}
+            className={`absolute ${shape.focusRing} pointer-events-none z-20 border border-[color:var(--focus-ring,#6B97FF)]`}
+            initial={false}
+            layout
+            style={{
+              left: focusRect.left - 2,
+              top: focusRect.top - 2,
+              width: focusRect.width + 4,
+              height: focusRect.height + 4,
+            }}
+            exit={{ opacity: 0, transition: spring.fast.exit }}
+            transition={{
+              ...spring.fast,
+              opacity: { duration: 0.08 },
+            }}
+          />
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // SelectContent
 // ---------------------------------------------------------------------------
 
@@ -394,7 +489,7 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
     );
 
     // Release Base UI's deferred unmount once the exit tween has played.
-    // onAnimationComplete on the motion.div is the primary signal; this
+    // onAnimationComplete on the m.div is the primary signal; this
     // timeout is a fallback for throttled/background tabs where rAF-driven
     // animation callbacks can stall. The popup exits with spring.fast, so the
     // fallback tracks that tier's exit duration plus a safety buffer.
@@ -452,12 +547,30 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
     // effect above re-syncs it), and a leftover activeIndex is worse: Base UI
     // keeps the popup mounted through the exit tween, so on reopen the hover
     // pill would still be sitting on the previously active row and spring from
-    // there to the row that auto-focus lands on.
+    // there to the row that auto-focus lands on. Adjusted during render (the
+    // React-docs prev-prop pattern) so the reset lands in the same commit as
+    // the close instead of a post-commit effect pass.
+    const [prevOpen, setPrevOpen] = useState(open);
+    const [openEpoch, setOpenEpoch] = useState(0);
+    if (prevOpen !== open) {
+      setPrevOpen(open);
+      if (!open) {
+        setCheckedIndex(undefined);
+        setFocusedIndex(null);
+      } else {
+        // Fresh key per open session: AnimatePresence stays mounted across
+        // closes now, and re-adopting a still-exiting overlay under its old
+        // key would skip `initial` and spring it from the stale row.
+        setOpenEpoch((epoch) => epoch + 1);
+      }
+    }
+
+    // activeIndex lives inside useFluidHover, so it can't join the render
+    // adjustment above; clearing it in a microtask still lands before the
+    // close paints, keeping a stale pill off the next open.
     useEffect(() => {
       if (open) return;
-      setCheckedIndex(undefined);
-      setActiveIndex(null);
-      setFocusedIndex(null);
+      queueMicrotask(() => setActiveIndex(null));
     }, [open, setActiveIndex]);
 
     // Overlays read rects only once the hook reports the item set fully
@@ -482,7 +595,7 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
           alignItemWithTrigger={false}
           className={cn("z-50 outline-none", positionerClassName)}
         >
-          <motion.div
+          <m.div
             className={popupMotionClass}
             initial={{ opacity: 0, y: "var(--popup-enter-y)", scaleY: 0.96 }}
             animate={
@@ -564,78 +677,21 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                       listClassName,
                     )}
                   >
-                {/* The three overlays are torn down as the close begins rather
-                    than exit-animated, because an overlay still mounted when the
-                    popup reopens is one AnimatePresence re-adopts under its old
-                    key: `initial` never runs again, so it keeps the position of the
-                    row it had before and animates from there to the new one. The
-                    popup's own fade covers their disappearance. */}
-                {/* Selected background */}
-                {open && (
-                  <AnimatePresence>
-                    {checkedRect && (
-                      <motion.div
-                        className={`absolute ${shape.bg} bg-active pointer-events-none`}
-                        // Position lives in `animate` so an in-session value
-                        // change springs the marker to the picked row (the
-                        // selection acknowledgment). Safe against the reopen
-                        // slide: the `open &&` teardown means no marker
-                        // survives a close, and a fresh mount with
-                        // initial={false} renders snapped at these values.
-                        initial={false}
-                        animate={{
-                          top: checkedRect.top,
-                          left: checkedRect.left,
-                          width: checkedRect.width,
-                          height: checkedRect.height,
-                          opacity: 1,
-                        }}
-                        exit={{ opacity: 0, transition: spring.moderate.exit }}
-                        transition={{
-                          ...spring.moderate,
-                          opacity: { duration: 0.08 },
-                        }}
-                      />
-                    )}
-                  </AnimatePresence>
-                )}
-
-                {/* Hover background */}
-                <FluidHoverHighlight
+                <SelectOverlays
+                  open={open}
+                  openEpoch={openEpoch}
+                  checkedRect={checkedRect}
+                  focusRect={focusRect}
+                  shape={shape}
                   hover={hover}
-                  hidden={!open}
-                  className={shape.bg}
                 />
-
-                {/* Focus ring */}
-                {open && (
-                  <AnimatePresence>
-                    {focusRect && (
-                      <motion.div
-                        className={`absolute ${shape.focusRing} pointer-events-none z-20 border border-[color:var(--focus-ring,#6B97FF)]`}
-                        initial={false}
-                        animate={{
-                          left: focusRect.left - 2,
-                          top: focusRect.top - 2,
-                          width: focusRect.width + 4,
-                          height: focusRect.height + 4,
-                        }}
-                        exit={{ opacity: 0, transition: spring.fast.exit }}
-                        transition={{
-                          ...spring.fast,
-                          opacity: { duration: 0.08 },
-                        }}
-                      />
-                    )}
-                  </AnimatePresence>
-                )}
 
                 {children}
                   </div>
                 </ScrollArea>
               </SelectPrimitive.Popup>
             </SelectContentContext.Provider>
-          </motion.div>
+          </m.div>
         </SelectPrimitive.Positioner>
       </SelectPrimitive.Portal>
     );
@@ -765,7 +821,7 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
         >
           <AnimatePresence>
             {isChecked && (
-              <motion.svg
+              <m.svg
                 key="check"
                 width={sizeClasses.icon}
                 height={sizeClasses.icon}
@@ -780,7 +836,7 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 1 }}
               >
-                <motion.path
+                <m.path
                   d="M4 12L9 17L20 6"
                   initial={{ pathLength: skipAnimation ? 1 : 0 }}
                   animate={{
@@ -792,7 +848,7 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
                     transition: { duration: 0.04, ease: "easeIn" },
                   }}
                 />
-              </motion.svg>
+              </m.svg>
             )}
           </AnimatePresence>
         </span>

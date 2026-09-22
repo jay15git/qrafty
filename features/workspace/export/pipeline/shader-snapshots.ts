@@ -145,20 +145,33 @@ export class WorkspaceShaderCaptureSession {
   }
 
   async capture(mode: ExportClockMode, videoTimeMs = 0) {
+    const captures: Record<string, string | undefined> = Object.fromEntries(
+      await Promise.all(
+        this.targets.map(async (target) => {
+          const renderer = this.renderers.get(target.key)
+          if (!renderer) {
+            return [target.key, undefined] as const
+          }
+
+          const frameMs = resolveShaderExportFrameMs(target.shader, mode, videoTimeMs)
+          await renderer.setFrameMs(frameMs)
+          return [target.key, await renderer.captureDataUrl()] as const
+        }),
+      ),
+    )
+
     const snapshots: Record<string, string> = {}
 
     for (const target of this.targets) {
-      const renderer = this.renderers.get(target.key)
-      if (!renderer) {
+      const snapshot = captures[target.key]
+      if (snapshot === undefined) {
         continue
       }
 
-      const frameMs = resolveShaderExportFrameMs(target.shader, mode, videoTimeMs)
-      await renderer.setFrameMs(frameMs)
-      snapshots[target.key] = await renderer.captureDataUrl()
+      snapshots[target.key] = snapshot
 
       if (target.shader.shaderId) {
-        snapshots[target.shader.shaderId] = snapshots[target.key]
+        snapshots[target.shader.shaderId] = snapshot
       }
     }
 
@@ -171,17 +184,29 @@ export class WorkspaceShaderCaptureSession {
 
   // fallow-ignore-next-line unused-class-member
   async captureBitmaps(mode: ExportClockMode, videoTimeMs = 0) {
+    const captures: Record<string, ImageBitmap | undefined> = Object.fromEntries(
+      await Promise.all(
+        this.targets.map(async (target) => {
+          const renderer = this.renderers.get(target.key)
+          if (!renderer) {
+            return [target.key, undefined] as const
+          }
+
+          const frameMs = resolveShaderExportFrameMs(target.shader, mode, videoTimeMs)
+          await renderer.setFrameMs(frameMs)
+          return [target.key, await renderer.captureBitmap()] as const
+        }),
+      ),
+    )
+
     const bitmaps: Record<string, ImageBitmap> = {}
 
     for (const target of this.targets) {
-      const renderer = this.renderers.get(target.key)
-      if (!renderer) {
+      const bitmap = captures[target.key]
+      if (!bitmap) {
         continue
       }
 
-      const frameMs = resolveShaderExportFrameMs(target.shader, mode, videoTimeMs)
-      await renderer.setFrameMs(frameMs)
-      const bitmap = await renderer.captureBitmap()
       bitmaps[target.key] = bitmap
 
       if (target.shader.shaderId) {
@@ -227,21 +252,20 @@ export async function captureWorkspaceShaderSnapshots({
 
   const snapshots: Record<string, string> = {}
   const targets = collectShaderCaptureTargets({ cardLayer, cardState, layers })
+  const captured = await Promise.all(
+    targets.map((target) => captureShaderTarget(target, mode, videoTimeMs)),
+  )
 
-  try {
-    for (const target of targets) {
-      snapshots[target.key] = await captureShaderTarget(target, mode, videoTimeMs)
+  for (const [index, target] of targets.entries()) {
+    snapshots[target.key] = captured[index]
 
-      if (target.shader.shaderId) {
-        snapshots[target.shader.shaderId] = snapshots[target.key]
-      }
+    if (target.shader.shaderId) {
+      snapshots[target.shader.shaderId] = snapshots[target.key]
     }
+  }
 
-    if (cardLayer && snapshots[cardLayer.id]) {
-      snapshots.card = snapshots[cardLayer.id]
-    }
-  } catch (error) {
-    throw error
+  if (cardLayer && snapshots[cardLayer.id]) {
+    snapshots.card = snapshots[cardLayer.id]
   }
 
   return snapshots

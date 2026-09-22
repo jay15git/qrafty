@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, { useState, useEffect, useMemo, useCallback, createContext, useContext } from "react";
 import { flushSync } from "react-dom";
 
 interface DocumentWithViewTransition {
@@ -119,7 +119,7 @@ export default function BlurFadeThemeTransition({
     };
   }, []);
 
-  const triggerTransition = (customDuration?: number, customBlur?: number) => {
+  const triggerTransition = useCallback((customDuration?: number, customBlur?: number) => {
     if (typeof window !== "undefined") {
       window.getSelection()?.removeAllRanges();
     }
@@ -213,17 +213,20 @@ export default function BlurFadeThemeTransition({
       applyThemeChange();
       if (onTransition) onTransition();
     }
-  };
+  }, [isAnimating, duration, maxBlur, activeTheme, isControlled, onThemeChange, onTransition, easing]);
+
+  const contextValue: BlurFadeThemeTransitionContextType = useMemo(
+    () => ({
+      theme: activeTheme,
+      triggerTransition,
+      isAnimating,
+    }),
+    [activeTheme, triggerTransition, isAnimating],
+  );
 
   if (!mounted) {
     return null;
   }
-
-  const contextValue: BlurFadeThemeTransitionContextType = {
-    theme: activeTheme,
-    triggerTransition,
-    isAnimating,
-  };
 
   return (
     <BlurFadeThemeTransitionContext.Provider value={contextValue}>

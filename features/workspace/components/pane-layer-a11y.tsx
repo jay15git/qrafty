@@ -49,15 +49,15 @@ export function PaneLayerInteractive({
   className?: string
   style?: CSSProperties
   children: ReactNode
-  onClick?: (event: MouseEvent<HTMLDivElement>) => void
-  onDoubleClick?: (event: MouseEvent<HTMLDivElement>) => void
-  onPointerDown?: (event: PointerEvent<HTMLDivElement>) => void
-  onPointerMove?: (event: PointerEvent<HTMLDivElement>) => void
-  onPointerUp?: (event: PointerEvent<HTMLDivElement>) => void
-  onPointerCancel?: (event: PointerEvent<HTMLDivElement>) => void
-  onContextMenu?: (event: MouseEvent<HTMLDivElement>) => void
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void
+  onDoubleClick?: (event: MouseEvent<HTMLButtonElement>) => void
+  onPointerDown?: (event: PointerEvent<HTMLButtonElement>) => void
+  onPointerMove?: (event: PointerEvent<HTMLButtonElement>) => void
+  onPointerUp?: (event: PointerEvent<HTMLButtonElement>) => void
+  onPointerCancel?: (event: PointerEvent<HTMLButtonElement>) => void
+  onContextMenu?: (event: MouseEvent<HTMLButtonElement>) => void
 } & Record<string, unknown>) {
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key !== "Enter" && event.key !== " ") {
       return
     }
@@ -68,13 +68,16 @@ export function PaneLayerInteractive({
   }
 
   return (
-    <div
+    <button
       {...rest}
-      role="button"
+      type="button"
       tabIndex={isSelected ? 0 : -1}
       aria-label={getPaneLayerA11yLabel(layer)}
       aria-pressed={isSelected}
-      className={cn("outline-none", className)}
+      className={cn(
+        "block appearance-none select-auto outline-none [text-align:inherit]",
+        className,
+      )}
       style={style}
       onClick={onClick}
       onContextMenu={onContextMenu}
@@ -86,7 +89,7 @@ export function PaneLayerInteractive({
       onPointerUp={onPointerUp}
     >
       {children}
-    </div>
+    </button>
   )
 }
 

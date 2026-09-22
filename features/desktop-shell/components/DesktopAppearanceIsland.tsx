@@ -113,33 +113,7 @@ function DesktopShadowIcon({ className }: { className?: string }) {
   )
 }
 
-export function DesktopDynamicIslandChrome({
-  appearance,
-  appearanceLayer,
-  canAddQrCode,
-  canDeleteLayer,
-  canRedo,
-  canUndo,
-  insertNodeId,
-  layersSettings,
-  onAddQrCode,
-  onAppearancePatch,
-  onBrowseWallpapers,
-  onRedo,
-  onElementLayerPatch,
-  onInsertLayer,
-  onLayerDelete,
-  onLayersReorder,
-  onLayersSettingsChange,
-  onTransformLayerPatch,
-  onSelectSizeTemplate,
-  onThemeChange,
-  onUndo,
-  selectedElementLayer,
-  selectedTransformLayer,
-  sizePresetId,
-  theme = "dark",
-}: {
+type DesktopDynamicIslandChromeProps = {
   appearance?: DesktopAppearanceSnapshot | null
   appearanceLayer?: DraftingCanvasLayer | null
   canAddQrCode?: boolean
@@ -165,6 +139,36 @@ export function DesktopDynamicIslandChrome({
   selectedTransformLayer?: DraftingCanvasLayer | null
   sizePresetId?: string
   theme?: DesktopThemeMode
+}
+
+function useDesktopIslandItems({
+  appearance,
+  appearanceLayer,
+  canAddQrCode,
+  canDeleteLayer,
+  canRedo,
+  canUndo,
+  insertNodeId,
+  layersSettings,
+  onAddQrCode,
+  onAppearancePatch,
+  onBrowseWallpapers,
+  onRedo,
+  onElementLayerPatch,
+  onInsertLayer,
+  onLayerDelete,
+  onLayersReorder,
+  onLayersSettingsChange,
+  onTransformLayerPatch,
+  onSelectSizeTemplate,
+  onThemeChange,
+  onUndo,
+  selectedElementLayer,
+  selectedTransformLayer,
+  sizePresetId,
+  theme,
+}: Omit<DesktopDynamicIslandChromeProps, "theme"> & {
+  theme: DesktopThemeMode
 }) {
   const propertyLayer = selectedTransformLayer ?? selectedElementLayer ?? appearanceLayer ?? null
   const propertyCapabilities = getDesktopLayerToolbarCapabilities(propertyLayer)
@@ -439,6 +443,13 @@ export function DesktopDynamicIslandChrome({
     themeTransition,
     toggleSoundsEnabled,
   ])
+
+  return items
+}
+
+export function DesktopDynamicIslandChrome(props: DesktopDynamicIslandChromeProps) {
+  const theme = props.theme ?? "dark"
+  const items = useDesktopIslandItems({ ...props, theme })
 
   return (
     <div data-slot="desktop-dynamic-island-content">

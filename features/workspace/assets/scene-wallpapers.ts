@@ -16,3 +16,7 @@ export const SCENE_WALLPAPERS: readonly SceneWallpaper[] = [
   ...MAC_WALLPAPERS,
   ...RAYCAST_WALLPAPERS,
 ] as const
+
+export function isSceneWallpaperPath(path: string) {
+  return SCENE_WALLPAPERS.some((wallpaper) => wallpaper.path === path)
+}

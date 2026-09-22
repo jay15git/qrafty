@@ -36,21 +36,26 @@ const MAX_FILE_SIZE = 4 * 1024 * 1024
 const SUPPORTED_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/webp"]
 
 function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = (event) => resolve(event.target?.result as string)
-    reader.onerror = () => reject(new Error("Failed to read file"))
-    reader.readAsDataURL(file)
-  })
+  const { promise, resolve, reject } = Promise.withResolvers<string>()
+  const reader = new FileReader()
+  reader.onload = (event) => resolve(event.target?.result as string)
+  reader.onerror = () => reject(new Error("Failed to read file"))
+  reader.readAsDataURL(file)
+  return promise
 }
 
 function loadImageElement(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.onload = () => resolve(img)
-    img.onerror = () => reject(new Error("Invalid or corrupted image file"))
-    img.src = src
-  })
+  const { promise, resolve, reject } = Promise.withResolvers<HTMLImageElement>()
+  const img = new Image()
+  img.onload = () => resolve(img)
+  img.onerror = () => reject(new Error("Invalid or corrupted image file"))
+  img.src = src
+  return promise
+}
+
+function formatMimeSubtype(format: string): string {
+  const subtype = format.split("/")[1]
+  return (subtype ?? format).toUpperCase()
 }
 
 function initialCropArea(
@@ -210,28 +215,19 @@ interface ImageUploaderProps {
   tile?: boolean
 }
 
-export function ImageCropper({
+function useImageCropper({
   onImageCropped,
   fixedSize,
   aspectRatio,
-  className,
-  dialogContentClassName,
-  dialogTheme,
   maxFileSize = MAX_FILE_SIZE,
   supportedFormats = SUPPORTED_FORMATS,
   value,
   onChange,
   onBlur,
-  error,
   disabled = false,
-  imgClassName,
-  placeholder = "Drag and drop an image here, or click to select",
-  showFormatHint = true,
-  compact = false,
-  tile = false,
 }: ImageUploaderProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const [originalFile, setOriginalFile] = useState<File | null>(null)
+  const originalFileRef = useRef<File | null>(null)
   const [showCropDialog, setShowCropDialog] = useState(false)
   const [cropArea, setCropArea] = useState<CropArea>({
     x: 0,
@@ -240,8 +236,8 @@ export function ImageCropper({
     height: 200,
   })
   const [isDragging, setIsDragging] = useState(false)
-  const [isResizing, setIsResizing] = useState(false)
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const isResizingRef = useRef(false)
+  const dragStartRef = useRef({ x: 0, y: 0 })
 
   const [croppedImageUrl, setCroppedImageUrl] = useState<string | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
@@ -254,20 +250,30 @@ export function ImageCropper({
 
   const maxFileSizeMb = Math.round(maxFileSize / (1024 * 1024))
 
-  useEffect(() => {
+  // Sync the preview with the controlled `value` prop by adjusting state
+  // during render instead of in an effect.
+  const [prevSynced, setPrevSynced] = useState<{
+    value: string | File | null | undefined
+    croppedImageUrl: string | null
+  } | null>(null)
+  if (
+    prevSynced === null ||
+    prevSynced.value !== value ||
+    prevSynced.croppedImageUrl !== croppedImageUrl
+  ) {
+    setPrevSynced({ value, croppedImageUrl })
     if (value && typeof value === "string" && value !== croppedImageUrl) {
       setCroppedImageUrl(value)
-    }
-    if (!value) {
+    } else if (!value) {
       setCroppedImageUrl(null)
     }
-  }, [value, croppedImageUrl])
+  }
 
   const validateFile = useCallback(
     (file: File): string | null => {
       if (!supportedFormats.includes(file.type)) {
         return `Unsupported file format. Please use: ${supportedFormats
-          .map((format) => format.split("/")[1].toUpperCase())
+          .map(formatMimeSubtype)
           .join(", ")}`
       }
 
@@ -313,7 +319,7 @@ export function ImageCropper({
 
         const imageUrl = await readFileAsDataUrl(file)
         setSelectedImage(imageUrl)
-        setOriginalFile(file)
+        originalFileRef.current = file
 
         try {
           const tempImg = await loadImageElement(imageUrl)
@@ -408,11 +414,11 @@ export function ImageCropper({
 
       if (fixedSize && type === "resize") return
 
-      setDragStart({ x: event.clientX, y: event.clientY })
+      dragStartRef.current = { x: event.clientX, y: event.clientY }
       if (type === "move") {
         setIsDragging(true)
       } else {
-        setIsResizing(true)
+        isResizingRef.current = true
       }
     },
     [fixedSize],
@@ -420,29 +426,29 @@ export function ImageCropper({
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent) => {
-      if (!isDragging && !isResizing) return
+      if (!isDragging && !isResizingRef.current) return
       if (!cropContainerRef.current || !imageRef.current) return
 
       requestAnimationFrame(() => {
-        const deltaX = event.clientX - dragStart.x
-        const deltaY = event.clientY - dragStart.y
+        const deltaX = event.clientX - dragStartRef.current.x
+        const deltaY = event.clientY - dragStartRef.current.y
         const imgRect = imageRef.current!.getBoundingClientRect()
 
         if (isDragging) {
           setCropArea((prev) => movedCropArea(prev, deltaX, deltaY, imgRect))
-        } else if (isResizing) {
+        } else if (isResizingRef.current) {
           setCropArea((prev) => resizedCropArea(prev, deltaX, deltaY, imgRect, aspectRatio))
         }
 
-        setDragStart({ x: event.clientX, y: event.clientY })
+        dragStartRef.current = { x: event.clientX, y: event.clientY }
       })
     },
-    [isDragging, isResizing, dragStart, aspectRatio],
+    [isDragging, aspectRatio],
   )
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false)
-    setIsResizing(false)
+    isResizingRef.current = false
   }, [])
 
   const blobToFile = useCallback((blob: Blob, filename: string): File => {
@@ -450,6 +456,7 @@ export function ImageCropper({
   }, [])
 
   const cropImage = useCallback(async () => {
+    const originalFile = originalFileRef.current
     if (!imageRef.current || !canvasRef.current || !originalFile) return
 
     setIsProcessing(true)
@@ -495,7 +502,6 @@ export function ImageCropper({
   }, [
     cropArea,
     fixedSize,
-    originalFile,
     onImageCropped,
     onChange,
     onBlur,
@@ -524,7 +530,7 @@ export function ImageCropper({
         }
 
         setSelectedImage(null)
-        setOriginalFile(null)
+        originalFileRef.current = null
         setValidationError(null)
         resetFileInput()
       }
@@ -560,6 +566,89 @@ export function ImageCropper({
       }
     }
   }, [croppedImageUrl, selectedImage, value])
+
+  return {
+    selectedImage,
+    showCropDialog,
+    cropArea,
+    isDragging,
+    croppedImageUrl,
+    validationError,
+    isProcessing,
+    maxFileSizeMb,
+    fileInputRef,
+    canvasRef,
+    imageRef,
+    cropContainerRef,
+    handleDrop,
+    handleDragOver,
+    handleDragLeave,
+    handleImageLoad,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    cropImage,
+    handleRemoveImage,
+    handleDialogClose,
+    handleFileInputChange,
+  }
+}
+
+export function ImageCropper({
+  onImageCropped,
+  fixedSize,
+  aspectRatio,
+  className,
+  dialogContentClassName,
+  dialogTheme,
+  maxFileSize = MAX_FILE_SIZE,
+  supportedFormats = SUPPORTED_FORMATS,
+  value,
+  onChange,
+  onBlur,
+  error,
+  disabled = false,
+  imgClassName,
+  placeholder = "Drag and drop an image here, or click to select",
+  showFormatHint = true,
+  compact = false,
+  tile = false,
+}: ImageUploaderProps) {
+  const {
+    selectedImage,
+    showCropDialog,
+    cropArea,
+    isDragging,
+    croppedImageUrl,
+    validationError,
+    isProcessing,
+    maxFileSizeMb,
+    fileInputRef,
+    canvasRef,
+    imageRef,
+    cropContainerRef,
+    handleDrop,
+    handleDragOver,
+    handleDragLeave,
+    handleImageLoad,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    cropImage,
+    handleRemoveImage,
+    handleDialogClose,
+    handleFileInputChange,
+  } = useImageCropper({
+    onImageCropped,
+    fixedSize,
+    aspectRatio,
+    maxFileSize,
+    supportedFormats,
+    value,
+    onChange,
+    onBlur,
+    disabled,
+  })
 
   const displayError = error || validationError
   const currentAspectRatio =
@@ -623,6 +712,127 @@ export function ImageCropper({
         usesDesktopTheme={usesDesktopTheme}
       />
     </>
+  )
+}
+
+function CropOverlay({
+  aspectRatio,
+  cropArea,
+  currentAspectRatio,
+  fixedSize,
+  onMouseDown,
+  usesDesktopTheme,
+}: {
+  aspectRatio?: number
+  cropArea: CropArea
+  currentAspectRatio: string
+  fixedSize?: { width: number; height: number }
+  onMouseDown: (event: React.MouseEvent, type: "move" | "resize") => void
+  usesDesktopTheme: boolean
+}) {
+  return (
+    <div
+      role="group"
+      className={cn(
+        "absolute border-2 border-primary bg-primary/10",
+        fixedSize ? "cursor-default" : "cursor-move",
+      )}
+      style={{
+        left: cropArea.x,
+        top: cropArea.y,
+        width: cropArea.width,
+        height: cropArea.height,
+      }}
+      onMouseDown={(event) => onMouseDown(event, "move")}
+    >
+      {!fixedSize ? (
+        <div
+          role="group"
+          className="absolute right-0 bottom-0 size-4 cursor-se-resize border border-primary-foreground bg-primary"
+          onMouseDown={(event) => {
+            event.stopPropagation()
+            onMouseDown(event, "resize")
+          }}
+        />
+      ) : null}
+
+      <div
+        className={cn(
+          "absolute -top-8 left-0 rounded px-2 py-1 text-xs whitespace-nowrap",
+          usesDesktopTheme
+            ? "bg-[var(--dn-fg)] text-[var(--dn-bg)]"
+            : "bg-primary text-primary-foreground",
+        )}
+      >
+        {Math.round(cropArea.width)}×{Math.round(cropArea.height)}
+        <span className="ml-2 opacity-75">{currentAspectRatio}:1</span>
+        {aspectRatio ? (
+          <span className="ml-1 opacity-75">
+            (target: {aspectRatio.toFixed(2)}:1)
+          </span>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+function CropperDialogFooter({
+  isProcessing,
+  onCancel,
+  onCrop,
+  usesDesktopTheme,
+}: {
+  isProcessing: boolean
+  onCancel: () => void
+  onCrop: () => void
+  usesDesktopTheme: boolean
+}) {
+  return (
+    <DialogFooter
+      className={cn(
+        usesDesktopTheme
+          ? "desktopnew-crop-dialog__footer gap-2 border-t border-[var(--dn-line)] p-[length:var(--dn-row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
+          : undefined,
+      )}
+    >
+      {usesDesktopTheme ? (
+        <>
+          <button
+            className="dn-control-surface dn-pressable-subtle dn-squircle-sm flex h-[length:var(--dn-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--dn-type-value)] font-medium tracking-[var(--dn-tracking-tight)] text-[var(--dn-fg)]"
+            disabled={isProcessing}
+            type="button"
+            onClick={onCancel}
+          >
+            <X className="size-4" />
+            Cancel
+          </button>
+          <button
+            className="dn-settings-primary dn-control-surface dn-pressable-press-only dn-squircle-sm flex h-[length:var(--dn-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--dn-type-value)] font-medium tracking-[var(--dn-tracking-tight)]"
+            disabled={isProcessing}
+            type="button"
+            onClick={onCrop}
+          >
+            <Crop className="size-4" />
+            {isProcessing ? "Processing..." : "Crop Image"}
+          </button>
+        </>
+      ) : (
+        <>
+          <Button
+            variant="outline"
+            onClick={onCancel}
+            disabled={isProcessing}
+          >
+            <X className="mr-2 size-4" />
+            Cancel
+          </Button>
+          <Button onClick={onCrop} disabled={isProcessing}>
+            <Crop className="mr-2 size-4" />
+            {isProcessing ? "Processing..." : "Crop Image"}
+          </Button>
+        </>
+      )}
+    </DialogFooter>
   )
 }
 
@@ -715,6 +925,7 @@ function CropperDialog({
 
           <div className={cn(usesDesktopTheme ? "desktopnew-crop-dialog__body p-[length:var(--dn-row-px)]" : "space-y-4")}>
             <div
+              role="group"
               ref={cropContainerRef}
               className={cn(
                 "relative overflow-hidden select-none",
@@ -740,101 +951,285 @@ function CropperDialog({
                     draggable={false}
                   />
 
-                  <div
-                    className={cn(
-                      "absolute border-2 border-primary bg-primary/10",
-                      fixedSize ? "cursor-default" : "cursor-move",
-                    )}
-                    style={{
-                      left: cropArea.x,
-                      top: cropArea.y,
-                      width: cropArea.width,
-                      height: cropArea.height,
-                    }}
-                    onMouseDown={(event) => onMouseDown(event, "move")}
-                  >
-                    {!fixedSize ? (
-                      <div
-                        className="absolute right-0 bottom-0 size-4 cursor-se-resize border border-primary-foreground bg-primary"
-                        onMouseDown={(event) => {
-                          event.stopPropagation()
-                          onMouseDown(event, "resize")
-                        }}
-                      />
-                    ) : null}
-
-                    <div
-                      className={cn(
-                        "absolute -top-8 left-0 rounded px-2 py-1 text-xs whitespace-nowrap",
-                        usesDesktopTheme
-                          ? "bg-[var(--dn-fg)] text-[var(--dn-bg)]"
-                          : "bg-primary text-primary-foreground",
-                      )}
-                    >
-                      {Math.round(cropArea.width)}×{Math.round(cropArea.height)}
-                      <span className="ml-2 opacity-75">{currentAspectRatio}:1</span>
-                      {aspectRatio ? (
-                        <span className="ml-1 opacity-75">
-                          (target: {aspectRatio.toFixed(2)}:1)
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
+                  <CropOverlay
+                    aspectRatio={aspectRatio}
+                    cropArea={cropArea}
+                    currentAspectRatio={currentAspectRatio}
+                    fixedSize={fixedSize}
+                    onMouseDown={onMouseDown}
+                    usesDesktopTheme={usesDesktopTheme}
+                  />
                 </>
               ) : null}
             </div>
           </div>
 
-          <DialogFooter
-            className={cn(
-              usesDesktopTheme
-                ? "desktopnew-crop-dialog__footer gap-2 border-t border-[var(--dn-line)] p-[length:var(--dn-row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
-                : undefined,
-            )}
-          >
-            {usesDesktopTheme ? (
-              <>
-                <button
-                  className="dn-control-surface dn-pressable-subtle dn-squircle-sm flex h-[length:var(--dn-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--dn-type-value)] font-medium tracking-[var(--dn-tracking-tight)] text-[var(--dn-fg)]"
-                  disabled={isProcessing}
-                  type="button"
-                  onClick={() => handleDialogClose(false)}
-                >
-                  <X className="size-4" />
-                  Cancel
-                </button>
-                <button
-                  className="dn-settings-primary dn-control-surface dn-pressable-press-only dn-squircle-sm flex h-[length:var(--dn-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--dn-type-value)] font-medium tracking-[var(--dn-tracking-tight)]"
-                  disabled={isProcessing}
-                  type="button"
-                  onClick={onCrop}
-                >
-                  <Crop className="size-4" />
-                  {isProcessing ? "Processing..." : "Crop Image"}
-                </button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => handleDialogClose(false)}
-                  disabled={isProcessing}
-                >
-                  <X className="mr-2 size-4" />
-                  Cancel
-                </Button>
-                <Button onClick={onCrop} disabled={isProcessing}>
-                  <Crop className="mr-2 size-4" />
-                  {isProcessing ? "Processing..." : "Crop Image"}
-                </Button>
-              </>
-            )}
-          </DialogFooter>
+          <CropperDialogFooter
+            isProcessing={isProcessing}
+            onCancel={() => handleDialogClose(false)}
+            onCrop={onCrop}
+            usesDesktopTheme={usesDesktopTheme}
+          />
         </DialogContent>
       </Dialog>
 
       <canvas ref={canvasRef} className="hidden" />
     </>
+  )
+}
+
+function dropzoneRootClass({
+  tile,
+  compact,
+  previewSurfaceClass,
+  disabled,
+  isDragging,
+  displayError,
+  className,
+}: {
+  tile: boolean
+  compact: boolean
+  previewSurfaceClass: string
+  disabled: boolean
+  isDragging: boolean
+  displayError: string | null
+  className?: string
+}) {
+  return cn(
+    "group overflow-hidden text-center transition-colors",
+    tile
+      ? "size-full border-0 bg-transparent"
+      : "rounded-lg border-2 border-dashed",
+    !tile && (compact ? "aspect-square w-full" : "h-52"),
+    !tile && previewSurfaceClass,
+    disabled
+      ? "cursor-not-allowed border-muted-foreground/10"
+      : "cursor-pointer",
+    !disabled && isDragging
+      ? "border-primary"
+      : "border-muted-foreground/25 hover:border-primary/50",
+    displayError && "border-destructive",
+    className,
+  )
+}
+
+function previewImageClass({
+  tile,
+  compact,
+  previewSurfaceClass,
+  imgClassName,
+}: {
+  tile: boolean
+  compact: boolean
+  previewSurfaceClass: string
+  imgClassName?: string
+}) {
+  return cn(
+    tile || compact
+      ? "size-full object-cover"
+      : "h-[204px] w-full rounded-lg object-cover",
+    !tile && previewSurfaceClass,
+    imgClassName,
+  )
+}
+
+function removeButtonClass({
+  tile,
+  compact,
+  dialogTheme,
+}: {
+  tile: boolean
+  compact: boolean
+  dialogTheme?: "light" | "dark"
+}) {
+  return cn(
+    "rounded-full backdrop-blur-sm",
+    tile ? "pointer-events-auto size-6" : "size-8",
+    compact && dialogTheme === "dark"
+      ? "bg-black/70 text-white hover:bg-black/85"
+      : compact && dialogTheme === "light"
+        ? "bg-white/85 text-black hover:bg-white"
+        : "bg-background/80 hover:bg-background",
+  )
+}
+
+function DropzonePreview({
+  compact,
+  croppedImageUrl,
+  dialogTheme,
+  disabled,
+  imgClassName,
+  onRemoveImage,
+  previewSurfaceClass,
+  tile,
+}: {
+  compact: boolean
+  croppedImageUrl: string
+  dialogTheme?: "light" | "dark"
+  disabled: boolean
+  imgClassName?: string
+  onRemoveImage: () => void
+  previewSurfaceClass: string
+  tile: boolean
+}) {
+  return (
+    <div className={cn("relative", compact ? "size-full" : undefined)}>
+      <img
+        src={croppedImageUrl}
+        alt="Cropped upload preview"
+        className={previewImageClass({
+          tile,
+          compact,
+          previewSurfaceClass,
+          imgClassName,
+        })}
+      />
+      {!disabled && !tile ? (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+          <UploadCloud className="size-8 text-white/80" />
+        </div>
+      ) : null}
+      {!disabled ? (
+        <div
+          className={cn(
+            "absolute",
+            tile
+              ? "inset-0 flex items-center justify-center pointer-events-none"
+              : "top-2 right-2",
+          )}
+        >
+          <Button
+            variant="ghost"
+            size="icon-md"
+            type="button"
+            aria-label="Remove cropped upload"
+            className={removeButtonClass({ tile, compact, dialogTheme })}
+            onClick={(event) => {
+              event.stopPropagation()
+              onRemoveImage()
+            }}
+          >
+            <X className={cn(tile ? "size-3" : "size-4")} />
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function emptyStateClass({ tile, compact }: { tile: boolean; compact: boolean }) {
+  return cn(
+    "relative w-full",
+    tile
+      ? "grid size-full place-items-center"
+      : "flex flex-col items-center justify-center",
+    !tile && (compact ? "size-full px-1.5 py-1.5" : "px-4 py-8"),
+  )
+}
+
+function tileIconClass(disabled: boolean) {
+  return cn(
+    "grid size-full place-items-center dn-squircle-xs",
+    disabled
+      ? "bg-[color-mix(in_srgb,var(--dn-muted)_20%,transparent)] text-[var(--dn-muted)]"
+      : "bg-[color-mix(in_srgb,var(--dn-muted)_38%,transparent)] text-[var(--dn-fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--dn-muted)_55%,transparent)]",
+  )
+}
+
+function uploadIconClass({
+  compact,
+  disabled,
+}: {
+  compact: boolean
+  disabled: boolean
+}) {
+  return cn(
+    compact ? "mb-1 size-7" : "mx-auto mb-4 size-12",
+    disabled ? "text-muted-foreground/50" : "text-muted-foreground",
+  )
+}
+
+function mutedTextClass({
+  compact,
+  disabled,
+  base,
+}: {
+  compact: boolean
+  disabled: boolean
+  base: string
+}) {
+  return cn(
+    base,
+    compact ? "text-xs" : undefined,
+    disabled ? "text-muted-foreground/50" : "text-muted-foreground",
+  )
+}
+
+function formatHintText({
+  compact,
+  supportedFormats,
+  maxFileSizeMb,
+}: {
+  compact: boolean
+  supportedFormats: string[]
+  maxFileSizeMb: number
+}) {
+  const formats = supportedFormats.map(formatMimeSubtype).join(", ")
+  return compact
+    ? `${formats} · ${maxFileSizeMb} MB max`
+    : `Supports ${formats} up to ${maxFileSizeMb} MB`
+}
+
+function DropzoneEmptyState({
+  compact,
+  disabled,
+  isProcessing,
+  maxFileSizeMb,
+  placeholder,
+  showFormatHint,
+  supportedFormats,
+  tile,
+  validationError,
+}: {
+  compact: boolean
+  disabled: boolean
+  isProcessing: boolean
+  maxFileSizeMb: number
+  placeholder?: string
+  showFormatHint: boolean
+  supportedFormats: string[]
+  tile: boolean
+  validationError: string | null
+}) {
+  return (
+    <div className={emptyStateClass({ tile, compact })}>
+      {tile ? (
+        <span aria-hidden className={tileIconClass(disabled)}>
+          <UploadTileIcon className="size-4" />
+        </span>
+      ) : (
+        <Upload className={uploadIconClass({ compact, disabled })} />
+      )}
+      {!tile && placeholder ? (
+        <p
+          className={mutedTextClass({
+            compact,
+            disabled,
+            base: compact ? "" : "mb-2 line-clamp-2 text-sm",
+          })}
+        >
+          {isProcessing ? "Processing…" : placeholder}
+        </p>
+      ) : null}
+      {!tile && showFormatHint ? (
+        <p className={mutedTextClass({ compact, disabled, base: "line-clamp-1 text-xs" })}>
+          {formatHintText({ compact, supportedFormats, maxFileSizeMb })}
+        </p>
+      ) : null}
+      {validationError ? (
+        <p className="mt-2 text-xs text-destructive">{validationError}</p>
+      ) : null}
+    </div>
   )
 }
 
@@ -885,146 +1280,68 @@ function ImageDropzone({
   tile: boolean
   validationError: string | null
 }) {
+  const isInteractive = !disabled && !isProcessing
   return (
     <div
-      className={cn(
-        "group overflow-hidden text-center transition-colors",
-        tile
-          ? "size-full border-0 bg-transparent"
-          : "rounded-lg border-2 border-dashed",
-        !tile && (compact ? "aspect-square w-full" : "h-52"),
-        !tile && previewSurfaceClass,
-        disabled
-          ? "cursor-not-allowed border-muted-foreground/10"
-          : "cursor-pointer",
-        !disabled && isDragging
-          ? "border-primary"
-          : "border-muted-foreground/25 hover:border-primary/50",
-        displayError && "border-destructive",
+      className={dropzoneRootClass({
+        tile,
+        compact,
+        previewSurfaceClass,
+        disabled,
+        isDragging,
+        displayError,
         className,
-      )}
+      })}
     >
         <div
+          role="group"
           className={cn(tile || compact ? "size-full min-h-0" : undefined)}
+          tabIndex={isInteractive ? 0 : undefined}
           onDrop={!disabled ? onDrop : undefined}
           onDragOver={!disabled ? onDragOver : undefined}
           onDragLeave={!disabled ? onDragLeave : undefined}
           onClick={
-            !disabled && !isProcessing
+            isInteractive
               ? () => fileInputRef.current?.click()
+              : undefined
+          }
+          onKeyDown={
+            isInteractive
+              ? (event) => {
+                  if (
+                    event.target === event.currentTarget &&
+                    (event.key === "Enter" || event.key === " ")
+                  ) {
+                    event.preventDefault()
+                    fileInputRef.current?.click()
+                  }
+                }
               : undefined
           }
         >
           {croppedImageUrl ? (
-            <div className={cn("relative", compact ? "size-full" : undefined)}>
-              <img
-                src={croppedImageUrl}
-                alt="Uploaded image"
-                className={cn(
-                  tile || compact
-                    ? "size-full object-cover"
-                    : "h-[204px] w-full rounded-lg object-cover",
-                  !tile && previewSurfaceClass,
-                  imgClassName,
-                )}
-              />
-              {!disabled && !tile ? (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-                  <UploadCloud className="size-8 text-white/80" />
-                </div>
-              ) : null}
-              {!disabled ? (
-                <div
-                  className={cn(
-                    "absolute",
-                    tile
-                      ? "inset-0 flex items-center justify-center pointer-events-none"
-                      : "top-2 right-2",
-                  )}
-                >
-                  <Button
-                    variant="ghost"
-                    size="icon-md"
-                    type="button"
-                    className={cn(
-                      "rounded-full backdrop-blur-sm",
-                      tile ? "pointer-events-auto size-6" : "size-8",
-                      compact && dialogTheme === "dark"
-                        ? "bg-black/70 text-white hover:bg-black/85"
-                        : compact && dialogTheme === "light"
-                          ? "bg-white/85 text-black hover:bg-white"
-                          : "bg-background/80 hover:bg-background",
-                    )}
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      onRemoveImage()
-                    }}
-                  >
-                    <X className={cn(tile ? "size-3" : "size-4")} />
-                  </Button>
-                </div>
-              ) : null}
-            </div>
+            <DropzonePreview
+              compact={compact}
+              croppedImageUrl={croppedImageUrl}
+              dialogTheme={dialogTheme}
+              disabled={disabled}
+              imgClassName={imgClassName}
+              onRemoveImage={onRemoveImage}
+              previewSurfaceClass={previewSurfaceClass}
+              tile={tile}
+            />
           ) : (
-            <div
-              className={cn(
-                "relative w-full",
-                tile
-                  ? "grid size-full place-items-center"
-                  : "flex flex-col items-center justify-center",
-                !tile && (compact ? "size-full px-1.5 py-1.5" : "px-4 py-8"),
-              )}
-            >
-              {tile ? (
-                <span
-                  aria-hidden
-                  className={cn(
-                    "grid size-full place-items-center dn-squircle-xs",
-                    disabled
-                      ? "bg-[color-mix(in_srgb,var(--dn-muted)_20%,transparent)] text-[var(--dn-muted)]"
-                      : "bg-[color-mix(in_srgb,var(--dn-muted)_38%,transparent)] text-[var(--dn-fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--dn-muted)_55%,transparent)]",
-                  )}
-                >
-                  <UploadTileIcon className="size-4" />
-                </span>
-              ) : (
-                <Upload
-                  className={cn(
-                    compact ? "mb-1 size-7" : "mx-auto mb-4 size-12",
-                    disabled ? "text-muted-foreground/50" : "text-muted-foreground",
-                  )}
-                />
-              )}
-              {!tile && placeholder ? (
-                <p
-                  className={cn(
-                    compact ? "text-xs" : "mb-2 line-clamp-2 text-sm",
-                    disabled ? "text-muted-foreground/50" : "text-muted-foreground",
-                  )}
-                >
-                  {isProcessing ? "Processing…" : placeholder}
-                </p>
-              ) : null}
-              {!tile && showFormatHint ? (
-                <p
-                  className={cn(
-                    "line-clamp-1 text-xs",
-                    disabled ? "text-muted-foreground/50" : "text-muted-foreground",
-                  )}
-                >
-                  {compact
-                    ? `${supportedFormats
-                        .map((format) => format.split("/")[1].toUpperCase())
-                        .join(", ")} · ${maxFileSizeMb} MB max`
-                    : `Supports ${supportedFormats
-                        .map((format) => format.split("/")[1].toUpperCase())
-                        .join(", ")} up to ${maxFileSizeMb} MB`}
-                </p>
-              ) : null}
-              {validationError ? (
-                <p className="mt-2 text-xs text-destructive">{validationError}</p>
-              ) : null}
-            </div>
+            <DropzoneEmptyState
+              compact={compact}
+              disabled={disabled}
+              isProcessing={isProcessing}
+              maxFileSizeMb={maxFileSizeMb}
+              placeholder={placeholder}
+              showFormatHint={showFormatHint}
+              supportedFormats={supportedFormats}
+              tile={tile}
+              validationError={validationError}
+            />
           )}
         </div>
 

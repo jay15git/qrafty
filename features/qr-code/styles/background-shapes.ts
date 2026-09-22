@@ -530,3 +530,7 @@ export function getQrBackgroundShapeContentFrame(
     y: y + safetyInset,
   }
 }
+
+export function shapeViewBox(option: QrBackgroundShapeDefinition) {
+  return `${option.viewBox.x ?? 0} ${option.viewBox.y ?? 0} ${option.viewBox.width} ${option.viewBox.height}`
+}

@@ -32,45 +32,14 @@ interface ArrowFillButtonOwnProps {
 
 type ArrowFillButtonProps = ArrowFillButtonOwnProps & Omit<ComponentPropsWithoutRef<'a'>, keyof ArrowFillButtonOwnProps>;
 
-function ArrowFillButton({
-  btnText="Hover Me",
-  href = DEFAULT_HREF,
-  className = "",
-
-  bgColor = "#ff5f00",
-  textColor = "#ffffff",
-
-  fillBgColor = "#ffffff",
-  fillTextColor = "#ff5f00",
-
-  hoverFillBgColor = "#ffffff",
-  hoverFillTextColor = "#ff5f00",
-
-  arrowColor,
-  hoverArrowColor,
-  sweep,
-  noTransition,
-
-  ...props
-}: ArrowFillButtonProps) {
-  const [isReady, setIsReady] = useState(false);
-  const [isCompactLayout, setIsCompactLayout] = useState(false);
+/** Touch-only press feedback: on compact layouts a non-mouse pointer press
+ *  fills the button until release + the fill animation finishes. */
+function usePressFeedback() {
   const [isPressed, setIsPressed] = useState(false);
   const releaseTimeoutRef = useRef<number | null>(null);
-
-  const usesUtilityBackground =
-    className.includes("bg-") ||
-    className.includes("from-") ||
-    className.includes("via-") ||
-    className.includes("to-");
-
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      setIsReady(true);
-    });
-
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
+  // Read only inside event handlers — a ref keeps media-query changes from
+  // re-rendering the button.
+  const compactLayoutRef = useRef(false);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(
@@ -78,8 +47,8 @@ function ArrowFillButton({
     );
 
     const syncCompactLayout = (event: MediaQueryList | MediaQueryListEvent) => {
-      const matches = "matches" in event ? event.matches : ((event as any).currentTarget as MediaQueryList).matches;
-      setIsCompactLayout(matches);
+      const matches = event.matches;
+      compactLayoutRef.current = matches;
 
       if (!matches) {
         setIsPressed(false);
@@ -114,9 +83,7 @@ function ArrowFillButton({
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLAnchorElement>) => {
-    props.onPointerDown?.(event);
-
-    if (!isCompactLayout || event.pointerType === "mouse") {
+    if (!compactLayoutRef.current || event.pointerType === "mouse") {
       return;
     }
 
@@ -128,61 +95,20 @@ function ArrowFillButton({
     setIsPressed(true);
   };
 
-  const handlePointerRelease = (
-    event: PointerEvent<HTMLAnchorElement>,
-    forward?: (event: PointerEvent<HTMLAnchorElement>) => void,
-  ) => {
-    forward?.(event);
-
-    if (isCompactLayout && event.pointerType !== "mouse") {
+  const handlePointerRelease = (event: PointerEvent<HTMLAnchorElement>) => {
+    if (compactLayoutRef.current && event.pointerType !== "mouse") {
       clearPressedState();
     }
   };
 
-  const handlePointerUp = (event: PointerEvent<HTMLAnchorElement>) =>
-    handlePointerRelease(event, props.onPointerUp);
+  return { isPressed, handlePointerDown, handlePointerRelease };
+}
 
-  const handlePointerCancel = (event: PointerEvent<HTMLAnchorElement>) =>
-    handlePointerRelease(event, props.onPointerCancel);
-
-  const usesGlimmLink = href.startsWith("/") && !href.startsWith("//");
-
-  const linkClassName = `group relative inline-flex h-[4.2vw] w-fit min-w-fit max-w-none cursor-pointer items-center justify-center overflow-hidden rounded-full px-[3vw] pr-[calc(var(--icon-circle)+var(--icon-right)+2vw)] whitespace-nowrap font-medium text-[1.1vw] leading-none [text-rendering:geometricPrecision] [--icon-circle:3.1vw] [--icon-right:0.55vw] [--circle-inset-y:calc((100%-var(--icon-circle))/2)] max-[1025px]:h-[11vw] max-[1025px]:px-[5vw] max-[1025px]:pr-[calc(var(--icon-circle)+var(--icon-right)+4vw)] max-[1025px]:text-[3vw] max-[1025px]:font-normal max-[1025px]:[--icon-circle:8vw] max-[1025px]:[--icon-right:1.5vw] max-md:h-[15vw] max-md:px-[7vw] max-md:pr-[calc(var(--icon-circle)+var(--icon-right)+5vw)] max-md:text-[4.2vw] max-md:[--icon-circle:11vw] max-md:[--icon-right:2vw] ${
-    usesUtilityBackground ? "" : "bg-(--btn-bg)"
-  } text-(--btn-text) ${className}`;
-
-  const linkStyle = {
-    "--btn-bg": bgColor,
-    "--btn-text": textColor,
-    "--btn-fill-bg": fillBgColor,
-    "--btn-fill-text": fillTextColor,
-    "--btn-fill-bg-hover": hoverFillBgColor,
-    "--btn-fill-text-hover": hoverFillTextColor,
-    "--btn-arrow": arrowColor || fillTextColor,
-    "--btn-arrow-hover": hoverArrowColor || hoverFillTextColor,
-    visibility: isReady ? "visible" : "hidden",
-  } as CSSProperties & Record<string, string | number>;
-
-  const linkProps = {
-    href,
-    ...props,
-    "data-pressed": isPressed ? "true" : "false",
-    onPointerDown: handlePointerDown,
-    onPointerUp: handlePointerUp,
-    onPointerCancel: handlePointerCancel,
-    className: linkClassName,
-    style: linkStyle,
-  };
-
-  const LinkComponent = usesGlimmLink ? TransitionLink : "a";
-
+/** The animated fill circle, clipped label copy, and arrow pair that sit on
+ *  top of the link's own label. Purely decorative — hidden from AT. */
+function ArrowFillDecor({ btnText, isReady }: { btnText: string; isReady: boolean }) {
   return (
-    <LinkComponent
-      {...(usesGlimmLink ? { sweep, noTransition } : {})}
-      {...linkProps}
-    >
-      <span className="relative z-1 pb-px">{btnText}</span>
-
+    <>
       <div
         aria-hidden="true"
         className={`pointer-events-none absolute z-2 rounded-full bg-(--btn-fill-bg) inset-[var(--circle-inset-y)_var(--icon-right)_var(--circle-inset-y)_calc(100%-var(--icon-right)-var(--icon-circle))] ${
@@ -233,6 +159,103 @@ function ArrowFillButton({
             strokeWidth={1.8}
           />
         </span>
+    </>
+  );
+}
+
+function ArrowFillButton({
+  btnText="Hover Me",
+  href = DEFAULT_HREF,
+  className = "",
+
+  bgColor = "#ff5f00",
+  textColor = "#ffffff",
+
+  fillBgColor = "#ffffff",
+  fillTextColor = "#ff5f00",
+
+  hoverFillBgColor = "#ffffff",
+  hoverFillTextColor = "#ff5f00",
+
+  arrowColor,
+  hoverArrowColor,
+  sweep,
+  noTransition,
+
+  ...props
+}: ArrowFillButtonProps) {
+  const [isReady, setIsReady] = useState(false);
+  const { isPressed, handlePointerDown, handlePointerRelease } =
+    usePressFeedback();
+
+  const usesUtilityBackground =
+    className.includes("bg-") ||
+    className.includes("from-") ||
+    className.includes("via-") ||
+    className.includes("to-");
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setIsReady(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  const onPointerDown = (event: PointerEvent<HTMLAnchorElement>) => {
+    props.onPointerDown?.(event);
+    handlePointerDown(event);
+  };
+
+  const onPointerUp = (event: PointerEvent<HTMLAnchorElement>) => {
+    props.onPointerUp?.(event);
+    handlePointerRelease(event);
+  };
+
+  const onPointerCancel = (event: PointerEvent<HTMLAnchorElement>) => {
+    props.onPointerCancel?.(event);
+    handlePointerRelease(event);
+  };
+
+  const usesGlimmLink = href.startsWith("/") && !href.startsWith("//");
+
+  const linkClassName = `group relative inline-flex h-[4.2vw] w-fit min-w-fit max-w-none cursor-pointer items-center justify-center overflow-hidden rounded-full px-[3vw] pr-[calc(var(--icon-circle)+var(--icon-right)+2vw)] whitespace-nowrap font-medium text-[1.1vw] leading-none [text-rendering:geometricPrecision] [--icon-circle:3.1vw] [--icon-right:0.55vw] [--circle-inset-y:calc((100%-var(--icon-circle))/2)] max-[1025px]:h-[11vw] max-[1025px]:px-[5vw] max-[1025px]:pr-[calc(var(--icon-circle)+var(--icon-right)+4vw)] max-[1025px]:text-[3vw] max-[1025px]:font-normal max-[1025px]:[--icon-circle:8vw] max-[1025px]:[--icon-right:1.5vw] max-md:h-[15vw] max-md:px-[7vw] max-md:pr-[calc(var(--icon-circle)+var(--icon-right)+5vw)] max-md:text-[4.2vw] max-md:[--icon-circle:11vw] max-md:[--icon-right:2vw] ${
+    usesUtilityBackground ? "" : "bg-(--btn-bg)"
+  } text-(--btn-text) ${className}`;
+
+  const linkStyle = {
+    "--btn-bg": bgColor,
+    "--btn-text": textColor,
+    "--btn-fill-bg": fillBgColor,
+    "--btn-fill-text": fillTextColor,
+    "--btn-fill-bg-hover": hoverFillBgColor,
+    "--btn-fill-text-hover": hoverFillTextColor,
+    "--btn-arrow": arrowColor || fillTextColor,
+    "--btn-arrow-hover": hoverArrowColor || hoverFillTextColor,
+    visibility: isReady ? "visible" : "hidden",
+  } as CSSProperties & Record<string, string | number>;
+
+  const linkProps = {
+    href,
+    ...props,
+    "data-pressed": isPressed ? "true" : "false",
+    onPointerDown,
+    onPointerUp,
+    onPointerCancel,
+    className: linkClassName,
+    style: linkStyle,
+  };
+
+  const LinkComponent = usesGlimmLink ? TransitionLink : "a";
+
+  return (
+    <LinkComponent
+      {...(usesGlimmLink ? { sweep, noTransition } : {})}
+      {...linkProps}
+    >
+      <span className="relative z-1 pb-px">{btnText}</span>
+
+      <ArrowFillDecor btnText={btnText} isReady={isReady} />
     </LinkComponent>
   );
 }

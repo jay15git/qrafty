@@ -15,6 +15,7 @@ import { INSERT_MENU_PANEL_CONTENT_CLASS } from "@/features/workspace/components
 import {
   getIllustrationSet,
   type IllustrationAsset,
+  type IllustrationSet,
   type IllustrationSetId,
 } from "@/features/workspace/assets/illustration-sets"
 import {
@@ -37,6 +38,180 @@ type InsertMenuPanelStackProps = {
   theme?: DesktopThemeMode
 }
 
+type InsertMenuPanelId = "root" | "shape" | "image" | "emoji" | "illustration-set"
+
+type InsertMenuPanelsProps = {
+  activeIllustrationSet: IllustrationSet | undefined
+  canAddQrCode: boolean
+  imageUrl: string
+  isDesktopPopover: boolean
+  onAddQrCode?: () => void
+  onBack: () => void
+  onBrowseWallpapers?: () => void
+  onInsertEmoji: (emoji: string) => void
+  onInsertImage: (value: string, source: "upload" | "url") => void
+  onInsertIllustration: (asset: IllustrationAsset) => void
+  onInsertShape: (shapeId: DraftingElementShapeId) => void
+  onInsertText: () => void
+  onOpenEmojiPanel: () => void
+  onOpenIllustrationSet: (setId: IllustrationSetId) => void
+  onOpenImagePanel: () => void
+  onOpenShapePanel: () => void
+  onImageUrlChange: (value: string) => void
+  panel: InsertMenuPanelId
+  theme: DesktopThemeMode
+}
+
+function InsertMenuDesktopPanels({
+  activeIllustrationSet,
+  canAddQrCode,
+  imageUrl,
+  isDesktopPopover,
+  onAddQrCode,
+  onBack,
+  onBrowseWallpapers,
+  onInsertEmoji,
+  onInsertImage,
+  onInsertIllustration,
+  onInsertShape,
+  onInsertText,
+  onOpenEmojiPanel,
+  onOpenIllustrationSet,
+  onOpenImagePanel,
+  onOpenShapePanel,
+  onImageUrlChange,
+  panel,
+  theme,
+}: InsertMenuPanelsProps) {
+  if (panel === "emoji") {
+    return (
+      <InsertMenuEmojiPanel
+        isDesktopPopover={isDesktopPopover}
+        onBack={onBack}
+        onSelectEmoji={onInsertEmoji}
+      />
+    )
+  }
+
+  if (panel === "root") {
+    return (
+      <InsertMenuRootPanel
+        canAddQrCode={canAddQrCode}
+        isDesktopPopover={isDesktopPopover}
+        onAddQrCode={onAddQrCode}
+        onInsertText={onInsertText}
+        onOpenEmojiPanel={onOpenEmojiPanel}
+        onOpenIllustrationSet={onOpenIllustrationSet}
+        onOpenImagePanel={onOpenImagePanel}
+        onOpenShapePanel={onOpenShapePanel}
+      />
+    )
+  }
+
+  return (
+    <InsertMenuDesktopScroll contentClassName={INSERT_MENU_PANEL_CONTENT_CLASS}>
+      {panel === "shape" ? (
+        <InsertMenuShapePanel
+          isDesktopPopover={isDesktopPopover}
+          onBack={onBack}
+          onSelectShape={onInsertShape}
+        />
+      ) : null}
+      {panel === "illustration-set" && activeIllustrationSet ? (
+        <InsertMenuIllustrationSetPanel
+          isDesktopPopover={isDesktopPopover}
+          set={activeIllustrationSet}
+          onBack={onBack}
+          onSelectAsset={onInsertIllustration}
+        />
+      ) : null}
+      {panel === "image" ? (
+        <InsertMenuImagePanel
+          imageUrl={imageUrl}
+          isDesktopPopover={isDesktopPopover}
+          onBack={onBack}
+          onBrowseWallpapers={onBrowseWallpapers}
+          onImageUrlChange={onImageUrlChange}
+          onInsertImage={onInsertImage}
+          theme={theme}
+        />
+      ) : null}
+    </InsertMenuDesktopScroll>
+  )
+}
+
+function InsertMenuInlinePanels({
+  activeIllustrationSet,
+  canAddQrCode,
+  imageUrl,
+  isDesktopPopover,
+  onAddQrCode,
+  onBack,
+  onBrowseWallpapers,
+  onInsertEmoji,
+  onInsertImage,
+  onInsertIllustration,
+  onInsertShape,
+  onInsertText,
+  onOpenEmojiPanel,
+  onOpenIllustrationSet,
+  onOpenImagePanel,
+  onOpenShapePanel,
+  onImageUrlChange,
+  panel,
+  theme,
+}: InsertMenuPanelsProps) {
+  return (
+    <>
+      {panel === "root" ? (
+        <InsertMenuRootPanel
+          canAddQrCode={canAddQrCode}
+          isDesktopPopover={isDesktopPopover}
+          onAddQrCode={onAddQrCode}
+          onInsertText={onInsertText}
+          onOpenEmojiPanel={onOpenEmojiPanel}
+          onOpenIllustrationSet={onOpenIllustrationSet}
+          onOpenImagePanel={onOpenImagePanel}
+          onOpenShapePanel={onOpenShapePanel}
+        />
+      ) : null}
+      {panel === "shape" ? (
+        <InsertMenuShapePanel
+          isDesktopPopover={isDesktopPopover}
+          onBack={onBack}
+          onSelectShape={onInsertShape}
+        />
+      ) : null}
+      {panel === "emoji" ? (
+        <InsertMenuEmojiPanel
+          isDesktopPopover={isDesktopPopover}
+          onBack={onBack}
+          onSelectEmoji={onInsertEmoji}
+        />
+      ) : null}
+      {panel === "illustration-set" && activeIllustrationSet ? (
+        <InsertMenuIllustrationSetPanel
+          isDesktopPopover={isDesktopPopover}
+          set={activeIllustrationSet}
+          onBack={onBack}
+          onSelectAsset={onInsertIllustration}
+        />
+      ) : null}
+      {panel === "image" ? (
+        <InsertMenuImagePanel
+          imageUrl={imageUrl}
+          isDesktopPopover={isDesktopPopover}
+          onBack={onBack}
+          onBrowseWallpapers={onBrowseWallpapers}
+          onImageUrlChange={onImageUrlChange}
+          onInsertImage={onInsertImage}
+          theme={theme}
+        />
+      ) : null}
+    </>
+  )
+}
+
 export function InsertMenuPanelStack({
   nodeId,
   onInsertLayer,
@@ -47,9 +222,7 @@ export function InsertMenuPanelStack({
   onClose,
   theme = "dark",
 }: InsertMenuPanelStackProps) {
-  const [panel, setPanel] = useState<"root" | "shape" | "image" | "emoji" | "illustration-set">(
-    "root",
-  )
+  const [panel, setPanel] = useState<InsertMenuPanelId>("root")
   const [imageUrl, setImageUrl] = useState("")
   const [illustrationSetId, setIllustrationSetId] = useState<IllustrationSetId | null>(null)
   const activeIllustrationSet =
@@ -108,117 +281,34 @@ export function InsertMenuPanelStack({
     closeMenu()
   }
 
-  if (isDesktopPopover) {
-    if (panel === "emoji") {
-      return (
-        <InsertMenuEmojiPanel
-          isDesktopPopover={isDesktopPopover}
-          onBack={() => setPanel("root")}
-          onSelectEmoji={insertEmoji}
-        />
-      )
-    }
-
-    if (panel === "root") {
-      return (
-        <InsertMenuRootPanel
-          canAddQrCode={canAddQrCode}
-          isDesktopPopover={isDesktopPopover}
-          onAddQrCode={onAddQrCode ? addQrCode : undefined}
-          onInsertText={insertText}
-          onOpenEmojiPanel={() => setPanel("emoji")}
-          onOpenIllustrationSet={(setId) => {
-            setIllustrationSetId(setId)
-            setPanel("illustration-set")
-          }}
-          onOpenImagePanel={() => setPanel("image")}
-          onOpenShapePanel={() => setPanel("shape")}
-        />
-      )
-    }
-
-    return (
-      <InsertMenuDesktopScroll contentClassName={INSERT_MENU_PANEL_CONTENT_CLASS}>
-        {panel === "shape" ? (
-          <InsertMenuShapePanel
-            isDesktopPopover={isDesktopPopover}
-            onBack={() => setPanel("root")}
-            onSelectShape={insertShape}
-          />
-        ) : null}
-        {panel === "illustration-set" && activeIllustrationSet ? (
-          <InsertMenuIllustrationSetPanel
-            isDesktopPopover={isDesktopPopover}
-            set={activeIllustrationSet}
-            onBack={() => setPanel("root")}
-            onSelectAsset={insertIllustration}
-          />
-        ) : null}
-        {panel === "image" ? (
-          <InsertMenuImagePanel
-            imageUrl={imageUrl}
-            isDesktopPopover={isDesktopPopover}
-            onBack={() => setPanel("root")}
-            onBrowseWallpapers={onBrowseWallpapers ? browseWallpapers : undefined}
-            onImageUrlChange={setImageUrl}
-            onInsertImage={insertImage}
-            theme={theme}
-          />
-        ) : null}
-      </InsertMenuDesktopScroll>
-    )
+  const panelsProps: InsertMenuPanelsProps = {
+    activeIllustrationSet,
+    canAddQrCode,
+    imageUrl,
+    isDesktopPopover,
+    onAddQrCode: onAddQrCode ? addQrCode : undefined,
+    onBack: () => setPanel("root"),
+    onBrowseWallpapers: onBrowseWallpapers ? browseWallpapers : undefined,
+    onInsertEmoji: insertEmoji,
+    onInsertImage: insertImage,
+    onInsertIllustration: insertIllustration,
+    onInsertShape: insertShape,
+    onInsertText: insertText,
+    onOpenEmojiPanel: () => setPanel("emoji"),
+    onOpenIllustrationSet: (setId) => {
+      setIllustrationSetId(setId)
+      setPanel("illustration-set")
+    },
+    onOpenImagePanel: () => setPanel("image"),
+    onOpenShapePanel: () => setPanel("shape"),
+    onImageUrlChange: setImageUrl,
+    panel,
+    theme,
   }
 
-  return (
-    <>
-      {panel === "root" ? (
-        <InsertMenuRootPanel
-          canAddQrCode={canAddQrCode}
-          isDesktopPopover={isDesktopPopover}
-          onAddQrCode={onAddQrCode ? addQrCode : undefined}
-          onInsertText={insertText}
-          onOpenEmojiPanel={() => setPanel("emoji")}
-          onOpenIllustrationSet={(setId) => {
-            setIllustrationSetId(setId)
-            setPanel("illustration-set")
-          }}
-          onOpenImagePanel={() => setPanel("image")}
-          onOpenShapePanel={() => setPanel("shape")}
-        />
-      ) : null}
-      {panel === "shape" ? (
-        <InsertMenuShapePanel
-          isDesktopPopover={isDesktopPopover}
-          onBack={() => setPanel("root")}
-          onSelectShape={insertShape}
-        />
-      ) : null}
-      {panel === "emoji" ? (
-        <InsertMenuEmojiPanel
-          isDesktopPopover={isDesktopPopover}
-          onBack={() => setPanel("root")}
-          onSelectEmoji={insertEmoji}
-        />
-      ) : null}
-      {panel === "illustration-set" && activeIllustrationSet ? (
-        <InsertMenuIllustrationSetPanel
-          isDesktopPopover={isDesktopPopover}
-          set={activeIllustrationSet}
-          onBack={() => setPanel("root")}
-          onSelectAsset={insertIllustration}
-        />
-      ) : null}
-      {panel === "image" ? (
-        <InsertMenuImagePanel
-          imageUrl={imageUrl}
-          isDesktopPopover={isDesktopPopover}
-          onBack={() => setPanel("root")}
-          onBrowseWallpapers={onBrowseWallpapers ? browseWallpapers : undefined}
-          onImageUrlChange={setImageUrl}
-          onInsertImage={insertImage}
-          theme={theme}
-        />
-      ) : null}
-    </>
-  )
+  if (isDesktopPopover) {
+    return <InsertMenuDesktopPanels {...panelsProps} />
+  }
+
+  return <InsertMenuInlinePanels {...panelsProps} />
 }

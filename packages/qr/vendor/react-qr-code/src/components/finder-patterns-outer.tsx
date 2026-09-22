@@ -5,6 +5,7 @@ import {
   FINDER_PATTERN_OUTER_ROTATIONS,
   FINDER_PATTERN_SIZE,
 } from '../constants'
+import type { FinderPatternOuterStyle } from '../types/lib'
 import type { FinderPatternsOuterProps } from '../types/utils'
 import {
   finderPatternsOuterInOutPoint,
@@ -15,6 +16,112 @@ import { sanitizeFinderPatternOuterSettings } from '../utils/settings'
 
 const testProps = {
   'data-testid': 'finder-patterns-outer',
+}
+
+type FinderPatternCoordinate = { x: number; y: number }
+
+const SHAPE_STYLES: FinderPatternOuterStyle[] = [
+  'rounded-sm',
+  'rounded',
+  'rounded-lg',
+  'circle',
+  'square',
+  'pinched-square',
+]
+
+const buildShapePathOps = (
+  style: FinderPatternOuterStyle,
+  coordinates: FinderPatternCoordinate[],
+) => {
+  const ops: Array<string> = []
+
+  for (const coordinate of coordinates) {
+    const { x, y } = coordinate
+    if (style === 'rounded-sm' || style === 'rounded' || style === 'rounded-lg') {
+      ops.push(
+        finderPatternsOuterRoundedSquare({
+          x,
+          y,
+          radius: FINDER_PATTERN_OUTER_RADIUSES[style],
+        }),
+      )
+    } else if (style === 'circle') {
+      ops.push(
+        `M ${x + FINDER_PATTERN_SIZE / 2} ${y}` +
+          `a ${FINDER_PATTERN_SIZE / 2} ${FINDER_PATTERN_SIZE / 2} 0 1 0 0.01 0z` +
+          'z' +
+          'm 0 1' +
+          `a ${FINDER_PATTERN_SIZE / 2 - 1} ${
+            FINDER_PATTERN_SIZE / 2 - 1
+          } 0 1 1 -0.01 0` +
+          'Z',
+      )
+    } else if (style === 'pinched-square') {
+      const PINCH_CONTROL_POINT = 0.5
+      const INNER_CONTROL_POINT = 1.25
+      ops.push(
+        `M ${x} ${y}` +
+          `Q ${x + PINCH_CONTROL_POINT} ${y + FINDER_PATTERN_SIZE / 2}, ${x} ${y + FINDER_PATTERN_SIZE}` +
+          `Q ${x + FINDER_PATTERN_SIZE / 2} ${y + FINDER_PATTERN_SIZE - PINCH_CONTROL_POINT}, ${x + FINDER_PATTERN_SIZE} ${y + FINDER_PATTERN_SIZE}` +
+          `Q ${x + FINDER_PATTERN_SIZE - PINCH_CONTROL_POINT} ${y + FINDER_PATTERN_SIZE / 2}, ${x + FINDER_PATTERN_SIZE} ${y}` +
+          `Q ${x + FINDER_PATTERN_SIZE / 2} ${y + PINCH_CONTROL_POINT}, ${x} ${y}` +
+          'z' +
+          `M ${x + 1} ${y + 1}` +
+          `Q ${x + FINDER_PATTERN_SIZE / 2} ${y + INNER_CONTROL_POINT}, ${x + FINDER_PATTERN_SIZE - 1} ${y + 1}` +
+          `Q ${x + FINDER_PATTERN_SIZE - INNER_CONTROL_POINT} ${y + FINDER_PATTERN_SIZE / 2}, ${x + FINDER_PATTERN_SIZE - 1} ${y + FINDER_PATTERN_SIZE - 1}` +
+          `Q ${x + FINDER_PATTERN_SIZE / 2} ${y + FINDER_PATTERN_SIZE - INNER_CONTROL_POINT}, ${x + 1} ${y + FINDER_PATTERN_SIZE - 1}` +
+          `Q ${x + INNER_CONTROL_POINT} ${y + FINDER_PATTERN_SIZE / 2}, ${x + 1} ${y + 1}` +
+          'z',
+      )
+    } else {
+      ops.push(
+        `M ${x} ${y}` +
+          `v ${FINDER_PATTERN_SIZE}` +
+          `h ${FINDER_PATTERN_SIZE}` +
+          `v ${-FINDER_PATTERN_SIZE}` +
+          'z' +
+          `M ${x + 1} ${y + 1}` +
+          `h ${FINDER_PATTERN_SIZE - 2}` +
+          `v ${FINDER_PATTERN_SIZE - 2}` +
+          `h ${-FINDER_PATTERN_SIZE + 2}` +
+          'z',
+      )
+    }
+  }
+
+  return ops
+}
+
+const renderPointPatterns = (
+  style: keyof typeof FINDER_PATTERN_OUTER_ROTATIONS,
+  coordinates: FinderPatternCoordinate[],
+  fill: string,
+) => {
+  const pathFn =
+    style === 'leaf-sm' || style === 'leaf' || style === 'leaf-lg'
+      ? finderPatternsOuterLeaf
+      : finderPatternsOuterInOutPoint
+  return coordinates.flatMap((coordinate, index) => {
+    const rotation = FINDER_PATTERN_OUTER_ROTATIONS[style][index]
+    const path = pathFn({
+      x: coordinate.x,
+      y: coordinate.y,
+      radius: FINDER_PATTERN_OUTER_RADIUSES[style],
+    })
+    return [
+      <path
+        key={`finder-patterns-outer-${style}-${coordinate.x}-${coordinate.y}`}
+        fill={fill}
+        d={path}
+        style={{
+          transform: `rotate(${rotation}deg)`,
+          transformOrigin: 'center',
+          transformBox: 'fill-box',
+        }}
+        {...testProps}
+      />,
+    ]
+  })
 }
 
 export const FinderPatternsOuter = ({
@@ -30,8 +137,6 @@ export const FinderPatternsOuter = ({
   )
   const fill = gradient ? `url(#${gradientId})` : color
 
-  const ops: Array<string> = []
-
   const coordinates = useMemo(
     () => [
       { x: margin, y: margin },
@@ -41,69 +146,8 @@ export const FinderPatternsOuter = ({
     [margin, modules.length],
   )
 
-  if (
-    [
-      'rounded-sm',
-      'rounded',
-      'rounded-lg',
-      'circle',
-      'square',
-      'pinched-square',
-    ].includes(style)
-  ) {
-    for (const coordinate of coordinates) {
-      const { x, y } = coordinate
-      if (style === 'rounded-sm' || style === 'rounded' || style === 'rounded-lg') {
-        ops.push(
-          finderPatternsOuterRoundedSquare({
-            x,
-            y,
-            radius: FINDER_PATTERN_OUTER_RADIUSES[style],
-          }),
-        )
-      } else if (style === 'circle') {
-        ops.push(
-          `M ${x + FINDER_PATTERN_SIZE / 2} ${y}` +
-            `a ${FINDER_PATTERN_SIZE / 2} ${FINDER_PATTERN_SIZE / 2} 0 1 0 0.01 0z` +
-            'z' +
-            'm 0 1' +
-            `a ${FINDER_PATTERN_SIZE / 2 - 1} ${
-              FINDER_PATTERN_SIZE / 2 - 1
-            } 0 1 1 -0.01 0` +
-            'Z',
-        )
-      } else if (style === 'pinched-square') {
-        const PINCH_CONTROL_POINT = 0.5
-        const INNER_CONTROL_POINT = 1.25
-        ops.push(
-          `M ${x} ${y}` +
-            `Q ${x + PINCH_CONTROL_POINT} ${y + FINDER_PATTERN_SIZE / 2}, ${x} ${y + FINDER_PATTERN_SIZE}` +
-            `Q ${x + FINDER_PATTERN_SIZE / 2} ${y + FINDER_PATTERN_SIZE - PINCH_CONTROL_POINT}, ${x + FINDER_PATTERN_SIZE} ${y + FINDER_PATTERN_SIZE}` +
-            `Q ${x + FINDER_PATTERN_SIZE - PINCH_CONTROL_POINT} ${y + FINDER_PATTERN_SIZE / 2}, ${x + FINDER_PATTERN_SIZE} ${y}` +
-            `Q ${x + FINDER_PATTERN_SIZE / 2} ${y + PINCH_CONTROL_POINT}, ${x} ${y}` +
-            'z' +
-            `M ${x + 1} ${y + 1}` +
-            `Q ${x + FINDER_PATTERN_SIZE / 2} ${y + INNER_CONTROL_POINT}, ${x + FINDER_PATTERN_SIZE - 1} ${y + 1}` +
-            `Q ${x + FINDER_PATTERN_SIZE - INNER_CONTROL_POINT} ${y + FINDER_PATTERN_SIZE / 2}, ${x + FINDER_PATTERN_SIZE - 1} ${y + FINDER_PATTERN_SIZE - 1}` +
-            `Q ${x + FINDER_PATTERN_SIZE / 2} ${y + FINDER_PATTERN_SIZE - INNER_CONTROL_POINT}, ${x + 1} ${y + FINDER_PATTERN_SIZE - 1}` +
-            `Q ${x + INNER_CONTROL_POINT} ${y + FINDER_PATTERN_SIZE / 2}, ${x + 1} ${y + 1}` +
-            'z',
-        )
-      } else {
-        ops.push(
-          `M ${x} ${y}` +
-            `v ${FINDER_PATTERN_SIZE}` +
-            `h ${FINDER_PATTERN_SIZE}` +
-            `v ${-FINDER_PATTERN_SIZE}` +
-            'z' +
-            `M ${x + 1} ${y + 1}` +
-            `h ${FINDER_PATTERN_SIZE - 2}` +
-            `v ${FINDER_PATTERN_SIZE - 2}` +
-            `h ${-FINDER_PATTERN_SIZE + 2}` +
-            'z',
-        )
-      }
-    }
+  if (SHAPE_STYLES.includes(style)) {
+    const ops = buildShapePathOps(style, coordinates)
     return <path fill={fill} d={ops.join('')} {...testProps} />
   }
 
@@ -118,30 +162,6 @@ export const FinderPatternsOuter = ({
     style === 'leaf' ||
     style === 'leaf-lg'
   ) {
-    const pathFn =
-      style === 'leaf-sm' || style === 'leaf' || style === 'leaf-lg'
-        ? finderPatternsOuterLeaf
-        : finderPatternsOuterInOutPoint
-    return coordinates.flatMap((coordinate, index) => {
-      const rotation = FINDER_PATTERN_OUTER_ROTATIONS[style][index]
-      const path = pathFn({
-        x: coordinate.x,
-        y: coordinate.y,
-        radius: FINDER_PATTERN_OUTER_RADIUSES[style],
-      })
-      return [
-        <path
-          key={`finder-patterns-outer-${style}-${coordinate.x}-${coordinate.y}`}
-          fill={fill}
-          d={path}
-          style={{
-            transform: `rotate(${rotation}deg)`,
-            transformOrigin: 'center',
-            transformBox: 'fill-box',
-          }}
-          {...testProps}
-        />,
-      ]
-    })
+    return renderPointPatterns(style, coordinates, fill)
   }
 }

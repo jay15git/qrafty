@@ -3,13 +3,15 @@
 
 import {
   animate,
-  motion,
+  m,
   useMotionValue,
   useReducedMotion,
   useTransform,
+  type MotionValue,
 } from "motion/react";
 import {
   type PointerEvent,
+  type RefObject,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -70,6 +72,91 @@ export interface InlineSliderProps extends SliderOptions {
   /** Show markers for the ten evenly spaced snap stops, except where they overlap inline text. */
   showTicks?: boolean;
   className?: string;
+}
+
+/** The sliding fill inside the track's inset clipping window. */
+function InlineSliderFill({ fillX }: { fillX: MotionValue<number> }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-x-[2px] inset-y-0 overflow-hidden rounded-lg"
+    >
+      <m.div
+        className="absolute inset-0 rounded-lg bg-foreground/15"
+        style={{ x: fillX }}
+      />
+    </div>
+  );
+}
+
+/** The label, readout, and stop markers painted above the fill. */
+function InlineSliderOverlay({
+  label,
+  labelRef,
+  readoutRef,
+  readout,
+  ticks,
+}: {
+  label: string;
+  labelRef: RefObject<HTMLSpanElement | null>;
+  readoutRef: RefObject<HTMLSpanElement | null>;
+  readout: string;
+  ticks: number[];
+}) {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 text-foreground">
+      <span
+        ref={labelRef}
+        className="absolute left-3 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-sm font-medium leading-5"
+      >
+        {label}
+      </span>
+      <span
+        ref={readoutRef}
+        className="absolute right-3 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-[13px] font-semibold leading-[18px] tracking-tight tabular-nums"
+      >
+        {readout}
+      </span>
+      {ticks.map((left) => (
+        <span
+          key={left}
+          className="absolute top-1/2 size-1 -translate-y-1/2 rounded-full bg-foreground/25"
+          style={{ left }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** The two-dot thumb that parts around the overlay text as it passes. */
+function InlineSliderThumb({
+  handleX,
+  stemOpacity,
+  capTop,
+  capBottom,
+  dragging,
+  reduce,
+}: {
+  handleX: MotionValue<number>;
+  stemOpacity: MotionValue<number>;
+  capTop: MotionValue<number>;
+  capBottom: MotionValue<number>;
+  dragging: boolean;
+  reduce: boolean | null;
+}) {
+  return (
+    <m.div
+      aria-hidden="true"
+      animate={reduce ? undefined : { scaleY: dragging ? 1.35 : 1 }}
+      transition={SPRING_BOUNCY}
+      className="pointer-events-none absolute left-0 top-1/2 h-[1.125rem] w-1 -translate-y-1/2 text-foreground"
+      style={{ x: handleX }}
+    >
+      <m.span className="absolute top-0 size-1 rounded-full bg-current" style={{ y: reduce ? 0 : capTop }} />
+      <m.span className="absolute inset-y-0 w-1 rounded-full bg-current" style={{ opacity: stemOpacity }} />
+      <m.span className="absolute bottom-0 size-1 rounded-full bg-current" style={{ y: reduce ? 0 : capBottom }} />
+    </m.div>
+  );
 }
 
 /** An always-visible inline slider with an inset fill and a thumb that parts
@@ -324,47 +411,22 @@ export function InlineSlider({
         className,
       )}
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-[2px] inset-y-0 overflow-hidden rounded-lg"
-      >
-        <motion.div
-          className="absolute inset-0 rounded-lg bg-foreground/15"
-          style={{ x: fillX }}
-        />
-      </div>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 text-foreground">
-        <span
-          ref={labelRef}
-          className="absolute left-3 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-sm font-medium leading-5"
-        >
-          {label}
-        </span>
-        <span
-          ref={readoutRef}
-          className="absolute right-3 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-[13px] font-semibold leading-[18px] tracking-tight tabular-nums"
-        >
-          {format(current)}
-        </span>
-        {ticks.map((left) => (
-          <span
-            key={left}
-            className="absolute top-1/2 size-1 -translate-y-1/2 rounded-full bg-foreground/25"
-            style={{ left }}
-          />
-        ))}
-      </div>
-      <motion.div
-        aria-hidden="true"
-        animate={reduce ? undefined : { scaleY: dragging ? 1.35 : 1 }}
-        transition={SPRING_BOUNCY}
-        className="pointer-events-none absolute left-0 top-1/2 h-[1.125rem] w-1 -translate-y-1/2 text-foreground"
-        style={{ x: handleX }}
-      >
-        <motion.span className="absolute top-0 size-1 rounded-full bg-current" style={{ y: reduce ? 0 : capTop }} />
-        <motion.span className="absolute inset-y-0 w-1 rounded-full bg-current" style={{ opacity: stemOpacity }} />
-        <motion.span className="absolute bottom-0 size-1 rounded-full bg-current" style={{ y: reduce ? 0 : capBottom }} />
-      </motion.div>
+      <InlineSliderFill fillX={fillX} />
+      <InlineSliderOverlay
+        label={label}
+        labelRef={labelRef}
+        readoutRef={readoutRef}
+        readout={format(current)}
+        ticks={ticks}
+      />
+      <InlineSliderThumb
+        handleX={handleX}
+        stemOpacity={stemOpacity}
+        capTop={capTop}
+        capBottom={capBottom}
+        dragging={dragging}
+        reduce={reduce}
+      />
       <button
         type="button"
         {...sliderProps}

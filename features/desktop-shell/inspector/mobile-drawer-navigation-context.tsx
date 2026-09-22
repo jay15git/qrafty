@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useId,
   useLayoutEffect,
   useMemo,
@@ -77,8 +78,10 @@ export function MobileDrawerNavigationProvider({
   const detailStackRef = useRef<MobileDrawerDetailPayload[]>([])
   const suppressRecoveryRef = useRef(false)
   const detailIdCounterRef = useRef(0)
-  currentViewRef.current = currentView
-  detailStackRef.current = detailStack
+  useEffect(() => {
+    currentViewRef.current = currentView
+    detailStackRef.current = detailStack
+  })
 
   const detailPayload =
     detailStack.length > 0 ? detailStack[detailStack.length - 1] : null

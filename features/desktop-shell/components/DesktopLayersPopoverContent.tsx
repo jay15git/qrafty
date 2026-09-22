@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, type ReactNode } from "react"
+import { useRef, useState, type ReactNode } from "react"
 import { Trash2Icon } from "lucide-react"
 
 import { ReorderList } from "@/components/interior/reorder-list"
@@ -71,6 +71,36 @@ function entriesToLayers(entries: LayerReorderEntry[], layers: DesktopLayerRow[]
     .filter((row): row is DesktopLayerRow => Boolean(row))
 }
 
+/**
+ * Reconciles the reorder entries with the layer list: keeps entries whose
+ * layer still exists (preserving identity so ReorderList can animate), appends
+ * new layers, and pins the background row last. Returns the current list
+ * unchanged when nothing moved.
+ */
+function reconcileOrderedEntries(
+  current: LayerReorderEntry[],
+  layers: DesktopLayerRow[],
+  getStableEntry: (id: string) => LayerReorderEntry,
+) {
+  const layerIds = new Set(layers.map((row) => row.id))
+  const kept = current
+    .filter((entry) => layerIds.has(entry.id))
+    .map((entry) => getStableEntry(entry.id))
+  const keptIds = new Set(kept.map((entry) => entry.id))
+  const added = layers
+    .filter((row) => !keptIds.has(row.id))
+    .map((row) => getStableEntry(row.id))
+  const next = pinBackgroundLast([...kept, ...added], layers)
+  if (
+    next.length === current.length &&
+    next.every((entry, index) => entry.id === current[index]?.id)
+  ) {
+    return current
+  }
+  return next
+}
+
+
 export function DesktopLayersPopoverContent({
   embedded = false,
   layersSettings,
@@ -88,7 +118,6 @@ export function DesktopLayersPopoverContent({
 }) {
   const layers = layersSettings.layers
   const entryMapRef = useRef(new Map<string, LayerReorderEntry>())
-  const [orderedEntries, setOrderedEntries] = useState<LayerReorderEntry[]>([])
 
   function getStableEntry(id: string) {
     let entry = entryMapRef.current.get(id)
@@ -99,26 +128,21 @@ export function DesktopLayersPopoverContent({
     return entry
   }
 
-  useEffect(() => {
-    const layerIds = layers.map((row) => row.id)
-    setOrderedEntries((current) => {
-      const kept = current
-        .filter((entry) => layerIds.includes(entry.id))
-        .map((entry) => getStableEntry(entry.id))
-      const added = layerIds
-        .filter((id) => !kept.some((entry) => entry.id === id))
-        .map((id) => getStableEntry(id))
+  const [orderedEntries, setOrderedEntries] = useState<LayerReorderEntry[]>(() =>
+    pinBackgroundLast(layers.map((row) => getStableEntry(row.id)), layers),
+  )
 
-      const next = pinBackgroundLast([...kept, ...added], layers)
-      if (
-        next.length === current.length &&
-        next.every((entry, index) => entry.id === current[index]?.id)
-      ) {
-        return current
-      }
-      return next
-    })
-  }, [layers])
+  // Reconcile the reorder entries with the layer list during render — the
+  // React-docs "adjust state when a prop changes" pattern. Entries keep their
+  // identity across renders so ReorderList can animate them.
+  const [prevLayers, setPrevLayers] = useState(layers)
+  if (prevLayers !== layers) {
+    setPrevLayers(layers)
+    const next = reconcileOrderedEntries(orderedEntries, layers, getStableEntry)
+    if (next !== orderedEntries) {
+      setOrderedEntries(next)
+    }
+  }
 
   function handleReorder(nextEntries: LayerReorderEntry[]) {
     setOrderedEntries(pinBackgroundLast(nextEntries, layers))

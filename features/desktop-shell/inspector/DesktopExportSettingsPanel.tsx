@@ -10,7 +10,11 @@ import {
   SettingsPrimaryButton,
   SettingsTabPanel,
 } from "@/features/desktop-shell/inspector/settings-ui"
-import type { DesktopExportMediaKind } from "@/features/desktop-shell/model/desktop-toolbar-types"
+import type {
+  DesktopExportMediaKind,
+  DesktopExportSettings,
+  DesktopToolbarController,
+} from "@/features/desktop-shell/model/desktop-toolbar-types"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 import {
   clampVideoExportDuration,
@@ -58,6 +62,155 @@ function mediaKindToTab(mediaKind: DesktopExportMediaKind): (typeof MEDIA_TABS)[
   return mediaKind === "video" ? "Video" : "Photo"
 }
 
+function PhotoExportControls({
+  exportSettings,
+  onExportSettingsChange,
+}: {
+  exportSettings: DesktopExportSettings
+  onExportSettingsChange: (patch: Partial<DesktopExportSettings>) => void
+}) {
+  return (
+    <>
+      <SegmentTabs
+        items={[...PHOTO_FORMAT_OPTIONS]}
+        value={extensionToPhotoFormat(exportSettings.extension)}
+        variant="muted"
+        onChange={(format) =>
+          onExportSettingsChange({
+            extension: photoFormatToExtension(format as (typeof PHOTO_FORMAT_OPTIONS)[number]),
+          })
+        }
+      />
+      <SegmentTabs
+        items={[...SIZE_OPTIONS]}
+        value={longEdgeToSizeLabel(exportSettings.photoLongEdge)}
+        variant="muted"
+        onChange={(label) =>
+          onExportSettingsChange({
+            photoLongEdge:
+              SIZE_LABEL_TO_LONG_EDGE[label as (typeof SIZE_OPTIONS)[number]],
+          })
+        }
+      />
+    </>
+  )
+}
+
+function VideoExportControls({
+  canExportVideo,
+  exportSettings,
+  onExportSettingsChange,
+}: {
+  canExportVideo: boolean
+  exportSettings: DesktopExportSettings
+  onExportSettingsChange: (patch: Partial<DesktopExportSettings>) => void
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <SegmentTabs
+        items={[...VIDEO_FORMAT_OPTIONS]}
+        value={exportSettings.videoFormat === "webm" ? "WebM" : "MP4"}
+        variant="muted"
+        onChange={(format) =>
+          onExportSettingsChange({
+            videoFormat: format === "WebM" ? "webm" : "mp4",
+          })
+        }
+      />
+      <DesktopInspectorElasticSliderRow
+        label="Duration"
+        max={VIDEO_EXPORT_MAX_DURATION_SECONDS}
+        min={VIDEO_EXPORT_MIN_DURATION_SECONDS}
+        step={1}
+        value={exportSettings.videoDurationSeconds}
+        valueLabel={`${exportSettings.videoDurationSeconds} sec`}
+        onChange={(value) =>
+          onExportSettingsChange({
+            videoDurationSeconds: clampVideoExportDuration(value),
+          })
+        }
+      />
+      <SegmentTabs
+        items={[...VIDEO_FPS_OPTIONS]}
+        value={exportSettings.videoFrameRate === 60 ? "60 fps" : "30 fps"}
+        variant="muted"
+        onChange={(label) =>
+          onExportSettingsChange({
+            videoFrameRate: label.startsWith("60") ? 60 : 30,
+          })
+        }
+      />
+      <SegmentTabs
+        items={[...SIZE_OPTIONS]}
+        value={longEdgeToSizeLabel(exportSettings.videoLongEdge)}
+        variant="muted"
+        onChange={(label) =>
+          onExportSettingsChange({
+            videoLongEdge: SIZE_LABEL_TO_LONG_EDGE[label as (typeof SIZE_OPTIONS)[number]],
+          })
+        }
+      />
+      {!canExportVideo ? (
+        <p className="dn-type-meta text-center">Add motion or animated QR to export video.</p>
+      ) : null}
+    </div>
+  )
+}
+
+function ExportDownloadButton({
+  controller,
+  disabled,
+  exportInProgress,
+}: {
+  controller?: DesktopToolbarController
+  disabled: boolean
+  exportInProgress: boolean
+}) {
+  return (
+    <SettingsPrimaryButton
+      data-slot="desktop-export-download-confirm"
+      disabled={disabled}
+      onClick={() => controller?.onExportDownload?.()}
+    >
+      <AnimatePresence initial={false} mode="wait">
+        {exportInProgress ? (
+          <m.span
+            key="export-progress"
+            animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+            className="flex w-full items-center justify-center"
+            exit={{ opacity: 0, filter: "blur(4px)", y: -4 }}
+            initial={{ opacity: 0, filter: "blur(4px)", y: 4 }}
+            transition={{ duration: 0.18, ease: EASE_OUT }}
+          >
+            <Loader
+              className="w-full text-current"
+              fullWidth
+              label={controller?.exportProgressLabel ?? "Exporting"}
+              progress={
+                controller?.exportProgressRatio != null
+                  ? controller.exportProgressRatio * 100
+                  : undefined
+              }
+              size={30}
+              variant="percent"
+            />
+          </m.span>
+        ) : (
+          <m.span
+            key="download-label"
+            animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+            exit={{ opacity: 0, filter: "blur(4px)", y: -4 }}
+            initial={{ opacity: 0, filter: "blur(4px)", y: 4 }}
+            transition={{ duration: 0.18, ease: EASE_OUT }}
+          >
+            Download
+          </m.span>
+        )}
+      </AnimatePresence>
+    </SettingsPrimaryButton>
+  )
+}
+
 export function DesktopExportSettingsPanel({ model }: { model: DesktopInspectorModel }) {
   const { actualExportSettings, controller, onExportSettingsChange } = model
   const mediaTab = mediaKindToTab(actualExportSettings.mediaKind)
@@ -65,12 +218,6 @@ export function DesktopExportSettingsPanel({ model }: { model: DesktopInspectorM
   const canExportVideo = controller?.canExportVideo ?? false
   const canDownload = controller?.canExportDownload ?? true
   const exportInProgress = controller?.exportInProgress ?? false
-  const selectedPhotoFormat = extensionToPhotoFormat(actualExportSettings.extension)
-  const photoSizeLabel = longEdgeToSizeLabel(actualExportSettings.photoLongEdge)
-
-  const fpsLabel = actualExportSettings.videoFrameRate === 60 ? "60 fps" : "30 fps"
-  const videoFormatLabel = actualExportSettings.videoFormat === "webm" ? "WebM" : "MP4"
-  const videoSizeLabel = longEdgeToSizeLabel(actualExportSettings.videoLongEdge)
 
   return (
     <div className={SECTION_STACK} data-slot="desktop-export-settings-panel">
@@ -89,122 +236,24 @@ export function DesktopExportSettingsPanel({ model }: { model: DesktopInspectorM
 
       <SettingsTabPanel activeKey={mediaTab}>
         {mediaTab === "Photo" ? (
-          <>
-            <SegmentTabs
-              items={[...PHOTO_FORMAT_OPTIONS]}
-              value={selectedPhotoFormat}
-              variant="muted"
-              onChange={(format) =>
-                onExportSettingsChange({
-                  extension: photoFormatToExtension(format as (typeof PHOTO_FORMAT_OPTIONS)[number]),
-                })
-              }
-            />
-            <SegmentTabs
-              items={[...SIZE_OPTIONS]}
-              value={photoSizeLabel}
-              variant="muted"
-              onChange={(label) =>
-                onExportSettingsChange({
-                  photoLongEdge:
-                    SIZE_LABEL_TO_LONG_EDGE[label as (typeof SIZE_OPTIONS)[number]],
-                })
-              }
-            />
-          </>
+          <PhotoExportControls
+            exportSettings={actualExportSettings}
+            onExportSettingsChange={onExportSettingsChange}
+          />
         ) : (
-          <div className="flex flex-col gap-2">
-            <SegmentTabs
-              items={[...VIDEO_FORMAT_OPTIONS]}
-              value={videoFormatLabel}
-              variant="muted"
-              onChange={(format) =>
-                onExportSettingsChange({
-                  videoFormat: format === "WebM" ? "webm" : "mp4",
-                })
-              }
-            />
-            <DesktopInspectorElasticSliderRow
-              label="Duration"
-              max={VIDEO_EXPORT_MAX_DURATION_SECONDS}
-              min={VIDEO_EXPORT_MIN_DURATION_SECONDS}
-              step={1}
-              value={actualExportSettings.videoDurationSeconds}
-              valueLabel={`${actualExportSettings.videoDurationSeconds} sec`}
-              onChange={(value) =>
-                onExportSettingsChange({
-                  videoDurationSeconds: clampVideoExportDuration(value),
-                })
-              }
-            />
-            <SegmentTabs
-              items={[...VIDEO_FPS_OPTIONS]}
-              value={fpsLabel}
-              variant="muted"
-              onChange={(label) =>
-                onExportSettingsChange({
-                  videoFrameRate: label.startsWith("60") ? 60 : 30,
-                })
-              }
-            />
-            <SegmentTabs
-              items={[...SIZE_OPTIONS]}
-              value={videoSizeLabel}
-              variant="muted"
-              onChange={(label) =>
-                onExportSettingsChange({
-                  videoLongEdge: SIZE_LABEL_TO_LONG_EDGE[label as (typeof SIZE_OPTIONS)[number]],
-                })
-              }
-            />
-            {!canExportVideo ? (
-              <p className="dn-type-meta text-center">Add motion or animated QR to export video.</p>
-            ) : null}
-          </div>
+          <VideoExportControls
+            canExportVideo={canExportVideo}
+            exportSettings={actualExportSettings}
+            onExportSettingsChange={onExportSettingsChange}
+          />
         )}
       </SettingsTabPanel>
 
-      <SettingsPrimaryButton
-        data-slot="desktop-export-download-confirm"
+      <ExportDownloadButton
+        controller={controller}
         disabled={!canDownload || exportInProgress || (isVideoExport && !canExportVideo)}
-        onClick={() => controller?.onExportDownload?.()}
-      >
-        <AnimatePresence initial={false} mode="wait">
-          {exportInProgress ? (
-            <m.span
-              key="export-progress"
-              animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-              className="flex w-full items-center justify-center"
-              exit={{ opacity: 0, filter: "blur(4px)", y: -4 }}
-              initial={{ opacity: 0, filter: "blur(4px)", y: 4 }}
-              transition={{ duration: 0.18, ease: EASE_OUT }}
-            >
-              <Loader
-                className="w-full text-current"
-                fullWidth
-                label={controller?.exportProgressLabel ?? "Exporting"}
-                progress={
-                  controller?.exportProgressRatio != null
-                    ? controller.exportProgressRatio * 100
-                    : undefined
-                }
-                size={30}
-                variant="percent"
-              />
-            </m.span>
-          ) : (
-            <m.span
-              key="download-label"
-              animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-              exit={{ opacity: 0, filter: "blur(4px)", y: -4 }}
-              initial={{ opacity: 0, filter: "blur(4px)", y: 4 }}
-              transition={{ duration: 0.18, ease: EASE_OUT }}
-            >
-              Download
-            </m.span>
-          )}
-        </AnimatePresence>
-      </SettingsPrimaryButton>
+        exportInProgress={exportInProgress}
+      />
       {exportInProgress ? (
         <button
           className="dn-type-meta text-center text-[var(--desktop-inspector-fg-secondary)] underline-offset-2 hover:underline"

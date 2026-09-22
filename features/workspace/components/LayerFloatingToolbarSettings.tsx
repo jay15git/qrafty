@@ -52,7 +52,7 @@ import {
   getTextLayerFillCssValue,
   patchShapeLayerFillFromPicker,
   patchTextLayerFillFromPicker,
-} from "@/features/workspace/rendering/shape-fill"
+} from "@/features/workspace/rendering/shape-fill.utils"
 import { cn } from "@/lib/utils"
 import { CUELUME_TOGGLE } from "@/features/desktop-shell/audio/desktop-cuelume"
 

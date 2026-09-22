@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -82,21 +83,21 @@ function FamilyDrawerRoot({
   const setIsOpen = onOpenChange || setInternalOpen
 
   const opacityDuration = useMemo(() => {
-    const currentHeight = bounds.height
     const previousHeight = previousHeightRef.current
 
     const MIN_DURATION = 0.15
     const MAX_DURATION = 0.27
 
-    if (!previousHeightRef.current) {
-      previousHeightRef.current = currentHeight
+    if (!previousHeight) {
       return MIN_DURATION
     }
 
-    const heightDifference = Math.abs(currentHeight - previousHeight)
-    previousHeightRef.current = currentHeight
+    const heightDifference = Math.abs(bounds.height - previousHeight)
 
     return Math.min(Math.max(heightDifference / 500, MIN_DURATION), MAX_DURATION)
+  }, [bounds.height])
+  useEffect(() => {
+    previousHeightRef.current = bounds.height
   }, [bounds.height])
 
   const views =
@@ -246,9 +247,11 @@ function FamilyDrawerContent({
     DEFAULT_VIEW_ACCESSIBILITY_TITLES[view] ??
     DEFAULT_VIEW_ACCESSIBILITY_TITLES.default
 
-  if (bounds.height > 0) {
-    lastPositiveHeightRef.current = bounds.height
-  }
+  useEffect(() => {
+    if (bounds.height > 0) {
+      lastPositiveHeightRef.current = bounds.height
+    }
+  }, [bounds.height])
 
   const measuredHeight =
     bounds.height > 0 ? bounds.height : lastPositiveHeightRef.current
@@ -263,12 +266,11 @@ function FamilyDrawerContent({
 
   const content = (
     <m.div
-      animate={{
-        height: displayedHeight,
-        transition: {
-          duration: 0.27,
-          ease: [0.25, 1, 0.5, 1],
-        },
+      layout
+      style={{ height: displayedHeight }}
+      transition={{
+        duration: 0.27,
+        ease: [0.25, 1, 0.5, 1],
       }}
       className={
         isCapped

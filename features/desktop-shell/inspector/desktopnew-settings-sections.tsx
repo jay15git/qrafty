@@ -19,6 +19,7 @@ import {
 import type { QrTypeNumber } from "@/features/qr-code/model/types"
 import {
   QR_BACKGROUND_SHAPES,
+  shapeViewBox,
   type QrBackgroundShapeId,
 } from "@/features/qr-code/styles/background-shapes"
 import { ElementsSection } from "@/features/desktop-shell/inspector/desktopnew-elements-section"
@@ -91,7 +92,7 @@ import {
   type PaperShaderId,
 } from "@/features/workspace/rendering/paper-shader-definitions"
 import { createDefaultDraftingCardPaperShader } from "@/features/workspace/model/card-state"
-import { SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
+import { isSceneWallpaperPath, SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 import {
   getInspectorSectionTab,
@@ -102,10 +103,7 @@ import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/deskt
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { SettingsOptionShelf } from "@/features/desktop-shell/inspector/mobile-settings-rail"
 import { SETTINGS_PREVIEW_TILE_FLUID } from "@/features/desktop-shell/inspector/settings-preview-tiles"
-import {
-  isSceneWallpaperPath,
-  SettingsImageUploadTile,
-} from "@/features/desktop-shell/inspector/settings-fill-option-grid"
+import { SettingsImageUploadTile } from "@/features/desktop-shell/inspector/settings-fill-option-grid"
 import {
   SETTINGS_FILL_LINEAR_PRESETS,
   SETTINGS_FILL_RADIAL_PRESETS,
@@ -184,10 +182,6 @@ export function ShapeGlyph({
       {path ? <path d={path} /> : <rect width="24" height="24" />}
     </svg>
   )
-}
-
-export function shapeViewBox(option: (typeof QR_BACKGROUND_SHAPES)[number]) {
-  return `${option.viewBox.x ?? 0} ${option.viewBox.y ?? 0} ${option.viewBox.width} ${option.viewBox.height}`
 }
 
 const SHAPE_SELECT_TILE =

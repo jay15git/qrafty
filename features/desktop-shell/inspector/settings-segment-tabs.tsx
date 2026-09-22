@@ -61,7 +61,9 @@ export function SegmentTabs({
   const activeItem = resolveActiveSegmentTab(normalizedItems, value) ?? normalizedItems[0]
   const activeKey = activeItem?.id ?? value
 
-  activeKeyRef.current = activeKey
+  useEffect(() => {
+    activeKeyRef.current = activeKey
+  })
 
   const movePill = (key: string, animate: boolean) => {
     const pill = pillRef.current

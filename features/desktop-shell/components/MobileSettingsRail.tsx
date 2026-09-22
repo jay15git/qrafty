@@ -59,7 +59,6 @@ import {
 } from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
 import {
   ShapeGlyph,
-  shapeViewBox,
   SQUARE_SHAPE_VIEWBOX,
 } from "@/features/desktop-shell/inspector/desktopnew-settings-sections"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
@@ -100,7 +99,7 @@ import {
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
 import { QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS } from "@/features/qr-code/model/state"
-import { QR_BACKGROUND_SHAPES } from "@/features/qr-code/styles/background-shapes"
+import { QR_BACKGROUND_SHAPES, shapeViewBox } from "@/features/qr-code/styles/background-shapes"
 import type {
   DesktopPatternSettings,
   DesktopPatternSettingsPatch,
@@ -720,16 +719,14 @@ function MobileRailPatternPaletteDetail({
   ])
 
   const applyColor = (index: number, color: string) => {
-    setPalette((current) => {
-      const next = current.map((entry, entryIndex) =>
-        entryIndex === index ? color : entry,
-      )
-      applyQrPalettePatch(model, {
-        dotsColorMode: "palette",
-        dotsPalettePreset: "custom",
-        dotsPalette: next,
-      })
-      return next
+    const next = palette.map((entry, entryIndex) =>
+      entryIndex === index ? color : entry,
+    )
+    setPalette(next)
+    applyQrPalettePatch(model, {
+      dotsColorMode: "palette",
+      dotsPalettePreset: "custom",
+      dotsPalette: next,
     })
   }
 
@@ -1499,32 +1496,25 @@ function useMeasuredHeight<T extends HTMLElement>() {
   return { height, ref }
 }
 
-export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) {
-  const theme = model.actualDesktopTheme
-  const modelRef = useLatestModel(model)
-  // Pre-edit state per section touched this session — X replays all of them,
-  // ✓ drops the map. The drawer can wander sections on its own tab dock, so
-  // the discard scope is "everything opened since the family opened".
-  const snapshotsRef = useRef(new Map<DesktopSettingsSectionId, MobileFamilySnapshot>())
-  const { height: railHeight, ref: railRef } = useMeasuredHeight<HTMLDivElement>()
-  const [toolbarHeight, setToolbarHeight] = useState(0)
-  const [openFamily, setOpenFamily] = useState<DesktopSettingsSectionId | null>(null)
+/**
+ * Two-phase stage swap: everything the rail renders — options, mode tabs,
+ * X/label/tick — comes from `displayed`, a snapshot that only commits ~190ms
+ * after the user picks something, while the stage sits at opacity 0. Nothing
+ * re-renders mid-fade: the exiting content is frozen because it IS the
+ * snapshot, not a dying AnimatePresence clone. `selectedMode`/`selectedPart`
+ * stay live so the tab pill reacts instantly.
+ */
+function useMobileRailStage(
+  openFamily: DesktopSettingsSectionId | null,
+  model: DesktopInspectorModel,
+) {
   // Selected Style part — the QR row shows its catalogue, the tabs track it.
   const [openPart, setOpenPart] = useState<QrStylePartId>("Module")
-  const [drawerSection, setDrawerSection] = useState<DesktopSettingsSectionId | null>(null)
-  const [drawerView, setDrawerView] = useState(MOBILE_DRAWER_SECTION_VIEW)
   // Browsed fill mode per family — unset entries derive from the model.
   const [familyModes, setFamilyModes] = useState<
     Partial<Record<DesktopSettingsSectionId, string>>
   >({})
-  const keyboardInset = useMobileKeyboardInset()
 
-  /* Two-phase stage swap: everything the rail renders — options, mode tabs,
-     X/label/tick — comes from `displayed`, a snapshot that only commits ~190ms
-     after the user picks something, while the stage sits at opacity 0. Nothing
-     re-renders mid-fade: the exiting content is frozen because it IS the
-     snapshot, not a dying AnimatePresence clone. `selectedMode`/`selectedPart`
-     stay live so the tab pill reacts instantly. */
   const incomingMode =
     openFamily && MOBILE_FAMILY_FOOTERS[openFamily]
       ? (familyModes[openFamily] ?? defaultFamilyMode(openFamily, model))
@@ -1555,15 +1545,10 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
   }, [openFamily, incomingMode, openPart, displayed])
 
   const viewFamily = displayed.family
-  const options = viewFamily ? MOBILE_FAMILY_OPTIONS[viewFamily] : undefined
-  const FamilyRow = viewFamily ? MOBILE_FAMILY_ROWS[viewFamily] : undefined
-  const FamilyFooter = viewFamily ? MOBILE_FAMILY_FOOTERS[viewFamily] : undefined
-  const drilled = Boolean(options || FamilyRow)
-  const drawerOpen = drawerSection !== null || drawerView === MOBILE_DRAWER_DETAIL_VIEW
   // Footer pill highlight: live for the displayed family so a tap slides the
   // pill instantly; during a family fade it still describes the exiting view.
   const railMode =
-    viewFamily && FamilyFooter
+    viewFamily && MOBILE_FAMILY_FOOTERS[viewFamily]
       ? (familyModes[viewFamily] ?? defaultFamilyMode(viewFamily, model))
       : undefined
 
@@ -1589,6 +1574,253 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
     }),
     [displayed.part, openPart],
   )
+
+  return {
+    fading,
+    railModeContext,
+    railPartContext,
+    setOpenPart,
+    viewFamily,
+  }
+}
+
+/* The settings drawer is portalled outside the rail's measured element, so
+   `--desktop-mobile-drawer-height` (which positions the layer toolbar above
+   the chrome) only saw the rail. Measure the open drawer too — the toolbar
+   must clear whichever surface is taller. */
+function useMobileDrawerHeight(drawerOpen: boolean) {
+  const [drawerHeight, setDrawerHeight] = useState(0)
+
+  useEffect(() => {
+    let frame = 0
+    let retries = 0
+    let observer: ResizeObserver | null = null
+
+    const measure = () => {
+      if (!drawerOpen) {
+        setDrawerHeight(0)
+        return
+      }
+      const el = document.querySelector<HTMLElement>(
+        '[data-slot="mobile-family-drawer-root"]',
+      )
+      if (!el) {
+        // The portal mounts a beat after `drawerOpen` flips — retry briefly.
+        if (retries < 10) {
+          retries += 1
+          frame = window.requestAnimationFrame(measure)
+        }
+        return
+      }
+      setDrawerHeight(Math.round(el.getBoundingClientRect().height))
+      if (!observer) {
+        observer = new ResizeObserver(() =>
+          setDrawerHeight(Math.round(el.getBoundingClientRect().height)),
+        )
+        observer.observe(el)
+      }
+    }
+
+    frame = window.requestAnimationFrame(measure)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      observer?.disconnect()
+    }
+  }, [drawerOpen])
+
+  return drawerHeight
+}
+
+function MobileRailOptionButton({
+  option,
+  onClick,
+}: {
+  option: MobileRailOption
+  onClick: () => void
+}) {
+  return (
+    <button
+      className={
+        option.shape === "pill"
+          ? "dn-mobile-settings-rail__item dn-mobile-settings-rail__item--pill"
+          : "dn-mobile-settings-rail__item"
+      }
+      type="button"
+      onClick={onClick}
+    >
+      {option.shape === "pill" ? (
+        <span className="dn-mobile-settings-rail__pill">{option.label}</span>
+      ) : (
+        <>
+          <span className="dn-mobile-settings-rail__circle">{option.icon}</span>
+          <span className="dn-mobile-settings-rail__label">{option.label}</span>
+        </>
+      )}
+    </button>
+  )
+}
+
+function MobileRailSectionButton({
+  section,
+  onClick,
+}: {
+  section: DesktopSettingsSectionId
+  onClick: () => void
+}) {
+  return (
+    <button
+      className="dn-mobile-settings-rail__item"
+      type="button"
+      onClick={onClick}
+    >
+      <span className="dn-mobile-settings-rail__circle">
+        <SettingsSectionIconFor
+          className="dn-mobile-settings-rail__icon"
+          section={section}
+          size={22}
+        />
+      </span>
+      <span className="dn-mobile-settings-rail__label">
+        {getDesktopSettingsSectionLabel(section)}
+      </span>
+    </button>
+  )
+}
+
+/** The swap row: family quick row, drilled options, or the section list. */
+function MobileRailRowContent({
+  FamilyRow,
+  model,
+  onOpenDrawer,
+  onOptionClick,
+  onToggleFamily,
+  options,
+  viewFamily,
+}: {
+  FamilyRow?: ComponentType<MobileRailRowProps>
+  model: DesktopInspectorModel
+  onOpenDrawer: () => void
+  onOptionClick: (option: MobileRailOption) => void
+  onToggleFamily: (section: DesktopSettingsSectionId) => void
+  options?: MobileRailOption[]
+  viewFamily: DesktopSettingsSectionId | null
+}) {
+  if (FamilyRow && viewFamily) {
+    return <FamilyRow model={model} openDrawer={onOpenDrawer} />
+  }
+  if (options) {
+    return (
+      <>
+        {options.map((option) => (
+          <MobileRailOptionButton
+            key={option.id}
+            option={option}
+            onClick={() => onOptionClick(option)}
+          />
+        ))}
+      </>
+    )
+  }
+  return (
+    <>
+      {DESKTOP_SETTINGS_SECTIONS.map((section) => (
+        <MobileRailSectionButton
+          key={section}
+          section={section}
+          onClick={() => onToggleFamily(section)}
+        />
+      ))}
+    </>
+  )
+}
+
+function MobileRailFamilyFooter({
+  FamilyFooter,
+  model,
+  onOpenDrawer,
+  viewFamily,
+}: {
+  FamilyFooter: ComponentType<MobileRailRowProps>
+  model: DesktopInspectorModel
+  onOpenDrawer: () => void
+  viewFamily: DesktopSettingsSectionId
+}) {
+  return (
+    <div
+      aria-label={
+        viewFamily === "QR"
+          ? "QR parts"
+          : viewFamily === "Shape"
+            ? "Shape controls"
+            : `${viewFamily} fill modes`
+      }
+      className="dn-mobile-settings-rail__subrow"
+      role="group"
+    >
+      <FamilyFooter model={model} openDrawer={onOpenDrawer} />
+    </div>
+  )
+}
+
+function MobileRailActions({
+  onDiscard,
+  onSave,
+  viewFamily,
+}: {
+  onDiscard: () => void
+  onSave: () => void
+  viewFamily: DesktopSettingsSectionId | null
+}) {
+  return (
+    <div className="dn-mobile-settings-rail__actions">
+      <button
+        aria-label="Discard changes"
+        className="dn-mobile-settings-rail__action"
+        type="button"
+        onClick={onDiscard}
+      >
+        <X aria-hidden size={20} strokeWidth={2.25} />
+      </button>
+      {/* The open family's name sits centered between the corners. */}
+      <span
+        className="dn-mobile-settings-rail__family"
+        data-slot="mobile-rail-family-label"
+      >
+        {viewFamily ? getDesktopSettingsSectionLabel(viewFamily) : null}
+      </span>
+      <button
+        aria-label="Save changes"
+        className="dn-mobile-settings-rail__action"
+        type="button"
+        onClick={onSave}
+      >
+        <Check aria-hidden size={20} strokeWidth={2.25} />
+      </button>
+    </div>
+  )
+}
+
+export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) {
+  const theme = model.actualDesktopTheme
+  const modelRef = useLatestModel(model)
+  // Pre-edit state per section touched this session — X replays all of them,
+  // ✓ drops the map. The drawer can wander sections on its own tab dock, so
+  // the discard scope is "everything opened since the family opened".
+  const snapshotsRef = useRef(new Map<DesktopSettingsSectionId, MobileFamilySnapshot>())
+  const { height: railHeight, ref: railRef } = useMeasuredHeight<HTMLDivElement>()
+  const [toolbarHeight, setToolbarHeight] = useState(0)
+  const [openFamily, setOpenFamily] = useState<DesktopSettingsSectionId | null>(null)
+  const [drawerSection, setDrawerSection] = useState<DesktopSettingsSectionId | null>(null)
+  const [drawerView, setDrawerView] = useState(MOBILE_DRAWER_SECTION_VIEW)
+  const keyboardInset = useMobileKeyboardInset()
+
+  const { fading, railModeContext, railPartContext, setOpenPart, viewFamily } =
+    useMobileRailStage(openFamily, model)
+  const options = viewFamily ? MOBILE_FAMILY_OPTIONS[viewFamily] : undefined
+  const FamilyRow = viewFamily ? MOBILE_FAMILY_ROWS[viewFamily] : undefined
+  const FamilyFooter = viewFamily ? MOBILE_FAMILY_FOOTERS[viewFamily] : undefined
+  const drilled = Boolean(options || FamilyRow)
+  const drawerOpen = drawerSection !== null || drawerView === MOBILE_DRAWER_DETAIL_VIEW
 
   const handleDrawerViewChange = useCallback((view: string) => {
     // The nav provider's empty-stack recovery asks for "default"; the section
@@ -1628,18 +1860,17 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
   // change made while it was open.
   const toggleFamily = useCallback(
     (section: DesktopSettingsSectionId) => {
-      setOpenFamily((current) => {
-        if (current === section) {
-          snapshotsRef.current.clear()
-          return null
-        }
-        if (!snapshotsRef.current.has(section)) {
-          snapshotsRef.current.set(section, captureFamilySnapshot(modelRef.current))
-        }
-        return section
-      })
+      if (openFamily === section) {
+        snapshotsRef.current.clear()
+        setOpenFamily(null)
+        return
+      }
+      if (!snapshotsRef.current.has(section)) {
+        snapshotsRef.current.set(section, captureFamilySnapshot(modelRef.current))
+      }
+      setOpenFamily(section)
     },
-    [modelRef],
+    [modelRef, openFamily],
   )
 
   // Discard: replay every section snapshot, then close drawer + family.
@@ -1681,47 +1912,7 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
     openDrawerSection(viewFamily!)
   }
 
-  /* The settings drawer is portalled outside the rail's measured element, so
-     `--desktop-mobile-drawer-height` (which positions the layer toolbar above
-     the chrome) only saw the rail. Measure the open drawer too — the toolbar
-     must clear whichever surface is taller. */
-  const [drawerHeight, setDrawerHeight] = useState(0)
-  useEffect(() => {
-    let frame = 0
-    let retries = 0
-    let observer: ResizeObserver | null = null
-
-    const measure = () => {
-      if (!drawerOpen) {
-        setDrawerHeight(0)
-        return
-      }
-      const el = document.querySelector<HTMLElement>(
-        '[data-slot="mobile-family-drawer-root"]',
-      )
-      if (!el) {
-        // The portal mounts a beat after `drawerOpen` flips — retry briefly.
-        if (retries < 10) {
-          retries += 1
-          frame = window.requestAnimationFrame(measure)
-        }
-        return
-      }
-      setDrawerHeight(Math.round(el.getBoundingClientRect().height))
-      if (!observer) {
-        observer = new ResizeObserver(() =>
-          setDrawerHeight(Math.round(el.getBoundingClientRect().height)),
-        )
-        observer.observe(el)
-      }
-    }
-
-    frame = window.requestAnimationFrame(measure)
-    return () => {
-      window.cancelAnimationFrame(frame)
-      observer?.disconnect()
-    }
-  }, [drawerOpen])
+  const drawerHeight = useMobileDrawerHeight(drawerOpen)
 
   useEffect(() => {
     syncMobileWorkspaceChromeInsets({
@@ -1789,101 +1980,32 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
                   }
                   role="group"
                 >
-                  {FamilyRow && viewFamily ? (
-                    <FamilyRow
-                      model={model}
-                      openDrawer={() => openDrawerSection(viewFamily!)}
-                    />
-                  ) : options ? (
-                    options.map((option) => (
-                      <button
-                        key={option.id}
-                        className={
-                          option.shape === "pill"
-                            ? "dn-mobile-settings-rail__item dn-mobile-settings-rail__item--pill"
-                            : "dn-mobile-settings-rail__item"
-                        }
-                        type="button"
-                        onClick={() => handleOptionClick(option)}
-                      >
-                        {option.shape === "pill" ? (
-                          <span className="dn-mobile-settings-rail__pill">{option.label}</span>
-                        ) : (
-                          <>
-                            <span className="dn-mobile-settings-rail__circle">{option.icon}</span>
-                            <span className="dn-mobile-settings-rail__label">{option.label}</span>
-                          </>
-                        )}
-                      </button>
-                    ))
-                  ) : (
-                    DESKTOP_SETTINGS_SECTIONS.map((section) => (
-                      <button
-                        key={section}
-                        className="dn-mobile-settings-rail__item"
-                        type="button"
-                        onClick={() => toggleFamily(section)}
-                      >
-                        <span className="dn-mobile-settings-rail__circle">
-                          <SettingsSectionIconFor
-                            className="dn-mobile-settings-rail__icon"
-                            section={section}
-                            size={22}
-                          />
-                        </span>
-                        <span className="dn-mobile-settings-rail__label">
-                          {getDesktopSettingsSectionLabel(section)}
-                        </span>
-                      </button>
-                    ))
-                  )}
+                  <MobileRailRowContent
+                    FamilyRow={FamilyRow}
+                    model={model}
+                    options={options}
+                    viewFamily={viewFamily}
+                    onOpenDrawer={() => openDrawerSection(viewFamily!)}
+                    onOptionClick={handleOptionClick}
+                    onToggleFamily={toggleFamily}
+                  />
                 </div>
               </div>
             </ScrollArea>
-            {drilled && FamilyFooter ? (
-              <div
-                aria-label={
-                  viewFamily === "QR"
-                    ? "QR parts"
-                    : viewFamily === "Shape"
-                      ? "Shape controls"
-                      : `${viewFamily} fill modes`
-                }
-                className="dn-mobile-settings-rail__subrow"
-                role="group"
-              >
-                <FamilyFooter
-                  model={model}
-                  openDrawer={() => openDrawerSection(viewFamily!)}
-                />
-              </div>
+            {drilled && FamilyFooter && viewFamily ? (
+              <MobileRailFamilyFooter
+                FamilyFooter={FamilyFooter}
+                model={model}
+                viewFamily={viewFamily}
+                onOpenDrawer={() => openDrawerSection(viewFamily)}
+              />
             ) : null}
             {drilled ? (
-              <div className="dn-mobile-settings-rail__actions">
-                <button
-                  aria-label="Discard changes"
-                  className="dn-mobile-settings-rail__action"
-                  type="button"
-                  onClick={discardFamily}
-                >
-                  <X aria-hidden size={20} strokeWidth={2.25} />
-                </button>
-                {/* The open family's name sits centered between the corners. */}
-                <span
-                  className="dn-mobile-settings-rail__family"
-                  data-slot="mobile-rail-family-label"
-                >
-                  {viewFamily ? getDesktopSettingsSectionLabel(viewFamily) : null}
-                </span>
-                <button
-                  aria-label="Save changes"
-                  className="dn-mobile-settings-rail__action"
-                  type="button"
-                  onClick={saveFamily}
-                >
-                  <Check aria-hidden size={20} strokeWidth={2.25} />
-                </button>
-              </div>
+              <MobileRailActions
+                viewFamily={viewFamily}
+                onDiscard={discardFamily}
+                onSave={saveFamily}
+              />
             ) : null}
             </div>
           </div>

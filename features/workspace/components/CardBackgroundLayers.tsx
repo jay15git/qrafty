@@ -4,7 +4,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
 } from "react"
 
@@ -232,11 +231,3 @@ export function CardBackgroundLayers({
   )
 }
 
-export function cardBackgroundSurfaceStyle(
-  _cardState: DraftingCardState,
-  _isImageFilterMode: boolean,
-  _isImageMode: boolean,
-  _isPaperShaderMode: boolean,
-): CSSProperties {
-  return { backgroundColor: "transparent" }
-}

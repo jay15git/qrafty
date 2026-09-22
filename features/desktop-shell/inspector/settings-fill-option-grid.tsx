@@ -22,14 +22,10 @@ import {
   SETTINGS_PREVIEW_TILE_FLUID,
 } from "@/features/desktop-shell/inspector/settings-preview-tiles"
 import { WallpaperOptionPreview } from "@/features/workspace/components/WallpaperOptionPreview"
-import { SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
+import { isSceneWallpaperPath, SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
 import { preloadRasterImage } from "@/features/workspace/rendering/preload-raster-image"
 import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
 import { cn } from "@/lib/utils"
-
-export function isSceneWallpaperPath(path: string) {
-  return SCENE_WALLPAPERS.some((wallpaper) => wallpaper.path === path)
-}
 
 export function SettingsImageUploadTile({
   ariaLabel = "Upload custom image",
