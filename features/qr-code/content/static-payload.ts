@@ -386,6 +386,10 @@ export function buildStaticQrPayload(
     case "crypto":
       return buildCryptoPayload(values)
   }
+
+  // Every remaining QrInputType is a platform intent; buildPlatformPayload
+  // already falls back to the url field when no intent definition matches.
+  return buildPlatformPayload(type, values)
 }
 
 type StaticFieldValidator = (

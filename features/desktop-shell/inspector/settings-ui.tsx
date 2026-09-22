@@ -547,6 +547,7 @@ type SettingsFillPopoverHandle = {
 
 function FillPickerPopoverContent({
   align,
+  avoidCollisions,
   collisionPadding,
   children,
   mobileDensity,
@@ -556,6 +557,7 @@ function FillPickerPopoverContent({
   title,
 }: {
   align?: "start" | "center" | "end"
+  avoidCollisions?: boolean
   collisionPadding?: number
   children: ReactNode
   mobileDensity: boolean
@@ -567,6 +569,7 @@ function FillPickerPopoverContent({
   return (
     <PopoverContent
       align={align}
+      avoidCollisions={avoidCollisions}
       className={desktopnewPortalClass(
         theme,
         "desktopnew-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
@@ -605,6 +608,7 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
     gridPresets,
     side = "right",
     align = "start",
+    avoidCollisions,
     collisionPadding,
     triggerClassName,
   }: {
@@ -618,6 +622,7 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
     gridPresets?: readonly string[]
     side?: "top" | "right" | "bottom" | "left"
     align?: "start" | "center" | "end"
+    avoidCollisions?: boolean
     collisionPadding?: number
     triggerClassName?: string
     fillPreviewImageUrl?: string
@@ -804,6 +809,7 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
       <Popover open={radixOpen} onOpenChange={setRadixOpen}>
         <FillPickerPopoverContent
           align={align}
+          avoidCollisions={avoidCollisions}
           collisionPadding={collisionPadding}
           mobileDensity={mobileDensity}
           onClose={() => setRadixOpen(false)}
@@ -829,6 +835,7 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
         />
         <FillPickerPopoverContent
           align={align}
+          avoidCollisions={avoidCollisions}
           collisionPadding={collisionPadding}
           mobileDensity={mobileDensity}
           onClose={() => setRadixOpen(false)}
@@ -853,6 +860,7 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
       </PopoverTrigger>
       <FillPickerPopoverContent
         align={align}
+        avoidCollisions={avoidCollisions}
         collisionPadding={collisionPadding}
         mobileDensity={mobileDensity}
         onClose={() => setRadixOpen(false)}

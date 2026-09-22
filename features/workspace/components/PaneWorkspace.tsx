@@ -21,9 +21,11 @@ import { cornerRadiiToCss } from "@/features/workspace/model/corner-radius"
 import {
   clampLayerGeometryToCanvas,
   createDefaultDraftingLayers,
+  DEFAULT_DRAFTING_LAYER_SHADOW,
   getDraftingMarqueeSelection,
   type DraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
+import { DEFAULT_DRAFTING_OUTLINE } from "@/features/workspace/model/effects"
 import {
   ensureDraftingFontsForLayers,
 } from "@/features/workspace/model/fonts"
@@ -1005,13 +1007,16 @@ export function PaneWorkspace({
         id: "selection",
         isVisible: true,
         kind: "card",
+        layerFilters: [],
         name: "Selection",
         nodeId: "selection",
         opacity: 1,
+        outline: { ...DEFAULT_DRAFTING_OUTLINE },
         rotation: 0,
+        shadows: [],
         tiltX: 0,
         tiltY: 0,
-        shadow: { blur: 0, color: "#000000", offsetX: 0, offsetY: 0, opacity: 0 },
+        shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW, color: "#000000" },
         zIndex: 0,
       },
       interaction.resizeDirection ?? "se",

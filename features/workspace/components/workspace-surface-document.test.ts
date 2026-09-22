@@ -5,7 +5,11 @@ import {
   mergeLiveQrStateByLayerId,
   resolveActiveQrLayerIdFromLayers,
 } from "@/features/workspace/components/workspace-surface-document"
-import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import {
+  DEFAULT_DRAFTING_LAYER_SHADOW,
+  type DraftingCanvasLayer,
+} from "@/features/workspace/model/layers"
+import { DEFAULT_DRAFTING_OUTLINE } from "@/features/workspace/model/effects"
 
 function createQrLayer(id: string): DraftingCanvasLayer {
   return {
@@ -18,11 +22,11 @@ function createQrLayer(id: string): DraftingCanvasLayer {
     name: "QR code",
     nodeId: id.replace(/:qr$/, ""),
     opacity: 1,
-    outline: { color: "#000000", width: 0 },
+    outline: { ...DEFAULT_DRAFTING_OUTLINE, color: "#000000" },
     rotation: 0,
     tiltX: 0,
     tiltY: 0,
-    shadow: { blur: 0, color: "#000000", offsetX: 0, offsetY: 0, opacity: 0 },
+    shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW, color: "#000000" },
     shadows: [],
     width: 200,
     x: 0,

@@ -47,7 +47,7 @@ function canPairFields(
   right: ContentFieldDefinition | undefined,
 ): right is ContentFieldDefinition {
   return (
-    Boolean(right) &&
+    right !== undefined &&
     left.layout === "half" &&
     right.layout === "half" &&
     left.type === "text" &&

@@ -99,18 +99,18 @@ function formatSvgNumber(value: number) {
   return Number(value.toFixed(4)).toString()
 }
 
-function findLogoImage(svg: SVGElement) {
-  return (
-    Array.from(svg.children).find((child) => {
-      if (child.tagName.toLowerCase() !== "image") {
-        return false
-      }
+function findLogoImage(svg: SVGElement): SVGElement | null {
+  const found = Array.from(svg.children).find((child) => {
+    if (child.tagName.toLowerCase() !== "image") {
+      return false
+    }
 
-      const layer = child.getAttribute("data-qr-layer")
+    const layer = child.getAttribute("data-qr-layer")
 
-      return !layer
-    }) ?? null
-  )
+    return !layer
+  })
+
+  return found && isSvgElementLike(found) ? found : null
 }
 
 function resolveLogoImageHref(logo: SVGElement) {

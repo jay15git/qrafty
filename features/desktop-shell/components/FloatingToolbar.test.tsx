@@ -112,6 +112,9 @@ describe("FloatingToolbar", () => {
 
     function AccordionStickyProbe() {
       const [activeTool, setTool] = useState<DesktopToolbarToolId>("content")
+      const partialController: Partial<
+        NonNullable<ComponentProps<typeof FloatingToolbar>>["controller"]
+      > = { activeTool, onActiveToolChange: setTool }
 
       useEffect(() => {
         setActiveTool = setTool
@@ -120,10 +123,11 @@ describe("FloatingToolbar", () => {
       return (
         <DesktopCuelumeProvider>
           <FloatingToolbar
-            controller={{
-              activeTool,
-              onActiveToolChange: setTool,
-            }}
+            controller={
+              partialController as NonNullable<
+                ComponentProps<typeof FloatingToolbar>
+              >["controller"]
+            }
           />
         </DesktopCuelumeProvider>
       )

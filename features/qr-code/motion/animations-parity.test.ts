@@ -14,11 +14,11 @@ import {
   type QRCodeAnimationSettings,
 } from "@qrafty/qr/dot-matrix";
 
-const defaultOpacitySettings: QRCodeAnimationSettings = {
+const defaultOpacitySettings = {
   dotMatrixOpacityBase: 1,
   dotMatrixOpacityMid: 0.65,
   dotMatrixOpacityPeak: 1,
-};
+} satisfies QRCodeAnimationSettings;
 
 function resolvedAnimationFrameOpacity(frame: unknown) {
   if (typeof frame === "object" && frame !== null && "value" in frame) {

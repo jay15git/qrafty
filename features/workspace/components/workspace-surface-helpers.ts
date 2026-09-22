@@ -1,10 +1,10 @@
 import type {
-  DesktopAssetSourceMode,
   DesktopExportTarget,
   DesktopLayerRow,
   DesktopLogoSourceMode,
   DesktopTextSettings,
 } from "@/features/desktop-shell/components/FloatingToolbar"
+import type { DesktopAssetSourceMode } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import {
   cloneDraftingCanvasLayer,
   DEFAULT_DRAFTING_TEXT_LAYER,

@@ -131,12 +131,12 @@ export const INSERT_MENU_SHAPE_PREVIEWS: InsertMenuFanPreviewItems = [
 export const INSERT_MENU_EMOJI_FAN_PREVIEWS: InsertMenuFanPreviewItems =
   INSERT_MENU_EMOJI_PREVIEWS.map((emoji) => (
     <InsertMenuEmojiPreviewCard emoji={emoji} key={emoji} />
-  )) as InsertMenuFanPreviewItems
+  )) as unknown as InsertMenuFanPreviewItems
 
 export const INSERT_MENU_IMAGE_PREVIEWS: InsertMenuFanPreviewItems =
   INSERT_MENU_IMAGE_PREVIEW_SRCS.map((src) => (
     <InsertMenuImagePreviewCard key={src} src={src} />
-  )) as InsertMenuFanPreviewItems
+  )) as unknown as InsertMenuFanPreviewItems
 
 export const INSERT_MENU_ILLUSTRATION_SET_PREVIEWS: Record<
   IllustrationSetId,
@@ -153,7 +153,7 @@ export const INSERT_MENU_ILLUSTRATION_SET_PREVIEWS: Record<
       ] satisfies InsertMenuFanPreviewItems,
     ]
   }),
-) as Record<IllustrationSetId, InsertMenuFanPreviewItems>
+) as unknown as Record<IllustrationSetId, InsertMenuFanPreviewItems>
 
 export const INSERT_MENU_QR_PREVIEWS: InsertMenuFanPreviewItems = [
   <InsertMenuQrPreviewCard key="qr-square" style="square" />,

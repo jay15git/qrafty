@@ -147,7 +147,7 @@ export type DraftingLayerDistributeAction = "horizontal" | "vertical"
 const DRAFTING_CARD_LAYER_SUFFIX = ":card"
 const DRAFTING_QR_LAYER_SUFFIX = ":qr"
 
-const DEFAULT_LAYER_SHADOW: DraftingCardShadowState = {
+export const DEFAULT_DRAFTING_LAYER_SHADOW: DraftingCardShadowState = {
   blur: 0,
   color: "#111827",
   inset: false,
@@ -294,8 +294,8 @@ export function createDraftingQrLayer(
     rotation: 0,
     tiltX: 0,
     tiltY: 0,
-    shadow: { ...DEFAULT_LAYER_SHADOW },
-    shadows: [legacyShadowToShadowLayer(DEFAULT_LAYER_SHADOW)],
+    shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW },
+    shadows: [legacyShadowToShadowLayer(DEFAULT_DRAFTING_LAYER_SHADOW)],
     width: qrDimensions.width,
     x,
     y,
@@ -520,8 +520,8 @@ export function createDefaultDraftingLayers(
       rotation: 0,
       tiltX: 0,
       tiltY: 0,
-      shadow: { ...DEFAULT_LAYER_SHADOW },
-      shadows: [legacyShadowToShadowLayer(DEFAULT_LAYER_SHADOW)],
+      shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW },
+      shadows: [legacyShadowToShadowLayer(DEFAULT_DRAFTING_LAYER_SHADOW)],
       width: qrDimensions.width,
       x: layout.qr.x,
       y: layout.qr.y,
@@ -625,8 +625,8 @@ export function cloneDraftingCanvasLayer(layer: DraftingCanvasLayer): DraftingCa
     children: layer.children?.map(cloneDraftingCanvasLayer),
     layerFilters: (layer.layerFilters ?? []).map((filter) => ({ ...filter })),
     outline: { ...(layer.outline ?? DEFAULT_DRAFTING_OUTLINE) },
-    shadow: { ...(layer.shadow ?? DEFAULT_LAYER_SHADOW) },
-    shadows: (layer.shadows ?? [legacyShadowToShadowLayer(layer.shadow ?? DEFAULT_LAYER_SHADOW)]).map(
+    shadow: { ...(layer.shadow ?? DEFAULT_DRAFTING_LAYER_SHADOW) },
+    shadows: (layer.shadows ?? [legacyShadowToShadowLayer(layer.shadow ?? DEFAULT_DRAFTING_LAYER_SHADOW)]).map(
       (shadow) => ({ ...shadow }),
     ),
     textRuns: layer.textRuns?.map((run) => ({ ...run })),
@@ -877,8 +877,8 @@ export function groupDraftingCanvasLayers(
       rotation: 0,
       tiltX: 0,
       tiltY: 0,
-      shadow: { ...DEFAULT_LAYER_SHADOW },
-      shadows: [legacyShadowToShadowLayer(DEFAULT_LAYER_SHADOW)],
+      shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW },
+      shadows: [legacyShadowToShadowLayer(DEFAULT_DRAFTING_LAYER_SHADOW)],
       width: bounds.right - bounds.left,
       x: bounds.left,
       y: bounds.top,
@@ -1570,7 +1570,7 @@ function createFallbackLayer(
   nodeId: string,
   kind: DraftingCanvasLayerKind,
 ): DraftingCanvasLayer {
-  const defaultShadow = { ...DEFAULT_LAYER_SHADOW }
+  const defaultShadow = { ...DEFAULT_DRAFTING_LAYER_SHADOW }
 
   return {
     blur: 0,

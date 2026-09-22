@@ -4,7 +4,11 @@ import {
   resizeDraftingLayer,
   type ResizeDirection,
 } from "@/features/workspace/components/pane-layer-geometry"
-import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
+import {
+  DEFAULT_DRAFTING_LAYER_SHADOW,
+  type DraftingCanvasLayer,
+} from "@/features/workspace/model/layers"
+import { DEFAULT_DRAFTING_OUTLINE } from "@/features/workspace/model/effects"
 
 // Base QR layer: 200x200 at (100, 100). Opposite edges sit at 300/300.
 // QR layers are always re-squared: width === height after every resize.
@@ -15,13 +19,16 @@ function buildQrLayer(): DraftingCanvasLayer {
     id: "qr-test",
     isVisible: true,
     kind: "qr",
+    layerFilters: [],
     name: "QR code",
     nodeId: "node-1",
     opacity: 1,
+    outline: { ...DEFAULT_DRAFTING_OUTLINE },
     rotation: 0,
     tiltX: 0,
     tiltY: 0,
-    shadow: { blur: 0, color: "#000000", offsetX: 0, offsetY: 0, opacity: 0 },
+    shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW, color: "#000000" },
+    shadows: [],
     width: 200,
     x: 100,
     y: 100,

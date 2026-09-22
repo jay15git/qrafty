@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 
-import { type ComponentProps } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -15,6 +14,7 @@ import {
   createDraftingTextLayer,
 } from "@/features/workspace/model/layers"
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root"
+import { createDesktopToolbarController } from "@/test-utils/desktop-toolbar-controller"
 
 const NODE_ID = "test-node"
 
@@ -114,7 +114,7 @@ describe("FloatingToolbar selected element routing", () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" })
     const surface = await renderWithAsyncJsdomRoot(
       <FloatingToolbar
-        controller={
+        controller={createDesktopToolbarController(
           {
             activeTool: null,
             layersSettings: {
@@ -126,8 +126,9 @@ describe("FloatingToolbar selected element routing", () => {
             selectedTransformLayer: layer,
             onElementLayerPatch: vi.fn(),
             onTransformLayerPatch: vi.fn(),
-          } as ComponentProps<typeof FloatingToolbar>["controller"]
-        }
+          },
+          NODE_ID,
+        )}
       />,
     )
 
@@ -147,13 +148,14 @@ describe("FloatingToolbar selected element routing", () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" })
     const surface = await renderWithAsyncJsdomRoot(
       <FloatingToolbar
-        controller={
+        controller={createDesktopToolbarController(
           {
             activeTool: null,
             selectedElementLayer: layer,
             onElementLayerPatch: vi.fn(),
-          } as ComponentProps<typeof FloatingToolbar>["controller"]
-        }
+          },
+          NODE_ID,
+        )}
       />,
     )
 
@@ -165,13 +167,14 @@ describe("FloatingToolbar selected element routing", () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" })
     const surface = await renderWithAsyncJsdomRoot(
       <FloatingToolbar
-        controller={
+        controller={createDesktopToolbarController(
           {
             activeTool: "logo",
             selectedElementLayer: layer,
             onElementLayerPatch: vi.fn(),
-          } as ComponentProps<typeof FloatingToolbar>["controller"]
-        }
+          },
+          NODE_ID,
+        )}
       />,
     )
 

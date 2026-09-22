@@ -24,9 +24,11 @@ import {
   normalizeDraftingCanvasLayers,
   reorderDraftingCanvasLayer,
   ungroupDraftingCanvasLayer,
+  DEFAULT_DRAFTING_LAYER_SHADOW,
   type DraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
+import { DEFAULT_DRAFTING_OUTLINE } from "@/features/workspace/model/effects"
 import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 
 describe("drafting layer state actions", () => {
@@ -767,19 +769,16 @@ function createLayer(
     id,
     isVisible: true,
     kind: id === "card" ? "card" : "qr",
+    layerFilters: [],
     name: id,
     nodeId: "preview",
     opacity: 1,
+    outline: { ...DEFAULT_DRAFTING_OUTLINE },
     rotation: 0,
     tiltX: 0,
     tiltY: 0,
-    shadow: {
-      blur: 0,
-      color: "#111827",
-      offsetX: 0,
-      offsetY: 0,
-      opacity: 0,
-    },
+    shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW },
+    shadows: [],
     width: 40,
     x: 0,
     y: 0,

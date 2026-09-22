@@ -1,4 +1,4 @@
-import { forwardRef, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react"
+import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react"
 
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 import { cn } from "@/lib/utils"
@@ -90,20 +90,21 @@ export function PaneLayerInteractive({
   )
 }
 
-export const PaneSurfaceInteractive = forwardRef(function PaneSurfaceInteractive({
-  label,
-  onActivate,
-  className,
-  children,
-  onClick,
-  ...rest
-}: {
+type PaneSurfaceInteractiveProps = Omit<
+  ComponentPropsWithoutRef<"div">,
+  "ref"
+> & {
   label: string
   onActivate: () => void
-  className?: string
-  children: ReactNode
-  onClick?: (event: MouseEvent<HTMLDivElement>) => void
-} & Record<string, unknown>, ref: React.Ref<HTMLDivElement>) {
+}
+
+export const PaneSurfaceInteractive = forwardRef<
+  HTMLDivElement,
+  PaneSurfaceInteractiveProps
+>(function PaneSurfaceInteractive(
+  { label, onActivate, className, children, onClick, ...rest },
+  ref,
+) {
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget) {
       return

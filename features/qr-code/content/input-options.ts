@@ -219,7 +219,7 @@ export function getContentTypeLabel(type: QrInputType): string {
   }
 
   if (LINK_ALIAS_QR_INPUT_TYPES.has(type)) {
-    return QR_INPUT_OPTIONS[type]?.label ?? QR_INPUT_OPTIONS.link.label
+    return QR_INPUT_OPTIONS[type as QrInputType].label
   }
 
   return QR_INPUT_OPTIONS[type as QrInputType]?.label ?? QR_INPUT_OPTIONS.link.label

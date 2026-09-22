@@ -26,9 +26,8 @@ describe("layered svg z-order", () => {
       throw new Error("Expected default qr layer.")
     }
 
-    const overlayShader = createDraftingShaderLayer({
+    const overlayShader = createDraftingShaderLayer("node:shader-overlay", "mesh-gradient", {
       height: 120,
-      id: "node:shader-overlay",
       width: 120,
       x: 40,
       y: 40,
@@ -91,9 +90,8 @@ describe("layered svg z-order", () => {
       throw new Error("Expected default qr layer.")
     }
 
-    const overlayShader = createDraftingShaderLayer({
+    const overlayShader = createDraftingShaderLayer("node:shader-overlay", "mesh-gradient", {
       height: 120,
-      id: "node:shader-overlay",
       width: 120,
       x: 40,
       y: 40,

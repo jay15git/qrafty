@@ -411,7 +411,9 @@ function IconWrapper<T extends string>({
     return (
       <AnimateIconNestedProvider
         animationToUse={animationToUse}
-        className={className}
+          // SVGMotionProps types `className` as MotionValueHelper; the nested
+          // provider only forwards it to `cn`, which expects a plain string.
+          className={className as string | undefined}
         completeOnStop={completeOnStop}
         context={context}
         IconComponent={IconComponent}

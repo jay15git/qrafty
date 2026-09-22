@@ -71,10 +71,10 @@ export type BuildDesktopToolbarSettingsSnapshotsInput = {
   selectedCardState: DraftingCardState
   selectedCornerDotColor: string
   selectedCornerDotColorMode: "solid" | "gradient"
-  selectedCornerDotGradient: QraftyState["cornerDotGradient"]
+  selectedCornerDotGradient: QraftyState["finderPatternInnerGradient"]
   selectedCornerSquareColor: string
   selectedCornerSquareColorMode: "solid" | "gradient"
-  selectedCornerSquareGradient: QraftyState["cornerSquareGradient"]
+  selectedCornerSquareGradient: QraftyState["finderPatternOuterGradient"]
   selectedDotColor: string
   selectedDotType: QraftyState["dataModulesSettings"]["type"]
   selectedDotsColorMode: QraftyState["dotsColorMode"]
@@ -116,8 +116,8 @@ export type BuildDesktopToolbarSettingsSnapshotsInput = {
   selectedModuleRoundSize: boolean
   selectedModuleSize?: number
   selectedQrErrorCorrectionLevel: QraftyState["qrOptions"]["errorCorrectionLevel"]
-  selectedQrFinderPatternInnerStyle: QraftyState["cornerDotStyle"]
-  selectedQrFinderPatternOuterStyle: QraftyState["cornerSquareStyle"]
+  selectedQrFinderPatternInnerStyle: QraftyState["finderPatternInnerSettings"]["type"]
+  selectedQrFinderPatternOuterStyle: QraftyState["finderPatternOuterSettings"]["type"]
   selectedQrTypeNumber: QraftyState["qrOptions"]["typeNumber"]
   selectedPhotoLongEdge: DesktopExportSettings["photoLongEdge"]
   selectedTextLayer: DraftingCanvasLayer | null

@@ -5,10 +5,11 @@ import {
   patchDraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
 import { getTextLayerStyle } from "@/features/workspace/rendering/layer-dom-styles"
+import type { QraftyGradient } from "@/features/qr-code/model/state"
 
-const gradient = {
+const gradient: QraftyGradient = {
   enabled: true,
-  type: "linear" as const,
+  type: "linear",
   rotation: 0,
   colorStops: [
     { offset: 0, color: "#ff0000" },

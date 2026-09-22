@@ -820,7 +820,7 @@ function createDotsGradientExtension(
 
     const dotClipLayers = getQrModuleClipLayers(svg)
     const dotPathLayers = getQrModulePathLayers(svg)
-    const paintTargets = [
+    const paintTargets: SVGElement[] = [
       ...dotClipLayers.map((layer) => layer.element),
       ...dotPathLayers.map((layer) => layer.element),
     ]
@@ -1304,8 +1304,8 @@ function getActiveDotsPalette(state: Pick<QraftyState, "dotsPalette">) {
   })
 }
 
-function isSvgElementLike(node: Element): node is SVGElement {
-  return typeof node.getAttribute === "function" && typeof node.setAttribute === "function"
+function isSvgElementLike(node: Element | null | undefined): node is SVGElement {
+  return node != null && typeof node.getAttribute === "function" && typeof node.setAttribute === "function"
 }
 
 function collectDotMatrixMetrics(dotShapes: SVGElement[]): DotMatrixMetrics | null {
@@ -2326,7 +2326,7 @@ function findDotMatrixLayerAnchor(svg: SVGElement) {
 function collectModuleUnifiedFillTargets(svg: SVGElement) {
   const dotClipLayers = getQrModuleClipLayers(svg)
   const dotPathLayers = getQrModulePathLayers(svg)
-  const modulePaintTargets = [
+  const modulePaintTargets: SVGElement[] = [
     ...dotClipLayers.map((layer) => layer.element),
     ...dotPathLayers.map((layer) => layer.element),
   ]
@@ -2392,7 +2392,7 @@ function createUnifiedGradientExtension(
 
     const dotClipLayers = getQrModuleClipLayers(svg)
     const dotPathLayers = getQrModulePathLayers(svg)
-    const modulePaintTargets = [
+    const modulePaintTargets: SVGElement[] = [
       ...dotClipLayers.map((layer) => layer.element),
       ...dotPathLayers.map((layer) => layer.element),
     ]
@@ -3673,7 +3673,7 @@ function splitFinderPatternIntoCornerElements(
     path.setAttribute("data-testid", testId)
     copyFinderPatternPresentation(pattern, path)
     return path
-  }).filter((element): element is SVGElement => element !== null)
+  }).filter((element): element is SVGPathElement => element !== null)
 }
 
 function copyFinderPatternPresentation(source: SVGElement, target: SVGElement) {

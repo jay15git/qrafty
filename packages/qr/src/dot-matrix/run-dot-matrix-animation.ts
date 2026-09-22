@@ -6,6 +6,8 @@ import {
   type QRCodeAnimation,
   type QRCodeAnimationSettings,
 } from "./animations"
+
+export type { QRCodeAnimationSettings } from "./animations"
 import {
   runMotionFieldAnimation,
   seekMotionFieldAnimation,

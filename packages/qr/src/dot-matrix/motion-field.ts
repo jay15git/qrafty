@@ -127,9 +127,10 @@ function collectModules(root: ParentNode) {
 }
 
 function readTargetBounds(target: SVGElement) {
-  if (typeof target.getBBox === "function") {
+  const graphics = target as SVGGraphicsElement
+  if (typeof graphics.getBBox === "function") {
     try {
-      const box = target.getBBox()
+      const box = graphics.getBBox()
       if (Number.isFinite(box.width) && Number.isFinite(box.height)) {
         return box
       }
