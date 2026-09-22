@@ -4,11 +4,8 @@ import { describe, expect, it } from "vitest";
 import { dotMatrixLoaderToPresetName } from "@qrafty/qr/dot-matrix";
 
 import {
-  adaptQrcodeReactSvgForDotMatrix,
-  renderQrcodeReactSvg,
   shouldUseDotMatrixMotionPreview,
   toDotMatrixQrConfig,
-  toQrcodeReactProps,
 } from "@/features/qr-code/motion/dot-matrix-bridge";
 import { adaptCanvasSvgMarkupForDotMatrixMotion } from "@/features/qr-code/motion/canvas-svg-adapter";
 import { renderDashboardQrSvgMarkup } from "@/features/qr-code/rendering/qr-svg";
@@ -29,18 +26,12 @@ describe("dot matrix motion bridge", () => {
     expect(dotMatrixLoaderToPresetName("scan")).toBe("NeonDrift");
   });
 
-  it("renders qrcode.react svg markup for desktop state", () => {
+  it("adapts rendered qr svg into animatable modules", () => {
     const state = createDefaultQraftyState();
-
-    const markup = renderQrcodeReactSvg(state);
-
-    expect(markup).toContain("<svg");
-    expect(markup).toContain('d="M');
-  });
-
-  it("adapts qrcode.react svg into animatable modules", () => {
-    const state = createDefaultQraftyState();
-    const adapted = adaptQrcodeReactSvgForDotMatrix(state);
+    const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(
+      renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state)),
+      state,
+    );
 
     expect(adapted?.moduleCount).toBeGreaterThan(0);
     expect(adapted?.svg).toContain('class="module"');
@@ -69,17 +60,6 @@ describe("dot matrix motion bridge", () => {
     expect(resolveDotMatrixMotionPreset(state.dotMatrixAnimation)).toBe("NeonDrift");
   });
 
-  it("builds qrcode.react props from studio state", () => {
-    const state = createDefaultQraftyState();
-    state.data = "https://example.com";
-    state.margin = 8;
-
-    const props = toQrcodeReactProps(state);
-
-    expect(props.value).toBe("https://example.com");
-    expect(props.marginSize).toBe(8);
-    expect(props.level).toBe(state.qrOptions.errorCorrectionLevel);
-  });
 
   it("adapts canvas svg for dot matrix motion while preserving styled markers", () => {
     const state = createDefaultQraftyState();

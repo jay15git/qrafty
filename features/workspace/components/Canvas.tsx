@@ -10,7 +10,7 @@ import {
 } from "@/features/workspace/components/DraftingPaneSurface"
 
 import { DraftingPaneSurface } from "@/features/workspace/components/DraftingPaneSurface"
-import { TooltipProvider } from "@/components/ui/tooltip"
+import { Tooltip as TooltipPrimitive } from "radix-ui"
 
 export type { DraftingPaneCanvasTool, DraftingPaneToolbarVariant } from "@/features/workspace/components/DraftingPaneSurface"
 
@@ -84,7 +84,7 @@ export function Canvas({
   }, [])
 
   return (
-    <TooltipProvider>
+    <TooltipPrimitive.Provider delayDuration={0}>
       <div className="relative flex h-full w-full flex-col">
         <div className="relative min-h-0 flex-1">
           {!activePane ? (
@@ -131,6 +131,6 @@ export function Canvas({
           )}
         </div>
       </div>
-    </TooltipProvider>
+    </TooltipPrimitive.Provider>
   )
 }

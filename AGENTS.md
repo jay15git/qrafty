@@ -54,24 +54,17 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - Current tests only cover `features/qr-code/model/state.ts` and a growing set of adjacent modules.
 - Vitest is configured with `environment: "node"`, so browser/client behavior is not covered by default.
 - If you change React UI behavior, do not assume existing tests cover it.
-- `pnpm typecheck` is clean and `next.config.ts` no longer sets `typescript.ignoreBuildErrors`, so `pnpm build` runs type checking and passes. The repo still has **62 pre-existing failing tests across 11 files** (851 of 913 passing, browser-dependent UI tests). `pnpm lint` also reports **214 errors**, mostly `react-hooks/*` rules from `eslint-config-next` 16, concentrated in `packages/qr/vendor/`, `.agents/skills/`, and a few client components that read refs during render; `app/` is lint-clean. Compare your run against that baseline before claiming a regression or a fix.
+- `pnpm typecheck` is clean and `next.config.ts` no longer sets `typescript.ignoreBuildErrors`, so `pnpm build` runs type checking and passes. The repo has **~15 pre-existing failing tests across 10 files** (see `docs/superpowers/plans/test-baseline.md`; two are `glimm`/`next/link` ESM resolution failures, one is a live-network fetch). `pnpm lint` reports **~107 errors**, mostly `react-hooks/*` rules from `eslint-config-next` 16 in client components; `app/` is lint-clean. `pnpm check` runs typecheck + knip + fallow dead-code — all three must stay clean. Compare your run against that baseline before claiming a regression or a fix.
 
 ## Dead-code tooling
 - `pnpm knip` is authoritative for this repo. `pnpm exec knip --production` is **not** — it fails to resolve the `@qrafty/qr-internal/*` tsconfig aliases and reports ~25 live barrel exports as unused, and it lists nearly every dependency as unused. Verify any `--production` hit against its real import sites before acting.
 - `fallow dead-code` complements knip (adds unused type exports, duplicate exports, unreachable files). Config lives in `.fallowrc.json`; keep `ignoreExports` narrow — a whole-file `"exports": ["*"]` entry hides real findings.
-- CSS dead-class detection: extract `\.([\w-]+)` selectors per file and require the exact class name to appear in a `.ts`/`.tsx`/`.json`/`.md` file **and** account for dynamic construction (`` `prefix-${x}` ``) before deleting. `components/bento/style-bento.tsx` builds `style-bento-row-${direction}`, which a naive scan marks dead.
+- CSS dead-class detection: extract `\.([\w-]+)` selectors per file and require the exact class name to appear in a `.ts`/`.tsx`/`.json`/`.md` file **and** account for dynamic construction (`` `prefix-${x}` ``) before deleting.
 - A CSS class can also be dead because its **host attribute** is gone: `.desktop-elastic-slider` never matches because the element carries `data-slot="desktop-elastic-slider"`. Check `data-slot` values, not just class names.
 
-## QR Card Templates
+## Canvas layers
 
-- Every template document is enumerated by `TEMPLATE_REGISTRY` in `features/studio-hub/model/template-registry.ts`. Register new templates there or they are invisible to tooling.
-- **Look at your output before claiming a template works.** Two ways:
-  - `pnpm render:templates` writes `.render/templates/<id>.png` plus an `index.html` contact sheet.
-  - `/dev/templates` renders every template in the running dev server with real fonts.
-- `validateTemplateDocument` in `features/workspace/model/validate-template.ts` machine-checks a document. `features/studio-hub/model/template-validation.test.ts` runs it over the whole registry.
-- The validator catches what review misses: layers hidden behind opaque layers, shapes with no fill and no stroke, text below WCAG AA contrast, layers off-canvas, anything covering the QR quiet zone, and a QR too small to be the subject.
-- **Never hand-write a `DraftingCanvasLayer` object literal.** Use `createDraftingShapeLayer`, `createDraftingTextLayer`, `createDraftingImageLayer`, or `createDraftingShaderLayer`. They route through `patchDraftingCanvasLayer`, which keeps the legacy and modern representations in sync (`cornerRadius`↔`cornerRadii`, `shadow`↔`shadows[]`, `blur`↔`layerFilters[]`). Raw literals silently desync, the renderer reads the modern field, and your styling disappears. The validator reports this as `field-desync`.
-- **Authoring new templates:** read `features/workspace/authoring/AGENTS.md` first. Templates are declared with `defineTemplate` (archetype + palette + ratio + slots), never by positioning layers by hand. Authored templates live in `features/studio-hub/model/authored-templates.ts`.
+- **Never hand-write a `DraftingCanvasLayer` object literal.** Use `createDraftingShapeLayer`, `createDraftingTextLayer`, `createDraftingImageLayer`, or `createDraftingShaderLayer`. They route through `patchDraftingCanvasLayer`, which keeps the legacy and modern representations in sync (`cornerRadius`↔`cornerRadii`, `shadow`↔`shadows[]`, `blur`↔`layerFilters[]`). Raw literals silently desync, the renderer reads the modern field, and your styling disappears.
 
 ## Architecture rules
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) is the law**: canonical vocabulary (Canvas/Layer/Inspector/Workspace/Document), folder structure, import direction, size limits, React rules. Follow it for all new code and any file you touch.

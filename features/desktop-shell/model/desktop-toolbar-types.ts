@@ -326,7 +326,7 @@ export type DesktopToolbarController = {
   onPatternReset: () => void
   onPatternSettingsChange: (patch: DesktopPatternSettingsPatch) => void
   onUnifiedQrFillSettingsChange?: (
-    patches: import("@/features/desktop-shell/inspector/desktopnew-settings-bridge").UnifiedQrFillPatches,
+    patches: import("@/features/desktop-shell/inspector/settings-bridge").UnifiedQrFillPatches,
   ) => void
   onLogoReset: () => void
   onLogoSettingsChange: (patch: DesktopLogoSettingsPatch) => void

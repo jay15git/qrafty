@@ -25,18 +25,18 @@ import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDe
 import {
   getDesktopSettingsSectionLabel,
   type DesktopSettingsSectionId,
-} from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
+} from "@/features/desktop-shell/inspector/settings-panel-meta"
 import {
   MobileDetailStackOutlets,
   useMobileDrawerNavigation,
 } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
-import { SettingsSectionBody } from "@/features/desktop-shell/inspector/desktopnew-settings-sections"
-import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { SettingsSectionBody } from "@/features/desktop-shell/inspector/settings-sections"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/theme-context"
 import { MobileInspectorDensityContext } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { MobileSettingsTabDockProvider } from "@/features/desktop-shell/inspector/mobile-settings-tab-dock"
 import { getContentTypeLabel } from "@/features/qr-code/content/input-options"
 
-import "@/features/desktop-shell/inspector/desktopnew.css"
+import "@/features/desktop-shell/inspector/inspector.css"
 import "@/features/desktop-shell/inspector/mobile-inspector.css"
 
 const MOBILE_DRAWER_MAX_VIEWPORT_RATIO = 0.5

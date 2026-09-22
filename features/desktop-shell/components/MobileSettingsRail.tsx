@@ -24,7 +24,7 @@ import {
 } from "react"
 
 import { parseFill } from "@/components/ui/fill-picker/lib/gradient"
-import type { Fill } from "@/components/ui/fill-picker-base/public-api"
+import type { Fill } from "@/components/ui/fill-picker/public-api"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { MobileLayerToolbar } from "@/features/desktop-shell/components/MobileLayerToolbar"
 import {
@@ -51,17 +51,17 @@ import {
   readShapeFillCss,
   type UnifiedQrFillPatches,
   type UnifiedQrFillSettings,
-} from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+} from "@/features/desktop-shell/inspector/settings-bridge"
 import {
   DESKTOP_SETTINGS_SECTIONS,
   getDesktopSettingsSectionLabel,
   type DesktopSettingsSectionId,
-} from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
+} from "@/features/desktop-shell/inspector/settings-panel-meta"
 import {
   ShapeGlyph,
   SQUARE_SHAPE_VIEWBOX,
-} from "@/features/desktop-shell/inspector/desktopnew-settings-sections"
-import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+} from "@/features/desktop-shell/inspector/settings-sections"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/theme-context"
 import { setInspectorSectionTab } from "@/features/desktop-shell/inspector/inspector-chrome-state"
 import {
   MobileDrawerNavigationProvider,
@@ -72,7 +72,7 @@ import {
   QR_STYLE_PART_DEFINITIONS,
   type QrStylePartId,
 } from "@/features/desktop-shell/inspector/qr-style-parts"
-import { DESKTOP_DOTS_PALETTE_PRESETS } from "@/features/desktop-shell/inspector/desktopnew-pattern-palettes"
+import { DESKTOP_DOTS_PALETTE_PRESETS } from "@/features/desktop-shell/inspector/pattern-palettes"
 import { PaletteColorBarPreview } from "@/features/desktop-shell/inspector/palette-color-bar-preview"
 import { getActiveFillPresetForStoredValue } from "@/features/desktop-shell/inspector/settings-fill-preset-match"
 import {
@@ -113,12 +113,12 @@ import { cn } from "@/lib/utils"
 
 // Heavy detail surfaces load on demand — the rail shouldn't pay for pickers,
 // insert menus, and layer tools before a detail page is pushed.
-const LazyDesktopNewFillPicker = lazy(() =>
-  import("@/features/desktop-shell/inspector/desktopnew-fill-picker").then(
-    (module) => ({ default: module.DesktopNewFillPicker }),
+const LazyDesktopFillPicker = lazy(() =>
+  import("@/features/desktop-shell/inspector/fill-picker").then(
+    (module) => ({ default: module.DesktopFillPicker }),
   ),
 )
-type LockedFillPickerMode = import("@/features/desktop-shell/inspector/desktopnew-fill-picker").LockedFillPickerMode
+type LockedFillPickerMode = import("@/features/desktop-shell/inspector/fill-picker").LockedFillPickerMode
 const LazyInsertMenuPanelStack = lazy(() =>
   import("@/features/workspace/components/insert-menu/InsertMenuPanelStack").then(
     (module) => ({ default: module.InsertMenuPanelStack }),
@@ -144,7 +144,7 @@ const LazyPatternColorPickerContent = lazy(() =>
   ),
 )
 
-import "@/features/desktop-shell/inspector/desktopnew.css"
+import "@/features/desktop-shell/inspector/inspector.css"
 import "@/features/desktop-shell/inspector/mobile-inspector.css"
 
 const MOBILE_RAIL_BOTTOM_GAP_PX = 16
@@ -875,7 +875,7 @@ function MobileColorRailRow({ model, openDrawer }: MobileRailRowProps) {
                   className="desktopnew-fill-popover w-full min-w-0"
                   data-theme={model.actualDesktopTheme}
                 >
-                  <LazyDesktopNewFillPicker
+                  <LazyDesktopFillPicker
                     lockedFillMode={lockedFillModeForRailMode(mode)}
                     qrGradient
                     value={value}
@@ -1027,7 +1027,7 @@ function MobileShapeRailRow({ model }: MobileRailRowProps) {
                     className="desktopnew-fill-popover w-full min-w-0"
                     data-theme={model.actualDesktopTheme}
                   >
-                    <LazyDesktopNewFillPicker
+                    <LazyDesktopFillPicker
                       lockedFillMode={lockedFillModeForRailMode(shapeFillSubMode(mode))}
                       qrGradient
                       value={value}
@@ -1240,7 +1240,7 @@ function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
                   className="desktopnew-fill-popover w-full min-w-0"
                   data-theme={model.actualDesktopTheme}
                 >
-                  <LazyDesktopNewFillPicker
+                  <LazyDesktopFillPicker
                     lockedFillMode={lockedFillModeForRailMode(mode)}
                     qrGradient
                     value={value}

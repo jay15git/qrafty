@@ -2,7 +2,7 @@ import { formatFill, parseFill } from "@/components/ui/fill-picker/lib/gradient"
 import {
   applyShapeFill,
   readShapeFillCss,
-} from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+} from "@/features/desktop-shell/inspector/settings-bridge"
 import { SETTINGS_FILL_PRESETS } from "@/features/desktop-shell/inspector/settings-fill-presets"
 import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 

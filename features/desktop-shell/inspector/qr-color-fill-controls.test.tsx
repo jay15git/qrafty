@@ -6,10 +6,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { QrColorFillControls } from "@/features/desktop-shell/inspector/qr-color-fill-controls"
 import { MobileInspectorDensityContext } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { renderWithJsdomRoot } from "@/test-utils/jsdom-react-root"
-import type { Fill } from "@/components/ui/fill-picker-base/public-api"
+import type { Fill } from "@/components/ui/fill-picker/public-api"
 
-vi.mock("@/features/desktop-shell/inspector/desktopnew-fill-picker", () => ({
-  DesktopNewFillPicker: ({
+vi.mock("@/features/desktop-shell/inspector/fill-picker", () => ({
+  DesktopFillPicker: ({
     value,
     onValueChange,
     solidOnly,
@@ -189,7 +189,7 @@ vi.mock("@/components/ui/scroll-area", () => ({
   ),
 }))
 
-import { DESKTOP_DOTS_PALETTE_PRESETS } from "@/features/desktop-shell/inspector/desktopnew-pattern-palettes"
+import { DESKTOP_DOTS_PALETTE_PRESETS } from "@/features/desktop-shell/inspector/pattern-palettes"
 
 const AURORA = DESKTOP_DOTS_PALETTE_PRESETS[0]
 const FIRE = DESKTOP_DOTS_PALETTE_PRESETS[1]

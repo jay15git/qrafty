@@ -11,9 +11,9 @@ import type {
   DesktopThemeMode,
 } from "@/features/desktop-shell/components/FloatingToolbar"
 import { DesktopExportSettingsPanel } from "@/features/desktop-shell/inspector/DesktopExportSettingsPanel"
-import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/theme-context"
 
-import "@/features/desktop-shell/inspector/desktopnew.css"
+import "@/features/desktop-shell/inspector/inspector.css"
 
 export function DesktopExportDownloadPopover({
   model,

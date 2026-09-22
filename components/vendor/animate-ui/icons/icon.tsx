@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { m, useAnimation } from 'motion/react';
 
-import { useIsInView } from '@/hooks/use-is-in-view';
+import { useIsInView } from '@/components/vendor/animate-ui/use-is-in-view';
 import { cn } from '@/lib/utils';
 import { Slot } from '@/components/vendor/animate-ui/primitives/animate/slot';
 import { useAnimateIconRunner } from '@/components/vendor/animate-ui/icons/animate-icon-runner';

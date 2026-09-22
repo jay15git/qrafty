@@ -12,7 +12,7 @@ import {
   patchDraftingCanvasLayer,
 } from "@/features/workspace/model/layers"
 import { buildLayeredSvgParts } from "@/features/workspace/export/layered-svg-parts"
-import { qraftyGradientToFillCss } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+import { qraftyGradientToFillCss } from "@/features/desktop-shell/inspector/settings-bridge"
 import { degreesToRadians } from "@/features/qr-code/styles/gradient-controls"
 
 describe("layered svg z-order", () => {

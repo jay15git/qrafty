@@ -13,7 +13,7 @@ import {
 } from "react"
 
 import type { DraftingPane, DraftingPaneCanvasTool } from "@/features/workspace/components/DraftingPaneSurface"
-import { DESKTOP_WORKSPACE_MOBILE_QUERY } from "@/hooks/use-media-query"
+import { DESKTOP_WORKSPACE_MOBILE_QUERY } from "@/lib/hooks/use-media-query"
 import {
   computeTemplatePreviewFit,
   DESKTOP_ARTBOARD_VIEW_INSETS,

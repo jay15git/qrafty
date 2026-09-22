@@ -51,7 +51,7 @@ import { ElementShapeOptionGrid } from "@/features/workspace/components/ElementS
 import { PaperShaderOptionGrid } from "@/features/workspace/components/PaperShaderOptionGrid"
 import {
   SettingsPaperShaderControls,
-} from "@/features/desktop-shell/inspector/desktopnew-paper-shader-settings"
+} from "@/features/desktop-shell/inspector/paper-shader-settings"
 import {
   DEFAULT_DRAFTING_IMAGE_LAYER,
   DEFAULT_DRAFTING_SHAPE_LAYER,

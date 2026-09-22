@@ -16,7 +16,7 @@ import { createPortal } from "react-dom"
 
 import { cn } from "@/lib/utils"
 
-export type MobileDrawerDetailPayload = {
+type MobileDrawerDetailPayload = {
   id: string
   title: string
   returnView: string
@@ -24,7 +24,7 @@ export type MobileDrawerDetailPayload = {
   onAfterClose?: () => void
 }
 
-export type MobileDrawerNavigationContextValue = {
+type MobileDrawerNavigationContextValue = {
   detailPayload: MobileDrawerDetailPayload | null
   detailStack: MobileDrawerDetailPayload[]
   outlets: Record<string, HTMLElement>

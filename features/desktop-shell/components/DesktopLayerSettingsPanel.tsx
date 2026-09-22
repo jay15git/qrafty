@@ -17,11 +17,11 @@ import type {
   DesktopAppearancePatch,
   DesktopAppearanceSnapshot,
 } from "@/features/desktop-shell/model/appearance"
-import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/theme-context"
 import type { LayerEffectKind } from "@/features/workspace/model/layer-effects"
 import type { DraftingCanvasLayer } from "@/features/workspace/model/layers"
 
-import "@/features/desktop-shell/inspector/desktopnew.css"
+import "@/features/desktop-shell/inspector/inspector.css"
 
 function LayerSettingsPanelShell({
   children,

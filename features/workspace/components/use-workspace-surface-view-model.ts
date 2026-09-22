@@ -105,8 +105,8 @@ import type {
   DesktopToolbarController,
   DesktopToolbarToolId,
   ComposeSidebarPanel,
-} from "@/features/desktop-shell/components/FloatingToolbar"
-import type { UnifiedQrFillPatches } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+} from "@/features/desktop-shell/model/desktop-toolbar-types"
+import type { UnifiedQrFillPatches } from "@/features/desktop-shell/inspector/settings-bridge"
 import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
 import {
   buildDesktopAppearancePatch,

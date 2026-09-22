@@ -10,7 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react"
-import { Slot } from "@radix-ui/react-slot"
+import { Slot as SlotPrimitive } from "radix-ui"
 import { AnimatePresence, m } from "motion/react"
 import useMeasure from "react-use-measure"
 import { Drawer } from "vaul"
@@ -296,7 +296,7 @@ function FamilyDrawerContent({
   if (asChild && !isCapped) {
     return (
       <Drawer.Content asChild className={cn(variantClass, className)} {...rest}>
-        <Slot>{content}</Slot>
+        <SlotPrimitive.Slot>{content}</SlotPrimitive.Slot>
       </Drawer.Content>
     )
   }
@@ -486,7 +486,7 @@ function FamilyDrawerButton({
   )
 
   if (asChild) {
-    return <Slot>{button}</Slot>
+    return <SlotPrimitive.Slot>{button}</SlotPrimitive.Slot>
   }
 
   return button
@@ -520,7 +520,7 @@ function FamilyDrawerSecondaryButton({
   )
 
   if (asChild) {
-    return <Slot>{button}</Slot>
+    return <SlotPrimitive.Slot>{button}</SlotPrimitive.Slot>
   }
 
   return button

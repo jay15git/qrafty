@@ -1,11 +1,11 @@
-import type { Fill } from "@/components/ui/fill-picker-base/public-api"
+import type { Fill } from "@/components/ui/fill-picker/public-api"
 import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/fill-picker.utils"
 import {
   fillCssToQraftyGradient,
   solidColorToFillCss,
   qraftyGradientToFillCss,
-} from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+} from "@/features/desktop-shell/inspector/settings-bridge"
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,

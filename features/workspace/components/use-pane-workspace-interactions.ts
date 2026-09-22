@@ -62,7 +62,7 @@ import {
   type ResizeDirection,
   type SnapGuides,
 } from "@/features/workspace/components/pane-layer-geometry"
-import { useTouchPrimary } from "@/hooks/use-touch-primary"
+import { useTouchPrimary } from "@/lib/hooks/use-touch-primary"
 import {
   getPreviewCameraStyle,
   getPreviewStageSize,

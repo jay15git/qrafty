@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import { Tooltip as TooltipPrimitive } from "radix-ui";
 import { m } from "motion/react";
 import { cn } from "@/lib/utils";
 import { spring } from "@/lib/springs";

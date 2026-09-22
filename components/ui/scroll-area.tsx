@@ -18,7 +18,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
-import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
+import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
 import { cn } from "@/lib/utils";
 import {
   resolveScrollPersistKey,
@@ -33,7 +33,7 @@ import {
   type ScrollEdges,
   type ScrollEdgeCueSize,
 } from "@/lib/scroll-fade";
-import { useTouchPrimary } from "@/hooks/use-touch-primary";
+import { useTouchPrimary } from "@/lib/hooks/use-touch-primary";
 
 import "./scroll-area.css";
 

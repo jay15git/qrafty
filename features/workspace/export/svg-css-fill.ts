@@ -4,7 +4,7 @@ import {
   parseFill,
   type Gradient,
   type GradientStop,
-} from "@/components/ui/fill-picker-base/public-api"
+} from "@/components/ui/fill-picker/public-api"
 
 /** CSS 0deg = up. SVG default linearGradient is left→right (= CSS 90deg). */
 const CSS_TO_SVG_LINEAR_OFFSET_DEG = 90

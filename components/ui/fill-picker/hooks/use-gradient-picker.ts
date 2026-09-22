@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useLazyRef } from "@/hooks/use-lazy-ref";
+import { useLazyRef } from "@/lib/hooks/use-lazy-ref";
 import {
   DEFAULT_LINEAR,
   DEFAULT_RADIAL,

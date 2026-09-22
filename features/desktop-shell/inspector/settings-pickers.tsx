@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react"
 
-import { Loader } from "@/components/motion/loader"
+import { Loader } from "@/features/desktop-shell/components/motion/loader"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { SearchIcon, type SearchIconHandle } from "@/components/ui/search-icon"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"

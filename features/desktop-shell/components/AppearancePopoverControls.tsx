@@ -13,9 +13,9 @@ import {
   DesktopInspectorNumberField,
   DesktopInspectorValueGrid,
 } from "@/features/desktop-shell/components/DesktopInspectorShell"
-import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/theme-context"
 import { SettingsFillPopover, SettingsSlider } from "@/features/desktop-shell/inspector/settings-ui"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/fill-picker.utils"
 import type {
   DesktopAppearanceBorderSnapshot,
   DesktopAppearancePatch,

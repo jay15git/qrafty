@@ -5,14 +5,14 @@ import { useEffect, useRef, useState } from "react"
 
 import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants"
 import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"
-import type { Fill } from "@/components/ui/fill-picker-base/public-api"
+import type { Fill } from "@/components/ui/fill-picker/public-api"
 import type { DotsColorMode } from "@/features/qr-code/model/state"
-import { DesktopNewFillPicker } from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+import { DesktopFillPicker } from "@/features/desktop-shell/inspector/fill-picker"
 import {
   isGradientFill,
   type ModuleImageControl,
   type ModulePatternControl,
-} from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+} from "@/features/desktop-shell/inspector/fill-picker.utils"
 import {
   SettingsImageOptionGrid,
   SettingsImageUploadTile,
@@ -126,7 +126,7 @@ export function PatternColorPickerContent({
           </button>
         ))}
       </div>
-      <DesktopNewFillPicker
+      <DesktopFillPicker
         key={active}
         solidOnly
         value={selectedPalette[active] ?? "#000000"}

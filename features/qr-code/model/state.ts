@@ -19,7 +19,7 @@ import type {
 
 export type QraftyCornerDotStyle = QrFinderPatternInnerStyle | CustomCornerDotShape;
 
-export type GradientStop = {
+export type QraftyGradientStop = {
   offset: number;
   color: string;
 };
@@ -33,7 +33,7 @@ export type QraftyGradient = {
   enabled: boolean;
   type: QrGradientType;
   rotation: number;
-  colorStops: [GradientStop, GradientStop];
+  colorStops: [QraftyGradientStop, QraftyGradientStop];
   /** Normalized radial center in 0..1. Defaults to the box center. */
   center?: QraftyGradientCenter;
 };

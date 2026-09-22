@@ -38,7 +38,7 @@ features/
     api/                  # domain route handlers / server calls
     AGENTS.md             # domain rules, if the domain needs them
 lib/                      # cross-feature utilities. If only one feature uses it, move it into that feature.
-hooks/                    # cross-feature hooks ONLY. Feature-scoped hooks live in the feature.
+  hooks/                  # cross-feature hooks ONLY. Feature-scoped hooks live in the feature.
 packages/qr/              # vendored @qrafty/qr library
 ```
 

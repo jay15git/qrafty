@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest"
 import { createDraftingShapeLayer, patchDraftingCanvasLayer } from "@/features/workspace/model/layers"
 import { patchShapeLayerFillFromPicker } from "@/features/workspace/rendering/shape-fill.utils"
 import { DraftingShapeLayerContent } from "@/features/workspace/rendering/shape-layer"
-import { formatFill } from "@/components/ui/fill-picker-base/public-api"
+import { formatFill } from "@/components/ui/fill-picker/public-api"
 
 describe("DraftingShapeLayerContent", () => {
   it("renders decorative shapes from shapeId without a solid square backdrop", () => {

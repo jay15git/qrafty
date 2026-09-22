@@ -12,7 +12,7 @@ import {
   type ReactElement,
 } from "react"
 
-import { StopColorEditorPopover } from "@/components/ui/fill-picker-base/parts/gradient/stop-color-editor-popover"
+import { StopColorEditorPopover } from "@/components/ui/fill-picker/base/parts/gradient/stop-color-editor-popover"
 import { useColorPicker } from "@/components/ui/fill-picker/hooks/use-color-picker"
 import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants"
 import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"

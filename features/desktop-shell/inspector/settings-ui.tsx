@@ -21,13 +21,13 @@ import {
   type ReactNode,
 } from "react"
 
-import { MotionAccordion } from "@/components/unlumen-ui/motion-faqs-accordion"
+import { MotionAccordion } from "@/features/desktop-shell/components/unlumen-ui/motion-faqs-accordion"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { InlineSlider } from "@/components/motion/range-slider-inline"
+import { InlineSlider } from "@/features/desktop-shell/components/motion/range-slider-inline"
 import {
   Select,
   SelectContent,
@@ -46,17 +46,17 @@ import {
   type QrInputType,
 } from "@/features/qr-code/content/input-options"
 import {
-  DesktopNewFillPicker,
+  DesktopFillPicker,
   type LockedFillPickerMode,
-} from "@/features/desktop-shell/inspector/desktopnew-fill-picker"
+} from "@/features/desktop-shell/inspector/fill-picker"
 import { SettingsFillOptionGrid } from "@/features/desktop-shell/inspector/settings-fill-option-grid"
 import {
   fillPreviewHex,
   isGradientFill,
   type ModuleImageControl,
   type ModulePatternControl,
-} from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
-import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+} from "@/features/desktop-shell/inspector/fill-picker.utils"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/theme-context"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { useMobileSettingsTabDock } from "@/features/desktop-shell/inspector/mobile-settings-tab-dock"
 import { SegmentTabs } from "@/features/desktop-shell/inspector/settings-segment-tabs"
@@ -64,11 +64,11 @@ import {
   useMobileDrawerNavigation,
   useMobileLiveDetail,
 } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
-import type { Fill } from "@/components/ui/fill-picker-base/public-api"
+import type { Fill } from "@/components/ui/fill-picker/public-api"
 import {
   getDesktopSettingsSectionLabel,
   type DesktopSettingsSectionId,
-} from "@/features/desktop-shell/inspector/desktopnew-settings-panel-meta"
+} from "@/features/desktop-shell/inspector/settings-panel-meta"
 import { SettingsSectionIconFor } from "@/features/desktop-shell/inspector/settings-section-icons"
 import {
   SettingsAccordionPopoverOverlay,
@@ -81,7 +81,7 @@ import {
 } from "@/features/desktop-shell/audio/desktop-cuelume"
 import { cn } from "@/lib/utils"
 
-import "./desktopnew.css"
+import "./inspector.css"
 
 const DN_ROW = "dn-settings-row dn-squircle-sm"
 const DN_HINT = "dn-type-meta"
@@ -888,7 +888,7 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
     // without it the picker renders raw base styles (white borders) when it
     // portals into the mobile drawer detail outlet.
     <div className="desktopnew-fill-popover w-full min-w-0" data-theme={theme}>
-      <DesktopNewFillPicker
+      <DesktopFillPicker
         key={lockedFillMode ?? moduleFillMode ?? "default"}
         lockedFillMode={lockedFillMode}
         moduleFillMode={lockedFillMode ? undefined : moduleFillMode}
@@ -1082,7 +1082,7 @@ export function SettingsAccordionColorPicker({
     <SettingsTilePopover
       title={title}
       content={
-        <DesktopNewFillPicker solidOnly value={value} onValueChange={onValueChange} />
+        <DesktopFillPicker solidOnly value={value} onValueChange={onValueChange} />
       }
     >
       {children}

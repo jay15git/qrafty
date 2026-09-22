@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
-import { formatFill } from "@/components/ui/fill-picker-base/public-api"
-import { fillFromHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import { formatFill } from "@/components/ui/fill-picker/public-api"
+import { fillFromHex } from "@/features/desktop-shell/inspector/fill-picker.utils"
 import {
   createDraftingShapeLayer,
   createDraftingTextLayer,

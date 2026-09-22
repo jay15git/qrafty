@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Popover } from "@base-ui/react/popover";
 import { cn } from "@/lib/utils";
-import { useFillPickerPortalSurface } from "@/components/ui/fill-picker-base/contexts/portal-surface";
+import { useFillPickerPortalSurface } from "@/components/ui/fill-picker/base/contexts/portal-surface";
 import {
   colorPickerControlBorderClass,
   colorPickerPopupSurfaceClass,

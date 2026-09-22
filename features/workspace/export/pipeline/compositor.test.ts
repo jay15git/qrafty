@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { formatFill } from "@/components/ui/fill-picker-base/public-api"
+import { formatFill } from "@/components/ui/fill-picker/public-api"
 import { createDefaultQraftyState } from "@/features/qr-code/model/state"
 import { createDefaultDraftingCardState } from "@/features/workspace/model/card-state"
 import {

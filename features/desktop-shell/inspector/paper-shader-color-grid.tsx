@@ -4,7 +4,7 @@ import { Plus, X } from "lucide-react"
 
 import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants"
 import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/fill-picker.utils"
 import {
   SETTINGS_FILL_OPTION_TILE,
   SETTINGS_FILL_OPTION_TILE_INNER,

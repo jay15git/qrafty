@@ -97,7 +97,7 @@ export type DesktopInspectorModel = {
   onContentValueChange: (field: string, value: StaticQrContentValue) => void
   onPatternSettingsChange: (patch: DesktopPatternSettingsPatch) => void
   onUnifiedQrFillSettingsChange?: (
-    patches: import("@/features/desktop-shell/inspector/desktopnew-settings-bridge").UnifiedQrFillPatches,
+    patches: import("@/features/desktop-shell/inspector/settings-bridge").UnifiedQrFillPatches,
   ) => void
   onLogoSettingsChange: (patch: DesktopLogoSettingsPatch) => void
   onCornersSettingsChange: (patch: Partial<DesktopCornersSettings>) => void

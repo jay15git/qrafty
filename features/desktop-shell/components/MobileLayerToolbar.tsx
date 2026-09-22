@@ -24,7 +24,7 @@ import {
   MOBILE_LAYER_TOOLBAR_GAP_PX,
 } from "@/features/desktop-shell/components/mobile-layer-toolbar-sync"
 import type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
-import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/theme-context"
 import { useMobileDrawerNavigation } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import { TextFontPickerContent } from "@/features/desktop-shell/inspector/text-font-picker-content"
 import {

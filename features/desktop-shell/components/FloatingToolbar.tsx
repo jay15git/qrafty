@@ -10,7 +10,7 @@ import {
 import { MobileSettingsRail } from "@/features/desktop-shell/components/MobileSettingsRail"
 import { MobileWorkspaceTopBar } from "@/features/desktop-shell/components/MobileWorkspaceTopBar"
 import { DESKTOP_UTILITY_TOOLBAR_SHELL_CLASS } from "@/features/desktop-shell/components/desktop-utility-toolbar.constants"
-import { DesktopNewFloatingInspector } from "@/features/desktop-shell/inspector/DesktopNewFloatingInspector"
+import { DesktopFloatingInspector } from "@/features/desktop-shell/inspector/DesktopFloatingInspector"
 import { useDesktopToolbarInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 import { DESKTOP_TOOLBAR_TOOLS } from "@/features/desktop-shell/model/desktop-toolbar-tools"
 import type {
@@ -19,21 +19,13 @@ import type {
 } from "@/features/desktop-shell/model/desktop-toolbar-types"
 export type {
   ComposeSidebarPanel,
-  DesktopAccessibilitySettings,
   DesktopBackgroundInspectorTab,
   DesktopCornersSettings,
-  DesktopEncodingSettings,
-  DesktopExportSettings,
   DesktopExportTarget,
-  DesktopImageSettings,
   DesktopLayerRow,
-  DesktopLayersSettings,
   DesktopLogoSettings,
-  DesktopLogoSettingsPatch,
   DesktopLogoSourceMode,
-  DesktopMotionSettings,
   DesktopPatternSettings,
-  DesktopPatternSettingsPatch,
   DesktopShapeSettings,
   DesktopTextSettings,
   DesktopThemeMode,
@@ -43,7 +35,7 @@ export type {
 
 export type { DesktopInspectorModel } from "@/features/desktop-shell/hooks/useDesktopToolbarInspectorModel"
 
-import { DESKTOP_WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/hooks/use-media-query"
+import { DESKTOP_WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/lib/hooks/use-media-query"
 import { cn } from "@/lib/utils"
 
 export function FloatingToolbar({
@@ -134,7 +126,7 @@ export function FloatingToolbar({
             <DesktopSettingsToolbarShell
               showInspector
               inspector={
-                <DesktopNewFloatingInspector activeTool={actualActiveTool} model={model} />
+                <DesktopFloatingInspector activeTool={actualActiveTool} model={model} />
               }
             />
           </>

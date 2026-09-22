@@ -2,7 +2,7 @@
 
 import { AnimatePresence, m } from "motion/react"
 
-import { Loader } from "@/components/motion/loader"
+import { Loader } from "@/features/desktop-shell/components/motion/loader"
 import { EASE_OUT } from "@/lib/ease"
 import { DesktopInspectorElasticSliderRow } from "@/features/desktop-shell/components/DesktopInspectorShell"
 import {

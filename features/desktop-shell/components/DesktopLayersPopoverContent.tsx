@@ -3,7 +3,7 @@
 import { useRef, useState, type ReactNode } from "react"
 import { Trash2Icon } from "lucide-react"
 
-import { ReorderList } from "@/components/interior/reorder-list"
+import { ReorderList } from "@/features/desktop-shell/components/interior/reorder-list"
 import {
   DESKTOP_INSPECTOR_CAPTION_CLASS,
   DESKTOP_INSPECTOR_LABEL_CLASS,

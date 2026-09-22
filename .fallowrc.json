@@ -16,6 +16,10 @@
   "rules": {
     "unused-dependencies": "warn"
   },
+  "ignoreDependencies": [
+    "agentation",
+    "qr"
+  ],
   "ignoreExports": [
     {
       "file": "packages/qr/vendor/react-qr-code/src/lib/qrcodegen/index.ts",

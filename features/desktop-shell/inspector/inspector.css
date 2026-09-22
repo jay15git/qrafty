@@ -1,0 +1,2495 @@
+/* Pencil design tokens — scoped to /desktopnew only. */
+
+.desktopnew-root {
+  color-scheme: dark;
+  --overlay: 255 255 255;
+  --focus-ring: #6b97ff;
+  --dn-bg: #161616;
+  --dn-surface: #1d1d1d;
+  --dn-control: #232323;
+  --dn-control-hover: #232323;
+  --dn-fg: #f5f5f5;
+  --dn-muted: #6b6b6b;
+  --dn-line: #2c2c2c;
+  --dn-accent: #fafafa;
+  --dn-on-accent: #090909;
+  --dn-font: "Inter", system-ui, sans-serif;
+  --dn-panel-width: 100%;
+  --dn-popover-shadow: 0 12px 48px rgb(0 0 0 / 50%);
+  --dn-type-caption: 0.625rem;
+  --dn-type-meta: 0.6875rem;
+  --dn-type-value: 0.75rem;
+  --dn-type-section: 1rem;
+  --dn-type-body: 0.8125rem;
+  --dn-tracking-tight: -0.015em;
+  --dn-type-label-weight: 400;
+  --dn-type-value-weight: 500;
+  --dn-type-label-color: color-mix(in srgb, var(--dn-fg) 46%, transparent);
+  --dn-type-value-color: var(--dn-fg);
+  --dn-radius-xs: 10px;
+  --dn-radius-sm: 12px;
+  --dn-radius-md: 14px;
+  --dn-radius-lg: 14px;
+  --dn-space-stack: 0.625rem;
+  --dn-space-inline: 0.375rem;
+  --dn-control-height: 2.25rem;
+  --dn-control-height-compact: 2rem;
+  --dn-tab-height: 2rem;
+  --dn-preview-tile: 3.5rem;
+  --dn-icon-hit: 2rem;
+  --dn-row-px: 0.75rem;
+
+  /* Map Pencil tokens to shadcn component roles. */
+  --background: var(--dn-bg);
+  --foreground: var(--dn-fg);
+  --card: var(--dn-bg);
+  --card-foreground: var(--dn-fg);
+  --popover: var(--dn-surface);
+  --popover-foreground: var(--dn-fg);
+  --primary: var(--dn-accent);
+  --primary-foreground: var(--dn-on-accent);
+  --secondary: var(--dn-control);
+  --secondary-foreground: var(--dn-fg);
+  --muted: var(--dn-control);
+  --muted-foreground: var(--dn-muted);
+  --accent: var(--dn-control-hover);
+  --accent-foreground: var(--dn-fg);
+  --border: var(--dn-line);
+  --input: var(--dn-control);
+  --ring: var(--dn-accent);
+  --scroll-edge-fade-color: var(--dn-bg);
+  --scroll-edge-chevron-color: var(--dn-muted);
+  --dn-slider-bg: #202020;
+
+  min-height: 100dvh;
+  background: var(--dn-bg);
+  color: var(--dn-fg);
+  font-family: var(--dn-font);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Motion + interaction tokens — shared by in-tree settings and portalled surfaces. */
+:is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover) {
+  --dn-type-caption: 0.625rem;
+  --dn-type-meta: 0.6875rem;
+  --dn-type-value: 0.75rem;
+  --dn-type-section: 1rem;
+  --dn-type-body: 0.8125rem;
+  --dn-space-stack: 0.625rem;
+  --dn-space-inline: 0.375rem;
+  --dn-control-height: 2.25rem;
+  --dn-control-height-compact: 2rem;
+  --dn-tab-height: 2rem;
+  --dn-preview-tile: 3.5rem;
+  --dn-icon-hit: 2rem;
+  --dn-row-px: 0.75rem;
+  --dn-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* Near-critically-damped stand-in for beui SPRING_PRESS (k=500, c=30, m=0.6). */
+  --dn-ease-press: cubic-bezier(0.16, 1, 0.3, 1);
+  --dn-motion-fast: 120ms;
+  --dn-motion-ui: 180ms;
+  --dn-motion-enter: 180ms;
+  --dn-motion-exit: 120ms;
+  --dn-select-ring-dur: 340ms;
+  --tabs-dur: var(--dn-motion-ui);
+  --tabs-ease: var(--dn-ease-out);
+}
+
+.desktopnew-root[data-theme="light"] {
+  color-scheme: light;
+  --overlay: 0 0 0;
+  --focus-ring: #6b97ff;
+  --dn-bg: #ffffff;
+  --dn-surface: #fafafa;
+  --dn-control: #f6f6f6;
+  --dn-control-hover: #f6f6f6;
+  --dn-fg: #18181b;
+  --dn-muted: #8a8a8e;
+  --dn-line: #ececee;
+  --dn-accent: #18181b;
+  --dn-on-accent: #ffffff;
+  --dn-popover-shadow: 0 8px 32px rgb(0 0 0 / 8%);
+  --dn-slider-bg: #f1f1f2;
+  --dn-type-label-color: color-mix(in srgb, var(--dn-fg) 44%, transparent);
+  --background: var(--dn-bg);
+  --foreground: var(--dn-fg);
+  --card: var(--dn-bg);
+  --card-foreground: var(--dn-fg);
+  --popover: var(--dn-surface);
+  --popover-foreground: var(--dn-fg);
+  --primary: var(--dn-accent);
+  --primary-foreground: var(--dn-on-accent);
+  --secondary: var(--dn-control);
+  --secondary-foreground: var(--dn-fg);
+  --muted: var(--dn-control);
+  --muted-foreground: var(--dn-muted);
+  --accent: var(--dn-control-hover);
+  --accent-foreground: var(--dn-fg);
+  --border: var(--dn-line);
+  --input: var(--dn-control);
+  --ring: var(--dn-accent);
+  --scroll-edge-fade-color: var(--dn-bg);
+  --scroll-edge-chevron-color: var(--dn-muted);
+}
+
+/* Embedded in /desktop toolbar — same token host, no preview padding. */
+.desktopnew-root.desktopnew-embedded {
+  display: flex;
+  min-height: 0;
+  height: 100%;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  isolation: isolate;
+  background: transparent;
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="dark"] {
+  background: transparent;
+  --scroll-edge-fade-color: #000000;
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-panel {
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  corner-shape: round;
+  background: transparent;
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-scroll,
+.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-scroll [data-slot="scroll-area-viewport"],
+[data-slot="desktopnew-settings-inspector"] > .desktopnew-root.desktopnew-embedded[data-theme="dark"] {
+  background: transparent;
+}
+
+.dn-settings-panel {
+  width: var(--dn-panel-width);
+  flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--dn-line) 80%, transparent);
+  background: var(--dn-bg);
+  color: var(--dn-fg);
+  box-shadow: none;
+  container-type: inline-size;
+  container-name: dn-settings;
+}
+
+@container dn-settings (max-width: 280px) {
+  .dn-settings-panel .grid-cols-4 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="light"] {
+  --scroll-edge-fade-color: #f0f1f2;
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-panel {
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  corner-shape: round;
+  background: transparent;
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-scroll,
+.desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-scroll [data-slot="scroll-area-viewport"] {
+  background: transparent;
+}
+
+[data-slot="desktopnew-settings-inspector"] {
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+[data-slot="desktopnew-settings-inspector"] > .desktopnew-root[data-theme="light"] {
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  background: transparent;
+  color: var(--dn-fg);
+}
+
+/* Keep desktopnew elastic sliders on dn tokens when mounted in /desktop workspace. */
+[data-slot="desktopnew-settings-inspector"] [data-slot="elastic-slider"],
+[data-slot="desktopnew-settings-inspector"] .desktopnew-root .dn-settings-elastic-slider,
+.desktopnew-root [data-slot="elastic-slider"] {
+  --elastic-slider-bg: var(--dn-slider-bg) !important;
+  --elastic-slider-fill: color-mix(in srgb, var(--dn-fg) 4%, transparent) !important;
+  --elastic-slider-fill-active: color-mix(in srgb, var(--dn-fg) 9%, transparent) !important;
+  --elastic-slider-hash: color-mix(in srgb, var(--dn-fg) 7%, transparent) !important;
+  --elastic-slider-handle: color-mix(in srgb, var(--dn-fg) 85%, transparent) !important;
+  --elastic-slider-label: var(--dn-type-label-color) !important;
+  --elastic-slider-focus: var(--dn-type-value-color) !important;
+}
+
+[data-slot="desktop-left-toolbar-shell"] [data-slot="desktopnew-settings-inspector"] {
+  padding-top: 0;
+  padding-inline-end: 0;
+  box-sizing: border-box;
+}
+
+/* ── Option tiles (grids, chips, presets) ────────────────────────── */
+
+.dn-option-tile {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  border: 2px solid transparent;
+  background: var(--dn-control);
+  color: var(--dn-muted);
+  transition:
+    color 160ms var(--dn-ease-out),
+    background-color 160ms var(--dn-ease-out),
+    border-color 160ms var(--dn-ease-out);
+}
+
+.dn-option-tile::after,
+.dn-preview-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  corner-shape: inherit;
+  pointer-events: none;
+  border: 2px solid var(--dn-fg);
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity var(--dn-select-ring-dur) var(--dn-ease-out),
+    transform var(--dn-select-ring-dur) var(--dn-ease-press);
+}
+
+.dn-preset-item {
+  background: var(--dn-control);
+  color: var(--dn-muted);
+}
+
+.dn-preset-item[aria-pressed="true"] {
+  color: var(--dn-fg);
+}
+
+.dn-option-tile[aria-pressed="true"],
+.dn-option-tile[data-selected="true"] {
+  background: var(--dn-control);
+  color: var(--dn-fg);
+}
+
+.dn-option-tile[aria-pressed="true"]::after,
+.dn-option-tile[data-selected="true"]::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dn-option-scroll-row {
+  display: flex;
+  --dn-option-gap: var(--dn-space-inline);
+  gap: var(--dn-option-gap);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.125rem;
+  padding-inline: 0.125rem;
+  margin-inline: -0.125rem;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--dn-muted) 40%, transparent) transparent;
+}
+
+.dn-option-scroll-row::-webkit-scrollbar {
+  height: 3px;
+}
+
+.dn-option-scroll-row::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--dn-muted) 40%, transparent);
+}
+
+.dn-option-scroll-row--fill {
+  overflow: visible;
+}
+
+.dn-content-type-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.dn-content-type-select > div {
+  width: 100%;
+}
+
+.dn-content-type-select--split {
+  display: flex;
+  align-items: center;
+}
+
+.dn-content-type-select--split > div {
+  width: 50%;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.dn-content-type-select .dn-content-type-select-trigger {
+  width: 100%;
+  min-width: 0;
+  border: none !important;
+  background: var(--dn-control) !important;
+  color: var(--dn-type-value-color) !important;
+  box-shadow: none !important;
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+  padding-inline: var(--dn-row-px);
+  font-size: var(--dn-type-value);
+  font-weight: var(--dn-type-value-weight);
+  letter-spacing: var(--dn-tracking-tight);
+}
+
+.dn-content-type-select .dn-content-type-select-trigger:hover,
+.dn-content-type-select .dn-content-type-select-trigger:focus,
+.dn-content-type-select .dn-content-type-select-trigger:focus-visible {
+  border: none !important;
+  background: var(--dn-control) !important;
+  box-shadow: none !important;
+  outline: none;
+  --tw-ring-shadow: 0 0 #0000;
+}
+
+.dn-content-type-select .dn-content-type-select-trigger [data-placeholder] {
+  color: var(--dn-muted);
+}
+
+.dn-fill-picker-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.dn-fill-picker-select > div {
+  width: 100%;
+}
+
+.dn-fill-picker-select .dn-fill-picker-select-trigger {
+  width: 100%;
+  min-width: 0;
+  border: none !important;
+  background: var(--dn-control) !important;
+  color: var(--dn-type-value-color) !important;
+  box-shadow: none !important;
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+  padding-inline: var(--dn-row-px);
+  font-size: var(--dn-type-value);
+  font-weight: var(--dn-type-value-weight);
+  letter-spacing: var(--dn-tracking-tight);
+}
+
+.dn-fill-picker-select .dn-fill-picker-select-trigger:hover,
+.dn-fill-picker-select .dn-fill-picker-select-trigger:focus,
+.dn-fill-picker-select .dn-fill-picker-select-trigger:focus-visible {
+  border: none !important;
+  background: var(--dn-control) !important;
+  box-shadow: none !important;
+  outline: none;
+  --tw-ring-shadow: 0 0 #0000;
+}
+
+.dn-fill-picker-select .dn-fill-picker-select-trigger [data-placeholder] {
+  color: var(--dn-muted);
+}
+
+.dn-content-type-tab-bar {
+  min-width: max-content;
+}
+
+.dn-content-type-segment-tab {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+  padding-inline: 0.75rem;
+}
+
+.dn-content-type-segment-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+.dn-content-type-segment-label {
+  white-space: nowrap;
+  font-size: var(--dn-type-caption);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+}
+
+.dn-option-scroll-tile {
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+}
+
+.dn-option-scroll-row--fill .dn-option-scroll-tile {
+  display: inline-flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.dn-option-scroll-chip {
+  flex-shrink: 0;
+  height: 1.75rem;
+  padding-inline: 0.625rem;
+  font-size: var(--dn-type-caption);
+  font-weight: 500;
+  letter-spacing: var(--dn-tracking-tight);
+  white-space: nowrap;
+  background: transparent;
+}
+
+.dn-option-scroll-chip[aria-pressed="true"],
+.dn-option-scroll-chip[data-selected="true"],
+.dn-option-tile.dn-option-scroll-chip,
+.dn-option-tile.dn-option-scroll-chip[aria-pressed="true"],
+.dn-option-tile.dn-option-scroll-chip[data-selected="true"] {
+  background: transparent;
+}
+
+.dn-preview-tile {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  border: 2px solid transparent;
+  padding: 5px;
+  color: var(--dn-fg);
+  transition:
+    color 160ms var(--dn-ease-out),
+    border-color 160ms var(--dn-ease-out);
+}
+
+.dn-preview-tile.dn-preview-tile--fluid {
+  padding: 4px;
+}
+
+.dn-preview-tile::after {
+  z-index: 20;
+}
+
+.dn-preview-tile[aria-pressed="true"] {
+  color: var(--dn-fg);
+}
+
+.dn-preview-tile[aria-pressed="true"]::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.desktopnew-root .dn-preview-tile [data-slot^="style-preview"],
+.desktopnew-root .dn-preview-tile .dn-preview-icon {
+  color: var(--dn-fg);
+}
+
+.dn-qr-style-option-preview {
+  opacity: 1;
+  filter: none;
+}
+
+.desktopnew-root[data-theme="dark"] .dn-qr-style-option-preview {
+  opacity: 1;
+  filter: invert(1);
+}
+
+.dn-style-preview-icon,
+[data-slot^="style-preview"] {
+  color: rgb(24 24 27 / 0.8);
+}
+
+.desktopnew-root[data-theme="light"] .dn-style-preview-icon,
+.desktopnew-root[data-theme="light"] [data-slot^="style-preview"] {
+  color: color-mix(in srgb, var(--dn-fg) 80%, transparent);
+}
+
+.desktopnew-root[data-theme="dark"] .dn-style-preview-icon,
+.desktopnew-root[data-theme="dark"] [data-slot^="style-preview"] {
+  color: #ffffff;
+}
+
+/* ── Settings typography ─────────────────────────────────────────── */
+
+.dn-type-caption {
+  font-size: var(--dn-type-caption);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-label-color);
+}
+
+.dn-type-label {
+  font-size: var(--dn-type-meta);
+  font-weight: var(--dn-type-label-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-label-color);
+}
+
+.dn-type-meta {
+  font-size: var(--dn-type-meta);
+  font-weight: var(--dn-type-label-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-label-color);
+}
+
+.dn-type-value {
+  font-size: var(--dn-type-value);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--dn-type-value-color);
+}
+
+/* beui InlineSlider ships with shadcn color utilities this project never
+   registers (bg-muted, bg-foreground/*), so its track, fill and tick dots
+   render transparent. Paint them from the dn tokens instead. */
+.dn-settings-inline-slider {
+  background: var(--dn-slider-bg);
+  color: var(--dn-fg);
+  border-radius: var(--dn-radius-sm);
+  corner-shape: squircle;
+  /* Horizontal-drag affordance only: no grab/grabbing hand. Unlayered, so it
+     also beats the component's `active:cursor-grabbing`. */
+  cursor: ew-resize;
+}
+
+/* The component's `cursor-inherit` is not a Tailwind utility, so the focusable
+   track button falls back to the button default. Force the drag cursor. */
+.dn-settings-inline-slider [role="slider"] {
+  cursor: ew-resize !important;
+}
+
+.dn-settings-inline-slider > div[aria-hidden="true"]:first-child {
+  border-radius: calc(var(--dn-radius-sm) - 2px);
+  corner-shape: squircle;
+}
+
+.dn-settings-inline-slider [class*="bg-foreground/15"] {
+  background: color-mix(in srgb, var(--dn-fg) 7%, transparent);
+}
+
+.dn-settings-inline-slider [class*="bg-foreground/25"] {
+  background: color-mix(in srgb, var(--dn-fg) 12%, transparent);
+}
+
+/* Inline label and readout follow the settings label tokens instead of the
+   component's text-sm / text-[13px] pair. */
+.dn-settings-inline-slider > div[aria-hidden="true"]:nth-of-type(2) > span:nth-child(1) {
+  font-size: var(--dn-type-meta);
+  font-weight: var(--dn-type-label-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color);
+}
+
+.dn-settings-inline-slider > div[aria-hidden="true"]:nth-of-type(2) > span:nth-child(2) {
+  font-size: var(--dn-type-value);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color);
+}
+
+.dn-row-label-text {
+  font-size: var(--dn-type-body);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color);
+}
+
+.dn-type-body {
+  font-size: var(--dn-type-body);
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-label-color);
+}
+
+/* ── Row controls ────────────────────────────────────────────────── */
+
+.dn-section-stack {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--dn-space-stack);
+}
+
+.dn-preview-row {
+  display: flex;
+  min-width: max-content;
+  --dn-option-gap: var(--dn-space-inline);
+  gap: var(--dn-option-gap);
+  padding: var(--dn-space-inline) 0.25rem;
+}
+
+/* Keep visual tile gaps but extend each option's hit box through half the
+   gap so the pointer never drops to default between tiles. */
+:is(.dn-preview-row, .dn-option-scroll-row)
+  > :is(button, a, [role="button"], [data-slot="image-upload-tile"]) {
+  margin-inline: calc(var(--dn-option-gap, var(--dn-space-inline)) / -2);
+  margin-block: 0;
+  position: relative;
+  z-index: 0;
+}
+
+.t-tabs > [role="tab"] {
+  margin-inline: calc(var(--dn-option-gap, 0.25rem) / -2);
+  margin-block: 0;
+}
+
+:is(.dn-insert-menu-option-grid)
+  > :is(button, a, [role="button"]) {
+  margin: calc(var(--dn-option-gap, var(--dn-space-inline)) / -2);
+  position: relative;
+  z-index: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :is(.dn-preview-row, .dn-option-scroll-row) > :is(button, a, [role="button"]):is(:hover, :focus-visible),
+  :is(.dn-insert-menu-option-grid)
+    > :is(button, a, [role="button"]):is(:hover, :focus-visible) {
+    z-index: 1;
+  }
+
+  .t-tabs > [role="tab"]:is(:hover, :focus-visible) {
+    z-index: 2;
+  }
+}
+
+/* Horizontal preview rows — edge fades (override tight default). */
+.desktopnew-root [data-slot="scroll-area"][data-orientation="horizontal"] {
+  --scroll-edge-cue-band-size: 3.75rem;
+}
+
+@supports (background: color-mix(in srgb, #000 50%, #fff)) {
+  .desktopnew-root [data-slot="scroll-area"][data-orientation="horizontal"] .scroll-edge-cue-gradient {
+    background: linear-gradient(
+      var(--scroll-edge-cue-direction, to right),
+      transparent 0%,
+      color-mix(in srgb, var(--scroll-edge-fade-color, var(--surface-1)) 20%, transparent) 20%,
+      color-mix(in srgb, var(--scroll-edge-fade-color, var(--surface-1)) 45%, transparent) 42%,
+      color-mix(in srgb, var(--scroll-edge-fade-color, var(--surface-1)) 72%, transparent) 68%,
+      var(--scroll-edge-fade-color, var(--surface-1)) 100%
+    );
+  }
+}
+
+.dn-control-surface {
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+}
+
+.dn-tab-bar {
+  min-height: var(--dn-tab-height);
+  height: var(--dn-tab-height);
+}
+
+.dn-tab-bar.dn-content-type-tab-bar {
+  height: auto;
+  min-height: 0;
+}
+
+.dn-type-chip {
+  font-size: var(--dn-type-caption);
+  font-weight: 500;
+  letter-spacing: var(--dn-tracking-tight);
+}
+
+.dn-preview-tile-size {
+  width: var(--dn-preview-tile);
+  height: var(--dn-preview-tile);
+  min-width: var(--dn-preview-tile);
+  min-height: var(--dn-preview-tile);
+}
+
+.dn-switch-row {
+  display: flex;
+  width: 100%;
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 var(--dn-row-px) !important;
+}
+
+.dn-switch-row > span {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--dn-type-body);
+  font-weight: var(--dn-type-value-weight);
+  letter-spacing: var(--dn-tracking-tight);
+  line-height: 1;
+  color: var(--dn-type-value-color) !important;
+}
+
+/* Track + thumb follow the same tokens as the portalled switches. */
+.desktopnew-root .dn-switch-row [data-slot="switch"] {
+  transition: background-color var(--dn-motion-ui) var(--dn-ease-out) !important;
+}
+
+.desktopnew-root .dn-switch-row [data-slot="switch"][data-state="checked"] {
+  background: var(--dn-fg) !important;
+}
+
+.desktopnew-root .dn-switch-row [data-slot="switch"][data-state="unchecked"] {
+  background: var(--dn-line) !important;
+}
+
+.desktopnew-root .dn-switch-row [data-slot="switch-thumb"] {
+  background: var(--dn-bg) !important;
+  border-color: color-mix(in srgb, var(--dn-fg) 12%, transparent) !important;
+}
+
+.dn-settings-row {
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+  padding-left: var(--dn-row-px);
+  padding-right: var(--dn-row-px);
+  border: 1px solid transparent;
+  background: var(--dn-control) !important;
+  color: var(--dn-type-value-color);
+  line-height: 1;
+  box-shadow: none !important;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transform: none;
+}
+
+.desktopnew-root .dn-settings-row:hover,
+.desktopnew-root .dn-settings-row:focus-visible,
+.desktopnew-root .dn-settings-row:active {
+  background: var(--dn-control) !important;
+  color: var(--dn-fg) !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+.dn-settings-primary {
+  background: var(--dn-fg) !important;
+  color: var(--dn-bg) !important;
+}
+
+.desktopnew-root .dn-settings-primary:hover,
+.desktopnew-root .dn-settings-primary:focus-visible,
+.desktopnew-root .dn-settings-primary:active {
+  background: var(--dn-fg) !important;
+  color: var(--dn-bg) !important;
+}
+
+.desktopnew-root .dn-settings-input,
+.dn-settings-input {
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+  border: 1px solid var(--dn-line);
+  background: var(--dn-control) !important;
+  font-size: var(--dn-type-value);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color) !important;
+  box-shadow: none !important;
+  outline: none;
+  appearance: none;
+}
+
+.desktopnew-root .dn-settings-input:focus,
+.desktopnew-root .dn-settings-input:focus-visible,
+.dn-settings-input:focus,
+.dn-settings-input:focus-visible {
+  border-color: var(--dn-line);
+  box-shadow: none !important;
+  outline: none;
+}
+
+.dn-settings-input::placeholder {
+  color: var(--dn-muted);
+}
+
+[data-slot="content-fields"] .dn-content-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--dn-space-inline);
+}
+
+[data-slot="content-fields"] .dn-settings-input {
+  border: none;
+  padding-inline: var(--dn-row-px);
+}
+
+[data-slot="content-fields"] .dn-settings-input:focus,
+[data-slot="content-fields"] .dn-settings-input:focus-visible,
+[data-slot="content-fields"] .dn-settings-input[aria-invalid="true"] {
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
+
+.dn-content-detection-chip {
+  border: 1px solid var(--dn-line);
+  background: var(--dn-control);
+  padding: 0.625rem 0.75rem;
+}
+
+/* ── Sliders ─────────────────────────────────────────────────────── */
+
+.desktopnew-root .dn-settings-elastic-slider {
+  --elastic-slider-bg: var(--dn-slider-bg);
+  --elastic-slider-fill: color-mix(in srgb, var(--dn-fg) 4%, transparent);
+  --elastic-slider-fill-active: color-mix(in srgb, var(--dn-fg) 9%, transparent);
+  --elastic-slider-hash: color-mix(in srgb, var(--dn-fg) 7%, transparent);
+  --elastic-slider-handle: color-mix(in srgb, var(--dn-fg) 85%, transparent);
+  --elastic-slider-label: var(--dn-type-label-color);
+  --elastic-slider-focus: var(--dn-type-value-color);
+}
+
+.desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
+  border-radius: var(--dn-radius-sm);
+  corner-shape: squircle;
+  border: none;
+}
+
+.desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-label"] {
+  font-family: inherit;
+  font-size: var(--dn-type-meta);
+  font-weight: var(--dn-type-label-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-label-color) !important;
+}
+
+.desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-value"] {
+  font-family: inherit;
+  font-size: var(--dn-type-value);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color) !important;
+}
+
+.desktopnew-root .dn-settings-row [data-slot="button"] {
+  line-height: 1;
+}
+
+.desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-handle"] {
+  width: 3px;
+  height: 1.125rem;
+  border-radius: 999px;
+  opacity: 0.92;
+}
+
+/* Portalled settings popovers — same slider/switch/row tokens as in-tree settings. */
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider {
+  --elastic-slider-bg: var(--dn-slider-bg);
+  --elastic-slider-fill: color-mix(in srgb, var(--dn-fg) 4%, transparent);
+  --elastic-slider-fill-active: color-mix(in srgb, var(--dn-fg) 9%, transparent);
+  --elastic-slider-hash: color-mix(in srgb, var(--dn-fg) 7%, transparent);
+  --elastic-slider-handle: color-mix(in srgb, var(--dn-fg) 85%, transparent);
+  --elastic-slider-label: var(--dn-type-label-color);
+  --elastic-slider-focus: var(--dn-type-value-color);
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
+  border-radius: var(--dn-radius-sm);
+  corner-shape: squircle;
+  border: none;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-label"] {
+  font-family: inherit;
+  font-size: var(--dn-type-meta);
+  font-weight: var(--dn-type-label-weight);
+  line-height: 1;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-label-color) !important;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-value"] {
+  font-family: inherit;
+  font-size: var(--dn-type-value);
+  font-weight: var(--dn-type-value-weight);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-type-value-color) !important;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-handle"] {
+  width: 3px;
+  height: 1.125rem;
+  border-radius: 999px;
+  opacity: 0.92;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) [data-slot="switch"] {
+  transition: background-color var(--dn-motion-ui) var(--dn-ease-out) !important;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) [data-slot="switch"][data-state="checked"] {
+  background: var(--dn-fg) !important;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) [data-slot="switch"][data-state="unchecked"] {
+  background: var(--dn-line) !important;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) [data-slot="switch-thumb"] {
+  background: var(--dn-bg) !important;
+  border-color: color-mix(in srgb, var(--dn-fg) 12%, transparent) !important;
+  backface-visibility: hidden;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-row:hover,
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-row:focus-visible,
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-row:active {
+  background: var(--dn-control) !important;
+  color: var(--dn-fg) !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+/* ── Switch ──────────────────────────────────────────────────────── */
+
+.desktopnew-root [data-slot="switch"] {
+  transition: background-color var(--dn-motion-ui) var(--dn-ease-out) !important;
+}
+
+.desktopnew-root [data-slot="switch"][data-state="checked"] {
+  background: var(--dn-fg) !important;
+}
+
+.desktopnew-root [data-slot="switch"][data-state="unchecked"] {
+  background: var(--dn-line) !important;
+}
+
+.desktopnew-root [data-slot="switch-thumb"] {
+  background: var(--dn-bg) !important;
+  border-color: color-mix(in srgb, var(--dn-fg) 12%, transparent) !important;
+  backface-visibility: hidden;
+}
+
+/* ── Segment tabs ────────────────────────────────────────────────── */
+
+.t-tab {
+  position: relative;
+  z-index: 1;
+  transition: color var(--tabs-dur) var(--tabs-ease);
+}
+
+.t-tabs-pill {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  z-index: 0;
+  width: 0;
+  background: #171717;
+  transform: translateX(0);
+  transition:
+    transform var(--tabs-dur) var(--tabs-ease),
+    width var(--tabs-dur) var(--tabs-ease);
+  will-change: transform, width;
+  pointer-events: none;
+}
+
+.desktopnew-root[data-theme="dark"] .t-tabs-pill {
+  background: #ffffff;
+}
+
+.t-tabs--muted {
+  --dn-option-gap: 0;
+  gap: 0;
+  padding: 2px;
+  background: transparent;
+}
+
+.t-tabs--muted .t-tabs-pill--muted {
+  inset-block: 2px;
+  background: color-mix(in srgb, var(--dn-fg) 10%, var(--dn-bg));
+}
+
+.desktopnew-root[data-theme="dark"] .t-tabs--muted .t-tabs-pill--muted {
+  background: color-mix(in srgb, var(--dn-fg) 16%, #1a1a1a);
+}
+
+.t-tabs--muted .dn-segment-tab--muted[aria-selected="true"] {
+  color: var(--dn-fg);
+}
+
+.desktopnew-root[data-theme="dark"] .t-tabs--muted .dn-segment-tab--muted[aria-selected="true"] {
+  color: #f5f5f5;
+}
+
+.dn-segment-tab[aria-selected="true"] {
+  background: transparent;
+  color: #ffffff;
+}
+
+.desktopnew-root[data-theme="dark"] .dn-segment-tab[aria-selected="true"] {
+  color: #0a0a0a;
+}
+
+/* ── Accordion ───────────────────────────────────────────────────── */
+
+.dn-settings-rail-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0.625rem 0.625rem 0;
+  width: 100%;
+}
+
+.dn-settings-rail-track__inner {
+  box-sizing: border-box;
+  width: min(100%, 19.2rem);
+  padding-inline: 0.75rem;
+}
+
+/* Pin QRafty to the top chrome row; spacer keeps accordion stack vertically centered. */
+.dn-settings-scroll [data-slot="scroll-area-viewport"] {
+  position: relative;
+}
+
+.dn-settings-brand-row {
+  flex-shrink: 0;
+  min-height: calc(0.625rem + 2rem);
+}
+
+.dn-settings-brand-row > .dn-settings-rail-track__inner {
+  position: absolute;
+  top: var(--desktop-top-chrome-right, 0.75rem);
+  right: 0;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  margin-inline: auto;
+  width: min(100%, 19.2rem);
+  max-width: calc(100% - 1.25rem);
+  min-height: 2.75rem;
+  padding-inline: 0.75rem;
+}
+
+/* Unified card: the accordion stack renders as ONE surface; items are
+ * transparent rows separated by inset hairlines. Height follows the rendered
+ * canvas card. */
+.dn-settings-accordion > div {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: min(100%, 19.2rem);
+  margin-inline: auto;
+  padding: 0.375rem;
+  border-radius: 2rem;
+  corner-shape: squircle;
+  background: #ffffff;
+  height: var(--dn-card-height, auto);
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: height 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dn-settings-accordion > div > div {
+  position: relative;
+  width: 100%;
+  border-radius: 0 !important;
+  transition: opacity var(--dn-motion-ui) var(--dn-ease-out);
+}
+
+/* Short, quiet separators — inset from both edges instead of full-bleed. */
+.dn-settings-accordion > div > div + div::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 1.125rem;
+  left: 1.125rem;
+  height: 1px;
+  background: var(--dn-line, rgb(0 0 0 / 7%));
+  opacity: 0.4;
+}
+
+.dn-accordion-popover-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  background: transparent;
+}
+
+.dn-accordion-popover-overlay {
+  position: fixed;
+  z-index: 20001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  pointer-events: none;
+  transform-origin: bottom center;
+  box-sizing: border-box;
+}
+
+.dn-accordion-popover-panel {
+  display: flex;
+  width: 100%;
+  max-height: min(72dvh, calc(100dvh - 2rem));
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+  box-sizing: border-box;
+  border: none;
+  background: var(--dn-surface);
+  color: var(--dn-fg);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 18%);
+  border-radius: 1rem;
+  corner-shape: squircle;
+}
+
+.dn-accordion-popover-panel.desktopnew-fill-popover .dn-fill-picker-panel {
+  max-height: min(72dvh, calc(100% - 0.5rem));
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.dn-settings-popover-shell {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Radix fill popovers render on a transparent shell — the chrome (header +
+ * picker) needs its own surface so the title is readable over the canvas. */
+.desktopnew-fill-popover .dn-settings-popover-shell {
+  background: var(--dn-surface);
+  border-radius: var(--dn-radius-md);
+  corner-shape: squircle;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 18%);
+}
+
+.desktopnew-fill-popover[data-theme="dark"] .dn-settings-popover-shell {
+  box-shadow: 0 12px 48px rgb(0 0 0 / 50%);
+}
+
+.dn-settings-popover-header {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 2.75rem 0.5rem;
+}
+
+.dn-settings-popover-title {
+  margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: var(--dn-type-meta);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--dn-fg);
+}
+
+.dn-settings-popover-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--dn-line);
+  border-radius: 9999px;
+  background: var(--dn-control);
+  color: var(--dn-fg);
+  cursor: pointer;
+  transition:
+    background-color var(--dn-motion-fast) var(--dn-ease-out),
+    color var(--dn-motion-fast) var(--dn-ease-out);
+}
+
+.dn-settings-popover-close:hover,
+.dn-settings-popover-close:focus-visible {
+  background: var(--dn-control-hover);
+  color: var(--dn-fg);
+}
+
+.dn-settings-popover-body {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  padding: 0 0.625rem 0.625rem;
+}
+
+.dn-settings-popover-body-fill {
+  padding: 0 0 0.5rem;
+}
+
+:is(.desktopnew-fill-popover, .desktopnew-popover-content, .dn-accordion-popover-panel)
+  .dn-settings-popover-body-fill
+  .dn-fill-picker-panel {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+:is(.desktopnew-fill-popover, .dn-accordion-popover-panel)
+  .dn-settings-popover-body-fill
+  .dn-fill-picker-panel
+  [data-slot="fill-picker"]
+  > div {
+  padding: 0.625rem;
+}
+
+:is(.desktopnew-fill-popover, .dn-accordion-popover-panel)
+  .dn-settings-popover-body-fill
+  [data-slot="palette-color-stop-list"] {
+  padding-inline: 0;
+}
+
+.dn-settings-accordion > div > div > button {
+  position: relative;
+  gap: 0.625rem;
+  padding: 1rem 1.125rem;
+}
+
+/* Extend each trigger's hit zone into the gap above its card so the
+ * pointer + click area stays continuous between sections. */
+.dn-settings-accordion > div > div > button::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--dn-accordion-gap, 8px));
+  right: 0;
+  left: 0;
+  height: var(--dn-accordion-gap, 8px);
+}
+
+.dn-settings-accordion > div > div > button > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+  font-size: var(--dn-type-section);
+  font-weight: 500;
+  letter-spacing: var(--dn-tracking-tight);
+  line-height: 1.3;
+}
+
+.dn-settings-accordion .dn-settings-section-icon-slot {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.dn-settings-accordion .dn-settings-section-icon {
+  display: block;
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.dn-settings-accordion > div > div > button > span:last-child {
+  width: 2rem;
+  height: 2rem;
+  color: var(--dn-muted);
+  opacity: 0.42;
+}
+
+.dn-settings-accordion > div > div > button > span:last-child svg {
+  width: 18px;
+  height: 18px;
+}
+
+.dn-settings-accordion > div > div > button:hover > span:last-child,
+.dn-settings-accordion > div > div > button:focus-visible > span:last-child {
+  opacity: 0.62;
+}
+
+.dn-settings-accordion > div > div > [role="region"] > div {
+  padding-inline: 0.875rem;
+  padding-bottom: 0.875rem;
+}
+
+.dn-settings-accordion [role="region"] {
+  --dn-bg: #ffffff;
+  --background: #ffffff;
+  --scroll-edge-fade-color: #ffffff;
+  --tabs-dur: var(--dn-motion-ui, 180ms);
+  --tabs-ease: var(--dn-ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-accordion [role="region"] {
+  --dn-bg: var(--dn-surface, #111111);
+  --background: var(--dn-surface, #111111);
+  --scroll-edge-fade-color: var(--dn-surface, #111111);
+  --tabs-dur: var(--dn-motion-ui, 180ms);
+  --tabs-ease: var(--dn-ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="dark"]
+  .dn-settings-accordion
+  [role="region"]
+  .t-tabs-pill:not(.t-tabs-pill--muted) {
+  background: #ffffff;
+}
+
+.dn-settings-accordion [role="region"] .t-tabs-pill {
+  z-index: 0;
+}
+.dn-settings-accordion [role="region"] [data-slot="scroll-area-viewport"],
+.dn-settings-accordion [role="region"] [data-slot="scroll-area-viewport"] > div {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.dn-settings-accordion [role="region"] [data-slot="scroll-area"][data-orientation="horizontal"] [data-slot="scroll-area-inner"] {
+  min-width: 0 !important;
+  width: max-content;
+}
+
+.dn-settings-accordion [role="region"] .dn-preview-row {
+  width: max-content;
+  max-width: none;
+  flex: none;
+}
+
+.dn-settings-accordion [role="region"] .dn-preview-tile-size {
+  flex: 0 0 var(--dn-preview-tile);
+  width: var(--dn-preview-tile);
+  min-width: var(--dn-preview-tile);
+  max-width: var(--dn-preview-tile);
+}
+
+.dn-settings-accordion [role="region"] .dn-preview-tile {
+  background: transparent;
+}
+
+.dn-settings-accordion [role="region"] .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(.dn-option-scroll-tile) {
+  background: transparent;
+  border: 2px solid transparent;
+}
+
+.dn-settings-accordion [role="region"] .dn-option-scroll-chip,
+.dn-settings-accordion [role="region"] .dn-option-scroll-tile {
+  background: var(--dn-control);
+  border: 2px solid transparent;
+}
+
+.dn-settings-accordion [role="region"] .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(.dn-option-scroll-tile)[aria-pressed="true"],
+.dn-settings-accordion [role="region"] .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(.dn-option-scroll-tile)[data-selected="true"] {
+  background: transparent;
+}
+
+.dn-settings-accordion [role="region"] .dn-option-scroll-chip[aria-pressed="true"],
+.dn-settings-accordion [role="region"] .dn-option-scroll-chip[data-selected="true"],
+.dn-settings-accordion [role="region"] .dn-option-scroll-tile[aria-pressed="true"],
+.dn-settings-accordion [role="region"] .dn-option-scroll-tile[data-selected="true"] {
+  background: var(--dn-control-hover);
+  box-shadow: none;
+  color: var(--dn-fg);
+}
+
+.dn-settings-accordion [role="region"] .dn-settings-row {
+  background: var(--dn-control) !important;
+}
+
+.dn-settings-accordion [role="region"] .dn-settings-input {
+  background: var(--dn-control) !important;
+}
+
+/* Card surface lives on the accordion stack; item rows stay transparent. */
+.desktopnew-root.desktopnew-embedded .dn-settings-accordion > div {
+  background: #ffffff;
+}
+
+.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-accordion > div {
+  background: var(--dn-surface, #111111);
+}
+
+.dn-settings-accordion > div > div {
+  background: transparent;
+  box-shadow: none;
+}
+
+.dn-settings-accordion > div > div {
+  transition:
+    filter var(--dn-motion-ui) var(--dn-ease-out),
+    opacity var(--dn-motion-ui) var(--dn-ease-out);
+}
+
+.dn-settings-accordion[data-popover-open="true"] > div > div {
+  filter: blur(1.25px);
+  opacity: 0.38;
+}
+
+.dn-settings-accordion:has([data-focused="true"]):not([data-popover-open="true"])
+  > div
+  > div:not([data-focused="true"]) {
+  filter: blur(1.25px);
+  opacity: 0.38;
+}
+
+.dn-settings-tab-panel {
+  width: 100%;
+  min-width: 0;
+  will-change: opacity, filter;
+  backface-visibility: hidden;
+}
+
+/* Radix Viewport injects a display:table wrap; our ScrollArea then wraps
+ * children in [data-slot="scroll-area-inner"]. Flex + min-height must land
+ * on the inner so short rails can center and tall ones still scroll. */
+.dn-settings-scroll [data-slot="scroll-area-viewport"] > div {
+  display: flex !important;
+  flex-direction: column;
+  min-height: 100%;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.dn-settings-scroll [data-slot="scroll-area-inner"] {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+  min-width: 0;
+  width: 100%;
+}
+
+.dn-settings-scroll .dn-settings-accordion {
+  flex-shrink: 0;
+}
+
+/* ── Popovers (portalled outside .desktopnew-root) ───────────────── */
+
+@keyframes dn-portal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dn-portal-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+.dn-portal-surface[data-side="top"],
+.desktopnew-fill-popover[data-side="top"] {
+  transform-origin: bottom center;
+}
+
+.dn-portal-surface[data-side="bottom"],
+.desktopnew-fill-popover[data-side="bottom"] {
+  transform-origin: top center;
+}
+
+.dn-portal-surface[data-side="left"],
+.desktopnew-fill-popover[data-side="left"] {
+  transform-origin: right center;
+}
+
+.dn-portal-surface[data-side="right"],
+.desktopnew-fill-popover[data-side="right"] {
+  transform-origin: left center;
+}
+
+.dn-portal-surface[data-state="open"],
+.dn-portal-surface[data-open] {
+  animation: dn-portal-in var(--dn-motion-enter) var(--dn-ease-out) both !important;
+}
+
+.dn-portal-surface[data-state="closed"],
+.dn-portal-surface[data-closed] {
+  animation: dn-portal-out var(--dn-motion-exit) var(--dn-ease-out) both !important;
+}
+
+.desktopnew-fill-popover[data-state="open"] {
+  animation: dn-portal-in var(--dn-motion-enter) var(--dn-ease-out) both !important;
+}
+
+.desktopnew-fill-popover[data-state="closed"] {
+  animation: dn-portal-out var(--dn-motion-exit) var(--dn-ease-out) both !important;
+}
+
+.desktopnew-popover-content {
+  border: none !important;
+  background: #fafafa !important;
+  color: #18181b !important;
+  --tw-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 8%) !important;
+  --dn-bg: #fafafa;
+  --dn-fg: #18181b;
+  --dn-control: #f6f6f6;
+  --dn-control-hover: #f6f6f6;
+  --dn-muted: #8a8a8e;
+  --dn-line: #ececee;
+  --dn-popover-control: #f6f6f6;
+  --dn-popover-tile: #f3f3f4;
+  --dn-popover-tile-hover: #f3f3f4;
+  --dn-popover-ring-offset: #fafafa;
+  --dn-popover-muted: #8a8a8e;
+  --dn-popover-border: #ececee;
+  --dn-radius-xs: 10px;
+  --dn-radius-sm: 12px;
+  --dn-radius-md: 14px;
+  --dn-radius-lg: 14px;
+  --dn-tracking-tight: -0.015em;
+  --dn-type-label-weight: 400;
+  --dn-type-value-weight: 500;
+  --dn-type-label-color: color-mix(in srgb, var(--dn-fg) 44%, transparent);
+  --dn-type-value-color: var(--dn-fg);
+  --dn-slider-bg: #f1f1f2;
+  --background: var(--dn-bg);
+  --foreground: var(--dn-fg);
+  --card: var(--dn-bg);
+  --card-foreground: var(--dn-fg);
+  --popover: var(--dn-bg);
+  --popover-foreground: var(--dn-fg);
+  --primary: var(--dn-fg);
+  --primary-foreground: var(--dn-bg);
+  --secondary: var(--dn-control);
+  --secondary-foreground: var(--dn-fg);
+  --muted: var(--dn-control);
+  --muted-foreground: var(--dn-muted);
+  --accent: var(--dn-control-hover);
+  --accent-foreground: var(--dn-fg);
+  --border: var(--dn-line);
+  --input: var(--dn-control);
+  --ring: var(--dn-fg);
+}
+
+.desktopnew-popover-content[data-theme="dark"] {
+  border: none !important;
+  background: #111111 !important;
+  color: #f5f5f5 !important;
+  box-shadow: 0 12px 48px rgb(0 0 0 / 50%) !important;
+  --dn-bg: #111111;
+  --dn-fg: #f5f5f5;
+  --dn-control: #1a1a1a;
+  --dn-control-hover: #1a1a1a;
+  --dn-muted: #6b6b6b;
+  --dn-line: #252525;
+  --dn-popover-control: #1a1a1a;
+  --dn-popover-tile: #1a1a1a;
+  --dn-popover-tile-hover: #1a1a1a;
+  --dn-popover-ring-offset: #111111;
+  --dn-popover-muted: #6b6b6b;
+  --dn-popover-border: #252525;
+  --dn-radius-xs: 10px;
+  --dn-radius-sm: 12px;
+  --dn-radius-md: 14px;
+  --dn-radius-lg: 14px;
+  --dn-tracking-tight: -0.015em;
+  --dn-type-label-weight: 400;
+  --dn-type-value-weight: 500;
+  --dn-type-label-color: color-mix(in srgb, var(--dn-fg) 46%, transparent);
+  --dn-type-value-color: var(--dn-fg);
+  --dn-slider-bg: #202020;
+  --background: var(--dn-bg);
+  --foreground: var(--dn-fg);
+  --card: var(--dn-bg);
+  --card-foreground: var(--dn-fg);
+  --popover: var(--dn-bg);
+  --popover-foreground: var(--dn-fg);
+  --primary: var(--dn-fg);
+  --primary-foreground: var(--dn-bg);
+  --secondary: var(--dn-control);
+  --secondary-foreground: var(--dn-fg);
+  --muted: var(--dn-control);
+  --muted-foreground: var(--dn-muted);
+  --accent: var(--dn-control-hover);
+  --accent-foreground: var(--dn-fg);
+  --border: var(--dn-line);
+  --input: var(--dn-control);
+  --ring: var(--dn-fg);
+}
+
+.desktopnew-crop-dialog > button.absolute {
+  top: 0.75rem;
+  right: 0.75rem;
+  border-radius: var(--dn-radius-xs);
+  color: var(--dn-muted);
+  opacity: 1;
+}
+
+.desktopnew-crop-dialog > button.absolute:hover,
+.desktopnew-crop-dialog > button.absolute:focus-visible {
+  background: var(--dn-control);
+  color: var(--dn-fg);
+  opacity: 1;
+}
+
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-primary:hover,
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-primary:focus-visible,
+:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-primary:active {
+  background: var(--dn-fg) !important;
+  color: var(--dn-bg) !important;
+}
+
+/* Logo icon picker — token-sized tiles + search aligned to settings surfaces */
+.dn-logo-icon-picker {
+  width: 100%;
+  min-width: 0;
+}
+
+.dn-logo-icon-picker-search {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.dn-logo-icon-picker-search-icon {
+  position: absolute;
+  top: 50%;
+  left: var(--dn-row-px);
+  z-index: 1;
+  width: 0.875rem;
+  height: 0.875rem;
+  transform: translateY(-50%);
+}
+
+/* Search field uses the shared settings input; icon reserves left padding.
+   Borderless like the content-accordion fields. */
+:is(.desktopnew-popover-content, .dn-portal-surface, .dn-settings-accordion)
+  .dn-logo-icon-picker
+  .dn-settings-input {
+  min-height: var(--dn-control-height);
+  height: var(--dn-control-height);
+  border: none;
+  background: var(--dn-control) !important;
+  padding-inline: calc(var(--dn-row-px) + 1.125rem) var(--dn-row-px);
+}
+
+/* ScrollArea owns the viewport + fades; the grid itself must keep an
+   automatic height — a definite height makes Chromium drop aspect-ratio
+   contributions to auto rows and the tiles overlap. */
+.dn-logo-icon-picker-scroll-fixed {
+  height: 16.5rem;
+}
+
+.dn-logo-icon-picker-grid {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+  align-content: start;
+  /* Inner padding keeps the selected ring inside the scrollport. */
+  padding: 0.25rem;
+}
+
+.dn-logo-icon-picker-state {
+  display: flex;
+  min-height: 6rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+/* Empty / searching states fill the fixed scrollport so they sit centered. */
+.dn-logo-icon-picker-empty {
+  min-height: 15rem;
+  gap: 0.875rem;
+}
+
+.dn-logo-icon-picker-sentinel {
+  grid-column: 1 / -1;
+  height: 1px;
+}
+
+.dn-logo-icon-picker-icon-pending {
+  background: color-mix(in srgb, var(--dn-muted) 14%, transparent);
+}
+
+/* Tiles are full-cell hitboxes; the visible square is a fixed preset tile
+   centered inside. Degrades to the preset size even if aspect-ratio is lost. */
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile {
+  width: 100%;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--dn-fg);
+  cursor: pointer;
+}
+
+/* Tiles are fluid squares sized by the grid cell — a fixed preset width made
+   the selected ring overflow onto neighboring icons. */
+.dn-logo-icon-picker-tile-inner {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  place-items: center;
+}
+
+.dn-logo-icon-picker-tile-inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  corner-shape: inherit;
+  pointer-events: none;
+  border: 2px solid var(--dn-fg);
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity var(--dn-select-ring-dur) var(--dn-ease-out),
+    transform var(--dn-select-ring-dur) var(--dn-ease-press);
+}
+
+/* No grey wash behind icons — hover only lifts the glyph color. */
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile:is(:hover, :focus-visible) {
+  color: var(--dn-fg);
+}
+
+/* Keyboard users still get a ring; mouse hover stays chromeless. */
+.dn-logo-icon-picker-grid
+  .dn-logo-icon-picker-tile:focus-visible
+  .dn-logo-icon-picker-tile-inner::after {
+  border-color: color-mix(in srgb, var(--dn-fg) 35%, transparent);
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile[aria-pressed="true"] {
+  color: var(--dn-fg);
+}
+
+.dn-logo-icon-picker-grid
+  .dn-logo-icon-picker-tile[aria-pressed="true"]
+  .dn-logo-icon-picker-tile-inner::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dn-logo-icon-picker-grid .dn-logo-icon-picker-skeleton {
+  width: 100%;
+  height: auto;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+}
+
+.dn-logo-icon-picker-icon {
+  width: 1.375rem;
+  height: 1.375rem;
+  flex-shrink: 0;
+}
+
+.dn-logo-icon-picker-grid .dn-type-meta {
+  color: var(--dn-muted);
+}
+
+/* Insert menu popover — solid accordion surface + option tiles */
+.dn-insert-menu-popover {
+  --dn-bg: #ffffff;
+  --background: #ffffff;
+  --scroll-edge-fade-color: #ffffff;
+  --dn-fg: #18181b;
+  --dn-muted: #8a8a8e;
+  --dn-line: #ececee;
+  --dn-control: #f6f6f6;
+  --dn-control-hover: #f6f6f6;
+  --dn-surface: #fafafa;
+  border: 1px solid color-mix(in srgb, var(--dn-line) 80%, transparent) !important;
+  background: var(--dn-bg) !important;
+  color: var(--dn-fg) !important;
+  box-shadow: none !important;
+}
+
+.dn-insert-menu-popover[data-theme="dark"] {
+  --dn-bg: var(--dn-surface, #111111);
+  --background: var(--dn-surface, #111111);
+  --scroll-edge-fade-color: var(--dn-surface, #111111);
+  --dn-fg: #f5f5f5;
+  --dn-muted: #6b6b6b;
+  --dn-line: #252525;
+  --dn-control: #1a1a1a;
+  --dn-control-hover: #1a1a1a;
+  --dn-surface: #111111;
+  border-color: color-mix(in srgb, var(--dn-line) 80%, transparent) !important;
+  background: var(--dn-surface, #111111) !important;
+  color: var(--dn-fg) !important;
+}
+
+.dn-insert-menu-scroll,
+.dn-insert-menu-scroll [data-slot="scroll-area-viewport"] {
+  background: var(--dn-bg) !important;
+  box-shadow: none !important;
+}
+
+.dn-insert-menu-scroll [data-slot="scroll-area-viewport"] > div {
+  display: flex !important;
+  flex-direction: column;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.dn-insert-menu-scroll-content {
+  min-width: 0;
+}
+
+.dn-insert-menu-panel-content {
+  min-width: 0;
+}
+
+.dn-insert-menu-popover .dn-option-tile:not(.dn-option-scroll-chip) {
+  background: transparent;
+  border: 2px solid transparent;
+}
+
+.dn-insert-menu-popover .dn-settings-row {
+  background: var(--dn-control) !important;
+}
+
+.dn-insert-menu-popover .dn-settings-input {
+  background: var(--dn-control) !important;
+}
+
+.dn-insert-menu-root-tile.dn-option-tile {
+  color: var(--dn-fg);
+}
+
+.dn-insert-menu-popover .dn-insert-menu-option-grid .dn-option-tile {
+  color: var(--dn-fg);
+}
+
+.dn-insert-menu-panel-heading {
+  min-width: 0;
+  font-size: var(--dn-type-section);
+  font-weight: 500;
+  letter-spacing: var(--dn-tracking-tight);
+  line-height: 1.3;
+  color: var(--dn-fg);
+  text-transform: none;
+}
+
+.dn-insert-menu-panel-back {
+  height: 1.75rem;
+  padding-inline: 0.5rem;
+  font-size: var(--dn-type-body);
+  font-weight: 500;
+  letter-spacing: var(--dn-tracking-tight);
+  line-height: 1.3;
+  color: var(--dn-muted);
+  text-transform: none;
+}
+
+.dn-insert-menu-panel-back:hover,
+.dn-insert-menu-panel-back:focus-visible {
+  color: var(--dn-fg);
+}
+
+.dn-insert-menu-root-scroll,
+.dn-insert-menu-root-scroll [data-slot="scroll-area-viewport"] {
+  background: var(--dn-bg) !important;
+  box-shadow: none !important;
+}
+
+.dn-insert-menu-root-scroll [data-slot="scroll-area-inner"] {
+  display: flex !important;
+  width: max-content !important;
+  min-width: min(100%, max-content);
+}
+
+.dn-insert-menu-root-grid {
+  display: flex;
+  width: max-content;
+  min-width: min(100%, max-content);
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0.375rem;
+}
+
+.dn-insert-menu-root-tile {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  width: 5.625rem;
+  min-width: 5.625rem;
+  flex-shrink: 0;
+  min-height: 4.75rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.25rem;
+  text-align: center;
+}
+
+.dn-insert-menu-root-tile:hover:not(:disabled),
+.dn-insert-menu-root-tile:focus-visible:not(:disabled) {
+  z-index: 10;
+}
+
+.dn-insert-menu-root-tile-preview {
+  display: flex;
+  height: 2.75rem;
+  width: 100%;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: visible;
+}
+
+.dn-insert-menu-fan-card {
+  display: flex;
+  width: 1.75rem;
+  height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.dn-insert-menu-fan-card-content {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  background: transparent;
+}
+
+.dn-insert-menu-fan-card-content img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 0.375rem;
+}
+
+.dn-insert-menu-fan-card-content img[src*="/illustrations/"] {
+  object-fit: contain;
+  border-radius: 0;
+}
+
+.dn-insert-menu-option-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  --dn-option-gap: 0.125rem;
+  gap: var(--dn-option-gap);
+}
+
+.dn-insert-menu-option-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dn-insert-menu-popover[data-theme="dark"] img[src*="/illustrations/scribbles-doodles/"],
+.dn-insert-menu-popover[data-theme="dark"] img[src*="/illustrations/sketch-elements/"],
+.dn-insert-menu-popover[data-theme="dark"] img[src*="/illustrations/hand-drawn/"] {
+  filter: invert(1);
+}
+
+.dn-insert-menu-emoji [data-slot="emoji-picker"] {
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  flex: 1;
+}
+
+.dn-insert-menu-emoji [data-slot="emoji-picker-viewport"] {
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-inline: 0.375rem;
+}
+
+.dn-insert-menu-emoji [data-slot="emoji-picker-list"] {
+  min-width: 0;
+  width: 100%;
+}
+
+.dn-insert-menu-emoji [data-slot="emoji-picker-row"] {
+  display: flex !important;
+  width: 100%;
+  min-width: 0;
+}
+
+.dn-insert-menu-emoji [data-slot="emoji-picker-emoji"] {
+  aspect-ratio: 1;
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+}
+
+.dn-insert-menu-root-tile-label {
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+  font-size: var(--dn-type-caption);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: var(--dn-tracking-tight);
+  color: var(--dn-muted);
+}
+
+.dn-insert-menu-root-tile:hover:not(:disabled) .dn-insert-menu-root-tile-label,
+.dn-insert-menu-root-tile:focus-visible:not(:disabled) .dn-insert-menu-root-tile-label {
+  color: var(--dn-fg);
+}
+
+.dn-insert-menu-root-tile:disabled {
+  opacity: 0.45;
+}
+
+/* Fill picker popover: transparent Radix shell, one neutral panel on FillPicker.Root */
+.desktopnew-fill-popover {
+  --tw-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  box-shadow: none !important;
+  --dn-bg: #ffffff;
+  --dn-surface: #fafafa;
+  --dn-control: #f6f6f6;
+  --dn-control-hover: #f6f6f6;
+  --dn-fg: #18181b;
+  --dn-muted: #8a8a8e;
+  --dn-line: #ececee;
+  --background: var(--dn-bg);
+  --foreground: var(--dn-fg);
+  --card: var(--dn-bg);
+  --card-foreground: var(--dn-fg);
+  --popover: var(--dn-surface);
+  --popover-foreground: var(--dn-fg);
+  --primary: var(--dn-fg);
+  --primary-foreground: #ffffff;
+  --secondary: var(--dn-control);
+  --secondary-foreground: var(--dn-fg);
+  --muted: var(--dn-control);
+  --muted-foreground: var(--dn-muted);
+  --accent: var(--dn-control-hover);
+  --accent-foreground: var(--dn-fg);
+  --border: var(--dn-line);
+  --input: var(--dn-control);
+  --ring: var(--dn-fg);
+  --dn-radius-xs: 10px;
+  --dn-radius-sm: 12px;
+  --dn-radius-md: 14px;
+  --dn-radius-lg: 14px;
+}
+
+.desktopnew-fill-popover[data-theme="dark"] {
+  --dn-bg: #161616;
+  --dn-surface: #1d1d1d;
+  --dn-control: #232323;
+  --dn-control-hover: #232323;
+  --dn-fg: #f5f5f5;
+  --dn-muted: #6b6b6b;
+  --dn-line: #2c2c2c;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel {
+  border: none !important;
+  background: var(--dn-surface) !important;
+  color: var(--dn-fg) !important;
+  box-shadow: none !important;
+  border-radius: var(--dn-radius-md);
+  corner-shape: squircle;
+}
+
+.desktopnew-fill-popover[data-theme="dark"] .dn-fill-picker-panel {
+  box-shadow: none !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel > div {
+  gap: var(--dn-space-stack);
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile {
+  background: transparent;
+  border: 2px solid transparent;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile[aria-pressed="true"],
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile[data-selected="true"] {
+  background: transparent;
+}
+
+/* Fill picker — calm accordion-aligned surfaces */
+:is(.desktopnew-fill-popover, .fill-picker-portal) {
+  --color-picker-control-border: var(--dn-line);
+  --color-picker-control-bg: var(--dn-control);
+  --color-picker-control-hover-bg: var(--dn-control-hover);
+  --color-picker-fg: var(--dn-fg);
+  --color-picker-muted-fg: var(--dn-muted);
+  --color-picker-focus: color-mix(in srgb, var(--dn-fg) 24%, transparent);
+  --color-picker-highlight: transparent;
+  --border: var(--dn-line);
+  --input: var(--dn-line);
+  --ring: color-mix(in srgb, var(--dn-fg) 24%, transparent);
+  --muted: var(--dn-control);
+  --muted-foreground: var(--dn-muted);
+}
+
+/* Fill picker — borderless accordion surfaces */
+.desktopnew-fill-popover .dn-fill-picker-panel [data-slot="fill-picker"],
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-root {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-root > div {
+  gap: var(--dn-space-stack);
+  padding: 0.625rem;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-mode-tabs {
+  width: 100%;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-mode-tabs .t-tabs-pill {
+  background: #171717;
+}
+
+.desktopnew-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .t-tabs-pill {
+  background: #ffffff;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
+  color: #ffffff;
+}
+
+.desktopnew-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
+  color: #0a0a0a;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-pane {
+  gap: 0.5rem;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-area {
+  border: 0 !important;
+  border-radius: var(--dn-radius-xs) !important;
+  corner-shape: squircle;
+  box-shadow: none !important;
+  background-color: var(--dn-control) !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input,
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input:focus-within {
+  height: var(--dn-control-height);
+  border: 0 !important;
+  border-radius: var(--dn-radius-xs);
+  corner-shape: squircle;
+  background: var(--dn-control) !important;
+  box-shadow: none !important;
+  font-family: inherit;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input .bg-border {
+  background: color-mix(in srgb, var(--dn-line) 55%, transparent) !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input [data-slot="color-picker-channel-input-field"] {
+  color: var(--dn-type-value-color, var(--dn-fg));
+  font-size: var(--dn-type-value);
+  font-weight: var(--dn-type-value-weight);
+  letter-spacing: var(--dn-tracking-tight);
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input [data-slot="color-picker-channel-input-format"] button {
+  min-width: 0;
+  padding-inline: 0.5rem;
+  color: var(--dn-muted);
+  text-transform: uppercase;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider [data-slot="color-picker-hue"],
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider [data-slot="color-picker-alpha"] {
+  --tw-ring-shadow: 0 0 #0000;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider .rounded-full.border-2 {
+  border-color: rgb(255 255 255 / 0.92) !important;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.28) !important;
+}
+
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-xs,
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-sm,
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-md {
+  box-shadow: none !important;
+}
+
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal)
+  :is(.rounded-md.border.font-mono, .rounded-lg.border.font-mono, .flex.h-8.items-stretch.overflow-hidden.rounded-md.border) {
+  height: var(--dn-control-height);
+  border: 0 !important;
+  border-radius: var(--dn-radius-xs) !important;
+  corner-shape: squircle;
+  background: var(--dn-control) !important;
+  box-shadow: none !important;
+}
+
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal)
+  :is(.rounded-md.border.font-mono, .rounded-lg.border.font-mono, .flex.h-8.items-stretch.overflow-hidden.rounded-md.border):focus-within {
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+}
+
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .bg-muted,
+:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .bg-muted\/30 {
+  background: var(--dn-control) !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-gradient-bar .border-border {
+  border-color: color-mix(in srgb, var(--dn-line) 70%, transparent) !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-field {
+  height: var(--dn-control-height);
+  border: 0 !important;
+  border-radius: var(--dn-radius-xs);
+  corner-shape: squircle;
+  background: var(--dn-control) !important;
+  box-shadow: none !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-group {
+  min-height: var(--dn-control-height);
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-pad {
+  border: 0 !important;
+  background: var(--dn-control) !important;
+  box-shadow: none !important;
+}
+
+.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-pad .bg-foreground {
+  background: var(--dn-fg) !important;
+}
+
+.dn-fill-option-grid .dn-fill-option-tile {
+  flex: 0 0 var(--dn-icon-hit);
+  width: var(--dn-icon-hit);
+  height: var(--dn-icon-hit);
+  min-width: var(--dn-icon-hit);
+  min-height: var(--dn-icon-hit);
+  max-width: var(--dn-icon-hit);
+  max-height: var(--dn-icon-hit);
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  padding: 3px;
+  background: transparent;
+}
+
+.dn-pattern-option-grid .dn-pattern-option-tile {
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+.dn-pattern-option-grid .dn-fill-option-tile {
+  aspect-ratio: 1 / 1;
+  padding: 3px;
+}
+
+.dn-image-upload-tile {
+  display: grid;
+  background: transparent;
+}
+
+.dn-settings-accordion [role="region"] .dn-image-upload-tile {
+  flex: 0 0 var(--dn-preview-tile);
+  width: var(--dn-preview-tile);
+  min-width: var(--dn-preview-tile);
+  max-width: var(--dn-preview-tile);
+}
+
+.dn-settings-accordion [role="region"] .dn-image-upload-tile.dn-image-upload-tile--fluid {
+  flex: none;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+}
+
+/* Upload tile sitting at the end of a labelled row — row-height square. */
+.dn-settings-accordion
+  [role="region"]
+  .dn-row-upload-tile.dn-image-upload-tile:not(.dn-image-upload-tile--fluid),
+.dn-row-upload-tile.dn-image-upload-tile:not(.dn-image-upload-tile--fluid) {
+  flex: 0 0 var(--dn-control-height);
+  width: var(--dn-control-height);
+  min-width: var(--dn-control-height);
+  max-width: var(--dn-control-height);
+  height: var(--dn-control-height);
+  min-height: var(--dn-control-height);
+  max-height: var(--dn-control-height);
+  border-width: 0;
+  padding: 0;
+}
+
+/* Match the adjacent picker trigger row: same fill, same height. */
+.dn-row-upload-tile.dn-image-upload-tile span[aria-hidden] {
+  background: var(--dn-control);
+}
+
+.dn-paper-shader-color-grid .dn-paper-shader-color-chip {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  padding: 4px;
+  background: transparent;
+}
+
+/* Chip cell + its hover remove overlay. Matches the shader option tiles:
+   fluid square in the six-column grid. */
+.dn-paper-shader-color-grid .dn-paper-shader-color-chip-wrap {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+}
+
+.dn-paper-shader-color-grid .dn-paper-shader-color-chip-wrap:hover,
+.dn-paper-shader-color-grid .dn-paper-shader-color-chip-wrap:focus-within {
+  z-index: 2;
+}
+
+.fill-picker-portal [data-highlighted] {
+  background: var(--dn-control-hover) !important;
+  color: var(--dn-fg) !important;
+}
+
+.t-tabs {
+  position: relative;
+  --dn-option-gap: 0.25rem;
+}
+
+.t-tabs:not(.t-tabs--muted) {
+  gap: var(--dn-option-gap);
+}
+
+.dn-squircle-xs {
+  border-radius: var(--dn-radius-xs);
+  corner-shape: squircle;
+}
+
+.dn-squircle-sm {
+  border-radius: var(--dn-radius-sm);
+  corner-shape: squircle;
+}
+
+.dn-squircle-md {
+  border-radius: var(--dn-radius-md);
+  corner-shape: squircle;
+}
+
+.dn-squircle-lg {
+  border-radius: var(--dn-radius-lg);
+  corner-shape: squircle;
+}
+
+/* Option-grid tiles (shaders, images, fill presets, pattern, shader colors)
+   paint a fill inset from the tile edge. The selection ring and focus outline
+   inherit the tile radius, so the tile radius has to clear the inner fill's
+   radius by that inset for ring and fill to read as concentric. */
+.dn-preview-tile {
+  border-radius: calc(var(--dn-radius-xs) + 6px);
+}
+
+@supports not (corner-shape: squircle) {
+  .dn-squircle-xs,
+  .dn-squircle-sm,
+  .dn-squircle-md,
+  .dn-squircle-lg,
+  .desktopnew-fill-popover .dn-fill-picker-panel {
+    corner-shape: round;
+  }
+
+  .desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"],
+  :is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
+    corner-shape: round;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dn-option-tile,
+  .dn-preset-item,
+  .dn-preview-tile,
+  .t-tabs-pill,
+  .t-tab,
+  .dn-settings-accordion > div > div,
+  .desktopnew-root [data-slot="switch"],
+  .desktopnew-root [data-slot="switch-thumb"] {
+    transition: none !important;
+  }
+
+  .dn-portal-surface[data-state="open"],
+  .dn-portal-surface[data-state="closed"],
+  .dn-portal-surface[data-open],
+  .dn-portal-surface[data-closed],
+  .desktopnew-fill-popover[data-state="open"],
+  .desktopnew-fill-popover[data-state="closed"] {
+    animation: none !important;
+  }
+
+  .dn-settings-tab-panel {
+    will-change: auto;
+  }
+
+  .dn-option-tile::after,
+  .dn-preview-tile::after {
+    transition: none !important;
+  }
+}

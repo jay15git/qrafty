@@ -12,7 +12,7 @@ import "@/features/workspace/workspace-tokens.css"
 import { DesktopWorkspaceStyles } from "@/features/desktop-shell/components/desktop-workspace-styles"
 import { DesktopWorkspaceEntrance } from "@/features/desktop-shell/components/DesktopWorkspaceEntrance"
 import { DesktopCuelumeProvider } from "@/features/desktop-shell/hooks/use-desktop-cuelume"
-import { DESKTOP_WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/hooks/use-media-query"
+import { DESKTOP_WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/lib/hooks/use-media-query"
 import { cn } from "@/lib/utils"
 import { useState, type CSSProperties } from "react"
 

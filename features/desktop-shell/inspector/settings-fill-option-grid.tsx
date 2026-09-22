@@ -7,9 +7,9 @@ import { blobUrlToDataUrl } from "@qrafty/qr-internal/scene"
 
 import { ImageCropper } from "@/components/ui/image-cropper"
 import { parseFill } from "@/components/ui/fill-picker/lib/gradient"
-import type { Fill } from "@/components/ui/fill-picker-base/public-api"
-import { DESKTOP_DOTS_PALETTE_PRESETS } from "@/features/desktop-shell/inspector/desktopnew-pattern-palettes"
-import { isGradientFill } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import type { Fill } from "@/components/ui/fill-picker/public-api"
+import { DESKTOP_DOTS_PALETTE_PRESETS } from "@/features/desktop-shell/inspector/pattern-palettes"
+import { isGradientFill } from "@/features/desktop-shell/inspector/fill-picker.utils"
 import { getActiveFillPresetForStoredValue } from "@/features/desktop-shell/inspector/settings-fill-preset-match"
 import { SETTINGS_FILL_PRESETS } from "@/features/desktop-shell/inspector/settings-fill-presets"
 import { SettingsOptionShelf } from "@/features/desktop-shell/inspector/mobile-settings-rail"
@@ -24,7 +24,7 @@ import {
 import { WallpaperOptionPreview } from "@/features/workspace/components/WallpaperOptionPreview"
 import { isSceneWallpaperPath, SCENE_WALLPAPERS } from "@/features/workspace/assets/scene-wallpapers"
 import { preloadRasterImage } from "@/features/workspace/rendering/preload-raster-image"
-import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/theme-context"
 import { cn } from "@/lib/utils"
 
 export function SettingsImageUploadTile({

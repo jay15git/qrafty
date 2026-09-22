@@ -1,10 +1,10 @@
 "use client"
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import type { Fill } from "@/components/ui/fill-picker-base/public-api"
+import type { Fill } from "@/components/ui/fill-picker/public-api"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
-import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/fill-picker.utils"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/theme-context"
 import { useMobileDrawerNavigation } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import { PaletteColorStopList } from "@/features/desktop-shell/inspector/palette-color-stop-list"

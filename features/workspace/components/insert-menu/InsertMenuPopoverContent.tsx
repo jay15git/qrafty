@@ -13,7 +13,7 @@ import {
 import { createDraftingTextLayer } from "@/features/workspace/model/layers"
 import { cn } from "@/lib/utils"
 
-import "@/features/desktop-shell/inspector/desktopnew.css"
+import "@/features/desktop-shell/inspector/inspector.css"
 
 type InsertMenuPopoverContentProps = {
   nodeId: string

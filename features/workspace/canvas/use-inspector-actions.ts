@@ -48,7 +48,7 @@ import type {
   DesktopTextSettings,
 } from "@/features/desktop-shell/model/desktop-toolbar-types"
 import type { DesktopCornersSettings } from "@/features/desktop-shell/model/desktop-toolbar-types"
-import type { UnifiedQrFillPatches } from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+import type { UnifiedQrFillPatches } from "@/features/desktop-shell/inspector/settings-bridge"
 import {
   applyCornersSettingsPatchToQraftyState,
   applyLogoSettingsPatchToQraftyState,

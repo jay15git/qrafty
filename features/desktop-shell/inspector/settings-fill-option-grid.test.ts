@@ -5,7 +5,7 @@ import {
   applyCardFill,
   applyShapeFill,
   readShapeFillCss,
-} from "@/features/desktop-shell/inspector/desktopnew-settings-bridge"
+} from "@/features/desktop-shell/inspector/settings-bridge"
 import { getActiveFillPresetForStoredValue } from "@/features/desktop-shell/inspector/settings-fill-preset-match"
 import { SETTINGS_FILL_PRESETS } from "@/features/desktop-shell/inspector/settings-fill-presets"
 import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/desktop-shell/model/desktop-toolbar-defaults"

@@ -8,7 +8,7 @@ import {
   SettingsFillPopover,
   SettingsSlider,
 } from "@/features/desktop-shell/inspector/settings-ui"
-import { fillPreviewHex } from "@/features/desktop-shell/inspector/desktopnew-fill-picker.utils"
+import { fillPreviewHex } from "@/features/desktop-shell/inspector/fill-picker.utils"
 import {
   createLayerEffect,
   listLayerEffects,

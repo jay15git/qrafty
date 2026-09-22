@@ -1,7 +1,7 @@
-import { LandingCardWheel } from "@/components/landing/landing-card-wheel"
-import { LandingHeroText } from "@/components/landing/landing-hero-text"
-import { LandingMeshGradientBackground } from "@/components/landing/landing-mesh-gradient-background"
-import { LandingShaderFadeOverlay } from "@/components/landing/landing-shader-fade-overlay"
+import { LandingCardWheel } from "@/features/marketing/landing/landing-card-wheel"
+import { LandingHeroText } from "@/features/marketing/landing/landing-hero-text"
+import { LandingMeshGradientBackground } from "@/features/marketing/landing/landing-mesh-gradient-background"
+import { LandingShaderFadeOverlay } from "@/features/marketing/landing/landing-shader-fade-overlay"
 
 export default function Home() {
   return (

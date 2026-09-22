@@ -20,8 +20,8 @@ import { Select as SelectPrimitive } from "@base-ui/react/select";
 import type { IconComponent } from "@/lib/icon-context";
 import { cn } from "@/lib/utils";
 import { spring, exitFallbackMs } from "@/lib/springs";
-import { useFluidHover, useRegisterFluidHoverItem } from "@/hooks/use-fluid-hover";
-import type { ItemRect, UseFluidHoverReturn } from "@/hooks/use-fluid-hover";
+import { useFluidHover, useRegisterFluidHoverItem } from "@/components/ui/use-fluid-hover";
+import type { ItemRect, UseFluidHoverReturn } from "@/components/ui/use-fluid-hover";
 import { useShape, shapeMap, type ShapeClasses } from "@/lib/shape-context";
 import { SizeProvider, useSize, type SizeVariant } from "@/lib/size-context";
 import { Elevated } from "@/lib/elevated";
@@ -32,9 +32,9 @@ import {
   popupViewportClass,
   isDisabledRow,
 } from "@/lib/popup";
-import { useKeyboardNavGate } from "@/hooks/use-keyboard-nav-gate";
+import { useKeyboardNavGate } from "@/lib/hooks/use-keyboard-nav-gate";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FluidHoverHighlight } from "@/components/fluid-hover-highlight";
+import { FluidHoverHighlight } from "@/components/ui/fluid-hover-highlight";
 
 
 // ---------------------------------------------------------------------------

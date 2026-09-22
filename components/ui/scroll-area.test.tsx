@@ -10,7 +10,7 @@ import { renderWithJsdomRoot } from "@/test-utils/jsdom-react-root"
 
 const touchState = vi.hoisted(() => ({ current: false }))
 
-vi.mock("@/hooks/use-touch-primary", () => ({
+vi.mock("@/lib/hooks/use-touch-primary", () => ({
   useTouchPrimary: () => touchState.current,
 }))
 

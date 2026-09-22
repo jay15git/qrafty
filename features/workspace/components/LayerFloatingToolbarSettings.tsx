@@ -19,9 +19,9 @@ import {
   EmojiPickerSearch,
 } from "@/components/ui/emoji-picker"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import type { Fill } from "@/components/ui/fill-picker-base/public-api"
+import type { Fill } from "@/components/ui/fill-picker/public-api"
 import type { DesktopThemeMode } from "@/features/desktop-shell/components/FloatingToolbar"
-import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/desktopnew-theme-context"
+import { DesktopnewThemeContext } from "@/features/desktop-shell/inspector/theme-context"
 import { useMobileDrawerNavigation } from "@/features/desktop-shell/inspector/mobile-drawer-navigation-context"
 import { useMobileInspectorDensity } from "@/features/desktop-shell/inspector/mobile-inspector-density-context"
 import {
@@ -56,7 +56,7 @@ import {
 import { cn } from "@/lib/utils"
 import { CUELUME_TOGGLE } from "@/features/desktop-shell/audio/desktop-cuelume"
 
-import "@/features/desktop-shell/inspector/desktopnew.css"
+import "@/features/desktop-shell/inspector/inspector.css"
 
 const COMPACT_POPOVER_CLASS =
   "z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-white/[0.12] bg-[#171717] p-3 text-white shadow-[var(--desktop-glass-shadow)]"

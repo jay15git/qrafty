@@ -94,18 +94,18 @@ Run a single test file with `pnpm exec vitest run path/to/file.test.ts`, or a si
 | `/` | Marketing landing page |
 | `/design` | Desktop workspace (canvas + floating toolbar) |
 | `/desktop` | Permanent redirect to `/design` |
-| `/bento` | Internal gallery of bento cards for the workspace sections |
 | `/api/icons/search` | Icon lookup used by the insert menu |
 
 ## Project structure
 
 ```
 app/                 Next.js App Router routes, root layout, global CSS
-components/          Shared UI: shadcn primitives, landing, bento, motion, effects
+components/          Shared UI: design-system primitives (ui/), vendored components (vendor/)
 features/
   desktop-shell/     Floating toolbar, inspector panels, mobile rail and drawer
   qr-code/           QR state model, content types, styles, rendering, motion, export
   workspace/         Drafting canvas, layers model, scene templates, export pipeline
+  marketing/         Landing page hero, card wheel, effects
 packages/qr/         @qrafty/qr — QR primitives, dot-matrix animation, paper shaders
 lib/                 Shared utilities and hooks
 public/              Fonts, wallpapers, illustrations, generated preview assets

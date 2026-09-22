@@ -439,7 +439,7 @@ export type PaneChromeOverlayProps = {
   toolbarWidth: number
 }
 
-export function PaneChromeOverlay({
+function PaneChromeOverlay({
   activeSelectedLayerIdSet,
   activeSelectedLayerIds,
   canvasHeight,
