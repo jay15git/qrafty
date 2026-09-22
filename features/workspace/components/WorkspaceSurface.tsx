@@ -697,7 +697,9 @@ export function WorkspaceSurface({
     ],
   )
   const applyDocumentRef = useRef(applyDraftingWorkspaceDocumentToControls)
-  applyDocumentRef.current = applyDraftingWorkspaceDocumentToControls
+  useEffect(() => {
+    applyDocumentRef.current = applyDraftingWorkspaceDocumentToControls
+  })
   const {
     canRedo: canRedoDraftingWorkspace,
     canUndo: canUndoDraftingWorkspace,
@@ -1140,18 +1142,20 @@ export function WorkspaceSurface({
     selectedLayerIds,
   ])
 
-  shortcutHandlersRef.current = {
-    clearDraftingLayerSelection,
-    copySelectedDraftingLayers,
-    deleteSelectedLayersOrPane,
-    duplicateSelectedLayers,
-    handleLayerAction,
-    handleLayerChange,
-    handleRedoDraftingWorkspace,
-    handleUndoDraftingWorkspace,
-    pasteDraftingLayers,
-    selectAllActiveDraftingLayers,
-  }
+  useEffect(() => {
+    shortcutHandlersRef.current = {
+      clearDraftingLayerSelection,
+      copySelectedDraftingLayers,
+      deleteSelectedLayersOrPane,
+      duplicateSelectedLayers,
+      handleLayerAction,
+      handleLayerChange,
+      handleRedoDraftingWorkspace,
+      handleUndoDraftingWorkspace,
+      pasteDraftingLayers,
+      selectAllActiveDraftingLayers,
+    }
+  })
   useDraftingShortcuts({
     clipboardRef: draftingLayerClipboardRef,
     handlersRef: shortcutHandlersRef,
