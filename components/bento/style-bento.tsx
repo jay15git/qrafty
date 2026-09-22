@@ -91,7 +91,6 @@ function MarqueeRow({
   offset: number
   tiles: StyleTile[]
 }) {
-  const loop = [...tiles, ...tiles]
 
   return (
     <div
@@ -108,8 +107,11 @@ function MarqueeRow({
           : undefined
       }
     >
-      {loop.map((tile, index) => (
-        <StyleTilePreview key={`${tile.id}-${index}`} tile={tile} />
+      {tiles.map((tile) => (
+        <StyleTilePreview key={tile.id} tile={tile} />
+      ))}
+      {tiles.map((tile) => (
+        <StyleTilePreview key={`${tile.id}-loop`} tile={tile} />
       ))}
     </div>
   )

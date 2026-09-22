@@ -142,16 +142,16 @@ const MarqueeRow = ({
         style={animate ? ({ "--speed": `${speed}s` } as React.CSSProperties) : undefined}
       >
         <div className="flex shrink-0">
-          {cards.map((card, idx) => (
-            <div key={`${card.id}-${idx}`} className={cn("shrink-0 pr-8", itemClassName)}>
+          {cards.map((card) => (
+            <div key={card.id} className={cn("shrink-0 pr-8", itemClassName)}>
               <Card card={card} className={cardClassName} dimCards={dimCards} />
             </div>
           ))}
         </div>
         <div className="flex shrink-0">
-          {cards.map((card, idx) => (
+          {cards.map((card) => (
             <div
-              key={`${card.id}-${idx}-copy`}
+              key={`${card.id}-copy`}
               className={cn("shrink-0 pr-8", itemClassName)}
             >
               <Card card={card} className={cardClassName} dimCards={dimCards} />

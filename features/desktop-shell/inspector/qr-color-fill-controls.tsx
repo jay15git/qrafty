@@ -309,7 +309,7 @@ export function QrColorFillControls({
               >
                 {modulePattern.selectedPalette.map((color, index) => (
                   <PatternRowSwatch
-                    key={`pattern-color-${index}`}
+                    key={`pattern-color-${color}-${modulePattern.selectedPalette.slice(0, index).filter((entry) => entry === color).length}`}
                     color={color}
                     index={index}
                     onPaletteColorChange={modulePattern.onPaletteColorChange}

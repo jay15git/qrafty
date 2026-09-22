@@ -28,7 +28,6 @@ function MarqueeColumn({
   animate: boolean
   tiles: ContentBentoTile[]
 }) {
-  const loop = [...tiles, ...tiles]
 
   return (
     <div
@@ -38,8 +37,11 @@ function MarqueeColumn({
           : "content-bento-column content-bento-column-static"
       }
     >
-      {loop.map((tile, index) => (
-        <ContentTile key={`${tile.id}-${index}`} tile={tile} />
+      {tiles.map((tile) => (
+        <ContentTile key={tile.id} tile={tile} />
+      ))}
+      {tiles.map((tile) => (
+        <ContentTile key={`${tile.id}-loop`} tile={tile} />
       ))}
     </div>
   )

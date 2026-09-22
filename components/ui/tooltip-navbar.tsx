@@ -244,14 +244,20 @@ export const TooltipNavbar = ({
                         )}
                         {item.labelHasKeyword && (
                           <div className="flex items-center gap-0.5 text-white/40">
-                            {item.labelHasKeyword.map((key, i) => (
-                              <span
-                                key={i}
-                                className="flex items-center justify-center rounded-sm border border-white/20 px-1 tabular-nums"
-                              >
-                                {key}
-                              </span>
-                            ))}
+                            {item.labelHasKeyword.map((cap, i) => {
+                              const caps = item.labelHasKeyword as (
+                                | string
+                                | ReactNode
+                              )[]
+                              return (
+                                <span
+                                  key={`${typeof cap === "string" ? cap : "cap"}-${caps.slice(0, i).filter((entry) => entry === cap).length}`}
+                                  className="flex items-center justify-center rounded-sm border border-white/20 px-1 tabular-nums"
+                                >
+                                  {cap}
+                                </span>
+                              )
+                            })}
                           </div>
                         )}
                       </div>

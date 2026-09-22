@@ -61,7 +61,7 @@ export function PaletteColorStopList({
     >
       {colors.map((color, index) => (
         <PaletteColorStopRow
-          key={`palette-color-${index}`}
+          key={`palette-color-${color}-${colors.slice(0, index).filter((entry) => entry === color).length}`}
           canRemove={canRemove}
           color={color}
           index={index}

@@ -621,10 +621,9 @@ function Dither({ size, speed, reduce }: PartProps) {
       className="grid"
       style={{ gap, gridTemplateColumns: `repeat(${n}, ${cell}px)` }}
     >
-      {BAYER_4.map((order, idx) => (
+      {BAYER_4.map((order) => (
         <m.span
-          // biome-ignore lint/suspicious/noArrayIndexKey: fixed matrix cells, order never changes
-          key={idx}
+          key={`bayer-${order}`}
           className="bg-current"
           style={{ width: cell, height: cell }}
           animate={reduce ? { opacity: [0.3, 1, 0.3] } : { opacity: [0.1, 1, 0.1] }}

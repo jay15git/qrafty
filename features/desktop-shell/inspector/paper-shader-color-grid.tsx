@@ -128,7 +128,7 @@ export function PaperShaderColorGrid({
       {showPalette
         ? paletteColors.map((color, index) => (
             <PaperShaderColorGridSwatch
-              key={`palette-color-${index}`}
+              key={`palette-color-${color}-${paletteColors.slice(0, index).filter((entry) => entry === color).length}`}
               color={color}
               title={`Color ${index + 1}`}
               onColorChange={(next) => {
