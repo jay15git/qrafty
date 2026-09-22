@@ -1,6 +1,5 @@
 "use client"
 
-import { playDesktopSound } from "@/features/desktop-shell/audio/desktop-cuelume"
 import { type ReactNode, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
 
 import type {
@@ -69,11 +68,6 @@ import {
   normalizeSceneComposition,
 } from "@/features/workspace/model/scene-templates"
 import { getCanvasSizeFromTemplate } from "@/features/workspace/model/size-templates"
-import {
-  runWorkspaceBatchExport,
-  runWorkspaceExport,
-} from "@/features/workspace/export/pipeline"
-import { resolveVideoOutputDimensions } from "@/features/workspace/export/pipeline/bounds"
 import { sceneHasVideoExportContent } from "@/features/workspace/export/pipeline/clock"
 import {
   buildDraftingWorkspaceDocumentFromState,
@@ -94,7 +88,6 @@ import {
 import {
   DEFAULT_DRAFTING_PANE_QR_SIZE,
   DEFAULT_DRAFTING_STUDIO_STATE,
-  DEFAULT_DOWNLOAD_NAME,
   DRAFTING_LAYER_PASTE_OFFSET,
   replaceTrackedObjectUrl,
   type DraftingDownloadExtension,
@@ -224,6 +217,7 @@ import {
   useWorkspaceSurfaceReducer,
 } from "@/features/workspace/components/workspace-surface-reducer"
 import { useDraftingHistory } from "@/features/workspace/canvas/use-drafting-history"
+import { useWorkspaceExport } from "@/features/workspace/canvas/use-workspace-export"
 import {
   useDraftingShortcuts,
   type DraftingShortcutHandlers,
@@ -438,10 +432,6 @@ export function WorkspaceSurface({
       setModuleFillUploadObjectUrl,
     },
   ] = useWorkspaceSurfaceReducer(initialActiveTool)
-  const [exportInProgress, setExportInProgress] = useState(false)
-  const [exportProgressLabel, setExportProgressLabel] = useState<string | null>(null)
-  const [exportProgressRatio, setExportProgressRatio] = useState<number | null>(null)
-  const exportAbortControllerRef = useRef<AbortController | null>(null)
   const brandIconQueryRef = useRef("")
   const brandIconCategoryRef = useRef<DraftingBrandIconCategoryFilter>("all")
   const draftingSurfaceRef = useRef<HTMLElement | null>(null)
@@ -726,6 +716,35 @@ export function WorkspaceSurface({
     document: draftingWorkspaceDocument,
     isWorkspaceReady: isDraftingWorkspaceReady,
     setIsWorkspaceReady: setIsDraftingWorkspaceReady,
+  })
+  const {
+    cancel: cancelWorkspaceExport,
+    download: handleDownload,
+    inProgress: exportInProgress,
+    progressLabel: exportProgressLabel,
+    progressRatio: exportProgressRatio,
+    resolveTargetDimensions: resolveWorkspaceExportTargetDimensions,
+  } = useWorkspaceExport({
+    activeQrLayerId,
+    activeQrNodeId,
+    canDownload,
+    cardState: selectedCardState,
+    downloadExtension: selectedDownloadExtension,
+    downloadTarget: selectedDownloadTarget,
+    exportMediaKind: selectedExportMediaKind,
+    layerStateByNodeId,
+    qrCanvasLayers,
+    qrPaneNamesById,
+    qrStateByLayerId,
+    rasterPhotoLongEdge: selectedRasterPhotoLongEdge,
+    setDownloadError: setExportDownloadError,
+    state: draftingQraftyState,
+    video: {
+      durationSeconds: selectedVideoDurationSeconds,
+      format: selectedVideoFormat,
+      frameRate: selectedVideoFrameRate,
+      longEdge: selectedVideoLongEdge,
+    },
   })
 
   function syncDraftingLogoAsset(nextState: QraftyState) {
@@ -2223,190 +2242,6 @@ export function WorkspaceSurface({
     })
   }
 
-  function resolveWorkspaceExportTargetDimensions(cardLayer: DraftingCanvasLayer) {
-    if (selectedRasterPhotoLongEdge) {
-      return resolveVideoOutputDimensions(
-        cardLayer.width,
-        cardLayer.height,
-        selectedRasterPhotoLongEdge,
-      )
-    }
-
-    return undefined
-  }
-
-  async function handleDownload() {
-    if (!canDownload || exportInProgress) {
-      return
-    }
-
-    exportAbortControllerRef.current?.abort()
-    const abortController = new AbortController()
-    exportAbortControllerRef.current = abortController
-
-    try {
-      setExportDownloadError(null)
-      setExportInProgress(true)
-      setExportProgressLabel("Preparing export...")
-      setExportProgressRatio(0.05)
-      playDesktopSound("loading")
-
-      const exportLayers =
-        layerStateByNodeId[activeQrNodeId] ??
-        createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
-      const cardLayer = exportLayers.find((layer) => layer.kind === "card" && layer.isVisible)
-
-      if (!cardLayer) {
-        throw new Error("The artboard card is unavailable for export.")
-      }
-
-      const targetDimensions = resolveWorkspaceExportTargetDimensions(cardLayer)
-      const qualityPercent = draftingQraftyState.rasterExportQualityPercent
-      const backgroundColor = selectedCardState.fill || "#ffffff"
-      const isVideoExport =
-        selectedExportMediaKind === "video" &&
-        sceneHasVideoExportContent(selectedCardState, exportLayers, draftingQraftyState)
-
-      const onProgress = (
-        progress: import("@/features/workspace/export/pipeline").WorkspaceExportProgress,
-      ) => {
-        if (progress.kind === "video") {
-          setExportProgressLabel(
-            `Encoding video ${progress.frameIndex}/${progress.frameCount}...`,
-          )
-          setExportProgressRatio(
-            progress.frameCount > 0 ? progress.frameIndex / progress.frameCount : null,
-          )
-          return
-        }
-
-        setExportProgressLabel(
-          progress.stage === "building" ? "Building export..." : "Encoding image...",
-        )
-        setExportProgressRatio(progress.stage === "building" ? 0.45 : 0.85)
-      }
-
-      const runExport = (
-        overrides: Pick<
-          Parameters<typeof runWorkspaceExport>[0],
-          "layers" | "name" | "state"
-        >,
-      ) =>
-        runWorkspaceExport({
-          abortSignal: abortController.signal,
-          backgroundColor,
-          cardState: selectedCardState,
-          extension: selectedDownloadExtension,
-          mediaKind: isVideoExport ? "video" : "photo",
-          nodeId: activeQrNodeId,
-          onProgress,
-          qualityPercent,
-          targetDimensions: isVideoExport ? undefined : targetDimensions,
-          videoRequest: isVideoExport
-            ? {
-                durationSeconds: selectedVideoDurationSeconds,
-                format: selectedVideoFormat,
-                frameRate: selectedVideoFrameRate,
-                longEdge: selectedVideoLongEdge,
-              }
-            : undefined,
-          ...overrides,
-        })
-
-      const runTargetExport = async () => {
-        if (selectedDownloadTarget === "all-qr") {
-          if (isVideoExport) {
-            throw new Error("Batch video export is not supported. Export one QR at a time.")
-          }
-
-          const items = qrCanvasLayers.map((layer) => ({
-            layerId: layer.id,
-            name: qrPaneNamesById.get(layer.id) ?? "QR Code",
-            state:
-              layer.id === activeQrLayerId
-                ? draftingQraftyState
-                : (qrStateByLayerId[layer.id] ?? draftingQraftyState),
-          }))
-
-          if (items.length === 0) {
-            throw new Error("No QR codes are available for export.")
-          }
-
-          await runWorkspaceBatchExport({
-            abortSignal: abortController.signal,
-            backgroundColor,
-            cardState: selectedCardState,
-            extension: selectedDownloadExtension,
-            items,
-            layers: exportLayers,
-            name: DEFAULT_DOWNLOAD_NAME,
-            nodeId: activeQrNodeId,
-            qualityPercent,
-            targetDimensions,
-          })
-          return
-        }
-
-        if (
-          selectedDownloadTarget === "current" ||
-          selectedDownloadTarget.startsWith("qr:")
-        ) {
-          const layerId =
-            selectedDownloadTarget === "current"
-              ? activeQrLayerId
-              : selectedDownloadTarget.slice("qr:".length)
-          const state =
-            layerId === activeQrLayerId
-              ? draftingQraftyState
-              : qrStateByLayerId[layerId]
-
-          if (!state) {
-            throw new Error("The selected QR code is unavailable for export.")
-          }
-
-          await runExport({
-            layers: exportLayers.map((entry) =>
-              cloneDraftingCanvasLayer({
-                ...entry,
-                isVisible:
-                  entry.kind === "card" || entry.id === layerId ? entry.isVisible : false,
-              }),
-            ),
-            name: qrPaneNamesById.get(layerId) ?? "QR Code",
-            state,
-          })
-          return
-        }
-
-        if (selectedDownloadTarget === "surface") {
-          await runExport({
-            layers: exportLayers,
-            name: DEFAULT_DOWNLOAD_NAME,
-            state: draftingQraftyState,
-          })
-        }
-      }
-
-      await runTargetExport()
-
-      playDesktopSound("success")
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        setExportDownloadError("Export cancelled.")
-        playDesktopSound("droplet")
-        return
-      }
-
-      setExportDownloadError(error instanceof Error ? error.message : "Export failed.")
-      playDesktopSound("error")
-    } finally {
-      setExportInProgress(false)
-      setExportProgressLabel(null)
-      setExportProgressRatio(null)
-      exportAbortControllerRef.current = null
-    }
-  }
-
   const activeCanvasLayerRows = [...activeCanvasLayers].sort(
     (a, b) => b.zIndex - a.zIndex,
   )
@@ -3403,7 +3238,7 @@ export function WorkspaceSurface({
       void handleDownload()
     },
     onExportCancel: () => {
-      exportAbortControllerRef.current?.abort()
+      cancelWorkspaceExport()
     },
     canExportDownload: canDownload,
     canExportVideo,
