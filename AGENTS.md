@@ -73,6 +73,10 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - **Never hand-write a `DraftingCanvasLayer` object literal.** Use `createDraftingShapeLayer`, `createDraftingTextLayer`, `createDraftingImageLayer`, or `createDraftingShaderLayer`. They route through `patchDraftingCanvasLayer`, which keeps the legacy and modern representations in sync (`cornerRadius`↔`cornerRadii`, `shadow`↔`shadows[]`, `blur`↔`layerFilters[]`). Raw literals silently desync, the renderer reads the modern field, and your styling disappears. The validator reports this as `field-desync`.
 - **Authoring new templates:** read `features/workspace/authoring/AGENTS.md` first. Templates are declared with `defineTemplate` (archetype + palette + ratio + slots), never by positioning layers by hand. Authored templates live in `features/studio-hub/model/authored-templates.ts`.
 
+## Architecture rules
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) is the law**: canonical vocabulary (Canvas/Layer/Inspector/Workspace/Document), folder structure, import direction, size limits, React rules. Follow it for all new code and any file you touch.
+- Domain glossary lives in `CONTEXT.md`; architectural decisions in `docs/adr/`.
+
 ## Repo Conventions
 - Use the `@/*` import alias from `tsconfig.json`.
 - Tailwind theme tokens and shadcn CSS variables live in `app/globals.css`.
