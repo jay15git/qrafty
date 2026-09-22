@@ -1,6 +1,5 @@
 "use client"
 
-import { useLazyRef } from "@/hooks/use-lazy-ref"
 import { playDesktopSound } from "@/features/desktop-shell/audio/desktop-cuelume"
 import { type ReactNode, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
 
@@ -174,7 +173,6 @@ import {
 import {
   clampQrBackgroundRound,
   type BackgroundShapeOptions,
-  type DotsColorMode,
   type QrDotMatrixAnimationOptions,
   type QrCrossOrigin,
   type QrGradientLinkMode,
@@ -226,17 +224,13 @@ import {
 } from "@/features/workspace/components/workspace-surface-helpers"
 import {
   type DraftingAssetSourceMode,
-  type DraftingBinaryColorMode,
   useWorkspaceSurfaceReducer,
 } from "@/features/workspace/components/workspace-surface-reducer"
+import {
+  useDraftingShortcuts,
+  type DraftingShortcutHandlers,
+} from "@/features/workspace/canvas/use-drafting-shortcuts"
 type DraftingBrandIconCategoryFilter = BrandIconCategory | "all"
-
-const ARROW_KEY_DELTAS: Record<string, readonly [number, number]> = {
-  arrowleft: [-1, 0],
-  arrowright: [1, 0],
-  arrowup: [0, -1],
-  arrowdown: [0, 1],
-}
 
 type DraftingWorkspaceController = DesktopToolbarController
 
@@ -452,27 +446,8 @@ export function WorkspaceSurface({
   const [exportProgressLabel, setExportProgressLabel] = useState<string | null>(null)
   const [exportProgressRatio, setExportProgressRatio] = useState<number | null>(null)
   const exportAbortControllerRef = useRef<AbortController | null>(null)
-  const openDotsColorItemsRef = useLazyRef(() => new Set<DotsColorMode>(["solid"]))
-  const openCornerSquareColorItemsRef = useLazyRef(
-    () => new Set<DraftingBinaryColorMode>(["solid"]),
-  )
-  const openCornerDotColorItemsRef = useLazyRef(
-    () => new Set<DraftingBinaryColorMode>(["solid"]),
-  )
-  const openBackgroundColorItemsRef = useLazyRef(
-    () => new Set<DraftingBinaryColorMode>(["solid"]),
-  )
-  const openBackgroundUploadItemsRef = useLazyRef(
-    () => new Set<DraftingAssetSourceMode>(["upload"]),
-  )
-  const openLogoColorItemsRef = useLazyRef(
-    () => new Set<DraftingBinaryColorMode>(["solid"]),
-  )
   const brandIconQueryRef = useRef("")
   const brandIconCategoryRef = useRef<DraftingBrandIconCategoryFilter>("all")
-  const openLogoUploadItemsRef = useLazyRef(
-    () => new Set<DraftingAssetSourceMode>(["upload"]),
-  )
   const draftingWorkspaceAutosaveTimerRef = useRef<number | null>(null)
   const draftingWorkspaceHistoryTimerRef = useRef<number | null>(null)
   const draftingWorkspaceHistoryRef = useRef<DraftingWorkspaceDocumentV1[]>([])
@@ -679,6 +654,9 @@ export function WorkspaceSurface({
       selectedQrTypeNumber,
     ],
   )
+  const shortcutHandlersRef = useRef<DraftingShortcutHandlers>(
+    {} as DraftingShortcutHandlers,
+  )
   const keyboardStateRef = useRef({
     activeQrLayerId,
     activeQrNodeId,
@@ -691,27 +669,6 @@ export function WorkspaceSurface({
     selectedCardState,
     selectedLayerIds,
   })
-  const ensureDotsColorItemExpanded = (itemId: DotsColorMode) => {
-    openDotsColorItemsRef.current.add(itemId)
-  }
-  const ensureCornerSquareColorItemExpanded = (itemId: DraftingBinaryColorMode) => {
-    openCornerSquareColorItemsRef.current.add(itemId)
-  }
-  const ensureCornerDotColorItemExpanded = (itemId: DraftingBinaryColorMode) => {
-    openCornerDotColorItemsRef.current.add(itemId)
-  }
-  const ensureBackgroundColorItemExpanded = (itemId: DraftingBinaryColorMode) => {
-    openBackgroundColorItemsRef.current.add(itemId)
-  }
-  const ensureLogoColorItemExpanded = (itemId: DraftingBinaryColorMode) => {
-    openLogoColorItemsRef.current.add(itemId)
-  }
-  const ensureBackgroundUploadItemExpanded = (itemId: DraftingAssetSourceMode) => {
-    openBackgroundUploadItemsRef.current.add(itemId)
-  }
-  const ensureLogoUploadItemExpanded = (itemId: DraftingAssetSourceMode) => {
-    openLogoUploadItemsRef.current.add(itemId)
-  }
   const canDownload = selectedContentValidation.isValid && Boolean(draftingQraftyState.data.trim())
   const isDraftingRasterExport = isRasterExportExtension(selectedDownloadExtension)
   const selectedRasterPhotoLongEdge = isDraftingRasterExport ? selectedPhotoLongEdge : undefined
@@ -1046,7 +1003,6 @@ export function WorkspaceSurface({
   }
 
   async function handleDraftingLogoColorChange(value: string) {
-    ensureLogoColorItemExpanded("solid")
 
     const iconstackSelectionId = parseIconstackSelectionId(selectedLogoPresetId)
       ? selectedLogoPresetId
@@ -1089,7 +1045,6 @@ export function WorkspaceSurface({
       enabled: true,
     }
 
-    ensureLogoColorItemExpanded("gradient")
 
     const iconstackSelectionId = parseIconstackSelectionId(selectedLogoPresetId)
       ? selectedLogoPresetId
@@ -1192,7 +1147,6 @@ export function WorkspaceSurface({
     setSelectedDotColor(nextState.dataModulesSettings.color)
     setSelectedDotsGradient(structuredClone(nextState.dataModulesGradient))
     setSelectedDotMatrixAnimation({ ...nextState.dotMatrixAnimation })
-    openDotsColorItemsRef.current = new Set([nextState.dotsColorMode])
   }
 
   function syncCornerControlsFromState(nextState: QraftyState) {
@@ -1202,16 +1156,10 @@ export function WorkspaceSurface({
     )
     setSelectedCornerSquareColor(nextState.finderPatternOuterSettings.color)
     setSelectedCornerSquareGradient(structuredClone(nextState.finderPatternOuterGradient))
-    openCornerSquareColorItemsRef.current = new Set([
-      nextState.finderPatternOuterGradient.enabled ? "gradient" : "solid",
-    ])
     setSelectedQrFinderPatternInnerStyle(nextState.finderPatternInnerSettings.type)
     setSelectedCornerDotColorMode(nextState.finderPatternInnerGradient.enabled ? "gradient" : "solid")
     setSelectedCornerDotColor(nextState.finderPatternInnerSettings.color)
     setSelectedCornerDotGradient(structuredClone(nextState.finderPatternInnerGradient))
-    openCornerDotColorItemsRef.current = new Set([
-      nextState.finderPatternInnerGradient.enabled ? "gradient" : "solid",
-    ])
   }
 
   function syncBackgroundControlsFromState(nextState: QraftyState) {
@@ -1226,18 +1174,12 @@ export function WorkspaceSurface({
       ...DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeOptions,
       ...nextState.backgroundShapeOptions,
     })
-    openBackgroundColorItemsRef.current = new Set([
-      nextState.backgroundGradient.enabled ? "gradient" : "solid",
-    ])
     setSelectedBackgroundAssetSourceMode(
       nextState.backgroundImage.source === "url" ? "url" : "upload",
     )
     setSelectedBackgroundRemoteUrl(
       nextState.backgroundImage.source === "url" ? (nextState.backgroundImage.value ?? "") : "",
     )
-    openBackgroundUploadItemsRef.current = new Set([
-      nextState.backgroundImage.source === "url" ? "url" : "upload",
-    ])
   }
 
   function syncLogoControlsFromState(nextState: QraftyState) {
@@ -1245,9 +1187,6 @@ export function WorkspaceSurface({
     setSelectedLogoSourceMode(nextState.logo.source)
     setSelectedLogoColor(nextState.logo.presetColor ?? DEFAULT_BRAND_ICON_COLOR)
     setSelectedLogoGradient(structuredClone(nextState.logoGradient))
-    openLogoColorItemsRef.current = new Set([
-      nextState.logoGradient.enabled ? "gradient" : "solid",
-    ])
     setSelectedLogoPresetId(nextState.logo.presetId)
     setSelectedLogoPresetValue(nextState.logo.source === "preset" ? nextState.logo.value : undefined)
     setSelectedLogoAssetSourceMode(nextState.logo.source === "url" ? "url" : "upload")
@@ -1257,9 +1196,6 @@ export function WorkspaceSurface({
     setSelectedLogoUploadValue(
       nextState.logo.source === "upload" ? (nextState.logo.value ?? "") : "",
     )
-    openLogoUploadItemsRef.current = new Set([
-      nextState.logo.source === "url" ? "url" : "upload",
-    ])
     setSelectedLogoSize(Math.round(nextState.imageOptions.imageSize * 100))
     setSelectedLogoMargin(nextState.imageOptions.margin)
     setSelectedHideBackgroundDots(nextState.imageOptions.hideBackgroundDots)
@@ -1636,207 +1572,24 @@ export function WorkspaceSurface({
     selectedLayerIds,
   ])
 
-  useEffect(() => {
-    const MODIFIER_SHORTCUTS: Record<string, (event: KeyboardEvent) => void> = {
-      z: (event) =>
-        event.shiftKey ? handleRedoDraftingWorkspace() : handleUndoDraftingWorkspace(),
-      y: () => handleRedoDraftingWorkspace(),
-      d: () => duplicateSelectedLayers(),
-      a: () => selectAllActiveDraftingLayers(),
-      v: () => void pasteDraftingLayers(),
-    }
-
-    const nudgeSelectedLayers = (event: KeyboardEvent, arrowDelta: readonly [number, number]) => {
-      const delta = event.shiftKey ? 10 : 1
-      const {
-        activeQrNodeId: currentActiveQrNodeId,
-        layerStateByNodeId: currentLayerStateByNodeId,
-        selectedLayerIds: currentSelectedLayerIds,
-      } = keyboardStateRef.current
-      const activeLayers = currentLayerStateByNodeId[currentActiveQrNodeId] ?? []
-      const activeLayerById = new Map(activeLayers.map((item) => [item.id, item]))
-
-      if (currentSelectedLayerIds.length === 0) {
-        return
-      }
-
-      event.preventDefault()
-      for (const layerId of currentSelectedLayerIds) {
-        const layer = activeLayerById.get(layerId)
-
-        if (layer) {
-          handleLayerChange(currentActiveQrNodeId, layerId, {
-            x: layer.x + arrowDelta[0] * delta,
-            y: layer.y + arrowDelta[1] * delta,
-          })
-        }
-      }
-    }
-
-    const handlePlainKey = (event: KeyboardEvent, key: string) => {
-      const arrowDelta = ARROW_KEY_DELTAS[key]
-      if (arrowDelta) {
-        nudgeSelectedLayers(event, arrowDelta)
-        return
-      }
-
-      if (key === "delete" || key === "backspace") {
-        event.preventDefault()
-        deleteSelectedLayersOrPane()
-        return
-      }
-
-      if (key === "escape") {
-        event.preventDefault()
-        clearDraftingLayerSelection()
-      }
-    }
-
-    const handleModifierKey = (event: KeyboardEvent, key: string) => {
-      const withSelection = (action: (selectedLayerIds: string[]) => void) => {
-        const selectedLayerIds = keyboardStateRef.current.selectedLayerIds
-        if (selectedLayerIds.length > 0) {
-          event.preventDefault()
-          action(selectedLayerIds)
-        }
-      }
-      const reorder = (shifted: string, plain: string) =>
-        withSelection((selectedLayerIds) =>
-          handleLayerAction(
-            keyboardStateRef.current.activeQrNodeId,
-            selectedLayerIds,
-            (event.shiftKey ? shifted : plain) as Parameters<typeof handleLayerAction>[2],
-          ),
-        )
-
-      const shortcut = MODIFIER_SHORTCUTS[key]
-      if (shortcut) {
-        event.preventDefault()
-        shortcut(event)
-        return
-      }
-
-      if (key === "c") {
-        withSelection((selectedLayerIds) => void copySelectedDraftingLayers(selectedLayerIds))
-        return
-      }
-
-      if (key === "[") {
-        reorder("back", "backward")
-        return
-      }
-
-      if (key === "]") {
-        reorder("front", "forward")
-        return
-      }
-
-      if (key === "g") {
-        reorder("ungroup", "group")
-      }
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const target = event.target
-      const isBodyOrDocumentTarget =
-        target === document.body || target === document.documentElement || target === document
-      const targetInSurface =
-        target instanceof Node && draftingSurfaceRef.current?.contains(target)
-
-      if (
-        !draftingSurfaceRef.current ||
-        (!targetInSurface && !isBodyOrDocumentTarget) ||
-        isEditableShortcutTarget(target)
-      ) {
-        return
-      }
-
-      const key = event.key.toLowerCase()
-
-      if (event.metaKey || event.ctrlKey) {
-        handleModifierKey(event, key)
-      } else {
-        handlePlainKey(event, key)
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown, true)
-    return () => window.removeEventListener("keydown", handleKeyDown, true)
-    // Keyboard listener is stable; current workspace values are read from keyboardStateRef.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    const shouldUseDraftingClipboardEvent = (event: ClipboardEvent) => {
-      const target = event.target
-      const isBodyOrDocumentTarget =
-        target === document.body || target === document.documentElement || target === document
-      const targetInSurface =
-        target instanceof Node && draftingSurfaceRef.current?.contains(target)
-
-      return Boolean(
-        draftingSurfaceRef.current &&
-          (targetInSurface || isBodyOrDocumentTarget) &&
-          !isEditableShortcutTarget(target),
-      )
-    }
-
-    const handleCopy = (event: ClipboardEvent) => {
-      if (!shouldUseDraftingClipboardEvent(event)) {
-        return
-      }
-
-      const {
-        activeQrNodeId: currentActiveQrNodeId,
-        draftingQraftyState: currentDraftingQraftyState,
-        layerStateByNodeId: currentLayerStateByNodeId,
-        selectedCardState: currentSelectedCardState,
-        selectedLayerIds: currentSelectedLayerIds,
-      } = keyboardStateRef.current
-      const payload = getDraftingLayerClipboardPayload({
-        layerIds: currentSelectedLayerIds,
-        layers:
-          currentLayerStateByNodeId[currentActiveQrNodeId] ??
-          createDefaultDraftingLayers(
-            currentActiveQrNodeId,
-            currentDraftingQraftyState,
-            currentSelectedCardState,
-          ),
-        paneId: currentActiveQrNodeId,
-      })
-
-      if (!payload) {
-        return
-      }
-
-      event.preventDefault()
-      draftingLayerClipboardRef.current = payload
-      event.clipboardData?.setData("text/plain", payload)
-    }
-
-    const handlePaste = (event: ClipboardEvent) => {
-      if (!shouldUseDraftingClipboardEvent(event)) {
-        return
-      }
-
-      const rawPayload = event.clipboardData?.getData("text/plain") ?? ""
-
-      if (!parseDraftingLayerClipboardPayload(rawPayload)) {
-        return
-      }
-
-      event.preventDefault()
-      void pasteDraftingLayers(undefined, rawPayload)
-    }
-
-    window.addEventListener("copy", handleCopy, true)
-    window.addEventListener("paste", handlePaste, true)
-    return () => {
-      window.removeEventListener("copy", handleCopy, true)
-      window.removeEventListener("paste", handlePaste, true)
-    }
-    // eslint-disable-next-line react-doctor/exhaustive-deps -- clipboard handlers read latest state via refs
-  }, [])
+  shortcutHandlersRef.current = {
+    clearDraftingLayerSelection,
+    copySelectedDraftingLayers,
+    deleteSelectedLayersOrPane,
+    duplicateSelectedLayers,
+    handleLayerAction,
+    handleLayerChange,
+    handleRedoDraftingWorkspace,
+    handleUndoDraftingWorkspace,
+    pasteDraftingLayers,
+    selectAllActiveDraftingLayers,
+  }
+  useDraftingShortcuts({
+    clipboardRef: draftingLayerClipboardRef,
+    handlersRef: shortcutHandlersRef,
+    stateRef: keyboardStateRef,
+    surfaceRef: draftingSurfaceRef,
+  })
 
   useEffect(() => {
     if (!isDraftingWorkspaceReady) {
@@ -3054,31 +2807,25 @@ export function WorkspaceSurface({
     if (patch.moduleLineWidth !== undefined) setSelectedModuleLineWidth(patch.moduleLineWidth)
     if (patch.gradientLinkMode) setSelectedGradientLinkMode(patch.gradientLinkMode)
     if (patch.dotsColorMode) {
-      ensureDotsColorItemExpanded(patch.dotsColorMode)
       setSelectedDotsColorMode(patch.dotsColorMode)
     }
     if (patch.dotsSolidColor) {
-      ensureDotsColorItemExpanded("solid")
       setSelectedDotsColorMode("solid")
       setSelectedDotColor(patch.dotsSolidColor)
     }
     if (patch.dataModulesGradient) {
-      ensureDotsColorItemExpanded("gradient")
       setSelectedDotsColorMode("gradient")
       setSelectedDotsGradient({ ...patch.dataModulesGradient, enabled: true })
     }
     if (patch.dotsPalette) {
-      ensureDotsColorItemExpanded("palette")
       setSelectedDotsColorMode("palette")
       setSelectedDotsPalette([...patch.dotsPalette])
     }
     if (patch.dotsPalettePreset !== undefined) {
-      ensureDotsColorItemExpanded("palette")
       setSelectedDotsColorMode("palette")
       setSelectedDotsPalettePreset(patch.dotsPalettePreset)
     }
     if (patch.moduleFillImageUrl !== undefined) {
-      ensureDotsColorItemExpanded("image")
       setSelectedDotsColorMode("image")
       const sourceMode = patch.moduleFillImageSourceMode ?? selectedModuleFillImageSourceMode
       setSelectedModuleFillImageSourceMode(sourceMode)
@@ -3094,7 +2841,6 @@ export function WorkspaceSurface({
       }
     }
     if (patch.moduleFillImageSourceMode && patch.moduleFillImageUrl === undefined) {
-      ensureDotsColorItemExpanded("image")
       setSelectedDotsColorMode("image")
       setSelectedModuleFillImageSourceMode(patch.moduleFillImageSourceMode)
     }
@@ -3193,7 +2939,6 @@ export function WorkspaceSurface({
 
   function updateDesktopLogoSettings(patch: DesktopLogoSettingsPatch) {
     if (patch.uploadedFile) {
-      ensureLogoUploadItemExpanded("upload")
       const uploadValue = replaceTrackedObjectUrl(
         logoUploadObjectUrlRef,
         patch.uploadedFile,
@@ -3203,7 +2948,6 @@ export function WorkspaceSurface({
       commitActiveQraftyState(nextState)
     }
     if (patch.uploadedImageUrl !== undefined) {
-      ensureLogoUploadItemExpanded("upload")
       commitActiveQraftyState(
         patch.uploadedImageUrl
           ? applyAssetUploadValue(draftingQraftyState, "logo", patch.uploadedImageUrl)
@@ -3216,7 +2960,6 @@ export function WorkspaceSurface({
       } else if (patch.sourceMode === "brand") {
         setSelectedLogoSourceMode("preset")
       } else if (patch.sourceMode === "url") {
-        ensureLogoUploadItemExpanded("url")
         const nextState = applyAssetUrlValue(
           draftingQraftyState,
           "logo",
@@ -3224,12 +2967,10 @@ export function WorkspaceSurface({
         )
         commitActiveQraftyState(nextState)
       } else {
-        ensureLogoUploadItemExpanded("upload")
         clearDraftingLogoPreset("upload")
       }
     }
     if (patch.uploadMode) {
-      ensureLogoUploadItemExpanded(patch.uploadMode)
       if (patch.uploadMode === "url") {
         const nextState = applyAssetUrlValue(
           draftingQraftyState,
@@ -3242,7 +2983,6 @@ export function WorkspaceSurface({
       }
     }
     if (patch.remoteUrl !== undefined) {
-      ensureLogoUploadItemExpanded("url")
       const nextState = applyAssetUrlValue(draftingQraftyState, "logo", patch.remoteUrl)
       commitActiveQraftyState(nextState)
     }
