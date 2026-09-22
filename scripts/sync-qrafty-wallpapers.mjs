@@ -56,7 +56,7 @@ await syncWallpapers({
     typeName: "QraftyWallpaper",
     constName: "QRAFTY_WALLPAPERS",
     getterName: "getQraftyWallpaper",
-    targetFile: "features/workspace/assets/qrafty-wallpapers.ts",
+    targetFile: "features/canvas/assets/qrafty-wallpapers.ts",
     summaryLabel: "studio wallpapers",
   },
 })

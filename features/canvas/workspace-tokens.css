@@ -1,0 +1,105 @@
+/* Workspace canvas tokens — scoped to /desktop only. */
+
+[data-slot="desktop-workspace"] {
+  --canvas-ink-rgb: 15 23 42;
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.18 0 0);
+  --border: oklch(0.9 0 0 / 0.9);
+  --accent: oklch(0.94 0 0);
+  --accent-foreground: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --scroll-edge-fade-color: var(--canvas-page-bg);
+  --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
+  --canvas-page-bg: #ffffff;
+  --canvas-surface-bg: #f0f1f2;
+  --canvas-bg: #f0f1f2;
+  --canvas-bg: #f0f1f2;
+  --canvas-dot-rgb: var(--canvas-ink-rgb);
+  --canvas-dot-opacity: 0.055;
+  --canvas-ink: #0f172a;
+  --canvas-resize-frame: #18a0fb;
+  --canvas-ink-muted: rgb(var(--canvas-ink-rgb) / 0.55);
+  --canvas-ink-secondary: rgb(var(--canvas-ink-rgb) / 0.68);
+  --canvas-ink-inverse: #ffffff;
+  --canvas-line: rgb(var(--canvas-ink-rgb) / 0.12);
+  --settings-control-bg: rgb(var(--canvas-ink-rgb) / 0.04);
+  --settings-control-bg-hover: rgb(var(--canvas-ink-rgb) / 0.07);
+  --settings-control-bg-active: rgb(var(--canvas-ink-rgb) / 0.1);
+  --canvas-shadow-rest: 0 2px 8px rgb(var(--canvas-ink-rgb) / 0.06);
+  --canvas-shadow-hover: 0 4px 12px rgb(var(--canvas-ink-rgb) / 0.1);
+  --canvas-shadow-active: 0 1px 4px rgb(var(--canvas-ink-rgb) / 0.08);
+  --canvas-shadow-selected: 0 0 22px 2px rgb(var(--canvas-ink-rgb) / 0.14);
+  --canvas-shadow-shell: none;
+  --settings-panel-bg: rgb(255 255 255 / 0.8);
+  --settings-panel-bg-hover: rgb(255 255 255 / 0.95);
+  --settings-button-shadow-rest: var(--canvas-shadow-rest);
+  --settings-button-shadow-hover: var(--canvas-shadow-hover);
+  --settings-button-shadow-active: var(--canvas-shadow-active);
+  --settings-button-shadow-selected: var(--canvas-shadow-rest);
+  --settings-button-shadow-selected-hover: var(--canvas-shadow-hover);
+  --dropdown-border: rgb(var(--canvas-ink-rgb) / 0.12);
+  --dropdown-text: #262626;
+  --dropdown-menu-surface-open: #ffffff;
+  --dropdown-menu-shadow-open: 0 24px 64px rgb(var(--canvas-ink-rgb) / 0.14);
+  --layer-toolbar-button-hover-bg: rgb(var(--canvas-ink-rgb) / 0.08);
+  --layer-toolbar-button-hover-text: rgb(var(--canvas-ink-rgb) / 0.95);
+  --type-control-label: 0.875rem;
+  --type-input: 1rem;
+}
+
+[data-slot="desktop-workspace"][data-desktop-theme="dark"] {
+  --canvas-ink-rgb: 245 245 245;
+  --background: oklch(0.15 0 0);
+  --foreground: oklch(0.96 0 0);
+  --border: oklch(0.33 0 0 / 0.75);
+  --accent: oklch(0.25 0 0);
+  --accent-foreground: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.72 0 0);
+  --scroll-edge-fade-color: var(--canvas-page-bg);
+  --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
+  --canvas-page-bg: #000000;
+  --canvas-surface-bg: #000000;
+  --canvas-bg: #000000;
+  --canvas-bg: #000000;
+  --canvas-dot-opacity: 0.075;
+  --canvas-ink: #f5f5f5;
+  --canvas-resize-frame: #4ab8ff;
+  --canvas-ink-muted: rgb(var(--canvas-ink-rgb) / 0.55);
+  --canvas-ink-secondary: rgb(var(--canvas-ink-rgb) / 0.72);
+  --canvas-ink-inverse: #101216;
+  --canvas-line: rgb(255 255 255 / 0.13);
+  --settings-control-bg: rgb(255 255 255 / 0.05);
+  --settings-control-bg-hover: rgb(255 255 255 / 0.08);
+  --settings-control-bg-active: rgb(255 255 255 / 0.12);
+  --canvas-shadow-rest: 0 0 18px 2px rgb(0 0 0 / 0.1);
+  --canvas-shadow-hover: 0 0 24px 3px rgb(0 0 0 / 0.14);
+  --canvas-shadow-active: 0 0 14px 1px rgb(0 0 0 / 0.12);
+  --canvas-shadow-selected: 0 0 24px 3px rgb(0 0 0 / 0.14);
+  --settings-panel-bg: rgb(22 22 22 / 0.85);
+  --settings-panel-bg-hover: rgb(29 29 29 / 0.9);
+  --dropdown-border: rgb(255 255 255 / 0.13);
+  --dropdown-text: #f5f5f5;
+  --dropdown-menu-surface-open: #252525;
+  --dropdown-menu-shadow-open: 0 24px 64px rgb(0 0 0 / 0.45);
+  --layer-toolbar-button-hover-bg: rgb(255 255 255 / 0.11);
+  --layer-toolbar-button-hover-text: #ffffff;
+}
+
+[data-slot="desktop-workspace"] .ws-type-control-label {
+  font-size: var(--type-control-label);
+  line-height: 1.2;
+}
+
+[data-slot="desktop-workspace"] .ws-type-input {
+  font-size: var(--type-input);
+  line-height: 1.45;
+}
+
+[data-slot="desktop-workspace"] [data-slot="drafting-surface"] {
+  border-color: transparent;
+  isolation: isolate;
+}
+
+[data-slot="desktop-workspace"] [data-slot="drafting-surface"]::before {
+  display: none;
+}

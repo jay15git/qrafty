@@ -1,7 +1,7 @@
-import type { QraftyGradient } from "@/features/qr-code/model/state"
-import type { QraftyDataModulesStyle } from "@/features/qr-code/model/state"
-import type { QrFinderPatternInnerStyle, QrFinderPatternOuterStyle } from "@/features/qr-code/model/types"
-import type { QrBackgroundShapeId } from "@/features/qr-code/styles/background-shapes"
+import type { QraftyGradient } from "@/features/qr/model/state"
+import type { QraftyDataModulesStyle } from "@/features/qr/model/state"
+import type { QrFinderPatternInnerStyle, QrFinderPatternOuterStyle } from "@/features/qr/model/types"
+import type { QrBackgroundShapeId } from "@/features/qr/styles/background-shapes"
 
 type BrandShape = {
   id: Exclude<QrBackgroundShapeId, "none">

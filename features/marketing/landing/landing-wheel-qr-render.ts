@@ -1,11 +1,11 @@
 import {
   createBrandIconDataUrl,
   createBrandIconGradientDataUrl,
-} from "@/features/qr-code/assets/brand-icon-svg"
-import { findBrandIconById } from "@/features/qr-code/assets/brand-icons"
-import { renderDashboardQrSvgMarkup } from "@/features/qr-code/rendering/qr-svg-render"
-import { getQrBackgroundShapeDefinition } from "@/features/qr-code/styles/background-shapes"
-import { parseSvgViewBoxSize } from "@/features/workspace/rendering/qr-artwork"
+} from "@/features/qr/assets/brand-icon-svg"
+import { findBrandIconById } from "@/features/qr/assets/brand-icons"
+import { renderDashboardQrSvgMarkup } from "@/features/qr/rendering/qr-svg-render"
+import { getQrBackgroundShapeDefinition } from "@/features/qr/styles/background-shapes"
+import { parseSvgViewBoxSize } from "@/features/canvas/rendering/qr-artwork"
 
 import type { LandingWheelCardPreset } from "@/features/marketing/landing/landing-card-wheel-presets"
 import { buildLandingWheelQrState } from "@/features/marketing/landing/landing-wheel-qr-state"

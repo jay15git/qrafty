@@ -4,7 +4,7 @@ import { AnimatePresence, m } from "motion/react";
 import { useRef, useState, type ReactNode } from "react";
 
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
-import { desktopCuelumeAttrs } from "@/features/desktop-shell/audio/desktop-cuelume";
+import { desktopCuelumeAttrs } from "@/features/shell/audio/desktop-cuelume";
 import { cn } from "@/lib/utils";
 
 export type TooltipItem = {
@@ -108,10 +108,10 @@ export const TooltipNavbar = ({
         {...cuelumeAttrs}
         className={cn(
           isText
-            ? "flex h-8 cursor-pointer items-center justify-center rounded-full px-2.5 text-xs font-medium whitespace-nowrap transition-colors hover:bg-[var(--desktop-glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--desktop-glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
-            : "flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-[var(--desktop-glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--desktop-glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-3.5",
+            ? "flex h-8 cursor-pointer items-center justify-center rounded-full px-2.5 text-xs font-medium whitespace-nowrap transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
+            : "flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-3.5",
           item.pressed &&
-            "bg-[var(--desktop-glass-button-hover-bg,rgba(255,255,255,0.11))] text-[var(--desktop-glass-button-hover-fg,currentColor)]",
+            "bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] text-[var(--glass-button-hover-fg,currentColor)]",
         )}
       >
         {isText ? (
@@ -197,7 +197,7 @@ export const TooltipNavbar = ({
     <div className="overflow-visible">
       <div className="flex items-center justify-center overflow-visible">
         <div
-          className="relative overflow-visible text-[var(--desktop-glass-fg,rgba(255,255,255,0.72))]"
+          className="relative overflow-visible text-[var(--glass-fg,rgba(255,255,255,0.72))]"
           onMouseLeave={handleMouseLeave}
         >
           <AnimatePresence>
@@ -270,7 +270,7 @@ export const TooltipNavbar = ({
 
           <div
             data-slot="tooltip-navbar-shell"
-            className="z-10 inline-flex items-center justify-center gap-1 rounded-2xl border border-[var(--desktop-glass-border,rgba(255,255,255,0.06))] bg-[var(--desktop-glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
+            className="z-10 inline-flex items-center justify-center gap-1 rounded-2xl border border-[var(--glass-border,rgba(255,255,255,0.06))] bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
           >
             {items.map((item, index) => {
               const button = renderItemButton(item, index);

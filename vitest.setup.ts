@@ -1,6 +1,6 @@
 // Polyfills for browser APIs jsdom does not implement.
 // Keeps DOM-environment component tests from crashing on unhandled errors
-// (e.g. window.matchMedia in features/desktop-shell/audio/desktop-cuelume.ts).
+// (e.g. window.matchMedia in features/shell/audio/desktop-cuelume.ts).
 
 if (typeof window !== "undefined") {
   if (!window.matchMedia) {

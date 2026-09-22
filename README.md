@@ -112,7 +112,7 @@ public/              Fonts, wallpapers, illustrations, generated preview assets
 scripts/             Wallpaper sync and asset generation scripts
 ```
 
-`features/qr-code/model/state.ts` is the core QR state and mapper layer — start there when adding controls, defaults, or renderer options.
+`features/qr/model/state.ts` is the core QR state and mapper layer — start there when adding controls, defaults, or renderer options.
 
 ## Quality gates
 

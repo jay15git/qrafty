@@ -760,7 +760,7 @@ function CropOverlay({
         className={cn(
           "absolute -top-8 left-0 rounded px-2 py-1 text-xs whitespace-nowrap",
           usesDesktopTheme
-            ? "bg-[var(--dn-fg)] text-[var(--dn-bg)]"
+            ? "bg-[var(--fg)] text-[var(--bg)]"
             : "bg-primary text-primary-foreground",
         )}
       >
@@ -791,14 +791,14 @@ function CropperDialogFooter({
     <DialogFooter
       className={cn(
         usesDesktopTheme
-          ? "desktopnew-crop-dialog__footer gap-2 border-t border-[var(--dn-line)] p-[length:var(--dn-row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
+          ? "desktopnew-crop-dialog__footer gap-2 border-t border-[var(--line)] p-[length:var(--settings-row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
           : undefined,
       )}
     >
       {usesDesktopTheme ? (
         <>
           <button
-            className="dn-control-surface dn-pressable-subtle dn-squircle-sm flex h-[length:var(--dn-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--dn-type-value)] font-medium tracking-[var(--dn-tracking-tight)] text-[var(--dn-fg)]"
+            className="dn-control-surface dn-pressable-subtle dn-squircle-sm flex h-[length:var(--settings-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--type-value)] font-medium tracking-[var(--tracking-tight)] text-[var(--fg)]"
             disabled={isProcessing}
             type="button"
             onClick={onCancel}
@@ -807,7 +807,7 @@ function CropperDialogFooter({
             Cancel
           </button>
           <button
-            className="dn-settings-primary dn-control-surface dn-pressable-press-only dn-squircle-sm flex h-[length:var(--dn-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--dn-type-value)] font-medium tracking-[var(--dn-tracking-tight)]"
+            className="dn-settings-primary dn-control-surface dn-pressable-press-only dn-squircle-sm flex h-[length:var(--settings-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--type-value)] font-medium tracking-[var(--tracking-tight)]"
             disabled={isProcessing}
             type="button"
             onClick={onCrop}
@@ -897,7 +897,7 @@ function CropperDialog({
           <DialogHeader
             className={cn(
               usesDesktopTheme
-                ? "desktopnew-crop-dialog__header gap-2 space-y-0 border-b border-[var(--dn-line)] px-[length:var(--dn-row-px)] py-3 text-left"
+                ? "desktopnew-crop-dialog__header gap-2 space-y-0 border-b border-[var(--line)] px-[length:var(--settings-row-px)] py-3 text-left"
                 : undefined,
             )}
           >
@@ -905,10 +905,10 @@ function CropperDialog({
               className={cn(
                 "flex items-center gap-2",
                 usesDesktopTheme &&
-                  "text-[length:var(--dn-type-value)] font-semibold tracking-[var(--dn-tracking-tight)] text-[var(--dn-fg)]",
+                  "text-[length:var(--type-value)] font-semibold tracking-[var(--tracking-tight)] text-[var(--fg)]",
               )}
             >
-              <Crop className={cn("size-5", usesDesktopTheme && "text-[var(--dn-muted)]")} />
+              <Crop className={cn("size-5", usesDesktopTheme && "text-[var(--muted)]")} />
               Crop Image
               {fixedSize ? (
                 <Badge variant="secondary" className="ml-2">
@@ -923,14 +923,14 @@ function CropperDialog({
             </DialogTitle>
           </DialogHeader>
 
-          <div className={cn(usesDesktopTheme ? "desktopnew-crop-dialog__body p-[length:var(--dn-row-px)]" : "space-y-4")}>
+          <div className={cn(usesDesktopTheme ? "desktopnew-crop-dialog__body p-[length:var(--settings-row-px)]" : "space-y-4")}>
             <div
               role="group"
               ref={cropContainerRef}
               className={cn(
                 "relative overflow-hidden select-none",
                 usesDesktopTheme
-                  ? "desktopnew-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--dn-radius-sm)] border border-[var(--dn-line)] bg-[var(--dn-control)]"
+                  ? "desktopnew-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--settings-control)]"
                   : "max-h-[80vh] rounded-lg border bg-muted/10",
               )}
               onMouseMove={onMouseMove}
@@ -1131,8 +1131,8 @@ function tileIconClass(disabled: boolean) {
   return cn(
     "grid size-full place-items-center dn-squircle-xs",
     disabled
-      ? "bg-[color-mix(in_srgb,var(--dn-muted)_20%,transparent)] text-[var(--dn-muted)]"
-      : "bg-[color-mix(in_srgb,var(--dn-muted)_38%,transparent)] text-[var(--dn-fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--dn-muted)_55%,transparent)]",
+      ? "bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] text-[var(--muted)]"
+      : "bg-[color-mix(in_srgb,var(--muted)_38%,transparent)] text-[var(--fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--muted)_55%,transparent)]",
   )
 }
 

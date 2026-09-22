@@ -121,8 +121,8 @@ describe("useScrollEdges", () => {
 
     const host = document.createElement("div")
     host.className = "desktopnew-root"
-    host.style.setProperty("--dn-preview-tile", "3.5rem")
-    host.style.setProperty("--dn-space-inline", "0.375rem")
+    host.style.setProperty("--settings-preview-tile", "3.5rem")
+    host.style.setProperty("--space-inline", "0.375rem")
 
     const inner = document.createElement("div")
     const row = document.createElement("div")
@@ -159,8 +159,8 @@ describe("useScrollEdges", () => {
 
     const host = document.createElement("div")
     host.className = "desktopnew-root"
-    host.style.setProperty("--dn-preview-tile", "3.5rem")
-    host.style.setProperty("--dn-space-inline", "0.375rem")
+    host.style.setProperty("--settings-preview-tile", "3.5rem")
+    host.style.setProperty("--space-inline", "0.375rem")
 
     const inner = document.createElement("div")
     const row = document.createElement("div")
@@ -193,8 +193,8 @@ describe("useScrollEdges", () => {
 
     const host = document.createElement("div")
     host.className = "desktopnew-root"
-    host.style.setProperty("--dn-preview-tile", "3.5rem")
-    host.style.setProperty("--dn-space-inline", "0.375rem")
+    host.style.setProperty("--settings-preview-tile", "3.5rem")
+    host.style.setProperty("--space-inline", "0.375rem")
 
     const inner = document.createElement("div")
     const row = document.createElement("div")
@@ -233,8 +233,8 @@ describe("useScrollEdges", () => {
     const viewport = document.createElement("div")
     const host = document.createElement("div")
     host.className = "desktopnew-root"
-    host.style.setProperty("--dn-preview-tile", "56px")
-    host.style.setProperty("--dn-space-inline", "6px")
+    host.style.setProperty("--settings-preview-tile", "56px")
+    host.style.setProperty("--space-inline", "6px")
     const inner = document.createElement("div")
     const row = document.createElement("div")
     row.className = "dn-preview-row"

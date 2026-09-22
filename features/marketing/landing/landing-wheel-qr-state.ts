@@ -1,10 +1,10 @@
-import type { QraftyGradient } from "@/features/qr-code/model/state"
+import type { QraftyGradient } from "@/features/qr/model/state"
 import {
   createDefaultQraftyState,
   type QraftyDataModulesStyle,
   type QraftyState,
-} from "@/features/qr-code/model/state"
-import type { QrFinderPatternInnerStyle, QrFinderPatternOuterStyle } from "@/features/qr-code/model/types"
+} from "@/features/qr/model/state"
+import type { QrFinderPatternInnerStyle, QrFinderPatternOuterStyle } from "@/features/qr/model/types"
 
 import type { LandingWheelCardPreset } from "@/features/marketing/landing/landing-card-wheel-presets"
 

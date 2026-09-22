@@ -64,7 +64,7 @@ await syncWallpapers({
     typeName: "RaycastWallpaper",
     constName: "RAYCAST_WALLPAPERS",
     getterName: "getRaycastWallpaper",
-    targetFile: "features/workspace/assets/raycast-wallpapers.ts",
+    targetFile: "features/canvas/assets/raycast-wallpapers.ts",
     summaryLabel: "Raycast wallpapers",
   },
 })

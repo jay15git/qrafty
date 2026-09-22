@@ -1,4 +1,4 @@
-import { ICONSTACK_API_BASE, ICONSTACK_LIBRARIES } from "@/features/qr-code/assets/iconstack-api"
+import { ICONSTACK_API_BASE, ICONSTACK_LIBRARIES } from "@/features/qr/assets/iconstack-api"
 
 export const runtime = "nodejs"
 

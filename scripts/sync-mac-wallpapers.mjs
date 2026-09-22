@@ -40,7 +40,7 @@ await syncWallpapers({
     typeName: "MacWallpaper",
     constName: "MAC_WALLPAPERS",
     getterName: "getMacWallpaper",
-    targetFile: "features/workspace/assets/mac-wallpapers.ts",
+    targetFile: "features/canvas/assets/mac-wallpapers.ts",
     summaryLabel: "macOS wallpapers",
   },
 })

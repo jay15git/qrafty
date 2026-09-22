@@ -100,8 +100,8 @@ describe("ScrollArea", () => {
         {
           className: "desktopnew-root",
           style: {
-            "--dn-preview-tile": "56px",
-            "--dn-space-inline": "6px",
+            "--settings-preview-tile": "56px",
+            "--space-inline": "6px",
           } as CSSProperties,
         },
         createElement(

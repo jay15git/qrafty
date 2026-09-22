@@ -3,11 +3,11 @@ import localFont from "next/font/local"
 import { cookies } from "next/headers"
 import { Suspense } from "react"
 
-import { DesktopPageClient } from "@/features/desktop-shell/components/DesktopPageClient"
+import { DesktopPageClient } from "@/features/shell/components/DesktopPageClient"
 import {
   DESKTOP_THEME_COOKIE,
   parseDesktopTheme,
-} from "@/features/desktop-shell/model/desktop-theme"
+} from "@/features/shell/model/desktop-theme"
 import { cn } from "@/lib/utils"
 
 const satoshi = localFont({

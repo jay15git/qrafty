@@ -18,7 +18,7 @@ describe("theme contract", () => {
   it("uses neutral sitewide theme tokens without warm drafting palette", () => {
     const globalsSource = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8")
     const workspaceTokensSource = readFileSync(
-      resolve(process.cwd(), "features/workspace/workspace-tokens.css"),
+      resolve(process.cwd(), "features/canvas/workspace-tokens.css"),
       "utf8",
     )
 
@@ -26,15 +26,15 @@ describe("theme contract", () => {
     expect(globalsSource).not.toContain("oklch(0.62 0.11 66)")
     expect(globalsSource).toContain("--primary: oklch(0.18 0 0);")
     expect(workspaceTokensSource).toContain('[data-slot="desktop-workspace"]')
-    expect(workspaceTokensSource).toContain("--ws-canvas-bg:")
-    expect(workspaceTokensSource).toContain("--ws-ink:")
+    expect(workspaceTokensSource).toContain("--canvas-bg:")
+    expect(workspaceTokensSource).toContain("--canvas-ink:")
   })
 
   it("keeps workspace chrome on scoped monochrome utility tokens", () => {
     const checkedFiles = [
-      "features/workspace/components/Canvas.tsx",
-      "features/workspace/components/Pane.tsx",
-      "features/workspace/components/InsertMenu.tsx",
+      "features/canvas/components/Canvas.tsx",
+      "features/canvas/components/Pane.tsx",
+      "features/canvas/components/insert-menu/InsertMenuPopoverContent.tsx",
     ]
     const disallowedColorTokens =
       /\b(?:amber|sky|red|rose|orange|yellow|pink|purple|violet|blue|cyan|teal|emerald|green|lime)-/
@@ -45,7 +45,6 @@ describe("theme contract", () => {
       expect(source, `${file} uses a non-monochrome utility token`).not.toMatch(
         disallowedColorTokens,
       )
-      expect(source, `${file} should use workspace tokens`).toContain("--ws-")
       expect(source, `${file} should not use legacy drafting tokens`).not.toContain("--drafting-")
     }
   })

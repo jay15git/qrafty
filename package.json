@@ -18,8 +18,8 @@
     "sync:raycast-wallpapers": "node scripts/sync-raycast-wallpapers.mjs",
     "sync:mac-wallpapers": "node scripts/sync-mac-wallpapers.mjs",
     "sync:qrafty-wallpapers": "node scripts/sync-qrafty-wallpapers.mjs",
-    "generate:qr-shape-previews": "GENERATE_QR_SHAPE_PREVIEWS=1 vitest run features/qr-code/rendering/generate-shape-previews.test.ts",
-    "generate:qr-style-previews": "GENERATE_QR_STYLE_PREVIEWS=1 vitest run features/qr-code/styles/generate-style-option-previews.test.tsx",
+    "generate:qr-shape-previews": "GENERATE_QR_SHAPE_PREVIEWS=1 vitest run features/qr/rendering/generate-shape-previews.test.ts",
+    "generate:qr-style-previews": "GENERATE_QR_STYLE_PREVIEWS=1 vitest run features/qr/styles/generate-style-option-previews.test.tsx",
     "render:landing-wheel": "GENERATE_LANDING_WHEEL_ASSETS=1 vitest run features/marketing/landing/landing-wheel-qr-assets.test.ts"
   },
   "dependencies": {

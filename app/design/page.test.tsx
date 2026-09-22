@@ -8,7 +8,7 @@ vi.mock("next/headers", () => ({
   }),
 }))
 
-vi.mock("@/features/desktop-shell/components/DesktopPageClient", () => ({
+vi.mock("@/features/shell/components/DesktopPageClient", () => ({
   DesktopPageClient: ({ fontClassName }: { fontClassName?: string }) => (
     <div data-font-class-name={fontClassName} data-testid="desktop-page-client" />
   ),
@@ -20,7 +20,7 @@ vi.mock("next/font/local", () => ({
   }),
 }))
 
-import { DesktopPageClient } from "@/features/desktop-shell/components/DesktopPageClient"
+import { DesktopPageClient } from "@/features/shell/components/DesktopPageClient"
 import DesktopPage, { metadata } from "./page"
 
 describe("desktop page", () => {
@@ -53,7 +53,7 @@ describe("desktop page", () => {
 
   it("keeps portaled appearance popovers in sync with desktop light mode", () => {
     const workspaceSource = readFileSync(
-      "features/desktop-shell/components/desktop-workspace-styles.tsx",
+      "features/shell/components/desktop-workspace-styles.tsx",
       "utf8",
     )
 

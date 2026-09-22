@@ -4,9 +4,9 @@ import {
   DEFAULT_DESKTOP_EXPORT_SETTINGS,
   DEFAULT_DESKTOP_LAYERS_SETTINGS,
   DEFAULT_DESKTOP_PATTERN_SETTINGS,
-} from "@/features/desktop-shell/model/desktop-toolbar-defaults"
-import type { DesktopToolbarController } from "@/features/desktop-shell/model/desktop-toolbar-types"
-import { createDraftingTextLayer } from "@/features/workspace/model/layers"
+} from "@/features/shell/model/desktop-toolbar-defaults"
+import type { DesktopToolbarController } from "@/features/shell/model/desktop-toolbar-types"
+import { createDraftingTextLayer } from "@/features/canvas/model/layers"
 
 /**
  * Builds a complete `DesktopToolbarController` for tests. Every field is filled
