@@ -1,10 +1,10 @@
 export const TEMPLATE_PREVIEW_FIT_PADDING = 48
 export const DESKTOP_CANVAS_FIT_PADDING = 20
 export const DESKTOP_ARTBOARD_VIEW_INSETS = {
-  top: 88,
-  right: 72,
-  bottom: 88,
-  left: 40,
+  top: 24,
+  right: 64,
+  bottom: 24,
+  left: 24,
 } as const
 
 /** Minimal breathing room on mobile; top chrome floats over the canvas. */

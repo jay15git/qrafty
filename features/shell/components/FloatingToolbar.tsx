@@ -1,5 +1,7 @@
 "use client"
 
+import { useEffect, useRef } from "react"
+
 import "@/features/shell/components/desktop-chrome.css"
 import { TooltipNavbar } from "@/components/ui/tooltip-navbar"
 import {
@@ -86,9 +88,43 @@ export function FloatingToolbar({
     sizePresetId: controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId,
     theme: actualDesktopTheme,
   })
+  const toolbarRootRef = useRef<HTMLElement | null>(null)
+
+  // Measure island + utility toolbar widths into CSS vars so the island's
+  // clamped left position can keep clear of both side panels.
+  useEffect(() => {
+    const root = toolbarRootRef.current
+    if (!root) {
+      return
+    }
+
+    const island = root.querySelector<HTMLElement>('[data-slot="desktop-dynamic-island"]')
+    const utility = root.querySelector<HTMLElement>('[data-slot="desktop-utility-toolbar"]')
+    if (!island || !utility) {
+      return
+    }
+
+    const syncWidths = () => {
+      const shells = island.querySelectorAll<HTMLElement>('[data-slot="tooltip-navbar-shell"]')
+      // The island wraps a small history pill + the labeled pill. Center the
+      // labeled pill on the canvas: offset = half the leading pill + gap.
+      const leadingWidth = shells.length > 1 ? shells[0].offsetWidth : 0
+      const gap = shells.length > 1 ? shells[1].offsetLeft - (shells[0].offsetLeft + leadingWidth) : 0
+      root.style.setProperty("--desktop-island-width", `${island.offsetWidth}px`)
+      root.style.setProperty("--desktop-island-leading-width", `${leadingWidth + gap}px`)
+      root.style.setProperty("--desktop-utility-toolbar-width", `${utility.offsetWidth}px`)
+    }
+
+    syncWidths()
+    const observer = new ResizeObserver(syncWidths)
+    observer.observe(island)
+    observer.observe(utility)
+    return () => observer.disconnect()
+  }, [isMobileWorkspace])
 
   return (
       <section
+        ref={toolbarRootRef}
         aria-label="Desktop workspace prototype"
         data-desktop-theme={actualDesktopTheme}
         data-mobile-workspace={isMobileWorkspace ? "true" : "false"}

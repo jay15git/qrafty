@@ -6,8 +6,7 @@
   --toolbar-top-offset: 0.75rem;
   --mobile-drawer-height: 12rem;
   --mobile-layer-toolbar-height: 0px;
-  --mobile-layer-toolbar-gap: 8px;
-  --canvas-inset-top: 0px;
+  --canvas-inset-top: calc(var(--toolbar-top-offset) + 2.75rem);
   --canvas-inset-right: 0px;
   --canvas-inset-bottom: 0px;
   --canvas-inset-left: calc(
@@ -19,7 +18,7 @@
 [data-slot="desktop-floating-toolbar-root"] {
   --settings-toolbar-chrome-gap: 0.75rem;
   --toolbar-top-offset: 0.75rem;
-  --canvas-inset-top: 0px;
+  --canvas-inset-top: calc(var(--toolbar-top-offset) + 2.75rem);
   --canvas-inset-right: 0px;
   --canvas-inset-bottom: 0px;
   --canvas-inset-left: calc(
@@ -31,17 +30,40 @@
   position: fixed;
   top: var(--toolbar-top-offset);
   z-index: 30;
-  left: calc(
-    (
-        100vw + var(--settings-toolbar-width) +
-          var(--settings-toolbar-chrome-gap) - var(--toolbar-top-offset)
-      ) / 2
+  /* Preferred: exact center of the canvas area (viewport minus settings
+   * column). Clamped so the island never slides under the settings column or
+   * the utility toolbar — widths are measured into CSS vars by FloatingToolbar. */
+  left: clamp(
+    calc(
+      var(--settings-toolbar-width) + var(--settings-toolbar-chrome-gap) +
+        var(--desktop-island-width, 0px) / 2 + 0.75rem
+    ),
+    calc(
+      (
+          100vw + var(--settings-toolbar-width) +
+            var(--settings-toolbar-chrome-gap) -
+            var(--desktop-island-leading-width, 0px)
+        ) / 2
+    ),
+    calc(
+      100vw - var(--toolbar-top-offset) -
+        var(--desktop-utility-toolbar-width, 0px) - 0.75rem -
+        var(--desktop-island-width, 0px) / 2
+    )
   );
   transform: translateX(-50%);
   pointer-events: none;
   overflow: visible;
 }
 
+/* Below ~1180px the settings column + island + utility toolbar can't fit
+ * side by side — collapse top chrome to icon-only so nothing overlaps. */
+@media (min-width: 768px) and (max-width: 1180px) {
+  [data-slot="desktop-dynamic-island"] button > span:not(.sr-only),
+  [data-slot="desktop-utility-toolbar"] button > span:not(.sr-only) {
+    display: none;
+  }
+}
 [data-slot="desktop-dynamic-island"] {
   overflow: visible;
 }
@@ -165,14 +187,14 @@
   [data-slot="drafting-workspace"][data-desktop-canvas-frame="true"]
   [data-slot="desktop-compose-toolbar-anchor"] {
   position: fixed;
-  top: 50%;
+  /* Center on the canvas band (below top chrome), not the raw viewport. */
+  top: calc(50% + var(--canvas-inset-top, 0px) / 2);
   right: var(--settings-toolbar-chrome-gap);
   bottom: auto;
   left: auto;
   transform: translateY(-50%);
   z-index: 40;
 }
-
 [data-slot="desktop-workspace"] [data-slot="drafting-workspace"][data-desktop-canvas-frame="true"] [data-slot="desktop-compose-surface"][data-surface-appearance="workspace"] {
   background-color: transparent !important;
   background-image: none !important;

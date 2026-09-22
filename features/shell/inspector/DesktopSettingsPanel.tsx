@@ -68,7 +68,6 @@ export function DesktopSettingsPanel({
               />
             </div>
           }
-          matchCanvasHeight={fillHeight}
           openSection={openSection}
           renderSection={(section) => (
             <SettingsSectionBody id={section} model={model} />

@@ -16,7 +16,6 @@ import {
   cloneElement,
   isValidElement,
   Children,
-  type CSSProperties,
   type ReactElement,
   type ReactNode,
 } from "react"
@@ -259,65 +258,21 @@ export function SettingsScroll({
   )
 }
 
-/** Tracks the compose artboard's rendered height so the settings card shares
- * the canvas edge line at every aspect ratio. */
-function useCanvasCardHeight(enabled: boolean) {
-  const [height, setHeight] = useState<number | null>(null)
-
-  useEffect(() => {
-    if (!enabled) {
-      setHeight(null)
-      return
-    }
-
-    let ro: ResizeObserver | undefined
-    let raf = 0
-    let attempts = 0
-
-    const attach = () => {
-      const el = document.querySelector<HTMLElement>(
-        '[data-slot="desktop-compose-artboard-stage"]',
-      )
-      if (!el) {
-        if (attempts++ < 120) {
-          raf = requestAnimationFrame(attach)
-        }
-        return
-      }
-      const update = () => setHeight(el.getBoundingClientRect().height)
-      update()
-      ro = new ResizeObserver(update)
-      ro.observe(el)
-    }
-
-    raf = requestAnimationFrame(attach)
-    return () => {
-      ro?.disconnect()
-      cancelAnimationFrame(raf)
-    }
-  }, [enabled])
-
-  return height
-}
-
 export function SettingsAccordion({
   openSection,
   onOpenSectionChange,
   sections,
   renderSection,
-  matchCanvasHeight = false,
   footer,
 }: {
   openSection: string | undefined
   onOpenSectionChange: (value: string | undefined) => void
   sections: readonly string[]
   renderSection: (section: string) => ReactNode
-  matchCanvasHeight?: boolean
   footer?: ReactNode
 }) {
   const sectionIndex = openSection ? sections.indexOf(openSection) : -1
   const openIndex = sectionIndex >= 0 ? sectionIndex : null
-  const canvasCardHeight = useCanvasCardHeight(matchCanvasHeight)
 
   const items = sections.map((section) => ({
     question: getDesktopSettingsSectionLabel(section as DesktopSettingsSectionId),
@@ -330,28 +285,17 @@ export function SettingsAccordion({
   }))
 
   return (
-    <div
-      style={
-        {
-          "--settings-card-height":
-            matchCanvasHeight && canvasCardHeight != null
-              ? `${canvasCardHeight}px`
-              : undefined,
-        } as CSSProperties
-      }
-    >
-      <MotionAccordion
-        cardHeight={null}
-        className="dn-settings-accordion w-full min-w-0 max-w-full"
-        gap={0}
-        items={items}
-        footer={footer}
-        openIndex={openIndex}
-        onOpenIndexChange={(index) => {
-          onOpenSectionChange(index === null ? undefined : sections[index])
-        }}
-      />
-    </div>
+    <MotionAccordion
+      cardHeight={null}
+      className="dn-settings-accordion w-full min-w-0 max-w-full"
+      gap={0}
+      items={items}
+      footer={footer}
+      openIndex={openIndex}
+      onOpenIndexChange={(index) => {
+        onOpenSectionChange(index === null ? undefined : sections[index])
+      }}
+    />
   )
 }
 

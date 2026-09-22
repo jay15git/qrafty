@@ -1049,7 +1049,9 @@
 
 .dn-settings-brand-row {
   flex-shrink: 0;
-  min-height: calc(0.625rem + 2rem);
+  /* Spacer mirrors the canvas top inset so the settings card centers in the
+   * same free band as the canvas card, below the top chrome. */
+  min-height: var(--canvas-inset-top, calc(0.625rem + 2rem));
 }
 
 .dn-settings-brand-row > .dn-settings-rail-track__inner {
@@ -1069,8 +1071,9 @@
 }
 
 /* Unified card: the accordion stack renders as ONE surface; items are
- * transparent rows separated by inset hairlines. Height follows the rendered
- * canvas card. */
+ * transparent rows separated by inset hairlines. Height is fixed to the
+ * settings-panel token — it does not track the canvas card, so the card
+ * stays a constant size while the canvas adapts to its aspect ratio. */
 .dn-settings-accordion > div {
   display: flex;
   flex-direction: column;
@@ -1079,12 +1082,12 @@
   margin-inline: auto;
   padding: 0.375rem;
   border-radius: 2rem;
-  corner-shape: squircle;
+  /* Matches the canvas card's max height: viewport minus the top chrome inset
+   * and the artboard's vertical fit insets (2 × 24px). */
+  height: calc(100dvh - var(--canvas-inset-top, 3.5rem) - 3rem);
   background: #ffffff;
-  height: var(--settings-card-height, auto);
   overflow-x: hidden;
   overflow-y: auto;
-  transition: height 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .dn-settings-accordion > div > div {
