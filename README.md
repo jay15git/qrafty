@@ -1,5 +1,7 @@
 # QRafty
 
+**[qrafty.app](https://qrafty.app)** — live app
+
 A design studio for QR codes. QRafty turns a plain black-and-white code into a finished visual asset: pick a payload, style the modules, build a scene on a drafting canvas, then export a still or a looping animation.
 
 The workspace is a single drafting surface rather than a stack of forms — the QR, the card behind it, and every element you place on top are layers you can move, restyle, and reorder.
@@ -54,6 +56,8 @@ The workspace is a single drafting surface rather than a stack of forms — the 
 No environment variables are required to run the app locally.
 
 ## Getting started
+
+Use the hosted app at [qrafty.app](https://qrafty.app), or run it locally:
 
 ```bash
 pnpm install
