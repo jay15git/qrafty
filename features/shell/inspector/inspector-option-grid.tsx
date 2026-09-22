@@ -120,7 +120,19 @@ export function DesktopInspectorAnimatedOptionGrid({
     const rect = measureDesktopInspectorOptionSelection(container)
     const key = resolveDesktopInspectorOptionSelectionKey(selectedKey)
 
-    setSelection(rect ? { key, rect } : null)
+    setSelection((prev) => {
+      const next = rect ? { key, rect } : null
+      if (
+        prev?.key === next?.key &&
+        prev?.rect.left === next?.rect.left &&
+        prev?.rect.top === next?.rect.top &&
+        prev?.rect.width === next?.rect.width &&
+        prev?.rect.height === next?.rect.height
+      ) {
+        return prev
+      }
+      return next
+    })
   }, [motionFrozen, selectedKey])
 
   useLayoutEffect(() => {

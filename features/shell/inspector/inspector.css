@@ -1088,6 +1088,9 @@
   background: #ffffff;
   overflow-x: hidden;
   overflow-y: auto;
+  /* Reserve the scrollbar lane so content doesn't reflow when an open
+   * section grows the card past its fixed height. */
+  scrollbar-gutter: stable;
 }
 
 .dn-settings-accordion > div > div {

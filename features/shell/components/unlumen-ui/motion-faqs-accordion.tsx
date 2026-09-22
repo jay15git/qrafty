@@ -65,17 +65,12 @@ function AccordionItem({
   const panelScrolls = isOpen && contentH > panelHeight + 1;
 
   return (
-    <m.div
-      layout
+    <div
       data-focused={isOpen ? "true" : undefined}
       className={cn(
         "rounded-[30px] bg-surface text-foreground shadow-xs",
         maxPanelHeight != null && "shrink-0",
-        isOpen && " ",
       )}
-      transition={{ type: "spring", stiffness: 280, damping: 28, mass: 0.9 }}
-      initial={false}
-      style={{ originX: 0.5, originY: 0 }}
     >
       <button
         id={itemId}
@@ -108,21 +103,25 @@ function AccordionItem({
         </m.span>
       </button>
 
+      {/*
+        Height is animated as a real value, not `layout` — `layout` would
+        scaleY-distort the header and panel contents on every open/close and
+        whenever the panel re-measures mid-interaction.
+      */}
       <m.div
         id={panelId}
         role="region"
         aria-labelledby={itemId}
+        initial={false}
         animate={{
+          height: isOpen ? panelHeight : 0,
           opacity: isOpen ? 1 : 0,
         }}
-        initial={false}
-        layout
         transition={{
+          height: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
           opacity: { duration: 0.2, ease: "easeOut" },
-          layout: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
         }}
         style={{
-          height: isOpen ? panelHeight : 0,
           overflow: "hidden",
           overflowY: panelScrolls ? "auto" : "hidden",
         }}
@@ -141,7 +140,7 @@ function AccordionItem({
           {item.answer}
         </m.div>
       </m.div>
-    </m.div>
+    </div>
   );
 }
 

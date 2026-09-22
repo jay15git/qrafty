@@ -175,12 +175,10 @@ const AdaptiveSliderTrack: FC<AdaptiveSliderTrackProps> = ({
             "pointer-events-none absolute top-0 left-0 h-full rounded-full",
             indeterminate && "animate-pulse",
           )}
-          layout
-          style={{
-            width: `calc((${percentage} / 100) * (100% - 40px) + 40px)`,
-          }}
+          initial={false}
           animate={{
             background: colorSettings.gradient,
+            width: `calc((${percentage} / 100) * (100% - 40px) + 40px)`,
           }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         />
@@ -204,8 +202,8 @@ const AdaptiveSliderTrack: FC<AdaptiveSliderTrackProps> = ({
 
         <m.div
           className="pointer-events-none absolute top-0 z-40 flex size-10 items-center justify-center rounded-full border-none"
-          layout
-          style={{
+          initial={false}
+          animate={{
             left: `calc((${percentage} / 100) * (100% - 40px))`,
           }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}

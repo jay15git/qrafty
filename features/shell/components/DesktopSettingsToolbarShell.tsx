@@ -121,22 +121,26 @@ export function DesktopSettingsToolbarShell({
         grows in lockstep — white expands, grey minimizes. No overlay on the canvas.
       */}
       <m.div
-        layout
         className="pointer-events-auto absolute inset-y-0 left-0 z-[25] overflow-hidden bg-transparent text-[var(--glass-fg)]"
         data-hovered={isHovered ? "true" : "false"}
         data-shell-animating={isShellAnimating ? "true" : "false"}
         data-slot="desktop-left-toolbar-shell"
         data-toolbar-appearance="desktop-settings"
         initial={false}
-        style={{ width: expandedWidth }}
+        animate={{ width: expandedWidth }}
         transition={widthTransitionEnabled ? EXPANDABLE_PANEL_SPRING : { duration: 0 }}
-        onLayoutAnimationStart={() => handleShellAnimatingChange(true)}
-        onLayoutAnimationComplete={() => handleShellAnimatingChange(false)}
+        onAnimationStart={() => handleShellAnimatingChange(true)}
+        onAnimationComplete={() => handleShellAnimatingChange(false)}
+        onUpdate={(latest) => {
+          // Keep the canvas left inset in lockstep with the animated width —
+          // syncing only on commit leaves the grey inset one jump behind.
+          const width = typeof latest.width === "number" ? latest.width : parseFloat(latest.width)
+          if (Number.isFinite(width)) {
+            syncSidebarColumnWidth(width)
+          }
+        }}
       >
-        <div
-          className="h-full min-h-0 min-w-0 overflow-hidden"
-          style={{ width: expandedWidth }}
-        >
+        <div className="h-full min-h-0 w-full min-w-0 overflow-hidden">
           <div className="h-full min-h-0 min-w-0 overflow-x-hidden overflow-y-hidden">
             {panelContent}
           </div>
