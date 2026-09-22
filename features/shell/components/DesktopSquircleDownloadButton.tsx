@@ -27,7 +27,7 @@ export const DesktopSquircleDownloadButton = forwardRef<
 ) {
   return (
     <BorderBeam
-      borderRadius={16}
+      borderRadius={18}
       className="inline-flex shrink-0"
       size="sm"
       theme={borderBeamThemeByDesktopTheme[desktopTheme]}
@@ -37,7 +37,7 @@ export const DesktopSquircleDownloadButton = forwardRef<
         aria-label="Download"
         className={cn(
           "relative inline-flex h-9 shrink-0 cursor-pointer items-center gap-1.5 border border-[var(--glass-border)] bg-[var(--glass-bg)] px-3 text-[var(--glass-fg)] shadow-none transition hover:brightness-[1.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--glass-button-focus-ring)] motion-reduce:transition-none",
-          "rounded-[1rem] [corner-shape:squircle]",
+          "rounded-full",
           className,
         )}
         data-slot="desktop-download-trigger"
