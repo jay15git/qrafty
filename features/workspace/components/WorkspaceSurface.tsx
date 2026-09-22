@@ -53,7 +53,6 @@ import {
   cloneDraftingWorkspaceDocument,
   createDefaultDraftingWorkspaceDocument,
   createDefaultDraftingWorkspaceQrState,
-  serializeDraftingWorkspaceDocument,
   type DraftingCardStateByNodeId,
   type DraftingContentValuesByType,
   type DraftingQrStateByNodeId,
@@ -70,8 +69,6 @@ import {
   normalizeSceneComposition,
 } from "@/features/workspace/model/scene-templates"
 import { getCanvasSizeFromTemplate } from "@/features/workspace/model/size-templates"
-import { writeDraftingWorkspaceDraft } from "@/features/workspace/model/storage"
-import { resolveWorkspaceBootstrapDocument } from "@/features/workspace/model/workspace-bootstrap"
 import {
   runWorkspaceBatchExport,
   runWorkspaceExport,
@@ -226,6 +223,7 @@ import {
   type DraftingAssetSourceMode,
   useWorkspaceSurfaceReducer,
 } from "@/features/workspace/components/workspace-surface-reducer"
+import { useDraftingHistory } from "@/features/workspace/canvas/use-drafting-history"
 import {
   useDraftingShortcuts,
   type DraftingShortcutHandlers,
@@ -342,7 +340,6 @@ export function WorkspaceSurface({
       selectedVideoFrameRate,
       selectedVideoLongEdge,
       isDraftingWorkspaceReady,
-      draftingHistoryRevision,
       logoUploadObjectUrl,
       moduleFillUploadObjectUrl,
     },
@@ -437,7 +434,6 @@ export function WorkspaceSurface({
       setSelectedVideoFrameRate,
       setSelectedVideoLongEdge,
       setIsDraftingWorkspaceReady,
-      setDraftingHistoryRevision,
       setLogoUploadObjectUrl,
       setModuleFillUploadObjectUrl,
     },
@@ -448,12 +444,6 @@ export function WorkspaceSurface({
   const exportAbortControllerRef = useRef<AbortController | null>(null)
   const brandIconQueryRef = useRef("")
   const brandIconCategoryRef = useRef<DraftingBrandIconCategoryFilter>("all")
-  const draftingWorkspaceAutosaveTimerRef = useRef<number | null>(null)
-  const draftingWorkspaceHistoryTimerRef = useRef<number | null>(null)
-  const draftingWorkspaceHistoryRef = useRef<DraftingWorkspaceDocumentV1[]>([])
-  const draftingWorkspaceHistoryIndexRef = useRef(-1)
-  const isApplyingDraftingWorkspaceHistoryRef = useRef(false)
-  const shouldReplaceCurrentDraftingHistoryEntryRef = useRef(false)
   const draftingSurfaceRef = useRef<HTMLElement | null>(null)
   const iconstackSvgCacheRef = useRef<Map<string, string>>(new Map())
   const draftingLayerClipboardRef = useRef<string>("")
@@ -722,12 +712,21 @@ export function WorkspaceSurface({
       selectedContentType,
     ],
   )
-  const canUndoDraftingWorkspace =
-    draftingHistoryRevision >= 0 && draftingWorkspaceHistoryIndexRef.current > 0
-  const canRedoDraftingWorkspace =
-    draftingHistoryRevision >= 0 &&
-    draftingWorkspaceHistoryIndexRef.current <
-      draftingWorkspaceHistoryRef.current.length - 1
+  const applyDocumentRef = useRef(applyDraftingWorkspaceDocumentToControls)
+  applyDocumentRef.current = applyDraftingWorkspaceDocumentToControls
+  const {
+    canRedo: canRedoDraftingWorkspace,
+    canUndo: canUndoDraftingWorkspace,
+    redo: handleRedoDraftingWorkspace,
+    save: handleSaveDraftingWorkspace,
+    shouldReplaceCurrentEntryRef: shouldReplaceCurrentDraftingHistoryEntryRef,
+    undo: handleUndoDraftingWorkspace,
+  } = useDraftingHistory({
+    applyDocumentRef,
+    document: draftingWorkspaceDocument,
+    isWorkspaceReady: isDraftingWorkspaceReady,
+    setIsWorkspaceReady: setIsDraftingWorkspaceReady,
+  })
 
   function syncDraftingLogoAsset(nextState: QraftyState) {
     setSelectedLogoSourceMode(nextState.logo.source)
@@ -1356,50 +1355,6 @@ export function WorkspaceSurface({
     setSelectedLayerId(nextLayerIds.at(-1) ?? null)
   }
 
-  function setDraftingHistoryStack(nextStack: DraftingWorkspaceDocumentV1[], nextIndex: number) {
-    draftingWorkspaceHistoryRef.current = nextStack
-    draftingWorkspaceHistoryIndexRef.current = nextIndex
-    setDraftingHistoryRevision((current) => current + 1)
-  }
-
-  function restoreDraftingHistorySnapshot(nextIndex: number) {
-    const snapshot = draftingWorkspaceHistoryRef.current[nextIndex]
-
-    if (!snapshot) {
-      return
-    }
-
-    isApplyingDraftingWorkspaceHistoryRef.current = true
-    setDraftingHistoryStack(draftingWorkspaceHistoryRef.current, nextIndex)
-    applyDraftingWorkspaceDocumentToControls(snapshot)
-    window.setTimeout(() => {
-      isApplyingDraftingWorkspaceHistoryRef.current = false
-    }, 0)
-  }
-
-  function handleUndoDraftingWorkspace() {
-    restoreDraftingHistorySnapshot(
-      Math.max(0, draftingWorkspaceHistoryIndexRef.current - 1),
-    )
-  }
-
-  function handleRedoDraftingWorkspace() {
-    restoreDraftingHistorySnapshot(
-      Math.min(
-        draftingWorkspaceHistoryRef.current.length - 1,
-        draftingWorkspaceHistoryIndexRef.current + 1,
-      ),
-    )
-  }
-
-  function handleSaveDraftingWorkspace() {
-    if (draftingWorkspaceAutosaveTimerRef.current !== null) {
-      window.clearTimeout(draftingWorkspaceAutosaveTimerRef.current)
-      draftingWorkspaceAutosaveTimerRef.current = null
-    }
-
-    void writeDraftingWorkspaceDraft(draftingWorkspaceDocument)
-  }
 
   function handlePaneSelection(_paneId: string) {
     draftingSurfaceRef.current?.focus({ preventScroll: true })
@@ -1474,85 +1429,6 @@ export function WorkspaceSurface({
   }, [moduleFillUploadObjectUrl])
 
   useEffect(() => {
-    let cancelled = false
-
-    void resolveWorkspaceBootstrapDocument().then((nextDocument) => {
-      if (cancelled) {
-        return
-      }
-
-      isApplyingDraftingWorkspaceHistoryRef.current = true
-      applyDraftingWorkspaceDocumentToControls(nextDocument)
-      setDraftingHistoryStack([cloneDraftingWorkspaceDocument(nextDocument)], 0)
-      setIsDraftingWorkspaceReady(true)
-      window.setTimeout(() => {
-        isApplyingDraftingWorkspaceHistoryRef.current = false
-      }, 0)
-    })
-
-    return () => {
-      cancelled = true
-    }
-    // Initial draft hydration must run once on mount.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    if (!isDraftingWorkspaceReady) {
-      return
-    }
-
-    if (draftingWorkspaceHistoryTimerRef.current !== null) {
-      window.clearTimeout(draftingWorkspaceHistoryTimerRef.current)
-    }
-
-    draftingWorkspaceHistoryTimerRef.current = window.setTimeout(() => {
-      if (previewSession.getIsInteracting()) {
-        return
-      }
-
-      const snapshot = cloneDraftingWorkspaceDocument(draftingWorkspaceDocument)
-      const serializedSnapshot = serializeDraftingWorkspaceDocument(snapshot)
-      const currentIndex = draftingWorkspaceHistoryIndexRef.current
-      const currentSnapshot = draftingWorkspaceHistoryRef.current[currentIndex]
-
-      if (
-        currentSnapshot &&
-        serializeDraftingWorkspaceDocument(currentSnapshot) === serializedSnapshot
-      ) {
-        return
-      }
-
-      if (isApplyingDraftingWorkspaceHistoryRef.current) {
-        return
-      }
-
-      if (shouldReplaceCurrentDraftingHistoryEntryRef.current) {
-        const nextStack = [...draftingWorkspaceHistoryRef.current]
-        nextStack[currentIndex] = snapshot
-        shouldReplaceCurrentDraftingHistoryEntryRef.current = false
-        setDraftingHistoryStack(nextStack, currentIndex)
-        return
-      }
-
-      const nextStack = draftingWorkspaceHistoryRef.current.slice(0, currentIndex + 1)
-      nextStack.push(snapshot)
-
-      if (nextStack.length > 80) {
-        nextStack.shift()
-      }
-
-      setDraftingHistoryStack(nextStack, nextStack.length - 1)
-    }, 160)
-
-    return () => {
-      if (draftingWorkspaceHistoryTimerRef.current !== null) {
-        window.clearTimeout(draftingWorkspaceHistoryTimerRef.current)
-      }
-    }
-  }, [draftingWorkspaceDocument, isDraftingWorkspaceReady])
-
-  useEffect(() => {
     keyboardStateRef.current = {
       activeQrLayerId,
       activeQrNodeId,
@@ -1590,41 +1466,6 @@ export function WorkspaceSurface({
     stateRef: keyboardStateRef,
     surfaceRef: draftingSurfaceRef,
   })
-
-  useEffect(() => {
-    if (!isDraftingWorkspaceReady) {
-      return
-    }
-
-    if (draftingWorkspaceAutosaveTimerRef.current !== null) {
-      window.clearTimeout(draftingWorkspaceAutosaveTimerRef.current)
-    }
-
-    draftingWorkspaceAutosaveTimerRef.current = window.setTimeout(() => {
-      if (previewSession.getIsInteracting()) {
-        return
-      }
-
-      void writeDraftingWorkspaceDraft(draftingWorkspaceDocument)
-    }, 240)
-
-    return () => {
-      if (draftingWorkspaceAutosaveTimerRef.current !== null) {
-        window.clearTimeout(draftingWorkspaceAutosaveTimerRef.current)
-      }
-    }
-  }, [draftingWorkspaceDocument, isDraftingWorkspaceReady])
-
-  useEffect(() => {
-    return () => {
-      if (draftingWorkspaceAutosaveTimerRef.current !== null) {
-        window.clearTimeout(draftingWorkspaceAutosaveTimerRef.current)
-      }
-      if (draftingWorkspaceHistoryTimerRef.current !== null) {
-        window.clearTimeout(draftingWorkspaceHistoryTimerRef.current)
-      }
-    }
-  }, [])
 
 
   async function handleAddQrCode() {

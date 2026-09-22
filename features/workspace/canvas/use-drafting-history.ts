@@ -1,0 +1,210 @@
+"use client"
+
+import { useEffect, useRef, useState, type MutableRefObject } from "react"
+
+import {
+  cloneDraftingWorkspaceDocument,
+  serializeDraftingWorkspaceDocument,
+  type DraftingWorkspaceDocumentV1,
+} from "@/features/workspace/model/document"
+import { writeDraftingWorkspaceDraft } from "@/features/workspace/model/storage"
+import { resolveWorkspaceBootstrapDocument } from "@/features/workspace/model/workspace-bootstrap"
+import { previewSession } from "@/features/workspace/preview/preview-session"
+
+const HISTORY_LIMIT = 80
+const HISTORY_DEBOUNCE_MS = 160
+const AUTOSAVE_DEBOUNCE_MS = 240
+
+export function useDraftingHistory({
+  applyDocumentRef,
+  document,
+  isWorkspaceReady,
+  setIsWorkspaceReady,
+}: {
+  applyDocumentRef: MutableRefObject<(nextDocument: DraftingWorkspaceDocumentV1) => void>
+  document: DraftingWorkspaceDocumentV1
+  isWorkspaceReady: boolean
+  setIsWorkspaceReady: (ready: boolean) => void
+}) {
+  const [historyRevision, setHistoryRevision] = useState(-1)
+  const autosaveTimerRef = useRef<number | null>(null)
+  const historyTimerRef = useRef<number | null>(null)
+  const historyRef = useRef<DraftingWorkspaceDocumentV1[]>([])
+  const historyIndexRef = useRef(-1)
+  const isApplyingHistoryRef = useRef(false)
+  const shouldReplaceCurrentEntryRef = useRef(false)
+
+  const setHistoryStack = (
+    nextStack: DraftingWorkspaceDocumentV1[],
+    nextIndex: number,
+  ) => {
+    historyRef.current = nextStack
+    historyIndexRef.current = nextIndex
+    setHistoryRevision((current) => current + 1)
+  }
+
+  const restoreHistorySnapshot = (nextIndex: number) => {
+    const snapshot = historyRef.current[nextIndex]
+
+    if (!snapshot) {
+      return
+    }
+
+    isApplyingHistoryRef.current = true
+    setHistoryStack(historyRef.current, nextIndex)
+    applyDocumentRef.current(snapshot)
+    window.setTimeout(() => {
+      isApplyingHistoryRef.current = false
+    }, 0)
+  }
+
+  const undo = () => {
+    restoreHistorySnapshot(Math.max(0, historyIndexRef.current - 1))
+  }
+
+  const redo = () => {
+    restoreHistorySnapshot(
+      Math.min(historyRef.current.length - 1, historyIndexRef.current + 1),
+    )
+  }
+
+  const save = () => {
+    if (autosaveTimerRef.current !== null) {
+      window.clearTimeout(autosaveTimerRef.current)
+      autosaveTimerRef.current = null
+    }
+
+    void writeDraftingWorkspaceDraft(document)
+  }
+
+  const canUndo = historyRevision >= 0 && historyIndexRef.current > 0
+  const canRedo =
+    historyRevision >= 0 && historyIndexRef.current < historyRef.current.length - 1
+
+  // Initial draft hydration runs once on mount.
+  useEffect(() => {
+    let cancelled = false
+
+    void resolveWorkspaceBootstrapDocument().then((nextDocument) => {
+      if (cancelled) {
+        return
+      }
+
+      isApplyingHistoryRef.current = true
+      applyDocumentRef.current(nextDocument)
+      setHistoryStack([cloneDraftingWorkspaceDocument(nextDocument)], 0)
+      setIsWorkspaceReady(true)
+      window.setTimeout(() => {
+        isApplyingHistoryRef.current = false
+      }, 0)
+    })
+
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Debounced history snapshot capture.
+  useEffect(() => {
+    if (!isWorkspaceReady) {
+      return
+    }
+
+    if (historyTimerRef.current !== null) {
+      window.clearTimeout(historyTimerRef.current)
+    }
+
+    historyTimerRef.current = window.setTimeout(() => {
+      if (previewSession.getIsInteracting()) {
+        return
+      }
+
+      const snapshot = cloneDraftingWorkspaceDocument(document)
+      const serializedSnapshot = serializeDraftingWorkspaceDocument(snapshot)
+      const currentIndex = historyIndexRef.current
+      const currentSnapshot = historyRef.current[currentIndex]
+
+      if (
+        currentSnapshot &&
+        serializeDraftingWorkspaceDocument(currentSnapshot) === serializedSnapshot
+      ) {
+        return
+      }
+
+      if (isApplyingHistoryRef.current) {
+        return
+      }
+
+      if (shouldReplaceCurrentEntryRef.current) {
+        const nextStack = [...historyRef.current]
+        nextStack[currentIndex] = snapshot
+        shouldReplaceCurrentEntryRef.current = false
+        setHistoryStack(nextStack, currentIndex)
+        return
+      }
+
+      const nextStack = historyRef.current.slice(0, currentIndex + 1)
+      nextStack.push(snapshot)
+
+      if (nextStack.length > HISTORY_LIMIT) {
+        nextStack.shift()
+      }
+
+      setHistoryStack(nextStack, nextStack.length - 1)
+    }, HISTORY_DEBOUNCE_MS)
+
+    return () => {
+      if (historyTimerRef.current !== null) {
+        window.clearTimeout(historyTimerRef.current)
+      }
+    }
+  }, [document, isWorkspaceReady])
+
+  // Debounced draft autosave.
+  useEffect(() => {
+    if (!isWorkspaceReady) {
+      return
+    }
+
+    if (autosaveTimerRef.current !== null) {
+      window.clearTimeout(autosaveTimerRef.current)
+    }
+
+    autosaveTimerRef.current = window.setTimeout(() => {
+      if (previewSession.getIsInteracting()) {
+        return
+      }
+
+      void writeDraftingWorkspaceDraft(document)
+    }, AUTOSAVE_DEBOUNCE_MS)
+
+    return () => {
+      if (autosaveTimerRef.current !== null) {
+        window.clearTimeout(autosaveTimerRef.current)
+      }
+    }
+  }, [document, isWorkspaceReady])
+
+  // Timer cleanup on unmount.
+  useEffect(() => {
+    return () => {
+      if (autosaveTimerRef.current !== null) {
+        window.clearTimeout(autosaveTimerRef.current)
+      }
+      if (historyTimerRef.current !== null) {
+        window.clearTimeout(historyTimerRef.current)
+      }
+    }
+  }, [])
+
+  return {
+    canRedo,
+    canUndo,
+    isWorkspaceReady,
+    redo,
+    save,
+    shouldReplaceCurrentEntryRef,
+    undo,
+  }
+}
