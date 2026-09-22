@@ -4,7 +4,7 @@ import { useState } from "react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { DesktopSquircleDownloadButton } from "@/features/shell/components/DesktopSquircleDownloadButton"
+import { DesktopDownloadButton } from "@/features/shell/components/DesktopDownloadButton"
 import { DesktopTooltip } from "@/features/shell/components/DesktopTooltip"
 import type {
   DesktopInspectorModel,
@@ -28,10 +28,7 @@ export function DesktopExportDownloadPopover({
     <Popover modal={false} open={open} onOpenChange={setOpen}>
       <DesktopTooltip content="Export" side="left" sideOffset={10}>
         <PopoverTrigger asChild>
-          <DesktopSquircleDownloadButton
-            data-state={open ? "open" : "closed"}
-            desktopTheme={theme}
-          />
+          <DesktopDownloadButton data-state={open ? "open" : "closed"} />
         </PopoverTrigger>
       </DesktopTooltip>
       <PopoverContent

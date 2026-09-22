@@ -1,7 +1,11 @@
 "use client"
 
 import "@/features/shell/components/desktop-chrome.css"
-import { DesktopDynamicIslandChrome } from "@/features/shell/components/DesktopAppearanceIsland"
+import { TooltipNavbar } from "@/components/ui/tooltip-navbar"
+import {
+  DesktopDynamicIslandChrome,
+  useDesktopToolbarItems,
+} from "@/features/shell/components/DesktopAppearanceIsland"
 import { DesktopSettingsToolbarShell } from "@/features/shell/components/DesktopSettingsToolbarShell"
 import { DesktopExportDownloadPopover } from "@/features/shell/components/DesktopExportDownloadPopover"
 import {
@@ -53,6 +57,35 @@ export function FloatingToolbar({
     actualDesktopTheme,
   } = model
   const isMobileWorkspace = useMediaQuery(DESKTOP_WORKSPACE_MOBILE_QUERY)
+  const { islandItems, systemItems } = useDesktopToolbarItems({
+    appearance: controller?.appearanceSnapshot,
+    appearanceLayer: controller?.selectedAppearanceLayer,
+    canAddQrCode: controller?.canAddQrCode,
+    canDeleteLayer: controller?.canDeleteLayer,
+    canRedo: controller?.canRedo,
+    canUndo: controller?.canUndo,
+    insertNodeId: controller?.insertNodeId,
+    layersSettings: model.actualLayersSettings,
+    onAddQrCode: controller?.onAddQrCode,
+    onBrowseWallpapers: controller?.onOpenComposeSidebar
+      ? () => controller.onOpenComposeSidebar?.("wallpapers")
+      : undefined,
+    onElementLayerPatch: controller?.onElementLayerPatch,
+    onAppearancePatch: controller?.onAppearancePatch,
+    onInsertLayer: controller?.onInsertLayer,
+    onLayerDelete: controller?.onLayerDelete,
+    onLayersReorder: model.onLayersReorder,
+    onLayersSettingsChange: model.onLayersSettingsChange,
+    onRedo: controller?.onRedo,
+    onSelectSizeTemplate: controller?.onSceneTemplateSizeTemplateSelect,
+    onThemeChange: model.onDesktopThemeChange,
+    onTransformLayerPatch: controller?.onTransformLayerPatch,
+    onUndo: controller?.onUndo,
+    selectedElementLayer: controller?.selectedElementLayer,
+    selectedTransformLayer: controller?.selectedTransformLayer,
+    sizePresetId: controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId,
+    theme: actualDesktopTheme,
+  })
 
   return (
       <section
@@ -82,37 +115,7 @@ export function FloatingToolbar({
                 data-slot="desktop-dynamic-island"
                 data-toolbar-appearance="desktop-glass"
               >
-                <DesktopDynamicIslandChrome
-                  appearance={controller?.appearanceSnapshot}
-                  appearanceLayer={controller?.selectedAppearanceLayer}
-                  canAddQrCode={controller?.canAddQrCode}
-                  canDeleteLayer={controller?.canDeleteLayer}
-                  canRedo={controller?.canRedo}
-                  canUndo={controller?.canUndo}
-                  insertNodeId={controller?.insertNodeId}
-                  layersSettings={model.actualLayersSettings}
-                  onAddQrCode={controller?.onAddQrCode}
-                  onBrowseWallpapers={
-                    controller?.onOpenComposeSidebar
-                      ? () => controller.onOpenComposeSidebar?.("wallpapers")
-                      : undefined
-                  }
-                  onElementLayerPatch={controller?.onElementLayerPatch}
-                  onAppearancePatch={controller?.onAppearancePatch}
-                  onInsertLayer={controller?.onInsertLayer}
-                  onLayerDelete={controller?.onLayerDelete}
-                  onLayersReorder={model.onLayersReorder}
-                  onLayersSettingsChange={model.onLayersSettingsChange}
-                  onRedo={controller?.onRedo}
-                  onSelectSizeTemplate={controller?.onSceneTemplateSizeTemplateSelect}
-                  onThemeChange={model.onDesktopThemeChange}
-                  onTransformLayerPatch={controller?.onTransformLayerPatch}
-                  onUndo={controller?.onUndo}
-                  selectedElementLayer={controller?.selectedElementLayer}
-                  selectedTransformLayer={controller?.selectedTransformLayer}
-                  sizePresetId={controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId}
-                  theme={actualDesktopTheme}
-                />
+                <DesktopDynamicIslandChrome items={islandItems} />
               </div>
             </div>
             <div data-slot="desktop-utility-toolbar-anchor">
@@ -120,7 +123,12 @@ export function FloatingToolbar({
                 data-slot="desktop-utility-toolbar"
                 className="pointer-events-auto gap-0 p-0"
               >
-                <DesktopExportDownloadPopover model={model} theme={actualDesktopTheme} />
+                <TooltipNavbar
+                  items={systemItems}
+                  trailing={
+                    <DesktopExportDownloadPopover model={model} theme={actualDesktopTheme} />
+                  }
+                />
               </DesktopUtilityToolbar>
             </div>
             <DesktopSettingsToolbarShell

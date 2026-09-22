@@ -200,11 +200,14 @@ function useDesktopIslandItems({
       slot: string,
       icon: ReactNode,
       panel: ReactNode,
+      labeled = false,
     ): TooltipItem => ({
       ariaLabel: label,
       dataSlot: `${slot}-trigger`,
+      group: "tools",
       icon,
       label,
+      variant: labeled ? "icon-label" : undefined,
       popover: (
         <DesktopToolbarPopoverContent dataSlot={`${slot}-popover`} fitContent>
           {panel}
@@ -214,6 +217,7 @@ function useDesktopIslandItems({
 
     const nextItems: TooltipItem[] = [
       {
+        group: "history",
         ariaLabel: "Undo",
         disabled: !canUndo || !onUndo,
         icon: <DesktopUndoIcon className={ICON_CLASS} />,
@@ -221,6 +225,7 @@ function useDesktopIslandItems({
         onClick: onUndo,
       },
       {
+        group: "history",
         ariaLabel: "Redo",
         disabled: !canRedo || !onRedo,
         icon: <DesktopRedoIcon className={ICON_CLASS} />,
@@ -233,8 +238,10 @@ function useDesktopIslandItems({
       nextItems.push({
         ariaLabel: "Canvas size",
         dataSlot: "desktop-canvas-size-trigger",
+        group: "tools",
         icon: <DesktopCanvasSizeIcon className={ICON_CLASS} />,
-        label: "Canvas size",
+        label: "Layout",
+        variant: "icon-label",
         popover: (
           <DesktopCanvasRatioPresetPopoverContent
             onSelectTemplate={onSelectSizeTemplate}
@@ -256,6 +263,7 @@ function useDesktopIslandItems({
             theme={theme}
             variant="flat"
           />,
+          true,
         ),
       )
     }
@@ -286,22 +294,29 @@ function useDesktopIslandItems({
             onPatch={onAppearancePatch!}
             theme={theme}
           />,
+          true,
         ),
       )
     }
 
-    if (hasEffects) {
+    if (hasStyle) {
       nextItems.push(
         panelItem(
           "Shadows",
           "desktop-layer-shadows",
           <DesktopShadowIcon className={ICON_CLASS} />,
           <DesktopLayerShadowsPanel
-            layer={effectsLayer!}
-            onPatch={effectsPatch!}
+            layer={selectedElementLayer!}
+            onPatch={onElementLayerPatch!}
             theme={theme}
           />,
+          true,
         ),
+      )
+    }
+
+    if (hasEffects) {
+      nextItems.push(
         panelItem(
           "Effects",
           "desktop-layer-effects",
@@ -319,6 +334,7 @@ function useDesktopIslandItems({
             theme={theme}
             variant="flat"
           />,
+          true,
         ),
       )
     }
@@ -327,8 +343,10 @@ function useDesktopIslandItems({
       nextItems.push({
         ariaLabel: "Add element",
         dataSlot: "desktop-insert-trigger",
+        group: "tools",
         icon: hugeIcon(ResourcesAddIcon),
-        label: "Add element",
+        label: "Add",
+        variant: "icon-label",
         popover: (
           <InsertMenuPopoverContent
             canAddQrCode={canAddQrCode}
@@ -356,38 +374,43 @@ function useDesktopIslandItems({
             onLayersReorder={onLayersReorder}
             onLayersSettingsChange={onLayersSettingsChange!}
           />,
+          true,
         ),
       )
     }
 
-    nextItems.push({
-      ariaLabel: "Open keyboard shortcuts",
-      dataSlot: "desktop-keyboard-shortcuts-trigger",
-      icon: (
-        <HugeiconsIcon icon={KeyboardIcon} size={14} color="currentColor" strokeWidth={1.8} />
-      ),
-      label: "Keyboard shortcuts",
-      popover: <DesktopKeyboardShortcutsPopoverContent popoverSide="bottom" />,
-    })
-
-    nextItems.push({
-      ariaLabel: soundsEnabled ? "Mute interaction sounds" : "Enable interaction sounds",
-      cuelume: "toggle",
-      dataSlot: "desktop-sounds-toggle",
-      icon: soundsEnabled ? (
-        <Volume2Icon className={ICON_CLASS} />
-      ) : (
-        <VolumeXIcon className={ICON_CLASS} />
-      ),
-      label: soundsEnabled ? "Sounds on" : "Sounds off",
-      onClick: toggleSoundsEnabled,
-    })
+    const systemItems: TooltipItem[] = [
+      {
+        ariaLabel: "Open keyboard shortcuts",
+        dataSlot: "desktop-keyboard-shortcuts-trigger",
+        group: "system",
+        icon: (
+          <HugeiconsIcon icon={KeyboardIcon} size={14} color="currentColor" strokeWidth={1.8} />
+        ),
+        label: "Keyboard shortcuts",
+        popover: <DesktopKeyboardShortcutsPopoverContent popoverSide="bottom" />,
+      },
+      {
+        ariaLabel: soundsEnabled ? "Mute interaction sounds" : "Enable interaction sounds",
+        cuelume: "toggle",
+        dataSlot: "desktop-sounds-toggle",
+        group: "system",
+        icon: soundsEnabled ? (
+          <Volume2Icon className={ICON_CLASS} />
+        ) : (
+          <VolumeXIcon className={ICON_CLASS} />
+        ),
+        label: soundsEnabled ? "Sounds on" : "Sounds off",
+        onClick: toggleSoundsEnabled,
+      },
+    ]
 
     if (onThemeChange) {
-      nextItems.push({
+      systemItems.push({
         ariaLabel: `Switch to ${theme === "light" ? "dark" : "light"} mode`,
         cuelume: "toggle",
         dataSlot: "desktop-theme-toggle",
+        group: "system",
         icon:
           theme === "light" ? (
             <MoonIcon className={ICON_CLASS} />
@@ -405,7 +428,7 @@ function useDesktopIslandItems({
       })
     }
 
-    return nextItems
+    return { islandItems: nextItems, systemItems }
   }, [
     appearance,
     canAddQrCode,
@@ -447,13 +470,24 @@ function useDesktopIslandItems({
   return items
 }
 
-export function DesktopDynamicIslandChrome(props: DesktopDynamicIslandChromeProps) {
+export function useDesktopToolbarItems(
+  props: Omit<DesktopDynamicIslandChromeProps, "theme"> & {
+    theme?: DesktopThemeMode
+  },
+) {
   const theme = props.theme ?? "dark"
-  const items = useDesktopIslandItems({ ...props, theme })
+  return useDesktopIslandItems({ ...props, theme })
+}
 
+export function DesktopDynamicIslandChrome({
+  items,
+}: {
+  items: TooltipItem[]
+}) {
   return (
     <div data-slot="desktop-dynamic-island-content">
       <TooltipNavbar items={items} />
     </div>
   )
 }
+

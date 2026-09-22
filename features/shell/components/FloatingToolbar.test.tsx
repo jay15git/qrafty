@@ -175,7 +175,7 @@ describe("FloatingToolbar", () => {
     expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-border-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-shadows-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-shadows-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
@@ -215,23 +215,23 @@ describe("FloatingToolbar", () => {
     expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
     expect(dynamicIsland?.querySelector('button[aria-label="Undo"]')).not.toBeNull()
     expect(dynamicIsland?.querySelector('button[aria-label="Redo"]')).not.toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
-    expect(dynamicIsland?.querySelector('[data-slot="desktop-theme-toggle"]')).not.toBeNull()
-    expect(dynamicIsland?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="desktop-theme-toggle"]')).not.toBeNull()
+    expect(dynamicIsland?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
   })
 
-  it("places a squircle download button in the top-right utility toolbar", async () => {
+  it("places a pill download button in the top-right utility toolbar", async () => {
     const surface = await renderPrototype()
     const utilityToolbar = surface.container.querySelector('[data-slot="desktop-utility-toolbar"]')
 
     expect(surface.container.querySelector('[data-slot="desktop-document-toolbar"]')).toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-download-trigger"]')).not.toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="desktop-theme-toggle"]')).not.toBeNull()
     const dynamicIsland = surface.container.querySelector('[data-slot="desktop-dynamic-island"]')
-    expect(dynamicIsland?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
-    expect(dynamicIsland?.querySelector('[data-slot="desktop-theme-toggle"]')).not.toBeNull()
+    expect(dynamicIsland?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
+    expect(dynamicIsland?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-compose-toolbar"]')).toBeNull()
   })
 
@@ -273,10 +273,10 @@ describe("FloatingToolbar", () => {
       "Download",
     )
     expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").className).toContain(
-      "bg-[var(--glass-bg)]",
+      "bg-transparent",
     )
     expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
 
     await act(async () => {
       getRequiredButton(dynamicIsland, "Undo").dispatchEvent(new MouseEvent("click", { bubbles: true }))

@@ -17,8 +17,9 @@ export type TooltipItem = {
   ariaLabel?: string;
   dataSlot?: string;
   popover?: ReactNode;
-  variant?: "icon" | "text";
+  variant?: "icon" | "text" | "icon-label";
   pressed?: boolean;
+  group?: string;
   cuelume?: "button" | "none" | "toggle";
 };
 
@@ -35,6 +36,7 @@ import {
 interface TooltipNavbarProps {
   items: TooltipItem[];
   tooltipDelay?: number; //in ms
+  trailing?: ReactNode;
 }
 
 const DEFAULT_ITEMS: TooltipItem[] = [
@@ -78,6 +80,7 @@ const DEFAULT_ITEMS: TooltipItem[] = [
 export const TooltipNavbar = ({
   items = DEFAULT_ITEMS,
   tooltipDelay = 300,
+  trailing,
 }: TooltipNavbarProps) => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [coords, setCoords] = useState({ clipPath: "", translateX: 0 });
@@ -88,9 +91,22 @@ export const TooltipNavbar = ({
   const [isEntering, setIsEntering] = useState(true);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [openPopoverIndex, setOpenPopoverIndex] = useState<number | null>(null);
+  const runs = items.reduce<{ item: TooltipItem; index: number }[][]>(
+    (acc, item, index) => {
+      const last = acc[acc.length - 1];
+      if (last && last[0].item.group === item.group) {
+        last.push({ item, index });
+      } else {
+        acc.push([{ item, index }]);
+      }
+      return acc;
+    },
+    [],
+  );
 
   const renderItemButton = (item: TooltipItem, index: number) => {
     const isText = item.variant === "text";
+    const isIconLabel = item.variant === "icon-label";
     const cuelumeAttrs = desktopCuelumeAttrs(item.cuelume ?? "button");
 
     return (
@@ -107,14 +123,21 @@ export const TooltipNavbar = ({
         aria-pressed={item.pressed || undefined}
         {...cuelumeAttrs}
         className={cn(
-          isText
+          isIconLabel
+            ? "flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-full px-2.5 text-xs font-medium whitespace-nowrap transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-3.5"
+            : isText
             ? "flex h-8 cursor-pointer items-center justify-center rounded-full px-2.5 text-xs font-medium whitespace-nowrap transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
             : "flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-3.5",
           item.pressed &&
             "bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] text-[var(--glass-button-hover-fg,currentColor)]",
         )}
       >
-        {isText ? (
+        {isIconLabel ? (
+          <>
+            <div className="flex items-center justify-center">{item.icon}</div>
+            <span>{item.label}</span>
+          </>
+        ) : isText ? (
           <span>{item.label}</span>
         ) : (
           <>
@@ -167,7 +190,7 @@ export const TooltipNavbar = ({
 
   const handleMouseEnter = (index: number) => {
     if (openPopoverIndex !== null) return;
-    if (items[index]?.variant === "text") {
+    if (items[index]?.variant !== "icon") {
       clearTooltip();
       return;
     }
@@ -268,32 +291,46 @@ export const TooltipNavbar = ({
             )}
           </AnimatePresence>
 
-          <div
-            data-slot="tooltip-navbar-shell"
-            className="z-10 inline-flex items-center justify-center gap-1 rounded-full border border-[var(--glass-border,rgba(255,255,255,0.06))] bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
-          >
-            {items.map((item, index) => {
-              const button = renderItemButton(item, index);
+          <div className="z-10 flex items-center justify-center gap-2">
+            {runs.map((run, runIndex) => (
+              <div
+                key={runIndex}
+                data-slot="tooltip-navbar-shell"
+                className="inline-flex items-center justify-center gap-1 rounded-full bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
+              >
+                {run.map(({ item, index }) => {
+                  const button = renderItemButton(item, index);
 
-              if (item.popover) {
-                return (
-                  <Popover
-                    key={index}
-                    modal={false}
-                    open={openPopoverIndex === index}
-                    onOpenChange={(open) => {
-                      setOpenPopoverIndex(open ? index : null);
-                      if (open) clearTooltip();
-                    }}
-                  >
-                    <PopoverTrigger asChild>{button}</PopoverTrigger>
-                    {item.popover}
-                  </Popover>
-                );
-              }
+                  if (item.popover) {
+                    return (
+                      <Popover
+                        key={index}
+                        modal={false}
+                        open={openPopoverIndex === index}
+                        onOpenChange={(open) => {
+                          setOpenPopoverIndex(open ? index : null);
+                          if (open) clearTooltip();
+                        }}
+                      >
+                        <PopoverTrigger asChild>{button}</PopoverTrigger>
+                        {item.popover}
+                      </Popover>
+                    );
+                  }
 
-              return <span key={index}>{button}</span>;
-            })}
+                  return <span key={index}>{button}</span>;
+                })}
+                {runIndex === runs.length - 1 ? trailing : null}
+              </div>
+            ))}
+            {runs.length === 0 && trailing ? (
+              <div
+                data-slot="tooltip-navbar-shell"
+                className="inline-flex items-center justify-center gap-1 rounded-full bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
+              >
+                {trailing}
+              </div>
+            ) : null}
           </div>
 
           <div
