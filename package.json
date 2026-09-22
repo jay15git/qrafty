@@ -2,6 +2,8 @@
   "name": "qrafty",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
+  "author": "Jayant Acharya",
   "packageManager": "pnpm@10.28.0",
   "scripts": {
     "dev": "next dev",

@@ -54,7 +54,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - Current tests only cover `features/qr-code/model/state.ts` and a growing set of adjacent modules.
 - Vitest is configured with `environment: "node"`, so browser/client behavior is not covered by default.
 - If you change React UI behavior, do not assume existing tests cover it.
-- The repo has **62 pre-existing failing tests across 11 files**, plus 68 `tsc` errors across 44 files (as of commit `e510c1c`). `next.config.ts` sets `typescript.ignoreBuildErrors: true`, which is why `pnpm build` passes anyway. Compare your run against that baseline before claiming a regression or a fix; `main` is not green.
+- `pnpm typecheck` is clean and `next.config.ts` no longer sets `typescript.ignoreBuildErrors`, so `pnpm build` runs type checking and passes. The repo still has **62 pre-existing failing tests across 11 files** (851 of 913 passing, browser-dependent UI tests). `pnpm lint` also reports **214 errors**, mostly `react-hooks/*` rules from `eslint-config-next` 16, concentrated in `packages/qr/vendor/`, `.agents/skills/`, and a few client components that read refs during render; `app/` is lint-clean. Compare your run against that baseline before claiming a regression or a fix.
 
 ## Dead-code tooling
 - `pnpm knip` is authoritative for this repo. `pnpm exec knip --production` is **not** — it fails to resolve the `@qrafty/qr-internal/*` tsconfig aliases and reports ~25 live barrel exports as unused, and it lists nearly every dependency as unused. Verify any `--production` hit against its real import sites before acting.
