@@ -1,161 +1,74 @@
 "use client"
 
-import { type ReactNode, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
+import {
+  useEffect,
+  useMemo,
+  useRef,
+} from "react"
 
-import type {
-  QrErrorCorrectionLevel,
-  QrFinderPatternOuterStyle,
-  QrMode,
-  QrTypeNumber,
-} from "@/features/qr/model/types"
-import type { QraftyCornerDotStyle } from "@/features/qr/model/state"
 
 import {
   cloneDraftingCardState,
   createDefaultDraftingCardState,
-  normalizeDraftingCardState,
-  type DraftingCardState,
 } from "@/features/canvas/model/card-state"
-import { createUniformCornerRadii } from "@/features/canvas/model/corner-radius"
 import {
   cloneDraftingCanvasLayer,
-  createDraftingTextLayer,
-  createDraftingImageLayer,
   createDefaultDraftingLayers,
   createDraftingQrLayer,
   DEFAULT_DRAFTING_TEXT_LAYER,
-  fitQrSizeInCard,
-  getDraftingCardLayerId,
   getDraftingQrLayerId,
   getQrCanvasLayers,
   isDraftingQrLayerId,
-  isLayerDeletable,
-  layoutDraftingCardInsetLayers,
-  patchDraftingCanvasLayer,
-  type DraftingCanvasLayer,
-  type DraftingLayerStateByNodeId,
 } from "@/features/canvas/model/layers"
 import {
   cloneDraftingQrState,
-  cloneDraftingWorkspaceDocument,
-  createDefaultDraftingWorkspaceDocument,
   createDefaultDraftingWorkspaceQrState,
-  type DraftingCardStateByNodeId,
-  type DraftingContentValuesByType,
-  type DraftingQrStateByNodeId,
   type DraftingWorkspaceDocumentV1,
 } from "@/features/canvas/model/document"
 import {
   applySceneCompositionPatch,
   cloneSceneCompositionByNodeId,
   createDefaultSceneCompositionByNodeId,
-  type SceneCompositionByNodeId,
 } from "@/features/canvas/model/apply-scene-template"
 import {
-  createDefaultSceneComposition,
-  normalizeSceneComposition,
-} from "@/features/canvas/model/scene-templates"
-import { getCanvasSizeFromTemplate } from "@/features/canvas/model/size-templates"
-import { sceneHasVideoExportContent } from "@/features/canvas/export/pipeline/clock"
+  getCanvasSizeFromTemplate,
+} from "@/features/canvas/model/size-templates"
+import {
+  sceneHasVideoExportContent,
+} from "@/features/canvas/export/pipeline/clock"
 import {
   buildDraftingWorkspaceDocumentFromState,
   mergeLiveQrStateByLayerId,
   resolveActiveQrLayerIdFromLayers,
 } from "@/features/canvas/components/workspace-surface-document"
 import {
-  applyCornersSettingsPatchToQraftyState,
-  applyLogoSettingsPatchToQraftyState,
-  applyPatternSettingsPatchToQraftyState,
-} from "@/features/canvas/components/workspace-qr-settings-patch"
-import { clearDraftingQrMarkupCache } from "@/features/canvas/hooks/use-drafting-qr-markup"
-import { clearQrEncodeMarkupCache } from "@/features/qr/rendering/qr-encode-cache"
+  clearDraftingQrMarkupCache,
+} from "@/features/canvas/hooks/use-drafting-qr-markup"
 import {
   buildDesktopToolbarSettingsSnapshots,
   pickDesktopToolbarSettingsSnapshots,
 } from "@/features/canvas/components/workspace-desktop-settings-snapshots"
-import {
-  DEFAULT_DRAFTING_PANE_QR_SIZE,
-  DEFAULT_DRAFTING_STUDIO_STATE,
-  replaceTrackedObjectUrl,
-  type DraftingDownloadExtension,
-} from "@/features/canvas/components/workspace-surface.constants"
-import {
-  Canvas,
-  type DraftingPaneToolbarVariant,
-} from "@/features/canvas/components/Canvas"
+import { DEFAULT_DRAFTING_STUDIO_STATE } from "@/features/canvas/components/workspace-surface.constants"
+import { type DraftingPaneToolbarVariant } from "@/features/canvas/components/Canvas"
 import type {
-  DesktopBackgroundInspectorTab,
-  DesktopCornersSettings,
-  DesktopEncodingSettings,
-  DesktopAccessibilitySettings,
-  DesktopExportSettings,
-  DesktopExportTarget,
-  DesktopImageSettings,
-  DesktopLayerRow,
-  DesktopLayersSettings,
-  DesktopLogoSettings,
-  DesktopLogoSettingsPatch,
-  DesktopLogoSourceMode,
   DesktopMotionSettings,
-  DesktopPatternSettings,
-  DesktopPatternSettingsPatch,
-  DesktopShapeSettings,
-  DesktopTextSettings,
-  DesktopThemeMode,
   DesktopToolbarController,
   DesktopToolbarToolId,
-  ComposeSidebarPanel,
 } from "@/features/shell/model/desktop-toolbar-types"
-import type { UnifiedQrFillPatches } from "@/features/shell/inspector/settings-bridge"
-import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/shell/model/desktop-toolbar-defaults"
 import {
-  buildDesktopAppearancePatch,
-  getDesktopAppearanceSnapshot,
-  type DesktopAppearancePatch,
-} from "@/features/shell/model/appearance"
+  DEFAULT_DESKTOP_EXPORT_SETTINGS,
+} from "@/features/shell/model/desktop-toolbar-defaults"
+import { type BrandIconCategory } from "@/features/qr/assets/brand-icons"
 import {
-  findBrandIconById,
-  type BrandIconCategory,
-  type BrandIconEntry,
-} from "@/features/qr/assets/brand-icons"
-import {
-  parseIconstackSelectionId,
-} from "@/features/qr/assets/iconstack-api"
-import {
-} from "@/features/qr/assets/iconstack-svg"
-import { useQrScanSafety } from "@/features/qr/hooks/useQrScanSafety"
-import { previewSession } from "@/features/canvas/preview/preview-session"
-import { MobileWorkspaceInsetTransitionBridge } from "@/features/canvas/components/MobileWorkspaceInsetTransitionBridge"
-import {
-  createBrandIconDataUrl,
-} from "@/features/qr/assets/brand-icon-svg"
-import {
-  applyAssetNoneSelection,
-  applyAssetUrlValue,
-  applyLogoPresetColor,
-} from "@/features/qr/model/actions"
-import { applyAssetUploadValue } from "@/features/qr/model/actions"
-import { isRasterExportExtension } from "@/features/qr/export/raster-export"
+  isRasterExportExtension,
+} from "@/features/qr/export/raster-export"
 import {
   DASHBOARD_QR_NODE_ID,
 } from "@/features/qr/rendering/compose-scene"
 import {
-  clampQrBackgroundRound,
-  type BackgroundShapeOptions,
-  type QrDotMatrixAnimationOptions,
-  type QrCrossOrigin,
-  type QrGradientLinkMode,
-  type QrLogoPositionMode,
-  type QrLogoSizeMode,
   type QraftyState,
-  type QraftyDataModulesStyle,
-  type QraftyGradient,
-  setDotMatrixAnimationOptions,
   getAssetValue,
-  hasActiveBackgroundShapeOptions,
-  hasBackgroundImage,
 } from "@/features/qr/model/state"
-import { type QrBackgroundShapeId } from "@/features/qr/styles/background-shapes"
 import {
   buildStaticQrPayload,
   getDefaultStaticQrValues,
@@ -173,31 +86,47 @@ import {
   DEFAULT_QR_INPUT_TYPE,
   type QrInputType,
 } from "@/features/qr/content/input-options"
-import { cn } from "@/lib/utils"
 import {
-  formatValueSegmentsText,
   findDraftingLayerById,
-  getDesktopAssetSourceMode,
-  getDesktopExportTarget,
-  getDesktopLogoSourceMode,
-  getDesktopTextSettings,
-  getDraftingDownloadTarget,
-  isEditableShortcutTarget,
   parseValueSegmentsText,
-  toDesktopLayerRow,
-  ensureMandatoryDesktopLayerRows,
   type DraftingDownloadTarget,
 } from "@/features/canvas/components/workspace-surface-helpers"
+import { useWorkspaceSurfaceReducer } from "@/features/canvas/components/workspace-surface-reducer"
 import {
-  type DraftingAssetSourceMode,
-  useWorkspaceSurfaceReducer,
-} from "@/features/canvas/components/workspace-surface-reducer"
-import { useDraftingHistory } from "@/features/canvas/canvas/use-drafting-history"
-import { useWorkspaceExport } from "@/features/canvas/canvas/use-workspace-export"
-import { createQrControls } from "@/features/canvas/canvas/qr-controls"
-import { useQrLogoActions } from "@/features/canvas/canvas/use-qr-logo-actions"
-import { useLayerActions } from "@/features/canvas/canvas/use-layer-actions"
-import { useInspectorActions } from "@/features/canvas/canvas/use-inspector-actions"
+  resolveActiveCanvasLayers,
+  resolveActiveSceneComposition,
+  resolveCanRemoveQrCode,
+  resolveDesktopAppearanceSnapshot,
+  resolveDesktopLayerTargets,
+  resolveQrBackgroundSurfaceVisible,
+  resolveSelectedContentValues,
+  resolveSelectedElementLayer,
+  resolveSelectedTextLayer,
+} from "@/features/canvas/components/workspace-surface-resolvers"
+import {
+  useWorkspaceScanSafety,
+} from "@/features/canvas/components/use-workspace-scan-safety"
+import {
+  buildDesktopController,
+} from "@/features/canvas/components/workspace-desktop-controller"
+import {
+  useDraftingHistory,
+} from "@/features/canvas/canvas/use-drafting-history"
+import {
+  useWorkspaceExport,
+} from "@/features/canvas/canvas/use-workspace-export"
+import {
+  createQrControls,
+} from "@/features/canvas/canvas/qr-controls"
+import {
+  useQrLogoActions,
+} from "@/features/canvas/canvas/use-qr-logo-actions"
+import {
+  useLayerActions,
+} from "@/features/canvas/canvas/use-layer-actions"
+import {
+  useInspectorActions,
+} from "@/features/canvas/canvas/use-inspector-actions"
 import {
   useDraftingShortcuts,
   type DraftingShortcutHandlers,
@@ -209,126 +138,6 @@ type DraftingWorkspaceController = DesktopToolbarController
 type WorkspaceSurfaceViewModelInput = {
   initialActiveTool?: DesktopToolbarToolId
   paneToolbarVariant: DraftingPaneToolbarVariant
-}
-
-function resolveSelectedContentValues(
-  contentValuesByType: DraftingContentValuesByType,
-  selectedContentType: QrInputType,
-) {
-  return (
-    contentValuesByType[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType)
-  )
-}
-
-function resolveActiveSceneComposition(
-  sceneCompositionByNodeId: SceneCompositionByNodeId,
-  activeQrNodeId: string,
-) {
-  return normalizeSceneComposition(
-    sceneCompositionByNodeId[activeQrNodeId] ?? createDefaultSceneComposition(),
-  )
-}
-
-function resolveActiveCanvasLayers(
-  layerStateByNodeId: DraftingLayerStateByNodeId,
-  activeQrNodeId: string,
-  draftingQraftyState: QraftyState,
-  selectedCardState: DraftingCardState,
-) {
-  return (
-    layerStateByNodeId[activeQrNodeId] ??
-    createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
-  )
-}
-
-function resolveSelectedTextLayer(
-  activeCanvasLayers: DraftingCanvasLayer[],
-  selectedLayerId: string | null,
-) {
-  return selectedLayerId ? findDraftingLayerById(activeCanvasLayers, selectedLayerId) : null
-}
-
-function resolveSelectedElementLayer(
-  selectedLayerIds: string[],
-  selectedTextLayer: DraftingCanvasLayer | null,
-) {
-  return selectedLayerIds.length === 1 && selectedTextLayer &&
-    (selectedTextLayer.kind === "text" ||
-      selectedTextLayer.kind === "shape" ||
-      selectedTextLayer.kind === "image" ||
-      selectedTextLayer.kind === "shader")
-    ? selectedTextLayer
-    : null
-}
-
-function resolveQrBackgroundSurfaceVisible(draftingQraftyState: QraftyState) {
-  return (
-    !hasBackgroundImage(draftingQraftyState) &&
-    (!draftingQraftyState.backgroundOptions.transparent ||
-      draftingQraftyState.backgroundGradient.enabled ||
-      hasActiveBackgroundShapeOptions(draftingQraftyState.backgroundShapeOptions))
-  )
-}
-
-function resolveDesktopLayerTargets(
-  activeCanvasLayers: DraftingCanvasLayer[],
-  selectedLayerIds: string[],
-  selectedTransformLayer: DraftingCanvasLayer | null,
-) {
-  const fallbackAppearanceLayer =
-    activeCanvasLayers.find((layer) => layer.kind === "card") ?? null
-  const appearanceTargetLayer = selectedTransformLayer ?? fallbackAppearanceLayer
-  const transformTargetLayer =
-    selectedTransformLayer ??
-    (selectedLayerIds.length === 0 ? appearanceTargetLayer : null)
-  const propertiesTransformLayer =
-    transformTargetLayer?.kind === "card" ? null : transformTargetLayer
-
-  return {
-    appearanceTargetLayer,
-    propertiesTransformLayer,
-    transformTargetLayer,
-  }
-}
-
-function resolveDesktopAppearanceSnapshot(
-  appearanceTargetLayer: DraftingCanvasLayer | null,
-  selectedCardState: DraftingCardState,
-  draftingQraftyState: QraftyState,
-  qrBackgroundSurfaceVisible: boolean,
-) {
-  return appearanceTargetLayer
-    ? getDesktopAppearanceSnapshot(appearanceTargetLayer, {
-        cardBorder:
-          appearanceTargetLayer.kind === "card" ? selectedCardState.border : undefined,
-        cardCornerRadius:
-          appearanceTargetLayer.kind === "card" ? selectedCardState.cornerRadius : undefined,
-        cardCornerRadii:
-          appearanceTargetLayer.kind === "card" ? selectedCardState.cornerRadii : undefined,
-        qrBackgroundShapeId:
-          appearanceTargetLayer.kind === "qr"
-            ? draftingQraftyState.backgroundShapeId
-            : undefined,
-        qrBackgroundShapeOptions:
-          appearanceTargetLayer.kind === "qr"
-            ? draftingQraftyState.backgroundShapeOptions
-            : undefined,
-        qrBackgroundSurfaceVisible:
-          appearanceTargetLayer.kind === "qr" ? qrBackgroundSurfaceVisible : undefined,
-      })
-    : null
-}
-
-function resolveCanRemoveQrCode(
-  paneToolbarVariant: DraftingPaneToolbarVariant,
-  qrCanvasLayers: DraftingCanvasLayer[],
-  selectedLayerId: string | null,
-) {
-  return (
-    paneToolbarVariant === "desktop-zoom" &&
-    qrCanvasLayers.length > 1 &&
-    Boolean(selectedLayerId?.includes(":qr"))
-  )
 }
 
 export function useWorkspaceSurfaceViewModel({
@@ -1657,90 +1466,18 @@ export function useWorkspaceSurfaceViewModel({
     }),
   )
 
-  const isPreviewInteracting = useSyncExternalStore(
-    previewSession.subscribe,
-    previewSession.getIsInteracting,
-    () => false,
-  )
-
-  const scanSafetyQrLayer = useMemo(() => {
-    const targetLayerId = selectedDownloadTarget.startsWith("qr:")
-      ? selectedDownloadTarget.slice("qr:".length)
-      : activeQrLayerId
-
-    return (
-      activeCanvasLayers.find((layer) => layer.id === targetLayerId) ??
-      activeCanvasLayers.find((layer) => layer.id === activeQrLayerId) ??
-      qrCanvasLayers[0]
-    )
-  }, [
+  const scanSafetyResult = useWorkspaceScanSafety({
     activeCanvasLayers,
     activeQrLayerId,
+    activeQrNodeId,
+    draftingQraftyState,
     qrCanvasLayers,
+    qrStateByLayerId,
+    resolveTargetDimensions: resolveWorkspaceExportTargetDimensions,
+    selectedCardState,
+    selectedContentIsValid: selectedContentValidation.isValid,
+    selectedDownloadExtension,
     selectedDownloadTarget,
-  ])
-  const scanSafetyState = useMemo(
-    () =>
-      scanSafetyQrLayer && scanSafetyQrLayer.id !== activeQrLayerId
-        ? (qrStateByLayerId[scanSafetyQrLayer.id] ?? draftingQraftyState)
-        : draftingQraftyState,
-    [activeQrLayerId, draftingQraftyState, qrStateByLayerId, scanSafetyQrLayer],
-  )
-  const scanSafetyLayers = useMemo(
-    () =>
-      selectedDownloadTarget === "surface"
-        ? activeCanvasLayers
-        : activeCanvasLayers.map((layer) =>
-            cloneDraftingCanvasLayer({
-              ...layer,
-              isVisible:
-                layer.kind === "card" || layer.id === scanSafetyQrLayer?.id
-                  ? layer.isVisible
-                  : false,
-            }),
-          ),
-    [activeCanvasLayers, scanSafetyQrLayer?.id, selectedDownloadTarget],
-  )
-  const scanSafetyCardLayer = useMemo(
-    () =>
-      scanSafetyLayers.find((layer) => layer.kind === "card" && layer.isVisible),
-    [scanSafetyLayers],
-  )
-  const scanSafetyTargetDimensions = useMemo(
-    () =>
-      scanSafetyCardLayer
-        ? resolveWorkspaceExportTargetDimensions(scanSafetyCardLayer)
-        : undefined,
-    [scanSafetyCardLayer, resolveWorkspaceExportTargetDimensions],
-  )
-  const scanSafetyScene = useMemo(
-    () =>
-      scanSafetyCardLayer
-        ? {
-            backgroundColor: selectedCardState.fill || "#ffffff",
-            cardState: selectedCardState,
-            extension: selectedDownloadExtension,
-            layers: scanSafetyLayers,
-            nodeId: activeQrNodeId,
-            qualityPercent: draftingQraftyState.rasterExportQualityPercent,
-            targetDimensions: scanSafetyTargetDimensions,
-          }
-        : undefined,
-    [
-      activeQrNodeId,
-      draftingQraftyState.rasterExportQualityPercent,
-      scanSafetyCardLayer,
-      scanSafetyLayers,
-      scanSafetyTargetDimensions,
-      selectedCardState,
-      selectedDownloadExtension,
-    ],
-  )
-  const scanSafetyResult = useQrScanSafety(scanSafetyState, {
-    contentIsValid: selectedContentValidation.isValid,
-    enabled: !isPreviewInteracting,
-    layer: scanSafetyQrLayer,
-    scene: scanSafetyScene,
   })
 
   const canRemoveQrCode = resolveCanRemoveQrCode(
@@ -1749,232 +1486,238 @@ export function useWorkspaceSurfaceViewModel({
     selectedLayerId,
   )
 
-  const desktopController: DraftingWorkspaceController = {
-    activeTool: desktopActiveTool,
-    canRedo: canRedoDraftingWorkspace,
-    canUndo: canUndoDraftingWorkspace,
-    contentType: selectedContentType,
-    contentValues: selectedContentValues,
-    contentValidation: selectedContentValidation,
-    cornersSettings: desktopCornersSettings,
-    backgroundSettings: desktopBackgroundSettings,
-    backgroundInspectorTab,
-    effectsSettings: desktopEffectsSettings,
-    encodedContentValue: selectedContentValue,
-    encodingSettings: desktopEncodingSettings,
-    accessibilitySettings: desktopAccessibilitySettings,
-    exportSettings: desktopExportSettings,
-    imageSettings: desktopImageSettings,
-    layoutSettings: desktopLayoutSettings,
-    layersSettings: desktopLayersSettings,
-    logoSettings: desktopLogoSettings,
-    motionSettings: selectedDotMatrixAnimation as DesktopMotionSettings,
-    patternSettings: desktopPatternSettings,
-    sceneTemplateSettings: desktopSceneTemplateSettings,
-    shapeSettings: desktopShapeSettings,
-    textSettings: desktopTextSettings,
-    insertNodeId: activeQrNodeId,
-    composeSidebarPanel,
-    selectedElementLayer,
-    selectedLayerIds,
-    selectedTransformLayer: propertiesTransformLayer,
-    selectedAppearanceLayer: appearanceTargetLayer,
-    appearanceSnapshot: desktopAppearanceSnapshot,
-    scanSafetyResult,
-    canvasTool: paneToolbarVariant === "desktop-zoom" ? desktopCanvasTool : undefined,
-    onCanvasToolChange:
-      paneToolbarVariant === "desktop-zoom" ? setDesktopCanvasTool : undefined,
-    canAddQrCode: qrCanvasLayers.length < 10,
-    onAddQrCode: () => {
-      void handleAddQrCode()
+  const desktopController: DraftingWorkspaceController = buildDesktopController({
+    core: {
+      activeTool: desktopActiveTool,
+      appearanceSnapshot: desktopAppearanceSnapshot,
+      canRedo: canRedoDraftingWorkspace,
+      canUndo: canUndoDraftingWorkspace,
+      composeSidebarPanel,
+      contentValidation: selectedContentValidation,
+      contentValues: selectedContentValues,
+      contentType: selectedContentType,
+      encodedContentValue: selectedContentValue,
+      insertNodeId: activeQrNodeId,
+      onActiveToolChange: (toolId) => {
+        setComposeSidebarPanel(null)
+        setDesktopCanvasTool("select")
+        setDesktopRailTool(toolId)
+      },
+      onContentPasteApply: handleDraftingContentPasteApply,
+      onContentReset: resetDesktopContent,
+      onContentTypeChange: handleDraftingContentTypeChange,
+      onContentValueChange: handleDraftingContentValueChange,
+      onRedo: handleRedoDraftingWorkspace,
+      onResetDefaults: resetDraftingWorkspace,
+      onSave: handleSaveDraftingWorkspace,
+      onUndo: handleUndoDraftingWorkspace,
+      scanSafetyResult,
+      selectedAppearanceLayer: appearanceTargetLayer,
+      selectedElementLayer,
+      selectedLayerIds,
+      selectedTransformLayer: propertiesTransformLayer,
     },
-    onAddTextLayerAt: handleAddTextLayerAt,
-    canRemoveQrCode,
-    onRemoveQrCode:
-      canRemoveQrCode && selectedLayerId
-        ? () => handleRemoveQrCode(selectedLayerId)
-        : undefined,
-    onInsertLayer: handleInsertLayer,
-    onOpenComposeSidebar: (panel) => {
-      setComposeSidebarPanel(panel)
-      selectSingleLayer(null)
+    qrSettings: {
+      accessibilitySettings: desktopAccessibilitySettings,
+      backgroundInspectorTab,
+      backgroundSettings: desktopBackgroundSettings,
+      cornersSettings: desktopCornersSettings,
+      effectsSettings: desktopEffectsSettings,
+      encodingSettings: desktopEncodingSettings,
+      imageSettings: desktopImageSettings,
+      logoSettings: desktopLogoSettings,
+      motionSettings: selectedDotMatrixAnimation as DesktopMotionSettings,
+      onAccessibilityReset: () => setSelectedAriaLabel(""),
+      onAccessibilitySettingsChange: updateDesktopAccessibilitySettings,
+      onBackgroundInspectorTabChange: setBackgroundInspectorTab,
+      onBackgroundReset: () =>
+        setSelectedCardState((current) => ({
+          ...current,
+          paperShader: createDefaultDraftingCardState().paperShader,
+          styleMode: "paper-shader",
+        })),
+      onBackgroundSettingsChange: (settings) =>
+        setSelectedCardState((current) => ({
+          ...current,
+          paperShader: settings.paperShader ?? current.paperShader,
+          styleMode:
+            settings.styleMode ??
+            (settings.paperShader !== undefined ? "paper-shader" : current.styleMode),
+        })),
+      onCornersReset: () => qrControls.applyQrState(createDefaultDraftingWorkspaceQrState()),
+      onCornersSettingsChange: updateDesktopCornersSettings,
+      onEffectsReset: resetDesktopShapeSettings,
+      onEffectsSettingsChange: (patch) =>
+        setSelectedCardState((current) => ({
+          ...current,
+          imageFilter: {
+            ...current.imageFilter,
+            presetName: patch.filterPresetName ?? current.imageFilter.presetName,
+            shaderId: patch.filterId ?? current.imageFilter.shaderId,
+          },
+          styleMode: patch.filterId ? "image-filter" : current.styleMode,
+        })),
+      onEncodingReset: () => {
+        setSelectedQrTypeNumber(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.typeNumber)
+        setSelectedQrErrorCorrectionLevel(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.errorCorrectionLevel)
+        setSelectedBoostLevel(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.boostLevel)
+        setSelectedQrMode(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.mode)
+        setSelectedValueSegmentsText("")
+      },
+      onEncodingSettingsChange: updateDesktopEncodingSettings,
+      onImageReset: resetDesktopShapeSettings,
+      onImageSettingsChange: updateDesktopImageSettings,
+      onLogoReset: resetDesktopLogoSettings,
+      onLogoSettingsChange: updateDesktopLogoSettings,
+      onMotionReset: () => setSelectedDotMatrixAnimation({ ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation }),
+      onMotionSettingsChange: updateDesktopMotionSettings,
+      onPatternReset: resetDesktopPatternSettings,
+      onPatternSettingsChange: updateDesktopPatternSettings,
+      onShapeReset: resetDesktopShapeSettings,
+      onShapeSettingsChange: updateDesktopShapeSettings,
+      onTextReset: () => updateDesktopTextSettings({ ...DEFAULT_DRAFTING_TEXT_LAYER }),
+      onTextSettingsChange: updateDesktopTextSettings,
+      onUnifiedQrFillSettingsChange: updateDesktopUnifiedQrFillSettings,
+      patternSettings: desktopPatternSettings,
+      shapeSettings: desktopShapeSettings,
+      textSettings: desktopTextSettings,
     },
-    onCloseComposeSidebar: () => {
-      setComposeSidebarPanel(null)
-    },
-    onSelectWallpaper: (imagePath) => {
-      updateDesktopImageSettings({ remoteUrl: imagePath, sourceMode: "url" })
-      setComposeSidebarPanel(null)
-    },
-    onCanvasBackgroundTabChange: (tab) => {
-      setSelectedCardState((current) => {
-        if (tab === "shader") {
-          return { ...current, styleMode: "paper-shader" }
-        }
+    scene: {
+      activeQrNodeId,
+      activeSceneComposition,
+      layoutSettings: desktopLayoutSettings,
+      onBackgroundTabChange: (tab) => {
+        setSelectedCardState((current) => {
+          if (tab === "shader") {
+            return { ...current, styleMode: "paper-shader" }
+          }
 
-        if (tab === "image") {
+          if (tab === "image") {
+            return {
+              ...current,
+              styleMode: current.cardImage.value ? "image" : current.styleMode,
+            }
+          }
+
           return {
             ...current,
-            styleMode: current.cardImage.value ? "image" : current.styleMode,
+            styleMode: "solid",
           }
-        }
-
-        return {
+        })
+      },
+      onCloseComposeSidebar: () => {
+        setComposeSidebarPanel(null)
+      },
+      onLayoutPresetSelect: (preset) => {
+        setSceneCompositionByNodeId((current) =>
+          applySceneCompositionPatch(current, activeQrNodeId, { layout: preset }),
+        )
+      },
+      onLayoutSettingsChange: (patch) => {
+        setSceneCompositionByNodeId((current) =>
+          applySceneCompositionPatch(current, activeQrNodeId, {
+            layout: { ...activeSceneComposition.layout, ...patch },
+          }),
+        )
+      },
+      onOpenComposeSidebar: (panel) => {
+        setComposeSidebarPanel(panel)
+        selectSingleLayer(null)
+      },
+      onSceneTemplateSizeChange: (patch) => {
+        updateDesktopShapeSettings({
+          cardHeight: patch.cardHeight,
+          cardWidth: patch.cardWidth,
+          lockAspectRatio: patch.lockAspectRatio,
+          sizeMode: patch.sizeMode,
+          sizePresetId: patch.sizePresetId,
+        })
+      },
+      onSceneTemplateSizeTemplateSelect: (template) => {
+        const canvasSize = getCanvasSizeFromTemplate(template)
+        updateDesktopShapeSettings({
+          cardHeight: canvasSize.height,
+          cardWidth: canvasSize.width,
+          lockAspectRatio: true,
+          sizeMode: "fixed",
+          sizePresetId: template.id,
+        })
+      },
+      onSelectWallpaper: (imagePath) => {
+        updateDesktopImageSettings({ remoteUrl: imagePath, sourceMode: "url" })
+        setComposeSidebarPanel(null)
+      },
+      sceneTemplateSettings: desktopSceneTemplateSettings,
+    },
+    canvas: {
+      canRemoveQrCode,
+      canvasTool: paneToolbarVariant === "desktop-zoom" ? desktopCanvasTool : null,
+      onAddQrCode: () => {
+        void handleAddQrCode()
+      },
+      onAddTextLayerAt: handleAddTextLayerAt,
+      onCanvasToolChange:
+        paneToolbarVariant === "desktop-zoom" ? setDesktopCanvasTool : () => undefined,
+      onInsertLayer: handleInsertLayer,
+      onRemoveQrCode:
+        canRemoveQrCode && selectedLayerId
+          ? () => handleRemoveQrCode(selectedLayerId)
+          : undefined,
+      qrLayerCount: qrCanvasLayers.length,
+    },
+    element: {
+      activeQrNodeId,
+      onAppearancePatch: handleDesktopAppearancePatch,
+      onLayerChange: handleLayerChange,
+      propertiesTransformLayer,
+      selectedElementLayer,
+      selectedTransformLayer,
+    },
+    export: {
+      canExportDownload: canDownload,
+      canExportVideo,
+      exportDownloadError,
+      exportInProgress,
+      exportProgressLabel,
+      exportProgressRatio,
+      exportSettings: desktopExportSettings,
+      onExportCancel: () => {
+        cancelWorkspaceExport()
+      },
+      onExportDownload: () => {
+        void handleDownload()
+      },
+      onExportReset: () => {
+        setExportDownloadError(null)
+        setSelectedDownloadExtension("png")
+        setSelectedDownloadTarget("surface")
+        setSelectedPhotoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.photoLongEdge)
+        setSelectedExportMediaKind(DEFAULT_DESKTOP_EXPORT_SETTINGS.mediaKind)
+        setSelectedVideoDurationSeconds(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoDurationSeconds)
+        setSelectedVideoFormat(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFormat)
+        setSelectedVideoFrameRate(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFrameRate)
+        setSelectedVideoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoLongEdge)
+      },
+      onExportSettingsChange: updateDesktopExportSettings,
+    },
+    layers: {
+      activeCanvasLayers,
+      activeQrNodeId,
+      layersSettings: desktopLayersSettings,
+      onLayerAction: handleLayerAction,
+      onLayerCopy: () => {
+        void copySelectedDraftingLayers(selectedLayerIds)
+      },
+      onLayersReset: () =>
+        setLayerStateByNodeId((current) => ({
           ...current,
-          styleMode: "solid",
-        }
-      })
+          [activeQrNodeId]: createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState),
+        })),
+      onLayersReorder: handleLayerReorder,
+      onLayersSettingsChange: updateDesktopLayersSettings,
+      selectedLayerIds,
     },
-    onElementLayerPatch: (patch) => {
-      if (selectedElementLayer) {
-        handleLayerChange(activeQrNodeId, selectedElementLayer.id, patch)
-      }
-    },
-    onAppearancePatch: handleDesktopAppearancePatch,
-    onTransformLayerPatch: (patch) => {
-      const target = selectedTransformLayer ?? propertiesTransformLayer
-      if (target) {
-        handleLayerChange(activeQrNodeId, target.id, patch)
-      }
-    },
-    onActiveToolChange: (toolId) => {
-      setComposeSidebarPanel(null)
-      setDesktopCanvasTool("select")
-      setDesktopRailTool(toolId)
-    },
-    onRedo: handleRedoDraftingWorkspace,
-    onResetDefaults: resetDraftingWorkspace,
-    onSave: handleSaveDraftingWorkspace,
-    onUndo: handleUndoDraftingWorkspace,
-    onContentReset: resetDesktopContent,
-    onContentTypeChange: handleDraftingContentTypeChange,
-    onContentPasteApply: handleDraftingContentPasteApply,
-    onContentValueChange: handleDraftingContentValueChange,
-    onCornersReset: () => qrControls.applyQrState(createDefaultDraftingWorkspaceQrState()),
-    onCornersSettingsChange: updateDesktopCornersSettings,
-    onBackgroundReset: () =>
-      setSelectedCardState((current) => ({
-        ...current,
-        paperShader: createDefaultDraftingCardState().paperShader,
-        styleMode: "paper-shader",
-      })),
-    onBackgroundSettingsChange: (settings) =>
-      setSelectedCardState((current) => ({
-        ...current,
-        paperShader: settings.paperShader ?? current.paperShader,
-        styleMode:
-          settings.styleMode ??
-          (settings.paperShader !== undefined ? "paper-shader" : current.styleMode),
-      })),
-    onBackgroundInspectorTabChange: setBackgroundInspectorTab,
-    onEffectsReset: resetDesktopShapeSettings,
-    onEffectsSettingsChange: (patch) =>
-      setSelectedCardState((current) => ({
-        ...current,
-        imageFilter: {
-          ...current.imageFilter,
-          presetName: patch.filterPresetName ?? current.imageFilter.presetName,
-          shaderId: patch.filterId ?? current.imageFilter.shaderId,
-        },
-        styleMode: patch.filterId ? "image-filter" : current.styleMode,
-      })),
-    onEncodingReset: () => {
-      setSelectedQrTypeNumber(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.typeNumber)
-      setSelectedQrErrorCorrectionLevel(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.errorCorrectionLevel)
-      setSelectedBoostLevel(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.boostLevel)
-      setSelectedQrMode(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.mode)
-      setSelectedValueSegmentsText("")
-    },
-    onEncodingSettingsChange: updateDesktopEncodingSettings,
-    onAccessibilityReset: () => setSelectedAriaLabel(""),
-    onAccessibilitySettingsChange: updateDesktopAccessibilitySettings,
-    onLayoutPresetSelect: (preset) => {
-      setSceneCompositionByNodeId((current) =>
-        applySceneCompositionPatch(current, activeQrNodeId, { layout: preset }),
-      )
-    },
-    onLayoutSettingsChange: (patch) => {
-      setSceneCompositionByNodeId((current) =>
-        applySceneCompositionPatch(current, activeQrNodeId, {
-          layout: { ...activeSceneComposition.layout, ...patch },
-        }),
-      )
-    },
-    onSceneTemplateSizeChange: (patch) => {
-      updateDesktopShapeSettings({
-        cardHeight: patch.cardHeight,
-        cardWidth: patch.cardWidth,
-        lockAspectRatio: patch.lockAspectRatio,
-        sizeMode: patch.sizeMode,
-        sizePresetId: patch.sizePresetId,
-      })
-    },
-    onSceneTemplateSizeTemplateSelect: (template) => {
-      const canvasSize = getCanvasSizeFromTemplate(template)
-      updateDesktopShapeSettings({
-        cardHeight: canvasSize.height,
-        cardWidth: canvasSize.width,
-        lockAspectRatio: true,
-        sizeMode: "fixed",
-        sizePresetId: template.id,
-      })
-    },
-    onExportDownload: () => {
-      void handleDownload()
-    },
-    onExportCancel: () => {
-      cancelWorkspaceExport()
-    },
-    canExportDownload: canDownload,
-    canExportVideo,
-    exportInProgress,
-    exportProgressLabel,
-    exportProgressRatio,
-    exportDownloadError,
-    onExportReset: () => {
-      setExportDownloadError(null)
-      setSelectedDownloadExtension("png")
-      setSelectedDownloadTarget("surface")
-      setSelectedPhotoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.photoLongEdge)
-      setSelectedExportMediaKind(DEFAULT_DESKTOP_EXPORT_SETTINGS.mediaKind)
-      setSelectedVideoDurationSeconds(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoDurationSeconds)
-      setSelectedVideoFormat(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFormat)
-      setSelectedVideoFrameRate(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFrameRate)
-      setSelectedVideoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoLongEdge)
-    },
-    onExportSettingsChange: updateDesktopExportSettings,
-    onImageReset: resetDesktopShapeSettings,
-    onImageSettingsChange: updateDesktopImageSettings,
-    onLayersReset: () =>
-      setLayerStateByNodeId((current) => ({
-        ...current,
-        [activeQrNodeId]: createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState),
-      })),
-    onLayersSettingsChange: updateDesktopLayersSettings,
-    onLayersReorder: handleLayerReorder,
-    onLayerDelete: (layerId: string) => {
-      handleLayerAction(activeQrNodeId, [layerId], "delete")
-    },
-    onLayerMenuAction: (action) => {
-      handleLayerAction(activeQrNodeId, selectedLayerIds, action)
-    },
-    onLayerCopy: () => {
-      void copySelectedDraftingLayers(selectedLayerIds)
-    },
-    canCopyLayers: selectedLayerIds.length > 0,
-    canDeleteLayer: (layerId: string) => isLayerDeletable(layerId, activeCanvasLayers),
-    onLogoReset: resetDesktopLogoSettings,
-    onLogoSettingsChange: updateDesktopLogoSettings,
-    onMotionReset: () => setSelectedDotMatrixAnimation({ ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation }),
-    onMotionSettingsChange: updateDesktopMotionSettings,
-    onPatternReset: resetDesktopPatternSettings,
-    onPatternSettingsChange: updateDesktopPatternSettings,
-    onUnifiedQrFillSettingsChange: updateDesktopUnifiedQrFillSettings,
-    onShapeReset: resetDesktopShapeSettings,
-    onShapeSettingsChange: updateDesktopShapeSettings,
-    onTextReset: () => updateDesktopTextSettings({ ...DEFAULT_DRAFTING_TEXT_LAYER }),
-    onTextSettingsChange: updateDesktopTextSettings,
-  }
+  })
 
   return {
     activeQrNodeId,

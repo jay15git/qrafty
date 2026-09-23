@@ -7,7 +7,10 @@ import {
   DEFAULT_DOWNLOAD_NAME,
   type DraftingDownloadExtension,
 } from "@/features/canvas/components/workspace-surface.constants"
-import { resolveVideoOutputDimensions } from "@/features/canvas/export/pipeline/bounds"
+import {
+  resolveVideoOutputDimensions,
+  type OutputDimensions,
+} from "@/features/canvas/export/pipeline/bounds"
 import { sceneHasVideoExportContent } from "@/features/canvas/export/pipeline/clock"
 import {
   runWorkspaceBatchExport,
@@ -69,7 +72,7 @@ export function useWorkspaceExport({
   const abortControllerRef = useRef<AbortController | null>(null)
 
   const resolveTargetDimensions = useCallback(
-    (cardLayer: DraftingCanvasLayer) => {
+    (cardLayer: DraftingCanvasLayer): OutputDimensions | undefined => {
       if (rasterPhotoLongEdge) {
         return resolveVideoOutputDimensions(
           cardLayer.width,

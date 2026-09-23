@@ -7,6 +7,11 @@ export type ArtboardBounds = {
   width: number
 }
 
+export type OutputDimensions = {
+  height: number
+  width: number
+}
+
 export function getArtboardExportBounds(cardLayer: DraftingCanvasLayer): ArtboardBounds {
   return {
     height: Math.max(1, Math.round(cardLayer.height)),
@@ -25,7 +30,7 @@ export function resolveVideoOutputDimensions(
   artboardWidth: number,
   artboardHeight: number,
   longEdge: number,
-) {
+): OutputDimensions {
   const maxEdge = Math.max(artboardWidth, artboardHeight)
   const scale = longEdge / maxEdge
   return {
