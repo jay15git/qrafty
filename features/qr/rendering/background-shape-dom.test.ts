@@ -6,7 +6,7 @@ import { createDefaultQraftyState,
   clampQrSize,
 } from "@/features/qr/model/state"
 import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background.utils"
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers"
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
 import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state"
 
 describe("background shape svg payload", () => {
