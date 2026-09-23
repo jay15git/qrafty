@@ -88,4 +88,4 @@ app → features → components/ui → lib
 
 ## Verification
 
-Before claiming any refactor done: `pnpm typecheck` + focused tests + `npx react-doctor . --scope changed` (see AGENTS.md for baselines). Baseline: 62 test failures (14 real after polyfills), react-doctor 47/100, lint 214 errors.
+Before claiming any refactor done: `pnpm typecheck` + focused tests + `npx react-doctor . --scope changed` (see AGENTS.md for baselines). Baseline (2026-09-23): 16 test failures / 925 passing across 7 files, react-doctor 83/100, lint 106 errors. Full breakdown in `docs/superpowers/plans/test-baseline.md`.

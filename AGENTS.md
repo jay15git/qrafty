@@ -26,6 +26,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - Desktop QR settings live in `features/shell/components/FloatingToolbar.tsx` and `features/shell/inspector/DesktopSettingsPanel.tsx`.
 - Element-layer settings use `features/shell/components/DesktopElementInspector.tsx` with `SettingsFillPopover` / `DesktopFillPicker` (`features/shell/inspector/fill-picker.tsx`).
 - Shared workspace helpers live in `features/canvas/components/workspace-surface-helpers.ts` and `features/canvas/components/pane-layer-geometry.ts`.
+- `use-workspace-surface-view-model.ts` is the workspace state machine. Its pure derivations live in `workspace-surface-resolvers.ts`, the scan-safety probe in `use-workspace-scan-safety.ts`, and the `DesktopToolbarController` assembly in `workspace-desktop-controller.ts` (grouped by concern: core / qrSettings / scene / canvas / element / export / layers). Add new controller fields to the matching group, not to the hook.
 - `lib/utils.ts` only provides `cn()`.
 
 ## MCP Tools
@@ -54,7 +55,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - Current tests only cover `features/qr/model/state.ts` and a growing set of adjacent modules.
 - Vitest is configured with `environment: "node"`, so browser/client behavior is not covered by default.
 - If you change React UI behavior, do not assume existing tests cover it.
-- `pnpm typecheck` is clean and `next.config.ts` no longer sets `typescript.ignoreBuildErrors`, so `pnpm build` runs type checking and passes. The repo has **~15 pre-existing failing tests across 10 files** (see `docs/superpowers/plans/test-baseline.md`; two are `glimm`/`next/link` ESM resolution failures, one is a live-network fetch). `pnpm lint` reports **~107 errors**, mostly `react-hooks/*` rules from `eslint-config-next` 16 in client components; `app/` is lint-clean. `pnpm check` runs typecheck + knip + fallow dead-code — all three must stay clean. Compare your run against that baseline before claiming a regression or a fix.
+- `pnpm typecheck` is clean and `next.config.ts` no longer sets `typescript.ignoreBuildErrors`, so `pnpm build` runs type checking and passes. The repo has **16 pre-existing failing tests across 7 files** (see `docs/superpowers/plans/test-baseline.md`; one is a live-network fetch, six are jsdom computed-style gaps, the rest are real drift). `pnpm lint` reports **106 errors / 226 warnings**, mostly `react-hooks/*` rules from `eslint-config-next` 16 in client components; `app/` is lint-clean. `npx react-doctor . --json` scores **83/100**. `pnpm check` runs typecheck + knip + fallow dead-code and exits 0.
 
 ## Dead-code tooling
 - `pnpm knip` is authoritative for this repo. `pnpm exec knip --production` is **not** — it fails to resolve the `@qrafty/qr-internal/*` tsconfig aliases and reports ~25 live barrel exports as unused, and it lists nearly every dependency as unused. Verify any `--production` hit against its real import sites before acting.
