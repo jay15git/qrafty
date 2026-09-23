@@ -1461,23 +1461,27 @@ function useMobileRailStage(
   })
   // "stage" fades the whole rail block (family open/close); "row" fades only
   // the option row (mode/part tabs inside a family — tabs/actions stay lit).
-  const [fading, setFading] = useState<"stage" | "row" | false>(false)
+  // Derived from the pending target so the fade starts on the same render the
+  // target changes, without a synchronous setState in an effect.
+  const targetPending =
+    displayed.family !== openFamily ||
+    displayed.mode !== incomingMode ||
+    displayed.part !== openPart
+  const fading: "stage" | "row" | false = targetPending
+    ? displayed.family === openFamily
+      ? "row"
+      : "stage"
+    : false
 
   useEffect(() => {
-    if (
-      displayed.family === openFamily &&
-      displayed.mode === incomingMode &&
-      displayed.part === openPart
-    ) {
+    if (!targetPending) {
       return
     }
-    setFading(displayed.family === openFamily ? "row" : "stage")
     const timeout = window.setTimeout(() => {
       setDisplayed({ family: openFamily, mode: incomingMode, part: openPart })
-      setFading(false)
     }, 190)
     return () => window.clearTimeout(timeout)
-  }, [openFamily, incomingMode, openPart, displayed])
+  }, [openFamily, incomingMode, openPart, targetPending])
 
   const viewFamily = displayed.family
   // Footer pill highlight: live for the displayed family so a tap slides the

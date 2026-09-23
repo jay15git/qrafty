@@ -327,17 +327,22 @@ export function useFluidHover<T extends HTMLElement>(
    */
   const scheduleMeasurement = useCallback(
     (attemptsLeft: number) => {
-      if (remeasureRafIdRef.current !== null) {
-        cancelAnimationFrame(remeasureRafIdRef.current);
-      }
-      remeasureRafIdRef.current = requestAnimationFrame(() => {
-        remeasureRafIdRef.current = null;
-        if (runMeasurement()) {
-          setIsMeasured(true);
-        } else if (attemptsLeft > 1) {
-          scheduleMeasurement(attemptsLeft - 1);
+      // Declared inside so the retry can recurse without the callback
+      // referencing its own binding before initialization.
+      const attempt = (left: number) => {
+        if (remeasureRafIdRef.current !== null) {
+          cancelAnimationFrame(remeasureRafIdRef.current);
         }
-      });
+        remeasureRafIdRef.current = requestAnimationFrame(() => {
+          remeasureRafIdRef.current = null;
+          if (runMeasurement()) {
+            setIsMeasured(true);
+          } else if (left > 1) {
+            attempt(left - 1);
+          }
+        });
+      };
+      attempt(attemptsLeft);
     },
     [runMeasurement]
   );

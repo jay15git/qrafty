@@ -4,10 +4,8 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useLayoutEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react"
@@ -63,6 +61,9 @@ interface FamilyDrawerRootProps {
   repositionInputs?: boolean
 }
 
+const MIN_OPACITY_DURATION = 0.15
+const MAX_OPACITY_DURATION = 0.27
+
 function FamilyDrawerRoot({
   children,
   open: controlledOpen,
@@ -78,28 +79,34 @@ function FamilyDrawerRoot({
   const [internalOpen, setInternalOpen] = useState(defaultOpen)
   const [view, setView] = useState(defaultView)
   const [elementRef, bounds, refreshBounds] = useMeasure()
-  const previousHeightRef = useRef<number>(0)
 
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen
   const setIsOpen = onOpenChange || setInternalOpen
 
-  const opacityDuration = useMemo(() => {
-    const previousHeight = previousHeightRef.current
+  // Previous measured height and the opacity duration derived from it. Both
+  // live in state so the duration is computed during render without reading a
+  // ref (unsafe under concurrent React). Adjusting state during render — the
+  // documented prev-prop pattern — keeps the duration identical to the old
+  // ref-based computation: the render that observes a new height derives the
+  // delta against the height it replaced, and the follow-up render (now
+  // equal) leaves the duration alone.
+  const [previousHeight, setPreviousHeight] = useState(0)
+  const [opacityDuration, setOpacityDuration] = useState(MIN_OPACITY_DURATION)
 
-    const MIN_DURATION = 0.15
-    const MAX_DURATION = 0.27
-
-    if (!previousHeight) {
-      return MIN_DURATION
-    }
-
-    const heightDifference = Math.abs(bounds.height - previousHeight)
-
-    return Math.min(Math.max(heightDifference / 500, MIN_DURATION), MAX_DURATION)
-  }, [bounds.height])
-  useEffect(() => {
-    previousHeightRef.current = bounds.height
-  }, [bounds.height])
+  if (bounds.height !== previousHeight) {
+    setPreviousHeight(bounds.height)
+    setOpacityDuration(
+      !previousHeight
+        ? MIN_OPACITY_DURATION
+        : Math.min(
+            Math.max(
+              Math.abs(bounds.height - previousHeight) / 500,
+              MIN_OPACITY_DURATION,
+            ),
+            MAX_OPACITY_DURATION,
+          ),
+    )
+  }
 
   // The portal mounts the measured wrapper in the same commit the drawer
   // opens; the observer can miss that first layout when the drawer opens
@@ -250,21 +257,23 @@ function FamilyDrawerContent({
 }: FamilyDrawerContentProps) {
   const { bounds, view } = useFamilyDrawer()
   const setScrollFrameRef = usePersistedScrollNode(`family-drawer-frame:${view}`)
-  const lastPositiveHeightRef = useRef(0)
+  const [lastPositiveHeight, setLastPositiveHeight] = useState(0)
   const isCapped = maxHeight !== undefined
   const dialogTitle =
     accessibilityTitle ??
     DEFAULT_VIEW_ACCESSIBILITY_TITLES[view] ??
     DEFAULT_VIEW_ACCESSIBILITY_TITLES.default
 
-  useEffect(() => {
-    if (bounds.height > 0) {
-      lastPositiveHeightRef.current = bounds.height
-    }
-  }, [bounds.height])
+  // Remember the last non-zero measured height so a transient 0 (the frame
+  // collapsing mid-transition) doesn't snap the card to nothing. State, not a
+  // ref, so the fallback below is a render input; adjusted during render to
+  // avoid an extra commit.
+  if (bounds.height > 0 && bounds.height !== lastPositiveHeight) {
+    setLastPositiveHeight(bounds.height)
+  }
 
   const measuredHeight =
-    bounds.height > 0 ? bounds.height : lastPositiveHeightRef.current
+    bounds.height > 0 ? bounds.height : lastPositiveHeight
   const displayedHeight = isCapped
     ? Math.min(measuredHeight, maxHeight)
     : measuredHeight

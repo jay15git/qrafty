@@ -60,7 +60,7 @@ function parseSVG(markup: string) {
   return svg || undefined;
 }
 
-function serializeSVG(svg: SVGSVGElement) {
+function serializeSVG(svg: Element) {
   if (typeof XMLSerializer !== 'undefined') {
     return new XMLSerializer().serializeToString(svg);
   }
@@ -191,7 +191,7 @@ function renderPathRunsAsAnimatableSVG(
 
 function serializePreservedImages(svg: SVGSVGElement) {
   return Array.from(svg.querySelectorAll('image'))
-    .map((image) => serializeSVG(image as any))
+    .map((image) => serializeSVG(image))
     .join('');
 }
 

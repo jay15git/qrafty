@@ -274,6 +274,7 @@ export function useDraftingShortcuts({
       window.removeEventListener("copy", handleCopy, true)
       window.removeEventListener("paste", handlePaste, true)
     }
-    // eslint-disable-next-line react-doctor/exhaustive-deps -- clipboard handlers read latest state via refs
+    // Clipboard handlers read the latest state via refs; register once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 }

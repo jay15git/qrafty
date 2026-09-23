@@ -5,9 +5,7 @@ import { Minus, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   useCallback,
-  useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactElement,
 } from "react"
@@ -79,6 +77,23 @@ export function PaletteColorStopList({
   )
 }
 
+// Editable text that follows `formatted` unless the field is focused: the
+// draft resets whenever the source value changes while the user is not
+// editing, and keeps the user's text otherwise.
+function useDraftValue(formatted: string, focused: boolean) {
+  const [draft, setDraft] = useState(formatted)
+  const [prevFormatted, setPrevFormatted] = useState(formatted)
+
+  if (prevFormatted !== formatted) {
+    setPrevFormatted(formatted)
+    if (!focused) {
+      setDraft(formatted)
+    }
+  }
+
+  return [draft, setDraft] as const
+}
+
 function PaletteColorStopRow({
   canRemove,
   color,
@@ -98,14 +113,8 @@ function PaletteColorStopRow({
     [color],
   )
   const formatted = formatColor(parsed, "hex")
-  const [draft, setDraft] = useState(formatted)
-  const focusedRef = useRef(false)
-
-  useEffect(() => {
-    if (!focusedRef.current) {
-      setDraft(formatted)
-    }
-  }, [formatted])
+  const [focused, setFocused] = useState(false)
+  const [draft, setDraft] = useDraftValue(formatted, focused)
 
   const commitDraft = (raw: string) => {
     const next = parseColor(raw.trim())
@@ -150,11 +159,11 @@ function PaletteColorStopRow({
             value={draft}
             spellCheck={false}
             onFocus={() => {
-              focusedRef.current = true
+              setFocused(true)
             }}
             onChange={(event) => setDraft(event.target.value)}
             onBlur={(event) => {
-              focusedRef.current = false
+              setFocused(false)
               commitDraft(event.target.value)
             }}
             onKeyDown={(event) => {

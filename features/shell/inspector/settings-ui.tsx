@@ -892,7 +892,7 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
     }
 
     setRadixOpen(true)
-  }, [accordion, liveDetail.open, mobileDensity, mobileNav, popoverKey])
+  }, [accordion, liveDetail, mobileDensity, mobileNav, popoverKey])
 
   useImperativeHandle(ref, () => ({ openPicker }), [openPicker])
 

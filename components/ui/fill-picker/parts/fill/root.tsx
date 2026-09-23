@@ -56,11 +56,8 @@ export const Root = React.forwardRef<HTMLDivElement, RootProps>(function Root(
     return () => ro.disconnect();
   }, []);
   // Skip the very first commit so the picker mounts at its natural
-  // height instead of animating up from 0.
-  const animateRef = React.useRef(false);
-  React.useEffect(() => {
-    if (innerHeight !== null) animateRef.current = true;
-  }, [innerHeight]);
+  // height instead of animating up from 0. `innerHeight` is null until the
+  // observer reports the first measurement, so it doubles as the flag.
   const idBase = React.useId();
   return (
     <FillPickerContext.Provider value={state}>
@@ -70,7 +67,7 @@ export const Root = React.forwardRef<HTMLDivElement, RootProps>(function Root(
         data-slot="fill-picker"
         className={cn(
           "w-full max-w-70 overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-sm",
-          animateRef.current &&
+          innerHeight !== null &&
             "transition-[height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
           className,
         )}

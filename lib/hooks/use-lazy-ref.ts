@@ -1,8 +1,9 @@
 import * as React from "react";
 
 function useLazyRef<T>(fn: () => T) {
-  // eslint-disable-next-line react-doctor/exhaustive-deps -- initializer must run once
-  const ref = React.useMemo(() => ({ current: fn() as T }), []);
+  // useState's lazy initializer runs exactly once per mount and yields a stable
+  // object identity, so `ref.current` stays mutable without re-running `fn`.
+  const [ref] = React.useState(() => ({ current: fn() as T }));
 
   return ref as React.RefObject<T>;
 }

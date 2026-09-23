@@ -306,24 +306,10 @@ export function useGradientPicker(
   const [selectedStopId, setSelectedStopId] = React.useState<string>(
     () => internal.stops[0]?.id ?? "",
   );
-
-  // Track the last gradient we emitted upward so the controlled-sync path can
-  // ignore echoes. Seed with the initial controlled value so the *first* sync
-  // is treated as an echo of our own initial state.
-  const lastEmittedRef = React.useRef<Gradient | null>(value ?? null);
-
-  // stateRef mirrors `internal` so setters can compute the next state +
-  // synchronously emit the cleaned gradient without going through an effect.
-  // Assigned during render (refs are not state; idempotent under Strict Mode)
-  // and re-assigned inside `apply` so chained setters in one event handler each
-  // see the previous result.
-  const stateRef = React.useRef(internal);
-  const onValueChangeRef = React.useRef(onValueChange);
-
-  React.useLayoutEffect(() => {
-    stateRef.current = internal;
-    onValueChangeRef.current = onValueChange;
-  });
+  // Bumped when a controlled gradient arrives structurally different, so the
+  // layout effect below can clear the per-shape stashes without a render-time
+  // ref write.
+  const [stashEpoch, setStashEpoch] = React.useState(0);
 
   // Per-shape override stashes. The radial gradient can carry either an
   // ellipse override (`radii`) or a circle override (`radiusPx`), never
@@ -339,37 +325,69 @@ export function useGradientPicker(
   );
   const radiusPxStashRef = React.useRef<number | undefined>(undefined);
 
+  // Track the last gradient we emitted upward so the controlled-sync path can
+  // ignore echoes. Seed with the initial controlled value so the *first* sync
+  // is treated as an echo of our own initial state. State, not a ref: the
+  // controlled-sync path reads it during render.
+  const [lastEmitted, setLastEmitted] = React.useState<Gradient | null>(
+    value ?? null,
+  );
+
+  // stateRef mirrors `internal` so setters can compute the next state +
+  // synchronously emit the cleaned gradient without going through an effect.
+  // Re-assigned inside `apply` so chained setters in one event handler each
+  // see the previous result, and re-synced from `internal` by the layout
+  // effect below after every commit.
+  const stateRef = React.useRef(internal);
+  const onValueChangeRef = React.useRef(onValueChange);
+
+  React.useLayoutEffect(() => {
+    stateRef.current = internal;
+    onValueChangeRef.current = onValueChange;
+    // Mirror the id-tracking flag for the event handlers. The controlled-sync
+    // path below updates `tracksStopIds` during render; this effect lands the
+    // same value in the ref before any handler can read it.
+    idTrackedRef.current = tracksStopIds;
+  });
+
+  // The controlled-sync path clears the per-shape stashes when a new gradient
+  // arrives structurally different. It signals that here (a render-phase state
+  // bump) instead of writing the refs during render; no handler runs between
+  // the render and this effect, so the clear is observed at the same point.
+  React.useLayoutEffect(() => {
+    if (stashEpoch === 0) return;
+    radiiStashRef.current = undefined;
+    radiusPxStashRef.current = undefined;
+  }, [stashEpoch]);
+
   // Sync controlled value during render (the "adjusting state during render"
   // pattern from React docs) instead of an effect. An effect would commit a
   // render with stale `internal`, then schedule a second render — children
   // would see one frame with the previous gradient. Doing the reconcile here
   // means the same render that observes a new `value` also renders with the
   // reconciled internal state.
+  //
+  // The refs the event handlers read (`stateRef`, `idTrackedRef`, the shape
+  // stashes) are mirrored by the layout effects above rather than written
+  // here: no handler can run between this render and those effects, so the
+  // mirror is in place before anything observes it, and render stays free of
+  // ref writes.
   const [prevControlledValue, setPrevControlledValue] = React.useState<
     Gradient | undefined
   >(value);
   if (isControlled && value !== prevControlledValue) {
     setPrevControlledValue(value);
-    if (value !== lastEmittedRef.current) {
+    if (value !== lastEmitted) {
       const { next, uniqueIds, structuralMatch } = reconcileControlledValue(
         value,
-        stateRef.current,
+        internal,
       );
       if (!structuralMatch) {
-        /* eslint-disable react-doctor/no-ref-current-in-render -- controlled gradient sync */
-        radiiStashRef.current = undefined;
-        radiusPxStashRef.current = undefined;
-        /* eslint-enable react-doctor/no-ref-current-in-render */
+        setStashEpoch((n) => n + 1);
       }
-      // Controlled sync during render: refs mirror the reconciled state for the
-      // next event handler. React documents this adjust-on-prop-change pattern.
-      /* eslint-disable react-doctor/no-ref-current-in-render -- controlled gradient sync */
-      idTrackedRef.current = uniqueIds;
       if (uniqueIds !== tracksStopIds) {
         setTracksStopIds(uniqueIds);
       }
-      stateRef.current = next;
-      /* eslint-enable react-doctor/no-ref-current-in-render */
       setInternal(next);
     }
   }
@@ -385,11 +403,12 @@ export function useGradientPicker(
       stateRef.current = next;
       setInternal(next);
       const clean = toPublicGradient(next, idTrackedRef.current);
-      lastEmittedRef.current = clean;
+      setLastEmitted(clean);
       onValueChangeRef.current?.(clean, formatGradient(clean));
     },
-    // eslint-disable-next-line react-doctor/exhaustive-deps -- idTrackedRef is read at invocation time
-    [],
+    // `idTrackedRef` is a stable `useLazyRef` object; the compiler treats it as
+    // a value, so it must be listed even though its identity never changes.
+    [idTrackedRef],
   );
 
   // ---- Gradient-level setters ----------------------------------------------
@@ -405,8 +424,7 @@ export function useGradientPicker(
       apply(() => attachIds(next));
       setSelectedStopId((prev) => stateRef.current.stops[0]?.id ?? prev);
     },
-    // eslint-disable-next-line react-doctor/exhaustive-deps -- idTrackedRef is read at invocation time
-    [apply],
+    [apply, idTrackedRef],
   );
 
   const setType = React.useCallback(

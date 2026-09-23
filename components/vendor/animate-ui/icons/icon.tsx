@@ -63,17 +63,17 @@ function useAnimateIconTriggers({
     0,
   );
 
-  const currentAnimationRef = React.useRef<string | StaticAnimations>(
-    typeof animate === 'string' ? animate : animation,
-  );
+  // State, not a ref: this value is a render input (it feeds the context value
+  // below), and a ref read during render is unsafe under concurrent React.
+  const [currentAnimation, setCurrentAnimation] = React.useState<
+    string | StaticAnimations
+  >(typeof animate === 'string' ? animate : animation);
   const statusRef = React.useRef<'initial' | 'animate'>('initial');
   const prevAnimateRef = React.useRef(animate);
 
   React.useLayoutEffect(() => {
     if (prevAnimateRef.current === animate) return;
     prevAnimateRef.current = animate;
-    currentAnimationRef.current =
-      typeof animate === 'string' ? animate : animation;
     bumpAnimationEpoch();
   }, [animate, animation]);
 
@@ -98,7 +98,7 @@ function useAnimateIconTriggers({
         clearTimeout(delayRef.current);
         delayRef.current = null;
       }
-      currentAnimationRef.current = next;
+      setCurrentAnimation(next);
       bumpAnimationEpoch();
       // localAnimate itself is set by the caller: event handlers set it
       // synchronously, prop-driven callers adjust it during render, and the
@@ -143,22 +143,27 @@ function useAnimateIconTriggers({
     prevAnimateDeps[1] !== animation ||
     prevAnimateDeps[2] !== delay
   ) {
+    const animateChanged = prevAnimateDeps[0] !== animate;
     setPrevAnimateDeps([animate, animation, delay]);
     if (animate !== undefined) {
       setLocalAnimate(Boolean(animate) && delay <= 0);
+    }
+    // The animation name follows the `animate` prop: on any change to it, and
+    // on an `animation`/`delay` change while it is active. Derived during
+    // render so the first committed frame already reflects it.
+    if (animateChanged || animate) {
+      setCurrentAnimation(typeof animate === 'string' ? animate : animation);
     }
   }
 
   React.useLayoutEffect(() => {
     if (animate === undefined) return;
     if (animate) {
-      const next = typeof animate === 'string' ? animate : animation;
       bumpGeneration();
       if (delayRef.current) {
         clearTimeout(delayRef.current);
         delayRef.current = null;
       }
-      currentAnimationRef.current = next;
       bumpAnimationEpoch();
       if (delay > 0) {
         delayRef.current = setTimeout(() => {
@@ -215,31 +220,40 @@ function useAnimateIconTriggers({
   // mount pass still applies the initial visibility); the effect below only
   // runs the timer/ref side effects.
   const [prevViewDeps, setPrevViewDeps] = React.useState<
-    readonly [boolean, TriggerProp | undefined, number | undefined] | null
+    | readonly [
+        boolean,
+        TriggerProp | undefined,
+        string | StaticAnimations | undefined,
+        number | undefined,
+      ]
+    | null
   >(null);
   if (
     prevViewDeps === null ||
     prevViewDeps[0] !== isInView ||
     prevViewDeps[1] !== animateOnView ||
-    prevViewDeps[2] !== delay
+    prevViewDeps[2] !== animation ||
+    prevViewDeps[3] !== delay
   ) {
-    setPrevViewDeps([isInView, animateOnView, delay]);
+    setPrevViewDeps([isInView, animateOnView, animation, delay]);
     if (animateOnView) {
       setLocalAnimate(isInView && delay <= 0);
+      if (isInView) {
+        setCurrentAnimation(
+          typeof animateOnView === 'string' ? animateOnView : animation,
+        );
+      }
     }
   }
 
   React.useEffect(() => {
     if (!animateOnView) return;
     if (isInView) {
-      const next =
-        typeof animateOnView === 'string' ? animateOnView : animation;
       bumpGeneration();
       if (delayRef.current) {
         clearTimeout(delayRef.current);
         delayRef.current = null;
       }
-      currentAnimationRef.current = next;
       bumpAnimationEpoch();
       if (delay > 0) {
         delayRef.current = setTimeout(() => {
@@ -257,7 +271,6 @@ function useAnimateIconTriggers({
         loopDelayRef.current = null;
       }
     }
-    // eslint-disable-next-line react-doctor/no-derived-state-effect -- viewport visibility drives animation lifecycle
   }, [isInView, animateOnView, animation, delay, bumpGeneration]);
 
   useAnimateIconRunner({
@@ -286,7 +299,7 @@ function useAnimateIconTriggers({
     startAnimation,
     stopAnimation,
     inViewRef,
-    currentAnimationRef,
+    currentAnimation,
     animationEpoch,
   };
 }
@@ -316,7 +329,7 @@ function AnimateIcon({
     startAnimation,
     stopAnimation,
     inViewRef,
-    currentAnimationRef,
+    currentAnimation,
     animationEpoch,
   } = useAnimateIconTriggers({
     animate,
@@ -402,7 +415,7 @@ function AnimateIcon({
   const contextValue = React.useMemo<AnimateIconContextValue>(
     () => ({
       controls,
-      animation: currentAnimationRef.current,
+      animation: currentAnimation,
       loop,
       loopDelay,
       active: localAnimate,
@@ -414,7 +427,7 @@ function AnimateIcon({
     [
       animationEpoch,
       controls,
-      currentAnimationRef,
+      currentAnimation,
       localAnimate,
       loop,
       loopDelay,

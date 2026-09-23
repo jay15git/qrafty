@@ -1,7 +1,7 @@
 "use client"
 
 import { Plus } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 
 import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants"
 import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"
@@ -374,21 +374,20 @@ export function QrColorFillControls({
       ? moduleFillModeToTab(moduleFillMode ?? "solid", value)
       : fillValueToTab(value),
   )
-  const previousModuleFillModeRef = useRef(moduleFillMode)
+  const [prevSync, setPrevSync] = useState({ moduleCapable, moduleFillMode, value })
 
-  useEffect(() => {
+  if (
+    prevSync.moduleCapable !== moduleCapable ||
+    prevSync.moduleFillMode !== moduleFillMode ||
+    prevSync.value !== value
+  ) {
+    setPrevSync({ moduleCapable, moduleFillMode, value })
     if (!moduleCapable) {
       setModeTab(fillValueToTab(value))
-      return
+    } else if (moduleFillMode && moduleFillMode !== prevSync.moduleFillMode) {
+      setModeTab(moduleFillModeToTab(moduleFillMode, value))
     }
-
-    if (!moduleFillMode || moduleFillMode === previousModuleFillModeRef.current) {
-      return
-    }
-
-    previousModuleFillModeRef.current = moduleFillMode
-    setModeTab(moduleFillModeToTab(moduleFillMode, value))
-  }, [moduleCapable, moduleFillMode, value])
+  }
 
   return (
     <div className="dn-section-stack w-full min-w-0 max-w-full">

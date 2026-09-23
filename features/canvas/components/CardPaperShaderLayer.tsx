@@ -27,7 +27,10 @@ import {
   getPaperShaderDefinition,
   paperShaderHasPlayback,
 } from "@/features/canvas/rendering/paper-shader-definitions"
-import { getPaperShaderComponent } from "@/features/canvas/rendering/paper-shaders"
+import {
+  DEFAULT_PAPER_SHADER_COMPONENT,
+  PAPER_SHADER_COMPONENTS,
+} from "@/features/canvas/rendering/paper-shaders"
 import {
   hasValidPaperShaderLayout,
   readPaperShaderFallbackColor,
@@ -152,7 +155,7 @@ function usePaperShaderContextRecovery(
   hostRef: RefObject<HTMLDivElement | null>,
   onRecover: () => void,
 ) {
-  // eslint-disable-next-line react-doctor/effect-needs-cleanup -- observer/listener cleanup in return
+  // react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- returned cleanup owns the listener and observer
   useEffect(() => {
     let cancelled = false
     let canvasCleanup: (() => void) | undefined
@@ -241,7 +244,8 @@ function DraftingCardPaperShaderRenderer({
   style,
 }: DraftingCardPaperShaderRendererProps) {
   const hostRef = useRef<HTMLDivElement | null>(null)
-  const ShaderComponent = getPaperShaderComponent(paperShader.shaderId)
+  const ShaderComponent =
+    PAPER_SHADER_COMPONENTS[paperShader.shaderId] ?? DEFAULT_PAPER_SHADER_COMPONENT
   const worldSize = usePaperShaderWorldSize(layoutWidth, layoutHeight)
   const observedVisible = useShaderVisibility(hostRef)
   const isVisible = resolveShaderPlaybackVisible(observedVisible, ignoreVisibilityGate)
@@ -362,10 +366,6 @@ function DraftingCardPaperShaderRenderer({
     playbackSpeed,
     shouldAnimate,
   ])
-
-  if (!shouldAnimate && releaseSlotRef.current === null) {
-    // Paused shaders on mobile may be replaced by snapshots in the parent.
-  }
 
   return (
     <PaperShaderErrorBoundary

@@ -21,7 +21,7 @@ const getEyeDropperSupportClient = () =>
   typeof window !== "undefined" && typeof window.EyeDropper === "function";
 const getEyeDropperSupportServer = () => false;
 
-interface EyeDropperProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+type EyeDropperProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const EyeDropper = React.forwardRef<HTMLButtonElement, EyeDropperProps>(function EyeDropper(
   { className, ...rest },

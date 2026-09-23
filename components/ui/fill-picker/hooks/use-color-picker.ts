@@ -141,7 +141,7 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
   // the resolved color lands on an achromatic edge — keeps the area picker
   // from snapping the hue to 0 when the user drags toward gray/black/white.
   const initialHue = coerce(defaultValue, BLACK).h || 0;
-  const lastGoodHueRef = React.useRef<number>(initialHue);
+  const [lastGoodHue, setLastGoodHue] = React.useState<number>(initialHue);
 
   const isControlledStringInput =
     isControlledColor && typeof controlledValue === "string";
@@ -156,14 +156,20 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
   const controlledHueAuthored = controlledParsed
     ? !controlledParsed.hueMissing
     : false;
-  if (!isAchromatic(rawColor) || controlledHueAuthored) {
-    // Hue memory must update synchronously during render for controlled string inputs.
-    // eslint-disable-next-line react-doctor/no-ref-current-in-render -- hue preservation
-    lastGoodHueRef.current = rawColor.h;
+  if (
+    (!isAchromatic(rawColor) || controlledHueAuthored) &&
+    rawColor.h !== lastGoodHue
+  ) {
+    // Hue memory must update synchronously during render for controlled string
+    // inputs, so it is state adjusted during render (the documented prev-prop
+    // pattern) rather than a ref — a ref write during render is unsafe under
+    // concurrent React. The inequality guard is what makes the adjustment
+    // converge: without it every render re-sets the same hue and React loops.
+    setLastGoodHue(rawColor.h);
   }
   const color: OklchColor =
     isControlledStringInput && (controlledParsed?.hueMissing ?? true)
-      ? { ...rawColor, h: lastGoodHueRef.current }
+      ? { ...rawColor, h: lastGoodHue }
       : rawColor;
   const format = isControlledFormat ? controlledFormat! : internalFormat;
   const background = coerce(backgroundColor, WHITE);
@@ -217,12 +223,12 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
       const parsed = parseColorDetailed(s);
       if (!parsed) return false;
       const next = parsed.hueMissing
-        ? { ...parsed.color, h: lastGoodHueRef.current }
+        ? { ...parsed.color, h: lastGoodHue }
         : parsed.color;
       commitColor(next);
       return true;
     },
-    [commitColor],
+    [commitColor, lastGoodHue],
   );
 
   const setColor = React.useCallback(

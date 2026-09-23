@@ -8,13 +8,13 @@ export interface DotMatrixLoopAnimation {
   duration?: number;
   easing?: string;
   web?: {
-    opacity?: any;
-    fill?: any;
-    opacityMultiplier?: any;
-    scale?: any;
-    x?: any;
-    y?: any;
-    rotate?: any;
+    opacity?: unknown;
+    fill?: unknown;
+    opacityMultiplier?: unknown;
+    scale?: unknown;
+    x?: unknown;
+    y?: unknown;
+    rotate?: unknown;
   };
 }
 
@@ -170,7 +170,7 @@ export function seekDotMatrixTargets(
 ) {
   targets.forEach(({ element, animation }) => {
     if (!element || !element.style) return;
-    const sample = sampleDotMatrixAnimationFrame(animation as any, globalTimeMs);
+    const sample = sampleDotMatrixAnimationFrame(animation, globalTimeMs);
     applyDotMatrixSample(element, sample, originalFills, transformOnly);
   });
 }
@@ -194,7 +194,7 @@ export function startDotMatrixLoop(
 
     targets.forEach(({ element, animation }) => {
       if (!element || !element.style) return;
-      const sample = sampleDotMatrixAnimationFrame(animation as any, globalTimeMs);
+      const sample = sampleDotMatrixAnimationFrame(animation, globalTimeMs);
       applyDotMatrixSample(element, sample, originalFills, transformOnly);
     });
 

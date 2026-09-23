@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, type ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import { Trash2Icon } from "lucide-react"
 
 import { ReorderList } from "@/features/shell/components/interior/reorder-list"
@@ -117,13 +117,13 @@ export function DesktopLayersPopoverContent({
   canDeleteLayer?: (layerId: string) => boolean
 }) {
   const layers = layersSettings.layers
-  const entryMapRef = useRef(new Map<string, LayerReorderEntry>())
+  const [entryMap] = useState(() => new Map<string, LayerReorderEntry>())
 
   function getStableEntry(id: string) {
-    let entry = entryMapRef.current.get(id)
+    let entry = entryMap.get(id)
     if (!entry) {
       entry = { id }
-      entryMapRef.current.set(id, entry)
+      entryMap.set(id, entry)
     }
     return entry
   }

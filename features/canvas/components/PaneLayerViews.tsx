@@ -6,7 +6,6 @@ import {
   type CSSProperties,
   type FormEvent,
   type MouseEvent,
-  type MutableRefObject,
   type PointerEvent,
 } from "react"
 
@@ -685,7 +684,7 @@ type PaneLayerViewProps = PaneLayerViewSharedProps & {
   ) => void
   onStartTextEditing: (event: MouseEvent<HTMLElement>, layer: DraftingCanvasLayer) => void
   onUpdateLayerInteraction: (event: PointerEvent<HTMLElement>) => void
-  textEditorRefs: MutableRefObject<Record<string, HTMLTextAreaElement | null>>
+  onRegisterTextEditor: (layerId: string, element: HTMLTextAreaElement | null) => void
 }
 
 function arePaneLayerViewPropsEqual(
@@ -701,7 +700,7 @@ function arePaneLayerViewPropsEqual(
     "isImageFilterMode",
     "isImageMode",
     "isPaperShaderMode",
-    "textEditorRefs",
+    "onRegisterTextEditor",
   ] as const
   if (alwaysComparedKeys.some((key) => previous[key] !== next[key])) {
     return false
@@ -899,7 +898,7 @@ function PaneTextLayerView({
   onStartLayerInteraction,
   onStartTextEditing,
   onUpdateLayerInteraction,
-  textEditorRefs,
+  onRegisterTextEditor,
 }: PaneLayerKindViewProps) {
   const isEditing = editingTextLayerId === layer.id
 
@@ -936,7 +935,7 @@ function PaneTextLayerView({
             className="h-full w-full resize-none cursor-text overflow-hidden border-0 bg-transparent p-0 outline-none"
             data-slot="drafting-text-editor"
             ref={(element) => {
-              textEditorRefs.current[layer.id] = element
+              onRegisterTextEditor(layer.id, element)
             }}
             spellCheck={false}
             style={getTextLayerStyle(layer)}
@@ -1132,7 +1131,7 @@ export const PaneLayerView = memo(function PaneLayerView({
   onUpdateLayerInteraction,
   qrOverlayScale,
   state,
-  textEditorRefs,
+  onRegisterTextEditor,
 }: PaneLayerViewProps) {
   const isLayerSelected = activeSelectedLayerIdSet.has(layer.id)
   const layerEffectStyle = useDraftingLayerEffectStyle(layer)
@@ -1166,7 +1165,7 @@ export const PaneLayerView = memo(function PaneLayerView({
     qrStateByLayerId,
     shaderDisplaySize,
     state,
-    textEditorRefs,
+    onRegisterTextEditor,
   }
 
   if (layer.kind === "group") {

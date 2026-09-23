@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -388,6 +389,12 @@ export function usePaneWorkspaceInteractions({
   const canvasRef = useRef<HTMLDivElement | null>(null)
   const toolbarRef = useRef<HTMLDivElement | null>(null)
   const textEditorRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
+  const registerTextEditor = useCallback(
+    (layerId: string, element: HTMLTextAreaElement | null) => {
+      textEditorRefs.current[layerId] = element
+    },
+    [],
+  )
   const marqueeRef = useRef<typeof marquee>(null)
   const suppressCanvasClickRef = useRef(false)
   const suppressLayerClickRef = useRef(false)
@@ -1421,7 +1428,7 @@ export function usePaneWorkspaceInteractions({
     setHasError,
     snapGuideClipBounds,
     suppressCanvasClickRef,
-    textEditorRefs,
+    registerTextEditor,
     theme,
     toolbarRef,
     toolbarWidth,

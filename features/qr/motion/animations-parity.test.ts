@@ -57,8 +57,8 @@ describe("matrix animation parity", () => {
   describe("RadialExpand", () => {
     it("staggers by euclidean radius from center", () => {
       const preset = getAnimationPreset(AnimationPreset.RadialExpand);
-      const center = preset({}, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const corner = preset({}, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const center = preset({} as HTMLElement, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const corner = preset({} as HTMLElement, 0, 0, 21, QRCodeEntity.Module, defaultOpacitySettings);
 
       expect(corner.from).toBeGreaterThan(center.from ?? 0);
     });
@@ -66,7 +66,7 @@ describe("matrix animation parity", () => {
     it("rests at user opacity base with dual base/accent colors", () => {
       const preset = getAnimationPreset(AnimationPreset.RadialExpand);
       const animation = preset(
-        {},
+        {} as HTMLElement,
         10,
         10,
         21,
@@ -93,7 +93,7 @@ describe("matrix animation parity", () => {
         dotMatrixColorMid: "#22d3ee",
         dotMatrixColorPeak: "#22d3ee",
       };
-      const animation = preset({}, 10, 10, 21, QRCodeEntity.Module, settings);
+      const animation = preset({} as HTMLElement, 10, 10, 21, QRCodeEntity.Module, settings);
       const from = typeof animation.from === "number" ? animation.from : 0;
       const duration =
         typeof animation.duration === "number" ? animation.duration : 1500;
@@ -109,8 +109,8 @@ describe("matrix animation parity", () => {
   describe("DiamondExpand", () => {
     it("staggers outward across the diamond contour like heart and star", () => {
       const preset = getAnimationPreset(AnimationPreset.DiamondExpand);
-      const center = preset({}, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
-      const tip = preset({}, 0, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const center = preset({} as HTMLElement, 10, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
+      const tip = preset({} as HTMLElement, 0, 10, 21, QRCodeEntity.Module, defaultOpacitySettings);
 
       expect(center.from).toBe(0);
       expect(tip.from).toBeGreaterThan(center.from ?? 0);
@@ -120,7 +120,7 @@ describe("matrix animation parity", () => {
   describe("dot matrix loop seams", () => {
     it.each(dotMatrixAnimationPresets)("loops %s without a sampled seam", (preset) => {
       const animation = getAnimationPreset(preset)(
-        {},
+        {} as HTMLElement,
         10,
         10,
         21,

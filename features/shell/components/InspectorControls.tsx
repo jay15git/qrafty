@@ -55,7 +55,6 @@ function useTResizeHeight(enabled: boolean) {
 
   useEffect(() => {
     if (!enabled) {
-      setHeight(null)
       return
     }
 
@@ -96,7 +95,7 @@ function useTResizeHeight(enabled: boolean) {
     return () => observer.disconnect()
   }, [enabled])
 
-  return { contentRef, height }
+  return { contentRef, height: enabled ? height : null }
 }
 
 export function DesktopInspectorSection({
@@ -151,33 +150,28 @@ type DesktopInspectorTextInputProps = ComponentProps<"input"> & {
 
 function usePasteValidationShake(error?: string) {
   const [pasteEpoch, setPasteEpoch] = useState(0)
-  const [pasteErrorActive, setPasteErrorActive] = useState(false)
-  const [shaking, setShaking] = useState(false)
+  const [armedShakeKey, setArmedShakeKey] = useState<string | null>(null)
 
   const notifyPaste = useCallback(() => {
     setPasteEpoch((epoch) => epoch + 1)
   }, [])
 
+  const pasteErrorActive = pasteEpoch > 0 && Boolean(error)
+  const shakeKey = `${pasteEpoch}:${error ?? ""}`
+  const shaking = pasteErrorActive && armedShakeKey === shakeKey
+
   useEffect(() => {
-    if (pasteEpoch === 0) {
+    if (!pasteErrorActive) {
       return
     }
 
-    if (!error) {
-      setPasteErrorActive(false)
-      setShaking(false)
-      return
-    }
-
-    setPasteErrorActive(true)
-    setShaking(false)
     const frame = requestAnimationFrame(() => {
       void document.body.offsetHeight
-      setShaking(true)
+      setArmedShakeKey(shakeKey)
     })
 
     return () => cancelAnimationFrame(frame)
-  }, [error, pasteEpoch])
+  }, [pasteErrorActive, shakeKey])
 
   return {
     notifyPaste,
@@ -317,7 +311,7 @@ export function useDesktopInspectorNumberScrub({
 }: UseDesktopInspectorNumberScrubOptions) {
   const [draft, setDraft] = useState(String(value))
   const [editing, setEditing] = useState(false)
-  const interactingRef = useRef(false)
+  const [interacting, setInteracting] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const surfaceRef = useRef<HTMLDivElement>(null)
   const scrubRef = useRef<{
@@ -331,11 +325,13 @@ export function useDesktopInspectorNumberScrub({
     startY: number
   } | null>(null)
 
-  useEffect(() => {
-    if (!interactingRef.current) {
+  const [prevValue, setPrevValue] = useState(value)
+  if (prevValue !== value) {
+    setPrevValue(value)
+    if (!interacting) {
       setDraft(String(value))
     }
-  }, [value])
+  }
 
   useEffect(() => {
     const node = surfaceRef.current
@@ -387,7 +383,7 @@ export function useDesktopInspectorNumberScrub({
     }
 
     setEditing(true)
-    interactingRef.current = true
+    setInteracting(true)
 
     requestAnimationFrame(() => {
       const input = inputRef.current
@@ -423,7 +419,7 @@ export function useDesktopInspectorNumberScrub({
       }
 
       if (wasScrubbing) {
-        interactingRef.current = false
+        setInteracting(false)
         setDraft(String(value))
         event.preventDefault()
         return
@@ -470,7 +466,7 @@ export function useDesktopInspectorNumberScrub({
 
       if (!state.scrubbing && Math.abs(deltaX) > 3) {
         state.scrubbing = true
-        interactingRef.current = true
+        setInteracting(true)
         if (!state.captureTarget) {
           state.captureTarget = event.currentTarget
           event.preventDefault()
@@ -596,7 +592,7 @@ export function useDesktopInspectorNumberScrub({
     "data-slot": "desktop-inspector-scrubbable-number",
     inputMode: "numeric" as const,
     onBlur: () => {
-      interactingRef.current = false
+      setInteracting(false)
       setEditing(false)
 
       const parsed = Number(draft)
@@ -612,7 +608,7 @@ export function useDesktopInspectorNumberScrub({
       setDraft(event.currentTarget.value)
     },
     onFocus: () => {
-      interactingRef.current = true
+      setInteracting(true)
       setEditing(true)
     },
     onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => {
@@ -721,21 +717,31 @@ export function DesktopInspectorScrubNumberInput({
   const ariaLabel = props["aria-label"]
   const mirrorRef = useRef<HTMLInputElement>(null)
   const [mirroredTypography, setMirroredTypography] = useState<CSSProperties>({})
+  const {
+    canScrub,
+    displayValue,
+    editing,
+    inputProps,
+    inputRef,
+    onDisplayFocus,
+    scrubSurfaceHandlers,
+    surfaceRef,
+  } = scrub
 
   const syncMirroredTypography = useCallback(() => {
-    const source = scrub.editing ? scrub.inputRef.current : mirrorRef.current
+    const source = editing ? inputRef.current : mirrorRef.current
 
     if (!source) {
       return
     }
 
     setMirroredTypography(mirrorDisplayTypography(source))
-  }, [scrub.editing, scrub.inputRef])
+  }, [editing, inputRef])
 
   useLayoutEffect(() => {
     syncMirroredTypography()
 
-    const source = scrub.editing ? scrub.inputRef.current : mirrorRef.current
+    const source = editing ? inputRef.current : mirrorRef.current
 
     if (!source || typeof ResizeObserver === "undefined") {
       return
@@ -747,18 +753,17 @@ export function DesktopInspectorScrubNumberInput({
     return () => {
       observer.disconnect()
     }
-    // eslint-disable-next-line react-doctor/exhaustive-deps -- scrub.inputRef is a stable ref object
-  }, [scrub.displayValue, scrub.editing, syncMirroredTypography])
+  }, [displayValue, editing, inputRef, syncMirroredTypography])
 
   return (
-    <div ref={scrub.surfaceRef} className={cn("relative shrink-0", className)}>
+    <div ref={surfaceRef} className={cn("relative shrink-0", className)}>
       <input
         ref={mirrorRef}
         aria-hidden
         className={fieldClass}
         readOnly
         tabIndex={-1}
-        value={scrub.displayValue}
+        value={displayValue}
         style={{
           inset: 0,
           opacity: 0,
@@ -767,27 +772,27 @@ export function DesktopInspectorScrubNumberInput({
           zIndex: 0,
         }}
       />
-      {scrub.editing ? (
+      {editing ? (
         <input
           {...props}
-          {...scrub.inputProps}
+          {...inputProps}
           className={cn(fieldClass, "relative z-[1]")}
           disabled={disabled}
         />
       ) : (
         <div
-          {...scrub.scrubSurfaceHandlers}
+          {...scrubSurfaceHandlers}
           aria-label={typeof ariaLabel === "string" ? ariaLabel : undefined}
           className={cn(
             fieldClass,
             "relative z-[1] flex items-center justify-center touch-pan-y",
-            scrub.canScrub && "cursor-ew-resize select-none",
+            canScrub && "cursor-ew-resize select-none",
             disabled && "cursor-not-allowed opacity-50",
           )}
           data-slot="desktop-inspector-scrubbable-number"
           role="button"
           tabIndex={disabled ? -1 : 0}
-          onFocus={scrub.onDisplayFocus}
+          onFocus={onDisplayFocus}
           onKeyDown={(event) => {
             if (disabled) {
               return
@@ -795,7 +800,7 @@ export function DesktopInspectorScrubNumberInput({
 
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault()
-              scrub.onDisplayFocus()
+              onDisplayFocus()
             }
           }}
         >
@@ -806,7 +811,7 @@ export function DesktopInspectorScrubNumberInput({
           >
             <DesktopInspectorDisplayNumber
               style={mirroredTypography}
-              value={scrub.displayValue}
+              value={displayValue}
             />
           </div>
         </div>

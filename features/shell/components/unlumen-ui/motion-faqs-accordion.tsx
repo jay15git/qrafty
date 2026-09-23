@@ -17,6 +17,10 @@ export interface MotionAccordionItem {
   icon?: React.ReactNode;
 }
 
+// Monotonic sequence for stable per-item keys when the question is not a
+// string. Module-scoped so the counter is never mutated through React state.
+let accordionItemKeySeq = 0;
+
 export interface MotionAccordionProps {
   items: MotionAccordionItem[];
   /** @default 10 */
@@ -159,8 +163,9 @@ export function MotionAccordion({
 }: MotionAccordionProps) {
   const rawId = React.useId();
   const baseId = `accordion-${rawId.replace(/:/g, "")}`;
-  const itemKeyMapRef = React.useRef(new WeakMap<MotionAccordionItem, string>());
-  const itemKeyCounterRef = React.useRef(0);
+  const [itemKeyMap] = React.useState(
+    () => new WeakMap<MotionAccordionItem, string>(),
+  );
 
   const getStableItemKey = React.useCallback(
     (item: MotionAccordionItem) => {
@@ -168,17 +173,17 @@ export function MotionAccordion({
         return `${baseId}-${item.question}`;
       }
 
-      const cachedKey = itemKeyMapRef.current.get(item);
+      const cachedKey = itemKeyMap.get(item);
       if (cachedKey) {
         return cachedKey;
       }
 
-      const nextKey = `${baseId}-item-${itemKeyCounterRef.current}`;
-      itemKeyCounterRef.current += 1;
-      itemKeyMapRef.current.set(item, nextKey);
+      const nextKey = `${baseId}-item-${accordionItemKeySeq}`;
+      accordionItemKeySeq += 1;
+      itemKeyMap.set(item, nextKey);
       return nextKey;
     },
-    [baseId],
+    [baseId, itemKeyMap],
   );
 
   const [internalOpenIndex, setInternalOpenIndex] = React.useState<number | null>(

@@ -11,16 +11,24 @@ export function useIllustrationSvgMarkup(path: string | undefined) {
   const [markup, setMarkup] = useState(() =>
     path ? getCachedIllustrationSvgMarkup(path) : null,
   )
+  const [resolvedPath, setResolvedPath] = useState(path)
 
-  useEffect(() => {
+  // Adjust state during render when the requested path changes so cached
+  // markup is applied immediately without a cascading effect render.
+  if (path !== resolvedPath) {
+    setResolvedPath(path)
     if (!path) {
       setMarkup(null)
-      return
+    } else {
+      const cached = getCachedIllustrationSvgMarkup(path)
+      if (cached) {
+        setMarkup(cached)
+      }
     }
+  }
 
-    const cached = getCachedIllustrationSvgMarkup(path)
-    if (cached) {
-      setMarkup(cached)
+  useEffect(() => {
+    if (!path || getCachedIllustrationSvgMarkup(path)) {
       return
     }
 

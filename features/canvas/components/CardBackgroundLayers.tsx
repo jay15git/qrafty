@@ -53,6 +53,39 @@ function resolveBackgroundMode(
   return "solid"
 }
 
+type CrossfadeState = {
+  mounted: boolean
+  opacity: number
+  prevActive: boolean
+  prevAnimate: boolean
+}
+
+function resolveCrossfadeTransition(
+  state: CrossfadeState,
+  active: boolean,
+  animate: boolean,
+): CrossfadeState {
+  let mounted = state.mounted
+  let opacity = state.opacity
+
+  if (active) {
+    mounted = true
+    if (!animate) {
+      opacity = 1
+    } else if (active !== state.prevActive) {
+      // Start the fade-in from transparent so the CSS transition runs.
+      opacity = 0
+    }
+  } else {
+    opacity = 0
+    if (!animate) {
+      mounted = false
+    }
+  }
+
+  return { mounted, opacity, prevActive: active, prevAnimate: animate }
+}
+
 function CrossfadeShell({
   active,
   animate,
@@ -64,40 +97,36 @@ function CrossfadeShell({
   className?: string
   children: ReactNode
 }) {
-  const [mounted, setMounted] = useState(active)
-  const [opacity, setOpacity] = useState(active ? 1 : 0)
-  const hasSettledRef = useRef(false)
+  const [state, setState] = useState<CrossfadeState>(() => ({
+    mounted: active,
+    opacity: active ? 1 : 0,
+    prevActive: active,
+    prevAnimate: animate,
+  }))
+
+  // Adjust during render so prop changes settle in one commit; the effect below
+  // only owns the async fade-in frame and the delayed unmount timer.
+  if (active !== state.prevActive || animate !== state.prevAnimate) {
+    setState(resolveCrossfadeTransition(state, active, animate))
+  }
+
+  const { mounted, opacity } = state
 
   useEffect(() => {
-    if (!hasSettledRef.current) {
-      hasSettledRef.current = true
-      setMounted(active)
-      setOpacity(active ? 1 : 0)
-      return
-    }
-
-    if (active) {
-      setMounted(true)
-      if (!animate) {
-        setOpacity(1)
-        return
-      }
-
-      setOpacity(0)
-      const frame = window.requestAnimationFrame(() => setOpacity(1))
+    if (active && animate && opacity === 0) {
+      const frame = window.requestAnimationFrame(() => {
+        setState((current) => ({ ...current, opacity: 1 }))
+      })
       return () => window.cancelAnimationFrame(frame)
     }
 
-    if (!animate) {
-      setOpacity(0)
-      setMounted(false)
-      return
+    if (!active && animate && mounted) {
+      const timer = window.setTimeout(() => {
+        setState((current) => ({ ...current, mounted: false }))
+      }, CROSSFADE_MS)
+      return () => window.clearTimeout(timer)
     }
-
-    setOpacity(0)
-    const timer = window.setTimeout(() => setMounted(false), CROSSFADE_MS)
-    return () => window.clearTimeout(timer)
-  }, [active, animate])
+  }, [active, animate, mounted, opacity])
 
   if (!mounted) {
     return null

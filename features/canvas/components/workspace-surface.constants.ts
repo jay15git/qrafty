@@ -17,7 +17,7 @@ export function replaceTrackedObjectUrl(
   file: Blob,
   onObjectUrlChange: (nextUrl: string) => void,
 ) {
-  // eslint-disable-next-line react-doctor/no-create-object-url-without-revoke -- revoked via logoUploadObjectUrl effect cleanup
+  // react-doctor-disable-next-line react-doctor/no-create-object-url-without-revoke -- the caller revokes it via the logoUploadObjectUrl effect cleanup
   const nextUrl = URL.createObjectURL(file)
   trackedUrlRef.current = nextUrl
   onObjectUrlChange(nextUrl)

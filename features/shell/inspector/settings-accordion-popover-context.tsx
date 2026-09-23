@@ -91,7 +91,6 @@ function useAccordionPopoverMetrics(
   useLayoutEffect(() => {
     const stack = stackRef.current
     if (!enabled || !stack) {
-      setMetrics(null)
       return
     }
 
@@ -119,7 +118,7 @@ function useAccordionPopoverMetrics(
     }
   }, [stackRef, enabled])
 
-  return metrics
+  return enabled ? metrics : null
 }
 
 export function SettingsAccordionPopoverOverlay({

@@ -32,11 +32,13 @@ describe("useDraftingQrMarkup interaction deferral", () => {
     const container = document.createElement("div")
     const root = createRoot(container)
 
-    let latestMarkup: string | null = null
+    const latestMarkupRef: { current: string | null } = { current: null }
 
     function TestHarness({ state }: { state: ReturnType<typeof createDefaultQraftyState> }) {
       const result = useDraftingQrMarkup(state)
-      latestMarkup = result.markup
+      React.useEffect(() => {
+        latestMarkupRef.current = result.markup
+      })
       return null
     }
 
@@ -47,7 +49,7 @@ describe("useDraftingQrMarkup interaction deferral", () => {
     })
 
     expect(vi.mocked(buildDraftingQraftyMarkup)).toHaveBeenCalledTimes(1)
-    expect(latestMarkup).toContain("qr-markup")
+    expect(latestMarkupRef.current).toContain("qr-markup")
 
     previewSession.beginInteraction()
 
@@ -70,7 +72,7 @@ describe("useDraftingQrMarkup interaction deferral", () => {
     })
 
     expect(vi.mocked(buildDraftingQraftyMarkup)).toHaveBeenCalledTimes(2)
-    expect(latestMarkup).toContain("qr-markup")
+    expect(latestMarkupRef.current).toContain("qr-markup")
 
     await act(async () => {
       root.unmount()

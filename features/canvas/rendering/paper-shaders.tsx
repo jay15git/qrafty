@@ -45,7 +45,7 @@ function asPaperShaderComponent(component: unknown): PaperShaderComponent {
  * controls) must import from `./paper-shader-definitions` instead — that
  * module is server-safe. Only import this module when rendering shaders.
  */
-const PAPER_SHADER_COMPONENTS: Record<string, PaperShaderComponent> = {
+export const PAPER_SHADER_COMPONENTS: Record<string, PaperShaderComponent> = {
   "mesh-gradient": asPaperShaderComponent(MeshGradient),
   "static-mesh-gradient": asPaperShaderComponent(StaticMeshGradient),
   "grain-gradient": asPaperShaderComponent(GrainGradient),
@@ -77,6 +77,5 @@ const PAPER_SHADER_COMPONENTS: Record<string, PaperShaderComponent> = {
   "gem-smoke": asPaperShaderComponent(GemSmoke),
 }
 
-export function getPaperShaderComponent(shaderId: string): PaperShaderComponent {
-  return PAPER_SHADER_COMPONENTS[shaderId] ?? PAPER_SHADER_COMPONENTS["mesh-gradient"]
-}
+export const DEFAULT_PAPER_SHADER_COMPONENT: PaperShaderComponent =
+  PAPER_SHADER_COMPONENTS["mesh-gradient"]

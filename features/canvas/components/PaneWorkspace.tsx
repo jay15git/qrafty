@@ -116,7 +116,7 @@ export function PaneWorkspace({
     selectedVisibleLayerIds,
     snapGuideClipBounds,
     suppressCanvasClickRef,
-    textEditorRefs,
+    registerTextEditor,
     toolbarRef,
     toolbarWidth,
     canvasHeight,
@@ -200,7 +200,7 @@ export function PaneWorkspace({
         onStartLayerInteraction={startLayerInteraction}
         onStartTextEditing={startTextEditing}
         onUpdateLayerInteraction={updateLayerInteraction}
-        textEditorRefs={textEditorRefs}
+        onRegisterTextEditor={registerTextEditor}
       />
     )
   }

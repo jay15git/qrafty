@@ -53,7 +53,7 @@ async function loadSvgMarkupAsImage(markup: string): Promise<HTMLImageElement> {
   const blob = new Blob([preparedMarkup], { type: "image/svg+xml;charset=utf-8" })
 
   return await new Promise<HTMLImageElement>((resolve, reject) => {
-    // eslint-disable-next-line react-doctor/no-create-object-url-without-revoke -- released in onload/onerror/onabort
+    // react-doctor-disable-next-line react-doctor/no-create-object-url-without-revoke -- released in onload/onerror/onabort
     const objectUrl = URL.createObjectURL(blob)
     const image = new Image()
 

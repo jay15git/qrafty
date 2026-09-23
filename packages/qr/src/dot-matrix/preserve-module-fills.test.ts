@@ -11,7 +11,7 @@ describe("preserve module fills", () => {
   it("keeps gradient and palette configs on preserve mode", () => {
     const preset = getAnimationPreset(AnimationPreset.RadialExpand);
     const animation = preset(
-      {},
+      {} as HTMLElement,
       10,
       10,
       21,

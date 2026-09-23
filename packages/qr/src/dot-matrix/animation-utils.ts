@@ -112,7 +112,7 @@ export const underdampedHarmonicOscillationMaximums = (
   const maximums: { time: number; amplitude: number }[] = [];
   maximums.push({ time: 0, amplitude: y(0) });
   for (
-    var a = 0;
+    let a = 0;
     Math.abs(maximums[maximums.length - 1].amplitude) > MIN_Y;
     a++
   ) {

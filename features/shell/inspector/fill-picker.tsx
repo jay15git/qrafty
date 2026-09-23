@@ -1,6 +1,6 @@
 "use client"
 
-import { useContext, useEffect, useRef, useState } from "react"
+import { useContext, useState } from "react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 
@@ -250,10 +250,9 @@ export function DesktopFillPicker({
   // recover start/end, so feeding that CSS back collapses both stops onto
   // the same % and freezes the bar thumbs.
   const parsedInitialFill = parseFill(value) ?? fillFromHex(value)
-  const initialFillRef = useRef(
+  const [initialFill] = useState(() =>
     qrGradient ? normalizeFillForQrTarget(parsedInitialFill) : parsedInitialFill,
   )
-  const initialFill = initialFillRef.current
   const resolvedSolidOnly = solidOnly || lockedFillMode === "solid"
   const initialMode = resolveInitialFillPickerMode({
     initialFill,
@@ -263,19 +262,19 @@ export function DesktopFillPicker({
   })
   const fillPickerInitialMode = initialMode === "gradient" ? "gradient" : "color"
   const [activeMode, setActiveMode] = useState<ModuleFillTabMode>(initialMode)
+  const [prevLockedFillMode, setPrevLockedFillMode] = useState(lockedFillMode)
+
+  if (prevLockedFillMode !== lockedFillMode) {
+    setPrevLockedFillMode(lockedFillMode)
+    if (lockedFillMode) {
+      setActiveMode(lockedFillModeToTab(lockedFillMode))
+    }
+  }
   const pickerMode = activeMode === "gradient" ? "gradient" : "color"
   const theme = useContext(DesktopnewThemeContext)
   const showModeTabs = !resolvedSolidOnly && !lockedFillMode
   const showSolidPane = resolvedSolidOnly || lockedFillMode !== "gradient"
   const showGradientPane = !resolvedSolidOnly
-
-  useEffect(() => {
-    if (!lockedFillMode) {
-      return
-    }
-
-    setActiveMode(lockedFillModeToTab(lockedFillMode))
-  }, [lockedFillMode])
 
   const handleValueChange = (fill: Fill, css: string) => {
     if (

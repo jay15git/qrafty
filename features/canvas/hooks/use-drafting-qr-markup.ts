@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useSyncExternalStore } from "react"
+import { useMemo, useState, useSyncExternalStore } from "react"
 import DOMPurify from "dompurify"
 
 import type { QraftyState } from "@/features/qr/model/state"
@@ -31,7 +31,7 @@ export function clearDraftingQrMarkupCache() {
 export function useDraftingQrMarkup(state: QraftyState) {
   const qrArtworkState = useMemo(() => createDraftingQrArtworkState(state), [state])
   const stateCacheKey = useMemo(() => JSON.stringify(qrArtworkState), [qrArtworkState])
-  const lastMarkupRef = useRef<string | null>(null)
+  const [lastMarkup, setLastMarkup] = useState<string | null>(null)
   // Interaction state is a real render input: when a gesture ends the memo
   // below recomputes, so a rebuild deferred mid-gesture actually lands.
   const isInteracting = useSyncExternalStore(
@@ -47,8 +47,8 @@ export function useDraftingQrMarkup(state: QraftyState) {
 
     // Defer the expensive rebuild while the user is mid-gesture; the
     // subscription above re-renders once interaction ends.
-    if (isInteracting && lastMarkupRef.current !== null) {
-      return { markup: lastMarkupRef.current, hasError: false }
+    if (isInteracting && lastMarkup !== null) {
+      return { markup: lastMarkup, hasError: false }
     }
 
     try {
@@ -65,15 +65,14 @@ export function useDraftingQrMarkup(state: QraftyState) {
     } catch {
       return { markup: null, hasError: true }
     }
-  }, [qrArtworkState, stateCacheKey, isInteracting])
+  }, [qrArtworkState, stateCacheKey, isInteracting, lastMarkup])
 
-  // Render must stay pure: the "last good markup" fallback is recorded on
-  // commit, not while the memo runs.
-  useEffect(() => {
-    if (markup !== null) {
-      lastMarkupRef.current = markup
-    }
-  }, [markup])
+  // The last good markup is a render input: the memo above falls back to it
+  // while a gesture defers the rebuild. Adjust it during render, guarded so the
+  // update converges instead of looping.
+  if (markup !== null && markup !== lastMarkup) {
+    setLastMarkup(markup)
+  }
 
   return { hasError, isLoading: markup === null && !hasError, markup }
 }

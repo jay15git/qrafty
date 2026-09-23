@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 
-import { act, createElement } from "react"
+import { act } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -47,10 +47,9 @@ describe("DesktopWorkspaceEntrance", () => {
 
   it("stays loading until the workspace canvas is ready", () => {
     mount(
-      createElement(DesktopWorkspaceEntrance, {
-        theme: "dark",
-        children: createElement("div", { "data-slot": "drafting-workspace-loading" }, "Loading"),
-      }),
+      <DesktopWorkspaceEntrance theme="dark">
+        <div data-slot="drafting-workspace-loading">Loading</div>
+      </DesktopWorkspaceEntrance>,
       container,
     )
 
@@ -60,10 +59,9 @@ describe("DesktopWorkspaceEntrance", () => {
 
   it("reveals once drafting-surface is mounted and loading is gone", () => {
     mount(
-      createElement(DesktopWorkspaceEntrance, {
-        theme: "dark",
-        children: createElement("div", { "data-slot": "drafting-surface" }, "Canvas"),
-      }),
+      <DesktopWorkspaceEntrance theme="dark">
+        <div data-slot="drafting-surface">Canvas</div>
+      </DesktopWorkspaceEntrance>,
       container,
     )
 
@@ -75,10 +73,9 @@ describe("DesktopWorkspaceEntrance", () => {
     vi.useFakeTimers()
 
     mount(
-      createElement(DesktopWorkspaceEntrance, {
-        theme: "light",
-        children: createElement("div", { "data-slot": "drafting-surface" }, "Canvas"),
-      }),
+      <DesktopWorkspaceEntrance theme="light">
+        <div data-slot="drafting-surface">Canvas</div>
+      </DesktopWorkspaceEntrance>,
       container,
     )
 

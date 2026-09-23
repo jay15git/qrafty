@@ -1,5 +1,5 @@
 export type DotMatrixAnimationFrame = {
-  targets: SVGElement | HTMLElement;
+  targets: Element;
   from?: number;
   duration?: number;
   easing?: string;
@@ -21,6 +21,12 @@ export type DotMatrixShapeReveal = {
   maxMetric: number;
   metric: number;
 };
+
+/** Frame fields consumed by sampling; the animation target is not needed. */
+export type DotMatrixAnimationSampleInput = Omit<
+  DotMatrixAnimationFrame,
+  'targets'
+>;
 
 import {
   innermostPoint,
@@ -61,7 +67,7 @@ export {
 export { QRCodeEntity };
 
 export type QRCodeAnimation = (
-  targets: any,
+  targets: Element,
   modulePositionX: number,
   modulePositionY: number,
   count: number,
@@ -577,7 +583,7 @@ export const keyframeOpacityAt = (
     return keyframeNumericValue(frames[0]);
   }
 
-  let previous = frames[0];
+  const previous = frames[0];
   let previousOffset =
     typeof previous === 'number' ? 0 : previous.offset;
   let previousValue = keyframeNumericValue(previous);
@@ -607,7 +613,7 @@ const keyframeFillAt = (frames: WebKeyframeValue[], phase: number) => {
     return String(keyframeValueAt(frames[0]));
   }
 
-  let previous = frames[0];
+  const previous = frames[0];
   let previousOffset =
     typeof previous === 'number' ? 0 : previous.offset;
   let previousValue = String(keyframeValueAt(previous));
@@ -639,7 +645,7 @@ const keyframeFillAt = (frames: WebKeyframeValue[], phase: number) => {
 };
 
 const sampleShapeRevealFrame = (
-  animation: DotMatrixAnimationFrame,
+  animation: DotMatrixAnimationSampleInput,
   cycleElapsed: number,
   duration: number,
 ): { opacity: number; fill?: string } | null => {
@@ -706,7 +712,7 @@ const numericChannel = (value: unknown): WebKeyframeValue[] | undefined =>
   Array.isArray(value) ? (value as WebKeyframeValue[]) : undefined;
 
 export const sampleDotMatrixAnimationFrame = (
-  animation: DotMatrixAnimationFrame,
+  animation: DotMatrixAnimationSampleInput,
   globalTimeMs: number
 ): DotMatrixSample => {
   const from = typeof animation.from === 'number' ? animation.from : 0;
@@ -793,7 +799,7 @@ const cloneCssBlendKeyframe = (
 });
 
 const matrixMotionStyle = (
-  targets: any,
+  targets: Element,
   from: number,
   duration: number,
   opacity: WebKeyframeValue[],
@@ -810,16 +816,16 @@ const matrixMotionStyle = (
   duration,
   easing,
   web: {
-    opacity: opacity as any,
-    scale: scale as any,
-    ...(spatial?.x ? { x: spatial.x as any } : {}),
-    ...(spatial?.y ? { y: spatial.y as any } : {}),
-    ...(spatial?.rotate ? { rotate: spatial.rotate as any } : {}),
+    opacity,
+    scale,
+    ...(spatial?.x ? { x: spatial.x } : {}),
+    ...(spatial?.y ? { y: spatial.y } : {}),
+    ...(spatial?.rotate ? { rotate: spatial.rotate } : {}),
   },
 });
 
 const matrixEntityAnimation = (
-  targets: any,
+  targets: Element,
   entity: QRCodeEntity,
   duration: number = 560,
 ): DotMatrixAnimationFrame => {
@@ -1665,7 +1671,7 @@ const SHAPE_BLOOM_SCALE_KEYFRAMES: WebKeyframeValue[] = [
 const SHAPE_PUSH_UNITS = 0.3;
 
 const shapeRevealAnimation = (
-  targets: any,
+  targets: Element,
   metric: number,
   maxMetric: number,
   direction: { dirX: number; dirY: number },
@@ -1890,11 +1896,12 @@ const remapDotMatrixOpacityValue = (
 };
 
 const remapDotMatrixOpacity = (
-  opacity: any,
+  opacity: unknown,
   settings?: QRCodeAnimationSettings
 ) => {
   if (!Array.isArray(opacity)) return opacity;
-  return opacity.map((frame) => {
+  const frames = opacity as WebKeyframeValue[];
+  return frames.map((frame) => {
     if (isCssBlendKeyframe(frame)) {
       const value = resolveCssBlendOpacity(frame.cssBlend, settings);
       return { offset: frame.offset, value };
@@ -1982,12 +1989,13 @@ const fillForPreserveFrame = (
 ) => (resolvePeakAccentMix(frame, settings) > 0 ? peakColor : PRESERVE_MODULE_FILL);
 
 const remapDotMatrixFill = (
-  opacity: any,
+  opacity: unknown,
   settings?: QRCodeAnimationSettings
 ) => {
   if (!Array.isArray(opacity)) {
     return undefined;
   }
+  const frames = opacity as WebKeyframeValue[];
 
   if (settings?.preserveModuleFills) {
     const peakColor = settings.dotMatrixColorPeak;
@@ -1995,7 +2003,7 @@ const remapDotMatrixFill = (
       return undefined;
     }
 
-    return opacity.map((frame) => {
+    return frames.map((frame) => {
       const fill = fillForPreserveFrame(frame, settings, peakColor);
       if (isCssBlendKeyframe(frame)) {
         return { offset: frame.offset, value: fill };
@@ -2011,7 +2019,7 @@ const remapDotMatrixFill = (
     return undefined;
   }
   const colors = dotMatrixColorSettings(settings)!;
-  return opacity.map((frame) => {
+  return frames.map((frame) => {
     const color =
       settings?.dotMatrixColorMode === 'dual'
         ? isCssBlendKeyframe(frame)
