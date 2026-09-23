@@ -15,15 +15,15 @@ import {
 import { createRoot } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-const buildDashboardQrNodePayloadSpy = vi.fn(() => new Promise(() => undefined))
+const buildDraftingQraftyMarkupSpy = vi.fn()
 
-vi.mock("@/features/qr/rendering/qr-svg", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/features/qr/rendering/qr-svg")>()
+vi.mock("@/features/qr/rendering/qrafty-markup", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/features/qr/rendering/qrafty-markup")>()
 
   return {
     ...actual,
-    buildDashboardQrNodePayload: (...args: Parameters<typeof buildDashboardQrNodePayloadSpy>) =>
-      buildDashboardQrNodePayloadSpy(...args),
+    buildDraftingQraftyMarkup: (...args: Parameters<typeof buildDraftingQraftyMarkupSpy>) =>
+      buildDraftingQraftyMarkupSpy(...args),
   }
 })
 
@@ -80,10 +80,21 @@ vi.mock("@/components/ui/popover", () => ({
       },
     })
   },
+  PopoverAnchor: ({ children }: { children: ReactNode }) => <>{children}</>,
+  PopoverClose: ({ children, ...props }: ComponentProps<"button">) => {
+    const context = useContext(PopoverContext)
+
+    return (
+      <button type="button" {...props} onClick={() => context?.setOpen(false)}>
+        {children}
+      </button>
+    )
+  },
 }))
 
 import { WorkspaceSurface } from "@/features/canvas/components/WorkspaceSurface"
 import { FloatingToolbar } from "@/features/shell/components/FloatingToolbar"
+import { DesktopCuelumeProvider } from "@/features/shell/hooks/use-desktop-cuelume"
 import { clearDraftingQrMarkupCache } from "@/features/canvas/hooks/use-drafting-qr-markup"
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene"
 import { createDefaultQraftyState, type QraftyState } from "@/features/qr/model/state"
@@ -104,8 +115,8 @@ beforeEach(() => {
     configurable: true,
     value: createMemoryStorage(),
   })
-  buildDashboardQrNodePayloadSpy.mockClear()
-  buildDashboardQrNodePayloadSpy.mockImplementation(() => new Promise(() => undefined))
+  buildDraftingQraftyMarkupSpy.mockClear()
+  buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup)
   vi.stubGlobal(
     "ResizeObserver",
     class ResizeObserver {
@@ -128,22 +139,12 @@ afterEach(() => {
 
 describe("WorkspaceSurface", () => {
   it("deletes removable selected layers from the floating canvas toolbar", async () => {
-    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup)
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
     await waitForDraftingSurface()
 
-    act(() => {
-      activateElement(
-        getRequiredElement(surface.container, 'button[aria-label="Add text on canvas"]'),
-      )
-    })
-
-    act(() => {
-      activateElement(
-        getRequiredElement(surface.container, '[data-slot="desktop-compose-surface"]'),
-      )
-    })
+    await insertTextLayer(surface.container)
 
     await act(async () => {
       await flushPromises()
@@ -185,61 +186,60 @@ describe("WorkspaceSurface", () => {
     expect(root.getAttribute("data-qr-content-value")).toBe("https://example.com/desktop-live")
   })
 
-  it("renders compose controls in the dynamic island on desktop", async () => {
+  it("renders the desktop chrome across the dynamic island, utility toolbar, and settings panel", async () => {
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
     await waitForDraftingSurface()
-    const dynamicIsland = getRequiredElement(surface.container, '[data-slot="desktop-dynamic-island"]')
-    const composeToolbar = getRequiredElement(
-      dynamicIsland,
-      '[data-slot="desktop-compose-toolbar"]',
-    )
 
-    expect(composeToolbar.getAttribute("data-toolbar-appearance")).toBe("desktop-glass")
+    const dynamicIsland = getRequiredElement(surface.container, '[data-slot="desktop-dynamic-island"]')
+
+    expect(dynamicIsland.getAttribute("data-toolbar-appearance")).toBe("desktop-glass")
     expect(surface.container.querySelector('button[aria-label="Zoom out preview"]')).toBeNull()
     expect(surface.container.querySelector('button[aria-label="Zoom in preview"]')).toBeNull()
     expect(surface.container.querySelector('button[aria-label="Reset view"]')).toBeNull()
-    expect(composeToolbar.querySelector('button[aria-label="Undo"]')).toBeNull()
-    expect(composeToolbar.querySelector('button[aria-label="Redo"]')).toBeNull()
-    expect(composeToolbar.querySelector('button[aria-label="Select and move elements"]')).not.toBeNull()
-    expect(composeToolbar.querySelector('button[aria-label="Pan canvas"]')).toBeNull()
-    expect(composeToolbar.querySelector('button[aria-label="Add text on canvas"]')).not.toBeNull()
-    expect(Array.from(composeToolbar.querySelectorAll("button")).map((button) => button.getAttribute("aria-label"))).toEqual([
-      "Select and move elements",
-      "Hide canvas grid",
-      "Add text on canvas",
-      "Add content",
-    ])
+    expect(getRequiredElement(dynamicIsland, '[data-slot="desktop-canvas-size-trigger"]')).not.toBeNull()
+    expect(getRequiredElement(dynamicIsland, '[data-slot="desktop-insert-trigger"]')).not.toBeNull()
+    expect(dynamicIsland.querySelector('[data-slot="desktop-undo-trigger"]')).toBeNull()
+    expect(dynamicIsland.querySelector('[data-slot="desktop-redo-trigger"]')).toBeNull()
+    expect(dynamicIsland.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
+    expect(dynamicIsland.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
+
     const utilityToolbar = getRequiredElement(surface.container, '[data-slot="desktop-utility-toolbar"]')
     expect(surface.container.querySelector('[data-slot="desktop-document-toolbar"]')).toBeNull()
     expect(Array.from(utilityToolbar.querySelectorAll("button")).map((button) => button.getAttribute("aria-label"))).toEqual([
-      "Save",
       "Download",
     ])
     expect(utilityToolbar.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
     expect(utilityToolbar.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
-    expect(composeToolbar.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
-    expect(composeToolbar.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
-    expect(dynamicIsland.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
-    expect(getRequiredElement(dynamicIsland, '[data-slot="desktop-theme-toggle"]').getAttribute("aria-label")).toBe("Switch to light mode")
-    expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
-    const historyActions = getRequiredElement(surface.container, '[data-slot="desktop-history-actions"]')
-    expect(historyActions.querySelector('button[aria-label="Switch to light mode"]')).toBeNull()
-    expect(Array.from(historyActions.querySelectorAll("button")).map((button) => button.getAttribute("aria-label"))).toEqual([
+
+    const settingsHeader = getRequiredElement(
+      surface.container,
+      '[data-slot="desktop-settings-panel-header"]',
+    )
+    expect(Array.from(settingsHeader.querySelectorAll("button")).map((button) => button.getAttribute("aria-label"))).toEqual([
       "Undo",
       "Redo",
-      "Canvas size — 4:3",
     ])
+
+    const settingsFooter = getRequiredElement(
+      surface.container,
+      '[data-slot="desktop-settings-panel-footer"]',
+    )
+    expect(getRequiredElement(settingsFooter, '[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
+    expect(getRequiredElement(settingsFooter, '[data-slot="desktop-theme-toggle"]').getAttribute("aria-label")).toBe("Switch to light mode")
+
+    expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-history-actions"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-compose-toolbar"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-compose-toolbar-anchor"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-resize-toolbar"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-zoom-popover"]')).toBeNull()
   })
 
-  it("opens keyboard shortcuts from the dynamic island toolbar", () => {
+  it("opens keyboard shortcuts from the settings panel footer", () => {
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
-    const dynamicIsland = getRequiredElement(surface.container, '[data-slot="desktop-dynamic-island"]')
     const shortcutsTrigger = getRequiredElement(
-      dynamicIsland,
+      surface.container,
       '[data-slot="desktop-keyboard-shortcuts-trigger"]',
     )
 
@@ -277,7 +277,7 @@ describe("WorkspaceSurface", () => {
   })
 
   it("adds a fresh qr layer from the bottom toolbar and selects it", async () => {
-    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup)
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
     await waitForDraftingSurface()
@@ -295,16 +295,12 @@ describe("WorkspaceSurface", () => {
       ),
     ).toBe("false")
     expect(surface.container.querySelector('[data-slot="dashboard-edit-rail"]')).toBeNull()
-    expect(buildDashboardQrNodePayloadSpy).toHaveBeenCalled()
+    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalled()
   })
 
   it("keeps independent qr layer content on one canvas", async () => {
-    buildDashboardQrNodePayloadSpy.mockImplementation((state?: QraftyState) =>
-      Promise.resolve({
-        markup: `<svg data-value="${state?.data ?? ""}" />`,
-        naturalHeight: 320,
-        naturalWidth: 320,
-      }),
+    buildDraftingQraftyMarkupSpy.mockImplementation(
+      (state: QraftyState) => `<svg data-value="${state.data ?? ""}" />`,
     )
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
@@ -345,7 +341,7 @@ describe("WorkspaceSurface", () => {
   })
 
   it("keeps the qr renderer foreground-only on first render and after reset", async () => {
-    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup)
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
     await waitForDraftingSurface()
@@ -355,7 +351,7 @@ describe("WorkspaceSurface", () => {
       await flushPromises()
     })
 
-    const initialCall = buildDashboardQrNodePayloadSpy.mock.calls as unknown as Array<
+    const initialCall = buildDraftingQraftyMarkupSpy.mock.calls as unknown as Array<
       [QraftyState]
     >
     const initialState = initialCall[0]?.[0]
@@ -401,11 +397,11 @@ describe("WorkspaceSurface", () => {
 
     const undoButton = getRequiredElement(
       surface.container,
-      '[data-slot="desktop-history-actions"] button[aria-label="Undo"]',
+      '[data-slot="desktop-undo-trigger"]',
     ) as HTMLButtonElement
     const redoButton = getRequiredElement(
       surface.container,
-      '[data-slot="desktop-history-actions"] button[aria-label="Redo"]',
+      '[data-slot="desktop-redo-trigger"]',
     ) as HTMLButtonElement
 
     expect(undoButton.disabled).toBe(false)
@@ -499,7 +495,7 @@ describe("WorkspaceSurface", () => {
 
   it("uses keyboard shortcuts from body focus for layer nudging, ordering, and duplicating QR codes", async () => {
     vi.useFakeTimers()
-    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup)
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
     await waitForDraftingSurface()
@@ -543,7 +539,7 @@ describe("WorkspaceSurface", () => {
   })
 
   it("copies and pastes selected layers with keyboard shortcuts", async () => {
-    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup)
     let clipboardText = ""
     const writeText = vi.fn(async (value: string) => {
       clipboardText = value
@@ -600,7 +596,7 @@ describe("WorkspaceSurface", () => {
   })
 
   it("uses keyboard shortcuts to select all, clear selection, order layers, delete cards, and keep the canonical QR", async () => {
-    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup)
     let clipboardText = ""
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -697,7 +693,7 @@ describe("WorkspaceSurface", () => {
   })
 
   it("uses keyboard shortcuts to group and ungroup selected layers", async () => {
-    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup)
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
     await waitForDraftingSurface()
@@ -706,16 +702,7 @@ describe("WorkspaceSurface", () => {
 
     await advanceDraftingTimers()
 
-    act(() => {
-      activateElement(
-        getRequiredElement(surface.container, 'button[aria-label="Add text on canvas"]'),
-      )
-    })
-    act(() => {
-      activateElement(
-        getRequiredElement(surface.container, '[data-slot="desktop-compose-surface"]'),
-      )
-    })
+    await insertTextLayer(surface.container)
     await advanceDraftingTimers()
 
     act(() => {
@@ -764,7 +751,7 @@ describe("WorkspaceSurface", () => {
 
   it("keeps editing fields native for select-all, delete, clipboard, and layer shortcuts", async () => {
     vi.useFakeTimers()
-    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup)
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
     await waitForDraftingSurface()
@@ -805,7 +792,7 @@ describe("WorkspaceSurface", () => {
 
   it("uses native clipboard events for copy and paste when keyboard shortcuts become clipboard events", async () => {
     vi.useFakeTimers()
-    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup)
     let copiedText = ""
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
@@ -847,7 +834,7 @@ describe("WorkspaceSurface", () => {
 
   it("focuses the drafting surface after selecting a canvas layer", async () => {
     vi.useFakeTimers()
-    buildDashboardQrNodePayloadSpy.mockResolvedValue(QR_PAYLOAD)
+    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup)
     const surface = renderSurface({ paneToolbarVariant: "desktop-zoom" })
 
     await waitForDraftingSurface()
@@ -888,14 +875,14 @@ describe("WorkspaceSurface", () => {
     expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(2)
 
     act(() => {
-      activateElement(getRequiredElement(surface.container, '[data-slot="desktop-history-actions"] button[aria-label="Undo"]'))
+      activateElement(getRequiredElement(surface.container, '[data-slot="desktop-undo-trigger"]'))
     })
 
     expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(1)
     expect(surface.container.querySelectorAll('[data-slot="desktop-compose-node"]')).toHaveLength(1)
 
     act(() => {
-      activateElement(getRequiredElement(surface.container, '[data-slot="desktop-history-actions"] button[aria-label="Redo"]'))
+      activateElement(getRequiredElement(surface.container, '[data-slot="desktop-redo-trigger"]'))
     })
 
     expect(surface.container.querySelectorAll('[data-slot="desktop-compose-surface"]')).toHaveLength(1)
@@ -916,7 +903,7 @@ describe("WorkspaceSurface", () => {
     ).toBe("https://example.com/before-reset")
 
     act(() => {
-      activateElement(getRequiredElement(surface.container, '[data-slot="desktop-history-actions"] button[aria-label="Undo"]'))
+      activateElement(getRequiredElement(surface.container, '[data-slot="desktop-undo-trigger"]'))
     })
 
     expect(
@@ -961,18 +948,20 @@ function DesktopOverlayTestHarness(props: ComponentProps<typeof WorkspaceSurface
   )
 
   return (
-    <WorkspaceSurface
-      {...props}
-      desktopTheme={desktopTheme}
-      onDesktopThemeChange={setDesktopTheme}
-      renderOverlay={(controller) => (
-        <FloatingToolbar
-          controller={controller}
-          onThemeChange={setDesktopTheme}
-          theme={desktopTheme}
-        />
-      )}
-    />
+    <DesktopCuelumeProvider>
+      <WorkspaceSurface
+        {...props}
+        desktopTheme={desktopTheme}
+        onDesktopThemeChange={setDesktopTheme}
+        renderOverlay={(controller) => (
+          <FloatingToolbar
+            controller={controller}
+            onThemeChange={setDesktopTheme}
+            theme={desktopTheme}
+          />
+        )}
+      />
+    </DesktopCuelumeProvider>
   )
 }
 
@@ -1177,12 +1166,23 @@ async function waitForDraftingSurface() {
 
 async function addQrCode(parent: ParentNode) {
   await act(async () => {
-    activateElement(getRequiredElement(parent, 'button[aria-label="Add content"]'))
+    activateElement(getRequiredElement(parent, '[data-slot="desktop-insert-trigger"]'))
     await flushPromises()
   })
   await act(async () => {
     activateElement(getRequiredElement(parent, '[data-slot="drafting-insert-menu-add-qr"]'))
     await flushPromises()
+    await flushPromises()
+  })
+}
+
+async function insertTextLayer(parent: ParentNode) {
+  await act(async () => {
+    activateElement(getRequiredElement(parent, '[data-slot="desktop-insert-trigger"]'))
+    await flushPromises()
+  })
+  await act(async () => {
+    activateElement(getRequiredElement(parent, 'button[aria-label="Text"]'))
     await flushPromises()
   })
 }

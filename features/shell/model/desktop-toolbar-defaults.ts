@@ -20,9 +20,11 @@ import type {
   DesktopImageSettings,
   DesktopLayerRow,
   DesktopLayersSettings,
+  DesktopLayoutSettings,
   DesktopLogoSettings,
   DesktopMotionSettings,
   DesktopPatternSettings,
+  DesktopSceneTemplateSettings,
   DesktopShapeSettings,
   DesktopTextSettings,
 } from "@/features/shell/model/desktop-toolbar-types"
@@ -275,6 +277,20 @@ export const DEFAULT_DESKTOP_EXPORT_SETTINGS: DesktopExportSettings = {
   videoFormat: "mp4",
   videoFrameRate: 30,
   videoLongEdge: 1080,
+}
+
+export const DEFAULT_DESKTOP_LAYOUT_SETTINGS: DesktopLayoutSettings = {
+  layout: { id: "flat", label: "Flat", rotation: 0, tiltX: 0, tiltY: 0, zoom: 1 },
+}
+
+export const DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS: DesktopSceneTemplateSettings = {
+  sizeSettings: {
+    cardHeight: 810,
+    cardWidth: 1080,
+    lockAspectRatio: true,
+    sizeMode: "fixed",
+    sizePresetId: "ratio-4-3",
+  },
 }
 
 export const DEFAULT_DESKTOP_TEXT_SETTINGS: DesktopTextSettings = {

@@ -1,16 +1,29 @@
 import { vi } from "vitest"
 
 import {
+  DEFAULT_DESKTOP_ACCESSIBILITY_SETTINGS,
+  DEFAULT_DESKTOP_BACKGROUND_SETTINGS,
+  DEFAULT_DESKTOP_CORNERS_SETTINGS,
+  DEFAULT_DESKTOP_EFFECTS_SETTINGS,
+  DEFAULT_DESKTOP_ENCODING_SETTINGS,
   DEFAULT_DESKTOP_EXPORT_SETTINGS,
+  DEFAULT_DESKTOP_IMAGE_SETTINGS,
   DEFAULT_DESKTOP_LAYERS_SETTINGS,
+  DEFAULT_DESKTOP_LAYOUT_SETTINGS,
+  DEFAULT_DESKTOP_LOGO_SETTINGS,
+  DEFAULT_DESKTOP_MOTION_SETTINGS,
   DEFAULT_DESKTOP_PATTERN_SETTINGS,
+  DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS,
+  DEFAULT_DESKTOP_SHAPE_SETTINGS,
+  DEFAULT_DESKTOP_TEXT_SETTINGS,
 } from "@/features/shell/model/desktop-toolbar-defaults"
 import type { DesktopToolbarController } from "@/features/shell/model/desktop-toolbar-types"
 import { createDraftingTextLayer } from "@/features/canvas/model/layers"
 
 /**
  * Builds a complete `DesktopToolbarController` for tests. Every field is filled
- * with a harmless default so a test only has to supply the parts it exercises.
+ * with the same default the inspector falls back to, so a test only has to
+ * supply the parts it exercises.
  */
 export function createDesktopToolbarController(
   overrides: Partial<DesktopToolbarController> = {},
@@ -24,20 +37,20 @@ export function createDesktopToolbarController(
     contentValidation: { fieldErrors: {}, isValid: true },
     encodedContentValue: "",
     patternSettings: DEFAULT_DESKTOP_PATTERN_SETTINGS,
-    logoSettings: {} as DesktopToolbarController["logoSettings"],
-    cornersSettings: {} as DesktopToolbarController["cornersSettings"],
-    shapeSettings: {} as DesktopToolbarController["shapeSettings"],
-    motionSettings: {} as DesktopToolbarController["motionSettings"],
-    encodingSettings: {} as DesktopToolbarController["encodingSettings"],
-    accessibilitySettings: {} as DesktopToolbarController["accessibilitySettings"],
-    imageSettings: {} as DesktopToolbarController["imageSettings"],
-    backgroundSettings: {} as DesktopToolbarController["backgroundSettings"],
-    effectsSettings: {} as DesktopToolbarController["effectsSettings"],
+    logoSettings: DEFAULT_DESKTOP_LOGO_SETTINGS,
+    cornersSettings: DEFAULT_DESKTOP_CORNERS_SETTINGS,
+    shapeSettings: DEFAULT_DESKTOP_SHAPE_SETTINGS,
+    motionSettings: DEFAULT_DESKTOP_MOTION_SETTINGS,
+    encodingSettings: DEFAULT_DESKTOP_ENCODING_SETTINGS,
+    accessibilitySettings: DEFAULT_DESKTOP_ACCESSIBILITY_SETTINGS,
+    imageSettings: DEFAULT_DESKTOP_IMAGE_SETTINGS,
+    backgroundSettings: DEFAULT_DESKTOP_BACKGROUND_SETTINGS,
+    effectsSettings: DEFAULT_DESKTOP_EFFECTS_SETTINGS,
     layersSettings: DEFAULT_DESKTOP_LAYERS_SETTINGS,
     exportSettings: DEFAULT_DESKTOP_EXPORT_SETTINGS,
-    layoutSettings: {} as DesktopToolbarController["layoutSettings"],
-    sceneTemplateSettings: {} as DesktopToolbarController["sceneTemplateSettings"],
-    textSettings: {} as DesktopToolbarController["textSettings"],
+    layoutSettings: DEFAULT_DESKTOP_LAYOUT_SETTINGS,
+    sceneTemplateSettings: DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS,
+    textSettings: DEFAULT_DESKTOP_TEXT_SETTINGS,
     selectedElementLayer: layer,
     selectedLayerIds: [layer.id],
     onActiveToolChange: vi.fn(),

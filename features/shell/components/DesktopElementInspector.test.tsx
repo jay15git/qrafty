@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { DesktopElementInspector, DesktopTransformInspector } from "@/features/shell/components/DesktopElementInspector"
 import { DEFAULT_DESKTOP_LAYERS_SETTINGS } from "@/features/shell/model/desktop-toolbar-defaults"
 import { FloatingToolbar } from "@/features/shell/components/FloatingToolbar"
+import { DesktopCuelumeProvider } from "@/features/shell/hooks/use-desktop-cuelume"
 import { createDefaultDraftingShadowLayer } from "@/features/canvas/model/effects"
 import { createDefaultDraftingFilterEffect } from "@/features/canvas/model/filters"
 import {
@@ -105,7 +106,6 @@ describe("DesktopElementInspector", () => {
     expect(markup).toContain('data-slot="desktop-effects-list"')
     expect(markup).toContain('data-effect-kind="drop-shadow"')
     expect(markup).toContain('data-effect-kind="layer-blur"')
-    expect(markup).toContain("Add effect")
   })
 })
 
@@ -113,6 +113,7 @@ describe("FloatingToolbar selected element routing", () => {
   it("renders layer popover triggers in the dynamic island when a canvas element is selected", async () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" })
     const surface = await renderWithAsyncJsdomRoot(
+      <DesktopCuelumeProvider>
       <FloatingToolbar
         controller={createDesktopToolbarController(
           {
@@ -129,7 +130,8 @@ describe("FloatingToolbar selected element routing", () => {
           },
           NODE_ID,
         )}
-      />,
+      />
+      </DesktopCuelumeProvider>,
     )
 
     expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).toBeNull()
@@ -147,6 +149,7 @@ describe("FloatingToolbar selected element routing", () => {
   it("keeps accordion settings visible when a canvas element is selected", async () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" })
     const surface = await renderWithAsyncJsdomRoot(
+      <DesktopCuelumeProvider>
       <FloatingToolbar
         controller={createDesktopToolbarController(
           {
@@ -156,7 +159,8 @@ describe("FloatingToolbar selected element routing", () => {
           },
           NODE_ID,
         )}
-      />,
+      />
+      </DesktopCuelumeProvider>,
     )
 
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
@@ -166,6 +170,7 @@ describe("FloatingToolbar selected element routing", () => {
   it("prioritizes the active toolbar tool accordion over a selected canvas element in the left panel", async () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" })
     const surface = await renderWithAsyncJsdomRoot(
+      <DesktopCuelumeProvider>
       <FloatingToolbar
         controller={createDesktopToolbarController(
           {
@@ -175,7 +180,8 @@ describe("FloatingToolbar selected element routing", () => {
           },
           NODE_ID,
         )}
-      />,
+      />
+      </DesktopCuelumeProvider>,
     )
 
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()

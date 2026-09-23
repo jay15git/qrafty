@@ -2,6 +2,47 @@
 // Keeps DOM-environment component tests from crashing on unhandled errors
 // (e.g. window.matchMedia in features/shell/audio/desktop-cuelume.ts).
 
+import { createElement, forwardRef, type ReactNode } from "react"
+import { vi } from "vitest"
+import type * as GlimmNext from "glimm/next"
+
+// `useRouter()` from next/navigation throws "invariant expected app router to
+// be mounted" outside a Next runtime. Component tests render islands that pull
+// it in transitively (glimm's TransitionLink, the brand mark), so stub the
+// navigation surface for every test file.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
+  useParams: () => ({}),
+  useSelectedLayoutSegment: () => null,
+  useSelectedLayoutSegments: () => [],
+}))
+
+// The real TransitionLink needs <GlimmProvider>, which only the root layout
+// mounts. Tests render subtrees, so swap it for a plain anchor and keep the
+// rest of the module (EASINGS, PALETTES, useGlimm) intact.
+vi.mock("glimm/next", async (importOriginal) => {
+  const actual = await importOriginal<typeof GlimmNext>()
+
+  return {
+    ...actual,
+    GlimmProvider: ({ children }: { children?: ReactNode }) => children ?? null,
+    TransitionLink: forwardRef<HTMLAnchorElement, Record<string, unknown>>(
+      function TransitionLink(props, ref) {
+        return createElement("a", { ...props, ref })
+      },
+    ),
+  }
+})
+
 if (typeof window !== "undefined") {
   if (!window.matchMedia) {
     window.matchMedia = ((query: string) => ({

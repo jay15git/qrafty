@@ -29,9 +29,11 @@ import {
   DEFAULT_DESKTOP_EXPORT_SETTINGS,
   DEFAULT_DESKTOP_IMAGE_SETTINGS,
   DEFAULT_DESKTOP_LAYERS_SETTINGS,
+  DEFAULT_DESKTOP_LAYOUT_SETTINGS,
   DEFAULT_DESKTOP_LOGO_SETTINGS,
   DEFAULT_DESKTOP_MOTION_SETTINGS,
   DEFAULT_DESKTOP_PATTERN_SETTINGS,
+  DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS,
   DEFAULT_DESKTOP_SHAPE_SETTINGS,
   DEFAULT_DESKTOP_TEXT_SETTINGS,
 } from "@/features/shell/model/desktop-toolbar-defaults"
@@ -124,20 +126,6 @@ function useSettingsSlice<T extends object>(defaults: T) {
   const onChange = (patch: Partial<T>) =>
     setValue((current) => ({ ...current, ...patch }))
   return [value, onChange] as const
-}
-
-const DEFAULT_LAYOUT_SETTINGS: DesktopLayoutSettings = {
-  layout: { id: "flat", label: "Flat", rotation: 0, tiltX: 0, tiltY: 0, zoom: 1 },
-}
-
-const DEFAULT_SCENE_TEMPLATE_SETTINGS: DesktopSceneTemplateSettings = {
-  sizeSettings: {
-    cardHeight: 810,
-    cardWidth: 1080,
-    lockAspectRatio: true,
-    sizeMode: "fixed",
-    sizePresetId: "ratio-4-3",
-  },
 }
 
 function useInspectorSettingsSlices() {
@@ -338,8 +326,8 @@ export function useDesktopToolbarInspectorModel({
     ["actualEffectsSettings", "effectsSettings", slices.effectsSettings],
     ["actualLayersSettings", "layersSettings", slices.layersSettings],
     ["actualExportSettings", "exportSettings", slices.exportSettings],
-    ["actualLayoutSettings", "layoutSettings", DEFAULT_LAYOUT_SETTINGS],
-    ["actualSceneTemplateSettings", "sceneTemplateSettings", DEFAULT_SCENE_TEMPLATE_SETTINGS],
+    ["actualLayoutSettings", "layoutSettings", DEFAULT_DESKTOP_LAYOUT_SETTINGS],
+    ["actualSceneTemplateSettings", "sceneTemplateSettings", DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS],
     ["actualTextSettings", "textSettings", slices.textSettings],
   ] as const
   const handlerFields = [

@@ -37,7 +37,10 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     server: {
       deps: {
-        inline: ["@qrafty/qr"],
+        // glimm ships `import Link from "next/link"` in its dist; Node's native
+        // ESM loader rejects the extensionless subpath (next has no exports map).
+        // Inlining routes it through Vite's resolver instead.
+        inline: ["@qrafty/qr", "glimm"],
       },
     },
   },
