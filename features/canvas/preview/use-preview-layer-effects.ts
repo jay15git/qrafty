@@ -2,7 +2,7 @@
 
 import { useMemo } from "react"
 
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import { usePreviewRuntime } from "@/features/canvas/preview/preview-context"
 import { getPreviewLayerEffectStyle } from "@/features/canvas/preview/preview-layer-effects"
 

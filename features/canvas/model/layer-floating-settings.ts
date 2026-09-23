@@ -1,5 +1,5 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
-import { createDraftingTextLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
+import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories"
 
 const EMOJI_LAYER_TEXT_PATTERN =
   /^(?:\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)+$/u

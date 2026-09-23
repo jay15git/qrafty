@@ -1,6 +1,6 @@
 import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react"
 
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import { cn } from "@/lib/utils"
 
 function getPaneLayerA11yLabel(layer: DraftingCanvasLayer) {

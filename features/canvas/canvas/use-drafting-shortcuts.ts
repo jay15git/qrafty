@@ -2,11 +2,11 @@
 
 import { useEffect, type MutableRefObject } from "react"
 
-import {
-  createDefaultDraftingLayers,
-  type DraftingCanvasLayer,
-  type DraftingLayerStateByNodeId,
-} from "@/features/canvas/model/layers"
+import type {
+  DraftingCanvasLayer,
+  DraftingLayerStateByNodeId,
+} from "@/features/canvas/model/layers/shared"
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
 import {
   getDraftingLayerClipboardPayload,
   isEditableShortcutTarget,

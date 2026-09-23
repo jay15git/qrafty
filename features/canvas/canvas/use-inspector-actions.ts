@@ -18,16 +18,18 @@ import {
 } from "@/features/qr/model/state"
 import { createUniformCornerRadii } from "@/features/canvas/model/corner-radius"
 import {
-  cloneDraftingCanvasLayer,
-  createDefaultDraftingLayers,
-  createDraftingTextLayer,
-  fitQrSizeInCard,
   getDraftingCardLayerId,
   getDraftingQrLayerId,
-  layoutDraftingCardInsetLayers,
-  patchDraftingCanvasLayer,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
+import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback"
+import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
+import {
+  createDefaultDraftingLayers,
+  fitQrSizeInCard,
+  layoutDraftingCardInsetLayers,
+} from "@/features/canvas/model/layers/card-qr"
+import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories"
 import {
   createDefaultDraftingCardState,
   normalizeDraftingCardState,

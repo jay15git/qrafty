@@ -18,7 +18,7 @@ import {
   type LayerShadowEffectItem,
 } from "@/features/canvas/model/layer-effects"
 import type { DraftingShadowLayerState } from "@/features/canvas/model/effects"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 
 export function DesktopShadowsList({
   layer,

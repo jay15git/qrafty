@@ -6,11 +6,11 @@ import type {
 } from "@/features/shell/components/FloatingToolbar"
 import type { DesktopAssetSourceMode } from "@/features/shell/model/desktop-toolbar-types"
 import {
-  cloneDraftingCanvasLayer,
   DEFAULT_DRAFTING_TEXT_LAYER,
-  patchDraftingCanvasLayer,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
+import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback"
+import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
 import type { AssetSourceMode } from "@/features/qr/model/state"
 
 const DRAFTING_LAYER_CLIPBOARD_TYPE = "qrafty/drafting-layers"

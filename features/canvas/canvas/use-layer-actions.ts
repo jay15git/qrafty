@@ -19,29 +19,35 @@ import type {
 import { createQrControls } from "@/features/canvas/canvas/qr-controls"
 import type { DraftingShortcutKeyboardState } from "@/features/canvas/canvas/use-drafting-shortcuts"
 import {
-  alignDraftingCanvasLayers,
-  clampLayerGeometryToCanvas,
-  cloneDraftingCanvasLayer,
-  cloneDraftingCanvasLayersForPaste,
-  createDefaultDraftingLayers,
-  createDraftingTextLayer,
-  distributeDraftingCanvasLayers,
   getDraftingCardLayerId,
   getDraftingQrLayerId,
   getQrCanvasLayers,
-  groupDraftingCanvasLayers,
   isDraftingCardLayerId,
   isDraftingQrLayerId,
   isLayerDeletable,
   isProtectedDraftingLayerId,
-  patchDraftingCanvasLayer,
-  reorderDraftingCanvasLayer,
-  ungroupDraftingCanvasLayer,
   type DraftingCanvasLayer,
   type DraftingLayerAlignAction,
   type DraftingLayerDistributeAction,
   type DraftingLayerReorderAction,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
+import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback"
+import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
+import {
+  clampLayerGeometryToCanvas,
+  createDefaultDraftingLayers,
+} from "@/features/canvas/model/layers/card-qr"
+import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories"
+import {
+  alignDraftingCanvasLayers,
+  cloneDraftingCanvasLayersForPaste,
+  distributeDraftingCanvasLayers,
+  reorderDraftingCanvasLayer,
+} from "@/features/canvas/model/layers/operations"
+import {
+  groupDraftingCanvasLayers,
+  ungroupDraftingCanvasLayer,
+} from "@/features/canvas/model/layers/group"
 import {
   cloneDraftingQrState,
   createDefaultDraftingWorkspaceQrState,

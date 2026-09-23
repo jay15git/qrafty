@@ -47,7 +47,7 @@ import {
   type IllustrationSet,
   type IllustrationSetId,
 } from "@/features/canvas/assets/illustration-sets"
-import type { DraftingElementShapeId } from "@/features/canvas/model/layers"
+import type { DraftingElementShapeId } from "@/features/canvas/model/layers/shared"
 import { CUELUME_BUTTON, CUELUME_TOGGLE } from "@/features/shell/audio/desktop-cuelume"
 import { cn } from "@/lib/utils"
 

@@ -1,4 +1,4 @@
-import type { DraftingTextFontWeight } from "@/features/canvas/model/layers"
+import type { DraftingTextFontWeight } from "@/features/canvas/model/layers/shared"
 
 export function getNearestDesktopFontWeight(value: number, supportedWeights: readonly number[]) {
   return supportedWeights.reduce((nearestWeight, candidateWeight) => {

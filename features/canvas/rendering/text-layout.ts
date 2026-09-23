@@ -1,7 +1,7 @@
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import { getDraftingFontCssFamily } from "@/features/canvas/model/fonts"
 
 let measureCanvas: HTMLCanvasElement | null = null

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { createDefaultQraftyState } from "@/features/qr/model/state"
 import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state"
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers"
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
 import {
   ensureMandatoryDesktopLayerRows,
   patchDraftingLayerById,

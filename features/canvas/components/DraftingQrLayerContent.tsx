@@ -10,7 +10,7 @@ import {
   getDraftingQrLayerLayout,
 } from "@/features/qr/rendering/svg-extension"
 import { DraftingQrBackground } from "@/features/canvas/components/QrBackground"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import { getDraftingPerSideBorderStyle } from "@/features/canvas/rendering/layer-appearance"
 import { cn } from "@/lib/utils"
 

@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vitest"
 
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene"
-import { getDraftingQrLayerId, getQrCanvasLayers } from "@/features/canvas/model/layers"
+import {
+  getDraftingQrLayerId,
+  getQrCanvasLayers,
+} from "@/features/canvas/model/layers/shared"
 import {
   cloneDraftingWorkspaceDocument,
   createDefaultDraftingWorkspaceDocument,
-  parseDraftingWorkspaceDocument,
   serializeDraftingWorkspaceDocument,
 } from "@/features/canvas/model/document"
+import { parseDraftingWorkspaceDocument } from "@/features/canvas/model/document/parse"
 
 describe("drafting workspace document", () => {
   it("flattens legacy multi-pane documents into qr layers on one canvas", () => {

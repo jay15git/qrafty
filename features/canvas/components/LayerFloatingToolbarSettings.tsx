@@ -39,7 +39,7 @@ import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
   type DraftingTextAlign,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import {
   getDraftingEmojiLayerSizePatch,
   isDraftingEmojiLayer,

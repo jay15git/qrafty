@@ -1,7 +1,7 @@
 import type { QraftyState } from "@/features/qr/model/state"
 import type { QrFileExtension } from "@/features/qr/model/types"
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import { getLossyRasterEncoderQuality, isRasterExportExtension } from "@/features/qr/export/raster-export"
 import { buildDashboardQrNodePayload } from "@/features/qr/rendering/qr-svg-render"
 import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork"

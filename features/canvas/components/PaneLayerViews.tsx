@@ -24,7 +24,7 @@ import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   type DraftingCanvasLayer,
   type DraftingTextRun,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import {
   getDraftingCardBorderStyle,
   getLayerPlacementStyle,

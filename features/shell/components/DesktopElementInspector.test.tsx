@@ -13,7 +13,7 @@ import {
   createDraftingImageLayer,
   createDraftingShapeLayer,
   createDraftingTextLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/factories"
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root"
 import { createDesktopToolbarController } from "@/test-utils/desktop-toolbar-controller"
 

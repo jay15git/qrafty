@@ -8,7 +8,7 @@ import {
 import {
   DEFAULT_DRAFTING_LAYER_SHADOW,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects"
 
 function createQrLayer(id: string): DraftingCanvasLayer {

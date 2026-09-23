@@ -14,10 +14,8 @@ import type {
 } from "@/features/shell/model/desktop-toolbar-types"
 import type { QraftyState } from "@/features/qr/model/state"
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import {
-  createDefaultDraftingLayers,
-  type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
 import type { SceneCompositionState } from "@/features/canvas/model/scene-templates"
 import {
   getDesktopAssetSourceMode,

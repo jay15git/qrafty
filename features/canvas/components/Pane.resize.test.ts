@@ -7,7 +7,7 @@ import {
 import {
   DEFAULT_DRAFTING_LAYER_SHADOW,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects"
 
 // Base QR layer: 200x200 at (100, 100). Opposite edges sit at 300/300.

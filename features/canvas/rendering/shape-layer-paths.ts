@@ -1,4 +1,4 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr/styles/background-shapes"
 
 export function getShapeStrokeViewBoxScale(

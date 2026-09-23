@@ -1,9 +1,9 @@
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import {
-  createDefaultDraftingLayers,
-  type DraftingCanvasLayer,
-  type DraftingLayerStateByNodeId,
-} from "@/features/canvas/model/layers"
+import type {
+  DraftingCanvasLayer,
+  DraftingLayerStateByNodeId,
+} from "@/features/canvas/model/layers/shared"
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
 import type { DraftingContentValuesByType } from "@/features/canvas/model/document"
 import type { SceneCompositionByNodeId } from "@/features/canvas/model/apply-scene-template"
 import {

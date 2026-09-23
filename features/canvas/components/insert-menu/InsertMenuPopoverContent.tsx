@@ -11,7 +11,7 @@ import {
   INSERT_MENU_POPOVER_WIDTH,
   insertMenuPortalClass,
 } from "@/features/canvas/components/insert-menu/insert-menu-styles"
-import { createDraftingTextLayer } from "@/features/canvas/model/layers"
+import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories"
 import { cn } from "@/lib/utils"
 
 import "@/features/shell/inspector/inspector.css"

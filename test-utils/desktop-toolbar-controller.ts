@@ -18,7 +18,7 @@ import {
   DEFAULT_DESKTOP_TEXT_SETTINGS,
 } from "@/features/shell/model/desktop-toolbar-defaults"
 import type { DesktopToolbarController } from "@/features/shell/model/desktop-toolbar-types"
-import { createDraftingTextLayer } from "@/features/canvas/model/layers"
+import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories"
 
 /**
  * Builds a complete `DesktopToolbarController` for tests. Every field is filled

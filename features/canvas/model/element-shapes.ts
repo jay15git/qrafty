@@ -1,4 +1,4 @@
-import type { DraftingShapePrimitiveId } from "@/features/canvas/model/layers"
+import type { DraftingShapePrimitiveId } from "@/features/canvas/model/layers/shared"
 import {
   QR_BACKGROUND_SHAPES,
   type QrBackgroundShapeDefinition,

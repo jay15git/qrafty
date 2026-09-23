@@ -7,7 +7,7 @@ import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
   type DraftingTextRun,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import { getDraftingFontCssFamily } from "@/features/canvas/model/fonts"
 import { getDraftingTextFontFamily } from "@/features/canvas/rendering/text-layout"
 import {

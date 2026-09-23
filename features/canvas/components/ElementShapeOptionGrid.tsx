@@ -17,7 +17,7 @@ import {
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   type DraftingElementShapeId,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import type { QrBackgroundShapeDefinition } from "@/features/qr/styles/background-shapes"
 import { ElementShapePrimitivePreview } from "@/features/canvas/components/ElementShapePrimitivePreview"
 import { cn } from "@/lib/utils"

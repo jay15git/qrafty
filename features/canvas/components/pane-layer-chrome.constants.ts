@@ -2,7 +2,7 @@ import type {
   DraftingLayerAlignAction,
   DraftingLayerDistributeAction,
   DraftingLayerReorderAction,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 
 export type DraftingLayerMenuAction =
   | DraftingLayerAlignAction

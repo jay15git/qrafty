@@ -1,7 +1,7 @@
 import { shaderRequiresImage } from "@qrafty/qr/shaders"
 
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import {
   resolveShaderExportFrameMs,
   type ExportClockMode,

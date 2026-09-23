@@ -6,7 +6,7 @@ import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
   type DraftingTextRun,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import { layoutDraftingText } from "@/features/canvas/rendering/text-layout"
 import { getShapeStrokeViewBoxScale, getShapeSvgPath } from "@/features/canvas/rendering/shape-layer-paths"
 import { getDraftingPerSideBorderStyle } from "@/features/canvas/rendering/layer-appearance"

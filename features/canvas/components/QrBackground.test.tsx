@@ -9,7 +9,7 @@ import { createDefaultQraftyState,
 } from "@/features/qr/model/state"
 import { DraftingQrBackground } from "@/features/canvas/components/QrBackground"
 import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state"
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers"
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
 
 const cleanupCallbacks: Array<() => void> = []
 

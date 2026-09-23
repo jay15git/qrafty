@@ -2,10 +2,8 @@
 
 import { useMemo, useSyncExternalStore } from "react"
 
-import {
-  cloneDraftingCanvasLayer,
-  type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
+import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback"
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
 import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document"
 import type { DraftingDownloadTarget } from "@/features/canvas/components/workspace-surface-helpers"

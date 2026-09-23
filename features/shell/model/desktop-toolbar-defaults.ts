@@ -1,5 +1,5 @@
 import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr/assets/brand-icon-svg"
-import { DEFAULT_DRAFTING_TEXT_LAYER } from "@/features/canvas/model/layers"
+import { DEFAULT_DRAFTING_TEXT_LAYER } from "@/features/canvas/model/layers/shared"
 import {
   createDefaultDraftingCardPaperShader,
   DEFAULT_DRAFTING_CARD_STATE,

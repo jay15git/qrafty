@@ -58,7 +58,7 @@ import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
   type DraftingShapeFillMode,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import { createDefaultDraftingCardPaperShader } from "@/features/canvas/model/card-state"
 import {
   DRAFTING_FONT_CATEGORY_LABELS,

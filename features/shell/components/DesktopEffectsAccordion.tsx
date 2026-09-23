@@ -18,7 +18,7 @@ import {
   type LayerEffectKind,
   type LayerShadowEffectKind,
 } from "@/features/canvas/model/layer-effects"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import type { DraftingFilterType } from "@/features/canvas/model/filters"
 import { cn } from "@/lib/utils"
 

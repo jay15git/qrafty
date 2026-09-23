@@ -18,13 +18,15 @@ import {
   type IllustrationSet,
   type IllustrationSetId,
 } from "@/features/canvas/assets/illustration-sets"
+import type {
+  DraftingCanvasLayer,
+  DraftingElementShapeId,
+} from "@/features/canvas/model/layers/shared"
 import {
   createDraftingImageLayer,
   createDraftingShapeLayer,
   createDraftingTextLayer,
-  type DraftingCanvasLayer,
-  type DraftingElementShapeId,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/factories"
 import { createDraftingEmojiLayer } from "@/features/canvas/model/layer-floating-settings"
 
 type InsertMenuPanelStackProps = {

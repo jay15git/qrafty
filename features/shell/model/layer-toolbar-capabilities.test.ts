@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { getDesktopLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities"
-import { createDraftingTextLayer } from "@/features/canvas/model/layers"
+import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories"
 
 describe("layer-toolbar-capabilities", () => {
   it("allows two effects for element layers", () => {

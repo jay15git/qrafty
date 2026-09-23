@@ -10,7 +10,7 @@ import {
   type DraftingFilterEffect,
   type DraftingFilterType,
 } from "@/features/canvas/model/filters"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 
 export type LayerShadowEffectKind = "drop-shadow" | "inner-shadow"
 

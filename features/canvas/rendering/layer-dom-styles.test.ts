@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest"
 
-import {
-  createDraftingTextLayer,
-  patchDraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
+import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories"
 import { getTextLayerStyle } from "@/features/canvas/rendering/layer-dom-styles"
 import type { QraftyGradient } from "@/features/qr/model/state"
 

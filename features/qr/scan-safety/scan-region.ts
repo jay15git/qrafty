@@ -1,4 +1,4 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import { clampBackgroundShapeTilt } from "@/features/qr/model/state"
 
 export type ScanRegionBounds = {

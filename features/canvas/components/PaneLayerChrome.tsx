@@ -20,7 +20,7 @@ import { LayerFloatingToolbarSettings } from "@/features/canvas/components/Layer
 import {
   isProtectedDraftingLayerId,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import type { ChromeBounds } from "@/features/canvas/components/pane-layer-chrome-overlay"
 import {
   type ResizeDirection,

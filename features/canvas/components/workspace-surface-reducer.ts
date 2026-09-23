@@ -13,10 +13,10 @@ import {
   type DraftingCardState,
 } from "@/features/canvas/model/card-state"
 import {
-  createDefaultDraftingLayers,
   getDraftingQrLayerId,
   type DraftingLayerStateByNodeId,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
 import {
   createDefaultDraftingWorkspaceQrState,
   type DraftingCardStateByNodeId,

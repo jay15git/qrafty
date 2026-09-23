@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest"
 
 import { formatFill } from "@/components/ui/fill-picker/public-api"
 import { fillFromHex } from "@/features/shell/inspector/fill-picker.utils"
+import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
 import {
   createDraftingShapeLayer,
   createDraftingTextLayer,
-  patchDraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/factories"
 import {
   getShapeLayerFillCssValue,
   getTextLayerFillCssValue,

@@ -1,32 +1,40 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  alignDraftingCanvasLayers,
+  DEFAULT_DRAFTING_IMAGE_LAYER,
+  DEFAULT_DRAFTING_SHAPE_LAYER,
+  DEFAULT_DRAFTING_TEXT_LAYER,
+  isProtectedDraftingLayerId,
+  DEFAULT_DRAFTING_LAYER_SHADOW,
+  type DraftingCanvasLayer,
+} from "@/features/canvas/model/layers/shared"
+import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback"
+import {
   clampLayerGeometryToCanvas,
-  cloneDraftingCanvasLayer,
-  cloneDraftingCanvasLayersForPaste,
   createDefaultDraftingLayers,
+  fitQrSizeInCard,
+  getDraftingCardInsetLayout,
+  layoutDraftingCardInsetLayers,
+  hasCustomDraftingQrPlacement,
+  normalizeDraftingCanvasLayers,
+} from "@/features/canvas/model/layers/card-qr"
+import {
   createDraftingImageLayer,
   createDraftingShaderLayer,
   createDraftingShapeLayer,
   createDraftingTextLayer,
-  DEFAULT_DRAFTING_IMAGE_LAYER,
-  DEFAULT_DRAFTING_SHAPE_LAYER,
-  DEFAULT_DRAFTING_TEXT_LAYER,
+} from "@/features/canvas/model/layers/factories"
+import {
+  alignDraftingCanvasLayers,
+  cloneDraftingCanvasLayersForPaste,
   distributeDraftingCanvasLayers,
-  fitQrSizeInCard,
-  getDraftingCardInsetLayout,
   getDraftingMarqueeSelection,
-  groupDraftingCanvasLayers,
-  isProtectedDraftingLayerId,
-  layoutDraftingCardInsetLayers,
-  hasCustomDraftingQrPlacement,
-  normalizeDraftingCanvasLayers,
   reorderDraftingCanvasLayer,
+} from "@/features/canvas/model/layers/operations"
+import {
+  groupDraftingCanvasLayers,
   ungroupDraftingCanvasLayer,
-  DEFAULT_DRAFTING_LAYER_SHADOW,
-  type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/group"
 import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state"
 import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects"
 import { createDefaultQraftyState } from "@/features/qr/model/state"

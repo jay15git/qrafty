@@ -1,5 +1,5 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
-import { isLayerDeletable } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
+import { isLayerDeletable } from "@/features/canvas/model/layers/shared"
 import type {
   SceneCompositionState,
   SceneLayoutPreset,

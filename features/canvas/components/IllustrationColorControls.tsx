@@ -21,7 +21,7 @@ import {
   cornerRadiiToCss,
   resolveLayerCornerRadii,
 } from "@/features/canvas/model/corner-radius"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import { cn } from "@/lib/utils"
 
 function patchIllustrationStops(

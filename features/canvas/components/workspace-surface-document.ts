@@ -1,22 +1,22 @@
 import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options"
 import type { QraftyState } from "@/features/qr/model/state"
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene"
-import {
-  type DraftingCardStateByNodeId,
-  type DraftingContentValuesByType,
-  type DraftingQrStateByLayerId,
-  type DraftingQrStateByNodeId,
-  type DraftingWorkspaceDocumentV1,
+import type {
+  DraftingCardStateByNodeId,
+  DraftingContentValuesByType,
+  DraftingQrStateByLayerId,
+  DraftingQrStateByNodeId,
+  DraftingWorkspaceDocumentV1,
 } from "@/features/canvas/model/document"
 import { type SceneCompositionByNodeId } from "@/features/canvas/model/apply-scene-template"
 import { type DraftingCardState } from "@/features/canvas/model/card-state"
 import {
-  createDefaultDraftingLayers,
   getDraftingQrLayerId,
   getQrCanvasLayers,
   type DraftingCanvasLayer,
   type DraftingLayerStateByNodeId,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
 
 export function resolveActiveQrLayerIdFromLayers(
   activeQrLayerId: string,

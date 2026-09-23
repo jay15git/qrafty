@@ -14,12 +14,12 @@ import {
   type DraftingCardStyleMode,
 } from "@/features/canvas/model/card-state"
 import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-definitions"
-import {
-  type DraftingCanvasLayer,
-  type DraftingTextAlign,
-  type DraftingTextFontStyle,
-  type DraftingTextFontWeight,
-} from "@/features/canvas/model/layers"
+import type {
+  DraftingCanvasLayer,
+  DraftingTextAlign,
+  DraftingTextFontStyle,
+  DraftingTextFontWeight,
+} from "@/features/canvas/model/layers/shared"
 import type { DraftingLayerMenuAction } from "@/features/canvas/components/pane-layer-chrome.constants"
 import type { DesktopAppearanceSnapshot } from "@/features/shell/model/appearance"
 import {

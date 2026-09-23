@@ -2,7 +2,7 @@
 
 import type { CSSProperties, ReactNode } from "react"
 
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import { getLayerTiltInnerStyle } from "@/features/canvas/rendering/layer-transform"
 import { cn } from "@/lib/utils"
 

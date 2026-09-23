@@ -3,7 +3,8 @@ import {
   cloneDraftingCardPaperShaderState,
   createDefaultDraftingCardPaperShader,
   type DraftingCardPaperShaderState,
-} from "@/features/canvas/model/card-state";
+} from "@/features/canvas/model/card-state"
+;
 import { dotMatrixLoaderToPresetName as mapLoaderToPresetName } from "@qrafty/qr/dot-matrix";
 import type { CustomCornerDotShape } from "@/features/qr/styles/custom-corner-dot-shapes";
 import type {

@@ -1,5 +1,5 @@
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import { isConicCssFill } from "@/features/canvas/export/svg-css-fill"
 
 export function resolveCardShaderMode(cardState: DraftingCardState) {

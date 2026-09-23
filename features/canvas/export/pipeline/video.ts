@@ -18,7 +18,7 @@ import { WorkspaceShaderCaptureSession } from "@/features/canvas/export/pipeline
 import { buildDashboardQrNodePayload } from "@/features/qr/rendering/qr-svg-render"
 import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork"
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import type { QraftyState } from "@/features/qr/model/state"
 import type {
   VideoExportDuration,

@@ -19,9 +19,7 @@ import type {
   DesktopAppearancePatch,
   DesktopAppearanceSnapshot,
 } from "@/features/shell/model/appearance"
-import {
-  type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import {
   DRAFTING_CORNER_RADIUS_KEYS,
   DRAFTING_CORNER_RADIUS_MAX,

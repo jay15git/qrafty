@@ -35,7 +35,7 @@ import type { DesktopToolbarToolId } from "@/features/shell/model/desktop-toolba
 import {
   createDraftingShapeLayer,
   createDraftingTextLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/factories"
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root"
 
 const NODE_ID = "test-node"

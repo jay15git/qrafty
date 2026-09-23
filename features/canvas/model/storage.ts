@@ -1,8 +1,8 @@
 import {
-  parseDraftingWorkspaceDocument,
   serializeDraftingWorkspaceDocument,
   type DraftingWorkspaceDocumentV1,
 } from "@/features/canvas/model/document"
+import { parseDraftingWorkspaceDocument } from "@/features/canvas/model/document/parse"
 
 const DB_NAME = "qrafty-drafting-workspace"
 const DB_VERSION = 1

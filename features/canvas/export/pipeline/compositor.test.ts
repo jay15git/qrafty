@@ -3,10 +3,8 @@ import { describe, expect, it } from "vitest"
 import { formatFill } from "@/components/ui/fill-picker/public-api"
 import { createDefaultQraftyState } from "@/features/qr/model/state"
 import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state"
-import {
-  createDefaultDraftingLayers,
-  createDraftingShaderLayer,
-} from "@/features/canvas/model/layers"
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
+import { createDraftingShaderLayer } from "@/features/canvas/model/layers/factories"
 import {
   cardLayerNeedsCanvasFace,
   computeObjectFitRect,

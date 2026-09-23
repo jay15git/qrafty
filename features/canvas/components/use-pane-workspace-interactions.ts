@@ -18,12 +18,14 @@ import {
 } from "@/features/canvas/model/card-state"
 import { cornerRadiiToCss } from "@/features/canvas/model/corner-radius"
 import {
+  DEFAULT_DRAFTING_LAYER_SHADOW,
+  type DraftingCanvasLayer,
+} from "@/features/canvas/model/layers/shared"
+import {
   clampLayerGeometryToCanvas,
   createDefaultDraftingLayers,
-  DEFAULT_DRAFTING_LAYER_SHADOW,
-  getDraftingMarqueeSelection,
-  type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/card-qr"
+import { getDraftingMarqueeSelection } from "@/features/canvas/model/layers/operations"
 import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects"
 import {
   ensureDraftingFontsForLayers,

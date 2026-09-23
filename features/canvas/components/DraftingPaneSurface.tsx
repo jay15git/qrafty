@@ -3,8 +3,7 @@
 import type { DragEvent } from "react"
 
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
-
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import { DraftingPaneViewport } from "@/features/canvas/components/drafting-pane-viewport"
 import { useDraftingPaneSurfaceInteractions } from "@/features/canvas/components/use-drafting-pane-surface-interactions"
 import type {

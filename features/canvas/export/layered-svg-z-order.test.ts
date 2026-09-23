@@ -5,12 +5,12 @@ import {
   createDefaultDraftingCardState,
   type DraftingCardState,
 } from "@/features/canvas/model/card-state"
+import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
 import {
-  createDefaultDraftingLayers,
   createDraftingShaderLayer,
   createDraftingTextLayer,
-  patchDraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/factories"
 import { buildLayeredSvgParts } from "@/features/canvas/export/layered-svg-parts"
 import { qraftyGradientToFillCss } from "@/features/shell/inspector/settings-bridge"
 import { degreesToRadians } from "@/features/qr/styles/gradient-controls"

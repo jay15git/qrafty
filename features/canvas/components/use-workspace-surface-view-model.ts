@@ -12,14 +12,16 @@ import {
   createDefaultDraftingCardState,
 } from "@/features/canvas/model/card-state"
 import {
-  cloneDraftingCanvasLayer,
-  createDefaultDraftingLayers,
-  createDraftingQrLayer,
   DEFAULT_DRAFTING_TEXT_LAYER,
   getDraftingQrLayerId,
   getQrCanvasLayers,
   isDraftingQrLayerId,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
+import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback"
+import {
+  createDefaultDraftingLayers,
+  createDraftingQrLayer,
+} from "@/features/canvas/model/layers/card-qr"
 import {
   cloneDraftingQrState,
   createDefaultDraftingWorkspaceQrState,

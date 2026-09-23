@@ -3,7 +3,7 @@ import { clampBackgroundShapeTilt } from "@/features/qr/model/state"
 import { rasterizeSvgMarkupToCanvas } from "@/features/qr/rendering/svg-raster"
 import type { QrFileExtension } from "@/features/qr/model/types"
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import type { QraftyState } from "@/features/qr/model/state"
 import {
   buildRoundedRectPath,

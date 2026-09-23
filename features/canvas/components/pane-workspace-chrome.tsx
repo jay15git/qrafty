@@ -42,7 +42,7 @@ import { cornerRadiiToCss } from "@/features/canvas/model/corner-radius"
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
 import type { SceneCompositionState } from "@/features/canvas/model/scene-templates"
 import type { PreviewStageSize } from "@/features/canvas/preview/preview-camera"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
 import {
   getLayerRotationLabel,

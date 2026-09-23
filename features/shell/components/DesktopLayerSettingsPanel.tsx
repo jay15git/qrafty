@@ -19,8 +19,7 @@ import type {
 } from "@/features/shell/model/appearance"
 import { DesktopnewThemeContext } from "@/features/shell/inspector/theme-context"
 import type { LayerEffectKind } from "@/features/canvas/model/layer-effects"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
-
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import "@/features/shell/inspector/inspector.css"
 
 function LayerSettingsPanelShell({

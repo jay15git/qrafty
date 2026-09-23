@@ -2,7 +2,7 @@
 
 import { useMemo } from "react"
 
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import type { QraftyState } from "@/features/qr/model/state"
 import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background.utils"
 

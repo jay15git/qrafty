@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 
-import { createDraftingImageLayer, createDraftingTextLayer } from "@/features/canvas/model/layers"
+import {
+  createDraftingImageLayer,
+  createDraftingTextLayer,
+} from "@/features/canvas/model/layers/factories"
 import {
   createDraftingEmojiLayer,
   getDraftingEmojiLayerFrame,

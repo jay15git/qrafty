@@ -2,7 +2,7 @@ import { zipSync } from "fflate"
 
 import type { QrFileExtension } from "@/features/qr/model/types"
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import type { QraftyState } from "@/features/qr/model/state"
 import {
   buildWorkspaceExportPayload,

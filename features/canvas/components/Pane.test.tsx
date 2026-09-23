@@ -42,13 +42,13 @@ import {
   createDefaultDraftingCardState,
 } from "@/features/canvas/model/card-state"
 import {
-  createDefaultDraftingLayers,
-  createDraftingTextLayer,
   DEFAULT_DRAFTING_LAYER_SHADOW,
   getDraftingCardLayerId,
   getDraftingQrLayerId,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
+import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories"
 import {
   createUniformPerSideBorder,
   DEFAULT_DRAFTING_OUTLINE,

@@ -10,7 +10,7 @@ import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 
 export function getShapeLayerFillCssValue(layer: DraftingCanvasLayer) {
   if (layer.fillMode === "gradient" && layer.fillGradient) {

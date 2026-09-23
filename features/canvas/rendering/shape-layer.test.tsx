@@ -3,7 +3,8 @@
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
 
-import { createDraftingShapeLayer, patchDraftingCanvasLayer } from "@/features/canvas/model/layers"
+import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
+import { createDraftingShapeLayer } from "@/features/canvas/model/layers/factories"
 import { patchShapeLayerFillFromPicker } from "@/features/canvas/rendering/shape-fill.utils"
 import { DraftingShapeLayerContent } from "@/features/canvas/rendering/shape-layer"
 import { formatFill } from "@/components/ui/fill-picker/public-api"

@@ -9,7 +9,7 @@ import { DEFAULT_DRAFTING_CARD_STATE } from "@/features/canvas/model/card-state"
 import {
   createDraftingShapeLayer,
   createDraftingTextLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/factories"
 
 const NODE_ID = "node-1"
 

@@ -1,4 +1,4 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import type { DraftingLayerMenuAction } from "@/features/canvas/components/pane-layer-chrome.constants"
 
 export type DraftingPaneInteractionState = {

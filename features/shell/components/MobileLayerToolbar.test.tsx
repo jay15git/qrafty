@@ -4,7 +4,7 @@ import { act, useEffect } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MobileLayerToolbar } from "@/features/shell/components/MobileLayerToolbar"
-import { createDraftingShapeLayer } from "@/features/canvas/model/layers"
+import { createDraftingShapeLayer } from "@/features/canvas/model/layers/factories"
 import { getDesktopAppearanceSnapshot } from "@/features/shell/model/appearance"
 import type { DesktopInspectorModel } from "@/features/shell/hooks/useDesktopToolbarInspectorModel"
 import type { DesktopToolbarController } from "@/features/shell/model/desktop-toolbar-types"

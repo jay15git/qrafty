@@ -29,7 +29,7 @@ import type { DesktopAppearanceSnapshot } from "@/features/shell/model/appearanc
 import { getDesktopLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities"
 import { TooltipNavbar, type TooltipItem } from "@/components/ui/tooltip-navbar"
 import { LAYER_FILTER_EFFECT_KINDS } from "@/features/canvas/model/layer-effects"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import type { SizeTemplate } from "@/features/canvas/model/size-templates"
 import type { DesktopCardSizeSettings } from "@/features/shell/model/card-size-settings"
 

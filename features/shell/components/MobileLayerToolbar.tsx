@@ -46,7 +46,7 @@ import { TextFontPickerContent } from "@/features/shell/inspector/text-font-pick
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import {
   FillColorToolbarButton,
   LayerFloatingToolbarSettings,

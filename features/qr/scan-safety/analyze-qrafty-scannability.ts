@@ -1,7 +1,7 @@
 import decodeQR from "qr/decode.js"
 
 import type { QraftyState } from "@/features/qr/model/state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import { getQraftyQrModuleGrid } from "@/features/qr/scan-safety/qr-grid"
 import {
   rasterizeQraftyScanPreview,

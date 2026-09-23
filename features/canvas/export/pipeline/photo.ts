@@ -8,7 +8,7 @@ import {
 } from "@/features/qr/export/raster-export"
 import type { QrFileExtension } from "@/features/qr/model/types"
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import type { QraftyState } from "@/features/qr/model/state"
 import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork"
 import { inlineSvgImageHrefs } from "@/features/canvas/export/pipeline/assets"

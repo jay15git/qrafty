@@ -1,4 +1,4 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import {
   DRAFTING_FONT_CATEGORY_FALLBACKS,
   DRAFTING_FONT_CATEGORY_ORDER,

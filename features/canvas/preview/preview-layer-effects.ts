@@ -4,7 +4,7 @@ import {
   cornerRadiiToCss,
   resolveLayerCornerRadii,
 } from "@/features/canvas/model/corner-radius"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import type { DraftingCardShadowState } from "@/features/canvas/model/card-state"
 import type { DraftingShadowLayerState } from "@/features/canvas/model/effects"
 import {

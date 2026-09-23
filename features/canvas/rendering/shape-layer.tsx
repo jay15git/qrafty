@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react"
 import Image from "next/image"
 
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import { usePreviewRuntime } from "@/features/canvas/preview/preview-context"
 import {
   buildRoundedRectPath,

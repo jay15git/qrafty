@@ -9,7 +9,7 @@ import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
   type DraftingTextRun,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import { getDraftingFontCssFamily } from "@/features/canvas/model/fonts"
 import { layoutDraftingText } from "@/features/canvas/rendering/text-layout"
 import { hasDraftingLayerShadow } from "@/features/canvas/rendering/qr-layer-shadow"

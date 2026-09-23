@@ -12,7 +12,7 @@ import type { DraftingFilterEffect } from "@/features/canvas/model/filters"
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers"
+} from "@/features/canvas/model/layers/shared"
 import {
   layerSupportsCornerRadius,
   resolveCornerRadii,

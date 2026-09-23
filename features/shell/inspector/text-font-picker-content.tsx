@@ -12,7 +12,7 @@ import {
   loadDraftingFontPreview,
   resolveDraftingFont,
 } from "@/features/canvas/model/fonts"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 
 export function TextFontPickerContent({
   layer,

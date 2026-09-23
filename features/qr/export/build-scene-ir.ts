@@ -2,7 +2,7 @@ import type { SceneIr, SceneIrFontRef } from "@qrafty/qr-internal/codegen"
 
 import type { QraftyState } from "@/features/qr/model/state"
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import type { SceneCompositionState } from "@/features/canvas/model/scene-templates"
 import type { SceneBackground } from "@/features/canvas/model/scene-templates"
 import {

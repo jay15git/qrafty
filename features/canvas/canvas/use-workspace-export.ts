@@ -17,12 +17,12 @@ import {
   runWorkspaceExport,
   type WorkspaceExportProgress,
 } from "@/features/canvas/export/pipeline"
-import {
-  cloneDraftingCanvasLayer,
-  createDefaultDraftingLayers,
-  type DraftingCanvasLayer,
-  type DraftingLayerStateByNodeId,
-} from "@/features/canvas/model/layers"
+import type {
+  DraftingCanvasLayer,
+  DraftingLayerStateByNodeId,
+} from "@/features/canvas/model/layers/shared"
+import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback"
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
 import type { DraftingQrStateByNodeId } from "@/features/canvas/model/document"
 import type { QraftyState } from "@/features/qr/model/state"
