@@ -220,21 +220,225 @@ function MobileLayerPanelButton({
 
 const PANEL_ICON_CLASS = "size-4 shrink-0"
 
+type MobilePanelController = InspectorModel["controller"]
+
+function panelHugeIcon(icon: Parameters<typeof HugeiconsIcon>[0]["icon"]) {
+  return (
+    <HugeiconsIcon
+      className={PANEL_ICON_CLASS}
+      color="currentColor"
+      icon={icon}
+      size={16}
+      strokeWidth={2}
+    />
+  )
+}
+
+function MobileLayerInsertTool({
+  controller,
+}: {
+  controller: MobilePanelController
+}) {
+  const navigation = useMobileDrawerNavigation()
+  const insertNodeId = controller?.insertNodeId
+  const onInsertLayer = controller?.onInsertLayer
+  if (!insertNodeId || !onInsertLayer) {
+    return null
+  }
+
+  return (
+    <MobileLayerPanelButton
+      ariaLabel="Add element"
+      content={
+        <LazyInsertMenuPanelStack
+          canAddQrCode={controller?.canAddQrCode}
+          isPopover
+          nodeId={insertNodeId}
+          onAddQrCode={controller?.onAddQrCode}
+          onBrowseWallpapers={
+            controller?.onOpenComposeSidebar
+              ? () => controller.onOpenComposeSidebar?.("wallpapers")
+              : undefined
+          }
+          onClose={() => navigation?.closeDetail()}
+          onInsertLayer={onInsertLayer}
+        />
+      }
+      icon={panelHugeIcon(ResourcesAddIcon)}
+      label="Add"
+    />
+  )
+}
+
+function MobileLayerLayoutTool({
+  controller,
+}: {
+  controller: MobilePanelController
+}) {
+  const onSelectSizeTemplate = controller?.onSceneTemplateSizeTemplateSelect
+  if (!onSelectSizeTemplate) {
+    return null
+  }
+
+  return (
+    <MobileLayerPanelButton
+      ariaLabel="Canvas size"
+      content={
+        <LazyCanvasRatioPresetSections
+          selectedPresetId={
+            controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId
+          }
+          onSelectTemplate={onSelectSizeTemplate}
+        />
+      }
+      icon={<CanvasSizeIcon className={PANEL_ICON_CLASS} />}
+      label="Layout"
+    />
+  )
+}
+
+function MobileLayerTransformTool({
+  controller,
+  theme,
+}: {
+  controller: MobilePanelController
+  theme: ThemeMode
+}) {
+  const selectedTransformLayer = controller?.selectedTransformLayer
+  const onTransformLayerPatch = controller?.onTransformLayerPatch
+  if (!selectedTransformLayer || !onTransformLayerPatch) {
+    return null
+  }
+
+  return (
+    <MobileLayerPanelButton
+      ariaLabel="Transform"
+      content={
+        <LazyLayerTransformPanel
+          layer={selectedTransformLayer}
+          onPatch={onTransformLayerPatch}
+          theme={theme}
+          variant="flat"
+        />
+      }
+      icon={panelHugeIcon(ScreenRotationIcon)}
+      label="Transform"
+    />
+  )
+}
+
+function MobileLayerBorderTool({
+  controller,
+  theme,
+}: {
+  controller: MobilePanelController
+  theme: ThemeMode
+}) {
+  const appearance = controller?.appearanceSnapshot
+  const onAppearancePatch = controller?.onAppearancePatch
+  if (!appearance?.supportsBorder || !onAppearancePatch) {
+    return null
+  }
+
+  return (
+    <MobileLayerPanelButton
+      ariaLabel="Border"
+      content={
+        <LazyLayerBorderPanel
+          appearance={appearance}
+          onPatch={onAppearancePatch}
+          theme={theme}
+        />
+      }
+      icon={panelHugeIcon(BorderNone02Icon)}
+      label="Border"
+    />
+  )
+}
+
+function MobileLayerEffectsTool({
+  controller,
+  theme,
+}: {
+  controller: MobilePanelController
+  theme: ThemeMode
+}) {
+  const appearance = controller?.appearanceSnapshot
+  const onAppearancePatch = controller?.onAppearancePatch
+  const effectsLayer = controller?.selectedElementLayer ?? null
+  const effectsPatch = controller?.onElementLayerPatch
+  const propertyLayer =
+    controller?.selectedTransformLayer ?? controller?.selectedElementLayer ?? null
+  const propertyCapabilities = getLayerToolbarCapabilities(propertyLayer)
+  if (!effectsLayer || !effectsPatch || propertyCapabilities.maxEffects <= 0) {
+    return null
+  }
+
+  return (
+    <MobileLayerPanelButton
+      ariaLabel="Effects"
+      content={
+        <LazyLayerEffectsPanel
+          effectKinds={LAYER_FILTER_EFFECT_KINDS}
+          layer={effectsLayer}
+          layerOpacity={appearance?.opacity}
+          onLayerOpacityChange={
+            appearance && onAppearancePatch
+              ? (opacity) => onAppearancePatch({ opacity })
+              : undefined
+          }
+          onPatch={effectsPatch}
+          theme={theme}
+          variant="flat"
+        />
+      }
+      icon={panelHugeIcon(MagicWand05Icon)}
+      label="Effects"
+    />
+  )
+}
+
+function MobileLayerShadowsTool({
+  controller,
+  theme,
+}: {
+  controller: MobilePanelController
+  theme: ThemeMode
+}) {
+  const selectedElementLayer = controller?.selectedElementLayer
+  const selectedTransformLayer = controller?.selectedTransformLayer
+  // Shadows apply to every selected layer except the card (background). Element
+  // layers patch via onElementLayerPatch; QR/group layers via onAppearancePatch.
+  const shadowsLayer = selectedElementLayer ?? selectedTransformLayer ?? null
+  const shadowsPatch = selectedElementLayer
+    ? controller?.onElementLayerPatch
+    : controller?.onAppearancePatch
+  if (!shadowsLayer || shadowsLayer.kind === "card" || !shadowsPatch) {
+    return null
+  }
+
+  return (
+    <MobileLayerPanelButton
+      ariaLabel="Shadows"
+      content={
+        <LazyLayerShadowsPanel
+          layer={shadowsLayer}
+          onPatch={shadowsPatch}
+          theme={theme}
+        />
+      }
+      icon={<ShadowIcon className={PANEL_ICON_CLASS} />}
+      label="Shadows"
+    />
+  )
+}
+
 /**
  * Mirrors the desktop dynamic island's property panels (Add, Layout, Transform,
  * Border, Effects, Shadows) as drawer detail pages. Same gating rules as
  * `useIslandItems`.
  */
-function MobileLayerPanelTools({
-  model,
-  theme,
-}: {
-  model: InspectorModel
-  theme: ThemeMode
-}) {
-  const navigation = useMobileDrawerNavigation()
-  const controller = model.controller
-
+function hasMobilePanelTools(controller: MobilePanelController): boolean {
   const insertNodeId = controller?.insertNodeId
   const onInsertLayer = controller?.onInsertLayer
   const onSelectSizeTemplate = controller?.onSceneTemplateSizeTemplateSelect
@@ -265,132 +469,38 @@ function MobileLayerPanelTools({
     shadowsLayer && shadowsLayer.kind !== "card" && shadowsPatch,
   )
 
-  if (
-    !canInsert &&
-    !hasLayout &&
-    !hasTransform &&
-    !hasBorder &&
-    !hasEffects &&
-    !hasShadows
-  ) {
+  return (
+    canInsert ||
+    hasLayout ||
+    hasTransform ||
+    hasBorder ||
+    hasEffects ||
+    hasShadows
+  )
+}
+
+function MobileLayerPanelTools({
+  model,
+  theme,
+}: {
+  model: InspectorModel
+  theme: ThemeMode
+}) {
+  const controller = model.controller
+
+  if (!hasMobilePanelTools(controller)) {
     return null
   }
-
-  const hugeIcon = (icon: Parameters<typeof HugeiconsIcon>[0]["icon"]) => (
-    <HugeiconsIcon
-      className={PANEL_ICON_CLASS}
-      color="currentColor"
-      icon={icon}
-      size={16}
-      strokeWidth={2}
-    />
-  )
 
   return (
     <>
       <MobileLayerToolbarSeparator />
-      {canInsert ? (
-        <MobileLayerPanelButton
-          ariaLabel="Add element"
-          content={
-            <LazyInsertMenuPanelStack
-              canAddQrCode={controller?.canAddQrCode}
-              isPopover
-              nodeId={insertNodeId!}
-              onAddQrCode={controller?.onAddQrCode}
-              onBrowseWallpapers={
-                controller?.onOpenComposeSidebar
-                  ? () => controller.onOpenComposeSidebar?.("wallpapers")
-                  : undefined
-              }
-              onClose={() => navigation?.closeDetail()}
-              onInsertLayer={onInsertLayer!}
-            />
-          }
-          icon={hugeIcon(ResourcesAddIcon)}
-          label="Add"
-        />
-      ) : null}
-      {hasLayout ? (
-        <MobileLayerPanelButton
-          ariaLabel="Canvas size"
-          content={
-            <LazyCanvasRatioPresetSections
-              selectedPresetId={
-                controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId
-              }
-              onSelectTemplate={onSelectSizeTemplate!}
-            />
-          }
-          icon={<CanvasSizeIcon className={PANEL_ICON_CLASS} />}
-          label="Layout"
-        />
-      ) : null}
-      {hasTransform ? (
-        <MobileLayerPanelButton
-          ariaLabel="Transform"
-          content={
-            <LazyLayerTransformPanel
-              layer={selectedTransformLayer!}
-              onPatch={onTransformLayerPatch!}
-              theme={theme}
-              variant="flat"
-            />
-          }
-          icon={hugeIcon(ScreenRotationIcon)}
-          label="Transform"
-        />
-      ) : null}
-      {hasBorder ? (
-        <MobileLayerPanelButton
-          ariaLabel="Border"
-          content={
-            <LazyLayerBorderPanel
-              appearance={appearance!}
-              onPatch={onAppearancePatch!}
-              theme={theme}
-            />
-          }
-          icon={hugeIcon(BorderNone02Icon)}
-          label="Border"
-        />
-      ) : null}
-      {hasEffects ? (
-        <MobileLayerPanelButton
-          ariaLabel="Effects"
-          content={
-            <LazyLayerEffectsPanel
-              effectKinds={LAYER_FILTER_EFFECT_KINDS}
-              layer={effectsLayer!}
-              layerOpacity={appearance?.opacity}
-              onLayerOpacityChange={
-                appearance && onAppearancePatch
-                  ? (opacity) => onAppearancePatch({ opacity })
-                  : undefined
-              }
-              onPatch={effectsPatch!}
-              theme={theme}
-              variant="flat"
-            />
-          }
-          icon={hugeIcon(MagicWand05Icon)}
-          label="Effects"
-        />
-      ) : null}
-      {hasShadows ? (
-        <MobileLayerPanelButton
-          ariaLabel="Shadows"
-          content={
-            <LazyLayerShadowsPanel
-              layer={shadowsLayer!}
-              onPatch={shadowsPatch!}
-              theme={theme}
-            />
-          }
-          icon={<ShadowIcon className={PANEL_ICON_CLASS} />}
-          label="Shadows"
-        />
-      ) : null}
+      <MobileLayerInsertTool controller={controller} />
+      <MobileLayerLayoutTool controller={controller} />
+      <MobileLayerTransformTool controller={controller} theme={theme} />
+      <MobileLayerBorderTool controller={controller} theme={theme} />
+      <MobileLayerEffectsTool controller={controller} theme={theme} />
+      <MobileLayerShadowsTool controller={controller} theme={theme} />
     </>
   )
 }

@@ -17,9 +17,9 @@ import {
 import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
 import { SegmentTabs } from "@/features/shell/inspector/SettingsSegmentTabs"
 import {
-  inspectorPortalClass,
   useInspectorTheme,
 } from "@/features/shell/inspector/settings-ui/Shared"
+import { inspectorPortalClass } from "@/features/shell/inspector/settings-ui/utils"
 import { cn } from "@/lib/utils"
 
 export function SettingsLabeledSelect({

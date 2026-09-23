@@ -20,9 +20,9 @@ import {
 } from "@/features/shell/inspector/SettingsAccordionPopoverContext"
 import { SettingsPopoverChrome } from "@/features/shell/inspector/settings-ui/PopoverChrome"
 import {
-  inspectorPortalClass,
   useInspectorTheme,
 } from "@/features/shell/inspector/settings-ui/Shared"
+import { inspectorPortalClass } from "@/features/shell/inspector/settings-ui/utils"
 import { cn } from "@/lib/utils"
 
 export function SettingsTilePopover({

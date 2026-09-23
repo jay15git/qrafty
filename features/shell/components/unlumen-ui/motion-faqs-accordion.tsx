@@ -111,9 +111,11 @@ function AccordionItem({
       </button>
 
       {/*
-        Height is animated as a real value, not `layout` — `layout` would
-        scaleY-distort the header and panel contents on every open/close and
-        whenever the panel re-measures mid-interaction.
+        Height is animated as grid-template-rows 0px → Npx, not `layout` —
+        `layout` would scaleY-distort the header and panel contents on every
+        open/close and whenever the panel re-measures mid-interaction. The
+        track animates on the compositor-friendly grid row instead of the
+        element's own height.
       */}
       <m.div
         id={panelId}
@@ -121,31 +123,36 @@ function AccordionItem({
         aria-labelledby={itemId}
         initial={false}
         animate={{
-          height: isOpen ? panelHeight : 0,
+          gridTemplateRows: isOpen ? `${panelHeight}px` : "0px",
           opacity: isOpen ? 1 : 0,
         }}
         transition={{
-          height: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
+          gridTemplateRows: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
           opacity: { duration: 0.2, ease: "easeOut" },
         }}
-        style={{
-          overflow: "hidden",
-          overflowY: panelScrolls ? "auto" : "hidden",
-        }}
+        style={{ display: "grid" }}
       >
-        <m.div
+        <div
           ref={contentRef}
-          animate={{ y: isOpen ? 0 : -8 }}
-          transition={{
-            type: "spring",
-            stiffness: 360,
-            damping: 30,
-            mass: 0.8,
+          className="min-h-0"
+          style={{
+            overflow: "hidden",
+            overflowY: panelScrolls ? "auto" : "hidden",
           }}
-          className="min-w-0 px-7 pb-7"
         >
-          {item.answer}
-        </m.div>
+          <m.div
+            animate={{ y: isOpen ? 0 : -8 }}
+            transition={{
+              type: "spring",
+              stiffness: 360,
+              damping: 30,
+              mass: 0.8,
+            }}
+            className="min-w-0 px-7 pb-7"
+          >
+            {item.answer}
+          </m.div>
+        </div>
       </m.div>
     </div>
   );

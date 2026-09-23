@@ -37,10 +37,10 @@ import { SettingsPopoverChrome } from "@/features/shell/inspector/settings-ui/Po
 import {
   ColorRowButton,
   FillSwatchButton,
-  inspectorPortalClass,
   useInspectorTheme,
   type SettingsFillPopoverHandle,
 } from "@/features/shell/inspector/settings-ui/Shared"
+import { inspectorPortalClass } from "@/features/shell/inspector/settings-ui/utils"
 
 function FillPickerPopoverContent({
   align,

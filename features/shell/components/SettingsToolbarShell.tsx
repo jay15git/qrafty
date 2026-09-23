@@ -1,7 +1,7 @@
 "use client"
 
-import { m } from "motion/react"
-import { useCallback, useEffect, useState, type ReactNode } from "react"
+import { animate, m, useMotionValue, useMotionValueEvent, useTransform } from "motion/react"
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 
 import {
   SettingsPanelMotionFrozenProvider,
@@ -59,35 +59,58 @@ export function SettingsToolbarShell({
 }) {
   const [internalHovered, setInternalHovered] = useState(false)
   const [isShellAnimating, setIsShellAnimating] = useState(false)
-  const [expandedWidth, setExpandedWidth] = useState(SHELL_EXPANDED_WIDTH_FALLBACK_PX)
-  const [widthTransitionEnabled, setWidthTransitionEnabled] = useState(false)
   const isHovered = hovered ?? internalHovered
 
-  useEffect(() => {
-    syncSidebarColumnWidth(expandedWidth)
-  }, [expandedWidth])
+  // The column's real width (layout) snaps to the target; the visible reveal is
+  // a clip-path inset animated by a spring — compositor-only, no layout work.
+  const columnWidth = useMotionValue(SHELL_EXPANDED_WIDTH_FALLBACK_PX)
+  const revealWidth = useMotionValue(SHELL_EXPANDED_WIDTH_FALLBACK_PX)
+  const clipPath = useTransform(
+    [columnWidth, revealWidth],
+    ([column, reveal]: number[]) =>
+      `inset(0px ${Math.max(0, column - reveal)}px 0px 0px)`,
+  )
+  const transitionsEnabled = useRef(false)
+
+  useMotionValueEvent(revealWidth, "change", (latest) => {
+    // Keep the canvas left inset in lockstep with the animated reveal —
+    // syncing only on commit leaves the grey inset one jump behind.
+    syncSidebarColumnWidth(latest)
+  })
+  useMotionValueEvent(revealWidth, "animationStart", () => {
+    setIsShellAnimating(true)
+  })
+  useMotionValueEvent(revealWidth, "animationComplete", () => {
+    setIsShellAnimating(false)
+  })
+  useMotionValueEvent(revealWidth, "animationCancel", () => {
+    setIsShellAnimating(false)
+  })
 
   useEffect(() => {
     const updateExpandedWidth = () => {
       const next = getExpandedSidebarWidthPx()
-      setExpandedWidth(next)
+      columnWidth.set(next)
+      if (transitionsEnabled.current) {
+        if (revealWidth.get() !== next) {
+          animate(revealWidth, next, EXPANDABLE_PANEL_SPRING)
+        }
+      } else {
+        revealWidth.jump(next)
+      }
     }
 
     updateExpandedWidth()
     window.addEventListener("resize", updateExpandedWidth)
     const enableTransitionsFrame = window.requestAnimationFrame(() => {
-      setWidthTransitionEnabled(true)
+      transitionsEnabled.current = true
     })
 
     return () => {
       window.removeEventListener("resize", updateExpandedWidth)
       window.cancelAnimationFrame(enableTransitionsFrame)
     }
-  }, [])
-
-  const handleShellAnimatingChange = useCallback((animating: boolean) => {
-    setIsShellAnimating(animating)
-  }, [])
+  }, [columnWidth, revealWidth])
 
   const handleShellMouseEnter = useCallback(() => {
     if (hovered === undefined) {
@@ -119,6 +142,8 @@ export function SettingsToolbarShell({
         White column clip: width tracks viewport for responsive sidebar.
         Same width updates --settings-toolbar-width so grey canvas left inset
         grows in lockstep — white expands, grey minimizes. No overlay on the canvas.
+        The reveal animates via clip-path (paint-only) instead of width so the
+        browser never re-runs layout per frame.
       */}
       <m.div
         className="pointer-events-auto absolute inset-y-0 left-0 z-[25] overflow-hidden bg-transparent text-[var(--glass-fg)]"
@@ -126,19 +151,7 @@ export function SettingsToolbarShell({
         data-shell-animating={isShellAnimating ? "true" : "false"}
         data-slot="left-toolbar-shell"
         data-toolbar-appearance="settings"
-        initial={false}
-        animate={{ width: expandedWidth }}
-        transition={widthTransitionEnabled ? EXPANDABLE_PANEL_SPRING : { duration: 0 }}
-        onAnimationStart={() => handleShellAnimatingChange(true)}
-        onAnimationComplete={() => handleShellAnimatingChange(false)}
-        onUpdate={(latest) => {
-          // Keep the canvas left inset in lockstep with the animated width —
-          // syncing only on commit leaves the grey inset one jump behind.
-          const width = typeof latest.width === "number" ? latest.width : parseFloat(latest.width)
-          if (Number.isFinite(width)) {
-            syncSidebarColumnWidth(width)
-          }
-        }}
+        style={{ width: columnWidth, clipPath }}
       >
         <div className="h-full min-h-0 w-full min-w-0 overflow-hidden">
           <div className="h-full min-h-0 min-w-0 overflow-x-hidden overflow-y-hidden">

@@ -20,11 +20,13 @@ import {
   DN_HINT,
   DN_LABEL,
   DN_VALUE,
-  inspectorPortalClass,
-  mergeMobileDetailChildClose,
   SettingsRowButton,
   useInspectorTheme,
 } from "@/features/shell/inspector/settings-ui/Shared"
+import {
+  inspectorPortalClass,
+  mergeMobileDetailChildClose,
+} from "@/features/shell/inspector/settings-ui/utils"
 import { cn } from "@/lib/utils"
 
 export function SettingsRowPopover({

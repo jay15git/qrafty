@@ -26,6 +26,7 @@ import type {
 // Owns the animation lifecycle for AnimateIcon: the localAnimate state, the
 // trigger callbacks, the prop/visibility-driven adjustments, and the runner
 // wiring. The component keeps only prop plumbing, event handlers, and JSX.
+// react-doctor-disable-next-line react-doctor/no-high-complexity-react-function -- vendored animate-ui hook; keep upstream structure for future merges
 function useAnimateIconTriggers({
   animate = false,
   animation = 'default',
