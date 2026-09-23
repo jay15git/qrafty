@@ -25,6 +25,7 @@ No environment variables are required for local development.
 | `pnpm dev`       | Start the dev server                                |
 | `pnpm build`     | Production build (type checking runs as part of it) |
 | `pnpm lint`      | ESLint                                              |
+| `pnpm format`    | Prettier write (`pnpm format:check` is a CI gate)   |
 | `pnpm typecheck` | `tsc --noEmit`                                      |
 | `pnpm test`      | Full Vitest suite                                   |
 | `pnpm check`     | `typecheck` + `knip` + `fallow dead-code`           |
@@ -64,7 +65,7 @@ A test earns its place only if a plausible bug would fail it. That means:
 1. **Keep the change scoped.** The QR state model (`features/qr/model/state.ts`), the workspace layer model, and the desktop inspector are shared by many surfaces — a change there has a wide blast radius.
 2. **Run the gates locally** and make sure they pass:
    ```bash
-   pnpm typecheck && pnpm lint && pnpm test && pnpm check
+   pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm check
    ```
 3. **Update the docs the change invalidates.** If you change a convention, update `docs/ARCHITECTURE.md`. If you make an architectural decision, add an ADR. If you add a control or renderer option, start at `features/qr/model/state.ts`.
 4. **Write a commit message that explains why**, not just what. The diff shows what changed.

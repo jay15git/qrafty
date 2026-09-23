@@ -1,7 +1,7 @@
 # QRafty architecture
 
 Universal structure + rules. `AGENTS.md` links here; treat this as law for new code.
-Migration of existing code is tracked in `docs/superpowers/plans/2026-09-22-repo-cleanup-architecture.md`.
+The 2026-09-22 cleanup executed under `docs/superpowers/plans/2026-09-22-repo-cleanup-architecture.md` (status block at the top records what landed).
 
 ## Vocabulary (one word per concept)
 
@@ -31,9 +31,10 @@ components/
 features/
   <domain>/               # vertical slice. Owns everything it needs.
     components/           # React components for this domain
-    canvas/               # (workspace) the editing surface + its hooks
-    inspector/            # (desktop-shell) settings panels
+    inspector/            # (shell) settings panels and inspector-scoped CSS
     model/                # state, types, reducers, pure functions — no React, no DOM
+    rendering/            # (canvas, qr) SVG/scene emit + shader definitions
+    content/              # (qr) payload types and platform intents
     lib/                  # domain utilities (pure functions preferred)
     api/                  # domain route handlers / server calls
     AGENTS.md             # domain rules, if the domain needs them
@@ -41,6 +42,10 @@ lib/                      # cross-feature utilities. If only one feature uses it
   hooks/                  # cross-feature hooks ONLY. Feature-scoped hooks live in the feature.
 packages/qr/              # vendored @qrafty/qr library
 ```
+
+Current domains: `shell` (workspace chrome + inspector), `canvas` (drafting surface, layers, export), `qr` (QR state, styles, rendering), `marketing` (landing).
+
+When a file outgrows its limit, split it into a same-name module directory with a thin facade — existing examples: `features/qr/rendering/svg-extension/`, `features/canvas/model/layers/`, `features/canvas/model/document/`, `features/qr/content/intents/`, `features/canvas/rendering/paper-shaders/`, `features/shell/components/mobile-settings-rail/`, `features/shell/inspector/settings-ui/`, `components/ui/select/`, `components/ui/family-drawer/`, `packages/qr/src/dot-matrix/` (animations split into `animation-*` modules).
 
 ### Placement decision tree
 
@@ -97,4 +102,4 @@ Tailwind only emits a utility for a theme key declared in the `@theme inline` bl
 
 ## Verification
 
-Before claiming any refactor done: `pnpm typecheck` + focused tests + `npx react-doctor . --scope changed` (see AGENTS.md for baselines). Baseline (2026-09-23): 942/942 tests passing across 126 files, lint 0 errors, typecheck clean, knip + fallow clean. Full breakdown in `docs/superpowers/plans/test-baseline.md`.
+Before claiming any refactor done: `pnpm typecheck` + `pnpm format:check` + focused tests + `pnpm doctor` (see AGENTS.md for baselines). Baseline (2026-09-24): 942/942 tests passing across 126 files, lint 0 errors / 202 warnings, react-doctor 100/100 with 0 issues, typecheck clean, knip + fallow clean, prettier enforced by the `format:check` CI gate. Full breakdown in `docs/superpowers/plans/test-baseline.md`.

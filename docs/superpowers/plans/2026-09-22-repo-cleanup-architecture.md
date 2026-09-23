@@ -8,6 +8,9 @@
 
 **Tech Stack:** Next.js 16.2.3, React 19, Tailwind 4, Vitest 4, pnpm. Tools already in repo: `pnpm knip`, `fallow dead-code`, `pnpm typecheck`, `pnpm lint`, `pnpm test`, `npx react-doctor`.
 
+> **Status — 2026-09-24: substantially executed.** Landed: Phase 0 baselines (this directory); Phase 1 vocabulary (`CONTEXT.md`, ADR 0001); Phase 2 — `WorkspaceSurface` → `features/canvas/components/DraftingCanvas.tsx` with `use-drafting-canvas-view-model.ts` + `desktop-toolbar-controller.ts`; Phase 3 god-file splits — `svg-extension/` (15 modules), `model/layers/` (11), `document/{parse,normalize}.ts`, `content/intents/` (7), `paper-shaders/` (4), `mobile-settings-rail/` (root + `rows/`), `settings-ui/` (facade + 9), `components/ui/select/` (6), `components/ui/family-drawer/` (7), `use-color-picker` split, `packages/qr` dot-matrix animations split; Phase 4 react-doctor error classes — **score 47 → 100/100, 0 issues**; Phase 5 — `desktopnew-*` fully eliminated (0 identifiers), `Desktop*` prefixes stripped inside `features/shell`, `components/` marketing folders moved to `features/marketing/`, `hooks/` folded into owning features; Phase 6 partially — `react-doctor` devDep + `pnpm doctor` + `react-doctor.yml` PR gate, prettier + `format:check` CI gate. Remaining: ESLint `no-restricted-imports` boundary rules, lint-warning ratchet (~202 warnings), progressive jsdom unskips. Final state: 942/942 tests, lint 0 errors, typecheck/knip/fallow clean.
+
+
 **Evidence baseline (2026-09-22):**
 - react-doctor: 47/100 — 143 issues (1 security error, 15 bug errors, 14 perf errors, 42 maintainability, 12 a11y)
 - knip: clean · fallow: 2 issues (1 unused type, 1 duplicate `GradientStop` export)

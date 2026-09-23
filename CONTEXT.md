@@ -6,7 +6,7 @@ A glossary only — no implementation details (those live in AGENTS.md).
 ## Canvas
 
 The design surface the user edits on: layers positioned over a QR scene.
-Replaces: `WorkspaceSurface`, `DraftingPaneSurface`, `surface`.
+Replaced (2026-09-24): `WorkspaceSurface` → `DraftingCanvas`, `DraftingPaneSurface`, `surface`.
 
 ## Layer
 
@@ -29,7 +29,7 @@ never as a synonym for "panel" or "view".
 
 All settings UI: the desktop settings panel AND the mobile settings
 rail + drawer are the same Inspector in different presentations.
-Replaces: `desktopnew-*`, `settings-sections`, `FloatingToolbar settings`.
+Replaced (2026-09-24): `desktopnew-*` → `inspector-*` / `.inspector-root`, `settings-sections` → `SettingsSections`, `FloatingToolbar settings`.
 
 ## QR
 

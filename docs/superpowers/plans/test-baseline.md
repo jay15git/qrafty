@@ -1,4 +1,4 @@
-# Test baseline — 2026-09-23
+# Test baseline — 2026-09-24
 
 `pnpm test`: **942 passed / 0 failed (942)** across 126 files.
 
@@ -41,10 +41,11 @@ resolved. What each one was, and which side was wrong:
   on class strings that had deliberately changed (`h-12` → `h-9`). Rewritten to
   assert observable behavior, or dropped where they defended nothing.
 
-## Other baselines
+## Other baselines (2026-09-24)
 
 - `pnpm typecheck` — clean.
 - `pnpm knip` — clean.
 - `pnpm exec fallow dead-code` — clean.
-- `pnpm lint` — clean (0 errors).
-- `npx react-doctor . --json` — see `react-doctor-baseline.json`.
+- `pnpm lint` — 0 errors, 202 warnings (`react-hooks/*` advisories; `app/` clean).
+- `pnpm format:check` — clean; prettier (`.prettierrc`) is gated in `ci.yml`.
+- `pnpm doctor` (`react-doctor .`) — **100/100, 0 issues**; see `react-doctor-baseline.json`. PR gate: `.github/workflows/react-doctor.yml`.

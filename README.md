@@ -80,7 +80,9 @@ Open [http://localhost:3000](http://localhost:3000) for the landing page, or [ht
 | `pnpm build`                      | Production build (type checking runs as part of it) |
 | `pnpm start`                      | Serve the production build                          |
 | `pnpm lint`                       | ESLint                                              |
-| `pnpm typecheck`                  | `tsc --noEmit`                                      |
+| `pnpm format`                     | Prettier write                                      |
+| `pnpm format:check`               | Prettier check (CI gate)                            |
+| `pnpm doctor`                     | react-doctor health scan (100/100 baseline)         |
 | `pnpm test`                       | Full Vitest suite                                   |
 | `pnpm build:packages`             | Build the `@qrafty/qr` workspace package            |
 | `pnpm knip`                       | Report unused files, exports, and dependencies      |
@@ -129,7 +131,9 @@ Verified against the current `main`:
 | `pnpm typecheck`             | Clean                                        |
 | `pnpm build`                 | Passes, and type checking runs as part of it |
 | `pnpm test`                  | 942 of 942 tests pass across 126 files       |
-| `pnpm lint`                  | 0 errors, 214 warnings                       |
+| `pnpm lint`                  | 0 errors, 202 warnings                       |
+| `pnpm format:check`          | Clean                                        |
+| `pnpm doctor`                | 100/100, 0 issues                            |
 | `pnpm knip`                  | Clean                                        |
 | `pnpm exec fallow dead-code` | Clean                                        |
 
@@ -141,7 +145,7 @@ The remaining lint warnings are `react-hooks/*` advisories from `eslint-config-n
 
 Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for setup, the conventions this codebase expects, and the pull-request checklist.
 
-In short: run `pnpm typecheck && pnpm lint && pnpm test && pnpm check` before opening a PR, keep changes scoped (the QR state model, the workspace layer model, and the desktop inspector are shared by many surfaces), and read `docs/ARCHITECTURE.md` before writing new code.
+In short: run `pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm check` before opening a PR, keep changes scoped (the QR state model, the workspace layer model, and the desktop inspector are shared by many surfaces), and read `docs/ARCHITECTURE.md` before writing new code.
 
 ## License
 
