@@ -14,6 +14,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Vendored + generated trees are not linted:
     "packages/qr/vendor/**",
+    "packages/qr/dist/**",
     ".agents/**",
     ".claude/**",
     "docs/superpowers/**",

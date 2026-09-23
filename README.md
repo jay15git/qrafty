@@ -102,9 +102,9 @@ Run a single test file with `pnpm exec vitest run path/to/file.test.ts`, or a si
 app/                 Next.js App Router routes, root layout, global CSS
 components/          Shared UI: design-system primitives (ui/), vendored components (vendor/)
 features/
-  desktop-shell/     Floating toolbar, inspector panels, mobile rail and drawer
-  qr-code/           QR state model, content types, styles, rendering, motion, export
-  workspace/         Drafting canvas, layers model, scene templates, export pipeline
+  shell/             Workspace shell: floating toolbar, inspector panels, mobile rail and drawer
+  qr/                QR state model, content types, styles, rendering, motion, export
+  canvas/            Drafting canvas, layers model, scene templates, export pipeline
   marketing/         Landing page hero, card wheel, effects
 packages/qr/         @qrafty/qr — QR primitives, dot-matrix animation, paper shaders
 lib/                 Shared utilities and hooks
@@ -122,18 +122,20 @@ Verified against the current `main`:
 | --- | --- |
 | `pnpm typecheck` | Clean |
 | `pnpm build` | Passes, and type checking runs as part of it |
-| `pnpm test` | 851 of 913 tests pass; 62 fail across 11 files |
-| `pnpm lint` | Reports 214 errors (mostly `react-hooks/*` rules from `eslint-config-next` 16), concentrated in vendored and tooling directories |
+| `pnpm test` | 942 of 942 tests pass across 126 files |
+| `pnpm lint` | 0 errors, 214 warnings |
+| `pnpm knip` | Clean |
+| `pnpm exec fallow dead-code` | Clean |
 
-The failing tests are pre-existing, browser-dependent UI tests. Lint noise comes largely from `packages/qr/vendor/` (the upstream `react-qr-code` fork), `.agents/skills/` examples, and a handful of client components using refs during render. `app/` is lint-clean. Compare your run against this baseline before assuming you broke something, and don't treat a red lint run as a new regression without checking the file list.
+`pnpm check` runs typecheck + knip + fallow and exits 0.
+
+The remaining lint warnings are `react-hooks/*` advisories from `eslint-config-next` 16 in client components. `app/` is lint-clean.
 
 ## Contributing
 
-Contributions are welcome. Before opening a pull request:
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for setup, the conventions this codebase expects, and the pull-request checklist.
 
-1. Run `pnpm typecheck`, `pnpm test`, and `pnpm lint`, and compare the output against the baseline above.
-2. Keep changes scoped — the QR state model, the workspace layer model, and the desktop inspector are shared by many surfaces.
-3. `AGENTS.md` documents the conventions this codebase expects, including the layer factory helpers and the design-token contract.
+In short: run `pnpm typecheck && pnpm lint && pnpm test && pnpm check` before opening a PR, keep changes scoped (the QR state model, the workspace layer model, and the desktop inspector are shared by many surfaces), and read `docs/ARCHITECTURE.md` before writing new code.
 
 ## License
 

@@ -1,3 +1,9 @@
-pnpm lint baseline 2026-09-23: 332 problems (106 errors, 226 warnings)
-Mostly react-hooks/* from eslint-config-next 16, concentrated in client components
-reading refs during render. app/ is lint-clean.
+pnpm lint baseline 2026-09-23: 0 errors, 214 warnings.
+Warnings are mostly react-hooks/* advisories from eslint-config-next 16 in
+client components. app/ is lint-clean.
+
+Note on react-doctor: `react-doctor` is a standalone CLI (`npx react-doctor .`),
+not an ESLint plugin. Suppress its findings with the native directive
+`// react-doctor-disable-next-line react-doctor/<rule> -- <reason>`.
+The `// eslint-disable-next-line react-doctor/<rule>` form makes ESLint fail
+with "Definition for rule not found" — do not use it.

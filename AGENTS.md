@@ -55,7 +55,8 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - Current tests only cover `features/qr/model/state.ts` and a growing set of adjacent modules.
 - Vitest is configured with `environment: "node"`, so browser/client behavior is not covered by default.
 - If you change React UI behavior, do not assume existing tests cover it.
-- `pnpm typecheck` is clean and `next.config.ts` no longer sets `typescript.ignoreBuildErrors`, so `pnpm build` runs type checking and passes. The repo has **16 pre-existing failing tests across 7 files** (see `docs/superpowers/plans/test-baseline.md`; one is a live-network fetch, six are jsdom computed-style gaps, the rest are real drift). `pnpm lint` reports **106 errors / 226 warnings**, mostly `react-hooks/*` rules from `eslint-config-next` 16 in client components; `app/` is lint-clean. `npx react-doctor . --json` scores **83/100**. `pnpm check` runs typecheck + knip + fallow dead-code and exits 0.
+- `pnpm typecheck` is clean and `next.config.ts` no longer sets `typescript.ignoreBuildErrors`, so `pnpm build` runs type checking and passes. `pnpm test` is **942/942 green across 126 files**; `pnpm lint` reports **0 errors / 214 warnings** (mostly `react-hooks/*` advisories from `eslint-config-next` 16 in client components; `app/` is lint-clean). `pnpm check` runs typecheck + knip + fallow dead-code and exits 0. Baselines live in `docs/superpowers/plans/`.
+- **`react-doctor` is a standalone CLI** (`npx react-doctor .`), not an ESLint plugin. It reads suppression comments from source, so use its native directive: `// react-doctor-disable-next-line react-doctor/<rule> -- <reason>`. The `// eslint-disable-next-line react-doctor/<rule>` form makes ESLint fail with `Definition for rule ... was not found` — never use it.
 
 ## Dead-code tooling
 - `pnpm knip` is authoritative for this repo. `pnpm exec knip --production` is **not** — it fails to resolve the `@qrafty/qr-internal/*` tsconfig aliases and reports ~25 live barrel exports as unused, and it lists nearly every dependency as unused. Verify any `--production` hit against its real import sites before acting.
@@ -75,7 +76,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - Use the `@/*` import alias from `tsconfig.json`.
 - Tailwind theme tokens and shadcn CSS variables live in `app/globals.css`.
 - shadcn config lives in `components.json` and uses the `radix-nova` style.
-- There is no checked-in CI workflow, formatter config, or pre-commit hook config in this repo, so verify locally with lint, typecheck, tests, and build before claiming completion.
+- CI lives in `.github/workflows/ci.yml` (typecheck, lint, knip + fallow, test, build). There is no formatter config or pre-commit hook, so still verify locally with lint, typecheck, tests, and build before claiming completion.
 
 ## `@qrafty/qr` package layout
 - Internal QR library lives in `packages/qr/`:

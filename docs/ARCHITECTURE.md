@@ -86,6 +86,15 @@ app → features → components/ui → lib
 - One type, one canonical home — `fallow` flags duplicates (see `GradientStop` ADR).
 - `data-slot` names use `kebab-case` prefixed by domain (`mobile-rail-option`, `drafting-canvas`).
 
+## Design tokens
+
+Two token layers coexist in `app/globals.css`, and both must stay wired:
+
+- **shadcn layer** (`--background`, `--foreground`, `--primary`, `--muted-foreground`, `--border`, `--input`, `--ring`, …) — consumed by `components/ui/**`, which is shadcn-derived and styles itself with utilities like `bg-primary` and `text-muted-foreground`.
+- **QRafty layer** (`--surface-1..8`, `--hover`, `--active`, `--selected`, `--focus-ring`, `--qr-*`) — consumed by `features/**`.
+
+Tailwind only emits a utility for a theme key declared in the `@theme inline` block. A token defined in `:root` but missing from `@theme` produces **no CSS at all** — the class silently does nothing. When adding a token, add it in three places: `@theme inline`, `:root`, and `.dark`.
+
 ## Verification
 
-Before claiming any refactor done: `pnpm typecheck` + focused tests + `npx react-doctor . --scope changed` (see AGENTS.md for baselines). Baseline (2026-09-23): 16 test failures / 925 passing across 7 files, react-doctor 83/100, lint 106 errors. Full breakdown in `docs/superpowers/plans/test-baseline.md`.
+Before claiming any refactor done: `pnpm typecheck` + focused tests + `npx react-doctor . --scope changed` (see AGENTS.md for baselines). Baseline (2026-09-23): 942/942 tests passing across 126 files, lint 0 errors, typecheck clean, knip + fallow clean. Full breakdown in `docs/superpowers/plans/test-baseline.md`.

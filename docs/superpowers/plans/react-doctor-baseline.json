@@ -70,9 +70,51 @@
         "hasShadcnUi": true,
         "isPreES2023Target": true,
         "isStaticExport": false,
-        "sourceFileCount": 516
+        "sourceFileCount": 519
       },
       "diagnostics": [
+        {
+          "filePath": "components/ui/fill-picker/hooks/use-color-picker.ts",
+          "plugin": "react-doctor",
+          "rule": "no-high-complexity-react-function",
+          "severity": "warning",
+          "title": "React function has high control-flow complexity",
+          "message": "`useColorPicker` has cyclomatic complexity 16, cognitive complexity 16, and maximum nesting depth 2, so its React logic is hard to understand and change. Extract independent branches into components or hooks.",
+          "help": "Extract independent render branches and state logic into focused components or hooks until the control flow is easy to follow.",
+          "line": 112,
+          "column": 8,
+          "offset": 3265,
+          "length": 8056,
+          "endLine": 317,
+          "category": "Maintainability",
+          "id": "components/ui/fill-picker/hooks/use-color-picker.ts::112:8::react-doctor/no-high-complexity-react-function::49ed869cbc89fa151b4bd0623c8139c739f06aa60239c39d46e1f3d68d633dda",
+          "normalizedFilePath": "components/ui/fill-picker/hooks/use-color-picker.ts",
+          "tags": [
+            "react-jsx-only",
+            "test-noise"
+          ]
+        },
+        {
+          "filePath": "components/vendor/animate-ui/icons/icon.tsx",
+          "plugin": "react-doctor",
+          "rule": "no-high-complexity-react-function",
+          "severity": "warning",
+          "title": "React function has high control-flow complexity",
+          "message": "`useAnimateIconTriggers` has cyclomatic complexity 19, cognitive complexity 24, and maximum nesting depth 4, so its React logic is hard to understand and change. Extract independent branches into components or hooks.",
+          "help": "Extract independent render branches and state logic into focused components or hooks until the control flow is easy to follow.",
+          "line": 29,
+          "column": 1,
+          "offset": 966,
+          "length": 7960,
+          "endLine": 305,
+          "category": "Maintainability",
+          "id": "components/vendor/animate-ui/icons/icon.tsx::29:1::react-doctor/no-high-complexity-react-function::2fd29c9f16c492e792745624c56fd10dbdcf5e4c5c8a6ca8e914d09402f8ebfe",
+          "normalizedFilePath": "components/vendor/animate-ui/icons/icon.tsx",
+          "tags": [
+            "react-jsx-only",
+            "test-noise"
+          ]
+        },
         {
           "filePath": "features/shell/components/DesktopAppearanceIsland.tsx",
           "plugin": "react-doctor",
@@ -143,13 +185,13 @@
           "title": "Animating a layout property",
           "message": "This stutters because animating \"height\" makes the browser redo page layout every frame, so animate transform or scale instead, or use the layout prop",
           "help": "Use `transform: translateX()` or `scale()` instead. They animate smoothly without making the browser redo layout or repaint",
-          "line": 120,
+          "line": 124,
           "column": 11,
-          "offset": 3585,
+          "offset": 3767,
           "length": 32,
-          "endLine": 120,
+          "endLine": 124,
           "category": "Performance",
-          "id": "features/shell/components/unlumen-ui/motion-faqs-accordion.tsx::120:11::react-doctor/no-layout-property-animation::39e9990a2571870f9851801b6684f2c3c25a7ad3ca26335f4e15b3cdfaaed38e",
+          "id": "features/shell/components/unlumen-ui/motion-faqs-accordion.tsx::124:11::react-doctor/no-layout-property-animation::39e9990a2571870f9851801b6684f2c3c25a7ad3ca26335f4e15b3cdfaaed38e",
           "normalizedFilePath": "features/shell/components/unlumen-ui/motion-faqs-accordion.tsx",
           "tags": [
             "test-noise"
@@ -332,7 +374,9 @@
         "features/canvas/components/paper-shader-option-preview.utils.ts",
         "features/canvas/components/use-drafting-pane-surface-interactions.ts",
         "features/canvas/components/use-pane-workspace-interactions.ts",
+        "features/canvas/components/use-workspace-scan-safety.ts",
         "features/canvas/components/use-workspace-surface-view-model.ts",
+        "features/canvas/components/workspace-desktop-controller.ts",
         "features/canvas/components/workspace-desktop-settings-snapshots.ts",
         "features/canvas/components/workspace-qr-settings-patch.test.ts",
         "features/canvas/components/workspace-qr-settings-patch.ts",
@@ -341,6 +385,7 @@
         "features/canvas/components/workspace-surface-helpers.test.ts",
         "features/canvas/components/workspace-surface-helpers.ts",
         "features/canvas/components/workspace-surface-reducer.ts",
+        "features/canvas/components/workspace-surface-resolvers.ts",
         "features/canvas/components/workspace-surface.constants.ts",
         "features/canvas/export/layered-dom-parts.ts",
         "features/canvas/export/layered-svg-parts.ts",
@@ -689,10 +734,10 @@
         "vitest.config.ts",
         "vitest.setup.ts"
       ],
-      "analyzedFileCount": 516,
+      "analyzedFileCount": 519,
       "complete": true,
-      "scannedFileCount": 516,
-      "elapsedMilliseconds": 5871.3051669999995
+      "scannedFileCount": 519,
+      "elapsedMilliseconds": 4655.07425
     },
     {
       "directory": "/Users/jayant/Documents/projects/qrafty/packages/qr",
@@ -844,10 +889,52 @@
       "analyzedFileCount": 73,
       "complete": true,
       "scannedFileCount": 73,
-      "elapsedMilliseconds": 3507.3137500000003
+      "elapsedMilliseconds": 2177.189583
     }
   ],
   "diagnostics": [
+    {
+      "filePath": "components/ui/fill-picker/hooks/use-color-picker.ts",
+      "plugin": "react-doctor",
+      "rule": "no-high-complexity-react-function",
+      "severity": "warning",
+      "title": "React function has high control-flow complexity",
+      "message": "`useColorPicker` has cyclomatic complexity 16, cognitive complexity 16, and maximum nesting depth 2, so its React logic is hard to understand and change. Extract independent branches into components or hooks.",
+      "help": "Extract independent render branches and state logic into focused components or hooks until the control flow is easy to follow.",
+      "line": 112,
+      "column": 8,
+      "offset": 3265,
+      "length": 8056,
+      "endLine": 317,
+      "category": "Maintainability",
+      "id": "components/ui/fill-picker/hooks/use-color-picker.ts::112:8::react-doctor/no-high-complexity-react-function::49ed869cbc89fa151b4bd0623c8139c739f06aa60239c39d46e1f3d68d633dda",
+      "normalizedFilePath": "components/ui/fill-picker/hooks/use-color-picker.ts",
+      "tags": [
+        "react-jsx-only",
+        "test-noise"
+      ]
+    },
+    {
+      "filePath": "components/vendor/animate-ui/icons/icon.tsx",
+      "plugin": "react-doctor",
+      "rule": "no-high-complexity-react-function",
+      "severity": "warning",
+      "title": "React function has high control-flow complexity",
+      "message": "`useAnimateIconTriggers` has cyclomatic complexity 19, cognitive complexity 24, and maximum nesting depth 4, so its React logic is hard to understand and change. Extract independent branches into components or hooks.",
+      "help": "Extract independent render branches and state logic into focused components or hooks until the control flow is easy to follow.",
+      "line": 29,
+      "column": 1,
+      "offset": 966,
+      "length": 7960,
+      "endLine": 305,
+      "category": "Maintainability",
+      "id": "components/vendor/animate-ui/icons/icon.tsx::29:1::react-doctor/no-high-complexity-react-function::2fd29c9f16c492e792745624c56fd10dbdcf5e4c5c8a6ca8e914d09402f8ebfe",
+      "normalizedFilePath": "components/vendor/animate-ui/icons/icon.tsx",
+      "tags": [
+        "react-jsx-only",
+        "test-noise"
+      ]
+    },
     {
       "filePath": "features/shell/components/DesktopAppearanceIsland.tsx",
       "plugin": "react-doctor",
@@ -918,13 +1005,13 @@
       "title": "Animating a layout property",
       "message": "This stutters because animating \"height\" makes the browser redo page layout every frame, so animate transform or scale instead, or use the layout prop",
       "help": "Use `transform: translateX()` or `scale()` instead. They animate smoothly without making the browser redo layout or repaint",
-      "line": 120,
+      "line": 124,
       "column": 11,
-      "offset": 3585,
+      "offset": 3767,
       "length": 32,
-      "endLine": 120,
+      "endLine": 124,
       "category": "Performance",
-      "id": "features/shell/components/unlumen-ui/motion-faqs-accordion.tsx::120:11::react-doctor/no-layout-property-animation::39e9990a2571870f9851801b6684f2c3c25a7ad3ca26335f4e15b3cdfaaed38e",
+      "id": "features/shell/components/unlumen-ui/motion-faqs-accordion.tsx::124:11::react-doctor/no-layout-property-animation::39e9990a2571870f9851801b6684f2c3c25a7ad3ca26335f4e15b3cdfaaed38e",
       "normalizedFilePath": "features/shell/components/unlumen-ui/motion-faqs-accordion.tsx",
       "tags": [
         "test-noise"
@@ -933,12 +1020,12 @@
   ],
   "summary": {
     "errorCount": 2,
-    "warningCount": 2,
-    "affectedFileCount": 4,
-    "totalDiagnosticCount": 4,
+    "warningCount": 4,
+    "affectedFileCount": 6,
+    "totalDiagnosticCount": 6,
     "score": 83,
     "scoreLabel": "Needs work"
   },
-  "elapsedMilliseconds": 6028.8435,
+  "elapsedMilliseconds": 4727.4372920000005,
   "error": null
 }
