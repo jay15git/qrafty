@@ -1,6 +1,6 @@
 import type { DraftingCardSizeMode } from "@/features/canvas/model/card-state"
 
-export type DesktopCardSizeSettings = {
+export type CardSizeSettings = {
   cardHeight: number
   cardWidth: number
   lockAspectRatio: boolean

@@ -26,23 +26,23 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
-import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
 import {
   MOBILE_LAYER_TOOLBAR_GAP_PX,
 } from "@/features/shell/components/mobile-layer-toolbar-sync"
-import type { DesktopInspectorModel } from "@/features/shell/hooks/useDesktopToolbarInspectorModel"
-import { DesktopnewThemeContext } from "@/features/shell/inspector/theme-context"
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
 import {
   useMobileDrawerNavigation,
   useMobileLiveDetail,
-} from "@/features/shell/inspector/mobile-drawer-navigation-context"
+} from "@/features/shell/inspector/MobileDrawerNavigationContext"
 import {
-  DesktopCanvasSizeIcon,
-  DesktopShadowIcon,
-} from "@/features/shell/components/desktop-toolbar-icons"
-import { getDesktopLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities"
+  CanvasSizeIcon,
+  ShadowIcon,
+} from "@/features/shell/components/toolbar-icons"
+import { getLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities"
 import { LAYER_FILTER_EFFECT_KINDS } from "@/features/canvas/model/layer-effects"
-import { TextFontPickerContent } from "@/features/shell/inspector/text-font-picker-content"
+import { TextFontPickerContent } from "@/features/shell/inspector/TextFontPickerContent"
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
@@ -56,10 +56,10 @@ import {
 import {
   getTextLayerFillCssValue,
   patchTextLayerFillFromPicker,
-} from "@/features/canvas/rendering/shape-fill.utils"
+} from "@/features/canvas/rendering/layer-fill"
 import {
-  getDesktopLayerFontWeight,
-  getNearestDesktopFontWeight,
+  getLayerFontWeight,
+  getNearestFontWeight,
 } from "@/features/shell/model/font-weight"
 import { resolveDraftingFont } from "@/features/canvas/model/fonts"
 import { isDraftingEmojiLayer } from "@/features/canvas/model/layer-floating-settings"
@@ -72,29 +72,29 @@ const LazyInsertMenuPanelStack = lazy(() =>
     (module) => ({ default: module.InsertMenuPanelStack }),
   ),
 )
-const LazyDesktopCanvasRatioPresetSections = lazy(() =>
-  import("@/features/shell/components/DesktopCanvasRatioPresetRow").then(
-    (module) => ({ default: module.DesktopCanvasRatioPresetSections }),
+const LazyCanvasRatioPresetSections = lazy(() =>
+  import("@/features/shell/components/CanvasRatioPresetRow").then(
+    (module) => ({ default: module.CanvasRatioPresetSections }),
   ),
 )
-const LazyDesktopLayerTransformPanel = lazy(() =>
-  import("@/features/shell/components/DesktopLayerSettingsPanel").then(
-    (module) => ({ default: module.DesktopLayerTransformPanel }),
+const LazyLayerTransformPanel = lazy(() =>
+  import("@/features/shell/components/LayerSettingsPanel").then(
+    (module) => ({ default: module.LayerTransformPanel }),
   ),
 )
-const LazyDesktopLayerBorderPanel = lazy(() =>
-  import("@/features/shell/components/DesktopLayerSettingsPanel").then(
-    (module) => ({ default: module.DesktopLayerBorderPanel }),
+const LazyLayerBorderPanel = lazy(() =>
+  import("@/features/shell/components/LayerSettingsPanel").then(
+    (module) => ({ default: module.LayerBorderPanel }),
   ),
 )
-const LazyDesktopLayerEffectsPanel = lazy(() =>
-  import("@/features/shell/components/DesktopLayerSettingsPanel").then(
-    (module) => ({ default: module.DesktopLayerEffectsPanel }),
+const LazyLayerEffectsPanel = lazy(() =>
+  import("@/features/shell/components/LayerSettingsPanel").then(
+    (module) => ({ default: module.LayerEffectsPanel }),
   ),
 )
-const LazyDesktopLayerShadowsPanel = lazy(() =>
-  import("@/features/shell/components/DesktopLayerSettingsPanel").then(
-    (module) => ({ default: module.DesktopLayerShadowsPanel }),
+const LazyLayerShadowsPanel = lazy(() =>
+  import("@/features/shell/components/LayerSettingsPanel").then(
+    (module) => ({ default: module.LayerShadowsPanel }),
   ),
 )
 
@@ -223,14 +223,14 @@ const PANEL_ICON_CLASS = "size-4 shrink-0"
 /**
  * Mirrors the desktop dynamic island's property panels (Add, Layout, Transform,
  * Border, Effects, Shadows) as drawer detail pages. Same gating rules as
- * `useDesktopIslandItems`.
+ * `useIslandItems`.
  */
 function MobileLayerPanelTools({
   model,
   theme,
 }: {
-  model: DesktopInspectorModel
-  theme: DesktopThemeMode
+  model: InspectorModel
+  theme: ThemeMode
 }) {
   const navigation = useMobileDrawerNavigation()
   const controller = model.controller
@@ -246,7 +246,7 @@ function MobileLayerPanelTools({
   const onElementLayerPatch = controller?.onElementLayerPatch
 
   const propertyLayer = selectedTransformLayer ?? selectedElementLayer ?? null
-  const propertyCapabilities = getDesktopLayerToolbarCapabilities(propertyLayer)
+  const propertyCapabilities = getLayerToolbarCapabilities(propertyLayer)
   const effectsLayer = selectedElementLayer ?? null
   const effectsPatch = onElementLayerPatch
 
@@ -295,7 +295,7 @@ function MobileLayerPanelTools({
           content={
             <LazyInsertMenuPanelStack
               canAddQrCode={controller?.canAddQrCode}
-              isDesktopPopover
+              isPopover
               nodeId={insertNodeId!}
               onAddQrCode={controller?.onAddQrCode}
               onBrowseWallpapers={
@@ -315,14 +315,14 @@ function MobileLayerPanelTools({
         <MobileLayerPanelButton
           ariaLabel="Canvas size"
           content={
-            <LazyDesktopCanvasRatioPresetSections
+            <LazyCanvasRatioPresetSections
               selectedPresetId={
                 controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId
               }
               onSelectTemplate={onSelectSizeTemplate!}
             />
           }
-          icon={<DesktopCanvasSizeIcon className={PANEL_ICON_CLASS} />}
+          icon={<CanvasSizeIcon className={PANEL_ICON_CLASS} />}
           label="Layout"
         />
       ) : null}
@@ -330,7 +330,7 @@ function MobileLayerPanelTools({
         <MobileLayerPanelButton
           ariaLabel="Transform"
           content={
-            <LazyDesktopLayerTransformPanel
+            <LazyLayerTransformPanel
               layer={selectedTransformLayer!}
               onPatch={onTransformLayerPatch!}
               theme={theme}
@@ -345,7 +345,7 @@ function MobileLayerPanelTools({
         <MobileLayerPanelButton
           ariaLabel="Border"
           content={
-            <LazyDesktopLayerBorderPanel
+            <LazyLayerBorderPanel
               appearance={appearance!}
               onPatch={onAppearancePatch!}
               theme={theme}
@@ -359,7 +359,7 @@ function MobileLayerPanelTools({
         <MobileLayerPanelButton
           ariaLabel="Effects"
           content={
-            <LazyDesktopLayerEffectsPanel
+            <LazyLayerEffectsPanel
               effectKinds={LAYER_FILTER_EFFECT_KINDS}
               layer={effectsLayer!}
               layerOpacity={appearance?.opacity}
@@ -381,13 +381,13 @@ function MobileLayerPanelTools({
         <MobileLayerPanelButton
           ariaLabel="Shadows"
           content={
-            <LazyDesktopLayerShadowsPanel
+            <LazyLayerShadowsPanel
               layer={shadowsLayer!}
               onPatch={shadowsPatch!}
               theme={theme}
             />
           }
-          icon={<DesktopShadowIcon className={PANEL_ICON_CLASS} />}
+          icon={<ShadowIcon className={PANEL_ICON_CLASS} />}
           label="Shadows"
         />
       ) : null}
@@ -403,7 +403,7 @@ function MobileLayerTextTools({
 }: {
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  theme: DesktopThemeMode
+  theme: ThemeMode
 }) {
   const mobileNav = useMobileDrawerNavigation()
 
@@ -420,7 +420,7 @@ function MobileLayerTextTools({
     fontId: layer.fontId,
   })
   const supportedWeights = selectedFont.weights
-  const fontWeight = getDesktopLayerFontWeight(layer.fontWeight, supportedWeights)
+  const fontWeight = getLayerFontWeight(layer.fontWeight, supportedWeights)
   const fontStyle = layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle
   const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign
   const AlignIcon =
@@ -466,8 +466,8 @@ function MobileLayerTextTools({
           patchText({
             fontWeight:
               fontWeight >= 700
-                ? getNearestDesktopFontWeight(400, supportedWeights)
-                : getNearestDesktopFontWeight(700, supportedWeights),
+                ? getNearestFontWeight(400, supportedWeights)
+                : getNearestFontWeight(700, supportedWeights),
           })
         }
       >
@@ -525,7 +525,7 @@ function MobileLayerSpecificTools({
 }: {
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  theme: DesktopThemeMode
+  theme: ThemeMode
 }) {
   if (layer.kind === "text") {
     return <MobileLayerTextTools layer={layer} onPatch={onPatch} theme={theme} />
@@ -543,9 +543,9 @@ export function MobileLayerToolbar({
   onToolbarHeightChange,
   theme,
 }: {
-  model: DesktopInspectorModel
+  model: InspectorModel
   onToolbarHeightChange: (height: number) => void
-  theme: DesktopThemeMode
+  theme: ThemeMode
 }) {
   const controller = model.controller
   const selectedLayerIds = controller?.selectedLayerIds ?? []
@@ -595,15 +595,15 @@ export function MobileLayerToolbar({
       selectedElementLayer.kind === "shader")
 
   return (
-    <DesktopnewThemeContext.Provider value={theme}>
+    <InspectorThemeContext.Provider value={theme}>
       <div
         ref={toolbarRef}
         className={cn(
-          "desktopnew-root pointer-events-auto fixed z-[35]",
+          "inspector-root pointer-events-auto fixed z-[35]",
           "left-[max(1rem,env(safe-area-inset-left,0px))]",
           "w-[calc(100%-max(1rem,env(safe-area-inset-left,0px))-max(1rem,env(safe-area-inset-right,0px)))]",
         )}
-        data-desktop-theme={theme}
+        data-shell-theme={theme}
         data-mobile-inspector=""
         data-slot="mobile-layer-toolbar"
         data-theme={theme}
@@ -684,6 +684,6 @@ export function MobileLayerToolbar({
           </div>
         </ScrollArea>
       </div>
-    </DesktopnewThemeContext.Provider>
+    </InspectorThemeContext.Provider>
   )
 }

@@ -3,7 +3,7 @@
 import Image from "next/image"
 
 import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-definitions"
-import { getPaperShaderOptionPreviewUrl } from "@/features/canvas/components/paper-shader-option-preview.utils"
+import { getPaperShaderOptionPreviewUrl } from "@/features/canvas/components/paper-shader-option-preview"
 
 export function PaperShaderOptionPreview({
   className,

@@ -17,7 +17,7 @@ import { ShapeFillGradientDefs } from "@/features/canvas/rendering/shape-fill"
 import {
   resolveShapeSvgFill,
   shouldRenderShapeFillGradient,
-} from "@/features/canvas/rendering/shape-fill.utils"
+} from "@/features/canvas/rendering/layer-fill"
 
 function getInnerStrokeClipId(layerId: string) {
   return `${layerId}-inner-stroke-clip`

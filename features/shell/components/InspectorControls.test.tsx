@@ -2,35 +2,35 @@ import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
 
 import {
-  DESKTOP_INSPECTOR_INPUT_CLASS,
-} from "@/features/shell/components/desktop-inspector-tokens"
+  INSPECTOR_INPUT_CLASS,
+} from "@/features/shell/components/inspector-tokens"
 import {
-  DesktopInspectorScrubbableNumberInput,
-  DesktopInspectorTextInput,
+  InspectorScrubbableNumberInput,
+  InspectorTextInput,
 } from "@/features/shell/components/InspectorControls"
 
 describe("desktop inspector controls", () => {
   it("renders shared input controls with the desktop inspector class contract", () => {
     const markup = renderToStaticMarkup(
       <div>
-        <DesktopInspectorTextInput aria-label="Remote logo URL" />
+        <InspectorTextInput aria-label="Remote logo URL" />
       </div>,
     )
 
-    expect(markup).toContain(DESKTOP_INSPECTOR_INPUT_CLASS)
-    expect(markup).toContain("desktop-inspector-input-bg")
+    expect(markup).toContain(INSPECTOR_INPUT_CLASS)
+    expect(markup).toContain("inspector-input-bg")
   })
 
   it("renders paste action on pasteable text inputs", () => {
     const markup = renderToStaticMarkup(
-      <DesktopInspectorTextInput
+      <InspectorTextInput
         aria-label="Content URL"
         pasteable
         onPasteValue={vi.fn()}
       />,
     )
 
-    expect(markup).toContain('data-slot="desktop-inspector-paste-action"')
+    expect(markup).toContain('data-slot="inspector-paste-action"')
     expect(markup).toContain('data-icon="a"')
     expect(markup).toContain('data-icon="b"')
     expect(markup).toContain('aria-label="Paste from clipboard"')
@@ -38,7 +38,7 @@ describe("desktop inspector controls", () => {
 
   it("keeps a stable wrap around pasteable inputs without errors", () => {
     const markup = renderToStaticMarkup(
-      <DesktopInspectorTextInput
+      <InspectorTextInput
         aria-label="Content URL"
         pasteable
         onPasteValue={vi.fn()}
@@ -51,7 +51,7 @@ describe("desktop inspector controls", () => {
 
   it("renders validation feedback without paste shake styling", () => {
     const markup = renderToStaticMarkup(
-      <DesktopInspectorTextInput
+      <InspectorTextInput
         aria-label="Content URL"
         error="Enter a correct profile URL."
         pasteable
@@ -68,7 +68,7 @@ describe("desktop inspector controls", () => {
 
   it("renders scrubbable number inputs with resize cursor and scrub slot", () => {
     const markup = renderToStaticMarkup(
-      <DesktopInspectorScrubbableNumberInput
+      <InspectorScrubbableNumberInput
         aria-label="Width"
         className="h-8 rounded-[6px] px-2"
         min={1}
@@ -77,7 +77,7 @@ describe("desktop inspector controls", () => {
       />,
     )
 
-    expect(markup).toContain('data-slot="desktop-inspector-scrubbable-number"')
+    expect(markup).toContain('data-slot="inspector-scrubbable-number"')
     expect(markup).toContain("cursor-ew-resize")
     expect(markup).toContain("appearance-none")
   })

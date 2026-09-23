@@ -21,18 +21,18 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Fill } from "@/components/ui/fill-picker/public-api"
-import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
-import { DesktopnewThemeContext } from "@/features/shell/inspector/theme-context"
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/mobile-drawer-navigation-context"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/mobile-inspector-density-context"
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
+import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext"
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
 import {
   SettingsFillPopover,
   SettingsPopoverChrome,
   SettingsSlider,
 } from "@/features/shell/inspector/settings-ui"
 import {
-  getDesktopLayerFontWeight,
-  getNearestDesktopFontWeight,
+  getLayerFontWeight,
+  getNearestFontWeight,
 } from "@/features/shell/model/font-weight"
 import {
   DEFAULT_DRAFTING_IMAGE_LAYER,
@@ -52,20 +52,20 @@ import {
   getTextLayerFillCssValue,
   patchShapeLayerFillFromPicker,
   patchTextLayerFillFromPicker,
-} from "@/features/canvas/rendering/shape-fill.utils"
+} from "@/features/canvas/rendering/layer-fill"
 import { cn } from "@/lib/utils"
-import { CUELUME_TOGGLE } from "@/features/shell/audio/desktop-cuelume"
+import { CUELUME_TOGGLE } from "@/features/shell/audio/cuelume"
 
 import "@/features/shell/inspector/inspector.css"
 
 const COMPACT_POPOVER_CLASS =
-  "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-hidden dn-squircle-md"
+  "dn-portal-surface inspector-popover-content dn-popover-flat z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-hidden dn-squircle-md"
 
 const ICON_TOGGLE_CLASS =
   "grid size-9 place-items-center rounded-full text-[color-mix(in_srgb,var(--fg)_78%,transparent)] transition-colors duration-150 hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))] aria-pressed:bg-[var(--settings-control)] aria-pressed:text-[var(--fg)]"
 
 const DN_POPOVER_CLASS =
-  "dn-portal-surface desktopnew-popover-content z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-[min(100vw-2rem,15.5rem)] overflow-hidden border-0 p-0 dn-squircle-md"
+  "dn-portal-surface inspector-popover-content z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-[min(100vw-2rem,15.5rem)] overflow-hidden border-0 p-0 dn-squircle-md"
 
 const DN_OPTION_TILE_CLASS =
   "dn-option-tile dn-control-surface dn-squircle-xs flex cursor-pointer items-center justify-center border-0"
@@ -117,7 +117,7 @@ function LayerFloatingSettingsPopover({
   content: ReactNode
   open?: boolean
   onOpenChange?: (open: boolean) => void
-  theme?: DesktopThemeMode
+  theme?: ThemeMode
   title?: string
   trigger: ReactNode
 }) {
@@ -165,14 +165,14 @@ function LayerFloatingSettingsPopover({
           onClick={(event) => event.stopPropagation()}
           onPointerDown={(event) => event.stopPropagation()}
         >
-          <DesktopnewThemeContext.Provider value={theme}>
+          <InspectorThemeContext.Provider value={theme}>
             <SettingsPopoverChrome
               title={title}
               onClose={() => onOpenChange?.(false)}
             >
               {children ?? content}
             </SettingsPopoverChrome>
-          </DesktopnewThemeContext.Provider>
+          </InspectorThemeContext.Provider>
         </PopoverContent>
       </Popover>
     )
@@ -220,7 +220,7 @@ export function FillColorToolbarButton({
   ariaLabel: string
   onValueChange: (fill: Fill, css: string) => void
   solidOnly?: boolean
-  theme: DesktopThemeMode
+  theme: ThemeMode
   title: string
   value: string
 }) {
@@ -230,7 +230,7 @@ export function FillColorToolbarButton({
       data-slot="drafting-layer-floating-toolbar-color"
       onPointerDown={(event) => event.stopPropagation()}
     >
-      <DesktopnewThemeContext.Provider value={theme}>
+      <InspectorThemeContext.Provider value={theme}>
         <SettingsFillPopover
           align="center"
           collisionPadding={12}
@@ -243,7 +243,7 @@ export function FillColorToolbarButton({
           variant="swatch"
           onValueChange={onValueChange}
         />
-      </DesktopnewThemeContext.Provider>
+      </InspectorThemeContext.Provider>
     </div>
   )
 }
@@ -459,7 +459,7 @@ function TextLayerFloatingSettings({
 }: {
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  theme: DesktopThemeMode
+  theme: ThemeMode
 }) {
   const [alignOpen, setAlignOpen] = useState(false)
   const [sizeOpen, setSizeOpen] = useState(false)
@@ -491,7 +491,7 @@ function TextLayerFloatingSettings({
     fontId: layer.fontId,
   })
   const supportedWeights = selectedFont.weights
-  const fontWeight = getDesktopLayerFontWeight(layer.fontWeight, supportedWeights)
+  const fontWeight = getLayerFontWeight(layer.fontWeight, supportedWeights)
   const fontStyle = layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle
   const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign
   const AlignIcon = TEXT_ALIGN_OPTIONS.find(
@@ -521,8 +521,8 @@ function TextLayerFloatingSettings({
           patchText({
             fontWeight:
               fontWeight >= 700
-                ? getNearestDesktopFontWeight(400, supportedWeights)
-                : getNearestDesktopFontWeight(700, supportedWeights),
+                ? getNearestFontWeight(400, supportedWeights)
+                : getNearestFontWeight(700, supportedWeights),
           })
         }
       >
@@ -584,7 +584,7 @@ export function LayerFloatingToolbarSettings({
 }: {
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  theme?: DesktopThemeMode
+  theme?: ThemeMode
 }) {
   if (layer.kind === "text") {
     return <TextLayerFloatingSettings layer={layer} onPatch={onPatch} theme={theme} />

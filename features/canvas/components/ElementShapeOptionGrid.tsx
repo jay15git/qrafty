@@ -3,13 +3,13 @@
 import type { ReactNode } from "react"
 
 import {
-  DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
-  DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
-  DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-} from "@/features/shell/components/desktop-inspector-tokens"
-import { DesktopInspectorAnimatedOptionGrid } from "@/features/shell/inspector/inspector-option-grid"
-import { desktopInspectorOptionGridItemClass } from "@/features/shell/inspector/inspector-option-grid.classes"
-import { DesktopInspectorOptionGridScrollArea } from "@/features/shell/inspector/inspector-option-grid"
+  INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+  INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+  INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+} from "@/features/shell/components/inspector-tokens"
+import { InspectorAnimatedOptionGrid } from "@/features/shell/inspector/InspectorOptionGrid"
+import { inspectorOptionGridItemClass } from "@/features/shell/inspector/InspectorOptionGrid.classes"
+import { InspectorOptionGridScrollArea } from "@/features/shell/inspector/InspectorOptionGrid"
 import {
   DRAFTING_ELEMENT_DECORATIVE_SHAPES,
   DRAFTING_SHAPE_PRIMITIVES,
@@ -70,14 +70,14 @@ function InspectorElementShapeOptionTile({
     <button
       aria-label={`Use ${label} shape`}
       aria-pressed={selected}
-      data-desktop-animated-option-selection="true"
-      data-desktop-option-interaction="scale"
-      data-desktop-option-tile="true"
+      data-animated-option-selection="true"
+      data-option-interaction="scale"
+      data-option-tile="true"
       className={cn(
         "group flex w-full min-w-0 items-center justify-center",
-        desktopInspectorOptionGridItemClass("loose"),
-        DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-        DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+        inspectorOptionGridItemClass("loose"),
+        INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+        INSPECTOR_OPTION_TILE_BUTTON_CLASS,
         selected && "text-[var(--settings-option-selected-fg)]",
       )}
       type="button"
@@ -86,14 +86,14 @@ function InspectorElementShapeOptionTile({
       <span
         className={cn(
           "relative z-10 aspect-square w-full min-w-0 overflow-hidden rounded-[6px]",
-          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+          INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
         )}
       >
         <span
           aria-hidden="true"
           data-desktop-adaptive-option-preview="true"
-          data-desktop-shape-option-preview="true"
-          data-slot="desktop-style-preview-surface"
+          data-shape-option-preview="true"
+          data-slot="style-preview-surface"
           className="grid size-full place-items-center overflow-hidden rounded-[6px] border-2 border-transparent bg-[#15161a] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"
         >
           {children}
@@ -113,16 +113,16 @@ export function ElementShapeOptionGrid({
 }: ElementShapeOptionGridProps) {
   if (variant === "inspector") {
     return (
-      <DesktopInspectorOptionGridScrollArea
+      <InspectorOptionGridScrollArea
         ariaLabel="Shape options"
         columns={3}
-        dataSlot="desktop-layer-shape-options-scroll-area"
-        shelfDataSlot="desktop-layer-shape-options"
+        dataSlot="layer-shape-options-scroll-area"
+        shelfDataSlot="layer-shape-options"
         variant="preset"
       >
-        <DesktopInspectorAnimatedOptionGrid
+        <InspectorAnimatedOptionGrid
           columns={3}
-          data-slot="desktop-layer-shape-options"
+          data-slot="layer-shape-options"
           selectedKey={selectedShapeId}
         >
           {DRAFTING_SHAPE_PRIMITIVES.map((shape) => (
@@ -145,8 +145,8 @@ export function ElementShapeOptionGrid({
               <ElementShapeDecorativePreview fill="currentColor" shape={shape} sizeClassName="size-[62%]" />
             </InspectorElementShapeOptionTile>
           ))}
-        </DesktopInspectorAnimatedOptionGrid>
-      </DesktopInspectorOptionGridScrollArea>
+        </InspectorAnimatedOptionGrid>
+      </InspectorOptionGridScrollArea>
     )
   }
 

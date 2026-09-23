@@ -15,36 +15,36 @@ import {
   type ReactNode,
 } from "react"
 
-import { DesktopInspectorPasteButton } from "@/features/shell/components/DesktopInspectorPasteButton"
-import "./desktop-inspector-input-error.css"
+import { InspectorPasteButton } from "@/features/shell/components/InspectorPasteButton"
+import "./inspector-input-error.css"
 
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
-import "./desktop-inspector-design-system.css"
+import "./inspector-design-system.css"
 
 import {
-  DESKTOP_INSPECTOR_CAPTION_CLASS,
-  DESKTOP_INSPECTOR_CONTROL_HEIGHT_CLASS,
-  DESKTOP_INSPECTOR_INPUT_CLASS,
-  DESKTOP_INSPECTOR_LABEL_CLASS,
-  DESKTOP_INSPECTOR_RADIUS_CLASS,
-  DESKTOP_INSPECTOR_TYPE_VALUE_CLASS,
-} from "@/features/shell/components/desktop-inspector-tokens"
+  INSPECTOR_CAPTION_CLASS,
+  INSPECTOR_CONTROL_HEIGHT_CLASS,
+  INSPECTOR_INPUT_CLASS,
+  INSPECTOR_LABEL_CLASS,
+  INSPECTOR_RADIUS_CLASS,
+  INSPECTOR_TYPE_VALUE_CLASS,
+} from "@/features/shell/components/inspector-tokens"
 
-const DESKTOP_INSPECTOR_SECTION_CLASS = "min-w-0 flex flex-col gap-2"
-const DESKTOP_INSPECTOR_SCRUB_NUMBER_FIELD_CLASS = cn(
+const INSPECTOR_SECTION_CLASS = "min-w-0 flex flex-col gap-2"
+const INSPECTOR_SCRUB_NUMBER_FIELD_CLASS = cn(
   "text-center tabular-nums",
-  DESKTOP_INSPECTOR_INPUT_CLASS,
+  INSPECTOR_INPUT_CLASS,
 )
-const DESKTOP_INSPECTOR_FOCUS_CLASS =
+const INSPECTOR_FOCUS_CLASS =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--settings-focus)]"
 
 
-type DesktopInspectorSectionElement = "section" | "div" | "details"
+type InspectorSectionElement = "section" | "div" | "details"
 
-type DesktopInspectorSectionProps = Omit<ComponentProps<"section">, "as"> & {
-  as?: DesktopInspectorSectionElement
+type InspectorSectionProps = Omit<ComponentProps<"section">, "as"> & {
+  as?: InspectorSectionElement
   dataSlot?: string
   resize?: boolean
 }
@@ -98,7 +98,7 @@ function useTResizeHeight(enabled: boolean) {
   return { contentRef, height: enabled ? height : null }
 }
 
-export function DesktopInspectorSection({
+export function InspectorSection({
   as = "section",
   children,
   className,
@@ -106,7 +106,7 @@ export function DesktopInspectorSection({
   resize = false,
   style,
   ...props
-}: DesktopInspectorSectionProps) {
+}: InspectorSectionProps) {
   const Component = as as ElementType
   const { contentRef, height } = useTResizeHeight(resize)
   const resizeStyle: CSSProperties | undefined =
@@ -116,7 +116,7 @@ export function DesktopInspectorSection({
     <Component
       data-slot={dataSlot}
       className={cn(
-        DESKTOP_INSPECTOR_SECTION_CLASS,
+        INSPECTOR_SECTION_CLASS,
         resize && "t-resize overflow-hidden",
         className,
       )}
@@ -128,21 +128,21 @@ export function DesktopInspectorSection({
   )
 }
 
-type DesktopInspectorLabelProps = ComponentProps<"p">
+type InspectorLabelProps = ComponentProps<"p">
 
-export function DesktopInspectorLabel({
+export function InspectorLabel({
   className,
   ...props
-}: DesktopInspectorLabelProps) {
+}: InspectorLabelProps) {
   return (
     <p
-      className={cn("mb-1.5", DESKTOP_INSPECTOR_LABEL_CLASS, className)}
+      className={cn("mb-1.5", INSPECTOR_LABEL_CLASS, className)}
       {...props}
     />
   )
 }
 
-type DesktopInspectorTextInputProps = ComponentProps<"input"> & {
+type InspectorTextInputProps = ComponentProps<"input"> & {
   error?: string
   onPasteValue?: (value: string) => void
   pasteable?: boolean
@@ -194,7 +194,7 @@ function wrapInspectorFieldFeedback(
         <p
           className={cn(
             "t-error-msg t-error-msg--visible",
-            DESKTOP_INSPECTOR_CAPTION_CLASS,
+            INSPECTOR_CAPTION_CLASS,
             pasteErrorActive && "t-error-msg--emphasis",
           )}
         >
@@ -205,14 +205,14 @@ function wrapInspectorFieldFeedback(
   )
 }
 
-export function DesktopInspectorTextInput({
+export function InspectorTextInput({
   className,
   error,
   onPasteValue,
   pasteable = false,
   type = "text",
   ...props
-}: DesktopInspectorTextInputProps) {
+}: InspectorTextInputProps) {
   const hasError = Boolean(error)
   const { notifyPaste, pasteErrorActive, shaking } = usePasteValidationShake(error)
 
@@ -220,12 +220,12 @@ export function DesktopInspectorTextInput({
     <input
       className={cn(
         "t-input w-full min-w-0 max-w-full px-3",
-        DESKTOP_INSPECTOR_CONTROL_HEIGHT_CLASS,
-        DESKTOP_INSPECTOR_RADIUS_CLASS,
+        INSPECTOR_CONTROL_HEIGHT_CLASS,
+        INSPECTOR_RADIUS_CLASS,
         pasteErrorActive && "is-error",
         shaking && "is-shaking",
         pasteable && "pr-9",
-        DESKTOP_INSPECTOR_INPUT_CLASS,
+        INSPECTOR_INPUT_CLASS,
         className,
       )}
       type={type}
@@ -239,10 +239,10 @@ export function DesktopInspectorTextInput({
   }
 
   return wrapInspectorFieldFeedback(
-    <div className="relative min-w-0" data-slot="desktop-inspector-pasteable-field">
+    <div className="relative min-w-0" data-slot="inspector-pasteable-field">
       {input}
       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-        <DesktopInspectorPasteButton
+        <InspectorPasteButton
           className="pointer-events-auto"
           onPaste={(value) => {
             onPasteValue?.(value)
@@ -258,10 +258,10 @@ export function DesktopInspectorTextInput({
   )
 }
 
-const DESKTOP_INSPECTOR_NUMBER_SPINNER_HIDE_CLASS =
+const INSPECTOR_NUMBER_SPINNER_HIDE_CLASS =
   "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 
-function clampDesktopInspectorNumber(value: number, min?: number, max?: number) {
+function clampInspectorNumber(value: number, min?: number, max?: number) {
   let bounded = value
 
   if (min != null) {
@@ -275,7 +275,7 @@ function clampDesktopInspectorNumber(value: number, min?: number, max?: number) 
   return bounded
 }
 
-function quantizeDesktopInspectorNumber(value: number, step: number) {
+function quantizeInspectorNumber(value: number, step: number) {
   if (!Number.isFinite(step) || step <= 0) {
     return value
   }
@@ -290,7 +290,7 @@ function quantizeDesktopInspectorNumber(value: number, step: number) {
   return parseFloat(quantized.toFixed(decimals))
 }
 
-type UseDesktopInspectorNumberScrubOptions = {
+type UseInspectorNumberScrubOptions = {
   disabled?: boolean
   max?: number
   min?: number
@@ -300,7 +300,7 @@ type UseDesktopInspectorNumberScrubOptions = {
   value: number
 }
 
-export function useDesktopInspectorNumberScrub({
+export function useInspectorNumberScrub({
   disabled = false,
   max,
   min,
@@ -308,7 +308,7 @@ export function useDesktopInspectorNumberScrub({
   shiftStep = 10,
   step = 1,
   value,
-}: UseDesktopInspectorNumberScrubOptions) {
+}: UseInspectorNumberScrubOptions) {
   const [draft, setDraft] = useState(String(value))
   const [editing, setEditing] = useState(false)
   const [interacting, setInteracting] = useState(false)
@@ -355,8 +355,8 @@ export function useDesktopInspectorNumberScrub({
 
   const commit = useCallback(
     (nextValue: number) => {
-      const quantized = quantizeDesktopInspectorNumber(nextValue, step)
-      const bounded = clampDesktopInspectorNumber(quantized, min, max)
+      const quantized = quantizeInspectorNumber(nextValue, step)
+      const bounded = clampInspectorNumber(quantized, min, max)
       onChange(bounded)
       setDraft(String(bounded))
     },
@@ -589,7 +589,7 @@ export function useDesktopInspectorNumberScrub({
   }, [enterEditMode])
 
   const inputProps = {
-    "data-slot": "desktop-inspector-scrubbable-number",
+    "data-slot": "inspector-scrubbable-number",
     inputMode: "numeric" as const,
     onBlur: () => {
       setInteracting(false)
@@ -680,7 +680,7 @@ function mirrorDisplayTypography(source: HTMLElement): CSSProperties {
   }
 }
 
-function DesktopInspectorDisplayNumber({
+function InspectorDisplayNumber({
   style,
   value,
 }: {
@@ -701,7 +701,7 @@ function DesktopInspectorDisplayNumber({
   )
 }
 
-export function DesktopInspectorScrubNumberInput({
+export function InspectorScrubNumberInput({
   className,
   disabled,
   inputClassName,
@@ -711,9 +711,9 @@ export function DesktopInspectorScrubNumberInput({
   className?: string
   disabled?: boolean
   inputClassName?: string
-  scrub: ReturnType<typeof useDesktopInspectorNumberScrub>
+  scrub: ReturnType<typeof useInspectorNumberScrub>
 } & Omit<ComponentProps<"input">, "onChange" | "type" | "value">) {
-  const fieldClass = cn(inputClassName, DESKTOP_INSPECTOR_SCRUB_NUMBER_FIELD_CLASS)
+  const fieldClass = cn(inputClassName, INSPECTOR_SCRUB_NUMBER_FIELD_CLASS)
   const ariaLabel = props["aria-label"]
   const mirrorRef = useRef<HTMLInputElement>(null)
   const [mirroredTypography, setMirroredTypography] = useState<CSSProperties>({})
@@ -789,7 +789,7 @@ export function DesktopInspectorScrubNumberInput({
             canScrub && "cursor-ew-resize select-none",
             disabled && "cursor-not-allowed opacity-50",
           )}
-          data-slot="desktop-inspector-scrubbable-number"
+          data-slot="inspector-scrubbable-number"
           role="button"
           tabIndex={disabled ? -1 : 0}
           onFocus={onDisplayFocus}
@@ -806,10 +806,10 @@ export function DesktopInspectorScrubNumberInput({
         >
           <div
             className="pointer-events-none flex w-full items-center justify-center"
-            data-slot="desktop-inspector-number-value"
+            data-slot="inspector-number-value"
             style={mirroredTypography}
           >
-            <DesktopInspectorDisplayNumber
+            <InspectorDisplayNumber
               style={mirroredTypography}
               value={displayValue}
             />
@@ -820,7 +820,7 @@ export function DesktopInspectorScrubNumberInput({
   )
 }
 
-type DesktopInspectorScrubbableNumberInputProps = Omit<
+type InspectorScrubbableNumberInputProps = Omit<
   ComponentProps<"input">,
   "onChange" | "type" | "value"
 > & {
@@ -829,7 +829,7 @@ type DesktopInspectorScrubbableNumberInputProps = Omit<
   value: number
 }
 
-export function DesktopInspectorScrubbableNumberInput({
+export function InspectorScrubbableNumberInput({
   className,
   disabled,
   max,
@@ -839,8 +839,8 @@ export function DesktopInspectorScrubbableNumberInput({
   step,
   value,
   ...props
-}: DesktopInspectorScrubbableNumberInputProps) {
-  const scrub = useDesktopInspectorNumberScrub({
+}: InspectorScrubbableNumberInputProps) {
+  const scrub = useInspectorNumberScrub({
     disabled,
     max: typeof max === "number" ? max : undefined,
     min: typeof min === "number" ? min : undefined,
@@ -852,15 +852,15 @@ export function DesktopInspectorScrubbableNumberInput({
 
   return (
     <div className="min-w-0">
-      <DesktopInspectorScrubNumberInput
+      <InspectorScrubNumberInput
         {...props}
-        className={cn(DESKTOP_INSPECTOR_CONTROL_HEIGHT_CLASS, "w-full", className)}
+        className={cn(INSPECTOR_CONTROL_HEIGHT_CLASS, "w-full", className)}
         disabled={disabled}
         inputClassName={cn(
-          DESKTOP_INSPECTOR_CONTROL_HEIGHT_CLASS,
+          INSPECTOR_CONTROL_HEIGHT_CLASS,
           "w-full px-3",
-          DESKTOP_INSPECTOR_RADIUS_CLASS,
-          DESKTOP_INSPECTOR_NUMBER_SPINNER_HIDE_CLASS,
+          INSPECTOR_RADIUS_CLASS,
+          INSPECTOR_NUMBER_SPINNER_HIDE_CLASS,
         )}
         scrub={scrub}
         step={step}
@@ -869,19 +869,19 @@ export function DesktopInspectorScrubbableNumberInput({
   )
 }
 
-type DesktopInspectorTextareaProps = ComponentProps<"textarea"> & {
+type InspectorTextareaProps = ComponentProps<"textarea"> & {
   error?: string
   onPasteValue?: (value: string) => void
   pasteable?: boolean
 }
 
-export function DesktopInspectorTextarea({
+export function InspectorTextarea({
   className,
   error,
   onPasteValue,
   pasteable = false,
   ...props
-}: DesktopInspectorTextareaProps) {
+}: InspectorTextareaProps) {
   const hasError = Boolean(error)
   const { notifyPaste, pasteErrorActive, shaking } = usePasteValidationShake(error)
 
@@ -889,11 +889,11 @@ export function DesktopInspectorTextarea({
     <textarea
       className={cn(
         "t-input min-h-24 w-full min-w-0 max-w-full resize-none px-3 py-2.5",
-        DESKTOP_INSPECTOR_RADIUS_CLASS,
+        INSPECTOR_RADIUS_CLASS,
         pasteErrorActive && "is-error",
         shaking && "is-shaking",
         pasteable && "pr-9",
-        DESKTOP_INSPECTOR_INPUT_CLASS,
+        INSPECTOR_INPUT_CLASS,
         className,
       )}
       {...props}
@@ -906,10 +906,10 @@ export function DesktopInspectorTextarea({
   }
 
   return wrapInspectorFieldFeedback(
-    <div className="relative min-w-0" data-slot="desktop-inspector-pasteable-field">
+    <div className="relative min-w-0" data-slot="inspector-pasteable-field">
       {textarea}
       <div className="pointer-events-none absolute right-0 top-2.5 flex pr-2">
-        <DesktopInspectorPasteButton
+        <InspectorPasteButton
           className="pointer-events-auto"
           onPaste={(value) => {
             onPasteValue?.(value)

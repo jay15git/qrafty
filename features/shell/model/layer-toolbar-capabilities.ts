@@ -8,7 +8,7 @@ const DEFAULT_CAPABILITIES: LayerToolbarCapabilities = {
   maxEffects: 2,
 }
 
-export function getDesktopLayerToolbarCapabilities(
+export function getLayerToolbarCapabilities(
   layer: DraftingCanvasLayer | null | undefined,
 ): LayerToolbarCapabilities {
   if (!layer) {

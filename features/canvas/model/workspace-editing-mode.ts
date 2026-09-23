@@ -1,6 +1,6 @@
-import type { DesktopToolbarToolId } from "@/features/shell/components/FloatingToolbar"
+import type { ToolbarToolId } from "@/features/shell/components/FloatingToolbar"
 
-const TOOLBAR_TOOL_IDS: DesktopToolbarToolId[] = [
+const TOOLBAR_TOOL_IDS: ToolbarToolId[] = [
   "layout",
   "content",
   "pattern",
@@ -16,6 +16,6 @@ const TOOLBAR_TOOL_IDS: DesktopToolbarToolId[] = [
   "layers",
 ]
 
-export function getVisibleToolbarToolIds(): DesktopToolbarToolId[] {
+export function getVisibleToolbarToolIds(): ToolbarToolId[] {
   return TOOLBAR_TOOL_IDS
 }

@@ -7,13 +7,13 @@ import {
   type DraftingPane,
   type DraftingPaneCanvasTool,
   type DraftingPaneToolbarVariant,
-} from "@/features/canvas/components/DraftingPaneSurface"
-import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
+} from "@/features/canvas/components/DraftingPaneCanvas"
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
 
-import { DraftingPaneSurface } from "@/features/canvas/components/DraftingPaneSurface"
+import { DraftingPaneCanvas } from "@/features/canvas/components/DraftingPaneCanvas"
 import { Tooltip as TooltipPrimitive } from "radix-ui"
 
-export type { DraftingPaneCanvasTool, DraftingPaneToolbarVariant } from "@/features/canvas/components/DraftingPaneSurface"
+export type { DraftingPaneCanvasTool, DraftingPaneToolbarVariant } from "@/features/canvas/components/DraftingPaneCanvas"
 
 const MIN_PREVIEW_ZOOM = 0.1
 const MAX_PREVIEW_ZOOM = 4
@@ -38,7 +38,7 @@ type CanvasProps = {
   layerEditingEnabled?: boolean
   previewLocked?: boolean
   fitCanvasToViewport?: boolean
-  theme?: DesktopThemeMode
+  theme?: ThemeMode
 }
 
 function clampPreviewZoom(value: number) {
@@ -95,7 +95,7 @@ export function Canvas({
               No QR codes
             </div>
           ) : (
-            <DraftingPaneSurface
+            <DraftingPaneCanvas
               activeCanvasTool={activeCanvasTool}
               fitCanvasToViewport={fitCanvasToViewport}
               interaction={{

@@ -5,17 +5,17 @@ import type { MutableRefObject } from "react"
 import type { DraftingLayerMenuAction } from "@/features/canvas/components/Pane"
 import {
   DRAFTING_LAYER_PASTE_OFFSET,
-} from "@/features/canvas/components/workspace-surface.constants"
+} from "@/features/canvas/components/drafting-canvas.constants"
 import {
   findDraftingLayerById,
   getDraftingLayerClipboardPayload,
   parseDraftingLayerClipboardPayload,
   patchDraftingLayerById,
-} from "@/features/canvas/components/workspace-surface-helpers"
+} from "@/features/canvas/components/drafting-canvas-operations"
 import type {
-  WorkspaceSurfaceSetters,
-  WorkspaceSurfaceState,
-} from "@/features/canvas/components/workspace-surface-reducer"
+  DraftingCanvasSetters,
+  DraftingCanvasState,
+} from "@/features/canvas/components/drafting-canvas-reducer"
 import { createQrControls } from "@/features/canvas/canvas/qr-controls"
 import type { DraftingShortcutKeyboardState } from "@/features/canvas/canvas/use-drafting-shortcuts"
 import {
@@ -62,7 +62,7 @@ import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/i
 import type { QraftyState } from "@/features/qr/model/state"
 
 type LayerActionState = Pick<
-  WorkspaceSurfaceState,
+  DraftingCanvasState,
   | "activeQrLayerId"
   | "activeQrNodeId"
   | "cardStateByNodeId"
@@ -76,7 +76,7 @@ type LayerActionState = Pick<
 >
 
 type LayerActionSetters = Pick<
-  WorkspaceSurfaceSetters,
+  DraftingCanvasSetters,
   | "setActiveQrLayerId"
   | "setActiveQrNodeId"
   | "setCardStateByNodeId"
@@ -99,7 +99,7 @@ export function useLayerActions({
   contentTypeByLayerId,
   draftingLayerClipboardRef,
   draftingQraftyState,
-  draftingSurfaceRef,
+  draftingCanvasRef,
   keyboardStateRef,
   layerStateByNodeId,
   shouldReplaceCurrentEntryRef,
@@ -127,7 +127,7 @@ export function useLayerActions({
     draftingLayerClipboardRef: MutableRefObject<string>
     draftingQraftyState: QraftyState
     activateQrLayer: (layerId: string) => void
-    draftingSurfaceRef: MutableRefObject<HTMLElement | null>
+    draftingCanvasRef: MutableRefObject<HTMLElement | null>
     shouldReplaceCurrentEntryRef: MutableRefObject<boolean>
     keyboardStateRef: MutableRefObject<DraftingShortcutKeyboardState>
     persistActiveQrLayerState: (nextState?: QraftyState) => void
@@ -145,7 +145,7 @@ export function useLayerActions({
   }
 
   function handlePaneSelection(_paneId: string) {
-    draftingSurfaceRef.current?.focus({ preventScroll: true })
+    draftingCanvasRef.current?.focus({ preventScroll: true })
   }
 
   function handlePaneQrClick(paneId: string) {
@@ -236,7 +236,7 @@ export function useLayerActions({
     }
 
     applyLayerSelection(duplicatedLayers.map((layer) => layer.id))
-    draftingSurfaceRef.current?.focus({ preventScroll: true })
+    draftingCanvasRef.current?.focus({ preventScroll: true })
   }
 
   function handleRemoveQrCode(layerId: string) {
@@ -302,7 +302,7 @@ export function useLayerActions({
       [activeQrNodeId]: [...layers.map(cloneDraftingCanvasLayer), nextLayer],
     }))
     selectSingleLayer(nextLayer.id)
-    draftingSurfaceRef.current?.focus({ preventScroll: true })
+    draftingCanvasRef.current?.focus({ preventScroll: true })
   }
 
   function handleAddTextLayer() {
@@ -360,7 +360,7 @@ export function useLayerActions({
       [paneId]: [...layers.map(cloneDraftingCanvasLayer), textLayer],
     }))
     selectSingleLayer(textLayer.id)
-    draftingSurfaceRef.current?.focus({ preventScroll: true })
+    draftingCanvasRef.current?.focus({ preventScroll: true })
   }
 
   function handleAddFrameCardLayer() {
@@ -386,7 +386,7 @@ export function useLayerActions({
     }))
     selectSingleLayer(cardLayerId)
     setDesktopRailTool("shape")
-    draftingSurfaceRef.current?.focus({ preventScroll: true })
+    draftingCanvasRef.current?.focus({ preventScroll: true })
   }
 
   function handleLayerSelect(
@@ -394,7 +394,7 @@ export function useLayerActions({
     layerId: string | null,
     options?: { additive?: boolean; preserveActiveTool?: boolean },
   ) {
-    draftingSurfaceRef.current?.focus({ preventScroll: true })
+    draftingCanvasRef.current?.focus({ preventScroll: true })
 
     if (layerId && isDraftingQrLayerId(layerId) && !options?.additive) {
       activateQrLayer(layerId)

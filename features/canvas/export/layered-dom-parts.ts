@@ -25,7 +25,7 @@ import {
 import { toQraftyQrConfig } from "@/features/qr/adapters/qrafty-config"
 import type { QraftyState } from "@/features/qr/model/state"
 import { getDraftingQrLayerLayout } from "@/features/qr/rendering/svg-extension"
-import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background.utils"
+import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background"
 
 import {
   collectIllustrationAssetPaths,

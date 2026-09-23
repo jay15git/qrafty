@@ -19,10 +19,10 @@ vi.mock("glimm/next", () => ({
 }))
 
 import { FloatingToolbar } from "@/features/shell/components/FloatingToolbar"
-import { DesktopSettingsToolbarShell } from "@/features/shell/components/DesktopSettingsToolbarShell"
-import { DesktopCuelumeProvider } from "@/features/shell/hooks/use-desktop-cuelume"
-import { getDesktopAppearanceSnapshot } from "@/features/shell/model/appearance"
-import { DEFAULT_DESKTOP_LAYERS_SETTINGS } from "@/features/shell/model/desktop-toolbar-defaults"
+import { SettingsToolbarShell } from "@/features/shell/components/SettingsToolbarShell"
+import { CuelumeProvider } from "@/features/shell/hooks/use-cuelume"
+import { getAppearanceSnapshot } from "@/features/shell/model/appearance"
+import { DEFAULT_LAYERS_SETTINGS } from "@/features/shell/model/toolbar-defaults"
 import { DEFAULT_BACKGROUND_SHAPE_OPTIONS, QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS } from "@/features/qr/model/state"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr/styles/background-shapes"
 import { DOT_STYLE_OPTIONS } from "@/features/qr/styles/style-options"
@@ -31,7 +31,7 @@ import {
   SETTINGS_FILL_SOLID_PRESETS,
 } from "@/features/shell/inspector/settings-fill-presets"
 import { getCardGeneratedShaderDefinitions } from "@/features/canvas/rendering/paper-shader-definitions"
-import type { DesktopToolbarToolId } from "@/features/shell/model/desktop-toolbar-types"
+import type { ToolbarToolId } from "@/features/shell/model/toolbar-types"
 import {
   createDraftingShapeLayer,
   createDraftingTextLayer,
@@ -61,7 +61,7 @@ beforeEach(() => {
 describe("FloatingToolbar", () => {
   it("renders the new settings accordion in the inspector", async () => {
     const surface = await renderPrototype()
-    const inspector = surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')
+    const inspector = surface.container.querySelector('[data-slot="settings-inspector"]')
     const sectionHeaders = getAccordionHeaders(surface.container)
 
     expect(inspector).not.toBeNull()
@@ -73,8 +73,8 @@ describe("FloatingToolbar", () => {
       "Shape",
       "Background",
     ])
-    expect(surface.container.querySelector('[data-slot="desktop-inspector-accordion"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-prototype-canvas"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="inspector-accordion"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="prototype-canvas"]')).toBeNull()
   })
 
   it("opens a settings section from the accordion", async () => {
@@ -102,16 +102,16 @@ describe("FloatingToolbar", () => {
       colorHeader.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
-    const inspector = surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')
+    const inspector = surface.container.querySelector('[data-slot="settings-inspector"]')
 
     expect(inspector?.textContent).toContain("Color separately")
   })
 
   it("keeps the open accordion section when canvas activeTool changes", async () => {
-    let setActiveTool: ((toolId: DesktopToolbarToolId) => void) | null = null
+    let setActiveTool: ((toolId: ToolbarToolId) => void) | null = null
 
     function AccordionStickyProbe() {
-      const [activeTool, setTool] = useState<DesktopToolbarToolId>("content")
+      const [activeTool, setTool] = useState<ToolbarToolId>("content")
       const partialController: Partial<
         NonNullable<ComponentProps<typeof FloatingToolbar>>["controller"]
       > = { activeTool, onActiveToolChange: setTool }
@@ -121,7 +121,7 @@ describe("FloatingToolbar", () => {
       }, [])
 
       return (
-        <DesktopCuelumeProvider>
+        <CuelumeProvider>
           <FloatingToolbar
             controller={
               partialController as NonNullable<
@@ -129,7 +129,7 @@ describe("FloatingToolbar", () => {
               >["controller"]
             }
           />
-        </DesktopCuelumeProvider>
+        </CuelumeProvider>
       )
     }
 
@@ -157,9 +157,9 @@ describe("FloatingToolbar", () => {
     const layer = createDraftingTextLayer(NODE_ID, { text: "Hello" })
     const surface = await renderPrototype({
       controller: {
-        appearanceSnapshot: getDesktopAppearanceSnapshot(layer),
+        appearanceSnapshot: getAppearanceSnapshot(layer),
         layersSettings: {
-          ...DEFAULT_DESKTOP_LAYERS_SETTINGS,
+          ...DEFAULT_LAYERS_SETTINGS,
           selectedLayerId: layer.id,
         },
         onAppearancePatch: vi.fn(),
@@ -170,26 +170,26 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-border-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-shadows-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="layers-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-properties-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-transform-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-style-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-border-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-shadows-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-effects-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="appearance-island"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="settings-inspector"]')).not.toBeNull()
   })
 
   it("renders the inspector without the removed icon rail", async () => {
     const surface = await renderPrototype({ controller: { activeTool: "content" } })
-    const shell = surface.container.querySelector('[data-slot="desktop-left-toolbar-shell"]')
-    const rail = surface.container.querySelector('[data-slot="desktop-floating-toolbar"]')
-    const inspector = surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')
+    const shell = surface.container.querySelector('[data-slot="left-toolbar-shell"]')
+    const rail = surface.container.querySelector('[data-slot="floating-toolbar"]')
+    const inspector = surface.container.querySelector('[data-slot="settings-inspector"]')
 
     expect(shell).not.toBeNull()
     expect(rail).toBeNull()
-    expect(shell?.querySelector('[data-slot="desktopnew-settings-inspector"]')).toBe(inspector)
+    expect(shell?.querySelector('[data-slot="settings-inspector"]')).toBe(inspector)
     expect(inspector?.className).not.toContain("fixed")
     expect(inspector?.className).not.toContain("rounded-[20px]")
     expect(inspector?.className).not.toContain("bg-black/55")
@@ -207,39 +207,39 @@ describe("FloatingToolbar", () => {
 
   it("toggles the desktop prototype between dark and light mode", async () => {
     const surface = await renderPrototype()
-    const prototype = surface.container.querySelector('[data-slot="desktop-floating-toolbar-root"]')
-    const inspector = surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')
-    const dynamicIsland = surface.container.querySelector('[data-slot="desktop-dynamic-island"]')
+    const prototype = surface.container.querySelector('[data-slot="floating-toolbar-root"]')
+    const inspector = surface.container.querySelector('[data-slot="settings-inspector"]')
+    const dynamicIsland = surface.container.querySelector('[data-slot="dynamic-island"]')
 
-    expect(prototype?.getAttribute("data-desktop-theme")).toBe("dark")
-    expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
-    expect(inspector?.querySelector('[data-slot="desktop-theme-toggle"]')).not.toBeNull()
-    expect(inspector?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
-    expect(inspector?.querySelector('[data-slot="desktop-sounds-toggle"]')).not.toBeNull()
-    expect(dynamicIsland?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
-    expect(dynamicIsland?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
+    expect(prototype?.getAttribute("data-shell-theme")).toBe("dark")
+    expect(surface.container.querySelector('[data-slot="action-toolbar"]')).toBeNull()
+    expect(inspector?.querySelector('[data-slot="theme-toggle"]')).not.toBeNull()
+    expect(inspector?.querySelector('[data-slot="keyboard-shortcuts-trigger"]')).not.toBeNull()
+    expect(inspector?.querySelector('[data-slot="sounds-toggle"]')).not.toBeNull()
+    expect(dynamicIsland?.querySelector('[data-slot="theme-toggle"]')).toBeNull()
+    expect(dynamicIsland?.querySelector('[data-slot="keyboard-shortcuts-trigger"]')).toBeNull()
     expect(dynamicIsland?.querySelector('button[aria-label="Undo"]')).toBeNull()
     expect(dynamicIsland?.querySelector('button[aria-label="Redo"]')).toBeNull()
   })
 
   it("places a pill download button in the top-right utility toolbar", async () => {
     const surface = await renderPrototype()
-    const utilityToolbar = surface.container.querySelector('[data-slot="desktop-utility-toolbar"]')
+    const utilityToolbar = surface.container.querySelector('[data-slot="utility-toolbar"]')
 
-    expect(surface.container.querySelector('[data-slot="desktop-document-toolbar"]')).toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-download-trigger"]')).not.toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-sounds-toggle"]')).toBeNull()
-    const dynamicIsland = surface.container.querySelector('[data-slot="desktop-dynamic-island"]')
-    expect(dynamicIsland?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
-    expect(dynamicIsland?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="document-toolbar"]')).toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="download-trigger"]')).not.toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="save-trigger"]')).toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="keyboard-shortcuts-trigger"]')).toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="theme-toggle"]')).toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="sounds-toggle"]')).toBeNull()
+    const dynamicIsland = surface.container.querySelector('[data-slot="dynamic-island"]')
+    expect(dynamicIsland?.querySelector('[data-slot="keyboard-shortcuts-trigger"]')).toBeNull()
+    expect(dynamicIsland?.querySelector('[data-slot="theme-toggle"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-compose-toolbar"]')).toBeNull()
   })
   it("shows the QRafty brand mark in Caveat at the top-left", async () => {
     const surface = await renderPrototype()
-    const brandMark = surface.container.querySelector('[data-slot="desktop-brand-mark"]')
+    const brandMark = surface.container.querySelector('[data-slot="brand-mark"]')
 
     expect(brandMark?.textContent).toBe("QRafty")
     expect(brandMark?.tagName).toBe("A")
@@ -247,7 +247,7 @@ describe("FloatingToolbar", () => {
     expect(brandMark?.className).toContain("font-caveat")
     expect(
       surface.container.querySelector(
-        '[data-slot="desktopnew-settings-inspector"] [data-slot="desktop-brand-mark-anchor"]',
+        '[data-slot="settings-inspector"] [data-slot="brand-mark-anchor"]',
       ),
     ).not.toBeNull()
   })
@@ -269,12 +269,12 @@ describe("FloatingToolbar", () => {
     })
     const inspector = getRequiredElement(
       surface.container,
-      '[data-slot="desktopnew-settings-inspector"]',
+      '[data-slot="settings-inspector"]',
     )
-    const utilityToolbar = surface.container.querySelector('[data-slot="desktop-utility-toolbar"]')
+    const utilityToolbar = surface.container.querySelector('[data-slot="utility-toolbar"]')
 
-    expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-dynamic-island-anchor"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="action-toolbar"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="dynamic-island-anchor"]')).not.toBeNull()
     expect(utilityToolbar?.className).toContain("min-h-11")
     expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").textContent?.trim()).toBe(
       "Download",
@@ -282,7 +282,7 @@ describe("FloatingToolbar", () => {
     expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").className).toContain(
       "rounded-full",
     )
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="save-trigger"]')).toBeNull()
 
     await act(async () => {
       getRequiredButton(inspector, "Undo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
@@ -298,12 +298,12 @@ describe("FloatingToolbar", () => {
     })
 
     await vi.waitFor(() => {
-      expect(document.querySelector('[data-slot="desktop-export-download-confirm"]')).not.toBeNull()
+      expect(document.querySelector('[data-slot="export-download-confirm"]')).not.toBeNull()
     })
 
     await act(async () => {
       document
-        .querySelector('[data-slot="desktop-export-download-confirm"]')
+        .querySelector('[data-slot="export-download-confirm"]')
         ?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
@@ -312,16 +312,16 @@ describe("FloatingToolbar", () => {
 
   it("keeps the settings toolbar expanded", async () => {
     const surface = await renderWithAsyncJsdomRoot(
-      <DesktopSettingsToolbarShell
+      <SettingsToolbarShell
           showInspector
-          inspector={<div data-slot="desktop-floating-inspector">Inspector</div>}
+          inspector={<div data-slot="floating-inspector">Inspector</div>}
         />
     )
-    const shell = getRequiredElement(surface.container, '[data-slot="desktop-left-toolbar-shell"]')
+    const shell = getRequiredElement(surface.container, '[data-slot="left-toolbar-shell"]')
 
-    expect(shell.querySelector('[data-slot="desktop-floating-inspector"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-sidebar-toggle"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-toolbar-brand"]')).toBeNull()
+    expect(shell.querySelector('[data-slot="floating-inspector"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="sidebar-toggle"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="toolbar-brand"]')).toBeNull()
   })
 
   it("renders layers and properties triggers in the dynamic island when a layer is selected", async () => {
@@ -330,9 +330,9 @@ describe("FloatingToolbar", () => {
     const surface = await renderPrototype({
       controller: {
         activeTool: null,
-        appearanceSnapshot: getDesktopAppearanceSnapshot(layer),
+        appearanceSnapshot: getAppearanceSnapshot(layer),
         layersSettings: {
-          ...DEFAULT_DESKTOP_LAYERS_SETTINGS,
+          ...DEFAULT_LAYERS_SETTINGS,
           selectedLayerId: layer.id,
         },
         onAppearancePatch,
@@ -345,16 +345,16 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-border-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-shadows-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-toolbar"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-appearance-outline-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="layers-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-properties-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-transform-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-style-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-border-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-shadows-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-effects-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-toolbar"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="appearance-island"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="appearance-outline-trigger"]')).toBeNull()
   })
 
   it("shows the border trigger for shape layers but not text layers", async () => {
@@ -362,7 +362,7 @@ describe("FloatingToolbar", () => {
     const surface = await renderPrototype({
       controller: {
         activeTool: null,
-        appearanceSnapshot: getDesktopAppearanceSnapshot(shapeLayer),
+        appearanceSnapshot: getAppearanceSnapshot(shapeLayer),
         onAppearancePatch: vi.fn(),
         onElementLayerPatch: vi.fn(),
         selectedAppearanceLayer: shapeLayer,
@@ -372,7 +372,7 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-layer-border-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-border-trigger"]')).not.toBeNull()
   })
 
   it("shows the border trigger for a qr layer with a background shape", async () => {
@@ -380,7 +380,7 @@ describe("FloatingToolbar", () => {
     const surface = await renderPrototype({
       controller: {
         activeTool: null,
-        appearanceSnapshot: getDesktopAppearanceSnapshot(qrLayer, {
+        appearanceSnapshot: getAppearanceSnapshot(qrLayer, {
           qrBackgroundShapeId: "leaf",
           qrBackgroundShapeOptions: DEFAULT_BACKGROUND_SHAPE_OPTIONS,
         }),
@@ -391,7 +391,7 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-layer-border-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="layer-border-trigger"]')).not.toBeNull()
   })
 
   it("shows the scan safety badge in the settings panel header", async () => {
@@ -408,11 +408,11 @@ describe("FloatingToolbar", () => {
     })
     const inspector = getRequiredElement(
       surface.container,
-      '[data-slot="desktopnew-settings-inspector"]',
+      '[data-slot="settings-inspector"]',
     )
-    const badge = inspector.querySelector('[data-slot="desktop-scan-safety-badge"]')
+    const badge = inspector.querySelector('[data-slot="scan-safety-badge"]')
 
-    expect(surface.container.querySelector('[data-slot="desktop-scan-safety-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="scan-safety-trigger"]')).toBeNull()
     expect(badge).not.toBeNull()
     expect(badge?.getAttribute("data-status")).toBe("invalid")
     expect(badge?.textContent).toContain("Scan Unsafe")
@@ -424,15 +424,15 @@ describe("FloatingToolbar", () => {
 
     const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]')
     expect(railRoot).not.toBeNull()
-    expect(railRoot?.className).toContain("desktopnew-root")
-    expect(railRoot?.getAttribute("data-desktop-theme")).toBe("dark")
+    expect(railRoot?.className).toContain("inspector-root")
+    expect(railRoot?.getAttribute("data-shell-theme")).toBe("dark")
     expect(railRoot?.getAttribute("data-theme")).toBe("dark")
     expect(surface.container.querySelector('[data-slot="mobile-workspace-top-bar"]')).not.toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-left-toolbar-shell"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-dynamic-island-anchor"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="settings-inspector"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="left-toolbar-shell"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="dynamic-island-anchor"]')).toBeNull()
     expect(
-      surface.container.querySelector('[data-slot="desktop-floating-toolbar-root"]')?.getAttribute(
+      surface.container.querySelector('[data-slot="floating-toolbar-root"]')?.getAttribute(
         "data-mobile-workspace",
       ),
     ).toBe("true")
@@ -888,12 +888,12 @@ async function renderPrototype({
   theme?: "light" | "dark"
 } = {}) {
   return renderWithAsyncJsdomRoot(
-    <DesktopCuelumeProvider>
+    <CuelumeProvider>
       <FloatingToolbar
         controller={controller as NonNullable<ComponentProps<typeof FloatingToolbar>>["controller"]}
         theme={theme}
       />
-    </DesktopCuelumeProvider>,
+    </CuelumeProvider>,
   )
 }
 

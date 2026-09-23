@@ -1,6 +1,6 @@
-/* Pencil design tokens — scoped to /desktopnew only. */
+/* Pencil design tokens — scoped to the Inspector. */
 
-.desktopnew-root {
+.inspector-root {
   color-scheme: dark;
   --overlay: 255 255 255;
   --focus-ring: #6b97ff;
@@ -68,7 +68,7 @@
 }
 
 /* Motion + interaction tokens — shared by in-tree settings and portalled surfaces. */
-:is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover) {
+:is(.inspector-root, .dn-portal-surface, .inspector-popover-content, .inspector-fill-popover) {
   --type-caption: 0.625rem;
   --type-meta: 0.6875rem;
   --type-value: 0.75rem;
@@ -94,7 +94,7 @@
   --tabs-ease: var(--ease-out);
 }
 
-.desktopnew-root[data-theme="light"] {
+.inspector-root[data-theme="light"] {
   color-scheme: light;
   --overlay: 0 0 0;
   --focus-ring: #6b97ff;
@@ -130,7 +130,7 @@
 }
 
 /* Embedded in /desktop toolbar — same token host, no preview padding. */
-.desktopnew-root.desktopnew-embedded {
+.inspector-root.inspector-embedded {
   display: flex;
   min-height: 0;
   height: 100%;
@@ -142,12 +142,12 @@
   background: transparent;
 }
 
-.desktopnew-root.desktopnew-embedded[data-theme="dark"] {
+.inspector-root.inspector-embedded[data-theme="dark"] {
   background: transparent;
   --scroll-edge-fade-color: #000000;
 }
 
-.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-panel {
+.inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-panel {
   width: 100%;
   border: none;
   border-radius: 0;
@@ -155,9 +155,9 @@
   background: transparent;
 }
 
-.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-scroll,
-.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-scroll [data-slot="scroll-area-viewport"],
-[data-slot="desktopnew-settings-inspector"] > .desktopnew-root.desktopnew-embedded[data-theme="dark"] {
+.inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-scroll,
+.inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-scroll [data-slot="scroll-area-viewport"],
+[data-slot="settings-inspector"] > .inspector-root.inspector-embedded[data-theme="dark"] {
   background: transparent;
 }
 
@@ -178,11 +178,11 @@
   }
 }
 
-.desktopnew-root.desktopnew-embedded[data-theme="light"] {
+.inspector-root.inspector-embedded[data-theme="light"] {
   --scroll-edge-fade-color: #f0f1f2;
 }
 
-.desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-panel {
+.inspector-root.inspector-embedded[data-theme="light"] .dn-settings-panel {
   width: 100%;
   border: none;
   border-radius: 0;
@@ -190,18 +190,18 @@
   background: transparent;
 }
 
-.desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-scroll,
-.desktopnew-root.desktopnew-embedded[data-theme="light"] .dn-settings-scroll [data-slot="scroll-area-viewport"] {
+.inspector-root.inspector-embedded[data-theme="light"] .dn-settings-scroll,
+.inspector-root.inspector-embedded[data-theme="light"] .dn-settings-scroll [data-slot="scroll-area-viewport"] {
   background: transparent;
 }
 
-[data-slot="desktopnew-settings-inspector"] {
+[data-slot="settings-inspector"] {
   height: 100%;
   min-height: 0;
   min-width: 0;
 }
 
-[data-slot="desktopnew-settings-inspector"] > .desktopnew-root[data-theme="light"] {
+[data-slot="settings-inspector"] > .inspector-root[data-theme="light"] {
   height: 100%;
   min-height: 0;
   width: 100%;
@@ -209,13 +209,13 @@
   color: var(--fg);
 }
 
-/* Keep desktopnew elastic sliders on dn tokens when mounted in /desktop workspace. */
-[data-slot="desktopnew-settings-inspector"] [data-slot="elastic-slider"],
-[data-slot="desktopnew-settings-inspector"] .desktopnew-root .dn-settings-elastic-slider,
-.desktopnew-root [data-slot="elastic-slider"] {
+/* Keep inspector elastic sliders on dn tokens when mounted in the workspace. */
+[data-slot="settings-inspector"] [data-slot="elastic-slider"],
+[data-slot="settings-inspector"] .inspector-root .dn-settings-elastic-slider,
+.inspector-root [data-slot="elastic-slider"] {
 }
 
-[data-slot="desktop-left-toolbar-shell"] [data-slot="desktopnew-settings-inspector"] {
+[data-slot="left-toolbar-shell"] [data-slot="settings-inspector"] {
   padding-top: 0;
   padding-inline-end: 0;
   box-sizing: border-box;
@@ -476,8 +476,8 @@
   transform: scale(1);
 }
 
-.desktopnew-root .dn-preview-tile [data-slot^="style-preview"],
-.desktopnew-root .dn-preview-tile .dn-preview-icon {
+.inspector-root .dn-preview-tile [data-slot^="style-preview"],
+.inspector-root .dn-preview-tile .dn-preview-icon {
   color: var(--fg);
 }
 
@@ -486,7 +486,7 @@
   filter: none;
 }
 
-.desktopnew-root[data-theme="dark"] .dn-qr-style-option-preview {
+.inspector-root[data-theme="dark"] .dn-qr-style-option-preview {
   opacity: 1;
   filter: invert(1);
 }
@@ -496,13 +496,13 @@
   color: rgb(24 24 27 / 0.8);
 }
 
-.desktopnew-root[data-theme="light"] .dn-style-preview-icon,
-.desktopnew-root[data-theme="light"] [data-slot^="style-preview"] {
+.inspector-root[data-theme="light"] .dn-style-preview-icon,
+.inspector-root[data-theme="light"] [data-slot^="style-preview"] {
   color: color-mix(in srgb, var(--fg) 80%, transparent);
 }
 
-.desktopnew-root[data-theme="dark"] .dn-style-preview-icon,
-.desktopnew-root[data-theme="dark"] [data-slot^="style-preview"] {
+.inspector-root[data-theme="dark"] .dn-style-preview-icon,
+.inspector-root[data-theme="dark"] [data-slot^="style-preview"] {
   color: #ffffff;
 }
 
@@ -661,12 +661,12 @@
 }
 
 /* Horizontal preview rows — edge fades (override tight default). */
-.desktopnew-root [data-slot="scroll-area"][data-orientation="horizontal"] {
+.inspector-root [data-slot="scroll-area"][data-orientation="horizontal"] {
   --scroll-edge-cue-band-size: 3.75rem;
 }
 
 @supports (background: color-mix(in srgb, #000 50%, #fff)) {
-  .desktopnew-root [data-slot="scroll-area"][data-orientation="horizontal"] .scroll-edge-cue-gradient {
+  .inspector-root [data-slot="scroll-area"][data-orientation="horizontal"] .scroll-edge-cue-gradient {
     background: linear-gradient(
       var(--scroll-edge-cue-direction, to right),
       transparent 0%,
@@ -762,9 +762,9 @@
   transform: none;
 }
 
-.desktopnew-root .dn-settings-row:hover,
-.desktopnew-root .dn-settings-row:focus-visible,
-.desktopnew-root .dn-settings-row:active {
+.inspector-root .dn-settings-row:hover,
+.inspector-root .dn-settings-row:focus-visible,
+.inspector-root .dn-settings-row:active {
   background: var(--settings-control) !important;
   color: var(--fg) !important;
   box-shadow: none !important;
@@ -776,14 +776,14 @@
   color: var(--bg) !important;
 }
 
-.desktopnew-root .dn-settings-primary:hover,
-.desktopnew-root .dn-settings-primary:focus-visible,
-.desktopnew-root .dn-settings-primary:active {
+.inspector-root .dn-settings-primary:hover,
+.inspector-root .dn-settings-primary:focus-visible,
+.inspector-root .dn-settings-primary:active {
   background: var(--fg) !important;
   color: var(--bg) !important;
 }
 
-.desktopnew-root .dn-settings-input,
+.inspector-root .dn-settings-input,
 .dn-settings-input {
   min-height: var(--settings-control-height);
   height: var(--settings-control-height);
@@ -800,8 +800,8 @@
   appearance: none;
 }
 
-.desktopnew-root .dn-settings-input:focus,
-.desktopnew-root .dn-settings-input:focus-visible,
+.inspector-root .dn-settings-input:focus,
+.inspector-root .dn-settings-input:focus-visible,
 .dn-settings-input:focus,
 .dn-settings-input:focus-visible {
   border-color: var(--line);
@@ -841,16 +841,16 @@
 
 /* ── Sliders ─────────────────────────────────────────────────────── */
 
-.desktopnew-root .dn-settings-elastic-slider {
+.inspector-root .dn-settings-elastic-slider {
 }
 
-.desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
+.inspector-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
   border-radius: var(--radius-sm);
   corner-shape: squircle;
   border: none;
 }
 
-.desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-label"] {
+.inspector-root .dn-settings-elastic-slider [data-slot="elastic-slider-label"] {
   font-family: inherit;
   font-size: var(--type-meta);
   font-weight: var(--type-label-weight);
@@ -859,7 +859,7 @@
   color: var(--type-label-color) !important;
 }
 
-.desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-value"] {
+.inspector-root .dn-settings-elastic-slider [data-slot="elastic-slider-value"] {
   font-family: inherit;
   font-size: var(--type-value);
   font-weight: var(--type-value-weight);
@@ -869,11 +869,11 @@
   color: var(--type-value-color) !important;
 }
 
-.desktopnew-root .dn-settings-row [data-slot="button"] {
+.inspector-root .dn-settings-row [data-slot="button"] {
   line-height: 1;
 }
 
-.desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-handle"] {
+.inspector-root .dn-settings-elastic-slider [data-slot="elastic-slider-handle"] {
   width: 3px;
   height: 1.125rem;
   border-radius: 999px;
@@ -881,16 +881,16 @@
 }
 
 /* Portalled settings popovers — same slider/switch/row tokens as in-tree settings. */
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider {
+:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider {
 }
 
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
+:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
   border-radius: var(--radius-sm);
   corner-shape: squircle;
   border: none;
 }
 
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-label"] {
+:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-label"] {
   font-family: inherit;
   font-size: var(--type-meta);
   font-weight: var(--type-label-weight);
@@ -899,7 +899,7 @@
   color: var(--type-label-color) !important;
 }
 
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-value"] {
+:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-value"] {
   font-family: inherit;
   font-size: var(--type-value);
   font-weight: var(--type-value-weight);
@@ -909,34 +909,34 @@
   color: var(--type-value-color) !important;
 }
 
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-handle"] {
+:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-handle"] {
   width: 3px;
   height: 1.125rem;
   border-radius: 999px;
   opacity: 0.92;
 }
 
-:is(.desktopnew-popover-content, .dn-portal-surface) [data-slot="switch"] {
+:is(.inspector-popover-content, .dn-portal-surface) [data-slot="switch"] {
   transition: background-color var(--motion-ui) var(--ease-out) !important;
 }
 
-:is(.desktopnew-popover-content, .dn-portal-surface) [data-slot="switch"][data-state="checked"] {
+:is(.inspector-popover-content, .dn-portal-surface) [data-slot="switch"][data-state="checked"] {
   background: var(--fg) !important;
 }
 
-:is(.desktopnew-popover-content, .dn-portal-surface) [data-slot="switch"][data-state="unchecked"] {
+:is(.inspector-popover-content, .dn-portal-surface) [data-slot="switch"][data-state="unchecked"] {
   background: var(--line) !important;
 }
 
-:is(.desktopnew-popover-content, .dn-portal-surface) [data-slot="switch-thumb"] {
+:is(.inspector-popover-content, .dn-portal-surface) [data-slot="switch-thumb"] {
   background: var(--bg) !important;
   border-color: color-mix(in srgb, var(--fg) 12%, transparent) !important;
   backface-visibility: hidden;
 }
 
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-row:hover,
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-row:focus-visible,
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-row:active {
+:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-row:hover,
+:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-row:focus-visible,
+:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-row:active {
   background: var(--settings-control) !important;
   color: var(--fg) !important;
   box-shadow: none !important;
@@ -945,19 +945,19 @@
 
 /* ── Switch ──────────────────────────────────────────────────────── */
 
-.desktopnew-root [data-slot="switch"] {
+.inspector-root [data-slot="switch"] {
   transition: background-color var(--motion-ui) var(--ease-out) !important;
 }
 
-.desktopnew-root [data-slot="switch"][data-state="checked"] {
+.inspector-root [data-slot="switch"][data-state="checked"] {
   background: var(--fg) !important;
 }
 
-.desktopnew-root [data-slot="switch"][data-state="unchecked"] {
+.inspector-root [data-slot="switch"][data-state="unchecked"] {
   background: var(--line) !important;
 }
 
-.desktopnew-root [data-slot="switch-thumb"] {
+.inspector-root [data-slot="switch-thumb"] {
   background: var(--bg) !important;
   border-color: color-mix(in srgb, var(--fg) 12%, transparent) !important;
   backface-visibility: hidden;
@@ -986,7 +986,7 @@
   pointer-events: none;
 }
 
-.desktopnew-root[data-theme="dark"] .t-tabs-pill {
+.inspector-root[data-theme="dark"] .t-tabs-pill {
   background: #ffffff;
 }
 
@@ -1002,7 +1002,7 @@
   background: color-mix(in srgb, var(--fg) 10%, var(--bg));
 }
 
-.desktopnew-root[data-theme="dark"] .t-tabs--muted .t-tabs-pill--muted {
+.inspector-root[data-theme="dark"] .t-tabs--muted .t-tabs-pill--muted {
   background: color-mix(in srgb, var(--fg) 16%, #1a1a1a);
 }
 
@@ -1010,7 +1010,7 @@
   color: var(--fg);
 }
 
-.desktopnew-root[data-theme="dark"] .t-tabs--muted .dn-segment-tab--muted[aria-selected="true"] {
+.inspector-root[data-theme="dark"] .t-tabs--muted .dn-segment-tab--muted[aria-selected="true"] {
   color: #f5f5f5;
 }
 
@@ -1019,7 +1019,7 @@
   color: #ffffff;
 }
 
-.desktopnew-root[data-theme="dark"] .dn-segment-tab[aria-selected="true"] {
+.inspector-root[data-theme="dark"] .dn-segment-tab[aria-selected="true"] {
   color: #0a0a0a;
 }
 
@@ -1151,8 +1151,8 @@
 
 /* Popover surfaces tween width/height when their content changes size —
  * transitions.dev card-resize. interpolate-size lets auto↔auto animate. */
-.desktopnew-popover-content,
-.desktopnew-fill-popover,
+.inspector-popover-content,
+.inspector-fill-popover,
 .dn-accordion-popover-panel {
   interpolate-size: allow-keywords;
   transition:
@@ -1161,14 +1161,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .desktopnew-popover-content,
-  .desktopnew-fill-popover,
+  .inspector-popover-content,
+  .inspector-fill-popover,
   .dn-accordion-popover-panel {
     transition: none !important;
   }
 }
 
-.dn-accordion-popover-panel.desktopnew-fill-popover .dn-fill-picker-panel {
+.dn-accordion-popover-panel.inspector-fill-popover .dn-fill-picker-panel {
   max-height: min(72dvh, calc(100% - 0.5rem));
   border: 0 !important;
   box-shadow: none !important;
@@ -1184,14 +1184,14 @@
 
 /* Radix fill popovers render on a transparent shell — the chrome (header +
  * picker) needs its own surface so the title is readable over the canvas. */
-.desktopnew-fill-popover .dn-settings-popover-shell {
+.inspector-fill-popover .dn-settings-popover-shell {
   background: var(--surface);
   border-radius: var(--radius-md);
   corner-shape: squircle;
   box-shadow: 0 12px 40px rgb(0 0 0 / 18%);
 }
 
-.desktopnew-fill-popover[data-theme="dark"] .dn-settings-popover-shell {
+.inspector-fill-popover[data-theme="dark"] .dn-settings-popover-shell {
   box-shadow: 0 12px 48px rgb(0 0 0 / 50%);
 }
 
@@ -1256,14 +1256,14 @@
   padding: 0 0 0.5rem;
 }
 
-:is(.desktopnew-fill-popover, .desktopnew-popover-content, .dn-accordion-popover-panel)
+:is(.inspector-fill-popover, .inspector-popover-content, .dn-accordion-popover-panel)
   .dn-settings-popover-body-fill
   .dn-fill-picker-panel {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
 
-:is(.desktopnew-fill-popover, .dn-accordion-popover-panel)
+:is(.inspector-fill-popover, .dn-accordion-popover-panel)
   .dn-settings-popover-body-fill
   .dn-fill-picker-panel
   [data-slot="fill-picker"]
@@ -1271,7 +1271,7 @@
   padding: 0.625rem;
 }
 
-:is(.desktopnew-fill-popover, .dn-accordion-popover-panel)
+:is(.inspector-fill-popover, .dn-accordion-popover-panel)
   .dn-settings-popover-body-fill
   [data-slot="palette-color-stop-list"] {
   padding-inline: 0;
@@ -1348,7 +1348,7 @@
   --tabs-ease: var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
 }
 
-.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-accordion [role="region"] {
+.inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-accordion [role="region"] {
   --bg: var(--surface, #111111);
   --background: var(--surface, #111111);
   --scroll-edge-fade-color: var(--surface, #111111);
@@ -1356,7 +1356,7 @@
   --tabs-ease: var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
 }
 
-.desktopnew-root.desktopnew-embedded[data-theme="dark"]
+.inspector-root.inspector-embedded[data-theme="dark"]
   .dn-settings-accordion
   [role="region"]
   .t-tabs-pill:not(.t-tabs-pill--muted) {
@@ -1428,11 +1428,11 @@
 }
 
 /* Card surface lives on the accordion stack; item rows stay transparent. */
-.desktopnew-root.desktopnew-embedded .dn-settings-accordion > div {
+.inspector-root.inspector-embedded .dn-settings-accordion > div {
   background: #ffffff;
 }
 
-.desktopnew-root.desktopnew-embedded[data-theme="dark"] .dn-settings-accordion > div {
+.inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-accordion > div {
   background: var(--surface, #111111);
 }
 
@@ -1492,7 +1492,7 @@
   flex-shrink: 0;
 }
 
-/* ── Popovers (portalled outside .desktopnew-root) ───────────────── */
+/* ── Popovers (portalled outside .inspector-root) ───────────────── */
 
 @keyframes dn-portal-in {
   from {
@@ -1519,22 +1519,22 @@
 }
 
 .dn-portal-surface[data-side="top"],
-.desktopnew-fill-popover[data-side="top"] {
+.inspector-fill-popover[data-side="top"] {
   transform-origin: bottom center;
 }
 
 .dn-portal-surface[data-side="bottom"],
-.desktopnew-fill-popover[data-side="bottom"] {
+.inspector-fill-popover[data-side="bottom"] {
   transform-origin: top center;
 }
 
 .dn-portal-surface[data-side="left"],
-.desktopnew-fill-popover[data-side="left"] {
+.inspector-fill-popover[data-side="left"] {
   transform-origin: right center;
 }
 
 .dn-portal-surface[data-side="right"],
-.desktopnew-fill-popover[data-side="right"] {
+.inspector-fill-popover[data-side="right"] {
   transform-origin: left center;
 }
 
@@ -1548,15 +1548,15 @@
   animation: dn-portal-out var(--motion-exit) var(--ease-out) both !important;
 }
 
-.desktopnew-fill-popover[data-state="open"] {
+.inspector-fill-popover[data-state="open"] {
   animation: dn-portal-in var(--motion-enter) var(--ease-out) both !important;
 }
 
-.desktopnew-fill-popover[data-state="closed"] {
+.inspector-fill-popover[data-state="closed"] {
   animation: dn-portal-out var(--motion-exit) var(--ease-out) both !important;
 }
 
-.desktopnew-popover-content {
+.inspector-popover-content {
   border: none !important;
   background: #fafafa !important;
   color: #18181b !important;
@@ -1613,7 +1613,7 @@
   --ring: var(--fg);
 }
 
-.desktopnew-popover-content[data-theme="dark"] {
+.inspector-popover-content[data-theme="dark"] {
   border: none !important;
   background: #111111 !important;
   color: #f5f5f5 !important;
@@ -1673,7 +1673,7 @@
   box-shadow: none !important;
 }
 
-.desktopnew-crop-dialog > button.absolute {
+.inspector-crop-dialog > button.absolute {
   top: 0.75rem;
   right: 0.75rem;
   border-radius: var(--radius-xs);
@@ -1681,16 +1681,16 @@
   opacity: 1;
 }
 
-.desktopnew-crop-dialog > button.absolute:hover,
-.desktopnew-crop-dialog > button.absolute:focus-visible {
+.inspector-crop-dialog > button.absolute:hover,
+.inspector-crop-dialog > button.absolute:focus-visible {
   background: var(--settings-control);
   color: var(--fg);
   opacity: 1;
 }
 
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-primary:hover,
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-primary:focus-visible,
-:is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-primary:active {
+:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-primary:hover,
+:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-primary:focus-visible,
+:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-primary:active {
   background: var(--fg) !important;
   color: var(--bg) !important;
 }
@@ -1719,7 +1719,7 @@
 
 /* Search field uses the shared settings input; icon reserves left padding.
    Borderless like the content-accordion fields. */
-:is(.desktopnew-popover-content, .dn-portal-surface, .dn-settings-accordion)
+:is(.inspector-popover-content, .dn-portal-surface, .dn-settings-accordion)
   .dn-logo-icon-picker
   .dn-settings-input {
   min-height: var(--settings-control-height);
@@ -2119,7 +2119,7 @@
 }
 
 /* Fill picker popover: transparent Radix shell, one neutral panel on FillPicker.Root */
-.desktopnew-fill-popover {
+.inspector-fill-popover {
   --tw-shadow: 0 0 #0000;
   --tw-ring-shadow: 0 0 #0000;
   --tw-ring-offset-shadow: 0 0 #0000;
@@ -2154,7 +2154,7 @@
   --radius-lg: 14px;
 }
 
-.desktopnew-fill-popover[data-theme="dark"] {
+.inspector-fill-popover[data-theme="dark"] {
   --bg: #161616;
   --surface: #1d1d1d;
   --settings-control: #232323;
@@ -2164,7 +2164,7 @@
   --line: #2c2c2c;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel {
+.inspector-fill-popover .dn-fill-picker-panel {
   border: none !important;
   background: var(--surface) !important;
   color: var(--fg) !important;
@@ -2173,26 +2173,26 @@
   corner-shape: squircle;
 }
 
-.desktopnew-fill-popover[data-theme="dark"] .dn-fill-picker-panel {
+.inspector-fill-popover[data-theme="dark"] .dn-fill-picker-panel {
   box-shadow: none !important;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel > div {
+.inspector-fill-popover .dn-fill-picker-panel > div {
   gap: var(--space-stack);
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile {
+.inspector-fill-popover .dn-fill-picker-panel .dn-option-tile {
   background: transparent;
   border: 2px solid transparent;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile[aria-pressed="true"],
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-option-tile[data-selected="true"] {
+.inspector-fill-popover .dn-fill-picker-panel .dn-option-tile[aria-pressed="true"],
+.inspector-fill-popover .dn-fill-picker-panel .dn-option-tile[data-selected="true"] {
   background: transparent;
 }
 
 /* Fill picker — calm accordion-aligned surfaces */
-:is(.desktopnew-fill-popover, .fill-picker-portal) {
+:is(.inspector-fill-popover, .fill-picker-portal) {
   --color-picker-control-border: var(--line);
   --color-picker-control-bg: var(--settings-control);
   --color-picker-control-hover-bg: var(--settings-control-hover);
@@ -2208,43 +2208,43 @@
 }
 
 /* Fill picker — borderless accordion surfaces */
-.desktopnew-fill-popover .dn-fill-picker-panel [data-slot="fill-picker"],
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-root {
+.inspector-fill-popover .dn-fill-picker-panel [data-slot="fill-picker"],
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-root {
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-root > div {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-root > div {
   gap: var(--space-stack);
   padding: 0.625rem;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-mode-tabs {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-mode-tabs {
   width: 100%;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-mode-tabs .t-tabs-pill {
+.inspector-fill-popover .dn-fill-picker-mode-tabs .t-tabs-pill {
   background: #171717;
 }
 
-.desktopnew-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .t-tabs-pill {
+.inspector-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .t-tabs-pill {
   background: #ffffff;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
+.inspector-fill-popover .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
   color: #ffffff;
 }
 
-.desktopnew-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
+.inspector-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
   color: #0a0a0a;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-pane {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-pane {
   gap: 0.5rem;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-area {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-area {
   border: 0 !important;
   border-radius: var(--radius-xs) !important;
   corner-shape: squircle;
@@ -2252,8 +2252,8 @@
   background-color: var(--settings-control) !important;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input,
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input:focus-within {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input,
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input:focus-within {
   height: var(--settings-control-height);
   border: 0 !important;
   border-radius: var(--radius-xs);
@@ -2265,18 +2265,18 @@
   --tw-ring-offset-shadow: 0 0 #0000;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input .bg-border {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input .bg-border {
   background: color-mix(in srgb, var(--line) 55%, transparent) !important;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input [data-slot="color-picker-channel-input-field"] {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input [data-slot="color-picker-channel-input-field"] {
   color: var(--type-value-color, var(--fg));
   font-size: var(--type-value);
   font-weight: var(--type-value-weight);
   letter-spacing: var(--tracking-tight);
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input [data-slot="color-picker-channel-input-format"] button {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input [data-slot="color-picker-channel-input-format"] button {
   min-width: 0;
   padding-inline: 0.5rem;
   color: var(--muted);
@@ -2300,23 +2300,23 @@
   color: var(--fg);
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider [data-slot="color-picker-hue"],
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider [data-slot="color-picker-alpha"] {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider [data-slot="color-picker-hue"],
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider [data-slot="color-picker-alpha"] {
   --tw-ring-shadow: 0 0 #0000;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider .rounded-full.border-2 {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider .rounded-full.border-2 {
   border-color: rgb(255 255 255 / 0.92) !important;
   box-shadow: 0 0 0 1px rgb(0 0 0 / 0.28) !important;
 }
 
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-xs,
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-sm,
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-md {
+:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-xs,
+:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-sm,
+:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-md {
   box-shadow: none !important;
 }
 
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal)
+:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal)
   :is(.rounded-md.border.font-mono, .rounded-lg.border.font-mono, .flex.h-8.items-stretch.overflow-hidden.rounded-md.border) {
   height: var(--settings-control-height);
   border: 0 !important;
@@ -2326,22 +2326,22 @@
   box-shadow: none !important;
 }
 
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal)
+:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal)
   :is(.rounded-md.border.font-mono, .rounded-lg.border.font-mono, .flex.h-8.items-stretch.overflow-hidden.rounded-md.border):focus-within {
   --tw-ring-shadow: 0 0 #0000;
   --tw-ring-offset-shadow: 0 0 #0000;
 }
 
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .bg-muted,
-:is(.desktopnew-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .bg-muted\/30 {
+:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .bg-muted,
+:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .bg-muted\/30 {
   background: var(--settings-control) !important;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-gradient-bar .border-border {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-gradient-bar .border-border {
   border-color: color-mix(in srgb, var(--line) 70%, transparent) !important;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-field {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-field {
   height: var(--settings-control-height);
   border: 0 !important;
   border-radius: var(--radius-xs);
@@ -2350,17 +2350,17 @@
   box-shadow: none !important;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-group {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-group {
   min-height: var(--settings-control-height);
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-pad {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-pad {
   border: 0 !important;
   background: var(--settings-control) !important;
   box-shadow: none !important;
 }
 
-.desktopnew-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-pad .bg-foreground {
+.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-pad .bg-foreground {
   background: var(--fg) !important;
 }
 
@@ -2499,12 +2499,12 @@
   .dn-squircle-sm,
   .dn-squircle-md,
   .dn-squircle-lg,
-  .desktopnew-fill-popover .dn-fill-picker-panel {
+  .inspector-fill-popover .dn-fill-picker-panel {
     corner-shape: round;
   }
 
-  .desktopnew-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"],
-  :is(.desktopnew-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
+  .inspector-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"],
+  :is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
     corner-shape: round;
   }
 }
@@ -2516,8 +2516,8 @@
   .t-tabs-pill,
   .t-tab,
   .dn-settings-accordion > div > div,
-  .desktopnew-root [data-slot="switch"],
-  .desktopnew-root [data-slot="switch-thumb"] {
+  .inspector-root [data-slot="switch"],
+  .inspector-root [data-slot="switch-thumb"] {
     transition: none !important;
   }
 
@@ -2525,8 +2525,8 @@
   .dn-portal-surface[data-state="closed"],
   .dn-portal-surface[data-open],
   .dn-portal-surface[data-closed],
-  .desktopnew-fill-popover[data-state="open"],
-  .desktopnew-fill-popover[data-state="closed"] {
+  .inspector-fill-popover[data-state="open"],
+  .inspector-fill-popover[data-state="closed"] {
     animation: none !important;
   }
 

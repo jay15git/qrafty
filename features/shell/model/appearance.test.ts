@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  buildDesktopAppearancePatch,
-  getDesktopAppearanceSnapshot,
+  buildAppearancePatch,
+  getAppearanceSnapshot,
 } from "@/features/shell/model/appearance"
 import { DEFAULT_BACKGROUND_SHAPE_OPTIONS } from "@/features/qr/model/state"
 import { DEFAULT_DRAFTING_CARD_STATE } from "@/features/canvas/model/card-state"
@@ -16,7 +16,7 @@ const NODE_ID = "node-1"
 describe("desktop appearance model", () => {
   it("maps card corner radius into a shared appearance snapshot", () => {
     const layer = createDraftingShapeLayer(NODE_ID)
-    const snapshot = getDesktopAppearanceSnapshot(
+    const snapshot = getAppearanceSnapshot(
       { ...layer, kind: "card" },
       {
         cardCornerRadius: DEFAULT_DRAFTING_CARD_STATE.cornerRadius,
@@ -44,7 +44,7 @@ describe("desktop appearance model", () => {
         visible: true,
       },
     }
-    const snapshot = getDesktopAppearanceSnapshot(layer, {
+    const snapshot = getAppearanceSnapshot(layer, {
       qrBackgroundShapeOptions: DEFAULT_BACKGROUND_SHAPE_OPTIONS,
     })
 
@@ -54,7 +54,7 @@ describe("desktop appearance model", () => {
 
   it("maps qr frame options into a shared appearance snapshot", () => {
     const layer = createDraftingTextLayer(NODE_ID)
-    const snapshot = getDesktopAppearanceSnapshot(
+    const snapshot = getAppearanceSnapshot(
       { ...layer, kind: "qr" },
       { qrBackgroundShapeOptions: DEFAULT_BACKGROUND_SHAPE_OPTIONS },
     )
@@ -65,7 +65,7 @@ describe("desktop appearance model", () => {
 
   it("builds qr and card appearance patches into their domain stores", () => {
     const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const }
-    const qrPatch = buildDesktopAppearancePatch(
+    const qrPatch = buildAppearancePatch(
       qrLayer,
       {
         shadow: {
@@ -87,11 +87,11 @@ describe("desktop appearance model", () => {
     expect(qrPatch.layerPatch.shadow?.blur).toBe(12)
 
     const cardLayer = { ...createDraftingShapeLayer(NODE_ID), kind: "card" as const }
-    const cardPatch = buildDesktopAppearancePatch(cardLayer, { cornerRadius: 24 })
+    const cardPatch = buildAppearancePatch(cardLayer, { cornerRadius: 24 })
 
     expect(cardPatch.cardCornerRadius).toBe(24)
 
-    const cardShadowPatch = buildDesktopAppearancePatch(
+    const cardShadowPatch = buildAppearancePatch(
       cardLayer,
       { shadow: {
           blur: 22,
@@ -112,7 +112,7 @@ describe("desktop appearance model", () => {
 
   it("routes border patches to card border state", () => {
     const cardLayer = { ...createDraftingShapeLayer(NODE_ID), kind: "card" as const }
-    const patch = buildDesktopAppearancePatch(cardLayer, {
+    const patch = buildAppearancePatch(cardLayer, {
       border: { color: "#ff0000", opacity: 80, style: "solid", width: 6 },
     })
 
@@ -124,7 +124,7 @@ describe("desktop appearance model", () => {
 
   it("routes border patches to stroke fields for shape layers", () => {
     const shapeLayer = createDraftingShapeLayer(NODE_ID)
-    const patch = buildDesktopAppearancePatch(shapeLayer, {
+    const patch = buildAppearancePatch(shapeLayer, {
       border: { color: "#00ff00", opacity: 50, style: "solid", width: 4 },
     })
 
@@ -137,7 +137,7 @@ describe("desktop appearance model", () => {
 
   it("routes border patches to uniform borderSides for other layers", () => {
     const textLayer = createDraftingTextLayer(NODE_ID)
-    const patch = buildDesktopAppearancePatch(textLayer, {
+    const patch = buildAppearancePatch(textLayer, {
       border: { color: "#0000ff", opacity: 100, style: "solid", width: 2 },
     })
 
@@ -152,7 +152,7 @@ describe("desktop appearance model", () => {
 
   it("routes border patches to borderSides for qr layers", () => {
     const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const }
-    const patch = buildDesktopAppearancePatch(qrLayer, {
+    const patch = buildAppearancePatch(qrLayer, {
       border: { color: "#111111", opacity: 90, style: "solid", width: 3 },
     })
 
@@ -163,7 +163,7 @@ describe("desktop appearance model", () => {
 
   it("routes border patches to background shape stroke for qr layers with a shape", () => {
     const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const }
-    const patch = buildDesktopAppearancePatch(
+    const patch = buildAppearancePatch(
       qrLayer,
       { border: { color: "#222222", opacity: 75, style: "solid", width: 8 } },
       {
@@ -180,7 +180,7 @@ describe("desktop appearance model", () => {
 
   it("reads qr background shape stroke into the border snapshot", () => {
     const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const }
-    const snapshot = getDesktopAppearanceSnapshot(qrLayer, {
+    const snapshot = getAppearanceSnapshot(qrLayer, {
       qrBackgroundShapeId: "leaf",
       qrBackgroundShapeOptions: {
         ...DEFAULT_BACKGROUND_SHAPE_OPTIONS,
@@ -204,22 +204,22 @@ describe("desktop appearance model", () => {
     const textLayer = createDraftingTextLayer(NODE_ID)
 
     expect(
-      getDesktopAppearanceSnapshot(qrLayer, {
+      getAppearanceSnapshot(qrLayer, {
         qrBackgroundShapeId: "leaf",
         qrBackgroundShapeOptions: DEFAULT_BACKGROUND_SHAPE_OPTIONS,
       }).supportsBorder,
     ).toBe(true)
-    expect(getDesktopAppearanceSnapshot(qrLayer).supportsBorder).toBe(false)
+    expect(getAppearanceSnapshot(qrLayer).supportsBorder).toBe(false)
     expect(
-      getDesktopAppearanceSnapshot(qrLayer, {
+      getAppearanceSnapshot(qrLayer, {
         qrBackgroundShapeId: "none",
         qrBackgroundShapeOptions: DEFAULT_BACKGROUND_SHAPE_OPTIONS,
         qrBackgroundSurfaceVisible: true,
       }).supportsBorder,
     ).toBe(true)
-    expect(getDesktopAppearanceSnapshot(textLayer).supportsBorder).toBe(false)
+    expect(getAppearanceSnapshot(textLayer).supportsBorder).toBe(false)
     expect(
-      getDesktopAppearanceSnapshot(createDraftingShapeLayer(NODE_ID)).supportsBorder,
+      getAppearanceSnapshot(createDraftingShapeLayer(NODE_ID)).supportsBorder,
     ).toBe(true)
   })
 
@@ -231,7 +231,7 @@ describe("desktop appearance model", () => {
       strokeStyle: "solid" as const,
       strokeWidth: 3,
     }
-    const snapshot = getDesktopAppearanceSnapshot(shapeLayer)
+    const snapshot = getAppearanceSnapshot(shapeLayer)
 
     expect(snapshot.border).toEqual({
       color: "#123456",

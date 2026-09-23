@@ -28,7 +28,7 @@ describe("theme contract", () => {
       "utf8",
     )
 
-    expect(workspaceTokensSource).toContain('[data-slot="desktop-workspace"]')
+    expect(workspaceTokensSource).toContain('[data-slot="workspace"]')
     expect(workspaceTokensSource).toContain("--canvas-bg:")
     expect(workspaceTokensSource).toContain("--canvas-ink:")
   })

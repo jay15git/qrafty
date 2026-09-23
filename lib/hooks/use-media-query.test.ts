@@ -6,7 +6,7 @@ import { act, createElement } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { DESKTOP_WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/lib/hooks/use-media-query"
+import { WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/lib/hooks/use-media-query"
 
 function createMatchMedia(matches: boolean) {
   return vi.fn().mockImplementation((query: string) => ({
@@ -59,13 +59,13 @@ describe("useMediaQuery", () => {
   it("reads the current matchMedia value on first client render", () => {
     vi.stubGlobal("matchMedia", createMatchMedia(true))
 
-    mount(createElement(MediaQueryProbe, { query: DESKTOP_WORKSPACE_MOBILE_QUERY }), container)
+    mount(createElement(MediaQueryProbe, { query: WORKSPACE_MOBILE_QUERY }), container)
 
     expect(container.querySelector("[data-matches]")?.getAttribute("data-matches")).toBe("true")
   })
 
   it("returns false when the query does not match", () => {
-    mount(createElement(MediaQueryProbe, { query: DESKTOP_WORKSPACE_MOBILE_QUERY }), container)
+    mount(createElement(MediaQueryProbe, { query: WORKSPACE_MOBILE_QUERY }), container)
 
     expect(container.querySelector("[data-matches]")?.getAttribute("data-matches")).toBe("false")
   })
@@ -74,7 +74,7 @@ describe("useMediaQuery", () => {
     const listeners: Array<() => void> = []
     const mediaQueryList = {
       matches: false,
-      media: DESKTOP_WORKSPACE_MOBILE_QUERY,
+      media: WORKSPACE_MOBILE_QUERY,
       addEventListener: (_event: string, listener: () => void) => {
         listeners.push(listener)
       },
@@ -86,7 +86,7 @@ describe("useMediaQuery", () => {
       vi.fn().mockImplementation(() => mediaQueryList),
     )
 
-    mount(createElement(MediaQueryProbe, { query: DESKTOP_WORKSPACE_MOBILE_QUERY }), container)
+    mount(createElement(MediaQueryProbe, { query: WORKSPACE_MOBILE_QUERY }), container)
     expect(container.querySelector("[data-matches]")?.getAttribute("data-matches")).toBe("false")
 
     mediaQueryList.matches = true

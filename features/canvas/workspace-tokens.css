@@ -1,6 +1,6 @@
 /* Workspace canvas tokens — scoped to /desktop only. */
 
-[data-slot="desktop-workspace"] {
+[data-slot="workspace"] {
   --canvas-ink-rgb: 15 23 42;
   --background: oklch(0.99 0 0);
   --foreground: oklch(0.18 0 0);
@@ -47,7 +47,7 @@
   --type-input: 1rem;
 }
 
-[data-slot="desktop-workspace"][data-desktop-theme="dark"] {
+[data-slot="workspace"][data-shell-theme="dark"] {
   --canvas-ink-rgb: 245 245 245;
   --background: oklch(0.15 0 0);
   --foreground: oklch(0.96 0 0);
@@ -85,21 +85,21 @@
   --layer-toolbar-button-hover-text: #ffffff;
 }
 
-[data-slot="desktop-workspace"] .ws-type-control-label {
+[data-slot="workspace"] .ws-type-control-label {
   font-size: var(--type-control-label);
   line-height: 1.2;
 }
 
-[data-slot="desktop-workspace"] .ws-type-input {
+[data-slot="workspace"] .ws-type-input {
   font-size: var(--type-input);
   line-height: 1.45;
 }
 
-[data-slot="desktop-workspace"] [data-slot="drafting-surface"] {
+[data-slot="workspace"] [data-slot="drafting-surface"] {
   border-color: transparent;
   isolation: isolate;
 }
 
-[data-slot="desktop-workspace"] [data-slot="drafting-surface"]::before {
+[data-slot="workspace"] [data-slot="drafting-surface"]::before {
   display: none;
 }

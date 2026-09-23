@@ -2,45 +2,45 @@
 
 import { useEffect, useRef } from "react"
 
-import "@/features/shell/components/desktop-chrome.css"
+import "@/features/shell/components/workspace-toolbar.css"
 import {
-  DesktopDynamicIslandChrome,
-  useDesktopToolbarItems,
-} from "@/features/shell/components/DesktopAppearanceIsland"
-import { DesktopSettingsToolbarShell } from "@/features/shell/components/DesktopSettingsToolbarShell"
-import { DesktopExportDownloadPopover } from "@/features/shell/components/DesktopExportDownloadPopover"
+  DynamicIsland,
+  useToolbarItems,
+} from "@/features/shell/components/AppearanceIsland"
+import { SettingsToolbarShell } from "@/features/shell/components/SettingsToolbarShell"
+import { ExportDownloadPopover } from "@/features/shell/components/ExportDownloadPopover"
 import {
-  DesktopUtilityToolbar,
-} from "@/features/shell/components/DesktopUtilityToolbar"
+  UtilityToolbar,
+} from "@/features/shell/components/UtilityToolbar"
 import { MobileSettingsRail } from "@/features/shell/components/MobileSettingsRail"
 import { MobileWorkspaceTopBar } from "@/features/shell/components/MobileWorkspaceTopBar"
-import { DESKTOP_UTILITY_TOOLBAR_SHELL_CLASS } from "@/features/shell/components/desktop-utility-toolbar.constants"
-import { DesktopFloatingInspector } from "@/features/shell/inspector/DesktopFloatingInspector"
-import { useDesktopToolbarInspectorModel } from "@/features/shell/hooks/useDesktopToolbarInspectorModel"
-import { DESKTOP_TOOLBAR_TOOLS } from "@/features/shell/model/desktop-toolbar-tools"
+import { UTILITY_TOOLBAR_SHELL_CLASS } from "@/features/shell/components/utility-toolbar.constants"
+import { FloatingInspector } from "@/features/shell/inspector/FloatingInspector"
+import { useToolbarInspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
+import { TOOLBAR_TOOLS } from "@/features/shell/model/toolbar-tools"
 import type {
-  DesktopThemeMode,
-  DesktopToolbarController,
-} from "@/features/shell/model/desktop-toolbar-types"
+  ThemeMode,
+  ToolbarController,
+} from "@/features/shell/model/toolbar-types"
 export type {
   ComposeSidebarPanel,
-  DesktopBackgroundInspectorTab,
-  DesktopCornersSettings,
-  DesktopExportTarget,
-  DesktopLayerRow,
-  DesktopLogoSettings,
-  DesktopLogoSourceMode,
-  DesktopPatternSettings,
-  DesktopShapeSettings,
-  DesktopTextSettings,
-  DesktopThemeMode,
-  DesktopToolbarController,
-  DesktopToolbarToolId,
-} from "@/features/shell/model/desktop-toolbar-types"
+  BackgroundInspectorTab,
+  CornersSettings,
+  ExportTarget,
+  LayerRow,
+  LogoSettings,
+  LogoSourceMode,
+  PatternSettings,
+  ShapeSettings,
+  TextSettings,
+  ThemeMode,
+  ToolbarController,
+  ToolbarToolId,
+} from "@/features/shell/model/toolbar-types"
 
-export type { DesktopInspectorModel } from "@/features/shell/hooks/useDesktopToolbarInspectorModel"
+export type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
 
-import { DESKTOP_WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/lib/hooks/use-media-query"
+import { WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/lib/hooks/use-media-query"
 import { cn } from "@/lib/utils"
 
 export function FloatingToolbar({
@@ -48,17 +48,17 @@ export function FloatingToolbar({
   theme,
   onThemeChange,
 }: {
-  controller?: DesktopToolbarController
-  theme?: DesktopThemeMode
-  onThemeChange?: (theme: DesktopThemeMode) => void
+  controller?: ToolbarController
+  theme?: ThemeMode
+  onThemeChange?: (theme: ThemeMode) => void
 } = {}) {
-  const model = useDesktopToolbarInspectorModel({ controller, theme, onThemeChange })
+  const model = useToolbarInspectorModel({ controller, theme, onThemeChange })
   const {
     actualActiveTool,
-    actualDesktopTheme,
+    actualTheme,
   } = model
-  const isMobileWorkspace = useMediaQuery(DESKTOP_WORKSPACE_MOBILE_QUERY)
-  const islandItems = useDesktopToolbarItems({
+  const isMobileWorkspace = useMediaQuery(WORKSPACE_MOBILE_QUERY)
+  const islandItems = useToolbarItems({
     appearance: controller?.appearanceSnapshot,
     appearanceLayer: controller?.selectedAppearanceLayer,
     canAddQrCode: controller?.canAddQrCode,
@@ -77,7 +77,7 @@ export function FloatingToolbar({
     selectedTransformLayer: controller?.selectedTransformLayer,
     sizePresetId: controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId,
     sizeSettings: controller?.sceneTemplateSettings?.sizeSettings,
-    theme: actualDesktopTheme,
+    theme: actualTheme,
   })
   const toolbarRootRef = useRef<HTMLElement | null>(null)
 
@@ -89,8 +89,8 @@ export function FloatingToolbar({
       return
     }
 
-    const island = root.querySelector<HTMLElement>('[data-slot="desktop-dynamic-island"]')
-    const utility = root.querySelector<HTMLElement>('[data-slot="desktop-utility-toolbar"]')
+    const island = root.querySelector<HTMLElement>('[data-slot="dynamic-island"]')
+    const utility = root.querySelector<HTMLElement>('[data-slot="utility-toolbar"]')
     if (!island || !utility) {
       return
     }
@@ -101,9 +101,9 @@ export function FloatingToolbar({
       // labeled pill on the canvas: offset = half the leading pill + gap.
       const leadingWidth = shells.length > 1 ? shells[0].offsetWidth : 0
       const gap = shells.length > 1 ? shells[1].offsetLeft - (shells[0].offsetLeft + leadingWidth) : 0
-      root.style.setProperty("--desktop-island-width", `${island.offsetWidth}px`)
-      root.style.setProperty("--desktop-island-leading-width", `${leadingWidth + gap}px`)
-      root.style.setProperty("--desktop-utility-toolbar-width", `${utility.offsetWidth}px`)
+      root.style.setProperty("--island-width", `${island.offsetWidth}px`)
+      root.style.setProperty("--island-leading-width", `${leadingWidth + gap}px`)
+      root.style.setProperty("--utility-toolbar-width", `${utility.offsetWidth}px`)
     }
 
     syncWidths()
@@ -116,10 +116,10 @@ export function FloatingToolbar({
   return (
       <section
         ref={toolbarRootRef}
-        aria-label="Desktop workspace prototype"
-        data-desktop-theme={actualDesktopTheme}
+        aria-label="Workspace prototype"
+        data-shell-theme={actualTheme}
         data-mobile-workspace={isMobileWorkspace ? "true" : "false"}
-        data-slot="desktop-floating-toolbar-root"
+        data-slot="floating-toolbar-root"
         className="pointer-events-none absolute inset-0 z-[60] min-h-0 overflow-hidden"
         >
         {isMobileWorkspace ? (
@@ -127,36 +127,36 @@ export function FloatingToolbar({
             <MobileWorkspaceTopBar
               controller={controller}
               model={model}
-              theme={actualDesktopTheme}
+              theme={actualTheme}
             />
             <MobileSettingsRail model={model} />
           </>
         ) : (
           <>
-            <div data-slot="desktop-dynamic-island-anchor">
+            <div data-slot="dynamic-island-anchor">
               <div
                 className={cn(
-                  DESKTOP_UTILITY_TOOLBAR_SHELL_CLASS,
+                  UTILITY_TOOLBAR_SHELL_CLASS,
                   "pointer-events-auto",
                 )}
-                data-slot="desktop-dynamic-island"
-                data-toolbar-appearance="desktop-glass"
+                data-slot="dynamic-island"
+                data-toolbar-appearance="glass"
               >
-                <DesktopDynamicIslandChrome items={islandItems} />
+                <DynamicIsland items={islandItems} />
               </div>
             </div>
-            <div data-slot="desktop-utility-toolbar-anchor">
-              <DesktopUtilityToolbar
-                data-slot="desktop-utility-toolbar"
+            <div data-slot="utility-toolbar-anchor">
+              <UtilityToolbar
+                data-slot="utility-toolbar"
                 className="pointer-events-auto gap-0 p-0"
               >
-                <DesktopExportDownloadPopover model={model} theme={actualDesktopTheme} />
-              </DesktopUtilityToolbar>
+                <ExportDownloadPopover model={model} theme={actualTheme} />
+              </UtilityToolbar>
             </div>
-            <DesktopSettingsToolbarShell
+            <SettingsToolbarShell
               showInspector
               inspector={
-                <DesktopFloatingInspector activeTool={actualActiveTool} model={model} />
+                <FloatingInspector activeTool={actualActiveTool} model={model} />
               }
             />
           </>

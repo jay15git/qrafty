@@ -9,8 +9,8 @@ import {
   InsertMenuRootPanel,
   InsertMenuShapePanel,
 } from "@/features/canvas/components/insert-menu/InsertMenuPanels"
-import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
-import { InsertMenuDesktopScroll } from "@/features/canvas/components/insert-menu/InsertMenuDesktopScroll"
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
+import { InsertMenuScroll } from "@/features/canvas/components/insert-menu/InsertMenuScroll"
 import { INSERT_MENU_PANEL_CONTENT_CLASS } from "@/features/canvas/components/insert-menu/insert-menu-styles"
 import {
   getIllustrationSet,
@@ -35,9 +35,9 @@ type InsertMenuPanelStackProps = {
   canAddQrCode?: boolean
   onAddQrCode?: () => void
   onBrowseWallpapers?: () => void
-  isDesktopPopover?: boolean
+  isPopover?: boolean
   onClose?: () => void
-  theme?: DesktopThemeMode
+  theme?: ThemeMode
 }
 
 type InsertMenuPanelId = "root" | "shape" | "image" | "emoji" | "illustration-set"
@@ -46,7 +46,7 @@ type InsertMenuPanelsProps = {
   activeIllustrationSet: IllustrationSet | undefined
   canAddQrCode: boolean
   imageUrl: string
-  isDesktopPopover: boolean
+  isPopover: boolean
   onAddQrCode?: () => void
   onBack: () => void
   onBrowseWallpapers?: () => void
@@ -61,14 +61,14 @@ type InsertMenuPanelsProps = {
   onOpenShapePanel: () => void
   onImageUrlChange: (value: string) => void
   panel: InsertMenuPanelId
-  theme: DesktopThemeMode
+  theme: ThemeMode
 }
 
-function InsertMenuDesktopPanels({
+function InsertMenuPopoverPanels({
   activeIllustrationSet,
   canAddQrCode,
   imageUrl,
-  isDesktopPopover,
+  isPopover,
   onAddQrCode,
   onBack,
   onBrowseWallpapers,
@@ -88,7 +88,7 @@ function InsertMenuDesktopPanels({
   if (panel === "emoji") {
     return (
       <InsertMenuEmojiPanel
-        isDesktopPopover={isDesktopPopover}
+        isPopover={isPopover}
         onBack={onBack}
         onSelectEmoji={onInsertEmoji}
       />
@@ -99,7 +99,7 @@ function InsertMenuDesktopPanels({
     return (
       <InsertMenuRootPanel
         canAddQrCode={canAddQrCode}
-        isDesktopPopover={isDesktopPopover}
+        isPopover={isPopover}
         onAddQrCode={onAddQrCode}
         onInsertText={onInsertText}
         onOpenEmojiPanel={onOpenEmojiPanel}
@@ -111,17 +111,17 @@ function InsertMenuDesktopPanels({
   }
 
   return (
-    <InsertMenuDesktopScroll contentClassName={INSERT_MENU_PANEL_CONTENT_CLASS}>
+    <InsertMenuScroll contentClassName={INSERT_MENU_PANEL_CONTENT_CLASS}>
       {panel === "shape" ? (
         <InsertMenuShapePanel
-          isDesktopPopover={isDesktopPopover}
+          isPopover={isPopover}
           onBack={onBack}
           onSelectShape={onInsertShape}
         />
       ) : null}
       {panel === "illustration-set" && activeIllustrationSet ? (
         <InsertMenuIllustrationSetPanel
-          isDesktopPopover={isDesktopPopover}
+          isPopover={isPopover}
           set={activeIllustrationSet}
           onBack={onBack}
           onSelectAsset={onInsertIllustration}
@@ -130,7 +130,7 @@ function InsertMenuDesktopPanels({
       {panel === "image" ? (
         <InsertMenuImagePanel
           imageUrl={imageUrl}
-          isDesktopPopover={isDesktopPopover}
+          isPopover={isPopover}
           onBack={onBack}
           onBrowseWallpapers={onBrowseWallpapers}
           onImageUrlChange={onImageUrlChange}
@@ -138,7 +138,7 @@ function InsertMenuDesktopPanels({
           theme={theme}
         />
       ) : null}
-    </InsertMenuDesktopScroll>
+    </InsertMenuScroll>
   )
 }
 
@@ -146,7 +146,7 @@ function InsertMenuInlinePanels({
   activeIllustrationSet,
   canAddQrCode,
   imageUrl,
-  isDesktopPopover,
+  isPopover,
   onAddQrCode,
   onBack,
   onBrowseWallpapers,
@@ -168,7 +168,7 @@ function InsertMenuInlinePanels({
       {panel === "root" ? (
         <InsertMenuRootPanel
           canAddQrCode={canAddQrCode}
-          isDesktopPopover={isDesktopPopover}
+          isPopover={isPopover}
           onAddQrCode={onAddQrCode}
           onInsertText={onInsertText}
           onOpenEmojiPanel={onOpenEmojiPanel}
@@ -179,21 +179,21 @@ function InsertMenuInlinePanels({
       ) : null}
       {panel === "shape" ? (
         <InsertMenuShapePanel
-          isDesktopPopover={isDesktopPopover}
+          isPopover={isPopover}
           onBack={onBack}
           onSelectShape={onInsertShape}
         />
       ) : null}
       {panel === "emoji" ? (
         <InsertMenuEmojiPanel
-          isDesktopPopover={isDesktopPopover}
+          isPopover={isPopover}
           onBack={onBack}
           onSelectEmoji={onInsertEmoji}
         />
       ) : null}
       {panel === "illustration-set" && activeIllustrationSet ? (
         <InsertMenuIllustrationSetPanel
-          isDesktopPopover={isDesktopPopover}
+          isPopover={isPopover}
           set={activeIllustrationSet}
           onBack={onBack}
           onSelectAsset={onInsertIllustration}
@@ -202,7 +202,7 @@ function InsertMenuInlinePanels({
       {panel === "image" ? (
         <InsertMenuImagePanel
           imageUrl={imageUrl}
-          isDesktopPopover={isDesktopPopover}
+          isPopover={isPopover}
           onBack={onBack}
           onBrowseWallpapers={onBrowseWallpapers}
           onImageUrlChange={onImageUrlChange}
@@ -220,7 +220,7 @@ export function InsertMenuPanelStack({
   canAddQrCode = true,
   onAddQrCode,
   onBrowseWallpapers,
-  isDesktopPopover = true,
+  isPopover = true,
   onClose,
   theme = "dark",
 }: InsertMenuPanelStackProps) {
@@ -287,7 +287,7 @@ export function InsertMenuPanelStack({
     activeIllustrationSet,
     canAddQrCode,
     imageUrl,
-    isDesktopPopover,
+    isPopover,
     onAddQrCode: onAddQrCode ? addQrCode : undefined,
     onBack: () => setPanel("root"),
     onBrowseWallpapers: onBrowseWallpapers ? browseWallpapers : undefined,
@@ -308,8 +308,8 @@ export function InsertMenuPanelStack({
     theme,
   }
 
-  if (isDesktopPopover) {
-    return <InsertMenuDesktopPanels {...panelsProps} />
+  if (isPopover) {
+    return <InsertMenuPopoverPanels {...panelsProps} />
   }
 
   return <InsertMenuInlinePanels {...panelsProps} />

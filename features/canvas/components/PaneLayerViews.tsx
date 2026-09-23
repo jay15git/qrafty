@@ -10,7 +10,7 @@ import {
 } from "react"
 
 import { CardBackgroundLayers } from "@/features/canvas/components/CardBackgroundLayers"
-import { cardBackgroundSurfaceStyle } from "@/features/canvas/components/card-background-layers.utils"
+import { cardBackgroundStyle } from "@/features/canvas/components/card-background-style"
 import { DraftingCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer"
 import { DraftingLayerTiltShell } from "@/features/canvas/components/DraftingLayerTiltShell"
 import { DraftingQrLayerContent } from "@/features/canvas/components/DraftingQrLayerContent"
@@ -68,14 +68,14 @@ function layerExportAttrs(kind: DraftingCanvasLayer["kind"]) {
   } as const
 }
 
-function buildPaneDocumentCardSurfaceStyle(
+function buildPaneDocumentCardStyle(
   cardState: DraftingCardState,
   isImageFilterMode: boolean,
   isImageMode: boolean,
   isPaperShaderMode: boolean,
 ): CSSProperties {
   return {
-    ...cardBackgroundSurfaceStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
+    ...cardBackgroundStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
     borderRadius: cornerRadiiToCss(cardState.cornerRadii),
   }
 }
@@ -131,8 +131,8 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
     }),
     [cardState.cardImage.source, cardState.cardImage.value, cardState.imageFilter],
   )
-  const surfaceStyle = useMemo(
-    () => buildPaneDocumentCardSurfaceStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
+  const cardStyle = useMemo(
+    () => buildPaneDocumentCardStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
     [cardState, isImageFilterMode, isImageMode, isPaperShaderMode],
   )
   const borderOverlayStyle = useMemo(
@@ -150,7 +150,7 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
         {...layerExportAttrs("card")}
         className="absolute max-h-none max-w-none overflow-visible"
         style={{
-          ...surfaceStyle,
+          ...cardStyle,
           ...getLayerPlacementStyle(layer, true),
           ...layerEffectStyle,
         }}
@@ -204,7 +204,7 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
         !isInteracting && "transition-[filter,background-color,border-radius] duration-150",
       )}
       style={{
-        ...surfaceStyle,
+        ...cardStyle,
         ...getLayerPlacementStyle(layer),
         ...layerEffectStyle,
       }}
@@ -304,7 +304,7 @@ function resolveQrLayerState(
   return qrStateByLayerId[layerId] ?? fallbackState
 }
 
-function PaneQrLayerSurface({
+function PaneQrLayerCanvas({
   activeQrLayerId,
   contentValidation,
   layer,
@@ -460,7 +460,7 @@ function PaneNestedQrLayerView({
         ...layerEffectStyle,
       }}
     >
-      <PaneQrLayerSurface
+      <PaneQrLayerCanvas
         activeQrLayerId={activeQrLayerId}
         contentValidation={contentValidation}
         layer={layer}
@@ -871,7 +871,7 @@ function PaneQrLayerView({
       onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
     >
       <DraftingLayerTiltShell layer={layer}>
-        <PaneQrLayerSurface
+        <PaneQrLayerCanvas
         activeQrLayerId={activeQrLayerId}
         contentValidation={contentValidation}
         layer={layer}

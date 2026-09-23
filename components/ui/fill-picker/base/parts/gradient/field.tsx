@@ -96,7 +96,7 @@ export const FieldSelect = React.forwardRef<
   const portalSurface = useFillPickerPortalSurface();
   const { className: wrapperClassName, ...wrapperRest } = wrapperProps ?? {};
 
-  if (portalSurface.desktopAccordion) {
+  if (portalSurface.accordion) {
     return (
       <DesktopAccordionFieldSelect
         ref={ref}

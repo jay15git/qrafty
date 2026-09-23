@@ -1,13 +1,13 @@
 "use client"
 
-import { DesktopExportDownloadPopover } from "@/features/shell/components/DesktopExportDownloadPopover"
-import { DesktopUtilityToolbar } from "@/features/shell/components/DesktopUtilityToolbar"
+import { ExportDownloadPopover } from "@/features/shell/components/ExportDownloadPopover"
+import { UtilityToolbar } from "@/features/shell/components/UtilityToolbar"
 import {
   MobileRedoIcon,
   MobileUndoIcon,
 } from "@/features/shell/components/MobileHistoryIcons"
-import type { DesktopInspectorModel } from "@/features/shell/hooks/useDesktopToolbarInspectorModel"
-import type { DesktopThemeMode } from "@/features/shell/model/desktop-toolbar-types"
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
+import type { ThemeMode } from "@/features/shell/model/toolbar-types"
 import { cn } from "@/lib/utils"
 
 export function MobileWorkspaceTopBar({
@@ -15,9 +15,9 @@ export function MobileWorkspaceTopBar({
   model,
   theme,
 }: {
-  controller?: DesktopInspectorModel["controller"]
-  model: DesktopInspectorModel
-  theme: DesktopThemeMode
+  controller?: InspectorModel["controller"]
+  model: InspectorModel
+  theme: ThemeMode
 }) {
   return (
     <div
@@ -48,12 +48,12 @@ export function MobileWorkspaceTopBar({
           <MobileRedoIcon className="size-3.5" />
         </button>
       </div>
-      <DesktopUtilityToolbar
+      <UtilityToolbar
         data-slot="mobile-utility-toolbar"
         className="pointer-events-auto gap-0 p-0"
       >
-        <DesktopExportDownloadPopover model={model} theme={theme} />
-      </DesktopUtilityToolbar>
+        <ExportDownloadPopover model={model} theme={theme} />
+      </UtilityToolbar>
     </div>
   )
 }

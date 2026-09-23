@@ -1,4 +1,4 @@
-export const DESKTOP_DOTS_PALETTE_PRESETS: Array<{
+export const DOTS_PALETTE_PRESETS: Array<{
   colors: string[]
   label: string
 }> = [

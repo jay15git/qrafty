@@ -19,5 +19,5 @@ const ColorPickerBase = {
 };
 
 // Alias so consuming code reads the same as the Radix variant — only the
-// import path differs (`.../fill-picker-base/color-picker`).
+// import path differs (`.../FillPicker-base/color-picker`).
 export const ColorPicker = ColorPickerBase;

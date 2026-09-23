@@ -24,8 +24,8 @@ import {
   applyLogoPresetSelection,
 } from "@/features/qr/model/actions"
 import type { QraftyGradient, QraftyState } from "@/features/qr/model/state"
-import type { DesktopLogoSettingsPatch } from "@/features/shell/model/desktop-toolbar-types"
-import type { DraftingAssetSourceMode } from "@/features/canvas/components/workspace-surface-reducer"
+import type { LogoSettingsPatch } from "@/features/shell/model/toolbar-types"
+import type { DraftingAssetSourceMode } from "@/features/canvas/components/drafting-canvas-reducer"
 
 export function useQrLogoActions({
   commitState,
@@ -198,7 +198,7 @@ export function useQrLogoActions({
 
   const patchLogoImageOptions = (
     patch: Pick<
-      DesktopLogoSettingsPatch,
+      LogoSettingsPatch,
       | "size"
       | "margin"
       | "hideBackgroundDots"

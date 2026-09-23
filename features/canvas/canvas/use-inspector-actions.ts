@@ -37,19 +37,19 @@ import {
 } from "@/features/canvas/model/card-state"
 import { createDefaultDraftingWorkspaceQrState } from "@/features/canvas/model/document"
 import type {
-  DesktopAccessibilitySettings,
-  DesktopEncodingSettings,
-  DesktopExportSettings,
-  DesktopImageSettings,
-  DesktopLayersSettings,
-  DesktopLogoSettings,
-  DesktopLogoSettingsPatch,
-  DesktopMotionSettings,
-  DesktopPatternSettingsPatch,
-  DesktopShapeSettings,
-  DesktopTextSettings,
-} from "@/features/shell/model/desktop-toolbar-types"
-import type { DesktopCornersSettings } from "@/features/shell/model/desktop-toolbar-types"
+  AccessibilitySettings,
+  EncodingSettings,
+  ExportSettings,
+  ImageSettings,
+  LayersSettings,
+  LogoSettings,
+  LogoSettingsPatch,
+  MotionSettings,
+  PatternSettingsPatch,
+  ShapeSettings,
+  TextSettings,
+} from "@/features/shell/model/toolbar-types"
+import type { CornersSettings } from "@/features/shell/model/toolbar-types"
 import type { UnifiedQrFillPatches } from "@/features/shell/inspector/settings-bridge"
 import {
   applyCornersSettingsPatchToQraftyState,
@@ -57,21 +57,21 @@ import {
   applyPatternSettingsPatchToQraftyState,
 } from "@/features/canvas/components/workspace-qr-settings-patch"
 import {
-  buildDesktopAppearancePatch,
-  type DesktopAppearancePatch,
+  buildAppearancePatch,
+  type AppearancePatch,
 } from "@/features/shell/model/appearance"
 import {
-  ensureMandatoryDesktopLayerRows,
+  ensureMandatoryLayerRows,
   findDraftingLayerById,
   getDraftingDownloadTarget,
-} from "@/features/canvas/components/workspace-surface-helpers"
-import { replaceTrackedObjectUrl } from "@/features/canvas/components/workspace-surface.constants"
+} from "@/features/canvas/components/drafting-canvas-operations"
+import { replaceTrackedObjectUrl } from "@/features/canvas/components/drafting-canvas.constants"
 import { clearDraftingQrMarkupCache } from "@/features/canvas/hooks/use-drafting-qr-markup"
 import { clearQrEncodeMarkupCache } from "@/features/qr/rendering/qr-encode-cache"
 import type {
-  WorkspaceSurfaceSetters,
-  WorkspaceSurfaceState,
-} from "@/features/canvas/components/workspace-surface-reducer"
+  DraftingCanvasSetters,
+  DraftingCanvasState,
+} from "@/features/canvas/components/drafting-canvas-reducer"
 import type { createQrControls } from "@/features/canvas/canvas/qr-controls"
 import type { useQrLogoActions } from "@/features/canvas/canvas/use-qr-logo-actions"
 import type { DraftingLayerMenuAction } from "@/features/canvas/components/Pane"
@@ -79,10 +79,10 @@ import { DEFAULT_QR_INPUT_TYPE } from "@/features/qr/content/input-options"
 import {
   DEFAULT_DRAFTING_STUDIO_STATE,
   type DraftingDownloadExtension,
-} from "@/features/canvas/components/workspace-surface.constants"
+} from "@/features/canvas/components/drafting-canvas.constants"
 
 type InspectorState = Pick<
-  WorkspaceSurfaceState,
+  DraftingCanvasState,
   | "activeQrNodeId"
   | "layerStateByNodeId"
   | "selectedCardState"
@@ -93,7 +93,7 @@ type InspectorState = Pick<
 >
 
 type InspectorSetters = Pick<
-  WorkspaceSurfaceSetters,
+  DraftingCanvasSetters,
   | "setContentValuesByType"
   | "setLayerStateByNodeId"
   | "setLogoUploadObjectUrl"
@@ -159,7 +159,7 @@ export function useInspectorActions({
   logoActions,
   logoUploadObjectUrlRef,
   persistActiveQrLayerState,
-  qrBackgroundSurfaceVisible,
+  qrBackgroundVisible,
   qrControls,
   resolveLiveQrPersistState,
   selectedCardState,
@@ -239,19 +239,19 @@ export function useInspectorActions({
     logoActions: ReturnType<typeof useQrLogoActions>
     logoUploadObjectUrlRef: MutableRefObject<string | null>
     persistActiveQrLayerState: (nextState?: QraftyState) => void
-    qrBackgroundSurfaceVisible: boolean
+    qrBackgroundVisible: boolean
     qrControls: ReturnType<typeof createQrControls>
     resolveLiveQrPersistState: () => QraftyState
     selectedTextLayer: DraftingCanvasLayer | null
     selectSingleLayer: (layerId: string | null) => void
   }) {
 
-  function handleDesktopAppearancePatch(patch: DesktopAppearancePatch) {
+  function handleDesktopAppearancePatch(patch: AppearancePatch) {
     if (!appearanceTargetLayer) {
       return
     }
 
-    const result = buildDesktopAppearancePatch(appearanceTargetLayer, patch, {
+    const result = buildAppearancePatch(appearanceTargetLayer, patch, {
       qrBackgroundShapeId:
         appearanceTargetLayer.kind === "qr"
           ? draftingQraftyState.backgroundShapeId
@@ -261,7 +261,7 @@ export function useInspectorActions({
           ? draftingQraftyState.backgroundShapeOptions
           : undefined,
       qrBackgroundSurfaceVisible:
-        appearanceTargetLayer.kind === "qr" ? qrBackgroundSurfaceVisible : undefined,
+        appearanceTargetLayer.kind === "qr" ? qrBackgroundVisible : undefined,
     })
 
     if (Object.keys(result.layerPatch).length > 0) {
@@ -308,7 +308,7 @@ export function useInspectorActions({
     }))
   }
 
-  function applyDesktopPatternPatchToControls(patch: DesktopPatternSettingsPatch) {
+  function applyDesktopPatternPatchToControls(patch: PatternSettingsPatch) {
     if (patch.qrDotType) setSelectedDotType(patch.qrDotType)
     if (patch.moduleRoundSize !== undefined) setSelectedModuleRoundSize(patch.moduleRoundSize)
     if (patch.moduleSize !== undefined) setSelectedModuleSize(patch.moduleSize)
@@ -354,7 +354,7 @@ export function useInspectorActions({
     }
   }
 
-  function applyDesktopCornersPatchToControls(patch: Partial<DesktopCornersSettings>) {
+  function applyDesktopCornersPatchToControls(patch: Partial<CornersSettings>) {
     if (patch.cornerSquareType) setSelectedQrFinderPatternOuterStyle(patch.cornerSquareType)
     if (patch.cornerSquareColorMode) setSelectedCornerSquareColorMode(patch.cornerSquareColorMode)
     if (patch.cornerSquareSolidColor) {
@@ -377,7 +377,7 @@ export function useInspectorActions({
     }
   }
 
-  function applyDesktopUnifiedLogoPatchToControls(patch: Partial<DesktopLogoSettings>) {
+  function applyDesktopUnifiedLogoPatchToControls(patch: Partial<LogoSettings>) {
     if (patch.colorMode) setSelectedLogoColorMode(patch.colorMode)
     if (patch.solidColor) {
       setSelectedLogoColorMode("solid")
@@ -389,7 +389,7 @@ export function useInspectorActions({
     }
   }
 
-  function updateDesktopPatternSettings(patch: DesktopPatternSettingsPatch) {
+  function updateDesktopPatternSettings(patch: PatternSettingsPatch) {
     applyDesktopPatternPatchToControls(patch)
     const nextState = applyPatternSettingsPatchToQraftyState(resolveLiveQrPersistState(), patch)
 
@@ -445,7 +445,7 @@ export function useInspectorActions({
     setSelectedGradientLinkMode(DEFAULT_DRAFTING_STUDIO_STATE.gradientLinkMode)
   }
 
-  function updateDesktopLogoSettings(patch: DesktopLogoSettingsPatch) {
+  function updateDesktopLogoSettings(patch: LogoSettingsPatch) {
     if (patch.uploadedFile) {
       const uploadValue = replaceTrackedObjectUrl(
         logoUploadObjectUrlRef,
@@ -512,7 +512,7 @@ export function useInspectorActions({
     qrControls.applyQrState(createDefaultDraftingWorkspaceQrState())
   }
 
-  function updateDesktopCornersSettings(patch: Partial<DesktopCornersSettings>) {
+  function updateDesktopCornersSettings(patch: Partial<CornersSettings>) {
     applyDesktopCornersPatchToControls(patch)
 
     const nextState = applyCornersSettingsPatchToQraftyState(resolveLiveQrPersistState(), patch)
@@ -521,7 +521,7 @@ export function useInspectorActions({
     persistActiveQrLayerState(nextState)
   }
 
-  function mergeCardStateFromShapePatch(patch: Partial<DesktopShapeSettings>) {
+  function mergeCardStateFromShapePatch(patch: Partial<ShapeSettings>) {
     const nextCornerRadius = patch.cardRadius ?? selectedCardState.cornerRadius
 
     return {
@@ -554,7 +554,7 @@ export function useInspectorActions({
     }
   }
 
-  function cardShadowFromPatch(patch: Partial<DesktopShapeSettings>) {
+  function cardShadowFromPatch(patch: Partial<ShapeSettings>) {
     return {
       ...selectedCardState.shadow,
       blur: patch.shadowBlur ?? selectedCardState.shadow.blur,
@@ -594,7 +594,7 @@ export function useInspectorActions({
     })
   }
 
-  function updateDesktopShapeSettings(patch: Partial<DesktopShapeSettings>) {
+  function updateDesktopShapeSettings(patch: Partial<ShapeSettings>) {
     if (patch.backgroundShapeId !== undefined) setSelectedBackgroundShapeId(patch.backgroundShapeId)
     if (patch.shapeColorMode) setSelectedBackgroundColorMode(patch.shapeColorMode)
     if (patch.shapeSolidColor) {
@@ -663,7 +663,7 @@ export function useInspectorActions({
     }
   }
 
-  function updateDesktopImageSettings(patch: Partial<DesktopImageSettings>) {
+  function updateDesktopImageSettings(patch: Partial<ImageSettings>) {
     setSelectedCardState((current) => {
       if (patch.remoteUrl === "") {
         return {
@@ -724,18 +724,18 @@ export function useInspectorActions({
     )
   }
 
-  function updateDesktopEncodingSettings(patch: Partial<DesktopEncodingSettings>) {
+  function updateDesktopEncodingSettings(patch: Partial<EncodingSettings>) {
     if (patch.typeNumber !== undefined) setSelectedQrTypeNumber(patch.typeNumber)
     if (patch.errorCorrectionLevel) setSelectedQrErrorCorrectionLevel(patch.errorCorrectionLevel)
     if (patch.boostLevel !== undefined) setSelectedBoostLevel(patch.boostLevel)
     if (patch.valueSegmentsText !== undefined) setSelectedValueSegmentsText(patch.valueSegmentsText)
   }
 
-  function updateDesktopAccessibilitySettings(patch: Partial<DesktopAccessibilitySettings>) {
+  function updateDesktopAccessibilitySettings(patch: Partial<AccessibilitySettings>) {
     if (patch.ariaLabel !== undefined) setSelectedAriaLabel(patch.ariaLabel)
   }
 
-  function updateDesktopTextSettings(patch: Partial<DesktopTextSettings>) {
+  function updateDesktopTextSettings(patch: Partial<TextSettings>) {
     if (selectedTextLayer?.kind === "text") {
       handleLayerChange(activeQrNodeId, selectedTextLayer.id, patch)
       return
@@ -756,12 +756,12 @@ export function useInspectorActions({
     selectSingleLayer(textLayer.id)
   }
 
-  function updateDesktopLayersSettings(patch: Partial<DesktopLayersSettings>) {
+  function updateDesktopLayersSettings(patch: Partial<LayersSettings>) {
     if (patch.selectedLayerId !== undefined) {
       handleLayerSelect(activeQrNodeId, patch.selectedLayerId, { preserveActiveTool: true })
     }
     if (patch.layers) {
-      const mergedRows = ensureMandatoryDesktopLayerRows(patch.layers, activeCanvasLayers)
+      const mergedRows = ensureMandatoryLayerRows(patch.layers, activeCanvasLayers)
       const currentLayersById = new Map(activeCanvasLayers.map((layer) => [layer.id, layer]))
       const nextLayers = mergedRows.map((row) => {
         const layer = currentLayersById.get(row.id) ?? createDraftingTextLayer(activeQrNodeId, { id: row.id })
@@ -794,7 +794,7 @@ export function useInspectorActions({
     }
   }
 
-  function updateDesktopExportSettings(patch: Partial<DesktopExportSettings>) {
+  function updateDesktopExportSettings(patch: Partial<ExportSettings>) {
     if (patch.extension) setSelectedDownloadExtension(patch.extension as DraftingDownloadExtension)
     if (patch.photoLongEdge) setSelectedPhotoLongEdge(patch.photoLongEdge)
     if (patch.target) setSelectedDownloadTarget(getDraftingDownloadTarget(patch.target))

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { formatFill, parseFill, type Fill } from "@/components/ui/fill-picker/public-api"
-import { fillFromHex } from "@/features/shell/inspector/fill-picker.utils"
+import { fillFromHex } from "@/features/shell/inspector/FillPicker.utils"
 import { degreesToRadians } from "@/features/qr/styles/gradient-controls"
 import type { QraftyGradient } from "@/features/qr/model/state"
 import {
@@ -18,7 +18,7 @@ import {
   DEFAULT_DESKTOP_CORNERS_SETTINGS,
   DEFAULT_DESKTOP_LOGO_SETTINGS,
   DEFAULT_DESKTOP_PATTERN_SETTINGS,
-} from "@/features/shell/model/desktop-toolbar-defaults"
+} from "@/features/shell/model/toolbar-defaults"
 import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style"
 
 const SAMPLE_GRADIENT: QraftyGradient = {
@@ -34,7 +34,7 @@ const SAMPLE_GRADIENT: QraftyGradient = {
 const WHITE = { l: 1, c: 0, h: 0, alpha: 1 }
 const BLACK = { l: 0, c: 0, h: 0, alpha: 1 }
 
-describe("desktopnew fill bridge", () => {
+describe("inspector fill bridge", () => {
   it("round-trips studio gradients through parseFill", () => {
     const css = qraftyGradientToFillCss(SAMPLE_GRADIENT)
     const parsed = parseFill(css)

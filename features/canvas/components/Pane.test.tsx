@@ -1024,7 +1024,7 @@ describe("Pane", () => {
     const menu = document.body.querySelector('[data-slot="drafting-layer-context-menu"]') as HTMLElement
 
     expect(menu).not.toBeNull()
-    expect(menu.className).toContain("desktopnew-popover-content")
+    expect(menu.className).toContain("inspector-popover-content")
     expect(menu.className).not.toContain("backdrop-blur")
     expect(menu.getAttribute("role")).toBe("menu")
     expect(container.contains(menu)).toBe(false)
@@ -1104,7 +1104,7 @@ describe("Pane", () => {
     const menu = document.body.querySelector('[data-slot="drafting-layer-context-menu"]') as HTMLElement
 
     expect(menu).not.toBeNull()
-    expect(menu.className).toContain("desktopnew-popover-content")
+    expect(menu.className).toContain("inspector-popover-content")
     expect(menu.className).not.toContain("backdrop-blur")
     expect(menu.getAttribute("role")).toBe("menu")
     expect(container.contains(menu)).toBe(false)

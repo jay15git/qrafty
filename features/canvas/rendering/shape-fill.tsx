@@ -5,7 +5,7 @@ import {
   getQraftyGradientCenter,
   qraftyRadialCenterAsPercent,
 } from "@/features/qr/styles/qrafty-gradient-geometry"
-import { getShapeLayerGradientId } from "@/features/canvas/rendering/shape-fill.utils"
+import { getShapeLayerGradientId } from "@/features/canvas/rendering/layer-fill"
 
 export function ShapeFillGradientDefs({
   gradient,

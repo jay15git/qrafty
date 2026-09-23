@@ -9,7 +9,7 @@
   --settings-rail-button-bg: #161616;
 }
 
-[data-slot="mobile-family-drawer-root"].desktopnew-root {
+[data-slot="mobile-family-drawer-root"].inspector-root {
   min-height: 0;
   height: auto;
   background: var(--bg);
@@ -22,12 +22,12 @@
   );
 }
 
-[data-slot="mobile-family-drawer-root"].desktopnew-root[data-theme="light"] {
+[data-slot="mobile-family-drawer-root"].inspector-root[data-theme="light"] {
   color-scheme: light;
   --muted: var(--settings-control);
 }
 
-[data-slot="mobile-family-drawer-root"].desktopnew-root[data-theme="dark"] {
+[data-slot="mobile-family-drawer-root"].inspector-root[data-theme="dark"] {
   color-scheme: dark;
   --muted: var(--surface);
 }
@@ -43,13 +43,13 @@
   margin-right: 0;
 }
 
-[data-slot="mobile-family-drawer-root"] .desktopnew-root:not([data-slot="mobile-family-drawer-root"]) {
+[data-slot="mobile-family-drawer-root"] .inspector-root:not([data-slot="mobile-family-drawer-root"]) {
   min-height: 0;
   background: transparent;
   color: var(--fg);
 }
 
-[data-slot="mobile-layer-toolbar"].desktopnew-root {
+[data-slot="mobile-layer-toolbar"].inspector-root {
   min-height: 0;
   height: auto;
   background: transparent;
@@ -59,19 +59,19 @@
 
 /* ── Mobile token scale ─────────────────────────────────────────── */
 
-/* Beat desktopnew portal token reset on nested .desktopnew-root / .dn-portal-surface. */
+/* Beat inspector portal token reset on nested .inspector-root / .dn-portal-surface. */
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector],
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] *,
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  :is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover),
+  :is(.inspector-root, .dn-portal-surface, .inspector-popover-content, .inspector-fill-popover),
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector],
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector] *,
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector]
-  :is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover),
+  :is(.inspector-root, .dn-portal-surface, .inspector-popover-content, .inspector-fill-popover),
 .dn-portal-surface[data-mobile-inspector],
 .dn-portal-surface[data-mobile-inspector] *,
 .dn-portal-surface[data-mobile-inspector]
-  :is(.desktopnew-root, .dn-portal-surface, .desktopnew-popover-content, .desktopnew-fill-popover) {
+  :is(.inspector-root, .dn-portal-surface, .inspector-popover-content, .inspector-fill-popover) {
   --type-caption: 1rem;
   --type-meta: 0.875rem;
   --type-value: 1.0625rem;
@@ -148,8 +148,8 @@
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-segment-tab:not([aria-selected="true"]),
 .dn-portal-surface[data-mobile-inspector] .t-tab:not([aria-selected="true"]),
 .dn-portal-surface[data-mobile-inspector] .dn-segment-tab:not([aria-selected="true"]),
-.desktopnew-root[data-mobile-inspector] .t-tab:not([aria-selected="true"]),
-.desktopnew-root[data-mobile-inspector] .dn-segment-tab:not([aria-selected="true"]),
+.inspector-root[data-mobile-inspector] .t-tab:not([aria-selected="true"]),
+.inspector-root[data-mobile-inspector] .dn-segment-tab:not([aria-selected="true"]),
 [data-slot="mobile-settings-rail-root"] .t-tab:not([aria-selected="true"]) {
   color: var(--fg);
 }
@@ -164,7 +164,7 @@
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-tab-bar,
 .dn-portal-surface[data-mobile-inspector] .dn-content-type-tab-bar,
-.desktopnew-root[data-mobile-inspector] .dn-content-type-tab-bar {
+.inspector-root[data-mobile-inspector] .dn-content-type-tab-bar {
   gap: var(--space-stack);
   height: auto;
   min-height: 0;
@@ -174,13 +174,13 @@
    rail. The sliding pill is retired for this bar. */
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-tab-bar .t-tabs-pill,
 .dn-portal-surface[data-mobile-inspector] .dn-content-type-tab-bar .t-tabs-pill,
-.desktopnew-root[data-mobile-inspector] .dn-content-type-tab-bar .t-tabs-pill {
+.inspector-root[data-mobile-inspector] .dn-content-type-tab-bar .t-tabs-pill {
   display: none;
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-tab,
 .dn-portal-surface[data-mobile-inspector] .dn-content-type-segment-tab,
-.desktopnew-root[data-mobile-inspector] .dn-content-type-segment-tab {
+.inspector-root[data-mobile-inspector] .dn-content-type-segment-tab {
   width: 4rem;
   min-width: 4rem;
   min-height: 0;
@@ -195,7 +195,7 @@
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-icon,
 .dn-portal-surface[data-mobile-inspector] .dn-content-type-segment-icon,
-.desktopnew-root[data-mobile-inspector] .dn-content-type-segment-icon {
+.inspector-root[data-mobile-inspector] .dn-content-type-segment-icon {
   box-sizing: border-box;
   width: 3rem;
   height: 3rem;
@@ -207,7 +207,7 @@
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-label,
 .dn-portal-surface[data-mobile-inspector] .dn-content-type-segment-label,
-.desktopnew-root[data-mobile-inspector] .dn-content-type-segment-label {
+.inspector-root[data-mobile-inspector] .dn-content-type-segment-label {
   font-size: var(--type-caption);
   line-height: 1.15;
   color: var(--muted);
@@ -219,7 +219,7 @@
 .dn-portal-surface[data-mobile-inspector]
   .dn-content-type-segment-tab[aria-selected="true"]
   .dn-content-type-segment-label,
-.desktopnew-root[data-mobile-inspector]
+.inspector-root[data-mobile-inspector]
   .dn-content-type-segment-tab[aria-selected="true"]
   .dn-content-type-segment-label {
   color: var(--fg);
@@ -299,9 +299,9 @@
   min-height: 0;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .desktop-elastic-slider,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .elastic-slider,
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-settings-elastic-slider,
-.dn-portal-surface[data-mobile-inspector] .desktop-elastic-slider,
+.dn-portal-surface[data-mobile-inspector] .elastic-slider,
 .dn-portal-surface[data-mobile-inspector] .dn-settings-elastic-slider {
 }
 
@@ -316,15 +316,15 @@
 }
 
 /* Layer inspector + wallpapers under drawer host */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-wallpaper-inspector"] button,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-element-inspector"] input,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-element-inspector"] textarea,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-element-inspector"] button {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="wallpaper-inspector"] button,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="element-inspector"] input,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="element-inspector"] textarea,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="element-inspector"] button {
   min-height: var(--settings-control-height);
 }
 
 /* Content field pairs stack on narrow drawer */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktopnew-content-field-row"] {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="inspector-content-field-row"] {
   grid-template-columns: minmax(0, 1fr);
 }
 
@@ -405,12 +405,12 @@
   touch-action: none;
 }
 
-[data-mobile-inspector] [data-slot="desktop-inspector-scrubbable-number"] {
+[data-mobile-inspector] [data-slot="inspector-scrubbable-number"] {
   touch-action: pan-y;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-layer-row"],
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="desktop-wallpaper-inspector"] button {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="layer-row"],
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="wallpaper-inspector"] button {
   min-height: var(--settings-control-height);
   font-size: var(--type-value);
 }
@@ -663,15 +663,15 @@
    Persistent bottom navigation: circular icon over a short label in a
    horizontally scrolling rail. Replaces the FamilyDrawer shell. */
 
-/* Specificity must beat `.desktopnew-root[data-theme="light"]` (0,2,0), which
+/* Specificity must beat `.inspector-root[data-theme="light"]` (0,2,0), which
    resets the fade to `var(--bg)` — pure white in light mode. */
-[data-slot="mobile-settings-rail-root"].desktopnew-root[data-mobile-inspector] {
+[data-slot="mobile-settings-rail-root"].inspector-root[data-mobile-inspector] {
   left: env(safe-area-inset-left, 0px);
   right: env(safe-area-inset-right, 0px);
   bottom: max(1rem, env(safe-area-inset-bottom, 0px), var(--mobile-drawer-keyboard-inset, 0px));
   width: auto;
   height: auto;
-  /* `.desktopnew-root` forces min-height: 100dvh; a fixed rail must not inherit it. */
+  /* `.inspector-root` forces min-height: 100dvh; a fixed rail must not inherit it. */
   min-height: 0;
   overflow: hidden;
   border: 0;

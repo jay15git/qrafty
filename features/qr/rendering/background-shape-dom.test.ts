@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest"
 import { createDefaultQraftyState,
   clampQrSize,
 } from "@/features/qr/model/state"
-import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background.utils"
+import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background"
 import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
 import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state"
 

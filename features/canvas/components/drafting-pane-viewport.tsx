@@ -13,8 +13,8 @@ import { Pane } from "@/features/canvas/components/Pane"
 import type {
   DraftingPane,
   DraftingPaneCanvasTool,
-} from "@/features/canvas/components/DraftingPaneSurface"
-import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
+} from "@/features/canvas/components/DraftingPaneCanvas"
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
 import { cn } from "@/lib/utils"
 
 type DraftingPaneViewportProps = {
@@ -45,16 +45,16 @@ type DraftingPaneViewportProps = {
   onLayerSelectionChange?: DraftingLayerInteractionProps["onLayerSelectionChange"]
   onQrClick: () => void
   onSelect: () => void
-  onSurfaceClick: (event: ReactMouseEvent<HTMLDivElement>) => void
-  onSurfaceKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => void
-  onSurfacePointerCancel: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onSurfacePointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onSurfacePointerDownCapture: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onSurfacePointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onSurfacePointerUp: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onSurfaceTouchEnd: (event: TouchEvent<HTMLDivElement>) => void
-  onSurfaceTouchMove: (event: TouchEvent<HTMLDivElement>) => void
-  onSurfaceTouchStart: (event: TouchEvent<HTMLDivElement>) => void
+  onCanvasClick: (event: ReactMouseEvent<HTMLDivElement>) => void
+  onCanvasKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => void
+  onCanvasPointerCancel: (event: ReactPointerEvent<HTMLDivElement>) => void
+  onCanvasPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
+  onCanvasPointerDownCapture: (event: ReactPointerEvent<HTMLDivElement>) => void
+  onCanvasPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void
+  onCanvasPointerUp: (event: ReactPointerEvent<HTMLDivElement>) => void
+  onCanvasTouchEnd: (event: TouchEvent<HTMLDivElement>) => void
+  onCanvasTouchMove: (event: TouchEvent<HTMLDivElement>) => void
+  onCanvasTouchStart: (event: TouchEvent<HTMLDivElement>) => void
   onBeginPanePan: (event: ReactPointerEvent<HTMLDivElement>) => void
   pane: DraftingPane
   panOverlayRef: RefObject<HTMLDivElement | null>
@@ -62,10 +62,10 @@ type DraftingPaneViewportProps = {
   selectedLayerId?: string | null
   selectedLayerIds?: string[]
   snapEnabled: boolean
-  surfaceAppearance: "template" | "workspace" | "neutral"
-  surfaceRef: RefObject<HTMLDivElement | null>
+  canvasAppearance: "template" | "workspace" | "neutral"
+  canvasRef: RefObject<HTMLDivElement | null>
   viewFitScale?: number
-  theme?: DesktopThemeMode
+  theme?: ThemeMode
 }
 
 type DraftingPaneContentProps = Pick<
@@ -183,9 +183,9 @@ type DraftingPanOverlayProps = Pick<
   | "activeCanvasTool"
   | "isPanning"
   | "onBeginPanePan"
-  | "onSurfacePointerCancel"
-  | "onSurfacePointerMove"
-  | "onSurfacePointerUp"
+  | "onCanvasPointerCancel"
+  | "onCanvasPointerMove"
+  | "onCanvasPointerUp"
   | "panOverlayRef"
   | "previewLocked"
 >
@@ -194,9 +194,9 @@ function DraftingPanOverlay({
   activeCanvasTool,
   isPanning,
   onBeginPanePan,
-  onSurfacePointerCancel,
-  onSurfacePointerMove,
-  onSurfacePointerUp,
+  onCanvasPointerCancel,
+  onCanvasPointerMove,
+  onCanvasPointerUp,
   panOverlayRef,
   previewLocked = false,
 }: DraftingPanOverlayProps) {
@@ -211,10 +211,10 @@ function DraftingPanOverlay({
       className="absolute inset-0 z-[1] cursor-grab touch-none data-[panning=true]:cursor-move"
       data-panning={isPanning ? "true" : "false"}
       data-slot="drafting-pan-overlay"
-      onPointerCancel={onSurfacePointerCancel}
+      onPointerCancel={onCanvasPointerCancel}
       onPointerDown={onBeginPanePan}
-      onPointerMove={onSurfacePointerMove}
-      onPointerUp={onSurfacePointerUp}
+      onPointerMove={onCanvasPointerMove}
+      onPointerUp={onCanvasPointerUp}
     />
   )
 }
@@ -271,33 +271,33 @@ export function DraftingPaneViewport({
   onLayerSelectionChange,
   onQrClick,
   onSelect,
-  onSurfaceClick,
-  onSurfaceKeyDown,
-  onSurfacePointerCancel,
-  onSurfacePointerDown,
-  onSurfacePointerDownCapture,
-  onSurfacePointerMove,
-  onSurfacePointerUp,
-  onSurfaceTouchEnd,
-  onSurfaceTouchMove,
-  onSurfaceTouchStart,
+  onCanvasClick,
+  onCanvasKeyDown,
+  onCanvasPointerCancel,
+  onCanvasPointerDown,
+  onCanvasPointerDownCapture,
+  onCanvasPointerMove,
+  onCanvasPointerUp,
+  onCanvasTouchEnd,
+  onCanvasTouchMove,
+  onCanvasTouchStart,
   pane,
   panOverlayRef,
   previewLocked = false,
   selectedLayerId,
   selectedLayerIds,
   snapEnabled,
-  surfaceAppearance,
-  surfaceRef,
+  canvasAppearance,
+  canvasRef,
   viewFitScale = 1,
   theme,
 }: DraftingPaneViewportProps) {
   return (
     <div
-      ref={surfaceRef}
+      ref={canvasRef}
       key={pane.id}
       data-slot="desktop-compose-surface"
-      data-surface-appearance={surfaceAppearance}
+      data-canvas-appearance={canvasAppearance}
       data-preview-locked={previewLocked ? "true" : "false"}
       data-dragging={draggingPaneId === pane.id ? "true" : "false"}
       data-panning={isPanning ? "true" : "false"}
@@ -323,22 +323,22 @@ export function DraftingPaneViewport({
         backgroundSize: "30px 30px",
       }}
       role="group"
-      aria-label="Canvas surface"
-      onKeyDown={onSurfaceKeyDown}
-      onClick={onSurfaceClick}
+      aria-label="Canvas"
+      onKeyDown={onCanvasKeyDown}
+      onClick={onCanvasClick}
       onDragEnd={onPaneDragEnd}
       onDragLeave={(event) => onPaneDragLeave(pane.id, event)}
       onDragOver={(event) => onPaneDragOver(pane.id, event)}
       onDragStart={(event) => onPaneDragStart(pane.id, event)}
       onDrop={(event) => onPaneDrop(pane.id, event)}
-      onPointerCancel={onSurfacePointerCancel}
-      onPointerDownCapture={onSurfacePointerDownCapture}
-      onPointerDown={onSurfacePointerDown}
-      onPointerMove={onSurfacePointerMove}
-      onPointerUp={onSurfacePointerUp}
-      onTouchEnd={onSurfaceTouchEnd}
-      onTouchMove={onSurfaceTouchMove}
-      onTouchStart={onSurfaceTouchStart}
+      onPointerCancel={onCanvasPointerCancel}
+      onPointerDownCapture={onCanvasPointerDownCapture}
+      onPointerDown={onCanvasPointerDown}
+      onPointerMove={onCanvasPointerMove}
+      onPointerUp={onCanvasPointerUp}
+      onTouchEnd={onCanvasTouchEnd}
+      onTouchMove={onCanvasTouchMove}
+      onTouchStart={onCanvasTouchStart}
     >
       <DraftingPaneContent
         effectivePan={effectivePan}
@@ -368,9 +368,9 @@ export function DraftingPaneViewport({
         activeCanvasTool={activeCanvasTool}
         isPanning={isPanning}
         onBeginPanePan={onBeginPanePan}
-        onSurfacePointerCancel={onSurfacePointerCancel}
-        onSurfacePointerMove={onSurfacePointerMove}
-        onSurfacePointerUp={onSurfacePointerUp}
+        onCanvasPointerCancel={onCanvasPointerCancel}
+        onCanvasPointerMove={onCanvasPointerMove}
+        onCanvasPointerUp={onCanvasPointerUp}
         panOverlayRef={panOverlayRef}
         previewLocked={previewLocked}
       />

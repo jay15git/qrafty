@@ -1,6 +1,6 @@
-import type { DesktopToolbarToolId } from "@/features/shell/model/desktop-toolbar-types"
+import type { ToolbarToolId } from "@/features/shell/model/toolbar-types"
 
-export const DESKTOP_SETTINGS_SECTIONS = [
+export const SETTINGS_SECTIONS = [
   "Content",
   "QR",
   "Color",
@@ -10,9 +10,9 @@ export const DESKTOP_SETTINGS_SECTIONS = [
   "Elements",
 ] as const
 
-export type DesktopSettingsSectionId = (typeof DESKTOP_SETTINGS_SECTIONS)[number]
+export type SettingsSectionId = (typeof SETTINGS_SECTIONS)[number]
 
-const DESKTOP_SETTINGS_SECTION_LABELS: Record<DesktopSettingsSectionId, string> = {
+const SETTINGS_SECTION_LABELS: Record<SettingsSectionId, string> = {
   Content: "Content",
   QR: "Style",
   Color: "Color",
@@ -22,11 +22,11 @@ const DESKTOP_SETTINGS_SECTION_LABELS: Record<DesktopSettingsSectionId, string> 
   Elements: "Layers",
 }
 
-export function getDesktopSettingsSectionLabel(section: DesktopSettingsSectionId): string {
-  return DESKTOP_SETTINGS_SECTION_LABELS[section]
+export function getSettingsSectionLabel(section: SettingsSectionId): string {
+  return SETTINGS_SECTION_LABELS[section]
 }
 
-export const SECTION_TO_TOOL: Partial<Record<DesktopSettingsSectionId, DesktopToolbarToolId>> = {
+export const SECTION_TO_TOOL: Partial<Record<SettingsSectionId, ToolbarToolId>> = {
   Content: "content",
   QR: "pattern",
   Color: "pattern",

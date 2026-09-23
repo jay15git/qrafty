@@ -270,7 +270,7 @@ function ReorderListRow<T>({
         const target = event.target as HTMLElement
         if (
           target.closest("[data-reorder-grip]") ||
-          target.closest('[data-slot="desktop-layer-row-actions"]')
+          target.closest('[data-slot="layer-row-actions"]')
         ) {
           return
         }
@@ -318,7 +318,7 @@ function ReorderListRow<T>({
         {renderTrailing ? (
           <div
             className="flex shrink-0 cursor-pointer items-center"
-            data-slot="desktop-layer-row-actions"
+            data-slot="layer-row-actions"
             onClick={(event) => event.stopPropagation()}
             onPointerDown={(event) => event.stopPropagation()}
           >

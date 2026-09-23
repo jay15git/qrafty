@@ -7,7 +7,7 @@ export type DraftingPaneInteractionState = {
   isSnapTarget: boolean
 }
 
-/** Layer-interaction callbacks shared by Canvas, DraftingPaneSurface, and
+/** Layer-interaction callbacks shared by Canvas, DraftingPaneCanvas, and
  * the drafting pane viewport props. */
 export type DraftingLayerInteractionProps = {
   onLayerChange?: (

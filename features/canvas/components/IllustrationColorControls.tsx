@@ -2,12 +2,12 @@
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import type { Fill } from "@/components/ui/fill-picker/public-api"
-import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
-import { fillPreviewHex } from "@/features/shell/inspector/fill-picker.utils"
-import { DesktopnewThemeContext } from "@/features/shell/inspector/theme-context"
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/mobile-drawer-navigation-context"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/mobile-inspector-density-context"
-import { PaletteColorStopList } from "@/features/shell/inspector/palette-color-stop-list"
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
+import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils"
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
+import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext"
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
+import { PaletteColorStopList } from "@/features/shell/inspector/PaletteColorStopList"
 import { SettingsFillPopover } from "@/features/shell/inspector/settings-ui"
 import {
   extractSvgPaintColors,
@@ -45,7 +45,7 @@ export function IllustrationFloatingColorControl({
 }: {
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  theme: DesktopThemeMode
+  theme: ThemeMode
 }) {
   const mobileDensity = useMobileInspectorDensity()
   const mobileNav = useMobileDrawerNavigation()
@@ -78,7 +78,7 @@ export function IllustrationFloatingColorControl({
         data-slot="drafting-layer-floating-toolbar-color"
         onPointerDown={(event) => event.stopPropagation()}
       >
-        <DesktopnewThemeContext.Provider value={theme}>
+        <InspectorThemeContext.Provider value={theme}>
           <SettingsFillPopover
             align="center"
             hint="Illustration color"
@@ -94,7 +94,7 @@ export function IllustrationFloatingColorControl({
               patchStop(0, fillPreviewHex(css))
             }}
           />
-        </DesktopnewThemeContext.Provider>
+        </InspectorThemeContext.Provider>
       </div>
     )
   }
@@ -131,7 +131,7 @@ export function IllustrationFloatingColorControl({
         data-slot="drafting-layer-floating-toolbar-color"
         onPointerDown={(event) => event.stopPropagation()}
       >
-        <DesktopnewThemeContext.Provider value={theme}>
+        <InspectorThemeContext.Provider value={theme}>
           <button
             aria-label="Illustration colors"
             className="relative flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg)]/30"
@@ -150,7 +150,7 @@ export function IllustrationFloatingColorControl({
           >
             {multiColorSwatch}
           </button>
-        </DesktopnewThemeContext.Provider>
+        </InspectorThemeContext.Provider>
       </div>
     )
   }
@@ -161,7 +161,7 @@ export function IllustrationFloatingColorControl({
       data-slot="drafting-layer-floating-toolbar-color"
       onPointerDown={(event) => event.stopPropagation()}
     >
-      <DesktopnewThemeContext.Provider value={theme}>
+      <InspectorThemeContext.Provider value={theme}>
         <Popover>
           <PopoverTrigger asChild>
             <button
@@ -175,7 +175,7 @@ export function IllustrationFloatingColorControl({
           <PopoverContent
             align="center"
             className={cn(
-              "desktopnew-fill-popover dn-portal-surface z-[20001] w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
+              "inspector-fill-popover dn-portal-surface z-[20001] w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
               theme === "dark" && "dark",
             )}
             data-theme={theme}
@@ -187,7 +187,7 @@ export function IllustrationFloatingColorControl({
             {multiColorBody}
           </PopoverContent>
         </Popover>
-      </DesktopnewThemeContext.Provider>
+      </InspectorThemeContext.Provider>
     </div>
   )
 }

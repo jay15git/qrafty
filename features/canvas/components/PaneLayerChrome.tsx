@@ -15,7 +15,7 @@ import {
 } from "lucide-react"
 
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover"
-import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
 import { LayerFloatingToolbarSettings } from "@/features/canvas/components/LayerFloatingToolbarSettings"
 import {
   isProtectedDraftingLayerId,
@@ -245,7 +245,7 @@ export function LayerContextMenu({
   layers: DraftingCanvasLayer[]
   onAction: (action: DraftingLayerMenuAction) => void
   onClose: () => void
-  theme?: DesktopThemeMode
+  theme?: ThemeMode
 }) {
   const isMultiLayer = layerCount > 1
   const hasSelection = layerCount > 0
@@ -269,12 +269,12 @@ export function LayerContextMenu({
         side="bottom"
         sideOffset={4}
         className={cn(
-          "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20000] w-52 p-1.5 dn-squircle-md",
+          "dn-portal-surface inspector-popover-content dn-popover-flat z-[20000] w-52 p-1.5 dn-squircle-md",
           theme === "dark" && "dark",
         )}
         data-drafting-dropdown-content="true"
         data-slot="drafting-layer-context-menu"
-        data-toolbar-appearance="desktop-glass"
+        data-toolbar-appearance="glass"
         data-theme={theme}
         role="menu"
         onClick={(event) => event.stopPropagation()}
@@ -348,7 +348,7 @@ export const LayerFloatingToolbar = forwardRef<
     onLayerChange?: (patch: Partial<DraftingCanvasLayer>) => void
     onMore: (event: MouseEvent<HTMLButtonElement>) => void
     style: CSSProperties
-    theme?: DesktopThemeMode
+    theme?: ThemeMode
   }
 >(function LayerFloatingToolbar(
   {
@@ -372,11 +372,11 @@ export const LayerFloatingToolbar = forwardRef<
     <div
       ref={ref}
       className={cn(
-        "dn-portal-surface desktopnew-popover-content pointer-events-auto absolute left-1/2 top-1/2 z-[10001] inline-flex h-9 max-w-[calc(100%-1rem)] items-center justify-start gap-0.5 overflow-x-auto rounded-full px-1 text-[var(--fg)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "dn-portal-surface inspector-popover-content pointer-events-auto absolute left-1/2 top-1/2 z-[10001] inline-flex h-9 max-w-[calc(100%-1rem)] items-center justify-start gap-0.5 overflow-x-auto rounded-full px-1 text-[var(--fg)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         theme === "dark" && "dark",
       )}
       data-slot="drafting-layer-floating-toolbar"
-      data-toolbar-appearance="desktop-glass"
+      data-toolbar-appearance="glass"
       role="toolbar"
       data-theme={theme}
       aria-label="Layer actions"

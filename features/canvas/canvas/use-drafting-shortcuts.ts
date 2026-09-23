@@ -11,7 +11,7 @@ import {
   getDraftingLayerClipboardPayload,
   isEditableShortcutTarget,
   parseDraftingLayerClipboardPayload,
-} from "@/features/canvas/components/workspace-surface-helpers"
+} from "@/features/canvas/components/drafting-canvas-operations"
 import type { DraftingLayerMenuAction } from "@/features/canvas/components/Pane"
 import type { DraftingCardState } from "@/features/canvas/model/card-state"
 import type { QraftyState } from "@/features/qr/model/state"
@@ -62,12 +62,12 @@ export function useDraftingShortcuts({
   clipboardRef,
   handlersRef,
   stateRef,
-  surfaceRef,
+  canvasRef,
 }: {
   clipboardRef: MutableRefObject<string>
   handlersRef: MutableRefObject<DraftingShortcutHandlers>
   stateRef: MutableRefObject<DraftingShortcutKeyboardState>
-  surfaceRef: MutableRefObject<HTMLElement | null>
+  canvasRef: MutableRefObject<HTMLElement | null>
 }) {
   useEffect(() => {
     const MODIFIER_SHORTCUTS: Record<string, (event: KeyboardEvent) => void> = {
@@ -179,12 +179,12 @@ export function useDraftingShortcuts({
       const target = event.target
       const isBodyOrDocumentTarget =
         target === document.body || target === document.documentElement || target === document
-      const targetInSurface =
-        target instanceof Node && surfaceRef.current?.contains(target)
+      const targetInCanvas =
+        target instanceof Node && canvasRef.current?.contains(target)
 
       if (
-        !surfaceRef.current ||
-        (!targetInSurface && !isBodyOrDocumentTarget) ||
+        !canvasRef.current ||
+        (!targetInCanvas && !isBodyOrDocumentTarget) ||
         isEditableShortcutTarget(target)
       ) {
         return
@@ -210,12 +210,12 @@ export function useDraftingShortcuts({
       const target = event.target
       const isBodyOrDocumentTarget =
         target === document.body || target === document.documentElement || target === document
-      const targetInSurface =
-        target instanceof Node && surfaceRef.current?.contains(target)
+      const targetInCanvas =
+        target instanceof Node && canvasRef.current?.contains(target)
 
       return Boolean(
-        surfaceRef.current &&
-          (targetInSurface || isBodyOrDocumentTarget) &&
+        canvasRef.current &&
+          (targetInCanvas || isBodyOrDocumentTarget) &&
           !isEditableShortcutTarget(target),
       )
     }

@@ -114,7 +114,7 @@ export const DesktopAccordionFieldSelect = React.forwardRef<
         <SelectContent
           className={cn(
             portalSurface.portaledSurfaceClassName,
-            "desktopnew-popover-content dn-portal-surface overflow-hidden p-0 dn-squircle-md",
+            "inspector-popover-content dn-portal-surface overflow-hidden p-0 dn-squircle-md",
           )}
           data-theme={portalSurface.portaledSurfaceDataTheme}
           positionerClassName="z-[20002]"

@@ -1,6 +1,6 @@
 import type { DraftingTextFontWeight } from "@/features/canvas/model/layers/shared"
 
-export function getNearestDesktopFontWeight(value: number, supportedWeights: readonly number[]) {
+export function getNearestFontWeight(value: number, supportedWeights: readonly number[]) {
   return supportedWeights.reduce((nearestWeight, candidateWeight) => {
     const nearestDistance = Math.abs(nearestWeight - value)
     const candidateDistance = Math.abs(candidateWeight - value)
@@ -13,7 +13,7 @@ export function getNearestDesktopFontWeight(value: number, supportedWeights: rea
   }, supportedWeights[0] ?? 400)
 }
 
-export function getDesktopFontWeightSliderStep(supportedWeights: readonly number[]) {
+export function getFontWeightSliderStep(supportedWeights: readonly number[]) {
   const sortedWeights = [...new Set(supportedWeights)].sort((a, b) => a - b)
 
   if (sortedWeights.length < 2) {
@@ -25,17 +25,17 @@ export function getDesktopFontWeightSliderStep(supportedWeights: readonly number
   )
 }
 
-export function getDesktopLayerFontWeight(
+export function getLayerFontWeight(
   fontWeight: DraftingTextFontWeight | undefined,
   supportedWeights: readonly number[],
 ) {
   if (fontWeight === "bold") {
-    return getNearestDesktopFontWeight(700, supportedWeights)
+    return getNearestFontWeight(700, supportedWeights)
   }
 
   if (typeof fontWeight === "number" && Number.isFinite(fontWeight)) {
-    return getNearestDesktopFontWeight(fontWeight, supportedWeights)
+    return getNearestFontWeight(fontWeight, supportedWeights)
   }
 
-  return getNearestDesktopFontWeight(400, supportedWeights)
+  return getNearestFontWeight(400, supportedWeights)
 }

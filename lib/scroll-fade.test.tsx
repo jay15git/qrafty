@@ -120,7 +120,7 @@ describe("useScrollEdges", () => {
     mockScrollBox(viewport, { scrollWidth: 3783, clientWidth: 248, scrollLeft: 245 })
 
     const host = document.createElement("div")
-    host.className = "desktopnew-root"
+    host.className = "inspector-root"
     host.style.setProperty("--settings-preview-tile", "3.5rem")
     host.style.setProperty("--space-inline", "0.375rem")
 
@@ -158,7 +158,7 @@ describe("useScrollEdges", () => {
     mockScrollBox(viewport, { scrollWidth: 3783, clientWidth: 248, scrollLeft: 0 })
 
     const host = document.createElement("div")
-    host.className = "desktopnew-root"
+    host.className = "inspector-root"
     host.style.setProperty("--settings-preview-tile", "3.5rem")
     host.style.setProperty("--space-inline", "0.375rem")
 
@@ -192,7 +192,7 @@ describe("useScrollEdges", () => {
     mockScrollBox(viewport, { scrollWidth: 300, clientWidth: 248, scrollLeft: 0 })
 
     const host = document.createElement("div")
-    host.className = "desktopnew-root"
+    host.className = "inspector-root"
     host.style.setProperty("--settings-preview-tile", "3.5rem")
     host.style.setProperty("--space-inline", "0.375rem")
 
@@ -232,7 +232,7 @@ describe("useScrollEdges", () => {
   ])("uses native horizontal bounds at $scrollLeft with viewport width $clientWidth", ({ scrollWidth, clientWidth, scrollLeft, left, right }) => {
     const viewport = document.createElement("div")
     const host = document.createElement("div")
-    host.className = "desktopnew-root"
+    host.className = "inspector-root"
     host.style.setProperty("--settings-preview-tile", "56px")
     host.style.setProperty("--space-inline", "6px")
     const inner = document.createElement("div")

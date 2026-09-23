@@ -4,16 +4,16 @@ import {
   getAssetValue,
   type QraftyState,
 } from "@/features/qr/model/state"
-import { DEFAULT_DRAFTING_STUDIO_STATE } from "@/features/canvas/components/workspace-surface.constants"
-import type { WorkspaceSurfaceSetters } from "@/features/canvas/components/workspace-surface-reducer"
-import { formatValueSegmentsText } from "@/features/canvas/components/workspace-surface-helpers"
+import { DEFAULT_DRAFTING_STUDIO_STATE } from "@/features/canvas/components/drafting-canvas.constants"
+import type { DraftingCanvasSetters } from "@/features/canvas/components/drafting-canvas-reducer"
+import { formatValueSegmentsText } from "@/features/canvas/components/drafting-canvas-operations"
 
 /**
  * The control-sync interface for QR state: given a `QraftyState`, push every
  * derived value into the reducer-backed control setters. Pure — no React.
  */
 export type QrControls = Pick<
-  WorkspaceSurfaceSetters,
+  DraftingCanvasSetters,
   | "setSelectedAriaLabel"
   | "setSelectedBackgroundAssetSourceMode"
   | "setSelectedBackgroundColor"

@@ -93,7 +93,7 @@ export function PaneLayerInteractive({
   )
 }
 
-type PaneSurfaceInteractiveProps = Omit<
+type PaneCanvasInteractiveProps = Omit<
   ComponentPropsWithoutRef<"div">,
   "ref"
 > & {
@@ -101,10 +101,10 @@ type PaneSurfaceInteractiveProps = Omit<
   onActivate: () => void
 }
 
-export const PaneSurfaceInteractive = forwardRef<
+export const PaneCanvasInteractive = forwardRef<
   HTMLDivElement,
-  PaneSurfaceInteractiveProps
->(function PaneSurfaceInteractive(
+  PaneCanvasInteractiveProps
+>(function PaneCanvasInteractive(
   { label, onActivate, className, children, onClick, ...rest },
   ref,
 ) {

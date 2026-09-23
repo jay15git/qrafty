@@ -5,16 +5,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MobileLayerToolbar } from "@/features/shell/components/MobileLayerToolbar"
 import { createDraftingShapeLayer } from "@/features/canvas/model/layers/factories"
-import { getDesktopAppearanceSnapshot } from "@/features/shell/model/appearance"
-import type { DesktopInspectorModel } from "@/features/shell/hooks/useDesktopToolbarInspectorModel"
-import type { DesktopToolbarController } from "@/features/shell/model/desktop-toolbar-types"
+import { getAppearanceSnapshot } from "@/features/shell/model/appearance"
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
+import type { ToolbarController } from "@/features/shell/model/toolbar-types"
 import {
   MobileDrawerNavigationProvider,
   useMobileDrawerNavigation,
-} from "@/features/shell/inspector/mobile-drawer-navigation-context"
-import { MobileInspectorDensityContext } from "@/features/shell/inspector/mobile-inspector-density-context"
+} from "@/features/shell/inspector/MobileDrawerNavigationContext"
+import { MobileInspectorDensityContext } from "@/features/shell/inspector/MobileInspectorDensityContext"
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root"
-import { createDesktopToolbarController as createController } from "@/test-utils/desktop-toolbar-controller"
+import { createToolbarController as createController } from "@/test-utils/toolbar-controller"
 
 const NODE_ID = "test-node"
 
@@ -32,14 +32,14 @@ function NavigationProbe({
 }
 
 
-function createModel(controllerOverrides: Partial<DesktopToolbarController> = {}): DesktopInspectorModel {
+function createModel(controllerOverrides: Partial<ToolbarController> = {}): InspectorModel {
   return {
     actualActiveTool: "content",
-    actualDesktopTheme: "dark",
+    actualTheme: "dark",
     onActiveToolChange: vi.fn(),
-    onDesktopThemeChange: vi.fn(),
+    onThemeChange: vi.fn(),
     controller: createController(controllerOverrides, NODE_ID),
-  } as unknown as DesktopInspectorModel
+  } as unknown as InspectorModel
 }
 
 describe("MobileLayerToolbar", () => {
@@ -131,7 +131,7 @@ describe("MobileLayerToolbar", () => {
         <MobileDrawerNavigationProvider currentView={currentView} setView={setView}>
           <MobileLayerToolbar
             model={createModel({
-              appearanceSnapshot: getDesktopAppearanceSnapshot(layer),
+              appearanceSnapshot: getAppearanceSnapshot(layer),
               insertNodeId: NODE_ID,
               onAppearancePatch: vi.fn(),
               onInsertLayer: vi.fn(),

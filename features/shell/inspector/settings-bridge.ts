@@ -1,10 +1,10 @@
 import { formatFill, parseFill, type Fill, type Gradient, type GradientStop } from "@/components/ui/fill-picker/public-api"
 import { formatColor, parseColor } from "@/components/ui/fill-picker/base/color-picker"
 import type {
-  DesktopCornersSettings,
-  DesktopLogoSettings,
-  DesktopPatternSettings,
-  DesktopShapeSettings,
+  CornersSettings,
+  LogoSettings,
+  PatternSettings,
+  ShapeSettings,
 } from "@/features/shell/components/FloatingToolbar"
 import type { QraftyGradient } from "@/features/qr/model/state"
 import {
@@ -12,7 +12,7 @@ import {
   getQraftyGradientCenter,
 } from "@/features/qr/styles/qrafty-gradient-geometry"
 import { degreesToRadians, radiansToDegrees } from "@/features/qr/styles/gradient-controls"
-import { fillFromHex, fillPreviewHex } from "@/features/shell/inspector/fill-picker.utils"
+import { fillFromHex, fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils"
 const FALLBACK_OKLCH = { l: 0, c: 0, h: 0, alpha: 1 } as const
 
 /** CSS `linear-gradient` angles are 90° ahead of studio SVG rotation. */
@@ -94,7 +94,7 @@ export function qraftyGradientToFillCss(gradient: QraftyGradient): string {
   return formatFill(qraftyGradientToFill(gradient))
 }
 
-export function readPatternModuleFillCss(settings: DesktopPatternSettings): string {
+export function readPatternModuleFillCss(settings: PatternSettings): string {
   if (settings.dotsColorMode === "image") {
     // Image fills use a dedicated tab. Blob/data URLs are not valid fill-picker CSS.
     return solidColorToFillCss(settings.dotsSolidColor)
@@ -107,7 +107,7 @@ export function readPatternModuleFillCss(settings: DesktopPatternSettings): stri
   return solidColorToFillCss(settings.dotsSolidColor)
 }
 
-export function isPatternModuleImageFill(settings: DesktopPatternSettings): boolean {
+export function isPatternModuleImageFill(settings: PatternSettings): boolean {
   return settings.dotsColorMode === "image" && Boolean(settings.moduleFillImageUrl)
 }
 
@@ -123,7 +123,7 @@ export function readCornerFillCss(
   return solidColorToFillCss(solidColor)
 }
 
-export function readShapeFillCss(settings: DesktopShapeSettings): string {
+export function readShapeFillCss(settings: ShapeSettings): string {
   if (settings.shapeColorMode === "gradient") {
     return qraftyGradientToFillCss(settings.shapeGradient)
   }
@@ -131,7 +131,7 @@ export function readShapeFillCss(settings: DesktopShapeSettings): string {
   return solidColorToFillCss(settings.shapeSolidColor)
 }
 
-export function readLogoFillCss(settings: DesktopLogoSettings): string {
+export function readLogoFillCss(settings: LogoSettings): string {
   if (settings.colorMode === "gradient") {
     return qraftyGradientToFillCss(settings.gradient)
   }
@@ -228,8 +228,8 @@ function solidHexFromFill(fill: Fill): string {
 
 export function applyPatternModuleFill(
   fill: Fill,
-  settings: DesktopPatternSettings,
-): Partial<DesktopPatternSettings> {
+  settings: PatternSettings,
+): Partial<PatternSettings> {
   if (fill.kind === "gradient") {
     return {
       dotsColorMode: "gradient",
@@ -245,8 +245,8 @@ export function applyPatternModuleFill(
 
 export function applyPatternModuleImageUrl(
   imageUrl: string,
-  sourceMode: DesktopPatternSettings["moduleFillImageSourceMode"],
-): Partial<DesktopPatternSettings> {
+  sourceMode: PatternSettings["moduleFillImageSourceMode"],
+): Partial<PatternSettings> {
   return {
     dotsColorMode: "image",
     moduleFillImageUrl: imageUrl,
@@ -257,8 +257,8 @@ export function applyPatternModuleImageUrl(
 export function applyCornerFill(
   fill: Fill,
   part: "eye" | "frame",
-  settings: DesktopCornersSettings,
-): Partial<DesktopCornersSettings> {
+  settings: CornersSettings,
+): Partial<CornersSettings> {
   const gradient =
     part === "eye" ? settings.cornerDotGradient : settings.cornerSquareGradient
 
@@ -277,8 +277,8 @@ export function applyCornerFill(
 
 export function applyShapeFill(
   fill: Fill,
-  settings: DesktopShapeSettings,
-): Partial<DesktopShapeSettings> {
+  settings: ShapeSettings,
+): Partial<ShapeSettings> {
   if (fill.kind === "gradient") {
     return {
       shapeColorMode: "gradient",
@@ -294,8 +294,8 @@ export function applyShapeFill(
 
 export function applyLogoFill(
   fill: Fill,
-  settings: DesktopLogoSettings,
-): Partial<DesktopLogoSettings> {
+  settings: LogoSettings,
+): Partial<LogoSettings> {
   if (fill.kind === "gradient") {
     return {
       colorMode: "gradient",
@@ -318,21 +318,21 @@ export function applyCardFill(fill: Fill): { cardFill: string } {
 }
 
 export type UnifiedQrFillSettings = {
-  pattern: DesktopPatternSettings
-  corners: DesktopCornersSettings
-  logo: DesktopLogoSettings
+  pattern: PatternSettings
+  corners: CornersSettings
+  logo: LogoSettings
 }
 
 export type UnifiedQrFillPatches = {
-  pattern: Partial<DesktopPatternSettings>
-  corners: Partial<DesktopCornersSettings>
-  logo: Partial<DesktopLogoSettings>
+  pattern: Partial<PatternSettings>
+  corners: Partial<CornersSettings>
+  logo: Partial<LogoSettings>
 }
 
 function mergeCornerFills(
   fill: Fill,
-  settings: DesktopCornersSettings,
-): Partial<DesktopCornersSettings> {
+  settings: CornersSettings,
+): Partial<CornersSettings> {
   return {
     ...applyCornerFill(fill, "eye", settings),
     ...applyCornerFill(fill, "frame", settings),
@@ -355,7 +355,7 @@ export function applyUnifiedQrFill(
 
 export function applyUnifiedQrModuleImageUrl(
   imageUrl: string,
-  sourceMode: DesktopPatternSettings["moduleFillImageSourceMode"],
+  sourceMode: PatternSettings["moduleFillImageSourceMode"],
   settings: UnifiedQrFillSettings,
 ): UnifiedQrFillPatches {
   const representativeFill = fillFromHex(settings.pattern.dotsSolidColor)
@@ -371,10 +371,10 @@ export function applyUnifiedQrModuleImageUrl(
 }
 
 export function applyUnifiedQrModulePatternPatch(
-  patternPatch: Partial<DesktopPatternSettings>,
+  patternPatch: Partial<PatternSettings>,
   settings: UnifiedQrFillSettings,
 ): UnifiedQrFillPatches {
-  const mergedPattern: DesktopPatternSettings = {
+  const mergedPattern: PatternSettings = {
     ...settings.pattern,
     ...patternPatch,
     gradientLinkMode: "unified",

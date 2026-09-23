@@ -16,7 +16,7 @@ import {
 } from "react"
 
 import type { DraftingCardPaperShaderState } from "@/features/canvas/model/card-state"
-import { resolveShaderPlaybackVisible } from "@/features/canvas/components/card-paper-shader.utils"
+import { resolveShaderPlaybackVisible } from "@/features/canvas/components/card-paper-shader"
 import {
   getLivePaperShaderRenderOptions,
   getMotionShaderFillRenderOptions,

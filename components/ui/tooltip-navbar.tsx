@@ -4,7 +4,7 @@ import { AnimatePresence, m } from "motion/react";
 import { useRef, useState, type ReactNode } from "react";
 
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
-import { desktopCuelumeAttrs } from "@/features/shell/audio/desktop-cuelume";
+import { cuelumeAttrs } from "@/features/shell/audio/cuelume";
 import { cn } from "@/lib/utils";
 
 export type TooltipItem = {
@@ -107,7 +107,7 @@ export const TooltipNavbar = ({
   const renderItemButton = (item: TooltipItem, index: number) => {
     const isText = item.variant === "text";
     const isIconLabel = item.variant === "icon-label";
-    const cuelumeAttrs = desktopCuelumeAttrs(item.cuelume ?? "button");
+    const attrs = cuelumeAttrs(item.cuelume ?? "button");
 
     return (
       <button
@@ -121,7 +121,7 @@ export const TooltipNavbar = ({
           buttonRefs.current[index] = el;
         }}
         aria-pressed={item.pressed || undefined}
-        {...cuelumeAttrs}
+        {...attrs}
         className={cn(
           isIconLabel
             ? "flex h-9 cursor-pointer items-center justify-center gap-2 rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4"

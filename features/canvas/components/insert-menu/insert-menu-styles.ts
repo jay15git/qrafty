@@ -1,4 +1,4 @@
-import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
 import { cn } from "@/lib/utils"
 
 export const INSERT_MENU_POPOVER_WIDTH = "w-[min(20rem,calc(100vw-2rem))]"
@@ -27,6 +27,6 @@ export const INSERT_MENU_BACK_BUTTON =
 export const INSERT_MENU_INPUT_CLASS =
   "dn-settings-input h-[length:var(--settings-control-height)] min-w-0 px-[length:var(--settings-row-px)] shadow-none"
 
-export function insertMenuPortalClass(theme: DesktopThemeMode, className?: string) {
+export function insertMenuPortalClass(theme: ThemeMode, className?: string) {
   return cn(className, theme === "dark" && "dark")
 }

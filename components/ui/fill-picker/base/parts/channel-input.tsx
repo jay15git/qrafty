@@ -114,9 +114,9 @@ function FormatSelect({
   formats: ColorFormat[];
   onChange: (next: ColorFormat) => void;
 }) {
-  const { desktopAccordion } = useFillPickerPortalSurface();
+  const { accordion } = useFillPickerPortalSurface();
 
-  if (desktopAccordion) {
+  if (accordion) {
     return (
       <DesktopAccordionFieldSelect
         aria-label="Color format"

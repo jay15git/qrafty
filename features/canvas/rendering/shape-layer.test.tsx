@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest"
 
 import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
 import { createDraftingShapeLayer } from "@/features/canvas/model/layers/factories"
-import { patchShapeLayerFillFromPicker } from "@/features/canvas/rendering/shape-fill.utils"
+import { patchShapeLayerFillFromPicker } from "@/features/canvas/rendering/layer-fill"
 import { DraftingShapeLayerContent } from "@/features/canvas/rendering/shape-layer"
 import { formatFill } from "@/components/ui/fill-picker/public-api"
 

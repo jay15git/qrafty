@@ -3,11 +3,11 @@ import localFont from "next/font/local"
 import { cookies } from "next/headers"
 import { Suspense } from "react"
 
-import { DesktopPageClient } from "@/features/shell/components/DesktopPageClient"
+import { WorkspacePageClient } from "@/features/shell/components/WorkspacePageClient"
 import {
-  DESKTOP_THEME_COOKIE,
-  parseDesktopTheme,
-} from "@/features/shell/model/desktop-theme"
+  THEME_COOKIE,
+  parseTheme,
+} from "@/features/shell/model/theme"
 import { cn } from "@/lib/utils"
 
 const satoshi = localFont({
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 export default async function DesktopPage() {
   const cookieStore = await cookies()
-  const initialTheme = parseDesktopTheme(cookieStore.get(DESKTOP_THEME_COOKIE)?.value)
+  const initialTheme = parseTheme(cookieStore.get(THEME_COOKIE)?.value)
 
   return (
     <main
@@ -36,7 +36,7 @@ export default async function DesktopPage() {
       )}
     >
       <Suspense fallback={null}>
-        <DesktopPageClient fontClassName={satoshi.className} initialTheme={initialTheme} />
+        <WorkspacePageClient fontClassName={satoshi.className} initialTheme={initialTheme} />
       </Suspense>
     </main>
   )

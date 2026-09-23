@@ -20,13 +20,13 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 ## App Structure
 - `app/layout.tsx` defines the root shell, Geist/Bricolage Grotesque/Manrope fonts, and global CSS.
 - `app/page.tsx` is the home route; renders the marketing landing (`LandingHeroText` + `LandingCardWheel`).
-- `/design` is the active desktop workspace (`DesktopWorkspace` → `WorkspaceSurface` canvas + `FloatingToolbar` settings). `/desktop` redirects to `/design`.
+- `/design` is the active desktop workspace (`Workspace` → `DraftingCanvas` canvas + `FloatingToolbar` settings). `/desktop` redirects to `/design`.
 - `/new`, `/dashboard`, and `/settings` have been removed. Do not re-add features or fixes there unless explicitly asked.
 - `features/qr/model/state.ts` is the core QR state and mapper layer. Update this first when adding new controls, defaults, or renderer options.
 - Desktop QR settings live in `features/shell/components/FloatingToolbar.tsx` and `features/shell/inspector/DesktopSettingsPanel.tsx`.
 - Element-layer settings use `features/shell/components/DesktopElementInspector.tsx` with `SettingsFillPopover` / `DesktopFillPicker` (`features/shell/inspector/fill-picker.tsx`).
-- Shared workspace helpers live in `features/canvas/components/workspace-surface-helpers.ts` and `features/canvas/components/pane-layer-geometry.ts`.
-- `use-workspace-surface-view-model.ts` is the workspace state machine. Its pure derivations live in `workspace-surface-resolvers.ts`, the scan-safety probe in `use-workspace-scan-safety.ts`, and the `DesktopToolbarController` assembly in `workspace-desktop-controller.ts` (grouped by concern: core / qrSettings / scene / canvas / element / export / layers). Add new controller fields to the matching group, not to the hook.
+- Shared workspace helpers live in `features/canvas/components/drafting-canvas-operations.ts` and `features/canvas/components/pane-layer-geometry.ts`.
+- `use-drafting-canvas-view-model.ts` is the workspace state machine. Its pure derivations live in `drafting-canvas-resolvers.ts`, the scan-safety probe in `use-canvas-scan-safety.ts`, and the `ToolbarController` assembly in `desktop-toolbar-controller.ts` (grouped by concern: core / qrSettings / scene / canvas / element / export / layers). Add new controller fields to the matching group, not to the hook.
 - `lib/utils.ts` only provides `cn()`.
 
 ## MCP Tools

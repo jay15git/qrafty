@@ -1,23 +1,23 @@
 import { Link2, Unlink2 } from "lucide-react"
 import {
-  DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
-} from "@/features/shell/components/desktop-inspector-tokens"
+  INSPECTOR_SECTION_GAP_CLASS,
+} from "@/features/shell/components/inspector-tokens"
 import {
-  DesktopInspectorLabel,
-  DesktopInspectorSection,
+  InspectorLabel,
+  InspectorSection,
 } from "@/features/shell/components/InspectorControls"
 import {
-  DesktopInspectorElasticSliderRow,
-  DesktopInspectorNumberField,
-  DesktopInspectorValueGrid,
-} from "@/features/shell/components/DesktopInspectorShell"
-import { DesktopnewThemeContext } from "@/features/shell/inspector/theme-context"
+  InspectorElasticSliderRow,
+  InspectorNumberField,
+  InspectorValueGrid,
+} from "@/features/shell/components/InspectorShell"
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
 import { SettingsFillPopover, SettingsSlider } from "@/features/shell/inspector/settings-ui"
-import { fillPreviewHex } from "@/features/shell/inspector/fill-picker.utils"
+import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils"
 import type {
-  DesktopAppearanceBorderSnapshot,
-  DesktopAppearancePatch,
-  DesktopAppearanceSnapshot,
+  AppearanceBorderSnapshot,
+  AppearancePatch,
+  AppearanceSnapshot,
 } from "@/features/shell/model/appearance"
 import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
 import {
@@ -37,27 +37,27 @@ export function AppearanceBorderControls({
   onPatch,
   theme = "dark",
 }: {
-  appearance: DesktopAppearanceSnapshot
+  appearance: AppearanceSnapshot
   className?: string
-  onPatch: (patch: DesktopAppearancePatch) => void
+  onPatch: (patch: AppearancePatch) => void
   theme?: "dark" | "light"
 }) {
   const border = appearance.border
 
-  const emit = (patch: Partial<DesktopAppearanceBorderSnapshot>) =>
+  const emit = (patch: Partial<AppearanceBorderSnapshot>) =>
     onPatch({ border: { ...border, ...patch } })
 
   return (
-    <DesktopInspectorSection
-      className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, className)}
-      dataSlot="desktop-appearance-border-controls"
+    <InspectorSection
+      className={cn(INSPECTOR_SECTION_GAP_CLASS, className)}
+      dataSlot="appearance-border-controls"
     >
-      <DesktopInspectorLabel>Border</DesktopInspectorLabel>
-      <DesktopnewThemeContext.Provider value={theme}>
+      <InspectorLabel>Border</InspectorLabel>
+      <InspectorThemeContext.Provider value={theme}>
         <BorderColorRow appearance={appearance} onPatch={onPatch} />
-      </DesktopnewThemeContext.Provider>
+      </InspectorThemeContext.Provider>
       <div className="mt-2 grid gap-2">
-        <DesktopInspectorElasticSliderRow
+        <InspectorElasticSliderRow
           label="Width"
           max={64}
           min={0}
@@ -65,7 +65,7 @@ export function AppearanceBorderControls({
           valueLabel={`${Math.round(border.width)}`}
           onChange={(width) => emit({ width })}
         />
-        <DesktopInspectorElasticSliderRow
+        <InspectorElasticSliderRow
           label="Opacity"
           max={100}
           min={0}
@@ -74,7 +74,7 @@ export function AppearanceBorderControls({
           onChange={(opacity) => emit({ opacity })}
         />
       </div>
-    </DesktopInspectorSection>
+    </InspectorSection>
   )
 }
 
@@ -82,8 +82,8 @@ function BorderColorRow({
   appearance,
   onPatch,
 }: {
-  appearance: DesktopAppearanceSnapshot
-  onPatch: (patch: DesktopAppearancePatch) => void
+  appearance: AppearanceSnapshot
+  onPatch: (patch: AppearancePatch) => void
 }) {
   const border = appearance.border
 
@@ -113,7 +113,7 @@ function AppearanceOpacityControls({
   onPatch,
   useSettingsSlider = false,
 }: {
-  appearance: DesktopAppearanceSnapshot
+  appearance: AppearanceSnapshot
   className?: string
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
   useSettingsSlider?: boolean
@@ -121,9 +121,9 @@ function AppearanceOpacityControls({
   const opacityPercent = Math.round(appearance.opacity * 100)
 
   return (
-    <DesktopInspectorSection
-      className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, className)}
-      dataSlot="desktop-appearance-opacity-controls"
+    <InspectorSection
+      className={cn(INSPECTOR_SECTION_GAP_CLASS, className)}
+      dataSlot="appearance-opacity-controls"
     >
       {useSettingsSlider ? (
         <SettingsSlider
@@ -134,7 +134,7 @@ function AppearanceOpacityControls({
           onChange={(next) => onPatch({ opacity: next / 100 })}
         />
       ) : (
-        <DesktopInspectorElasticSliderRow
+        <InspectorElasticSliderRow
           label="Opacity"
           max={100}
           min={0}
@@ -143,7 +143,7 @@ function AppearanceOpacityControls({
           onChange={(next) => onPatch({ opacity: next / 100 })}
         />
       )}
-    </DesktopInspectorSection>
+    </InspectorSection>
   )
 }
 
@@ -152,7 +152,7 @@ export function AppearanceRadiusControls({
   className,
   onPatch,
 }: {
-  appearance: DesktopAppearanceSnapshot
+  appearance: AppearanceSnapshot
   className?: string
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
 }) {
@@ -176,12 +176,12 @@ export function AppearanceRadiusControls({
   }
 
   return (
-    <DesktopInspectorSection
-      className={cn(DESKTOP_INSPECTOR_SECTION_GAP_CLASS, className)}
-      dataSlot="desktop-appearance-radius-controls"
+    <InspectorSection
+      className={cn(INSPECTOR_SECTION_GAP_CLASS, className)}
+      dataSlot="appearance-radius-controls"
     >
       <div className="flex items-center justify-between gap-2">
-        <DesktopInspectorLabel>Corner radius</DesktopInspectorLabel>
+        <InspectorLabel>Corner radius</InspectorLabel>
         <button
           aria-label={radii.linked ? "Unlink corner radii" : "Link corner radii"}
           aria-pressed={radii.linked}
@@ -196,7 +196,7 @@ export function AppearanceRadiusControls({
       </div>
 
       {radii.linked ? (
-        <DesktopInspectorElasticSliderRow
+        <InspectorElasticSliderRow
           label="All corners"
           max={DRAFTING_CORNER_RADIUS_MAX}
           min={0}
@@ -205,9 +205,9 @@ export function AppearanceRadiusControls({
           onChange={(value) => updateCorner("topLeft", value)}
         />
       ) : (
-        <DesktopInspectorValueGrid>
+        <InspectorValueGrid>
           {DRAFTING_CORNER_RADIUS_KEYS.map((corner) => (
-            <DesktopInspectorNumberField
+            <InspectorNumberField
               key={corner}
               label={corner === "topLeft" ? "TL" : corner === "topRight" ? "TR" : corner === "bottomRight" ? "BR" : "BL"}
               max={DRAFTING_CORNER_RADIUS_MAX}
@@ -216,8 +216,8 @@ export function AppearanceRadiusControls({
               onChange={(value) => updateCorner(corner, value)}
             />
           ))}
-        </DesktopInspectorValueGrid>
+        </InspectorValueGrid>
       )}
-    </DesktopInspectorSection>
+    </InspectorSection>
   )
 }

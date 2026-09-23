@@ -1,0 +1,95 @@
+import { vi } from "vitest"
+
+import {
+  DEFAULT_DESKTOP_ACCESSIBILITY_SETTINGS,
+  DEFAULT_DESKTOP_BACKGROUND_SETTINGS,
+  DEFAULT_DESKTOP_CORNERS_SETTINGS,
+  DEFAULT_DESKTOP_EFFECTS_SETTINGS,
+  DEFAULT_DESKTOP_ENCODING_SETTINGS,
+  DEFAULT_DESKTOP_EXPORT_SETTINGS,
+  DEFAULT_DESKTOP_IMAGE_SETTINGS,
+  DEFAULT_LAYERS_SETTINGS,
+  DEFAULT_DESKTOP_LAYOUT_SETTINGS,
+  DEFAULT_DESKTOP_LOGO_SETTINGS,
+  DEFAULT_DESKTOP_MOTION_SETTINGS,
+  DEFAULT_DESKTOP_PATTERN_SETTINGS,
+  DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS,
+  DEFAULT_DESKTOP_SHAPE_SETTINGS,
+  DEFAULT_DESKTOP_TEXT_SETTINGS,
+} from "@/features/shell/model/toolbar-defaults"
+import type { ToolbarController } from "@/features/shell/model/toolbar-types"
+import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories"
+
+/**
+ * Builds a complete `ToolbarController` for tests. Every field is filled
+ * with the same default the inspector falls back to, so a test only has to
+ * supply the parts it exercises.
+ */
+export function createToolbarController(
+  overrides: Partial<ToolbarController> = {},
+  nodeId = "preview",
+): ToolbarController {
+  const layer = createDraftingTextLayer(nodeId, { text: "Hello" })
+  return {
+    activeTool: "content",
+    contentType: "link",
+    contentValues: {},
+    contentValidation: { fieldErrors: {}, isValid: true },
+    encodedContentValue: "",
+    patternSettings: DEFAULT_DESKTOP_PATTERN_SETTINGS,
+    logoSettings: DEFAULT_DESKTOP_LOGO_SETTINGS,
+    cornersSettings: DEFAULT_DESKTOP_CORNERS_SETTINGS,
+    shapeSettings: DEFAULT_DESKTOP_SHAPE_SETTINGS,
+    motionSettings: DEFAULT_DESKTOP_MOTION_SETTINGS,
+    encodingSettings: DEFAULT_DESKTOP_ENCODING_SETTINGS,
+    accessibilitySettings: DEFAULT_DESKTOP_ACCESSIBILITY_SETTINGS,
+    imageSettings: DEFAULT_DESKTOP_IMAGE_SETTINGS,
+    backgroundSettings: DEFAULT_DESKTOP_BACKGROUND_SETTINGS,
+    effectsSettings: DEFAULT_DESKTOP_EFFECTS_SETTINGS,
+    layersSettings: DEFAULT_LAYERS_SETTINGS,
+    exportSettings: DEFAULT_DESKTOP_EXPORT_SETTINGS,
+    layoutSettings: DEFAULT_DESKTOP_LAYOUT_SETTINGS,
+    sceneTemplateSettings: DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS,
+    textSettings: DEFAULT_DESKTOP_TEXT_SETTINGS,
+    selectedElementLayer: layer,
+    selectedLayerIds: [layer.id],
+    onActiveToolChange: vi.fn(),
+    onContentReset: vi.fn(),
+    onContentTypeChange: vi.fn(),
+    onContentPasteApply: vi.fn(),
+    onContentValueChange: vi.fn(),
+    onPatternReset: vi.fn(),
+    onPatternSettingsChange: vi.fn(),
+    onLogoReset: vi.fn(),
+    onLogoSettingsChange: vi.fn(),
+    onCornersReset: vi.fn(),
+    onCornersSettingsChange: vi.fn(),
+    onShapeReset: vi.fn(),
+    onShapeSettingsChange: vi.fn(),
+    onMotionReset: vi.fn(),
+    onMotionSettingsChange: vi.fn(),
+    onEncodingReset: vi.fn(),
+    onEncodingSettingsChange: vi.fn(),
+    onAccessibilityReset: vi.fn(),
+    onAccessibilitySettingsChange: vi.fn(),
+    onImageReset: vi.fn(),
+    onImageSettingsChange: vi.fn(),
+    onBackgroundReset: vi.fn(),
+    onBackgroundSettingsChange: vi.fn(),
+    onEffectsReset: vi.fn(),
+    onEffectsSettingsChange: vi.fn(),
+    onLayersReset: vi.fn(),
+    onLayersSettingsChange: vi.fn(),
+    onExportReset: vi.fn(),
+    onExportSettingsChange: vi.fn(),
+    onExportDownload: vi.fn(),
+    onTextReset: vi.fn(),
+    onTextSettingsChange: vi.fn(),
+    onElementLayerPatch: vi.fn(),
+    canCopyLayers: true,
+    onLayerCopy: vi.fn(),
+    onLayerMenuAction: vi.fn(),
+    canDeleteLayer: () => true,
+    ...overrides,
+  }
+}

@@ -791,7 +791,7 @@ function CropperDialogFooter({
     <DialogFooter
       className={cn(
         usesDesktopTheme
-          ? "desktopnew-crop-dialog__footer gap-2 border-t border-[var(--line)] p-[length:var(--settings-row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
+          ? "inspector-crop-dialog__footer gap-2 border-t border-[var(--line)] p-[length:var(--settings-row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
           : undefined,
       )}
     >
@@ -885,7 +885,7 @@ function CropperDialog({
           className={cn(
             usesDesktopTheme
               ? cn(
-                  "desktopnew-crop-dialog dn-portal-surface desktopnew-popover-content",
+                  "inspector-crop-dialog dn-portal-surface inspector-popover-content",
                   "w-[min(calc(100vw-2rem),26rem)] max-w-none gap-0 overflow-hidden border-0 p-0 shadow-none outline-none dn-squircle-md",
                   dialogTheme === "dark" && "dark",
                 )
@@ -897,7 +897,7 @@ function CropperDialog({
           <DialogHeader
             className={cn(
               usesDesktopTheme
-                ? "desktopnew-crop-dialog__header gap-2 space-y-0 border-b border-[var(--line)] px-[length:var(--settings-row-px)] py-3 text-left"
+                ? "inspector-crop-dialog__header gap-2 space-y-0 border-b border-[var(--line)] px-[length:var(--settings-row-px)] py-3 text-left"
                 : undefined,
             )}
           >
@@ -923,14 +923,14 @@ function CropperDialog({
             </DialogTitle>
           </DialogHeader>
 
-          <div className={cn(usesDesktopTheme ? "desktopnew-crop-dialog__body p-[length:var(--settings-row-px)]" : "space-y-4")}>
+          <div className={cn(usesDesktopTheme ? "inspector-crop-dialog__body p-[length:var(--settings-row-px)]" : "space-y-4")}>
             <div
               role="group"
               ref={cropContainerRef}
               className={cn(
                 "relative overflow-hidden select-none",
                 usesDesktopTheme
-                  ? "desktopnew-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--settings-control)]"
+                  ? "inspector-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--settings-control)]"
                   : "max-h-[80vh] rounded-lg border bg-muted/10",
               )}
               onMouseMove={onMouseMove}

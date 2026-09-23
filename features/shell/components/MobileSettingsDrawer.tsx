@@ -21,19 +21,19 @@ import {
   type ViewsRegistry,
 } from "@/components/ui/family-drawer"
 import { getMobileDrawerMaxHeightPx } from "@/features/shell/components/mobile-family-drawer-viewport"
-import type { DesktopInspectorModel } from "@/features/shell/hooks/useDesktopToolbarInspectorModel"
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
 import {
-  getDesktopSettingsSectionLabel,
-  type DesktopSettingsSectionId,
+  getSettingsSectionLabel,
+  type SettingsSectionId,
 } from "@/features/shell/inspector/settings-panel-meta"
 import {
   MobileDetailStackOutlets,
   useMobileDrawerNavigation,
-} from "@/features/shell/inspector/mobile-drawer-navigation-context"
-import { SettingsSectionBody } from "@/features/shell/inspector/settings-sections"
-import { DesktopnewThemeContext } from "@/features/shell/inspector/theme-context"
-import { MobileInspectorDensityContext } from "@/features/shell/inspector/mobile-inspector-density-context"
-import { MobileSettingsTabDockProvider } from "@/features/shell/inspector/mobile-settings-tab-dock"
+} from "@/features/shell/inspector/MobileDrawerNavigationContext"
+import { SettingsSectionBody } from "@/features/shell/inspector/SettingsSections"
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
+import { MobileInspectorDensityContext } from "@/features/shell/inspector/MobileInspectorDensityContext"
+import { MobileSettingsTabDockProvider } from "@/features/shell/inspector/MobileSettingsTabDock"
 import { getContentTypeLabel } from "@/features/qr/content/input-options"
 
 import "@/features/shell/inspector/inspector.css"
@@ -44,10 +44,10 @@ export const MOBILE_DRAWER_SECTION_VIEW = "section"
 export const MOBILE_DRAWER_DETAIL_VIEW = "setting-detail"
 
 type MobileDrawerViewProps = {
-  model: DesktopInspectorModel
+  model: InspectorModel
   onDiscard: () => void
   onSave: () => void
-  section: DesktopSettingsSectionId | null
+  section: SettingsSectionId | null
   title: string | undefined
 }
 
@@ -141,20 +141,20 @@ function MobileSettingDetailView({
   model,
   onSave,
 }: {
-  model: DesktopInspectorModel
+  model: InspectorModel
   onSave: () => void
 }) {
   const navigation = useMobileDrawerNavigation()
-  const theme = model.actualDesktopTheme
+  const theme = model.actualTheme
   const title = navigation?.detailPayload?.title ?? "Setting"
 
   return (
     <div
-      className="desktopnew-root w-full min-w-0"
+      className="inspector-root w-full min-w-0"
       data-mobile-inspector=""
       data-theme={theme}
     >
-      <DesktopnewThemeContext.Provider value={theme}>
+      <InspectorThemeContext.Provider value={theme}>
         <MobileInspectorDensityContext.Provider value={true}>
           <header className="dn-mobile-drawer-nested-header">
             <button
@@ -179,7 +179,7 @@ function MobileSettingDetailView({
           </header>
           <MobileDetailStackOutlets />
         </MobileInspectorDensityContext.Provider>
-      </DesktopnewThemeContext.Provider>
+      </InspectorThemeContext.Provider>
     </div>
   )
 }
@@ -191,26 +191,26 @@ function MobileSettingsSectionView({
   section,
   title,
 }: {
-  model: DesktopInspectorModel
+  model: InspectorModel
   onDiscard: () => void
   onSave: () => void
-  section: DesktopSettingsSectionId
+  section: SettingsSectionId
   title: string
 }) {
   return (
     <div
-      className="desktopnew-root w-full min-w-0"
+      className="inspector-root w-full min-w-0"
       data-mobile-inspector=""
-      data-theme={model.actualDesktopTheme}
+      data-theme={model.actualTheme}
     >
-      <DesktopnewThemeContext.Provider value={model.actualDesktopTheme}>
+      <InspectorThemeContext.Provider value={model.actualTheme}>
         <MobileInspectorDensityContext.Provider value={true}>
           <MobileSettingsTabDockProvider active>
             <MobileDrawerHeader onDiscard={onDiscard} onSave={onSave} title={title} />
             <SettingsSectionBody hideContentTypeBrowser id={section} model={model} />
           </MobileSettingsTabDockProvider>
         </MobileInspectorDensityContext.Provider>
-      </DesktopnewThemeContext.Provider>
+      </InspectorThemeContext.Provider>
     </div>
   )
 }
@@ -223,17 +223,17 @@ export function MobileSettingsDrawer({
   section,
   view,
 }: {
-  model: DesktopInspectorModel
+  model: InspectorModel
   onClose: () => void
   /** X in the header — replays the session snapshots, then closes. */
   onDiscard: () => void
   /** ✓ in the header — keeps the live-applied edits, then closes. */
   onSave: () => void
-  section: DesktopSettingsSectionId | null
+  section: SettingsSectionId | null
   /** `"section"` or `"setting-detail"` — the rail-level nav provider drives it. */
   view: string
 }) {
-  const theme = model.actualDesktopTheme
+  const theme = model.actualTheme
   const maxHeight = useMobileDrawerMaxHeight()
   const open = section !== null || view === MOBILE_DRAWER_DETAIL_VIEW
 
@@ -242,7 +242,7 @@ export function MobileSettingsDrawer({
   const title = section
     ? section === "Content"
       ? getContentTypeLabel(model.actualContentType)
-      : getDesktopSettingsSectionLabel(section)
+      : getSettingsSectionLabel(section)
     : undefined
 
   // `views` entries are rendered as component types — if they change identity
@@ -263,7 +263,7 @@ export function MobileSettingsDrawer({
             onDiscard={p.onDiscard}
             onSave={p.onSave}
             section={p.section}
-            title={p.title ?? getDesktopSettingsSectionLabel(p.section)}
+            title={p.title ?? getSettingsSectionLabel(p.section)}
           />
         )
       },
@@ -300,8 +300,8 @@ export function MobileSettingsDrawer({
       <FamilyDrawerPortal>
         <FamilyDrawerContent
           accessibilityTitle={title}
-          className="desktopnew-root shadow-none"
-          data-desktop-theme={theme}
+          className="inspector-root shadow-none"
+          data-shell-theme={theme}
           data-mobile-inspector=""
           data-slot="mobile-family-drawer-root"
           data-theme={theme}

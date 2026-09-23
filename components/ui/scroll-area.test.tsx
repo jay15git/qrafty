@@ -98,7 +98,7 @@ describe("ScrollArea", () => {
       createElement(
         "div",
         {
-          className: "desktopnew-root",
+          className: "inspector-root",
           style: {
             "--settings-preview-tile": "56px",
             "--space-inline": "6px",

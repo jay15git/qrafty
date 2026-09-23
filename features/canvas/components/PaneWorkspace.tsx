@@ -12,12 +12,12 @@ import {
 import {
   type DraftingLayerMenuAction,
 } from "@/features/canvas/components/pane-layer-chrome.constants"
-import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
 import type { QraftyState } from "@/features/qr/model/state"
 import type { StaticQrValidationResult } from "@/features/qr/content/static-payload"
 import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document"
 import { createDefaultSceneComposition, type SceneCompositionState } from "@/features/canvas/model/scene-templates"
-import { PaneSurfaceInteractive } from "@/features/canvas/components/pane-layer-a11y"
+import { PaneCanvasInteractive } from "@/features/canvas/components/pane-layer-a11y"
 import { PreviewRuntimeProvider } from "@/features/canvas/preview/preview-context"
 import {
   PaneCanvasContent,
@@ -49,7 +49,7 @@ export type PaneWorkspaceProps = {
   selectedLayerIds?: string[]
   snapEnabled?: boolean
   state: QraftyState
-  theme?: DesktopThemeMode
+  theme?: ThemeMode
 }
 
 export function PaneWorkspace({
@@ -259,7 +259,7 @@ export function PaneWorkspace({
       artboardScale={artboardScale}
       preferLowPowerShaders={preferLowPowerShaders}
     >
-    <PaneSurfaceInteractive
+    <PaneCanvasInteractive
       data-slot="qr-pane"
       data-selected={isSelected ? "true" : "false"}
       className="relative flex h-full w-full flex-col items-center justify-center overflow-visible"
@@ -272,7 +272,7 @@ export function PaneWorkspace({
         }
       }}
     >
-      <PaneSurfaceInteractive
+      <PaneCanvasInteractive
         ref={canvasRef}
         data-slot="desktop-compose-canvas"
         data-compose-mode="compose"
@@ -307,8 +307,8 @@ export function PaneWorkspace({
         ) : (
           <PaneCanvasContent {...canvasContentProps} />
         )}
-      </PaneSurfaceInteractive>
-    </PaneSurfaceInteractive>
+      </PaneCanvasInteractive>
+    </PaneCanvasInteractive>
     </PreviewRuntimeProvider>
   )
 }

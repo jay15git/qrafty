@@ -1,0 +1,131 @@
+/* /desktop workspace entrance — blur + fade only, no movement */
+
+:root {
+  --entrance-dur: 680ms;
+  --entrance-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --entrance-blur-canvas: 12px;
+  --entrance-blur-chrome: 8px;
+  --entrance-stagger-canvas: 0ms;
+  --entrance-stagger-sidebar: 90ms;
+  --entrance-stagger-island: 180ms;
+  --entrance-stagger-utility: 270ms;
+  --entrance-stagger-mobile-bar: 150ms;
+  --entrance-stagger-mobile-drawer: 240ms;
+}
+
+@keyframes entrance-fade-canvas {
+  from {
+    opacity: 0;
+    filter: blur(var(--entrance-blur-canvas));
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes entrance-fade-chrome {
+  from {
+    opacity: 0;
+    filter: blur(var(--entrance-blur-chrome));
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* loading — hide until ready */
+[data-slot="entrance-root"][data-entrance="loading"] [data-slot="drafting-surface"],
+[data-slot="entrance-root"][data-entrance="loading"] [data-slot="left-toolbar-shell"],
+[data-slot="entrance-root"][data-entrance="loading"] [data-slot="dynamic-island"],
+[data-slot="entrance-root"][data-entrance="loading"] [data-slot="utility-toolbar"],
+[data-slot="entrance-root"][data-entrance="loading"] [data-slot="mobile-workspace-top-bar"],
+[data-slot="entrance-root"][data-entrance="loading"] [data-slot="mobile-settings-rail-root"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* no layout shift during entrance — inset padding must not animate */
+[data-slot="workspace"]:has([data-slot="entrance-root"]:not([data-entrance="done"]))
+  [data-slot="drafting-workspace-inset"] {
+  transition: none !important;
+}
+
+/* revealing — staggered blur + fade */
+[data-slot="entrance-root"][data-entrance="revealing"] [data-slot="drafting-surface"] {
+  animation: entrance-fade-canvas var(--entrance-dur) var(--entrance-ease)
+    var(--entrance-stagger-canvas) both;
+}
+
+[data-slot="entrance-root"][data-entrance="revealing"] [data-slot="left-toolbar-shell"] {
+  animation: entrance-fade-chrome var(--entrance-dur) var(--entrance-ease)
+    var(--entrance-stagger-sidebar) both;
+}
+
+[data-slot="entrance-root"][data-entrance="revealing"] [data-slot="dynamic-island"] {
+  animation: entrance-fade-chrome var(--entrance-dur) var(--entrance-ease)
+    var(--entrance-stagger-island) both;
+}
+
+[data-slot="entrance-root"][data-entrance="revealing"] [data-slot="utility-toolbar"] {
+  animation: entrance-fade-chrome var(--entrance-dur) var(--entrance-ease)
+    var(--entrance-stagger-utility) both;
+}
+
+[data-slot="entrance-root"][data-entrance="revealing"] [data-slot="mobile-workspace-top-bar"] {
+  animation: entrance-fade-chrome var(--entrance-dur) var(--entrance-ease)
+    var(--entrance-stagger-mobile-bar) both;
+}
+
+[data-slot="entrance-root"][data-entrance="revealing"] [data-slot="mobile-settings-rail-root"] {
+  animation: entrance-fade-chrome var(--entrance-dur) var(--entrance-ease)
+    var(--entrance-stagger-mobile-drawer) both;
+}
+
+/* done — lock final state (opacity + filter only, never touch transform) */
+[data-slot="entrance-root"][data-entrance="done"] [data-slot="drafting-surface"],
+[data-slot="entrance-root"][data-entrance="done"] [data-slot="left-toolbar-shell"],
+[data-slot="entrance-root"][data-entrance="done"] [data-slot="dynamic-island"],
+[data-slot="entrance-root"][data-entrance="done"] [data-slot="utility-toolbar"],
+[data-slot="entrance-root"][data-entrance="done"] [data-slot="mobile-workspace-top-bar"],
+[data-slot="entrance-root"][data-entrance="done"] [data-slot="mobile-settings-rail-root"] {
+  opacity: 1;
+  filter: none;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --entrance-dur: 220ms;
+    --entrance-blur-canvas: 0px;
+    --entrance-blur-chrome: 0px;
+    --entrance-stagger-sidebar: 50ms;
+    --entrance-stagger-island: 100ms;
+    --entrance-stagger-utility: 150ms;
+    --entrance-stagger-mobile-bar: 75ms;
+    --entrance-stagger-mobile-drawer: 125ms;
+  }
+
+  @keyframes entrance-fade-canvas {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes entrance-fade-chrome {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+}

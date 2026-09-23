@@ -18,12 +18,12 @@ import { getLayerSvgTransform } from "@/features/canvas/rendering/layer-transfor
 import { getShapeStrokeViewBoxScale, getShapeSvgPath } from "@/features/canvas/rendering/shape-layer-paths"
 import { cssFillToSvgPaint, isConicCssFill, rasterizeConicCssFillToDataUrl } from "@/features/canvas/export/svg-css-fill"
 import { qraftyGradientToFillCss } from "@/features/shell/inspector/settings-bridge"
-import { shouldRenderShapeFillGradient } from "@/features/canvas/rendering/shape-fill.utils"
+import { shouldRenderShapeFillGradient } from "@/features/canvas/rendering/layer-fill"
 import { QR_BACKGROUND_SHAPES } from "@/features/qr/styles/background-shapes"
 import {
   getDraftingQrBackgroundBounds,
   getDraftingQrBackgroundSvgMarkup,
-} from "@/features/canvas/components/drafting-qr-background.utils"
+} from "@/features/canvas/components/drafting-qr-background"
 import { getDraftingQrLayerLayout } from "@/features/qr/rendering/svg-extension"
 
 import {

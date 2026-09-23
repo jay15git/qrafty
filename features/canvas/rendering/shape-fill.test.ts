@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { formatFill } from "@/components/ui/fill-picker/public-api"
-import { fillFromHex } from "@/features/shell/inspector/fill-picker.utils"
+import { fillFromHex } from "@/features/shell/inspector/FillPicker.utils"
 import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
 import {
   createDraftingShapeLayer,
@@ -12,7 +12,7 @@ import {
   getTextLayerFillCssValue,
   patchShapeLayerFillFromPicker,
   patchTextLayerFillFromPicker,
-} from "@/features/canvas/rendering/shape-fill.utils"
+} from "@/features/canvas/rendering/layer-fill"
 
 describe("shape-fill", () => {
   it("stores shape gradients on fillGradient instead of fill css", () => {

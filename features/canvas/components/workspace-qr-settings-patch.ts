@@ -1,12 +1,12 @@
 import type {
-  DesktopCornersSettings,
-  DesktopLogoSettings,
-  DesktopPatternSettingsPatch,
-} from "@/features/shell/model/desktop-toolbar-types"
+  CornersSettings,
+  LogoSettings,
+  PatternSettingsPatch,
+} from "@/features/shell/model/toolbar-types"
 import type { QraftyState } from "@/features/qr/model/state"
 export function applyPatternSettingsPatchToQraftyState(
   state: QraftyState,
-  patch: DesktopPatternSettingsPatch,
+  patch: PatternSettingsPatch,
 ): QraftyState {
   let next = state
 
@@ -121,7 +121,7 @@ export function applyPatternSettingsPatchToQraftyState(
 
 export function applyCornersSettingsPatchToQraftyState(
   state: QraftyState,
-  patch: Partial<DesktopCornersSettings>,
+  patch: Partial<CornersSettings>,
 ): QraftyState {
   let next = state
 
@@ -212,7 +212,7 @@ export function applyCornersSettingsPatchToQraftyState(
 
 export function applyLogoSettingsPatchToQraftyState(
   state: QraftyState,
-  patch: Partial<DesktopLogoSettings>,
+  patch: Partial<LogoSettings>,
 ): QraftyState {
   let next = state
 

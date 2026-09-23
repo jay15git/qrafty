@@ -23,7 +23,7 @@ import {
 import { clampBackgroundShapeTilt } from "@/features/qr/model/state"
 import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style"
 import { qraftyGradientToFillCss } from "@/features/shell/inspector/settings-bridge"
-import { shouldRenderShapeFillGradient } from "@/features/canvas/rendering/shape-fill.utils"
+import { shouldRenderShapeFillGradient } from "@/features/canvas/rendering/layer-fill"
 import {
   getBackgroundShapeCssTiltTransform,
   getLayerPlacementTransform,

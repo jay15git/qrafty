@@ -1,13 +1,13 @@
 "use client"
 
 import {
-  DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
-  DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
-  DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-} from "@/features/shell/components/desktop-inspector-tokens"
-import { DesktopInspectorAnimatedOptionGrid } from "@/features/shell/inspector/inspector-option-grid"
-import { desktopInspectorOptionGridItemClass } from "@/features/shell/inspector/inspector-option-grid.classes"
-import { DesktopInspectorOptionGridScrollArea } from "@/features/shell/inspector/inspector-option-grid"
+  INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+  INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+  INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+} from "@/features/shell/components/inspector-tokens"
+import { InspectorAnimatedOptionGrid } from "@/features/shell/inspector/InspectorOptionGrid"
+import { inspectorOptionGridItemClass } from "@/features/shell/inspector/InspectorOptionGrid.classes"
+import { InspectorOptionGridScrollArea } from "@/features/shell/inspector/InspectorOptionGrid"
 import { PaperShaderOptionPreview } from "@/features/canvas/components/PaperShaderOptionPreview"
 import {
   getAllPaperShaderDefinitions,
@@ -42,15 +42,15 @@ function InspectorPaperShaderOptionTile({
     <button
       aria-label={`Use ${label} shader`}
       aria-pressed={selected}
-      data-desktop-animated-option-selection="true"
-      data-desktop-option-interaction="scale"
-      data-desktop-option-tile="true"
+      data-animated-option-selection="true"
+      data-option-interaction="scale"
+      data-option-tile="true"
       data-desktop-preview-option="true"
       className={cn(
         "group relative aspect-square w-full min-w-0 p-0 text-center",
-        desktopInspectorOptionGridItemClass("loose"),
-        DESKTOP_INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-        DESKTOP_INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+        inspectorOptionGridItemClass("loose"),
+        INSPECTOR_OPTION_TILE_SURFACE_CLASS,
+        INSPECTOR_OPTION_TILE_BUTTON_CLASS,
         selected && "text-[var(--settings-option-selected-fg)]",
       )}
       type="button"
@@ -59,10 +59,10 @@ function InspectorPaperShaderOptionTile({
       <span
         aria-hidden="true"
         data-desktop-adaptive-option-preview="true"
-        data-slot="desktop-style-preview-surface"
+        data-slot="style-preview-surface"
         className={cn(
           "relative z-10 size-full overflow-hidden rounded-[6px] border-2 border-transparent bg-[#15161a] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]",
-          DESKTOP_INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+          INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
         )}
       >
         <PaperShaderOptionPreview isSelected={selected} shaderId={shaderId} />
@@ -127,14 +127,14 @@ export function PaperShaderOptionGrid({
     }
 
     return (
-      <DesktopInspectorOptionGridScrollArea
+      <InspectorOptionGridScrollArea
         ariaLabel="Paper shaders"
         columns={columns}
         dataSlot={scrollAreaDataSlot}
         shelfDataSlot={shelfDataSlot}
         variant="preset"
       >
-        <DesktopInspectorAnimatedOptionGrid columns={columns} data-slot={dataSlot} selectedKey={selectedShaderId}>
+        <InspectorAnimatedOptionGrid columns={columns} data-slot={dataSlot} selectedKey={selectedShaderId}>
           {shaders.map((shader) => (
             <InspectorPaperShaderOptionTile
               key={shader.id}
@@ -144,8 +144,8 @@ export function PaperShaderOptionGrid({
               onClick={() => onSelect(shader.id)}
             />
           ))}
-        </DesktopInspectorAnimatedOptionGrid>
-      </DesktopInspectorOptionGridScrollArea>
+        </InspectorAnimatedOptionGrid>
+      </InspectorOptionGridScrollArea>
     )
   }
 

@@ -43,7 +43,7 @@ import type { DraftingCardState } from "@/features/canvas/model/card-state"
 import type { SceneCompositionState } from "@/features/canvas/model/scene-templates"
 import type { PreviewStageSize } from "@/features/canvas/preview/preview-camera"
 import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
 import {
   getLayerRotationLabel,
   getMarqueeBounds,
@@ -127,7 +127,7 @@ function PaneLayerControlsFrame({
         <div
           className="pointer-events-none absolute left-1/2 top-0 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-2.5 py-1 text-[0.68rem] font-semibold text-[var(--glass-fg)] shadow-[var(--glass-shadow)] backdrop-blur-2xl"
           data-slot="drafting-layer-rotation-value"
-          data-toolbar-appearance="desktop-glass"
+          data-toolbar-appearance="glass"
           style={{
             transform: `translate(-50%, calc(-${ROTATE_HANDLE_OFFSET_PX}px - ${ROTATE_HANDLE_RADIUS_PX}px - ${ROTATE_LABEL_GAP_PX}px - 100%))`,
           }}
@@ -232,7 +232,7 @@ function PaneMultiSelectFrame({
         <div
           className="pointer-events-none absolute left-1/2 top-0 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-2.5 py-1 text-[0.68rem] font-semibold text-[var(--glass-fg)] shadow-[var(--glass-shadow)] backdrop-blur-2xl"
           data-slot="drafting-layer-rotation-value"
-          data-toolbar-appearance="desktop-glass"
+          data-toolbar-appearance="glass"
           style={{
             transform: `translate(-50%, calc(-${ROTATE_HANDLE_OFFSET_PX}px - ${ROTATE_HANDLE_RADIUS_PX}px - ${ROTATE_LABEL_GAP_PX}px - 100%))`,
           }}
@@ -294,7 +294,7 @@ type PaneFloatingToolbarProps = {
   rotatingLayerId: string | null
   selectedVisibleLayers: DraftingCanvasLayer[]
   selectedVisibleLayerIds: string[]
-  theme: DesktopThemeMode
+  theme: ThemeMode
   toolbarRef: RefObject<HTMLDivElement | null>
   toolbarWidth: number
 }
@@ -433,7 +433,7 @@ export type PaneChromeOverlayProps = {
   selectedVisibleLayers: DraftingCanvasLayer[]
   selectedVisibleLayerIds: string[]
   snapGuideClipBounds: ChromeBounds | null
-  theme: DesktopThemeMode
+  theme: ThemeMode
   toolbarRef: RefObject<HTMLDivElement | null>
   toolbarWidth: number
 }

@@ -23,8 +23,8 @@ export function syncMobileWorkspaceChromeInsets({
 
   const targets: Array<HTMLElement | null> = [
     document.documentElement,
-    document.querySelector<HTMLElement>('[data-slot="desktop-workspace"]'),
-    document.querySelector<HTMLElement>('[data-slot="desktop-floating-toolbar-root"]'),
+    document.querySelector<HTMLElement>('[data-slot="workspace"]'),
+    document.querySelector<HTMLElement>('[data-slot="floating-toolbar-root"]'),
   ]
 
   const chromeUnmeasured = drawerHeight === 0

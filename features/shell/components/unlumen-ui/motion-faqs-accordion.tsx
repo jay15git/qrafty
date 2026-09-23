@@ -4,11 +4,11 @@ import * as React from "react";
 import { ChevronRight } from "lucide-react";
 import { m } from "motion/react";
 
-import { CUELUME_BUTTON } from "@/features/shell/audio/desktop-cuelume";
+import { CUELUME_BUTTON } from "@/features/shell/audio/cuelume";
 import {
   SettingsAccordionPopoverOpenMarker,
   SettingsAccordionPopoverProvider,
-} from "@/features/shell/inspector/settings-accordion-popover-context";
+} from "@/features/shell/inspector/SettingsAccordionPopoverContext";
 import { cn } from "@/lib/utils";
 
 export interface MotionAccordionItem {

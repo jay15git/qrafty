@@ -2,8 +2,8 @@
 
 import { useRef } from "react"
 import { PopoverClose, PopoverContent } from "@/components/ui/popover"
-import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/mobile-inspector-density-context"
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
 import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui"
 import { InsertMenuPanelStack } from "@/features/canvas/components/insert-menu/InsertMenuPanelStack"
 import {
@@ -22,9 +22,9 @@ type InsertMenuPopoverContentProps = {
   canAddQrCode?: boolean
   onAddQrCode?: () => void
   onBrowseWallpapers?: () => void
-  isDesktopPopover?: boolean
+  isPopover?: boolean
   popoverSide?: "top" | "bottom" | "left" | "right"
-  theme?: DesktopThemeMode
+  theme?: ThemeMode
 }
 
 export function InsertMenuPopoverContent({
@@ -33,7 +33,7 @@ export function InsertMenuPopoverContent({
   canAddQrCode = true,
   onAddQrCode,
   onBrowseWallpapers,
-  isDesktopPopover = true,
+  isPopover = true,
   popoverSide = "bottom",
   theme = "dark",
 }: InsertMenuPopoverContentProps) {
@@ -46,22 +46,22 @@ export function InsertMenuPopoverContent({
 
   return (
     <PopoverContent
-      align={isDesktopPopover ? "center" : "start"}
+      align={isPopover ? "center" : "start"}
       className={
-        isDesktopPopover
+        isPopover
           ? insertMenuPortalClass(
               theme,
               cn(INSERT_MENU_POPOVER_SHELL, INSERT_MENU_POPOVER_WIDTH, "flex flex-col"),
             )
           : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--canvas-line)] bg-[var(--settings-panel-bg)] p-3"
       }
-      data-slot={isDesktopPopover ? "desktop-insert-menu-popover" : "drafting-insert-menu"}
-      data-mobile-inspector={isDesktopPopover && mobileDensity ? "" : undefined}
-      data-theme={isDesktopPopover ? theme : undefined}
+      data-slot={isPopover ? "desktop-insert-menu-popover" : "drafting-insert-menu"}
+      data-mobile-inspector={isPopover && mobileDensity ? "" : undefined}
+      data-theme={isPopover ? theme : undefined}
       side={popoverSide}
-      sideOffset={isDesktopPopover ? 12 : undefined}
+      sideOffset={isPopover ? 12 : undefined}
     >
-      {isDesktopPopover ? (
+      {isPopover ? (
         <div className="dn-settings-popover-header">
           <p className="dn-settings-popover-title">Add element</p>
           <PopoverClose asChild>
@@ -71,7 +71,7 @@ export function InsertMenuPopoverContent({
       ) : null}
       <InsertMenuPanelStack
         canAddQrCode={canAddQrCode}
-        isDesktopPopover={isDesktopPopover}
+        isPopover={isPopover}
         nodeId={nodeId}
         onAddQrCode={onAddQrCode}
         onBrowseWallpapers={onBrowseWallpapers}

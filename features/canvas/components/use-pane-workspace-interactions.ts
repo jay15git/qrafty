@@ -46,7 +46,7 @@ import {
   getDraftingCardBorderStyle,
 } from "@/features/canvas/rendering/layer-dom-styles"
 import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style"
-import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
 import type { QraftyState } from "@/features/qr/model/state"
 import type { StaticQrValidationResult } from "@/features/qr/content/static-payload"
 import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document"
@@ -96,7 +96,7 @@ export type PaneWorkspaceInteractionsInput = {
   selectedLayerIds?: string[]
   snapEnabled: boolean
   state: QraftyState
-  theme: DesktopThemeMode
+  theme: ThemeMode
 }
 
 export type PaneMarqueeState = {

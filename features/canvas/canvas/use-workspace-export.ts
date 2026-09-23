@@ -2,11 +2,11 @@
 
 import { useCallback, useRef, useState } from "react"
 
-import { playDesktopSound } from "@/features/shell/audio/desktop-cuelume"
+import { playSound } from "@/features/shell/audio/cuelume"
 import {
   DEFAULT_DOWNLOAD_NAME,
   type DraftingDownloadExtension,
-} from "@/features/canvas/components/workspace-surface.constants"
+} from "@/features/canvas/components/drafting-canvas.constants"
 import {
   resolveVideoOutputDimensions,
   type OutputDimensions,
@@ -104,7 +104,7 @@ export function useWorkspaceExport({
       setInProgress(true)
       setProgressLabel("Preparing export...")
       setProgressRatio(0.05)
-      playDesktopSound("loading")
+      playSound("loading")
 
       const exportLayers =
         layerStateByNodeId[activeQrNodeId] ??
@@ -238,16 +238,16 @@ export function useWorkspaceExport({
         })
       }
 
-      playDesktopSound("success")
+      playSound("success")
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
         setDownloadError("Export cancelled.")
-        playDesktopSound("droplet")
+        playSound("droplet")
         return
       }
 
       setDownloadError(error instanceof Error ? error.message : "Export failed.")
-      playDesktopSound("error")
+      playSound("error")
     } finally {
       setInProgress(false)
       setProgressLabel(null)

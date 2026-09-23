@@ -7,7 +7,7 @@ export type FillPickerPortalSurface = {
   portaledSurfaceClassName?: string
   portaledSurfaceDataTheme?: "light" | "dark"
   /** Desktop accordion / settings popover — borderless controls + app Select. */
-  desktopAccordion?: boolean
+  accordion?: boolean
 }
 
 const FillPickerPortalSurfaceContext =

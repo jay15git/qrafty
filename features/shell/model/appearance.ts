@@ -23,15 +23,15 @@ import {
   legacyShadowToShadowLayer,
 } from "@/features/canvas/model/effects"
 
-export type DesktopAppearanceBorderSnapshot = DraftingBorderSideValue
+export type AppearanceBorderSnapshot = DraftingBorderSideValue
 
-export type DesktopAppearancePatch = Partial<DraftingCanvasLayer> & {
-  border?: DesktopAppearanceBorderSnapshot
+export type AppearancePatch = Partial<DraftingCanvasLayer> & {
+  border?: AppearanceBorderSnapshot
 }
 
-export type DesktopAppearanceSnapshot = {
+export type AppearanceSnapshot = {
   blur: number
-  border: DesktopAppearanceBorderSnapshot
+  border: AppearanceBorderSnapshot
   cornerRadius?: number
   cornerRadii?: DraftingCornerRadiiState
   layerFilters: DraftingFilterEffect[]
@@ -42,7 +42,7 @@ export type DesktopAppearanceSnapshot = {
   supportsCornerRadius: boolean
 }
 
-const DEFAULT_APPEARANCE_BORDER: DesktopAppearanceBorderSnapshot = {
+const DEFAULT_APPEARANCE_BORDER: AppearanceBorderSnapshot = {
   color: "#111827",
   opacity: 100,
   style: "solid",
@@ -67,7 +67,7 @@ function getLayerBorderSnapshot(
     qrBackgroundSurfaceVisible?: boolean
     qrBackgroundShapeOptions?: BackgroundShapeOptions
   },
-): DesktopAppearanceBorderSnapshot {
+): AppearanceBorderSnapshot {
   if (layer.kind === "qr" && qrHasBorderableBackdrop(options) && options?.qrBackgroundShapeOptions) {
     return {
       color: options.qrBackgroundShapeOptions.strokeColor,
@@ -99,7 +99,7 @@ function getLayerBorderSnapshot(
   return { ...DEFAULT_APPEARANCE_BORDER, ...layer.borderSides?.top }
 }
 
-export function getDesktopAppearanceSnapshot(
+export function getAppearanceSnapshot(
   layer: DraftingCanvasLayer,
   options?: {
     cardBorder?: DraftingCardBorderState
@@ -109,7 +109,7 @@ export function getDesktopAppearanceSnapshot(
     qrBackgroundSurfaceVisible?: boolean
     qrBackgroundShapeOptions?: BackgroundShapeOptions
   },
-): DesktopAppearanceSnapshot {
+): AppearanceSnapshot {
   const layerFilters = layer.layerFilters ?? []
   const border = getLayerBorderSnapshot(layer, options)
   const shadows = layer.shadows ?? [legacyShadowToShadowLayer(layer.shadow)]
@@ -173,7 +173,7 @@ export function getDesktopAppearanceSnapshot(
   }
 }
 
-export type DesktopAppearancePatchResult = {
+export type AppearancePatchResult = {
   cardBorder?: DraftingCardBorderState
   cardCornerRadius?: number
   cardCornerRadii?: DraftingCornerRadiiState
@@ -182,16 +182,16 @@ export type DesktopAppearancePatchResult = {
   qrBackgroundShapeOptions?: Partial<BackgroundShapeOptions>
 }
 
-export function buildDesktopAppearancePatch(
+export function buildAppearancePatch(
   layer: DraftingCanvasLayer,
-  patch: DesktopAppearancePatch,
+  patch: AppearancePatch,
   options?: {
     cardBorder?: unknown
     qrBackgroundShapeId?: string
     qrBackgroundSurfaceVisible?: boolean
     qrBackgroundShapeOptions?: BackgroundShapeOptions
   },
-): DesktopAppearancePatchResult {
+): AppearancePatchResult {
   const layerPatch: Partial<DraftingCanvasLayer> = {}
   let cardBorder: DraftingCardBorderState | undefined
   let qrBackgroundShapeOptions: Partial<BackgroundShapeOptions> | undefined
