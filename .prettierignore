@@ -1,0 +1,8 @@
+.next
+node_modules
+packages/qr/vendor
+packages/qr/dist
+pnpm-lock.yaml
+public
+.agents
+docs/superpowers
