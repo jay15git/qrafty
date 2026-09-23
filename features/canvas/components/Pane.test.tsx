@@ -210,7 +210,7 @@ describe("Pane", () => {
     expect((node as HTMLElement).style.height).toBe("240px")
   })
 
-  it("sizes the preview from rendered qr bounds using padding and stroke only", async () => {
+  it("keeps the qr layer box at the state size when the background shape adds padding and stroke", async () => {
     const state = { ...createDefaultQraftyState(), width: clampQrSize(240), height: clampQrSize(240) }
     state.backgroundShapeOptions = {
       edgeBlur: 10,
@@ -237,11 +237,11 @@ describe("Pane", () => {
     const node = container.querySelector('[data-slot="desktop-compose-node"]') as HTMLElement
 
     expect(node).not.toBeNull()
-    expect(node.style.width).toBe("288px")
-    expect(node.style.height).toBe("288px")
+    expect(node.style.width).toBe("240px")
+    expect(node.style.height).toBe("240px")
     expect(card).not.toBeNull()
-    expect(card.style.width).toBe("328px")
-    expect(card.style.height).toBe("424px")
+    expect(card.style.width).toBe("280px")
+    expect(card.style.height).toBe("376px")
   })
 
   it("renders the editable card layer behind the qr artwork", async () => {
@@ -251,7 +251,7 @@ describe("Pane", () => {
       border: {
         color: "#111827",
         opacity: 40,
-        sides: createUniformPerSideBorder(),
+        sides: createUniformPerSideBorder({ width: 6 }),
         style: "solid",
         width: 6,
       },
@@ -266,6 +266,7 @@ describe("Pane", () => {
         offsetX: 6,
         offsetY: 8,
         opacity: 35,
+        visible: true,
       },
     })
     const { container } = renderPane(state, false, cardState)
@@ -273,6 +274,8 @@ describe("Pane", () => {
     await waitForQrPaneRender()
 
     const card = container.querySelector('[data-slot="desktop-compose-card"]') as HTMLElement
+    const cardFill = container.querySelector('[data-slot="desktop-compose-card-fill"]') as HTMLElement
+    const cardBorder = container.querySelector('[data-slot="desktop-compose-card-border"]') as HTMLElement
     const node = container.querySelector('[data-slot="desktop-compose-node"]') as HTMLElement
 
     expect(card).not.toBeNull()
@@ -281,8 +284,10 @@ describe("Pane", () => {
     expect(card.getAttribute("data-card-shadow-blur")).toBe("30")
     expect(card.getAttribute("data-card-shadow-offset-x")).toBe("6")
     expect(card.getAttribute("data-card-shadow-offset-y")).toBe("8")
-    expect(card.style.backgroundColor).toBe("rgb(255, 204, 0)")
-    expect(card.style.border).toContain("6px solid rgba(17, 24, 39, 0.4)")
+    expect(cardFill).not.toBeNull()
+    expect(cardFill.style.backgroundColor).toBe("rgb(255, 204, 0)")
+    expect(cardBorder).not.toBeNull()
+    expect(cardBorder.style.border).toContain("6px solid rgba(17, 24, 39, 0.4)")
     expect(card.style.borderRadius).toBe("28px 28px 28px 28px")
     expect(card.style.width).toBe("280px")
     expect(card.style.height).toBe("376px")
@@ -323,6 +328,7 @@ describe("Pane", () => {
         offsetX: 6,
         offsetY: 8,
         opacity: 35,
+        visible: true,
       },
     }
     const { container } = renderPane(state, false, cardState)
@@ -534,8 +540,10 @@ describe("Pane", () => {
     expect(frame.style.width).toBe(`${frameRect.width}px`)
     expect(frame.style.height).toBe(`${frameRect.height}px`)
     expect(handle?.className).toContain("size-4")
-    expect(toolbar.className).toContain("h-12")
-    expect(toolbar.className).toContain("rounded-full")
+    expect(toolbar).not.toBeNull()
+    expect(toolbar.getAttribute("role")).toBe("toolbar")
+    expect(toolbar.style.transform).toContain("translate3d")
+    expect(toolbar.style.transform).not.toContain("scale")
   })
 
   it("snaps moving layers to nearby layer center guides", async () => {
@@ -973,7 +981,11 @@ describe("Pane", () => {
     })
 
     expect(document.querySelector('[data-slot="drafting-layer-text-size-settings"]')).toBeTruthy()
-    expect(document.querySelector('[data-slot="drafting-layer-text-size-settings"] button[aria-label="32px"]')).toBeTruthy()
+    const textSizeSlider = document.querySelector(
+      '[data-slot="drafting-layer-text-size-settings"] [role="slider"][aria-label="Size"]',
+    )
+    expect(textSizeSlider).toBeTruthy()
+    expect(textSizeSlider?.getAttribute("aria-valuenow")).toBe("32")
 
     act(() => {
       clickElement(getRequiredElement(toolbar, 'button[aria-label="Copy selection"]'))
@@ -1014,8 +1026,8 @@ describe("Pane", () => {
     expect(menu).not.toBeNull()
     expect(menu.className).toContain("desktopnew-popover-content")
     expect(menu.className).not.toContain("backdrop-blur")
-    expect(menu.style.left).toBe("120px")
-    expect(menu.style.top).toBe("116px")
+    expect(menu.getAttribute("role")).toBe("menu")
+    expect(container.contains(menu)).toBe(false)
 
     for (const label of ["Paste", "Copy", "Lock", "Delete", "Align left", "Align center", "Align middle", "Align right"]) {
       expect(menu.querySelector(`button[aria-label="${label}"]`)).toBeNull()
@@ -1094,8 +1106,8 @@ describe("Pane", () => {
     expect(menu).not.toBeNull()
     expect(menu.className).toContain("desktopnew-popover-content")
     expect(menu.className).not.toContain("backdrop-blur")
-    expect(menu.style.left).toBe("120px")
-    expect(menu.style.top).toBe("148px")
+    expect(menu.getAttribute("role")).toBe("menu")
+    expect(container.contains(menu)).toBe(false)
     expect(menu.textContent).not.toContain("QR code")
     expect(menu.textContent).not.toContain("Card")
 

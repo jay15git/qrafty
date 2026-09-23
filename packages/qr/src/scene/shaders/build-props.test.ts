@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest"
 
 import { buildPaperShaderRenderProps } from "./build-props"
-import { LIVE_PAPER_SHADER_RENDER_OPTIONS } from "./live-render-options"
+import {
+  EXPORT_PAPER_SHADER_RENDER_OPTIONS,
+  LIVE_PAPER_SHADER_RENDER_OPTIONS,
+} from "./live-render-options"
 
 describe("buildPaperShaderRenderProps", () => {
   const shader = {
@@ -30,8 +33,11 @@ describe("buildPaperShaderRenderProps", () => {
     expect(exported).toMatchObject({
       maxPixelCount: 6016 * 3384,
       speed: 1,
-      preserveDrawingBuffer: true,
     })
+    expect(exported.webGlContextAttributes).toEqual(
+      EXPORT_PAPER_SHADER_RENDER_OPTIONS.webGlContextAttributes,
+    )
+    expect(exported.webGlContextAttributes.preserveDrawingBuffer).toBe(true)
     expect(exported).not.toHaveProperty("minPixelRatio")
   })
 

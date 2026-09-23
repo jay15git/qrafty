@@ -54,8 +54,10 @@ describe("DesktopFillPicker", () => {
       })
     }).not.toThrow()
 
-    expect(container.querySelector('[data-slot="gradient-area"]')).not.toBeNull()
-    expect(container.querySelector('[data-slot="color-picker-area"]')).toBeNull()
+    expect(container.querySelector('[data-slot="gradient-bar"]')).not.toBeNull()
+    expect(container.querySelector('[aria-label="Gradient type"]')).not.toBeNull()
+    // Only the active pane is mounted, so the solid pane is gone.
+    expect(container.querySelectorAll('[role="tabpanel"]')).toHaveLength(1)
 
     act(() => {
       root.unmount()
@@ -79,7 +81,7 @@ describe("DesktopFillPicker", () => {
       root.render(<DesktopFillPicker value={css} onValueChange={() => undefined} />)
     })
 
-    expect(container.querySelector('[data-slot="gradient-area"]')).not.toBeNull()
+    expect(container.querySelector('[data-slot="gradient-bar"]')).not.toBeNull()
     expect(
       container.querySelector('[role="tab"][aria-selected="true"]')?.textContent,
     ).toBe("Gradient")
