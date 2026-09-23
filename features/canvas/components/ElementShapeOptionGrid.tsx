@@ -85,7 +85,7 @@ function InspectorElementShapeOptionTile({
     >
       <span
         className={cn(
-          "relative z-10 aspect-square w-full min-w-0 overflow-hidden rounded-[6px]",
+          "relative z-10 aspect-square w-full min-w-0 overflow-hidden rounded-md",
           INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
         )}
       >
@@ -94,7 +94,7 @@ function InspectorElementShapeOptionTile({
           data-desktop-adaptive-option-preview="true"
           data-shape-option-preview="true"
           data-slot="style-preview-surface"
-          className="grid size-full place-items-center overflow-hidden rounded-[6px] border-2 border-transparent bg-[#15161a] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"
+          className="grid size-full place-items-center overflow-hidden rounded-md border-2 border-transparent bg-[var(--style-preview-tile-bg)] shadow-[var(--style-preview-inset)]"
         >
           {children}
         </span>

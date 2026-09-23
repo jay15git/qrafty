@@ -175,7 +175,7 @@ export function CanvasRatioPresetPopoverContent({
       side="bottom"
       sideOffset={12}
       className={cn(
-        "dn-portal-surface inspector-popover-content dn-popover-flat z-[20000] grid max-h-[min(28rem,calc(100dvh-8rem))] w-[min(18rem,calc(100vw-1rem))] grid-rows-[auto_minmax(0,1fr)] overflow-hidden p-0 dn-squircle-md",
+        "dn-portal-surface inspector-popover-content dn-popover-flat z-[var(--z-popover)] grid max-h-[var(--popover-max-h)] w-[var(--popover-width)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden p-0 dn-squircle-md",
         theme === "dark" && "dark",
       )}
     >

@@ -61,7 +61,7 @@ function InspectorPaperShaderOptionTile({
         data-desktop-adaptive-option-preview="true"
         data-slot="style-preview-surface"
         className={cn(
-          "relative z-10 size-full overflow-hidden rounded-[6px] border-2 border-transparent bg-[#15161a] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]",
+          "relative z-10 size-full overflow-hidden rounded-md border-2 border-transparent bg-[var(--style-preview-tile-bg)] shadow-[var(--style-preview-inset)]",
           INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
         )}
       >
@@ -90,7 +90,7 @@ function InsertPaperShaderOptionTile({
       className={cn(
         "group relative aspect-square w-full min-w-0 p-0 transition",
         isInsertDesktop
-          ? "rounded-[8px] hover:bg-[var(--settings-control-hover)]"
+          ? "rounded-lg hover:bg-[var(--settings-control-hover)]"
           : "rounded-[7px] hover:bg-[var(--settings-panel-bg-hover)]",
       )}
       type="button"
@@ -100,7 +100,7 @@ function InsertPaperShaderOptionTile({
         aria-hidden="true"
         data-slot="paper-shader-insert-preview-surface"
         className={cn(
-          "relative block size-full overflow-hidden rounded-[6px] border-2 border-transparent shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]",
+          "relative block size-full overflow-hidden rounded-md border-2 border-transparent shadow-[var(--style-preview-inset)]",
           isInsertDesktop ? "bg-[var(--bg)]" : "bg-[var(--settings-control-bg)]",
         )}
       >

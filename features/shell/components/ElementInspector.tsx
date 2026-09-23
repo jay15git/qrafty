@@ -365,7 +365,7 @@ function TextFontMenu({
       >
         {fontGroups.map((group) => (
           <div className="flex flex-col" key={group.category}>
-            <p className="px-2.5 pt-1.5 pb-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+            <p className="px-2.5 pt-1.5 pb-0.5 text-[length:var(--type-caption)] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
               {DRAFTING_FONT_CATEGORY_LABELS[group.category]}
             </p>
             {group.fonts.map((font) => (
@@ -454,7 +454,7 @@ function LayerTextInspector({
           dataSlot="layer-text-inspector"
         >
         <p className={cn("mb-2", INSPECTOR_SECTION_HEADING_CLASS)}>Typography</p>
-        <div className="grid grid-cols-[1fr_4.75rem] gap-1.5">
+        <div className="grid grid-cols-[1fr_var(--inspector-preview-col)] gap-1.5">
           <div className="min-w-0" data-slot="layer-text-font-selector">
             <button
               aria-controls="layer-text-font-listbox"

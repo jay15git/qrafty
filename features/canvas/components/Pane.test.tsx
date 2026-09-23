@@ -451,7 +451,7 @@ describe("Pane", () => {
     expect(cornerDirections).toEqual(["ne", "se", "sw", "nw"])
     expect(edgeDirections).toEqual(["n", "e", "s", "w"])
     expect(resizeHandle?.className).toContain("size-4")
-    expect(resizeKnob?.className).toContain("rounded-[2px]")
+    expect(resizeKnob?.className).toContain("rounded-xs")
     expect(resizeKnob?.className).toContain("border-[var(--canvas-resize-frame)]")
     expect(resizeKnob?.className).toContain("bg-white")
   })

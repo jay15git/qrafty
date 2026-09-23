@@ -60,7 +60,7 @@ export function TextFontPickerContent({
       >
         {fontGroups.map((group) => (
           <div className="flex flex-col gap-1" key={group.category}>
-            <p className="px-[length:var(--settings-row-px)] pt-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+            <p className="px-[length:var(--settings-row-px)] pt-1 text-[length:var(--type-caption)] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
               {DRAFTING_FONT_CATEGORY_LABELS[group.category]}
             </p>
             {group.fonts.map((font) => (

@@ -127,6 +127,24 @@
   --shadow-6: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color), 0 24px 24px -12px var(--shadow-color);
   --shadow-7: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color), 0 24px 24px -12px var(--shadow-color), 0 48px 48px -24px var(--shadow-color);
   --shadow-8: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color), 0 24px 24px -12px var(--shadow-color), 0 48px 48px -24px var(--shadow-color), 0 96px 96px -48px var(--shadow-color);
+  /* Portalled chrome geometry — popovers mount on document.body, so these
+     live on :root rather than a scoped host. */
+  --z-chrome: 30;
+  --z-mobile-rail: 35;
+  --z-compose-toolbar: 40;
+  --z-canvas-overlay: 9998;
+  --z-canvas-guide: 9999;
+  --z-canvas-chrome: 10000;
+  --z-canvas-toolbar: 10001;
+  --z-popover: 20000;
+  --z-popover-raised: 20001;
+  --popover-width: min(18rem, calc(100vw - 1rem));
+  --popover-width-lg: min(27rem, calc(100vw - 1rem));
+  --popover-max-h: min(28rem, calc(100dvh - 8rem));
+  --popover-width-fill: min(100vw - 2rem, 20rem);
+  --inspector-preview-col: 4.75rem;
+  --style-preview-tile-bg: #15161a;
+  --style-preview-inset: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .dark {

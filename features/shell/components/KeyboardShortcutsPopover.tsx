@@ -82,7 +82,7 @@ export function KeyboardShortcutsPopoverContent({
       side={popoverSide}
       sideOffset={12}
       className={cn(
-        "dn-portal-surface inspector-popover-content dn-popover-flat z-[20000] flex h-[min(44rem,calc(100dvh-7rem))] max-h-[min(44rem,calc(100dvh-7rem))] w-[min(27rem,calc(100vw-1rem))] flex-col overflow-hidden p-0 dn-squircle-md",
+        "dn-portal-surface inspector-popover-content dn-popover-flat z-[var(--z-popover)] flex h-[min(44rem,calc(100dvh-7rem))] max-h-[min(44rem,calc(100dvh-7rem))] w-[var(--popover-width-lg)] flex-col overflow-hidden p-0 dn-squircle-md",
         theme === "dark" && "dark",
       )}
     >
@@ -141,7 +141,7 @@ export function KeyboardShortcutsPopoverContent({
                 className="p-2.5"
                 key={group.title}
               >
-                <h3 className="px-1 pb-1.5 text-[11px] font-semibold text-[var(--muted)]">
+                <h3 className="px-1 pb-1.5 text-[length:var(--type-meta)] font-semibold text-[var(--muted)]">
                   {group.title}
                 </h3>
                 <div className="grid gap-1">
@@ -167,7 +167,7 @@ export function KeyboardShortcutsPopoverContent({
                                 {keyIndex > 0 ? (
                                   <span
                                     aria-hidden="true"
-                                    className="text-[11px] font-semibold text-[var(--muted)]"
+                                    className="text-[length:var(--type-meta)] font-semibold text-[var(--muted)]"
                                     data-slot="shortcut-combo-separator"
                                   >
                                     +

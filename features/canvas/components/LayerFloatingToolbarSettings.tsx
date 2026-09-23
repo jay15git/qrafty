@@ -59,13 +59,13 @@ import { CUELUME_TOGGLE } from "@/features/shell/audio/cuelume"
 import "@/features/shell/inspector/inspector.css"
 
 const COMPACT_POPOVER_CLASS =
-  "dn-portal-surface inspector-popover-content dn-popover-flat z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-hidden dn-squircle-md"
+  "dn-portal-surface inspector-popover-content dn-popover-flat z-[var(--z-popover-raised)] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-hidden dn-squircle-md"
 
 const ICON_TOGGLE_CLASS =
   "grid size-9 place-items-center rounded-full text-[color-mix(in_srgb,var(--fg)_78%,transparent)] transition-colors duration-150 hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))] aria-pressed:bg-[var(--settings-control)] aria-pressed:text-[var(--fg)]"
 
 const DN_POPOVER_CLASS =
-  "dn-portal-surface inspector-popover-content z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-[min(100vw-2rem,15.5rem)] overflow-hidden border-0 p-0 dn-squircle-md"
+  "dn-portal-surface inspector-popover-content z-[var(--z-popover-raised)] max-h-[min(32rem,calc(100vh-2rem))] w-[min(100vw-2rem,15.5rem)] overflow-hidden border-0 p-0 dn-squircle-md"
 
 const DN_OPTION_TILE_CLASS =
   "dn-option-tile dn-control-surface dn-squircle-xs flex cursor-pointer items-center justify-center border-0"
@@ -433,7 +433,7 @@ function ImageFitSettings({
           <LayerFloatingSettingsButton
             active={imageFit === fit}
             ariaLabel={`Image fit ${fit}`}
-            className={cn(ICON_TOGGLE_CLASS, "w-full text-[11px] font-semibold capitalize")}
+            className={cn(ICON_TOGGLE_CLASS, "w-full text-[length:var(--type-meta)] font-semibold capitalize")}
             key={fit}
             onClick={() => onPatch({ imageFit: fit })}
           >

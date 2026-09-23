@@ -379,7 +379,7 @@ function PaneMarqueeOverlay({ chromeSpace, marquee }: PaneMarqueeOverlayProps) {
 
   return (
     <div
-      className="pointer-events-none absolute left-1/2 top-1/2 z-[9998] border-2 border-[var(--canvas-ink)] bg-[var(--canvas-ink)]/10"
+      className="pointer-events-none absolute left-1/2 top-1/2 z-[var(--z-canvas-overlay)] border-2 border-[var(--canvas-ink)] bg-[var(--canvas-ink)]/10"
       data-slot="drafting-layer-marquee"
       style={{
         height: documentToChromeSize(bounds.height, chromeSpace),
@@ -623,7 +623,7 @@ export function PaneCanvasContent(props: PaneCanvasContentProps) {
       </div>
       </div>
       <div
-        className="pointer-events-none absolute inset-0 z-[10000] overflow-visible"
+        className="pointer-events-none absolute inset-0 z-[var(--z-canvas-chrome)] overflow-visible"
         data-slot="drafting-layer-chrome-overlay"
       >
         <PaneChromeOverlay {...props} />

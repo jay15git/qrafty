@@ -1,34 +1,25 @@
-/* Pencil design tokens — scoped to the Inspector. */
+/* Pencil design tokens — scoped to the Inspector.
+ *
+ * Layout: one shared scale block (type/space/dimensions/motion) covering the
+ * inspector root, its portalled surfaces, and the floating element inspector;
+ * one theme-split palette (--dn-*) that every surface maps onto its legacy
+ * --bg/--fg/--line/--settings-control names; per-surface blocks only carry
+ * what genuinely differs (popover bg/control/line, role maps). */
 
-.inspector-root {
-  color-scheme: dark;
-  --overlay: 255 255 255;
-  --focus-ring: #6b97ff;
-  --bg: #161616;
-  --surface: #1d1d1d;
-  --settings-control: #232323;
-  --settings-control-hover: #232323;
-  --fg: #f5f5f5;
-  --muted: #6b6b6b;
-  --line: #2c2c2c;
-  --accent: #fafafa;
-  --on-accent: #090909;
-  --font: "Inter", system-ui, sans-serif;
-  --settings-panel-width: 100%;
+/* Shared scale — identical on every inspector surface and the floating
+   element inspector. Mobile re-declares these on [data-mobile-inspector]. */
+:is(
+    .inspector-root,
+    .dn-portal-surface,
+    .inspector-popover-content,
+    .inspector-fill-popover,
+    [data-slot="floating-inspector"]
+  ) {
   --type-caption: 0.625rem;
   --type-meta: 0.6875rem;
   --type-value: 0.75rem;
   --type-section: 1rem;
   --type-body: 0.8125rem;
-  --tracking-tight: -0.015em;
-  --type-label-weight: 400;
-  --type-value-weight: 500;
-  --type-label-color: color-mix(in srgb, var(--fg) 46%, transparent);
-  --type-value-color: var(--fg);
-  --radius-xs: 10px;
-  --radius-sm: 12px;
-  --radius-md: 14px;
-  --radius-lg: 14px;
   --space-stack: 0.625rem;
   --space-inline: 0.375rem;
   --settings-control-height: 2.25rem;
@@ -37,6 +28,111 @@
   --settings-preview-tile: 3.5rem;
   --settings-icon-hit: 2rem;
   --settings-row-px: 0.75rem;
+}
+
+/* Squircle radii shared by every inspector surface; popovers that want the
+   larger 20px panel radius override --radius-md/--radius-lg locally. */
+:is(
+    .inspector-root,
+    .inspector-popover-content,
+    .inspector-fill-popover,
+    .dn-insert-menu-popover
+  ) {
+  --radius-xs: 10px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 14px;
+}
+
+/* Motion + interaction tokens — shared by in-tree settings and portalled surfaces. */
+:is(.inspector-root, .dn-portal-surface, .inspector-popover-content, .inspector-fill-popover) {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* Near-critically-damped stand-in for beui SPRING_PRESS (k=500, c=30, m=0.6). */
+  --ease-press: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-fast: 120ms;
+  --motion-ui: 180ms;
+  --motion-enter: 180ms;
+  --motion-exit: 120ms;
+  --select-ring-dur: 340ms;
+  --tabs-dur: var(--motion-ui);
+  --tabs-ease: var(--ease-out);
+}
+
+/* Inspector palette — light values. .inspector-root defaults to dark, so it
+   only takes this block under an explicit data-theme="light"; the portalled
+   surfaces default to light and flip on data-theme="dark". */
+.inspector-root[data-theme="light"],
+:is(.inspector-popover-content, .inspector-fill-popover, .dn-insert-menu-popover):not(
+    [data-theme="dark"]
+  ) {
+  --dn-bg: #ffffff;
+  --dn-surface: #fafafa;
+  --dn-control: #f6f6f6;
+  --dn-fg: #18181b;
+  --dn-muted: #8a8a8e;
+  --dn-line: #ececee;
+  --dn-on-accent: #ffffff;
+  --dn-slider: #f1f1f2;
+  --dn-mass: #171717;
+  --dn-mass-fg: #ffffff;
+  --dn-mass-muted: color-mix(in srgb, var(--dn-fg) 10%, var(--dn-bg));
+  --dn-menu-shadow: 0 8px 32px rgb(0 0 0 / 8%);
+  --dn-popover-shadow: 0 12px 40px rgb(0 0 0 / 18%);
+}
+
+/* Inspector palette — dark values. .inspector-root is dark by default
+   (standalone), so it matches without data-theme; portals need the attr. */
+.inspector-root:not([data-theme="light"]),
+:is(.inspector-popover-content, .inspector-fill-popover, .dn-insert-menu-popover)[data-theme="dark"] {
+  --dn-bg: #161616;
+  --dn-surface: #1d1d1d;
+  --dn-control: #232323;
+  --dn-fg: #f5f5f5;
+  --dn-muted: #6b6b6b;
+  --dn-line: #2c2c2c;
+  --dn-on-accent: #090909;
+  --dn-slider: #202020;
+  --dn-menu-shadow: 0 12px 48px rgb(0 0 0 / 50%);
+  --dn-popover-shadow: 0 12px 48px rgb(0 0 0 / 50%);
+  /* Portalled popovers run a deeper palette than the panel. */
+  --dn-popover-bg: #111111;
+  --dn-popover-control: #1a1a1a;
+  --dn-popover-line: #252525;
+}
+
+/* Theme-invariant constants. */
+:is(
+    .inspector-root,
+    .dn-portal-surface,
+    .inspector-popover-content,
+    .inspector-fill-popover,
+    .dn-insert-menu-popover
+  ) {
+  --dn-paper: #ffffff;
+  --dn-card: #ffffff;
+  --dn-preview-ink: rgb(24 24 27 / 0.8);
+  --dn-picker-thumb: rgb(255 255 255 / 0.92);
+  --dn-picker-thumb-ring: rgb(0 0 0 / 0.28);
+}
+
+.inspector-root {
+  color-scheme: dark;
+  --overlay: 255 255 255;
+  --bg: var(--dn-bg);
+  --surface: var(--dn-surface);
+  --settings-control: var(--dn-control);
+  --settings-control-hover: var(--dn-control);
+  --fg: var(--dn-fg);
+  --muted: var(--dn-muted);
+  --line: var(--dn-line);
+  --on-accent: var(--dn-on-accent);
+  --font: "Inter", system-ui, sans-serif;
+  --settings-panel-width: 100%;
+  --tracking-tight: -0.015em;
+  --type-label-weight: 400;
+  --type-value-weight: 500;
+  --type-label-color: color-mix(in srgb, var(--fg) 46%, transparent);
+  --type-value-color: var(--fg);
 
   /* Map Pencil tokens to shadcn component roles. */
   --background: var(--bg);
@@ -57,7 +153,7 @@
   --ring: var(--accent);
   --scroll-edge-fade-color: var(--bg);
   --scroll-edge-chevron-color: var(--muted);
-  --slider-bg: #202020;
+  --slider-bg: var(--dn-slider);
 
   min-height: 100dvh;
   background: var(--bg);
@@ -67,66 +163,10 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* Motion + interaction tokens — shared by in-tree settings and portalled surfaces. */
-:is(.inspector-root, .dn-portal-surface, .inspector-popover-content, .inspector-fill-popover) {
-  --type-caption: 0.625rem;
-  --type-meta: 0.6875rem;
-  --type-value: 0.75rem;
-  --type-section: 1rem;
-  --type-body: 0.8125rem;
-  --space-stack: 0.625rem;
-  --space-inline: 0.375rem;
-  --settings-control-height: 2.25rem;
-  --settings-control-height-compact: 2rem;
-  --settings-tab-height: 2rem;
-  --settings-preview-tile: 3.5rem;
-  --settings-icon-hit: 2rem;
-  --settings-row-px: 0.75rem;
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  /* Near-critically-damped stand-in for beui SPRING_PRESS (k=500, c=30, m=0.6). */
-  --ease-press: cubic-bezier(0.16, 1, 0.3, 1);
-  --motion-fast: 120ms;
-  --motion-ui: 180ms;
-  --motion-enter: 180ms;
-  --motion-exit: 120ms;
-  --select-ring-dur: 340ms;
-  --tabs-dur: var(--motion-ui);
-  --tabs-ease: var(--ease-out);
-}
-
 .inspector-root[data-theme="light"] {
   color-scheme: light;
   --overlay: 0 0 0;
-  --focus-ring: #6b97ff;
-  --bg: #ffffff;
-  --surface: #fafafa;
-  --settings-control: #f6f6f6;
-  --settings-control-hover: #f6f6f6;
-  --fg: #18181b;
-  --muted: #8a8a8e;
-  --line: #ececee;
-  --accent: #18181b;
-  --on-accent: #ffffff;
-  --slider-bg: #f1f1f2;
   --type-label-color: color-mix(in srgb, var(--fg) 44%, transparent);
-  --background: var(--bg);
-  --foreground: var(--fg);
-  --card: var(--bg);
-  --card-foreground: var(--fg);
-  --popover: var(--surface);
-  --popover-foreground: var(--fg);
-  --primary: var(--accent);
-  --primary-foreground: var(--on-accent);
-  --secondary: var(--settings-control);
-  --secondary-foreground: var(--fg);
-  --muted-foreground: var(--muted);
-  --accent: var(--settings-control-hover);
-  --accent-foreground: var(--fg);
-  --border: var(--line);
-  --input: var(--settings-control);
-  --ring: var(--accent);
-  --scroll-edge-fade-color: var(--bg);
-  --scroll-edge-chevron-color: var(--muted);
 }
 
 /* Embedded in /desktop toolbar — same token host, no preview padding. */
@@ -493,7 +533,7 @@
 
 .dn-style-preview-icon,
 [data-slot^="style-preview"] {
-  color: rgb(24 24 27 / 0.8);
+  color: var(--dn-preview-ink, rgb(24 24 27 / 0.8));
 }
 
 .inspector-root[data-theme="light"] .dn-style-preview-icon,
@@ -503,7 +543,7 @@
 
 .inspector-root[data-theme="dark"] .dn-style-preview-icon,
 .inspector-root[data-theme="dark"] [data-slot^="style-preview"] {
-  color: #ffffff;
+  color: var(--dn-paper);
 }
 
 /* ── Settings typography ─────────────────────────────────────────── */
@@ -665,7 +705,7 @@
   --scroll-edge-cue-band-size: 3.75rem;
 }
 
-@supports (background: color-mix(in srgb, #000 50%, #fff)) {
+@supports (background: color-mix(in srgb, black 50%, white)) {
   .inspector-root [data-slot="scroll-area"][data-orientation="horizontal"] .scroll-edge-cue-gradient {
     background: linear-gradient(
       var(--scroll-edge-cue-direction, to right),
@@ -977,7 +1017,7 @@
   left: 0;
   z-index: 0;
   width: 0;
-  background: #171717;
+  background: var(--dn-mass, #171717);
   transform: translateX(0);
   transition:
     transform var(--tabs-dur) var(--tabs-ease),
@@ -987,7 +1027,7 @@
 }
 
 .inspector-root[data-theme="dark"] .t-tabs-pill {
-  background: #ffffff;
+  background: var(--dn-paper);
 }
 
 .t-tabs--muted {
@@ -1003,7 +1043,7 @@
 }
 
 .inspector-root[data-theme="dark"] .t-tabs--muted .t-tabs-pill--muted {
-  background: color-mix(in srgb, var(--fg) 16%, #1a1a1a);
+  background: var(--dn-mass-muted);
 }
 
 .t-tabs--muted .dn-segment-tab--muted[aria-selected="true"] {
@@ -1011,16 +1051,16 @@
 }
 
 .inspector-root[data-theme="dark"] .t-tabs--muted .dn-segment-tab--muted[aria-selected="true"] {
-  color: #f5f5f5;
+  color: var(--fg);
 }
 
 .dn-segment-tab[aria-selected="true"] {
   background: transparent;
-  color: #ffffff;
+  color: var(--dn-mass-fg, #ffffff);
 }
 
 .inspector-root[data-theme="dark"] .dn-segment-tab[aria-selected="true"] {
-  color: #0a0a0a;
+  color: var(--dn-mass-fg);
 }
 
 /* ── Accordion ───────────────────────────────────────────────────── */
@@ -1084,7 +1124,7 @@
   /* Matches the canvas card's max height: viewport minus the top chrome inset
    * and the artboard's vertical fit insets (2 × 24px). */
   height: calc(100dvh - var(--canvas-inset-top, 3.5rem) - 3rem);
-  background: #ffffff;
+  background: var(--dn-card, #ffffff);
   overflow-x: hidden;
   overflow-y: auto;
   /* Reserve the scrollbar lane so content doesn't reflow when an open
@@ -1144,7 +1184,7 @@
   border: none;
   background: var(--surface);
   color: var(--fg);
-  box-shadow: 0 12px 40px rgb(0 0 0 / 18%);
+  box-shadow: var(--dn-popover-shadow, 0 12px 40px rgb(0 0 0 / 18%));
   border-radius: 1.25rem;
   corner-shape: squircle;
 }
@@ -1188,11 +1228,11 @@
   background: var(--surface);
   border-radius: var(--radius-md);
   corner-shape: squircle;
-  box-shadow: 0 12px 40px rgb(0 0 0 / 18%);
+  box-shadow: var(--dn-popover-shadow, 0 12px 40px rgb(0 0 0 / 18%));
 }
 
 .inspector-fill-popover[data-theme="dark"] .dn-settings-popover-shell {
-  box-shadow: 0 12px 48px rgb(0 0 0 / 50%);
+  box-shadow: var(--dn-menu-shadow);
 }
 
 .dn-settings-popover-header {
@@ -1341,17 +1381,17 @@
 }
 
 .dn-settings-accordion [role="region"] {
-  --bg: #ffffff;
-  --background: #ffffff;
-  --scroll-edge-fade-color: #ffffff;
+  --bg: var(--dn-paper);
+  --background: var(--dn-paper);
+  --scroll-edge-fade-color: var(--dn-paper);
   --tabs-dur: var(--motion-ui, 180ms);
   --tabs-ease: var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
 }
 
 .inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-accordion [role="region"] {
-  --bg: var(--surface, #111111);
-  --background: var(--surface, #111111);
-  --scroll-edge-fade-color: var(--surface, #111111);
+  --bg: var(--surface);
+  --background: var(--surface);
+  --scroll-edge-fade-color: var(--surface);
   --tabs-dur: var(--motion-ui, 180ms);
   --tabs-ease: var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
 }
@@ -1360,7 +1400,7 @@
   .dn-settings-accordion
   [role="region"]
   .t-tabs-pill:not(.t-tabs-pill--muted) {
-  background: #ffffff;
+  background: var(--dn-card, #ffffff);
 }
 
 .dn-settings-accordion [role="region"] .t-tabs-pill {
@@ -1429,11 +1469,11 @@
 
 /* Card surface lives on the accordion stack; item rows stay transparent. */
 .inspector-root.inspector-embedded .dn-settings-accordion > div {
-  background: #ffffff;
+  background: var(--dn-card, #ffffff);
 }
 
 .inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-accordion > div {
-  background: var(--surface, #111111);
+  background: var(--surface);
 }
 
 .dn-settings-accordion > div > [data-slot="motion-accordion-item"] {
@@ -1558,43 +1598,28 @@
 
 .inspector-popover-content {
   border: none !important;
-  background: #fafafa !important;
-  color: #18181b !important;
+  background: var(--bg) !important;
+  color: var(--fg) !important;
   --tw-shadow: 0 0 #0000;
   --tw-ring-shadow: 0 0 #0000;
   --tw-ring-offset-shadow: 0 0 #0000;
-  box-shadow: 0 8px 32px rgb(0 0 0 / 8%) !important;
-  --scroll-edge-fade-color: #fafafa;
-  --scroll-edge-chevron-color: #8a8a8e;
-  --bg: #fafafa;
-  --fg: #18181b;
-  --settings-control: #f6f6f6;
-  --settings-control-hover: #f6f6f6;
-  --muted: #8a8a8e;
-  --line: #ececee;
-  --radius-xs: 10px;
-  --radius-sm: 12px;
+  box-shadow: var(--dn-menu-shadow) !important;
+  --scroll-edge-fade-color: var(--bg);
+  --scroll-edge-chevron-color: var(--muted);
+  --bg: var(--dn-surface);
+  --fg: var(--dn-fg);
+  --settings-control: var(--dn-control);
+  --settings-control-hover: var(--dn-control);
+  --muted: var(--dn-muted);
+  --line: var(--dn-line);
   --radius-md: 20px;
   --radius-lg: 20px;
-  --type-caption: 0.625rem;
-  --type-meta: 0.6875rem;
-  --type-value: 0.75rem;
-  --type-section: 1rem;
-  --type-body: 0.8125rem;
-  --space-stack: 0.625rem;
-  --space-inline: 0.375rem;
-  --settings-control-height: 2.25rem;
-  --settings-control-height-compact: 2rem;
-  --settings-tab-height: 2rem;
-  --settings-preview-tile: 3.5rem;
-  --settings-icon-hit: 2rem;
-  --settings-row-px: 0.75rem;
   --tracking-tight: -0.015em;
   --type-label-weight: 400;
   --type-value-weight: 500;
   --type-label-color: color-mix(in srgb, var(--fg) 44%, transparent);
   --type-value-color: var(--fg);
-  --slider-bg: #f1f1f2;
+  --slider-bg: var(--dn-slider);
   --background: var(--bg);
   --foreground: var(--fg);
   --card: var(--bg);
@@ -1614,57 +1639,11 @@
 }
 
 .inspector-popover-content[data-theme="dark"] {
-  border: none !important;
-  background: #111111 !important;
-  color: #f5f5f5 !important;
-  box-shadow: 0 12px 48px rgb(0 0 0 / 50%) !important;
-  --scroll-edge-fade-color: #111111;
-  --scroll-edge-chevron-color: #6b6b6b;
-  --bg: #111111;
-  --fg: #f5f5f5;
-  --settings-control: #1a1a1a;
-  --settings-control-hover: #1a1a1a;
-  --muted: #6b6b6b;
-  --line: #252525;
-  --radius-xs: 10px;
-  --radius-sm: 12px;
-  --radius-md: 20px;
-  --radius-lg: 20px;
-  --type-caption: 0.625rem;
-  --type-meta: 0.6875rem;
-  --type-value: 0.75rem;
-  --type-section: 1rem;
-  --type-body: 0.8125rem;
-  --space-stack: 0.625rem;
-  --space-inline: 0.375rem;
-  --settings-control-height: 2.25rem;
-  --settings-control-height-compact: 2rem;
-  --settings-tab-height: 2rem;
-  --settings-preview-tile: 3.5rem;
-  --settings-icon-hit: 2rem;
-  --settings-row-px: 0.75rem;
-  --tracking-tight: -0.015em;
-  --type-label-weight: 400;
-  --type-value-weight: 500;
+  --bg: var(--dn-popover-bg);
+  --settings-control: var(--dn-popover-control);
+  --settings-control-hover: var(--dn-popover-control);
+  --line: var(--dn-popover-line);
   --type-label-color: color-mix(in srgb, var(--fg) 46%, transparent);
-  --type-value-color: var(--fg);
-  --slider-bg: #202020;
-  --background: var(--bg);
-  --foreground: var(--fg);
-  --card: var(--bg);
-  --card-foreground: var(--fg);
-  --popover: var(--bg);
-  --popover-foreground: var(--fg);
-  --primary: var(--fg);
-  --primary-foreground: var(--bg);
-  --secondary: var(--settings-control);
-  --secondary-foreground: var(--fg);
-  --muted-foreground: var(--muted);
-  --accent: var(--settings-control-hover);
-  --accent-foreground: var(--fg);
-  --border: var(--line);
-  --input: var(--settings-control);
-  --ring: var(--fg);
 }
 
 /* Flat toolbar popovers — settings-panel tokens, no border, no shadow. */
@@ -1861,17 +1840,15 @@
 
 /* Insert menu popover — solid accordion surface + option tiles */
 .dn-insert-menu-popover {
-  --bg: #ffffff;
-  --background: #ffffff;
-  --scroll-edge-fade-color: #ffffff;
-  --fg: #18181b;
-  --muted: #8a8a8e;
-  --line: #ececee;
-  --settings-control: #f6f6f6;
-  --settings-control-hover: #f6f6f6;
-  --surface: #fafafa;
-  --radius-xs: 10px;
-  --radius-sm: 12px;
+  --bg: var(--dn-paper);
+  --background: var(--dn-paper);
+  --scroll-edge-fade-color: var(--dn-paper);
+  --fg: var(--dn-fg);
+  --muted: var(--dn-muted);
+  --line: var(--dn-line);
+  --settings-control: var(--dn-control);
+  --settings-control-hover: var(--dn-control);
+  --surface: var(--dn-surface);
   --radius-md: 20px;
   --radius-lg: 20px;
   border: 1px solid color-mix(in srgb, var(--line) 80%, transparent) !important;
@@ -1881,17 +1858,15 @@
 }
 
 .dn-insert-menu-popover[data-theme="dark"] {
-  --bg: var(--surface, #111111);
-  --background: var(--surface, #111111);
-  --scroll-edge-fade-color: var(--surface, #111111);
-  --fg: #f5f5f5;
-  --muted: #6b6b6b;
-  --line: #252525;
-  --settings-control: #1a1a1a;
-  --settings-control-hover: #1a1a1a;
-  --surface: #111111;
+  --bg: var(--dn-popover-bg);
+  --background: var(--dn-popover-bg);
+  --scroll-edge-fade-color: var(--dn-popover-bg);
+  --line: var(--dn-popover-line);
+  --settings-control: var(--dn-popover-control);
+  --settings-control-hover: var(--dn-popover-control);
+  --surface: var(--dn-popover-bg);
   border-color: color-mix(in srgb, var(--line) 80%, transparent) !important;
-  background: var(--surface, #111111) !important;
+  background: var(--surface) !important;
   color: var(--fg) !important;
 }
 
@@ -2124,13 +2099,13 @@
   --tw-ring-shadow: 0 0 #0000;
   --tw-ring-offset-shadow: 0 0 #0000;
   box-shadow: none !important;
-  --bg: #ffffff;
-  --surface: #fafafa;
-  --settings-control: #f6f6f6;
-  --settings-control-hover: #f6f6f6;
-  --fg: #18181b;
-  --muted: #8a8a8e;
-  --line: #ececee;
+  --bg: var(--dn-bg);
+  --surface: var(--dn-surface);
+  --settings-control: var(--dn-control);
+  --settings-control-hover: var(--dn-control);
+  --fg: var(--dn-fg);
+  --muted: var(--dn-muted);
+  --line: var(--dn-line);
   --background: var(--bg);
   --foreground: var(--fg);
   --card: var(--bg);
@@ -2148,20 +2123,10 @@
   --border: var(--line);
   --input: var(--settings-control);
   --ring: var(--fg);
-  --radius-xs: 10px;
-  --radius-sm: 12px;
-  --radius-md: 14px;
-  --radius-lg: 14px;
 }
 
 .inspector-fill-popover[data-theme="dark"] {
-  --bg: #161616;
-  --surface: #1d1d1d;
-  --settings-control: #232323;
-  --settings-control-hover: #232323;
-  --fg: #f5f5f5;
-  --muted: #6b6b6b;
-  --line: #2c2c2c;
+  --muted: var(--dn-muted);
 }
 
 .inspector-fill-popover .dn-fill-picker-panel {
@@ -2225,19 +2190,19 @@
 }
 
 .inspector-fill-popover .dn-fill-picker-mode-tabs .t-tabs-pill {
-  background: #171717;
+  background: var(--dn-mass, #171717);
 }
 
 .inspector-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .t-tabs-pill {
-  background: #ffffff;
+  background: var(--dn-paper);
 }
 
 .inspector-fill-popover .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
-  color: #ffffff;
+  color: var(--dn-mass-fg, #ffffff);
 }
 
 .inspector-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
-  color: #0a0a0a;
+  color: var(--dn-mass-fg);
 }
 
 .inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-pane {
@@ -2306,8 +2271,8 @@
 }
 
 .inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider .rounded-full.border-2 {
-  border-color: rgb(255 255 255 / 0.92) !important;
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.28) !important;
+  border-color: var(--dn-picker-thumb, rgb(255 255 255 / 0.92)) !important;
+  box-shadow: 0 0 0 1px var(--dn-picker-thumb-ring, rgb(0 0 0 / 0.28)) !important;
 }
 
 :is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-xs,

@@ -9,10 +9,9 @@
   --accent-foreground: oklch(0.22 0 0);
   --muted-foreground: oklch(0.5 0 0);
   --scroll-edge-fade-color: var(--canvas-page-bg);
-  --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
+  --scroll-edge-chevron-color: rgb(var(--canvas-ink-rgb) / 0.42);
   --canvas-page-bg: #ffffff;
   --canvas-surface-bg: #f0f1f2;
-  --canvas-bg: #f0f1f2;
   --canvas-bg: #f0f1f2;
   --canvas-dot-rgb: var(--canvas-ink-rgb);
   --canvas-dot-opacity: 0.055;
@@ -59,7 +58,6 @@
   --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
   --canvas-page-bg: #000000;
   --canvas-surface-bg: #000000;
-  --canvas-bg: #000000;
   --canvas-bg: #000000;
   --canvas-dot-opacity: 0.075;
   --canvas-ink: #f5f5f5;

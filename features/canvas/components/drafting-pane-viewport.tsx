@@ -236,7 +236,7 @@ function DraftingTextPlacementOverlay({
   return (
     <div
       aria-hidden="true"
-      className="absolute inset-0 z-[40] cursor-text touch-none"
+      className="absolute inset-0 z-[var(--z-compose-toolbar)] cursor-text touch-none"
       data-slot="drafting-text-placement-overlay"
     />
   )

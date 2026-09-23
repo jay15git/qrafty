@@ -262,7 +262,7 @@ export function MobileSettingsRail({ model }: { model: InspectorModel }) {
           <MobileLayerToolbar onToolbarHeightChange={setToolbarHeight} model={model} theme={theme} />
           <div
             ref={railRef}
-            className="inspector-root pointer-events-auto fixed z-[35]"
+            className="inspector-root pointer-events-auto fixed z-[var(--z-mobile-rail)]"
             data-shell-theme={theme}
             data-mobile-inspector=""
             data-slot="mobile-settings-rail-root"

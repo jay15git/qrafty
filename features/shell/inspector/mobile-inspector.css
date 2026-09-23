@@ -690,6 +690,14 @@
    scale rather than the drawer's, so a drilled row keeps the rail's density. */
 [data-slot="mobile-settings-rail-root"] {
   --settings-preview-tile: 3.5rem;
+  /* Sliding pill behind the active rail tab — white on light, raised grey
+     on dark; label ink stays constant. */
+  --dn-rail-pill: #ffffff;
+  --dn-rail-pill-fg: #0a0a0a;
+}
+
+[data-slot="mobile-settings-rail-root"][data-theme="dark"] {
+  --dn-rail-pill: #3a3a3d;
 }
 
 [data-slot="mobile-settings-rail-root"] [data-slot="mobile-rail-style-option"] {
@@ -901,7 +909,7 @@
   inset-block: 3px;
   border-radius: 9999px;
   corner-shape: round;
-  background: #ffffff;
+  background: var(--dn-rail-pill, #ffffff);
 }
 
 [data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__tabs .t-tab {
@@ -917,16 +925,10 @@
 [data-slot="mobile-settings-rail-root"]
   .dn-mobile-settings-rail__tabs
   .t-tab[aria-selected="true"] {
-  color: #0a0a0a;
+  color: var(--dn-rail-pill-fg, #0a0a0a);
 }
 
-/* Dark theme: the active pill drops to grey so it reads as a raised track
-   segment, and inactive tabs keep the full foreground color — no fade. */
-[data-slot="mobile-settings-rail-root"][data-theme="dark"]
-  .dn-mobile-settings-rail__tabs
-  .t-tabs-pill {
-  background: #3a3a3d;
-}
+/* Dark theme: inactive tabs keep the full foreground color — no fade. */
 
 [data-slot="mobile-settings-rail-root"][data-theme="dark"]
   .dn-mobile-settings-rail__tabs

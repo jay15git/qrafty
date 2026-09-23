@@ -349,7 +349,7 @@ describe("Canvas", () => {
 
     expect(overlay).not.toBeNull()
     expect(overlay?.className).toContain("cursor-text")
-    expect(overlay?.className).toContain("z-[40]")
+    expect(overlay?.className).toContain("z-[var(--z-compose-toolbar)]")
     expect(
       pane.querySelector('[data-slot="drafting-layer-resize-handle"]')?.className,
     ).toContain("cursor-")

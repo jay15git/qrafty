@@ -1,19 +1,8 @@
 /* Element-inspector tokens — scoped to floating-inspector side panels. */
 
 [data-slot="floating-inspector"] {
-  --type-caption: 0.625rem;
-  --type-meta: 0.6875rem;
-  --type-value: 0.75rem;
-  --type-section: 1rem;
-  --type-body: 0.8125rem;
-  --settings-control-height: 2.25rem;
-  --settings-control-height-compact: 2rem;
-  --settings-tab-height: 2rem;
-  --settings-icon-hit: 2rem;
-  --settings-preview-tile: 3.5rem;
-  --space-stack: 0.625rem;
-  --space-inline: 0.375rem;
-  --settings-row-px: 0.75rem;
+  /* Type scale, spacing, and control dimensions come from the shared
+     inspector scale block in inspector.css. */
   --settings-bg: #161616;
   --settings-surface: #1a1a1a;
   --settings-control: #202020;

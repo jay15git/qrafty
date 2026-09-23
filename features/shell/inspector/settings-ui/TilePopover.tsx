@@ -96,7 +96,7 @@ export function SettingsTilePopover({
         className={inspectorPortalClass(
           theme,
           cn(
-            "inspector-fill-popover dn-portal-surface w-[min(100vw-2rem,20rem)] border-0 bg-transparent p-0 shadow-none outline-none",
+            "inspector-fill-popover dn-portal-surface w-[var(--popover-width-fill)] border-0 bg-transparent p-0 shadow-none outline-none",
             contentClassName,
           ),
         )}

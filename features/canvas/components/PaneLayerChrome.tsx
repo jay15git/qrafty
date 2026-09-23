@@ -169,7 +169,7 @@ export function ResizeFrameControls({
         >
           <span
             aria-hidden="true"
-            className="size-2 rounded-[2px] border-2 border-[var(--canvas-resize-frame)] bg-white shadow-[var(--canvas-shadow-rest)]"
+            className="size-2 rounded-xs border-2 border-[var(--canvas-resize-frame)] bg-white shadow-[var(--canvas-shadow-rest)]"
             data-slot="drafting-layer-resize-handle-knob"
           />
         </button>
@@ -194,7 +194,7 @@ export function SnapGuideOverlay({
       {guides.vertical.map((x) => (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute z-[9999] w-px bg-[var(--canvas-resize-frame)]"
+          className="pointer-events-none absolute z-[var(--z-canvas-guide)] w-px bg-[var(--canvas-resize-frame)]"
           data-slot="drafting-layer-snap-guide"
           data-axis="vertical"
           key={`v-${x}`}
@@ -212,7 +212,7 @@ export function SnapGuideOverlay({
       {guides.horizontal.map((y) => (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute z-[9999] h-px bg-[var(--canvas-resize-frame)]"
+          className="pointer-events-none absolute z-[var(--z-canvas-guide)] h-px bg-[var(--canvas-resize-frame)]"
           data-slot="drafting-layer-snap-guide"
           data-axis="horizontal"
           key={`h-${y}`}
@@ -269,7 +269,7 @@ export function LayerContextMenu({
         side="bottom"
         sideOffset={4}
         className={cn(
-          "dn-portal-surface inspector-popover-content dn-popover-flat z-[20000] w-52 p-1.5 dn-squircle-md",
+          "dn-portal-surface inspector-popover-content dn-popover-flat z-[var(--z-popover)] w-52 p-1.5 dn-squircle-md",
           theme === "dark" && "dark",
         )}
         data-drafting-dropdown-content="true"
@@ -319,7 +319,7 @@ function LayerContextMenuButton({
   return (
     <button
       aria-label={label}
-      className="block h-8 w-full cursor-pointer rounded-full px-3 text-left text-[12px] font-semibold text-current transition-[background-color,color] duration-150 hover:bg-[var(--settings-control)] hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]"
+      className="block h-8 w-full cursor-pointer rounded-full px-3 text-left text-[length:var(--type-value)] font-semibold text-current transition-[background-color,color] duration-150 hover:bg-[var(--settings-control)] hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]"
       role="menuitem"
       type="button"
       onClick={onClick}
@@ -372,7 +372,7 @@ export const LayerFloatingToolbar = forwardRef<
     <div
       ref={ref}
       className={cn(
-        "dn-portal-surface inspector-popover-content pointer-events-auto absolute left-1/2 top-1/2 z-[10001] inline-flex h-9 max-w-[calc(100%-1rem)] items-center justify-start gap-0.5 overflow-x-auto rounded-full px-1 text-[var(--fg)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "dn-portal-surface inspector-popover-content pointer-events-auto absolute left-1/2 top-1/2 z-[var(--z-canvas-toolbar)] inline-flex h-9 max-w-[calc(100%-1rem)] items-center justify-start gap-0.5 overflow-x-auto rounded-full px-1 text-[var(--fg)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         theme === "dark" && "dark",
       )}
       data-slot="drafting-layer-floating-toolbar"

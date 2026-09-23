@@ -7,8 +7,6 @@ const WORKSPACE_SURFACE_STYLES = `
       }
 
       [data-slot="workspace"] [data-slot="drafting-surface"] {
-        --canvas-dot-rgb: 15 23 42;
-        --canvas-dot-opacity: 0.055;
         position: absolute;
         inset: 0;
         height: 100dvh;
@@ -83,13 +81,11 @@ const WORKSPACE_SURFACE_STYLES = `
       }
 
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="drafting-surface"] {
-        --canvas-dot-rgb: 15 23 42;
-        --canvas-dot-opacity: 0.055;
         background: var(--canvas-bg, #f0f1f2);
       }
 
       [data-slot="workspace"][data-shell-theme="dark"] [data-slot="drafting-surface"] {
-        background: #000000;
+        background: var(--canvas-bg);
       }
 
       [data-slot="workspace"][data-shell-theme="dark"] [data-slot="floating-inspector"] {
@@ -100,7 +96,7 @@ const WORKSPACE_SURFACE_STYLES = `
         background-color: var(--canvas-bg, #f0f1f2) !important;
         border: 0 !important;
         border-radius: 0 !important;
-        box-shadow: 0 8px 8px rgba(15, 23, 42, 0.08) !important;
+        box-shadow: 0 8px 8px rgb(var(--canvas-ink-rgb) / 0.08) !important;
       }
 
       [data-slot="workspace"][data-shell-theme="dark"] [data-slot="desktop-compose-surface"] {
@@ -150,9 +146,9 @@ const WORKSPACE_SURFACE_STYLES = `
           [data-slot="utility-toolbar"],
           [data-slot="desktop-compose-toolbar"]
         ) {
-        background: #ffffff !important;
-        border-color: rgba(15, 23, 42, 0.16) !important;
-        box-shadow: 0 4px 8px rgba(15, 23, 42, 0.08) !important;
+        background: var(--canvas-page-bg) !important;
+        border-color: rgb(var(--canvas-ink-rgb) / 0.16) !important;
+        box-shadow: 0 4px 8px rgb(var(--canvas-ink-rgb) / 0.08) !important;
       }
 
       body:has([data-slot="workspace"]) button:not(:disabled):not([data-slot="draggable-list-handle"]):not([data-slot="drafting-layer-resize-handle"]):not([data-slot="drafting-layer-resize-edge"]),
@@ -282,6 +278,8 @@ const WORKSPACE_SIDEBAR_STYLES = `
       }
 
       [data-slot="workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button {
+        --compose-toolbar-fg: rgba(255, 255, 255, 0.78);
+        --compose-toolbar-fg-hover: rgba(255, 255, 255, 0.96);
         position: relative !important;
         border-radius: 0 !important;
         cursor: pointer !important;
@@ -290,7 +288,7 @@ const WORKSPACE_SIDEBAR_STYLES = `
         translate: none !important;
         scale: none !important;
         rotate: none !important;
-        color: rgba(255, 255, 255, 0.78) !important;
+        color: var(--compose-toolbar-fg) !important;
         transition: color 180ms ease !important;
       }
 
@@ -305,7 +303,7 @@ const WORKSPACE_SIDEBAR_STYLES = `
 
       [data-slot="workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button:hover {
         background: transparent !important;
-        color: rgba(255, 255, 255, 0.96) !important;
+        color: var(--compose-toolbar-fg-hover) !important;
         transform: none !important;
         translate: none !important;
         scale: none !important;
@@ -321,7 +319,7 @@ const WORKSPACE_SIDEBAR_STYLES = `
 
       [data-slot="workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button[aria-pressed="true"] {
         background: transparent !important;
-        color: rgba(255, 255, 255, 0.96) !important;
+        color: var(--compose-toolbar-fg-hover) !important;
         box-shadow: none !important;
       }
 
@@ -331,9 +329,9 @@ const WORKSPACE_SIDEBAR_STYLES = `
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="drafting-layer-size-value"],
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="drafting-layer-rotation-value"] {
         background: var(--glass-bg) !important;
-        border-color: rgba(15, 23, 42, 0.12) !important;
-        color: rgba(15, 23, 42, 0.76) !important;
-        box-shadow: 0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+        border-color: var(--glass-border) !important;
+        color: var(--chrome-fg) !important;
+        box-shadow: var(--glass-shadow) !important;
       }
 
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="utility-toolbar"],
@@ -341,7 +339,7 @@ const WORKSPACE_SIDEBAR_STYLES = `
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] {
         background: transparent !important;
         border-color: transparent !important;
-        color: rgba(15, 23, 42, 0.76) !important;
+        color: var(--chrome-fg) !important;
         box-shadow: none !important;
       }`
 
@@ -416,67 +414,67 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="drafting-layer-size-value"],
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="drafting-layer-rotation-value"],
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button {
-        color: rgba(15, 23, 42, 0.76) !important;
+        color: var(--chrome-fg) !important;
       }
 
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button:hover {
         background: transparent !important;
-        color: rgba(15, 23, 42, 0.95) !important;
+        color: var(--glass-button-hover-fg) !important;
       }
 
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="resize-toolbar"] button:hover,
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="document-toolbar"] button:hover,
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="theme-toggle"]:hover,
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="action-toolbar"] button:hover {
-        background-color: rgba(15, 23, 42, 0.08) !important;
-        color: rgba(15, 23, 42, 0.95) !important;
+        background-color: var(--glass-button-hover-bg) !important;
+        color: var(--glass-button-hover-fg) !important;
       }
 
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="utility-toolbar"] button:hover:not([data-slot="download-trigger"]),
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="dynamic-island"] button:hover {
         background-color: transparent !important;
-        color: rgba(15, 23, 42, 0.95) !important;
+        color: var(--glass-button-hover-fg) !important;
       }
 
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button[aria-pressed="true"] {
         background: transparent !important;
-        color: rgba(15, 23, 42, 0.95) !important;
+        color: var(--glass-button-hover-fg) !important;
         box-shadow: none !important;
       }
 
       body:has([data-slot="workspace"][data-shell-theme="light"]) .tooltip-content {
         border-radius: 9999px !important;
-        background: rgba(15, 15, 15, 0.94) !important;
-        color: rgba(255, 255, 255, 0.96) !important;
-        box-shadow: 0 4px 8px rgba(15, 23, 42, 0.18) !important;
+        background: var(--tooltip-bg) !important;
+        color: var(--tooltip-fg) !important;
+        box-shadow: var(--tooltip-shadow-sm) !important;
       }
 
       body:has([data-slot="workspace"][data-shell-theme="dark"]) .tooltip-content {
         border-radius: 6px !important;
-        background: rgba(255, 255, 255, 0.96) !important;
-        color: rgba(15, 15, 15, 0.94) !important;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.28) !important;
+        background: var(--tooltip-bg) !important;
+        color: var(--tooltip-fg) !important;
+        box-shadow: var(--tooltip-shadow-sm) !important;
       }
 
       body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button:hover {
         background: transparent !important;
-        color: rgba(15, 23, 42, 0.95) !important;
+        color: var(--glass-button-hover-fg) !important;
       }
 
       body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button[aria-pressed="true"] {
         background: transparent !important;
-        color: rgba(15, 23, 42, 0.95) !important;
+        color: var(--glass-button-hover-fg) !important;
         box-shadow: none !important;
       }
 
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="resize-toolbar"] button[aria-label="Reset canvas size"] {
-        border-color: rgba(15, 23, 42, 0.12) !important;
+        border-color: var(--glass-border) !important;
       }
 
 
       body:has([data-slot="workspace"][data-shell-theme="dark"]) [data-slot="drafting-layer-size-value"],
       body:has([data-slot="workspace"][data-shell-theme="dark"]) [data-slot="drafting-layer-rotation-value"] {
-        border-color: rgba(255, 255, 255, 0.06) !important;
+        border-color: var(--glass-border) !important;
         box-shadow: var(--glass-shadow) !important;
       }
 
@@ -486,7 +484,7 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
       body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot="scan-safety-popover"],
       body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot="zoom-popover"] {
         background: rgba(255, 255, 255, 0.86) !important;
-        border-color: rgba(15, 23, 42, 0.12) !important;
+        border-color: var(--glass-border) !important;
         color: rgba(15, 23, 42, 0.82) !important;
         box-shadow: 0 24px 64px rgba(15, 23, 42, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
       }
@@ -495,7 +493,7 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
       body:has([data-slot="workspace"][data-shell-theme="dark"]) [data-slot^="appearance-"][data-slot$="-popover"],
       body:has([data-slot="workspace"][data-shell-theme="dark"]) [data-slot="scan-safety-popover"],
       body:has([data-slot="workspace"][data-shell-theme="dark"]) [data-slot="zoom-popover"] {
-        border-color: rgba(255, 255, 255, 0.06) !important;
+        border-color: var(--glass-border) !important;
         box-shadow: var(--glass-shadow) !important;
       }
 
@@ -516,7 +514,7 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
 
       body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot="zoom-popover"] button:hover {
         background: rgba(15, 23, 42, 0.08) !important;
-        color: rgba(15, 23, 42, 0.95) !important;
+        color: var(--glass-button-hover-fg) !important;
       }
 
       body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot="layer-appearance-popover"] p:first-child {

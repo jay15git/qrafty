@@ -165,7 +165,7 @@ export function LayersPopoverContent({
   const embeddedRowClass =
     "flex min-h-[var(--settings-control-height)] cursor-pointer items-center rounded-[var(--radius-sm)] border-0 bg-transparent py-1 pl-1 pr-1.5 shadow-none"
   const embeddedGripClass =
-    "rounded-[8px] text-[var(--muted)] hover:bg-[var(--settings-control-hover)] hover:text-[var(--fg)]"
+    "rounded-lg text-[var(--muted)] hover:bg-[var(--settings-control-hover)] hover:text-[var(--fg)]"
 
   return (
     <div
@@ -226,7 +226,7 @@ export function LayersPopoverContent({
                 ariaLabel={`Delete ${displayName}`}
                 className={cn(
                   embedded &&
-                    "size-6 rounded-[8px] text-[var(--muted)] hover:text-[var(--fg)]",
+                    "size-6 rounded-lg text-[var(--muted)] hover:text-[var(--fg)]",
                   !canDelete && "opacity-30",
                 )}
                 disabled={!canDelete}

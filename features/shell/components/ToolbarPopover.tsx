@@ -42,8 +42,8 @@ export function ToolbarPopoverContent({
   title?: string
 }) {
   const heightClass = fitContent
-    ? "max-h-[min(28rem,calc(100dvh-8rem))]"
-    : "h-[min(28rem,calc(100dvh-8rem))] max-h-[min(28rem,calc(100dvh-8rem))]"
+    ? "max-h-[var(--popover-max-h)]"
+    : "h-[var(--popover-max-h)] max-h-[var(--popover-max-h)]"
 
   const content = disableScroll ? (
     <div
@@ -74,7 +74,7 @@ export function ToolbarPopoverContent({
       side="bottom"
       sideOffset={12}
       className={cn(
-        "dn-portal-surface inspector-popover-content dn-popover-flat z-[20000] grid w-[min(18rem,calc(100vw-1rem))] overflow-hidden p-0 dn-squircle-md",
+        "dn-portal-surface inspector-popover-content dn-popover-flat z-[var(--z-popover)] grid w-[var(--popover-width)] overflow-hidden p-0 dn-squircle-md",
         title ? "grid-rows-[auto_minmax(0,1fr)]" : "grid-rows-[minmax(0,1fr)]",
         theme === "dark" && "dark",
         heightClass,
