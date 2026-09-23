@@ -80,6 +80,7 @@ export function DesktopWorkspace({
         </BlurFadeThemeTransition>
       </DesktopCuelumeProvider>
       </DesktopnewThemeContext.Provider>
+      <DesktopWorkspaceStyles />
     </section>
   )
 }
