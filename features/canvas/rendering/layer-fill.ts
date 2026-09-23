@@ -1,23 +1,23 @@
-import type { Fill } from "@/components/ui/fill-picker/public-api"
-import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/shell/model/toolbar-defaults"
-import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils"
+import type { Fill } from "@/components/ui/fill-picker/public-api";
+import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/shell/model/toolbar-defaults";
+import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
 import {
   fillCssToQraftyGradient,
   solidColorToFillCss,
   qraftyGradientToFillCss,
-} from "@/features/shell/inspector/settings-bridge"
+} from "@/features/shell/inspector/settings-bridge";
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/layers/shared";
 
 export function getShapeLayerFillCssValue(layer: DraftingCanvasLayer) {
   if (layer.fillMode === "gradient" && layer.fillGradient) {
-    return qraftyGradientToFillCss(layer.fillGradient)
+    return qraftyGradientToFillCss(layer.fillGradient);
   }
 
-  return solidColorToFillCss(layer.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill)
+  return solidColorToFillCss(layer.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill);
 }
 
 export function patchShapeLayerFillFromPicker(
@@ -25,29 +25,28 @@ export function patchShapeLayerFillFromPicker(
   fill: Fill,
   css: string,
 ): Partial<DraftingCanvasLayer> {
-  const fallbackGradient =
-    layer.fillGradient ?? DEFAULT_DESKTOP_SHAPE_SETTINGS.shapeGradient
+  const fallbackGradient = layer.fillGradient ?? DEFAULT_DESKTOP_SHAPE_SETTINGS.shapeGradient;
 
   if (fill.kind === "gradient") {
     return {
       fill: fillPreviewHex(css),
       fillGradient: fillCssToQraftyGradient(css, fallbackGradient),
       fillMode: "gradient",
-    }
+    };
   }
 
   return {
     fill: fillPreviewHex(css),
     fillMode: "solid",
-  }
+  };
 }
 
 export function getTextLayerFillCssValue(layer: DraftingCanvasLayer) {
   if (layer.fillMode === "gradient" && layer.fillGradient) {
-    return qraftyGradientToFillCss(layer.fillGradient)
+    return qraftyGradientToFillCss(layer.fillGradient);
   }
 
-  return solidColorToFillCss(layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill)
+  return solidColorToFillCss(layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill);
 }
 
 export function patchTextLayerFillFromPicker(
@@ -55,39 +54,38 @@ export function patchTextLayerFillFromPicker(
   fill: Fill,
   css: string,
 ): Partial<DraftingCanvasLayer> {
-  const fallbackGradient =
-    layer.fillGradient ?? DEFAULT_DESKTOP_SHAPE_SETTINGS.shapeGradient
+  const fallbackGradient = layer.fillGradient ?? DEFAULT_DESKTOP_SHAPE_SETTINGS.shapeGradient;
 
   if (fill.kind === "gradient") {
     return {
       fill: fillPreviewHex(css),
       fillGradient: fillCssToQraftyGradient(css, fallbackGradient),
       fillMode: "gradient",
-    }
+    };
   }
 
   return {
     fill: fillPreviewHex(css),
     fillMode: "solid",
-  }
+  };
 }
 
 export function getShapeLayerGradientId(layerId: string) {
-  return `${layerId.replace(/[^\w-]+/g, "-")}-shape-fill-gradient`
+  return `${layerId.replace(/[^\w-]+/g, "-")}-shape-fill-gradient`;
 }
 
 export function shouldRenderShapeFillGradient(layer: DraftingCanvasLayer) {
-  return layer.fillMode === "gradient" && layer.fillGradient?.enabled !== false
+  return layer.fillMode === "gradient" && layer.fillGradient?.enabled !== false;
 }
 
 export function resolveShapeSvgFill(layer: DraftingCanvasLayer): string {
   if (layer.fillMode === "none") {
-    return "none"
+    return "none";
   }
 
   if (shouldRenderShapeFillGradient(layer)) {
-    return `url(#${getShapeLayerGradientId(layer.id)})`
+    return `url(#${getShapeLayerGradientId(layer.id)})`;
   }
 
-  return layer.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill
+  return layer.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill;
 }

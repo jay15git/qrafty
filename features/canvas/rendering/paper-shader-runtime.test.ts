@@ -1,21 +1,21 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import { createDefaultDraftingCardPaperShader } from "@/features/canvas/model/card-state"
+import { createDefaultDraftingCardPaperShader } from "@/features/canvas/model/card-state";
 import {
   hasValidPaperShaderLayout,
   readPaperShaderFallbackColor,
-} from "@/features/canvas/rendering/paper-shader-runtime"
+} from "@/features/canvas/rendering/paper-shader-runtime";
 
 describe("paper shader runtime helpers", () => {
   it("rejects zero-sized shader layouts", () => {
-    expect(hasValidPaperShaderLayout(0, 320)).toBe(false)
-    expect(hasValidPaperShaderLayout(320, 0)).toBe(false)
-    expect(hasValidPaperShaderLayout(320, 608)).toBe(true)
-  })
+    expect(hasValidPaperShaderLayout(0, 320)).toBe(false);
+    expect(hasValidPaperShaderLayout(320, 0)).toBe(false);
+    expect(hasValidPaperShaderLayout(320, 608)).toBe(true);
+  });
 
   it("reads a fallback color from shader params", () => {
-    const shader = createDefaultDraftingCardPaperShader("mesh-gradient")
+    const shader = createDefaultDraftingCardPaperShader("mesh-gradient");
 
-    expect(readPaperShaderFallbackColor(shader)).toMatch(/^#/)
-  })
-})
+    expect(readPaperShaderFallbackColor(shader)).toMatch(/^#/);
+  });
+});

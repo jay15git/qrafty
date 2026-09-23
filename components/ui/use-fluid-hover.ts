@@ -204,7 +204,7 @@ const measurementAttempts = 3;
 
 export function useFluidHover<T extends HTMLElement>(
   containerRef: RefObject<T | null>,
-  options: UseFluidHoverOptions = {}
+  options: UseFluidHoverOptions = {},
 ): UseFluidHoverReturn {
   const { axis = "y", isItemDisabled, gapClick = true } = options;
   const gapClickMaxDistance =
@@ -260,9 +260,7 @@ export function useFluidHover<T extends HTMLElement>(
       // incomplete. A boxless element is the only case: `position: fixed`
       // items also have no offsetParent but do have a size.
       const hasLayoutBox =
-        element.offsetParent !== null ||
-        element.offsetWidth > 0 ||
-        element.offsetHeight > 0;
+        element.offsetParent !== null || element.offsetWidth > 0 || element.offsetHeight > 0;
       if (!hasLayoutBox) {
         everyItemHasLayout = false;
         return;
@@ -344,7 +342,7 @@ export function useFluidHover<T extends HTMLElement>(
       };
       attempt(attemptsLeft);
     },
-    [runMeasurement]
+    [runMeasurement],
   );
 
   const remeasure = useCallback(() => {
@@ -368,9 +366,7 @@ export function useFluidHover<T extends HTMLElement>(
   // registered items so coverage survives the swap.
   useEffect(() => {
     if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(() =>
-      scheduleMeasurement(measurementAttempts)
-    );
+    const observer = new ResizeObserver(() => scheduleMeasurement(measurementAttempts));
     itemRoRef.current = observer;
     itemsRef.current.forEach((element) => observer.observe(element));
     return () => {
@@ -398,7 +394,7 @@ export function useFluidHover<T extends HTMLElement>(
         // only moved index hands the highlight to the row now under it.
         if (index === activeIndexRef.current) {
           setActiveIndex((current) =>
-            current === index && !itemsRef.current.has(index) ? null : current
+            current === index && !itemsRef.current.has(index) ? null : current,
           );
         }
       }
@@ -408,7 +404,7 @@ export function useFluidHover<T extends HTMLElement>(
       // container's children swap.
       remeasure();
     },
-    [remeasure]
+    [remeasure],
   );
 
   const handleMouseMove = useCallback(
@@ -439,11 +435,11 @@ export function useFluidHover<T extends HTMLElement>(
                   return !!el && isItemDisabled(el);
                 }
               : undefined,
-          })
+          }),
         );
       });
     },
-    [axis, containerRef, isItemDisabled]
+    [axis, containerRef, isItemDisabled],
   );
 
   const handleMouseEnter = useCallback(() => {
@@ -473,7 +469,7 @@ export function useFluidHover<T extends HTMLElement>(
       // A control that sits between the rows (a search field at the top of
       // a menu, a footer button) keeps its own click too.
       const control = (target as Element).closest?.(
-        "input, textarea, select, button, a, summary, [contenteditable], [role='textbox'], [role='searchbox'], [role='button']"
+        "input, textarea, select, button, a, summary, [contenteditable], [role='textbox'], [role='searchbox'], [role='button']",
       );
       if (control) return;
       if (gapClick === false) return;
@@ -491,7 +487,7 @@ export function useFluidHover<T extends HTMLElement>(
       // wrapping it, if any) run exactly as if the pointer had been inside.
       resolveActivator(element).click();
     },
-    [isItemDisabled, gapClick, gapClickMaxDistance]
+    [isItemDisabled, gapClick, gapClickMaxDistance],
   );
 
   // Remeasure when the container resizes — a reflow moves items even though
@@ -549,7 +545,7 @@ export function useFluidHover<T extends HTMLElement>(
 export function useRegisterFluidHoverItem(
   registerItem: ((index: number, element: HTMLElement | null) => void) | undefined,
   index: number | undefined,
-  ref: RefObject<HTMLElement | null>
+  ref: RefObject<HTMLElement | null>,
 ) {
   useEffect(() => {
     if (!registerItem || index === undefined) return;

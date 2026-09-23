@@ -1,35 +1,32 @@
-"use client"
+"use client";
 
-import type { ReactNode } from "react"
+import type { ReactNode } from "react";
 
 import {
   AppearanceBorderControls,
   AppearanceRadiusControls,
-} from "@/features/shell/components/AppearancePopoverControls"
-import { EffectsAccordion } from "@/features/shell/components/EffectsAccordion"
-import { ShadowsList } from "@/features/shell/components/ShadowsList"
+} from "@/features/shell/components/AppearancePopoverControls";
+import { EffectsAccordion } from "@/features/shell/components/EffectsAccordion";
+import { ShadowsList } from "@/features/shell/components/ShadowsList";
 import {
   LayerStyleInspector,
   TransformSection,
-} from "@/features/shell/components/ElementInspector"
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
-import type {
-  AppearancePatch,
-  AppearanceSnapshot,
-} from "@/features/shell/model/appearance"
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
-import type { LayerEffectKind } from "@/features/canvas/model/layer-effects"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import "@/features/shell/inspector/inspector.css"
+} from "@/features/shell/components/ElementInspector";
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import type { AppearancePatch, AppearanceSnapshot } from "@/features/shell/model/appearance";
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import type { LayerEffectKind } from "@/features/canvas/model/layer-effects";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import "@/features/shell/inspector/inspector.css";
 
 function LayerSettingsPanelShell({
   children,
   dataSlot,
   theme,
 }: {
-  children: ReactNode
-  dataSlot: string
-  theme: ThemeMode
+  children: ReactNode;
+  dataSlot: string;
+  theme: ThemeMode;
 }) {
   return (
     <InspectorThemeContext.Provider value={theme}>
@@ -41,7 +38,7 @@ function LayerSettingsPanelShell({
         {children}
       </div>
     </InspectorThemeContext.Provider>
-  )
+  );
 }
 
 export function LayerStylePanel({
@@ -49,15 +46,15 @@ export function LayerStylePanel({
   onPatch,
   theme,
 }: {
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  theme: ThemeMode
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  theme: ThemeMode;
 }) {
   return (
     <LayerSettingsPanelShell dataSlot="layer-style-panel" theme={theme}>
       <LayerStyleInspector layer={layer} onPatch={onPatch} />
     </LayerSettingsPanelShell>
-  )
+  );
 }
 
 export function LayerEffectsPanel({
@@ -69,13 +66,13 @@ export function LayerEffectsPanel({
   theme,
   variant,
 }: {
-  effectKinds?: readonly LayerEffectKind[]
-  layer: DraftingCanvasLayer
-  layerOpacity?: number
-  onLayerOpacityChange?: (opacity: number) => void
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  theme: ThemeMode
-  variant?: "default" | "flat"
+  effectKinds?: readonly LayerEffectKind[];
+  layer: DraftingCanvasLayer;
+  layerOpacity?: number;
+  onLayerOpacityChange?: (opacity: number) => void;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  theme: ThemeMode;
+  variant?: "default" | "flat";
 }) {
   return (
     <LayerSettingsPanelShell dataSlot="layer-effects-panel" theme={theme}>
@@ -88,7 +85,7 @@ export function LayerEffectsPanel({
         variant={variant}
       />
     </LayerSettingsPanelShell>
-  )
+  );
 }
 
 export function LayerShadowsPanel({
@@ -96,15 +93,15 @@ export function LayerShadowsPanel({
   onPatch,
   theme,
 }: {
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  theme: ThemeMode
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  theme: ThemeMode;
 }) {
   return (
     <LayerSettingsPanelShell dataSlot="layer-shadows-panel" theme={theme}>
       <ShadowsList layer={layer} onPatch={onPatch} />
     </LayerSettingsPanelShell>
-  )
+  );
 }
 
 export function LayerTransformPanel({
@@ -113,16 +110,16 @@ export function LayerTransformPanel({
   theme,
   variant,
 }: {
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  theme: ThemeMode
-  variant?: "default" | "flat"
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  theme: ThemeMode;
+  variant?: "default" | "flat";
 }) {
   return (
     <LayerSettingsPanelShell dataSlot="layer-transform-panel" theme={theme}>
       <TransformSection layer={layer} onPatch={onPatch} variant={variant} />
     </LayerSettingsPanelShell>
-  )
+  );
 }
 
 export function LayerBorderPanel({
@@ -130,9 +127,9 @@ export function LayerBorderPanel({
   onPatch,
   theme,
 }: {
-  appearance: AppearanceSnapshot
-  onPatch: (patch: AppearancePatch) => void
-  theme: ThemeMode
+  appearance: AppearanceSnapshot;
+  onPatch: (patch: AppearancePatch) => void;
+  theme: ThemeMode;
 }) {
   return (
     <LayerSettingsPanelShell dataSlot="layer-border-panel" theme={theme}>
@@ -141,5 +138,5 @@ export function LayerBorderPanel({
         <AppearanceRadiusControls appearance={appearance} onPatch={onPatch} />
       </div>
     </LayerSettingsPanelShell>
-  )
+  );
 }

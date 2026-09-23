@@ -1,12 +1,5 @@
-import {
-  normalizeUrl,
-  stringFieldValue,
-} from "@/features/qr/content/platform-builders"
-import {
-  textField,
-  urlIntent,
-  type PlatformDef,
-} from "@/features/qr/content/intents/shared"
+import { normalizeUrl, stringFieldValue } from "@/features/qr/content/platform-builders";
+import { textField, urlIntent, type PlatformDef } from "@/features/qr/content/intents/shared";
 
 export const LOCATION_PLATFORM_DEFS: readonly PlatformDef[] = [
   {
@@ -27,21 +20,21 @@ export const LOCATION_PLATFORM_DEFS: readonly PlatformDef[] = [
           textField("longitude", "Longitude"),
         ],
         build: (values) => {
-          const url = stringFieldValue(values, "url")
+          const url = stringFieldValue(values, "url");
           if (url) {
-            return normalizeUrl(url)
+            return normalizeUrl(url);
           }
 
-          const latitude = stringFieldValue(values, "latitude")
-          const longitude = stringFieldValue(values, "longitude")
-          const query = stringFieldValue(values, "query")
+          const latitude = stringFieldValue(values, "latitude");
+          const longitude = stringFieldValue(values, "longitude");
+          const query = stringFieldValue(values, "query");
 
           if (latitude || longitude) {
-            const suffix = query ? `?q=${encodeURIComponent(query)}` : ""
-            return `geo:${latitude},${longitude}${suffix}`
+            const suffix = query ? `?q=${encodeURIComponent(query)}` : "";
+            return `geo:${latitude},${longitude}${suffix}`;
           }
 
-          return `https://maps.google.com/?q=${encodeURIComponent(query)}`
+          return `https://maps.google.com/?q=${encodeURIComponent(query)}`;
         },
       },
       urlIntent("directions", "Directions", (p) => p.includes("/dir/")),
@@ -54,11 +47,11 @@ export const LOCATION_PLATFORM_DEFS: readonly PlatformDef[] = [
           textField("query", "Label"),
         ],
         build: (values) => {
-          const lat = stringFieldValue(values, "latitude")
-          const lng = stringFieldValue(values, "longitude")
-          const query = stringFieldValue(values, "query")
-          const suffix = query ? `?q=${encodeURIComponent(query)}` : ""
-          return `geo:${lat},${lng}${suffix}`
+          const lat = stringFieldValue(values, "latitude");
+          const lng = stringFieldValue(values, "longitude");
+          const query = stringFieldValue(values, "query");
+          const suffix = query ? `?q=${encodeURIComponent(query)}` : "";
+          return `geo:${lat},${lng}${suffix}`;
         },
       },
     ],
@@ -70,7 +63,10 @@ export const LOCATION_PLATFORM_DEFS: readonly PlatformDef[] = [
     collection: "contact",
     category: "location",
     hosts: ["maps.apple.com"],
-    intents: [urlIntent("place", "Place"), urlIntent("directions", "Directions", (p) => p.includes("dir"))],
+    intents: [
+      urlIntent("place", "Place"),
+      urlIntent("directions", "Directions", (p) => p.includes("dir")),
+    ],
   },
   {
     type: "waze",
@@ -79,6 +75,9 @@ export const LOCATION_PLATFORM_DEFS: readonly PlatformDef[] = [
     collection: "contact",
     category: "location",
     hosts: ["waze.com"],
-    intents: [urlIntent("place", "Place"), urlIntent("navigate", "Navigate", (p) => p.includes("navigate"))],
+    intents: [
+      urlIntent("place", "Place"),
+      urlIntent("navigate", "Navigate", (p) => p.includes("navigate")),
+    ],
   },
-]
+];

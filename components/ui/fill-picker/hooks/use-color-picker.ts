@@ -1,29 +1,11 @@
 "use client";
 
 import * as React from "react";
-import {
-  formatAll,
-  gamutInfo,
-  contrast,
-} from "../lib/color";
-import type {
-  ColorFormat,
-  ContrastResult,
-  GamutInfo,
-  OklchColor,
-} from "../lib/types";
-import {
-  coerce,
-  ALL_FORMATS,
-  BLACK,
-  WHITE,
-  type ColorComponent,
-} from "../lib/color-components";
+import { formatAll, gamutInfo, contrast } from "../lib/color";
+import type { ColorFormat, ContrastResult, GamutInfo, OklchColor } from "../lib/types";
+import { coerce, ALL_FORMATS, BLACK, WHITE, type ColorComponent } from "../lib/color-components";
 import { useResolvedColor } from "./use-resolved-color";
-import {
-  useCommitColor,
-  useColorPickerActions,
-} from "./use-color-picker-actions";
+import { useCommitColor, useColorPickerActions } from "./use-color-picker-actions";
 
 export type { ColorComponent } from "../lib/color-components";
 
@@ -103,11 +85,7 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
   const isControlledColor = controlledValue !== undefined;
   const isControlledFormat = controlledFormat !== undefined;
 
-  const { color, lastGoodHue } = useResolvedColor(
-    controlledValue,
-    defaultValue,
-    internalColor,
-  );
+  const { color, lastGoodHue } = useResolvedColor(controlledValue, defaultValue, internalColor);
   const format = isControlledFormat ? controlledFormat! : internalFormat;
   const background = coerce(backgroundColor, WHITE);
 
@@ -125,7 +103,16 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
   const contrastResult = React.useMemo(
     () => contrast(color, background),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- contrast uses OKLCH channels, not object identity
-    [color.l, color.c, color.h, color.alpha, background.l, background.c, background.h, background.alpha],
+    [
+      color.l,
+      color.c,
+      color.h,
+      color.alpha,
+      background.l,
+      background.c,
+      background.h,
+      background.alpha,
+    ],
   );
 
   const { commitColor, formatRef } = useCommitColor(
@@ -135,21 +122,16 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
     setInternalColor,
   );
 
-  const {
-    setColor,
-    setComponent,
-    adjustComponent,
-    setFormat,
-    setFromString,
-  } = useColorPickerActions(
-    color,
-    lastGoodHue,
-    commitColor,
-    formatRef,
-    isControlledFormat,
-    setInternalFormat,
-    onFormatChange,
-  );
+  const { setColor, setComponent, adjustComponent, setFormat, setFromString } =
+    useColorPickerActions(
+      color,
+      lastGoodHue,
+      commitColor,
+      formatRef,
+      isControlledFormat,
+      setInternalFormat,
+      onFormatChange,
+    );
 
   return {
     color,

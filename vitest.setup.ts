@@ -2,9 +2,9 @@
 // Keeps DOM-environment component tests from crashing on unhandled errors
 // (e.g. window.matchMedia in features/shell/audio/cuelume.ts).
 
-import { createElement, forwardRef, type ReactNode } from "react"
-import { vi } from "vitest"
-import type * as GlimmNext from "glimm/next"
+import { createElement, forwardRef, type ReactNode } from "react";
+import { vi } from "vitest";
+import type * as GlimmNext from "glimm/next";
 
 // `useRouter()` from next/navigation throws "invariant expected app router to
 // be mounted" outside a Next runtime. Component tests render islands that pull
@@ -24,24 +24,24 @@ vi.mock("next/navigation", () => ({
   useParams: () => ({}),
   useSelectedLayoutSegment: () => null,
   useSelectedLayoutSegments: () => [],
-}))
+}));
 
 // The real TransitionLink needs <GlimmProvider>, which only the root layout
 // mounts. Tests render subtrees, so swap it for a plain anchor and keep the
 // rest of the module (EASINGS, PALETTES, useGlimm) intact.
 vi.mock("glimm/next", async (importOriginal) => {
-  const actual = await importOriginal<typeof GlimmNext>()
+  const actual = await importOriginal<typeof GlimmNext>();
 
   return {
     ...actual,
     GlimmProvider: ({ children }: { children?: ReactNode }) => children ?? null,
     TransitionLink: forwardRef<HTMLAnchorElement, Record<string, unknown>>(
       function TransitionLink(props, ref) {
-        return createElement("a", { ...props, ref })
+        return createElement("a", { ...props, ref });
       },
     ),
-  }
-})
+  };
+});
 
 if (typeof window !== "undefined") {
   if (!window.matchMedia) {
@@ -54,7 +54,7 @@ if (typeof window !== "undefined") {
       addEventListener: () => {},
       removeEventListener: () => {},
       dispatchEvent: () => false,
-    })) as typeof window.matchMedia
+    })) as typeof window.matchMedia;
   }
 
   if (!("ResizeObserver" in window)) {
@@ -67,16 +67,16 @@ if (typeof window !== "undefined") {
       writable: true,
       configurable: true,
       value: ResizeObserverStub,
-    })
+    });
     Object.defineProperty(globalThis, "ResizeObserver", {
       writable: true,
       configurable: true,
       value: ResizeObserverStub,
-    })
+    });
   }
 
   if (!Element.prototype.scrollIntoView) {
-    Element.prototype.scrollIntoView = () => {}
+    Element.prototype.scrollIntoView = () => {};
   }
 
   if (!("IntersectionObserver" in window)) {
@@ -85,18 +85,18 @@ if (typeof window !== "undefined") {
       unobserve() {}
       disconnect() {}
       takeRecords() {
-        return []
+        return [];
       }
     }
     Object.defineProperty(window, "IntersectionObserver", {
       writable: true,
       configurable: true,
       value: IntersectionObserverStub,
-    })
+    });
     Object.defineProperty(globalThis, "IntersectionObserver", {
       writable: true,
       configurable: true,
       value: IntersectionObserverStub,
-    })
+    });
   }
 }

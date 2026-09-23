@@ -15,11 +15,7 @@
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font);
-  bottom: max(
-    1rem,
-    env(safe-area-inset-bottom, 0px),
-    var(--mobile-drawer-keyboard-inset, 0px)
-  );
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px), var(--mobile-drawer-keyboard-inset, 0px));
 }
 
 [data-slot="mobile-family-drawer-root"].inspector-root[data-theme="light"] {
@@ -43,7 +39,8 @@
   margin-right: 0;
 }
 
-[data-slot="mobile-family-drawer-root"] .inspector-root:not([data-slot="mobile-family-drawer-root"]) {
+[data-slot="mobile-family-drawer-root"]
+  .inspector-root:not([data-slot="mobile-family-drawer-root"]) {
   min-height: 0;
   background: transparent;
   color: var(--fg);
@@ -145,7 +142,8 @@
 /* Inactive tabs keep the full foreground color on mobile — no muted fade.
    Selected-tab color rules still take precedence. */
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .t-tab:not([aria-selected="true"]),
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-segment-tab:not([aria-selected="true"]),
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  .dn-segment-tab:not([aria-selected="true"]),
 .dn-portal-surface[data-mobile-inspector] .t-tab:not([aria-selected="true"]),
 .dn-portal-surface[data-mobile-inspector] .dn-segment-tab:not([aria-selected="true"]),
 .inspector-root[data-mobile-inspector] .t-tab:not([aria-selected="true"]),
@@ -172,7 +170,9 @@
 
 /* Content-type tabs read as icon-over-label circles, matching the settings
    rail. The sliding pill is retired for this bar. */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-tab-bar .t-tabs-pill,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  .dn-content-type-tab-bar
+  .t-tabs-pill,
 .dn-portal-surface[data-mobile-inspector] .dn-content-type-tab-bar .t-tabs-pill,
 .inspector-root[data-mobile-inspector] .dn-content-type-tab-bar .t-tabs-pill {
   display: none;
@@ -267,7 +267,9 @@
   height: 1.375rem;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-logo-icon-picker .dn-settings-input,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  .dn-logo-icon-picker
+  .dn-settings-input,
 .dn-portal-surface[data-mobile-inspector] .dn-logo-icon-picker .dn-settings-input {
   min-height: var(--settings-control-height);
   height: var(--settings-control-height);
@@ -284,15 +286,11 @@
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
   .dn-logo-icon-picker-grid
   .dn-logo-icon-picker-tile,
-.dn-portal-surface[data-mobile-inspector]
-  .dn-logo-icon-picker-grid
-  .dn-logo-icon-picker-tile,
+.dn-portal-surface[data-mobile-inspector] .dn-logo-icon-picker-grid .dn-logo-icon-picker-tile,
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
   .dn-logo-icon-picker-grid
   .dn-logo-icon-picker-skeleton,
-.dn-portal-surface[data-mobile-inspector]
-  .dn-logo-icon-picker-grid
-  .dn-logo-icon-picker-skeleton {
+.dn-portal-surface[data-mobile-inspector] .dn-logo-icon-picker-grid .dn-logo-icon-picker-skeleton {
   width: 100%;
   height: auto;
   min-width: 0;
@@ -310,27 +308,40 @@
   transform: scale(1.2);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-insert-menu-popover .dn-settings-row,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  .dn-insert-menu-popover
+  .dn-settings-row,
 .dn-portal-surface[data-mobile-inspector] .dn-insert-menu-popover .dn-settings-row {
   min-height: var(--settings-control-height);
 }
 
 /* Layer inspector + wallpapers under drawer host */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="wallpaper-inspector"] button,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="element-inspector"] input,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="element-inspector"] textarea,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="element-inspector"] button {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  [data-slot="wallpaper-inspector"]
+  button,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  [data-slot="element-inspector"]
+  input,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  [data-slot="element-inspector"]
+  textarea,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  [data-slot="element-inspector"]
+  button {
   min-height: var(--settings-control-height);
 }
 
 /* Content field pairs stack on narrow drawer */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="inspector-content-field-row"] {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  [data-slot="inspector-content-field-row"] {
   grid-template-columns: minmax(0, 1fr);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-nested-header {
   display: grid;
-  grid-template-columns: var(--settings-nested-header-hit) minmax(0, 1fr) var(--settings-nested-header-hit);
+  grid-template-columns: var(--settings-nested-header-hit) minmax(0, 1fr) var(
+      --settings-nested-header-hit
+    );
   align-items: center;
   gap: 0.25rem;
   margin-bottom: 0.5rem;
@@ -338,7 +349,8 @@
   --settings-nested-header-hit: 2.75rem;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-nested-header__title {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  .dn-mobile-drawer-nested-header__title {
   margin: 0;
   min-width: 0;
   overflow: hidden;
@@ -361,7 +373,9 @@
   border-radius: 9999px;
   background: var(--muted, var(--settings-control));
   color: var(--fg);
-  transition: background-color 150ms, color 150ms;
+  transition:
+    background-color 150ms,
+    color 150ms;
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-back:hover {
@@ -392,7 +406,9 @@
   width: 100% !important;
 }
 
-[data-mobile-inspector] [data-slot="scroll-area"][data-orientation="horizontal"] [data-slot="scroll-area-viewport"] {
+[data-mobile-inspector]
+  [data-slot="scroll-area"][data-orientation="horizontal"]
+  [data-slot="scroll-area-viewport"] {
   touch-action: pan-x pinch-zoom;
   overscroll-behavior-x: contain;
 }
@@ -410,7 +426,9 @@
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="layer-row"],
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="wallpaper-inspector"] button {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+  [data-slot="wallpaper-inspector"]
+  button {
   min-height: var(--settings-control-height);
   font-size: var(--type-value);
 }
@@ -450,7 +468,8 @@
   background: var(--bg);
 }
 
-[data-slot="mobile-layer-toolbar"][data-mobile-inspector] [data-slot="mobile-layer-toolbar-settings"]
+[data-slot="mobile-layer-toolbar"][data-mobile-inspector]
+  [data-slot="mobile-layer-toolbar-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"] {
   width: var(--settings-icon-hit);
   height: var(--settings-icon-hit);
@@ -459,21 +478,25 @@
   color: var(--fg);
 }
 
-[data-slot="mobile-layer-toolbar"][data-mobile-inspector] [data-slot="mobile-layer-toolbar-settings"]
+[data-slot="mobile-layer-toolbar"][data-mobile-inspector]
+  [data-slot="mobile-layer-toolbar-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"]:hover {
   background: var(--settings-control);
   color: var(--fg);
 }
 
-[data-slot="mobile-layer-toolbar"][data-mobile-inspector] [data-slot="mobile-layer-toolbar-settings"]
+[data-slot="mobile-layer-toolbar"][data-mobile-inspector]
+  [data-slot="mobile-layer-toolbar-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"][aria-pressed="true"] {
   background: var(--settings-control);
   color: var(--fg);
 }
 
-[data-slot="mobile-layer-toolbar"][data-mobile-inspector] [data-slot="drafting-layer-floating-toolbar-color"]
+[data-slot="mobile-layer-toolbar"][data-mobile-inspector]
+  [data-slot="drafting-layer-floating-toolbar-color"]
   button,
-[data-slot="mobile-layer-toolbar"][data-mobile-inspector] [data-slot="drafting-layer-floating-toolbar-color"]
+[data-slot="mobile-layer-toolbar"][data-mobile-inspector]
+  [data-slot="drafting-layer-floating-toolbar-color"]
   [data-slot="fill-swatch-button"] {
   width: var(--settings-icon-hit);
   height: var(--settings-icon-hit);
@@ -486,13 +509,18 @@
   border-radius: var(--radius-sm);
 }
 
-.dn-portal-surface[data-mobile-inspector] [data-slot="drafting-layer-text-size-settings"] button:hover,
-.dn-portal-surface[data-mobile-inspector] [data-slot="drafting-layer-text-size-settings"] button[aria-pressed="true"] {
+.dn-portal-surface[data-mobile-inspector]
+  [data-slot="drafting-layer-text-size-settings"]
+  button:hover,
+.dn-portal-surface[data-mobile-inspector]
+  [data-slot="drafting-layer-text-size-settings"]
+  button[aria-pressed="true"] {
   background: var(--settings-control);
   color: var(--fg);
 }
 
-.dn-portal-surface[data-mobile-inspector] [data-slot="drafting-layer-text-typography-settings"]
+.dn-portal-surface[data-mobile-inspector]
+  [data-slot="drafting-layer-text-typography-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"] {
   width: var(--settings-icon-hit);
   height: var(--settings-icon-hit);
@@ -500,9 +528,11 @@
   color: var(--fg);
 }
 
-.dn-portal-surface[data-mobile-inspector] [data-slot="drafting-layer-text-typography-settings"]
+.dn-portal-surface[data-mobile-inspector]
+  [data-slot="drafting-layer-text-typography-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"]:hover,
-.dn-portal-surface[data-mobile-inspector] [data-slot="drafting-layer-text-typography-settings"]
+.dn-portal-surface[data-mobile-inspector]
+  [data-slot="drafting-layer-text-typography-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"][aria-pressed="true"] {
   background: var(--settings-control);
   color: var(--fg);
@@ -770,7 +800,9 @@
   transition: scale 150ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__item:active .dn-mobile-settings-rail__circle {
+[data-slot="mobile-settings-rail-root"]
+  .dn-mobile-settings-rail__item:active
+  .dn-mobile-settings-rail__circle {
   scale: 0.94;
 }
 
@@ -930,9 +962,7 @@
 
 /* Dark theme: inactive tabs keep the full foreground color — no fade. */
 
-[data-slot="mobile-settings-rail-root"][data-theme="dark"]
-  .dn-mobile-settings-rail__tabs
-  .t-tab,
+[data-slot="mobile-settings-rail-root"][data-theme="dark"] .dn-mobile-settings-rail__tabs .t-tab,
 [data-slot="mobile-settings-rail-root"][data-theme="dark"]
   .dn-mobile-settings-rail__tabs
   .t-tab[aria-selected="true"] {

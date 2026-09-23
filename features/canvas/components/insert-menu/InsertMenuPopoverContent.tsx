@@ -1,31 +1,31 @@
-"use client"
+"use client";
 
-import { useRef } from "react"
-import { PopoverClose, PopoverContent } from "@/components/ui/popover"
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
-import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui"
-import { InsertMenuPanelStack } from "@/features/canvas/components/insert-menu/InsertMenuPanelStack"
+import { useRef } from "react";
+import { PopoverClose, PopoverContent } from "@/components/ui/popover";
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
+import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui";
+import { InsertMenuPanelStack } from "@/features/canvas/components/insert-menu/InsertMenuPanelStack";
 import {
   INSERT_MENU_POPOVER_SHELL,
   INSERT_MENU_POPOVER_WIDTH,
   insertMenuPortalClass,
-} from "@/features/canvas/components/insert-menu/insert-menu-styles"
-import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/components/insert-menu/insert-menu-styles";
+import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories";
+import { cn } from "@/lib/utils";
 
-import "@/features/shell/inspector/inspector.css"
+import "@/features/shell/inspector/inspector.css";
 
 type InsertMenuPopoverContentProps = {
-  nodeId: string
-  onInsertLayer: (layer: ReturnType<typeof createDraftingTextLayer>) => void
-  canAddQrCode?: boolean
-  onAddQrCode?: () => void
-  onBrowseWallpapers?: () => void
-  isPopover?: boolean
-  popoverSide?: "top" | "bottom" | "left" | "right"
-  theme?: ThemeMode
-}
+  nodeId: string;
+  onInsertLayer: (layer: ReturnType<typeof createDraftingTextLayer>) => void;
+  canAddQrCode?: boolean;
+  onAddQrCode?: () => void;
+  onBrowseWallpapers?: () => void;
+  isPopover?: boolean;
+  popoverSide?: "top" | "bottom" | "left" | "right";
+  theme?: ThemeMode;
+};
 
 export function InsertMenuPopoverContent({
   nodeId,
@@ -37,11 +37,11 @@ export function InsertMenuPopoverContent({
   popoverSide = "bottom",
   theme = "dark",
 }: InsertMenuPopoverContentProps) {
-  const closeRef = useRef<HTMLButtonElement>(null)
-  const mobileDensity = useMobileInspectorDensity()
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const mobileDensity = useMobileInspectorDensity();
 
   function closeMenu() {
-    closeRef.current?.click()
+    closeRef.current?.click();
   }
 
   return (
@@ -83,5 +83,5 @@ export function InsertMenuPopoverContent({
         Close
       </PopoverClose>
     </PopoverContent>
-  )
+  );
 }

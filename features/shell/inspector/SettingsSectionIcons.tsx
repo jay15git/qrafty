@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import type { ReactNode } from "react"
+import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 type SettingsSectionIconProps = {
-  className?: string
-  size?: number
-}
+  className?: string;
+  size?: number;
+};
 
 function SettingsSectionSvg({
   className,
@@ -26,7 +26,7 @@ function SettingsSectionSvg({
     >
       {children}
     </svg>
-  )
+  );
 }
 
 function EditContentIcon({ className, size = 14 }: SettingsSectionIconProps) {
@@ -36,7 +36,7 @@ function EditContentIcon({ className, size = 14 }: SettingsSectionIconProps) {
       <path d="M19.0201 3.47967C17.0801 1.53967 15.1801 1.48967 13.1901 3.47967L11.9801 4.68967C11.8801 4.78967 11.8401 4.94967 11.8801 5.08967C12.6401 7.73967 14.7601 9.85967 17.4101 10.6197C17.4501 10.6297 17.4901 10.6397 17.5301 10.6397C17.6401 10.6397 17.7401 10.5997 17.8201 10.5197L19.0201 9.30967C20.0101 8.32967 20.4901 7.37967 20.4901 6.41967C20.5001 5.42967 20.0201 4.46967 19.0201 3.47967Z" />
       <path d="M15.6101 11.5308C15.3201 11.3908 15.0401 11.2508 14.7701 11.0908C14.5501 10.9608 14.3401 10.8208 14.1301 10.6708C13.9601 10.5608 13.7601 10.4008 13.5701 10.2408C13.5501 10.2308 13.4801 10.1708 13.4001 10.0908C13.0701 9.81078 12.7001 9.45078 12.3701 9.05078C12.3401 9.03078 12.2901 8.96078 12.2201 8.87078C12.1201 8.75078 11.9501 8.55078 11.8001 8.32078C11.6801 8.17078 11.5401 7.95078 11.4101 7.73078C11.2501 7.46078 11.1101 7.19078 10.9701 6.91078C10.9489 6.86539 10.9284 6.82022 10.9085 6.77532C10.7609 6.442 10.3263 6.34455 10.0685 6.60231L4.34007 12.3308C4.21007 12.4608 4.09007 12.7108 4.06007 12.8808L3.52007 16.7108C3.42007 17.3908 3.61007 18.0308 4.03007 18.4608C4.39007 18.8108 4.89007 19.0008 5.43007 19.0008C5.55007 19.0008 5.67007 18.9908 5.79007 18.9708L9.63007 18.4308C9.81007 18.4008 10.0601 18.2808 10.1801 18.1508L15.9014 12.4295C16.1609 12.1699 16.063 11.7245 15.7254 11.5804C15.6874 11.5642 15.649 11.5476 15.6101 11.5308Z" />
     </SettingsSectionSvg>
-  )
+  );
 }
 
 function ColorSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
@@ -53,7 +53,7 @@ function ColorSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
         </clipPath>
       </defs>
     </SettingsSectionSvg>
-  )
+  );
 }
 
 function QrSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
@@ -68,7 +68,7 @@ function QrSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
       <path d="M9 13.25H7C5.86 13.25 5.25 13.85 5.25 15V17C5.25 18.15 5.86 18.75 7 18.75H9C10.14 18.75 10.75 18.15 10.75 17V15C10.75 13.85 10.14 13.25 9 13.25Z" />
       <path d="M17 13.25H15C13.86 13.25 13.25 13.85 13.25 15V17C13.25 18.15 13.86 18.75 15 18.75H17C18.14 18.75 18.75 18.15 18.75 17V15C18.75 13.85 18.14 13.25 17 13.25Z" />
     </SettingsSectionSvg>
-  )
+  );
 }
 
 function ShapeSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
@@ -77,7 +77,7 @@ function ShapeSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
       <path d="M11.75 7H11H7C4.24 7 2 9.24 2 12V17C2 19.76 4.24 22 7 22H12C14.76 22 17 19.76 17 17V13V12.25C17 9.35 14.65 7 11.75 7Z" />
       <path d="M21.8799 6.33033C22.4045 8.88991 21.1621 11.2123 19.159 12.306C18.8514 12.4739 18.4999 12.2343 18.4999 11.8838V11.7503C18.4999 8.31033 15.6899 5.50033 12.2499 5.50033H12.1164C11.7659 5.50033 11.5263 5.14879 11.6942 4.84119C12.7879 2.8381 15.1103 1.59574 17.6699 2.12033C19.7599 2.55033 21.4499 4.24033 21.8799 6.33033Z" />
     </SettingsSectionSvg>
-  )
+  );
 }
 
 function EffectsSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
@@ -89,7 +89,7 @@ function EffectsSectionIcon({ className, size = 14 }: SettingsSectionIconProps) 
       <path d="M5.95002 9.50051L6.36002 8.1105C6.40002 7.9805 6.36002 7.84051 6.27002 7.74051C6.17002 7.64051 6.03002 7.61051 5.90002 7.65051L4.50002 8.05051L3.11002 7.64051C2.98002 7.60051 2.84002 7.64051 2.74002 7.73051C2.64002 7.83051 2.61002 7.97051 2.65002 8.10051L3.05002 9.50051L2.64002 10.8905C2.60002 11.0205 2.64002 11.1605 2.73002 11.2605C2.83002 11.3605 2.97002 11.3905 3.10002 11.3505L4.49002 10.9405L5.88002 11.3505C5.91002 11.3605 5.95002 11.3605 5.99002 11.3605C6.09002 11.3605 6.18002 11.3205 6.26002 11.2505C6.36002 11.1505 6.39002 11.0105 6.35002 10.8805L5.95002 9.50051Z" />
       <path d="M20.95 14.5L21.36 13.11C21.4 12.98 21.36 12.84 21.27 12.74C21.17 12.64 21.03 12.61 20.9 12.65L19.51 13.06L18.12 12.65C17.99 12.61 17.85 12.65 17.75 12.74C17.65 12.84 17.62 12.98 17.66 13.11L18.07 14.5L17.66 15.89C17.62 16.02 17.66 16.16 17.75 16.26C17.85 16.36 17.99 16.39 18.12 16.35L19.51 15.94L20.9 16.35C20.93 16.36 20.97 16.36 21.01 16.36C21.11 16.36 21.2 16.32 21.28 16.25C21.38 16.15 21.41 16.01 21.37 15.88L20.95 14.5Z" />
     </SettingsSectionSvg>
-  )
+  );
 }
 
 function BackgroundSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
@@ -99,7 +99,7 @@ function BackgroundSectionIcon({ className, size = 14 }: SettingsSectionIconProp
       <path d="M9.00012 10.3801C10.3146 10.3801 11.3801 9.31456 11.3801 8.00012C11.3801 6.68568 10.3146 5.62012 9.00012 5.62012C7.68568 5.62012 6.62012 6.68568 6.62012 8.00012C6.62012 9.31456 7.68568 10.3801 9.00012 10.3801Z" />
       <path d="M16.19 2H7.81C4.17 2 2 4.17 2 7.81V16.19C2 17.28 2.19 18.23 2.56 19.03C3.42 20.93 5.26 22 7.81 22H16.19C19.83 22 22 19.83 22 16.19V13.9V7.81C22 4.17 19.83 2 16.19 2ZM20.37 12.5C19.59 11.83 18.33 11.83 17.55 12.5L13.39 16.07C12.61 16.74 11.35 16.74 10.57 16.07L10.23 15.79C9.52 15.17 8.39 15.11 7.59 15.65L3.85 18.16C3.63 17.6 3.5 16.95 3.5 16.19V7.81C3.5 4.99 4.99 3.5 7.81 3.5H16.19C19.01 3.5 20.5 4.99 20.5 7.81V12.61L20.37 12.5Z" />
     </SettingsSectionSvg>
-  )
+  );
 }
 
 function MotionSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
@@ -107,7 +107,7 @@ function MotionSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
     <SettingsSectionSvg className={className} size={size}>
       <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM14.66 13.73L13.38 14.47L12.1 15.21C10.45 16.16 9.1 15.38 9.1 13.48V12V10.52C9.1 8.61 10.45 7.84 12.1 8.79L13.38 9.53L14.66 10.27C16.31 11.22 16.31 12.78 14.66 13.73Z" />
     </SettingsSectionSvg>
-  )
+  );
 }
 
 function ElementsSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
@@ -124,7 +124,7 @@ function ElementsSectionIcon({ className, size = 14 }: SettingsSectionIconProps)
         </clipPath>
       </defs>
     </SettingsSectionSvg>
-  )
+  );
 }
 
 function ExportSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
@@ -133,7 +133,7 @@ function ExportSectionIcon({ className, size = 14 }: SettingsSectionIconProps) {
       <path d="M16.8 9H12.75V15.25C12.75 15.66 12.41 16 12 16C11.59 16 11.25 15.66 11.25 15.25V9H7.2C4 9 2 11 2 14.2V16.79C2 20 4 22 7.2 22H16.79C19.99 22 21.99 20 21.99 16.8V14.2C22 11 20 9 16.8 9Z" />
       <path d="M12.7501 4.56043L14.8201 6.63043C14.9701 6.78043 15.1601 6.85043 15.3501 6.85043C15.5401 6.85043 15.7301 6.78043 15.8801 6.63043C16.1701 6.34043 16.1701 5.86043 15.8801 5.57043L12.5301 2.22043C12.2401 1.93043 11.7601 1.93043 11.4701 2.22043L8.12009 5.57043C7.83009 5.86043 7.83009 6.34043 8.12009 6.63043C8.41009 6.92043 8.89009 6.92043 9.18009 6.63043L11.2501 4.56043V9.00043H12.7501V4.56043Z" />
     </SettingsSectionSvg>
-  )
+  );
 }
 
 const SETTINGS_SECTION_ICON_MAP = {
@@ -146,18 +146,18 @@ const SETTINGS_SECTION_ICON_MAP = {
   Motion: MotionSectionIcon,
   Elements: ElementsSectionIcon,
   Export: ExportSectionIcon,
-} as const
+} as const;
 
 export function SettingsSectionIconFor({
   section,
   className,
   size = 14,
 }: {
-  section: string
-  className?: string
-  size?: number
+  section: string;
+  className?: string;
+  size?: number;
 }) {
-  const Icon = SETTINGS_SECTION_ICON_MAP[section as keyof typeof SETTINGS_SECTION_ICON_MAP]
-  if (!Icon) return null
-  return <Icon className={className} size={size} />
+  const Icon = SETTINGS_SECTION_ICON_MAP[section as keyof typeof SETTINGS_SECTION_ICON_MAP];
+  if (!Icon) return null;
+  return <Icon className={className} size={size} />;
 }

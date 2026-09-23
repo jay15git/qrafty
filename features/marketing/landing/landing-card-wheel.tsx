@@ -1,8 +1,8 @@
-import { LANDING_WHEEL_CARD_PRESETS } from "@/features/marketing/landing/landing-card-wheel-presets"
-import { getLandingWheelCardSrc } from "@/features/marketing/landing/landing-wheel-qr-render"
+import { LANDING_WHEEL_CARD_PRESETS } from "@/features/marketing/landing/landing-card-wheel-presets";
+import { getLandingWheelCardSrc } from "@/features/marketing/landing/landing-wheel-qr-render";
 
-const N = LANDING_WHEEL_CARD_PRESETS.length
-const SPACING = 360 / N
+const N = LANDING_WHEEL_CARD_PRESETS.length;
+const SPACING = 360 / N;
 
 export function LandingCardWheel() {
   return (
@@ -34,13 +34,12 @@ export function LandingCardWheel() {
 
       <section className="os-about">
         <p>
-          QR codes don&apos;t have to look generic. Layer shaders, images, and
-          custom shapes on a live canvas. Save a still for print and websites,
-          or export an animated video for social.
+          QR codes don&apos;t have to look generic. Layer shaders, images, and custom shapes on a
+          live canvas. Save a still for print and websites, or export an animated video for social.
         </p>
       </section>
     </div>
-  )
+  );
 }
 
 const css = `
@@ -126,4 +125,4 @@ const css = `
 @media (prefers-reduced-motion: reduce) {
   .os-spin { animation: none; }
 }
-`
+`;

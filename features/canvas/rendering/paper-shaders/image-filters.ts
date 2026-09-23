@@ -9,7 +9,7 @@ import {
   LiquidMetalShapes,
   gemSmokeMeta,
   heatmapMeta,
-} from "@paper-design/shaders"
+} from "@paper-design/shaders";
 import {
   color,
   controls,
@@ -21,7 +21,7 @@ import {
   withColors,
   withImageControls,
   type PaperShaderControlConfig,
-} from "@/features/canvas/rendering/paper-shaders/shared"
+} from "@/features/canvas/rendering/paper-shaders/shared";
 
 export const IMAGE_FILTER_SHADER_CONTROL_CONFIG: Record<string, PaperShaderControlConfig> = {
   "fluted-glass": {
@@ -46,7 +46,16 @@ export const IMAGE_FILTER_SHADER_CONTROL_CONFIG: Record<string, PaperShaderContr
       number("scale", 0.5, 4, 600),
       option("fit", SHADER_FIT_OPTIONS, 604),
     ]),
-    hiddenParams: [...IMAGE_SHADER_HIDDEN_PARAMS, "rotation", "offsetX", "offsetY", "marginLeft", "marginRight", "marginTop", "marginBottom"],
+    hiddenParams: [
+      ...IMAGE_SHADER_HIDDEN_PARAMS,
+      "rotation",
+      "offsetX",
+      "offsetY",
+      "marginLeft",
+      "marginRight",
+      "marginTop",
+      "marginBottom",
+    ],
     requiresImage: true,
   },
   "image-dithering": {
@@ -183,5 +192,4 @@ export const IMAGE_FILTER_SHADER_CONTROL_CONFIG: Record<string, PaperShaderContr
       option("fit", SHADER_FIT_OPTIONS, 305),
     ]),
   },
-}
-
+};

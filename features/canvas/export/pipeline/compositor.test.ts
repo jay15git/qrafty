@@ -1,29 +1,29 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import { formatFill } from "@/components/ui/fill-picker/public-api"
-import { createDefaultQraftyState } from "@/features/qr/model/state"
-import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state"
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
-import { createDraftingShaderLayer } from "@/features/canvas/model/layers/factories"
+import { formatFill } from "@/components/ui/fill-picker/public-api";
+import { createDefaultQraftyState } from "@/features/qr/model/state";
+import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
+import { createDraftingShaderLayer } from "@/features/canvas/model/layers/factories";
 import {
   cardLayerNeedsCanvasFace,
   computeObjectFitRect,
-} from "@/features/canvas/export/pipeline/compositor-face"
+} from "@/features/canvas/export/pipeline/compositor-face";
 
 describe("export compositor faces", () => {
   it("paints shader and image card faces on canvas, not via nested svg images", () => {
-    const state = createDefaultQraftyState()
-    const shaderCard = createDefaultDraftingCardState()
-    const layers = createDefaultDraftingLayers("node", state, shaderCard)
-    const cardLayer = layers.find((layer) => layer.kind === "card")
-    const qrLayer = layers.find((layer) => layer.kind === "qr")
+    const state = createDefaultQraftyState();
+    const shaderCard = createDefaultDraftingCardState();
+    const layers = createDefaultDraftingLayers("node", state, shaderCard);
+    const cardLayer = layers.find((layer) => layer.kind === "card");
+    const qrLayer = layers.find((layer) => layer.kind === "qr");
 
     if (!cardLayer || !qrLayer) {
-      throw new Error("Expected default card and qr layers.")
+      throw new Error("Expected default card and qr layers.");
     }
 
-    expect(cardLayerNeedsCanvasFace(cardLayer, shaderCard)).toBe(true)
-    expect(cardLayerNeedsCanvasFace(qrLayer, shaderCard)).toBe(false)
+    expect(cardLayerNeedsCanvasFace(cardLayer, shaderCard)).toBe(true);
+    expect(cardLayerNeedsCanvasFace(qrLayer, shaderCard)).toBe(false);
 
     const imageCard = {
       ...shaderCard,
@@ -33,16 +33,16 @@ describe("export compositor faces", () => {
         source: "url" as const,
         value: "https://example.com/card-bg.png",
       },
-    }
+    };
 
-    expect(cardLayerNeedsCanvasFace(cardLayer, imageCard)).toBe(true)
+    expect(cardLayerNeedsCanvasFace(cardLayer, imageCard)).toBe(true);
 
     const solidCard = {
       ...shaderCard,
       styleMode: "solid" as const,
-    }
+    };
 
-    expect(cardLayerNeedsCanvasFace(cardLayer, solidCard)).toBe(false)
+    expect(cardLayerNeedsCanvasFace(cardLayer, solidCard)).toBe(false);
 
     const conicCard = {
       ...solidCard,
@@ -59,9 +59,9 @@ describe("export compositor faces", () => {
           ],
         },
       }),
-    }
+    };
 
-    expect(cardLayerNeedsCanvasFace(cardLayer, conicCard)).toBe(true)
+    expect(cardLayerNeedsCanvasFace(cardLayer, conicCard)).toBe(true);
 
     const overlayShader = createDraftingShaderLayer("node", "mesh-gradient", {
       height: 120,
@@ -69,10 +69,10 @@ describe("export compositor faces", () => {
       width: 120,
       x: 40,
       y: 40,
-    })
+    });
 
-    expect(cardLayerNeedsCanvasFace(overlayShader, solidCard)).toBe(true)
-  })
+    expect(cardLayerNeedsCanvasFace(overlayShader, solidCard)).toBe(true);
+  });
 
   it("covers and contains images inside the card box", () => {
     expect(computeObjectFitRect(200, 100, 100, 100, "cover")).toEqual({
@@ -80,12 +80,12 @@ describe("export compositor faces", () => {
       width: 200,
       x: -50,
       y: 0,
-    })
+    });
     expect(computeObjectFitRect(200, 100, 100, 100, "contain")).toEqual({
       height: 50,
       width: 100,
       x: 0,
       y: 25,
-    })
-  })
-})
+    });
+  });
+});

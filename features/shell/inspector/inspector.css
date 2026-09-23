@@ -9,12 +9,12 @@
 /* Shared scale — identical on every inspector surface and the floating
    element inspector. Mobile re-declares these on [data-mobile-inspector]. */
 :is(
-    .inspector-root,
-    .dn-portal-surface,
-    .inspector-popover-content,
-    .inspector-fill-popover,
-    [data-slot="floating-inspector"]
-  ) {
+  .inspector-root,
+  .dn-portal-surface,
+  .inspector-popover-content,
+  .inspector-fill-popover,
+  [data-slot="floating-inspector"]
+) {
   --type-caption: 0.625rem;
   --type-meta: 0.6875rem;
   --type-value: 0.75rem;
@@ -32,12 +32,7 @@
 
 /* Squircle radii shared by every inspector surface; popovers that want the
    larger 20px panel radius override --radius-md/--radius-lg locally. */
-:is(
-    .inspector-root,
-    .inspector-popover-content,
-    .inspector-fill-popover,
-    .dn-insert-menu-popover
-  ) {
+:is(.inspector-root, .inspector-popover-content, .inspector-fill-popover, .dn-insert-menu-popover) {
   --radius-xs: 10px;
   --radius-sm: 12px;
   --radius-md: 14px;
@@ -63,8 +58,8 @@
    surfaces default to light and flip on data-theme="dark". */
 .inspector-root[data-theme="light"],
 :is(.inspector-popover-content, .inspector-fill-popover, .dn-insert-menu-popover):not(
-    [data-theme="dark"]
-  ) {
+  [data-theme="dark"]
+) {
   --dn-bg: #ffffff;
   --dn-surface: #fafafa;
   --dn-control: #f6f6f6;
@@ -83,7 +78,11 @@
 /* Inspector palette — dark values. .inspector-root is dark by default
    (standalone), so it matches without data-theme; portals need the attr. */
 .inspector-root:not([data-theme="light"]),
-:is(.inspector-popover-content, .inspector-fill-popover, .dn-insert-menu-popover)[data-theme="dark"] {
+:is(
+  .inspector-popover-content,
+  .inspector-fill-popover,
+  .dn-insert-menu-popover
+)[data-theme="dark"] {
   --dn-bg: #161616;
   --dn-surface: #1d1d1d;
   --dn-control: #232323;
@@ -102,17 +101,19 @@
 
 /* Theme-invariant constants. */
 :is(
-    .inspector-root,
-    .dn-portal-surface,
-    .inspector-popover-content,
-    .inspector-fill-popover,
-    .dn-insert-menu-popover
-  ) {
+  .inspector-root,
+  .dn-portal-surface,
+  .inspector-popover-content,
+  .inspector-fill-popover,
+  .dn-insert-menu-popover
+) {
   --dn-paper: #ffffff;
   --dn-card: #ffffff;
   --dn-preview-ink: rgb(24 24 27 / 0.8);
   --dn-picker-thumb: rgb(255 255 255 / 0.92);
   --dn-picker-thumb-ring: rgb(0 0 0 / 0.28);
+  /* Legacy alias: muted text inside popovers resolves to the theme-split muted. */
+  --popover-muted: var(--dn-muted);
 }
 
 .inspector-root {
@@ -196,7 +197,9 @@
 }
 
 .inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-scroll,
-.inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-scroll [data-slot="scroll-area-viewport"],
+.inspector-root.inspector-embedded[data-theme="dark"]
+  .dn-settings-scroll
+  [data-slot="scroll-area-viewport"],
 [data-slot="settings-inspector"] > .inspector-root.inspector-embedded[data-theme="dark"] {
   background: transparent;
 }
@@ -231,7 +234,9 @@
 }
 
 .inspector-root.inspector-embedded[data-theme="light"] .dn-settings-scroll,
-.inspector-root.inspector-embedded[data-theme="light"] .dn-settings-scroll [data-slot="scroll-area-viewport"] {
+.inspector-root.inspector-embedded[data-theme="light"]
+  .dn-settings-scroll
+  [data-slot="scroll-area-viewport"] {
   background: transparent;
 }
 
@@ -681,17 +686,16 @@
   margin-block: 0;
 }
 
-:is(.dn-insert-menu-option-grid)
-  > :is(button, a, [role="button"]) {
+:is(.dn-insert-menu-option-grid) > :is(button, a, [role="button"]) {
   margin: calc(var(--settings-option-gap, var(--space-inline)) / -2);
   position: relative;
   z-index: 0;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  :is(.dn-preview-row, .dn-option-scroll-row) > :is(button, a, [role="button"]):is(:hover, :focus-visible),
-  :is(.dn-insert-menu-option-grid)
-    > :is(button, a, [role="button"]):is(:hover, :focus-visible) {
+  :is(.dn-preview-row, .dn-option-scroll-row)
+    > :is(button, a, [role="button"]):is(:hover, :focus-visible),
+  :is(.dn-insert-menu-option-grid) > :is(button, a, [role="button"]):is(:hover, :focus-visible) {
     z-index: 1;
   }
 
@@ -706,7 +710,9 @@
 }
 
 @supports (background: color-mix(in srgb, black 50%, white)) {
-  .inspector-root [data-slot="scroll-area"][data-orientation="horizontal"] .scroll-edge-cue-gradient {
+  .inspector-root
+    [data-slot="scroll-area"][data-orientation="horizontal"]
+    .scroll-edge-cue-gradient {
     background: linear-gradient(
       var(--scroll-edge-cue-direction, to right),
       transparent 0%,
@@ -924,13 +930,17 @@
 :is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider {
 }
 
-:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
+:is(.inspector-popover-content, .dn-portal-surface)
+  .dn-settings-elastic-slider
+  [data-slot="elastic-slider-track"] {
   border-radius: var(--radius-sm);
   corner-shape: squircle;
   border: none;
 }
 
-:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-label"] {
+:is(.inspector-popover-content, .dn-portal-surface)
+  .dn-settings-elastic-slider
+  [data-slot="elastic-slider-label"] {
   font-family: inherit;
   font-size: var(--type-meta);
   font-weight: var(--type-label-weight);
@@ -939,7 +949,9 @@
   color: var(--type-label-color) !important;
 }
 
-:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-value"] {
+:is(.inspector-popover-content, .dn-portal-surface)
+  .dn-settings-elastic-slider
+  [data-slot="elastic-slider-value"] {
   font-family: inherit;
   font-size: var(--type-value);
   font-weight: var(--type-value-weight);
@@ -949,7 +961,9 @@
   color: var(--type-value-color) !important;
 }
 
-:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-handle"] {
+:is(.inspector-popover-content, .dn-portal-surface)
+  .dn-settings-elastic-slider
+  [data-slot="elastic-slider-handle"] {
   width: 3px;
   height: 1.125rem;
   border-radius: 999px;
@@ -1108,7 +1122,6 @@
   padding-inline: 0.75rem;
 }
 
-
 /* Unified card: the accordion stack renders as ONE surface; items are
  * transparent rows separated by inset hairlines. Height is fixed to the
  * settings-panel token — it does not track the canvas card, so the card
@@ -1140,9 +1153,18 @@
 }
 
 /* Short, quiet separators — inset from both edges instead of full-bleed. */
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] + [data-slot="motion-accordion-item"]::before,
-.dn-settings-accordion > div > [data-slot="motion-accordion-header"] + [data-slot="motion-accordion-item"]::before,
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] + [data-slot="motion-accordion-footer"]::before {
+.dn-settings-accordion
+  > div
+  > [data-slot="motion-accordion-item"]
+  + [data-slot="motion-accordion-item"]::before,
+.dn-settings-accordion
+  > div
+  > [data-slot="motion-accordion-header"]
+  + [data-slot="motion-accordion-item"]::before,
+.dn-settings-accordion
+  > div
+  > [data-slot="motion-accordion-item"]
+  + [data-slot="motion-accordion-footer"]::before {
   content: "";
   position: absolute;
   top: 0;
@@ -1371,7 +1393,11 @@
 }
 
 .dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button:hover > span:last-child,
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button:focus-visible > span:last-child {
+.dn-settings-accordion
+  > div
+  > [data-slot="motion-accordion-item"]
+  > button:focus-visible
+  > span:last-child {
   opacity: 0.62;
 }
 
@@ -1412,7 +1438,10 @@
   box-shadow: none !important;
 }
 
-.dn-settings-accordion [role="region"] [data-slot="scroll-area"][data-orientation="horizontal"] [data-slot="scroll-area-inner"] {
+.dn-settings-accordion
+  [role="region"]
+  [data-slot="scroll-area"][data-orientation="horizontal"]
+  [data-slot="scroll-area-inner"] {
   min-width: 0 !important;
   width: max-content;
 }
@@ -1434,7 +1463,11 @@
   background: transparent;
 }
 
-.dn-settings-accordion [role="region"] .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(.dn-option-scroll-tile) {
+.dn-settings-accordion
+  [role="region"]
+  .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(
+    .dn-option-scroll-tile
+  ) {
   background: transparent;
   border: 2px solid transparent;
 }
@@ -1445,8 +1478,16 @@
   border: 2px solid transparent;
 }
 
-.dn-settings-accordion [role="region"] .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(.dn-option-scroll-tile)[aria-pressed="true"],
-.dn-settings-accordion [role="region"] .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(.dn-option-scroll-tile)[data-selected="true"] {
+.dn-settings-accordion
+  [role="region"]
+  .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(
+    .dn-option-scroll-tile
+  )[aria-pressed="true"],
+.dn-settings-accordion
+  [role="region"]
+  .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(
+    .dn-option-scroll-tile
+  )[data-selected="true"] {
   background: transparent;
 }
 
@@ -2201,7 +2242,9 @@
   color: var(--dn-mass-fg, #ffffff);
 }
 
-.inspector-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
+.inspector-fill-popover[data-theme="dark"]
+  .dn-fill-picker-mode-tabs
+  .dn-segment-tab[aria-selected="true"] {
   color: var(--dn-mass-fg);
 }
 
@@ -2234,14 +2277,21 @@
   background: color-mix(in srgb, var(--line) 55%, transparent) !important;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input [data-slot="color-picker-channel-input-field"] {
+.inspector-fill-popover
+  .dn-fill-picker-panel
+  .dn-fill-picker-channel-input
+  [data-slot="color-picker-channel-input-field"] {
   color: var(--type-value-color, var(--fg));
   font-size: var(--type-value);
   font-weight: var(--type-value-weight);
   letter-spacing: var(--tracking-tight);
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input [data-slot="color-picker-channel-input-format"] button {
+.inspector-fill-popover
+  .dn-fill-picker-panel
+  .dn-fill-picker-channel-input
+  [data-slot="color-picker-channel-input-format"]
+  button {
   min-width: 0;
   padding-inline: 0.5rem;
   color: var(--muted);
@@ -2266,7 +2316,10 @@
 }
 
 .inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider [data-slot="color-picker-hue"],
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider [data-slot="color-picker-alpha"] {
+.inspector-fill-popover
+  .dn-fill-picker-panel
+  .dn-fill-picker-slider
+  [data-slot="color-picker-alpha"] {
   --tw-ring-shadow: 0 0 #0000;
 }
 
@@ -2282,7 +2335,11 @@
 }
 
 :is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal)
-  :is(.rounded-md.border.font-mono, .rounded-lg.border.font-mono, .flex.h-8.items-stretch.overflow-hidden.rounded-md.border) {
+  :is(
+    .rounded-md.border.font-mono,
+    .rounded-lg.border.font-mono,
+    .flex.h-8.items-stretch.overflow-hidden.rounded-md.border
+  ) {
   height: var(--settings-control-height);
   border: 0 !important;
   border-radius: var(--radius-xs) !important;
@@ -2292,7 +2349,11 @@
 }
 
 :is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal)
-  :is(.rounded-md.border.font-mono, .rounded-lg.border.font-mono, .flex.h-8.items-stretch.overflow-hidden.rounded-md.border):focus-within {
+  :is(
+    .rounded-md.border.font-mono,
+    .rounded-lg.border.font-mono,
+    .flex.h-8.items-stretch.overflow-hidden.rounded-md.border
+  ):focus-within {
   --tw-ring-shadow: 0 0 #0000;
   --tw-ring-offset-shadow: 0 0 #0000;
 }
@@ -2469,7 +2530,9 @@
   }
 
   .inspector-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"],
-  :is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
+  :is(.inspector-popover-content, .dn-portal-surface)
+    .dn-settings-elastic-slider
+    [data-slot="elastic-slider-track"] {
     corner-shape: round;
   }
 }

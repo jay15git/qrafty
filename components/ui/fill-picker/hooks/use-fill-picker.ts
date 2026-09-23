@@ -31,17 +31,9 @@ export interface FillPickerState {
 }
 
 export function useFillPicker(props: UseFillPickerProps = {}): FillPickerState {
-  const {
-    value,
-    defaultValue,
-    onValueChange,
-    mode: modeProp,
-    defaultMode,
-    onModeChange,
-  } = props;
+  const { value, defaultValue, onValueChange, mode: modeProp, defaultMode, onModeChange } = props;
 
-  const initialFill: Fill =
-    value ?? defaultValue ?? { kind: "color", color: DEFAULT_COLOR };
+  const initialFill: Fill = value ?? defaultValue ?? { kind: "color", color: DEFAULT_COLOR };
   const initialMode: FillMode = modeProp ?? defaultMode ?? initialFill.kind;
 
   const [internalFill, setInternalFill] = React.useState<Fill>(initialFill);
@@ -60,14 +52,10 @@ export function useFillPicker(props: UseFillPickerProps = {}): FillPickerState {
   // side. Mutating refs during render is allowed (refs are not state) and
   // avoids the parent → effect → setState round-trip.
   const lastColorRef = React.useRef<ColorFill>(
-    initialFill.kind === "color"
-      ? initialFill
-      : { kind: "color", color: DEFAULT_COLOR },
+    initialFill.kind === "color" ? initialFill : { kind: "color", color: DEFAULT_COLOR },
   );
   const lastGradientRef = React.useRef<GradientFill>(
-    initialFill.kind === "gradient"
-      ? initialFill
-      : { kind: "gradient", gradient: DEFAULT_LINEAR },
+    initialFill.kind === "gradient" ? initialFill : { kind: "gradient", gradient: DEFAULT_LINEAR },
   );
   React.useLayoutEffect(() => {
     if (fill.kind === "color") lastColorRef.current = fill;
@@ -94,8 +82,7 @@ export function useFillPicker(props: UseFillPickerProps = {}): FillPickerState {
     (next: FillMode) => {
       if (!isControlledModeRef.current) setInternalMode(next);
       onModeChange?.(next);
-      const restored: Fill =
-        next === "color" ? lastColorRef.current : lastGradientRef.current;
+      const restored: Fill = next === "color" ? lastColorRef.current : lastGradientRef.current;
       if (!isControlledRef.current) setInternalFill(restored);
       onValueChange?.(restored, formatFill(restored));
     },

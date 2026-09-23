@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  diamondExpansionMetric,
-  heartExpansionMetric,
-  starExpansionMetric,
-} from "./shape-metrics";
+import { diamondExpansionMetric, heartExpansionMetric, starExpansionMetric } from "./shape-metrics";
 
 const STAR_SPIKES = 5;
 
@@ -42,7 +38,6 @@ describe("shape-metrics", () => {
 
     expect(tip).toBeGreaterThan(indent);
   });
-
 
   it("increases diamond expansion metric from center toward the tips", () => {
     const size = 25;

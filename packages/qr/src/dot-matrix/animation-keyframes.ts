@@ -1,51 +1,40 @@
-import { QRCodeEntity } from './animation-utils';
-import { SOURCE_BASE_OPACITY } from './opacity-triplet';
-import {
-  isMixableHexColor,
-  mixHexColors,
-  smoothBlendProgress,
-} from './color-mix';
-import { clamp, easeInOut } from './motion-math';
-import {
-  PRESERVE_MODULE_FILL,
-  isPreserveModuleFill,
-} from './animation-types';
+import { QRCodeEntity } from "./animation-utils";
+import { SOURCE_BASE_OPACITY } from "./opacity-triplet";
+import { isMixableHexColor, mixHexColors, smoothBlendProgress } from "./color-mix";
+import { clamp, easeInOut } from "./motion-math";
+import { PRESERVE_MODULE_FILL, isPreserveModuleFill } from "./animation-types";
 import type {
   DotMatrixAnimationFrame,
   DotMatrixAnimationSampleInput,
   DotMatrixSample,
-} from './animation-types';
+} from "./animation-types";
 
 export type DotMatrixCssBlendKeyframe = {
   offset: number;
   cssBlend: { base: number; mid: number; peak: number };
 };
 
-export const isCssBlendKeyframe = (
-  frame: WebKeyframeValue
-): frame is DotMatrixCssBlendKeyframe =>
-  typeof frame === 'object' &&
+export const isCssBlendKeyframe = (frame: WebKeyframeValue): frame is DotMatrixCssBlendKeyframe =>
+  typeof frame === "object" &&
   frame !== null &&
-  'cssBlend' in frame &&
-  typeof (frame as DotMatrixCssBlendKeyframe).cssBlend === 'object';
+  "cssBlend" in frame &&
+  typeof (frame as DotMatrixCssBlendKeyframe).cssBlend === "object";
 
 export type WebKeyframeValue =
-  | number
-  | { offset: number; value: number }
-  | DotMatrixCssBlendKeyframe;
+  number | { offset: number; value: number } | DotMatrixCssBlendKeyframe;
 
 export const matrixCssKeyframe = (
   offset: number,
   peak: number,
   mid: number,
-  base: number
+  base: number,
 ): DotMatrixCssBlendKeyframe => ({
   cssBlend: { base, mid, peak },
   offset,
 });
 
 const keyframeNumericValue = (frame: WebKeyframeValue) =>
-  typeof frame === 'number' ? frame : (frame as { value: number }).value;
+  typeof frame === "number" ? frame : (frame as { value: number }).value;
 
 const parseStepsEasing = (easing?: string) => {
   if (!easing) return null;
@@ -110,21 +99,18 @@ const cubicBezierEasing = (easing?: string) => {
 const easedCyclePhase = (easing: string | undefined, linearPhase: number) => {
   const bezier = cubicBezierEasing(easing);
   if (bezier) return bezier(linearPhase);
-  return easing === 'ease-in-out' ? easeInOut(linearPhase) : linearPhase;
+  return easing === "ease-in-out" ? easeInOut(linearPhase) : linearPhase;
 };
 
 const keyframeValueAt = (frame: WebKeyframeValue): number | string => {
-  if (typeof frame === 'number') return frame;
-  if (typeof frame === 'object' && frame !== null && 'value' in frame) {
+  if (typeof frame === "number") return frame;
+  if (typeof frame === "object" && frame !== null && "value" in frame) {
     return (frame as { value: number | string }).value;
   }
   return 0;
 };
 
-export const keyframeOpacityAt = (
-  frames: WebKeyframeValue[],
-  phase: number
-) => {
+export const keyframeOpacityAt = (frames: WebKeyframeValue[], phase: number) => {
   const clampedPhase = clamp(phase, 0, 1);
   if (frames.length === 0) return SOURCE_BASE_OPACITY;
   if (frames.length === 1) {
@@ -132,13 +118,12 @@ export const keyframeOpacityAt = (
   }
 
   const previous = frames[0];
-  let previousOffset =
-    typeof previous === 'number' ? 0 : previous.offset;
+  let previousOffset = typeof previous === "number" ? 0 : previous.offset;
   let previousValue = keyframeNumericValue(previous);
 
   for (let index = 1; index < frames.length; index++) {
     const frame = frames[index];
-    const offset = typeof frame === 'number' ? index / (frames.length - 1) : frame.offset;
+    const offset = typeof frame === "number" ? index / (frames.length - 1) : frame.offset;
     const value = keyframeNumericValue(frame);
     if (clampedPhase <= offset) {
       const span = offset - previousOffset;
@@ -162,14 +147,12 @@ const keyframeFillAt = (frames: WebKeyframeValue[], phase: number) => {
   }
 
   const previous = frames[0];
-  let previousOffset =
-    typeof previous === 'number' ? 0 : previous.offset;
+  let previousOffset = typeof previous === "number" ? 0 : previous.offset;
   let previousValue = String(keyframeValueAt(previous));
 
   for (let index = 1; index < frames.length; index++) {
     const frame = frames[index];
-    const offset =
-      typeof frame === 'number' ? index / (frames.length - 1) : frame.offset;
+    const offset = typeof frame === "number" ? index / (frames.length - 1) : frame.offset;
     const value = String(keyframeValueAt(frame));
     if (clampedPhase <= offset) {
       const span = offset - previousOffset;
@@ -177,10 +160,7 @@ const keyframeFillAt = (frames: WebKeyframeValue[], phase: number) => {
         return value;
       }
       const progress = smoothBlendProgress((clampedPhase - previousOffset) / span);
-      if (
-        isMixableHexColor(previousValue) &&
-        isMixableHexColor(value)
-      ) {
+      if (isMixableHexColor(previousValue) && isMixableHexColor(value)) {
         return mixHexColors(previousValue, value, progress);
       }
       return progress < 0.5 ? previousValue : value;
@@ -206,19 +186,15 @@ const sampleShapeRevealFrame = (
 
   const linearPhase = clamp(cycleElapsed / duration, 0, 1);
   // Expand to full shape by midpoint, contract back — loop closes at base like RadialExpand.
-  const pingPong =
-    linearPhase < 0.5 ? linearPhase * 2 : 2 - linearPhase * 2;
-  const revealPhase =
-    animation.easing === 'ease-in-out' ? easeInOut(pingPong) : pingPong;
+  const pingPong = linearPhase < 0.5 ? linearPhase * 2 : 2 - linearPhase * 2;
+  const revealPhase = animation.easing === "ease-in-out" ? easeInOut(pingPong) : pingPong;
   const threshold = revealPhase * shapeReveal.maxMetric;
   const edgeWidth = shapeReveal.edgeWidth ?? 2.25;
-  const blend = smoothBlendProgress(
-    clamp((threshold - shapeReveal.metric) / edgeWidth, 0, 1),
-  );
+  const blend = smoothBlendProgress(clamp((threshold - shapeReveal.metric) / edgeWidth, 0, 1));
 
   const fillFrameAt = (index: number) =>
     String(
-      typeof fillFrames[index] === 'string'
+      typeof fillFrames[index] === "string"
         ? fillFrames[index]
         : keyframeValueAt(fillFrames[index] as WebKeyframeValue),
     );
@@ -251,32 +227,22 @@ const numericChannel = (value: unknown): WebKeyframeValue[] | undefined =>
 
 export const sampleDotMatrixAnimationFrame = (
   animation: DotMatrixAnimationSampleInput,
-  globalTimeMs: number
+  globalTimeMs: number,
 ): DotMatrixSample => {
-  const from = typeof animation.from === 'number' ? animation.from : 0;
+  const from = typeof animation.from === "number" ? animation.from : 0;
   const duration =
-    typeof animation.duration === 'number' && animation.duration > 0
-      ? animation.duration
-      : 1500;
+    typeof animation.duration === "number" && animation.duration > 0 ? animation.duration : 1500;
   const elapsed = Math.max(0, globalTimeMs - from);
   const cycleElapsed = elapsed % duration;
   const web = animation.web;
-  const shapeRevealSample = sampleShapeRevealFrame(
-    animation,
-    cycleElapsed,
-    duration,
-  );
+  const shapeRevealSample = sampleShapeRevealFrame(animation, cycleElapsed, duration);
   if (shapeRevealSample) {
     return shapeRevealSample;
   }
   const rawFrames = web && web.opacity;
-  const frames = Array.isArray(rawFrames)
-    ? (rawFrames as WebKeyframeValue[])
-    : [];
+  const frames = Array.isArray(rawFrames) ? (rawFrames as WebKeyframeValue[]) : [];
   const fillFrames = numericChannel(web && web.fill);
-  const opacityMultiplierFrames = numericChannel(
-    web && web.opacityMultiplier,
-  );
+  const opacityMultiplierFrames = numericChannel(web && web.opacityMultiplier);
   const scaleFrames = numericChannel(web && web.scale);
   const xFrames = numericChannel(web && web.x);
   const yFrames = numericChannel(web && web.y);
@@ -291,8 +257,7 @@ export const sampleDotMatrixAnimationFrame = (
     const stepMs = duration / steps;
     const stepIndex = Math.floor(cycleElapsed / stepMs) % frames.length;
     const stepProgress = (cycleElapsed % stepMs) / stepMs;
-    const steppedPhase =
-      (stepIndex + stepProgress) / Math.max(1, frames.length - 1);
+    const steppedPhase = (stepIndex + stepProgress) / Math.max(1, frames.length - 1);
     const opacity = Number(keyframeValueAt(frames[stepIndex]));
     const fill = fillFrames ? keyframeFillAt(fillFrames, steppedPhase) : undefined;
     const sampleChannel = (channel?: WebKeyframeValue[]) =>
@@ -308,10 +273,7 @@ export const sampleDotMatrixAnimationFrame = (
     };
   }
 
-  const easedPhase = easedCyclePhase(
-    animation.easing,
-    cycleElapsed / duration,
-  );
+  const easedPhase = easedCyclePhase(animation.easing, cycleElapsed / duration);
   const opacity = keyframeOpacityAt(frames, easedPhase);
   const fill = fillFrames ? keyframeFillAt(fillFrames, easedPhase) : undefined;
   const sampleChannel = (channel?: WebKeyframeValue[]) =>
@@ -327,9 +289,7 @@ export const sampleDotMatrixAnimationFrame = (
   };
 };
 
-const cloneCssBlendKeyframe = (
-  frame: DotMatrixCssBlendKeyframe
-): DotMatrixCssBlendKeyframe => ({
+const cloneCssBlendKeyframe = (frame: DotMatrixCssBlendKeyframe): DotMatrixCssBlendKeyframe => ({
   cssBlend: { ...frame.cssBlend },
   offset: frame.offset,
 });
@@ -340,7 +300,7 @@ export const matrixMotionStyle = (
   duration: number,
   opacity: WebKeyframeValue[],
   scale: WebKeyframeValue[],
-  easing: string = 'linear',
+  easing: string = "linear",
   spatial?: {
     x?: WebKeyframeValue[];
     y?: WebKeyframeValue[];
@@ -365,24 +325,14 @@ export const matrixEntityAnimation = (
   entity: QRCodeEntity,
   duration: number = 560,
 ): DotMatrixAnimationFrame => {
-  if (
-    entity === QRCodeEntity.PositionRing ||
-    entity === QRCodeEntity.PositionCenter
-  ) {
+  if (entity === QRCodeEntity.PositionRing || entity === QRCodeEntity.PositionCenter) {
     return {
       targets,
       duration,
-      easing: 'ease-in-out',
+      easing: "ease-in-out",
       web: { opacity: [1, 0.94, 1], scale: [1, 1.025, 1] },
     };
   }
 
-  return matrixMotionStyle(
-    targets,
-    0,
-    duration,
-    [1, 0.9, 1],
-    [1, 1.02, 1],
-    'ease-in-out',
-  );
+  return matrixMotionStyle(targets, 0, duration, [1, 0.9, 1], [1, 1.02, 1], "ease-in-out");
 };

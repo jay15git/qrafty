@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import { useEffect, useState } from "react"
-import { SlotText } from "slot-text/react"
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { SlotText } from "slot-text/react";
 
-import ArrowFillButton from "@/features/marketing/effects/arrow-fill-button"
+import ArrowFillButton from "@/features/marketing/effects/arrow-fill-button";
 import {
   getHeroIndefiniteArticle,
   HERO_ROTATE_MS,
   HERO_ROTATING_WORDS,
   HERO_SLOT_TEXT_OPTIONS,
-} from "@/features/marketing/home/hero-rotating-words"
+} from "@/features/marketing/home/hero-rotating-words";
 
 const arrowFillButtonProps = {
   btnText: "Craft my QR",
@@ -21,24 +21,24 @@ const arrowFillButtonProps = {
   hoverFillBgColor: "#ffffff",
   hoverFillTextColor: "#ff0095",
   sweep: { palette: "berry", midpoint: 0.92 },
-} as const
+} as const;
 
-import "slot-text/style.css"
+import "slot-text/style.css";
 
 export function LandingHeroText() {
-  const [wordIndex, setWordIndex] = useState(0)
+  const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      setWordIndex((current) => (current + 1) % HERO_ROTATING_WORDS.length)
-    }, HERO_ROTATE_MS)
+      setWordIndex((current) => (current + 1) % HERO_ROTATING_WORDS.length);
+    }, HERO_ROTATE_MS);
 
-    return () => window.clearInterval(interval)
-  }, [])
+    return () => window.clearInterval(interval);
+  }, []);
 
-  const rotatingWord = HERO_ROTATING_WORDS[wordIndex]
-  const article = getHeroIndefiniteArticle(rotatingWord)
-  const heroPhrase = `${article} ${rotatingWord}`
+  const rotatingWord = HERO_ROTATING_WORDS[wordIndex];
+  const article = getHeroIndefiniteArticle(rotatingWord);
+  const heroPhrase = `${article} ${rotatingWord}`;
 
   return (
     <div className="relative z-10 px-6 pb-20 pt-[12vh] text-center sm:pb-24">
@@ -68,14 +68,10 @@ export function LandingHeroText() {
       </h1>
 
       <div className="lh-cta">
-        <ArrowFillButton
-          href="/design"
-          {...arrowFillButtonProps}
-          className="lh-cta-btn"
-        />
+        <ArrowFillButton href="/design" {...arrowFillButtonProps} className="lh-cta-btn" />
       </div>
     </div>
-  )
+  );
 }
 
 const css = `
@@ -186,4 +182,4 @@ const css = `
   .lh-support { font-size: clamp(36px, 10vw, 64px); }
   .lh-qrafty-mark { font-size: clamp(44px, 12vw, 80px); }
 }
-`
+`;

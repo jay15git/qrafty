@@ -1,17 +1,17 @@
-import * as React from 'react';
-import type { UseInViewOptions } from 'motion/react';
+import * as React from "react";
+import type { UseInViewOptions } from "motion/react";
 
 interface UseIsInViewOptions {
   inView?: boolean;
   inViewOnce?: boolean;
-  inViewMargin?: UseInViewOptions['margin'];
+  inViewMargin?: UseInViewOptions["margin"];
 }
 
 function useIsInView<T extends HTMLElement = HTMLElement>(
   ref: React.Ref<T>,
   options: UseIsInViewOptions = {},
 ) {
-  const { inView, inViewOnce = false, inViewMargin = '0px' } = options;
+  const { inView, inViewOnce = false, inViewMargin = "0px" } = options;
   const localRef = React.useRef<T>(null);
   const [isInView, setIsInView] = React.useState(!inView);
 
@@ -25,7 +25,7 @@ function useIsInView<T extends HTMLElement = HTMLElement>(
 
     const node = localRef.current;
 
-    if (!node || typeof IntersectionObserver === 'undefined') {
+    if (!node || typeof IntersectionObserver === "undefined") {
       setIsInView(true);
       return;
     }

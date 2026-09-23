@@ -1,31 +1,31 @@
-"use client"
+"use client";
 
-import { useContext, useMemo } from "react"
-import type { CSSProperties, ReactNode } from "react"
-import { Plus } from "lucide-react"
-import { blobUrlToDataUrl } from "@qrafty/qr-internal/scene"
+import { useContext, useMemo } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { Plus } from "lucide-react";
+import { blobUrlToDataUrl } from "@qrafty/qr-internal/scene";
 
-import { ImageCropper } from "@/components/ui/image-cropper"
-import { parseFill } from "@/components/ui/fill-picker/lib/gradient"
-import type { Fill } from "@/components/ui/fill-picker/public-api"
-import { DOTS_PALETTE_PRESETS } from "@/features/shell/inspector/pattern-palettes"
-import { isGradientFill } from "@/features/shell/inspector/FillPicker.utils"
-import { getActiveFillPresetForStoredValue } from "@/features/shell/inspector/settings-fill-preset-match"
-import { SETTINGS_FILL_PRESETS } from "@/features/shell/inspector/settings-fill-presets"
-import { SettingsOptionShelf } from "@/features/shell/inspector/MobileSettingsRail"
-import { PaletteColorBarPreview } from "@/features/shell/inspector/PaletteColorBarPreview"
+import { ImageCropper } from "@/components/ui/image-cropper";
+import { parseFill } from "@/components/ui/fill-picker/lib/gradient";
+import type { Fill } from "@/components/ui/fill-picker/public-api";
+import { DOTS_PALETTE_PRESETS } from "@/features/shell/inspector/pattern-palettes";
+import { isGradientFill } from "@/features/shell/inspector/FillPicker.utils";
+import { getActiveFillPresetForStoredValue } from "@/features/shell/inspector/settings-fill-preset-match";
+import { SETTINGS_FILL_PRESETS } from "@/features/shell/inspector/settings-fill-presets";
+import { SettingsOptionShelf } from "@/features/shell/inspector/MobileSettingsRail";
+import { PaletteColorBarPreview } from "@/features/shell/inspector/PaletteColorBarPreview";
 import {
   SETTINGS_FILL_OPTION_TILE_INNER,
   SETTINGS_PATTERN_OPTION_TILE,
   SETTINGS_PATTERN_OPTION_TILE_INNER,
   SETTINGS_PREVIEW_TILE,
   SETTINGS_PREVIEW_TILE_FLUID,
-} from "@/features/shell/inspector/SettingsPreviewTiles"
-import { WallpaperOptionPreview } from "@/features/canvas/components/WallpaperOptionPreview"
-import { isSceneWallpaperPath, SCENE_WALLPAPERS } from "@/features/canvas/assets/scene-wallpapers"
-import { preloadRasterImage } from "@/features/canvas/rendering/preload-raster-image"
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
-import { cn } from "@/lib/utils"
+} from "@/features/shell/inspector/SettingsPreviewTiles";
+import { WallpaperOptionPreview } from "@/features/canvas/components/WallpaperOptionPreview";
+import { isSceneWallpaperPath, SCENE_WALLPAPERS } from "@/features/canvas/assets/scene-wallpapers";
+import { preloadRasterImage } from "@/features/canvas/rendering/preload-raster-image";
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { cn } from "@/lib/utils";
 
 export function SettingsImageUploadTile({
   ariaLabel = "Upload custom image",
@@ -35,14 +35,14 @@ export function SettingsImageUploadTile({
   onClear,
   onUpload,
 }: {
-  ariaLabel?: string
-  className?: string
-  fluid?: boolean
-  imageUrl: string
-  onClear: () => void
-  onUpload: (imageUrl: string) => void
+  ariaLabel?: string;
+  className?: string;
+  fluid?: boolean;
+  imageUrl: string;
+  onClear: () => void;
+  onUpload: (imageUrl: string) => void;
 }) {
-  const theme = useContext(InspectorThemeContext)
+  const theme = useContext(InspectorThemeContext);
 
   return (
     <div
@@ -65,31 +65,32 @@ export function SettingsImageUploadTile({
         value={imageUrl || null}
         onChange={(value) => {
           if (value === null) {
-            onClear()
+            onClear();
           }
         }}
         onImageCropped={({ url }) => {
           void (async () => {
-            const normalizedUrl =
-              url.startsWith("blob:") ? (await blobUrlToDataUrl(url)) ?? url : url
-            onUpload(normalizedUrl)
-          })()
+            const normalizedUrl = url.startsWith("blob:")
+              ? ((await blobUrlToDataUrl(url)) ?? url)
+              : url;
+            onUpload(normalizedUrl);
+          })();
         }}
       />
     </div>
-  )
+  );
 }
 
 function fillPresetStyle(preset: string): CSSProperties {
-  return isGradientFill(preset) ? { background: preset } : { background: preset }
+  return isGradientFill(preset) ? { background: preset } : { background: preset };
 }
 
 function FillOptionGridPlusButton({
   customValue,
   onOpenPicker,
 }: {
-  customValue?: string
-  onOpenPicker: () => void
+  customValue?: string;
+  onOpenPicker: () => void;
 }) {
   return (
     <button
@@ -115,7 +116,7 @@ function FillOptionGridPlusButton({
         </span>
       </span>
     </button>
-  )
+  );
 }
 
 export function SettingsFillOptionGrid({
@@ -126,17 +127,17 @@ export function SettingsFillOptionGrid({
   presets = SETTINGS_FILL_PRESETS,
   value,
 }: {
-  label?: string
-  onOpenPicker?: () => void
-  onSelect: (fill: Fill, css: string) => void
-  persistKey?: string
-  presets?: readonly string[]
-  value: string
+  label?: string;
+  onOpenPicker?: () => void;
+  onSelect: (fill: Fill, css: string) => void;
+  persistKey?: string;
+  presets?: readonly string[];
+  value: string;
 }) {
   const activePreset = useMemo(
     () => getActiveFillPresetForStoredValue(value, presets),
     [presets, value],
-  )
+  );
 
   return (
     <SettingsOptionShelf
@@ -155,7 +156,7 @@ export function SettingsFillOptionGrid({
       ) : null}
 
       {presets.map((preset) => {
-        const isSelected = activePreset === preset
+        const isSelected = activePreset === preset;
 
         return (
           <button
@@ -165,23 +166,20 @@ export function SettingsFillOptionGrid({
             className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
             type="button"
             onClick={() => {
-              const fill = parseFill(preset)
+              const fill = parseFill(preset);
               if (fill) {
-                onSelect(fill, preset)
+                onSelect(fill, preset);
               }
             }}
           >
             <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
-              <span
-                className="size-full dn-squircle-xs"
-                style={fillPresetStyle(preset)}
-              />
+              <span className="size-full dn-squircle-xs" style={fillPresetStyle(preset)} />
             </span>
           </button>
-        )
+        );
       })}
     </SettingsOptionShelf>
-  )
+  );
 }
 
 export function SettingsPatternOptionGrid({
@@ -192,18 +190,18 @@ export function SettingsPatternOptionGrid({
   selectedPalette,
   selectedPreset,
 }: {
-  label?: string
-  leadingAction?: ReactNode
-  onSelect: (preset: { label: string; colors: string[] }) => void
-  persistKey?: string
-  selectedPalette: string[]
-  selectedPreset: string | "custom"
+  label?: string;
+  leadingAction?: ReactNode;
+  onSelect: (preset: { label: string; colors: string[] }) => void;
+  persistKey?: string;
+  selectedPalette: string[];
+  selectedPreset: string | "custom";
 }) {
   const activePreset = DOTS_PALETTE_PRESETS.find(
     (option) =>
       selectedPreset === option.label ||
       (selectedPreset === "custom" && selectedPalette.join() === option.colors.join()),
-  )
+  );
 
   return (
     <SettingsOptionShelf
@@ -219,7 +217,7 @@ export function SettingsPatternOptionGrid({
       {DOTS_PALETTE_PRESETS.map((option) => {
         const isSelected =
           selectedPreset === option.label ||
-          (selectedPreset === "custom" && selectedPalette.join() === option.colors.join())
+          (selectedPreset === "custom" && selectedPalette.join() === option.colors.join());
 
         return (
           <button
@@ -235,10 +233,10 @@ export function SettingsPatternOptionGrid({
               <PaletteColorBarPreview className="size-full" colors={option.colors} size="md" />
             </span>
           </button>
-        )
+        );
       })}
     </SettingsOptionShelf>
-  )
+  );
 }
 
 export function SettingsImageOptionGrid({
@@ -250,16 +248,15 @@ export function SettingsImageOptionGrid({
   persistKey,
   selectedPath,
 }: {
-  hideUploadTile?: boolean
-  label?: string
-  onClear: () => void
-  onSelect: (imagePath: string) => void
-  onUpload: (imageUrl: string) => void
-  persistKey?: string
-  selectedPath: string
+  hideUploadTile?: boolean;
+  label?: string;
+  onClear: () => void;
+  onSelect: (imagePath: string) => void;
+  onUpload: (imageUrl: string) => void;
+  persistKey?: string;
+  selectedPath: string;
 }) {
-  const customImageUrl =
-    selectedPath && !isSceneWallpaperPath(selectedPath) ? selectedPath : ""
+  const customImageUrl = selectedPath && !isSceneWallpaperPath(selectedPath) ? selectedPath : "";
 
   return (
     <SettingsOptionShelf
@@ -280,7 +277,7 @@ export function SettingsImageOptionGrid({
       )}
 
       {SCENE_WALLPAPERS.map((wallpaper) => {
-        const isSelected = selectedPath === wallpaper.path
+        const isSelected = selectedPath === wallpaper.path;
 
         return (
           <button
@@ -292,7 +289,7 @@ export function SettingsImageOptionGrid({
             type="button"
             onClick={() => onSelect(wallpaper.path)}
             onPointerEnter={() => {
-              void preloadRasterImage(wallpaper.path)
+              void preloadRasterImage(wallpaper.path);
             }}
           >
             <WallpaperOptionPreview
@@ -301,8 +298,8 @@ export function SettingsImageOptionGrid({
               previewPath={wallpaper.previewPath}
             />
           </button>
-        )
+        );
       })}
     </SettingsOptionShelf>
-  )
+  );
 }

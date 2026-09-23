@@ -1,39 +1,37 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
+import { useEffect } from "react";
 
-import { previewDrawerResize } from "@/features/canvas/preview/preview-drawer-resize"
+import { previewDrawerResize } from "@/features/canvas/preview/preview-drawer-resize";
 
-const INSET_PADDING_PROPERTIES = new Set(["padding", "padding-bottom"])
+const INSET_PADDING_PROPERTIES = new Set(["padding", "padding-bottom"]);
 
 export function MobileWorkspaceInsetTransitionBridge() {
   useEffect(() => {
-    const inset = document.querySelector<HTMLElement>(
-      '[data-slot="drafting-workspace-inset"]',
-    )
+    const inset = document.querySelector<HTMLElement>('[data-slot="drafting-workspace-inset"]');
 
     if (!inset) {
-      return
+      return;
     }
 
     function handleTransitionEnd(event: TransitionEvent) {
       if (event.target !== inset) {
-        return
+        return;
       }
 
       if (!INSET_PADDING_PROPERTIES.has(event.propertyName)) {
-        return
+        return;
       }
 
-      previewDrawerResize.endResize()
+      previewDrawerResize.endResize();
     }
 
-    inset.addEventListener("transitionend", handleTransitionEnd)
+    inset.addEventListener("transitionend", handleTransitionEnd);
 
     return () => {
-      inset.removeEventListener("transitionend", handleTransitionEnd)
-    }
-  }, [])
+      inset.removeEventListener("transitionend", handleTransitionEnd);
+    };
+  }, []);
 
-  return null
+  return null;
 }

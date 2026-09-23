@@ -10,20 +10,9 @@
  * @github: https://github.com/kokonut-labs/kokonutui
  */
 
-import {
-  type DragEvent,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { type DragEvent, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import {
-  KokonutFileUploadDropzone,
-  type FileError,
-  type FileStatus,
-} from "./file-upload-dropzone";
+import { KokonutFileUploadDropzone, type FileError, type FileStatus } from "./file-upload-dropzone";
 
 interface FileUploadProps {
   onUploadSuccess?: (file: File) => void;
@@ -41,17 +30,7 @@ interface FileUploadProps {
 const DEFAULT_MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const EMPTY_ACCEPTED_FILE_TYPES: string[] = [];
 const UPLOAD_STEP_SIZE = 5;
-const FILE_SIZES = [
-  "Bytes",
-  "KB",
-  "MB",
-  "GB",
-  "TB",
-  "PB",
-  "EB",
-  "ZB",
-  "YB",
-] as const;
+const FILE_SIZES = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"] as const;
 
 const formatBytes = (bytes: number, decimals = 2): string => {
   if (!+bytes) return "0 Bytes";
@@ -62,10 +41,7 @@ const formatBytes = (bytes: number, decimals = 2): string => {
   return `${Number.parseFloat((bytes / k ** i).toFixed(dm))} ${unit}`;
 };
 
-const matchesAcceptedFileType = (
-  fileType: string,
-  acceptedFileType: string,
-): boolean => {
+const matchesAcceptedFileType = (fileType: string, acceptedFileType: string): boolean => {
   const normalizedAcceptedType = acceptedFileType.toLowerCase();
 
   if (normalizedAcceptedType.endsWith("/*")) {
@@ -134,11 +110,7 @@ export default function FileUpload({
       if (!acceptedFileTypes?.length) return null;
 
       const fileType = file.type.toLowerCase();
-      if (
-        !acceptedFileTypes.some((type) =>
-          matchesAcceptedFileType(fileType, type),
-        )
-      ) {
+      if (!acceptedFileTypes.some((type) => matchesAcceptedFileType(fileType, type))) {
         return {
           message: `File type must be ${acceptedFileTypes.join(", ")}`,
           code: "INVALID_FILE_TYPE",

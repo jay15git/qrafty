@@ -5,10 +5,10 @@ import type {
   FinderPatternOuterStyle,
   GradientSettings,
   ReactQRCodeProps,
-} from "@qrafty/qr-internal/react-qr-code"
+} from "@qrafty/qr-internal/react-qr-code";
 
-export type QrFileExtension = "png" | "jpeg" | "webp" | "svg"
-export type QrDrawType = "svg" | "canvas"
+export type QrFileExtension = "png" | "jpeg" | "webp" | "svg";
+export type QrDrawType = "svg" | "canvas";
 export type QrTypeNumber =
   | 0
   | 1
@@ -50,9 +50,9 @@ export type QrTypeNumber =
   | 37
   | 38
   | 39
-  | 40
-export type QrMode = "Numeric" | "Alphanumeric" | "Byte" | "Kanji"
-export type QrGradientType = "linear" | "radial"
+  | 40;
+export type QrMode = "Numeric" | "Alphanumeric" | "Byte" | "Kanji";
+export type QrGradientType = "linear" | "radial";
 
 export type {
   DataModulesStyle as QrDataModulesStyle,
@@ -61,4 +61,4 @@ export type {
   FinderPatternOuterStyle as QrFinderPatternOuterStyle,
   GradientSettings as QrGradientSettings,
   ReactQRCodeProps,
-}
+};

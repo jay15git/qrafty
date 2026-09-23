@@ -1,1 +1,1 @@
-export * from "../../vendor/react-qr-code/index"
+export * from "../../vendor/react-qr-code/index";

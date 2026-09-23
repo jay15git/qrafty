@@ -1,43 +1,43 @@
-import { emitSvg, preprocessSvg } from "@qrafty/qr-internal/codegen"
+import { emitSvg, preprocessSvg } from "@qrafty/qr-internal/codegen";
 
-import { buildSceneIr } from "@/features/qr/export/build-scene-ir"
-import { buildDashboardQrNodePayload } from "@/features/qr/rendering/qr-svg-render"
+import { buildSceneIr } from "@/features/qr/export/build-scene-ir";
+import { buildDashboardQrNodePayload } from "@/features/qr/rendering/qr-svg-render";
 import {
   getLossyRasterEncoderQuality,
   isRasterExportExtension,
-} from "@/features/qr/export/raster-export"
-import type { QrFileExtension } from "@/features/qr/model/types"
-import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import type { QraftyState } from "@/features/qr/model/state"
-import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork"
-import { inlineSvgImageHrefs } from "@/features/canvas/export/pipeline/assets"
-import { renderWorkspaceCompositorCanvas } from "@/features/canvas/export/pipeline/compositor"
+} from "@/features/qr/export/raster-export";
+import type { QrFileExtension } from "@/features/qr/model/types";
+import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { QraftyState } from "@/features/qr/model/state";
+import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
+import { inlineSvgImageHrefs } from "@/features/canvas/export/pipeline/assets";
+import { renderWorkspaceCompositorCanvas } from "@/features/canvas/export/pipeline/compositor";
 import {
   buildAnimatedQrMarkupAtTime,
   shouldExportAnimatedQr,
-} from "@/features/canvas/export/pipeline/qr-frames"
+} from "@/features/canvas/export/pipeline/qr-frames";
 import {
   resolveQrExportTimeMs,
   type ExportClockMode,
-} from "@/features/canvas/export/pipeline/clock"
+} from "@/features/canvas/export/pipeline/clock";
 import {
   captureWorkspaceShaderSnapshots,
   type WorkspaceShaderCaptureSession,
-} from "@/features/canvas/export/pipeline/shader-snapshots"
+} from "@/features/canvas/export/pipeline/shader-snapshots";
 
 export type RenderWorkspaceSvgOptions = {
-  cardLayer: DraftingCanvasLayer
-  cardState: DraftingCardState
-  layers: DraftingCanvasLayer[]
-  mode: ExportClockMode
-  name: string
-  nodeId: string
-  qrMarkup: string
-  shaderSession?: WorkspaceShaderCaptureSession
-  state: QraftyState
-  videoTimeMs?: number
-}
+  cardLayer: DraftingCanvasLayer;
+  cardState: DraftingCardState;
+  layers: DraftingCanvasLayer[];
+  mode: ExportClockMode;
+  name: string;
+  nodeId: string;
+  qrMarkup: string;
+  shaderSession?: WorkspaceShaderCaptureSession;
+  state: QraftyState;
+  videoTimeMs?: number;
+};
 
 async function renderWorkspaceSvgMarkup({
   cardLayer,
@@ -58,12 +58,12 @@ async function renderWorkspaceSvgMarkup({
     mode,
     session: shaderSession,
     videoTimeMs,
-  })
+  });
 
-  const qrTimeMs = resolveQrExportTimeMs(state, mode, videoTimeMs)
+  const qrTimeMs = resolveQrExportTimeMs(state, mode, videoTimeMs);
   const resolvedQrMarkup = shouldExportAnimatedQr(state)
     ? buildAnimatedQrMarkupAtTime(qrMarkup, state, qrTimeMs)
-    : qrMarkup
+    : qrMarkup;
 
   const ir = await buildSceneIr({
     cardState,
@@ -72,16 +72,16 @@ async function renderWorkspaceSvgMarkup({
     qrMarkup: resolvedQrMarkup,
     state,
     shaderSnapshots,
-  })
+  });
 
-  const rawSvg = emitSvg(ir)
-  const svg = await inlineSvgImageHrefs(preprocessSvg(rawSvg, { idPrefix: nodeId }))
+  const rawSvg = emitSvg(ir);
+  const svg = await inlineSvgImageHrefs(preprocessSvg(rawSvg, { idPrefix: nodeId }));
 
   return {
     ir,
     shaderSnapshots,
     svg,
-  }
+  };
 }
 
 export async function buildWorkspaceExportPayload({
@@ -95,7 +95,7 @@ export async function buildWorkspaceExportPayload({
   state,
   videoTimeMs = 0,
 }: Omit<RenderWorkspaceSvgOptions, "qrMarkup"> & { state: QraftyState }) {
-  const qrPayload = await buildDashboardQrNodePayload(createDraftingQrArtworkState(state))
+  const qrPayload = await buildDashboardQrNodePayload(createDraftingQrArtworkState(state));
   const { ir, svg } = await renderWorkspaceSvgMarkup({
     cardLayer,
     cardState,
@@ -107,7 +107,7 @@ export async function buildWorkspaceExportPayload({
     shaderSession,
     state,
     videoTimeMs,
-  })
+  });
 
   return {
     id: nodeId,
@@ -116,7 +116,7 @@ export async function buildWorkspaceExportPayload({
     naturalHeight: ir.bounds.height,
     naturalWidth: ir.bounds.width,
     originalSvgMarkup: svg,
-  }
+  };
 }
 
 export async function renderWorkspaceRasterBlob({
@@ -133,22 +133,20 @@ export async function renderWorkspaceRasterBlob({
   targetDimensions,
   videoTimeMs = 0,
 }: {
-  backgroundColor?: string
-  cardLayer: DraftingCanvasLayer
-  cardState: DraftingCardState
-  extension: Exclude<QrFileExtension, "svg">
-  layers: DraftingCanvasLayer[]
-  mode: ExportClockMode
-  nodeId: string
-  qualityPercent: number
-  shaderSession?: WorkspaceShaderCaptureSession
-  state: QraftyState
-  targetDimensions?: { height: number; width: number }
-  videoTimeMs?: number
+  backgroundColor?: string;
+  cardLayer: DraftingCanvasLayer;
+  cardState: DraftingCardState;
+  extension: Exclude<QrFileExtension, "svg">;
+  layers: DraftingCanvasLayer[];
+  mode: ExportClockMode;
+  nodeId: string;
+  qualityPercent: number;
+  shaderSession?: WorkspaceShaderCaptureSession;
+  state: QraftyState;
+  targetDimensions?: { height: number; width: number };
+  videoTimeMs?: number;
 }) {
-  const qrPayload = await buildDashboardQrNodePayload(
-    createDraftingQrArtworkState(state),
-  )
+  const qrPayload = await buildDashboardQrNodePayload(createDraftingQrArtworkState(state));
   const canvas = await renderWorkspaceCompositorCanvas({
     backgroundColor,
     cardLayer,
@@ -162,30 +160,30 @@ export async function renderWorkspaceRasterBlob({
     state,
     targetDimensions,
     videoTimeMs,
-  })
+  });
 
   const mimeType =
-    extension === "png"
-      ? "image/png"
-      : extension === "jpeg"
-        ? "image/jpeg"
-        : "image/webp"
+    extension === "png" ? "image/png" : extension === "jpeg" ? "image/jpeg" : "image/webp";
   const encoderQuality =
-    extension === "png" ? undefined : getLossyRasterEncoderQuality(qualityPercent)
+    extension === "png" ? undefined : getLossyRasterEncoderQuality(qualityPercent);
 
   return await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        reject(new Error("The raster export could not be encoded."))
-        return
-      }
-      resolve(blob)
-    }, mimeType, encoderQuality)
-  })
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error("The raster export could not be encoded."));
+          return;
+        }
+        resolve(blob);
+      },
+      mimeType,
+      encoderQuality,
+    );
+  });
 }
 
 export function isWorkspaceRasterExtension(
   extension: QrFileExtension,
 ): extension is Exclude<QrFileExtension, "svg"> {
-  return isRasterExportExtension(extension)
+  return isRasterExportExtension(extension);
 }

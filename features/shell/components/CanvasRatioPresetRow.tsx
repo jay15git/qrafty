@@ -1,21 +1,18 @@
-"use client"
+"use client";
 
-import { Fragment } from "react"
+import { Fragment } from "react";
 
-import { PopoverClose, PopoverContent } from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { findBrandIconById } from "@/features/qr/assets/brand-icons"
-import {
-  getSizeTemplateSections,
-  type SizeTemplate,
-} from "@/features/canvas/model/size-templates"
+import { PopoverClose, PopoverContent } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { findBrandIconById } from "@/features/qr/assets/brand-icons";
+import { getSizeTemplateSections, type SizeTemplate } from "@/features/canvas/model/size-templates";
 import {
   InspectorNumberField,
   InspectorValueGrid,
-} from "@/features/shell/components/InspectorShell"
-import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui"
-import type { CardSizeSettings } from "@/features/shell/model/card-size-settings"
-import { cn } from "@/lib/utils"
+} from "@/features/shell/components/InspectorShell";
+import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui";
+import type { CardSizeSettings } from "@/features/shell/model/card-size-settings";
+import { cn } from "@/lib/utils";
 
 export function CanvasRatioPresetSections({
   asChild = false,
@@ -24,11 +21,11 @@ export function CanvasRatioPresetSections({
 }: {
   /** Wrap each template button in `PopoverClose` — only valid inside a Radix
    *  popover. Leave off when rendering in a drawer/detail surface. */
-  asChild?: boolean
-  selectedPresetId?: string
-  onSelectTemplate: (template: SizeTemplate) => void
+  asChild?: boolean;
+  selectedPresetId?: string;
+  onSelectTemplate: (template: SizeTemplate) => void;
 }) {
-  const sections = getSizeTemplateSections()
+  const sections = getSizeTemplateSections();
 
   return (
     <div className="space-y-3" data-slot="canvas-size-sections">
@@ -47,10 +44,10 @@ export function CanvasRatioPresetSections({
             role="group"
           >
             {section.templates.map((template) => {
-              const isSelected = selectedPresetId === template.id
+              const isSelected = selectedPresetId === template.id;
               const BrandIcon = template.brandIconId
                 ? findBrandIconById(template.brandIconId)?.icon
-                : undefined
+                : undefined;
 
               const button = (
                 <button
@@ -68,10 +65,7 @@ export function CanvasRatioPresetSections({
                   type="button"
                   onClick={() => onSelectTemplate(template)}
                 >
-                  <span
-                    aria-hidden
-                    className="flex size-9 shrink-0 items-center justify-center"
-                  >
+                  <span aria-hidden className="flex size-9 shrink-0 items-center justify-center">
                     {BrandIcon ? (
                       <BrandIcon className="size-6 text-current" />
                     ) : (
@@ -86,13 +80,15 @@ export function CanvasRatioPresetSections({
                     )}
                   </span>
                   <span className="min-w-0 leading-tight">
-                    <span className="dn-type-value block truncate font-medium">{template.label}</span>
+                    <span className="dn-type-value block truncate font-medium">
+                      {template.label}
+                    </span>
                     <span className="dn-type-meta block truncate text-[var(--muted)]">
                       {template.ratioLabel}
                     </span>
                   </span>
                 </button>
-              )
+              );
 
               return asChild ? (
                 <PopoverClose asChild key={template.id}>
@@ -100,21 +96,21 @@ export function CanvasRatioPresetSections({
                 </PopoverClose>
               ) : (
                 <Fragment key={template.id}>{button}</Fragment>
-              )
+              );
             })}
           </div>
         </section>
       ))}
     </div>
-  )
+  );
 }
 
 function CanvasCustomSizeFields({
   onSizeChange,
   sizeSettings,
 }: {
-  onSizeChange: (patch: Partial<CardSizeSettings>) => void
-  sizeSettings: CardSizeSettings
+  onSizeChange: (patch: Partial<CardSizeSettings>) => void;
+  sizeSettings: CardSizeSettings;
 }) {
   const applySize = (patch: { cardWidth?: number; cardHeight?: number }) => {
     onSizeChange({
@@ -122,8 +118,8 @@ function CanvasCustomSizeFields({
       sizeMode: "fixed",
       // Empty string clears the preset — `undefined` is ignored by the merge.
       sizePresetId: "",
-    })
-  }
+    });
+  };
 
   return (
     <section aria-labelledby="canvas-size-custom" data-slot="canvas-size-custom">
@@ -150,7 +146,7 @@ function CanvasCustomSizeFields({
         />
       </InspectorValueGrid>
     </section>
-  )
+  );
 }
 
 export function CanvasRatioPresetPopoverContent({
@@ -160,11 +156,11 @@ export function CanvasRatioPresetPopoverContent({
   sizeSettings,
   theme = "dark",
 }: {
-  selectedPresetId?: string
-  onSelectTemplate: (template: SizeTemplate) => void
-  onSizeChange?: (patch: Partial<CardSizeSettings>) => void
-  sizeSettings?: CardSizeSettings
-  theme?: "light" | "dark"
+  selectedPresetId?: string;
+  onSelectTemplate: (template: SizeTemplate) => void;
+  onSizeChange?: (patch: Partial<CardSizeSettings>) => void;
+  sizeSettings?: CardSizeSettings;
+  theme?: "light" | "dark";
 }) {
   return (
     <PopoverContent
@@ -195,10 +191,7 @@ export function CanvasRatioPresetPopoverContent({
       >
         <div className="space-y-3" data-slot="inspector-scroll">
           {sizeSettings && onSizeChange ? (
-            <CanvasCustomSizeFields
-              sizeSettings={sizeSettings}
-              onSizeChange={onSizeChange}
-            />
+            <CanvasCustomSizeFields sizeSettings={sizeSettings} onSizeChange={onSizeChange} />
           ) : null}
           <CanvasRatioPresetSections
             asChild
@@ -208,5 +201,5 @@ export function CanvasRatioPresetPopoverContent({
         </div>
       </ScrollArea>
     </PopoverContent>
-  )
+  );
 }

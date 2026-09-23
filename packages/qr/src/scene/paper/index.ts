@@ -1,2 +1,2 @@
-export { hasPaperShaderWebGlSupport } from "./paper-shader-webgl"
-export { usePaperShaderWorldSize } from "./use-paper-shader-world-size"
+export { hasPaperShaderWebGlSupport } from "./paper-shader-webgl";
+export { usePaperShaderWorldSize } from "./use-paper-shader-world-size";

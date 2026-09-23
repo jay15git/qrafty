@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import type {
   DragEvent,
@@ -6,67 +6,67 @@ import type {
   PointerEvent as ReactPointerEvent,
   RefObject,
   TouchEvent,
-} from "react"
+} from "react";
 
-import type { DraftingLayerInteractionProps } from "@/features/canvas/components/canvas-control-props"
-import { Pane } from "@/features/canvas/components/Pane"
+import type { DraftingLayerInteractionProps } from "@/features/canvas/components/canvas-control-props";
+import { Pane } from "@/features/canvas/components/Pane";
 import type {
   DraftingPane,
   DraftingPaneCanvasTool,
-} from "@/features/canvas/components/DraftingPaneCanvas"
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/components/DraftingPaneCanvas";
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import { cn } from "@/lib/utils";
 
 type DraftingPaneViewportProps = {
-  areaName?: string
-  activeCanvasTool?: DraftingPaneCanvasTool | null
-  canSwap: boolean
-  draggingPaneId: string | null
-  effectivePan: { x: number; y: number }
-  effectiveZoom: number
-  fitCanvasToViewport?: boolean
-  hideLayerSelectionChrome: boolean
-  isFreeEditWorkspace: boolean
-  isPanning: boolean
-  isSelected: boolean
-  isSnapTarget: boolean
-  layerEditingEnabled?: boolean
-  onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
-  onPaneDragEnd: () => void
-  onPaneDragLeave: (paneId: string, event: DragEvent<HTMLDivElement>) => void
-  onPaneDragOver: (paneId: string, event: DragEvent<HTMLDivElement>) => void
-  onPaneDragStart: (paneId: string, event: DragEvent<HTMLDivElement>) => void
-  onPaneDrop: (paneId: string, event: DragEvent<HTMLDivElement>) => void
-  onLayerAction?: DraftingLayerInteractionProps["onLayerAction"]
-  onLayerChange?: DraftingLayerInteractionProps["onLayerChange"]
-  onLayerCopy?: DraftingLayerInteractionProps["onLayerCopy"]
-  onLayerPaste?: DraftingLayerInteractionProps["onLayerPaste"]
-  onLayerSelect?: DraftingLayerInteractionProps["onLayerSelect"]
-  onLayerSelectionChange?: DraftingLayerInteractionProps["onLayerSelectionChange"]
-  onQrClick: () => void
-  onSelect: () => void
-  onCanvasClick: (event: ReactMouseEvent<HTMLDivElement>) => void
-  onCanvasKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => void
-  onCanvasPointerCancel: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onCanvasPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onCanvasPointerDownCapture: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onCanvasPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onCanvasPointerUp: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onCanvasTouchEnd: (event: TouchEvent<HTMLDivElement>) => void
-  onCanvasTouchMove: (event: TouchEvent<HTMLDivElement>) => void
-  onCanvasTouchStart: (event: TouchEvent<HTMLDivElement>) => void
-  onBeginPanePan: (event: ReactPointerEvent<HTMLDivElement>) => void
-  pane: DraftingPane
-  panOverlayRef: RefObject<HTMLDivElement | null>
-  previewLocked?: boolean
-  selectedLayerId?: string | null
-  selectedLayerIds?: string[]
-  snapEnabled: boolean
-  canvasAppearance: "template" | "workspace" | "neutral"
-  canvasRef: RefObject<HTMLDivElement | null>
-  viewFitScale?: number
-  theme?: ThemeMode
-}
+  areaName?: string;
+  activeCanvasTool?: DraftingPaneCanvasTool | null;
+  canSwap: boolean;
+  draggingPaneId: string | null;
+  effectivePan: { x: number; y: number };
+  effectiveZoom: number;
+  fitCanvasToViewport?: boolean;
+  hideLayerSelectionChrome: boolean;
+  isFreeEditWorkspace: boolean;
+  isPanning: boolean;
+  isSelected: boolean;
+  isSnapTarget: boolean;
+  layerEditingEnabled?: boolean;
+  onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void;
+  onPaneDragEnd: () => void;
+  onPaneDragLeave: (paneId: string, event: DragEvent<HTMLDivElement>) => void;
+  onPaneDragOver: (paneId: string, event: DragEvent<HTMLDivElement>) => void;
+  onPaneDragStart: (paneId: string, event: DragEvent<HTMLDivElement>) => void;
+  onPaneDrop: (paneId: string, event: DragEvent<HTMLDivElement>) => void;
+  onLayerAction?: DraftingLayerInteractionProps["onLayerAction"];
+  onLayerChange?: DraftingLayerInteractionProps["onLayerChange"];
+  onLayerCopy?: DraftingLayerInteractionProps["onLayerCopy"];
+  onLayerPaste?: DraftingLayerInteractionProps["onLayerPaste"];
+  onLayerSelect?: DraftingLayerInteractionProps["onLayerSelect"];
+  onLayerSelectionChange?: DraftingLayerInteractionProps["onLayerSelectionChange"];
+  onQrClick: () => void;
+  onSelect: () => void;
+  onCanvasClick: (event: ReactMouseEvent<HTMLDivElement>) => void;
+  onCanvasKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => void;
+  onCanvasPointerCancel: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onCanvasPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onCanvasPointerDownCapture: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onCanvasPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onCanvasPointerUp: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onCanvasTouchEnd: (event: TouchEvent<HTMLDivElement>) => void;
+  onCanvasTouchMove: (event: TouchEvent<HTMLDivElement>) => void;
+  onCanvasTouchStart: (event: TouchEvent<HTMLDivElement>) => void;
+  onBeginPanePan: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  pane: DraftingPane;
+  panOverlayRef: RefObject<HTMLDivElement | null>;
+  previewLocked?: boolean;
+  selectedLayerId?: string | null;
+  selectedLayerIds?: string[];
+  snapEnabled: boolean;
+  canvasAppearance: "template" | "workspace" | "neutral";
+  canvasRef: RefObject<HTMLDivElement | null>;
+  viewFitScale?: number;
+  theme?: ThemeMode;
+};
 
 type DraftingPaneContentProps = Pick<
   DraftingPaneViewportProps,
@@ -92,7 +92,7 @@ type DraftingPaneContentProps = Pick<
   | "snapEnabled"
   | "viewFitScale"
   | "theme"
->
+>;
 
 function DraftingPaneContent({
   effectivePan,
@@ -160,10 +160,10 @@ function DraftingPaneContent({
             ? (layerIds, action) => onLayerAction?.(pane.id, layerIds, action)
             : undefined
         }
-        onLayerCopy={layerEditingEnabled ? (layerIds) => onLayerCopy?.(pane.id, layerIds) : undefined}
-        onLayerPaste={
-          layerEditingEnabled ? (point) => onLayerPaste?.(pane.id, point) : undefined
+        onLayerCopy={
+          layerEditingEnabled ? (layerIds) => onLayerCopy?.(pane.id, layerIds) : undefined
         }
+        onLayerPaste={layerEditingEnabled ? (point) => onLayerPaste?.(pane.id, point) : undefined}
         onLayerSelect={(layerId, options) => onLayerSelect?.(pane.id, layerId, options)}
         onLayerSelectionChange={(layerIds, options) =>
           onLayerSelectionChange?.(pane.id, layerIds, options)
@@ -175,7 +175,7 @@ function DraftingPaneContent({
         theme={theme}
       />
     </div>
-  )
+  );
 }
 
 type DraftingPanOverlayProps = Pick<
@@ -188,7 +188,7 @@ type DraftingPanOverlayProps = Pick<
   | "onCanvasPointerUp"
   | "panOverlayRef"
   | "previewLocked"
->
+>;
 
 function DraftingPanOverlay({
   activeCanvasTool,
@@ -201,7 +201,7 @@ function DraftingPanOverlay({
   previewLocked = false,
 }: DraftingPanOverlayProps) {
   if (activeCanvasTool !== "pan" || previewLocked) {
-    return null
+    return null;
   }
 
   return (
@@ -216,13 +216,13 @@ function DraftingPanOverlay({
       onPointerMove={onCanvasPointerMove}
       onPointerUp={onCanvasPointerUp}
     />
-  )
+  );
 }
 
 type DraftingTextPlacementOverlayProps = Pick<
   DraftingPaneViewportProps,
   "activeCanvasTool" | "layerEditingEnabled" | "onAddTextLayerAt"
->
+>;
 
 function DraftingTextPlacementOverlay({
   activeCanvasTool,
@@ -230,7 +230,7 @@ function DraftingTextPlacementOverlay({
   onAddTextLayerAt,
 }: DraftingTextPlacementOverlayProps) {
   if (activeCanvasTool !== "text" || !layerEditingEnabled || !onAddTextLayerAt) {
-    return null
+    return null;
   }
 
   return (
@@ -239,7 +239,7 @@ function DraftingTextPlacementOverlay({
       className="absolute inset-0 z-[var(--z-compose-toolbar)] cursor-text touch-none"
       data-slot="drafting-text-placement-overlay"
     />
-  )
+  );
 }
 
 export function DraftingPaneViewport({
@@ -305,9 +305,7 @@ export function DraftingPaneViewport({
       draggable={canSwap}
       className={cn(
         "relative flex h-full w-full flex-col items-center justify-center overflow-hidden touch-none overscroll-none outline-none transition-opacity duration-150 ease-out",
-        isFreeEditWorkspace
-          ? "bg-[var(--canvas-bg,#f0f1f2)]"
-          : "bg-[var(--canvas-bg,#f0f1f2)]",
+        isFreeEditWorkspace ? "bg-[var(--canvas-bg,#f0f1f2)]" : "bg-[var(--canvas-bg,#f0f1f2)]",
         canSwap && "cursor-grab active:cursor-grabbing",
         draggingPaneId === pane.id && "opacity-55",
         isSnapTarget &&
@@ -380,5 +378,5 @@ export function DraftingPaneViewport({
         onAddTextLayerAt={onAddTextLayerAt}
       />
     </div>
-  )
+  );
 }

@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
 import {
   type EmojiPickerListCategoryHeaderProps,
   type EmojiPickerListEmojiProps,
   type EmojiPickerListRowProps,
   EmojiPicker as EmojiPickerPrimitive,
-} from "frimousse"
-import { LoaderIcon, SearchIcon } from "lucide-react"
-import type * as React from "react"
+} from "frimousse";
+import { LoaderIcon, SearchIcon } from "lucide-react";
+import type * as React from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 function EmojiPicker({
   className,
@@ -24,7 +24,7 @@ function EmojiPicker({
       data-slot="emoji-picker"
       {...props}
     />
-  )
+  );
 }
 
 function EmojiPickerSearch({
@@ -43,27 +43,18 @@ function EmojiPickerSearch({
         {...props}
       />
     </div>
-  )
+  );
 }
 
 function EmojiPickerRow({ children, style, ...props }: EmojiPickerListRowProps) {
   return (
-    <div
-      {...props}
-      className="w-full scroll-my-1 px-0"
-      data-slot="emoji-picker-row"
-      style={style}
-    >
+    <div {...props} className="w-full scroll-my-1 px-0" data-slot="emoji-picker-row" style={style}>
       {children}
     </div>
-  )
+  );
 }
 
-function EmojiPickerEmoji({
-  emoji,
-  className,
-  ...props
-}: EmojiPickerListEmojiProps) {
+function EmojiPickerEmoji({ emoji, className, ...props }: EmojiPickerListEmojiProps) {
   return (
     <button
       {...props}
@@ -76,13 +67,10 @@ function EmojiPickerEmoji({
     >
       {emoji.emoji}
     </button>
-  )
+  );
 }
 
-function EmojiPickerCategoryHeader({
-  category,
-  ...props
-}: EmojiPickerListCategoryHeaderProps) {
+function EmojiPickerCategoryHeader({ category, ...props }: EmojiPickerListCategoryHeaderProps) {
   return (
     <div
       {...props}
@@ -91,7 +79,7 @@ function EmojiPickerCategoryHeader({
     >
       {category.label}
     </div>
-  )
+  );
 }
 
 function EmojiPickerHiddenCategoryHeader({
@@ -110,7 +98,7 @@ function EmojiPickerHiddenCategoryHeader({
         minHeight: "1px",
       }}
     />
-  )
+  );
 }
 
 function EmojiPickerContent({
@@ -118,7 +106,7 @@ function EmojiPickerContent({
   hideCategoryHeaders = false,
   ...props
 }: React.ComponentProps<typeof EmojiPickerPrimitive.Viewport> & {
-  hideCategoryHeaders?: boolean
+  hideCategoryHeaders?: boolean;
 }) {
   return (
     <EmojiPickerPrimitive.Viewport
@@ -150,7 +138,7 @@ function EmojiPickerContent({
         data-slot="emoji-picker-list"
       />
     </EmojiPickerPrimitive.Viewport>
-  )
+  );
 }
 
-export { EmojiPicker, EmojiPickerSearch, EmojiPickerContent }
+export { EmojiPicker, EmojiPickerSearch, EmojiPickerContent };

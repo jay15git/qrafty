@@ -1,4 +1,4 @@
-export { ReactQRCode } from "../react-qr-code"
+export { ReactQRCode } from "../react-qr-code";
 export type {
   CrossOrigin,
   DataModulesSettings,
@@ -13,4 +13,4 @@ export type {
   ImageSettings,
   ReactQRCodeProps,
   ReactQRCodeRef,
-} from "../react-qr-code"
+} from "../react-qr-code";

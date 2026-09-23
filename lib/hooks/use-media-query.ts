@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useSyncExternalStore } from "react"
+import { useSyncExternalStore } from "react";
 
-export const WORKSPACE_MOBILE_QUERY = "(max-width: 767px)"
+export const WORKSPACE_MOBILE_QUERY = "(max-width: 767px)";
 
 function subscribeToMediaQuery(query: string, onStoreChange: () => void) {
-  const mediaQueryList = window.matchMedia(query)
-  mediaQueryList.addEventListener("change", onStoreChange)
+  const mediaQueryList = window.matchMedia(query);
+  mediaQueryList.addEventListener("change", onStoreChange);
 
-  return () => mediaQueryList.removeEventListener("change", onStoreChange)
+  return () => mediaQueryList.removeEventListener("change", onStoreChange);
 }
 
 function getMediaQuerySnapshot(query: string) {
-  return window.matchMedia(query).matches
+  return window.matchMedia(query).matches;
 }
 
 export function useMediaQuery(query: string) {
@@ -20,5 +20,5 @@ export function useMediaQuery(query: string) {
     (onStoreChange) => subscribeToMediaQuery(query, onStoreChange),
     () => getMediaQuerySnapshot(query),
     () => false,
-  )
+  );
 }

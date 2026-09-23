@@ -1,24 +1,24 @@
-import { AnimatePresence, m, useReducedMotion } from "motion/react"
-import type { ReactNode } from "react"
+import { AnimatePresence, m, useReducedMotion } from "motion/react";
+import type { ReactNode } from "react";
 
-import { MotionAccordion } from "@/features/shell/components/unlumen-ui/motion-faqs-accordion"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { MotionAccordion } from "@/features/shell/components/unlumen-ui/motion-faqs-accordion";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   getSettingsSectionLabel,
   type SettingsSectionId,
-} from "@/features/shell/inspector/settings-panel-meta"
-import { SettingsSectionIconFor } from "@/features/shell/inspector/SettingsSectionIcons"
-import { DN_SECTION_GAP } from "@/features/shell/inspector/settings-ui/Shared"
-import { cn } from "@/lib/utils"
+} from "@/features/shell/inspector/settings-panel-meta";
+import { SettingsSectionIconFor } from "@/features/shell/inspector/SettingsSectionIcons";
+import { DN_SECTION_GAP } from "@/features/shell/inspector/settings-ui/Shared";
+import { cn } from "@/lib/utils";
 
 export function SettingsPanelShell({
   children,
   className,
   fillHeight = false,
 }: {
-  children: ReactNode
-  className?: string
-  fillHeight?: boolean
+  children: ReactNode;
+  className?: string;
+  fillHeight?: boolean;
 }) {
   return (
     <aside
@@ -30,28 +30,25 @@ export function SettingsPanelShell({
     >
       {children}
     </aside>
-  )
+  );
 }
 
 export function SettingsScroll({
   children,
   fillHeight = false,
 }: {
-  children: ReactNode
-  fillHeight?: boolean
+  children: ReactNode;
+  fillHeight?: boolean;
 }) {
   return (
     <ScrollArea
-      className={cn(
-        "dn-settings-scroll",
-        fillHeight ? "h-full min-h-0" : "h-[min(72dvh,40rem)]",
-      )}
+      className={cn("dn-settings-scroll", fillHeight ? "h-full min-h-0" : "h-[min(72dvh,40rem)]")}
       persistKey="settings-panel"
       viewportClassName="px-0"
     >
       {children}
     </ScrollArea>
-  )
+  );
 }
 
 export function SettingsAccordion({
@@ -62,15 +59,15 @@ export function SettingsAccordion({
   header,
   footer,
 }: {
-  openSection: string | undefined
-  onOpenSectionChange: (value: string | undefined) => void
-  sections: readonly string[]
-  renderSection: (section: string) => ReactNode
-  header?: ReactNode
-  footer?: ReactNode
+  openSection: string | undefined;
+  onOpenSectionChange: (value: string | undefined) => void;
+  sections: readonly string[];
+  renderSection: (section: string) => ReactNode;
+  header?: ReactNode;
+  footer?: ReactNode;
 }) {
-  const sectionIndex = openSection ? sections.indexOf(openSection) : -1
-  const openIndex = sectionIndex >= 0 ? sectionIndex : null
+  const sectionIndex = openSection ? sections.indexOf(openSection) : -1;
+  const openIndex = sectionIndex >= 0 ? sectionIndex : null;
 
   const items = sections.map((section) => ({
     question: getSettingsSectionLabel(section as SettingsSectionId),
@@ -80,7 +77,7 @@ export function SettingsAccordion({
         {renderSection(section)}
       </div>
     ),
-  }))
+  }));
 
   return (
     <MotionAccordion
@@ -92,14 +89,14 @@ export function SettingsAccordion({
       footer={footer}
       openIndex={openIndex}
       onOpenIndexChange={(index) => {
-        onOpenSectionChange(index === null ? undefined : sections[index])
+        onOpenSectionChange(index === null ? undefined : sections[index]);
       }}
     />
-  )
+  );
 }
 
-const TAB_PANEL_EASE_ENTER = [0.16, 1, 0.3, 1] as const
-const TAB_PANEL_EASE_EXIT = [0.4, 0, 0.2, 1] as const
+const TAB_PANEL_EASE_ENTER = [0.16, 1, 0.3, 1] as const;
+const TAB_PANEL_EASE_EXIT = [0.4, 0, 0.2, 1] as const;
 
 const settingsTabPanelVariants = {
   initial: { opacity: 0, filter: "blur(3px)" },
@@ -120,7 +117,7 @@ const settingsTabPanelVariants = {
       filter: { duration: 0.2, ease: TAB_PANEL_EASE_EXIT },
     },
   },
-}
+};
 
 const settingsTabPanelReducedMotionVariants = {
   initial: { opacity: 0 },
@@ -132,31 +129,26 @@ const settingsTabPanelReducedMotionVariants = {
     opacity: 0,
     transition: { duration: 0.18, ease: TAB_PANEL_EASE_EXIT },
   },
-}
+};
 
 export function SettingsTabPanel({
   activeKey,
   className,
   children,
 }: {
-  activeKey: string
-  className?: string
-  children: ReactNode
+  activeKey: string;
+  className?: string;
+  children: ReactNode;
 }) {
-  const reduceMotion = useReducedMotion()
+  const reduceMotion = useReducedMotion();
 
   return (
     <div className="relative w-full min-w-0 overflow-hidden">
       <AnimatePresence mode="popLayout" initial={false}>
         <m.div
           key={activeKey}
-          className={cn(
-            "dn-settings-tab-panel dn-section-stack flex w-full min-w-0",
-            className,
-          )}
-          variants={
-            reduceMotion ? settingsTabPanelReducedMotionVariants : settingsTabPanelVariants
-          }
+          className={cn("dn-settings-tab-panel dn-section-stack flex w-full min-w-0", className)}
+          variants={reduceMotion ? settingsTabPanelReducedMotionVariants : settingsTabPanelVariants}
           initial="initial"
           animate="animate"
           exit="exit"
@@ -165,5 +157,5 @@ export function SettingsTabPanel({
         </m.div>
       </AnimatePresence>
     </div>
-  )
+  );
 }

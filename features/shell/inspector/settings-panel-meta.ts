@@ -1,4 +1,4 @@
-import type { ToolbarToolId } from "@/features/shell/model/toolbar-types"
+import type { ToolbarToolId } from "@/features/shell/model/toolbar-types";
 
 export const SETTINGS_SECTIONS = [
   "Content",
@@ -8,9 +8,9 @@ export const SETTINGS_SECTIONS = [
   "Shape",
   "Background",
   "Elements",
-] as const
+] as const;
 
-export type SettingsSectionId = (typeof SETTINGS_SECTIONS)[number]
+export type SettingsSectionId = (typeof SETTINGS_SECTIONS)[number];
 
 const SETTINGS_SECTION_LABELS: Record<SettingsSectionId, string> = {
   Content: "Content",
@@ -20,10 +20,10 @@ const SETTINGS_SECTION_LABELS: Record<SettingsSectionId, string> = {
   Shape: "Shape",
   Background: "Background",
   Elements: "Layers",
-}
+};
 
 export function getSettingsSectionLabel(section: SettingsSectionId): string {
-  return SETTINGS_SECTION_LABELS[section]
+  return SETTINGS_SECTION_LABELS[section];
 }
 
 export const SECTION_TO_TOOL: Partial<Record<SettingsSectionId, ToolbarToolId>> = {
@@ -33,4 +33,4 @@ export const SECTION_TO_TOOL: Partial<Record<SettingsSectionId, ToolbarToolId>> 
   Shape: "shape",
   Background: "background",
   Motion: "motion",
-}
+};

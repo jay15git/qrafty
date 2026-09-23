@@ -9,4 +9,4 @@ export type {
   QrFinderInnerStyle,
   QrFinderOuterStyle,
   QrModuleStyle,
-} from "./types"
+} from "./types";

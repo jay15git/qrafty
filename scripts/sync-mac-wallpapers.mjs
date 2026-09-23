@@ -1,14 +1,10 @@
-import path from "node:path"
+import path from "node:path";
 
-import {
-  cleanCache,
-  makeRemoteResolver,
-  syncWallpapers,
-} from "./lib/wallpaper-sync.mjs"
+import { cleanCache, makeRemoteResolver, syncWallpapers } from "./lib/wallpaper-sync.mjs";
 
-const SOURCE_BASE = "https://www.screenshot-studio.com/r2-assets"
-const OUT_DIR = "public/backgrounds/mac"
-const CACHE_DIR = path.join(OUT_DIR, ".cache")
+const SOURCE_BASE = "https://www.screenshot-studio.com/r2-assets";
+const OUT_DIR = "public/backgrounds/mac";
+const CACHE_DIR = path.join(OUT_DIR, ".cache");
 
 /** macOS wallpaper sources from opennookorg/screenshot-studio (R2 paths). */
 const WALLPAPERS = [
@@ -22,9 +18,9 @@ const WALLPAPERS = [
   { id: "mac-asset-8", file: "backgrounds/mac/mac-asset-8.jpg", label: "macOS 8" },
   { id: "mac-asset-9", file: "backgrounds/mac/mac-asset-9.jpg", label: "macOS 9" },
   { id: "mac-asset-10", file: "backgrounds/mac/mac-asset-10.jpg", label: "macOS 10" },
-]
+];
 
-const resolve = makeRemoteResolver({ baseUrl: SOURCE_BASE, cacheDir: CACHE_DIR })
+const resolve = makeRemoteResolver({ baseUrl: SOURCE_BASE, cacheDir: CACHE_DIR });
 
 await syncWallpapers({
   outDir: OUT_DIR,
@@ -43,6 +39,6 @@ await syncWallpapers({
     targetFile: "features/canvas/assets/mac-wallpapers.ts",
     summaryLabel: "macOS wallpapers",
   },
-})
+});
 
-cleanCache(CACHE_DIR)
+cleanCache(CACHE_DIR);

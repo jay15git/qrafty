@@ -1,15 +1,15 @@
-import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr/assets/brand-icon-svg"
-import { DEFAULT_DRAFTING_TEXT_LAYER } from "@/features/canvas/model/layers/shared"
+import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr/assets/brand-icon-svg";
+import { DEFAULT_DRAFTING_TEXT_LAYER } from "@/features/canvas/model/layers/shared";
 import {
   createDefaultDraftingCardPaperShader,
   DEFAULT_DRAFTING_CARD_STATE,
-} from "@/features/canvas/model/card-state"
-import { getCardImageFilterDefinitions } from "@/features/canvas/rendering/paper-shader-definitions"
+} from "@/features/canvas/model/card-state";
+import { getCardImageFilterDefinitions } from "@/features/canvas/rendering/paper-shader-definitions";
 import {
   DEFAULT_DOT_MATRIX_ANIMATION,
   DEFAULT_BACKGROUND_SHAPE_OPTIONS,
   type QraftyGradient,
-} from "@/features/qr/model/state"
+} from "@/features/qr/model/state";
 import type {
   AccessibilitySettings,
   BackgroundSettings,
@@ -27,7 +27,7 @@ import type {
   SceneTemplateSettings,
   ShapeSettings,
   TextSettings,
-} from "@/features/shell/model/toolbar-types"
+} from "@/features/shell/model/toolbar-types";
 
 const DEFAULT_DESKTOP_DOTS_GRADIENT: QraftyGradient = {
   enabled: true,
@@ -37,13 +37,13 @@ const DEFAULT_DESKTOP_DOTS_GRADIENT: QraftyGradient = {
     { offset: 0, color: "#18181b" },
     { offset: 1, color: "#3f3f46" },
   ],
-}
+};
 
-const DEFAULT_DESKTOP_DOTS_PALETTE = ["#04879c", "#0c3c78", "#090030", "#f30a49"]
+const DEFAULT_DESKTOP_DOTS_PALETTE = ["#04879c", "#0c3c78", "#090030", "#f30a49"];
 
 const DOTS_PALETTE_PRESETS: Array<{
-  colors: string[]
-  label: string
+  colors: string[];
+  label: string;
 }> = [
   { label: "Aurora", colors: ["#67e8f9", "#a78bfa", "#f0abfc", "#f8fafc"] },
   { label: "Fire", colors: ["#f97316", "#ef4444", "#facc15", "#7f1d1d"] },
@@ -75,7 +75,7 @@ const DOTS_PALETTE_PRESETS: Array<{
   { label: "Ember", colors: ["#ff6b35", "#e85d04", "#3d2314", "#1a1108"] },
   { label: "Frost", colors: ["#b8c5d6", "#d6deeb", "#eef2f7", "#93c5fd"] },
   { label: "Tropical", colors: ["#00c9a7", "#00b4d8", "#48cae4", "#0077b6"] },
-]
+];
 
 export const DEFAULT_DESKTOP_PATTERN_SETTINGS: PatternSettings = {
   dotsColorMode: "solid",
@@ -88,7 +88,7 @@ export const DEFAULT_DESKTOP_PATTERN_SETTINGS: PatternSettings = {
   qrDotType: "rounded",
   moduleRoundSize: true,
   gradientLinkMode: "split",
-}
+};
 
 export const DEFAULT_DESKTOP_LOGO_SETTINGS: LogoSettings = {
   colorMode: "solid",
@@ -109,7 +109,7 @@ export const DEFAULT_DESKTOP_LOGO_SETTINGS: LogoSettings = {
   offsetX: 0,
   offsetY: 0,
   crossOrigin: "anonymous",
-}
+};
 
 export const DEFAULT_DESKTOP_CORNERS_SETTINGS: CornersSettings = {
   cornerDotColorMode: "solid",
@@ -132,7 +132,7 @@ export const DEFAULT_DESKTOP_CORNERS_SETTINGS: CornersSettings = {
   },
   cornerSquareSolidColor: "#18181b",
   cornerSquareType: "rounded-lg",
-}
+};
 
 export const DEFAULT_DESKTOP_SHAPE_SETTINGS: ShapeSettings = {
   backgroundShapeId: "none",
@@ -166,22 +166,22 @@ export const DEFAULT_DESKTOP_SHAPE_SETTINGS: ShapeSettings = {
   shadowOpacity: DEFAULT_DRAFTING_CARD_STATE.shadow.opacity,
   sizeMode: DEFAULT_DRAFTING_CARD_STATE.sizeMode,
   sizePresetId: DEFAULT_DRAFTING_CARD_STATE.sizePresetId,
-}
+};
 
 export const DEFAULT_DESKTOP_MOTION_SETTINGS: MotionSettings = {
   ...DEFAULT_DOT_MATRIX_ANIMATION,
-}
+};
 
 export const DEFAULT_DESKTOP_ENCODING_SETTINGS: EncodingSettings = {
   errorCorrectionLevel: "Q",
   typeNumber: 0,
   boostLevel: true,
   valueSegmentsText: "",
-}
+};
 
 export const DEFAULT_DESKTOP_ACCESSIBILITY_SETTINGS: AccessibilitySettings = {
   ariaLabel: "",
-}
+};
 
 export const DEFAULT_DESKTOP_IMAGE_SETTINGS: ImageSettings = {
   fit: "cover",
@@ -189,19 +189,19 @@ export const DEFAULT_DESKTOP_IMAGE_SETTINGS: ImageSettings = {
   opacity: 100,
   remoteUrl: "",
   sourceMode: "upload",
-}
+};
 
 export const DEFAULT_DESKTOP_BACKGROUND_SETTINGS: BackgroundSettings = {
   paperShader: createDefaultDraftingCardPaperShader(
     DEFAULT_DRAFTING_CARD_STATE.paperShader.shaderId,
   ),
   styleMode: DEFAULT_DRAFTING_CARD_STATE.styleMode,
-}
+};
 
 export const DEFAULT_DESKTOP_EFFECTS_SETTINGS: EffectsSettings = {
   filterId: getCardImageFilterDefinitions()[0]?.id ?? "paper-texture",
   filterPresetName: getCardImageFilterDefinitions()[0]?.presets[0]?.name ?? "",
-}
+};
 
 const DEFAULT_DESKTOP_LAYERS: LayerRow[] = [
   {
@@ -261,12 +261,12 @@ const DEFAULT_DESKTOP_LAYERS: LayerRow[] = [
     x: -120,
     y: 150,
   },
-]
+];
 
 export const DEFAULT_LAYERS_SETTINGS: LayersSettings = {
   layers: DEFAULT_DESKTOP_LAYERS.map((layer) => ({ ...layer })),
   selectedLayerId: DEFAULT_DESKTOP_LAYERS[1]?.id ?? "",
-}
+};
 
 export const DEFAULT_DESKTOP_EXPORT_SETTINGS: ExportSettings = {
   extension: "png",
@@ -277,11 +277,11 @@ export const DEFAULT_DESKTOP_EXPORT_SETTINGS: ExportSettings = {
   videoFormat: "mp4",
   videoFrameRate: 30,
   videoLongEdge: 1080,
-}
+};
 
 export const DEFAULT_DESKTOP_LAYOUT_SETTINGS: LayoutSettings = {
   layout: { id: "flat", label: "Flat", rotation: 0, tiltX: 0, tiltY: 0, zoom: 1 },
-}
+};
 
 export const DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS: SceneTemplateSettings = {
   sizeSettings: {
@@ -291,7 +291,7 @@ export const DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS: SceneTemplateSettings = {
     sizeMode: "fixed",
     sizePresetId: "ratio-4-3",
   },
-}
+};
 
 export const DEFAULT_DESKTOP_TEXT_SETTINGS: TextSettings = {
   fill: DEFAULT_DRAFTING_TEXT_LAYER.fill,
@@ -305,4 +305,4 @@ export const DEFAULT_DESKTOP_TEXT_SETTINGS: TextSettings = {
   text: DEFAULT_DRAFTING_TEXT_LAYER.text,
   textAlign: DEFAULT_DRAFTING_TEXT_LAYER.textAlign,
   underline: DEFAULT_DRAFTING_TEXT_LAYER.underline,
-}
+};

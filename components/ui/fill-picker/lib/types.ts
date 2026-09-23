@@ -9,14 +9,7 @@ export interface OklchColor {
   alpha: number;
 }
 
-export type ColorFormat =
-  | "hex"
-  | "rgb"
-  | "hsl"
-  | "hsb"
-  | "oklch"
-  | "oklab"
-  | "p3";
+export type ColorFormat = "hex" | "rgb" | "hsl" | "hsb" | "oklch" | "oklab" | "p3";
 
 export type Gamut = "srgb" | "p3" | "rec2020";
 

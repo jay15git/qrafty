@@ -7,7 +7,10 @@
     },
     "open-design": {
       "command": "node",
-      "args": ["/Applications/Open Design.app/Contents/Resources/app/prebundled/daemon/daemon-cli.mjs", "mcp"],
+      "args": [
+        "/Applications/Open Design.app/Contents/Resources/app/prebundled/daemon/daemon-cli.mjs",
+        "mcp"
+      ],
       "transport": "stdio"
     }
   }

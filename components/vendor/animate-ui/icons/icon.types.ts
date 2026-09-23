@@ -1,20 +1,16 @@
-import type * as React from 'react';
-import type {
-  HTMLMotionProps,
-  SVGMotionProps,
-  UseInViewOptions,
-} from 'motion/react';
+import type * as React from "react";
+import type { HTMLMotionProps, SVGMotionProps, UseInViewOptions } from "motion/react";
 
-import type { WithAsChild } from '@/components/vendor/animate-ui/primitives/animate/slot';
+import type { WithAsChild } from "@/components/vendor/animate-ui/primitives/animate/slot";
 
-import { staticAnimations } from '@/components/vendor/animate-ui/icons/icon.utils';
+import { staticAnimations } from "@/components/vendor/animate-ui/icons/icon.utils";
 
 export type StaticAnimations = keyof typeof staticAnimations;
 export type TriggerProp<T = string> = boolean | StaticAnimations | T;
 export type Trigger = TriggerProp<string>;
 
 export type AnimateIconContextValue = {
-  controls: import('motion/react').LegacyAnimationControls | undefined;
+  controls: import("motion/react").LegacyAnimationControls | undefined;
   animation: StaticAnimations | string;
   loop: boolean;
   loopDelay: number;
@@ -31,7 +27,7 @@ export type DefaultIconProps<T = string> = {
   animateOnHover?: TriggerProp<T>;
   animateOnTap?: TriggerProp<T>;
   animateOnView?: TriggerProp<T>;
-  animateOnViewMargin?: UseInViewOptions['margin'];
+  animateOnViewMargin?: UseInViewOptions["margin"];
   animateOnViewOnce?: boolean;
   animation?: T | StaticAnimations;
   loop?: boolean;
@@ -43,7 +39,7 @@ export type DefaultIconProps<T = string> = {
 };
 
 export type AnimateIconProps<T = string> = WithAsChild<
-  HTMLMotionProps<'span'> &
+  HTMLMotionProps<"span"> &
     DefaultIconProps<T> & {
       children: React.ReactNode;
       asChild?: boolean;
@@ -51,7 +47,7 @@ export type AnimateIconProps<T = string> = WithAsChild<
 >;
 
 export type IconProps<T> = DefaultIconProps<T> &
-  Omit<SVGMotionProps<SVGSVGElement>, 'animate'> & {
+  Omit<SVGMotionProps<SVGSVGElement>, "animate"> & {
     size?: number;
   };
 

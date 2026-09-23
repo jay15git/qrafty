@@ -1,20 +1,14 @@
-"use client"
+"use client";
 
-import { createPortal } from "react-dom"
-import type {
-  CSSProperties,
-  MouseEvent,
-  PointerEvent,
-  ReactNode,
-  RefObject,
-} from "react"
+import { createPortal } from "react-dom";
+import type { CSSProperties, MouseEvent, PointerEvent, ReactNode, RefObject } from "react";
 
 import {
   LayerContextMenu,
   LayerFloatingToolbar,
   ResizeFrameControls,
   SnapGuideOverlay,
-} from "@/features/canvas/components/PaneLayerChrome"
+} from "@/features/canvas/components/PaneLayerChrome";
 import {
   FLOATING_TOOLBAR_EDGE_GUTTER_PX,
   FLOATING_TOOLBAR_GAP_PX,
@@ -25,7 +19,7 @@ import {
   ROTATE_HANDLE_STEM_PX,
   ROTATE_LABEL_GAP_PX,
   type DraftingLayerMenuAction,
-} from "@/features/canvas/components/pane-layer-chrome.constants"
+} from "@/features/canvas/components/pane-layer-chrome.constants";
 import {
   documentToChromeOffset,
   documentToChromeSize,
@@ -33,47 +27,45 @@ import {
   type ChromeSpace,
   getChromeFrameRect,
   getFloatingToolbarChromePosition,
-} from "@/features/canvas/components/pane-layer-chrome-overlay"
-import {
-  SceneCompositionTransform,
-} from "@/features/canvas/components/SceneBackgroundLayer"
-import { PaneDocumentCardLayer } from "@/features/canvas/components/PaneLayerViews"
-import { cornerRadiiToCss } from "@/features/canvas/model/corner-radius"
-import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { SceneCompositionState } from "@/features/canvas/model/scene-templates"
-import type { PreviewStageSize } from "@/features/canvas/preview/preview-camera"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
+} from "@/features/canvas/components/pane-layer-chrome-overlay";
+import { SceneCompositionTransform } from "@/features/canvas/components/SceneBackgroundLayer";
+import { PaneDocumentCardLayer } from "@/features/canvas/components/PaneLayerViews";
+import { cornerRadiiToCss } from "@/features/canvas/model/corner-radius";
+import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { SceneCompositionState } from "@/features/canvas/model/scene-templates";
+import type { PreviewStageSize } from "@/features/canvas/preview/preview-camera";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
 import {
   getLayerRotationLabel,
   getMarqueeBounds,
   type ResizeDirection,
   type SnapGuides,
-} from "@/features/canvas/components/pane-layer-geometry"
+} from "@/features/canvas/components/pane-layer-geometry";
 import type {
   PaneContextMenuState,
   PaneMarqueeState,
   PaneMultiSelectionPreview,
-} from "@/features/canvas/components/use-pane-workspace-interactions"
+} from "@/features/canvas/components/use-pane-workspace-interactions";
 
 type PaneLayerControlsFrameProps = {
-  activeSelectedLayerIdSet: Set<string>
-  activeSelectedLayerIds: string[]
-  chromeSpace: ChromeSpace
-  editingTextLayerId: string | null
-  layer: DraftingCanvasLayer
-  onEndLayerInteraction: (event: PointerEvent<HTMLElement>) => void
-  onOpenLayerContextMenu: (event: MouseEvent<HTMLElement>, layerIds: string[]) => void
+  activeSelectedLayerIdSet: Set<string>;
+  activeSelectedLayerIds: string[];
+  chromeSpace: ChromeSpace;
+  editingTextLayerId: string | null;
+  layer: DraftingCanvasLayer;
+  onEndLayerInteraction: (event: PointerEvent<HTMLElement>) => void;
+  onOpenLayerContextMenu: (event: MouseEvent<HTMLElement>, layerIds: string[]) => void;
   onStartLayerInteraction: (
     event: PointerEvent<HTMLElement>,
     layer: DraftingCanvasLayer,
     mode: "move" | "resize" | "rotate",
     resizeDirection?: ResizeDirection,
-  ) => void
-  onUpdateLayerInteraction: (event: PointerEvent<HTMLElement>) => void
-  rotatingLayerId: string | null
-  rotationPreviewDegrees: number | null
-}
+  ) => void;
+  onUpdateLayerInteraction: (event: PointerEvent<HTMLElement>) => void;
+  rotatingLayerId: string | null;
+  rotationPreviewDegrees: number | null;
+};
 
 function PaneLayerControlsFrame({
   activeSelectedLayerIdSet,
@@ -89,20 +81,18 @@ function PaneLayerControlsFrame({
   rotationPreviewDegrees,
 }: PaneLayerControlsFrameProps) {
   if (activeSelectedLayerIds.length !== 1 || !activeSelectedLayerIdSet.has(layer.id)) {
-    return null
+    return null;
   }
 
   if (layer.kind === "text" && editingTextLayerId === layer.id) {
-    return null
+    return null;
   }
 
-  const frame = getChromeFrameRect(layer, RESIZE_CONTROL_PADDING_PX, chromeSpace)
-  const isRotating = rotatingLayerId === layer.id
-  const rotationDegrees = rotationPreviewDegrees ?? getLayerRotationLabel(layer.rotation)
+  const frame = getChromeFrameRect(layer, RESIZE_CONTROL_PADDING_PX, chromeSpace);
+  const isRotating = rotatingLayerId === layer.id;
+  const rotationDegrees = rotationPreviewDegrees ?? getLayerRotationLabel(layer.rotation);
   const rotation =
-    Number.isFinite(layer.rotation) && layer.rotation !== 0
-      ? ` rotate(${layer.rotation}deg)`
-      : ""
+    Number.isFinite(layer.rotation) && layer.rotation !== 0 ? ` rotate(${layer.rotation}deg)` : "";
 
   return (
     <div
@@ -165,27 +155,26 @@ function PaneLayerControlsFrame({
         targetLabel={layer.name}
       />
     </div>
-  )
+  );
 }
 
 type PaneMultiSelectFrameProps = {
-  activeSelectedLayerIds: string[]
-  chromeSpace: ChromeSpace
+  activeSelectedLayerIds: string[];
+  chromeSpace: ChromeSpace;
   combinedLayerBounds:
-    | (Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> & { rotation?: number })
-    | null
-  multiSelectionPreview: PaneMultiSelectionPreview | null
-  onEndLayerInteraction: (event: PointerEvent<HTMLElement>) => void
-  onOpenLayerContextMenu: (event: MouseEvent<HTMLElement>, layerIds: string[]) => void
+    (Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> & { rotation?: number }) | null;
+  multiSelectionPreview: PaneMultiSelectionPreview | null;
+  onEndLayerInteraction: (event: PointerEvent<HTMLElement>) => void;
+  onOpenLayerContextMenu: (event: MouseEvent<HTMLElement>, layerIds: string[]) => void;
   onStartMultiLayerInteraction: (
     event: PointerEvent<HTMLElement>,
     mode: "move" | "resize" | "rotate",
     resizeDirection?: ResizeDirection,
-  ) => void
-  onUpdateLayerInteraction: (event: PointerEvent<HTMLElement>) => void
-  rotatingLayerId: string | null
-  rotationPreviewDegrees: number | null
-}
+  ) => void;
+  onUpdateLayerInteraction: (event: PointerEvent<HTMLElement>) => void;
+  rotatingLayerId: string | null;
+  rotationPreviewDegrees: number | null;
+};
 
 function PaneMultiSelectFrame({
   activeSelectedLayerIds,
@@ -199,16 +188,17 @@ function PaneMultiSelectFrame({
   rotatingLayerId,
   rotationPreviewDegrees,
 }: PaneMultiSelectFrameProps) {
-  const bounds = multiSelectionPreview?.bounds ?? combinedLayerBounds
+  const bounds = multiSelectionPreview?.bounds ?? combinedLayerBounds;
 
   if (activeSelectedLayerIds.length < 2 || !bounds) {
-    return null
+    return null;
   }
 
-  const frame = getChromeFrameRect(bounds, RESIZE_CONTROL_PADDING_PX, chromeSpace)
-  const isRotating = rotatingLayerId === "selection"
-  const rotationDegrees = multiSelectionPreview?.rotation ?? bounds.rotation ?? rotationPreviewDegrees ?? 0
-  const rotationTransform = rotationDegrees ? ` rotate(${rotationDegrees}deg)` : ""
+  const frame = getChromeFrameRect(bounds, RESIZE_CONTROL_PADDING_PX, chromeSpace);
+  const isRotating = rotatingLayerId === "selection";
+  const rotationDegrees =
+    multiSelectionPreview?.rotation ?? bounds.rotation ?? rotationPreviewDegrees ?? 0;
+  const rotationTransform = rotationDegrees ? ` rotate(${rotationDegrees}deg)` : "";
 
   return (
     <div
@@ -270,34 +260,33 @@ function PaneMultiSelectFrame({
         targetLabel="selection"
       />
     </div>
-  )
+  );
 }
 
 type PaneFloatingToolbarProps = {
-  canvasHeight: number
-  canvasWidth: number
-  chromeSpace: ChromeSpace
+  canvasHeight: number;
+  canvasWidth: number;
+  chromeSpace: ChromeSpace;
   combinedLayerBounds:
-    | (Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> & { rotation?: number })
-    | null
-  isLayerInteracting: boolean
-  marquee: PaneMarqueeState | null
-  onLayerAction?: (layerIds: string[], action: DraftingLayerMenuAction) => void
-  onLayerChange?: (layerId: string, patch: Partial<DraftingCanvasLayer>) => void
-  onLayerCopy?: (layerIds: string[]) => void
+    (Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> & { rotation?: number }) | null;
+  isLayerInteracting: boolean;
+  marquee: PaneMarqueeState | null;
+  onLayerAction?: (layerIds: string[], action: DraftingLayerMenuAction) => void;
+  onLayerChange?: (layerId: string, patch: Partial<DraftingCanvasLayer>) => void;
+  onLayerCopy?: (layerIds: string[]) => void;
   onOpenFloatingLayerContextMenu: (
     event: MouseEvent<HTMLButtonElement>,
     layerIds: string[],
-  ) => void
-  onRunSelectedLayerAction: (action: DraftingLayerMenuAction) => void
-  onRunSelectedLayerCopy: () => void
-  rotatingLayerId: string | null
-  selectedVisibleLayers: DraftingCanvasLayer[]
-  selectedVisibleLayerIds: string[]
-  theme: ThemeMode
-  toolbarRef: RefObject<HTMLDivElement | null>
-  toolbarWidth: number
-}
+  ) => void;
+  onRunSelectedLayerAction: (action: DraftingLayerMenuAction) => void;
+  onRunSelectedLayerCopy: () => void;
+  rotatingLayerId: string | null;
+  selectedVisibleLayers: DraftingCanvasLayer[];
+  selectedVisibleLayerIds: string[];
+  theme: ThemeMode;
+  toolbarRef: RefObject<HTMLDivElement | null>;
+  toolbarWidth: number;
+};
 
 function PaneFloatingToolbar({
   canvasHeight,
@@ -319,7 +308,7 @@ function PaneFloatingToolbar({
   toolbarRef,
   toolbarWidth,
 }: PaneFloatingToolbarProps) {
-  const bounds = combinedLayerBounds
+  const bounds = combinedLayerBounds;
 
   if (
     !bounds ||
@@ -328,7 +317,7 @@ function PaneFloatingToolbar({
     marquee ||
     rotatingLayerId !== null
   ) {
-    return null
+    return null;
   }
 
   const { x, y } = getFloatingToolbarChromePosition({
@@ -342,7 +331,7 @@ function PaneFloatingToolbar({
     space: chromeSpace,
     toolbarHeightPx: FLOATING_TOOLBAR_HEIGHT_PX,
     toolbarWidthPx: toolbarWidth,
-  })
+  });
 
   return (
     <LayerFloatingToolbar
@@ -361,21 +350,21 @@ function PaneFloatingToolbar({
       }}
       theme={theme}
     />
-  )
+  );
 }
 
 type PaneMarqueeOverlayProps = {
-  chromeSpace: ChromeSpace
-  marquee: PaneMarqueeState | null
-}
+  chromeSpace: ChromeSpace;
+  marquee: PaneMarqueeState | null;
+};
 
 function PaneMarqueeOverlay({ chromeSpace, marquee }: PaneMarqueeOverlayProps) {
   if (!marquee) {
-    return null
+    return null;
   }
 
-  const bounds = getMarqueeBounds(marquee.start, marquee.end)
-  const origin = documentToChromeOffset(bounds.x, bounds.y, chromeSpace)
+  const bounds = getMarqueeBounds(marquee.start, marquee.end);
+  const origin = documentToChromeOffset(bounds.x, bounds.y, chromeSpace);
 
   return (
     <div
@@ -387,56 +376,55 @@ function PaneMarqueeOverlay({ chromeSpace, marquee }: PaneMarqueeOverlayProps) {
         width: documentToChromeSize(bounds.width, chromeSpace),
       }}
     />
-  )
+  );
 }
 
 export type PaneChromeOverlayProps = {
-  activeSelectedLayerIdSet: Set<string>
-  activeSelectedLayerIds: string[]
-  canvasHeight: number
-  canvasWidth: number
-  chromeSnapGuides: SnapGuides
-  chromeSpace: ChromeSpace
+  activeSelectedLayerIdSet: Set<string>;
+  activeSelectedLayerIds: string[];
+  canvasHeight: number;
+  canvasWidth: number;
+  chromeSnapGuides: SnapGuides;
+  chromeSpace: ChromeSpace;
   combinedLayerBounds:
-    | (Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> & { rotation?: number })
-    | null
-  contentLayers: DraftingCanvasLayer[]
-  editingTextLayerId: string | null
-  isLayerInteracting: boolean
-  marquee: PaneMarqueeState | null
-  multiSelectionPreview: PaneMultiSelectionPreview | null
-  onLayerAction?: (layerIds: string[], action: DraftingLayerMenuAction) => void
-  onLayerChange?: (layerId: string, patch: Partial<DraftingCanvasLayer>) => void
-  onLayerCopy?: (layerIds: string[]) => void
-  onEndLayerInteraction: (event: PointerEvent<HTMLElement>) => void
+    (Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> & { rotation?: number }) | null;
+  contentLayers: DraftingCanvasLayer[];
+  editingTextLayerId: string | null;
+  isLayerInteracting: boolean;
+  marquee: PaneMarqueeState | null;
+  multiSelectionPreview: PaneMultiSelectionPreview | null;
+  onLayerAction?: (layerIds: string[], action: DraftingLayerMenuAction) => void;
+  onLayerChange?: (layerId: string, patch: Partial<DraftingCanvasLayer>) => void;
+  onLayerCopy?: (layerIds: string[]) => void;
+  onEndLayerInteraction: (event: PointerEvent<HTMLElement>) => void;
   onOpenFloatingLayerContextMenu: (
     event: MouseEvent<HTMLButtonElement>,
     layerIds: string[],
-  ) => void
-  onOpenLayerContextMenu: (event: MouseEvent<HTMLElement>, layerIds: string[]) => void
-  onRunSelectedLayerAction: (action: DraftingLayerMenuAction) => void
-  onRunSelectedLayerCopy: () => void
+  ) => void;
+  onOpenLayerContextMenu: (event: MouseEvent<HTMLElement>, layerIds: string[]) => void;
+  onRunSelectedLayerAction: (action: DraftingLayerMenuAction) => void;
+  onRunSelectedLayerCopy: () => void;
   onStartLayerInteraction: (
     event: PointerEvent<HTMLElement>,
     layer: DraftingCanvasLayer,
     mode: "move" | "resize" | "rotate",
     resizeDirection?: ResizeDirection,
-  ) => void
+  ) => void;
   onStartMultiLayerInteraction: (
     event: PointerEvent<HTMLElement>,
     mode: "move" | "resize" | "rotate",
     resizeDirection?: ResizeDirection,
-  ) => void
-  onUpdateLayerInteraction: (event: PointerEvent<HTMLElement>) => void
-  rotatingLayerId: string | null
-  rotationPreviewDegrees: number | null
-  selectedVisibleLayers: DraftingCanvasLayer[]
-  selectedVisibleLayerIds: string[]
-  snapGuideClipBounds: ChromeBounds | null
-  theme: ThemeMode
-  toolbarRef: RefObject<HTMLDivElement | null>
-  toolbarWidth: number
-}
+  ) => void;
+  onUpdateLayerInteraction: (event: PointerEvent<HTMLElement>) => void;
+  rotatingLayerId: string | null;
+  rotationPreviewDegrees: number | null;
+  selectedVisibleLayers: DraftingCanvasLayer[];
+  selectedVisibleLayerIds: string[];
+  snapGuideClipBounds: ChromeBounds | null;
+  theme: ThemeMode;
+  toolbarRef: RefObject<HTMLDivElement | null>;
+  toolbarWidth: number;
+};
 
 function PaneChromeOverlay({
   activeSelectedLayerIdSet,
@@ -526,28 +514,28 @@ function PaneChromeOverlay({
         toolbarWidth={toolbarWidth}
       />
     </>
-  )
+  );
 }
 
 export type PaneCanvasContentProps = PaneChromeOverlayProps & {
-  cardLayers: DraftingCanvasLayer[]
-  cardState: DraftingCardState
-  contentOnlyZoom: boolean
-  contentTransformStyle: CSSProperties | undefined
-  contextMenu: PaneContextMenuState | null
-  contextMenuLayers: DraftingCanvasLayer[]
-  isImageFilterMode: boolean
-  isImageMode: boolean
-  isPaperShaderMode: boolean
-  onCloseContextMenu: () => void
-  onRunLayerAction: (action: DraftingLayerMenuAction) => void
-  previewCameraStyle: CSSProperties
-  previewStageBorderRadius: string
-  previewStageSize: PreviewStageSize
-  renderLayerView: (layer: DraftingCanvasLayer) => ReactNode
-  sceneLayout: SceneCompositionState["layout"]
-  visibleLayers: DraftingCanvasLayer[]
-}
+  cardLayers: DraftingCanvasLayer[];
+  cardState: DraftingCardState;
+  contentOnlyZoom: boolean;
+  contentTransformStyle: CSSProperties | undefined;
+  contextMenu: PaneContextMenuState | null;
+  contextMenuLayers: DraftingCanvasLayer[];
+  isImageFilterMode: boolean;
+  isImageMode: boolean;
+  isPaperShaderMode: boolean;
+  onCloseContextMenu: () => void;
+  onRunLayerAction: (action: DraftingLayerMenuAction) => void;
+  previewCameraStyle: CSSProperties;
+  previewStageBorderRadius: string;
+  previewStageSize: PreviewStageSize;
+  renderLayerView: (layer: DraftingCanvasLayer) => ReactNode;
+  sceneLayout: SceneCompositionState["layout"];
+  visibleLayers: DraftingCanvasLayer[];
+};
 
 export function PaneCanvasContent(props: PaneCanvasContentProps) {
   const {
@@ -560,15 +548,15 @@ export function PaneCanvasContent(props: PaneCanvasContentProps) {
     isImageFilterMode,
     isImageMode,
     isPaperShaderMode,
-  onCloseContextMenu,
-  onRunLayerAction,
+    onCloseContextMenu,
+    onRunLayerAction,
     previewCameraStyle,
     previewStageBorderRadius,
     previewStageSize,
     renderLayerView,
     sceneLayout,
     visibleLayers,
-  } = props
+  } = props;
 
   return (
     <>
@@ -590,37 +578,37 @@ export function PaneCanvasContent(props: PaneCanvasContentProps) {
             borderRadius: cornerRadiiToCss(cardState.cornerRadii),
           }}
         >
-        {contentOnlyZoom ? (
-          <div className="relative h-full w-full" data-export-root>
-            {cardLayers.map((layer) => (
-              <PaneDocumentCardLayer
-                key={layer.id}
-                cardState={cardState}
-                isImageFilterMode={isImageFilterMode}
-                isImageMode={isImageMode}
-                isPaperShaderMode={isPaperShaderMode}
-                isLayerSelected={props.activeSelectedLayerIdSet.has(layer.id)}
-                layer={layer}
-              />
-            ))}
+          {contentOnlyZoom ? (
+            <div className="relative h-full w-full" data-export-root>
+              {cardLayers.map((layer) => (
+                <PaneDocumentCardLayer
+                  key={layer.id}
+                  cardState={cardState}
+                  isImageFilterMode={isImageFilterMode}
+                  isImageMode={isImageMode}
+                  isPaperShaderMode={isPaperShaderMode}
+                  isLayerSelected={props.activeSelectedLayerIdSet.has(layer.id)}
+                  layer={layer}
+                />
+              ))}
+              <SceneCompositionTransform layout={sceneLayout}>
+                <div
+                  className="relative h-full w-full"
+                  data-slot="desktop-compose-content-zoom"
+                  style={contentTransformStyle}
+                >
+                  {props.contentLayers.map((layer) => renderLayerView(layer))}
+                </div>
+              </SceneCompositionTransform>
+            </div>
+          ) : (
             <SceneCompositionTransform layout={sceneLayout}>
-              <div
-                className="relative h-full w-full"
-                data-slot="desktop-compose-content-zoom"
-                style={contentTransformStyle}
-              >
-                {props.contentLayers.map((layer) => renderLayerView(layer))}
+              <div className="relative h-full w-full" data-export-root>
+                {visibleLayers.map((layer) => renderLayerView(layer))}
               </div>
             </SceneCompositionTransform>
-          </div>
-        ) : (
-          <SceneCompositionTransform layout={sceneLayout}>
-            <div className="relative h-full w-full" data-export-root>
-              {visibleLayers.map((layer) => renderLayerView(layer))}
-            </div>
-          </SceneCompositionTransform>
-        )}
-      </div>
+          )}
+        </div>
       </div>
       <div
         className="pointer-events-none absolute inset-0 z-[var(--z-canvas-chrome)] overflow-visible"
@@ -642,5 +630,5 @@ export function PaneCanvasContent(props: PaneCanvasContentProps) {
           )
         : null}
     </>
-  )
+  );
 }

@@ -50,7 +50,7 @@ function useAnimatedIconControls({
         await play(controls);
       }
     },
-    [controls, onMouseEnter, play]
+    [controls, onMouseEnter, play],
   );
 
   const handleMouseLeave = useCallback(
@@ -61,15 +61,15 @@ function useAnimatedIconControls({
         controls.start("normal");
       }
     },
-    [controls, onMouseLeave]
+    [controls, onMouseLeave],
   );
 
   return { controls, handleMouseEnter, handleMouseLeave };
 }
 
 export interface AnimatedIconSvgProps {
-  size: number
-  controls: ReturnType<typeof useAnimation>
+  size: number;
+  controls: ReturnType<typeof useAnimation>;
 }
 
 /** Builds a hover-animated icon component: div wrapper + shared svg boilerplate.
@@ -79,14 +79,18 @@ export function createAnimatedIcon({
   play,
   renderSvg,
 }: {
-  displayName: string
-  play: (controls: ReturnType<typeof useAnimation>) => void | Promise<void>
-  renderSvg: (props: AnimatedIconSvgProps) => React.ReactNode
+  displayName: string;
+  play: (controls: ReturnType<typeof useAnimation>) => void | Promise<void>;
+  renderSvg: (props: AnimatedIconSvgProps) => React.ReactNode;
 }) {
   const Icon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     ({ onMouseEnter, onMouseLeave, className, size = 28, ...props }, ref) => {
-      const { controls, handleMouseEnter, handleMouseLeave } =
-        useAnimatedIconControls({ ref, onMouseEnter, onMouseLeave, play })
+      const { controls, handleMouseEnter, handleMouseLeave } = useAnimatedIconControls({
+        ref,
+        onMouseEnter,
+        onMouseLeave,
+        play,
+      });
 
       return (
         <div
@@ -97,10 +101,10 @@ export function createAnimatedIcon({
         >
           {renderSvg({ size, controls })}
         </div>
-      )
-    }
-  )
+      );
+    },
+  );
 
-  Icon.displayName = displayName
-  return Icon
+  Icon.displayName = displayName;
+  return Icon;
 }

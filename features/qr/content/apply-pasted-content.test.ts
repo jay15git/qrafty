@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
 import {
   getLinkDetectionSource,
@@ -6,14 +6,14 @@ import {
   resolveDetectedLinkTypeApply,
   resolveStructuredPasteApply,
   shouldShowUrlDetectionChip,
-} from "@/features/qr/content/apply-pasted-content"
+} from "@/features/qr/content/apply-pasted-content";
 
 describe("resolveStructuredPasteApply", () => {
   it("maps structured scheme pastes to dedicated content types", () => {
     expect(resolveStructuredPasteApply("tel:+15550102000")).toEqual({
       type: "phone",
       values: { phone: "+15550102000" },
-    })
+    });
 
     expect(resolveStructuredPasteApply("mailto:hello@example.com?subject=Launch")).toEqual({
       type: "email",
@@ -22,7 +22,7 @@ describe("resolveStructuredPasteApply", () => {
         subject: "Launch",
         body: "",
       },
-    })
+    });
 
     expect(resolveStructuredPasteApply("WIFI:T:WPA;S:Cafe;P:secret;H:true;;")).toEqual({
       type: "wifi",
@@ -32,10 +32,12 @@ describe("resolveStructuredPasteApply", () => {
         security: "WPA",
         ssid: "Cafe",
       },
-    })
+    });
 
     expect(
-      resolveStructuredPasteApply("upi://pay?pa=merchant@okaxis&pn=New%20QR&am=199.00&cu=INR&tn=Order"),
+      resolveStructuredPasteApply(
+        "upi://pay?pa=merchant@okaxis&pn=New%20QR&am=199.00&cu=INR&tn=Order",
+      ),
     ).toEqual({
       type: "upi",
       values: {
@@ -45,7 +47,7 @@ describe("resolveStructuredPasteApply", () => {
         payeeName: "New QR",
         vpa: "merchant@okaxis",
       },
-    })
+    });
 
     expect(
       resolveStructuredPasteApply("ethereum:0x1111111111111111111111111111111111111111?amount=1.5"),
@@ -56,14 +58,14 @@ describe("resolveStructuredPasteApply", () => {
         amount: "1.5",
         asset: "ethereum",
       },
-    })
-  })
+    });
+  });
 
   it("returns null for plain text and link pastes", () => {
-    expect(resolveStructuredPasteApply("hello world")).toBeNull()
-    expect(resolveStructuredPasteApply("https://instagram.com/qrafty")).toBeNull()
-  })
-})
+    expect(resolveStructuredPasteApply("hello world")).toBeNull();
+    expect(resolveStructuredPasteApply("https://instagram.com/qrafty")).toBeNull();
+  });
+});
 
 describe("getLinkPasteFieldUpdate", () => {
   it("keeps link pastes on the current link-like content type", () => {
@@ -72,7 +74,7 @@ describe("getLinkPasteFieldUpdate", () => {
       urlDetection: expect.objectContaining({
         platform: "instagram",
       }),
-    })
+    });
 
     expect(getLinkPasteFieldUpdate("instagram", "https://instagram.com/qrafty")).toEqual({
       values: {
@@ -83,9 +85,9 @@ describe("getLinkPasteFieldUpdate", () => {
         platform: "instagram",
         intent: "profile",
       }),
-    })
-  })
-})
+    });
+  });
+});
 
 describe("resolveDetectedLinkTypeApply", () => {
   it("builds a type switch apply payload from detection metadata", () => {
@@ -108,9 +110,9 @@ describe("resolveDetectedLinkTypeApply", () => {
       urlDetection: expect.objectContaining({
         platform: "instagram",
       }),
-    })
-  })
-})
+    });
+  });
+});
 
 describe("getLinkDetectionSource", () => {
   it("reads url only for link content type", () => {
@@ -118,21 +120,21 @@ describe("getLinkDetectionSource", () => {
       getLinkDetectionSource("link", {
         url: "https://example.com",
       }),
-    ).toBe("https://example.com")
+    ).toBe("https://example.com");
 
     expect(
       getLinkDetectionSource("instagram", {
         url: "https://instagram.com/qrafty",
       }),
-    ).toBe("")
+    ).toBe("");
 
     expect(
       getLinkDetectionSource("text", {
         text: "https://instagram.com/qrafty",
       }),
-    ).toBe("")
-  })
-})
+    ).toBe("");
+  });
+});
 
 describe("shouldShowUrlDetectionChip", () => {
   it("shows chips for known platforms on link only", () => {
@@ -143,7 +145,7 @@ describe("shouldShowUrlDetectionChip", () => {
         platform: "instagram",
         inputTypeHint: "instagram",
       }),
-    ).toBe(true)
+    ).toBe(true);
 
     expect(
       shouldShowUrlDetectionChip("link", {
@@ -151,7 +153,7 @@ describe("shouldShowUrlDetectionChip", () => {
         confidence: "low",
         inputTypeHint: "link",
       }),
-    ).toBe(false)
+    ).toBe(false);
 
     expect(
       shouldShowUrlDetectionChip("instagram", {
@@ -160,7 +162,7 @@ describe("shouldShowUrlDetectionChip", () => {
         platform: "instagram",
         inputTypeHint: "instagram",
       }),
-    ).toBe(false)
+    ).toBe(false);
 
     expect(
       shouldShowUrlDetectionChip("text", {
@@ -169,6 +171,6 @@ describe("shouldShowUrlDetectionChip", () => {
         platform: "instagram",
         inputTypeHint: "instagram",
       }),
-    ).toBe(false)
-  })
-})
+    ).toBe(false);
+  });
+});

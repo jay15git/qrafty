@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import { createDefaultDraftingShadowLayer } from "@/features/canvas/model/effects"
-import { createDefaultDraftingFilterEffect } from "@/features/canvas/model/filters"
+import { createDefaultDraftingShadowLayer } from "@/features/canvas/model/effects";
+import { createDefaultDraftingFilterEffect } from "@/features/canvas/model/filters";
 import {
   createLayerEffect,
   getLayerFilterAmount,
@@ -11,7 +11,7 @@ import {
   serializeLayerEffects,
   setLayerFilterAmount,
   setLayerShadowOpacity,
-} from "@/features/canvas/model/layer-effects"
+} from "@/features/canvas/model/layer-effects";
 
 describe("layer effects stack", () => {
   it("hides placeholder shadows from the inspector list", () => {
@@ -24,10 +24,10 @@ describe("layer effects stack", () => {
           visible: false,
         }),
       ],
-    })
+    });
 
-    expect(effects).toEqual([])
-  })
+    expect(effects).toEqual([]);
+  });
 
   it("lists shadows then filters as a single stack", () => {
     const shadow = createDefaultDraftingShadowLayer({
@@ -35,24 +35,24 @@ describe("layer effects stack", () => {
       opacity: 40,
       offsetY: 4,
       visible: true,
-    })
-    const blur = createDefaultDraftingFilterEffect("blur", { amount: 12 })
+    });
+    const blur = createDefaultDraftingFilterEffect("blur", { amount: 12 });
     const effects = listLayerEffects({
       layerFilters: [blur],
       shadows: [shadow],
-    })
+    });
 
-    expect(effects.map((item) => item.kind)).toEqual(["drop-shadow", "layer-blur"])
-    expect(effects[0]?.id).toBe(shadow.id)
-    expect(effects[1]?.id).toBe(blur.id)
-  })
+    expect(effects.map((item) => item.kind)).toEqual(["drop-shadow", "layer-blur"]);
+    expect(effects[0]?.id).toBe(shadow.id);
+    expect(effects[1]?.id).toBe(blur.id);
+  });
 
   it("adds a visible drop shadow with Figma-like defaults", () => {
-    const created = createLayerEffect("drop-shadow")
+    const created = createLayerEffect("drop-shadow");
 
-    expect(created.kind).toBe("drop-shadow")
+    expect(created.kind).toBe("drop-shadow");
     if (created.source !== "shadow") {
-      throw new Error("expected shadow effect")
+      throw new Error("expected shadow effect");
     }
 
     expect(created.shadow).toMatchObject({
@@ -61,25 +61,20 @@ describe("layer effects stack", () => {
       offsetY: 4,
       opacity: 25,
       visible: true,
-    })
-  })
-
-
-
-
-
+    });
+  });
 
   it("patches shadow geometry onto the matching id", () => {
     const first = createDefaultDraftingShadowLayer({
       blur: 4,
       opacity: 25,
       visible: true,
-    })
+    });
     const second = createDefaultDraftingShadowLayer({
       blur: 12,
       opacity: 40,
       visible: true,
-    })
+    });
     const patch = patchLayerShadowEffect(
       {
         layerFilters: [],
@@ -87,45 +82,45 @@ describe("layer effects stack", () => {
       },
       second.id,
       { offsetX: 6 },
-    )
+    );
 
-    expect(patch.shadows?.[0]?.offsetX).toBe(0)
-    expect(patch.shadows?.[1]?.offsetX).toBe(6)
-    expect(patch.shadows?.[1]?.id).toBe(second.id)
-  })
+    expect(patch.shadows?.[0]?.offsetX).toBe(0);
+    expect(patch.shadows?.[1]?.offsetX).toBe(6);
+    expect(patch.shadows?.[1]?.id).toBe(second.id);
+  });
 
   it("round-trips serialize then list for mixed stacks", () => {
-    const created = [createLayerEffect("drop-shadow"), createLayerEffect("contrast")]
-    const serialized = serializeLayerEffects(created)
+    const created = [createLayerEffect("drop-shadow"), createLayerEffect("contrast")];
+    const serialized = serializeLayerEffects(created);
     const listed = listLayerEffects({
       layerFilters: serialized.layerFilters ?? [],
       shadows: serialized.shadows ?? [],
-    })
+    });
 
-    expect(listed.map((item) => item.kind)).toEqual(["drop-shadow", "contrast"])
-  })
+    expect(listed.map((item) => item.kind)).toEqual(["drop-shadow", "contrast"]);
+  });
 
   it("sets and clears filter amounts by kind", () => {
-    const layer = { layerFilters: [], shadows: [] }
-    const withBrightness = setLayerFilterAmount(layer, "brightness", 140)
+    const layer = { layerFilters: [], shadows: [] };
+    const withBrightness = setLayerFilterAmount(layer, "brightness", 140);
 
-    expect(getLayerFilterAmount(withBrightness, "brightness")).toBe(140)
-    expect(withBrightness.layerFilters).toHaveLength(1)
+    expect(getLayerFilterAmount(withBrightness, "brightness")).toBe(140);
+    expect(withBrightness.layerFilters).toHaveLength(1);
 
-    const cleared = setLayerFilterAmount(withBrightness, "brightness", 100)
-    expect(getLayerFilterAmount(cleared, "brightness")).toBe(100)
-    expect(cleared.layerFilters).toEqual([])
-  })
+    const cleared = setLayerFilterAmount(withBrightness, "brightness", 100);
+    expect(getLayerFilterAmount(cleared, "brightness")).toBe(100);
+    expect(cleared.layerFilters).toEqual([]);
+  });
 
   it("sets and clears shadow opacity by kind", () => {
-    const layer = { layerFilters: [], shadows: [] }
-    const withShadow = setLayerShadowOpacity(layer, "drop-shadow", 35)
+    const layer = { layerFilters: [], shadows: [] };
+    const withShadow = setLayerShadowOpacity(layer, "drop-shadow", 35);
 
-    expect(getLayerShadowOpacity(withShadow, "drop-shadow")).toBe(35)
-    expect(withShadow.shadows?.[0]?.inset).toBe(false)
+    expect(getLayerShadowOpacity(withShadow, "drop-shadow")).toBe(35);
+    expect(withShadow.shadows?.[0]?.inset).toBe(false);
 
-    const cleared = setLayerShadowOpacity(withShadow, "drop-shadow", 0)
-    expect(getLayerShadowOpacity(cleared, "drop-shadow")).toBe(0)
-    expect(listLayerEffects(cleared)).toEqual([])
-  })
-})
+    const cleared = setLayerShadowOpacity(withShadow, "drop-shadow", 0);
+    expect(getLayerShadowOpacity(cleared, "drop-shadow")).toBe(0);
+    expect(listLayerEffects(cleared)).toEqual([]);
+  });
+});

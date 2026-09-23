@@ -10,8 +10,7 @@ import { cn } from "@/lib/utils";
 // `defaultValue` is omitted because Base UI's Slider.Root types it as a number
 // (its own controlled/uncontrolled value), which conflicts with the string-ish
 // `defaultValue` on React.HTMLAttributes.
-interface HueProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue"> {
+interface HueProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue"> {
   orientation?: "horizontal" | "vertical";
 }
 

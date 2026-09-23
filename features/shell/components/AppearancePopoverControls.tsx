@@ -1,25 +1,20 @@
-import { Link2, Unlink2 } from "lucide-react"
-import {
-  INSPECTOR_SECTION_GAP_CLASS,
-} from "@/features/shell/components/inspector-tokens"
-import {
-  InspectorLabel,
-  InspectorSection,
-} from "@/features/shell/components/InspectorControls"
+import { Link2, Unlink2 } from "lucide-react";
+import { INSPECTOR_SECTION_GAP_CLASS } from "@/features/shell/components/inspector-tokens";
+import { InspectorLabel, InspectorSection } from "@/features/shell/components/InspectorControls";
 import {
   InspectorElasticSliderRow,
   InspectorNumberField,
   InspectorValueGrid,
-} from "@/features/shell/components/InspectorShell"
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
-import { SettingsFillPopover, SettingsSlider } from "@/features/shell/inspector/settings-ui"
-import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils"
+} from "@/features/shell/components/InspectorShell";
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { SettingsFillPopover, SettingsSlider } from "@/features/shell/inspector/settings-ui";
+import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
 import type {
   AppearanceBorderSnapshot,
   AppearancePatch,
   AppearanceSnapshot,
-} from "@/features/shell/model/appearance"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
+} from "@/features/shell/model/appearance";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
   DRAFTING_CORNER_RADIUS_KEYS,
   DRAFTING_CORNER_RADIUS_MAX,
@@ -28,8 +23,8 @@ import {
   setCornerRadiiLinked,
   type DraftingCornerRadiusKey,
   type DraftingCornerRadiiState,
-} from "@/features/canvas/model/corner-radius"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/model/corner-radius";
+import { cn } from "@/lib/utils";
 
 export function AppearanceBorderControls({
   appearance,
@@ -37,15 +32,15 @@ export function AppearanceBorderControls({
   onPatch,
   theme = "dark",
 }: {
-  appearance: AppearanceSnapshot
-  className?: string
-  onPatch: (patch: AppearancePatch) => void
-  theme?: "dark" | "light"
+  appearance: AppearanceSnapshot;
+  className?: string;
+  onPatch: (patch: AppearancePatch) => void;
+  theme?: "dark" | "light";
 }) {
-  const border = appearance.border
+  const border = appearance.border;
 
   const emit = (patch: Partial<AppearanceBorderSnapshot>) =>
-    onPatch({ border: { ...border, ...patch } })
+    onPatch({ border: { ...border, ...patch } });
 
   return (
     <InspectorSection
@@ -75,17 +70,17 @@ export function AppearanceBorderControls({
         />
       </div>
     </InspectorSection>
-  )
+  );
 }
 
 function BorderColorRow({
   appearance,
   onPatch,
 }: {
-  appearance: AppearanceSnapshot
-  onPatch: (patch: AppearancePatch) => void
+  appearance: AppearanceSnapshot;
+  onPatch: (patch: AppearancePatch) => void;
 }) {
-  const border = appearance.border
+  const border = appearance.border;
 
   return (
     <div className="flex min-h-[var(--settings-control-height)] items-center">
@@ -104,7 +99,7 @@ function BorderColorRow({
         }
       />
     </div>
-  )
+  );
 }
 
 function AppearanceOpacityControls({
@@ -113,12 +108,12 @@ function AppearanceOpacityControls({
   onPatch,
   useSettingsSlider = false,
 }: {
-  appearance: AppearanceSnapshot
-  className?: string
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  useSettingsSlider?: boolean
+  appearance: AppearanceSnapshot;
+  className?: string;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  useSettingsSlider?: boolean;
 }) {
-  const opacityPercent = Math.round(appearance.opacity * 100)
+  const opacityPercent = Math.round(appearance.opacity * 100);
 
   return (
     <InspectorSection
@@ -144,7 +139,7 @@ function AppearanceOpacityControls({
         />
       )}
     </InspectorSection>
-  )
+  );
 }
 
 export function AppearanceRadiusControls({
@@ -152,28 +147,33 @@ export function AppearanceRadiusControls({
   className,
   onPatch,
 }: {
-  appearance: AppearanceSnapshot
-  className?: string
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  appearance: AppearanceSnapshot;
+  className?: string;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
 }) {
   if (!appearance.supportsCornerRadius) {
-    return null
+    return null;
   }
 
-  const radii = resolveCornerRadii(appearance.cornerRadii, appearance.cornerRadius)
+  const radii = resolveCornerRadii(appearance.cornerRadii, appearance.cornerRadius);
 
   const applyRadii = (nextRadii: DraftingCornerRadiiState) => {
     onPatch({
       cornerRadius: nextRadii.linked
         ? nextRadii.topLeft
-        : Math.max(nextRadii.topLeft, nextRadii.topRight, nextRadii.bottomRight, nextRadii.bottomLeft),
+        : Math.max(
+            nextRadii.topLeft,
+            nextRadii.topRight,
+            nextRadii.bottomRight,
+            nextRadii.bottomLeft,
+          ),
       cornerRadii: nextRadii,
-    })
-  }
+    });
+  };
 
   const updateCorner = (corner: DraftingCornerRadiusKey, value: number) => {
-    applyRadii(patchCornerRadii(appearance.cornerRadii, appearance.cornerRadius, corner, value))
-  }
+    applyRadii(patchCornerRadii(appearance.cornerRadii, appearance.cornerRadius, corner, value));
+  };
 
   return (
     <InspectorSection
@@ -188,7 +188,9 @@ export function AppearanceRadiusControls({
           className="grid size-7 place-items-center rounded-md text-[var(--settings-fg-secondary)] hover:bg-[var(--settings-control-hover-bg)]"
           type="button"
           onClick={() =>
-            applyRadii(setCornerRadiiLinked(appearance.cornerRadii, appearance.cornerRadius, !radii.linked))
+            applyRadii(
+              setCornerRadiiLinked(appearance.cornerRadii, appearance.cornerRadius, !radii.linked),
+            )
           }
         >
           {radii.linked ? <Link2 className="size-3.5" /> : <Unlink2 className="size-3.5" />}
@@ -209,7 +211,15 @@ export function AppearanceRadiusControls({
           {DRAFTING_CORNER_RADIUS_KEYS.map((corner) => (
             <InspectorNumberField
               key={corner}
-              label={corner === "topLeft" ? "TL" : corner === "topRight" ? "TR" : corner === "bottomRight" ? "BR" : "BL"}
+              label={
+                corner === "topLeft"
+                  ? "TL"
+                  : corner === "topRight"
+                    ? "TR"
+                    : corner === "bottomRight"
+                      ? "BR"
+                      : "BL"
+              }
               max={DRAFTING_CORNER_RADIUS_MAX}
               min={0}
               value={radii[corner]}
@@ -219,5 +229,5 @@ export function AppearanceRadiusControls({
         </InspectorValueGrid>
       )}
     </InspectorSection>
-  )
+  );
 }

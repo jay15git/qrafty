@@ -3,13 +3,11 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { FillPickerContext, FillPickerIdContext } from "../../contexts/fill";
-import {
-  useFillPicker,
-  type UseFillPickerProps,
-} from "../../hooks/use-fill-picker";
+import { useFillPicker, type UseFillPickerProps } from "../../hooks/use-fill-picker";
 
 interface RootProps
-  extends UseFillPickerProps,
+  extends
+    UseFillPickerProps,
     Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange"> {}
 
 export const Root = React.forwardRef<HTMLDivElement, RootProps>(function Root(
@@ -62,24 +60,22 @@ export const Root = React.forwardRef<HTMLDivElement, RootProps>(function Root(
   return (
     <FillPickerContext.Provider value={state}>
       <FillPickerIdContext.Provider value={idBase}>
-      <div
-        ref={ref}
-        data-slot="fill-picker"
-        className={cn(
-          "w-full max-w-70 overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-sm",
-          innerHeight !== null &&
-            "transition-[height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          className,
-        )}
-        {...rest}
-        style={
-          innerHeight !== null ? { height: innerHeight, ...rest.style } : rest.style
-        }
-      >
-        <div ref={innerRef} className="flex flex-col gap-2 p-3">
-          {children}
+        <div
+          ref={ref}
+          data-slot="fill-picker"
+          className={cn(
+            "w-full max-w-70 overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-sm",
+            innerHeight !== null &&
+              "transition-[height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+            className,
+          )}
+          {...rest}
+          style={innerHeight !== null ? { height: innerHeight, ...rest.style } : rest.style}
+        >
+          <div ref={innerRef} className="flex flex-col gap-2 p-3">
+            {children}
+          </div>
         </div>
-      </div>
       </FillPickerIdContext.Provider>
     </FillPickerContext.Provider>
   );

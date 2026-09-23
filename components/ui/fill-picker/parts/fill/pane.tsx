@@ -70,89 +70,85 @@ function useMountFade() {
   return visible;
 }
 
-const ColorPaneInner = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(function ColorPaneInner({ className, children, ...rest }, ref) {
-  const fill = useFillPickerContext();
-  const colorValue: OklchColor =
-    fill.fill.kind === "color"
-      ? fill.fill.color
-      : { l: 0, c: 0, h: 0, alpha: 1 };
+const ColorPaneInner = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  function ColorPaneInner({ className, children, ...rest }, ref) {
+    const fill = useFillPickerContext();
+    const colorValue: OklchColor =
+      fill.fill.kind === "color" ? fill.fill.color : { l: 0, c: 0, h: 0, alpha: 1 };
 
-  const setFillRef = React.useRef(fill.setFill);
-  React.useLayoutEffect(() => {
-    setFillRef.current = fill.setFill;
-  });
-  const onValueChange = React.useCallback((color: OklchColor) => {
-    setFillRef.current({ kind: "color", color });
-  }, []);
+    const setFillRef = React.useRef(fill.setFill);
+    React.useLayoutEffect(() => {
+      setFillRef.current = fill.setFill;
+    });
+    const onValueChange = React.useCallback((color: OklchColor) => {
+      setFillRef.current({ kind: "color", color });
+    }, []);
 
-  const state = useColorPicker({
-    value: colorValue,
-    onValueChange,
-    defaultFormat: "hex",
-    formats: ["hex", "rgb", "hsl", "oklch"],
-  });
-  const visible = useMountFade();
+    const state = useColorPicker({
+      value: colorValue,
+      onValueChange,
+      defaultFormat: "hex",
+      formats: ["hex", "rgb", "hsl", "oklch"],
+    });
+    const visible = useMountFade();
 
-  return (
-    <ColorPickerContext.Provider value={state}>
-      <div
-        ref={ref}
-        data-slot="fill-picker-pane"
-        data-mode="color"
-        className={cn(
-          "transition-opacity duration-300 ease-in",
-          visible ? "opacity-100" : "opacity-0",
-          className,
-        )}
-        {...rest}
-      >
-        {children}
-      </div>
-    </ColorPickerContext.Provider>
-  );
-});
+    return (
+      <ColorPickerContext.Provider value={state}>
+        <div
+          ref={ref}
+          data-slot="fill-picker-pane"
+          data-mode="color"
+          className={cn(
+            "transition-opacity duration-300 ease-in",
+            visible ? "opacity-100" : "opacity-0",
+            className,
+          )}
+          {...rest}
+        >
+          {children}
+        </div>
+      </ColorPickerContext.Provider>
+    );
+  },
+);
 
-const GradientPaneInner = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(function GradientPaneInner({ className, children, ...rest }, ref) {
-  const fill = useFillPickerContext();
-  const gradientValue: Gradient =
-    fill.fill.kind === "gradient" ? fill.fill.gradient : DEFAULT_LINEAR;
+const GradientPaneInner = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  function GradientPaneInner({ className, children, ...rest }, ref) {
+    const fill = useFillPickerContext();
+    const gradientValue: Gradient =
+      fill.fill.kind === "gradient" ? fill.fill.gradient : DEFAULT_LINEAR;
 
-  const setFillRef = React.useRef(fill.setFill);
-  React.useLayoutEffect(() => {
-    setFillRef.current = fill.setFill;
-  });
-  const onValueChange = React.useCallback((gradient: Gradient) => {
-    setFillRef.current({ kind: "gradient", gradient });
-  }, []);
+    const setFillRef = React.useRef(fill.setFill);
+    React.useLayoutEffect(() => {
+      setFillRef.current = fill.setFill;
+    });
+    const onValueChange = React.useCallback((gradient: Gradient) => {
+      setFillRef.current({ kind: "gradient", gradient });
+    }, []);
 
-  const state = useGradientPicker({
-    value: gradientValue,
-    onValueChange,
-    defaultStopColorFormat: "hex",
-  });
-  const visible = useMountFade();
+    const state = useGradientPicker({
+      value: gradientValue,
+      onValueChange,
+      defaultStopColorFormat: "hex",
+    });
+    const visible = useMountFade();
 
-  return (
-    <GradientPickerContext.Provider value={state}>
-      <div
-        ref={ref}
-        data-slot="fill-picker-pane"
-        data-mode="gradient"
-        className={cn(
-          "transition-opacity duration-300 ease-in",
-          visible ? "opacity-100" : "opacity-0",
-          className,
-        )}
-        {...rest}
-      >
-        {children}
-      </div>
-    </GradientPickerContext.Provider>
-  );
-});
+    return (
+      <GradientPickerContext.Provider value={state}>
+        <div
+          ref={ref}
+          data-slot="fill-picker-pane"
+          data-mode="gradient"
+          className={cn(
+            "transition-opacity duration-300 ease-in",
+            visible ? "opacity-100" : "opacity-0",
+            className,
+          )}
+          {...rest}
+        >
+          {children}
+        </div>
+      </GradientPickerContext.Provider>
+    );
+  },
+);

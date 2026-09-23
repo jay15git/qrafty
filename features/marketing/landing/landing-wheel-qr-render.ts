@@ -1,47 +1,50 @@
 import {
   createBrandIconDataUrl,
   createBrandIconGradientDataUrl,
-} from "@/features/qr/assets/brand-icon-svg"
-import { findBrandIconById } from "@/features/qr/assets/brand-icons"
-import { renderDashboardQrSvgMarkup } from "@/features/qr/rendering/qr-svg-render"
-import { getQrBackgroundShapeDefinition } from "@/features/qr/styles/background-shapes"
-import { parseSvgViewBoxSize } from "@/features/canvas/rendering/qr-artwork"
+} from "@/features/qr/assets/brand-icon-svg";
+import { findBrandIconById } from "@/features/qr/assets/brand-icons";
+import { renderDashboardQrSvgMarkup } from "@/features/qr/rendering/qr-svg-render";
+import { getQrBackgroundShapeDefinition } from "@/features/qr/styles/background-shapes";
+import { parseSvgViewBoxSize } from "@/features/canvas/rendering/qr-artwork";
 
-import type { LandingWheelCardPreset } from "@/features/marketing/landing/landing-card-wheel-presets"
-import { buildLandingWheelQrState } from "@/features/marketing/landing/landing-wheel-qr-state"
+import type { LandingWheelCardPreset } from "@/features/marketing/landing/landing-card-wheel-presets";
+import { buildLandingWheelQrState } from "@/features/marketing/landing/landing-wheel-qr-state";
 
-const WHEEL_ASSET_DIR = "/landing/wheel"
+const WHEEL_ASSET_DIR = "/landing/wheel";
 
 export function getLandingWheelCardSrc(id: string) {
-  return `${WHEEL_ASSET_DIR}/${id}.svg`
+  return `${WHEEL_ASSET_DIR}/${id}.svg`;
 }
 
 function resolveLogoSrc(preset: LandingWheelCardPreset) {
-  const icon = findBrandIconById(preset.brandId)
-  if (!icon) return undefined
+  const icon = findBrandIconById(preset.brandId);
+  if (!icon) return undefined;
 
   if (preset.logo.gradient) {
-    return createBrandIconGradientDataUrl(icon, preset.logo.gradient)
+    return createBrandIconGradientDataUrl(icon, preset.logo.gradient);
   }
 
   if (preset.logo.color) {
-    return createBrandIconDataUrl(icon, preset.logo.color)
+    return createBrandIconDataUrl(icon, preset.logo.color);
   }
 
-  return undefined
+  return undefined;
 }
 
 function extractSvgInner(markup: string) {
-  const match = markup.match(/<svg[^>]*>([\s\S]*)<\/svg>/i)
-  return match?.[1]?.trim() ?? markup
+  const match = markup.match(/<svg[^>]*>([\s\S]*)<\/svg>/i);
+  return match?.[1]?.trim() ?? markup;
 }
 
 function parseSvgViewBox(markup: string) {
-  const openTag = markup.match(/<svg\b[^>]*>/i)?.[0] ?? ""
-  const viewBox = openTag.match(/viewBox="([^"]+)"/i)?.[1]
+  const openTag = markup.match(/<svg\b[^>]*>/i)?.[0] ?? "";
+  const viewBox = openTag.match(/viewBox="([^"]+)"/i)?.[1];
 
   if (viewBox) {
-    const parts = viewBox.trim().split(/[\s,]+/).map(Number)
+    const parts = viewBox
+      .trim()
+      .split(/[\s,]+/)
+      .map(Number);
 
     if (parts.length >= 4 && parts[2] > 0 && parts[3] > 0) {
       return {
@@ -49,51 +52,51 @@ function parseSvgViewBox(markup: string) {
         y: parts[1] ?? 0,
         width: parts[2],
         height: parts[3],
-      }
+      };
     }
   }
 
-  const parsed = parseSvgViewBoxSize(markup)
+  const parsed = parseSvgViewBoxSize(markup);
   if (parsed) {
-    return { x: 0, y: 0, width: parsed.width, height: parsed.height }
+    return { x: 0, y: 0, width: parsed.width, height: parsed.height };
   }
 
-  const widthMatch = markup.match(/\bwidth="([\d.]+)"/)
-  const heightMatch = markup.match(/\bheight="([\d.]+)"/)
+  const widthMatch = markup.match(/\bwidth="([\d.]+)"/);
+  const heightMatch = markup.match(/\bheight="([\d.]+)"/);
 
   return {
     x: 0,
     y: 0,
     width: widthMatch ? Number(widthMatch[1]) : 168,
     height: heightMatch ? Number(heightMatch[1]) : 168,
-  }
+  };
 }
 
 export function renderLandingWheelCardSvg(preset: LandingWheelCardPreset) {
-  const shape = getQrBackgroundShapeDefinition(preset.shape.id)
+  const shape = getQrBackgroundShapeDefinition(preset.shape.id);
   if (!shape) {
-    throw new Error(`Unknown landing wheel shape: ${preset.shape.id}`)
+    throw new Error(`Unknown landing wheel shape: ${preset.shape.id}`);
   }
 
-  const { height, width } = shape.viewBox
-  const viewBoxX = shape.viewBox.x ?? 0
-  const viewBoxY = shape.viewBox.y ?? 0
-  const padding = preset.shape.padding / 100
-  const insetX = width * padding
-  const insetY = height * padding
-  const innerWidth = width - insetX * 2
-  const innerHeight = height - insetY * 2
+  const { height, width } = shape.viewBox;
+  const viewBoxX = shape.viewBox.x ?? 0;
+  const viewBoxY = shape.viewBox.y ?? 0;
+  const padding = preset.shape.padding / 100;
+  const insetX = width * padding;
+  const insetY = height * padding;
+  const innerWidth = width - insetX * 2;
+  const innerHeight = height - insetY * 2;
 
   const qrMarkup = renderDashboardQrSvgMarkup(
     buildLandingWheelQrState(preset, resolveLogoSrc(preset)),
-  )
-  const viewBox = parseSvgViewBox(qrMarkup)
-  const qrInner = extractSvgInner(qrMarkup)
-  const scale = Math.min(innerWidth / viewBox.width, innerHeight / viewBox.height)
-  const drawWidth = viewBox.width * scale
-  const drawHeight = viewBox.height * scale
-  const offsetX = viewBoxX + insetX + (innerWidth - drawWidth) / 2
-  const offsetY = viewBoxY + insetY + (innerHeight - drawHeight) / 2
+  );
+  const viewBox = parseSvgViewBox(qrMarkup);
+  const qrInner = extractSvgInner(qrMarkup);
+  const scale = Math.min(innerWidth / viewBox.width, innerHeight / viewBox.height);
+  const drawWidth = viewBox.width * scale;
+  const drawHeight = viewBox.height * scale;
+  const offsetX = viewBoxX + insetX + (innerWidth - drawWidth) / 2;
+  const offsetY = viewBoxY + insetY + (innerHeight - drawHeight) / 2;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBoxX} ${viewBoxY} ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="${preset.id} QR code">
@@ -101,5 +104,5 @@ export function renderLandingWheelCardSvg(preset: LandingWheelCardPreset) {
   <svg x="${offsetX}" y="${offsetY}" width="${drawWidth}" height="${drawHeight}" viewBox="${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}" xmlns="http://www.w3.org/2000/svg">
     ${qrInner}
   </svg>
-</svg>`
+</svg>`;
 }

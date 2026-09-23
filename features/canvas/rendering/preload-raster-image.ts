@@ -1,35 +1,38 @@
-const preloadCache = new Map<string, Promise<void>>()
+const preloadCache = new Map<string, Promise<void>>();
 
 export function preloadRasterImage(url: string): Promise<void> {
   if (!url) {
-    return Promise.resolve()
+    return Promise.resolve();
   }
 
-  const cached = preloadCache.get(url)
+  const cached = preloadCache.get(url);
   if (cached) {
-    return cached
+    return cached;
   }
 
   const promise = new Promise<void>((resolve, reject) => {
-    const image = new Image()
+    const image = new Image();
 
     image.onload = () => {
       if (typeof image.decode === "function") {
-        void image.decode().then(resolve).catch(() => resolve())
-        return
+        void image
+          .decode()
+          .then(resolve)
+          .catch(() => resolve());
+        return;
       }
 
-      resolve()
-    }
+      resolve();
+    };
 
     image.onerror = () => {
-      preloadCache.delete(url)
-      reject(new Error(`Failed to preload image: ${url}`))
-    }
+      preloadCache.delete(url);
+      reject(new Error(`Failed to preload image: ${url}`));
+    };
 
-    image.src = url
-  })
+    image.src = url;
+  });
 
-  preloadCache.set(url, promise)
-  return promise
+  preloadCache.set(url, promise);
+  return promise;
 }

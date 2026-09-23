@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { bind } from "cuelume"
+import { bind } from "cuelume";
 import {
   createContext,
   useCallback,
@@ -9,66 +9,62 @@ import {
   useMemo,
   useSyncExternalStore,
   type ReactNode,
-} from "react"
+} from "react";
 
 import {
   applySoundPreferences,
   readSoundsEnabled,
   setSoundsEnabled as persistSoundsEnabled,
-} from "@/features/shell/audio/cuelume"
+} from "@/features/shell/audio/cuelume";
 
 type CuelumeContextValue = {
-  soundsEnabled: boolean
-  setSoundsEnabled: (enabled: boolean) => void
-  toggleSoundsEnabled: () => void
-}
+  soundsEnabled: boolean;
+  setSoundsEnabled: (enabled: boolean) => void;
+  toggleSoundsEnabled: () => void;
+};
 
-const CuelumeContext = createContext<CuelumeContextValue | null>(null)
+const CuelumeContext = createContext<CuelumeContextValue | null>(null);
 
 // The sounds preference lives in localStorage; this registry lets
 // `useSyncExternalStore` re-read it when the provider writes a new value.
-const soundsListeners = new Set<() => void>()
+const soundsListeners = new Set<() => void>();
 
 function subscribeSounds(listener: () => void) {
-  soundsListeners.add(listener)
+  soundsListeners.add(listener);
   return () => {
-    soundsListeners.delete(listener)
-  }
+    soundsListeners.delete(listener);
+  };
 }
 
 export function CuelumeProvider({ children }: { children: ReactNode }) {
-  const soundsEnabled = useSyncExternalStore(
-    subscribeSounds,
-    readSoundsEnabled,
-    () => true,
-  )
+  const soundsEnabled = useSyncExternalStore(subscribeSounds, readSoundsEnabled, () => true);
 
   useEffect(() => {
-    bind()
-    applySoundPreferences()
+    bind();
+    applySoundPreferences();
 
-    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const handleMotionChange = () => {
-      applySoundPreferences()
-    }
+      applySoundPreferences();
+    };
 
-    motionQuery.addEventListener("change", handleMotionChange)
+    motionQuery.addEventListener("change", handleMotionChange);
 
     return () => {
-      motionQuery.removeEventListener("change", handleMotionChange)
-    }
-  }, [])
+      motionQuery.removeEventListener("change", handleMotionChange);
+    };
+  }, []);
 
   const setSoundsEnabled = useCallback((enabled: boolean) => {
-    persistSoundsEnabled(enabled)
+    persistSoundsEnabled(enabled);
     for (const listener of soundsListeners) {
-      listener()
+      listener();
     }
-  }, [])
+  }, []);
 
   const toggleSoundsEnabled = useCallback(() => {
-    setSoundsEnabled(!soundsEnabled)
-  }, [setSoundsEnabled, soundsEnabled])
+    setSoundsEnabled(!soundsEnabled);
+  }, [setSoundsEnabled, soundsEnabled]);
 
   const value = useMemo(
     () => ({
@@ -77,16 +73,16 @@ export function CuelumeProvider({ children }: { children: ReactNode }) {
       toggleSoundsEnabled,
     }),
     [soundsEnabled, setSoundsEnabled, toggleSoundsEnabled],
-  )
+  );
 
-  return <CuelumeContext.Provider value={value}>{children}</CuelumeContext.Provider>
+  return <CuelumeContext.Provider value={value}>{children}</CuelumeContext.Provider>;
 }
 
 export function useCuelume() {
-  const context = useContext(CuelumeContext)
+  const context = useContext(CuelumeContext);
   if (!context) {
-    throw new Error("useCuelume must be used within CuelumeProvider")
+    throw new Error("useCuelume must be used within CuelumeProvider");
   }
 
-  return context
+  return context;
 }

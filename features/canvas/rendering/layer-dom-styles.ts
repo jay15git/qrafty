@@ -1,15 +1,19 @@
-import type { CSSProperties } from "react"
+import type { CSSProperties } from "react";
 
-import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import { cornerRadiiToCss, resolveCornerRadii, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius"
-import { normalizeDraftingCardBorder } from "@/features/canvas/model/card-state"
+import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import {
+  cornerRadiiToCss,
+  resolveCornerRadii,
+  resolveLayerCornerRadii,
+} from "@/features/canvas/model/corner-radius";
+import { normalizeDraftingCardBorder } from "@/features/canvas/model/card-state";
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
   type DraftingTextRun,
-} from "@/features/canvas/model/layers/shared"
-import { getDraftingFontCssFamily } from "@/features/canvas/model/fonts"
-import { getDraftingTextFontFamily } from "@/features/canvas/rendering/text-layout"
+} from "@/features/canvas/model/layers/shared";
+import { getDraftingFontCssFamily } from "@/features/canvas/model/fonts";
+import { getDraftingTextFontFamily } from "@/features/canvas/rendering/text-layout";
 import {
   buildCssFilterString,
   getDraftingLayerBoxShadowStyle,
@@ -19,26 +23,27 @@ import {
   getDraftingUniformBorderStyle,
   hasVisibleBorderSide,
   mergeCssFilterStrings,
-} from "@/features/canvas/rendering/layer-appearance"
-import { clampBackgroundShapeTilt } from "@/features/qr/model/state"
-import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style"
-import { qraftyGradientToFillCss } from "@/features/shell/inspector/settings-bridge"
-import { shouldRenderShapeFillGradient } from "@/features/canvas/rendering/layer-fill"
+} from "@/features/canvas/rendering/layer-appearance";
+import { clampBackgroundShapeTilt } from "@/features/qr/model/state";
+import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style";
+import { qraftyGradientToFillCss } from "@/features/shell/inspector/settings-bridge";
+import { shouldRenderShapeFillGradient } from "@/features/canvas/rendering/layer-fill";
 import {
   getBackgroundShapeCssTiltTransform,
   getLayerPlacementTransform,
   getLayerTiltPerspectiveStyle,
-} from "@/features/canvas/rendering/layer-transform"
+} from "@/features/canvas/rendering/layer-transform";
 
 function getDraftingCardBorder(cardState: DraftingCardState) {
-  const border = normalizeDraftingCardBorder(cardState.border)
-  const hasPerSideOverrides = border.sides.top.width !== border.width ||
+  const border = normalizeDraftingCardBorder(cardState.border);
+  const hasPerSideOverrides =
+    border.sides.top.width !== border.width ||
     border.sides.right.width !== border.width ||
     border.sides.bottom.width !== border.width ||
-    border.sides.left.width !== border.width
+    border.sides.left.width !== border.width;
 
   if (hasPerSideOverrides) {
-    return undefined
+    return undefined;
   }
 
   return getDraftingUniformBorderStyle({
@@ -46,41 +51,37 @@ function getDraftingCardBorder(cardState: DraftingCardState) {
     opacity: border.opacity,
     style: border.style,
     width: border.width,
-  })
+  });
 }
 
 export function getDraftingCardBorderStyle(cardState: DraftingCardState): CSSProperties {
-  const border = normalizeDraftingCardBorder(cardState.border)
-  const uniformBorder = getDraftingCardBorder({ ...cardState, border })
+  const border = normalizeDraftingCardBorder(cardState.border);
+  const uniformBorder = getDraftingCardBorder({ ...cardState, border });
 
   if (uniformBorder) {
-    return { border: uniformBorder }
+    return { border: uniformBorder };
   }
 
-  return getDraftingPerSideBorderStyle(border.sides)
+  return getDraftingPerSideBorderStyle(border.sides);
 }
 
 function getDraftingLayerEffectStyle(layer: DraftingCanvasLayer): CSSProperties {
   const shadows =
-    layer.shadows && layer.shadows.length > 0
-      ? layer.shadows
-      : layer.shadow
-        ? [layer.shadow]
-        : []
-  const insetShadows = shadows.filter((shadow) => shadow.inset)
-  const dropShadows = shadows.filter((shadow) => !shadow.inset)
+    layer.shadows && layer.shadows.length > 0 ? layer.shadows : layer.shadow ? [layer.shadow] : [];
+  const insetShadows = shadows.filter((shadow) => shadow.inset);
+  const dropShadows = shadows.filter((shadow) => !shadow.inset);
   const filter = mergeCssFilterStrings(
     buildCssFilterString(layer.layerFilters ?? []),
     getDraftingLayerDropShadowFilter(dropShadows),
-  )
-  const usesBoxBorder = layer.kind !== "qr" && layer.kind !== "shape" && layer.kind !== "card"
-  const hasBorderSides = usesBoxBorder && hasVisibleBorderSide(layer.borderSides)
-  const borderStyle = hasBorderSides ? getDraftingPerSideBorderStyle(layer.borderSides!) : {}
+  );
+  const usesBoxBorder = layer.kind !== "qr" && layer.kind !== "shape" && layer.kind !== "card";
+  const hasBorderSides = usesBoxBorder && hasVisibleBorderSide(layer.borderSides);
+  const borderStyle = hasBorderSides ? getDraftingPerSideBorderStyle(layer.borderSides!) : {};
   const boxShadow =
-    insetShadows.length > 0 ? getDraftingLayerBoxShadowStyle(insetShadows) : undefined
+    insetShadows.length > 0 ? getDraftingLayerBoxShadowStyle(insetShadows) : undefined;
   const borderRadius = hasBorderSides
     ? cornerRadiiToCss(resolveLayerCornerRadii(layer, 0))
-    : undefined
+    : undefined;
 
   return {
     ...borderStyle,
@@ -88,14 +89,11 @@ function getDraftingLayerEffectStyle(layer: DraftingCanvasLayer): CSSProperties 
     ...getDraftingOutlineStyle(layer.outline),
     ...(boxShadow ? { boxShadow } : {}),
     ...(filter ? { filter } : {}),
-  }
+  };
 }
 
-export function getLayerPlacementStyle(
-  layer: DraftingCanvasLayer,
-  nested = false,
-): CSSProperties {
-  const tiltPerspectiveStyle = nested ? {} : getLayerTiltPerspectiveStyle(layer)
+export function getLayerPlacementStyle(layer: DraftingCanvasLayer, nested = false): CSSProperties {
+  const tiltPerspectiveStyle = nested ? {} : getLayerTiltPerspectiveStyle(layer);
 
   return {
     height: layer.height,
@@ -108,39 +106,39 @@ export function getLayerPlacementStyle(
     width: layer.width,
     zIndex: layer.zIndex,
     ...tiltPerspectiveStyle,
-  }
+  };
 }
 
 function getExportLayerTransform(layer: DraftingCanvasLayer) {
-  const rotation = Number.isFinite(layer.rotation) ? layer.rotation : 0
-  const scaleX = layer.scaleX ?? 1
-  const scaleY = layer.scaleY ?? 1
-  const tiltX = clampBackgroundShapeTilt(layer.tiltX ?? 0)
-  const tiltY = clampBackgroundShapeTilt(layer.tiltY ?? 0)
-  const parts: string[] = []
+  const rotation = Number.isFinite(layer.rotation) ? layer.rotation : 0;
+  const scaleX = layer.scaleX ?? 1;
+  const scaleY = layer.scaleY ?? 1;
+  const tiltX = clampBackgroundShapeTilt(layer.tiltX ?? 0);
+  const tiltY = clampBackgroundShapeTilt(layer.tiltY ?? 0);
+  const parts: string[] = [];
 
   if (rotation !== 0) {
-    parts.push(`rotate(${rotation}deg)`)
+    parts.push(`rotate(${rotation}deg)`);
   }
 
   if (scaleX !== 1 || scaleY !== 1) {
-    parts.push(`scale(${scaleX}, ${scaleY})`)
+    parts.push(`scale(${scaleX}, ${scaleY})`);
   }
 
   if (tiltX !== 0 || tiltY !== 0) {
-    const tiltTransform = getBackgroundShapeCssTiltTransform({ tiltX, tiltY })
+    const tiltTransform = getBackgroundShapeCssTiltTransform({ tiltX, tiltY });
     if (tiltTransform) {
-      parts.push(tiltTransform)
+      parts.push(tiltTransform);
     }
   }
 
-  return parts.length > 0 ? parts.join(" ") : undefined
+  return parts.length > 0 ? parts.join(" ") : undefined;
 }
 
 export function getExportLayerPlacementStyle(
   layer: DraftingCanvasLayer,
 ): Record<string, string | number> {
-  const transform = getExportLayerTransform(layer)
+  const transform = getExportLayerTransform(layer);
   const style: Record<string, string | number> = {
     boxSizing: "border-box",
     height: layer.height,
@@ -150,32 +148,32 @@ export function getExportLayerPlacementStyle(
     top: layer.y,
     width: layer.width,
     zIndex: layer.zIndex,
-  }
+  };
 
   if (transform) {
-    style.transform = transform
-    style.transformOrigin = "center center"
+    style.transform = transform;
+    style.transformOrigin = "center center";
   }
 
-  return style
+  return style;
 }
 
 export function getExportLayerEffectStyle(layer: DraftingCanvasLayer): Record<string, string> {
-  const effectStyle = getDraftingLayerEffectStyle(layer)
-  const style: Record<string, string> = {}
+  const effectStyle = getDraftingLayerEffectStyle(layer);
+  const style: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(effectStyle)) {
     if (typeof value === "string" && value) {
-      style[key] = value
+      style[key] = value;
     }
   }
 
-  return style
+  return style;
 }
 
 export function getTextLayerStyle(layer: DraftingCanvasLayer): CSSProperties {
   const gradient =
-    shouldRenderShapeFillGradient(layer) && layer.fillGradient ? layer.fillGradient : null
+    shouldRenderShapeFillGradient(layer) && layer.fillGradient ? layer.fillGradient : null;
 
   return {
     ...(gradient
@@ -198,15 +196,14 @@ export function getTextLayerStyle(layer: DraftingCanvasLayer): CSSProperties {
     textDecorationLine: layer.underline ? "underline" : "none",
     whiteSpace: "pre-wrap",
     wordBreak: "break-word",
-  }
+  };
 }
 
 export function getTextRunStyle(
   layer: DraftingCanvasLayer,
   run: DraftingTextRun,
 ): Record<string, string | number> {
-  const hasLayerGradient =
-    shouldRenderShapeFillGradient(layer) && Boolean(layer.fillGradient)
+  const hasLayerGradient = shouldRenderShapeFillGradient(layer) && Boolean(layer.fillGradient);
 
   return {
     color:
@@ -220,48 +217,45 @@ export function getTextRunStyle(
     fontStyle: run.fontStyle ?? layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle,
     fontWeight: run.fontWeight ?? layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight,
     textDecorationLine: (run.underline ?? layer.underline) ? "underline" : "none",
-  }
+  };
 }
 
 export function serializeCssProperties(
   properties: Record<string, string | number | undefined>,
 ): Record<string, string | number> {
-  const result: Record<string, string | number> = {}
+  const result: Record<string, string | number> = {};
 
   for (const [key, value] of Object.entries(properties)) {
     if (value !== undefined && value !== "") {
-      result[key] = value
+      result[key] = value;
     }
   }
 
-  return result
+  return result;
 }
 
-export function cssPropertiesToInlineStyle(
-  properties: Record<string, string | number>,
-): string {
+export function cssPropertiesToInlineStyle(properties: Record<string, string | number>): string {
   return Object.entries(properties)
     .map(([key, value]) => {
-      const cssKey = key.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)
-      const unit = typeof value === "number" && !["opacity", "zIndex", "fontWeight"].includes(key)
-        ? "px"
-        : ""
+      const cssKey = key.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+      const unit =
+        typeof value === "number" && !["opacity", "zIndex", "fontWeight"].includes(key) ? "px" : "";
 
-      return `${cssKey}:${value}${unit}`
+      return `${cssKey}:${value}${unit}`;
     })
-    .join(";")
+    .join(";");
 }
 
 export function getDraftingCardDomStyle(
   cardState: DraftingCardState,
   layer: DraftingCanvasLayer,
   options?: {
-    includeShaderModes?: boolean
+    includeShaderModes?: boolean;
   },
 ): Record<string, string | number> {
-  const isImageMode = cardState.styleMode === "image"
-  const isPaperShaderMode = cardState.styleMode === "paper-shader"
-  const isImageFilterMode = cardState.styleMode === "image-filter"
+  const isImageMode = cardState.styleMode === "image";
+  const isPaperShaderMode = cardState.styleMode === "paper-shader";
+  const isImageFilterMode = cardState.styleMode === "image-filter";
   const cardImageStyle =
     isImageMode && cardState.cardImage.value
       ? {
@@ -270,32 +264,36 @@ export function getDraftingCardDomStyle(
           backgroundRepeat: "no-repeat",
           backgroundSize: cardState.cardImage.fit,
         }
-      : undefined
-  const border = normalizeDraftingCardBorder(cardState.border)
-  const uniformBorder = getDraftingCardBorder(cardState)
+      : undefined;
+  const border = normalizeDraftingCardBorder(cardState.border);
+  const uniformBorder = getDraftingCardBorder(cardState);
   const borderStyle = uniformBorder
     ? { border: uniformBorder }
-    : getDraftingPerSideBorderStyle(border.sides)
+    : getDraftingPerSideBorderStyle(border.sides);
 
   return serializeCssProperties({
     ...cssFillToBackgroundStyle(cardState.fill),
     ...cardImageStyle,
     ...borderStyle,
-    borderRadius: cornerRadiiToCss(resolveCornerRadii(cardState.cornerRadii, cardState.cornerRadius)),
-  })
+    borderRadius: cornerRadiiToCss(
+      resolveCornerRadii(cardState.cornerRadii, cardState.cornerRadius),
+    ),
+  });
 }
 
-export function getDraftingImageDomStyle(layer: DraftingCanvasLayer): Record<string, string | number> {
-  const imageValue = layer.imageValue ?? ""
-  const borderRadius = cornerRadiiToCss(resolveLayerCornerRadii(layer, 0))
-  const fit = layer.imageFit ?? "cover"
+export function getDraftingImageDomStyle(
+  layer: DraftingCanvasLayer,
+): Record<string, string | number> {
+  const imageValue = layer.imageValue ?? "";
+  const borderRadius = cornerRadiiToCss(resolveLayerCornerRadii(layer, 0));
+  const fit = layer.imageFit ?? "cover";
 
   if (!imageValue) {
     return {
       backgroundColor: "#f4f4f5",
       border: "1px dashed #d4d4d8",
       borderRadius,
-    }
+    };
   }
 
   return {
@@ -304,12 +302,14 @@ export function getDraftingImageDomStyle(layer: DraftingCanvasLayer): Record<str
     backgroundRepeat: "no-repeat",
     backgroundSize: fit,
     borderRadius,
-  }
+  };
 }
 
-export function getDraftingShapeDomStyle(layer: DraftingCanvasLayer): Record<string, string | number> {
+export function getDraftingShapeDomStyle(
+  layer: DraftingCanvasLayer,
+): Record<string, string | number> {
   if (layer.fillMode === "none") {
-    return { backgroundColor: "transparent" }
+    return { backgroundColor: "transparent" };
   }
 
   if (layer.fillMode === "image" && layer.imageValue) {
@@ -319,10 +319,10 @@ export function getDraftingShapeDomStyle(layer: DraftingCanvasLayer): Record<str
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
       backgroundSize: layer.imageFit ?? "cover",
-    }
+    };
   }
 
   return {
     backgroundColor: "transparent",
-  }
+  };
 }

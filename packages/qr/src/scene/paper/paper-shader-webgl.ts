@@ -1,50 +1,47 @@
-let confirmedSupport = false
+let confirmedSupport = false;
 
 function isJsdomEnvironment() {
-  return (
-    typeof navigator !== "undefined" &&
-    navigator.userAgent.toLowerCase().includes("jsdom")
-  )
+  return typeof navigator !== "undefined" && navigator.userAgent.toLowerCase().includes("jsdom");
 }
 
 function hasLivePaperShaderCanvas() {
   if (typeof document === "undefined") {
-    return false
+    return false;
   }
 
-  return Boolean(document.querySelector("[data-shader-canvas-host] canvas"))
+  return Boolean(document.querySelector("[data-shader-canvas-host] canvas"));
 }
 
 function releaseProbeContext(gl: WebGLRenderingContext | WebGL2RenderingContext) {
-  gl.getExtension("WEBGL_lose_context")?.loseContext()
+  gl.getExtension("WEBGL_lose_context")?.loseContext();
 }
 
 export function hasPaperShaderWebGlSupport() {
   if (confirmedSupport) {
-    return true
+    return true;
   }
 
   if (typeof document === "undefined" || isJsdomEnvironment()) {
-    return false
+    return false;
   }
 
   if (hasLivePaperShaderCanvas()) {
-    confirmedSupport = true
-    return true
+    confirmedSupport = true;
+    return true;
   }
 
-  const canvas = document.createElement("canvas")
+  const canvas = document.createElement("canvas");
 
   try {
-    const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl")
+    const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
     if (!gl) {
-      return false
+      return false;
     }
 
-    releaseProbeContext(gl)
-    confirmedSupport = true
-    return true
+    releaseProbeContext(gl);
+    confirmedSupport = true;
+    return true;
   } catch {
-    return false
+    return false;
   }
 }

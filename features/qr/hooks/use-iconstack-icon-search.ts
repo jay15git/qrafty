@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   IconstackApiError,
@@ -8,33 +8,30 @@ import {
   searchIcons,
   type IconstackLibraryId,
   type IconstackSearchResult,
-} from "@/features/qr/assets/iconstack-api"
+} from "@/features/qr/assets/iconstack-api";
 
-const SEARCH_DEBOUNCE_MS = 300
-const SEARCH_MIN_INTERVAL_MS = 400
-const MIN_QUERY_LENGTH = 2
-const PAGE_LIMIT = 32
-const MAX_RESULTS = 256
-const API_MAX_OFFSET = 1000
+const SEARCH_DEBOUNCE_MS = 300;
+const SEARCH_MIN_INTERVAL_MS = 400;
+const MIN_QUERY_LENGTH = 2;
+const PAGE_LIMIT = 32;
+const MAX_RESULTS = 256;
+const API_MAX_OFFSET = 1000;
 
 type UseIconstackIconSearchParams = {
-  enabled?: boolean
-  library: IconstackLibraryId | "all"
-  query: string
-}
+  enabled?: boolean;
+  library: IconstackLibraryId | "all";
+  query: string;
+};
 
 function delay(ms: number) {
   return new Promise<void>((resolve) => {
-    setTimeout(resolve, ms)
-  })
+    setTimeout(resolve, ms);
+  });
 }
 
-function mergeResults(
-  previous: IconstackSearchResult[],
-  next: IconstackSearchResult[],
-) {
-  const seen = new Set(previous.map((result) => result.id))
-  return [...previous, ...next.filter((result) => !seen.has(result.id))]
+function mergeResults(previous: IconstackSearchResult[], next: IconstackSearchResult[]) {
+  const seen = new Set(previous.map((result) => result.id));
+  return [...previous, ...next.filter((result) => !seen.has(result.id))];
 }
 
 export function useIconstackIconSearch({
@@ -42,45 +39,45 @@ export function useIconstackIconSearch({
   library,
   query,
 }: UseIconstackIconSearchParams) {
-  const [results, setResults] = useState<IconstackSearchResult[]>([])
-  const [total, setTotal] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isLoadingMore, setIsLoadingMore] = useState(false)
-  const [error, setError] = useState<IconstackApiError | null>(null)
+  const [results, setResults] = useState<IconstackSearchResult[]>([]);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [error, setError] = useState<IconstackApiError | null>(null);
 
-  const requestAbortRef = useRef<AbortController | null>(null)
-  const lastRequestAtRef = useRef(0)
-  const nextOffsetRef = useRef(0)
+  const requestAbortRef = useRef<AbortController | null>(null);
+  const lastRequestAtRef = useRef(0);
+  const nextOffsetRef = useRef(0);
 
-  const trimmedQuery = query.trim()
-  const canSearch = enabled && trimmedQuery.length >= MIN_QUERY_LENGTH
+  const trimmedQuery = query.trim();
+  const canSearch = enabled && trimmedQuery.length >= MIN_QUERY_LENGTH;
 
   const runSearch = useCallback(
     async ({ append = false }: { append?: boolean } = {}) => {
-      requestAbortRef.current?.abort()
-      const requestController = new AbortController()
-      requestAbortRef.current = requestController
-      const requestToken = requestAbortRef.current
+      requestAbortRef.current?.abort();
+      const requestController = new AbortController();
+      requestAbortRef.current = requestController;
+      const requestToken = requestAbortRef.current;
 
-      const offset = append ? nextOffsetRef.current : 0
+      const offset = append ? nextOffsetRef.current : 0;
 
       if (append) {
-        setIsLoadingMore(true)
+        setIsLoadingMore(true);
       } else {
-        setIsLoading(true)
+        setIsLoading(true);
       }
-      setError(null)
+      setError(null);
 
-      const waitMs = lastRequestAtRef.current + SEARCH_MIN_INTERVAL_MS - Date.now()
+      const waitMs = lastRequestAtRef.current + SEARCH_MIN_INTERVAL_MS - Date.now();
 
       try {
         if (waitMs > 0) {
-          await delay(waitMs)
+          await delay(waitMs);
         }
         if (requestController.signal.aborted) {
-          return
+          return;
         }
-        lastRequestAtRef.current = Date.now()
+        lastRequestAtRef.current = Date.now();
 
         const response = await searchIcons({
           q: trimmedQuery,
@@ -88,89 +85,89 @@ export function useIconstackIconSearch({
           limit: PAGE_LIMIT,
           offset,
           signal: requestController.signal,
-        })
+        });
 
         if (requestController.signal.aborted) {
-          return
+          return;
         }
 
-        nextOffsetRef.current = offset + response.results.length
-        setTotal(response.total)
+        nextOffsetRef.current = offset + response.results.length;
+        setTotal(response.total);
         setResults((previous) =>
           append ? mergeResults(previous, response.results) : response.results,
-        )
+        );
       } catch (searchError) {
         if (requestController.signal.aborted || isIconstackAbortError(searchError)) {
-          return
+          return;
         }
 
         setError(
           searchError instanceof IconstackApiError
             ? searchError
             : new IconstackApiError("network", "Icon search failed"),
-        )
+        );
         if (!append) {
-          nextOffsetRef.current = 0
-          setResults([])
-          setTotal(0)
+          nextOffsetRef.current = 0;
+          setResults([]);
+          setTotal(0);
         }
       } finally {
         if (requestAbortRef.current === requestToken) {
-          setIsLoading(false)
-          setIsLoadingMore(false)
+          setIsLoading(false);
+          setIsLoadingMore(false);
         }
       }
     },
     [library, trimmedQuery],
-  )
+  );
 
   useEffect(() => {
     if (!canSearch) {
-      requestAbortRef.current?.abort()
-      requestAbortRef.current = null
-      nextOffsetRef.current = 0
-      setResults([])
-      setTotal(0)
-      setIsLoading(false)
-      setIsLoadingMore(false)
-      setError(null)
-      return
+      requestAbortRef.current?.abort();
+      requestAbortRef.current = null;
+      nextOffsetRef.current = 0;
+      setResults([]);
+      setTotal(0);
+      setIsLoading(false);
+      setIsLoadingMore(false);
+      setError(null);
+      return;
     }
 
     const timeoutId = window.setTimeout(() => {
-      void runSearch()
-    }, SEARCH_DEBOUNCE_MS)
+      void runSearch();
+    }, SEARCH_DEBOUNCE_MS);
 
     return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [canSearch, runSearch])
+      window.clearTimeout(timeoutId);
+    };
+  }, [canSearch, runSearch]);
 
   useEffect(() => {
     return () => {
-      requestAbortRef.current?.abort()
-    }
-  }, [])
+      requestAbortRef.current?.abort();
+    };
+  }, []);
 
   const hasMore =
     canSearch &&
     results.length > 0 &&
     results.length < Math.min(total, MAX_RESULTS) &&
-    nextOffsetRef.current <= API_MAX_OFFSET
+    nextOffsetRef.current <= API_MAX_OFFSET;
 
   const loadMore = useCallback(() => {
     if (!hasMore || isLoading || isLoadingMore) {
-      return
+      return;
     }
-    void runSearch({ append: true })
-  }, [hasMore, isLoading, isLoadingMore, runSearch])
+    void runSearch({ append: true });
+  }, [hasMore, isLoading, isLoadingMore, runSearch]);
 
   const retry = useCallback(() => {
     if (!canSearch) {
-      return
+      return;
     }
-    void runSearch()
-  }, [canSearch, runSearch])
+    void runSearch();
+  }, [canSearch, runSearch]);
 
   return useMemo(
     () => ({
@@ -185,5 +182,5 @@ export function useIconstackIconSearch({
       total,
     }),
     [canSearch, error, hasMore, isLoading, isLoadingMore, loadMore, results, retry, total],
-  )
+  );
 }

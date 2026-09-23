@@ -1,11 +1,11 @@
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
 interface KbdColorScheme {
-  bg: string
-  text: string
-  border: string
+  bg: string;
+  text: string;
+  border: string;
 }
 
 const builtInSchemes: Record<string, KbdColorScheme> = {
@@ -21,16 +21,16 @@ const builtInSchemes: Record<string, KbdColorScheme> = {
   wob: { bg: "#1A1A1A", text: "#FFFFFF", border: "#0D0D0D" },
   bow: { bg: "#F5F5F5", text: "#1A1A1A", border: "#DCDCDC" },
   cream: { bg: "#F5E6C8", text: "#5C4A32", border: "#E0D0B0" },
-}
+};
 
-type BuiltInColorScheme = keyof typeof builtInSchemes
+type BuiltInColorScheme = keyof typeof builtInSchemes;
 
 function resolveScheme(
-  scheme: BuiltInColorScheme | KbdColorScheme | undefined
+  scheme: BuiltInColorScheme | KbdColorScheme | undefined,
 ): KbdColorScheme | null {
-  if (!scheme) return null
-  if (typeof scheme === "string") return builtInSchemes[scheme] ?? null
-  return scheme
+  if (!scheme) return null;
+  if (typeof scheme === "string") return builtInSchemes[scheme] ?? null;
+  return scheme;
 }
 
 const kbdVariants = cva(
@@ -61,31 +61,29 @@ const kbdVariants = cva(
       variant: "raised",
       size: "md",
     },
-  }
-)
+  },
+);
 
-type KbdVariantProps = VariantProps<typeof kbdVariants>
+type KbdVariantProps = VariantProps<typeof kbdVariants>;
 
-interface KbdProps
-  extends React.ComponentProps<"kbd">,
-    KbdVariantProps {
+interface KbdProps extends React.ComponentProps<"kbd">, KbdVariantProps {
   /** Named color scheme or custom { bg, text, border } palette. */
-  colorScheme?: BuiltInColorScheme | KbdColorScheme
+  colorScheme?: BuiltInColorScheme | KbdColorScheme;
 }
 
 function colorStyles(
   scheme: KbdColorScheme | null,
-  variant: KbdVariantProps["variant"]
+  variant: KbdVariantProps["variant"],
 ): React.CSSProperties | undefined {
-  if (!scheme) return undefined
+  if (!scheme) return undefined;
 
   const base: React.CSSProperties = {
     color: scheme.text,
     borderColor: scheme.border,
-  }
+  };
 
   if (variant === "flat") {
-    return { ...base, background: "transparent" }
+    return { ...base, background: "transparent" };
   }
 
   if (variant === "sculpted") {
@@ -94,7 +92,7 @@ function colorStyles(
       background: `linear-gradient(to bottom, ${scheme.bg}, ${scheme.border})`,
       borderBottomColor: scheme.border,
       boxShadow: `0 2px 0 0 ${scheme.border}, 0 3px 6px -2px rgba(0,0,0,0.25), inset 0 1px 0 0 rgba(255,255,255,0.1)`,
-    }
+    };
   }
 
   // raised
@@ -103,19 +101,11 @@ function colorStyles(
     background: scheme.bg,
     borderBottomColor: scheme.border,
     boxShadow: `0 1px 0 0 ${scheme.border}, inset 0 1px 0 0 rgba(255,255,255,0.06)`,
-  }
+  };
 }
 
-function Kbd({
-  children,
-  variant,
-  size,
-  colorScheme,
-  className,
-  style,
-  ...props
-}: KbdProps) {
-  const resolved = resolveScheme(colorScheme)
+function Kbd({ children, variant, size, colorScheme, className, style, ...props }: KbdProps) {
+  const resolved = resolveScheme(colorScheme);
 
   return (
     <kbd
@@ -126,37 +116,28 @@ function Kbd({
     >
       {children}
     </kbd>
-  )
+  );
 }
 
 interface KbdComboProps {
   /** Array of key labels to render as a combo (e.g. ["⌘", "Shift", "K"]). */
-  keys: string[]
+  keys: string[];
   /** Separator between keys. Defaults to no separator (keys are adjacent). */
-  separator?: React.ReactNode
-  variant?: KbdVariantProps["variant"]
-  size?: KbdVariantProps["size"]
+  separator?: React.ReactNode;
+  variant?: KbdVariantProps["variant"];
+  size?: KbdVariantProps["size"];
   /** Named color scheme or custom { bg, text, border } palette. */
-  colorScheme?: BuiltInColorScheme | KbdColorScheme
-  className?: string
+  colorScheme?: BuiltInColorScheme | KbdColorScheme;
+  className?: string;
 }
 
-function KbdCombo({
-  keys,
-  separator,
-  variant,
-  size,
-  colorScheme,
-  className,
-}: KbdComboProps) {
+function KbdCombo({ keys, separator, variant, size, colorScheme, className }: KbdComboProps) {
   return (
     <span className={cn("inline-flex items-center gap-1", className)}>
       {keys.map((key, i) => (
         <React.Fragment key={`${keys.slice(0, i + 1).join("+")}`}>
           {i > 0 && separator !== undefined && (
-            <span className="text-[10px] text-muted-foreground/60">
-              {separator}
-            </span>
+            <span className="text-[10px] text-muted-foreground/60">{separator}</span>
           )}
           <Kbd variant={variant} size={size} colorScheme={colorScheme}>
             {key}
@@ -164,8 +145,8 @@ function KbdCombo({
         </React.Fragment>
       ))}
     </span>
-  )
+  );
 }
 
-export { Kbd }
-export type { KbdProps, KbdColorScheme, BuiltInColorScheme }
+export { Kbd };
+export type { KbdProps, KbdColorScheme, BuiltInColorScheme };

@@ -73,12 +73,7 @@ const UploadIllustration = () => (
           y1="45"
           y2="60"
         >
-          <animate
-            attributeName="y2"
-            dur="2s"
-            repeatCount="indefinite"
-            values="60;55;60"
-          />
+          <animate attributeName="y2" dur="2s" repeatCount="indefinite" values="60;55;60" />
         </line>
         <polyline
           className="stroke-blue-500 dark:stroke-blue-400"
@@ -160,12 +155,7 @@ const UploadingAnimation = ({ progress }: { progress: number }) => (
                 `}
       </style>
 
-      <g
-        className="g-spin"
-        mask="url(#progress-mask)"
-        strokeDasharray="18% 40%"
-        strokeWidth="10"
-      >
+      <g className="g-spin" mask="url(#progress-mask)" strokeDasharray="18% 40%" strokeWidth="10">
         <circle cx="120" cy="120" opacity="0.95" r="150" stroke="#FF2E7E" />
         <circle cx="120" cy="120" opacity="0.95" r="140" stroke="#FFD600" />
         <circle cx="120" cy="120" opacity="0.95" r="130" stroke="#00E5FF" />
@@ -323,9 +313,7 @@ export function KokonutFileUploadDropzone({
                       <span className="text-gray-500 dark:text-gray-400">
                         {formatBytes(file?.size || 0)}
                       </span>
-                      <span className="font-medium text-blue-500">
-                        {Math.round(progress)}%
-                      </span>
+                      <span className="font-medium text-blue-500">{Math.round(progress)}%</span>
                     </div>
                   </div>
 
@@ -349,9 +337,7 @@ export function KokonutFileUploadDropzone({
                 exit={{ opacity: 0, y: -10 }}
                 initial={{ opacity: 0, y: 10 }}
               >
-                <p className="text-red-500 text-sm dark:text-red-400">
-                  {error.message}
-                </p>
+                <p className="text-red-500 text-sm dark:text-red-400">{error.message}</p>
               </m.div>
             )}
           </AnimatePresence>

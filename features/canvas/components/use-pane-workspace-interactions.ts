@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   useCallback,
@@ -11,46 +11,40 @@ import {
   type FormEvent,
   type MouseEvent,
   type PointerEvent,
-} from "react"
+} from "react";
 
-import {
-  type DraftingCardState,
-} from "@/features/canvas/model/card-state"
-import { cornerRadiiToCss } from "@/features/canvas/model/corner-radius"
+import { type DraftingCardState } from "@/features/canvas/model/card-state";
+import { cornerRadiiToCss } from "@/features/canvas/model/corner-radius";
 import {
   DEFAULT_DRAFTING_LAYER_SHADOW,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/layers/shared";
 import {
   clampLayerGeometryToCanvas,
   createDefaultDraftingLayers,
-} from "@/features/canvas/model/layers/card-qr"
-import { getDraftingMarqueeSelection } from "@/features/canvas/model/layers/operations"
-import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects"
-import {
-  ensureDraftingFontsForLayers,
-} from "@/features/canvas/model/fonts"
+} from "@/features/canvas/model/layers/card-qr";
+import { getDraftingMarqueeSelection } from "@/features/canvas/model/layers/operations";
+import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects";
+import { ensureDraftingFontsForLayers } from "@/features/canvas/model/fonts";
 import {
   CONTEXT_MENU_POINTER_OFFSET_PX,
   FLOATING_TOOLBAR_MIN_WIDTH_PX,
   RESIZE_SNAP_THRESHOLD_PX,
   type DraftingLayerMenuAction,
-} from "@/features/canvas/components/pane-layer-chrome.constants"
+} from "@/features/canvas/components/pane-layer-chrome.constants";
 import {
   documentToChromeOffset,
   getChromeFrameRect,
   getChromeVisualScale,
   type ChromeSpace,
-} from "@/features/canvas/components/pane-layer-chrome-overlay"
-import {
-  getDraftingCardBorderStyle,
-} from "@/features/canvas/rendering/layer-dom-styles"
-import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style"
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
-import type { QraftyState } from "@/features/qr/model/state"
-import type { StaticQrValidationResult } from "@/features/qr/content/static-payload"
-import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document"
-import { type SceneCompositionState } from "@/features/canvas/model/scene-templates"
+} from "@/features/canvas/components/pane-layer-chrome-overlay";
+import { getDraftingCardBorderStyle } from "@/features/canvas/rendering/layer-dom-styles";
+import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style";
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import type { QraftyState } from "@/features/qr/model/state";
+import type { StaticQrValidationResult } from "@/features/qr/content/static-payload";
+import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document";
+import { type SceneCompositionState } from "@/features/canvas/model/scene-templates";
 import {
   getCombinedLayerBounds,
   getLayerRotationLabel,
@@ -64,89 +58,89 @@ import {
   snapLayerRotation,
   type ResizeDirection,
   type SnapGuides,
-} from "@/features/canvas/components/pane-layer-geometry"
-import { useTouchPrimary } from "@/lib/hooks/use-touch-primary"
+} from "@/features/canvas/components/pane-layer-geometry";
+import { useTouchPrimary } from "@/lib/hooks/use-touch-primary";
 import {
   getPreviewCameraStyle,
   getPreviewStageSize,
   scalePreviewCornerRadiiState,
-} from "@/features/canvas/preview/preview-camera"
-import { previewDrawerResize } from "@/features/canvas/preview/preview-drawer-resize"
+} from "@/features/canvas/preview/preview-camera";
+import { previewDrawerResize } from "@/features/canvas/preview/preview-drawer-resize";
 
 export type PaneWorkspaceInteractionsInput = {
-  activeQrLayerId?: string
-  cardState: DraftingCardState
-  contentPan?: { x: number; y: number }
-  contentOnlyZoom: boolean
-  contentValidation?: StaticQrValidationResult
-  interactionScale: number
-  viewFitScale: number
-  isSelected: boolean
-  layers?: DraftingCanvasLayer[]
-  onLayerAction?: (layerIds: string[], action: DraftingLayerMenuAction) => void
-  onLayerChange?: (layerId: string, patch: Partial<DraftingCanvasLayer>) => void
-  onLayerCopy?: (layerIds: string[]) => void
-  onLayerSelect?: (layerId: string | null, options?: { additive?: boolean }) => void
-  onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void
-  onSelect: () => void
-  onQrClick: () => void
-  qrStateByLayerId: DraftingQrStateByLayerId
-  sceneComposition: SceneCompositionState
-  selectedLayerId?: string | null
-  selectedLayerIds?: string[]
-  snapEnabled: boolean
-  state: QraftyState
-  theme: ThemeMode
-}
+  activeQrLayerId?: string;
+  cardState: DraftingCardState;
+  contentPan?: { x: number; y: number };
+  contentOnlyZoom: boolean;
+  contentValidation?: StaticQrValidationResult;
+  interactionScale: number;
+  viewFitScale: number;
+  isSelected: boolean;
+  layers?: DraftingCanvasLayer[];
+  onLayerAction?: (layerIds: string[], action: DraftingLayerMenuAction) => void;
+  onLayerChange?: (layerId: string, patch: Partial<DraftingCanvasLayer>) => void;
+  onLayerCopy?: (layerIds: string[]) => void;
+  onLayerSelect?: (layerId: string | null, options?: { additive?: boolean }) => void;
+  onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void;
+  onSelect: () => void;
+  onQrClick: () => void;
+  qrStateByLayerId: DraftingQrStateByLayerId;
+  sceneComposition: SceneCompositionState;
+  selectedLayerId?: string | null;
+  selectedLayerIds?: string[];
+  snapEnabled: boolean;
+  state: QraftyState;
+  theme: ThemeMode;
+};
 
 export type PaneMarqueeState = {
-  additive: boolean
-  end: { x: number; y: number }
-  pointerId: number
-  start: { x: number; y: number }
-}
+  additive: boolean;
+  end: { x: number; y: number };
+  pointerId: number;
+  start: { x: number; y: number };
+};
 
 export type PaneMultiSelectionPreview = {
-  bounds: Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> & { rotation?: number }
-  rotation: number
-}
+  bounds: Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> & { rotation?: number };
+  rotation: number;
+};
 
-const LAYER_MOVE_CURSOR_LOCK_CLASS = "drafting-layer-moving"
+const LAYER_MOVE_CURSOR_LOCK_CLASS = "drafting-layer-moving";
 
 function lockLayerMoveCursor() {
-  document.documentElement.classList.add(LAYER_MOVE_CURSOR_LOCK_CLASS)
-  document.body.classList.add(LAYER_MOVE_CURSOR_LOCK_CLASS)
+  document.documentElement.classList.add(LAYER_MOVE_CURSOR_LOCK_CLASS);
+  document.body.classList.add(LAYER_MOVE_CURSOR_LOCK_CLASS);
 }
 
 function unlockLayerMoveCursor() {
-  document.documentElement.classList.remove(LAYER_MOVE_CURSOR_LOCK_CLASS)
-  document.body.classList.remove(LAYER_MOVE_CURSOR_LOCK_CLASS)
+  document.documentElement.classList.remove(LAYER_MOVE_CURSOR_LOCK_CLASS);
+  document.body.classList.remove(LAYER_MOVE_CURSOR_LOCK_CLASS);
 }
 
 export type PaneContextMenuState = {
-  layerIds: string[]
-  scenePoint?: { x: number; y: number }
-  x: number
-  y: number
-}
+  layerIds: string[];
+  scenePoint?: { x: number; y: number };
+  x: number;
+  y: number;
+};
 
-const ROTATION_LABEL_HIDE_DELAY_MS = 2000
+const ROTATION_LABEL_HIDE_DELAY_MS = 2000;
 /* Bencho-style crop morph: frame and document move on
    width/height with the same curve, never a scale. */
-const RATIO_MORPH_MS = 520
-const RATIO_MORPH_FLAG_MS = RATIO_MORPH_MS + 120
-const SNAP_THRESHOLD_PX = 6
-const INTERACTION_START_THRESHOLD_PX = 3
-const INTERACTION_START_THRESHOLD_TOUCH_PX = 8
+const RATIO_MORPH_MS = 520;
+const RATIO_MORPH_FLAG_MS = RATIO_MORPH_MS + 120;
+const SNAP_THRESHOLD_PX = 6;
+const INTERACTION_START_THRESHOLD_PX = 3;
+const INTERACTION_START_THRESHOLD_TOUCH_PX = 8;
 
 function isTouchLikePointer(event: { pointerType: string }) {
-  return event.pointerType === "touch" || event.pointerType === "pen"
+  return event.pointerType === "touch" || event.pointerType === "pen";
 }
 
 function releasePointerCaptureSafe(event: PointerEvent<HTMLElement>) {
-  const target = event.currentTarget
+  const target = event.currentTarget;
   if (typeof target.hasPointerCapture === "function" && target.hasPointerCapture(event.pointerId)) {
-    target.releasePointerCapture(event.pointerId)
+    target.releasePointerCapture(event.pointerId);
   }
 }
 
@@ -155,22 +149,22 @@ function overlayLayerGeometry(
   geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> | null,
 ) {
   if (!geometryByLayerId) {
-    return layers
+    return layers;
   }
 
   return layers.map((layer) => {
-    const patch = geometryByLayerId[layer.id]
-    return patch ? { ...layer, ...patch } : layer
-  })
+    const patch = geometryByLayerId[layer.id];
+    return patch ? { ...layer, ...patch } : layer;
+  });
 }
 
 function hasTranslucentCardFill(fill: string) {
-  const rgbaMatch = /^rgba\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*([\d.]+)\s*\)$/i.exec(fill)
+  const rgbaMatch = /^rgba\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*([\d.]+)\s*\)$/i.exec(fill);
   if (rgbaMatch) {
-    return Number(rgbaMatch[1]) < 0.98
+    return Number(rgbaMatch[1]) < 0.98;
   }
 
-  return fill.includes("rgba(") && !fill.includes(", 1)") && !fill.includes(",1)")
+  return fill.includes("rgba(") && !fill.includes(", 1)") && !fill.includes(",1)");
 }
 
 function buildContentTransformStyle(
@@ -180,32 +174,27 @@ function buildContentTransformStyle(
   const translate =
     contentPan && (contentPan.x !== 0 || contentPan.y !== 0)
       ? `translate3d(${contentPan.x}px, ${contentPan.y}px, 0)`
-      : null
-  const scale = interactionScale !== 1 ? `scale(${interactionScale})` : null
-  const transform = [translate, scale].filter(Boolean).join(" ")
+      : null;
+  const scale = interactionScale !== 1 ? `scale(${interactionScale})` : null;
+  const transform = [translate, scale].filter(Boolean).join(" ");
 
   if (!transform) {
-    return undefined
+    return undefined;
   }
 
   return {
     transform,
     transformOrigin: "center center",
-  }
+  };
 }
 
-function resolveVisibleLayerGroups(
-  visibleLayers: DraftingCanvasLayer[],
-  contentOnlyZoom: boolean,
-) {
-  const cardLayers = contentOnlyZoom
-    ? visibleLayers.filter((layer) => layer.kind === "card")
-    : []
+function resolveVisibleLayerGroups(visibleLayers: DraftingCanvasLayer[], contentOnlyZoom: boolean) {
+  const cardLayers = contentOnlyZoom ? visibleLayers.filter((layer) => layer.kind === "card") : [];
   const contentLayers = contentOnlyZoom
     ? visibleLayers.filter((layer) => layer.kind !== "card")
-    : visibleLayers
+    : visibleLayers;
 
-  return { cardLayers, contentLayers }
+  return { cardLayers, contentLayers };
 }
 
 function buildChromeSpace(
@@ -220,7 +209,7 @@ function buildChromeSpace(
     contentPanY: contentPan?.y ?? 0,
     interactionScale,
     viewFitScale,
-  }
+  };
 }
 
 function resolveSelectionState(
@@ -230,16 +219,16 @@ function resolveSelectionState(
   contextMenu: { layerIds: string[] } | null,
   resolvedLayers: DraftingCanvasLayer[],
 ) {
-  const activeSelectedLayerIds = selectedLayerIds ?? (selectedLayerId ? [selectedLayerId] : [])
-  const activeSelectedLayerIdSet = new Set(activeSelectedLayerIds)
+  const activeSelectedLayerIds = selectedLayerIds ?? (selectedLayerId ? [selectedLayerId] : []);
+  const activeSelectedLayerIdSet = new Set(activeSelectedLayerIds);
   const selectedVisibleLayers = visibleLayers.filter((layer) =>
     activeSelectedLayerIdSet.has(layer.id),
-  )
-  const selectedVisibleLayerIds = selectedVisibleLayers.map((layer) => layer.id)
-  const contextMenuLayerIdSet = contextMenu ? new Set(contextMenu.layerIds) : null
+  );
+  const selectedVisibleLayerIds = selectedVisibleLayers.map((layer) => layer.id);
+  const contextMenuLayerIdSet = contextMenu ? new Set(contextMenu.layerIds) : null;
   const contextMenuLayers = contextMenu
     ? resolvedLayers.filter((layer) => contextMenuLayerIdSet?.has(layer.id))
-    : []
+    : [];
 
   return {
     activeSelectedLayerIds,
@@ -247,29 +236,27 @@ function resolveSelectionState(
     contextMenuLayers,
     selectedVisibleLayers,
     selectedVisibleLayerIds,
-  }
+  };
 }
 
 function resolveSceneLayoutZoom(sceneComposition: SceneCompositionState) {
   return Number.isFinite(sceneComposition.layout.zoom) && sceneComposition.layout.zoom > 0
     ? sceneComposition.layout.zoom
-    : 1
+    : 1;
 }
 
 function resolveSnapGuideClipBounds(
   visibleLayers: DraftingCanvasLayer[],
   chromeSpace: ChromeSpace,
 ) {
-  const snapGuideClipLayer = visibleLayers.find((layer) => layer.kind === "card") ?? null
-  return snapGuideClipLayer
-    ? getChromeFrameRect(snapGuideClipLayer, 0, chromeSpace)
-    : null
+  const snapGuideClipLayer = visibleLayers.find((layer) => layer.kind === "card") ?? null;
+  return snapGuideClipLayer ? getChromeFrameRect(snapGuideClipLayer, 0, chromeSpace) : null;
 }
 
 function resolveCardChrome(cardState: DraftingCardState) {
-  const isPaperShaderMode = cardState.styleMode === "paper-shader"
-  const isImageMode = cardState.styleMode === "image"
-  const isImageFilterMode = cardState.styleMode === "image-filter"
+  const isPaperShaderMode = cardState.styleMode === "paper-shader";
+  const isImageMode = cardState.styleMode === "image";
+  const isImageFilterMode = cardState.styleMode === "image-filter";
   const cardImageStyle =
     (isImageMode || isImageFilterMode) && cardState.cardImage.value
       ? {
@@ -278,7 +265,7 @@ function resolveCardChrome(cardState: DraftingCardState) {
           backgroundRepeat: "no-repeat",
           backgroundSize: cardState.cardImage.fit,
         }
-      : undefined
+      : undefined;
   const cardStyle: CSSProperties = {
     ...(isPaperShaderMode || isImageFilterMode || isImageMode
       ? { backgroundColor: "transparent" }
@@ -287,15 +274,18 @@ function resolveCardChrome(cardState: DraftingCardState) {
     ...getDraftingCardBorderStyle(cardState),
     borderRadius: cornerRadiiToCss(cardState.cornerRadii),
     ...(hasTranslucentCardFill(cardState.fill) ? { backdropFilter: "blur(16px)" } : {}),
-  }
+  };
   const imageFilterShader = {
     ...cardState.imageFilter,
     image: {
       ...cardState.imageFilter.image,
-      source: cardState.cardImage.source === "none" ? cardState.imageFilter.image.source : cardState.cardImage.source,
+      source:
+        cardState.cardImage.source === "none"
+          ? cardState.imageFilter.image.source
+          : cardState.cardImage.source,
       value: cardState.cardImage.value ?? cardState.imageFilter.image.value,
     },
-  }
+  };
 
   return {
     cardImageStyle,
@@ -304,7 +294,7 @@ function resolveCardChrome(cardState: DraftingCardState) {
     isImageFilterMode,
     isImageMode,
     isPaperShaderMode,
-  }
+  };
 }
 
 export function usePaneWorkspaceInteractions({
@@ -332,13 +322,13 @@ export function usePaneWorkspaceInteractions({
   selectedLayerIds,
   theme,
 }: PaneWorkspaceInteractionsInput) {
-  const preferLowPowerShaders = useTouchPrimary()
-  const [hasError, setHasError] = useState(false)
-  const [rotatingLayerId, setRotatingLayerId] = useState<string | null>(null)
-  const [isLayerInteracting, setIsLayerInteracting] = useState(false)
-  const [isMovingLayers, setIsMovingLayers] = useState(false)
-  const [canvasHeight, setCanvasHeight] = useState(0)
-  const [canvasWidth, setCanvasWidth] = useState(0)
+  const preferLowPowerShaders = useTouchPrimary();
+  const [hasError, setHasError] = useState(false);
+  const [rotatingLayerId, setRotatingLayerId] = useState<string | null>(null);
+  const [isLayerInteracting, setIsLayerInteracting] = useState(false);
+  const [isMovingLayers, setIsMovingLayers] = useState(false);
+  const [canvasHeight, setCanvasHeight] = useState(0);
+  const [canvasWidth, setCanvasWidth] = useState(0);
   /* data-ratio-morph has to be on in the same commit that moves
      the card, or the first frame paints the new size before the
      transition exists. So the flag is set during render — the
@@ -349,148 +339,146 @@ export function usePaneWorkspaceInteractions({
     height: cardState.height,
     sizePresetId: cardState.sizePresetId,
     width: cardState.width,
-  })
-  const ratioMorphTimeoutRef = useRef<number | null>(null)
-  const [toolbarWidth, setToolbarWidth] = useState(FLOATING_TOOLBAR_MIN_WIDTH_PX)
-  const [rotationPreviewDegrees, setRotationPreviewDegrees] = useState<number | null>(null)
-  const [multiSelectionPreview, setMultiSelectionPreview] = useState<PaneMultiSelectionPreview | null>(null)
+  });
+  const ratioMorphTimeoutRef = useRef<number | null>(null);
+  const [toolbarWidth, setToolbarWidth] = useState(FLOATING_TOOLBAR_MIN_WIDTH_PX);
+  const [rotationPreviewDegrees, setRotationPreviewDegrees] = useState<number | null>(null);
+  const [multiSelectionPreview, setMultiSelectionPreview] =
+    useState<PaneMultiSelectionPreview | null>(null);
   const [snapGuides, setSnapGuides] = useState<SnapGuides>({
     horizontal: [],
     vertical: [],
-  })
-  const [contextMenu, setContextMenu] = useState<PaneContextMenuState | null>(null)
-  const [marquee, setMarquee] = useState<PaneMarqueeState | null>(null)
-  const [editingTextLayerId, setEditingTextLayerId] = useState<string | null>(null)
-  const [editingTextDraft, setEditingTextDraft] = useState("")
+  });
+  const [contextMenu, setContextMenu] = useState<PaneContextMenuState | null>(null);
+  const [marquee, setMarquee] = useState<PaneMarqueeState | null>(null);
+  const [editingTextLayerId, setEditingTextLayerId] = useState<string | null>(null);
+  const [editingTextDraft, setEditingTextDraft] = useState("");
   const [liveLayerGeometryById, setLiveLayerGeometryById] = useState<Record<
     string,
     Partial<DraftingCanvasLayer>
-  > | null>(null)
+  > | null>(null);
   const pendingDocumentLayerChangesRef = useRef<Map<string, Partial<DraftingCanvasLayer>>>(
     new Map(),
-  )
-  const documentLayerChangeRafRef = useRef<number | null>(null)
+  );
+  const documentLayerChangeRafRef = useRef<number | null>(null);
   const interactionRef = useRef<{
-    centerClientX?: number
-    centerClientY?: number
-    groupBounds?: Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> & { rotation?: number }
-    groupCenter?: { x: number; y: number }
-    layers?: DraftingCanvasLayer[]
-    layer: DraftingCanvasLayer
-    lockedResizeAxis?: "horizontal" | "vertical"
-    mode: "move" | "resize" | "rotate"
-    pointerId: number
-    pointerType?: string
-    resizeDirection?: ResizeDirection
-    startAngle?: number
-    startRotation?: number
-    startX: number
-    startY: number
-  } | null>(null)
-  const rotationLabelTimeoutRef = useRef<number | null>(null)
-  const canvasRef = useRef<HTMLDivElement | null>(null)
-  const toolbarRef = useRef<HTMLDivElement | null>(null)
-  const textEditorRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
-  const registerTextEditor = useCallback(
-    (layerId: string, element: HTMLTextAreaElement | null) => {
-      textEditorRefs.current[layerId] = element
-    },
-    [],
-  )
-  const marqueeRef = useRef<typeof marquee>(null)
-  const suppressCanvasClickRef = useRef(false)
-  const suppressLayerClickRef = useRef(false)
+    centerClientX?: number;
+    centerClientY?: number;
+    groupBounds?: Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> & { rotation?: number };
+    groupCenter?: { x: number; y: number };
+    layers?: DraftingCanvasLayer[];
+    layer: DraftingCanvasLayer;
+    lockedResizeAxis?: "horizontal" | "vertical";
+    mode: "move" | "resize" | "rotate";
+    pointerId: number;
+    pointerType?: string;
+    resizeDirection?: ResizeDirection;
+    startAngle?: number;
+    startRotation?: number;
+    startX: number;
+    startY: number;
+  } | null>(null);
+  const rotationLabelTimeoutRef = useRef<number | null>(null);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const toolbarRef = useRef<HTMLDivElement | null>(null);
+  const textEditorRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
+  const registerTextEditor = useCallback((layerId: string, element: HTMLTextAreaElement | null) => {
+    textEditorRefs.current[layerId] = element;
+  }, []);
+  const marqueeRef = useRef<typeof marquee>(null);
+  const suppressCanvasClickRef = useRef(false);
+  const suppressLayerClickRef = useRef(false);
 
   useEffect(
     () => () => {
       if (rotationLabelTimeoutRef.current !== null) {
-        window.clearTimeout(rotationLabelTimeoutRef.current)
+        window.clearTimeout(rotationLabelTimeoutRef.current);
       }
       if (documentLayerChangeRafRef.current !== null) {
-        window.cancelAnimationFrame(documentLayerChangeRafRef.current)
+        window.cancelAnimationFrame(documentLayerChangeRafRef.current);
       }
       if (ratioMorphTimeoutRef.current !== null) {
-        window.clearTimeout(ratioMorphTimeoutRef.current)
+        window.clearTimeout(ratioMorphTimeoutRef.current);
       }
     },
     [],
-  )
+  );
 
   useEffect(() => {
     if (!ratioMorph.active) {
-      return
+      return;
     }
 
     ratioMorphTimeoutRef.current = window.setTimeout(() => {
-      ratioMorphTimeoutRef.current = null
-      setRatioMorph((current) => ({ ...current, active: false }))
-    }, RATIO_MORPH_FLAG_MS)
+      ratioMorphTimeoutRef.current = null;
+      setRatioMorph((current) => ({ ...current, active: false }));
+    }, RATIO_MORPH_FLAG_MS);
 
     return () => {
       if (ratioMorphTimeoutRef.current !== null) {
-        window.clearTimeout(ratioMorphTimeoutRef.current)
+        window.clearTimeout(ratioMorphTimeoutRef.current);
       }
-    }
-  }, [ratioMorph])
+    };
+  }, [ratioMorph]);
 
   useEffect(() => {
-    const canvas = canvasRef.current
+    const canvas = canvasRef.current;
 
     if (!canvas) {
-      return
+      return;
     }
 
     const updateCanvasHeight = () => {
-      setCanvasHeight(canvas.getBoundingClientRect().height)
-      setCanvasWidth(canvas.getBoundingClientRect().width)
-    }
+      setCanvasHeight(canvas.getBoundingClientRect().height);
+      setCanvasWidth(canvas.getBoundingClientRect().width);
+    };
 
-    updateCanvasHeight()
+    updateCanvasHeight();
 
     if (typeof ResizeObserver === "undefined") {
-      window.addEventListener("resize", updateCanvasHeight)
-      const unsubscribeDrawerResizeEnded = previewDrawerResize.subscribeOnEnded(updateCanvasHeight)
+      window.addEventListener("resize", updateCanvasHeight);
+      const unsubscribeDrawerResizeEnded = previewDrawerResize.subscribeOnEnded(updateCanvasHeight);
 
       return () => {
-        window.removeEventListener("resize", updateCanvasHeight)
-        unsubscribeDrawerResizeEnded()
-      }
+        window.removeEventListener("resize", updateCanvasHeight);
+        unsubscribeDrawerResizeEnded();
+      };
     }
 
-    const observer = new ResizeObserver(updateCanvasHeight)
-    observer.observe(canvas)
-    const unsubscribeDrawerResizeEnded = previewDrawerResize.subscribeOnEnded(updateCanvasHeight)
+    const observer = new ResizeObserver(updateCanvasHeight);
+    observer.observe(canvas);
+    const unsubscribeDrawerResizeEnded = previewDrawerResize.subscribeOnEnded(updateCanvasHeight);
 
     return () => {
-      observer.disconnect()
-      unsubscribeDrawerResizeEnded()
-    }
-  }, [])
+      observer.disconnect();
+      unsubscribeDrawerResizeEnded();
+    };
+  }, []);
 
   useEffect(() => {
     if (!contextMenu) {
-      return
+      return;
     }
 
     function closeContextMenuOnOutsidePointer(event: Event) {
-      const target = event.target
+      const target = event.target;
 
       if (
         target instanceof Element &&
         target.closest('[data-slot="drafting-layer-context-menu"]')
       ) {
-        return
+        return;
       }
 
-      setContextMenu(null)
+      setContextMenu(null);
     }
 
-    document.addEventListener("pointerdown", closeContextMenuOnOutsidePointer, true)
+    document.addEventListener("pointerdown", closeContextMenuOnOutsidePointer, true);
 
     return () => {
-      document.removeEventListener("pointerdown", closeContextMenuOnOutsidePointer, true)
-    }
-  }, [contextMenu])
+      document.removeEventListener("pointerdown", closeContextMenuOnOutsidePointer, true);
+    };
+  }, [contextMenu]);
 
   const resolvedLayers = useMemo(
     () =>
@@ -498,69 +486,69 @@ export function usePaneWorkspaceInteractions({
         ? layers
         : createDefaultDraftingLayers("preview", state, cardState),
     [cardState, layers, state],
-  )
+  );
   const sceneLayers = useMemo(
     () => overlayLayerGeometry(resolvedLayers, liveLayerGeometryById),
     [liveLayerGeometryById, resolvedLayers],
-  )
+  );
 
   useEffect(() => {
-    void ensureDraftingFontsForLayers(resolvedLayers)
-  }, [resolvedLayers])
+    void ensureDraftingFontsForLayers(resolvedLayers);
+  }, [resolvedLayers]);
 
   useEffect(() => {
     if (!editingTextLayerId) {
-      return
+      return;
     }
 
-    const editor = textEditorRefs.current[editingTextLayerId]
-    editor?.focus()
-    editor?.setSelectionRange(editor.value.length, editor.value.length)
-  }, [editingTextLayerId])
+    const editor = textEditorRefs.current[editingTextLayerId];
+    editor?.focus();
+    editor?.setSelectionRange(editor.value.length, editor.value.length);
+  }, [editingTextLayerId]);
 
   useEffect(() => {
     if (!isMovingLayers) {
-      return
+      return;
     }
 
-    lockLayerMoveCursor()
+    lockLayerMoveCursor();
 
     return () => {
-      unlockLayerMoveCursor()
-    }
-  }, [isMovingLayers])
+      unlockLayerMoveCursor();
+    };
+  }, [isMovingLayers]);
 
   useEffect(() => {
     return () => {
-      unlockLayerMoveCursor()
-    }
-  }, [])
+      unlockLayerMoveCursor();
+    };
+  }, []);
 
   const visibleLayers = sceneLayers
     .filter((layer) => layer.isVisible)
-    .sort((a, b) => a.zIndex - b.zIndex)
-  const { cardLayers, contentLayers } = resolveVisibleLayerGroups(visibleLayers, contentOnlyZoom)
+    .sort((a, b) => a.zIndex - b.zIndex);
+  const { cardLayers, contentLayers } = resolveVisibleLayerGroups(visibleLayers, contentOnlyZoom);
   // Desktop compose zoom belongs to content layers. Keep card/background fixed.
-  const artboardInteractionScale = contentOnlyZoom ? 1 : interactionScale
-  const artboardScale = viewFitScale * artboardInteractionScale
-  const previewStageSize = getPreviewStageSize(cardState.width, cardState.height, artboardScale)
+  const artboardInteractionScale = contentOnlyZoom ? 1 : interactionScale;
+  const artboardScale = viewFitScale * artboardInteractionScale;
+  const previewStageSize = getPreviewStageSize(cardState.width, cardState.height, artboardScale);
   const previewCameraStyle = getPreviewCameraStyle(
     cardState.width,
     cardState.height,
     artboardScale,
-  )
+  );
   const previewStageBorderRadius = cornerRadiiToCss(
     scalePreviewCornerRadiiState(cardState.cornerRadii, artboardScale),
-  )
+  );
   const chromeSpace: ChromeSpace = buildChromeSpace(
     contentOnlyZoom,
     contentPan,
     interactionScale,
     viewFitScale,
-  )
+  );
   const contentTransformStyle: CSSProperties | undefined = contentOnlyZoom
     ? buildContentTransformStyle(contentPan, interactionScale)
-    : undefined
+    : undefined;
   const {
     activeSelectedLayerIds,
     activeSelectedLayerIdSet,
@@ -573,33 +561,29 @@ export function usePaneWorkspaceInteractions({
     visibleLayers,
     contextMenu,
     resolvedLayers,
-  )
-  const combinedLayerBounds = getCombinedLayerBounds(selectedVisibleLayers)
+  );
+  const combinedLayerBounds = getCombinedLayerBounds(selectedVisibleLayers);
   const chromeSnapGuides: SnapGuides = {
-    horizontal: snapGuides.horizontal.map(
-      (y) => documentToChromeOffset(0, y, chromeSpace).y,
-    ),
-    vertical: snapGuides.vertical.map(
-      (x) => documentToChromeOffset(x, 0, chromeSpace).x,
-    ),
-  }
-  const sceneLayoutZoom = resolveSceneLayoutZoom(sceneComposition)
-  const qrOverlayScale = getChromeVisualScale(chromeSpace) * sceneLayoutZoom
-  const snapGuideClipBounds = resolveSnapGuideClipBounds(visibleLayers, chromeSpace)
+    horizontal: snapGuides.horizontal.map((y) => documentToChromeOffset(0, y, chromeSpace).y),
+    vertical: snapGuides.vertical.map((x) => documentToChromeOffset(x, 0, chromeSpace).x),
+  };
+  const sceneLayoutZoom = resolveSceneLayoutZoom(sceneComposition);
+  const qrOverlayScale = getChromeVisualScale(chromeSpace) * sceneLayoutZoom;
+  const snapGuideClipBounds = resolveSnapGuideClipBounds(visibleLayers, chromeSpace);
 
   useLayoutEffect(() => {
-    const toolbar = toolbarRef.current
+    const toolbar = toolbarRef.current;
 
     if (!toolbar) {
-      return
+      return;
     }
 
-    const width = toolbar.getBoundingClientRect().width
+    const width = toolbar.getBoundingClientRect().width;
 
     if (Number.isFinite(width) && width > 0) {
-      setToolbarWidth(width)
+      setToolbarWidth(width);
     }
-  }, [selectedVisibleLayerIds, chromeSpace.interactionScale, chromeSpace.viewFitScale])
+  }, [selectedVisibleLayerIds, chromeSpace.interactionScale, chromeSpace.viewFitScale]);
   const {
     cardImageStyle,
     cardStyle,
@@ -607,7 +591,7 @@ export function usePaneWorkspaceInteractions({
     isImageFilterMode,
     isImageMode,
     isPaperShaderMode,
-  } = resolveCardChrome(cardState)
+  } = resolveCardChrome(cardState);
 
   if (
     ratioMorph.width !== cardState.width ||
@@ -621,7 +605,7 @@ export function usePaneWorkspaceInteractions({
       height: cardState.height,
       sizePresetId: cardState.sizePresetId,
       width: cardState.width,
-    })
+    });
   }
 
   function constrainLayerPatch(
@@ -629,67 +613,67 @@ export function usePaneWorkspaceInteractions({
     patch: Partial<DraftingCanvasLayer>,
   ): Partial<DraftingCanvasLayer> {
     if (layer.kind === "card") {
-      return patch
+      return patch;
     }
 
-    const constrained = clampLayerGeometryToCanvas({ ...layer, ...patch }, cardState)
-    const result = { ...patch }
+    const constrained = clampLayerGeometryToCanvas({ ...layer, ...patch }, cardState);
+    const result = { ...patch };
 
     for (const key of ["height", "width", "x", "y"] as const) {
       if (key in patch) {
-        result[key] = constrained[key]
+        result[key] = constrained[key];
       }
     }
 
-    return result
+    return result;
   }
 
   function flushDocumentLayerChanges() {
     if (documentLayerChangeRafRef.current !== null) {
-      window.cancelAnimationFrame(documentLayerChangeRafRef.current)
-      documentLayerChangeRafRef.current = null
+      window.cancelAnimationFrame(documentLayerChangeRafRef.current);
+      documentLayerChangeRafRef.current = null;
     }
 
-    const pending = pendingDocumentLayerChangesRef.current
+    const pending = pendingDocumentLayerChangesRef.current;
     if (pending.size === 0) {
-      return
+      return;
     }
 
-    pendingDocumentLayerChangesRef.current = new Map()
+    pendingDocumentLayerChangesRef.current = new Map();
     for (const [layerId, patch] of pending) {
-      onLayerChange?.(layerId, patch)
+      onLayerChange?.(layerId, patch);
     }
   }
 
   function queueDocumentLayerChange(layerId: string, patch: Partial<DraftingCanvasLayer>) {
-    const current = pendingDocumentLayerChangesRef.current.get(layerId)
-    pendingDocumentLayerChangesRef.current.set(layerId, current ? { ...current, ...patch } : patch)
+    const current = pendingDocumentLayerChangesRef.current.get(layerId);
+    pendingDocumentLayerChangesRef.current.set(layerId, current ? { ...current, ...patch } : patch);
   }
 
   function scheduleDocumentLayerFlush() {
     if (documentLayerChangeRafRef.current !== null) {
-      return
+      return;
     }
 
     documentLayerChangeRafRef.current = window.requestAnimationFrame(() => {
-      documentLayerChangeRafRef.current = null
-      flushDocumentLayerChanges()
-    })
+      documentLayerChangeRafRef.current = null;
+      flushDocumentLayerChanges();
+    });
   }
 
   function publishLiveLayerGeometry(
     geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>>,
     guides?: SnapGuides,
   ) {
-    setLiveLayerGeometryById(geometryByLayerId)
+    setLiveLayerGeometryById(geometryByLayerId);
     if (guides) {
-      setSnapGuides(guides)
+      setSnapGuides(guides);
     }
 
     for (const [layerId, patch] of Object.entries(geometryByLayerId)) {
-      queueDocumentLayerChange(layerId, patch)
+      queueDocumentLayerChange(layerId, patch);
     }
-    scheduleDocumentLayerFlush()
+    scheduleDocumentLayerFlush();
   }
 
   function startLayerInteraction(
@@ -699,15 +683,15 @@ export function usePaneWorkspaceInteractions({
     resizeDirection?: ResizeDirection,
   ) {
     if (editingTextLayerId && editingTextLayerId !== layer.id) {
-      commitEditingTextDraft()
+      commitEditingTextDraft();
     }
 
     if (event.metaKey || event.ctrlKey) {
-      return
+      return;
     }
 
     if (!onLayerChange) {
-      return
+      return;
     }
 
     if (
@@ -715,17 +699,17 @@ export function usePaneWorkspaceInteractions({
       activeSelectedLayerIds.length > 1 &&
       activeSelectedLayerIdSet.has(layer.id)
     ) {
-      startMultiLayerInteraction(event, "move")
-      return
+      startMultiLayerInteraction(event, "move");
+      return;
     }
 
-    event.stopPropagation()
-    event.preventDefault()
-    event.currentTarget.setPointerCapture(event.pointerId)
-    const layerElement = event.currentTarget.closest<HTMLElement>("[data-layer-id]")
-    const layerRect = layerElement?.getBoundingClientRect()
-    const centerClientX = layerRect ? layerRect.left + layerRect.width / 2 : event.clientX
-    const centerClientY = layerRect ? layerRect.top + layerRect.height / 2 : event.clientY
+    event.stopPropagation();
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const layerElement = event.currentTarget.closest<HTMLElement>("[data-layer-id]");
+    const layerRect = layerElement?.getBoundingClientRect();
+    const centerClientX = layerRect ? layerRect.left + layerRect.width / 2 : event.clientX;
+    const centerClientY = layerRect ? layerRect.top + layerRect.height / 2 : event.clientY;
 
     interactionRef.current = {
       centerClientX,
@@ -736,199 +720,192 @@ export function usePaneWorkspaceInteractions({
       pointerType: event.pointerType,
       resizeDirection,
       startAngle:
-        (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) /
-        Math.PI,
+        (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) / Math.PI,
       startRotation: layer.rotation,
       startX: event.clientX,
       startY: event.clientY,
-    }
-    setIsLayerInteracting(true)
+    };
+    setIsLayerInteracting(true);
     if (mode === "move") {
-      lockLayerMoveCursor()
-      setIsMovingLayers(true)
+      lockLayerMoveCursor();
+      setIsMovingLayers(true);
     }
     if (mode === "rotate") {
       if (rotationLabelTimeoutRef.current !== null) {
-        window.clearTimeout(rotationLabelTimeoutRef.current)
-        rotationLabelTimeoutRef.current = null
+        window.clearTimeout(rotationLabelTimeoutRef.current);
+        rotationLabelTimeoutRef.current = null;
       }
-      setRotatingLayerId(layer.id)
-      setRotationPreviewDegrees(getLayerRotationLabel(layer.rotation))
+      setRotatingLayerId(layer.id);
+      setRotationPreviewDegrees(getLayerRotationLabel(layer.rotation));
     }
-    onLayerSelect?.(layer.id)
+    onLayerSelect?.(layer.id);
   }
 
-  function openLayerContextMenu(
-    event: MouseEvent<HTMLElement>,
-    layerIds: string[],
-  ) {
+  function openLayerContextMenu(event: MouseEvent<HTMLElement>, layerIds: string[]) {
     if (layerIds.length === 0) {
-      return
+      return;
     }
 
-    event.preventDefault()
-    event.stopPropagation()
+    event.preventDefault();
+    event.stopPropagation();
     setContextMenu({
       layerIds,
       scenePoint: getScenePointFromClientPoint(event.clientX, event.clientY),
       x: event.clientX,
       y: event.clientY + CONTEXT_MENU_POINTER_OFFSET_PX,
-    })
-    onLayerSelect?.(layerIds.at(-1) ?? null)
+    });
+    onLayerSelect?.(layerIds.at(-1) ?? null);
   }
 
-  function openFloatingLayerContextMenu(
-    event: MouseEvent<HTMLButtonElement>,
-    layerIds: string[],
-  ) {
+  function openFloatingLayerContextMenu(event: MouseEvent<HTMLButtonElement>, layerIds: string[]) {
     if (layerIds.length === 0) {
-      return
+      return;
     }
 
-    const rect = event.currentTarget.getBoundingClientRect()
-    const x = rect.left
-    const y = rect.bottom + CONTEXT_MENU_POINTER_OFFSET_PX
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = rect.left;
+    const y = rect.bottom + CONTEXT_MENU_POINTER_OFFSET_PX;
 
-    event.preventDefault()
-    event.stopPropagation()
+    event.preventDefault();
+    event.stopPropagation();
     setContextMenu({
       layerIds,
       scenePoint: getScenePointFromClientPoint(rect.left + rect.width / 2, rect.bottom),
       x,
       y,
-    })
-    onLayerSelect?.(layerIds.at(-1) ?? null)
+    });
+    onLayerSelect?.(layerIds.at(-1) ?? null);
   }
 
   function openCanvasContextMenu(event: MouseEvent<HTMLElement>) {
     if (event.target !== event.currentTarget) {
-      return
+      return;
     }
 
-    event.preventDefault()
-    event.stopPropagation()
+    event.preventDefault();
+    event.stopPropagation();
     setContextMenu({
       layerIds: activeSelectedLayerIds,
       scenePoint: getScenePointFromClientPoint(event.clientX, event.clientY),
       x: event.clientX,
       y: event.clientY + CONTEXT_MENU_POINTER_OFFSET_PX,
-    })
+    });
   }
 
   function runLayerAction(action: DraftingLayerMenuAction) {
     if (!contextMenu || contextMenu.layerIds.length === 0) {
-      return
+      return;
     }
 
-    onLayerAction?.(contextMenu.layerIds, action)
-    setContextMenu(null)
+    onLayerAction?.(contextMenu.layerIds, action);
+    setContextMenu(null);
   }
 
   function closeContextMenu() {
-    setContextMenu(null)
+    setContextMenu(null);
   }
 
   function runSelectedLayerAction(action: DraftingLayerMenuAction) {
     if (selectedVisibleLayerIds.length === 0) {
-      return
+      return;
     }
 
-    onLayerAction?.(selectedVisibleLayerIds, action)
+    onLayerAction?.(selectedVisibleLayerIds, action);
   }
 
   function runSelectedLayerCopy() {
     if (selectedVisibleLayerIds.length === 0) {
-      return
+      return;
     }
 
-    onLayerCopy?.(selectedVisibleLayerIds)
+    onLayerCopy?.(selectedVisibleLayerIds);
   }
 
   function getScenePointFromClientPoint(clientX: number, clientY: number) {
-    const rect = canvasRef.current?.getBoundingClientRect()
+    const rect = canvasRef.current?.getBoundingClientRect();
     const scale =
-      (interactionScale > 0 ? interactionScale : 1) * (viewFitScale > 0 ? viewFitScale : 1)
+      (interactionScale > 0 ? interactionScale : 1) * (viewFitScale > 0 ? viewFitScale : 1);
 
     if (!rect) {
-      return { x: 0, y: 0 }
+      return { x: 0, y: 0 };
     }
 
     return {
       x: (clientX - (rect.left + rect.width / 2)) / scale,
       y: (clientY - (rect.top + rect.height / 2)) / scale,
-    }
+    };
   }
 
   function startMarqueeSelection(event: PointerEvent<HTMLElement>) {
     if (event.button !== 0 || event.target !== event.currentTarget) {
-      return
+      return;
     }
 
     if (isTouchLikePointer(event)) {
-      return
+      return;
     }
 
     if (editingTextLayerId) {
-      commitEditingTextDraft()
+      commitEditingTextDraft();
     }
 
-    const point = getScenePointFromClientPoint(event.clientX, event.clientY)
+    const point = getScenePointFromClientPoint(event.clientX, event.clientY);
 
-    event.preventDefault()
-    event.stopPropagation()
-    event.currentTarget.setPointerCapture(event.pointerId)
-    setContextMenu(null)
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setContextMenu(null);
     const nextMarquee = {
       additive: event.shiftKey || event.metaKey || event.ctrlKey,
       end: point,
       pointerId: event.pointerId,
       start: point,
-    }
-    marqueeRef.current = nextMarquee
-    setMarquee(nextMarquee)
+    };
+    marqueeRef.current = nextMarquee;
+    setMarquee(nextMarquee);
   }
 
   function updateMarqueeSelection(event: PointerEvent<HTMLElement>) {
-    const current = marqueeRef.current
+    const current = marqueeRef.current;
 
     if (!current || current.pointerId !== event.pointerId) {
-      return
+      return;
     }
 
-    event.preventDefault()
-    event.stopPropagation()
+    event.preventDefault();
+    event.stopPropagation();
 
     const nextMarquee = {
       ...current,
       end: getScenePointFromClientPoint(event.clientX, event.clientY),
-    }
-    marqueeRef.current = nextMarquee
-    setMarquee(nextMarquee)
+    };
+    marqueeRef.current = nextMarquee;
+    setMarquee(nextMarquee);
   }
 
   function endMarqueeSelection(event: PointerEvent<HTMLElement>) {
-    const current = marqueeRef.current
+    const current = marqueeRef.current;
 
     if (!current || current.pointerId !== event.pointerId) {
-      return
+      return;
     }
 
-    event.preventDefault()
-    event.stopPropagation()
-    marqueeRef.current = null
-    setMarquee(null)
+    event.preventDefault();
+    event.stopPropagation();
+    marqueeRef.current = null;
+    setMarquee(null);
 
     const moved =
       Math.abs(current.end.x - current.start.x) > 1 ||
-      Math.abs(current.end.y - current.start.y) > 1
-    suppressCanvasClickRef.current = moved
+      Math.abs(current.end.y - current.start.y) > 1;
+    suppressCanvasClickRef.current = moved;
 
     const selectedIds = getDraftingMarqueeSelection(
       visibleLayers,
       getMarqueeBounds(current.start, current.end),
-    )
+    );
 
-    onLayerSelectionChange?.(selectedIds, { additive: current.additive })
+    onLayerSelectionChange?.(selectedIds, { additive: current.additive });
   }
 
   function startMultiLayerInteraction(
@@ -937,20 +914,20 @@ export function usePaneWorkspaceInteractions({
     resizeDirection?: ResizeDirection,
   ) {
     if (!combinedLayerBounds || selectedVisibleLayers.length < 2 || !onLayerChange) {
-      return
+      return;
     }
 
-    event.stopPropagation()
-    event.preventDefault()
-    event.currentTarget.setPointerCapture(event.pointerId)
+    event.stopPropagation();
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
     const frameElement =
       event.currentTarget.closest<HTMLElement>("[data-slot='drafting-layer-multi-select-frame']") ??
       event.currentTarget
         .closest<HTMLElement>("[data-slot='desktop-compose-canvas']")
-        ?.querySelector<HTMLElement>("[data-slot='drafting-layer-multi-select-frame']")
-    const frameRect = frameElement?.getBoundingClientRect()
-    const centerClientX = frameRect ? frameRect.left + frameRect.width / 2 : event.clientX
-    const centerClientY = frameRect ? frameRect.top + frameRect.height / 2 : event.clientY
+        ?.querySelector<HTMLElement>("[data-slot='drafting-layer-multi-select-frame']");
+    const frameRect = frameElement?.getBoundingClientRect();
+    const centerClientX = frameRect ? frameRect.left + frameRect.width / 2 : event.clientX;
+    const centerClientY = frameRect ? frameRect.top + frameRect.height / 2 : event.clientY;
 
     interactionRef.current = {
       centerClientX,
@@ -967,28 +944,27 @@ export function usePaneWorkspaceInteractions({
       pointerType: event.pointerType,
       resizeDirection,
       startAngle:
-        (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) /
-        Math.PI,
+        (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) / Math.PI,
       startRotation: 0,
       startX: event.clientX,
       startY: event.clientY,
-    }
-    setIsLayerInteracting(true)
+    };
+    setIsLayerInteracting(true);
     if (mode === "move") {
-      lockLayerMoveCursor()
-      setIsMovingLayers(true)
+      lockLayerMoveCursor();
+      setIsMovingLayers(true);
     }
     if (mode === "rotate") {
       if (rotationLabelTimeoutRef.current !== null) {
-        window.clearTimeout(rotationLabelTimeoutRef.current)
-        rotationLabelTimeoutRef.current = null
+        window.clearTimeout(rotationLabelTimeoutRef.current);
+        rotationLabelTimeoutRef.current = null;
       }
-      setRotatingLayerId("selection")
-      setRotationPreviewDegrees(0)
+      setRotatingLayerId("selection");
+      setRotationPreviewDegrees(0);
       setMultiSelectionPreview({
         bounds: combinedLayerBounds,
         rotation: combinedLayerBounds.rotation ?? 0,
-      })
+      });
     }
   }
 
@@ -997,40 +973,39 @@ export function usePaneWorkspaceInteractions({
     deltaX: number,
     deltaY: number,
   ) {
-    const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {}
+    const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {};
 
     for (const selectedLayer of interaction.layers ?? []) {
       if (selectedLayer.kind === "card") {
-        continue
+        continue;
       }
 
       geometryByLayerId[selectedLayer.id] = constrainLayerPatch(selectedLayer, {
         x: roundLayerNumber(selectedLayer.x + deltaX),
         y: roundLayerNumber(selectedLayer.y + deltaY),
-      })
+      });
     }
 
-    publishLiveLayerGeometry(geometryByLayerId)
+    publishLiveLayerGeometry(geometryByLayerId);
   }
 
   function applyGroupRotateInteraction(
     interaction: NonNullable<typeof interactionRef.current>,
     event: PointerEvent<HTMLElement>,
   ) {
-    const groupCenter = interaction.groupCenter
+    const groupCenter = interaction.groupCenter;
     if (!groupCenter || !interaction.layers) {
-      return
+      return;
     }
 
-    const centerClientX = interaction.centerClientX ?? event.clientX
-    const centerClientY = interaction.centerClientY ?? event.clientY
+    const centerClientX = interaction.centerClientX ?? event.clientX;
+    const centerClientY = interaction.centerClientY ?? event.clientY;
     const angle =
-      (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) /
-      Math.PI
-    const freeRotation = normalizeLayerRotation(angle - (interaction.startAngle ?? angle))
-    const rotation = snapEnabled ? snapLayerRotation(freeRotation) : freeRotation
+      (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) / Math.PI;
+    const freeRotation = normalizeLayerRotation(angle - (interaction.startAngle ?? angle));
+    const rotation = snapEnabled ? snapLayerRotation(freeRotation) : freeRotation;
 
-    setRotationPreviewDegrees(getLayerRotationLabel(rotation))
+    setRotationPreviewDegrees(getLayerRotationLabel(rotation));
     setMultiSelectionPreview((current) =>
       current
         ? {
@@ -1038,31 +1013,31 @@ export function usePaneWorkspaceInteractions({
             rotation: getLayerRotationLabel((interaction.groupBounds?.rotation ?? 0) + rotation),
           }
         : current,
-    )
+    );
 
-    const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {}
+    const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {};
 
     for (const selectedLayer of interaction.layers) {
       if (selectedLayer.kind === "card") {
-        continue
+        continue;
       }
 
       const center = {
         x: selectedLayer.x + selectedLayer.width / 2,
         y: selectedLayer.y + selectedLayer.height / 2,
-      }
-      const nextCenter = rotatePoint(center, groupCenter, rotation)
+      };
+      const nextCenter = rotatePoint(center, groupCenter, rotation);
       geometryByLayerId[selectedLayer.id] = constrainLayerPatch(selectedLayer, {
         rotation: normalizeLayerRotation(selectedLayer.rotation + rotation),
         x: roundLayerNumber(nextCenter.x - selectedLayer.width / 2),
         y: roundLayerNumber(nextCenter.y - selectedLayer.height / 2),
-      })
+      });
     }
 
     publishLiveLayerGeometry(geometryByLayerId, {
       horizontal: [],
       vertical: snapEnabled && rotation !== freeRotation ? [0] : [],
-    })
+    });
   }
 
   function applyGroupResizeInteraction(
@@ -1070,9 +1045,9 @@ export function usePaneWorkspaceInteractions({
     deltaX: number,
     deltaY: number,
   ) {
-    const groupBounds = interaction.groupBounds
+    const groupBounds = interaction.groupBounds;
     if (!groupBounds || !interaction.layers) {
-      return
+      return;
     }
 
     const nextBounds = resizeDraftingLayer(
@@ -1097,14 +1072,14 @@ export function usePaneWorkspaceInteractions({
       interaction.resizeDirection ?? "se",
       deltaX,
       deltaY,
-    )
-    const scaleX = groupBounds.width > 0 ? nextBounds.width / groupBounds.width : 1
-    const scaleY = groupBounds.height > 0 ? nextBounds.height / groupBounds.height : 1
-    const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {}
+    );
+    const scaleX = groupBounds.width > 0 ? nextBounds.width / groupBounds.width : 1;
+    const scaleY = groupBounds.height > 0 ? nextBounds.height / groupBounds.height : 1;
+    const geometryByLayerId: Record<string, Partial<DraftingCanvasLayer>> = {};
 
     for (const selectedLayer of interaction.layers) {
       if (selectedLayer.kind === "card") {
-        continue
+        continue;
       }
 
       geometryByLayerId[selectedLayer.id] = constrainLayerPatch(selectedLayer, {
@@ -1112,36 +1087,35 @@ export function usePaneWorkspaceInteractions({
         width: roundLayerNumber(selectedLayer.width * scaleX),
         x: roundLayerNumber(nextBounds.x + (selectedLayer.x - groupBounds.x) * scaleX),
         y: roundLayerNumber(nextBounds.y + (selectedLayer.y - groupBounds.y) * scaleY),
-      })
+      });
     }
 
-    publishLiveLayerGeometry(geometryByLayerId)
+    publishLiveLayerGeometry(geometryByLayerId);
   }
 
   function applySingleRotateInteraction(
     interaction: NonNullable<typeof interactionRef.current>,
     event: PointerEvent<HTMLElement>,
   ) {
-    const layer = interaction.layer
-    const centerClientX = interaction.centerClientX ?? event.clientX
-    const centerClientY = interaction.centerClientY ?? event.clientY
+    const layer = interaction.layer;
+    const centerClientX = interaction.centerClientX ?? event.clientX;
+    const centerClientY = interaction.centerClientY ?? event.clientY;
     const angle =
-      (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) /
-      Math.PI
+      (Math.atan2(event.clientY - centerClientY, event.clientX - centerClientX) * 180) / Math.PI;
 
     const freeRotation = normalizeLayerRotation(
       angle - (interaction.startAngle ?? angle) + (interaction.startRotation ?? layer.rotation),
-    )
-    const rotation = snapEnabled ? snapLayerRotation(freeRotation) : freeRotation
+    );
+    const rotation = snapEnabled ? snapLayerRotation(freeRotation) : freeRotation;
 
-    setRotationPreviewDegrees(getLayerRotationLabel(rotation))
+    setRotationPreviewDegrees(getLayerRotationLabel(rotation));
     publishLiveLayerGeometry(
       { [layer.id]: { rotation } },
       {
         horizontal: [],
         vertical: snapEnabled && rotation !== freeRotation ? [0] : [],
       },
-    )
+    );
   }
 
   function applySingleMoveInteraction(
@@ -1150,9 +1124,9 @@ export function usePaneWorkspaceInteractions({
     deltaY: number,
     snapThreshold: number,
   ) {
-    const layer = interaction.layer
-    const proposedX = layer.x + deltaX
-    const proposedY = layer.y + deltaY
+    const layer = interaction.layer;
+    const proposedX = layer.x + deltaX;
+    const proposedY = layer.y + deltaY;
     const nextMove = snapEnabled
       ? snapLayerMove({
           layer,
@@ -1161,7 +1135,7 @@ export function usePaneWorkspaceInteractions({
           proposedY,
           threshold: snapThreshold,
         })
-      : { guides: { horizontal: [], vertical: [] }, x: proposedX, y: proposedY }
+      : { guides: { horizontal: [], vertical: [] }, x: proposedX, y: proposedY };
 
     publishLiveLayerGeometry(
       {
@@ -1171,7 +1145,7 @@ export function usePaneWorkspaceInteractions({
         }),
       },
       nextMove.guides,
-    )
+    );
   }
 
   function applySingleResizeInteraction(
@@ -1181,9 +1155,9 @@ export function usePaneWorkspaceInteractions({
     resizeSnapThreshold: number,
     hasStartedInteraction: boolean,
   ) {
-    const layer = interaction.layer
-    const resizeDirection = interaction.resizeDirection ?? "se"
-    const isCornerResize = resizeDirection.length === 2
+    const layer = interaction.layer;
+    const resizeDirection = interaction.resizeDirection ?? "se";
+    const isCornerResize = resizeDirection.length === 2;
 
     if (
       isCornerResize &&
@@ -1192,7 +1166,7 @@ export function usePaneWorkspaceInteractions({
       hasStartedInteraction
     ) {
       interaction.lockedResizeAxis =
-        Math.abs(deltaX) >= Math.abs(deltaY) ? "horizontal" : "vertical"
+        Math.abs(deltaX) >= Math.abs(deltaY) ? "horizontal" : "vertical";
     }
 
     const nextGeometry = resizeDraftingLayer(
@@ -1201,7 +1175,7 @@ export function usePaneWorkspaceInteractions({
       deltaX,
       deltaY,
       interaction.lockedResizeAxis,
-    )
+    );
     const snappedResize = snapEnabled
       ? snapLayerResize({
           direction: resizeDirection,
@@ -1210,66 +1184,66 @@ export function usePaneWorkspaceInteractions({
           geometry: nextGeometry,
           threshold: resizeSnapThreshold,
         })
-      : { geometry: nextGeometry, guides: { horizontal: [], vertical: [] } }
+      : { geometry: nextGeometry, guides: { horizontal: [], vertical: [] } };
 
     publishLiveLayerGeometry(
       { [layer.id]: constrainLayerPatch(layer, snappedResize.geometry) },
       snappedResize.guides,
-    )
+    );
   }
 
   function updateLayerInteraction(event: PointerEvent<HTMLElement>) {
-    const interaction = interactionRef.current
+    const interaction = interactionRef.current;
 
     if (!interaction || interaction.pointerId !== event.pointerId) {
-      return
+      return;
     }
 
-    event.stopPropagation()
-    event.preventDefault()
+    event.stopPropagation();
+    event.preventDefault();
     const scale =
-      (interactionScale > 0 ? interactionScale : 1) * (viewFitScale > 0 ? viewFitScale : 1)
-    const snapThreshold = SNAP_THRESHOLD_PX / scale
-    const resizeSnapThreshold = RESIZE_SNAP_THRESHOLD_PX / scale
-    const deltaX = (event.clientX - interaction.startX) / scale
-    const deltaY = (event.clientY - interaction.startY) / scale
+      (interactionScale > 0 ? interactionScale : 1) * (viewFitScale > 0 ? viewFitScale : 1);
+    const snapThreshold = SNAP_THRESHOLD_PX / scale;
+    const resizeSnapThreshold = RESIZE_SNAP_THRESHOLD_PX / scale;
+    const deltaX = (event.clientX - interaction.startX) / scale;
+    const deltaY = (event.clientY - interaction.startY) / scale;
     const startThreshold = isTouchLikePointer({ pointerType: interaction.pointerType ?? "mouse" })
       ? INTERACTION_START_THRESHOLD_TOUCH_PX
-      : INTERACTION_START_THRESHOLD_PX
+      : INTERACTION_START_THRESHOLD_PX;
     const hasStartedInteraction =
       Math.hypot(event.clientX - interaction.startX, event.clientY - interaction.startY) >=
-      startThreshold
+      startThreshold;
 
     if (!hasStartedInteraction && interaction.mode !== "rotate") {
-      setSnapGuides({ horizontal: [], vertical: [] })
-      return
+      setSnapGuides({ horizontal: [], vertical: [] });
+      return;
     }
 
     if (interaction.layers && interaction.groupBounds && interaction.groupCenter) {
       if (interaction.mode === "move") {
-        applyGroupMoveInteraction(interaction, deltaX, deltaY)
-        return
+        applyGroupMoveInteraction(interaction, deltaX, deltaY);
+        return;
       }
 
       if (interaction.mode === "rotate") {
-        applyGroupRotateInteraction(interaction, event)
-        return
+        applyGroupRotateInteraction(interaction, event);
+        return;
       }
 
       if (interaction.mode === "resize") {
-        applyGroupResizeInteraction(interaction, deltaX, deltaY)
-        return
+        applyGroupResizeInteraction(interaction, deltaX, deltaY);
+        return;
       }
     }
 
     if (interaction.mode === "rotate") {
-      applySingleRotateInteraction(interaction, event)
-      return
+      applySingleRotateInteraction(interaction, event);
+      return;
     }
 
     if (interaction.mode === "move") {
-      applySingleMoveInteraction(interaction, deltaX, deltaY, snapThreshold)
-      return
+      applySingleMoveInteraction(interaction, deltaX, deltaY, snapThreshold);
+      return;
     }
 
     applySingleResizeInteraction(
@@ -1278,36 +1252,36 @@ export function usePaneWorkspaceInteractions({
       deltaY,
       resizeSnapThreshold,
       hasStartedInteraction,
-    )
+    );
   }
 
   function endLayerInteraction(event: PointerEvent<HTMLElement>) {
-    const interaction = interactionRef.current
+    const interaction = interactionRef.current;
 
     if (interaction?.pointerId === event.pointerId) {
-      flushDocumentLayerChanges()
-      setLiveLayerGeometryById(null)
-      setSnapGuides({ horizontal: [], vertical: [] })
+      flushDocumentLayerChanges();
+      setLiveLayerGeometryById(null);
+      setSnapGuides({ horizontal: [], vertical: [] });
       suppressLayerClickRef.current =
         Math.abs(event.clientX - interaction.startX) > 1 ||
-        Math.abs(event.clientY - interaction.startY) > 1
+        Math.abs(event.clientY - interaction.startY) > 1;
 
       if (interaction.mode === "rotate") {
         if (rotationLabelTimeoutRef.current !== null) {
-          window.clearTimeout(rotationLabelTimeoutRef.current)
+          window.clearTimeout(rotationLabelTimeoutRef.current);
         }
         rotationLabelTimeoutRef.current = window.setTimeout(() => {
-          setRotatingLayerId(null)
-          setRotationPreviewDegrees(null)
-          setMultiSelectionPreview(null)
-          rotationLabelTimeoutRef.current = null
-        }, ROTATION_LABEL_HIDE_DELAY_MS)
+          setRotatingLayerId(null);
+          setRotationPreviewDegrees(null);
+          setMultiSelectionPreview(null);
+          rotationLabelTimeoutRef.current = null;
+        }, ROTATION_LABEL_HIDE_DELAY_MS);
       }
-      setIsLayerInteracting(false)
-      setIsMovingLayers(false)
-      unlockLayerMoveCursor()
-      interactionRef.current = null
-      releasePointerCaptureSafe(event)
+      setIsLayerInteracting(false);
+      setIsMovingLayers(false);
+      unlockLayerMoveCursor();
+      interactionRef.current = null;
+      releasePointerCaptureSafe(event);
     }
   }
 
@@ -1316,16 +1290,16 @@ export function usePaneWorkspaceInteractions({
     options?: { additive?: boolean; qr?: boolean },
   ) {
     if (layer.kind === "card") {
-      return
+      return;
     }
 
     if (editingTextLayerId && editingTextLayerId !== layer.id) {
-      commitEditingTextDraft()
+      commitEditingTextDraft();
     }
 
-    onLayerSelect?.(layer.id, { additive: options?.additive ?? false })
+    onLayerSelect?.(layer.id, { additive: options?.additive ?? false });
     if (options?.qr) {
-      onQrClick()
+      onQrClick();
     }
   }
 
@@ -1335,57 +1309,57 @@ export function usePaneWorkspaceInteractions({
     options?: { qr?: boolean },
   ) {
     if (layer.kind === "card") {
-      return
+      return;
     }
 
-    event.stopPropagation()
+    event.stopPropagation();
 
     if (suppressLayerClickRef.current) {
-      event.preventDefault()
-      suppressLayerClickRef.current = false
-      return
+      event.preventDefault();
+      suppressLayerClickRef.current = false;
+      return;
     }
 
     if (editingTextLayerId && editingTextLayerId !== layer.id) {
-      commitEditingTextDraft()
+      commitEditingTextDraft();
     }
 
-    onLayerSelect?.(layer.id, { additive: event.metaKey || event.ctrlKey })
+    onLayerSelect?.(layer.id, { additive: event.metaKey || event.ctrlKey });
     if (options?.qr) {
-      onQrClick()
+      onQrClick();
     }
   }
 
   function startTextEditing(event: MouseEvent<HTMLElement>, layer: DraftingCanvasLayer) {
     if (layer.kind !== "text") {
-      return
+      return;
     }
 
-    event.preventDefault()
-    event.stopPropagation()
-    onLayerSelect?.(layer.id)
-    setEditingTextLayerId(layer.id)
-    setEditingTextDraft(layer.text ?? "")
+    event.preventDefault();
+    event.stopPropagation();
+    onLayerSelect?.(layer.id);
+    setEditingTextLayerId(layer.id);
+    setEditingTextDraft(layer.text ?? "");
   }
 
   function handleTextEditorInput(event: FormEvent<HTMLTextAreaElement>) {
-    setEditingTextDraft(event.currentTarget.value)
+    setEditingTextDraft(event.currentTarget.value);
   }
 
   function commitEditingTextDraft() {
     if (!editingTextLayerId) {
-      return
+      return;
     }
 
-    const layer = resolvedLayers.find((candidate) => candidate.id === editingTextLayerId)
-    const text = textEditorRefs.current[editingTextLayerId]?.value ?? editingTextDraft
+    const layer = resolvedLayers.find((candidate) => candidate.id === editingTextLayerId);
+    const text = textEditorRefs.current[editingTextLayerId]?.value ?? editingTextDraft;
 
     if (layer?.kind === "text" && ((layer.text ?? "") !== text || layer.textRuns)) {
-      onLayerChange?.(layer.id, { text, textRuns: undefined })
+      onLayerChange?.(layer.id, { text, textRuns: undefined });
     }
 
-    setEditingTextDraft(text)
-    setEditingTextLayerId(null)
+    setEditingTextDraft(text);
+    setEditingTextLayerId(null);
   }
 
   return {
@@ -1454,5 +1428,5 @@ export function usePaneWorkspaceInteractions({
     startTextEditing,
     updateLayerInteraction,
     updateMarqueeSelection,
-  }
+  };
 }

@@ -1,73 +1,73 @@
-"use client"
+"use client";
 
-import { AnimatePresence, m } from "motion/react"
+import { AnimatePresence, m } from "motion/react";
 
-import { Loader } from "@/features/shell/components/motion/loader"
-import { EASE_OUT } from "@/lib/ease"
-import { InspectorElasticSliderRow } from "@/features/shell/components/InspectorShell"
+import { Loader } from "@/features/shell/components/motion/loader";
+import { EASE_OUT } from "@/lib/ease";
+import { InspectorElasticSliderRow } from "@/features/shell/components/InspectorShell";
 import {
   SegmentTabs,
   SettingsPrimaryButton,
   SettingsTabPanel,
-} from "@/features/shell/inspector/settings-ui"
+} from "@/features/shell/inspector/settings-ui";
 import type {
   ExportMediaKind,
   ExportSettings,
   ToolbarController,
-} from "@/features/shell/model/toolbar-types"
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
+} from "@/features/shell/model/toolbar-types";
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
 import {
   clampVideoExportDuration,
   type VideoExportLongEdge,
   VIDEO_EXPORT_MAX_DURATION_SECONDS,
   VIDEO_EXPORT_MIN_DURATION_SECONDS,
-} from "@/features/qr/export/video-export"
-import type { QrFileExtension } from "@/features/qr/model/types"
+} from "@/features/qr/export/video-export";
+import type { QrFileExtension } from "@/features/qr/model/types";
 
-const SECTION_STACK = "flex flex-col gap-2.5"
+const SECTION_STACK = "flex flex-col gap-2.5";
 
-const MEDIA_TABS = ["Photo", "Video"] as const
-const PHOTO_FORMAT_OPTIONS = ["PNG", "JPEG", "WebP"] as const
-const VIDEO_FORMAT_OPTIONS = ["MP4", "WebM"] as const
-const VIDEO_FPS_OPTIONS = ["30 fps", "60 fps"] as const
-const SIZE_OPTIONS = ["720p", "1080p", "2K", "4K"] as const
+const MEDIA_TABS = ["Photo", "Video"] as const;
+const PHOTO_FORMAT_OPTIONS = ["PNG", "JPEG", "WebP"] as const;
+const VIDEO_FORMAT_OPTIONS = ["MP4", "WebM"] as const;
+const VIDEO_FPS_OPTIONS = ["30 fps", "60 fps"] as const;
+const SIZE_OPTIONS = ["720p", "1080p", "2K", "4K"] as const;
 
 const SIZE_LABEL_TO_LONG_EDGE: Record<(typeof SIZE_OPTIONS)[number], VideoExportLongEdge> = {
   "720p": 720,
   "1080p": 1080,
   "2K": 1440,
   "4K": 2160,
-}
+};
 
 function longEdgeToSizeLabel(longEdge: VideoExportLongEdge): (typeof SIZE_OPTIONS)[number] {
-  if (longEdge === 720) return "720p"
-  if (longEdge === 1440) return "2K"
-  if (longEdge === 2160) return "4K"
-  return "1080p"
+  if (longEdge === 720) return "720p";
+  if (longEdge === 1440) return "2K";
+  if (longEdge === 2160) return "4K";
+  return "1080p";
 }
 
 function photoFormatToExtension(format: (typeof PHOTO_FORMAT_OPTIONS)[number]): QrFileExtension {
-  if (format === "JPEG") return "jpeg"
-  if (format === "WebP") return "webp"
-  return "png"
+  if (format === "JPEG") return "jpeg";
+  if (format === "WebP") return "webp";
+  return "png";
 }
 
 function extensionToPhotoFormat(extension: QrFileExtension): (typeof PHOTO_FORMAT_OPTIONS)[number] {
-  if (extension === "jpeg") return "JPEG"
-  if (extension === "webp") return "WebP"
-  return "PNG"
+  if (extension === "jpeg") return "JPEG";
+  if (extension === "webp") return "WebP";
+  return "PNG";
 }
 
 function mediaKindToTab(mediaKind: ExportMediaKind): (typeof MEDIA_TABS)[number] {
-  return mediaKind === "video" ? "Video" : "Photo"
+  return mediaKind === "video" ? "Video" : "Photo";
 }
 
 function PhotoExportControls({
   exportSettings,
   onExportSettingsChange,
 }: {
-  exportSettings: ExportSettings
-  onExportSettingsChange: (patch: Partial<ExportSettings>) => void
+  exportSettings: ExportSettings;
+  onExportSettingsChange: (patch: Partial<ExportSettings>) => void;
 }) {
   return (
     <>
@@ -87,13 +87,12 @@ function PhotoExportControls({
         variant="muted"
         onChange={(label) =>
           onExportSettingsChange({
-            photoLongEdge:
-              SIZE_LABEL_TO_LONG_EDGE[label as (typeof SIZE_OPTIONS)[number]],
+            photoLongEdge: SIZE_LABEL_TO_LONG_EDGE[label as (typeof SIZE_OPTIONS)[number]],
           })
         }
       />
     </>
-  )
+  );
 }
 
 function VideoExportControls({
@@ -101,9 +100,9 @@ function VideoExportControls({
   exportSettings,
   onExportSettingsChange,
 }: {
-  canExportVideo: boolean
-  exportSettings: ExportSettings
-  onExportSettingsChange: (patch: Partial<ExportSettings>) => void
+  canExportVideo: boolean;
+  exportSettings: ExportSettings;
+  onExportSettingsChange: (patch: Partial<ExportSettings>) => void;
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -154,7 +153,7 @@ function VideoExportControls({
         <p className="dn-type-meta text-center">Add motion or animated QR to export video.</p>
       ) : null}
     </div>
-  )
+  );
 }
 
 function ExportDownloadButton({
@@ -162,9 +161,9 @@ function ExportDownloadButton({
   disabled,
   exportInProgress,
 }: {
-  controller?: ToolbarController
-  disabled: boolean
-  exportInProgress: boolean
+  controller?: ToolbarController;
+  disabled: boolean;
+  exportInProgress: boolean;
 }) {
   return (
     <SettingsPrimaryButton
@@ -208,16 +207,16 @@ function ExportDownloadButton({
         )}
       </AnimatePresence>
     </SettingsPrimaryButton>
-  )
+  );
 }
 
 export function ExportSettingsPanel({ model }: { model: InspectorModel }) {
-  const { actualExportSettings, controller, onExportSettingsChange } = model
-  const mediaTab = mediaKindToTab(actualExportSettings.mediaKind)
-  const isVideoExport = actualExportSettings.mediaKind === "video"
-  const canExportVideo = controller?.canExportVideo ?? false
-  const canDownload = controller?.canExportDownload ?? true
-  const exportInProgress = controller?.exportInProgress ?? false
+  const { actualExportSettings, controller, onExportSettingsChange } = model;
+  const mediaTab = mediaKindToTab(actualExportSettings.mediaKind);
+  const isVideoExport = actualExportSettings.mediaKind === "video";
+  const canExportVideo = controller?.canExportVideo ?? false;
+  const canDownload = controller?.canExportDownload ?? true;
+  const exportInProgress = controller?.exportInProgress ?? false;
 
   return (
     <div className={SECTION_STACK} data-slot="export-settings-panel">
@@ -230,7 +229,7 @@ export function ExportSettingsPanel({ model }: { model: InspectorModel }) {
             ...(tab === "Photo" && actualExportSettings.extension === "svg"
               ? { extension: "png" }
               : {}),
-          })
+          });
         }}
       />
 
@@ -267,5 +266,5 @@ export function ExportSettingsPanel({ model }: { model: InspectorModel }) {
         <p className="dn-type-meta text-center text-red-500">{controller.exportDownloadError}</p>
       ) : null}
     </div>
-  )
+  );
 }

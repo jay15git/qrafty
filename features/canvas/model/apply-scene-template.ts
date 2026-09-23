@@ -1,19 +1,19 @@
-import type { DraftingWorkspaceDocumentV1 } from "@/features/canvas/model/document"
+import type { DraftingWorkspaceDocumentV1 } from "@/features/canvas/model/document";
 import {
   cloneSceneComposition,
   createDefaultSceneComposition,
   normalizeSceneComposition,
   type SceneCompositionState,
-} from "@/features/canvas/model/scene-templates"
+} from "@/features/canvas/model/scene-templates";
 
-export type SceneCompositionByNodeId = Record<string, SceneCompositionState>
+export type SceneCompositionByNodeId = Record<string, SceneCompositionState>;
 
 export function createDefaultSceneCompositionByNodeId(
   document: DraftingWorkspaceDocumentV1,
 ): SceneCompositionByNodeId {
   return Object.fromEntries(
     document.qrOrder.map((nodeId) => [nodeId, createDefaultSceneComposition()]),
-  )
+  );
 }
 
 export function cloneSceneCompositionByNodeId(
@@ -24,7 +24,7 @@ export function cloneSceneCompositionByNodeId(
       nodeId,
       cloneSceneComposition(composition),
     ]),
-  )
+  );
 }
 
 export function applySceneCompositionPatch(
@@ -32,7 +32,7 @@ export function applySceneCompositionPatch(
   nodeId: string,
   patch: Partial<SceneCompositionState>,
 ): SceneCompositionByNodeId {
-  const current = sceneCompositionByNodeId[nodeId] ?? createDefaultSceneComposition()
+  const current = sceneCompositionByNodeId[nodeId] ?? createDefaultSceneComposition();
   return {
     ...sceneCompositionByNodeId,
     [nodeId]: normalizeSceneComposition({
@@ -41,5 +41,5 @@ export function applySceneCompositionPatch(
       layout: patch.layout ? { ...current.layout, ...patch.layout } : current.layout,
       background: patch.background ?? current.background,
     }),
-  }
+  };
 }

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   useCallback,
@@ -9,64 +9,64 @@ import {
   useState,
   type ComponentProps,
   type ReactNode,
-} from "react"
-import { AnimatePresence, m, useReducedMotion, type Transition } from "motion/react"
+} from "react";
+import { AnimatePresence, m, useReducedMotion, type Transition } from "motion/react";
 
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { useSettingsPanelMotionFrozen } from "@/features/shell/components/settings-panel-motion-frozen-context"
-import { SurfaceProvider } from "@/lib/surface-context"
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useSettingsPanelMotionFrozen } from "@/features/shell/components/settings-panel-motion-frozen-context";
+import { SurfaceProvider } from "@/lib/surface-context";
 import {
   inspectorOptionGridClass,
   type InspectorOptionGridColumns,
   type InspectorOptionGridSpacing,
-} from "@/features/shell/inspector/InspectorOptionGrid.classes"
-import { cn } from "@/lib/utils"
+} from "@/features/shell/inspector/InspectorOptionGrid.classes";
+import { cn } from "@/lib/utils";
 import {
   resolveScrollPersistKey,
   usePersistedElementScroll,
   useScrollPersistScope,
-} from "@/lib/persisted-element-scroll"
+} from "@/lib/persisted-element-scroll";
 
 function inspectorOptionRowClass(className?: string) {
   return cn(
     "flex w-max flex-nowrap [&>*]:w-[5.25rem] [&>*]:min-w-[5.25rem] [&>*]:shrink-0",
     className,
-  )
+  );
 }
 
 const INSPECTOR_OPTION_SELECTION_APPEAR: Transition = {
   opacity: { duration: 0.38, ease: [0.4, 0, 0.2, 1] },
   filter: { duration: 0.42, ease: [0.4, 0, 0.2, 1] },
-}
+};
 
 const INSPECTOR_OPTION_SELECTION_EXIT: Transition = {
   opacity: { duration: 0.24, ease: [0.4, 0, 1, 1] },
   filter: { duration: 0.24, ease: [0.4, 0, 1, 1] },
-}
+};
 
-const INSPECTOR_FROZEN_MOTION_TRANSITION: Transition = { duration: 0 }
+const INSPECTOR_FROZEN_MOTION_TRANSITION: Transition = { duration: 0 };
 
 type InspectorOptionSelectionRect = {
-  height: number
-  left: number
-  top: number
-  width: number
-}
+  height: number;
+  left: number;
+  top: number;
+  width: number;
+};
 
 type InspectorOptionSelection = {
-  key: string
-  rect: InspectorOptionSelectionRect
-}
+  key: string;
+  rect: InspectorOptionSelectionRect;
+};
 
 function measureInspectorOptionSelection(
   container: HTMLElement,
 ): InspectorOptionSelectionRect | null {
   const selected = container.querySelector<HTMLElement>(
     '[data-animated-option-selection="true"][aria-pressed="true"]',
-  )
+  );
 
   if (!selected) {
-    return null
+    return null;
   }
 
   return {
@@ -74,17 +74,17 @@ function measureInspectorOptionSelection(
     top: selected.offsetTop,
     width: selected.offsetWidth,
     height: selected.offsetHeight,
-  }
+  };
 }
 
 function resolveInspectorOptionSelectionKey(
   selectedKey: string | number | boolean | null | undefined,
 ) {
   if (selectedKey === null || selectedKey === undefined) {
-    return "none"
+    return "none";
   }
 
-  return String(selectedKey)
+  return String(selectedKey);
 }
 
 export function InspectorAnimatedOptionGrid({
@@ -95,33 +95,33 @@ export function InspectorAnimatedOptionGrid({
   selectedKey,
   ...props
 }: {
-  className?: string
-  columns?: InspectorOptionGridColumns
-  children: ReactNode
-  layout?: "grid" | "row"
-  selectedKey?: string | number | boolean | null
+  className?: string;
+  columns?: InspectorOptionGridColumns;
+  children: ReactNode;
+  layout?: "grid" | "row";
+  selectedKey?: string | number | boolean | null;
 } & ComponentProps<"div">) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [selection, setSelection] = useState<InspectorOptionSelection | null>(null)
-  const motionFrozen = useSettingsPanelMotionFrozen()
-  const reduceMotion = useReducedMotion()
-  const skipAppear = motionFrozen || Boolean(reduceMotion)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [selection, setSelection] = useState<InspectorOptionSelection | null>(null);
+  const motionFrozen = useSettingsPanelMotionFrozen();
+  const reduceMotion = useReducedMotion();
+  const skipAppear = motionFrozen || Boolean(reduceMotion);
 
   const measureSelected = useCallback(() => {
     if (motionFrozen) {
-      return
+      return;
     }
 
-    const container = containerRef.current
+    const container = containerRef.current;
     if (!container) {
-      return
+      return;
     }
 
-    const rect = measureInspectorOptionSelection(container)
-    const key = resolveInspectorOptionSelectionKey(selectedKey)
+    const rect = measureInspectorOptionSelection(container);
+    const key = resolveInspectorOptionSelectionKey(selectedKey);
 
     setSelection((prev) => {
-      const next = rect ? { key, rect } : null
+      const next = rect ? { key, rect } : null;
       if (
         prev?.key === next?.key &&
         prev?.rect.left === next?.rect.left &&
@@ -129,52 +129,52 @@ export function InspectorAnimatedOptionGrid({
         prev?.rect.width === next?.rect.width &&
         prev?.rect.height === next?.rect.height
       ) {
-        return prev
+        return prev;
       }
-      return next
-    })
-  }, [motionFrozen, selectedKey])
+      return next;
+    });
+  }, [motionFrozen, selectedKey]);
 
   useLayoutEffect(() => {
-    measureSelected()
-  }, [measureSelected, selectedKey, children])
+    measureSelected();
+  }, [measureSelected, selectedKey, children]);
 
   useEffect(() => {
-    const container = containerRef.current
+    const container = containerRef.current;
     if (!container) {
-      return
+      return;
     }
 
-    const viewport = container.closest<HTMLElement>('[data-slot="scroll-area-viewport"]')
-    const resizeTarget = viewport ?? container
+    const viewport = container.closest<HTMLElement>('[data-slot="scroll-area-viewport"]');
+    const resizeTarget = viewport ?? container;
 
     const handleChange = () => {
       if (motionFrozen) {
-        return
+        return;
       }
 
-      measureSelected()
-    }
+      measureSelected();
+    };
 
-    let observer: ResizeObserver | undefined
+    let observer: ResizeObserver | undefined;
 
     if (typeof ResizeObserver !== "undefined") {
-      observer = new ResizeObserver(handleChange)
-      observer.observe(container)
+      observer = new ResizeObserver(handleChange);
+      observer.observe(container);
       container
         .querySelectorAll('[data-animated-option-selection="true"]')
-        .forEach((node) => observer?.observe(node))
+        .forEach((node) => observer?.observe(node));
     }
 
-    resizeTarget.addEventListener("scroll", handleChange, { passive: true })
-    window.addEventListener("resize", handleChange)
+    resizeTarget.addEventListener("scroll", handleChange, { passive: true });
+    window.addEventListener("resize", handleChange);
 
     return () => {
-      observer?.disconnect()
-      resizeTarget.removeEventListener("scroll", handleChange)
-      window.removeEventListener("resize", handleChange)
-    }
-  }, [measureSelected, motionFrozen, selectedKey])
+      observer?.disconnect();
+      resizeTarget.removeEventListener("scroll", handleChange);
+      window.removeEventListener("resize", handleChange);
+    };
+  }, [measureSelected, motionFrozen, selectedKey]);
 
   return (
     <div
@@ -221,28 +221,20 @@ export function InspectorAnimatedOptionGrid({
                   }
             }
             transition={
-              skipAppear
-                ? INSPECTOR_FROZEN_MOTION_TRANSITION
-                : INSPECTOR_OPTION_SELECTION_APPEAR
+              skipAppear ? INSPECTOR_FROZEN_MOTION_TRANSITION : INSPECTOR_OPTION_SELECTION_APPEAR
             }
           />
         ) : null}
       </AnimatePresence>
       {children}
     </div>
-  )
+  );
 }
 
 export type InspectorOptionGridRowKind =
-  | "square"
-  | "labeled"
-  | "h-12"
-  | "h-10"
-  | "h-9"
-  | "h-8"
-  | "content"
+  "square" | "labeled" | "h-12" | "h-10" | "h-9" | "h-8" | "content";
 
-export type InspectorOptionGridVariant = "preset" | "compact" | "content"
+export type InspectorOptionGridVariant = "preset" | "compact" | "content";
 
 const GRID_ROW_HEIGHT_HORIZONTAL: Record<InspectorOptionGridRowKind, string> = {
   square: "h-[5.75rem]",
@@ -252,7 +244,7 @@ const GRID_ROW_HEIGHT_HORIZONTAL: Record<InspectorOptionGridRowKind, string> = {
   "h-9": "h-11",
   "h-8": "h-10",
   content: "h-[5.75rem]",
-}
+};
 
 const GRID_ROW_HEIGHT_VERTICAL: Record<InspectorOptionGridRowKind, string> = {
   "h-12": "h-[10.5rem]",
@@ -262,16 +254,16 @@ const GRID_ROW_HEIGHT_VERTICAL: Record<InspectorOptionGridRowKind, string> = {
   content: "h-[11.625rem]",
   square: "",
   labeled: "",
-}
+};
 
 function defaultRowKind(
   variant: InspectorOptionGridVariant,
   columns: InspectorOptionGridColumns,
   orientation: "vertical" | "horizontal",
 ): InspectorOptionGridRowKind {
-  if (variant === "preset") return "square"
-  if (variant === "content" && orientation === "vertical") return "content"
-  return columns === 4 ? "h-12" : "h-10"
+  if (variant === "preset") return "square";
+  if (variant === "content" && orientation === "vertical") return "content";
+  return columns === 4 ? "h-12" : "h-10";
 }
 
 function optionGridScrollHeightClass({
@@ -280,28 +272,28 @@ function optionGridScrollHeightClass({
   rowKind,
   variant,
 }: {
-  columns?: InspectorOptionGridColumns
-  orientation?: "vertical" | "horizontal"
-  rowKind?: InspectorOptionGridRowKind
-  variant: InspectorOptionGridVariant
+  columns?: InspectorOptionGridColumns;
+  orientation?: "vertical" | "horizontal";
+  rowKind?: InspectorOptionGridRowKind;
+  variant: InspectorOptionGridVariant;
 }): string {
-  const resolvedRowKind = rowKind ?? defaultRowKind(variant, columns, orientation)
+  const resolvedRowKind = rowKind ?? defaultRowKind(variant, columns, orientation);
 
   if (orientation === "horizontal") {
-    return GRID_ROW_HEIGHT_HORIZONTAL[resolvedRowKind]
+    return GRID_ROW_HEIGHT_HORIZONTAL[resolvedRowKind];
   }
 
   if (resolvedRowKind === "square") {
-    if (columns === 2) return "h-[24.75rem]"
-    if (columns === 4) return "h-[12.75rem]"
-    return "h-[16.5rem]"
+    if (columns === 2) return "h-[24.75rem]";
+    if (columns === 4) return "h-[12.75rem]";
+    return "h-[16.5rem]";
   }
 
   if (resolvedRowKind === "labeled") {
-    return columns === 2 ? "h-[20.25rem]" : "h-[16.5rem]"
+    return columns === 2 ? "h-[20.25rem]" : "h-[16.5rem]";
   }
 
-  return GRID_ROW_HEIGHT_VERTICAL[resolvedRowKind]
+  return GRID_ROW_HEIGHT_VERTICAL[resolvedRowKind];
 }
 
 export function InspectorScrollArea({ children }: { children: ReactNode }) {
@@ -319,7 +311,7 @@ export function InspectorScrollArea({ children }: { children: ReactNode }) {
         {children}
       </div>
     </ScrollArea>
-  )
+  );
 }
 
 export function InspectorOptionGridScrollArea({
@@ -335,28 +327,28 @@ export function InspectorOptionGridScrollArea({
   shelfId,
   variant,
 }: {
-  ariaLabel: string
-  children: ReactNode
-  className?: string
-  columns?: InspectorOptionGridColumns
-  dataSlot: string
-  orientation?: "vertical" | "horizontal"
-  role?: "group" | "listbox"
-  rowKind?: InspectorOptionGridRowKind
-  shelfDataSlot?: string
-  shelfId?: string
-  variant: InspectorOptionGridVariant
+  ariaLabel: string;
+  children: ReactNode;
+  className?: string;
+  columns?: InspectorOptionGridColumns;
+  dataSlot: string;
+  orientation?: "vertical" | "horizontal";
+  role?: "group" | "listbox";
+  rowKind?: InspectorOptionGridRowKind;
+  shelfDataSlot?: string;
+  shelfId?: string;
+  variant: InspectorOptionGridVariant;
 }) {
-  const isHorizontal = orientation === "horizontal"
+  const isHorizontal = orientation === "horizontal";
   const heightClass = optionGridScrollHeightClass({
     columns,
     orientation,
     rowKind,
     variant,
-  })
-  const [horizontalNode, setHorizontalNode] = useState<HTMLDivElement | null>(null)
-  const persistScope = useScrollPersistScope()
-  const persistReactId = useId()
+  });
+  const [horizontalNode, setHorizontalNode] = useState<HTMLDivElement | null>(null);
+  const persistScope = useScrollPersistScope();
+  const persistReactId = useId();
   usePersistedElementScroll(
     isHorizontal ? horizontalNode : null,
     resolveScrollPersistKey({
@@ -364,13 +356,13 @@ export function InspectorOptionGridScrollArea({
       scope: persistScope,
       reactId: persistReactId,
     }),
-  )
+  );
   const shelfProps = {
     "aria-label": ariaLabel,
     "data-slot": shelfDataSlot ?? dataSlot.replace(/-scroll-area$/, ""),
     id: shelfId,
     role,
-  } as const
+  } as const;
 
   if (isHorizontal) {
     return (
@@ -390,7 +382,7 @@ export function InspectorOptionGridScrollArea({
           </div>
         </div>
       </SurfaceProvider>
-    )
+    );
   }
 
   return (
@@ -408,5 +400,5 @@ export function InspectorOptionGridScrollArea({
         <div {...shelfProps}>{children}</div>
       </ScrollArea>
     </SurfaceProvider>
-  )
+  );
 }

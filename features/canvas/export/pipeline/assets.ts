@@ -1,93 +1,85 @@
-import {
-  blobUrlToDataUrl,
-  isBlobUrl,
-  isDataUrl,
-} from "@qrafty/qr-internal/scene"
+import { blobUrlToDataUrl, isBlobUrl, isDataUrl } from "@qrafty/qr-internal/scene";
 
-import type { SceneIrFontRef } from "@qrafty/qr-internal/codegen"
+import type { SceneIrFontRef } from "@qrafty/qr-internal/codegen";
 
-const REMOTE_IMAGE_PATTERN = /href="(?!#|data:)([^"]+)"/g
+const REMOTE_IMAGE_PATTERN = /href="(?!#|data:)([^"]+)"/g;
 
 export async function inlineRemoteUrl(url: string, label = "asset") {
   if (!url || isDataUrl(url)) {
-    return url
+    return url;
   }
 
   if (isBlobUrl(url)) {
-    const dataUrl = await blobUrlToDataUrl(url)
+    const dataUrl = await blobUrlToDataUrl(url);
     if (!dataUrl) {
-      throw new Error(`Could not inline local ${label}.`)
+      throw new Error(`Could not inline local ${label}.`);
     }
-    return dataUrl
+    return dataUrl;
   }
 
   if (typeof fetch === "undefined") {
-    return url
+    return url;
   }
 
   try {
-    const response = await fetch(url, { mode: "cors" })
+    const response = await fetch(url, { mode: "cors" });
     if (!response.ok) {
-      throw new Error(`Could not fetch ${label} (${response.status}).`)
+      throw new Error(`Could not fetch ${label} (${response.status}).`);
     }
 
-    const blob = await response.blob()
+    const blob = await response.blob();
     return await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = () => {
         if (typeof reader.result === "string") {
-          resolve(reader.result)
-          return
+          resolve(reader.result);
+          return;
         }
-        reject(new Error(`Could not encode ${label}.`))
-      }
-      reader.onerror = () => reject(reader.error ?? new Error(`Could not read ${label}.`))
-      reader.readAsDataURL(blob)
-    })
+        reject(new Error(`Could not encode ${label}.`));
+      };
+      reader.onerror = () => reject(reader.error ?? new Error(`Could not read ${label}.`));
+      reader.readAsDataURL(blob);
+    });
   } catch (error) {
-    const message = error instanceof Error ? error.message : `Could not inline ${label}.`
-    throw new Error(
-      `${message} Remote images must allow CORS for export.`,
-    )
+    const message = error instanceof Error ? error.message : `Could not inline ${label}.`;
+    throw new Error(`${message} Remote images must allow CORS for export.`);
   }
 }
 
 export async function inlineSvgImageHrefs(svgMarkup: string) {
-  const urls = new Set<string>()
+  const urls = new Set<string>();
   for (const match of svgMarkup.matchAll(REMOTE_IMAGE_PATTERN)) {
-    const url = match[1]
+    const url = match[1];
     if (url && !isDataUrl(url)) {
-      urls.add(url)
+      urls.add(url);
     }
   }
 
-  const entries = [...urls]
-  const inlinedUrls = await Promise.all(
-    entries.map((url) => inlineRemoteUrl(url, "image")),
-  )
+  const entries = [...urls];
+  const inlinedUrls = await Promise.all(entries.map((url) => inlineRemoteUrl(url, "image")));
 
-  let result = svgMarkup
+  let result = svgMarkup;
   for (const [index, url] of entries.entries()) {
-    result = result.split(url).join(inlinedUrls[index])
+    result = result.split(url).join(inlinedUrls[index]);
   }
 
-  return result
+  return result;
 }
 
 export function buildFontFaceDefs(fonts: SceneIrFontRef[]) {
   return fonts
     .flatMap((font) => {
       if (font.cssText) {
-        return [`<style type="text/css"><![CDATA[${font.cssText}]]></style>`]
+        return [`<style type="text/css"><![CDATA[${font.cssText}]]></style>`];
       }
 
       if (font.cssUrl) {
         return [
           `<style type="text/css">@import url("${font.cssUrl.replaceAll('"', "&quot;")}");</style>`,
-        ]
+        ];
       }
 
-      return []
+      return [];
     })
-    .join("")
+    .join("");
 }

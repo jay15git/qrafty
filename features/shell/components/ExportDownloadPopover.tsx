@@ -1,28 +1,25 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { DownloadButton } from "@/features/shell/components/DownloadButton"
-import type {
-  InspectorModel,
-  ThemeMode,
-} from "@/features/shell/components/FloatingToolbar"
-import { ExportSettingsPanel } from "@/features/shell/inspector/ExportSettingsPanel"
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
-import { cn } from "@/lib/utils"
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DownloadButton } from "@/features/shell/components/DownloadButton";
+import type { InspectorModel, ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import { ExportSettingsPanel } from "@/features/shell/inspector/ExportSettingsPanel";
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { cn } from "@/lib/utils";
 
-import "@/features/shell/inspector/inspector.css"
+import "@/features/shell/inspector/inspector.css";
 
 export function ExportDownloadPopover({
   model,
   theme,
 }: {
-  model: InspectorModel
-  theme: ThemeMode
+  model: InspectorModel;
+  theme: ThemeMode;
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   return (
     <Popover modal={false} open={open} onOpenChange={setOpen}>
@@ -66,5 +63,5 @@ export function ExportDownloadPopover({
         </ScrollArea>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

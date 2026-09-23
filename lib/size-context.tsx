@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useMemo,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
 
 type SizeVariant = "default" | "compact";
 
@@ -118,12 +111,12 @@ function SizeProvider({
       if (isControlled) return;
       setInternalSize(next);
     },
-    [isControlled]
+    [isControlled],
   );
 
   const value = useMemo(
     () => ({ size: resolved, setSize, classes: sizeMap[resolved] }),
-    [resolved, setSize]
+    [resolved, setSize],
   );
 
   return <SizeContext.Provider value={value}>{children}</SizeContext.Provider>;

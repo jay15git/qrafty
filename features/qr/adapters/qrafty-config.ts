@@ -2,30 +2,26 @@ import {
   getAssetValue,
   hasActiveBackgroundShapeOptions,
   type QraftyState,
-} from "@/features/qr/model/state"
+} from "@/features/qr/model/state";
 import type {
   QraftyQrCodeProps,
   QrFinderInnerStyle,
   QrFinderOuterStyle,
   QrModuleStyle,
-} from "@qrafty/qr"
+} from "@qrafty/qr";
 
 function mapBackground(state: QraftyState): QraftyQrCodeProps["background"] {
-  const backgroundImage = getAssetValue(state.backgroundImage)
+  const backgroundImage = getAssetValue(state.backgroundImage);
   const customBackgroundSurfaceActive =
     !backgroundImage &&
     (state.backgroundShapeId !== "none" ||
-      hasActiveBackgroundShapeOptions(state.backgroundShapeOptions))
+      hasActiveBackgroundShapeOptions(state.backgroundShapeOptions));
 
-  if (
-    backgroundImage ||
-    customBackgroundSurfaceActive ||
-    state.backgroundOptions.transparent
-  ) {
-    return "transparent"
+  if (backgroundImage || customBackgroundSurfaceActive || state.backgroundOptions.transparent) {
+    return "transparent";
   }
 
-  return state.backgroundOptions.color
+  return state.backgroundOptions.color;
 }
 
 function mapQraftyGradient(
@@ -33,7 +29,7 @@ function mapQraftyGradient(
   enabled: boolean,
 ): QraftyQrCodeProps["gradient"] {
   if (!enabled || !gradient.enabled) {
-    return "none"
+    return "none";
   }
 
   return {
@@ -50,99 +46,95 @@ function mapQraftyGradient(
         color: gradient.colorStops[1].color,
       },
     ],
-  }
+  };
 }
 
 function mapBackgroundGradient(state: QraftyState): QraftyQrCodeProps["backgroundGradient"] {
-  const backgroundImage = getAssetValue(state.backgroundImage)
+  const backgroundImage = getAssetValue(state.backgroundImage);
   const customBackgroundSurfaceActive =
     !backgroundImage &&
     (state.backgroundShapeId !== "none" ||
-      hasActiveBackgroundShapeOptions(state.backgroundShapeOptions))
+      hasActiveBackgroundShapeOptions(state.backgroundShapeOptions));
 
-  if (
-    backgroundImage ||
-    customBackgroundSurfaceActive ||
-    state.backgroundOptions.transparent
-  ) {
-    return "none"
+  if (backgroundImage || customBackgroundSurfaceActive || state.backgroundOptions.transparent) {
+    return "none";
   }
 
-  return mapQraftyGradient(state.backgroundGradient, state.backgroundGradient.enabled)
+  return mapQraftyGradient(state.backgroundGradient, state.backgroundGradient.enabled);
 }
 
 function mapGradient(state: QraftyState): QraftyQrCodeProps["gradient"] {
   if (state.dotsColorMode !== "gradient") {
-    return "none"
+    return "none";
   }
 
-  return mapQraftyGradient(state.dataModulesGradient, true)
+  return mapQraftyGradient(state.dataModulesGradient, true);
 }
 
 function mapLogo(state: QraftyState): QraftyQrCodeProps["logo"] | undefined {
-  const src = getAssetValue(state.logo)
+  const src = getAssetValue(state.logo);
   if (!src) {
-    return undefined
+    return undefined;
   }
 
   const logo: NonNullable<QraftyQrCodeProps["logo"]> = {
     crossOrigin: state.imageOptions.crossOrigin || undefined,
     excavate: state.imageOptions.hideBackgroundDots,
     src,
-  }
+  };
 
   if (state.imageOptions.sizeMode === "pixels") {
     if (state.imageOptions.widthPx !== undefined) {
-      logo.width = Math.max(1, state.imageOptions.widthPx)
+      logo.width = Math.max(1, state.imageOptions.widthPx);
     }
     if (state.imageOptions.heightPx !== undefined) {
-      logo.height = Math.max(1, state.imageOptions.heightPx)
+      logo.height = Math.max(1, state.imageOptions.heightPx);
     }
   } else {
-    logo.size = state.imageOptions.imageSize
+    logo.size = state.imageOptions.imageSize;
   }
 
   if (state.imageOptions.opacity !== 1) {
-    logo.opacity = state.imageOptions.opacity
+    logo.opacity = state.imageOptions.opacity;
   }
 
   if (state.imageOptions.logoPositionMode === "custom") {
     if (state.imageOptions.x !== undefined) {
-      logo.x = state.imageOptions.x
+      logo.x = state.imageOptions.x;
     }
     if (state.imageOptions.y !== undefined) {
-      logo.y = state.imageOptions.y
+      logo.y = state.imageOptions.y;
     }
   }
 
-  return logo
+  return logo;
 }
 
 function mapValue(state: QraftyState): QraftyQrCodeProps["value"] {
   if (state.valueSegments?.length) {
     return state.valueSegments.flatMap((segment) => {
-      const trimmed = segment.trim()
-      return trimmed ? [trimmed] : []
-    })
+      const trimmed = segment.trim();
+      return trimmed ? [trimmed] : [];
+    });
   }
 
-  return state.data.trim()
+  return state.data.trim();
 }
 
 function mapModuleFillImage(state: QraftyState): string | undefined {
   if (state.dotsColorMode !== "image") {
-    return undefined
+    return undefined;
   }
 
-  return getAssetValue(state.moduleFillImage) || undefined
+  return getAssetValue(state.moduleFillImage) || undefined;
 }
 
 export function toQraftyQrConfig(state: QraftyState): QraftyQrCodeProps {
-  const logo = mapLogo(state)
+  const logo = mapLogo(state);
   const unifiedGradient =
-    state.gradientLinkMode === "unified" && state.dotsColorMode === "gradient"
-  const unifiedImage = state.dotsColorMode === "image" && Boolean(mapModuleFillImage(state))
-  const unifiedFill = unifiedGradient || unifiedImage
+    state.gradientLinkMode === "unified" && state.dotsColorMode === "gradient";
+  const unifiedImage = state.dotsColorMode === "image" && Boolean(mapModuleFillImage(state));
+  const unifiedFill = unifiedGradient || unifiedImage;
 
   return {
     ...(state.ariaLabel ? { ariaLabel: state.ariaLabel } : {}),
@@ -186,5 +178,5 @@ export function toQraftyQrConfig(state: QraftyState): QraftyQrCodeProps {
     ...(unifiedImage ? { gradientMode: "unified-image" as const } : {}),
     ...(mapModuleFillImage(state) ? { moduleFillImage: mapModuleFillImage(state) } : {}),
     ...(logo ? { logo } : {}),
-  }
+  };
 }

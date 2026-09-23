@@ -1,49 +1,42 @@
-import { Suspense, useContext } from "react"
+import { Suspense, useContext } from "react";
 
-import { parseFill } from "@/components/ui/fill-picker/lib/gradient"
-import type { Fill } from "@/components/ui/fill-picker/public-api"
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext"
-import { applyShapeFill, readShapeFillCss } from "@/features/shell/inspector/settings-bridge"
-import { getActiveFillPresetForStoredValue } from "@/features/shell/inspector/settings-fill-preset-match"
-import { SETTINGS_PREVIEW_TILE } from "@/features/shell/inspector/SettingsPreviewTiles"
-import {
-  ShapeGlyph,
-  SQUARE_SHAPE_VIEWBOX,
-} from "@/features/shell/inspector/SettingsSections"
-import { SegmentTabs, SettingsSlider } from "@/features/shell/inspector/settings-ui"
-import { QR_BACKGROUND_SHAPES, shapeViewBox } from "@/features/qr/styles/background-shapes"
-import { cn } from "@/lib/utils"
+import { parseFill } from "@/components/ui/fill-picker/lib/gradient";
+import type { Fill } from "@/components/ui/fill-picker/public-api";
+import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext";
+import { applyShapeFill, readShapeFillCss } from "@/features/shell/inspector/settings-bridge";
+import { getActiveFillPresetForStoredValue } from "@/features/shell/inspector/settings-fill-preset-match";
+import { SETTINGS_PREVIEW_TILE } from "@/features/shell/inspector/SettingsPreviewTiles";
+import { ShapeGlyph, SQUARE_SHAPE_VIEWBOX } from "@/features/shell/inspector/SettingsSections";
+import { SegmentTabs, SettingsSlider } from "@/features/shell/inspector/settings-ui";
+import { QR_BACKGROUND_SHAPES, shapeViewBox } from "@/features/qr/styles/background-shapes";
+import { cn } from "@/lib/utils";
 
-import { LazyInspectorFillPicker } from "../lazy-details"
-import {
-  MobileRailModeContext,
-  useLatestModel,
-  type MobileRailRowProps,
-} from "../rail-context"
+import { LazyInspectorFillPicker } from "../lazy-details";
+import { MobileRailModeContext, useLatestModel, type MobileRailRowProps } from "../rail-context";
 import {
   fillPresetsForMode,
   lockedFillModeForRailMode,
   SHAPE_FILL_MODES,
   SHAPE_VIEW_MODES,
   shapeFillSubMode,
-} from "../rail-modes"
-import { MobileRailPickerTile, MobileRailSwatchTile } from "../tiles"
+} from "../rail-modes";
+import { MobileRailPickerTile, MobileRailSwatchTile } from "../tiles";
 
 export function MobileShapeRailRow({ model }: MobileRailRowProps) {
-  const navigation = useMobileDrawerNavigation()
-  const railMode = useContext(MobileRailModeContext)
-  const modelRef = useLatestModel(model)
-  const mode = railMode?.mode ?? "shape"
-  const selected = model.actualShapeSettings.backgroundShapeId
+  const navigation = useMobileDrawerNavigation();
+  const railMode = useContext(MobileRailModeContext);
+  const modelRef = useLatestModel(model);
+  const mode = railMode?.mode ?? "shape";
+  const selected = model.actualShapeSettings.backgroundShapeId;
 
   if (mode.startsWith("fill:")) {
-    const value = readShapeFillCss(model.actualShapeSettings)
-    const presets = fillPresetsForMode(shapeFillSubMode(mode))
-    const activePreset = getActiveFillPresetForStoredValue(value, presets)
+    const value = readShapeFillCss(model.actualShapeSettings);
+    const presets = fillPresetsForMode(shapeFillSubMode(mode));
+    const activePreset = getActiveFillPresetForStoredValue(value, presets);
     const applyFill = (fill: Fill) => {
-      const m = modelRef.current
-      m.onShapeSettingsChange(applyShapeFill(fill, m.actualShapeSettings))
-    }
+      const m = modelRef.current;
+      m.onShapeSettingsChange(applyShapeFill(fill, m.actualShapeSettings));
+    };
 
     return (
       <>
@@ -78,15 +71,15 @@ export function MobileShapeRailRow({ model }: MobileRailRowProps) {
             fill={preset}
             selected={activePreset === preset}
             onSelect={() => {
-              const fill = parseFill(preset)
+              const fill = parseFill(preset);
               if (fill) {
-                applyFill(fill)
+                applyFill(fill);
               }
             }}
           />
         ))}
       </>
-    )
+    );
   }
 
   return (
@@ -121,7 +114,7 @@ export function MobileShapeRailRow({ model }: MobileRailRowProps) {
         </button>
       ))}
     </>
-  )
+  );
 }
 
 /**
@@ -130,9 +123,9 @@ export function MobileShapeRailRow({ model }: MobileRailRowProps) {
  * (Fill view) — same sliding-tab treatment as Color/Background.
  */
 export function MobileShapeRailFooter({ model }: MobileRailRowProps) {
-  const railMode = useContext(MobileRailModeContext)
-  const mode = railMode?.selectedMode ?? "shape"
-  const view = mode.startsWith("fill:") ? "fill" : "shape"
+  const railMode = useContext(MobileRailModeContext);
+  const mode = railMode?.selectedMode ?? "shape";
+  const view = mode.startsWith("fill:") ? "fill" : "shape";
 
   return (
     <div className="dn-mobile-settings-rail__shapefooter">
@@ -154,9 +147,7 @@ export function MobileShapeRailFooter({ model }: MobileRailRowProps) {
             label="Padding"
             max={192}
             value={model.actualShapeSettings.shapePadding}
-            onChange={(shapePadding) =>
-              model.onShapeSettingsChange({ shapePadding })
-            }
+            onChange={(shapePadding) => model.onShapeSettingsChange({ shapePadding })}
           />
         </div>
       )}
@@ -168,11 +159,9 @@ export function MobileShapeRailFooter({ model }: MobileRailRowProps) {
             label: entry.label,
           }))}
           value={view}
-          onChange={(value) =>
-            railMode?.setMode(value === "fill" ? "fill:solid" : "shape")
-          }
+          onChange={(value) => railMode?.setMode(value === "fill" ? "fill:solid" : "shape")}
         />
       </div>
     </div>
-  )
+  );
 }

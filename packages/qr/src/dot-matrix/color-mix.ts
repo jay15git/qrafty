@@ -60,11 +60,7 @@ export function mixHexColors(base: string, accent: string, mix: number, fallback
   return `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}`;
 }
 
-export function dualAccentMixFromCssBlend(blend: {
-  base: number;
-  mid: number;
-  peak: number;
-}) {
+export function dualAccentMixFromCssBlend(blend: { base: number; mid: number; peak: number }) {
   const accentWeight = blend.peak + blend.mid * 0.5;
   const total = blend.base + blend.mid + blend.peak;
   if (total <= 0) {
@@ -74,11 +70,7 @@ export function dualAccentMixFromCssBlend(blend: {
   return smoothBlendProgress(accentWeight / total);
 }
 
-export function dualAccentMixFromOpacity(
-  opacity: number,
-  baseAnchor: number,
-  peakAnchor: number,
-) {
+export function dualAccentMixFromOpacity(opacity: number, baseAnchor: number, peakAnchor: number) {
   if (!Number.isFinite(opacity)) {
     return 0;
   }

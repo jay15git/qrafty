@@ -1,16 +1,16 @@
-import { X } from "lucide-react"
-import type { ReactNode } from "react"
+import { X } from "lucide-react";
+import type { ReactNode } from "react";
 
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { CUELUME_BUTTON } from "@/features/shell/audio/cuelume"
-import { cn } from "@/lib/utils"
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { CUELUME_BUTTON } from "@/features/shell/audio/cuelume";
+import { cn } from "@/lib/utils";
 
 export function SettingsPopoverCloseButton({
   onClick,
   title,
 }: {
-  onClick?: () => void
-  title?: string
+  onClick?: () => void;
+  title?: string;
 }) {
   return (
     <button
@@ -22,7 +22,7 @@ export function SettingsPopoverCloseButton({
     >
       <X aria-hidden className="size-3.5" strokeWidth={2} />
     </button>
-  )
+  );
 }
 
 export function SettingsPopoverChrome({
@@ -31,10 +31,10 @@ export function SettingsPopoverChrome({
   children,
   bodyClassName,
 }: {
-  title: string
-  onClose: () => void
-  children: ReactNode
-  bodyClassName?: string
+  title: string;
+  onClose: () => void;
+  children: ReactNode;
+  bodyClassName?: string;
 }) {
   return (
     <div className="dn-settings-popover-shell">
@@ -52,5 +52,5 @@ export function SettingsPopoverChrome({
         {children}
       </ScrollArea>
     </div>
-  )
+  );
 }

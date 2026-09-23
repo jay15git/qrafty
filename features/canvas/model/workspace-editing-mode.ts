@@ -1,4 +1,4 @@
-import type { ToolbarToolId } from "@/features/shell/components/FloatingToolbar"
+import type { ToolbarToolId } from "@/features/shell/components/FloatingToolbar";
 
 const TOOLBAR_TOOL_IDS: ToolbarToolId[] = [
   "layout",
@@ -14,8 +14,8 @@ const TOOLBAR_TOOL_IDS: ToolbarToolId[] = [
   "text",
   "image",
   "layers",
-]
+];
 
 export function getVisibleToolbarToolIds(): ToolbarToolId[] {
-  return TOOLBAR_TOOL_IDS
+  return TOOLBAR_TOOL_IDS;
 }

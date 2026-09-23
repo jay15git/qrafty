@@ -11,12 +11,12 @@ import type {
   PatternSettings,
   ShapeSettings,
   TextSettings,
-} from "@/features/shell/model/toolbar-types"
-import type { QraftyState } from "@/features/qr/model/state"
-import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
-import type { SceneCompositionState } from "@/features/canvas/model/scene-templates"
+} from "@/features/shell/model/toolbar-types";
+import type { QraftyState } from "@/features/qr/model/state";
+import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
+import type { SceneCompositionState } from "@/features/canvas/model/scene-templates";
 import {
   getAssetSourceMode,
   getExportTarget,
@@ -24,103 +24,103 @@ import {
   getLayerTextSettings,
   toLayerRow,
   type DraftingDownloadTarget,
-} from "@/features/canvas/components/drafting-canvas-operations"
+} from "@/features/canvas/components/drafting-canvas-operations";
 
 export type ToolbarSettingsSnapshots = {
-  patternSettings: PatternSettings
-  logoSettings: LogoSettings
-  cornersSettings: CornersSettings
-  shapeSettings: ShapeSettings
-  encodingSettings: EncodingSettings
-  accessibilitySettings: AccessibilitySettings
-  imageSettings: ImageSettings
-  backgroundSettings: BackgroundSettings
-  effectsSettings: EffectsSettings
-  layersSettings: LayersSettings
-  exportSettings: ExportSettings
+  patternSettings: PatternSettings;
+  logoSettings: LogoSettings;
+  cornersSettings: CornersSettings;
+  shapeSettings: ShapeSettings;
+  encodingSettings: EncodingSettings;
+  accessibilitySettings: AccessibilitySettings;
+  imageSettings: ImageSettings;
+  backgroundSettings: BackgroundSettings;
+  effectsSettings: EffectsSettings;
+  layersSettings: LayersSettings;
+  exportSettings: ExportSettings;
   sceneTemplateSettings: {
     sizeSettings: {
-      cardHeight: number
-      cardWidth: number
-      lockAspectRatio: boolean
-      sizeMode: DraftingCardState["sizeMode"]
-      sizePresetId?: string
-    }
-  }
+      cardHeight: number;
+      cardWidth: number;
+      lockAspectRatio: boolean;
+      sizeMode: DraftingCardState["sizeMode"];
+      sizePresetId?: string;
+    };
+  };
   layoutSettings: {
-    layout: SceneCompositionState["layout"]
-  }
-  textSettings: TextSettings
-}
+    layout: SceneCompositionState["layout"];
+  };
+  textSettings: TextSettings;
+};
 
 export type BuildToolbarSettingsSnapshotsInput = {
-  activeQrNodeId: string
-  activeCanvasLayers: DraftingCanvasLayer[]
-  activeCanvasLayerRows: DraftingCanvasLayer[]
-  activeSceneComposition: SceneCompositionState
-  draftingQraftyState: QraftyState
-  selectedAriaLabel: string
-  selectedBackgroundColor: string
-  selectedBackgroundColorMode: "solid" | "gradient"
-  selectedBackgroundGradient: QraftyState["backgroundGradient"]
-  selectedBackgroundShapeId: QraftyState["backgroundShapeId"]
-  selectedBackgroundShapeOptions: QraftyState["backgroundShapeOptions"]
-  selectedBoostLevel: boolean
-  selectedCardState: DraftingCardState
-  selectedCornerDotColor: string
-  selectedCornerDotColorMode: "solid" | "gradient"
-  selectedCornerDotGradient: QraftyState["finderPatternInnerGradient"]
-  selectedCornerSquareColor: string
-  selectedCornerSquareColorMode: "solid" | "gradient"
-  selectedCornerSquareGradient: QraftyState["finderPatternOuterGradient"]
-  selectedDotColor: string
-  selectedDotType: QraftyState["dataModulesSettings"]["type"]
-  selectedDotsColorMode: QraftyState["dotsColorMode"]
-  selectedDotsGradient: QraftyState["dataModulesGradient"]
-  selectedDotsPalette: string[]
-  selectedDotsPalettePreset: string | "custom"
-  selectedModuleFillImageUrl: string
-  selectedModuleFillImageSourceMode: "upload" | "url"
-  selectedModuleFillRemoteUrl: string
-  selectedDownloadExtension: string
-  selectedDownloadTarget: DraftingDownloadTarget
-  selectedExportMediaKind: ExportSettings["mediaKind"]
-  selectedVideoDurationSeconds: ExportSettings["videoDurationSeconds"]
-  selectedVideoFormat: ExportSettings["videoFormat"]
-  selectedVideoFrameRate: ExportSettings["videoFrameRate"]
-  selectedVideoLongEdge: ExportSettings["videoLongEdge"]
-  selectedGradientLinkMode: QraftyState["gradientLinkMode"]
-  selectedHideBackgroundDots: boolean
-  selectedLayerId: string | null
-  selectedLogoAssetSourceMode: "upload" | "url"
-  selectedLogoColor: string
-  selectedLogoColorMode: "solid" | "gradient"
-  selectedLogoCrossOrigin: QraftyState["imageOptions"]["crossOrigin"]
-  selectedLogoGradient: QraftyState["logoGradient"]
-  selectedLogoHeightPx?: number
-  selectedLogoLockAspect: boolean
-  selectedLogoMargin: number
-  selectedLogoOffsetX: number
-  selectedLogoOffsetY: number
-  selectedLogoOpacity: number
-  selectedLogoPositionMode: QraftyState["imageOptions"]["logoPositionMode"]
-  selectedLogoPresetId: string | null
-  selectedLogoRemoteUrl: string
-  selectedLogoSize: number
-  selectedLogoSizeMode: QraftyState["imageOptions"]["sizeMode"]
-  selectedLogoSourceMode: QraftyState["logo"]["source"]
-  selectedLogoWidthPx?: number
-  selectedModuleLineWidth?: number
-  selectedModuleRoundSize: boolean
-  selectedModuleSize?: number
-  selectedQrErrorCorrectionLevel: QraftyState["qrOptions"]["errorCorrectionLevel"]
-  selectedQrFinderPatternInnerStyle: QraftyState["finderPatternInnerSettings"]["type"]
-  selectedQrFinderPatternOuterStyle: QraftyState["finderPatternOuterSettings"]["type"]
-  selectedQrTypeNumber: QraftyState["qrOptions"]["typeNumber"]
-  selectedPhotoLongEdge: ExportSettings["photoLongEdge"]
-  selectedTextLayer: DraftingCanvasLayer | null
-  selectedValueSegmentsText: string
-}
+  activeQrNodeId: string;
+  activeCanvasLayers: DraftingCanvasLayer[];
+  activeCanvasLayerRows: DraftingCanvasLayer[];
+  activeSceneComposition: SceneCompositionState;
+  draftingQraftyState: QraftyState;
+  selectedAriaLabel: string;
+  selectedBackgroundColor: string;
+  selectedBackgroundColorMode: "solid" | "gradient";
+  selectedBackgroundGradient: QraftyState["backgroundGradient"];
+  selectedBackgroundShapeId: QraftyState["backgroundShapeId"];
+  selectedBackgroundShapeOptions: QraftyState["backgroundShapeOptions"];
+  selectedBoostLevel: boolean;
+  selectedCardState: DraftingCardState;
+  selectedCornerDotColor: string;
+  selectedCornerDotColorMode: "solid" | "gradient";
+  selectedCornerDotGradient: QraftyState["finderPatternInnerGradient"];
+  selectedCornerSquareColor: string;
+  selectedCornerSquareColorMode: "solid" | "gradient";
+  selectedCornerSquareGradient: QraftyState["finderPatternOuterGradient"];
+  selectedDotColor: string;
+  selectedDotType: QraftyState["dataModulesSettings"]["type"];
+  selectedDotsColorMode: QraftyState["dotsColorMode"];
+  selectedDotsGradient: QraftyState["dataModulesGradient"];
+  selectedDotsPalette: string[];
+  selectedDotsPalettePreset: string | "custom";
+  selectedModuleFillImageUrl: string;
+  selectedModuleFillImageSourceMode: "upload" | "url";
+  selectedModuleFillRemoteUrl: string;
+  selectedDownloadExtension: string;
+  selectedDownloadTarget: DraftingDownloadTarget;
+  selectedExportMediaKind: ExportSettings["mediaKind"];
+  selectedVideoDurationSeconds: ExportSettings["videoDurationSeconds"];
+  selectedVideoFormat: ExportSettings["videoFormat"];
+  selectedVideoFrameRate: ExportSettings["videoFrameRate"];
+  selectedVideoLongEdge: ExportSettings["videoLongEdge"];
+  selectedGradientLinkMode: QraftyState["gradientLinkMode"];
+  selectedHideBackgroundDots: boolean;
+  selectedLayerId: string | null;
+  selectedLogoAssetSourceMode: "upload" | "url";
+  selectedLogoColor: string;
+  selectedLogoColorMode: "solid" | "gradient";
+  selectedLogoCrossOrigin: QraftyState["imageOptions"]["crossOrigin"];
+  selectedLogoGradient: QraftyState["logoGradient"];
+  selectedLogoHeightPx?: number;
+  selectedLogoLockAspect: boolean;
+  selectedLogoMargin: number;
+  selectedLogoOffsetX: number;
+  selectedLogoOffsetY: number;
+  selectedLogoOpacity: number;
+  selectedLogoPositionMode: QraftyState["imageOptions"]["logoPositionMode"];
+  selectedLogoPresetId: string | null;
+  selectedLogoRemoteUrl: string;
+  selectedLogoSize: number;
+  selectedLogoSizeMode: QraftyState["imageOptions"]["sizeMode"];
+  selectedLogoSourceMode: QraftyState["logo"]["source"];
+  selectedLogoWidthPx?: number;
+  selectedModuleLineWidth?: number;
+  selectedModuleRoundSize: boolean;
+  selectedModuleSize?: number;
+  selectedQrErrorCorrectionLevel: QraftyState["qrOptions"]["errorCorrectionLevel"];
+  selectedQrFinderPatternInnerStyle: QraftyState["finderPatternInnerSettings"]["type"];
+  selectedQrFinderPatternOuterStyle: QraftyState["finderPatternOuterSettings"]["type"];
+  selectedQrTypeNumber: QraftyState["qrOptions"]["typeNumber"];
+  selectedPhotoLongEdge: ExportSettings["photoLongEdge"];
+  selectedTextLayer: DraftingCanvasLayer | null;
+  selectedValueSegmentsText: string;
+};
 
 export function buildToolbarSettingsSnapshots(
   input: BuildToolbarSettingsSnapshotsInput,
@@ -133,7 +133,7 @@ export function buildToolbarSettingsSnapshots(
     draftingQraftyState,
     selectedCardState,
     selectedTextLayer,
-  } = input
+  } = input;
 
   const patternSettings: PatternSettings = {
     dotsColorMode: input.selectedDotsColorMode,
@@ -151,13 +151,12 @@ export function buildToolbarSettingsSnapshots(
     moduleSize: input.selectedModuleSize,
     moduleLineWidth: input.selectedModuleLineWidth,
     gradientLinkMode: input.selectedGradientLinkMode,
-  }
+  };
 
   const logoSettings: LogoSettings = {
     colorMode: input.selectedLogoColorMode,
     customImageUrl:
-      draftingQraftyState.logo.source === "upload" ||
-      draftingQraftyState.logo.source === "url"
+      draftingQraftyState.logo.source === "upload" || draftingQraftyState.logo.source === "url"
         ? (draftingQraftyState.logo.value ?? "")
         : "",
     gradient: input.selectedLogoGradient,
@@ -178,7 +177,7 @@ export function buildToolbarSettingsSnapshots(
     offsetX: input.selectedLogoOffsetX,
     offsetY: input.selectedLogoOffsetY,
     crossOrigin: input.selectedLogoCrossOrigin,
-  }
+  };
 
   const cornersSettings: CornersSettings = {
     cornerDotColorMode: input.selectedCornerDotColorMode,
@@ -189,13 +188,13 @@ export function buildToolbarSettingsSnapshots(
     cornerSquareGradient: input.selectedCornerSquareGradient,
     cornerSquareSolidColor: input.selectedCornerSquareColor,
     cornerSquareType: input.selectedQrFinderPatternOuterStyle,
-  }
+  };
 
   const activeQrLayer =
     activeCanvasLayers.find((layer) => layer.kind === "qr") ??
     createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState).find(
       (layer) => layer.kind === "qr",
-    )
+    );
 
   const shapeSettings: ShapeSettings = {
     backgroundShapeId: input.selectedBackgroundShapeId,
@@ -221,18 +220,18 @@ export function buildToolbarSettingsSnapshots(
     shadowOpacity: selectedCardState.shadow.opacity,
     sizeMode: selectedCardState.sizeMode,
     sizePresetId: selectedCardState.sizePresetId,
-  }
+  };
 
   const encodingSettings: EncodingSettings = {
     errorCorrectionLevel: input.selectedQrErrorCorrectionLevel,
     typeNumber: input.selectedQrTypeNumber,
     boostLevel: input.selectedBoostLevel,
     valueSegmentsText: input.selectedValueSegmentsText,
-  }
+  };
 
   const accessibilitySettings: AccessibilitySettings = {
     ariaLabel: input.selectedAriaLabel,
-  }
+  };
 
   const imageSettings: ImageSettings = {
     fit: selectedCardState.cardImage.fit,
@@ -240,22 +239,22 @@ export function buildToolbarSettingsSnapshots(
     opacity: selectedCardState.cardImage.opacity,
     remoteUrl: selectedCardState.cardImage.value ?? "",
     sourceMode: getAssetSourceMode(selectedCardState.cardImage.source),
-  }
+  };
 
   const backgroundSettings: BackgroundSettings = {
     paperShader: selectedCardState.paperShader,
     styleMode: selectedCardState.styleMode,
-  }
+  };
 
   const effectsSettings: EffectsSettings = {
     filterId: selectedCardState.imageFilter.shaderId,
     filterPresetName: selectedCardState.imageFilter.presetName,
-  }
+  };
 
   const layersSettings: LayersSettings = {
     layers: activeCanvasLayerRows.map((layer) => toLayerRow(layer)),
     selectedLayerId: input.selectedLayerId ?? activeCanvasLayerRows[0]?.id ?? "",
-  }
+  };
 
   const exportSettings: ExportSettings = {
     extension: input.selectedDownloadExtension as ExportSettings["extension"],
@@ -266,7 +265,7 @@ export function buildToolbarSettingsSnapshots(
     videoFormat: input.selectedVideoFormat,
     videoFrameRate: input.selectedVideoFrameRate,
     videoLongEdge: input.selectedVideoLongEdge,
-  }
+  };
 
   return {
     patternSettings,
@@ -293,7 +292,7 @@ export function buildToolbarSettingsSnapshots(
       layout: activeSceneComposition.layout,
     },
     textSettings: getLayerTextSettings(selectedTextLayer),
-  }
+  };
 }
 
 export function pickToolbarSettingsSnapshots(snapshots: ToolbarSettingsSnapshots) {
@@ -312,5 +311,5 @@ export function pickToolbarSettingsSnapshots(snapshots: ToolbarSettingsSnapshots
     desktopSceneTemplateSettings: snapshots.sceneTemplateSettings,
     desktopLayoutSettings: snapshots.layoutSettings,
     desktopTextSettings: snapshots.textSettings,
-  }
+  };
 }

@@ -1,7 +1,4 @@
-import {
-  PulsingBorderAspectRatios,
-  pulsingBorderMeta,
-} from "@paper-design/shaders"
+import { PulsingBorderAspectRatios, pulsingBorderMeta } from "@paper-design/shaders";
 import {
   color,
   COMMON_HIDDEN_PARAMS,
@@ -9,7 +6,7 @@ import {
   option,
   withColors,
   type PaperShaderControlConfig,
-} from "@/features/canvas/rendering/paper-shaders/shared"
+} from "@/features/canvas/rendering/paper-shaders/shared";
 
 export const BORDER_SHADER_CONTROL_CONFIG: Record<string, PaperShaderControlConfig> = {
   "pulsing-border": {
@@ -39,5 +36,4 @@ export const BORDER_SHADER_CONTROL_CONFIG: Record<string, PaperShaderControlConf
       number("marginBottom", 0, 0.5, 403),
     ]),
   },
-}
-
+};

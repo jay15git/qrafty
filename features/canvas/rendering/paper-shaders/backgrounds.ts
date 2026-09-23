@@ -13,7 +13,7 @@ import {
   warpMeta,
   GrainGradientShapes,
   WarpPatterns,
-} from "@paper-design/shaders"
+} from "@paper-design/shaders";
 import {
   color,
   COMMON_HIDDEN_PARAMS,
@@ -23,7 +23,7 @@ import {
   toggle,
   withColors,
   type PaperShaderControlConfig,
-} from "@/features/canvas/rendering/paper-shaders/shared"
+} from "@/features/canvas/rendering/paper-shaders/shared";
 
 export const BACKGROUND_SHADER_CONTROL_CONFIG: Record<string, PaperShaderControlConfig> = {
   "mesh-gradient": {
@@ -227,5 +227,4 @@ export const BACKGROUND_SHADER_CONTROL_CONFIG: Record<string, PaperShaderControl
       number("offsetY", -1, 1, 301),
     ]),
   },
-}
-
+};

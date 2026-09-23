@@ -1,18 +1,15 @@
-import {
-  normalizeUrl,
-  stringFieldValue,
-} from "@/features/qr/content/platform-builders"
+import { normalizeUrl, stringFieldValue } from "@/features/qr/content/platform-builders";
 import {
   isDiscordChannelPath,
   isDiscordServerPath,
   segments,
-} from "@/features/qr/content/platform-path-matching"
+} from "@/features/qr/content/platform-path-matching";
 import {
   textField,
   urlField,
   urlIntent,
   type PlatformDef,
-} from "@/features/qr/content/intents/shared"
+} from "@/features/qr/content/intents/shared";
 
 export const MESSAGING_PLATFORM_DEFS: readonly PlatformDef[] = [
   {
@@ -32,13 +29,13 @@ export const MESSAGING_PLATFORM_DEFS: readonly PlatformDef[] = [
           textField("message", "Message"),
         ],
         build: (values) => {
-          const url = stringFieldValue(values, "url")
-          if (url) return normalizeUrl(url)
-          const phone = stringFieldValue(values, "phone").replace(/\D/g, "")
-          const message = stringFieldValue(values, "message")
+          const url = stringFieldValue(values, "url");
+          if (url) return normalizeUrl(url);
+          const phone = stringFieldValue(values, "phone").replace(/\D/g, "");
+          const message = stringFieldValue(values, "message");
           return message
             ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
-            : `https://wa.me/${phone}`
+            : `https://wa.me/${phone}`;
         },
         matchPath: (_, params) => !stringFieldValue({ url: params.get("invite") ?? "" }, "url"),
       },
@@ -58,26 +55,28 @@ export const MESSAGING_PLATFORM_DEFS: readonly PlatformDef[] = [
       urlIntent("group", "Group", (p) => p.includes("+") || p.includes("joinchat")),
       urlIntent("share", "Share", (p) => p.includes("/share/")),
       urlIntent("username", "Username", (p, params) => {
-        const seg = segments(p)
-        return seg.length === 1 && !p.includes("+") && !p.includes("joinchat") && !params.has("text")
+        const seg = segments(p);
+        return (
+          seg.length === 1 && !p.includes("+") && !p.includes("joinchat") && !params.has("text")
+        );
       }),
       {
         id: "message",
         label: "Message",
         fields: [urlField(), textField("message", "Message")],
         build: (values) => {
-          const url = normalizeUrl(stringFieldValue(values, "url"))
-          const message = stringFieldValue(values, "message")
+          const url = normalizeUrl(stringFieldValue(values, "url"));
+          const message = stringFieldValue(values, "message");
           if (!message) {
-            return url
+            return url;
           }
 
           try {
-            const parsed = new URL(url)
-            parsed.searchParams.set("text", message)
-            return parsed.toString()
+            const parsed = new URL(url);
+            parsed.searchParams.set("text", message);
+            return parsed.toString();
           } catch {
-            return url
+            return url;
           }
         },
         matchPath: (p, params) => segments(p).length === 1 && params.has("text"),
@@ -140,4 +139,4 @@ export const MESSAGING_PLATFORM_DEFS: readonly PlatformDef[] = [
       urlIntent("call", "Call", (p) => p.includes("/call") || p.includes("skype:")),
     ],
   },
-]
+];

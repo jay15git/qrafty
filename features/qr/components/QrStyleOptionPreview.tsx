@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import Image from "next/image"
+import Image from "next/image";
 
-import type { StylePreviewKind } from "@/features/qr/components/StylePreview"
-import { getQrStyleOptionPreviewUrl } from "@/features/qr/styles/qr-style-option-preview.registry"
-import { cn } from "@/lib/utils"
+import type { StylePreviewKind } from "@/features/qr/components/StylePreview";
+import { getQrStyleOptionPreviewUrl } from "@/features/qr/styles/qr-style-option-preview.registry";
+import { cn } from "@/lib/utils";
 
 export function QrStyleOptionPreview({
   className,
   previewKind,
   value,
 }: {
-  className?: string
-  previewKind: StylePreviewKind
-  value: string
+  className?: string;
+  previewKind: StylePreviewKind;
+  value: string;
 }) {
-  const src = getQrStyleOptionPreviewUrl(previewKind, value)
+  const src = getQrStyleOptionPreviewUrl(previewKind, value);
 
   return (
     <Image
@@ -29,5 +29,5 @@ export function QrStyleOptionPreview({
       src={src}
       width={64}
     />
-  )
+  );
 }

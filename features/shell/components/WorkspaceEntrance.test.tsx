@@ -2,48 +2,45 @@
  * @vitest-environment jsdom
  */
 
-import { act } from "react"
-import { createRoot, type Root } from "react-dom/client"
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { act } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { WorkspaceEntrance } from "@/features/shell/components/WorkspaceEntrance"
+import { WorkspaceEntrance } from "@/features/shell/components/WorkspaceEntrance";
 
-function mount(
-  ui: React.ReactNode,
-  container: HTMLElement,
-): { root: Root; unmount: () => void } {
-  const root = createRoot(container)
+function mount(ui: React.ReactNode, container: HTMLElement): { root: Root; unmount: () => void } {
+  const root = createRoot(container);
   act(() => {
-    root.render(ui)
-  })
+    root.render(ui);
+  });
   return {
     root,
     unmount: () => {
       act(() => {
-        root.unmount()
-      })
+        root.unmount();
+      });
     },
-  }
+  };
 }
 
 describe("WorkspaceEntrance", () => {
-  let container: HTMLDivElement
+  let container: HTMLDivElement;
 
   beforeEach(() => {
-    container = document.createElement("div")
-    document.body.appendChild(container)
+    container = document.createElement("div");
+    document.body.appendChild(container);
     vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
-      callback(0)
-      return 1
-    })
-    vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => {})
-  })
+      callback(0);
+      return 1;
+    });
+    vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => {});
+  });
 
   afterEach(() => {
-    vi.restoreAllMocks()
-    vi.useRealTimers()
-    container.remove()
-  })
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+    container.remove();
+  });
 
   it("stays loading until the workspace canvas is ready", () => {
     mount(
@@ -51,11 +48,11 @@ describe("WorkspaceEntrance", () => {
         <div data-slot="drafting-workspace-loading">Loading</div>
       </WorkspaceEntrance>,
       container,
-    )
+    );
 
-    const root = document.querySelector('[data-slot="entrance-root"]')
-    expect(root?.getAttribute("data-entrance")).toBe("loading")
-  })
+    const root = document.querySelector('[data-slot="entrance-root"]');
+    expect(root?.getAttribute("data-entrance")).toBe("loading");
+  });
 
   it("reveals once drafting-surface is mounted and loading is gone", () => {
     mount(
@@ -63,27 +60,27 @@ describe("WorkspaceEntrance", () => {
         <div data-slot="drafting-surface">Canvas</div>
       </WorkspaceEntrance>,
       container,
-    )
+    );
 
-    const root = document.querySelector('[data-slot="entrance-root"]')
-    expect(root?.getAttribute("data-entrance")).toBe("revealing")
-  })
+    const root = document.querySelector('[data-slot="entrance-root"]');
+    expect(root?.getAttribute("data-entrance")).toBe("revealing");
+  });
 
   it("marks the entrance done after the staggered reveal window", () => {
-    vi.useFakeTimers()
+    vi.useFakeTimers();
 
     mount(
       <WorkspaceEntrance theme="light">
         <div data-slot="drafting-surface">Canvas</div>
       </WorkspaceEntrance>,
       container,
-    )
+    );
 
     act(() => {
-      vi.advanceTimersByTime(950)
-    })
+      vi.advanceTimersByTime(950);
+    });
 
-    const root = document.querySelector('[data-slot="entrance-root"]')
-    expect(root?.getAttribute("data-entrance")).toBe("done")
-  })
-})
+    const root = document.querySelector('[data-slot="entrance-root"]');
+    expect(root?.getAttribute("data-entrance")).toBe("done");
+  });
+});

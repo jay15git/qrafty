@@ -60,7 +60,6 @@ describe("dot matrix motion bridge", () => {
     expect(resolveDotMatrixMotionPreset(state.dotMatrixAnimation)).toBe("NeonDrift");
   });
 
-
   it("adapts canvas svg for dot matrix motion while preserving styled markers", () => {
     const state = createDefaultQraftyState();
     state.data = "https://styled.example";
@@ -79,10 +78,12 @@ describe("dot matrix motion bridge", () => {
     const moduleTags = adapted!.svg.match(/<[^>]*class="module"[^>]*>/g) ?? [];
     const duplicateCoordinateModules = moduleTags.filter((tag, index, tags) => {
       const coordinate = `${tag.match(/data-column="(\d+)"/)?.[1]}:${tag.match(/data-row="(\d+)"/)?.[1]}`;
-      return tags.findIndex((candidate) => {
-        const candidateCoordinate = `${candidate.match(/data-column="(\d+)"/)?.[1]}:${candidate.match(/data-row="(\d+)"/)?.[1]}`;
-        return candidateCoordinate === coordinate;
-      }) !== index;
+      return (
+        tags.findIndex((candidate) => {
+          const candidateCoordinate = `${candidate.match(/data-column="(\d+)"/)?.[1]}:${candidate.match(/data-row="(\d+)"/)?.[1]}`;
+          return candidateCoordinate === coordinate;
+        }) !== index
+      );
     });
 
     expect(duplicateCoordinateModules).toEqual([]);
@@ -101,7 +102,7 @@ describe("dot matrix motion bridge", () => {
     });
 
     expect(new Set(coordinates).size).toBe(coordinates.length);
-    expect(adapted!.svg).toContain("<g class=\"module\"");
+    expect(adapted!.svg).toContain('<g class="module"');
   });
 
   it("prefers canvas svg markup over qrcode.react when building config", () => {
@@ -135,9 +136,9 @@ describe("dot matrix motion bridge", () => {
       .map((moduleElement) => moduleElement.style.transform)
       .filter(Boolean);
 
-    expect(transforms.some((transform) => /^translate\([^,]+, [^)]+\) scale\([^)]+\)$/.test(transform))).toBe(
-      true,
-    );
+    expect(
+      transforms.some((transform) => /^translate\([^,]+, [^)]+\) scale\([^)]+\)$/.test(transform)),
+    ).toBe(true);
   });
 
   it("keeps radial modules visible in detached video frames", () => {
@@ -218,9 +219,7 @@ describe("dot matrix motion bridge", () => {
     const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
     const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
     const document = new DOMParser().parseFromString(adapted!.svg, "image/svg+xml");
-    const palettePaths = document.querySelectorAll(
-      '[data-qr-layer="dot-palette-fill"] > path',
-    );
+    const palettePaths = document.querySelectorAll('[data-qr-layer="dot-palette-fill"] > path');
     const modulesInsideDefs = document.querySelectorAll("defs .module");
 
     expect(palettePaths.length).toBeGreaterThan(state.dotsPalette.length);
@@ -270,8 +269,7 @@ describe("dot matrix motion bridge", () => {
 
     const coordinates = new Set(
       Array.from(modules).map(
-        (element) =>
-          `${element.getAttribute("data-column")}:${element.getAttribute("data-row")}`,
+        (element) => `${element.getAttribute("data-column")}:${element.getAttribute("data-row")}`,
       ),
     );
     expect(coordinates.size).toBe(modules.length);
@@ -312,5 +310,4 @@ describe("dot matrix motion bridge", () => {
     expect(toDotMatrixQrConfig(paletteState).preserveModuleFills).toBe(true);
     expect(toDotMatrixQrConfig(solidState).preserveModuleFills).toBe(false);
   });
-
 });

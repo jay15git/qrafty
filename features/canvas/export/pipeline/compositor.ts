@@ -1,73 +1,72 @@
-import { preprocessSvg } from "@qrafty/qr-internal/codegen"
-import { clampBackgroundShapeTilt } from "@/features/qr/model/state"
-import { rasterizeSvgMarkupToCanvas } from "@/features/qr/rendering/svg-raster"
-import type { QrFileExtension } from "@/features/qr/model/types"
-import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import type { QraftyState } from "@/features/qr/model/state"
-import {
-  buildRoundedRectPath,
-  resolveCornerRadii,
-} from "@/features/canvas/model/corner-radius"
+import { preprocessSvg } from "@qrafty/qr-internal/codegen";
+import { clampBackgroundShapeTilt } from "@/features/qr/model/state";
+import { rasterizeSvgMarkupToCanvas } from "@/features/qr/rendering/svg-raster";
+import type { QrFileExtension } from "@/features/qr/model/types";
+import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { QraftyState } from "@/features/qr/model/state";
+import { buildRoundedRectPath, resolveCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
   buildFontFaceDefs,
   inlineRemoteUrl,
   inlineSvgImageHrefs,
-} from "@/features/canvas/export/pipeline/assets"
+} from "@/features/canvas/export/pipeline/assets";
+import { buildLayeredSvgParts } from "@/features/canvas/export/layered-svg-parts";
+import { getArtboardExportBounds } from "@/features/canvas/export/pipeline/bounds";
 import {
-  buildLayeredSvgParts,
-} from "@/features/canvas/export/layered-svg-parts"
-import { getArtboardExportBounds } from "@/features/canvas/export/pipeline/bounds"
-import { cssFillToCanvasColor, isConicCssFill, paintConicCssFill } from "@/features/canvas/export/svg-css-fill"
+  cssFillToCanvasColor,
+  isConicCssFill,
+  paintConicCssFill,
+} from "@/features/canvas/export/svg-css-fill";
 import {
   buildAnimatedQrMarkupAtTime,
   shouldExportAnimatedQr,
-} from "@/features/canvas/export/pipeline/qr-frames"
+} from "@/features/canvas/export/pipeline/qr-frames";
 import {
   resolveQrExportTimeMs,
   type ExportClockMode,
-} from "@/features/canvas/export/pipeline/clock"
+} from "@/features/canvas/export/pipeline/clock";
 import {
   cardLayerNeedsCanvasFace,
   computeObjectFitRect,
   resolveCardShaderMode,
-} from "@/features/canvas/export/pipeline/compositor-face"
+} from "@/features/canvas/export/pipeline/compositor-face";
 import {
   WorkspaceShaderCaptureSession,
   type WorkspaceShaderCaptureSession as ShaderSession,
-} from "@/features/canvas/export/pipeline/shader-snapshots"
+} from "@/features/canvas/export/pipeline/shader-snapshots";
 import {
   ensureDraftingFontsForLayers,
   DRAFTING_FONT_REGISTRY,
   getDraftingFontCssFamily,
-} from "@/features/canvas/model/fonts"
+} from "@/features/canvas/model/fonts";
 
 export type CompositorRenderOptions = {
-  backgroundColor?: string
-  cardLayer: DraftingCanvasLayer
-  cardState: DraftingCardState
-  extension?: Exclude<QrFileExtension, "svg">
-  layers: DraftingCanvasLayer[]
-  mode: ExportClockMode
-  nodeId: string
-  qrMarkup: string
-  renderBounds?: { height: number; minX: number; minY: number; width: number }
-  shaderBitmaps?: Record<string, ImageBitmap>
-  shaderSession?: ShaderSession
-  state: QraftyState
-  targetDimensions?: { height: number; width: number }
-  videoTimeMs?: number
-}
+  backgroundColor?: string;
+  cardLayer: DraftingCanvasLayer;
+  cardState: DraftingCardState;
+  extension?: Exclude<QrFileExtension, "svg">;
+  layers: DraftingCanvasLayer[];
+  mode: ExportClockMode;
+  nodeId: string;
+  qrMarkup: string;
+  renderBounds?: { height: number; minX: number; minY: number; width: number };
+  shaderBitmaps?: Record<string, ImageBitmap>;
+  shaderSession?: ShaderSession;
+  state: QraftyState;
+  targetDimensions?: { height: number; width: number };
+  videoTimeMs?: number;
+};
 
 async function loadRasterBitmap(url: string) {
-  const inlined = await inlineRemoteUrl(url, "card image")
-  const response = await fetch(inlined)
+  const inlined = await inlineRemoteUrl(url, "card image");
+  const response = await fetch(inlined);
 
   if (!response.ok) {
-    throw new Error("Card image could not be loaded for export.")
+    throw new Error("Card image could not be loaded for export.");
   }
 
-  return createImageBitmap(await response.blob())
+  return createImageBitmap(await response.blob());
 }
 
 function applyLayerCanvasTransform(
@@ -76,25 +75,25 @@ function applyLayerCanvasTransform(
   bounds: { minX: number; minY: number },
   renderScale = 1,
 ) {
-  const x = (layer.x - bounds.minX) * renderScale
-  const y = (layer.y - bounds.minY) * renderScale
-  const centerX = (layer.width / 2) * renderScale
-  const centerY = (layer.height / 2) * renderScale
-  const rotation = Number.isFinite(layer.rotation) ? layer.rotation : 0
-  const tiltX = clampBackgroundShapeTilt(layer.tiltX ?? 0)
-  const tiltY = clampBackgroundShapeTilt(layer.tiltY ?? 0)
+  const x = (layer.x - bounds.minX) * renderScale;
+  const y = (layer.y - bounds.minY) * renderScale;
+  const centerX = (layer.width / 2) * renderScale;
+  const centerY = (layer.height / 2) * renderScale;
+  const rotation = Number.isFinite(layer.rotation) ? layer.rotation : 0;
+  const tiltX = clampBackgroundShapeTilt(layer.tiltX ?? 0);
+  const tiltY = clampBackgroundShapeTilt(layer.tiltY ?? 0);
 
-  context.translate(x + centerX, y + centerY)
+  context.translate(x + centerX, y + centerY);
   if (rotation !== 0) {
-    context.rotate((rotation * Math.PI) / 180)
+    context.rotate((rotation * Math.PI) / 180);
   }
   if (tiltX !== 0 || tiltY !== 0) {
-    const skewXRad = (tiltY * Math.PI) / 180
-    const skewYRad = (tiltX * Math.PI) / 180
-    context.transform(1, Math.tan(skewYRad), Math.tan(skewXRad), 1, 0, 0)
+    const skewXRad = (tiltY * Math.PI) / 180;
+    const skewYRad = (tiltX * Math.PI) / 180;
+    context.transform(1, Math.tan(skewYRad), Math.tan(skewXRad), 1, 0, 0);
   }
-  context.translate(-centerX, -centerY)
-  context.globalAlpha = layer.opacity
+  context.translate(-centerX, -centerY);
+  context.globalAlpha = layer.opacity;
 }
 
 function wrapLayeredSvgMarkup(
@@ -103,22 +102,22 @@ function wrapLayeredSvgMarkup(
   body: string,
   fontDefs: string,
 ) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${bounds.width}" height="${bounds.height}" viewBox="${bounds.minX} ${bounds.minY} ${bounds.width} ${bounds.height}"><defs>${fontDefs}${defs}</defs>${body}</svg>`
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${bounds.width}" height="${bounds.height}" viewBox="${bounds.minX} ${bounds.minY} ${bounds.width} ${bounds.height}"><defs>${fontDefs}${defs}</defs>${body}</svg>`;
 }
 
 function collectFontRefsFromLayers(layers: DraftingCanvasLayer[]) {
-  const fontIds = new Set<string>()
+  const fontIds = new Set<string>();
 
   const walk = (items: DraftingCanvasLayer[]) => {
     for (const layer of items) {
       if (layer.kind === "text" && layer.fontId) {
-        fontIds.add(layer.fontId)
+        fontIds.add(layer.fontId);
       }
-      layer.children?.forEach((child) => walk([child]))
+      layer.children?.forEach((child) => walk([child]));
     }
-  }
+  };
 
-  walk(layers)
+  walk(layers);
 
   return [...fontIds]
     .map((fontId) => DRAFTING_FONT_REGISTRY.find((entry) => entry.id === fontId))
@@ -128,7 +127,7 @@ function collectFontRefsFromLayers(layers: DraftingCanvasLayer[]) {
       family: getDraftingFontCssFamily({ fontFamily: entry.family, fontId: entry.id }),
       cssText: "cssText" in entry ? entry.cssText : undefined,
       cssUrl: "cssUrl" in entry ? entry.cssUrl : undefined,
-    }))
+    }));
 }
 
 async function rasterizeLayerBatch({
@@ -142,15 +141,15 @@ async function rasterizeLayerBatch({
   qrMarkup,
   state,
 }: {
-  bounds: { height: number; minX: number; minY: number; width: number }
-  cardState: DraftingCardState
-  fontDefs: string
-  layers: DraftingCanvasLayer[]
-  nodeId: string
-  outputHeight: number
-  outputWidth: number
-  qrMarkup: string
-  state: QraftyState
+  bounds: { height: number; minX: number; minY: number; width: number };
+  cardState: DraftingCardState;
+  fontDefs: string;
+  layers: DraftingCanvasLayer[];
+  nodeId: string;
+  outputHeight: number;
+  outputWidth: number;
+  qrMarkup: string;
+  state: QraftyState;
 }) {
   const parts = await buildLayeredSvgParts({
     bounds,
@@ -159,14 +158,14 @@ async function rasterizeLayerBatch({
     omitShaderLayers: true,
     qrMarkup,
     state,
-  })
+  });
   const svg = await inlineSvgImageHrefs(
     preprocessSvg(wrapLayeredSvgMarkup(bounds, parts.defs, parts.body, fontDefs), {
       idPrefix: nodeId,
     }),
-  )
+  );
 
-  return rasterizeSvgMarkupToCanvas(svg, outputWidth, outputHeight)
+  return rasterizeSvgMarkupToCanvas(svg, outputWidth, outputHeight);
 }
 
 function clipCardRoundedRect(
@@ -175,17 +174,17 @@ function clipCardRoundedRect(
   cardState: DraftingCardState,
   renderScale = 1,
 ) {
-  const cardRadii = resolveCornerRadii(cardState.cornerRadii, cardState.cornerRadius)
+  const cardRadii = resolveCornerRadii(cardState.cornerRadii, cardState.cornerRadius);
   const scaledRadii = {
     topLeft: cardRadii.topLeft * renderScale,
     topRight: cardRadii.topRight * renderScale,
     bottomRight: cardRadii.bottomRight * renderScale,
     bottomLeft: cardRadii.bottomLeft * renderScale,
-  }
+  };
   const clipPath = new Path2D(
     buildRoundedRectPath(layer.width * renderScale, layer.height * renderScale, scaledRadii),
-  )
-  context.clip(clipPath)
+  );
+  context.clip(clipPath);
 }
 
 function resolveShaderBitmap(
@@ -198,7 +197,7 @@ function resolveShaderBitmap(
     (layer.kind === "shader" && layer.paperShader
       ? shaderBitmaps[layer.paperShader.shaderId]
       : undefined)
-  )
+  );
 }
 
 function drawCanvasFace(
@@ -210,51 +209,51 @@ function drawCanvasFace(
   renderScale: number,
   cardImageBitmap?: ImageBitmap,
 ) {
-  context.save()
-  applyLayerCanvasTransform(context, layer, bounds, renderScale)
+  context.save();
+  applyLayerCanvasTransform(context, layer, bounds, renderScale);
 
-  const layerWidth = layer.width * renderScale
-  const layerHeight = layer.height * renderScale
+  const layerWidth = layer.width * renderScale;
+  const layerHeight = layer.height * renderScale;
 
   if (layer.kind === "card" && cardState.styleMode === "image") {
     if (!cardImageBitmap) {
-      throw new Error("Card image could not be captured for export.")
+      throw new Error("Card image could not be captured for export.");
     }
 
-    clipCardRoundedRect(context, layer, cardState, renderScale)
-    context.globalAlpha *= cardState.cardImage.opacity / 100
+    clipCardRoundedRect(context, layer, cardState, renderScale);
+    context.globalAlpha *= cardState.cardImage.opacity / 100;
     const fit = computeObjectFitRect(
       cardImageBitmap.width,
       cardImageBitmap.height,
       layerWidth,
       layerHeight,
       cardState.cardImage.fit,
-    )
-    context.drawImage(cardImageBitmap, fit.x, fit.y, fit.width, fit.height)
-    context.restore()
-    return
+    );
+    context.drawImage(cardImageBitmap, fit.x, fit.y, fit.width, fit.height);
+    context.restore();
+    return;
   }
 
   if (layer.kind === "card" && cardState.styleMode === "solid" && isConicCssFill(cardState.fill)) {
-    clipCardRoundedRect(context, layer, cardState, renderScale)
-    paintConicCssFill(context, cardState.fill, layerWidth, layerHeight)
-    context.restore()
-    return
+    clipCardRoundedRect(context, layer, cardState, renderScale);
+    paintConicCssFill(context, cardState.fill, layerWidth, layerHeight);
+    context.restore();
+    return;
   }
 
-  const bitmap = resolveShaderBitmap(layer, shaderBitmaps)
+  const bitmap = resolveShaderBitmap(layer, shaderBitmaps);
 
   if (!bitmap) {
-    throw new Error("Shader frame was not captured for export.")
+    throw new Error("Shader frame was not captured for export.");
   }
 
   if (layer.kind === "card" && resolveCardShaderMode(cardState)) {
-    clipCardRoundedRect(context, layer, cardState, renderScale)
+    clipCardRoundedRect(context, layer, cardState, renderScale);
   }
 
-  context.imageSmoothingEnabled = renderScale !== 1
-  context.drawImage(bitmap, 0, 0, layerWidth, layerHeight)
-  context.restore()
+  context.imageSmoothingEnabled = renderScale !== 1;
+  context.drawImage(bitmap, 0, 0, layerWidth, layerHeight);
+  context.restore();
 }
 
 export async function renderWorkspaceCompositorCanvas({
@@ -273,10 +272,10 @@ export async function renderWorkspaceCompositorCanvas({
   targetDimensions,
   videoTimeMs = 0,
 }: CompositorRenderOptions) {
-  const ownsSession = !shaderSession && !shaderBitmaps
-  const session = shaderSession ?? (ownsSession ? new WorkspaceShaderCaptureSession() : null)
-  let uniqueBitmaps = new Set<ImageBitmap>()
-  let cardImageBitmap: ImageBitmap | undefined
+  const ownsSession = !shaderSession && !shaderBitmaps;
+  const session = shaderSession ?? (ownsSession ? new WorkspaceShaderCaptureSession() : null);
+  let uniqueBitmaps = new Set<ImageBitmap>();
+  let cardImageBitmap: ImageBitmap | undefined;
 
   try {
     if (session && ownsSession) {
@@ -286,81 +285,81 @@ export async function renderWorkspaceCompositorCanvas({
         layers,
         mode,
         videoTimeMs,
-      })
+      });
     }
 
     const resolvedBitmaps =
       shaderBitmaps ??
       (await session?.captureBitmaps(mode, videoTimeMs)) ??
-      ({} as Record<string, ImageBitmap>)
-    uniqueBitmaps = new Set(Object.values(resolvedBitmaps))
+      ({} as Record<string, ImageBitmap>);
+    uniqueBitmaps = new Set(Object.values(resolvedBitmaps));
     cardImageBitmap =
       cardState.styleMode === "image" && cardState.cardImage.value
         ? await loadRasterBitmap(cardState.cardImage.value)
-        : undefined
+        : undefined;
 
-    const qrTimeMs = resolveQrExportTimeMs(state, mode, videoTimeMs)
+    const qrTimeMs = resolveQrExportTimeMs(state, mode, videoTimeMs);
     const resolvedQrMarkup = shouldExportAnimatedQr(state)
       ? buildAnimatedQrMarkupAtTime(qrMarkup, state, qrTimeMs)
-      : qrMarkup
+      : qrMarkup;
 
-    const sceneBounds = renderBounds ?? getArtboardExportBounds(cardLayer)
-    const outputWidth = targetDimensions?.width ?? sceneBounds.width
-    const outputHeight = targetDimensions?.height ?? sceneBounds.height
-    const renderScale = outputWidth / sceneBounds.width
+    const sceneBounds = renderBounds ?? getArtboardExportBounds(cardLayer);
+    const outputWidth = targetDimensions?.width ?? sceneBounds.width;
+    const outputHeight = targetDimensions?.height ?? sceneBounds.height;
+    const renderScale = outputWidth / sceneBounds.width;
     const visibleLayers = [...layers]
       .filter((layer) => layer.isVisible)
-      .sort((a, b) => a.zIndex - b.zIndex)
+      .sort((a, b) => a.zIndex - b.zIndex);
 
-    await ensureDraftingFontsForLayers(layers)
-    const fontDefs = buildFontFaceDefs(collectFontRefsFromLayers(layers))
+    await ensureDraftingFontsForLayers(layers);
+    const fontDefs = buildFontFaceDefs(collectFontRefsFromLayers(layers));
 
-    const canvas = document.createElement("canvas")
-    canvas.width = outputWidth
-    canvas.height = outputHeight
-    const context = canvas.getContext("2d")
+    const canvas = document.createElement("canvas");
+    canvas.width = outputWidth;
+    canvas.height = outputHeight;
+    const context = canvas.getContext("2d");
 
     if (!context) {
-      throw new Error("Could not create export compositor canvas.")
+      throw new Error("Could not create export compositor canvas.");
     }
 
     if (backgroundColor && extension && extension !== "png") {
-      context.fillStyle = cssFillToCanvasColor(backgroundColor)
-      context.fillRect(0, 0, canvas.width, canvas.height)
+      context.fillStyle = cssFillToCanvasColor(backgroundColor);
+      context.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    let svgBatch: DraftingCanvasLayer[] = []
+    let svgBatch: DraftingCanvasLayer[] = [];
     const drawOps: Array<
       | { kind: "svg"; canvas?: HTMLCanvasElement; layers: DraftingCanvasLayer[] }
       | { kind: "canvas"; layer: DraftingCanvasLayer }
-    > = []
+    > = [];
 
     const flushSvgBatch = () => {
       if (svgBatch.length === 0) {
-        return
+        return;
       }
 
-      drawOps.push({ kind: "svg", layers: svgBatch })
-      svgBatch = []
-    }
+      drawOps.push({ kind: "svg", layers: svgBatch });
+      svgBatch = [];
+    };
 
     for (const layer of visibleLayers) {
       if (cardLayerNeedsCanvasFace(layer, cardState)) {
-        svgBatch.push(layer)
-        flushSvgBatch()
-        drawOps.push({ kind: "canvas", layer })
-        continue
+        svgBatch.push(layer);
+        flushSvgBatch();
+        drawOps.push({ kind: "canvas", layer });
+        continue;
       }
 
-      svgBatch.push(layer)
+      svgBatch.push(layer);
     }
 
-    flushSvgBatch()
+    flushSvgBatch();
 
     await Promise.all(
       drawOps.map(async (op) => {
         if (op.kind !== "svg") {
-          return
+          return;
         }
 
         op.canvas = await rasterizeLayerBatch({
@@ -373,16 +372,16 @@ export async function renderWorkspaceCompositorCanvas({
           outputWidth,
           qrMarkup: resolvedQrMarkup,
           state,
-        })
+        });
       }),
-    )
+    );
 
     for (const op of drawOps) {
       if (op.kind === "svg") {
         if (op.canvas) {
-          context.drawImage(op.canvas, 0, 0)
+          context.drawImage(op.canvas, 0, 0);
         }
-        continue
+        continue;
       }
 
       drawCanvasFace(
@@ -393,21 +392,21 @@ export async function renderWorkspaceCompositorCanvas({
         resolvedBitmaps,
         renderScale,
         cardImageBitmap,
-      )
+      );
     }
 
-    return canvas
+    return canvas;
   } finally {
     if (!shaderBitmaps) {
       for (const bitmap of uniqueBitmaps) {
-        bitmap.close()
+        bitmap.close();
       }
     }
 
-    cardImageBitmap?.close()
+    cardImageBitmap?.close();
 
     if (ownsSession) {
-      session?.dispose()
+      session?.dispose();
     }
   }
 }

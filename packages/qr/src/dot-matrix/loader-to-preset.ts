@@ -3,9 +3,9 @@ const DEPRECATED_DOT_MATRIX_LOADERS: Record<string, string> = {
   "echo-ring": "radial-expand",
   "fan-rotate": "neon-drift",
   "origin-wave": "radial-expand",
-  "scan": "neon-drift",
-  "tunnel": "neon-drift",
-  "wave": "neon-drift",
+  scan: "neon-drift",
+  tunnel: "neon-drift",
+  wave: "neon-drift",
 };
 
 export function dotMatrixLoaderToPresetName(loader: string) {

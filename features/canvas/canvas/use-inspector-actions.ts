@@ -1,41 +1,38 @@
-"use client"
+"use client";
 
-import type { MutableRefObject } from "react"
+import type { MutableRefObject } from "react";
 
 import {
   applyAssetNoneSelection,
   applyAssetUploadValue,
   applyAssetUrlValue,
   applyLogoPresetColor,
-} from "@/features/qr/model/actions"
-import { findBrandIconById } from "@/features/qr/assets/brand-icons"
-import { createBrandIconDataUrl } from "@/features/qr/assets/brand-icon-svg"
-import { parseIconstackSelectionId } from "@/features/qr/assets/iconstack-api"
-import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload"
-import {
-  setDotMatrixAnimationOptions,
-  type QraftyState,
-} from "@/features/qr/model/state"
-import { createUniformCornerRadii } from "@/features/canvas/model/corner-radius"
+} from "@/features/qr/model/actions";
+import { findBrandIconById } from "@/features/qr/assets/brand-icons";
+import { createBrandIconDataUrl } from "@/features/qr/assets/brand-icon-svg";
+import { parseIconstackSelectionId } from "@/features/qr/assets/iconstack-api";
+import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload";
+import { setDotMatrixAnimationOptions, type QraftyState } from "@/features/qr/model/state";
+import { createUniformCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
   getDraftingCardLayerId,
   getDraftingQrLayerId,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers/shared"
-import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback"
-import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
+} from "@/features/canvas/model/layers/shared";
+import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback";
+import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch";
 import {
   createDefaultDraftingLayers,
   fitQrSizeInCard,
   layoutDraftingCardInsetLayers,
-} from "@/features/canvas/model/layers/card-qr"
-import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories"
+} from "@/features/canvas/model/layers/card-qr";
+import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories";
 import {
   createDefaultDraftingCardState,
   normalizeDraftingCardState,
   type DraftingCardState,
-} from "@/features/canvas/model/card-state"
-import { createDefaultDraftingWorkspaceQrState } from "@/features/canvas/model/document"
+} from "@/features/canvas/model/card-state";
+import { createDefaultDraftingWorkspaceQrState } from "@/features/canvas/model/document";
 import type {
   AccessibilitySettings,
   EncodingSettings,
@@ -48,38 +45,35 @@ import type {
   PatternSettingsPatch,
   ShapeSettings,
   TextSettings,
-} from "@/features/shell/model/toolbar-types"
-import type { CornersSettings } from "@/features/shell/model/toolbar-types"
-import type { UnifiedQrFillPatches } from "@/features/shell/inspector/settings-bridge"
+} from "@/features/shell/model/toolbar-types";
+import type { CornersSettings } from "@/features/shell/model/toolbar-types";
+import type { UnifiedQrFillPatches } from "@/features/shell/inspector/settings-bridge";
 import {
   applyCornersSettingsPatchToQraftyState,
   applyLogoSettingsPatchToQraftyState,
   applyPatternSettingsPatchToQraftyState,
-} from "@/features/canvas/components/workspace-qr-settings-patch"
-import {
-  buildAppearancePatch,
-  type AppearancePatch,
-} from "@/features/shell/model/appearance"
+} from "@/features/canvas/components/workspace-qr-settings-patch";
+import { buildAppearancePatch, type AppearancePatch } from "@/features/shell/model/appearance";
 import {
   ensureMandatoryLayerRows,
   findDraftingLayerById,
   getDraftingDownloadTarget,
-} from "@/features/canvas/components/drafting-canvas-operations"
-import { replaceTrackedObjectUrl } from "@/features/canvas/components/drafting-canvas.constants"
-import { clearDraftingQrMarkupCache } from "@/features/canvas/hooks/use-drafting-qr-markup"
-import { clearQrEncodeMarkupCache } from "@/features/qr/rendering/qr-encode-cache"
+} from "@/features/canvas/components/drafting-canvas-operations";
+import { replaceTrackedObjectUrl } from "@/features/canvas/components/drafting-canvas.constants";
+import { clearDraftingQrMarkupCache } from "@/features/canvas/hooks/use-drafting-qr-markup";
+import { clearQrEncodeMarkupCache } from "@/features/qr/rendering/qr-encode-cache";
 import type {
   DraftingCanvasSetters,
   DraftingCanvasState,
-} from "@/features/canvas/components/drafting-canvas-reducer"
-import type { createQrControls } from "@/features/canvas/canvas/qr-controls"
-import type { useQrLogoActions } from "@/features/canvas/canvas/use-qr-logo-actions"
-import type { DraftingLayerMenuAction } from "@/features/canvas/components/Pane"
-import { DEFAULT_QR_INPUT_TYPE } from "@/features/qr/content/input-options"
+} from "@/features/canvas/components/drafting-canvas-reducer";
+import type { createQrControls } from "@/features/canvas/canvas/qr-controls";
+import type { useQrLogoActions } from "@/features/canvas/canvas/use-qr-logo-actions";
+import type { DraftingLayerMenuAction } from "@/features/canvas/components/Pane";
+import { DEFAULT_QR_INPUT_TYPE } from "@/features/qr/content/input-options";
 import {
   DEFAULT_DRAFTING_STUDIO_STATE,
   type DraftingDownloadExtension,
-} from "@/features/canvas/components/drafting-canvas.constants"
+} from "@/features/canvas/components/drafting-canvas.constants";
 
 type InspectorState = Pick<
   DraftingCanvasState,
@@ -90,7 +84,7 @@ type InspectorState = Pick<
   | "selectedLogoRemoteUrl"
   | "selectedModuleFillImageSourceMode"
   | "selectedModuleFillImageUrl"
->
+>;
 
 type InspectorSetters = Pick<
   DraftingCanvasSetters,
@@ -145,7 +139,7 @@ type InspectorSetters = Pick<
   | "setSelectedVideoFormat"
   | "setSelectedVideoFrameRate"
   | "setSelectedVideoLongEdge"
->
+>;
 
 export function useInspectorActions({
   activeCanvasLayers,
@@ -222,57 +216,54 @@ export function useInspectorActions({
   setSelectedVideoLongEdge,
 }: InspectorState &
   InspectorSetters & {
-    activeCanvasLayers: DraftingCanvasLayer[]
-    appearanceTargetLayer: DraftingCanvasLayer | null
-    commitActiveQraftyState: (nextState: QraftyState) => void
-    draftingQraftyState: QraftyState
+    activeCanvasLayers: DraftingCanvasLayer[];
+    appearanceTargetLayer: DraftingCanvasLayer | null;
+    commitActiveQraftyState: (nextState: QraftyState) => void;
+    draftingQraftyState: QraftyState;
     handleLayerChange: (
       paneId: string,
       layerId: string,
       patch: Partial<DraftingCanvasLayer>,
-    ) => void
+    ) => void;
     handleLayerSelect: (
       paneId: string,
       layerId: string | null,
       options?: { additive?: boolean; preserveActiveTool?: boolean },
-    ) => void
-    logoActions: ReturnType<typeof useQrLogoActions>
-    logoUploadObjectUrlRef: MutableRefObject<string | null>
-    persistActiveQrLayerState: (nextState?: QraftyState) => void
-    qrBackgroundVisible: boolean
-    qrControls: ReturnType<typeof createQrControls>
-    resolveLiveQrPersistState: () => QraftyState
-    selectedTextLayer: DraftingCanvasLayer | null
-    selectSingleLayer: (layerId: string | null) => void
+    ) => void;
+    logoActions: ReturnType<typeof useQrLogoActions>;
+    logoUploadObjectUrlRef: MutableRefObject<string | null>;
+    persistActiveQrLayerState: (nextState?: QraftyState) => void;
+    qrBackgroundVisible: boolean;
+    qrControls: ReturnType<typeof createQrControls>;
+    resolveLiveQrPersistState: () => QraftyState;
+    selectedTextLayer: DraftingCanvasLayer | null;
+    selectSingleLayer: (layerId: string | null) => void;
   }) {
-
   function handleDesktopAppearancePatch(patch: AppearancePatch) {
     if (!appearanceTargetLayer) {
-      return
+      return;
     }
 
     const result = buildAppearancePatch(appearanceTargetLayer, patch, {
       qrBackgroundShapeId:
-        appearanceTargetLayer.kind === "qr"
-          ? draftingQraftyState.backgroundShapeId
-          : undefined,
+        appearanceTargetLayer.kind === "qr" ? draftingQraftyState.backgroundShapeId : undefined,
       qrBackgroundShapeOptions:
         appearanceTargetLayer.kind === "qr"
           ? draftingQraftyState.backgroundShapeOptions
           : undefined,
       qrBackgroundSurfaceVisible:
         appearanceTargetLayer.kind === "qr" ? qrBackgroundVisible : undefined,
-    })
+    });
 
     if (Object.keys(result.layerPatch).length > 0) {
-      handleLayerChange(activeQrNodeId, appearanceTargetLayer.id, result.layerPatch)
+      handleLayerChange(activeQrNodeId, appearanceTargetLayer.id, result.layerPatch);
     }
 
     if (result.qrBackgroundShapeOptions) {
       setSelectedBackgroundShapeOptions((current) => ({
         ...current,
         ...result.qrBackgroundShapeOptions,
-      }))
+      }));
     }
 
     if (
@@ -293,156 +284,156 @@ export function useInspectorActions({
               ...result.cardShadow,
             }
           : current.shadow,
-      }))
+      }));
     }
   }
 
   function resetDesktopContent() {
-    setSelectedContentType(DEFAULT_QR_INPUT_TYPE)
+    setSelectedContentType(DEFAULT_QR_INPUT_TYPE);
     setContentValuesByType((current) => ({
       ...current,
       [DEFAULT_QR_INPUT_TYPE]: {
         ...getDefaultStaticQrValues(DEFAULT_QR_INPUT_TYPE),
         url: DEFAULT_DRAFTING_STUDIO_STATE.data,
       },
-    }))
+    }));
   }
 
   function applyDesktopPatternPatchToControls(patch: PatternSettingsPatch) {
-    if (patch.qrDotType) setSelectedDotType(patch.qrDotType)
-    if (patch.moduleRoundSize !== undefined) setSelectedModuleRoundSize(patch.moduleRoundSize)
-    if (patch.moduleSize !== undefined) setSelectedModuleSize(patch.moduleSize)
-    if (patch.moduleLineWidth !== undefined) setSelectedModuleLineWidth(patch.moduleLineWidth)
-    if (patch.gradientLinkMode) setSelectedGradientLinkMode(patch.gradientLinkMode)
+    if (patch.qrDotType) setSelectedDotType(patch.qrDotType);
+    if (patch.moduleRoundSize !== undefined) setSelectedModuleRoundSize(patch.moduleRoundSize);
+    if (patch.moduleSize !== undefined) setSelectedModuleSize(patch.moduleSize);
+    if (patch.moduleLineWidth !== undefined) setSelectedModuleLineWidth(patch.moduleLineWidth);
+    if (patch.gradientLinkMode) setSelectedGradientLinkMode(patch.gradientLinkMode);
     if (patch.dotsColorMode) {
-      setSelectedDotsColorMode(patch.dotsColorMode)
+      setSelectedDotsColorMode(patch.dotsColorMode);
     }
     if (patch.dotsSolidColor) {
-      setSelectedDotsColorMode("solid")
-      setSelectedDotColor(patch.dotsSolidColor)
+      setSelectedDotsColorMode("solid");
+      setSelectedDotColor(patch.dotsSolidColor);
     }
     if (patch.dataModulesGradient) {
-      setSelectedDotsColorMode("gradient")
-      setSelectedDotsGradient({ ...patch.dataModulesGradient, enabled: true })
+      setSelectedDotsColorMode("gradient");
+      setSelectedDotsGradient({ ...patch.dataModulesGradient, enabled: true });
     }
     if (patch.dotsPalette) {
-      setSelectedDotsColorMode("palette")
-      setSelectedDotsPalette([...patch.dotsPalette])
+      setSelectedDotsColorMode("palette");
+      setSelectedDotsPalette([...patch.dotsPalette]);
     }
     if (patch.dotsPalettePreset !== undefined) {
-      setSelectedDotsColorMode("palette")
-      setSelectedDotsPalettePreset(patch.dotsPalettePreset)
+      setSelectedDotsColorMode("palette");
+      setSelectedDotsPalettePreset(patch.dotsPalettePreset);
     }
     if (patch.moduleFillImageUrl !== undefined) {
-      setSelectedDotsColorMode("image")
-      const sourceMode = patch.moduleFillImageSourceMode ?? selectedModuleFillImageSourceMode
-      setSelectedModuleFillImageSourceMode(sourceMode)
+      setSelectedDotsColorMode("image");
+      const sourceMode = patch.moduleFillImageSourceMode ?? selectedModuleFillImageSourceMode;
+      setSelectedModuleFillImageSourceMode(sourceMode);
       if (!patch.moduleFillImageUrl) {
-        setSelectedModuleFillImageUrl("")
-        setSelectedModuleFillRemoteUrl("")
+        setSelectedModuleFillImageUrl("");
+        setSelectedModuleFillRemoteUrl("");
       } else if (sourceMode === "url") {
-        setSelectedModuleFillRemoteUrl(patch.moduleFillImageUrl)
-        setSelectedModuleFillImageUrl("")
+        setSelectedModuleFillRemoteUrl(patch.moduleFillImageUrl);
+        setSelectedModuleFillImageUrl("");
       } else {
-        setSelectedModuleFillImageUrl(patch.moduleFillImageUrl)
-        setSelectedModuleFillRemoteUrl("")
+        setSelectedModuleFillImageUrl(patch.moduleFillImageUrl);
+        setSelectedModuleFillRemoteUrl("");
       }
     }
     if (patch.moduleFillImageSourceMode && patch.moduleFillImageUrl === undefined) {
-      setSelectedDotsColorMode("image")
-      setSelectedModuleFillImageSourceMode(patch.moduleFillImageSourceMode)
+      setSelectedDotsColorMode("image");
+      setSelectedModuleFillImageSourceMode(patch.moduleFillImageSourceMode);
     }
   }
 
   function applyDesktopCornersPatchToControls(patch: Partial<CornersSettings>) {
-    if (patch.cornerSquareType) setSelectedQrFinderPatternOuterStyle(patch.cornerSquareType)
-    if (patch.cornerSquareColorMode) setSelectedCornerSquareColorMode(patch.cornerSquareColorMode)
+    if (patch.cornerSquareType) setSelectedQrFinderPatternOuterStyle(patch.cornerSquareType);
+    if (patch.cornerSquareColorMode) setSelectedCornerSquareColorMode(patch.cornerSquareColorMode);
     if (patch.cornerSquareSolidColor) {
-      setSelectedCornerSquareColorMode("solid")
-      setSelectedCornerSquareColor(patch.cornerSquareSolidColor)
+      setSelectedCornerSquareColorMode("solid");
+      setSelectedCornerSquareColor(patch.cornerSquareSolidColor);
     }
     if (patch.cornerSquareGradient) {
-      setSelectedCornerSquareColorMode("gradient")
-      setSelectedCornerSquareGradient({ ...patch.cornerSquareGradient, enabled: true })
+      setSelectedCornerSquareColorMode("gradient");
+      setSelectedCornerSquareGradient({ ...patch.cornerSquareGradient, enabled: true });
     }
-    if (patch.cornerDotType) setSelectedQrFinderPatternInnerStyle(patch.cornerDotType)
-    if (patch.cornerDotColorMode) setSelectedCornerDotColorMode(patch.cornerDotColorMode)
+    if (patch.cornerDotType) setSelectedQrFinderPatternInnerStyle(patch.cornerDotType);
+    if (patch.cornerDotColorMode) setSelectedCornerDotColorMode(patch.cornerDotColorMode);
     if (patch.cornerDotSolidColor) {
-      setSelectedCornerDotColorMode("solid")
-      setSelectedCornerDotColor(patch.cornerDotSolidColor)
+      setSelectedCornerDotColorMode("solid");
+      setSelectedCornerDotColor(patch.cornerDotSolidColor);
     }
     if (patch.cornerDotGradient) {
-      setSelectedCornerDotColorMode("gradient")
-      setSelectedCornerDotGradient({ ...patch.cornerDotGradient, enabled: true })
+      setSelectedCornerDotColorMode("gradient");
+      setSelectedCornerDotGradient({ ...patch.cornerDotGradient, enabled: true });
     }
   }
 
   function applyDesktopUnifiedLogoPatchToControls(patch: Partial<LogoSettings>) {
-    if (patch.colorMode) setSelectedLogoColorMode(patch.colorMode)
+    if (patch.colorMode) setSelectedLogoColorMode(patch.colorMode);
     if (patch.solidColor) {
-      setSelectedLogoColorMode("solid")
-      setSelectedLogoColor(patch.solidColor)
+      setSelectedLogoColorMode("solid");
+      setSelectedLogoColor(patch.solidColor);
     }
     if (patch.gradient) {
-      setSelectedLogoColorMode("gradient")
-      setSelectedLogoGradient({ ...patch.gradient, enabled: true })
+      setSelectedLogoColorMode("gradient");
+      setSelectedLogoGradient({ ...patch.gradient, enabled: true });
     }
   }
 
   function updateDesktopPatternSettings(patch: PatternSettingsPatch) {
-    applyDesktopPatternPatchToControls(patch)
-    const nextState = applyPatternSettingsPatchToQraftyState(resolveLiveQrPersistState(), patch)
+    applyDesktopPatternPatchToControls(patch);
+    const nextState = applyPatternSettingsPatchToQraftyState(resolveLiveQrPersistState(), patch);
 
-    clearQrEncodeMarkupCache()
-    clearDraftingQrMarkupCache()
-    persistActiveQrLayerState(nextState)
-    qrControls.syncModuleFill(nextState)
+    clearQrEncodeMarkupCache();
+    clearDraftingQrMarkupCache();
+    persistActiveQrLayerState(nextState);
+    qrControls.syncModuleFill(nextState);
   }
 
   function updateDesktopUnifiedQrFillSettings(patches: UnifiedQrFillPatches) {
-    applyDesktopPatternPatchToControls(patches.pattern)
-    applyDesktopCornersPatchToControls(patches.corners)
-    applyDesktopUnifiedLogoPatchToControls(patches.logo)
+    applyDesktopPatternPatchToControls(patches.pattern);
+    applyDesktopCornersPatchToControls(patches.corners);
+    applyDesktopUnifiedLogoPatchToControls(patches.logo);
 
-    let nextState = resolveLiveQrPersistState()
-    nextState = applyPatternSettingsPatchToQraftyState(nextState, patches.pattern)
-    nextState = applyCornersSettingsPatchToQraftyState(nextState, patches.corners)
-    nextState = applyLogoSettingsPatchToQraftyState(nextState, patches.logo)
+    let nextState = resolveLiveQrPersistState();
+    nextState = applyPatternSettingsPatchToQraftyState(nextState, patches.pattern);
+    nextState = applyCornersSettingsPatchToQraftyState(nextState, patches.corners);
+    nextState = applyLogoSettingsPatchToQraftyState(nextState, patches.logo);
 
     // A preset logo stores its rendered SVG in `logo.value`. Updating only
     // `presetColor` leaves that SVG painted with its previous color.
     if (patches.logo.solidColor) {
-      const brandIcon = findBrandIconById(nextState.logo.presetId)
+      const brandIcon = findBrandIconById(nextState.logo.presetId);
       if (brandIcon) {
         nextState = applyLogoPresetColor(
           nextState,
           createBrandIconDataUrl(brandIcon, patches.logo.solidColor),
           patches.logo.solidColor,
-        )
+        );
       }
     }
 
-    clearQrEncodeMarkupCache()
-    clearDraftingQrMarkupCache()
-    persistActiveQrLayerState(nextState)
-    qrControls.syncModuleFill(nextState)
-    qrControls.syncLogo(nextState)
+    clearQrEncodeMarkupCache();
+    clearDraftingQrMarkupCache();
+    persistActiveQrLayerState(nextState);
+    qrControls.syncModuleFill(nextState);
+    qrControls.syncLogo(nextState);
   }
 
   function resetDesktopPatternSettings() {
-    setSelectedDotType(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.type)
-    setSelectedDotsColorMode(DEFAULT_DRAFTING_STUDIO_STATE.dotsColorMode)
-    setSelectedDotColor(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.color)
-    setSelectedDotsGradient(structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesGradient))
-    setSelectedDotsPalette([...DEFAULT_DRAFTING_STUDIO_STATE.dotsPalette])
-    setSelectedDotsPalettePreset("Signal")
-    setSelectedModuleFillImageUrl("")
-    setSelectedModuleFillRemoteUrl("")
-    setSelectedModuleFillImageSourceMode("upload")
-    setSelectedModuleRoundSize(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.roundSize)
-    setSelectedModuleSize(undefined)
-    setSelectedModuleLineWidth(undefined)
-    setSelectedGradientLinkMode(DEFAULT_DRAFTING_STUDIO_STATE.gradientLinkMode)
+    setSelectedDotType(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.type);
+    setSelectedDotsColorMode(DEFAULT_DRAFTING_STUDIO_STATE.dotsColorMode);
+    setSelectedDotColor(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.color);
+    setSelectedDotsGradient(structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesGradient));
+    setSelectedDotsPalette([...DEFAULT_DRAFTING_STUDIO_STATE.dotsPalette]);
+    setSelectedDotsPalettePreset("Signal");
+    setSelectedModuleFillImageUrl("");
+    setSelectedModuleFillRemoteUrl("");
+    setSelectedModuleFillImageSourceMode("upload");
+    setSelectedModuleRoundSize(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.roundSize);
+    setSelectedModuleSize(undefined);
+    setSelectedModuleLineWidth(undefined);
+    setSelectedGradientLinkMode(DEFAULT_DRAFTING_STUDIO_STATE.gradientLinkMode);
   }
 
   function updateDesktopLogoSettings(patch: LogoSettingsPatch) {
@@ -451,78 +442,70 @@ export function useInspectorActions({
         logoUploadObjectUrlRef,
         patch.uploadedFile,
         setLogoUploadObjectUrl,
-      )
-      const nextState = applyAssetUploadValue(draftingQraftyState, "logo", uploadValue)
-      commitActiveQraftyState(nextState)
+      );
+      const nextState = applyAssetUploadValue(draftingQraftyState, "logo", uploadValue);
+      commitActiveQraftyState(nextState);
     }
     if (patch.uploadedImageUrl !== undefined) {
       commitActiveQraftyState(
         patch.uploadedImageUrl
           ? applyAssetUploadValue(draftingQraftyState, "logo", patch.uploadedImageUrl)
           : applyAssetNoneSelection(draftingQraftyState, "logo"),
-      )
+      );
     }
     if (patch.sourceMode) {
       if (patch.sourceMode === "none") {
-        commitActiveQraftyState(applyAssetNoneSelection(draftingQraftyState, "logo"))
+        commitActiveQraftyState(applyAssetNoneSelection(draftingQraftyState, "logo"));
       } else if (patch.sourceMode === "brand") {
-        setSelectedLogoSourceMode("preset")
+        setSelectedLogoSourceMode("preset");
       } else if (patch.sourceMode === "url") {
-        const nextState = applyAssetUrlValue(
-          draftingQraftyState,
-          "logo",
-          selectedLogoRemoteUrl,
-        )
-        commitActiveQraftyState(nextState)
+        const nextState = applyAssetUrlValue(draftingQraftyState, "logo", selectedLogoRemoteUrl);
+        commitActiveQraftyState(nextState);
       } else {
-        logoActions.clearLogoPreset("upload")
+        logoActions.clearLogoPreset("upload");
       }
     }
     if (patch.uploadMode) {
       if (patch.uploadMode === "url") {
-        const nextState = applyAssetUrlValue(
-          draftingQraftyState,
-          "logo",
-          selectedLogoRemoteUrl,
-        )
-        commitActiveQraftyState(nextState)
+        const nextState = applyAssetUrlValue(draftingQraftyState, "logo", selectedLogoRemoteUrl);
+        commitActiveQraftyState(nextState);
       } else {
-        logoActions.clearLogoPreset("upload")
+        logoActions.clearLogoPreset("upload");
       }
     }
     if (patch.remoteUrl !== undefined) {
-      const nextState = applyAssetUrlValue(draftingQraftyState, "logo", patch.remoteUrl)
-      commitActiveQraftyState(nextState)
+      const nextState = applyAssetUrlValue(draftingQraftyState, "logo", patch.remoteUrl);
+      commitActiveQraftyState(nextState);
     }
     if (patch.selectedBrandIconId) {
       if (parseIconstackSelectionId(patch.selectedBrandIconId)) {
-        void logoActions.selectIconstackIcon(patch.selectedBrandIconId)
+        void logoActions.selectIconstackIcon(patch.selectedBrandIconId);
       } else {
-        const brandIcon = findBrandIconById(patch.selectedBrandIconId)
-        if (brandIcon) logoActions.selectBrandIcon(brandIcon)
+        const brandIcon = findBrandIconById(patch.selectedBrandIconId);
+        if (brandIcon) logoActions.selectBrandIcon(brandIcon);
       }
     }
-    if (patch.colorMode) setSelectedLogoColorMode(patch.colorMode)
-    if (patch.solidColor) void logoActions.changeLogoColor(patch.solidColor)
-    if (patch.gradient) void logoActions.changeLogoGradient({ ...patch.gradient, enabled: true })
-    logoActions.patchLogoImageOptions(patch)
+    if (patch.colorMode) setSelectedLogoColorMode(patch.colorMode);
+    if (patch.solidColor) void logoActions.changeLogoColor(patch.solidColor);
+    if (patch.gradient) void logoActions.changeLogoGradient({ ...patch.gradient, enabled: true });
+    logoActions.patchLogoImageOptions(patch);
   }
 
   function resetDesktopLogoSettings() {
-    qrControls.applyQrState(createDefaultDraftingWorkspaceQrState())
+    qrControls.applyQrState(createDefaultDraftingWorkspaceQrState());
   }
 
   function updateDesktopCornersSettings(patch: Partial<CornersSettings>) {
-    applyDesktopCornersPatchToControls(patch)
+    applyDesktopCornersPatchToControls(patch);
 
-    const nextState = applyCornersSettingsPatchToQraftyState(resolveLiveQrPersistState(), patch)
-    clearQrEncodeMarkupCache()
-    clearDraftingQrMarkupCache()
-    persistActiveQrLayerState(nextState)
+    const nextState = applyCornersSettingsPatchToQraftyState(resolveLiveQrPersistState(), patch);
+    clearQrEncodeMarkupCache();
+    clearDraftingQrMarkupCache();
+    persistActiveQrLayerState(nextState);
   }
 
   function mergeCardStateFromShapePatch(patch: Partial<ShapeSettings>) {
-    const nextCornerRadius = patch.cardRadius ?? selectedCardState.cornerRadius
+    const nextCornerRadius = patch.cardRadius ?? selectedCardState.cornerRadius;
 
     return {
       ...selectedCardState,
@@ -546,12 +529,9 @@ export function useInspectorActions({
       sizeMode: patch.sizeMode ?? selectedCardState.sizeMode,
       sizePresetId:
         patch.sizePresetId !== undefined ? patch.sizePresetId : selectedCardState.sizePresetId,
-      styleMode:
-        patch.cardFill !== undefined
-          ? "solid"
-          : selectedCardState.styleMode,
+      styleMode: patch.cardFill !== undefined ? "solid" : selectedCardState.styleMode,
       width: patch.cardWidth ?? selectedCardState.width,
-    }
+    };
   }
 
   function cardShadowFromPatch(patch: Partial<ShapeSettings>) {
@@ -562,26 +542,26 @@ export function useInspectorActions({
       offsetX: patch.shadowOffsetX ?? selectedCardState.shadow.offsetX,
       offsetY: patch.shadowOffsetY ?? selectedCardState.shadow.offsetY,
       opacity: patch.shadowOpacity ?? selectedCardState.shadow.opacity,
-    }
+    };
   }
 
   function relayoutCardInset(normalizedCardState: ReturnType<typeof normalizeDraftingCardState>) {
-    const baseQrState = resolveLiveQrPersistState()
-    const fittedQr = fitQrSizeInCard(baseQrState, normalizedCardState)
+    const baseQrState = resolveLiveQrPersistState();
+    const fittedQr = fitQrSizeInCard(baseQrState, normalizedCardState);
     const nextQrState = {
       ...baseQrState,
       height: fittedQr.height,
       width: fittedQr.width,
-    }
+    };
 
     if (normalizedCardState.sizeMode === "fixed") {
-      setSelectedQrSize(fittedQr.width)
+      setSelectedQrSize(fittedQr.width);
     }
 
     setLayerStateByNodeId((layerState) => {
       const layers =
         layerState[activeQrNodeId] ??
-        createDefaultDraftingLayers(activeQrNodeId, nextQrState, normalizedCardState)
+        createDefaultDraftingLayers(activeQrNodeId, nextQrState, normalizedCardState);
 
       return {
         ...layerState,
@@ -590,26 +570,27 @@ export function useInspectorActions({
           nextQrState,
           normalizedCardState,
         ),
-      }
-    })
+      };
+    });
   }
 
   function updateDesktopShapeSettings(patch: Partial<ShapeSettings>) {
-    if (patch.backgroundShapeId !== undefined) setSelectedBackgroundShapeId(patch.backgroundShapeId)
-    if (patch.shapeColorMode) setSelectedBackgroundColorMode(patch.shapeColorMode)
+    if (patch.backgroundShapeId !== undefined)
+      setSelectedBackgroundShapeId(patch.backgroundShapeId);
+    if (patch.shapeColorMode) setSelectedBackgroundColorMode(patch.shapeColorMode);
     if (patch.shapeSolidColor) {
-      setSelectedBackgroundColorMode("solid")
-      setSelectedBackgroundColor(patch.shapeSolidColor)
-      setSelectedBackgroundTransparent(false)
+      setSelectedBackgroundColorMode("solid");
+      setSelectedBackgroundColor(patch.shapeSolidColor);
+      setSelectedBackgroundTransparent(false);
     }
     if (patch.shapeGradient) {
-      setSelectedBackgroundColorMode("gradient")
-      setSelectedBackgroundGradient({ ...patch.shapeGradient, enabled: true })
-      setSelectedBackgroundTransparent(false)
+      setSelectedBackgroundColorMode("gradient");
+      setSelectedBackgroundGradient({ ...patch.shapeGradient, enabled: true });
+      setSelectedBackgroundTransparent(false);
     }
     if (patch.shapePadding !== undefined) {
-      const paddingPx = patch.shapePadding
-      setSelectedBackgroundShapeOptions((current) => ({ ...current, paddingPx }))
+      const paddingPx = patch.shapePadding;
+      setSelectedBackgroundShapeOptions((current) => ({ ...current, paddingPx }));
     }
 
     const qrShadowPatch = Object.fromEntries(
@@ -622,32 +603,30 @@ export function useInspectorActions({
           ["opacity", patch.shapeShadowOpacity],
         ] as const
       ).filter(([, value]) => value !== undefined),
-    )
+    );
 
     if (Object.keys(qrShadowPatch).length > 0) {
-      const qrLayerId = getDraftingQrLayerId(activeQrNodeId)
-      const currentQrLayer = findDraftingLayerById(activeCanvasLayers, qrLayerId)
+      const qrLayerId = getDraftingQrLayerId(activeQrNodeId);
+      const currentQrLayer = findDraftingLayerById(activeCanvasLayers, qrLayerId);
       if (currentQrLayer) {
         handleLayerChange(activeQrNodeId, qrLayerId, {
           shadow: { ...currentQrLayer.shadow, ...qrShadowPatch },
-        })
+        });
       }
     }
 
-    const normalizedCardState = normalizeDraftingCardState(
-      mergeCardStateFromShapePatch(patch),
-    )
-    setSelectedCardState(normalizedCardState)
+    const normalizedCardState = normalizeDraftingCardState(mergeCardStateFromShapePatch(patch));
+    setSelectedCardState(normalizedCardState);
 
     const shouldRelayoutCardInset =
       patch.bottomSpace !== undefined ||
       patch.cardHeight !== undefined ||
       patch.cardWidth !== undefined ||
       patch.sizeMode !== undefined ||
-      patch.sizePresetId !== undefined
+      patch.sizePresetId !== undefined;
 
     if (shouldRelayoutCardInset) {
-      relayoutCardInset(normalizedCardState)
+      relayoutCardInset(normalizedCardState);
     }
 
     if (
@@ -659,7 +638,7 @@ export function useInspectorActions({
     ) {
       handleLayerChange(activeQrNodeId, getDraftingCardLayerId(activeQrNodeId), {
         shadow: cardShadowFromPatch(patch),
-      })
+      });
     }
   }
 
@@ -675,11 +654,11 @@ export function useInspectorActions({
             value: undefined,
           },
           styleMode: "paper-shader",
-        }
+        };
       }
 
       const nextRemoteUrl =
-        patch.remoteUrl !== undefined ? patch.remoteUrl : current.cardImage.value
+        patch.remoteUrl !== undefined ? patch.remoteUrl : current.cardImage.value;
 
       return {
         ...current,
@@ -696,75 +675,82 @@ export function useInspectorActions({
           value: nextRemoteUrl,
         },
         styleMode: nextRemoteUrl ? "image" : current.styleMode,
-      }
-    })
+      };
+    });
   }
 
   function resetDesktopShapeSettings() {
-    const defaultCard = createDefaultDraftingCardState()
-    setSelectedCardState(defaultCard)
-    setSelectedBackgroundColor(DEFAULT_DRAFTING_STUDIO_STATE.backgroundOptions.color)
-    setSelectedBackgroundColorMode(DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient.enabled ? "gradient" : "solid")
-    setSelectedBackgroundGradient(structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient))
-    setSelectedBackgroundShapeId(DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeId)
-    setSelectedBackgroundShapeOptions({ ...DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeOptions })
+    const defaultCard = createDefaultDraftingCardState();
+    setSelectedCardState(defaultCard);
+    setSelectedBackgroundColor(DEFAULT_DRAFTING_STUDIO_STATE.backgroundOptions.color);
+    setSelectedBackgroundColorMode(
+      DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient.enabled ? "gradient" : "solid",
+    );
+    setSelectedBackgroundGradient(
+      structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient),
+    );
+    setSelectedBackgroundShapeId(DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeId);
+    setSelectedBackgroundShapeOptions({ ...DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeOptions });
   }
 
   function updateDesktopMotionSettings(patch: Parameters<typeof setDotMatrixAnimationOptions>[1]) {
     if (patch.enabled !== undefined) {
-      clearQrEncodeMarkupCache()
-      clearDraftingQrMarkupCache()
+      clearQrEncodeMarkupCache();
+      clearDraftingQrMarkupCache();
     }
 
-    setSelectedDotMatrixAnimation((current) =>
-      setDotMatrixAnimationOptions(
-        { ...DEFAULT_DRAFTING_STUDIO_STATE, dotMatrixAnimation: current },
-        patch,
-      ).dotMatrixAnimation,
-    )
+    setSelectedDotMatrixAnimation(
+      (current) =>
+        setDotMatrixAnimationOptions(
+          { ...DEFAULT_DRAFTING_STUDIO_STATE, dotMatrixAnimation: current },
+          patch,
+        ).dotMatrixAnimation,
+    );
   }
 
   function updateDesktopEncodingSettings(patch: Partial<EncodingSettings>) {
-    if (patch.typeNumber !== undefined) setSelectedQrTypeNumber(patch.typeNumber)
-    if (patch.errorCorrectionLevel) setSelectedQrErrorCorrectionLevel(patch.errorCorrectionLevel)
-    if (patch.boostLevel !== undefined) setSelectedBoostLevel(patch.boostLevel)
-    if (patch.valueSegmentsText !== undefined) setSelectedValueSegmentsText(patch.valueSegmentsText)
+    if (patch.typeNumber !== undefined) setSelectedQrTypeNumber(patch.typeNumber);
+    if (patch.errorCorrectionLevel) setSelectedQrErrorCorrectionLevel(patch.errorCorrectionLevel);
+    if (patch.boostLevel !== undefined) setSelectedBoostLevel(patch.boostLevel);
+    if (patch.valueSegmentsText !== undefined)
+      setSelectedValueSegmentsText(patch.valueSegmentsText);
   }
 
   function updateDesktopAccessibilitySettings(patch: Partial<AccessibilitySettings>) {
-    if (patch.ariaLabel !== undefined) setSelectedAriaLabel(patch.ariaLabel)
+    if (patch.ariaLabel !== undefined) setSelectedAriaLabel(patch.ariaLabel);
   }
 
   function updateDesktopTextSettings(patch: Partial<TextSettings>) {
     if (selectedTextLayer?.kind === "text") {
-      handleLayerChange(activeQrNodeId, selectedTextLayer.id, patch)
-      return
+      handleLayerChange(activeQrNodeId, selectedTextLayer.id, patch);
+      return;
     }
     const layers =
       layerStateByNodeId[activeQrNodeId] ??
-      createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
-    const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1)
+      createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState);
+    const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1);
     const textLayer = createDraftingTextLayer(activeQrNodeId, {
       ...patch,
       id: `${activeQrNodeId}:text:${Date.now()}`,
       zIndex: maxZIndex + 1,
-    })
+    });
     setLayerStateByNodeId((current) => ({
       ...current,
       [activeQrNodeId]: [...layers.map(cloneDraftingCanvasLayer), textLayer],
-    }))
-    selectSingleLayer(textLayer.id)
+    }));
+    selectSingleLayer(textLayer.id);
   }
 
   function updateDesktopLayersSettings(patch: Partial<LayersSettings>) {
     if (patch.selectedLayerId !== undefined) {
-      handleLayerSelect(activeQrNodeId, patch.selectedLayerId, { preserveActiveTool: true })
+      handleLayerSelect(activeQrNodeId, patch.selectedLayerId, { preserveActiveTool: true });
     }
     if (patch.layers) {
-      const mergedRows = ensureMandatoryLayerRows(patch.layers, activeCanvasLayers)
-      const currentLayersById = new Map(activeCanvasLayers.map((layer) => [layer.id, layer]))
+      const mergedRows = ensureMandatoryLayerRows(patch.layers, activeCanvasLayers);
+      const currentLayersById = new Map(activeCanvasLayers.map((layer) => [layer.id, layer]));
       const nextLayers = mergedRows.map((row) => {
-        const layer = currentLayersById.get(row.id) ?? createDraftingTextLayer(activeQrNodeId, { id: row.id })
+        const layer =
+          currentLayersById.get(row.id) ?? createDraftingTextLayer(activeQrNodeId, { id: row.id });
 
         return patchDraftingCanvasLayer(layer, {
           blur: row.blur,
@@ -785,24 +771,24 @@ export function useInspectorActions({
           width: row.width,
           x: row.x,
           y: row.y,
-        })
-      })
+        });
+      });
       setLayerStateByNodeId((current) => ({
         ...current,
         [activeQrNodeId]: nextLayers,
-      }))
+      }));
     }
   }
 
   function updateDesktopExportSettings(patch: Partial<ExportSettings>) {
-    if (patch.extension) setSelectedDownloadExtension(patch.extension as DraftingDownloadExtension)
-    if (patch.photoLongEdge) setSelectedPhotoLongEdge(patch.photoLongEdge)
-    if (patch.target) setSelectedDownloadTarget(getDraftingDownloadTarget(patch.target))
-    if (patch.mediaKind) setSelectedExportMediaKind(patch.mediaKind)
-    if (patch.videoDurationSeconds) setSelectedVideoDurationSeconds(patch.videoDurationSeconds)
-    if (patch.videoFormat) setSelectedVideoFormat(patch.videoFormat)
-    if (patch.videoFrameRate) setSelectedVideoFrameRate(patch.videoFrameRate)
-    if (patch.videoLongEdge) setSelectedVideoLongEdge(patch.videoLongEdge)
+    if (patch.extension) setSelectedDownloadExtension(patch.extension as DraftingDownloadExtension);
+    if (patch.photoLongEdge) setSelectedPhotoLongEdge(patch.photoLongEdge);
+    if (patch.target) setSelectedDownloadTarget(getDraftingDownloadTarget(patch.target));
+    if (patch.mediaKind) setSelectedExportMediaKind(patch.mediaKind);
+    if (patch.videoDurationSeconds) setSelectedVideoDurationSeconds(patch.videoDurationSeconds);
+    if (patch.videoFormat) setSelectedVideoFormat(patch.videoFormat);
+    if (patch.videoFrameRate) setSelectedVideoFrameRate(patch.videoFrameRate);
+    if (patch.videoLongEdge) setSelectedVideoLongEdge(patch.videoLongEdge);
   }
 
   return {
@@ -829,5 +815,5 @@ export function useInspectorActions({
     updateDesktopTextSettings,
     updateDesktopLayersSettings,
     updateDesktopExportSettings,
-  }
+  };
 }

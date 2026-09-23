@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   createContext,
@@ -9,116 +9,106 @@ import {
   useState,
   type ReactNode,
   type RefObject,
-} from "react"
-import { createPortal } from "react-dom"
-import { AnimatePresence, m } from "motion/react"
+} from "react";
+import { createPortal } from "react-dom";
+import { AnimatePresence, m } from "motion/react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-const PORTAL_EASE = [0.23, 1, 0.32, 1] as const
+const PORTAL_EASE = [0.23, 1, 0.32, 1] as const;
 
 type SettingsAccordionPopoverContextValue = {
-  cardRef: RefObject<HTMLElement | null>
-  openKey: string | null
-  setOpenKey: (openKey: string | null) => void
-}
+  cardRef: RefObject<HTMLElement | null>;
+  openKey: string | null;
+  setOpenKey: (openKey: string | null) => void;
+};
 
-const SettingsAccordionPopoverContext =
-  createContext<SettingsAccordionPopoverContextValue | null>(null)
+const SettingsAccordionPopoverContext = createContext<SettingsAccordionPopoverContextValue | null>(
+  null,
+);
 
 type AccordionPopoverMetrics = {
-  card: DOMRect
-  stack: DOMRect
-}
+  card: DOMRect;
+  stack: DOMRect;
+};
 
 export function SettingsAccordionPopoverProvider({
   cardRef,
   children,
 }: {
-  cardRef: RefObject<HTMLElement | null>
-  children: ReactNode
+  cardRef: RefObject<HTMLElement | null>;
+  children: ReactNode;
 }) {
-  const [openKey, setOpenKey] = useState<string | null>(null)
-  const value = useMemo(
-    () => ({ cardRef, openKey, setOpenKey }),
-    [cardRef, openKey],
-  )
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const value = useMemo(() => ({ cardRef, openKey, setOpenKey }), [cardRef, openKey]);
 
   return (
     <SettingsAccordionPopoverContext.Provider value={value}>
       {children}
     </SettingsAccordionPopoverContext.Provider>
-  )
+  );
 }
 
 export function useSettingsAccordionPopover() {
-  return useContext(SettingsAccordionPopoverContext)
+  return useContext(SettingsAccordionPopoverContext);
 }
 
 export function SettingsAccordionPopoverOpenMarker({
   children,
   className,
 }: {
-  children: ReactNode
-  className?: string
+  children: ReactNode;
+  className?: string;
 }) {
-  const ctx = useSettingsAccordionPopover()
+  const ctx = useSettingsAccordionPopover();
 
   return (
-    <div
-      className={className}
-      data-popover-open={ctx?.openKey ? "true" : undefined}
-    >
+    <div className={className} data-popover-open={ctx?.openKey ? "true" : undefined}>
       {children}
     </div>
-  )
+  );
 }
 
-function measureAccordionPopoverMetrics(
-  stack: HTMLElement,
-): AccordionPopoverMetrics | null {
+function measureAccordionPopoverMetrics(stack: HTMLElement): AccordionPopoverMetrics | null {
   // The accordion is a single card now — anchor overlays to the stack itself.
-  const rect = stack.getBoundingClientRect()
-  return { stack: rect, card: rect }
+  const rect = stack.getBoundingClientRect();
+  return { stack: rect, card: rect };
 }
 
-function useAccordionPopoverMetrics(
-  stackRef: RefObject<HTMLElement | null>,
-  enabled: boolean,
-) {
-  const [metrics, setMetrics] = useState<AccordionPopoverMetrics | null>(null)
+function useAccordionPopoverMetrics(stackRef: RefObject<HTMLElement | null>, enabled: boolean) {
+  const [metrics, setMetrics] = useState<AccordionPopoverMetrics | null>(null);
 
   useLayoutEffect(() => {
-    const stack = stackRef.current
+    const stack = stackRef.current;
     if (!enabled || !stack) {
-      return
+      return;
     }
 
     const update = () => {
-      setMetrics(measureAccordionPopoverMetrics(stack))
-    }
+      setMetrics(measureAccordionPopoverMetrics(stack));
+    };
 
-    update()
+    update();
 
-    const resizeObserver = new ResizeObserver(update)
-    resizeObserver.observe(stack)
+    const resizeObserver = new ResizeObserver(update);
+    resizeObserver.observe(stack);
 
-    const card = stack.firstElementChild
+    const card = stack.firstElementChild;
     if (card instanceof HTMLElement) {
-      resizeObserver.observe(card)
+      resizeObserver.observe(card);
     }
 
-    window.addEventListener("resize", update)
-    window.addEventListener("scroll", update, true)
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
 
     return () => {
-      resizeObserver.disconnect()
-      window.removeEventListener("resize", update)
-      window.removeEventListener("scroll", update, true)
-    }
-  }, [stackRef, enabled])
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [stackRef, enabled]);
 
-  return enabled ? metrics : null
+  return enabled ? metrics : null;
 }
 
 export function SettingsAccordionPopoverOverlay({
@@ -127,45 +117,40 @@ export function SettingsAccordionPopoverOverlay({
   children,
   theme,
 }: {
-  openKey: string
-  className?: string
-  children: ReactNode
-  theme?: "light" | "dark"
+  openKey: string;
+  className?: string;
+  children: ReactNode;
+  theme?: "light" | "dark";
 }) {
-  const ctx = useSettingsAccordionPopover()
-  const isOpen = Boolean(ctx && ctx.openKey === openKey)
+  const ctx = useSettingsAccordionPopover();
+  const isOpen = Boolean(ctx && ctx.openKey === openKey);
   const [portalRoot] = useState<HTMLElement | null>(() =>
     typeof document === "undefined" ? null : document.body,
-  )
-  const metrics = useAccordionPopoverMetrics(
-    ctx?.cardRef ?? { current: null },
-    isOpen,
-  )
+  );
+  const metrics = useAccordionPopoverMetrics(ctx?.cardRef ?? { current: null }, isOpen);
 
   useEffect(() => {
     if (!isOpen || !ctx) {
-      return
+      return;
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        ctx.setOpenKey(null)
+        ctx.setOpenKey(null);
       }
-    }
+    };
 
-    document.addEventListener("keydown", onKeyDown)
-    return () => document.removeEventListener("keydown", onKeyDown)
-  }, [ctx, isOpen])
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [ctx, isOpen]);
 
   if (!ctx || !portalRoot) {
-    return null
+    return null;
   }
 
-  const panelLeft = metrics?.card.left ?? 0
-  const panelWidth = metrics?.card.width ?? 0
-  const panelTop = metrics
-    ? metrics.stack.top + metrics.stack.height / 2
-    : 0
+  const panelLeft = metrics?.card.left ?? 0;
+  const panelWidth = metrics?.card.width ?? 0;
+  const panelTop = metrics ? metrics.stack.top + metrics.stack.height / 2 : 0;
 
   return createPortal(
     <AnimatePresence>
@@ -208,5 +193,5 @@ export function SettingsAccordionPopoverOverlay({
       ) : null}
     </AnimatePresence>,
     portalRoot,
-  )
+  );
 }

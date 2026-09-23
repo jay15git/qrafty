@@ -1,16 +1,16 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import { formatFill } from "@/components/ui/fill-picker/public-api"
-import { qraftyGradientToFillCss } from "@/features/shell/inspector/settings-bridge"
-import { degreesToRadians } from "@/features/qr/styles/gradient-controls"
+import { formatFill } from "@/components/ui/fill-picker/public-api";
+import { qraftyGradientToFillCss } from "@/features/shell/inspector/settings-bridge";
+import { degreesToRadians } from "@/features/qr/styles/gradient-controls";
 import {
   cssFillToCanvasColor,
   cssFillToSvgPaint,
   isConicCssFill,
-} from "@/features/canvas/export/svg-css-fill"
+} from "@/features/canvas/export/svg-css-fill";
 
-const WHITE = { l: 1, c: 0, h: 0, alpha: 1 }
-const BLACK = { l: 0, c: 0, h: 0, alpha: 1 }
+const WHITE = { l: 1, c: 0, h: 0, alpha: 1 };
+const BLACK = { l: 0, c: 0, h: 0, alpha: 1 };
 
 function conicFillCss() {
   return formatFill({
@@ -25,7 +25,7 @@ function conicFillCss() {
         { position: 1, color: BLACK },
       ],
     },
-  })
+  });
 }
 
 describe("svg css fill", () => {
@@ -33,9 +33,9 @@ describe("svg css fill", () => {
     expect(cssFillToSvgPaint("#ffd80a", "card-fill")).toEqual({
       def: "",
       fill: "#ffd80a",
-    })
-    expect(cssFillToCanvasColor("#ffd80a")).toBe("#FFD80A")
-  })
+    });
+    expect(cssFillToCanvasColor("#ffd80a")).toBe("#FFD80A");
+  });
 
   it("emits svg linearGradient defs for css background fills", () => {
     const css = qraftyGradientToFillCss({
@@ -46,15 +46,15 @@ describe("svg css fill", () => {
         { offset: 0, color: "#ff0000" },
         { offset: 1, color: "#0000ff" },
       ],
-    })
-    const paint = cssFillToSvgPaint(css, "card-fill")
+    });
+    const paint = cssFillToSvgPaint(css, "card-fill");
 
-    expect(paint.fill).toBe("url(#card-fill)")
-    expect(paint.def).toContain('<linearGradient id="card-fill"')
-    expect(paint.def).toContain("gradientTransform=")
-    expect(paint.def).toContain("stop-color=")
-    expect(cssFillToCanvasColor(css).toLowerCase()).toBe("#ff0000")
-  })
+    expect(paint.fill).toBe("url(#card-fill)");
+    expect(paint.def).toContain('<linearGradient id="card-fill"');
+    expect(paint.def).toContain("gradientTransform=");
+    expect(paint.def).toContain("stop-color=");
+    expect(cssFillToCanvasColor(css).toLowerCase()).toBe("#ff0000");
+  });
 
   it("emits svg radialGradient defs for radial css fills", () => {
     const css = qraftyGradientToFillCss({
@@ -66,23 +66,23 @@ describe("svg css fill", () => {
         { offset: 1, color: "#111111" },
       ],
       center: { x: 0.25, y: 0.75 },
-    })
-    const paint = cssFillToSvgPaint(css, "card-radial")
+    });
+    const paint = cssFillToSvgPaint(css, "card-radial");
 
-    expect(paint.fill).toBe("url(#card-radial)")
-    expect(paint.def).toContain('<radialGradient id="card-radial"')
-    expect(paint.def).toContain('cx="0.25"')
-    expect(paint.def).toContain('cy="0.75"')
-  })
+    expect(paint.fill).toBe("url(#card-radial)");
+    expect(paint.def).toContain('<radialGradient id="card-radial"');
+    expect(paint.def).toContain('cx="0.25"');
+    expect(paint.def).toContain('cy="0.75"');
+  });
 
   it("keeps conic fills as canvas paint, not fake radial svg", () => {
-    const css = conicFillCss()
+    const css = conicFillCss();
 
-    expect(isConicCssFill(css)).toBe(true)
+    expect(isConicCssFill(css)).toBe(true);
     expect(cssFillToSvgPaint(css, "card-conic")).toEqual({
       def: "",
       fill: "#FFFFFF",
-    })
-    expect(cssFillToCanvasColor(css)).toBe("#FFFFFF")
-  })
-})
+    });
+    expect(cssFillToCanvasColor(css)).toBe("#FFFFFF");
+  });
+});

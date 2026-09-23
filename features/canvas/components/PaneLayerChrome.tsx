@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   forwardRef,
@@ -7,33 +7,29 @@ import {
   type MouseEvent,
   type PointerEvent,
   type ReactNode,
-} from "react"
-import {
-  CopyIcon,
-  MoreHorizontalIcon,
-  Trash2Icon,
-} from "lucide-react"
+} from "react";
+import { CopyIcon, MoreHorizontalIcon, Trash2Icon } from "lucide-react";
 
-import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover"
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
-import { LayerFloatingToolbarSettings } from "@/features/canvas/components/LayerFloatingToolbarSettings"
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import { LayerFloatingToolbarSettings } from "@/features/canvas/components/LayerFloatingToolbarSettings";
 import {
   isProtectedDraftingLayerId,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers/shared"
-import type { ChromeBounds } from "@/features/canvas/components/pane-layer-chrome-overlay"
+} from "@/features/canvas/model/layers/shared";
+import type { ChromeBounds } from "@/features/canvas/components/pane-layer-chrome-overlay";
 import {
   type ResizeDirection,
   type SnapGuides,
-} from "@/features/canvas/components/pane-layer-geometry"
-import { type DraftingLayerMenuAction } from "@/features/canvas/components/pane-layer-chrome.constants"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/components/pane-layer-geometry";
+import { type DraftingLayerMenuAction } from "@/features/canvas/components/pane-layer-chrome.constants";
+import { cn } from "@/lib/utils";
 
 const CORNER_RESIZE_HANDLES: Array<{
-  className: string
-  cursorClassName: string
-  direction: ResizeDirection
-  label: string
+  className: string;
+  cursorClassName: string;
+  direction: ResizeDirection;
+  label: string;
 }> = [
   {
     className: "right-0 top-0 translate-x-1/2 -translate-y-1/2",
@@ -59,14 +55,14 @@ const CORNER_RESIZE_HANDLES: Array<{
     direction: "nw",
     label: "top left",
   },
-]
+];
 
 const EDGE_RESIZE_ZONES: Array<{
-  className: string
-  cursorClassName: string
-  direction: ResizeDirection
-  label: string
-  style: CSSProperties
+  className: string;
+  cursorClassName: string;
+  direction: ResizeDirection;
+  label: string;
+  style: CSSProperties;
 }> = [
   {
     className: "top-0 -translate-y-1/2",
@@ -112,7 +108,7 @@ const EDGE_RESIZE_ZONES: Array<{
       width: "var(--canvas-resize-edge-hit, 8px)",
     },
   },
-]
+];
 
 export function ResizeFrameControls({
   onPointerCancel,
@@ -121,11 +117,11 @@ export function ResizeFrameControls({
   onResizePointerDown,
   targetLabel,
 }: {
-  targetLabel: string
-  onResizePointerDown: (event: PointerEvent<HTMLButtonElement>, direction: ResizeDirection) => void
-  onPointerCancel: (event: PointerEvent<HTMLButtonElement>) => void
-  onPointerMove: (event: PointerEvent<HTMLButtonElement>) => void
-  onPointerUp: (event: PointerEvent<HTMLButtonElement>) => void
+  targetLabel: string;
+  onResizePointerDown: (event: PointerEvent<HTMLButtonElement>, direction: ResizeDirection) => void;
+  onPointerCancel: (event: PointerEvent<HTMLButtonElement>) => void;
+  onPointerMove: (event: PointerEvent<HTMLButtonElement>) => void;
+  onPointerUp: (event: PointerEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <>
@@ -175,18 +171,18 @@ export function ResizeFrameControls({
         </button>
       ))}
     </>
-  )
+  );
 }
 
 export function SnapGuideOverlay({
   clipBounds,
   guides,
 }: {
-  clipBounds?: ChromeBounds | null
-  guides: SnapGuides
+  clipBounds?: ChromeBounds | null;
+  guides: SnapGuides;
 }) {
   if (guides.horizontal.length === 0 && guides.vertical.length === 0) {
-    return null
+    return null;
   }
 
   return (
@@ -228,7 +224,7 @@ export function SnapGuideOverlay({
         />
       ))}
     </>
-  )
+  );
 }
 
 export function LayerContextMenu({
@@ -240,16 +236,16 @@ export function LayerContextMenu({
   theme = "dark",
 }: {
   /** Client-space point the menu anchors to (pointer or trigger rect). */
-  anchor: { x: number; y: number }
-  layerCount: number
-  layers: DraftingCanvasLayer[]
-  onAction: (action: DraftingLayerMenuAction) => void
-  onClose: () => void
-  theme?: ThemeMode
+  anchor: { x: number; y: number };
+  layerCount: number;
+  layers: DraftingCanvasLayer[];
+  onAction: (action: DraftingLayerMenuAction) => void;
+  onClose: () => void;
+  theme?: ThemeMode;
 }) {
-  const isMultiLayer = layerCount > 1
-  const hasSelection = layerCount > 0
-  const hasGroupLayer = layers.some((layer) => layer.kind === "group")
+  const isMultiLayer = layerCount > 1;
+  const hasSelection = layerCount > 0;
+  const hasGroupLayer = layers.some((layer) => layer.kind === "group");
   const virtualAnchor = useMemo(
     () => ({
       current: {
@@ -257,7 +253,7 @@ export function LayerContextMenu({
       },
     }),
     [anchor.x, anchor.y],
-  )
+  );
 
   return (
     <Popover modal={false} open onOpenChange={(open) => !open && onClose()}>
@@ -287,13 +283,22 @@ export function LayerContextMenu({
             <LayerContextMenuButton label="Send backward" onClick={() => onAction("backward")} />
             <LayerContextMenuButton label="Send to back" onClick={() => onAction("back")} />
             <LayerContextMenuSeparator />
-            <LayerContextMenuButton label="Reset rotation" onClick={() => onAction("reset-rotation")} />
+            <LayerContextMenuButton
+              label="Reset rotation"
+              onClick={() => onAction("reset-rotation")}
+            />
             {isMultiLayer ? (
               <>
                 <LayerContextMenuSeparator />
                 <LayerContextMenuButton label="Group" onClick={() => onAction("group")} />
-                <LayerContextMenuButton label="Distribute selection horizontally" onClick={() => onAction("horizontal")} />
-                <LayerContextMenuButton label="Distribute selection vertically" onClick={() => onAction("vertical")} />
+                <LayerContextMenuButton
+                  label="Distribute selection horizontally"
+                  onClick={() => onAction("horizontal")}
+                />
+                <LayerContextMenuButton
+                  label="Distribute selection vertically"
+                  onClick={() => onAction("vertical")}
+                />
               </>
             ) : null}
             {hasGroupLayer ? (
@@ -306,16 +311,10 @@ export function LayerContextMenu({
         ) : null}
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
-function LayerContextMenuButton({
-  label,
-  onClick,
-}: {
-  label: string
-  onClick: () => void
-}) {
+function LayerContextMenuButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <button
       aria-label={label}
@@ -326,7 +325,7 @@ function LayerContextMenuButton({
     >
       {label}
     </button>
-  )
+  );
 }
 
 function LayerContextMenuSeparator() {
@@ -336,37 +335,27 @@ function LayerContextMenuSeparator() {
       className="my-1 h-px bg-[var(--line)]"
       data-slot="drafting-layer-context-menu-separator"
     />
-  )
+  );
 }
 
 export const LayerFloatingToolbar = forwardRef<
   HTMLDivElement,
   {
-    layers: DraftingCanvasLayer[]
-    onAction?: (action: DraftingLayerMenuAction) => void
-    onCopy?: () => void
-    onLayerChange?: (patch: Partial<DraftingCanvasLayer>) => void
-    onMore: (event: MouseEvent<HTMLButtonElement>) => void
-    style: CSSProperties
-    theme?: ThemeMode
+    layers: DraftingCanvasLayer[];
+    onAction?: (action: DraftingLayerMenuAction) => void;
+    onCopy?: () => void;
+    onLayerChange?: (patch: Partial<DraftingCanvasLayer>) => void;
+    onMore: (event: MouseEvent<HTMLButtonElement>) => void;
+    style: CSSProperties;
+    theme?: ThemeMode;
   }
 >(function LayerFloatingToolbar(
-  {
-    layers,
-    onAction,
-    onCopy,
-    onLayerChange,
-    onMore,
-    style,
-    theme = "dark",
-  },
+  { layers, onAction, onCopy, onLayerChange, onMore, style, theme = "dark" },
   ref,
 ) {
-  const hasRemovableLayer = layers.some(
-    (layer) => !isProtectedDraftingLayerId(layer.id, layers),
-  )
-  const settingsLayer = layers.length === 1 ? layers[0] : null
-  const showLayerSettings = Boolean(settingsLayer && onLayerChange)
+  const hasRemovableLayer = layers.some((layer) => !isProtectedDraftingLayerId(layer.id, layers));
+  const settingsLayer = layers.length === 1 ? layers[0] : null;
+  const showLayerSettings = Boolean(settingsLayer && onLayerChange);
 
   return (
     <div
@@ -411,8 +400,8 @@ export const LayerFloatingToolbar = forwardRef<
         <MoreHorizontalIcon aria-hidden="true" className="size-4" strokeWidth={2} />
       </LayerFloatingToolbarButton>
     </div>
-  )
-})
+  );
+});
 
 function LayerFloatingToolbarButton({
   children,
@@ -420,10 +409,10 @@ function LayerFloatingToolbarButton({
   label,
   onClick,
 }: {
-  children: ReactNode
-  disabled?: boolean
-  label: string
-  onClick: (event: MouseEvent<HTMLButtonElement>) => void
+  children: ReactNode;
+  disabled?: boolean;
+  label: string;
+  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <button
@@ -436,5 +425,5 @@ function LayerFloatingToolbarButton({
     >
       {children}
     </button>
-  )
+  );
 }

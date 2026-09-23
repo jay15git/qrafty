@@ -5,17 +5,14 @@ import {
   type DraftingShadowKind,
   normalizeBorderStyle,
   normalizePerSideBorderState,
-} from "@/features/canvas/model/effects"
+} from "@/features/canvas/model/effects";
 import {
   cornerRadiiToLegacyRadius,
   createUniformCornerRadii,
   normalizeCornerRadiiState,
   type DraftingCornerRadiiState,
-} from "@/features/canvas/model/corner-radius"
-import {
-  getCanvasSizeFromTemplate,
-  getSizeTemplate,
-} from "@/features/canvas/model/size-templates"
+} from "@/features/canvas/model/corner-radius";
+import { getCanvasSizeFromTemplate, getSizeTemplate } from "@/features/canvas/model/size-templates";
 import {
   createDefaultPaperShaderParams,
   DEFAULT_PAPER_SHADER_ID,
@@ -23,98 +20,103 @@ import {
   getPaperShaderPreset,
   type PaperShaderId,
   type PaperShaderParams,
-} from "@/features/canvas/rendering/paper-shader-definitions"
+} from "@/features/canvas/rendering/paper-shader-definitions";
 
-type DraftingCardShadowPreset = "none" | "soft" | "medium" | "strong"
-export type DraftingCardStyleMode = "solid" | "image" | "image-filter" | "paper-shader"
+type DraftingCardShadowPreset = "none" | "soft" | "medium" | "strong";
+export type DraftingCardStyleMode = "solid" | "image" | "image-filter" | "paper-shader";
 
-type LegacyDraftingCardStyleMode = DraftingCardStyleMode | "pattern"
+type LegacyDraftingCardStyleMode = DraftingCardStyleMode | "pattern";
 
 function normalizeDraftingCardStyleMode(
   value: LegacyDraftingCardStyleMode | undefined,
   fallback: DraftingCardStyleMode,
 ): DraftingCardStyleMode {
   if (value === "pattern") {
-    return "solid"
+    return "solid";
   }
 
-  return value ?? fallback
+  return value ?? fallback;
 }
 
 export type DraftingCardBorderState = {
-  color: string
-  opacity: number
-  sides: DraftingPerSideBorderState
-  style: DraftingBorderStyle
-  width: number
-}
+  color: string;
+  opacity: number;
+  sides: DraftingPerSideBorderState;
+  style: DraftingBorderStyle;
+  width: number;
+};
 
 export type DraftingCardShadowState = {
-  blur: number
-  color: string
-  inset: boolean
-  kind: DraftingShadowKind
-  offsetX: number
-  offsetY: number
-  opacity: number
-  spread: number
-  visible: boolean
-}
+  blur: number;
+  color: string;
+  inset: boolean;
+  kind: DraftingShadowKind;
+  offsetX: number;
+  offsetY: number;
+  opacity: number;
+  spread: number;
+  visible: boolean;
+};
 
 export type DraftingCardImageState = {
-  fit: "contain" | "cover"
-  opacity: number
-  source: "none" | "upload" | "url"
-  value?: string
-}
+  fit: "contain" | "cover";
+  opacity: number;
+  source: "none" | "upload" | "url";
+  value?: string;
+};
 
 export type DraftingCardPaperShaderState = {
-  frame: number
+  frame: number;
   image: {
-    source: "none" | "sample" | "upload" | "url"
-    value?: string
-  }
-  params: PaperShaderParams
-  paused: boolean
-  presetName: string
-  shaderId: PaperShaderId
-  speed: number
-}
+    source: "none" | "sample" | "upload" | "url";
+    value?: string;
+  };
+  params: PaperShaderParams;
+  paused: boolean;
+  presetName: string;
+  shaderId: PaperShaderId;
+  speed: number;
+};
 
 export const DEFAULT_DRAFTING_PAPER_SHADER_IMAGE =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23f8fafc'/%3E%3Cstop offset='.48' stop-color='%2394a3b8'/%3E%3Cstop offset='1' stop-color='%23111827'/%3E%3C/linearGradient%3E%3CradialGradient id='r' cx='.32' cy='.28' r='.55'%3E%3Cstop stop-color='%23f59e0b' stop-opacity='.95'/%3E%3Cstop offset='.58' stop-color='%23ec4899' stop-opacity='.62'/%3E%3Cstop offset='1' stop-color='%230f172a' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Ccircle cx='360' cy='250' r='310' fill='url(%23r)'/%3E%3Crect x='590' y='170' width='390' height='540' rx='48' fill='%23ffffff' fill-opacity='.28'/%3E%3Cpath d='M145 715 C310 575 410 805 590 635 S865 535 1055 680' fill='none' stroke='%23ffffff' stroke-width='46' stroke-linecap='round' opacity='.7'/%3E%3C/svg%3E"
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23f8fafc'/%3E%3Cstop offset='.48' stop-color='%2394a3b8'/%3E%3Cstop offset='1' stop-color='%23111827'/%3E%3C/linearGradient%3E%3CradialGradient id='r' cx='.32' cy='.28' r='.55'%3E%3Cstop stop-color='%23f59e0b' stop-opacity='.95'/%3E%3Cstop offset='.58' stop-color='%23ec4899' stop-opacity='.62'/%3E%3Cstop offset='1' stop-color='%230f172a' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Ccircle cx='360' cy='250' r='310' fill='url(%23r)'/%3E%3Crect x='590' y='170' width='390' height='540' rx='48' fill='%23ffffff' fill-opacity='.28'/%3E%3Cpath d='M145 715 C310 575 410 805 590 635 S865 535 1055 680' fill='none' stroke='%23ffffff' stroke-width='46' stroke-linecap='round' opacity='.7'/%3E%3C/svg%3E";
 
-export type DraftingCardSizeMode = "auto" | "fixed"
+export type DraftingCardSizeMode = "auto" | "fixed";
 
-const DRAFTING_CARD_SIZE_MIN = 320
-const DRAFTING_CARD_SIZE_MAX = 8192
+const DRAFTING_CARD_SIZE_MIN = 320;
+const DRAFTING_CARD_SIZE_MAX = 8192;
 
 export type DraftingCardState = {
-  border: DraftingCardBorderState
-  bottomSpace: number
-  cardImage: DraftingCardImageState
-  cornerRadius: number
-  cornerRadii: DraftingCornerRadiiState
-  enabled: boolean
-  fill: string
-  height: number
-  imageFilter: DraftingCardPaperShaderState
-  lockAspectRatio: boolean
-  padding: number
-  paperShader: DraftingCardPaperShaderState
-  shadow: DraftingCardShadowState
-  sizeMode: DraftingCardSizeMode
-  sizePresetId?: string
-  styleMode: DraftingCardStyleMode
-  width: number
-}
+  border: DraftingCardBorderState;
+  bottomSpace: number;
+  cardImage: DraftingCardImageState;
+  cornerRadius: number;
+  cornerRadii: DraftingCornerRadiiState;
+  enabled: boolean;
+  fill: string;
+  height: number;
+  imageFilter: DraftingCardPaperShaderState;
+  lockAspectRatio: boolean;
+  padding: number;
+  paperShader: DraftingCardPaperShaderState;
+  shadow: DraftingCardShadowState;
+  sizeMode: DraftingCardSizeMode;
+  sizePresetId?: string;
+  styleMode: DraftingCardStyleMode;
+  width: number;
+};
 
 function buildDefaultDraftingCardState(): DraftingCardState {
   return {
     border: {
       color: "#111827",
       opacity: 100,
-      sides: createUniformPerSideBorder({ color: "#111827", opacity: 100, style: "solid", width: 0 }),
+      sides: createUniformPerSideBorder({
+        color: "#111827",
+        opacity: 100,
+        style: "solid",
+        width: 0,
+      }),
       style: "solid",
       width: 0,
     },
@@ -153,50 +155,50 @@ function buildDefaultDraftingCardState(): DraftingCardState {
     sizePresetId: "ratio-4-3",
     styleMode: "paper-shader",
     width: 1080,
-  }
+  };
 }
 
-let cachedDefaultDraftingCardState: DraftingCardState | undefined
+let cachedDefaultDraftingCardState: DraftingCardState | undefined;
 
 function resolveDefaultDraftingCardState() {
-  cachedDefaultDraftingCardState ??= buildDefaultDraftingCardState()
-  return cachedDefaultDraftingCardState
+  cachedDefaultDraftingCardState ??= buildDefaultDraftingCardState();
+  return cachedDefaultDraftingCardState;
 }
 
 export const DEFAULT_DRAFTING_CARD_STATE = new Proxy({} as DraftingCardState, {
   get(_target, prop, receiver) {
-    return Reflect.get(resolveDefaultDraftingCardState(), prop, receiver)
+    return Reflect.get(resolveDefaultDraftingCardState(), prop, receiver);
   },
   ownKeys() {
-    return Reflect.ownKeys(resolveDefaultDraftingCardState())
+    return Reflect.ownKeys(resolveDefaultDraftingCardState());
   },
   getOwnPropertyDescriptor(_target, prop) {
-    return Reflect.getOwnPropertyDescriptor(resolveDefaultDraftingCardState(), prop)
+    return Reflect.getOwnPropertyDescriptor(resolveDefaultDraftingCardState(), prop);
   },
-})
+});
 
 export function cloneDraftingCardState(state: DraftingCardState): DraftingCardState {
-  return normalizeDraftingCardState(state)
+  return normalizeDraftingCardState(state);
 }
 
 export function normalizeDraftingCardState(
   state: Partial<DraftingCardState> | DraftingCardState,
 ): DraftingCardState {
-  const fallback = DEFAULT_DRAFTING_CARD_STATE
+  const fallback = DEFAULT_DRAFTING_CARD_STATE;
   const sizePresetId =
     typeof state.sizePresetId === "string" && state.sizePresetId.length > 0
       ? state.sizePresetId
-      : undefined
-  const presetTemplate = sizePresetId ? getSizeTemplate(sizePresetId) : undefined
-  const presetCanvasSize = presetTemplate ? getCanvasSizeFromTemplate(presetTemplate) : null
-  const resolvedWidth = presetCanvasSize?.width ?? state.width
-  const resolvedHeight = presetCanvasSize?.height ?? state.height
-  const legacyCornerRadius = clampCardNumber(state.cornerRadius, fallback.cornerRadius, 0, 256)
+      : undefined;
+  const presetTemplate = sizePresetId ? getSizeTemplate(sizePresetId) : undefined;
+  const presetCanvasSize = presetTemplate ? getCanvasSizeFromTemplate(presetTemplate) : null;
+  const resolvedWidth = presetCanvasSize?.width ?? state.width;
+  const resolvedHeight = presetCanvasSize?.height ?? state.height;
+  const legacyCornerRadius = clampCardNumber(state.cornerRadius, fallback.cornerRadius, 0, 256);
   const cornerRadii = normalizeCornerRadiiState(
     state.cornerRadii,
     fallback.cornerRadii,
     legacyCornerRadius,
-  )
+  );
 
   return {
     border: normalizeDraftingCardBorder(state.border),
@@ -225,27 +227,27 @@ export function normalizeDraftingCardState(
     sizePresetId,
     styleMode: normalizeDraftingCardStyleMode(state.styleMode, fallback.styleMode),
     width: clampCardSize(resolvedWidth, fallback.width),
-  }
+  };
 }
 
 function clampCardSize(value: unknown, fallback: number) {
-  const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback
-  return Math.min(DRAFTING_CARD_SIZE_MAX, Math.max(DRAFTING_CARD_SIZE_MIN, Math.round(parsed)))
+  const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback;
+  return Math.min(DRAFTING_CARD_SIZE_MAX, Math.max(DRAFTING_CARD_SIZE_MIN, Math.round(parsed)));
 }
 
 function clampCardNumber(value: unknown, fallback: number, min: number, max: number) {
-  const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback
-  return Math.min(max, Math.max(min, Math.round(parsed)))
+  const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback;
+  return Math.min(max, Math.max(min, Math.round(parsed)));
 }
 
 export function normalizeDraftingCardBorder(
   border: Partial<DraftingCardBorderState> | undefined,
 ): DraftingCardBorderState {
-  const fallback = DEFAULT_DRAFTING_CARD_STATE.border
-  const width = Math.max(0, border?.width ?? fallback.width)
-  const color = border?.color ?? fallback.color
-  const opacity = border?.opacity ?? fallback.opacity
-  const style = normalizeBorderStyle(border?.style, fallback.style)
+  const fallback = DEFAULT_DRAFTING_CARD_STATE.border;
+  const width = Math.max(0, border?.width ?? fallback.width);
+  const color = border?.color ?? fallback.color;
+  const opacity = border?.opacity ?? fallback.opacity;
+  const style = normalizeBorderStyle(border?.style, fallback.style);
 
   return {
     color,
@@ -253,17 +255,17 @@ export function normalizeDraftingCardBorder(
     sides: normalizePerSideBorderState(border?.sides, { color, opacity, style, width }),
     style,
     width,
-  }
+  };
 }
 
 export function normalizeDraftingCardShadow(
   shadow: DraftingCardShadowState | DraftingCardShadowPreset,
 ): DraftingCardShadowState {
   if (typeof shadow === "string") {
-    return getLegacyDraftingCardShadow(shadow)
+    return getLegacyDraftingCardShadow(shadow);
   }
 
-  const fallback = DEFAULT_DRAFTING_CARD_STATE.shadow
+  const fallback = DEFAULT_DRAFTING_CARD_STATE.shadow;
 
   return {
     blur: clampShadowNumber(shadow.blur, fallback.blur, 0, 128),
@@ -278,12 +280,12 @@ export function normalizeDraftingCardShadow(
       typeof shadow.visible === "boolean"
         ? shadow.visible
         : (shadow.opacity ?? fallback.opacity) > 0,
-  }
+  };
 }
 
 function clampShadowNumber(value: unknown, fallback: number, min: number, max: number) {
-  const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback
-  return Math.min(max, Math.max(min, parsed))
+  const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback;
+  return Math.min(max, Math.max(min, parsed));
 }
 
 function getLegacyDraftingCardShadow(shadow: DraftingCardShadowPreset): DraftingCardShadowState {
@@ -296,7 +298,7 @@ function getLegacyDraftingCardShadow(shadow: DraftingCardShadowPreset): Drafting
         offsetY: 0,
         opacity: 0,
         visible: false,
-      }
+      };
     case "soft":
       return {
         ...DEFAULT_DRAFTING_CARD_STATE.shadow,
@@ -306,7 +308,7 @@ function getLegacyDraftingCardShadow(shadow: DraftingCardShadowPreset): Drafting
         offsetY: 14,
         opacity: 45,
         visible: true,
-      }
+      };
     case "strong":
       return {
         ...DEFAULT_DRAFTING_CARD_STATE.shadow,
@@ -316,15 +318,15 @@ function getLegacyDraftingCardShadow(shadow: DraftingCardShadowPreset): Drafting
         offsetY: 26,
         opacity: 55,
         visible: true,
-      }
+      };
     case "medium":
     default:
-      return { ...DEFAULT_DRAFTING_CARD_STATE.shadow, visible: true }
+      return { ...DEFAULT_DRAFTING_CARD_STATE.shadow, visible: true };
   }
 }
 
 export function createDefaultDraftingCardState() {
-  return cloneDraftingCardState(DEFAULT_DRAFTING_CARD_STATE)
+  return cloneDraftingCardState(DEFAULT_DRAFTING_CARD_STATE);
 }
 
 export function cloneDraftingCardPaperShaderState(
@@ -334,14 +336,14 @@ export function cloneDraftingCardPaperShaderState(
     ...paperShader,
     image: { ...paperShader.image },
     params: structuredClone(paperShader.params),
-  }
+  };
 }
 
 export function createDefaultDraftingCardPaperShader(
   shaderId: PaperShaderId = DEFAULT_PAPER_SHADER_ID,
 ): DraftingCardPaperShaderState {
-  const definition = getPaperShaderDefinition(shaderId)
-  const preset = getPaperShaderPreset(shaderId)
+  const definition = getPaperShaderDefinition(shaderId);
+  const preset = getPaperShaderPreset(shaderId);
 
   return {
     frame: Number(preset.params.frame ?? 0),
@@ -359,14 +361,14 @@ export function createDefaultDraftingCardPaperShader(
     presetName: preset.name,
     shaderId,
     speed: Number(preset.params.speed ?? 0),
-  }
+  };
 }
 
 export function applyDraftingCardPaperShaderPreset(
   state: DraftingCardPaperShaderState,
   presetName: string,
 ): DraftingCardPaperShaderState {
-  const preset = getPaperShaderPreset(state.shaderId, presetName)
+  const preset = getPaperShaderPreset(state.shaderId, presetName);
 
   return {
     ...state,
@@ -374,5 +376,5 @@ export function applyDraftingCardPaperShaderPreset(
     params: structuredClone(preset.params),
     presetName: preset.name,
     speed: Number(preset.params.speed ?? state.speed),
-  }
+  };
 }

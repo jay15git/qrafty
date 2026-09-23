@@ -1,29 +1,18 @@
-"use client"
+"use client";
 
-import {
-  CopyPlusIcon,
-  FrameIcon,
-  ImageIcon,
-  PenLineIcon,
-  SmileIcon,
-  TypeIcon,
-} from "lucide-react"
-import type { ReactNode } from "react"
-import { useState } from "react"
+import { CopyPlusIcon, FrameIcon, ImageIcon, PenLineIcon, SmileIcon, TypeIcon } from "lucide-react";
+import type { ReactNode } from "react";
+import { useState } from "react";
 
-import {
-  EmojiPicker,
-  EmojiPickerContent,
-  EmojiPickerSearch,
-} from "@/components/ui/emoji-picker"
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
-import { ImageCropper } from "@/components/ui/image-cropper"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { SecondaryButton } from "@/components/ui/secondary-button"
-import { ElementShapeOptionGrid } from "@/features/canvas/components/ElementShapeOptionGrid"
-import { InsertMenuFanPreview } from "@/features/canvas/components/insert-menu/InsertMenuFanPreview"
-import type { InsertMenuFanPreviewItems } from "@/features/canvas/components/insert-menu/InsertMenuFanPreview"
+import { EmojiPicker, EmojiPickerContent, EmojiPickerSearch } from "@/components/ui/emoji-picker";
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import { ImageCropper } from "@/components/ui/image-cropper";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SecondaryButton } from "@/components/ui/secondary-button";
+import { ElementShapeOptionGrid } from "@/features/canvas/components/ElementShapeOptionGrid";
+import { InsertMenuFanPreview } from "@/features/canvas/components/insert-menu/InsertMenuFanPreview";
+import type { InsertMenuFanPreviewItems } from "@/features/canvas/components/insert-menu/InsertMenuFanPreview";
 import {
   INSERT_MENU_EMOJI_FAN_PREVIEWS,
   INSERT_MENU_ILLUSTRATION_SET_PREVIEWS,
@@ -31,7 +20,7 @@ import {
   INSERT_MENU_QR_PREVIEWS,
   INSERT_MENU_SHAPE_PREVIEWS,
   INSERT_MENU_TEXT_PREVIEWS,
-} from "@/features/canvas/components/insert-menu/insert-menu-root-previews"
+} from "@/features/canvas/components/insert-menu/insert-menu-root-previews";
 import {
   INSERT_MENU_BACK_BUTTON,
   INSERT_MENU_EMOJI_SHELL_CLASS,
@@ -39,17 +28,17 @@ import {
   INSERT_MENU_ITEM_CLASS,
   INSERT_MENU_PANEL_TITLE,
   INSERT_MENU_ROOT_SCROLL_CLASS,
-} from "@/features/canvas/components/insert-menu/insert-menu-styles"
-import { IllustrationOptionGrid } from "@/features/canvas/components/IllustrationOptionGrid"
+} from "@/features/canvas/components/insert-menu/insert-menu-styles";
+import { IllustrationOptionGrid } from "@/features/canvas/components/IllustrationOptionGrid";
 import {
   ILLUSTRATION_SETS,
   type IllustrationAsset,
   type IllustrationSet,
   type IllustrationSetId,
-} from "@/features/canvas/assets/illustration-sets"
-import type { DraftingElementShapeId } from "@/features/canvas/model/layers/shared"
-import { CUELUME_BUTTON, CUELUME_TOGGLE } from "@/features/shell/audio/cuelume"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/assets/illustration-sets";
+import type { DraftingElementShapeId } from "@/features/canvas/model/layers/shared";
+import { CUELUME_BUTTON, CUELUME_TOGGLE } from "@/features/shell/audio/cuelume";
+import { cn } from "@/lib/utils";
 
 function InsertMenuActionButton({
   children,
@@ -58,11 +47,11 @@ function InsertMenuActionButton({
   onClick,
   slot,
 }: {
-  children: ReactNode
-  disabled?: boolean
-  isPopover: boolean
-  onClick: () => void
-  slot?: string
+  children: ReactNode;
+  disabled?: boolean;
+  isPopover: boolean;
+  onClick: () => void;
+  slot?: string;
 }) {
   if (isPopover) {
     return (
@@ -76,7 +65,7 @@ function InsertMenuActionButton({
       >
         {children}
       </button>
-    )
+    );
   }
 
   return (
@@ -89,7 +78,7 @@ function InsertMenuActionButton({
     >
       {children}
     </SecondaryButton>
-  )
+  );
 }
 
 function InsertMenuPanelHeader({
@@ -97,15 +86,17 @@ function InsertMenuPanelHeader({
   onBack,
   title,
 }: {
-  isPopover: boolean
-  onBack: () => void
-  title: string
+  isPopover: boolean;
+  onBack: () => void;
+  title: string;
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
       <p
         className={cn(
-          isPopover ? INSERT_MENU_PANEL_TITLE : "ws-type-control-label font-semibold text-[var(--canvas-ink)]",
+          isPopover
+            ? INSERT_MENU_PANEL_TITLE
+            : "ws-type-control-label font-semibold text-[var(--canvas-ink)]",
         )}
       >
         {title}
@@ -123,7 +114,7 @@ function InsertMenuPanelHeader({
         Back
       </button>
     </div>
-  )
+  );
 }
 
 function InsertMenuRootOptionTile({
@@ -134,14 +125,14 @@ function InsertMenuRootOptionTile({
   previews,
   slot,
 }: {
-  className?: string
-  disabled?: boolean
-  label: string
-  onClick: () => void
-  previews: InsertMenuFanPreviewItems
-  slot?: string
+  className?: string;
+  disabled?: boolean;
+  label: string;
+  onClick: () => void;
+  previews: InsertMenuFanPreviewItems;
+  slot?: string;
 }) {
-  const [isHovered, setIsHovered] = useState(false)
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <button
@@ -160,7 +151,7 @@ function InsertMenuRootOptionTile({
       </span>
       <span className="dn-insert-menu-root-tile-label">{label}</span>
     </button>
-  )
+  );
 }
 
 export function InsertMenuRootPanel({
@@ -173,14 +164,14 @@ export function InsertMenuRootPanel({
   onOpenShapePanel,
   onOpenEmojiPanel,
 }: {
-  canAddQrCode: boolean
-  isPopover: boolean
-  onAddQrCode?: () => void
-  onInsertText: () => void
-  onOpenEmojiPanel: () => void
-  onOpenIllustrationSet: (setId: IllustrationSetId) => void
-  onOpenImagePanel: () => void
-  onOpenShapePanel: () => void
+  canAddQrCode: boolean;
+  isPopover: boolean;
+  onAddQrCode?: () => void;
+  onInsertText: () => void;
+  onOpenEmojiPanel: () => void;
+  onOpenIllustrationSet: (setId: IllustrationSetId) => void;
+  onOpenImagePanel: () => void;
+  onOpenShapePanel: () => void;
 }) {
   if (isPopover) {
     return (
@@ -234,7 +225,7 @@ export function InsertMenuRootPanel({
           ) : null}
         </div>
       </ScrollArea>
-    )
+    );
   }
 
   return (
@@ -282,7 +273,7 @@ export function InsertMenuRootPanel({
         </InsertMenuActionButton>
       ) : null}
     </div>
-  )
+  );
 }
 
 export function InsertMenuShapePanel({
@@ -290,9 +281,9 @@ export function InsertMenuShapePanel({
   onBack,
   onSelectShape,
 }: {
-  isPopover: boolean
-  onBack: () => void
-  onSelectShape: (shapeId: DraftingElementShapeId) => void
+  isPopover: boolean;
+  onBack: () => void;
+  onSelectShape: (shapeId: DraftingElementShapeId) => void;
 }) {
   return (
     <div className="space-y-3">
@@ -303,7 +294,7 @@ export function InsertMenuShapePanel({
         onSelect={onSelectShape}
       />
     </div>
-  )
+  );
 }
 
 export function InsertMenuImagePanel({
@@ -315,13 +306,13 @@ export function InsertMenuImagePanel({
   onInsertImage,
   theme = "dark",
 }: {
-  imageUrl: string
-  isPopover: boolean
-  onBack: () => void
-  onBrowseWallpapers?: () => void
-  onImageUrlChange: (value: string) => void
-  onInsertImage: (value: string, source: "upload" | "url") => void
-  theme?: ThemeMode
+  imageUrl: string;
+  isPopover: boolean;
+  onBack: () => void;
+  onBrowseWallpapers?: () => void;
+  onImageUrlChange: (value: string) => void;
+  onInsertImage: (value: string, source: "upload" | "url") => void;
+  theme?: ThemeMode;
 }) {
   return (
     <div className="space-y-3">
@@ -345,16 +336,13 @@ export function InsertMenuImagePanel({
         showFormatHint
         onChange={(value) => {
           if (value instanceof File) {
-            onInsertImage(URL.createObjectURL(value), "upload")
+            onInsertImage(URL.createObjectURL(value), "upload");
           }
         }}
       />
       <div className="flex items-center gap-2 px-1">
         <div
-          className={cn(
-            "h-px flex-1",
-            isPopover ? "bg-[var(--line)]" : "bg-[var(--canvas-line)]",
-          )}
+          className={cn("h-px flex-1", isPopover ? "bg-[var(--line)]" : "bg-[var(--canvas-line)]")}
         />
         <span
           className={cn(
@@ -365,10 +353,7 @@ export function InsertMenuImagePanel({
           or
         </span>
         <div
-          className={cn(
-            "h-px flex-1",
-            isPopover ? "bg-[var(--line)]" : "bg-[var(--canvas-line)]",
-          )}
+          className={cn("h-px flex-1", isPopover ? "bg-[var(--line)]" : "bg-[var(--canvas-line)]")}
         />
       </div>
       <Input
@@ -402,7 +387,7 @@ export function InsertMenuImagePanel({
         </SecondaryButton>
       )}
     </div>
-  )
+  );
 }
 
 export function InsertMenuIllustrationSetPanel({
@@ -411,10 +396,10 @@ export function InsertMenuIllustrationSetPanel({
   onSelectAsset,
   set,
 }: {
-  isPopover: boolean
-  onBack: () => void
-  onSelectAsset: (asset: IllustrationAsset) => void
-  set: IllustrationSet
+  isPopover: boolean;
+  onBack: () => void;
+  onSelectAsset: (asset: IllustrationAsset) => void;
+  set: IllustrationSet;
 }) {
   return (
     <div className="space-y-3">
@@ -426,7 +411,7 @@ export function InsertMenuIllustrationSetPanel({
         onSelect={onSelectAsset}
       />
     </div>
-  )
+  );
 }
 
 export function InsertMenuEmojiPanel({
@@ -434,9 +419,9 @@ export function InsertMenuEmojiPanel({
   onBack,
   onSelectEmoji,
 }: {
-  isPopover: boolean
-  onBack?: () => void
-  onSelectEmoji: (emoji: string) => void
+  isPopover: boolean;
+  onBack?: () => void;
+  onSelectEmoji: (emoji: string) => void;
 }) {
   const picker = (
     <EmojiPicker
@@ -467,7 +452,7 @@ export function InsertMenuEmojiPanel({
         hideCategoryHeaders={isPopover}
       />
     </EmojiPicker>
-  )
+  );
 
   if (!isPopover) {
     return (
@@ -477,7 +462,7 @@ export function InsertMenuEmojiPanel({
         ) : null}
         {picker}
       </div>
-    )
+    );
   }
 
   return (
@@ -489,5 +474,5 @@ export function InsertMenuEmojiPanel({
       ) : null}
       {picker}
     </div>
-  )
+  );
 }

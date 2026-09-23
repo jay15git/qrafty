@@ -10,9 +10,7 @@ const nextConfig: NextConfig = {
   },
   transpilePackages: ["@qrafty/qr"],
   async redirects() {
-    return [
-      { source: "/desktop", destination: "/design", permanent: true },
-    ];
+    return [{ source: "/desktop", destination: "/design", permanent: true }];
   },
 };
 

@@ -41,10 +41,7 @@ export interface SelectProps {
  * render while open). Non-string labels fall back to the raw value, matching
  * the previous labelMap behaviour.
  */
-function collectSelectItems(
-  node: ReactNode,
-  out: { value: string; label: ReactNode }[] = []
-) {
+function collectSelectItems(node: ReactNode, out: { value: string; label: ReactNode }[] = []) {
   Children.forEach(node, (child) => {
     if (!isValidElement(child)) return;
     const props = child.props as {
@@ -91,7 +88,7 @@ export function Select({
       if (value === undefined) setInternalValue(v);
       onValueChange?.(v);
     },
-    [value, onValueChange]
+    [value, onValueChange],
   );
 
   const ackTimeoutRef = useRef<number | null>(null);
@@ -121,13 +118,10 @@ export function Select({
       cancelAckClose();
       setOpen(nextOpen);
     },
-    [cancelAckClose]
+    [cancelAckClose],
   );
 
-  const ctx = useMemo(
-    () => ({ value: currentValue, open, actionsRef }),
-    [currentValue, open]
-  );
+  const ctx = useMemo(() => ({ value: currentValue, open, actionsRef }), [currentValue, open]);
 
   // A size prop pins the whole compound (trigger + portalled popup — React
   // context crosses portals) to one step of the ladder.

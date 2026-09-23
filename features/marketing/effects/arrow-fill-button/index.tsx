@@ -3,7 +3,14 @@
 "use client";
 
 import { TransitionLink, type SweepOptions } from "glimm/next";
-import { useEffect, useRef, useState, type ComponentPropsWithoutRef, type CSSProperties, type PointerEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentPropsWithoutRef,
+  type CSSProperties,
+  type PointerEvent,
+} from "react";
 import { ArrowRight } from "lucide-react";
 
 const DEFAULT_HREF = "#";
@@ -30,7 +37,8 @@ interface ArrowFillButtonOwnProps {
   noTransition?: boolean;
 }
 
-type ArrowFillButtonProps = ArrowFillButtonOwnProps & Omit<ComponentPropsWithoutRef<'a'>, keyof ArrowFillButtonOwnProps>;
+type ArrowFillButtonProps = ArrowFillButtonOwnProps &
+  Omit<ComponentPropsWithoutRef<"a">, keyof ArrowFillButtonOwnProps>;
 
 /** Touch-only press feedback: on compact layouts a non-mouse pointer press
  *  fills the button until release + the fill animation finishes. */
@@ -42,9 +50,7 @@ function usePressFeedback() {
   const compactLayoutRef = useRef(false);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(
-      `(max-width: ${COMPACT_LAYOUT_BREAKPOINT - 1}px)`
-    );
+    const mediaQuery = window.matchMedia(`(max-width: ${COMPACT_LAYOUT_BREAKPOINT - 1}px)`);
 
     const syncCompactLayout = (event: MediaQueryList | MediaQueryListEvent) => {
       const matches = event.matches;
@@ -141,30 +147,30 @@ function ArrowFillDecor({ btnText, isReady }: { btnText: string; isReady: boolea
         }}
         aria-hidden="true"
       >
-          <ArrowRight
-            className={`absolute left-1/2 top-1/2 size-[1.5vw] max-[1025px]:size-[4vw] max-md:size-[5vw] translate-x-[-170%] -translate-y-1/2 origin-center scale-0 text-current ${
-              isReady
-                ? `${BUTTON_TRANSITION_CLASS} group-hover:-translate-x-1/2 group-hover:-translate-y-1/2 group-hover:scale-100 group-data-[pressed=true]:-translate-x-1/2 group-data-[pressed=true]:-translate-y-1/2 group-data-[pressed=true]:scale-100`
-                : ""
-            }`}
-            strokeWidth={1.8}
-          />
+        <ArrowRight
+          className={`absolute left-1/2 top-1/2 size-[1.5vw] max-[1025px]:size-[4vw] max-md:size-[5vw] translate-x-[-170%] -translate-y-1/2 origin-center scale-0 text-current ${
+            isReady
+              ? `${BUTTON_TRANSITION_CLASS} group-hover:-translate-x-1/2 group-hover:-translate-y-1/2 group-hover:scale-100 group-data-[pressed=true]:-translate-x-1/2 group-data-[pressed=true]:-translate-y-1/2 group-data-[pressed=true]:scale-100`
+              : ""
+          }`}
+          strokeWidth={1.8}
+        />
 
-          <ArrowRight
-            className={`absolute left-1/2 top-1/2 size-[1.5vw] max-[1025px]:size-[4vw] max-md:size-[5vw] -translate-x-1/2 -translate-y-1/2 origin-center text-current ${
-              isReady
-                ? `${BUTTON_TRANSITION_CLASS} group-hover:translate-x-[70%] group-hover:-translate-y-1/2 group-hover:scale-0 group-data-[pressed=true]:translate-x-[70%] group-data-[pressed=true]:-translate-y-1/2 group-data-[pressed=true]:scale-0`
-                : ""
-            }`}
-            strokeWidth={1.8}
-          />
-        </span>
+        <ArrowRight
+          className={`absolute left-1/2 top-1/2 size-[1.5vw] max-[1025px]:size-[4vw] max-md:size-[5vw] -translate-x-1/2 -translate-y-1/2 origin-center text-current ${
+            isReady
+              ? `${BUTTON_TRANSITION_CLASS} group-hover:translate-x-[70%] group-hover:-translate-y-1/2 group-hover:scale-0 group-data-[pressed=true]:translate-x-[70%] group-data-[pressed=true]:-translate-y-1/2 group-data-[pressed=true]:scale-0`
+              : ""
+          }`}
+          strokeWidth={1.8}
+        />
+      </span>
     </>
   );
 }
 
 function ArrowFillButton({
-  btnText="Hover Me",
+  btnText = "Hover Me",
   href = DEFAULT_HREF,
   className = "",
 
@@ -185,8 +191,7 @@ function ArrowFillButton({
   ...props
 }: ArrowFillButtonProps) {
   const [isReady, setIsReady] = useState(false);
-  const { isPressed, handlePointerDown, handlePointerRelease } =
-    usePressFeedback();
+  const { isPressed, handlePointerDown, handlePointerRelease } = usePressFeedback();
 
   const usesUtilityBackground =
     className.includes("bg-") ||
@@ -249,10 +254,7 @@ function ArrowFillButton({
   const LinkComponent = usesGlimmLink ? TransitionLink : "a";
 
   return (
-    <LinkComponent
-      {...(usesGlimmLink ? { sweep, noTransition } : {})}
-      {...linkProps}
-    >
+    <LinkComponent {...(usesGlimmLink ? { sweep, noTransition } : {})} {...linkProps}>
       <span className="relative z-1 pb-px">{btnText}</span>
 
       <ArrowFillDecor btnText={btnText} isReady={isReady} />

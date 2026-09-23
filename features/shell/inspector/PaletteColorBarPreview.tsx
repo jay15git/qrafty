@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-const PALETTE_COLOR_FALLBACK = "#000000"
+const PALETTE_COLOR_FALLBACK = "#000000";
 
 function isPaletteHexColor(value: string) {
-  return /^#[0-9a-f]{6}$/i.test(value)
+  return /^#[0-9a-f]{6}$/i.test(value);
 }
 
 export function PaletteColorBarPreview({
@@ -13,11 +13,11 @@ export function PaletteColorBarPreview({
   colors,
   size = "sm",
 }: {
-  className?: string
-  colors: string[]
-  size?: "sm" | "md"
+  className?: string;
+  colors: string[];
+  size?: "sm" | "md";
 }) {
-  const isMedium = size === "md"
+  const isMedium = size === "md";
 
   return (
     <span
@@ -31,15 +31,12 @@ export function PaletteColorBarPreview({
       {colors.map((color, index) => (
         <span
           key={`${color}-${index}`}
-          className={cn(
-            "min-w-0",
-            isMedium ? "h-full flex-1" : "h-3.5 w-2.5 shrink-0",
-          )}
+          className={cn("min-w-0", isMedium ? "h-full flex-1" : "h-3.5 w-2.5 shrink-0")}
           style={{
             backgroundColor: isPaletteHexColor(color) ? color : PALETTE_COLOR_FALLBACK,
           }}
         />
       ))}
     </span>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
 import {
   buildStaticQrPayload,
@@ -8,7 +8,7 @@ import {
   resolveContentValuesForType,
   validateStaticQrContent,
   type StaticQrContentValues,
-} from "@/features/qr/content/static-payload"
+} from "@/features/qr/content/static-payload";
 
 describe("static QR content payloads", () => {
   it("escapes reserved Wi-Fi characters and includes hidden network metadata", () => {
@@ -17,39 +17,37 @@ describe("static QR content payloads", () => {
       password: "pa;ss,wo:rd\\",
       security: "WPA",
       ssid: "Cafe;Guest,5G:North\\",
-    })
+    });
 
     expect(payload).toBe(
       String.raw`WIFI:T:WPA;S:Cafe\;Guest\,5G\:North\\;P:pa\;ss\,wo\:rd\\;H:true;;`,
-    )
-  })
+    );
+  });
 
   it("builds static URI payloads for phone, SMS, email, WhatsApp, Telegram, and maps", () => {
-    expect(buildStaticQrPayload("phone", { phone: "+1 (555) 010-2000" })).toBe(
-      "tel:+15550102000",
-    )
+    expect(buildStaticQrPayload("phone", { phone: "+1 (555) 010-2000" })).toBe("tel:+15550102000");
     expect(
       buildStaticQrPayload("sms", {
         message: "Bring menus",
         phone: "+1 (555) 010-2000",
       }),
-    ).toBe("sms:+15550102000?body=Bring%20menus")
+    ).toBe("sms:+15550102000?body=Bring%20menus");
     expect(
       buildStaticQrPayload("email", {
         body: "Hello team",
         email: "hello@example.com",
         subject: "Launch",
       }),
-    ).toBe("mailto:hello@example.com?subject=Launch&body=Hello%20team")
+    ).toBe("mailto:hello@example.com?subject=Launch&body=Hello%20team");
     expect(
       buildStaticQrPayload("whatsapp-chat", {
         message: "I would like to book",
         phone: "+91 98765 43210",
       }),
-    ).toBe("https://wa.me/919876543210?text=I%20would%20like%20to%20book")
+    ).toBe("https://wa.me/919876543210?text=I%20would%20like%20to%20book");
     expect(buildStaticQrPayload("telegram-username", { url: "https://t.me/qrafty" })).toBe(
       "https://t.me/qrafty",
-    )
+    );
     expect(
       buildStaticQrPayload("map-location", {
         intent: "place",
@@ -57,8 +55,8 @@ describe("static QR content payloads", () => {
         longitude: "72.8777",
         query: "Mumbai",
       }),
-    ).toBe("geo:19.0760,72.8777?q=Mumbai")
-  })
+    ).toBe("geo:19.0760,72.8777?q=Mumbai");
+  });
 
   it("builds vCard payloads while omitting empty optional fields", () => {
     const payload = buildStaticQrPayload("vcard", {
@@ -69,7 +67,7 @@ describe("static QR content payloads", () => {
       phone: "+91 98765 43210",
       title: "",
       url: "https://example.com",
-    })
+    });
 
     expect(payload).toBe(
       [
@@ -83,9 +81,9 @@ describe("static QR content payloads", () => {
         "URL:https://example.com",
         "END:VCARD",
       ].join("\n"),
-    )
-    expect(payload).not.toContain("TITLE:")
-  })
+    );
+    expect(payload).not.toContain("TITLE:");
+  });
 
   it("builds event URLs by default and iCalendar payloads when full event fields are enabled", () => {
     expect(
@@ -93,7 +91,7 @@ describe("static QR content payloads", () => {
         eventMode: "url",
         url: "example.com/rsvp",
       }),
-    ).toBe("https://example.com/rsvp")
+    ).toBe("https://example.com/rsvp");
 
     expect(
       buildStaticQrPayload("event", {
@@ -117,42 +115,79 @@ describe("static QR content payloads", () => {
         "END:VEVENT",
         "END:VCALENDAR",
       ].join("\n"),
-    )
-  })
+    );
+  });
 
   it("builds social and static link content as normalized URLs", () => {
-    const cases: Array<[Parameters<typeof buildStaticQrPayload>[0], StaticQrContentValues, string]> =
+    const cases: Array<
+      [Parameters<typeof buildStaticQrPayload>[0], StaticQrContentValues, string]
+    > = [
       [
-        ["instagram", { intent: "profile", url: "https://instagram.com/qrafty" }, "https://instagram.com/qrafty"],
-        ["facebook", { intent: "profile", url: "facebook.com/qrafty" }, "https://facebook.com/qrafty"],
-        ["x", { intent: "profile", url: "https://x.com/qrafty" }, "https://x.com/qrafty"],
-        ["youtube", { intent: "channel", url: "https://youtube.com/@qrafty" }, "https://youtube.com/@qrafty"],
-        ["linkedin", { intent: "profile", url: "linkedin.com/company/qrafty" }, "https://linkedin.com/company/qrafty"],
-        ["tiktok", { intent: "profile", url: "https://tiktok.com/@qrafty" }, "https://tiktok.com/@qrafty"],
-        ["snapchat", { intent: "add", url: "https://snapchat.com/add/qrafty" }, "https://snapchat.com/add/qrafty"],
-        ["threads", { intent: "profile", url: "https://threads.net/@qrafty" }, "https://threads.net/@qrafty"],
-        ["pinterest", { intent: "profile", url: "https://pinterest.com/qrafty" }, "https://pinterest.com/qrafty"],
-        ["discord", { intent: "invite", url: "discord.gg/qrafty" }, "https://discord.gg/qrafty"],
-        ["pdf", { intent: "url", url: "example.com/menu.pdf" }, "https://example.com/menu.pdf"],
-        ["coupon", { code: "SAVE20", description: "20% off", url: "example.com/save" }, "SAVE20\n20% off\nhttps://example.com/save"],
-      ]
+        "instagram",
+        { intent: "profile", url: "https://instagram.com/qrafty" },
+        "https://instagram.com/qrafty",
+      ],
+      [
+        "facebook",
+        { intent: "profile", url: "facebook.com/qrafty" },
+        "https://facebook.com/qrafty",
+      ],
+      ["x", { intent: "profile", url: "https://x.com/qrafty" }, "https://x.com/qrafty"],
+      [
+        "youtube",
+        { intent: "channel", url: "https://youtube.com/@qrafty" },
+        "https://youtube.com/@qrafty",
+      ],
+      [
+        "linkedin",
+        { intent: "profile", url: "linkedin.com/company/qrafty" },
+        "https://linkedin.com/company/qrafty",
+      ],
+      [
+        "tiktok",
+        { intent: "profile", url: "https://tiktok.com/@qrafty" },
+        "https://tiktok.com/@qrafty",
+      ],
+      [
+        "snapchat",
+        { intent: "add", url: "https://snapchat.com/add/qrafty" },
+        "https://snapchat.com/add/qrafty",
+      ],
+      [
+        "threads",
+        { intent: "profile", url: "https://threads.net/@qrafty" },
+        "https://threads.net/@qrafty",
+      ],
+      [
+        "pinterest",
+        { intent: "profile", url: "https://pinterest.com/qrafty" },
+        "https://pinterest.com/qrafty",
+      ],
+      ["discord", { intent: "invite", url: "discord.gg/qrafty" }, "https://discord.gg/qrafty"],
+      ["pdf", { intent: "url", url: "example.com/menu.pdf" }, "https://example.com/menu.pdf"],
+      [
+        "coupon",
+        { code: "SAVE20", description: "20% off", url: "example.com/save" },
+        "SAVE20\n20% off\nhttps://example.com/save",
+      ],
+    ];
 
     for (const [type, values, expected] of cases) {
-      expect(buildStaticQrPayload(type, values)).toBe(expected)
+      expect(buildStaticQrPayload(type, values)).toBe(expected);
     }
-  })
+  });
 
   it("validates required values for fragile static payloads", () => {
     expect(validateStaticQrContent("wifi", { ssid: "" })).toEqual({
       fieldErrors: { ssid: "Enter a network name." },
       isValid: false,
-    })
+    });
     expect(validateStaticQrContent("vcard", getDefaultStaticQrValues("vcard"))).toEqual({
       fieldErrors: {
         firstName: "Add a name, phone, or email.",
       },
       isValid: false,
-    })
+    });
     expect(
       validateStaticQrContent("map-location", {
         intent: "place",
@@ -165,8 +200,8 @@ describe("static QR content payloads", () => {
         longitude: "Longitude must be between -180 and 180.",
       },
       isValid: false,
-    })
-  })
+    });
+  });
 
   it("migrates url alias values when switching picker types to link", () => {
     expect(
@@ -175,7 +210,7 @@ describe("static QR content payloads", () => {
       }),
     ).toEqual({
       url: "https://example.com/menu.pdf",
-    })
+    });
 
     expect(
       getContentValuesForTypeChange("instagram", "link", {
@@ -183,8 +218,8 @@ describe("static QR content payloads", () => {
       }),
     ).toEqual({
       url: "https://instagram.com/qrafty",
-    })
-  })
+    });
+  });
 
   it("restores default stubs when revisiting a type with empty fields", () => {
     expect(
@@ -195,7 +230,7 @@ describe("static QR content payloads", () => {
     ).toEqual({
       intent: "profile",
       url: "https://www.tiktok.com/@qrafty",
-    })
+    });
 
     expect(
       resolveContentValuesForType("tiktok", {
@@ -205,8 +240,8 @@ describe("static QR content payloads", () => {
     ).toEqual({
       intent: "profile",
       url: "https://www.tiktok.com/@custom",
-    })
-  })
+    });
+  });
 
   it("uses platform stubs when switching from link without a matching platform URL", () => {
     expect(
@@ -216,8 +251,8 @@ describe("static QR content payloads", () => {
     ).toEqual({
       intent: "channel",
       url: "https://youtube.com/@",
-    })
-  })
+    });
+  });
 
   it("extracts platform values when switching from link with a matching platform URL", () => {
     expect(
@@ -227,8 +262,8 @@ describe("static QR content payloads", () => {
     ).toMatchObject({
       intent: "video",
       url: "https://youtube.com/watch?v=abc123",
-    })
-  })
+    });
+  });
 
   it("builds UPI and crypto payment payloads", () => {
     expect(
@@ -239,9 +274,7 @@ describe("static QR content payloads", () => {
         payeeName: "New QR",
         vpa: "merchant@okaxis",
       }),
-    ).toBe(
-      "upi://pay?pa=merchant%40okaxis&pn=New%20QR&am=199.00&cu=INR&tn=Order%2042",
-    )
+    ).toBe("upi://pay?pa=merchant%40okaxis&pn=New%20QR&am=199.00&cu=INR&tn=Order%2042");
 
     expect(
       buildStaticQrPayload("crypto", {
@@ -249,66 +282,69 @@ describe("static QR content payloads", () => {
         amount: "0.01",
         asset: "bitcoin",
       }),
-    ).toBe("bitcoin:bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh?amount=0.01")
+    ).toBe("bitcoin:bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh?amount=0.01");
 
     expect(
       buildStaticQrPayload("crypto", {
         address: "0x1111111111111111111111111111111111111111",
         asset: "ethereum",
       }),
-    ).toBe("ethereum:0x1111111111111111111111111111111111111111")
-  })
+    ).toBe("ethereum:0x1111111111111111111111111111111111111111");
+  });
 
   it("validates UPI and crypto required fields", () => {
     expect(validateStaticQrContent("upi", { vpa: "" })).toEqual({
       fieldErrors: { vpa: "Enter a UPI ID." },
       isValid: false,
-    })
+    });
     expect(validateStaticQrContent("upi", { vpa: "not-a-vpa" })).toEqual({
       fieldErrors: { vpa: "Enter a valid UPI ID (name@bank)." },
       isValid: false,
-    })
+    });
     expect(validateStaticQrContent("crypto", { address: "", asset: "bitcoin" })).toEqual({
       fieldErrors: { address: "Enter a wallet address." },
       isValid: false,
-    })
-  })
+    });
+  });
 
   it("flags invalid URL, email, and phone formats", () => {
     expect(validateStaticQrContent("link", { url: "not a url" })).toEqual({
       fieldErrors: { url: "Enter a valid URL." },
       isValid: false,
-    })
+    });
 
     expect(validateStaticQrContent("email", { email: "bad-email" })).toEqual({
       fieldErrors: { email: "Enter a valid email address." },
       isValid: false,
-    })
+    });
 
     expect(validateStaticQrContent("phone", { phone: "123" })).toEqual({
       fieldErrors: { phone: "Enter a valid phone number." },
       isValid: false,
-    })
-  })
+    });
+  });
 
   it("returns overlay messages for invalid or empty encoded content", () => {
     expect(
       getContentValidationOverlayMessage(validateStaticQrContent("link", { url: "" }), ""),
-    ).toBe("Enter a URL.")
+    ).toBe("Enter a URL.");
 
     expect(
       getContentValidationOverlayMessage(
         validateStaticQrContent("phone", { phone: "123" }),
         "tel:123",
       ),
-    ).toBe("Enter a valid phone number.")
-
-    expect(getContentValidationOverlayMessage(validateStaticQrContent("text", { text: "" }), "")).toBe(
-      "Fill in the content fields to generate your QR code.",
-    )
+    ).toBe("Enter a valid phone number.");
 
     expect(
-      getContentValidationOverlayMessage(validateStaticQrContent("link", { url: "https://qrafty.app" }), "https://qrafty.app"),
-    ).toBeNull()
-  })
-})
+      getContentValidationOverlayMessage(validateStaticQrContent("text", { text: "" }), ""),
+    ).toBe("Fill in the content fields to generate your QR code.");
+
+    expect(
+      getContentValidationOverlayMessage(
+        validateStaticQrContent("link", { url: "https://qrafty.app" }),
+        "https://qrafty.app",
+      ),
+    ).toBeNull();
+  });
+});

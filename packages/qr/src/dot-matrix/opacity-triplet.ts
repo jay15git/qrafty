@@ -32,32 +32,24 @@ export function remapOpacityToTriplet(
   opacity: number,
   opacityBase: number | undefined,
   opacityMid: number | undefined,
-  opacityPeak: number | undefined
+  opacityPeak: number | undefined,
 ): number {
   if (!Number.isFinite(opacity)) {
     return opacity;
   }
 
   const hasOverrides =
-    opacityBase !== undefined ||
-    opacityMid !== undefined ||
-    opacityPeak !== undefined;
+    opacityBase !== undefined || opacityMid !== undefined || opacityPeak !== undefined;
   if (!hasOverrides) {
     return clamp01(opacity);
   }
 
   const targetBase =
-    coerceOpacity(opacityBase) !== undefined
-      ? coerceOpacity(opacityBase)!
-      : SOURCE_BASE_OPACITY;
+    coerceOpacity(opacityBase) !== undefined ? coerceOpacity(opacityBase)! : SOURCE_BASE_OPACITY;
   const targetMid =
-    coerceOpacity(opacityMid) !== undefined
-      ? coerceOpacity(opacityMid)!
-      : SOURCE_MID_OPACITY;
+    coerceOpacity(opacityMid) !== undefined ? coerceOpacity(opacityMid)! : SOURCE_MID_OPACITY;
   const targetPeak =
-    coerceOpacity(opacityPeak) !== undefined
-      ? coerceOpacity(opacityPeak)!
-      : SOURCE_PEAK_OPACITY;
+    coerceOpacity(opacityPeak) !== undefined ? coerceOpacity(opacityPeak)! : SOURCE_PEAK_OPACITY;
 
   const safeOpacity = clamp01(opacity);
   if (safeOpacity <= SOURCE_BASE_OPACITY) {
@@ -66,20 +58,12 @@ export function remapOpacityToTriplet(
   }
 
   if (safeOpacity <= SOURCE_MID_OPACITY) {
-    const progress = normalizeProgress(
-      safeOpacity,
-      SOURCE_BASE_OPACITY,
-      SOURCE_MID_OPACITY
-    );
+    const progress = normalizeProgress(safeOpacity, SOURCE_BASE_OPACITY, SOURCE_MID_OPACITY);
     return clamp01(lerp(targetBase, targetMid, progress));
   }
 
   if (safeOpacity <= SOURCE_PEAK_OPACITY) {
-    const progress = normalizeProgress(
-      safeOpacity,
-      SOURCE_MID_OPACITY,
-      SOURCE_PEAK_OPACITY
-    );
+    const progress = normalizeProgress(safeOpacity, SOURCE_MID_OPACITY, SOURCE_PEAK_OPACITY);
     return clamp01(lerp(targetMid, targetPeak, progress));
   }
 

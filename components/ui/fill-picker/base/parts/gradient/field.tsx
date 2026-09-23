@@ -72,109 +72,108 @@ interface FieldSelectProps {
  * The forwarded ref points at the trigger button so consumers can
  * imperatively focus it, matching the original.
  */
-export const FieldSelect = React.forwardRef<
-  HTMLButtonElement,
-  FieldSelectProps
->(function FieldSelect(
-  {
-    variant = "standalone",
-    value,
-    defaultValue,
-    onValueChange,
-    disabled,
-    placeholder,
-    className,
-    wrapperProps,
-    contentClassName,
-    children,
-    items,
-    "aria-label": ariaLabel,
-  },
-  ref,
-) {
-  const inline = variant === "inline";
-  const portalSurface = useFillPickerPortalSurface();
-  const { className: wrapperClassName, ...wrapperRest } = wrapperProps ?? {};
+export const FieldSelect = React.forwardRef<HTMLButtonElement, FieldSelectProps>(
+  function FieldSelect(
+    {
+      variant = "standalone",
+      value,
+      defaultValue,
+      onValueChange,
+      disabled,
+      placeholder,
+      className,
+      wrapperProps,
+      contentClassName,
+      children,
+      items,
+      "aria-label": ariaLabel,
+    },
+    ref,
+  ) {
+    const inline = variant === "inline";
+    const portalSurface = useFillPickerPortalSurface();
+    const { className: wrapperClassName, ...wrapperRest } = wrapperProps ?? {};
 
-  if (portalSurface.accordion) {
-    return (
-      <DesktopAccordionFieldSelect
-        ref={ref}
-        aria-label={ariaLabel}
-        className={className}
-        disabled={disabled}
-        placeholder={placeholder}
-        value={value ?? defaultValue}
-        variant={variant}
-        wrapperProps={wrapperProps}
-        onValueChange={onValueChange}
-      >
-        {children}
-      </DesktopAccordionFieldSelect>
-    );
-  }
-
-  return (
-    <div
-      className={cn(
-        inline
-          ? "relative inline-flex h-full shrink-0 items-center"
-          : "relative inline-flex items-center",
-        wrapperClassName,
-      )}
-      {...wrapperRest}
-    >
-      <Select.Root
-        items={items}
-        value={value}
-        defaultValue={defaultValue}
-        onValueChange={(v) => {
-          if (v != null) onValueChange?.(v);
-        }}
-        disabled={disabled}
-      >
-        <Select.Trigger
+    if (portalSurface.accordion) {
+      return (
+        <DesktopAccordionFieldSelect
           ref={ref}
           aria-label={ariaLabel}
-          className={cn(
-            "flex items-center justify-between gap-2 font-mono text-xs tracking-wide outline-none",
-            "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
-            inline
-              ? "h-full rounded-none border-0 bg-transparent px-2 focus-visible:ring-0"
-              : cn(
-                  "h-8 w-full rounded-md border px-3 shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-                  colorPickerControlBorderClass,
-                  colorPickerControlBgClass,
-                ),
-            className,
-          )}
+          className={className}
+          disabled={disabled}
+          placeholder={placeholder}
+          value={value ?? defaultValue}
+          variant={variant}
+          wrapperProps={wrapperProps}
+          onValueChange={onValueChange}
         >
-          <Select.Value placeholder={placeholder} />
-          <Select.Icon>
-            <ChevronDown className="size-4 shrink-0 opacity-50" />
-          </Select.Icon>
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner sideOffset={4} className="z-50 outline-none">
-            <Select.Popup
-              data-theme={portalSurface.portaledSurfaceDataTheme}
-              className={cn(
-                "min-w-[var(--anchor-width)] overflow-hidden rounded-md border p-1 shadow-md outline-none",
-                "font-mono text-xs tracking-wide",
-                colorPickerPopupSurfaceClass,
-                colorPickerControlBorderClass,
-                portalSurface.portaledSurfaceClassName,
-                contentClassName,
-              )}
-            >
-              {children}
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>
-    </div>
-  );
-});
+          {children}
+        </DesktopAccordionFieldSelect>
+      );
+    }
+
+    return (
+      <div
+        className={cn(
+          inline
+            ? "relative inline-flex h-full shrink-0 items-center"
+            : "relative inline-flex items-center",
+          wrapperClassName,
+        )}
+        {...wrapperRest}
+      >
+        <Select.Root
+          items={items}
+          value={value}
+          defaultValue={defaultValue}
+          onValueChange={(v) => {
+            if (v != null) onValueChange?.(v);
+          }}
+          disabled={disabled}
+        >
+          <Select.Trigger
+            ref={ref}
+            aria-label={ariaLabel}
+            className={cn(
+              "flex items-center justify-between gap-2 font-mono text-xs tracking-wide outline-none",
+              "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+              inline
+                ? "h-full rounded-none border-0 bg-transparent px-2 focus-visible:ring-0"
+                : cn(
+                    "h-8 w-full rounded-md border px-3 shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                    colorPickerControlBorderClass,
+                    colorPickerControlBgClass,
+                  ),
+              className,
+            )}
+          >
+            <Select.Value placeholder={placeholder} />
+            <Select.Icon>
+              <ChevronDown className="size-4 shrink-0 opacity-50" />
+            </Select.Icon>
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner sideOffset={4} className="z-50 outline-none">
+              <Select.Popup
+                data-theme={portalSurface.portaledSurfaceDataTheme}
+                className={cn(
+                  "min-w-[var(--anchor-width)] overflow-hidden rounded-md border p-1 shadow-md outline-none",
+                  "font-mono text-xs tracking-wide",
+                  colorPickerPopupSurfaceClass,
+                  colorPickerControlBorderClass,
+                  portalSurface.portaledSurfaceClassName,
+                  contentClassName,
+                )}
+              >
+                {children}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      </div>
+    );
+  },
+);
 
 interface FieldSelectItemProps {
   value: string;
@@ -188,30 +187,29 @@ interface FieldSelectItemProps {
  * children only) since every gradient dropdown option is plain text or a
  * text row with a trailing info tooltip.
  */
-export const FieldSelectItem = React.forwardRef<
-  HTMLDivElement,
-  FieldSelectItemProps
->(function FieldSelectItem({ value, className, children }, ref) {
-  return (
-    <Select.Item
-      ref={ref}
-      value={value}
-      className={cn(
-        "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-none select-none",
-        "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
-        "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        className,
-      )}
-    >
-      <span
-        data-slot="select-item-indicator"
-        className="absolute right-2 flex size-3.5 items-center justify-center"
+export const FieldSelectItem = React.forwardRef<HTMLDivElement, FieldSelectItemProps>(
+  function FieldSelectItem({ value, className, children }, ref) {
+    return (
+      <Select.Item
+        ref={ref}
+        value={value}
+        className={cn(
+          "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-none select-none",
+          "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+          "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+          className,
+        )}
       >
-        <Select.ItemIndicator>
-          <Check className="size-4" />
-        </Select.ItemIndicator>
-      </span>
-      <Select.ItemText>{children}</Select.ItemText>
-    </Select.Item>
-  );
-});
+        <span
+          data-slot="select-item-indicator"
+          className="absolute right-2 flex size-3.5 items-center justify-center"
+        >
+          <Select.ItemIndicator>
+            <Check className="size-4" />
+          </Select.ItemIndicator>
+        </span>
+        <Select.ItemText>{children}</Select.ItemText>
+      </Select.Item>
+    );
+  },
+);

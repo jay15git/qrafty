@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   memo,
@@ -7,65 +7,63 @@ import {
   type FormEvent,
   type MouseEvent,
   type PointerEvent,
-} from "react"
+} from "react";
 
-import { CardBackgroundLayers } from "@/features/canvas/components/CardBackgroundLayers"
-import { cardBackgroundStyle } from "@/features/canvas/components/card-background-style"
-import { DraftingCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer"
-import { DraftingLayerTiltShell } from "@/features/canvas/components/DraftingLayerTiltShell"
-import { DraftingQrLayerContent } from "@/features/canvas/components/DraftingQrLayerContent"
+import { CardBackgroundLayers } from "@/features/canvas/components/CardBackgroundLayers";
+import { cardBackgroundStyle } from "@/features/canvas/components/card-background-style";
+import { DraftingCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer";
+import { DraftingLayerTiltShell } from "@/features/canvas/components/DraftingLayerTiltShell";
+import { DraftingQrLayerContent } from "@/features/canvas/components/DraftingQrLayerContent";
 import {
   createDefaultDraftingCardPaperShader,
   type DraftingCardPaperShaderState,
   type DraftingCardState,
-} from "@/features/canvas/model/card-state"
-import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius"
+} from "@/features/canvas/model/card-state";
+import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   type DraftingCanvasLayer,
   type DraftingTextRun,
-} from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/layers/shared";
 import {
   getDraftingCardBorderStyle,
   getLayerPlacementStyle,
   getTextLayerStyle,
   getTextRunStyle,
-} from "@/features/canvas/rendering/layer-dom-styles"
-import { isDraftingEmojiLayer } from "@/features/canvas/model/layer-floating-settings"
+} from "@/features/canvas/rendering/layer-dom-styles";
+import { isDraftingEmojiLayer } from "@/features/canvas/model/layer-floating-settings";
 import {
   getBackgroundShapeTiltInnerStyle,
   getBackgroundShapeTiltPerspectiveStyle,
-} from "@/features/canvas/rendering/layer-transform"
-import {
-  layoutDraftingText,
-} from "@/features/canvas/rendering/text-layout"
+} from "@/features/canvas/rendering/layer-transform";
+import { layoutDraftingText } from "@/features/canvas/rendering/text-layout";
 import {
   DraftingImageLayerContent,
   DraftingShapeLayerContent,
-} from "@/features/canvas/rendering/shape-layer"
-import type { QraftyState } from "@/features/qr/model/state"
-import { getContentValidationOverlayMessage } from "@/features/qr/content/static-payload"
-import type { StaticQrValidationResult } from "@/features/qr/content/static-payload"
-import { getDraftingQrLayerLayout } from "@/features/qr/rendering/svg-extension"
-import { useDraftingQrMarkup } from "@/features/canvas/hooks/use-drafting-qr-markup"
-import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document"
-import { usePreviewInteraction } from "@/features/canvas/preview/preview-context"
+} from "@/features/canvas/rendering/shape-layer";
+import type { QraftyState } from "@/features/qr/model/state";
+import { getContentValidationOverlayMessage } from "@/features/qr/content/static-payload";
+import type { StaticQrValidationResult } from "@/features/qr/content/static-payload";
+import { getDraftingQrLayerLayout } from "@/features/qr/rendering/svg-extension";
+import { useDraftingQrMarkup } from "@/features/canvas/hooks/use-drafting-qr-markup";
+import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document";
+import { usePreviewInteraction } from "@/features/canvas/preview/preview-context";
 import {
   useDraftingLayerEffectStyle,
   usePreviewShaderDisplaySize,
-} from "@/features/canvas/preview/use-preview-layer-effects"
-import { scaleNestedSvgMarkup } from "@/features/canvas/rendering/qr-artwork"
-import { cn } from "@/lib/utils"
-import type { ResizeDirection } from "@/features/canvas/components/pane-layer-geometry"
-import { PaneLayerInteractive } from "@/features/canvas/components/pane-layer-a11y"
+} from "@/features/canvas/preview/use-preview-layer-effects";
+import { scaleNestedSvgMarkup } from "@/features/canvas/rendering/qr-artwork";
+import { cn } from "@/lib/utils";
+import type { ResizeDirection } from "@/features/canvas/components/pane-layer-geometry";
+import { PaneLayerInteractive } from "@/features/canvas/components/pane-layer-a11y";
 
-const LAYER_MOVE_CURSOR_CLASS = "cursor-all-scroll"
+const LAYER_MOVE_CURSOR_CLASS = "cursor-all-scroll";
 
 function layerExportAttrs(kind: DraftingCanvasLayer["kind"]) {
   return {
     "data-export-kind": kind,
     "data-export-layer": "true",
-  } as const
+  } as const;
 }
 
 function buildPaneDocumentCardStyle(
@@ -77,33 +75,33 @@ function buildPaneDocumentCardStyle(
   return {
     ...cardBackgroundStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
     borderRadius: cornerRadiiToCss(cardState.cornerRadii),
-  }
+  };
 }
 
 function buildPaneDocumentCardBorderOverlayStyle(
   cardState: DraftingCardState,
 ): CSSProperties | undefined {
-  const borderStyle = getDraftingCardBorderStyle(cardState)
+  const borderStyle = getDraftingCardBorderStyle(cardState);
 
   if (!borderStyle || Object.keys(borderStyle).length === 0) {
-    return undefined
+    return undefined;
   }
 
   return {
     ...borderStyle,
     borderRadius: cornerRadiiToCss(cardState.cornerRadii),
-  }
+  };
 }
 
 type PaneDocumentCardLayerProps = {
-  cardState: DraftingCardState
-  isImageFilterMode: boolean
-  isImageMode: boolean
-  isPaperShaderMode: boolean
-  isLayerSelected: boolean
-  layer: DraftingCanvasLayer
-  nested?: boolean
-}
+  cardState: DraftingCardState;
+  isImageFilterMode: boolean;
+  isImageMode: boolean;
+  isPaperShaderMode: boolean;
+  isLayerSelected: boolean;
+  layer: DraftingCanvasLayer;
+  nested?: boolean;
+};
 
 export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
   cardState,
@@ -114,9 +112,9 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
   layer,
   nested = false,
 }: PaneDocumentCardLayerProps) {
-  const layerEffectStyle = useDraftingLayerEffectStyle(layer)
-  const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height)
-  const isInteracting = usePreviewInteraction()
+  const layerEffectStyle = useDraftingLayerEffectStyle(layer);
+  const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height);
+  const isInteracting = usePreviewInteraction();
   const imageFilterShader = useMemo(
     () => ({
       ...cardState.imageFilter,
@@ -130,15 +128,15 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
       },
     }),
     [cardState.cardImage.source, cardState.cardImage.value, cardState.imageFilter],
-  )
+  );
   const cardStyle = useMemo(
     () => buildPaneDocumentCardStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
     [cardState, isImageFilterMode, isImageMode, isPaperShaderMode],
-  )
+  );
   const borderOverlayStyle = useMemo(
     () => buildPaneDocumentCardBorderOverlayStyle(cardState),
     [cardState],
-  )
+  );
 
   if (nested) {
     return (
@@ -176,7 +174,7 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
           />
         ) : null}
       </div>
-    )
+    );
   }
 
   return (
@@ -232,8 +230,8 @@ export const PaneDocumentCardLayer = memo(function PaneDocumentCardLayer({
         ) : null}
       </DraftingLayerTiltShell>
     </div>
-  )
-}, paneDocumentCardLayerPropsAreEqual)
+  );
+}, paneDocumentCardLayerPropsAreEqual);
 
 function paneDocumentCardLayerPropsAreEqual(
   previous: PaneDocumentCardLayerProps,
@@ -247,26 +245,29 @@ function paneDocumentCardLayerPropsAreEqual(
     previous.isPaperShaderMode === next.isPaperShaderMode &&
     previous.isLayerSelected === next.isLayerSelected &&
     previous.nested === next.nested
-  )
+  );
 }
 
 function getTextLayerRuns(layer: DraftingCanvasLayer): DraftingTextRun[] {
-  const text = layer.text ?? ""
-  const runs = layer.textRuns
+  const text = layer.text ?? "";
+  const runs = layer.textRuns;
 
   if (!runs?.length || runs.map((run) => run.text).join("") !== text) {
-    return text ? [{ text }] : []
+    return text ? [{ text }] : [];
   }
 
-  return runs
+  return runs;
 }
 
 function hasValidTextRuns(layer: DraftingCanvasLayer) {
-  return Boolean(layer.textRuns?.length) && layer.textRuns?.map((run) => run.text).join("") === (layer.text ?? "")
+  return (
+    Boolean(layer.textRuns?.length) &&
+    layer.textRuns?.map((run) => run.text).join("") === (layer.text ?? "")
+  );
 }
 
 function getTextRunKey(layerId: string, run: DraftingTextRun, index: number) {
-  return `${layerId}:run:${index}:${run.text.length}`
+  return `${layerId}:run:${index}:${run.text.length}`;
 }
 
 function renderTextLayerContent(layer: DraftingCanvasLayer) {
@@ -279,10 +280,10 @@ function renderTextLayerContent(layer: DraftingCanvasLayer) {
       >
         {run.text}
       </span>
-    ))
+    ));
   }
 
-  const layout = layoutDraftingText(layer)
+  const layout = layoutDraftingText(layer);
 
   return layout.lines.map((line, index) => (
     <div
@@ -293,7 +294,7 @@ function renderTextLayerContent(layer: DraftingCanvasLayer) {
       {line || "\u00a0"}
       {line && index < layout.lines.length - 1 ? " " : null}
     </div>
-  ))
+  ));
 }
 
 function resolveQrLayerState(
@@ -301,7 +302,7 @@ function resolveQrLayerState(
   qrStateByLayerId: DraftingQrStateByLayerId,
   fallbackState: QraftyState,
 ) {
-  return qrStateByLayerId[layerId] ?? fallbackState
+  return qrStateByLayerId[layerId] ?? fallbackState;
 }
 
 function PaneQrLayerCanvas({
@@ -311,32 +312,32 @@ function PaneQrLayerCanvas({
   qrOverlayScale,
   qrState,
 }: {
-  activeQrLayerId?: string
-  contentValidation?: StaticQrValidationResult
-  layer: DraftingCanvasLayer
-  qrOverlayScale?: number
-  qrState: QraftyState
+  activeQrLayerId?: string;
+  contentValidation?: StaticQrValidationResult;
+  layer: DraftingCanvasLayer;
+  qrOverlayScale?: number;
+  qrState: QraftyState;
 }) {
   const layout = useMemo(
     () => getDraftingQrLayerLayout(layer.width, qrState, layer.height),
     [layer.height, layer.width, qrState],
-  )
-  const { markup } = useDraftingQrMarkup(qrState)
+  );
+  const { markup } = useDraftingQrMarkup(qrState);
   const displayMarkup = useMemo(() => {
     if (!markup) {
-      return ""
+      return "";
     }
 
-    return scaleNestedSvgMarkup(markup, layout.innerWidth, layout.innerHeight)
-  }, [layout.innerHeight, layout.innerWidth, markup])
+    return scaleNestedSvgMarkup(markup, layout.innerWidth, layout.innerHeight);
+  }, [layout.innerHeight, layout.innerWidth, markup]);
   const shapeTiltPerspectiveStyle = getBackgroundShapeTiltPerspectiveStyle(
     qrState.backgroundShapeOptions,
-  )
-  const shapeTiltInnerStyle = getBackgroundShapeTiltInnerStyle(qrState.backgroundShapeOptions)
+  );
+  const shapeTiltInnerStyle = getBackgroundShapeTiltInnerStyle(qrState.backgroundShapeOptions);
   const overlayMessage =
     activeQrLayerId && contentValidation && layer.id === activeQrLayerId
       ? getContentValidationOverlayMessage(contentValidation, qrState.data)
-      : null
+      : null;
 
   return (
     <DraftingQrLayerContent
@@ -349,34 +350,34 @@ function PaneQrLayerCanvas({
       shapeTiltPerspectiveStyle={shapeTiltPerspectiveStyle}
       state={qrState}
     />
-  )
+  );
 }
 
 export type PaneLayerViewSharedProps = {
-  activeQrLayerId?: string
-  activeSelectedLayerIdSet: Set<string>
-  cardImageStyle: CSSProperties | undefined
-  cardState: DraftingCardState
-  cardStyle: CSSProperties
-  contentValidation?: StaticQrValidationResult
-  imageFilterShader: DraftingCardPaperShaderState
-  isImageFilterMode: boolean
-  isImageMode: boolean
-  isPaperShaderMode: boolean
-  qrOverlayScale?: number
-  qrStateByLayerId: DraftingQrStateByLayerId
-  state: QraftyState
-}
+  activeQrLayerId?: string;
+  activeSelectedLayerIdSet: Set<string>;
+  cardImageStyle: CSSProperties | undefined;
+  cardState: DraftingCardState;
+  cardStyle: CSSProperties;
+  contentValidation?: StaticQrValidationResult;
+  imageFilterShader: DraftingCardPaperShaderState;
+  isImageFilterMode: boolean;
+  isImageMode: boolean;
+  isPaperShaderMode: boolean;
+  qrOverlayScale?: number;
+  qrStateByLayerId: DraftingQrStateByLayerId;
+  state: QraftyState;
+};
 
 type PaneNestedLayerViewProps = PaneLayerViewSharedProps & {
-  layer: DraftingCanvasLayer
-}
+  layer: DraftingCanvasLayer;
+};
 
 type PaneNestedLayerKindProps = PaneNestedLayerViewProps & {
-  isLayerSelected: boolean
-  layerEffectStyle: CSSProperties
-  shaderDisplaySize: { displayHeight: number; displayWidth: number }
-}
+  isLayerSelected: boolean;
+  layerEffectStyle: CSSProperties;
+  shaderDisplaySize: { displayHeight: number; displayWidth: number };
+};
 
 function PaneNestedGroupLayerView({
   activeQrLayerId,
@@ -432,7 +433,7 @@ function PaneNestedGroupLayerView({
           />
         ))}
     </div>
-  )
+  );
 }
 
 function PaneNestedQrLayerView({
@@ -445,7 +446,7 @@ function PaneNestedQrLayerView({
   qrStateByLayerId,
   state,
 }: PaneNestedLayerKindProps) {
-  const qrState = resolveQrLayerState(layer.id, qrStateByLayerId, state)
+  const qrState = resolveQrLayerState(layer.id, qrStateByLayerId, state);
 
   return (
     <div
@@ -468,7 +469,7 @@ function PaneNestedQrLayerView({
         qrState={qrState}
       />
     </div>
-  )
+  );
 }
 
 function PaneNestedTextLayerView({
@@ -476,7 +477,7 @@ function PaneNestedTextLayerView({
   layer,
   layerEffectStyle,
 }: PaneNestedLayerKindProps) {
-  const isEmojiLayer = isDraftingEmojiLayer(layer)
+  const isEmojiLayer = isDraftingEmojiLayer(layer);
 
   return (
     <div
@@ -499,7 +500,7 @@ function PaneNestedTextLayerView({
         {renderTextLayerContent(layer)}
       </div>
     </div>
-  )
+  );
 }
 
 function PaneNestedImageLayerView({
@@ -522,7 +523,7 @@ function PaneNestedImageLayerView({
     >
       <DraftingImageLayerContent layer={layer} />
     </div>
-  )
+  );
 }
 
 function PaneNestedShapeLayerView({
@@ -546,7 +547,7 @@ function PaneNestedShapeLayerView({
     >
       <DraftingShapeLayerContent layer={layer} />
     </div>
-  )
+  );
 }
 
 function PaneNestedShaderLayerView({
@@ -555,7 +556,7 @@ function PaneNestedShaderLayerView({
   layerEffectStyle,
   shaderDisplaySize,
 }: PaneNestedLayerKindProps) {
-  const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader()
+  const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader();
 
   return (
     <div
@@ -580,7 +581,7 @@ function PaneNestedShaderLayerView({
         paperShader={paperShader}
       />
     </div>
-  )
+  );
 }
 
 function PaneNestedLayerView({
@@ -599,9 +600,9 @@ function PaneNestedLayerView({
   qrStateByLayerId,
   state,
 }: PaneNestedLayerViewProps) {
-  const isLayerSelected = activeSelectedLayerIdSet.has(layer.id)
-  const layerEffectStyle = useDraftingLayerEffectStyle(layer)
-  const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height)
+  const isLayerSelected = activeSelectedLayerIdSet.has(layer.id);
+  const layerEffectStyle = useDraftingLayerEffectStyle(layer);
+  const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height);
   const kindProps: PaneNestedLayerKindProps = {
     activeQrLayerId,
     activeSelectedLayerIdSet,
@@ -620,30 +621,30 @@ function PaneNestedLayerView({
     qrStateByLayerId,
     shaderDisplaySize,
     state,
-  }
+  };
 
   if (layer.kind === "group") {
-    return <PaneNestedGroupLayerView {...kindProps} />
+    return <PaneNestedGroupLayerView {...kindProps} />;
   }
 
   if (layer.kind === "qr") {
-    return <PaneNestedQrLayerView {...kindProps} />
+    return <PaneNestedQrLayerView {...kindProps} />;
   }
 
   if (layer.kind === "text") {
-    return <PaneNestedTextLayerView {...kindProps} />
+    return <PaneNestedTextLayerView {...kindProps} />;
   }
 
   if (layer.kind === "image") {
-    return <PaneNestedImageLayerView {...kindProps} />
+    return <PaneNestedImageLayerView {...kindProps} />;
   }
 
   if (layer.kind === "shape") {
-    return <PaneNestedShapeLayerView {...kindProps} />
+    return <PaneNestedShapeLayerView {...kindProps} />;
   }
 
   if (layer.kind === "shader") {
-    return <PaneNestedShaderLayerView {...kindProps} />
+    return <PaneNestedShaderLayerView {...kindProps} />;
   }
 
   return (
@@ -656,41 +657,38 @@ function PaneNestedLayerView({
       layer={layer}
       nested
     />
-  )
+  );
 }
 
 type PaneLayerViewProps = PaneLayerViewSharedProps & {
-  editingTextDraft: string
-  editingTextLayerId: string | null
-  layer: DraftingCanvasLayer
+  editingTextDraft: string;
+  editingTextLayerId: string | null;
+  layer: DraftingCanvasLayer;
   onActivateLayerSelection: (
     layer: DraftingCanvasLayer,
     options?: { additive?: boolean; qr?: boolean },
-  ) => void
-  onCommitEditingTextDraft: () => void
-  onEndLayerInteraction: (event: PointerEvent<HTMLElement>) => void
-  onHandleTextEditorInput: (event: FormEvent<HTMLTextAreaElement>) => void
-  onOpenLayerContextMenu: (event: MouseEvent<HTMLElement>, layerIds: string[]) => void
+  ) => void;
+  onCommitEditingTextDraft: () => void;
+  onEndLayerInteraction: (event: PointerEvent<HTMLElement>) => void;
+  onHandleTextEditorInput: (event: FormEvent<HTMLTextAreaElement>) => void;
+  onOpenLayerContextMenu: (event: MouseEvent<HTMLElement>, layerIds: string[]) => void;
   onSelectLayerFromClick: (
     event: MouseEvent<HTMLElement>,
     layer: DraftingCanvasLayer,
     options?: { qr?: boolean },
-  ) => void
+  ) => void;
   onStartLayerInteraction: (
     event: PointerEvent<HTMLElement>,
     layer: DraftingCanvasLayer,
     mode: "move" | "resize" | "rotate",
     resizeDirection?: ResizeDirection,
-  ) => void
-  onStartTextEditing: (event: MouseEvent<HTMLElement>, layer: DraftingCanvasLayer) => void
-  onUpdateLayerInteraction: (event: PointerEvent<HTMLElement>) => void
-  onRegisterTextEditor: (layerId: string, element: HTMLTextAreaElement | null) => void
-}
+  ) => void;
+  onStartTextEditing: (event: MouseEvent<HTMLElement>, layer: DraftingCanvasLayer) => void;
+  onUpdateLayerInteraction: (event: PointerEvent<HTMLElement>) => void;
+  onRegisterTextEditor: (layerId: string, element: HTMLTextAreaElement | null) => void;
+};
 
-function arePaneLayerViewPropsEqual(
-  previous: PaneLayerViewProps,
-  next: PaneLayerViewProps,
-) {
+function arePaneLayerViewPropsEqual(previous: PaneLayerViewProps, next: PaneLayerViewProps) {
   const alwaysComparedKeys = [
     "layer",
     "cardState",
@@ -701,53 +699,45 @@ function arePaneLayerViewPropsEqual(
     "isImageMode",
     "isPaperShaderMode",
     "onRegisterTextEditor",
-  ] as const
+  ] as const;
   if (alwaysComparedKeys.some((key) => previous[key] !== next[key])) {
-    return false
+    return false;
   }
 
   if (previous.layer.kind === "qr" || next.layer.kind === "qr") {
-    const qrKeys = [
-      "state",
-      "contentValidation",
-      "activeQrLayerId",
-      "qrOverlayScale",
-    ] as const
+    const qrKeys = ["state", "contentValidation", "activeQrLayerId", "qrOverlayScale"] as const;
     if (qrKeys.some((key) => previous[key] !== next[key])) {
-      return false
+      return false;
     }
 
-    if (
-      previous.qrStateByLayerId[previous.layer.id] !==
-      next.qrStateByLayerId[next.layer.id]
-    ) {
-      return false
+    if (previous.qrStateByLayerId[previous.layer.id] !== next.qrStateByLayerId[next.layer.id]) {
+      return false;
     }
   }
 
-  const wasSelected = previous.activeSelectedLayerIdSet.has(previous.layer.id)
-  const isSelected = next.activeSelectedLayerIdSet.has(next.layer.id)
+  const wasSelected = previous.activeSelectedLayerIdSet.has(previous.layer.id);
+  const isSelected = next.activeSelectedLayerIdSet.has(next.layer.id);
   if (wasSelected !== isSelected) {
-    return false
+    return false;
   }
 
-  const wasEditing = previous.editingTextLayerId === previous.layer.id
-  const isEditing = next.editingTextLayerId === next.layer.id
+  const wasEditing = previous.editingTextLayerId === previous.layer.id;
+  const isEditing = next.editingTextLayerId === next.layer.id;
   if (wasEditing !== isEditing) {
-    return false
+    return false;
   }
   if (isEditing && previous.editingTextDraft !== next.editingTextDraft) {
-    return false
+    return false;
   }
 
-  return true
+  return true;
 }
 
 type PaneLayerKindViewProps = PaneLayerViewProps & {
-  isLayerSelected: boolean
-  layerEffectStyle: CSSProperties
-  shaderDisplaySize: { displayHeight: number; displayWidth: number }
-}
+  isLayerSelected: boolean;
+  layerEffectStyle: CSSProperties;
+  shaderDisplaySize: { displayHeight: number; displayWidth: number };
+};
 
 function PaneGroupLayerView({
   activeQrLayerId,
@@ -783,10 +773,7 @@ function PaneGroupLayerView({
       data-layer-id={layer.id}
       data-selected={isLayerSelected ? "true" : "false"}
       {...layerExportAttrs("group")}
-      className={cn(
-        "absolute max-h-none max-w-none touch-none",
-        LAYER_MOVE_CURSOR_CLASS,
-      )}
+      className={cn("absolute max-h-none max-w-none touch-none", LAYER_MOVE_CURSOR_CLASS)}
       style={{
         ...getLayerPlacementStyle(layer),
         ...layerEffectStyle,
@@ -823,7 +810,7 @@ function PaneGroupLayerView({
           ))}
       </DraftingLayerTiltShell>
     </PaneLayerInteractive>
-  )
+  );
 }
 
 function PaneQrLayerView({
@@ -842,7 +829,7 @@ function PaneQrLayerView({
   qrStateByLayerId,
   state,
 }: PaneLayerKindViewProps) {
-  const qrState = resolveQrLayerState(layer.id, qrStateByLayerId, state)
+  const qrState = resolveQrLayerState(layer.id, qrStateByLayerId, state);
 
   return (
     <PaneLayerInteractive
@@ -855,10 +842,7 @@ function PaneQrLayerView({
       data-node-id={qrState.data}
       data-selected={isLayerSelected ? "true" : "false"}
       {...layerExportAttrs("qr")}
-      className={cn(
-        "absolute max-h-none max-w-none touch-none",
-        LAYER_MOVE_CURSOR_CLASS,
-      )}
+      className={cn("absolute max-h-none max-w-none touch-none", LAYER_MOVE_CURSOR_CLASS)}
       style={{
         ...getLayerPlacementStyle(layer),
         ...layerEffectStyle,
@@ -872,15 +856,15 @@ function PaneQrLayerView({
     >
       <DraftingLayerTiltShell layer={layer}>
         <PaneQrLayerCanvas
-        activeQrLayerId={activeQrLayerId}
-        contentValidation={contentValidation}
-        layer={layer}
-        qrOverlayScale={qrOverlayScale}
-        qrState={qrState}
-      />
+          activeQrLayerId={activeQrLayerId}
+          contentValidation={contentValidation}
+          layer={layer}
+          qrOverlayScale={qrOverlayScale}
+          qrState={qrState}
+        />
       </DraftingLayerTiltShell>
     </PaneLayerInteractive>
-  )
+  );
 }
 
 function PaneTextLayerView({
@@ -900,7 +884,7 @@ function PaneTextLayerView({
   onUpdateLayerInteraction,
   onRegisterTextEditor,
 }: PaneLayerKindViewProps) {
-  const isEditing = editingTextLayerId === layer.id
+  const isEditing = editingTextLayerId === layer.id;
 
   return (
     <PaneLayerInteractive
@@ -935,7 +919,7 @@ function PaneTextLayerView({
             className="h-full w-full resize-none cursor-text overflow-hidden border-0 bg-transparent p-0 outline-none"
             data-slot="drafting-text-editor"
             ref={(element) => {
-              onRegisterTextEditor(layer.id, element)
+              onRegisterTextEditor(layer.id, element);
             }}
             spellCheck={false}
             style={getTextLayerStyle(layer)}
@@ -945,22 +929,26 @@ function PaneTextLayerView({
             onDoubleClick={(event) => event.stopPropagation()}
             onInput={onHandleTextEditorInput}
             onKeyDown={(event) => {
-              event.stopPropagation()
+              event.stopPropagation();
               if (event.key === "Escape") {
-                event.preventDefault()
-                onCommitEditingTextDraft()
+                event.preventDefault();
+                onCommitEditingTextDraft();
               }
             }}
             onPointerDown={(event) => event.stopPropagation()}
           />
         ) : (
-          <div className="h-full w-full" data-slot="drafting-text-content" style={getTextLayerStyle(layer)}>
+          <div
+            className="h-full w-full"
+            data-slot="drafting-text-content"
+            style={getTextLayerStyle(layer)}
+          >
             {renderTextLayerContent(layer)}
           </div>
         )}
       </DraftingLayerTiltShell>
     </PaneLayerInteractive>
-  )
+  );
 }
 
 function PaneImageLayerView({
@@ -1004,7 +992,7 @@ function PaneImageLayerView({
         <DraftingImageLayerContent layer={layer} />
       </DraftingLayerTiltShell>
     </PaneLayerInteractive>
-  )
+  );
 }
 
 function PaneShapeLayerView({
@@ -1048,7 +1036,7 @@ function PaneShapeLayerView({
         <DraftingShapeLayerContent layer={layer} />
       </DraftingLayerTiltShell>
     </PaneLayerInteractive>
-  )
+  );
 }
 
 function PaneShaderLayerView({
@@ -1063,7 +1051,7 @@ function PaneShaderLayerView({
   onUpdateLayerInteraction,
   shaderDisplaySize,
 }: PaneLayerKindViewProps) {
-  const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader()
+  const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader();
 
   return (
     <PaneLayerInteractive
@@ -1102,7 +1090,7 @@ function PaneShaderLayerView({
         />
       </DraftingLayerTiltShell>
     </PaneLayerInteractive>
-  )
+  );
 }
 
 export const PaneLayerView = memo(function PaneLayerView({
@@ -1133,9 +1121,9 @@ export const PaneLayerView = memo(function PaneLayerView({
   state,
   onRegisterTextEditor,
 }: PaneLayerViewProps) {
-  const isLayerSelected = activeSelectedLayerIdSet.has(layer.id)
-  const layerEffectStyle = useDraftingLayerEffectStyle(layer)
-  const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height)
+  const isLayerSelected = activeSelectedLayerIdSet.has(layer.id);
+  const layerEffectStyle = useDraftingLayerEffectStyle(layer);
+  const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height);
   const kindProps: PaneLayerKindViewProps = {
     activeQrLayerId,
     activeSelectedLayerIdSet,
@@ -1166,30 +1154,30 @@ export const PaneLayerView = memo(function PaneLayerView({
     shaderDisplaySize,
     state,
     onRegisterTextEditor,
-  }
+  };
 
   if (layer.kind === "group") {
-    return <PaneGroupLayerView {...kindProps} />
+    return <PaneGroupLayerView {...kindProps} />;
   }
 
   if (layer.kind === "qr") {
-    return <PaneQrLayerView {...kindProps} />
+    return <PaneQrLayerView {...kindProps} />;
   }
 
   if (layer.kind === "text") {
-    return <PaneTextLayerView {...kindProps} />
+    return <PaneTextLayerView {...kindProps} />;
   }
 
   if (layer.kind === "image") {
-    return <PaneImageLayerView {...kindProps} />
+    return <PaneImageLayerView {...kindProps} />;
   }
 
   if (layer.kind === "shape") {
-    return <PaneShapeLayerView {...kindProps} />
+    return <PaneShapeLayerView {...kindProps} />;
   }
 
   if (layer.kind === "shader") {
-    return <PaneShaderLayerView {...kindProps} />
+    return <PaneShaderLayerView {...kindProps} />;
   }
 
   return (
@@ -1201,5 +1189,5 @@ export const PaneLayerView = memo(function PaneLayerView({
       isLayerSelected={isLayerSelected}
       layer={layer}
     />
-  )
-}, arePaneLayerViewPropsEqual)
+  );
+}, arePaneLayerViewPropsEqual);

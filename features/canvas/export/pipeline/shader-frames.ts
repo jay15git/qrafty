@@ -1,246 +1,246 @@
-"use client"
+"use client";
 
-import { createElement, createRef } from "react"
-import { createRoot, type Root } from "react-dom/client"
-import { isPaperShaderElement, type PaperShaderElement } from "@paper-design/shaders"
-import { buildPaperShaderRenderProps } from "@qrafty/qr/shaders"
-import { shaderRequiresImage } from "@qrafty/qr/shaders"
-import { hasPaperShaderWebGlSupport } from "@qrafty/qr-internal/scene"
+import { createElement, createRef } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { isPaperShaderElement, type PaperShaderElement } from "@paper-design/shaders";
+import { buildPaperShaderRenderProps } from "@qrafty/qr/shaders";
+import { shaderRequiresImage } from "@qrafty/qr/shaders";
+import { hasPaperShaderWebGlSupport } from "@qrafty/qr-internal/scene";
 
-import type { DraftingCardPaperShaderState } from "@/features/canvas/model/card-state"
+import type { DraftingCardPaperShaderState } from "@/features/canvas/model/card-state";
 import {
   DEFAULT_PAPER_SHADER_COMPONENT,
   PAPER_SHADER_COMPONENTS,
-} from "@/features/canvas/rendering/paper-shaders"
-import { getPaperShaderRenderOptions } from "@/features/canvas/rendering/paper-shader-export"
+} from "@/features/canvas/rendering/paper-shaders";
+import { getPaperShaderRenderOptions } from "@/features/canvas/rendering/paper-shader-export";
 
 export type ShaderFrameCaptureOptions = {
-  frameMs: number
-  imageValue?: string
-  layoutHeight: number
-  layoutWidth: number
-  shader: DraftingCardPaperShaderState
-}
+  frameMs: number;
+  imageValue?: string;
+  layoutHeight: number;
+  layoutWidth: number;
+  shader: DraftingCardPaperShaderState;
+};
 
 function waitForAnimationFrame() {
   return new Promise<void>((resolve) => {
-    requestAnimationFrame(() => resolve())
-  })
+    requestAnimationFrame(() => resolve());
+  });
 }
 
-const SHADER_MOUNT_WAIT_FRAMES = 120
-const SHADER_CANVAS_WAIT_FRAMES = 120
+const SHADER_MOUNT_WAIT_FRAMES = 120;
+const SHADER_CANVAS_WAIT_FRAMES = 120;
 
 function getExistingWebGlContext(canvas: HTMLCanvasElement) {
-  return canvas.getContext("webgl2") ?? canvas.getContext("webgl")
+  return canvas.getContext("webgl2") ?? canvas.getContext("webgl");
 }
 
 function readWebGlPixels(canvas: HTMLCanvasElement) {
   if (canvas.width === 0 || canvas.height === 0) {
-    throw new Error("Shader frame capture failed. The WebGL canvas has no drawable pixels.")
+    throw new Error("Shader frame capture failed. The WebGL canvas has no drawable pixels.");
   }
 
-  const webgl = getExistingWebGlContext(canvas)
+  const webgl = getExistingWebGlContext(canvas);
 
   if (!webgl) {
-    throw new Error("Shader frame capture failed. The WebGL context is unavailable.")
+    throw new Error("Shader frame capture failed. The WebGL context is unavailable.");
   }
 
-  webgl.bindFramebuffer(webgl.FRAMEBUFFER, null)
-  const pixels = new Uint8Array(canvas.width * canvas.height * 4)
-  webgl.readPixels(0, 0, canvas.width, canvas.height, webgl.RGBA, webgl.UNSIGNED_BYTE, pixels)
+  webgl.bindFramebuffer(webgl.FRAMEBUFFER, null);
+  const pixels = new Uint8Array(canvas.width * canvas.height * 4);
+  webgl.readPixels(0, 0, canvas.width, canvas.height, webgl.RGBA, webgl.UNSIGNED_BYTE, pixels);
 
-  return pixels
+  return pixels;
 }
 
 function copyWebGlCanvasToImageBitmap(canvas: HTMLCanvasElement) {
-  const pixels = readWebGlPixels(canvas)
-  const hasVisiblePixel = pixels.some((value, index) => index % 4 === 3 && value > 0)
+  const pixels = readWebGlPixels(canvas);
+  const hasVisiblePixel = pixels.some((value, index) => index % 4 === 3 && value > 0);
 
   if (!hasVisiblePixel) {
-    throw new Error("Shader frame capture failed. The captured frame is fully transparent.")
+    throw new Error("Shader frame capture failed. The captured frame is fully transparent.");
   }
 
-  const { width, height } = canvas
-  const flipped = new Uint8ClampedArray(width * height * 4)
-  const rowBytes = width * 4
+  const { width, height } = canvas;
+  const flipped = new Uint8ClampedArray(width * height * 4);
+  const rowBytes = width * 4;
 
   for (let y = 0; y < height; y += 1) {
-    const sourceStart = (height - 1 - y) * rowBytes
-    flipped.set(pixels.subarray(sourceStart, sourceStart + rowBytes), y * rowBytes)
+    const sourceStart = (height - 1 - y) * rowBytes;
+    flipped.set(pixels.subarray(sourceStart, sourceStart + rowBytes), y * rowBytes);
   }
 
-  return createImageBitmap(new ImageData(flipped, width, height))
+  return createImageBitmap(new ImageData(flipped, width, height));
 }
 
 export class ShaderFrameRenderer {
-  private container: HTMLDivElement | null = null
-  private root: Root | null = null
-  private shaderHostRef = createRef<PaperShaderElement>()
-  private frameMs = 0
-  private layoutWidth = 1
-  private layoutHeight = 1
-  private shader: DraftingCardPaperShaderState | null = null
-  private imageValue?: string
-  private mounted = false
+  private container: HTMLDivElement | null = null;
+  private root: Root | null = null;
+  private shaderHostRef = createRef<PaperShaderElement>();
+  private frameMs = 0;
+  private layoutWidth = 1;
+  private layoutHeight = 1;
+  private shader: DraftingCardPaperShaderState | null = null;
+  private imageValue?: string;
+  private mounted = false;
 
   async mount(options: ShaderFrameCaptureOptions) {
     if (!hasPaperShaderWebGlSupport()) {
-      throw new Error("WebGL is unavailable. Shader export cannot run in this browser.")
+      throw new Error("WebGL is unavailable. Shader export cannot run in this browser.");
     }
 
-    this.shader = options.shader
-    this.frameMs = options.frameMs
-    this.layoutWidth = Math.max(1, options.layoutWidth)
-    this.layoutHeight = Math.max(1, options.layoutHeight)
-    this.imageValue = options.imageValue
+    this.shader = options.shader;
+    this.frameMs = options.frameMs;
+    this.layoutWidth = Math.max(1, options.layoutWidth);
+    this.layoutHeight = Math.max(1, options.layoutHeight);
+    this.imageValue = options.imageValue;
 
     if (!this.container) {
-      this.container = document.createElement("div")
+      this.container = document.createElement("div");
       this.container.style.cssText =
-        "position:fixed;left:0;top:0;overflow:hidden;pointer-events:none;z-index:-1;opacity:0.01;"
-      document.body.appendChild(this.container)
-      this.root = createRoot(this.container)
+        "position:fixed;left:0;top:0;overflow:hidden;pointer-events:none;z-index:-1;opacity:0.01;";
+      document.body.appendChild(this.container);
+      this.root = createRoot(this.container);
     }
 
-    this.updateHostSize()
+    this.updateHostSize();
 
     if (!this.mounted) {
-      this.render()
-      const shaderMount = await this.waitForShaderMount()
-      await this.waitForDrawableCanvas(shaderMount.canvasElement)
-      shaderMount.setSpeed(0)
-      shaderMount.setFrame(this.frameMs)
-      await this.waitForDrawableCanvas(shaderMount.canvasElement)
-      this.mounted = true
-      return
+      this.render();
+      const shaderMount = await this.waitForShaderMount();
+      await this.waitForDrawableCanvas(shaderMount.canvasElement);
+      shaderMount.setSpeed(0);
+      shaderMount.setFrame(this.frameMs);
+      await this.waitForDrawableCanvas(shaderMount.canvasElement);
+      this.mounted = true;
+      return;
     }
 
-    await this.setFrameMs(this.frameMs)
+    await this.setFrameMs(this.frameMs);
   }
 
   async setFrameMs(frameMs: number) {
-    this.frameMs = frameMs
-    const shaderMount = await this.waitForShaderMount()
-    shaderMount.setSpeed(0)
-    shaderMount.setFrame(frameMs)
-    await this.waitForDrawableCanvas(shaderMount.canvasElement)
+    this.frameMs = frameMs;
+    const shaderMount = await this.waitForShaderMount();
+    shaderMount.setSpeed(0);
+    shaderMount.setFrame(frameMs);
+    await this.waitForDrawableCanvas(shaderMount.canvasElement);
   }
 
   async captureBitmap() {
-    const shaderMount = await this.waitForShaderMount()
-    return copyWebGlCanvasToImageBitmap(shaderMount.canvasElement)
+    const shaderMount = await this.waitForShaderMount();
+    return copyWebGlCanvasToImageBitmap(shaderMount.canvasElement);
   }
 
   async captureDataUrl(mimeType = "image/png", quality = 0.92) {
-    const bitmap = await this.captureBitmap()
-    const canvas = document.createElement("canvas")
-    canvas.width = bitmap.width
-    canvas.height = bitmap.height
-    const context = canvas.getContext("2d")
+    const bitmap = await this.captureBitmap();
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const context = canvas.getContext("2d");
 
     if (!context) {
-      bitmap.close()
-      throw new Error("Shader frame capture failed. The WebGL buffer may be unreadable.")
+      bitmap.close();
+      throw new Error("Shader frame capture failed. The WebGL buffer may be unreadable.");
     }
 
-    context.drawImage(bitmap, 0, 0)
-    bitmap.close()
-    const dataUrl = canvas.toDataURL(mimeType, quality)
+    context.drawImage(bitmap, 0, 0);
+    bitmap.close();
+    const dataUrl = canvas.toDataURL(mimeType, quality);
 
     if (!dataUrl || dataUrl === "data:,") {
-      throw new Error("Shader frame capture failed. The WebGL buffer may be unreadable.")
+      throw new Error("Shader frame capture failed. The WebGL buffer may be unreadable.");
     }
 
-    return dataUrl
+    return dataUrl;
   }
 
   dispose() {
-    this.root?.unmount()
-    this.root = null
-    this.container?.remove()
-    this.container = null
-    this.shader = null
-    this.shaderHostRef = createRef<PaperShaderElement>()
-    this.mounted = false
+    this.root?.unmount();
+    this.root = null;
+    this.container?.remove();
+    this.container = null;
+    this.shader = null;
+    this.shaderHostRef = createRef<PaperShaderElement>();
+    this.mounted = false;
   }
 
   private updateHostSize() {
     if (!this.container) {
-      return
+      return;
     }
 
-    this.container.style.width = `${this.layoutWidth}px`
-    this.container.style.height = `${this.layoutHeight}px`
+    this.container.style.width = `${this.layoutWidth}px`;
+    this.container.style.height = `${this.layoutHeight}px`;
   }
 
   private getShaderMount() {
-    const host = this.shaderHostRef.current
+    const host = this.shaderHostRef.current;
     if (host?.paperShaderMount) {
-      return host.paperShaderMount
+      return host.paperShaderMount;
     }
 
     if (!this.container) {
-      return null
+      return null;
     }
 
     for (const element of this.container.querySelectorAll("div")) {
       if (isPaperShaderElement(element) && element.paperShaderMount) {
-        return element.paperShaderMount
+        return element.paperShaderMount;
       }
     }
 
-    return null
+    return null;
   }
 
   private async waitForShaderMount() {
     for (let attempt = 0; attempt < SHADER_MOUNT_WAIT_FRAMES; attempt += 1) {
-      const shaderMount = this.getShaderMount()
+      const shaderMount = this.getShaderMount();
       if (shaderMount) {
-        return shaderMount
+        return shaderMount;
       }
 
-      await waitForAnimationFrame()
+      await waitForAnimationFrame();
     }
 
-    throw new Error("Shader canvas is unavailable for export.")
+    throw new Error("Shader canvas is unavailable for export.");
   }
 
   private isCanvasDrawable(canvas: HTMLCanvasElement) {
     if (canvas.width <= 0 || canvas.height <= 0) {
-      return false
+      return false;
     }
 
-    const isBrowserPlaceholder = canvas.width === 300 && canvas.height === 150
-    const expectsPlaceholder = this.layoutWidth === 300 && this.layoutHeight === 150
+    const isBrowserPlaceholder = canvas.width === 300 && canvas.height === 150;
+    const expectsPlaceholder = this.layoutWidth === 300 && this.layoutHeight === 150;
 
     if (isBrowserPlaceholder && !expectsPlaceholder) {
-      return false
+      return false;
     }
 
-    return true
+    return true;
   }
 
   private async waitForDrawableCanvas(canvas: HTMLCanvasElement) {
     for (let attempt = 0; attempt < SHADER_CANVAS_WAIT_FRAMES; attempt += 1) {
       if (this.isCanvasDrawable(canvas)) {
-        return
+        return;
       }
 
-      await waitForAnimationFrame()
+      await waitForAnimationFrame();
     }
 
-    throw new Error("Shader canvas did not reach a drawable size for export.")
+    throw new Error("Shader canvas did not reach a drawable size for export.");
   }
 
   private render() {
     if (!this.root || !this.shader || !this.container) {
-      return
+      return;
     }
 
     const ShaderComponent =
-      PAPER_SHADER_COMPONENTS[this.shader.shaderId] ?? DEFAULT_PAPER_SHADER_COMPONENT
-    const renderOptions = getPaperShaderRenderOptions(this.shader.shaderId)
+      PAPER_SHADER_COMPONENTS[this.shader.shaderId] ?? DEFAULT_PAPER_SHADER_COMPONENT;
+    const renderOptions = getPaperShaderRenderOptions(this.shader.shaderId);
     const shaderProps = buildPaperShaderRenderProps(
       {
         shaderId: this.shader.shaderId,
@@ -259,9 +259,9 @@ export class ShaderFrameRenderer {
         worldHeight: this.layoutHeight,
       },
       { quality: "export", frameMs: this.frameMs, seek: true },
-    )
+    );
 
-    this.updateHostSize()
+    this.updateHostSize();
 
     this.root.render(
       createElement(
@@ -283,6 +283,6 @@ export class ShaderFrameRenderer {
           },
         }),
       ),
-    )
+    );
   }
 }

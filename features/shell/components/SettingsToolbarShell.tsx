@@ -1,25 +1,23 @@
-"use client"
+"use client";
 
-import { animate, m, useMotionValue, useMotionValueEvent, useTransform } from "motion/react"
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
+import { animate, m, useMotionValue, useMotionValueEvent, useTransform } from "motion/react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
-import {
-  SettingsPanelMotionFrozenProvider,
-} from "@/features/shell/components/settings-panel-motion-frozen-context"
+import { SettingsPanelMotionFrozenProvider } from "@/features/shell/components/settings-panel-motion-frozen-context";
 
-import "./settings-toolbar-motion.css"
+import "./settings-toolbar-motion.css";
 
-const EXPANDABLE_PANEL_SPRING = { type: "spring" as const, stiffness: 340, damping: 28 }
+const EXPANDABLE_PANEL_SPRING = { type: "spring" as const, stiffness: 340, damping: 28 };
 
 /** Expanded column leaves enough room to keep the canvas legible on compact desktops. */
-const SHELL_EXPANDED_WIDTH_RATIO = 0.28
-const SHELL_EXPANDED_WIDTH_MIN_PX = 320
-const SHELL_EXPANDED_WIDTH_MAX_PX = 400
-const SHELL_EXPANDED_WIDTH_FALLBACK_PX = 360
+const SHELL_EXPANDED_WIDTH_RATIO = 0.28;
+const SHELL_EXPANDED_WIDTH_MIN_PX = 320;
+const SHELL_EXPANDED_WIDTH_MAX_PX = 400;
+const SHELL_EXPANDED_WIDTH_FALLBACK_PX = 360;
 
 function getExpandedSidebarWidthPx(): number {
   if (typeof window === "undefined") {
-    return SHELL_EXPANDED_WIDTH_FALLBACK_PX
+    return SHELL_EXPANDED_WIDTH_FALLBACK_PX;
   }
 
   return Math.round(
@@ -27,7 +25,7 @@ function getExpandedSidebarWidthPx(): number {
       SHELL_EXPANDED_WIDTH_MAX_PX,
       Math.max(SHELL_EXPANDED_WIDTH_MIN_PX, window.innerWidth * SHELL_EXPANDED_WIDTH_RATIO),
     ),
-  )
+  );
 }
 
 /**
@@ -36,15 +34,15 @@ function getExpandedSidebarWidthPx(): number {
  * so setting the var only on toolbar-root leaves the grey full-bleed (settings look like a transparent overlay).
  */
 function syncSidebarColumnWidth(width: number) {
-  const value = `${Math.max(0, width)}px`
+  const value = `${Math.max(0, width)}px`;
   const targets: Array<HTMLElement | null> = [
     document.documentElement,
     document.querySelector<HTMLElement>('[data-slot="workspace"]'),
     document.querySelector<HTMLElement>('[data-slot="floating-toolbar-root"]'),
-  ]
+  ];
 
   for (const target of targets) {
-    target?.style.setProperty("--settings-toolbar-width", value)
+    target?.style.setProperty("--settings-toolbar-width", value);
   }
 }
 
@@ -53,83 +51,81 @@ export function SettingsToolbarShell({
   inspector,
   showInspector,
 }: {
-  hovered?: boolean
-  inspector: ReactNode
-  showInspector: boolean
+  hovered?: boolean;
+  inspector: ReactNode;
+  showInspector: boolean;
 }) {
-  const [internalHovered, setInternalHovered] = useState(false)
-  const [isShellAnimating, setIsShellAnimating] = useState(false)
-  const isHovered = hovered ?? internalHovered
+  const [internalHovered, setInternalHovered] = useState(false);
+  const [isShellAnimating, setIsShellAnimating] = useState(false);
+  const isHovered = hovered ?? internalHovered;
 
   // The column's real width (layout) snaps to the target; the visible reveal is
   // a clip-path inset animated by a spring — compositor-only, no layout work.
-  const columnWidth = useMotionValue(SHELL_EXPANDED_WIDTH_FALLBACK_PX)
-  const revealWidth = useMotionValue(SHELL_EXPANDED_WIDTH_FALLBACK_PX)
+  const columnWidth = useMotionValue(SHELL_EXPANDED_WIDTH_FALLBACK_PX);
+  const revealWidth = useMotionValue(SHELL_EXPANDED_WIDTH_FALLBACK_PX);
   const clipPath = useTransform(
     [columnWidth, revealWidth],
-    ([column, reveal]: number[]) =>
-      `inset(0px ${Math.max(0, column - reveal)}px 0px 0px)`,
-  )
-  const transitionsEnabled = useRef(false)
+    ([column, reveal]: number[]) => `inset(0px ${Math.max(0, column - reveal)}px 0px 0px)`,
+  );
+  const transitionsEnabled = useRef(false);
 
   useMotionValueEvent(revealWidth, "change", (latest) => {
     // Keep the canvas left inset in lockstep with the animated reveal —
     // syncing only on commit leaves the grey inset one jump behind.
-    syncSidebarColumnWidth(latest)
-  })
+    syncSidebarColumnWidth(latest);
+  });
   useMotionValueEvent(revealWidth, "animationStart", () => {
-    setIsShellAnimating(true)
-  })
+    setIsShellAnimating(true);
+  });
   useMotionValueEvent(revealWidth, "animationComplete", () => {
-    setIsShellAnimating(false)
-  })
+    setIsShellAnimating(false);
+  });
   useMotionValueEvent(revealWidth, "animationCancel", () => {
-    setIsShellAnimating(false)
-  })
+    setIsShellAnimating(false);
+  });
 
   useEffect(() => {
     const updateExpandedWidth = () => {
-      const next = getExpandedSidebarWidthPx()
-      columnWidth.set(next)
+      const next = getExpandedSidebarWidthPx();
+      columnWidth.set(next);
       if (transitionsEnabled.current) {
         if (revealWidth.get() !== next) {
-          animate(revealWidth, next, EXPANDABLE_PANEL_SPRING)
+          animate(revealWidth, next, EXPANDABLE_PANEL_SPRING);
         }
       } else {
-        revealWidth.jump(next)
+        revealWidth.jump(next);
       }
-    }
+    };
 
-    updateExpandedWidth()
-    window.addEventListener("resize", updateExpandedWidth)
+    updateExpandedWidth();
+    window.addEventListener("resize", updateExpandedWidth);
     const enableTransitionsFrame = window.requestAnimationFrame(() => {
-      transitionsEnabled.current = true
-    })
+      transitionsEnabled.current = true;
+    });
 
     return () => {
-      window.removeEventListener("resize", updateExpandedWidth)
-      window.cancelAnimationFrame(enableTransitionsFrame)
-    }
-  }, [columnWidth, revealWidth])
+      window.removeEventListener("resize", updateExpandedWidth);
+      window.cancelAnimationFrame(enableTransitionsFrame);
+    };
+  }, [columnWidth, revealWidth]);
 
   const handleShellMouseEnter = useCallback(() => {
     if (hovered === undefined) {
-      setInternalHovered(true)
+      setInternalHovered(true);
     }
-  }, [hovered])
+  }, [hovered]);
 
   const handleShellMouseLeave = useCallback(() => {
     if (hovered === undefined) {
-      setInternalHovered(false)
+      setInternalHovered(false);
     }
-  }, [hovered])
+  }, [hovered]);
 
-  const panelContent =
-    showInspector ? (
-      <SettingsPanelMotionFrozenProvider frozen={isShellAnimating}>
-        {inspector}
-      </SettingsPanelMotionFrozenProvider>
-    ) : null
+  const panelContent = showInspector ? (
+    <SettingsPanelMotionFrozenProvider frozen={isShellAnimating}>
+      {inspector}
+    </SettingsPanelMotionFrozenProvider>
+  ) : null;
 
   return (
     <div
@@ -160,5 +156,5 @@ export function SettingsToolbarShell({
         </div>
       </m.div>
     </div>
-  )
+  );
 }

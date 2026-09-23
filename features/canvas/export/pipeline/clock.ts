@@ -1,10 +1,10 @@
-import type { DraftingCardPaperShaderState } from "@/features/canvas/model/card-state"
-import type { QraftyState } from "@/features/qr/model/state"
+import type { DraftingCardPaperShaderState } from "@/features/canvas/model/card-state";
+import type { QraftyState } from "@/features/qr/model/state";
 
-export type ExportClockMode = "photo" | "video"
+export type ExportClockMode = "photo" | "video";
 
 export function frameIndexToTimeMs(frameIndex: number, frameRate: number) {
-  return (frameIndex * 1000) / frameRate
+  return (frameIndex * 1000) / frameRate;
 }
 
 export function resolveShaderExportFrameMs(
@@ -13,14 +13,14 @@ export function resolveShaderExportFrameMs(
   videoTimeMs: number,
 ) {
   if (mode === "video") {
-    return videoTimeMs
+    return videoTimeMs;
   }
 
   if (shader.paused || shader.speed === 0) {
-    return shader.frame
+    return shader.frame;
   }
 
-  return performance.now() * shader.speed
+  return performance.now() * shader.speed;
 }
 
 export function resolveQrExportTimeMs(
@@ -28,27 +28,27 @@ export function resolveQrExportTimeMs(
   mode: ExportClockMode,
   videoTimeMs: number,
 ) {
-  const animation = state.dotMatrixAnimation
+  const animation = state.dotMatrixAnimation;
 
   if (!animation.enabled || !animation.animated) {
-    return 0
+    return 0;
   }
 
   if (mode === "video") {
-    return videoTimeMs
+    return videoTimeMs;
   }
 
-  return performance.now()
+  return performance.now();
 }
 
 export function isShaderTimeVarying(
   shader: Pick<DraftingCardPaperShaderState, "paused" | "speed">,
 ) {
-  return !shader.paused && shader.speed !== 0
+  return !shader.paused && shader.speed !== 0;
 }
 
 export function isQrTimeVarying(state: QraftyState) {
-  return state.dotMatrixAnimation.enabled && state.dotMatrixAnimation.animated
+  return state.dotMatrixAnimation.enabled && state.dotMatrixAnimation.animated;
 }
 
 export function sceneHasVideoExportContent(
@@ -57,21 +57,15 @@ export function sceneHasVideoExportContent(
   state: QraftyState,
 ) {
   if (isQrTimeVarying(state)) {
-    return true
+    return true;
   }
 
-  if (
-    cardState.styleMode === "paper-shader" &&
-    isShaderTimeVarying(cardState.paperShader)
-  ) {
-    return true
+  if (cardState.styleMode === "paper-shader" && isShaderTimeVarying(cardState.paperShader)) {
+    return true;
   }
 
-  if (
-    cardState.styleMode === "image-filter" &&
-    isShaderTimeVarying(cardState.imageFilter)
-  ) {
-    return true
+  if (cardState.styleMode === "image-filter" && isShaderTimeVarying(cardState.imageFilter)) {
+    return true;
   }
 
   return layers.some(
@@ -80,5 +74,5 @@ export function sceneHasVideoExportContent(
       layer.isVisible &&
       layer.paperShader &&
       isShaderTimeVarying(layer.paperShader),
-  )
+  );
 }

@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { Sparkles } from "lucide-react"
-import { useMemo, useState, type ClipboardEvent } from "react"
+import { Sparkles } from "lucide-react";
+import { useMemo, useState, type ClipboardEvent } from "react";
 
 import {
   OptionScrollRow,
   SettingsInput,
   SettingsSwitchRow,
-} from "@/features/shell/inspector/settings-ui"
+} from "@/features/shell/inspector/settings-ui";
 import {
   getDetectionChipLabel,
   getLinkDetectionSource,
@@ -15,31 +15,31 @@ import {
   resolveDetectedLinkTypeApply,
   resolveStructuredPasteApply,
   shouldShowUrlDetectionChip,
-} from "@/features/qr/content/apply-pasted-content"
+} from "@/features/qr/content/apply-pasted-content";
 import {
   getContentFieldDefinitions,
   type ContentFieldDefinition,
-} from "@/features/qr/content/content-field-definitions"
-import { detectUrlKind } from "@/features/qr/content/detect-url-kind"
+} from "@/features/qr/content/content-field-definitions";
+import { detectUrlKind } from "@/features/qr/content/detect-url-kind";
 import {
   isPickerQrInputType,
   QR_INPUT_OPTIONS,
   type QrInputType,
-} from "@/features/qr/content/input-options"
+} from "@/features/qr/content/input-options";
 import {
   validateStaticQrContent,
   type StaticQrContentValue,
   type StaticQrContentValues,
-} from "@/features/qr/content/static-payload"
-import { findBrandIconById } from "@/features/qr/assets/brand-icons"
-import { cn } from "@/lib/utils"
+} from "@/features/qr/content/static-payload";
+import { findBrandIconById } from "@/features/qr/assets/brand-icons";
+import { cn } from "@/lib/utils";
 
 type ContentFieldGroup =
   | { fields: [ContentFieldDefinition, ContentFieldDefinition]; kind: "pair" }
-  | { field: ContentFieldDefinition; kind: "single" }
+  | { field: ContentFieldDefinition; kind: "single" };
 
 function stringContentValue(value: StaticQrContentValue | undefined) {
-  return typeof value === "string" ? value : ""
+  return typeof value === "string" ? value : "";
 }
 
 function canPairFields(
@@ -52,36 +52,36 @@ function canPairFields(
     right.layout === "half" &&
     left.type === "text" &&
     right.type === "text"
-  )
+  );
 }
 
 function groupContentFields(fields: ContentFieldDefinition[]): ContentFieldGroup[] {
-  const groups: ContentFieldGroup[] = []
+  const groups: ContentFieldGroup[] = [];
 
   for (let index = 0; index < fields.length; index += 1) {
-    const field = fields[index]
-    const nextField = fields[index + 1]
+    const field = fields[index];
+    const nextField = fields[index + 1];
 
     if (canPairFields(field, nextField)) {
-      groups.push({ kind: "pair", fields: [field, nextField] })
-      index += 1
-      continue
+      groups.push({ kind: "pair", fields: [field, nextField] });
+      index += 1;
+      continue;
     }
 
-    groups.push({ kind: "single", field })
+    groups.push({ kind: "single", field });
   }
 
-  return groups
+  return groups;
 }
 
 function ContentFieldRow({
   field,
   onContentValueChange,
 }: {
-  field: ContentFieldDefinition
-  onContentValueChange: (fieldId: string, value: StaticQrContentValue) => void
+  field: ContentFieldDefinition;
+  onContentValueChange: (fieldId: string, value: StaticQrContentValue) => void;
 }) {
-  const controlId = `dn-content-${field.id}`
+  const controlId = `dn-content-${field.id}`;
 
   if (field.type === "toggle") {
     return (
@@ -90,13 +90,13 @@ function ContentFieldRow({
         label={field.label}
         onChange={(checked) => onContentValueChange(field.id, checked)}
       />
-    )
+    );
   }
 
   if (field.type === "segmented") {
-    const options = field.options ?? []
+    const options = field.options ?? [];
     const selectedLabel =
-      options.find((option) => option.value === field.value)?.label ?? options[0]?.label ?? ""
+      options.find((option) => option.value === field.value)?.label ?? options[0]?.label ?? "";
 
     return (
       <div className="flex flex-col gap-1">
@@ -106,14 +106,14 @@ function ContentFieldRow({
           items={options.map((option) => option.label)}
           selected={selectedLabel}
           onSelect={(label) => {
-            const option = options.find((entry) => entry.label === label)
+            const option = options.find((entry) => entry.label === label);
             if (option) {
-              onContentValueChange(field.id, option.value)
+              onContentValueChange(field.id, option.value);
             }
           }}
         />
       </div>
-    )
+    );
   }
 
   if (field.type === "textarea" || field.type === "text") {
@@ -127,10 +127,10 @@ function ContentFieldRow({
           onChange={(event) => onContentValueChange(field.id, event.currentTarget.value)}
         />
       </div>
-    )
+    );
   }
 
-  return null
+  return null;
 }
 
 function ContentDetectionChip({
@@ -141,27 +141,30 @@ function ContentDetectionChip({
   onApplyDetectedType,
   onDismiss,
 }: {
-  contentType: QrInputType
-  detection: ReturnType<typeof detectUrlKind>
-  dismissed: boolean
-  linkSource: string
-  onApplyDetectedType: () => void
-  onDismiss: () => void
+  contentType: QrInputType;
+  detection: ReturnType<typeof detectUrlKind>;
+  dismissed: boolean;
+  linkSource: string;
+  onApplyDetectedType: () => void;
+  onDismiss: () => void;
 }) {
-  if (!linkSource || dismissed || !shouldShowUrlDetectionChip(contentType, detection) || !detection) {
-    return null
+  if (
+    !linkSource ||
+    dismissed ||
+    !shouldShowUrlDetectionChip(contentType, detection) ||
+    !detection
+  ) {
+    return null;
   }
 
-  const detectedType = detection.inputTypeHint
-  const typeLabel = detectedType ? QR_INPUT_OPTIONS[detectedType]?.label : undefined
-  const brandIcon = findBrandIconById(detection.brandIconId)
-  const BrandIcon = brandIcon?.icon
-  const label = getDetectionChipLabel(detection)
+  const detectedType = detection.inputTypeHint;
+  const typeLabel = detectedType ? QR_INPUT_OPTIONS[detectedType]?.label : undefined;
+  const brandIcon = findBrandIconById(detection.brandIconId);
+  const BrandIcon = brandIcon?.icon;
+  const label = getDetectionChipLabel(detection);
   const canApplyDetectedType = Boolean(
-    detectedType &&
-      isPickerQrInputType(detectedType) &&
-      detectedType !== contentType,
-  )
+    detectedType && isPickerQrInputType(detectedType) && detectedType !== contentType,
+  );
 
   return (
     <div className="dn-content-detection-chip dn-squircle-sm">
@@ -196,7 +199,7 @@ function ContentDetectionChip({
         </button>
       ) : null}
     </div>
-  )
+  );
 }
 
 export function ContentFields({
@@ -206,107 +209,100 @@ export function ContentFields({
   onContentPasteApply,
   onContentValueChange,
 }: {
-  contentType: QrInputType
-  contentValues: StaticQrContentValues
-  validation: ReturnType<typeof validateStaticQrContent>
-  onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void
-  onContentValueChange: (field: string, value: StaticQrContentValue) => void
+  contentType: QrInputType;
+  contentValues: StaticQrContentValues;
+  validation: ReturnType<typeof validateStaticQrContent>;
+  onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void;
+  onContentValueChange: (field: string, value: StaticQrContentValue) => void;
 }) {
-  const fields = getContentFieldDefinitions(contentType, contentValues, validation)
-  const linkSource = getLinkDetectionSource(contentType, contentValues)
-  const urlDetection = useMemo(
-    () => (linkSource ? detectUrlKind(linkSource) : null),
-    [linkSource],
-  )
-  const [dismissedDetectionSource, setDismissedDetectionSource] = useState<string | null>(null)
-  const isDetectionDismissed = dismissedDetectionSource === linkSource
+  const fields = getContentFieldDefinitions(contentType, contentValues, validation);
+  const linkSource = getLinkDetectionSource(contentType, contentValues);
+  const urlDetection = useMemo(() => (linkSource ? detectUrlKind(linkSource) : null), [linkSource]);
+  const [dismissedDetectionSource, setDismissedDetectionSource] = useState<string | null>(null);
+  const isDetectionDismissed = dismissedDetectionSource === linkSource;
 
   function handlePaste(event: ClipboardEvent<HTMLDivElement>) {
-    const pasted = event.clipboardData.getData("text")
+    const pasted = event.clipboardData.getData("text");
     if (!pasted.trim()) {
-      return
+      return;
     }
 
-    const structuredPaste = resolveStructuredPasteApply(pasted)
+    const structuredPaste = resolveStructuredPasteApply(pasted);
     if (structuredPaste) {
-      event.preventDefault()
-      onContentPasteApply(structuredPaste.type, structuredPaste.values)
-      setDismissedDetectionSource(null)
-      return
+      event.preventDefault();
+      onContentPasteApply(structuredPaste.type, structuredPaste.values);
+      setDismissedDetectionSource(null);
+      return;
     }
 
-    const linkPaste = getLinkPasteFieldUpdate(contentType, pasted)
+    const linkPaste = getLinkPasteFieldUpdate(contentType, pasted);
     if (linkPaste) {
-      event.preventDefault()
+      event.preventDefault();
       for (const [field, value] of Object.entries(linkPaste.values)) {
         if (value !== undefined) {
-          onContentValueChange(field, value)
+          onContentValueChange(field, value);
         }
       }
-      setDismissedDetectionSource(null)
+      setDismissedDetectionSource(null);
     }
   }
 
   function handleApplyDetectedType() {
     if (!urlDetection) {
-      return
+      return;
     }
 
-    const applyResult = resolveDetectedLinkTypeApply(urlDetection, linkSource)
+    const applyResult = resolveDetectedLinkTypeApply(urlDetection, linkSource);
     if (!applyResult) {
-      return
+      return;
     }
 
-    onContentPasteApply(applyResult.type, applyResult.values)
-    setDismissedDetectionSource(null)
+    onContentPasteApply(applyResult.type, applyResult.values);
+    setDismissedDetectionSource(null);
   }
 
   function handleFieldChange(fieldId: string, value: StaticQrContentValue) {
     if (fieldId === "url" || fieldId === "username" || fieldId === "text") {
-      setDismissedDetectionSource(null)
+      setDismissedDetectionSource(null);
     }
-    onContentValueChange(fieldId, value)
+    onContentValueChange(fieldId, value);
   }
 
-  const fieldGroups = useMemo(() => groupContentFields(fields), [fields])
+  const fieldGroups = useMemo(() => groupContentFields(fields), [fields]);
 
   return (
-    <div
-      className={cn("dn-section-stack pt-1")}
-      data-slot="content-fields"
-      onPaste={handlePaste}
-    >
-        {fieldGroups.map((group) => {
-          if (group.kind === "pair") {
-            const [leftField, rightField] = group.fields
-            return (
-              <div
-                key={`${contentType}-${leftField.id}-${rightField.id}`}
-                className="grid min-w-0 grid-cols-2 gap-2"
-                data-slot="inspector-content-field-row"
-              >
-                <ContentFieldRow field={leftField} onContentValueChange={handleFieldChange} />
-                <ContentFieldRow field={rightField} onContentValueChange={handleFieldChange} />
-              </div>
-            )
-          }
-
+    <div className={cn("dn-section-stack pt-1")} data-slot="content-fields" onPaste={handlePaste}>
+      {fieldGroups.map((group) => {
+        if (group.kind === "pair") {
+          const [leftField, rightField] = group.fields;
           return (
-            <ContentFieldRow
-              key={`${contentType}-${group.field.id}`}
-              field={group.field}
-              onContentValueChange={handleFieldChange}
-            />
-          )
-        })}
-        <ContentDetectionChip
-          contentType={contentType}
-          detection={urlDetection}
-          dismissed={isDetectionDismissed}
-          linkSource={linkSource}
-          onApplyDetectedType={handleApplyDetectedType}
-          onDismiss={() => setDismissedDetectionSource(linkSource)}
-        />
+            <div
+              key={`${contentType}-${leftField.id}-${rightField.id}`}
+              className="grid min-w-0 grid-cols-2 gap-2"
+              data-slot="inspector-content-field-row"
+            >
+              <ContentFieldRow field={leftField} onContentValueChange={handleFieldChange} />
+              <ContentFieldRow field={rightField} onContentValueChange={handleFieldChange} />
+            </div>
+          );
+        }
+
+        return (
+          <ContentFieldRow
+            key={`${contentType}-${group.field.id}`}
+            field={group.field}
+            onContentValueChange={handleFieldChange}
+          />
+        );
+      })}
+      <ContentDetectionChip
+        contentType={contentType}
+        detection={urlDetection}
+        dismissed={isDetectionDismissed}
+        linkSource={linkSource}
+        onApplyDetectedType={handleApplyDetectedType}
+        onDismiss={() => setDismissedDetectionSource(linkSource)}
+      />
     </div>
-  )
+  );
 }

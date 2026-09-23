@@ -2,13 +2,13 @@ import {
   ICONSTACK_LIBRARIES,
   type IconstackLibraryId,
   type IconstackSearchResult,
-} from "@/features/qr/assets/iconstack-api"
+} from "@/features/qr/assets/iconstack-api";
 
 export type IconstackCuratedIcon = {
-  id: string
-  label: string
-  library: IconstackLibraryId
-}
+  id: string;
+  label: string;
+  library: IconstackLibraryId;
+};
 
 export const ICONSTACK_CURATED_ICONS = [
   { library: "lucide", id: "link", label: "Link" },
@@ -31,18 +31,18 @@ export const ICONSTACK_CURATED_ICONS = [
   { library: "phosphor", id: "identification-card-bold-bold", label: "Contact" },
   { library: "carbon", id: "restaurant", label: "Menu" },
   { library: "material", id: "offer", label: "Coupon" },
-] as const satisfies readonly IconstackCuratedIcon[]
+] as const satisfies readonly IconstackCuratedIcon[];
 
 const ICONSTACK_LIBRARY_LABELS = new Map(
   ICONSTACK_LIBRARIES.map((library) => [library.id, library.label]),
-)
+);
 
 export function filterCuratedIconstackIcons(library: IconstackLibraryId | "all") {
   if (library === "all") {
-    return ICONSTACK_CURATED_ICONS
+    return ICONSTACK_CURATED_ICONS;
   }
 
-  return ICONSTACK_CURATED_ICONS.filter((icon) => icon.library === library)
+  return ICONSTACK_CURATED_ICONS.filter((icon) => icon.library === library);
 }
 
 export function toCuratedSearchResult(icon: IconstackCuratedIcon): IconstackSearchResult {
@@ -55,5 +55,5 @@ export function toCuratedSearchResult(icon: IconstackCuratedIcon): IconstackSear
     style: "outline",
     tags: [],
     url: `https://iconstack.io/icon/${icon.library}/${icon.id}`,
-  }
+  };
 }

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   createContext,
@@ -10,30 +10,24 @@ import {
   useRef,
   useState,
   type ReactNode,
-} from "react"
+} from "react";
 import {
   getHorizontalContentWidth,
   isHorizontalLayoutStable,
-} from "@/lib/scroll-horizontal-metrics"
+} from "@/lib/scroll-horizontal-metrics";
 
-type ScrollPos = { left: number; top: number }
+type ScrollPos = { left: number; top: number };
 
-const positions = new Map<string, ScrollPos>()
+const positions = new Map<string, ScrollPos>();
 
-const ScrollPersistScopeContext = createContext<string | undefined>(undefined)
+const ScrollPersistScopeContext = createContext<string | undefined>(undefined);
 
-export function ScrollPersistScope({
-  id,
-  children,
-}: {
-  id: string
-  children: ReactNode
-}) {
-  return createElement(ScrollPersistScopeContext.Provider, { value: id }, children)
+export function ScrollPersistScope({ id, children }: { id: string; children: ReactNode }) {
+  return createElement(ScrollPersistScopeContext.Provider, { value: id }, children);
 }
 
 export function useScrollPersistScope() {
-  return useContext(ScrollPersistScopeContext)
+  return useContext(ScrollPersistScopeContext);
 }
 
 export function resolveScrollPersistKey({
@@ -42,65 +36,62 @@ export function resolveScrollPersistKey({
   scope,
   reactId,
 }: {
-  persistKey?: string
-  dataSlot?: string
-  scope?: string
-  reactId: string
+  persistKey?: string;
+  dataSlot?: string;
+  scope?: string;
+  reactId: string;
 }): string | undefined {
   if (persistKey) {
-    return scope ? `${scope}:${persistKey}` : persistKey
+    return scope ? `${scope}:${persistKey}` : persistKey;
   }
 
   if (dataSlot) {
-    return scope ? `${scope}:${dataSlot}` : dataSlot
+    return scope ? `${scope}:${dataSlot}` : dataSlot;
   }
 
   if (scope) {
-    return `${scope}:${reactId}`
+    return `${scope}:${reactId}`;
   }
 
-  return undefined
+  return undefined;
 }
 
 function readPos(element: HTMLElement): ScrollPos {
-  return { left: element.scrollLeft, top: element.scrollTop }
+  return { left: element.scrollLeft, top: element.scrollTop };
 }
 
 function writePos(element: HTMLElement, pos: ScrollPos) {
   if (element.scrollLeft !== pos.left) {
-    element.scrollLeft = pos.left
+    element.scrollLeft = pos.left;
   }
 
   if (element.scrollTop !== pos.top) {
-    element.scrollTop = pos.top
+    element.scrollTop = pos.top;
   }
 }
 
 function isLaidOut(element: HTMLElement) {
-  return element.clientWidth > 1 && element.clientHeight > 1
+  return element.clientWidth > 1 && element.clientHeight > 1;
 }
 
 function canOverflow(element: HTMLElement) {
-  const contentWidth = getHorizontalContentWidth(element)
-  const contentHeight = getVerticalContentHeight(element)
-  return (
-    contentWidth > element.clientWidth + 1 ||
-    contentHeight > element.clientHeight + 1
-  )
+  const contentWidth = getHorizontalContentWidth(element);
+  const contentHeight = getVerticalContentHeight(element);
+  return contentWidth > element.clientWidth + 1 || contentHeight > element.clientHeight + 1;
 }
 
 function getVerticalContentHeight(element: HTMLElement) {
-  const inner = element.firstElementChild
+  const inner = element.firstElementChild;
   if (!(inner instanceof HTMLElement)) {
-    return element.scrollHeight
+    return element.scrollHeight;
   }
 
-  const content = inner.firstElementChild
+  const content = inner.firstElementChild;
   if (content instanceof HTMLElement) {
-    return content.scrollHeight
+    return content.scrollHeight;
   }
 
-  return inner.scrollHeight
+  return inner.scrollHeight;
 }
 
 function isIntersecting(entry: IntersectionObserverEntry) {
@@ -109,137 +100,135 @@ function isIntersecting(entry: IntersectionObserverEntry) {
     (entry.intersectionRatio > 0 ||
       entry.intersectionRect.width > 0 ||
       entry.intersectionRect.height > 0)
-  )
+  );
 }
 
-const useIsoLayoutEffect =
-  typeof window === "undefined" ? useEffect : useLayoutEffect
+const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
-export function usePersistedElementScroll(
-  element: HTMLElement | null,
-  persistKey?: string,
-) {
+export function usePersistedElementScroll(element: HTMLElement | null, persistKey?: string) {
   const lastPosRef = useRef<ScrollPos | null>(
     persistKey ? (positions.get(persistKey) ?? null) : null,
-  )
+  );
 
   useIsoLayoutEffect(() => {
     if (!element) {
-      return
+      return;
     }
 
     if (persistKey) {
-      const stored = positions.get(persistKey)
+      const stored = positions.get(persistKey);
       if (stored) {
-        lastPosRef.current = stored
+        lastPosRef.current = stored;
       }
     }
 
-    let visible = true
-    let raf = 0
+    let visible = true;
+    let raf = 0;
 
     const restore = () => {
-      const pos =
-        (persistKey ? positions.get(persistKey) : null) ?? lastPosRef.current
+      const pos = (persistKey ? positions.get(persistKey) : null) ?? lastPosRef.current;
       if (!pos) {
-        return
+        return;
       }
 
       if (!isLaidOut(element)) {
-        return
+        return;
       }
 
       if (!isHorizontalLayoutStable(element)) {
         if (element.scrollLeft !== 0) {
-          element.scrollLeft = 0
+          element.scrollLeft = 0;
         }
-        return
+        return;
       }
 
       if ((pos.left > 0 || pos.top > 0) && !canOverflow(element)) {
-        return
+        return;
       }
 
-      const maxLeft = Math.max(0, getHorizontalContentWidth(element) - element.clientWidth)
+      const maxLeft = Math.max(0, getHorizontalContentWidth(element) - element.clientWidth);
       writePos(element, {
         left: Math.min(pos.left, maxLeft),
         top: pos.top,
-      })
-    }
+      });
+    };
 
     const save = () => {
       if (!visible || !isLaidOut(element) || !canOverflow(element)) {
-        return
+        return;
       }
 
-      const pos = readPos(element)
-      lastPosRef.current = pos
+      const pos = readPos(element);
+      lastPosRef.current = pos;
       if (persistKey) {
-        positions.set(persistKey, pos)
+        positions.set(persistKey, pos);
       }
-    }
+    };
 
     const scheduleRestore = () => {
-      restore()
+      restore();
       if (typeof cancelAnimationFrame === "function") {
-        cancelAnimationFrame(raf)
+        cancelAnimationFrame(raf);
       }
       if (typeof requestAnimationFrame !== "function") {
-        return
+        return;
       }
       raf = requestAnimationFrame(() => {
-        restore()
-        raf = requestAnimationFrame(() => restore())
-      })
-    }
+        restore();
+        raf = requestAnimationFrame(() => restore());
+      });
+    };
 
-    scheduleRestore()
-    element.addEventListener("scroll", save, { passive: true })
+    scheduleRestore();
+    element.addEventListener("scroll", save, { passive: true });
 
-    let intersectionObserver: IntersectionObserver | undefined
+    let intersectionObserver: IntersectionObserver | undefined;
     if (typeof IntersectionObserver !== "undefined") {
-      intersectionObserver = new IntersectionObserver((entries) => {
-        const entry = entries[0]
-        if (!entry) {
-          return
-        }
+      intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (!entry) {
+            return;
+          }
 
-        visible = isIntersecting(entry)
-        if (visible) {
-          scheduleRestore()
-        }
-      }, { threshold: 0 })
-      intersectionObserver.observe(element)
+          visible = isIntersecting(entry);
+          if (visible) {
+            scheduleRestore();
+          }
+        },
+        { threshold: 0 },
+      );
+      intersectionObserver.observe(element);
     }
 
-    let resizeObserver: ResizeObserver | undefined
+    let resizeObserver: ResizeObserver | undefined;
     if (typeof ResizeObserver !== "undefined") {
       resizeObserver = new ResizeObserver(() => {
-        scheduleRestore()
-      })
-      resizeObserver.observe(element)
-      const inner = element.firstElementChild
+        scheduleRestore();
+      });
+      resizeObserver.observe(element);
+      const inner = element.firstElementChild;
       if (inner instanceof HTMLElement) {
-        resizeObserver.observe(inner)
+        resizeObserver.observe(inner);
       }
     }
 
     return () => {
-      save()
-      element.removeEventListener("scroll", save)
-      intersectionObserver?.disconnect()
-      resizeObserver?.disconnect()
+      save();
+      element.removeEventListener("scroll", save);
+      intersectionObserver?.disconnect();
+      resizeObserver?.disconnect();
       if (typeof cancelAnimationFrame === "function") {
-        cancelAnimationFrame(raf)
+        cancelAnimationFrame(raf);
       }
-    }
-  }, [element, persistKey])
+    };
+  }, [element, persistKey]);
 }
 
 export function usePersistedScrollNode(persistKey?: string) {
-  const [node, setNode] = useState<HTMLElement | null>(null)
-  const persistScope = useScrollPersistScope()
-  const persistReactId = useId()
+  const [node, setNode] = useState<HTMLElement | null>(null);
+  const persistScope = useScrollPersistScope();
+  const persistReactId = useId();
   usePersistedElementScroll(
     node,
     resolveScrollPersistKey({
@@ -247,10 +236,10 @@ export function usePersistedScrollNode(persistKey?: string) {
       scope: persistScope,
       reactId: persistReactId,
     }),
-  )
-  return setNode
+  );
+  return setNode;
 }
 
 export function resetPersistedElementScrollForTests() {
-  positions.clear()
+  positions.clear();
 }

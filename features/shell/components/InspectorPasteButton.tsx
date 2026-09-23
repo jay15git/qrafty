@@ -1,52 +1,49 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { CheckIcon, ClipboardIcon } from "lucide-react"
+import { useEffect, useRef, useState } from "react";
+import { CheckIcon, ClipboardIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-import "./inspector-icon-swap.css"
+import "./inspector-icon-swap.css";
 
-const PASTE_SUCCESS_MS = 1500
+const PASTE_SUCCESS_MS = 1500;
 
 type InspectorPasteButtonProps = {
-  className?: string
-  onPaste: (value: string) => void
-}
+  className?: string;
+  onPaste: (value: string) => void;
+};
 
-export function InspectorPasteButton({
-  className,
-  onPaste,
-}: InspectorPasteButtonProps) {
-  const [iconState, setIconState] = useState<"a" | "b">("a")
-  const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+export function InspectorPasteButton({ className, onPaste }: InspectorPasteButtonProps) {
+  const [iconState, setIconState] = useState<"a" | "b">("a");
+  const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
       if (resetTimeoutRef.current) {
-        clearTimeout(resetTimeoutRef.current)
+        clearTimeout(resetTimeoutRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   async function handlePaste() {
     try {
-      const text = (await navigator.clipboard.readText()).trim()
+      const text = (await navigator.clipboard.readText()).trim();
       if (!text) {
-        return
+        return;
       }
 
-      onPaste(text)
-      setIconState("b")
+      onPaste(text);
+      setIconState("b");
 
       if (resetTimeoutRef.current) {
-        clearTimeout(resetTimeoutRef.current)
+        clearTimeout(resetTimeoutRef.current);
       }
 
       resetTimeoutRef.current = setTimeout(() => {
-        setIconState("a")
-        resetTimeoutRef.current = null
-      }, PASTE_SUCCESS_MS)
+        setIconState("a");
+        resetTimeoutRef.current = null;
+      }, PASTE_SUCCESS_MS);
     } catch {
       // Clipboard permission denied or unavailable.
     }
@@ -62,7 +59,7 @@ export function InspectorPasteButton({
       data-slot="inspector-paste-action"
       type="button"
       onClick={() => {
-        void handlePaste()
+        void handlePaste();
       }}
     >
       <span aria-hidden className="t-icon-swap" data-state={iconState}>
@@ -74,5 +71,5 @@ export function InspectorPasteButton({
         </span>
       </span>
     </button>
-  )
+  );
 }

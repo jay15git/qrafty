@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
 import {
   buildRoundedRectPath,
@@ -9,14 +9,14 @@ import {
   resolveCornerRadii,
   setCornerRadiiLinked,
   syncCornerRadiusFields,
-} from "@/features/canvas/model/corner-radius"
+} from "@/features/canvas/model/corner-radius";
 
 describe("corner-radius", () => {
   it("normalizes legacy cornerRadius into linked radii", () => {
     expect(normalizeCornerRadiiState(undefined, undefined, 24)).toEqual(
       createUniformCornerRadii(24),
-    )
-  })
+    );
+  });
 
   it("renders css border radius in clockwise order", () => {
     expect(
@@ -27,12 +27,12 @@ describe("corner-radius", () => {
         topLeft: 12,
         topRight: 16,
       }),
-    ).toBe("12px 16px 8px 4px")
-  })
+    ).toBe("12px 16px 8px 4px");
+  });
 
   it("patches individual corners when unlinked", () => {
-    const base = createUniformCornerRadii(16, { linked: false })
-    const next = patchCornerRadii(base, 16, "topRight", 32)
+    const base = createUniformCornerRadii(16, { linked: false });
+    const next = patchCornerRadii(base, 16, "topRight", 32);
 
     expect(next).toEqual({
       bottomLeft: 16,
@@ -40,19 +40,19 @@ describe("corner-radius", () => {
       linked: false,
       topLeft: 16,
       topRight: 32,
-    })
-  })
+    });
+  });
 
   it("keeps corners linked when patching one corner", () => {
     expect(patchCornerRadii(createUniformCornerRadii(12), 12, "bottomLeft", 20)).toEqual(
       createUniformCornerRadii(20),
-    )
-  })
+    );
+  });
 
   it("re-links corners to a shared value", () => {
-    const unlinked = createUniformCornerRadii(12, { linked: false, topRight: 24 })
-    expect(setCornerRadiiLinked(unlinked, 12, true)).toEqual(createUniformCornerRadii(24))
-  })
+    const unlinked = createUniformCornerRadii(12, { linked: false, topRight: 24 });
+    expect(setCornerRadiiLinked(unlinked, 12, true)).toEqual(createUniformCornerRadii(24));
+  });
 
   it("builds a rounded rect path with mixed radii", () => {
     const path = buildRoundedRectPath(100, 80, {
@@ -60,11 +60,11 @@ describe("corner-radius", () => {
       bottomRight: 12,
       topLeft: 16,
       topRight: 20,
-    })
+    });
 
-    expect(path.startsWith("M 16 0")).toBe(true)
-    expect(path.endsWith("Z")).toBe(true)
-  })
+    expect(path.startsWith("M 16 0")).toBe(true);
+    expect(path.endsWith("Z")).toBe(true);
+  });
 
   it("syncs legacy cornerRadius with cornerRadii", () => {
     expect(
@@ -78,8 +78,8 @@ describe("corner-radius", () => {
     ).toEqual({
       cornerRadius: 18,
       cornerRadii: createUniformCornerRadii(18),
-    })
-  })
+    });
+  });
 
   it("prefers cornerRadii when resolving", () => {
     expect(
@@ -93,6 +93,6 @@ describe("corner-radius", () => {
         },
         99,
       ).topRight,
-    ).toBe(10)
-  })
-})
+    ).toBe(10);
+  });
+});

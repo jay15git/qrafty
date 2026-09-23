@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react";
 
-import { cn } from "@/lib/utils"
-import { useFontPreviewObserver } from "@/features/shell/inspector/use-font-preview-observer"
+import { cn } from "@/lib/utils";
+import { useFontPreviewObserver } from "@/features/shell/inspector/use-font-preview-observer";
 import {
   DRAFTING_FONT_CATEGORY_LABELS,
   getDraftingFontCssFamily,
@@ -11,32 +11,32 @@ import {
   loadDraftingFont,
   loadDraftingFontPreview,
   resolveDraftingFont,
-} from "@/features/canvas/model/fonts"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/fonts";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
 
 export function TextFontPickerContent({
   layer,
   onPatch,
   onSelect,
 }: {
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  onSelect?: () => void
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  onSelect?: () => void;
 }) {
   const selectedFont = resolveDraftingFont({
     fontFamily: layer.fontFamily,
     fontId: layer.fontId,
-  })
-  const [query, setQuery] = useState("")
-  const fontGroups = useMemo(() => groupDraftingFonts(query), [query])
-  const bindFontPreview = useFontPreviewObserver()
+  });
+  const [query, setQuery] = useState("");
+  const fontGroups = useMemo(() => groupDraftingFonts(query), [query]);
+  const bindFontPreview = useFontPreviewObserver();
 
   useEffect(() => {
-    void loadDraftingFont(selectedFont.id)
-  }, [selectedFont.id])
+    void loadDraftingFont(selectedFont.id);
+  }, [selectedFont.id]);
 
   function patchTextLayer(patch: Partial<DraftingCanvasLayer>) {
-    onPatch({ ...patch, textRuns: undefined })
+    onPatch({ ...patch, textRuns: undefined });
   }
 
   return (
@@ -80,9 +80,9 @@ export function TextFontPickerContent({
                 style={{ fontFamily: getDraftingFontCssFamily({ fontId: font.id }) }}
                 type="button"
                 onClick={() => {
-                  void loadDraftingFont(font.id)
-                  patchTextLayer({ fontFamily: font.family, fontId: font.id })
-                  onSelect?.()
+                  void loadDraftingFont(font.id);
+                  patchTextLayer({ fontFamily: font.family, fontId: font.id });
+                  onSelect?.();
                 }}
                 onPointerEnter={() => loadDraftingFontPreview(font.id)}
               >
@@ -98,5 +98,5 @@ export function TextFontPickerContent({
         ) : null}
       </div>
     </div>
-  )
+  );
 }

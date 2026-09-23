@@ -27,19 +27,19 @@ export type SizeTemplateGroup =
   | "web"
   | "ratio"
   | "print"
-  | "qr-physical"
+  | "qr-physical";
 
 export type SizeTemplate = {
-  brandIconId?: string
-  group: SizeTemplateGroup
-  height: number
-  id: string
-  label: string
-  ratioLabel: string
+  brandIconId?: string;
+  group: SizeTemplateGroup;
+  height: number;
+  id: string;
+  label: string;
+  ratioLabel: string;
   /** Ratio or pixel dimensions shown under the preset label. */
-  subtitle?: string
-  width: number
-}
+  subtitle?: string;
+  width: number;
+};
 
 export const SIZE_TEMPLATE_GROUPS: readonly SizeTemplateGroup[] = [
   "instagram",
@@ -71,7 +71,7 @@ export const SIZE_TEMPLATE_GROUPS: readonly SizeTemplateGroup[] = [
   "ratio",
   "print",
   "qr-physical",
-] as const
+] as const;
 
 const SIZE_TEMPLATE_GROUP_LABELS: Record<SizeTemplateGroup, string> = {
   instagram: "Instagram",
@@ -103,38 +103,42 @@ const SIZE_TEMPLATE_GROUP_LABELS: Record<SizeTemplateGroup, string> = {
   ratio: "Aspect ratio",
   print: "Print",
   "qr-physical": "QR physical",
-}
+};
 
 /** Longest-edge length used for canvas editing; export can scale up from this baseline. */
-export const DRAFTING_CANVAS_BASELINE_MAX_EDGE = 1080
+export const DRAFTING_CANVAS_BASELINE_MAX_EDGE = 1080;
 
-export function normalizeCanvasSize(width: number, height: number): { height: number; width: number } {
-  const safeWidth = Math.max(1, Math.round(width))
-  const safeHeight = Math.max(1, Math.round(height))
-  const longEdge = Math.max(safeWidth, safeHeight)
-  const scale = DRAFTING_CANVAS_BASELINE_MAX_EDGE / longEdge
+export function normalizeCanvasSize(
+  width: number,
+  height: number,
+): { height: number; width: number } {
+  const safeWidth = Math.max(1, Math.round(width));
+  const safeHeight = Math.max(1, Math.round(height));
+  const longEdge = Math.max(safeWidth, safeHeight);
+  const scale = DRAFTING_CANVAS_BASELINE_MAX_EDGE / longEdge;
 
   return {
     width: Math.round(safeWidth * scale),
     height: Math.round(safeHeight * scale),
-  }
+  };
 }
 
-export function getCanvasSizeFromTemplate(
-  template: Pick<SizeTemplate, "height" | "width">,
-): { height: number; width: number } {
-  return normalizeCanvasSize(template.width, template.height)
+export function getCanvasSizeFromTemplate(template: Pick<SizeTemplate, "height" | "width">): {
+  height: number;
+  width: number;
+} {
+  return normalizeCanvasSize(template.width, template.height);
 }
 
 function formatPixelSubtitle(width: number, height: number): string {
-  return `${width} × ${height}`
+  return `${width} × ${height}`;
 }
 
 type SizeTemplateOptions = {
-  brandIconId?: string
-  ratioLabel?: string
-  subtitle?: string
-}
+  brandIconId?: string;
+  ratioLabel?: string;
+  subtitle?: string;
+};
 
 function sizeTemplate(
   id: string,
@@ -144,7 +148,7 @@ function sizeTemplate(
   height: number,
   options: SizeTemplateOptions = {},
 ): SizeTemplate {
-  const ratioLabel = options.ratioLabel ?? formatAspectRatio(width, height)
+  const ratioLabel = options.ratioLabel ?? formatAspectRatio(width, height);
 
   return {
     brandIconId: options.brandIconId ?? group,
@@ -155,7 +159,7 @@ function sizeTemplate(
     ratioLabel,
     subtitle: options.subtitle ?? ratioLabel,
     width,
-  }
+  };
 }
 
 function ratioTemplate(
@@ -164,15 +168,11 @@ function ratioTemplate(
   widthRatio: number,
   heightRatio: number,
 ): SizeTemplate {
-  const maxEdge = DRAFTING_CANVAS_BASELINE_MAX_EDGE
+  const maxEdge = DRAFTING_CANVAS_BASELINE_MAX_EDGE;
   const width =
-    widthRatio >= heightRatio
-      ? maxEdge
-      : Math.round((maxEdge * widthRatio) / heightRatio)
+    widthRatio >= heightRatio ? maxEdge : Math.round((maxEdge * widthRatio) / heightRatio);
   const height =
-    widthRatio >= heightRatio
-      ? Math.round((maxEdge * heightRatio) / widthRatio)
-      : maxEdge
+    widthRatio >= heightRatio ? Math.round((maxEdge * heightRatio) / widthRatio) : maxEdge;
 
   return {
     id,
@@ -182,7 +182,7 @@ function ratioTemplate(
     height,
     ratioLabel,
     subtitle: ratioLabel,
-  }
+  };
 }
 
 function platformRatioTemplate(
@@ -194,21 +194,17 @@ function platformRatioTemplate(
   heightRatio: number,
   brandIconId?: string,
 ): SizeTemplate {
-  const maxEdge = DRAFTING_CANVAS_BASELINE_MAX_EDGE
+  const maxEdge = DRAFTING_CANVAS_BASELINE_MAX_EDGE;
   const width =
-    widthRatio >= heightRatio
-      ? maxEdge
-      : Math.round((maxEdge * widthRatio) / heightRatio)
+    widthRatio >= heightRatio ? maxEdge : Math.round((maxEdge * widthRatio) / heightRatio);
   const height =
-    widthRatio >= heightRatio
-      ? Math.round((maxEdge * heightRatio) / widthRatio)
-      : maxEdge
+    widthRatio >= heightRatio ? Math.round((maxEdge * heightRatio) / widthRatio) : maxEdge;
 
   return sizeTemplate(id, group, label, width, height, {
     brandIconId: brandIconId ?? group,
     ratioLabel,
     subtitle: ratioLabel,
-  })
+  });
 }
 
 export const SIZE_TEMPLATES: readonly SizeTemplate[] = [
@@ -352,22 +348,22 @@ export const SIZE_TEMPLATES: readonly SizeTemplate[] = [
     subtitle: "4:3",
   }),
 
-  sizeTemplate("app-store-iphone-65", "app-store", "iPhone 6.5\"", 1284, 2778, {
+  sizeTemplate("app-store-iphone-65", "app-store", 'iPhone 6.5"', 1284, 2778, {
     brandIconId: "app-store",
     ratioLabel: "9:19.5",
     subtitle: formatPixelSubtitle(1284, 2778),
   }),
-  sizeTemplate("app-store-iphone-55", "app-store", "iPhone 5.5\"", 1242, 2208, {
+  sizeTemplate("app-store-iphone-55", "app-store", 'iPhone 5.5"', 1242, 2208, {
     brandIconId: "app-store",
     ratioLabel: "9:16",
     subtitle: formatPixelSubtitle(1242, 2208),
   }),
-  sizeTemplate("app-store-ipad-pro-129", "app-store", "iPad Pro 12.9\"", 2048, 2732, {
+  sizeTemplate("app-store-ipad-pro-129", "app-store", 'iPad Pro 12.9"', 2048, 2732, {
     brandIconId: "app-store",
     ratioLabel: "4:3",
     subtitle: formatPixelSubtitle(2048, 2732),
   }),
-  sizeTemplate("app-store-ipad-11", "app-store", "iPad 11\"", 1668, 2388, {
+  sizeTemplate("app-store-ipad-11", "app-store", 'iPad 11"', 1668, 2388, {
     brandIconId: "app-store",
     ratioLabel: "5:7",
     subtitle: formatPixelSubtitle(1668, 2388),
@@ -383,12 +379,12 @@ export const SIZE_TEMPLATES: readonly SizeTemplate[] = [
     ratioLabel: "9:16",
     subtitle: formatPixelSubtitle(1080, 1920),
   }),
-  sizeTemplate("play-store-tablet-7", "play-store", "Tablet 7\"", 1200, 1920, {
+  sizeTemplate("play-store-tablet-7", "play-store", 'Tablet 7"', 1200, 1920, {
     brandIconId: "play-store",
     ratioLabel: "5:8",
     subtitle: formatPixelSubtitle(1200, 1920),
   }),
-  sizeTemplate("play-store-tablet-10", "play-store", "Tablet 10\"", 1800, 2560, {
+  sizeTemplate("play-store-tablet-10", "play-store", 'Tablet 10"', 1800, 2560, {
     brandIconId: "play-store",
     ratioLabel: "9:12.8",
     subtitle: formatPixelSubtitle(1800, 2560),
@@ -514,54 +510,56 @@ export const SIZE_TEMPLATES: readonly SizeTemplate[] = [
     ratioLabel: "3:4",
     subtitle: "3:4",
   },
-] as const
+] as const;
 
-const SIZE_TEMPLATE_BY_ID = new Map(SIZE_TEMPLATES.map((template) => [template.id, template]))
+const SIZE_TEMPLATE_BY_ID = new Map(SIZE_TEMPLATES.map((template) => [template.id, template]));
 
 export function getSizeTemplate(id: string): SizeTemplate | undefined {
-  return SIZE_TEMPLATE_BY_ID.get(id)
+  return SIZE_TEMPLATE_BY_ID.get(id);
 }
 
 export function getSizeTemplatesByGroup(group: SizeTemplateGroup): SizeTemplate[] {
-  return SIZE_TEMPLATES.filter((template) => template.group === group)
+  return SIZE_TEMPLATES.filter((template) => template.group === group);
 }
 
 export function getSizeTemplateSections(): Array<{
-  group: SizeTemplateGroup
-  label: string
-  templates: SizeTemplate[]
+  group: SizeTemplateGroup;
+  label: string;
+  templates: SizeTemplate[];
 }> {
   return SIZE_TEMPLATE_GROUPS.flatMap((group) => {
-    const templates = getSizeTemplatesByGroup(group)
+    const templates = getSizeTemplatesByGroup(group);
     if (templates.length === 0) {
-      return []
+      return [];
     }
 
-    return [{
-      group,
-      label: SIZE_TEMPLATE_GROUP_LABELS[group],
-      templates,
-    }]
-  })
+    return [
+      {
+        group,
+        label: SIZE_TEMPLATE_GROUP_LABELS[group],
+        templates,
+      },
+    ];
+  });
 }
 
 export function formatAspectRatio(width: number, height: number): string {
-  const safeWidth = Math.max(1, Math.round(width))
-  const safeHeight = Math.max(1, Math.round(height))
-  const divisor = greatestCommonDivisor(safeWidth, safeHeight)
+  const safeWidth = Math.max(1, Math.round(width));
+  const safeHeight = Math.max(1, Math.round(height));
+  const divisor = greatestCommonDivisor(safeWidth, safeHeight);
 
-  return `${safeWidth / divisor}:${safeHeight / divisor}`
+  return `${safeWidth / divisor}:${safeHeight / divisor}`;
 }
 
 function greatestCommonDivisor(left: number, right: number): number {
-  let a = Math.abs(left)
-  let b = Math.abs(right)
+  let a = Math.abs(left);
+  let b = Math.abs(right);
 
   while (b !== 0) {
-    const remainder = a % b
-    a = b
-    b = remainder
+    const remainder = a % b;
+    a = b;
+    b = remainder;
   }
 
-  return Math.max(1, a)
+  return Math.max(1, a);
 }

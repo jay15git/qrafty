@@ -2,7 +2,7 @@ import {
   createDefaultDraftingCardState,
   normalizeDraftingCardState,
   type DraftingCardState,
-} from "@/features/canvas/model/card-state"
+} from "@/features/canvas/model/card-state";
 import {
   createDefaultDraftingWorkspaceDocument,
   createDefaultDraftingWorkspaceQrState,
@@ -11,14 +11,12 @@ import {
   type DraftingQrStateByLayerId,
   type DraftingQrStateByNodeId,
   type DraftingWorkspaceDocumentV1,
-} from "@/features/canvas/model/document"
-import { normalizeDraftingWorkspaceDocument } from "@/features/canvas/model/document/normalize"
-import { normalizeDraftingCanvasLayers } from "@/features/canvas/model/layers/card-qr"
-import { getDraftingQrLayerId } from "@/features/canvas/model/layers/shared"
-import {
-  type DraftingLayerStateByNodeId,
-} from "@/features/canvas/model/layers/shared"
-import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene"
+} from "@/features/canvas/model/document";
+import { normalizeDraftingWorkspaceDocument } from "@/features/canvas/model/document/normalize";
+import { normalizeDraftingCanvasLayers } from "@/features/canvas/model/layers/card-qr";
+import { getDraftingQrLayerId } from "@/features/canvas/model/layers/shared";
+import { type DraftingLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import {
   clampBackgroundShapeEdgeBlur,
   clampBackgroundShapeOffset,
@@ -30,104 +28,95 @@ import {
   setDotMatrixAnimationOptions,
   type BackgroundShapeOptions,
   type QraftyState,
-} from "@/features/qr/model/state"
-import {
-  DEFAULT_QR_INPUT_TYPE,
-  type QrInputType,
-} from "@/features/qr/content/input-options"
-import type { SceneCompositionByNodeId } from "@/features/canvas/model/apply-scene-template"
+} from "@/features/qr/model/state";
+import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
+import type { SceneCompositionByNodeId } from "@/features/canvas/model/apply-scene-template";
 import {
   normalizeSceneComposition,
   type SceneCompositionState,
-} from "@/features/canvas/model/scene-templates"
-import {
-  getDefaultStaticQrValues,
-} from "@/features/qr/content/static-payload"
+} from "@/features/canvas/model/scene-templates";
+import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload";
 
-export function parseDraftingWorkspaceDocument(
-  value: unknown,
-): DraftingWorkspaceDocumentV1 {
+export function parseDraftingWorkspaceDocument(value: unknown): DraftingWorkspaceDocumentV1 {
   if (typeof value === "string") {
     try {
-      return parseDraftingWorkspaceDocument(JSON.parse(value))
+      return parseDraftingWorkspaceDocument(JSON.parse(value));
     } catch {
-      return createDefaultDraftingWorkspaceDocument()
+      return createDefaultDraftingWorkspaceDocument();
     }
   }
 
   if (!isRecord(value) || value.version !== 1) {
-    return createDefaultDraftingWorkspaceDocument()
+    return createDefaultDraftingWorkspaceDocument();
   }
 
-  const rawQrStateByNodeId = isRecord(value.qrStateByNodeId)
-    ? value.qrStateByNodeId
-    : {}
-  const rawCardStateByNodeId = isRecord(value.cardStateByNodeId)
-    ? value.cardStateByNodeId
-    : {}
-  const rawLayerStateByNodeId = isRecord(value.layerStateByNodeId)
-    ? value.layerStateByNodeId
-    : {}
+  const rawQrStateByNodeId = isRecord(value.qrStateByNodeId) ? value.qrStateByNodeId : {};
+  const rawCardStateByNodeId = isRecord(value.cardStateByNodeId) ? value.cardStateByNodeId : {};
+  const rawLayerStateByNodeId = isRecord(value.layerStateByNodeId) ? value.layerStateByNodeId : {};
   const qrOrder = Array.isArray(value.qrOrder)
     ? value.qrOrder.filter((nodeId): nodeId is string => typeof nodeId === "string")
-    : []
-  const fallback = createDefaultDraftingWorkspaceDocument()
-  const orderedNodeIds = qrOrder.filter((nodeId) => isRecord(rawQrStateByNodeId[nodeId]))
-  const orderedNodeIdSet = new Set(orderedNodeIds)
+    : [];
+  const fallback = createDefaultDraftingWorkspaceDocument();
+  const orderedNodeIds = qrOrder.filter((nodeId) => isRecord(rawQrStateByNodeId[nodeId]));
+  const orderedNodeIdSet = new Set(orderedNodeIds);
 
   for (const nodeId of Object.keys(rawQrStateByNodeId)) {
     if (!orderedNodeIdSet.has(nodeId) && isRecord(rawQrStateByNodeId[nodeId])) {
-      orderedNodeIds.push(nodeId)
-      orderedNodeIdSet.add(nodeId)
+      orderedNodeIds.push(nodeId);
+      orderedNodeIdSet.add(nodeId);
     }
   }
 
   if (orderedNodeIds.length === 0) {
-    return fallback
+    return fallback;
   }
 
-  const qrStateByNodeId: DraftingQrStateByNodeId = {}
-  const cardStateByNodeId: DraftingCardStateByNodeId = {}
-  const layerStateByNodeId: DraftingLayerStateByNodeId = {}
+  const qrStateByNodeId: DraftingQrStateByNodeId = {};
+  const cardStateByNodeId: DraftingCardStateByNodeId = {};
+  const layerStateByNodeId: DraftingLayerStateByNodeId = {};
 
   for (const nodeId of orderedNodeIds) {
-    qrStateByNodeId[nodeId] = parseQrState(rawQrStateByNodeId[nodeId])
-    cardStateByNodeId[nodeId] = parseCardState(rawCardStateByNodeId[nodeId])
+    qrStateByNodeId[nodeId] = parseQrState(rawQrStateByNodeId[nodeId]);
+    cardStateByNodeId[nodeId] = parseCardState(rawCardStateByNodeId[nodeId]);
     layerStateByNodeId[nodeId] = normalizeDraftingCanvasLayers(
       nodeId,
       rawLayerStateByNodeId[nodeId],
       qrStateByNodeId[nodeId],
       cardStateByNodeId[nodeId],
-    )
+    );
   }
 
-  const selectedContentType = parseQrInputType(value.selectedContentType)
-  const contentValuesByType = parseContentValuesByType(value.contentValuesByType)
+  const selectedContentType = parseQrInputType(value.selectedContentType);
+  const contentValuesByType = parseContentValuesByType(value.contentValuesByType);
   const activeQrNodeId =
     typeof value.activeQrNodeId === "string" && qrStateByNodeId[value.activeQrNodeId]
       ? value.activeQrNodeId
-      : orderedNodeIds[0]!
+      : orderedNodeIds[0]!;
 
   if (!contentValuesByType[selectedContentType]) {
     contentValuesByType[selectedContentType] =
       selectedContentType === DEFAULT_QR_INPUT_TYPE
         ? {
             ...getDefaultStaticQrValues(DEFAULT_QR_INPUT_TYPE),
-            url: qrStateByNodeId[activeQrNodeId]?.data ?? fallback.qrStateByNodeId[DASHBOARD_QR_NODE_ID]!.data,
+            url:
+              qrStateByNodeId[activeQrNodeId]?.data ??
+              fallback.qrStateByNodeId[DASHBOARD_QR_NODE_ID]!.data,
           }
         : selectedContentType === "auto" || selectedContentType === "text"
           ? {
               ...getDefaultStaticQrValues(selectedContentType),
-              text: qrStateByNodeId[activeQrNodeId]?.data ?? fallback.qrStateByNodeId[DASHBOARD_QR_NODE_ID]!.data,
+              text:
+                qrStateByNodeId[activeQrNodeId]?.data ??
+                fallback.qrStateByNodeId[DASHBOARD_QR_NODE_ID]!.data,
             }
-        : getDefaultStaticQrValues(selectedContentType)
+          : getDefaultStaticQrValues(selectedContentType);
   }
 
   const contentTypeByNodeId = parseContentTypeByNodeId(
     value.contentTypeByNodeId,
     orderedNodeIds,
     selectedContentType,
-  )
+  );
 
   const parsedDocument: DraftingWorkspaceDocumentV1 = {
     activeQrLayerId:
@@ -159,21 +148,19 @@ export function parseDraftingWorkspaceDocument(
     ),
     selectedContentType,
     version: 1,
-  }
+  };
 
-  return normalizeDraftingWorkspaceDocument(parsedDocument)
+  return normalizeDraftingWorkspaceDocument(parsedDocument);
 }
 
 function parseQrState(value: unknown): QraftyState {
-  const fallback = createDefaultDraftingWorkspaceQrState()
+  const fallback = createDefaultDraftingWorkspaceQrState();
 
   if (!isRecord(value)) {
-    return fallback
+    return fallback;
   }
-  const clonedValue = structuredClone(value)
-  const rawDotMatrixAnimation = isRecord(value.dotMatrixAnimation)
-    ? value.dotMatrixAnimation
-    : {}
+  const clonedValue = structuredClone(value);
+  const rawDotMatrixAnimation = isRecord(value.dotMatrixAnimation) ? value.dotMatrixAnimation : {};
   const dotMatrixAnimation = setDotMatrixAnimationOptions(
     {
       ...fallback,
@@ -183,7 +170,7 @@ function parseQrState(value: unknown): QraftyState {
       },
     },
     rawDotMatrixAnimation,
-  ).dotMatrixAnimation
+  ).dotMatrixAnimation;
 
   return {
     ...fallback,
@@ -193,31 +180,30 @@ function parseQrState(value: unknown): QraftyState {
       isRecord(value.backgroundShapeOptions) ? value.backgroundShapeOptions : undefined,
       fallback,
     ),
-  } as QraftyState
+  } as QraftyState;
 }
 
 function parseBackgroundShapeOptions(
   value: Record<string, unknown> | undefined,
   fallback: QraftyState,
 ): BackgroundShapeOptions {
-  const legacySizePercent =
-    typeof value?.sizePercent === "number" ? value.sizePercent : undefined
+  const legacySizePercent = typeof value?.sizePercent === "number" ? value.sizePercent : undefined;
   const legacyPaddingPx =
     legacySizePercent !== undefined && legacySizePercent > 100
       ? ((legacySizePercent - 100) / 200) * fallback.width
-      : undefined
+      : undefined;
 
   const num = (key: keyof BackgroundShapeOptions) =>
-    typeof value?.[key] === "number" ? (value[key] as number) : undefined
+    typeof value?.[key] === "number" ? (value[key] as number) : undefined;
   const str = (key: keyof BackgroundShapeOptions) =>
-    typeof value?.[key] === "string" ? (value[key] as string) : undefined
+    typeof value?.[key] === "string" ? (value[key] as string) : undefined;
   const numField = (
     key: keyof BackgroundShapeOptions,
     clamp: (n: number) => number,
     fallbackValue?: number,
-  ) => clamp(num(key) ?? fallbackValue ?? (DEFAULT_BACKGROUND_SHAPE_OPTIONS[key] as number))
+  ) => clamp(num(key) ?? fallbackValue ?? (DEFAULT_BACKGROUND_SHAPE_OPTIONS[key] as number));
   const strField = (key: keyof BackgroundShapeOptions) =>
-    str(key) ?? (DEFAULT_BACKGROUND_SHAPE_OPTIONS[key] as string)
+    str(key) ?? (DEFAULT_BACKGROUND_SHAPE_OPTIONS[key] as string);
 
   return {
     edgeBlur: numField("edgeBlur", clampBackgroundShapeEdgeBlur),
@@ -231,28 +217,28 @@ function parseBackgroundShapeOptions(
     strokeWidth: numField("strokeWidth", clampBackgroundShapeStrokeWidth),
     tiltX: numField("tiltX", clampBackgroundShapeTilt),
     tiltY: numField("tiltY", clampBackgroundShapeTilt),
-  }
+  };
 }
 
 function parseCardState(value: unknown): DraftingCardState {
-  const fallback = createDefaultDraftingCardState()
+  const fallback = createDefaultDraftingCardState();
 
   if (!isRecord(value)) {
-    return fallback
+    return fallback;
   }
 
   return normalizeDraftingCardState({
     ...fallback,
     ...structuredClone(value),
-  } as DraftingCardState)
+  } as DraftingCardState);
 }
 
 function parseContentValuesByType(value: unknown): DraftingContentValuesByType {
   if (!isRecord(value)) {
-    return {}
+    return {};
   }
 
-  return structuredClone(value) as DraftingContentValuesByType
+  return structuredClone(value) as DraftingContentValuesByType;
 }
 
 function parseContentTypeByLayerId(
@@ -261,21 +247,21 @@ function parseContentTypeByLayerId(
   contentTypeByNodeId: Record<string, QrInputType>,
   activeQrNodeId: string,
 ): Record<string, QrInputType> {
-  const raw = isRecord(value) ? value : {}
-  const contentTypeByLayerId: Record<string, QrInputType> = {}
-  const fallbackType = contentTypeByNodeId[activeQrNodeId] ?? DEFAULT_QR_INPUT_TYPE
+  const raw = isRecord(value) ? value : {};
+  const contentTypeByLayerId: Record<string, QrInputType> = {};
+  const fallbackType = contentTypeByNodeId[activeQrNodeId] ?? DEFAULT_QR_INPUT_TYPE;
 
   for (const layers of Object.values(layerStateByNodeId)) {
     for (const layer of layers) {
       if (layer.kind !== "qr") {
-        continue
+        continue;
       }
 
-      contentTypeByLayerId[layer.id] = parseQrInputType(raw[layer.id] ?? fallbackType)
+      contentTypeByLayerId[layer.id] = parseQrInputType(raw[layer.id] ?? fallbackType);
     }
   }
 
-  return contentTypeByLayerId
+  return contentTypeByLayerId;
 }
 
 function parseQrStateByLayerId(
@@ -284,24 +270,23 @@ function parseQrStateByLayerId(
   qrStateByNodeId: DraftingQrStateByNodeId,
   activeQrNodeId: string,
 ): DraftingQrStateByLayerId {
-  const raw = isRecord(value) ? value : {}
-  const qrStateByLayerId: DraftingQrStateByLayerId = {}
-  const fallbackState =
-    qrStateByNodeId[activeQrNodeId] ?? createDefaultDraftingWorkspaceQrState()
+  const raw = isRecord(value) ? value : {};
+  const qrStateByLayerId: DraftingQrStateByLayerId = {};
+  const fallbackState = qrStateByNodeId[activeQrNodeId] ?? createDefaultDraftingWorkspaceQrState();
 
   for (const [nodeId, layers] of Object.entries(layerStateByNodeId)) {
-    const nodeState = qrStateByNodeId[nodeId] ?? fallbackState
+    const nodeState = qrStateByNodeId[nodeId] ?? fallbackState;
 
     for (const layer of layers) {
       if (layer.kind !== "qr") {
-        continue
+        continue;
       }
 
-      qrStateByLayerId[layer.id] = parseQrState(raw[layer.id] ?? nodeState)
+      qrStateByLayerId[layer.id] = parseQrState(raw[layer.id] ?? nodeState);
     }
   }
 
-  return qrStateByLayerId
+  return qrStateByLayerId;
 }
 
 function parseContentTypeByNodeId(
@@ -309,36 +294,36 @@ function parseContentTypeByNodeId(
   nodeIds: string[],
   fallbackType: QrInputType,
 ): Record<string, QrInputType> {
-  const raw = isRecord(value) ? value : {}
-  const contentTypeByNodeId: Record<string, QrInputType> = {}
+  const raw = isRecord(value) ? value : {};
+  const contentTypeByNodeId: Record<string, QrInputType> = {};
 
   for (const nodeId of nodeIds) {
-    contentTypeByNodeId[nodeId] = parseQrInputType(raw[nodeId] ?? fallbackType)
+    contentTypeByNodeId[nodeId] = parseQrInputType(raw[nodeId] ?? fallbackType);
   }
 
-  return contentTypeByNodeId
+  return contentTypeByNodeId;
 }
 
 function parseQrInputType(value: unknown): QrInputType {
-  return typeof value === "string" ? (value as QrInputType) : DEFAULT_QR_INPUT_TYPE
+  return typeof value === "string" ? (value as QrInputType) : DEFAULT_QR_INPUT_TYPE;
 }
 
 function parseSceneCompositionByNodeId(
   value: unknown,
   nodeIds: string[],
 ): SceneCompositionByNodeId {
-  const raw = isRecord(value) ? value : {}
-  const compositions: SceneCompositionByNodeId = {}
+  const raw = isRecord(value) ? value : {};
+  const compositions: SceneCompositionByNodeId = {};
 
   for (const nodeId of nodeIds) {
     compositions[nodeId] = normalizeSceneComposition(
       isRecord(raw[nodeId]) ? (raw[nodeId] as SceneCompositionState) : undefined,
-    )
+    );
   }
 
-  return compositions
+  return compositions;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

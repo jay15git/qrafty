@@ -1,10 +1,7 @@
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
-import type { SettingsSectionId } from "@/features/shell/inspector/settings-panel-meta"
-import type { QrInputType } from "@/features/qr/content/input-options"
-import type {
-  PatternSettings,
-  PatternSettingsPatch,
-} from "@/features/shell/model/toolbar-types"
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsSectionId } from "@/features/shell/inspector/settings-panel-meta";
+import type { QrInputType } from "@/features/qr/content/input-options";
+import type { PatternSettings, PatternSettingsPatch } from "@/features/shell/model/toolbar-types";
 
 /**
  * State captured when a family opens. The corner cross restores it (discard);
@@ -12,17 +9,17 @@ import type {
  * Only the slices a family can touch are snapshotted.
  */
 export type MobileFamilySnapshot = {
-  contentType: QrInputType
-  contentValues: InspectorModel["actualContentValues"]
-  pattern: PatternSettings
-  logo: InspectorModel["actualLogoSettings"]
-  corners: InspectorModel["actualCornersSettings"]
-  shape: InspectorModel["actualShapeSettings"]
-  motion: InspectorModel["actualMotionSettings"]
-  image: InspectorModel["actualImageSettings"]
-  background: InspectorModel["actualBackgroundSettings"]
-  layers: InspectorModel["actualLayersSettings"]
-}
+  contentType: QrInputType;
+  contentValues: InspectorModel["actualContentValues"];
+  pattern: PatternSettings;
+  logo: InspectorModel["actualLogoSettings"];
+  corners: InspectorModel["actualCornersSettings"];
+  shape: InspectorModel["actualShapeSettings"];
+  motion: InspectorModel["actualMotionSettings"];
+  image: InspectorModel["actualImageSettings"];
+  background: InspectorModel["actualBackgroundSettings"];
+  layers: InspectorModel["actualLayersSettings"];
+};
 
 export function captureFamilySnapshot(model: InspectorModel): MobileFamilySnapshot {
   return {
@@ -36,7 +33,7 @@ export function captureFamilySnapshot(model: InspectorModel): MobileFamilySnapsh
     image: model.actualImageSettings,
     background: model.actualBackgroundSettings,
     layers: model.actualLayersSettings,
-  }
+  };
 }
 
 /**
@@ -54,19 +51,19 @@ function patternRestorePatch(p: PatternSettings): PatternSettingsPatch {
     moduleLineWidth: p.moduleLineWidth,
     gradientLinkMode: p.gradientLinkMode,
     dotsColorMode: p.dotsColorMode,
-  }
+  };
   if (p.dotsColorMode === "solid") {
-    patch.dotsSolidColor = p.dotsSolidColor
+    patch.dotsSolidColor = p.dotsSolidColor;
   } else if (p.dotsColorMode === "gradient") {
-    patch.dataModulesGradient = p.dataModulesGradient
+    patch.dataModulesGradient = p.dataModulesGradient;
   } else if (p.dotsColorMode === "palette") {
-    patch.dotsPalette = [...p.dotsPalette]
-    patch.dotsPalettePreset = p.dotsPalettePreset
+    patch.dotsPalette = [...p.dotsPalette];
+    patch.dotsPalettePreset = p.dotsPalettePreset;
   } else if (p.dotsColorMode === "image") {
-    patch.moduleFillImageUrl = p.moduleFillImageUrl
-    patch.moduleFillImageSourceMode = p.moduleFillImageSourceMode
+    patch.moduleFillImageUrl = p.moduleFillImageUrl;
+    patch.moduleFillImageSourceMode = p.moduleFillImageSourceMode;
   }
-  return patch
+  return patch;
 }
 
 function cornersRestorePatch(
@@ -83,7 +80,7 @@ function cornersRestorePatch(
     ...(c.cornerDotColorMode === "gradient"
       ? { cornerDotGradient: c.cornerDotGradient }
       : { cornerDotSolidColor: c.cornerDotSolidColor }),
-  }
+  };
 }
 
 function logoRestorePatch(
@@ -91,7 +88,7 @@ function logoRestorePatch(
 ): Partial<InspectorModel["actualLogoSettings"]> {
   return l.colorMode === "gradient"
     ? { colorMode: "gradient", gradient: l.gradient }
-    : { colorMode: "solid", solidColor: l.solidColor }
+    : { colorMode: "solid", solidColor: l.solidColor };
 }
 
 /** Shape rail edits: shape id, padding, and the shape's own fill — `cardFill`
@@ -106,7 +103,7 @@ function shapeRestorePatch(
     ...(s.shapeColorMode === "gradient"
       ? { shapeGradient: s.shapeGradient }
       : { shapeSolidColor: s.shapeSolidColor }),
-  }
+  };
 }
 
 /** Replays the snapshotted slices for the discarded family. */
@@ -117,8 +114,8 @@ export function restoreFamilySnapshot(
 ) {
   switch (family) {
     case "Content":
-      model.onContentPasteApply(snapshot.contentType, snapshot.contentValues)
-      break
+      model.onContentPasteApply(snapshot.contentType, snapshot.contentValues);
+      break;
     case "QR":
     case "Color":
       if (model.onUnifiedQrFillSettingsChange) {
@@ -126,19 +123,19 @@ export function restoreFamilySnapshot(
           pattern: patternRestorePatch(snapshot.pattern),
           corners: cornersRestorePatch(snapshot.corners),
           logo: logoRestorePatch(snapshot.logo),
-        })
+        });
       } else {
-        model.onPatternSettingsChange(patternRestorePatch(snapshot.pattern))
-        model.onCornersSettingsChange(cornersRestorePatch(snapshot.corners))
-        model.onLogoSettingsChange(logoRestorePatch(snapshot.logo))
+        model.onPatternSettingsChange(patternRestorePatch(snapshot.pattern));
+        model.onCornersSettingsChange(cornersRestorePatch(snapshot.corners));
+        model.onLogoSettingsChange(logoRestorePatch(snapshot.logo));
       }
-      break
+      break;
     case "Motion":
-      model.onMotionSettingsChange(snapshot.motion)
-      break
+      model.onMotionSettingsChange(snapshot.motion);
+      break;
     case "Shape":
-      model.onShapeSettingsChange(shapeRestorePatch(snapshot.shape))
-      break
+      model.onShapeSettingsChange(shapeRestorePatch(snapshot.shape));
+      break;
     case "Background":
       // Order matters: the image setter forces paper-shader on empty url and
       // the shape setter forces solid on cardFill — the background write goes
@@ -148,12 +145,12 @@ export function restoreFamilySnapshot(
         sourceMode: snapshot.image.sourceMode,
         fit: snapshot.image.fit,
         opacity: snapshot.image.opacity,
-      })
-      model.onShapeSettingsChange({ cardFill: snapshot.shape.cardFill })
-      model.onBackgroundSettingsChange(snapshot.background)
-      break
+      });
+      model.onShapeSettingsChange({ cardFill: snapshot.shape.cardFill });
+      model.onBackgroundSettingsChange(snapshot.background);
+      break;
     case "Elements":
-      model.onLayersSettingsChange(snapshot.layers)
-      break
+      model.onLayersSettingsChange(snapshot.layers);
+      break;
   }
 }

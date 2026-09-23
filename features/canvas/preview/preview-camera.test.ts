@@ -1,19 +1,19 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
 import {
   getPreviewCameraStyle,
   getPreviewStageSize,
   scalePreviewCornerRadiiState,
-} from "@/features/canvas/preview/preview-camera"
-import { getLivePaperShaderRenderOptions } from "@/features/canvas/preview/preview-shader-budget"
+} from "@/features/canvas/preview/preview-camera";
+import { getLivePaperShaderRenderOptions } from "@/features/canvas/preview/preview-shader-budget";
 
 describe("preview camera", () => {
   it("maps document artboard to view-sized stage", () => {
     expect(getPreviewStageSize(1080, 1080, 0.35)).toEqual({
       width: 378,
       height: 378,
-    })
-  })
+    });
+  });
 
   it("keeps document geometry in camera while scaling to view", () => {
     expect(getPreviewCameraStyle(1080, 720, 0.5)).toEqual({
@@ -21,8 +21,8 @@ describe("preview camera", () => {
       height: 720,
       transform: "scale(0.5)",
       transformOrigin: "top left",
-    })
-  })
+    });
+  });
 
   it("scales corner radii for stage clipping", () => {
     expect(
@@ -35,10 +35,9 @@ describe("preview camera", () => {
       topRight: 14,
       bottomLeft: 14,
       bottomRight: 14,
-    })
-  })
-
-})
+    });
+  });
+});
 
 describe("preview shader budget", () => {
   it("uses low-power mobile pixel caps", () => {
@@ -54,6 +53,6 @@ describe("preview shader budget", () => {
       webGlContextAttributes: {
         powerPreference: "low-power",
       },
-    })
-  })
-})
+    });
+  });
+});

@@ -1,7 +1,7 @@
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import * as iconstackApi from "@/features/qr/assets/iconstack-api"
-import { resetIconstackRequestQueue } from "@/features/qr/assets/iconstack-request-queue"
+import * as iconstackApi from "@/features/qr/assets/iconstack-api";
+import { resetIconstackRequestQueue } from "@/features/qr/assets/iconstack-request-queue";
 import {
   clearIconstackSvgCache,
   fetchAndCacheIconstackSvg,
@@ -9,18 +9,18 @@ import {
   getIconstackSelectionCacheKey,
   listCachedIconstackSelectionIds,
   subscribeIconstackSvgCache,
-} from "@/features/qr/assets/iconstack-svg-cache"
+} from "@/features/qr/assets/iconstack-svg-cache";
 
 describe("iconstack-svg-cache", () => {
   afterEach(() => {
-    clearIconstackSvgCache()
-    resetIconstackRequestQueue()
-    vi.restoreAllMocks()
-  })
+    clearIconstackSvgCache();
+    resetIconstackRequestQueue();
+    vi.restoreAllMocks();
+  });
 
   it("builds stable selection cache keys", () => {
-    expect(getIconstackSelectionCacheKey("lucide", "link")).toBe("iconstack:lucide:link")
-  })
+    expect(getIconstackSelectionCacheKey("lucide", "link")).toBe("iconstack:lucide:link");
+  });
 
   it("reuses cached svg markup across fetches", async () => {
     const fetchMock = vi.spyOn(iconstackApi, "fetchIconSvg").mockResolvedValue({
@@ -29,22 +29,22 @@ describe("iconstack-svg-cache", () => {
       library: "lucide",
       svg: '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>',
       url: "https://iconstack.io/icon/lucide/link",
-    })
+    });
 
-    const first = await fetchAndCacheIconstackSvg({ id: "link", library: "lucide" })
-    const second = await fetchAndCacheIconstackSvg({ id: "link", library: "lucide" })
+    const first = await fetchAndCacheIconstackSvg({ id: "link", library: "lucide" });
+    const second = await fetchAndCacheIconstackSvg({ id: "link", library: "lucide" });
 
-    expect(first).toContain("<svg")
-    expect(second).toBe(first)
-    expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(getCachedIconstackSvg("iconstack:lucide:link")).toBe(first)
-  })
+    expect(first).toContain("<svg");
+    expect(second).toBe(first);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(getCachedIconstackSvg("iconstack:lucide:link")).toBe(first);
+  });
 
   it("lists cached selection ids and notifies subscribers", async () => {
-    const listener = vi.fn()
-    const unsubscribe = subscribeIconstackSvgCache(listener)
+    const listener = vi.fn();
+    const unsubscribe = subscribeIconstackSvgCache(listener);
 
-    expect(listCachedIconstackSelectionIds()).toEqual([])
+    expect(listCachedIconstackSelectionIds()).toEqual([]);
 
     vi.spyOn(iconstackApi, "fetchIconSvg").mockResolvedValue({
       fullId: "lucide-link",
@@ -52,14 +52,14 @@ describe("iconstack-svg-cache", () => {
       library: "lucide",
       svg: '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>',
       url: "https://iconstack.io/icon/lucide/link",
-    })
+    });
 
-    await fetchAndCacheIconstackSvg({ id: "link", library: "lucide" })
+    await fetchAndCacheIconstackSvg({ id: "link", library: "lucide" });
 
-    expect(listCachedIconstackSelectionIds()).toEqual(["iconstack:lucide:link"])
-    expect(listener).toHaveBeenCalledTimes(1)
+    expect(listCachedIconstackSelectionIds()).toEqual(["iconstack:lucide:link"]);
+    expect(listener).toHaveBeenCalledTimes(1);
 
-    unsubscribe()
-    expect(listener).toHaveBeenCalledTimes(1)
-  })
-})
+    unsubscribe();
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+});

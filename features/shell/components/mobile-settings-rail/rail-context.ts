@@ -1,39 +1,34 @@
-import {
-  createContext,
-  useEffect,
-  useRef,
-  type ReactNode,
-} from "react"
+import { createContext, useEffect, useRef, type ReactNode } from "react";
 
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
-import type { QrStylePartId } from "@/features/shell/inspector/qr-style-parts"
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { QrStylePartId } from "@/features/shell/inspector/qr-style-parts";
 
 export type MobileRailOption = {
-  id: string
-  label: string
-  icon?: ReactNode
+  id: string;
+  label: string;
+  icon?: ReactNode;
   /** Circle + label (default) or a plain text pill. */
-  shape?: "circle" | "pill"
+  shape?: "circle" | "pill";
   /** Style part this option drills into, swapping the row for its catalogue. */
-  drillsTo?: QrStylePartId
-}
+  drillsTo?: QrStylePartId;
+};
 
 export type MobileRailRowProps = {
-  model: InspectorModel
+  model: InspectorModel;
   /** Opens the family drawer on this family's section (long-tail controls). */
-  openDrawer: () => void
-}
+  openDrawer: () => void;
+};
 
 /**
  * Detail callbacks run after the row re-rendered, so they must read the latest
  * model — the ReactNode handed to `openDetail` captures props at open time.
  */
 export function useLatestModel(model: InspectorModel) {
-  const ref = useRef(model)
+  const ref = useRef(model);
   useEffect(() => {
-    ref.current = model
-  })
-  return ref
+    ref.current = model;
+  });
+  return ref;
 }
 
 /**
@@ -44,11 +39,11 @@ export function useLatestModel(model: InspectorModel) {
 export const MobileRailModeContext = createContext<{
   /** Mode the option row is currently displaying (lags during the fade-out
       beat so exiting content never swaps in place). */
-  mode: string | undefined
+  mode: string | undefined;
   /** Mode the user picked — the footer pills highlight it immediately. */
-  selectedMode: string | undefined
-  setMode: (mode: string) => void
-} | null>(null)
+  selectedMode: string | undefined;
+  setMode: (mode: string) => void;
+} | null>(null);
 
 /**
  * Selected QR style part shared between the Style family's row (catalogue
@@ -56,7 +51,7 @@ export const MobileRailModeContext = createContext<{
  * `part` lags like `mode`; `selectedPart` is what the tabs highlight.
  */
 export const MobileRailPartContext = createContext<{
-  part: QrStylePartId
-  selectedPart: QrStylePartId
-  selectPart: (part: QrStylePartId) => void
-} | null>(null)
+  part: QrStylePartId;
+  selectedPart: QrStylePartId;
+  selectPart: (part: QrStylePartId) => void;
+} | null>(null);

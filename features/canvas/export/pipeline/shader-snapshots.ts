@@ -1,31 +1,31 @@
-import { shaderRequiresImage } from "@qrafty/qr/shaders"
+import { shaderRequiresImage } from "@qrafty/qr/shaders";
 
-import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
+import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
   resolveShaderExportFrameMs,
   type ExportClockMode,
-} from "@/features/canvas/export/pipeline/clock"
-import { ShaderFrameRenderer } from "@/features/canvas/export/pipeline/shader-frames"
+} from "@/features/canvas/export/pipeline/clock";
+import { ShaderFrameRenderer } from "@/features/canvas/export/pipeline/shader-frames";
 
 type ShaderCaptureTarget = {
-  imageValue?: string
-  key: string
-  layoutHeight: number
-  layoutWidth: number
-  shader: DraftingCardState["paperShader"]
-}
+  imageValue?: string;
+  key: string;
+  layoutHeight: number;
+  layoutWidth: number;
+  shader: DraftingCardState["paperShader"];
+};
 
 function resolveCardShaderState(cardState: DraftingCardState) {
   if (cardState.styleMode === "paper-shader") {
-    return cardState.paperShader
+    return cardState.paperShader;
   }
 
   if (cardState.styleMode === "image-filter") {
-    return cardState.imageFilter
+    return cardState.imageFilter;
   }
 
-  return null
+  return null;
 }
 
 function collectShaderCaptureTargets({
@@ -33,12 +33,12 @@ function collectShaderCaptureTargets({
   cardState,
   layers,
 }: {
-  cardLayer: DraftingCanvasLayer | null
-  cardState: DraftingCardState
-  layers: DraftingCanvasLayer[]
+  cardLayer: DraftingCanvasLayer | null;
+  cardState: DraftingCardState;
+  layers: DraftingCanvasLayer[];
 }) {
-  const targets: ShaderCaptureTarget[] = []
-  const cardShader = resolveCardShaderState(cardState)
+  const targets: ShaderCaptureTarget[] = [];
+  const cardShader = resolveCardShaderState(cardState);
 
   if (cardShader && cardLayer) {
     targets.push({
@@ -50,12 +50,12 @@ function collectShaderCaptureTargets({
       layoutHeight: cardLayer.height,
       layoutWidth: cardLayer.width,
       shader: cardShader,
-    })
+    });
   }
 
   for (const layer of layers) {
     if (layer.kind !== "shader" || !layer.isVisible || !layer.paperShader) {
-      continue
+      continue;
     }
 
     targets.push({
@@ -67,10 +67,10 @@ function collectShaderCaptureTargets({
       layoutHeight: layer.height,
       layoutWidth: layer.width,
       shader: layer.paperShader,
-    })
+    });
   }
 
-  return targets
+  return targets;
 }
 
 async function captureShaderTarget(
@@ -79,9 +79,9 @@ async function captureShaderTarget(
   videoTimeMs: number,
   renderer?: ShaderFrameRenderer,
 ) {
-  const ownsRenderer = !renderer
-  const activeRenderer = renderer ?? new ShaderFrameRenderer()
-  const frameMs = resolveShaderExportFrameMs(target.shader, mode, videoTimeMs)
+  const ownsRenderer = !renderer;
+  const activeRenderer = renderer ?? new ShaderFrameRenderer();
+  const frameMs = resolveShaderExportFrameMs(target.shader, mode, videoTimeMs);
 
   try {
     if (ownsRenderer) {
@@ -91,23 +91,23 @@ async function captureShaderTarget(
         layoutHeight: target.layoutHeight,
         layoutWidth: target.layoutWidth,
         shader: target.shader,
-      })
+      });
     }
 
-    await activeRenderer.setFrameMs(frameMs)
-    return activeRenderer.captureDataUrl()
+    await activeRenderer.setFrameMs(frameMs);
+    return activeRenderer.captureDataUrl();
   } finally {
     if (ownsRenderer) {
-      activeRenderer.dispose()
+      activeRenderer.dispose();
     }
   }
 }
 
 /** Reuse offscreen shader mounts across video frames — no per-frame remount. */
 export class WorkspaceShaderCaptureSession {
-  private targets: ShaderCaptureTarget[] = []
-  private renderers = new Map<string, ShaderFrameRenderer>()
-  private cardLayerId: string | null = null
+  private targets: ShaderCaptureTarget[] = [];
+  private renderers = new Map<string, ShaderFrameRenderer>();
+  private cardLayerId: string | null = null;
 
   async mount({
     cardLayer,
@@ -116,20 +116,20 @@ export class WorkspaceShaderCaptureSession {
     mode,
     videoTimeMs = 0,
   }: {
-    cardLayer: DraftingCanvasLayer | null
-    cardState: DraftingCardState
-    layers: DraftingCanvasLayer[]
-    mode: ExportClockMode
-    videoTimeMs?: number
+    cardLayer: DraftingCanvasLayer | null;
+    cardState: DraftingCardState;
+    layers: DraftingCanvasLayer[];
+    mode: ExportClockMode;
+    videoTimeMs?: number;
   }) {
-    this.dispose()
-    this.cardLayerId = cardLayer?.id ?? null
-    this.targets = collectShaderCaptureTargets({ cardLayer, cardState, layers })
+    this.dispose();
+    this.cardLayerId = cardLayer?.id ?? null;
+    this.targets = collectShaderCaptureTargets({ cardLayer, cardState, layers });
 
     await Promise.all(
       this.targets.map(async (target) => {
-        const renderer = new ShaderFrameRenderer()
-        const frameMs = resolveShaderExportFrameMs(target.shader, mode, videoTimeMs)
+        const renderer = new ShaderFrameRenderer();
+        const frameMs = resolveShaderExportFrameMs(target.shader, mode, videoTimeMs);
 
         await renderer.mount({
           frameMs,
@@ -137,49 +137,49 @@ export class WorkspaceShaderCaptureSession {
           layoutHeight: target.layoutHeight,
           layoutWidth: target.layoutWidth,
           shader: target.shader,
-        })
+        });
 
-        this.renderers.set(target.key, renderer)
+        this.renderers.set(target.key, renderer);
       }),
-    )
+    );
   }
 
   async capture(mode: ExportClockMode, videoTimeMs = 0) {
     const captures: Record<string, string | undefined> = Object.fromEntries(
       await Promise.all(
         this.targets.map(async (target) => {
-          const renderer = this.renderers.get(target.key)
+          const renderer = this.renderers.get(target.key);
           if (!renderer) {
-            return [target.key, undefined] as const
+            return [target.key, undefined] as const;
           }
 
-          const frameMs = resolveShaderExportFrameMs(target.shader, mode, videoTimeMs)
-          await renderer.setFrameMs(frameMs)
-          return [target.key, await renderer.captureDataUrl()] as const
+          const frameMs = resolveShaderExportFrameMs(target.shader, mode, videoTimeMs);
+          await renderer.setFrameMs(frameMs);
+          return [target.key, await renderer.captureDataUrl()] as const;
         }),
       ),
-    )
+    );
 
-    const snapshots: Record<string, string> = {}
+    const snapshots: Record<string, string> = {};
 
     for (const target of this.targets) {
-      const snapshot = captures[target.key]
+      const snapshot = captures[target.key];
       if (snapshot === undefined) {
-        continue
+        continue;
       }
 
-      snapshots[target.key] = snapshot
+      snapshots[target.key] = snapshot;
 
       if (target.shader.shaderId) {
-        snapshots[target.shader.shaderId] = snapshot
+        snapshots[target.shader.shaderId] = snapshot;
       }
     }
 
     if (this.cardLayerId && snapshots[this.cardLayerId]) {
-      snapshots.card = snapshots[this.cardLayerId]
+      snapshots.card = snapshots[this.cardLayerId];
     }
 
-    return snapshots
+    return snapshots;
   }
 
   // fallow-ignore-next-line unused-class-member
@@ -187,47 +187,47 @@ export class WorkspaceShaderCaptureSession {
     const captures: Record<string, ImageBitmap | undefined> = Object.fromEntries(
       await Promise.all(
         this.targets.map(async (target) => {
-          const renderer = this.renderers.get(target.key)
+          const renderer = this.renderers.get(target.key);
           if (!renderer) {
-            return [target.key, undefined] as const
+            return [target.key, undefined] as const;
           }
 
-          const frameMs = resolveShaderExportFrameMs(target.shader, mode, videoTimeMs)
-          await renderer.setFrameMs(frameMs)
-          return [target.key, await renderer.captureBitmap()] as const
+          const frameMs = resolveShaderExportFrameMs(target.shader, mode, videoTimeMs);
+          await renderer.setFrameMs(frameMs);
+          return [target.key, await renderer.captureBitmap()] as const;
         }),
       ),
-    )
+    );
 
-    const bitmaps: Record<string, ImageBitmap> = {}
+    const bitmaps: Record<string, ImageBitmap> = {};
 
     for (const target of this.targets) {
-      const bitmap = captures[target.key]
+      const bitmap = captures[target.key];
       if (!bitmap) {
-        continue
+        continue;
       }
 
-      bitmaps[target.key] = bitmap
+      bitmaps[target.key] = bitmap;
 
       if (target.shader.shaderId) {
-        bitmaps[target.shader.shaderId] = bitmap
+        bitmaps[target.shader.shaderId] = bitmap;
       }
     }
 
     if (this.cardLayerId && bitmaps[this.cardLayerId]) {
-      bitmaps.card = bitmaps[this.cardLayerId]
+      bitmaps.card = bitmaps[this.cardLayerId];
     }
 
-    return bitmaps
+    return bitmaps;
   }
 
   dispose() {
     for (const renderer of this.renderers.values()) {
-      renderer.dispose()
+      renderer.dispose();
     }
-    this.renderers.clear()
-    this.targets = []
-    this.cardLayerId = null
+    this.renderers.clear();
+    this.targets = [];
+    this.cardLayerId = null;
   }
 }
 
@@ -239,34 +239,34 @@ export async function captureWorkspaceShaderSnapshots({
   session,
   videoTimeMs = 0,
 }: {
-  cardLayer: DraftingCanvasLayer | null
-  cardState: DraftingCardState
-  layers: DraftingCanvasLayer[]
-  mode: ExportClockMode
-  session?: WorkspaceShaderCaptureSession
-  videoTimeMs?: number
+  cardLayer: DraftingCanvasLayer | null;
+  cardState: DraftingCardState;
+  layers: DraftingCanvasLayer[];
+  mode: ExportClockMode;
+  session?: WorkspaceShaderCaptureSession;
+  videoTimeMs?: number;
 }) {
   if (session) {
-    return session.capture(mode, videoTimeMs)
+    return session.capture(mode, videoTimeMs);
   }
 
-  const snapshots: Record<string, string> = {}
-  const targets = collectShaderCaptureTargets({ cardLayer, cardState, layers })
+  const snapshots: Record<string, string> = {};
+  const targets = collectShaderCaptureTargets({ cardLayer, cardState, layers });
   const captured = await Promise.all(
     targets.map((target) => captureShaderTarget(target, mode, videoTimeMs)),
-  )
+  );
 
   for (const [index, target] of targets.entries()) {
-    snapshots[target.key] = captured[index]
+    snapshots[target.key] = captured[index];
 
     if (target.shader.shaderId) {
-      snapshots[target.shader.shaderId] = snapshots[target.key]
+      snapshots[target.shader.shaderId] = snapshots[target.key];
     }
   }
 
   if (cardLayer && snapshots[cardLayer.id]) {
-    snapshots.card = snapshots[cardLayer.id]
+    snapshots.card = snapshots[cardLayer.id];
   }
 
-  return snapshots
+  return snapshots;
 }

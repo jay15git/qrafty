@@ -1,11 +1,11 @@
-import { QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS } from "@/features/qr/model/state"
+import { QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS } from "@/features/qr/model/state";
 
-import type { MobileRailRowProps } from "../rail-context"
-import { MobileRailPill } from "../tiles"
+import type { MobileRailRowProps } from "../rail-context";
+import { MobileRailPill } from "../tiles";
 
 export function MobileMotionRailRow({ model, openDrawer }: MobileRailRowProps) {
-  const { actualMotionSettings, onMotionSettingsChange } = model
-  const enabled = actualMotionSettings.enabled
+  const { actualMotionSettings, onMotionSettingsChange } = model;
+  const enabled = actualMotionSettings.enabled;
 
   return (
     <>
@@ -31,5 +31,5 @@ export function MobileMotionRailRow({ model, openDrawer }: MobileRailRowProps) {
       ))}
       <MobileRailPill label="More" onClick={openDrawer} />
     </>
-  )
+  );
 }

@@ -1,29 +1,21 @@
-"use client"
+"use client";
 
-import type { ReactNode } from "react"
-import { Slot as SlotPrimitive } from "radix-ui"
-import { Drawer } from "vaul"
+import type { ReactNode } from "react";
+import { Slot as SlotPrimitive } from "radix-ui";
+import { Drawer } from "vaul";
 
-import { cn } from "@/lib/utils"
-import { useFamilyDrawer } from "./context"
+import { cn } from "@/lib/utils";
+import { useFamilyDrawer } from "./context";
 
 interface FamilyDrawerTriggerProps {
-  children: ReactNode
-  asChild?: boolean
-  className?: string
+  children: ReactNode;
+  asChild?: boolean;
+  className?: string;
 }
 
-function FamilyDrawerTrigger({
-  children,
-  asChild = false,
-  className,
-}: FamilyDrawerTriggerProps) {
+function FamilyDrawerTrigger({ children, asChild = false, className }: FamilyDrawerTriggerProps) {
   if (asChild) {
-    return (
-      <Drawer.Trigger asChild>
-        {children}
-      </Drawer.Trigger>
-    )
+    return <Drawer.Trigger asChild>{children}</Drawer.Trigger>;
   }
 
   return (
@@ -38,40 +30,36 @@ function FamilyDrawerTrigger({
         {children}
       </button>
     </Drawer.Trigger>
-  )
+  );
 }
 
 export function FamilyDrawerPortal({ children }: { children: ReactNode }) {
-  return <Drawer.Portal>{children}</Drawer.Portal>
+  return <Drawer.Portal>{children}</Drawer.Portal>;
 }
 
 interface FamilyDrawerOverlayProps {
-  className?: string
-  onClick?: () => void
+  className?: string;
+  onClick?: () => void;
 }
 
 function FamilyDrawerOverlay({ className, onClick }: FamilyDrawerOverlayProps) {
-  const { setView } = useFamilyDrawer()
+  const { setView } = useFamilyDrawer();
 
   return (
     <Drawer.Overlay
       className={cn("fixed inset-0 z-10 bg-black/30", className)}
       onClick={onClick || (() => setView("default"))}
     />
-  )
+  );
 }
 
 interface FamilyDrawerCloseProps {
-  children?: ReactNode
-  asChild?: boolean
-  className?: string
+  children?: ReactNode;
+  asChild?: boolean;
+  className?: string;
 }
 
-function FamilyDrawerClose({
-  children,
-  asChild = false,
-  className,
-}: FamilyDrawerCloseProps) {
+function FamilyDrawerClose({ children, asChild = false, className }: FamilyDrawerCloseProps) {
   const defaultClose = (
     <button
       data-vaul-no-drag=""
@@ -83,48 +71,37 @@ function FamilyDrawerClose({
     >
       {children || <CloseIcon />}
     </button>
-  )
+  );
 
   if (asChild) {
-    return (
-      <Drawer.Close asChild>
-        {defaultClose}
-      </Drawer.Close>
-    )
+    return <Drawer.Close asChild>{defaultClose}</Drawer.Close>;
   }
 
-  return <Drawer.Close asChild>{defaultClose}</Drawer.Close>
+  return <Drawer.Close asChild>{defaultClose}</Drawer.Close>;
 }
 
 interface FamilyDrawerHeaderProps {
-  icon?: ReactNode
-  title: string
-  description?: string
-  className?: string
+  icon?: ReactNode;
+  title: string;
+  description?: string;
+  className?: string;
 }
 
-function FamilyDrawerHeader({
-  icon,
-  title,
-  description,
-  className,
-}: FamilyDrawerHeaderProps) {
+function FamilyDrawerHeader({ icon, title, description, className }: FamilyDrawerHeaderProps) {
   return (
     <div className={cn("mb-4 flex flex-col gap-1", className)}>
       {icon ? <div className="mb-1">{icon}</div> : null}
       <h2 className="text-[19px] font-semibold text-foreground">{title}</h2>
-      {description ? (
-        <p className="text-sm text-muted-foreground">{description}</p>
-      ) : null}
+      {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
     </div>
-  )
+  );
 }
 
 interface FamilyDrawerButtonProps {
-  children: ReactNode
-  onClick: () => void
-  className?: string
-  asChild?: boolean
+  children: ReactNode;
+  onClick: () => void;
+  className?: string;
+  asChild?: boolean;
 }
 
 function FamilyDrawerButton({
@@ -145,20 +122,20 @@ function FamilyDrawerButton({
     >
       {children}
     </button>
-  )
+  );
 
   if (asChild) {
-    return <SlotPrimitive.Slot>{button}</SlotPrimitive.Slot>
+    return <SlotPrimitive.Slot>{button}</SlotPrimitive.Slot>;
   }
 
-  return button
+  return button;
 }
 
 interface FamilyDrawerSecondaryButtonProps {
-  children: ReactNode
-  onClick: () => void
-  className?: string
-  asChild?: boolean
+  children: ReactNode;
+  onClick: () => void;
+  className?: string;
+  asChild?: boolean;
 }
 
 function FamilyDrawerSecondaryButton({
@@ -179,13 +156,13 @@ function FamilyDrawerSecondaryButton({
     >
       {children}
     </button>
-  )
+  );
 
   if (asChild) {
-    return <SlotPrimitive.Slot>{button}</SlotPrimitive.Slot>
+    return <SlotPrimitive.Slot>{button}</SlotPrimitive.Slot>;
   }
 
-  return button
+  return button;
 }
 
 function CloseIcon() {
@@ -213,5 +190,5 @@ function CloseIcon() {
         strokeLinejoin="round"
       />
     </svg>
-  )
+  );
 }

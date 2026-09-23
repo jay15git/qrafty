@@ -24,8 +24,7 @@ export function useResolvedColor(
   const initialHue = coerce(defaultValue, BLACK).h || 0;
   const [lastGoodHue, setLastGoodHue] = React.useState<number>(initialHue);
 
-  const isControlledStringInput =
-    isControlledColor && typeof controlledValue === "string";
+  const isControlledStringInput = isControlledColor && typeof controlledValue === "string";
   const controlledParsed = isControlledStringInput
     ? parseColorDetailed(controlledValue as string)
     : null;
@@ -34,13 +33,8 @@ export function useResolvedColor(
     : isControlledColor
       ? coerce(controlledValue, BLACK)
       : internalColor;
-  const controlledHueAuthored = controlledParsed
-    ? !controlledParsed.hueMissing
-    : false;
-  if (
-    (!isAchromatic(rawColor) || controlledHueAuthored) &&
-    rawColor.h !== lastGoodHue
-  ) {
+  const controlledHueAuthored = controlledParsed ? !controlledParsed.hueMissing : false;
+  if ((!isAchromatic(rawColor) || controlledHueAuthored) && rawColor.h !== lastGoodHue) {
     // Hue memory must update synchronously during render for controlled string
     // inputs, so it is state adjusted during render (the documented prev-prop
     // pattern) rather than a ref — a ref write during render is unsafe under

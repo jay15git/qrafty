@@ -1,14 +1,14 @@
-import type { StylePreviewKind } from "@/features/qr/components/StylePreview"
+import type { StylePreviewKind } from "@/features/qr/components/StylePreview";
 import {
   CORNER_DOT_STYLE_OPTIONS,
   CORNER_SQUARE_STYLE_OPTIONS,
   DOT_STYLE_OPTIONS,
-} from "@/features/qr/styles/style-options"
+} from "@/features/qr/styles/style-options";
 
 export type QrStyleOptionPreviewEntry = {
-  previewKind: StylePreviewKind
-  value: string
-}
+  previewKind: StylePreviewKind;
+  value: string;
+};
 
 export const QR_STYLE_OPTION_PREVIEW_ENTRIES: QrStyleOptionPreviewEntry[] = [
   ...DOT_STYLE_OPTIONS.map((option) => ({
@@ -23,20 +23,14 @@ export const QR_STYLE_OPTION_PREVIEW_ENTRIES: QrStyleOptionPreviewEntry[] = [
     previewKind: "corner-square" as const,
     value: option.value,
   })),
-]
+];
 
-export function getQrStyleOptionPreviewFileName(
-  previewKind: StylePreviewKind,
-  value: string,
-) {
-  return `${previewKind}-${value}.svg`
+export function getQrStyleOptionPreviewFileName(previewKind: StylePreviewKind, value: string) {
+  return `${previewKind}-${value}.svg`;
 }
 
-const QR_STYLE_OPTION_PREVIEW_PATH = "/qr-style-previews"
+const QR_STYLE_OPTION_PREVIEW_PATH = "/qr-style-previews";
 
-export function getQrStyleOptionPreviewUrl(
-  previewKind: StylePreviewKind,
-  value: string,
-) {
-  return `${QR_STYLE_OPTION_PREVIEW_PATH}/${encodeURIComponent(getQrStyleOptionPreviewFileName(previewKind, value))}`
+export function getQrStyleOptionPreviewUrl(previewKind: StylePreviewKind, value: string) {
+  return `${QR_STYLE_OPTION_PREVIEW_PATH}/${encodeURIComponent(getQrStyleOptionPreviewFileName(previewKind, value))}`;
 }

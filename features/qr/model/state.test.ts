@@ -53,22 +53,22 @@ describe("QRafty state helpers", () => {
   });
 
   it("passes boostLevel, moduleSize, lineWidth, logo opacity, and aria-label to ReactQRCode", () => {
-    const state = createDefaultQraftyState()
-    state.qrOptions.boostLevel = false
-    state.dataModulesSettings.moduleSize = 0.85
-    state.dataModulesSettings.lineWidth = 0.5
-    state.ariaLabel = "Event ticket"
-    state.imageOptions.opacity = 0.6
-    state.logo = { source: "url", value: "https://example.com/logo.png" }
+    const state = createDefaultQraftyState();
+    state.qrOptions.boostLevel = false;
+    state.dataModulesSettings.moduleSize = 0.85;
+    state.dataModulesSettings.lineWidth = 0.5;
+    state.ariaLabel = "Event ticket";
+    state.imageOptions.opacity = 0.6;
+    state.logo = { source: "url", value: "https://example.com/logo.png" };
 
-    const props = toReactQrCodeProps(state)
+    const props = toReactQrCodeProps(state);
 
-    expect(props.boostLevel).toBe(false)
-    expect(props.dataModulesSettings?.size).toBe(0.85)
-    expect(props.dataModulesSettings?.lineWidth).toBe(0.5)
-    expect(props.svgProps?.["aria-label"]).toBe("Event ticket")
-    expect(props.imageSettings?.opacity).toBe(0.6)
-  })
+    expect(props.boostLevel).toBe(false);
+    expect(props.dataModulesSettings?.size).toBe(0.85);
+    expect(props.dataModulesSettings?.lineWidth).toBe(0.5);
+    expect(props.svgProps?.["aria-label"]).toBe("Event ticket");
+    expect(props.imageSettings?.opacity).toBe(0.6);
+  });
 
   it("builds ReactQRCode props from the default state", () => {
     const state = createDefaultQraftyState();
@@ -98,9 +98,7 @@ describe("QRafty state helpers", () => {
 
     const props = toReactQrCodeProps(state);
 
-    expect(props.svgProps?.style).toEqual(
-      expect.objectContaining({ borderRadius: "42%" }),
-    );
+    expect(props.svgProps?.style).toEqual(expect.objectContaining({ borderRadius: "42%" }));
   });
 
   it("clamps qr background radius to the upstream round range", () => {
@@ -165,16 +163,36 @@ describe("QRafty state helpers", () => {
   it("normalizes unknown dot matrix loader values", () => {
     const state = createDefaultQraftyState();
 
-    expect(setDotMatrixAnimationOptions(state, { loader: "vortex-rotate" }).dotMatrixAnimation.loader).toBe("neon-drift");
-    expect(setDotMatrixAnimationOptions(state, { loader: "vortex" }).dotMatrixAnimation.loader).toBe("neon-drift");
-    expect(setDotMatrixAnimationOptions(state, { loader: "honey-gate" }).dotMatrixAnimation.loader).toBe("neon-drift");
-    expect(setDotMatrixAnimationOptions(state, { loader: "echo-ring" }).dotMatrixAnimation.loader).toBe("radial-expand");
-    expect(setDotMatrixAnimationOptions(state, { loader: "origin-wave" }).dotMatrixAnimation.loader).toBe("radial-expand");
-    expect(setDotMatrixAnimationOptions(state, { loader: "cross-bloom" }).dotMatrixAnimation.loader).toBe("radial-expand");
-    expect(setDotMatrixAnimationOptions(state, { loader: "fan-rotate" }).dotMatrixAnimation.loader).toBe("neon-drift");
-    expect(setDotMatrixAnimationOptions(state, { loader: "tunnel" }).dotMatrixAnimation.loader).toBe("neon-drift");
-    expect(setDotMatrixAnimationOptions(state, { loader: "wave" }).dotMatrixAnimation.loader).toBe("neon-drift");
-    expect(setDotMatrixAnimationOptions(state, { loader: "scan" }).dotMatrixAnimation.loader).toBe("neon-drift");
+    expect(
+      setDotMatrixAnimationOptions(state, { loader: "vortex-rotate" }).dotMatrixAnimation.loader,
+    ).toBe("neon-drift");
+    expect(
+      setDotMatrixAnimationOptions(state, { loader: "vortex" }).dotMatrixAnimation.loader,
+    ).toBe("neon-drift");
+    expect(
+      setDotMatrixAnimationOptions(state, { loader: "honey-gate" }).dotMatrixAnimation.loader,
+    ).toBe("neon-drift");
+    expect(
+      setDotMatrixAnimationOptions(state, { loader: "echo-ring" }).dotMatrixAnimation.loader,
+    ).toBe("radial-expand");
+    expect(
+      setDotMatrixAnimationOptions(state, { loader: "origin-wave" }).dotMatrixAnimation.loader,
+    ).toBe("radial-expand");
+    expect(
+      setDotMatrixAnimationOptions(state, { loader: "cross-bloom" }).dotMatrixAnimation.loader,
+    ).toBe("radial-expand");
+    expect(
+      setDotMatrixAnimationOptions(state, { loader: "fan-rotate" }).dotMatrixAnimation.loader,
+    ).toBe("neon-drift");
+    expect(
+      setDotMatrixAnimationOptions(state, { loader: "tunnel" }).dotMatrixAnimation.loader,
+    ).toBe("neon-drift");
+    expect(setDotMatrixAnimationOptions(state, { loader: "wave" }).dotMatrixAnimation.loader).toBe(
+      "neon-drift",
+    );
+    expect(setDotMatrixAnimationOptions(state, { loader: "scan" }).dotMatrixAnimation.loader).toBe(
+      "neon-drift",
+    );
   });
 
   it("clamps dot matrix animation updates to supported ranges", () => {
@@ -239,23 +257,19 @@ describe("QRafty state helpers", () => {
       speed: 10,
     });
     expect(highAnimation.dotMatrixAnimation.paperShader.shaderId).toBe("mesh-gradient");
-    expect(clampDotMatrixAnimationOpacity(Number.NaN, DEFAULT_DOT_MATRIX_ANIMATION.opacityMid)).toBe(
-      DEFAULT_DOT_MATRIX_ANIMATION.opacityMid,
-    );
+    expect(
+      clampDotMatrixAnimationOpacity(Number.NaN, DEFAULT_DOT_MATRIX_ANIMATION.opacityMid),
+    ).toBe(DEFAULT_DOT_MATRIX_ANIMATION.opacityMid);
     expect(clampDotMatrixAnimationOverlayScale(Number.NaN)).toBe(
       DEFAULT_DOT_MATRIX_ANIMATION.overlayScale,
     );
-    expect(clampDotMatrixAnimationSpeed(Number.NaN)).toBe(
-      DEFAULT_DOT_MATRIX_ANIMATION.speed,
-    );
+    expect(clampDotMatrixAnimationSpeed(Number.NaN)).toBe(DEFAULT_DOT_MATRIX_ANIMATION.speed);
   });
 
   it("maps dot matrix speed to a perceptual 0-100 slider and back", () => {
     expect(dotMatrixAnimationSpeedToSliderPercent(1)).toBe(0);
     expect(dotMatrixAnimationSpeedToSliderPercent(10)).toBe(100);
-    expect(dotMatrixAnimationSpeedToSliderPercent(DEFAULT_DOT_MATRIX_ANIMATION.speed)).toBe(
-      48,
-    );
+    expect(dotMatrixAnimationSpeedToSliderPercent(DEFAULT_DOT_MATRIX_ANIMATION.speed)).toBe(48);
 
     expect(sliderPercentToDotMatrixAnimationSpeed(0)).toBe(1);
     expect(sliderPercentToDotMatrixAnimationSpeed(100)).toBe(10);
@@ -382,8 +396,14 @@ describe("QRafty state helpers", () => {
 
   it("clamps raster export quality updates to the supported range", () => {
     const state = createDefaultQraftyState();
-    const lowQuality = { ...state, rasterExportQualityPercent: clampRasterExportQualityPercent(10) };
-    const highQuality = { ...state, rasterExportQualityPercent: clampRasterExportQualityPercent(240) };
+    const lowQuality = {
+      ...state,
+      rasterExportQualityPercent: clampRasterExportQualityPercent(10),
+    };
+    const highQuality = {
+      ...state,
+      rasterExportQualityPercent: clampRasterExportQualityPercent(240),
+    };
 
     expect(lowQuality.rasterExportQualityPercent).toBe(25);
     expect(highQuality.rasterExportQualityPercent).toBe(100);
@@ -417,12 +437,7 @@ describe("QRafty state helpers", () => {
   it("uses the reference swatch colors as the default body palette", () => {
     const state = createDefaultQraftyState();
 
-    expect(state.dotsPalette).toEqual([
-      "#04879c",
-      "#0c3c78",
-      "#090030",
-      "#f30a49",
-    ]);
+    expect(state.dotsPalette).toEqual(["#04879c", "#0c3c78", "#090030", "#f30a49"]);
   });
 
   it("keeps solid colors when gradients are disabled", () => {

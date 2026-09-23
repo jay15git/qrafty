@@ -1,25 +1,21 @@
-import {
-  createDefaultDraftingCardPaperShader,
-} from "@/features/canvas/model/card-state"
-import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-definitions"
-import { createFallbackLayer } from "@/features/canvas/model/layers/fallback"
-import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
-import { normalizeElementShapeId } from "@/features/canvas/model/layers/shape"
+import { createDefaultDraftingCardPaperShader } from "@/features/canvas/model/card-state";
+import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-definitions";
+import { createFallbackLayer } from "@/features/canvas/model/layers/fallback";
+import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch";
+import { normalizeElementShapeId } from "@/features/canvas/model/layers/shape";
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   type DraftingCanvasLayer,
   type DraftingElementShapeId,
-} from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/layers/shared";
 
 export function createDraftingTextLayer(
   nodeId: string,
   options: Partial<DraftingCanvasLayer> = {},
 ): DraftingCanvasLayer {
-  const layer = createFallbackLayer(nodeId, "text")
+  const layer = createFallbackLayer(nodeId, "text");
   const fontOptions =
-    typeof options.fontFamily === "string" && !("fontId" in options)
-      ? { fontId: undefined }
-      : null
+    typeof options.fontFamily === "string" && !("fontId" in options) ? { fontId: undefined } : null;
 
   return patchDraftingCanvasLayer(
     {
@@ -29,7 +25,7 @@ export function createDraftingTextLayer(
       kind: "text",
     },
     {},
-  )
+  );
 }
 
 export function createDraftingImageLayer(
@@ -43,7 +39,7 @@ export function createDraftingImageLayer(
       kind: "image",
     },
     {},
-  )
+  );
 }
 
 export function createDraftingShaderLayer(
@@ -59,7 +55,7 @@ export function createDraftingShaderLayer(
       paperShader: createDefaultDraftingCardPaperShader(shaderId),
     },
     {},
-  )
+  );
 }
 
 export function createDraftingShapeLayer(
@@ -70,9 +66,8 @@ export function createDraftingShapeLayer(
   const resolvedShapeId =
     typeof shapeId === "string"
       ? normalizeElementShapeId(shapeId, DEFAULT_DRAFTING_SHAPE_LAYER.shapeId)
-      : DEFAULT_DRAFTING_SHAPE_LAYER.shapeId
-  const isStrokePrimitive =
-    resolvedShapeId === "line" || resolvedShapeId === "arrow"
+      : DEFAULT_DRAFTING_SHAPE_LAYER.shapeId;
+  const isStrokePrimitive = resolvedShapeId === "line" || resolvedShapeId === "arrow";
 
   return patchDraftingCanvasLayer(
     {
@@ -89,5 +84,5 @@ export function createDraftingShapeLayer(
         : null),
     },
     {},
-  )
+  );
 }

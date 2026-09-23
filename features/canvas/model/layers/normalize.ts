@@ -1,8 +1,8 @@
-import { createFallbackLayer } from "@/features/canvas/model/layers/fallback"
-import { normalizeImageDraftingCanvasLayer } from "@/features/canvas/model/layers/image"
-import { normalizeShaderDraftingCanvasLayer } from "@/features/canvas/model/layers/shader"
-import { normalizeShapeDraftingCanvasLayer } from "@/features/canvas/model/layers/shape"
-import { normalizeTextDraftingCanvasLayer } from "@/features/canvas/model/layers/text"
+import { createFallbackLayer } from "@/features/canvas/model/layers/fallback";
+import { normalizeImageDraftingCanvasLayer } from "@/features/canvas/model/layers/image";
+import { normalizeShaderDraftingCanvasLayer } from "@/features/canvas/model/layers/shader";
+import { normalizeShapeDraftingCanvasLayer } from "@/features/canvas/model/layers/shape";
+import { normalizeTextDraftingCanvasLayer } from "@/features/canvas/model/layers/text";
 import {
   isRecord,
   normalizeSharedDraftingCanvasLayerFields,
@@ -10,7 +10,7 @@ import {
   type DraftingCanvasLayer,
   type DraftingCanvasLayerKind,
   type NormalizeDraftingLayerContext,
-} from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/layers/shared";
 
 export function normalizeDraftingCanvasLayer(
   nodeId: string,
@@ -18,18 +18,18 @@ export function normalizeDraftingCanvasLayer(
   fallbackLayers: DraftingCanvasLayer[],
 ): DraftingCanvasLayer | null {
   if (!isRecord(value)) {
-    return null
+    return null;
   }
 
-  const kind = getDraftingCanvasLayerKind(value.kind)
+  const kind = getDraftingCanvasLayerKind(value.kind);
 
   if (!kind) {
-    return null
+    return null;
   }
 
-  const fallback = getDraftingLayerFallback(nodeId, kind, fallbackLayers)
-  const width = readFiniteNumber(value.width, fallback.width)
-  const height = readFiniteNumber(value.height, fallback.height)
+  const fallback = getDraftingLayerFallback(nodeId, kind, fallbackLayers);
+  const width = readFiniteNumber(value.width, fallback.width);
+  const height = readFiniteNumber(value.height, fallback.height);
 
   const context = {
     fallback,
@@ -39,33 +39,33 @@ export function normalizeDraftingCanvasLayer(
     nodeId,
     value,
     width,
-  }
+  };
 
   if (kind === "qr") {
-    return normalizeQrDraftingCanvasLayer({ ...context, kind })
+    return normalizeQrDraftingCanvasLayer({ ...context, kind });
   }
 
   if (kind === "text") {
-    return normalizeTextDraftingCanvasLayer({ ...context, kind })
+    return normalizeTextDraftingCanvasLayer({ ...context, kind });
   }
 
   if (kind === "image") {
-    return normalizeImageDraftingCanvasLayer({ ...context, kind })
+    return normalizeImageDraftingCanvasLayer({ ...context, kind });
   }
 
   if (kind === "shape") {
-    return normalizeShapeDraftingCanvasLayer({ ...context, kind })
+    return normalizeShapeDraftingCanvasLayer({ ...context, kind });
   }
 
   if (kind === "group") {
-    return normalizeGroupDraftingCanvasLayer({ ...context, kind })
+    return normalizeGroupDraftingCanvasLayer({ ...context, kind });
   }
 
   if (kind === "shader") {
-    return normalizeShaderDraftingCanvasLayer({ ...context, kind })
+    return normalizeShaderDraftingCanvasLayer({ ...context, kind });
   }
 
-  return normalizeNonTextDraftingCanvasLayer({ ...context, kind })
+  return normalizeNonTextDraftingCanvasLayer({ ...context, kind });
 }
 
 function getDraftingCanvasLayerKind(value: unknown): DraftingCanvasLayerKind | null {
@@ -77,7 +77,7 @@ function getDraftingCanvasLayerKind(value: unknown): DraftingCanvasLayerKind | n
     value === "shader" ||
     value === "text"
     ? value
-    : null
+    : null;
 }
 
 function getDraftingLayerFallback(
@@ -85,7 +85,7 @@ function getDraftingLayerFallback(
   kind: DraftingCanvasLayerKind,
   fallbackLayers: DraftingCanvasLayer[],
 ) {
-  return fallbackLayers.find((layer) => layer.kind === kind) ?? createFallbackLayer(nodeId, kind)
+  return fallbackLayers.find((layer) => layer.kind === kind) ?? createFallbackLayer(nodeId, kind);
 }
 
 function normalizeNonTextDraftingCanvasLayer(
@@ -94,20 +94,20 @@ function normalizeNonTextDraftingCanvasLayer(
   return {
     ...normalizeSharedDraftingCanvasLayerFields(context),
     kind: context.kind,
-  } satisfies DraftingCanvasLayer
+  } satisfies DraftingCanvasLayer;
 }
 
 function normalizeQrDraftingCanvasLayer(
   context: NormalizeDraftingLayerContext & { kind: "qr" },
 ): DraftingCanvasLayer {
-  const width = Math.max(1, context.width)
+  const width = Math.max(1, context.width);
 
   return {
     ...normalizeSharedDraftingCanvasLayerFields(context),
     height: width,
     kind: "qr",
     width,
-  } satisfies DraftingCanvasLayer
+  } satisfies DraftingCanvasLayer;
 }
 
 function normalizeGroupDraftingCanvasLayer(
@@ -117,7 +117,7 @@ function normalizeGroupDraftingCanvasLayer(
     ...normalizeSharedDraftingCanvasLayerFields(context),
     children: normalizeDraftingGroupChildren(context),
     kind: "group",
-  } satisfies DraftingCanvasLayer
+  } satisfies DraftingCanvasLayer;
 }
 
 function normalizeDraftingGroupChildren({
@@ -126,12 +126,12 @@ function normalizeDraftingGroupChildren({
   value,
 }: NormalizeDraftingLayerContext) {
   if (!Array.isArray(value.children)) {
-    return undefined
+    return undefined;
   }
 
   return value.children
     .map((child): DraftingCanvasLayer | null =>
       normalizeDraftingCanvasLayer(nodeId, child, fallbackLayers),
     )
-    .filter((child): child is DraftingCanvasLayer => Boolean(child))
+    .filter((child): child is DraftingCanvasLayer => Boolean(child));
 }

@@ -44,7 +44,6 @@ function renderDotMatrixSourceSvg(state: QraftyState) {
   return renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
 }
 
-
 export function toDotMatrixQrConfig(
   state: QraftyState,
   options: { canvasSvgMarkup?: string | null } = {},
@@ -55,7 +54,10 @@ export function toDotMatrixQrConfig(
   const motionOpacity = resolveMotionOpacityAnchors(animation, qrModuleColor);
   const canvasSvgMarkup = options.canvasSvgMarkup?.trim();
   const adapted = canvasSvgMarkup
-    ? adaptCanvasSvgMarkupForDotMatrixMotion(sanitizeDraftingQrArtworkMarkup(canvasSvgMarkup), state)
+    ? adaptCanvasSvgMarkupForDotMatrixMotion(
+        sanitizeDraftingQrArtworkMarkup(canvasSvgMarkup),
+        state,
+      )
     : adaptCanvasSvgMarkupForDotMatrixMotion(renderDotMatrixSourceSvg(state), state);
   const logoSrc = getAssetValue(state.logo);
 
@@ -74,8 +76,7 @@ export function toDotMatrixQrConfig(
     moduleColor: state.dataModulesSettings.color,
     positionCenterColor: state.finderPatternInnerSettings.color,
     positionRingColor: state.finderPatternOuterSettings.color,
-    preserveModuleFills:
-      state.dotsColorMode !== "solid",
+    preserveModuleFills: state.dotsColorMode !== "solid",
     respectReducedMotion: animation.respectReducedMotion,
     useExternalSvg: Boolean(adapted?.svg),
   };

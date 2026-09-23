@@ -1,37 +1,33 @@
-import { seekDotMatrixAnimation } from "@qrafty/qr/dot-matrix"
+import { seekDotMatrixAnimation } from "@qrafty/qr/dot-matrix";
 
-import { toDotMatrixQrConfig } from "@/features/qr/motion/dot-matrix-bridge"
-import type { QraftyState } from "@/features/qr/model/state"
-import { sanitizeDraftingQrArtworkMarkup } from "@/features/canvas/rendering/qr-artwork"
+import { toDotMatrixQrConfig } from "@/features/qr/motion/dot-matrix-bridge";
+import type { QraftyState } from "@/features/qr/model/state";
+import { sanitizeDraftingQrArtworkMarkup } from "@/features/canvas/rendering/qr-artwork";
 
 export function shouldExportAnimatedQr(state: QraftyState) {
-  return state.dotMatrixAnimation.enabled && state.dotMatrixAnimation.animated
+  return state.dotMatrixAnimation.enabled && state.dotMatrixAnimation.animated;
 }
 
-export function buildAnimatedQrMarkupAtTime(
-  qrMarkup: string,
-  state: QraftyState,
-  timeMs: number,
-) {
+export function buildAnimatedQrMarkupAtTime(qrMarkup: string, state: QraftyState, timeMs: number) {
   const config = toDotMatrixQrConfig(state, {
     canvasSvgMarkup: sanitizeDraftingQrArtworkMarkup(qrMarkup),
-  })
+  });
 
   if (!config.useExternalSvg || !config.externalSvg) {
-    return qrMarkup
+    return qrMarkup;
   }
 
   if (typeof DOMParser === "undefined" || typeof XMLSerializer === "undefined") {
-    return qrMarkup
+    return qrMarkup;
   }
 
-  const document = new DOMParser().parseFromString(config.externalSvg, "image/svg+xml")
+  const document = new DOMParser().parseFromString(config.externalSvg, "image/svg+xml");
   if (document.querySelector("parsererror")) {
-    return qrMarkup
+    return qrMarkup;
   }
 
-  const container = document.createElement("div")
-  container.appendChild(document.documentElement.cloneNode(true))
+  const container = document.createElement("div");
+  container.appendChild(document.documentElement.cloneNode(true));
 
   seekDotMatrixAnimation(container, config.animationPreset, timeMs, {
     animationSpeed: config.animationSpeed,
@@ -42,12 +38,12 @@ export function buildAnimatedQrMarkupAtTime(
     dotMatrixOpacityMid: config.dotMatrixOpacityMid,
     dotMatrixOpacityPeak: config.dotMatrixOpacityPeak,
     preserveModuleFills: config.preserveModuleFills,
-  })
+  });
 
-  const svg = container.firstElementChild
+  const svg = container.firstElementChild;
   if (!svg) {
-    return qrMarkup
+    return qrMarkup;
   }
 
-  return new XMLSerializer().serializeToString(svg)
+  return new XMLSerializer().serializeToString(svg);
 }

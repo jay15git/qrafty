@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   useCallback,
@@ -9,29 +9,29 @@ import {
   type KeyboardEvent,
   type PointerEvent,
   type ReactNode,
-} from "react"
-import { Reorder, useDragControls, useReducedMotion } from "motion/react"
+} from "react";
+import { Reorder, useDragControls, useReducedMotion } from "motion/react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-const CELL = { type: "spring", stiffness: 520, damping: 34, mass: 0.45 } as const
-const INSTANT = { duration: 0 } as const
+const CELL = { type: "spring", stiffness: 520, damping: 34, mass: 0.45 } as const;
+const INSTANT = { duration: 0 } as const;
 
 const moveItem = <T,>(list: readonly T[], from: number, to: number): T[] => {
-  const next = [...list]
-  const [taken] = next.splice(from, 1)
-  next.splice(to, 0, taken!)
-  return next
-}
+  const next = [...list];
+  const [taken] = next.splice(from, 1);
+  next.splice(to, 0, taken!);
+  return next;
+};
 
 export type UseReorderListOptions<T> = {
-  items: readonly T[]
-  getId: (item: T) => string
-  getLabel: (item: T) => string
-  onReorder: (next: T[]) => void
-  onCommit?: (next: T[]) => void
-  disabled?: boolean
-}
+  items: readonly T[];
+  getId: (item: T) => string;
+  getLabel: (item: T) => string;
+  onReorder: (next: T[]) => void;
+  onCommit?: (next: T[]) => void;
+  disabled?: boolean;
+};
 
 function useReorderList<T>({
   items,
@@ -41,123 +41,123 @@ function useReorderList<T>({
   onCommit,
   disabled = false,
 }: UseReorderListOptions<T>) {
-  const [grabbed, setGrabbed] = useState<string | null>(null)
-  const [dragging, setDragging] = useState<string | null>(null)
-  const [spoken, setSpoken] = useState("")
+  const [grabbed, setGrabbed] = useState<string | null>(null);
+  const [dragging, setDragging] = useState<string | null>(null);
+  const [spoken, setSpoken] = useState("");
 
-  const emit = useRef(onReorder)
-  const settle = useRef(onCommit)
-  const live = useRef(items)
+  const emit = useRef(onReorder);
+  const settle = useRef(onCommit);
+  const live = useRef(items);
   useEffect(() => {
-    emit.current = onReorder
-    settle.current = onCommit
-    live.current = items
-  })
-  const snapshot = useRef<readonly T[] | null>(null)
+    emit.current = onReorder;
+    settle.current = onCommit;
+    live.current = items;
+  });
+  const snapshot = useRef<readonly T[] | null>(null);
 
   const indexOf = useCallback(
     (id: string) => live.current.findIndex((item) => getId(item) === id),
     [getId],
-  )
+  );
 
   const grab = useCallback(
     (id: string) => {
-      snapshot.current = live.current
-      setGrabbed(id)
-      const at = indexOf(id)
-      const item = live.current[at]
-      setSpoken(`${getLabel(item)} grabbed, position ${at + 1} of ${live.current.length}.`)
+      snapshot.current = live.current;
+      setGrabbed(id);
+      const at = indexOf(id);
+      const item = live.current[at];
+      setSpoken(`${getLabel(item)} grabbed, position ${at + 1} of ${live.current.length}.`);
     },
     [getLabel, indexOf],
-  )
+  );
 
   const drop = useCallback(
     (id: string) => {
-      snapshot.current = null
-      setGrabbed(null)
-      const at = indexOf(id)
-      const item = live.current[at]
-      setSpoken(`${getLabel(item)} dropped at position ${at + 1}.`)
-      settle.current?.([...live.current])
+      snapshot.current = null;
+      setGrabbed(null);
+      const at = indexOf(id);
+      const item = live.current[at];
+      setSpoken(`${getLabel(item)} dropped at position ${at + 1}.`);
+      settle.current?.([...live.current]);
     },
     [getLabel, indexOf],
-  )
+  );
 
   const cancel = useCallback(() => {
     if (snapshot.current) {
-      emit.current([...snapshot.current])
+      emit.current([...snapshot.current]);
     }
-    snapshot.current = null
-    setGrabbed(null)
-    setSpoken("Reorder cancelled, original order restored.")
-  }, [])
+    snapshot.current = null;
+    setGrabbed(null);
+    setSpoken("Reorder cancelled, original order restored.");
+  }, []);
 
   const step = useCallback(
     (id: string, delta: -1 | 1) => {
-      const from = indexOf(id)
-      const to = from + delta
+      const from = indexOf(id);
+      const to = from + delta;
       if (from < 0 || to < 0 || to >= live.current.length) {
-        return
+        return;
       }
 
-      const next = moveItem(live.current, from, to)
-      emit.current(next)
-      const item = next[to]
-      setSpoken(`${getLabel(item)}, position ${to + 1} of ${next.length}.`)
+      const next = moveItem(live.current, from, to);
+      emit.current(next);
+      const item = next[to];
+      setSpoken(`${getLabel(item)}, position ${to + 1} of ${next.length}.`);
       if (snapshot.current === null) {
-        settle.current?.(next)
+        settle.current?.(next);
       }
     },
     [getLabel, indexOf],
-  )
+  );
 
   const rowKeyDown = useCallback(
     (id: string) => (event: KeyboardEvent<HTMLElement>) => {
       if (disabled || event.target !== event.currentTarget) {
-        return
+        return;
       }
 
-      const held = grabbed === id
+      const held = grabbed === id;
       if (event.key === " " || event.key === "Enter") {
-        event.preventDefault()
+        event.preventDefault();
         if (held) {
-          drop(id)
+          drop(id);
         } else {
-          grab(id)
+          grab(id);
         }
-        return
+        return;
       }
 
       if ((event.key === "ArrowUp" || event.key === "ArrowDown") && held) {
-        event.preventDefault()
-        step(id, event.key === "ArrowUp" ? -1 : 1)
-        return
+        event.preventDefault();
+        step(id, event.key === "ArrowUp" ? -1 : 1);
+        return;
       }
 
       if (event.key === "Escape" && held) {
-        event.preventDefault()
-        cancel()
+        event.preventDefault();
+        cancel();
       }
     },
     [disabled, grabbed, grab, drop, step, cancel],
-  )
+  );
 
   const onDragStart = useCallback((id: string) => {
-    snapshot.current = live.current
-    setDragging(id)
-  }, [])
+    snapshot.current = live.current;
+    setDragging(id);
+  }, []);
 
   const onDragEnd = useCallback(
     (id: string) => {
-      snapshot.current = null
-      setDragging(null)
-      const at = indexOf(id)
-      const item = live.current[at]
-      setSpoken(`${getLabel(item)} dropped at position ${at + 1}.`)
-      settle.current?.([...live.current])
+      snapshot.current = null;
+      setDragging(null);
+      const at = indexOf(id);
+      const item = live.current[at];
+      setSpoken(`${getLabel(item)} dropped at position ${at + 1}.`);
+      settle.current?.([...live.current]);
     },
     [getLabel, indexOf],
-  )
+  );
 
   return {
     grabbed,
@@ -167,23 +167,23 @@ function useReorderList<T>({
     onDragStart,
     onDragEnd,
     cancel,
-  }
+  };
 }
 
 export type ReorderListProps<T> = UseReorderListOptions<T> & {
-  children: (item: T) => ReactNode
-  label: string
-  className?: string
-  listClassName?: string
-  listDataSlot?: string
-  itemDataSlot?: string
-  selectedId?: string
-  isItemDraggable?: (item: T) => boolean
-  getItemClassName?: (item: T, state: { lifted: boolean; selected: boolean }) => string | undefined
-  gripClassName?: string
-  renderTrailing?: (item: T) => ReactNode
-  onItemActivate?: (item: T) => void
-}
+  children: (item: T) => ReactNode;
+  label: string;
+  className?: string;
+  listClassName?: string;
+  listDataSlot?: string;
+  itemDataSlot?: string;
+  selectedId?: string;
+  isItemDraggable?: (item: T) => boolean;
+  getItemClassName?: (item: T, state: { lifted: boolean; selected: boolean }) => string | undefined;
+  gripClassName?: string;
+  renderTrailing?: (item: T) => ReactNode;
+  onItemActivate?: (item: T) => void;
+};
 
 const GRIP = (
   <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor" aria-hidden="true">
@@ -194,7 +194,7 @@ const GRIP = (
     <circle cx="2.5" cy="11.5" r="1.2" />
     <circle cx="7.5" cy="11.5" r="1.2" />
   </svg>
-)
+);
 
 function ReorderListRow<T>({
   item,
@@ -217,42 +217,42 @@ function ReorderListRow<T>({
   renderTrailing,
   onItemActivate,
 }: {
-  item: T
-  getId: (item: T) => string
-  getLabel: (item: T) => string
-  draggable: boolean
-  selected: boolean
-  lifted: boolean
-  reduced: boolean
-  hintId: string
-  held: boolean
-  itemDataSlot?: string
-  gripClassName?: string
-  getItemClassName?: (item: T, state: { lifted: boolean; selected: boolean }) => string | undefined
-  rowKeyDown: (id: string) => (event: KeyboardEvent<HTMLElement>) => void
-  onDragStart: (id: string) => void
-  onDragEnd: (id: string) => void
-  onBlurCancel: () => void
-  children: (item: T) => ReactNode
-  renderTrailing?: (item: T) => ReactNode
-  onItemActivate?: (item: T) => void
+  item: T;
+  getId: (item: T) => string;
+  getLabel: (item: T) => string;
+  draggable: boolean;
+  selected: boolean;
+  lifted: boolean;
+  reduced: boolean;
+  hintId: string;
+  held: boolean;
+  itemDataSlot?: string;
+  gripClassName?: string;
+  getItemClassName?: (item: T, state: { lifted: boolean; selected: boolean }) => string | undefined;
+  rowKeyDown: (id: string) => (event: KeyboardEvent<HTMLElement>) => void;
+  onDragStart: (id: string) => void;
+  onDragEnd: (id: string) => void;
+  onBlurCancel: () => void;
+  children: (item: T) => ReactNode;
+  renderTrailing?: (item: T) => ReactNode;
+  onItemActivate?: (item: T) => void;
 }) {
-  const id = getId(item)
-  const controls = useDragControls()
+  const id = getId(item);
+  const controls = useDragControls();
 
   function startDrag(event: PointerEvent<HTMLElement>) {
-    controls.start(event)
+    controls.start(event);
   }
 
   // Non-draggable rows skip rowKeyDown (grab/drop keys); Enter/Space on the
   // focused row activates it the way a click does.
   const activateKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-    if (event.target !== event.currentTarget) return
+    if (event.target !== event.currentTarget) return;
     if (event.key === " " || event.key === "Enter") {
-      event.preventDefault()
-      onItemActivate?.(item)
+      event.preventDefault();
+      onItemActivate?.(item);
     }
-  }
+  };
 
   return (
     <Reorder.Item
@@ -267,14 +267,14 @@ function ReorderListRow<T>({
       role="option"
       onKeyDown={draggable ? rowKeyDown(id) : activateKeyDown}
       onClick={(event) => {
-        const target = event.target as HTMLElement
+        const target = event.target as HTMLElement;
         if (
           target.closest("[data-reorder-grip]") ||
           target.closest('[data-slot="layer-row-actions"]')
         ) {
-          return
+          return;
         }
-        onItemActivate?.(item)
+        onItemActivate?.(item);
       }}
       onDragStart={() => onDragStart(id)}
       onDragEnd={() => onDragEnd(id)}
@@ -300,8 +300,8 @@ function ReorderListRow<T>({
             )}
             aria-label={`Reorder ${getLabel(item)}`}
             onPointerDown={(event) => {
-              event.stopPropagation()
-              startDrag(event)
+              event.stopPropagation();
+              startDrag(event);
             }}
             onClick={(event) => event.stopPropagation()}
           >
@@ -327,7 +327,7 @@ function ReorderListRow<T>({
         ) : null}
       </div>
     </Reorder.Item>
-  )
+  );
 }
 
 export function ReorderList<T>({
@@ -345,12 +345,12 @@ export function ReorderList<T>({
   onItemActivate,
   ...options
 }: ReorderListProps<T>) {
-  const { items, getId, onReorder, disabled = false } = options
-  const list = useReorderList(options)
-  const reduced = useReducedMotion() === true
-  const hintId = useId()
+  const { items, getId, onReorder, disabled = false } = options;
+  const list = useReorderList(options);
+  const reduced = useReducedMotion() === true;
+  const hintId = useId();
 
-  const canDragItem = (item: T) => !disabled && (isItemDraggable?.(item) ?? true)
+  const canDragItem = (item: T) => !disabled && (isItemDraggable?.(item) ?? true);
 
   return (
     <div className={cn("w-full min-w-0 cursor-pointer", className)}>
@@ -364,11 +364,11 @@ export function ReorderList<T>({
         role="listbox"
       >
         {items.map((item) => {
-          const id = getId(item)
-          const held = list.grabbed === id
-          const lifted = held || list.dragging === id
-          const draggable = canDragItem(item)
-          const selected = selectedId === id
+          const id = getId(item);
+          const held = list.grabbed === id;
+          const lifted = held || list.dragging === id;
+          const draggable = canDragItem(item);
+          const selected = selectedId === id;
 
           return (
             <ReorderListRow
@@ -394,7 +394,7 @@ export function ReorderList<T>({
             >
               {children}
             </ReorderListRow>
-          )
+          );
         })}
       </Reorder.Group>
 
@@ -406,5 +406,5 @@ export function ReorderList<T>({
         {list.spoken}
       </span>
     </div>
-  )
+  );
 }

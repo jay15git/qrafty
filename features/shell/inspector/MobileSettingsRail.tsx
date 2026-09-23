@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { useLayoutEffect, useRef, type ReactNode } from "react"
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
-import { cn } from "@/lib/utils"
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
+import { cn } from "@/lib/utils";
 
 /** Row wrapper inside a horizontal settings rail. */
-const MOBILE_SETTINGS_RAIL_ROW = "dn-mobile-rail"
+const MOBILE_SETTINGS_RAIL_ROW = "dn-mobile-rail";
 
 /** Row wrapper for landscape card rails (wallpapers, previews). */
-const MOBILE_SETTINGS_CARD_ROW = "dn-mobile-card-rail"
+const MOBILE_SETTINGS_CARD_ROW = "dn-mobile-card-rail";
 
 const OPTION_SHELF_COLUMNS: Record<number, string> = {
   3: "grid-cols-3",
   4: "grid-cols-4",
   6: "grid-cols-6",
-}
+};
 
 /**
  * Horizontal option rail for mobile settings families.
@@ -31,51 +31,49 @@ export function MobileSettingsRail({
   children,
   persistKey,
 }: {
-  activeKey?: string
-  ariaLabel: string
-  children: ReactNode
-  persistKey?: string
+  activeKey?: string;
+  ariaLabel: string;
+  children: ReactNode;
+  persistKey?: string;
 }) {
-  const rootRef = useRef<HTMLDivElement | null>(null)
-  const mountedRef = useRef(false)
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const mountedRef = useRef(false);
 
   useLayoutEffect(() => {
     if (!mountedRef.current) {
-      mountedRef.current = true
-      return
+      mountedRef.current = true;
+      return;
     }
 
     const viewport = rootRef.current?.querySelector<HTMLElement>(
       '[data-slot="scroll-area-viewport"]',
-    )
+    );
     if (!viewport) {
-      return
+      return;
     }
 
     const selected = viewport.querySelector<HTMLElement>(
       '[aria-pressed="true"], [aria-selected="true"], [data-selected="true"]',
-    )
+    );
     if (!selected) {
-      return
+      return;
     }
 
-    const viewportRect = viewport.getBoundingClientRect()
-    const selectedRect = selected.getBoundingClientRect()
+    const viewportRect = viewport.getBoundingClientRect();
+    const selectedRect = selected.getBoundingClientRect();
     if (viewportRect.width <= 0) {
-      return
+      return;
     }
 
     const delta =
-      selectedRect.left -
-      viewportRect.left -
-      (viewportRect.width - selectedRect.width) / 2
+      selectedRect.left - viewportRect.left - (viewportRect.width - selectedRect.width) / 2;
 
     if (Math.abs(delta) < 1) {
-      return
+      return;
     }
 
-    viewport.scrollLeft += delta
-  }, [activeKey])
+    viewport.scrollLeft += delta;
+  }, [activeKey]);
 
   return (
     <ScrollArea
@@ -90,15 +88,11 @@ export function MobileSettingsRail({
       showScrollbar={false}
       viewportClassName="min-w-0"
     >
-      <div
-        aria-label={ariaLabel}
-        className={MOBILE_SETTINGS_RAIL_ROW}
-        role="group"
-      >
+      <div aria-label={ariaLabel} className={MOBILE_SETTINGS_RAIL_ROW} role="group">
         {children}
       </div>
     </ScrollArea>
-  )
+  );
 }
 
 /**
@@ -116,32 +110,26 @@ export function SettingsOptionShelf({
   label,
   persistKey,
 }: {
-  activeKey?: string
-  ariaLabel: string
-  children: ReactNode
-  columns?: 3 | 4 | 6
-  dataSlot?: string
-  gridClassName?: string
-  label?: string
-  persistKey?: string
+  activeKey?: string;
+  ariaLabel: string;
+  children: ReactNode;
+  columns?: 3 | 4 | 6;
+  dataSlot?: string;
+  gridClassName?: string;
+  label?: string;
+  persistKey?: string;
 }) {
-  const mobileDensity = useMobileInspectorDensity()
+  const mobileDensity = useMobileInspectorDensity();
 
   if (mobileDensity) {
     return (
       <div className="dn-settings-shelf" data-slot={dataSlot}>
-        {label ? (
-          <span className="dn-row-label-text dn-settings-shelf__label">{label}</span>
-        ) : null}
-        <MobileSettingsRail
-          activeKey={activeKey}
-          ariaLabel={ariaLabel}
-          persistKey={persistKey}
-        >
+        {label ? <span className="dn-row-label-text dn-settings-shelf__label">{label}</span> : null}
+        <MobileSettingsRail activeKey={activeKey} ariaLabel={ariaLabel} persistKey={persistKey}>
           {children}
         </MobileSettingsRail>
       </div>
-    )
+    );
   }
 
   return (
@@ -160,7 +148,7 @@ export function SettingsOptionShelf({
         {children}
       </div>
     </div>
-  )
+  );
 }
 
 /** Horizontal rail for landscape card options, e.g. wallpapers. */
@@ -169,9 +157,9 @@ export function MobileCardRail({
   children,
   persistKey,
 }: {
-  ariaLabel: string
-  children: ReactNode
-  persistKey?: string
+  ariaLabel: string;
+  children: ReactNode;
+  persistKey?: string;
 }) {
   return (
     <ScrollArea
@@ -185,13 +173,9 @@ export function MobileCardRail({
       showScrollbar={false}
       viewportClassName="min-w-0"
     >
-      <div
-        aria-label={ariaLabel}
-        className={MOBILE_SETTINGS_CARD_ROW}
-        role="group"
-      >
+      <div aria-label={ariaLabel} className={MOBILE_SETTINGS_CARD_ROW} role="group">
         {children}
       </div>
     </ScrollArea>
-  )
+  );
 }

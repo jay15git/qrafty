@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import { useMemo, type CSSProperties, type ReactNode } from "react"
+import { useMemo, type CSSProperties, type ReactNode } from "react";
 
-import { DraftingCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer"
-import type { SceneBackground, SceneLayoutPreset } from "@/features/canvas/model/scene-templates"
-import { usePreviewShaderDisplaySize } from "@/features/canvas/preview/use-preview-layer-effects"
+import { DraftingCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer";
+import type { SceneBackground, SceneLayoutPreset } from "@/features/canvas/model/scene-templates";
+import { usePreviewShaderDisplaySize } from "@/features/canvas/preview/use-preview-layer-effects";
 import {
   createScenePaperShaderState,
   getSceneBackgroundStyle,
   getSceneLayoutTransformStyle,
-} from "@/features/canvas/rendering/scene-background-styles"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/rendering/scene-background-styles";
+import { cn } from "@/lib/utils";
 
 type SceneBackgroundLayerProps = {
-  background: SceneBackground
-  className?: string
-  height: number
-  layout?: SceneLayoutPreset
-  width: number
-}
+  background: SceneBackground;
+  className?: string;
+  height: number;
+  layout?: SceneLayoutPreset;
+  width: number;
+};
 
 function SceneBackgroundLayer({
   background,
@@ -27,14 +27,14 @@ function SceneBackgroundLayer({
   layout,
   width,
 }: SceneBackgroundLayerProps) {
-  const backgroundStyle = getSceneBackgroundStyle(background)
-  const layoutStyle = layout ? getSceneLayoutTransformStyle(layout) : undefined
-  const shaderDisplaySize = usePreviewShaderDisplaySize(width, height)
-  const shaderId = background.kind === "paper-shader" ? background.shaderId : null
+  const backgroundStyle = getSceneBackgroundStyle(background);
+  const layoutStyle = layout ? getSceneLayoutTransformStyle(layout) : undefined;
+  const shaderDisplaySize = usePreviewShaderDisplaySize(width, height);
+  const shaderId = background.kind === "paper-shader" ? background.shaderId : null;
   const paperShader = useMemo(
     () => (shaderId ? createScenePaperShaderState(shaderId) : null),
     [shaderId],
-  )
+  );
 
   return (
     <div
@@ -59,26 +59,23 @@ function SceneBackgroundLayer({
         />
       ) : null}
       {layoutStyle ? (
-        <div
-          className="absolute inset-0"
-          style={layoutStyle as CSSProperties}
-        />
+        <div className="absolute inset-0" style={layoutStyle as CSSProperties} />
       ) : null}
     </div>
-  )
+  );
 }
 
 export function SceneCompositionTransform({
   children,
   layout,
 }: {
-  children: ReactNode
-  layout: SceneLayoutPreset
+  children: ReactNode;
+  layout: SceneLayoutPreset;
 }) {
-  const layoutStyle = getSceneLayoutTransformStyle(layout)
+  const layoutStyle = getSceneLayoutTransformStyle(layout);
 
   if (!layoutStyle.transform) {
-    return <>{children}</>
+    return <>{children}</>;
   }
 
   return (
@@ -89,5 +86,5 @@ export function SceneCompositionTransform({
     >
       {children}
     </div>
-  )
+  );
 }

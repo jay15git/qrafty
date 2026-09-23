@@ -1,17 +1,12 @@
-"use client"
+"use client";
 
-import { useState, type ReactNode } from "react"
+import { useState, type ReactNode } from "react";
 
-import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  Popover,
-  PopoverClose,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { ToolbarTooltip } from "@/features/shell/components/ToolbarTooltip"
-import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui"
-import { cn } from "@/lib/utils"
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ToolbarTooltip } from "@/features/shell/components/ToolbarTooltip";
+import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui";
+import { cn } from "@/lib/utils";
 
 /**
  * Popover shell for the dynamic-island toolbar buttons.
@@ -31,23 +26,26 @@ export function ToolbarPopoverContent({
   theme = "dark",
   title,
 }: {
-  children: ReactNode
-  dataSlot?: string
-  disableScroll?: boolean
-  fitContent?: boolean
-  flush?: boolean
-  theme?: "light" | "dark"
+  children: ReactNode;
+  dataSlot?: string;
+  disableScroll?: boolean;
+  fitContent?: boolean;
+  flush?: boolean;
+  theme?: "light" | "dark";
   /** Popover chrome header — centered title + top-right close, matching the
    *  settings-panel popovers. */
-  title?: string
+  title?: string;
 }) {
   const heightClass = fitContent
     ? "max-h-[var(--popover-max-h)]"
-    : "h-[var(--popover-max-h)] max-h-[var(--popover-max-h)]"
+    : "h-[var(--popover-max-h)] max-h-[var(--popover-max-h)]";
 
   const content = disableScroll ? (
     <div
-      className={cn("flex h-full min-h-0 flex-1 flex-col overflow-hidden", flush ? "p-0" : "px-3 py-3")}
+      className={cn(
+        "flex h-full min-h-0 flex-1 flex-col overflow-hidden",
+        flush ? "p-0" : "px-3 py-3",
+      )}
       data-slot="inspector-scroll"
     >
       {children}
@@ -63,7 +61,7 @@ export function ToolbarPopoverContent({
     >
       <div data-slot="inspector-scroll">{children}</div>
     </ScrollArea>
-  )
+  );
 
   return (
     <PopoverContent
@@ -90,7 +88,7 @@ export function ToolbarPopoverContent({
       ) : null}
       {content}
     </PopoverContent>
-  )
+  );
 }
 
 function ToolbarPopover({
@@ -103,16 +101,16 @@ function ToolbarPopover({
   triggerOpenClassName,
   suppressTooltip = false,
 }: {
-  children: ReactNode
-  dataSlot?: string
-  label: string
-  trigger: ReactNode
-  suppressTooltip?: boolean
-  triggerClassName?: string
-  triggerDataSlot?: string
-  triggerOpenClassName?: string
+  children: ReactNode;
+  dataSlot?: string;
+  label: string;
+  trigger: ReactNode;
+  suppressTooltip?: boolean;
+  triggerClassName?: string;
+  triggerDataSlot?: string;
+  triggerOpenClassName?: string;
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   const triggerButton = (
     <PopoverTrigger asChild>
@@ -129,7 +127,7 @@ function ToolbarPopover({
         {trigger}
       </button>
     </PopoverTrigger>
-  )
+  );
 
   return (
     <Popover modal={false} open={open} onOpenChange={setOpen}>
@@ -142,5 +140,5 @@ function ToolbarPopover({
       )}
       <ToolbarPopoverContent dataSlot={dataSlot}>{children}</ToolbarPopoverContent>
     </Popover>
-  )
+  );
 }

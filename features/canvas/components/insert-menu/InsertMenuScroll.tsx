@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import type { ReactNode } from "react"
+import type { ReactNode } from "react";
 
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { INSERT_MENU_SCROLL_CLASS } from "@/features/canvas/components/insert-menu/insert-menu-styles"
-import { cn } from "@/lib/utils"
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { INSERT_MENU_SCROLL_CLASS } from "@/features/canvas/components/insert-menu/insert-menu-styles";
+import { cn } from "@/lib/utils";
 
 export function InsertMenuScroll({
   children,
   className,
   contentClassName,
 }: {
-  children: ReactNode
-  className?: string
-  contentClassName?: string
+  children: ReactNode;
+  className?: string;
+  contentClassName?: string;
 }) {
   return (
     <ScrollArea
@@ -25,5 +25,5 @@ export function InsertMenuScroll({
     >
       <div className={cn("dn-insert-menu-scroll-content", contentClassName)}>{children}</div>
     </ScrollArea>
-  )
+  );
 }

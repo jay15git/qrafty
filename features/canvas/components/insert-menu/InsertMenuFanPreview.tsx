@@ -1,43 +1,43 @@
-"use client"
+"use client";
 
-import { m, useReducedMotion } from "motion/react"
-import type { ReactNode } from "react"
+import { m, useReducedMotion } from "motion/react";
+import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-const CARD_INDICES = [0, 1, 2] as const
-const CENTER_INDEX = 1
+const CARD_INDICES = [0, 1, 2] as const;
+const CENTER_INDEX = 1;
 
-export type InsertMenuFanPreviewItems = readonly [ReactNode, ReactNode, ReactNode]
+export type InsertMenuFanPreviewItems = readonly [ReactNode, ReactNode, ReactNode];
 
 type InsertMenuFanPreviewProps = {
-  className?: string
-  isHovered: boolean
-  previews: InsertMenuFanPreviewItems
-}
+  className?: string;
+  isHovered: boolean;
+  previews: InsertMenuFanPreviewItems;
+};
 
 export function InsertMenuFanPreview({
   className,
   isHovered,
   previews,
 }: InsertMenuFanPreviewProps) {
-  const reduceMotion = useReducedMotion()
-  const angle = 22
-  const gap = 20
-  const yOffset = 5
-  const hoverIntensity = reduceMotion ? 0 : 1
-  const active = isHovered && hoverIntensity > 0
+  const reduceMotion = useReducedMotion();
+  const angle = 22;
+  const gap = 20;
+  const yOffset = 5;
+  const hoverIntensity = reduceMotion ? 0 : 1;
+  const active = isHovered && hoverIntensity > 0;
 
   return (
     <div className={cn("relative flex h-full w-full items-end justify-center", className)}>
       {CARD_INDICES.map((index) => {
-        const dist = index - CENTER_INDEX
-        const targetRotate = active ? dist * angle : 0
-        const targetX = active ? dist * gap : 0
+        const dist = index - CENTER_INDEX;
+        const targetRotate = active ? dist * angle : 0;
+        const targetX = active ? dist * gap : 0;
 
-        let targetY = 0
+        let targetY = 0;
         if (active) {
-          targetY = Math.abs(dist) === 1 ? yOffset : -yOffset
+          targetY = Math.abs(dist) === 1 ? yOffset : -yOffset;
         }
 
         return (
@@ -65,8 +65,8 @@ export function InsertMenuFanPreview({
           >
             <span className="dn-insert-menu-fan-card-content">{previews[index]}</span>
           </m.div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }

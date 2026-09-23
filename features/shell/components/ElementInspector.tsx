@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useEffect, useMemo, useState } from "react"
-import { ChevronDownIcon } from "lucide-react"
+import { useEffect, useMemo, useState } from "react";
+import { ChevronDownIcon } from "lucide-react";
 
-import FileUpload from "@/components/vendor/kokonutui/file-upload"
+import FileUpload from "@/components/vendor/kokonutui/file-upload";
 import {
   INSPECTOR_CONTROL_CLASS,
   INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
@@ -12,54 +12,52 @@ import {
   INSPECTOR_SECTION_HEADING_CLASS,
   INSPECTOR_SELECTED_CLASS,
   INSPECTOR_TYPE_VALUE_CLASS,
-} from "@/features/shell/components/inspector-tokens"
+} from "@/features/shell/components/inspector-tokens";
 import {
   InspectorLabel,
   InspectorSection,
   InspectorTextarea,
   InspectorTextInput,
   InspectorScrubbableNumberInput,
-} from "@/features/shell/components/InspectorControls"
+} from "@/features/shell/components/InspectorControls";
 import {
   inspectorOptionGridItemClass,
   inspectorOptionStackClass,
-} from "@/features/shell/inspector/InspectorOptionGrid.classes"
+} from "@/features/shell/inspector/InspectorOptionGrid.classes";
 import {
   SegmentTabs,
   SettingsFillPopover,
   SettingsSlider,
-} from "@/features/shell/inspector/settings-ui"
+} from "@/features/shell/inspector/settings-ui";
 import {
   getShapeLayerFillCssValue,
   getTextLayerFillCssValue,
   patchShapeLayerFillFromPicker,
   patchTextLayerFillFromPicker,
-} from "@/features/canvas/rendering/layer-fill"
+} from "@/features/canvas/rendering/layer-fill";
 import {
   InspectorElasticSliderRow,
   InspectorNumberField,
   InspectorScrollArea,
   InspectorValueGrid,
-} from "@/features/shell/components/InspectorShell"
+} from "@/features/shell/components/InspectorShell";
 import {
   getFontWeightSliderStep,
   getLayerFontWeight,
   getNearestFontWeight,
-} from "@/features/shell/model/font-weight"
-import { EffectsAccordion } from "@/features/shell/components/EffectsAccordion"
-import { ElementShapeOptionGrid } from "@/features/canvas/components/ElementShapeOptionGrid"
-import { PaperShaderOptionGrid } from "@/features/canvas/components/PaperShaderOptionGrid"
-import {
-  SettingsPaperShaderControls,
-} from "@/features/shell/inspector/PaperShaderSettings"
+} from "@/features/shell/model/font-weight";
+import { EffectsAccordion } from "@/features/shell/components/EffectsAccordion";
+import { ElementShapeOptionGrid } from "@/features/canvas/components/ElementShapeOptionGrid";
+import { PaperShaderOptionGrid } from "@/features/canvas/components/PaperShaderOptionGrid";
+import { SettingsPaperShaderControls } from "@/features/shell/inspector/PaperShaderSettings";
 import {
   DEFAULT_DRAFTING_IMAGE_LAYER,
   DEFAULT_DRAFTING_SHAPE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
   type DraftingShapeFillMode,
-} from "@/features/canvas/model/layers/shared"
-import { createDefaultDraftingCardPaperShader } from "@/features/canvas/model/card-state"
+} from "@/features/canvas/model/layers/shared";
+import { createDefaultDraftingCardPaperShader } from "@/features/canvas/model/card-state";
 import {
   DRAFTING_FONT_CATEGORY_LABELS,
   getDraftingFontCssFamily,
@@ -67,31 +65,20 @@ import {
   loadDraftingFont,
   loadDraftingFontPreview,
   resolveDraftingFont,
-} from "@/features/canvas/model/fonts"
-import type { DraftingFontCategory } from "@/features/canvas/model/font-catalog"
-import { useFontPreviewObserver } from "@/features/shell/inspector/use-font-preview-observer"
-import { IllustrationInspectorColorSection } from "@/features/canvas/components/IllustrationColorControls"
-import { isDraftingIllustrationLayer } from "@/features/canvas/model/layer-floating-settings"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/model/fonts";
+import type { DraftingFontCategory } from "@/features/canvas/model/font-catalog";
+import { useFontPreviewObserver } from "@/features/shell/inspector/use-font-preview-observer";
+import { IllustrationInspectorColorSection } from "@/features/canvas/components/IllustrationColorControls";
+import { isDraftingIllustrationLayer } from "@/features/canvas/model/layer-floating-settings";
+import { cn } from "@/lib/utils";
 
 /** Layer-style categories. Mobile renders one at a time behind a rail; desktop
  *  renders all of them (`category` undefined). */
 export type LayerStyleCategory =
-  | "content"
-  | "type"
-  | "color"
-  | "spacing"
-  | "shape"
-  | "fill"
-  | "image"
-  | "shader"
-  | "options"
+  "content" | "type" | "color" | "spacing" | "shape" | "fill" | "image" | "shader" | "options";
 
-function showsCategory(
-  active: LayerStyleCategory | undefined,
-  id: LayerStyleCategory,
-) {
-  return active === undefined || active === id
+function showsCategory(active: LayerStyleCategory | undefined, id: LayerStyleCategory) {
+  return active === undefined || active === id;
 }
 
 export function LayerStyleInspector({
@@ -99,15 +86,12 @@ export function LayerStyleInspector({
   layer,
   onPatch,
 }: {
-  category?: LayerStyleCategory
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  category?: LayerStyleCategory;
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
 }) {
   return (
-    <div
-      data-slot="layer-style-inspector"
-      className="flex min-h-0 min-w-0 flex-1 flex-col"
-    >
+    <div data-slot="layer-style-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
       {layer.kind === "text" ? (
         <LayerTextInspector category={category} layer={layer} onPatch={onPatch} />
       ) : null}
@@ -121,41 +105,35 @@ export function LayerStyleInspector({
         <LayerShaderInspector category={category} layer={layer} onPatch={onPatch} />
       ) : null}
     </div>
-  )
+  );
 }
 
 export function ElementInspector({
   layer,
   onPatch,
 }: {
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
 }) {
   return (
-    <div
-      data-slot="element-inspector"
-      className="flex min-h-0 min-w-0 flex-1 flex-col"
-    >
+    <div data-slot="element-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
       <InspectorScrollArea>
         <LayerStyleInspector layer={layer} onPatch={onPatch} />
         <EffectsAccordion layer={layer} onPatch={onPatch} />
       </InspectorScrollArea>
     </div>
-  )
+  );
 }
 
 export function TransformInspector({
   layer,
   onPatch,
 }: {
-  layer: DraftingCanvasLayer | null | undefined
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  layer: DraftingCanvasLayer | null | undefined;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
 }) {
   return (
-    <div
-      data-slot="transform-inspector"
-      className="flex min-h-0 min-w-0 flex-1 flex-col"
-    >
+    <div data-slot="transform-inspector" className="flex min-h-0 min-w-0 flex-1 flex-col">
       <InspectorScrollArea>
         {layer ? (
           <TransformSection layer={layer} onPatch={onPatch} />
@@ -168,17 +146,21 @@ export function TransformInspector({
         )}
       </InspectorScrollArea>
     </div>
-  )
+  );
 }
 
 function TransformValueGrid({
   layer,
   onPatch,
 }: {
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
 }) {
-  const lockAspect = layer.kind === "image" || layer.kind === "shape" || layer.kind === "shader" || layer.kind === "qr"
+  const lockAspect =
+    layer.kind === "image" ||
+    layer.kind === "shape" ||
+    layer.kind === "shader" ||
+    layer.kind === "qr";
 
   return (
     <InspectorValueGrid>
@@ -212,7 +194,7 @@ function TransformValueGrid({
         onChange={(height) => onPatch({ height })}
       />
     </InspectorValueGrid>
-  )
+  );
 }
 
 function TransformSliders({
@@ -220,9 +202,9 @@ function TransformSliders({
   layer,
   onPatch,
 }: {
-  flat: boolean
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  flat: boolean;
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
 }) {
   if (flat) {
     return (
@@ -252,7 +234,7 @@ function TransformSliders({
           onChange={(tiltY) => onPatch({ tiltY })}
         />
       </>
-    )
+    );
   }
 
   return (
@@ -282,7 +264,7 @@ function TransformSliders({
         onChange={(tiltY) => onPatch({ tiltY })}
       />
     </>
-  )
+  );
 }
 
 export function TransformSection({
@@ -290,17 +272,14 @@ export function TransformSection({
   onPatch,
   variant = "default",
 }: {
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  variant?: "default" | "flat"
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  variant?: "default" | "flat";
 }) {
-  const flat = variant === "flat"
+  const flat = variant === "flat";
 
   return (
-    <InspectorSection
-      className={flat ? "gap-2.5" : undefined}
-      dataSlot="transform-section"
-    >
+    <InspectorSection className={flat ? "gap-2.5" : undefined} dataSlot="transform-section">
       {flat ? null : <InspectorLabel>Transform</InspectorLabel>}
       {flat ? null : <TransformValueGrid layer={layer} onPatch={onPatch} />}
 
@@ -308,19 +287,19 @@ export function TransformSection({
         <TransformSliders flat={flat} layer={layer} onPatch={onPatch} />
       </div>
     </InspectorSection>
-  )
+  );
 }
 
 type TextFontOption = {
-  family: string
-  id: string
-  label: string
-}
+  family: string;
+  id: string;
+  label: string;
+};
 
 type TextFontGroup = {
-  category: DraftingFontCategory
-  fonts: TextFontOption[]
-}
+  category: DraftingFontCategory;
+  fonts: TextFontOption[];
+};
 
 function TextFontMenu({
   bindFontPreview,
@@ -330,18 +309,15 @@ function TextFontMenu({
   onFontQueryChange,
   onSelectFont,
 }: {
-  bindFontPreview: (fontId: string) => (node: HTMLElement | null) => void
-  fontGroups: TextFontGroup[]
-  fontQuery: string
-  selectedFontId: string
-  onFontQueryChange: (query: string) => void
-  onSelectFont: (font: TextFontOption) => void
+  bindFontPreview: (fontId: string) => (node: HTMLElement | null) => void;
+  fontGroups: TextFontGroup[];
+  fontQuery: string;
+  selectedFontId: string;
+  onFontQueryChange: (query: string) => void;
+  onSelectFont: (font: TextFontOption) => void;
 }) {
   return (
-    <div
-      className="mt-2 flex flex-col gap-1"
-      data-slot="layer-text-font-menu"
-    >
+    <div className="mt-2 flex flex-col gap-1" data-slot="layer-text-font-menu">
       <input
         aria-label="Search fonts"
         autoComplete="off"
@@ -394,13 +370,11 @@ function TextFontMenu({
           </div>
         ))}
         {fontGroups.length === 0 ? (
-          <p className="px-2.5 py-3 text-center text-xs text-[var(--muted)]">
-            No matching fonts
-          </p>
+          <p className="px-2.5 py-3 text-center text-xs text-[var(--muted)]">No matching fonts</p>
         ) : null}
       </div>
     </div>
-  )
+  );
 }
 
 function LayerTextInspector({
@@ -408,36 +382,33 @@ function LayerTextInspector({
   layer,
   onPatch,
 }: {
-  category?: LayerStyleCategory
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  category?: LayerStyleCategory;
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
 }) {
   const selectedFont = resolveDraftingFont({
     fontFamily: layer.fontFamily,
     fontId: layer.fontId,
-  })
-  const supportedWeights = selectedFont.weights
-  const fontWeight = getLayerFontWeight(layer.fontWeight, supportedWeights)
-  const [fontMenuOpen, setFontMenuOpen] = useState(false)
-  const [fontQuery, setFontQuery] = useState("")
-  const fontGroups = useMemo(() => groupDraftingFonts(fontQuery), [fontQuery])
-  const bindFontPreview = useFontPreviewObserver()
+  });
+  const supportedWeights = selectedFont.weights;
+  const fontWeight = getLayerFontWeight(layer.fontWeight, supportedWeights);
+  const [fontMenuOpen, setFontMenuOpen] = useState(false);
+  const [fontQuery, setFontQuery] = useState("");
+  const fontGroups = useMemo(() => groupDraftingFonts(fontQuery), [fontQuery]);
+  const bindFontPreview = useFontPreviewObserver();
 
   useEffect(() => {
-    void loadDraftingFont(selectedFont.id)
-  }, [selectedFont.id])
+    void loadDraftingFont(selectedFont.id);
+  }, [selectedFont.id]);
 
   function patchTextLayer(patch: Partial<DraftingCanvasLayer>) {
-    onPatch({ ...patch, textRuns: undefined })
+    onPatch({ ...patch, textRuns: undefined });
   }
 
   return (
     <>
       {showsCategory(category, "content") ? (
-        <InspectorSection
-          className={INSPECTOR_SECTION_GAP_CLASS}
-          dataSlot="layer-text-content"
-        >
+        <InspectorSection className={INSPECTOR_SECTION_GAP_CLASS} dataSlot="layer-text-content">
           <InspectorLabel>Content</InspectorLabel>
           <InspectorTextarea
             aria-label="Text layer content"
@@ -449,86 +420,82 @@ function LayerTextInspector({
       ) : null}
 
       {showsCategory(category, "type") ? (
-        <InspectorSection
-          className={INSPECTOR_SECTION_GAP_CLASS}
-          dataSlot="layer-text-inspector"
-        >
-        <p className={cn("mb-2", INSPECTOR_SECTION_HEADING_CLASS)}>Typography</p>
-        <div className="grid grid-cols-[1fr_var(--inspector-preview-col)] gap-1.5">
-          <div className="min-w-0" data-slot="layer-text-font-selector">
-            <button
-              aria-controls="layer-text-font-listbox"
-              aria-expanded={fontMenuOpen}
-              aria-haspopup="listbox"
-              aria-label="Text font"
-        className={cn(
-          INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-          "w-full min-w-0 items-center justify-between gap-[length:var(--space-inline)] px-2.5 text-left font-semibold",
-          INSPECTOR_TYPE_VALUE_CLASS,
-          INSPECTOR_CONTROL_CLASS,
-        )}
-              style={{ fontFamily: getDraftingFontCssFamily({ fontId: selectedFont.id }) }}
-              type="button"
-              onClick={() => setFontMenuOpen((open) => !open)}
-            >
-              <span className="min-w-0 flex-1 truncate">{selectedFont.label}</span>
-              <ChevronDownIcon
-                className={cn("size-3.5 shrink-0 text-current transition-transform", fontMenuOpen && "rotate-180")}
-              />
-            </button>
+        <InspectorSection className={INSPECTOR_SECTION_GAP_CLASS} dataSlot="layer-text-inspector">
+          <p className={cn("mb-2", INSPECTOR_SECTION_HEADING_CLASS)}>Typography</p>
+          <div className="grid grid-cols-[1fr_var(--inspector-preview-col)] gap-1.5">
+            <div className="min-w-0" data-slot="layer-text-font-selector">
+              <button
+                aria-controls="layer-text-font-listbox"
+                aria-expanded={fontMenuOpen}
+                aria-haspopup="listbox"
+                aria-label="Text font"
+                className={cn(
+                  INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+                  "w-full min-w-0 items-center justify-between gap-[length:var(--space-inline)] px-2.5 text-left font-semibold",
+                  INSPECTOR_TYPE_VALUE_CLASS,
+                  INSPECTOR_CONTROL_CLASS,
+                )}
+                style={{ fontFamily: getDraftingFontCssFamily({ fontId: selectedFont.id }) }}
+                type="button"
+                onClick={() => setFontMenuOpen((open) => !open)}
+              >
+                <span className="min-w-0 flex-1 truncate">{selectedFont.label}</span>
+                <ChevronDownIcon
+                  className={cn(
+                    "size-3.5 shrink-0 text-current transition-transform",
+                    fontMenuOpen && "rotate-180",
+                  )}
+                />
+              </button>
+            </div>
+            <InspectorScrubbableNumberInput
+              aria-label="Text font size"
+              className={cn(
+                INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+                "px-2 font-semibold",
+                INSPECTOR_RADIUS_CLASS,
+                INSPECTOR_TYPE_VALUE_CLASS,
+              )}
+              max={300}
+              min={6}
+              value={layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}
+              onValueChange={(fontSize) => patchTextLayer({ fontSize })}
+            />
           </div>
-          <InspectorScrubbableNumberInput
-            aria-label="Text font size"
-            className={cn(
-              INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-              "px-2 font-semibold",
-              INSPECTOR_RADIUS_CLASS,
-              INSPECTOR_TYPE_VALUE_CLASS,
-            )}
-            max={300}
-            min={6}
-            value={layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}
-            onValueChange={(fontSize) => patchTextLayer({ fontSize })}
-          />
-        </div>
-        {fontMenuOpen ? (
-          <TextFontMenu
-            bindFontPreview={bindFontPreview}
-            fontGroups={fontGroups}
-            fontQuery={fontQuery}
-            selectedFontId={selectedFont.id}
-            onFontQueryChange={setFontQuery}
-            onSelectFont={(font) => {
-              void loadDraftingFont(font.id)
-              patchTextLayer({ fontFamily: font.family, fontId: font.id })
-              setFontMenuOpen(false)
-              setFontQuery("")
-            }}
-          />
-        ) : null}
+          {fontMenuOpen ? (
+            <TextFontMenu
+              bindFontPreview={bindFontPreview}
+              fontGroups={fontGroups}
+              fontQuery={fontQuery}
+              selectedFontId={selectedFont.id}
+              onFontQueryChange={setFontQuery}
+              onSelectFont={(font) => {
+                void loadDraftingFont(font.id);
+                patchTextLayer({ fontFamily: font.family, fontId: font.id });
+                setFontMenuOpen(false);
+                setFontQuery("");
+              }}
+            />
+          ) : null}
 
-        <InspectorElasticSliderRow
-          label="Weight"
-          max={Math.max(...supportedWeights)}
-          min={Math.min(...supportedWeights)}
-          step={getFontWeightSliderStep(supportedWeights)}
-          value={fontWeight}
-          valueLabel={String(Math.round(fontWeight))}
-          onChange={(nextWeight) =>
-            patchTextLayer({
-              fontWeight: getNearestFontWeight(nextWeight, supportedWeights),
-            })
-          }
-        />
-
-      </InspectorSection>
+          <InspectorElasticSliderRow
+            label="Weight"
+            max={Math.max(...supportedWeights)}
+            min={Math.min(...supportedWeights)}
+            step={getFontWeightSliderStep(supportedWeights)}
+            value={fontWeight}
+            valueLabel={String(Math.round(fontWeight))}
+            onChange={(nextWeight) =>
+              patchTextLayer({
+                fontWeight: getNearestFontWeight(nextWeight, supportedWeights),
+              })
+            }
+          />
+        </InspectorSection>
       ) : null}
 
       {showsCategory(category, "color") ? (
-        <InspectorSection
-          className={INSPECTOR_SECTION_GAP_CLASS}
-          dataSlot="layer-text-color"
-        >
+        <InspectorSection className={INSPECTOR_SECTION_GAP_CLASS} dataSlot="layer-text-color">
           <p className={cn("mb-3", INSPECTOR_SECTION_HEADING_CLASS)}>Color</p>
           <SettingsFillPopover
             hint="Text fill"
@@ -542,10 +509,7 @@ function LayerTextInspector({
       ) : null}
 
       {showsCategory(category, "spacing") ? (
-        <InspectorSection
-          className={INSPECTOR_SECTION_GAP_CLASS}
-          dataSlot="layer-text-spacing"
-        >
+        <InspectorSection className={INSPECTOR_SECTION_GAP_CLASS} dataSlot="layer-text-spacing">
           <p className={cn("mb-3", INSPECTOR_SECTION_HEADING_CLASS)}>Spacing</p>
           <div className="grid gap-2">
             <InspectorElasticSliderRow
@@ -569,7 +533,7 @@ function LayerTextInspector({
         </InspectorSection>
       ) : null}
     </>
-  )
+  );
 }
 
 function LayerShapeInspector({
@@ -577,12 +541,12 @@ function LayerShapeInspector({
   layer,
   onPatch,
 }: {
-  category?: LayerStyleCategory
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  category?: LayerStyleCategory;
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
 }) {
-  const shapeId = layer.shapeId ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId
-  const fillMode = layer.fillMode ?? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode
+  const shapeId = layer.shapeId ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId;
+  const fillMode = layer.fillMode ?? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode;
 
   return (
     <>
@@ -602,10 +566,7 @@ function LayerShapeInspector({
       ) : null}
 
       {showsCategory(category, "fill") ? (
-        <InspectorSection
-          className={INSPECTOR_SECTION_GAP_CLASS}
-          dataSlot="layer-shape-fill-mode"
-        >
+        <InspectorSection className={INSPECTOR_SECTION_GAP_CLASS} dataSlot="layer-shape-fill-mode">
           <p className={cn("mb-2", INSPECTOR_SECTION_HEADING_CLASS)}>Fill mode</p>
           <SegmentTabs
             items={["solid", "gradient", "image", "none"]}
@@ -634,7 +595,7 @@ function LayerShapeInspector({
                   onPatch({
                     imageSource: "upload",
                     imageValue: URL.createObjectURL(file),
-                  })
+                  });
                 }}
                 uploadDelay={0}
               />
@@ -643,12 +604,8 @@ function LayerShapeInspector({
         </InspectorSection>
       ) : null}
 
-      {(fillMode === "solid" || fillMode === "gradient") &&
-      showsCategory(category, "fill") ? (
-        <InspectorSection
-          className={INSPECTOR_SECTION_GAP_CLASS}
-          dataSlot="layer-shape-fill"
-        >
+      {(fillMode === "solid" || fillMode === "gradient") && showsCategory(category, "fill") ? (
+        <InspectorSection className={INSPECTOR_SECTION_GAP_CLASS} dataSlot="layer-shape-fill">
           <p className={INSPECTOR_SECTION_HEADING_CLASS}>Fill</p>
           <SettingsFillPopover
             hint="Fill color"
@@ -660,7 +617,7 @@ function LayerShapeInspector({
         </InspectorSection>
       ) : null}
     </>
-  )
+  );
 }
 
 function LayerImageInspector({
@@ -668,21 +625,18 @@ function LayerImageInspector({
   layer,
   onPatch,
 }: {
-  category?: LayerStyleCategory
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  category?: LayerStyleCategory;
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
 }) {
-  const isIllustration = isDraftingIllustrationLayer(layer)
+  const isIllustration = isDraftingIllustrationLayer(layer);
 
   if (!showsCategory(category, "image")) {
-    return null
+    return null;
   }
 
   return (
-    <InspectorSection
-      className={INSPECTOR_SECTION_GAP_CLASS}
-      dataSlot="layer-image-inspector"
-    >
+    <InspectorSection className={INSPECTOR_SECTION_GAP_CLASS} dataSlot="layer-image-inspector">
       {isIllustration ? (
         <div className={INSPECTOR_SECTION_GAP_CLASS}>
           <p className={cn("mb-3", INSPECTOR_SECTION_HEADING_CLASS)}>Color</p>
@@ -711,7 +665,7 @@ function LayerImageInspector({
                 onPatch({
                   imageSource: "upload",
                   imageValue: URL.createObjectURL(file),
-                })
+                });
               }}
               uploadDelay={0}
             />
@@ -728,7 +682,7 @@ function LayerImageInspector({
         />
       </div>
     </InspectorSection>
-  )
+  );
 }
 
 function LayerShaderInspector({
@@ -736,11 +690,11 @@ function LayerShaderInspector({
   layer,
   onPatch,
 }: {
-  category?: LayerStyleCategory
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  category?: LayerStyleCategory;
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
 }) {
-  const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader()
+  const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader();
 
   return (
     <>
@@ -765,6 +719,5 @@ function LayerShaderInspector({
         </div>
       ) : null}
     </>
-  )
+  );
 }
-

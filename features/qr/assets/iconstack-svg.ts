@@ -1,93 +1,86 @@
-import type { QraftyGradient } from "@/features/qr/model/state"
+import type { QraftyGradient } from "@/features/qr/model/state";
 import {
   getQraftyGradientCenter,
   qraftyRadialCenterAsPercent,
-} from "@/features/qr/styles/qrafty-gradient-geometry"
+} from "@/features/qr/styles/qrafty-gradient-geometry";
 
-const ICONSTACK_GRADIENT_ID = "iconstack-icon-gradient"
-const ICONSTACK_SHAPE_TAG =
-  /<(path|circle|rect|polygon|polyline|ellipse|line)\b/i
+const ICONSTACK_GRADIENT_ID = "iconstack-icon-gradient";
+const ICONSTACK_SHAPE_TAG = /<(path|circle|rect|polygon|polyline|ellipse|line)\b/i;
 
 function readSvgLengthAttribute(value: string | null | undefined, fallback: number) {
   if (!value) {
-    return fallback
+    return fallback;
   }
 
-  const parsed = Number.parseFloat(value)
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 function ensureIconstackSvgViewBox(markup: string) {
   if (/\bviewBox=/i.test(markup)) {
-    return markup
+    return markup;
   }
 
-  const openTagMatch = markup.match(/<svg\b([^>]*)>/i)
+  const openTagMatch = markup.match(/<svg\b([^>]*)>/i);
   if (!openTagMatch) {
-    return markup
+    return markup;
   }
 
-  const attributes = openTagMatch[1]
-  const width = readSvgLengthAttribute(attributes.match(/\bwidth="([^"]+)"/i)?.[1], 24)
-  const height = readSvgLengthAttribute(attributes.match(/\bheight="([^"]+)"/i)?.[1], 24)
+  const attributes = openTagMatch[1];
+  const width = readSvgLengthAttribute(attributes.match(/\bwidth="([^"]+)"/i)?.[1], 24);
+  const height = readSvgLengthAttribute(attributes.match(/\bheight="([^"]+)"/i)?.[1], 24);
 
-  return markup.replace(
-    /<svg\b([^>]*)>/i,
-    `<svg$1 viewBox="0 0 ${width} ${height}">`,
-  )
+  return markup.replace(/<svg\b([^>]*)>/i, `<svg$1 viewBox="0 0 ${width} ${height}">`);
 }
 
 export function normalizeIconstackSvgMarkup(svg: string) {
-  const withoutComments = svg.replace(/<!--[\s\S]*?-->/g, "").trim()
-  return ensureIconstackSvgViewBox(withoutComments)
+  const withoutComments = svg.replace(/<!--[\s\S]*?-->/g, "").trim();
+  return ensureIconstackSvgViewBox(withoutComments);
 }
 
 export function isValidIconstackSvgMarkup(svg: string) {
-  const normalized = normalizeIconstackSvgMarkup(svg)
+  const normalized = normalizeIconstackSvgMarkup(svg);
 
   if (!/<svg[\s>]/i.test(normalized)) {
-    return false
+    return false;
   }
 
-  return ICONSTACK_SHAPE_TAG.test(normalized)
+  return ICONSTACK_SHAPE_TAG.test(normalized);
 }
 
 function svgMarkupToDataUrl(markup: string) {
-  return `data:image/svg+xml,${encodeURIComponent(markup)}`
+  return `data:image/svg+xml,${encodeURIComponent(markup)}`;
 }
 
 export function recolorSvgMarkup(svg: string, color: string) {
-  let next = svg
+  let next = svg;
 
-  next = next.replaceAll("currentColor", color)
-  next = next.replace(/stroke="(?!none)([^"]+)"/gi, `stroke="${color}"`)
-  next = next.replace(/fill="(?!none)([^"]+)"/gi, `fill="${color}"`)
+  next = next.replaceAll("currentColor", color);
+  next = next.replace(/stroke="(?!none)([^"]+)"/gi, `stroke="${color}"`);
+  next = next.replace(/fill="(?!none)([^"]+)"/gi, `fill="${color}"`);
 
-  return next
+  return next;
 }
 
 export function createIconstackIconDataUrl(svg: string, color: string) {
-  return svgMarkupToDataUrl(recolorSvgMarkup(normalizeIconstackSvgMarkup(svg), color))
+  return svgMarkupToDataUrl(recolorSvgMarkup(normalizeIconstackSvgMarkup(svg), color));
 }
 
 export function createIconstackIconGradientDataUrl(svg: string, gradient: QraftyGradient) {
-  const gradientMarkup = createSvgGradientMarkup(gradient)
-  const fillValue = `url(#${ICONSTACK_GRADIENT_ID})`
-  const withDefinitions = injectSvgDefinitions(normalizeIconstackSvgMarkup(svg), gradientMarkup)
+  const gradientMarkup = createSvgGradientMarkup(gradient);
+  const fillValue = `url(#${ICONSTACK_GRADIENT_ID})`;
+  const withDefinitions = injectSvgDefinitions(normalizeIconstackSvgMarkup(svg), gradientMarkup);
 
   return svgMarkupToDataUrl(
     withDefinitions
       .replaceAll("currentColor", fillValue)
       .replace(/stroke="(?!none)([^"]+)"/gi, `stroke="${fillValue}"`)
       .replace(/fill="(?!none)([^"]+)"/gi, `fill="${fillValue}"`),
-  )
+  );
 }
 
 function injectSvgDefinitions(markup: string, definitionsMarkup: string) {
-  return markup.replace(
-    /<svg\b([^>]*)>/,
-    `<svg$1><defs>${definitionsMarkup}</defs>`,
-  )
+  return markup.replace(/<svg\b([^>]*)>/, `<svg$1><defs>${definitionsMarkup}</defs>`);
 }
 
 function createSvgGradientMarkup(gradient: QraftyGradient) {
@@ -96,14 +89,14 @@ function createSvgGradientMarkup(gradient: QraftyGradient) {
       (colorStop) =>
         `<stop offset="${Math.round(colorStop.offset * 100)}%" stop-color="${colorStop.color}" />`,
     )
-    .join("")
+    .join("");
 
   if (gradient.type === "radial") {
-    const { cx, cy } = qraftyRadialCenterAsPercent(getQraftyGradientCenter(gradient))
-    return `<radialGradient id="${ICONSTACK_GRADIENT_ID}" cx="${cx}" cy="${cy}" r="50%">${colorStopsMarkup}</radialGradient>`
+    const { cx, cy } = qraftyRadialCenterAsPercent(getQraftyGradientCenter(gradient));
+    return `<radialGradient id="${ICONSTACK_GRADIENT_ID}" cx="${cx}" cy="${cy}" r="50%">${colorStopsMarkup}</radialGradient>`;
   }
 
-  const rotationDegrees = (gradient.rotation * 180) / Math.PI
+  const rotationDegrees = (gradient.rotation * 180) / Math.PI;
 
-  return `<linearGradient id="${ICONSTACK_GRADIENT_ID}" gradientUnits="objectBoundingBox" gradientTransform="rotate(${rotationDegrees} 0.5 0.5)">${colorStopsMarkup}</linearGradient>`
+  return `<linearGradient id="${ICONSTACK_GRADIENT_ID}" gradientUnits="objectBoundingBox" gradientTransform="rotate(${rotationDegrees} 0.5 0.5)">${colorStopsMarkup}</linearGradient>`;
 }

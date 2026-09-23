@@ -1,28 +1,25 @@
-"use client"
+"use client";
 
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import type { Fill } from "@/components/ui/fill-picker/public-api"
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
-import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils"
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
-import { PaletteColorStopList } from "@/features/shell/inspector/PaletteColorStopList"
-import { SettingsFillPopover } from "@/features/shell/inspector/settings-ui"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { Fill } from "@/components/ui/fill-picker/public-api";
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext";
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
+import { PaletteColorStopList } from "@/features/shell/inspector/PaletteColorStopList";
+import { SettingsFillPopover } from "@/features/shell/inspector/settings-ui";
 import {
   extractSvgPaintColors,
   getIllustrationDisplaySrc,
   normalizeSvgPaintColor,
   resolveIllustrationDisplayColors,
   type DraftingIllustrationColorStop,
-} from "@/features/canvas/assets/illustration-recolor"
-import { useIllustrationSvgMarkup } from "@/features/canvas/assets/use-illustration-svg"
-import {
-  cornerRadiiToCss,
-  resolveLayerCornerRadii,
-} from "@/features/canvas/model/corner-radius"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/assets/illustration-recolor";
+import { useIllustrationSvgMarkup } from "@/features/canvas/assets/use-illustration-svg";
+import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import { cn } from "@/lib/utils";
 
 function patchIllustrationStops(
   sourceColors: readonly string[],
@@ -30,12 +27,12 @@ function patchIllustrationStops(
   index: number,
   nextColor: string,
 ): DraftingIllustrationColorStop[] {
-  const display = resolveIllustrationDisplayColors(sourceColors, currentStops)
-  const to = normalizeSvgPaintColor(nextColor) ?? nextColor.toLowerCase()
+  const display = resolveIllustrationDisplayColors(sourceColors, currentStops);
+  const to = normalizeSvgPaintColor(nextColor) ?? nextColor.toLowerCase();
   return sourceColors.map((from, colorIndex) => ({
     from,
     to: colorIndex === index ? to : (display[colorIndex] ?? from),
-  }))
+  }));
 }
 
 export function IllustrationFloatingColorControl({
@@ -43,21 +40,21 @@ export function IllustrationFloatingColorControl({
   onPatch,
   theme,
 }: {
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  theme: ThemeMode
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  theme: ThemeMode;
 }) {
-  const mobileDensity = useMobileInspectorDensity()
-  const mobileNav = useMobileDrawerNavigation()
-  const markup = useIllustrationSvgMarkup(layer.imageValue)
-  const sourceColors = markup ? extractSvgPaintColors(markup) : []
+  const mobileDensity = useMobileInspectorDensity();
+  const mobileNav = useMobileDrawerNavigation();
+  const markup = useIllustrationSvgMarkup(layer.imageValue);
+  const sourceColors = markup ? extractSvgPaintColors(markup) : [];
   const displayColors = resolveIllustrationDisplayColors(
     sourceColors,
     layer.illustrationColorStops,
-  )
+  );
 
   if (sourceColors.length === 0) {
-    return null
+    return null;
   }
 
   function patchStop(index: number, nextColor: string) {
@@ -68,7 +65,7 @@ export function IllustrationFloatingColorControl({
         index,
         nextColor,
       ),
-    })
+    });
   }
 
   if (sourceColors.length === 1) {
@@ -91,12 +88,12 @@ export function IllustrationFloatingColorControl({
             variant="swatch"
             triggerClassName="size-9 rounded-xl [&>span]:size-7 [&>span]:rounded-xl"
             onValueChange={(_fill: Fill, css: string) => {
-              patchStop(0, fillPreviewHex(css))
+              patchStop(0, fillPreviewHex(css));
             }}
           />
         </InspectorThemeContext.Provider>
       </div>
-    )
+    );
   }
 
   const multiColorBody = (
@@ -107,7 +104,7 @@ export function IllustrationFloatingColorControl({
         onPaletteColorChange={(index, color) => patchStop(index, color)}
       />
     </>
-  )
+  );
 
   const multiColorSwatch = (
     <span
@@ -122,7 +119,7 @@ export function IllustrationFloatingColorControl({
         />
       ))}
     </span>
-  )
+  );
 
   if (mobileDensity && mobileNav) {
     return (
@@ -145,14 +142,14 @@ export function IllustrationFloatingColorControl({
                     {multiColorBody}
                   </div>
                 ),
-              })
+              });
             }}
           >
             {multiColorSwatch}
           </button>
         </InspectorThemeContext.Provider>
       </div>
-    )
+    );
   }
 
   return (
@@ -189,25 +186,25 @@ export function IllustrationFloatingColorControl({
         </Popover>
       </InspectorThemeContext.Provider>
     </div>
-  )
+  );
 }
 
 export function IllustrationInspectorColorSection({
   layer,
   onPatch,
 }: {
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
 }) {
-  const markup = useIllustrationSvgMarkup(layer.imageValue)
-  const sourceColors = markup ? extractSvgPaintColors(markup) : []
+  const markup = useIllustrationSvgMarkup(layer.imageValue);
+  const sourceColors = markup ? extractSvgPaintColors(markup) : [];
   const displayColors = resolveIllustrationDisplayColors(
     sourceColors,
     layer.illustrationColorStops,
-  )
+  );
 
   if (sourceColors.length === 0) {
-    return null
+    return null;
   }
 
   function patchStop(index: number, nextColor: string) {
@@ -218,7 +215,7 @@ export function IllustrationInspectorColorSection({
         index,
         nextColor,
       ),
-    })
+    });
   }
 
   if (sourceColors.length === 1) {
@@ -230,7 +227,7 @@ export function IllustrationInspectorColorSection({
         value={displayColors[0] ?? "#171717"}
         onValueChange={(_fill, css) => patchStop(0, fillPreviewHex(css))}
       />
-    )
+    );
   }
 
   return (
@@ -238,21 +235,21 @@ export function IllustrationInspectorColorSection({
       colors={displayColors}
       onPaletteColorChange={(index, color) => patchStop(index, color)}
     />
-  )
+  );
 }
 
 export function IllustrationLayerImage({ layer }: { layer: DraftingCanvasLayer }) {
-  const imageValue = layer.imageValue ?? ""
-  const markup = useIllustrationSvgMarkup(imageValue)
+  const imageValue = layer.imageValue ?? "";
+  const markup = useIllustrationSvgMarkup(imageValue);
   const src =
     markup && imageValue
       ? getIllustrationDisplaySrc(imageValue, markup, layer.illustrationColorStops)
-      : imageValue
-  const cornerStyle = cornerRadiiToCss(resolveLayerCornerRadii(layer, 0))
-  const fit = layer.imageFit ?? "contain"
+      : imageValue;
+  const cornerStyle = cornerRadiiToCss(resolveLayerCornerRadii(layer, 0));
+  const fit = layer.imageFit ?? "contain";
 
   if (!src) {
-    return null
+    return null;
   }
 
   return (
@@ -267,5 +264,5 @@ export function IllustrationLayerImage({ layer }: { layer: DraftingCanvasLayer }
         objectFit: fit,
       }}
     />
-  )
+  );
 }

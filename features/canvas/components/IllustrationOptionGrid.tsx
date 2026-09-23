@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import type { IllustrationAsset } from "@/features/canvas/assets/illustration-sets"
+import type { IllustrationAsset } from "@/features/canvas/assets/illustration-sets";
 
-type IllustrationOptionGridVariant = "insert-desktop" | "insert-drafting"
+type IllustrationOptionGridVariant = "insert-desktop" | "insert-drafting";
 
 type IllustrationOptionGridProps = {
-  assets: readonly IllustrationAsset[]
-  dataSlot?: string
-  onSelect: (asset: IllustrationAsset) => void
-  variant: IllustrationOptionGridVariant
-}
+  assets: readonly IllustrationAsset[];
+  dataSlot?: string;
+  onSelect: (asset: IllustrationAsset) => void;
+  variant: IllustrationOptionGridVariant;
+};
 
 export function IllustrationOptionGrid({
   assets,
@@ -17,10 +17,10 @@ export function IllustrationOptionGrid({
   onSelect,
   variant,
 }: IllustrationOptionGridProps) {
-  const isInsertDesktop = variant === "insert-desktop"
+  const isInsertDesktop = variant === "insert-desktop";
   const buttonClassName = isInsertDesktop
     ? "dn-option-tile flex aspect-square w-full min-w-0 items-center justify-center p-1.5 dn-squircle-xs"
-    : "flex aspect-square w-full min-w-0 items-center justify-center p-2 text-[var(--canvas-ink-muted)] transition hover:bg-[var(--settings-panel-bg-hover)] hover:text-[var(--canvas-ink)]"
+    : "flex aspect-square w-full min-w-0 items-center justify-center p-2 text-[var(--canvas-ink-muted)] transition hover:bg-[var(--settings-panel-bg-hover)] hover:text-[var(--canvas-ink)]";
 
   return (
     <div
@@ -42,14 +42,9 @@ export function IllustrationOptionGrid({
           onClick={() => onSelect(asset)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            alt=""
-            className="size-8 object-contain"
-            draggable={false}
-            src={asset.path}
-          />
+          <img alt="" className="size-8 object-contain" draggable={false} src={asset.path} />
         </button>
       ))}
     </div>
-  )
+  );
 }

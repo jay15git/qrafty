@@ -61,9 +61,7 @@
 }
 
 [data-slot="floating-inspector"] .t-input.is-shaking {
-  animation: inspector-input-shake calc(
-      var(--shake-dur-a) * 2 + var(--shake-dur-b) * 2
-    ) linear;
+  animation: inspector-input-shake calc(var(--shake-dur-a) * 2 + var(--shake-dur-b) * 2) linear;
 }
 
 @keyframes inspector-input-shake {

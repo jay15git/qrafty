@@ -1,34 +1,29 @@
-"use client"
+"use client";
 
-import { useContext, useState } from "react"
+import { useContext, useState } from "react";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select"
-import { QrStyleOptionPreview } from "@/features/qr/components/QrStyleOptionPreview"
-import type { StylePreviewKind } from "@/features/qr/components/StylePreview"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { QrStyleOptionPreview } from "@/features/qr/components/QrStyleOptionPreview";
+import type { StylePreviewKind } from "@/features/qr/components/StylePreview";
 import {
   ERROR_CORRECTION_LEVEL_OPTIONS,
   formatQrTypeNumberLabel,
   TYPE_NUMBER_MAX,
   TYPE_NUMBER_MIN,
-} from "@/features/qr/styles/encoding-options"
-import type { QrTypeNumber } from "@/features/qr/model/types"
+} from "@/features/qr/styles/encoding-options";
+import type { QrTypeNumber } from "@/features/qr/model/types";
 import {
   QR_BACKGROUND_SHAPES,
   shapeViewBox,
   type QrBackgroundShapeId,
-} from "@/features/qr/styles/background-shapes"
-import { ElementsSection } from "@/features/shell/inspector/ElementsSection"
+} from "@/features/qr/styles/background-shapes";
+import { ElementsSection } from "@/features/shell/inspector/ElementsSection";
 import {
   isQrStylePartId,
   QR_STYLE_PART_DEFINITIONS,
-} from "@/features/shell/inspector/qr-style-parts"
-import { ContentFields } from "@/features/shell/inspector/ContentFields"
-import { Ellipsis } from "lucide-react"
+} from "@/features/shell/inspector/qr-style-parts";
+import { ContentFields } from "@/features/shell/inspector/ContentFields";
+import { Ellipsis } from "lucide-react";
 import {
   ContentTypeBrowser,
   QrColorPartBrowser,
@@ -38,12 +33,12 @@ import {
   SettingsTilePopover,
   SettingsSwitchRow,
   SettingsTabPanel,
-} from "@/features/shell/inspector/settings-ui"
-import { normalizeContentTypeForPicker } from "@/features/qr/content/input-options"
+} from "@/features/shell/inspector/settings-ui";
+import { normalizeContentTypeForPicker } from "@/features/qr/content/input-options";
 import {
   dotMatrixAnimationSpeedToSliderPercent,
   sliderPercentToDotMatrixAnimationSpeed,
-} from "@/features/qr/model/state"
+} from "@/features/qr/model/state";
 import {
   MOTION_COLOR_SWATCHES,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
@@ -51,23 +46,17 @@ import {
   type QrDotMatrixColorPreset,
   type QrDotMatrixSquareLoader,
   type QraftyDataModulesStyle,
-} from "@/features/qr/model/state"
-import { SettingsPaperShaderControls } from "@/features/shell/inspector/PaperShaderSettings"
-import { PaperShaderOptionPreview } from "@/features/canvas/components/PaperShaderOptionPreview"
-import { WallpaperOptionPreview } from "@/features/canvas/components/WallpaperOptionPreview"
-import { preloadRasterImage } from "@/features/canvas/rendering/preload-raster-image"
-import { cn } from "@/lib/utils"
-import {
-  getBrandIconById,
-  POPULAR_BRAND_ICON_IDS,
-} from "@/features/qr/assets/brand-icons"
-import {
-  LogoIconPicker,
-  LogoPickerTileIcon,
-} from "@/features/shell/inspector/SettingsPickers"
-import { parseFill, type Fill } from "@/components/ui/fill-picker/public-api"
-import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils"
-import { QrColorFillControls } from "@/features/shell/inspector/QrColorFillControls"
+} from "@/features/qr/model/state";
+import { SettingsPaperShaderControls } from "@/features/shell/inspector/PaperShaderSettings";
+import { PaperShaderOptionPreview } from "@/features/canvas/components/PaperShaderOptionPreview";
+import { WallpaperOptionPreview } from "@/features/canvas/components/WallpaperOptionPreview";
+import { preloadRasterImage } from "@/features/canvas/rendering/preload-raster-image";
+import { cn } from "@/lib/utils";
+import { getBrandIconById, POPULAR_BRAND_ICON_IDS } from "@/features/qr/assets/brand-icons";
+import { LogoIconPicker, LogoPickerTileIcon } from "@/features/shell/inspector/SettingsPickers";
+import { parseFill, type Fill } from "@/components/ui/fill-picker/public-api";
+import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
+import { QrColorFillControls } from "@/features/shell/inspector/QrColorFillControls";
 import {
   applyCornerFill,
   applyLogoFill,
@@ -86,32 +75,32 @@ import {
   solidColorToFillCss,
   type UnifiedQrFillPatches,
   type UnifiedQrFillSettings,
-} from "@/features/shell/inspector/settings-bridge"
+} from "@/features/shell/inspector/settings-bridge";
 import {
   getCardGeneratedShaderDefinitions,
   type PaperShaderId,
-} from "@/features/canvas/rendering/paper-shader-definitions"
-import { createDefaultDraftingCardPaperShader } from "@/features/canvas/model/card-state"
-import { isSceneWallpaperPath, SCENE_WALLPAPERS } from "@/features/canvas/assets/scene-wallpapers"
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
+} from "@/features/canvas/rendering/paper-shader-definitions";
+import { createDefaultDraftingCardPaperShader } from "@/features/canvas/model/card-state";
+import { isSceneWallpaperPath, SCENE_WALLPAPERS } from "@/features/canvas/assets/scene-wallpapers";
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
 import {
   getInspectorSectionTab,
   setInspectorSectionTab,
-} from "@/features/shell/inspector/inspector-section-tabs"
-import { ScrollPersistScope } from "@/lib/persisted-element-scroll"
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
-import { SettingsOptionShelf } from "@/features/shell/inspector/MobileSettingsRail"
-import { SETTINGS_PREVIEW_TILE_FLUID } from "@/features/shell/inspector/SettingsPreviewTiles"
-import { SettingsImageUploadTile } from "@/features/shell/inspector/SettingsFillOptionGrid"
+} from "@/features/shell/inspector/inspector-section-tabs";
+import { ScrollPersistScope } from "@/lib/persisted-element-scroll";
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
+import { SettingsOptionShelf } from "@/features/shell/inspector/MobileSettingsRail";
+import { SETTINGS_PREVIEW_TILE_FLUID } from "@/features/shell/inspector/SettingsPreviewTiles";
+import { SettingsImageUploadTile } from "@/features/shell/inspector/SettingsFillOptionGrid";
 import {
   SETTINGS_FILL_LINEAR_PRESETS,
   SETTINGS_FILL_RADIAL_PRESETS,
   SETTINGS_FILL_SOLID_PRESETS,
-} from "@/features/shell/inspector/settings-fill-presets"
-import type { LogoSettings } from "@/features/shell/model/toolbar-types"
+} from "@/features/shell/inspector/settings-fill-presets";
+import type { LogoSettings } from "@/features/shell/model/toolbar-types";
 
-const SECTION_STACK = "dn-section-stack"
+const SECTION_STACK = "dn-section-stack";
 
 function QrStylePreviewGrid({
   options,
@@ -119,10 +108,10 @@ function QrStylePreviewGrid({
   selected,
   onSelect,
 }: {
-  options: ReadonlyArray<{ label: string; value: string }>
-  previewKind: StylePreviewKind
-  selected: string
-  onSelect: (value: string) => void
+  options: ReadonlyArray<{ label: string; value: string }>;
+  previewKind: StylePreviewKind;
+  selected: string;
+  onSelect: (value: string) => void;
 }) {
   return (
     <SettingsOptionShelf
@@ -132,7 +121,7 @@ function QrStylePreviewGrid({
       persistKey={`qr-style:${previewKind}`}
     >
       {options.map((option) => {
-        const isSelected = selected === option.value
+        const isSelected = selected === option.value;
 
         return (
           <button
@@ -155,22 +144,22 @@ function QrStylePreviewGrid({
               />
             </span>
           </button>
-        )
+        );
       })}
     </SettingsOptionShelf>
-  )
+  );
 }
 
-export const SQUARE_SHAPE_VIEWBOX = "0 0 24 24"
+export const SQUARE_SHAPE_VIEWBOX = "0 0 24 24";
 
 export function ShapeGlyph({
   className,
   path,
   viewBox,
 }: {
-  className?: string
-  path?: string
-  viewBox: string
+  className?: string;
+  path?: string;
+  viewBox: string;
 }) {
   return (
     <svg
@@ -181,21 +170,21 @@ export function ShapeGlyph({
     >
       {path ? <path d={path} /> : <rect width="24" height="24" />}
     </svg>
-  )
+  );
 }
 
 const SHAPE_SELECT_TILE =
-  "aspect-square h-auto justify-center gap-0 px-0 [&>span]:grid [&>span]:place-items-center [&>span:last-child]:hidden"
+  "aspect-square h-auto justify-center gap-0 px-0 [&>span]:grid [&>span]:place-items-center [&>span:last-child]:hidden";
 
 function ShapeCatalogueSelect({
   selected,
   onSelect,
 }: {
-  selected: QrBackgroundShapeId
-  onSelect: (shapeId: QrBackgroundShapeId) => void
+  selected: QrBackgroundShapeId;
+  onSelect: (shapeId: QrBackgroundShapeId) => void;
 }) {
-  const theme = useContext(InspectorThemeContext)
-  const mobileDensity = useMobileInspectorDensity()
+  const theme = useContext(InspectorThemeContext);
+  const mobileDensity = useMobileInspectorDensity();
 
   if (mobileDensity) {
     return (
@@ -234,15 +223,12 @@ function ShapeCatalogueSelect({
           </button>
         ))}
       </SettingsOptionShelf>
-    )
+    );
   }
 
   return (
     <div className="dn-content-type-select w-full min-w-0">
-      <Select
-        value={selected}
-        onValueChange={(next) => onSelect(next as QrBackgroundShapeId)}
-      >
+      <Select value={selected} onValueChange={(next) => onSelect(next as QrBackgroundShapeId)}>
         <SelectTrigger
           className="dn-content-type-select-trigger w-full min-w-0 dn-squircle-sm"
           placeholder="Shape"
@@ -289,27 +275,23 @@ function ShapeCatalogueSelect({
               }
               value={option.id}
             >
-              <ShapeGlyph
-                className="size-7"
-                path={option.path}
-                viewBox={shapeViewBox(option)}
-              />
+              <ShapeGlyph className="size-7" path={option.path} viewBox={shapeViewBox(option)} />
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
     </div>
-  )
+  );
 }
 
 function PaperShaderPreviewRow({
   selected,
   onSelect,
 }: {
-  selected: PaperShaderId
-  onSelect: (shaderId: PaperShaderId) => void
+  selected: PaperShaderId;
+  onSelect: (shaderId: PaperShaderId) => void;
 }) {
-  const shaders = getCardGeneratedShaderDefinitions()
+  const shaders = getCardGeneratedShaderDefinitions();
 
   return (
     <SettingsOptionShelf
@@ -319,7 +301,7 @@ function PaperShaderPreviewRow({
       persistKey="paper-shader-grid"
     >
       {shaders.map((option) => {
-        const isSelected = selected === option.id
+        const isSelected = selected === option.id;
 
         return (
           <button
@@ -337,10 +319,10 @@ function PaperShaderPreviewRow({
               shaderId={option.id}
             />
           </button>
-        )
+        );
       })}
     </SettingsOptionShelf>
-  )
+  );
 }
 
 function WallpaperPreviewRow({
@@ -349,17 +331,16 @@ function WallpaperPreviewRow({
   onUpload,
   selectedPath,
 }: {
-  onClear: () => void
-  onSelect: (imagePath: string) => void
-  onUpload: (imageUrl: string) => void
-  selectedPath: string
+  onClear: () => void;
+  onSelect: (imagePath: string) => void;
+  onUpload: (imageUrl: string) => void;
+  selectedPath: string;
 }) {
-  const mobileDensity = useMobileInspectorDensity()
-  const customImageUrl =
-    selectedPath && !isSceneWallpaperPath(selectedPath) ? selectedPath : ""
+  const mobileDensity = useMobileInspectorDensity();
+  const customImageUrl = selectedPath && !isSceneWallpaperPath(selectedPath) ? selectedPath : "";
 
   const wallpaperTiles = SCENE_WALLPAPERS.map((wallpaper) => {
-    const isSelected = selectedPath === wallpaper.path
+    const isSelected = selectedPath === wallpaper.path;
 
     return (
       <button
@@ -371,7 +352,7 @@ function WallpaperPreviewRow({
         type="button"
         onClick={() => onSelect(wallpaper.path)}
         onPointerEnter={() => {
-          void preloadRasterImage(wallpaper.path)
+          void preloadRasterImage(wallpaper.path);
         }}
       >
         <WallpaperOptionPreview
@@ -380,8 +361,8 @@ function WallpaperPreviewRow({
           previewPath={wallpaper.previewPath}
         />
       </button>
-    )
-  })
+    );
+  });
 
   if (mobileDensity) {
     return (
@@ -401,7 +382,7 @@ function WallpaperPreviewRow({
         />
         {wallpaperTiles}
       </SettingsOptionShelf>
-    )
+    );
   }
 
   return (
@@ -425,19 +406,19 @@ function WallpaperPreviewRow({
         {wallpaperTiles}
       </SettingsOptionShelf>
     </>
-  )
+  );
 }
 
 function MotionPresetSelect({
   selected,
   onSelect,
 }: {
-  selected: QrDotMatrixSquareLoader
-  onSelect: (loader: QrDotMatrixSquareLoader) => void
+  selected: QrDotMatrixSquareLoader;
+  onSelect: (loader: QrDotMatrixSquareLoader) => void;
 }) {
-  const options = QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS
+  const options = QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS;
   const selectedLabel =
-    options.find((option) => option.value === selected)?.label ?? options[0].label
+    options.find((option) => option.value === selected)?.label ?? options[0].label;
 
   return (
     <SettingsLabeledSelect
@@ -446,36 +427,34 @@ function MotionPresetSelect({
       placeholder="Preset"
       value={selectedLabel}
       onChange={(label) => {
-        const option = options.find((item) => item.label === label)
-        if (option) onSelect(option.value)
+        const option = options.find((item) => item.label === label);
+        if (option) onSelect(option.value);
       }}
     />
-  )
+  );
 }
 
 /** Motion animates a single accent color, so presets are solids: the accent
  *  each named motion preset resolves to (see `resolveMotionColors`). The
  *  `theme` slot is the custom color and lives on the swatch instead. */
-const MOTION_COLOR_PRESETS = (
-  (Object.keys(MOTION_COLOR_SWATCHES) as QrDotMatrixColorPreset[]).filter(
-    (preset) => preset !== "theme",
-  )
-).map((preset) => ({
-  preset,
-  fill: solidColorToFillCss(MOTION_COLOR_SWATCHES[preset][1]),
-}))
+const MOTION_COLOR_PRESETS = (Object.keys(MOTION_COLOR_SWATCHES) as QrDotMatrixColorPreset[])
+  .filter((preset) => preset !== "theme")
+  .map((preset) => ({
+    preset,
+    fill: solidColorToFillCss(MOTION_COLOR_SWATCHES[preset][1]),
+  }));
 
 function MotionColorControls({
   animation,
   onChange,
 }: {
-  animation: QrDotMatrixAnimationOptions
-  onChange: (patch: Partial<QrDotMatrixAnimationOptions>) => void
+  animation: QrDotMatrixAnimationOptions;
+  onChange: (patch: Partial<QrDotMatrixAnimationOptions>) => void;
 }) {
-  const customFill = solidColorToFillCss(animation.customColorPeak)
+  const customFill = solidColorToFillCss(animation.customColorPeak);
   const activeFill = MOTION_COLOR_PRESETS.find(
     (option) => option.preset === animation.colorPreset,
-  )?.fill
+  )?.fill;
 
   return (
     <SettingsFillPresetSection
@@ -483,26 +462,26 @@ function MotionColorControls({
       presets={MOTION_COLOR_PRESETS.map((option) => option.fill)}
       value={activeFill ?? customFill}
       onSelect={(_fill, css) => {
-        const hex = fillPreviewHex(css)
-        const preset = MOTION_COLOR_PRESETS.find((option) => option.fill === css)
+        const hex = fillPreviewHex(css);
+        const preset = MOTION_COLOR_PRESETS.find((option) => option.fill === css);
 
         onChange({
           colorPreset: preset?.preset ?? "theme",
           customColorMid: hex,
           customColorPeak: hex,
-        })
+        });
       }}
     />
-  )
+  );
 }
 
 function ContentSection({
   model,
   hideContentTypeBrowser = false,
 }: {
-  model: InspectorModel
+  model: InspectorModel;
   /** The mobile rail owns content-type choice, so the drawer drops the browser. */
-  hideContentTypeBrowser?: boolean
+  hideContentTypeBrowser?: boolean;
 }) {
   const {
     actualContentType,
@@ -511,8 +490,8 @@ function ContentSection({
     onContentPasteApply,
     onContentTypeChange,
     onContentValueChange,
-  } = model
-  const normalizedContentType = normalizeContentTypeForPicker(actualContentType)
+  } = model;
+  const normalizedContentType = normalizeContentTypeForPicker(actualContentType);
 
   return (
     <div className={SECTION_STACK}>
@@ -529,7 +508,7 @@ function ContentSection({
         />
       </SettingsTabPanel>
     </div>
-  )
+  );
 }
 
 const QR_MODULE_SIZE_STYLES = new Set<QraftyDataModulesStyle>([
@@ -540,22 +519,22 @@ const QR_MODULE_SIZE_STYLES = new Set<QraftyDataModulesStyle>([
   "pinched-square",
   "square",
   "star",
-])
+]);
 
 const QR_MODULE_LINE_WIDTH_STYLES = new Set<QraftyDataModulesStyle>([
   "circuit-board",
   "horizontal-line",
   "rounded",
   "vertical-line",
-])
+]);
 
 function formatModuleScaleValue(value: number) {
-  return `${Math.round(value * 100)}%`
+  return `${Math.round(value * 100)}%`;
 }
 
 function QrModuleGeometrySlider({ model }: { model: InspectorModel }) {
-  const { actualPatternSettings, onPatternSettingsChange } = model
-  const dotType = actualPatternSettings.qrDotType
+  const { actualPatternSettings, onPatternSettingsChange } = model;
+  const dotType = actualPatternSettings.qrDotType;
 
   if (QR_MODULE_SIZE_STYLES.has(dotType)) {
     return (
@@ -568,7 +547,7 @@ function QrModuleGeometrySlider({ model }: { model: InspectorModel }) {
         value={actualPatternSettings.moduleSize ?? 1}
         onChange={(moduleSize) => onPatternSettingsChange({ moduleSize })}
       />
-    )
+    );
   }
 
   if (QR_MODULE_LINE_WIDTH_STYLES.has(dotType)) {
@@ -579,45 +558,42 @@ function QrModuleGeometrySlider({ model }: { model: InspectorModel }) {
         max={1}
         min={0.1}
         step={0.05}
-        value={
-          actualPatternSettings.moduleLineWidth ??
-          (dotType === "circuit-board" ? 0.5 : 1)
-        }
+        value={actualPatternSettings.moduleLineWidth ?? (dotType === "circuit-board" ? 0.5 : 1)}
         onChange={(moduleLineWidth) => onPatternSettingsChange({ moduleLineWidth })}
       />
-    )
+    );
   }
 
-  return null
+  return null;
 }
 
-const LOGO_SOURCE_TABS = ["Brand", "Upload", "None"] as const
-type LogoSettingsTab = (typeof LOGO_SOURCE_TABS)[number]
+const LOGO_SOURCE_TABS = ["Brand", "Upload", "None"] as const;
+type LogoSettingsTab = (typeof LOGO_SOURCE_TABS)[number];
 
 function logoSourceTab(sourceMode: LogoSettings["sourceMode"]): LogoSettingsTab {
-  if (sourceMode === "brand") return "Brand"
-  if (sourceMode === "none") return "None"
-  return "Upload"
+  if (sourceMode === "brand") return "Brand";
+  if (sourceMode === "none") return "None";
+  return "Upload";
 }
 
 function QrStyleSection({ model }: { model: InspectorModel }) {
-  const [tab, setTab] = useState(() => getInspectorSectionTab("qr-style", "Module"))
+  const [tab, setTab] = useState(() => getInspectorSectionTab("qr-style", "Module"));
   const {
     actualEncodingSettings,
     actualLogoSettings,
     onEncodingSettingsChange,
     onLogoSettingsChange,
-  } = model
+  } = model;
 
   const errorCorrectionIndex = Math.max(
     0,
     ERROR_CORRECTION_LEVEL_OPTIONS.findIndex(
       (option) => option.value === actualEncodingSettings.errorCorrectionLevel,
     ),
-  )
-  const logoSource = logoSourceTab(actualLogoSettings.sourceMode)
+  );
+  const logoSource = logoSourceTab(actualLogoSettings.sourceMode);
 
-  const part = isQrStylePartId(tab) ? QR_STYLE_PART_DEFINITIONS[tab] : null
+  const part = isQrStylePartId(tab) ? QR_STYLE_PART_DEFINITIONS[tab] : null;
 
   return (
     <div className="dn-section-stack w-full min-w-0 max-w-full">
@@ -626,8 +602,8 @@ function QrStyleSection({ model }: { model: InspectorModel }) {
         placeholder="Part"
         value={tab}
         onChange={(nextTab) => {
-          setTab(nextTab)
-          setInspectorSectionTab("qr-style", nextTab)
+          setTab(nextTab);
+          setInspectorSectionTab("qr-style", nextTab);
         }}
       />
 
@@ -640,21 +616,20 @@ function QrStyleSection({ model }: { model: InspectorModel }) {
               placeholder="Source"
               value={logoSourceTab(actualLogoSettings.sourceMode)}
               onChange={(next) => {
-                const nextSource = next as LogoSettingsTab
+                const nextSource = next as LogoSettingsTab;
 
                 if (nextSource === "Brand") {
                   onLogoSettingsChange({
                     sourceMode: "brand",
                     selectedBrandIconId:
-                      actualLogoSettings.selectedBrandIconId ||
-                      POPULAR_BRAND_ICON_IDS[0],
-                  })
-                  return
+                      actualLogoSettings.selectedBrandIconId || POPULAR_BRAND_ICON_IDS[0],
+                  });
+                  return;
                 }
 
                 onLogoSettingsChange({
                   sourceMode: nextSource === "Upload" ? "upload" : "none",
-                })
+                });
               }}
             />
 
@@ -670,9 +645,7 @@ function QrStyleSection({ model }: { model: InspectorModel }) {
                   className="dn-row-upload-tile"
                   imageUrl={actualLogoSettings.customImageUrl}
                   onClear={() => onLogoSettingsChange({ uploadedImageUrl: "" })}
-                  onUpload={(imageUrl) =>
-                    onLogoSettingsChange({ uploadedImageUrl: imageUrl })
-                  }
+                  onUpload={(imageUrl) => onLogoSettingsChange({ uploadedImageUrl: imageUrl })}
                 />
               </SettingsOptionShelf>
             ) : logoSource === "None" ? null : (
@@ -683,10 +656,10 @@ function QrStyleSection({ model }: { model: InspectorModel }) {
                 persistKey="qr-logo-brands"
               >
                 {POPULAR_BRAND_ICON_IDS.map((iconId) => {
-                  const brandIcon = getBrandIconById(iconId)
+                  const brandIcon = getBrandIconById(iconId);
                   const isSelected =
                     !actualLogoSettings.customImageUrl &&
-                    actualLogoSettings.selectedBrandIconId === iconId
+                    actualLogoSettings.selectedBrandIconId === iconId;
 
                   return (
                     <button
@@ -707,7 +680,7 @@ function QrStyleSection({ model }: { model: InspectorModel }) {
                         <LogoPickerTileIcon iconId={iconId} />
                       </span>
                     </button>
-                  )
+                  );
                 })}
                 <SettingsTilePopover
                   contentClassName="w-[18rem]"
@@ -716,7 +689,7 @@ function QrStyleSection({ model }: { model: InspectorModel }) {
                     <LogoIconPicker
                       selectedId={actualLogoSettings.selectedBrandIconId}
                       onSelect={(selectedBrandIconId) => {
-                        onLogoSettingsChange({ selectedBrandIconId, sourceMode: "brand" })
+                        onLogoSettingsChange({ selectedBrandIconId, sourceMode: "brand" });
                       }}
                     />
                   }
@@ -754,9 +727,7 @@ function QrStyleSection({ model }: { model: InspectorModel }) {
         ) : null}
       </SettingsTabPanel>
 
-      {tab === "Module" ? (
-        <QrModuleGeometrySlider model={model} />
-      ) : null}
+      {tab === "Module" ? <QrModuleGeometrySlider model={model} /> : null}
 
       <SettingsSlider
         formatValue={formatQrTypeNumberLabel}
@@ -771,21 +742,19 @@ function QrStyleSection({ model }: { model: InspectorModel }) {
       />
 
       <SettingsSlider
-        formatValue={(index) =>
-          ERROR_CORRECTION_LEVEL_OPTIONS[index]?.label ?? "Q"
-        }
+        formatValue={(index) => ERROR_CORRECTION_LEVEL_OPTIONS[index]?.label ?? "Q"}
         label="Error correction"
         max={ERROR_CORRECTION_LEVEL_OPTIONS.length - 1}
         min={0}
         step={1}
         value={errorCorrectionIndex}
         onChange={(index) => {
-          const option = ERROR_CORRECTION_LEVEL_OPTIONS[index]
-          if (option) onEncodingSettingsChange({ errorCorrectionLevel: option.value })
+          const option = ERROR_CORRECTION_LEVEL_OPTIONS[index];
+          if (option) onEncodingSettingsChange({ errorCorrectionLevel: option.value });
         }}
       />
     </div>
-  )
+  );
 }
 
 function QrColorUnifiedSettings({
@@ -793,12 +762,12 @@ function QrColorUnifiedSettings({
   unifiedSettings,
   onApplyUnifiedPatches,
 }: {
-  model: InspectorModel
-  unifiedSettings: UnifiedQrFillSettings
-  onApplyUnifiedPatches: (patches: UnifiedQrFillPatches) => void
+  model: InspectorModel;
+  unifiedSettings: UnifiedQrFillSettings;
+  onApplyUnifiedPatches: (patches: UnifiedQrFillPatches) => void;
 }) {
-  const { actualPatternSettings } = model
-  const moduleFill = readPatternModuleFillCss(actualPatternSettings)
+  const { actualPatternSettings } = model;
+  const moduleFill = readPatternModuleFillCss(actualPatternSettings);
 
   return (
     <QrColorFillControls
@@ -816,9 +785,7 @@ function QrColorUnifiedSettings({
             applyUnifiedQrModuleImageUrl(imageUrl, sourceMode, unifiedSettings),
           ),
         onClear: () =>
-          onApplyUnifiedPatches(
-            applyUnifiedQrModuleImageUrl("", "upload", unifiedSettings),
-          ),
+          onApplyUnifiedPatches(applyUnifiedQrModuleImageUrl("", "upload", unifiedSettings)),
       }}
       modulePattern={{
         selectedPalette: actualPatternSettings.dotsPalette,
@@ -855,7 +822,7 @@ function QrColorUnifiedSettings({
       value={moduleFill}
       onValueChange={(fill) => onApplyUnifiedPatches(applyUnifiedQrFill(fill, unifiedSettings))}
     />
-  )
+  );
 }
 
 function QrColorPerPartSettings({
@@ -863,9 +830,9 @@ function QrColorPerPartSettings({
   tab,
   onTabChange,
 }: {
-  model: InspectorModel
-  tab: string
-  onTabChange: (nextTab: string) => void
+  model: InspectorModel;
+  tab: string;
+  onTabChange: (nextTab: string) => void;
 }) {
   const {
     actualCornersSettings,
@@ -874,27 +841,24 @@ function QrColorPerPartSettings({
     onCornersSettingsChange,
     onLogoSettingsChange,
     onPatternSettingsChange,
-  } = model
+  } = model;
 
-  const moduleFill = readPatternModuleFillCss(actualPatternSettings)
+  const moduleFill = readPatternModuleFillCss(actualPatternSettings);
   const eyeFill = readCornerFillCss(
     actualCornersSettings.cornerDotColorMode,
     actualCornersSettings.cornerDotSolidColor,
     actualCornersSettings.cornerDotGradient,
-  )
+  );
   const frameFill = readCornerFillCss(
     actualCornersSettings.cornerSquareColorMode,
     actualCornersSettings.cornerSquareSolidColor,
     actualCornersSettings.cornerSquareGradient,
-  )
-  const logoFill = readLogoFillCss(actualLogoSettings)
+  );
+  const logoFill = readLogoFillCss(actualLogoSettings);
 
   return (
     <>
-      <QrColorPartBrowser
-        selected={tab}
-        onSelect={(nextPart) => onTabChange(nextPart)}
-      />
+      <QrColorPartBrowser selected={tab} onSelect={(nextPart) => onTabChange(nextPart)} />
 
       <SettingsTabPanel activeKey={tab}>
         {tab === "Logo" ? (
@@ -917,8 +881,7 @@ function QrColorPerPartSettings({
               imageUrl: actualPatternSettings.moduleFillImageUrl,
               onUpload: (imageUrl, sourceMode = "upload") =>
                 onPatternSettingsChange(applyPatternModuleImageUrl(imageUrl, sourceMode)),
-              onClear: () =>
-                onPatternSettingsChange(applyPatternModuleImageUrl("", "upload")),
+              onClear: () => onPatternSettingsChange(applyPatternModuleImageUrl("", "upload")),
             }}
             modulePattern={{
               selectedPalette: actualPatternSettings.dotsPalette,
@@ -963,11 +926,11 @@ function QrColorPerPartSettings({
         ) : null}
       </SettingsTabPanel>
     </>
-  )
+  );
 }
 
 function QrColorSection({ model }: { model: InspectorModel }) {
-  const [tab, setTab] = useState(() => getInspectorSectionTab("qr-style", "Module"))
+  const [tab, setTab] = useState(() => getInspectorSectionTab("qr-style", "Module"));
   const {
     actualCornersSettings,
     actualLogoSettings,
@@ -975,46 +938,46 @@ function QrColorSection({ model }: { model: InspectorModel }) {
     onCornersSettingsChange,
     onLogoSettingsChange,
     onPatternSettingsChange,
-  } = model
+  } = model;
 
-  const isUnified = actualPatternSettings.gradientLinkMode === "unified"
+  const isUnified = actualPatternSettings.gradientLinkMode === "unified";
   const unifiedSettings: UnifiedQrFillSettings = {
     pattern: actualPatternSettings,
     corners: actualCornersSettings,
     logo: actualLogoSettings,
-  }
+  };
 
   function applyUnifiedPatches(patches: UnifiedQrFillPatches) {
     if (model.onUnifiedQrFillSettingsChange) {
-      model.onUnifiedQrFillSettingsChange(patches)
-      return
+      model.onUnifiedQrFillSettingsChange(patches);
+      return;
     }
 
-    onPatternSettingsChange(patches.pattern)
-    onCornersSettingsChange(patches.corners)
-    onLogoSettingsChange(patches.logo)
+    onPatternSettingsChange(patches.pattern);
+    onCornersSettingsChange(patches.corners);
+    onLogoSettingsChange(patches.logo);
   }
 
   function handleColorSeparatelyChange(checked: boolean) {
     if (!checked) {
-      const moduleFillCss = readPatternModuleFillCss(actualPatternSettings)
-      const fill = parseFill(moduleFillCss)
+      const moduleFillCss = readPatternModuleFillCss(actualPatternSettings);
+      const fill = parseFill(moduleFillCss);
 
       if (fill) {
-        applyUnifiedPatches(applyUnifiedQrFill(fill, unifiedSettings))
-        return
+        applyUnifiedPatches(applyUnifiedQrFill(fill, unifiedSettings));
+        return;
       }
 
-      onPatternSettingsChange({ gradientLinkMode: "unified" })
-      return
+      onPatternSettingsChange({ gradientLinkMode: "unified" });
+      return;
     }
 
-    onPatternSettingsChange({ gradientLinkMode: "split" })
+    onPatternSettingsChange({ gradientLinkMode: "split" });
   }
 
   function handlePartTabChange(nextTab: string) {
-    setTab(nextTab)
-    setInspectorSectionTab("qr-style", nextTab)
+    setTab(nextTab);
+    setInspectorSectionTab("qr-style", nextTab);
   }
 
   return (
@@ -1034,15 +997,15 @@ function QrColorSection({ model }: { model: InspectorModel }) {
         <QrColorPerPartSettings model={model} tab={tab} onTabChange={handlePartTabChange} />
       )}
     </div>
-  )
+  );
 }
 
 function CardSection({ model }: { model: InspectorModel }) {
-  const { actualShapeSettings, onShapeSettingsChange } = model
-  const cardFill = readShapeFillCss(actualShapeSettings)
+  const { actualShapeSettings, onShapeSettingsChange } = model;
+  const cardFill = readShapeFillCss(actualShapeSettings);
   const [fillMode, setFillMode] = useState<BackgroundFillModeTab>(() =>
     backgroundFillModeTab(cardFill),
-  )
+  );
 
   return (
     <div className={SECTION_STACK}>
@@ -1069,16 +1032,16 @@ function CardSection({ model }: { model: InspectorModel }) {
         onChange={(shapePadding) => onShapeSettingsChange({ shapePadding })}
       />
     </div>
-  )
+  );
 }
 
-const BACKGROUND_FILL_MODE_TABS = ["Solid", "Linear", "Radial"] as const
-type BackgroundFillModeTab = (typeof BACKGROUND_FILL_MODE_TABS)[number]
+const BACKGROUND_FILL_MODE_TABS = ["Solid", "Linear", "Radial"] as const;
+type BackgroundFillModeTab = (typeof BACKGROUND_FILL_MODE_TABS)[number];
 
 function backgroundFillModeTab(fill: string): BackgroundFillModeTab {
-  if (fill.startsWith("radial-gradient")) return "Radial"
-  if (fill.startsWith("linear-gradient")) return "Linear"
-  return "Solid"
+  if (fill.startsWith("radial-gradient")) return "Radial";
+  if (fill.startsWith("linear-gradient")) return "Linear";
+  return "Solid";
 }
 
 function FillModePresetControls({
@@ -1086,16 +1049,16 @@ function FillModePresetControls({
   mode,
   value,
 }: {
-  applyFill: (fill: Fill) => void
-  mode: BackgroundFillModeTab
-  value: string
+  applyFill: (fill: Fill) => void;
+  mode: BackgroundFillModeTab;
+  value: string;
 }) {
   const presets =
     mode === "Solid"
       ? SETTINGS_FILL_SOLID_PRESETS
       : mode === "Linear"
         ? SETTINGS_FILL_LINEAR_PRESETS
-        : SETTINGS_FILL_RADIAL_PRESETS
+        : SETTINGS_FILL_RADIAL_PRESETS;
 
   return (
     <SettingsFillPresetSection
@@ -1105,23 +1068,23 @@ function FillModePresetControls({
       value={value}
       onSelect={(fill) => applyFill(fill)}
     />
-  )
+  );
 }
 
-type SceneBackgroundTab = "Shader" | "Image" | BackgroundFillModeTab
+type SceneBackgroundTab = "Shader" | "Image" | BackgroundFillModeTab;
 
 const SCENE_BACKGROUND_TABS: readonly SceneBackgroundTab[] = [
   "Shader",
   "Image",
   ...BACKGROUND_FILL_MODE_TABS,
-]
+];
 
 function normalizeSceneBackgroundTab(tab: string, cardFill: string): SceneBackgroundTab {
-  if (tab === "Shader" || tab === "Image") return tab
+  if (tab === "Shader" || tab === "Image") return tab;
   if ((BACKGROUND_FILL_MODE_TABS as readonly string[]).includes(tab)) {
-    return tab as BackgroundFillModeTab
+    return tab as BackgroundFillModeTab;
   }
-  return backgroundFillModeTab(cardFill)
+  return backgroundFillModeTab(cardFill);
 }
 
 function backgroundTabFromStyleMode(
@@ -1129,14 +1092,14 @@ function backgroundTabFromStyleMode(
   cardFill: string,
 ): SceneBackgroundTab {
   if (styleMode === "image" || styleMode === "image-filter") {
-    return "Image"
+    return "Image";
   }
 
   if (styleMode === "paper-shader") {
-    return "Shader"
+    return "Shader";
   }
 
-  return backgroundFillModeTab(cardFill)
+  return backgroundFillModeTab(cardFill);
 }
 
 function SceneSection({ model }: { model: InspectorModel }) {
@@ -1148,7 +1111,7 @@ function SceneSection({ model }: { model: InspectorModel }) {
     onBackgroundSettingsChange,
     onImageSettingsChange,
     onShapeSettingsChange,
-  } = model
+  } = model;
   const [tab, setTab] = useState<SceneBackgroundTab>(() =>
     normalizeSceneBackgroundTab(
       getInspectorSectionTab(
@@ -1160,17 +1123,17 @@ function SceneSection({ model }: { model: InspectorModel }) {
       ),
       actualShapeSettings.cardFill,
     ),
-  )
-  const paperShader = actualBackgroundSettings.paperShader
-  const backgroundFill = actualShapeSettings.cardFill
+  );
+  const paperShader = actualBackgroundSettings.paperShader;
+  const backgroundFill = actualShapeSettings.cardFill;
 
   function handleBackgroundTabChange(nextTab: string) {
-    const resolvedTab = normalizeSceneBackgroundTab(nextTab, backgroundFill)
-    setTab(resolvedTab)
-    setInspectorSectionTab("background", resolvedTab)
+    const resolvedTab = normalizeSceneBackgroundTab(nextTab, backgroundFill);
+    setTab(resolvedTab);
+    setInspectorSectionTab("background", resolvedTab);
     controller?.onCanvasBackgroundTabChange?.(
       resolvedTab === "Shader" ? "shader" : resolvedTab === "Image" ? "image" : "color",
-    )
+    );
   }
 
   return (
@@ -1203,9 +1166,7 @@ function SceneSection({ model }: { model: InspectorModel }) {
         ) : tab === "Image" ? (
           <WallpaperPreviewRow
             selectedPath={actualImageSettings.remoteUrl ?? ""}
-            onClear={() =>
-              onImageSettingsChange({ remoteUrl: "", sourceMode: "upload" })
-            }
+            onClear={() => onImageSettingsChange({ remoteUrl: "", sourceMode: "upload" })}
             onSelect={(imagePath) =>
               onImageSettingsChange({ remoteUrl: imagePath, sourceMode: "url" })
             }
@@ -1222,12 +1183,12 @@ function SceneSection({ model }: { model: InspectorModel }) {
         )}
       </SettingsTabPanel>
     </div>
-  )
+  );
 }
 
 function MotionSection({ model }: { model: InspectorModel }) {
-  const { actualMotionSettings, onMotionSettingsChange } = model
-  const loader = actualMotionSettings.loader
+  const { actualMotionSettings, onMotionSettingsChange } = model;
+  const loader = actualMotionSettings.loader;
 
   return (
     <div className={SECTION_STACK}>
@@ -1259,14 +1220,11 @@ function MotionSection({ model }: { model: InspectorModel }) {
               })
             }
           />
-          <MotionColorControls
-            animation={actualMotionSettings}
-            onChange={onMotionSettingsChange}
-          />
+          <MotionColorControls animation={actualMotionSettings} onChange={onMotionSettingsChange} />
         </>
       ) : null}
     </div>
-  )
+  );
 }
 
 export function SettingsSectionBody({
@@ -1274,36 +1232,36 @@ export function SettingsSectionBody({
   model,
   hideContentTypeBrowser = false,
 }: {
-  id: string
-  model: InspectorModel
-  hideContentTypeBrowser?: boolean
+  id: string;
+  model: InspectorModel;
+  hideContentTypeBrowser?: boolean;
 }) {
-  let body = null
+  let body = null;
   switch (id) {
     case "Content":
-      body = <ContentSection hideContentTypeBrowser={hideContentTypeBrowser} model={model} />
-      break
+      body = <ContentSection hideContentTypeBrowser={hideContentTypeBrowser} model={model} />;
+      break;
     case "QR":
-      body = <QrStyleSection model={model} />
-      break
+      body = <QrStyleSection model={model} />;
+      break;
     case "Color":
-      body = <QrColorSection model={model} />
-      break
+      body = <QrColorSection model={model} />;
+      break;
     case "Shape":
-      body = <CardSection model={model} />
-      break
+      body = <CardSection model={model} />;
+      break;
     case "Background":
-      body = <SceneSection model={model} />
-      break
+      body = <SceneSection model={model} />;
+      break;
     case "Motion":
-      body = <MotionSection model={model} />
-      break
+      body = <MotionSection model={model} />;
+      break;
     case "Elements":
-      body = <ElementsSection model={model} />
-      break
+      body = <ElementsSection model={model} />;
+      break;
     default:
-      body = null
+      body = null;
   }
 
-  return <ScrollPersistScope id={`settings:${id}`}>{body}</ScrollPersistScope>
+  return <ScrollPersistScope id={`settings:${id}`}>{body}</ScrollPersistScope>;
 }

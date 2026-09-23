@@ -20,15 +20,15 @@ No environment variables are required for local development.
 
 ## Commands
 
-| Command | What it does |
-| --- | --- |
-| `pnpm dev` | Start the dev server |
-| `pnpm build` | Production build (type checking runs as part of it) |
-| `pnpm lint` | ESLint |
-| `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm test` | Full Vitest suite |
-| `pnpm check` | `typecheck` + `knip` + `fallow dead-code` |
-| `pnpm knip` | Report unused files, exports, and dependencies |
+| Command          | What it does                                        |
+| ---------------- | --------------------------------------------------- |
+| `pnpm dev`       | Start the dev server                                |
+| `pnpm build`     | Production build (type checking runs as part of it) |
+| `pnpm lint`      | ESLint                                              |
+| `pnpm typecheck` | `tsc --noEmit`                                      |
+| `pnpm test`      | Full Vitest suite                                   |
+| `pnpm check`     | `typecheck` + `knip` + `fallow dead-code`           |
+| `pnpm knip`      | Report unused files, exports, and dependencies      |
 
 Run a single test file with `pnpm exec vitest run path/to/file.test.ts`, or a single test with `pnpm exec vitest run path/to/file.test.ts -t "test name"`.
 

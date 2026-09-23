@@ -31,4 +31,4 @@ export const DRAFTING_KEYBOARD_SHORTCUT_GROUPS = [
       ["Cmd/Ctrl + Shift + ]", "Bring to front"],
     ],
   },
-] as const
+] as const;

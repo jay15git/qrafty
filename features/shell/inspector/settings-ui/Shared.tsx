@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react"
+import { ChevronRight } from "lucide-react";
 import {
   Children,
   cloneElement,
@@ -6,21 +6,18 @@ import {
   useContext,
   type ReactElement,
   type ReactNode,
-} from "react"
+} from "react";
 
-import { CUELUME_BUTTON } from "@/features/shell/audio/cuelume"
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
-import {
-  fillPreviewHex,
-  isGradientFill,
-} from "@/features/shell/inspector/FillPicker.utils"
-import { cn } from "@/lib/utils"
+import { CUELUME_BUTTON } from "@/features/shell/audio/cuelume";
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { fillPreviewHex, isGradientFill } from "@/features/shell/inspector/FillPicker.utils";
+import { cn } from "@/lib/utils";
 
-export const DN_ROW = "dn-settings-row dn-squircle-sm"
-export const DN_HINT = "dn-type-meta"
-export const DN_LABEL = "dn-type-label"
-export const DN_VALUE = "dn-type-value"
-export const DN_SECTION_GAP = "dn-section-stack"
+export const DN_ROW = "dn-settings-row dn-squircle-sm";
+export const DN_HINT = "dn-type-meta";
+export const DN_LABEL = "dn-type-label";
+export const DN_VALUE = "dn-type-value";
+export const DN_SECTION_GAP = "dn-section-stack";
 
 export function SettingsRowButton({
   className,
@@ -40,18 +37,18 @@ export function SettingsRowButton({
     >
       {children}
     </button>
-  )
+  );
 }
 
 export function useInspectorTheme() {
-  return useContext(InspectorThemeContext)
+  return useContext(InspectorThemeContext);
 }
 
 export type SettingsFillPopoverHandle = {
-  openPicker: () => void
-}
+  openPicker: () => void;
+};
 
-export const OPTION_TILE_SCROLL_ROW = "dn-preview-row dn-option-tile-scroll-row"
+export const OPTION_TILE_SCROLL_ROW = "dn-preview-row dn-option-tile-scroll-row";
 
 export function FillSwatchButton({
   ariaLabel,
@@ -60,11 +57,11 @@ export function FillSwatchButton({
   className,
   ...props
 }: React.ComponentProps<"button"> & {
-  ariaLabel: string
-  fill: string
-  imageUrl?: string
+  ariaLabel: string;
+  fill: string;
+  imageUrl?: string;
 }) {
-  const gradient = isGradientFill(fill)
+  const gradient = isGradientFill(fill);
 
   return (
     <button
@@ -109,7 +106,7 @@ export function FillSwatchButton({
         />
       </span>
     </button>
-  )
+  );
 }
 
 export function ColorRowButton({
@@ -118,12 +115,12 @@ export function ColorRowButton({
   imageUrl,
   ...props
 }: React.ComponentProps<"button"> & {
-  fill: string
-  hint: string
-  imageUrl?: string
+  fill: string;
+  hint: string;
+  imageUrl?: string;
 }) {
-  const gradient = isGradientFill(fill)
-  const hex = fillPreviewHex(fill).replace("#", "").toUpperCase()
+  const gradient = isGradientFill(fill);
+  const hex = fillPreviewHex(fill).replace("#", "").toUpperCase();
 
   return (
     <SettingsRowButton {...props}>
@@ -151,5 +148,5 @@ export function ColorRowButton({
         <ChevronRight aria-hidden className={cn("size-3 opacity-50", DN_HINT)} />
       </span>
     </SettingsRowButton>
-  )
+  );
 }

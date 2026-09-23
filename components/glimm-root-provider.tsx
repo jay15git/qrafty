@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { GlimmProvider } from "glimm/next"
-import type { ReactNode } from "react"
+import { GlimmProvider } from "glimm/next";
+import type { ReactNode } from "react";
 
 export function GlimmRootProvider({ children }: { children: ReactNode }) {
-  return <GlimmProvider>{children}</GlimmProvider>
+  return <GlimmProvider>{children}</GlimmProvider>;
 }

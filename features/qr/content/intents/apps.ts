@@ -1,7 +1,4 @@
-import {
-  urlIntent,
-  type PlatformDef,
-} from "@/features/qr/content/intents/shared"
+import { urlIntent, type PlatformDef } from "@/features/qr/content/intents/shared";
 
 export const APP_PLATFORM_DEFS: readonly PlatformDef[] = [
   {
@@ -49,4 +46,4 @@ export const APP_PLATFORM_DEFS: readonly PlatformDef[] = [
     hosts: ["appgallery.huawei.com"],
     intents: [urlIntent("app", "App")],
   },
-]
+];

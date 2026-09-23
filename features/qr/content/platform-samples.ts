@@ -1,11 +1,11 @@
-import type { QrInputType } from "@/features/qr/content/input-options"
-import type { PlatformContentValues } from "@/features/qr/content/intents/shared"
+import type { QrInputType } from "@/features/qr/content/input-options";
+import type { PlatformContentValues } from "@/features/qr/content/intents/shared";
 
 function u(path: string) {
-  return path.startsWith("http") ? path : `https://${path}`
+  return path.startsWith("http") ? path : `https://${path}`;
 }
 
-type IntentSamples = Record<string, PlatformContentValues>
+type IntentSamples = Record<string, PlatformContentValues>;
 
 const SAMPLES: Partial<Record<QrInputType, IntentSamples>> = {
   instagram: {
@@ -270,11 +270,8 @@ const SAMPLES: Partial<Record<QrInputType, IntentSamples>> = {
     publication: { url: u("qrafty.substack.com/") },
     post: { url: u("qrafty.substack.com/p/") },
   },
-}
+};
 
-export function getIntentSampleValues(
-  type: QrInputType,
-  intentId: string,
-): PlatformContentValues {
-  return { ...(SAMPLES[type]?.[intentId] ?? {}) }
+export function getIntentSampleValues(type: QrInputType, intentId: string): PlatformContentValues {
+  return { ...(SAMPLES[type]?.[intentId] ?? {}) };
 }

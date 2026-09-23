@@ -17,9 +17,7 @@ export const fillPaneId = (base: string, mode: string) => `${base}-pane-${mode}`
 export function useFillPickerContext(): FillPickerState {
   const ctx = React.useContext(FillPickerContext);
   if (!ctx) {
-    throw new Error(
-      "FillPicker.Tabs / Tab / Pane must be rendered inside <FillPicker.Root>",
-    );
+    throw new Error("FillPicker.Tabs / Tab / Pane must be rendered inside <FillPicker.Root>");
   }
   return ctx;
 }

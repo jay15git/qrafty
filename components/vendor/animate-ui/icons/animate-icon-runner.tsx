@@ -1,12 +1,9 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import type { LegacyAnimationControls } from 'motion/react';
+import * as React from "react";
+import type { LegacyAnimationControls } from "motion/react";
 
-type StartAnim = (
-  anim: 'initial' | 'animate',
-  method?: 'start' | 'set',
-) => Promise<void>;
+type StartAnim = (anim: "initial" | "animate", method?: "start" | "set") => Promise<void>;
 
 type UseAnimateIconRunnerOptions = {
   localAnimate: boolean;
@@ -16,7 +13,7 @@ type UseAnimateIconRunnerOptions = {
   completeOnStop: boolean;
   persistOnAnimateEnd: boolean;
   initialOnAnimateEnd: boolean;
-  statusRef: React.MutableRefObject<'initial' | 'animate'>;
+  statusRef: React.MutableRefObject<"initial" | "animate">;
   startAnim: StartAnim;
   runGenRef: React.MutableRefObject<number>;
   activeRef: React.MutableRefObject<boolean>;
@@ -51,16 +48,12 @@ export function useAnimateIconRunner({
 
     async function run() {
       if (cancelledRef.current || gen !== runGenRef.current) {
-        await startAnim('initial');
+        await startAnim("initial");
         return;
       }
 
       if (!localAnimate) {
-        if (
-          completeOnStop &&
-          isAnimateInProgressRef.current &&
-          animateEndPromiseRef.current
-        ) {
+        if (completeOnStop && isAnimateInProgressRef.current && animateEndPromiseRef.current) {
           try {
             await animateEndPromiseRef.current;
           } catch {
@@ -69,20 +62,20 @@ export function useAnimateIconRunner({
         }
         if (!persistOnAnimateEnd) {
           if (cancelledRef.current || gen !== runGenRef.current) {
-            await startAnim('initial');
+            await startAnim("initial");
             return;
           }
-          await startAnim('initial');
+          await startAnim("initial");
         }
         return;
       }
 
       if (loop) {
         if (cancelledRef.current || gen !== runGenRef.current) {
-          await startAnim('initial');
+          await startAnim("initial");
           return;
         }
-        await startAnim('initial', 'set');
+        await startAnim("initial", "set");
       }
 
       isAnimateInProgressRef.current = true;
@@ -95,18 +88,18 @@ export function useAnimateIconRunner({
         resolveAnimateEndRef.current?.();
         resolveAnimateEndRef.current = null;
         animateEndPromiseRef.current = null;
-        await startAnim('initial');
+        await startAnim("initial");
         return;
       }
 
-      await startAnim('animate');
+      await startAnim("animate");
 
       if (cancelledRef.current || gen !== runGenRef.current) {
         isAnimateInProgressRef.current = false;
         resolveAnimateEndRef.current?.();
         resolveAnimateEndRef.current = null;
         animateEndPromiseRef.current = null;
-        await startAnim('initial');
+        await startAnim("initial");
         return;
       }
 
@@ -117,10 +110,10 @@ export function useAnimateIconRunner({
 
       if (initialOnAnimateEnd) {
         if (cancelledRef.current || gen !== runGenRef.current) {
-          await startAnim('initial');
+          await startAnim("initial");
           return;
         }
-        await startAnim('initial', 'set');
+        await startAnim("initial", "set");
       }
 
       if (loop) {
@@ -133,23 +126,21 @@ export function useAnimateIconRunner({
           });
 
           if (cancelledRef.current || gen !== runGenRef.current) {
-            await startAnim('initial');
+            await startAnim("initial");
             return;
           }
           if (!activeRef.current) {
-            if (statusRef.current !== 'initial' && !persistOnAnimateEnd)
-              await startAnim('initial');
+            if (statusRef.current !== "initial" && !persistOnAnimateEnd) await startAnim("initial");
             return;
           }
         } else {
           if (!activeRef.current) {
-            if (statusRef.current !== 'initial' && !persistOnAnimateEnd)
-              await startAnim('initial');
+            if (statusRef.current !== "initial" && !persistOnAnimateEnd) await startAnim("initial");
             return;
           }
         }
         if (cancelledRef.current || gen !== runGenRef.current) {
-          await startAnim('initial');
+          await startAnim("initial");
           return;
         }
         await run();

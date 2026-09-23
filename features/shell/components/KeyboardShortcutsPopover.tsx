@@ -1,63 +1,60 @@
-"use client"
+"use client";
 
-import {
-  AppleIcon,
-  WindowsOldIcon,
-} from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { useState, type ComponentProps } from "react"
+import { AppleIcon, WindowsOldIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { useState, type ComponentProps } from "react";
 
-import { Kbd } from "@/components/kbd"
-import { PopoverContent } from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { InspectorSection } from "@/features/shell/components/InspectorControls"
-import { DRAFTING_KEYBOARD_SHORTCUT_GROUPS } from "@/features/canvas/model/keyboard-shortcuts"
-import { cn } from "@/lib/utils"
+import { Kbd } from "@/components/kbd";
+import { PopoverContent } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { InspectorSection } from "@/features/shell/components/InspectorControls";
+import { DRAFTING_KEYBOARD_SHORTCUT_GROUPS } from "@/features/canvas/model/keyboard-shortcuts";
+import { cn } from "@/lib/utils";
 
-type ShortcutPlatform = "apple" | "windows"
+type ShortcutPlatform = "apple" | "windows";
 
 const SHORTCUT_PLATFORMS: Array<{
-  icon: typeof WindowsOldIcon
-  label: string
-  value: ShortcutPlatform
+  icon: typeof WindowsOldIcon;
+  label: string;
+  value: ShortcutPlatform;
 }> = [
   { icon: AppleIcon, label: "Apple", value: "apple" },
   { icon: WindowsOldIcon, label: "Windows", value: "windows" },
-]
+];
 
 function getDefaultShortcutPlatform(): ShortcutPlatform {
   if (typeof navigator === "undefined") {
-    return "windows"
+    return "windows";
   }
 
   const platform =
     (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform ??
     navigator.platform ??
-    ""
-  const userAgent = navigator.userAgent ?? ""
-  const platformSignature = `${platform} ${userAgent}`.toLowerCase()
+    "";
+  const userAgent = navigator.userAgent ?? "";
+  const platformSignature = `${platform} ${userAgent}`.toLowerCase();
 
-  return /mac|iphone|ipad|ipod/.test(platformSignature) ? "apple" : "windows"
+  return /mac|iphone|ipad|ipod/.test(platformSignature) ? "apple" : "windows";
 }
 
 function getShortcutKeyCombos(keys: string, platform: ShortcutPlatform): string[][] {
   if (keys === "Arrow keys") {
-    return [["↑"], ["↓"], ["←"], ["→"]]
+    return [["↑"], ["↓"], ["←"], ["→"]];
   }
 
   if (keys === "Shift + Arrow") {
-    return [["Shift", "← ↑ ↓ →"]]
+    return [["Shift", "← ↑ ↓ →"]];
   }
 
   return keys.split(" / ").map((combo) =>
     combo.split(" + ").map((key) => {
       if (key === "Cmd/Ctrl") {
-        return platform === "apple" ? "⌘" : "Ctrl"
+        return platform === "apple" ? "⌘" : "Ctrl";
       }
 
-      return key
+      return key;
     }),
-  )
+  );
 }
 
 export function KeyboardShortcutsPopoverContent({
@@ -65,13 +62,13 @@ export function KeyboardShortcutsPopoverContent({
   popoverSide = "bottom",
   theme = "dark",
 }: {
-  popoverAlign?: ComponentProps<typeof PopoverContent>["align"]
-  popoverSide?: ComponentProps<typeof PopoverContent>["side"]
-  theme?: "light" | "dark"
+  popoverAlign?: ComponentProps<typeof PopoverContent>["align"];
+  popoverSide?: ComponentProps<typeof PopoverContent>["side"];
+  theme?: "light" | "dark";
 }) {
   const [shortcutPlatform, setShortcutPlatform] = useState<ShortcutPlatform>(
     getDefaultShortcutPlatform,
-  )
+  );
 
   return (
     <PopoverContent
@@ -94,7 +91,7 @@ export function KeyboardShortcutsPopoverContent({
           role="group"
         >
           {SHORTCUT_PLATFORMS.map((platform) => {
-            const isSelected = shortcutPlatform === platform.value
+            const isSelected = shortcutPlatform === platform.value;
 
             return (
               <button
@@ -117,7 +114,7 @@ export function KeyboardShortcutsPopoverContent({
                   strokeWidth={1.8}
                 />
               </button>
-            )
+            );
           })}
         </div>
         <div className="min-w-0 text-center">
@@ -155,9 +152,14 @@ export function KeyboardShortcutsPopoverContent({
                         data-slot="shortcut-keycaps"
                       >
                         {getShortcutKeyCombos(keys, shortcutPlatform).map((combo, comboIndex) => (
-                          <span className="inline-flex items-center gap-1" key={`${keys}-${comboIndex}`}>
+                          <span
+                            className="inline-flex items-center gap-1"
+                            key={`${keys}-${comboIndex}`}
+                          >
                             {comboIndex > 0 ? (
-                              <span className="px-0.5 text-[10px] font-semibold text-[var(--muted)]">/</span>
+                              <span className="px-0.5 text-[10px] font-semibold text-[var(--muted)]">
+                                /
+                              </span>
                             ) : null}
                             {combo.map((key, keyIndex) => (
                               <span
@@ -196,5 +198,5 @@ export function KeyboardShortcutsPopoverContent({
         </div>
       </ScrollArea>
     </PopoverContent>
-  )
+  );
 }

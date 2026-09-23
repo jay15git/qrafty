@@ -1,31 +1,26 @@
-"use client"
+"use client";
 
-import { Minus, Plus } from "lucide-react"
+import { Minus, Plus } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import {
-  useCallback,
-  useMemo,
-  useState,
-  type ReactElement,
-} from "react"
+import { Button } from "@/components/ui/button";
+import { useCallback, useMemo, useState, type ReactElement } from "react";
 
-import { StopColorEditorPopover } from "@/components/ui/fill-picker/base/parts/gradient/stop-color-editor-popover"
-import { useColorPicker } from "@/components/ui/fill-picker/hooks/use-color-picker"
-import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants"
-import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"
-import type { OklchColor } from "@/components/ui/fill-picker/lib/types"
-import { FieldInput, FieldInputGroup, FieldShell } from "@/components/ui/fill-picker/parts/field"
-import { cn } from "@/lib/utils"
+import { StopColorEditorPopover } from "@/components/ui/fill-picker/base/parts/gradient/stop-color-editor-popover";
+import { useColorPicker } from "@/components/ui/fill-picker/hooks/use-color-picker";
+import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants";
+import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color";
+import type { OklchColor } from "@/components/ui/fill-picker/lib/types";
+import { FieldInput, FieldInputGroup, FieldShell } from "@/components/ui/fill-picker/parts/field";
+import { cn } from "@/lib/utils";
 
 const PALETTE_COLOR_ROW =
-  "flex items-center gap-[length:var(--space-inline)] rounded-[length:var(--radius-sm)] bg-[var(--settings-control)] px-[length:var(--space-inline)]"
+  "flex items-center gap-[length:var(--space-inline)] rounded-[length:var(--radius-sm)] bg-[var(--settings-control)] px-[length:var(--space-inline)]";
 
 const PALETTE_COLOR_FIELD =
-  "h-[length:var(--settings-control-height-compact)] min-w-0 flex-1 border border-[var(--line)] bg-[var(--settings-control)] shadow-none focus-within:border-[color-mix(in_srgb,var(--fg)_18%,transparent)] focus-within:ring-0"
+  "h-[length:var(--settings-control-height-compact)] min-w-0 flex-1 border border-[var(--line)] bg-[var(--settings-control)] shadow-none focus-within:border-[color-mix(in_srgb,var(--fg)_18%,transparent)] focus-within:ring-0";
 
 const PALETTE_COLOR_SWATCH =
-  "size-8 shrink-0 dn-squircle-xs outline-none transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--fg)_18%,transparent)]"
+  "size-8 shrink-0 dn-squircle-xs outline-none transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--fg)_18%,transparent)]";
 
 export function PaletteColorStopList({
   colors,
@@ -35,21 +30,18 @@ export function PaletteColorStopList({
   onPaletteColorChange,
   onRemove,
 }: {
-  colors: string[]
-  maxCount?: number
-  minCount?: number
-  onAdd?: () => void
-  onPaletteColorChange: (index: number, color: string) => void
-  onRemove?: (index: number) => void
+  colors: string[];
+  maxCount?: number;
+  minCount?: number;
+  onAdd?: () => void;
+  onPaletteColorChange: (index: number, color: string) => void;
+  onRemove?: (index: number) => void;
 }) {
-  const canRemove = onRemove != null && colors.length > (minCount ?? 1)
-  const canAdd = onAdd != null && colors.length < (maxCount ?? Number.POSITIVE_INFINITY)
+  const canRemove = onRemove != null && colors.length > (minCount ?? 1);
+  const canAdd = onAdd != null && colors.length < (maxCount ?? Number.POSITIVE_INFINITY);
 
   return (
-    <div
-      className="flex flex-col gap-1"
-      data-slot="palette-color-stop-list"
-    >
+    <div className="flex flex-col gap-1" data-slot="palette-color-stop-list">
       {colors.map((color, index) => (
         <PaletteColorStopRow
           key={`palette-color-${color}-${colors.slice(0, index).filter((entry) => entry === color).length}`}
@@ -74,24 +66,24 @@ export function PaletteColorStopList({
         </Button>
       ) : null}
     </div>
-  )
+  );
 }
 
 // Editable text that follows `formatted` unless the field is focused: the
 // draft resets whenever the source value changes while the user is not
 // editing, and keeps the user's text otherwise.
 function useDraftValue(formatted: string, focused: boolean) {
-  const [draft, setDraft] = useState(formatted)
-  const [prevFormatted, setPrevFormatted] = useState(formatted)
+  const [draft, setDraft] = useState(formatted);
+  const [prevFormatted, setPrevFormatted] = useState(formatted);
 
   if (prevFormatted !== formatted) {
-    setPrevFormatted(formatted)
+    setPrevFormatted(formatted);
     if (!focused) {
-      setDraft(formatted)
+      setDraft(formatted);
     }
   }
 
-  return [draft, setDraft] as const
+  return [draft, setDraft] as const;
 }
 
 function PaletteColorStopRow({
@@ -101,37 +93,34 @@ function PaletteColorStopRow({
   onColorChange,
   onRemove,
 }: {
-  canRemove: boolean
-  color: string
-  index: number
-  onColorChange: (index: number, color: string) => void
-  onRemove?: (index: number) => void
+  canRemove: boolean;
+  color: string;
+  index: number;
+  onColorChange: (index: number, color: string) => void;
+  onRemove?: (index: number) => void;
 }) {
-  const [open, setOpen] = useState(false)
-  const parsed = useMemo(
-    () => parseColor(color) ?? { l: 0, c: 0, h: 0, alpha: 1 },
-    [color],
-  )
-  const formatted = formatColor(parsed, "hex")
-  const [focused, setFocused] = useState(false)
-  const [draft, setDraft] = useDraftValue(formatted, focused)
+  const [open, setOpen] = useState(false);
+  const parsed = useMemo(() => parseColor(color) ?? { l: 0, c: 0, h: 0, alpha: 1 }, [color]);
+  const formatted = formatColor(parsed, "hex");
+  const [focused, setFocused] = useState(false);
+  const [draft, setDraft] = useDraftValue(formatted, focused);
 
   const commitDraft = (raw: string) => {
-    const next = parseColor(raw.trim())
+    const next = parseColor(raw.trim());
     if (next) {
-      onColorChange(index, formatColor(next, "hex"))
-      return
+      onColorChange(index, formatColor(next, "hex"));
+      return;
     }
 
-    setDraft(formatted)
-  }
+    setDraft(formatted);
+  };
 
   const swatch = (
     <button
       type="button"
       onClick={(event) => {
-        event.stopPropagation()
-        setOpen((current) => !current)
+        event.stopPropagation();
+        setOpen((current) => !current);
       }}
       aria-label={`Edit color ${index + 1}`}
       style={{
@@ -140,7 +129,7 @@ function PaletteColorStopRow({
       }}
       className={PALETTE_COLOR_SWATCH}
     />
-  )
+  );
 
   return (
     <div className={cn("dn-type-meta", PALETTE_COLOR_ROW)}>
@@ -159,22 +148,22 @@ function PaletteColorStopRow({
             value={draft}
             spellCheck={false}
             onFocus={() => {
-              setFocused(true)
+              setFocused(true);
             }}
             onChange={(event) => setDraft(event.target.value)}
             onBlur={(event) => {
-              setFocused(false)
-              commitDraft(event.target.value)
+              setFocused(false);
+              commitDraft(event.target.value);
             }}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
-                event.preventDefault()
-                commitDraft((event.target as HTMLInputElement).value)
-                ;(event.target as HTMLInputElement).blur()
+                event.preventDefault();
+                commitDraft((event.target as HTMLInputElement).value);
+                (event.target as HTMLInputElement).blur();
               } else if (event.key === "Escape") {
-                event.preventDefault()
-                setDraft(formatted)
-                ;(event.target as HTMLInputElement).blur()
+                event.preventDefault();
+                setDraft(formatted);
+                (event.target as HTMLInputElement).blur();
               }
             }}
             aria-label={`Color ${index + 1} value`}
@@ -186,8 +175,8 @@ function PaletteColorStopRow({
         <button
           type="button"
           onClick={(event) => {
-            event.stopPropagation()
-            onRemove(index)
+            event.stopPropagation();
+            onRemove(index);
           }}
           disabled={!canRemove}
           className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-[var(--muted)] transition-colors hover:text-[var(--fg)] disabled:opacity-30"
@@ -197,7 +186,7 @@ function PaletteColorStopRow({
         </button>
       ) : null}
     </div>
-  )
+  );
 }
 
 function PaletteColorEditorPopover({
@@ -207,38 +196,31 @@ function PaletteColorEditorPopover({
   onOpenChange,
   children,
 }: {
-  color: string
-  onColorChange: (color: string) => void
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  children: ReactElement
+  color: string;
+  onColorChange: (color: string) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: ReactElement;
 }) {
-  const parsed = parseColor(color)
-  const l = parsed?.l ?? 0
-  const c = parsed?.c ?? 0
-  const h = parsed?.h ?? 0
-  const alpha = parsed?.alpha ?? 1
-  const liveColor = useMemo<OklchColor>(
-    () => ({ l, c, h, alpha }),
-    [l, c, h, alpha],
-  )
+  const parsed = parseColor(color);
+  const l = parsed?.l ?? 0;
+  const c = parsed?.c ?? 0;
+  const h = parsed?.h ?? 0;
+  const alpha = parsed?.alpha ?? 1;
+  const liveColor = useMemo<OklchColor>(() => ({ l, c, h, alpha }), [l, c, h, alpha]);
   const onValueChange = useCallback(
     (next: OklchColor) => onColorChange(formatColor(next, "hex")),
     [onColorChange],
-  )
+  );
   const state = useColorPicker({
     value: liveColor,
     onValueChange,
     defaultFormat: "hex",
     formats: ["hex", "rgb", "hsl", "oklch"],
-  })
+  });
   return (
-    <StopColorEditorPopover
-      state={state}
-      open={open}
-      onOpenChange={onOpenChange}
-    >
+    <StopColorEditorPopover state={state} open={open} onOpenChange={onOpenChange}>
       {children}
     </StopColorEditorPopover>
-  )
+  );
 }

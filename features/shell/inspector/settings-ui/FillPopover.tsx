@@ -6,41 +6,37 @@ import {
   useRef,
   useState,
   type ReactNode,
-} from "react"
+} from "react";
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import type { DotsColorMode } from "@/features/qr/model/state"
-import type { Fill } from "@/components/ui/fill-picker/public-api"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { DotsColorMode } from "@/features/qr/model/state";
+import type { Fill } from "@/components/ui/fill-picker/public-api";
 import {
   InspectorFillPicker,
   type LockedFillPickerMode,
-} from "@/features/shell/inspector/FillPicker"
-import { SettingsFillOptionGrid } from "@/features/shell/inspector/SettingsFillOptionGrid"
+} from "@/features/shell/inspector/FillPicker";
+import { SettingsFillOptionGrid } from "@/features/shell/inspector/SettingsFillOptionGrid";
 import type {
   ModuleImageControl,
   ModulePatternControl,
-} from "@/features/shell/inspector/FillPicker.utils"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
+} from "@/features/shell/inspector/FillPicker.utils";
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
 import {
   useMobileDrawerNavigation,
   useMobileLiveDetail,
-} from "@/features/shell/inspector/MobileDrawerNavigationContext"
+} from "@/features/shell/inspector/MobileDrawerNavigationContext";
 import {
   SettingsAccordionPopoverOverlay,
   useSettingsAccordionPopover,
-} from "@/features/shell/inspector/SettingsAccordionPopoverContext"
-import { SettingsPopoverChrome } from "@/features/shell/inspector/settings-ui/PopoverChrome"
+} from "@/features/shell/inspector/SettingsAccordionPopoverContext";
+import { SettingsPopoverChrome } from "@/features/shell/inspector/settings-ui/PopoverChrome";
 import {
   ColorRowButton,
   FillSwatchButton,
   useInspectorTheme,
   type SettingsFillPopoverHandle,
-} from "@/features/shell/inspector/settings-ui/Shared"
-import { inspectorPortalClass } from "@/features/shell/inspector/settings-ui/utils"
+} from "@/features/shell/inspector/settings-ui/Shared";
+import { inspectorPortalClass } from "@/features/shell/inspector/settings-ui/utils";
 
 function FillPickerPopoverContent({
   align,
@@ -53,15 +49,15 @@ function FillPickerPopoverContent({
   theme,
   title,
 }: {
-  align?: "start" | "center" | "end"
-  avoidCollisions?: boolean
-  collisionPadding?: number
-  children: ReactNode
-  mobileDensity: boolean
-  onClose: () => void
-  side?: "top" | "right" | "bottom" | "left"
-  theme: "light" | "dark"
-  title: string
+  align?: "start" | "center" | "end";
+  avoidCollisions?: boolean;
+  collisionPadding?: number;
+  children: ReactNode;
+  mobileDensity: boolean;
+  onClose: () => void;
+  side?: "top" | "right" | "bottom" | "left";
+  theme: "light" | "dark";
+  title: string;
 }) {
   return (
     <PopoverContent
@@ -85,18 +81,18 @@ function FillPickerPopoverContent({
         {children}
       </SettingsPopoverChrome>
     </PopoverContent>
-  )
+  );
 }
 
 type SettingsFillPopoverVariantProps = {
-  value: string
-  onValueChange: (fill: Fill, css: string) => void
-  hint: string
-  variant: "row" | "swatch" | "grid" | "picker-only"
-  gridPresets?: readonly string[]
-  triggerClassName?: string
-  fillPreviewImageUrl?: string
-}
+  value: string;
+  onValueChange: (fill: Fill, css: string) => void;
+  hint: string;
+  variant: "row" | "swatch" | "grid" | "picker-only";
+  gridPresets?: readonly string[];
+  triggerClassName?: string;
+  fillPreviewImageUrl?: string;
+};
 
 function SettingsFillPopoverMobile({
   fillPreviewImageUrl,
@@ -108,10 +104,10 @@ function SettingsFillPopoverMobile({
   value,
   variant,
 }: SettingsFillPopoverVariantProps & {
-  liveDetail: { open: () => void; portal: ReactNode }
+  liveDetail: { open: () => void; portal: ReactNode };
 }) {
   if (variant === "picker-only") {
-    return liveDetail.portal
+    return liveDetail.portal;
   }
 
   if (variant === "grid") {
@@ -126,7 +122,7 @@ function SettingsFillPopoverMobile({
         />
         {liveDetail.portal}
       </>
-    )
+    );
   }
 
   if (variant === "swatch") {
@@ -142,7 +138,7 @@ function SettingsFillPopoverMobile({
         />
         {liveDetail.portal}
       </>
-    )
+    );
   }
 
   return (
@@ -156,7 +152,7 @@ function SettingsFillPopoverMobile({
       />
       {liveDetail.portal}
     </>
-  )
+  );
 }
 
 function SettingsFillPopoverAccordion({
@@ -174,15 +170,15 @@ function SettingsFillPopoverAccordion({
   value,
   variant,
 }: SettingsFillPopoverVariantProps & {
-  accordion: NonNullable<ReturnType<typeof useSettingsAccordionPopover>>
-  accordionPanelClassName: string
-  pickerBody: ReactNode
-  popoverKey: string
-  popoverTitle: string
-  theme: "light" | "dark"
+  accordion: NonNullable<ReturnType<typeof useSettingsAccordionPopover>>;
+  accordionPanelClassName: string;
+  pickerBody: ReactNode;
+  popoverKey: string;
+  popoverTitle: string;
+  theme: "light" | "dark";
 }) {
-  const isOpen = accordion.openKey === popoverKey
-  const toggleOpen = () => accordion.setOpenKey(isOpen ? null : popoverKey)
+  const isOpen = accordion.openKey === popoverKey;
+  const toggleOpen = () => accordion.setOpenKey(isOpen ? null : popoverKey);
 
   if (variant === "picker-only") {
     return (
@@ -199,7 +195,7 @@ function SettingsFillPopoverAccordion({
           {pickerBody}
         </SettingsPopoverChrome>
       </SettingsAccordionPopoverOverlay>
-    )
+    );
   }
 
   return (
@@ -244,7 +240,7 @@ function SettingsFillPopoverAccordion({
         </SettingsPopoverChrome>
       </SettingsAccordionPopoverOverlay>
     </>
-  )
+  );
 }
 
 function SettingsFillPopoverRadix({
@@ -266,16 +262,16 @@ function SettingsFillPopoverRadix({
   value,
   variant,
 }: SettingsFillPopoverVariantProps & {
-  align: "start" | "center" | "end"
-  avoidCollisions?: boolean
-  collisionPadding?: number
-  mobileDensity: boolean
-  onOpenChange: (open: boolean) => void
-  open: boolean
-  pickerBody: ReactNode
-  popoverTitle: string
-  side: "top" | "right" | "bottom" | "left"
-  theme: "light" | "dark"
+  align: "start" | "center" | "end";
+  avoidCollisions?: boolean;
+  collisionPadding?: number;
+  mobileDensity: boolean;
+  onOpenChange: (open: boolean) => void;
+  open: boolean;
+  pickerBody: ReactNode;
+  popoverTitle: string;
+  side: "top" | "right" | "bottom" | "left";
+  theme: "light" | "dark";
 }) {
   const content = (
     <FillPickerPopoverContent
@@ -290,14 +286,14 @@ function SettingsFillPopoverRadix({
     >
       {pickerBody}
     </FillPickerPopoverContent>
-  )
+  );
 
   if (variant === "picker-only") {
     return (
       <Popover open={open} onOpenChange={onOpenChange}>
         {content}
       </Popover>
-    )
+    );
   }
 
   if (variant === "grid") {
@@ -312,21 +308,26 @@ function SettingsFillPopoverRadix({
         />
         {content}
       </Popover>
-    )
+    );
   }
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         {variant === "swatch" ? (
-          <FillSwatchButton ariaLabel={hint} className={triggerClassName} fill={value} imageUrl={fillPreviewImageUrl} />
+          <FillSwatchButton
+            ariaLabel={hint}
+            className={triggerClassName}
+            fill={value}
+            imageUrl={fillPreviewImageUrl}
+          />
         ) : (
           <ColorRowButton fill={value} hint={hint} imageUrl={fillPreviewImageUrl} />
         )}
       </PopoverTrigger>
       {content}
     </Popover>
-  )
+  );
 }
 
 export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
@@ -350,34 +351,34 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
     collisionPadding,
     triggerClassName,
   }: {
-    value: string
-    onValueChange: (fill: Fill, css: string) => void
-    hint?: string
-    title?: string
-    solidOnly?: boolean
-    qrGradient?: boolean
-    variant?: "row" | "swatch" | "grid" | "picker-only"
-    gridPresets?: readonly string[]
-    side?: "top" | "right" | "bottom" | "left"
-    align?: "start" | "center" | "end"
-    avoidCollisions?: boolean
-    collisionPadding?: number
-    triggerClassName?: string
-    fillPreviewImageUrl?: string
-    modulePattern?: ModulePatternControl
-    moduleImage?: ModuleImageControl
-    moduleFillMode?: DotsColorMode
-    lockedFillMode?: LockedFillPickerMode
+    value: string;
+    onValueChange: (fill: Fill, css: string) => void;
+    hint?: string;
+    title?: string;
+    solidOnly?: boolean;
+    qrGradient?: boolean;
+    variant?: "row" | "swatch" | "grid" | "picker-only";
+    gridPresets?: readonly string[];
+    side?: "top" | "right" | "bottom" | "left";
+    align?: "start" | "center" | "end";
+    avoidCollisions?: boolean;
+    collisionPadding?: number;
+    triggerClassName?: string;
+    fillPreviewImageUrl?: string;
+    modulePattern?: ModulePatternControl;
+    moduleImage?: ModuleImageControl;
+    moduleFillMode?: DotsColorMode;
+    lockedFillMode?: LockedFillPickerMode;
   },
   ref: React.Ref<SettingsFillPopoverHandle>,
 ) {
-  const theme = useInspectorTheme()
-  const mobileDensity = useMobileInspectorDensity()
-  const mobileNav = useMobileDrawerNavigation()
-  const accordion = useSettingsAccordionPopover()
-  const popoverKey = useId()
-  const [radixOpen, setRadixOpen] = useState(false)
-  const popoverTitle = title ?? hint
+  const theme = useInspectorTheme();
+  const mobileDensity = useMobileInspectorDensity();
+  const mobileNav = useMobileDrawerNavigation();
+  const accordion = useSettingsAccordionPopover();
+  const popoverKey = useId();
+  const [radixOpen, setRadixOpen] = useState(false);
+  const popoverTitle = title ?? hint;
 
   const pickerBody = (
     // `.inspector-fill-popover` scopes the calm-surface fill-picker rules —
@@ -396,34 +397,34 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
         onValueChange={onValueChange}
       />
     </div>
-  )
+  );
 
   const liveDetail = useMobileLiveDetail({
     content: pickerBody,
     enabled: Boolean(mobileDensity && mobileNav),
     title: popoverTitle,
-  })
+  });
 
   const accordionPanelClassName = inspectorPortalClass(
     theme,
     "inspector-fill-popover inspector-popover-content w-full border-0 bg-transparent p-0 shadow-none outline-none",
-  )
+  );
 
   const openPicker = useCallback(() => {
     if (mobileDensity && mobileNav) {
-      liveDetail.open()
-      return
+      liveDetail.open();
+      return;
     }
 
     if (accordion) {
-      accordion.setOpenKey(popoverKey)
-      return
+      accordion.setOpenKey(popoverKey);
+      return;
     }
 
-    setRadixOpen(true)
-  }, [accordion, liveDetail, mobileDensity, mobileNav, popoverKey])
+    setRadixOpen(true);
+  }, [accordion, liveDetail, mobileDensity, mobileNav, popoverKey]);
 
-  useImperativeHandle(ref, () => ({ openPicker }), [openPicker])
+  useImperativeHandle(ref, () => ({ openPicker }), [openPicker]);
 
   const variantProps: SettingsFillPopoverVariantProps = {
     fillPreviewImageUrl,
@@ -433,12 +434,10 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
     triggerClassName,
     value,
     variant,
-  }
+  };
 
   if (mobileDensity && mobileNav) {
-    return (
-      <SettingsFillPopoverMobile {...variantProps} liveDetail={liveDetail} />
-    )
+    return <SettingsFillPopoverMobile {...variantProps} liveDetail={liveDetail} />;
   }
 
   if (accordion) {
@@ -452,7 +451,7 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
         popoverTitle={popoverTitle}
         theme={theme}
       />
-    )
+    );
   }
 
   return (
@@ -469,8 +468,8 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
       theme={theme}
       onOpenChange={setRadixOpen}
     />
-  )
-})
+  );
+});
 
 export function SettingsFillPresetSection({
   fillPreviewImageUrl,
@@ -480,15 +479,15 @@ export function SettingsFillPresetSection({
   value,
   onSelect,
 }: {
-  fillPreviewImageUrl?: string
-  lockedFillMode?: LockedFillPickerMode
-  presets: readonly string[]
-  qrGradient?: boolean
-  value: string
-  onSelect: (fill: Fill, css: string) => void
+  fillPreviewImageUrl?: string;
+  lockedFillMode?: LockedFillPickerMode;
+  presets: readonly string[];
+  qrGradient?: boolean;
+  value: string;
+  onSelect: (fill: Fill, css: string) => void;
 }) {
-  const pickerRef = useRef<SettingsFillPopoverHandle>(null)
-  const mobileDensity = useMobileInspectorDensity()
+  const pickerRef = useRef<SettingsFillPopoverHandle>(null);
+  const mobileDensity = useMobileInspectorDensity();
 
   return (
     <>
@@ -523,5 +522,5 @@ export function SettingsFillPresetSection({
         onValueChange={onSelect}
       />
     </>
-  )
+  );
 }

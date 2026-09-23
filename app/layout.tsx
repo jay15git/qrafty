@@ -1,45 +1,39 @@
-import type { Metadata, Viewport } from "next"
-import {
-  Bricolage_Grotesque,
-  Caveat,
-  Geist_Mono,
-  Kodchasan,
-  Manrope,
-} from "next/font/google"
+import type { Metadata, Viewport } from "next";
+import { Bricolage_Grotesque, Caveat, Geist_Mono, Kodchasan, Manrope } from "next/font/google";
 
-import { AgentationDev } from "@/components/agentation-dev"
-import { GlimmRootProvider } from "@/components/glimm-root-provider"
-import { ThemeProvider } from "@/components/theme-provider"
-import { MotionProvider } from "@/components/motion-provider"
+import { AgentationDev } from "@/components/agentation-dev";
+import { GlimmRootProvider } from "@/components/glimm-root-provider";
+import { ThemeProvider } from "@/components/theme-provider";
+import { MotionProvider } from "@/components/motion-provider";
 
-import "./globals.css"
+import "./globals.css";
 
 const heroSupportFont = Kodchasan({
   variable: "--font-kodchasan",
   subsets: ["latin"],
   weight: ["400", "600", "700"],
-})
+});
 
 const brandFont = Caveat({
   variable: "--font-caveat-family",
   subsets: ["latin"],
   weight: ["600", "700"],
-})
+});
 
 const displayFont = Bricolage_Grotesque({
   variable: "--font-display",
   subsets: ["latin"],
-})
+});
 
 const bodyFont = Manrope({
   variable: "--font-body",
   subsets: ["latin"],
-})
+});
 
 const monoFont = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-})
+});
 
 export const metadata: Metadata = {
   title: "QRafty",
@@ -62,7 +56,7 @@ export const metadata: Metadata = {
       },
     ],
   },
-}
+};
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -72,12 +66,12 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: "#f7f5f0" },
     { media: "(prefers-color-scheme: dark)", color: "#1f222c" },
   ],
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html
@@ -96,5 +90,5 @@ export default function RootLayout({
         <AgentationDev />
       </body>
     </html>
-  )
+  );
 }

@@ -1,61 +1,61 @@
-"use client"
+"use client";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { cn } from "@/lib/utils"
-import { Crop, Upload, UploadCloud, X } from "lucide-react"
-import type React from "react"
-import { useCallback, useEffect, useRef, useState } from "react"
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import { Crop, Upload, UploadCloud, X } from "lucide-react";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface CropArea {
-  x: number
-  y: number
-  width: number
-  height: number
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 interface ImageDimensions {
-  width: number
-  height: number
+  width: number;
+  height: number;
 }
 
 interface CroppedImageData {
-  url: string
-  file: File
-  metadata: ImageDimensions
+  url: string;
+  file: File;
+  metadata: ImageDimensions;
 }
 
-const MAX_FILE_SIZE = 4 * 1024 * 1024
-const SUPPORTED_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
+const SUPPORTED_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
 function readFileAsDataUrl(file: File): Promise<string> {
-  const { promise, resolve, reject } = Promise.withResolvers<string>()
-  const reader = new FileReader()
-  reader.onload = (event) => resolve(event.target?.result as string)
-  reader.onerror = () => reject(new Error("Failed to read file"))
-  reader.readAsDataURL(file)
-  return promise
+  const { promise, resolve, reject } = Promise.withResolvers<string>();
+  const reader = new FileReader();
+  reader.onload = (event) => resolve(event.target?.result as string);
+  reader.onerror = () => reject(new Error("Failed to read file"));
+  reader.readAsDataURL(file);
+  return promise;
 }
 
 function loadImageElement(src: string): Promise<HTMLImageElement> {
-  const { promise, resolve, reject } = Promise.withResolvers<HTMLImageElement>()
-  const img = new Image()
-  img.onload = () => resolve(img)
-  img.onerror = () => reject(new Error("Invalid or corrupted image file"))
-  img.src = src
-  return promise
+  const { promise, resolve, reject } = Promise.withResolvers<HTMLImageElement>();
+  const img = new Image();
+  img.onload = () => resolve(img);
+  img.onerror = () => reject(new Error("Invalid or corrupted image file"));
+  img.src = src;
+  return promise;
 }
 
 function formatMimeSubtype(format: string): string {
-  const subtype = format.split("/")[1]
-  return (subtype ?? format).toUpperCase()
+  const subtype = format.split("/")[1];
+  return (subtype ?? format).toUpperCase();
 }
 
 function initialCropArea(
@@ -63,17 +63,15 @@ function initialCropArea(
   fixedSize: { width: number; height: number } | undefined,
   aspectRatio: number | undefined,
 ): CropArea {
-  const targetRatio = fixedSize
-    ? fixedSize.width / fixedSize.height
-    : aspectRatio
-  let cropWidth = imgRect.width
-  let cropHeight = imgRect.height
+  const targetRatio = fixedSize ? fixedSize.width / fixedSize.height : aspectRatio;
+  let cropWidth = imgRect.width;
+  let cropHeight = imgRect.height;
 
   if (targetRatio) {
-    cropHeight = cropWidth / targetRatio
+    cropHeight = cropWidth / targetRatio;
     if (cropHeight > imgRect.height) {
-      cropHeight = imgRect.height
-      cropWidth = cropHeight * targetRatio
+      cropHeight = imgRect.height;
+      cropWidth = cropHeight * targetRatio;
     }
   }
 
@@ -82,7 +80,7 @@ function initialCropArea(
     y: (imgRect.height - cropHeight) / 2,
     width: cropWidth,
     height: cropHeight,
-  }
+  };
 }
 
 function resizedCropArea(
@@ -92,14 +90,14 @@ function resizedCropArea(
   imgRect: { width: number; height: number },
   aspectRatio: number | undefined,
 ): CropArea {
-  let newWidth = Math.max(50, prev.width + deltaX)
-  let newHeight = Math.max(50, prev.height + deltaY)
+  let newWidth = Math.max(50, prev.width + deltaX);
+  let newHeight = Math.max(50, prev.height + deltaY);
 
   if (aspectRatio) {
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      newHeight = newWidth / aspectRatio
+      newHeight = newWidth / aspectRatio;
     } else {
-      newWidth = newHeight * aspectRatio
+      newWidth = newHeight * aspectRatio;
     }
   }
 
@@ -107,7 +105,7 @@ function resizedCropArea(
     ...prev,
     width: Math.min(newWidth, imgRect.width - prev.x),
     height: Math.min(newHeight, imgRect.height - prev.y),
-  }
+  };
 }
 
 function movedCropArea(
@@ -120,7 +118,7 @@ function movedCropArea(
     ...prev,
     x: Math.max(0, Math.min(imgRect.width - prev.width, prev.x + deltaX)),
     y: Math.max(0, Math.min(imgRect.height - prev.height, prev.y + deltaY)),
-  }
+  };
 }
 
 function drawCropToCanvas(
@@ -129,19 +127,19 @@ function drawCropToCanvas(
   cropArea: CropArea,
   fixedSize: { width: number; height: number } | undefined,
 ) {
-  const ctx = canvas.getContext("2d")
-  if (!ctx) throw new Error("Could not get canvas context")
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Could not get canvas context");
 
-  const imgRect = img.getBoundingClientRect()
-  const scaleX = img.naturalWidth / imgRect.width
-  const scaleY = img.naturalHeight / imgRect.height
-  const outputWidth = fixedSize?.width || Math.round(cropArea.width * scaleX)
-  const outputHeight = fixedSize?.height || Math.round(cropArea.height * scaleY)
+  const imgRect = img.getBoundingClientRect();
+  const scaleX = img.naturalWidth / imgRect.width;
+  const scaleY = img.naturalHeight / imgRect.height;
+  const outputWidth = fixedSize?.width || Math.round(cropArea.width * scaleX);
+  const outputHeight = fixedSize?.height || Math.round(cropArea.height * scaleY);
 
-  canvas.width = outputWidth
-  canvas.height = outputHeight
-  ctx.imageSmoothingEnabled = true
-  ctx.imageSmoothingQuality = "high"
+  canvas.width = outputWidth;
+  canvas.height = outputHeight;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
   ctx.drawImage(
     img,
     Math.round(cropArea.x * scaleX),
@@ -152,9 +150,9 @@ function drawCropToCanvas(
     0,
     outputWidth,
     outputHeight,
-  )
+  );
 
-  return { outputWidth, outputHeight }
+  return { outputWidth, outputHeight };
 }
 
 function UploadTileIcon({ className }: { className?: string }) {
@@ -188,31 +186,31 @@ function UploadTileIcon({ className }: { className?: string }) {
         strokeWidth={1.5}
       />
     </svg>
-  )
+  );
 }
 
 interface ImageUploaderProps {
-  imgClassName?: string
-  onImageCropped?: (data: CroppedImageData) => void
-  fixedSize?: { width: number; height: number }
-  aspectRatio?: number
-  className?: string
-  dialogContentClassName?: string
+  imgClassName?: string;
+  onImageCropped?: (data: CroppedImageData) => void;
+  fixedSize?: { width: number; height: number };
+  aspectRatio?: number;
+  className?: string;
+  dialogContentClassName?: string;
   /** Applies /design inspector portal tokens to the crop dialog. */
-  dialogTheme?: "light" | "dark"
-  maxFileSize?: number
-  supportedFormats?: string[]
-  name?: string
-  value?: string | File | null
-  onChange?: (value: string | File | null) => void
-  onBlur?: () => void
-  error?: string
-  disabled?: boolean
-  placeholder?: string
-  showFormatHint?: boolean
-  compact?: boolean
+  dialogTheme?: "light" | "dark";
+  maxFileSize?: number;
+  supportedFormats?: string[];
+  name?: string;
+  value?: string | File | null;
+  onChange?: (value: string | File | null) => void;
+  onBlur?: () => void;
+  error?: string;
+  disabled?: boolean;
+  placeholder?: string;
+  showFormatHint?: boolean;
+  compact?: boolean;
   /** Square option-grid tile: plus empty state, no dashed frame. */
-  tile?: boolean
+  tile?: boolean;
 }
 
 function useImageCropper({
@@ -226,46 +224,46 @@ function useImageCropper({
   onBlur,
   disabled = false,
 }: ImageUploaderProps) {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const originalFileRef = useRef<File | null>(null)
-  const [showCropDialog, setShowCropDialog] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const originalFileRef = useRef<File | null>(null);
+  const [showCropDialog, setShowCropDialog] = useState(false);
   const [cropArea, setCropArea] = useState<CropArea>({
     x: 0,
     y: 0,
     width: 200,
     height: 200,
-  })
-  const [isDragging, setIsDragging] = useState(false)
-  const isResizingRef = useRef(false)
-  const dragStartRef = useRef({ x: 0, y: 0 })
+  });
+  const [isDragging, setIsDragging] = useState(false);
+  const isResizingRef = useRef(false);
+  const dragStartRef = useRef({ x: 0, y: 0 });
 
-  const [croppedImageUrl, setCroppedImageUrl] = useState<string | null>(null)
-  const [validationError, setValidationError] = useState<string | null>(null)
-  const [isProcessing, setIsProcessing] = useState(false)
+  const [croppedImageUrl, setCroppedImageUrl] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const imageRef = useRef<HTMLImageElement>(null)
-  const cropContainerRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const cropContainerRef = useRef<HTMLDivElement>(null);
 
-  const maxFileSizeMb = Math.round(maxFileSize / (1024 * 1024))
+  const maxFileSizeMb = Math.round(maxFileSize / (1024 * 1024));
 
   // Sync the preview with the controlled `value` prop by adjusting state
   // during render instead of in an effect.
   const [prevSynced, setPrevSynced] = useState<{
-    value: string | File | null | undefined
-    croppedImageUrl: string | null
-  } | null>(null)
+    value: string | File | null | undefined;
+    croppedImageUrl: string | null;
+  } | null>(null);
   if (
     prevSynced === null ||
     prevSynced.value !== value ||
     prevSynced.croppedImageUrl !== croppedImageUrl
   ) {
-    setPrevSynced({ value, croppedImageUrl })
+    setPrevSynced({ value, croppedImageUrl });
     if (value && typeof value === "string" && value !== croppedImageUrl) {
-      setCroppedImageUrl(value)
+      setCroppedImageUrl(value);
     } else if (!value) {
-      setCroppedImageUrl(null)
+      setCroppedImageUrl(null);
     }
   }
 
@@ -274,58 +272,56 @@ function useImageCropper({
       if (!supportedFormats.includes(file.type)) {
         return `Unsupported file format. Please use: ${supportedFormats
           .map(formatMimeSubtype)
-          .join(", ")}`
+          .join(", ")}`;
       }
 
       if (file.size > maxFileSize) {
-        return `File size too large. Maximum size is ${maxFileSizeMb}MB`
+        return `File size too large. Maximum size is ${maxFileSizeMb}MB`;
       }
 
-      return null
+      return null;
     },
     [supportedFormats, maxFileSize, maxFileSizeMb],
-  )
+  );
 
   const checkImageDimensions = useCallback(
     (img: HTMLImageElement): boolean => {
-      if (!fixedSize) return false
-      return (
-        img.naturalWidth === fixedSize.width && img.naturalHeight === fixedSize.height
-      )
+      if (!fixedSize) return false;
+      return img.naturalWidth === fixedSize.width && img.naturalHeight === fixedSize.height;
     },
     [fixedSize],
-  )
+  );
 
   const resetFileInput = useCallback(() => {
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
-  }, [])
+  }, []);
 
   const handleFileSelect = useCallback(
     async (file: File) => {
-      if (disabled) return
+      if (disabled) return;
 
-      setValidationError(null)
-      setIsProcessing(true)
+      setValidationError(null);
+      setIsProcessing(true);
 
       try {
-        const nextValidationError = validateFile(file)
+        const nextValidationError = validateFile(file);
         if (nextValidationError) {
-          setValidationError(nextValidationError)
-          resetFileInput()
-          return
+          setValidationError(nextValidationError);
+          resetFileInput();
+          return;
         }
 
-        const imageUrl = await readFileAsDataUrl(file)
-        setSelectedImage(imageUrl)
-        originalFileRef.current = file
+        const imageUrl = await readFileAsDataUrl(file);
+        setSelectedImage(imageUrl);
+        originalFileRef.current = file;
 
         try {
-          const tempImg = await loadImageElement(imageUrl)
+          const tempImg = await loadImageElement(imageUrl);
           if (checkImageDimensions(tempImg)) {
-            setCroppedImageUrl(imageUrl)
-            onChange?.(file)
+            setCroppedImageUrl(imageUrl);
+            onChange?.(file);
             onImageCropped?.({
               url: imageUrl,
               file,
@@ -333,25 +329,25 @@ function useImageCropper({
                 width: tempImg.naturalWidth,
                 height: tempImg.naturalHeight,
               },
-            })
-            onBlur?.()
+            });
+            onBlur?.();
           } else {
-            setShowCropDialog(true)
+            setShowCropDialog(true);
           }
         } catch {
-          setValidationError("Invalid or corrupted image file")
-          resetFileInput()
+          setValidationError("Invalid or corrupted image file");
+          resetFileInput();
         }
       } catch (processingError) {
-        console.error("File processing error:", processingError)
+        console.error("File processing error:", processingError);
         setValidationError(
           processingError instanceof Error && processingError.message === "Failed to read file"
             ? "Failed to read file"
             : "An error occurred while processing the file",
-        )
-        resetFileInput()
+        );
+        resetFileInput();
       } finally {
-        setIsProcessing(false)
+        setIsProcessing(false);
       }
     },
     [
@@ -363,209 +359,190 @@ function useImageCropper({
       onBlur,
       resetFileInput,
     ],
-  )
+  );
 
   const handleDrop = useCallback(
     (event: React.DragEvent) => {
-      event.preventDefault()
-      setIsDragging(false)
+      event.preventDefault();
+      setIsDragging(false);
 
-      if (disabled) return
+      if (disabled) return;
 
-      const files = Array.from(event.dataTransfer.files)
+      const files = Array.from(event.dataTransfer.files);
       if (files.length > 0) {
-        handleFileSelect(files[0])
+        handleFileSelect(files[0]);
       }
     },
     [handleFileSelect, disabled],
-  )
+  );
 
   const handleDragOver = useCallback(
     (event: React.DragEvent) => {
-      event.preventDefault()
+      event.preventDefault();
       if (!disabled) {
-        setIsDragging(true)
+        setIsDragging(true);
       }
     },
     [disabled],
-  )
+  );
 
   const handleDragLeave = useCallback((event: React.DragEvent) => {
-    event.preventDefault()
-    setIsDragging(false)
-  }, [])
+    event.preventDefault();
+    setIsDragging(false);
+  }, []);
 
   const handleImageLoad = useCallback(() => {
     if (imageRef.current && cropContainerRef.current) {
       setCropArea(
-        initialCropArea(
-          imageRef.current.getBoundingClientRect(),
-          fixedSize,
-          aspectRatio,
-        ),
-      )
+        initialCropArea(imageRef.current.getBoundingClientRect(), fixedSize, aspectRatio),
+      );
     }
-  }, [fixedSize, aspectRatio])
+  }, [fixedSize, aspectRatio]);
 
   const handleMouseDown = useCallback(
     (event: React.MouseEvent, type: "move" | "resize") => {
-      event.preventDefault()
-      event.stopPropagation()
+      event.preventDefault();
+      event.stopPropagation();
 
-      if (fixedSize && type === "resize") return
+      if (fixedSize && type === "resize") return;
 
-      dragStartRef.current = { x: event.clientX, y: event.clientY }
+      dragStartRef.current = { x: event.clientX, y: event.clientY };
       if (type === "move") {
-        setIsDragging(true)
+        setIsDragging(true);
       } else {
-        isResizingRef.current = true
+        isResizingRef.current = true;
       }
     },
     [fixedSize],
-  )
+  );
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent) => {
-      if (!isDragging && !isResizingRef.current) return
-      if (!cropContainerRef.current || !imageRef.current) return
+      if (!isDragging && !isResizingRef.current) return;
+      if (!cropContainerRef.current || !imageRef.current) return;
 
       requestAnimationFrame(() => {
-        const deltaX = event.clientX - dragStartRef.current.x
-        const deltaY = event.clientY - dragStartRef.current.y
-        const imgRect = imageRef.current!.getBoundingClientRect()
+        const deltaX = event.clientX - dragStartRef.current.x;
+        const deltaY = event.clientY - dragStartRef.current.y;
+        const imgRect = imageRef.current!.getBoundingClientRect();
 
         if (isDragging) {
-          setCropArea((prev) => movedCropArea(prev, deltaX, deltaY, imgRect))
+          setCropArea((prev) => movedCropArea(prev, deltaX, deltaY, imgRect));
         } else if (isResizingRef.current) {
-          setCropArea((prev) => resizedCropArea(prev, deltaX, deltaY, imgRect, aspectRatio))
+          setCropArea((prev) => resizedCropArea(prev, deltaX, deltaY, imgRect, aspectRatio));
         }
 
-        dragStartRef.current = { x: event.clientX, y: event.clientY }
-      })
+        dragStartRef.current = { x: event.clientX, y: event.clientY };
+      });
     },
     [isDragging, aspectRatio],
-  )
+  );
 
   const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
-    isResizingRef.current = false
-  }, [])
+    setIsDragging(false);
+    isResizingRef.current = false;
+  }, []);
 
   const blobToFile = useCallback((blob: Blob, filename: string): File => {
-    return new File([blob], filename, { type: blob.type })
-  }, [])
+    return new File([blob], filename, { type: blob.type });
+  }, []);
 
   const cropImage = useCallback(async () => {
-    const originalFile = originalFileRef.current
-    if (!imageRef.current || !canvasRef.current || !originalFile) return
+    const originalFile = originalFileRef.current;
+    if (!imageRef.current || !canvasRef.current || !originalFile) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
 
     try {
-      const canvas = canvasRef.current
+      const canvas = canvasRef.current;
       const { outputWidth, outputHeight } = drawCropToCanvas(
         imageRef.current,
         canvas,
         cropArea,
         fixedSize,
-      )
+      );
 
       setTimeout(() => {
-        const nextCroppedImageUrl = canvas.toDataURL("image/jpeg", 0.9)
+        const nextCroppedImageUrl = canvas.toDataURL("image/jpeg", 0.9);
 
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              const croppedFile = blobToFile(blob, `cropped-${originalFile.name}`)
+              const croppedFile = blobToFile(blob, `cropped-${originalFile.name}`);
 
-              setCroppedImageUrl(nextCroppedImageUrl)
-              onChange?.(croppedFile)
+              setCroppedImageUrl(nextCroppedImageUrl);
+              onChange?.(croppedFile);
               onImageCropped?.({
                 url: nextCroppedImageUrl,
                 file: croppedFile,
                 metadata: { width: outputWidth, height: outputHeight },
-              })
-              setShowCropDialog(false)
-              onBlur?.()
+              });
+              setShowCropDialog(false);
+              onBlur?.();
             }
-            setIsProcessing(false)
+            setIsProcessing(false);
           },
           "image/jpeg",
           0.9,
-        )
-      }, 0)
+        );
+      }, 0);
     } catch (cropError) {
-      console.error("Error cropping image:", cropError)
-      setValidationError("Failed to crop image. Please try again.")
-      setIsProcessing(false)
+      console.error("Error cropping image:", cropError);
+      setValidationError("Failed to crop image. Please try again.");
+      setIsProcessing(false);
     }
-  }, [
-    cropArea,
-    fixedSize,
-    onImageCropped,
-    onChange,
-    onBlur,
-    blobToFile,
-  ])
+  }, [cropArea, fixedSize, onImageCropped, onChange, onBlur, blobToFile]);
 
   const handleRemoveImage = useCallback(() => {
     if (croppedImageUrl && croppedImageUrl.startsWith("blob:")) {
-      URL.revokeObjectURL(croppedImageUrl)
+      URL.revokeObjectURL(croppedImageUrl);
     }
 
-    setCroppedImageUrl(null)
-    setValidationError(null)
-    onChange?.(null)
-    onBlur?.()
-    resetFileInput()
-  }, [croppedImageUrl, onChange, onBlur, resetFileInput])
+    setCroppedImageUrl(null);
+    setValidationError(null);
+    onChange?.(null);
+    onBlur?.();
+    resetFileInput();
+  }, [croppedImageUrl, onChange, onBlur, resetFileInput]);
 
   const handleDialogClose = useCallback(
     (open: boolean) => {
       if (!open) {
-        setShowCropDialog(false)
+        setShowCropDialog(false);
 
         if (selectedImage && selectedImage.startsWith("blob:")) {
-          URL.revokeObjectURL(selectedImage)
+          URL.revokeObjectURL(selectedImage);
         }
 
-        setSelectedImage(null)
-        originalFileRef.current = null
-        setValidationError(null)
-        resetFileInput()
+        setSelectedImage(null);
+        originalFileRef.current = null;
+        setValidationError(null);
+        resetFileInput();
       }
     },
     [selectedImage, resetFileInput],
-  )
+  );
 
   const handleFileInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0]
+      const file = event.target.files?.[0];
       if (file) {
-        handleFileSelect(file)
+        handleFileSelect(file);
       }
     },
     [handleFileSelect],
-  )
+  );
 
   useEffect(() => {
     return () => {
-      if (
-        croppedImageUrl &&
-        croppedImageUrl.startsWith("blob:") &&
-        croppedImageUrl !== value
-      ) {
-        URL.revokeObjectURL(croppedImageUrl)
+      if (croppedImageUrl && croppedImageUrl.startsWith("blob:") && croppedImageUrl !== value) {
+        URL.revokeObjectURL(croppedImageUrl);
       }
-      if (
-        selectedImage &&
-        selectedImage.startsWith("blob:") &&
-        selectedImage !== value
-      ) {
-        URL.revokeObjectURL(selectedImage)
+      if (selectedImage && selectedImage.startsWith("blob:") && selectedImage !== value) {
+        URL.revokeObjectURL(selectedImage);
       }
-    }
-  }, [croppedImageUrl, selectedImage, value])
+    };
+  }, [croppedImageUrl, selectedImage, value]);
 
   return {
     selectedImage,
@@ -591,7 +568,7 @@ function useImageCropper({
     handleRemoveImage,
     handleDialogClose,
     handleFileInputChange,
-  }
+  };
 }
 
 export function ImageCropper({
@@ -648,20 +625,20 @@ export function ImageCropper({
     onChange,
     onBlur,
     disabled,
-  })
+  });
 
-  const displayError = error || validationError
+  const displayError = error || validationError;
   const currentAspectRatio =
     cropArea.width > 0 && cropArea.height > 0
       ? (cropArea.width / cropArea.height).toFixed(2)
-      : "1.00"
-  const usesDesktopTheme = Boolean(dialogTheme)
+      : "1.00";
+  const usesDesktopTheme = Boolean(dialogTheme);
   const previewSurfaceClass =
     compact && dialogTheme === "dark"
       ? "bg-black"
       : compact && dialogTheme === "light"
         ? "bg-white"
-        : "bg-background"
+        : "bg-background";
 
   return (
     <>
@@ -712,7 +689,7 @@ export function ImageCropper({
         usesDesktopTheme={usesDesktopTheme}
       />
     </>
-  )
+  );
 }
 
 function CropOverlay({
@@ -723,12 +700,12 @@ function CropOverlay({
   onMouseDown,
   usesDesktopTheme,
 }: {
-  aspectRatio?: number
-  cropArea: CropArea
-  currentAspectRatio: string
-  fixedSize?: { width: number; height: number }
-  onMouseDown: (event: React.MouseEvent, type: "move" | "resize") => void
-  usesDesktopTheme: boolean
+  aspectRatio?: number;
+  cropArea: CropArea;
+  currentAspectRatio: string;
+  fixedSize?: { width: number; height: number };
+  onMouseDown: (event: React.MouseEvent, type: "move" | "resize") => void;
+  usesDesktopTheme: boolean;
 }) {
   return (
     <div
@@ -750,8 +727,8 @@ function CropOverlay({
           role="group"
           className="absolute right-0 bottom-0 size-4 cursor-se-resize border border-primary-foreground bg-primary"
           onMouseDown={(event) => {
-            event.stopPropagation()
-            onMouseDown(event, "resize")
+            event.stopPropagation();
+            onMouseDown(event, "resize");
           }}
         />
       ) : null}
@@ -767,13 +744,11 @@ function CropOverlay({
         {Math.round(cropArea.width)}×{Math.round(cropArea.height)}
         <span className="ml-2 opacity-75">{currentAspectRatio}:1</span>
         {aspectRatio ? (
-          <span className="ml-1 opacity-75">
-            (target: {aspectRatio.toFixed(2)}:1)
-          </span>
+          <span className="ml-1 opacity-75">(target: {aspectRatio.toFixed(2)}:1)</span>
         ) : null}
       </div>
     </div>
-  )
+  );
 }
 
 function CropperDialogFooter({
@@ -782,10 +757,10 @@ function CropperDialogFooter({
   onCrop,
   usesDesktopTheme,
 }: {
-  isProcessing: boolean
-  onCancel: () => void
-  onCrop: () => void
-  usesDesktopTheme: boolean
+  isProcessing: boolean;
+  onCancel: () => void;
+  onCrop: () => void;
+  usesDesktopTheme: boolean;
 }) {
   return (
     <DialogFooter
@@ -818,11 +793,7 @@ function CropperDialogFooter({
         </>
       ) : (
         <>
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            disabled={isProcessing}
-          >
+          <Button variant="outline" onClick={onCancel} disabled={isProcessing}>
             <X className="mr-2 size-4" />
             Cancel
           </Button>
@@ -833,7 +804,7 @@ function CropperDialogFooter({
         </>
       )}
     </DialogFooter>
-  )
+  );
 }
 
 function CropperDialog({
@@ -857,27 +828,27 @@ function CropperDialog({
   selectedImage,
   usesDesktopTheme,
 }: {
-  aspectRatio?: number
-  canvasRef: React.RefObject<HTMLCanvasElement | null>
-  cropArea: CropArea
-  cropContainerRef: React.RefObject<HTMLDivElement | null>
-  currentAspectRatio: string
-  dialogContentClassName?: string
-  dialogTheme?: "light" | "dark"
-  fixedSize?: { width: number; height: number }
-  imageRef: React.RefObject<HTMLImageElement | null>
-  isProcessing: boolean
-  onCrop: () => void
-  onDialogOpenChange: (open: boolean) => void
-  onImageLoad: () => void
-  onMouseDown: (event: React.MouseEvent, type: "move" | "resize") => void
-  onMouseMove: (event: React.MouseEvent) => void
-  onMouseUp: () => void
-  open: boolean
-  selectedImage: string | null
-  usesDesktopTheme: boolean
+  aspectRatio?: number;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  cropArea: CropArea;
+  cropContainerRef: React.RefObject<HTMLDivElement | null>;
+  currentAspectRatio: string;
+  dialogContentClassName?: string;
+  dialogTheme?: "light" | "dark";
+  fixedSize?: { width: number; height: number };
+  imageRef: React.RefObject<HTMLImageElement | null>;
+  isProcessing: boolean;
+  onCrop: () => void;
+  onDialogOpenChange: (open: boolean) => void;
+  onImageLoad: () => void;
+  onMouseDown: (event: React.MouseEvent, type: "move" | "resize") => void;
+  onMouseMove: (event: React.MouseEvent) => void;
+  onMouseUp: () => void;
+  open: boolean;
+  selectedImage: string | null;
+  usesDesktopTheme: boolean;
 }) {
-  const handleDialogClose = onDialogOpenChange
+  const handleDialogClose = onDialogOpenChange;
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogClose}>
@@ -923,7 +894,13 @@ function CropperDialog({
             </DialogTitle>
           </DialogHeader>
 
-          <div className={cn(usesDesktopTheme ? "inspector-crop-dialog__body p-[length:var(--settings-row-px)]" : "space-y-4")}>
+          <div
+            className={cn(
+              usesDesktopTheme
+                ? "inspector-crop-dialog__body p-[length:var(--settings-row-px)]"
+                : "space-y-4",
+            )}
+          >
             <div
               role="group"
               ref={cropContainerRef}
@@ -975,7 +952,7 @@ function CropperDialog({
 
       <canvas ref={canvasRef} className="hidden" />
     </>
-  )
+  );
 }
 
 function dropzoneRootClass({
@@ -987,30 +964,26 @@ function dropzoneRootClass({
   displayError,
   className,
 }: {
-  tile: boolean
-  compact: boolean
-  previewSurfaceClass: string
-  disabled: boolean
-  isDragging: boolean
-  displayError: string | null
-  className?: string
+  tile: boolean;
+  compact: boolean;
+  previewSurfaceClass: string;
+  disabled: boolean;
+  isDragging: boolean;
+  displayError: string | null;
+  className?: string;
 }) {
   return cn(
     "group overflow-hidden text-center transition-colors",
-    tile
-      ? "size-full border-0 bg-transparent"
-      : "rounded-lg border-2 border-dashed",
+    tile ? "size-full border-0 bg-transparent" : "rounded-lg border-2 border-dashed",
     !tile && (compact ? "aspect-square w-full" : "h-52"),
     !tile && previewSurfaceClass,
-    disabled
-      ? "cursor-not-allowed border-muted-foreground/10"
-      : "cursor-pointer",
+    disabled ? "cursor-not-allowed border-muted-foreground/10" : "cursor-pointer",
     !disabled && isDragging
       ? "border-primary"
       : "border-muted-foreground/25 hover:border-primary/50",
     displayError && "border-destructive",
     className,
-  )
+  );
 }
 
 function previewImageClass({
@@ -1019,18 +992,16 @@ function previewImageClass({
   previewSurfaceClass,
   imgClassName,
 }: {
-  tile: boolean
-  compact: boolean
-  previewSurfaceClass: string
-  imgClassName?: string
+  tile: boolean;
+  compact: boolean;
+  previewSurfaceClass: string;
+  imgClassName?: string;
 }) {
   return cn(
-    tile || compact
-      ? "size-full object-cover"
-      : "h-[204px] w-full rounded-lg object-cover",
+    tile || compact ? "size-full object-cover" : "h-[204px] w-full rounded-lg object-cover",
     !tile && previewSurfaceClass,
     imgClassName,
-  )
+  );
 }
 
 function removeButtonClass({
@@ -1038,9 +1009,9 @@ function removeButtonClass({
   compact,
   dialogTheme,
 }: {
-  tile: boolean
-  compact: boolean
-  dialogTheme?: "light" | "dark"
+  tile: boolean;
+  compact: boolean;
+  dialogTheme?: "light" | "dark";
 }) {
   return cn(
     "rounded-full backdrop-blur-sm",
@@ -1050,7 +1021,7 @@ function removeButtonClass({
       : compact && dialogTheme === "light"
         ? "bg-white/85 text-black hover:bg-white"
         : "bg-background/80 hover:bg-background",
-  )
+  );
 }
 
 function DropzonePreview({
@@ -1063,14 +1034,14 @@ function DropzonePreview({
   previewSurfaceClass,
   tile,
 }: {
-  compact: boolean
-  croppedImageUrl: string
-  dialogTheme?: "light" | "dark"
-  disabled: boolean
-  imgClassName?: string
-  onRemoveImage: () => void
-  previewSurfaceClass: string
-  tile: boolean
+  compact: boolean;
+  croppedImageUrl: string;
+  dialogTheme?: "light" | "dark";
+  disabled: boolean;
+  imgClassName?: string;
+  onRemoveImage: () => void;
+  previewSurfaceClass: string;
+  tile: boolean;
 }) {
   return (
     <div className={cn("relative", compact ? "size-full" : undefined)}>
@@ -1093,9 +1064,7 @@ function DropzonePreview({
         <div
           className={cn(
             "absolute",
-            tile
-              ? "inset-0 flex items-center justify-center pointer-events-none"
-              : "top-2 right-2",
+            tile ? "inset-0 flex items-center justify-center pointer-events-none" : "top-2 right-2",
           )}
         >
           <Button
@@ -1105,8 +1074,8 @@ function DropzonePreview({
             aria-label="Remove cropped upload"
             className={removeButtonClass({ tile, compact, dialogTheme })}
             onClick={(event) => {
-              event.stopPropagation()
-              onRemoveImage()
+              event.stopPropagation();
+              onRemoveImage();
             }}
           >
             <X className={cn(tile ? "size-3" : "size-4")} />
@@ -1114,17 +1083,15 @@ function DropzonePreview({
         </div>
       ) : null}
     </div>
-  )
+  );
 }
 
 function emptyStateClass({ tile, compact }: { tile: boolean; compact: boolean }) {
   return cn(
     "relative w-full",
-    tile
-      ? "grid size-full place-items-center"
-      : "flex flex-col items-center justify-center",
+    tile ? "grid size-full place-items-center" : "flex flex-col items-center justify-center",
     !tile && (compact ? "size-full px-1.5 py-1.5" : "px-4 py-8"),
-  )
+  );
 }
 
 function tileIconClass(disabled: boolean) {
@@ -1133,20 +1100,14 @@ function tileIconClass(disabled: boolean) {
     disabled
       ? "bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] text-[var(--muted)]"
       : "bg-[color-mix(in_srgb,var(--muted)_38%,transparent)] text-[var(--fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--muted)_55%,transparent)]",
-  )
+  );
 }
 
-function uploadIconClass({
-  compact,
-  disabled,
-}: {
-  compact: boolean
-  disabled: boolean
-}) {
+function uploadIconClass({ compact, disabled }: { compact: boolean; disabled: boolean }) {
   return cn(
     compact ? "mb-1 size-7" : "mx-auto mb-4 size-12",
     disabled ? "text-muted-foreground/50" : "text-muted-foreground",
-  )
+  );
 }
 
 function mutedTextClass({
@@ -1154,15 +1115,15 @@ function mutedTextClass({
   disabled,
   base,
 }: {
-  compact: boolean
-  disabled: boolean
-  base: string
+  compact: boolean;
+  disabled: boolean;
+  base: string;
 }) {
   return cn(
     base,
     compact ? "text-xs" : undefined,
     disabled ? "text-muted-foreground/50" : "text-muted-foreground",
-  )
+  );
 }
 
 function formatHintText({
@@ -1170,14 +1131,14 @@ function formatHintText({
   supportedFormats,
   maxFileSizeMb,
 }: {
-  compact: boolean
-  supportedFormats: string[]
-  maxFileSizeMb: number
+  compact: boolean;
+  supportedFormats: string[];
+  maxFileSizeMb: number;
 }) {
-  const formats = supportedFormats.map(formatMimeSubtype).join(", ")
+  const formats = supportedFormats.map(formatMimeSubtype).join(", ");
   return compact
     ? `${formats} · ${maxFileSizeMb} MB max`
-    : `Supports ${formats} up to ${maxFileSizeMb} MB`
+    : `Supports ${formats} up to ${maxFileSizeMb} MB`;
 }
 
 function DropzoneEmptyState({
@@ -1191,15 +1152,15 @@ function DropzoneEmptyState({
   tile,
   validationError,
 }: {
-  compact: boolean
-  disabled: boolean
-  isProcessing: boolean
-  maxFileSizeMb: number
-  placeholder?: string
-  showFormatHint: boolean
-  supportedFormats: string[]
-  tile: boolean
-  validationError: string | null
+  compact: boolean;
+  disabled: boolean;
+  isProcessing: boolean;
+  maxFileSizeMb: number;
+  placeholder?: string;
+  showFormatHint: boolean;
+  supportedFormats: string[];
+  tile: boolean;
+  validationError: string | null;
 }) {
   return (
     <div className={emptyStateClass({ tile, compact })}>
@@ -1226,11 +1187,9 @@ function DropzoneEmptyState({
           {formatHintText({ compact, supportedFormats, maxFileSizeMb })}
         </p>
       ) : null}
-      {validationError ? (
-        <p className="mt-2 text-xs text-destructive">{validationError}</p>
-      ) : null}
+      {validationError ? <p className="mt-2 text-xs text-destructive">{validationError}</p> : null}
     </div>
-  )
+  );
 }
 
 function ImageDropzone({
@@ -1257,30 +1216,30 @@ function ImageDropzone({
   tile,
   validationError,
 }: {
-  className?: string
-  compact: boolean
-  croppedImageUrl: string | null
-  dialogTheme?: "light" | "dark"
-  disabled: boolean
-  displayError: string | null
-  fileInputRef: React.RefObject<HTMLInputElement | null>
-  imgClassName?: string
-  isDragging: boolean
-  isProcessing: boolean
-  maxFileSizeMb: number
-  onDragLeave: (event: React.DragEvent) => void
-  onDragOver: (event: React.DragEvent) => void
-  onDrop: (event: React.DragEvent) => void
-  onFileInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-  onRemoveImage: () => void
-  placeholder?: string
-  previewSurfaceClass: string
-  showFormatHint: boolean
-  supportedFormats: string[]
-  tile: boolean
-  validationError: string | null
+  className?: string;
+  compact: boolean;
+  croppedImageUrl: string | null;
+  dialogTheme?: "light" | "dark";
+  disabled: boolean;
+  displayError: string | null;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  imgClassName?: string;
+  isDragging: boolean;
+  isProcessing: boolean;
+  maxFileSizeMb: number;
+  onDragLeave: (event: React.DragEvent) => void;
+  onDragOver: (event: React.DragEvent) => void;
+  onDrop: (event: React.DragEvent) => void;
+  onFileInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onRemoveImage: () => void;
+  placeholder?: string;
+  previewSurfaceClass: string;
+  showFormatHint: boolean;
+  supportedFormats: string[];
+  tile: boolean;
+  validationError: string | null;
 }) {
-  const isInteractive = !disabled && !isProcessing
+  const isInteractive = !disabled && !isProcessing;
   return (
     <div
       className={dropzoneRootClass({
@@ -1293,66 +1252,62 @@ function ImageDropzone({
         className,
       })}
     >
-        <div
-          role="group"
-          className={cn(tile || compact ? "size-full min-h-0" : undefined)}
-          tabIndex={isInteractive ? 0 : undefined}
-          onDrop={!disabled ? onDrop : undefined}
-          onDragOver={!disabled ? onDragOver : undefined}
-          onDragLeave={!disabled ? onDragLeave : undefined}
-          onClick={
-            isInteractive
-              ? () => fileInputRef.current?.click()
-              : undefined
-          }
-          onKeyDown={
-            isInteractive
-              ? (event) => {
-                  if (
-                    event.target === event.currentTarget &&
-                    (event.key === "Enter" || event.key === " ")
-                  ) {
-                    event.preventDefault()
-                    fileInputRef.current?.click()
-                  }
+      <div
+        role="group"
+        className={cn(tile || compact ? "size-full min-h-0" : undefined)}
+        tabIndex={isInteractive ? 0 : undefined}
+        onDrop={!disabled ? onDrop : undefined}
+        onDragOver={!disabled ? onDragOver : undefined}
+        onDragLeave={!disabled ? onDragLeave : undefined}
+        onClick={isInteractive ? () => fileInputRef.current?.click() : undefined}
+        onKeyDown={
+          isInteractive
+            ? (event) => {
+                if (
+                  event.target === event.currentTarget &&
+                  (event.key === "Enter" || event.key === " ")
+                ) {
+                  event.preventDefault();
+                  fileInputRef.current?.click();
                 }
-              : undefined
-          }
-        >
-          {croppedImageUrl ? (
-            <DropzonePreview
-              compact={compact}
-              croppedImageUrl={croppedImageUrl}
-              dialogTheme={dialogTheme}
-              disabled={disabled}
-              imgClassName={imgClassName}
-              onRemoveImage={onRemoveImage}
-              previewSurfaceClass={previewSurfaceClass}
-              tile={tile}
-            />
-          ) : (
-            <DropzoneEmptyState
-              compact={compact}
-              disabled={disabled}
-              isProcessing={isProcessing}
-              maxFileSizeMb={maxFileSizeMb}
-              placeholder={placeholder}
-              showFormatHint={showFormatHint}
-              supportedFormats={supportedFormats}
-              tile={tile}
-              validationError={validationError}
-            />
-          )}
-        </div>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={supportedFormats.join(",")}
-          className="hidden"
-          disabled={disabled || isProcessing}
-          onChange={onFileInputChange}
-        />
+              }
+            : undefined
+        }
+      >
+        {croppedImageUrl ? (
+          <DropzonePreview
+            compact={compact}
+            croppedImageUrl={croppedImageUrl}
+            dialogTheme={dialogTheme}
+            disabled={disabled}
+            imgClassName={imgClassName}
+            onRemoveImage={onRemoveImage}
+            previewSurfaceClass={previewSurfaceClass}
+            tile={tile}
+          />
+        ) : (
+          <DropzoneEmptyState
+            compact={compact}
+            disabled={disabled}
+            isProcessing={isProcessing}
+            maxFileSizeMb={maxFileSizeMb}
+            placeholder={placeholder}
+            showFormatHint={showFormatHint}
+            supportedFormats={supportedFormats}
+            tile={tile}
+            validationError={validationError}
+          />
+        )}
       </div>
-  )
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={supportedFormats.join(",")}
+        className="hidden"
+        disabled={disabled || isProcessing}
+        onChange={onFileInputChange}
+      />
+    </div>
+  );
 }

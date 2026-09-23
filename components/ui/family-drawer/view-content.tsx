@@ -1,34 +1,36 @@
-"use client"
+"use client";
 
-import { useFamilyDrawer, type ViewsRegistry } from "./context"
+import { useFamilyDrawer, type ViewsRegistry } from "./context";
 
 interface FamilyDrawerViewContentProps {
-  views?: ViewsRegistry
+  views?: ViewsRegistry;
   /** Pin a view for exit animations; defaults to the active drawer view. */
-  viewName?: string
+  viewName?: string;
 }
 
-export function FamilyDrawerViewContent({
-  views: propViews,
-  viewName: propViewName,
-}: FamilyDrawerViewContentProps = {} as FamilyDrawerViewContentProps) {
-  const { view: contextView, views: contextViews } = useFamilyDrawer()
-  const view = propViewName ?? contextView
+export function FamilyDrawerViewContent(
+  {
+    views: propViews,
+    viewName: propViewName,
+  }: FamilyDrawerViewContentProps = {} as FamilyDrawerViewContentProps,
+) {
+  const { view: contextView, views: contextViews } = useFamilyDrawer();
+  const view = propViewName ?? contextView;
 
-  const views = propViews || contextViews
+  const views = propViews || contextViews;
 
   if (!views) {
     throw new Error(
       "FamilyDrawerViewContent requires views to be provided via props or FamilyDrawerRoot",
-    )
+    );
   }
 
-  const ViewComponent = views[view]
+  const ViewComponent = views[view];
 
   if (!ViewComponent) {
-    const DefaultComponent = views.default
-    return DefaultComponent ? <DefaultComponent /> : null
+    const DefaultComponent = views.default;
+    return DefaultComponent ? <DefaultComponent /> : null;
   }
 
-  return <ViewComponent />
+  return <ViewComponent />;
 }

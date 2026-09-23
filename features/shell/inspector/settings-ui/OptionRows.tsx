@@ -1,7 +1,7 @@
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { CUELUME_TOGGLE } from "@/features/shell/audio/cuelume"
-import { OPTION_TILE_SCROLL_ROW } from "@/features/shell/inspector/settings-ui/Shared"
-import { cn } from "@/lib/utils"
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { CUELUME_TOGGLE } from "@/features/shell/audio/cuelume";
+import { OPTION_TILE_SCROLL_ROW } from "@/features/shell/inspector/settings-ui/Shared";
+import { cn } from "@/lib/utils";
 
 export function OptionScrollRow({
   fill = false,
@@ -10,14 +10,14 @@ export function OptionScrollRow({
   persistKey,
   selected,
 }: {
-  fill?: boolean
-  items: string[]
-  onSelect?: (item: string) => void
-  persistKey?: string
-  selected: string
+  fill?: boolean;
+  items: string[];
+  onSelect?: (item: string) => void;
+  persistKey?: string;
+  selected: string;
 }) {
   const tiles = items.map((item) => {
-    const isSelected = selected === item
+    const isSelected = selected === item;
 
     return (
       <button
@@ -33,15 +33,11 @@ export function OptionScrollRow({
       >
         {item}
       </button>
-    )
-  })
+    );
+  });
 
   if (fill) {
-    return (
-      <div className="dn-option-scroll-row dn-option-scroll-row--fill">
-        {tiles}
-      </div>
-    )
+    return <div className="dn-option-scroll-row dn-option-scroll-row--fill">{tiles}</div>;
   }
 
   return (
@@ -55,11 +51,9 @@ export function OptionScrollRow({
       showScrollbar={false}
       viewportClassName="min-w-0"
     >
-      <div className={OPTION_TILE_SCROLL_ROW}>
-        {tiles}
-      </div>
+      <div className={OPTION_TILE_SCROLL_ROW}>{tiles}</div>
     </ScrollArea>
-  )
+  );
 }
 
 export function PresetList({
@@ -67,9 +61,9 @@ export function PresetList({
   selected,
   onSelect,
 }: {
-  items: string[]
-  selected: string
-  onSelect: (item: string) => void
+  items: string[];
+  selected: string;
+  onSelect: (item: string) => void;
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -89,5 +83,5 @@ export function PresetList({
         </button>
       ))}
     </div>
-  )
+  );
 }

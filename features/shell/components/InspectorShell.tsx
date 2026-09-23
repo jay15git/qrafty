@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { type ReactNode } from "react"
+import { type ReactNode } from "react";
 
 import {
   INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
   INSPECTOR_LABEL_CLASS,
   INSPECTOR_RADIUS_CLASS,
-} from "@/features/shell/components/inspector-tokens"
-import { SettingsInlineSlider } from "@/features/shell/inspector/settings-ui"
+} from "@/features/shell/components/inspector-tokens";
+import { SettingsInlineSlider } from "@/features/shell/inspector/settings-ui";
 import {
   InspectorScrubNumberInput,
   useInspectorNumberScrub,
-} from "@/features/shell/components/InspectorControls"
-import { cn } from "@/lib/utils"
+} from "@/features/shell/components/InspectorControls";
+import { cn } from "@/lib/utils";
 
 export {
   InspectorOptionGridScrollArea,
   InspectorScrollArea,
-} from "@/features/shell/inspector/InspectorOptionGrid"
+} from "@/features/shell/inspector/InspectorOptionGrid";
 
 export function InspectorElasticSliderRow({
   ariaLabel,
@@ -29,14 +29,14 @@ export function InspectorElasticSliderRow({
   value,
   valueLabel,
 }: {
-  ariaLabel?: string
-  label: string
-  max: number
-  min: number
-  onChange: (value: number) => void
-  step?: number
-  value: number
-  valueLabel: string
+  ariaLabel?: string;
+  label: string;
+  max: number;
+  min: number;
+  onChange: (value: number) => void;
+  step?: number;
+  value: number;
+  valueLabel: string;
 }) {
   return (
     <div data-slot="elastic-slider-row" className="grid min-w-0 py-1.5">
@@ -53,15 +53,15 @@ export function InspectorElasticSliderRow({
         />
       </div>
     </div>
-  )
+  );
 }
 
 export function InspectorValueGrid({
   children,
   className,
 }: {
-  children: ReactNode
-  className?: string
+  children: ReactNode;
+  className?: string;
 }) {
   return (
     <div
@@ -72,7 +72,7 @@ export function InspectorValueGrid({
     >
       {children}
     </div>
-  )
+  );
 }
 
 export function InspectorNumberField({
@@ -87,16 +87,16 @@ export function InspectorNumberField({
   className,
   labelClassName,
 }: {
-  disabled?: boolean
-  fill?: boolean
-  label: string
-  max?: number
-  min?: number
-  onChange: (value: number) => void
-  step?: number
-  value: number
-  className?: string
-  labelClassName?: string
+  disabled?: boolean;
+  fill?: boolean;
+  label: string;
+  max?: number;
+  min?: number;
+  onChange: (value: number) => void;
+  step?: number;
+  value: number;
+  className?: string;
+  labelClassName?: string;
 }) {
   const scrub = useInspectorNumberScrub({
     disabled,
@@ -105,7 +105,7 @@ export function InspectorNumberField({
     onChange,
     step,
     value,
-  })
+  });
 
   return (
     <div
@@ -145,5 +145,5 @@ export function InspectorNumberField({
         step={step}
       />
     </div>
-  )
+  );
 }

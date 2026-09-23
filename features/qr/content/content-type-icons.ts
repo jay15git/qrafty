@@ -1,4 +1,4 @@
-import type { IconSvgElement } from "@hugeicons/react"
+import type { IconSvgElement } from "@hugeicons/react";
 import {
   AmazonIcon,
   AppStoreIcon,
@@ -58,16 +58,15 @@ import {
   WhatsappIcon,
   YoutubeIcon,
   ZoomIcon,
-} from "@hugeicons/core-free-icons"
-import type { IconType } from "react-icons"
+} from "@hugeicons/core-free-icons";
+import type { IconType } from "react-icons";
 
-import { findBrandIconById } from "@/features/qr/assets/brand-icons"
-import type { QrInputType } from "@/features/qr/content/input-options"
-import { getPlatformDef } from "@/features/qr/content/platform-intents"
+import { findBrandIconById } from "@/features/qr/assets/brand-icons";
+import type { QrInputType } from "@/features/qr/content/input-options";
+import { getPlatformDef } from "@/features/qr/content/platform-intents";
 
 export type ContentTypeIcon =
-  | { kind: "hugeicons"; icon: IconSvgElement }
-  | { kind: "brand"; icon: IconType }
+  { kind: "hugeicons"; icon: IconSvgElement } | { kind: "brand"; icon: IconType };
 
 const CONTENT_TYPE_HUGEICONS: Partial<Record<QrInputType, IconSvgElement>> = {
   auto: SparklesIcon,
@@ -148,7 +147,7 @@ const CONTENT_TYPE_HUGEICONS: Partial<Record<QrInputType, IconSvgElement>> = {
   medium: MediumIcon,
   substack: LegalDocument01Icon,
   "app-download": AppStoreIcon,
-}
+};
 
 const CONTENT_TYPE_BRAND_ICON_IDS: Partial<Record<QrInputType, string>> = {
   line: "line",
@@ -170,20 +169,19 @@ const CONTENT_TYPE_BRAND_ICON_IDS: Partial<Record<QrInputType, string>> = {
   "booking-link": "booking-com",
   "payment-link": "stripe",
   form: "google",
-}
+};
 
 export function getContentTypeIcon(type: QrInputType): ContentTypeIcon {
-  const hugeicon = CONTENT_TYPE_HUGEICONS[type]
+  const hugeicon = CONTENT_TYPE_HUGEICONS[type];
   if (hugeicon) {
-    return { kind: "hugeicons", icon: hugeicon }
+    return { kind: "hugeicons", icon: hugeicon };
   }
 
-  const brandIconId =
-    CONTENT_TYPE_BRAND_ICON_IDS[type] ?? getPlatformDef(type)?.brandIconId
-  const brandIcon = findBrandIconById(brandIconId)
+  const brandIconId = CONTENT_TYPE_BRAND_ICON_IDS[type] ?? getPlatformDef(type)?.brandIconId;
+  const brandIcon = findBrandIconById(brandIconId);
   if (brandIcon) {
-    return { kind: "brand", icon: brandIcon.icon }
+    return { kind: "brand", icon: brandIcon.icon };
   }
 
-  return { kind: "hugeicons", icon: Link01Icon }
+  return { kind: "hugeicons", icon: Link01Icon };
 }

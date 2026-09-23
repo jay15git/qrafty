@@ -1,21 +1,19 @@
-"use client"
+"use client";
 
-import { useMemo, useSyncExternalStore } from "react"
+import { useMemo, useSyncExternalStore } from "react";
 
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback"
-import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document"
-import type { DraftingDownloadTarget } from "@/features/canvas/components/drafting-canvas-operations"
-import type { DraftingDownloadExtension } from "@/features/canvas/components/drafting-canvas.constants"
-import type { OutputDimensions } from "@/features/canvas/export/pipeline/bounds"
-import { previewSession } from "@/features/canvas/preview/preview-session"
-import { useQrScanSafety } from "@/features/qr/hooks/use-qr-scan-safety"
-import type { QraftyState } from "@/features/qr/model/state"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback";
+import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document";
+import type { DraftingDownloadTarget } from "@/features/canvas/components/drafting-canvas-operations";
+import type { DraftingDownloadExtension } from "@/features/canvas/components/drafting-canvas.constants";
+import type { OutputDimensions } from "@/features/canvas/export/pipeline/bounds";
+import { previewSession } from "@/features/canvas/preview/preview-session";
+import { useQrScanSafety } from "@/features/qr/hooks/use-qr-scan-safety";
+import type { QraftyState } from "@/features/qr/model/state";
 
-type ResolveTargetDimensions = (
-  cardLayer: DraftingCanvasLayer,
-) => OutputDimensions | undefined
+type ResolveTargetDimensions = (cardLayer: DraftingCanvasLayer) => OutputDimensions | undefined;
 
 /**
  * Builds the scan-safety probe for the workspace: which QR layer is being
@@ -36,40 +34,35 @@ export function useCanvasScanSafety({
   selectedDownloadExtension,
   selectedDownloadTarget,
 }: {
-  activeCanvasLayers: DraftingCanvasLayer[]
-  activeQrLayerId: string
-  activeQrNodeId: string
-  draftingQraftyState: QraftyState
-  qrCanvasLayers: DraftingCanvasLayer[]
-  qrStateByLayerId: DraftingQrStateByLayerId
-  resolveTargetDimensions: ResolveTargetDimensions
-  selectedCardState: DraftingCardState
-  selectedContentIsValid: boolean
-  selectedDownloadExtension: DraftingDownloadExtension
-  selectedDownloadTarget: DraftingDownloadTarget
+  activeCanvasLayers: DraftingCanvasLayer[];
+  activeQrLayerId: string;
+  activeQrNodeId: string;
+  draftingQraftyState: QraftyState;
+  qrCanvasLayers: DraftingCanvasLayer[];
+  qrStateByLayerId: DraftingQrStateByLayerId;
+  resolveTargetDimensions: ResolveTargetDimensions;
+  selectedCardState: DraftingCardState;
+  selectedContentIsValid: boolean;
+  selectedDownloadExtension: DraftingDownloadExtension;
+  selectedDownloadTarget: DraftingDownloadTarget;
 }) {
   const isPreviewInteracting = useSyncExternalStore(
     previewSession.subscribe,
     previewSession.getIsInteracting,
     () => false,
-  )
+  );
 
   const scanSafetyQrLayer = useMemo(() => {
     const targetLayerId = selectedDownloadTarget.startsWith("qr:")
       ? selectedDownloadTarget.slice("qr:".length)
-      : activeQrLayerId
+      : activeQrLayerId;
 
     return (
       activeCanvasLayers.find((layer) => layer.id === targetLayerId) ??
       activeCanvasLayers.find((layer) => layer.id === activeQrLayerId) ??
       qrCanvasLayers[0]
-    )
-  }, [
-    activeCanvasLayers,
-    activeQrLayerId,
-    qrCanvasLayers,
-    selectedDownloadTarget,
-  ])
+    );
+  }, [activeCanvasLayers, activeQrLayerId, qrCanvasLayers, selectedDownloadTarget]);
 
   const scanSafetyState = useMemo(
     () =>
@@ -77,7 +70,7 @@ export function useCanvasScanSafety({
         ? (qrStateByLayerId[scanSafetyQrLayer.id] ?? draftingQraftyState)
         : draftingQraftyState,
     [activeQrLayerId, draftingQraftyState, qrStateByLayerId, scanSafetyQrLayer],
-  )
+  );
 
   const scanSafetyLayers = useMemo(
     () =>
@@ -93,19 +86,17 @@ export function useCanvasScanSafety({
             }),
           ),
     [activeCanvasLayers, scanSafetyQrLayer?.id, selectedDownloadTarget],
-  )
+  );
 
   const scanSafetyCardLayer = useMemo(
-    () =>
-      scanSafetyLayers.find((layer) => layer.kind === "card" && layer.isVisible),
+    () => scanSafetyLayers.find((layer) => layer.kind === "card" && layer.isVisible),
     [scanSafetyLayers],
-  )
+  );
 
   const scanSafetyTargetDimensions = useMemo(
-    () =>
-      scanSafetyCardLayer ? resolveTargetDimensions(scanSafetyCardLayer) : undefined,
+    () => (scanSafetyCardLayer ? resolveTargetDimensions(scanSafetyCardLayer) : undefined),
     [scanSafetyCardLayer, resolveTargetDimensions],
-  )
+  );
 
   const scanSafetyScene = useMemo(
     () =>
@@ -129,12 +120,12 @@ export function useCanvasScanSafety({
       selectedCardState,
       selectedDownloadExtension,
     ],
-  )
+  );
 
   return useQrScanSafety(scanSafetyState, {
     contentIsValid: selectedContentIsValid,
     enabled: !isPreviewInteracting,
     layer: scanSafetyQrLayer,
     scene: scanSafetyScene,
-  })
+  });
 }

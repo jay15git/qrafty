@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState, type ComponentType } from "react"
+import { useCallback, useEffect, useMemo, useState, type ComponentType } from "react";
 
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
-import type { SettingsSectionId } from "@/features/shell/inspector/settings-panel-meta"
-import type { QrStylePartId } from "@/features/shell/inspector/qr-style-parts"
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsSectionId } from "@/features/shell/inspector/settings-panel-meta";
+import type { QrStylePartId } from "@/features/shell/inspector/qr-style-parts";
 
-import type { MobileRailRowProps } from "./rail-context"
-import { defaultFamilyMode } from "./rail-modes"
+import type { MobileRailRowProps } from "./rail-context";
+import { defaultFamilyMode } from "./rail-modes";
 
 /**
  * Two-phase stage swap: everything the rail renders — options, mode tabs,
@@ -18,26 +18,22 @@ import { defaultFamilyMode } from "./rail-modes"
 export function useRailViewState(
   openFamily: SettingsSectionId | null,
   model: InspectorModel,
-  familyFooters: Partial<
-    Record<SettingsSectionId, ComponentType<MobileRailRowProps>>
-  >,
+  familyFooters: Partial<Record<SettingsSectionId, ComponentType<MobileRailRowProps>>>,
 ) {
   // Selected Style part — the QR row shows its catalogue, the tabs track it.
-  const [openPart, setOpenPart] = useState<QrStylePartId>("Module")
+  const [openPart, setOpenPart] = useState<QrStylePartId>("Module");
   // Browsed fill mode per family — unset entries derive from the model.
-  const [familyModes, setFamilyModes] = useState<
-    Partial<Record<SettingsSectionId, string>>
-  >({})
+  const [familyModes, setFamilyModes] = useState<Partial<Record<SettingsSectionId, string>>>({});
 
   const incomingMode =
     openFamily && familyFooters[openFamily]
       ? (familyModes[openFamily] ?? defaultFamilyMode(openFamily, model))
-      : undefined
+      : undefined;
   const [displayed, setDisplayed] = useState({
     family: openFamily,
     mode: incomingMode,
     part: openPart,
-  })
+  });
   // "stage" fades the whole rail block (family open/close); "row" fades only
   // the option row (mode/part tabs inside a family — tabs/actions stay lit).
   // Derived from the pending target so the fade starts on the same render the
@@ -45,44 +41,42 @@ export function useRailViewState(
   const targetPending =
     displayed.family !== openFamily ||
     displayed.mode !== incomingMode ||
-    displayed.part !== openPart
+    displayed.part !== openPart;
   const fading: "stage" | "row" | false = targetPending
     ? displayed.family === openFamily
       ? "row"
       : "stage"
-    : false
+    : false;
 
   useEffect(() => {
     if (!targetPending) {
-      return
+      return;
     }
     const timeout = window.setTimeout(() => {
-      setDisplayed({ family: openFamily, mode: incomingMode, part: openPart })
-    }, 190)
-    return () => window.clearTimeout(timeout)
-  }, [openFamily, incomingMode, openPart, targetPending])
+      setDisplayed({ family: openFamily, mode: incomingMode, part: openPart });
+    }, 190);
+    return () => window.clearTimeout(timeout);
+  }, [openFamily, incomingMode, openPart, targetPending]);
 
-  const viewFamily = displayed.family
+  const viewFamily = displayed.family;
   // Footer pill highlight: live for the displayed family so a tap slides the
   // pill instantly; during a family fade it still describes the exiting view.
   const railMode =
     viewFamily && familyFooters[viewFamily]
       ? (familyModes[viewFamily] ?? defaultFamilyMode(viewFamily, model))
-      : undefined
+      : undefined;
 
   const setRailMode = useCallback(
     (mode: string) => {
-      setFamilyModes((current) =>
-        viewFamily ? { ...current, [viewFamily]: mode } : current,
-      )
+      setFamilyModes((current) => (viewFamily ? { ...current, [viewFamily]: mode } : current));
     },
     [viewFamily],
-  )
+  );
 
   const railModeContext = useMemo(
     () => ({ mode: displayed.mode, selectedMode: railMode, setMode: setRailMode }),
     [displayed.mode, railMode, setRailMode],
-  )
+  );
 
   const railPartContext = useMemo(
     () => ({
@@ -91,7 +85,7 @@ export function useRailViewState(
       selectPart: setOpenPart,
     }),
     [displayed.part, openPart],
-  )
+  );
 
   return {
     fading,
@@ -99,5 +93,5 @@ export function useRailViewState(
     railPartContext,
     setOpenPart,
     viewFamily,
-  }
+  };
 }

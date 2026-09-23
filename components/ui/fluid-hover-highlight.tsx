@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  m,
-  AnimatePresence,
-  useReducedMotion,
-  type Transition,
-} from "motion/react";
+import { m, AnimatePresence, useReducedMotion, type Transition } from "motion/react";
 import { cn } from "@/lib/utils";
 import { spring } from "@/lib/springs";
 import type { ItemRect, UseFluidHoverReturn } from "@/components/ui/use-fluid-hover";
@@ -82,23 +77,21 @@ function toTarget(rect: ItemRect) {
  */
 function resolveHighlightTransition(
   transition: Transition | false | undefined,
-  reduceMotion: boolean
+  reduceMotion: boolean,
 ): Transition {
-  const positional =
-    transition === false || reduceMotion ? snap : (transition ?? spring.fast);
+  const positional = transition === false || reduceMotion ? snap : (transition ?? spring.fast);
   return { ...positional, opacity: fade };
 }
 
 /** The rect and session a set of props resolves to. Exported for the test. */
-function resolveHighlightSource(
-  props: FluidHoverHighlightProps
-): { rect: ItemRect | null; session: number } {
+function resolveHighlightSource(props: FluidHoverHighlightProps): {
+  rect: ItemRect | null;
+  session: number;
+} {
   if (props.hover) {
     const { activeIndex, itemRects, isMeasured, sessionRef } = props.hover;
     const rect =
-      !props.hidden && isMeasured && activeIndex !== null
-        ? (itemRects[activeIndex] ?? null)
-        : null;
+      !props.hidden && isMeasured && activeIndex !== null ? (itemRects[activeIndex] ?? null) : null;
     return { rect, session: sessionRef.current };
   }
   return { rect: props.rect, session: props.session };
@@ -123,10 +116,7 @@ export function FluidHoverHighlight(props: FluidHoverHighlightProps) {
           // re-laying out every frame. Width and height are real layout
           // values, but they only change when the target rect's size does,
           // which in most lists is never.
-          className={cn(
-            "pointer-events-none absolute left-0 top-0 bg-hover",
-            className
-          )}
+          className={cn("pointer-events-none absolute left-0 top-0 bg-hover", className)}
           initial={{ opacity: 0, ...toTarget(from ?? rect) }}
           animate={{ opacity: 1, ...toTarget(rect) }}
           exit={{ opacity: 0, transition: spring.fast.exit }}

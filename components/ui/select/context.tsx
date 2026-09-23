@@ -35,8 +35,7 @@ export interface SelectContentContextValue {
   checkedIndex?: number;
 }
 
-export const SelectContentContext =
-  createContext<SelectContentContextValue | null>(null);
+export const SelectContentContext = createContext<SelectContentContextValue | null>(null);
 
 // The trigger follows the global pill/rounded shape; the popup does not.
 // Like Dropdown and Combobox, the list keeps the smaller "rounded" radii

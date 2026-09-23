@@ -1,18 +1,9 @@
 "use client";
 
 import * as React from "react";
-import {
-  parseColorDetailed,
-  formatAll,
-  gamutFromFormat,
-  gamutInfo,
-  toGamut,
-} from "../lib/color";
+import { parseColorDetailed, formatAll, gamutFromFormat, gamutInfo, toGamut } from "../lib/color";
 import type { ColorFormat, OklchColor } from "../lib/types";
-import {
-  applyComponent,
-  type ColorComponent,
-} from "../lib/color-components";
+import { applyComponent, type ColorComponent } from "../lib/color-components";
 /**
  * Stable `commitColor`: writes uncontrolled state and emits `onValueChange`
  * with every format pre-serialized.
@@ -26,11 +17,7 @@ import {
 export function useCommitColor(
   format: ColorFormat,
   onValueChange:
-    | ((
-        color: OklchColor,
-        formatted: string,
-        formats: Record<ColorFormat, string>,
-      ) => void)
+    | ((color: OklchColor, formatted: string, formats: Record<ColorFormat, string>) => void)
     | undefined,
   isControlledColor: boolean,
   setInternalColor: React.Dispatch<React.SetStateAction<OklchColor>>,
@@ -48,14 +35,17 @@ export function useCommitColor(
     isControlledColorRef.current = isControlledColor;
   });
 
-  const commitColor = React.useCallback((next: OklchColor) => {
-    if (!isControlledColorRef.current) setInternalColor(next);
-    const cb = onValueChangeRef.current;
-    if (cb) {
-      const all = formatAll(next);
-      cb(next, all[formatRef.current], all);
-    }
-  }, [setInternalColor]);
+  const commitColor = React.useCallback(
+    (next: OklchColor) => {
+      if (!isControlledColorRef.current) setInternalColor(next);
+      const cb = onValueChangeRef.current;
+      if (cb) {
+        const all = formatAll(next);
+        cb(next, all[formatRef.current], all);
+      }
+    },
+    [setInternalColor],
+  );
 
   return { commitColor, formatRef };
 }
@@ -88,9 +78,7 @@ export function useColorPickerActions(
     (s: string): boolean => {
       const parsed = parseColorDetailed(s);
       if (!parsed) return false;
-      const next = parsed.hueMissing
-        ? { ...parsed.color, h: lastGoodHue }
-        : parsed.color;
+      const next = parsed.hueMissing ? { ...parsed.color, h: lastGoodHue } : parsed.color;
       commitColor(next);
       return true;
     },
@@ -138,11 +126,7 @@ export function useColorPickerActions(
       const targetGamut = gamutFromFormat(f);
       const info = gamutInfo(color);
       const alreadyIn =
-        targetGamut === "srgb"
-          ? info.inSrgb
-          : targetGamut === "p3"
-            ? info.inP3
-            : info.inRec2020;
+        targetGamut === "srgb" ? info.inSrgb : targetGamut === "p3" ? info.inP3 : info.inRec2020;
       // Update the format ref first so the synchronous `commitColor` below
       // emits `formatted` in the *new* format. The state update for
       // `internalFormat` happens after the commit and would otherwise leave a
@@ -156,14 +140,11 @@ export function useColorPickerActions(
       if (!isControlledFormat) setInternalFormat(f);
       onFormatChange?.(f);
     },
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- color channels drive gamut clamp; onFormatChange is optional callback
-  [color.l, color.c, color.h, color.alpha, commitColor, isControlledFormat, onFormatChange],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- color channels drive gamut clamp; onFormatChange is optional callback
+    [color.l, color.c, color.h, color.alpha, commitColor, isControlledFormat, onFormatChange],
   );
 
-  const setFromString = React.useCallback(
-    (s: string) => commitString(s),
-    [commitString],
-  );
+  const setFromString = React.useCallback((s: string) => commitString(s), [commitString]);
 
   return {
     setColor,

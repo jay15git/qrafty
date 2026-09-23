@@ -76,7 +76,7 @@ const GripIcon = forwardRef<GripIconHandle, GripProps>(
           startAnimation();
         }
       },
-      [startAnimation, onMouseEnter]
+      [startAnimation, onMouseEnter],
     );
 
     const handleMouseLeave = useCallback(
@@ -87,7 +87,7 @@ const GripIcon = forwardRef<GripIconHandle, GripProps>(
           stopAnimation();
         }
       },
-      [stopAnimation, onMouseLeave]
+      [stopAnimation, onMouseLeave],
     );
 
     return (
@@ -123,7 +123,7 @@ const GripIcon = forwardRef<GripIconHandle, GripProps>(
         </svg>
       </div>
     );
-  }
+  },
 );
 
 GripIcon.displayName = "GripIcon";

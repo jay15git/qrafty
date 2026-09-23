@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useMemo } from "react"
+import { useMemo } from "react";
 
-import { buildPaperShaderWorldSize, type PaperShaderWorldSize } from "../shaders/world-size"
+import { buildPaperShaderWorldSize, type PaperShaderWorldSize } from "../shaders/world-size";
 
 /**
  * Prefer explicit document/layout bounds over measured CSS boxes.
@@ -18,5 +18,5 @@ export function usePaperShaderWorldSize(
         ? buildPaperShaderWorldSize(layoutWidth, layoutHeight)
         : null,
     [layoutWidth, layoutHeight],
-  )
+  );
 }

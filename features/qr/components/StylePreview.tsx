@@ -1,29 +1,29 @@
-import type { SVGProps } from "react"
+import type { SVGProps } from "react";
 
-import { DataModules, ReactQRCode } from "@qrafty/qr-internal/react-qr-code"
+import { DataModules, ReactQRCode } from "@qrafty/qr-internal/react-qr-code";
 
 import {
   buildCustomCornerDotTransform,
   getCustomCornerDotShapeGeometry,
   isCustomCornerDotShape,
   type CustomCornerDotShape,
-} from "@/features/qr/styles/custom-corner-dot-shapes"
+} from "@/features/qr/styles/custom-corner-dot-shapes";
 import {
   buildModuleStylePreviewMatrix,
   getModuleStylePreviewViewBox,
-} from "@/features/qr/styles/style-preview"
+} from "@/features/qr/styles/style-preview";
 
-export type StylePreviewKind = "corner-dot" | "corner-square" | "dots"
+export type StylePreviewKind = "corner-dot" | "corner-square" | "dots";
 
-const PREVIEW_ICON_CLASS_NAME = "dn-style-preview-icon size-[5.5rem]"
-const FINDER_FRAME_PREVIEW_VIEW_BOX = "0 0 7 7"
+const PREVIEW_ICON_CLASS_NAME = "dn-style-preview-icon size-[5.5rem]";
+const FINDER_FRAME_PREVIEW_VIEW_BOX = "0 0 7 7";
 // The library draws several inner styles larger than the 3x3 finder cell (star at
 // 1.2x, diamond as a rotated inset square). A strict 2 2 3 3 crop clips their
 // tips and reads as blunt corners in the option tiles.
-const FINDER_DOT_PREVIEW_VIEW_BOX = "1.65 1.65 3.7 3.7"
-const FINDER_PREVIEW_SIZE = 64
+const FINDER_DOT_PREVIEW_VIEW_BOX = "1.65 1.65 3.7 3.7";
+const FINDER_PREVIEW_SIZE = 64;
 // Matches @qrafty/qr-internal/react-qr-code inner finder placement with marginSize={0}.
-const FINDER_DOT_PREVIEW_ORIGIN = 2
+const FINDER_DOT_PREVIEW_ORIGIN = 2;
 
 export function StylePreview({
   color,
@@ -32,34 +32,28 @@ export function StylePreview({
   previewKind,
   value,
 }: {
-  color?: string
-  frameColor?: string
-  frameStyle?: string
-  previewKind: StylePreviewKind
-  value: string
+  color?: string;
+  frameColor?: string;
+  frameStyle?: string;
+  previewKind: StylePreviewKind;
+  value: string;
 }) {
   if (previewKind === "corner-dot") {
-    return <CornerDotStylePreview color={color} value={value} />
+    return <CornerDotStylePreview color={color} value={value} />;
   }
 
   if (previewKind === "corner-square") {
-    return <CornerFrameStylePreview color={color} value={value} />
+    return <CornerFrameStylePreview color={color} value={value} />;
   }
 
-  return <ModuleStylePreview color={color} value={value} />
+  return <ModuleStylePreview color={color} value={value} />;
 }
 
-const MODULE_STYLE_PREVIEW_GRADIENT_ID = "module-style-preview-gradient"
-const MODULE_STYLE_PREVIEW_MATRIX = buildModuleStylePreviewMatrix()
+const MODULE_STYLE_PREVIEW_GRADIENT_ID = "module-style-preview-gradient";
+const MODULE_STYLE_PREVIEW_MATRIX = buildModuleStylePreviewMatrix();
 
-function ModuleStylePreview({
-  color,
-  value,
-}: {
-  color?: string
-  value: string
-}) {
-  const previewColor = color ?? "currentColor"
+function ModuleStylePreview({ color, value }: { color?: string; value: string }) {
+  const previewColor = color ?? "currentColor";
 
   return (
     <svg
@@ -80,7 +74,7 @@ function ModuleStylePreview({
         settings={{ color: previewColor, style: value as never }}
       />
     </svg>
-  )
+  );
 }
 
 function FinderPatternPreview({
@@ -92,13 +86,13 @@ function FinderPatternPreview({
   style,
   viewBox,
 }: {
-  finderPatternInnerSettings: { color: string; style: never }
-  finderPatternOuterSettings: { color: string; style: never }
-  previewKind: "corner-dot" | "corner-square"
-  rendererDataAttribute: "data-corner-dot-renderer" | "data-corner-frame-renderer"
-  slotName: "style-preview-corner-dot" | "style-preview-corner-square"
-  style: string
-  viewBox: string
+  finderPatternInnerSettings: { color: string; style: never };
+  finderPatternOuterSettings: { color: string; style: never };
+  previewKind: "corner-dot" | "corner-square";
+  rendererDataAttribute: "data-corner-dot-renderer" | "data-corner-frame-renderer";
+  slotName: "style-preview-corner-dot" | "style-preview-corner-square";
+  style: string;
+  viewBox: string;
 }) {
   return (
     <ReactQRCode
@@ -123,26 +117,14 @@ function FinderPatternPreview({
       }
       value="hi"
     />
-  )
+  );
 }
 
-function CornerDotStylePreview({
-  color,
-  value,
-}: {
-  color?: string
-  value: string
-}) {
-  const previewColor = color ?? "currentColor"
+function CornerDotStylePreview({ color, value }: { color?: string; value: string }) {
+  const previewColor = color ?? "currentColor";
 
   if (isCustomCornerDotShape(value)) {
-    return (
-      <CustomCornerDotStylePreview
-        color={previewColor}
-        shape={value}
-        value={value}
-      />
-    )
+    return <CustomCornerDotStylePreview color={previewColor} shape={value} value={value} />;
   }
 
   return (
@@ -155,7 +137,7 @@ function CornerDotStylePreview({
       style={value}
       viewBox={FINDER_DOT_PREVIEW_VIEW_BOX}
     />
-  )
+  );
 }
 
 function CustomCornerDotStylePreview({
@@ -163,16 +145,16 @@ function CustomCornerDotStylePreview({
   shape,
   value,
 }: {
-  color: string
-  shape: CustomCornerDotShape
-  value: string
+  color: string;
+  shape: CustomCornerDotShape;
+  value: string;
 }) {
   const geometry = getCustomCornerDotShapeGeometry(
     shape,
     FINDER_DOT_PREVIEW_ORIGIN,
     FINDER_DOT_PREVIEW_ORIGIN,
     3,
-  )
+  );
 
   return (
     <svg
@@ -193,17 +175,11 @@ function CustomCornerDotStylePreview({
         transform={buildCustomCornerDotTransform(geometry)}
       />
     </svg>
-  )
+  );
 }
 
-function CornerFrameStylePreview({
-  color,
-  value,
-}: {
-  color?: string
-  value: string
-}) {
-  const previewColor = color ?? "currentColor"
+function CornerFrameStylePreview({ color, value }: { color?: string; value: string }) {
+  const previewColor = color ?? "currentColor";
 
   return (
     <FinderPatternPreview
@@ -215,5 +191,5 @@ function CornerFrameStylePreview({
       style={value}
       viewBox={FINDER_FRAME_PREVIEW_VIEW_BOX}
     />
-  )
+  );
 }

@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { Plus, X } from "lucide-react"
+import { Plus, X } from "lucide-react";
 
-import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants"
-import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color"
-import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils"
+import { CHECKERBOARD_SM } from "@/components/ui/fill-picker/lib/constants";
+import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color";
+import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
 import {
   SETTINGS_FILL_OPTION_TILE,
   SETTINGS_FILL_OPTION_TILE_INNER,
-} from "@/features/shell/inspector/SettingsPreviewTiles"
-import { SettingsAccordionColorPicker } from "@/features/shell/inspector/settings-ui"
-import { SettingsOptionShelf } from "@/features/shell/inspector/MobileSettingsRail"
-import { cn } from "@/lib/utils"
+} from "@/features/shell/inspector/SettingsPreviewTiles";
+import { SettingsAccordionColorPicker } from "@/features/shell/inspector/settings-ui";
+import { SettingsOptionShelf } from "@/features/shell/inspector/MobileSettingsRail";
+import { cn } from "@/lib/utils";
 import {
   formatPaperShaderParamLabel,
   type PaperShaderControlDefinition,
-} from "@/features/canvas/rendering/paper-shader-definitions"
-import { DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT } from "@/features/canvas/rendering/paper-shader-colors"
-const COLOR_GRID_CHIP = cn("dn-paper-shader-color-chip", SETTINGS_FILL_OPTION_TILE)
+} from "@/features/canvas/rendering/paper-shader-definitions";
+import { DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT } from "@/features/canvas/rendering/paper-shader-colors";
+const COLOR_GRID_CHIP = cn("dn-paper-shader-color-chip", SETTINGS_FILL_OPTION_TILE);
 
 function PaperShaderColorGridSwatch({
   color,
@@ -25,12 +25,12 @@ function PaperShaderColorGridSwatch({
   onRemove,
   title,
 }: {
-  color: string
-  onColorChange: (color: string) => void
-  onRemove?: () => void
-  title: string
+  color: string;
+  onColorChange: (color: string) => void;
+  onRemove?: () => void;
+  title: string;
 }) {
-  const parsed = parseColor(color) ?? { l: 0, c: 0, h: 0, alpha: 1 }
+  const parsed = parseColor(color) ?? { l: 0, c: 0, h: 0, alpha: 1 };
 
   return (
     <div className="dn-paper-shader-color-chip-wrap group/chip">
@@ -57,15 +57,15 @@ function PaperShaderColorGridSwatch({
           className="absolute right-0 top-0 grid size-5 cursor-pointer place-items-center rounded-full bg-black/65 text-white opacity-0 transition-opacity hover:bg-black/80 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--ring))] group-hover/chip:opacity-100 group-focus-within/chip:opacity-100"
           type="button"
           onClick={(event) => {
-            event.stopPropagation()
-            onRemove()
+            event.stopPropagation();
+            onRemove();
           }}
         >
           <X className="size-3" strokeWidth={2.5} />
         </button>
       ) : null}
     </div>
-  )
+  );
 }
 
 export function PaperShaderColorGrid({
@@ -79,28 +79,28 @@ export function PaperShaderColorGrid({
   paperShaderParams,
   showPalette,
 }: {
-  colors?: string[]
-  maxColorCount?: number
-  namedColorControls: PaperShaderControlDefinition[]
-  onAddColor?: () => void
-  onColorsChange: (colors: string[]) => void
-  onNamedColorChange: (key: string, color: string) => void
-  onRemoveColor?: (index: number) => void
-  paperShaderParams: Record<string, unknown>
-  showPalette: boolean
+  colors?: string[];
+  maxColorCount?: number;
+  namedColorControls: PaperShaderControlDefinition[];
+  onAddColor?: () => void;
+  onColorsChange: (colors: string[]) => void;
+  onNamedColorChange: (key: string, color: string) => void;
+  onRemoveColor?: (index: number) => void;
+  paperShaderParams: Record<string, unknown>;
+  showPalette: boolean;
 }) {
-  const paletteColors = colors ?? []
+  const paletteColors = colors ?? [];
   const canAdd =
     showPalette &&
     onAddColor != null &&
-    paletteColors.length < (maxColorCount ?? Number.POSITIVE_INFINITY)
+    paletteColors.length < (maxColorCount ?? Number.POSITIVE_INFINITY);
   const canRemove =
     showPalette &&
     onRemoveColor != null &&
-    paletteColors.length > DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT
+    paletteColors.length > DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT;
 
   if (!showPalette && namedColorControls.length === 0) {
-    return null
+    return null;
   }
 
   return (
@@ -132,9 +132,9 @@ export function PaperShaderColorGrid({
               color={color}
               title={`Color ${index + 1}`}
               onColorChange={(next) => {
-                const nextColors = [...paletteColors]
-                nextColors[index] = next
-                onColorsChange(nextColors)
+                const nextColors = [...paletteColors];
+                nextColors[index] = next;
+                onColorsChange(nextColors);
               }}
               onRemove={canRemove ? () => onRemoveColor?.(index) : undefined}
             />
@@ -142,9 +142,8 @@ export function PaperShaderColorGrid({
         : null}
 
       {namedColorControls.map((control) => {
-        const raw = paperShaderParams[control.key]
-        const color =
-          typeof raw === "string" && /^#[0-9a-f]{6}$/i.test(raw) ? raw : "#000000"
+        const raw = paperShaderParams[control.key];
+        const color = typeof raw === "string" && /^#[0-9a-f]{6}$/i.test(raw) ? raw : "#000000";
 
         return (
           <PaperShaderColorGridSwatch
@@ -153,8 +152,8 @@ export function PaperShaderColorGrid({
             title={formatPaperShaderParamLabel(control.key)}
             onColorChange={(next) => onNamedColorChange(control.key, next)}
           />
-        )
+        );
       })}
     </SettingsOptionShelf>
-  )
+  );
 }

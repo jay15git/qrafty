@@ -1,29 +1,29 @@
 import {
   cloneDraftingCanvasLayer,
   createDraftingLayerInstanceId,
-} from "@/features/canvas/model/layers/fallback"
-import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
+} from "@/features/canvas/model/layers/fallback";
+import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch";
 import {
   rectanglesIntersect,
   type DraftingCanvasLayer,
   type DraftingLayerAlignAction,
   type DraftingLayerDistributeAction,
   type DraftingLayerReorderAction,
-} from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/layers/shared";
 
 export function reorderDraftingCanvasLayer(
   layers: DraftingCanvasLayer[],
   layerId: string,
   action: DraftingLayerReorderAction,
 ) {
-  const ordered = [...layers].sort((a, b) => a.zIndex - b.zIndex)
-  const currentIndex = ordered.findIndex((layer) => layer.id === layerId)
+  const ordered = [...layers].sort((a, b) => a.zIndex - b.zIndex);
+  const currentIndex = ordered.findIndex((layer) => layer.id === layerId);
 
   if (currentIndex === -1) {
-    return layers.map(cloneDraftingCanvasLayer)
+    return layers.map(cloneDraftingCanvasLayer);
   }
 
-  const [layer] = ordered.splice(currentIndex, 1)
+  const [layer] = ordered.splice(currentIndex, 1);
   const nextIndex =
     action === "back"
       ? 0
@@ -31,10 +31,10 @@ export function reorderDraftingCanvasLayer(
         ? Math.max(0, currentIndex - 1)
         : action === "forward"
           ? Math.min(ordered.length, currentIndex + 1)
-          : ordered.length
+          : ordered.length;
 
-  ordered.splice(nextIndex, 0, layer!)
-  return normalizeLayerZIndexes(ordered)
+  ordered.splice(nextIndex, 0, layer!);
+  return normalizeLayerZIndexes(ordered);
 }
 
 export function alignDraftingCanvasLayers(
@@ -42,17 +42,17 @@ export function alignDraftingCanvasLayers(
   selectedLayerIds: string[],
   action: DraftingLayerAlignAction,
 ) {
-  const selectedIdSet = new Set(selectedLayerIds)
-  const selectedLayers = layers.filter((layer) => selectedIdSet.has(layer.id))
-  const bounds = getLayerBounds(selectedLayers)
+  const selectedIdSet = new Set(selectedLayerIds);
+  const selectedLayers = layers.filter((layer) => selectedIdSet.has(layer.id));
+  const bounds = getLayerBounds(selectedLayers);
 
   if (!bounds) {
-    return layers.map(cloneDraftingCanvasLayer)
+    return layers.map(cloneDraftingCanvasLayer);
   }
 
   return layers.map((layer) => {
     if (!selectedIdSet.has(layer.id)) {
-      return cloneDraftingCanvasLayer(layer)
+      return cloneDraftingCanvasLayer(layer);
     }
 
     const patch =
@@ -66,10 +66,10 @@ export function alignDraftingCanvasLayers(
               ? { y: bounds.top }
               : action === "center-y"
                 ? { y: bounds.centerY - layer.height / 2 }
-                : { y: bounds.bottom - layer.height }
+                : { y: bounds.bottom - layer.height };
 
-    return patchDraftingCanvasLayer(layer, roundLayerPatch(patch))
-  })
+    return patchDraftingCanvasLayer(layer, roundLayerPatch(patch));
+  });
 }
 
 export function distributeDraftingCanvasLayers(
@@ -77,21 +77,21 @@ export function distributeDraftingCanvasLayers(
   selectedLayerIds: string[],
   action: DraftingLayerDistributeAction,
 ) {
-  const selectedIdSet = new Set(selectedLayerIds)
+  const selectedIdSet = new Set(selectedLayerIds);
   const selectedLayers = selectedLayerIds
     .map((id) => layers.find((layer) => layer.id === id))
-    .filter((layer): layer is DraftingCanvasLayer => Boolean(layer))
-  const bounds = getLayerBounds(selectedLayers)
+    .filter((layer): layer is DraftingCanvasLayer => Boolean(layer));
+  const bounds = getLayerBounds(selectedLayers);
 
   if (!bounds || selectedLayers.length < 3) {
-    return layers.map(cloneDraftingCanvasLayer)
+    return layers.map(cloneDraftingCanvasLayer);
   }
 
   const step =
     action === "horizontal"
       ? (bounds.right - bounds.left) / (selectedLayers.length - 1)
-      : (bounds.bottom - bounds.top) / (selectedLayers.length - 1)
-  const patchById = new Map<string, Partial<DraftingCanvasLayer>>()
+      : (bounds.bottom - bounds.top) / (selectedLayers.length - 1);
+  const patchById = new Map<string, Partial<DraftingCanvasLayer>>();
 
   selectedLayers.forEach((layer, index) => {
     patchById.set(
@@ -99,14 +99,14 @@ export function distributeDraftingCanvasLayers(
       action === "horizontal"
         ? { x: bounds.left + step * index }
         : { y: bounds.top + step * index },
-    )
-  })
+    );
+  });
 
   return layers.map((layer) =>
     selectedIdSet.has(layer.id)
       ? patchDraftingCanvasLayer(layer, roundLayerPatch(patchById.get(layer.id) ?? {}))
       : cloneDraftingCanvasLayer(layer),
-  )
+  );
 }
 
 export function cloneDraftingCanvasLayersForPaste({
@@ -115,10 +115,10 @@ export function cloneDraftingCanvasLayersForPaste({
   offset,
   startingZIndex,
 }: {
-  layers: DraftingCanvasLayer[]
-  nodeId: string
-  offset: { x: number; y: number }
-  startingZIndex: number
+  layers: DraftingCanvasLayer[];
+  nodeId: string;
+  offset: { x: number; y: number };
+  startingZIndex: number;
 }) {
   return layers.map((layer, index) =>
     remapDraftingCanvasLayerForPaste(layer, {
@@ -126,7 +126,7 @@ export function cloneDraftingCanvasLayersForPaste({
       offset,
       zIndex: startingZIndex + index,
     }),
-  )
+  );
 }
 
 export function getDraftingMarqueeSelection(
@@ -138,11 +138,11 @@ export function getDraftingMarqueeSelection(
     left: marquee.x,
     right: marquee.x + marquee.width,
     top: marquee.y,
-  }
+  };
 
   return layers.flatMap((layer) => {
     if (!layer.isVisible) {
-      return []
+      return [];
     }
 
     if (
@@ -153,26 +153,26 @@ export function getDraftingMarqueeSelection(
         top: layer.y,
       })
     ) {
-      return []
+      return [];
     }
 
-    return [layer.id]
-  })
+    return [layer.id];
+  });
 }
 
 export function normalizeLayerZIndexes(layers: DraftingCanvasLayer[]) {
-  return layers.map((layer, index) => patchDraftingCanvasLayer(layer, { zIndex: index }))
+  return layers.map((layer, index) => patchDraftingCanvasLayer(layer, { zIndex: index }));
 }
 
 export function getLayerBounds(layers: DraftingCanvasLayer[]) {
   if (layers.length === 0) {
-    return null
+    return null;
   }
 
-  const left = Math.min(...layers.map((layer) => layer.x))
-  const top = Math.min(...layers.map((layer) => layer.y))
-  const right = Math.max(...layers.map((layer) => layer.x + layer.width))
-  const bottom = Math.max(...layers.map((layer) => layer.y + layer.height))
+  const left = Math.min(...layers.map((layer) => layer.x));
+  const top = Math.min(...layers.map((layer) => layer.y));
+  const right = Math.max(...layers.map((layer) => layer.x + layer.width));
+  const bottom = Math.max(...layers.map((layer) => layer.y + layer.height));
 
   return {
     bottom,
@@ -181,7 +181,7 @@ export function getLayerBounds(layers: DraftingCanvasLayer[]) {
     left,
     right,
     top,
-  }
+  };
 }
 
 export function roundLayerPatch(patch: Partial<DraftingCanvasLayer>) {
@@ -190,18 +190,18 @@ export function roundLayerPatch(patch: Partial<DraftingCanvasLayer>) {
       key,
       typeof value === "number" ? Math.round(value * 100) / 100 : value,
     ]),
-  ) as Partial<DraftingCanvasLayer>
+  ) as Partial<DraftingCanvasLayer>;
 }
 
 export function remapDraftingCanvasLayerForPaste(
   layer: DraftingCanvasLayer,
   options: {
-    nodeId: string
-    offset: { x: number; y: number }
-    zIndex: number
+    nodeId: string;
+    offset: { x: number; y: number };
+    zIndex: number;
   },
 ): DraftingCanvasLayer {
-  const nextId = createDraftingLayerInstanceId(options.nodeId, layer.kind)
+  const nextId = createDraftingLayerInstanceId(options.nodeId, layer.kind);
 
   return patchDraftingCanvasLayer(
     {
@@ -220,5 +220,5 @@ export function remapDraftingCanvasLayerForPaste(
       zIndex: options.zIndex,
     },
     {},
-  )
+  );
 }

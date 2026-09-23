@@ -1,11 +1,11 @@
 import type {
   DraftingCardShadowState,
   DraftingCardState,
-} from "@/features/canvas/model/card-state"
+} from "@/features/canvas/model/card-state";
 import {
   normalizeDraftingCardShadow,
   type DraftingCardPaperShaderState,
-} from "@/features/canvas/model/card-state"
+} from "@/features/canvas/model/card-state";
 import {
   createDefaultDraftingShadowLayer,
   DEFAULT_DRAFTING_OUTLINE,
@@ -18,114 +18,106 @@ import {
   normalizePerSideBorderState,
   normalizeShadowLayerState,
   shadowLayerToLegacyShadow,
-} from "@/features/canvas/model/effects"
+} from "@/features/canvas/model/effects";
 import {
   getBlurAmountFromFilters,
   normalizeFilterEffects,
   syncBlurFilter,
   syncLegacyBlurFromFilters,
   type DraftingFilterEffect,
-} from "@/features/canvas/model/filters"
-import { DEFAULT_DRAFTING_FONT_ID } from "@/features/canvas/model/fonts"
-import type { QrBackgroundShapeId } from "@/features/qr/styles/background-shapes"
-import {
-  clampBackgroundShapeTilt,
-  type QraftyGradient,
-} from "@/features/qr/model/state"
+} from "@/features/canvas/model/filters";
+import { DEFAULT_DRAFTING_FONT_ID } from "@/features/canvas/model/fonts";
+import type { QrBackgroundShapeId } from "@/features/qr/styles/background-shapes";
+import { clampBackgroundShapeTilt, type QraftyGradient } from "@/features/qr/model/state";
 import {
   cornerRadiiToLegacyRadius,
   normalizeCornerRadiiState,
   type DraftingCornerRadiiState,
-} from "@/features/canvas/model/corner-radius"
-import type { DraftingIllustrationColorStop } from "@/features/canvas/assets/illustration-recolor"
+} from "@/features/canvas/model/corner-radius";
+import type { DraftingIllustrationColorStop } from "@/features/canvas/assets/illustration-recolor";
 
-export type DraftingCanvasLayerKind = "card" | "group" | "image" | "qr" | "shader" | "shape" | "text"
-export type DraftingImageSourceMode = "none" | "upload" | "url"
-export type DraftingImageFit = "contain" | "cover"
-export type DraftingShapeFillMode = "gradient" | "image" | "none" | "solid"
-export type DraftingShapePrimitiveId = "arrow" | "ellipse" | "line" | "rect"
+export type DraftingCanvasLayerKind =
+  "card" | "group" | "image" | "qr" | "shader" | "shape" | "text";
+export type DraftingImageSourceMode = "none" | "upload" | "url";
+export type DraftingImageFit = "contain" | "cover";
+export type DraftingShapeFillMode = "gradient" | "image" | "none" | "solid";
+export type DraftingShapePrimitiveId = "arrow" | "ellipse" | "line" | "rect";
 export type DraftingElementShapeId =
-  | DraftingShapePrimitiveId
-  | Exclude<QrBackgroundShapeId, "none">
-export type DraftingTextAlign = "center" | "left" | "right"
-export type DraftingTextFontStyle = "italic" | "normal"
-export type DraftingTextFontWeight = "bold" | "normal" | number
+  DraftingShapePrimitiveId | Exclude<QrBackgroundShapeId, "none">;
+export type DraftingTextAlign = "center" | "left" | "right";
+export type DraftingTextFontStyle = "italic" | "normal";
+export type DraftingTextFontWeight = "bold" | "normal" | number;
 export type DraftingTextRun = {
-  fill?: string
-  fontFamily?: string
-  fontId?: string
-  fontSize?: number
-  fontStyle?: DraftingTextFontStyle
-  fontWeight?: DraftingTextFontWeight
-  text: string
-  underline?: boolean
-}
+  fill?: string;
+  fontFamily?: string;
+  fontId?: string;
+  fontSize?: number;
+  fontStyle?: DraftingTextFontStyle;
+  fontWeight?: DraftingTextFontWeight;
+  text: string;
+  underline?: boolean;
+};
 
 export type DraftingCanvasLayer = {
-  blur: number
-  borderSides?: DraftingPerSideBorderState
-  height: number
-  id: string
-  isVisible: boolean
-  kind: DraftingCanvasLayerKind
-  cornerRadius?: number
-  cornerRadii?: DraftingCornerRadiiState
-  fill?: string
-  fillGradient?: QraftyGradient
-  fillMode?: DraftingShapeFillMode
-  fontFamily?: string
-  fontId?: string
-  fontSize?: number
-  fontStyle?: DraftingTextFontStyle
-  fontWeight?: DraftingTextFontWeight
-  imageFit?: DraftingImageFit
-  imageSource?: DraftingImageSourceMode
-  imageValue?: string
-  illustrationColorStops?: DraftingIllustrationColorStop[]
-  layerFilters: DraftingFilterEffect[]
-  letterSpacing?: number
-  lineHeight?: number
-  name: string
-  nodeId: string
-  opacity: number
-  outline: DraftingOutlineState
-  paperShader?: DraftingCardPaperShaderState
-  rotation: number
-  scaleX?: number
-  scaleY?: number
-  shapeId?: DraftingElementShapeId
-  stroke?: string
-  strokeOpacity?: number
-  strokeStyle?: DraftingBorderStyle
-  strokeWidth?: number
-  tiltX: number
-  tiltY: number
-  shadow: DraftingCardShadowState
-  shadows: DraftingShadowLayerState[]
-  text?: string
-  textAlign?: DraftingTextAlign
-  textRuns?: DraftingTextRun[]
-  underline?: boolean
-  width: number
-  x: number
-  y: number
-  zIndex: number
-  children?: DraftingCanvasLayer[]
-}
+  blur: number;
+  borderSides?: DraftingPerSideBorderState;
+  height: number;
+  id: string;
+  isVisible: boolean;
+  kind: DraftingCanvasLayerKind;
+  cornerRadius?: number;
+  cornerRadii?: DraftingCornerRadiiState;
+  fill?: string;
+  fillGradient?: QraftyGradient;
+  fillMode?: DraftingShapeFillMode;
+  fontFamily?: string;
+  fontId?: string;
+  fontSize?: number;
+  fontStyle?: DraftingTextFontStyle;
+  fontWeight?: DraftingTextFontWeight;
+  imageFit?: DraftingImageFit;
+  imageSource?: DraftingImageSourceMode;
+  imageValue?: string;
+  illustrationColorStops?: DraftingIllustrationColorStop[];
+  layerFilters: DraftingFilterEffect[];
+  letterSpacing?: number;
+  lineHeight?: number;
+  name: string;
+  nodeId: string;
+  opacity: number;
+  outline: DraftingOutlineState;
+  paperShader?: DraftingCardPaperShaderState;
+  rotation: number;
+  scaleX?: number;
+  scaleY?: number;
+  shapeId?: DraftingElementShapeId;
+  stroke?: string;
+  strokeOpacity?: number;
+  strokeStyle?: DraftingBorderStyle;
+  strokeWidth?: number;
+  tiltX: number;
+  tiltY: number;
+  shadow: DraftingCardShadowState;
+  shadows: DraftingShadowLayerState[];
+  text?: string;
+  textAlign?: DraftingTextAlign;
+  textRuns?: DraftingTextRun[];
+  underline?: boolean;
+  width: number;
+  x: number;
+  y: number;
+  zIndex: number;
+  children?: DraftingCanvasLayer[];
+};
 
-export type DraftingLayerStateByNodeId = Record<string, DraftingCanvasLayer[]>
-export type DraftingLayerReorderAction = "back" | "backward" | "forward" | "front"
+export type DraftingLayerStateByNodeId = Record<string, DraftingCanvasLayer[]>;
+export type DraftingLayerReorderAction = "back" | "backward" | "forward" | "front";
 export type DraftingLayerAlignAction =
-  | "bottom"
-  | "center-x"
-  | "center-y"
-  | "left"
-  | "right"
-  | "top"
-export type DraftingLayerDistributeAction = "horizontal" | "vertical"
+  "bottom" | "center-x" | "center-y" | "left" | "right" | "top";
+export type DraftingLayerDistributeAction = "horizontal" | "vertical";
 
-const DRAFTING_CARD_LAYER_SUFFIX = ":card"
-const DRAFTING_QR_LAYER_SUFFIX = ":qr"
+const DRAFTING_CARD_LAYER_SUFFIX = ":card";
+const DRAFTING_QR_LAYER_SUFFIX = ":qr";
 
 export const DEFAULT_DRAFTING_LAYER_SHADOW: DraftingCardShadowState = {
   blur: 0,
@@ -137,7 +129,7 @@ export const DEFAULT_DRAFTING_LAYER_SHADOW: DraftingCardShadowState = {
   opacity: 0,
   spread: 0,
   visible: false,
-}
+};
 export const DEFAULT_DRAFTING_TEXT_LAYER = {
   fill: "#171717",
   fontFamily: "Satoshi",
@@ -150,14 +142,14 @@ export const DEFAULT_DRAFTING_TEXT_LAYER = {
   text: "Add text",
   textAlign: "left",
   underline: false,
-} as const
+} as const;
 
 export const DEFAULT_DRAFTING_IMAGE_LAYER = {
   cornerRadius: 0,
   imageFit: "cover",
   imageSource: "none",
   imageValue: "",
-} as const satisfies Partial<DraftingCanvasLayer>
+} as const satisfies Partial<DraftingCanvasLayer>;
 
 export const DEFAULT_DRAFTING_SHAPE_LAYER = {
   cornerRadius: 16,
@@ -168,64 +160,64 @@ export const DEFAULT_DRAFTING_SHAPE_LAYER = {
   strokeOpacity: 100,
   strokeStyle: "solid",
   strokeWidth: 0,
-} as const satisfies Partial<DraftingCanvasLayer>
+} as const satisfies Partial<DraftingCanvasLayer>;
 
 export const DEFAULT_DRAFTING_SHADER_LAYER = {
   cornerRadius: 0,
-} as const satisfies Partial<DraftingCanvasLayer>
+} as const satisfies Partial<DraftingCanvasLayer>;
 
 export function getDraftingCardLayerId(nodeId: string) {
-  return `${nodeId}${DRAFTING_CARD_LAYER_SUFFIX}`
+  return `${nodeId}${DRAFTING_CARD_LAYER_SUFFIX}`;
 }
 
 export function getDraftingQrLayerId(nodeId: string) {
-  return `${nodeId}${DRAFTING_QR_LAYER_SUFFIX}`
+  return `${nodeId}${DRAFTING_QR_LAYER_SUFFIX}`;
 }
 
 export function createAdditionalDraftingQrLayerId(nodeId: string) {
-  return `${nodeId}${DRAFTING_QR_LAYER_SUFFIX}:${crypto.randomUUID()}`
+  return `${nodeId}${DRAFTING_QR_LAYER_SUFFIX}:${crypto.randomUUID()}`;
 }
 
 export function isDraftingCardLayerId(layerId: string | null | undefined) {
-  return Boolean(layerId?.endsWith(DRAFTING_CARD_LAYER_SUFFIX))
+  return Boolean(layerId?.endsWith(DRAFTING_CARD_LAYER_SUFFIX));
 }
 
 export function isDraftingQrLayerId(layerId: string | null | undefined) {
   if (!layerId) {
-    return false
+    return false;
   }
 
-  return /:qr(?::|$)/.test(layerId)
+  return /:qr(?::|$)/.test(layerId);
 }
 
 export function isQrCanvasLayer(
   layer: Pick<DraftingCanvasLayer, "kind">,
 ): layer is DraftingCanvasLayer & { kind: "qr" } {
-  return layer.kind === "qr"
+  return layer.kind === "qr";
 }
 
 export function getQrCanvasLayers(layers: DraftingCanvasLayer[]) {
-  return layers.filter(isQrCanvasLayer)
+  return layers.filter(isQrCanvasLayer);
 }
 
 export function canDeleteQrLayer(layerId: string, layers: DraftingCanvasLayer[]) {
   if (!isDraftingQrLayerId(layerId)) {
-    return false
+    return false;
   }
 
-  return getQrCanvasLayers(layers).length > 1
+  return getQrCanvasLayers(layers).length > 1;
 }
 
 export function isLayerDeletable(layerId: string, layers: DraftingCanvasLayer[]) {
   if (isDraftingCardLayerId(layerId)) {
-    return false
+    return false;
   }
 
   if (isDraftingQrLayerId(layerId)) {
-    return canDeleteQrLayer(layerId, layers)
+    return canDeleteQrLayer(layerId, layers);
   }
 
-  return true
+  return true;
 }
 
 export function isProtectedDraftingLayerId(
@@ -233,25 +225,25 @@ export function isProtectedDraftingLayerId(
   layers?: DraftingCanvasLayer[],
 ) {
   if (isDraftingCardLayerId(layerId)) {
-    return true
+    return true;
   }
 
   if (layerId && isDraftingQrLayerId(layerId) && layers) {
-    return !canDeleteQrLayer(layerId, layers)
+    return !canDeleteQrLayer(layerId, layers);
   }
 
-  return false
+  return false;
 }
 
 export type NormalizeDraftingLayerContext = {
-  fallback: DraftingCanvasLayer
-  fallbackLayers: DraftingCanvasLayer[]
-  height: number
-  kind: DraftingCanvasLayerKind
-  nodeId: string
-  value: Record<string, unknown>
-  width: number
-}
+  fallback: DraftingCanvasLayer;
+  fallbackLayers: DraftingCanvasLayer[];
+  height: number;
+  kind: DraftingCanvasLayerKind;
+  nodeId: string;
+  value: Record<string, unknown>;
+  width: number;
+};
 
 export function normalizeSharedDraftingCanvasLayerFields({
   fallback,
@@ -260,18 +252,18 @@ export function normalizeSharedDraftingCanvasLayerFields({
   value,
   width,
 }: NormalizeDraftingLayerContext): Omit<DraftingCanvasLayer, "kind"> {
-  const legacyBlur = clamp(readFiniteNumber(value.blur, fallback.blur), 0, 96)
+  const legacyBlur = clamp(readFiniteNumber(value.blur, fallback.blur), 0, 96);
   const layerFilters = normalizeDraftingLayerFilters(
     value.layerFilters,
     fallback.layerFilters ?? [],
     legacyBlur,
-  )
-  const shadow = normalizeDraftingLayerShadow(value.shadow, fallback.shadow)
+  );
+  const shadow = normalizeDraftingLayerShadow(value.shadow, fallback.shadow);
   const shadows = normalizeDraftingLayerShadows(
     value.shadows,
     shadow,
     fallback.shadows ?? [legacyShadowToShadowLayer(shadow)],
-  )
+  );
 
   return {
     blur: syncLegacyBlurFromFilters(layerFilters),
@@ -279,8 +271,7 @@ export function normalizeSharedDraftingCanvasLayerFields({
     children: undefined,
     height: Math.max(1, height),
     id: typeof value.id === "string" ? value.id : fallback.id,
-    isVisible:
-      typeof value.isVisible === "boolean" ? value.isVisible : fallback.isVisible,
+    isVisible: typeof value.isVisible === "boolean" ? value.isVisible : fallback.isVisible,
     fill: undefined,
     fontFamily: undefined,
     fontId: undefined,
@@ -309,7 +300,7 @@ export function normalizeSharedDraftingCanvasLayerFields({
     x: readFiniteNumber(value.x, fallback.x),
     y: readFiniteNumber(value.y, fallback.y),
     zIndex: readFiniteNumber(value.zIndex, fallback.zIndex),
-  }
+  };
 }
 
 export function normalizeLayerCornerRadiusFields(
@@ -321,13 +312,17 @@ export function normalizeLayerCornerRadiusFields(
     readFiniteNumber(value.cornerRadius, fallback.cornerRadius ?? defaultRadius),
     0,
     512,
-  )
-  const cornerRadii = normalizeCornerRadiiState(value.cornerRadii, fallback.cornerRadii, legacyCornerRadius)
+  );
+  const cornerRadii = normalizeCornerRadiiState(
+    value.cornerRadii,
+    fallback.cornerRadii,
+    legacyCornerRadius,
+  );
 
   return {
     cornerRadius: cornerRadiiToLegacyRadius(cornerRadii),
     cornerRadii,
-  }
+  };
 }
 
 export function normalizeDraftingLayerShadow(
@@ -335,7 +330,7 @@ export function normalizeDraftingLayerShadow(
   fallback: DraftingCardShadowState,
 ): DraftingCardShadowState {
   if (!isRecord(value)) {
-    return normalizeDraftingCardShadow(fallback)
+    return normalizeDraftingCardShadow(fallback);
   }
 
   return normalizeDraftingCardShadow({
@@ -349,7 +344,7 @@ export function normalizeDraftingLayerShadow(
     opacity: readFiniteNumber(value.opacity, fallback.opacity),
     spread: readFiniteNumber(value.spread, fallback.spread),
     visible: typeof value.visible === "boolean" ? value.visible : fallback.visible,
-  })
+  });
 }
 
 export function normalizeDraftingLayerShadows(
@@ -359,20 +354,20 @@ export function normalizeDraftingLayerShadows(
 ): DraftingShadowLayerState[] {
   if (!Array.isArray(value) || value.length === 0) {
     if (fallback.length > 0) {
-      return fallback.map((shadow) => ({ ...shadow }))
+      return fallback.map((shadow) => ({ ...shadow }));
     }
 
-    return [legacyShadowToShadowLayer(primaryShadow)]
+    return [legacyShadowToShadowLayer(primaryShadow)];
   }
 
   return value.flatMap((entry, index) => {
     const shadow = normalizeShadowLayerState(
       entry,
       fallback[index] ?? legacyShadowToShadowLayer(primaryShadow),
-    )
+    );
 
-    return shadow.visible !== false || shadow.opacity > 0 ? [shadow] : []
-  })
+    return shadow.visible !== false || shadow.opacity > 0 ? [shadow] : [];
+  });
 }
 
 export function normalizeDraftingLayerFilters(
@@ -380,17 +375,17 @@ export function normalizeDraftingLayerFilters(
   fallback: DraftingFilterEffect[],
   legacyBlur: number,
 ): DraftingFilterEffect[] {
-  const normalized = normalizeFilterEffects(value, fallback)
+  const normalized = normalizeFilterEffects(value, fallback);
 
   if (Array.isArray(value)) {
-    return syncBlurFilter(normalized, getBlurAmountFromFilters(normalized))
+    return syncBlurFilter(normalized, getBlurAmountFromFilters(normalized));
   }
 
   if (normalized.length > 0) {
-    return normalized
+    return normalized;
   }
 
-  return legacyBlur > 0 ? syncBlurFilter([], legacyBlur) : []
+  return legacyBlur > 0 ? syncBlurFilter([], legacyBlur) : [];
 }
 
 export function normalizeDraftingLayerBorderSides(
@@ -398,30 +393,30 @@ export function normalizeDraftingLayerBorderSides(
   fallback: DraftingPerSideBorderState | undefined,
 ): DraftingPerSideBorderState | undefined {
   if (value === undefined && fallback === undefined) {
-    return undefined
+    return undefined;
   }
 
-  return normalizePerSideBorderState(value, fallback?.top)
+  return normalizePerSideBorderState(value, fallback?.top);
 }
 
 export function rectanglesIntersect(
   a: { bottom: number; left: number; right: number; top: number },
   b: { bottom: number; left: number; right: number; top: number },
 ) {
-  return a.left <= b.right && a.right >= b.left && a.top <= b.bottom && a.bottom >= b.top
+  return a.left <= b.right && a.right >= b.left && a.top <= b.bottom && a.bottom >= b.top;
 }
 
 export function readFiniteNumber(value: unknown, fallback: number) {
-  return typeof value === "number" && Number.isFinite(value) ? value : fallback
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
 export function normalizeHexColor(value: unknown, fallback: string) {
-  return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value) ? value : fallback
+  return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
 }
 
 export function normalizeFlipScale(value: unknown, fallback: number) {
-  const raw = typeof value === "number" && Number.isFinite(value) ? value : fallback
-  return raw < 0 ? -1 : 1
+  const raw = typeof value === "number" && Number.isFinite(value) ? value : fallback;
+  return raw < 0 ? -1 : 1;
 }
 
 export function normalizeImageSourceMode(
@@ -429,10 +424,10 @@ export function normalizeImageSourceMode(
   fallback: DraftingImageSourceMode | undefined,
 ): DraftingImageSourceMode {
   if (value === "none" || value === "upload" || value === "url") {
-    return value
+    return value;
   }
 
-  return fallback ?? DEFAULT_DRAFTING_IMAGE_LAYER.imageSource
+  return fallback ?? DEFAULT_DRAFTING_IMAGE_LAYER.imageSource;
 }
 
 export function normalizeShapeFillGradient(
@@ -440,19 +435,19 @@ export function normalizeShapeFillGradient(
   fallback: QraftyGradient | undefined,
 ): QraftyGradient | undefined {
   if (!isRecord(value)) {
-    return fallback
+    return fallback;
   }
 
-  const colorStops = Array.isArray(value.colorStops) ? value.colorStops : null
+  const colorStops = Array.isArray(value.colorStops) ? value.colorStops : null;
   if (!colorStops || colorStops.length < 2) {
-    return fallback
+    return fallback;
   }
 
-  const firstStop = colorStops[0]
-  const secondStop = colorStops[1]
+  const firstStop = colorStops[0];
+  const secondStop = colorStops[1];
 
   if (!isRecord(firstStop) || !isRecord(secondStop)) {
-    return fallback
+    return fallback;
   }
 
   return {
@@ -478,13 +473,13 @@ export function normalizeShapeFillGradient(
     enabled: typeof value.enabled === "boolean" ? value.enabled : true,
     rotation: readFiniteNumber(value.rotation, 0),
     type: value.type === "radial" ? "radial" : "linear",
-  }
+  };
 }
 
 export function clamp(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value))
+  return Math.min(max, Math.max(min, value));
 }
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

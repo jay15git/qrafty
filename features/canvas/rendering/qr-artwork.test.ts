@@ -1,24 +1,24 @@
 // @vitest-environment jsdom
 
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import { toReactQrCodeProps } from "@/features/qr/adapters/react-qr-adapter"
-import { createDefaultQraftyState } from "@/features/qr/model/state"
-import { getQraftyQrQuietZoneFraction } from "@/features/qr/model/qr-module-metrics"
+import { toReactQrCodeProps } from "@/features/qr/adapters/react-qr-adapter";
+import { createDefaultQraftyState } from "@/features/qr/model/state";
+import { getQraftyQrQuietZoneFraction } from "@/features/qr/model/qr-module-metrics";
 import {
   getQrBackgroundShapeContentFrame,
   getQrBackgroundShapeDefinition,
-} from "@/features/qr/styles/background-shapes"
+} from "@/features/qr/styles/background-shapes";
 import {
   getDraftingQrLayerLayout,
   getQrRenderedDimensions,
-} from "@/features/qr/rendering/svg-extension"
+} from "@/features/qr/rendering/svg-extension";
 import {
   createDraftingQrArtworkState,
   sanitizeDraftingQrArtworkMarkup,
   scaleNestedSvgMarkup,
   snapLayeredRasterDimensionsToQrModuleGrid,
-} from "@/features/canvas/rendering/qr-artwork"
+} from "@/features/canvas/rendering/qr-artwork";
 
 describe("drafting qr artwork helpers", () => {
   it("scales nested svg markup to the exact target layer dimensions", () => {
@@ -26,8 +26,8 @@ describe("drafting qr artwork helpers", () => {
       scaleNestedSvgMarkup('<svg width="320" height="320" viewBox="0 0 57 57"></svg>', 240, 240),
     ).toBe(
       '<svg viewBox="0 0 57 57" width="240" height="240" preserveAspectRatio="xMidYMid meet" shape-rendering="geometricPrecision"></svg>',
-    )
-  })
+    );
+  });
 
   it("snaps layered raster dimensions so the embedded qr lands on an integer module grid", () => {
     expect(
@@ -45,46 +45,46 @@ describe("drafting qr artwork helpers", () => {
     ).toEqual({
       height: 988,
       width: 684,
-    })
-  })
+    });
+  });
 
   it("derives resized qr layout metrics from the layer width", () => {
-    const state = createDefaultQraftyState()
-    state.backgroundShapeId = "ghost"
+    const state = createDefaultQraftyState();
+    state.backgroundShapeId = "ghost";
     state.backgroundShapeOptions = {
       ...state.backgroundShapeOptions,
       paddingPx: 16,
       strokeWidth: 4,
-    }
+    };
 
-    const naturalOuter = getQrRenderedDimensions(state)
-    const layout = getDraftingQrLayerLayout(naturalOuter.width * 0.75, state)
-    const shape = getQrBackgroundShapeDefinition("ghost")!
-    const contentFrame = getQrBackgroundShapeContentFrame(shape)
-    const shapeScale = layout.metrics.backingRegion.width / shape.viewBox.width
-    const safeAreaWidth = contentFrame.width * shapeScale
-    const quietZonePx = getQraftyQrQuietZoneFraction(state) * layout.innerWidth
+    const naturalOuter = getQrRenderedDimensions(state);
+    const layout = getDraftingQrLayerLayout(naturalOuter.width * 0.75, state);
+    const shape = getQrBackgroundShapeDefinition("ghost")!;
+    const contentFrame = getQrBackgroundShapeContentFrame(shape);
+    const shapeScale = layout.metrics.backingRegion.width / shape.viewBox.width;
+    const safeAreaWidth = contentFrame.width * shapeScale;
+    const quietZonePx = getQraftyQrQuietZoneFraction(state) * layout.innerWidth;
 
-    expect(layout.metrics.outerWidth).toBeCloseTo(naturalOuter.width * 0.75, 4)
-    expect(
-      layout.metrics.translateX + layout.innerWidth / 2,
-    ).toBeCloseTo(layout.metrics.outerWidth / 2, 4)
+    expect(layout.metrics.outerWidth).toBeCloseTo(naturalOuter.width * 0.75, 4);
+    expect(layout.metrics.translateX + layout.innerWidth / 2).toBeCloseTo(
+      layout.metrics.outerWidth / 2,
+      4,
+    );
     expect(safeAreaWidth).toBeCloseTo(
       layout.innerWidth - quietZonePx * 2 + layout.shapeOptions.paddingPx * 2,
       0,
-    )
-  })
-
-})
+    );
+  });
+});
 
 describe("drafting qr artwork helpers (legacy)", () => {
   it("creates foreground-only ReactQRCode state for drafting artwork", () => {
-    const state = createDefaultQraftyState()
+    const state = createDefaultQraftyState();
     state.backgroundImage = {
       source: "url",
       value: "https://example.com/background.png",
-    }
-    state.backgroundShapeId = "flower"
+    };
+    state.backgroundShapeId = "flower";
     state.backgroundShapeOptions = {
       edgeBlur: 14,
       paddingPx: 28,
@@ -97,7 +97,7 @@ describe("drafting qr artwork helpers (legacy)", () => {
       strokeWidth: 6,
       tiltX: 0,
       tiltY: 0,
-    }
+    };
     state.backgroundGradient = {
       enabled: true,
       type: "linear",
@@ -106,21 +106,21 @@ describe("drafting qr artwork helpers (legacy)", () => {
         { offset: 0, color: "#ff0000" },
         { offset: 1, color: "#0000ff" },
       ],
-    }
-    state.backgroundOptions.transparent = false
-    state.backgroundOptions.color = "#facc15"
+    };
+    state.backgroundOptions.transparent = false;
+    state.backgroundOptions.color = "#facc15";
 
-    const artworkState = createDraftingQrArtworkState(state)
-    const props = toReactQrCodeProps(artworkState)
+    const artworkState = createDraftingQrArtworkState(state);
+    const props = toReactQrCodeProps(artworkState);
 
-    expect(props.background).toBe("transparent")
+    expect(props.background).toBe("transparent");
     expect(artworkState.backgroundImage).toEqual({
       source: "none",
       value: undefined,
       presetId: undefined,
       presetColor: undefined,
-    })
-    expect(artworkState.backgroundShapeId).toBe("none")
+    });
+    expect(artworkState.backgroundShapeId).toBe("none");
     expect(artworkState.backgroundShapeOptions).toEqual({
       edgeBlur: 0,
       paddingPx: 0,
@@ -133,10 +133,10 @@ describe("drafting qr artwork helpers (legacy)", () => {
       strokeWidth: 0,
       tiltX: 0,
       tiltY: 0,
-    })
-    expect(artworkState.backgroundGradient.enabled).toBe(false)
-    expect(artworkState.backgroundOptions.transparent).toBe(true)
-  })
+    });
+    expect(artworkState.backgroundGradient.enabled).toBe(false);
+    expect(artworkState.backgroundOptions.transparent).toBe(true);
+  });
 
   it("strips qr-library-owned background artifacts from drafting artwork markup", () => {
     const markup = sanitizeDraftingQrArtworkMarkup(
@@ -155,13 +155,13 @@ describe("drafting qr artwork helpers (legacy)", () => {
         <rect width="320" height="320" clip-path="url('#clip-path-background-color-0')" fill="#fff" />
         <rect data-qr-layer="dot" clip-path="url('#clip-path-dot-color-0')" fill="#111" />
       </svg>`,
-    )
+    );
 
-    expect(markup).not.toContain("background-image")
-    expect(markup).not.toContain("background-shape")
-    expect(markup).not.toContain("background-surface")
-    expect(markup).not.toContain("clip-path-background-color")
-    expect(markup).toContain("clip-path-dot-color")
-    expect(markup).toContain('data-qr-layer="dot"')
-  })
-})
+    expect(markup).not.toContain("background-image");
+    expect(markup).not.toContain("background-shape");
+    expect(markup).not.toContain("background-surface");
+    expect(markup).not.toContain("clip-path-background-color");
+    expect(markup).toContain("clip-path-dot-color");
+    expect(markup).toContain('data-qr-layer="dot"');
+  });
+});

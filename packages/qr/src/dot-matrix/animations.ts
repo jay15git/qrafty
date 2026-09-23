@@ -3,16 +3,16 @@ export {
   SOURCE_BASE_OPACITY,
   SOURCE_MID_OPACITY,
   SOURCE_PEAK_OPACITY,
-} from './opacity-triplet';
+} from "./opacity-triplet";
 
-export { QRCodeEntity } from './animation-utils';
+export { QRCodeEntity } from "./animation-utils";
 
 export {
   PRESERVE_MODULE_FILL,
   isPreserveModuleFill,
   AnimationPreset,
   dotMatrixAnimationPresets,
-} from './animation-types';
+} from "./animation-types";
 export type {
   DotMatrixAnimationFrame,
   DotMatrixShapeReveal,
@@ -20,18 +20,15 @@ export type {
   QRCodeAnimation,
   QRCodeAnimationSettings,
   DotMatrixSample,
-} from './animation-types';
+} from "./animation-types";
 
-export {
-  keyframeOpacityAt,
-  sampleDotMatrixAnimationFrame,
-} from './animation-keyframes';
+export { keyframeOpacityAt, sampleDotMatrixAnimationFrame } from "./animation-keyframes";
 
-export { resolveDotMatrixKeyframeOpacity } from './animation-settings';
+export { resolveDotMatrixKeyframeOpacity } from "./animation-settings";
 
-import { AnimationPreset, dotMatrixAnimationPresets } from './animation-types';
-import type { QRCodeAnimation } from './animation-types';
-import { wrapPreset } from './animation-settings';
+import { AnimationPreset, dotMatrixAnimationPresets } from "./animation-types";
+import type { QRCodeAnimation } from "./animation-types";
+import { wrapPreset } from "./animation-settings";
 import {
   FadeInTopDown,
   FadeInCenterOut,
@@ -73,7 +70,7 @@ import {
   StarExpand,
   ChevronSweep,
   RadialRippleIn,
-} from './animation-presets';
+} from "./animation-presets";
 
 const ANIMATION_PRESET_MAP: Record<AnimationPreset, QRCodeAnimation> = {
   [AnimationPreset.FadeInTopDown]: FadeInTopDown,
@@ -138,6 +135,6 @@ export const getAnimationPreset = (name: string) => {
   return wrapPreset(
     resolveAnimationPreset(name),
     dotMatrixAnimationPresets.indexOf(presetName) > -1,
-    presetName
+    presetName,
   );
 };

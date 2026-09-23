@@ -6,11 +6,8 @@ import {
   isMediumProfilePath,
   isMediumStoryPath,
   isSubstackPublicationPath,
-} from "@/features/qr/content/platform-path-matching"
-import {
-  urlIntent,
-  type PlatformDef,
-} from "@/features/qr/content/intents/shared"
+} from "@/features/qr/content/platform-path-matching";
+import { urlIntent, type PlatformDef } from "@/features/qr/content/intents/shared";
 
 export const DEVELOPER_PLATFORM_DEFS: readonly PlatformDef[] = [
   {
@@ -23,11 +20,15 @@ export const DEVELOPER_PLATFORM_DEFS: readonly PlatformDef[] = [
     intents: [
       urlIntent("gist", "Gist", (_pathname, _params, hostname) => hostname === "gist.github.com"),
       urlIntent("issue", "Issue", (p) => p.includes("/issues/")),
-      urlIntent("repo", "Repository", (p, _params, hostname) =>
-        hostname !== "gist.github.com" && isGitHubRepoPath(p),
+      urlIntent(
+        "repo",
+        "Repository",
+        (p, _params, hostname) => hostname !== "gist.github.com" && isGitHubRepoPath(p),
       ),
-      urlIntent("user", "User", (p, _params, hostname) =>
-        hostname !== "gist.github.com" && isGitHubUserPath(p),
+      urlIntent(
+        "user",
+        "User",
+        (p, _params, hostname) => hostname !== "gist.github.com" && isGitHubUserPath(p),
       ),
     ],
   },
@@ -77,4 +78,4 @@ export const DEVELOPER_PLATFORM_DEFS: readonly PlatformDef[] = [
       urlIntent("publication", "Publication", (p) => isSubstackPublicationPath(p)),
     ],
   },
-]
+];

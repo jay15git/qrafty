@@ -1,14 +1,10 @@
-import path from "node:path"
+import path from "node:path";
 
-import {
-  cleanCache,
-  makeRemoteResolver,
-  syncWallpapers,
-} from "./lib/wallpaper-sync.mjs"
+import { cleanCache, makeRemoteResolver, syncWallpapers } from "./lib/wallpaper-sync.mjs";
 
-const RAYCAST_BASE = "https://misc-assets.raycast.com/wallpapers"
-const OUT_DIR = "public/backgrounds/raycast"
-const CACHE_DIR = path.join(OUT_DIR, ".cache")
+const RAYCAST_BASE = "https://misc-assets.raycast.com/wallpapers";
+const OUT_DIR = "public/backgrounds/raycast";
+const CACHE_DIR = path.join(OUT_DIR, ".cache");
 
 /** Full-resolution sources from https://www.raycast.com/wallpapers */
 const WALLPAPERS = [
@@ -20,10 +16,26 @@ const WALLPAPERS = [
   { id: "red-distortion-4", file: "red_distortion_4.heic", label: "Red Distortion 4" },
   { id: "blue-distortion-1", file: "blue_distortion_1.heic", label: "Blue Distortion 1" },
   { id: "blue-distortion-2", file: "blue_distortion_2.heic", label: "Blue Distortion 2" },
-  { id: "mono-dark-distortion-1", file: "mono_dark_distortion_1.heic", label: "Mono Dark Distortion 1" },
-  { id: "mono-dark-distortion-2", file: "mono_dark_distortion_2.heic", label: "Mono Dark Distortion 2" },
-  { id: "mono-light-distortion-1", file: "mono_light_distortion_1.heic", label: "Mono Light Distortion 1" },
-  { id: "mono-light-distortion-2", file: "mono_light_distortion_2.heic", label: "Mono Light Distortion 2" },
+  {
+    id: "mono-dark-distortion-1",
+    file: "mono_dark_distortion_1.heic",
+    label: "Mono Dark Distortion 1",
+  },
+  {
+    id: "mono-dark-distortion-2",
+    file: "mono_dark_distortion_2.heic",
+    label: "Mono Dark Distortion 2",
+  },
+  {
+    id: "mono-light-distortion-1",
+    file: "mono_light_distortion_1.heic",
+    label: "Mono Light Distortion 1",
+  },
+  {
+    id: "mono-light-distortion-2",
+    file: "mono_light_distortion_2.heic",
+    label: "Mono Light Distortion 2",
+  },
   { id: "chromatic-dark-1", file: "chromatic_dark_1.heic", label: "Chromatic Dark 1" },
   { id: "chromatic-dark-2", file: "chromatic_dark_2.heic", label: "Chromatic Dark 2" },
   { id: "chromatic-light-1", file: "chromatic_light_1.heic", label: "Chromatic Light 1" },
@@ -46,9 +58,9 @@ const WALLPAPERS = [
   { id: "moonrise", file: "moonrise.png", label: "Moonrise" },
   { id: "ray-of-lights", file: "ray-of-lights.png", label: "Ray of Lights" },
   { id: "rose-thorn", file: "rose-thorn.png", label: "Rose Thorn" },
-]
+];
 
-const resolve = makeRemoteResolver({ baseUrl: RAYCAST_BASE, cacheDir: CACHE_DIR })
+const resolve = makeRemoteResolver({ baseUrl: RAYCAST_BASE, cacheDir: CACHE_DIR });
 
 await syncWallpapers({
   outDir: OUT_DIR,
@@ -67,6 +79,6 @@ await syncWallpapers({
     targetFile: "features/canvas/assets/raycast-wallpapers.ts",
     summaryLabel: "Raycast wallpapers",
   },
-})
+});
 
-cleanCache(CACHE_DIR)
+cleanCache(CACHE_DIR);

@@ -1,7 +1,4 @@
-import {
-  isPreserveModuleFill,
-  sampleDotMatrixAnimationFrame,
-} from './animations';
+import { isPreserveModuleFill, sampleDotMatrixAnimationFrame } from "./animations";
 
 export interface DotMatrixLoopAnimation {
   from?: number;
@@ -27,45 +24,38 @@ export interface DotMatrixLoopHandle {
   stop: () => void;
 }
 
-const DOT_MATRIX_PAINTABLE_SELECTOR = 'path,circle,rect,polygon';
+const DOT_MATRIX_PAINTABLE_SELECTOR = "path,circle,rect,polygon";
 
 function getPaintTargets(element: SVGElement) {
   return element.matches(DOT_MATRIX_PAINTABLE_SELECTOR)
     ? [element]
-    : Array.from(
-        element.querySelectorAll<SVGElement>(DOT_MATRIX_PAINTABLE_SELECTOR),
-      );
+    : Array.from(element.querySelectorAll<SVGElement>(DOT_MATRIX_PAINTABLE_SELECTOR));
 }
 
 function readPaintTargetFill(element: SVGElement) {
-  const attrFill = element.getAttribute('fill');
-  if (attrFill && attrFill !== 'none') {
+  const attrFill = element.getAttribute("fill");
+  if (attrFill && attrFill !== "none") {
     return attrFill;
   }
 
-  return element.style.getPropertyValue('fill') || '';
+  return element.style.getPropertyValue("fill") || "";
 }
 
 function restorePaintTargetFill(element: SVGElement, originalFill: string) {
-  element.style.removeProperty('fill');
+  element.style.removeProperty("fill");
   if (originalFill) {
-    element.setAttribute('fill', originalFill);
+    element.setAttribute("fill", originalFill);
     return;
   }
 
-  element.removeAttribute('fill');
+  element.removeAttribute("fill");
 }
 
 function applyPaintTargetFill(element: SVGElement, fill: string) {
-  element.style.setProperty('fill', fill);
+  element.style.setProperty("fill", fill);
 }
 
-function composeTransform(sample: {
-  scale?: number;
-  x?: number;
-  y?: number;
-  rotate?: number;
-}) {
+function composeTransform(sample: { scale?: number; x?: number; y?: number; rotate?: number }) {
   const parts: string[] = [];
   const x = Number.isFinite(sample.x) ? (sample.x as number) : 0;
   const y = Number.isFinite(sample.y) ? (sample.y as number) : 0;
@@ -78,7 +68,7 @@ function composeTransform(sample: {
   if (Number.isFinite(sample.scale)) {
     parts.push(`scale(${sample.scale})`);
   }
-  return parts.join(' ');
+  return parts.join(" ");
 }
 
 function applyDotMatrixSample(
@@ -99,7 +89,7 @@ function applyDotMatrixSample(
   if (transform) {
     element.style.transform = transform;
   } else {
-    element.style.removeProperty('transform');
+    element.style.removeProperty("transform");
   }
 
   if (transformOnly) {
@@ -110,13 +100,10 @@ function applyDotMatrixSample(
     sample.opacityMultiplier !== undefined && Number.isFinite(sample.opacityMultiplier)
       ? sample.opacityMultiplier
       : 1;
-  element.style.opacity = String(
-    Math.max(0, Math.min(1, sample.opacity * opacityMultiplier)),
-  );
+  element.style.opacity = String(Math.max(0, Math.min(1, sample.opacity * opacityMultiplier)));
 
   const paintTargets = getPaintTargets(element);
-  const shouldPreserve =
-    !sample.fill || isPreserveModuleFill(sample.fill);
+  const shouldPreserve = !sample.fill || isPreserveModuleFill(sample.fill);
 
   if (paintTargets.length === 0) {
     if (shouldPreserve) {
@@ -179,17 +166,16 @@ export function startDotMatrixLoop(
   targets: DotMatrixLoopTarget[],
   requestFrame: (callback: () => void) => number,
   cancelFrame: (frame: number) => void,
-  transformOnly = false
+  transformOnly = false,
 ): DotMatrixLoopHandle {
   let frameId: number | undefined;
   let stopped = false;
   const originalFills = captureDotMatrixOriginalFills(targets);
-  const startMs =
-    typeof performance !== 'undefined' ? performance.now() : Date.now();
+  const startMs = typeof performance !== "undefined" ? performance.now() : Date.now();
 
   const tick = () => {
     if (stopped) return;
-    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    const now = typeof performance !== "undefined" ? performance.now() : Date.now();
     const globalTimeMs = now - startMs;
 
     targets.forEach(({ element, animation }) => {

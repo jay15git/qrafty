@@ -1,36 +1,29 @@
-"use client"
+"use client";
 
-import { createPortal } from "react-dom"
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  type ReactNode,
-} from "react"
+import { createPortal } from "react-dom";
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
-import { useMobileSettingsTabDock } from "@/features/shell/inspector/MobileSettingsTabDock"
-import { CUELUME_TOGGLE } from "@/features/shell/audio/cuelume"
-import { cn } from "@/lib/utils"
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
+import { useMobileSettingsTabDock } from "@/features/shell/inspector/MobileSettingsTabDock";
+import { CUELUME_TOGGLE } from "@/features/shell/audio/cuelume";
+import { cn } from "@/lib/utils";
 
 type SegmentTabItem = {
-  ariaLabel?: string
-  icon?: ReactNode
-  id: string
-  label: string
-}
+  ariaLabel?: string;
+  icon?: ReactNode;
+  id: string;
+  label: string;
+};
 
-type SegmentTabInput = string | SegmentTabItem
+type SegmentTabInput = string | SegmentTabItem;
 
 function normalizeSegmentTabItems(items: SegmentTabInput[]): SegmentTabItem[] {
-  return items.map((item) =>
-    typeof item === "string" ? { id: item, label: item } : item,
-  )
+  return items.map((item) => (typeof item === "string" ? { id: item, label: item } : item));
 }
 
 function resolveActiveSegmentTab(items: SegmentTabItem[], value: string) {
-  return items.find((item) => item.id === value || item.label === value)
+  return items.find((item) => item.id === value || item.label === value);
 }
 
 export function SegmentTabs({
@@ -42,76 +35,76 @@ export function SegmentTabs({
   scrollable = false,
   persistKey,
 }: {
-  items: SegmentTabInput[]
-  value: string
-  onChange: (value: string) => void
-  className?: string
-  variant?: "primary" | "muted"
-  scrollable?: boolean
-  persistKey?: string
+  items: SegmentTabInput[];
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+  variant?: "primary" | "muted";
+  scrollable?: boolean;
+  persistKey?: string;
 }) {
-  const tablistRef = useRef<HTMLDivElement>(null)
-  const pillRef = useRef<HTMLSpanElement>(null)
-  const tabRefs = useRef(new Map<string, HTMLButtonElement>())
-  const activeKeyRef = useRef("")
-  const hasPositionedPill = useRef(false)
-  const mobileDensity = useMobileInspectorDensity()
-  const dockTarget = useMobileSettingsTabDock({ enabled: mobileDensity })
-  const normalizedItems = normalizeSegmentTabItems(items)
-  const activeItem = resolveActiveSegmentTab(normalizedItems, value) ?? normalizedItems[0]
-  const activeKey = activeItem?.id ?? value
+  const tablistRef = useRef<HTMLDivElement>(null);
+  const pillRef = useRef<HTMLSpanElement>(null);
+  const tabRefs = useRef(new Map<string, HTMLButtonElement>());
+  const activeKeyRef = useRef("");
+  const hasPositionedPill = useRef(false);
+  const mobileDensity = useMobileInspectorDensity();
+  const dockTarget = useMobileSettingsTabDock({ enabled: mobileDensity });
+  const normalizedItems = normalizeSegmentTabItems(items);
+  const activeItem = resolveActiveSegmentTab(normalizedItems, value) ?? normalizedItems[0];
+  const activeKey = activeItem?.id ?? value;
 
   useEffect(() => {
-    activeKeyRef.current = activeKey
-  })
+    activeKeyRef.current = activeKey;
+  });
 
   const movePill = (key: string, animate: boolean) => {
-    const pill = pillRef.current
-    const tab = tabRefs.current.get(key)
-    if (!pill || !tab) return
+    const pill = pillRef.current;
+    const tab = tabRefs.current.get(key);
+    if (!pill || !tab) return;
 
     if (!animate) {
-      const previousTransition = pill.style.transition
-      pill.style.transition = "none"
-      pill.style.transform = `translateX(${tab.offsetLeft}px)`
-      pill.style.width = `${tab.offsetWidth}px`
-      void pill.offsetWidth
-      pill.style.transition = previousTransition
-      return
+      const previousTransition = pill.style.transition;
+      pill.style.transition = "none";
+      pill.style.transform = `translateX(${tab.offsetLeft}px)`;
+      pill.style.width = `${tab.offsetWidth}px`;
+      void pill.offsetWidth;
+      pill.style.transition = previousTransition;
+      return;
     }
 
-    pill.style.transform = `translateX(${tab.offsetLeft}px)`
-    pill.style.width = `${tab.offsetWidth}px`
-  }
+    pill.style.transform = `translateX(${tab.offsetLeft}px)`;
+    pill.style.width = `${tab.offsetWidth}px`;
+  };
 
   useLayoutEffect(() => {
-    movePill(activeKey, hasPositionedPill.current)
-    hasPositionedPill.current = true
-  }, [activeKey])
+    movePill(activeKey, hasPositionedPill.current);
+    hasPositionedPill.current = true;
+  }, [activeKey]);
 
   useEffect(() => {
-    if (!scrollable) return
+    if (!scrollable) return;
 
-    const tab = tabRefs.current.get(activeKey)
-    if (!tab) return
+    const tab = tabRefs.current.get(activeKey);
+    if (!tab) return;
 
     const timeout = window.setTimeout(() => {
-      tab.scrollIntoView?.({ block: "nearest", inline: "nearest" })
-    }, 220)
+      tab.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+    }, 220);
 
-    return () => window.clearTimeout(timeout)
-  }, [activeKey, scrollable])
+    return () => window.clearTimeout(timeout);
+  }, [activeKey, scrollable]);
 
   useLayoutEffect(() => {
-    const tablist = tablistRef.current
-    if (!tablist) return
+    const tablist = tablistRef.current;
+    if (!tablist) return;
 
     const observer = new ResizeObserver(() => {
-      movePill(activeKeyRef.current, false)
-    })
-    observer.observe(tablist)
-    return () => observer.disconnect()
-  }, [])
+      movePill(activeKeyRef.current, false);
+    });
+    observer.observe(tablist);
+    return () => observer.disconnect();
+  }, []);
 
   const tablist = (
     <div
@@ -132,15 +125,15 @@ export function SegmentTabs({
         className={cn("t-tabs-pill dn-squircle-xs", variant === "muted" && "t-tabs-pill--muted")}
       />
       {normalizedItems.map((item) => {
-        const active = item.id === activeKey
-        const hasIcon = Boolean(item.icon)
+        const active = item.id === activeKey;
+        const hasIcon = Boolean(item.icon);
 
         return (
           <button
             key={item.id}
             ref={(element) => {
-              if (element) tabRefs.current.set(item.id, element)
-              else tabRefs.current.delete(item.id)
+              if (element) tabRefs.current.set(item.id, element);
+              else tabRefs.current.delete(item.id);
             }}
             aria-label={item.ariaLabel ?? item.label}
             className={cn(
@@ -166,10 +159,10 @@ export function SegmentTabs({
               item.label
             )}
           </button>
-        )
+        );
       })}
     </div>
-  )
+  );
 
   function wrapInScroller() {
     return (
@@ -185,16 +178,16 @@ export function SegmentTabs({
       >
         {tablist}
       </ScrollArea>
-    )
+    );
   }
 
   if (dockTarget) {
-    return createPortal(scrollable ? wrapInScroller() : tablist, dockTarget)
+    return createPortal(scrollable ? wrapInScroller() : tablist, dockTarget);
   }
 
   if (scrollable) {
-    return wrapInScroller()
+    return wrapInScroller();
   }
 
-  return tablist
+  return tablist;
 }

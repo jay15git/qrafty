@@ -1,61 +1,61 @@
-import type { FieldKind } from "@/features/qr/content/intents/shared"
-import type { QrInputType } from "@/features/qr/content/input-options"
+import type { FieldKind } from "@/features/qr/content/intents/shared";
+import type { QrInputType } from "@/features/qr/content/input-options";
 import {
   getDefaultIntentId,
   getPlatformDef,
   resolvePlatformType,
-} from "@/features/qr/content/platform-intents"
+} from "@/features/qr/content/platform-intents";
 import {
   validateStaticQrContent,
   type StaticQrContentValue,
   type StaticQrContentValues,
-} from "@/features/qr/content/static-payload"
+} from "@/features/qr/content/static-payload";
 
-export type ContentFieldInputKind = "text" | "email" | "tel" | "url" | "password"
+export type ContentFieldInputKind = "text" | "email" | "tel" | "url" | "password";
 
 export type ContentFieldDefinition = {
-  error?: string
-  id: string
-  inputKind?: ContentFieldInputKind
-  label: string
-  layout?: "full" | "half"
-  options?: Array<{ label: string; value: string }>
-  type: "text" | "textarea" | "toggle" | "segmented"
-  value: StaticQrContentValue | undefined
-}
+  error?: string;
+  id: string;
+  inputKind?: ContentFieldInputKind;
+  label: string;
+  layout?: "full" | "half";
+  options?: Array<{ label: string; value: string }>;
+  type: "text" | "textarea" | "toggle" | "segmented";
+  value: StaticQrContentValue | undefined;
+};
 
 function stringContentValue(value: StaticQrContentValue | undefined) {
-  return typeof value === "string" ? value : ""
+  return typeof value === "string" ? value : "";
 }
 
 function isUrlContentType(type: QrInputType) {
-  return type === "link" || type === "website" || type === "app-download"
+  return type === "link" || type === "website" || type === "app-download";
 }
 
 function mapPlatformInputKind(kind: FieldKind): ContentFieldInputKind {
   if (kind === "url") {
-    return "url"
+    return "url";
   }
   if (kind === "phone") {
-    return "tel"
+    return "tel";
   }
-  return "text"
+  return "text";
 }
 
 function inferInputKind(id: string): ContentFieldInputKind | undefined {
   if (id === "password") {
-    return "password"
+    return "password";
   }
   if (id === "email") {
-    return "email"
+    return "email";
   }
   if (id === "phone") {
-    return "tel"
+    return "tel";
   }
   if (id === "url") {
-    return "url"
+    return "url";
   }
-  return undefined
+  return undefined;
 }
 
 export function getContentFieldDefinitions(
@@ -77,23 +77,22 @@ export function getContentFieldDefinitions(
     layout,
     type: "text",
     value: contentValues[id],
-  })
+  });
   const textarea = (id: string, label: string, error?: string): ContentFieldDefinition => ({
     error,
     id,
     label,
     type: "textarea",
     value: contentValues[id],
-  })
+  });
 
-  const resolvedType = resolvePlatformType(contentType)
-  const platform = getPlatformDef(resolvedType)
+  const resolvedType = resolvePlatformType(contentType);
+  const platform = getPlatformDef(resolvedType);
 
   if (platform) {
-    const intentId = stringContentValue(contentValues.intent) || getDefaultIntentId(resolvedType)
-    const intent =
-      platform.intents.find((entry) => entry.id === intentId) ?? platform.intents[0]
-    const fields: ContentFieldDefinition[] = []
+    const intentId = stringContentValue(contentValues.intent) || getDefaultIntentId(resolvedType);
+    const intent = platform.intents.find((entry) => entry.id === intentId) ?? platform.intents[0];
+    const fields: ContentFieldDefinition[] = [];
 
     if (platform.intents.length > 1) {
       fields.push({
@@ -105,36 +104,35 @@ export function getContentFieldDefinitions(
         })),
         type: "segmented",
         value: intentId,
-      })
+      });
     }
 
     for (const field of intent?.fields ?? []) {
-      const isTextarea = field.key === "message" || field.key === "body"
+      const isTextarea = field.key === "message" || field.key === "body";
       fields.push({
         error: validation.fieldErrors[field.key],
         id: field.key,
         inputKind: isTextarea ? undefined : mapPlatformInputKind(field.kind),
         label: field.label,
-        layout:
-          field.key === "latitude" || field.key === "longitude" ? "half" : "full",
+        layout: field.key === "latitude" || field.key === "longitude" ? "half" : "full",
         type: isTextarea ? "textarea" : "text",
         value: contentValues[field.key],
-      })
+      });
     }
 
-    return fields
+    return fields;
   }
 
   if (contentType === "auto" || contentType === "text") {
-    return [textarea("text", "Text")]
+    return [textarea("text", "Text")];
   }
 
   if (isUrlContentType(contentType)) {
-    return [text("url", "URL", validation.fieldErrors.url, "url")]
+    return [text("url", "URL", validation.fieldErrors.url, "url")];
   }
 
   if (contentType === "phone") {
-    return [text("phone", "Phone number", validation.fieldErrors.phone, "tel")]
+    return [text("phone", "Phone number", validation.fieldErrors.phone, "tel")];
   }
 
   if (contentType === "email") {
@@ -142,14 +140,14 @@ export function getContentFieldDefinitions(
       text("email", "Email", validation.fieldErrors.email, "email", "half"),
       text("subject", "Subject", undefined, undefined, "half"),
       textarea("body", "Body"),
-    ]
+    ];
   }
 
   if (contentType === "sms") {
     return [
       text("phone", "Phone number", validation.fieldErrors.phone, "tel"),
       textarea("message", "Message"),
-    ]
+    ];
   }
 
   if (contentType === "wifi") {
@@ -168,7 +166,7 @@ export function getContentFieldDefinitions(
       },
       text("password", "Password", undefined, "password"),
       { id: "hidden", label: "Hidden network", type: "toggle", value: contentValues.hidden },
-    ]
+    ];
   }
 
   if (contentType === "vcard") {
@@ -179,11 +177,11 @@ export function getContentFieldDefinitions(
       text("email", "Email", undefined, "email", "half"),
       text("company", "Company", undefined, undefined, "half"),
       text("url", "Website", undefined, "url", "half"),
-    ]
+    ];
   }
 
   if (contentType === "event") {
-    const eventMode = stringContentValue(contentValues.eventMode) || "url"
+    const eventMode = stringContentValue(contentValues.eventMode) || "url";
     const fields: ContentFieldDefinition[] = [
       {
         id: "eventMode",
@@ -195,7 +193,7 @@ export function getContentFieldDefinitions(
         type: "segmented",
         value: eventMode,
       },
-    ]
+    ];
 
     if (eventMode === "calendar") {
       fields.push(
@@ -203,12 +201,12 @@ export function getContentFieldDefinitions(
         text("start", "Start", validation.fieldErrors.start, undefined, "half"),
         text("end", "End", undefined, undefined, "half"),
         text("location", "Location"),
-      )
+      );
     } else {
-      fields.push(text("url", "URL", validation.fieldErrors.url, "url"))
+      fields.push(text("url", "URL", validation.fieldErrors.url, "url"));
     }
 
-    return fields
+    return fields;
   }
 
   if (contentType === "coupon") {
@@ -216,7 +214,7 @@ export function getContentFieldDefinitions(
       text("code", "Code", validation.fieldErrors.code, undefined, "half"),
       text("url", "URL", undefined, "url", "half"),
       textarea("description", "Description"),
-    ]
+    ];
   }
 
   if (contentType === "upi") {
@@ -225,7 +223,7 @@ export function getContentFieldDefinitions(
       text("payeeName", "Payee name", undefined, undefined, "half"),
       text("amount", "Amount", validation.fieldErrors.amount, undefined, "half"),
       text("note", "Note", undefined, undefined, "half"),
-    ]
+    ];
   }
 
   if (contentType === "crypto") {
@@ -245,8 +243,8 @@ export function getContentFieldDefinitions(
       },
       text("address", "Address", validation.fieldErrors.address),
       text("amount", "Amount", validation.fieldErrors.amount),
-    ]
+    ];
   }
 
-  return [textarea("text", "Payload")]
+  return [textarea("text", "Payload")];
 }

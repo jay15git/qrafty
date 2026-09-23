@@ -25,8 +25,7 @@ export function useKeyboardNavGate(open: boolean) {
     // element, so this reads the same whether the trigger still has focus
     // or the primitive has already moved it into the popup.
     const active = document.activeElement;
-    keyboardNavRef.current =
-      active instanceof HTMLElement && active.matches(":focus-visible");
+    keyboardNavRef.current = active instanceof HTMLElement && active.matches(":focus-visible");
   }, [open]);
 
   const trackKeyboardNav = useCallback((e: KeyboardEvent) => {

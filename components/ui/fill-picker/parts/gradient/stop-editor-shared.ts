@@ -2,10 +2,7 @@
 
 import * as React from "react";
 import { useGradientPickerContext } from "../../contexts/gradient";
-import {
-  useColorPicker,
-  type ColorPickerState,
-} from "../../hooks/use-color-picker";
+import { useColorPicker, type ColorPickerState } from "../../hooks/use-color-picker";
 
 /**
  * Tooltip/popover-agnostic half of the per-stop color editor: a
@@ -32,10 +29,7 @@ export function useStopColorPickerState(stopId: string): ColorPickerState {
   const stopAlpha = stop?.color.alpha;
   const liveColor = React.useMemo(
     () =>
-      stopL === undefined ||
-      stopC === undefined ||
-      stopH === undefined ||
-      stopAlpha === undefined
+      stopL === undefined || stopC === undefined || stopH === undefined || stopAlpha === undefined
         ? undefined
         : { l: stopL, c: stopC, h: stopH, alpha: stopAlpha },
     [stopL, stopC, stopH, stopAlpha],

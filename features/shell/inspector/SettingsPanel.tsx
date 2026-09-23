@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, type ComponentProps, type ReactNode } from "react"
+import { useState, type ComponentProps, type ReactNode } from "react";
 import {
   BadgeAlertIcon,
   BadgeCheckIcon,
@@ -10,44 +10,41 @@ import {
   SunIcon,
   Volume2Icon,
   VolumeXIcon,
-} from "lucide-react"
-import { KeyboardIcon } from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
+} from "lucide-react";
+import { KeyboardIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
-import { Popover, PopoverTrigger } from "@/components/ui/popover"
-import { useOptionalBlurFadeThemeTransition } from "@/components/ui/BlurFadeThemeTransition"
-import { cuelumeAttrs } from "@/features/shell/audio/cuelume"
-import { BrandMark } from "@/features/shell/components/BrandMark"
-import { KeyboardShortcutsPopoverContent } from "@/features/shell/components/KeyboardShortcutsPopover"
-import {
-  RedoIcon,
-  UndoIcon,
-} from "@/features/shell/components/toolbar-icons"
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
-import { useCuelume } from "@/features/shell/hooks/use-cuelume"
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
+import { useOptionalBlurFadeThemeTransition } from "@/components/ui/BlurFadeThemeTransition";
+import { cuelumeAttrs } from "@/features/shell/audio/cuelume";
+import { BrandMark } from "@/features/shell/components/BrandMark";
+import { KeyboardShortcutsPopoverContent } from "@/features/shell/components/KeyboardShortcutsPopover";
+import { RedoIcon, UndoIcon } from "@/features/shell/components/toolbar-icons";
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import { useCuelume } from "@/features/shell/hooks/use-cuelume";
 import {
   SETTINGS_SECTIONS,
   SECTION_TO_TOOL,
   type SettingsSectionId,
-} from "@/features/shell/inspector/settings-panel-meta"
-import { SettingsSectionBody } from "@/features/shell/inspector/SettingsSections"
+} from "@/features/shell/inspector/settings-panel-meta";
+import { SettingsSectionBody } from "@/features/shell/inspector/SettingsSections";
 import {
   SettingsAccordion,
   SettingsPanelShell,
   SettingsScroll,
-} from "@/features/shell/inspector/settings-ui"
-import type { ScanSafetyResult } from "@/features/qr/scan-safety/types"
-import { cn } from "@/lib/utils"
+} from "@/features/shell/inspector/settings-ui";
+import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
+import { cn } from "@/lib/utils";
 
 const PANEL_ICON_BUTTON_CLASS =
-  "flex size-8 cursor-pointer items-center justify-center rounded-full text-[var(--fg)] transition-colors hover:bg-[var(--settings-control)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4"
+  "flex size-8 cursor-pointer items-center justify-center rounded-full text-[var(--fg)] transition-colors hover:bg-[var(--settings-control)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4";
 
 function PanelIconButton({
   className,
   cuelume = "button",
   ...props
 }: ComponentProps<"button"> & {
-  cuelume?: "button" | "none" | "toggle"
+  cuelume?: "button" | "none" | "toggle";
 }) {
   return (
     <button
@@ -56,46 +53,46 @@ function PanelIconButton({
       {...cuelumeAttrs(cuelume)}
       {...props}
     />
-  )
+  );
 }
 
 function scanSafetyBadge(result: ScanSafetyResult | undefined): {
-  icon: ReactNode
-  label: string
-  tone: "safe" | "unsafe" | "pending" | "muted"
+  icon: ReactNode;
+  label: string;
+  tone: "safe" | "unsafe" | "pending" | "muted";
 } {
-  const iconClass = "size-4 shrink-0"
+  const iconClass = "size-4 shrink-0";
   switch (result?.status) {
     case "valid":
       return {
         icon: <BadgeCheckIcon className={iconClass} />,
         label: "Scan Safe",
         tone: "safe",
-      }
+      };
     case "invalid":
       return {
         icon: <BadgeXIcon className={iconClass} />,
         label: "Scan Unsafe",
         tone: "unsafe",
-      }
+      };
     case "pending":
       return {
         icon: <BadgeAlertIcon className={iconClass} />,
         label: "Checking…",
         tone: "pending",
-      }
+      };
     case "skipped":
       return {
         icon: <BadgeMinusIcon className={iconClass} />,
         label: "No content",
         tone: "muted",
-      }
+      };
     default:
       return {
         icon: <BadgeAlertIcon className={iconClass} />,
         label: "Unavailable",
         tone: "muted",
-      }
+      };
   }
 }
 
@@ -104,11 +101,11 @@ const SCAN_BADGE_TONE_CLASS = {
   unsafe: "text-red-600 dark:text-red-400",
   pending: "text-amber-600 dark:text-amber-400",
   muted: "text-[var(--muted)]",
-} as const
+} as const;
 
 function SettingsPanelHeader({ model }: { model: InspectorModel }) {
-  const controller = model.controller
-  const badge = scanSafetyBadge(controller?.scanSafetyResult)
+  const controller = model.controller;
+  const badge = scanSafetyBadge(controller?.scanSafetyResult);
 
   return (
     <div
@@ -144,13 +141,13 @@ function SettingsPanelHeader({ model }: { model: InspectorModel }) {
         <RedoIcon className="size-4" />
       </PanelIconButton>
     </div>
-  )
+  );
 }
 
 function SettingsPanelFooter({ model }: { model: InspectorModel }) {
-  const { soundsEnabled, toggleSoundsEnabled } = useCuelume()
-  const themeTransition = useOptionalBlurFadeThemeTransition()
-  const theme = model.actualTheme
+  const { soundsEnabled, toggleSoundsEnabled } = useCuelume();
+  const themeTransition = useOptionalBlurFadeThemeTransition();
+  const theme = model.actualTheme;
 
   return (
     <div
@@ -182,24 +179,24 @@ function SettingsPanelFooter({ model }: { model: InspectorModel }) {
         data-slot="theme-toggle"
         onClick={() => {
           if (themeTransition) {
-            themeTransition.triggerTransition()
+            themeTransition.triggerTransition();
           } else {
-            model.onThemeChange(theme === "light" ? "dark" : "light")
+            model.onThemeChange(theme === "light" ? "dark" : "light");
           }
         }}
       >
         {theme === "light" ? <MoonIcon /> : <SunIcon />}
       </PanelIconButton>
     </div>
-  )
+  );
 }
 
 type SettingsPanelProps = {
-  fillHeight?: boolean
-  model: InspectorModel
-  openSection?: string
-  onOpenSectionChange?: (section: string | undefined) => void
-}
+  fillHeight?: boolean;
+  model: InspectorModel;
+  openSection?: string;
+  onOpenSectionChange?: (section: string | undefined) => void;
+};
 
 export function SettingsPanel({
   fillHeight = false,
@@ -207,19 +204,19 @@ export function SettingsPanel({
   openSection: openSectionProp,
   onOpenSectionChange,
 }: SettingsPanelProps) {
-  const [internalOpenSection, setInternalOpenSection] = useState<string | undefined>(undefined)
-  const openSection = openSectionProp ?? internalOpenSection
-  const setOpenSection = onOpenSectionChange ?? setInternalOpenSection
+  const [internalOpenSection, setInternalOpenSection] = useState<string | undefined>(undefined);
+  const openSection = openSectionProp ?? internalOpenSection;
+  const setOpenSection = onOpenSectionChange ?? setInternalOpenSection;
 
   function handleSectionChange(section: string | undefined) {
-    setOpenSection(section)
+    setOpenSection(section);
     if (!section) {
-      return
+      return;
     }
 
-    const tool = SECTION_TO_TOOL[section as SettingsSectionId]
+    const tool = SECTION_TO_TOOL[section as SettingsSectionId];
     if (tool) {
-      model.onActiveToolChange(tool)
+      model.onActiveToolChange(tool);
     }
   }
 
@@ -235,13 +232,11 @@ export function SettingsPanel({
           header={<SettingsPanelHeader model={model} />}
           footer={<SettingsPanelFooter model={model} />}
           openSection={openSection}
-          renderSection={(section) => (
-            <SettingsSectionBody id={section} model={model} />
-          )}
+          renderSection={(section) => <SettingsSectionBody id={section} model={model} />}
           sections={SETTINGS_SECTIONS}
           onOpenSectionChange={handleSectionChange}
         />
       </SettingsScroll>
     </SettingsPanelShell>
-  )
+  );
 }

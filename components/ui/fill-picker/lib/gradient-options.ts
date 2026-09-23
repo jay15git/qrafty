@@ -1,8 +1,4 @@
-import type {
-  GradientInterp,
-  GradientType,
-  RadialSizeKeyword,
-} from "./gradient";
+import type { GradientInterp, GradientType, RadialSizeKeyword } from "./gradient";
 
 /**
  * Option metadata shared by both switcher variants (classic and Base UI).
@@ -51,8 +47,7 @@ export const GRADIENT_INTERP_OPTIONS: {
   {
     value: "hsl",
     label: "HSL",
-    description:
-      "Walks the hue circle the shorter way between the two stops.",
+    description: "Walks the hue circle the shorter way between the two stops.",
   },
   {
     value: "hsl-longer",
@@ -74,8 +69,7 @@ const RADIAL_SIZE_OPTIONS: {
 }[] = [
   {
     value: "closest-side",
-    description:
-      "Ends at the side of the box closest to the center (the shortest reachable edge).",
+    description: "Ends at the side of the box closest to the center (the shortest reachable edge).",
   },
   {
     value: "closest-corner",

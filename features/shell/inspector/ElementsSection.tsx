@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
-import { LayersPopoverContent } from "@/features/shell/components/LayersPopoverContent"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
-import { SettingsRowPopover } from "@/features/shell/inspector/settings-ui"
-import { InsertMenuPanelStack } from "@/features/canvas/components/insert-menu/InsertMenuPanelStack"
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import { LayersPopoverContent } from "@/features/shell/components/LayersPopoverContent";
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
+import { SettingsRowPopover } from "@/features/shell/inspector/settings-ui";
+import { InsertMenuPanelStack } from "@/features/canvas/components/insert-menu/InsertMenuPanelStack";
 
-const SECTION_STACK = "dn-section-stack"
+const SECTION_STACK = "dn-section-stack";
 
 export function ElementsSection({ model }: { model: InspectorModel }) {
-  const [addElementOpen, setAddElementOpen] = useState(false)
-  const mobileDensity = useMobileInspectorDensity()
-  const controller = model.controller
-  const nodeId = controller?.insertNodeId
-  const onInsertLayer = controller?.onInsertLayer
-  const layerCount = model.actualLayersSettings.layers.length
+  const [addElementOpen, setAddElementOpen] = useState(false);
+  const mobileDensity = useMobileInspectorDensity();
+  const controller = model.controller;
+  const nodeId = controller?.insertNodeId;
+  const onInsertLayer = controller?.onInsertLayer;
+  const layerCount = model.actualLayersSettings.layers.length;
 
   const insertMenu =
     nodeId && onInsertLayer ? (
@@ -33,7 +33,7 @@ export function ElementsSection({ model }: { model: InspectorModel }) {
         onClose={() => setAddElementOpen(false)}
         onInsertLayer={onInsertLayer}
       />
-    ) : null
+    ) : null;
 
   const layersContent = (
     <LayersPopoverContent
@@ -44,7 +44,7 @@ export function ElementsSection({ model }: { model: InspectorModel }) {
       onLayersReorder={model.onLayersReorder}
       onLayersSettingsChange={model.onLayersSettingsChange}
     />
-  )
+  );
 
   if (mobileDensity) {
     return (
@@ -69,12 +69,12 @@ export function ElementsSection({ model }: { model: InspectorModel }) {
           {layersContent}
         </SettingsRowPopover>
       </div>
-    )
+    );
   }
 
   return (
     <div className={SECTION_STACK} data-slot="elements-section">
       {layersContent}
     </div>
-  )
+  );
 }

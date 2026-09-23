@@ -1,28 +1,23 @@
-"use client"
+"use client";
 
-import { useContext } from "react"
+import { useContext } from "react";
 
 import {
   GRADIENT_INTERP_OPTIONS,
   GRADIENT_TYPE_OPTIONS,
-} from "@/components/ui/fill-picker/lib/gradient-options"
-import { useFillPickerPortalSurface } from "@/components/ui/fill-picker/base/contexts/portal-surface"
+} from "@/components/ui/fill-picker/lib/gradient-options";
+import { useFillPickerPortalSurface } from "@/components/ui/fill-picker/base/contexts/portal-surface";
 import {
   useGradientPickerContext,
   type GradientInterp,
   type GradientType,
-} from "@/components/ui/fill-picker/public-api"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select"
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/fill-picker/public-api";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { cn } from "@/lib/utils";
 
 function inspectorPortalClass(theme: "light" | "dark", className?: string) {
-  return cn(className, theme === "dark" && "dark")
+  return cn(className, theme === "dark" && "dark");
 }
 
 function GradientSelectField({
@@ -32,14 +27,14 @@ function GradientSelectField({
   slot,
   value,
 }: {
-  "aria-label": string
-  onValueChange: (next: string) => void
-  options: { value: string; label: string }[]
-  slot: string
-  value: string
+  "aria-label": string;
+  onValueChange: (next: string) => void;
+  options: { value: string; label: string }[];
+  slot: string;
+  value: string;
 }) {
-  const theme = useContext(InspectorThemeContext)
-  const portalSurface = useFillPickerPortalSurface()
+  const theme = useContext(InspectorThemeContext);
+  const portalSurface = useFillPickerPortalSurface();
 
   return (
     <div className="dn-fill-picker-select min-w-0 flex-1" data-slot={slot}>
@@ -68,18 +63,14 @@ function GradientSelectField({
         </SelectContent>
       </Select>
     </div>
-  )
+  );
 }
 
-export function GradientTypeRow({
-  allowedTypes,
-}: {
-  allowedTypes?: readonly GradientType[]
-}) {
-  const ctx = useGradientPickerContext()
+export function GradientTypeRow({ allowedTypes }: { allowedTypes?: readonly GradientType[] }) {
+  const ctx = useGradientPickerContext();
   const options = allowedTypes
     ? GRADIENT_TYPE_OPTIONS.filter((option) => allowedTypes.includes(option.value))
-    : GRADIENT_TYPE_OPTIONS
+    : GRADIENT_TYPE_OPTIONS;
 
   return (
     <GradientSelectField
@@ -89,11 +80,11 @@ export function GradientTypeRow({
       value={ctx.gradient.type}
       onValueChange={(next) => ctx.setType(next as GradientType)}
     />
-  )
+  );
 }
 
 export function GradientInterpRow() {
-  const ctx = useGradientPickerContext()
+  const ctx = useGradientPickerContext();
 
   return (
     <GradientSelectField
@@ -106,5 +97,5 @@ export function GradientInterpRow() {
       value={ctx.gradient.interp}
       onValueChange={(next) => ctx.setInterp(next as GradientInterp)}
     />
-  )
+  );
 }

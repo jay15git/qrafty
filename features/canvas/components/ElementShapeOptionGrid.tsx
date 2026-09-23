@@ -1,46 +1,46 @@
-"use client"
+"use client";
 
-import type { ReactNode } from "react"
+import type { ReactNode } from "react";
 
 import {
   INSPECTOR_OPTION_TILE_BUTTON_CLASS,
   INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
   INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-} from "@/features/shell/components/inspector-tokens"
-import { InspectorAnimatedOptionGrid } from "@/features/shell/inspector/InspectorOptionGrid"
-import { inspectorOptionGridItemClass } from "@/features/shell/inspector/InspectorOptionGrid.classes"
-import { InspectorOptionGridScrollArea } from "@/features/shell/inspector/InspectorOptionGrid"
+} from "@/features/shell/components/inspector-tokens";
+import { InspectorAnimatedOptionGrid } from "@/features/shell/inspector/InspectorOptionGrid";
+import { inspectorOptionGridItemClass } from "@/features/shell/inspector/InspectorOptionGrid.classes";
+import { InspectorOptionGridScrollArea } from "@/features/shell/inspector/InspectorOptionGrid";
 import {
   DRAFTING_ELEMENT_DECORATIVE_SHAPES,
   DRAFTING_SHAPE_PRIMITIVES,
-} from "@/features/canvas/model/element-shapes"
+} from "@/features/canvas/model/element-shapes";
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   type DraftingElementShapeId,
-} from "@/features/canvas/model/layers/shared"
-import type { QrBackgroundShapeDefinition } from "@/features/qr/styles/background-shapes"
-import { ElementShapePrimitivePreview } from "@/features/canvas/components/ElementShapePrimitivePreview"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/model/layers/shared";
+import type { QrBackgroundShapeDefinition } from "@/features/qr/styles/background-shapes";
+import { ElementShapePrimitivePreview } from "@/features/canvas/components/ElementShapePrimitivePreview";
+import { cn } from "@/lib/utils";
 
-type ElementShapeOptionGridVariant = "inspector" | "insert-desktop" | "insert-drafting"
+type ElementShapeOptionGridVariant = "inspector" | "insert-desktop" | "insert-drafting";
 
 type ElementShapeOptionGridProps = {
-  decorativeDataSlot?: string
-  onSelect: (shapeId: DraftingElementShapeId) => void
-  optionsDataSlot?: string
-  selectedShapeId?: DraftingElementShapeId
-  shapeFill?: string
-  variant: ElementShapeOptionGridVariant
-}
+  decorativeDataSlot?: string;
+  onSelect: (shapeId: DraftingElementShapeId) => void;
+  optionsDataSlot?: string;
+  selectedShapeId?: DraftingElementShapeId;
+  shapeFill?: string;
+  variant: ElementShapeOptionGridVariant;
+};
 
 function ElementShapeDecorativePreview({
   fill,
   shape,
   sizeClassName = "size-8",
 }: {
-  fill: string
-  shape: QrBackgroundShapeDefinition
-  sizeClassName?: string
+  fill: string;
+  shape: QrBackgroundShapeDefinition;
+  sizeClassName?: string;
 }) {
   return (
     <svg
@@ -52,7 +52,7 @@ function ElementShapeDecorativePreview({
     >
       <path d={shape.path} fill={fill} />
     </svg>
-  )
+  );
 }
 
 function InspectorElementShapeOptionTile({
@@ -61,10 +61,10 @@ function InspectorElementShapeOptionTile({
   onClick,
   selected,
 }: {
-  children: ReactNode
-  label: string
-  onClick: () => void
-  selected: boolean
+  children: ReactNode;
+  label: string;
+  onClick: () => void;
+  selected: boolean;
 }) {
   return (
     <button
@@ -100,7 +100,7 @@ function InspectorElementShapeOptionTile({
         </span>
       </span>
     </button>
-  )
+  );
 }
 
 export function ElementShapeOptionGrid({
@@ -142,19 +142,23 @@ export function ElementShapeOptionGrid({
               selected={shape.id === selectedShapeId}
               onClick={() => onSelect(shape.id)}
             >
-              <ElementShapeDecorativePreview fill="currentColor" shape={shape} sizeClassName="size-[62%]" />
+              <ElementShapeDecorativePreview
+                fill="currentColor"
+                shape={shape}
+                sizeClassName="size-[62%]"
+              />
             </InspectorElementShapeOptionTile>
           ))}
         </InspectorAnimatedOptionGrid>
       </InspectorOptionGridScrollArea>
-    )
+    );
   }
 
-  const isInsertDesktop = variant === "insert-desktop"
-  const decorativeFill = isInsertDesktop ? "currentColor" : shapeFill
+  const isInsertDesktop = variant === "insert-desktop";
+  const decorativeFill = isInsertDesktop ? "currentColor" : shapeFill;
   const buttonClassName = isInsertDesktop
     ? "dn-option-tile flex aspect-square w-full min-w-0 items-center justify-center text-[var(--fg)] dn-squircle-xs"
-    : "flex aspect-square w-full min-w-0 items-center justify-center p-2 text-[var(--canvas-ink-muted)] transition hover:bg-[var(--settings-panel-bg-hover)] hover:text-[var(--canvas-ink)]"
+    : "flex aspect-square w-full min-w-0 items-center justify-center p-2 text-[var(--canvas-ink-muted)] transition hover:bg-[var(--settings-panel-bg-hover)] hover:text-[var(--canvas-ink)]";
 
   return (
     <div
@@ -191,5 +195,5 @@ export function ElementShapeOptionGrid({
         </button>
       ))}
     </div>
-  )
+  );
 }

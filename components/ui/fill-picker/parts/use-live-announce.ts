@@ -9,9 +9,7 @@ import * as React from "react";
  * each keyboard-driven change; the debounce keeps held-down arrow keys from
  * flooding the SR queue.
  */
-export function useLiveAnnounce(
-  delayMs = 150,
-): [string, (text: string) => void] {
+export function useLiveAnnounce(delayMs = 150): [string, (text: string) => void] {
   const [liveText, setLiveText] = React.useState("");
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const announce = React.useCallback(

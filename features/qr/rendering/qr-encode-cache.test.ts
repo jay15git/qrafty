@@ -1,47 +1,47 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import { createDefaultQraftyState } from "@/features/qr/model/state"
+import { createDefaultQraftyState } from "@/features/qr/model/state";
 import {
   clearQrEncodeMarkupCache,
   getQrEncodeCacheKey,
   readCachedQrEncodeMarkup,
   writeCachedQrEncodeMarkup,
-} from "@/features/qr/rendering/qr-encode-cache"
+} from "@/features/qr/rendering/qr-encode-cache";
 
 describe("qr encode cache", () => {
   it("changes cache key when module color or type changes", () => {
-    const base = createDefaultQraftyState()
+    const base = createDefaultQraftyState();
     const recolored = {
       ...base,
       dataModulesSettings: {
         ...base.dataModulesSettings,
         color: "#ff0000",
       },
-    }
+    };
     const restyled = {
       ...base,
       dataModulesSettings: {
         ...base.dataModulesSettings,
         type: "pinched-square" as const,
       },
-    }
+    };
     const newData = {
       ...base,
       data: "https://example.com/other",
-    }
+    };
 
-    expect(getQrEncodeCacheKey(base)).not.toBe(getQrEncodeCacheKey(recolored))
-    expect(getQrEncodeCacheKey(base)).not.toBe(getQrEncodeCacheKey(restyled))
-    expect(getQrEncodeCacheKey(base)).not.toBe(getQrEncodeCacheKey(newData))
-  })
+    expect(getQrEncodeCacheKey(base)).not.toBe(getQrEncodeCacheKey(recolored));
+    expect(getQrEncodeCacheKey(base)).not.toBe(getQrEncodeCacheKey(restyled));
+    expect(getQrEncodeCacheKey(base)).not.toBe(getQrEncodeCacheKey(newData));
+  });
 
   it("stores and reads cached base markup", () => {
-    clearQrEncodeMarkupCache()
-    const state = createDefaultQraftyState()
-    const key = getQrEncodeCacheKey(state)
+    clearQrEncodeMarkupCache();
+    const state = createDefaultQraftyState();
+    const key = getQrEncodeCacheKey(state);
 
-    expect(readCachedQrEncodeMarkup(key)).toBeUndefined()
-    writeCachedQrEncodeMarkup(key, "<svg></svg>")
-    expect(readCachedQrEncodeMarkup(key)).toBe("<svg></svg>")
-  })
-})
+    expect(readCachedQrEncodeMarkup(key)).toBeUndefined();
+    writeCachedQrEncodeMarkup(key, "<svg></svg>");
+    expect(readCachedQrEncodeMarkup(key)).toBe("<svg></svg>");
+  });
+});

@@ -7,16 +7,16 @@ Migration of existing code is tracked in `docs/superpowers/plans/2026-09-22-repo
 
 See `CONTEXT.md` for the full glossary. Canonical terms:
 
-| Term | Meaning | NOT these |
-|---|---|---|
-| **Canvas** | The editing surface where layers live | `Surface`, `Pane`, `WorkspaceSurface` |
-| **Layer** | An editable element on the canvas | `Pane` (when it means layer) |
-| **Inspector** | The settings/properties panel that edits the selection | `settings-ui`, `desktopnew-*` |
-| **Workspace** | The whole editor shell (canvas + inspector + toolbars) | `Desktop` (unless truly desktop-only) |
-| **Document** | Serializable workspace state (what autosave/history persist) | `draft`, `snapshot` for the same thing |
-| **Pane** | A saved/persistable document variant (real domain object) | — |
-| **Rail** | Mobile bottom settings strip | `FamilyDrawer`, `MobileDrawer` |
-| **Scene** | Background/composition template behind the QR | `wallpaper`, `template` (ambiguous) |
+| Term          | Meaning                                                      | NOT these                              |
+| ------------- | ------------------------------------------------------------ | -------------------------------------- |
+| **Canvas**    | The editing surface where layers live                        | `Surface`, `Pane`, `WorkspaceSurface`  |
+| **Layer**     | An editable element on the canvas                            | `Pane` (when it means layer)           |
+| **Inspector** | The settings/properties panel that edits the selection       | `settings-ui`, `desktopnew-*`          |
+| **Workspace** | The whole editor shell (canvas + inspector + toolbars)       | `Desktop` (unless truly desktop-only)  |
+| **Document**  | Serializable workspace state (what autosave/history persist) | `draft`, `snapshot` for the same thing |
+| **Pane**      | A saved/persistable document variant (real domain object)    | —                                      |
+| **Rail**      | Mobile bottom settings strip                                 | `FamilyDrawer`, `MobileDrawer`         |
+| **Scene**     | Background/composition template behind the QR                | `wallpaper`, `template` (ambiguous)    |
 
 Banned in new names: `Surface`, `New`, `desktopnew`, `Manager`, `Helper`, `Utils` (as a filename), `Stuff`, `Common`, `Shared` (as a directory).
 
@@ -64,7 +64,7 @@ app → features → components/ui → lib
 
 - Component file: **≤ 400 lines**. Hook file: **≤ 200**. Model file: **≤ 500**.
 - React function component body: **≤ 150 lines** of logic before JSX.
-- >30 `useRef`/nested functions in one component → extract a hook.
+- > 30 `useRef`/nested functions in one component → extract a hook.
 - New code must obey limits. Existing violations are tracked in the plan, not grandfathered silently.
 
 ## React rules (react-doctor enforced)

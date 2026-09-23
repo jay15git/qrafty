@@ -1,22 +1,15 @@
-import { remapOpacityToTriplet } from './opacity-triplet';
-import {
-  dualAccentMixFromCssBlend,
-  dualAccentMixFromOpacity,
-  mixHexColors,
-} from './color-mix';
-import { clamp } from './motion-math';
-import { isCssBlendKeyframe } from './animation-keyframes';
-import type {
-  DotMatrixCssBlendKeyframe,
-  WebKeyframeValue,
-} from './animation-keyframes';
-import { PRESERVE_MODULE_FILL } from './animation-types';
+import { remapOpacityToTriplet } from "./opacity-triplet";
+import { dualAccentMixFromCssBlend, dualAccentMixFromOpacity, mixHexColors } from "./color-mix";
+import { clamp } from "./motion-math";
+import { isCssBlendKeyframe } from "./animation-keyframes";
+import type { DotMatrixCssBlendKeyframe, WebKeyframeValue } from "./animation-keyframes";
+import { PRESERVE_MODULE_FILL } from "./animation-types";
 import type {
   AnimationPreset,
   DotMatrixAnimationFrame,
   QRCodeAnimation,
   QRCodeAnimationSettings,
-} from './animation-types';
+} from "./animation-types";
 
 const DEFAULT_ANIMATION_SPEED = 1;
 const DEFAULT_DOT_MATRIX_OPACITY_BASE = 1;
@@ -33,9 +26,7 @@ const dotMatrixColorSettings = (settings?: QRCodeAnimationSettings) => {
 
 const safeAnimationSpeed = (settings?: QRCodeAnimationSettings) => {
   const speed = Number(settings && settings.animationSpeed);
-  return speed > 0 && Number.isFinite(speed)
-    ? speed
-    : DEFAULT_ANIMATION_SPEED;
+  return speed > 0 && Number.isFinite(speed) ? speed : DEFAULT_ANIMATION_SPEED;
 };
 
 const dotMatrixOpacitySettings = (settings?: QRCodeAnimationSettings) => ({
@@ -43,73 +34,63 @@ const dotMatrixOpacitySettings = (settings?: QRCodeAnimationSettings) => ({
     Number(
       settings && settings.dotMatrixOpacityBase !== undefined
         ? settings.dotMatrixOpacityBase
-        : DEFAULT_DOT_MATRIX_OPACITY_BASE
+        : DEFAULT_DOT_MATRIX_OPACITY_BASE,
     ),
     0,
-    1
+    1,
   ),
   mid: clamp(
     Number(
       settings && settings.dotMatrixOpacityMid !== undefined
         ? settings.dotMatrixOpacityMid
-        : DEFAULT_DOT_MATRIX_OPACITY_MID
+        : DEFAULT_DOT_MATRIX_OPACITY_MID,
     ),
     0,
-    1
+    1,
   ),
   peak: clamp(
     Number(
       settings && settings.dotMatrixOpacityPeak !== undefined
         ? settings.dotMatrixOpacityPeak
-        : DEFAULT_DOT_MATRIX_OPACITY_PEAK
+        : DEFAULT_DOT_MATRIX_OPACITY_PEAK,
     ),
     0,
-    1
+    1,
   ),
 });
 
 const resolveCssBlendOpacity = (
-  blend: DotMatrixCssBlendKeyframe['cssBlend'],
-  settings?: QRCodeAnimationSettings
+  blend: DotMatrixCssBlendKeyframe["cssBlend"],
+  settings?: QRCodeAnimationSettings,
 ) => {
   const { base, mid, peak } = dotMatrixOpacitySettings(settings);
-  return clamp(
-    blend.peak * peak + blend.mid * mid + blend.base * base,
-    0,
-    1
-  );
+  return clamp(blend.peak * peak + blend.mid * mid + blend.base * base, 0, 1);
 };
 
 export const resolveDotMatrixKeyframeOpacity = (
   frame: WebKeyframeValue,
-  settings?: QRCodeAnimationSettings
+  settings?: QRCodeAnimationSettings,
 ) => {
   if (isCssBlendKeyframe(frame)) {
     return resolveCssBlendOpacity(frame.cssBlend, settings);
   }
   const raw =
-    typeof frame === 'number'
+    typeof frame === "number"
       ? frame
-      : typeof frame === 'object' && frame !== null && 'value' in frame
-      ? frame.value
-      : 0;
+      : typeof frame === "object" && frame !== null && "value" in frame
+        ? frame.value
+        : 0;
   const { base, mid, peak } = dotMatrixOpacitySettings(settings);
   return remapOpacityToTriplet(raw, base, mid, peak);
 };
 
-const remapDotMatrixOpacityValue = (
-  value: number,
-  settings?: QRCodeAnimationSettings
-) => {
+const remapDotMatrixOpacityValue = (value: number, settings?: QRCodeAnimationSettings) => {
   if (!Number.isFinite(value)) return value;
   const { base, mid, peak } = dotMatrixOpacitySettings(settings);
   return remapOpacityToTriplet(clamp(value, 0, 1), base, mid, peak);
 };
 
-const remapDotMatrixOpacity = (
-  opacity: unknown,
-  settings?: QRCodeAnimationSettings
-) => {
+const remapDotMatrixOpacity = (opacity: unknown, settings?: QRCodeAnimationSettings) => {
   if (!Array.isArray(opacity)) return opacity;
   const frames = opacity as WebKeyframeValue[];
   return frames.map((frame) => {
@@ -117,22 +98,19 @@ const remapDotMatrixOpacity = (
       const value = resolveCssBlendOpacity(frame.cssBlend, settings);
       return { offset: frame.offset, value };
     }
-    return typeof frame === 'number'
+    return typeof frame === "number"
       ? remapDotMatrixOpacityValue(frame, settings)
       : { ...frame, value: remapDotMatrixOpacityValue(frame.value, settings) };
   });
 };
 
-const dotMatrixColorForOpacityValue = (
-  value: number,
-  settings?: QRCodeAnimationSettings
-) => {
+const dotMatrixColorForOpacityValue = (value: number, settings?: QRCodeAnimationSettings) => {
   const colors = dotMatrixColorSettings(settings);
   if (!colors || !Number.isFinite(value)) return undefined;
   const opacity = clamp(value, 0, 1);
   const { peak } = dotMatrixOpacitySettings(settings);
 
-  if (settings?.dotMatrixColorMode === 'dual') {
+  if (settings?.dotMatrixColorMode === "dual") {
     return opacity >= peak ? colors.peak : colors.base;
   }
 
@@ -147,12 +125,7 @@ const dotMatrixColorForOpacityValue = (
 const dualColorForCssBlendKeyframe = (
   frame: DotMatrixCssBlendKeyframe,
   colors: { base: string; mid: string; peak: string },
-) =>
-  mixHexColors(
-    colors.base,
-    colors.peak,
-    dualAccentMixFromCssBlend(frame.cssBlend),
-  );
+) => mixHexColors(colors.base, colors.peak, dualAccentMixFromCssBlend(frame.cssBlend));
 
 const dualColorForResolvedOpacity = (
   opacity: number,
@@ -169,28 +142,17 @@ const dualColorForResolvedOpacity = (
   );
 };
 
-const resolvePeakAccentMix = (
-  frame: WebKeyframeValue,
-  settings: QRCodeAnimationSettings,
-) => {
-  if (settings.dotMatrixColorMode === 'dual') {
+const resolvePeakAccentMix = (frame: WebKeyframeValue, settings: QRCodeAnimationSettings) => {
+  if (settings.dotMatrixColorMode === "dual") {
     if (isCssBlendKeyframe(frame)) {
       return dualAccentMixFromCssBlend(frame.cssBlend);
     }
     const { base, peak } = dotMatrixOpacitySettings(settings);
-    return dualAccentMixFromOpacity(
-      resolveDotMatrixKeyframeOpacity(frame, settings),
-      base,
-      peak,
-    );
+    return dualAccentMixFromOpacity(resolveDotMatrixKeyframeOpacity(frame, settings), base, peak);
   }
 
   const { base, peak } = dotMatrixOpacitySettings(settings);
-  return dualAccentMixFromOpacity(
-    resolveDotMatrixKeyframeOpacity(frame, settings),
-    base,
-    peak,
-  );
+  return dualAccentMixFromOpacity(resolveDotMatrixKeyframeOpacity(frame, settings), base, peak);
 };
 
 const fillForPreserveFrame = (
@@ -199,10 +161,7 @@ const fillForPreserveFrame = (
   peakColor: string,
 ) => (resolvePeakAccentMix(frame, settings) > 0 ? peakColor : PRESERVE_MODULE_FILL);
 
-const remapDotMatrixFill = (
-  opacity: unknown,
-  settings?: QRCodeAnimationSettings
-) => {
+const remapDotMatrixFill = (opacity: unknown, settings?: QRCodeAnimationSettings) => {
   if (!Array.isArray(opacity)) {
     return undefined;
   }
@@ -219,7 +178,7 @@ const remapDotMatrixFill = (
       if (isCssBlendKeyframe(frame)) {
         return { offset: frame.offset, value: fill };
       }
-      if (typeof frame === 'number') {
+      if (typeof frame === "number") {
         return fill;
       }
       return { ...frame, value: fill };
@@ -232,7 +191,7 @@ const remapDotMatrixFill = (
   const colors = dotMatrixColorSettings(settings)!;
   return frames.map((frame) => {
     const color =
-      settings?.dotMatrixColorMode === 'dual'
+      settings?.dotMatrixColorMode === "dual"
         ? isCssBlendKeyframe(frame)
           ? dualColorForCssBlendKeyframe(frame, colors)
           : dualColorForResolvedOpacity(
@@ -240,14 +199,11 @@ const remapDotMatrixFill = (
               settings,
               colors,
             )
-        : dotMatrixColorForOpacityValue(
-            resolveDotMatrixKeyframeOpacity(frame, settings),
-            settings,
-          );
+        : dotMatrixColorForOpacityValue(resolveDotMatrixKeyframeOpacity(frame, settings), settings);
     if (isCssBlendKeyframe(frame)) {
       return { offset: frame.offset, value: color };
     }
-    if (typeof frame === 'number') {
+    if (typeof frame === "number") {
       return color;
     }
     return { ...frame, value: color };
@@ -264,7 +220,7 @@ const resolvePresetAnimationSettings = (
 
   return {
     ...settings,
-    dotMatrixColorMode: settings?.dotMatrixColorMode ?? 'dual',
+    dotMatrixColorMode: settings?.dotMatrixColorMode ?? "dual",
   };
 };
 
@@ -272,43 +228,39 @@ const applyPresetSettings = (
   animation: DotMatrixAnimationFrame,
   settings: QRCodeAnimationSettings | undefined,
   isDotMatrixPreset: boolean,
-  _presetName?: AnimationPreset
+  _presetName?: AnimationPreset,
 ): DotMatrixAnimationFrame => {
   const resolvedSettings = resolvePresetAnimationSettings(settings, isDotMatrixPreset);
   const speed = safeAnimationSpeed(resolvedSettings);
   const dotMatrixFill = isDotMatrixPreset
-      ? remapDotMatrixFill(animation.web && animation.web.opacity, resolvedSettings)
-      : undefined;
+    ? remapDotMatrixFill(animation.web && animation.web.opacity, resolvedSettings)
+    : undefined;
   const web = isDotMatrixPreset
     ? {
         ...animation.web,
-        opacity: remapDotMatrixOpacity(
-          animation.web && animation.web.opacity,
-          resolvedSettings
-        ),
+        opacity: remapDotMatrixOpacity(animation.web && animation.web.opacity, resolvedSettings),
         ...(dotMatrixFill ? { fill: dotMatrixFill } : {}),
       }
     : animation.web;
   return {
     ...animation,
-    from:
-      typeof animation.from === 'number' ? animation.from / speed : animation.from,
+    from: typeof animation.from === "number" ? animation.from / speed : animation.from,
     duration:
-      typeof animation.duration === 'number'
-        ? animation.duration / speed
-        : animation.duration,
+      typeof animation.duration === "number" ? animation.duration / speed : animation.duration,
     web,
   };
 };
 
-export const wrapPreset = (
-  animation: QRCodeAnimation,
-  isDotMatrixPreset: boolean,
-  presetName?: AnimationPreset
-): QRCodeAnimation => (targets, x, y, count, entity, settings) =>
-  applyPresetSettings(
-    animation(targets, x, y, count, entity, settings),
-    settings,
-    isDotMatrixPreset,
-    presetName
-  );
+export const wrapPreset =
+  (
+    animation: QRCodeAnimation,
+    isDotMatrixPreset: boolean,
+    presetName?: AnimationPreset,
+  ): QRCodeAnimation =>
+  (targets, x, y, count, entity, settings) =>
+    applyPresetSettings(
+      animation(targets, x, y, count, entity, settings),
+      settings,
+      isDotMatrixPreset,
+      presetName,
+    );

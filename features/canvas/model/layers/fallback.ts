@@ -1,12 +1,12 @@
 import {
   cloneDraftingCardPaperShaderState,
   createDefaultDraftingCardPaperShader,
-} from "@/features/canvas/model/card-state"
+} from "@/features/canvas/model/card-state";
 import {
   DEFAULT_DRAFTING_OUTLINE,
   legacyShadowToShadowLayer,
-} from "@/features/canvas/model/effects"
-import { createUniformCornerRadii } from "@/features/canvas/model/corner-radius"
+} from "@/features/canvas/model/effects";
+import { createUniformCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
   DEFAULT_DRAFTING_IMAGE_LAYER,
   DEFAULT_DRAFTING_LAYER_SHADOW,
@@ -18,7 +18,7 @@ import {
   type DraftingCanvasLayer,
   type DraftingCanvasLayerKind,
   type DraftingLayerStateByNodeId,
-} from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/layers/shared";
 
 export function cloneDraftingCanvasLayer(layer: DraftingCanvasLayer): DraftingCanvasLayer {
   return {
@@ -35,15 +35,15 @@ export function cloneDraftingCanvasLayer(layer: DraftingCanvasLayer): DraftingCa
     layerFilters: (layer.layerFilters ?? []).map((filter) => ({ ...filter })),
     outline: { ...(layer.outline ?? DEFAULT_DRAFTING_OUTLINE) },
     shadow: { ...(layer.shadow ?? DEFAULT_DRAFTING_LAYER_SHADOW) },
-    shadows: (layer.shadows ?? [legacyShadowToShadowLayer(layer.shadow ?? DEFAULT_DRAFTING_LAYER_SHADOW)]).map(
-      (shadow) => ({ ...shadow }),
-    ),
+    shadows: (
+      layer.shadows ?? [legacyShadowToShadowLayer(layer.shadow ?? DEFAULT_DRAFTING_LAYER_SHADOW)]
+    ).map((shadow) => ({ ...shadow })),
     textRuns: layer.textRuns?.map((run) => ({ ...run })),
     illustrationColorStops: layer.illustrationColorStops?.map((stop) => ({ ...stop })),
     paperShader: layer.paperShader
       ? cloneDraftingCardPaperShaderState(layer.paperShader)
       : undefined,
-  }
+  };
 }
 
 export function cloneDraftingLayerStateByNodeId(
@@ -54,7 +54,7 @@ export function cloneDraftingLayerStateByNodeId(
       nodeId,
       layers.map(cloneDraftingCanvasLayer),
     ]),
-  )
+  );
 }
 
 export const FALLBACK_LAYER_NAMES: Record<DraftingCanvasLayerKind, string> = {
@@ -65,22 +65,22 @@ export const FALLBACK_LAYER_NAMES: Record<DraftingCanvasLayerKind, string> = {
   shape: "Shape",
   shader: "Shader",
   group: "Group",
-}
+};
 
 export function fallbackLayerId(nodeId: string, kind: DraftingCanvasLayerKind) {
   if (kind === "card") {
-    return getDraftingCardLayerId(nodeId)
+    return getDraftingCardLayerId(nodeId);
   }
 
   if (kind === "qr") {
-    return getDraftingQrLayerId(nodeId)
+    return getDraftingQrLayerId(nodeId);
   }
 
   if (kind === "text" || kind === "image" || kind === "shape" || kind === "shader") {
-    return createDraftingLayerInstanceId(nodeId, kind)
+    return createDraftingLayerInstanceId(nodeId, kind);
   }
 
-  return `${nodeId}:group`
+  return `${nodeId}:group`;
 }
 
 /** Kind-specific fields for `createFallbackLayer`. Everything not listed
@@ -105,7 +105,7 @@ export function fallbackLayerKindDefaults(
         text: DEFAULT_DRAFTING_TEXT_LAYER.text,
         textAlign: DEFAULT_DRAFTING_TEXT_LAYER.textAlign,
         underline: DEFAULT_DRAFTING_TEXT_LAYER.underline,
-      }
+      };
     case "image":
       return {
         cornerRadius: DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius,
@@ -117,7 +117,7 @@ export function fallbackLayerKindDefaults(
         imageFit: DEFAULT_DRAFTING_IMAGE_LAYER.imageFit,
         imageSource: DEFAULT_DRAFTING_IMAGE_LAYER.imageSource,
         imageValue: DEFAULT_DRAFTING_IMAGE_LAYER.imageValue,
-      }
+      };
     case "shape":
       return {
         cornerRadius: DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius,
@@ -133,7 +133,7 @@ export function fallbackLayerKindDefaults(
         strokeOpacity: DEFAULT_DRAFTING_SHAPE_LAYER.strokeOpacity,
         strokeStyle: DEFAULT_DRAFTING_SHAPE_LAYER.strokeStyle,
         strokeWidth: DEFAULT_DRAFTING_SHAPE_LAYER.strokeWidth,
-      }
+      };
     case "shader":
       return {
         cornerRadius: DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius,
@@ -143,9 +143,9 @@ export function fallbackLayerKindDefaults(
         x: -90,
         y: -90,
         paperShader: createDefaultDraftingCardPaperShader(),
-      }
+      };
     default:
-      return {}
+      return {};
   }
 }
 
@@ -153,7 +153,7 @@ export function createFallbackLayer(
   nodeId: string,
   kind: DraftingCanvasLayerKind,
 ): DraftingCanvasLayer {
-  const defaultShadow = { ...DEFAULT_DRAFTING_LAYER_SHADOW }
+  const defaultShadow = { ...DEFAULT_DRAFTING_LAYER_SHADOW };
 
   return {
     blur: 0,
@@ -201,14 +201,14 @@ export function createFallbackLayer(
     y: -120,
     zIndex: kind === "card" ? 0 : 1,
     ...fallbackLayerKindDefaults(kind),
-  }
+  };
 }
 
 export function createDraftingLayerInstanceId(nodeId: string, kind: DraftingCanvasLayerKind) {
   const randomId =
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()
-      : Math.random().toString(36).slice(2)
+      : Math.random().toString(36).slice(2);
 
-  return `${nodeId}:${kind}:${randomId}`
+  return `${nodeId}:${kind}:${randomId}`;
 }

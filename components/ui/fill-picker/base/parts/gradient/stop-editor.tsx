@@ -27,19 +27,10 @@ interface StopEditorProps {
  * renders the shared `StopColorEditorPopover` — the layout lives there so it
  * stays identical to the palette color editor.
  */
-function StopEditor({
-  stopId,
-  open,
-  onOpenChange,
-  children,
-}: StopEditorProps) {
+function StopEditor({ stopId, open, onOpenChange, children }: StopEditorProps) {
   const state = useStopColorPickerState(stopId);
   return (
-    <StopColorEditorPopover
-      state={state}
-      open={open}
-      onOpenChange={onOpenChange}
-    >
+    <StopColorEditorPopover state={state} open={open} onOpenChange={onOpenChange}>
       {children}
     </StopColorEditorPopover>
   );
@@ -50,10 +41,7 @@ function StopEditor({
  * editor above. Injected as the default by the Base UI barrels
  * (`gradient.tsx`, `fill.tsx`).
  */
-export const stopEditorSlot: GradientStopEditorRenderer = ({
-  children,
-  ...props
-}) => (
+export const stopEditorSlot: GradientStopEditorRenderer = ({ children, ...props }) => (
   // The Bar always passes a single element (the stop handle) as `children`;
   // the slot type is widened to ReactNode only because it is React's own
   // children convention.

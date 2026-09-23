@@ -13,11 +13,7 @@ function normalizeAngle(angle: number) {
 }
 
 /** Normalized grid coords: x right, y up (screen row flipped). */
-export function normalizedGridCoords(
-  row: number,
-  col: number,
-  matrixSize: number,
-) {
+export function normalizedGridCoords(row: number, col: number, matrixSize: number) {
   const center = (matrixSize - 1) / 2;
   const radius = Math.max(center, 1);
   return {
@@ -27,17 +23,16 @@ export function normalizedGridCoords(
   };
 }
 
-const HEART_BOUNDARY = Array.from({ length: Math.ceil((Math.PI * 2) / HEART_BOUNDARY_STEP) }, (_, index) => {
-  const t = index * HEART_BOUNDARY_STEP;
-  const nx = Math.pow(Math.sin(t), 3);
-  const ny =
-    (13 * Math.cos(t) -
-      5 * Math.cos(2 * t) -
-      2 * Math.cos(3 * t) -
-      Math.cos(4 * t)) /
-    16;
-  return { x: nx, y: ny };
-});
+const HEART_BOUNDARY = Array.from(
+  { length: Math.ceil((Math.PI * 2) / HEART_BOUNDARY_STEP) },
+  (_, index) => {
+    const t = index * HEART_BOUNDARY_STEP;
+    const nx = Math.pow(Math.sin(t), 3);
+    const ny =
+      (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) / 16;
+    return { x: nx, y: ny };
+  },
+);
 
 const STAR_BOUNDARY = Array.from({ length: STAR_SPIKES * 2 }, (_, index) => {
   const angle = Math.PI / 2 + (index * Math.PI) / STAR_SPIKES;
@@ -75,11 +70,7 @@ function radialBoundaryAtAngle(boundary: readonly ShapePoint[], angle: number) {
 }
 
 /** Expansion scale where the point hits the parametric heart boundary (grid units). */
-export function heartExpansionMetric(
-  row: number,
-  col: number,
-  matrixSize: number,
-) {
+export function heartExpansionMetric(row: number, col: number, matrixSize: number) {
   const { nx, ny, radius } = normalizedGridCoords(row, col, matrixSize);
   const r = Math.hypot(nx, ny);
   if (r < 1e-6) return 0;
@@ -93,11 +84,7 @@ export function starBoundaryRadius(angle: number) {
 }
 
 /** Distance to star boundary along the ray from center (grid units). */
-export function starExpansionMetric(
-  row: number,
-  col: number,
-  matrixSize: number,
-) {
+export function starExpansionMetric(row: number, col: number, matrixSize: number) {
   const { nx, ny, radius } = normalizedGridCoords(row, col, matrixSize);
   const r = Math.hypot(nx, ny);
   if (r < 1e-6) return 0;
@@ -113,11 +100,7 @@ export function diamondBoundaryRadius(angle: number) {
 }
 
 /** Distance to diamond boundary along the ray from center (grid units). */
-export function diamondExpansionMetric(
-  row: number,
-  col: number,
-  matrixSize: number,
-) {
+export function diamondExpansionMetric(row: number, col: number, matrixSize: number) {
   const { nx, ny, radius } = normalizedGridCoords(row, col, matrixSize);
   const r = Math.hypot(nx, ny);
   if (r < 1e-6) return 0;
@@ -166,11 +149,7 @@ export function heartMaxExpansionMetric(matrixSize: number) {
 }
 
 export function starMaxExpansionMetric(matrixSize: number) {
-  return getCachedMaxExpansionMetric(
-    matrixSize,
-    starMaxExpansionMetricCache,
-    starExpansionMetric,
-  );
+  return getCachedMaxExpansionMetric(matrixSize, starMaxExpansionMetricCache, starExpansionMetric);
 }
 
 export function diamondMaxExpansionMetric(matrixSize: number) {

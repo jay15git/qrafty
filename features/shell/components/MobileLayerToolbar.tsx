@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   ALargeSmallIcon,
@@ -15,88 +15,80 @@ import {
   Trash2,
   Type,
   Underline,
-} from "lucide-react"
-import { lazy, Suspense, useEffect, useRef, type ReactNode } from "react"
+} from "lucide-react";
+import { lazy, Suspense, useEffect, useRef, type ReactNode } from "react";
 import {
   BorderNone02Icon,
   MagicWand05Icon,
   ResourcesAddIcon,
   ScreenRotationIcon,
-} from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
-import { ScrollArea } from "@/components/ui/scroll-area"
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
-import {
-  MOBILE_LAYER_TOOLBAR_GAP_PX,
-} from "@/features/shell/components/mobile-layer-toolbar-sync"
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
+import { ScrollArea } from "@/components/ui/scroll-area";
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import { MOBILE_LAYER_TOOLBAR_GAP_PX } from "@/features/shell/components/mobile-layer-toolbar-sync";
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
 import {
   useMobileDrawerNavigation,
   useMobileLiveDetail,
-} from "@/features/shell/inspector/MobileDrawerNavigationContext"
-import {
-  CanvasSizeIcon,
-  ShadowIcon,
-} from "@/features/shell/components/toolbar-icons"
-import { getLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities"
-import { LAYER_FILTER_EFFECT_KINDS } from "@/features/canvas/model/layer-effects"
-import { TextFontPickerContent } from "@/features/shell/inspector/TextFontPickerContent"
+} from "@/features/shell/inspector/MobileDrawerNavigationContext";
+import { CanvasSizeIcon, ShadowIcon } from "@/features/shell/components/toolbar-icons";
+import { getLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities";
+import { LAYER_FILTER_EFFECT_KINDS } from "@/features/canvas/model/layer-effects";
+import { TextFontPickerContent } from "@/features/shell/inspector/TextFontPickerContent";
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
-} from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/layers/shared";
 import {
   FillColorToolbarButton,
   LayerFloatingToolbarSettings,
   TextAlignmentSettings,
   TextSizeSettings,
-} from "@/features/canvas/components/LayerFloatingToolbarSettings"
+} from "@/features/canvas/components/LayerFloatingToolbarSettings";
 import {
   getTextLayerFillCssValue,
   patchTextLayerFillFromPicker,
-} from "@/features/canvas/rendering/layer-fill"
-import {
-  getLayerFontWeight,
-  getNearestFontWeight,
-} from "@/features/shell/model/font-weight"
-import { resolveDraftingFont } from "@/features/canvas/model/fonts"
-import { isDraftingEmojiLayer } from "@/features/canvas/model/layer-floating-settings"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/rendering/layer-fill";
+import { getLayerFontWeight, getNearestFontWeight } from "@/features/shell/model/font-weight";
+import { resolveDraftingFont } from "@/features/canvas/model/fonts";
+import { isDraftingEmojiLayer } from "@/features/canvas/model/layer-floating-settings";
+import { cn } from "@/lib/utils";
 
 // Heavy detail surfaces (insert menu, layer panels, size presets) load lazily so
 // the toolbar does not pay their import cost before a detail page is pushed.
 const LazyInsertMenuPanelStack = lazy(() =>
-  import("@/features/canvas/components/insert-menu/InsertMenuPanelStack").then(
-    (module) => ({ default: module.InsertMenuPanelStack }),
-  ),
-)
+  import("@/features/canvas/components/insert-menu/InsertMenuPanelStack").then((module) => ({
+    default: module.InsertMenuPanelStack,
+  })),
+);
 const LazyCanvasRatioPresetSections = lazy(() =>
-  import("@/features/shell/components/CanvasRatioPresetRow").then(
-    (module) => ({ default: module.CanvasRatioPresetSections }),
-  ),
-)
+  import("@/features/shell/components/CanvasRatioPresetRow").then((module) => ({
+    default: module.CanvasRatioPresetSections,
+  })),
+);
 const LazyLayerTransformPanel = lazy(() =>
-  import("@/features/shell/components/LayerSettingsPanel").then(
-    (module) => ({ default: module.LayerTransformPanel }),
-  ),
-)
+  import("@/features/shell/components/LayerSettingsPanel").then((module) => ({
+    default: module.LayerTransformPanel,
+  })),
+);
 const LazyLayerBorderPanel = lazy(() =>
-  import("@/features/shell/components/LayerSettingsPanel").then(
-    (module) => ({ default: module.LayerBorderPanel }),
-  ),
-)
+  import("@/features/shell/components/LayerSettingsPanel").then((module) => ({
+    default: module.LayerBorderPanel,
+  })),
+);
 const LazyLayerEffectsPanel = lazy(() =>
-  import("@/features/shell/components/LayerSettingsPanel").then(
-    (module) => ({ default: module.LayerEffectsPanel }),
-  ),
-)
+  import("@/features/shell/components/LayerSettingsPanel").then((module) => ({
+    default: module.LayerEffectsPanel,
+  })),
+);
 const LazyLayerShadowsPanel = lazy(() =>
-  import("@/features/shell/components/LayerSettingsPanel").then(
-    (module) => ({ default: module.LayerShadowsPanel }),
-  ),
-)
+  import("@/features/shell/components/LayerSettingsPanel").then((module) => ({
+    default: module.LayerShadowsPanel,
+  })),
+);
 
 function MobileLayerToolbarButton({
   active = false,
@@ -106,12 +98,12 @@ function MobileLayerToolbarButton({
   label,
   onClick,
 }: {
-  active?: boolean
-  ariaLabel: string
-  children: ReactNode
-  disabled?: boolean
-  label?: string
-  onClick?: () => void
+  active?: boolean;
+  ariaLabel: string;
+  children: ReactNode;
+  disabled?: boolean;
+  label?: string;
+  onClick?: () => void;
 }) {
   return (
     <button
@@ -129,12 +121,10 @@ function MobileLayerToolbarButton({
     >
       {children}
       {label ? (
-        <span className="whitespace-nowrap text-[11px] font-medium leading-none">
-          {label}
-        </span>
+        <span className="whitespace-nowrap text-[11px] font-medium leading-none">{label}</span>
       ) : null}
     </button>
-  )
+  );
 }
 
 function MobileLayerToolbarSeparator() {
@@ -144,7 +134,7 @@ function MobileLayerToolbarSeparator() {
       className="mx-0.5 h-5 w-px shrink-0 bg-[color-mix(in_srgb,var(--line)_55%,transparent)]"
       data-slot="mobile-layer-toolbar-separator"
     />
-  )
+  );
 }
 
 function MobileLayerToolbarDetailButton({
@@ -153,12 +143,12 @@ function MobileLayerToolbarDetailButton({
   title,
   children,
 }: {
-  ariaLabel: string
-  content: ReactNode
-  title: string
-  children: ReactNode
+  ariaLabel: string;
+  content: ReactNode;
+  title: string;
+  children: ReactNode;
 }) {
-  const mobileNav = useMobileDrawerNavigation()
+  const mobileNav = useMobileDrawerNavigation();
 
   return (
     <MobileLayerToolbarButton
@@ -171,12 +161,12 @@ function MobileLayerToolbarDetailButton({
               {content}
             </div>
           ),
-        })
+        });
       }}
     >
       {children}
     </MobileLayerToolbarButton>
-  )
+  );
 }
 /**
  * Icon + label button that pushes a drawer detail page whose content portals
@@ -189,10 +179,10 @@ function MobileLayerPanelButton({
   icon,
   label,
 }: {
-  ariaLabel: string
-  content: ReactNode
-  icon: ReactNode
-  label: string
+  ariaLabel: string;
+  content: ReactNode;
+  icon: ReactNode;
+  label: string;
 }) {
   const detail = useMobileLiveDetail({
     content: (
@@ -202,25 +192,21 @@ function MobileLayerPanelButton({
     ),
     enabled: true,
     title: label,
-  })
+  });
 
   return (
     <>
-      <MobileLayerToolbarButton
-        ariaLabel={ariaLabel}
-        label={label}
-        onClick={detail.open}
-      >
+      <MobileLayerToolbarButton ariaLabel={ariaLabel} label={label} onClick={detail.open}>
         {icon}
       </MobileLayerToolbarButton>
       {detail.portal}
     </>
-  )
+  );
 }
 
-const PANEL_ICON_CLASS = "size-4 shrink-0"
+const PANEL_ICON_CLASS = "size-4 shrink-0";
 
-type MobilePanelController = InspectorModel["controller"]
+type MobilePanelController = InspectorModel["controller"];
 
 function panelHugeIcon(icon: Parameters<typeof HugeiconsIcon>[0]["icon"]) {
   return (
@@ -231,19 +217,15 @@ function panelHugeIcon(icon: Parameters<typeof HugeiconsIcon>[0]["icon"]) {
       size={16}
       strokeWidth={2}
     />
-  )
+  );
 }
 
-function MobileLayerInsertTool({
-  controller,
-}: {
-  controller: MobilePanelController
-}) {
-  const navigation = useMobileDrawerNavigation()
-  const insertNodeId = controller?.insertNodeId
-  const onInsertLayer = controller?.onInsertLayer
+function MobileLayerInsertTool({ controller }: { controller: MobilePanelController }) {
+  const navigation = useMobileDrawerNavigation();
+  const insertNodeId = controller?.insertNodeId;
+  const onInsertLayer = controller?.onInsertLayer;
   if (!insertNodeId || !onInsertLayer) {
-    return null
+    return null;
   }
 
   return (
@@ -267,17 +249,13 @@ function MobileLayerInsertTool({
       icon={panelHugeIcon(ResourcesAddIcon)}
       label="Add"
     />
-  )
+  );
 }
 
-function MobileLayerLayoutTool({
-  controller,
-}: {
-  controller: MobilePanelController
-}) {
-  const onSelectSizeTemplate = controller?.onSceneTemplateSizeTemplateSelect
+function MobileLayerLayoutTool({ controller }: { controller: MobilePanelController }) {
+  const onSelectSizeTemplate = controller?.onSceneTemplateSizeTemplateSelect;
   if (!onSelectSizeTemplate) {
-    return null
+    return null;
   }
 
   return (
@@ -285,29 +263,27 @@ function MobileLayerLayoutTool({
       ariaLabel="Canvas size"
       content={
         <LazyCanvasRatioPresetSections
-          selectedPresetId={
-            controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId
-          }
+          selectedPresetId={controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId}
           onSelectTemplate={onSelectSizeTemplate}
         />
       }
       icon={<CanvasSizeIcon className={PANEL_ICON_CLASS} />}
       label="Layout"
     />
-  )
+  );
 }
 
 function MobileLayerTransformTool({
   controller,
   theme,
 }: {
-  controller: MobilePanelController
-  theme: ThemeMode
+  controller: MobilePanelController;
+  theme: ThemeMode;
 }) {
-  const selectedTransformLayer = controller?.selectedTransformLayer
-  const onTransformLayerPatch = controller?.onTransformLayerPatch
+  const selectedTransformLayer = controller?.selectedTransformLayer;
+  const onTransformLayerPatch = controller?.onTransformLayerPatch;
   if (!selectedTransformLayer || !onTransformLayerPatch) {
-    return null
+    return null;
   }
 
   return (
@@ -324,54 +300,50 @@ function MobileLayerTransformTool({
       icon={panelHugeIcon(ScreenRotationIcon)}
       label="Transform"
     />
-  )
+  );
 }
 
 function MobileLayerBorderTool({
   controller,
   theme,
 }: {
-  controller: MobilePanelController
-  theme: ThemeMode
+  controller: MobilePanelController;
+  theme: ThemeMode;
 }) {
-  const appearance = controller?.appearanceSnapshot
-  const onAppearancePatch = controller?.onAppearancePatch
+  const appearance = controller?.appearanceSnapshot;
+  const onAppearancePatch = controller?.onAppearancePatch;
   if (!appearance?.supportsBorder || !onAppearancePatch) {
-    return null
+    return null;
   }
 
   return (
     <MobileLayerPanelButton
       ariaLabel="Border"
       content={
-        <LazyLayerBorderPanel
-          appearance={appearance}
-          onPatch={onAppearancePatch}
-          theme={theme}
-        />
+        <LazyLayerBorderPanel appearance={appearance} onPatch={onAppearancePatch} theme={theme} />
       }
       icon={panelHugeIcon(BorderNone02Icon)}
       label="Border"
     />
-  )
+  );
 }
 
 function MobileLayerEffectsTool({
   controller,
   theme,
 }: {
-  controller: MobilePanelController
-  theme: ThemeMode
+  controller: MobilePanelController;
+  theme: ThemeMode;
 }) {
-  const appearance = controller?.appearanceSnapshot
-  const onAppearancePatch = controller?.onAppearancePatch
-  const effectsLayer = controller?.selectedElementLayer ?? null
-  const effectsPatch = controller?.onElementLayerPatch
+  const appearance = controller?.appearanceSnapshot;
+  const onAppearancePatch = controller?.onAppearancePatch;
+  const effectsLayer = controller?.selectedElementLayer ?? null;
+  const effectsPatch = controller?.onElementLayerPatch;
   const propertyLayer =
-    controller?.selectedTransformLayer ?? controller?.selectedElementLayer ?? null
-  const propertyCapabilities = getLayerToolbarCapabilities(propertyLayer)
+    controller?.selectedTransformLayer ?? controller?.selectedElementLayer ?? null;
+  const propertyCapabilities = getLayerToolbarCapabilities(propertyLayer);
   if (!effectsLayer || !effectsPatch || propertyCapabilities.maxEffects <= 0) {
-    return null
+    return null;
   }
 
   return (
@@ -395,42 +367,36 @@ function MobileLayerEffectsTool({
       icon={panelHugeIcon(MagicWand05Icon)}
       label="Effects"
     />
-  )
+  );
 }
 
 function MobileLayerShadowsTool({
   controller,
   theme,
 }: {
-  controller: MobilePanelController
-  theme: ThemeMode
+  controller: MobilePanelController;
+  theme: ThemeMode;
 }) {
-  const selectedElementLayer = controller?.selectedElementLayer
-  const selectedTransformLayer = controller?.selectedTransformLayer
+  const selectedElementLayer = controller?.selectedElementLayer;
+  const selectedTransformLayer = controller?.selectedTransformLayer;
   // Shadows apply to every selected layer except the card (background). Element
   // layers patch via onElementLayerPatch; QR/group layers via onAppearancePatch.
-  const shadowsLayer = selectedElementLayer ?? selectedTransformLayer ?? null
+  const shadowsLayer = selectedElementLayer ?? selectedTransformLayer ?? null;
   const shadowsPatch = selectedElementLayer
     ? controller?.onElementLayerPatch
-    : controller?.onAppearancePatch
+    : controller?.onAppearancePatch;
   if (!shadowsLayer || shadowsLayer.kind === "card" || !shadowsPatch) {
-    return null
+    return null;
   }
 
   return (
     <MobileLayerPanelButton
       ariaLabel="Shadows"
-      content={
-        <LazyLayerShadowsPanel
-          layer={shadowsLayer}
-          onPatch={shadowsPatch}
-          theme={theme}
-        />
-      }
+      content={<LazyLayerShadowsPanel layer={shadowsLayer} onPatch={shadowsPatch} theme={theme} />}
       icon={<ShadowIcon className={PANEL_ICON_CLASS} />}
       label="Shadows"
     />
-  )
+  );
 }
 
 /**
@@ -439,57 +405,40 @@ function MobileLayerShadowsTool({
  * `useIslandItems`.
  */
 function hasMobilePanelTools(controller: MobilePanelController): boolean {
-  const insertNodeId = controller?.insertNodeId
-  const onInsertLayer = controller?.onInsertLayer
-  const onSelectSizeTemplate = controller?.onSceneTemplateSizeTemplateSelect
-  const selectedTransformLayer = controller?.selectedTransformLayer
-  const onTransformLayerPatch = controller?.onTransformLayerPatch
-  const appearance = controller?.appearanceSnapshot
-  const onAppearancePatch = controller?.onAppearancePatch
-  const selectedElementLayer = controller?.selectedElementLayer
-  const onElementLayerPatch = controller?.onElementLayerPatch
+  const insertNodeId = controller?.insertNodeId;
+  const onInsertLayer = controller?.onInsertLayer;
+  const onSelectSizeTemplate = controller?.onSceneTemplateSizeTemplateSelect;
+  const selectedTransformLayer = controller?.selectedTransformLayer;
+  const onTransformLayerPatch = controller?.onTransformLayerPatch;
+  const appearance = controller?.appearanceSnapshot;
+  const onAppearancePatch = controller?.onAppearancePatch;
+  const selectedElementLayer = controller?.selectedElementLayer;
+  const onElementLayerPatch = controller?.onElementLayerPatch;
 
-  const propertyLayer = selectedTransformLayer ?? selectedElementLayer ?? null
-  const propertyCapabilities = getLayerToolbarCapabilities(propertyLayer)
-  const effectsLayer = selectedElementLayer ?? null
-  const effectsPatch = onElementLayerPatch
+  const propertyLayer = selectedTransformLayer ?? selectedElementLayer ?? null;
+  const propertyCapabilities = getLayerToolbarCapabilities(propertyLayer);
+  const effectsLayer = selectedElementLayer ?? null;
+  const effectsPatch = onElementLayerPatch;
 
-  const canInsert = Boolean(insertNodeId && onInsertLayer)
-  const hasLayout = Boolean(onSelectSizeTemplate)
-  const hasTransform = Boolean(selectedTransformLayer && onTransformLayerPatch)
-  const hasBorder = Boolean(appearance?.supportsBorder && onAppearancePatch)
-  const hasEffects = Boolean(
-    effectsLayer && effectsPatch && propertyCapabilities.maxEffects > 0,
-  )
+  const canInsert = Boolean(insertNodeId && onInsertLayer);
+  const hasLayout = Boolean(onSelectSizeTemplate);
+  const hasTransform = Boolean(selectedTransformLayer && onTransformLayerPatch);
+  const hasBorder = Boolean(appearance?.supportsBorder && onAppearancePatch);
+  const hasEffects = Boolean(effectsLayer && effectsPatch && propertyCapabilities.maxEffects > 0);
   // Shadows apply to every selected layer except the card (background). Element
   // layers patch via onElementLayerPatch; QR/group layers via onAppearancePatch.
-  const shadowsLayer = selectedElementLayer ?? selectedTransformLayer ?? null
-  const shadowsPatch = selectedElementLayer ? onElementLayerPatch : onAppearancePatch
-  const hasShadows = Boolean(
-    shadowsLayer && shadowsLayer.kind !== "card" && shadowsPatch,
-  )
+  const shadowsLayer = selectedElementLayer ?? selectedTransformLayer ?? null;
+  const shadowsPatch = selectedElementLayer ? onElementLayerPatch : onAppearancePatch;
+  const hasShadows = Boolean(shadowsLayer && shadowsLayer.kind !== "card" && shadowsPatch);
 
-  return (
-    canInsert ||
-    hasLayout ||
-    hasTransform ||
-    hasBorder ||
-    hasEffects ||
-    hasShadows
-  )
+  return canInsert || hasLayout || hasTransform || hasBorder || hasEffects || hasShadows;
 }
 
-function MobileLayerPanelTools({
-  model,
-  theme,
-}: {
-  model: InspectorModel
-  theme: ThemeMode
-}) {
-  const controller = model.controller
+function MobileLayerPanelTools({ model, theme }: { model: InspectorModel; theme: ThemeMode }) {
+  const controller = model.controller;
 
   if (!hasMobilePanelTools(controller)) {
-    return null
+    return null;
   }
 
   return (
@@ -502,46 +451,45 @@ function MobileLayerPanelTools({
       <MobileLayerEffectsTool controller={controller} theme={theme} />
       <MobileLayerShadowsTool controller={controller} theme={theme} />
     </>
-  )
+  );
 }
-
 
 function MobileLayerTextTools({
   layer,
   onPatch,
   theme,
 }: {
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  theme: ThemeMode
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  theme: ThemeMode;
 }) {
-  const mobileNav = useMobileDrawerNavigation()
+  const mobileNav = useMobileDrawerNavigation();
 
   if (isDraftingEmojiLayer(layer)) {
     return (
       <div className="flex shrink-0 items-center gap-0.5" data-slot="mobile-layer-toolbar-settings">
         <LayerFloatingToolbarSettings layer={layer} onPatch={onPatch} theme={theme} />
       </div>
-    )
+    );
   }
 
   const selectedFont = resolveDraftingFont({
     fontFamily: layer.fontFamily,
     fontId: layer.fontId,
-  })
-  const supportedWeights = selectedFont.weights
-  const fontWeight = getLayerFontWeight(layer.fontWeight, supportedWeights)
-  const fontStyle = layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle
-  const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign
+  });
+  const supportedWeights = selectedFont.weights;
+  const fontWeight = getLayerFontWeight(layer.fontWeight, supportedWeights);
+  const fontStyle = layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle;
+  const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign;
   const AlignIcon =
     textAlign === "center"
       ? AlignCenterIcon
       : textAlign === "right"
         ? AlignRightIcon
-        : AlignLeftIcon
+        : AlignLeftIcon;
 
   function patchText(patch: Partial<DraftingCanvasLayer>) {
-    onPatch({ ...patch, textRuns: undefined })
+    onPatch({ ...patch, textRuns: undefined });
   }
 
   return (
@@ -552,9 +500,7 @@ function MobileLayerTextTools({
         theme={theme}
         title="Text color"
         value={getTextLayerFillCssValue(layer)}
-        onValueChange={(fill, css) =>
-          patchText(patchTextLayerFillFromPicker(layer, fill, css))
-        }
+        onValueChange={(fill, css) => patchText(patchTextLayerFillFromPicker(layer, fill, css))}
       />
       <MobileLayerToolbarDetailButton
         ariaLabel="Text font"
@@ -586,9 +532,7 @@ function MobileLayerTextTools({
       <MobileLayerToolbarButton
         active={fontStyle === "italic"}
         ariaLabel="Italic"
-        onClick={() =>
-          patchText({ fontStyle: fontStyle === "italic" ? "normal" : "italic" })
-        }
+        onClick={() => patchText({ fontStyle: fontStyle === "italic" ? "normal" : "italic" })}
       >
         <Italic className="size-4" strokeWidth={2} />
       </MobileLayerToolbarButton>
@@ -614,18 +558,13 @@ function MobileLayerTextTools({
       </MobileLayerToolbarDetailButton>
       <MobileLayerToolbarDetailButton
         ariaLabel="Text size"
-        content={
-          <TextSizeSettings
-            layer={layer}
-            onPatch={onPatch}
-          />
-        }
+        content={<TextSizeSettings layer={layer} onPatch={onPatch} />}
         title="Size"
       >
         <ALargeSmallIcon className="size-4" strokeWidth={2} />
       </MobileLayerToolbarDetailButton>
     </div>
-  )
+  );
 }
 
 function MobileLayerSpecificTools({
@@ -633,19 +572,19 @@ function MobileLayerSpecificTools({
   onPatch,
   theme,
 }: {
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  theme: ThemeMode
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  theme: ThemeMode;
 }) {
   if (layer.kind === "text") {
-    return <MobileLayerTextTools layer={layer} onPatch={onPatch} theme={theme} />
+    return <MobileLayerTextTools layer={layer} onPatch={onPatch} theme={theme} />;
   }
 
   return (
     <div className="flex shrink-0 items-center gap-0.5" data-slot="mobile-layer-toolbar-settings">
       <LayerFloatingToolbarSettings layer={layer} onPatch={onPatch} theme={theme} />
     </div>
-  )
+  );
 }
 
 export function MobileLayerToolbar({
@@ -653,47 +592,47 @@ export function MobileLayerToolbar({
   onToolbarHeightChange,
   theme,
 }: {
-  model: InspectorModel
-  onToolbarHeightChange: (height: number) => void
-  theme: ThemeMode
+  model: InspectorModel;
+  onToolbarHeightChange: (height: number) => void;
+  theme: ThemeMode;
 }) {
-  const controller = model.controller
-  const selectedLayerIds = controller?.selectedLayerIds ?? []
-  const selectedElementLayer = controller?.selectedElementLayer
-  const onElementLayerPatch = controller?.onElementLayerPatch
-  const toolbarRef = useRef<HTMLDivElement>(null)
+  const controller = model.controller;
+  const selectedLayerIds = controller?.selectedLayerIds ?? [];
+  const selectedElementLayer = controller?.selectedElementLayer;
+  const onElementLayerPatch = controller?.onElementLayerPatch;
+  const toolbarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const node = toolbarRef.current
+    const node = toolbarRef.current;
     if (!node || selectedLayerIds.length === 0) {
-      onToolbarHeightChange(0)
-      return
+      onToolbarHeightChange(0);
+      return;
     }
 
     const updateHeight = () => {
-      onToolbarHeightChange(Math.round(node.getBoundingClientRect().height))
-    }
+      onToolbarHeightChange(Math.round(node.getBoundingClientRect().height));
+    };
 
-    updateHeight()
+    updateHeight();
 
-    const observer = new ResizeObserver(updateHeight)
-    observer.observe(node)
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(node);
 
     return () => {
-      observer.disconnect()
-      onToolbarHeightChange(0)
-    }
-  }, [onToolbarHeightChange, selectedLayerIds.length])
+      observer.disconnect();
+      onToolbarHeightChange(0);
+    };
+  }, [onToolbarHeightChange, selectedLayerIds.length]);
 
   if (selectedLayerIds.length === 0) {
-    return null
+    return null;
   }
 
-  const canCopy = Boolean(controller?.canCopyLayers && controller?.onLayerCopy)
+  const canCopy = Boolean(controller?.canCopyLayers && controller?.onLayerCopy);
   const canDelete = selectedLayerIds.some(
     (layerId) => controller?.canDeleteLayer?.(layerId) ?? false,
-  )
-  const canReorder = Boolean(controller?.onLayerMenuAction)
+  );
+  const canReorder = Boolean(controller?.onLayerMenuAction);
 
   const showLayerTools =
     selectedLayerIds.length === 1 &&
@@ -702,7 +641,7 @@ export function MobileLayerToolbar({
     (selectedElementLayer.kind === "text" ||
       selectedElementLayer.kind === "shape" ||
       selectedElementLayer.kind === "image" ||
-      selectedElementLayer.kind === "shader")
+      selectedElementLayer.kind === "shader");
 
   return (
     <InspectorThemeContext.Provider value={theme}>
@@ -795,5 +734,5 @@ export function MobileLayerToolbar({
         </ScrollArea>
       </div>
     </InspectorThemeContext.Provider>
-  )
+  );
 }

@@ -66,8 +66,7 @@ function AccordionItem({
     return () => ro.disconnect();
   }, []);
 
-  const panelHeight =
-    maxPanelHeight != null ? Math.min(contentH, maxPanelHeight) : contentH;
+  const panelHeight = maxPanelHeight != null ? Math.min(contentH, maxPanelHeight) : contentH;
   const panelScrolls = isOpen && contentH > panelHeight + 1;
 
   return (
@@ -170,9 +169,7 @@ export function MotionAccordion({
 }: MotionAccordionProps) {
   const rawId = React.useId();
   const baseId = `accordion-${rawId.replace(/:/g, "")}`;
-  const [itemKeyMap] = React.useState(
-    () => new WeakMap<MotionAccordionItem, string>(),
-  );
+  const [itemKeyMap] = React.useState(() => new WeakMap<MotionAccordionItem, string>());
 
   const getStableItemKey = React.useCallback(
     (item: MotionAccordionItem) => {
@@ -193,9 +190,7 @@ export function MotionAccordion({
     [baseId, itemKeyMap],
   );
 
-  const [internalOpenIndex, setInternalOpenIndex] = React.useState<number | null>(
-    null,
-  );
+  const [internalOpenIndex, setInternalOpenIndex] = React.useState<number | null>(null);
   const isControlled = onOpenIndexChange !== undefined;
   const currentOpenIndex = isControlled ? openIndex : internalOpenIndex;
 
@@ -224,20 +219,17 @@ export function MotionAccordion({
 
     const measure = () => {
       let headers = 0;
-      el.querySelectorAll<HTMLElement>(':scope > [data-slot="motion-accordion-item"] > button').forEach(
-        (button) => {
-          headers += button.offsetHeight;
-        },
-      );
+      el.querySelectorAll<HTMLElement>(
+        ':scope > [data-slot="motion-accordion-item"] > button',
+      ).forEach((button) => {
+        headers += button.offsetHeight;
+      });
       const style = getComputedStyle(el);
-      const padY =
-        parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+      const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
       const headerH =
-        el.querySelector<HTMLElement>('[data-slot="motion-accordion-header"]')
-          ?.offsetHeight ?? 0;
+        el.querySelector<HTMLElement>('[data-slot="motion-accordion-header"]')?.offsetHeight ?? 0;
       const footerH =
-        el.querySelector<HTMLElement>('[data-slot="motion-accordion-footer"]')
-          ?.offsetHeight ?? 0;
+        el.querySelector<HTMLElement>('[data-slot="motion-accordion-footer"]')?.offsetHeight ?? 0;
       setPanelCapPx(
         Math.max(
           0,
@@ -273,37 +265,37 @@ export function MotionAccordion({
             } as React.CSSProperties
           }
         >
-        {header ? (
-          <div
-            data-slot="motion-accordion-header"
-            className="sticky -top-1.5 z-10 shrink-0 bg-inherit"
-          >
-            {header}
-          </div>
-        ) : null}
-        {items.map((item, i) => {
-          const itemKey = getStableItemKey(item);
+          {header ? (
+            <div
+              data-slot="motion-accordion-header"
+              className="sticky -top-1.5 z-10 shrink-0 bg-inherit"
+            >
+              {header}
+            </div>
+          ) : null}
+          {items.map((item, i) => {
+            const itemKey = getStableItemKey(item);
 
-          return (
-            <AccordionItem
-              key={itemKey}
-              item={item}
-              isOpen={currentOpenIndex === i}
-              onToggle={() => toggle(i)}
-              itemId={`${baseId}-trigger-${i}`}
-              panelId={`${baseId}-panel-${i}`}
-              maxPanelHeight={maxPanelHeight}
-            />
-          )
-        })}
-        {footer ? (
-          <div
-            data-slot="motion-accordion-footer"
-            className="sticky bottom-0 z-10 mt-auto shrink-0 bg-inherit"
-          >
-            {footer}
-          </div>
-        ) : null}
+            return (
+              <AccordionItem
+                key={itemKey}
+                item={item}
+                isOpen={currentOpenIndex === i}
+                onToggle={() => toggle(i)}
+                itemId={`${baseId}-trigger-${i}`}
+                panelId={`${baseId}-panel-${i}`}
+                maxPanelHeight={maxPanelHeight}
+              />
+            );
+          })}
+          {footer ? (
+            <div
+              data-slot="motion-accordion-footer"
+              className="sticky bottom-0 z-10 mt-auto shrink-0 bg-inherit"
+            >
+              {footer}
+            </div>
+          ) : null}
         </div>
       </SettingsAccordionPopoverOpenMarker>
     </SettingsAccordionPopoverProvider>

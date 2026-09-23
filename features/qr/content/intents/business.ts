@@ -1,7 +1,4 @@
-import {
-  normalizeUrl,
-  stringFieldValue,
-} from "@/features/qr/content/platform-builders"
+import { normalizeUrl, stringFieldValue } from "@/features/qr/content/platform-builders";
 import {
   isAcuityAppointmentPath,
   isAcuitySchedulePath,
@@ -29,12 +26,8 @@ import {
   isTypeformPath,
   isVenmoPaymentPath,
   isVenmoProfilePath,
-} from "@/features/qr/content/platform-path-matching"
-import {
-  urlField,
-  urlIntent,
-  type PlatformDef,
-} from "@/features/qr/content/intents/shared"
+} from "@/features/qr/content/platform-path-matching";
+import { urlField, urlIntent, type PlatformDef } from "@/features/qr/content/intents/shared";
 
 export const BUSINESS_PLATFORM_DEFS: readonly PlatformDef[] = [
   {
@@ -118,7 +111,11 @@ export const BUSINESS_PLATFORM_DEFS: readonly PlatformDef[] = [
     brandIconId: "stripe",
     defaultIntentId: "pay",
     intents: [
-      urlIntent("checkout", "Checkout", (_p, _params, hostname) => hostname === "checkout.stripe.com"),
+      urlIntent(
+        "checkout",
+        "Checkout",
+        (_p, _params, hostname) => hostname === "checkout.stripe.com",
+      ),
       urlIntent("donate", "Donate", (_p, _params, hostname) => hostname === "donate.stripe.com"),
       urlIntent("book", "Book", (_p, _params, hostname) => hostname === "book.stripe.com"),
       urlIntent("pay", "Pay", (_p, _params, hostname) => hostname === "buy.stripe.com"),
@@ -167,15 +164,18 @@ export const BUSINESS_PLATFORM_DEFS: readonly PlatformDef[] = [
       {
         id: "profile",
         label: "Profile",
-        fields: [urlField(), { key: "amount", kind: "text", label: "Amount (optional)", required: false }],
+        fields: [
+          urlField(),
+          { key: "amount", kind: "text", label: "Amount (optional)", required: false },
+        ],
         build: (values) => {
-          const url = normalizeUrl(stringFieldValue(values, "url"))
-          const amount = stringFieldValue(values, "amount")
+          const url = normalizeUrl(stringFieldValue(values, "url"));
+          const amount = stringFieldValue(values, "amount");
           if (!amount) {
-            return url
+            return url;
           }
 
-          return url.endsWith("/") ? `${url}${amount}` : `${url}/${amount}`
+          return url.endsWith("/") ? `${url}${amount}` : `${url}/${amount}`;
         },
       },
     ],
@@ -199,9 +199,7 @@ export const BUSINESS_PLATFORM_DEFS: readonly PlatformDef[] = [
     collection: "business",
     category: "business",
     hosts: ["cash.app"],
-    intents: [
-      urlIntent("cashtag", "Cashtag", (p) => p.includes("/$")),
-    ],
+    intents: [urlIntent("cashtag", "Cashtag", (p) => p.includes("/$"))],
   },
   {
     type: "google-forms",
@@ -214,7 +212,9 @@ export const BUSINESS_PLATFORM_DEFS: readonly PlatformDef[] = [
     defaultIntentId: "form",
     matchHost: (hostname, pathname) => isGoogleFormsHost(hostname, pathname),
     intents: [
-      urlIntent("short", "Short link", (_p, _params, hostname) => isGoogleFormsShortHost(hostname ?? "")),
+      urlIntent("short", "Short link", (_p, _params, hostname) =>
+        isGoogleFormsShortHost(hostname ?? ""),
+      ),
       urlIntent("form", "Form", (p) => isGoogleFormsFullPath(p)),
     ],
   },
@@ -292,4 +292,4 @@ export const BUSINESS_PLATFORM_DEFS: readonly PlatformDef[] = [
     hosts: ["teams.microsoft.com", "teams.live.com"],
     intents: [urlIntent("meeting", "Meeting")],
   },
-]
+];

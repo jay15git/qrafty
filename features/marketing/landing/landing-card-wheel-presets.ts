@@ -1,37 +1,36 @@
-import type { QraftyGradient } from "@/features/qr/model/state"
-import type { QraftyDataModulesStyle } from "@/features/qr/model/state"
-import type { QrFinderPatternInnerStyle, QrFinderPatternOuterStyle } from "@/features/qr/model/types"
-import type { QrBackgroundShapeId } from "@/features/qr/styles/background-shapes"
+import type { QraftyGradient } from "@/features/qr/model/state";
+import type { QraftyDataModulesStyle } from "@/features/qr/model/state";
+import type {
+  QrFinderPatternInnerStyle,
+  QrFinderPatternOuterStyle,
+} from "@/features/qr/model/types";
+import type { QrBackgroundShapeId } from "@/features/qr/styles/background-shapes";
 
 type BrandShape = {
-  id: Exclude<QrBackgroundShapeId, "none">
-  fill: string
-  padding: number
-}
+  id: Exclude<QrBackgroundShapeId, "none">;
+  fill: string;
+  padding: number;
+};
 
 type BrandLogo = {
-  color?: string
-  gradient?: QraftyGradient
-}
+  color?: string;
+  gradient?: QraftyGradient;
+};
 
 export type LandingWheelCardPreset = {
-  id: string
-  brandId: string
-  url: string
-  logo: BrandLogo
-  qrSize: number
-  shape: BrandShape
-  module: QraftyDataModulesStyle
-  finderInner: QrFinderPatternInnerStyle
-  finderOuter: QrFinderPatternOuterStyle
-  palette: [string, string, string, string]
-}
+  id: string;
+  brandId: string;
+  url: string;
+  logo: BrandLogo;
+  qrSize: number;
+  shape: BrandShape;
+  module: QraftyDataModulesStyle;
+  finderInner: QrFinderPatternInnerStyle;
+  finderOuter: QrFinderPatternOuterStyle;
+  palette: [string, string, string, string];
+};
 
-function qraftyGradient(
-  rotationDeg: number,
-  from: string,
-  to: string,
-): QraftyGradient {
+function qraftyGradient(rotationDeg: number, from: string, to: string): QraftyGradient {
   return {
     enabled: true,
     type: "linear",
@@ -40,7 +39,7 @@ function qraftyGradient(
       { offset: 0, color: from },
       { offset: 1, color: to },
     ],
-  }
+  };
 }
 
 /** Four tones from one family — light → mid → deep → anchor. */
@@ -50,7 +49,7 @@ function family(
   deep: string,
   anchor: string,
 ): [string, string, string, string] {
-  return [light, mid, deep, anchor]
+  return [light, mid, deep, anchor];
 }
 
 function brand(
@@ -76,7 +75,7 @@ function brand(
     finderInner,
     finderOuter,
     palette,
-  }
+  };
 }
 
 /** Brand wheel — analogous pattern palettes matched to shape washes. */
@@ -257,4 +256,4 @@ export const LANDING_WHEEL_CARD_PRESETS: LandingWheelCardPreset[] = [
     "rounded-lg",
     { id: "four-lobes", fill: "#FAF5FF", padding: 20 },
   ),
-]
+];

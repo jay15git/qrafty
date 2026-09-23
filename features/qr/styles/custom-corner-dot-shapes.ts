@@ -5,28 +5,28 @@ export type CustomCornerDotShape =
   | "wave-burst"
   | "rounded-diamond"
   | "folded-seal"
-  | "twin-orbit"
+  | "twin-orbit";
 
 type ShapeDefinition = {
-  d: string
-  fillRule?: "evenodd"
-  insetRatio: number
-  maxX: number
-  maxY: number
-  minX: number
-  minY: number
-}
+  d: string;
+  fillRule?: "evenodd";
+  insetRatio: number;
+  maxX: number;
+  maxY: number;
+  minX: number;
+  minY: number;
+};
 
 export type CustomCornerDotGeometry = {
-  d: string
-  fillRule?: "evenodd"
-  originX: number
-  originY: number
-  scaleX: number
-  scaleY: number
-  translateX: number
-  translateY: number
-}
+  d: string;
+  fillRule?: "evenodd";
+  originX: number;
+  originY: number;
+  scaleX: number;
+  scaleY: number;
+  translateX: number;
+  translateY: number;
+};
 
 const CUSTOM_CORNER_DOT_SHAPES: Record<CustomCornerDotShape, ShapeDefinition> = {
   "orbit-weave": {
@@ -87,11 +87,11 @@ const CUSTOM_CORNER_DOT_SHAPES: Record<CustomCornerDotShape, ShapeDefinition> = 
     maxX: 256,
     maxY: 256,
   },
-}
+};
 
 export const CUSTOM_CORNER_DOT_SHAPE_OPTIONS: Array<{
-  label: string
-  value: CustomCornerDotShape
+  label: string;
+  value: CustomCornerDotShape;
 }> = [
   { label: "Orbit weave", value: "orbit-weave" },
   { label: "Soft cross", value: "soft-cross" },
@@ -100,10 +100,10 @@ export const CUSTOM_CORNER_DOT_SHAPE_OPTIONS: Array<{
   { label: "Rounded diamond", value: "rounded-diamond" },
   { label: "Folded seal", value: "folded-seal" },
   { label: "Twin orbit", value: "twin-orbit" },
-]
+];
 
 export function isCustomCornerDotShape(value: string): value is CustomCornerDotShape {
-  return value in CUSTOM_CORNER_DOT_SHAPES
+  return value in CUSTOM_CORNER_DOT_SHAPES;
 }
 
 export function getCustomCornerDotShapeGeometry(
@@ -112,11 +112,11 @@ export function getCustomCornerDotShapeGeometry(
   y: number,
   size: number,
 ): CustomCornerDotGeometry {
-  const definition = CUSTOM_CORNER_DOT_SHAPES[shape]
-  const inset = size * definition.insetRatio
-  const innerSize = size - inset * 2
-  const shapeWidth = definition.maxX - definition.minX
-  const shapeHeight = definition.maxY - definition.minY
+  const definition = CUSTOM_CORNER_DOT_SHAPES[shape];
+  const inset = size * definition.insetRatio;
+  const innerSize = size - inset * 2;
+  const shapeWidth = definition.maxX - definition.minX;
+  const shapeHeight = definition.maxY - definition.minY;
 
   return {
     d: definition.d,
@@ -127,9 +127,9 @@ export function getCustomCornerDotShapeGeometry(
     scaleY: innerSize / shapeHeight,
     originX: -definition.minX,
     originY: -definition.minY,
-  }
+  };
 }
 
 export function buildCustomCornerDotTransform(geometry: CustomCornerDotGeometry) {
-  return `translate(${geometry.translateX} ${geometry.translateY}) scale(${geometry.scaleX} ${geometry.scaleY}) translate(${geometry.originX} ${geometry.originY})`
+  return `translate(${geometry.translateX} ${geometry.translateY}) scale(${geometry.scaleX} ${geometry.scaleY}) translate(${geometry.originX} ${geometry.originY})`;
 }

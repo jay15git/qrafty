@@ -1,7 +1,7 @@
 import {
   normalizeSvgPaintColor,
   type DraftingIllustrationColorStop,
-} from "@/features/canvas/assets/illustration-recolor"
+} from "@/features/canvas/assets/illustration-recolor";
 import {
   DEFAULT_DRAFTING_IMAGE_LAYER,
   isRecord,
@@ -11,21 +11,17 @@ import {
   normalizeSharedDraftingCanvasLayerFields,
   type DraftingCanvasLayer,
   type NormalizeDraftingLayerContext,
-} from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/layers/shared";
 
 export function normalizeImageDraftingCanvasLayer(
   context: NormalizeDraftingLayerContext & { kind: "image" },
 ): DraftingCanvasLayer {
-  const { fallback, value } = context
+  const { fallback, value } = context;
 
   return {
     ...normalizeSharedDraftingCanvasLayerFields(context),
     borderSides: normalizeDraftingLayerBorderSides(value.borderSides, fallback.borderSides),
-    ...normalizeLayerCornerRadiusFields(
-      value,
-      fallback,
-      DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius,
-    ),
+    ...normalizeLayerCornerRadiusFields(value, fallback, DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius),
     imageFit:
       value.imageFit === "contain" || value.imageFit === "cover"
         ? value.imageFit
@@ -40,32 +36,32 @@ export function normalizeImageDraftingCanvasLayer(
       fallback.illustrationColorStops,
     ),
     kind: "image",
-  } satisfies DraftingCanvasLayer
+  } satisfies DraftingCanvasLayer;
 }
 
 function normalizeIllustrationColorStops(
   value: unknown,
   fallback: DraftingIllustrationColorStop[] | undefined,
 ): DraftingIllustrationColorStop[] | undefined {
-  const source = Array.isArray(value) ? value : fallback
+  const source = Array.isArray(value) ? value : fallback;
   if (!Array.isArray(source)) {
-    return undefined
+    return undefined;
   }
 
-  const stops: DraftingIllustrationColorStop[] = []
+  const stops: DraftingIllustrationColorStop[] = [];
   for (const item of source) {
     if (!isRecord(item) || typeof item.from !== "string" || typeof item.to !== "string") {
-      continue
+      continue;
     }
 
-    const from = normalizeSvgPaintColor(item.from)
-    const to = normalizeSvgPaintColor(item.to)
+    const from = normalizeSvgPaintColor(item.from);
+    const to = normalizeSvgPaintColor(item.to);
     if (!from || !to) {
-      continue
+      continue;
     }
 
-    stops.push({ from, to })
+    stops.push({ from, to });
   }
 
-  return stops.length > 0 ? stops : undefined
+  return stops.length > 0 ? stops : undefined;
 }

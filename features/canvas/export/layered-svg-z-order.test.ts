@@ -1,29 +1,29 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import { createDefaultQraftyState } from "@/features/qr/model/state"
+import { createDefaultQraftyState } from "@/features/qr/model/state";
 import {
   createDefaultDraftingCardState,
   type DraftingCardState,
-} from "@/features/canvas/model/card-state"
-import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch"
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
+} from "@/features/canvas/model/card-state";
+import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch";
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
 import {
   createDraftingShaderLayer,
   createDraftingTextLayer,
-} from "@/features/canvas/model/layers/factories"
-import { buildLayeredSvgParts } from "@/features/canvas/export/layered-svg-parts"
-import { qraftyGradientToFillCss } from "@/features/shell/inspector/settings-bridge"
-import { degreesToRadians } from "@/features/qr/styles/gradient-controls"
+} from "@/features/canvas/model/layers/factories";
+import { buildLayeredSvgParts } from "@/features/canvas/export/layered-svg-parts";
+import { qraftyGradientToFillCss } from "@/features/shell/inspector/settings-bridge";
+import { degreesToRadians } from "@/features/qr/styles/gradient-controls";
 
 describe("layered svg z-order", () => {
   it("renders overlay shader markup after the qr layer", async () => {
-    const state = createDefaultQraftyState()
-    const cardState = createDefaultDraftingCardState()
-    const layers = createDefaultDraftingLayers("node", state, cardState)
-    const qrLayer = layers.find((layer) => layer.kind === "qr")
+    const state = createDefaultQraftyState();
+    const cardState = createDefaultDraftingCardState();
+    const layers = createDefaultDraftingLayers("node", state, cardState);
+    const qrLayer = layers.find((layer) => layer.kind === "qr");
 
     if (!qrLayer) {
-      throw new Error("Expected default qr layer.")
+      throw new Error("Expected default qr layer.");
     }
 
     const overlayShader = createDraftingShaderLayer("node:shader-overlay", "mesh-gradient", {
@@ -32,7 +32,7 @@ describe("layered svg z-order", () => {
       x: 40,
       y: 40,
       zIndex: qrLayer.zIndex + 1,
-    })
+    });
 
     const parts = await buildLayeredSvgParts({
       cardState,
@@ -42,26 +42,26 @@ describe("layered svg z-order", () => {
         [overlayShader.id]: "data:image/png;base64,overlay",
       },
       state,
-    })
+    });
 
-    const qrIndex = parts.body.indexOf('data-testid="qr"')
-    const overlayIndex = parts.body.indexOf("data:image/png;base64,overlay")
+    const qrIndex = parts.body.indexOf('data-testid="qr"');
+    const overlayIndex = parts.body.indexOf("data:image/png;base64,overlay");
 
-    expect(qrIndex).toBeGreaterThanOrEqual(0)
-    expect(overlayIndex).toBeGreaterThan(qrIndex)
-  })
+    expect(qrIndex).toBeGreaterThanOrEqual(0);
+    expect(overlayIndex).toBeGreaterThan(qrIndex);
+  });
 
   it("places card shader clip paths in defs", async () => {
-    const state = createDefaultQraftyState()
+    const state = createDefaultQraftyState();
     const cardState: DraftingCardState = {
       ...createDefaultDraftingCardState(),
       styleMode: "paper-shader",
-    }
-    const layers = createDefaultDraftingLayers("node", state, cardState)
-    const cardLayer = layers.find((layer) => layer.kind === "card")
+    };
+    const layers = createDefaultDraftingLayers("node", state, cardState);
+    const cardLayer = layers.find((layer) => layer.kind === "card");
 
     if (!cardLayer) {
-      throw new Error("Expected default card layer.")
+      throw new Error("Expected default card layer.");
     }
 
     const parts = await buildLayeredSvgParts({
@@ -72,22 +72,22 @@ describe("layered svg z-order", () => {
         [cardLayer.id]: "data:image/png;base64,card-shader",
       },
       state,
-    })
+    });
 
-    expect(parts.defs).toContain("<clipPath")
-    expect(parts.body).not.toContain("<clipPath")
-    expect(parts.body).toContain("clip-path=")
-    expect(parts.body).toContain("data:image/png;base64,card-shader")
-  })
+    expect(parts.defs).toContain("<clipPath");
+    expect(parts.body).not.toContain("<clipPath");
+    expect(parts.body).toContain("clip-path=");
+    expect(parts.body).toContain("data:image/png;base64,card-shader");
+  });
 
   it("omits shader layers when requested for compositor svg", async () => {
-    const state = createDefaultQraftyState()
-    const cardState = createDefaultDraftingCardState()
-    const layers = createDefaultDraftingLayers("node", state, cardState)
-    const qrLayer = layers.find((layer) => layer.kind === "qr")
+    const state = createDefaultQraftyState();
+    const cardState = createDefaultDraftingCardState();
+    const layers = createDefaultDraftingLayers("node", state, cardState);
+    const qrLayer = layers.find((layer) => layer.kind === "qr");
 
     if (!qrLayer) {
-      throw new Error("Expected default qr layer.")
+      throw new Error("Expected default qr layer.");
     }
 
     const overlayShader = createDraftingShaderLayer("node:shader-overlay", "mesh-gradient", {
@@ -96,7 +96,7 @@ describe("layered svg z-order", () => {
       x: 40,
       y: 40,
       zIndex: qrLayer.zIndex + 1,
-    })
+    });
 
     const parts = await buildLayeredSvgParts({
       cardState,
@@ -107,14 +107,14 @@ describe("layered svg z-order", () => {
         [overlayShader.id]: "data:image/png;base64,overlay",
       },
       state,
-    })
+    });
 
-    expect(parts.body).not.toContain("data:image/png;base64,overlay")
-    expect(parts.body).not.toContain('fill="#111827"')
-  })
+    expect(parts.body).not.toContain("data:image/png;base64,overlay");
+    expect(parts.body).not.toContain('fill="#111827"');
+  });
 
   it("omits nested card image hrefs when compositor rasterizes svg", async () => {
-    const state = createDefaultQraftyState()
+    const state = createDefaultQraftyState();
     const cardState: DraftingCardState = {
       ...createDefaultDraftingCardState(),
       styleMode: "image",
@@ -124,8 +124,8 @@ describe("layered svg z-order", () => {
         source: "url",
         value: "https://example.com/card-bg.png",
       },
-    }
-    const layers = createDefaultDraftingLayers("node", state, cardState)
+    };
+    const layers = createDefaultDraftingLayers("node", state, cardState);
 
     const parts = await buildLayeredSvgParts({
       cardState,
@@ -133,14 +133,14 @@ describe("layered svg z-order", () => {
       omitShaderLayers: true,
       qrMarkup: '<svg data-testid="qr"><rect width="10" height="10"/></svg>',
       state,
-    })
+    });
 
-    expect(parts.body).not.toContain("https://example.com/card-bg.png")
-    expect(parts.body).toContain('fill="#ffd80a"')
-  })
+    expect(parts.body).not.toContain("https://example.com/card-bg.png");
+    expect(parts.body).toContain('fill="#ffd80a"');
+  });
 
   it("keeps nested card image hrefs in svg document exports", async () => {
-    const state = createDefaultQraftyState()
+    const state = createDefaultQraftyState();
     const cardState: DraftingCardState = {
       ...createDefaultDraftingCardState(),
       styleMode: "image",
@@ -150,21 +150,21 @@ describe("layered svg z-order", () => {
         source: "url",
         value: "https://example.com/card-bg.png",
       },
-    }
-    const layers = createDefaultDraftingLayers("node", state, cardState)
+    };
+    const layers = createDefaultDraftingLayers("node", state, cardState);
 
     const parts = await buildLayeredSvgParts({
       cardState,
       layers,
       qrMarkup: '<svg data-testid="qr"><rect width="10" height="10"/></svg>',
       state,
-    })
+    });
 
-    expect(parts.body).toContain("https://example.com/card-bg.png")
-  })
+    expect(parts.body).toContain("https://example.com/card-bg.png");
+  });
 
   it("puts card css gradient fills in defs as svg paint servers", async () => {
-    const state = createDefaultQraftyState()
+    const state = createDefaultQraftyState();
     const cardState: DraftingCardState = {
       ...createDefaultDraftingCardState(),
       styleMode: "solid",
@@ -177,12 +177,12 @@ describe("layered svg z-order", () => {
           { offset: 1, color: "#0000ff" },
         ],
       }),
-    }
-    const layers = createDefaultDraftingLayers("node", state, cardState)
-    const cardLayer = layers.find((layer) => layer.kind === "card")
+    };
+    const layers = createDefaultDraftingLayers("node", state, cardState);
+    const cardLayer = layers.find((layer) => layer.kind === "card");
 
     if (!cardLayer) {
-      throw new Error("Expected default card layer.")
+      throw new Error("Expected default card layer.");
     }
 
     const parts = await buildLayeredSvgParts({
@@ -190,17 +190,17 @@ describe("layered svg z-order", () => {
       layers,
       qrMarkup: '<svg data-testid="qr"><rect width="10" height="10"/></svg>',
       state,
-    })
+    });
 
-    expect(parts.defs).toContain("<linearGradient")
-    expect(parts.body).toContain("fill=\"url(#")
-    expect(parts.body).not.toContain("linear-gradient(")
-  })
+    expect(parts.defs).toContain("<linearGradient");
+    expect(parts.body).toContain('fill="url(#');
+    expect(parts.body).not.toContain("linear-gradient(");
+  });
 
   it("exports gradient text fills as svg paint servers in defs", async () => {
-    const state = createDefaultQraftyState()
-    const cardState = createDefaultDraftingCardState()
-    const layers = createDefaultDraftingLayers("node", state, cardState)
+    const state = createDefaultQraftyState();
+    const cardState = createDefaultDraftingCardState();
+    const layers = createDefaultDraftingLayers("node", state, cardState);
     const textLayer = patchDraftingCanvasLayer(
       createDraftingTextLayer("node", {
         fillGradient: {
@@ -221,17 +221,17 @@ describe("layered svg z-order", () => {
         zIndex: layers.length + 1,
       }),
       {},
-    )
+    );
 
     const parts = await buildLayeredSvgParts({
       cardState,
       layers: [...layers, textLayer],
       qrMarkup: '<svg data-testid="qr"><rect width="10" height="10"/></svg>',
       state,
-    })
+    });
 
-    expect(parts.defs).toContain("-text-fill-gradient")
-    expect(parts.body).toContain("<text")
-    expect(parts.body).toContain('fill="url(#')
-  })
-})
+    expect(parts.defs).toContain("-text-fill-gradient");
+    expect(parts.body).toContain("<text");
+    expect(parts.body).toContain('fill="url(#');
+  });
+});

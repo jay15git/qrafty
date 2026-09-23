@@ -3,8 +3,7 @@ import {
   cloneDraftingCardPaperShaderState,
   createDefaultDraftingCardPaperShader,
   type DraftingCardPaperShaderState,
-} from "@/features/canvas/model/card-state"
-;
+} from "@/features/canvas/model/card-state";
 import { dotMatrixLoaderToPresetName as mapLoaderToPresetName } from "@qrafty/qr/dot-matrix";
 import type { CustomCornerDotShape } from "@/features/qr/styles/custom-corner-dot-shapes";
 import type {
@@ -55,14 +54,7 @@ export type QrDotMatrixSquareLoader =
   | "star-expand"
   | "chevron-sweep";
 export type QrDotMatrixColorPreset =
-  | "theme"
-  | "mint"
-  | "sunset"
-  | "ocean"
-  | "neon"
-  | "aurora"
-  | "fire"
-  | "prism";
+  "theme" | "mint" | "sunset" | "ocean" | "neon" | "aurora" | "fire" | "prism";
 export type QrDotMatrixPattern = "cross" | "diamond" | "full" | "outline" | "rings" | "rose";
 export type QrDotMatrixDotShape = "circle" | "diamond" | "hearts" | "square";
 
@@ -104,11 +96,12 @@ export type QrDotMatrixAnimationOptions = {
   speed: number;
 };
 
-export type QrDotMatrixAnimationPatch =
-  Partial<Omit<QrDotMatrixAnimationOptions, "loader" | "preset">> & {
-    loader?: QrDotMatrixSquareLoader | string;
-    preset?: QrMotionStandardPreset | QrDotMatrixSquareLoader | string;
-  };
+export type QrDotMatrixAnimationPatch = Partial<
+  Omit<QrDotMatrixAnimationOptions, "loader" | "preset">
+> & {
+  loader?: QrDotMatrixSquareLoader | string;
+  preset?: QrMotionStandardPreset | QrDotMatrixSquareLoader | string;
+};
 
 export type QraftyAsset = {
   presetColor?: string;
@@ -194,7 +187,8 @@ export type QraftyState = {
   finderPatternOuterGradient: QraftyGradient;
   finderPatternInnerGradient: QraftyGradient;
   backgroundGradient: QraftyGradient;
-};const QR_SIZE_MIN = 120;
+};
+const QR_SIZE_MIN = 120;
 const QR_SIZE_MAX = 1200;
 const DEFAULT_QR_SIZE = 320;
 const RASTER_EXPORT_QUALITY_MIN = 25;
@@ -236,12 +230,7 @@ const DEFAULT_GRADIENT: QraftyGradient = {
   ],
 };
 
-const DEFAULT_DOTS_PALETTE = [
-  "#04879c",
-  "#0c3c78",
-  "#090030",
-  "#f30a49",
-];
+const DEFAULT_DOTS_PALETTE = ["#04879c", "#0c3c78", "#090030", "#f30a49"];
 
 export const MOTION_COLOR_SWATCHES: Record<QrDotMatrixColorPreset, [string, string]> = {
   aurora: ["#67e8f9", "#f0abfc"],
@@ -272,9 +261,9 @@ const DEPRECATED_DOT_MATRIX_LOADERS: Record<string, QrDotMatrixSquareLoader> = {
   "echo-ring": "radial-expand",
   "fan-rotate": "neon-drift",
   "origin-wave": "radial-expand",
-  "scan": "neon-drift",
-  "tunnel": "neon-drift",
-  "wave": "neon-drift",
+  scan: "neon-drift",
+  tunnel: "neon-drift",
+  wave: "neon-drift",
 };
 
 const QR_DOT_MATRIX_SQUARE_LOADER_VALUES = new Set<string>(
@@ -415,12 +404,7 @@ export function createDefaultQraftyState(): QraftyState {
   };
 }
 
-function coerceNumber(
-  value: number,
-  min: number,
-  max: number,
-  fallback: number,
-) {
+function coerceNumber(value: number, min: number, max: number, fallback: number) {
   if (Number.isNaN(value)) {
     return fallback;
   }
@@ -476,13 +460,11 @@ export function dotMatrixAnimationSpeedToSliderPercent(speed: number) {
   const clampedSpeed = clampDotMatrixAnimationSpeed(speed);
   const normalized =
     (Math.log(clampedSpeed) - Math.log(QR_DOT_MATRIX_ANIMATION_SPEED_MIN)) /
-    (Math.log(QR_DOT_MATRIX_ANIMATION_SPEED_MAX) -
-      Math.log(QR_DOT_MATRIX_ANIMATION_SPEED_MIN));
+    (Math.log(QR_DOT_MATRIX_ANIMATION_SPEED_MAX) - Math.log(QR_DOT_MATRIX_ANIMATION_SPEED_MIN));
 
   return Math.round(
     normalized *
-      (QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MAX -
-        QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MIN) +
+      (QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MAX - QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MIN) +
       QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MIN,
   );
 }
@@ -492,12 +474,10 @@ export function sliderPercentToDotMatrixAnimationSpeed(percent: number) {
   const clampedPercent = clampDotMatrixAnimationSpeedSliderPercent(percent);
   const normalized =
     (clampedPercent - QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MIN) /
-    (QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MAX -
-      QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MIN);
+    (QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MAX - QR_DOT_MATRIX_ANIMATION_SPEED_SLIDER_MIN);
   const speed =
     QR_DOT_MATRIX_ANIMATION_SPEED_MIN *
-    (QR_DOT_MATRIX_ANIMATION_SPEED_MAX / QR_DOT_MATRIX_ANIMATION_SPEED_MIN) **
-      normalized;
+    (QR_DOT_MATRIX_ANIMATION_SPEED_MAX / QR_DOT_MATRIX_ANIMATION_SPEED_MIN) ** normalized;
 
   return clampDotMatrixAnimationSpeed(speed);
 }
@@ -527,12 +507,7 @@ export function clampDotMatrixAnimationOverlayScale(value: number) {
 }
 
 export function clampDotMatrixAnimationOpacity(value: number, fallback: number) {
-  return coerceNumber(
-    value,
-    QR_DOT_MATRIX_OPACITY_MIN,
-    QR_DOT_MATRIX_OPACITY_MAX,
-    fallback,
-  );
+  return coerceNumber(value, QR_DOT_MATRIX_OPACITY_MIN, QR_DOT_MATRIX_OPACITY_MAX, fallback);
 }
 
 function coerceDotMatrixSquareLoader(value: string | undefined) {
@@ -615,12 +590,7 @@ export function clampBackgroundShapeEdgeBlur(value: number) {
 }
 
 export function clampBackgroundShapeTilt(value: number) {
-  return coerceNumber(
-    value,
-    BACKGROUND_SHAPE_TILT_MIN,
-    BACKGROUND_SHAPE_TILT_MAX,
-    0,
-  );
+  return coerceNumber(value, BACKGROUND_SHAPE_TILT_MIN, BACKGROUND_SHAPE_TILT_MAX, 0);
 }
 
 export function clampQrBackgroundRound(value: number) {
@@ -660,11 +630,8 @@ function resolveDotMatrixAnimation(
     patch.customColor ?? current.customColor,
     DEFAULT_DOT_MATRIX_ANIMATION.customColor,
   );
-  const nextLoader = coerceDotMatrixSquareLoader(
-    patch.loader ?? current.loader,
-  );
-  const take = <K extends keyof QrDotMatrixAnimationOptions>(key: K) =>
-    patch[key] ?? current[key];
+  const nextLoader = coerceDotMatrixSquareLoader(patch.loader ?? current.loader);
+  const take = <K extends keyof QrDotMatrixAnimationOptions>(key: K) => patch[key] ?? current[key];
   const opacityField = (key: "opacityBase" | "opacityMid" | "opacityPeak") =>
     clampDotMatrixAnimationOpacity(take(key), DEFAULT_DOT_MATRIX_ANIMATION[key]);
 
@@ -720,9 +687,7 @@ function dotMatrixAnimationNeedsUpdate(
   next: QrDotMatrixAnimationOptions,
 ): boolean {
   if (
-    REMOVED_DOT_MATRIX_OPTION_KEYS.some((key) =>
-      Object.prototype.hasOwnProperty.call(current, key),
-    )
+    REMOVED_DOT_MATRIX_OPTION_KEYS.some((key) => Object.prototype.hasOwnProperty.call(current, key))
   ) {
     return true;
   }
@@ -731,25 +696,18 @@ function dotMatrixAnimationNeedsUpdate(
     return true;
   }
 
-  if (
-    JSON.stringify(current.paperShader) !== JSON.stringify(next.paperShader)
-  ) {
+  if (JSON.stringify(current.paperShader) !== JSON.stringify(next.paperShader)) {
     return true;
   }
 
-  return DOT_MATRIX_ANIMATION_COMPARE_FIELDS.some(
-    (field) => current[field] !== next[field],
-  );
+  return DOT_MATRIX_ANIMATION_COMPARE_FIELDS.some((field) => current[field] !== next[field]);
 }
 
 export function setDotMatrixAnimationOptions(
   state: QraftyState,
   patch: QrDotMatrixAnimationPatch,
 ): QraftyState {
-  const nextAnimation = resolveDotMatrixAnimation(
-    state.dotMatrixAnimation,
-    patch,
-  );
+  const nextAnimation = resolveDotMatrixAnimation(state.dotMatrixAnimation, patch);
 
   if (!dotMatrixAnimationNeedsUpdate(state.dotMatrixAnimation, nextAnimation)) {
     return state;
@@ -776,8 +734,8 @@ export function hasActiveBackgroundShapeOptions(
 ) {
   return Boolean(
     options &&
-      ((options.paddingPx ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.paddingPx) >
-        DEFAULT_BACKGROUND_SHAPE_OPTIONS.paddingPx ||
-        (options.strokeWidth ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.strokeWidth) > 0),
+    ((options.paddingPx ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.paddingPx) >
+      DEFAULT_BACKGROUND_SHAPE_OPTIONS.paddingPx ||
+      (options.strokeWidth ?? DEFAULT_BACKGROUND_SHAPE_OPTIONS.strokeWidth) > 0),
   );
 }

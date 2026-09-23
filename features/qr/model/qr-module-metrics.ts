@@ -1,13 +1,10 @@
-import { getQrModuleMetrics } from "@qrafty/qr-internal/core"
-import type { QraftyState } from "@/features/qr/model/state"
+import { getQrModuleMetrics } from "@qrafty/qr-internal/core";
+import type { QraftyState } from "@/features/qr/model/state";
 
-type QrModuleMetricsState = Pick<
-  QraftyState,
-  "data" | "margin" | "qrOptions" | "valueSegments"
->
+type QrModuleMetricsState = Pick<QraftyState, "data" | "margin" | "qrOptions" | "valueSegments">;
 
-const quietZoneFractionCache = new Map<string, number>()
-const QUIET_ZONE_CACHE_LIMIT = 64
+const quietZoneFractionCache = new Map<string, number>();
+const QUIET_ZONE_CACHE_LIMIT = 64;
 
 function getQrModuleMetricsCacheKey(state: QrModuleMetricsState) {
   return JSON.stringify({
@@ -17,16 +14,16 @@ function getQrModuleMetricsCacheKey(state: QrModuleMetricsState) {
     margin: state.margin,
     minVersion: state.qrOptions.typeNumber,
     valueSegments: state.valueSegments,
-  })
+  });
 }
 
 function getQrModuleMetricsValue(state: QrModuleMetricsState) {
   return state.valueSegments?.length
     ? state.valueSegments.flatMap((segment) => {
-        const trimmed = segment.trim()
-        return trimmed ? [trimmed] : []
+        const trimmed = segment.trim();
+        return trimmed ? [trimmed] : [];
       })
-    : state.data.trim()
+    : state.data.trim();
 }
 
 /**
@@ -36,11 +33,11 @@ function getQrModuleMetricsValue(state: QrModuleMetricsState) {
  * to 0 when the payload cannot be encoded (degrades to box-edge geometry).
  */
 export function getQraftyQrQuietZoneFraction(state: QrModuleMetricsState) {
-  const cacheKey = getQrModuleMetricsCacheKey(state)
-  const cached = quietZoneFractionCache.get(cacheKey)
+  const cacheKey = getQrModuleMetricsCacheKey(state);
+  const cached = quietZoneFractionCache.get(cacheKey);
 
   if (cached !== undefined) {
-    return cached
+    return cached;
   }
 
   const metrics = getQrModuleMetrics({
@@ -51,18 +48,18 @@ export function getQraftyQrQuietZoneFraction(state: QrModuleMetricsState) {
       : 12,
     minVersion: Math.max(1, state.qrOptions.typeNumber || 1),
     value: getQrModuleMetricsValue(state),
-  })
-  const fraction = metrics ? metrics.margin / metrics.numCells : 0
+  });
+  const fraction = metrics ? metrics.margin / metrics.numCells : 0;
 
-  quietZoneFractionCache.set(cacheKey, fraction)
+  quietZoneFractionCache.set(cacheKey, fraction);
 
   while (quietZoneFractionCache.size > QUIET_ZONE_CACHE_LIMIT) {
-    const oldestKey = quietZoneFractionCache.keys().next().value
+    const oldestKey = quietZoneFractionCache.keys().next().value;
     if (!oldestKey) {
-      break
+      break;
     }
-    quietZoneFractionCache.delete(oldestKey)
+    quietZoneFractionCache.delete(oldestKey);
   }
 
-  return fraction
+  return fraction;
 }

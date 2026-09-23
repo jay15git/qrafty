@@ -3,8 +3,7 @@
 import * as React from "react";
 import type { GradientPickerState } from "../hooks/use-gradient-picker";
 
-export const GradientPickerContext =
-  React.createContext<GradientPickerState | null>(null);
+export const GradientPickerContext = React.createContext<GradientPickerState | null>(null);
 
 /**
  * Renders the per-stop color editor for `<GradientPicker.Bar editOnClick>`.
@@ -37,8 +36,9 @@ export type GradientStopEditorRenderer = (props: {
  * A sibling context lets a barrel inject the default once, above either
  * provider, without threading the renderer through the headless state.
  */
-export const GradientStopEditorContext =
-  React.createContext<GradientStopEditorRenderer | null>(null);
+export const GradientStopEditorContext = React.createContext<GradientStopEditorRenderer | null>(
+  null,
+);
 
 /** The injected stop editor, or `null` when no barrel/consumer provided one. */
 export function useGradientStopEditor(): GradientStopEditorRenderer | null {
@@ -50,7 +50,7 @@ export function useGradientPickerContext(): GradientPickerState {
   if (!ctx) {
     throw new Error(
       "GradientPicker.* parts must be rendered inside <GradientPicker.Root> " +
-        "or <FillPicker.Pane mode=\"gradient\">",
+        'or <FillPicker.Pane mode="gradient">',
     );
   }
   return ctx;

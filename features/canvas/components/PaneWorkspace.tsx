@@ -1,56 +1,57 @@
-"use client"
+"use client";
 
 import {
   DEFAULT_DRAFTING_CARD_STATE,
   type DraftingCardState,
-} from "@/features/canvas/model/card-state"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/card-state";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
   PaneLayerView,
   type PaneLayerViewSharedProps,
-} from "@/features/canvas/components/PaneLayerViews"
+} from "@/features/canvas/components/PaneLayerViews";
+import { type DraftingLayerMenuAction } from "@/features/canvas/components/pane-layer-chrome.constants";
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import type { QraftyState } from "@/features/qr/model/state";
+import type { StaticQrValidationResult } from "@/features/qr/content/static-payload";
+import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document";
 import {
-  type DraftingLayerMenuAction,
-} from "@/features/canvas/components/pane-layer-chrome.constants"
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
-import type { QraftyState } from "@/features/qr/model/state"
-import type { StaticQrValidationResult } from "@/features/qr/content/static-payload"
-import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document"
-import { createDefaultSceneComposition, type SceneCompositionState } from "@/features/canvas/model/scene-templates"
-import { PaneCanvasInteractive } from "@/features/canvas/components/pane-layer-a11y"
-import { PreviewRuntimeProvider } from "@/features/canvas/preview/preview-context"
+  createDefaultSceneComposition,
+  type SceneCompositionState,
+} from "@/features/canvas/model/scene-templates";
+import { PaneCanvasInteractive } from "@/features/canvas/components/pane-layer-a11y";
+import { PreviewRuntimeProvider } from "@/features/canvas/preview/preview-context";
 import {
   PaneCanvasContent,
   type PaneCanvasContentProps,
-} from "@/features/canvas/components/pane-workspace-chrome"
-import { usePaneWorkspaceInteractions } from "@/features/canvas/components/use-pane-workspace-interactions"
+} from "@/features/canvas/components/pane-workspace-chrome";
+import { usePaneWorkspaceInteractions } from "@/features/canvas/components/use-pane-workspace-interactions";
 
 export type PaneWorkspaceProps = {
-  activeQrLayerId?: string
-  cardState?: DraftingCardState
-  contentPan?: { x: number; y: number }
-  contentOnlyZoom?: boolean
-  contentValidation?: StaticQrValidationResult
-  interactionScale?: number
-  viewFitScale?: number
-  isSelected: boolean
-  layers?: DraftingCanvasLayer[]
-  onLayerAction?: (layerIds: string[], action: DraftingLayerMenuAction) => void
-  onLayerChange?: (layerId: string, patch: Partial<DraftingCanvasLayer>) => void
-  onLayerCopy?: (layerIds: string[]) => void
-  onLayerPaste?: (point: { x: number; y: number }) => void
-  onLayerSelect?: (layerId: string | null, options?: { additive?: boolean }) => void
-  onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void
-  onSelect: () => void
-  onQrClick: () => void
-  qrStateByLayerId: DraftingQrStateByLayerId
-  sceneComposition?: SceneCompositionState
-  selectedLayerId?: string | null
-  selectedLayerIds?: string[]
-  snapEnabled?: boolean
-  state: QraftyState
-  theme?: ThemeMode
-}
+  activeQrLayerId?: string;
+  cardState?: DraftingCardState;
+  contentPan?: { x: number; y: number };
+  contentOnlyZoom?: boolean;
+  contentValidation?: StaticQrValidationResult;
+  interactionScale?: number;
+  viewFitScale?: number;
+  isSelected: boolean;
+  layers?: DraftingCanvasLayer[];
+  onLayerAction?: (layerIds: string[], action: DraftingLayerMenuAction) => void;
+  onLayerChange?: (layerId: string, patch: Partial<DraftingCanvasLayer>) => void;
+  onLayerCopy?: (layerIds: string[]) => void;
+  onLayerPaste?: (point: { x: number; y: number }) => void;
+  onLayerSelect?: (layerId: string | null, options?: { additive?: boolean }) => void;
+  onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void;
+  onSelect: () => void;
+  onQrClick: () => void;
+  qrStateByLayerId: DraftingQrStateByLayerId;
+  sceneComposition?: SceneCompositionState;
+  selectedLayerId?: string | null;
+  selectedLayerIds?: string[];
+  snapEnabled?: boolean;
+  state: QraftyState;
+  theme?: ThemeMode;
+};
 
 export function PaneWorkspace({
   activeQrLayerId,
@@ -163,7 +164,7 @@ export function PaneWorkspace({
     selectedLayerId,
     selectedLayerIds,
     theme,
-  })
+  });
 
   const layerViewSharedProps: PaneLayerViewSharedProps = {
     activeQrLayerId,
@@ -179,7 +180,7 @@ export function PaneWorkspace({
     qrOverlayScale,
     qrStateByLayerId,
     state,
-  }
+  };
 
   function renderLayerView(layer: DraftingCanvasLayer) {
     return (
@@ -200,7 +201,7 @@ export function PaneWorkspace({
         onUpdateLayerInteraction={updateLayerInteraction}
         onRegisterTextEditor={registerTextEditor}
       />
-    )
+    );
   }
 
   const canvasContentProps: PaneCanvasContentProps = {
@@ -252,63 +253,63 @@ export function PaneWorkspace({
     toolbarRef,
     toolbarWidth,
     visibleLayers,
-  }
+  };
 
   return (
     <PreviewRuntimeProvider
       artboardScale={artboardScale}
       preferLowPowerShaders={preferLowPowerShaders}
     >
-    <PaneCanvasInteractive
-      data-slot="qr-pane"
-      data-selected={isSelected ? "true" : "false"}
-      className="relative flex h-full w-full flex-col items-center justify-center overflow-visible"
-      label="QR pane"
-      onActivate={onSelect}
-      onClick={(e) => {
-        // Only select if clicking the pane background, not the QR itself
-        if (e.target === e.currentTarget) {
-          onSelect()
-        }
-      }}
-    >
       <PaneCanvasInteractive
-        ref={canvasRef}
-        data-slot="desktop-compose-canvas"
-        data-compose-mode="compose"
-        data-ratio-morph={ratioMorph.active ? "true" : "false"}
-        className="relative h-full w-full overflow-visible"
-        label="Compose canvas"
-        onActivate={() => {
-          onLayerSelect?.(null)
-          onSelect()
-        }}
-        onClick={(event) => {
-          if (suppressCanvasClickRef.current) {
-            event.preventDefault()
-            event.stopPropagation()
-            suppressCanvasClickRef.current = false
-            return
+        data-slot="qr-pane"
+        data-selected={isSelected ? "true" : "false"}
+        className="relative flex h-full w-full flex-col items-center justify-center overflow-visible"
+        label="QR pane"
+        onActivate={onSelect}
+        onClick={(e) => {
+          // Only select if clicking the pane background, not the QR itself
+          if (e.target === e.currentTarget) {
+            onSelect();
           }
-
-          onLayerSelect?.(null)
-          onSelect()
         }}
-        onContextMenu={openCanvasContextMenu}
-        onPointerCancel={endMarqueeSelection}
-        onPointerDown={startMarqueeSelection}
-        onPointerMove={updateMarqueeSelection}
-        onPointerUp={endMarqueeSelection}
       >
-        {hasError ? (
-          <div className="grid h-full place-items-center text-sm font-medium text-[var(--canvas-ink-muted)]">
-            Could not generate QR
-          </div>
-        ) : (
-          <PaneCanvasContent {...canvasContentProps} />
-        )}
+        <PaneCanvasInteractive
+          ref={canvasRef}
+          data-slot="desktop-compose-canvas"
+          data-compose-mode="compose"
+          data-ratio-morph={ratioMorph.active ? "true" : "false"}
+          className="relative h-full w-full overflow-visible"
+          label="Compose canvas"
+          onActivate={() => {
+            onLayerSelect?.(null);
+            onSelect();
+          }}
+          onClick={(event) => {
+            if (suppressCanvasClickRef.current) {
+              event.preventDefault();
+              event.stopPropagation();
+              suppressCanvasClickRef.current = false;
+              return;
+            }
+
+            onLayerSelect?.(null);
+            onSelect();
+          }}
+          onContextMenu={openCanvasContextMenu}
+          onPointerCancel={endMarqueeSelection}
+          onPointerDown={startMarqueeSelection}
+          onPointerMove={updateMarqueeSelection}
+          onPointerUp={endMarqueeSelection}
+        >
+          {hasError ? (
+            <div className="grid h-full place-items-center text-sm font-medium text-[var(--canvas-ink-muted)]">
+              Could not generate QR
+            </div>
+          ) : (
+            <PaneCanvasContent {...canvasContentProps} />
+          )}
+        </PaneCanvasInteractive>
       </PaneCanvasInteractive>
-    </PaneCanvasInteractive>
     </PreviewRuntimeProvider>
-  )
+  );
 }

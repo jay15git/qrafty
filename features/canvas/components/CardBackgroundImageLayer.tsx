@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react"
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
-import { preloadRasterImage } from "@/features/canvas/rendering/preload-raster-image"
-import { cn } from "@/lib/utils"
+import { preloadRasterImage } from "@/features/canvas/rendering/preload-raster-image";
+import { cn } from "@/lib/utils";
 
-const CROSSFADE_MS = 180
+const CROSSFADE_MS = 180;
 
 type ImageSlot = {
-  opacity: number
-  url: string
-}
+  opacity: number;
+  url: string;
+};
 
 type CardBackgroundImageLayerProps = {
-  className?: string
-  fit: "contain" | "cover"
-  imageUrl: string
-  opacity: number
-  reduceMotion?: boolean
-}
+  className?: string;
+  fit: "contain" | "cover";
+  imageUrl: string;
+  opacity: number;
+  reduceMotion?: boolean;
+};
 
 function buildImageBackgroundStyle(url: string, fit: "contain" | "cover"): CSSProperties {
   return {
@@ -26,7 +26,7 @@ function buildImageBackgroundStyle(url: string, fit: "contain" | "cover"): CSSPr
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
     backgroundSize: fit,
-  }
+  };
 }
 
 export function CardBackgroundImageLayer({
@@ -36,68 +36,67 @@ export function CardBackgroundImageLayer({
   opacity,
   reduceMotion = false,
 }: CardBackgroundImageLayerProps) {
-  const [current, setCurrent] = useState<ImageSlot>({ opacity: 1, url: imageUrl })
-  const [incoming, setIncoming] = useState<ImageSlot | null>(null)
-  const pendingUrlRef = useRef(imageUrl)
-  const transition =
-    reduceMotion ? undefined : `opacity ${CROSSFADE_MS}ms ease-out`
+  const [current, setCurrent] = useState<ImageSlot>({ opacity: 1, url: imageUrl });
+  const [incoming, setIncoming] = useState<ImageSlot | null>(null);
+  const pendingUrlRef = useRef(imageUrl);
+  const transition = reduceMotion ? undefined : `opacity ${CROSSFADE_MS}ms ease-out`;
 
   useEffect(() => {
-    pendingUrlRef.current = imageUrl
+    pendingUrlRef.current = imageUrl;
 
     if (imageUrl === current.url) {
-      return
+      return;
     }
 
-    let cancelled = false
-    let settleTimer = 0
+    let cancelled = false;
+    let settleTimer = 0;
 
     void preloadRasterImage(imageUrl)
       .then(() => {
         if (cancelled || pendingUrlRef.current !== imageUrl) {
-          return
+          return;
         }
 
         if (reduceMotion) {
-          setIncoming(null)
-          setCurrent({ opacity: 1, url: imageUrl })
-          return
+          setIncoming(null);
+          setCurrent({ opacity: 1, url: imageUrl });
+          return;
         }
 
-        setIncoming({ opacity: 0, url: imageUrl })
+        setIncoming({ opacity: 0, url: imageUrl });
         requestAnimationFrame(() => {
           if (cancelled || pendingUrlRef.current !== imageUrl) {
-            return
+            return;
           }
 
-          setIncoming({ opacity: 1, url: imageUrl })
-        })
+          setIncoming({ opacity: 1, url: imageUrl });
+        });
 
         settleTimer = window.setTimeout(() => {
           if (cancelled || pendingUrlRef.current !== imageUrl) {
-            return
+            return;
           }
 
-          setCurrent({ opacity: 1, url: imageUrl })
-          setIncoming(null)
-        }, CROSSFADE_MS)
+          setCurrent({ opacity: 1, url: imageUrl });
+          setIncoming(null);
+        }, CROSSFADE_MS);
       })
       .catch(() => {
         if (cancelled || pendingUrlRef.current !== imageUrl) {
-          return
+          return;
         }
 
-        setIncoming(null)
-        setCurrent({ opacity: 1, url: imageUrl })
-      })
+        setIncoming(null);
+        setCurrent({ opacity: 1, url: imageUrl });
+      });
 
     return () => {
-      cancelled = true
+      cancelled = true;
       if (settleTimer) {
-        window.clearTimeout(settleTimer)
+        window.clearTimeout(settleTimer);
       }
-    }
-  }, [current.url, imageUrl, reduceMotion])
+    };
+  }, [current.url, imageUrl, reduceMotion]);
 
   return (
     <>
@@ -130,5 +129,5 @@ export function CardBackgroundImageLayer({
         }}
       />
     </>
-  )
+  );
 }

@@ -10,20 +10,13 @@ import {
 describe("preserve module fills", () => {
   it("keeps gradient and palette configs on preserve mode", () => {
     const preset = getAnimationPreset(AnimationPreset.RadialExpand);
-    const animation = preset(
-      {} as HTMLElement,
-      10,
-      10,
-      21,
-      QRCodeEntity.Module,
-      {
-        dotMatrixOpacityBase: 1,
-        dotMatrixOpacityMid: 1,
-        dotMatrixOpacityPeak: 1,
-        dotMatrixColorPeak: "#22d3ee",
-        preserveModuleFills: true,
-      },
-    );
+    const animation = preset({} as HTMLElement, 10, 10, 21, QRCodeEntity.Module, {
+      dotMatrixOpacityBase: 1,
+      dotMatrixOpacityMid: 1,
+      dotMatrixOpacityPeak: 1,
+      dotMatrixColorPeak: "#22d3ee",
+      preserveModuleFills: true,
+    });
     const fillFrames = animation.web?.fill;
 
     expect(Array.isArray(fillFrames)).toBe(true);
@@ -38,5 +31,4 @@ describe("preserve module fills", () => {
     expect(values).toContain(PRESERVE_MODULE_FILL);
     expect(values).toContain("#22d3ee");
   });
-
 });

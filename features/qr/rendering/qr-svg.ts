@@ -1,9 +1,9 @@
 export {
   createDashboardSurfaceQrState,
   stripXmlDeclaration,
-} from "@/features/qr/rendering/qr-svg-markup"
+} from "@/features/qr/rendering/qr-svg-markup";
 
 export {
   buildDashboardQrNodePayload,
   renderDashboardQrSvgMarkup,
-} from "@/features/qr/rendering/qr-svg-render"
+} from "@/features/qr/rendering/qr-svg-render";

@@ -1,31 +1,29 @@
-import type { ScanSafetyResult } from "@/features/qr/scan-safety/types"
+import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
 import {
   PENDING_SCAN_SAFETY_RESULT,
   SKIPPED_SCAN_SAFETY_RESULT,
   UNAVAILABLE_SCAN_SAFETY_RESULT,
-} from "@/features/qr/scan-safety/types"
+} from "@/features/qr/scan-safety/types";
 
 export function createSkippedScannabilityResult(expectedText = ""): ScanSafetyResult {
   return {
     ...SKIPPED_SCAN_SAFETY_RESULT,
     expectedText,
-  }
+  };
 }
 
 export function createPendingScannabilityResult(expectedText: string): ScanSafetyResult {
   return {
     ...PENDING_SCAN_SAFETY_RESULT,
     expectedText,
-  }
+  };
 }
 
-export function createUnavailableScannabilityResult(
-  expectedText: string,
-): ScanSafetyResult {
+export function createUnavailableScannabilityResult(expectedText: string): ScanSafetyResult {
   return {
     ...UNAVAILABLE_SCAN_SAFETY_RESULT,
     expectedText,
-  }
+  };
 }
 
 export function evaluateScannability(
@@ -40,7 +38,7 @@ export function evaluateScannability(
       expectedText,
       decodedText,
       score,
-    }
+    };
   }
 
   return {
@@ -49,7 +47,7 @@ export function evaluateScannability(
     expectedText,
     decodedText,
     score,
-  }
+  };
 }
 
 export function shouldSkipScannabilityCheck(
@@ -57,5 +55,5 @@ export function shouldSkipScannabilityCheck(
   expectedText: string,
   enabled: boolean,
 ): boolean {
-  return !enabled || !contentIsValid || expectedText.length === 0
+  return !enabled || !contentIsValid || expectedText.length === 0;
 }

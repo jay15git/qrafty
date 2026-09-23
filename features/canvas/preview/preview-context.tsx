@@ -1,33 +1,27 @@
-"use client"
+"use client";
 
-import {
-  createContext,
-  useContext,
-  useMemo,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react"
+import { createContext, useContext, useMemo, useSyncExternalStore, type ReactNode } from "react";
 
-import { previewSession } from "@/features/canvas/preview/preview-session"
+import { previewSession } from "@/features/canvas/preview/preview-session";
 
 type PreviewRuntimeValue = {
-  artboardScale: number
-  preferLowPowerShaders: boolean
-}
+  artboardScale: number;
+  preferLowPowerShaders: boolean;
+};
 
 const PreviewRuntimeContext = createContext<PreviewRuntimeValue>({
   artboardScale: 1,
   preferLowPowerShaders: false,
-})
+});
 
 export function PreviewRuntimeProvider({
   artboardScale,
   children,
   preferLowPowerShaders,
 }: {
-  artboardScale: number
-  children: ReactNode
-  preferLowPowerShaders: boolean
+  artboardScale: number;
+  children: ReactNode;
+  preferLowPowerShaders: boolean;
 }) {
   const value = useMemo(
     () => ({
@@ -35,15 +29,13 @@ export function PreviewRuntimeProvider({
       preferLowPowerShaders,
     }),
     [artboardScale, preferLowPowerShaders],
-  )
+  );
 
-  return (
-    <PreviewRuntimeContext.Provider value={value}>{children}</PreviewRuntimeContext.Provider>
-  )
+  return <PreviewRuntimeContext.Provider value={value}>{children}</PreviewRuntimeContext.Provider>;
 }
 
 export function usePreviewRuntime() {
-  return useContext(PreviewRuntimeContext)
+  return useContext(PreviewRuntimeContext);
 }
 
 export function usePreviewInteraction() {
@@ -51,5 +43,5 @@ export function usePreviewInteraction() {
     previewSession.subscribe,
     previewSession.getIsInteracting,
     () => false,
-  )
+  );
 }

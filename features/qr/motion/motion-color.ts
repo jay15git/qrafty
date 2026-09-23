@@ -117,19 +117,11 @@ function resolveMotionPeakColorChannel(animation: QrDotMatrixAnimationOptions) {
       ? animation.customColorPeak
       : MOTION_COLOR_SWATCHES[animation.colorPreset][1];
 
-  return resolveMotionColorChannel(
-    peakColor,
-    MOTION_OPACITY_ANCHORS.peak,
-    peakColor,
-  );
+  return resolveMotionColorChannel(peakColor, MOTION_OPACITY_ANCHORS.peak, peakColor);
 }
 
 function resolveMotionBaseColor(qrModuleColor: string) {
-  return resolveMotionColorChannel(
-    qrModuleColor,
-    MOTION_OPACITY_ANCHORS.base,
-    qrModuleColor,
-  );
+  return resolveMotionColorChannel(qrModuleColor, MOTION_OPACITY_ANCHORS.base, qrModuleColor);
 }
 
 export function resolveMotionOpacityAnchors(

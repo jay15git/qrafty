@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import Image from "next/image"
+import Image from "next/image";
 
 import {
   InspectorOptionGridScrollArea,
   InspectorScrollArea,
-} from "@/features/shell/components/InspectorShell"
+} from "@/features/shell/components/InspectorShell";
 import {
   INSPECTOR_OPTION_TILE_BUTTON_CLASS,
   INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
   INSPECTOR_SECTION_GAP_CLASS,
-} from "@/features/shell/components/inspector-tokens"
-import { InspectorSection } from "@/features/shell/components/InspectorControls"
-import { InspectorAnimatedOptionGrid } from "@/features/shell/inspector/InspectorOptionGrid"
-import { inspectorOptionGridItemClass } from "@/features/shell/inspector/InspectorOptionGrid.classes"
-import { MobileCardRail } from "@/features/shell/inspector/MobileSettingsRail"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
-import { SCENE_WALLPAPERS } from "@/features/canvas/assets/scene-wallpapers"
-import { preloadRasterImage } from "@/features/canvas/rendering/preload-raster-image"
-import { cn } from "@/lib/utils"
+} from "@/features/shell/components/inspector-tokens";
+import { InspectorSection } from "@/features/shell/components/InspectorControls";
+import { InspectorAnimatedOptionGrid } from "@/features/shell/inspector/InspectorOptionGrid";
+import { inspectorOptionGridItemClass } from "@/features/shell/inspector/InspectorOptionGrid.classes";
+import { MobileCardRail } from "@/features/shell/inspector/MobileSettingsRail";
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
+import { SCENE_WALLPAPERS } from "@/features/canvas/assets/scene-wallpapers";
+import { preloadRasterImage } from "@/features/canvas/rendering/preload-raster-image";
+import { cn } from "@/lib/utils";
 
 function WallpaperButton({
   alt,
@@ -26,10 +26,10 @@ function WallpaperButton({
   onClick,
   previewPath,
 }: {
-  alt: string
-  imagePath: string
-  onClick: () => void
-  previewPath: string
+  alt: string;
+  imagePath: string;
+  onClick: () => void;
+  previewPath: string;
 }) {
   return (
     <button
@@ -45,7 +45,7 @@ function WallpaperButton({
       type="button"
       onClick={onClick}
       onPointerEnter={() => {
-        void preloadRasterImage(imagePath)
+        void preloadRasterImage(imagePath);
       }}
     >
       <Image
@@ -59,16 +59,16 @@ function WallpaperButton({
         src={previewPath}
       />
     </button>
-  )
+  );
 }
 
 export function WallpaperInspector({
   onSelectWallpaper,
 }: {
-  onClose?: () => void
-  onSelectWallpaper: (imagePath: string) => void
+  onClose?: () => void;
+  onSelectWallpaper: (imagePath: string) => void;
 }) {
-  const mobileDensity = useMobileInspectorDensity()
+  const mobileDensity = useMobileInspectorDensity();
 
   if (mobileDensity) {
     return (
@@ -85,7 +85,7 @@ export function WallpaperInspector({
           ))}
         </MobileCardRail>
       </div>
-    )
+    );
   }
 
   return (
@@ -115,5 +115,5 @@ export function WallpaperInspector({
         </InspectorSection>
       </InspectorScrollArea>
     </div>
-  )
+  );
 }

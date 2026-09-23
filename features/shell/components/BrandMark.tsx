@@ -1,20 +1,14 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import { TransitionLink } from "glimm/next"
+import Image from "next/image";
+import { TransitionLink } from "glimm/next";
 
-import type { ThemeMode } from "@/features/shell/model/toolbar-types"
-import { cn } from "@/lib/utils"
+import type { ThemeMode } from "@/features/shell/model/toolbar-types";
+import { cn } from "@/lib/utils";
 
-const homeSweep = { palette: "berry", midpoint: 0.92 } as const
+const homeSweep = { palette: "berry", midpoint: 0.92 } as const;
 
-export function BrandMark({
-  theme,
-  className,
-}: {
-  theme: ThemeMode
-  className?: string
-}) {
+export function BrandMark({ theme, className }: { theme: ThemeMode; className?: string }) {
   return (
     <TransitionLink
       href="/"
@@ -38,5 +32,5 @@ export function BrandMark({
       />
       QRafty
     </TransitionLink>
-  )
+  );
 }

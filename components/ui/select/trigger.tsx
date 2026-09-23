@@ -18,20 +18,19 @@ const triggerVariants = cva(
   {
     variants: {
       variant: {
-        bordered:
-          "border border-border bg-transparent text-foreground hover:bg-hover",
-        borderless:
-          "border border-transparent bg-transparent text-foreground hover:bg-hover",
+        bordered: "border border-border bg-transparent text-foreground hover:bg-hover",
+        borderless: "border border-transparent bg-transparent text-foreground hover:bg-hover",
       },
     },
     defaultVariants: {
       variant: "bordered",
     },
-  }
+  },
 );
 
 interface SelectTriggerProps
-  extends Omit<HTMLAttributes<HTMLButtonElement>, "children">,
+  extends
+    Omit<HTMLAttributes<HTMLButtonElement>, "children">,
     VariantProps<typeof triggerVariants> {
   icon?: IconComponent;
   placeholder?: string;
@@ -42,18 +41,7 @@ interface SelectTriggerProps
 }
 
 export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
-  (
-    {
-      className,
-      variant,
-      icon: Icon,
-      placeholder = "Select…",
-      error,
-      size,
-      ...props
-    },
-    ref
-  ) => {
+  ({ className, variant, icon: Icon, placeholder = "Select…", error, size, ...props }, ref) => {
     const shape = useShape();
     const sizeClasses = useSize(size);
     const compact = sizeClasses.variant === "compact";
@@ -72,7 +60,7 @@ export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
             compact ? "min-w-[128px]" : "min-w-[160px]",
             shape.input,
             error && "border-destructive/50 hover:border-destructive/50",
-            className
+            className,
           )}
           {...props}
         >
@@ -108,12 +96,10 @@ export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
             <path d="M6 9l6 6 6-6" />
           </svg>
         </SelectPrimitive.Trigger>
-        {error && (
-          <span className="text-[12px] text-destructive pl-3">{error}</span>
-        )}
+        {error && <span className="text-[12px] text-destructive pl-3">{error}</span>}
       </div>
     );
-  }
+  },
 );
 
 SelectTrigger.displayName = "SelectTrigger";

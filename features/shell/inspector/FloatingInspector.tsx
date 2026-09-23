@@ -1,27 +1,24 @@
-"use client"
+"use client";
 
-import { WallpaperInspector } from "@/features/shell/components/WallpaperInspector"
-import type {
-  InspectorModel,
-  ToolbarToolId,
-} from "@/features/shell/components/FloatingToolbar"
-import { SettingsPanel } from "@/features/shell/inspector/SettingsPanel"
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
-import { cn } from "@/lib/utils"
+import { WallpaperInspector } from "@/features/shell/components/WallpaperInspector";
+import type { InspectorModel, ToolbarToolId } from "@/features/shell/components/FloatingToolbar";
+import { SettingsPanel } from "@/features/shell/inspector/SettingsPanel";
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { cn } from "@/lib/utils";
 
-import "@/features/shell/inspector/inspector.css"
+import "@/features/shell/inspector/inspector.css";
 
 export function FloatingInspector({
   activeTool,
   className,
   model,
 }: {
-  activeTool: ToolbarToolId | null
-  className?: string
-  model: InspectorModel
+  activeTool: ToolbarToolId | null;
+  className?: string;
+  model: InspectorModel;
 }) {
-  const { actualTheme, controller } = model
-  const showWallpapersInspector = controller?.composeSidebarPanel === "wallpapers"
+  const { actualTheme, controller } = model;
+  const showWallpapersInspector = controller?.composeSidebarPanel === "wallpapers";
 
   if (showWallpapersInspector) {
     return (
@@ -35,7 +32,7 @@ export function FloatingInspector({
           onSelectWallpaper={(imagePath) => controller?.onSelectWallpaper?.(imagePath)}
         />
       </aside>
-    )
+    );
   }
 
   return (
@@ -53,5 +50,5 @@ export function FloatingInspector({
         </InspectorThemeContext.Provider>
       </div>
     </aside>
-  )
+  );
 }

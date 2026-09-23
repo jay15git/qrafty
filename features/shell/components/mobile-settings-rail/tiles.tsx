@@ -1,27 +1,24 @@
-import { Pipette } from "lucide-react"
-import { Suspense } from "react"
+import { Pipette } from "lucide-react";
+import { Suspense } from "react";
 
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
 import {
   SETTINGS_FILL_OPTION_TILE,
   SETTINGS_FILL_OPTION_TILE_INNER,
   SETTINGS_PREVIEW_TILE,
-} from "@/features/shell/inspector/SettingsPreviewTiles"
+} from "@/features/shell/inspector/SettingsPreviewTiles";
 import {
   getSettingsSectionLabel,
   type SettingsSectionId,
-} from "@/features/shell/inspector/settings-panel-meta"
-import { SettingsSectionIconFor } from "@/features/shell/inspector/SettingsSectionIcons"
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext"
-import { SCENE_WALLPAPERS } from "@/features/canvas/assets/scene-wallpapers"
-import { WallpaperOptionPreview } from "@/features/canvas/components/WallpaperOptionPreview"
-import { cn } from "@/lib/utils"
+} from "@/features/shell/inspector/settings-panel-meta";
+import { SettingsSectionIconFor } from "@/features/shell/inspector/SettingsSectionIcons";
+import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext";
+import { SCENE_WALLPAPERS } from "@/features/canvas/assets/scene-wallpapers";
+import { WallpaperOptionPreview } from "@/features/canvas/components/WallpaperOptionPreview";
+import { cn } from "@/lib/utils";
 
-import {
-  LazyLayersPopoverContent,
-  LazySettingsImageUploadTile,
-} from "./lazy-details"
-import { useLatestModel, type MobileRailOption } from "./rail-context"
+import { LazyLayersPopoverContent, LazySettingsImageUploadTile } from "./lazy-details";
+import { useLatestModel, type MobileRailOption } from "./rail-context";
 
 export function MobileRailSwatchTile({
   ariaLabel,
@@ -29,10 +26,10 @@ export function MobileRailSwatchTile({
   onSelect,
   selected,
 }: {
-  ariaLabel: string
-  fill: string
-  onSelect: () => void
-  selected: boolean
+  ariaLabel: string;
+  fill: string;
+  onSelect: () => void;
+  selected: boolean;
 }) {
   return (
     <button
@@ -48,7 +45,7 @@ export function MobileRailSwatchTile({
         <span className="size-full dn-squircle-xs" style={{ background: fill }} />
       </span>
     </button>
-  )
+  );
 }
 
 /** Picker-symbol tile — mirrors the `+` tile in `SettingsFillOptionGrid`. */
@@ -57,10 +54,10 @@ export function MobileRailPickerTile({
   customFill,
   onOpen,
 }: {
-  ariaLabel: string
+  ariaLabel: string;
   /** Active custom value; shown behind the pipette when the fill isn't a preset. */
-  customFill?: string
-  onOpen: () => void
+  customFill?: string;
+  onOpen: () => void;
 }) {
   return (
     <button
@@ -89,7 +86,7 @@ export function MobileRailPickerTile({
         </span>
       </span>
     </button>
-  )
+  );
 }
 
 export function MobileRailPill({
@@ -97,9 +94,9 @@ export function MobileRailPill({
   onClick,
   pressed,
 }: {
-  label: string
-  onClick: () => void
-  pressed?: boolean
+  label: string;
+  onClick: () => void;
+  pressed?: boolean;
 }) {
   return (
     <button
@@ -110,7 +107,7 @@ export function MobileRailPill({
     >
       <span className="dn-mobile-settings-rail__pill">{label}</span>
     </button>
-  )
+  );
 }
 
 /** Wallpaper + upload tiles for image fills — shared by Color and Background. */
@@ -120,13 +117,13 @@ export function MobileRailImageOptions({
   onSelect,
   onUpload,
 }: {
-  imageUrl: string
-  onClear: () => void
-  onSelect: (imagePath: string) => void
-  onUpload: (imageUrl: string) => void
+  imageUrl: string;
+  onClear: () => void;
+  onSelect: (imagePath: string) => void;
+  onUpload: (imageUrl: string) => void;
 }) {
   const customImageUrl =
-    imageUrl && !SCENE_WALLPAPERS.some((w) => w.path === imageUrl) ? imageUrl : ""
+    imageUrl && !SCENE_WALLPAPERS.some((w) => w.path === imageUrl) ? imageUrl : "";
 
   return (
     <>
@@ -157,15 +154,15 @@ export function MobileRailImageOptions({
         </button>
       ))}
     </>
-  )
+  );
 }
 
 export function MobileRailOptionButton({
   option,
   onClick,
 }: {
-  option: MobileRailOption
-  onClick: () => void
+  option: MobileRailOption;
+  onClick: () => void;
 }) {
   return (
     <button
@@ -186,7 +183,7 @@ export function MobileRailOptionButton({
         </>
       )}
     </button>
-  )
+  );
 }
 
 /** Elements family button: opens the drawer straight onto the Layers detail —
@@ -195,14 +192,14 @@ export function MobileElementsSectionButton({
   model,
   onOpenSection,
 }: {
-  model: InspectorModel
-  onOpenSection: () => void
+  model: InspectorModel;
+  onOpenSection: () => void;
 }) {
-  const navigation = useMobileDrawerNavigation()
-  const modelRef = useLatestModel(model)
+  const navigation = useMobileDrawerNavigation();
+  const modelRef = useLatestModel(model);
 
   const handleClick = () => {
-    onOpenSection()
+    onOpenSection();
     navigation?.openDetail({
       title: "Layers",
       content: (
@@ -217,27 +214,21 @@ export function MobileElementsSectionButton({
           />
         </Suspense>
       ),
-    })
-  }
+    });
+  };
 
-  return (
-    <MobileRailSectionButton section="Elements" onClick={handleClick} />
-  )
+  return <MobileRailSectionButton section="Elements" onClick={handleClick} />;
 }
 
 export function MobileRailSectionButton({
   section,
   onClick,
 }: {
-  section: SettingsSectionId
-  onClick: () => void
+  section: SettingsSectionId;
+  onClick: () => void;
 }) {
   return (
-    <button
-      className="dn-mobile-settings-rail__item"
-      type="button"
-      onClick={onClick}
-    >
+    <button className="dn-mobile-settings-rail__item" type="button" onClick={onClick}>
       <span className="dn-mobile-settings-rail__circle">
         <SettingsSectionIconFor
           className="dn-mobile-settings-rail__icon"
@@ -245,9 +236,7 @@ export function MobileRailSectionButton({
           size={22}
         />
       </span>
-      <span className="dn-mobile-settings-rail__label">
-        {getSettingsSectionLabel(section)}
-      </span>
+      <span className="dn-mobile-settings-rail__label">{getSettingsSectionLabel(section)}</span>
     </button>
-  )
+  );
 }

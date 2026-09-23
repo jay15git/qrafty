@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ReactNode,
-} from "react";
+import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useSurface, SurfaceProvider } from "@/lib/surface-context";
 import { surfaceClasses } from "@/lib/surface-classes";
@@ -49,7 +45,7 @@ const Elevated = forwardRef<HTMLDivElement, ElevatedProps>(
         </div>
       </SurfaceProvider>
     );
-  }
+  },
 );
 Elevated.displayName = "Elevated";
 

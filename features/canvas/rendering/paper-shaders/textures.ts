@@ -1,8 +1,4 @@
-import {
-  DitheringShapes,
-  DitheringTypes,
-  DotGridShapes,
-} from "@paper-design/shaders"
+import { DitheringShapes, DitheringTypes, DotGridShapes } from "@paper-design/shaders";
 import {
   color,
   COMMON_HIDDEN_PARAMS,
@@ -13,7 +9,7 @@ import {
   SHADER_FIT_OPTIONS,
   withColors,
   type PaperShaderControlConfig,
-} from "@/features/canvas/rendering/paper-shaders/shared"
+} from "@/features/canvas/rendering/paper-shaders/shared";
 
 export const TEXTURE_SHADER_CONTROL_CONFIG: Record<string, PaperShaderControlConfig> = {
   waves: {
@@ -129,7 +125,17 @@ export const TEXTURE_SHADER_CONTROL_CONFIG: Record<string, PaperShaderControlCon
       number("scale", 0.5, 4, 300),
       option("fit", SHADER_FIT_OPTIONS, 301),
     ),
-    hiddenParams: ["frame", "speed", "rotation", "offsetX", "offsetY", "originX", "originY", "worldWidth", "worldHeight"],
+    hiddenParams: [
+      "frame",
+      "speed",
+      "rotation",
+      "offsetX",
+      "offsetY",
+      "originX",
+      "originY",
+      "worldWidth",
+      "worldHeight",
+    ],
   },
   water: {
     controls: controls(
@@ -145,7 +151,16 @@ export const TEXTURE_SHADER_CONTROL_CONFIG: Record<string, PaperShaderControlCon
       number("scale", 0.1, 4, 301),
       option("fit", SHADER_FIT_OPTIONS, 302),
     ),
-    hiddenParams: ["frame", "speed", "rotation", "offsetX", "offsetY", "originX", "originY", "worldWidth", "worldHeight"],
+    hiddenParams: [
+      "frame",
+      "speed",
+      "rotation",
+      "offsetX",
+      "offsetY",
+      "originX",
+      "originY",
+      "worldWidth",
+      "worldHeight",
+    ],
   },
-}
-
+};

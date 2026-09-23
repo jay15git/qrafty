@@ -1,12 +1,9 @@
-import type { CSSProperties } from "react"
+import type { CSSProperties } from "react";
 
-import {
-  cornerRadiiToCss,
-  resolveLayerCornerRadii,
-} from "@/features/canvas/model/corner-radius"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import type { DraftingCardShadowState } from "@/features/canvas/model/card-state"
-import type { DraftingShadowLayerState } from "@/features/canvas/model/effects"
+import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { DraftingCardShadowState } from "@/features/canvas/model/card-state";
+import type { DraftingShadowLayerState } from "@/features/canvas/model/effects";
 import {
   buildCssFilterString,
   getDraftingLayerBoxShadowStyle,
@@ -15,18 +12,18 @@ import {
   getDraftingPerSideBorderStyle,
   hasVisibleBorderSide,
   mergeCssFilterStrings,
-} from "@/features/canvas/rendering/layer-appearance"
+} from "@/features/canvas/rendering/layer-appearance";
 
 export type PreviewLayerEffectOptions = {
-  previewScale?: number
-}
+  previewScale?: number;
+};
 
 function scaleShadowNumber(value: number, previewScale: number) {
   if (!Number.isFinite(previewScale) || previewScale <= 0 || previewScale === 1) {
-    return value
+    return value;
   }
 
-  return value * previewScale
+  return value * previewScale;
 }
 
 function scalePreviewShadow(
@@ -39,41 +36,37 @@ function scalePreviewShadow(
     offsetX: scaleShadowNumber(shadow.offsetX, previewScale),
     offsetY: scaleShadowNumber(shadow.offsetY, previewScale),
     spread: scaleShadowNumber(shadow.spread ?? 0, previewScale),
-  }
+  };
 }
 
 export function getPreviewLayerEffectStyle(
   layer: DraftingCanvasLayer,
   options: PreviewLayerEffectOptions = {},
 ): CSSProperties {
-  const previewScale = options.previewScale ?? 1
+  const previewScale = options.previewScale ?? 1;
   const shadows =
-    layer.shadows && layer.shadows.length > 0
-      ? layer.shadows
-      : layer.shadow
-        ? [layer.shadow]
-        : []
-  const insetShadows = shadows.filter((shadow) => shadow.inset)
-  const dropShadows = shadows.filter((shadow) => !shadow.inset)
-  const layerFilters = buildCssFilterString(layer.layerFilters ?? [])
-  const usesBoxBorder = layer.kind !== "qr" && layer.kind !== "shape" && layer.kind !== "card"
-  const hasBorderSides = usesBoxBorder && hasVisibleBorderSide(layer.borderSides)
-  const borderStyle = hasBorderSides ? getDraftingPerSideBorderStyle(layer.borderSides!) : {}
+    layer.shadows && layer.shadows.length > 0 ? layer.shadows : layer.shadow ? [layer.shadow] : [];
+  const insetShadows = shadows.filter((shadow) => shadow.inset);
+  const dropShadows = shadows.filter((shadow) => !shadow.inset);
+  const layerFilters = buildCssFilterString(layer.layerFilters ?? []);
+  const usesBoxBorder = layer.kind !== "qr" && layer.kind !== "shape" && layer.kind !== "card";
+  const hasBorderSides = usesBoxBorder && hasVisibleBorderSide(layer.borderSides);
+  const borderStyle = hasBorderSides ? getDraftingPerSideBorderStyle(layer.borderSides!) : {};
   const borderRadius = hasBorderSides
     ? cornerRadiiToCss(resolveLayerCornerRadii(layer, 0))
-    : undefined
+    : undefined;
   const boxShadow =
     insetShadows.length > 0
       ? getDraftingLayerBoxShadowStyle(
           insetShadows.map((shadow) => scalePreviewShadow(shadow, previewScale)),
         )
-      : undefined
+      : undefined;
   const filter = mergeCssFilterStrings(
     layerFilters,
     getDraftingLayerDropShadowFilter(
       dropShadows.map((shadow) => scalePreviewShadow(shadow, previewScale)),
     ),
-  )
+  );
 
   return {
     ...borderStyle,
@@ -81,5 +74,5 @@ export function getPreviewLayerEffectStyle(
     ...getDraftingOutlineStyle(layer.outline),
     ...(boxShadow ? { boxShadow } : {}),
     ...(filter ? { filter } : {}),
-  }
+  };
 }

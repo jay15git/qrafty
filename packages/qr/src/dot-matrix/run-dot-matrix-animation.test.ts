@@ -3,10 +3,7 @@
 import { describe, expect, it } from "vitest";
 
 import { AnimationPreset, type QRCodeAnimation } from "./animations";
-import {
-  buildDotMatrixAnimationTargets,
-  seekDotMatrixAnimation,
-} from "./run-dot-matrix-animation";
+import { buildDotMatrixAnimationTargets, seekDotMatrixAnimation } from "./run-dot-matrix-animation";
 
 describe("buildDotMatrixAnimationTargets", () => {
   it("skips finder corner frame and eye elements", () => {
@@ -71,8 +68,8 @@ describe("buildDotMatrixAnimationTargets", () => {
     `;
 
     const root = document.getElementById("qr-root")!;
-    const overrides = Array.from(root.querySelectorAll(".module")).map((module) =>
-      module.cloneNode(true) as Element,
+    const overrides = Array.from(root.querySelectorAll(".module")).map(
+      (module) => module.cloneNode(true) as Element,
     );
     const targets = buildDotMatrixAnimationTargets(
       root,

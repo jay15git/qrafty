@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useLayoutEffect,
-  useState,
-  type CSSProperties,
-} from "react";
+import { useEffect, useLayoutEffect, useState, type CSSProperties } from "react";
 import { useSurface } from "@/lib/surface-context";
 import {
   getHorizontalContentWidth,
@@ -47,8 +42,7 @@ export interface UseScrollEdgesOptions {
   axis?: "vertical" | "horizontal" | "both";
 }
 
-const useIsoLayoutEffect =
-  typeof window === "undefined" ? useEffect : useLayoutEffect;
+const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 function measureScrollEdges(
   element: HTMLElement,
@@ -81,17 +75,12 @@ function measureScrollEdges(
 }
 
 function edgesEqual(a: ScrollEdges, b: ScrollEdges) {
-  return (
-    a.top === b.top &&
-    a.bottom === b.bottom &&
-    a.left === b.left &&
-    a.right === b.right
-  );
+  return a.top === b.top && a.bottom === b.bottom && a.left === b.left && a.right === b.right;
 }
 
 export function useScrollEdges(
   element: HTMLElement | null,
-  { enabled = true, axis = "vertical" }: UseScrollEdgesOptions = {}
+  { enabled = true, axis = "vertical" }: UseScrollEdgesOptions = {},
 ): ScrollEdges {
   const [edges, setEdges] = useState<ScrollEdges>(NO_EDGES);
 
@@ -125,8 +114,7 @@ export function useScrollEdges(
     });
     element.addEventListener("scroll", update, { passive: true });
 
-    const ro =
-      typeof ResizeObserver === "function" ? new ResizeObserver(update) : null;
+    const ro = typeof ResizeObserver === "function" ? new ResizeObserver(update) : null;
     ro?.observe(element);
 
     // Async content (items loading in, streamed text) changes scrollHeight
@@ -141,10 +129,7 @@ export function useScrollEdges(
         update();
       });
     };
-    const mo =
-      typeof MutationObserver === "function"
-        ? new MutationObserver(scheduleUpdate)
-        : null;
+    const mo = typeof MutationObserver === "function" ? new MutationObserver(scheduleUpdate) : null;
     mo?.observe(element, { childList: true, subtree: true, characterData: true });
     return () => {
       cancelAnimationFrame(raf1);
@@ -266,9 +251,7 @@ export function ScrollEdgeCue({
           opacity: visible ? 1 : 0,
           // Exit slightly faster than enter, per the animation guidelines.
           // instantReveal skips the mount tween that made popover fades pop in late.
-          transition: instantReveal
-            ? "none"
-            : `opacity ${visible ? 160 : 120}ms ease`,
+          transition: instantReveal ? "none" : `opacity ${visible ? 160 : 120}ms ease`,
           ...(mode === "sticky"
             ? vertical
               ? { left: -inset, right: -inset, [edge]: -inset, height: bandSize }

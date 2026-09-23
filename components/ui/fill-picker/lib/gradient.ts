@@ -3,12 +3,7 @@ import { formatColor, parseColor } from "./color";
 
 export type GradientType = "linear" | "radial" | "conic";
 
-export type GradientInterp =
-  | "oklch"
-  | "oklab"
-  | "srgb"
-  | "hsl"
-  | "hsl-longer";
+export type GradientInterp = "oklch" | "oklab" | "srgb" | "hsl" | "hsl-longer";
 
 export interface GradientStop {
   color: OklchColor;
@@ -82,10 +77,7 @@ export interface LinearGradient {
  * box. Spec: https://www.w3.org/TR/css-images-3/#valdef-radial-gradient-extent-keyword
  */
 export type RadialSizeKeyword =
-  | "closest-side"
-  | "closest-corner"
-  | "farthest-side"
-  | "farthest-corner";
+  "closest-side" | "closest-corner" | "farthest-side" | "farthest-corner";
 
 export interface RadialGradient {
   type: "radial";
@@ -294,10 +286,7 @@ export function adjustStopsForEndpoints(
   return stops.map((s) => ({
     ...s,
     position: startProj + (endProj - startProj) * s.position,
-    hint:
-      s.hint === undefined
-        ? undefined
-        : startProj + (endProj - startProj) * s.hint,
+    hint: s.hint === undefined ? undefined : startProj + (endProj - startProj) * s.hint,
   }));
 }
 
@@ -470,10 +459,7 @@ function parseStops(parts: string[]): GradientStop[] | null {
  * intentionally approximated. Returns null for invalid pairs
  * (`to left right`).
  */
-function sideOrCornerAngle(
-  a: string,
-  b: string | undefined,
-): number | null {
+function sideOrCornerAngle(a: string, b: string | undefined): number | null {
   const set = new Set([a.toLowerCase(), ...(b ? [b.toLowerCase()] : [])]);
   if (b && set.size !== 2) return null;
   const has = (s: string) => set.has(s);
@@ -520,9 +506,7 @@ function parseLinearGradient(parts: string[], repeating: boolean): Gradient | nu
   let stopParts = parts.slice(1);
 
   const angleMatch = rest.match(/^(-?\d+(?:\.\d+)?)deg$/i);
-  const toMatch = rest.match(
-    /^to\s+(top|bottom|left|right)(?:\s+(top|bottom|left|right))?$/i,
-  );
+  const toMatch = rest.match(/^to\s+(top|bottom|left|right)(?:\s+(top|bottom|left|right))?$/i);
   if (angleMatch) {
     angle = parseFloat(angleMatch[1]);
   } else if (toMatch) {
@@ -585,9 +569,7 @@ function parseRadialGradient(parts: string[], repeating: boolean): Gradient | nu
   // raw lengths (`100px 80px`) are intentionally ignored here so they fall
   // through to the keyword defaults instead of being silently rescaled.
   if (!radiusPx) {
-    const radiiMatch = beforeAt.match(
-      /(-?\d+(?:\.\d+)?)%\s+(-?\d+(?:\.\d+)?)%/,
-    );
+    const radiiMatch = beforeAt.match(/(-?\d+(?:\.\d+)?)%\s+(-?\d+(?:\.\d+)?)%/);
     if (radiiMatch) {
       radii = {
         x: parseFloat(radiiMatch[1]) / 100,
@@ -676,7 +658,7 @@ function lerpHue(a: number, b: number, t: number): number {
   let d = b - a;
   if (d > 180) d -= 360;
   else if (d < -180) d += 360;
-  return ((a + d * t) % 360 + 360) % 360;
+  return (((a + d * t) % 360) + 360) % 360;
 }
 
 /**
@@ -686,10 +668,7 @@ function lerpHue(a: number, b: number, t: number): number {
  * setting — the stops themselves are canonical OKLCH and that gives a
  * perceptually sensible pick even when the visual paint uses sRGB/HSL.
  */
-export function sampleStopsAt(
-  stops: GradientStop[],
-  position: number,
-): OklchColor {
+export function sampleStopsAt(stops: GradientStop[], position: number): OklchColor {
   if (stops.length === 0) return { l: 0.5, c: 0, h: 0, alpha: 1 };
   const sorted = [...stops].sort((a, b) => a.position - b.position);
   if (position <= sorted[0].position) return { ...sorted[0].color };

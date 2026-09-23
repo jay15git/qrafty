@@ -21,12 +21,12 @@ that is actually the canvas; `desktopnew-fill-picker` is just the fill picker.
 
 Adopt the glossary in `CONTEXT.md` as the single vocabulary. Key renames:
 
-| Old | New |
-|---|---|
-| `WorkspaceSurface` / `DraftingPaneSurface` | `DraftingCanvas` (component), `features/workspace/canvas/` (dir) |
-| `desktopnew-*` | `inspector-*` (files already inside `inspector/` drop the prefix) |
-| `Pane` | kept — only for persistable workspace documents |
-| `cardFill` / `dotsColorMode` / `fill-picker` vocabulary | `Fill` on a target (layer, qr part, background) |
+| Old                                                     | New                                                               |
+| ------------------------------------------------------- | ----------------------------------------------------------------- |
+| `WorkspaceSurface` / `DraftingPaneSurface`              | `DraftingCanvas` (component), `features/workspace/canvas/` (dir)  |
+| `desktopnew-*`                                          | `inspector-*` (files already inside `inspector/` drop the prefix) |
+| `Pane`                                                  | kept — only for persistable workspace documents                   |
+| `cardFill` / `dotsColorMode` / `fill-picker` vocabulary | `Fill` on a target (layer, qr part, background)                   |
 
 Rules: new code uses glossary terms only; `New`/`Surface`/`Chrome`/`Manager`/
 `Util`/`Helper` are banned in new identifiers; existing identifiers are renamed

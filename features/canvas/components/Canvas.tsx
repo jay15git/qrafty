@@ -1,48 +1,51 @@
-"use client"
+"use client";
 
-import { useCallback, useState } from "react"
+import { useCallback, useState } from "react";
 
-import type { DraftingLayerInteractionProps } from "@/features/canvas/components/canvas-control-props"
+import type { DraftingLayerInteractionProps } from "@/features/canvas/components/canvas-control-props";
 import {
   type DraftingPane,
   type DraftingPaneCanvasTool,
   type DraftingPaneToolbarVariant,
-} from "@/features/canvas/components/DraftingPaneCanvas"
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar"
+} from "@/features/canvas/components/DraftingPaneCanvas";
+import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
 
-import { DraftingPaneCanvas } from "@/features/canvas/components/DraftingPaneCanvas"
-import { Tooltip as TooltipPrimitive } from "radix-ui"
+import { DraftingPaneCanvas } from "@/features/canvas/components/DraftingPaneCanvas";
+import { Tooltip as TooltipPrimitive } from "radix-ui";
 
-export type { DraftingPaneCanvasTool, DraftingPaneToolbarVariant } from "@/features/canvas/components/DraftingPaneCanvas"
+export type {
+  DraftingPaneCanvasTool,
+  DraftingPaneToolbarVariant,
+} from "@/features/canvas/components/DraftingPaneCanvas";
 
-const MIN_PREVIEW_ZOOM = 0.1
-const MAX_PREVIEW_ZOOM = 4
+const MIN_PREVIEW_ZOOM = 0.1;
+const MAX_PREVIEW_ZOOM = 4;
 
 type CanvasProps = {
-  panes: DraftingPane[]
-  activePaneId: string
-  onPaneSelect: (paneId: string) => void
-  onPaneQrClick: (paneId: string) => void
-  onLayerChange?: DraftingLayerInteractionProps["onLayerChange"]
-  onLayerAction?: DraftingLayerInteractionProps["onLayerAction"]
-  onLayerCopy?: DraftingLayerInteractionProps["onLayerCopy"]
-  onLayerPaste?: DraftingLayerInteractionProps["onLayerPaste"]
-  onLayerSelect?: DraftingLayerInteractionProps["onLayerSelect"]
-  onLayerSelectionChange?: DraftingLayerInteractionProps["onLayerSelectionChange"]
-  activeCanvasTool?: DraftingPaneCanvasTool | null
-  onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void
-  onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void
-  selectedLayerId?: string | null
-  selectedLayerIds?: string[]
-  toolbarVariant?: DraftingPaneToolbarVariant
-  layerEditingEnabled?: boolean
-  previewLocked?: boolean
-  fitCanvasToViewport?: boolean
-  theme?: ThemeMode
-}
+  panes: DraftingPane[];
+  activePaneId: string;
+  onPaneSelect: (paneId: string) => void;
+  onPaneQrClick: (paneId: string) => void;
+  onLayerChange?: DraftingLayerInteractionProps["onLayerChange"];
+  onLayerAction?: DraftingLayerInteractionProps["onLayerAction"];
+  onLayerCopy?: DraftingLayerInteractionProps["onLayerCopy"];
+  onLayerPaste?: DraftingLayerInteractionProps["onLayerPaste"];
+  onLayerSelect?: DraftingLayerInteractionProps["onLayerSelect"];
+  onLayerSelectionChange?: DraftingLayerInteractionProps["onLayerSelectionChange"];
+  activeCanvasTool?: DraftingPaneCanvasTool | null;
+  onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void;
+  onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void;
+  selectedLayerId?: string | null;
+  selectedLayerIds?: string[];
+  toolbarVariant?: DraftingPaneToolbarVariant;
+  layerEditingEnabled?: boolean;
+  previewLocked?: boolean;
+  fitCanvasToViewport?: boolean;
+  theme?: ThemeMode;
+};
 
 function clampPreviewZoom(value: number) {
-  return Math.min(MAX_PREVIEW_ZOOM, Math.max(MIN_PREVIEW_ZOOM, value))
+  return Math.min(MAX_PREVIEW_ZOOM, Math.max(MIN_PREVIEW_ZOOM, value));
 }
 
 export function Canvas({
@@ -67,24 +70,24 @@ export function Canvas({
   fitCanvasToViewport = false,
   theme,
 }: CanvasProps) {
-  const [zoomLevels, setZoomLevels] = useState<Record<string, number>>({})
-  const [panOffsets, setPanOffsets] = useState<Record<string, { x: number; y: number }>>({})
+  const [zoomLevels, setZoomLevels] = useState<Record<string, number>>({});
+  const [panOffsets, setPanOffsets] = useState<Record<string, { x: number; y: number }>>({});
 
-  const activePane = panes.find((pane) => pane.id === activePaneId) ?? panes[0]
+  const activePane = panes.find((pane) => pane.id === activePaneId) ?? panes[0];
 
   const handlePaneZoom = useCallback((paneId: string, nextZoom: number) => {
     setZoomLevels((current) => ({
       ...current,
       [paneId]: clampPreviewZoom(nextZoom),
-    }))
-  }, [])
+    }));
+  }, []);
 
   const handlePanePan = useCallback((paneId: string, nextPan: { x: number; y: number }) => {
     setPanOffsets((current) => ({
       ...current,
       [paneId]: nextPan,
-    }))
-  }, [])
+    }));
+  }, []);
 
   return (
     <TooltipPrimitive.Provider delayDuration={0}>
@@ -136,5 +139,5 @@ export function Canvas({
         </div>
       </div>
     </TooltipPrimitive.Provider>
-  )
+  );
 }

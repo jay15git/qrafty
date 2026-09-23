@@ -6,14 +6,14 @@ export type DraftingFilterType =
   | "hue-rotate"
   | "invert"
   | "saturation"
-  | "sepia"
+  | "sepia";
 
 export type DraftingFilterEffect = {
-  amount: number
-  enabled: boolean
-  id: string
-  type: DraftingFilterType
-}
+  amount: number;
+  enabled: boolean;
+  id: string;
+  type: DraftingFilterType;
+};
 
 const DRAFTING_LAYER_FILTER_TYPES: DraftingFilterType[] = [
   "blur",
@@ -24,7 +24,7 @@ const DRAFTING_LAYER_FILTER_TYPES: DraftingFilterType[] = [
   "invert",
   "saturation",
   "sepia",
-]
+];
 
 const DRAFTING_FILTER_DEFAULTS: Record<DraftingFilterType, number> = {
   blur: 0,
@@ -35,7 +35,7 @@ const DRAFTING_FILTER_DEFAULTS: Record<DraftingFilterType, number> = {
   invert: 0,
   saturation: 100,
   sepia: 0,
-}
+};
 
 export const DRAFTING_FILTER_VISIBLE_DEFAULTS: Record<DraftingFilterType, number> = {
   blur: 12,
@@ -46,7 +46,7 @@ export const DRAFTING_FILTER_VISIBLE_DEFAULTS: Record<DraftingFilterType, number
   invert: 100,
   saturation: 150,
   sepia: 50,
-}
+};
 
 export const DRAFTING_FILTER_RANGES: Record<
   DraftingFilterType,
@@ -60,12 +60,12 @@ export const DRAFTING_FILTER_RANGES: Record<
   invert: { defaultValue: 0, max: 100, min: 0, unit: "%" },
   saturation: { defaultValue: 100, max: 200, min: 0, unit: "%" },
   sepia: { defaultValue: 0, max: 100, min: 0, unit: "%" },
-}
+};
 
 function createDraftingFilterId() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
-    : `filter-${Math.random().toString(36).slice(2)}`
+    : `filter-${Math.random().toString(36).slice(2)}`;
 }
 
 export function createDefaultDraftingFilterEffect(
@@ -78,14 +78,13 @@ export function createDefaultDraftingFilterEffect(
     id: createDraftingFilterId(),
     type,
     ...overrides,
-  }
+  };
 }
 
 function normalizeFilterType(value: unknown): DraftingFilterType | null {
-  return typeof value === "string" &&
-    (DRAFTING_LAYER_FILTER_TYPES as string[]).includes(value)
+  return typeof value === "string" && (DRAFTING_LAYER_FILTER_TYPES as string[]).includes(value)
     ? (value as DraftingFilterType)
-    : null
+    : null;
 }
 
 function normalizeFilterEffect(
@@ -93,17 +92,17 @@ function normalizeFilterEffect(
   fallback?: DraftingFilterEffect,
 ): DraftingFilterEffect | null {
   if (typeof value !== "object" || value === null) {
-    return fallback ? { ...fallback } : null
+    return fallback ? { ...fallback } : null;
   }
 
-  const record = value as Record<string, unknown>
-  const type = normalizeFilterType(record.type) ?? fallback?.type
+  const record = value as Record<string, unknown>;
+  const type = normalizeFilterType(record.type) ?? fallback?.type;
 
   if (!type) {
-    return fallback ? { ...fallback } : null
+    return fallback ? { ...fallback } : null;
   }
 
-  const range = DRAFTING_FILTER_RANGES[type]
+  const range = DRAFTING_FILTER_RANGES[type];
 
   return {
     amount:
@@ -113,7 +112,7 @@ function normalizeFilterEffect(
     enabled: typeof record.enabled === "boolean" ? record.enabled : (fallback?.enabled ?? true),
     id: typeof record.id === "string" ? record.id : (fallback?.id ?? createDraftingFilterId()),
     type,
-  }
+  };
 }
 
 export function normalizeFilterEffects(
@@ -121,23 +120,23 @@ export function normalizeFilterEffects(
   fallback: DraftingFilterEffect[] = [],
 ): DraftingFilterEffect[] {
   if (!Array.isArray(value)) {
-    return fallback.map((effect) => ({ ...effect }))
+    return fallback.map((effect) => ({ ...effect }));
   }
 
   return value
     .map((entry, index) => normalizeFilterEffect(entry, fallback[index]))
-    .filter((effect): effect is DraftingFilterEffect => Boolean(effect))
+    .filter((effect): effect is DraftingFilterEffect => Boolean(effect));
 }
 
 export function getBlurAmountFromFilters(filters: DraftingFilterEffect[]) {
-  return filters.find((filter) => filter.type === "blur" && filter.enabled)?.amount ?? 0
+  return filters.find((filter) => filter.type === "blur" && filter.enabled)?.amount ?? 0;
 }
 
 export function syncBlurFilter(
   filters: DraftingFilterEffect[],
   blur: number,
 ): DraftingFilterEffect[] {
-  const next = filters.filter((filter) => filter.type !== "blur")
+  const next = filters.filter((filter) => filter.type !== "blur");
 
   if (blur > 0) {
     next.unshift(
@@ -145,12 +144,12 @@ export function syncBlurFilter(
         amount: blur,
         id: filters.find((filter) => filter.type === "blur")?.id,
       }),
-    )
+    );
   }
 
-  return next
+  return next;
 }
 
 export function syncLegacyBlurFromFilters(filters: DraftingFilterEffect[]) {
-  return getBlurAmountFromFilters(filters)
+  return getBlurAmountFromFilters(filters);
 }

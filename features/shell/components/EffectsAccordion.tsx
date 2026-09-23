@@ -1,13 +1,9 @@
-"use client"
+"use client";
 
-import {
-  InspectorSection,
-} from "@/features/shell/components/InspectorControls"
-import {
-  InspectorElasticSliderRow,
-} from "@/features/shell/components/InspectorShell"
-import { SettingsSlider } from "@/features/shell/inspector/settings-ui"
-import { DRAFTING_FILTER_RANGES } from "@/features/canvas/model/filters"
+import { InspectorSection } from "@/features/shell/components/InspectorControls";
+import { InspectorElasticSliderRow } from "@/features/shell/components/InspectorShell";
+import { SettingsSlider } from "@/features/shell/inspector/settings-ui";
+import { DRAFTING_FILTER_RANGES } from "@/features/canvas/model/filters";
 import {
   getLayerEffectKindLabel,
   getLayerFilterAmount,
@@ -17,17 +13,17 @@ import {
   setLayerShadowOpacity,
   type LayerEffectKind,
   type LayerShadowEffectKind,
-} from "@/features/canvas/model/layer-effects"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import type { DraftingFilterType } from "@/features/canvas/model/filters"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/model/layer-effects";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { DraftingFilterType } from "@/features/canvas/model/filters";
+import { cn } from "@/lib/utils";
 
 function isShadowEffectKind(kind: LayerEffectKind): kind is LayerShadowEffectKind {
-  return kind === "drop-shadow" || kind === "inner-shadow"
+  return kind === "drop-shadow" || kind === "inner-shadow";
 }
 
 function getFilterType(kind: LayerEffectKind): DraftingFilterType {
-  return (kind === "layer-blur" ? "blur" : kind) as DraftingFilterType
+  return (kind === "layer-blur" ? "blur" : kind) as DraftingFilterType;
 }
 
 function renderSliderRow({
@@ -39,24 +35,16 @@ function renderSliderRow({
   valueLabel,
   variant,
 }: {
-  label: string
-  max: number
-  min: number
-  onChange: (value: number) => void
-  value: number
-  valueLabel: string
-  variant: "default" | "flat"
+  label: string;
+  max: number;
+  min: number;
+  onChange: (value: number) => void;
+  value: number;
+  valueLabel: string;
+  variant: "default" | "flat";
 }) {
   if (variant === "flat") {
-    return (
-      <SettingsSlider
-        label={label}
-        max={max}
-        min={min}
-        value={value}
-        onChange={onChange}
-      />
-    )
+    return <SettingsSlider label={label} max={max} min={min} value={value} onChange={onChange} />;
   }
 
   return (
@@ -68,7 +56,7 @@ function renderSliderRow({
       valueLabel={valueLabel}
       onChange={onChange}
     />
-  )
+  );
 }
 
 export function EffectsAccordion({
@@ -79,15 +67,14 @@ export function EffectsAccordion({
   onPatch,
   variant = "default",
 }: {
-  effectKinds?: readonly LayerEffectKind[]
-  layer: DraftingCanvasLayer
-  layerOpacity?: number
-  onLayerOpacityChange?: (opacity: number) => void
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  variant?: "default" | "flat"
+  effectKinds?: readonly LayerEffectKind[];
+  layer: DraftingCanvasLayer;
+  layerOpacity?: number;
+  onLayerOpacityChange?: (opacity: number) => void;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  variant?: "default" | "flat";
 }) {
-  const opacityPercent =
-    layerOpacity === undefined ? undefined : Math.round(layerOpacity * 100)
+  const opacityPercent = layerOpacity === undefined ? undefined : Math.round(layerOpacity * 100);
 
   return (
     <InspectorSection dataSlot="effects-accordion">
@@ -110,10 +97,10 @@ export function EffectsAccordion({
         ) : null}
 
         {effectKinds.map((kind) => {
-          const label = getLayerEffectKindLabel(kind)
+          const label = getLayerEffectKindLabel(kind);
 
           if (isShadowEffectKind(kind)) {
-            const value = getLayerShadowOpacity(layer, kind)
+            const value = getLayerShadowOpacity(layer, kind);
 
             return (
               <div key={kind} data-effect-kind={kind} data-slot="effect-row">
@@ -127,11 +114,11 @@ export function EffectsAccordion({
                   variant,
                 })}
               </div>
-            )
+            );
           }
 
-          const range = DRAFTING_FILTER_RANGES[getFilterType(kind)]
-          const value = getLayerFilterAmount(layer, kind)
+          const range = DRAFTING_FILTER_RANGES[getFilterType(kind)];
+          const value = getLayerFilterAmount(layer, kind);
 
           return (
             <div key={kind} data-effect-kind={kind} data-slot="effect-row">
@@ -145,9 +132,9 @@ export function EffectsAccordion({
                 variant,
               })}
             </div>
-          )
+          );
         })}
       </div>
     </InspectorSection>
-  )
+  );
 }

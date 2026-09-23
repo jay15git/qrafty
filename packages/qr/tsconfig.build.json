@@ -20,6 +20,11 @@
     "rootDir": "./src",
     "paths": {}
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vendor/react-qr-code/**/*.ts", "vendor/react-qr-code/**/*.tsx"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "vendor/react-qr-code/**/*.ts",
+    "vendor/react-qr-code/**/*.tsx"
+  ],
   "exclude": ["**/*.test.ts", "**/*.test.tsx"]
 }

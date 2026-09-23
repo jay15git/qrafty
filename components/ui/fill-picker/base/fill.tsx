@@ -14,10 +14,7 @@ import { stopEditorSlot } from "./parts/gradient/stop-editor";
  * its gradient state directly (never via `<GradientPickerBase.Root>`), so a
  * `<Bar editOnClick>` nested inside it gets its editor from here.
  */
-const FillPane = React.forwardRef<HTMLDivElement, PaneProps>(function Pane(
-  props,
-  ref,
-) {
+const FillPane = React.forwardRef<HTMLDivElement, PaneProps>(function Pane(props, ref) {
   return (
     <GradientStopEditorContext.Provider value={stopEditorSlot}>
       <EngineFillPane ref={ref} {...props} />

@@ -1,12 +1,5 @@
 export type DraftingFontCategory =
-  | "sans"
-  | "condensed"
-  | "serif"
-  | "slab"
-  | "display"
-  | "handwriting"
-  | "mono"
-  | "system"
+  "sans" | "condensed" | "serif" | "slab" | "display" | "handwriting" | "mono" | "system";
 
 export const DRAFTING_FONT_CATEGORY_ORDER: readonly DraftingFontCategory[] = [
   "sans",
@@ -17,7 +10,7 @@ export const DRAFTING_FONT_CATEGORY_ORDER: readonly DraftingFontCategory[] = [
   "handwriting",
   "mono",
   "system",
-]
+];
 
 export const DRAFTING_FONT_CATEGORY_LABELS: Record<DraftingFontCategory, string> = {
   sans: "Sans-serif",
@@ -28,7 +21,7 @@ export const DRAFTING_FONT_CATEGORY_LABELS: Record<DraftingFontCategory, string>
   handwriting: "Handwriting",
   mono: "Monospace",
   system: "System",
-}
+};
 
 export const DRAFTING_FONT_CATEGORY_FALLBACKS: Record<DraftingFontCategory, string> = {
   sans: "system-ui, Arial, sans-serif",
@@ -39,29 +32,29 @@ export const DRAFTING_FONT_CATEGORY_FALLBACKS: Record<DraftingFontCategory, stri
   handwriting: "cursive",
   mono: "ui-monospace, 'Courier New', monospace",
   system: "system-ui, Arial, sans-serif",
-}
+};
 
 export type GoogleFontSpec = {
-  category: Exclude<DraftingFontCategory, "system">
-  family: string
-  italic?: boolean
+  category: Exclude<DraftingFontCategory, "system">;
+  family: string;
+  italic?: boolean;
   /** Variable `wght` range. When set, one file serves every weight in the range. */
-  range?: readonly [number, number]
+  range?: readonly [number, number];
   /** Weights offered by the UI (and requested when not variable). */
-  weights: readonly number[]
-}
+  weights: readonly number[];
+};
 
-const W100_900 = [100, 200, 300, 400, 500, 600, 700, 800, 900] as const
-const W200_800 = [200, 300, 400, 500, 600, 700, 800] as const
-const W200_900 = [200, 300, 400, 500, 600, 700, 800, 900] as const
-const W300_700 = [300, 400, 500, 600, 700] as const
-const W300_800 = [300, 400, 500, 600, 700, 800] as const
-const W300_900 = [300, 400, 500, 600, 700, 800, 900] as const
-const W400_700 = [400, 500, 600, 700] as const
-const W400_800 = [400, 500, 600, 700, 800] as const
-const W400_900 = [400, 500, 600, 700, 800, 900] as const
-const W100_700 = [100, 200, 300, 400, 500, 600, 700] as const
-const W100_800 = [100, 200, 300, 400, 500, 600, 700, 800] as const
+const W100_900 = [100, 200, 300, 400, 500, 600, 700, 800, 900] as const;
+const W200_800 = [200, 300, 400, 500, 600, 700, 800] as const;
+const W200_900 = [200, 300, 400, 500, 600, 700, 800, 900] as const;
+const W300_700 = [300, 400, 500, 600, 700] as const;
+const W300_800 = [300, 400, 500, 600, 700, 800] as const;
+const W300_900 = [300, 400, 500, 600, 700, 800, 900] as const;
+const W400_700 = [400, 500, 600, 700] as const;
+const W400_800 = [400, 500, 600, 700, 800] as const;
+const W400_900 = [400, 500, 600, 700, 800, 900] as const;
+const W100_700 = [100, 200, 300, 400, 500, 600, 700] as const;
+const W100_800 = [100, 200, 300, 400, 500, 600, 700, 800] as const;
 
 export const GOOGLE_FONT_SPECS: readonly GoogleFontSpec[] = [
   // ---- Sans-serif -------------------------------------------------------
@@ -74,14 +67,32 @@ export const GOOGLE_FONT_SPECS: readonly GoogleFontSpec[] = [
   { category: "sans", family: "DM Sans", italic: true, range: [100, 900], weights: W100_900 },
   { category: "sans", family: "Epilogue", italic: true, range: [100, 900], weights: W100_900 },
   { category: "sans", family: "Exo 2", italic: true, range: [100, 900], weights: W100_900 },
-  { category: "sans", family: "Familjen Grotesk", italic: true, range: [400, 700], weights: W400_700 },
+  {
+    category: "sans",
+    family: "Familjen Grotesk",
+    italic: true,
+    range: [400, 700],
+    weights: W400_700,
+  },
   { category: "sans", family: "Figtree", italic: true, range: [300, 900], weights: W300_900 },
   { category: "sans", family: "Fira Sans", italic: true, weights: W100_900 },
   { category: "sans", family: "Geist", range: [100, 900], weights: W100_900 },
-  { category: "sans", family: "Hanken Grotesk", italic: true, range: [100, 900], weights: W100_900 },
+  {
+    category: "sans",
+    family: "Hanken Grotesk",
+    italic: true,
+    range: [100, 900],
+    weights: W100_900,
+  },
   { category: "sans", family: "Heebo", range: [100, 900], weights: W100_900 },
   { category: "sans", family: "IBM Plex Sans", italic: true, weights: W100_700 },
-  { category: "sans", family: "Instrument Sans", italic: true, range: [400, 700], weights: W400_700 },
+  {
+    category: "sans",
+    family: "Instrument Sans",
+    italic: true,
+    range: [400, 700],
+    weights: W400_700,
+  },
   { category: "sans", family: "Inter", italic: true, range: [100, 900], weights: W100_900 },
   { category: "sans", family: "Inter Tight", italic: true, range: [100, 900], weights: W100_900 },
   { category: "sans", family: "Jost", italic: true, range: [100, 900], weights: W100_900 },
@@ -95,10 +106,22 @@ export const GOOGLE_FONT_SPECS: readonly GoogleFontSpec[] = [
   { category: "sans", family: "Open Sans", italic: true, range: [300, 800], weights: W300_800 },
   { category: "sans", family: "Overpass", italic: true, range: [100, 900], weights: W100_900 },
   { category: "sans", family: "Public Sans", italic: true, range: [100, 900], weights: W100_900 },
-  { category: "sans", family: "Red Hat Display", italic: true, range: [300, 900], weights: W300_900 },
+  {
+    category: "sans",
+    family: "Red Hat Display",
+    italic: true,
+    range: [300, 900],
+    weights: W300_900,
+  },
   { category: "sans", family: "Roboto", italic: true, weights: [100, 300, 400, 500, 700, 900] },
   { category: "sans", family: "Roboto Flex", italic: true, range: [100, 900], weights: W100_900 },
-  { category: "sans", family: "Schibsted Grotesk", italic: true, range: [400, 900], weights: W400_900 },
+  {
+    category: "sans",
+    family: "Schibsted Grotesk",
+    italic: true,
+    range: [400, 900],
+    weights: W400_900,
+  },
   { category: "sans", family: "Source Sans 3", italic: true, range: [200, 900], weights: W200_900 },
   { category: "sans", family: "Space Grotesk", range: [300, 700], weights: W300_700 },
   { category: "sans", family: "Work Sans", italic: true, range: [100, 900], weights: W100_900 },
@@ -117,7 +140,13 @@ export const GOOGLE_FONT_SPECS: readonly GoogleFontSpec[] = [
   { category: "sans", family: "Nunito", italic: true, range: [200, 900], weights: W200_900 },
   { category: "sans", family: "Nunito Sans", italic: true, range: [200, 900], weights: W200_900 },
   { category: "sans", family: "Outfit", range: [100, 900], weights: W100_900 },
-  { category: "sans", family: "Plus Jakarta Sans", italic: true, range: [200, 800], weights: W200_800 },
+  {
+    category: "sans",
+    family: "Plus Jakarta Sans",
+    italic: true,
+    range: [200, 800],
+    weights: W200_800,
+  },
   { category: "sans", family: "Poppins", italic: true, weights: W100_900 },
   { category: "sans", family: "Quicksand", range: [300, 700], weights: W300_700 },
   { category: "sans", family: "Questrial", weights: [400] },
@@ -129,15 +158,32 @@ export const GOOGLE_FONT_SPECS: readonly GoogleFontSpec[] = [
 
   // ---- Condensed --------------------------------------------------------
   { category: "condensed", family: "Anton", weights: [400] },
-  { category: "condensed", family: "Archivo Narrow", italic: true, range: [400, 700], weights: W400_700 },
+  {
+    category: "condensed",
+    family: "Archivo Narrow",
+    italic: true,
+    range: [400, 700],
+    weights: W400_700,
+  },
   { category: "condensed", family: "Barlow Condensed", italic: true, weights: W100_900 },
   { category: "condensed", family: "Bebas Neue", weights: [400] },
   { category: "condensed", family: "Big Shoulders Display", range: [100, 900], weights: W100_900 },
   { category: "condensed", family: "Encode Sans Condensed", weights: W100_900 },
   { category: "condensed", family: "Fjalla One", weights: [400] },
   { category: "condensed", family: "Karantina", weights: [300, 400, 700] },
-  { category: "condensed", family: "Oswald", range: [200, 700], weights: [200, 300, 400, 500, 600, 700] },
-  { category: "condensed", family: "Roboto Condensed", italic: true, range: [100, 900], weights: W100_900 },
+  {
+    category: "condensed",
+    family: "Oswald",
+    range: [200, 700],
+    weights: [200, 300, 400, 500, 600, 700],
+  },
+  {
+    category: "condensed",
+    family: "Roboto Condensed",
+    italic: true,
+    range: [100, 900],
+    weights: W100_900,
+  },
   { category: "condensed", family: "Saira Condensed", weights: W100_900 },
   { category: "condensed", family: "Six Caps", weights: [400] },
   { category: "condensed", family: "Staatliches", weights: [400] },
@@ -164,7 +210,13 @@ export const GOOGLE_FONT_SPECS: readonly GoogleFontSpec[] = [
   { category: "serif", family: "Noto Serif", italic: true, range: [100, 900], weights: W100_900 },
   { category: "serif", family: "PT Serif", italic: true, weights: [400, 700] },
   { category: "serif", family: "Roboto Serif", italic: true, range: [100, 900], weights: W100_900 },
-  { category: "serif", family: "Source Serif 4", italic: true, range: [200, 900], weights: W200_900 },
+  {
+    category: "serif",
+    family: "Source Serif 4",
+    italic: true,
+    range: [200, 900],
+    weights: W200_900,
+  },
   { category: "serif", family: "Spectral", italic: true, weights: W200_800 },
   { category: "serif", family: "Vollkorn", italic: true, range: [400, 900], weights: W400_900 },
 
@@ -182,7 +234,13 @@ export const GOOGLE_FONT_SPECS: readonly GoogleFontSpec[] = [
   { category: "serif", family: "Instrument Serif", italic: true, weights: [400] },
   { category: "serif", family: "Italiana", weights: [400] },
   { category: "serif", family: "Marcellus", weights: [400] },
-  { category: "serif", family: "Playfair Display", italic: true, range: [400, 900], weights: W400_900 },
+  {
+    category: "serif",
+    family: "Playfair Display",
+    italic: true,
+    range: [400, 900],
+    weights: W400_900,
+  },
   { category: "serif", family: "Prata", weights: [400] },
   { category: "serif", family: "Yeseva One", weights: [400] },
 
@@ -273,49 +331,74 @@ export const GOOGLE_FONT_SPECS: readonly GoogleFontSpec[] = [
   { category: "mono", family: "Geist Mono", range: [100, 900], weights: W100_900 },
   { category: "mono", family: "IBM Plex Mono", italic: true, weights: W100_700 },
   { category: "mono", family: "Inconsolata", range: [200, 900], weights: W200_900 },
-  { category: "mono", family: "Intel One Mono", italic: true, weights: [200, 300, 400, 500, 600, 700] },
-  { category: "mono", family: "JetBrains Mono", italic: true, range: [100, 800], weights: W100_800 },
+  {
+    category: "mono",
+    family: "Intel One Mono",
+    italic: true,
+    weights: [200, 300, 400, 500, 600, 700],
+  },
+  {
+    category: "mono",
+    family: "JetBrains Mono",
+    italic: true,
+    range: [100, 800],
+    weights: W100_800,
+  },
   { category: "mono", family: "Martian Mono", range: [100, 800], weights: W100_800 },
   { category: "mono", family: "Red Hat Mono", italic: true, range: [300, 700], weights: W300_700 },
   { category: "mono", family: "Roboto Mono", italic: true, range: [100, 700], weights: W100_700 },
   { category: "mono", family: "Share Tech Mono", weights: [400] },
   { category: "mono", family: "Sometype Mono", italic: true, range: [400, 700], weights: W400_700 },
-  { category: "mono", family: "Source Code Pro", italic: true, range: [200, 900], weights: W200_900 },
+  {
+    category: "mono",
+    family: "Source Code Pro",
+    italic: true,
+    range: [200, 900],
+    weights: W200_900,
+  },
   { category: "mono", family: "Space Mono", italic: true, weights: [400, 700] },
-  { category: "mono", family: "Spline Sans Mono", italic: true, range: [300, 700], weights: W300_700 },
+  {
+    category: "mono",
+    family: "Spline Sans Mono",
+    italic: true,
+    range: [300, 700],
+    weights: W300_700,
+  },
   { category: "mono", family: "Ubuntu Mono", italic: true, weights: [400, 700] },
-]
+];
 
 export function googleFontSlug(family: string) {
-  return family.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+  return family
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function googleFontAxis(spec: GoogleFontSpec, preview: boolean) {
   if (preview) {
-    return "wght@400"
+    return "wght@400";
   }
 
   if (spec.range) {
-    const [min, max] = spec.range
-    return spec.italic
-      ? `ital,wght@0,${min}..${max};1,${min}..${max}`
-      : `wght@${min}..${max}`
+    const [min, max] = spec.range;
+    return spec.italic ? `ital,wght@0,${min}..${max};1,${min}..${max}` : `wght@${min}..${max}`;
   }
 
   if (spec.italic) {
     const tuples = [
       ...spec.weights.map((weight) => `0,${weight}`),
       ...spec.weights.map((weight) => `1,${weight}`),
-    ]
-    return `ital,wght@${tuples.join(";")}`
+    ];
+    return `ital,wght@${tuples.join(";")}`;
   }
 
-  return `wght@${spec.weights.join(";")}`
+  return `wght@${spec.weights.join(";")}`;
 }
 
 export function googleFontCssUrl(spec: GoogleFontSpec) {
-  const family = spec.family.trim().replace(/\s+/g, "+")
-  return `https://fonts.googleapis.com/css2?family=${family}:${googleFontAxis(spec, false)}&display=swap`
+  const family = spec.family.trim().replace(/\s+/g, "+");
+  return `https://fonts.googleapis.com/css2?family=${family}:${googleFontAxis(spec, false)}&display=swap`;
 }
 
 /**
@@ -323,7 +406,7 @@ export function googleFontCssUrl(spec: GoogleFontSpec) {
  * family name, so each preview is a few KB instead of a full font.
  */
 export function googleFontPreviewCssUrl(spec: GoogleFontSpec) {
-  const family = spec.family.trim().replace(/\s+/g, "+")
-  const text = encodeURIComponent(spec.family)
-  return `https://fonts.googleapis.com/css2?family=${family}:${googleFontAxis(spec, true)}&display=swap&text=${text}`
+  const family = spec.family.trim().replace(/\s+/g, "+");
+  const text = encodeURIComponent(spec.family);
+  return `https://fonts.googleapis.com/css2?family=${family}:${googleFontAxis(spec, true)}&display=swap&text=${text}`;
 }

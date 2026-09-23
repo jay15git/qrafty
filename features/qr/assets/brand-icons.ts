@@ -1,4 +1,4 @@
-import type { IconType } from "react-icons"
+import type { IconType } from "react-icons";
 import {
   SiAfterpay,
   SiAirbnb,
@@ -87,23 +87,17 @@ import {
   SiYoutubemusic,
   SiZomato,
   SiZoom,
-} from "react-icons/si"
+} from "react-icons/si";
 
-export type BrandIconCategory =
-  | "business"
-  | "media"
-  | "payments"
-  | "social"
-  | "travel"
-  | "web"
+export type BrandIconCategory = "business" | "media" | "payments" | "social" | "travel" | "web";
 
 export type BrandIconEntry = {
-  category: BrandIconCategory
-  icon: IconType
-  id: string
-  keywords: readonly string[]
-  label: string
-}
+  category: BrandIconCategory;
+  icon: IconType;
+  id: string;
+  keywords: readonly string[];
+  label: string;
+};
 
 export const BRAND_ICON_CATALOG = [
   {
@@ -715,9 +709,9 @@ export const BRAND_ICON_CATALOG = [
     icon: SiMailchimp,
     keywords: [],
   },
-] as const satisfies readonly BrandIconEntry[]
+] as const satisfies readonly BrandIconEntry[];
 
-export type BrandIconId = (typeof BRAND_ICON_CATALOG)[number]["id"]
+export type BrandIconId = (typeof BRAND_ICON_CATALOG)[number]["id"];
 
 export const POPULAR_BRAND_ICON_IDS = [
   "whatsapp",
@@ -731,26 +725,26 @@ export const POPULAR_BRAND_ICON_IDS = [
   "google-maps",
   "shopify",
   "github",
-] as const satisfies readonly BrandIconId[]
+] as const satisfies readonly BrandIconId[];
 
 const BRAND_ICON_BY_ID = new Map<string, BrandIconEntry>(
   BRAND_ICON_CATALOG.map((entry) => [entry.id, entry]),
-)
+);
 
 export function findBrandIconById(id?: string) {
   if (!id) {
-    return undefined
+    return undefined;
   }
 
-  return BRAND_ICON_BY_ID.get(id)
+  return BRAND_ICON_BY_ID.get(id);
 }
 
 export function getBrandIconById(id: BrandIconId) {
-  const brandIcon = findBrandIconById(id)
+  const brandIcon = findBrandIconById(id);
 
   if (!brandIcon) {
-    throw new Error(`Unknown brand icon: ${id}`)
+    throw new Error(`Unknown brand icon: ${id}`);
   }
 
-  return brandIcon
+  return brandIcon;
 }

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { Check, X } from "lucide-react"
+import { Check, X } from "lucide-react";
 import {
   createContext,
   useContext,
@@ -9,7 +9,7 @@ import {
   useMemo,
   useState,
   type ReactNode,
-} from "react"
+} from "react";
 
 import {
   FamilyDrawerAnimatedContent,
@@ -19,44 +19,42 @@ import {
   FamilyDrawerRoot,
   useFamilyDrawer,
   type ViewsRegistry,
-} from "@/components/ui/family-drawer"
-import { getMobileDrawerMaxHeightPx } from "@/features/shell/components/mobile-family-drawer-viewport"
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
+} from "@/components/ui/family-drawer";
+import { getMobileDrawerMaxHeightPx } from "@/features/shell/components/mobile-family-drawer-viewport";
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
 import {
   getSettingsSectionLabel,
   type SettingsSectionId,
-} from "@/features/shell/inspector/settings-panel-meta"
+} from "@/features/shell/inspector/settings-panel-meta";
 import {
   MobileDetailStackOutlets,
   useMobileDrawerNavigation,
-} from "@/features/shell/inspector/MobileDrawerNavigationContext"
-import { SettingsSectionBody } from "@/features/shell/inspector/SettingsSections"
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
-import { MobileInspectorDensityContext } from "@/features/shell/inspector/MobileInspectorDensityContext"
-import { MobileSettingsTabDockProvider } from "@/features/shell/inspector/MobileSettingsTabDock"
-import { getContentTypeLabel } from "@/features/qr/content/input-options"
+} from "@/features/shell/inspector/MobileDrawerNavigationContext";
+import { SettingsSectionBody } from "@/features/shell/inspector/SettingsSections";
+import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { MobileInspectorDensityContext } from "@/features/shell/inspector/MobileInspectorDensityContext";
+import { MobileSettingsTabDockProvider } from "@/features/shell/inspector/MobileSettingsTabDock";
+import { getContentTypeLabel } from "@/features/qr/content/input-options";
 
-import "@/features/shell/inspector/inspector.css"
-import "@/features/shell/inspector/mobile-inspector.css"
+import "@/features/shell/inspector/inspector.css";
+import "@/features/shell/inspector/mobile-inspector.css";
 
-const MOBILE_DRAWER_MAX_VIEWPORT_RATIO = 0.5
-export const MOBILE_DRAWER_SECTION_VIEW = "section"
-export const MOBILE_DRAWER_DETAIL_VIEW = "setting-detail"
+const MOBILE_DRAWER_MAX_VIEWPORT_RATIO = 0.5;
+export const MOBILE_DRAWER_SECTION_VIEW = "section";
+export const MOBILE_DRAWER_DETAIL_VIEW = "setting-detail";
 
 type MobileDrawerViewProps = {
-  model: InspectorModel
-  onDiscard: () => void
-  onSave: () => void
-  section: SettingsSectionId | null
-  title: string | undefined
-}
+  model: InspectorModel;
+  onDiscard: () => void;
+  onSave: () => void;
+  section: SettingsSectionId | null;
+  title: string | undefined;
+};
 
-const MobileDrawerViewPropsContext = createContext<MobileDrawerViewProps | null>(
-  null,
-)
+const MobileDrawerViewPropsContext = createContext<MobileDrawerViewProps | null>(null);
 
 function useMobileDrawerMaxHeight() {
-  const [maxHeight, setMaxHeight] = useState<number>()
+  const [maxHeight, setMaxHeight] = useState<number>();
 
   useLayoutEffect(() => {
     const update = () => {
@@ -66,22 +64,22 @@ function useMobileDrawerMaxHeight() {
           window.visualViewport,
           MOBILE_DRAWER_MAX_VIEWPORT_RATIO,
         ),
-      )
-    }
+      );
+    };
 
-    update()
-    window.addEventListener("resize", update)
-    window.visualViewport?.addEventListener("resize", update)
-    window.visualViewport?.addEventListener("scroll", update)
+    update();
+    window.addEventListener("resize", update);
+    window.visualViewport?.addEventListener("resize", update);
+    window.visualViewport?.addEventListener("scroll", update);
 
     return () => {
-      window.removeEventListener("resize", update)
-      window.visualViewport?.removeEventListener("resize", update)
-      window.visualViewport?.removeEventListener("scroll", update)
-    }
-  }, [])
+      window.removeEventListener("resize", update);
+      window.visualViewport?.removeEventListener("resize", update);
+      window.visualViewport?.removeEventListener("scroll", update);
+    };
+  }, []);
 
-  return maxHeight
+  return maxHeight;
 }
 
 function MobileDrawerHeader({
@@ -89,9 +87,9 @@ function MobileDrawerHeader({
   onSave,
   title,
 }: {
-  onDiscard: () => void
-  onSave: () => void
-  title: string
+  onDiscard: () => void;
+  onSave: () => void;
+  title: string;
 }) {
   return (
     <header className="dn-mobile-drawer-nested-header">
@@ -115,7 +113,7 @@ function MobileDrawerHeader({
         <Check aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
       </button>
     </header>
-  )
+  );
 }
 
 /**
@@ -125,35 +123,25 @@ function MobileDrawerHeader({
  * and reporting inner→outer caused a mount/commit flap loop.
  */
 function FamilyDrawerViewBridge({ children, view }: { children: ReactNode; view: string }) {
-  const { setView, view: innerView } = useFamilyDrawer()
+  const { setView, view: innerView } = useFamilyDrawer();
 
   useEffect(() => {
     if (innerView !== view) {
-      setView(view)
+      setView(view);
     }
-  }, [innerView, setView, view])
+  }, [innerView, setView, view]);
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 /** Detail page pushed on top of a section — pickers, insert menus, layer tools. */
-function MobileSettingDetailView({
-  model,
-  onSave,
-}: {
-  model: InspectorModel
-  onSave: () => void
-}) {
-  const navigation = useMobileDrawerNavigation()
-  const theme = model.actualTheme
-  const title = navigation?.detailPayload?.title ?? "Setting"
+function MobileSettingDetailView({ model, onSave }: { model: InspectorModel; onSave: () => void }) {
+  const navigation = useMobileDrawerNavigation();
+  const theme = model.actualTheme;
+  const title = navigation?.detailPayload?.title ?? "Setting";
 
   return (
-    <div
-      className="inspector-root w-full min-w-0"
-      data-mobile-inspector=""
-      data-theme={theme}
-    >
+    <div className="inspector-root w-full min-w-0" data-mobile-inspector="" data-theme={theme}>
       <InspectorThemeContext.Provider value={theme}>
         <MobileInspectorDensityContext.Provider value={true}>
           <header className="dn-mobile-drawer-nested-header">
@@ -181,7 +169,7 @@ function MobileSettingDetailView({
         </MobileInspectorDensityContext.Provider>
       </InspectorThemeContext.Provider>
     </div>
-  )
+  );
 }
 
 function MobileSettingsSectionView({
@@ -191,11 +179,11 @@ function MobileSettingsSectionView({
   section,
   title,
 }: {
-  model: InspectorModel
-  onDiscard: () => void
-  onSave: () => void
-  section: SettingsSectionId
-  title: string
+  model: InspectorModel;
+  onDiscard: () => void;
+  onSave: () => void;
+  section: SettingsSectionId;
+  title: string;
 }) {
   return (
     <div
@@ -212,7 +200,7 @@ function MobileSettingsSectionView({
         </MobileInspectorDensityContext.Provider>
       </InspectorThemeContext.Provider>
     </div>
-  )
+  );
 }
 
 export function MobileSettingsDrawer({
@@ -223,19 +211,19 @@ export function MobileSettingsDrawer({
   section,
   view,
 }: {
-  model: InspectorModel
-  onClose: () => void
+  model: InspectorModel;
+  onClose: () => void;
   /** X in the header — replays the session snapshots, then closes. */
-  onDiscard: () => void
+  onDiscard: () => void;
   /** ✓ in the header — keeps the live-applied edits, then closes. */
-  onSave: () => void
-  section: SettingsSectionId | null
+  onSave: () => void;
+  section: SettingsSectionId | null;
   /** `"section"` or `"setting-detail"` — the rail-level nav provider drives it. */
-  view: string
+  view: string;
 }) {
-  const theme = model.actualTheme
-  const maxHeight = useMobileDrawerMaxHeight()
-  const open = section !== null || view === MOBILE_DRAWER_DETAIL_VIEW
+  const theme = model.actualTheme;
+  const maxHeight = useMobileDrawerMaxHeight();
+  const open = section !== null || view === MOBILE_DRAWER_DETAIL_VIEW;
 
   // Content is reached by picking a content type on the rail, so its heading
   // names the option ("Link", "Text", …) rather than the section.
@@ -243,7 +231,7 @@ export function MobileSettingsDrawer({
     ? section === "Content"
       ? getContentTypeLabel(model.actualContentType)
       : getSettingsSectionLabel(section)
-    : undefined
+    : undefined;
 
   // `views` entries are rendered as component types — if they change identity
   // on every render (e.g. model updates per keystroke/color-drag tick),
@@ -253,9 +241,9 @@ export function MobileSettingsDrawer({
   const views = useMemo<ViewsRegistry>(
     () => ({
       [MOBILE_DRAWER_SECTION_VIEW]: function MobileDrawerSectionView() {
-        const p = useContext(MobileDrawerViewPropsContext)
+        const p = useContext(MobileDrawerViewPropsContext);
         if (!p?.section) {
-          return null
+          return null;
         }
         return (
           <MobileSettingsSectionView
@@ -265,23 +253,23 @@ export function MobileSettingsDrawer({
             section={p.section}
             title={p.title ?? getSettingsSectionLabel(p.section)}
           />
-        )
+        );
       },
       [MOBILE_DRAWER_DETAIL_VIEW]: function MobileDrawerDetailView() {
-        const p = useContext(MobileDrawerViewPropsContext)
+        const p = useContext(MobileDrawerViewPropsContext);
         if (!p) {
-          return null
+          return null;
         }
-        return <MobileSettingDetailView model={p.model} onSave={p.onSave} />
+        return <MobileSettingDetailView model={p.model} onSave={p.onSave} />;
       },
     }),
     [],
-  )
+  );
 
   const viewProps = useMemo(
     () => ({ model, onDiscard, onSave, section, title }),
     [model, onDiscard, onSave, section, title],
-  )
+  );
 
   return (
     <FamilyDrawerRoot
@@ -293,7 +281,7 @@ export function MobileSettingsDrawer({
       views={views}
       onOpenChange={(next) => {
         if (!next) {
-          onClose()
+          onClose();
         }
       }}
     >
@@ -318,5 +306,5 @@ export function MobileSettingsDrawer({
         </FamilyDrawerContent>
       </FamilyDrawerPortal>
     </FamilyDrawerRoot>
-  )
+  );
 }

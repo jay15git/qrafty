@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import Image from "next/image"
+import Image from "next/image";
 
-import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-definitions"
-import { getPaperShaderOptionPreviewUrl } from "@/features/canvas/components/paper-shader-option-preview"
+import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-definitions";
+import { getPaperShaderOptionPreviewUrl } from "@/features/canvas/components/paper-shader-option-preview";
 
 export function PaperShaderOptionPreview({
   className,
   shaderId,
 }: {
-  className?: string
-  isSelected?: boolean
-  shaderId: PaperShaderId
+  className?: string;
+  isSelected?: boolean;
+  shaderId: PaperShaderId;
 }) {
   return (
     <Image
@@ -23,7 +23,5 @@ export function PaperShaderOptionPreview({
       src={getPaperShaderOptionPreviewUrl(shaderId)}
       width={64}
     />
-  )
+  );
 }
-
-

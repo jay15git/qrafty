@@ -57,7 +57,7 @@ function thumbGeometry(
   metrics: (typeof METRICS)[keyof typeof METRICS],
   checked: boolean,
   hovered: boolean,
-  pressed: boolean
+  pressed: boolean,
 ) {
   const thumbTravel = metrics.trackWidth - metrics.thumbSize - THUMB_OFFSET * 2;
   const thumbWidth = pressed
@@ -65,12 +65,8 @@ function thumbGeometry(
     : hovered
       ? metrics.thumbSize + metrics.pillExtend
       : metrics.thumbSize;
-  const thumbHeight = pressed
-    ? metrics.thumbSize - metrics.pressShrink
-    : metrics.thumbSize;
-  const thumbY = pressed
-    ? THUMB_OFFSET + metrics.pressShrink / 2
-    : THUMB_OFFSET;
+  const thumbHeight = pressed ? metrics.thumbSize - metrics.pressShrink : metrics.thumbSize;
+  const thumbY = pressed ? THUMB_OFFSET + metrics.pressShrink / 2 : THUMB_OFFSET;
   const thumbX = checked
     ? THUMB_OFFSET + thumbTravel - (thumbWidth - metrics.thumbSize)
     : THUMB_OFFSET;
@@ -87,7 +83,10 @@ function trackColor(checked: boolean, hovered: boolean) {
       : "var(--accent)";
 }
 const Switch = forwardRef<HTMLLabelElement, SwitchProps>(
-  ({ label, checked, onToggle, disabled = false, thumbTransition, size, className, ...props }, ref) => {
+  (
+    { label, checked, onToggle, disabled = false, thumbTransition, size, className, ...props },
+    ref,
+  ) => {
     const labelId = useId();
     const switchId = useId();
     const hasMounted = useRef(false);
@@ -104,9 +103,7 @@ const Switch = forwardRef<HTMLLabelElement, SwitchProps>(
       originX: number;
     } | null>(null);
 
-    const motionX = useMotionValue(
-      checked ? THUMB_OFFSET + thumbTravel : THUMB_OFFSET
-    );
+    const motionX = useMotionValue(checked ? THUMB_OFFSET + thumbTravel : THUMB_OFFSET);
 
     useEffect(() => {
       hasMounted.current = true;
@@ -116,7 +113,7 @@ const Switch = forwardRef<HTMLLabelElement, SwitchProps>(
       metrics,
       checked,
       hovered,
-      pressed
+      pressed,
     );
 
     useEffect(() => {
@@ -141,7 +138,7 @@ const Switch = forwardRef<HTMLLabelElement, SwitchProps>(
         };
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       },
-      [disabled, motionX]
+      [disabled, motionX],
     );
 
     const handlePointerMove = useCallback(
@@ -160,62 +157,52 @@ const Switch = forwardRef<HTMLLabelElement, SwitchProps>(
         const rawX = pointerStart.current.originX + delta;
         motionX.set(Math.max(dragMin, Math.min(dragMax, rawX)));
       },
-      [motionX, metrics]
+      [motionX, metrics],
     );
 
-    const handlePointerUp = useCallback(
-      () => {
-        if (!pointerStart.current) return;
-        setPressed(false);
+    const handlePointerUp = useCallback(() => {
+      if (!pointerStart.current) return;
+      setPressed(false);
 
-        if (dragging.current) {
-          didDrag.current = true;
-          dragging.current = false;
+      if (dragging.current) {
+        didDrag.current = true;
+        dragging.current = false;
 
-          const currentX = motionX.get();
-          const dragMin = THUMB_OFFSET;
-          const pressedThumbWidth = metrics.thumbSize + metrics.pressExtend;
-          const dragMax = metrics.trackWidth - THUMB_OFFSET - pressedThumbWidth;
-          const midpoint = (dragMin + dragMax) / 2;
+        const currentX = motionX.get();
+        const dragMin = THUMB_OFFSET;
+        const pressedThumbWidth = metrics.thumbSize + metrics.pressExtend;
+        const dragMax = metrics.trackWidth - THUMB_OFFSET - pressedThumbWidth;
+        const midpoint = (dragMin + dragMax) / 2;
 
-          const shouldBeOn = currentX > midpoint;
+        const shouldBeOn = currentX > midpoint;
 
-          if (shouldBeOn !== checked) {
-            onToggle();
-          } else {
-            const snapTarget = checked
-              ? THUMB_OFFSET + thumbTravel
-              : THUMB_OFFSET;
-            animate(motionX, snapTarget, thumbTransition ?? spring.moderate);
-          }
-
-          requestAnimationFrame(() => {
-            didDrag.current = false;
-          });
-        }
-
-        pointerStart.current = null;
-      },
-      [checked, onToggle, motionX, thumbTransition, metrics, thumbTravel]
-    );
-
-    const handlePointerCancel = useCallback(
-      () => {
-        if (!pointerStart.current) return;
-        setPressed(false);
-
-        if (dragging.current) {
-          dragging.current = false;
-          const snapTarget = checked
-            ? THUMB_OFFSET + thumbTravel
-            : THUMB_OFFSET;
+        if (shouldBeOn !== checked) {
+          onToggle();
+        } else {
+          const snapTarget = checked ? THUMB_OFFSET + thumbTravel : THUMB_OFFSET;
           animate(motionX, snapTarget, thumbTransition ?? spring.moderate);
         }
 
-        pointerStart.current = null;
-      },
-      [checked, motionX, thumbTransition, thumbTravel]
-    );
+        requestAnimationFrame(() => {
+          didDrag.current = false;
+        });
+      }
+
+      pointerStart.current = null;
+    }, [checked, onToggle, motionX, thumbTransition, metrics, thumbTravel]);
+
+    const handlePointerCancel = useCallback(() => {
+      if (!pointerStart.current) return;
+      setPressed(false);
+
+      if (dragging.current) {
+        dragging.current = false;
+        const snapTarget = checked ? THUMB_OFFSET + thumbTravel : THUMB_OFFSET;
+        animate(motionX, snapTarget, thumbTransition ?? spring.moderate);
+      }
+
+      pointerStart.current = null;
+    }, [checked, motionX, thumbTransition, thumbTravel]);
 
     return (
       // <label> wrapping the primitive: the whole row is the switch's
@@ -230,7 +217,7 @@ const Switch = forwardRef<HTMLLabelElement, SwitchProps>(
           sizeClasses.px,
           sizeClasses.variant === "compact" ? "py-1" : "py-2",
           disabled && "opacity-50 pointer-events-none",
-          className
+          className,
         )}
         onPointerEnter={(e) => {
           if (e.pointerType === "mouse") setHovered(true);
@@ -259,7 +246,7 @@ const Switch = forwardRef<HTMLLabelElement, SwitchProps>(
           className={cn(
             "relative shrink-0 rounded-full outline-none cursor-pointer",
             "transition-colors duration-80",
-            "focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring,#6B97FF)] focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            "focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring,#6B97FF)] focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           )}
           style={{
             width: metrics.trackWidth,
@@ -296,7 +283,9 @@ const Switch = forwardRef<HTMLLabelElement, SwitchProps>(
                   animate={{
                     y: thumbY,
                   }}
-                  transition={hasMounted.current ? (thumbTransition ?? spring.moderate) : { duration: 0 }}
+                  transition={
+                    hasMounted.current ? (thumbTransition ?? spring.moderate) : { duration: 0 }
+                  }
                 />
               );
             }}
@@ -311,14 +300,14 @@ const Switch = forwardRef<HTMLLabelElement, SwitchProps>(
             // track is taller than the label, so layout doesn't change.
             "[text-box:trim-both_cap_alphabetic] transition-[color] duration-80",
             sizeClasses.text,
-            checked ? "text-foreground" : "text-muted-foreground"
+            checked ? "text-foreground" : "text-muted-foreground",
           )}
         >
           {label}
         </span>
       </label>
     );
-  }
+  },
 );
 
 Switch.displayName = "Switch";

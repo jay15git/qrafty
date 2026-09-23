@@ -73,12 +73,7 @@ const buttonVariants = tv({
         "rounded-sm",
         "[&_svg:not([class*='size-'])]:size-2.5",
       ],
-      sm: [
-        "h-7",
-        "px-2.5",
-        "gap-1.5",
-        "[&_svg:not([class*='size-'])]:size-3.5",
-      ],
+      sm: ["h-7", "px-2.5", "gap-1.5", "[&_svg:not([class*='size-'])]:size-3.5"],
       md: ["h-8", "px-3", "py-2"],
       lg: ["h-9", "px-3.5"],
       xl: ["h-10", "text-base", "px-4"],
@@ -111,8 +106,7 @@ const buttonVariants = tv({
 });
 
 export interface ButtonProps
-  extends React.ComponentProps<typeof ark.button>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ComponentProps<typeof ark.button>, VariantProps<typeof buttonVariants> {
   /**
    * Apply a click effect to the button
    *
@@ -141,10 +135,7 @@ export const Button = (props: ButtonProps) => {
 
   return (
     <ark.button
-      className={cn(
-        buttonVariants({ variant, size, clickEffect, pill }),
-        className
-      )}
+      className={cn(buttonVariants({ variant, size, clickEffect, pill }), className)}
       data-size={size}
       data-slot="button"
       data-state={isLoading ? "loading" : "idle"}

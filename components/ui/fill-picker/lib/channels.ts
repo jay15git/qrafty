@@ -46,10 +46,7 @@ const ALPHA_DESCRIPTOR = (alpha: number): ChannelDescriptor => ({
  * Per-format channel descriptors for the multi-field input. Hex returns an
  * empty array — render hex as a single text field instead.
  */
-export function colorChannels(
-  color: OklchColor,
-  format: ColorFormat,
-): ChannelDescriptor[] {
+export function colorChannels(color: OklchColor, format: ColorFormat): ChannelDescriptor[] {
   switch (format) {
     case "hex":
       return [];
@@ -251,9 +248,7 @@ export function setHueFromSlider(
 const ACHROMATIC_EPS = 1e-4;
 
 function isAchromatic(l: number, c: number): boolean {
-  return (
-    c <= ACHROMATIC_EPS || l <= ACHROMATIC_EPS || l >= 1 - ACHROMATIC_EPS
-  );
+  return c <= ACHROMATIC_EPS || l <= ACHROMATIC_EPS || l >= 1 - ACHROMATIC_EPS;
 }
 
 /**
@@ -271,10 +266,7 @@ function fromCulori(c: Color, alpha: number, fallbackHue: number): OklchColor {
   return {
     l,
     c: chroma,
-    h:
-      isAchromatic(l, chroma) || !Number.isFinite(ok.h)
-        ? fallbackHue
-        : (ok.h as number),
+    h: isAchromatic(l, chroma) || !Number.isFinite(ok.h) ? fallbackHue : (ok.h as number),
     alpha,
   };
 }

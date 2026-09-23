@@ -1,39 +1,39 @@
-type PreviewSessionListener = () => void
+type PreviewSessionListener = () => void;
 
-let isInteracting = false
-const listeners = new Set<PreviewSessionListener>()
+let isInteracting = false;
+const listeners = new Set<PreviewSessionListener>();
 
 function notifyPreviewSessionListeners() {
   for (const listener of listeners) {
-    listener()
+    listener();
   }
 }
 
 export const previewSession = {
   beginInteraction() {
     if (isInteracting) {
-      return
+      return;
     }
 
-    isInteracting = true
-    notifyPreviewSessionListeners()
+    isInteracting = true;
+    notifyPreviewSessionListeners();
   },
   endInteraction() {
     if (!isInteracting) {
-      return
+      return;
     }
 
-    isInteracting = false
-    notifyPreviewSessionListeners()
+    isInteracting = false;
+    notifyPreviewSessionListeners();
   },
   getIsInteracting() {
-    return isInteracting
+    return isInteracting;
   },
   subscribe(listener: PreviewSessionListener) {
-    listeners.add(listener)
+    listeners.add(listener);
 
     return () => {
-      listeners.delete(listener)
-    }
+      listeners.delete(listener);
+    };
   },
-}
+};

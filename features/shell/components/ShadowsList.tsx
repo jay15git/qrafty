@@ -1,38 +1,32 @@
-"use client"
+"use client";
 
-import { Switch } from "@/components/ui/switch"
-import {
-  InspectorLabel,
-  InspectorSection,
-} from "@/features/shell/components/InspectorControls"
-import {
-  SettingsFillPopover,
-  SettingsSlider,
-} from "@/features/shell/inspector/settings-ui"
-import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils"
+import { Switch } from "@/components/ui/switch";
+import { InspectorLabel, InspectorSection } from "@/features/shell/components/InspectorControls";
+import { SettingsFillPopover, SettingsSlider } from "@/features/shell/inspector/settings-ui";
+import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
 import {
   createLayerEffect,
   listLayerEffects,
   patchLayerShadowEffect,
   serializeLayerEffects,
   type LayerShadowEffectItem,
-} from "@/features/canvas/model/layer-effects"
-import type { DraftingShadowLayerState } from "@/features/canvas/model/effects"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/layer-effects";
+import type { DraftingShadowLayerState } from "@/features/canvas/model/effects";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
 
 export function ShadowsList({
   layer,
   onPatch,
 }: {
-  layer: DraftingCanvasLayer
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void
+  layer: DraftingCanvasLayer;
+  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
 }) {
-  const effects = listLayerEffects(layer)
+  const effects = listLayerEffects(layer);
   const shadowEffects = effects.filter(
     (effect): effect is LayerShadowEffectItem => effect.source === "shadow",
-  )
-  const effect = shadowEffects.find((item) => item.enabled) ?? shadowEffects[0]
-  const enabled = effect?.enabled ?? false
+  );
+  const effect = shadowEffects.find((item) => item.enabled) ?? shadowEffects[0];
+  const enabled = effect?.enabled ?? false;
 
   function handleToggle() {
     if (effect) {
@@ -40,26 +34,21 @@ export function ShadowsList({
         ...effect,
         enabled: !enabled,
         shadow: { ...effect.shadow, visible: !enabled },
-      }
+      };
 
-      onPatch(
-        serializeLayerEffects([
-          ...effects.filter((item) => item.source !== "shadow"),
-          next,
-        ]),
-      )
-      return
+      onPatch(serializeLayerEffects([...effects.filter((item) => item.source !== "shadow"), next]));
+      return;
     }
 
-    onPatch(serializeLayerEffects([...effects, createLayerEffect("drop-shadow")]))
+    onPatch(serializeLayerEffects([...effects, createLayerEffect("drop-shadow")]));
   }
 
   function handlePatchShadow(patch: Partial<DraftingShadowLayerState>) {
     if (!effect) {
-      return
+      return;
     }
 
-    onPatch(patchLayerShadowEffect(layer, effect.id, patch))
+    onPatch(patchLayerShadowEffect(layer, effect.id, patch));
   }
 
   return (
@@ -125,5 +114,5 @@ export function ShadowsList({
         </div>
       ) : null}
     </InspectorSection>
-  )
+  );
 }

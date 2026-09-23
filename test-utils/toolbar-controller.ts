@@ -1,4 +1,4 @@
-import { vi } from "vitest"
+import { vi } from "vitest";
 
 import {
   DEFAULT_DESKTOP_ACCESSIBILITY_SETTINGS,
@@ -16,9 +16,9 @@ import {
   DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS,
   DEFAULT_DESKTOP_SHAPE_SETTINGS,
   DEFAULT_DESKTOP_TEXT_SETTINGS,
-} from "@/features/shell/model/toolbar-defaults"
-import type { ToolbarController } from "@/features/shell/model/toolbar-types"
-import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories"
+} from "@/features/shell/model/toolbar-defaults";
+import type { ToolbarController } from "@/features/shell/model/toolbar-types";
+import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories";
 
 /**
  * Builds a complete `ToolbarController` for tests. Every field is filled
@@ -29,7 +29,7 @@ export function createToolbarController(
   overrides: Partial<ToolbarController> = {},
   nodeId = "preview",
 ): ToolbarController {
-  const layer = createDraftingTextLayer(nodeId, { text: "Hello" })
+  const layer = createDraftingTextLayer(nodeId, { text: "Hello" });
   return {
     activeTool: "content",
     contentType: "link",
@@ -91,5 +91,5 @@ export function createToolbarController(
     onLayerMenuAction: vi.fn(),
     canDeleteLayer: () => true,
     ...overrides,
-  }
+  };
 }

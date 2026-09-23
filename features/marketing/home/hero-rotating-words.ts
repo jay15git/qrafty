@@ -6,9 +6,9 @@ export const HERO_ROTATING_WORDS = [
   "sms",
   "map",
   "event",
-] as const
+] as const;
 
-export const HERO_ROTATE_MS = 2200
+export const HERO_ROTATE_MS = 2200;
 
 export const HERO_SLOT_TEXT_OPTIONS = {
   direction: "up" as const,
@@ -16,8 +16,8 @@ export const HERO_SLOT_TEXT_OPTIONS = {
   bounce: 0,
   easing: "cubic-bezier(0.22, 1, 0.36, 1)",
   skipUnchanged: true,
-}
+};
 
 export function getHeroIndefiniteArticle(word: string): "a" | "an" {
-  return /^[aeiou]/i.test(word) ? "an" : "a"
+  return /^[aeiou]/i.test(word) ? "an" : "a";
 }

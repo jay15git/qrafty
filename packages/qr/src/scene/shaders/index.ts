@@ -1,4 +1,4 @@
-export { shaderRequiresImage } from "./registry"
+export { shaderRequiresImage } from "./registry";
 export {
   EXPORT_PAPER_SHADER_MAX_PIXEL_COUNT,
   EXPORT_PAPER_SHADER_RENDER_OPTIONS,
@@ -7,15 +7,12 @@ export {
   LIVE_PAPER_SHADER_MIN_PIXEL_RATIO,
   LIVE_PAPER_SHADER_RENDER_OPTIONS,
   LIVE_PAPER_SHADER_WEBGL_CONTEXT_ATTRIBUTES,
-} from "./live-render-options"
-export {
-  buildPaperShaderWorldSize,
-  type PaperShaderWorldSize,
-} from "./world-size"
+} from "./live-render-options";
+export { buildPaperShaderWorldSize, type PaperShaderWorldSize } from "./world-size";
 export {
   buildPaperShaderRenderProps,
   type PaperShaderParams,
   type PaperShaderParamValue,
   type PaperShaderRenderQuality,
   type SerializablePaperShaderState,
-} from "./build-props"
+} from "./build-props";

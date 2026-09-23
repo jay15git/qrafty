@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   createContext,
@@ -11,37 +11,38 @@ import {
   useRef,
   useState,
   type ReactNode,
-} from "react"
-import { createPortal } from "react-dom"
+} from "react";
+import { createPortal } from "react-dom";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 type MobileDrawerDetailPayload = {
-  id: string
-  title: string
-  returnView: string
-  content?: ReactNode
-  onAfterClose?: () => void
-}
+  id: string;
+  title: string;
+  returnView: string;
+  content?: ReactNode;
+  onAfterClose?: () => void;
+};
 
 type MobileDrawerNavigationContextValue = {
-  detailPayload: MobileDrawerDetailPayload | null
-  detailStack: MobileDrawerDetailPayload[]
-  outlets: Record<string, HTMLElement>
+  detailPayload: MobileDrawerDetailPayload | null;
+  detailStack: MobileDrawerDetailPayload[];
+  outlets: Record<string, HTMLElement>;
   openDetail: (
     payload: Omit<MobileDrawerDetailPayload, "id" | "returnView"> & {
-      id?: string
-      returnView?: string
+      id?: string;
+      returnView?: string;
     },
-  ) => void
-  closeDetail: () => void
+  ) => void;
+  closeDetail: () => void;
   /** Drops every pending detail — used when the host drawer closes. */
-  clearDetails: () => void
-  registerOutlet: (id: string, node: HTMLElement | null) => void
-}
+  clearDetails: () => void;
+  registerOutlet: (id: string, node: HTMLElement | null) => void;
+};
 
-const MobileDrawerNavigationContext =
-  createContext<MobileDrawerNavigationContextValue | null>(null)
+const MobileDrawerNavigationContext = createContext<MobileDrawerNavigationContextValue | null>(
+  null,
+);
 
 function resolveReturnView(
   explicitReturnView: string | undefined,
@@ -49,18 +50,18 @@ function resolveReturnView(
   stack: MobileDrawerDetailPayload[],
 ): string {
   if (explicitReturnView && explicitReturnView !== "setting-detail") {
-    return explicitReturnView
+    return explicitReturnView;
   }
 
   if (stack.length > 0) {
-    return stack[0].returnView
+    return stack[0].returnView;
   }
 
   if (currentView !== "setting-detail") {
-    return currentView
+    return currentView;
   }
 
-  return "default"
+  return "default";
 }
 
 export function MobileDrawerNavigationProvider({
@@ -68,49 +69,48 @@ export function MobileDrawerNavigationProvider({
   currentView,
   setView,
 }: {
-  children: ReactNode
-  currentView: string
-  setView: (view: string) => void
+  children: ReactNode;
+  currentView: string;
+  setView: (view: string) => void;
 }) {
-  const [detailStack, setDetailStack] = useState<MobileDrawerDetailPayload[]>([])
-  const [outlets, setOutlets] = useState<Record<string, HTMLElement>>({})
-  const currentViewRef = useRef(currentView)
-  const detailStackRef = useRef<MobileDrawerDetailPayload[]>([])
-  const suppressRecoveryRef = useRef(false)
-  const detailIdCounterRef = useRef(0)
+  const [detailStack, setDetailStack] = useState<MobileDrawerDetailPayload[]>([]);
+  const [outlets, setOutlets] = useState<Record<string, HTMLElement>>({});
+  const currentViewRef = useRef(currentView);
+  const detailStackRef = useRef<MobileDrawerDetailPayload[]>([]);
+  const suppressRecoveryRef = useRef(false);
+  const detailIdCounterRef = useRef(0);
   useEffect(() => {
-    currentViewRef.current = currentView
-    detailStackRef.current = detailStack
-  })
+    currentViewRef.current = currentView;
+    detailStackRef.current = detailStack;
+  });
 
-  const detailPayload =
-    detailStack.length > 0 ? detailStack[detailStack.length - 1] : null
+  const detailPayload = detailStack.length > 0 ? detailStack[detailStack.length - 1] : null;
 
   const registerOutlet = useCallback((id: string, node: HTMLElement | null) => {
     setOutlets((current) => {
       if (node === null) {
         if (!(id in current)) {
-          return current
+          return current;
         }
 
-        const next = { ...current }
-        delete next[id]
-        return next
+        const next = { ...current };
+        delete next[id];
+        return next;
       }
 
       if (current[id] === node) {
-        return current
+        return current;
       }
 
-      return { ...current, [id]: node }
-    })
-  }, [])
+      return { ...current, [id]: node };
+    });
+  }, []);
 
   const openDetail = useCallback(
     (
       payload: Omit<MobileDrawerDetailPayload, "id" | "returnView"> & {
-        id?: string
-        returnView?: string
+        id?: string;
+        returnView?: string;
       },
     ) => {
       const resolved: MobileDrawerDetailPayload = {
@@ -121,69 +121,68 @@ export function MobileDrawerNavigationProvider({
           currentViewRef.current,
           detailStackRef.current,
         ),
-      }
-      setDetailStack((current) => [...current, resolved])
-      setView("setting-detail")
+      };
+      setDetailStack((current) => [...current, resolved]);
+      setView("setting-detail");
     },
     [setView],
-  )
+  );
 
   const closeDetail = useCallback(() => {
-    const stack = detailStackRef.current
+    const stack = detailStackRef.current;
     if (stack.length === 0) {
       if (currentViewRef.current === "setting-detail") {
-        setView("default")
+        setView("default");
       }
-      return
+      return;
     }
 
-    const popped = stack[stack.length - 1]
-    const nextStack = stack.slice(0, -1)
+    const popped = stack[stack.length - 1];
+    const nextStack = stack.slice(0, -1);
 
-    suppressRecoveryRef.current = true
+    suppressRecoveryRef.current = true;
 
     if (nextStack.length > 0) {
-      setDetailStack(nextStack)
-      setView("setting-detail")
-      popped.onAfterClose?.()
+      setDetailStack(nextStack);
+      setView("setting-detail");
+      popped.onAfterClose?.();
       queueMicrotask(() => {
-        suppressRecoveryRef.current = false
-      })
-      return
+        suppressRecoveryRef.current = false;
+      });
+      return;
     }
 
-    const returnView =
-      popped.returnView !== "setting-detail" ? popped.returnView : "default"
-    setView(returnView)
-    setDetailStack(nextStack)
-    popped.onAfterClose?.()
+    const returnView = popped.returnView !== "setting-detail" ? popped.returnView : "default";
+    setView(returnView);
+    setDetailStack(nextStack);
+    popped.onAfterClose?.();
     queueMicrotask(() => {
-      suppressRecoveryRef.current = false
-    })
-  }, [setView])
+      suppressRecoveryRef.current = false;
+    });
+  }, [setView]);
 
   const clearDetails = useCallback(() => {
     // Bail on an empty stack — a fresh [] would churn context identity and
     // retrigger every effect keyed on the navigation object.
     if (detailStackRef.current.length === 0) {
-      return
+      return;
     }
-    suppressRecoveryRef.current = true
-    setDetailStack([])
+    suppressRecoveryRef.current = true;
+    setDetailStack([]);
     queueMicrotask(() => {
-      suppressRecoveryRef.current = false
-    })
-  }, [])
+      suppressRecoveryRef.current = false;
+    });
+  }, []);
 
   useLayoutEffect(() => {
     if (suppressRecoveryRef.current) {
-      return
+      return;
     }
 
     if (currentView === "setting-detail" && detailStack.length === 0) {
-      setView("default")
+      setView("default");
     }
-  }, [currentView, detailStack.length, setView])
+  }, [currentView, detailStack.length, setView]);
 
   const value = useMemo(
     () => ({
@@ -196,17 +195,17 @@ export function MobileDrawerNavigationProvider({
       registerOutlet,
     }),
     [clearDetails, closeDetail, detailPayload, detailStack, openDetail, outlets, registerOutlet],
-  )
+  );
 
   return (
     <MobileDrawerNavigationContext.Provider value={value}>
       {children}
     </MobileDrawerNavigationContext.Provider>
-  )
+  );
 }
 
 export function useMobileDrawerNavigation() {
-  return useContext(MobileDrawerNavigationContext)
+  return useContext(MobileDrawerNavigationContext);
 }
 
 export function useMobileLiveDetail({
@@ -215,32 +214,32 @@ export function useMobileLiveDetail({
   onOpenChange,
   title,
 }: {
-  content: ReactNode
-  enabled: boolean
-  onOpenChange?: (open: boolean) => void
-  title: string
+  content: ReactNode;
+  enabled: boolean;
+  onOpenChange?: (open: boolean) => void;
+  title: string;
 }) {
-  const detailId = useId()
-  const mobileNav = useMobileDrawerNavigation()
-  const outlet = enabled ? (mobileNav?.outlets[detailId] ?? null) : null
+  const detailId = useId();
+  const mobileNav = useMobileDrawerNavigation();
+  const outlet = enabled ? (mobileNav?.outlets[detailId] ?? null) : null;
 
   const open = useCallback(() => {
     if (!enabled || !mobileNav) {
-      return
+      return;
     }
 
     mobileNav.openDetail({
       id: detailId,
       title,
       onAfterClose: () => onOpenChange?.(false),
-    })
-    onOpenChange?.(true)
-  }, [detailId, enabled, mobileNav, onOpenChange, title])
+    });
+    onOpenChange?.(true);
+  }, [detailId, enabled, mobileNav, onOpenChange, title]);
 
   return {
     open,
     portal: outlet ? createPortal(content, outlet) : null,
-  }
+  };
 }
 
 function MobileDetailOutlet({
@@ -248,23 +247,23 @@ function MobileDetailOutlet({
   content,
   id,
 }: {
-  active: boolean
-  content?: ReactNode
-  id: string
+  active: boolean;
+  content?: ReactNode;
+  id: string;
 }) {
-  const navigation = useMobileDrawerNavigation()
-  const registerOutlet = navigation?.registerOutlet
-  const nodeRef = useRef<HTMLDivElement>(null)
+  const navigation = useMobileDrawerNavigation();
+  const registerOutlet = navigation?.registerOutlet;
+  const nodeRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    const node = nodeRef.current
+    const node = nodeRef.current;
     if (!registerOutlet || !node) {
-      return
+      return;
     }
 
-    registerOutlet(id, node)
-    return () => registerOutlet(id, null)
-  }, [id, registerOutlet])
+    registerOutlet(id, node);
+    return () => registerOutlet(id, null);
+  }, [id, registerOutlet]);
 
   return (
     <div
@@ -277,12 +276,12 @@ function MobileDetailOutlet({
     >
       {content}
     </div>
-  )
+  );
 }
 
 export function MobileDetailStackOutlets() {
-  const navigation = useMobileDrawerNavigation()
-  const stack = navigation?.detailStack ?? []
+  const navigation = useMobileDrawerNavigation();
+  const stack = navigation?.detailStack ?? [];
 
   return (
     <>
@@ -295,5 +294,5 @@ export function MobileDetailStackOutlets() {
         />
       ))}
     </>
-  )
+  );
 }

@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
 import {
   applyDraftingCardPaperShaderPreset,
   DEFAULT_DRAFTING_PAPER_SHADER_IMAGE,
   type DraftingCardPaperShaderState,
-} from "@/features/canvas/model/card-state"
+} from "@/features/canvas/model/card-state";
 import {
   addPaperShaderColor,
   DEFAULT_PAPER_SHADER_MAX_COLOR_COUNT,
   DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT,
   removePaperShaderColor,
-} from "@/features/canvas/rendering/paper-shader-colors"
+} from "@/features/canvas/rendering/paper-shader-colors";
 import {
   formatPaperShaderParamLabel,
   getPaperShaderDefinition,
@@ -18,10 +18,10 @@ import {
   type PaperShaderControlDefinition,
   type PaperShaderEnumControl,
   type PaperShaderParamValue,
-} from "@/features/canvas/rendering/paper-shader-definitions"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/rendering/paper-shader-definitions";
+import { cn } from "@/lib/utils";
 
-import { PaperShaderColorGrid } from "@/features/shell/inspector/PaperShaderColorGrid"
+import { PaperShaderColorGrid } from "@/features/shell/inspector/PaperShaderColorGrid";
 import {
   PresetList,
   SettingsFillPopover,
@@ -30,15 +30,15 @@ import {
   SettingsRowPopover,
   SettingsSlider,
   SettingsSwitchRow,
-} from "@/features/shell/inspector/settings-ui"
-import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils"
+} from "@/features/shell/inspector/settings-ui";
+import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
 
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-const PAPER_SHADER_COLOR_FALLBACK = "#000000"
-const PAPER_SHADER_NEW_COLOR = "#ffffff"
-const HORIZONTAL_OPTION_ROW = "dn-preview-row"
-const SECTION_GAP = "dn-section-stack"
+const PAPER_SHADER_COLOR_FALLBACK = "#000000";
+const PAPER_SHADER_NEW_COLOR = "#ffffff";
+const HORIZONTAL_OPTION_ROW = "dn-preview-row";
+const SECTION_GAP = "dn-section-stack";
 
 function ShaderSettingsSlider({
   label,
@@ -48,12 +48,12 @@ function ShaderSettingsSlider({
   step = 1,
   value,
 }: {
-  label: string
-  max: number
-  min: number
-  onChange?: (value: number) => void
-  step?: number
-  value: number
+  label: string;
+  max: number;
+  min: number;
+  onChange?: (value: number) => void;
+  step?: number;
+  value: number;
 }) {
   return (
     <SettingsSlider
@@ -64,7 +64,7 @@ function ShaderSettingsSlider({
       value={value}
       onChange={onChange}
     />
-  )
+  );
 }
 
 function HorizontalShaderOptionRow({
@@ -74,11 +74,11 @@ function HorizontalShaderOptionRow({
   selected,
   onSelect,
 }: {
-  label?: string
-  items: Array<{ value: string; label: string }>
-  persistKey: string
-  selected: string
-  onSelect: (value: string) => void
+  label?: string;
+  items: Array<{ value: string; label: string }>;
+  persistKey: string;
+  selected: string;
+  onSelect: (value: string) => void;
 }) {
   return (
     <div className="flex flex-col gap-1.5">
@@ -95,7 +95,7 @@ function HorizontalShaderOptionRow({
       >
         <div className={HORIZONTAL_OPTION_ROW}>
           {items.map((item) => {
-            const isSelected = selected === item.value
+            const isSelected = selected === item.value;
 
             return (
               <button
@@ -111,16 +111,16 @@ function HorizontalShaderOptionRow({
               >
                 {item.label}
               </button>
-            )
+            );
           })}
         </div>
       </ScrollArea>
     </div>
-  )
+  );
 }
 
 function isPaperShaderHexColor(value: string) {
-  return /^#[0-9a-f]{6}$/i.test(value)
+  return /^#[0-9a-f]{6}$/i.test(value);
 }
 
 function PaperShaderParamControl({
@@ -128,11 +128,11 @@ function PaperShaderParamControl({
   value,
   onChange,
 }: {
-  control: PaperShaderControlDefinition
-  value: PaperShaderParamValue
-  onChange: (value: DraftingCardPaperShaderState["image"] | PaperShaderParamValue) => void
+  control: PaperShaderControlDefinition;
+  value: PaperShaderParamValue;
+  onChange: (value: DraftingCardPaperShaderState["image"] | PaperShaderParamValue) => void;
 }) {
-  const label = formatPaperShaderParamLabel(control.key)
+  const label = formatPaperShaderParamLabel(control.key);
 
   if (control.type === "image") {
     return (
@@ -154,17 +154,17 @@ function PaperShaderParamControl({
             className="hidden"
             type="file"
             onChange={(event) => {
-              const file = event.target.files?.[0]
-              if (!file) return
+              const file = event.target.files?.[0];
+              if (!file) return;
               onChange({
                 source: "upload",
                 value: URL.createObjectURL(file),
-              })
+              });
             }}
           />
         </label>
       </div>
-    )
+    );
   }
 
   if (control.type === "boolean") {
@@ -174,11 +174,11 @@ function PaperShaderParamControl({
         label={label}
         onChange={(checked) => onChange(checked)}
       />
-    )
+    );
   }
 
   if (control.type === "number" && typeof value === "number") {
-    const step = control.step ?? 0.01
+    const step = control.step ?? 0.01;
 
     return (
       <ShaderSettingsSlider
@@ -189,7 +189,7 @@ function PaperShaderParamControl({
         value={value}
         onChange={onChange}
       />
-    )
+    );
   }
 
   if (control.type === "color" && typeof value === "string") {
@@ -201,7 +201,7 @@ function PaperShaderParamControl({
         value={isPaperShaderHexColor(value) ? value : PAPER_SHADER_COLOR_FALLBACK}
         onValueChange={(_fill, css) => onChange(fillPreviewHex(css))}
       />
-    )
+    );
   }
 
   if (control.type === "enum" && typeof value === "string") {
@@ -213,17 +213,16 @@ function PaperShaderParamControl({
           selected={formatPaperShaderParamLabel(value)}
           onSelect={(formatted) => {
             const option =
-              control.options.find(
-                (entry) => formatPaperShaderParamLabel(entry) === formatted,
-              ) ?? value
-            onChange(option)
+              control.options.find((entry) => formatPaperShaderParamLabel(entry) === formatted) ??
+              value;
+            onChange(option);
           }}
         />
       </div>
-    )
+    );
   }
 
-  return null
+  return null;
 }
 
 function PaperShaderColorsGrid({
@@ -233,23 +232,23 @@ function PaperShaderColorsGrid({
   paperShader,
   updateParam,
 }: {
-  colorsControl: PaperShaderControlDefinition | undefined
-  maxColorCount: number
-  namedColorControls: PaperShaderControlDefinition[]
-  paperShader: DraftingCardPaperShaderState
-  updateParam: (key: string, value: PaperShaderParamValue) => void
+  colorsControl: PaperShaderControlDefinition | undefined;
+  maxColorCount: number;
+  namedColorControls: PaperShaderControlDefinition[];
+  paperShader: DraftingCardPaperShaderState;
+  updateParam: (key: string, value: PaperShaderParamValue) => void;
 }) {
   const hasPaletteColors =
-    colorsControl != null && Array.isArray(paperShader.params[colorsControl.key])
-  const hasColorSettings = hasPaletteColors || namedColorControls.length > 0
+    colorsControl != null && Array.isArray(paperShader.params[colorsControl.key]);
+  const hasColorSettings = hasPaletteColors || namedColorControls.length > 0;
 
   if (!hasColorSettings) {
-    return null
+    return null;
   }
 
   const paletteColors = hasPaletteColors
     ? (paperShader.params[colorsControl!.key] as string[])
-    : undefined
+    : undefined;
 
   return (
     <PaperShaderColorGrid
@@ -265,16 +264,16 @@ function PaperShaderColorsGrid({
                 paletteColors ?? [],
                 maxColorCount,
                 PAPER_SHADER_NEW_COLOR,
-              )
+              );
               if (next && colorsControl) {
-                updateParam(colorsControl.key, next)
+                updateParam(colorsControl.key, next);
               }
             }
           : undefined
       }
       onColorsChange={(nextColors) => {
         if (colorsControl) {
-          updateParam(colorsControl.key, nextColors)
+          updateParam(colorsControl.key, nextColors);
         }
       }}
       onNamedColorChange={(key, color) => updateParam(key, color)}
@@ -283,13 +282,13 @@ function PaperShaderColorsGrid({
           paletteColors ?? [],
           index,
           DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT,
-        )
+        );
         if (next && colorsControl) {
-          updateParam(colorsControl.key, next)
+          updateParam(colorsControl.key, next);
         }
       }}
     />
-  )
+  );
 }
 
 function PaperShaderSettingsPopover({
@@ -300,12 +299,12 @@ function PaperShaderSettingsPopover({
   updatePaperShader,
   updateParam,
 }: {
-  advancedControls: PaperShaderControlDefinition[]
-  hasPlayback: boolean
-  paperShader: DraftingCardPaperShaderState
-  shapeControl: PaperShaderEnumControl | undefined
-  updatePaperShader: (patch: Partial<DraftingCardPaperShaderState>) => void
-  updateParam: (key: string, value: PaperShaderParamValue) => void
+  advancedControls: PaperShaderControlDefinition[];
+  hasPlayback: boolean;
+  paperShader: DraftingCardPaperShaderState;
+  shapeControl: PaperShaderEnumControl | undefined;
+  updatePaperShader: (patch: Partial<DraftingCardPaperShaderState>) => void;
+  updateParam: (key: string, value: PaperShaderParamValue) => void;
 }) {
   return (
     <SettingsRowPopover
@@ -370,36 +369,36 @@ function PaperShaderSettingsPopover({
               if (control.type === "image") {
                 updatePaperShader({
                   image: nextValue as DraftingCardPaperShaderState["image"],
-                })
-                return
+                });
+                return;
               }
 
-              updateParam(control.key, nextValue as PaperShaderParamValue)
+              updateParam(control.key, nextValue as PaperShaderParamValue);
             }}
           />
         ))}
       </div>
     </SettingsRowPopover>
-  )
+  );
 }
 
 export function SettingsPaperShaderControls({
   paperShader,
   onPaperShaderChange,
 }: {
-  paperShader: DraftingCardPaperShaderState
-  onPaperShaderChange: (paperShader: DraftingCardPaperShaderState) => void
+  paperShader: DraftingCardPaperShaderState;
+  onPaperShaderChange: (paperShader: DraftingCardPaperShaderState) => void;
 }) {
-  const definition = getPaperShaderDefinition(paperShader.shaderId)
-  const hasPlayback = paperShaderHasPlayback(paperShader.shaderId)
+  const definition = getPaperShaderDefinition(paperShader.shaderId);
+  const hasPlayback = paperShaderHasPlayback(paperShader.shaderId);
   const selectedPreset =
     definition.presets.find((preset) => preset.name === paperShader.presetName) ??
-    definition.presets[0]
+    definition.presets[0];
 
   const shapeControl = definition.controls.find(
     (control): control is PaperShaderEnumControl =>
       control.type === "enum" && control.key === "shape",
-  )
+  );
 
   const advancedControls = definition.controls.filter(
     (control) =>
@@ -407,9 +406,9 @@ export function SettingsPaperShaderControls({
       control.key !== "shape" &&
       control.type !== "color" &&
       control.type !== "colors",
-  )
-  const colorsControl = definition.controls.find((control) => control.type === "colors")
-  const namedColorControls = definition.controls.filter((control) => control.type === "color")
+  );
+  const colorsControl = definition.controls.find((control) => control.type === "colors");
+  const namedColorControls = definition.controls.filter((control) => control.type === "color");
 
   const updatePaperShader = (patch: Partial<DraftingCardPaperShaderState>) => {
     onPaperShaderChange({
@@ -417,8 +416,8 @@ export function SettingsPaperShaderControls({
       ...patch,
       image: patch.image ? { ...patch.image } : { ...paperShader.image },
       params: patch.params ? structuredClone(patch.params) : structuredClone(paperShader.params),
-    })
-  }
+    });
+  };
 
   const updateParam = (key: string, value: PaperShaderParamValue) => {
     updatePaperShader({
@@ -426,10 +425,10 @@ export function SettingsPaperShaderControls({
         ...paperShader.params,
         [key]: value,
       },
-    })
-  }
+    });
+  };
 
-  const hasPresetOptions = definition.presets.length > 0
+  const hasPresetOptions = definition.presets.length > 0;
 
   const colorsGrid = (
     <PaperShaderColorsGrid
@@ -439,7 +438,7 @@ export function SettingsPaperShaderControls({
       paperShader={paperShader}
       updateParam={updateParam}
     />
-  )
+  );
 
   const settingsPopover = (
     <PaperShaderSettingsPopover
@@ -450,7 +449,7 @@ export function SettingsPaperShaderControls({
       updatePaperShader={updatePaperShader}
       updateParam={updateParam}
     />
-  )
+  );
 
   if (!hasPresetOptions) {
     return (
@@ -458,7 +457,7 @@ export function SettingsPaperShaderControls({
         {colorsGrid}
         {settingsPopover}
       </div>
-    )
+    );
   }
 
   return (
@@ -475,5 +474,5 @@ export function SettingsPaperShaderControls({
       {colorsGrid}
       {settingsPopover}
     </div>
-  )
+  );
 }

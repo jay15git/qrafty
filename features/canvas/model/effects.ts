@@ -1,46 +1,46 @@
-export type DraftingBorderStyle = "solid"
+export type DraftingBorderStyle = "solid";
 
-export type DraftingBorderSideKey = "top" | "right" | "bottom" | "left"
+export type DraftingBorderSideKey = "top" | "right" | "bottom" | "left";
 
 export type DraftingBorderSideValue = {
-  color: string
-  opacity: number
-  style: DraftingBorderStyle
-  width: number
-}
+  color: string;
+  opacity: number;
+  style: DraftingBorderStyle;
+  width: number;
+};
 
-export type DraftingPerSideBorderState = Record<DraftingBorderSideKey, DraftingBorderSideValue>
+export type DraftingPerSideBorderState = Record<DraftingBorderSideKey, DraftingBorderSideValue>;
 
 export type DraftingOutlineState = {
-  color: string
-  offset: number
-  opacity: number
-  style: DraftingBorderStyle
-  visible: boolean
-  width: number
-}
+  color: string;
+  offset: number;
+  opacity: number;
+  style: DraftingBorderStyle;
+  visible: boolean;
+  width: number;
+};
 
-export type DraftingShadowKind = "box" | "drop"
+export type DraftingShadowKind = "box" | "drop";
 
 export type DraftingShadowLayerState = {
-  blur: number
-  color: string
-  id: string
-  inset: boolean
-  kind: DraftingShadowKind
-  offsetX: number
-  offsetY: number
-  opacity: number
-  spread: number
-  visible: boolean
-}
+  blur: number;
+  color: string;
+  id: string;
+  inset: boolean;
+  kind: DraftingShadowKind;
+  offsetX: number;
+  offsetY: number;
+  opacity: number;
+  spread: number;
+  visible: boolean;
+};
 
 const DEFAULT_DRAFTING_BORDER_SIDE: DraftingBorderSideValue = {
   color: "#111827",
   opacity: 100,
   style: "solid",
   width: 0,
-}
+};
 
 export const DEFAULT_DRAFTING_OUTLINE: DraftingOutlineState = {
   color: "#111827",
@@ -49,7 +49,7 @@ export const DEFAULT_DRAFTING_OUTLINE: DraftingOutlineState = {
   style: "solid",
   visible: false,
   width: 0,
-}
+};
 
 const DEFAULT_DRAFTING_SHADOW_LAYER: Omit<DraftingShadowLayerState, "id"> = {
   blur: 0,
@@ -61,12 +61,12 @@ const DEFAULT_DRAFTING_SHADOW_LAYER: Omit<DraftingShadowLayerState, "id"> = {
   opacity: 0,
   spread: 0,
   visible: true,
-}
+};
 
 function createDraftingShadowLayerId() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
-    : `shadow-${Math.random().toString(36).slice(2)}`
+    : `shadow-${Math.random().toString(36).slice(2)}`;
 }
 
 export function createDefaultDraftingShadowLayer(
@@ -76,7 +76,7 @@ export function createDefaultDraftingShadowLayer(
     ...DEFAULT_DRAFTING_SHADOW_LAYER,
     id: createDraftingShadowLayerId(),
     ...overrides,
-  }
+  };
 }
 
 export function createUniformPerSideBorder(
@@ -85,22 +85,25 @@ export function createUniformPerSideBorder(
   const side: DraftingBorderSideValue = {
     ...DEFAULT_DRAFTING_BORDER_SIDE,
     ...value,
-  }
+  };
 
   return {
     bottom: { ...side },
     left: { ...side },
     right: { ...side },
     top: { ...side },
-  }
+  };
 }
 
-export function normalizeBorderStyle(value: unknown, fallback: DraftingBorderStyle): DraftingBorderStyle {
-  return value === "solid" ? value : fallback
+export function normalizeBorderStyle(
+  value: unknown,
+  fallback: DraftingBorderStyle,
+): DraftingBorderStyle {
+  return value === "solid" ? value : fallback;
 }
 
 function normalizeShadowKind(_value: unknown, _fallback: DraftingShadowKind): DraftingShadowKind {
-  return "drop"
+  return "drop";
 }
 
 export function normalizeOutlineState(
@@ -108,10 +111,10 @@ export function normalizeOutlineState(
   fallback: DraftingOutlineState = DEFAULT_DRAFTING_OUTLINE,
 ): DraftingOutlineState {
   if (typeof value !== "object" || value === null) {
-    return { ...fallback }
+    return { ...fallback };
   }
 
-  const record = value as Record<string, unknown>
+  const record = value as Record<string, unknown>;
 
   return {
     color: typeof record.color === "string" ? record.color : fallback.color,
@@ -120,7 +123,7 @@ export function normalizeOutlineState(
     style: normalizeBorderStyle(record.style, fallback.style),
     visible: typeof record.visible === "boolean" ? record.visible : fallback.visible,
     width: clampNumber(record.width, fallback.width, 0, 64),
-  }
+  };
 }
 
 function normalizeBorderSideValue(
@@ -128,37 +131,37 @@ function normalizeBorderSideValue(
   fallback: DraftingBorderSideValue,
 ): DraftingBorderSideValue {
   if (typeof value !== "object" || value === null) {
-    return { ...fallback }
+    return { ...fallback };
   }
 
-  const record = value as Record<string, unknown>
+  const record = value as Record<string, unknown>;
 
   return {
     color: typeof record.color === "string" ? record.color : fallback.color,
     opacity: clampNumber(record.opacity, fallback.opacity, 0, 100),
     style: normalizeBorderStyle(record.style, fallback.style),
     width: clampNumber(record.width, fallback.width, 0, 64),
-  }
+  };
 }
 
 export function normalizePerSideBorderState(
   value: unknown,
   uniform: Partial<DraftingBorderSideValue> = {},
 ): DraftingPerSideBorderState {
-  const base = createUniformPerSideBorder(uniform)
+  const base = createUniformPerSideBorder(uniform);
 
   if (typeof value !== "object" || value === null) {
-    return base
+    return base;
   }
 
-  const record = value as Record<string, unknown>
+  const record = value as Record<string, unknown>;
 
   return {
     bottom: normalizeBorderSideValue(record.bottom, base.bottom),
     left: normalizeBorderSideValue(record.left, base.left),
     right: normalizeBorderSideValue(record.right, base.right),
     top: normalizeBorderSideValue(record.top, base.top),
-  }
+  };
 }
 
 export function normalizeShadowLayerState(
@@ -166,10 +169,10 @@ export function normalizeShadowLayerState(
   fallback: DraftingShadowLayerState,
 ): DraftingShadowLayerState {
   if (typeof value !== "object" || value === null) {
-    return { ...fallback }
+    return { ...fallback };
   }
 
-  const record = value as Record<string, unknown>
+  const record = value as Record<string, unknown>;
 
   return {
     blur: clampNumber(record.blur, fallback.blur, 0, 128),
@@ -182,7 +185,7 @@ export function normalizeShadowLayerState(
     opacity: clampNumber(record.opacity, fallback.opacity, 0, 100),
     spread: clampNumber(record.spread, fallback.spread, -128, 128),
     visible: typeof record.visible === "boolean" ? record.visible : fallback.visible,
-  }
+  };
 }
 
 export function shadowLayerToLegacyShadow(shadow: DraftingShadowLayerState) {
@@ -196,31 +199,29 @@ export function shadowLayerToLegacyShadow(shadow: DraftingShadowLayerState) {
     opacity: shadow.opacity,
     spread: shadow.spread,
     visible: shadow.visible,
-  }
+  };
 }
 
 export function hasLegacyBackgroundShapeShadow(options: {
-  edgeBlur: number
-  shadowOffsetX: number
-  shadowOffsetY: number
-  shadowOpacity: number
+  edgeBlur: number;
+  shadowOffsetX: number;
+  shadowOffsetY: number;
+  shadowOpacity: number;
 }) {
   return (
     options.shadowOpacity > 0 &&
-    (options.edgeBlur > 0 ||
-      options.shadowOffsetX !== 0 ||
-      options.shadowOffsetY !== 0)
-  )
+    (options.edgeBlur > 0 || options.shadowOffsetX !== 0 || options.shadowOffsetY !== 0)
+  );
 }
 
 export function shadowFromBackgroundShapeOptions(options: {
-  edgeBlur: number
-  shadowColor: string
-  shadowOffsetX: number
-  shadowOffsetY: number
-  shadowOpacity: number
+  edgeBlur: number;
+  shadowColor: string;
+  shadowOffsetX: number;
+  shadowOffsetY: number;
+  shadowOpacity: number;
 }) {
-  const visible = hasLegacyBackgroundShapeShadow(options)
+  const visible = hasLegacyBackgroundShapeShadow(options);
 
   return {
     blur: options.edgeBlur,
@@ -232,20 +233,20 @@ export function shadowFromBackgroundShapeOptions(options: {
     opacity: options.shadowOpacity,
     spread: 0,
     visible,
-  }
+  };
 }
 
 export function legacyShadowToShadowLayer(
   shadow: {
-    blur: number
-    color: string
-    inset?: boolean
-    kind?: DraftingShadowKind
-    offsetX: number
-    offsetY: number
-    opacity: number
-    spread?: number
-    visible?: boolean
+    blur: number;
+    color: string;
+    inset?: boolean;
+    kind?: DraftingShadowKind;
+    offsetX: number;
+    offsetY: number;
+    opacity: number;
+    spread?: number;
+    visible?: boolean;
   },
   id?: string,
 ): DraftingShadowLayerState {
@@ -260,10 +261,10 @@ export function legacyShadowToShadowLayer(
     opacity: shadow.opacity,
     spread: shadow.spread ?? 0,
     visible: shadow.visible ?? shadow.opacity > 0,
-  }
+  };
 }
 
 function clampNumber(value: unknown, fallback: number, min: number, max: number) {
-  const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback
-  return Math.min(max, Math.max(min, parsed))
+  const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback;
+  return Math.min(max, Math.max(min, parsed));
 }

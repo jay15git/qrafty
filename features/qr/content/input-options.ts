@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react"
+import type { LucideIcon } from "lucide-react";
 import {
   AppWindow,
   AtSign,
@@ -37,7 +37,7 @@ import {
   Users,
   Video,
   Wifi,
-} from "lucide-react"
+} from "lucide-react";
 
 import {
   PLATFORM_PICKER_TYPES,
@@ -45,7 +45,7 @@ import {
   getPlatformDef,
   isPlatformType,
   resolvePlatformType,
-} from "@/features/qr/content/platform-intents"
+} from "@/features/qr/content/platform-intents";
 
 export type QrInputType =
   | "auto"
@@ -129,17 +129,11 @@ export type QrInputType =
   | "gitlab"
   | "notion"
   | "medium"
-  | "substack"
+  | "substack";
 
-type QuickQrInputType =
-  | "text"
-  | "link"
-  | "phone"
-  | "email"
-  | "instagram"
-  | "whatsapp"
+type QuickQrInputType = "text" | "link" | "phone" | "email" | "instagram" | "whatsapp";
 
-type QrCategoryKey = "popular" | "more"
+type QrCategoryKey = "popular" | "more";
 
 const STRUCTURED_PICKER_TYPES = [
   "link",
@@ -155,7 +149,7 @@ const STRUCTURED_PICKER_TYPES = [
   "coupon",
   "upi",
   "crypto",
-] as const satisfies readonly QrInputType[]
+] as const satisfies readonly QrInputType[];
 
 /** Types shown in content pickers. Legacy aliases still exist for saved docs. */
 export const PICKER_QR_INPUT_TYPES = [
@@ -163,9 +157,9 @@ export const PICKER_QR_INPUT_TYPES = [
   ...PLATFORM_PICKER_TYPES.filter(
     (type) => !(STRUCTURED_PICKER_TYPES as readonly QrInputType[]).includes(type),
   ),
-] as const satisfies readonly QrInputType[]
+] as const satisfies readonly QrInputType[];
 
-export type PickerQrInputType = (typeof PICKER_QR_INPUT_TYPES)[number]
+export type PickerQrInputType = (typeof PICKER_QR_INPUT_TYPES)[number];
 
 const LINK_ALIAS_QR_INPUT_TYPES = new Set<QrInputType>([
   "website",
@@ -177,72 +171,72 @@ const LINK_ALIAS_QR_INPUT_TYPES = new Set<QrInputType>([
   "video",
   "document",
   "menu",
-])
+]);
 
 export function isPickerQrInputType(type: QrInputType): type is PickerQrInputType {
-  return (PICKER_QR_INPUT_TYPES as readonly QrInputType[]).includes(type)
+  return (PICKER_QR_INPUT_TYPES as readonly QrInputType[]).includes(type);
 }
 
 export function normalizeContentTypeForPicker(type: QrInputType): PickerQrInputType {
   if (isPickerQrInputType(type)) {
-    return type
+    return type;
   }
 
   if (type === "auto") {
-    return "text"
+    return "text";
   }
 
-  const resolved = resolvePlatformType(type)
+  const resolved = resolvePlatformType(type);
   if (isPickerQrInputType(resolved)) {
-    return resolved
+    return resolved;
   }
 
   if (LINK_ALIAS_QR_INPUT_TYPES.has(type) || URL_ONLY_ALIAS_TYPES.has(type)) {
-    return "link"
+    return "link";
   }
 
-  return "link"
+  return "link";
 }
 
 export function getContentTypeLabel(type: QrInputType): string {
   if (isPickerQrInputType(type)) {
-    return QR_INPUT_OPTIONS[type].label
+    return QR_INPUT_OPTIONS[type].label;
   }
 
   if (type === "auto") {
-    return QR_INPUT_OPTIONS.text.label
+    return QR_INPUT_OPTIONS.text.label;
   }
 
-  const platform = getPlatformDef(type)
+  const platform = getPlatformDef(type);
   if (platform) {
-    return platform.label
+    return platform.label;
   }
 
   if (LINK_ALIAS_QR_INPUT_TYPES.has(type)) {
-    return QR_INPUT_OPTIONS[type as QrInputType].label
+    return QR_INPUT_OPTIONS[type as QrInputType].label;
   }
 
-  return QR_INPUT_OPTIONS[type as QrInputType]?.label ?? QR_INPUT_OPTIONS.link.label
+  return QR_INPUT_OPTIONS[type as QrInputType]?.label ?? QR_INPUT_OPTIONS.link.label;
 }
 
 export type QrInputOption = {
-  icon: LucideIcon
-  label: string
-  value: QrInputType
-}
+  icon: LucideIcon;
+  label: string;
+  value: QrInputType;
+};
 
 type QuickQrInputOption = Omit<QrInputOption, "value"> & {
-  value: QuickQrInputType
-}
+  value: QuickQrInputType;
+};
 
 type QrCategory = {
-  icon: LucideIcon
-  items: readonly QrInputOption[]
-  key: QrCategoryKey
-  label: string
-}
+  icon: LucideIcon;
+  items: readonly QrInputOption[];
+  key: QrCategoryKey;
+  label: string;
+};
 
-export const DEFAULT_QR_INPUT_TYPE: QrInputType = "link"
+export const DEFAULT_QR_INPUT_TYPE: QrInputType = "link";
 
 export const QR_INPUT_OPTIONS: Record<QrInputType, QrInputOption> = {
   auto: { value: "auto", label: "Auto", icon: Sparkles },
@@ -355,7 +349,7 @@ export const QR_INPUT_OPTIONS: Record<QrInputType, QrInputOption> = {
   notion: { value: "notion", label: "Notion", icon: NotebookText },
   medium: { value: "medium", label: "Medium", icon: Type },
   substack: { value: "substack", label: "Substack", icon: NotebookPen },
-}
+};
 
 const QUICK_INPUT_VALUES = [
   "link",
@@ -363,53 +357,36 @@ const QUICK_INPUT_VALUES = [
   "phone",
   "email",
   "whatsapp",
-] as const satisfies readonly QuickQrInputType[]
+] as const satisfies readonly QuickQrInputType[];
 
 function pickQrInputOptions<const T extends readonly QrInputType[]>(values: T) {
-  return values.map((value) => QR_INPUT_OPTIONS[value])
+  return values.map((value) => QR_INPUT_OPTIONS[value]);
 }
 
-const QUICK_INPUT_OPTIONS = pickQrInputOptions(
-  QUICK_INPUT_VALUES
-) as readonly QuickQrInputOption[]
+const QUICK_INPUT_OPTIONS = pickQrInputOptions(QUICK_INPUT_VALUES) as readonly QuickQrInputOption[];
 
 const QR_CATEGORIES: readonly QrCategory[] = [
   {
     key: "popular",
     label: "Essentials",
     icon: QrCode,
-    items: pickQrInputOptions([
-      "link",
-      "text",
-      "phone",
-      "email",
-      "wifi",
-      "vcard",
-      "whatsapp",
-    ]),
+    items: pickQrInputOptions(["link", "text", "phone", "email", "wifi", "vcard", "whatsapp"]),
   },
   {
     key: "more",
     label: "More",
     icon: CalendarRange,
-    items: pickQrInputOptions([
-      "sms",
-      "map-location",
-      "event",
-      "coupon",
-      "upi",
-      "crypto",
-    ]),
+    items: pickQrInputOptions(["sms", "map-location", "event", "coupon", "upi", "crypto"]),
   },
-] as const
+] as const;
 
 function toggleQuickInputType(
   current: QrInputType | null,
-  next: QuickQrInputType
+  next: QuickQrInputType,
 ): QrInputType | null {
-  return current === next ? null : next
+  return current === next ? null : next;
 }
 
 function isPlatformContentType(type: QrInputType): boolean {
-  return isPlatformType(type)
+  return isPlatformType(type);
 }

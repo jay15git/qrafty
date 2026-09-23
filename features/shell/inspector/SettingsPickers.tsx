@@ -1,44 +1,37 @@
-"use client"
+"use client";
 
-import { Search } from "lucide-react"
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react"
+import { Search } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 
-import { Loader } from "@/features/shell/components/motion/loader"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { SearchIcon, type SearchIconHandle } from "@/components/ui/search-icon"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
-import { SettingsInput } from "@/features/shell/inspector/settings-ui"
+import { Loader } from "@/features/shell/components/motion/loader";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SearchIcon, type SearchIconHandle } from "@/components/ui/search-icon";
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
+import { SettingsInput } from "@/features/shell/inspector/settings-ui";
 import {
   findBrandIconById,
   getBrandIconById,
   POPULAR_BRAND_ICON_IDS,
   type BrandIconEntry,
-} from "@/features/qr/assets/brand-icons"
+} from "@/features/qr/assets/brand-icons";
 import {
   getIconstackErrorMessage,
   parseIconstackResultIconId,
   parseIconstackSelectionId,
   toIconstackSelectionId,
   type IconstackSearchResult,
-} from "@/features/qr/assets/iconstack-api"
+} from "@/features/qr/assets/iconstack-api";
 import {
   fetchAndCacheIconstackSvg,
   getCachedIconstackSvg,
   listCachedIconstackSelectionIds,
   subscribeIconstackSvgCache,
-} from "@/features/qr/assets/iconstack-svg-cache"
-import { normalizeIconstackSvgMarkup } from "@/features/qr/assets/iconstack-svg"
-import { filterCuratedIconstackIcons } from "@/features/qr/assets/iconstack-curated"
-import { useIconstackCuratedIcons } from "@/features/qr/hooks/use-iconstack-curated-icons"
-import { useIconstackIconSearch } from "@/features/qr/hooks/use-iconstack-icon-search"
-import { cn } from "@/lib/utils"
+} from "@/features/qr/assets/iconstack-svg-cache";
+import { normalizeIconstackSvgMarkup } from "@/features/qr/assets/iconstack-svg";
+import { filterCuratedIconstackIcons } from "@/features/qr/assets/iconstack-curated";
+import { useIconstackCuratedIcons } from "@/features/qr/hooks/use-iconstack-curated-icons";
+import { useIconstackIconSearch } from "@/features/qr/hooks/use-iconstack-icon-search";
+import { cn } from "@/lib/utils";
 
 function LogoIconTile({
   ariaLabel,
@@ -46,10 +39,10 @@ function LogoIconTile({
   onClick,
   children,
 }: {
-  ariaLabel: string
-  isSelected: boolean
-  onClick: () => void
-  children: ReactNode
+  ariaLabel: string;
+  isSelected: boolean;
+  onClick: () => void;
+  children: ReactNode;
 }) {
   return (
     <button
@@ -61,41 +54,41 @@ function LogoIconTile({
     >
       <span className="dn-logo-icon-picker-tile-inner dn-squircle-xs">{children}</span>
     </button>
-  )
+  );
 }
 
 export function LogoPickerTileIcon({
   iconId,
   previewSvg,
 }: {
-  iconId: string
-  previewSvg?: string
+  iconId: string;
+  previewSvg?: string;
 }) {
-  const brandIcon = findBrandIconById(iconId)
-  const parsed = parseIconstackSelectionId(iconId)
+  const brandIcon = findBrandIconById(iconId);
+  const parsed = parseIconstackSelectionId(iconId);
 
   useSyncExternalStore(
     subscribeIconstackSvgCache,
     listCachedIconstackSelectionIds,
     listCachedIconstackSelectionIds,
-  )
+  );
 
-  const cachedSvg = parsed ? getCachedIconstackSvg(iconId) : undefined
-  const iconstackSvg = previewSvg ?? cachedSvg
+  const cachedSvg = parsed ? getCachedIconstackSvg(iconId) : undefined;
+  const iconstackSvg = previewSvg ?? cachedSvg;
 
   useEffect(() => {
     if (!parsed || iconstackSvg) {
-      return
+      return;
     }
 
     void fetchAndCacheIconstackSvg({ library: parsed.library, id: parsed.iconId }).catch(
       () => undefined,
-    )
-  }, [iconstackSvg, parsed, iconId])
+    );
+  }, [iconstackSvg, parsed, iconId]);
 
   if (brandIcon) {
-    const Icon = brandIcon.icon
-    return <Icon aria-hidden className="dn-logo-icon-picker-icon" />
+    const Icon = brandIcon.icon;
+    return <Icon aria-hidden className="dn-logo-icon-picker-icon" />;
   }
 
   if (iconstackSvg) {
@@ -105,7 +98,7 @@ export function LogoPickerTileIcon({
         className="dn-logo-icon-picker-icon flex items-center justify-center text-[var(--fg)] [&_svg]:size-full"
         dangerouslySetInnerHTML={{ __html: normalizeIconstackSvgMarkup(iconstackSvg) }}
       />
-    )
+    );
   }
 
   return (
@@ -113,88 +106,84 @@ export function LogoPickerTileIcon({
       aria-hidden
       className="dn-logo-icon-picker-icon border border-[color-mix(in_srgb,var(--line)_40%,transparent)] dn-squircle-xs"
     />
-  )
+  );
 }
 
 function IconstackIconPreview({
   previewSvg,
   result,
 }: {
-  previewSvg?: string
-  result: IconstackSearchResult
+  previewSvg?: string;
+  result: IconstackSearchResult;
 }) {
   if (previewSvg) {
-    return (
-      <LogoPickerTileIcon iconId={toIconstackSelectionId(result)} previewSvg={previewSvg} />
-    )
+    return <LogoPickerTileIcon iconId={toIconstackSelectionId(result)} previewSvg={previewSvg} />;
   }
 
   return (
     <span className="dn-type-caption max-w-full truncate px-1 font-medium leading-none">
       {result.name}
     </span>
-  )
+  );
 }
 
 function LazyIconstackIcon({ result }: { result: IconstackSearchResult }) {
-  const selectionId = toIconstackSelectionId(result)
-  const iconId = parseIconstackResultIconId(result)
-  const hostRef = useRef<HTMLSpanElement>(null)
-  const [isVisible, setIsVisible] = useState(
-    () => typeof IntersectionObserver === "undefined",
-  )
-  const [failed, setFailed] = useState(false)
+  const selectionId = toIconstackSelectionId(result);
+  const iconId = parseIconstackResultIconId(result);
+  const hostRef = useRef<HTMLSpanElement>(null);
+  const [isVisible, setIsVisible] = useState(() => typeof IntersectionObserver === "undefined");
+  const [failed, setFailed] = useState(false);
 
   useSyncExternalStore(
     subscribeIconstackSvgCache,
     listCachedIconstackSelectionIds,
     listCachedIconstackSelectionIds,
-  )
-  const cachedSvg = getCachedIconstackSvg(selectionId)
+  );
+  const cachedSvg = getCachedIconstackSvg(selectionId);
 
   useEffect(() => {
     if (isVisible) {
-      return
+      return;
     }
-    const node = hostRef.current
+    const node = hostRef.current;
     if (!node) {
-      return
+      return;
     }
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-          setIsVisible(true)
-          observer.disconnect()
+          setIsVisible(true);
+          observer.disconnect();
         }
       },
       {
         root: node.closest(".dn-logo-icon-picker-viewport"),
         rootMargin: "200px",
       },
-    )
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [isVisible])
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [isVisible]);
 
   useEffect(() => {
     if (!isVisible || cachedSvg || failed) {
-      return
+      return;
     }
 
-    let cancelled = false
+    let cancelled = false;
     void fetchAndCacheIconstackSvg({ library: result.library, id: iconId }).catch(() => {
       if (!cancelled) {
-        setFailed(true)
+        setFailed(true);
       }
-    })
+    });
 
     return () => {
-      cancelled = true
-    }
-  }, [cachedSvg, failed, iconId, isVisible, result.library])
+      cancelled = true;
+    };
+  }, [cachedSvg, failed, iconId, isVisible, result.library]);
 
   if (cachedSvg) {
-    return <LogoPickerTileIcon iconId={selectionId} previewSvg={cachedSvg} />
+    return <LogoPickerTileIcon iconId={selectionId} previewSvg={cachedSvg} />;
   }
 
   if (failed) {
@@ -202,7 +191,7 @@ function LazyIconstackIcon({ result }: { result: IconstackSearchResult }) {
       <span className="dn-type-caption max-w-full truncate px-1 font-medium leading-none">
         {result.name}
       </span>
-    )
+    );
   }
 
   return (
@@ -211,34 +200,27 @@ function LazyIconstackIcon({ result }: { result: IconstackSearchResult }) {
       aria-hidden
       className="dn-logo-icon-picker-icon dn-logo-icon-picker-icon-pending animate-pulse dn-squircle-xs"
     />
-  )
+  );
 }
 
 function LogoIconPickerEmpty() {
-  const iconRef = useRef<SearchIconHandle>(null)
+  const iconRef = useRef<SearchIconHandle>(null);
 
   useEffect(() => {
-    iconRef.current?.startAnimation()
-  }, [])
+    iconRef.current?.startAnimation();
+  }, []);
 
   return (
     <div className="dn-logo-icon-picker-state dn-logo-icon-picker-empty col-span-full">
-      <SearchIcon
-        ref={iconRef}
-        aria-hidden
-        className="text-[var(--muted)]"
-        size={44}
-      />
+      <SearchIcon ref={iconRef} aria-hidden className="text-[var(--muted)]" size={44} />
       <div className="flex flex-col items-center gap-0.5">
-        <p className="dn-type-meta font-semibold text-[var(--fg)]">
-          No matches found
-        </p>
+        <p className="dn-type-meta font-semibold text-[var(--fg)]">No matches found</p>
         <p className="dn-type-meta text-[var(--popover-muted)]">
           Try a different keyword or spelling
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 function LogoIconPickerSkeletonTiles({ count }: { count: number }) {
@@ -252,21 +234,13 @@ function LogoIconPickerSkeletonTiles({ count }: { count: number }) {
         />
       ))}
     </>
-  )
+  );
 }
 
-function LogoIconPickerError({
-  error,
-  onRetry,
-}: {
-  error: unknown
-  onRetry: () => void
-}) {
+function LogoIconPickerError({ error, onRetry }: { error: unknown; onRetry: () => void }) {
   return (
     <div className="dn-logo-icon-picker-state col-span-4">
-      <p className="dn-type-meta text-[var(--popover-muted)]">
-        {getIconstackErrorMessage(error)}
-      </p>
+      <p className="dn-type-meta text-[var(--popover-muted)]">{getIconstackErrorMessage(error)}</p>
       <button
         className="dn-pressable-press-only dn-type-meta dn-squircle-xs border border-[var(--line)] px-3 py-1.5 font-medium text-[var(--fg)] hover:bg-[var(--popover-tile-hover)]"
         type="button"
@@ -275,7 +249,7 @@ function LogoIconPickerError({
         Retry
       </button>
     </div>
-  )
+  );
 }
 
 function LogoIconPickerLoadMore({
@@ -283,55 +257,46 @@ function LogoIconPickerLoadMore({
   hasMore,
   onLoadMore,
 }: {
-  enabled: boolean
-  hasMore: boolean
-  onLoadMore: () => void
+  enabled: boolean;
+  hasMore: boolean;
+  onLoadMore: () => void;
 }) {
-  const ref = useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const node = ref.current
-    if (
-      !node ||
-      !enabled ||
-      !hasMore ||
-      typeof IntersectionObserver === "undefined"
-    ) {
-      return
+    const node = ref.current;
+    if (!node || !enabled || !hasMore || typeof IntersectionObserver === "undefined") {
+      return;
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-          onLoadMore()
+          onLoadMore();
         }
       },
       {
         root: node.closest(".dn-logo-icon-picker-viewport"),
         rootMargin: "160px",
       },
-    )
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [enabled, hasMore, onLoadMore])
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [enabled, hasMore, onLoadMore]);
 
   if (!hasMore) {
-    return null
+    return null;
   }
 
   if (typeof IntersectionObserver === "undefined") {
     return (
-      <button
-        className="dn-logo-icon-picker-state col-span-4"
-        type="button"
-        onClick={onLoadMore}
-      >
+      <button className="dn-logo-icon-picker-state col-span-4" type="button" onClick={onLoadMore}>
         <span className="dn-type-meta text-[var(--popover-muted)]">Load more</span>
       </button>
-    )
+    );
   }
 
-  return <div ref={ref} aria-hidden className="dn-logo-icon-picker-sentinel" />
+  return <div ref={ref} aria-hidden className="dn-logo-icon-picker-sentinel" />;
 }
 
 function CuratedLogoIconGrid({
@@ -344,19 +309,19 @@ function CuratedLogoIconGrid({
   skeletonCount,
   onSelect,
 }: {
-  curatedError: string | null
-  curatedIcons: IconstackSearchResult[]
-  curatedPreviewSvgs: Record<string, string>
-  isCuratedLoading: boolean
-  popularBrandIcons: BrandIconEntry[]
-  selectedId: string
-  skeletonCount: number
-  onSelect: (id: string) => void
+  curatedError: string | null;
+  curatedIcons: IconstackSearchResult[];
+  curatedPreviewSvgs: Record<string, string>;
+  isCuratedLoading: boolean;
+  popularBrandIcons: BrandIconEntry[];
+  selectedId: string;
+  skeletonCount: number;
+  onSelect: (id: string) => void;
 }) {
   return (
     <>
       {popularBrandIcons.map((brandIcon) => {
-        const isSelected = selectedId === brandIcon.id
+        const isSelected = selectedId === brandIcon.id;
 
         return (
           <LogoIconTile
@@ -367,24 +332,21 @@ function CuratedLogoIconGrid({
           >
             <LogoPickerTileIcon iconId={brandIcon.id} />
           </LogoIconTile>
-        )
+        );
       })}
       {isCuratedLoading ? (
         <LogoIconPickerSkeletonTiles count={skeletonCount} />
       ) : (
         curatedIcons.map((result) => (
-            <LogoIconTile
-              key={result.id}
-              ariaLabel={`Use ${result.name} icon from ${result.libraryName}`}
-              isSelected={selectedId === toIconstackSelectionId(result)}
-              onClick={() => onSelect(toIconstackSelectionId(result))}
-            >
-              <IconstackIconPreview
-                previewSvg={curatedPreviewSvgs[result.id]}
-                result={result}
-              />
-            </LogoIconTile>
-          ))
+          <LogoIconTile
+            key={result.id}
+            ariaLabel={`Use ${result.name} icon from ${result.libraryName}`}
+            isSelected={selectedId === toIconstackSelectionId(result)}
+            onClick={() => onSelect(toIconstackSelectionId(result))}
+          >
+            <IconstackIconPreview previewSvg={curatedPreviewSvgs[result.id]} result={result} />
+          </LogoIconTile>
+        ))
       )}
       {curatedError ? (
         <p className="col-span-4 px-1 py-3 text-center text-[var(--popover-muted)] dn-type-meta">
@@ -392,7 +354,7 @@ function CuratedLogoIconGrid({
         </p>
       ) : null}
     </>
-  )
+  );
 }
 
 function SearchLogoIconResults({
@@ -407,19 +369,18 @@ function SearchLogoIconResults({
   onLoadMore,
   onSelect,
 }: {
-  error: unknown
-  hasMore: boolean
-  isLoadingMore: boolean
-  isSearching: boolean
-  results: IconstackSearchResult[]
-  retry: () => void
-  selectedId: string
-  total: number
-  onLoadMore: () => void
-  onSelect: (id: string) => void
+  error: unknown;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  isSearching: boolean;
+  results: IconstackSearchResult[];
+  retry: () => void;
+  selectedId: string;
+  total: number;
+  onLoadMore: () => void;
+  onSelect: (id: string) => void;
 }) {
-  const showResultCap =
-    results.length > 0 && !hasMore && !isLoadingMore && total > results.length
+  const showResultCap = results.length > 0 && !hasMore && !isLoadingMore && total > results.length;
 
   return (
     <>
@@ -448,7 +409,7 @@ function SearchLogoIconResults({
         </div>
       ) : null}
     </>
-  )
+  );
 }
 
 function SearchLogoIconGrid({
@@ -463,41 +424,36 @@ function SearchLogoIconGrid({
   onLoadMore,
   onSelect,
 }: {
-  error: unknown
-  hasMore: boolean
-  isLoading: boolean
-  isLoadingMore: boolean
-  results: IconstackSearchResult[]
-  retry: () => void
-  selectedId: string
-  total: number
-  onLoadMore: () => void
-  onSelect: (id: string) => void
+  error: unknown;
+  hasMore: boolean;
+  isLoading: boolean;
+  isLoadingMore: boolean;
+  results: IconstackSearchResult[];
+  retry: () => void;
+  selectedId: string;
+  total: number;
+  onLoadMore: () => void;
+  onSelect: (id: string) => void;
 }) {
-  const isSearching = isLoading || isLoadingMore
-  const showSearchSkeleton = isLoading && results.length === 0
-  const showSearchError = error !== null && results.length === 0
-  const showSearchEmpty = !isLoading && error === null && results.length === 0
+  const isSearching = isLoading || isLoadingMore;
+  const showSearchSkeleton = isLoading && results.length === 0;
+  const showSearchError = error !== null && results.length === 0;
+  const showSearchEmpty = !isLoading && error === null && results.length === 0;
 
   if (showSearchSkeleton) {
     return (
       <div className="dn-logo-icon-picker-state dn-logo-icon-picker-empty col-span-full">
-        <Loader
-          className="text-[var(--muted)]"
-          label="Searching icons"
-          size={32}
-          variant="dots"
-        />
+        <Loader className="text-[var(--muted)]" label="Searching icons" size={32} variant="dots" />
       </div>
-    )
+    );
   }
 
   if (showSearchError) {
-    return <LogoIconPickerError error={error} onRetry={retry} />
+    return <LogoIconPickerError error={error} onRetry={retry} />;
   }
 
   if (showSearchEmpty) {
-    return <LogoIconPickerEmpty />
+    return <LogoIconPickerEmpty />;
   }
 
   return (
@@ -513,7 +469,7 @@ function SearchLogoIconGrid({
       onLoadMore={onLoadMore}
       onSelect={onSelect}
     />
-  )
+  );
 }
 
 export function LogoIconPicker({
@@ -521,30 +477,21 @@ export function LogoIconPicker({
   selectedId,
   onSelect,
 }: {
-  onAfterSelect?: () => void
-  selectedId: string
-  onSelect: (selectedBrandIconId: string) => void
+  onAfterSelect?: () => void;
+  selectedId: string;
+  onSelect: (selectedBrandIconId: string) => void;
 }) {
-  const [query, setQuery] = useState("")
+  const [query, setQuery] = useState("");
   const popularBrandIcons = useMemo(
     () => POPULAR_BRAND_ICON_IDS.map((id) => getBrandIconById(id)),
     [],
-  )
-  const curatedIconSlots = useMemo(() => filterCuratedIconstackIcons("all"), [])
-  const {
-    canSearch,
-    error,
-    hasMore,
-    isLoading,
-    isLoadingMore,
-    loadMore,
-    results,
-    retry,
-    total,
-  } = useIconstackIconSearch({
-    library: "all",
-    query,
-  })
+  );
+  const curatedIconSlots = useMemo(() => filterCuratedIconstackIcons("all"), []);
+  const { canSearch, error, hasMore, isLoading, isLoadingMore, loadMore, results, retry, total } =
+    useIconstackIconSearch({
+      library: "all",
+      query,
+    });
   const {
     error: curatedError,
     icons: curatedIcons,
@@ -553,14 +500,14 @@ export function LogoIconPicker({
   } = useIconstackCuratedIcons({
     enabled: !canSearch,
     library: "all",
-  })
+  });
 
-  const mobileDensity = useMobileInspectorDensity()
+  const mobileDensity = useMobileInspectorDensity();
 
   const selectLogo = (nextId: string) => {
-    onSelect(nextId)
-    onAfterSelect?.()
-  }
+    onSelect(nextId);
+    onAfterSelect?.();
+  };
 
   return (
     <div className="dn-logo-icon-picker dn-section-stack">
@@ -594,39 +541,39 @@ export function LogoIconPicker({
         scrollFade
         viewportClassName="dn-logo-icon-picker-viewport"
       >
-      <div
-        className={cn(
-          "dn-logo-icon-picker-grid",
-          mobileDensity && "dn-logo-icon-picker-grid-mobile",
-        )}
-      >
-        {!canSearch ? (
-          <CuratedLogoIconGrid
-            curatedError={curatedError}
-            curatedIcons={curatedIcons}
-            curatedPreviewSvgs={curatedPreviewSvgs}
-            isCuratedLoading={isCuratedLoading}
-            popularBrandIcons={popularBrandIcons}
-            selectedId={selectedId}
-            skeletonCount={curatedIconSlots.length}
-            onSelect={selectLogo}
-          />
-        ) : (
-          <SearchLogoIconGrid
-            error={error}
-            hasMore={hasMore}
-            isLoading={isLoading}
-            isLoadingMore={isLoadingMore}
-            results={results}
-            retry={retry}
-            selectedId={selectedId}
-            total={total}
-            onLoadMore={loadMore}
-            onSelect={selectLogo}
-          />
-        )}
-      </div>
+        <div
+          className={cn(
+            "dn-logo-icon-picker-grid",
+            mobileDensity && "dn-logo-icon-picker-grid-mobile",
+          )}
+        >
+          {!canSearch ? (
+            <CuratedLogoIconGrid
+              curatedError={curatedError}
+              curatedIcons={curatedIcons}
+              curatedPreviewSvgs={curatedPreviewSvgs}
+              isCuratedLoading={isCuratedLoading}
+              popularBrandIcons={popularBrandIcons}
+              selectedId={selectedId}
+              skeletonCount={curatedIconSlots.length}
+              onSelect={selectLogo}
+            />
+          ) : (
+            <SearchLogoIconGrid
+              error={error}
+              hasMore={hasMore}
+              isLoading={isLoading}
+              isLoadingMore={isLoadingMore}
+              results={results}
+              retry={retry}
+              selectedId={selectedId}
+              total={total}
+              onLoadMore={loadMore}
+              onSelect={selectLogo}
+            />
+          )}
+        </div>
       </ScrollArea>
     </div>
-  )
+  );
 }

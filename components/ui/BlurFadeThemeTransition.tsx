@@ -49,9 +49,7 @@ export default function BlurFadeThemeTransition({
 }: BlurFadeThemeTransitionProps) {
   const [localTheme, setLocalTheme] = useState<"light" | "dark">(() => {
     if (typeof window !== "undefined") {
-      return document.documentElement.classList.contains("dark")
-        ? "dark"
-        : "light";
+      return document.documentElement.classList.contains("dark") ? "dark" : "light";
     }
     return "light";
   });
@@ -96,22 +94,17 @@ export default function BlurFadeThemeTransition({
 
     if (typeof window !== "undefined") {
       (window as unknown as CustomWindow).__viewTransitionStyleCount =
-        ((window as unknown as CustomWindow).__viewTransitionStyleCount || 0) +
-        1;
+        ((window as unknown as CustomWindow).__viewTransitionStyleCount || 0) + 1;
     }
 
     return () => {
       clearTimeout(timer);
       if (typeof window !== "undefined") {
-        (window as unknown as CustomWindow).__viewTransitionStyleCount =
-          Math.max(
-            0,
-            ((window as unknown as CustomWindow).__viewTransitionStyleCount ||
-              0) - 1,
-          );
-        if (
-          (window as unknown as CustomWindow).__viewTransitionStyleCount === 0
-        ) {
+        (window as unknown as CustomWindow).__viewTransitionStyleCount = Math.max(
+          0,
+          ((window as unknown as CustomWindow).__viewTransitionStyleCount || 0) - 1,
+        );
+        if ((window as unknown as CustomWindow).__viewTransitionStyleCount === 0) {
           const el = document.getElementById(styleId);
           if (el) el.remove();
         }
@@ -119,60 +112,58 @@ export default function BlurFadeThemeTransition({
     };
   }, []);
 
-  const triggerTransition = useCallback((customDuration?: number, customBlur?: number) => {
-    if (typeof window !== "undefined") {
-      window.getSelection()?.removeAllRanges();
-    }
-
-    if (isAnimating) return;
-
-    const activeDuration =
-      customDuration !== undefined ? customDuration : duration;
-    const activeBlur = customBlur !== undefined ? customBlur : maxBlur;
-    const targetTheme = activeTheme === "light" ? "dark" : "light";
-
-    const applyThemeChange = () => {
-      if (!isControlled) {
-        setLocalTheme(targetTheme);
+  const triggerTransition = useCallback(
+    (customDuration?: number, customBlur?: number) => {
+      if (typeof window !== "undefined") {
+        window.getSelection()?.removeAllRanges();
       }
 
-      const root = document.documentElement;
-      root.setAttribute("data-theme", targetTheme);
-      if (targetTheme === "dark") {
-        root.classList.add("dark");
-      } else {
-        root.classList.remove("dark");
+      if (isAnimating) return;
+
+      const activeDuration = customDuration !== undefined ? customDuration : duration;
+      const activeBlur = customBlur !== undefined ? customBlur : maxBlur;
+      const targetTheme = activeTheme === "light" ? "dark" : "light";
+
+      const applyThemeChange = () => {
+        if (!isControlled) {
+          setLocalTheme(targetTheme);
+        }
+
+        const root = document.documentElement;
+        root.setAttribute("data-theme", targetTheme);
+        if (targetTheme === "dark") {
+          root.classList.add("dark");
+        } else {
+          root.classList.remove("dark");
+        }
+
+        if (onThemeChange) {
+          onThemeChange(targetTheme);
+        }
+      };
+
+      const doc = document as unknown as DocumentWithViewTransition;
+
+      if (
+        typeof window === "undefined" ||
+        !doc.startViewTransition ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        applyThemeChange();
+        if (onTransition) onTransition();
+        return;
       }
 
-      if (onThemeChange) {
-        onThemeChange(targetTheme);
+      setIsAnimating(true);
+
+      const animStyleId = "great-ui-blur-anim-style";
+      let styleEl = document.getElementById(animStyleId) as HTMLStyleElement | null;
+      if (!styleEl) {
+        styleEl = document.createElement("style");
+        styleEl.id = animStyleId;
+        document.head.appendChild(styleEl);
       }
-    };
-
-    const doc = document as unknown as DocumentWithViewTransition;
-
-    if (
-      typeof window === "undefined" ||
-      !doc.startViewTransition ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      applyThemeChange();
-      if (onTransition) onTransition();
-      return;
-    }
-
-    setIsAnimating(true);
-
-    const animStyleId = "great-ui-blur-anim-style";
-    let styleEl = document.getElementById(
-      animStyleId,
-    ) as HTMLStyleElement | null;
-    if (!styleEl) {
-      styleEl = document.createElement("style");
-      styleEl.id = animStyleId;
-      document.head.appendChild(styleEl);
-    }
-    styleEl.textContent = `
+      styleEl.textContent = `
       @keyframes great-ui-blur-old {
         from { filter: blur(0px); opacity: 1; }
         to { filter: blur(${activeBlur}px); opacity: 0; }
@@ -189,31 +180,42 @@ export default function BlurFadeThemeTransition({
       }
     `;
 
-    const cleanup = () => {
-      const el = document.getElementById(animStyleId);
-      if (el) el.remove();
-      setIsAnimating(false);
-    };
+      const cleanup = () => {
+        const el = document.getElementById(animStyleId);
+        if (el) el.remove();
+        setIsAnimating(false);
+      };
 
-    try {
-      const transition = doc.startViewTransition(() => {
-        flushSync(() => {
-          applyThemeChange();
-          if (onTransition) onTransition();
+      try {
+        const transition = doc.startViewTransition(() => {
+          flushSync(() => {
+            applyThemeChange();
+            if (onTransition) onTransition();
+          });
         });
-      });
 
-      if (transition && transition.finished) {
-        transition.finished.then(cleanup).catch(cleanup);
-      } else {
-        setTimeout(cleanup, activeDuration);
+        if (transition && transition.finished) {
+          transition.finished.then(cleanup).catch(cleanup);
+        } else {
+          setTimeout(cleanup, activeDuration);
+        }
+      } catch {
+        cleanup();
+        applyThemeChange();
+        if (onTransition) onTransition();
       }
-    } catch {
-      cleanup();
-      applyThemeChange();
-      if (onTransition) onTransition();
-    }
-  }, [isAnimating, duration, maxBlur, activeTheme, isControlled, onThemeChange, onTransition, easing]);
+    },
+    [
+      isAnimating,
+      duration,
+      maxBlur,
+      activeTheme,
+      isControlled,
+      onThemeChange,
+      onTransition,
+      easing,
+    ],
+  );
 
   const contextValue: BlurFadeThemeTransitionContextType = useMemo(
     () => ({

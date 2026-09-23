@@ -1,1 +1,1 @@
-export * from "../scene/shaders"
+export * from "../scene/shaders";

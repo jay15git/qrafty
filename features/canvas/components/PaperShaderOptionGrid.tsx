@@ -1,31 +1,31 @@
-"use client"
+"use client";
 
 import {
   INSPECTOR_OPTION_TILE_BUTTON_CLASS,
   INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
   INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-} from "@/features/shell/components/inspector-tokens"
-import { InspectorAnimatedOptionGrid } from "@/features/shell/inspector/InspectorOptionGrid"
-import { inspectorOptionGridItemClass } from "@/features/shell/inspector/InspectorOptionGrid.classes"
-import { InspectorOptionGridScrollArea } from "@/features/shell/inspector/InspectorOptionGrid"
-import { PaperShaderOptionPreview } from "@/features/canvas/components/PaperShaderOptionPreview"
+} from "@/features/shell/components/inspector-tokens";
+import { InspectorAnimatedOptionGrid } from "@/features/shell/inspector/InspectorOptionGrid";
+import { inspectorOptionGridItemClass } from "@/features/shell/inspector/InspectorOptionGrid.classes";
+import { InspectorOptionGridScrollArea } from "@/features/shell/inspector/InspectorOptionGrid";
+import { PaperShaderOptionPreview } from "@/features/canvas/components/PaperShaderOptionPreview";
 import {
   getAllPaperShaderDefinitions,
   type PaperShaderId,
-} from "@/features/canvas/rendering/paper-shader-definitions"
-import { cn } from "@/lib/utils"
+} from "@/features/canvas/rendering/paper-shader-definitions";
+import { cn } from "@/lib/utils";
 
-type PaperShaderOptionGridVariant = "inspector" | "insert-desktop" | "insert-drafting"
+type PaperShaderOptionGridVariant = "inspector" | "insert-desktop" | "insert-drafting";
 
 type PaperShaderOptionGridProps = {
-  columns?: 2 | 3
-  dataSlot?: string
-  onSelect: (shaderId: PaperShaderId) => void
-  scrollAreaDataSlot?: string
-  selectedShaderId?: PaperShaderId
-  shelfDataSlot?: string
-  variant: PaperShaderOptionGridVariant
-}
+  columns?: 2 | 3;
+  dataSlot?: string;
+  onSelect: (shaderId: PaperShaderId) => void;
+  scrollAreaDataSlot?: string;
+  selectedShaderId?: PaperShaderId;
+  shelfDataSlot?: string;
+  variant: PaperShaderOptionGridVariant;
+};
 
 function InspectorPaperShaderOptionTile({
   label,
@@ -33,10 +33,10 @@ function InspectorPaperShaderOptionTile({
   selected,
   shaderId,
 }: {
-  label: string
-  onClick: () => void
-  selected: boolean
-  shaderId: PaperShaderId
+  label: string;
+  onClick: () => void;
+  selected: boolean;
+  shaderId: PaperShaderId;
 }) {
   return (
     <button
@@ -68,7 +68,7 @@ function InspectorPaperShaderOptionTile({
         <PaperShaderOptionPreview isSelected={selected} shaderId={shaderId} />
       </span>
     </button>
-  )
+  );
 }
 
 function InsertPaperShaderOptionTile({
@@ -77,12 +77,12 @@ function InsertPaperShaderOptionTile({
   shaderId,
   variant,
 }: {
-  label: string
-  onClick: () => void
-  shaderId: PaperShaderId
-  variant: Exclude<PaperShaderOptionGridVariant, "inspector">
+  label: string;
+  onClick: () => void;
+  shaderId: PaperShaderId;
+  variant: Exclude<PaperShaderOptionGridVariant, "inspector">;
 }) {
-  const isInsertDesktop = variant === "insert-desktop"
+  const isInsertDesktop = variant === "insert-desktop";
 
   return (
     <button
@@ -107,7 +107,7 @@ function InsertPaperShaderOptionTile({
         <PaperShaderOptionPreview shaderId={shaderId} />
       </span>
     </button>
-  )
+  );
 }
 
 export function PaperShaderOptionGrid({
@@ -119,11 +119,11 @@ export function PaperShaderOptionGrid({
   shelfDataSlot = "desktop-paper-shader-grid-shelf",
   variant,
 }: PaperShaderOptionGridProps) {
-  const shaders = getAllPaperShaderDefinitions()
+  const shaders = getAllPaperShaderDefinitions();
 
   if (variant === "inspector") {
     if (!selectedShaderId) {
-      throw new Error("PaperShaderOptionGrid inspector variant requires selectedShaderId")
+      throw new Error("PaperShaderOptionGrid inspector variant requires selectedShaderId");
     }
 
     return (
@@ -134,7 +134,11 @@ export function PaperShaderOptionGrid({
         shelfDataSlot={shelfDataSlot}
         variant="preset"
       >
-        <InspectorAnimatedOptionGrid columns={columns} data-slot={dataSlot} selectedKey={selectedShaderId}>
+        <InspectorAnimatedOptionGrid
+          columns={columns}
+          data-slot={dataSlot}
+          selectedKey={selectedShaderId}
+        >
           {shaders.map((shader) => (
             <InspectorPaperShaderOptionTile
               key={shader.id}
@@ -146,7 +150,7 @@ export function PaperShaderOptionGrid({
           ))}
         </InspectorAnimatedOptionGrid>
       </InspectorOptionGridScrollArea>
-    )
+    );
   }
 
   return (
@@ -171,5 +175,5 @@ export function PaperShaderOptionGrid({
         />
       ))}
     </div>
-  )
+  );
 }

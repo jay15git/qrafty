@@ -1,14 +1,14 @@
-import { describe, expect, it } from "vitest"
-import { renderToStaticMarkup } from "react-dom/server"
+import { describe, expect, it } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
 
-import { createDefaultQraftyState } from "@/features/qr/model/state"
-import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state"
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
-import { PaneDocumentCardLayer } from "@/features/canvas/components/PaneLayerViews"
+import { createDefaultQraftyState } from "@/features/qr/model/state";
+import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
+import { PaneDocumentCardLayer } from "@/features/canvas/components/PaneLayerViews";
 
 describe("card border overlay", () => {
   it("renders an inner border overlay when the card has a border", () => {
-    const qrState = createDefaultQraftyState()
+    const qrState = createDefaultQraftyState();
     const cardState = {
       ...createDefaultDraftingCardState(),
       border: {
@@ -23,8 +23,8 @@ describe("card border overlay", () => {
         style: "solid" as const,
         width: 8,
       },
-    }
-    const [cardLayer] = createDefaultDraftingLayers("node-1", qrState, cardState)
+    };
+    const [cardLayer] = createDefaultDraftingLayers("node-1", qrState, cardState);
 
     const html = renderToStaticMarkup(
       <PaneDocumentCardLayer
@@ -35,9 +35,9 @@ describe("card border overlay", () => {
         isLayerSelected={false}
         layer={cardLayer!}
       />,
-    )
+    );
 
-    expect(html).toContain('data-slot="desktop-compose-card-border"')
-    expect(html).toContain("border:8px solid")
-  })
-})
+    expect(html).toContain('data-slot="desktop-compose-card-border"');
+    expect(html).toContain("border:8px solid");
+  });
+});

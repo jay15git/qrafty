@@ -2,10 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import {
-  useGradientPickerContext,
-  useGradientStopEditor,
-} from "../../contexts/gradient";
+import { useGradientPickerContext, useGradientStopEditor } from "../../contexts/gradient";
 import {
   adjustStopsForEndpoints,
   formatGradient,
@@ -32,9 +29,7 @@ interface BarProps extends React.HTMLAttributes<HTMLDivElement> {
   editOnClick?: boolean;
 }
 
-function buildPreviewGradient(
-  g: ReturnType<typeof useGradientPickerContext>["gradient"],
-): string {
+function buildPreviewGradient(g: ReturnType<typeof useGradientPickerContext>["gradient"]): string {
   // For the bar preview we always render the stops as a horizontal linear
   // gradient regardless of the live gradient type — the bar is the editing
   // surface for stop positions. When the live gradient is a positioned
@@ -87,20 +82,15 @@ export const Bar = React.forwardRef<HTMLDivElement, BarProps>(function Bar(
   const linear = ctx.gradient.type === "linear" ? ctx.gradient : null;
   const start = linear?.start;
   const end = linear?.end;
-  const toDisplay = (authored: number) =>
-    projectStopPosition(authored, start, end);
-  const fromDisplay = (displayed: number) =>
-    reverseProjectStopPosition(displayed, start, end);
+  const toDisplay = (authored: number) => projectStopPosition(authored, start, end);
+  const fromDisplay = (displayed: number) => reverseProjectStopPosition(displayed, start, end);
 
-  const displayedPositionFromEvent = React.useCallback(
-    (clientX: number): number => {
-      const el = trackRef.current;
-      if (!el) return 0;
-      const rect = el.getBoundingClientRect();
-      return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    },
-    [],
-  );
+  const displayedPositionFromEvent = React.useCallback((clientX: number): number => {
+    const el = trackRef.current;
+    if (!el) return 0;
+    const rect = el.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  }, []);
 
   // A stop added by clicking the track becomes the selected stop, but the
   // click landed on the track — which isn't focusable — so focus stays on
@@ -114,9 +104,7 @@ export const Bar = React.forwardRef<HTMLDivElement, BarProps>(function Bar(
     // Matched by walking the handles rather than an attribute selector:
     // stop ids can come from the consumer now, so they aren't guaranteed
     // to be selector-safe.
-    const handles = wrapperRef.current?.querySelectorAll<HTMLElement>(
-      '[role="slider"]',
-    );
+    const handles = wrapperRef.current?.querySelectorAll<HTMLElement>('[role="slider"]');
     handles?.forEach((h) => {
       if (h.dataset.stopId === id) h.focus();
     });
@@ -137,10 +125,7 @@ export const Bar = React.forwardRef<HTMLDivElement, BarProps>(function Bar(
     // of stacking on the first/last stop. Plain mode is unaffected —
     // fromDisplay is the identity and `displayed` is already 0..1.
     const authored = fromDisplay(displayed);
-    pendingFocusIdRef.current = ctx.addStop(
-      authored,
-      sampleStopsAt(ctx.stops, authored),
-    );
+    pendingFocusIdRef.current = ctx.addStop(authored, sampleStopsAt(ctx.stops, authored));
   };
 
   const startStopDrag = (id: string) => (e: React.PointerEvent<HTMLDivElement>) => {

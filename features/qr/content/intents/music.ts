@@ -1,11 +1,8 @@
 import {
   isSoundCloudTrackPath,
   isSoundCloudUserPath,
-} from "@/features/qr/content/platform-path-matching"
-import {
-  urlIntent,
-  type PlatformDef,
-} from "@/features/qr/content/intents/shared"
+} from "@/features/qr/content/platform-path-matching";
+import { urlIntent, type PlatformDef } from "@/features/qr/content/intents/shared";
 
 export const MUSIC_PLATFORM_DEFS: readonly PlatformDef[] = [
   {
@@ -80,4 +77,4 @@ export const MUSIC_PLATFORM_DEFS: readonly PlatformDef[] = [
       urlIntent("playlist", "Playlist", (p) => p.includes("/playlist/")),
     ],
   },
-]
+];

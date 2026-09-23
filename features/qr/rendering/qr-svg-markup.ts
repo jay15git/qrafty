@@ -1,60 +1,56 @@
-import type { DashboardQrNodePayload } from "@/features/qr/rendering/compose-scene"
+import type { DashboardQrNodePayload } from "@/features/qr/rendering/compose-scene";
 import {
   buildQrExtension,
   createAlignedCornerGradientExtension,
   getQrRenderedDimensions,
-} from "@/features/qr/rendering/svg-extension"
-import { clampQrSize, type QraftyState } from "@/features/qr/model/state"
-import { alignReactQrSvgToModuleGrid } from "@/features/canvas/rendering/qr-artwork"
+} from "@/features/qr/rendering/svg-extension";
+import { clampQrSize, type QraftyState } from "@/features/qr/model/state";
+import { alignReactQrSvgToModuleGrid } from "@/features/canvas/rendering/qr-artwork";
 
 export function createDashboardSurfaceQrState(state: QraftyState): QraftyState {
   return {
     ...state,
     type: "svg",
-  }
+  };
 }
 
 export function stripXmlDeclaration(markup: string) {
   return markup
     .replace(/<\?xml[\s\S]*?\?>\s*/i, "")
     .replace(/<!doctype[\s\S]*?>\s*/i, "")
-    .trim()
+    .trim();
 }
 
 export function applyQraftyQrSvgMarkupExtensions(markup: string, state: QraftyState) {
-  let result = markup
-  const extension = buildQrExtension(state)
+  let result = markup;
+  const extension = buildQrExtension(state);
 
   if (extension) {
-    result = applyQrSvgExtension(result, extension, state)
+    result = applyQrSvgExtension(result, extension, state);
   }
 
-  const cornerExtension = createAlignedCornerGradientExtension(state)
+  const cornerExtension = createAlignedCornerGradientExtension(state);
 
   if (cornerExtension) {
-    result = applyQrSvgExtension(result, cornerExtension, state)
+    result = applyQrSvgExtension(result, cornerExtension, state);
   }
 
-  const renderedDimensions = getQrRenderedDimensions(state)
+  const renderedDimensions = getQrRenderedDimensions(state);
 
-  return alignReactQrSvgToModuleGrid(
-    result,
-    renderedDimensions.width,
-    renderedDimensions.height,
-  )
+  return alignReactQrSvgToModuleGrid(result, renderedDimensions.width, renderedDimensions.height);
 }
 
 export function buildDashboardQrNodePayloadFromBaseMarkup(
   markup: string,
   state: QraftyState,
 ): DashboardQrNodePayload {
-  const dashboardState = createDashboardSurfaceQrState(state)
+  const dashboardState = createDashboardSurfaceQrState(state);
 
   return {
     markup: applyQraftyQrSvgMarkupExtensions(markup, dashboardState),
     naturalHeight: getQrRenderedDimensions(dashboardState).height,
     naturalWidth: getQrRenderedDimensions(dashboardState).width,
-  }
+  };
 }
 
 function applyQrSvgExtension(
@@ -62,18 +58,18 @@ function applyQrSvgExtension(
   extension: (svg: SVGElement, options: { height?: number; width?: number }) => void,
   state: QraftyState,
 ) {
-  const parser = new DOMParser()
-  const document = parser.parseFromString(markup, "image/svg+xml")
-  const svg = document.documentElement as unknown as SVGElement
+  const parser = new DOMParser();
+  const document = parser.parseFromString(markup, "image/svg+xml");
+  const svg = document.documentElement as unknown as SVGElement;
 
   if (svg.tagName.toLowerCase() !== "svg" || document.querySelector("parsererror")) {
-    throw new Error("QR SVG data is unavailable.")
+    throw new Error("QR SVG data is unavailable.");
   }
 
   extension(svg, {
     height: clampQrSize(state.height),
     width: clampQrSize(state.width),
-  })
+  });
 
-  return new XMLSerializer().serializeToString(svg)
+  return new XMLSerializer().serializeToString(svg);
 }

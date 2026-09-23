@@ -1,6 +1,6 @@
-import type { CSSProperties } from "react"
+import type { CSSProperties } from "react";
 
-import type { DraftingCardState } from "@/features/canvas/model/card-state"
+import type { DraftingCardState } from "@/features/canvas/model/card-state";
 
 export function cardBackgroundStyle(
   _cardState: DraftingCardState,
@@ -8,5 +8,5 @@ export function cardBackgroundStyle(
   _isImageMode: boolean,
   _isPaperShaderMode: boolean,
 ): CSSProperties {
-  return { backgroundColor: "transparent" }
+  return { backgroundColor: "transparent" };
 }

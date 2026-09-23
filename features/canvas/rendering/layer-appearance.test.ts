@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import { createUniformPerSideBorder } from "@/features/canvas/model/effects"
-import { createDefaultDraftingFilterEffect } from "@/features/canvas/model/filters"
+import { createUniformPerSideBorder } from "@/features/canvas/model/effects";
+import { createDefaultDraftingFilterEffect } from "@/features/canvas/model/filters";
 import {
   buildCssFilterString,
   getDraftingLayerDropShadowFilter,
@@ -9,7 +9,7 @@ import {
   getDraftingPerSideBorderStyle,
   getDraftingUniformBorderStyle,
   mergeCssFilterStrings,
-} from "@/features/canvas/rendering/layer-appearance"
+} from "@/features/canvas/rendering/layer-appearance";
 
 describe("layer appearance css builders", () => {
   it("builds drop shadows", () => {
@@ -27,8 +27,8 @@ describe("layer appearance css builders", () => {
           visible: true,
         },
       ]),
-    ).toBe("drop-shadow(2px 4px 12px rgba(17, 24, 39, 0.5))")
-  })
+    ).toBe("drop-shadow(2px 4px 12px rgba(17, 24, 39, 0.5))");
+  });
 
   it("builds outline css", () => {
     expect(
@@ -43,8 +43,8 @@ describe("layer appearance css builders", () => {
     ).toEqual({
       outline: "2px solid rgba(0, 0, 0, 1)",
       outlineOffset: "4px",
-    })
-  })
+    });
+  });
 
   it("builds per-side border css", () => {
     const sides = createUniformPerSideBorder({
@@ -52,8 +52,8 @@ describe("layer appearance css builders", () => {
       opacity: 100,
       style: "solid",
       width: 0,
-    })
-    sides.bottom = { color: "#111827", opacity: 100, style: "solid", width: 2 }
+    });
+    sides.bottom = { color: "#111827", opacity: 100, style: "solid", width: 2 };
 
     expect(getDraftingPerSideBorderStyle(sides)).toEqual({
       borderTopWidth: "0",
@@ -62,8 +62,8 @@ describe("layer appearance css builders", () => {
       borderBottomWidth: "2px",
       borderBottomStyle: "solid",
       borderBottomColor: "rgba(17, 24, 39, 1)",
-    })
-  })
+    });
+  });
 
   it("builds uniform border shorthand", () => {
     expect(
@@ -73,18 +73,18 @@ describe("layer appearance css builders", () => {
         style: "solid",
         width: 1,
       }),
-    ).toBe("1px solid rgba(17, 24, 39, 1)")
-  })
+    ).toBe("1px solid rgba(17, 24, 39, 1)");
+  });
 
   it("chains css filters and drop shadows", () => {
     const filter = buildCssFilterString([
       createDefaultDraftingFilterEffect("blur", { amount: 4 }),
       createDefaultDraftingFilterEffect("brightness", { amount: 120 }),
-    ])
+    ]);
 
-    expect(filter).toBe("blur(4px) brightness(1.2)")
+    expect(filter).toBe("blur(4px) brightness(1.2)");
     expect(mergeCssFilterStrings(filter, "drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.4))")).toBe(
       "blur(4px) brightness(1.2) drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.4))",
-    )
-  })
-})
+    );
+  });
+});

@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  dualAccentMixFromCssBlend,
-  dualAccentMixFromOpacity,
-  mixHexColors,
-} from "./color-mix";
+import { dualAccentMixFromCssBlend, dualAccentMixFromOpacity, mixHexColors } from "./color-mix";
 
 describe("color-mix", () => {
   it("mixes hex colors along a gradient", () => {
@@ -16,10 +12,7 @@ describe("color-mix", () => {
   it("derives accent mix from css blend weights", () => {
     expect(dualAccentMixFromCssBlend({ base: 1, mid: 0, peak: 0 })).toBe(0);
     expect(dualAccentMixFromCssBlend({ base: 0, mid: 0, peak: 1 })).toBe(1);
-    expect(dualAccentMixFromCssBlend({ base: 0.5, mid: 0.5, peak: 0 })).toBeCloseTo(
-      0.103515625,
-      5,
-    );
+    expect(dualAccentMixFromCssBlend({ base: 0.5, mid: 0.5, peak: 0 })).toBeCloseTo(0.103515625, 5);
   });
 
   it("derives accent mix from resolved opacity", () => {

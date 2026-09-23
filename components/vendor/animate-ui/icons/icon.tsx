@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { m, useAnimation } from 'motion/react';
+import * as React from "react";
+import { m, useAnimation } from "motion/react";
 
-import { useIsInView } from '@/components/vendor/animate-ui/use-is-in-view';
-import { cn } from '@/lib/utils';
-import { Slot } from '@/components/vendor/animate-ui/primitives/animate/slot';
-import { useAnimateIconRunner } from '@/components/vendor/animate-ui/icons/animate-icon-runner';
+import { useIsInView } from "@/components/vendor/animate-ui/use-is-in-view";
+import { cn } from "@/lib/utils";
+import { Slot } from "@/components/vendor/animate-ui/primitives/animate/slot";
+import { useAnimateIconRunner } from "@/components/vendor/animate-ui/icons/animate-icon-runner";
 import {
   AnimateIconContext,
   composeEventHandlers,
   pathClassName,
   useAnimateIconContext,
-} from '@/components/vendor/animate-ui/icons/icon.utils';
+} from "@/components/vendor/animate-ui/icons/icon.utils";
 import type {
   AnimateIconContextValue,
   AnimateIconProps,
@@ -21,7 +21,7 @@ import type {
   StaticAnimations,
   Trigger,
   TriggerProp,
-} from '@/components/vendor/animate-ui/icons/icon.types';
+} from "@/components/vendor/animate-ui/icons/icon.types";
 
 // Owns the animation lifecycle for AnimateIcon: the localAnimate state, the
 // trigger callbacks, the prop/visibility-driven adjustments, and the runner
@@ -29,7 +29,7 @@ import type {
 // react-doctor-disable-next-line react-doctor/no-high-complexity-react-function -- vendored animate-ui hook; keep upstream structure for future merges
 function useAnimateIconTriggers({
   animate = false,
-  animation = 'default',
+  animation = "default",
   delay = 0,
   loop = false,
   loopDelay = 0,
@@ -37,21 +37,21 @@ function useAnimateIconTriggers({
   persistOnAnimateEnd = false,
   initialOnAnimateEnd = false,
   animateOnView = false,
-  animateOnViewMargin = '0px',
+  animateOnViewMargin = "0px",
   animateOnViewOnce = true,
 }: Pick<
   AnimateIconProps,
-  | 'animate'
-  | 'animation'
-  | 'delay'
-  | 'loop'
-  | 'loopDelay'
-  | 'completeOnStop'
-  | 'persistOnAnimateEnd'
-  | 'initialOnAnimateEnd'
-  | 'animateOnView'
-  | 'animateOnViewMargin'
-  | 'animateOnViewOnce'
+  | "animate"
+  | "animation"
+  | "delay"
+  | "loop"
+  | "loopDelay"
+  | "completeOnStop"
+  | "persistOnAnimateEnd"
+  | "initialOnAnimateEnd"
+  | "animateOnView"
+  | "animateOnViewMargin"
+  | "animateOnViewOnce"
 >) {
   const controls = useAnimation();
 
@@ -59,17 +59,14 @@ function useAnimateIconTriggers({
     if (animate === undefined || animate === false) return false;
     return delay <= 0;
   });
-  const [animationEpoch, bumpAnimationEpoch] = React.useReducer(
-    (value: number) => value + 1,
-    0,
-  );
+  const [animationEpoch, bumpAnimationEpoch] = React.useReducer((value: number) => value + 1, 0);
 
   // State, not a ref: this value is a render input (it feeds the context value
   // below), and a ref read during render is unsafe under concurrent React.
-  const [currentAnimation, setCurrentAnimation] = React.useState<
-    string | StaticAnimations
-  >(typeof animate === 'string' ? animate : animation);
-  const statusRef = React.useRef<'initial' | 'animate'>('initial');
+  const [currentAnimation, setCurrentAnimation] = React.useState<string | StaticAnimations>(
+    typeof animate === "string" ? animate : animation,
+  );
+  const statusRef = React.useRef<"initial" | "animate">("initial");
   const prevAnimateRef = React.useRef(animate);
 
   React.useLayoutEffect(() => {
@@ -93,7 +90,7 @@ function useAnimateIconTriggers({
 
   const startAnimation = React.useCallback(
     (trigger: TriggerProp) => {
-      const next = typeof trigger === 'string' ? trigger : animation;
+      const next = typeof trigger === "string" ? trigger : animation;
       bumpGeneration();
       if (delayRef.current) {
         clearTimeout(delayRef.current);
@@ -133,11 +130,7 @@ function useAnimateIconTriggers({
   // (React's prev-prop pattern) so the first committed frame already reflects
   // it; this layout effect only runs the timer/ref side effects.
   const [prevAnimateDeps, setPrevAnimateDeps] = React.useState<
-    readonly [
-      TriggerProp | undefined,
-      string | StaticAnimations | undefined,
-      number | undefined,
-    ]
+    readonly [TriggerProp | undefined, string | StaticAnimations | undefined, number | undefined]
   >([animate, animation, delay]);
   if (
     prevAnimateDeps[0] !== animate ||
@@ -153,7 +146,7 @@ function useAnimateIconTriggers({
     // on an `animation`/`delay` change while it is active. Derived during
     // render so the first committed frame already reflects it.
     if (animateChanged || animate) {
-      setCurrentAnimation(typeof animate === 'string' ? animate : animation);
+      setCurrentAnimation(typeof animate === "string" ? animate : animation);
     }
   }
 
@@ -205,7 +198,7 @@ function useAnimateIconTriggers({
   });
 
   const startAnim = React.useCallback(
-    async (anim: 'initial' | 'animate', method: 'start' | 'set' = 'start') => {
+    async (anim: "initial" | "animate", method: "start" | "set" = "start") => {
       try {
         await controls[method](anim);
         statusRef.current = anim;
@@ -240,9 +233,7 @@ function useAnimateIconTriggers({
     if (animateOnView) {
       setLocalAnimate(isInView && delay <= 0);
       if (isInView) {
-        setCurrentAnimation(
-          typeof animateOnView === 'string' ? animateOnView : animation,
-        );
+        setCurrentAnimation(typeof animateOnView === "string" ? animateOnView : animation);
       }
     }
   }
@@ -311,9 +302,9 @@ function AnimateIcon({
   animateOnHover = false,
   animateOnTap = false,
   animateOnView = false,
-  animateOnViewMargin = '0px',
+  animateOnViewMargin = "0px",
   animateOnViewOnce = true,
-  animation = 'default',
+  animation = "default",
   loop = false,
   loopDelay = 0,
   initialOnAnimateEnd = false,
@@ -370,14 +361,15 @@ function AnimateIcon({
     },
   );
 
-  const handlePointerDown = composeEventHandlers<
-    React.PointerEvent<HTMLElement>
-  >(childProps.onPointerDown, () => {
-    if (animateOnTap) {
-      startAnimation(animateOnTap);
-      setLocalAnimate(delay <= 0);
-    }
-  });
+  const handlePointerDown = composeEventHandlers<React.PointerEvent<HTMLElement>>(
+    childProps.onPointerDown,
+    () => {
+      if (animateOnTap) {
+        startAnimation(animateOnTap);
+        setLocalAnimate(delay <= 0);
+      }
+    },
+  );
 
   const handlePointerUp = composeEventHandlers<React.PointerEvent<HTMLElement>>(
     childProps.onPointerUp,
@@ -439,11 +431,7 @@ function AnimateIcon({
     ],
   );
 
-  return (
-    <AnimateIconContext.Provider value={contextValue}>
-      {content}
-    </AnimateIconContext.Provider>
-  );
+  return <AnimateIconContext.Provider value={contextValue}>{content}</AnimateIconContext.Provider>;
 }
 
 function AnimateIconNestedProvider<T extends string>({
@@ -455,13 +443,13 @@ function AnimateIconNestedProvider<T extends string>({
   size,
   ...props
 }: {
-  animationToUse: string
-  className?: string
-  completeOnStop?: boolean
-  context: AnimateIconContextValue
-  IconComponent: IconWrapperProps<T>['icon']
-  size: number
-} & Omit<IconWrapperProps<T>, 'icon' | 'size' | 'className' | 'animation'>) {
+  animationToUse: string;
+  className?: string;
+  completeOnStop?: boolean;
+  context: AnimateIconContextValue;
+  IconComponent: IconWrapperProps<T>["icon"];
+  size: number;
+} & Omit<IconWrapperProps<T>, "icon" | "size" | "className" | "animation">) {
   const nestedContextValue = React.useMemo<AnimateIconContextValue>(
     () => ({
       controls: context.controls,
@@ -493,8 +481,7 @@ function AnimateIconNestedProvider<T extends string>({
         size={size}
         className={cn(
           className,
-          (animationToUse === 'path' || animationToUse === 'path-loop') &&
-            pathClassName,
+          (animationToUse === "path" || animationToUse === "path-loop") && pathClassName,
         )}
         {...props}
       />
@@ -507,16 +494,16 @@ function AnimateIconNestedProvider<T extends string>({
 function hasAnimateOverrides<T extends string>(
   props: Pick<
     IconWrapperProps<T>,
-    | 'animate'
-    | 'animateOnHover'
-    | 'animateOnTap'
-    | 'animateOnView'
-    | 'loop'
-    | 'loopDelay'
-    | 'initialOnAnimateEnd'
-    | 'persistOnAnimateEnd'
-    | 'delay'
-    | 'completeOnStop'
+    | "animate"
+    | "animateOnHover"
+    | "animateOnTap"
+    | "animateOnView"
+    | "loop"
+    | "loopDelay"
+    | "initialOnAnimateEnd"
+    | "persistOnAnimateEnd"
+    | "delay"
+    | "completeOnStop"
   >,
 ) {
   return (
@@ -536,7 +523,7 @@ function hasAnimateOverrides<T extends string>(
 function hasStandaloneAnimation<T extends string>(
   props: Pick<
     IconWrapperProps<T>,
-    'animate' | 'animateOnHover' | 'animateOnTap' | 'animateOnView' | 'animation'
+    "animate" | "animateOnHover" | "animateOnTap" | "animateOnView" | "animation"
   >,
 ) {
   return (
@@ -549,13 +536,10 @@ function hasStandaloneAnimation<T extends string>(
 }
 
 function iconClassName<T extends string>(
-  className: IconWrapperProps<T>['className'],
+  className: IconWrapperProps<T>["className"],
   animation: string | StaticAnimations | undefined,
 ) {
-  return cn(
-    className,
-    (animation === 'path' || animation === 'path-loop') && pathClassName,
-  );
+  return cn(className, (animation === "path" || animation === "path-loop") && pathClassName);
 }
 
 // Merges the icon's own props over the parent AnimateIcon context: explicit
@@ -564,19 +548,19 @@ function iconClassName<T extends string>(
 function resolveContextualOverrides<T extends string>(
   props: Pick<
     IconWrapperProps<T>,
-    | 'animate'
-    | 'animation'
-    | 'loop'
-    | 'loopDelay'
-    | 'persistOnAnimateEnd'
-    | 'initialOnAnimateEnd'
-    | 'delay'
-    | 'completeOnStop'
+    | "animate"
+    | "animation"
+    | "loop"
+    | "loopDelay"
+    | "persistOnAnimateEnd"
+    | "initialOnAnimateEnd"
+    | "delay"
+    | "completeOnStop"
   >,
   context: AnimateIconContextValue,
 ) {
   const inheritedAnimate: Trigger = context.active
-    ? (props.animation ?? context.animation ?? 'default')
+    ? (props.animation ?? context.animation ?? "default")
     : false;
 
   return {
@@ -584,10 +568,8 @@ function resolveContextualOverrides<T extends string>(
     animation: props.animation ?? context.animation,
     loop: props.loop ?? context.loop,
     loopDelay: props.loopDelay ?? context.loopDelay,
-    persistOnAnimateEnd:
-      props.persistOnAnimateEnd ?? context.persistOnAnimateEnd,
-    initialOnAnimateEnd:
-      props.initialOnAnimateEnd ?? context.initialOnAnimateEnd,
+    persistOnAnimateEnd: props.persistOnAnimateEnd ?? context.persistOnAnimateEnd,
+    initialOnAnimateEnd: props.initialOnAnimateEnd ?? context.initialOnAnimateEnd,
     delay: props.delay ?? context.delay,
     completeOnStop: props.completeOnStop ?? context.completeOnStop,
   };
@@ -735,7 +717,6 @@ function StandaloneAnimatedIcon<T extends string>(props: IconWrapperProps<T>) {
   );
 }
 
-
 function IconWrapper<T extends string>({
   size = 28,
   animation: animationProp,
@@ -813,11 +794,7 @@ function IconWrapper<T extends string>({
   }
 
   return (
-    <IconComponent
-      size={size}
-      className={iconClassName(className, animationProp)}
-      {...restProps}
-    />
+    <IconComponent size={size} className={iconClassName(className, animationProp)} {...restProps} />
   );
 }
 

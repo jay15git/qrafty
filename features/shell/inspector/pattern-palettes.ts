@@ -1,6 +1,6 @@
 export const DOTS_PALETTE_PRESETS: Array<{
-  colors: string[]
-  label: string
+  colors: string[];
+  label: string;
 }> = [
   { label: "Aurora", colors: ["#67e8f9", "#a78bfa", "#f0abfc", "#f8fafc"] },
   { label: "Fire", colors: ["#f97316", "#ef4444", "#facc15", "#7f1d1d"] },
@@ -32,4 +32,4 @@ export const DOTS_PALETTE_PRESETS: Array<{
   { label: "Ember", colors: ["#ff6b35", "#e85d04", "#3d2314", "#1a1108"] },
   { label: "Frost", colors: ["#b8c5d6", "#d6deeb", "#eef2f7", "#93c5fd"] },
   { label: "Tropical", colors: ["#00c9a7", "#00b4d8", "#48cae4", "#0077b6"] },
-]
+];

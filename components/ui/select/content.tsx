@@ -24,11 +24,7 @@ import {
 import { useKeyboardNavGate } from "@/lib/hooks/use-keyboard-nav-gate";
 import { Elevated } from "@/lib/elevated";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  useSelectContext,
-  SelectContentContext,
-  popupShape,
-} from "./context";
+import { useSelectContext, SelectContentContext, popupShape } from "./context";
 import { SelectOverlays } from "./overlays";
 
 interface SelectContentProps extends HTMLAttributes<HTMLDivElement> {
@@ -42,17 +38,7 @@ interface SelectContentProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
-  (
-    {
-      className,
-      children,
-      positionerClassName,
-      listClassName,
-      listAxis = "y",
-      ...props
-    },
-    ref
-  ) => {
+  ({ className, children, positionerClassName, listClassName, listAxis = "y", ...props }, ref) => {
     const { open, value, actionsRef } = useSelectContext();
     const shape = popupShape;
     const containerRef = useRef<HTMLDivElement>(null);
@@ -76,9 +62,7 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
     // Keyboard focus ring gate: seeded from the trigger's :focus-visible at
     // open, earned by navigation keys inside the popup.
     const { keyboardNavRef, trackKeyboardNav } = useKeyboardNavGate(open);
-    const [checkedIndex, setCheckedIndex] = useState<number | undefined>(
-      undefined
-    );
+    const [checkedIndex, setCheckedIndex] = useState<number | undefined>(undefined);
 
     // Release Base UI's deferred unmount once the exit tween has played.
     // onAnimationComplete on the m.div is the primary signal; this
@@ -87,10 +71,7 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
     // fallback tracks that tier's exit duration plus a safety buffer.
     useEffect(() => {
       if (open) return;
-      const id = setTimeout(
-        () => actionsRef.current?.unmount(),
-        exitFallbackMs(spring.fast)
-      );
+      const id = setTimeout(() => actionsRef.current?.unmount(), exitFallbackMs(spring.fast));
       return () => clearTimeout(id);
     }, [open, actionsRef]);
 
@@ -119,11 +100,9 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
           const container = containerRef.current;
           if (container) {
             const items = Array.from(
-              container.querySelectorAll("[data-fluid-hover-index]")
+              container.querySelectorAll("[data-fluid-hover-index]"),
             ) as HTMLElement[];
-            const idx = items.findIndex(
-              (el) => el.getAttribute("data-value") === value
-            );
+            const idx = items.findIndex((el) => el.getAttribute("data-value") === value);
             setCheckedIndex(idx !== -1 ? idx : undefined);
           }
         });
@@ -168,14 +147,12 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
     // Overlays read rects only once the hook reports the item set fully
     // measured. Positioning one from an incomplete pass mounts it at the wrong
     // row, and the correcting pass then springs it across the list.
-    const checkedRect =
-      isMeasured && checkedIndex != null ? itemRects[checkedIndex] : null;
-    const focusRect =
-      isMeasured && focusedIndex !== null ? itemRects[focusedIndex] : null;
+    const checkedRect = isMeasured && checkedIndex != null ? itemRects[checkedIndex] : null;
+    const focusRect = isMeasured && focusedIndex !== null ? itemRects[focusedIndex] : null;
 
     const contentCtx = useMemo(
       () => ({ registerItem, activeIndex, checkedIndex }),
-      [registerItem, activeIndex, checkedIndex]
+      [registerItem, activeIndex, checkedIndex],
     );
 
     return (
@@ -204,13 +181,7 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
           >
             <SelectContentContext.Provider value={contentCtx}>
               <SelectPrimitive.Popup
-                render={
-                  <Elevated
-                    offset={2}
-                    shadowLevel={3}
-                    ref={ref}
-                  />
-                }
+                render={<Elevated offset={2} shadowLevel={3} ref={ref} />}
                 // Capture phase: the primitive moves focus during its own keydown
                 // handling, so the nav flag must be set before then.
                 onKeyDownCapture={trackKeyboardNav}
@@ -229,18 +200,16 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                     const idx = Number(indexAttr);
                     setActiveIndex(idx);
                     setFocusedIndex(
-                      keyboardNavRef.current &&
-                        (e.target as HTMLElement).matches(":focus-visible")
+                      keyboardNavRef.current && (e.target as HTMLElement).matches(":focus-visible")
                         ? idx
-                        : null
+                        : null,
                     );
                   }
                 }}
                 onBlur={(e) => {
                   // The popup itself takes focus when the pointer leaves a row; only a
                   // departure from the whole popup ends the hover session.
-                  if (e.currentTarget.contains(e.relatedTarget as Node))
-                    return;
+                  if (e.currentTarget.contains(e.relatedTarget as Node)) return;
                   setFocusedIndex(null);
                   setActiveIndex(null);
                 }}
@@ -248,7 +217,7 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                   // min-w tracks the trigger via the Positioner's --anchor-width
                   // var, matching the pre-migration minWidth: triggerRect.width.
                   `flex flex-col min-w-[var(--anchor-width)] ${popupMaxHeightClass} overflow-hidden ${shape.container} select-none outline-none`,
-                  className
+                  className,
                 )}
                 {...props}
               >
@@ -264,21 +233,18 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                 >
                   <div
                     ref={containerRef}
-                    className={cn(
-                      "relative flex flex-col gap-0.5 p-1",
-                      listClassName,
-                    )}
+                    className={cn("relative flex flex-col gap-0.5 p-1", listClassName)}
                   >
-                <SelectOverlays
-                  open={open}
-                  openEpoch={openEpoch}
-                  checkedRect={checkedRect}
-                  focusRect={focusRect}
-                  shape={shape}
-                  hover={hover}
-                />
+                    <SelectOverlays
+                      open={open}
+                      openEpoch={openEpoch}
+                      checkedRect={checkedRect}
+                      focusRect={focusRect}
+                      shape={shape}
+                      hover={hover}
+                    />
 
-                {children}
+                    {children}
                   </div>
                 </ScrollArea>
               </SelectPrimitive.Popup>
@@ -287,7 +253,7 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
         </SelectPrimitive.Positioner>
       </SelectPrimitive.Portal>
     );
-  }
+  },
 );
 
 SelectContent.displayName = "SelectContent";

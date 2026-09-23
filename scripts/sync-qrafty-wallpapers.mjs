@@ -1,45 +1,45 @@
-import fs from "node:fs"
-import path from "node:path"
+import fs from "node:fs";
+import path from "node:path";
 
 import {
   ALLOWED_EXTENSIONS,
   slugifyBaseName,
   syncWallpapers,
   titleCase,
-} from "./lib/wallpaper-sync.mjs"
+} from "./lib/wallpaper-sync.mjs";
 
 const SOURCE_DIR =
   process.env.STUDIO_WALLPAPER_SOURCE_DIR ??
-  path.join(process.env.HOME ?? "", "Downloads/New Folder With Items")
-const OUT_DIR = "public/backgrounds/studio"
+  path.join(process.env.HOME ?? "", "Downloads/New Folder With Items");
+const OUT_DIR = "public/backgrounds/studio";
 
 function collectSources() {
   if (!fs.existsSync(SOURCE_DIR)) {
-    throw new Error(`Source directory not found: ${SOURCE_DIR}`)
+    throw new Error(`Source directory not found: ${SOURCE_DIR}`);
   }
 
   const files = fs
     .readdirSync(SOURCE_DIR)
     .filter((file) => ALLOWED_EXTENSIONS.has(path.extname(file).toLowerCase()))
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
 
-  const usedIds = new Set()
+  const usedIds = new Set();
   return files.map((file) => {
-    let id = slugifyBaseName(file)
-    let suffix = 2
+    let id = slugifyBaseName(file);
+    let suffix = 2;
     while (usedIds.has(id)) {
-      id = `${slugifyBaseName(file)}-${suffix}`
-      suffix += 1
+      id = `${slugifyBaseName(file)}-${suffix}`;
+      suffix += 1;
     }
-    usedIds.add(id)
+    usedIds.add(id);
 
     return {
       id,
       file,
       label: titleCase(id),
       sourcePath: path.join(SOURCE_DIR, file),
-    }
-  })
+    };
+  });
 }
 
 await syncWallpapers({
@@ -59,4 +59,4 @@ await syncWallpapers({
     targetFile: "features/canvas/assets/qrafty-wallpapers.ts",
     summaryLabel: "studio wallpapers",
   },
-})
+});

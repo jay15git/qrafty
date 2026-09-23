@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useMemo } from "react"
+import { useMemo } from "react";
 
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import type { QraftyState } from "@/features/qr/model/state"
-import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { QraftyState } from "@/features/qr/model/state";
+import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background";
 
 function getDraftingQrBackgroundFrame(layer: DraftingCanvasLayer) {
   return {
@@ -12,24 +12,21 @@ function getDraftingQrBackgroundFrame(layer: DraftingCanvasLayer) {
     width: layer.width,
     x: 0,
     y: 0,
-  }
+  };
 }
 
 export function DraftingQrBackground({
   layer,
   state,
 }: {
-  layer: DraftingCanvasLayer
-  state: QraftyState
+  layer: DraftingCanvasLayer;
+  state: QraftyState;
 }) {
-  const frame = getDraftingQrBackgroundFrame(layer)
-  const payload = useMemo(
-    () => buildDraftingQrBackgroundSvgPayload(layer, state),
-    [layer, state],
-  )
+  const frame = getDraftingQrBackgroundFrame(layer);
+  const payload = useMemo(() => buildDraftingQrBackgroundSvgPayload(layer, state), [layer, state]);
 
   if (!payload) {
-    return null
+    return null;
   }
 
   return (
@@ -46,5 +43,5 @@ export function DraftingQrBackground({
       }}
       dangerouslySetInnerHTML={{ __html: payload.markup }}
     />
-  )
+  );
 }

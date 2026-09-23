@@ -8,11 +8,9 @@ import { cn } from "@/lib/utils";
 import { CHECKERBOARD_LG as CHECKERBOARD } from "@/components/ui/fill-picker/lib/constants";
 
 // See Hue: omit `defaultValue` (Slider.Root owns it as a number).
-interface AlphaProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue"> {
+interface AlphaProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue"> {
   orientation?: "horizontal" | "vertical";
 }
-
 
 export const Alpha = React.forwardRef<HTMLDivElement, AlphaProps>(function Alpha(
   { orientation = "horizontal", className, ...rest },

@@ -1,7 +1,5 @@
-import {
-  normalizeBorderStyle,
-} from "@/features/canvas/model/effects"
-import type { QraftyGradient } from "@/features/qr/model/state"
+import { normalizeBorderStyle } from "@/features/canvas/model/effects";
+import type { QraftyGradient } from "@/features/qr/model/state";
 import {
   clamp,
   DEFAULT_DRAFTING_SHAPE_LAYER,
@@ -17,21 +15,17 @@ import {
   type DraftingShapeFillMode,
   type DraftingShapePrimitiveId,
   type NormalizeDraftingLayerContext,
-} from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/layers/shared";
 
 export function normalizeShapeDraftingCanvasLayer(
   context: NormalizeDraftingLayerContext & { kind: "shape" },
 ): DraftingCanvasLayer {
-  const { fallback, value } = context
+  const { fallback, value } = context;
 
   return {
     ...normalizeSharedDraftingCanvasLayerFields(context),
     borderSides: normalizeDraftingLayerBorderSides(value.borderSides, fallback.borderSides),
-    ...normalizeLayerCornerRadiusFields(
-      value,
-      fallback,
-      DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius,
-    ),
+    ...normalizeLayerCornerRadiusFields(value, fallback, DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius),
     fill: normalizeHexColor(value.fill, fallback.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill),
     fillGradient: normalizeShapeFillGradient(value.fillGradient, fallback.fillGradient),
     fillMode: normalizeShapeFillMode(value.fillMode, fallback.fillMode),
@@ -45,7 +39,10 @@ export function normalizeShapeDraftingCanvasLayer(
     shapeId: normalizeElementShapeId(value.shapeId, fallback.shapeId),
     stroke: normalizeHexColor(value.stroke, fallback.stroke ?? DEFAULT_DRAFTING_SHAPE_LAYER.stroke),
     strokeOpacity: clamp(
-      readFiniteNumber(value.strokeOpacity, fallback.strokeOpacity ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeOpacity),
+      readFiniteNumber(
+        value.strokeOpacity,
+        fallback.strokeOpacity ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeOpacity,
+      ),
       0,
       100,
     ),
@@ -54,11 +51,14 @@ export function normalizeShapeDraftingCanvasLayer(
       fallback.strokeStyle ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeStyle,
     ),
     strokeWidth: clamp(
-      readFiniteNumber(value.strokeWidth, fallback.strokeWidth ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeWidth),
+      readFiniteNumber(
+        value.strokeWidth,
+        fallback.strokeWidth ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeWidth,
+      ),
       0,
       64,
     ),
-  } satisfies DraftingCanvasLayer
+  } satisfies DraftingCanvasLayer;
 }
 
 function normalizeShapeFillMode(
@@ -66,10 +66,10 @@ function normalizeShapeFillMode(
   fallback: DraftingShapeFillMode | undefined,
 ): DraftingShapeFillMode {
   if (value === "gradient" || value === "image" || value === "none" || value === "solid") {
-    return value
+    return value;
   }
 
-  return fallback ?? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode
+  return fallback ?? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode;
 }
 
 const DRAFTING_SHAPE_PRIMITIVE_IDS = new Set<DraftingShapePrimitiveId>([
@@ -77,7 +77,7 @@ const DRAFTING_SHAPE_PRIMITIVE_IDS = new Set<DraftingShapePrimitiveId>([
   "ellipse",
   "line",
   "rect",
-])
+]);
 
 const DRAFTING_ELEMENT_SHAPE_IDS = new Set<DraftingElementShapeId>([
   "arrow",
@@ -144,15 +144,18 @@ const DRAFTING_ELEMENT_SHAPE_IDS = new Set<DraftingElementShapeId>([
   "wave-square",
   "woven-bloom",
   "wavy-badge",
-])
+]);
 
 export function normalizeElementShapeId(
   value: unknown,
   fallback: DraftingElementShapeId | undefined,
 ): DraftingElementShapeId {
-  if (typeof value === "string" && DRAFTING_ELEMENT_SHAPE_IDS.has(value as DraftingElementShapeId)) {
-    return value as DraftingElementShapeId
+  if (
+    typeof value === "string" &&
+    DRAFTING_ELEMENT_SHAPE_IDS.has(value as DraftingElementShapeId)
+  ) {
+    return value as DraftingElementShapeId;
   }
 
-  return fallback ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId
+  return fallback ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId;
 }

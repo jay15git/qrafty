@@ -26,7 +26,7 @@ interface QRModuleCell {
 
 export function adaptExternalQRCodeSVG(
   externalSvg: string,
-  options: QRExternalSVGAdapterOptions
+  options: QRExternalSVGAdapterOptions,
 ): QRExternalSVGAdapterResult | undefined {
   const svg = parseSVG(externalSvg);
   if (!svg) return undefined;
@@ -37,58 +37,57 @@ export function adaptExternalQRCodeSVG(
   const path = findForegroundPath(svg);
   if (!path) return undefined;
 
-  const runs = parseHorizontalPathRuns(path.getAttribute('d') || '');
+  const runs = parseHorizontalPathRuns(path.getAttribute("d") || "");
   if (runs.length === 0) return undefined;
 
   return renderPathRunsAsAnimatableSVG(svg, runs, options);
 }
 
 function parseSVG(markup: string) {
-  if (!markup || markup.trim() === '') {
+  if (!markup || markup.trim() === "") {
     return undefined;
   }
-  if (typeof DOMParser !== 'undefined') {
-    const document = new DOMParser().parseFromString(markup, 'image/svg+xml');
-    if (document.querySelector('parsererror')) return undefined;
-    const svg = document.querySelector('svg');
+  if (typeof DOMParser !== "undefined") {
+    const document = new DOMParser().parseFromString(markup, "image/svg+xml");
+    if (document.querySelector("parsererror")) return undefined;
+    const svg = document.querySelector("svg");
     return svg || undefined;
   }
-  if (typeof document === 'undefined') return undefined;
-  const container = document.createElement('div');
+  if (typeof document === "undefined") return undefined;
+  const container = document.createElement("div");
   container.innerHTML = markup;
-  const svg = container.querySelector('svg');
+  const svg = container.querySelector("svg");
   return svg || undefined;
 }
 
 function serializeSVG(svg: Element) {
-  if (typeof XMLSerializer !== 'undefined') {
+  if (typeof XMLSerializer !== "undefined") {
     return new XMLSerializer().serializeToString(svg);
   }
   return svg.outerHTML;
 }
 
 function passThroughAnimatableSVG(svg: SVGSVGElement) {
-  const modules = Array.from(svg.querySelectorAll('.module')) as SVGElement[];
+  const modules = Array.from(svg.querySelectorAll(".module")) as SVGElement[];
   const hasAnimatableModules = modules.some(
     (module) =>
-      module.getAttribute('data-column') !== null &&
-      module.getAttribute('data-row') !== null
+      module.getAttribute("data-column") !== null && module.getAttribute("data-row") !== null,
   );
   if (!hasAnimatableModules) return undefined;
 
   const positions = modules.flatMap((module) => {
-    const column = parseFloat(module.getAttribute('data-column') || '')
-    const row = parseFloat(module.getAttribute('data-row') || '')
+    const column = parseFloat(module.getAttribute("data-column") || "");
+    const row = parseFloat(module.getAttribute("data-row") || "");
     if (!isFinite(column) || !isFinite(row)) {
-      return []
+      return [];
     }
-    return [{ column, row }]
+    return [{ column, row }];
   });
   if (positions.length === 0) return undefined;
 
   const maxCoordinate = positions.reduce(
     (max, position) => Math.max(max, position.column, position.row),
-    0
+    0,
   );
   normalizeSVGRoot(svg);
   return {
@@ -96,25 +95,25 @@ function passThroughAnimatableSVG(svg: SVGSVGElement) {
     moduleCount: maxCoordinate + 1,
     margin: 4,
     hasFinderPatterns:
-      svg.querySelector('.position-ring') !== null ||
-      svg.querySelector('.position-center') !== null,
+      svg.querySelector(".position-ring") !== null ||
+      svg.querySelector(".position-center") !== null,
   };
 }
 
 function normalizeSVGRoot(svg: SVGSVGElement) {
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '100%');
-  if (!svg.getAttribute('preserveAspectRatio')) {
-    svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+  svg.setAttribute("width", "100%");
+  svg.setAttribute("height", "100%");
+  if (!svg.getAttribute("preserveAspectRatio")) {
+    svg.setAttribute("preserveAspectRatio", "xMinYMin meet");
   }
 }
 
 function findForegroundPath(svg: SVGSVGElement) {
-  const paths = Array.from(svg.querySelectorAll('path')) as SVGPathElement[];
+  const paths = Array.from(svg.querySelectorAll("path")) as SVGPathElement[];
   const candidates = paths.filter((path) => {
-    const fill = (path.getAttribute('fill') || '').toLowerCase();
-    const d = path.getAttribute('d') || '';
-    return d.indexOf('h') !== -1 && fill !== '#ffffff' && fill !== 'white';
+    const fill = (path.getAttribute("fill") || "").toLowerCase();
+    const d = path.getAttribute("d") || "";
+    return d.indexOf("h") !== -1 && fill !== "#ffffff" && fill !== "white";
   });
   return candidates.length > 0 ? candidates[candidates.length - 1] : undefined;
 }
@@ -150,7 +149,7 @@ export function parseHorizontalPathRuns(pathData: string): QRPathRun[] {
 function renderPathRunsAsAnimatableSVG(
   sourceSvg: SVGSVGElement,
   runs: QRPathRun[],
-  options: QRExternalSVGAdapterOptions
+  options: QRExternalSVGAdapterOptions,
 ) {
   const cells = expandRunsToCells(runs);
   if (cells.length === 0) return undefined;
@@ -161,7 +160,9 @@ function renderPathRunsAsAnimatableSVG(
   const maxRow = cells.reduce((max, cell) => Math.max(max, cell.row), -Infinity);
   const margin = Math.min(minColumn, minRow);
   const moduleCount = Math.max(maxColumn - margin, maxRow - margin) + 1;
-  const viewBox = sourceSvg.getAttribute('viewBox') || `0 0 ${moduleCount + margin * 2} ${moduleCount + margin * 2}`;
+  const viewBox =
+    sourceSvg.getAttribute("viewBox") ||
+    `0 0 ${moduleCount + margin * 2} ${moduleCount + margin * 2}`;
 
   const modules = cells
     .map((cell) =>
@@ -173,15 +174,15 @@ function renderPathRunsAsAnimatableSVG(
         options.moduleColor,
         options.positionRingColor,
         options.positionCenterColor,
-        options.squares
-      )
+        options.squares,
+      ),
     )
-    .join('');
+    .join("");
   const preservedImages = serializePreservedImages(sourceSvg);
 
   return {
     svg: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="${escapeAttribute(
-      viewBox
+      viewBox,
     )}" preserveAspectRatio="xMinYMin meet"><rect width="100%" height="100%" fill="white" fill-opacity="0"/>${modules}${preservedImages}</svg>`,
     moduleCount,
     margin,
@@ -190,9 +191,9 @@ function renderPathRunsAsAnimatableSVG(
 }
 
 function serializePreservedImages(svg: SVGSVGElement) {
-  return Array.from(svg.querySelectorAll('image'))
+  return Array.from(svg.querySelectorAll("image"))
     .map((image) => serializeSVG(image))
-    .join('');
+    .join("");
 }
 
 function expandRunsToCells(runs: QRPathRun[]) {
@@ -217,33 +218,19 @@ function renderModuleCell(
   moduleColor: string,
   ringColor: string,
   centerColor: string,
-  squares: boolean
+  squares: boolean,
 ) {
   const column = sourceColumn - margin;
   const row = sourceRow - margin;
   const entity = classifyFinderEntity(column, row, moduleCount);
-  if (entity === 'ring') {
-    return renderSquareModule(
-      sourceColumn,
-      sourceRow,
-      column,
-      row,
-      'position-ring',
-      ringColor
-    );
+  if (entity === "ring") {
+    return renderSquareModule(sourceColumn, sourceRow, column, row, "position-ring", ringColor);
   }
-  if (entity === 'center') {
-    return renderSquareModule(
-      sourceColumn,
-      sourceRow,
-      column,
-      row,
-      'position-center',
-      centerColor
-    );
+  if (entity === "center") {
+    return renderSquareModule(sourceColumn, sourceRow, column, row, "position-center", centerColor);
   }
   if (squares) {
-    return renderSquareModule(sourceColumn, sourceRow, column, row, 'module', moduleColor);
+    return renderSquareModule(sourceColumn, sourceRow, column, row, "module", moduleColor);
   }
   return `<circle class="module" fill="${escapeAttribute(moduleColor)}" cx="${
     sourceColumn + 0.5
@@ -256,31 +243,30 @@ function renderSquareModule(
   column: number,
   row: number,
   className: string,
-  fill: string
+  fill: string,
 ) {
   return `<rect class="${className}" fill="${escapeAttribute(fill)}" x="${sourceColumn}" y="${sourceRow}" width="1" height="1" data-column="${column}" data-row="${row}"/>`;
 }
 
 function classifyFinderEntity(column: number, row: number, moduleCount: number) {
   const inTopLeft = column >= 0 && column <= 6 && row >= 0 && row <= 6;
-  const inTopRight =
-    column >= moduleCount - 7 && column <= moduleCount - 1 && row >= 0 && row <= 6;
+  const inTopRight = column >= moduleCount - 7 && column <= moduleCount - 1 && row >= 0 && row <= 6;
   const inBottomLeft =
     column >= 0 && column <= 6 && row >= moduleCount - 7 && row <= moduleCount - 1;
-  if (!inTopLeft && !inTopRight && !inBottomLeft) return 'module';
+  if (!inTopLeft && !inTopRight && !inBottomLeft) return "module";
 
   const localColumn = inTopRight ? column - (moduleCount - 7) : column;
   const localRow = inBottomLeft ? row - (moduleCount - 7) : row;
   if (localColumn >= 2 && localColumn <= 4 && localRow >= 2 && localRow <= 4) {
-    return 'center';
+    return "center";
   }
-  return 'ring';
+  return "ring";
 }
 
 function escapeAttribute(value: string) {
   return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }

@@ -2,8 +2,7 @@ export const coordinateSeed = (x: number, y: number, count: number) =>
   Math.abs(Math.round((x + 1) * 37 + (y + 1) * 61 + count * 17));
 
 export const hashNoise = (x: number, y: number, seed: number) => {
-  const value =
-    Math.sin((x + 1) * 12.9898 + (y + 1) * 78.233 + seed * 43.758) * 43758.5453;
+  const value = Math.sin((x + 1) * 12.9898 + (y + 1) * 78.233 + seed * 43.758) * 43758.5453;
   return value - Math.floor(value);
 };
 
@@ -30,7 +29,7 @@ export const matrixFracCoord = (x: number, y: number, count: number) => {
 export const sampleCellField = (
   fRow: number,
   fCol: number,
-  fn: (row: number, col: number) => number
+  fn: (row: number, col: number) => number,
 ) => {
   const r0 = clamp(Math.floor(fRow), 0, MATRIX_LAST);
   const c0 = clamp(Math.floor(fCol), 0, MATRIX_LAST);
@@ -42,12 +41,7 @@ export const sampleCellField = (
   const v01 = fn(r0, c1);
   const v10 = fn(r1, c0);
   const v11 = fn(r1, c1);
-  return (
-    v00 * (1 - dr) * (1 - dc) +
-    v01 * (1 - dr) * dc +
-    v10 * dr * (1 - dc) +
-    v11 * dr * dc
-  );
+  return v00 * (1 - dr) * (1 - dc) + v01 * (1 - dr) * dc + v10 * dr * (1 - dc) + v11 * dr * dc;
 };
 
 export const easeInOut = (phase: number) =>
@@ -62,11 +56,7 @@ export const PREMIUM_GRID_SIZE = 7;
 export const PREMIUM_GRID_LAST = PREMIUM_GRID_SIZE - 1;
 
 export const premiumGridBand = (value: number, count: number) =>
-  clamp(
-    Math.floor((value / Math.max(1, count)) * PREMIUM_GRID_SIZE),
-    0,
-    PREMIUM_GRID_LAST
-  );
+  clamp(Math.floor((value / Math.max(1, count)) * PREMIUM_GRID_SIZE), 0, PREMIUM_GRID_LAST);
 
 export const premiumGridCoord = (x: number, y: number, count: number) => ({
   row: premiumGridBand(y, count),
@@ -94,7 +84,7 @@ export const premiumDiagonalSnakeOrder = (row: number, col: number) => {
 };
 
 const frameMaskCell = (mask: string, row: number, col: number) =>
-  mask[rowMajorIndex(row, col)] || '.';
+  mask[rowMajorIndex(row, col)] || ".";
 
 const MATRIX_CENTER = 2;
 

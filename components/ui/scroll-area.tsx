@@ -44,8 +44,7 @@ const ScrollAreaContext = createContext<boolean>(false);
 
 type Orientation = "vertical" | "horizontal" | "both";
 
-interface ScrollAreaProps
-  extends ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> {
+interface ScrollAreaProps extends ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> {
   viewportClassName?: string;
   /** Surface-gradient + chevron cues at edges with more content. Auto-shows
    *  on overflow; set to `false` to disable. Defaults to `true`. */
@@ -132,14 +131,42 @@ function ScrollAreaCues({
     >
       {orientation !== "horizontal" && (
         <>
-          <ScrollEdgeCue mode="absolute" edge="top" visible={edges.top} size={cueSize} chevron={chevron} instantReveal={instantFade} />
-          <ScrollEdgeCue mode="absolute" edge="bottom" visible={edges.bottom} size={cueSize} chevron={chevron} instantReveal={instantFade} />
+          <ScrollEdgeCue
+            mode="absolute"
+            edge="top"
+            visible={edges.top}
+            size={cueSize}
+            chevron={chevron}
+            instantReveal={instantFade}
+          />
+          <ScrollEdgeCue
+            mode="absolute"
+            edge="bottom"
+            visible={edges.bottom}
+            size={cueSize}
+            chevron={chevron}
+            instantReveal={instantFade}
+          />
         </>
       )}
       {orientation !== "vertical" && (
         <>
-          <ScrollEdgeCue mode="absolute" edge="left" visible={edges.left} size={cueSize} chevron={chevron} instantReveal={instantFade} />
-          <ScrollEdgeCue mode="absolute" edge="right" visible={edges.right} size={cueSize} chevron={chevron} instantReveal={instantFade} />
+          <ScrollEdgeCue
+            mode="absolute"
+            edge="left"
+            visible={edges.left}
+            size={cueSize}
+            chevron={chevron}
+            instantReveal={instantFade}
+          />
+          <ScrollEdgeCue
+            mode="absolute"
+            edge="right"
+            visible={edges.right}
+            size={cueSize}
+            chevron={chevron}
+            instantReveal={instantFade}
+          />
         </>
       )}
     </div>
@@ -189,7 +216,7 @@ const TouchScrollRoot = forwardRef<HTMLDivElement, ScrollAreaRootSharedProps>(
       children,
       rootProps,
     },
-    ref
+    ref,
   ) => (
     <div
       ref={ref}
@@ -210,7 +237,7 @@ const TouchScrollRoot = forwardRef<HTMLDivElement, ScrollAreaRootSharedProps>(
           orientation === "vertical" && "overflow-y-auto overflow-x-hidden",
           orientation === "horizontal" && "overflow-x-auto overflow-y-hidden",
           orientation === "both" && "overflow-auto",
-          viewportClassName
+          viewportClassName,
         )}
         {...(orientation === "vertical" ? {} : { tabIndex: 0 })}
       >
@@ -218,7 +245,7 @@ const TouchScrollRoot = forwardRef<HTMLDivElement, ScrollAreaRootSharedProps>(
       </div>
       {cues}
     </div>
-  )
+  ),
 );
 
 TouchScrollRoot.displayName = "TouchScrollRoot";
@@ -245,7 +272,7 @@ const RadixScrollRoot = forwardRef<
       scrollHideDelay,
       showScrollbar,
     },
-    ref
+    ref,
   ) => (
     <ScrollAreaPrimitive.Root
       ref={ref}
@@ -284,23 +311,19 @@ const RadixScrollRoot = forwardRef<
       {orientation !== "vertical" && (
         <ScrollBar
           className={cn(
-            !showScrollbar &&
-              "pointer-events-none !h-0 !min-h-0 overflow-hidden opacity-0",
+            !showScrollbar && "pointer-events-none !h-0 !min-h-0 overflow-hidden opacity-0",
           )}
           orientation="horizontal"
         />
       )}
       {orientation === "both" && <ScrollAreaPrimitive.Corner />}
     </ScrollAreaPrimitive.Root>
-  )
+  ),
 );
 
 RadixScrollRoot.displayName = "RadixScrollRoot";
 
-const ScrollArea = forwardRef<
-  ComponentRef<typeof ScrollAreaPrimitive.Root>,
-  ScrollAreaProps
->(
+const ScrollArea = forwardRef<ComponentRef<typeof ScrollAreaPrimitive.Root>, ScrollAreaProps>(
   (
     {
       className,
@@ -319,11 +342,9 @@ const ScrollArea = forwardRef<
       style,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const [viewportNode, setViewportNode] = useState<HTMLDivElement | null>(
-      null,
-    );
+    const [viewportNode, setViewportNode] = useState<HTMLDivElement | null>(null);
     const persistScope = useScrollPersistScope();
     const persistReactId = useId();
     usePersistedElementScroll(
@@ -390,7 +411,7 @@ const ScrollArea = forwardRef<
         )}
       </ScrollAreaContext.Provider>
     );
-  }
+  },
 );
 
 ScrollArea.displayName = "ScrollArea";
@@ -425,7 +446,7 @@ const ScrollBar = forwardRef<
         "data-[state=hidden]:delay-160 data-[state=visible]:delay-0",
         orientation === "vertical" && "h-full w-2.5",
         orientation === "horizontal" && "h-2.5 w-full flex-col",
-        className
+        className,
       )}
       {...props}
     >
@@ -435,10 +456,8 @@ const ScrollBar = forwardRef<
           "relative bg-foreground/25 transition-[background-color,width,height] duration-160 ease-in-out",
           "group-hover/scrollbar:bg-foreground/45 active:!bg-foreground/60",
           shape.bg,
-          orientation === "vertical" &&
-            "mx-auto my-1 w-1 group-hover/scrollbar:w-1.5",
-          orientation === "horizontal" &&
-            "my-auto mx-1 h-1 group-hover/scrollbar:h-1.5"
+          orientation === "vertical" && "mx-auto my-1 w-1 group-hover/scrollbar:w-1.5",
+          orientation === "horizontal" && "my-auto mx-1 h-1 group-hover/scrollbar:h-1.5",
         )}
       />
     </ScrollAreaPrimitive.ScrollAreaScrollbar>

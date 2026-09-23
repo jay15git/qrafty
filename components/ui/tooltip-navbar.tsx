@@ -23,15 +23,7 @@ export type TooltipItem = {
   cuelume?: "button" | "none" | "toggle";
 };
 
-import {
-  MessageCircle,
-  Inbox,
-  Circle,
-  Crosshair,
-  Download,
-  Menu,
-  CommandIcon,
-} from "lucide-react";
+import { MessageCircle, Inbox, Circle, Crosshair, Download, Menu, CommandIcon } from "lucide-react";
 
 interface TooltipNavbarProps {
   items: TooltipItem[];
@@ -91,18 +83,15 @@ export const TooltipNavbar = ({
   const [isEntering, setIsEntering] = useState(true);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [openPopoverIndex, setOpenPopoverIndex] = useState<number | null>(null);
-  const runs = items.reduce<{ item: TooltipItem; index: number }[][]>(
-    (acc, item, index) => {
-      const last = acc[acc.length - 1];
-      if (last && last[0].item.group === item.group) {
-        last.push({ item, index });
-      } else {
-        acc.push([{ item, index }]);
-      }
-      return acc;
-    },
-    [],
-  );
+  const runs = items.reduce<{ item: TooltipItem; index: number }[][]>((acc, item, index) => {
+    const last = acc[acc.length - 1];
+    if (last && last[0].item.group === item.group) {
+      last.push({ item, index });
+    } else {
+      acc.push([{ item, index }]);
+    }
+    return acc;
+  }, []);
 
   const renderItemButton = (item: TooltipItem, index: number) => {
     const isText = item.variant === "text";
@@ -126,8 +115,8 @@ export const TooltipNavbar = ({
           isIconLabel
             ? "flex h-9 cursor-pointer items-center justify-center gap-2 rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4"
             : isText
-            ? "flex h-9 cursor-pointer items-center justify-center rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
-            : "flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4",
+              ? "flex h-9 cursor-pointer items-center justify-center rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
+              : "flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4",
           item.pressed && "text-[var(--glass-button-hover-fg,currentColor)]",
         )}
       >
@@ -163,10 +152,7 @@ export const TooltipNavbar = ({
     const translateX =
       iconRect.left + iconRect.width / 2 - (stripRect.left + labelLeft + labelWidth / 2);
 
-    const totalWidth = measureRefs.current.reduce(
-      (acc, el) => acc + (el?.offsetWidth || 0),
-      0,
-    );
+    const totalWidth = measureRefs.current.reduce((acc, el) => acc + (el?.offsetWidth || 0), 0);
 
     if (totalWidth <= 0 || labelWidth <= 0) {
       return null;
@@ -257,7 +243,9 @@ export const TooltipNavbar = ({
                         key={`real-${index}`}
                         className="flex items-center justify-center gap-1 px-2 text-sm font-medium whitespace-nowrap "
                       >
-                        <span className="text-[var(--settings-fg-primary,rgba(255,255,255,0.94))]">{item.label}</span>
+                        <span className="text-[var(--settings-fg-primary,rgba(255,255,255,0.94))]">
+                          {item.label}
+                        </span>
                         {item.hasBadge && (
                           <div className="flex items-center gap-0.5 text-[var(--settings-fg-muted,rgba(255,255,255,0.4))]">
                             <span className="flex items-center justify-center rounded-sm border border-[var(--appearance-popover-border,rgba(255,255,255,0.2))] p-1">
@@ -268,10 +256,7 @@ export const TooltipNavbar = ({
                         {item.labelHasKeyword && (
                           <div className="flex items-center gap-0.5 text-[var(--settings-fg-muted,rgba(255,255,255,0.4))]">
                             {item.labelHasKeyword.map((cap, i) => {
-                              const caps = item.labelHasKeyword as (
-                                | string
-                                | ReactNode
-                              )[]
+                              const caps = item.labelHasKeyword as (string | ReactNode)[];
                               return (
                                 <span
                                   key={`${typeof cap === "string" ? cap : "cap"}-${caps.slice(0, i).filter((entry) => entry === cap).length}`}
@@ -279,7 +264,7 @@ export const TooltipNavbar = ({
                                 >
                                   {cap}
                                 </span>
-                              )
+                              );
                             })}
                           </div>
                         )}

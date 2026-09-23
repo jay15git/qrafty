@@ -1,33 +1,29 @@
-import { ChevronRight } from "lucide-react"
-import { useEffect, useId, useState, type ReactNode } from "react"
+import { ChevronRight } from "lucide-react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
 import {
   useMobileDrawerNavigation,
   useMobileLiveDetail,
-} from "@/features/shell/inspector/MobileDrawerNavigationContext"
+} from "@/features/shell/inspector/MobileDrawerNavigationContext";
 import {
   SettingsAccordionPopoverOverlay,
   useSettingsAccordionPopover,
-} from "@/features/shell/inspector/SettingsAccordionPopoverContext"
-import { SettingsPopoverChrome } from "@/features/shell/inspector/settings-ui/PopoverChrome"
+} from "@/features/shell/inspector/SettingsAccordionPopoverContext";
+import { SettingsPopoverChrome } from "@/features/shell/inspector/settings-ui/PopoverChrome";
 import {
   DN_HINT,
   DN_LABEL,
   DN_VALUE,
   SettingsRowButton,
   useInspectorTheme,
-} from "@/features/shell/inspector/settings-ui/Shared"
+} from "@/features/shell/inspector/settings-ui/Shared";
 import {
   inspectorPortalClass,
   mergeMobileDetailChildClose,
-} from "@/features/shell/inspector/settings-ui/utils"
-import { cn } from "@/lib/utils"
+} from "@/features/shell/inspector/settings-ui/utils";
+import { cn } from "@/lib/utils";
 
 export function SettingsRowPopover({
   hint,
@@ -42,50 +38,47 @@ export function SettingsRowPopover({
   onOpenChange,
   side = "right",
 }: {
-  hint?: string
-  title?: string
-  trigger: ReactNode
-  leading?: ReactNode
-  hideHint?: boolean
-  children: ReactNode
-  align?: "start" | "center" | "end"
-  contentClassName?: string
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  side?: "top" | "right" | "bottom" | "left"
+  hint?: string;
+  title?: string;
+  trigger: ReactNode;
+  leading?: ReactNode;
+  hideHint?: boolean;
+  children: ReactNode;
+  align?: "start" | "center" | "end";
+  contentClassName?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  side?: "top" | "right" | "bottom" | "left";
 }) {
-  const theme = useInspectorTheme()
-  const mobileDensity = useMobileInspectorDensity()
-  const mobileNav = useMobileDrawerNavigation()
-  const accordion = useSettingsAccordionPopover()
-  const popoverKey = useId()
-  const [internalOpen, setInternalOpen] = useState(false)
-  const isControlledOpen = open !== undefined
-  const popoverOpen = isControlledOpen ? open : internalOpen
+  const theme = useInspectorTheme();
+  const mobileDensity = useMobileInspectorDensity();
+  const mobileNav = useMobileDrawerNavigation();
+  const accordion = useSettingsAccordionPopover();
+  const popoverKey = useId();
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlledOpen = open !== undefined;
+  const popoverOpen = isControlledOpen ? open : internalOpen;
   const detailTitle =
-    title ??
-    (typeof trigger === "string" ? trigger : undefined) ??
-    hint ??
-    "Setting"
+    title ?? (typeof trigger === "string" ? trigger : undefined) ?? hint ?? "Setting";
 
   const setPopoverOpen = (nextOpen: boolean) => {
     if (!isControlledOpen) {
-      setInternalOpen(nextOpen)
+      setInternalOpen(nextOpen);
     }
-    onOpenChange?.(nextOpen)
-  }
+    onOpenChange?.(nextOpen);
+  };
 
   const closeDetail = () => {
-    mobileNav?.closeDetail()
-    onOpenChange?.(false)
-  }
+    mobileNav?.closeDetail();
+    onOpenChange?.(false);
+  };
 
   const liveDetail = useMobileLiveDetail({
     content: mergeMobileDetailChildClose(children, closeDetail),
     enabled: Boolean(mobileDensity && mobileNav),
     onOpenChange,
     title: detailTitle,
-  })
+  });
 
   const rowTrigger = (
     <>
@@ -106,37 +99,37 @@ export function SettingsRowPopover({
         </span>
       )}
     </>
-  )
+  );
 
   useEffect(() => {
     if (!accordion || open === undefined) {
-      return
+      return;
     }
 
     if (open) {
-      accordion.setOpenKey(popoverKey)
-      return
+      accordion.setOpenKey(popoverKey);
+      return;
     }
 
     if (accordion.openKey === popoverKey) {
-      accordion.setOpenKey(null)
+      accordion.setOpenKey(null);
     }
-  }, [accordion, open, popoverKey])
+  }, [accordion, open, popoverKey]);
 
   useEffect(() => {
     if (!accordion || open === undefined) {
-      return
+      return;
     }
 
     if (open && accordion.openKey !== popoverKey) {
-      onOpenChange?.(false)
+      onOpenChange?.(false);
     }
-  }, [accordion, onOpenChange, open, popoverKey])
+  }, [accordion, onOpenChange, open, popoverKey]);
 
   const accordionPanelClassName = inspectorPortalClass(
     theme,
     cn("inspector-popover-content w-full overflow-hidden p-0 dn-squircle-md", contentClassName),
-  )
+  );
 
   if (mobileDensity && mobileNav) {
     return (
@@ -146,15 +139,15 @@ export function SettingsRowPopover({
         </SettingsRowButton>
         {liveDetail.portal}
       </>
-    )
+    );
   }
 
   if (accordion) {
-    const isOpen = accordion.openKey === popoverKey
+    const isOpen = accordion.openKey === popoverKey;
     const setOpen = (nextOpen: boolean) => {
-      accordion.setOpenKey(nextOpen ? popoverKey : null)
-      setPopoverOpen(nextOpen)
-    }
+      accordion.setOpenKey(nextOpen ? popoverKey : null);
+      setPopoverOpen(nextOpen);
+    };
 
     return (
       <>
@@ -166,29 +159,27 @@ export function SettingsRowPopover({
           openKey={popoverKey}
           theme={theme}
         >
-          <SettingsPopoverChrome
-            title={detailTitle}
-            onClose={() => setOpen(false)}
-          >
+          <SettingsPopoverChrome title={detailTitle} onClose={() => setOpen(false)}>
             {children}
           </SettingsPopoverChrome>
         </SettingsAccordionPopoverOverlay>
       </>
-    )
+    );
   }
 
   return (
     <Popover modal={false} open={popoverOpen} onOpenChange={setPopoverOpen}>
       <PopoverTrigger asChild>
-        <SettingsRowButton>
-          {rowTrigger}
-        </SettingsRowButton>
+        <SettingsRowButton>{rowTrigger}</SettingsRowButton>
       </PopoverTrigger>
       <PopoverContent
         align={align}
         className={inspectorPortalClass(
           theme,
-          cn("dn-portal-surface inspector-popover-content w-56 overflow-hidden p-0 dn-squircle-md", contentClassName),
+          cn(
+            "dn-portal-surface inspector-popover-content w-56 overflow-hidden p-0 dn-squircle-md",
+            contentClassName,
+          ),
         )}
         data-mobile-inspector={mobileDensity ? "" : undefined}
         data-theme={theme}
@@ -198,13 +189,10 @@ export function SettingsRowPopover({
         onInteractOutside={() => setPopoverOpen(false)}
         onPointerDownOutside={() => setPopoverOpen(false)}
       >
-        <SettingsPopoverChrome
-          title={detailTitle}
-          onClose={() => setPopoverOpen(false)}
-        >
+        <SettingsPopoverChrome title={detailTitle} onClose={() => setPopoverOpen(false)}>
           {children}
         </SettingsPopoverChrome>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

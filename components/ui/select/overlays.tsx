@@ -68,11 +68,7 @@ export function SelectOverlays({
       </AnimatePresence>
 
       {/* Hover background */}
-      <FluidHoverHighlight
-        hover={hover}
-        hidden={!open}
-        className={shape.bg}
-      />
+      <FluidHoverHighlight hover={hover} hidden={!open} className={shape.bg} />
 
       {/* Focus ring */}
       <AnimatePresence>

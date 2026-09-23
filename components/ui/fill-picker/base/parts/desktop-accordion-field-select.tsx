@@ -1,17 +1,8 @@
 "use client";
 
 import * as React from "react";
-import {
-  Children,
-  isValidElement,
-  type ReactNode,
-} from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
+import { Children, isValidElement, type ReactNode } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { useFillPickerPortalSurface } from "@/components/ui/fill-picker/base/contexts/portal-surface";
 import { cn } from "@/lib/utils";
 

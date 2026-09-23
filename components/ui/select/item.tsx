@@ -1,23 +1,13 @@
 "use client";
 
-import {
-  forwardRef,
-  useContext,
-  useRef,
-  type ReactNode,
-  type HTMLAttributes,
-} from "react";
+import { forwardRef, useContext, useRef, type ReactNode, type HTMLAttributes } from "react";
 import { m, AnimatePresence } from "motion/react";
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import type { IconComponent } from "@/lib/icon-context";
 import { cn } from "@/lib/utils";
 import { useRegisterFluidHoverItem } from "@/components/ui/use-fluid-hover";
 import { useSize } from "@/lib/size-context";
-import {
-  useSelectContext,
-  SelectContentContext,
-  popupShape,
-} from "./context";
+import { useSelectContext, SelectContentContext, popupShape } from "./context";
 
 interface SelectItemProps extends HTMLAttributes<HTMLDivElement> {
   icon?: IconComponent;
@@ -43,7 +33,7 @@ export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
       disabled = false,
       ...props
     },
-    ref
+    ref,
   ) => {
     const selectCtx = useSelectContext();
     const contentCtx = useContext(SelectContentContext);
@@ -78,13 +68,9 @@ export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
         render={
           <div
             ref={(node: HTMLDivElement | null) => {
-              (
-                internalRef as React.MutableRefObject<HTMLDivElement | null>
-              ).current = node;
+              (internalRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
               if (typeof ref === "function") ref(node);
-              else if (ref)
-                (ref as React.MutableRefObject<HTMLDivElement | null>).current =
-                  node;
+              else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
             }}
             data-fluid-hover-index={index}
             data-value={value}
@@ -95,11 +81,9 @@ export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
               // a long list compresses rows to fit instead of scrolling.
               `relative z-10 flex ${sizeClasses.control} shrink-0 items-center ${sizeClasses.gap} ${shape.item} ${sizeClasses.itemPx} ${sizeClasses.text} cursor-pointer outline-none select-none`,
               "transition-[color] duration-80",
-              isActive || isChecked
-                ? "text-foreground"
-                : "text-muted-foreground",
+              isActive || isChecked ? "text-foreground" : "text-muted-foreground",
               disabled && "opacity-50 pointer-events-none",
-              className
+              className,
             )}
             {...props}
           />
@@ -116,7 +100,9 @@ export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
         <SelectPrimitive.ItemText
           // py-1/-my-1 keeps truncate's overflow:hidden from clipping
           // ascenders/descenders outside the trimmed box.
-          render={<span className="flex-1 min-w-0 truncate [text-box:trim-both_cap_alphabetic] py-1 -my-1" />}
+          render={
+            <span className="flex-1 min-w-0 truncate [text-box:trim-both_cap_alphabetic] py-1 -my-1" />
+          }
         >
           {children}
         </SelectPrimitive.ItemText>
@@ -124,10 +110,7 @@ export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
         {/* Always-rendered fixed slot so the check appearing/disappearing
             never changes the row's intrinsic width — without it the whole
             popup resizes when a selection lands. */}
-        <span
-          aria-hidden
-          className={cn("shrink-0", compact ? "w-3.5 h-3.5" : "w-4 h-4")}
-        >
+        <span aria-hidden className={cn("shrink-0", compact ? "w-3.5 h-3.5" : "w-4 h-4")}>
           {/* `initial={false}` skips the draw-in on the row's first mount (the
               check is already selected); later selections animate normally. */}
           <AnimatePresence initial={false}>
@@ -165,7 +148,7 @@ export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
         </span>
       </SelectPrimitive.Item>
     );
-  }
+  },
 );
 
 SelectItem.displayName = "SelectItem";

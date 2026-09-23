@@ -1,76 +1,56 @@
-"use client"
+"use client";
 
-import {
-  useEffect,
-  useMemo,
-  useRef,
-} from "react"
-
+import { useEffect, useMemo, useRef } from "react";
 
 import {
   cloneDraftingCardState,
   createDefaultDraftingCardState,
-} from "@/features/canvas/model/card-state"
+} from "@/features/canvas/model/card-state";
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   getDraftingQrLayerId,
   getQrCanvasLayers,
   isDraftingQrLayerId,
-} from "@/features/canvas/model/layers/shared"
-import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback"
+} from "@/features/canvas/model/layers/shared";
+import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import {
   createDefaultDraftingLayers,
   createDraftingQrLayer,
-} from "@/features/canvas/model/layers/card-qr"
+} from "@/features/canvas/model/layers/card-qr";
 import {
   cloneDraftingQrState,
   createDefaultDraftingWorkspaceQrState,
   type DraftingWorkspaceDocumentV1,
-} from "@/features/canvas/model/document"
+} from "@/features/canvas/model/document";
 import {
   applySceneCompositionPatch,
   cloneSceneCompositionByNodeId,
   createDefaultSceneCompositionByNodeId,
-} from "@/features/canvas/model/apply-scene-template"
-import {
-  getCanvasSizeFromTemplate,
-} from "@/features/canvas/model/size-templates"
-import {
-  sceneHasVideoExportContent,
-} from "@/features/canvas/export/pipeline/clock"
+} from "@/features/canvas/model/apply-scene-template";
+import { getCanvasSizeFromTemplate } from "@/features/canvas/model/size-templates";
+import { sceneHasVideoExportContent } from "@/features/canvas/export/pipeline/clock";
 import {
   buildDraftingWorkspaceDocumentFromState,
   mergeLiveQrStateByLayerId,
   resolveActiveQrLayerIdFromLayers,
-} from "@/features/canvas/components/drafting-canvas-document"
-import {
-  clearDraftingQrMarkupCache,
-} from "@/features/canvas/hooks/use-drafting-qr-markup"
+} from "@/features/canvas/components/drafting-canvas-document";
+import { clearDraftingQrMarkupCache } from "@/features/canvas/hooks/use-drafting-qr-markup";
 import {
   buildToolbarSettingsSnapshots,
   pickToolbarSettingsSnapshots,
-} from "@/features/canvas/components/desktop-toolbar-settings-snapshots"
-import { DEFAULT_DRAFTING_STUDIO_STATE } from "@/features/canvas/components/drafting-canvas.constants"
-import { type DraftingPaneToolbarVariant } from "@/features/canvas/components/Canvas"
+} from "@/features/canvas/components/desktop-toolbar-settings-snapshots";
+import { DEFAULT_DRAFTING_STUDIO_STATE } from "@/features/canvas/components/drafting-canvas.constants";
+import { type DraftingPaneToolbarVariant } from "@/features/canvas/components/Canvas";
 import type {
   MotionSettings,
   ToolbarController,
   ToolbarToolId,
-} from "@/features/shell/model/toolbar-types"
-import {
-  DEFAULT_DESKTOP_EXPORT_SETTINGS,
-} from "@/features/shell/model/toolbar-defaults"
-import { type BrandIconCategory } from "@/features/qr/assets/brand-icons"
-import {
-  isRasterExportExtension,
-} from "@/features/qr/export/raster-export"
-import {
-  DASHBOARD_QR_NODE_ID,
-} from "@/features/qr/rendering/compose-scene"
-import {
-  type QraftyState,
-  getAssetValue,
-} from "@/features/qr/model/state"
+} from "@/features/shell/model/toolbar-types";
+import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/shell/model/toolbar-defaults";
+import { type BrandIconCategory } from "@/features/qr/assets/brand-icons";
+import { isRasterExportExtension } from "@/features/qr/export/raster-export";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
+import { type QraftyState, getAssetValue } from "@/features/qr/model/state";
 import {
   buildStaticQrPayload,
   getDefaultStaticQrValues,
@@ -79,21 +59,18 @@ import {
   validateStaticQrContent,
   type StaticQrContentValue,
   type StaticQrContentValues,
-} from "@/features/qr/content/static-payload"
+} from "@/features/qr/content/static-payload";
 import {
   getPlatformDefaultValuesForIntent,
   isPlatformType,
-} from "@/features/qr/content/platform-intents"
-import {
-  DEFAULT_QR_INPUT_TYPE,
-  type QrInputType,
-} from "@/features/qr/content/input-options"
+} from "@/features/qr/content/platform-intents";
+import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
 import {
   findDraftingLayerById,
   parseValueSegmentsText,
   type DraftingDownloadTarget,
-} from "@/features/canvas/components/drafting-canvas-operations"
-import { useDraftingCanvasReducer } from "@/features/canvas/components/drafting-canvas-reducer"
+} from "@/features/canvas/components/drafting-canvas-operations";
+import { useDraftingCanvasReducer } from "@/features/canvas/components/drafting-canvas-reducer";
 import {
   resolveActiveCanvasLayers,
   resolveActiveSceneComposition,
@@ -104,43 +81,27 @@ import {
   resolveSelectedContentValues,
   resolveSelectedElementLayer,
   resolveSelectedTextLayer,
-} from "@/features/canvas/components/drafting-canvas-resolvers"
-import {
-  useCanvasScanSafety,
-} from "@/features/canvas/components/use-canvas-scan-safety"
-import {
-  buildToolbarController,
-} from "@/features/canvas/components/desktop-toolbar-controller"
-import {
-  useDraftingHistory,
-} from "@/features/canvas/canvas/use-drafting-history"
-import {
-  useWorkspaceExport,
-} from "@/features/canvas/canvas/use-workspace-export"
-import {
-  createQrControls,
-} from "@/features/canvas/canvas/qr-controls"
-import {
-  useQrLogoActions,
-} from "@/features/canvas/canvas/use-qr-logo-actions"
-import {
-  useLayerActions,
-} from "@/features/canvas/canvas/use-layer-actions"
-import {
-  useInspectorActions,
-} from "@/features/canvas/canvas/use-inspector-actions"
+} from "@/features/canvas/components/drafting-canvas-resolvers";
+import { useCanvasScanSafety } from "@/features/canvas/components/use-canvas-scan-safety";
+import { buildToolbarController } from "@/features/canvas/components/desktop-toolbar-controller";
+import { useDraftingHistory } from "@/features/canvas/canvas/use-drafting-history";
+import { useWorkspaceExport } from "@/features/canvas/canvas/use-workspace-export";
+import { createQrControls } from "@/features/canvas/canvas/qr-controls";
+import { useQrLogoActions } from "@/features/canvas/canvas/use-qr-logo-actions";
+import { useLayerActions } from "@/features/canvas/canvas/use-layer-actions";
+import { useInspectorActions } from "@/features/canvas/canvas/use-inspector-actions";
 import {
   useDraftingShortcuts,
   type DraftingShortcutHandlers,
-} from "@/features/canvas/canvas/use-drafting-shortcuts"
-type DraftingBrandIconCategoryFilter = BrandIconCategory | "all"
+} from "@/features/canvas/canvas/use-drafting-shortcuts";
+type DraftingBrandIconCategoryFilter = BrandIconCategory | "all";
 
-type DraftingWorkspaceController = ToolbarController
+type DraftingWorkspaceController = ToolbarController;
 
 type DraftingCanvasViewModelInput = {
-  initialActiveTool?: ToolbarToolId
-  paneToolbarVariant: DraftingPaneToolbarVariant
-}
+  initialActiveTool?: ToolbarToolId;
+  paneToolbarVariant: DraftingPaneToolbarVariant;
+};
 
 export function useDraftingCanvasViewModel({
   initialActiveTool,
@@ -334,26 +295,26 @@ export function useDraftingCanvasViewModel({
       setLogoUploadObjectUrl,
       setModuleFillUploadObjectUrl,
     },
-  ] = useDraftingCanvasReducer(initialActiveTool)
-  const brandIconQueryRef = useRef("")
-  const brandIconCategoryRef = useRef<DraftingBrandIconCategoryFilter>("all")
-  const draftingCanvasRef = useRef<HTMLElement | null>(null)
-  const draftingLayerClipboardRef = useRef<string>("")
-  const logoUploadObjectUrlRef = useRef<string | null>(null)
-  const moduleFillUploadObjectUrlRef = useRef<string | null>(null)
-  const pendingQrPersistStateRef = useRef<QraftyState | null>(null)
+  ] = useDraftingCanvasReducer(initialActiveTool);
+  const brandIconQueryRef = useRef("");
+  const brandIconCategoryRef = useRef<DraftingBrandIconCategoryFilter>("all");
+  const draftingCanvasRef = useRef<HTMLElement | null>(null);
+  const draftingLayerClipboardRef = useRef<string>("");
+  const logoUploadObjectUrlRef = useRef<string | null>(null);
+  const moduleFillUploadObjectUrlRef = useRef<string | null>(null);
+  const pendingQrPersistStateRef = useRef<QraftyState | null>(null);
   const selectedContentValues = resolveSelectedContentValues(
     contentValuesByType,
     selectedContentType,
-  )
+  );
   const selectedContentValue = useMemo(
     () => buildStaticQrPayload(selectedContentType, selectedContentValues),
     [selectedContentType, selectedContentValues],
-  )
+  );
   const selectedContentValidation = useMemo(
     () => validateStaticQrContent(selectedContentType, selectedContentValues),
     [selectedContentType, selectedContentValues],
-  )
+  );
   const draftingQraftyState = useMemo<QraftyState>(
     () => ({
       ...DEFAULT_DRAFTING_STUDIO_STATE,
@@ -381,9 +342,7 @@ export function useDraftingCanvasViewModel({
         presetId: undefined,
         source: selectedBackgroundAssetSourceMode === "url" ? "url" : "none",
         value:
-          selectedBackgroundAssetSourceMode === "url"
-            ? selectedBackgroundRemoteUrl
-            : undefined,
+          selectedBackgroundAssetSourceMode === "url" ? selectedBackgroundRemoteUrl : undefined,
       },
       moduleFillImage: {
         presetColor: undefined,
@@ -537,10 +496,8 @@ export function useDraftingCanvasViewModel({
       selectedQrSize,
       selectedQrTypeNumber,
     ],
-  )
-  const shortcutHandlersRef = useRef<DraftingShortcutHandlers>(
-    {} as DraftingShortcutHandlers,
-  )
+  );
+  const shortcutHandlersRef = useRef<DraftingShortcutHandlers>({} as DraftingShortcutHandlers);
   const keyboardStateRef = useRef({
     activeQrLayerId,
     activeQrNodeId,
@@ -552,44 +509,40 @@ export function useDraftingCanvasViewModel({
     ).length,
     selectedCardState,
     selectedLayerIds,
-  })
-  const canDownload = selectedContentValidation.isValid && Boolean(draftingQraftyState.data.trim())
-  const isDraftingRasterExport = isRasterExportExtension(selectedDownloadExtension)
-  const selectedRasterPhotoLongEdge = isDraftingRasterExport ? selectedPhotoLongEdge : undefined
+  });
+  const canDownload = selectedContentValidation.isValid && Boolean(draftingQraftyState.data.trim());
+  const isDraftingRasterExport = isRasterExportExtension(selectedDownloadExtension);
+  const selectedRasterPhotoLongEdge = isDraftingRasterExport ? selectedPhotoLongEdge : undefined;
   const activeSceneComposition = resolveActiveSceneComposition(
     sceneCompositionByNodeId,
     activeQrNodeId,
-  )
+  );
 
-  const qrNodeIds = useMemo(() => [DASHBOARD_QR_NODE_ID], [])
+  const qrNodeIds = useMemo(() => [DASHBOARD_QR_NODE_ID], []);
   const activeCanvasLayers = resolveActiveCanvasLayers(
     layerStateByNodeId,
     activeQrNodeId,
     draftingQraftyState,
     selectedCardState,
-  )
-  const qrCanvasLayers = useMemo(
-    () => getQrCanvasLayers(activeCanvasLayers),
-    [activeCanvasLayers],
-  )
+  );
+  const qrCanvasLayers = useMemo(() => getQrCanvasLayers(activeCanvasLayers), [activeCanvasLayers]);
   const canExportVideo = sceneHasVideoExportContent(
     selectedCardState,
     activeCanvasLayers,
     draftingQraftyState,
-  )
+  );
   const qrPaneNamesById = useMemo(() => {
-    const next = new Map<string, string>()
+    const next = new Map<string, string>();
 
     qrCanvasLayers.forEach((layer, index) => {
-      next.set(layer.id, index === 0 ? "QR Code" : `QR Code ${index + 1}`)
-    })
+      next.set(layer.id, index === 0 ? "QR Code" : `QR Code ${index + 1}`);
+    });
 
-    return next
-  }, [qrCanvasLayers])
-  const activeQrDownloadTarget = `qr:${activeQrLayerId}` as DraftingDownloadTarget
+    return next;
+  }, [qrCanvasLayers]);
+  const activeQrDownloadTarget = `qr:${activeQrLayerId}` as DraftingDownloadTarget;
   const shouldMeasureActiveQrExport =
-    selectedDownloadTarget === "current" ||
-    selectedDownloadTarget === activeQrDownloadTarget
+    selectedDownloadTarget === "current" || selectedDownloadTarget === activeQrDownloadTarget;
 
   const draftingWorkspaceDocument = useMemo(
     () => buildDraftingWorkspaceDocument(),
@@ -609,11 +562,11 @@ export function useDraftingCanvasViewModel({
       selectedCardState,
       selectedContentType,
     ],
-  )
-  const applyDocumentRef = useRef(applyDraftingWorkspaceDocumentToControls)
+  );
+  const applyDocumentRef = useRef(applyDraftingWorkspaceDocumentToControls);
   useEffect(() => {
-    applyDocumentRef.current = applyDraftingWorkspaceDocumentToControls
-  })
+    applyDocumentRef.current = applyDraftingWorkspaceDocumentToControls;
+  });
   const {
     canRedo: canRedoDraftingWorkspace,
     canUndo: canUndoDraftingWorkspace,
@@ -626,7 +579,7 @@ export function useDraftingCanvasViewModel({
     document: draftingWorkspaceDocument,
     isWorkspaceReady: isDraftingWorkspaceReady,
     setIsWorkspaceReady: setIsDraftingWorkspaceReady,
-  })
+  });
   const {
     cancel: cancelWorkspaceExport,
     download: handleDownload,
@@ -655,71 +608,71 @@ export function useDraftingCanvasViewModel({
       frameRate: selectedVideoFrameRate,
       longEdge: selectedVideoLongEdge,
     },
-  })
+  });
 
   const qrControls = useMemo(
     () =>
       createQrControls({
-    setSelectedAriaLabel,
-    setSelectedBackgroundAssetSourceMode,
-    setSelectedBackgroundColor,
-    setSelectedBackgroundColorMode,
-    setSelectedBackgroundGradient,
-    setSelectedBackgroundRemoteUrl,
-    setSelectedBackgroundShapeId,
-    setSelectedBackgroundShapeOptions,
-    setSelectedBackgroundTransparent,
-    setSelectedBoostLevel,
-    setSelectedCornerDotColor,
-    setSelectedCornerDotColorMode,
-    setSelectedCornerDotGradient,
-    setSelectedCornerSquareColor,
-    setSelectedCornerSquareColorMode,
-    setSelectedCornerSquareGradient,
-    setSelectedDotColor,
-    setSelectedDotMatrixAnimation,
-    setSelectedDotType,
-    setSelectedDotsColorMode,
-    setSelectedDotsGradient,
-    setSelectedDotsPalette,
-    setSelectedGradientLinkMode,
-    setSelectedHideBackgroundDots,
-    setSelectedLogoAssetSourceMode,
-    setSelectedLogoColor,
-    setSelectedLogoColorMode,
-    setSelectedLogoCrossOrigin,
-    setSelectedLogoGradient,
-    setSelectedLogoHeightPx,
-    setSelectedLogoLockAspect,
-    setSelectedLogoMargin,
-    setSelectedLogoOffsetX,
-    setSelectedLogoOffsetY,
-    setSelectedLogoOpacity,
-    setSelectedLogoPositionMode,
-    setSelectedLogoPresetId,
-    setSelectedLogoPresetValue,
-    setSelectedLogoRemoteUrl,
-    setSelectedLogoSize,
-    setSelectedLogoSizeMode,
-    setSelectedLogoSourceMode,
-    setSelectedLogoUploadValue,
-    setSelectedLogoWidthPx,
-    setSelectedModuleFillImageSourceMode,
-    setSelectedModuleFillImageUrl,
-    setSelectedModuleFillRemoteUrl,
-    setSelectedModuleLineWidth,
-    setSelectedModuleRoundSize,
-    setSelectedModuleSize,
-    setSelectedQrErrorCorrectionLevel,
-    setSelectedQrFinderPatternInnerStyle,
-    setSelectedQrFinderPatternOuterStyle,
-    setSelectedQrMargin,
-    setSelectedQrMode,
-    setSelectedQrRadius,
-    setSelectedQrSize,
-    setSelectedQrTypeNumber,
-    setSelectedRasterExportQualityPercent,
-    setSelectedValueSegmentsText,
+        setSelectedAriaLabel,
+        setSelectedBackgroundAssetSourceMode,
+        setSelectedBackgroundColor,
+        setSelectedBackgroundColorMode,
+        setSelectedBackgroundGradient,
+        setSelectedBackgroundRemoteUrl,
+        setSelectedBackgroundShapeId,
+        setSelectedBackgroundShapeOptions,
+        setSelectedBackgroundTransparent,
+        setSelectedBoostLevel,
+        setSelectedCornerDotColor,
+        setSelectedCornerDotColorMode,
+        setSelectedCornerDotGradient,
+        setSelectedCornerSquareColor,
+        setSelectedCornerSquareColorMode,
+        setSelectedCornerSquareGradient,
+        setSelectedDotColor,
+        setSelectedDotMatrixAnimation,
+        setSelectedDotType,
+        setSelectedDotsColorMode,
+        setSelectedDotsGradient,
+        setSelectedDotsPalette,
+        setSelectedGradientLinkMode,
+        setSelectedHideBackgroundDots,
+        setSelectedLogoAssetSourceMode,
+        setSelectedLogoColor,
+        setSelectedLogoColorMode,
+        setSelectedLogoCrossOrigin,
+        setSelectedLogoGradient,
+        setSelectedLogoHeightPx,
+        setSelectedLogoLockAspect,
+        setSelectedLogoMargin,
+        setSelectedLogoOffsetX,
+        setSelectedLogoOffsetY,
+        setSelectedLogoOpacity,
+        setSelectedLogoPositionMode,
+        setSelectedLogoPresetId,
+        setSelectedLogoPresetValue,
+        setSelectedLogoRemoteUrl,
+        setSelectedLogoSize,
+        setSelectedLogoSizeMode,
+        setSelectedLogoSourceMode,
+        setSelectedLogoUploadValue,
+        setSelectedLogoWidthPx,
+        setSelectedModuleFillImageSourceMode,
+        setSelectedModuleFillImageUrl,
+        setSelectedModuleFillRemoteUrl,
+        setSelectedModuleLineWidth,
+        setSelectedModuleRoundSize,
+        setSelectedModuleSize,
+        setSelectedQrErrorCorrectionLevel,
+        setSelectedQrFinderPatternInnerStyle,
+        setSelectedQrFinderPatternOuterStyle,
+        setSelectedQrMargin,
+        setSelectedQrMode,
+        setSelectedQrRadius,
+        setSelectedQrSize,
+        setSelectedQrTypeNumber,
+        setSelectedRasterExportQualityPercent,
+        setSelectedValueSegmentsText,
       }),
     [
       setSelectedAriaLabel,
@@ -783,7 +736,7 @@ export function useDraftingCanvasViewModel({
       setSelectedRasterExportQualityPercent,
       setSelectedValueSegmentsText,
     ],
-  )
+  );
   const logoActions = useQrLogoActions({
     commitState: commitActiveQraftyState,
     selectedLogoColor,
@@ -792,30 +745,30 @@ export function useDraftingCanvasViewModel({
     selectedLogoPresetId,
     setLogoAssetSourceMode: setSelectedLogoAssetSourceMode,
     state: draftingQraftyState,
-  })
+  });
 
   function resolveLiveQrPersistState(): QraftyState {
     if (pendingQrPersistStateRef.current) {
-      return pendingQrPersistStateRef.current
+      return pendingQrPersistStateRef.current;
     }
 
-    const live = draftingQraftyState
-    const persisted = qrStateByLayerId[activeQrLayerId]
+    const live = draftingQraftyState;
+    const persisted = qrStateByLayerId[activeQrLayerId];
     if (!persisted) {
-      return live
+      return live;
     }
 
-    const liveModuleFill = getAssetValue(live.moduleFillImage)
-    const persistedModuleFill = getAssetValue(persisted.moduleFillImage)
+    const liveModuleFill = getAssetValue(live.moduleFillImage);
+    const persistedModuleFill = getAssetValue(persisted.moduleFillImage);
     if (!persistedModuleFill) {
-      return live
+      return live;
     }
 
     const shouldPreferPersistedModuleFill =
-      live.dotsColorMode === "image" && !liveModuleFill && Boolean(persistedModuleFill)
+      live.dotsColorMode === "image" && !liveModuleFill && Boolean(persistedModuleFill);
 
     if (!shouldPreferPersistedModuleFill) {
-      return live
+      return live;
     }
 
     return {
@@ -827,57 +780,54 @@ export function useDraftingCanvasViewModel({
         source: persisted.moduleFillImage.source === "url" ? "url" : "upload",
         value: persistedModuleFill,
       },
-    }
+    };
   }
 
   function commitActiveQraftyState(nextState: QraftyState) {
-    const committed = resolveLiveQrPersistState()
+    const committed = resolveLiveQrPersistState();
     const merged: QraftyState = {
       ...committed,
       logo: nextState.logo,
       logoGradient: nextState.logoGradient,
       imageOptions: nextState.imageOptions,
-    }
+    };
 
-    qrControls.syncLogo(merged)
-    qrControls.syncModuleFill(merged)
-    persistActiveQrLayerState(merged)
-    clearDraftingQrMarkupCache()
+    qrControls.syncLogo(merged);
+    qrControls.syncModuleFill(merged);
+    persistActiveQrLayerState(merged);
+    clearDraftingQrMarkupCache();
   }
 
   function handleDraftingContentTypeChange(type: QrInputType) {
-    setSelectedContentType(type)
+    setSelectedContentType(type);
     setContentTypeByNodeId((current) => ({
       ...current,
       [activeQrNodeId]: type,
-    }))
+    }));
     setContentValuesByType((current) => {
-      const previousType = selectedContentType
+      const previousType = selectedContentType;
       const nextValues = current[type]
         ? resolveContentValuesForType(type, current[type])
         : getContentValuesForTypeChange(
             previousType,
             type,
             current[previousType] ?? getDefaultStaticQrValues(previousType),
-          )
+          );
 
       return {
         ...current,
         [type]: nextValues,
-      }
-    })
+      };
+    });
   }
 
-  function handleDraftingContentValueChange(
-    field: string,
-    value: StaticQrContentValue,
-  ) {
+  function handleDraftingContentValueChange(field: string, value: StaticQrContentValue) {
     if (field === "intent" && typeof value === "string" && isPlatformType(selectedContentType)) {
       setContentValuesByType((current) => ({
         ...current,
         [selectedContentType]: getPlatformDefaultValuesForIntent(selectedContentType, value),
-      }))
-      return
+      }));
+      return;
     }
 
     setContentValuesByType((current) => ({
@@ -886,22 +836,19 @@ export function useDraftingCanvasViewModel({
         ...(current[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType)),
         [field]: value,
       },
-    }))
+    }));
   }
 
-  function handleDraftingContentPasteApply(
-    type: QrInputType,
-    values: StaticQrContentValues,
-  ) {
-    setSelectedContentType(type)
+  function handleDraftingContentPasteApply(type: QrInputType, values: StaticQrContentValues) {
+    setSelectedContentType(type);
     setContentTypeByNodeId((current) => ({
       ...current,
       [activeQrNodeId]: type,
-    }))
+    }));
     setContentValuesByType((current) => ({
       ...current,
       [type]: values,
-    }))
+    }));
   }
 
   function buildDraftingWorkspaceDocument(): DraftingWorkspaceDocumentV1 {
@@ -918,58 +865,54 @@ export function useDraftingCanvasViewModel({
       sceneCompositionByNodeId,
       selectedCardState,
       selectedContentType,
-    })
+    });
   }
 
   function persistActiveQrLayerState(nextState: QraftyState = resolveLiveQrPersistState()) {
-    const cloned = cloneDraftingQrState(nextState)
-    pendingQrPersistStateRef.current = cloned
+    const cloned = cloneDraftingQrState(nextState);
+    pendingQrPersistStateRef.current = cloned;
     setQrStateByLayerId((current) => ({
       ...current,
       [activeQrLayerId]: cloned,
-    }))
+    }));
     setContentTypeByLayerId((current) => ({
       ...current,
       [activeQrLayerId]: selectedContentType,
-    }))
+    }));
     setQrStateByNodeId({
       [DASHBOARD_QR_NODE_ID]: cloned,
-    })
+    });
   }
 
   useEffect(() => {
-    pendingQrPersistStateRef.current = null
-  })
+    pendingQrPersistStateRef.current = null;
+  });
 
   function activateQrLayer(layerId: string) {
     if (!isDraftingQrLayerId(layerId) || layerId === activeQrLayerId) {
-      return
+      return;
     }
 
-    shouldReplaceCurrentDraftingHistoryEntryRef.current = true
-    persistActiveQrLayerState()
+    shouldReplaceCurrentDraftingHistoryEntryRef.current = true;
+    persistActiveQrLayerState();
 
-    const nextState =
-      qrStateByLayerId[layerId] ?? createDefaultDraftingWorkspaceQrState()
-    const nextContentType = contentTypeByLayerId[layerId] ?? DEFAULT_QR_INPUT_TYPE
+    const nextState = qrStateByLayerId[layerId] ?? createDefaultDraftingWorkspaceQrState();
+    const nextContentType = contentTypeByLayerId[layerId] ?? DEFAULT_QR_INPUT_TYPE;
 
-    setActiveQrLayerId(layerId)
-    qrControls.applyQrState(nextState)
-    setSelectedContentType(nextContentType)
-    selectSingleLayer(layerId)
+    setActiveQrLayerId(layerId);
+    qrControls.applyQrState(nextState);
+    setSelectedContentType(nextContentType);
+    selectSingleLayer(layerId);
   }
 
-  function applyDraftingWorkspaceDocumentToControls(
-    nextDocument: DraftingWorkspaceDocumentV1,
-  ) {
-    const nodeId = DASHBOARD_QR_NODE_ID
-    const activeNodeId = nodeId
-    const fallbackActiveLayerId =
-      nextDocument.qrStateByLayerId[nextDocument.activeQrLayerId]
-        ? nextDocument.activeQrLayerId
-        : getDraftingQrLayerId(nodeId)
+  function applyDraftingWorkspaceDocumentToControls(nextDocument: DraftingWorkspaceDocumentV1) {
+    const nodeId = DASHBOARD_QR_NODE_ID;
+    const activeNodeId = nodeId;
+    const fallbackActiveLayerId = nextDocument.qrStateByLayerId[nextDocument.activeQrLayerId]
+      ? nextDocument.activeQrLayerId
+      : getDraftingQrLayerId(nodeId);
     const activeCardState =
-      nextDocument.cardStateByNodeId[activeNodeId] ?? createDefaultDraftingCardState()
+      nextDocument.cardStateByNodeId[activeNodeId] ?? createDefaultDraftingCardState();
     const layers = (
       nextDocument.layerStateByNodeId[activeNodeId] ??
       createDefaultDraftingLayers(
@@ -979,43 +922,43 @@ export function useDraftingCanvasViewModel({
           createDefaultDraftingWorkspaceQrState(),
         activeCardState,
       )
-    ).map(cloneDraftingCanvasLayer)
+    ).map(cloneDraftingCanvasLayer);
     const activeLayerId = resolveActiveQrLayerIdFromLayers(
       fallbackActiveLayerId,
       layers,
       nextDocument.activeQrLayerId,
-    )
+    );
     const activeState =
       nextDocument.qrStateByLayerId[activeLayerId] ??
       nextDocument.qrStateByLayerId[fallbackActiveLayerId] ??
       nextDocument.qrStateByNodeId[activeNodeId] ??
-      createDefaultDraftingWorkspaceQrState()
+      createDefaultDraftingWorkspaceQrState();
 
-    setActiveQrLayerId(activeLayerId)
-    setActiveQrNodeId(activeNodeId)
-    setQrStateByLayerId(structuredClone(nextDocument.qrStateByLayerId))
+    setActiveQrLayerId(activeLayerId);
+    setActiveQrNodeId(activeNodeId);
+    setQrStateByLayerId(structuredClone(nextDocument.qrStateByLayerId));
     setQrStateByNodeId({
       [activeNodeId]: cloneDraftingQrState(activeState),
-    })
+    });
     setCardStateByNodeId({
       [activeNodeId]: cloneDraftingCardState(activeCardState),
-    })
+    });
     setLayerStateByNodeId({
       [activeNodeId]: layers,
-    })
+    });
     setSceneCompositionByNodeId(
       cloneSceneCompositionByNodeId(
         nextDocument.sceneCompositionByNodeId ??
           createDefaultSceneCompositionByNodeId(nextDocument),
       ),
-    )
-    setContentTypeByLayerId(structuredClone(nextDocument.contentTypeByLayerId))
-    setContentTypeByNodeId(structuredClone(nextDocument.contentTypeByNodeId))
-    setSelectedContentType(nextDocument.selectedContentType)
-    setContentValuesByType(structuredClone(nextDocument.contentValuesByType))
-    qrControls.applyQrState(activeState)
-    setSelectedCardState(cloneDraftingCardState(activeCardState))
-    selectSingleLayer(activeLayerId)
+    );
+    setContentTypeByLayerId(structuredClone(nextDocument.contentTypeByLayerId));
+    setContentTypeByNodeId(structuredClone(nextDocument.contentTypeByNodeId));
+    setSelectedContentType(nextDocument.selectedContentType);
+    setContentValuesByType(structuredClone(nextDocument.contentValuesByType));
+    qrControls.applyQrState(activeState);
+    setSelectedCardState(cloneDraftingCardState(activeCardState));
+    selectSingleLayer(activeLayerId);
   }
 
   const {
@@ -1072,70 +1015,69 @@ export function useDraftingCanvasViewModel({
     setSelectedLayerId,
     setSelectedLayerIds,
     shouldReplaceCurrentEntryRef: shouldReplaceCurrentDraftingHistoryEntryRef,
-  })
-
+  });
 
   function resetDraftingWorkspace() {
-    const nextState = createDefaultDraftingWorkspaceQrState()
+    const nextState = createDefaultDraftingWorkspaceQrState();
 
-    setDesktopRailTool("content")
-    qrControls.applyQrState(nextState)
-    brandIconQueryRef.current = ""
-    brandIconCategoryRef.current = "all"
-    setActiveQrLayerId(getDraftingQrLayerId(DASHBOARD_QR_NODE_ID))
-    setActiveQrNodeId(DASHBOARD_QR_NODE_ID)
+    setDesktopRailTool("content");
+    qrControls.applyQrState(nextState);
+    brandIconQueryRef.current = "";
+    brandIconCategoryRef.current = "all";
+    setActiveQrLayerId(getDraftingQrLayerId(DASHBOARD_QR_NODE_ID));
+    setActiveQrNodeId(DASHBOARD_QR_NODE_ID);
     setContentTypeByNodeId({
       [DASHBOARD_QR_NODE_ID]: DEFAULT_QR_INPUT_TYPE,
-    })
+    });
     setContentTypeByLayerId({
       [getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)]: DEFAULT_QR_INPUT_TYPE,
-    })
+    });
     setQrStateByLayerId({
       [getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)]: cloneDraftingQrState(nextState),
-    })
+    });
     setQrStateByNodeId({
       [DASHBOARD_QR_NODE_ID]: cloneDraftingQrState(nextState),
-    })
-    const nextCardState = createDefaultDraftingCardState()
-    setSelectedCardState(cloneDraftingCardState(nextCardState))
+    });
+    const nextCardState = createDefaultDraftingCardState();
+    setSelectedCardState(cloneDraftingCardState(nextCardState));
     setCardStateByNodeId({
       [DASHBOARD_QR_NODE_ID]: cloneDraftingCardState(nextCardState),
-    })
+    });
     setLayerStateByNodeId({
       [DASHBOARD_QR_NODE_ID]: createDefaultDraftingLayers(
         DASHBOARD_QR_NODE_ID,
         nextState,
         nextCardState,
       ),
-    })
-    selectSingleLayer(getDraftingQrLayerId(DASHBOARD_QR_NODE_ID))
+    });
+    selectSingleLayer(getDraftingQrLayerId(DASHBOARD_QR_NODE_ID));
 
-    setSelectedDownloadExtension("png")
-    setSelectedDownloadTarget("surface")
-    setSelectedPhotoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.photoLongEdge)
-    setSelectedBackgroundTransparent(false)
-    setSelectedBackgroundShapeId(nextState.backgroundShapeId)
+    setSelectedDownloadExtension("png");
+    setSelectedDownloadTarget("surface");
+    setSelectedPhotoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.photoLongEdge);
+    setSelectedBackgroundTransparent(false);
+    setSelectedBackgroundShapeId(nextState.backgroundShapeId);
   }
 
   useEffect(() => {
     if (!logoUploadObjectUrl) {
-      return
+      return;
     }
 
     return () => {
-      URL.revokeObjectURL(logoUploadObjectUrl)
-    }
-  }, [logoUploadObjectUrl])
+      URL.revokeObjectURL(logoUploadObjectUrl);
+    };
+  }, [logoUploadObjectUrl]);
 
   useEffect(() => {
     if (!moduleFillUploadObjectUrl) {
-      return
+      return;
     }
 
     return () => {
-      URL.revokeObjectURL(moduleFillUploadObjectUrl)
-    }
-  }, [moduleFillUploadObjectUrl])
+      URL.revokeObjectURL(moduleFillUploadObjectUrl);
+    };
+  }, [moduleFillUploadObjectUrl]);
 
   useEffect(() => {
     keyboardStateRef.current = {
@@ -1146,7 +1088,7 @@ export function useDraftingCanvasViewModel({
       qrLayerCount: qrCanvasLayers.length,
       selectedCardState,
       selectedLayerIds,
-    }
+    };
   }, [
     activeQrLayerId,
     activeQrNodeId,
@@ -1155,7 +1097,7 @@ export function useDraftingCanvasViewModel({
     qrCanvasLayers.length,
     selectedCardState,
     selectedLayerIds,
-  ])
+  ]);
 
   useEffect(() => {
     shortcutHandlersRef.current = {
@@ -1169,67 +1111,56 @@ export function useDraftingCanvasViewModel({
       handleUndoDraftingWorkspace,
       pasteDraftingLayers,
       selectAllActiveDraftingLayers,
-    }
-  })
+    };
+  });
   useDraftingShortcuts({
     clipboardRef: draftingLayerClipboardRef,
     handlersRef: shortcutHandlersRef,
     stateRef: keyboardStateRef,
     canvasRef: draftingCanvasRef,
-  })
-
+  });
 
   async function handleAddQrCode() {
-    if (qrCanvasLayers.length >= 10) return
+    if (qrCanvasLayers.length >= 10) return;
 
-    persistActiveQrLayerState()
+    persistActiveQrLayerState();
 
-    const freshState = createDefaultDraftingWorkspaceQrState()
+    const freshState = createDefaultDraftingWorkspaceQrState();
     const layers =
       layerStateByNodeId[activeQrNodeId] ??
-      createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
-    const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1)
+      createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState);
+    const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1);
     const nearLayer =
-      findDraftingLayerById(layers, activeQrLayerId) ??
-      qrCanvasLayers.at(-1) ??
-      undefined
-    const nextLayer = createDraftingQrLayer(
-      activeQrNodeId,
-      freshState,
-      selectedCardState,
-      {
-        nearLayer,
-        zIndex: maxZIndex + 1,
-      },
-    )
+      findDraftingLayerById(layers, activeQrLayerId) ?? qrCanvasLayers.at(-1) ?? undefined;
+    const nextLayer = createDraftingQrLayer(activeQrNodeId, freshState, selectedCardState, {
+      nearLayer,
+      zIndex: maxZIndex + 1,
+    });
 
     setQrStateByLayerId((current) => ({
       ...current,
       [nextLayer.id]: cloneDraftingQrState(freshState),
-    }))
+    }));
     setContentTypeByLayerId((current) => ({
       ...current,
       [nextLayer.id]: DEFAULT_QR_INPUT_TYPE,
-    }))
+    }));
     setLayerStateByNodeId((current) => ({
       ...current,
       [activeQrNodeId]: [...layers.map(cloneDraftingCanvasLayer), nextLayer],
-    }))
+    }));
 
-    setActiveQrLayerId(nextLayer.id)
-    qrControls.applyQrState(freshState)
-    setSelectedContentType(DEFAULT_QR_INPUT_TYPE)
-    selectSingleLayer(nextLayer.id)
+    setActiveQrLayerId(nextLayer.id);
+    qrControls.applyQrState(freshState);
+    setSelectedContentType(DEFAULT_QR_INPUT_TYPE);
+    selectSingleLayer(nextLayer.id);
   }
 
-  const activeCanvasLayerRows = [...activeCanvasLayers].sort(
-    (a, b) => b.zIndex - a.zIndex,
-  )
-  const selectedTextLayer = resolveSelectedTextLayer(activeCanvasLayers, selectedLayerId)
-  const selectedElementLayer = resolveSelectedElementLayer(selectedLayerIds, selectedTextLayer)
+  const activeCanvasLayerRows = [...activeCanvasLayers].sort((a, b) => b.zIndex - a.zIndex);
+  const selectedTextLayer = resolveSelectedTextLayer(activeCanvasLayers, selectedLayerId);
+  const selectedElementLayer = resolveSelectedElementLayer(selectedLayerIds, selectedTextLayer);
   const selectedTransformLayer =
-    selectedLayerIds.length === 1 && selectedTextLayer ? selectedTextLayer : null
-
+    selectedLayerIds.length === 1 && selectedTextLayer ? selectedTextLayer : null;
 
   const panes = useMemo(() => {
     const mergedQrStateByLayerId = mergeLiveQrStateByLayerId({
@@ -1238,7 +1169,7 @@ export function useDraftingCanvasViewModel({
       canvasLayers: activeCanvasLayers,
       draftingQraftyState,
       selectedLayerId,
-    })
+    });
 
     return [
       {
@@ -1252,7 +1183,7 @@ export function useDraftingCanvasViewModel({
         sceneComposition: activeSceneComposition,
         state: draftingQraftyState,
       },
-    ]
+    ];
   }, [
     activeCanvasLayers,
     activeQrLayerId,
@@ -1263,25 +1194,18 @@ export function useDraftingCanvasViewModel({
     selectedCardState,
     selectedContentValidation,
     selectedLayerId,
-  ])
+  ]);
 
-  const desktopActiveTool = desktopRailTool
-  const {
-    appearanceTargetLayer,
-    propertiesTransformLayer,
-    transformTargetLayer,
-  } = resolveLayerTargets(
-    activeCanvasLayers,
-    selectedLayerIds,
-    selectedTransformLayer,
-  )
-  const qrBackgroundVisible = resolveQrBackgroundVisible(draftingQraftyState)
+  const desktopActiveTool = desktopRailTool;
+  const { appearanceTargetLayer, propertiesTransformLayer, transformTargetLayer } =
+    resolveLayerTargets(activeCanvasLayers, selectedLayerIds, selectedTransformLayer);
+  const qrBackgroundVisible = resolveQrBackgroundVisible(draftingQraftyState);
   const desktopAppearanceSnapshot = resolveAppearanceSnapshot(
     appearanceTargetLayer,
     selectedCardState,
     draftingQraftyState,
     qrBackgroundVisible,
-  )
+  );
 
   const {
     handleDesktopAppearancePatch,
@@ -1380,7 +1304,7 @@ export function useDraftingCanvasViewModel({
     setSelectedVideoFormat,
     setSelectedVideoFrameRate,
     setSelectedVideoLongEdge,
-  })
+  });
 
   const {
     desktopPatternSettings,
@@ -1466,7 +1390,7 @@ export function useDraftingCanvasViewModel({
       selectedTextLayer,
       selectedValueSegmentsText,
     }),
-  )
+  );
 
   const scanSafetyResult = useCanvasScanSafety({
     activeCanvasLayers,
@@ -1480,13 +1404,13 @@ export function useDraftingCanvasViewModel({
     selectedContentIsValid: selectedContentValidation.isValid,
     selectedDownloadExtension,
     selectedDownloadTarget,
-  })
+  });
 
   const canRemoveQrCode = resolveCanRemoveQrCode(
     paneToolbarVariant,
     qrCanvasLayers,
     selectedLayerId,
-  )
+  );
 
   const desktopController: DraftingWorkspaceController = buildToolbarController({
     core: {
@@ -1501,9 +1425,9 @@ export function useDraftingCanvasViewModel({
       encodedContentValue: selectedContentValue,
       insertNodeId: activeQrNodeId,
       onActiveToolChange: (toolId) => {
-        setComposeSidebarPanel(null)
-        setDesktopCanvasTool("select")
-        setDesktopRailTool(toolId)
+        setComposeSidebarPanel(null);
+        setDesktopCanvasTool("select");
+        setDesktopRailTool(toolId);
       },
       onContentPasteApply: handleDraftingContentPasteApply,
       onContentReset: resetDesktopContent,
@@ -1560,18 +1484,21 @@ export function useDraftingCanvasViewModel({
           styleMode: patch.filterId ? "image-filter" : current.styleMode,
         })),
       onEncodingReset: () => {
-        setSelectedQrTypeNumber(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.typeNumber)
-        setSelectedQrErrorCorrectionLevel(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.errorCorrectionLevel)
-        setSelectedBoostLevel(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.boostLevel)
-        setSelectedQrMode(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.mode)
-        setSelectedValueSegmentsText("")
+        setSelectedQrTypeNumber(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.typeNumber);
+        setSelectedQrErrorCorrectionLevel(
+          DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.errorCorrectionLevel,
+        );
+        setSelectedBoostLevel(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.boostLevel);
+        setSelectedQrMode(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.mode);
+        setSelectedValueSegmentsText("");
       },
       onEncodingSettingsChange: updateDesktopEncodingSettings,
       onImageReset: resetDesktopShapeSettings,
       onImageSettingsChange: updateDesktopImageSettings,
       onLogoReset: resetDesktopLogoSettings,
       onLogoSettingsChange: updateDesktopLogoSettings,
-      onMotionReset: () => setSelectedDotMatrixAnimation({ ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation }),
+      onMotionReset: () =>
+        setSelectedDotMatrixAnimation({ ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation }),
       onMotionSettingsChange: updateDesktopMotionSettings,
       onPatternReset: resetDesktopPatternSettings,
       onPatternSettingsChange: updateDesktopPatternSettings,
@@ -1591,40 +1518,40 @@ export function useDraftingCanvasViewModel({
       onBackgroundTabChange: (tab) => {
         setSelectedCardState((current) => {
           if (tab === "shader") {
-            return { ...current, styleMode: "paper-shader" }
+            return { ...current, styleMode: "paper-shader" };
           }
 
           if (tab === "image") {
             return {
               ...current,
               styleMode: current.cardImage.value ? "image" : current.styleMode,
-            }
+            };
           }
 
           return {
             ...current,
             styleMode: "solid",
-          }
-        })
+          };
+        });
       },
       onCloseComposeSidebar: () => {
-        setComposeSidebarPanel(null)
+        setComposeSidebarPanel(null);
       },
       onLayoutPresetSelect: (preset) => {
         setSceneCompositionByNodeId((current) =>
           applySceneCompositionPatch(current, activeQrNodeId, { layout: preset }),
-        )
+        );
       },
       onLayoutSettingsChange: (patch) => {
         setSceneCompositionByNodeId((current) =>
           applySceneCompositionPatch(current, activeQrNodeId, {
             layout: { ...activeSceneComposition.layout, ...patch },
           }),
-        )
+        );
       },
       onOpenComposeSidebar: (panel) => {
-        setComposeSidebarPanel(panel)
-        selectSingleLayer(null)
+        setComposeSidebarPanel(panel);
+        selectSingleLayer(null);
       },
       onSceneTemplateSizeChange: (patch) => {
         updateDesktopShapeSettings({
@@ -1633,21 +1560,21 @@ export function useDraftingCanvasViewModel({
           lockAspectRatio: patch.lockAspectRatio,
           sizeMode: patch.sizeMode,
           sizePresetId: patch.sizePresetId,
-        })
+        });
       },
       onSceneTemplateSizeTemplateSelect: (template) => {
-        const canvasSize = getCanvasSizeFromTemplate(template)
+        const canvasSize = getCanvasSizeFromTemplate(template);
         updateDesktopShapeSettings({
           cardHeight: canvasSize.height,
           cardWidth: canvasSize.width,
           lockAspectRatio: true,
           sizeMode: "fixed",
           sizePresetId: template.id,
-        })
+        });
       },
       onSelectWallpaper: (imagePath) => {
-        updateDesktopImageSettings({ remoteUrl: imagePath, sourceMode: "url" })
-        setComposeSidebarPanel(null)
+        updateDesktopImageSettings({ remoteUrl: imagePath, sourceMode: "url" });
+        setComposeSidebarPanel(null);
       },
       sceneTemplateSettings: desktopSceneTemplateSettings,
     },
@@ -1655,16 +1582,13 @@ export function useDraftingCanvasViewModel({
       canRemoveQrCode,
       canvasTool: paneToolbarVariant === "zoom" ? desktopCanvasTool : null,
       onAddQrCode: () => {
-        void handleAddQrCode()
+        void handleAddQrCode();
       },
       onAddTextLayerAt: handleAddTextLayerAt,
-      onCanvasToolChange:
-        paneToolbarVariant === "zoom" ? setDesktopCanvasTool : () => undefined,
+      onCanvasToolChange: paneToolbarVariant === "zoom" ? setDesktopCanvasTool : () => undefined,
       onInsertLayer: handleInsertLayer,
       onRemoveQrCode:
-        canRemoveQrCode && selectedLayerId
-          ? () => handleRemoveQrCode(selectedLayerId)
-          : undefined,
+        canRemoveQrCode && selectedLayerId ? () => handleRemoveQrCode(selectedLayerId) : undefined,
       qrLayerCount: qrCanvasLayers.length,
     },
     element: {
@@ -1684,21 +1608,21 @@ export function useDraftingCanvasViewModel({
       exportProgressRatio,
       exportSettings: desktopExportSettings,
       onExportCancel: () => {
-        cancelWorkspaceExport()
+        cancelWorkspaceExport();
       },
       onExportDownload: () => {
-        void handleDownload()
+        void handleDownload();
       },
       onExportReset: () => {
-        setExportDownloadError(null)
-        setSelectedDownloadExtension("png")
-        setSelectedDownloadTarget("surface")
-        setSelectedPhotoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.photoLongEdge)
-        setSelectedExportMediaKind(DEFAULT_DESKTOP_EXPORT_SETTINGS.mediaKind)
-        setSelectedVideoDurationSeconds(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoDurationSeconds)
-        setSelectedVideoFormat(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFormat)
-        setSelectedVideoFrameRate(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFrameRate)
-        setSelectedVideoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoLongEdge)
+        setExportDownloadError(null);
+        setSelectedDownloadExtension("png");
+        setSelectedDownloadTarget("surface");
+        setSelectedPhotoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.photoLongEdge);
+        setSelectedExportMediaKind(DEFAULT_DESKTOP_EXPORT_SETTINGS.mediaKind);
+        setSelectedVideoDurationSeconds(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoDurationSeconds);
+        setSelectedVideoFormat(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFormat);
+        setSelectedVideoFrameRate(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFrameRate);
+        setSelectedVideoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoLongEdge);
       },
       onExportSettingsChange: updateDesktopExportSettings,
     },
@@ -1708,18 +1632,22 @@ export function useDraftingCanvasViewModel({
       layersSettings: desktopLayersSettings,
       onLayerAction: handleLayerAction,
       onLayerCopy: () => {
-        void copySelectedDraftingLayers(selectedLayerIds)
+        void copySelectedDraftingLayers(selectedLayerIds);
       },
       onLayersReset: () =>
         setLayerStateByNodeId((current) => ({
           ...current,
-          [activeQrNodeId]: createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState),
+          [activeQrNodeId]: createDefaultDraftingLayers(
+            activeQrNodeId,
+            draftingQraftyState,
+            selectedCardState,
+          ),
         })),
       onLayersReorder: handleLayerReorder,
       onLayersSettingsChange: updateDesktopLayersSettings,
       selectedLayerIds,
     },
-  })
+  });
 
   return {
     activeQrNodeId,
@@ -1752,5 +1680,5 @@ export function useDraftingCanvasViewModel({
     handlePaneSelection,
     pasteDraftingLayers,
     setDesktopCanvasTool,
-  }
+  };
 }

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import type { ComponentType } from "react"
+import type { ComponentType } from "react";
 import {
   ColorPanels,
   Dithering,
@@ -31,12 +31,12 @@ import {
   Warp,
   Water,
   Waves,
-} from "@paper-design/shaders-react"
+} from "@paper-design/shaders-react";
 
-export type PaperShaderComponent = ComponentType<Record<string, unknown>>
+export type PaperShaderComponent = ComponentType<Record<string, unknown>>;
 
 function asPaperShaderComponent(component: unknown): PaperShaderComponent {
-  return component as unknown as PaperShaderComponent
+  return component as unknown as PaperShaderComponent;
 }
 
 /**
@@ -75,7 +75,7 @@ export const PAPER_SHADER_COMPONENTS: Record<string, PaperShaderComponent> = {
   "halftone-dots": asPaperShaderComponent(HalftoneDots),
   "halftone-cmyk": asPaperShaderComponent(HalftoneCmyk),
   "gem-smoke": asPaperShaderComponent(GemSmoke),
-}
+};
 
 export const DEFAULT_PAPER_SHADER_COMPONENT: PaperShaderComponent =
-  PAPER_SHADER_COMPONENTS["mesh-gradient"]
+  PAPER_SHADER_COMPONENTS["mesh-gradient"];

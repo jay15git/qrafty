@@ -9,9 +9,7 @@
   --canvas-inset-top: calc(var(--toolbar-top-offset) + 2.75rem);
   --canvas-inset-right: 0px;
   --canvas-inset-bottom: 0px;
-  --canvas-inset-left: calc(
-    var(--settings-toolbar-chrome-gap) + var(--settings-toolbar-width)
-  );
+  --canvas-inset-left: calc(var(--settings-toolbar-chrome-gap) + var(--settings-toolbar-width));
 }
 
 /* transitions.dev — card resize: tween the island pills' width as items appear. */
@@ -36,9 +34,7 @@
   --canvas-inset-top: calc(var(--toolbar-top-offset) + 2.75rem);
   --canvas-inset-right: 0px;
   --canvas-inset-bottom: 0px;
-  --canvas-inset-left: calc(
-    var(--settings-toolbar-chrome-gap) + var(--settings-toolbar-width)
-  );
+  --canvas-inset-left: calc(var(--settings-toolbar-chrome-gap) + var(--settings-toolbar-width));
 }
 
 [data-slot="dynamic-island-anchor"] {
@@ -55,14 +51,13 @@
     ),
     calc(
       (
-          100vw + var(--settings-toolbar-width) +
-            var(--settings-toolbar-chrome-gap) -
+          100vw + var(--settings-toolbar-width) + var(--settings-toolbar-chrome-gap) -
             var(--island-leading-width, 0px)
-        ) / 2
+        ) /
+        2
     ),
     calc(
-      100vw - var(--toolbar-top-offset) -
-        var(--utility-toolbar-width, 0px) - 0.75rem -
+      100vw - var(--toolbar-top-offset) - var(--utility-toolbar-width, 0px) - 0.75rem -
         var(--island-width, 0px) / 2
     )
   );
@@ -71,7 +66,6 @@
   overflow: visible;
   transition: left var(--resize-dur) var(--resize-ease);
 }
-
 
 /* Below ~1180px the settings column + island + utility toolbar can't fit
  * side by side — collapse top chrome to icon-only so nothing overlaps. */
@@ -120,7 +114,8 @@
     background-color: var(--canvas-surface-bg, #000000);
   }
 
-  [data-slot="workspace"][data-mobile-workspace="true"][data-shell-theme="dark"] [data-slot="drafting-surface"] {
+  [data-slot="workspace"][data-mobile-workspace="true"][data-shell-theme="dark"]
+    [data-slot="drafting-surface"] {
     background: var(--canvas-surface-bg, #000000);
   }
 
@@ -128,7 +123,8 @@
     background-color: var(--canvas-bg, #f0f1f2);
   }
 
-  [data-slot="workspace"][data-mobile-workspace="true"][data-shell-theme="light"] [data-slot="drafting-surface"] {
+  [data-slot="workspace"][data-mobile-workspace="true"][data-shell-theme="light"]
+    [data-slot="drafting-surface"] {
     background: var(--canvas-bg, #f0f1f2);
   }
 
@@ -155,21 +151,22 @@
   }
 }
 
-[data-slot="workspace"] [data-slot="drafting-workspace"][data-canvas-frame="true"] [data-slot="drafting-workspace-inset"] {
+[data-slot="workspace"]
+  [data-slot="drafting-workspace"][data-canvas-frame="true"]
+  [data-slot="drafting-workspace-inset"] {
   box-sizing: border-box;
   height: 100%;
   min-height: 0;
   background: var(--canvas-surface-bg, #000000);
   /* Left padding = expanding white column. Grey squircle shrinks as this grows. */
-  padding:
-    var(--canvas-inset-top)
-    var(--canvas-inset-right)
-    var(--canvas-inset-bottom)
+  padding: var(--canvas-inset-top) var(--canvas-inset-right) var(--canvas-inset-bottom)
     var(--canvas-inset-left);
 }
 
 @media (max-width: 767px) {
-  [data-slot="workspace"] [data-slot="drafting-workspace"][data-canvas-frame="true"] [data-slot="drafting-workspace-inset"] {
+  [data-slot="workspace"]
+    [data-slot="drafting-workspace"][data-canvas-frame="true"]
+    [data-slot="drafting-workspace-inset"] {
     transition: padding var(--resize-dur) var(--resize-ease);
     will-change: padding;
   }
@@ -179,14 +176,18 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    [data-slot="workspace"] [data-slot="drafting-workspace"][data-canvas-frame="true"] [data-slot="drafting-workspace-inset"],
+    [data-slot="workspace"]
+      [data-slot="drafting-workspace"][data-canvas-frame="true"]
+      [data-slot="drafting-workspace-inset"],
     [data-slot="mobile-layer-toolbar"] {
       transition: none !important;
     }
   }
 }
 
-[data-slot="workspace"] [data-slot="drafting-workspace"][data-canvas-frame="true"] [data-slot="desktop-canvas-viewport"] {
+[data-slot="workspace"]
+  [data-slot="drafting-workspace"][data-canvas-frame="true"]
+  [data-slot="desktop-canvas-viewport"] {
   height: 100%;
   min-height: 0;
   overflow: hidden;
@@ -212,7 +213,9 @@
   transform: translateY(-50%);
   z-index: var(--z-compose-toolbar);
 }
-[data-slot="workspace"] [data-slot="drafting-workspace"][data-canvas-frame="true"] [data-slot="desktop-compose-surface"][data-canvas-appearance="workspace"] {
+[data-slot="workspace"]
+  [data-slot="drafting-workspace"][data-canvas-frame="true"]
+  [data-slot="desktop-compose-surface"][data-canvas-appearance="workspace"] {
   background-color: transparent !important;
   background-image: none !important;
 }
@@ -242,8 +245,8 @@
       (
         var(--toolbar-rail-width) - 2 * var(--toolbar-rail-padding-x) -
           var(--toolbar-rail-hitbox-size)
-      ) / 2 +
-      (var(--toolbar-rail-hitbox-size) - var(--toolbar-rail-icon-size)) / 2
+      ) /
+      2 + (var(--toolbar-rail-hitbox-size) - var(--toolbar-rail-icon-size)) / 2
   );
   --settings-toolbar-top-inset: 0.75rem;
 }

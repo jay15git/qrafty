@@ -1,20 +1,20 @@
-import { useContext } from "react"
+import { useContext } from "react";
 
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model"
+import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
 import {
   QR_STYLE_PART_DEFINITIONS,
   type QrStylePartId,
-} from "@/features/shell/inspector/qr-style-parts"
-import { SETTINGS_PREVIEW_TILE } from "@/features/shell/inspector/SettingsPreviewTiles"
-import { SegmentTabs } from "@/features/shell/inspector/settings-ui"
-import { QrStyleOptionPreview } from "@/features/qr/components/QrStyleOptionPreview"
-import { cn } from "@/lib/utils"
+} from "@/features/shell/inspector/qr-style-parts";
+import { SETTINGS_PREVIEW_TILE } from "@/features/shell/inspector/SettingsPreviewTiles";
+import { SegmentTabs } from "@/features/shell/inspector/settings-ui";
+import { QrStyleOptionPreview } from "@/features/qr/components/QrStyleOptionPreview";
+import { cn } from "@/lib/utils";
 
 import {
   MobileRailPartContext,
   type MobileRailOption,
   type MobileRailRowProps,
-} from "../rail-context"
+} from "../rail-context";
 
 /** QR style parts, mirroring the `Part` control in the Style section. */
 const QR_STYLE_PART_OPTIONS: MobileRailOption[] = [
@@ -22,22 +22,16 @@ const QR_STYLE_PART_OPTIONS: MobileRailOption[] = [
   { id: "Eye", label: "Eye", drillsTo: "Eye" },
   { id: "Frame", label: "Frame", drillsTo: "Frame" },
   { id: "Logo", label: "Logo" },
-]
+];
 
 /**
  * Second drill level: the style catalogue for one part, rendered in place of
  * the part row. Picking a tile applies it straight to the QR, so the rail stays
  * a quick-pick surface and the drawer is only needed for the long tail.
  */
-function QrStylePartOptions({
-  model,
-  partId,
-}: {
-  model: InspectorModel
-  partId: QrStylePartId
-}) {
-  const part = QR_STYLE_PART_DEFINITIONS[partId]
-  const selected = part.readSelected(model)
+function QrStylePartOptions({ model, partId }: { model: InspectorModel; partId: QrStylePartId }) {
+  const part = QR_STYLE_PART_DEFINITIONS[partId];
+  const selected = part.readSelected(model);
 
   return part.options.map((option) => (
     <button
@@ -61,20 +55,20 @@ function QrStylePartOptions({
         />
       </span>
     </button>
-  ))
+  ));
 }
 
 /** Style family row: the selected part's catalogue sits above the tabs. */
 export function MobileQrRailRow({ model }: MobileRailRowProps) {
-  const part = useContext(MobileRailPartContext)?.part ?? "Module"
-  return <QrStylePartOptions model={model} partId={part} />
+  const part = useContext(MobileRailPartContext)?.part ?? "Module";
+  return <QrStylePartOptions model={model} partId={part} />;
 }
 
 /** Part tabs pinned under the catalogue — parts with a catalogue swap the
  *  row; Logo has none, so it keeps opening the drawer. */
 export function MobileQrRailFooter({ openDrawer }: MobileRailRowProps) {
-  const railPart = useContext(MobileRailPartContext)
-  const part = railPart?.selectedPart ?? "Module"
+  const railPart = useContext(MobileRailPartContext);
+  const part = railPart?.selectedPart ?? "Module";
 
   return (
     <div className="dn-mobile-settings-rail__tabs">
@@ -86,17 +80,17 @@ export function MobileQrRailFooter({ openDrawer }: MobileRailRowProps) {
         }))}
         value={part}
         onChange={(value) => {
-          const option = QR_STYLE_PART_OPTIONS.find((entry) => entry.id === value)
+          const option = QR_STYLE_PART_OPTIONS.find((entry) => entry.id === value);
           if (!option) {
-            return
+            return;
           }
           if (option.drillsTo) {
-            railPart?.selectPart(option.drillsTo)
-            return
+            railPart?.selectPart(option.drillsTo);
+            return;
           }
-          openDrawer()
+          openDrawer();
         }}
       />
     </div>
-  )
+  );
 }

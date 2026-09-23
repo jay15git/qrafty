@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { HugeiconsIcon } from "@hugeicons/react"
+import { HugeiconsIcon } from "@hugeicons/react";
 
-import { getContentTypeIcon } from "@/features/qr/content/content-type-icons"
-import type { QrInputType } from "@/features/qr/content/input-options"
-import { cn } from "@/lib/utils"
+import { getContentTypeIcon } from "@/features/qr/content/content-type-icons";
+import type { QrInputType } from "@/features/qr/content/input-options";
+import { cn } from "@/lib/utils";
 
 type ContentTypeGridIconProps = {
-  className?: string
-  type: QrInputType
-}
+  className?: string;
+  type: QrInputType;
+};
 
 export function ContentTypeGridIcon({ className, type }: ContentTypeGridIconProps) {
-  const iconDef = getContentTypeIcon(type)
+  const iconDef = getContentTypeIcon(type);
 
   if (iconDef.kind === "brand") {
-    const BrandIcon = iconDef.icon
-    return <BrandIcon aria-hidden className={cn("size-5 shrink-0", className)} />
+    const BrandIcon = iconDef.icon;
+    return <BrandIcon aria-hidden className={cn("size-5 shrink-0", className)} />;
   }
 
   return (
@@ -28,5 +28,5 @@ export function ContentTypeGridIcon({ className, type }: ContentTypeGridIconProp
       size={20}
       strokeWidth={1.75}
     />
-  )
+  );
 }

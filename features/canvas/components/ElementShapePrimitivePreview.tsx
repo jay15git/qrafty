@@ -1,14 +1,14 @@
-import type { DraftingShapePrimitiveId } from "@/features/canvas/model/element-shapes"
-import { cn } from "@/lib/utils"
+import type { DraftingShapePrimitiveId } from "@/features/canvas/model/element-shapes";
+import { cn } from "@/lib/utils";
 
 export function ElementShapePrimitivePreview({
   className,
   shapeId,
 }: {
-  className?: string
-  shapeId: DraftingShapePrimitiveId
+  className?: string;
+  shapeId: DraftingShapePrimitiveId;
 }) {
-  const svgClassName = cn("size-full", className)
+  const svgClassName = cn("size-full", className);
 
   if (shapeId === "line") {
     return (
@@ -23,7 +23,7 @@ export function ElementShapePrimitivePreview({
           y2="50"
         />
       </svg>
-    )
+    );
   }
 
   if (shapeId === "arrow") {
@@ -38,7 +38,7 @@ export function ElementShapePrimitivePreview({
           strokeWidth="8"
         />
       </svg>
-    )
+    );
   }
 
   if (shapeId === "ellipse") {
@@ -46,12 +46,12 @@ export function ElementShapePrimitivePreview({
       <svg aria-hidden="true" className={svgClassName} fill="none" viewBox="0 0 100 100">
         <ellipse cx="50" cy="50" fill="currentColor" rx="42" ry="42" />
       </svg>
-    )
+    );
   }
 
   return (
     <svg aria-hidden="true" className={svgClassName} fill="none" viewBox="0 0 100 100">
       <rect fill="currentColor" height="84" rx="4" ry="4" width="84" x="8" y="8" />
     </svg>
-  )
+  );
 }

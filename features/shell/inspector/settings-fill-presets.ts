@@ -24,7 +24,7 @@ export const SETTINGS_FILL_SOLID_PRESETS = [
   "oklch(0.72 0.21 10)",
   "oklch(0.7 0.16 290)",
   "oklch(0.76 0.14 160)",
-] as const
+] as const;
 
 /** Linear gradients — multi-stop, contrasting hues, varied angles. */
 export const SETTINGS_FILL_LINEAR_PRESETS = [
@@ -76,7 +76,7 @@ export const SETTINGS_FILL_LINEAR_PRESETS = [
   "linear-gradient(in oklch 170deg, oklch(0.85 0.18 140) 0%, oklch(0.68 0.16 200) 50%, oklch(0.48 0.2 275) 100%)",
   // blush → orchid → deep violet
   "linear-gradient(in oklch 305deg, oklch(0.88 0.1 20) 0%, oklch(0.7 0.2 330) 50%, oklch(0.38 0.16 290) 100%)",
-] as const
+] as const;
 
 /** Centered radial gradients — light→dark, dark→light, and pastel→pastel recipes interleaved. */
 export const SETTINGS_FILL_RADIAL_PRESETS = [
@@ -138,7 +138,7 @@ export const SETTINGS_FILL_RADIAL_PRESETS = [
   "radial-gradient(circle farthest-corner at 50% 50% in oklch, oklch(0.94 0.07 350) 0%, oklch(0.84 0.08 235) 100%)",
   // plum wine: pale mauve → plum → black cherry
   "radial-gradient(circle farthest-corner at 50% 50% in oklch, oklch(0.88 0.08 320) 0%, oklch(0.55 0.2 325) 55%, oklch(0.25 0.1 340) 100%)",
-] as const
+] as const;
 
 /** Solids and gradients interleaved for the horizontal fill picker row. */
 export const SETTINGS_FILL_PRESETS = [
@@ -182,4 +182,4 @@ export const SETTINGS_FILL_PRESETS = [
   "radial-gradient(circle farthest-corner at 50% 50% in oklch, oklch(0.72 0.2 145) 0%, oklch(0.4 0.12 200) 100%)",
   "oklch(0.78 0.13 195)",
   "linear-gradient(in oklch 55deg, oklch(0.88 0.15 110) 0%, oklch(0.52 0.2 340) 100%)",
-] as const
+] as const;

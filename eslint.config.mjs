@@ -27,7 +27,8 @@ const eslintConfig = defineConfig([
           paths: [
             {
               name: "framer-motion",
-              message: "Use `motion/react` — framer-motion was removed in favor of the `motion` package.",
+              message:
+                "Use `motion/react` — framer-motion was removed in favor of the `motion` package.",
             },
             {
               name: "cn",

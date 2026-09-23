@@ -6,8 +6,8 @@ const REQUIRES_IMAGE_SHADER_IDS = new Set<string>([
   "halftone-dots",
   "halftone-cmyk",
   "gem-smoke",
-])
+]);
 
 export function shaderRequiresImage(shaderId: string) {
-  return REQUIRES_IMAGE_SHADER_IDS.has(shaderId)
+  return REQUIRES_IMAGE_SHADER_IDS.has(shaderId);
 }

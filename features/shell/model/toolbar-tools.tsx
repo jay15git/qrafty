@@ -1,19 +1,17 @@
-"use client"
+"use client";
 
-import {
-  Image02Icon,
-} from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { Sparkles, Wallpaper } from "lucide-react"
+import { Image02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Sparkles, Wallpaper } from "lucide-react";
 
-import { BlocksIcon } from "@/components/vendor/animate-ui/icons/blocks"
-import { DownloadIcon as AnimatedDownloadIcon } from "@/components/ui/download"
-import { GripIcon } from "@/components/ui/grip"
-import { LayersIcon } from "@/components/ui/layers"
-import { MessageCircleIcon } from "@/components/ui/message-circle"
-import { PlayIcon } from "@/components/ui/play"
-import { ReceiptTextIcon } from "@/components/ui/receipt-text"
-import type { ToolbarTool } from "@/features/shell/model/toolbar-types"
+import { BlocksIcon } from "@/components/vendor/animate-ui/icons/blocks";
+import { DownloadIcon as AnimatedDownloadIcon } from "@/components/ui/download";
+import { GripIcon } from "@/components/ui/grip";
+import { LayersIcon } from "@/components/ui/layers";
+import { MessageCircleIcon } from "@/components/ui/message-circle";
+import { PlayIcon } from "@/components/ui/play";
+import { ReceiptTextIcon } from "@/components/ui/receipt-text";
+import type { ToolbarTool } from "@/features/shell/model/toolbar-types";
 
 export const TOOLBAR_TOOLS: ToolbarTool[] = [
   {
@@ -84,4 +82,4 @@ export const TOOLBAR_TOOLS: ToolbarTool[] = [
     title: "Export",
     renderIcon: () => <AnimatedDownloadIcon size={18} />,
   },
-]
+];

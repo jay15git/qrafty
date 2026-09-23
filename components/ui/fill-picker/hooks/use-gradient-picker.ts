@@ -136,9 +136,7 @@ function reconcileControlledValue(
   value: Gradient,
   prev: InternalState,
 ): { next: InternalState; uniqueIds: boolean; structuralMatch: boolean } {
-  const incoming = [...value.stops].sort(
-    (a, b) => a.position - b.position,
-  );
+  const incoming = [...value.stops].sort((a, b) => a.position - b.position);
   // Identity path: when every incoming stop carries an id and that set is
   // exactly what we hold, pair on the id. This is the only way to follow
   // stops through a reorder that position+index cannot describe — two
@@ -152,10 +150,8 @@ function reconcileControlledValue(
   const allHaveIds = incoming.length > 0 && incoming.every((s) => !!s.id);
   // Duplicated ids can't identify anything — treat them as un-tagged
   // rather than aliasing two stops onto one id.
-  const uniqueIds =
-    allHaveIds && new Set(incoming.map((s) => s.id)).size === incoming.length;
-  const byId =
-    uniqueIds && sameLength && incoming.every((s) => prevIds.has(s.id!));
+  const uniqueIds = allHaveIds && new Set(incoming.map((s) => s.id)).size === incoming.length;
+  const byId = uniqueIds && sameLength && incoming.every((s) => prevIds.has(s.id!));
   const sameShape = uniqueIds
     ? byId
     : sameLength &&
@@ -267,24 +263,18 @@ export interface GradientPickerState {
 
 // ---- Hook ------------------------------------------------------------------
 
-export function useGradientPicker(
-  props: UseGradientPickerProps = {},
-): GradientPickerState {
+export function useGradientPicker(props: UseGradientPickerProps = {}): GradientPickerState {
   const { value, defaultValue, onValueChange, defaultStopColorFormat } = props;
   const isControlled = value !== undefined;
   const fallbackFormat: ColorFormat = defaultStopColorFormat ?? "oklch";
-  const [stopColorFormats, setStopColorFormats] = React.useState<
-    Record<string, ColorFormat>
-  >({});
+  const [stopColorFormats, setStopColorFormats] = React.useState<Record<string, ColorFormat>>({});
   const getStopColorFormat = React.useCallback(
     (id: string): ColorFormat => stopColorFormats[id] ?? fallbackFormat,
     [stopColorFormats, fallbackFormat],
   );
   const setStopColorFormat = React.useCallback(
     (id: string, format: ColorFormat) =>
-      setStopColorFormats((prev) =>
-        prev[id] === format ? prev : { ...prev, [id]: format },
-      ),
+      setStopColorFormats((prev) => (prev[id] === format ? prev : { ...prev, [id]: format })),
     [],
   );
 
@@ -297,9 +287,7 @@ export function useGradientPicker(
   // it has to be a ref rather than derived state because the emit path inside
   // `apply` needs it for mutations (addStop, moveStop, …) that happen between
   // controlled syncs.
-  const idTrackedRef = useLazyRef(() =>
-    hasStopIds(value ?? defaultValue ?? DEFAULT_LINEAR),
-  );
+  const idTrackedRef = useLazyRef(() => hasStopIds(value ?? defaultValue ?? DEFAULT_LINEAR));
   const [tracksStopIds, setTracksStopIds] = React.useState(() =>
     hasStopIds(value ?? defaultValue ?? DEFAULT_LINEAR),
   );
@@ -320,18 +308,14 @@ export function useGradientPicker(
   // override belongs to the shape we're leaving, strip both off the
   // gradient, then restore the target shape's stash. Toggling back gives
   // the user their last numeric value instead of nothing.
-  const radiiStashRef = React.useRef<{ x: number; y: number } | undefined>(
-    undefined,
-  );
+  const radiiStashRef = React.useRef<{ x: number; y: number } | undefined>(undefined);
   const radiusPxStashRef = React.useRef<number | undefined>(undefined);
 
   // Track the last gradient we emitted upward so the controlled-sync path can
   // ignore echoes. Seed with the initial controlled value so the *first* sync
   // is treated as an echo of our own initial state. State, not a ref: the
   // controlled-sync path reads it during render.
-  const [lastEmitted, setLastEmitted] = React.useState<Gradient | null>(
-    value ?? null,
-  );
+  const [lastEmitted, setLastEmitted] = React.useState<Gradient | null>(value ?? null);
 
   // stateRef mirrors `internal` so setters can compute the next state +
   // synchronously emit the cleaned gradient without going through an effect.
@@ -372,16 +356,11 @@ export function useGradientPicker(
   // here: no handler can run between this render and those effects, so the
   // mirror is in place before anything observes it, and render stays free of
   // ref writes.
-  const [prevControlledValue, setPrevControlledValue] = React.useState<
-    Gradient | undefined
-  >(value);
+  const [prevControlledValue, setPrevControlledValue] = React.useState<Gradient | undefined>(value);
   if (isControlled && value !== prevControlledValue) {
     setPrevControlledValue(value);
     if (value !== lastEmitted) {
-      const { next, uniqueIds, structuralMatch } = reconcileControlledValue(
-        value,
-        internal,
-      );
+      const { next, uniqueIds, structuralMatch } = reconcileControlledValue(value, internal);
       if (!structuralMatch) {
         setStashEpoch((n) => n + 1);
       }
@@ -467,11 +446,7 @@ export function useGradientPicker(
           ? {
               ...cur,
               start: { x: clamp01(xy.x), y: clamp01(xy.y) },
-              angle: recomputeAngle(
-                { x: clamp01(xy.x), y: clamp01(xy.y) },
-                cur.end,
-                cur.angle,
-              ),
+              angle: recomputeAngle({ x: clamp01(xy.x), y: clamp01(xy.y) }, cur.end, cur.angle),
             }
           : (() => {
               const { start: _drop, ...rest } = cur;
@@ -491,11 +466,7 @@ export function useGradientPicker(
           ? {
               ...cur,
               end: { x: clamp01(xy.x), y: clamp01(xy.y) },
-              angle: recomputeAngle(
-                cur.start,
-                { x: clamp01(xy.x), y: clamp01(xy.y) },
-                cur.angle,
-              ),
+              angle: recomputeAngle(cur.start, { x: clamp01(xy.x), y: clamp01(xy.y) }, cur.angle),
             }
           : (() => {
               const { end: _drop, ...rest } = cur;
@@ -587,9 +558,7 @@ export function useGradientPicker(
             : {
                 ...rest,
                 shape,
-                ...(radiiStashRef.current
-                  ? { radii: radiiStashRef.current }
-                  : {}),
+                ...(radiiStashRef.current ? { radii: radiiStashRef.current } : {}),
               };
         return { gradient: next, stops: prev.stops };
       }),
@@ -649,8 +618,7 @@ export function useGradientPicker(
     [apply],
   );
 
-  const [containerWidth, setContainerWidth] =
-    React.useState<number | null>(null);
+  const [containerWidth, setContainerWidth] = React.useState<number | null>(null);
 
   const setRadiusPx = React.useCallback(
     (px: number | undefined) =>
@@ -676,10 +644,7 @@ export function useGradientPicker(
 
   // ---- Stop setters --------------------------------------------------------
 
-  const selectStop = React.useCallback(
-    (id: string) => setSelectedStopId(id),
-    [setSelectedStopId],
-  );
+  const selectStop = React.useCallback((id: string) => setSelectedStopId(id), [setSelectedStopId]);
 
   const addStop = React.useCallback(
     (position: number, color?: OklchColor): string => {
@@ -687,10 +652,7 @@ export function useGradientPicker(
       const fallback: OklchColor = { l: 0.5, c: 0, h: 0, alpha: 1 };
       apply((prev) => ({
         gradient: prev.gradient,
-        stops: sortByPosition([
-          ...prev.stops,
-          { id, position, color: color ?? fallback },
-        ]),
+        stops: sortByPosition([...prev.stops, { id, position, color: color ?? fallback }]),
       }));
       setSelectedStopId(id);
       return id;

@@ -1,44 +1,44 @@
-import { useMemo, useReducer, type Dispatch } from "react"
+import { useMemo, useReducer, type Dispatch } from "react";
 
 import type {
   QrErrorCorrectionLevel,
   QrFinderPatternOuterStyle,
   QrMode,
   QrTypeNumber,
-} from "@/features/qr/model/types"
-import type { QraftyCornerDotStyle } from "@/features/qr/model/state"
-import type { VideoExportLongEdge } from "@/features/qr/export/video-export"
+} from "@/features/qr/model/types";
+import type { QraftyCornerDotStyle } from "@/features/qr/model/state";
+import type { VideoExportLongEdge } from "@/features/qr/export/video-export";
 import {
   createDefaultDraftingCardState,
   type DraftingCardState,
-} from "@/features/canvas/model/card-state"
+} from "@/features/canvas/model/card-state";
 import {
   getDraftingQrLayerId,
   type DraftingLayerStateByNodeId,
-} from "@/features/canvas/model/layers/shared"
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr"
+} from "@/features/canvas/model/layers/shared";
+import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
 import {
   createDefaultDraftingWorkspaceQrState,
   type DraftingCardStateByNodeId,
   type DraftingContentValuesByType,
   type DraftingQrStateByLayerId,
   type DraftingQrStateByNodeId,
-} from "@/features/canvas/model/document"
-import type { SceneCompositionByNodeId } from "@/features/canvas/model/apply-scene-template"
-import { createDefaultSceneComposition } from "@/features/canvas/model/scene-templates"
+} from "@/features/canvas/model/document";
+import type { SceneCompositionByNodeId } from "@/features/canvas/model/apply-scene-template";
+import { createDefaultSceneComposition } from "@/features/canvas/model/scene-templates";
 import {
   DEFAULT_DRAFTING_PANE_QR_SIZE,
   DEFAULT_DRAFTING_STUDIO_STATE,
   type DraftingDownloadExtension,
-} from "@/features/canvas/components/drafting-canvas.constants"
-import type { DraftingPaneCanvasTool } from "@/features/canvas/components/Canvas"
+} from "@/features/canvas/components/drafting-canvas.constants";
+import type { DraftingPaneCanvasTool } from "@/features/canvas/components/Canvas";
 import type {
   BackgroundInspectorTab,
   ToolbarToolId,
   ComposeSidebarPanel,
-} from "@/features/shell/components/FloatingToolbar"
-import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr/assets/brand-icon-svg"
-import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene"
+} from "@/features/shell/components/FloatingToolbar";
+import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr/assets/brand-icon-svg";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import {
   type AssetSourceMode,
   type BackgroundShapeOptions,
@@ -50,152 +50,145 @@ import {
   type QrLogoSizeMode,
   type QraftyDataModulesStyle,
   type QraftyGradient,
-} from "@/features/qr/model/state"
-import { type QrBackgroundShapeId } from "@/features/qr/styles/background-shapes"
-import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload"
-import {
-  DEFAULT_QR_INPUT_TYPE,
-  type QrInputType,
-} from "@/features/qr/content/input-options"
-import type { ExportMediaKind } from "@/features/shell/model/toolbar-types"
-import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/shell/model/toolbar-defaults"
-import type { DraftingDownloadTarget } from "@/features/canvas/components/drafting-canvas-operations"
+} from "@/features/qr/model/state";
+import { type QrBackgroundShapeId } from "@/features/qr/styles/background-shapes";
+import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload";
+import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
+import type { ExportMediaKind } from "@/features/shell/model/toolbar-types";
+import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/shell/model/toolbar-defaults";
+import type { DraftingDownloadTarget } from "@/features/canvas/components/drafting-canvas-operations";
 
-export type DraftingBinaryColorMode = "solid" | "gradient"
-export type DraftingAssetSourceMode = Extract<AssetSourceMode, "upload" | "url">
+export type DraftingBinaryColorMode = "solid" | "gradient";
+export type DraftingAssetSourceMode = Extract<AssetSourceMode, "upload" | "url">;
 
 export type DraftingCanvasState = {
-  desktopRailTool: ToolbarToolId | null
-  backgroundInspectorTab: BackgroundInspectorTab
-  composeSidebarPanel: ComposeSidebarPanel
-  selectedContentType: QrInputType
-  contentValuesByType: DraftingContentValuesByType
-  contentTypeByNodeId: Record<string, QrInputType>
-  contentTypeByLayerId: Record<string, QrInputType>
-  selectedQrMargin: number
-  selectedQrRadius: number
-  selectedRasterExportQualityPercent: number
-  selectedQrSize: number
-  selectedDotType: QraftyDataModulesStyle
-  selectedDotsColorMode: DotsColorMode
-  selectedDotColor: string
-  selectedDotsGradient: QraftyGradient
-  selectedDotsPalette: string[]
-  selectedDotsPalettePreset: string | "custom"
-  selectedModuleFillImageUrl: string
-  selectedModuleFillImageSourceMode: DraftingAssetSourceMode
-  selectedModuleFillRemoteUrl: string
-  selectedDotMatrixAnimation: QrDotMatrixAnimationOptions
-  selectedQrFinderPatternOuterStyle: QrFinderPatternOuterStyle
-  selectedCornerSquareColorMode: DraftingBinaryColorMode
-  selectedCornerSquareColor: string
-  selectedCornerSquareGradient: QraftyGradient
-  selectedQrFinderPatternInnerStyle: QraftyCornerDotStyle
-  selectedCornerDotColorMode: DraftingBinaryColorMode
-  selectedCornerDotColor: string
-  selectedCornerDotGradient: QraftyGradient
-  selectedBackgroundColorMode: DraftingBinaryColorMode
-  selectedBackgroundColor: string
-  selectedBackgroundTransparent: boolean
-  selectedBackgroundGradient: QraftyGradient
-  selectedBackgroundShapeId: QrBackgroundShapeId
-  selectedBackgroundShapeOptions: BackgroundShapeOptions
-  selectedBackgroundAssetSourceMode: DraftingAssetSourceMode
-  selectedBackgroundRemoteUrl: string
-  selectedLogoColorMode: DraftingBinaryColorMode
-  selectedLogoSourceMode: AssetSourceMode
-  selectedLogoColor: string
-  selectedLogoGradient: QraftyGradient
-  selectedLogoPresetId: string | undefined
-  selectedLogoPresetValue: string | undefined
-  selectedLogoAssetSourceMode: DraftingAssetSourceMode
-  selectedLogoRemoteUrl: string
-  selectedLogoUploadValue: string
-  selectedLogoSize: number
-  selectedLogoMargin: number
-  selectedHideBackgroundDots: boolean
-  selectedQrTypeNumber: QrTypeNumber
-  selectedQrErrorCorrectionLevel: QrErrorCorrectionLevel
-  selectedBoostLevel: boolean
-  selectedQrMode: QrMode
-  selectedValueSegmentsText: string
-  selectedAriaLabel: string
-  selectedModuleRoundSize: boolean
-  selectedModuleSize: number | undefined
-  selectedModuleLineWidth: number | undefined
-  selectedGradientLinkMode: QrGradientLinkMode
-  selectedLogoOpacity: number
-  selectedLogoSizeMode: QrLogoSizeMode
-  selectedLogoWidthPx: number | undefined
-  selectedLogoHeightPx: number | undefined
-  selectedLogoLockAspect: boolean
-  selectedLogoPositionMode: QrLogoPositionMode
-  selectedLogoOffsetX: number
-  selectedLogoOffsetY: number
-  selectedLogoCrossOrigin: QrCrossOrigin
-  activeQrLayerId: string
-  activeQrNodeId: string
-  qrStateByLayerId: DraftingQrStateByLayerId
-  qrStateByNodeId: DraftingQrStateByNodeId
-  selectedCardState: DraftingCardState
-  cardStateByNodeId: DraftingCardStateByNodeId
-  sceneCompositionByNodeId: SceneCompositionByNodeId
-  layerStateByNodeId: DraftingLayerStateByNodeId
-  selectedLayerId: string | null
-  selectedLayerIds: string[]
-  desktopCanvasTool: DraftingPaneCanvasTool | null
-  selectedDownloadExtension: DraftingDownloadExtension
-  selectedDownloadTarget: DraftingDownloadTarget
-  exportDownloadError: string | null
-  selectedPhotoLongEdge: VideoExportLongEdge
-  selectedExportMediaKind: ExportMediaKind
-  selectedVideoDurationSeconds: number
-  selectedVideoFormat: "mp4" | "webm"
-  selectedVideoFrameRate: 30 | 60
-  selectedVideoLongEdge: VideoExportLongEdge
-  isDraftingWorkspaceReady: boolean
-  draftingHistoryRevision: number
-  logoUploadObjectUrl: string | null
-  moduleFillUploadObjectUrl: string | null
-}
+  desktopRailTool: ToolbarToolId | null;
+  backgroundInspectorTab: BackgroundInspectorTab;
+  composeSidebarPanel: ComposeSidebarPanel;
+  selectedContentType: QrInputType;
+  contentValuesByType: DraftingContentValuesByType;
+  contentTypeByNodeId: Record<string, QrInputType>;
+  contentTypeByLayerId: Record<string, QrInputType>;
+  selectedQrMargin: number;
+  selectedQrRadius: number;
+  selectedRasterExportQualityPercent: number;
+  selectedQrSize: number;
+  selectedDotType: QraftyDataModulesStyle;
+  selectedDotsColorMode: DotsColorMode;
+  selectedDotColor: string;
+  selectedDotsGradient: QraftyGradient;
+  selectedDotsPalette: string[];
+  selectedDotsPalettePreset: string | "custom";
+  selectedModuleFillImageUrl: string;
+  selectedModuleFillImageSourceMode: DraftingAssetSourceMode;
+  selectedModuleFillRemoteUrl: string;
+  selectedDotMatrixAnimation: QrDotMatrixAnimationOptions;
+  selectedQrFinderPatternOuterStyle: QrFinderPatternOuterStyle;
+  selectedCornerSquareColorMode: DraftingBinaryColorMode;
+  selectedCornerSquareColor: string;
+  selectedCornerSquareGradient: QraftyGradient;
+  selectedQrFinderPatternInnerStyle: QraftyCornerDotStyle;
+  selectedCornerDotColorMode: DraftingBinaryColorMode;
+  selectedCornerDotColor: string;
+  selectedCornerDotGradient: QraftyGradient;
+  selectedBackgroundColorMode: DraftingBinaryColorMode;
+  selectedBackgroundColor: string;
+  selectedBackgroundTransparent: boolean;
+  selectedBackgroundGradient: QraftyGradient;
+  selectedBackgroundShapeId: QrBackgroundShapeId;
+  selectedBackgroundShapeOptions: BackgroundShapeOptions;
+  selectedBackgroundAssetSourceMode: DraftingAssetSourceMode;
+  selectedBackgroundRemoteUrl: string;
+  selectedLogoColorMode: DraftingBinaryColorMode;
+  selectedLogoSourceMode: AssetSourceMode;
+  selectedLogoColor: string;
+  selectedLogoGradient: QraftyGradient;
+  selectedLogoPresetId: string | undefined;
+  selectedLogoPresetValue: string | undefined;
+  selectedLogoAssetSourceMode: DraftingAssetSourceMode;
+  selectedLogoRemoteUrl: string;
+  selectedLogoUploadValue: string;
+  selectedLogoSize: number;
+  selectedLogoMargin: number;
+  selectedHideBackgroundDots: boolean;
+  selectedQrTypeNumber: QrTypeNumber;
+  selectedQrErrorCorrectionLevel: QrErrorCorrectionLevel;
+  selectedBoostLevel: boolean;
+  selectedQrMode: QrMode;
+  selectedValueSegmentsText: string;
+  selectedAriaLabel: string;
+  selectedModuleRoundSize: boolean;
+  selectedModuleSize: number | undefined;
+  selectedModuleLineWidth: number | undefined;
+  selectedGradientLinkMode: QrGradientLinkMode;
+  selectedLogoOpacity: number;
+  selectedLogoSizeMode: QrLogoSizeMode;
+  selectedLogoWidthPx: number | undefined;
+  selectedLogoHeightPx: number | undefined;
+  selectedLogoLockAspect: boolean;
+  selectedLogoPositionMode: QrLogoPositionMode;
+  selectedLogoOffsetX: number;
+  selectedLogoOffsetY: number;
+  selectedLogoCrossOrigin: QrCrossOrigin;
+  activeQrLayerId: string;
+  activeQrNodeId: string;
+  qrStateByLayerId: DraftingQrStateByLayerId;
+  qrStateByNodeId: DraftingQrStateByNodeId;
+  selectedCardState: DraftingCardState;
+  cardStateByNodeId: DraftingCardStateByNodeId;
+  sceneCompositionByNodeId: SceneCompositionByNodeId;
+  layerStateByNodeId: DraftingLayerStateByNodeId;
+  selectedLayerId: string | null;
+  selectedLayerIds: string[];
+  desktopCanvasTool: DraftingPaneCanvasTool | null;
+  selectedDownloadExtension: DraftingDownloadExtension;
+  selectedDownloadTarget: DraftingDownloadTarget;
+  exportDownloadError: string | null;
+  selectedPhotoLongEdge: VideoExportLongEdge;
+  selectedExportMediaKind: ExportMediaKind;
+  selectedVideoDurationSeconds: number;
+  selectedVideoFormat: "mp4" | "webm";
+  selectedVideoFrameRate: 30 | 60;
+  selectedVideoLongEdge: VideoExportLongEdge;
+  isDraftingWorkspaceReady: boolean;
+  draftingHistoryRevision: number;
+  logoUploadObjectUrl: string | null;
+  moduleFillUploadObjectUrl: string | null;
+};
 
-type DraftingCanvasStateField = keyof DraftingCanvasState
+type DraftingCanvasStateField = keyof DraftingCanvasState;
 
-type FieldValue<K extends DraftingCanvasStateField> = DraftingCanvasState[K]
+type FieldValue<K extends DraftingCanvasStateField> = DraftingCanvasState[K];
 type FieldUpdater<K extends DraftingCanvasStateField> =
-  | FieldValue<K>
-  | ((prev: FieldValue<K>) => FieldValue<K>)
+  FieldValue<K> | ((prev: FieldValue<K>) => FieldValue<K>);
 
-export type SetDraftingCanvasFieldAction<K extends DraftingCanvasStateField = DraftingCanvasStateField> =
-  {
-    type: "SET_FIELD"
-    field: K
-    value: FieldUpdater<K>
-  }
+export type SetDraftingCanvasFieldAction<
+  K extends DraftingCanvasStateField = DraftingCanvasStateField,
+> = {
+  type: "SET_FIELD";
+  field: K;
+  value: FieldUpdater<K>;
+};
 
 export type ReplaceDraftingCanvasStateAction = {
-  type: "REPLACE_STATE"
-  state: DraftingCanvasState
-}
+  type: "REPLACE_STATE";
+  state: DraftingCanvasState;
+};
 
-export type DraftingCanvasAction =
-  | SetDraftingCanvasFieldAction
-  | ReplaceDraftingCanvasStateAction
+export type DraftingCanvasAction = SetDraftingCanvasFieldAction | ReplaceDraftingCanvasStateAction;
 
 export type DraftingCanvasSetter<K extends DraftingCanvasStateField> = (
   value: FieldUpdater<K>,
-) => void
+) => void;
 
 export type DraftingCanvasSetters = {
-  [K in DraftingCanvasStateField as `set${Capitalize<string & K>}`]: DraftingCanvasSetter<K>
-}
+  [K in DraftingCanvasStateField as `set${Capitalize<string & K>}`]: DraftingCanvasSetter<K>;
+};
 
-function createInitialDraftingCanvasState(
-  initialActiveTool?: ToolbarToolId,
-): DraftingCanvasState {
-  const defaultQrState = createDefaultDraftingWorkspaceQrState()
-  const defaultCardState = createDefaultDraftingCardState()
-  const primaryQrLayerId = getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)
+function createInitialDraftingCanvasState(initialActiveTool?: ToolbarToolId): DraftingCanvasState {
+  const defaultQrState = createDefaultDraftingWorkspaceQrState();
+  const defaultCardState = createDefaultDraftingCardState();
+  const primaryQrLayerId = getDraftingQrLayerId(DASHBOARD_QR_NODE_ID);
 
   return {
     desktopRailTool: initialActiveTool ?? "content",
@@ -231,21 +224,24 @@ function createInitialDraftingCanvasState(
       ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation,
     },
     selectedQrFinderPatternOuterStyle: "rounded-lg",
-    selectedCornerSquareColorMode:
-      DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterGradient.enabled ? "gradient" : "solid",
+    selectedCornerSquareColorMode: DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterGradient.enabled
+      ? "gradient"
+      : "solid",
     selectedCornerSquareColor: DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterSettings.color,
     selectedCornerSquareGradient: structuredClone(
       DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterGradient,
     ),
     selectedQrFinderPatternInnerStyle: "circle",
-    selectedCornerDotColorMode:
-      DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerGradient.enabled ? "gradient" : "solid",
+    selectedCornerDotColorMode: DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerGradient.enabled
+      ? "gradient"
+      : "solid",
     selectedCornerDotColor: DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerSettings.color,
     selectedCornerDotGradient: structuredClone(
       DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerGradient,
     ),
-    selectedBackgroundColorMode:
-      DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient.enabled ? "gradient" : "solid",
+    selectedBackgroundColorMode: DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient.enabled
+      ? "gradient"
+      : "solid",
     selectedBackgroundColor: DEFAULT_DRAFTING_STUDIO_STATE.backgroundOptions.color,
     selectedBackgroundTransparent: false,
     selectedBackgroundGradient: structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient),
@@ -259,8 +255,9 @@ function createInitialDraftingCanvasState(
       DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.source === "url"
         ? (DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.value ?? "")
         : "",
-    selectedLogoColorMode:
-      DEFAULT_DRAFTING_STUDIO_STATE.logoGradient.enabled ? "gradient" : "solid",
+    selectedLogoColorMode: DEFAULT_DRAFTING_STUDIO_STATE.logoGradient.enabled
+      ? "gradient"
+      : "solid",
     selectedLogoSourceMode: DEFAULT_DRAFTING_STUDIO_STATE.logo.source,
     selectedLogoColor: DEFAULT_DRAFTING_STUDIO_STATE.logo.presetColor ?? DEFAULT_BRAND_ICON_COLOR,
     selectedLogoGradient: structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.logoGradient),
@@ -336,7 +333,7 @@ function createInitialDraftingCanvasState(
     draftingHistoryRevision: 0,
     logoUploadObjectUrl: null,
     moduleFillUploadObjectUrl: null,
-  }
+  };
 }
 
 function draftingCanvasReducer(
@@ -345,38 +342,35 @@ function draftingCanvasReducer(
 ): DraftingCanvasState {
   switch (action.type) {
     case "SET_FIELD": {
-      const { field, value } = action
-      const currentValue = state[field]
+      const { field, value } = action;
+      const currentValue = state[field];
       const nextValue =
         typeof value === "function"
           ? (value as (prev: typeof currentValue) => typeof currentValue)(currentValue)
-          : value
+          : value;
 
       if (Object.is(nextValue, currentValue)) {
-        return state
+        return state;
       }
 
       return {
         ...state,
         [field]: nextValue,
-      }
+      };
     }
     case "REPLACE_STATE":
-      return action.state
+      return action.state;
     default:
-      return state
+      return state;
   }
 }
 
 function createDraftingCanvasSetters(
   dispatch: Dispatch<DraftingCanvasAction>,
 ): DraftingCanvasSetters {
-  const setField = <K extends DraftingCanvasStateField>(
-    field: K,
-    value: FieldUpdater<K>,
-  ) => {
-    dispatch({ type: "SET_FIELD", field, value } as DraftingCanvasAction)
-  }
+  const setField = <K extends DraftingCanvasStateField>(field: K, value: FieldUpdater<K>) => {
+    dispatch({ type: "SET_FIELD", field, value } as DraftingCanvasAction);
+  };
 
   return {
     setDesktopRailTool: (value) => setField("desktopRailTool", value),
@@ -404,11 +398,9 @@ function createDraftingCanvasSetters(
     setSelectedDotMatrixAnimation: (value) => setField("selectedDotMatrixAnimation", value),
     setSelectedQrFinderPatternOuterStyle: (value) =>
       setField("selectedQrFinderPatternOuterStyle", value),
-    setSelectedCornerSquareColorMode: (value) =>
-      setField("selectedCornerSquareColorMode", value),
+    setSelectedCornerSquareColorMode: (value) => setField("selectedCornerSquareColorMode", value),
     setSelectedCornerSquareColor: (value) => setField("selectedCornerSquareColor", value),
-    setSelectedCornerSquareGradient: (value) =>
-      setField("selectedCornerSquareGradient", value),
+    setSelectedCornerSquareGradient: (value) => setField("selectedCornerSquareGradient", value),
     setSelectedQrFinderPatternInnerStyle: (value) =>
       setField("selectedQrFinderPatternInnerStyle", value),
     setSelectedCornerDotColorMode: (value) => setField("selectedCornerDotColorMode", value),
@@ -419,8 +411,7 @@ function createDraftingCanvasSetters(
     setSelectedBackgroundTransparent: (value) => setField("selectedBackgroundTransparent", value),
     setSelectedBackgroundGradient: (value) => setField("selectedBackgroundGradient", value),
     setSelectedBackgroundShapeId: (value) => setField("selectedBackgroundShapeId", value),
-    setSelectedBackgroundShapeOptions: (value) =>
-      setField("selectedBackgroundShapeOptions", value),
+    setSelectedBackgroundShapeOptions: (value) => setField("selectedBackgroundShapeOptions", value),
     setSelectedBackgroundAssetSourceMode: (value) =>
       setField("selectedBackgroundAssetSourceMode", value),
     setSelectedBackgroundRemoteUrl: (value) => setField("selectedBackgroundRemoteUrl", value),
@@ -437,8 +428,7 @@ function createDraftingCanvasSetters(
     setSelectedLogoMargin: (value) => setField("selectedLogoMargin", value),
     setSelectedHideBackgroundDots: (value) => setField("selectedHideBackgroundDots", value),
     setSelectedQrTypeNumber: (value) => setField("selectedQrTypeNumber", value),
-    setSelectedQrErrorCorrectionLevel: (value) =>
-      setField("selectedQrErrorCorrectionLevel", value),
+    setSelectedQrErrorCorrectionLevel: (value) => setField("selectedQrErrorCorrectionLevel", value),
     setSelectedBoostLevel: (value) => setField("selectedBoostLevel", value),
     setSelectedQrMode: (value) => setField("selectedQrMode", value),
     setSelectedValueSegmentsText: (value) => setField("selectedValueSegmentsText", value),
@@ -480,7 +470,7 @@ function createDraftingCanvasSetters(
     setDraftingHistoryRevision: (value) => setField("draftingHistoryRevision", value),
     setLogoUploadObjectUrl: (value) => setField("logoUploadObjectUrl", value),
     setModuleFillUploadObjectUrl: (value) => setField("moduleFillUploadObjectUrl", value),
-  }
+  };
 }
 
 export function useDraftingCanvasReducer(
@@ -490,9 +480,9 @@ export function useDraftingCanvasReducer(
     draftingCanvasReducer,
     initialActiveTool,
     createInitialDraftingCanvasState,
-  )
+  );
 
-  const setters = useMemo(() => createDraftingCanvasSetters(dispatch), [dispatch])
+  const setters = useMemo(() => createDraftingCanvasSetters(dispatch), [dispatch]);
 
-  return [state, dispatch, setters]
+  return [state, dispatch, setters];
 }

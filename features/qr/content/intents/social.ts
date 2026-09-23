@@ -12,12 +12,8 @@ import {
   isTikTokVideoPath,
   isTumblrBlogPath,
   segments,
-} from "@/features/qr/content/platform-path-matching"
-import {
-  profileIntent,
-  urlIntent,
-  type PlatformDef,
-} from "@/features/qr/content/intents/shared"
+} from "@/features/qr/content/platform-path-matching";
+import { profileIntent, urlIntent, type PlatformDef } from "@/features/qr/content/intents/shared";
 
 export const SOCIAL_PLATFORM_DEFS: readonly PlatformDef[] = [
   {
@@ -30,8 +26,8 @@ export const SOCIAL_PLATFORM_DEFS: readonly PlatformDef[] = [
     brandIconId: "instagram",
     intents: [
       profileIntent((pathname) => {
-        const segments = pathname.split("/").filter(Boolean)
-        return segments.length <= 1
+        const segments = pathname.split("/").filter(Boolean);
+        return segments.length <= 1;
       }),
       urlIntent("post", "Post", (p) => p.includes("/p/")),
       urlIntent("reel", "Reel", (p) => p.includes("/reel/")),
@@ -49,8 +45,8 @@ export const SOCIAL_PLATFORM_DEFS: readonly PlatformDef[] = [
     brandIconId: "x",
     intents: [
       profileIntent((pathname) => {
-        const segments = pathname.split("/").filter(Boolean)
-        return segments.length <= 1 && !pathname.includes("/status/")
+        const segments = pathname.split("/").filter(Boolean);
+        return segments.length <= 1 && !pathname.includes("/status/");
       }),
       urlIntent("status", "Post", (p) => p.includes("/status/")),
       urlIntent("list", "List", (p) => p.includes("/i/lists/")),
@@ -81,10 +77,16 @@ export const SOCIAL_PLATFORM_DEFS: readonly PlatformDef[] = [
     hosts: ["youtube.com", "youtu.be", "m.youtube.com"],
     brandIconId: "youtube",
     intents: [
-      urlIntent("channel", "Channel", (p) =>
-        p.startsWith("/@") || p.startsWith("/channel/") || p.startsWith("/c/"),
+      urlIntent(
+        "channel",
+        "Channel",
+        (p) => p.startsWith("/@") || p.startsWith("/channel/") || p.startsWith("/c/"),
       ),
-      urlIntent("video", "Video", (p) => p.includes("/watch") || p.startsWith("/shorts/") === false && p.includes("/v/")),
+      urlIntent(
+        "video",
+        "Video",
+        (p) => p.includes("/watch") || (p.startsWith("/shorts/") === false && p.includes("/v/")),
+      ),
       urlIntent("shorts", "Shorts", (p) => p.includes("/shorts/")),
       urlIntent("playlist", "Playlist", (p) => p.includes("/playlist")),
       urlIntent("live", "Live", (p) => p.includes("/live")),
@@ -100,7 +102,11 @@ export const SOCIAL_PLATFORM_DEFS: readonly PlatformDef[] = [
     brandIconId: "facebook",
     intents: [
       urlIntent("page", "Page", (p) => p.includes("/pages/") || p.includes("/profile.php")),
-      urlIntent("post", "Post", (p) => p.includes("/posts/") || p.includes("/permalink/") || p.includes("story.php")),
+      urlIntent(
+        "post",
+        "Post",
+        (p) => p.includes("/posts/") || p.includes("/permalink/") || p.includes("story.php"),
+      ),
       urlIntent("group", "Group", (p) => p.includes("/groups/")),
       urlIntent("event", "Event", (p) => p.includes("/events/")),
       urlIntent("reel", "Reel", (p) => p.includes("/reel/")),
@@ -158,7 +164,11 @@ export const SOCIAL_PLATFORM_DEFS: readonly PlatformDef[] = [
     brandIconId: "pinterest",
     intents: [
       urlIntent("pin", "Pin", (p) => p.includes("/pin/")),
-      urlIntent("board", "Board", (p) => p.includes("/board/") || (segments(p).length >= 2 && !p.includes("/pin/"))),
+      urlIntent(
+        "board",
+        "Board",
+        (p) => p.includes("/board/") || (segments(p).length >= 2 && !p.includes("/pin/")),
+      ),
       urlIntent("profile", "Profile", (p) => isPinterestProfilePath(p)),
     ],
   },
@@ -225,4 +235,4 @@ export const SOCIAL_PLATFORM_DEFS: readonly PlatformDef[] = [
       urlIntent("blog", "Blog", (p) => isTumblrBlogPath(p)),
     ],
   },
-]
+];

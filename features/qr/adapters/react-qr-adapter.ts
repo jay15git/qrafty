@@ -1,4 +1,8 @@
-import type { QrGradientSettings, QrFinderPatternInnerStyle, ReactQRCodeProps } from "@/features/qr/model/types";
+import type {
+  QrGradientSettings,
+  QrFinderPatternInnerStyle,
+  ReactQRCodeProps,
+} from "@/features/qr/model/types";
 import {
   clampQrBackgroundRound,
   clampQrSize,
@@ -27,16 +31,16 @@ export function toReactQrCodeProps(state: QraftyState): ReactQRCodeProps {
   const unifiedGradient =
     state.gradientLinkMode === "unified" &&
     state.dotsColorMode === "gradient" &&
-    state.dataModulesGradient.enabled
+    state.dataModulesGradient.enabled;
   const unifiedImage =
-    state.dotsColorMode === "image" && Boolean(getAssetValue(state.moduleFillImage))
-  const unifiedFill = unifiedGradient || unifiedImage
+    state.dotsColorMode === "image" && Boolean(getAssetValue(state.moduleFillImage));
+  const unifiedFill = unifiedGradient || unifiedImage;
 
   return {
     background:
       backgroundImage || customBackgroundSurfaceActive || state.backgroundOptions.transparent
         ? "transparent"
-        : buildGradient(state.backgroundGradient) ?? state.backgroundOptions.color,
+        : (buildGradient(state.backgroundGradient) ?? state.backgroundOptions.color),
     boostLevel: state.qrOptions.boostLevel,
     dataModulesSettings: {
       color: getDotsColor(state, unifiedFill),
@@ -98,8 +102,8 @@ export function toReactQrCodeProps(state: QraftyState): ReactQRCodeProps {
     },
     value: state.valueSegments?.length
       ? state.valueSegments.flatMap((segment) => {
-          const trimmed = segment.trim()
-          return trimmed ? [trimmed] : []
+          const trimmed = segment.trim();
+          return trimmed ? [trimmed] : [];
         })
       : state.data.trim(),
   };
@@ -132,12 +136,7 @@ function buildGradient(gradient: QraftyGradient): QrGradientSettings | undefined
   };
 }
 
-function coerceNumber(
-  value: number,
-  min: number,
-  max: number,
-  fallback: number,
-) {
+function coerceNumber(value: number, min: number, max: number, fallback: number) {
   if (Number.isNaN(value)) {
     return fallback;
   }

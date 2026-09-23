@@ -12,10 +12,7 @@ import {
 import type { ColorFormat } from "@/components/ui/fill-picker/lib/types";
 // FieldShell / FieldDivider are plain, Radix-free markup — shared with the
 // classic tree so the input chrome has one visual source of truth.
-import {
-  FieldDivider,
-  FieldShell,
-} from "@/components/ui/fill-picker/parts/field";
+import { FieldDivider, FieldShell } from "@/components/ui/fill-picker/parts/field";
 import { useFillPickerPortalSurface } from "@/components/ui/fill-picker/base/contexts/portal-surface";
 import {
   DesktopAccordionFieldSelect,
@@ -23,8 +20,7 @@ import {
 } from "@/components/ui/fill-picker/base/parts/desktop-accordion-field-select";
 import { cn } from "@/lib/utils";
 
-interface ChannelInputProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
+interface ChannelInputProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   formats?: ColorFormat[];
   showFormat?: boolean;
 }
@@ -47,10 +43,7 @@ interface ChannelInputProps
  * numeric paste handling.
  */
 export const ChannelInput = React.forwardRef<HTMLDivElement, ChannelInputProps>(
-  function ChannelInput(
-    { formats: formatsProp, showFormat = true, className, ...rest },
-    ref,
-  ) {
+  function ChannelInput({ formats: formatsProp, showFormat = true, className, ...rest }, ref) {
     const {
       color,
       format,
@@ -62,22 +55,14 @@ export const ChannelInput = React.forwardRef<HTMLDivElement, ChannelInputProps>(
     } = useColorPickerContext();
     const formats = formatsProp ?? ctxFormats;
 
-    const channels = React.useMemo(
-      () => colorChannels(color, format),
-      [color, format],
-    );
+    const channels = React.useMemo(() => colorChannels(color, format), [color, format]);
 
     const handleChannelChange = (key: string, value: number) => {
       setColor(setColorChannel(color, format, key, value));
     };
 
     return (
-      <FieldShell
-        ref={ref}
-        data-slot="color-picker-channel-input"
-        className={className}
-        {...rest}
-      >
+      <FieldShell ref={ref} data-slot="color-picker-channel-input" className={className} {...rest}>
         {showFormat && (
           <>
             <FormatSelect format={format} formats={formats} onChange={setFormat} />
@@ -172,13 +157,7 @@ function FormatSelect({
 
 /* ────────────────────── Hex single field ────────────────────── */
 
-function HexField({
-  value,
-  onCommit,
-}: {
-  value: string;
-  onCommit: (v: string) => boolean;
-}) {
+function HexField({ value, onCommit }: { value: string; onCommit: (v: string) => boolean }) {
   // Hex has no per-channel breakdown, so it stays a plain text field — same
   // as the original — rather than a NumberField.
   const [draft, setDraft] = React.useState(value);
@@ -220,10 +199,7 @@ function HexField({
           setError(false);
         }
       }}
-      className={cn(
-        "min-w-0 flex-1 bg-transparent px-2 outline-none",
-        error && "text-destructive",
-      )}
+      className={cn("min-w-0 flex-1 bg-transparent px-2 outline-none", error && "text-destructive")}
     />
   );
 }
@@ -273,10 +249,7 @@ function ChannelField({
         className="w-full min-w-0 bg-transparent px-1.5 text-right outline-none tabular-nums"
       />
       {channel.suffix && (
-        <span
-          aria-hidden
-          className="pointer-events-none pr-1.5 text-muted-foreground"
-        >
+        <span aria-hidden className="pointer-events-none pr-1.5 text-muted-foreground">
           {channel.suffix}
         </span>
       )}

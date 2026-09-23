@@ -1,11 +1,8 @@
-import type { DraftingCardPaperShaderState } from "@/features/canvas/model/card-state"
+import type { DraftingCardPaperShaderState } from "@/features/canvas/model/card-state";
 
-const MIN_PAPER_SHADER_LAYOUT_PX = 8
+const MIN_PAPER_SHADER_LAYOUT_PX = 8;
 
-export function hasValidPaperShaderLayout(
-  layoutWidth?: number,
-  layoutHeight?: number,
-): boolean {
+export function hasValidPaperShaderLayout(layoutWidth?: number, layoutHeight?: number): boolean {
   return (
     typeof layoutWidth === "number" &&
     typeof layoutHeight === "number" &&
@@ -13,22 +10,22 @@ export function hasValidPaperShaderLayout(
     Number.isFinite(layoutHeight) &&
     layoutWidth >= MIN_PAPER_SHADER_LAYOUT_PX &&
     layoutHeight >= MIN_PAPER_SHADER_LAYOUT_PX
-  )
+  );
 }
 
 export function readPaperShaderFallbackColor(paperShader: DraftingCardPaperShaderState): string {
-  const colors = paperShader.params.colors
+  const colors = paperShader.params.colors;
   if (Array.isArray(colors)) {
-    const first = colors.find((value) => typeof value === "string")
+    const first = colors.find((value) => typeof value === "string");
     if (typeof first === "string") {
-      return first
+      return first;
     }
   }
 
-  const colorBack = paperShader.params.colorBack
+  const colorBack = paperShader.params.colorBack;
   if (typeof colorBack === "string") {
-    return colorBack
+    return colorBack;
   }
 
-  return "#0f172a"
+  return "#0f172a";
 }

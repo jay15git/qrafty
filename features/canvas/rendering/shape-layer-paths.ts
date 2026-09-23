@@ -1,5 +1,5 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import { QR_BACKGROUND_SHAPES } from "@/features/qr/styles/background-shapes"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import { QR_BACKGROUND_SHAPES } from "@/features/qr/styles/background-shapes";
 
 export function getShapeStrokeViewBoxScale(
   layer: Pick<DraftingCanvasLayer, "height" | "width">,
@@ -7,29 +7,29 @@ export function getShapeStrokeViewBoxScale(
   viewBoxHeight: number,
 ) {
   if (layer.width <= 0 || layer.height <= 0) {
-    return 0
+    return 0;
   }
 
-  return Math.min(viewBoxWidth / layer.width, viewBoxHeight / layer.height)
+  return Math.min(viewBoxWidth / layer.width, viewBoxHeight / layer.height);
 }
 
 export function getShapeSvgPath(shapeId: NonNullable<DraftingCanvasLayer["shapeId"]>) {
   if (shapeId === "rect") {
-    return '<rect x="8" y="8" width="84" height="84" rx="8" ry="8" />'
+    return '<rect x="8" y="8" width="84" height="84" rx="8" ry="8" />';
   }
 
   if (shapeId === "ellipse") {
-    return '<ellipse cx="50" cy="50" rx="42" ry="42" />'
+    return '<ellipse cx="50" cy="50" rx="42" ry="42" />';
   }
 
   if (shapeId === "line") {
-    return '<line x1="8" y1="50" x2="92" y2="50" stroke-linecap="round" />'
+    return '<line x1="8" y1="50" x2="92" y2="50" stroke-linecap="round" />';
   }
 
   if (shapeId === "arrow") {
-    return '<path d="M10 50 H62 M62 50 L44 34 M62 50 L44 66" fill="none" stroke-linecap="round" stroke-linejoin="round" />'
+    return '<path d="M10 50 H62 M62 50 L44 34 M62 50 L44 66" fill="none" stroke-linecap="round" stroke-linejoin="round" />';
   }
 
-  const definition = QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId)
-  return definition ? `<path d="${definition.path}" />` : ""
+  const definition = QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId);
+  return definition ? `<path d="${definition.path}" />` : "";
 }

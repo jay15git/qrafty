@@ -1,16 +1,19 @@
-import { type DomLayerNode } from "@qrafty/qr-internal/codegen"
+import { type DomLayerNode } from "@qrafty/qr-internal/codegen";
 
-import type { DraftingCardState } from "@/features/canvas/model/card-state"
-import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius"
+import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type DraftingCanvasLayer,
   type DraftingTextRun,
-} from "@/features/canvas/model/layers/shared"
-import { layoutDraftingText } from "@/features/canvas/rendering/text-layout"
-import { getShapeStrokeViewBoxScale, getShapeSvgPath } from "@/features/canvas/rendering/shape-layer-paths"
-import { getDraftingPerSideBorderStyle } from "@/features/canvas/rendering/layer-appearance"
-import { QR_BACKGROUND_SHAPES } from "@/features/qr/styles/background-shapes"
+} from "@/features/canvas/model/layers/shared";
+import { layoutDraftingText } from "@/features/canvas/rendering/text-layout";
+import {
+  getShapeStrokeViewBoxScale,
+  getShapeSvgPath,
+} from "@/features/canvas/rendering/shape-layer-paths";
+import { getDraftingPerSideBorderStyle } from "@/features/canvas/rendering/layer-appearance";
+import { QR_BACKGROUND_SHAPES } from "@/features/qr/styles/background-shapes";
 import {
   cssPropertiesToInlineStyle,
   getDraftingCardDomStyle,
@@ -21,29 +24,29 @@ import {
   getTextLayerStyle,
   getTextRunStyle,
   serializeCssProperties,
-} from "@/features/canvas/rendering/layer-dom-styles"
-import { toQraftyQrConfig } from "@/features/qr/adapters/qrafty-config"
-import type { QraftyState } from "@/features/qr/model/state"
-import { getDraftingQrLayerLayout } from "@/features/qr/rendering/svg-extension"
-import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background"
+} from "@/features/canvas/rendering/layer-dom-styles";
+import { toQraftyQrConfig } from "@/features/qr/adapters/qrafty-config";
+import type { QraftyState } from "@/features/qr/model/state";
+import { getDraftingQrLayerLayout } from "@/features/qr/rendering/svg-extension";
+import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background";
 
 import {
   collectIllustrationAssetPaths,
   getCachedIllustrationDisplaySrc,
   preloadIllustrationSvgMarkup,
-} from "@/features/canvas/assets/illustration-recolor"
+} from "@/features/canvas/assets/illustration-recolor";
 
-import { getDraftingLayerBounds } from "./layered-svg-parts"
+import { getDraftingLayerBounds } from "./layered-svg-parts";
 
 export type LayeredDomParts = {
   bounds: {
-    height: number
-    minX: number
-    minY: number
-    width: number
-  }
-  domLayers: DomLayerNode[]
-}
+    height: number;
+    minX: number;
+    minY: number;
+    width: number;
+  };
+  domLayers: DomLayerNode[];
+};
 
 export async function buildLayeredDomParts({
   cardState,
@@ -51,20 +54,20 @@ export async function buildLayeredDomParts({
   qrMarkup,
   state,
 }: {
-  cardState: DraftingCardState
-  layers: DraftingCanvasLayer[]
-  qrMarkup: string
-  state: QraftyState
+  cardState: DraftingCardState;
+  layers: DraftingCanvasLayer[];
+  qrMarkup: string;
+  state: QraftyState;
 }): Promise<LayeredDomParts> {
-  await preloadIllustrationSvgMarkup(collectIllustrationAssetPaths(layers))
-  const bounds = getDraftingLayerBounds(layers)
+  await preloadIllustrationSvgMarkup(collectIllustrationAssetPaths(layers));
+  const bounds = getDraftingLayerBounds(layers);
   const domLayers = layers
     .filter((layer) => layer.isVisible)
     .sort((a, b) => a.zIndex - b.zIndex)
     .map((layer) => getDraftingLayerDomNode(layer, cardState, qrMarkup, state))
-    .filter((node): node is DomLayerNode => Boolean(node))
+    .filter((node): node is DomLayerNode => Boolean(node));
 
-  return { bounds, domLayers }
+  return { bounds, domLayers };
 }
 
 function getDraftingLayerDomNode(
@@ -74,34 +77,34 @@ function getDraftingLayerDomNode(
   state: QraftyState,
 ): DomLayerNode | null {
   if (!layer.isVisible) {
-    return null
+    return null;
   }
 
   if (layer.kind === "group") {
-    return getDraftingGroupLayerDom(layer, cardState, qrMarkup, state)
+    return getDraftingGroupLayerDom(layer, cardState, qrMarkup, state);
   }
 
   if (layer.kind === "card") {
-    return getDraftingCardLayerDom(layer, cardState)
+    return getDraftingCardLayerDom(layer, cardState);
   }
 
   if (layer.kind === "text") {
-    return getDraftingTextLayerDom(layer)
+    return getDraftingTextLayerDom(layer);
   }
 
   if (layer.kind === "image") {
-    return getDraftingImageLayerDom(layer)
+    return getDraftingImageLayerDom(layer);
   }
 
   if (layer.kind === "shape") {
-    return getDraftingShapeLayerDom(layer)
+    return getDraftingShapeLayerDom(layer);
   }
 
   if (layer.kind === "shader") {
-    return null
+    return null;
   }
 
-  return getDraftingQrLayerDom(layer, qrMarkup, state)
+  return getDraftingQrLayerDom(layer, qrMarkup, state);
 }
 
 function getDraftingGroupLayerDom(
@@ -114,7 +117,7 @@ function getDraftingGroupLayerDom(
     .filter((child) => child.isVisible)
     .sort((a, b) => a.zIndex - b.zIndex)
     .map((child) => getDraftingLayerDomNode(child, cardState, qrMarkup, state))
-    .filter((node): node is DomLayerNode => Boolean(node))
+    .filter((node): node is DomLayerNode => Boolean(node));
 
   return {
     kind: "group",
@@ -131,7 +134,7 @@ function getDraftingGroupLayerDom(
       overflow: "visible",
     },
     children,
-  }
+  };
 }
 
 function getDraftingCardLayerDom(
@@ -153,14 +156,16 @@ function getDraftingCardLayerDom(
       ...getDraftingCardDomStyle(cardState, layer),
       overflow: "hidden",
     },
-  }
+  };
 }
 
 function getDraftingTextLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
-  const textStyle = serializeCssProperties(getTextLayerStyle(layer) as Record<string, string | number>)
+  const textStyle = serializeCssProperties(
+    getTextLayerStyle(layer) as Record<string, string | number>,
+  );
   const hasTextRuns =
     Boolean(layer.textRuns?.length) &&
-    layer.textRuns?.map((run) => run.text).join("") === (layer.text ?? "")
+    layer.textRuns?.map((run) => run.text).join("") === (layer.text ?? "");
 
   return {
     kind: "text",
@@ -180,15 +185,15 @@ function getDraftingTextLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
     },
     htmlContent: hasTextRuns ? getDraftingTextRunsHtml(layer) : undefined,
     content: hasTextRuns ? undefined : getDraftingTextContent(layer),
-  }
+  };
 }
 
 function getDraftingImageLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
   const imageValue =
     getCachedIllustrationDisplaySrc(layer.imageValue, layer.illustrationColorStops) ??
     layer.imageValue ??
-    ""
-  const imageStyle = getDraftingImageDomStyle(layer)
+    "";
+  const imageStyle = getDraftingImageDomStyle(layer);
 
   return {
     kind: "image",
@@ -214,38 +219,35 @@ function getDraftingImageLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
         })}" />`
       : undefined,
     content: imageValue ? undefined : "Image",
-  }
+  };
 }
 
 function getDraftingShapeLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
-  const shapeId = layer.shapeId ?? "rounded-square"
-  const definition = QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId)
-  const fill = layer.fillMode === "none" ? "none" : escapeXml(layer.fill ?? "#E8E8E8")
-  const strokeWidth = layer.strokeWidth ?? 0
-  const stroke = layer.stroke ?? "#171717"
-  const strokeOpacity = (layer.strokeOpacity ?? 100) / 100
-  const isStrokeOnlyShape = shapeId === "line" || shapeId === "arrow"
-  const strokeClipId = `${layer.id}-stroke-clip`
-  const viewBoxSize = definition
-    ? definition.viewBox
-    : { height: 100, width: 100 }
+  const shapeId = layer.shapeId ?? "rounded-square";
+  const definition = QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId);
+  const fill = layer.fillMode === "none" ? "none" : escapeXml(layer.fill ?? "#E8E8E8");
+  const strokeWidth = layer.strokeWidth ?? 0;
+  const stroke = layer.stroke ?? "#171717";
+  const strokeOpacity = (layer.strokeOpacity ?? 100) / 100;
+  const isStrokeOnlyShape = shapeId === "line" || shapeId === "arrow";
+  const strokeClipId = `${layer.id}-stroke-clip`;
+  const viewBoxSize = definition ? definition.viewBox : { height: 100, width: 100 };
   const strokeWidthVb =
-    strokeWidth *
-    getShapeStrokeViewBoxScale(layer, viewBoxSize.width, viewBoxSize.height)
-  const useInnerStroke = strokeWidthVb > 0 && !isStrokeOnlyShape
+    strokeWidth * getShapeStrokeViewBoxScale(layer, viewBoxSize.width, viewBoxSize.height);
+  const useInnerStroke = strokeWidthVb > 0 && !isStrokeOnlyShape;
   const strokeAttrs =
     strokeWidthVb > 0
       ? ` stroke="${escapeXml(stroke)}" stroke-width="${useInnerStroke ? strokeWidthVb * 2 : strokeWidthVb}" stroke-opacity="${strokeOpacity}"${useInnerStroke ? ` clip-path="url(#${strokeClipId})"` : ""}`
-      : ""
+      : "";
   const strokeClip = useInnerStroke
     ? `<clipPath id="${strokeClipId}">${definition ? `<path d="${definition.path}"/>` : getShapeSvgPath(shapeId)}</clipPath>`
-    : ""
+    : "";
   const innerMarkup = definition
     ? `<path d="${definition.path}" fill="${fill}"${strokeAttrs}/>`
-    : getShapeSvgPath(shapeId).replace("/>", ` fill="${fill}"${strokeAttrs}/>`)
+    : getShapeSvgPath(shapeId).replace("/>", ` fill="${fill}"${strokeAttrs}/>`);
   const viewBox = definition
     ? `${definition.viewBox.x ?? 0} ${definition.viewBox.y ?? 0} ${definition.viewBox.width} ${definition.viewBox.height}`
-    : "0 0 100 100"
+    : "0 0 100 100";
 
   return {
     kind: "shape",
@@ -263,14 +265,14 @@ function getDraftingShapeLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
       overflow: "visible",
     },
     svgInner: `<svg aria-hidden="true" width="${layer.width}" height="${layer.height}" viewBox="${viewBox}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">${strokeClip}${innerMarkup}</svg>`,
-  }
+  };
 }
 
 function buildDraftingQrForegroundDomNode(
   layer: DraftingCanvasLayer,
   state: QraftyState,
 ): DomLayerNode | null {
-  const layout = getDraftingQrLayerLayout(layer.width, state, layer.height)
+  const layout = getDraftingQrLayerLayout(layer.width, state, layer.height);
 
   return {
     kind: "module",
@@ -300,7 +302,7 @@ function buildDraftingQrForegroundDomNode(
         width: "100%",
       },
     },
-  }
+  };
 }
 
 function getDraftingQrLayerDom(
@@ -308,9 +310,9 @@ function getDraftingQrLayerDom(
   _qrMarkup: string,
   state: QraftyState,
 ): DomLayerNode {
-  const background = buildDraftingQrBackgroundSvgPayload(layer, state)
-  const foreground = buildDraftingQrForegroundDomNode(layer, state)
-  const children: DomLayerNode[] = []
+  const background = buildDraftingQrBackgroundSvgPayload(layer, state);
+  const foreground = buildDraftingQrForegroundDomNode(layer, state);
+  const children: DomLayerNode[] = [];
 
   if (background) {
     children.push({
@@ -333,11 +335,11 @@ function getDraftingQrLayerDom(
         zIndex: 0,
       },
       svgInner: background.markup,
-    })
+    });
   }
 
   if (foreground) {
-    children.push(foreground)
+    children.push(foreground);
   }
 
   return {
@@ -356,30 +358,30 @@ function getDraftingQrLayerDom(
       position: "relative",
     },
     children: children.length > 0 ? children : undefined,
-  }
+  };
 }
 
 function getDraftingTextContent(layer: DraftingCanvasLayer) {
-  return layoutDraftingText(layer).lines.join("\n")
+  return layoutDraftingText(layer).lines.join("\n");
 }
 
 function getDraftingTextRunsHtml(layer: DraftingCanvasLayer) {
   return getDraftingTextLayerRuns(layer)
     .map((run) => {
-      const style = cssPropertiesToInlineStyle(getTextRunStyle(layer, run))
-      return `<span style="${style}">${escapeHtml(run.text)}</span>`
+      const style = cssPropertiesToInlineStyle(getTextRunStyle(layer, run));
+      return `<span style="${style}">${escapeHtml(run.text)}</span>`;
     })
-    .join("")
+    .join("");
 }
 
 function getDraftingTextLayerRuns(layer: DraftingCanvasLayer): DraftingTextRun[] {
-  const text = layer.text ?? ""
+  const text = layer.text ?? "";
 
   if (!layer.textRuns?.length || layer.textRuns.map((run) => run.text).join("") !== text) {
-    return text ? [{ text }] : []
+    return text ? [{ text }] : [];
   }
 
-  return layer.textRuns
+  return layer.textRuns;
 }
 
 function escapeHtml(value: string) {
@@ -387,9 +389,9 @@ function escapeHtml(value: string) {
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
+    .replaceAll('"', "&quot;");
 }
 
 function escapeXml(value: string) {
-  return escapeHtml(value).replaceAll("'", "&apos;")
+  return escapeHtml(value).replaceAll("'", "&apos;");
 }

@@ -26,9 +26,12 @@ function channelsInRange(c: { r?: number; g?: number; b?: number } | undefined):
   const g = c.g ?? 0;
   const b = c.b ?? 0;
   return (
-    r >= -GAMUT_EPSILON && r <= 1 + GAMUT_EPSILON &&
-    g >= -GAMUT_EPSILON && g <= 1 + GAMUT_EPSILON &&
-    b >= -GAMUT_EPSILON && b <= 1 + GAMUT_EPSILON
+    r >= -GAMUT_EPSILON &&
+    r <= 1 + GAMUT_EPSILON &&
+    g >= -GAMUT_EPSILON &&
+    g <= 1 + GAMUT_EPSILON &&
+    b >= -GAMUT_EPSILON &&
+    b <= 1 + GAMUT_EPSILON
   );
 }
 
@@ -147,15 +150,7 @@ function oklchObj(c: OklchColor) {
   return { l: c.l, c: c.c, h: c.h, alpha: c.alpha };
 }
 
-const ALL_FORMATS: ColorFormat[] = [
-  "hex",
-  "rgb",
-  "hsl",
-  "hsb",
-  "oklch",
-  "oklab",
-  "p3",
-];
+const ALL_FORMATS: ColorFormat[] = ["hex", "rgb", "hsl", "hsb", "oklch", "oklab", "p3"];
 
 /**
  * Serialize an OKLCH color to every supported output format at once.
@@ -182,11 +177,7 @@ export function formatAll(color: OklchColor): Record<ColorFormat, string> {
 export function gamutSignedDistance(color: OklchColor, gamut: Gamut): number {
   const lin = oklchToLinearSrgb(color.l, color.c, color.h);
   const target =
-    gamut === "srgb"
-      ? lin
-      : gamut === "p3"
-        ? linSrgbToLinP3(lin)
-        : linSrgbToLinRec2020(lin);
+    gamut === "srgb" ? lin : gamut === "p3" ? linSrgbToLinP3(lin) : linSrgbToLinRec2020(lin);
   const lo = -Math.min(target.r, target.g, target.b);
   const hi = Math.max(target.r, target.g, target.b) - 1;
   return Math.max(lo, hi);
@@ -222,26 +213,26 @@ export function oklchToLinearSrgb(
 }
 
 /* Linear sRGB → linear Display-P3 (CSS Color 4 reference matrix). */
-export function linSrgbToLinP3(c: {
+export function linSrgbToLinP3(c: { r: number; g: number; b: number }): {
   r: number;
   g: number;
   b: number;
-}): { r: number; g: number; b: number } {
+} {
   return {
-    r: 0.8224621 * c.r + 0.1775380 * c.g + 0.0 * c.b,
+    r: 0.8224621 * c.r + 0.177538 * c.g + 0.0 * c.b,
     g: 0.0331942 * c.r + 0.9668058 * c.g + 0.0 * c.b,
     b: 0.0170828 * c.r + 0.0723976 * c.g + 0.9105196 * c.b,
   };
 }
 
 /* Linear sRGB → linear Rec.2020 (CSS Color 4 reference matrix). */
-function linSrgbToLinRec2020(c: {
+function linSrgbToLinRec2020(c: { r: number; g: number; b: number }): {
   r: number;
   g: number;
   b: number;
-}): { r: number; g: number; b: number } {
+} {
   return {
-    r: 0.6274039 * c.r + 0.3292830 * c.g + 0.0433131 * c.b,
+    r: 0.6274039 * c.r + 0.329283 * c.g + 0.0433131 * c.b,
     g: 0.0690973 * c.r + 0.9195404 * c.g + 0.0113623 * c.b,
     b: 0.0163914 * c.r + 0.0880133 * c.g + 0.8955953 * c.b,
   };
@@ -278,15 +269,14 @@ export function findMaxChroma(
   const inGamut = (c: number): boolean => {
     const lin = oklchToLinearSrgb(l, c, hDeg);
     const target =
-      gamut === "srgb"
-        ? lin
-        : gamut === "p3"
-          ? linSrgbToLinP3(lin)
-          : linSrgbToLinRec2020(lin);
+      gamut === "srgb" ? lin : gamut === "p3" ? linSrgbToLinP3(lin) : linSrgbToLinRec2020(lin);
     return (
-      target.r >= -eps && target.r <= 1 + eps &&
-      target.g >= -eps && target.g <= 1 + eps &&
-      target.b >= -eps && target.b <= 1 + eps
+      target.r >= -eps &&
+      target.r <= 1 + eps &&
+      target.g >= -eps &&
+      target.g <= 1 + eps &&
+      target.b >= -eps &&
+      target.b <= 1 + eps
     );
   };
 
@@ -356,10 +346,7 @@ export function gamutFromFormat(f: ColorFormat): Gamut {
   }
 }
 
-export function findCusp(
-  hDeg: number,
-  gamut: Gamut,
-): { l: number; c: number } {
+export function findCusp(hDeg: number, gamut: Gamut): { l: number; c: number } {
   let bestL = 0.5;
   let bestC = 0;
   for (let i = 1; i < 32; i++) {
@@ -503,12 +490,8 @@ function sapcLuminance(r: number, g: number, b: number): number {
 }
 
 function sapcContrast(Ytxt: number, Ybg: number): number {
-  const txt = Ytxt < SA98G.blkThrs
-    ? Ytxt + (SA98G.blkThrs - Ytxt) ** SA98G.blkClmp
-    : Ytxt;
-  const bg = Ybg < SA98G.blkThrs
-    ? Ybg + (SA98G.blkThrs - Ybg) ** SA98G.blkClmp
-    : Ybg;
+  const txt = Ytxt < SA98G.blkThrs ? Ytxt + (SA98G.blkThrs - Ytxt) ** SA98G.blkClmp : Ytxt;
+  const bg = Ybg < SA98G.blkThrs ? Ybg + (SA98G.blkThrs - Ybg) ** SA98G.blkClmp : Ybg;
 
   if (Math.abs(bg - txt) < SA98G.deltaYmin) return 0;
 

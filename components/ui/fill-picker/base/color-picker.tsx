@@ -6,10 +6,7 @@ import { Hue } from "./parts/hue";
 import { Alpha } from "./parts/alpha";
 import { ChannelInput } from "./parts/channel-input";
 
-export {
-  parseColor,
-  formatColor,
-} from "@/components/ui/fill-picker/lib/color";
+export { parseColor, formatColor } from "@/components/ui/fill-picker/lib/color";
 
 const ColorPickerBase = {
   Area,

@@ -119,11 +119,7 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
   ref,
 ) {
   const { color, setColor, format } = useColorPickerContext();
-  const supportsP3 = React.useSyncExternalStore(
-    subscribeP3,
-    getP3Client,
-    getP3Server,
-  );
+  const supportsP3 = React.useSyncExternalStore(subscribeP3, getP3Client, getP3Server);
   const gamut: AreaGamut = gamutProp ?? libGamutFromFormat(format);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -172,9 +168,7 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
   const fixedAxisValue = mode === "oklch-hc" ? color.l : color.h;
   const paths = React.useMemo(() => {
     if (gamut === "none" || !showWarningLines) return [];
-    return warningGamuts(gamut).map((g) =>
-      computeGamutPaths(mode, color, chromaMax, g, gamut),
-    );
+    return warningGamuts(gamut).map((g) => computeGamutPaths(mode, color, chromaMax, g, gamut));
     // `color` omitted — paths depend only on the locked axis (`fixedAxisValue`).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, fixedAxisValue, chromaMax, gamut, showWarningLines]);
@@ -310,11 +304,7 @@ export const Area = React.forwardRef<HTMLDivElement, AreaProps>(function Area(
       )}
       {...rest}
     >
-      <canvas
-        ref={canvasRef}
-        className="block h-full w-full"
-        aria-hidden="true"
-      />
+      <canvas ref={canvasRef} className="block h-full w-full" aria-hidden="true" />
       {paths.length > 0 && (
         <svg
           aria-hidden="true"
@@ -383,10 +373,7 @@ function positionFor(
         return [clamp01(s), clamp01(1 - v)];
       }
       case "oklch-hc":
-        return [
-          clamp01((((c.h % 360) + 360) % 360) / 360),
-          clamp01(1 - c.c / chromaMax),
-        ];
+        return [clamp01((((c.h % 360) + 360) % 360) / 360), clamp01(1 - c.c / chromaMax)];
     }
   }
   switch (mode) {
@@ -405,10 +392,7 @@ function positionFor(
     case "oklch-hc": {
       const maxC = findMaxChroma(c.l, c.h, gamut as Gamut);
       const safeMaxC = maxC > 1e-6 ? maxC : 1e-6;
-      return [
-        clamp01((((c.h % 360) + 360) % 360) / 360),
-        clamp01(1 - c.c / safeMaxC),
-      ];
+      return [clamp01((((c.h % 360) + 360) % 360) / 360), clamp01(1 - c.c / safeMaxC)];
     }
   }
 }
@@ -468,9 +452,7 @@ function ariaValueTextFor(
   switch (mode) {
     case "oklch-cl": {
       const maxC =
-        gamut === "none"
-          ? chromaMax
-          : findMaxChroma(c.l, c.h, gamut as Gamut) || chromaMax;
+        gamut === "none" ? chromaMax : findMaxChroma(c.l, c.h, gamut as Gamut) || chromaMax;
       return `Lightness ${(c.l * 100).toFixed(0)} percent, chroma ${c.c.toFixed(2)} of ${maxC.toFixed(2)}, hue ${c.h.toFixed(0)} degrees`;
     }
     case "hsv-sv": {
@@ -486,9 +468,7 @@ function ariaValueTextFor(
     }
     case "oklch-hc": {
       const maxC =
-        gamut === "none"
-          ? chromaMax
-          : findMaxChroma(c.l, c.h, gamut as Gamut) || chromaMax;
+        gamut === "none" ? chromaMax : findMaxChroma(c.l, c.h, gamut as Gamut) || chromaMax;
       return `Hue ${c.h.toFixed(0)} degrees, chroma ${c.c.toFixed(2)} of ${maxC.toFixed(2)}, lightness ${(c.l * 100).toFixed(0)} percent`;
     }
   }
@@ -519,14 +499,8 @@ function paintGradient(
   // instead of a per-channel-clipped fake. Skipping the displayCtx entirely
   // when render gamut already fits inside the display avoids a useless second
   // LUT. "none" gamut opts out of warping in general, so soft-proof is a no-op.
-  const displayCap: AreaGamut =
-    gamut === "none"
-      ? "none"
-      : canvasIsP3
-        ? "p3"
-        : "srgb";
-  const needsSoftProof =
-    softProof && gamut !== "none" && isWiderThan(gamut, displayCap);
+  const displayCap: AreaGamut = gamut === "none" ? "none" : canvasIsP3 ? "p3" : "srgb";
+  const needsSoftProof = softProof && gamut !== "none" && isWiderThan(gamut, displayCap);
   const displayCtx: WarpContext | null = needsSoftProof
     ? buildWarpContext(mode, base, displayCap, w, h)
     : null;
@@ -725,9 +699,7 @@ function sampleGamutGrid(
   // Precompute hsv-sv's cusp once; without this the 16 384 grid samples would
   // each rebuild it (52 findMaxChroma calls each → ~850 K total).
   const cusp =
-    mode === "hsv-sv" && activeGamut !== "none"
-      ? findCusp(base.h, activeGamut as Gamut)
-      : null;
+    mode === "hsv-sv" && activeGamut !== "none" ? findCusp(base.h, activeGamut as Gamut) : null;
   for (let j = 0; j <= N; j++) {
     const yn = j / N;
     for (let i = 0; i <= N; i++) {
@@ -745,17 +717,26 @@ function sampleGamutGrid(
   return sd;
 }
 
-const SEG_EDGES: Record<number, ReadonlyArray<readonly ["left" | "top" | "right" | "bottom", "left" | "top" | "right" | "bottom"]>> = {
+const SEG_EDGES: Record<
+  number,
+  ReadonlyArray<readonly ["left" | "top" | "right" | "bottom", "left" | "top" | "right" | "bottom"]>
+> = {
   1: [["left", "bottom"]],
   2: [["bottom", "right"]],
   3: [["left", "right"]],
   4: [["top", "right"]],
-  5: [["left", "top"], ["bottom", "right"]],
+  5: [
+    ["left", "top"],
+    ["bottom", "right"],
+  ],
   6: [["top", "bottom"]],
   7: [["left", "top"]],
   8: [["left", "top"]],
   9: [["top", "bottom"]],
-  10: [["left", "bottom"], ["top", "right"]],
+  10: [
+    ["left", "bottom"],
+    ["top", "right"],
+  ],
   11: [["top", "right"]],
   12: [["left", "right"]],
   13: [["bottom", "right"]],
@@ -766,8 +747,12 @@ const SEG_EDGES: Record<number, ReadonlyArray<readonly ["left" | "top" | "right"
 function marchingSquaresSegments(sd: Float32Array, N: number): number[] {
   const stride = N + 1;
   const interp = (
-    ax: number, ay: number, av: number,
-    bx: number, by: number, bv: number,
+    ax: number,
+    ay: number,
+    av: number,
+    bx: number,
+    by: number,
+    bv: number,
   ): [number, number] => {
     const t = av / (av - bv);
     return [ax + (bx - ax) * t, ay + (by - ay) * t];
@@ -784,11 +769,7 @@ function marchingSquaresSegments(sd: Float32Array, N: number): number[] {
       const aTR = sd[j * stride + i + 1];
       const aBL = sd[(j + 1) * stride + i];
       const aBR = sd[(j + 1) * stride + i + 1];
-      const code =
-        (aTL > 0 ? 8 : 0) |
-        (aTR > 0 ? 4 : 0) |
-        (aBR > 0 ? 2 : 0) |
-        (aBL > 0 ? 1 : 0);
+      const code = (aTL > 0 ? 8 : 0) | (aTR > 0 ? 4 : 0) | (aBR > 0 ? 2 : 0) | (aBL > 0 ? 1 : 0);
       if (code === 0 || code === 15) continue;
       const x0 = i / N;
       const y0 = j / N;
@@ -873,8 +854,7 @@ function chainSegmentsToPaths(segs: number[]): string[] {
   const fmt = (v: number) => v.toFixed(5);
   return polylines.map((pts) => {
     const last = pts.length;
-    const closed =
-      last >= 4 && pts[0] === pts[last - 2] && pts[1] === pts[last - 1];
+    const closed = last >= 4 && pts[0] === pts[last - 2] && pts[1] === pts[last - 1];
     let d = `M${fmt(pts[0])},${fmt(pts[1])}`;
     for (let i = 2; i < last; i += 2) {
       d += `L${fmt(pts[i])},${fmt(pts[i + 1])}`;

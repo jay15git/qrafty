@@ -2,13 +2,13 @@ import type {
   CornersSettings,
   LogoSettings,
   PatternSettingsPatch,
-} from "@/features/shell/model/toolbar-types"
-import type { QraftyState } from "@/features/qr/model/state"
+} from "@/features/shell/model/toolbar-types";
+import type { QraftyState } from "@/features/qr/model/state";
 export function applyPatternSettingsPatchToQraftyState(
   state: QraftyState,
   patch: PatternSettingsPatch,
 ): QraftyState {
-  let next = state
+  let next = state;
 
   if (patch.qrDotType) {
     next = {
@@ -17,7 +17,7 @@ export function applyPatternSettingsPatchToQraftyState(
         ...next.dataModulesSettings,
         type: patch.qrDotType,
       },
-    }
+    };
   }
 
   if (patch.moduleRoundSize !== undefined) {
@@ -27,7 +27,7 @@ export function applyPatternSettingsPatchToQraftyState(
         ...next.dataModulesSettings,
         roundSize: patch.moduleRoundSize,
       },
-    }
+    };
   }
 
   if (patch.moduleSize !== undefined) {
@@ -37,7 +37,7 @@ export function applyPatternSettingsPatchToQraftyState(
         ...next.dataModulesSettings,
         moduleSize: patch.moduleSize,
       },
-    }
+    };
   }
 
   if (patch.moduleLineWidth !== undefined) {
@@ -47,21 +47,21 @@ export function applyPatternSettingsPatchToQraftyState(
         ...next.dataModulesSettings,
         lineWidth: patch.moduleLineWidth,
       },
-    }
+    };
   }
 
   if (patch.gradientLinkMode) {
     next = {
       ...next,
       gradientLinkMode: patch.gradientLinkMode,
-    }
+    };
   }
 
   if (patch.dotsColorMode) {
     next = {
       ...next,
       dotsColorMode: patch.dotsColorMode,
-    }
+    };
   }
 
   if (patch.dotsSolidColor) {
@@ -72,7 +72,7 @@ export function applyPatternSettingsPatchToQraftyState(
         ...next.dataModulesSettings,
         color: patch.dotsSolidColor,
       },
-    }
+    };
   }
 
   if (patch.dataModulesGradient) {
@@ -80,7 +80,7 @@ export function applyPatternSettingsPatchToQraftyState(
       ...next,
       dotsColorMode: "gradient",
       dataModulesGradient: { ...patch.dataModulesGradient, enabled: true },
-    }
+    };
   }
 
   if (patch.dotsPalette) {
@@ -88,11 +88,11 @@ export function applyPatternSettingsPatchToQraftyState(
       ...next,
       dotsColorMode: "palette",
       dotsPalette: [...patch.dotsPalette],
-    }
+    };
   }
 
   if (patch.moduleFillImageUrl !== undefined) {
-    const sourceMode = patch.moduleFillImageSourceMode ?? "upload"
+    const sourceMode = patch.moduleFillImageSourceMode ?? "upload";
     next = {
       ...next,
       dotsColorMode: "image",
@@ -102,7 +102,7 @@ export function applyPatternSettingsPatchToQraftyState(
         source: sourceMode === "url" ? "url" : "upload",
         value: patch.moduleFillImageUrl || undefined,
       },
-    }
+    };
   }
 
   if (patch.moduleFillImageSourceMode && patch.moduleFillImageUrl === undefined) {
@@ -113,17 +113,17 @@ export function applyPatternSettingsPatchToQraftyState(
         ...next.moduleFillImage,
         source: patch.moduleFillImageSourceMode === "url" ? "url" : "upload",
       },
-    }
+    };
   }
 
-  return next
+  return next;
 }
 
 export function applyCornersSettingsPatchToQraftyState(
   state: QraftyState,
   patch: Partial<CornersSettings>,
 ): QraftyState {
-  let next = state
+  let next = state;
 
   if (patch.cornerSquareType) {
     next = {
@@ -132,7 +132,7 @@ export function applyCornersSettingsPatchToQraftyState(
         ...next.finderPatternOuterSettings,
         type: patch.cornerSquareType,
       },
-    }
+    };
   }
 
   if (patch.cornerSquareColorMode) {
@@ -142,7 +142,7 @@ export function applyCornersSettingsPatchToQraftyState(
         ...next.finderPatternOuterGradient,
         enabled: patch.cornerSquareColorMode === "gradient",
       },
-    }
+    };
   }
 
   if (patch.cornerSquareSolidColor) {
@@ -156,14 +156,14 @@ export function applyCornersSettingsPatchToQraftyState(
         ...next.finderPatternOuterGradient,
         enabled: false,
       },
-    }
+    };
   }
 
   if (patch.cornerSquareGradient) {
     next = {
       ...next,
       finderPatternOuterGradient: { ...patch.cornerSquareGradient, enabled: true },
-    }
+    };
   }
 
   if (patch.cornerDotType) {
@@ -173,7 +173,7 @@ export function applyCornersSettingsPatchToQraftyState(
         ...next.finderPatternInnerSettings,
         type: patch.cornerDotType,
       },
-    }
+    };
   }
 
   if (patch.cornerDotColorMode) {
@@ -183,7 +183,7 @@ export function applyCornersSettingsPatchToQraftyState(
         ...next.finderPatternInnerGradient,
         enabled: patch.cornerDotColorMode === "gradient",
       },
-    }
+    };
   }
 
   if (patch.cornerDotSolidColor) {
@@ -197,24 +197,24 @@ export function applyCornersSettingsPatchToQraftyState(
         ...next.finderPatternInnerGradient,
         enabled: false,
       },
-    }
+    };
   }
 
   if (patch.cornerDotGradient) {
     next = {
       ...next,
       finderPatternInnerGradient: { ...patch.cornerDotGradient, enabled: true },
-    }
+    };
   }
 
-  return next
+  return next;
 }
 
 export function applyLogoSettingsPatchToQraftyState(
   state: QraftyState,
   patch: Partial<LogoSettings>,
 ): QraftyState {
-  let next = state
+  let next = state;
 
   if (patch.colorMode === "solid" || patch.solidColor) {
     next = {
@@ -227,15 +227,15 @@ export function applyLogoSettingsPatchToQraftyState(
         ...next.logoGradient,
         enabled: false,
       },
-    }
+    };
   }
 
   if (patch.colorMode === "gradient" && patch.gradient) {
     next = {
       ...next,
       logoGradient: { ...patch.gradient, enabled: true },
-    }
+    };
   }
 
-  return next
+  return next;
 }

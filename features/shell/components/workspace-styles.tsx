@@ -219,7 +219,7 @@ const WORKSPACE_SURFACE_STYLES = `
         translate: none !important;
         scale: none !important;
         rotate: none !important;
-      }`
+      }`;
 
 const WORKSPACE_SIDEBAR_STYLES = `
 
@@ -341,7 +341,7 @@ const WORKSPACE_SIDEBAR_STYLES = `
         border-color: transparent !important;
         color: var(--chrome-fg) !important;
         box-shadow: none !important;
-      }`
+      }`;
 
 const WORKSPACE_CANVAS_MORPH_STYLES = `
 
@@ -554,12 +554,12 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
           animation-duration: 0.01ms !important;
         }
       }
-    `
+    `;
 
 export function WorkspaceStyles() {
   return (
     <style>
       {WORKSPACE_SURFACE_STYLES + WORKSPACE_SIDEBAR_STYLES + WORKSPACE_CANVAS_MORPH_STYLES}
     </style>
-  )
+  );
 }

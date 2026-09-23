@@ -1,15 +1,9 @@
-import type { BrandIconEntry } from "@/features/qr/assets/brand-icons"
-import type {
-  QraftyState,
-  QraftyGradient,
-} from "@/features/qr/model/state"
+import type { BrandIconEntry } from "@/features/qr/assets/brand-icons";
+import type { QraftyState, QraftyGradient } from "@/features/qr/model/state";
 
-export type DashboardAssetKey = "backgroundImage" | "logo"
+export type DashboardAssetKey = "backgroundImage" | "logo";
 
-export function applyAssetNoneSelection(
-  state: QraftyState,
-  assetKey: DashboardAssetKey,
-) {
+export function applyAssetNoneSelection(state: QraftyState, assetKey: DashboardAssetKey) {
   return {
     ...state,
     [assetKey]: {
@@ -18,14 +12,10 @@ export function applyAssetNoneSelection(
       source: "none",
       value: undefined,
     },
-  }
+  };
 }
 
-export function applyAssetUrlValue(
-  state: QraftyState,
-  assetKey: DashboardAssetKey,
-  value: string,
-) {
+export function applyAssetUrlValue(state: QraftyState, assetKey: DashboardAssetKey, value: string) {
   return {
     ...state,
     [assetKey]: {
@@ -34,7 +24,7 @@ export function applyAssetUrlValue(
       source: "url",
       value,
     },
-  }
+  };
 }
 
 export function applyAssetUploadValue(
@@ -50,7 +40,7 @@ export function applyAssetUploadValue(
       source: "upload" as const,
       value,
     },
-  }
+  };
 }
 
 export function applyIconstackLogoPresetSelection(
@@ -67,7 +57,7 @@ export function applyIconstackLogoPresetSelection(
       source: "preset" as const,
       value,
     },
-  }
+  };
 }
 
 export function applyLogoPresetSelection(
@@ -84,7 +74,7 @@ export function applyLogoPresetSelection(
       source: "preset" as const,
       value,
     },
-  }
+  };
 }
 
 export function applyLogoPresetColor(
@@ -104,7 +94,7 @@ export function applyLogoPresetColor(
       ...state.logoGradient,
       enabled: false,
     },
-  }
+  };
 }
 
 export function applyLogoPresetGradient(
@@ -123,5 +113,5 @@ export function applyLogoPresetGradient(
       ...gradient,
       enabled: true,
     },
-  }
+  };
 }

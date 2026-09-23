@@ -4,10 +4,7 @@ import * as React from "react";
 import { Popover } from "@base-ui/react/popover";
 import { cn } from "@/lib/utils";
 import { useFillPickerPortalSurface } from "@/components/ui/fill-picker/base/contexts/portal-surface";
-import {
-  colorPickerControlBorderClass,
-  colorPickerPopupSurfaceClass,
-} from "../../lib/surface";
+import { colorPickerControlBorderClass, colorPickerPopupSurfaceClass } from "../../lib/surface";
 
 export interface StopPopoverProps {
   /** Controlled open — the caller owns it; this is never a self-triggering popover. */

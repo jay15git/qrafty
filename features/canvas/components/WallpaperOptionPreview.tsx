@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import Image from "next/image"
+import Image from "next/image";
 
 export function WallpaperOptionPreview({
   alt,
   className,
   previewPath,
 }: {
-  alt: string
-  className?: string
-  previewPath: string
+  alt: string;
+  className?: string;
+  previewPath: string;
 }) {
   return (
     <Image
@@ -21,5 +21,5 @@ export function WallpaperOptionPreview({
       src={previewPath}
       width={64}
     />
-  )
+  );
 }

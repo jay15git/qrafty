@@ -3,9 +3,7 @@
 import { DotMatrixAnimatedSvg } from "@qrafty/qr/dot-matrix";
 import { useMemo } from "react";
 
-import {
-  toDotMatrixQrConfig,
-} from "@/features/qr/motion/dot-matrix-bridge";
+import { toDotMatrixQrConfig } from "@/features/qr/motion/dot-matrix-bridge";
 import type { QraftyState } from "@/features/qr/model/state";
 import { cn } from "@/lib/utils";
 

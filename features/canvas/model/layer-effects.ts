@@ -2,17 +2,17 @@ import {
   createDefaultDraftingShadowLayer,
   shadowLayerToLegacyShadow,
   type DraftingShadowLayerState,
-} from "@/features/canvas/model/effects"
+} from "@/features/canvas/model/effects";
 import {
   createDefaultDraftingFilterEffect,
   DRAFTING_FILTER_RANGES,
   DRAFTING_FILTER_VISIBLE_DEFAULTS,
   type DraftingFilterEffect,
   type DraftingFilterType,
-} from "@/features/canvas/model/filters"
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
+} from "@/features/canvas/model/filters";
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
 
-export type LayerShadowEffectKind = "drop-shadow" | "inner-shadow"
+export type LayerShadowEffectKind = "drop-shadow" | "inner-shadow";
 
 export type LayerFilterEffectKind =
   | "layer-blur"
@@ -22,29 +22,29 @@ export type LayerFilterEffectKind =
   | "hue-rotate"
   | "invert"
   | "saturation"
-  | "sepia"
+  | "sepia";
 
-export type LayerEffectKind = LayerShadowEffectKind | LayerFilterEffectKind
+export type LayerEffectKind = LayerShadowEffectKind | LayerFilterEffectKind;
 
 export type LayerShadowEffectItem = {
-  enabled: boolean
-  id: string
-  kind: LayerShadowEffectKind
-  shadow: DraftingShadowLayerState
-  source: "shadow"
-}
+  enabled: boolean;
+  id: string;
+  kind: LayerShadowEffectKind;
+  shadow: DraftingShadowLayerState;
+  source: "shadow";
+};
 
 export type LayerFilterEffectItem = {
-  enabled: boolean
-  filter: DraftingFilterEffect
-  id: string
-  kind: LayerFilterEffectKind
-  source: "filter"
-}
+  enabled: boolean;
+  filter: DraftingFilterEffect;
+  id: string;
+  kind: LayerFilterEffectKind;
+  source: "filter";
+};
 
-export type LayerEffectItem = LayerShadowEffectItem | LayerFilterEffectItem
+export type LayerEffectItem = LayerShadowEffectItem | LayerFilterEffectItem;
 
-const LAYER_SHADOW_EFFECT_KINDS: LayerShadowEffectKind[] = ["drop-shadow"]
+const LAYER_SHADOW_EFFECT_KINDS: LayerShadowEffectKind[] = ["drop-shadow"];
 
 export const LAYER_FILTER_EFFECT_KINDS: LayerFilterEffectKind[] = [
   "layer-blur",
@@ -55,12 +55,12 @@ export const LAYER_FILTER_EFFECT_KINDS: LayerFilterEffectKind[] = [
   "hue-rotate",
   "invert",
   "sepia",
-]
+];
 
 export const LAYER_EFFECT_KINDS: LayerEffectKind[] = [
   ...LAYER_SHADOW_EFFECT_KINDS,
   ...LAYER_FILTER_EFFECT_KINDS,
-]
+];
 
 const LAYER_EFFECT_KIND_LABELS: Record<LayerEffectKind, string> = {
   "drop-shadow": "Drop shadow",
@@ -73,7 +73,7 @@ const LAYER_EFFECT_KIND_LABELS: Record<LayerEffectKind, string> = {
   invert: "Invert",
   saturation: "Saturation",
   sepia: "Sepia",
-}
+};
 
 const FILTER_TYPE_BY_KIND: Record<LayerFilterEffectKind, DraftingFilterType> = {
   "layer-blur": "blur",
@@ -84,7 +84,7 @@ const FILTER_TYPE_BY_KIND: Record<LayerFilterEffectKind, DraftingFilterType> = {
   invert: "invert",
   saturation: "saturation",
   sepia: "sepia",
-}
+};
 
 const DEFAULT_DROP_SHADOW: Partial<DraftingShadowLayerState> = {
   blur: 4,
@@ -95,18 +95,18 @@ const DEFAULT_DROP_SHADOW: Partial<DraftingShadowLayerState> = {
   opacity: 25,
   spread: 0,
   visible: true,
-}
+};
 
 export function getLayerEffectKindLabel(kind: LayerEffectKind) {
-  return LAYER_EFFECT_KIND_LABELS[kind]
+  return LAYER_EFFECT_KIND_LABELS[kind];
 }
 
 function isLayerShadowEffectKind(kind: LayerEffectKind): kind is LayerShadowEffectKind {
-  return kind === "drop-shadow" || kind === "inner-shadow"
+  return kind === "drop-shadow" || kind === "inner-shadow";
 }
 
 function isLayerShadowEffectItem(item: LayerEffectItem): item is LayerShadowEffectItem {
-  return item.source === "shadow"
+  return item.source === "shadow";
 }
 
 function isPlaceholderShadowLayer(shadow: DraftingShadowLayerState) {
@@ -117,19 +117,16 @@ function isPlaceholderShadowLayer(shadow: DraftingShadowLayerState) {
     shadow.offsetX === 0 &&
     shadow.offsetY === 0 &&
     (shadow.spread ?? 0) === 0
-  )
+  );
 }
 
 export function listLayerEffects(
   layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
 ): LayerEffectItem[] {
-  const shadows = (layer.shadows ?? []).filter((shadow) => !isPlaceholderShadowLayer(shadow))
-  const filters = layer.layerFilters ?? []
+  const shadows = (layer.shadows ?? []).filter((shadow) => !isPlaceholderShadowLayer(shadow));
+  const filters = layer.layerFilters ?? [];
 
-  return [
-    ...shadows.map(shadowToEffectItem),
-    ...filters.map(filterToEffectItem),
-  ]
+  return [...shadows.map(shadowToEffectItem), ...filters.map(filterToEffectItem)];
 }
 
 export function createLayerEffect(kind: LayerEffectKind): LayerEffectItem {
@@ -139,43 +136,41 @@ export function createLayerEffect(kind: LayerEffectKind): LayerEffectItem {
         ...DEFAULT_DROP_SHADOW,
         inset: kind === "inner-shadow",
       }),
-    )
+    );
   }
 
-  const type = FILTER_TYPE_BY_KIND[kind]
+  const type = FILTER_TYPE_BY_KIND[kind];
   return filterToEffectItem(
     createDefaultDraftingFilterEffect(type, {
       amount: DRAFTING_FILTER_VISIBLE_DEFAULTS[type],
       enabled: true,
     }),
-  )
+  );
 }
 
 export function serializeLayerEffects(effects: LayerEffectItem[]): Partial<DraftingCanvasLayer> {
-  const shadows = effects.flatMap((item) => (isLayerShadowEffectItem(item) ? [item.shadow] : []))
-  const layerFilters = effects.flatMap((item) =>
-    item.source === "filter" ? [item.filter] : [],
-  )
+  const shadows = effects.flatMap((item) => (isLayerShadowEffectItem(item) ? [item.shadow] : []));
+  const layerFilters = effects.flatMap((item) => (item.source === "filter" ? [item.filter] : []));
 
   if (shadows.length === 0) {
     const placeholder = createDefaultDraftingShadowLayer({
       blur: 0,
       opacity: 0,
       visible: false,
-    })
+    });
 
     return {
       layerFilters,
       shadow: shadowLayerToLegacyShadow(placeholder),
       shadows: [placeholder],
-    }
+    };
   }
 
   return {
     layerFilters,
     shadow: shadowLayerToLegacyShadow(shadows[0]!),
     shadows,
-  }
+  };
 }
 
 export function patchLayerShadowEffect(
@@ -186,28 +181,26 @@ export function patchLayerShadowEffect(
   return serializeLayerEffects(
     listLayerEffects(layer).map((item) => {
       if (item.id !== effectId || item.source !== "shadow") {
-        return item
+        return item;
       }
 
-      return shadowToEffectItem({ ...item.shadow, ...patch })
+      return shadowToEffectItem({ ...item.shadow, ...patch });
     }),
-  )
+  );
 }
 
 export function getLayerFilterAmount(
   layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
   kind: LayerFilterEffectKind,
 ): number {
-  const type = FILTER_TYPE_BY_KIND[kind]
-  const filter = (layer.layerFilters ?? []).find(
-    (item) => item.type === type && item.enabled,
-  )
+  const type = FILTER_TYPE_BY_KIND[kind];
+  const filter = (layer.layerFilters ?? []).find((item) => item.type === type && item.enabled);
 
   if (!filter) {
-    return DRAFTING_FILTER_RANGES[type].defaultValue
+    return DRAFTING_FILTER_RANGES[type].defaultValue;
   }
 
-  return filter.amount
+  return filter.amount;
 }
 
 export function setLayerFilterAmount(
@@ -215,11 +208,11 @@ export function setLayerFilterAmount(
   kind: LayerFilterEffectKind,
   amount: number,
 ): Partial<DraftingCanvasLayer> {
-  const type = FILTER_TYPE_BY_KIND[kind]
-  const range = DRAFTING_FILTER_RANGES[type]
-  const clamped = Math.min(range.max, Math.max(range.min, amount))
-  const filters = layer.layerFilters ?? []
-  const withoutType = filters.filter((item) => item.type !== type)
+  const type = FILTER_TYPE_BY_KIND[kind];
+  const range = DRAFTING_FILTER_RANGES[type];
+  const clamped = Math.min(range.max, Math.max(range.min, amount));
+  const filters = layer.layerFilters ?? [];
+  const withoutType = filters.filter((item) => item.type !== type);
   const nextFilters =
     clamped === range.defaultValue
       ? withoutType
@@ -230,26 +223,26 @@ export function setLayerFilterAmount(
             amount: clamped,
             enabled: true,
           }),
-        ]
+        ];
 
   return serializeLayerEffects(
     listLayerEffects({
       ...layer,
       layerFilters: nextFilters,
     }),
-  )
+  );
 }
 
 export function getLayerShadowOpacity(
   layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
   kind: LayerShadowEffectKind,
 ): number {
-  const shadow = getLayerShadowByKind(layer, kind)
+  const shadow = getLayerShadowByKind(layer, kind);
   if (!shadow || !shadow.visible) {
-    return 0
+    return 0;
   }
 
-  return shadow.opacity
+  return shadow.opacity;
 }
 
 export function setLayerShadowOpacity(
@@ -257,12 +250,12 @@ export function setLayerShadowOpacity(
   kind: LayerShadowEffectKind,
   opacity: number,
 ): Partial<DraftingCanvasLayer> {
-  const clamped = Math.min(100, Math.max(0, opacity))
-  const activeShadows = (layer.shadows ?? []).filter((shadow) => !isPlaceholderShadowLayer(shadow))
+  const clamped = Math.min(100, Math.max(0, opacity));
+  const activeShadows = (layer.shadows ?? []).filter((shadow) => !isPlaceholderShadowLayer(shadow));
   const otherShadows = activeShadows.filter((shadow) =>
     kind === "inner-shadow" ? !shadow.inset : shadow.inset,
-  )
-  const existing = getLayerShadowByKind(layer, kind)
+  );
+  const existing = getLayerShadowByKind(layer, kind);
 
   if (clamped <= 0) {
     return serializeLayerEffects(
@@ -270,7 +263,7 @@ export function setLayerShadowOpacity(
         ...layer,
         shadows: otherShadows,
       }),
-    )
+    );
   }
 
   const nextShadow = existing
@@ -280,14 +273,14 @@ export function setLayerShadowOpacity(
         inset: kind === "inner-shadow",
         opacity: clamped,
         visible: true,
-      })
+      });
 
   return serializeLayerEffects(
     listLayerEffects({
       ...layer,
       shadows: [...otherShadows, nextShadow],
     }),
-  )
+  );
 }
 
 function getLayerShadowByKind(
@@ -296,9 +289,8 @@ function getLayerShadowByKind(
 ) {
   return (layer.shadows ?? []).find(
     (shadow) =>
-      !isPlaceholderShadowLayer(shadow) &&
-      (kind === "inner-shadow" ? shadow.inset : !shadow.inset),
-  )
+      !isPlaceholderShadowLayer(shadow) && (kind === "inner-shadow" ? shadow.inset : !shadow.inset),
+  );
 }
 
 function shadowToEffectItem(shadow: DraftingShadowLayerState): LayerShadowEffectItem {
@@ -308,7 +300,7 @@ function shadowToEffectItem(shadow: DraftingShadowLayerState): LayerShadowEffect
     kind: shadow.inset ? "inner-shadow" : "drop-shadow",
     shadow,
     source: "shadow",
-  }
+  };
 }
 
 function filterToEffectItem(filter: DraftingFilterEffect): LayerFilterEffectItem {
@@ -318,5 +310,5 @@ function filterToEffectItem(filter: DraftingFilterEffect): LayerFilterEffectItem
     id: filter.id,
     kind: filter.type === "blur" ? "layer-blur" : filter.type,
     source: "filter",
-  }
+  };
 }

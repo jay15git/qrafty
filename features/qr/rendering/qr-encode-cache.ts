@@ -1,5 +1,5 @@
-import type { QraftyState } from "@/features/qr/model/state"
-import { getAssetValue } from "@/features/qr/model/state"
+import type { QraftyState } from "@/features/qr/model/state";
+import { getAssetValue } from "@/features/qr/model/state";
 
 export function getQrEncodeCacheKey(state: QraftyState) {
   return JSON.stringify({
@@ -10,8 +10,7 @@ export function getQrEncodeCacheKey(state: QraftyState) {
     dotType: state.dataModulesSettings.type,
     dotsColorMode: state.dotsColorMode,
     dotsPalette: state.dotsPalette,
-    dataModulesGradient:
-      state.dotsColorMode === "gradient" ? state.dataModulesGradient : null,
+    dataModulesGradient: state.dotsColorMode === "gradient" ? state.dataModulesGradient : null,
     finderInnerColor: state.finderPatternInnerSettings.color,
     finderInnerGradient: state.finderPatternInnerGradient.enabled
       ? state.finderPatternInnerGradient
@@ -42,32 +41,32 @@ export function getQrEncodeCacheKey(state: QraftyState) {
     roundSize: state.dataModulesSettings.roundSize,
     valueSegments: state.valueSegments,
     width: state.width,
-  })
+  });
 }
 
-const encodeMarkupCache = new Map<string, string>()
-const ENCODE_MARKUP_CACHE_LIMIT = 64
+const encodeMarkupCache = new Map<string, string>();
+const ENCODE_MARKUP_CACHE_LIMIT = 64;
 
 export function readCachedQrEncodeMarkup(cacheKey: string) {
-  return encodeMarkupCache.get(cacheKey)
+  return encodeMarkupCache.get(cacheKey);
 }
 
 export function writeCachedQrEncodeMarkup(cacheKey: string, markup: string) {
   if (encodeMarkupCache.has(cacheKey)) {
-    encodeMarkupCache.delete(cacheKey)
+    encodeMarkupCache.delete(cacheKey);
   }
 
-  encodeMarkupCache.set(cacheKey, markup)
+  encodeMarkupCache.set(cacheKey, markup);
 
   while (encodeMarkupCache.size > ENCODE_MARKUP_CACHE_LIMIT) {
-    const oldestKey = encodeMarkupCache.keys().next().value
+    const oldestKey = encodeMarkupCache.keys().next().value;
     if (!oldestKey) {
-      break
+      break;
     }
-    encodeMarkupCache.delete(oldestKey)
+    encodeMarkupCache.delete(oldestKey);
   }
 }
 
 export function clearQrEncodeMarkupCache() {
-  encodeMarkupCache.clear()
+  encodeMarkupCache.clear();
 }

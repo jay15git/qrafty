@@ -1,29 +1,37 @@
-import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react"
+import {
+  forwardRef,
+  type ComponentPropsWithoutRef,
+  type CSSProperties,
+  type KeyboardEvent,
+  type MouseEvent,
+  type PointerEvent,
+  type ReactNode,
+} from "react";
 
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared"
-import { cn } from "@/lib/utils"
+import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import { cn } from "@/lib/utils";
 
 function getPaneLayerA11yLabel(layer: DraftingCanvasLayer) {
-  const name = layer.name?.trim()
+  const name = layer.name?.trim();
   if (name) {
-    return `${name} layer`
+    return `${name} layer`;
   }
 
   switch (layer.kind) {
     case "group":
-      return "Layer group"
+      return "Layer group";
     case "qr":
-      return "QR code layer"
+      return "QR code layer";
     case "text":
-      return "Text layer"
+      return "Text layer";
     case "image":
-      return "Image layer"
+      return "Image layer";
     case "shape":
-      return "Shape layer"
+      return "Shape layer";
     case "shader":
-      return "Shader layer"
+      return "Shader layer";
     default:
-      return "Card layer"
+      return "Card layer";
   }
 }
 
@@ -43,29 +51,29 @@ export function PaneLayerInteractive({
   onDoubleClick,
   ...rest
 }: {
-  layer: DraftingCanvasLayer
-  isSelected: boolean
-  onActivate: (additive: boolean) => void
-  className?: string
-  style?: CSSProperties
-  children: ReactNode
-  onClick?: (event: MouseEvent<HTMLButtonElement>) => void
-  onDoubleClick?: (event: MouseEvent<HTMLButtonElement>) => void
-  onPointerDown?: (event: PointerEvent<HTMLButtonElement>) => void
-  onPointerMove?: (event: PointerEvent<HTMLButtonElement>) => void
-  onPointerUp?: (event: PointerEvent<HTMLButtonElement>) => void
-  onPointerCancel?: (event: PointerEvent<HTMLButtonElement>) => void
-  onContextMenu?: (event: MouseEvent<HTMLButtonElement>) => void
+  layer: DraftingCanvasLayer;
+  isSelected: boolean;
+  onActivate: (additive: boolean) => void;
+  className?: string;
+  style?: CSSProperties;
+  children: ReactNode;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
+  onDoubleClick?: (event: MouseEvent<HTMLButtonElement>) => void;
+  onPointerDown?: (event: PointerEvent<HTMLButtonElement>) => void;
+  onPointerMove?: (event: PointerEvent<HTMLButtonElement>) => void;
+  onPointerUp?: (event: PointerEvent<HTMLButtonElement>) => void;
+  onPointerCancel?: (event: PointerEvent<HTMLButtonElement>) => void;
+  onContextMenu?: (event: MouseEvent<HTMLButtonElement>) => void;
 } & Record<string, unknown>) {
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key !== "Enter" && event.key !== " ") {
-      return
+      return;
     }
 
-    event.preventDefault()
-    event.stopPropagation()
-    onActivate(event.metaKey || event.ctrlKey)
-  }
+    event.preventDefault();
+    event.stopPropagation();
+    onActivate(event.metaKey || event.ctrlKey);
+  };
 
   return (
     <button
@@ -90,56 +98,52 @@ export function PaneLayerInteractive({
     >
       {children}
     </button>
-  )
+  );
 }
 
-type PaneCanvasInteractiveProps = Omit<
-  ComponentPropsWithoutRef<"div">,
-  "ref"
-> & {
-  label: string
-  onActivate: () => void
-}
+type PaneCanvasInteractiveProps = Omit<ComponentPropsWithoutRef<"div">, "ref"> & {
+  label: string;
+  onActivate: () => void;
+};
 
-export const PaneCanvasInteractive = forwardRef<
-  HTMLDivElement,
-  PaneCanvasInteractiveProps
->(function PaneCanvasInteractive(
-  { label, onActivate, className, children, onClick, ...rest },
-  ref,
-) {
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.target !== event.currentTarget) {
-      return
-    }
+export const PaneCanvasInteractive = forwardRef<HTMLDivElement, PaneCanvasInteractiveProps>(
+  function PaneCanvasInteractive(
+    { label, onActivate, className, children, onClick, ...rest },
+    ref,
+  ) {
+    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+      if (event.target !== event.currentTarget) {
+        return;
+      }
 
-    if (event.key !== "Enter" && event.key !== " ") {
-      return
-    }
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
 
-    event.preventDefault()
-    onActivate()
-  }
+      event.preventDefault();
+      onActivate();
+    };
 
-  const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
-    if (event.button === 0) {
-      event.preventDefault()
-    }
-  }
+    const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
+      if (event.button === 0) {
+        event.preventDefault();
+      }
+    };
 
-  return (
-    <div
-      {...rest}
-      ref={ref}
-      role="group"
-      aria-label={label}
-      tabIndex={-1}
-      className={cn("outline-none focus:outline-none focus-visible:outline-none", className)}
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
-      onMouseDown={handleMouseDown}
-    >
-      {children}
-    </div>
-  )
-})
+    return (
+      <div
+        {...rest}
+        ref={ref}
+        role="group"
+        aria-label={label}
+        tabIndex={-1}
+        className={cn("outline-none focus:outline-none focus-visible:outline-none", className)}
+        onClick={onClick}
+        onKeyDown={handleKeyDown}
+        onMouseDown={handleMouseDown}
+      >
+        {children}
+      </div>
+    );
+  },
+);

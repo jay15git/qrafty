@@ -11,15 +11,15 @@
  * Client-only rendering (shader component references) lives in
  * `./paper-shaders` (`"use client"` wrapper around this module).
  */
-import { BACKGROUND_SHADER_CONTROL_CONFIG } from "@/features/canvas/rendering/paper-shaders/backgrounds"
-import { BORDER_SHADER_CONTROL_CONFIG } from "@/features/canvas/rendering/paper-shaders/borders"
-import { IMAGE_FILTER_SHADER_CONTROL_CONFIG } from "@/features/canvas/rendering/paper-shaders/image-filters"
+import { BACKGROUND_SHADER_CONTROL_CONFIG } from "@/features/canvas/rendering/paper-shaders/backgrounds";
+import { BORDER_SHADER_CONTROL_CONFIG } from "@/features/canvas/rendering/paper-shaders/borders";
+import { IMAGE_FILTER_SHADER_CONTROL_CONFIG } from "@/features/canvas/rendering/paper-shaders/image-filters";
 import {
   type PaperShaderControlConfig,
   type PaperShaderDefinition,
   snapshotPresets,
-} from "@/features/canvas/rendering/paper-shaders/shared"
-import { TEXTURE_SHADER_CONTROL_CONFIG } from "@/features/canvas/rendering/paper-shaders/textures"
+} from "@/features/canvas/rendering/paper-shaders/shared";
+import { TEXTURE_SHADER_CONTROL_CONFIG } from "@/features/canvas/rendering/paper-shaders/textures";
 
 export type {
   PaperShaderBooleanControl,
@@ -31,14 +31,14 @@ export type {
   PaperShaderNumberControl,
   PaperShaderParams,
   PaperShaderParamValue,
-} from "@/features/canvas/rendering/paper-shaders/shared"
+} from "@/features/canvas/rendering/paper-shaders/shared";
 
 const PAPER_SHADER_CONTROL_CONFIG: Record<string, PaperShaderControlConfig> = {
   ...BACKGROUND_SHADER_CONTROL_CONFIG,
   ...TEXTURE_SHADER_CONTROL_CONFIG,
   ...BORDER_SHADER_CONTROL_CONFIG,
   ...IMAGE_FILTER_SHADER_CONTROL_CONFIG,
-}
+};
 
 const PAPER_SHADER_DEFINITIONS: PaperShaderDefinition[] = [
   {
@@ -244,11 +244,11 @@ const PAPER_SHADER_DEFINITIONS: PaperShaderDefinition[] = [
     presets: snapshotPresets("gem-smoke"),
     ...PAPER_SHADER_CONTROL_CONFIG["gem-smoke"],
   },
-] as const
+] as const;
 
-export type PaperShaderId = string
+export type PaperShaderId = string;
 
-export const DEFAULT_PAPER_SHADER_ID: PaperShaderId = "mesh-gradient"
+export const DEFAULT_PAPER_SHADER_ID: PaperShaderId = "mesh-gradient";
 const CARD_IMAGE_FILTER_SHADER_IDS = [
   "paper-texture",
   "fluted-glass",
@@ -256,34 +256,32 @@ const CARD_IMAGE_FILTER_SHADER_IDS = [
   "image-dithering",
   "halftone-dots",
   "halftone-cmyk",
-] as const
+] as const;
 
 export function getPaperShaderDefinition(shaderId: PaperShaderId | string) {
   return (
     PAPER_SHADER_DEFINITIONS.find((definition) => definition.id === shaderId) ??
     PAPER_SHADER_DEFINITIONS[0]
-  )
+  );
 }
 
 export function paperShaderHasPlayback(shaderId: PaperShaderId | string) {
-  return getPaperShaderDefinition(shaderId).controls.some(
-    (control) => control.key === "speed",
-  )
+  return getPaperShaderDefinition(shaderId).controls.some((control) => control.key === "speed");
 }
 
 export function getAllPaperShaderDefinitions() {
-  return PAPER_SHADER_DEFINITIONS
+  return PAPER_SHADER_DEFINITIONS;
 }
 
 export function formatPaperShaderParamLabel(value: string) {
   return value
     .replace(/([a-z])([A-Z])/g, "$1 $2")
     .replace(/[-_]/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 export function getCardImageFilterDefinitions() {
-  return CARD_IMAGE_FILTER_SHADER_IDS.map((shaderId) => getPaperShaderDefinition(shaderId))
+  return CARD_IMAGE_FILTER_SHADER_IDS.map((shaderId) => getPaperShaderDefinition(shaderId));
 }
 
 export function getCardGeneratedShaderDefinitions() {
@@ -294,20 +292,14 @@ export function getCardGeneratedShaderDefinitions() {
       !CARD_IMAGE_FILTER_SHADER_IDS.includes(
         definition.id as (typeof CARD_IMAGE_FILTER_SHADER_IDS)[number],
       ),
-  )
+  );
 }
 
-export function getPaperShaderPreset(
-  shaderId: PaperShaderId | string,
-  presetName?: string,
-) {
-  const definition = getPaperShaderDefinition(shaderId)
-  return (
-    definition.presets.find((preset) => preset.name === presetName) ??
-    definition.presets[0]
-  )
+export function getPaperShaderPreset(shaderId: PaperShaderId | string, presetName?: string) {
+  const definition = getPaperShaderDefinition(shaderId);
+  return definition.presets.find((preset) => preset.name === presetName) ?? definition.presets[0];
 }
 
 export function createDefaultPaperShaderParams(shaderId: PaperShaderId | string) {
-  return structuredClone(getPaperShaderPreset(shaderId).params)
+  return structuredClone(getPaperShaderPreset(shaderId).params);
 }

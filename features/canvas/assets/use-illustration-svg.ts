@@ -1,48 +1,46 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 
 import {
   getCachedIllustrationSvgMarkup,
   loadIllustrationSvgMarkup,
-} from "@/features/canvas/assets/illustration-recolor"
+} from "@/features/canvas/assets/illustration-recolor";
 
 export function useIllustrationSvgMarkup(path: string | undefined) {
-  const [markup, setMarkup] = useState(() =>
-    path ? getCachedIllustrationSvgMarkup(path) : null,
-  )
-  const [resolvedPath, setResolvedPath] = useState(path)
+  const [markup, setMarkup] = useState(() => (path ? getCachedIllustrationSvgMarkup(path) : null));
+  const [resolvedPath, setResolvedPath] = useState(path);
 
   // Adjust state during render when the requested path changes so cached
   // markup is applied immediately without a cascading effect render.
   if (path !== resolvedPath) {
-    setResolvedPath(path)
+    setResolvedPath(path);
     if (!path) {
-      setMarkup(null)
+      setMarkup(null);
     } else {
-      const cached = getCachedIllustrationSvgMarkup(path)
+      const cached = getCachedIllustrationSvgMarkup(path);
       if (cached) {
-        setMarkup(cached)
+        setMarkup(cached);
       }
     }
   }
 
   useEffect(() => {
     if (!path || getCachedIllustrationSvgMarkup(path)) {
-      return
+      return;
     }
 
-    let cancelled = false
+    let cancelled = false;
     void loadIllustrationSvgMarkup(path).then((next) => {
       if (!cancelled) {
-        setMarkup(next)
+        setMarkup(next);
       }
-    })
+    });
 
     return () => {
-      cancelled = true
-    }
-  }, [path])
+      cancelled = true;
+    };
+  }, [path]);
 
-  return markup
+  return markup;
 }

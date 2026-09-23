@@ -27,9 +27,11 @@ export const StopColor: React.FC<React.PropsWithChildren> = ({ children }) => {
   );
 };
 
-const Bound: React.FC<
-  React.PropsWithChildren<{ stopId: string; initialColor: OklchColor }>
-> = ({ stopId, initialColor, children }) => {
+const Bound: React.FC<React.PropsWithChildren<{ stopId: string; initialColor: OklchColor }>> = ({
+  stopId,
+  initialColor,
+  children,
+}) => {
   const grad = useGradientPickerContext();
   // Re-read the live color on every render so external moves (e.g. preset
   // applied) flow into the picker. Memoize on the channel values (not on
@@ -44,10 +46,7 @@ const Bound: React.FC<
   const c = found?.color.c ?? initialColor.c;
   const h = found?.color.h ?? initialColor.h;
   const alpha = found?.color.alpha ?? initialColor.alpha;
-  const liveColor = React.useMemo<OklchColor>(
-    () => ({ l, c, h, alpha }),
-    [l, c, h, alpha],
-  );
+  const liveColor = React.useMemo<OklchColor>(() => ({ l, c, h, alpha }), [l, c, h, alpha]);
 
   const setStopColorRef = React.useRef(grad.setStopColor);
   React.useLayoutEffect(() => {
@@ -70,9 +69,5 @@ const Bound: React.FC<
     onFormatChange,
   });
 
-  return (
-    <ColorPickerContext.Provider value={state}>
-      {children}
-    </ColorPickerContext.Provider>
-  );
+  return <ColorPickerContext.Provider value={state}>{children}</ColorPickerContext.Provider>;
 };
