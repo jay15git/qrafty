@@ -190,7 +190,7 @@ export function isDraftingQrLayerId(layerId: string | null | undefined) {
   return /:qr(?::|$)/.test(layerId);
 }
 
-export function isQrCanvasLayer(
+function isQrCanvasLayer(
   layer: Pick<DraftingCanvasLayer, "kind">,
 ): layer is DraftingCanvasLayer & { kind: "qr" } {
   return layer.kind === "qr";
@@ -200,7 +200,7 @@ export function getQrCanvasLayers(layers: DraftingCanvasLayer[]) {
   return layers.filter(isQrCanvasLayer);
 }
 
-export function canDeleteQrLayer(layerId: string, layers: DraftingCanvasLayer[]) {
+function canDeleteQrLayer(layerId: string, layers: DraftingCanvasLayer[]) {
   if (!isDraftingQrLayerId(layerId)) {
     return false;
   }
@@ -347,7 +347,7 @@ export function normalizeDraftingLayerShadow(
   });
 }
 
-export function normalizeDraftingLayerShadows(
+function normalizeDraftingLayerShadows(
   value: unknown,
   primaryShadow: DraftingCardShadowState,
   fallback: DraftingShadowLayerState[],
@@ -370,7 +370,7 @@ export function normalizeDraftingLayerShadows(
   });
 }
 
-export function normalizeDraftingLayerFilters(
+function normalizeDraftingLayerFilters(
   value: unknown,
   fallback: DraftingFilterEffect[],
   legacyBlur: number,
@@ -414,7 +414,7 @@ export function normalizeHexColor(value: unknown, fallback: string) {
   return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
 }
 
-export function normalizeFlipScale(value: unknown, fallback: number) {
+function normalizeFlipScale(value: unknown, fallback: number) {
   const raw = typeof value === "number" && Number.isFinite(value) ? value : fallback;
   return raw < 0 ? -1 : 1;
 }

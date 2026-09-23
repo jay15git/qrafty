@@ -14,7 +14,7 @@ import {
   resolveDotMatrixCoordinates,
 } from "./dot-matrix-model";
 
-export type PaletteColorAssignment = {
+type PaletteColorAssignment = {
   color: string;
   paletteIndex: number;
   shapes: SVGElement[];
@@ -36,7 +36,7 @@ export function getActiveDotsPalette(state: Pick<QraftyState, "dotsPalette">) {
   });
 }
 
-export function createDotPaletteShapeGroups(
+function createDotPaletteShapeGroups(
   shapes: SVGElement[],
   metrics: DotMatrixMetrics | null,
 ): DotPaletteShapeGroup[] {
@@ -62,7 +62,7 @@ export function createDotPaletteShapeGroups(
   return Array.from(groups.values()).sort(compareDotPaletteShapeGroups);
 }
 
-export function compareDotPaletteShapeGroups(
+function compareDotPaletteShapeGroups(
   left: DotPaletteShapeGroup,
   right: DotPaletteShapeGroup,
 ) {
@@ -85,7 +85,7 @@ export function compareDotPaletteShapeGroups(
   return left.fallbackIndex - right.fallbackIndex;
 }
 
-export function getDotPaletteIndex(
+function getDotPaletteIndex(
   group: DotPaletteShapeGroup,
   paletteLength: number,
   seed: number,
@@ -97,7 +97,7 @@ export function getDotPaletteIndex(
   return hashDotPaletteGroup(group, seed) % paletteLength;
 }
 
-export function balanceDotPaletteAssignments(
+function balanceDotPaletteAssignments(
   assignments: DotPaletteGroupAssignment[],
   paletteLength: number,
   seed: number,
@@ -145,7 +145,7 @@ export function balanceDotPaletteAssignments(
   }
 }
 
-export function countDotPaletteAssignments(
+function countDotPaletteAssignments(
   assignments: DotPaletteGroupAssignment[],
   paletteLength: number,
 ) {
@@ -158,7 +158,7 @@ export function countDotPaletteAssignments(
   return counts;
 }
 
-export function hashDotPaletteGroup(group: DotPaletteShapeGroup, seed: number) {
+function hashDotPaletteGroup(group: DotPaletteShapeGroup, seed: number) {
   return hashDotPaletteNumbers([
     seed,
     group.coordinates?.row ?? -1,
@@ -167,7 +167,7 @@ export function hashDotPaletteGroup(group: DotPaletteShapeGroup, seed: number) {
   ]);
 }
 
-export function hashDotPaletteString(value: string) {
+function hashDotPaletteString(value: string) {
   const input = value.length > 0 ? value : "qr-dot-palette";
   let hash = 2166136261;
 
@@ -179,7 +179,7 @@ export function hashDotPaletteString(value: string) {
   return hash >>> 0;
 }
 
-export function hashDotPaletteNumbers(values: number[]) {
+function hashDotPaletteNumbers(values: number[]) {
   let hash = 0x811c9dc5;
 
   for (const value of values) {
@@ -194,7 +194,7 @@ export function hashDotPaletteNumbers(values: number[]) {
   return (hash ^ (hash >>> 15)) >>> 0;
 }
 
-export function buildPaletteColorAssignments(
+function buildPaletteColorAssignments(
   state: Pick<QraftyState, "data" | "dotsPalette">,
   allDotShapes: SVGElement[],
   metrics: DotMatrixMetrics | null,
@@ -228,7 +228,7 @@ export function buildPaletteColorAssignments(
   return activeAssignments.length > 0 ? activeAssignments : null;
 }
 
-export function createPaletteModuleGroup(
+function createPaletteModuleGroup(
   document: Document,
   palette: string[],
   activeAssignments: PaletteColorAssignment[],

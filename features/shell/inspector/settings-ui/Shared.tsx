@@ -13,7 +13,7 @@ import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
 import { fillPreviewHex, isGradientFill } from "@/features/shell/inspector/FillPicker.utils";
 import { cn } from "@/lib/utils";
 
-export const DN_ROW = "dn-settings-row dn-squircle-sm";
+const DN_ROW = "dn-settings-row dn-squircle-sm";
 export const DN_HINT = "dn-type-meta";
 export const DN_LABEL = "dn-type-label";
 export const DN_VALUE = "dn-type-value";

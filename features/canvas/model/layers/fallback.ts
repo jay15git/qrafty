@@ -57,7 +57,7 @@ export function cloneDraftingLayerStateByNodeId(
   );
 }
 
-export const FALLBACK_LAYER_NAMES: Record<DraftingCanvasLayerKind, string> = {
+const FALLBACK_LAYER_NAMES: Record<DraftingCanvasLayerKind, string> = {
   card: "Card",
   qr: "QR code",
   text: "Text",
@@ -67,7 +67,7 @@ export const FALLBACK_LAYER_NAMES: Record<DraftingCanvasLayerKind, string> = {
   group: "Group",
 };
 
-export function fallbackLayerId(nodeId: string, kind: DraftingCanvasLayerKind) {
+function fallbackLayerId(nodeId: string, kind: DraftingCanvasLayerKind) {
   if (kind === "card") {
     return getDraftingCardLayerId(nodeId);
   }
@@ -85,7 +85,7 @@ export function fallbackLayerId(nodeId: string, kind: DraftingCanvasLayerKind) {
 
 /** Kind-specific fields for `createFallbackLayer`. Everything not listed
  * here keeps the shared defaults in the base literal. */
-export function fallbackLayerKindDefaults(
+function fallbackLayerKindDefaults(
   kind: DraftingCanvasLayerKind,
 ): Partial<DraftingCanvasLayer> {
   switch (kind) {

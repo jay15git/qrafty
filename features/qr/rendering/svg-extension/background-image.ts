@@ -43,7 +43,7 @@ export function createBackgroundImageExtension(
   };
 }
 
-export function addRoundedBackgroundImageClip(
+function addRoundedBackgroundImageClip(
   svg: SVGElement,
   backgroundRound: number,
   options: QrSvgExtensionOptions,
@@ -78,7 +78,7 @@ export function addRoundedBackgroundImageClip(
   return clipPathId;
 }
 
-export function getBackgroundImageInsertReference(svg: SVGElement) {
+function getBackgroundImageInsertReference(svg: SVGElement) {
   const children = Array.from(svg.children);
   const backgroundRectIndex = children.findIndex(
     (child) =>

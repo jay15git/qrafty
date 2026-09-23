@@ -7,13 +7,9 @@ import {
   getSmallestPositiveDelta,
 } from "./svg-dom-utils";
 
-export const DOTS_CLIP_PATH_PREFIX = "clip-path-dot-color-";
+const DOTS_CLIP_PATH_PREFIX = "clip-path-dot-color-";
 
-export const QR_MODULE_CLIP_PATH_PREFIXES = [DOTS_CLIP_PATH_PREFIX];
-
-export const DEFAULT_DOT_MATRIX_TILE_SIZE = 5;
-
-export const DOT_MATRIX_QUIET_TRACK_INDEX = -1;
+const QR_MODULE_CLIP_PATH_PREFIXES = [DOTS_CLIP_PATH_PREFIX];
 
 export type DotClipLayer = {
   element: SVGRectElement;
@@ -53,87 +49,11 @@ export type DotPaletteGroupAssignment = {
   paletteIndex: number;
 };
 
-export type DotMatrixModule = DotMatrixCoordinates & {
-  angle: number;
-  colN: number;
-  diagonal: number;
-  distance: number;
-  distanceN: number;
-  hash: number;
-  index: number;
-  matrixSize: number;
-  outline: number;
-  outlineN: number;
-  perimeterIndex: number;
-  regionCol: number;
-  regionIndex: number;
-  regionRow: number;
-  ring: number;
-  rowN: number;
-  shape: SVGElement;
-};
-
-export type DotMatrixAnchor = {
+type DotMatrixAnchor = {
   size?: number;
   x: number;
   y: number;
 };
-
-export type DotMatrixTrack = {
-  durationMs: number;
-  index: number;
-  keyframes: string;
-  modules: DotMatrixModule[];
-  opacity?: number;
-  region: string;
-  speedMultiplier: number;
-  state: "active" | "quiet";
-  styleVars: Record<string, number | string>;
-  timingFunction: string;
-  topology: string;
-  upstreamClass?: string;
-  upstreamLoader: DotMatrixSquareLoaderId;
-};
-
-export type DotMatrixCell = {
-  col: number;
-  index: number;
-  matrixSize: number;
-  row: number;
-};
-
-export type DotMatrixCellAnimation = {
-  active: boolean;
-  durationMs: number;
-  keyframes: string;
-  opacity?: number;
-  styleVars?: Record<string, number | string>;
-  timingFunction: string;
-  topology: string;
-  upstreamClass?: string;
-  upstreamLoader: DotMatrixSquareLoaderId;
-};
-
-export type DotMatrixLoaderSpec = {
-  resolve: (cell: DotMatrixCell) => DotMatrixCellAnimation;
-  topology: string;
-  upstreamLoader: DotMatrixSquareLoaderId;
-};
-
-export type DotMatrixLoaderResolver = (
-  cell: DotMatrixCell,
-  upstreamLoader: DotMatrixSquareLoaderId,
-  topology: string,
-) => DotMatrixCellAnimation;
-
-export type DotMatrixSquareLoaderId =
-  | "dotm-square-1"
-  | "dotm-square-6"
-  | "dotm-square-21"
-  | "dotm-square-23"
-  | "dotm-square-26"
-  | "dotm-square-28"
-  | "dotm-square-30";
 
 export function getQrModuleClipLayers(svg: SVGElement): DotClipLayer[] {
   return Array.from(svg.querySelectorAll("rect"))
@@ -277,7 +197,7 @@ export function resolveDotMatrixCoordinates(shape: SVGElement, metrics: DotMatri
   };
 }
 
-export function getDotMatrixAnchor(shape: SVGElement): DotMatrixAnchor | null {
+function getDotMatrixAnchor(shape: SVGElement): DotMatrixAnchor | null {
   const anchorTag = shape.tagName.toLowerCase();
 
   if (anchorTag === "g" || anchorTag === "svg") {
@@ -320,7 +240,7 @@ export function getDotMatrixAnchor(shape: SVGElement): DotMatrixAnchor | null {
   return null;
 }
 
-export function getPathAnchor(pathDefinition: string | null): DotMatrixAnchor | null {
+function getPathAnchor(pathDefinition: string | null): DotMatrixAnchor | null {
   if (!pathDefinition) {
     return null;
   }

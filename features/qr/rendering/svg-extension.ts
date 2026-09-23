@@ -108,8 +108,10 @@ export function buildQrExtension(state: QraftyState) {
   };
 }
 
+// fallow-ignore-next-line unused-type
 export type { QrSvgExtensionOptions, QrSvgExtensionFunction } from "./svg-extension/types";
 export { annotateCanvasSvgForDotMatrixMotion } from "./svg-extension/dot-matrix-motion";
+// fallow-ignore-next-line unused-type
 export type { DraftingQrLayerLayout } from "./svg-extension/background-shape-layout";
 export {
   getQrRenderedDimensions,

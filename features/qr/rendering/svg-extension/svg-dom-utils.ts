@@ -233,14 +233,6 @@ export function formatSvgNumber(value: number) {
   return Number(value.toFixed(4)).toString();
 }
 
-export function formatSvgOpacity(value: number) {
-  if (!Number.isFinite(value)) {
-    return "0";
-  }
-
-  return formatSvgNumber(Math.max(0, Math.min(1, value)));
-}
-
 export function coerceSvgNumber(value: number, fallback: number) {
   if (!Number.isFinite(value)) {
     return fallback;

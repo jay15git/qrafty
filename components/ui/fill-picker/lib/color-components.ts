@@ -16,11 +16,11 @@ export function coerce(input: string | OklchColor | undefined, fallback: OklchCo
   return input;
 }
 
-export function clamp(x: number, lo: number, hi: number) {
+function clamp(x: number, lo: number, hi: number) {
   return Math.min(Math.max(x, lo), hi);
 }
 
-export function wrapHue(h: number) {
+function wrapHue(h: number) {
   const m = h % 360;
   return m < 0 ? m + 360 : m;
 }

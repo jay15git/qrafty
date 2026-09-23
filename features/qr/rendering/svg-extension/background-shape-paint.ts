@@ -101,7 +101,7 @@ export function createBackgroundShapeExtension(
   };
 }
 
-export function applyBackgroundShapeStroke(
+function applyBackgroundShapeStroke(
   element: Element,
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>,
   svg: SVGElement,
@@ -154,7 +154,7 @@ export function applyBackgroundShapeStroke(
   return group;
 }
 
-export function applySvgRenderBounds(svg: SVGElement, metrics: BackgroundRenderMetrics) {
+function applySvgRenderBounds(svg: SVGElement, metrics: BackgroundRenderMetrics) {
   svg.setAttribute("width", formatSvgNumber(metrics.outerWidth));
   svg.setAttribute("height", formatSvgNumber(metrics.outerHeight));
   svg.setAttribute(
@@ -163,7 +163,7 @@ export function applySvgRenderBounds(svg: SVGElement, metrics: BackgroundRenderM
   );
 }
 
-export function wrapQrContent(
+function wrapQrContent(
   svg: SVGElement,
   translateX: number,
   translateY: number,
@@ -203,7 +203,7 @@ export function wrapQrContent(
   return group;
 }
 
-export function getFirstDrawableSvgChild(svg: SVGElement) {
+function getFirstDrawableSvgChild(svg: SVGElement) {
   return (
     Array.from(svg.children).find(
       (child) => child.tagName.toLowerCase() !== "defs" && !isManagedBackgroundLayer(child),
@@ -211,7 +211,7 @@ export function getFirstDrawableSvgChild(svg: SVGElement) {
   );
 }
 
-export function isManagedBackgroundLayer(node: Element) {
+function isManagedBackgroundLayer(node: Element) {
   const layer = node.getAttribute("data-qr-layer");
 
   return Boolean(layer?.startsWith("background-"));
@@ -289,7 +289,7 @@ export function createBackgroundSurfaceExtension(
   };
 }
 
-export function getQrBackgroundSurfaceRect(svg: SVGElement) {
+function getQrBackgroundSurfaceRect(svg: SVGElement) {
   return Array.from(svg.children).find(
     (child) =>
       child.tagName.toLowerCase() === "rect" &&
@@ -298,7 +298,7 @@ export function getQrBackgroundSurfaceRect(svg: SVGElement) {
   );
 }
 
-export function applyBackgroundSurfaceRect(
+function applyBackgroundSurfaceRect(
   rect: Element,
   region: BackgroundRenderMetrics["backingRegion"],
   radius: number,
@@ -311,7 +311,7 @@ export function applyBackgroundSurfaceRect(
   rect.setAttribute("ry", formatSvgNumber(radius));
 }
 
-export function createBackgroundSurfaceBlurRect({
+function createBackgroundSurfaceBlurRect({
   radius,
   region,
   shapeOptions,
@@ -359,7 +359,7 @@ export function createBackgroundSurfaceBlurRect({
   return blurRect;
 }
 
-export function createBackgroundShapeBlurPath({
+function createBackgroundShapeBlurPath({
   d,
   metrics,
   shapeOptions,
@@ -410,13 +410,13 @@ export function createBackgroundShapeBlurPath({
   return blurPath;
 }
 
-export function hasActiveBackgroundShapeShadow(
+function hasActiveBackgroundShapeShadow(
   _shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>,
 ) {
   return false;
 }
 
-export function applyBackgroundShapeShadowSourceStroke(
+function applyBackgroundShapeShadowSourceStroke(
   node: Element,
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>,
 ) {
@@ -432,7 +432,7 @@ export function applyBackgroundShapeShadowSourceStroke(
   node.setAttribute("stroke-linejoin", "round");
 }
 
-export function createBackgroundShapeShadowFilter({
+function createBackgroundShapeShadowFilter({
   filterId,
   layer,
   metrics,
@@ -486,7 +486,7 @@ export function createBackgroundShapeShadowFilter({
   return filter;
 }
 
-export function getBackgroundShapeFill(
+function getBackgroundShapeFill(
   svg: SVGElement,
   state: Pick<QraftyState, "backgroundGradient" | "backgroundOptions">,
   width: number,

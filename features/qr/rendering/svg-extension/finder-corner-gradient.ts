@@ -181,7 +181,7 @@ export function createFinderPatternGradientExtension(
   };
 }
 
-export function buildFinderCornerGradientElements(
+function buildFinderCornerGradientElements(
   patterns: SVGElement[],
   cornerRegions: FinderCornerRegion[],
   document: Document,
@@ -200,7 +200,7 @@ export function buildFinderCornerGradientElements(
   return [];
 }
 
-export function sortFinderElementsByCornerRegions(
+function sortFinderElementsByCornerRegions(
   patterns: SVGElement[],
   cornerRegions: FinderCornerRegion[],
 ) {
@@ -212,7 +212,7 @@ export function sortFinderElementsByCornerRegions(
   });
 }
 
-export function splitFinderPatternIntoCornerElements(
+function splitFinderPatternIntoCornerElements(
   pattern: SVGElement,
   cornerRegions: FinderCornerRegion[],
   document: Document,
@@ -252,7 +252,7 @@ export function splitFinderPatternIntoCornerElements(
     .filter((element): element is SVGPathElement => element !== null);
 }
 
-export function copyFinderPatternPresentation(source: SVGElement, target: SVGElement) {
+function copyFinderPatternPresentation(source: SVGElement, target: SVGElement) {
   for (const attribute of ["class", "shape-rendering", "style", "transform", "fill-rule"]) {
     const value = source.getAttribute(attribute);
 
@@ -268,7 +268,7 @@ export function copyFinderPatternPresentation(source: SVGElement, target: SVGEle
   }
 }
 
-export function getFinderElementCornerIndex(
+function getFinderElementCornerIndex(
   element: SVGElement,
   cornerRegions: FinderCornerRegion[],
 ) {
@@ -308,7 +308,7 @@ export function getFinderElementCornerIndex(
   return 0;
 }
 
-export function getFinderCornerIndexForPoint(
+function getFinderCornerIndexForPoint(
   point: { x: number; y: number },
   cornerRegions: FinderCornerRegion[],
 ) {
@@ -383,7 +383,7 @@ export function createAlignedCornerGradientExtension(
   };
 }
 
-export function getAlignedCornerGradientRotation(
+function getAlignedCornerGradientRotation(
   gradient: Pick<QraftyGradient, "enabled" | "rotation" | "type">,
 ) {
   if (!gradient.enabled || gradient.type !== "linear") {
@@ -393,7 +393,7 @@ export function getAlignedCornerGradientRotation(
   return gradient.rotation;
 }
 
-export function alignCornerGradientDirection(
+function alignCornerGradientDirection(
   svg: SVGElement,
   {
     gradientIdPrefix,

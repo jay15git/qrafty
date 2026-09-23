@@ -13,6 +13,7 @@
 // ---------------------------------------------------------------------------
 
 export { Select } from "./select/root";
+// fallow-ignore-next-line unused-type
 export type { SelectProps } from "./select/root";
 export { SelectTrigger } from "./select/trigger";
 export { SelectContent } from "./select/content";

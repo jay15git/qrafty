@@ -9,6 +9,7 @@ export const LazyInspectorFillPicker = lazy(() =>
     default: module.InspectorFillPicker,
   })),
 );
+// fallow-ignore-next-line unused-type
 export type { LockedFillPickerMode };
 
 export const LazyLayersPopoverContent = lazy(() =>

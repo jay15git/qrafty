@@ -16,6 +16,7 @@ export {
   ContentTypeBrowser,
   QrColorPartBrowser,
   SettingsLabeledSelect,
+  // fallow-ignore-next-line unused-type
   type QrColorPartOption,
 } from "@/features/shell/inspector/settings-ui/Select";
 export { OptionScrollRow, PresetList } from "@/features/shell/inspector/settings-ui/OptionRows";

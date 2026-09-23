@@ -91,7 +91,7 @@ export function annotateCanvasSvgForDotMatrixMotion(
   return annotatedCount;
 }
 
-export function materializeDataModulePaths(
+function materializeDataModulePaths(
   svg: SVGElement,
   state?: Pick<QraftyState, "dotsColorMode" | "data" | "dotsPalette">,
 ) {
@@ -163,7 +163,7 @@ export function materializeDataModulePaths(
   }
 }
 
-export function expandMergedPaletteFillPaths(svg: SVGElement) {
+function expandMergedPaletteFillPaths(svg: SVGElement) {
   const document = svg.ownerDocument;
 
   if (!document) {
@@ -200,7 +200,7 @@ export function expandMergedPaletteFillPaths(svg: SVGElement) {
   }
 }
 
-export function materializeUnifiedImageMotionModules(
+function materializeUnifiedImageMotionModules(
   svg: SVGElement,
   image: SVGElement,
   clipLayers: DotClipLayer[],
@@ -281,7 +281,7 @@ export function materializeUnifiedImageMotionModules(
   svg.insertBefore(group, image.nextSibling);
 }
 
-export function resolveMotionModuleFill(
+function resolveMotionModuleFill(
   shape: SVGElement,
   fallbackFill: string,
   state?: Pick<QraftyState, "dotsColorMode">,
@@ -297,13 +297,13 @@ export function resolveMotionModuleFill(
   return fallbackFill;
 }
 
-export function suppressGradientPaletteOverlayLayers(svg: SVGElement) {
+function suppressGradientPaletteOverlayLayers(svg: SVGElement) {
   for (const layer of svg.querySelectorAll('[data-qr-layer="dot-gradient-fill"]')) {
     layer.setAttribute("opacity", "0");
   }
 }
 
-export function collectCanvasDotModuleShapes(svg: SVGElement): SVGElement[] {
+function collectCanvasDotModuleShapes(svg: SVGElement): SVGElement[] {
   const fromMaterialized = [
     ...svg.querySelectorAll(
       '[data-qr-layer="dot-matrix-motion-modules"] > path, [data-qr-layer="dot-matrix-motion-modules"] > rect, [data-qr-layer="dot-matrix-motion-modules"] > circle, [data-qr-layer="dot-matrix-motion-modules"] > svg, [data-qr-layer="dot-matrix-motion-modules"] > g[clip-path]',
@@ -331,7 +331,7 @@ export function collectCanvasDotModuleShapes(svg: SVGElement): SVGElement[] {
   );
 }
 
-export function annotateFinderPatternsForDotMatrix(svg: SVGElement) {
+function annotateFinderPatternsForDotMatrix(svg: SVGElement) {
   for (const element of svg.querySelectorAll('[data-testid="finder-patterns-outer"]')) {
     if (isSvgElementLike(element)) {
       appendSvgClass(element, "position-ring");

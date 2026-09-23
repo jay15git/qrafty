@@ -23,13 +23,13 @@ import {
 } from "./dot-matrix-model";
 import { applyDirectPalettePaint, getActiveDotsPalette } from "./dot-matrix-palette";
 
-export type FinderInnerElementRegion = {
+type FinderInnerElementRegion = {
   size: number;
   x: number;
   y: number;
 };
 
-export function getFinderInnerElementRegion(element: SVGElement): FinderInnerElementRegion | null {
+function getFinderInnerElementRegion(element: SVGElement): FinderInnerElementRegion | null {
   const tagName = element.tagName.toLowerCase();
 
   if (tagName === "rect") {
@@ -235,7 +235,7 @@ export function createDotsGradientExtension(
   };
 }
 
-export function getDataModulesPathMetrics(svg: SVGElement) {
+function getDataModulesPathMetrics(svg: SVGElement) {
   const dataModules = svg.querySelector('[data-testid="data-modules"]');
 
   if (!isSvgElementLike(dataModules)) {
@@ -267,7 +267,7 @@ export function getDataModulesPathMetrics(svg: SVGElement) {
   return collectDotMatrixMetrics(shapes) ?? getFallbackDotMatrixMetrics(shapes);
 }
 
-export function getDotShapeCoverRect(metrics: DotMatrixMetrics) {
+function getDotShapeCoverRect(metrics: DotMatrixMetrics) {
   return {
     height: Math.max(metrics.cellSize, metrics.maxY - metrics.originY),
     width: Math.max(metrics.cellSize, metrics.maxX - metrics.originX),

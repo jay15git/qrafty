@@ -7,7 +7,7 @@ export type SvgShapeBounds = {
   y: number;
 };
 
-export const PATH_COMMAND_ARG_COUNTS: Record<string, number> = {
+const PATH_COMMAND_ARG_COUNTS: Record<string, number> = {
   a: 7,
   c: 6,
   h: 1,
@@ -20,7 +20,7 @@ export const PATH_COMMAND_ARG_COUNTS: Record<string, number> = {
   z: 0,
 };
 
-export function getPathDataBounds(pathDefinition: string | null): SvgShapeBounds | null {
+function getPathDataBounds(pathDefinition: string | null): SvgShapeBounds | null {
   const tokens = pathDefinition?.match(/[a-zA-Z]|[-+]?(?:\d*\.?\d+)(?:e[-+]?\d+)?/gi);
 
   if (!tokens) {
@@ -122,7 +122,7 @@ export function getPathDataBounds(pathDefinition: string | null): SvgShapeBounds
   return { height: maxY - minY, width: maxX - minX, x: minX, y: minY };
 }
 
-export function getBoxShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+function getBoxShapeBounds(shape: SVGElement): SvgShapeBounds | null {
   const width = getDotNumericAttribute(shape, "width");
   const height = getDotNumericAttribute(shape, "height");
 
@@ -138,7 +138,7 @@ export function getBoxShapeBounds(shape: SVGElement): SvgShapeBounds | null {
   };
 }
 
-export function getCircleShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+function getCircleShapeBounds(shape: SVGElement): SvgShapeBounds | null {
   const cx = getDotNumericAttribute(shape, "cx");
   const cy = getDotNumericAttribute(shape, "cy");
   const r = getDotNumericAttribute(shape, "r");
@@ -150,7 +150,7 @@ export function getCircleShapeBounds(shape: SVGElement): SvgShapeBounds | null {
   return { height: r * 2, width: r * 2, x: cx - r, y: cy - r };
 }
 
-export function getEllipseShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+function getEllipseShapeBounds(shape: SVGElement): SvgShapeBounds | null {
   const cx = getDotNumericAttribute(shape, "cx");
   const cy = getDotNumericAttribute(shape, "cy");
   const rx = getDotNumericAttribute(shape, "rx");
@@ -163,7 +163,7 @@ export function getEllipseShapeBounds(shape: SVGElement): SvgShapeBounds | null 
   return { height: ry * 2, width: rx * 2, x: cx - rx, y: cy - ry };
 }
 
-export function unionShapeBounds(a: SvgShapeBounds, b: SvgShapeBounds): SvgShapeBounds {
+function unionShapeBounds(a: SvgShapeBounds, b: SvgShapeBounds): SvgShapeBounds {
   const x = Math.min(a.x, b.x);
   const y = Math.min(a.y, b.y);
   return {
@@ -174,7 +174,7 @@ export function unionShapeBounds(a: SvgShapeBounds, b: SvgShapeBounds): SvgShape
   };
 }
 
-export function getGroupShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+function getGroupShapeBounds(shape: SVGElement): SvgShapeBounds | null {
   let combined: SvgShapeBounds | null = null;
 
   for (const child of Array.from(shape.children)) {
@@ -192,7 +192,7 @@ export function getGroupShapeBounds(shape: SVGElement): SvgShapeBounds | null {
   return combined;
 }
 
-export const SVG_SHAPE_BOUNDS_READERS: Record<
+const SVG_SHAPE_BOUNDS_READERS: Record<
   string,
   (shape: SVGElement) => SvgShapeBounds | null
 > = {

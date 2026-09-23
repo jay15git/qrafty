@@ -1,5 +1,3 @@
-export type QrAnimationRenderMode = "export" | "none" | "preview";
-
 export type QrSvgExtensionOptions = {
   height?: number;
   width?: number;

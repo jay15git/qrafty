@@ -77,7 +77,7 @@ export function createUnifiedGradientExtension(
   };
 }
 
-export function collectModuleUnifiedFillTargets(svg: SVGElement) {
+function collectModuleUnifiedFillTargets(svg: SVGElement) {
   const dotClipLayers = getQrModuleClipLayers(svg);
   const dotPathLayers = getQrModulePathLayers(svg);
   const modulePaintTargets: SVGElement[] = [

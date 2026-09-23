@@ -184,7 +184,7 @@ export function getLayerBounds(layers: DraftingCanvasLayer[]) {
   };
 }
 
-export function roundLayerPatch(patch: Partial<DraftingCanvasLayer>) {
+function roundLayerPatch(patch: Partial<DraftingCanvasLayer>) {
   return Object.fromEntries(
     Object.entries(patch).map(([key, value]) => [
       key,
@@ -193,7 +193,7 @@ export function roundLayerPatch(patch: Partial<DraftingCanvasLayer>) {
   ) as Partial<DraftingCanvasLayer>;
 }
 
-export function remapDraftingCanvasLayerForPaste(
+function remapDraftingCanvasLayerForPaste(
   layer: DraftingCanvasLayer,
   options: {
     nodeId: string;

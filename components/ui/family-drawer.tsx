@@ -17,4 +17,5 @@ export { FamilyDrawerPortal } from "./family-drawer/parts";
 export { FamilyDrawerContent } from "./family-drawer/content";
 export { FamilyDrawerAnimatedWrapper, FamilyDrawerAnimatedContent } from "./family-drawer/animated";
 export { useFamilyDrawer } from "./family-drawer/context";
+// fallow-ignore-next-line unused-type
 export type { ViewsRegistry, ViewComponent } from "./family-drawer/context";

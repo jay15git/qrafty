@@ -14,7 +14,7 @@ import { shapeMap } from "@/lib/shape-context";
 // deferred unmount), and the animated checkmark.
 // ---------------------------------------------------------------------------
 
-export interface SelectContextValue {
+interface SelectContextValue {
   value: string;
   open: boolean;
   actionsRef: React.RefObject<{ unmount: () => void } | null>;
@@ -29,7 +29,7 @@ export function useSelectContext() {
 }
 
 // Content context for fluid hover
-export interface SelectContentContextValue {
+interface SelectContentContextValue {
   registerItem: (index: number, element: HTMLElement | null) => void;
   activeIndex: number | null;
   checkedIndex?: number;

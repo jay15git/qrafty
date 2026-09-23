@@ -107,7 +107,7 @@ export function normalizeBackgroundShapeOptions(
   };
 }
 
-export function getLegacyBackgroundShapePaddingPx(sizePercent: number) {
+function getLegacyBackgroundShapePaddingPx(sizePercent: number) {
   if (!Number.isFinite(sizePercent) || sizePercent <= 100) {
     return 0;
   }
@@ -119,20 +119,6 @@ export function hasActiveBackgroundSurfaceOptions(
   options: Partial<QraftyState["backgroundShapeOptions"]> | undefined,
 ) {
   return hasActiveBackgroundShapeOptions(normalizeBackgroundShapeOptions(options));
-}
-
-export function getBackgroundShapeGradientKey(
-  state: Pick<QraftyState, "backgroundGradient" | "backgroundShapeId" | "backgroundShapeOptions">,
-) {
-  if (
-    !state.backgroundGradient.enabled ||
-    (state.backgroundShapeId === "none" &&
-      !hasActiveBackgroundSurfaceOptions(state.backgroundShapeOptions))
-  ) {
-    return null;
-  }
-
-  return state.backgroundGradient;
 }
 
 export type BackgroundRenderMetrics = {
@@ -149,15 +135,15 @@ export type BackgroundRenderMetrics = {
   translateY: number;
 };
 
-export type BackgroundShapeLayout = {
+type BackgroundShapeLayout = {
   contentFrame?: QrBackgroundShapeContentFrame;
   quietZoneFraction?: number;
   viewBox?: { height: number; width: number; x?: number; y?: number };
 };
 
-export const MIN_QR_CONTENT_TARGET = 8;
+const MIN_QR_CONTENT_TARGET = 8;
 
-export function getBackgroundRenderMetrics(
+function getBackgroundRenderMetrics(
   width: number,
   height: number,
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>,
@@ -217,7 +203,7 @@ export function getBackgroundRenderMetrics(
   };
 }
 
-export function getBackgroundRenderLayout(
+function getBackgroundRenderLayout(
   state: Pick<QraftyState, "backgroundShapeId" | "data" | "margin" | "qrOptions" | "valueSegments">,
 ): BackgroundShapeLayout {
   const shape = getQrBackgroundShapeDefinition(state.backgroundShapeId);
@@ -312,20 +298,6 @@ export function getDraftingQrDomPlacementStyle(
   };
 }
 
-/** Stretch outer-metrics QR DOM coords to fill the drafting layer box. */
-export function getDraftingQrDomStretchScale(
-  layer: Pick<{ height: number; width: number }, "height" | "width">,
-  layout: Pick<DraftingQrLayerLayout, "metrics">,
-) {
-  const outerWidth = Math.max(1, layout.metrics.outerWidth);
-  const outerHeight = Math.max(1, layout.metrics.outerHeight);
-
-  return {
-    x: layer.width / outerWidth,
-    y: layer.height / outerHeight,
-  };
-}
-
 export function getDraftingQrBackgroundPathTransform(
   shape: QrBackgroundShapeDefinition,
   backingRegion: BackgroundRenderMetrics["backingRegion"],
@@ -338,7 +310,7 @@ export function getDraftingQrBackgroundPathTransform(
   );
 }
 
-export function scaleQrBackgroundShapeOptions(
+function scaleQrBackgroundShapeOptions(
   options: QraftyState["backgroundShapeOptions"],
   scale: number,
 ): QraftyState["backgroundShapeOptions"] {

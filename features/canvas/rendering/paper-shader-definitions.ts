@@ -22,12 +22,17 @@ import {
 import { TEXTURE_SHADER_CONTROL_CONFIG } from "@/features/canvas/rendering/paper-shaders/textures";
 
 export type {
+  // fallow-ignore-next-line unused-type
   PaperShaderBooleanControl,
+  // fallow-ignore-next-line unused-type
   PaperShaderColorArrayControl,
+  // fallow-ignore-next-line unused-type
   PaperShaderColorControl,
   PaperShaderControlDefinition,
   PaperShaderEnumControl,
+  // fallow-ignore-next-line unused-type
   PaperShaderImageControl,
+  // fallow-ignore-next-line unused-type
   PaperShaderNumberControl,
   PaperShaderParams,
   PaperShaderParamValue,
