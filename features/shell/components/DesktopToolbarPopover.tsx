@@ -13,6 +13,15 @@ import { DesktopTooltip } from "@/features/shell/components/DesktopTooltip"
 import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui"
 import { cn } from "@/lib/utils"
 
+/**
+ * Popover shell for the dynamic-island toolbar buttons.
+ *
+ * The body is a grid row (`minmax(0, 1fr)`) rather than a flex child: a flex
+ * child of an auto-height popover resolves to its content height, so the
+ * ScrollArea viewport grew past the popover's `max-h` and the overflow was
+ * clipped instead of scrolled. A grid row clamped by the popover's `max-h`
+ * gives the viewport a definite height, so it actually scrolls.
+ */
 export function DesktopToolbarPopoverContent({
   children,
   dataSlot = "desktop-toolbar-popover",
@@ -47,7 +56,7 @@ export function DesktopToolbarPopoverContent({
     <ScrollArea
       chevron
       cueSize="comfortable"
-      className={cn(fitContent ? "min-h-0" : "h-full min-h-0 flex-1")}
+      className="min-h-0"
       data-slot="desktop-inspector-scroll-area"
       scrollFade
       viewportClassName={flush ? "p-0" : "px-3 py-3"}
@@ -65,7 +74,8 @@ export function DesktopToolbarPopoverContent({
       side="bottom"
       sideOffset={12}
       className={cn(
-        "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20000] flex w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden p-0 dn-squircle-md",
+        "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20000] grid w-[min(18rem,calc(100vw-1rem))] overflow-hidden p-0 dn-squircle-md",
+        title ? "grid-rows-[auto_minmax(0,1fr)]" : "grid-rows-[minmax(0,1fr)]",
         theme === "dark" && "dark",
         heightClass,
       )}

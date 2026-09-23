@@ -175,7 +175,7 @@ export function DesktopCanvasRatioPresetPopoverContent({
       side="bottom"
       sideOffset={12}
       className={cn(
-        "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20000] flex max-h-[min(28rem,calc(100dvh-8rem))] w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden p-0 dn-squircle-md",
+        "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20000] grid max-h-[min(28rem,calc(100dvh-8rem))] w-[min(18rem,calc(100vw-1rem))] grid-rows-[auto_minmax(0,1fr)] overflow-hidden p-0 dn-squircle-md",
         theme === "dark" && "dark",
       )}
     >
@@ -187,7 +187,7 @@ export function DesktopCanvasRatioPresetPopoverContent({
       </div>
       <ScrollArea
         chevron
-        className="min-h-0 flex-1"
+        className="min-h-0"
         cueSize="comfortable"
         data-slot="desktop-inspector-scroll-area"
         scrollFade
