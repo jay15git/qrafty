@@ -16,7 +16,14 @@ import {
   Type,
   Underline,
 } from "lucide-react"
-import { useEffect, useRef, type ReactNode } from "react"
+import { lazy, Suspense, useEffect, useRef, type ReactNode } from "react"
+import {
+  BorderNone02Icon,
+  MagicWand05Icon,
+  ResourcesAddIcon,
+  ScreenRotationIcon,
+} from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
@@ -25,7 +32,16 @@ import {
 } from "@/features/shell/components/mobile-layer-toolbar-sync"
 import type { DesktopInspectorModel } from "@/features/shell/hooks/useDesktopToolbarInspectorModel"
 import { DesktopnewThemeContext } from "@/features/shell/inspector/theme-context"
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/mobile-drawer-navigation-context"
+import {
+  useMobileDrawerNavigation,
+  useMobileLiveDetail,
+} from "@/features/shell/inspector/mobile-drawer-navigation-context"
+import {
+  DesktopCanvasSizeIcon,
+  DesktopShadowIcon,
+} from "@/features/shell/components/desktop-toolbar-icons"
+import { getDesktopLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities"
+import { LAYER_FILTER_EFFECT_KINDS } from "@/features/canvas/model/layer-effects"
 import { TextFontPickerContent } from "@/features/shell/inspector/text-font-picker-content"
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
@@ -49,24 +65,62 @@ import { resolveDraftingFont } from "@/features/canvas/model/fonts"
 import { isDraftingEmojiLayer } from "@/features/canvas/model/layer-floating-settings"
 import { cn } from "@/lib/utils"
 
+// Heavy detail surfaces (insert menu, layer panels, size presets) load lazily so
+// the toolbar does not pay their import cost before a detail page is pushed.
+const LazyInsertMenuPanelStack = lazy(() =>
+  import("@/features/canvas/components/insert-menu/InsertMenuPanelStack").then(
+    (module) => ({ default: module.InsertMenuPanelStack }),
+  ),
+)
+const LazyDesktopCanvasRatioPresetSections = lazy(() =>
+  import("@/features/shell/components/DesktopCanvasRatioPresetRow").then(
+    (module) => ({ default: module.DesktopCanvasRatioPresetSections }),
+  ),
+)
+const LazyDesktopLayerTransformPanel = lazy(() =>
+  import("@/features/shell/components/DesktopLayerSettingsPanel").then(
+    (module) => ({ default: module.DesktopLayerTransformPanel }),
+  ),
+)
+const LazyDesktopLayerBorderPanel = lazy(() =>
+  import("@/features/shell/components/DesktopLayerSettingsPanel").then(
+    (module) => ({ default: module.DesktopLayerBorderPanel }),
+  ),
+)
+const LazyDesktopLayerEffectsPanel = lazy(() =>
+  import("@/features/shell/components/DesktopLayerSettingsPanel").then(
+    (module) => ({ default: module.DesktopLayerEffectsPanel }),
+  ),
+)
+const LazyDesktopLayerShadowsPanel = lazy(() =>
+  import("@/features/shell/components/DesktopLayerSettingsPanel").then(
+    (module) => ({ default: module.DesktopLayerShadowsPanel }),
+  ),
+)
+
 function MobileLayerToolbarButton({
   active = false,
   ariaLabel,
   children,
   disabled = false,
+  label,
   onClick,
 }: {
   active?: boolean
   ariaLabel: string
   children: ReactNode
   disabled?: boolean
+  label?: string
   onClick?: () => void
 }) {
   return (
     <button
       aria-label={ariaLabel}
       aria-pressed={active}
-      className="dn-mobile-layer-toolbar-button flex size-[var(--settings-icon-hit)] shrink-0 cursor-pointer items-center justify-center rounded-full text-[var(--fg)] transition-colors hover:bg-[var(--settings-control)] aria-[pressed=true]:bg-[var(--fg)] aria-[pressed=true]:text-[var(--bg)] disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg)]/20"
+      className={cn(
+        "dn-mobile-layer-toolbar-button flex h-[var(--settings-icon-hit)] shrink-0 cursor-pointer items-center justify-center gap-1 rounded-full text-[var(--fg)] transition-colors hover:bg-[var(--settings-control)] aria-[pressed=true]:bg-[var(--fg)] aria-[pressed=true]:text-[var(--bg)] disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg)]/20",
+        label ? "w-auto px-2.5" : "w-[var(--settings-icon-hit)]",
+      )}
       data-slot="mobile-layer-toolbar-button"
       data-vaul-no-drag=""
       disabled={disabled}
@@ -74,6 +128,11 @@ function MobileLayerToolbarButton({
       onClick={onClick}
     >
       {children}
+      {label ? (
+        <span className="whitespace-nowrap text-[11px] font-medium leading-none">
+          {label}
+        </span>
+      ) : null}
     </button>
   )
 }
@@ -119,6 +178,223 @@ function MobileLayerToolbarDetailButton({
     </MobileLayerToolbarButton>
   )
 }
+/**
+ * Icon + label button that pushes a drawer detail page whose content portals
+ * live — the panel re-renders with the latest layer props instead of freezing
+ * the ReactNode captured when the detail was opened.
+ */
+function MobileLayerPanelButton({
+  ariaLabel,
+  content,
+  icon,
+  label,
+}: {
+  ariaLabel: string
+  content: ReactNode
+  icon: ReactNode
+  label: string
+}) {
+  const detail = useMobileLiveDetail({
+    content: (
+      <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
+        <Suspense fallback={null}>{content}</Suspense>
+      </div>
+    ),
+    enabled: true,
+    title: label,
+  })
+
+  return (
+    <>
+      <MobileLayerToolbarButton
+        ariaLabel={ariaLabel}
+        label={label}
+        onClick={detail.open}
+      >
+        {icon}
+      </MobileLayerToolbarButton>
+      {detail.portal}
+    </>
+  )
+}
+
+const PANEL_ICON_CLASS = "size-4 shrink-0"
+
+/**
+ * Mirrors the desktop dynamic island's property panels (Add, Layout, Transform,
+ * Border, Effects, Shadows) as drawer detail pages. Same gating rules as
+ * `useDesktopIslandItems`.
+ */
+function MobileLayerPanelTools({
+  model,
+  theme,
+}: {
+  model: DesktopInspectorModel
+  theme: DesktopThemeMode
+}) {
+  const navigation = useMobileDrawerNavigation()
+  const controller = model.controller
+
+  const insertNodeId = controller?.insertNodeId
+  const onInsertLayer = controller?.onInsertLayer
+  const onSelectSizeTemplate = controller?.onSceneTemplateSizeTemplateSelect
+  const selectedTransformLayer = controller?.selectedTransformLayer
+  const onTransformLayerPatch = controller?.onTransformLayerPatch
+  const appearance = controller?.appearanceSnapshot
+  const onAppearancePatch = controller?.onAppearancePatch
+  const selectedElementLayer = controller?.selectedElementLayer
+  const onElementLayerPatch = controller?.onElementLayerPatch
+
+  const propertyLayer = selectedTransformLayer ?? selectedElementLayer ?? null
+  const propertyCapabilities = getDesktopLayerToolbarCapabilities(propertyLayer)
+  const effectsLayer = selectedElementLayer ?? null
+  const effectsPatch = onElementLayerPatch
+
+  const canInsert = Boolean(insertNodeId && onInsertLayer)
+  const hasLayout = Boolean(onSelectSizeTemplate)
+  const hasTransform = Boolean(selectedTransformLayer && onTransformLayerPatch)
+  const hasBorder = Boolean(appearance?.supportsBorder && onAppearancePatch)
+  const hasEffects = Boolean(
+    effectsLayer && effectsPatch && propertyCapabilities.maxEffects > 0,
+  )
+  // Shadows apply to every selected layer except the card (background). Element
+  // layers patch via onElementLayerPatch; QR/group layers via onAppearancePatch.
+  const shadowsLayer = selectedElementLayer ?? selectedTransformLayer ?? null
+  const shadowsPatch = selectedElementLayer ? onElementLayerPatch : onAppearancePatch
+  const hasShadows = Boolean(
+    shadowsLayer && shadowsLayer.kind !== "card" && shadowsPatch,
+  )
+
+  if (
+    !canInsert &&
+    !hasLayout &&
+    !hasTransform &&
+    !hasBorder &&
+    !hasEffects &&
+    !hasShadows
+  ) {
+    return null
+  }
+
+  const hugeIcon = (icon: Parameters<typeof HugeiconsIcon>[0]["icon"]) => (
+    <HugeiconsIcon
+      className={PANEL_ICON_CLASS}
+      color="currentColor"
+      icon={icon}
+      size={16}
+      strokeWidth={2}
+    />
+  )
+
+  return (
+    <>
+      <MobileLayerToolbarSeparator />
+      {canInsert ? (
+        <MobileLayerPanelButton
+          ariaLabel="Add element"
+          content={
+            <LazyInsertMenuPanelStack
+              canAddQrCode={controller?.canAddQrCode}
+              isDesktopPopover
+              nodeId={insertNodeId!}
+              onAddQrCode={controller?.onAddQrCode}
+              onBrowseWallpapers={
+                controller?.onOpenComposeSidebar
+                  ? () => controller.onOpenComposeSidebar?.("wallpapers")
+                  : undefined
+              }
+              onClose={() => navigation?.closeDetail()}
+              onInsertLayer={onInsertLayer!}
+            />
+          }
+          icon={hugeIcon(ResourcesAddIcon)}
+          label="Add"
+        />
+      ) : null}
+      {hasLayout ? (
+        <MobileLayerPanelButton
+          ariaLabel="Canvas size"
+          content={
+            <LazyDesktopCanvasRatioPresetSections
+              selectedPresetId={
+                controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId
+              }
+              onSelectTemplate={onSelectSizeTemplate!}
+            />
+          }
+          icon={<DesktopCanvasSizeIcon className={PANEL_ICON_CLASS} />}
+          label="Layout"
+        />
+      ) : null}
+      {hasTransform ? (
+        <MobileLayerPanelButton
+          ariaLabel="Transform"
+          content={
+            <LazyDesktopLayerTransformPanel
+              layer={selectedTransformLayer!}
+              onPatch={onTransformLayerPatch!}
+              theme={theme}
+              variant="flat"
+            />
+          }
+          icon={hugeIcon(ScreenRotationIcon)}
+          label="Transform"
+        />
+      ) : null}
+      {hasBorder ? (
+        <MobileLayerPanelButton
+          ariaLabel="Border"
+          content={
+            <LazyDesktopLayerBorderPanel
+              appearance={appearance!}
+              onPatch={onAppearancePatch!}
+              theme={theme}
+            />
+          }
+          icon={hugeIcon(BorderNone02Icon)}
+          label="Border"
+        />
+      ) : null}
+      {hasEffects ? (
+        <MobileLayerPanelButton
+          ariaLabel="Effects"
+          content={
+            <LazyDesktopLayerEffectsPanel
+              effectKinds={LAYER_FILTER_EFFECT_KINDS}
+              layer={effectsLayer!}
+              layerOpacity={appearance?.opacity}
+              onLayerOpacityChange={
+                appearance && onAppearancePatch
+                  ? (opacity) => onAppearancePatch({ opacity })
+                  : undefined
+              }
+              onPatch={effectsPatch!}
+              theme={theme}
+              variant="flat"
+            />
+          }
+          icon={hugeIcon(MagicWand05Icon)}
+          label="Effects"
+        />
+      ) : null}
+      {hasShadows ? (
+        <MobileLayerPanelButton
+          ariaLabel="Shadows"
+          content={
+            <LazyDesktopLayerShadowsPanel
+              layer={shadowsLayer!}
+              onPatch={shadowsPatch!}
+              theme={theme}
+            />
+          }
+          icon={<DesktopShadowIcon className={PANEL_ICON_CLASS} />}
+          label="Shadows"
+        />
+      ) : null}
+    </>
+  )
+}
+
 
 function MobileLayerTextTools({
   layer,
@@ -405,6 +681,7 @@ export function MobileLayerToolbar({
             >
               <ArrowDownToLine className="size-4" strokeWidth={2} />
             </MobileLayerToolbarButton>
+            <MobileLayerPanelTools model={model} theme={theme} />
           </div>
         </ScrollArea>
       </div>

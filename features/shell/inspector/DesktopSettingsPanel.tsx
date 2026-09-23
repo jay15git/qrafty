@@ -1,10 +1,30 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type ComponentProps, type ReactNode } from "react"
+import {
+  BadgeAlertIcon,
+  BadgeCheckIcon,
+  BadgeMinusIcon,
+  BadgeXIcon,
+  MoonIcon,
+  SunIcon,
+  Volume2Icon,
+  VolumeXIcon,
+} from "lucide-react"
+import { KeyboardIcon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 
-import { AdaptiveSlider } from "@/features/shell/components/watermelon/adaptive-slider"
+import { Popover, PopoverTrigger } from "@/components/ui/popover"
+import { useOptionalBlurFadeThemeTransition } from "@/components/ui/BlurFadeThemeTransition"
+import { desktopCuelumeAttrs } from "@/features/shell/audio/desktop-cuelume"
 import { DesktopBrandMark } from "@/features/shell/components/DesktopBrandMark"
+import { DesktopKeyboardShortcutsPopoverContent } from "@/features/shell/components/DesktopChromeControls"
+import {
+  DesktopRedoIcon,
+  DesktopUndoIcon,
+} from "@/features/shell/components/desktop-toolbar-icons"
 import type { DesktopInspectorModel } from "@/features/shell/hooks/useDesktopToolbarInspectorModel"
+import { useDesktopCuelume } from "@/features/shell/hooks/use-desktop-cuelume"
 import {
   DESKTOP_SETTINGS_SECTIONS,
   SECTION_TO_TOOL,
@@ -16,6 +36,163 @@ import {
   SettingsPanelShell,
   SettingsScroll,
 } from "@/features/shell/inspector/settings-ui"
+import type { ScanSafetyResult } from "@/features/qr/scan-safety/types"
+import { cn } from "@/lib/utils"
+
+const PANEL_ICON_BUTTON_CLASS =
+  "flex size-8 cursor-pointer items-center justify-center rounded-full text-[var(--fg)] transition-colors hover:bg-[var(--settings-control)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4"
+
+function PanelIconButton({
+  className,
+  cuelume = "button",
+  ...props
+}: ComponentProps<"button"> & {
+  cuelume?: "button" | "none" | "toggle"
+}) {
+  return (
+    <button
+      type="button"
+      className={cn(PANEL_ICON_BUTTON_CLASS, className)}
+      {...desktopCuelumeAttrs(cuelume)}
+      {...props}
+    />
+  )
+}
+
+function scanSafetyBadge(result: ScanSafetyResult | undefined): {
+  icon: ReactNode
+  label: string
+  tone: "safe" | "unsafe" | "pending" | "muted"
+} {
+  const iconClass = "size-4 shrink-0"
+  switch (result?.status) {
+    case "valid":
+      return {
+        icon: <BadgeCheckIcon className={iconClass} />,
+        label: "Scan Safe",
+        tone: "safe",
+      }
+    case "invalid":
+      return {
+        icon: <BadgeXIcon className={iconClass} />,
+        label: "Scan Unsafe",
+        tone: "unsafe",
+      }
+    case "pending":
+      return {
+        icon: <BadgeAlertIcon className={iconClass} />,
+        label: "Checking…",
+        tone: "pending",
+      }
+    case "skipped":
+      return {
+        icon: <BadgeMinusIcon className={iconClass} />,
+        label: "No content",
+        tone: "muted",
+      }
+    default:
+      return {
+        icon: <BadgeAlertIcon className={iconClass} />,
+        label: "Unavailable",
+        tone: "muted",
+      }
+  }
+}
+
+const SCAN_BADGE_TONE_CLASS = {
+  safe: "text-emerald-600 dark:text-emerald-400",
+  unsafe: "text-red-600 dark:text-red-400",
+  pending: "text-amber-600 dark:text-amber-400",
+  muted: "text-[var(--muted)]",
+} as const
+
+function SettingsPanelHeader({ model }: { model: DesktopInspectorModel }) {
+  const controller = model.controller
+  const badge = scanSafetyBadge(controller?.scanSafetyResult)
+
+  return (
+    <div
+      className="flex items-center justify-between px-2 py-1.5"
+      data-slot="desktop-settings-panel-header"
+    >
+      <PanelIconButton
+        aria-label="Undo"
+        data-slot="desktop-undo-trigger"
+        disabled={!controller?.canUndo || !controller.onUndo}
+        onClick={controller?.onUndo}
+      >
+        <DesktopUndoIcon className="size-4" />
+      </PanelIconButton>
+      <div
+        aria-live="polite"
+        className={cn(
+          "flex items-center gap-1.5 text-sm font-medium",
+          SCAN_BADGE_TONE_CLASS[badge.tone],
+        )}
+        data-slot="desktop-scan-safety-badge"
+        data-status={controller?.scanSafetyResult?.status ?? "unavailable"}
+      >
+        {badge.icon}
+        <span>{badge.label}</span>
+      </div>
+      <PanelIconButton
+        aria-label="Redo"
+        data-slot="desktop-redo-trigger"
+        disabled={!controller?.canRedo || !controller.onRedo}
+        onClick={controller?.onRedo}
+      >
+        <DesktopRedoIcon className="size-4" />
+      </PanelIconButton>
+    </div>
+  )
+}
+
+function SettingsPanelFooter({ model }: { model: DesktopInspectorModel }) {
+  const { soundsEnabled, toggleSoundsEnabled } = useDesktopCuelume()
+  const themeTransition = useOptionalBlurFadeThemeTransition()
+  const theme = model.actualDesktopTheme
+
+  return (
+    <div
+      className="flex items-center justify-center gap-2 px-2 py-1.5"
+      data-slot="desktop-settings-panel-footer"
+    >
+      <Popover modal={false}>
+        <PopoverTrigger asChild>
+          <PanelIconButton
+            aria-label="Open keyboard shortcuts"
+            data-slot="desktop-keyboard-shortcuts-trigger"
+          >
+            <HugeiconsIcon icon={KeyboardIcon} size={16} color="currentColor" strokeWidth={2} />
+          </PanelIconButton>
+        </PopoverTrigger>
+        <DesktopKeyboardShortcutsPopoverContent popoverSide="top" />
+      </Popover>
+      <PanelIconButton
+        aria-label={soundsEnabled ? "Mute interaction sounds" : "Enable interaction sounds"}
+        cuelume="toggle"
+        data-slot="desktop-sounds-toggle"
+        onClick={toggleSoundsEnabled}
+      >
+        {soundsEnabled ? <Volume2Icon /> : <VolumeXIcon />}
+      </PanelIconButton>
+      <PanelIconButton
+        aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+        cuelume="toggle"
+        data-slot="desktop-theme-toggle"
+        onClick={() => {
+          if (themeTransition) {
+            themeTransition.triggerTransition()
+          } else {
+            model.onDesktopThemeChange(theme === "light" ? "dark" : "light")
+          }
+        }}
+      >
+        {theme === "light" ? <MoonIcon /> : <SunIcon />}
+      </PanelIconButton>
+    </div>
+  )
+}
 
 type DesktopSettingsPanelProps = {
   fillHeight?: boolean
@@ -33,7 +210,6 @@ export function DesktopSettingsPanel({
   const [internalOpenSection, setInternalOpenSection] = useState<string | undefined>(undefined)
   const openSection = openSectionProp ?? internalOpenSection
   const setOpenSection = onOpenSectionChange ?? setInternalOpenSection
-  const scanSafetyScore = model.controller?.scanSafetyResult?.score ?? null
 
   function handleSectionChange(section: string | undefined) {
     setOpenSection(section)
@@ -56,18 +232,8 @@ export function DesktopSettingsPanel({
           </div>
         </div>
         <SettingsAccordion
-          footer={
-            <div className="px-4 pb-3 pt-2">
-              <AdaptiveSlider
-                max={100}
-                min={0}
-                readOnly
-                step={1}
-                indeterminate={scanSafetyScore === null}
-                value={scanSafetyScore ?? 50}
-              />
-            </div>
-          }
+          header={<SettingsPanelHeader model={model} />}
+          footer={<SettingsPanelFooter model={model} />}
           openSection={openSection}
           renderSection={(section) => (
             <SettingsSectionBody id={section} model={model} />

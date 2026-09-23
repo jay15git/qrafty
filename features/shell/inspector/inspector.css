@@ -1070,6 +1070,7 @@
   padding-inline: 0.75rem;
 }
 
+
 /* Unified card: the accordion stack renders as ONE surface; items are
  * transparent rows separated by inset hairlines. Height is fixed to the
  * settings-panel token — it does not track the canvas card, so the card
@@ -1080,7 +1081,7 @@
   align-items: stretch;
   width: min(100%, 19.2rem);
   margin-inline: auto;
-  padding: 0.375rem;
+  padding: 0.375rem 0.375rem 0;
   border-radius: 2rem;
   /* Matches the canvas card's max height: viewport minus the top chrome inset
    * and the artboard's vertical fit insets (2 × 24px). */
@@ -1093,7 +1094,7 @@
   scrollbar-gutter: stable;
 }
 
-.dn-settings-accordion > div > div {
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] {
   position: relative;
   width: 100%;
   border-radius: 0 !important;
@@ -1101,7 +1102,9 @@
 }
 
 /* Short, quiet separators — inset from both edges instead of full-bleed. */
-.dn-settings-accordion > div > div + div::before {
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] + [data-slot="motion-accordion-item"]::before,
+.dn-settings-accordion > div > [data-slot="motion-accordion-header"] + [data-slot="motion-accordion-item"]::before,
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] + [data-slot="motion-accordion-footer"]::before {
   content: "";
   position: absolute;
   top: 0;
@@ -1255,7 +1258,7 @@
   padding-inline: 0;
 }
 
-.dn-settings-accordion > div > div > button {
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button {
   position: relative;
   gap: 0.625rem;
   padding: 1rem 1.125rem;
@@ -1263,7 +1266,7 @@
 
 /* Extend each trigger's hit zone into the gap above its card so the
  * pointer + click area stays continuous between sections. */
-.dn-settings-accordion > div > div > button::before {
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button::before {
   content: "";
   position: absolute;
   top: calc(-1 * var(--settings-accordion-gap, 8px));
@@ -1272,7 +1275,7 @@
   height: var(--settings-accordion-gap, 8px);
 }
 
-.dn-settings-accordion > div > div > button > span:first-child {
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:first-child {
   display: inline-flex;
   align-items: center;
   gap: 0.625rem;
@@ -1296,24 +1299,24 @@
   height: 1.125rem;
 }
 
-.dn-settings-accordion > div > div > button > span:last-child {
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:last-child {
   width: 2rem;
   height: 2rem;
   color: var(--muted);
   opacity: 0.42;
 }
 
-.dn-settings-accordion > div > div > button > span:last-child svg {
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:last-child svg {
   width: 18px;
   height: 18px;
 }
 
-.dn-settings-accordion > div > div > button:hover > span:last-child,
-.dn-settings-accordion > div > div > button:focus-visible > span:last-child {
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button:hover > span:last-child,
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button:focus-visible > span:last-child {
   opacity: 0.62;
 }
 
-.dn-settings-accordion > div > div > [role="region"] > div {
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > [role="region"] > div {
   padding-inline: 0.875rem;
   padding-bottom: 0.875rem;
 }
@@ -1414,25 +1417,26 @@
   background: var(--surface, #111111);
 }
 
-.dn-settings-accordion > div > div {
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] {
   background: transparent;
   box-shadow: none;
 }
 
-.dn-settings-accordion > div > div {
+.dn-settings-accordion > div > [data-slot="motion-accordion-item"] {
   transition:
     filter var(--motion-ui) var(--ease-out),
     opacity var(--motion-ui) var(--ease-out);
 }
 
-.dn-settings-accordion[data-popover-open="true"] > div > div {
+/* Pinned header/footer stay sharp — only the section rows dim. */
+.dn-settings-accordion[data-popover-open="true"] > div > [data-slot="motion-accordion-item"] {
   filter: blur(1.25px);
   opacity: 0.38;
 }
 
 .dn-settings-accordion:has([data-focused="true"]):not([data-popover-open="true"])
   > div
-  > div:not([data-focused="true"]) {
+  > [data-slot="motion-accordion-item"]:not([data-focused="true"]) {
   filter: blur(1.25px);
   opacity: 0.38;
 }

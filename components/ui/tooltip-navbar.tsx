@@ -124,10 +124,10 @@ export const TooltipNavbar = ({
         {...cuelumeAttrs}
         className={cn(
           isIconLabel
-            ? "flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-full px-2.5 text-xs font-medium whitespace-nowrap transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-3.5"
+            ? "flex h-9 cursor-pointer items-center justify-center gap-2 rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4"
             : isText
-            ? "flex h-8 cursor-pointer items-center justify-center rounded-full px-2.5 text-xs font-medium whitespace-nowrap transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
-            : "flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-3.5",
+            ? "flex h-9 cursor-pointer items-center justify-center rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
+            : "flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4",
           item.pressed &&
             "bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] text-[var(--glass-button-hover-fg,currentColor)]",
         )}
@@ -152,16 +152,17 @@ export const TooltipNavbar = ({
   const calculatePosition = (index: number) => {
     const activeLabel = measureRefs.current[index];
     const activeIcon = buttonRefs.current[index];
-    const measureStrip = measureRefs.current[0]?.parentElement;
 
-    if (!activeLabel || !activeIcon || !measureStrip) return null;
+    if (!activeLabel || !activeIcon) return null;
 
     const labelLeft = activeLabel.offsetLeft;
     const labelWidth = activeLabel.offsetWidth;
 
     const iconRect = activeIcon.getBoundingClientRect();
-    const labelRect = activeLabel.getBoundingClientRect();
-    const translateX = iconRect.left + iconRect.width / 2 - (labelRect.left + labelRect.width / 2);
+    const stripRect = activeIcon.offsetParent?.getBoundingClientRect();
+    if (!stripRect) return null;
+    const translateX =
+      iconRect.left + iconRect.width / 2 - (stripRect.left + labelLeft + labelWidth / 2);
 
     const totalWidth = measureRefs.current.reduce(
       (acc, el) => acc + (el?.offsetWidth || 0),
@@ -190,7 +191,7 @@ export const TooltipNavbar = ({
 
   const handleMouseEnter = (index: number) => {
     if (openPopoverIndex !== null) return;
-    if (items[index]?.variant !== "icon") {
+    if (items[index]?.variant === "text" || items[index]?.variant === "icon-label") {
       clearTooltip();
       return;
     }
@@ -234,7 +235,7 @@ export const TooltipNavbar = ({
                 transition={{ duration: 0.2 }}
               >
                 <m.div
-                  className="flex bg-black dark:bg-neutral-800"
+                  className="flex bg-black dark:bg-[#1d1d1d]"
                   animate={{
                     clipPath: coords.clipPath,
                     x: coords.translateX,

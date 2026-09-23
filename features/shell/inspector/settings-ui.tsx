@@ -263,12 +263,14 @@ export function SettingsAccordion({
   onOpenSectionChange,
   sections,
   renderSection,
+  header,
   footer,
 }: {
   openSection: string | undefined
   onOpenSectionChange: (value: string | undefined) => void
   sections: readonly string[]
   renderSection: (section: string) => ReactNode
+  header?: ReactNode
   footer?: ReactNode
 }) {
   const sectionIndex = openSection ? sections.indexOf(openSection) : -1
@@ -290,6 +292,7 @@ export function SettingsAccordion({
       className="dn-settings-accordion w-full min-w-0 max-w-full"
       gap={0}
       items={items}
+      header={header}
       footer={footer}
       openIndex={openIndex}
       onOpenIndexChange={(index) => {

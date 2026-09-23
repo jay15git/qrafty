@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react"
 
 import "@/features/shell/components/desktop-chrome.css"
-import { TooltipNavbar } from "@/components/ui/tooltip-navbar"
 import {
   DesktopDynamicIslandChrome,
   useDesktopToolbarItems,
@@ -59,13 +58,11 @@ export function FloatingToolbar({
     actualDesktopTheme,
   } = model
   const isMobileWorkspace = useMediaQuery(DESKTOP_WORKSPACE_MOBILE_QUERY)
-  const { islandItems, systemItems } = useDesktopToolbarItems({
+  const islandItems = useDesktopToolbarItems({
     appearance: controller?.appearanceSnapshot,
     appearanceLayer: controller?.selectedAppearanceLayer,
     canAddQrCode: controller?.canAddQrCode,
     canDeleteLayer: controller?.canDeleteLayer,
-    canRedo: controller?.canRedo,
-    canUndo: controller?.canUndo,
     insertNodeId: controller?.insertNodeId,
     layersSettings: model.actualLayersSettings,
     onAddQrCode: controller?.onAddQrCode,
@@ -78,11 +75,8 @@ export function FloatingToolbar({
     onLayerDelete: controller?.onLayerDelete,
     onLayersReorder: model.onLayersReorder,
     onLayersSettingsChange: model.onLayersSettingsChange,
-    onRedo: controller?.onRedo,
     onSelectSizeTemplate: controller?.onSceneTemplateSizeTemplateSelect,
-    onThemeChange: model.onDesktopThemeChange,
     onTransformLayerPatch: controller?.onTransformLayerPatch,
-    onUndo: controller?.onUndo,
     selectedElementLayer: controller?.selectedElementLayer,
     selectedTransformLayer: controller?.selectedTransformLayer,
     sizePresetId: controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId,
@@ -159,12 +153,7 @@ export function FloatingToolbar({
                 data-slot="desktop-utility-toolbar"
                 className="pointer-events-auto gap-0 p-0"
               >
-                <TooltipNavbar
-                  items={systemItems}
-                  trailing={
-                    <DesktopExportDownloadPopover model={model} theme={actualDesktopTheme} />
-                  }
-                />
+                <DesktopExportDownloadPopover model={model} theme={actualDesktopTheme} />
               </DesktopUtilityToolbar>
             </div>
             <DesktopSettingsToolbarShell

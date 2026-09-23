@@ -5,7 +5,6 @@ import { useState } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { DesktopDownloadButton } from "@/features/shell/components/DesktopDownloadButton"
-import { DesktopTooltip } from "@/features/shell/components/DesktopTooltip"
 import type {
   DesktopInspectorModel,
   DesktopThemeMode,
@@ -26,11 +25,14 @@ export function DesktopExportDownloadPopover({
 
   return (
     <Popover modal={false} open={open} onOpenChange={setOpen}>
-      <DesktopTooltip content="Export" side="left" sideOffset={10}>
+      <div
+        data-slot="tooltip-navbar-shell"
+        className="inline-flex items-center rounded-full bg-[var(--glass-bg)] p-1 backdrop-blur-xl"
+      >
         <PopoverTrigger asChild>
           <DesktopDownloadButton data-state={open ? "open" : "closed"} />
         </PopoverTrigger>
-      </DesktopTooltip>
+      </div>
       <PopoverContent
         align="end"
         data-slot="desktop-export-popover"

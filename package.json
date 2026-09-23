@@ -30,7 +30,6 @@
     "@paper-design/shaders": "0.0.76",
     "@paper-design/shaders-react": "0.0.76",
     "@qrafty/qr": "workspace:*",
-    "border-beam": "^1.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cuelume": "^0.2.2",

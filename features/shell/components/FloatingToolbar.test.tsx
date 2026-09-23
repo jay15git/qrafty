@@ -175,7 +175,7 @@ describe("FloatingToolbar", () => {
     expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-border-trigger"]')).toBeNull()
-    expect(surface.container.querySelector('[data-slot="desktop-layer-shadows-trigger"]')).toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layer-shadows-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-effects-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-appearance-island"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')).not.toBeNull()
@@ -208,16 +208,18 @@ describe("FloatingToolbar", () => {
   it("toggles the desktop prototype between dark and light mode", async () => {
     const surface = await renderPrototype()
     const prototype = surface.container.querySelector('[data-slot="desktop-floating-toolbar-root"]')
-    const utilityToolbar = surface.container.querySelector('[data-slot="desktop-utility-toolbar"]')
+    const inspector = surface.container.querySelector('[data-slot="desktopnew-settings-inspector"]')
     const dynamicIsland = surface.container.querySelector('[data-slot="desktop-dynamic-island"]')
 
     expect(prototype?.getAttribute("data-desktop-theme")).toBe("dark")
     expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
-    expect(dynamicIsland?.querySelector('button[aria-label="Undo"]')).not.toBeNull()
-    expect(dynamicIsland?.querySelector('button[aria-label="Redo"]')).not.toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-theme-toggle"]')).not.toBeNull()
+    expect(inspector?.querySelector('[data-slot="desktop-theme-toggle"]')).not.toBeNull()
+    expect(inspector?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
+    expect(inspector?.querySelector('[data-slot="desktop-sounds-toggle"]')).not.toBeNull()
     expect(dynamicIsland?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
+    expect(dynamicIsland?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
+    expect(dynamicIsland?.querySelector('button[aria-label="Undo"]')).toBeNull()
+    expect(dynamicIsland?.querySelector('button[aria-label="Redo"]')).toBeNull()
   })
 
   it("places a pill download button in the top-right utility toolbar", async () => {
@@ -227,14 +229,14 @@ describe("FloatingToolbar", () => {
     expect(surface.container.querySelector('[data-slot="desktop-document-toolbar"]')).toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-download-trigger"]')).not.toBeNull()
     expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-theme-toggle"]')).not.toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
+    expect(utilityToolbar?.querySelector('[data-slot="desktop-sounds-toggle"]')).toBeNull()
     const dynamicIsland = surface.container.querySelector('[data-slot="desktop-dynamic-island"]')
     expect(dynamicIsland?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).toBeNull()
     expect(dynamicIsland?.querySelector('[data-slot="desktop-theme-toggle"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-compose-toolbar"]')).toBeNull()
   })
-
   it("shows the QRafty brand mark in Caveat at the top-left", async () => {
     const surface = await renderPrototype()
     const brandMark = surface.container.querySelector('[data-slot="desktop-brand-mark"]')
@@ -250,7 +252,9 @@ describe("FloatingToolbar", () => {
     ).not.toBeNull()
   })
 
-  it("wires undo and redo through the top dynamic island history actions", async () => {
+
+
+  it("wires undo and redo through the settings panel header", async () => {
     const onUndo = vi.fn()
     const onRedo = vi.fn()
     const onExportDownload = vi.fn()
@@ -263,7 +267,10 @@ describe("FloatingToolbar", () => {
         onUndo,
       },
     })
-    const dynamicIsland = getRequiredElement(surface.container, '[data-slot="desktop-dynamic-island"]')
+    const inspector = getRequiredElement(
+      surface.container,
+      '[data-slot="desktopnew-settings-inspector"]',
+    )
     const utilityToolbar = surface.container.querySelector('[data-slot="desktop-utility-toolbar"]')
 
     expect(surface.container.querySelector('[data-slot="desktop-action-toolbar"]')).toBeNull()
@@ -273,14 +280,13 @@ describe("FloatingToolbar", () => {
       "Download",
     )
     expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").className).toContain(
-      "bg-transparent",
+      "rounded-full",
     )
     expect(utilityToolbar?.querySelector('[data-slot="desktop-save-trigger"]')).toBeNull()
-    expect(utilityToolbar?.querySelector('[data-slot="desktop-keyboard-shortcuts-trigger"]')).not.toBeNull()
 
     await act(async () => {
-      getRequiredButton(dynamicIsland, "Undo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
-      getRequiredButton(dynamicIsland, "Redo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      getRequiredButton(inspector, "Undo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
+      getRequiredButton(inspector, "Redo").dispatchEvent(new MouseEvent("click", { bubbles: true }))
     })
 
     expect(onUndo).toHaveBeenCalledTimes(1)
@@ -388,7 +394,7 @@ describe("FloatingToolbar", () => {
     expect(surface.container.querySelector('[data-slot="desktop-layer-border-trigger"]')).not.toBeNull()
   })
 
-  it("does not render scan safety in the dynamic island", async () => {
+  it("shows the scan safety badge in the settings panel header", async () => {
     const surface = await renderPrototype({
       controller: {
         scanSafetyResult: {
@@ -400,8 +406,16 @@ describe("FloatingToolbar", () => {
         },
       },
     })
+    const inspector = getRequiredElement(
+      surface.container,
+      '[data-slot="desktopnew-settings-inspector"]',
+    )
+    const badge = inspector.querySelector('[data-slot="desktop-scan-safety-badge"]')
 
     expect(surface.container.querySelector('[data-slot="desktop-scan-safety-trigger"]')).toBeNull()
+    expect(badge).not.toBeNull()
+    expect(badge?.getAttribute("data-status")).toBe("invalid")
+    expect(badge?.textContent).toContain("Scan Unsafe")
   })
 
   it("renders the mobile settings rail instead of the desktop inspector", async () => {

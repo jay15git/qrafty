@@ -1,12 +1,12 @@
 body:has([data-slot="desktop-floating-toolbar-root"]) {
-  --glass-bg: rgba(22, 22, 22, 0.95);
+  --glass-bg: rgba(29, 29, 29, 0.95);
   --glass-border: rgba(255, 255, 255, 0.06);
   --glass-fg: rgba(255, 255, 255, 0.72);
   --glass-shadow: 0 24px 64px rgba(0, 0, 0, 0.34);
   --glass-button-hover-bg: rgba(255, 255, 255, 0.11);
   --glass-button-hover-fg: rgba(255, 255, 255, 1);
   --glass-button-focus-ring: rgba(255, 255, 255, 0.45);
-  --appearance-popover-bg: #161616;
+  --appearance-popover-bg: #1d1d1d;
   --appearance-popover-border: rgba(255, 255, 255, 0.06);
   --appearance-popover-shadow: var(--glass-shadow);
   --settings-fg-primary: rgba(255, 255, 255, 0.94);
@@ -196,7 +196,7 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
 }
 
 [data-desktop-theme="dark"] [data-slot="tooltip-navbar-shell"] {
-  background: rgba(22, 22, 22, 0.95) !important;
+  background: rgba(29, 29, 29, 0.95) !important;
   border: none !important;
   color: rgba(255, 255, 255, 0.72) !important;
   border-radius: 9999px !important;

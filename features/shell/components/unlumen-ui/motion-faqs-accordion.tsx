@@ -29,6 +29,8 @@ export interface MotionAccordionProps {
    * capped so every section header stays visible; tall panels scroll inside.
    */
   cardHeight?: number | null;
+  /** Pinned content rendered at the top of the card, inside the surface. */
+  header?: React.ReactNode;
   /** Pinned content rendered at the bottom of the card, inside the surface. */
   footer?: React.ReactNode;
 }
@@ -66,6 +68,7 @@ function AccordionItem({
 
   return (
     <div
+      data-slot="motion-accordion-item"
       data-focused={isOpen ? "true" : undefined}
       className={cn(
         "rounded-[30px] bg-surface text-foreground shadow-xs",
@@ -151,6 +154,7 @@ export function MotionAccordion({
   openIndex = null,
   onOpenIndexChange,
   cardHeight = null,
+  header,
   footer,
 }: MotionAccordionProps) {
   const rawId = React.useId();
@@ -208,7 +212,7 @@ export function MotionAccordion({
 
     const measure = () => {
       let headers = 0;
-      el.querySelectorAll<HTMLElement>(":scope > div > button").forEach(
+      el.querySelectorAll<HTMLElement>(':scope > [data-slot="motion-accordion-item"] > button').forEach(
         (button) => {
           headers += button.offsetHeight;
         },
@@ -216,6 +220,9 @@ export function MotionAccordion({
       const style = getComputedStyle(el);
       const padY =
         parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+      const headerH =
+        el.querySelector<HTMLElement>('[data-slot="motion-accordion-header"]')
+          ?.offsetHeight ?? 0;
       const footerH =
         el.querySelector<HTMLElement>('[data-slot="motion-accordion-footer"]')
           ?.offsetHeight ?? 0;
@@ -225,8 +232,9 @@ export function MotionAccordion({
           cardHeight -
             headers -
             padY -
+            headerH -
             footerH -
-            gap * Math.max(0, items.length - 1 + (footer ? 1 : 0)),
+            gap * Math.max(0, items.length - 1 + (header ? 1 : 0) + (footer ? 1 : 0)),
         ),
       );
     };
@@ -235,7 +243,7 @@ export function MotionAccordion({
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [cardHeight, gap, items.length, footer]);
+  }, [cardHeight, gap, items.length, header, footer]);
 
   const maxPanelHeight = cardHeight == null ? null : (panelCapPx ?? cardHeight);
 
@@ -253,6 +261,14 @@ export function MotionAccordion({
             } as React.CSSProperties
           }
         >
+        {header ? (
+          <div
+            data-slot="motion-accordion-header"
+            className="sticky -top-1.5 z-10 shrink-0 bg-inherit"
+          >
+            {header}
+          </div>
+        ) : null}
         {items.map((item, i) => {
           const itemKey = getStableItemKey(item);
 
@@ -271,7 +287,7 @@ export function MotionAccordion({
         {footer ? (
           <div
             data-slot="motion-accordion-footer"
-            className="mt-auto shrink-0"
+            className="sticky bottom-0 z-10 mt-auto shrink-0 bg-inherit"
           >
             {footer}
           </div>
