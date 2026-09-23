@@ -1,4 +1,4 @@
-import type { PlatformContentValues } from "@/features/qr/content/platform-intents"
+import type { PlatformContentValues } from "@/features/qr/content/intents/shared"
 
 export function stringFieldValue(
   values: PlatformContentValues,

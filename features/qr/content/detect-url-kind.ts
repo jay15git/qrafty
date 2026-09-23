@@ -1,8 +1,8 @@
 import type { QrInputType } from "@/features/qr/content/input-options"
+import type { PlatformDef } from "@/features/qr/content/intents/shared"
 import {
   detectPlatformIntentFromUrl,
   getPlatformDef,
-  type PlatformDef,
 } from "@/features/qr/content/platform-intents"
 
 export type UrlDetectionCategory =

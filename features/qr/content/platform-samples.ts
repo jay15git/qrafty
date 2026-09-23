@@ -1,5 +1,5 @@
 import type { QrInputType } from "@/features/qr/content/input-options"
-import type { PlatformContentValues } from "@/features/qr/content/platform-intents"
+import type { PlatformContentValues } from "@/features/qr/content/intents/shared"
 
 function u(path: string) {
   return path.startsWith("http") ? path : `https://${path}`

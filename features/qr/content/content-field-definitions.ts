@@ -1,4 +1,4 @@
-import type { FieldKind } from "@/features/qr/content/platform-intents"
+import type { FieldKind } from "@/features/qr/content/intents/shared"
 import type { QrInputType } from "@/features/qr/content/input-options"
 import {
   getDefaultIntentId,
