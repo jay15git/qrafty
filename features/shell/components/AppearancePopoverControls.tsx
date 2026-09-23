@@ -1,5 +1,4 @@
-"use client"
-
+import { useRef } from "react"
 import { Link2, Unlink2 } from "lucide-react"
 import {
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
@@ -58,13 +57,7 @@ export function AppearanceBorderControls({
     >
       <DesktopInspectorLabel>Border</DesktopInspectorLabel>
       <DesktopnewThemeContext.Provider value={theme}>
-        <SettingsFillPopover
-          hint="Border color"
-          solidOnly
-          title="Border color"
-          value={border.color}
-          onValueChange={(_fill, css) => emit({ color: fillPreviewHex(css) || "#111827" })}
-        />
+        <BorderColorRow appearance={appearance} onPatch={onPatch} />
       </DesktopnewThemeContext.Provider>
       <div className="mt-2 grid gap-2">
         <DesktopInspectorElasticSliderRow
@@ -85,6 +78,43 @@ export function AppearanceBorderControls({
         />
       </div>
     </DesktopInspectorSection>
+  )
+}
+
+function BorderColorRow({
+  appearance,
+  onPatch,
+}: {
+  appearance: DesktopAppearanceSnapshot
+  onPatch: (patch: DesktopAppearancePatch) => void
+}) {
+  const pickerRef = useRef<{ openPicker: () => void } | null>(null)
+  const border = appearance.border
+
+  return (
+    <>
+      <div className="flex min-h-[var(--settings-control-height)] items-center">
+        <span className="dn-row-label-text pl-[var(--settings-row-px)]">Color</span>
+        <button
+          aria-label="Border color"
+          className="ml-auto size-7 shrink-0 cursor-pointer overflow-hidden rounded-full border-2 border-[color-mix(in_srgb,var(--line)_40%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--ring))]"
+          style={{ background: border.color }}
+          type="button"
+          onClick={() => pickerRef.current?.openPicker()}
+        />
+      </div>
+      <SettingsFillPopover
+        ref={pickerRef}
+        hint="Border color"
+        solidOnly
+        title="Border color"
+        value={border.color}
+        variant="picker-only"
+        onValueChange={(_fill, css) =>
+          onPatch({ border: { ...border, color: fillPreviewHex(css) || "#111827" } })
+        }
+      />
+    </>
   )
 }
 

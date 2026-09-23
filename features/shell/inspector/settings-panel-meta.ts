@@ -19,7 +19,7 @@ const DESKTOP_SETTINGS_SECTION_LABELS: Record<DesktopSettingsSectionId, string> 
   Motion: "Motion",
   Shape: "Shape",
   Background: "Background",
-  Elements: "Elements",
+  Elements: "Layers",
 }
 
 export function getDesktopSettingsSectionLabel(section: DesktopSettingsSectionId): string {

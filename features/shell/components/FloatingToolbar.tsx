@@ -62,9 +62,7 @@ export function FloatingToolbar({
     appearance: controller?.appearanceSnapshot,
     appearanceLayer: controller?.selectedAppearanceLayer,
     canAddQrCode: controller?.canAddQrCode,
-    canDeleteLayer: controller?.canDeleteLayer,
     insertNodeId: controller?.insertNodeId,
-    layersSettings: model.actualLayersSettings,
     onAddQrCode: controller?.onAddQrCode,
     onBrowseWallpapers: controller?.onOpenComposeSidebar
       ? () => controller.onOpenComposeSidebar?.("wallpapers")
@@ -72,9 +70,6 @@ export function FloatingToolbar({
     onElementLayerPatch: controller?.onElementLayerPatch,
     onAppearancePatch: controller?.onAppearancePatch,
     onInsertLayer: controller?.onInsertLayer,
-    onLayerDelete: controller?.onLayerDelete,
-    onLayersReorder: model.onLayersReorder,
-    onLayersSettingsChange: model.onLayersSettingsChange,
     onSelectSizeTemplate: controller?.onSceneTemplateSizeTemplateSelect,
     onTransformLayerPatch: controller?.onTransformLayerPatch,
     selectedElementLayer: controller?.selectedElementLayer,

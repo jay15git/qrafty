@@ -8,6 +8,7 @@ import {
   type DraftingPaneCanvasTool,
   type DraftingPaneToolbarVariant,
 } from "@/features/canvas/components/DraftingPaneSurface"
+import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
 
 import { DraftingPaneSurface } from "@/features/canvas/components/DraftingPaneSurface"
 import { Tooltip as TooltipPrimitive } from "radix-ui"
@@ -37,6 +38,7 @@ type CanvasProps = {
   layerEditingEnabled?: boolean
   previewLocked?: boolean
   fitCanvasToViewport?: boolean
+  theme?: DesktopThemeMode
 }
 
 function clampPreviewZoom(value: number) {
@@ -63,6 +65,7 @@ export function Canvas({
   layerEditingEnabled = true,
   previewLocked = false,
   fitCanvasToViewport = false,
+  theme,
 }: CanvasProps) {
   const [zoomLevels, setZoomLevels] = useState<Record<string, number>>({})
   const [panOffsets, setPanOffsets] = useState<Record<string, { x: number; y: number }>>({})
@@ -127,6 +130,7 @@ export function Canvas({
               selectedLayerIds={selectedLayerIds}
               snapEnabled
               toolbarVariant={toolbarVariant}
+              theme={theme}
             />
           )}
         </div>

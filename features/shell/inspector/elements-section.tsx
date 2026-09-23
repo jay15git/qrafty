@@ -74,18 +74,6 @@ export function ElementsSection({ model }: { model: DesktopInspectorModel }) {
 
   return (
     <div className={SECTION_STACK} data-slot="desktop-elements-section">
-      {insertMenu ? (
-        <SettingsRowPopover
-          contentClassName="dn-insert-menu-popover w-[17.25rem] p-0"
-          hideHint
-          open={addElementOpen}
-          trigger="Add element"
-          onOpenChange={setAddElementOpen}
-        >
-          {insertMenu}
-        </SettingsRowPopover>
-      ) : null}
-
       {layersContent}
     </div>
   )

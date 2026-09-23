@@ -4,7 +4,6 @@ import { useMemo, type ReactNode } from "react"
 import { PaletteIcon } from "lucide-react"
 import {
   BorderNone02Icon,
-  Layers01Icon,
   MagicWand05Icon,
   ResourcesAddIcon,
   ScreenRotationIcon,
@@ -23,10 +22,8 @@ import {
   DesktopLayerStylePanel,
   DesktopLayerTransformPanel,
 } from "@/features/shell/components/DesktopLayerSettingsPanel"
-import { DesktopLayersPopoverContent } from "@/features/shell/components/DesktopLayersPopoverContent"
 import { DesktopToolbarPopoverContent } from "@/features/shell/components/DesktopToolbarPopover"
 import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
-import type { DesktopLayersSettings } from "@/features/shell/model/desktop-toolbar-types"
 import { InsertMenuPopoverContent } from "@/features/canvas/components/insert-menu/InsertMenuPopoverContent"
 import type { DesktopAppearanceSnapshot } from "@/features/shell/model/appearance"
 import { getDesktopLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities"
@@ -41,17 +38,15 @@ type DesktopDynamicIslandChromeProps = {
   appearance?: DesktopAppearanceSnapshot | null
   appearanceLayer?: DraftingCanvasLayer | null
   canAddQrCode?: boolean
-  canDeleteLayer?: (layerId: string) => boolean
+
   insertNodeId?: string
-  layersSettings?: DesktopLayersSettings
+
   onAddQrCode?: () => void
   onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onBrowseWallpapers?: () => void
   onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onInsertLayer?: (layer: DraftingCanvasLayer) => void
-  onLayerDelete?: (layerId: string) => void
-  onLayersReorder?: (orderedIds: string[]) => void
-  onLayersSettingsChange?: (patch: Partial<DesktopLayersSettings>) => void
+
   onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onSelectSizeTemplate?: (template: SizeTemplate) => void
   selectedElementLayer?: DraftingCanvasLayer | null
@@ -64,17 +59,15 @@ function useDesktopIslandItems({
   appearance,
   appearanceLayer,
   canAddQrCode,
-  canDeleteLayer,
+
   insertNodeId,
-  layersSettings,
+
   onAddQrCode,
   onAppearancePatch,
   onBrowseWallpapers,
   onElementLayerPatch,
   onInsertLayer,
-  onLayerDelete,
-  onLayersReorder,
-  onLayersSettingsChange,
+
   onTransformLayerPatch,
   onSelectSizeTemplate,
   selectedElementLayer,
@@ -102,7 +95,6 @@ function useDesktopIslandItems({
     effectsLayer && effectsPatch && propertyCapabilities.maxEffects > 0,
   )
   const canInsert = Boolean(insertNodeId && onInsertLayer)
-  const hasLayers = Boolean(layersSettings && onLayersSettingsChange)
 
   const items = useMemo(() => {
     const hugeIcon = (icon: Parameters<typeof HugeiconsIcon>[0]["icon"]) => (
@@ -128,7 +120,7 @@ function useDesktopIslandItems({
       label,
       variant: labeled ? "icon-label" : undefined,
       popover: (
-        <DesktopToolbarPopoverContent dataSlot={`${slot}-popover`} fitContent>
+        <DesktopToolbarPopoverContent dataSlot={`${slot}-popover`} fitContent theme={theme}>
           {panel}
         </DesktopToolbarPopoverContent>
       ),
@@ -148,6 +140,7 @@ function useDesktopIslandItems({
           <DesktopCanvasRatioPresetPopoverContent
             onSelectTemplate={onSelectSizeTemplate}
             selectedPresetId={sizePresetId}
+            theme={theme}
           />
         ),
       })
@@ -263,49 +256,28 @@ function useDesktopIslandItems({
       })
     }
 
-    if (hasLayers) {
-      nextItems.push(
-        panelItem(
-          "Layers",
-          "desktop-layers",
-          hugeIcon(Layers01Icon),
-          <DesktopLayersPopoverContent
-            canDeleteLayer={canDeleteLayer}
-            layersSettings={layersSettings!}
-            onLayerDelete={onLayerDelete}
-            onLayersReorder={onLayersReorder}
-            onLayersSettingsChange={onLayersSettingsChange!}
-          />,
-          true,
-        ),
-      )
-    }
-
-
     return nextItems
   }, [
     appearance,
     canAddQrCode,
-    canDeleteLayer,
+
     canInsert,
     effectsLayer,
     effectsPatch,
     hasBorder,
     hasEffects,
-    hasLayers,
+
     hasShadows,
     hasStyle,
     hasTransform,
     insertNodeId,
-    layersSettings,
+
     onAddQrCode,
     onAppearancePatch,
     onBrowseWallpapers,
     onElementLayerPatch,
     onInsertLayer,
-    onLayerDelete,
-    onLayersReorder,
-    onLayersSettingsChange,
+
     onSelectSizeTemplate,
     onTransformLayerPatch,
     selectedElementLayer,

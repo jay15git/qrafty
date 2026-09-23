@@ -118,7 +118,7 @@ function MobileLayerToolbarButton({
       aria-label={ariaLabel}
       aria-pressed={active}
       className={cn(
-        "dn-mobile-layer-toolbar-button flex h-[var(--settings-icon-hit)] shrink-0 cursor-pointer items-center justify-center gap-1 rounded-full text-[var(--fg)] transition-colors hover:bg-[var(--settings-control)] aria-[pressed=true]:bg-[var(--fg)] aria-[pressed=true]:text-[var(--bg)] disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg)]/20",
+        "dn-mobile-layer-toolbar-button flex h-[var(--settings-icon-hit)] shrink-0 cursor-pointer items-center justify-center gap-1 rounded-full text-[var(--fg)] transition-colors aria-[pressed=true]:bg-[var(--fg)] aria-[pressed=true]:text-[var(--bg)] disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg)]/20",
         label ? "w-auto px-2.5" : "w-[var(--settings-icon-hit)]",
       )}
       data-slot="mobile-layer-toolbar-button"
@@ -613,7 +613,7 @@ export function MobileLayerToolbar({
         }}
       >
         <ScrollArea
-          className="dn-mobile-layer-toolbar-scroll h-fit w-full min-w-0 max-w-full overflow-hidden rounded-full border border-[color-mix(in_srgb,var(--line)_45%,transparent)] bg-[var(--bg)]"
+          className="dn-mobile-layer-toolbar-scroll h-fit w-full min-w-0 max-w-full overflow-hidden rounded-full bg-[var(--bg)]"
           chevron={false}
           cueSize="tight"
           orientation="horizontal"

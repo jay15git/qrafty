@@ -207,13 +207,11 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
 [data-desktop-theme="light"] [data-slot="desktop-floating-toolbar"] button:not([data-proximity-index]):hover,
 [data-desktop-theme="light"] [data-slot="desktop-document-toolbar"] button:hover,
 [data-desktop-theme="light"] [data-slot="desktop-action-toolbar"] button:hover {
-  background: rgba(15, 23, 42, 0.08) !important;
   color: var(--toolbar-fg-hover) !important;
 }
 
 [data-desktop-theme="light"] [data-slot="desktop-utility-toolbar"] button:hover:not([data-slot="desktop-download-trigger"]),
 [data-desktop-theme="light"] [data-slot="desktop-dynamic-island"] button:hover {
-  background: transparent !important;
   color: var(--toolbar-fg-hover) !important;
 }
 
@@ -243,20 +241,6 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
   border-color: rgba(15, 23, 42, 0.11) !important;
 }
 
-[data-slot="desktop-keyboard-shortcuts-popover"] {
-  --scroll-edge-fade-color: #0a0a0a;
-  --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
-}
-
-[data-slot^="desktop-appearance-"][data-slot$="-popover"] {
-  --scroll-edge-fade-color: var(--appearance-popover-bg, #0a0a0a);
-  --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
-}
-
-[data-slot="desktop-shader-settings-popover"] {
-  --scroll-edge-fade-color: var(--appearance-popover-bg, #0a0a0a);
-  --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
-}
 
 [data-slot="desktop-layers-popover"],
 [data-slot="desktop-layer-transform-popover"],
@@ -266,47 +250,9 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) .desktop-to
 [data-slot="desktop-layer-effects-popover"],
 [data-slot="desktop-shader-settings-popover"],
 [data-slot="desktop-toolbar-popover"] {
-  --settings-control: rgba(255, 255, 255, 0.055);
-  --settings-field-bg: rgba(255, 255, 255, 0.055);
-  --settings-control-hover-bg: rgba(255, 255, 255, 0.09);
-  --settings-control-active-bg: rgba(255, 255, 255, 0.12);
-  --settings-control-border-hover: rgba(255, 255, 255, 0.08);
-  --settings-option-selected-bg: #ffffff;
-  --settings-option-selected-fg: #0a0a0a;
-  --settings-focus: rgba(255, 255, 255, 0.36);
   --settings-type-value: 0.8125rem;
   --settings-type-label: 0.6875rem;
   --settings-type-caption: 0.625rem;
-  --scroll-edge-fade-color: var(--appearance-popover-bg, #0a0a0a);
-  --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
-}
-
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layers-popover"],
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-transform-popover"],
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-style-popover"],
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-border-popover"],
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-shadows-popover"],
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-layer-effects-popover"],
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-shader-settings-popover"],
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-toolbar-popover"],
-body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layers-popover"],
-body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-transform-popover"],
-body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-style-popover"],
-body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-border-popover"],
-body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-shadows-popover"],
-body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-effects-popover"],
-body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-shader-settings-popover"],
-body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-toolbar-popover"] {
-  --settings-control: rgba(15, 23, 42, 0.035);
-  --settings-field-bg: rgba(15, 23, 42, 0.035);
-  --settings-control-hover-bg: rgba(15, 23, 42, 0.06);
-  --settings-control-active-bg: rgba(15, 23, 42, 0.08);
-  --settings-control-border-hover: rgba(15, 23, 42, 0.1);
-  --settings-option-selected-bg: #0a0a0a;
-  --settings-option-selected-fg: #ffffff;
-  --settings-focus: rgba(15, 23, 42, 0.36);
-  --scroll-edge-fade-color: #ffffff;
-  --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
 }
 
 [data-slot^="desktop-layer-"][data-slot$="-popover"] [data-slot="desktop-transform-section"],
@@ -345,49 +291,6 @@ body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot
   --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
 }
 
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] {
-  --scroll-edge-fade-color: rgba(255, 255, 255, 0.88);
-  --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
-  background: #ffffff !important;
-  border-color: #dedede !important;
-  color: rgba(23, 23, 23, 0.92) !important;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.14) !important;
-}
-
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] div,
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] section,
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] kbd {
-  border-color: #dddddd !important;
-}
-
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] section {
-  background: #f4f4f4 !important;
-}
-
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] [data-slot="desktop-shortcut-platform-toggle"] {
-  background: transparent !important;
-  border-color: transparent !important;
-}
-
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] [data-slot="desktop-shortcut-platform-button"] {
-  color: rgba(23, 23, 23, 0.52) !important;
-}
-
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] [data-slot="desktop-shortcut-platform-button"]:hover {
-  background: #eeeeee !important;
-  color: rgba(23, 23, 23, 0.86) !important;
-}
-
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] [data-slot="desktop-shortcut-platform-button"][aria-pressed="true"] {
-  background: #e5e5e5 !important;
-  color: rgba(23, 23, 23, 0.94) !important;
-  box-shadow: none !important;
-}
-
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] kbd {
-  background: #ffffff !important;
-  color: rgba(23, 23, 23, 0.86) !important;
-}
 
 [data-slot="desktop-keyboard-shortcuts-scrollbar"][data-state="hidden"],
 [data-slot="desktop-shape-preset-shelf-scrollbar"][data-state="hidden"],
@@ -403,23 +306,6 @@ body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]
   transition: opacity 150ms ease;
 }
 
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-scroll-thumb"] {
-  background: rgba(23, 23, 23, 0.24) !important;
-}
-
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-scroll-thumb"]:hover {
-  background: rgba(23, 23, 23, 0.38) !important;
-}
-
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] p,
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] h3,
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] span {
-  color: rgba(23, 23, 23, 0.6) !important;
-}
-
-body:has([data-slot="desktop-floating-toolbar-root"][data-desktop-theme="light"]) [data-slot="desktop-keyboard-shortcuts-popover"] h2 {
-  color: rgba(23, 23, 23, 0.92) !important;
-}
 
 [data-slot="desktop-style-preview-surface"] {
   background: rgba(255, 255, 255, 0.045) !important;

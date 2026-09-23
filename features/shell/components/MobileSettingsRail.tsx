@@ -2,9 +2,7 @@
 
 import {
   Check,
-  Layers,
   Pipette,
-  Plus,
   X,
 } from "lucide-react"
 
@@ -119,11 +117,6 @@ const LazyDesktopFillPicker = lazy(() =>
   ),
 )
 type LockedFillPickerMode = import("@/features/shell/inspector/fill-picker").LockedFillPickerMode
-const LazyInsertMenuPanelStack = lazy(() =>
-  import("@/features/canvas/components/insert-menu/InsertMenuPanelStack").then(
-    (module) => ({ default: module.InsertMenuPanelStack }),
-  ),
-)
 const LazyDesktopLayersPopoverContent = lazy(() =>
   import("@/features/shell/components/DesktopLayersPopoverContent").then(
     (module) => ({ default: module.DesktopLayersPopoverContent }),
@@ -610,27 +603,6 @@ function MobileRailPill({
       onClick={onClick}
     >
       <span className="dn-mobile-settings-rail__pill">{label}</span>
-    </button>
-  )
-}
-
-function MobileRailCircleOption({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: ReactNode
-  label: string
-  onClick: () => void
-}) {
-  return (
-    <button
-      className="dn-mobile-settings-rail__item"
-      type="button"
-      onClick={onClick}
-    >
-      <span className="dn-mobile-settings-rail__circle">{icon}</span>
-      <span className="dn-mobile-settings-rail__label">{label}</span>
     </button>
   )
 }
@@ -1311,46 +1283,21 @@ function MobileBackgroundRailFooter({ model }: MobileRailRowProps) {
   )
 }
 
-function MobileElementsRailRow({ model, openDrawer }: MobileRailRowProps) {
+/** Elements family button: opens the drawer straight onto the Layers detail —
+ *  no intermediate rail row. */
+function MobileElementsSectionButton({
+  model,
+  onOpenSection,
+}: {
+  model: DesktopInspectorModel
+  onOpenSection: () => void
+}) {
   const navigation = useMobileDrawerNavigation()
   const modelRef = useLatestModel(model)
 
-  const openAddElement = () => {
-    const controller = modelRef.current.controller
-    const nodeId = controller?.insertNodeId
-    const onInsertLayer = controller?.onInsertLayer
-    if (!navigation || !nodeId || !onInsertLayer) {
-      openDrawer()
-      return
-    }
-    navigation.openDetail({
-      title: "Add element",
-      content: (
-        <Suspense fallback={null}>
-          <LazyInsertMenuPanelStack
-            canAddQrCode={controller?.canAddQrCode}
-            isDesktopPopover
-            nodeId={nodeId}
-            onAddQrCode={controller?.onAddQrCode}
-            onBrowseWallpapers={
-              controller?.onOpenComposeSidebar
-                ? () => controller.onOpenComposeSidebar?.("wallpapers")
-                : undefined
-            }
-            onClose={() => navigation.closeDetail()}
-            onInsertLayer={onInsertLayer}
-          />
-        </Suspense>
-      ),
-    })
-  }
-
-  const openLayers = () => {
-    if (!navigation) {
-      openDrawer()
-      return
-    }
-    navigation.openDetail({
+  const handleClick = () => {
+    onOpenSection()
+    navigation?.openDetail({
       title: "Layers",
       content: (
         <Suspense fallback={null}>
@@ -1368,18 +1315,7 @@ function MobileElementsRailRow({ model, openDrawer }: MobileRailRowProps) {
   }
 
   return (
-    <>
-      <MobileRailCircleOption
-        icon={<Plus className={RAIL_OPTION_ICON_CLASS} />}
-        label="Add"
-        onClick={openAddElement}
-      />
-      <MobileRailCircleOption
-        icon={<Layers className={RAIL_OPTION_ICON_CLASS} />}
-        label="Layers"
-        onClick={openLayers}
-      />
-    </>
+    <MobileRailSectionButton section="Elements" onClick={handleClick} />
   )
 }
 
@@ -1396,7 +1332,6 @@ const MOBILE_FAMILY_ROWS: Partial<
   Motion: MobileMotionRailRow,
   Shape: MobileShapeRailRow,
   Background: MobileBackgroundRailRow,
-  Elements: MobileElementsRailRow,
 }
 
 /**
@@ -1692,6 +1627,7 @@ function MobileRailRowContent({
   FamilyRow,
   model,
   onOpenDrawer,
+  onOpenSection,
   onOptionClick,
   onToggleFamily,
   options,
@@ -1700,6 +1636,7 @@ function MobileRailRowContent({
   FamilyRow?: ComponentType<MobileRailRowProps>
   model: DesktopInspectorModel
   onOpenDrawer: () => void
+  onOpenSection: (section: DesktopSettingsSectionId) => void
   onOptionClick: (option: MobileRailOption) => void
   onToggleFamily: (section: DesktopSettingsSectionId) => void
   options?: MobileRailOption[]
@@ -1723,13 +1660,21 @@ function MobileRailRowContent({
   }
   return (
     <>
-      {DESKTOP_SETTINGS_SECTIONS.map((section) => (
-        <MobileRailSectionButton
-          key={section}
-          section={section}
-          onClick={() => onToggleFamily(section)}
-        />
-      ))}
+      {DESKTOP_SETTINGS_SECTIONS.map((section) =>
+        section === "Elements" ? (
+          <MobileElementsSectionButton
+            key={section}
+            model={model}
+            onOpenSection={() => onOpenSection(section)}
+          />
+        ) : (
+          <MobileRailSectionButton
+            key={section}
+            section={section}
+            onClick={() => onToggleFamily(section)}
+          />
+        ),
+      )}
     </>
   )
 }
@@ -1986,6 +1931,7 @@ export function MobileSettingsRail({ model }: { model: DesktopInspectorModel }) 
                     options={options}
                     viewFamily={viewFamily}
                     onOpenDrawer={() => openDrawerSection(viewFamily!)}
+                    onOpenSection={openDrawerSection}
                     onOptionClick={handleOptionClick}
                     onToggleFamily={toggleFamily}
                   />

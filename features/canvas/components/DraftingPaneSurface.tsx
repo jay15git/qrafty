@@ -14,6 +14,7 @@ import type {
 import type { QraftyState } from "@/features/qr/model/state"
 import type { StaticQrValidationResult } from "@/features/qr/content/static-payload"
 import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document"
+import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
 
 export type DraftingPaneToolbarVariant = "default" | "desktop-zoom"
 export type DraftingPaneCanvasTool = "select" | "pan" | "text"
@@ -68,6 +69,7 @@ type DraftingPaneSurfaceProps = {
   selectedLayerIds?: string[]
   snapEnabled: boolean
   toolbarVariant?: DraftingPaneToolbarVariant
+  theme?: DesktopThemeMode
 }
 
 export function DraftingPaneSurface({
@@ -102,6 +104,7 @@ export function DraftingPaneSurface({
   selectedLayerIds,
   snapEnabled,
   toolbarVariant = "default",
+  theme,
 }: DraftingPaneSurfaceProps) {
   const { canSwap, isSelected, isSnapTarget } = interaction
   // Desktop compose workspace has one interaction mode: select.
@@ -176,6 +179,7 @@ export function DraftingPaneSurface({
       surfaceAppearance={interactions.surfaceAppearance}
       surfaceRef={interactions.surfaceRef}
       viewFitScale={interactions.viewFitScale}
+      theme={theme}
     />
   )
 }

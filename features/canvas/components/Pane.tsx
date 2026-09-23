@@ -23,6 +23,7 @@ const PANE_MEMO_COMPARE_KEYS = [
   "selectedLayerId",
   "selectedLayerIds",
   "snapEnabled",
+  "theme",
 ] as const satisfies readonly (keyof PaneProps)[]
 
 export const Pane = memo(function Pane(props: PaneProps) {

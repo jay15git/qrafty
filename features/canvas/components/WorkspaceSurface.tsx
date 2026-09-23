@@ -139,6 +139,7 @@ export function WorkspaceSurface({
               toolbarVariant={paneToolbarVariant}
               selectedLayerId={selectedLayerId}
               selectedLayerIds={selectedLayerIds}
+              theme={desktopTheme}
             />
             ) : (
               <div

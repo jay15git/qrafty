@@ -124,12 +124,11 @@ export const TooltipNavbar = ({
         {...cuelumeAttrs}
         className={cn(
           isIconLabel
-            ? "flex h-9 cursor-pointer items-center justify-center gap-2 rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4"
+            ? "flex h-9 cursor-pointer items-center justify-center gap-2 rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4"
             : isText
-            ? "flex h-9 cursor-pointer items-center justify-center rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
-            : "flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4",
-          item.pressed &&
-            "bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] text-[var(--glass-button-hover-fg,currentColor)]",
+            ? "flex h-9 cursor-pointer items-center justify-center rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
+            : "flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4",
+          item.pressed && "text-[var(--glass-button-hover-fg,currentColor)]",
         )}
       >
         {isIconLabel ? (
@@ -235,7 +234,7 @@ export const TooltipNavbar = ({
                 transition={{ duration: 0.2 }}
               >
                 <m.div
-                  className="flex bg-black dark:bg-[#1d1d1d]"
+                  className="flex bg-[var(--appearance-popover-bg,#1d1d1d)]"
                   animate={{
                     clipPath: coords.clipPath,
                     x: coords.translateX,
@@ -258,16 +257,16 @@ export const TooltipNavbar = ({
                         key={`real-${index}`}
                         className="flex items-center justify-center gap-1 px-2 text-sm font-medium whitespace-nowrap "
                       >
-                        <span className="text-white">{item.label}</span>
+                        <span className="text-[var(--settings-fg-primary,rgba(255,255,255,0.94))]">{item.label}</span>
                         {item.hasBadge && (
-                          <div className="flex items-center gap-0.5 text-white/40">
-                            <span className="flex items-center justify-center rounded-sm border border-white/20 p-1">
-                              <CommandIcon className="size-3 text-neutral-500" />
+                          <div className="flex items-center gap-0.5 text-[var(--settings-fg-muted,rgba(255,255,255,0.4))]">
+                            <span className="flex items-center justify-center rounded-sm border border-[var(--appearance-popover-border,rgba(255,255,255,0.2))] p-1">
+                              <CommandIcon className="size-3 text-[var(--settings-fg-muted,rgba(115,115,115,1))]" />
                             </span>
                           </div>
                         )}
                         {item.labelHasKeyword && (
-                          <div className="flex items-center gap-0.5 text-white/40">
+                          <div className="flex items-center gap-0.5 text-[var(--settings-fg-muted,rgba(255,255,255,0.4))]">
                             {item.labelHasKeyword.map((cap, i) => {
                               const caps = item.labelHasKeyword as (
                                 | string
@@ -276,7 +275,7 @@ export const TooltipNavbar = ({
                               return (
                                 <span
                                   key={`${typeof cap === "string" ? cap : "cap"}-${caps.slice(0, i).filter((entry) => entry === cap).length}`}
-                                  className="flex items-center justify-center rounded-sm border border-white/20 px-1 tabular-nums"
+                                  className="flex items-center justify-center rounded-sm border border-[var(--appearance-popover-border,rgba(255,255,255,0.2))] px-1 tabular-nums"
                                 >
                                   {cap}
                                 </span>
@@ -297,7 +296,7 @@ export const TooltipNavbar = ({
               <div
                 key={runIndex}
                 data-slot="tooltip-navbar-shell"
-                className="inline-flex items-center justify-center gap-1 rounded-full bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
+                className="t-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
               >
                 {run.map(({ item, index }) => {
                   const button = renderItemButton(item, index);
@@ -327,7 +326,7 @@ export const TooltipNavbar = ({
             {runs.length === 0 && trailing ? (
               <div
                 data-slot="tooltip-navbar-shell"
-                className="inline-flex items-center justify-center gap-1 rounded-full bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
+                className="t-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
               >
                 {trailing}
               </div>
@@ -349,7 +348,7 @@ export const TooltipNavbar = ({
                 <span>{item.label}</span>
                 {item.hasBadge && (
                   <div className="flex items-center gap-0.5 text-white/40">
-                    <span className="flex items-center justify-center rounded-sm border border-white/20 p-1">
+                    <span className="flex items-center justify-center rounded-sm border border-[var(--appearance-popover-border,rgba(255,255,255,0.2))] p-1">
                       <CommandIcon className="size-3 text-neutral-500" />
                     </span>
                   </div>
@@ -359,7 +358,7 @@ export const TooltipNavbar = ({
                     {item.labelHasKeyword.map((key, i) => (
                       <span
                         key={i}
-                        className="flex items-center justify-center rounded-sm border border-white/20 px-1 tabular-nums"
+                        className="flex items-center justify-center rounded-sm border border-[var(--appearance-popover-border,rgba(255,255,255,0.2))] px-1 tabular-nums"
                       >
                         {typeof key === "string" ? key : "⌘"}
                       </span>

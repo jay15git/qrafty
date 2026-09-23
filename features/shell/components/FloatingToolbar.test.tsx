@@ -170,7 +170,7 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).toBeNull()
@@ -345,7 +345,7 @@ describe("FloatingToolbar", () => {
       },
     })
 
-    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).not.toBeNull()
+    expect(surface.container.querySelector('[data-slot="desktop-layers-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-properties-trigger"]')).toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-transform-trigger"]')).not.toBeNull()
     expect(surface.container.querySelector('[data-slot="desktop-layer-style-trigger"]')).not.toBeNull()
@@ -454,7 +454,7 @@ describe("FloatingToolbar", () => {
       "Motion",
       "Shape",
       "Background",
-      "Elements",
+      "Layers",
     ])
 
     for (const tab of tabs) {
@@ -784,15 +784,17 @@ describe("FloatingToolbar", () => {
 
     await closeRow()
 
-    // Elements: Add and Layers push insert/layers content as drawer details.
-    await click(getItems().find((item) => item.textContent?.trim() === "Elements"))
-
-    expect(getRailLabel()).toBe("Elements options")
-    expect(getLabels()).toEqual(expect.arrayContaining(["Add", "Layers"]))
-
-    await closeRow()
+    // Layers: the family button opens the drawer straight onto the Layers
+    // detail — no intermediate rail row.
+    await click(getItems().find((item) => item.textContent?.trim() === "Layers"))
 
     expect(getRailLabel()).toBe("Settings sections")
+    const drawer = document.querySelector('[data-slot="mobile-family-drawer-root"]')
+    expect(drawer).not.toBeNull()
+    expect(
+      Array.from(drawer?.querySelectorAll(".dn-mobile-drawer-nested-header__title") ?? [])
+        .map((node) => node.textContent?.trim()),
+    ).toContain("Layers")
   })
 
   it("opens the color picker inside the family drawer as a detail page", async () => {

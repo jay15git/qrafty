@@ -328,7 +328,6 @@ const WORKSPACE_SIDEBAR_STYLES = `
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-resize-toolbar"],
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-document-toolbar"],
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-action-toolbar"],
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-context-menu"],
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-size-value"],
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-rotation-value"] {
         background: var(--glass-bg) !important;
@@ -407,23 +406,6 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
         box-shadow: none !important;
       }
 
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-context-menu"] {
-        background: rgb(255, 255, 255) !important;
-      }
-
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-floating-toolbar"],
-      body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="drafting-layer-floating-toolbar"] {
-        background: rgb(255, 255, 255) !important;
-        border-color: rgba(15, 23, 42, 0.12) !important;
-        color: rgba(15, 23, 42, 0.76) !important;
-        box-shadow: 0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
-      }
-
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-floating-toolbar"],
-      body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="drafting-layer-floating-toolbar"] {
-        --layer-toolbar-button-hover-bg: rgba(15, 23, 42, 0.08);
-        --layer-toolbar-button-hover-text: rgba(15, 23, 42, 0.95);
-      }
 
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-resize-toolbar"] button,
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-document-toolbar"] button,
@@ -431,15 +413,12 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-dynamic-island"] button,
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-theme-toggle"],
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-action-toolbar"] button,
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-floating-toolbar"] button,
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-context-menu"] button,
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-size-value"],
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-rotation-value"],
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="desktop-glass"] button {
         color: rgba(15, 23, 42, 0.76) !important;
       }
 
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-context-menu"] button:hover,
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="desktop-glass"] button:hover {
         background: transparent !important;
         color: rgba(15, 23, 42, 0.95) !important;
@@ -448,8 +427,7 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-resize-toolbar"] button:hover,
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-document-toolbar"] button:hover,
       [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-theme-toggle"]:hover,
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-action-toolbar"] button:hover,
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-floating-toolbar"] button:hover {
+      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="desktop-action-toolbar"] button:hover {
         background-color: rgba(15, 23, 42, 0.08) !important;
         color: rgba(15, 23, 42, 0.95) !important;
       }
@@ -495,30 +473,6 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
         border-color: rgba(15, 23, 42, 0.12) !important;
       }
 
-      [data-slot="desktop-workspace"][data-desktop-theme="light"] [data-slot="drafting-layer-context-menu-separator"] {
-        background: rgba(15, 23, 42, 0.12) !important;
-      }
-
-      body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="drafting-layer-context-menu"] {
-        background: rgb(255, 255, 255) !important;
-        border-color: rgba(15, 23, 42, 0.12) !important;
-        color: rgba(15, 23, 42, 0.76) !important;
-        box-shadow: 0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
-      }
-
-      body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) [data-slot="drafting-layer-context-menu"] {
-        background: rgb(23, 23, 23) !important;
-        border-color: rgba(255, 255, 255, 0.06) !important;
-        color: rgba(255, 255, 255, 0.84) !important;
-        box-shadow: var(--glass-shadow) !important;
-      }
-
-      body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) [data-slot="drafting-layer-floating-toolbar"] {
-        background: rgb(23, 23, 23) !important;
-        border-color: rgba(255, 255, 255, 0.06) !important;
-        color: rgba(255, 255, 255, 0.84) !important;
-        box-shadow: var(--glass-shadow) !important;
-      }
 
       body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) [data-slot="drafting-layer-size-value"],
       body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) [data-slot="drafting-layer-rotation-value"] {
@@ -526,37 +480,6 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
         box-shadow: var(--glass-shadow) !important;
       }
 
-      body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="drafting-layer-context-menu"] button {
-        color: rgba(15, 23, 42, 0.76) !important;
-      }
-
-      body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) [data-slot="drafting-layer-context-menu"] button {
-        color: rgba(255, 255, 255, 0.84) !important;
-      }
-
-      body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="drafting-layer-context-menu"] button:hover {
-        background-color: rgba(15, 23, 42, 0.08) !important;
-        color: rgba(15, 23, 42, 0.95) !important;
-      }
-
-      body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="drafting-layer-floating-toolbar"] button:hover {
-        background-color: rgba(15, 23, 42, 0.08) !important;
-        color: rgba(15, 23, 42, 0.95) !important;
-      }
-
-      body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="drafting-layer-floating-toolbar-button"]:hover {
-        background-color: rgba(15, 23, 42, 0.08) !important;
-        color: rgba(15, 23, 42, 0.95) !important;
-      }
-
-      body:has([data-slot="desktop-workspace"][data-desktop-theme="dark"]) [data-slot="drafting-layer-context-menu"] button:hover {
-        background-color: rgba(255, 255, 255, 0.11) !important;
-        color: rgba(255, 255, 255, 0.96) !important;
-      }
-
-      body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="drafting-layer-context-menu-separator"] {
-        background: rgba(15, 23, 42, 0.12) !important;
-      }
 
       body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot="desktop-layer-appearance-popover"],
       body:has([data-slot="desktop-workspace"][data-desktop-theme="light"]) [data-slot^="desktop-appearance-"][data-slot$="-popover"],

@@ -535,7 +535,7 @@ describe("Pane", () => {
     expect(frame.style.height).toBe(`${frameRect.height}px`)
     expect(handle?.className).toContain("size-4")
     expect(toolbar.className).toContain("h-12")
-    expect(toolbar.className).toContain("min-w-48")
+    expect(toolbar.className).toContain("rounded-full")
   })
 
   it("snaps moving layers to nearby layer center guides", async () => {
@@ -1012,7 +1012,7 @@ describe("Pane", () => {
     const menu = document.body.querySelector('[data-slot="drafting-layer-context-menu"]') as HTMLElement
 
     expect(menu).not.toBeNull()
-    expect(menu.className).toContain("bg-[var(--dropdown-menu-surface-open)]")
+    expect(menu.className).toContain("desktopnew-popover-content")
     expect(menu.className).not.toContain("backdrop-blur")
     expect(menu.style.left).toBe("120px")
     expect(menu.style.top).toBe("116px")
@@ -1092,7 +1092,7 @@ describe("Pane", () => {
     const menu = document.body.querySelector('[data-slot="drafting-layer-context-menu"]') as HTMLElement
 
     expect(menu).not.toBeNull()
-    expect(menu.className).toContain("bg-[var(--dropdown-menu-surface-open)]")
+    expect(menu.className).toContain("desktopnew-popover-content")
     expect(menu.className).not.toContain("backdrop-blur")
     expect(menu.style.left).toBe("120px")
     expect(menu.style.top).toBe("148px")

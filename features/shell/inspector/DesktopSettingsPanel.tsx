@@ -166,7 +166,7 @@ function SettingsPanelFooter({ model }: { model: DesktopInspectorModel }) {
             <HugeiconsIcon icon={KeyboardIcon} size={16} color="currentColor" strokeWidth={2} />
           </PanelIconButton>
         </PopoverTrigger>
-        <DesktopKeyboardShortcutsPopoverContent popoverSide="top" />
+        <DesktopKeyboardShortcutsPopoverContent popoverSide="top" theme={theme} />
       </Popover>
       <PanelIconButton
         aria-label={soundsEnabled ? "Mute interaction sounds" : "Enable interaction sounds"}
@@ -238,9 +238,7 @@ export function DesktopSettingsPanel({
           renderSection={(section) => (
             <SettingsSectionBody id={section} model={model} />
           )}
-          sections={DESKTOP_SETTINGS_SECTIONS.filter(
-            (section) => section !== "Elements",
-          )}
+          sections={DESKTOP_SETTINGS_SECTIONS}
           onOpenSectionChange={handleSectionChange}
         />
       </SettingsScroll>

@@ -105,17 +105,24 @@ export function DesktopCanvasRatioPresetSections({
 export function DesktopCanvasRatioPresetPopoverContent({
   selectedPresetId,
   onSelectTemplate,
+  theme = "dark",
 }: {
   selectedPresetId?: string
   onSelectTemplate: (template: SizeTemplate) => void
+  theme?: "light" | "dark"
 }) {
   return (
     <PopoverContent
       align="start"
+      collisionPadding={12}
       data-slot="desktop-canvas-ratio-preset-popover"
+      data-theme={theme}
       side="bottom"
       sideOffset={12}
-      className="z-[20000] max-h-[min(72vh,500px)] w-[min(280px,calc(100vw-24px))] overflow-y-auto rounded-[12px] border border-[var(--appearance-popover-border)] bg-[var(--appearance-popover-bg)] p-2 text-[var(--settings-fg-secondary)] shadow-[var(--appearance-popover-shadow)]"
+      className={cn(
+        "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20000] max-h-[min(72vh,500px)] w-[min(280px,calc(100vw-24px))] overflow-y-auto p-2 dn-squircle-md",
+        theme === "dark" && "dark",
+      )}
     >
       <DesktopCanvasRatioPresetSections
         asChild

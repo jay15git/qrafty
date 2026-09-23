@@ -13,12 +13,14 @@ export function DesktopToolbarPopoverContent({
   disableScroll = false,
   fitContent = false,
   flush = false,
+  theme = "dark",
 }: {
   children: ReactNode
   dataSlot?: string
   disableScroll?: boolean
   fitContent?: boolean
   flush?: boolean
+  theme?: "light" | "dark"
 }) {
   const heightClass = fitContent
     ? "max-h-[min(28rem,calc(100dvh-8rem))]"
@@ -47,11 +49,14 @@ export function DesktopToolbarPopoverContent({
   return (
     <PopoverContent
       align="center"
+      collisionPadding={12}
       data-slot={dataSlot}
+      data-theme={theme}
       side="bottom"
       sideOffset={12}
       className={cn(
-        "z-[20000] flex w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[16px] border border-[var(--appearance-popover-border)] bg-[var(--appearance-popover-bg)] p-0 text-[var(--settings-fg-secondary)] shadow-[var(--appearance-popover-shadow)]",
+        "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20000] flex w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden p-0 dn-squircle-md",
+        theme === "dark" && "dark",
         heightClass,
       )}
     >
@@ -86,7 +91,7 @@ function DesktopToolbarPopover({
       <button
         aria-label={label}
         className={cn(
-          "relative grid size-9 cursor-pointer place-items-center overflow-visible rounded-full border-0 bg-transparent p-0 text-current shadow-none transition-colors duration-150 hover:bg-white/10 hover:text-[var(--glass-button-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--glass-button-focus-ring)] disabled:cursor-not-allowed [&_svg]:size-3.5",
+          "relative grid size-9 cursor-pointer place-items-center overflow-visible rounded-full border-0 bg-transparent p-0 text-current shadow-none transition-colors duration-150 hover:text-[var(--glass-button-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--glass-button-focus-ring)] disabled:cursor-not-allowed [&_svg]:size-3.5",
           open && triggerOpenClassName,
           triggerClassName,
         )}

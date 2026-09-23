@@ -59,10 +59,10 @@ import { CUELUME_TOGGLE } from "@/features/shell/audio/desktop-cuelume"
 import "@/features/shell/inspector/inspector.css"
 
 const COMPACT_POPOVER_CLASS =
-  "z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-white/[0.12] bg-[#171717] p-3 text-white shadow-[var(--glass-shadow)]"
+  "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-y-auto p-3 dn-squircle-md"
 
 const ICON_TOGGLE_CLASS =
-  "grid size-9 place-items-center rounded-xl text-white/78 transition-[background-color,color] duration-150 hover:bg-white/[0.11] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 aria-pressed:bg-white/[0.16] aria-pressed:text-white"
+  "grid size-9 place-items-center rounded-full text-[color-mix(in_srgb,var(--fg)_78%,transparent)] transition-colors duration-150 hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))] aria-pressed:bg-[var(--settings-control)] aria-pressed:text-[var(--fg)]"
 
 const DN_POPOVER_CLASS =
   "dn-portal-surface desktopnew-popover-content z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-[min(100vw-2rem,15.5rem)] overflow-hidden border-0 p-0 dn-squircle-md"
@@ -87,8 +87,8 @@ const LayerFloatingSettingsButton = forwardRef<
       aria-label={ariaLabel}
       aria-pressed={active}
       className={cn(
-        "flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl text-current transition-[background-color,color] duration-150 hover:bg-[var(--layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--layer-toolbar-button-hover-text,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45",
-        active && "bg-white/[0.16] text-white",
+        "flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-current transition-colors duration-150 hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]",
+        active && "bg-[var(--settings-control)] text-[var(--fg)]",
         className,
       )}
       data-slot="drafting-layer-floating-toolbar-button"
@@ -155,7 +155,7 @@ function LayerFloatingSettingsPopover({
         </PopoverTrigger>
         <PopoverContent
           align="center"
-          className={cn(DN_POPOVER_CLASS, theme === "dark" && "dark")}
+          className={cn(DN_POPOVER_CLASS, "dn-popover-flat", theme === "dark" && "dark")}
           data-slot="drafting-layer-floating-settings-popover"
           data-theme={theme}
           side="top"
@@ -185,8 +185,9 @@ function LayerFloatingSettingsPopover({
       </PopoverTrigger>
       <PopoverContent
         align="center"
-        className={COMPACT_POPOVER_CLASS}
+        className={cn(COMPACT_POPOVER_CLASS, theme === "dark" && "dark")}
         data-slot="drafting-layer-floating-settings-popover"
+        data-theme={theme}
         side="top"
         avoidCollisions
         collisionPadding={12}
@@ -230,7 +231,7 @@ export function FillColorToolbarButton({
           solidOnly={solidOnly}
           title={title}
           value={value}
-          triggerClassName="size-9 rounded-xl [&>span]:size-7 [&>span]:rounded-xl"
+          triggerClassName="size-9 rounded-full [&>span]:size-7 [&>span]:rounded-full"
           variant="swatch"
           onValueChange={onValueChange}
         />
@@ -409,7 +410,7 @@ function EmojiPickerSettings({
       content={
         <div className="w-[min(18rem,calc(100vw-2rem))]">
           <EmojiPicker
-            className="h-[16rem] min-w-0 w-full border-0 bg-transparent p-0 text-white shadow-none [--frimousse-row-height:2rem]"
+            className="h-[16rem] min-w-0 w-full border-0 bg-transparent p-0 text-[var(--fg)] shadow-none [--frimousse-row-height:2rem]"
             columns={8}
             onEmojiSelect={({ emoji }) => {
               onPatch({ text: emoji, textRuns: undefined })
@@ -417,10 +418,10 @@ function EmojiPickerSettings({
             }}
           >
             <EmojiPickerSearch
-              className="border-0 border-b border-white/[0.12] bg-transparent px-0 [&_input]:bg-transparent [&_input]:text-white [&_input]:placeholder:text-white/45"
+              className="border-0 border-b border-[var(--line)] bg-transparent px-0 [&_input]:bg-transparent [&_input]:text-[var(--fg)] [&_input]:placeholder:text-[var(--muted)]"
               placeholder="Search emoji…"
             />
-            <EmojiPickerContent className="[&_[data-slot=emoji-picker-category-header]]:hidden [&_[data-slot=emoji-picker-emoji]]:hover:bg-white/[0.11]" />
+            <EmojiPickerContent className="[&_[data-slot=emoji-picker-category-header]]:hidden [&_[data-slot=emoji-picker-emoji]]:hover:bg-[var(--settings-control)]" />
           </EmojiPicker>
         </div>
       }

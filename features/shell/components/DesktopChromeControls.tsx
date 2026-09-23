@@ -5,7 +5,7 @@ import {
   WindowsOldIcon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { useState, type ComponentProps, type CSSProperties } from "react"
+import { useState, type ComponentProps } from "react"
 
 import { Kbd } from "@/components/kbd"
 import { PopoverContent } from "@/components/ui/popover"
@@ -63,9 +63,11 @@ function getShortcutKeyCombos(keys: string, platform: DesktopShortcutPlatform): 
 export function DesktopKeyboardShortcutsPopoverContent({
   popoverAlign = "end",
   popoverSide = "bottom",
+  theme = "dark",
 }: {
   popoverAlign?: ComponentProps<typeof PopoverContent>["align"]
   popoverSide?: ComponentProps<typeof PopoverContent>["side"]
+  theme?: "light" | "dark"
 }) {
   const [shortcutPlatform, setShortcutPlatform] = useState<DesktopShortcutPlatform>(
     getDefaultShortcutPlatform,
@@ -74,16 +76,15 @@ export function DesktopKeyboardShortcutsPopoverContent({
   return (
     <PopoverContent
       align={popoverAlign}
+      collisionPadding={12}
       data-slot="desktop-keyboard-shortcuts-popover"
+      data-theme={theme}
       side={popoverSide}
       sideOffset={12}
-      className="z-[20000] flex h-[min(44rem,calc(100dvh-7rem))] max-h-[min(44rem,calc(100dvh-7rem))] w-[min(27rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[16px] border border-[#242424] bg-[#0a0a0a] p-0 text-white shadow-[var(--glass-shadow)]"
-      style={
-        {
-          "--settings-field-bg": "#141414",
-          "--settings-section-bg": "#181818",
-        } as CSSProperties
-      }
+      className={cn(
+        "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20000] flex h-[min(44rem,calc(100dvh-7rem))] max-h-[min(44rem,calc(100dvh-7rem))] w-[min(27rem,calc(100vw-1rem))] flex-col overflow-hidden p-0 dn-squircle-md",
+        theme === "dark" && "dark",
+      )}
     >
       <div className="grid shrink-0 grid-cols-[auto_1fr_auto] items-center gap-3 px-4 pb-2 pt-3">
         <div
@@ -100,8 +101,8 @@ export function DesktopKeyboardShortcutsPopoverContent({
                 aria-label={`Use ${platform.label} shortcuts`}
                 aria-pressed={isSelected}
                 className={cn(
-                  "grid size-7 cursor-pointer place-items-center rounded-full text-white/52 transition hover:bg-[#262626] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35",
-                  isSelected && "bg-[#303030] text-white",
+                  "grid size-7 cursor-pointer place-items-center rounded-full text-[var(--muted)] transition hover:bg-[var(--settings-control)] hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]",
+                  isSelected && "bg-[var(--settings-control)] text-[var(--fg)]",
                 )}
                 data-platform={platform.value}
                 data-slot="desktop-shortcut-platform-button"
@@ -120,7 +121,7 @@ export function DesktopKeyboardShortcutsPopoverContent({
           })}
         </div>
         <div className="min-w-0 text-center">
-          <h2 className="text-sm font-semibold text-white/92">Shortcuts</h2>
+          <h2 className="text-sm font-semibold text-[var(--fg)]">Shortcuts</h2>
         </div>
         <span aria-hidden="true" className="w-[3.75rem]" />
       </div>
@@ -140,7 +141,7 @@ export function DesktopKeyboardShortcutsPopoverContent({
                 className="p-2.5"
                 key={group.title}
               >
-                <h3 className="px-1 pb-1.5 text-[11px] font-semibold text-white/64">
+                <h3 className="px-1 pb-1.5 text-[11px] font-semibold text-[var(--muted)]">
                   {group.title}
                 </h3>
                 <div className="grid gap-1">
@@ -156,7 +157,7 @@ export function DesktopKeyboardShortcutsPopoverContent({
                         {getShortcutKeyCombos(keys, shortcutPlatform).map((combo, comboIndex) => (
                           <span className="inline-flex items-center gap-1" key={`${keys}-${comboIndex}`}>
                             {comboIndex > 0 ? (
-                              <span className="px-0.5 text-[10px] font-semibold text-white/34">/</span>
+                              <span className="px-0.5 text-[10px] font-semibold text-[var(--muted)]">/</span>
                             ) : null}
                             {combo.map((key, keyIndex) => (
                               <span
@@ -166,14 +167,14 @@ export function DesktopKeyboardShortcutsPopoverContent({
                                 {keyIndex > 0 ? (
                                   <span
                                     aria-hidden="true"
-                                    className="text-[11px] font-semibold text-white/38"
+                                    className="text-[11px] font-semibold text-[var(--muted)]"
                                     data-slot="desktop-shortcut-combo-separator"
                                   >
                                     +
                                   </span>
                                 ) : null}
                                 <Kbd
-                                  className="border-[#333333] bg-[#202020] text-white/88 shadow-none"
+                                  className="border-[var(--line)] bg-[var(--settings-control)] text-[var(--fg)] shadow-none"
                                   data-slot="desktop-shortcut-kbd"
                                   size="md"
                                   variant="sculpted"
@@ -185,7 +186,7 @@ export function DesktopKeyboardShortcutsPopoverContent({
                           </span>
                         ))}
                       </span>
-                      <span className="min-w-0 text-white/58">{description}</span>
+                      <span className="min-w-0 text-[var(--muted)]">{description}</span>
                     </div>
                   ))}
                 </div>

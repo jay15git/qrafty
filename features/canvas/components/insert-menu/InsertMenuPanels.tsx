@@ -188,7 +188,6 @@ export function InsertMenuRootPanel({
         className={INSERT_MENU_ROOT_SCROLL_CLASS}
         chevron={false}
         cueSize="tight"
-        orientation="horizontal"
         scrollFade
         showScrollbar={false}
         viewportClassName="min-w-0 px-0"

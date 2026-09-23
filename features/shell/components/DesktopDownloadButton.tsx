@@ -21,7 +21,7 @@ export const DesktopDownloadButton = forwardRef<
       ref={ref}
       aria-label="Download"
       className={cn(
-        "relative inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full border-0 bg-transparent px-3 text-sm font-medium whitespace-nowrap text-[var(--glass-fg)] shadow-none transition-colors hover:bg-[var(--glass-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--glass-button-hover-fg,currentColor)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--glass-button-focus-ring)] motion-reduce:transition-none",
+        "relative inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full border-0 bg-transparent px-3 text-sm font-medium whitespace-nowrap text-[var(--glass-fg)] shadow-none transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--glass-button-focus-ring)] motion-reduce:transition-none",
         className,
       )}
       data-slot="desktop-download-trigger"

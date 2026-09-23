@@ -234,11 +234,13 @@ export function LayerContextMenu({
   layers,
   onAction,
   style,
+  theme = "dark",
 }: {
   layerCount: number
   layers: DraftingCanvasLayer[]
   onAction: (action: DraftingLayerMenuAction) => void
   style: CSSProperties
+  theme?: DesktopThemeMode
 }) {
   const isMultiLayer = layerCount > 1
   const hasSelection = layerCount > 0
@@ -246,11 +248,15 @@ export function LayerContextMenu({
 
   return (
     <div
-      className="fixed z-[20000] min-w-52 rounded-[18px] border border-[var(--dropdown-border)] bg-[var(--dropdown-menu-surface-open)] p-1.5 text-[var(--dropdown-text)] shadow-[var(--dropdown-menu-shadow-open)]"
+      className={cn(
+        "dn-portal-surface desktopnew-popover-content dn-popover-flat fixed z-[20000] min-w-52 p-1.5 dn-squircle-md",
+        theme === "dark" && "dark",
+      )}
       data-drafting-dropdown-content="true"
       data-slot="drafting-layer-context-menu"
       data-toolbar-appearance="desktop-glass"
       role="menu"
+      data-theme={theme}
       style={style}
       tabIndex={-1}
       onClick={(event) => event.stopPropagation()}
@@ -294,7 +300,7 @@ function LayerContextMenuButton({
   return (
     <button
       aria-label={label}
-      className="block h-8 w-full cursor-pointer rounded-full px-3 text-left text-[12px] font-semibold text-current transition-[background-color,color] duration-150 hover:bg-white/[0.11] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
+      className="block h-8 w-full cursor-pointer rounded-full px-3 text-left text-[12px] font-semibold text-current transition-[background-color,color] duration-150 hover:bg-[var(--settings-control)] hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]"
       role="menuitem"
       type="button"
       onClick={onClick}
@@ -308,7 +314,7 @@ function LayerContextMenuSeparator() {
   return (
     <div
       aria-hidden="true"
-      className="my-1 h-px bg-white/[0.12]"
+      className="my-1 h-px bg-[var(--line)]"
       data-slot="drafting-layer-context-menu-separator"
     />
   )
@@ -346,10 +352,14 @@ export const LayerFloatingToolbar = forwardRef<
   return (
     <div
       ref={ref}
-      className="pointer-events-auto absolute left-1/2 top-1/2 z-[10001] inline-flex h-12 items-center justify-center gap-1 rounded-2xl border border-white/[0.12] bg-[#171717] px-1.5 text-white/78 shadow-[var(--glass-shadow)]"
+      className={cn(
+        "dn-portal-surface desktopnew-popover-content pointer-events-auto absolute left-1/2 top-1/2 z-[10001] inline-flex h-12 max-w-[calc(100%-1rem)] items-center justify-start gap-1 overflow-x-auto rounded-full px-1.5 text-[var(--fg)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        theme === "dark" && "dark",
+      )}
       data-slot="drafting-layer-floating-toolbar"
       data-toolbar-appearance="desktop-glass"
       role="toolbar"
+      data-theme={theme}
       aria-label="Layer actions"
       style={style}
       tabIndex={-1}
@@ -399,7 +409,7 @@ function LayerFloatingToolbarButton({
   return (
     <button
       aria-label={label}
-        className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl text-current transition-[background-color,color] duration-150 hover:bg-[var(--layer-toolbar-button-hover-bg,rgba(255,255,255,0.11))] hover:text-[var(--layer-toolbar-button-hover-text,white)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
+        className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-[color-mix(in_srgb,var(--fg)_78%,transparent)] transition-colors duration-150 hover:text-[var(--fg)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]"
       data-slot="drafting-layer-floating-toolbar-button"
       disabled={disabled}
       type="button"

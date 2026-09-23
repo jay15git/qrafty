@@ -126,7 +126,7 @@ function PaneLayerControlsFrame({
       />
       {isRotating ? (
         <div
-          className="pointer-events-none absolute left-1/2 top-0 rounded-full border border-white/[0.12] bg-[var(--glass-bg)] px-2.5 py-1 text-[0.68rem] font-semibold text-white/82 shadow-[var(--glass-shadow)] backdrop-blur-2xl"
+          className="pointer-events-none absolute left-1/2 top-0 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-2.5 py-1 text-[0.68rem] font-semibold text-[var(--glass-fg)] shadow-[var(--glass-shadow)] backdrop-blur-2xl"
           data-slot="drafting-layer-rotation-value"
           data-toolbar-appearance="desktop-glass"
           style={{
@@ -231,7 +231,7 @@ function PaneMultiSelectFrame({
       />
       {isRotating ? (
         <div
-          className="pointer-events-none absolute left-1/2 top-0 rounded-full border border-white/[0.12] bg-[var(--glass-bg)] px-2.5 py-1 text-[0.68rem] font-semibold text-white/82 shadow-[var(--glass-shadow)] backdrop-blur-2xl"
+          className="pointer-events-none absolute left-1/2 top-0 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-2.5 py-1 text-[0.68rem] font-semibold text-[var(--glass-fg)] shadow-[var(--glass-shadow)] backdrop-blur-2xl"
           data-slot="drafting-layer-rotation-value"
           data-toolbar-appearance="desktop-glass"
           style={{
@@ -633,6 +633,7 @@ export function PaneCanvasContent(props: PaneCanvasContentProps) {
               layerCount={contextMenu.layerIds.length}
               layers={contextMenuLayers}
               onAction={onRunLayerAction}
+              theme={props.theme}
               style={{
                 left: contextMenu.x,
                 top: contextMenu.y,

@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -76,7 +77,7 @@ function FamilyDrawerRoot({
 }: FamilyDrawerRootProps) {
   const [internalOpen, setInternalOpen] = useState(defaultOpen)
   const [view, setView] = useState(defaultView)
-  const [elementRef, bounds] = useMeasure()
+  const [elementRef, bounds, refreshBounds] = useMeasure()
   const previousHeightRef = useRef<number>(0)
 
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen
@@ -99,6 +100,15 @@ function FamilyDrawerRoot({
   useEffect(() => {
     previousHeightRef.current = bounds.height
   }, [bounds.height])
+
+  // The portal mounts the measured wrapper in the same commit the drawer
+  // opens; the observer can miss that first layout when the drawer opens
+  // straight onto a detail view, leaving the frame stuck at a stale height.
+  useLayoutEffect(() => {
+    if (isOpen) {
+      refreshBounds()
+    }
+  }, [isOpen, view, refreshBounds])
 
   const views =
     customViews && Object.keys(customViews).length > 0 ? customViews : undefined

@@ -11,6 +11,7 @@ import type {
 } from "@/features/shell/components/FloatingToolbar"
 import { DesktopExportSettingsPanel } from "@/features/shell/inspector/DesktopExportSettingsPanel"
 import { DesktopnewThemeContext } from "@/features/shell/inspector/theme-context"
+import { cn } from "@/lib/utils"
 
 import "@/features/shell/inspector/inspector.css"
 
@@ -35,10 +36,15 @@ export function DesktopExportDownloadPopover({
       </div>
       <PopoverContent
         align="end"
+        collisionPadding={12}
         data-slot="desktop-export-popover"
+        data-theme={theme}
         side="bottom"
         sideOffset={12}
-        className="z-[20000] flex max-h-[min(28rem,calc(100dvh-8rem))] w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[16px] border border-[var(--appearance-popover-border)] bg-[var(--appearance-popover-bg)] p-0 text-[var(--settings-fg-secondary)] shadow-[var(--appearance-popover-shadow)]"
+        className={cn(
+          "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20000] flex max-h-[min(28rem,calc(100dvh-8rem))] w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden p-0 dn-squircle-md",
+          theme === "dark" && "dark",
+        )}
       >
         <ScrollArea
           chevron

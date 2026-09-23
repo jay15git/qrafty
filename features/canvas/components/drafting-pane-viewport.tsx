@@ -14,6 +14,7 @@ import type {
   DraftingPane,
   DraftingPaneCanvasTool,
 } from "@/features/canvas/components/DraftingPaneSurface"
+import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
 import { cn } from "@/lib/utils"
 
 type DraftingPaneViewportProps = {
@@ -64,6 +65,7 @@ type DraftingPaneViewportProps = {
   surfaceAppearance: "template" | "workspace" | "neutral"
   surfaceRef: RefObject<HTMLDivElement | null>
   viewFitScale?: number
+  theme?: DesktopThemeMode
 }
 
 type DraftingPaneContentProps = Pick<
@@ -89,6 +91,7 @@ type DraftingPaneContentProps = Pick<
   | "selectedLayerIds"
   | "snapEnabled"
   | "viewFitScale"
+  | "theme"
 >
 
 function DraftingPaneContent({
@@ -113,6 +116,7 @@ function DraftingPaneContent({
   selectedLayerIds,
   snapEnabled,
   viewFitScale = 1,
+  theme,
 }: DraftingPaneContentProps) {
   return (
     <div
@@ -168,6 +172,7 @@ function DraftingPaneContent({
         onSelect={onSelect}
         selectedLayerId={isSelected && !hideLayerSelectionChrome ? selectedLayerId : null}
         selectedLayerIds={isSelected && !hideLayerSelectionChrome ? selectedLayerIds : undefined}
+        theme={theme}
       />
     </div>
   )
@@ -285,6 +290,7 @@ export function DraftingPaneViewport({
   surfaceAppearance,
   surfaceRef,
   viewFitScale = 1,
+  theme,
 }: DraftingPaneViewportProps) {
   return (
     <div
@@ -356,6 +362,7 @@ export function DraftingPaneViewport({
         selectedLayerIds={selectedLayerIds}
         snapEnabled={snapEnabled}
         viewFitScale={viewFitScale}
+        theme={theme}
       />
       <DraftingPanOverlay
         activeCanvasTool={activeCanvasTool}
