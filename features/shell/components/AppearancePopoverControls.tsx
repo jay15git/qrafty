@@ -1,4 +1,3 @@
-import { useRef } from "react"
 import { Link2, Unlink2 } from "lucide-react"
 import {
   DESKTOP_INSPECTOR_SECTION_GAP_CLASS,
@@ -88,33 +87,25 @@ function BorderColorRow({
   appearance: DesktopAppearanceSnapshot
   onPatch: (patch: DesktopAppearancePatch) => void
 }) {
-  const pickerRef = useRef<{ openPicker: () => void } | null>(null)
   const border = appearance.border
 
   return (
-    <>
-      <div className="flex min-h-[var(--settings-control-height)] items-center">
-        <span className="dn-row-label-text pl-[var(--settings-row-px)]">Color</span>
-        <button
-          aria-label="Border color"
-          className="ml-auto size-7 shrink-0 cursor-pointer overflow-hidden rounded-full border-2 border-[color-mix(in_srgb,var(--line)_40%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--ring))]"
-          style={{ background: border.color }}
-          type="button"
-          onClick={() => pickerRef.current?.openPicker()}
-        />
-      </div>
+    <div className="flex min-h-[var(--settings-control-height)] items-center">
+      <span className="dn-row-label-text pl-[var(--settings-row-px)]">Color</span>
       <SettingsFillPopover
-        ref={pickerRef}
+        align="start"
         hint="Border color"
+        side="right"
         solidOnly
         title="Border color"
+        triggerClassName="ml-auto"
         value={border.color}
-        variant="picker-only"
+        variant="swatch"
         onValueChange={(_fill, css) =>
           onPatch({ border: { ...border, color: fillPreviewHex(css) || "#111827" } })
         }
       />
-    </>
+    </div>
   )
 }
 

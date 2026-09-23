@@ -2,11 +2,12 @@
 
 import { useContext, useEffect, useRef, useState } from "react"
 
-import { usePersistedScrollNode } from "@/lib/persisted-element-scroll"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 import {
   ColorPicker,
 } from "@/components/ui/fill-picker/base/color-picker"
+import { EyeDropper } from "@/components/ui/fill-picker/parts/eye-dropper"
 import {
   FillPickerPortalSurfaceProvider,
 } from "@/components/ui/fill-picker/base/contexts/portal-surface"
@@ -124,7 +125,10 @@ function FillPickerColorPane() {
       <ColorPicker.Area className="dn-fill-picker-area" />
       <ColorPicker.Hue className="dn-fill-picker-slider" />
       <ColorPicker.Alpha className="dn-fill-picker-slider" />
-      <ColorPicker.ChannelInput className="dn-fill-picker-channel-input" />
+      <div className="flex w-full min-w-0 items-stretch gap-2">
+        <ColorPicker.ChannelInput className="dn-fill-picker-channel-input min-w-0 flex-1" />
+        <EyeDropper className="dn-fill-picker-eye-dropper shrink-0" />
+      </div>
     </FillPicker.Pane>
   )
 }
@@ -153,7 +157,10 @@ function FillPickerGradientPane({ qrGradient }: { qrGradient: boolean }) {
         <ColorPicker.Area className="dn-fill-picker-area" />
         <ColorPicker.Hue className="dn-fill-picker-slider" />
         <ColorPicker.Alpha className="dn-fill-picker-slider" />
-        <ColorPicker.ChannelInput className="dn-fill-picker-channel-input" />
+        <div className="flex w-full min-w-0 items-stretch gap-2">
+          <ColorPicker.ChannelInput className="dn-fill-picker-channel-input min-w-0 flex-1" />
+          <EyeDropper className="dn-fill-picker-eye-dropper shrink-0" />
+        </div>
       </GradientPicker.StopColor>
     </FillPicker.Pane>
   )
@@ -257,7 +264,6 @@ export function DesktopFillPicker({
   const fillPickerInitialMode = initialMode === "gradient" ? "gradient" : "color"
   const [activeMode, setActiveMode] = useState<ModuleFillTabMode>(initialMode)
   const pickerMode = activeMode === "gradient" ? "gradient" : "color"
-  const setScrollNode = usePersistedScrollNode("fill-picker")
   const theme = useContext(DesktopnewThemeContext)
   const showModeTabs = !resolvedSolidOnly && !lockedFillMode
   const showSolidPane = resolvedSolidOnly || lockedFillMode !== "gradient"
@@ -301,12 +307,15 @@ export function DesktopFillPicker({
         ),
       }}
     >
-    <div
-      ref={setScrollNode}
+    <ScrollArea
+      chevron={false}
       className={cn(
-        "dn-fill-picker-panel max-h-[min(72dvh,40rem)] max-w-none overflow-y-auto",
+        "dn-fill-picker-panel max-h-[min(72dvh,40rem)] max-w-none",
         className,
       )}
+      cueSize="tight"
+      persistKey="fill-picker"
+      scrollFade
     >
     <FillPicker.Root
       className="dn-fill-picker-root max-w-none border-0 bg-transparent shadow-none"
@@ -333,7 +342,7 @@ export function DesktopFillPicker({
         showSolidPane={showSolidPane}
       />
     </FillPicker.Root>
-    </div>
+    </ScrollArea>
     </FillPickerPortalSurfaceProvider>
   )
 }

@@ -508,7 +508,6 @@ function MobileLayerTextTools({
           <TextSizeSettings
             layer={layer}
             onPatch={onPatch}
-            onSelect={() => mobileNav?.closeDetail()}
           />
         }
         title="Size"

@@ -202,7 +202,10 @@ export function InlineSlider({
     const readout = readoutRef.current;
     if (!track || !labelElement || !readout) return;
     const measure = () => {
-      const width = track.getBoundingClientRect().width;
+      // offsetWidth, not getBoundingClientRect: inside a Radix popover the
+      // enter zoom scales the rect, which would shrink `endX` and let the
+      // fill overshoot the thumb.
+      const width = track.offsetWidth;
       if (!width) return;
       const next = {
         width,
@@ -263,7 +266,7 @@ export function InlineSlider({
     lastCommittedValue.current = null;
   }, [current]);
   const fillRight = useTransform(handleX, (x) =>
-    x >= endX ? geometry.width - 2 : x + 8,
+    x >= endX ? geometry.width - 2 : x + 2,
   );
   // Slide a fixed-size fill inside the inset clipping window. The labels and
   // dots stay above it, and only transforms animate.

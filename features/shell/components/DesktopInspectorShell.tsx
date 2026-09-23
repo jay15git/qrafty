@@ -111,7 +111,7 @@ export function DesktopInspectorNumberField({
     <div
       className={cn(
         fill
-          ? "grid w-full min-w-0 grid-cols-[2.75rem_minmax(0,1fr)] items-center gap-x-2"
+          ? "grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2"
           : "grid grid-cols-[1.25rem_4.75rem] items-center gap-x-2.5",
         className,
       )}

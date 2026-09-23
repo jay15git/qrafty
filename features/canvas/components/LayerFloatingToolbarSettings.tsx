@@ -19,6 +19,7 @@ import {
   EmojiPickerSearch,
 } from "@/components/ui/emoji-picker"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Fill } from "@/components/ui/fill-picker/public-api"
 import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
 import { DesktopnewThemeContext } from "@/features/shell/inspector/theme-context"
@@ -40,7 +41,6 @@ import {
   type DraftingTextAlign,
 } from "@/features/canvas/model/layers"
 import {
-  COMPACT_TEXT_FONT_SIZES,
   getDraftingEmojiLayerSizePatch,
   isDraftingEmojiLayer,
   isDraftingIllustrationLayer,
@@ -59,7 +59,7 @@ import { CUELUME_TOGGLE } from "@/features/shell/audio/desktop-cuelume"
 import "@/features/shell/inspector/inspector.css"
 
 const COMPACT_POPOVER_CLASS =
-  "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-y-auto p-3 dn-squircle-md"
+  "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20001] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-hidden dn-squircle-md"
 
 const ICON_TOGGLE_CLASS =
   "grid size-9 place-items-center rounded-full text-[color-mix(in_srgb,var(--fg)_78%,transparent)] transition-colors duration-150 hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))] aria-pressed:bg-[var(--settings-control)] aria-pressed:text-[var(--fg)]"
@@ -195,7 +195,15 @@ function LayerFloatingSettingsPopover({
         onClick={(event) => event.stopPropagation()}
         onPointerDown={(event) => event.stopPropagation()}
       >
-        {children ?? content}
+        <ScrollArea
+          chevron={false}
+          className="max-h-[min(32rem,calc(100vh-2rem))]"
+          cueSize="tight"
+          scrollFade
+          viewportClassName="p-3"
+        >
+          {children ?? content}
+        </ScrollArea>
       </PopoverContent>
     </Popover>
   )
@@ -290,24 +298,19 @@ export function TextAlignmentSettings({
 export function TextSizeSettings({
   layer,
   onPatch,
-  onSelect,
 }: {
   layer: DraftingCanvasLayer
   onPatch: (patch: Partial<DraftingCanvasLayer>) => void
-  onSelect?: () => void
 }) {
   const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize
   const isEmojiLayer = isDraftingEmojiLayer(layer)
 
-  function applySize(size: number, close = false) {
+  function applySize(size: number) {
     onPatch(
       isEmojiLayer
         ? { ...getDraftingEmojiLayerSizePatch(layer, size), textRuns: undefined }
         : { fontSize: size, textRuns: undefined },
     )
-    if (close) {
-      onSelect?.()
-    }
   }
 
   return (
@@ -322,25 +325,6 @@ export function TextSizeSettings({
         value={fontSize}
         onChange={(size) => applySize(size)}
       />
-      <div
-        aria-label="Preset text sizes"
-        className="grid grid-cols-4 gap-1"
-        role="group"
-      >
-        {COMPACT_TEXT_FONT_SIZES.map((size) => (
-          <button
-            aria-label={`${size}px`}
-            aria-pressed={fontSize === size}
-            className={cn(DN_OPTION_TILE_CLASS, "dn-type-chip")}
-            key={size}
-            type="button"
-            {...CUELUME_TOGGLE}
-            onClick={() => applySize(size, true)}
-          >
-            {size}
-          </button>
-        ))}
-      </div>
     </div>
   )
 }
@@ -490,7 +474,6 @@ function TextLayerFloatingSettings({
             <TextSizeSettings
               layer={layer}
               onPatch={onPatch}
-              onSelect={() => setSizeOpen(false)}
             />
           }
           open={sizeOpen}
@@ -582,7 +565,6 @@ function TextLayerFloatingSettings({
           <TextSizeSettings
             layer={layer}
             onPatch={onPatch}
-            onSelect={() => setSizeOpen(false)}
           />
         }
         open={sizeOpen}

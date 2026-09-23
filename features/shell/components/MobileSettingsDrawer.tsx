@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, ChevronLeft, X } from "lucide-react"
+import { Check, X } from "lucide-react"
 import {
   createContext,
   useContext,
@@ -139,10 +139,10 @@ function FamilyDrawerViewBridge({ children, view }: { children: ReactNode; view:
 /** Detail page pushed on top of a section — pickers, insert menus, layer tools. */
 function MobileSettingDetailView({
   model,
-  onDiscard,
+  onSave,
 }: {
   model: DesktopInspectorModel
-  onDiscard: () => void
+  onSave: () => void
 }) {
   const navigation = useMobileDrawerNavigation()
   const theme = model.actualDesktopTheme
@@ -164,17 +164,17 @@ function MobileSettingDetailView({
               type="button"
               onClick={() => navigation?.closeDetail()}
             >
-              <ChevronLeft aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
+              <X aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
             </button>
             <h2 className="dn-mobile-drawer-nested-header__title">{title}</h2>
             <button
-              aria-label="Discard changes"
+              aria-label="Save changes"
               className="dn-mobile-drawer-back"
               data-vaul-no-drag=""
               type="button"
-              onClick={onDiscard}
+              onClick={onSave}
             >
-              <X aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
+              <Check aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
             </button>
           </header>
           <MobileDetailStackOutlets />
@@ -272,7 +272,7 @@ export function MobileSettingsDrawer({
         if (!p) {
           return null
         }
-        return <MobileSettingDetailView model={p.model} onDiscard={p.onDiscard} />
+        return <MobileSettingDetailView model={p.model} onSave={p.onSave} />
       },
     }),
     [],
@@ -308,7 +308,7 @@ export function MobileSettingsDrawer({
           maxHeight={maxHeight}
           variant="card"
         >
-          <FamilyDrawerAnimatedWrapper className="dn-mobile-drawer-body px-5 pt-4">
+          <FamilyDrawerAnimatedWrapper className="dn-mobile-drawer-body px-[var(--settings-row-px)] pt-3">
             <MobileDrawerViewPropsContext.Provider value={viewProps}>
               <FamilyDrawerViewBridge view={view}>
                 <FamilyDrawerAnimatedContent />

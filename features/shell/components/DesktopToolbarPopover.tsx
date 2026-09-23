@@ -3,17 +3,24 @@
 import { useState, type ReactNode } from "react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { DesktopTooltip } from "@/features/shell/components/DesktopTooltip"
+import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui"
 import { cn } from "@/lib/utils"
 
 export function DesktopToolbarPopoverContent({
   children,
   dataSlot = "desktop-toolbar-popover",
   disableScroll = false,
-  fitContent = false,
+  fitContent = true,
   flush = false,
   theme = "dark",
+  title,
 }: {
   children: ReactNode
   dataSlot?: string
@@ -21,6 +28,9 @@ export function DesktopToolbarPopoverContent({
   fitContent?: boolean
   flush?: boolean
   theme?: "light" | "dark"
+  /** Popover chrome header — centered title + top-right close, matching the
+   *  settings-panel popovers. */
+  title?: string
 }) {
   const heightClass = fitContent
     ? "max-h-[min(28rem,calc(100dvh-8rem))]"
@@ -60,6 +70,14 @@ export function DesktopToolbarPopoverContent({
         heightClass,
       )}
     >
+      {title ? (
+        <div className="dn-settings-popover-header">
+          <p className="dn-settings-popover-title">{title}</p>
+          <PopoverClose asChild>
+            <SettingsPopoverCloseButton title={title} />
+          </PopoverClose>
+        </div>
+      ) : null}
       {content}
     </PopoverContent>
   )

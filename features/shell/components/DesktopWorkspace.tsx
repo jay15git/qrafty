@@ -8,6 +8,7 @@ import {
   type DesktopToolbarToolId,
 } from "@/features/shell/components/FloatingToolbar"
 import { useDesktopWorkspaceThemeSync } from "@/features/shell/hooks/use-desktop-workspace-theme-sync"
+import { DesktopnewThemeContext } from "@/features/shell/inspector/theme-context"
 import "@/features/canvas/workspace-tokens.css"
 import { DesktopWorkspaceStyles } from "@/features/shell/components/desktop-workspace-styles"
 import { DesktopWorkspaceEntrance } from "@/features/shell/components/DesktopWorkspaceEntrance"
@@ -57,6 +58,7 @@ export function DesktopWorkspace({
         desktopTheme === "light" ? "bg-[#f0f1f2] text-neutral-950" : "bg-(--canvas-page-bg) text-white",
       )}
     >
+      <DesktopnewThemeContext.Provider value={desktopTheme}>
       <DesktopCuelumeProvider>
         <BlurFadeThemeTransition theme={desktopTheme} onThemeChange={setDesktopTheme}>
           <DesktopWorkspaceEntrance theme={desktopTheme}>
@@ -77,7 +79,7 @@ export function DesktopWorkspace({
           </DesktopWorkspaceEntrance>
         </BlurFadeThemeTransition>
       </DesktopCuelumeProvider>
-      <DesktopWorkspaceStyles />
+      </DesktopnewThemeContext.Provider>
     </section>
   )
 }

@@ -117,6 +117,26 @@ function desktopnewPortalClass(theme: "light" | "dark", className?: string) {
   return cn(className, theme === "dark" && "dark")
 }
 
+export function SettingsPopoverCloseButton({
+  onClick,
+  title,
+}: {
+  onClick?: () => void
+  title?: string
+}) {
+  return (
+    <button
+      aria-label={title ? `Close ${title}` : "Close"}
+      className="dn-settings-popover-close"
+      type="button"
+      onClick={onClick}
+      {...CUELUME_BUTTON}
+    >
+      <X aria-hidden className="size-3.5" strokeWidth={2} />
+    </button>
+  )
+}
+
 export function SettingsPopoverChrome({
   title,
   onClose,
@@ -132,17 +152,17 @@ export function SettingsPopoverChrome({
     <div className="dn-settings-popover-shell">
       <div className="dn-settings-popover-header">
         <p className="dn-settings-popover-title">{title}</p>
-        <button
-          aria-label={`Close ${title}`}
-          className="dn-settings-popover-close"
-          type="button"
-          onClick={onClose}
-          {...CUELUME_BUTTON}
-        >
-          <X aria-hidden className="size-3.5" strokeWidth={2} />
-        </button>
+        <SettingsPopoverCloseButton title={title} onClick={onClose} />
       </div>
-      <div className={cn("dn-settings-popover-body", bodyClassName)}>{children}</div>
+      <ScrollArea
+        chevron={false}
+        className="dn-settings-popover-body min-h-0 flex-1"
+        cueSize="tight"
+        scrollFade
+        viewportClassName={cn("dn-settings-popover-body-viewport", bodyClassName)}
+      >
+        {children}
+      </ScrollArea>
     </div>
   )
 }

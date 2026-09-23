@@ -31,6 +31,7 @@ import { TooltipNavbar, type TooltipItem } from "@/components/ui/tooltip-navbar"
 import { LAYER_FILTER_EFFECT_KINDS } from "@/features/canvas/model/layer-effects"
 import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
 import type { SizeTemplate } from "@/features/canvas/model/size-templates"
+import type { DesktopCardSizeSettings } from "@/features/shell/model/card-size-settings"
 
 const ICON_CLASS = "size-4 shrink-0"
 
@@ -49,9 +50,11 @@ type DesktopDynamicIslandChromeProps = {
 
   onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void
   onSelectSizeTemplate?: (template: SizeTemplate) => void
+  onSizeChange?: (patch: Partial<DesktopCardSizeSettings>) => void
   selectedElementLayer?: DraftingCanvasLayer | null
   selectedTransformLayer?: DraftingCanvasLayer | null
   sizePresetId?: string
+  sizeSettings?: DesktopCardSizeSettings
   theme?: DesktopThemeMode
 }
 
@@ -70,9 +73,11 @@ function useDesktopIslandItems({
 
   onTransformLayerPatch,
   onSelectSizeTemplate,
+  onSizeChange,
   selectedElementLayer,
   selectedTransformLayer,
   sizePresetId,
+  sizeSettings,
   theme,
 }: Omit<DesktopDynamicIslandChromeProps, "theme"> & {
   theme: DesktopThemeMode
@@ -120,7 +125,7 @@ function useDesktopIslandItems({
       label,
       variant: labeled ? "icon-label" : undefined,
       popover: (
-        <DesktopToolbarPopoverContent dataSlot={`${slot}-popover`} fitContent theme={theme}>
+        <DesktopToolbarPopoverContent dataSlot={`${slot}-popover`} theme={theme} title={label}>
           {panel}
         </DesktopToolbarPopoverContent>
       ),
@@ -139,7 +144,9 @@ function useDesktopIslandItems({
         popover: (
           <DesktopCanvasRatioPresetPopoverContent
             onSelectTemplate={onSelectSizeTemplate}
+            onSizeChange={onSizeChange}
             selectedPresetId={sizePresetId}
+            sizeSettings={sizeSettings}
             theme={theme}
           />
         ),
@@ -271,20 +278,20 @@ function useDesktopIslandItems({
     hasStyle,
     hasTransform,
     insertNodeId,
-
     onAddQrCode,
     onAppearancePatch,
     onBrowseWallpapers,
     onElementLayerPatch,
     onInsertLayer,
-
     onSelectSizeTemplate,
+    onSizeChange,
     onTransformLayerPatch,
     selectedElementLayer,
     selectedTransformLayer,
     shadowsLayer,
     shadowsPatch,
     sizePresetId,
+    sizeSettings,
     theme,
   ])
 

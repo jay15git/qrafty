@@ -32,4 +32,4 @@ PopoverContent.displayName = PopoverPrimitive.Content.displayName
 
 const PopoverClose = PopoverPrimitive.Close
 
-export { Popover, PopoverTrigger, PopoverContent, PopoverClose }
+export { Popover, PopoverAnchor, PopoverTrigger, PopoverContent, PopoverClose }

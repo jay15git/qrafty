@@ -16,7 +16,6 @@ import {
   SnapGuideOverlay,
 } from "@/features/canvas/components/PaneLayerChrome"
 import {
-  CONTEXT_MENU_POINTER_OFFSET_PX,
   FLOATING_TOOLBAR_EDGE_GUTTER_PX,
   FLOATING_TOOLBAR_GAP_PX,
   FLOATING_TOOLBAR_HEIGHT_PX,
@@ -540,6 +539,7 @@ export type PaneCanvasContentProps = PaneChromeOverlayProps & {
   isImageFilterMode: boolean
   isImageMode: boolean
   isPaperShaderMode: boolean
+  onCloseContextMenu: () => void
   onRunLayerAction: (action: DraftingLayerMenuAction) => void
   previewCameraStyle: CSSProperties
   previewStageBorderRadius: string
@@ -560,7 +560,8 @@ export function PaneCanvasContent(props: PaneCanvasContentProps) {
     isImageFilterMode,
     isImageMode,
     isPaperShaderMode,
-    onRunLayerAction,
+  onCloseContextMenu,
+  onRunLayerAction,
     previewCameraStyle,
     previewStageBorderRadius,
     previewStageSize,
@@ -630,14 +631,12 @@ export function PaneCanvasContent(props: PaneCanvasContentProps) {
       {contextMenu && typeof document !== "undefined"
         ? createPortal(
             <LayerContextMenu
+              anchor={{ x: contextMenu.x, y: contextMenu.y }}
               layerCount={contextMenu.layerIds.length}
               layers={contextMenuLayers}
               onAction={onRunLayerAction}
+              onClose={onCloseContextMenu}
               theme={props.theme}
-              style={{
-                left: contextMenu.x,
-                top: contextMenu.y,
-              }}
             />,
             document.body,
           )

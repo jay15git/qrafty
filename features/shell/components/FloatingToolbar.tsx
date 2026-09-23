@@ -71,10 +71,12 @@ export function FloatingToolbar({
     onAppearancePatch: controller?.onAppearancePatch,
     onInsertLayer: controller?.onInsertLayer,
     onSelectSizeTemplate: controller?.onSceneTemplateSizeTemplateSelect,
+    onSizeChange: controller?.onSceneTemplateSizeChange,
     onTransformLayerPatch: controller?.onTransformLayerPatch,
     selectedElementLayer: controller?.selectedElementLayer,
     selectedTransformLayer: controller?.selectedTransformLayer,
     sizePresetId: controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId,
+    sizeSettings: controller?.sceneTemplateSettings?.sizeSettings,
     theme: actualDesktopTheme,
   })
   const toolbarRootRef = useRef<HTMLElement | null>(null)

@@ -2,6 +2,7 @@
 
 import { Switch } from "@/components/ui/switch"
 import {
+  DesktopInspectorLabel,
   DesktopInspectorSection,
 } from "@/features/shell/components/InspectorControls"
 import {
@@ -63,30 +64,33 @@ export function DesktopShadowsList({
 
   return (
     <DesktopInspectorSection dataSlot="desktop-shadows-list">
-      <p className="mb-0 font-medium text-[var(--settings-fg-secondary)] text-[length:var(--settings-type-label,0.6875rem)]">
-        Shadows
-      </p>
+      <DesktopInspectorLabel>Shadows</DesktopInspectorLabel>
+      <Switch
+        checked={enabled}
+        className="dn-switch-row"
+        label="Drop shadow"
+        size="compact"
+        onToggle={handleToggle}
+      />
 
-      <div className="flex items-center gap-2" data-slot="desktop-shadow-row">
-        <Switch
-          checked={enabled}
-          className="dn-switch-row flex-1"
-          label="Drop shadow"
-          size="compact"
-          onToggle={handleToggle}
-        />
-        {effect && enabled ? (
+      {effect && enabled ? (
+        <div className="flex min-h-[var(--settings-control-height)] items-center">
+          <span className="dn-row-label-text pl-[var(--settings-row-px)]">Color</span>
           <SettingsFillPopover
+            align="start"
             hint="Drop shadow color"
+            side="right"
             solidOnly
-            variant="swatch"
+            title="Drop shadow color"
+            triggerClassName="ml-auto"
             value={effect.shadow.color}
+            variant="swatch"
             onValueChange={(_fill, css) =>
               handlePatchShadow({ color: fillPreviewHex(css) || "#000000" })
             }
           />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
 
       {effect && enabled ? (
         <div className="grid gap-2" data-slot="desktop-shadow-controls">

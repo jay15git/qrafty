@@ -815,6 +815,10 @@ export function usePaneWorkspaceInteractions({
     setContextMenu(null)
   }
 
+  function closeContextMenu() {
+    setContextMenu(null)
+  }
+
   function runSelectedLayerAction(action: DraftingLayerMenuAction) {
     if (selectedVisibleLayerIds.length === 0) {
       return
@@ -1423,6 +1427,7 @@ export function usePaneWorkspaceInteractions({
     toolbarWidth,
     visibleLayers,
     activateLayerSelection,
+    closeContextMenu,
     commitEditingTextDraft,
     endLayerInteraction,
     endMarqueeSelection,

@@ -1,10 +1,6 @@
 import type { DraftingCanvasLayer } from "@/features/canvas/model/layers"
 import { createDraftingTextLayer } from "@/features/canvas/model/layers"
 
-export const COMPACT_TEXT_FONT_SIZES = [
-  12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72, 96, 120,
-] as const
-
 const EMOJI_LAYER_TEXT_PATTERN =
   /^(?:\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)+$/u
 

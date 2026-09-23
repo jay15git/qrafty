@@ -2,6 +2,7 @@
 
 import {
   forwardRef,
+  useMemo,
   type CSSProperties,
   type MouseEvent,
   type PointerEvent,
@@ -13,6 +14,7 @@ import {
   Trash2Icon,
 } from "lucide-react"
 
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover"
 import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
 import { LayerFloatingToolbarSettings } from "@/features/canvas/components/LayerFloatingToolbarSettings"
 import {
@@ -230,63 +232,80 @@ export function SnapGuideOverlay({
 }
 
 export function LayerContextMenu({
+  anchor,
   layerCount,
   layers,
   onAction,
-  style,
+  onClose,
   theme = "dark",
 }: {
+  /** Client-space point the menu anchors to (pointer or trigger rect). */
+  anchor: { x: number; y: number }
   layerCount: number
   layers: DraftingCanvasLayer[]
   onAction: (action: DraftingLayerMenuAction) => void
-  style: CSSProperties
+  onClose: () => void
   theme?: DesktopThemeMode
 }) {
   const isMultiLayer = layerCount > 1
   const hasSelection = layerCount > 0
   const hasGroupLayer = layers.some((layer) => layer.kind === "group")
+  const virtualAnchor = useMemo(
+    () => ({
+      current: {
+        getBoundingClientRect: () => new DOMRect(anchor.x, anchor.y, 0, 0),
+      },
+    }),
+    [anchor.x, anchor.y],
+  )
 
   return (
-    <div
-      className={cn(
-        "dn-portal-surface desktopnew-popover-content dn-popover-flat fixed z-[20000] min-w-52 p-1.5 dn-squircle-md",
-        theme === "dark" && "dark",
-      )}
-      data-drafting-dropdown-content="true"
-      data-slot="drafting-layer-context-menu"
-      data-toolbar-appearance="desktop-glass"
-      role="menu"
-      data-theme={theme}
-      style={style}
-      tabIndex={-1}
-      onClick={(event) => event.stopPropagation()}
-      onContextMenu={(event) => event.preventDefault()}
-    >
-      {hasSelection ? (
-        <>
-          <LayerContextMenuButton label="Bring to front" onClick={() => onAction("front")} />
-          <LayerContextMenuButton label="Bring forward" onClick={() => onAction("forward")} />
-          <LayerContextMenuButton label="Send backward" onClick={() => onAction("backward")} />
-          <LayerContextMenuButton label="Send to back" onClick={() => onAction("back")} />
-          <LayerContextMenuSeparator />
-          <LayerContextMenuButton label="Reset rotation" onClick={() => onAction("reset-rotation")} />
-          {isMultiLayer ? (
-            <>
-              <LayerContextMenuSeparator />
-              <LayerContextMenuButton label="Group" onClick={() => onAction("group")} />
-              <LayerContextMenuButton label="Distribute selection horizontally" onClick={() => onAction("horizontal")} />
-              <LayerContextMenuButton label="Distribute selection vertically" onClick={() => onAction("vertical")} />
-            </>
-          ) : null}
-          {hasGroupLayer ? (
-            <>
-              <LayerContextMenuSeparator />
-              <LayerContextMenuButton label="Ungroup" onClick={() => onAction("ungroup")} />
-            </>
-          ) : null}
-        </>
-      ) : null}
-    </div>
+    <Popover modal={false} open onOpenChange={(open) => !open && onClose()}>
+      <PopoverAnchor virtualRef={virtualAnchor} />
+      <PopoverContent
+        align="start"
+        avoidCollisions
+        collisionPadding={8}
+        side="bottom"
+        sideOffset={4}
+        className={cn(
+          "dn-portal-surface desktopnew-popover-content dn-popover-flat z-[20000] w-52 p-1.5 dn-squircle-md",
+          theme === "dark" && "dark",
+        )}
+        data-drafting-dropdown-content="true"
+        data-slot="drafting-layer-context-menu"
+        data-toolbar-appearance="desktop-glass"
+        data-theme={theme}
+        role="menu"
+        onClick={(event) => event.stopPropagation()}
+        onContextMenu={(event) => event.preventDefault()}
+      >
+        {hasSelection ? (
+          <>
+            <LayerContextMenuButton label="Bring to front" onClick={() => onAction("front")} />
+            <LayerContextMenuButton label="Bring forward" onClick={() => onAction("forward")} />
+            <LayerContextMenuButton label="Send backward" onClick={() => onAction("backward")} />
+            <LayerContextMenuButton label="Send to back" onClick={() => onAction("back")} />
+            <LayerContextMenuSeparator />
+            <LayerContextMenuButton label="Reset rotation" onClick={() => onAction("reset-rotation")} />
+            {isMultiLayer ? (
+              <>
+                <LayerContextMenuSeparator />
+                <LayerContextMenuButton label="Group" onClick={() => onAction("group")} />
+                <LayerContextMenuButton label="Distribute selection horizontally" onClick={() => onAction("horizontal")} />
+                <LayerContextMenuButton label="Distribute selection vertically" onClick={() => onAction("vertical")} />
+              </>
+            ) : null}
+            {hasGroupLayer ? (
+              <>
+                <LayerContextMenuSeparator />
+                <LayerContextMenuButton label="Ungroup" onClick={() => onAction("ungroup")} />
+              </>
+            ) : null}
+          </>
+        ) : null}
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -353,7 +372,7 @@ export const LayerFloatingToolbar = forwardRef<
     <div
       ref={ref}
       className={cn(
-        "dn-portal-surface desktopnew-popover-content pointer-events-auto absolute left-1/2 top-1/2 z-[10001] inline-flex h-12 max-w-[calc(100%-1rem)] items-center justify-start gap-1 overflow-x-auto rounded-full px-1.5 text-[var(--fg)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "dn-portal-surface desktopnew-popover-content pointer-events-auto absolute left-1/2 top-1/2 z-[10001] inline-flex h-9 max-w-[calc(100%-1rem)] items-center justify-start gap-0.5 overflow-x-auto rounded-full px-1 text-[var(--fg)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         theme === "dark" && "dark",
       )}
       data-slot="drafting-layer-floating-toolbar"
@@ -409,7 +428,7 @@ function LayerFloatingToolbarButton({
   return (
     <button
       aria-label={label}
-        className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-[color-mix(in_srgb,var(--fg)_78%,transparent)] transition-colors duration-150 hover:text-[var(--fg)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]"
+      className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-[color-mix(in_srgb,var(--fg)_78%,transparent)] transition-colors duration-150 hover:text-[var(--fg)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]"
       data-slot="drafting-layer-floating-toolbar-button"
       disabled={disabled}
       type="button"

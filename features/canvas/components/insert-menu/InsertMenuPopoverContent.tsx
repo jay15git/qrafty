@@ -4,6 +4,7 @@ import { useRef } from "react"
 import { PopoverClose, PopoverContent } from "@/components/ui/popover"
 import type { DesktopThemeMode } from "@/features/shell/components/FloatingToolbar"
 import { useMobileInspectorDensity } from "@/features/shell/inspector/mobile-inspector-density-context"
+import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui"
 import { InsertMenuPanelStack } from "@/features/canvas/components/insert-menu/InsertMenuPanelStack"
 import {
   INSERT_MENU_POPOVER_SHELL,
@@ -50,7 +51,7 @@ export function InsertMenuPopoverContent({
         isDesktopPopover
           ? insertMenuPortalClass(
               theme,
-              cn(INSERT_MENU_POPOVER_SHELL, INSERT_MENU_POPOVER_WIDTH),
+              cn(INSERT_MENU_POPOVER_SHELL, INSERT_MENU_POPOVER_WIDTH, "flex flex-col"),
             )
           : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--canvas-line)] bg-[var(--settings-panel-bg)] p-3"
       }
@@ -60,6 +61,14 @@ export function InsertMenuPopoverContent({
       side={popoverSide}
       sideOffset={isDesktopPopover ? 12 : undefined}
     >
+      {isDesktopPopover ? (
+        <div className="dn-settings-popover-header">
+          <p className="dn-settings-popover-title">Add element</p>
+          <PopoverClose asChild>
+            <SettingsPopoverCloseButton title="Add element" />
+          </PopoverClose>
+        </div>
+      ) : null}
       <InsertMenuPanelStack
         canAddQrCode={canAddQrCode}
         isDesktopPopover={isDesktopPopover}
