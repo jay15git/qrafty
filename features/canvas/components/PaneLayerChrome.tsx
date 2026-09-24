@@ -318,7 +318,7 @@ function LayerContextMenuButton({ label, onClick }: { label: string; onClick: ()
   return (
     <button
       aria-label={label}
-      className="block h-8 w-full cursor-pointer rounded-full px-3 text-left text-[length:var(--type-value)] font-semibold text-current transition-[background-color,color] duration-150 hover:bg-[var(--settings-control)] hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]"
+      className="block h-8 w-full cursor-pointer rounded-full px-3 text-left text-[length:var(--type-value)] font-semibold text-current transition-[background-color,color] duration-150 hover:bg-[var(--control)] hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]"
       role="menuitem"
       type="button"
       onClick={onClick}

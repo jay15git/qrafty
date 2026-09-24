@@ -9,13 +9,12 @@ interface ElevatedProps extends ComponentPropsWithoutRef<"div"> {
   /**
    * Steps above the current substrate.
    *
-   * The component's own surface level becomes `min(substrate + offset, 8)`
+   * The component's own surface level becomes `min(substrate + offset, 3)`
    * and is re-provided to descendants via SurfaceProvider, so further
    * nesting walks up the ladder automatically.
    *
    * Conventional offsets:
-   *   2 — dropdown / popover / select menu
-   *   4 — dialog / modal
+   *   2 — dropdown / popover / select menu (the top of the ramp)
    */
   offset: number;
   /**
@@ -33,7 +32,7 @@ interface ElevatedProps extends ComponentPropsWithoutRef<"div"> {
 const Elevated = forwardRef<HTMLDivElement, ElevatedProps>(
   ({ offset, shadowLevel, className, children, ...props }, ref) => {
     const substrate = useSurface();
-    const level = Math.min(substrate + offset, 8);
+    const level = Math.min(substrate + offset, 3);
     return (
       <SurfaceProvider value={level}>
         <div

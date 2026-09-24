@@ -35,7 +35,7 @@ function WallpaperButton({
     <button
       aria-label={`Insert ${alt} wallpaper`}
       className={cn(
-        "group relative aspect-[4/3] min-w-0 overflow-hidden rounded-[7px] border-2 border-transparent bg-[var(--settings-control-hover-bg)]",
+        "group relative aspect-[4/3] min-w-0 overflow-hidden rounded-[7px] border-2 border-transparent bg-[var(--control-hover)]",
         inspectorOptionGridItemClass(),
         INSPECTOR_OPTION_TILE_BUTTON_CLASS,
       )}

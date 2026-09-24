@@ -139,7 +139,7 @@ export function TransformInspector({
           <TransformSection layer={layer} onPatch={onPatch} />
         ) : (
           <InspectorSection>
-            <p className="dn-type-value text-center font-semibold text-[var(--settings-fg-muted)]">
+            <p className="dn-type-value text-center font-semibold text-[var(--fg-muted)]">
               Select a layer to edit position, size, and rotation.
             </p>
           </InspectorSection>

@@ -243,18 +243,18 @@ export const TooltipNavbar = ({
                         key={`real-${index}`}
                         className="flex items-center justify-center gap-1 px-2 text-sm font-medium whitespace-nowrap "
                       >
-                        <span className="text-[var(--settings-fg-primary,rgba(255,255,255,0.94))]">
+                        <span className="text-[var(--fg-primary,rgba(255,255,255,0.94))]">
                           {item.label}
                         </span>
                         {item.hasBadge && (
-                          <div className="flex items-center gap-0.5 text-[var(--settings-fg-muted,rgba(255,255,255,0.4))]">
+                          <div className="flex items-center gap-0.5 text-[var(--fg-muted,rgba(255,255,255,0.4))]">
                             <span className="flex items-center justify-center rounded-sm border border-[var(--appearance-popover-border,rgba(255,255,255,0.2))] p-1">
-                              <CommandIcon className="size-3 text-[var(--settings-fg-muted,rgba(115,115,115,1))]" />
+                              <CommandIcon className="size-3 text-[var(--fg-muted,rgba(115,115,115,1))]" />
                             </span>
                           </div>
                         )}
                         {item.labelHasKeyword && (
-                          <div className="flex items-center gap-0.5 text-[var(--settings-fg-muted,rgba(255,255,255,0.4))]">
+                          <div className="flex items-center gap-0.5 text-[var(--fg-muted,rgba(255,255,255,0.4))]">
                             {item.labelHasKeyword.map((cap, i) => {
                               const caps = item.labelHasKeyword as (string | ReactNode)[];
                               return (

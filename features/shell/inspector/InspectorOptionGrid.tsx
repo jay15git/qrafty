@@ -192,7 +192,7 @@ export function InspectorAnimatedOptionGrid({
           <m.div
             key={selection.key}
             data-slot="inspector-option-selection-indicator"
-            className="pointer-events-none absolute z-0 rounded-[7px] border-2 border-[var(--settings-option-selected-border)] bg-[var(--settings-option-selected-bg)] shadow-[var(--settings-option-selected-shadow)] backdrop-blur-[16px]"
+            className="pointer-events-none absolute z-0 rounded-[7px] border-2 border-[var(--option-selected-border)] bg-[var(--option-selected-bg)] shadow-[var(--option-selected-shadow)] backdrop-blur-[16px]"
             style={{
               left: selection.rect.left,
               top: selection.rect.top,

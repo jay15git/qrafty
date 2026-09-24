@@ -15,17 +15,17 @@ export const INSERT_MENU_EMOJI_SHELL_CLASS =
   "dn-insert-menu-emoji flex h-[min(20rem,60dvh)] min-w-0 flex-col";
 
 export const INSERT_MENU_PANEL_CONTENT_CLASS =
-  "dn-insert-menu-panel-content flex flex-col gap-[length:var(--space-stack)] p-[length:var(--settings-row-px)]";
+  "dn-insert-menu-panel-content flex flex-col gap-[length:var(--space-stack)] p-[length:var(--row-px)]";
 
 export const INSERT_MENU_ITEM_CLASS =
-  "dn-settings-row dn-squircle-sm dn-pressable flex h-[length:var(--settings-control-height)] w-full items-center gap-[length:var(--space-inline)] px-[length:var(--space-inline)] text-left font-semibold";
+  "dn-settings-row dn-squircle-sm dn-pressable flex h-[length:var(--control-height)] w-full items-center gap-[length:var(--space-inline)] px-[length:var(--space-inline)] text-left font-semibold";
 
 export const INSERT_MENU_PANEL_TITLE = "dn-insert-menu-panel-heading";
 
 export const INSERT_MENU_BACK_BUTTON = "dn-insert-menu-panel-back dn-pressable-subtle shrink-0";
 
 export const INSERT_MENU_INPUT_CLASS =
-  "dn-settings-input h-[length:var(--settings-control-height)] min-w-0 px-[length:var(--settings-row-px)] shadow-none";
+  "dn-settings-input h-[length:var(--control-height)] min-w-0 px-[length:var(--row-px)] shadow-none";
 
 export function insertMenuPortalClass(theme: ThemeMode, className?: string) {
   return cn(className, theme === "dark" && "dark");

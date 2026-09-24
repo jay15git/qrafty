@@ -230,7 +230,7 @@ function LogoIconPickerSkeletonTiles({ count }: { count: number }) {
         <div
           key={index}
           aria-hidden
-          className="dn-logo-icon-picker-skeleton min-w-0 animate-pulse dn-squircle-xs bg-[var(--settings-control)]"
+          className="dn-logo-icon-picker-skeleton min-w-0 animate-pulse dn-squircle-xs bg-[var(--control)]"
         />
       ))}
     </>

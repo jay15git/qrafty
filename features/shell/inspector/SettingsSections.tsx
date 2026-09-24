@@ -387,8 +387,8 @@ function WallpaperPreviewRow({
 
   return (
     <>
-      <div className="flex min-h-[var(--settings-control-height)] items-center">
-        <span className="dn-row-label-text pl-[var(--settings-row-px)]">Upload</span>
+      <div className="flex min-h-[var(--control-height)] items-center">
+        <span className="dn-row-label-text pl-[var(--row-px)]">Upload</span>
         <SettingsImageUploadTile
           ariaLabel="Upload custom image"
           className="dn-row-upload-tile ml-auto"

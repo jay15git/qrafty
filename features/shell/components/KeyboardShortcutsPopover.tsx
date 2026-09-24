@@ -98,8 +98,8 @@ export function KeyboardShortcutsPopoverContent({
                 aria-label={`Use ${platform.label} shortcuts`}
                 aria-pressed={isSelected}
                 className={cn(
-                  "grid size-7 cursor-pointer place-items-center rounded-full text-[var(--muted)] transition hover:bg-[var(--settings-control)] hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]",
-                  isSelected && "bg-[var(--settings-control)] text-[var(--fg)]",
+                  "grid size-7 cursor-pointer place-items-center rounded-full text-[var(--muted)] transition hover:bg-[var(--control)] hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]",
+                  isSelected && "bg-[var(--control)] text-[var(--fg)]",
                 )}
                 data-platform={platform.value}
                 data-slot="shortcut-platform-button"
@@ -176,7 +176,7 @@ export function KeyboardShortcutsPopoverContent({
                                   </span>
                                 ) : null}
                                 <Kbd
-                                  className="border-[var(--line)] bg-[var(--settings-control)] text-[var(--fg)] shadow-none"
+                                  className="border-[var(--line)] bg-[var(--control)] text-[var(--fg)] shadow-none"
                                   data-slot="shortcut-kbd"
                                   size="md"
                                   variant="sculpted"

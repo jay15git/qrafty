@@ -42,19 +42,19 @@ export const SecondaryButton = React.forwardRef<HTMLButtonElement, SecondaryButt
           "data-[selected=true]:hover:shadow-[var(--canvas-shadow-hover)]",
           // Dark mode — default
           "dark:bg-[#FFFFFF08] dark:text-[#A8B0BD]",
-          "dark:shadow-[var(--settings-button-shadow-rest)]",
+          "dark:shadow-[var(--button-shadow-rest)]",
           // Dark mode — hover
           "dark:hover:-translate-y-px dark:hover:bg-[#FFFFFF0D] dark:hover:text-[#C8D0DC]",
-          "dark:hover:shadow-[var(--settings-button-shadow-hover)]",
+          "dark:hover:shadow-[var(--button-shadow-hover)]",
           // Dark mode — active/pressed
           "dark:active:translate-y-0 dark:active:bg-[#FFFFFF14] dark:active:text-[#DFE5EE]",
-          "dark:active:shadow-[var(--settings-button-shadow-active)]",
+          "dark:active:shadow-[var(--button-shadow-active)]",
           // Dark mode — selected
           "dark:data-[selected=true]:bg-[#F6F8FB] dark:data-[selected=true]:text-[#101216]",
-          "dark:data-[selected=true]:shadow-[var(--settings-button-shadow-selected)]",
+          "dark:data-[selected=true]:shadow-[var(--button-shadow-selected)]",
           // Dark mode — selected hover
           "dark:data-[selected=true]:hover:-translate-y-px",
-          "dark:data-[selected=true]:hover:shadow-[var(--settings-button-shadow-selected-hover)]",
+          "dark:data-[selected=true]:hover:shadow-[var(--button-shadow-selected-hover)]",
           className,
         )}
         {...props}

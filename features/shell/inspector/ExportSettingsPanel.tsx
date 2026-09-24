@@ -255,7 +255,7 @@ export function ExportSettingsPanel({ model }: { model: InspectorModel }) {
       />
       {exportInProgress ? (
         <button
-          className="dn-type-meta text-center text-[var(--settings-fg-secondary)] underline-offset-2 hover:underline"
+          className="dn-type-meta text-center text-[var(--fg-secondary)] underline-offset-2 hover:underline"
           type="button"
           onClick={() => controller?.onExportCancel?.()}
         >

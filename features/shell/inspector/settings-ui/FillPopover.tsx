@@ -492,8 +492,8 @@ export function SettingsFillPresetSection({
   return (
     <>
       {mobileDensity ? null : (
-        <div className="flex min-h-[var(--settings-control-height)] items-center">
-          <span className="dn-row-label-text pl-[var(--settings-row-px)]">Color</span>
+        <div className="flex min-h-[var(--control-height)] items-center">
+          <span className="dn-row-label-text pl-[var(--row-px)]">Color</span>
           <button
             aria-label="Color"
             className="ml-auto size-7 shrink-0 cursor-pointer overflow-hidden dn-squircle-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--ring))]"

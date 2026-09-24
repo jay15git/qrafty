@@ -67,7 +67,7 @@ export function FillSwatchButton({
     <button
       aria-label={ariaLabel}
       className={cn(
-        "relative flex size-[length:var(--settings-icon-hit)] shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--ring))]",
+        "relative flex size-[length:var(--icon-hit)] shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--ring))]",
         className,
       )}
       data-slot="fill-swatch-trigger"

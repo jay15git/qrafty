@@ -19,7 +19,7 @@ describe("theme contract", () => {
     // The neutral surface ramp is the sitewide theme; it is exposed to
     // Tailwind so `bg-surface-*` / `shadow-surface-*` resolve.
     expect(globalsSource).toContain("--color-surface-1: var(--surface-1);");
-    expect(globalsSource).toContain("--color-surface-8: var(--surface-8);");
+    expect(globalsSource).toContain("--color-surface-3: var(--surface-3);");
   });
 
   it("scopes the workspace canvas tokens to the desktop workspace", () => {

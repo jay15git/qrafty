@@ -96,9 +96,7 @@ export const DesktopAccordionFieldSelect = React.forwardRef<
           variant="borderless"
           className={cn(
             "min-w-0 font-mono text-xs uppercase tracking-wide shadow-none",
-            inline
-              ? "h-full px-2"
-              : "h-[var(--settings-control-height,2rem)] w-full px-2.5 dn-squircle-xs",
+            inline ? "h-full px-2" : "h-[var(--control-height,2rem)] w-full px-2.5 dn-squircle-xs",
             className,
           )}
         />

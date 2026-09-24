@@ -83,8 +83,8 @@ function BorderColorRow({
   const border = appearance.border;
 
   return (
-    <div className="flex min-h-[var(--settings-control-height)] items-center">
-      <span className="dn-row-label-text pl-[var(--settings-row-px)]">Color</span>
+    <div className="flex min-h-[var(--control-height)] items-center">
+      <span className="dn-row-label-text pl-[var(--row-px)]">Color</span>
       <SettingsFillPopover
         align="start"
         hint="Border color"
@@ -185,7 +185,7 @@ export function AppearanceRadiusControls({
         <button
           aria-label={radii.linked ? "Unlink corner radii" : "Link corner radii"}
           aria-pressed={radii.linked}
-          className="grid size-7 place-items-center rounded-md text-[var(--settings-fg-secondary)] hover:bg-[var(--settings-control-hover-bg)]"
+          className="grid size-7 place-items-center rounded-md text-[var(--fg-secondary)] hover:bg-[var(--control-hover)]"
           type="button"
           onClick={() =>
             applyRadii(

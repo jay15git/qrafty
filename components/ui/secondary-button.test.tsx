@@ -11,7 +11,7 @@ describe("SecondaryButton", () => {
     expect(markup).toContain("shadow-[var(--canvas-shadow-rest)]");
     expect(markup).toContain("hover:shadow-[var(--canvas-shadow-hover)]");
     expect(markup).toContain("active:shadow-[var(--canvas-shadow-active)]");
-    expect(markup).toContain("dark:shadow-[var(--settings-button-shadow-rest)]");
+    expect(markup).toContain("dark:shadow-[var(--button-shadow-rest)]");
     expect(markup).not.toContain("0_0_24px_3px_#00000030");
   });
 });

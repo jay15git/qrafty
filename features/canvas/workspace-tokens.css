@@ -19,18 +19,18 @@
   --canvas-resize-frame: #18a0fb;
   --canvas-ink-muted: rgb(var(--canvas-ink-rgb) / 0.55);
   --canvas-line: rgb(var(--canvas-ink-rgb) / 0.12);
-  --settings-control-bg: rgb(var(--canvas-ink-rgb) / 0.04);
+  --control: rgb(var(--canvas-ink-rgb) / 0.04);
   --canvas-shadow-rest: 0 2px 8px rgb(var(--canvas-ink-rgb) / 0.06);
   --canvas-shadow-hover: 0 4px 12px rgb(var(--canvas-ink-rgb) / 0.1);
   --canvas-shadow-active: 0 1px 4px rgb(var(--canvas-ink-rgb) / 0.08);
   --canvas-shadow-shell: none;
-  --settings-panel-bg: rgb(255 255 255 / 0.8);
-  --settings-panel-bg-hover: rgb(255 255 255 / 0.95);
-  --settings-button-shadow-rest: var(--canvas-shadow-rest);
-  --settings-button-shadow-hover: var(--canvas-shadow-hover);
-  --settings-button-shadow-active: var(--canvas-shadow-active);
-  --settings-button-shadow-selected: var(--canvas-shadow-rest);
-  --settings-button-shadow-selected-hover: var(--canvas-shadow-hover);
+  --panel-bg: rgb(255 255 255 / 0.8);
+  --panel-bg-hover: rgb(255 255 255 / 0.95);
+  --button-shadow-rest: var(--canvas-shadow-rest);
+  --button-shadow-hover: var(--canvas-shadow-hover);
+  --button-shadow-active: var(--canvas-shadow-active);
+  --button-shadow-selected: var(--canvas-shadow-rest);
+  --button-shadow-selected-hover: var(--canvas-shadow-hover);
   --type-control-label: 0.875rem;
   --type-input: 1rem;
 }
@@ -53,12 +53,12 @@
   --canvas-resize-frame: #4ab8ff;
   --canvas-ink-muted: rgb(var(--canvas-ink-rgb) / 0.55);
   --canvas-line: rgb(255 255 255 / 0.13);
-  --settings-control-bg: rgb(255 255 255 / 0.05);
+  --control: rgb(255 255 255 / 0.05);
   --canvas-shadow-rest: 0 0 18px 2px rgb(0 0 0 / 0.1);
   --canvas-shadow-hover: 0 0 24px 3px rgb(0 0 0 / 0.14);
   --canvas-shadow-active: 0 0 14px 1px rgb(0 0 0 / 0.12);
-  --settings-panel-bg: rgb(22 22 22 / 0.85);
-  --settings-panel-bg-hover: rgb(29 29 29 / 0.9);
+  --panel-bg: rgb(22 22 22 / 0.85);
+  --panel-bg-hover: rgb(29 29 29 / 0.9);
 }
 
 [data-slot="workspace"] .ws-type-control-label {

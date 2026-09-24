@@ -233,8 +233,9 @@ export function ScrollEdgeCue({
 }: ScrollEdgeCueProps) {
   const contextLevel = useSurface();
   // Clamp to the ladder (1–8), mirroring SurfaceProvider — an out-of-range
+  // Clamp to the ladder (1–3), mirroring SurfaceProvider — an out-of-range
   // override would interpolate an invalid var and silently kill the gradient.
-  const level = Math.max(1, Math.min(8, surfaceLevel ?? contextLevel));
+  const level = Math.max(1, Math.min(3, surfaceLevel ?? contextLevel));
   const surface = `var(--surface-${level})`;
   const fadeColor = `var(--scroll-edge-fade-color, ${surface})`;
   const vertical = edge === "top" || edge === "bottom";

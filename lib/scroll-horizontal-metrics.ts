@@ -24,7 +24,7 @@ function measurePreviewRowWidth(row: HTMLElement): number {
   }
 
   const host = row.closest<HTMLElement>(".inspector-root") ?? row;
-  const tilePx = readCssLengthPx(host, "--settings-preview-tile", 56);
+  const tilePx = readCssLengthPx(host, "--preview-tile", 56);
   const gapPx = readCssLengthPx(host, "--space-inline", 6);
   const style = getComputedStyle(row);
   const padding =

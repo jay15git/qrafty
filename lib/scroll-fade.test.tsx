@@ -123,7 +123,7 @@ describe("useScrollEdges", () => {
 
     const host = document.createElement("div");
     host.className = "inspector-root";
-    host.style.setProperty("--settings-preview-tile", "3.5rem");
+    host.style.setProperty("--preview-tile", "3.5rem");
     host.style.setProperty("--space-inline", "0.375rem");
 
     const inner = document.createElement("div");
@@ -159,7 +159,7 @@ describe("useScrollEdges", () => {
 
     const host = document.createElement("div");
     host.className = "inspector-root";
-    host.style.setProperty("--settings-preview-tile", "3.5rem");
+    host.style.setProperty("--preview-tile", "3.5rem");
     host.style.setProperty("--space-inline", "0.375rem");
 
     const inner = document.createElement("div");
@@ -191,7 +191,7 @@ describe("useScrollEdges", () => {
 
     const host = document.createElement("div");
     host.className = "inspector-root";
-    host.style.setProperty("--settings-preview-tile", "3.5rem");
+    host.style.setProperty("--preview-tile", "3.5rem");
     host.style.setProperty("--space-inline", "0.375rem");
 
     const inner = document.createElement("div");
@@ -231,7 +231,7 @@ describe("useScrollEdges", () => {
       const viewport = document.createElement("div");
       const host = document.createElement("div");
       host.className = "inspector-root";
-      host.style.setProperty("--settings-preview-tile", "56px");
+      host.style.setProperty("--preview-tile", "56px");
       host.style.setProperty("--space-inline", "6px");
       const inner = document.createElement("div");
       const row = document.createElement("div");

@@ -110,8 +110,8 @@ function MobileLayerToolbarButton({
       aria-label={ariaLabel}
       aria-pressed={active}
       className={cn(
-        "dn-mobile-layer-toolbar-button flex h-[var(--settings-icon-hit)] shrink-0 cursor-pointer items-center justify-center gap-1 rounded-full text-[var(--fg)] transition-colors aria-[pressed=true]:bg-[var(--fg)] aria-[pressed=true]:text-[var(--bg)] disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg)]/20",
-        label ? "w-auto px-2.5" : "w-[var(--settings-icon-hit)]",
+        "dn-mobile-layer-toolbar-button flex h-[var(--icon-hit)] shrink-0 cursor-pointer items-center justify-center gap-1 rounded-full text-[var(--fg)] transition-colors aria-[pressed=true]:bg-[var(--fg)] aria-[pressed=true]:text-[var(--bg)] disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg)]/20",
+        label ? "w-auto px-2.5" : "w-[var(--icon-hit)]",
       )}
       data-slot="mobile-layer-toolbar-button"
       data-vaul-no-drag=""

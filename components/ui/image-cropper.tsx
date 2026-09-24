@@ -766,14 +766,14 @@ function CropperDialogFooter({
     <DialogFooter
       className={cn(
         usesDesktopTheme
-          ? "inspector-crop-dialog__footer gap-2 border-t border-[var(--line)] p-[length:var(--settings-row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
+          ? "inspector-crop-dialog__footer gap-2 border-t border-[var(--line)] p-[length:var(--row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
           : undefined,
       )}
     >
       {usesDesktopTheme ? (
         <>
           <button
-            className="dn-control-surface dn-pressable-subtle dn-squircle-sm flex h-[length:var(--settings-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--type-value)] font-medium tracking-[var(--tracking-tight)] text-[var(--fg)]"
+            className="dn-control-surface dn-pressable-subtle dn-squircle-sm flex h-[length:var(--control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--type-value)] font-medium tracking-[var(--tracking-tight)] text-[var(--fg)]"
             disabled={isProcessing}
             type="button"
             onClick={onCancel}
@@ -782,7 +782,7 @@ function CropperDialogFooter({
             Cancel
           </button>
           <button
-            className="dn-settings-primary dn-control-surface dn-pressable-press-only dn-squircle-sm flex h-[length:var(--settings-control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--type-value)] font-medium tracking-[var(--tracking-tight)]"
+            className="dn-settings-primary dn-control-surface dn-pressable-press-only dn-squircle-sm flex h-[length:var(--control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--type-value)] font-medium tracking-[var(--tracking-tight)]"
             disabled={isProcessing}
             type="button"
             onClick={onCrop}
@@ -868,7 +868,7 @@ function CropperDialog({
           <DialogHeader
             className={cn(
               usesDesktopTheme
-                ? "inspector-crop-dialog__header gap-2 space-y-0 border-b border-[var(--line)] px-[length:var(--settings-row-px)] py-3 text-left"
+                ? "inspector-crop-dialog__header gap-2 space-y-0 border-b border-[var(--line)] px-[length:var(--row-px)] py-3 text-left"
                 : undefined,
             )}
           >
@@ -897,7 +897,7 @@ function CropperDialog({
           <div
             className={cn(
               usesDesktopTheme
-                ? "inspector-crop-dialog__body p-[length:var(--settings-row-px)]"
+                ? "inspector-crop-dialog__body p-[length:var(--row-px)]"
                 : "space-y-4",
             )}
           >
@@ -907,7 +907,7 @@ function CropperDialog({
               className={cn(
                 "relative overflow-hidden select-none",
                 usesDesktopTheme
-                  ? "inspector-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--settings-control)]"
+                  ? "inspector-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--control)]"
                   : "max-h-[80vh] rounded-lg border bg-muted/10",
               )}
               onMouseMove={onMouseMove}

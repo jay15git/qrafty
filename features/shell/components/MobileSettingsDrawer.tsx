@@ -296,7 +296,7 @@ export function MobileSettingsDrawer({
           maxHeight={maxHeight}
           variant="card"
         >
-          <FamilyDrawerAnimatedWrapper className="dn-mobile-drawer-body px-[var(--settings-row-px)] pt-3">
+          <FamilyDrawerAnimatedWrapper className="dn-mobile-drawer-body px-[var(--row-px)] pt-3">
             <MobileDrawerViewPropsContext.Provider value={viewProps}>
               <FamilyDrawerViewBridge view={view}>
                 <FamilyDrawerAnimatedContent />

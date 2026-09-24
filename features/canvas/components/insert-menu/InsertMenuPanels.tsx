@@ -361,7 +361,7 @@ export function InsertMenuImagePanel({
         className={cn(
           isPopover
             ? INSERT_MENU_INPUT_CLASS
-            : "ws-type-input h-10 min-w-0 border-[var(--canvas-line)] bg-[var(--settings-panel-bg-hover)] px-3 text-[var(--canvas-ink)] shadow-none",
+            : "ws-type-input h-10 min-w-0 border-[var(--canvas-line)] bg-[var(--panel-bg-hover)] px-3 text-[var(--canvas-ink)] shadow-none",
         )}
         placeholder="https://example.com/photo.png"
         value={imageUrl}
@@ -429,7 +429,7 @@ export function InsertMenuEmojiPanel({
         "min-h-0 min-w-0 w-full flex-1 border-0 bg-transparent shadow-none [--frimousse-row-height:2.25rem]",
         isPopover
           ? "text-[var(--fg)] [--frimousse-category-header-height:1px] [--frimousse-emoji-font:'Apple_Color_Emoji','Segoe_UI_Emoji','Noto_Color_Emoji',sans-serif]"
-          : "h-[22rem] dn-squircle-sm border border-[var(--canvas-line)] bg-[var(--settings-panel-bg)]",
+          : "h-[22rem] dn-squircle-sm border border-[var(--canvas-line)] bg-[var(--panel-bg)]",
       )}
       columns={8}
       data-slot="drafting-insert-menu-emoji-picker"
@@ -447,7 +447,7 @@ export function InsertMenuEmojiPanel({
       <EmojiPickerContent
         className={cn(
           isPopover &&
-            "[&_[data-slot=emoji-picker-emoji]]:hover:bg-[var(--settings-control)] [&_[data-slot=emoji-picker-emoji][data-active]]:bg-[var(--settings-control)]",
+            "[&_[data-slot=emoji-picker-emoji]]:hover:bg-[var(--control)] [&_[data-slot=emoji-picker-emoji][data-active]]:bg-[var(--control)]",
         )}
         hideCategoryHeaders={isPopover}
       />

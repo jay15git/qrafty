@@ -100,7 +100,7 @@ describe("ScrollArea", () => {
         {
           className: "inspector-root",
           style: {
-            "--settings-preview-tile": "56px",
+            "--preview-tile": "56px",
             "--space-inline": "6px",
           } as CSSProperties,
         },

@@ -261,7 +261,7 @@ export function MotionAccordion({
             {
               gap,
               height: cardHeight ?? undefined,
-              "--settings-accordion-gap": `${gap}px`,
+              "--accordion-gap": `${gap}px`,
             } as React.CSSProperties
           }
         >

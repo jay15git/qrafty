@@ -9,16 +9,16 @@ body:has([data-slot="floating-toolbar-root"]) {
   --appearance-popover-bg: #1d1d1d;
   --appearance-popover-border: rgba(255, 255, 255, 0.06);
   --appearance-popover-shadow: var(--glass-shadow);
-  --settings-fg-primary: rgba(255, 255, 255, 0.94);
-  --settings-fg-secondary: rgba(255, 255, 255, 0.76);
-  --settings-fg-tertiary: rgba(255, 255, 255, 0.5);
-  --settings-fg-muted: rgba(255, 255, 255, 0.42);
-  --settings-fg-label: var(--settings-fg-secondary);
-  --settings-error: rgba(248, 113, 113, 0.92);
-  --settings-dropdown-bg: rgba(0, 0, 0, 0.9);
-  --settings-morph-filter-bg: var(--canvas-shell, #000000);
-  --settings-dropdown-border: rgba(255, 255, 255, 0.06);
-  --settings-option-selected-bg: rgba(255, 255, 255, 0.14);
+  --fg-primary: rgba(255, 255, 255, 0.94);
+  --fg-secondary: rgba(255, 255, 255, 0.76);
+  --fg-tertiary: rgba(255, 255, 255, 0.5);
+  --fg-muted: rgba(255, 255, 255, 0.42);
+  --fg-label: var(--fg-secondary);
+  --error: rgba(248, 113, 113, 0.92);
+  --elevated: rgba(0, 0, 0, 0.9);
+  --elevated: var(--canvas-shell, #000000);
+  --dropdown-border: rgba(255, 255, 255, 0.06);
+  --option-selected-bg: rgba(255, 255, 255, 0.14);
   --tooltip-bg: rgba(255, 255, 255, 0.96);
   --tooltip-fg: rgba(15, 15, 15, 0.94);
   --tooltip-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
@@ -39,16 +39,16 @@ body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) {
   --appearance-popover-border: rgba(15, 23, 42, 0.12);
   --appearance-popover-shadow:
     0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --settings-fg-primary: rgba(15, 23, 42, 0.9);
-  --settings-fg-secondary: rgba(15, 23, 42, 0.66);
-  --settings-fg-tertiary: rgba(15, 23, 42, 0.44);
-  --settings-fg-muted: rgba(15, 23, 42, 0.38);
-  --settings-fg-label: rgba(15, 23, 42, 0.85);
-  --settings-error: rgba(220, 38, 38, 0.88);
-  --settings-dropdown-bg: rgba(255, 255, 255, 0.84);
-  --settings-morph-filter-bg: rgb(255, 255, 255);
-  --settings-dropdown-border: rgba(15, 23, 42, 0.09);
-  --settings-option-selected-bg: rgba(15, 23, 42, 0.08);
+  --fg-primary: rgba(15, 23, 42, 0.9);
+  --fg-secondary: rgba(15, 23, 42, 0.66);
+  --fg-tertiary: rgba(15, 23, 42, 0.44);
+  --fg-muted: rgba(15, 23, 42, 0.38);
+  --fg-label: rgba(15, 23, 42, 0.85);
+  --error: rgba(220, 38, 38, 0.88);
+  --elevated: rgba(255, 255, 255, 0.84);
+  --elevated: rgb(255, 255, 255);
+  --dropdown-border: rgba(15, 23, 42, 0.09);
+  --option-selected-bg: rgba(15, 23, 42, 0.08);
   --toolbar-line: rgba(15, 23, 42, 0.11);
   --tooltip-bg: rgba(15, 15, 15, 0.94);
   --tooltip-fg: rgba(255, 255, 255, 0.96);
@@ -59,12 +59,12 @@ body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) {
 }
 
 [data-slot="inspector-filter-trigger"] {
-  color: var(--settings-fg-tertiary) !important;
+  color: var(--fg-tertiary) !important;
 }
 
 [data-slot="inspector-filter-trigger"]:hover,
 [data-slot="inspector-filter-trigger"][data-state="open"] {
-  color: var(--settings-fg-secondary) !important;
+  color: var(--fg-secondary) !important;
 }
 
 [data-slot="inspector-filter-trigger"] span {
@@ -72,53 +72,53 @@ body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) {
 }
 
 [data-slot~="inspector-filter-menu"] {
-  background-color: var(--settings-dropdown-bg) !important;
-  border-color: var(--settings-dropdown-border) !important;
-  color: var(--settings-fg-secondary) !important;
+  background-color: var(--elevated) !important;
+  border-color: var(--dropdown-border) !important;
+  color: var(--fg-secondary) !important;
   box-shadow: var(--glass-shadow) !important;
   --tw-ring-color: transparent !important;
 }
 
 [data-slot~="inspector-filter-menu"] [data-slot="dropdown-menu-radio-item"] {
-  color: var(--settings-fg-tertiary) !important;
+  color: var(--fg-tertiary) !important;
 }
 
 [data-slot~="inspector-filter-menu"]
   [data-slot="dropdown-menu-radio-item"]:is(:focus, [data-highlighted]) {
-  background-color: var(--settings-control-hover-bg) !important;
-  color: var(--settings-fg-secondary) !important;
+  background-color: var(--control-hover) !important;
+  color: var(--fg-secondary) !important;
 }
 
 [data-slot~="inspector-filter-menu"] [data-slot="dropdown-menu-radio-item"][data-state="checked"] {
-  background-color: var(--settings-option-selected-bg) !important;
-  color: var(--settings-fg-secondary) !important;
+  background-color: var(--option-selected-bg) !important;
+  color: var(--fg-secondary) !important;
 }
 
 [data-slot~="inspector-filter-menu"]
   [data-slot="dropdown-menu-radio-item"][data-state="checked"]:is(:focus, [data-highlighted]) {
-  background-color: var(--settings-option-selected-bg) !important;
-  color: var(--settings-fg-secondary) !important;
+  background-color: var(--option-selected-bg) !important;
+  color: var(--fg-secondary) !important;
 }
 
 [data-slot~="inspector-filter-menu"] .bg-hover {
   left: 0 !important;
   width: 100% !important;
-  background-color: var(--settings-control-hover-bg) !important;
+  background-color: var(--control-hover) !important;
 }
 
 [data-slot~="inspector-filter-menu"] .bg-active {
   left: 0 !important;
   width: 100% !important;
-  background-color: var(--settings-option-selected-bg) !important;
+  background-color: var(--option-selected-bg) !important;
 }
 
 [data-slot~="inspector-filter-menu"] .text-muted-foreground {
-  color: var(--settings-fg-tertiary) !important;
+  color: var(--fg-tertiary) !important;
 }
 
 [data-slot~="inspector-filter-menu"] .text-foreground,
 [data-slot~="inspector-filter-menu"] [role="menuitemradio"]:hover .text-muted-foreground {
-  color: var(--settings-fg-primary) !important;
+  color: var(--fg-primary) !important;
 }
 
 [data-slot~="inspector-filter-menu"] [role="menu"] {
@@ -129,21 +129,21 @@ body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) {
 [data-slot="floating-inspector"]
   .inspector-morph-filter[data-open="true"]
   [data-slot~="inspector-filter-menu"] {
-  --foreground: var(--settings-fg-primary);
-  --muted-foreground: var(--settings-fg-tertiary);
-  --background: var(--settings-morph-filter-bg);
-  background-color: var(--settings-morph-filter-bg) !important;
+  --foreground: var(--fg-primary);
+  --muted-foreground: var(--fg-tertiary);
+  --background: var(--elevated);
+  background-color: var(--elevated) !important;
   border-color: transparent !important;
   box-shadow: none !important;
-  color: var(--settings-fg-secondary) !important;
+  color: var(--fg-secondary) !important;
 }
 
 [data-shell-theme="light"]
   [data-slot="floating-inspector"]
   .inspector-morph-filter[data-open="true"]
   [data-slot~="inspector-filter-menu"] {
-  --settings-control-hover-bg: rgba(15, 23, 42, 0.06);
-  --settings-option-selected-bg: rgba(15, 23, 42, 0.08);
+  --control-hover: rgba(15, 23, 42, 0.06);
+  --option-selected-bg: rgba(15, 23, 42, 0.08);
 }
 
 [data-shell-theme="light"] .inspector-morph-filter[data-open="true"] {
@@ -151,7 +151,7 @@ body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) {
 }
 
 [data-shell-theme="dark"] .inspector-morph-filter[data-open="true"] {
-  --scroll-edge-fade-color: var(--settings-morph-filter-bg);
+  --scroll-edge-fade-color: var(--elevated);
 }
 
 [data-shell-theme="light"] {
@@ -275,9 +275,9 @@ body:has([data-slot="workspace"][data-shell-theme="dark"]) .tooltip-content {
 [data-slot="layer-effects-popover"],
 [data-slot="shader-settings-popover"],
 [data-slot="toolbar-popover"] {
-  --settings-type-value: 0.8125rem;
-  --settings-type-label: 0.6875rem;
-  --settings-type-caption: 0.625rem;
+  --type-value: 0.8125rem;
+  --type-label: 0.6875rem;
+  --type-caption: 0.625rem;
 }
 
 [data-slot^="layer-"][data-slot$="-popover"] [data-slot="transform-section"],
@@ -303,7 +303,7 @@ body:has([data-slot="workspace"][data-shell-theme="dark"]) .tooltip-content {
 }
 
 [data-slot="layer-row"][data-selected="true"] .layer-row-action:hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--settings-option-selected-fg, #fff) 12%, transparent);
+  background-color: color-mix(in srgb, var(--option-selected-fg, #fff) 12%, transparent);
 }
 
 body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"])
@@ -413,7 +413,7 @@ body:has([data-slot="workspace"][data-shell-theme="light"])
 }
 
 [data-shell-theme="dark"] [data-slot="floating-inspector"] {
-  --scroll-edge-fade-color: var(--settings-bg);
+  --scroll-edge-fade-color: var(--bg);
   --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
 }
 
@@ -424,26 +424,26 @@ body:has([data-slot="workspace"][data-shell-theme="light"])
 
 [data-slot^="appearance-"][data-slot$="-popover"] [data-slot="appearance-filter-select-trigger"] {
   min-width: 0 !important;
-  border-color: var(--settings-control-border-hover) !important;
-  background-color: var(--settings-field-bg) !important;
-  color: var(--settings-fg-primary) !important;
+  border-color: var(--control-border-hover) !important;
+  background-color: var(--control) !important;
+  color: var(--fg-primary) !important;
 }
 
 [data-slot^="appearance-"][data-slot$="-popover"]
   [data-slot="appearance-filter-select-trigger"]:hover {
-  background-color: var(--settings-control-hover-bg) !important;
-  border-color: var(--settings-control-border-hover) !important;
+  background-color: var(--control-hover) !important;
+  border-color: var(--control-border-hover) !important;
 }
 
 [data-slot^="appearance-"][data-slot$="-popover"]
   [data-slot="appearance-filter-select-trigger"]:focus-visible {
-  ring-color: var(--settings-focus) !important;
+  ring-color: var(--focus) !important;
 }
 
 [data-slot^="appearance-"][data-slot$="-popover"]
   [data-slot="appearance-filter-select-trigger"]
   svg {
-  color: var(--settings-fg-tertiary) !important;
+  color: var(--fg-tertiary) !important;
 }
 
 body:has([data-slot^="appearance-"][data-slot$="-popover"])
@@ -452,19 +452,19 @@ body:has([data-slot^="appearance-"][data-slot$="-popover"])
   --muted-foreground: rgba(255, 255, 255, 0.5);
   --background: var(--appearance-popover-bg);
   --border: var(--appearance-popover-border);
-  --color-hover: var(--settings-control-hover-bg);
-  --color-active: var(--settings-option-selected-bg);
+  --color-hover: var(--control-hover);
+  --color-active: var(--option-selected-bg);
   --surface-1: var(--appearance-popover-bg);
   --surface-2: rgba(255, 255, 255, 0.055);
   --surface-3: rgba(255, 255, 255, 0.14);
   background-color: var(--appearance-popover-bg) !important;
   border: 1px solid var(--appearance-popover-border) !important;
   box-shadow: var(--appearance-popover-shadow) !important;
-  color: var(--settings-fg-secondary) !important;
+  color: var(--fg-secondary) !important;
 }
 
 [data-slot="floating-inspector"] :is(input, textarea, select) {
-  background-color: var(--settings-field-bg) !important;
+  background-color: var(--control) !important;
   border-color: transparent !important;
   color: currentColor !important;
   box-shadow: none !important;
@@ -472,30 +472,30 @@ body:has([data-slot^="appearance-"][data-slot$="-popover"])
 
 [data-slot="shader-settings-popover"] [data-slot="palette-color-stop-list"] > div {
   border-color: transparent;
-  background: var(--settings-control);
+  background: var(--control);
 }
 
 [data-slot="shader-settings-popover"] [data-slot="palette-color-stop-list"] input {
-  background: var(--settings-field-bg) !important;
+  background: var(--control) !important;
   border-color: transparent !important;
-  color: var(--settings-fg-primary) !important;
+  color: var(--fg-primary) !important;
 }
 
 [data-slot="shader-settings-popover"]
   [data-slot="palette-color-stop-list"]
   button[aria-label^="Remove color"] {
   border-color: transparent;
-  background: var(--settings-field-bg);
-  color: var(--settings-fg-tertiary);
+  background: var(--control);
+  color: var(--fg-tertiary);
 }
 
 [data-slot="floating-inspector"] :is(input, textarea, select):focus,
 [data-slot="floating-inspector"] :is(input, textarea, select):focus-visible {
   border-color: transparent !important;
-  box-shadow: inset 0 0 0 1px var(--settings-focus) !important;
+  box-shadow: inset 0 0 0 1px var(--focus) !important;
 }
 
 [data-shell-theme="light"] [data-slot="floating-inspector"] input::placeholder,
 [data-shell-theme="light"] [data-slot="floating-inspector"] textarea::placeholder {
-  color: var(--settings-fg-muted) !important;
+  color: var(--fg-muted) !important;
 }

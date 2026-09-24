@@ -1,15 +1,15 @@
 :root {
   --resize-dur: 270ms;
   --resize-ease: cubic-bezier(0.25, 1, 0.5, 1);
-  --settings-toolbar-chrome-gap: 0.75rem;
-  --settings-toolbar-width: 0px;
+  --toolbar-chrome-gap: 0.75rem;
+  --toolbar-width: 0px;
   --toolbar-top-offset: 0.75rem;
   --mobile-drawer-height: 12rem;
   --mobile-layer-toolbar-height: 0px;
   --canvas-inset-top: calc(var(--toolbar-top-offset) + 2.75rem);
   --canvas-inset-right: 0px;
   --canvas-inset-bottom: 0px;
-  --canvas-inset-left: calc(var(--settings-toolbar-chrome-gap) + var(--settings-toolbar-width));
+  --canvas-inset-left: calc(var(--toolbar-chrome-gap) + var(--toolbar-width));
 }
 
 /* transitions.dev — card resize: tween the island pills' width as items appear. */
@@ -29,12 +29,12 @@
 
 [data-slot="workspace"],
 [data-slot="floating-toolbar-root"] {
-  --settings-toolbar-chrome-gap: 0.75rem;
+  --toolbar-chrome-gap: 0.75rem;
   --toolbar-top-offset: 0.75rem;
   --canvas-inset-top: calc(var(--toolbar-top-offset) + 2.75rem);
   --canvas-inset-right: 0px;
   --canvas-inset-bottom: 0px;
-  --canvas-inset-left: calc(var(--settings-toolbar-chrome-gap) + var(--settings-toolbar-width));
+  --canvas-inset-left: calc(var(--toolbar-chrome-gap) + var(--toolbar-width));
 }
 
 [data-slot="dynamic-island-anchor"] {
@@ -45,13 +45,10 @@
    * column). Clamped so the island never slides under the settings column or
    * the utility toolbar — widths are measured into CSS vars by FloatingToolbar. */
   left: clamp(
-    calc(
-      var(--settings-toolbar-width) + var(--settings-toolbar-chrome-gap) +
-        var(--island-width, 0px) / 2 + 0.75rem
-    ),
+    calc(var(--toolbar-width) + var(--toolbar-chrome-gap) + var(--island-width, 0px) / 2 + 0.75rem),
     calc(
       (
-          100vw + var(--settings-toolbar-width) + var(--settings-toolbar-chrome-gap) -
+          100vw + var(--toolbar-width) + var(--toolbar-chrome-gap) -
             var(--island-leading-width, 0px)
         ) /
         2
@@ -92,8 +89,8 @@
   :root,
   [data-slot="workspace"],
   [data-slot="floating-toolbar-root"] {
-    --settings-toolbar-chrome-gap: 0.625rem;
-    --settings-toolbar-width: 0px;
+    --toolbar-chrome-gap: 0.625rem;
+    --toolbar-width: 0px;
     --toolbar-top-offset: 0.625rem;
     --canvas-inset-top: env(safe-area-inset-top, 0px);
     --canvas-inset-right: 0px;
@@ -106,7 +103,7 @@
 
   [data-slot="workspace"][data-mobile-workspace="true"],
   [data-slot="floating-toolbar-root"][data-mobile-workspace="true"] {
-    --settings-toolbar-width: 0px;
+    --toolbar-width: 0px;
     --canvas-inset-left: 0px;
   }
 
@@ -207,7 +204,7 @@
   position: fixed;
   /* Center on the canvas band (below top chrome), not the raw viewport. */
   top: calc(50% + var(--canvas-inset-top, 0px) / 2);
-  right: var(--settings-toolbar-chrome-gap);
+  right: var(--toolbar-chrome-gap);
   bottom: auto;
   left: auto;
   transform: translateY(-50%);
@@ -248,7 +245,7 @@
       ) /
       2 + (var(--toolbar-rail-hitbox-size) - var(--toolbar-rail-icon-size)) / 2
   );
-  --settings-toolbar-top-inset: 0.75rem;
+  --toolbar-top-inset: 0.75rem;
 }
 
 @media (max-width: 768px) {
@@ -269,7 +266,7 @@
 /* New accordion settings — full-width column, flush to canvas (no legacy icon-rail gutter). */
 [data-slot="workspace"]:has([data-slot="settings-inspector"]),
 [data-slot="floating-toolbar-root"]:has([data-slot="settings-inspector"]) {
-  --settings-toolbar-chrome-gap: 0px;
+  --toolbar-chrome-gap: 0px;
 }
 
 [data-slot="left-toolbar-shell"]:has([data-slot="settings-inspector"]) {
@@ -289,7 +286,7 @@
 }
 
 [data-slot="left-toolbar-shell"] [data-slot="floating-toolbar"] {
-  padding-top: var(--settings-toolbar-top-inset);
+  padding-top: var(--toolbar-top-inset);
   box-sizing: border-box;
 }
 

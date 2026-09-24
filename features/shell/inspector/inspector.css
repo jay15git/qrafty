@@ -3,7 +3,7 @@
  * Layout: one shared scale block (type/space/dimensions/motion) covering the
  * inspector root, its portalled surfaces, and the floating element inspector;
  * one theme-split palette (--dn-*) that every surface maps onto its legacy
- * --bg/--fg/--line/--settings-control names; per-surface blocks only carry
+ * --bg/--fg/--line/--control names; per-surface blocks only carry
  * what genuinely differs (popover bg/control/line, role maps). */
 
 /* Shared scale — identical on every inspector surface and the floating
@@ -22,12 +22,12 @@
   --type-body: 0.8125rem;
   --space-stack: 0.625rem;
   --space-inline: 0.375rem;
-  --settings-control-height: 2.25rem;
-  --settings-control-height-compact: 2rem;
-  --settings-tab-height: 2rem;
-  --settings-preview-tile: 3.5rem;
-  --settings-icon-hit: 2rem;
-  --settings-row-px: 0.75rem;
+  --control-height: 2.25rem;
+  --control-height-compact: 2rem;
+  --tab-height: 2rem;
+  --preview-tile: 3.5rem;
+  --icon-hit: 2rem;
+  --row-px: 0.75rem;
 }
 
 /* Squircle radii shared by every inspector surface; popovers that want the
@@ -60,19 +60,19 @@
 :is(.inspector-popover-content, .inspector-fill-popover, .dn-insert-menu-popover):not(
   [data-theme="dark"]
 ) {
-  --dn-bg: #ffffff;
-  --dn-surface: #fafafa;
-  --dn-control: #f6f6f6;
-  --dn-fg: #18181b;
-  --dn-muted: #8a8a8e;
-  --dn-line: #ececee;
-  --dn-on-accent: #ffffff;
-  --dn-slider: #f1f1f2;
-  --dn-mass: #171717;
-  --dn-mass-fg: #ffffff;
-  --dn-mass-muted: color-mix(in srgb, var(--dn-fg) 10%, var(--dn-bg));
-  --dn-menu-shadow: 0 8px 32px rgb(0 0 0 / 8%);
-  --dn-popover-shadow: 0 12px 40px rgb(0 0 0 / 18%);
+  --bg: #ffffff;
+  --surface: #fafafa;
+  --control: #f6f6f6;
+  --fg: #18181b;
+  --muted: #8a8a8e;
+  --line: #ececee;
+  --on-accent: #ffffff;
+  --slider-bg: #f1f1f2;
+  --mass: #171717;
+  --mass-fg: #ffffff;
+  --mass-muted: color-mix(in srgb, var(--fg) 10%, var(--bg));
+  --menu-shadow: 0 8px 32px rgb(0 0 0 / 8%);
+  --popover-shadow: 0 12px 40px rgb(0 0 0 / 18%);
 }
 
 /* Inspector palette — dark values. .inspector-root is dark by default
@@ -83,20 +83,20 @@
   .inspector-fill-popover,
   .dn-insert-menu-popover
 )[data-theme="dark"] {
-  --dn-bg: #161616;
-  --dn-surface: #1d1d1d;
-  --dn-control: #232323;
-  --dn-fg: #f5f5f5;
-  --dn-muted: #6b6b6b;
-  --dn-line: #2c2c2c;
-  --dn-on-accent: #090909;
-  --dn-slider: #202020;
-  --dn-menu-shadow: 0 12px 48px rgb(0 0 0 / 50%);
-  --dn-popover-shadow: 0 12px 48px rgb(0 0 0 / 50%);
+  --bg: #161616;
+  --surface: #1d1d1d;
+  --control: #232323;
+  --fg: #f5f5f5;
+  --muted: #6b6b6b;
+  --line: #2c2c2c;
+  --on-accent: #090909;
+  --slider-bg: #202020;
+  --menu-shadow: 0 12px 48px rgb(0 0 0 / 50%);
+  --popover-shadow: 0 12px 48px rgb(0 0 0 / 50%);
   /* Portalled popovers run a deeper palette than the panel. */
-  --dn-popover-bg: #111111;
-  --dn-popover-control: #1a1a1a;
-  --dn-popover-line: #252525;
+  --popover-bg: #111111;
+  --popover-control: #1a1a1a;
+  --popover-line: #252525;
 }
 
 /* Theme-invariant constants. */
@@ -107,28 +107,21 @@
   .inspector-fill-popover,
   .dn-insert-menu-popover
 ) {
-  --dn-paper: #ffffff;
-  --dn-card: #ffffff;
-  --dn-preview-ink: rgb(24 24 27 / 0.8);
-  --dn-picker-thumb: rgb(255 255 255 / 0.92);
-  --dn-picker-thumb-ring: rgb(0 0 0 / 0.28);
+  --paper: #ffffff;
+  --card-white: #ffffff;
+  --preview-ink: rgb(24 24 27 / 0.8);
+  --picker-thumb: rgb(255 255 255 / 0.92);
+  --picker-thumb-ring: rgb(0 0 0 / 0.28);
   /* Legacy alias: muted text inside popovers resolves to the theme-split muted. */
-  --popover-muted: var(--dn-muted);
+  --popover-muted: var(--muted);
 }
 
 .inspector-root {
   color-scheme: dark;
   --overlay: 255 255 255;
-  --bg: var(--dn-bg);
-  --surface: var(--dn-surface);
-  --settings-control: var(--dn-control);
-  --settings-control-hover: var(--dn-control);
-  --fg: var(--dn-fg);
-  --muted: var(--dn-muted);
-  --line: var(--dn-line);
-  --on-accent: var(--dn-on-accent);
+  --control-hover: var(--control);
   --font: "Inter", system-ui, sans-serif;
-  --settings-panel-width: 100%;
+  --panel-width: 100%;
   --tracking-tight: -0.015em;
   --type-label-weight: 400;
   --type-value-weight: 500;
@@ -144,17 +137,16 @@
   --popover-foreground: var(--fg);
   --primary: var(--accent);
   --primary-foreground: var(--on-accent);
-  --secondary: var(--settings-control);
+  --secondary: var(--control);
   --secondary-foreground: var(--fg);
   --muted-foreground: var(--muted);
-  --accent: var(--settings-control-hover);
+  --accent: var(--control-hover);
   --accent-foreground: var(--fg);
   --border: var(--line);
-  --input: var(--settings-control);
+  --input: var(--control);
   --ring: var(--accent);
   --scroll-edge-fade-color: var(--bg);
   --scroll-edge-chevron-color: var(--muted);
-  --slider-bg: var(--dn-slider);
 
   min-height: 100dvh;
   background: var(--bg);
@@ -205,7 +197,7 @@
 }
 
 .dn-settings-panel {
-  width: var(--settings-panel-width);
+  width: var(--panel-width);
   flex-shrink: 0;
   border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
   background: var(--bg);
@@ -267,7 +259,7 @@
   isolation: isolate;
   box-sizing: border-box;
   border: 2px solid transparent;
-  background: var(--settings-control);
+  background: var(--control);
   color: var(--muted);
   transition:
     color 160ms var(--ease-out),
@@ -292,7 +284,7 @@
 }
 
 .dn-preset-item {
-  background: var(--settings-control);
+  background: var(--control);
   color: var(--muted);
 }
 
@@ -302,7 +294,7 @@
 
 .dn-option-tile[aria-pressed="true"],
 .dn-option-tile[data-selected="true"] {
-  background: var(--settings-control);
+  background: var(--control);
   color: var(--fg);
 }
 
@@ -314,8 +306,8 @@
 
 .dn-option-scroll-row {
   display: flex;
-  --settings-option-gap: var(--space-inline);
-  gap: var(--settings-option-gap);
+  --option-gap: var(--space-inline);
+  gap: var(--option-gap);
   overflow-x: auto;
   overflow-y: hidden;
   padding-block: 0.125rem;
@@ -362,12 +354,12 @@
   width: 100%;
   min-width: 0;
   border: none !important;
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   color: var(--type-value-color) !important;
   box-shadow: none !important;
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
-  padding-inline: var(--settings-row-px);
+  min-height: var(--control-height);
+  height: var(--control-height);
+  padding-inline: var(--row-px);
   font-size: var(--type-value);
   font-weight: var(--type-value-weight);
   letter-spacing: var(--tracking-tight);
@@ -377,7 +369,7 @@
 .dn-content-type-select .dn-content-type-select-trigger:focus,
 .dn-content-type-select .dn-content-type-select-trigger:focus-visible {
   border: none !important;
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   box-shadow: none !important;
   outline: none;
   --tw-ring-shadow: 0 0 #0000;
@@ -400,12 +392,12 @@
   width: 100%;
   min-width: 0;
   border: none !important;
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   color: var(--type-value-color) !important;
   box-shadow: none !important;
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
-  padding-inline: var(--settings-row-px);
+  min-height: var(--control-height);
+  height: var(--control-height);
+  padding-inline: var(--row-px);
   font-size: var(--type-value);
   font-weight: var(--type-value-weight);
   letter-spacing: var(--tracking-tight);
@@ -415,7 +407,7 @@
 .dn-fill-picker-select .dn-fill-picker-select-trigger:focus,
 .dn-fill-picker-select .dn-fill-picker-select-trigger:focus-visible {
   border: none !important;
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   box-shadow: none !important;
   outline: none;
   --tw-ring-shadow: 0 0 #0000;
@@ -435,8 +427,8 @@
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
+  min-height: var(--control-height);
+  height: var(--control-height);
   padding-inline: 0.75rem;
 }
 
@@ -455,8 +447,8 @@
 }
 
 .dn-option-scroll-tile {
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
+  min-height: var(--control-height);
+  height: var(--control-height);
 }
 
 .dn-option-scroll-row--fill .dn-option-scroll-tile {
@@ -513,7 +505,7 @@
 
 .dn-style-preview-icon,
 [data-slot^="style-preview"] {
-  color: var(--dn-preview-ink, rgb(24 24 27 / 0.8));
+  color: var(--preview-ink, rgb(24 24 27 / 0.8));
 }
 
 .inspector-root[data-theme="light"] .dn-style-preview-icon,
@@ -523,7 +515,7 @@
 
 .inspector-root[data-theme="dark"] .dn-style-preview-icon,
 .inspector-root[data-theme="dark"] [data-slot^="style-preview"] {
-  color: var(--dn-paper);
+  color: var(--paper);
 }
 
 /* ── Settings typography ─────────────────────────────────────────── */
@@ -633,8 +625,8 @@
 .dn-preview-row {
   display: flex;
   min-width: max-content;
-  --settings-option-gap: var(--space-inline);
-  gap: var(--settings-option-gap);
+  --option-gap: var(--space-inline);
+  gap: var(--option-gap);
   padding: var(--space-inline) 0.25rem;
 }
 
@@ -642,19 +634,19 @@
    gap so the pointer never drops to default between tiles. */
 :is(.dn-preview-row, .dn-option-scroll-row)
   > :is(button, a, [role="button"], [data-slot="image-upload-tile"]) {
-  margin-inline: calc(var(--settings-option-gap, var(--space-inline)) / -2);
+  margin-inline: calc(var(--option-gap, var(--space-inline)) / -2);
   margin-block: 0;
   position: relative;
   z-index: 0;
 }
 
 .t-tabs > [role="tab"] {
-  margin-inline: calc(var(--settings-option-gap, 0.25rem) / -2);
+  margin-inline: calc(var(--option-gap, 0.25rem) / -2);
   margin-block: 0;
 }
 
 :is(.dn-insert-menu-option-grid) > :is(button, a, [role="button"]) {
-  margin: calc(var(--settings-option-gap, var(--space-inline)) / -2);
+  margin: calc(var(--option-gap, var(--space-inline)) / -2);
   position: relative;
   z-index: 0;
 }
@@ -692,13 +684,13 @@
 }
 
 .dn-control-surface {
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
+  min-height: var(--control-height);
+  height: var(--control-height);
 }
 
 .dn-tab-bar {
-  min-height: var(--settings-tab-height);
-  height: var(--settings-tab-height);
+  min-height: var(--tab-height);
+  height: var(--tab-height);
 }
 
 .dn-tab-bar.dn-content-type-tab-bar {
@@ -713,22 +705,22 @@
 }
 
 .dn-preview-tile-size {
-  width: var(--settings-preview-tile);
-  height: var(--settings-preview-tile);
-  min-width: var(--settings-preview-tile);
-  min-height: var(--settings-preview-tile);
+  width: var(--preview-tile);
+  height: var(--preview-tile);
+  min-width: var(--preview-tile);
+  min-height: var(--preview-tile);
 }
 
 .dn-switch-row {
   display: flex;
   width: 100%;
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
+  min-height: var(--control-height);
+  height: var(--control-height);
   flex-direction: row-reverse;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0 var(--settings-row-px) !important;
+  padding: 0 var(--row-px) !important;
 }
 
 .dn-switch-row > span {
@@ -760,12 +752,12 @@
 }
 
 .dn-settings-row {
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
-  padding-left: var(--settings-row-px);
-  padding-right: var(--settings-row-px);
+  min-height: var(--control-height);
+  height: var(--control-height);
+  padding-left: var(--row-px);
+  padding-right: var(--row-px);
   border: 1px solid transparent;
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   color: var(--type-value-color);
   line-height: 1;
   box-shadow: none !important;
@@ -778,7 +770,7 @@
 .inspector-root .dn-settings-row:hover,
 .inspector-root .dn-settings-row:focus-visible,
 .inspector-root .dn-settings-row:active {
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   color: var(--fg) !important;
   box-shadow: none !important;
   outline: none;
@@ -798,10 +790,10 @@
 
 .inspector-root .dn-settings-input,
 .dn-settings-input {
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
+  min-height: var(--control-height);
+  height: var(--control-height);
   border: 1px solid var(--line);
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   font-size: var(--type-value);
   font-weight: var(--type-value-weight);
   line-height: 1;
@@ -835,7 +827,7 @@
 
 [data-slot="content-fields"] .dn-settings-input {
   border: none;
-  padding-inline: var(--settings-row-px);
+  padding-inline: var(--row-px);
 }
 
 [data-slot="content-fields"] .dn-settings-input:focus,
@@ -848,7 +840,7 @@
 
 .dn-content-detection-chip {
   border: 1px solid var(--line);
-  background: var(--settings-control);
+  background: var(--control);
   padding: 0.625rem 0.75rem;
 }
 
@@ -879,7 +871,7 @@
 :is(.inspector-popover-content, .dn-portal-surface) .dn-settings-row:hover,
 :is(.inspector-popover-content, .dn-portal-surface) .dn-settings-row:focus-visible,
 :is(.inspector-popover-content, .dn-portal-surface) .dn-settings-row:active {
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   color: var(--fg) !important;
   box-shadow: none !important;
   outline: none;
@@ -919,7 +911,7 @@
   left: 0;
   z-index: 0;
   width: 0;
-  background: var(--dn-mass, #171717);
+  background: var(--mass, #171717);
   transform: translateX(0);
   transition:
     transform var(--tabs-dur) var(--tabs-ease),
@@ -929,11 +921,11 @@
 }
 
 .inspector-root[data-theme="dark"] .t-tabs-pill {
-  background: var(--dn-paper);
+  background: var(--paper);
 }
 
 .t-tabs--muted {
-  --settings-option-gap: 0;
+  --option-gap: 0;
   gap: 0;
   padding: 2px;
   background: transparent;
@@ -945,7 +937,7 @@
 }
 
 .inspector-root[data-theme="dark"] .t-tabs--muted .t-tabs-pill--muted {
-  background: var(--dn-mass-muted);
+  background: var(--mass-muted);
 }
 
 .t-tabs--muted .dn-segment-tab--muted[aria-selected="true"] {
@@ -958,11 +950,11 @@
 
 .dn-segment-tab[aria-selected="true"] {
   background: transparent;
-  color: var(--dn-mass-fg, #ffffff);
+  color: var(--mass-fg, #ffffff);
 }
 
 .inspector-root[data-theme="dark"] .dn-segment-tab[aria-selected="true"] {
-  color: var(--dn-mass-fg);
+  color: var(--mass-fg);
 }
 
 /* ── Accordion ───────────────────────────────────────────────────── */
@@ -1025,7 +1017,7 @@
   /* Matches the canvas card's max height: viewport minus the top chrome inset
    * and the artboard's vertical fit insets (2 × 24px). */
   height: calc(100dvh - var(--canvas-inset-top, 3.5rem) - 3rem);
-  background: var(--dn-card, #ffffff);
+  background: var(--card-white, #ffffff);
   overflow-x: hidden;
   overflow-y: auto;
   /* Reserve the scrollbar lane so content doesn't reflow when an open
@@ -1094,7 +1086,7 @@
   border: none;
   background: var(--surface);
   color: var(--fg);
-  box-shadow: var(--dn-popover-shadow, 0 12px 40px rgb(0 0 0 / 18%));
+  box-shadow: var(--popover-shadow, 0 12px 40px rgb(0 0 0 / 18%));
   border-radius: 1.25rem;
   corner-shape: squircle;
 }
@@ -1138,11 +1130,11 @@
   background: var(--surface);
   border-radius: var(--radius-md);
   corner-shape: squircle;
-  box-shadow: var(--dn-popover-shadow, 0 12px 40px rgb(0 0 0 / 18%));
+  box-shadow: var(--popover-shadow, 0 12px 40px rgb(0 0 0 / 18%));
 }
 
 .inspector-fill-popover[data-theme="dark"] .dn-settings-popover-shell {
-  box-shadow: var(--dn-menu-shadow);
+  box-shadow: var(--menu-shadow);
 }
 
 .dn-settings-popover-header {
@@ -1238,10 +1230,10 @@
 .dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button::before {
   content: "";
   position: absolute;
-  top: calc(-1 * var(--settings-accordion-gap, 8px));
+  top: calc(-1 * var(--accordion-gap, 8px));
   right: 0;
   left: 0;
-  height: var(--settings-accordion-gap, 8px);
+  height: var(--accordion-gap, 8px);
 }
 
 .dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:first-child {
@@ -1295,9 +1287,9 @@
 }
 
 .dn-settings-accordion [role="region"] {
-  --bg: var(--dn-paper);
-  --background: var(--dn-paper);
-  --scroll-edge-fade-color: var(--dn-paper);
+  --bg: var(--paper);
+  --background: var(--paper);
+  --scroll-edge-fade-color: var(--paper);
   --tabs-dur: var(--motion-ui, 180ms);
   --tabs-ease: var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
 }
@@ -1314,7 +1306,7 @@
   .dn-settings-accordion
   [role="region"]
   .t-tabs-pill:not(.t-tabs-pill--muted) {
-  background: var(--dn-card, #ffffff);
+  background: var(--card-white, #ffffff);
 }
 
 .dn-settings-accordion [role="region"] .t-tabs-pill {
@@ -1341,10 +1333,10 @@
 }
 
 .dn-settings-accordion [role="region"] .dn-preview-tile-size {
-  flex: 0 0 var(--settings-preview-tile);
-  width: var(--settings-preview-tile);
-  min-width: var(--settings-preview-tile);
-  max-width: var(--settings-preview-tile);
+  flex: 0 0 var(--preview-tile);
+  width: var(--preview-tile);
+  min-width: var(--preview-tile);
+  max-width: var(--preview-tile);
 }
 
 .dn-settings-accordion [role="region"] .dn-preview-tile {
@@ -1362,7 +1354,7 @@
 
 .dn-settings-accordion [role="region"] .dn-option-scroll-chip,
 .dn-settings-accordion [role="region"] .dn-option-scroll-tile {
-  background: var(--settings-control);
+  background: var(--control);
   border: 2px solid transparent;
 }
 
@@ -1383,22 +1375,22 @@
 .dn-settings-accordion [role="region"] .dn-option-scroll-chip[data-selected="true"],
 .dn-settings-accordion [role="region"] .dn-option-scroll-tile[aria-pressed="true"],
 .dn-settings-accordion [role="region"] .dn-option-scroll-tile[data-selected="true"] {
-  background: var(--settings-control-hover);
+  background: var(--control-hover);
   box-shadow: none;
   color: var(--fg);
 }
 
 .dn-settings-accordion [role="region"] .dn-settings-row {
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
 }
 
 .dn-settings-accordion [role="region"] .dn-settings-input {
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
 }
 
 /* Card surface lives on the accordion stack; item rows stay transparent. */
 .inspector-root.inspector-embedded .dn-settings-accordion > div {
-  background: var(--dn-card, #ffffff);
+  background: var(--card-white, #ffffff);
 }
 
 .inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-accordion > div {
@@ -1532,15 +1524,11 @@
   --tw-shadow: 0 0 #0000;
   --tw-ring-shadow: 0 0 #0000;
   --tw-ring-offset-shadow: 0 0 #0000;
-  box-shadow: var(--dn-menu-shadow) !important;
+  box-shadow: var(--menu-shadow) !important;
   --scroll-edge-fade-color: var(--bg);
   --scroll-edge-chevron-color: var(--muted);
-  --bg: var(--dn-surface);
-  --fg: var(--dn-fg);
-  --settings-control: var(--dn-control);
-  --settings-control-hover: var(--dn-control);
-  --muted: var(--dn-muted);
-  --line: var(--dn-line);
+  --bg: var(--surface);
+  --control-hover: var(--control);
   --radius-md: 20px;
   --radius-lg: 20px;
   --tracking-tight: -0.015em;
@@ -1548,7 +1536,6 @@
   --type-value-weight: 500;
   --type-label-color: color-mix(in srgb, var(--fg) 44%, transparent);
   --type-value-color: var(--fg);
-  --slider-bg: var(--dn-slider);
   --background: var(--bg);
   --foreground: var(--fg);
   --card: var(--bg);
@@ -1557,21 +1544,21 @@
   --popover-foreground: var(--fg);
   --primary: var(--fg);
   --primary-foreground: var(--bg);
-  --secondary: var(--settings-control);
+  --secondary: var(--control);
   --secondary-foreground: var(--fg);
   --muted-foreground: var(--muted);
-  --accent: var(--settings-control-hover);
+  --accent: var(--control-hover);
   --accent-foreground: var(--fg);
   --border: var(--line);
-  --input: var(--settings-control);
+  --input: var(--control);
   --ring: var(--fg);
 }
 
 .inspector-popover-content[data-theme="dark"] {
-  --bg: var(--dn-popover-bg);
-  --settings-control: var(--dn-popover-control);
-  --settings-control-hover: var(--dn-popover-control);
-  --line: var(--dn-popover-line);
+  --bg: var(--popover-bg);
+  --control: var(--popover-control);
+  --control-hover: var(--popover-control);
+  --line: var(--popover-line);
   --type-label-color: color-mix(in srgb, var(--fg) 46%, transparent);
 }
 
@@ -1591,7 +1578,7 @@
 
 .inspector-crop-dialog > button.absolute:hover,
 .inspector-crop-dialog > button.absolute:focus-visible {
-  background: var(--settings-control);
+  background: var(--control);
   color: var(--fg);
   opacity: 1;
 }
@@ -1618,7 +1605,7 @@
 .dn-logo-icon-picker-search-icon {
   position: absolute;
   top: 50%;
-  left: var(--settings-row-px);
+  left: var(--row-px);
   z-index: 1;
   width: 0.875rem;
   height: 0.875rem;
@@ -1630,11 +1617,11 @@
 :is(.inspector-popover-content, .dn-portal-surface, .dn-settings-accordion)
   .dn-logo-icon-picker
   .dn-settings-input {
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
+  min-height: var(--control-height);
+  height: var(--control-height);
   border: none;
-  background: var(--settings-control) !important;
-  padding-inline: calc(var(--settings-row-px) + 1.125rem) var(--settings-row-px);
+  background: var(--control) !important;
+  padding-inline: calc(var(--row-px) + 1.125rem) var(--row-px);
 }
 
 /* ScrollArea owns the viewport + fades; the grid itself must keep an
@@ -1769,15 +1756,10 @@
 
 /* Insert menu popover — solid accordion surface + option tiles */
 .dn-insert-menu-popover {
-  --bg: var(--dn-paper);
-  --background: var(--dn-paper);
-  --scroll-edge-fade-color: var(--dn-paper);
-  --fg: var(--dn-fg);
-  --muted: var(--dn-muted);
-  --line: var(--dn-line);
-  --settings-control: var(--dn-control);
-  --settings-control-hover: var(--dn-control);
-  --surface: var(--dn-surface);
+  --bg: var(--paper);
+  --background: var(--paper);
+  --scroll-edge-fade-color: var(--paper);
+  --control-hover: var(--control);
   --radius-md: 20px;
   --radius-lg: 20px;
   border: 1px solid color-mix(in srgb, var(--line) 80%, transparent) !important;
@@ -1787,13 +1769,13 @@
 }
 
 .dn-insert-menu-popover[data-theme="dark"] {
-  --bg: var(--dn-popover-bg);
-  --background: var(--dn-popover-bg);
-  --scroll-edge-fade-color: var(--dn-popover-bg);
-  --line: var(--dn-popover-line);
-  --settings-control: var(--dn-popover-control);
-  --settings-control-hover: var(--dn-popover-control);
-  --surface: var(--dn-popover-bg);
+  --bg: var(--popover-bg);
+  --background: var(--popover-bg);
+  --scroll-edge-fade-color: var(--popover-bg);
+  --line: var(--popover-line);
+  --control: var(--popover-control);
+  --control-hover: var(--popover-control);
+  --surface: var(--popover-bg);
   border-color: color-mix(in srgb, var(--line) 80%, transparent) !important;
   background: var(--surface) !important;
   color: var(--fg) !important;
@@ -1826,11 +1808,11 @@
 }
 
 .dn-insert-menu-popover .dn-settings-row {
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
 }
 
 .dn-insert-menu-popover .dn-settings-input {
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
 }
 
 .dn-insert-menu-root-tile.dn-option-tile {
@@ -1951,8 +1933,8 @@
 .dn-insert-menu-option-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  --settings-option-gap: 0.125rem;
-  gap: var(--settings-option-gap);
+  --option-gap: 0.125rem;
+  gap: var(--option-gap);
 }
 
 .dn-insert-menu-option-grid--3 {
@@ -2028,13 +2010,7 @@
   --tw-ring-shadow: 0 0 #0000;
   --tw-ring-offset-shadow: 0 0 #0000;
   box-shadow: none !important;
-  --bg: var(--dn-bg);
-  --surface: var(--dn-surface);
-  --settings-control: var(--dn-control);
-  --settings-control-hover: var(--dn-control);
-  --fg: var(--dn-fg);
-  --muted: var(--dn-muted);
-  --line: var(--dn-line);
+  --control-hover: var(--control);
   --background: var(--bg);
   --foreground: var(--fg);
   --card: var(--bg);
@@ -2043,19 +2019,15 @@
   --popover-foreground: var(--fg);
   --primary: var(--fg);
   --primary-foreground: #ffffff;
-  --secondary: var(--settings-control);
+  --secondary: var(--control);
   --secondary-foreground: var(--fg);
-  --muted: var(--settings-control);
+  --muted: var(--control);
   --muted-foreground: var(--muted);
-  --accent: var(--settings-control-hover);
+  --accent: var(--control-hover);
   --accent-foreground: var(--fg);
   --border: var(--line);
-  --input: var(--settings-control);
+  --input: var(--control);
   --ring: var(--fg);
-}
-
-.inspector-fill-popover[data-theme="dark"] {
-  --muted: var(--dn-muted);
 }
 
 .inspector-fill-popover .dn-fill-picker-panel {
@@ -2088,12 +2060,12 @@
 /* Fill picker — calm accordion-aligned surfaces */
 :is(.inspector-fill-popover, .fill-picker-portal) {
   --color-picker-control-border: var(--line);
-  --color-picker-control-bg: var(--settings-control);
+  --color-picker-control-bg: var(--control);
   --color-picker-fg: var(--fg);
   --border: var(--line);
   --input: var(--line);
   --ring: color-mix(in srgb, var(--fg) 24%, transparent);
-  --muted: var(--settings-control);
+  --muted: var(--control);
   --muted-foreground: var(--muted);
 }
 
@@ -2115,21 +2087,21 @@
 }
 
 .inspector-fill-popover .dn-fill-picker-mode-tabs .t-tabs-pill {
-  background: var(--dn-mass, #171717);
+  background: var(--mass, #171717);
 }
 
 .inspector-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .t-tabs-pill {
-  background: var(--dn-paper);
+  background: var(--paper);
 }
 
 .inspector-fill-popover .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
-  color: var(--dn-mass-fg, #ffffff);
+  color: var(--mass-fg, #ffffff);
 }
 
 .inspector-fill-popover[data-theme="dark"]
   .dn-fill-picker-mode-tabs
   .dn-segment-tab[aria-selected="true"] {
-  color: var(--dn-mass-fg);
+  color: var(--mass-fg);
 }
 
 .inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-pane {
@@ -2141,16 +2113,16 @@
   border-radius: var(--radius-xs) !important;
   corner-shape: squircle;
   box-shadow: none !important;
-  background-color: var(--settings-control) !important;
+  background-color: var(--control) !important;
 }
 
 .inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input,
 .inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input:focus-within {
-  height: var(--settings-control-height);
+  height: var(--control-height);
   border: 0 !important;
   border-radius: var(--radius-xs);
   corner-shape: squircle;
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   box-shadow: none !important;
   font-family: inherit;
   --tw-ring-shadow: 0 0 #0000;
@@ -2183,19 +2155,19 @@
 }
 
 .dn-fill-picker-eye-dropper {
-  height: var(--settings-control-height);
-  width: var(--settings-control-height);
+  height: var(--control-height);
+  width: var(--control-height);
   border: 0 !important;
   border-radius: var(--radius-xs);
   corner-shape: squircle;
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   color: var(--muted);
   box-shadow: none !important;
 }
 
 .dn-fill-picker-eye-dropper:hover,
 .dn-fill-picker-eye-dropper[data-state="on"] {
-  background: color-mix(in srgb, var(--fg) 14%, var(--settings-control)) !important;
+  background: color-mix(in srgb, var(--fg) 14%, var(--control)) !important;
   color: var(--fg);
 }
 
@@ -2208,8 +2180,8 @@
 }
 
 .inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider .rounded-full.border-2 {
-  border-color: var(--dn-picker-thumb, rgb(255 255 255 / 0.92)) !important;
-  box-shadow: 0 0 0 1px var(--dn-picker-thumb-ring, rgb(0 0 0 / 0.28)) !important;
+  border-color: var(--picker-thumb, rgb(255 255 255 / 0.92)) !important;
+  box-shadow: 0 0 0 1px var(--picker-thumb-ring, rgb(0 0 0 / 0.28)) !important;
 }
 
 :is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-xs,
@@ -2224,11 +2196,11 @@
     .rounded-lg.border.font-mono,
     .flex.h-8.items-stretch.overflow-hidden.rounded-md.border
   ) {
-  height: var(--settings-control-height);
+  height: var(--control-height);
   border: 0 !important;
   border-radius: var(--radius-xs) !important;
   corner-shape: squircle;
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   box-shadow: none !important;
 }
 
@@ -2244,7 +2216,7 @@
 
 :is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .bg-muted,
 :is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .bg-muted\/30 {
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
 }
 
 .inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-gradient-bar .border-border {
@@ -2252,21 +2224,21 @@
 }
 
 .inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-field {
-  height: var(--settings-control-height);
+  height: var(--control-height);
   border: 0 !important;
   border-radius: var(--radius-xs);
   corner-shape: squircle;
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   box-shadow: none !important;
 }
 
 .inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-group {
-  min-height: var(--settings-control-height);
+  min-height: var(--control-height);
 }
 
 .inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-pad {
   border: 0 !important;
-  background: var(--settings-control) !important;
+  background: var(--control) !important;
   box-shadow: none !important;
 }
 
@@ -2275,13 +2247,13 @@
 }
 
 .dn-fill-option-grid .dn-fill-option-tile {
-  flex: 0 0 var(--settings-icon-hit);
-  width: var(--settings-icon-hit);
-  height: var(--settings-icon-hit);
-  min-width: var(--settings-icon-hit);
-  min-height: var(--settings-icon-hit);
-  max-width: var(--settings-icon-hit);
-  max-height: var(--settings-icon-hit);
+  flex: 0 0 var(--icon-hit);
+  width: var(--icon-hit);
+  height: var(--icon-hit);
+  min-width: var(--icon-hit);
+  min-height: var(--icon-hit);
+  max-width: var(--icon-hit);
+  max-height: var(--icon-hit);
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
   padding: 3px;
@@ -2305,10 +2277,10 @@
 }
 
 .dn-settings-accordion [role="region"] .dn-image-upload-tile {
-  flex: 0 0 var(--settings-preview-tile);
-  width: var(--settings-preview-tile);
-  min-width: var(--settings-preview-tile);
-  max-width: var(--settings-preview-tile);
+  flex: 0 0 var(--preview-tile);
+  width: var(--preview-tile);
+  min-width: var(--preview-tile);
+  max-width: var(--preview-tile);
 }
 
 .dn-settings-accordion [role="region"] .dn-image-upload-tile.dn-image-upload-tile--fluid {
@@ -2323,20 +2295,20 @@
   [role="region"]
   .dn-row-upload-tile.dn-image-upload-tile:not(.dn-image-upload-tile--fluid),
 .dn-row-upload-tile.dn-image-upload-tile:not(.dn-image-upload-tile--fluid) {
-  flex: 0 0 var(--settings-control-height);
-  width: var(--settings-control-height);
-  min-width: var(--settings-control-height);
-  max-width: var(--settings-control-height);
-  height: var(--settings-control-height);
-  min-height: var(--settings-control-height);
-  max-height: var(--settings-control-height);
+  flex: 0 0 var(--control-height);
+  width: var(--control-height);
+  min-width: var(--control-height);
+  max-width: var(--control-height);
+  height: var(--control-height);
+  min-height: var(--control-height);
+  max-height: var(--control-height);
   border-width: 0;
   padding: 0;
 }
 
 /* Match the adjacent picker trigger row: same fill, same height. */
 .dn-row-upload-tile.dn-image-upload-tile span[aria-hidden] {
-  background: var(--settings-control);
+  background: var(--control);
 }
 
 .dn-paper-shader-color-grid .dn-paper-shader-color-chip {
@@ -2363,17 +2335,17 @@
 }
 
 .fill-picker-portal [data-highlighted] {
-  background: var(--settings-control-hover) !important;
+  background: var(--control-hover) !important;
   color: var(--fg) !important;
 }
 
 .t-tabs {
   position: relative;
-  --settings-option-gap: 0.25rem;
+  --option-gap: 0.25rem;
 }
 
 .t-tabs:not(.t-tabs--muted) {
-  gap: var(--settings-option-gap);
+  gap: var(--option-gap);
 }
 
 .dn-squircle-xs {

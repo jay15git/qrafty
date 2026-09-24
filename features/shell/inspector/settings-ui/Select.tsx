@@ -52,7 +52,7 @@ export function SettingsLabeledSelect({
       )}
     >
       {label ? (
-        <span className="dn-row-label-text shrink-0 pl-[var(--settings-row-px)]">{label}</span>
+        <span className="dn-row-label-text shrink-0 pl-[var(--row-px)]">{label}</span>
       ) : null}
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger

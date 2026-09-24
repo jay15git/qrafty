@@ -37,7 +37,7 @@ import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
 import { cn } from "@/lib/utils";
 
 const PANEL_ICON_BUTTON_CLASS =
-  "flex size-8 cursor-pointer items-center justify-center rounded-full text-[var(--fg)] transition-colors hover:bg-[var(--settings-control)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4";
+  "flex size-8 cursor-pointer items-center justify-center rounded-full text-[var(--fg)] transition-colors hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4";
 
 function PanelIconButton({
   className,

@@ -14,10 +14,10 @@ import { FieldInput, FieldInputGroup, FieldShell } from "@/components/ui/fill-pi
 import { cn } from "@/lib/utils";
 
 const PALETTE_COLOR_ROW =
-  "flex items-center gap-[length:var(--space-inline)] rounded-[length:var(--radius-sm)] bg-[var(--settings-control)] px-[length:var(--space-inline)]";
+  "flex items-center gap-[length:var(--space-inline)] rounded-[length:var(--radius-sm)] bg-[var(--control)] px-[length:var(--space-inline)]";
 
 const PALETTE_COLOR_FIELD =
-  "h-[length:var(--settings-control-height-compact)] min-w-0 flex-1 border border-[var(--line)] bg-[var(--settings-control)] shadow-none focus-within:border-[color-mix(in_srgb,var(--fg)_18%,transparent)] focus-within:ring-0";
+  "h-[length:var(--control-height-compact)] min-w-0 flex-1 border border-[var(--line)] bg-[var(--control)] shadow-none focus-within:border-[color-mix(in_srgb,var(--fg)_18%,transparent)] focus-within:ring-0";
 
 const PALETTE_COLOR_SWATCH =
   "size-8 shrink-0 dn-squircle-xs outline-none transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--fg)_18%,transparent)]";
@@ -59,7 +59,7 @@ export function PaletteColorStopList({
           disabled={!canAdd}
           onClick={onAdd}
           aria-label="Add color"
-          className="h-[length:var(--settings-control-height-compact)] cursor-pointer border-[var(--line)] bg-[var(--settings-control)] font-mono text-xs tracking-wide shadow-none hover:bg-[var(--settings-control-hover)]"
+          className="h-[length:var(--control-height-compact)] cursor-pointer border-[var(--line)] bg-[var(--control)] font-mono text-xs tracking-wide shadow-none hover:bg-[var(--control-hover)]"
         >
           <Plus aria-hidden className="size-3.5" />
           Add color

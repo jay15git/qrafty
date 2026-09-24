@@ -78,7 +78,7 @@ function InspectorElementShapeOptionTile({
         inspectorOptionGridItemClass("loose"),
         INSPECTOR_OPTION_TILE_SURFACE_CLASS,
         INSPECTOR_OPTION_TILE_BUTTON_CLASS,
-        selected && "text-[var(--settings-option-selected-fg)]",
+        selected && "text-[var(--option-selected-fg)]",
       )}
       type="button"
       onClick={onClick}
@@ -158,7 +158,7 @@ export function ElementShapeOptionGrid({
   const decorativeFill = isInsertDesktop ? "currentColor" : shapeFill;
   const buttonClassName = isInsertDesktop
     ? "dn-option-tile flex aspect-square w-full min-w-0 items-center justify-center text-[var(--fg)] dn-squircle-xs"
-    : "flex aspect-square w-full min-w-0 items-center justify-center p-2 text-[var(--canvas-ink-muted)] transition hover:bg-[var(--settings-panel-bg-hover)] hover:text-[var(--canvas-ink)]";
+    : "flex aspect-square w-full min-w-0 items-center justify-center p-2 text-[var(--canvas-ink-muted)] transition hover:bg-[var(--panel-bg-hover)] hover:text-[var(--canvas-ink)]";
 
   return (
     <div

@@ -63,8 +63,8 @@ export function ShadowsList({
       />
 
       {effect && enabled ? (
-        <div className="flex min-h-[var(--settings-control-height)] items-center">
-          <span className="dn-row-label-text pl-[var(--settings-row-px)]">Color</span>
+        <div className="flex min-h-[var(--control-height)] items-center">
+          <span className="dn-row-label-text pl-[var(--row-px)]">Color</span>
           <SettingsFillPopover
             align="start"
             hint="Drop shadow color"

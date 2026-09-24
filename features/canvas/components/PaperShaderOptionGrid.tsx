@@ -51,7 +51,7 @@ function InspectorPaperShaderOptionTile({
         inspectorOptionGridItemClass("loose"),
         INSPECTOR_OPTION_TILE_SURFACE_CLASS,
         INSPECTOR_OPTION_TILE_BUTTON_CLASS,
-        selected && "text-[var(--settings-option-selected-fg)]",
+        selected && "text-[var(--option-selected-fg)]",
       )}
       type="button"
       onClick={onClick}
@@ -90,8 +90,8 @@ function InsertPaperShaderOptionTile({
       className={cn(
         "group relative aspect-square w-full min-w-0 p-0 transition",
         isInsertDesktop
-          ? "rounded-lg hover:bg-[var(--settings-control-hover)]"
-          : "rounded-[7px] hover:bg-[var(--settings-panel-bg-hover)]",
+          ? "rounded-lg hover:bg-[var(--control-hover)]"
+          : "rounded-[7px] hover:bg-[var(--panel-bg-hover)]",
       )}
       type="button"
       onClick={onClick}
@@ -101,7 +101,7 @@ function InsertPaperShaderOptionTile({
         data-slot="paper-shader-insert-preview-surface"
         className={cn(
           "relative block size-full overflow-hidden rounded-md border-2 border-transparent shadow-[var(--style-preview-inset)]",
-          isInsertDesktop ? "bg-[var(--bg)]" : "bg-[var(--settings-control-bg)]",
+          isInsertDesktop ? "bg-[var(--bg)]" : "bg-[var(--control)]",
         )}
       >
         <PaperShaderOptionPreview shaderId={shaderId} />
@@ -159,7 +159,7 @@ export function PaperShaderOptionGrid({
       className={cn(
         "grid max-h-72 grid-cols-3 gap-1 overflow-y-auto p-1",
         variant === "insert-desktop"
-          ? "dn-squircle-sm border border-[var(--line)] bg-[var(--settings-control)] p-1"
+          ? "dn-squircle-sm border border-[var(--line)] bg-[var(--control)] p-1"
           : undefined,
       )}
       data-slot={dataSlot}

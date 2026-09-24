@@ -53,7 +53,7 @@ export function InsertMenuPopoverContent({
               theme,
               cn(INSERT_MENU_POPOVER_SHELL, INSERT_MENU_POPOVER_WIDTH, "flex flex-col"),
             )
-          : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--canvas-line)] bg-[var(--settings-panel-bg)] p-3"
+          : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--canvas-line)] bg-[var(--panel-bg)] p-3"
       }
       data-slot={isPopover ? "desktop-insert-menu-popover" : "drafting-insert-menu"}
       data-mobile-inspector={isPopover && mobileDensity ? "" : undefined}

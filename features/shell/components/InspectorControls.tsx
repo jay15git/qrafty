@@ -35,7 +35,7 @@ import {
 const INSPECTOR_SECTION_CLASS = "min-w-0 flex flex-col gap-2";
 const INSPECTOR_SCRUB_NUMBER_FIELD_CLASS = cn("text-center tabular-nums", INSPECTOR_INPUT_CLASS);
 const INSPECTOR_FOCUS_CLASS =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--settings-focus)]";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)]";
 
 type InspectorSectionElement = "section" | "div" | "details";
 

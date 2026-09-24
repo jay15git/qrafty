@@ -215,8 +215,8 @@ function QrColorFillPatternSection({
 
   return (
     <>
-      <div className="flex min-h-[var(--settings-control-height)] items-center">
-        <span className="dn-row-label-text pl-[var(--settings-row-px)]">Pattern</span>
+      <div className="flex min-h-[var(--control-height)] items-center">
+        <span className="dn-row-label-text pl-[var(--row-px)]">Pattern</span>
         <div aria-label="Pattern colors" className="ml-auto flex items-center gap-1.5" role="group">
           {modulePattern.selectedPalette.map((color, index) => (
             <PatternRowSwatch
@@ -248,8 +248,8 @@ function QrColorFillImageSection({
 }) {
   return (
     <>
-      <div className="flex min-h-[var(--settings-control-height)] items-center">
-        <span className="dn-row-label-text pl-[var(--settings-row-px)]">Upload</span>
+      <div className="flex min-h-[var(--control-height)] items-center">
+        <span className="dn-row-label-text pl-[var(--row-px)]">Upload</span>
         <SettingsImageUploadTile
           ariaLabel="Upload custom image"
           className="dn-row-upload-tile ml-auto"

@@ -135,7 +135,7 @@ export function SettingsOptionShelf({
   return (
     <div className="flex flex-col gap-2">
       {label ? (
-        <span className="dn-row-label-text flex h-[var(--settings-control-height)] items-center px-[var(--settings-row-px)]">
+        <span className="dn-row-label-text flex h-[var(--control-height)] items-center px-[var(--row-px)]">
           {label}
         </span>
       ) : null}

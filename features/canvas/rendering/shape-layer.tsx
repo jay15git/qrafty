@@ -227,7 +227,7 @@ export function DraftingImageLayerContent({ layer }: { layer: DraftingCanvasLaye
     return (
       <div
         aria-hidden="true"
-        className="grid h-full w-full place-items-center border border-dashed border-[var(--canvas-line)] bg-[var(--settings-panel-bg-hover)] text-[11px] font-semibold text-[var(--canvas-ink-muted)]"
+        className="grid h-full w-full place-items-center border border-dashed border-[var(--canvas-line)] bg-[var(--panel-bg-hover)] text-[11px] font-semibold text-[var(--canvas-ink-muted)]"
         style={{ borderRadius: cornerStyle }}
       >
         Image

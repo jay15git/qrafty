@@ -20,7 +20,7 @@ export function IllustrationOptionGrid({
   const isInsertDesktop = variant === "insert-desktop";
   const buttonClassName = isInsertDesktop
     ? "dn-option-tile flex aspect-square w-full min-w-0 items-center justify-center p-1.5 dn-squircle-xs"
-    : "flex aspect-square w-full min-w-0 items-center justify-center p-2 text-[var(--canvas-ink-muted)] transition hover:bg-[var(--settings-panel-bg-hover)] hover:text-[var(--canvas-ink)]";
+    : "flex aspect-square w-full min-w-0 items-center justify-center p-2 text-[var(--canvas-ink-muted)] transition hover:bg-[var(--panel-bg-hover)] hover:text-[var(--canvas-ink)]";
 
   return (
     <div

@@ -42,7 +42,7 @@ function syncSidebarColumnWidth(width: number) {
   ];
 
   for (const target of targets) {
-    target?.style.setProperty("--settings-toolbar-width", value);
+    target?.style.setProperty("--toolbar-width", value);
   }
 }
 
@@ -136,7 +136,7 @@ export function SettingsToolbarShell({
     >
       {/*
         White column clip: width tracks viewport for responsive sidebar.
-        Same width updates --settings-toolbar-width so grey canvas left inset
+        Same width updates --toolbar-width so grey canvas left inset
         grows in lockstep — white expands, grey minimizes. No overlay on the canvas.
         The reveal animates via clip-path (paint-only) instead of width so the
         browser never re-runs layout per frame.

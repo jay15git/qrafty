@@ -198,7 +198,7 @@ describe("FloatingToolbar", () => {
       "utf8",
     );
 
-    expect(source).not.toContain("bg-[var(--settings-header-bg)]");
+    expect(source).not.toContain("bg-[var(--header-bg)]");
   });
 
   it("toggles the desktop prototype between dark and light mode", async () => {

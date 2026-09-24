@@ -2,11 +2,11 @@
 
 /* Mobile icon-button fill: pure white on light, pure black on dark. */
 [data-mobile-inspector] {
-  --settings-rail-button-bg: #ffffff;
+  --rail-button-bg: #ffffff;
 }
 
 [data-mobile-inspector][data-theme="dark"] {
-  --settings-rail-button-bg: #161616;
+  --rail-button-bg: #161616;
 }
 
 [data-slot="mobile-family-drawer-root"].inspector-root {
@@ -20,7 +20,7 @@
 
 [data-slot="mobile-family-drawer-root"].inspector-root[data-theme="light"] {
   color-scheme: light;
-  --muted: var(--settings-control);
+  --muted: var(--control);
 }
 
 [data-slot="mobile-family-drawer-root"].inspector-root[data-theme="dark"] {
@@ -76,20 +76,20 @@
   --type-body: 1.0625rem;
   --space-stack: 0.5rem;
   --space-inline: 0.4375rem;
-  --settings-control-height: 2.75rem;
-  --settings-control-height-compact: 2.5rem;
-  --settings-tab-height: 2.5rem;
-  --settings-preview-tile: 3.5rem;
-  --settings-card-tile: 7.5rem;
-  --settings-icon-hit: 2.75rem;
-  --settings-row-px: 1rem;
+  --control-height: 2.75rem;
+  --control-height-compact: 2.5rem;
+  --tab-height: 2.5rem;
+  --preview-tile: 3.5rem;
+  --card-tile: 7.5rem;
+  --icon-hit: 2.75rem;
+  --row-px: 1rem;
   --radius-xs: 12px;
   --radius-sm: 14px;
   --radius-md: 16px;
   --radius-lg: 16px;
-  --settings-type-value: 1rem;
-  --settings-type-label: 0.8125rem;
-  --settings-type-caption: 0.8125rem;
+  --type-value: 1rem;
+  --type-label: 0.8125rem;
+  --type-caption: 0.8125rem;
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-type-label,
@@ -112,14 +112,14 @@
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-settings-row,
 .dn-portal-surface[data-mobile-inspector] .dn-settings-row {
-  min-height: var(--settings-control-height);
+  min-height: var(--control-height);
   height: auto;
   border-radius: var(--radius-md);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-settings-input,
 .dn-portal-surface[data-mobile-inspector] .dn-settings-input {
-  min-height: var(--settings-control-height);
+  min-height: var(--control-height);
   font-size: var(--type-value);
   border-radius: var(--radius-md);
 }
@@ -128,14 +128,14 @@
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-settings-row.dn-settings-primary,
 .dn-portal-surface[data-mobile-inspector] .dn-settings-primary,
 .dn-portal-surface[data-mobile-inspector] .dn-settings-row.dn-settings-primary {
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
+  min-height: var(--control-height);
+  height: var(--control-height);
   font-size: var(--type-value);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .t-tabs,
 .dn-portal-surface[data-mobile-inspector] .t-tabs {
-  min-height: var(--settings-tab-height);
+  min-height: var(--tab-height);
   height: auto;
 }
 
@@ -156,7 +156,7 @@
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-segment-tab,
 .dn-portal-surface[data-mobile-inspector] .t-tab,
 .dn-portal-surface[data-mobile-inspector] .dn-segment-tab {
-  min-height: var(--settings-tab-height);
+  min-height: var(--tab-height);
   font-size: var(--type-caption);
 }
 
@@ -202,7 +202,7 @@
   padding: 0.875rem;
   border-radius: 9999px;
   corner-shape: round;
-  background: var(--settings-rail-button-bg, #ffffff);
+  background: var(--rail-button-bg, #ffffff);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-label,
@@ -232,15 +232,15 @@
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-option-scroll-chip,
 .dn-portal-surface[data-mobile-inspector] .dn-option-scroll-chip {
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
+  min-height: var(--control-height);
+  height: var(--control-height);
   font-size: var(--type-caption);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-preset-item,
 .dn-portal-surface[data-mobile-inspector] .dn-preset-item {
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
+  min-height: var(--control-height);
+  height: var(--control-height);
   font-size: var(--type-caption);
 }
 
@@ -248,10 +248,10 @@
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-preview-tile-size,
 .dn-portal-surface[data-mobile-inspector] .dn-preview-tile,
 .dn-portal-surface[data-mobile-inspector] .dn-preview-tile-size {
-  width: var(--settings-preview-tile);
-  height: var(--settings-preview-tile);
-  min-width: var(--settings-preview-tile);
-  min-height: var(--settings-preview-tile);
+  width: var(--preview-tile);
+  height: var(--preview-tile);
+  min-width: var(--preview-tile);
+  min-height: var(--preview-tile);
   border-radius: var(--radius-xs);
 }
 
@@ -271,9 +271,9 @@
   .dn-logo-icon-picker
   .dn-settings-input,
 .dn-portal-surface[data-mobile-inspector] .dn-logo-icon-picker .dn-settings-input {
-  min-height: var(--settings-control-height);
-  height: var(--settings-control-height);
-  padding-inline: calc(var(--settings-row-px) + 1.25rem) var(--settings-row-px);
+  min-height: var(--control-height);
+  height: var(--control-height);
+  padding-inline: calc(var(--row-px) + 1.25rem) var(--row-px);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-logo-icon-picker-grid,
@@ -306,7 +306,7 @@
   .dn-insert-menu-popover
   .dn-settings-row,
 .dn-portal-surface[data-mobile-inspector] .dn-insert-menu-popover .dn-settings-row {
-  min-height: var(--settings-control-height);
+  min-height: var(--control-height);
 }
 
 /* Layer inspector + wallpapers under drawer host */
@@ -322,7 +322,7 @@
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
   [data-slot="element-inspector"]
   button {
-  min-height: var(--settings-control-height);
+  min-height: var(--control-height);
 }
 
 /* Content field pairs stack on narrow drawer */
@@ -333,14 +333,12 @@
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-nested-header {
   display: grid;
-  grid-template-columns: var(--settings-nested-header-hit) minmax(0, 1fr) var(
-      --settings-nested-header-hit
-    );
+  grid-template-columns: var(--nested-header-hit) minmax(0, 1fr) var(--nested-header-hit);
   align-items: center;
   gap: 0.25rem;
   margin-bottom: 0.5rem;
   padding-bottom: 0;
-  --settings-nested-header-hit: 2.75rem;
+  --nested-header-hit: 2.75rem;
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
@@ -359,13 +357,13 @@
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-back {
   display: flex;
-  width: var(--settings-nested-header-hit, var(--settings-icon-hit));
-  height: var(--settings-nested-header-hit, var(--settings-icon-hit));
+  width: var(--nested-header-hit, var(--icon-hit));
+  height: var(--nested-header-hit, var(--icon-hit));
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  background: var(--muted, var(--settings-control));
+  background: var(--muted, var(--control));
   color: var(--fg);
   transition:
     background-color 150ms,
@@ -373,7 +371,7 @@
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-back:hover {
-  background: var(--accent, var(--settings-control-hover));
+  background: var(--accent, var(--control-hover));
   color: var(--foreground, var(--fg));
 }
 
@@ -415,14 +413,14 @@
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
   [data-slot="wallpaper-inspector"]
   button {
-  min-height: var(--settings-control-height);
+  min-height: var(--control-height);
   font-size: var(--type-value);
 }
 
 /* ── Mobile layer toolbar (above FamilyDrawer) ─────────────────── */
 
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector] {
-  --settings-icon-hit: 2.75rem;
+  --icon-hit: 2.75rem;
   --scroll-edge-fade-color: var(--bg);
   --scroll-edge-chevron-color: var(--muted);
 }
@@ -457,8 +455,8 @@
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector]
   [data-slot="mobile-layer-toolbar-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"] {
-  width: var(--settings-icon-hit);
-  height: var(--settings-icon-hit);
+  width: var(--icon-hit);
+  height: var(--icon-hit);
   border-radius: 9999px;
   corner-shape: round;
   color: var(--fg);
@@ -467,14 +465,14 @@
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector]
   [data-slot="mobile-layer-toolbar-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"]:hover {
-  background: var(--settings-control);
+  background: var(--control);
   color: var(--fg);
 }
 
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector]
   [data-slot="mobile-layer-toolbar-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"][aria-pressed="true"] {
-  background: var(--settings-control);
+  background: var(--control);
   color: var(--fg);
 }
 
@@ -484,12 +482,12 @@
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector]
   [data-slot="drafting-layer-floating-toolbar-color"]
   [data-slot="fill-swatch-button"] {
-  width: var(--settings-icon-hit);
-  height: var(--settings-icon-hit);
+  width: var(--icon-hit);
+  height: var(--icon-hit);
 }
 
 .dn-portal-surface[data-mobile-inspector] [data-slot="drafting-layer-text-size-settings"] button {
-  min-height: var(--settings-control-height);
+  min-height: var(--control-height);
   font-size: var(--type-value);
   color: var(--fg);
   border-radius: var(--radius-sm);
@@ -501,15 +499,15 @@
 .dn-portal-surface[data-mobile-inspector]
   [data-slot="drafting-layer-text-size-settings"]
   button[aria-pressed="true"] {
-  background: var(--settings-control);
+  background: var(--control);
   color: var(--fg);
 }
 
 .dn-portal-surface[data-mobile-inspector]
   [data-slot="drafting-layer-text-typography-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"] {
-  width: var(--settings-icon-hit);
-  height: var(--settings-icon-hit);
+  width: var(--icon-hit);
+  height: var(--icon-hit);
   border-radius: var(--radius-sm);
   color: var(--fg);
 }
@@ -520,7 +518,7 @@
 .dn-portal-surface[data-mobile-inspector]
   [data-slot="drafting-layer-text-typography-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"][aria-pressed="true"] {
-  background: var(--settings-control);
+  background: var(--control);
   color: var(--fg);
 }
 
@@ -543,7 +541,7 @@
   display: flex;
   min-height: 1.25rem;
   align-items: center;
-  padding-inline: var(--settings-row-px);
+  padding-inline: var(--row-px);
 }
 
 .dn-mobile-rail,
@@ -572,17 +570,17 @@
    aspect-ratio covers both fixed-size tiles and fluid ones whose `w-full`
    would otherwise collapse against a max-content row. */
 .dn-mobile-rail > * {
-  width: var(--settings-preview-tile);
-  min-width: var(--settings-preview-tile);
-  max-width: var(--settings-preview-tile);
+  width: var(--preview-tile);
+  min-width: var(--preview-tile);
+  max-width: var(--preview-tile);
   aspect-ratio: 1 / 1;
 }
 
 /* Landscape cards: wallpapers and previews. */
 .dn-mobile-card-rail > * {
-  width: var(--settings-card-tile);
-  min-width: var(--settings-card-tile);
-  max-width: var(--settings-card-tile);
+  width: var(--card-tile);
+  min-width: var(--card-tile);
+  max-width: var(--card-tile);
   aspect-ratio: 4 / 3;
 }
 
@@ -638,7 +636,7 @@
   inset-block: 0;
   border-radius: 9999px;
   corner-shape: round;
-  background: var(--settings-control);
+  background: var(--control);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
@@ -705,15 +703,15 @@
 /* Style catalogue tiles drilled into from the Style family. Sized to the rail
    scale rather than the drawer's, so a drilled row keeps the rail's density. */
 [data-slot="mobile-settings-rail-root"] {
-  --settings-preview-tile: 3.5rem;
+  --preview-tile: 3.5rem;
   /* Sliding pill behind the active rail tab — white on light, raised grey
      on dark; label ink stays constant. */
-  --dn-rail-pill: #ffffff;
-  --dn-rail-pill-fg: #0a0a0a;
+  --rail-pill: #ffffff;
+  --rail-pill-fg: #0a0a0a;
 }
 
 [data-slot="mobile-settings-rail-root"][data-theme="dark"] {
-  --dn-rail-pill: #3a3a3d;
+  --rail-pill: #3a3a3d;
 }
 
 [data-slot="mobile-settings-rail-root"] [data-slot="mobile-rail-style-option"] {
@@ -781,7 +779,7 @@
   justify-content: center;
   border-radius: 9999px;
   corner-shape: round;
-  background: var(--settings-rail-button-bg, #ffffff);
+  background: var(--rail-button-bg, #ffffff);
   color: var(--fg);
   transition: scale 150ms cubic-bezier(0.2, 0, 0, 1);
 }
@@ -817,7 +815,7 @@
   padding-inline: 0.5rem;
   border-radius: 9999px;
   corner-shape: round;
-  background: var(--settings-rail-button-bg, #ffffff);
+  background: var(--rail-button-bg, #ffffff);
   color: var(--fg);
   font-size: var(--type-caption);
   font-weight: 500;
@@ -850,7 +848,7 @@
   border: 0;
   border-radius: 9999px;
   corner-shape: round;
-  background: var(--settings-rail-button-bg, #ffffff);
+  background: var(--rail-button-bg, #ffffff);
   color: var(--fg);
   -webkit-tap-highlight-color: transparent;
 }
@@ -868,11 +866,11 @@
    the preview-tile slot so they sit in the same rhythm as the style catalogue.
    `dn-fill-option-tile` only sizes itself inside `.dn-fill-option-grid`. */
 [data-slot="mobile-settings-rail-root"] [data-slot="mobile-rail-option"] {
-  flex: 0 0 var(--settings-preview-tile);
-  width: var(--settings-preview-tile);
-  height: var(--settings-preview-tile);
-  min-width: var(--settings-preview-tile);
-  min-height: var(--settings-preview-tile);
+  flex: 0 0 var(--preview-tile);
+  width: var(--preview-tile);
+  height: var(--preview-tile);
+  min-width: var(--preview-tile);
+  min-height: var(--preview-tile);
   padding: 3px;
   background: transparent;
   -webkit-tap-highlight-color: transparent;
@@ -882,7 +880,7 @@
 [data-slot="mobile-settings-rail-root"]
   .dn-mobile-settings-rail__item--pill[aria-pressed="true"]
   .dn-mobile-settings-rail__pill {
-  background: color-mix(in srgb, var(--fg) 16%, var(--settings-rail-button-bg, #ffffff));
+  background: color-mix(in srgb, var(--fg) 16%, var(--rail-button-bg, #ffffff));
 }
 
 /* Fill-mode row under the options scrollarea (Color / Background). The
@@ -927,7 +925,7 @@
   inset-block: 3px;
   border-radius: 9999px;
   corner-shape: round;
-  background: var(--dn-rail-pill, #ffffff);
+  background: var(--rail-pill, #ffffff);
 }
 
 [data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__tabs .t-tab {
@@ -943,7 +941,7 @@
 [data-slot="mobile-settings-rail-root"]
   .dn-mobile-settings-rail__tabs
   .t-tab[aria-selected="true"] {
-  color: var(--dn-rail-pill-fg, #0a0a0a);
+  color: var(--rail-pill-fg, #0a0a0a);
 }
 
 /* Dark theme: inactive tabs keep the full foreground color — no fade. */
@@ -973,9 +971,9 @@
 /* Image-upload tiles only size themselves inside `.dn-fill-option-grid` — give
    them the rail tile slot like the other `mobile-rail-option` tiles. */
 [data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__upload-tile {
-  flex: 0 0 var(--settings-preview-tile);
-  width: var(--settings-preview-tile);
-  height: var(--settings-preview-tile);
-  min-width: var(--settings-preview-tile);
-  min-height: var(--settings-preview-tile);
+  flex: 0 0 var(--preview-tile);
+  width: var(--preview-tile);
+  height: var(--preview-tile);
+  min-width: var(--preview-tile);
+  min-height: var(--preview-tile);
 }

@@ -53,7 +53,7 @@ export function InspectorPasteButton({ className, onPaste }: InspectorPasteButto
     <button
       aria-label="Paste from clipboard"
       className={cn(
-        "flex size-6 shrink-0 items-center justify-center rounded-[5px] text-[var(--settings-fg-muted)] transition hover:bg-[var(--settings-control-hover-bg)] hover:text-[var(--settings-fg-primary)]",
+        "flex size-6 shrink-0 items-center justify-center rounded-[5px] text-[var(--fg-muted)] transition hover:bg-[var(--control-hover)] hover:text-[var(--fg-primary)]",
         className,
       )}
       data-slot="inspector-paste-action"

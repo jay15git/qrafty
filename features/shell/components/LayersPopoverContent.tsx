@@ -161,9 +161,9 @@ export function LayersPopoverContent({
   }
 
   const embeddedRowClass =
-    "flex min-h-[var(--settings-control-height)] cursor-pointer items-center rounded-[var(--radius-sm)] border-0 bg-transparent py-1 pl-1 pr-1.5 shadow-none";
+    "flex min-h-[var(--control-height)] cursor-pointer items-center rounded-[var(--radius-sm)] border-0 bg-transparent py-1 pl-1 pr-1.5 shadow-none";
   const embeddedGripClass =
-    "rounded-lg text-[var(--muted)] hover:bg-[var(--settings-control-hover)] hover:text-[var(--fg)]";
+    "rounded-lg text-[var(--muted)] hover:bg-[var(--control-hover)] hover:text-[var(--fg)]";
 
   return (
     <div
@@ -247,7 +247,7 @@ export function LayersPopoverContent({
                   "block min-w-0 truncate text-sm font-medium",
                   embedded
                     ? "dn-type-value text-[var(--type-value-color)]"
-                    : "text-[var(--settings-fg-secondary)]",
+                    : "text-[var(--fg-secondary)]",
                 )}
               >
                 {getLayerDisplayName(row)}

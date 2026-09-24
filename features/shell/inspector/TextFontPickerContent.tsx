@@ -47,7 +47,7 @@ export function TextFontPickerContent({
       <input
         aria-label="Search fonts"
         autoComplete="off"
-        className="h-[var(--settings-control-height)] shrink-0 rounded-[var(--radius-sm)] border border-[var(--line)] bg-transparent px-[length:var(--settings-row-px)] text-sm text-[var(--fg)] outline-none placeholder:text-[var(--muted)] focus:border-[var(--fg)]"
+        className="h-[var(--control-height)] shrink-0 rounded-[var(--radius-sm)] border border-[var(--line)] bg-transparent px-[length:var(--row-px)] text-sm text-[var(--fg)] outline-none placeholder:text-[var(--muted)] focus:border-[var(--fg)]"
         placeholder="Search fonts…"
         type="search"
         value={query}
@@ -60,7 +60,7 @@ export function TextFontPickerContent({
       >
         {fontGroups.map((group) => (
           <div className="flex flex-col gap-1" key={group.category}>
-            <p className="px-[length:var(--settings-row-px)] pt-1 text-[length:var(--type-caption)] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+            <p className="px-[length:var(--row-px)] pt-1 text-[length:var(--type-caption)] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
               {DRAFTING_FONT_CATEGORY_LABELS[group.category]}
             </p>
             {group.fonts.map((font) => (
@@ -70,10 +70,10 @@ export function TextFontPickerContent({
                 aria-label={`Use ${font.label} text font`}
                 aria-selected={selectedFont.id === font.id}
                 className={cn(
-                  "dn-mobile-font-option flex min-h-[var(--settings-control-height)] min-w-0 items-center rounded-[var(--radius-sm)] px-[length:var(--settings-row-px)] text-left font-semibold transition-colors",
+                  "dn-mobile-font-option flex min-h-[var(--control-height)] min-w-0 items-center rounded-[var(--radius-sm)] px-[length:var(--row-px)] text-left font-semibold transition-colors",
                   selectedFont.id === font.id
-                    ? "bg-[var(--settings-control)] text-[var(--fg)]"
-                    : "text-[var(--fg)] hover:bg-[var(--settings-control)]",
+                    ? "bg-[var(--control)] text-[var(--fg)]"
+                    : "text-[var(--fg)] hover:bg-[var(--control)]",
                 )}
                 data-vaul-no-drag=""
                 role="option"
@@ -92,7 +92,7 @@ export function TextFontPickerContent({
           </div>
         ))}
         {fontGroups.length === 0 ? (
-          <p className="px-[length:var(--settings-row-px)] py-3 text-center text-xs text-[var(--muted)]">
+          <p className="px-[length:var(--row-px)] py-3 text-center text-xs text-[var(--muted)]">
             No matching fonts
           </p>
         ) : null}
