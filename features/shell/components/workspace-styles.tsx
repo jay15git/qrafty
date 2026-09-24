@@ -106,27 +106,6 @@ const WORKSPACE_SURFACE_STYLES = `
         box-shadow: none !important;
       }
 
-      [data-slot="workspace"] [data-slot="elastic-slider"],
-      body:has([data-slot="workspace"]) [data-slot="elastic-slider"] {
-        --elastic-slider-bg: rgba(255, 255, 255, 0.095);
-        --elastic-slider-fill: rgba(255, 255, 255, 0.13);
-        --elastic-slider-fill-active: rgba(255, 255, 255, 0.2);
-        --elastic-slider-hash: rgba(255, 255, 255, 0.24);
-        --elastic-slider-handle: rgba(255, 255, 255, 0.7);
-        --elastic-slider-label: rgba(255, 255, 255, 0.58);
-        --elastic-slider-focus: rgba(255, 255, 255, 0.82);
-      }
-
-      [data-slot="workspace"][data-shell-theme="light"] [data-slot="elastic-slider"],
-      body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot="elastic-slider"] {
-        --elastic-slider-bg: rgba(15, 23, 42, 0.035);
-        --elastic-slider-fill: rgba(15, 23, 42, 0.052);
-        --elastic-slider-fill-active: rgba(15, 23, 42, 0.085);
-        --elastic-slider-hash: rgba(15, 23, 42, 0.13);
-        --elastic-slider-handle: rgba(15, 23, 42, 0.46);
-        --elastic-slider-label: rgba(15, 23, 42, 0.56);
-        --elastic-slider-focus: rgba(15, 23, 42, 0.78);
-      }
 
       [data-slot="workspace"] [data-slot="floating-toolbar-root"] {
         position: absolute;

@@ -192,10 +192,7 @@ function getGroupShapeBounds(shape: SVGElement): SvgShapeBounds | null {
   return combined;
 }
 
-const SVG_SHAPE_BOUNDS_READERS: Record<
-  string,
-  (shape: SVGElement) => SvgShapeBounds | null
-> = {
+const SVG_SHAPE_BOUNDS_READERS: Record<string, (shape: SVGElement) => SvgShapeBounds | null> = {
   circle: getCircleShapeBounds,
   ellipse: getEllipseShapeBounds,
   g: getGroupShapeBounds,

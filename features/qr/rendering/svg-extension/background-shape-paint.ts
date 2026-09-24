@@ -163,12 +163,7 @@ function applySvgRenderBounds(svg: SVGElement, metrics: BackgroundRenderMetrics)
   );
 }
 
-function wrapQrContent(
-  svg: SVGElement,
-  translateX: number,
-  translateY: number,
-  contentScale = 1,
-) {
+function wrapQrContent(svg: SVGElement, translateX: number, translateY: number, contentScale = 1) {
   const hasScale = Math.abs(contentScale - 1) > 1e-9;
   const transform = hasScale
     ? `translate(${formatSvgNumber(translateX)} ${formatSvgNumber(translateY)}) scale(${formatSvgNumber(contentScale)})`

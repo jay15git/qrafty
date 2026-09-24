@@ -49,14 +49,6 @@
   --shadow-surface-6: var(--shadow-6);
   --shadow-surface-7: var(--shadow-7);
   --shadow-surface-8: var(--shadow-8);
-  --color-dm-drop: var(--qr-drop);
-  --color-dm-ring-high: var(--qr-ring-high);
-  --color-dm-ring-mid: var(--qr-ring-mid);
-  --color-dm-ring-base: var(--qr-ring-base);
-  --color-dm-hi-peak: var(--qr-hi-peak);
-  --color-dm-hi-high: var(--qr-hi-high);
-  --color-dm-hi-mid: var(--qr-hi-mid);
-  --color-dm-hi-base: var(--qr-hi-base);
   --shadow-8: var(--shadow-8);
   --shadow-7: var(--shadow-7);
   --shadow-6: var(--shadow-6);
@@ -65,7 +57,6 @@
   --shadow-3: var(--shadow-3);
   --shadow-2: var(--shadow-2);
   --shadow-1: var(--shadow-1);
-  --color-shadow-color: var(--shadow-color);
   @keyframes sf-reveal-start {
     from {
       --sf-start: 1;

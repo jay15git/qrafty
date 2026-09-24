@@ -89,15 +89,6 @@
   box-shadow: none !important;
 }
 
-[data-slot="floating-inspector"] [data-slot="elastic-slider-label"] {
-  color: var(--settings-fg-label) !important;
-  font-size: var(--settings-type-label) !important;
-  font-weight: 500 !important;
-}
-
-[data-shell-theme="light"] [data-slot="floating-inspector"] [data-slot="elastic-slider"] {
-}
-
 [data-slot="floating-inspector"] :is(input, textarea, select):focus,
 [data-slot="floating-inspector"] :is(input, textarea, select):focus-visible {
   border-color: transparent !important;

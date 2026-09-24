@@ -85,9 +85,7 @@ function fallbackLayerId(nodeId: string, kind: DraftingCanvasLayerKind) {
 
 /** Kind-specific fields for `createFallbackLayer`. Everything not listed
  * here keeps the shared defaults in the base literal. */
-function fallbackLayerKindDefaults(
-  kind: DraftingCanvasLayerKind,
-): Partial<DraftingCanvasLayer> {
+function fallbackLayerKindDefaults(kind: DraftingCanvasLayerKind): Partial<DraftingCanvasLayer> {
   switch (kind) {
     case "text":
       return {

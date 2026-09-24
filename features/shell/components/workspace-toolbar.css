@@ -422,11 +422,6 @@ body:has([data-slot="workspace"][data-shell-theme="light"])
   --scroll-edge-chevron-color: var(--muted);
 }
 
-body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"])
-  [data-slot^="appearance-"][data-slot$="-popover"]
-  [data-slot="elastic-slider"] {
-}
-
 [data-slot^="appearance-"][data-slot$="-popover"] [data-slot="appearance-filter-select-trigger"] {
   min-width: 0 !important;
   border-color: var(--settings-control-border-hover) !important;
@@ -475,18 +470,6 @@ body:has([data-slot^="appearance-"][data-slot$="-popover"])
   box-shadow: none !important;
 }
 
-[data-slot="floating-inspector"] [data-slot="elastic-slider-label"] {
-  color: var(--settings-fg-label) !important;
-  font-size: var(--settings-type-label) !important;
-  font-weight: 500 !important;
-}
-
-[data-slot="shader-settings-popover"] [data-slot="elastic-slider-label"] {
-  color: var(--settings-fg-label) !important;
-  font-size: var(--settings-type-label) !important;
-  font-weight: 500 !important;
-}
-
 [data-slot="shader-settings-popover"] [data-slot="palette-color-stop-list"] > div {
   border-color: transparent;
   background: var(--settings-control);
@@ -504,9 +487,6 @@ body:has([data-slot^="appearance-"][data-slot$="-popover"])
   border-color: transparent;
   background: var(--settings-field-bg);
   color: var(--settings-fg-tertiary);
-}
-
-[data-shell-theme="light"] [data-slot="floating-inspector"] [data-slot="elastic-slider"] {
 }
 
 [data-slot="floating-inspector"] :is(input, textarea, select):focus,

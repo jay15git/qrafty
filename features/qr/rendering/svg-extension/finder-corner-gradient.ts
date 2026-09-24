@@ -268,10 +268,7 @@ function copyFinderPatternPresentation(source: SVGElement, target: SVGElement) {
   }
 }
 
-function getFinderElementCornerIndex(
-  element: SVGElement,
-  cornerRegions: FinderCornerRegion[],
-) {
+function getFinderElementCornerIndex(element: SVGElement, cornerRegions: FinderCornerRegion[]) {
   const tagName = element.tagName.toLowerCase();
 
   if (tagName === "rect") {

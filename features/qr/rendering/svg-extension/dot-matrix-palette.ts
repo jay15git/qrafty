@@ -62,10 +62,7 @@ function createDotPaletteShapeGroups(
   return Array.from(groups.values()).sort(compareDotPaletteShapeGroups);
 }
 
-function compareDotPaletteShapeGroups(
-  left: DotPaletteShapeGroup,
-  right: DotPaletteShapeGroup,
-) {
+function compareDotPaletteShapeGroups(left: DotPaletteShapeGroup, right: DotPaletteShapeGroup) {
   if (left.coordinates && right.coordinates) {
     return (
       left.coordinates.row - right.coordinates.row ||
@@ -85,11 +82,7 @@ function compareDotPaletteShapeGroups(
   return left.fallbackIndex - right.fallbackIndex;
 }
 
-function getDotPaletteIndex(
-  group: DotPaletteShapeGroup,
-  paletteLength: number,
-  seed: number,
-) {
+function getDotPaletteIndex(group: DotPaletteShapeGroup, paletteLength: number, seed: number) {
   if (paletteLength <= 0) {
     return 0;
   }

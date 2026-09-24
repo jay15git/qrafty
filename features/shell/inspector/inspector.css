@@ -254,12 +254,6 @@
   color: var(--fg);
 }
 
-/* Keep inspector elastic sliders on dn tokens when mounted in the workspace. */
-[data-slot="settings-inspector"] [data-slot="elastic-slider"],
-[data-slot="settings-inspector"] .inspector-root .dn-settings-elastic-slider,
-.inspector-root [data-slot="elastic-slider"] {
-}
-
 [data-slot="left-toolbar-shell"] [data-slot="settings-inspector"] {
   padding-top: 0;
   padding-inline-end: 0;
@@ -473,25 +467,6 @@
   min-width: 0;
 }
 
-.dn-option-scroll-chip {
-  flex-shrink: 0;
-  height: 1.75rem;
-  padding-inline: 0.625rem;
-  font-size: var(--type-caption);
-  font-weight: 500;
-  letter-spacing: var(--tracking-tight);
-  white-space: nowrap;
-  background: transparent;
-}
-
-.dn-option-scroll-chip[aria-pressed="true"],
-.dn-option-scroll-chip[data-selected="true"],
-.dn-option-tile.dn-option-scroll-chip,
-.dn-option-tile.dn-option-scroll-chip[aria-pressed="true"],
-.dn-option-tile.dn-option-scroll-chip[data-selected="true"] {
-  background: transparent;
-}
-
 .dn-preview-tile {
   position: relative;
   isolation: isolate;
@@ -643,14 +618,6 @@
   line-height: 1;
   letter-spacing: var(--tracking-tight);
   color: var(--type-value-color);
-}
-
-.dn-type-body {
-  font-size: var(--type-body);
-  font-weight: 400;
-  line-height: 1.55;
-  letter-spacing: var(--tracking-tight);
-  color: var(--type-label-color);
 }
 
 /* ── Row controls ────────────────────────────────────────────────── */
@@ -887,87 +854,8 @@
 
 /* ── Sliders ─────────────────────────────────────────────────────── */
 
-.inspector-root .dn-settings-elastic-slider {
-}
-
-.inspector-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"] {
-  border-radius: var(--radius-sm);
-  corner-shape: squircle;
-  border: none;
-}
-
-.inspector-root .dn-settings-elastic-slider [data-slot="elastic-slider-label"] {
-  font-family: inherit;
-  font-size: var(--type-meta);
-  font-weight: var(--type-label-weight);
-  line-height: 1;
-  letter-spacing: var(--tracking-tight);
-  color: var(--type-label-color) !important;
-}
-
-.inspector-root .dn-settings-elastic-slider [data-slot="elastic-slider-value"] {
-  font-family: inherit;
-  font-size: var(--type-value);
-  font-weight: var(--type-value-weight);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: var(--tracking-tight);
-  color: var(--type-value-color) !important;
-}
-
 .inspector-root .dn-settings-row [data-slot="button"] {
   line-height: 1;
-}
-
-.inspector-root .dn-settings-elastic-slider [data-slot="elastic-slider-handle"] {
-  width: 3px;
-  height: 1.125rem;
-  border-radius: 999px;
-  opacity: 0.92;
-}
-
-/* Portalled settings popovers — same slider/switch/row tokens as in-tree settings. */
-:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-elastic-slider {
-}
-
-:is(.inspector-popover-content, .dn-portal-surface)
-  .dn-settings-elastic-slider
-  [data-slot="elastic-slider-track"] {
-  border-radius: var(--radius-sm);
-  corner-shape: squircle;
-  border: none;
-}
-
-:is(.inspector-popover-content, .dn-portal-surface)
-  .dn-settings-elastic-slider
-  [data-slot="elastic-slider-label"] {
-  font-family: inherit;
-  font-size: var(--type-meta);
-  font-weight: var(--type-label-weight);
-  line-height: 1;
-  letter-spacing: var(--tracking-tight);
-  color: var(--type-label-color) !important;
-}
-
-:is(.inspector-popover-content, .dn-portal-surface)
-  .dn-settings-elastic-slider
-  [data-slot="elastic-slider-value"] {
-  font-family: inherit;
-  font-size: var(--type-value);
-  font-weight: var(--type-value-weight);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: var(--tracking-tight);
-  color: var(--type-value-color) !important;
-}
-
-:is(.inspector-popover-content, .dn-portal-surface)
-  .dn-settings-elastic-slider
-  [data-slot="elastic-slider-handle"] {
-  width: 3px;
-  height: 1.125rem;
-  border-radius: 999px;
-  opacity: 0.92;
 }
 
 :is(.inspector-popover-content, .dn-portal-surface) [data-slot="switch"] {
@@ -2201,11 +2089,7 @@
 :is(.inspector-fill-popover, .fill-picker-portal) {
   --color-picker-control-border: var(--line);
   --color-picker-control-bg: var(--settings-control);
-  --color-picker-control-hover-bg: var(--settings-control-hover);
   --color-picker-fg: var(--fg);
-  --color-picker-muted-fg: var(--muted);
-  --color-picker-focus: color-mix(in srgb, var(--fg) 24%, transparent);
-  --color-picker-highlight: transparent;
   --border: var(--line);
   --input: var(--line);
   --ring: color-mix(in srgb, var(--fg) 24%, transparent);
@@ -2526,13 +2410,6 @@
   .dn-squircle-md,
   .dn-squircle-lg,
   .inspector-fill-popover .dn-fill-picker-panel {
-    corner-shape: round;
-  }
-
-  .inspector-root .dn-settings-elastic-slider [data-slot="elastic-slider-track"],
-  :is(.inspector-popover-content, .dn-portal-surface)
-    .dn-settings-elastic-slider
-    [data-slot="elastic-slider-track"] {
     corner-shape: round;
   }
 }
