@@ -169,7 +169,7 @@ export function LayersPopoverContent({
     <div
       className={cn(
         "flex min-w-0 flex-col cursor-pointer",
-        embedded && "dn-settings-elements-layers",
+        embedded && "ds-settings-elements-layers",
       )}
       data-slot={embedded ? "layers-embedded" : "layers-popover"}
     >
@@ -246,7 +246,7 @@ export function LayersPopoverContent({
                 className={cn(
                   "block min-w-0 truncate text-sm font-medium",
                   embedded
-                    ? "dn-type-value text-[var(--type-value-color)]"
+                    ? "ds-type-value text-[var(--type-value-color)]"
                     : "text-[var(--fg-secondary)]",
                 )}
               >
@@ -259,7 +259,7 @@ export function LayersPopoverContent({
         <p
           className={cn(
             embedded
-              ? "dn-type-meta px-1 py-3 text-center"
+              ? "ds-type-meta px-1 py-3 text-center"
               : cn(INSPECTOR_CAPTION_CLASS, "px-3 py-4 text-center"),
           )}
           data-slot="layers-empty"

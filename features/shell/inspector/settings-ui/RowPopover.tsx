@@ -128,7 +128,7 @@ export function SettingsRowPopover({
 
   const accordionPanelClassName = inspectorPortalClass(
     theme,
-    cn("inspector-popover-content w-full overflow-hidden p-0 dn-squircle-md", contentClassName),
+    cn("ds-popover-content w-full overflow-hidden p-0 ds-squircle-md", contentClassName),
   );
 
   if (mobileDensity && mobileNav) {
@@ -177,7 +177,7 @@ export function SettingsRowPopover({
         className={inspectorPortalClass(
           theme,
           cn(
-            "dn-portal-surface inspector-popover-content w-56 overflow-hidden p-0 dn-squircle-md",
+            "ds-portal-surface ds-popover-content w-56 overflow-hidden p-0 ds-squircle-md",
             contentClassName,
           ),
         )}

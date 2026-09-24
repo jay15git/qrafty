@@ -92,20 +92,20 @@ function MobileDrawerHeader({
   title: string;
 }) {
   return (
-    <header className="dn-mobile-drawer-nested-header">
+    <header className="ds-mobile-drawer-nested-header">
       <button
         aria-label="Discard changes"
-        className="dn-mobile-drawer-back"
+        className="ds-mobile-drawer-back"
         data-vaul-no-drag=""
         type="button"
         onClick={onDiscard}
       >
         <X aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
       </button>
-      <h2 className="dn-mobile-drawer-nested-header__title">{title}</h2>
+      <h2 className="ds-mobile-drawer-nested-header__title">{title}</h2>
       <button
         aria-label="Save changes"
-        className="dn-mobile-drawer-back"
+        className="ds-mobile-drawer-back"
         data-vaul-no-drag=""
         type="button"
         onClick={onSave}
@@ -141,23 +141,23 @@ function MobileSettingDetailView({ model, onSave }: { model: InspectorModel; onS
   const title = navigation?.detailPayload?.title ?? "Setting";
 
   return (
-    <div className="inspector-root w-full min-w-0" data-mobile-inspector="" data-theme={theme}>
+    <div className="ds-root w-full min-w-0" data-mobile-inspector="" data-theme={theme}>
       <InspectorThemeContext.Provider value={theme}>
         <MobileInspectorDensityContext.Provider value={true}>
-          <header className="dn-mobile-drawer-nested-header">
+          <header className="ds-mobile-drawer-nested-header">
             <button
               aria-label="Back"
-              className="dn-mobile-drawer-back"
+              className="ds-mobile-drawer-back"
               data-vaul-no-drag=""
               type="button"
               onClick={() => navigation?.closeDetail()}
             >
               <X aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
             </button>
-            <h2 className="dn-mobile-drawer-nested-header__title">{title}</h2>
+            <h2 className="ds-mobile-drawer-nested-header__title">{title}</h2>
             <button
               aria-label="Save changes"
-              className="dn-mobile-drawer-back"
+              className="ds-mobile-drawer-back"
               data-vaul-no-drag=""
               type="button"
               onClick={onSave}
@@ -186,11 +186,7 @@ function MobileSettingsSectionView({
   title: string;
 }) {
   return (
-    <div
-      className="inspector-root w-full min-w-0"
-      data-mobile-inspector=""
-      data-theme={model.actualTheme}
-    >
+    <div className="ds-root w-full min-w-0" data-mobile-inspector="" data-theme={model.actualTheme}>
       <InspectorThemeContext.Provider value={model.actualTheme}>
         <MobileInspectorDensityContext.Provider value={true}>
           <MobileSettingsTabDockProvider active>
@@ -288,7 +284,7 @@ export function MobileSettingsDrawer({
       <FamilyDrawerPortal>
         <FamilyDrawerContent
           accessibilityTitle={title}
-          className="inspector-root shadow-none"
+          className="ds-root shadow-none"
           data-shell-theme={theme}
           data-mobile-inspector=""
           data-slot="mobile-family-drawer-root"
@@ -296,7 +292,7 @@ export function MobileSettingsDrawer({
           maxHeight={maxHeight}
           variant="card"
         >
-          <FamilyDrawerAnimatedWrapper className="dn-mobile-drawer-body px-[var(--row-px)] pt-3">
+          <FamilyDrawerAnimatedWrapper className="ds-mobile-drawer-body px-[var(--row-px)] pt-3">
             <MobileDrawerViewPropsContext.Provider value={viewProps}>
               <FamilyDrawerViewBridge view={view}>
                 <FamilyDrawerAnimatedContent />

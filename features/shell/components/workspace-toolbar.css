@@ -127,7 +127,7 @@ body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) {
 }
 
 [data-slot="floating-inspector"]
-  .inspector-morph-filter[data-open="true"]
+  .ds-morph-filter[data-open="true"]
   [data-slot~="inspector-filter-menu"] {
   --foreground: var(--fg-primary);
   --muted-foreground: var(--fg-tertiary);
@@ -140,17 +140,17 @@ body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) {
 
 [data-shell-theme="light"]
   [data-slot="floating-inspector"]
-  .inspector-morph-filter[data-open="true"]
+  .ds-morph-filter[data-open="true"]
   [data-slot~="inspector-filter-menu"] {
   --control-hover: rgba(15, 23, 42, 0.06);
   --option-selected-bg: rgba(15, 23, 42, 0.08);
 }
 
-[data-shell-theme="light"] .inspector-morph-filter[data-open="true"] {
+[data-shell-theme="light"] .ds-morph-filter[data-open="true"] {
   --scroll-edge-fade-color: rgba(255, 255, 255, 0.88);
 }
 
-[data-shell-theme="dark"] .inspector-morph-filter[data-open="true"] {
+[data-shell-theme="dark"] .ds-morph-filter[data-open="true"] {
   --scroll-edge-fade-color: var(--elevated);
 }
 
@@ -289,16 +289,16 @@ body:has([data-slot="workspace"][data-shell-theme="dark"]) .tooltip-content {
   min-width: 0;
 }
 
-[data-slot="layers-popover"] .inspector-root.inspector-embedded,
-[data-slot="layer-style-popover"] .inspector-root.inspector-embedded,
-[data-slot="layer-border-popover"] .inspector-root.inspector-embedded,
-[data-slot="layer-shadows-popover"] .inspector-root.inspector-embedded,
-[data-slot="layer-effects-popover"] .inspector-root.inspector-embedded,
-[data-slot="shader-settings-popover"] .inspector-root.inspector-embedded,
-[data-slot="layer-transform-popover"] .inspector-root.inspector-embedded,
-[data-slot="layer-appearance-popover"] .inspector-root.inspector-embedded,
-[data-slot="export-popover"] .inspector-root.inspector-embedded,
-[data-slot^="appearance-"][data-slot$="-popover"] .inspector-root.inspector-embedded {
+[data-slot="layers-popover"] .ds-root.ds-embedded,
+[data-slot="layer-style-popover"] .ds-root.ds-embedded,
+[data-slot="layer-border-popover"] .ds-root.ds-embedded,
+[data-slot="layer-shadows-popover"] .ds-root.ds-embedded,
+[data-slot="layer-effects-popover"] .ds-root.ds-embedded,
+[data-slot="shader-settings-popover"] .ds-root.ds-embedded,
+[data-slot="layer-transform-popover"] .ds-root.ds-embedded,
+[data-slot="layer-appearance-popover"] .ds-root.ds-embedded,
+[data-slot="export-popover"] .ds-root.ds-embedded,
+[data-slot^="appearance-"][data-slot$="-popover"] .ds-root.ds-embedded {
   background: transparent;
 }
 

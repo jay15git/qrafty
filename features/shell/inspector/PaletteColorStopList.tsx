@@ -20,7 +20,7 @@ const PALETTE_COLOR_FIELD =
   "h-[length:var(--control-height-compact)] min-w-0 flex-1 border border-[var(--line)] bg-[var(--control)] shadow-none focus-within:border-[color-mix(in_srgb,var(--fg)_18%,transparent)] focus-within:ring-0";
 
 const PALETTE_COLOR_SWATCH =
-  "size-8 shrink-0 dn-squircle-xs outline-none transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--fg)_18%,transparent)]";
+  "size-8 shrink-0 ds-squircle-xs outline-none transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--fg)_18%,transparent)]";
 
 export function PaletteColorStopList({
   colors,
@@ -132,7 +132,7 @@ function PaletteColorStopRow({
   );
 
   return (
-    <div className={cn("dn-type-meta", PALETTE_COLOR_ROW)}>
+    <div className={cn("ds-type-meta", PALETTE_COLOR_ROW)}>
       <PaletteColorEditorPopover
         color={color}
         onColorChange={(next) => onColorChange(index, next)}

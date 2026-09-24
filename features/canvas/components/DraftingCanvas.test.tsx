@@ -178,7 +178,7 @@ describe("DraftingCanvas", () => {
     const canvas = renderCanvas();
     const root = getRequiredElement(canvas.container, '[data-slot="drafting-surface"]');
 
-    const payload = getRequiredElement(canvas.container, "#dn-content-url") as HTMLInputElement;
+    const payload = getRequiredElement(canvas.container, "#ds-content-url") as HTMLInputElement;
 
     act(() => {
       changeInputValue(payload, "https://example.com/desktop-live");
@@ -324,7 +324,7 @@ describe("DraftingCanvas", () => {
 
     await act(async () => {
       changeInputValue(
-        getRequiredElement(canvas.container, "#dn-content-url") as HTMLInputElement,
+        getRequiredElement(canvas.container, "#ds-content-url") as HTMLInputElement,
         "https://example.com/first",
       );
       await flushPromises();
@@ -335,7 +335,7 @@ describe("DraftingCanvas", () => {
 
     await act(async () => {
       changeInputValue(
-        getRequiredElement(canvas.container, "#dn-content-url") as HTMLInputElement,
+        getRequiredElement(canvas.container, "#ds-content-url") as HTMLInputElement,
         "https://example.com/second",
       );
       await flushPromises();
@@ -398,7 +398,7 @@ describe("DraftingCanvas", () => {
 
     const contentInput = getRequiredElement(
       canvas.container,
-      "#dn-content-url",
+      "#ds-content-url",
     ) as HTMLInputElement;
 
     await advanceDraftingTimers();
@@ -451,7 +451,7 @@ describe("DraftingCanvas", () => {
 
     const contentInput = getRequiredElement(
       canvas.container,
-      "#dn-content-url",
+      "#ds-content-url",
     ) as HTMLInputElement;
 
     await advanceDraftingTimers();
@@ -765,7 +765,7 @@ describe("DraftingCanvas", () => {
 
     const contentInput = getRequiredElement(
       canvas.container,
-      "#dn-content-url",
+      "#ds-content-url",
     ) as HTMLInputElement;
 
     await advanceDraftingTimers();
@@ -897,7 +897,7 @@ describe("DraftingCanvas", () => {
 
     act(() => {
       changeInputValue(
-        getRequiredElement(canvas.container, "#dn-content-url") as HTMLInputElement,
+        getRequiredElement(canvas.container, "#ds-content-url") as HTMLInputElement,
         "https://example.com/before-reset",
       );
     });
@@ -930,7 +930,7 @@ describe("DraftingCanvas", () => {
 
     act(() => {
       changeInputValue(
-        getRequiredElement(firstCanvas.container, "#dn-content-url") as HTMLInputElement,
+        getRequiredElement(firstCanvas.container, "#ds-content-url") as HTMLInputElement,
         "https://example.com/autosaved",
       );
     });

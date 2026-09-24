@@ -36,7 +36,7 @@ export function MobileSettingsTabDockProvider({
         ref={(node) => {
           setTarget(node);
         }}
-        className="dn-mobile-tab-dock"
+        className="ds-mobile-tab-dock"
         data-slot="mobile-tab-dock"
       />
     </MobileSettingsTabDockContext.Provider>

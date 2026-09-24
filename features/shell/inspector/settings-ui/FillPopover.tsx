@@ -65,7 +65,7 @@ function FillPickerPopoverContent({
       avoidCollisions={avoidCollisions}
       className={inspectorPortalClass(
         theme,
-        "inspector-fill-popover dn-portal-surface w-[var(--popover-width-fill)] border-0 bg-transparent p-0 shadow-none outline-none",
+        "ds-fill-popover ds-portal-surface w-[var(--popover-width-fill)] border-0 bg-transparent p-0 shadow-none outline-none",
       )}
       data-mobile-inspector={mobileDensity ? "" : undefined}
       data-theme={theme}
@@ -74,7 +74,7 @@ function FillPickerPopoverContent({
       collisionPadding={collisionPadding}
     >
       <SettingsPopoverChrome
-        bodyClassName="dn-settings-popover-body-fill"
+        bodyClassName="ds-settings-popover-body-fill"
         title={title}
         onClose={onClose}
       >
@@ -188,7 +188,7 @@ function SettingsFillPopoverAccordion({
         theme={theme}
       >
         <SettingsPopoverChrome
-          bodyClassName="dn-settings-popover-body-fill"
+          bodyClassName="ds-settings-popover-body-fill"
           title={popoverTitle}
           onClose={() => accordion.setOpenKey(null)}
         >
@@ -232,7 +232,7 @@ function SettingsFillPopoverAccordion({
         theme={theme}
       >
         <SettingsPopoverChrome
-          bodyClassName="dn-settings-popover-body-fill"
+          bodyClassName="ds-settings-popover-body-fill"
           title={popoverTitle}
           onClose={() => accordion.setOpenKey(null)}
         >
@@ -381,10 +381,10 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
   const popoverTitle = title ?? hint;
 
   const pickerBody = (
-    // `.inspector-fill-popover` scopes the calm-surface fill-picker rules —
+    // `.ds-fill-popover` scopes the calm-surface fill-picker rules —
     // without it the picker renders raw base styles (white borders) when it
     // portals into the mobile drawer detail outlet.
-    <div className="inspector-fill-popover w-full min-w-0" data-theme={theme}>
+    <div className="ds-fill-popover w-full min-w-0" data-theme={theme}>
       <InspectorFillPicker
         key={lockedFillMode ?? moduleFillMode ?? "default"}
         lockedFillMode={lockedFillMode}
@@ -407,7 +407,7 @@ export const SettingsFillPopover = forwardRef(function SettingsFillPopover(
 
   const accordionPanelClassName = inspectorPortalClass(
     theme,
-    "inspector-fill-popover inspector-popover-content w-full border-0 bg-transparent p-0 shadow-none outline-none",
+    "ds-fill-popover ds-popover-content w-full border-0 bg-transparent p-0 shadow-none outline-none",
   );
 
   const openPicker = useCallback(() => {
@@ -493,10 +493,10 @@ export function SettingsFillPresetSection({
     <>
       {mobileDensity ? null : (
         <div className="flex min-h-[var(--control-height)] items-center">
-          <span className="dn-row-label-text pl-[var(--row-px)]">Color</span>
+          <span className="ds-row-label-text pl-[var(--row-px)]">Color</span>
           <button
             aria-label="Color"
-            className="ml-auto size-7 shrink-0 cursor-pointer overflow-hidden dn-squircle-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--ring))]"
+            className="ml-auto size-7 shrink-0 cursor-pointer overflow-hidden ds-squircle-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--ring))]"
             style={{ background: value }}
             type="button"
             onClick={() => pickerRef.current?.openPicker()}

@@ -63,7 +63,7 @@ import "@/features/shell/inspector/mobile-inspector.css";
 
 const MOBILE_RAIL_BOTTOM_GAP_PX = 16;
 
-const RAIL_OPTION_ICON_CLASS = "dn-mobile-settings-rail__icon";
+const RAIL_OPTION_ICON_CLASS = "ds-mobile-settings-rail__icon";
 
 /**
  * Options a family drills into. Families without an entry keep the rail on the
@@ -248,7 +248,7 @@ export function MobileSettingsRail({ model }: { model: InspectorModel }) {
               />
               <div
                 ref={railRef}
-                className="inspector-root pointer-events-auto fixed z-[var(--z-mobile-rail)]"
+                className="ds-root pointer-events-auto fixed z-[var(--z-mobile-rail)]"
                 data-shell-theme={theme}
                 data-mobile-inspector=""
                 data-slot="mobile-settings-rail-root"
@@ -262,12 +262,12 @@ export function MobileSettingsRail({ model }: { model: InspectorModel }) {
                 <div
                   className={
                     fading === "stage"
-                      ? "dn-mobile-settings-rail__stage is-fading"
-                      : "dn-mobile-settings-rail__stage"
+                      ? "ds-mobile-settings-rail__stage is-fading"
+                      : "ds-mobile-settings-rail__stage"
                   }
                 >
                   <ScrollArea
-                    className="dn-mobile-settings-rail__scroll w-full min-w-0 max-w-full overflow-hidden"
+                    className="ds-mobile-settings-rail__scroll w-full min-w-0 max-w-full overflow-hidden"
                     chevron={false}
                     cueSize="tight"
                     orientation="horizontal"
@@ -276,13 +276,13 @@ export function MobileSettingsRail({ model }: { model: InspectorModel }) {
                     showScrollbar={false}
                     viewportClassName="min-w-0"
                   >
-                    <div className="dn-mobile-settings-rail__swap">
+                    <div className="ds-mobile-settings-rail__swap">
                       <div
                         aria-label={drilled ? `${viewFamily} options` : "Settings sections"}
                         className={
                           fading === "row"
-                            ? "dn-mobile-settings-rail__row is-fading"
-                            : "dn-mobile-settings-rail__row"
+                            ? "ds-mobile-settings-rail__row is-fading"
+                            : "ds-mobile-settings-rail__row"
                         }
                         role="group"
                       >

@@ -158,13 +158,13 @@ export function SettingsAccordionPopoverOverlay({
         <>
           <div
             key={`${openKey}-backdrop`}
-            className="dn-accordion-popover-backdrop"
+            className="ds-accordion-popover-backdrop"
             onPointerDown={() => ctx.setOpenKey(null)}
           />
           <m.div
             key={`${openKey}-surface`}
             animate={{ opacity: 1, scale: 1, y: "-50%" }}
-            className="dn-accordion-popover-overlay"
+            className="ds-accordion-popover-overlay"
             data-side="top"
             exit={{
               opacity: 0,
@@ -181,7 +181,7 @@ export function SettingsAccordionPopoverOverlay({
             transition={{ duration: 0.18, ease: PORTAL_EASE }}
           >
             <div
-              className={cn("dn-accordion-popover-panel dn-portal-surface", className)}
+              className={cn("ds-accordion-popover-panel ds-portal-surface", className)}
               data-side="top"
               data-theme={theme}
               onPointerDown={(event) => event.stopPropagation()}

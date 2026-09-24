@@ -7,10 +7,10 @@ import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInsp
 import { cn } from "@/lib/utils";
 
 /** Row wrapper inside a horizontal settings rail. */
-const MOBILE_SETTINGS_RAIL_ROW = "dn-mobile-rail";
+const MOBILE_SETTINGS_RAIL_ROW = "ds-mobile-rail";
 
 /** Row wrapper for landscape card rails (wallpapers, previews). */
-const MOBILE_SETTINGS_CARD_ROW = "dn-mobile-card-rail";
+const MOBILE_SETTINGS_CARD_ROW = "ds-mobile-card-rail";
 
 const OPTION_SHELF_COLUMNS: Record<number, string> = {
   3: "grid-cols-3",
@@ -123,8 +123,8 @@ export function SettingsOptionShelf({
 
   if (mobileDensity) {
     return (
-      <div className="dn-settings-shelf" data-slot={dataSlot}>
-        {label ? <span className="dn-row-label-text dn-settings-shelf__label">{label}</span> : null}
+      <div className="ds-settings-shelf" data-slot={dataSlot}>
+        {label ? <span className="ds-row-label-text ds-settings-shelf__label">{label}</span> : null}
         <MobileSettingsRail activeKey={activeKey} ariaLabel={ariaLabel} persistKey={persistKey}>
           {children}
         </MobileSettingsRail>
@@ -135,7 +135,7 @@ export function SettingsOptionShelf({
   return (
     <div className="flex flex-col gap-2">
       {label ? (
-        <span className="dn-row-label-text flex h-[var(--control-height)] items-center px-[var(--row-px)]">
+        <span className="ds-row-label-text flex h-[var(--control-height)] items-center px-[var(--row-px)]">
           {label}
         </span>
       ) : null}

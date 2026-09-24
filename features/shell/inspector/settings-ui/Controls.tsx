@@ -14,7 +14,7 @@ export function SettingsInput({
 }: React.ComponentProps<"input">) {
   return (
     <input
-      className={cn("dn-settings-input w-full dn-squircle-sm", className)}
+      className={cn("ds-settings-input w-full ds-squircle-sm", className)}
       readOnly={readOnly}
       value={value}
       {...props}
@@ -37,12 +37,12 @@ export function SettingsSwitchRow({
       label={label}
       onToggle={() => onChange(!checked)}
       size="default"
-      className="dn-switch-row"
+      className="ds-switch-row"
     />
   );
 }
 
-const SETTINGS_INLINE_SLIDER_CLASS = "dn-settings-inline-slider h-9 w-full";
+const SETTINGS_INLINE_SLIDER_CLASS = "ds-settings-inline-slider h-9 w-full";
 
 const INLINE_SLIDER_TICK_INTERVAL_MS = 80;
 
@@ -121,7 +121,7 @@ export function SettingsPrimaryButton({
 }: React.ComponentProps<"button">) {
   return (
     <SettingsRowButton
-      className="dn-settings-primary dn-control-surface dn-pressable-press-only w-full font-medium tracking-tight"
+      className="ds-settings-primary ds-control-surface ds-pressable-press-only w-full font-medium tracking-tight"
       type="button"
       onClick={onClick}
       {...props}

@@ -77,9 +77,9 @@ describe("mobile settings rails", () => {
     expect(rail?.getAttribute("data-orientation")).toBe("horizontal");
     expect(surface.container.querySelector('[data-slot="fill-option-grid"]')).not.toBeNull();
     expect(surface.container.textContent).toContain("Presets");
-    expect(surface.container.querySelector(".dn-settings-shelf")).not.toBeNull();
+    expect(surface.container.querySelector(".ds-settings-shelf")).not.toBeNull();
 
-    const row = rail?.querySelector(".dn-mobile-rail");
+    const row = rail?.querySelector(".ds-mobile-rail");
     expect(row).not.toBeNull();
     expect(row?.querySelectorAll("button")).toHaveLength(2);
     expect(row?.getAttribute("role")).toBe("group");
@@ -92,7 +92,7 @@ describe("mobile settings rails", () => {
         <SettingsOptionShelf
           ariaLabel="Fill options"
           dataSlot="fill-option-grid"
-          gridClassName="dn-fill-option-grid"
+          gridClassName="ds-fill-option-grid"
         >
           <Options />
         </SettingsOptionShelf>
@@ -105,7 +105,7 @@ describe("mobile settings rails", () => {
 
     expect(grid).not.toBeNull();
     expect(grid?.className).toContain("grid-cols-6");
-    expect(grid?.className).toContain("dn-fill-option-grid");
+    expect(grid?.className).toContain("ds-fill-option-grid");
     expect(grid?.getAttribute("role")).toBe("group");
   });
 
@@ -133,7 +133,7 @@ describe("mobile settings rails", () => {
       </MobileInspectorDensityContext.Provider>,
     );
 
-    const row = surface.container.querySelector(".dn-mobile-card-rail");
+    const row = surface.container.querySelector(".ds-mobile-card-rail");
 
     expect(row).not.toBeNull();
     expect(row?.querySelectorAll("button")).toHaveLength(1);

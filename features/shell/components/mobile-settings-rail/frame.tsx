@@ -104,7 +104,7 @@ export function MobileRailFamilyFooter({
             ? "Shape controls"
             : `${viewFamily} fill modes`
       }
-      className="dn-mobile-settings-rail__subrow"
+      className="ds-mobile-settings-rail__subrow"
       role="group"
     >
       <FamilyFooter model={model} openDrawer={onOpenDrawer} />
@@ -122,22 +122,22 @@ export function MobileRailActions({
   viewFamily: SettingsSectionId | null;
 }) {
   return (
-    <div className="dn-mobile-settings-rail__actions">
+    <div className="ds-mobile-settings-rail__actions">
       <button
         aria-label="Discard changes"
-        className="dn-mobile-settings-rail__action"
+        className="ds-mobile-settings-rail__action"
         type="button"
         onClick={onDiscard}
       >
         <X aria-hidden size={20} strokeWidth={2.25} />
       </button>
       {/* The open family's name sits centered between the corners. */}
-      <span className="dn-mobile-settings-rail__family" data-slot="mobile-rail-family-label">
+      <span className="ds-mobile-settings-rail__family" data-slot="mobile-rail-family-label">
         {viewFamily ? getSettingsSectionLabel(viewFamily) : null}
       </span>
       <button
         aria-label="Save changes"
-        className="dn-mobile-settings-rail__action"
+        className="ds-mobile-settings-rail__action"
         type="button"
         onClick={onSave}
       >

@@ -62,11 +62,11 @@ export function InspectorPasteButton({ className, onPaste }: InspectorPasteButto
         void handlePaste();
       }}
     >
-      <span aria-hidden className="t-icon-swap" data-state={iconState}>
-        <span className="t-icon" data-icon="a">
+      <span aria-hidden className="ds-icon-swap" data-state={iconState}>
+        <span className="ds-icon" data-icon="a">
           <ClipboardIcon className="size-3.5" strokeWidth={1.75} />
         </span>
-        <span className="t-icon" data-icon="b">
+        <span className="ds-icon" data-icon="b">
           <CheckIcon className="size-3.5 text-emerald-400" strokeWidth={2} />
         </span>
       </span>

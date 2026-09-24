@@ -46,7 +46,7 @@ function QrStylePartOptions({ model, partId }: { model: InspectorModel; partId: 
     >
       <span
         aria-hidden="true"
-        className="grid size-full place-items-center overflow-hidden p-0.5 dn-squircle-xs"
+        className="grid size-full place-items-center overflow-hidden p-0.5 ds-squircle-xs"
       >
         <QrStyleOptionPreview
           className="size-full max-h-full max-w-full"
@@ -71,9 +71,9 @@ export function MobileQrRailFooter({ openDrawer }: MobileRailRowProps) {
   const part = railPart?.selectedPart ?? "Module";
 
   return (
-    <div className="dn-mobile-settings-rail__tabs">
+    <div className="ds-mobile-settings-rail__tabs">
       <SegmentTabs
-        className="dn-mobile-settings-rail__tabbar"
+        className="ds-mobile-settings-rail__tabbar"
         items={QR_STYLE_PART_OPTIONS.map((option) => ({
           id: option.id,
           label: option.label,

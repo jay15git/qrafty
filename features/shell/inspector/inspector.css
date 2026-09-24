@@ -1,18 +1,18 @@
-/* Pencil design tokens — scoped to the Inspector.
+/* Inspector design tokens — scoped to the settings surfaces.
  *
  * Layout: one shared scale block (type/space/dimensions/motion) covering the
  * inspector root, its portalled surfaces, and the floating element inspector;
- * one theme-split palette (--dn-*) that every surface maps onto its legacy
- * --bg/--fg/--line/--control names; per-surface blocks only carry
- * what genuinely differs (popover bg/control/line, role maps). */
+ * one theme-split palette (--bg/--fg/--surface/--control/--line/--muted/--mass)
+ * defined per theme; per-surface blocks only carry what genuinely differs
+ * (popover bg/control/line, role maps). */
 
 /* Shared scale — identical on every inspector surface and the floating
    element inspector. Mobile re-declares these on [data-mobile-inspector]. */
 :is(
-  .inspector-root,
-  .dn-portal-surface,
-  .inspector-popover-content,
-  .inspector-fill-popover,
+  .ds-root,
+  .ds-portal-surface,
+  .ds-popover-content,
+  .ds-fill-popover,
   [data-slot="floating-inspector"]
 ) {
   --type-caption: 0.625rem;
@@ -32,7 +32,7 @@
 
 /* Squircle radii shared by every inspector surface; popovers that want the
    larger 20px panel radius override --radius-md/--radius-lg locally. */
-:is(.inspector-root, .inspector-popover-content, .inspector-fill-popover, .dn-insert-menu-popover) {
+:is(.ds-root, .ds-popover-content, .ds-fill-popover, .ds-insert-menu-popover) {
   --radius-xs: 10px;
   --radius-sm: 12px;
   --radius-md: 14px;
@@ -40,7 +40,7 @@
 }
 
 /* Motion + interaction tokens — shared by in-tree settings and portalled surfaces. */
-:is(.inspector-root, .dn-portal-surface, .inspector-popover-content, .inspector-fill-popover) {
+:is(.ds-root, .ds-portal-surface, .ds-popover-content, .ds-fill-popover) {
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   /* Near-critically-damped stand-in for beui SPRING_PRESS (k=500, c=30, m=0.6). */
   --ease-press: cubic-bezier(0.16, 1, 0.3, 1);
@@ -53,13 +53,11 @@
   --tabs-ease: var(--ease-out);
 }
 
-/* Inspector palette — light values. .inspector-root defaults to dark, so it
+/* Inspector palette — light values. .ds-root defaults to dark, so it
    only takes this block under an explicit data-theme="light"; the portalled
    surfaces default to light and flip on data-theme="dark". */
-.inspector-root[data-theme="light"],
-:is(.inspector-popover-content, .inspector-fill-popover, .dn-insert-menu-popover):not(
-  [data-theme="dark"]
-) {
+.ds-root[data-theme="light"],
+:is(.ds-popover-content, .ds-fill-popover, .ds-insert-menu-popover):not([data-theme="dark"]) {
   --bg: #ffffff;
   --surface: #fafafa;
   --control: #f6f6f6;
@@ -75,14 +73,10 @@
   --popover-shadow: 0 12px 40px rgb(0 0 0 / 18%);
 }
 
-/* Inspector palette — dark values. .inspector-root is dark by default
+/* Inspector palette — dark values. .ds-root is dark by default
    (standalone), so it matches without data-theme; portals need the attr. */
-.inspector-root:not([data-theme="light"]),
-:is(
-  .inspector-popover-content,
-  .inspector-fill-popover,
-  .dn-insert-menu-popover
-)[data-theme="dark"] {
+.ds-root:not([data-theme="light"]),
+:is(.ds-popover-content, .ds-fill-popover, .ds-insert-menu-popover)[data-theme="dark"] {
   --bg: #161616;
   --surface: #1d1d1d;
   --control: #232323;
@@ -100,13 +94,7 @@
 }
 
 /* Theme-invariant constants. */
-:is(
-  .inspector-root,
-  .dn-portal-surface,
-  .inspector-popover-content,
-  .inspector-fill-popover,
-  .dn-insert-menu-popover
-) {
+:is(.ds-root, .ds-portal-surface, .ds-popover-content, .ds-fill-popover, .ds-insert-menu-popover) {
   --paper: #ffffff;
   --card-white: #ffffff;
   --preview-ink: rgb(24 24 27 / 0.8);
@@ -116,7 +104,7 @@
   --popover-muted: var(--muted);
 }
 
-.inspector-root {
+.ds-root {
   color-scheme: dark;
   --overlay: 255 255 255;
   --control-hover: var(--control);
@@ -156,14 +144,14 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.inspector-root[data-theme="light"] {
+.ds-root[data-theme="light"] {
   color-scheme: light;
   --overlay: 0 0 0;
   --type-label-color: color-mix(in srgb, var(--fg) 44%, transparent);
 }
 
 /* Embedded in /desktop toolbar — same token host, no preview padding. */
-.inspector-root.inspector-embedded {
+.ds-root.ds-embedded {
   display: flex;
   min-height: 0;
   height: 100%;
@@ -175,12 +163,12 @@
   background: transparent;
 }
 
-.inspector-root.inspector-embedded[data-theme="dark"] {
+.ds-root.ds-embedded[data-theme="dark"] {
   background: transparent;
   --scroll-edge-fade-color: #000000;
 }
 
-.inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-panel {
+.ds-root.ds-embedded[data-theme="dark"] .ds-settings-panel {
   width: 100%;
   border: none;
   border-radius: 0;
@@ -188,15 +176,13 @@
   background: transparent;
 }
 
-.inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-scroll,
-.inspector-root.inspector-embedded[data-theme="dark"]
-  .dn-settings-scroll
-  [data-slot="scroll-area-viewport"],
-[data-slot="settings-inspector"] > .inspector-root.inspector-embedded[data-theme="dark"] {
+.ds-root.ds-embedded[data-theme="dark"] .ds-settings-scroll,
+.ds-root.ds-embedded[data-theme="dark"] .ds-settings-scroll [data-slot="scroll-area-viewport"],
+[data-slot="settings-inspector"] > .ds-root.ds-embedded[data-theme="dark"] {
   background: transparent;
 }
 
-.dn-settings-panel {
+.ds-settings-panel {
   width: var(--panel-width);
   flex-shrink: 0;
   border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
@@ -204,20 +190,20 @@
   color: var(--fg);
   box-shadow: none;
   container-type: inline-size;
-  container-name: dn-settings;
+  container-name: ds-settings;
 }
 
-@container dn-settings (max-width: 280px) {
-  .dn-settings-panel .grid-cols-4 {
+@container ds-settings (max-width: 280px) {
+  .ds-settings-panel .grid-cols-4 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-.inspector-root.inspector-embedded[data-theme="light"] {
+.ds-root.ds-embedded[data-theme="light"] {
   --scroll-edge-fade-color: #f0f1f2;
 }
 
-.inspector-root.inspector-embedded[data-theme="light"] .dn-settings-panel {
+.ds-root.ds-embedded[data-theme="light"] .ds-settings-panel {
   width: 100%;
   border: none;
   border-radius: 0;
@@ -225,10 +211,8 @@
   background: transparent;
 }
 
-.inspector-root.inspector-embedded[data-theme="light"] .dn-settings-scroll,
-.inspector-root.inspector-embedded[data-theme="light"]
-  .dn-settings-scroll
-  [data-slot="scroll-area-viewport"] {
+.ds-root.ds-embedded[data-theme="light"] .ds-settings-scroll,
+.ds-root.ds-embedded[data-theme="light"] .ds-settings-scroll [data-slot="scroll-area-viewport"] {
   background: transparent;
 }
 
@@ -238,7 +222,7 @@
   min-width: 0;
 }
 
-[data-slot="settings-inspector"] > .inspector-root[data-theme="light"] {
+[data-slot="settings-inspector"] > .ds-root[data-theme="light"] {
   height: 100%;
   min-height: 0;
   width: 100%;
@@ -254,7 +238,7 @@
 
 /* ── Option tiles (grids, chips, presets) ────────────────────────── */
 
-.dn-option-tile {
+.ds-option-tile {
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
@@ -267,8 +251,8 @@
     border-color 160ms var(--ease-out);
 }
 
-.dn-option-tile::after,
-.dn-preview-tile::after {
+.ds-option-tile::after,
+.ds-preview-tile::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -283,28 +267,28 @@
     transform var(--select-ring-dur) var(--ease-press);
 }
 
-.dn-preset-item {
+.ds-preset-item {
   background: var(--control);
   color: var(--muted);
 }
 
-.dn-preset-item[aria-pressed="true"] {
+.ds-preset-item[aria-pressed="true"] {
   color: var(--fg);
 }
 
-.dn-option-tile[aria-pressed="true"],
-.dn-option-tile[data-selected="true"] {
+.ds-option-tile[aria-pressed="true"],
+.ds-option-tile[data-selected="true"] {
   background: var(--control);
   color: var(--fg);
 }
 
-.dn-option-tile[aria-pressed="true"]::after,
-.dn-option-tile[data-selected="true"]::after {
+.ds-option-tile[aria-pressed="true"]::after,
+.ds-option-tile[data-selected="true"]::after {
   opacity: 1;
   transform: scale(1);
 }
 
-.dn-option-scroll-row {
+.ds-option-scroll-row {
   display: flex;
   --option-gap: var(--space-inline);
   gap: var(--option-gap);
@@ -317,40 +301,40 @@
   scrollbar-color: color-mix(in srgb, var(--muted) 40%, transparent) transparent;
 }
 
-.dn-option-scroll-row::-webkit-scrollbar {
+.ds-option-scroll-row::-webkit-scrollbar {
   height: 3px;
 }
 
-.dn-option-scroll-row::-webkit-scrollbar-thumb {
+.ds-option-scroll-row::-webkit-scrollbar-thumb {
   border-radius: 999px;
   background: color-mix(in srgb, var(--muted) 40%, transparent);
 }
 
-.dn-option-scroll-row--fill {
+.ds-option-scroll-row--fill {
   overflow: visible;
 }
 
-.dn-content-type-select {
+.ds-content-type-select {
   width: 100%;
   min-width: 0;
 }
 
-.dn-content-type-select > div {
+.ds-content-type-select > div {
   width: 100%;
 }
 
-.dn-content-type-select--split {
+.ds-content-type-select--split {
   display: flex;
   align-items: center;
 }
 
-.dn-content-type-select--split > div {
+.ds-content-type-select--split > div {
   width: 50%;
   flex-shrink: 0;
   margin-left: auto;
 }
 
-.dn-content-type-select .dn-content-type-select-trigger {
+.ds-content-type-select .ds-content-type-select-trigger {
   width: 100%;
   min-width: 0;
   border: none !important;
@@ -365,9 +349,9 @@
   letter-spacing: var(--tracking-tight);
 }
 
-.dn-content-type-select .dn-content-type-select-trigger:hover,
-.dn-content-type-select .dn-content-type-select-trigger:focus,
-.dn-content-type-select .dn-content-type-select-trigger:focus-visible {
+.ds-content-type-select .ds-content-type-select-trigger:hover,
+.ds-content-type-select .ds-content-type-select-trigger:focus,
+.ds-content-type-select .ds-content-type-select-trigger:focus-visible {
   border: none !important;
   background: var(--control) !important;
   box-shadow: none !important;
@@ -375,20 +359,20 @@
   --tw-ring-shadow: 0 0 #0000;
 }
 
-.dn-content-type-select .dn-content-type-select-trigger [data-placeholder] {
+.ds-content-type-select .ds-content-type-select-trigger [data-placeholder] {
   color: var(--muted);
 }
 
-.dn-fill-picker-select {
+.ds-fill-picker-select {
   width: 100%;
   min-width: 0;
 }
 
-.dn-fill-picker-select > div {
+.ds-fill-picker-select > div {
   width: 100%;
 }
 
-.dn-fill-picker-select .dn-fill-picker-select-trigger {
+.ds-fill-picker-select .ds-fill-picker-select-trigger {
   width: 100%;
   min-width: 0;
   border: none !important;
@@ -403,9 +387,9 @@
   letter-spacing: var(--tracking-tight);
 }
 
-.dn-fill-picker-select .dn-fill-picker-select-trigger:hover,
-.dn-fill-picker-select .dn-fill-picker-select-trigger:focus,
-.dn-fill-picker-select .dn-fill-picker-select-trigger:focus-visible {
+.ds-fill-picker-select .ds-fill-picker-select-trigger:hover,
+.ds-fill-picker-select .ds-fill-picker-select-trigger:focus,
+.ds-fill-picker-select .ds-fill-picker-select-trigger:focus-visible {
   border: none !important;
   background: var(--control) !important;
   box-shadow: none !important;
@@ -413,15 +397,15 @@
   --tw-ring-shadow: 0 0 #0000;
 }
 
-.dn-fill-picker-select .dn-fill-picker-select-trigger [data-placeholder] {
+.ds-fill-picker-select .ds-fill-picker-select-trigger [data-placeholder] {
   color: var(--muted);
 }
 
-.dn-content-type-tab-bar {
+.ds-content-type-tab-bar {
   min-width: max-content;
 }
 
-.dn-content-type-segment-tab {
+.ds-content-type-segment-tab {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -432,13 +416,13 @@
   padding-inline: 0.75rem;
 }
 
-.dn-content-type-segment-icon {
+.ds-content-type-segment-icon {
   width: 0.875rem;
   height: 0.875rem;
   flex-shrink: 0;
 }
 
-.dn-content-type-segment-label {
+.ds-content-type-segment-label {
   white-space: nowrap;
   font-size: var(--type-caption);
   font-weight: 500;
@@ -446,12 +430,12 @@
   letter-spacing: var(--tracking-tight);
 }
 
-.dn-option-scroll-tile {
+.ds-option-scroll-tile {
   min-height: var(--control-height);
   height: var(--control-height);
 }
 
-.dn-option-scroll-row--fill .dn-option-scroll-tile {
+.ds-option-scroll-row--fill .ds-option-scroll-tile {
   display: inline-flex;
   flex: 1 1 0;
   align-items: center;
@@ -459,7 +443,7 @@
   min-width: 0;
 }
 
-.dn-preview-tile {
+.ds-preview-tile {
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
@@ -471,56 +455,56 @@
     border-color 160ms var(--ease-out);
 }
 
-.dn-preview-tile.dn-preview-tile--fluid {
+.ds-preview-tile.ds-preview-tile--fluid {
   padding: 4px;
 }
 
-.dn-preview-tile::after {
+.ds-preview-tile::after {
   z-index: 20;
 }
 
-.dn-preview-tile[aria-pressed="true"] {
+.ds-preview-tile[aria-pressed="true"] {
   color: var(--fg);
 }
 
-.dn-preview-tile[aria-pressed="true"]::after {
+.ds-preview-tile[aria-pressed="true"]::after {
   opacity: 1;
   transform: scale(1);
 }
 
-.inspector-root .dn-preview-tile [data-slot^="style-preview"],
-.inspector-root .dn-preview-tile .dn-preview-icon {
+.ds-root .ds-preview-tile [data-slot^="style-preview"],
+.ds-root .ds-preview-tile .ds-preview-icon {
   color: var(--fg);
 }
 
-.dn-qr-style-option-preview {
+.ds-qr-style-option-preview {
   opacity: 1;
   filter: none;
 }
 
-.inspector-root[data-theme="dark"] .dn-qr-style-option-preview {
+.ds-root[data-theme="dark"] .ds-qr-style-option-preview {
   opacity: 1;
   filter: invert(1);
 }
 
-.dn-style-preview-icon,
+.ds-style-preview-icon,
 [data-slot^="style-preview"] {
   color: var(--preview-ink, rgb(24 24 27 / 0.8));
 }
 
-.inspector-root[data-theme="light"] .dn-style-preview-icon,
-.inspector-root[data-theme="light"] [data-slot^="style-preview"] {
+.ds-root[data-theme="light"] .ds-style-preview-icon,
+.ds-root[data-theme="light"] [data-slot^="style-preview"] {
   color: color-mix(in srgb, var(--fg) 80%, transparent);
 }
 
-.inspector-root[data-theme="dark"] .dn-style-preview-icon,
-.inspector-root[data-theme="dark"] [data-slot^="style-preview"] {
+.ds-root[data-theme="dark"] .ds-style-preview-icon,
+.ds-root[data-theme="dark"] [data-slot^="style-preview"] {
   color: var(--paper);
 }
 
 /* ── Settings typography ─────────────────────────────────────────── */
 
-.dn-type-caption {
+.ds-type-caption {
   font-size: var(--type-caption);
   font-weight: 500;
   line-height: 1;
@@ -528,7 +512,7 @@
   color: var(--type-label-color);
 }
 
-.dn-type-label {
+.ds-type-label {
   font-size: var(--type-meta);
   font-weight: var(--type-label-weight);
   line-height: 1;
@@ -536,7 +520,7 @@
   color: var(--type-label-color);
 }
 
-.dn-type-meta {
+.ds-type-meta {
   font-size: var(--type-meta);
   font-weight: var(--type-label-weight);
   line-height: 1;
@@ -544,7 +528,7 @@
   color: var(--type-label-color);
 }
 
-.dn-type-value {
+.ds-type-value {
   font-size: var(--type-value);
   font-weight: var(--type-value-weight);
   line-height: 1;
@@ -556,7 +540,7 @@
 /* beui InlineSlider ships with shadcn color utilities this project never
    registers (bg-muted, bg-foreground/*), so its track, fill and tick dots
    render transparent. Paint them from the dn tokens instead. */
-.dn-settings-inline-slider {
+.ds-settings-inline-slider {
   background: var(--slider-bg);
   color: var(--fg);
   border-radius: var(--radius-sm);
@@ -568,26 +552,26 @@
 
 /* The component's `cursor-inherit` is not a Tailwind utility, so the focusable
    track button falls back to the button default. Force the drag cursor. */
-.dn-settings-inline-slider [role="slider"] {
+.ds-settings-inline-slider [role="slider"] {
   cursor: ew-resize !important;
 }
 
-.dn-settings-inline-slider > div[aria-hidden="true"]:first-child {
+.ds-settings-inline-slider > div[aria-hidden="true"]:first-child {
   border-radius: calc(var(--radius-sm) - 2px);
   corner-shape: squircle;
 }
 
-.dn-settings-inline-slider [class*="bg-foreground/15"] {
+.ds-settings-inline-slider [class*="bg-foreground/15"] {
   background: color-mix(in srgb, var(--fg) 7%, transparent);
 }
 
-.dn-settings-inline-slider [class*="bg-foreground/25"] {
+.ds-settings-inline-slider [class*="bg-foreground/25"] {
   background: color-mix(in srgb, var(--fg) 12%, transparent);
 }
 
 /* Inline label and readout follow the settings label tokens instead of the
    component's text-sm / text-[13px] pair. */
-.dn-settings-inline-slider > div[aria-hidden="true"]:nth-of-type(2) > span:nth-child(1) {
+.ds-settings-inline-slider > div[aria-hidden="true"]:nth-of-type(2) > span:nth-child(1) {
   font-size: var(--type-meta);
   font-weight: var(--type-label-weight);
   line-height: 1;
@@ -595,7 +579,7 @@
   color: var(--type-value-color);
 }
 
-.dn-settings-inline-slider > div[aria-hidden="true"]:nth-of-type(2) > span:nth-child(2) {
+.ds-settings-inline-slider > div[aria-hidden="true"]:nth-of-type(2) > span:nth-child(2) {
   font-size: var(--type-value);
   font-weight: var(--type-value-weight);
   line-height: 1;
@@ -604,7 +588,7 @@
   color: var(--type-value-color);
 }
 
-.dn-row-label-text {
+.ds-row-label-text {
   font-size: var(--type-body);
   font-weight: var(--type-value-weight);
   line-height: 1;
@@ -614,7 +598,7 @@
 
 /* ── Row controls ────────────────────────────────────────────────── */
 
-.dn-section-stack {
+.ds-section-stack {
   display: flex;
   width: 100%;
   min-width: 0;
@@ -622,7 +606,7 @@
   gap: var(--space-stack);
 }
 
-.dn-preview-row {
+.ds-preview-row {
   display: flex;
   min-width: max-content;
   --option-gap: var(--space-inline);
@@ -632,7 +616,7 @@
 
 /* Keep visual tile gaps but extend each option's hit box through half the
    gap so the pointer never drops to default between tiles. */
-:is(.dn-preview-row, .dn-option-scroll-row)
+:is(.ds-preview-row, .ds-option-scroll-row)
   > :is(button, a, [role="button"], [data-slot="image-upload-tile"]) {
   margin-inline: calc(var(--option-gap, var(--space-inline)) / -2);
   margin-block: 0;
@@ -640,38 +624,36 @@
   z-index: 0;
 }
 
-.t-tabs > [role="tab"] {
+.ds-tabs > [role="tab"] {
   margin-inline: calc(var(--option-gap, 0.25rem) / -2);
   margin-block: 0;
 }
 
-:is(.dn-insert-menu-option-grid) > :is(button, a, [role="button"]) {
+:is(.ds-insert-menu-option-grid) > :is(button, a, [role="button"]) {
   margin: calc(var(--option-gap, var(--space-inline)) / -2);
   position: relative;
   z-index: 0;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  :is(.dn-preview-row, .dn-option-scroll-row)
+  :is(.ds-preview-row, .ds-option-scroll-row)
     > :is(button, a, [role="button"]):is(:hover, :focus-visible),
-  :is(.dn-insert-menu-option-grid) > :is(button, a, [role="button"]):is(:hover, :focus-visible) {
+  :is(.ds-insert-menu-option-grid) > :is(button, a, [role="button"]):is(:hover, :focus-visible) {
     z-index: 1;
   }
 
-  .t-tabs > [role="tab"]:is(:hover, :focus-visible) {
+  .ds-tabs > [role="tab"]:is(:hover, :focus-visible) {
     z-index: 2;
   }
 }
 
 /* Horizontal preview rows — edge fades (override tight default). */
-.inspector-root [data-slot="scroll-area"][data-orientation="horizontal"] {
+.ds-root [data-slot="scroll-area"][data-orientation="horizontal"] {
   --scroll-edge-cue-band-size: 3.75rem;
 }
 
 @supports (background: color-mix(in srgb, black 50%, white)) {
-  .inspector-root
-    [data-slot="scroll-area"][data-orientation="horizontal"]
-    .scroll-edge-cue-gradient {
+  .ds-root [data-slot="scroll-area"][data-orientation="horizontal"] .scroll-edge-cue-gradient {
     background: linear-gradient(
       var(--scroll-edge-cue-direction, to right),
       transparent 0%,
@@ -683,35 +665,35 @@
   }
 }
 
-.dn-control-surface {
+.ds-control-surface {
   min-height: var(--control-height);
   height: var(--control-height);
 }
 
-.dn-tab-bar {
+.ds-tab-bar {
   min-height: var(--tab-height);
   height: var(--tab-height);
 }
 
-.dn-tab-bar.dn-content-type-tab-bar {
+.ds-tab-bar.ds-content-type-tab-bar {
   height: auto;
   min-height: 0;
 }
 
-.dn-type-chip {
+.ds-type-chip {
   font-size: var(--type-caption);
   font-weight: 500;
   letter-spacing: var(--tracking-tight);
 }
 
-.dn-preview-tile-size {
+.ds-preview-tile-size {
   width: var(--preview-tile);
   height: var(--preview-tile);
   min-width: var(--preview-tile);
   min-height: var(--preview-tile);
 }
 
-.dn-switch-row {
+.ds-switch-row {
   display: flex;
   width: 100%;
   min-height: var(--control-height);
@@ -723,7 +705,7 @@
   padding: 0 var(--row-px) !important;
 }
 
-.dn-switch-row > span {
+.ds-switch-row > span {
   display: inline-flex;
   align-items: center;
   font-size: var(--type-body);
@@ -734,24 +716,24 @@
 }
 
 /* Track + thumb follow the same tokens as the portalled switches. */
-.dn-switch-row [data-slot="switch"] {
+.ds-switch-row [data-slot="switch"] {
   transition: background-color var(--motion-ui) var(--ease-out) !important;
 }
 
-.dn-switch-row [data-slot="switch"][data-state="checked"] {
+.ds-switch-row [data-slot="switch"][data-state="checked"] {
   background: var(--fg) !important;
 }
 
-.dn-switch-row [data-slot="switch"][data-state="unchecked"] {
+.ds-switch-row [data-slot="switch"][data-state="unchecked"] {
   background: var(--line) !important;
 }
 
-.dn-switch-row [data-slot="switch-thumb"] {
+.ds-switch-row [data-slot="switch-thumb"] {
   background: var(--bg) !important;
   border-color: color-mix(in srgb, var(--fg) 12%, transparent) !important;
 }
 
-.dn-settings-row {
+.ds-settings-row {
   min-height: var(--control-height);
   height: var(--control-height);
   padding-left: var(--row-px);
@@ -767,29 +749,29 @@
   transform: none;
 }
 
-.inspector-root .dn-settings-row:hover,
-.inspector-root .dn-settings-row:focus-visible,
-.inspector-root .dn-settings-row:active {
+.ds-root .ds-settings-row:hover,
+.ds-root .ds-settings-row:focus-visible,
+.ds-root .ds-settings-row:active {
   background: var(--control) !important;
   color: var(--fg) !important;
   box-shadow: none !important;
   outline: none;
 }
 
-.dn-settings-primary {
+.ds-settings-primary {
   background: var(--fg) !important;
   color: var(--bg) !important;
 }
 
-.inspector-root .dn-settings-primary:hover,
-.inspector-root .dn-settings-primary:focus-visible,
-.inspector-root .dn-settings-primary:active {
+.ds-root .ds-settings-primary:hover,
+.ds-root .ds-settings-primary:focus-visible,
+.ds-root .ds-settings-primary:active {
   background: var(--fg) !important;
   color: var(--bg) !important;
 }
 
-.inspector-root .dn-settings-input,
-.dn-settings-input {
+.ds-root .ds-settings-input,
+.ds-settings-input {
   min-height: var(--control-height);
   height: var(--control-height);
   border: 1px solid var(--line);
@@ -805,40 +787,40 @@
   appearance: none;
 }
 
-.inspector-root .dn-settings-input:focus,
-.inspector-root .dn-settings-input:focus-visible,
-.dn-settings-input:focus,
-.dn-settings-input:focus-visible {
+.ds-root .ds-settings-input:focus,
+.ds-root .ds-settings-input:focus-visible,
+.ds-settings-input:focus,
+.ds-settings-input:focus-visible {
   border-color: var(--line);
   box-shadow: none !important;
   outline: none;
 }
 
-.dn-settings-input::placeholder {
+.ds-settings-input::placeholder {
   color: var(--muted);
 }
 
-[data-slot="content-fields"] .dn-content-field {
+[data-slot="content-fields"] .ds-content-field {
   display: flex;
   min-width: 0;
   flex-direction: column;
   gap: var(--space-inline);
 }
 
-[data-slot="content-fields"] .dn-settings-input {
+[data-slot="content-fields"] .ds-settings-input {
   border: none;
   padding-inline: var(--row-px);
 }
 
-[data-slot="content-fields"] .dn-settings-input:focus,
-[data-slot="content-fields"] .dn-settings-input:focus-visible,
-[data-slot="content-fields"] .dn-settings-input[aria-invalid="true"] {
+[data-slot="content-fields"] .ds-settings-input:focus,
+[data-slot="content-fields"] .ds-settings-input:focus-visible,
+[data-slot="content-fields"] .ds-settings-input[aria-invalid="true"] {
   border: none;
   box-shadow: none;
   outline: none;
 }
 
-.dn-content-detection-chip {
+.ds-content-detection-chip {
   border: 1px solid var(--line);
   background: var(--control);
   padding: 0.625rem 0.75rem;
@@ -846,31 +828,31 @@
 
 /* ── Sliders ─────────────────────────────────────────────────────── */
 
-.inspector-root .dn-settings-row [data-slot="button"] {
+.ds-root .ds-settings-row [data-slot="button"] {
   line-height: 1;
 }
 
-:is(.inspector-popover-content, .dn-portal-surface) [data-slot="switch"] {
+:is(.ds-popover-content, .ds-portal-surface) [data-slot="switch"] {
   transition: background-color var(--motion-ui) var(--ease-out) !important;
 }
 
-:is(.inspector-popover-content, .dn-portal-surface) [data-slot="switch"][data-state="checked"] {
+:is(.ds-popover-content, .ds-portal-surface) [data-slot="switch"][data-state="checked"] {
   background: var(--fg) !important;
 }
 
-:is(.inspector-popover-content, .dn-portal-surface) [data-slot="switch"][data-state="unchecked"] {
+:is(.ds-popover-content, .ds-portal-surface) [data-slot="switch"][data-state="unchecked"] {
   background: var(--line) !important;
 }
 
-:is(.inspector-popover-content, .dn-portal-surface) [data-slot="switch-thumb"] {
+:is(.ds-popover-content, .ds-portal-surface) [data-slot="switch-thumb"] {
   background: var(--bg) !important;
   border-color: color-mix(in srgb, var(--fg) 12%, transparent) !important;
   backface-visibility: hidden;
 }
 
-:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-row:hover,
-:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-row:focus-visible,
-:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-row:active {
+:is(.ds-popover-content, .ds-portal-surface) .ds-settings-row:hover,
+:is(.ds-popover-content, .ds-portal-surface) .ds-settings-row:focus-visible,
+:is(.ds-popover-content, .ds-portal-surface) .ds-settings-row:active {
   background: var(--control) !important;
   color: var(--fg) !important;
   box-shadow: none !important;
@@ -879,19 +861,19 @@
 
 /* ── Switch ──────────────────────────────────────────────────────── */
 
-.inspector-root [data-slot="switch"] {
+.ds-root [data-slot="switch"] {
   transition: background-color var(--motion-ui) var(--ease-out) !important;
 }
 
-.inspector-root [data-slot="switch"][data-state="checked"] {
+.ds-root [data-slot="switch"][data-state="checked"] {
   background: var(--fg) !important;
 }
 
-.inspector-root [data-slot="switch"][data-state="unchecked"] {
+.ds-root [data-slot="switch"][data-state="unchecked"] {
   background: var(--line) !important;
 }
 
-.inspector-root [data-slot="switch-thumb"] {
+.ds-root [data-slot="switch-thumb"] {
   background: var(--bg) !important;
   border-color: color-mix(in srgb, var(--fg) 12%, transparent) !important;
   backface-visibility: hidden;
@@ -899,13 +881,13 @@
 
 /* ── Segment tabs ────────────────────────────────────────────────── */
 
-.t-tab {
+.ds-tab {
   position: relative;
   z-index: 1;
   transition: color var(--tabs-dur) var(--tabs-ease);
 }
 
-.t-tabs-pill {
+.ds-tabs-pill {
   position: absolute;
   inset-block: 0;
   left: 0;
@@ -920,46 +902,46 @@
   pointer-events: none;
 }
 
-.inspector-root[data-theme="dark"] .t-tabs-pill {
+.ds-root[data-theme="dark"] .ds-tabs-pill {
   background: var(--paper);
 }
 
-.t-tabs--muted {
+.ds-tabs--muted {
   --option-gap: 0;
   gap: 0;
   padding: 2px;
   background: transparent;
 }
 
-.t-tabs--muted .t-tabs-pill--muted {
+.ds-tabs--muted .ds-tabs-pill--muted {
   inset-block: 2px;
   background: color-mix(in srgb, var(--fg) 10%, var(--bg));
 }
 
-.inspector-root[data-theme="dark"] .t-tabs--muted .t-tabs-pill--muted {
+.ds-root[data-theme="dark"] .ds-tabs--muted .ds-tabs-pill--muted {
   background: var(--mass-muted);
 }
 
-.t-tabs--muted .dn-segment-tab--muted[aria-selected="true"] {
+.ds-tabs--muted .ds-segment-tab--muted[aria-selected="true"] {
   color: var(--fg);
 }
 
-.inspector-root[data-theme="dark"] .t-tabs--muted .dn-segment-tab--muted[aria-selected="true"] {
+.ds-root[data-theme="dark"] .ds-tabs--muted .ds-segment-tab--muted[aria-selected="true"] {
   color: var(--fg);
 }
 
-.dn-segment-tab[aria-selected="true"] {
+.ds-segment-tab[aria-selected="true"] {
   background: transparent;
   color: var(--mass-fg, #ffffff);
 }
 
-.inspector-root[data-theme="dark"] .dn-segment-tab[aria-selected="true"] {
+.ds-root[data-theme="dark"] .ds-segment-tab[aria-selected="true"] {
   color: var(--mass-fg);
 }
 
 /* ── Accordion ───────────────────────────────────────────────────── */
 
-.dn-settings-rail-track {
+.ds-settings-rail-track {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -968,25 +950,25 @@
   width: 100%;
 }
 
-.dn-settings-rail-track__inner {
+.ds-settings-rail-track__inner {
   box-sizing: border-box;
   width: min(100%, 19.2rem);
   padding-inline: 0.75rem;
 }
 
 /* Pin QRafty to the top chrome row; spacer keeps accordion stack vertically centered. */
-.dn-settings-scroll [data-slot="scroll-area-viewport"] {
+.ds-settings-scroll [data-slot="scroll-area-viewport"] {
   position: relative;
 }
 
-.dn-settings-brand-row {
+.ds-settings-brand-row {
   flex-shrink: 0;
   /* Spacer mirrors the canvas top inset so the settings card centers in the
    * same free band as the canvas card, below the top chrome. */
   min-height: var(--canvas-inset-top, calc(0.625rem + 2rem));
 }
 
-.dn-settings-brand-row > .dn-settings-rail-track__inner {
+.ds-settings-brand-row > .ds-settings-rail-track__inner {
   position: absolute;
   top: var(--toolbar-top-offset, 0.75rem);
   right: 0;
@@ -1006,7 +988,7 @@
  * transparent rows separated by inset hairlines. Height is fixed to the
  * settings-panel token — it does not track the canvas card, so the card
  * stays a constant size while the canvas adapts to its aspect ratio. */
-.dn-settings-accordion > div {
+.ds-settings-accordion > div {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -1025,7 +1007,7 @@
   scrollbar-gutter: stable;
 }
 
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] {
+.ds-settings-accordion > div > [data-slot="motion-accordion-item"] {
   position: relative;
   width: 100%;
   border-radius: 0 !important;
@@ -1033,15 +1015,15 @@
 }
 
 /* Short, quiet separators — inset from both edges instead of full-bleed. */
-.dn-settings-accordion
+.ds-settings-accordion
   > div
   > [data-slot="motion-accordion-item"]
   + [data-slot="motion-accordion-item"]::before,
-.dn-settings-accordion
+.ds-settings-accordion
   > div
   > [data-slot="motion-accordion-header"]
   + [data-slot="motion-accordion-item"]::before,
-.dn-settings-accordion
+.ds-settings-accordion
   > div
   > [data-slot="motion-accordion-item"]
   + [data-slot="motion-accordion-footer"]::before {
@@ -1055,14 +1037,14 @@
   opacity: 0.4;
 }
 
-.dn-accordion-popover-backdrop {
+.ds-accordion-popover-backdrop {
   position: fixed;
   inset: 0;
   z-index: 20000;
   background: transparent;
 }
 
-.dn-accordion-popover-overlay {
+.ds-accordion-popover-overlay {
   position: fixed;
   z-index: 20001;
   display: flex;
@@ -1074,7 +1056,7 @@
   box-sizing: border-box;
 }
 
-.dn-accordion-popover-panel {
+.ds-accordion-popover-panel {
   display: flex;
   width: 100%;
   max-height: min(72dvh, calc(100dvh - 2rem));
@@ -1093,9 +1075,9 @@
 
 /* Popover surfaces tween width/height when their content changes size —
  * transitions.dev card-resize. interpolate-size lets auto↔auto animate. */
-.inspector-popover-content,
-.inspector-fill-popover,
-.dn-accordion-popover-panel {
+.ds-popover-content,
+.ds-fill-popover,
+.ds-accordion-popover-panel {
   interpolate-size: allow-keywords;
   transition:
     width var(--resize-dur, 270ms) var(--resize-ease, cubic-bezier(0.25, 1, 0.5, 1)),
@@ -1103,20 +1085,20 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .inspector-popover-content,
-  .inspector-fill-popover,
-  .dn-accordion-popover-panel {
+  .ds-popover-content,
+  .ds-fill-popover,
+  .ds-accordion-popover-panel {
     transition: none !important;
   }
 }
 
-.dn-accordion-popover-panel.inspector-fill-popover .dn-fill-picker-panel {
+.ds-accordion-popover-panel.ds-fill-popover .ds-fill-picker-panel {
   max-height: min(72dvh, calc(100% - 0.5rem));
   border: 0 !important;
   box-shadow: none !important;
 }
 
-.dn-settings-popover-shell {
+.ds-settings-popover-shell {
   display: flex;
   min-height: 0;
   flex: 1;
@@ -1126,18 +1108,18 @@
 
 /* Radix fill popovers render on a transparent shell — the chrome (header +
  * picker) needs its own surface so the title is readable over the canvas. */
-.inspector-fill-popover .dn-settings-popover-shell {
+.ds-fill-popover .ds-settings-popover-shell {
   background: var(--surface);
   border-radius: var(--radius-md);
   corner-shape: squircle;
   box-shadow: var(--popover-shadow, 0 12px 40px rgb(0 0 0 / 18%));
 }
 
-.inspector-fill-popover[data-theme="dark"] .dn-settings-popover-shell {
+.ds-fill-popover[data-theme="dark"] .ds-settings-popover-shell {
   box-shadow: var(--menu-shadow);
 }
 
-.dn-settings-popover-header {
+.ds-settings-popover-header {
   position: relative;
   display: flex;
   flex-shrink: 0;
@@ -1147,7 +1129,7 @@
   padding: 0.75rem 2.75rem 0.5rem;
 }
 
-.dn-settings-popover-title {
+.ds-settings-popover-title {
   margin: 0;
   max-width: 100%;
   overflow: hidden;
@@ -1160,7 +1142,7 @@
   color: var(--fg);
 }
 
-.dn-settings-popover-close {
+.ds-settings-popover-close {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
@@ -1179,47 +1161,47 @@
     color var(--motion-fast) var(--ease-out);
 }
 
-.dn-settings-popover-close:hover,
-.dn-settings-popover-close:focus-visible {
+.ds-settings-popover-close:hover,
+.ds-settings-popover-close:focus-visible {
   background: color-mix(in srgb, var(--fg) 16%, transparent);
   color: var(--fg);
 }
 
-.dn-settings-popover-body {
+.ds-settings-popover-body {
   min-height: 0;
   flex: 1;
 }
 
-.dn-settings-popover-body-viewport {
+.ds-settings-popover-body-viewport {
   padding: 0 0.625rem 0.625rem;
 }
 
-.dn-settings-popover-body-fill {
+.ds-settings-popover-body-fill {
   padding: 0 0 0.5rem;
 }
 
-:is(.inspector-fill-popover, .inspector-popover-content, .dn-accordion-popover-panel)
-  .dn-settings-popover-body-fill
-  .dn-fill-picker-panel {
+:is(.ds-fill-popover, .ds-popover-content, .ds-accordion-popover-panel)
+  .ds-settings-popover-body-fill
+  .ds-fill-picker-panel {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
 
-:is(.inspector-fill-popover, .dn-accordion-popover-panel)
-  .dn-settings-popover-body-fill
-  .dn-fill-picker-panel
+:is(.ds-fill-popover, .ds-accordion-popover-panel)
+  .ds-settings-popover-body-fill
+  .ds-fill-picker-panel
   [data-slot="fill-picker"]
   > div {
   padding: 0.625rem;
 }
 
-:is(.inspector-fill-popover, .dn-accordion-popover-panel)
-  .dn-settings-popover-body-fill
+:is(.ds-fill-popover, .ds-accordion-popover-panel)
+  .ds-settings-popover-body-fill
   [data-slot="palette-color-stop-list"] {
   padding-inline: 0;
 }
 
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button {
+.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > button {
   position: relative;
   gap: 0.625rem;
   padding: 1rem 1.125rem;
@@ -1227,7 +1209,7 @@
 
 /* Extend each trigger's hit zone into the gap above its card so the
  * pointer + click area stays continuous between sections. */
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button::before {
+.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > button::before {
   content: "";
   position: absolute;
   top: calc(-1 * var(--accordion-gap, 8px));
@@ -1236,7 +1218,7 @@
   height: var(--accordion-gap, 8px);
 }
 
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:first-child {
+.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:first-child {
   display: inline-flex;
   align-items: center;
   gap: 0.625rem;
@@ -1247,33 +1229,33 @@
   line-height: 1.3;
 }
 
-.dn-settings-accordion .dn-settings-section-icon-slot {
+.ds-settings-accordion .ds-settings-section-icon-slot {
   display: inline-flex;
   flex: none;
   align-items: center;
   justify-content: center;
 }
 
-.dn-settings-accordion .dn-settings-section-icon {
+.ds-settings-accordion .ds-settings-section-icon {
   display: block;
   width: 1.125rem;
   height: 1.125rem;
 }
 
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:last-child {
+.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:last-child {
   width: 2rem;
   height: 2rem;
   color: var(--muted);
   opacity: 0.42;
 }
 
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:last-child svg {
+.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:last-child svg {
   width: 18px;
   height: 18px;
 }
 
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > button:hover > span:last-child,
-.dn-settings-accordion
+.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > button:hover > span:last-child,
+.ds-settings-accordion
   > div
   > [data-slot="motion-accordion-item"]
   > button:focus-visible
@@ -1281,12 +1263,12 @@
   opacity: 0.62;
 }
 
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] > [role="region"] > div {
+.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > [role="region"] > div {
   padding-inline: 0.875rem;
   padding-bottom: 0.875rem;
 }
 
-.dn-settings-accordion [role="region"] {
+.ds-settings-accordion [role="region"] {
   --bg: var(--paper);
   --background: var(--paper);
   --scroll-edge-fade-color: var(--paper);
@@ -1294,7 +1276,7 @@
   --tabs-ease: var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
 }
 
-.inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-accordion [role="region"] {
+.ds-root.ds-embedded[data-theme="dark"] .ds-settings-accordion [role="region"] {
   --bg: var(--surface);
   --background: var(--surface);
   --scroll-edge-fade-color: var(--surface);
@@ -1302,23 +1284,23 @@
   --tabs-ease: var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
 }
 
-.inspector-root.inspector-embedded[data-theme="dark"]
-  .dn-settings-accordion
+.ds-root.ds-embedded[data-theme="dark"]
+  .ds-settings-accordion
   [role="region"]
-  .t-tabs-pill:not(.t-tabs-pill--muted) {
+  .ds-tabs-pill:not(.ds-tabs-pill--muted) {
   background: var(--card-white, #ffffff);
 }
 
-.dn-settings-accordion [role="region"] .t-tabs-pill {
+.ds-settings-accordion [role="region"] .ds-tabs-pill {
   z-index: 0;
 }
-.dn-settings-accordion [role="region"] [data-slot="scroll-area-viewport"],
-.dn-settings-accordion [role="region"] [data-slot="scroll-area-viewport"] > div {
+.ds-settings-accordion [role="region"] [data-slot="scroll-area-viewport"],
+.ds-settings-accordion [role="region"] [data-slot="scroll-area-viewport"] > div {
   background: transparent !important;
   box-shadow: none !important;
 }
 
-.dn-settings-accordion
+.ds-settings-accordion
   [role="region"]
   [data-slot="scroll-area"][data-orientation="horizontal"]
   [data-slot="scroll-area-inner"] {
@@ -1326,102 +1308,102 @@
   width: max-content;
 }
 
-.dn-settings-accordion [role="region"] .dn-preview-row {
+.ds-settings-accordion [role="region"] .ds-preview-row {
   width: max-content;
   max-width: none;
   flex: none;
 }
 
-.dn-settings-accordion [role="region"] .dn-preview-tile-size {
+.ds-settings-accordion [role="region"] .ds-preview-tile-size {
   flex: 0 0 var(--preview-tile);
   width: var(--preview-tile);
   min-width: var(--preview-tile);
   max-width: var(--preview-tile);
 }
 
-.dn-settings-accordion [role="region"] .dn-preview-tile {
+.ds-settings-accordion [role="region"] .ds-preview-tile {
   background: transparent;
 }
 
-.dn-settings-accordion
+.ds-settings-accordion
   [role="region"]
-  .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(
-    .dn-option-scroll-tile
+  .ds-option-tile:not(.ds-option-scroll-chip):not(.ds-content-type-segment-tab):not(
+    .ds-option-scroll-tile
   ) {
   background: transparent;
   border: 2px solid transparent;
 }
 
-.dn-settings-accordion [role="region"] .dn-option-scroll-chip,
-.dn-settings-accordion [role="region"] .dn-option-scroll-tile {
+.ds-settings-accordion [role="region"] .ds-option-scroll-chip,
+.ds-settings-accordion [role="region"] .ds-option-scroll-tile {
   background: var(--control);
   border: 2px solid transparent;
 }
 
-.dn-settings-accordion
+.ds-settings-accordion
   [role="region"]
-  .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(
-    .dn-option-scroll-tile
+  .ds-option-tile:not(.ds-option-scroll-chip):not(.ds-content-type-segment-tab):not(
+    .ds-option-scroll-tile
   )[aria-pressed="true"],
-.dn-settings-accordion
+.ds-settings-accordion
   [role="region"]
-  .dn-option-tile:not(.dn-option-scroll-chip):not(.dn-content-type-segment-tab):not(
-    .dn-option-scroll-tile
+  .ds-option-tile:not(.ds-option-scroll-chip):not(.ds-content-type-segment-tab):not(
+    .ds-option-scroll-tile
   )[data-selected="true"] {
   background: transparent;
 }
 
-.dn-settings-accordion [role="region"] .dn-option-scroll-chip[aria-pressed="true"],
-.dn-settings-accordion [role="region"] .dn-option-scroll-chip[data-selected="true"],
-.dn-settings-accordion [role="region"] .dn-option-scroll-tile[aria-pressed="true"],
-.dn-settings-accordion [role="region"] .dn-option-scroll-tile[data-selected="true"] {
+.ds-settings-accordion [role="region"] .ds-option-scroll-chip[aria-pressed="true"],
+.ds-settings-accordion [role="region"] .ds-option-scroll-chip[data-selected="true"],
+.ds-settings-accordion [role="region"] .ds-option-scroll-tile[aria-pressed="true"],
+.ds-settings-accordion [role="region"] .ds-option-scroll-tile[data-selected="true"] {
   background: var(--control-hover);
   box-shadow: none;
   color: var(--fg);
 }
 
-.dn-settings-accordion [role="region"] .dn-settings-row {
+.ds-settings-accordion [role="region"] .ds-settings-row {
   background: var(--control) !important;
 }
 
-.dn-settings-accordion [role="region"] .dn-settings-input {
+.ds-settings-accordion [role="region"] .ds-settings-input {
   background: var(--control) !important;
 }
 
 /* Card surface lives on the accordion stack; item rows stay transparent. */
-.inspector-root.inspector-embedded .dn-settings-accordion > div {
+.ds-root.ds-embedded .ds-settings-accordion > div {
   background: var(--card-white, #ffffff);
 }
 
-.inspector-root.inspector-embedded[data-theme="dark"] .dn-settings-accordion > div {
+.ds-root.ds-embedded[data-theme="dark"] .ds-settings-accordion > div {
   background: var(--surface);
 }
 
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] {
+.ds-settings-accordion > div > [data-slot="motion-accordion-item"] {
   background: transparent;
   box-shadow: none;
 }
 
-.dn-settings-accordion > div > [data-slot="motion-accordion-item"] {
+.ds-settings-accordion > div > [data-slot="motion-accordion-item"] {
   transition:
     filter var(--motion-ui) var(--ease-out),
     opacity var(--motion-ui) var(--ease-out);
 }
 
 /* Pinned header/footer stay sharp — only the section rows dim. */
-.dn-settings-accordion[data-popover-open="true"] > div > [data-slot="motion-accordion-item"] {
+.ds-settings-accordion[data-popover-open="true"] > div > [data-slot="motion-accordion-item"] {
   filter: blur(1.25px);
   opacity: 0.38;
 }
 
-.dn-settings-accordion:has([data-focused="true"]):not([data-popover-open="true"])
+.ds-settings-accordion:has([data-focused="true"]):not([data-popover-open="true"])
   > div
   > [data-slot="motion-accordion-item"]:not([data-focused="true"]) {
   filter: blur(1.25px);
   opacity: 0.38;
 }
 
-.dn-settings-tab-panel {
+.ds-settings-tab-panel {
   width: 100%;
   min-width: 0;
   will-change: opacity, filter;
@@ -1431,7 +1413,7 @@
 /* Radix Viewport injects a display:table wrap; our ScrollArea then wraps
  * children in [data-slot="scroll-area-inner"]. Flex + min-height must land
  * on the inner so short rails can center and tall ones still scroll. */
-.dn-settings-scroll [data-slot="scroll-area-viewport"] > div {
+.ds-settings-scroll [data-slot="scroll-area-viewport"] > div {
   display: flex !important;
   flex-direction: column;
   min-height: 100%;
@@ -1439,7 +1421,7 @@
   width: 100% !important;
 }
 
-.dn-settings-scroll [data-slot="scroll-area-inner"] {
+.ds-settings-scroll [data-slot="scroll-area-inner"] {
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;
@@ -1449,13 +1431,13 @@
   width: 100%;
 }
 
-.dn-settings-scroll .dn-settings-accordion {
+.ds-settings-scroll .ds-settings-accordion {
   flex-shrink: 0;
 }
 
-/* ── Popovers (portalled outside .inspector-root) ───────────────── */
+/* ── Popovers (portalled outside .ds-root) ───────────────── */
 
-@keyframes dn-portal-in {
+@keyframes ds-portal-in {
   from {
     opacity: 0;
     transform: scale(0.96);
@@ -1467,7 +1449,7 @@
   }
 }
 
-@keyframes dn-portal-out {
+@keyframes ds-portal-out {
   from {
     opacity: 1;
     transform: scale(1);
@@ -1479,45 +1461,45 @@
   }
 }
 
-.dn-portal-surface[data-side="top"],
-.inspector-fill-popover[data-side="top"] {
+.ds-portal-surface[data-side="top"],
+.ds-fill-popover[data-side="top"] {
   transform-origin: bottom center;
 }
 
-.dn-portal-surface[data-side="bottom"],
-.inspector-fill-popover[data-side="bottom"] {
+.ds-portal-surface[data-side="bottom"],
+.ds-fill-popover[data-side="bottom"] {
   transform-origin: top center;
 }
 
-.dn-portal-surface[data-side="left"],
-.inspector-fill-popover[data-side="left"] {
+.ds-portal-surface[data-side="left"],
+.ds-fill-popover[data-side="left"] {
   transform-origin: right center;
 }
 
-.dn-portal-surface[data-side="right"],
-.inspector-fill-popover[data-side="right"] {
+.ds-portal-surface[data-side="right"],
+.ds-fill-popover[data-side="right"] {
   transform-origin: left center;
 }
 
-.dn-portal-surface[data-state="open"],
-.dn-portal-surface[data-open] {
-  animation: dn-portal-in var(--motion-enter) var(--ease-out) both !important;
+.ds-portal-surface[data-state="open"],
+.ds-portal-surface[data-open] {
+  animation: ds-portal-in var(--motion-enter) var(--ease-out) both !important;
 }
 
-.dn-portal-surface[data-state="closed"],
-.dn-portal-surface[data-closed] {
-  animation: dn-portal-out var(--motion-exit) var(--ease-out) both !important;
+.ds-portal-surface[data-state="closed"],
+.ds-portal-surface[data-closed] {
+  animation: ds-portal-out var(--motion-exit) var(--ease-out) both !important;
 }
 
-.inspector-fill-popover[data-state="open"] {
-  animation: dn-portal-in var(--motion-enter) var(--ease-out) both !important;
+.ds-fill-popover[data-state="open"] {
+  animation: ds-portal-in var(--motion-enter) var(--ease-out) both !important;
 }
 
-.inspector-fill-popover[data-state="closed"] {
-  animation: dn-portal-out var(--motion-exit) var(--ease-out) both !important;
+.ds-fill-popover[data-state="closed"] {
+  animation: ds-portal-out var(--motion-exit) var(--ease-out) both !important;
 }
 
-.inspector-popover-content {
+.ds-popover-content {
   border: none !important;
   background: var(--bg) !important;
   color: var(--fg) !important;
@@ -1554,7 +1536,7 @@
   --ring: var(--fg);
 }
 
-.inspector-popover-content[data-theme="dark"] {
+.ds-popover-content[data-theme="dark"] {
   --bg: var(--popover-bg);
   --control: var(--popover-control);
   --control-hover: var(--popover-control);
@@ -1563,12 +1545,12 @@
 }
 
 /* Flat toolbar popovers — settings-panel tokens, no border, no shadow. */
-.dn-popover-flat {
+.ds-popover-flat {
   border: none !important;
   box-shadow: none !important;
 }
 
-.inspector-crop-dialog > button.absolute {
+.ds-crop-dialog > button.absolute {
   top: 0.75rem;
   right: 0.75rem;
   border-radius: var(--radius-xs);
@@ -1576,33 +1558,33 @@
   opacity: 1;
 }
 
-.inspector-crop-dialog > button.absolute:hover,
-.inspector-crop-dialog > button.absolute:focus-visible {
+.ds-crop-dialog > button.absolute:hover,
+.ds-crop-dialog > button.absolute:focus-visible {
   background: var(--control);
   color: var(--fg);
   opacity: 1;
 }
 
-:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-primary:hover,
-:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-primary:focus-visible,
-:is(.inspector-popover-content, .dn-portal-surface) .dn-settings-primary:active {
+:is(.ds-popover-content, .ds-portal-surface) .ds-settings-primary:hover,
+:is(.ds-popover-content, .ds-portal-surface) .ds-settings-primary:focus-visible,
+:is(.ds-popover-content, .ds-portal-surface) .ds-settings-primary:active {
   background: var(--fg) !important;
   color: var(--bg) !important;
 }
 
 /* Logo icon picker — token-sized tiles + search aligned to settings surfaces */
-.dn-logo-icon-picker {
+.ds-logo-icon-picker {
   width: 100%;
   min-width: 0;
 }
 
-.dn-logo-icon-picker-search {
+.ds-logo-icon-picker-search {
   position: relative;
   width: 100%;
   min-width: 0;
 }
 
-.dn-logo-icon-picker-search-icon {
+.ds-logo-icon-picker-search-icon {
   position: absolute;
   top: 50%;
   left: var(--row-px);
@@ -1614,9 +1596,9 @@
 
 /* Search field uses the shared settings input; icon reserves left padding.
    Borderless like the content-accordion fields. */
-:is(.inspector-popover-content, .dn-portal-surface, .dn-settings-accordion)
-  .dn-logo-icon-picker
-  .dn-settings-input {
+:is(.ds-popover-content, .ds-portal-surface, .ds-settings-accordion)
+  .ds-logo-icon-picker
+  .ds-settings-input {
   min-height: var(--control-height);
   height: var(--control-height);
   border: none;
@@ -1627,11 +1609,11 @@
 /* ScrollArea owns the viewport + fades; the grid itself must keep an
    automatic height — a definite height makes Chromium drop aspect-ratio
    contributions to auto rows and the tiles overlap. */
-.dn-logo-icon-picker-scroll-fixed {
+.ds-logo-icon-picker-scroll-fixed {
   height: 16.5rem;
 }
 
-.dn-logo-icon-picker-grid {
+.ds-logo-icon-picker-grid {
   display: grid;
   width: 100%;
   min-width: 0;
@@ -1642,7 +1624,7 @@
   padding: 0.25rem;
 }
 
-.dn-logo-icon-picker-state {
+.ds-logo-icon-picker-state {
   display: flex;
   min-height: 6rem;
   flex-direction: column;
@@ -1653,23 +1635,23 @@
 }
 
 /* Empty / searching states fill the fixed scrollport so they sit centered. */
-.dn-logo-icon-picker-empty {
+.ds-logo-icon-picker-empty {
   min-height: 15rem;
   gap: 0.875rem;
 }
 
-.dn-logo-icon-picker-sentinel {
+.ds-logo-icon-picker-sentinel {
   grid-column: 1 / -1;
   height: 1px;
 }
 
-.dn-logo-icon-picker-icon-pending {
+.ds-logo-icon-picker-icon-pending {
   background: color-mix(in srgb, var(--muted) 14%, transparent);
 }
 
 /* Tiles are full-cell hitboxes; the visible square is a fixed preset tile
    centered inside. Degrades to the preset size even if aspect-ratio is lost. */
-.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile {
+.ds-logo-icon-picker-grid .ds-logo-icon-picker-tile {
   width: 100%;
   height: auto;
   min-width: 0;
@@ -1685,7 +1667,7 @@
 
 /* Tiles are fluid squares sized by the grid cell — a fixed preset width made
    the selected ring overflow onto neighboring icons. */
-.dn-logo-icon-picker-tile-inner {
+.ds-logo-icon-picker-tile-inner {
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
@@ -1697,7 +1679,7 @@
   place-items: center;
 }
 
-.dn-logo-icon-picker-tile-inner::after {
+.ds-logo-icon-picker-tile-inner::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -1713,49 +1695,49 @@
 }
 
 /* No grey wash behind icons — hover only lifts the glyph color. */
-.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile:is(:hover, :focus-visible) {
+.ds-logo-icon-picker-grid .ds-logo-icon-picker-tile:is(:hover, :focus-visible) {
   color: var(--fg);
 }
 
 /* Keyboard users still get a ring; mouse hover stays chromeless. */
-.dn-logo-icon-picker-grid
-  .dn-logo-icon-picker-tile:focus-visible
-  .dn-logo-icon-picker-tile-inner::after {
+.ds-logo-icon-picker-grid
+  .ds-logo-icon-picker-tile:focus-visible
+  .ds-logo-icon-picker-tile-inner::after {
   border-color: color-mix(in srgb, var(--fg) 35%, transparent);
   opacity: 1;
   transform: scale(1);
 }
 
-.dn-logo-icon-picker-grid .dn-logo-icon-picker-tile[aria-pressed="true"] {
+.ds-logo-icon-picker-grid .ds-logo-icon-picker-tile[aria-pressed="true"] {
   color: var(--fg);
 }
 
-.dn-logo-icon-picker-grid
-  .dn-logo-icon-picker-tile[aria-pressed="true"]
-  .dn-logo-icon-picker-tile-inner::after {
+.ds-logo-icon-picker-grid
+  .ds-logo-icon-picker-tile[aria-pressed="true"]
+  .ds-logo-icon-picker-tile-inner::after {
   opacity: 1;
   transform: scale(1);
 }
 
-.dn-logo-icon-picker-grid .dn-logo-icon-picker-skeleton {
+.ds-logo-icon-picker-grid .ds-logo-icon-picker-skeleton {
   width: 100%;
   height: auto;
   min-width: 0;
   aspect-ratio: 1 / 1;
 }
 
-.dn-logo-icon-picker-icon {
+.ds-logo-icon-picker-icon {
   width: 1.375rem;
   height: 1.375rem;
   flex-shrink: 0;
 }
 
-.dn-logo-icon-picker-grid .dn-type-meta {
+.ds-logo-icon-picker-grid .ds-type-meta {
   color: var(--muted);
 }
 
 /* Insert menu popover — solid accordion surface + option tiles */
-.dn-insert-menu-popover {
+.ds-insert-menu-popover {
   --bg: var(--paper);
   --background: var(--paper);
   --scroll-edge-fade-color: var(--paper);
@@ -1768,7 +1750,7 @@
   box-shadow: none !important;
 }
 
-.dn-insert-menu-popover[data-theme="dark"] {
+.ds-insert-menu-popover[data-theme="dark"] {
   --bg: var(--popover-bg);
   --background: var(--popover-bg);
   --scroll-edge-fade-color: var(--popover-bg);
@@ -1781,49 +1763,49 @@
   color: var(--fg) !important;
 }
 
-.dn-insert-menu-scroll,
-.dn-insert-menu-scroll [data-slot="scroll-area-viewport"] {
+.ds-insert-menu-scroll,
+.ds-insert-menu-scroll [data-slot="scroll-area-viewport"] {
   background: var(--bg) !important;
   box-shadow: none !important;
 }
 
-.dn-insert-menu-scroll [data-slot="scroll-area-viewport"] > div {
+.ds-insert-menu-scroll [data-slot="scroll-area-viewport"] > div {
   display: flex !important;
   flex-direction: column;
   min-width: 0 !important;
   width: 100% !important;
 }
 
-.dn-insert-menu-scroll-content {
+.ds-insert-menu-scroll-content {
   min-width: 0;
 }
 
-.dn-insert-menu-panel-content {
+.ds-insert-menu-panel-content {
   min-width: 0;
 }
 
-.dn-insert-menu-popover .dn-option-tile:not(.dn-option-scroll-chip) {
+.ds-insert-menu-popover .ds-option-tile:not(.ds-option-scroll-chip) {
   background: transparent;
   border: 2px solid transparent;
 }
 
-.dn-insert-menu-popover .dn-settings-row {
+.ds-insert-menu-popover .ds-settings-row {
   background: var(--control) !important;
 }
 
-.dn-insert-menu-popover .dn-settings-input {
+.ds-insert-menu-popover .ds-settings-input {
   background: var(--control) !important;
 }
 
-.dn-insert-menu-root-tile.dn-option-tile {
+.ds-insert-menu-root-tile.ds-option-tile {
   color: var(--fg);
 }
 
-.dn-insert-menu-popover .dn-insert-menu-option-grid .dn-option-tile {
+.ds-insert-menu-popover .ds-insert-menu-option-grid .ds-option-tile {
   color: var(--fg);
 }
 
-.dn-insert-menu-panel-heading {
+.ds-insert-menu-panel-heading {
   min-width: 0;
   font-size: var(--type-section);
   font-weight: 500;
@@ -1833,7 +1815,7 @@
   text-transform: none;
 }
 
-.dn-insert-menu-panel-back {
+.ds-insert-menu-panel-back {
   height: 1.75rem;
   padding-inline: 0.5rem;
   font-size: var(--type-body);
@@ -1844,22 +1826,22 @@
   text-transform: none;
 }
 
-.dn-insert-menu-panel-back:hover,
-.dn-insert-menu-panel-back:focus-visible {
+.ds-insert-menu-panel-back:hover,
+.ds-insert-menu-panel-back:focus-visible {
   color: var(--fg);
 }
 
-.dn-insert-menu-root-scroll,
-.dn-insert-menu-root-scroll [data-slot="scroll-area-viewport"] {
+.ds-insert-menu-root-scroll,
+.ds-insert-menu-root-scroll [data-slot="scroll-area-viewport"] {
   background: var(--bg) !important;
   box-shadow: none !important;
 }
 
-.dn-insert-menu-root-scroll [data-slot="scroll-area-inner"] {
+.ds-insert-menu-root-scroll [data-slot="scroll-area-inner"] {
   min-width: 0 !important;
 }
 
-.dn-insert-menu-root-grid {
+.ds-insert-menu-root-grid {
   display: grid;
   width: 100%;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1867,7 +1849,7 @@
   gap: 0.375rem;
 }
 
-.dn-insert-menu-root-tile {
+.ds-insert-menu-root-tile {
   position: relative;
   z-index: 0;
   display: flex;
@@ -1883,12 +1865,12 @@
   text-align: center;
 }
 
-.dn-insert-menu-root-tile:hover:not(:disabled),
-.dn-insert-menu-root-tile:focus-visible:not(:disabled) {
+.ds-insert-menu-root-tile:hover:not(:disabled),
+.ds-insert-menu-root-tile:focus-visible:not(:disabled) {
   z-index: 10;
 }
 
-.dn-insert-menu-root-tile-preview {
+.ds-insert-menu-root-tile-preview {
   display: flex;
   height: 2.75rem;
   width: 100%;
@@ -1897,7 +1879,7 @@
   overflow: visible;
 }
 
-.dn-insert-menu-fan-card {
+.ds-insert-menu-fan-card {
   display: flex;
   width: 1.75rem;
   height: 1.75rem;
@@ -1908,7 +1890,7 @@
   box-shadow: none;
 }
 
-.dn-insert-menu-fan-card-content {
+.ds-insert-menu-fan-card-content {
   display: flex;
   height: 100%;
   width: 100%;
@@ -1918,43 +1900,43 @@
   background: transparent;
 }
 
-.dn-insert-menu-fan-card-content img {
+.ds-insert-menu-fan-card-content img {
   height: 100%;
   width: 100%;
   object-fit: cover;
   border-radius: 0.375rem;
 }
 
-.dn-insert-menu-fan-card-content img[src*="/illustrations/"] {
+.ds-insert-menu-fan-card-content img[src*="/illustrations/"] {
   object-fit: contain;
   border-radius: 0;
 }
 
-.dn-insert-menu-option-grid {
+.ds-insert-menu-option-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   --option-gap: 0.125rem;
   gap: var(--option-gap);
 }
 
-.dn-insert-menu-option-grid--3 {
+.ds-insert-menu-option-grid--3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.dn-insert-menu-popover[data-theme="dark"] img[src*="/illustrations/scribbles-doodles/"],
-.dn-insert-menu-popover[data-theme="dark"] img[src*="/illustrations/sketch-elements/"],
-.dn-insert-menu-popover[data-theme="dark"] img[src*="/illustrations/hand-drawn/"] {
+.ds-insert-menu-popover[data-theme="dark"] img[src*="/illustrations/scribbles-doodles/"],
+.ds-insert-menu-popover[data-theme="dark"] img[src*="/illustrations/sketch-elements/"],
+.ds-insert-menu-popover[data-theme="dark"] img[src*="/illustrations/hand-drawn/"] {
   filter: invert(1);
 }
 
-.dn-insert-menu-emoji [data-slot="emoji-picker"] {
+.ds-insert-menu-emoji [data-slot="emoji-picker"] {
   min-width: 0;
   min-height: 0;
   width: 100%;
   flex: 1;
 }
 
-.dn-insert-menu-emoji [data-slot="emoji-picker-viewport"] {
+.ds-insert-menu-emoji [data-slot="emoji-picker-viewport"] {
   min-width: 0;
   min-height: 0;
   width: 100%;
@@ -1963,25 +1945,25 @@
   padding-inline: 0.375rem;
 }
 
-.dn-insert-menu-emoji [data-slot="emoji-picker-list"] {
+.ds-insert-menu-emoji [data-slot="emoji-picker-list"] {
   min-width: 0;
   width: 100%;
 }
 
-.dn-insert-menu-emoji [data-slot="emoji-picker-row"] {
+.ds-insert-menu-emoji [data-slot="emoji-picker-row"] {
   display: flex !important;
   width: 100%;
   min-width: 0;
 }
 
-.dn-insert-menu-emoji [data-slot="emoji-picker-emoji"] {
+.ds-insert-menu-emoji [data-slot="emoji-picker-emoji"] {
   aspect-ratio: 1;
   flex: 1 1 0;
   width: auto;
   min-width: 0;
 }
 
-.dn-insert-menu-root-tile-label {
+.ds-insert-menu-root-tile-label {
   max-width: 100%;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1995,17 +1977,17 @@
   color: var(--muted);
 }
 
-.dn-insert-menu-root-tile:hover:not(:disabled) .dn-insert-menu-root-tile-label,
-.dn-insert-menu-root-tile:focus-visible:not(:disabled) .dn-insert-menu-root-tile-label {
+.ds-insert-menu-root-tile:hover:not(:disabled) .ds-insert-menu-root-tile-label,
+.ds-insert-menu-root-tile:focus-visible:not(:disabled) .ds-insert-menu-root-tile-label {
   color: var(--fg);
 }
 
-.dn-insert-menu-root-tile:disabled {
+.ds-insert-menu-root-tile:disabled {
   opacity: 0.45;
 }
 
 /* Fill picker popover: transparent Radix shell, one neutral panel on FillPicker.Root */
-.inspector-fill-popover {
+.ds-fill-popover {
   --tw-shadow: 0 0 #0000;
   --tw-ring-shadow: 0 0 #0000;
   --tw-ring-offset-shadow: 0 0 #0000;
@@ -2030,7 +2012,7 @@
   --ring: var(--fg);
 }
 
-.inspector-fill-popover .dn-fill-picker-panel {
+.ds-fill-popover .ds-fill-picker-panel {
   border: none !important;
   background: var(--surface) !important;
   color: var(--fg) !important;
@@ -2039,26 +2021,26 @@
   corner-shape: squircle;
 }
 
-.inspector-fill-popover[data-theme="dark"] .dn-fill-picker-panel {
+.ds-fill-popover[data-theme="dark"] .ds-fill-picker-panel {
   box-shadow: none !important;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel > div {
+.ds-fill-popover .ds-fill-picker-panel > div {
   gap: var(--space-stack);
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-option-tile {
+.ds-fill-popover .ds-fill-picker-panel .ds-option-tile {
   background: transparent;
   border: 2px solid transparent;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-option-tile[aria-pressed="true"],
-.inspector-fill-popover .dn-fill-picker-panel .dn-option-tile[data-selected="true"] {
+.ds-fill-popover .ds-fill-picker-panel .ds-option-tile[aria-pressed="true"],
+.ds-fill-popover .ds-fill-picker-panel .ds-option-tile[data-selected="true"] {
   background: transparent;
 }
 
 /* Fill picker — calm accordion-aligned surfaces */
-:is(.inspector-fill-popover, .fill-picker-portal) {
+:is(.ds-fill-popover, .fill-picker-portal) {
   --color-picker-control-border: var(--line);
   --color-picker-control-bg: var(--control);
   --color-picker-fg: var(--fg);
@@ -2070,45 +2052,45 @@
 }
 
 /* Fill picker — borderless accordion surfaces */
-.inspector-fill-popover .dn-fill-picker-panel [data-slot="fill-picker"],
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-root {
+.ds-fill-popover .ds-fill-picker-panel [data-slot="fill-picker"],
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-root {
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-root > div {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-root > div {
   gap: var(--space-stack);
   padding: 0.625rem;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-mode-tabs {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-mode-tabs {
   width: 100%;
 }
 
-.inspector-fill-popover .dn-fill-picker-mode-tabs .t-tabs-pill {
+.ds-fill-popover .ds-fill-picker-mode-tabs .ds-tabs-pill {
   background: var(--mass, #171717);
 }
 
-.inspector-fill-popover[data-theme="dark"] .dn-fill-picker-mode-tabs .t-tabs-pill {
+.ds-fill-popover[data-theme="dark"] .ds-fill-picker-mode-tabs .ds-tabs-pill {
   background: var(--paper);
 }
 
-.inspector-fill-popover .dn-fill-picker-mode-tabs .dn-segment-tab[aria-selected="true"] {
+.ds-fill-popover .ds-fill-picker-mode-tabs .ds-segment-tab[aria-selected="true"] {
   color: var(--mass-fg, #ffffff);
 }
 
-.inspector-fill-popover[data-theme="dark"]
-  .dn-fill-picker-mode-tabs
-  .dn-segment-tab[aria-selected="true"] {
+.ds-fill-popover[data-theme="dark"]
+  .ds-fill-picker-mode-tabs
+  .ds-segment-tab[aria-selected="true"] {
   color: var(--mass-fg);
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-pane {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-pane {
   gap: 0.5rem;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-area {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-area {
   border: 0 !important;
   border-radius: var(--radius-xs) !important;
   corner-shape: squircle;
@@ -2116,8 +2098,8 @@
   background-color: var(--control) !important;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input,
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input:focus-within {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-channel-input,
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-channel-input:focus-within {
   height: var(--control-height);
   border: 0 !important;
   border-radius: var(--radius-xs);
@@ -2129,13 +2111,13 @@
   --tw-ring-offset-shadow: 0 0 #0000;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-channel-input .bg-border {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-channel-input .bg-border {
   background: color-mix(in srgb, var(--line) 55%, transparent) !important;
 }
 
-.inspector-fill-popover
-  .dn-fill-picker-panel
-  .dn-fill-picker-channel-input
+.ds-fill-popover
+  .ds-fill-picker-panel
+  .ds-fill-picker-channel-input
   [data-slot="color-picker-channel-input-field"] {
   color: var(--type-value-color, var(--fg));
   font-size: var(--type-value);
@@ -2143,9 +2125,9 @@
   letter-spacing: var(--tracking-tight);
 }
 
-.inspector-fill-popover
-  .dn-fill-picker-panel
-  .dn-fill-picker-channel-input
+.ds-fill-popover
+  .ds-fill-picker-panel
+  .ds-fill-picker-channel-input
   [data-slot="color-picker-channel-input-format"]
   button {
   min-width: 0;
@@ -2154,7 +2136,7 @@
   text-transform: uppercase;
 }
 
-.dn-fill-picker-eye-dropper {
+.ds-fill-picker-eye-dropper {
   height: var(--control-height);
   width: var(--control-height);
   border: 0 !important;
@@ -2165,32 +2147,29 @@
   box-shadow: none !important;
 }
 
-.dn-fill-picker-eye-dropper:hover,
-.dn-fill-picker-eye-dropper[data-state="on"] {
+.ds-fill-picker-eye-dropper:hover,
+.ds-fill-picker-eye-dropper[data-state="on"] {
   background: color-mix(in srgb, var(--fg) 14%, var(--control)) !important;
   color: var(--fg);
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider [data-slot="color-picker-hue"],
-.inspector-fill-popover
-  .dn-fill-picker-panel
-  .dn-fill-picker-slider
-  [data-slot="color-picker-alpha"] {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-slider [data-slot="color-picker-hue"],
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-slider [data-slot="color-picker-alpha"] {
   --tw-ring-shadow: 0 0 #0000;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-slider .rounded-full.border-2 {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-slider .rounded-full.border-2 {
   border-color: var(--picker-thumb, rgb(255 255 255 / 0.92)) !important;
   box-shadow: 0 0 0 1px var(--picker-thumb-ring, rgb(0 0 0 / 0.28)) !important;
 }
 
-:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-xs,
-:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-sm,
-:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .shadow-md {
+:is(.ds-fill-popover .ds-fill-picker-panel, .fill-picker-portal) .shadow-xs,
+:is(.ds-fill-popover .ds-fill-picker-panel, .fill-picker-portal) .shadow-sm,
+:is(.ds-fill-popover .ds-fill-picker-panel, .fill-picker-portal) .shadow-md {
   box-shadow: none !important;
 }
 
-:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal)
+:is(.ds-fill-popover .ds-fill-picker-panel, .fill-picker-portal)
   :is(
     .rounded-md.border.font-mono,
     .rounded-lg.border.font-mono,
@@ -2204,7 +2183,7 @@
   box-shadow: none !important;
 }
 
-:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal)
+:is(.ds-fill-popover .ds-fill-picker-panel, .fill-picker-portal)
   :is(
     .rounded-md.border.font-mono,
     .rounded-lg.border.font-mono,
@@ -2214,16 +2193,16 @@
   --tw-ring-offset-shadow: 0 0 #0000;
 }
 
-:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .bg-muted,
-:is(.inspector-fill-popover .dn-fill-picker-panel, .fill-picker-portal) .bg-muted\/30 {
+:is(.ds-fill-popover .ds-fill-picker-panel, .fill-picker-portal) .bg-muted,
+:is(.ds-fill-popover .ds-fill-picker-panel, .fill-picker-portal) .bg-muted\/30 {
   background: var(--control) !important;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-gradient-bar .border-border {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-gradient-bar .border-border {
   border-color: color-mix(in srgb, var(--line) 70%, transparent) !important;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-field {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-field {
   height: var(--control-height);
   border: 0 !important;
   border-radius: var(--radius-xs);
@@ -2232,21 +2211,21 @@
   box-shadow: none !important;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-group {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-angle-group {
   min-height: var(--control-height);
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-pad {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-angle-pad {
   border: 0 !important;
   background: var(--control) !important;
   box-shadow: none !important;
 }
 
-.inspector-fill-popover .dn-fill-picker-panel .dn-fill-picker-angle-pad .bg-foreground {
+.ds-fill-popover .ds-fill-picker-panel .ds-fill-picker-angle-pad .bg-foreground {
   background: var(--fg) !important;
 }
 
-.dn-fill-option-grid .dn-fill-option-tile {
+.ds-fill-option-grid .ds-fill-option-tile {
   flex: 0 0 var(--icon-hit);
   width: var(--icon-hit);
   height: var(--icon-hit);
@@ -2260,30 +2239,30 @@
   background: transparent;
 }
 
-.dn-pattern-option-grid .dn-pattern-option-tile {
+.ds-pattern-option-grid .ds-pattern-option-tile {
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
   background: transparent;
 }
 
-.dn-pattern-option-grid .dn-fill-option-tile {
+.ds-pattern-option-grid .ds-fill-option-tile {
   aspect-ratio: 1 / 1;
   padding: 3px;
 }
 
-.dn-image-upload-tile {
+.ds-image-upload-tile {
   display: grid;
   background: transparent;
 }
 
-.dn-settings-accordion [role="region"] .dn-image-upload-tile {
+.ds-settings-accordion [role="region"] .ds-image-upload-tile {
   flex: 0 0 var(--preview-tile);
   width: var(--preview-tile);
   min-width: var(--preview-tile);
   max-width: var(--preview-tile);
 }
 
-.dn-settings-accordion [role="region"] .dn-image-upload-tile.dn-image-upload-tile--fluid {
+.ds-settings-accordion [role="region"] .ds-image-upload-tile.ds-image-upload-tile--fluid {
   flex: none;
   width: auto;
   min-width: 0;
@@ -2291,10 +2270,10 @@
 }
 
 /* Upload tile sitting at the end of a labelled row — row-height square. */
-.dn-settings-accordion
+.ds-settings-accordion
   [role="region"]
-  .dn-row-upload-tile.dn-image-upload-tile:not(.dn-image-upload-tile--fluid),
-.dn-row-upload-tile.dn-image-upload-tile:not(.dn-image-upload-tile--fluid) {
+  .ds-row-upload-tile.ds-image-upload-tile:not(.ds-image-upload-tile--fluid),
+.ds-row-upload-tile.ds-image-upload-tile:not(.ds-image-upload-tile--fluid) {
   flex: 0 0 var(--control-height);
   width: var(--control-height);
   min-width: var(--control-height);
@@ -2307,11 +2286,11 @@
 }
 
 /* Match the adjacent picker trigger row: same fill, same height. */
-.dn-row-upload-tile.dn-image-upload-tile span[aria-hidden] {
+.ds-row-upload-tile.ds-image-upload-tile span[aria-hidden] {
   background: var(--control);
 }
 
-.dn-paper-shader-color-grid .dn-paper-shader-color-chip {
+.ds-paper-shader-color-grid .ds-paper-shader-color-chip {
   width: 100%;
   height: 100%;
   min-width: 0;
@@ -2323,14 +2302,14 @@
 
 /* Chip cell + its hover remove overlay. Matches the shader option tiles:
    fluid square in the six-column grid. */
-.dn-paper-shader-color-grid .dn-paper-shader-color-chip-wrap {
+.ds-paper-shader-color-grid .ds-paper-shader-color-chip-wrap {
   position: relative;
   min-width: 0;
   aspect-ratio: 1 / 1;
 }
 
-.dn-paper-shader-color-grid .dn-paper-shader-color-chip-wrap:hover,
-.dn-paper-shader-color-grid .dn-paper-shader-color-chip-wrap:focus-within {
+.ds-paper-shader-color-grid .ds-paper-shader-color-chip-wrap:hover,
+.ds-paper-shader-color-grid .ds-paper-shader-color-chip-wrap:focus-within {
   z-index: 2;
 }
 
@@ -2339,31 +2318,31 @@
   color: var(--fg) !important;
 }
 
-.t-tabs {
+.ds-tabs {
   position: relative;
   --option-gap: 0.25rem;
 }
 
-.t-tabs:not(.t-tabs--muted) {
+.ds-tabs:not(.ds-tabs--muted) {
   gap: var(--option-gap);
 }
 
-.dn-squircle-xs {
+.ds-squircle-xs {
   border-radius: var(--radius-xs);
   corner-shape: squircle;
 }
 
-.dn-squircle-sm {
+.ds-squircle-sm {
   border-radius: var(--radius-sm);
   corner-shape: squircle;
 }
 
-.dn-squircle-md {
+.ds-squircle-md {
   border-radius: var(--radius-md);
   corner-shape: squircle;
 }
 
-.dn-squircle-lg {
+.ds-squircle-lg {
   border-radius: var(--radius-lg);
   corner-shape: squircle;
 }
@@ -2372,47 +2351,47 @@
    paint a fill inset from the tile edge. The selection ring and focus outline
    inherit the tile radius, so the tile radius has to clear the inner fill's
    radius by that inset for ring and fill to read as concentric. */
-.dn-preview-tile {
+.ds-preview-tile {
   border-radius: calc(var(--radius-xs) + 6px);
 }
 
 @supports not (corner-shape: squircle) {
-  .dn-squircle-xs,
-  .dn-squircle-sm,
-  .dn-squircle-md,
-  .dn-squircle-lg,
-  .inspector-fill-popover .dn-fill-picker-panel {
+  .ds-squircle-xs,
+  .ds-squircle-sm,
+  .ds-squircle-md,
+  .ds-squircle-lg,
+  .ds-fill-popover .ds-fill-picker-panel {
     corner-shape: round;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dn-option-tile,
-  .dn-preset-item,
-  .dn-preview-tile,
-  .t-tabs-pill,
-  .t-tab,
-  .dn-settings-accordion > div > div,
-  .inspector-root [data-slot="switch"],
-  .inspector-root [data-slot="switch-thumb"] {
+  .ds-option-tile,
+  .ds-preset-item,
+  .ds-preview-tile,
+  .ds-tabs-pill,
+  .ds-tab,
+  .ds-settings-accordion > div > div,
+  .ds-root [data-slot="switch"],
+  .ds-root [data-slot="switch-thumb"] {
     transition: none !important;
   }
 
-  .dn-portal-surface[data-state="open"],
-  .dn-portal-surface[data-state="closed"],
-  .dn-portal-surface[data-open],
-  .dn-portal-surface[data-closed],
-  .inspector-fill-popover[data-state="open"],
-  .inspector-fill-popover[data-state="closed"] {
+  .ds-portal-surface[data-state="open"],
+  .ds-portal-surface[data-state="closed"],
+  .ds-portal-surface[data-open],
+  .ds-portal-surface[data-closed],
+  .ds-fill-popover[data-state="open"],
+  .ds-fill-popover[data-state="closed"] {
     animation: none !important;
   }
 
-  .dn-settings-tab-panel {
+  .ds-settings-tab-panel {
     will-change: auto;
   }
 
-  .dn-option-tile::after,
-  .dn-preview-tile::after {
+  .ds-option-tile::after,
+  .ds-preview-tile::after {
     transition: none !important;
   }
 }

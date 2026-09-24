@@ -48,10 +48,7 @@ export function MobileShapeRailRow({ model }: MobileRailRowProps) {
               title: "Shape fill",
               content: (
                 <Suspense fallback={null}>
-                  <div
-                    className="inspector-fill-popover w-full min-w-0"
-                    data-theme={model.actualTheme}
-                  >
+                  <div className="ds-fill-popover w-full min-w-0" data-theme={model.actualTheme}>
                     <LazyInspectorFillPicker
                       lockedFillMode={lockedFillModeForRailMode(shapeFillSubMode(mode))}
                       qrGradient
@@ -93,7 +90,7 @@ export function MobileShapeRailRow({ model }: MobileRailRowProps) {
         type="button"
         onClick={() => model.onShapeSettingsChange({ backgroundShapeId: "none" })}
       >
-        <span className="relative z-10 grid size-full place-items-center p-0.5 dn-preview-icon">
+        <span className="relative z-10 grid size-full place-items-center p-0.5 ds-preview-icon">
           <ShapeGlyph viewBox={SQUARE_SHAPE_VIEWBOX} />
         </span>
       </button>
@@ -108,7 +105,7 @@ export function MobileShapeRailRow({ model }: MobileRailRowProps) {
           type="button"
           onClick={() => model.onShapeSettingsChange({ backgroundShapeId: option.id })}
         >
-          <span className="relative z-10 grid size-full place-items-center p-0.5 dn-preview-icon">
+          <span className="relative z-10 grid size-full place-items-center p-0.5 ds-preview-icon">
             <ShapeGlyph path={option.path} viewBox={shapeViewBox(option)} />
           </span>
         </button>
@@ -128,11 +125,11 @@ export function MobileShapeRailFooter({ model }: MobileRailRowProps) {
   const view = mode.startsWith("fill:") ? "fill" : "shape";
 
   return (
-    <div className="dn-mobile-settings-rail__shapefooter">
+    <div className="ds-mobile-settings-rail__shapefooter">
       {view === "fill" ? (
-        <div className="dn-mobile-settings-rail__tabs">
+        <div className="ds-mobile-settings-rail__tabs">
           <SegmentTabs
-            className="dn-mobile-settings-rail__tabbar"
+            className="ds-mobile-settings-rail__tabbar"
             items={SHAPE_FILL_MODES.map((subMode) => ({
               id: subMode.id,
               label: subMode.label,
@@ -142,7 +139,7 @@ export function MobileShapeRailFooter({ model }: MobileRailRowProps) {
           />
         </div>
       ) : (
-        <div className="dn-mobile-settings-rail__slider">
+        <div className="ds-mobile-settings-rail__slider">
           <SettingsSlider
             label="Padding"
             max={192}
@@ -151,9 +148,9 @@ export function MobileShapeRailFooter({ model }: MobileRailRowProps) {
           />
         </div>
       )}
-      <div className="dn-mobile-settings-rail__tabs">
+      <div className="ds-mobile-settings-rail__tabs">
         <SegmentTabs
-          className="dn-mobile-settings-rail__tabbar"
+          className="ds-mobile-settings-rail__tabbar"
           items={SHAPE_VIEW_MODES.map((entry) => ({
             id: entry.id,
             label: entry.label,

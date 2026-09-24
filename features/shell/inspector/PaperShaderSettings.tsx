@@ -37,8 +37,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 const PAPER_SHADER_COLOR_FALLBACK = "#000000";
 const PAPER_SHADER_NEW_COLOR = "#ffffff";
-const HORIZONTAL_OPTION_ROW = "dn-preview-row";
-const SECTION_GAP = "dn-section-stack";
+const HORIZONTAL_OPTION_ROW = "ds-preview-row";
+const SECTION_GAP = "ds-section-stack";
 
 function ShaderSettingsSlider({
   label,
@@ -82,7 +82,7 @@ function HorizontalShaderOptionRow({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      {label ? <span className="dn-row-label-text">{label}</span> : null}
+      {label ? <span className="ds-row-label-text">{label}</span> : null}
       <ScrollArea
         className="w-full min-w-0 max-w-full overflow-hidden"
         chevron={false}
@@ -103,7 +103,7 @@ function HorizontalShaderOptionRow({
                 aria-label={item.label}
                 aria-pressed={isSelected}
                 className={cn(
-                  "dn-option-tile dn-control-surface shrink-0 px-3 dn-type-chip dn-squircle-xs",
+                  "ds-option-tile ds-control-surface shrink-0 px-3 ds-type-chip ds-squircle-xs",
                   isSelected && "text-[var(--fg)]",
                 )}
                 type="button"
@@ -147,7 +147,7 @@ function PaperShaderParamControl({
         >
           Use sample image
         </SettingsPrimaryButton>
-        <label className="dn-settings-row dn-control-surface dn-squircle-sm inline-flex w-full cursor-pointer items-center justify-center px-3 dn-type-chip">
+        <label className="ds-settings-row ds-control-surface ds-squircle-sm inline-flex w-full cursor-pointer items-center justify-center px-3 ds-type-chip">
           Upload image
           <input
             accept="image/*"
@@ -207,7 +207,7 @@ function PaperShaderParamControl({
   if (control.type === "enum" && typeof value === "string") {
     return (
       <div className="flex flex-col gap-1.5">
-        <span className="dn-row-label-text">{label}</span>
+        <span className="ds-row-label-text">{label}</span>
         <PresetList
           items={control.options.map((option) => formatPaperShaderParamLabel(option))}
           selected={formatPaperShaderParamLabel(value)}
@@ -313,7 +313,7 @@ function PaperShaderSettingsPopover({
       title="Shader settings"
       trigger="Options"
     >
-      <div className="dn-section-stack">
+      <div className="ds-section-stack">
         {shapeControl ? (
           <HorizontalShaderOptionRow
             label="Shape"

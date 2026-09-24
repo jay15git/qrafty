@@ -766,14 +766,14 @@ function CropperDialogFooter({
     <DialogFooter
       className={cn(
         usesDesktopTheme
-          ? "inspector-crop-dialog__footer gap-2 border-t border-[var(--line)] p-[length:var(--row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
+          ? "ds-crop-dialog__footer gap-2 border-t border-[var(--line)] p-[length:var(--row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
           : undefined,
       )}
     >
       {usesDesktopTheme ? (
         <>
           <button
-            className="dn-control-surface dn-pressable-subtle dn-squircle-sm flex h-[length:var(--control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--type-value)] font-medium tracking-[var(--tracking-tight)] text-[var(--fg)]"
+            className="ds-control-surface ds-pressable-subtle ds-squircle-sm flex h-[length:var(--control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--type-value)] font-medium tracking-[var(--tracking-tight)] text-[var(--fg)]"
             disabled={isProcessing}
             type="button"
             onClick={onCancel}
@@ -782,7 +782,7 @@ function CropperDialogFooter({
             Cancel
           </button>
           <button
-            className="dn-settings-primary dn-control-surface dn-pressable-press-only dn-squircle-sm flex h-[length:var(--control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--type-value)] font-medium tracking-[var(--tracking-tight)]"
+            className="ds-settings-primary ds-control-surface ds-pressable-press-only ds-squircle-sm flex h-[length:var(--control-height)] flex-1 items-center justify-center gap-2 text-[length:var(--type-value)] font-medium tracking-[var(--tracking-tight)]"
             disabled={isProcessing}
             type="button"
             onClick={onCrop}
@@ -856,8 +856,8 @@ function CropperDialog({
           className={cn(
             usesDesktopTheme
               ? cn(
-                  "inspector-crop-dialog dn-portal-surface inspector-popover-content",
-                  "w-[min(calc(100vw-2rem),26rem)] max-w-none gap-0 overflow-hidden border-0 p-0 shadow-none outline-none dn-squircle-md",
+                  "ds-crop-dialog ds-portal-surface ds-popover-content",
+                  "w-[min(calc(100vw-2rem),26rem)] max-w-none gap-0 overflow-hidden border-0 p-0 shadow-none outline-none ds-squircle-md",
                   dialogTheme === "dark" && "dark",
                 )
               : "max-h-[90vh] w-fit max-w-7xl! overflow-hidden",
@@ -868,7 +868,7 @@ function CropperDialog({
           <DialogHeader
             className={cn(
               usesDesktopTheme
-                ? "inspector-crop-dialog__header gap-2 space-y-0 border-b border-[var(--line)] px-[length:var(--row-px)] py-3 text-left"
+                ? "ds-crop-dialog__header gap-2 space-y-0 border-b border-[var(--line)] px-[length:var(--row-px)] py-3 text-left"
                 : undefined,
             )}
           >
@@ -896,9 +896,7 @@ function CropperDialog({
 
           <div
             className={cn(
-              usesDesktopTheme
-                ? "inspector-crop-dialog__body p-[length:var(--row-px)]"
-                : "space-y-4",
+              usesDesktopTheme ? "ds-crop-dialog__body p-[length:var(--row-px)]" : "space-y-4",
             )}
           >
             <div
@@ -907,7 +905,7 @@ function CropperDialog({
               className={cn(
                 "relative overflow-hidden select-none",
                 usesDesktopTheme
-                  ? "inspector-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--control)]"
+                  ? "ds-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--control)]"
                   : "max-h-[80vh] rounded-lg border bg-muted/10",
               )}
               onMouseMove={onMouseMove}
@@ -1096,7 +1094,7 @@ function emptyStateClass({ tile, compact }: { tile: boolean; compact: boolean })
 
 function tileIconClass(disabled: boolean) {
   return cn(
-    "grid size-full place-items-center dn-squircle-xs",
+    "grid size-full place-items-center ds-squircle-xs",
     disabled
       ? "bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] text-[var(--muted)]"
       : "bg-[color-mix(in_srgb,var(--muted)_38%,transparent)] text-[var(--fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--muted)_55%,transparent)]",

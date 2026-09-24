@@ -33,7 +33,7 @@ export function CanvasRatioPresetSections({
         <section key={section.group} aria-labelledby={`canvas-size-${section.group}`}>
           <h3
             id={`canvas-size-${section.group}`}
-            className="dn-type-label mb-1.5 px-1 font-medium uppercase tracking-[0.05em] text-[var(--muted)]"
+            className="ds-type-label mb-1.5 px-1 font-medium uppercase tracking-[0.05em] text-[var(--muted)]"
           >
             {section.label}
           </h3>
@@ -80,10 +80,10 @@ export function CanvasRatioPresetSections({
                     )}
                   </span>
                   <span className="min-w-0 leading-tight">
-                    <span className="dn-type-value block truncate font-medium">
+                    <span className="ds-type-value block truncate font-medium">
                       {template.label}
                     </span>
-                    <span className="dn-type-meta block truncate text-[var(--muted)]">
+                    <span className="ds-type-meta block truncate text-[var(--muted)]">
                       {template.ratioLabel}
                     </span>
                   </span>
@@ -125,7 +125,7 @@ function CanvasCustomSizeFields({
     <section aria-labelledby="canvas-size-custom" data-slot="canvas-size-custom">
       <h3
         id="canvas-size-custom"
-        className="dn-type-label mb-1.5 px-1 font-medium uppercase tracking-[0.05em] text-[var(--muted)]"
+        className="ds-type-label mb-1.5 px-1 font-medium uppercase tracking-[0.05em] text-[var(--muted)]"
       >
         Custom
       </h3>
@@ -171,12 +171,12 @@ export function CanvasRatioPresetPopoverContent({
       side="bottom"
       sideOffset={12}
       className={cn(
-        "dn-portal-surface inspector-popover-content dn-popover-flat z-[var(--z-popover)] grid max-h-[var(--popover-max-h)] w-[var(--popover-width)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden p-0 dn-squircle-md",
+        "ds-portal-surface ds-popover-content ds-popover-flat z-[var(--z-popover)] grid max-h-[var(--popover-max-h)] w-[var(--popover-width)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden p-0 ds-squircle-md",
         theme === "dark" && "dark",
       )}
     >
-      <div className="dn-settings-popover-header">
-        <p className="dn-settings-popover-title">Layout</p>
+      <div className="ds-settings-popover-header">
+        <p className="ds-settings-popover-title">Layout</p>
         <PopoverClose asChild>
           <SettingsPopoverCloseButton title="Layout" />
         </PopoverClose>

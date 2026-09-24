@@ -39,7 +39,7 @@ export function ExportDownloadPopover({
         side="bottom"
         sideOffset={12}
         className={cn(
-          "dn-portal-surface inspector-popover-content dn-popover-flat z-[var(--z-popover)] grid max-h-[var(--popover-max-h)] w-[var(--popover-width)] grid-rows-[minmax(0,1fr)] overflow-hidden p-0 dn-squircle-md",
+          "ds-portal-surface ds-popover-content ds-popover-flat z-[var(--z-popover)] grid max-h-[var(--popover-max-h)] w-[var(--popover-width)] grid-rows-[minmax(0,1fr)] overflow-hidden p-0 ds-squircle-md",
           theme === "dark" && "dark",
         )}
       >
@@ -52,7 +52,7 @@ export function ExportDownloadPopover({
           viewportClassName="px-3 py-3"
         >
           <div
-            className="inspector-root inspector-embedded w-full min-w-0"
+            className="ds-root ds-embedded w-full min-w-0"
             data-theme={theme}
             data-slot="export-popover-content"
           >

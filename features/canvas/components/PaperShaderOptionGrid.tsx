@@ -159,7 +159,7 @@ export function PaperShaderOptionGrid({
       className={cn(
         "grid max-h-72 grid-cols-3 gap-1 overflow-y-auto p-1",
         variant === "insert-desktop"
-          ? "dn-squircle-sm border border-[var(--line)] bg-[var(--control)] p-1"
+          ? "ds-squircle-sm border border-[var(--line)] bg-[var(--control)] p-1"
           : undefined,
       )}
       data-slot={dataSlot}

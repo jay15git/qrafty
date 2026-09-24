@@ -23,7 +23,7 @@ function measurePreviewRowWidth(row: HTMLElement): number {
     return 0;
   }
 
-  const host = row.closest<HTMLElement>(".inspector-root") ?? row;
+  const host = row.closest<HTMLElement>(".ds-root") ?? row;
   const tilePx = readCssLengthPx(host, "--preview-tile", 56);
   const gapPx = readCssLengthPx(host, "--space-inline", 6);
   const style = getComputedStyle(row);
@@ -40,7 +40,7 @@ export function getHorizontalContentWidth(element: HTMLElement): number {
     return element.scrollWidth;
   }
 
-  const previewRow = inner.querySelector(".dn-preview-row");
+  const previewRow = inner.querySelector(".ds-preview-row");
   if (previewRow instanceof HTMLElement) {
     const measured = measurePreviewRowWidth(previewRow);
     if (measured > 0) {

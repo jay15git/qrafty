@@ -8,7 +8,7 @@ import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInsp
 import { SettingsRowPopover } from "@/features/shell/inspector/settings-ui";
 import { InsertMenuPanelStack } from "@/features/canvas/components/insert-menu/InsertMenuPanelStack";
 
-const SECTION_STACK = "dn-section-stack";
+const SECTION_STACK = "ds-section-stack";
 
 export function ElementsSection({ model }: { model: InspectorModel }) {
   const [addElementOpen, setAddElementOpen] = useState(false);

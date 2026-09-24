@@ -24,7 +24,7 @@ export function OptionScrollRow({
         key={item}
         aria-pressed={isSelected}
         className={cn(
-          "dn-option-scroll-tile dn-option-tile dn-control-surface shrink-0 px-3 dn-type-chip dn-squircle-xs",
+          "ds-option-scroll-tile ds-option-tile ds-control-surface shrink-0 px-3 ds-type-chip ds-squircle-xs",
           isSelected && "text-[var(--fg)]",
         )}
         type="button"
@@ -37,7 +37,7 @@ export function OptionScrollRow({
   });
 
   if (fill) {
-    return <div className="dn-option-scroll-row dn-option-scroll-row--fill">{tiles}</div>;
+    return <div className="ds-option-scroll-row ds-option-scroll-row--fill">{tiles}</div>;
   }
 
   return (
@@ -71,7 +71,7 @@ export function PresetList({
         <button
           key={item}
           className={cn(
-            "dn-preset-item dn-control-surface w-full px-2.5 text-left dn-type-chip dn-squircle-xs",
+            "ds-preset-item ds-control-surface w-full px-2.5 text-left ds-type-chip ds-squircle-xs",
             selected === item && "text-[var(--fg)]",
           )}
           type="button"

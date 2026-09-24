@@ -122,17 +122,17 @@ describe("useScrollEdges", () => {
     mockScrollBox(viewport, { scrollWidth: 3783, clientWidth: 248, scrollLeft: 245 });
 
     const host = document.createElement("div");
-    host.className = "inspector-root";
+    host.className = "ds-root";
     host.style.setProperty("--preview-tile", "3.5rem");
     host.style.setProperty("--space-inline", "0.375rem");
 
     const inner = document.createElement("div");
     const row = document.createElement("div");
-    row.className = "dn-preview-row";
+    row.className = "ds-preview-row";
 
     for (let index = 0; index < 5; index += 1) {
       const tile = document.createElement("button");
-      tile.className = "dn-preview-tile dn-preview-tile-size";
+      tile.className = "ds-preview-tile ds-preview-tile-size";
       Object.defineProperty(tile, "offsetWidth", {
         configurable: true,
         get: () => 700,
@@ -158,17 +158,17 @@ describe("useScrollEdges", () => {
     mockScrollBox(viewport, { scrollWidth: 3783, clientWidth: 248, scrollLeft: 0 });
 
     const host = document.createElement("div");
-    host.className = "inspector-root";
+    host.className = "ds-root";
     host.style.setProperty("--preview-tile", "3.5rem");
     host.style.setProperty("--space-inline", "0.375rem");
 
     const inner = document.createElement("div");
     const row = document.createElement("div");
-    row.className = "dn-preview-row";
+    row.className = "ds-preview-row";
 
     for (let index = 0; index < 5; index += 1) {
       const tile = document.createElement("button");
-      tile.className = "dn-preview-tile dn-preview-tile-size";
+      tile.className = "ds-preview-tile ds-preview-tile-size";
       row.appendChild(tile);
     }
 
@@ -190,17 +190,17 @@ describe("useScrollEdges", () => {
     mockScrollBox(viewport, { scrollWidth: 300, clientWidth: 248, scrollLeft: 0 });
 
     const host = document.createElement("div");
-    host.className = "inspector-root";
+    host.className = "ds-root";
     host.style.setProperty("--preview-tile", "3.5rem");
     host.style.setProperty("--space-inline", "0.375rem");
 
     const inner = document.createElement("div");
     const row = document.createElement("div");
-    row.className = "dn-preview-row";
+    row.className = "ds-preview-row";
 
     for (let index = 0; index < 5; index += 1) {
       const tile = document.createElement("button");
-      tile.className = "dn-preview-tile dn-preview-tile-size";
+      tile.className = "ds-preview-tile ds-preview-tile-size";
       row.appendChild(tile);
     }
 
@@ -230,12 +230,12 @@ describe("useScrollEdges", () => {
     ({ scrollWidth, clientWidth, scrollLeft, left, right }) => {
       const viewport = document.createElement("div");
       const host = document.createElement("div");
-      host.className = "inspector-root";
+      host.className = "ds-root";
       host.style.setProperty("--preview-tile", "56px");
       host.style.setProperty("--space-inline", "6px");
       const inner = document.createElement("div");
       const row = document.createElement("div");
-      row.className = "dn-preview-row";
+      row.className = "ds-preview-row";
       row.style.padding = "6px 4px";
       for (let index = 0; index < 13; index += 1) {
         const tile = document.createElement("button");

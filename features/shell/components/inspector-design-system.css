@@ -63,7 +63,7 @@
   --surface-2: var(--surface);
 }
 
-[data-slot="floating-inspector"] .inspector-input-bg,
+[data-slot="floating-inspector"] .ds-input-bg,
 [data-slot="floating-inspector"] :is(input, textarea, select):not([type="color"]) {
   border: none !important;
   border-radius: var(--radius-control) !important;
@@ -71,7 +71,7 @@
 }
 
 [data-slot="floating-inspector"] [data-slot="inspector-dropdown-menu"],
-[data-slot="floating-inspector"] .inspector-morph-filter[data-open="true"] {
+[data-slot="floating-inspector"] .ds-morph-filter[data-open="true"] {
   border: none !important;
   box-shadow: var(--popover-shadow) !important;
 }

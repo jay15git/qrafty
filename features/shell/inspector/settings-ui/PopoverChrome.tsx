@@ -15,7 +15,7 @@ export function SettingsPopoverCloseButton({
   return (
     <button
       aria-label={title ? `Close ${title}` : "Close"}
-      className="dn-settings-popover-close"
+      className="ds-settings-popover-close"
       type="button"
       onClick={onClick}
       {...CUELUME_BUTTON}
@@ -37,17 +37,17 @@ export function SettingsPopoverChrome({
   bodyClassName?: string;
 }) {
   return (
-    <div className="dn-settings-popover-shell">
-      <div className="dn-settings-popover-header">
-        <p className="dn-settings-popover-title">{title}</p>
+    <div className="ds-settings-popover-shell">
+      <div className="ds-settings-popover-header">
+        <p className="ds-settings-popover-title">{title}</p>
         <SettingsPopoverCloseButton title={title} onClick={onClose} />
       </div>
       <ScrollArea
         chevron={false}
-        className="dn-settings-popover-body min-h-0 flex-1"
+        className="ds-settings-popover-body min-h-0 flex-1"
         cueSize="tight"
         scrollFade
-        viewportClassName={cn("dn-settings-popover-body-viewport", bodyClassName)}
+        viewportClassName={cn("ds-settings-popover-body-viewport", bodyClassName)}
       >
         {children}
       </ScrollArea>

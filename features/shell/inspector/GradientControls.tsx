@@ -37,11 +37,11 @@ function GradientSelectField({
   const portalSurface = useFillPickerPortalSurface();
 
   return (
-    <div className="dn-fill-picker-select min-w-0 flex-1" data-slot={slot}>
+    <div className="ds-fill-picker-select min-w-0 flex-1" data-slot={slot}>
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger
           aria-label={ariaLabel}
-          className="dn-fill-picker-select-trigger w-full min-w-0 dn-squircle-sm"
+          className="ds-fill-picker-select-trigger w-full min-w-0 ds-squircle-sm"
           variant="borderless"
         />
         <SelectContent
@@ -49,7 +49,7 @@ function GradientSelectField({
             theme,
             cn(
               portalSurface.portaledSurfaceClassName,
-              "dn-portal-surface inspector-popover-content overflow-hidden p-0 dn-squircle-md",
+              "ds-portal-surface ds-popover-content overflow-hidden p-0 ds-squircle-md",
             ),
           )}
           data-theme={portalSurface.portaledSurfaceDataTheme ?? theme}

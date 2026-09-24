@@ -96,7 +96,7 @@ function InsertMenuPanelHeader({
         className={cn(
           isPopover
             ? INSERT_MENU_PANEL_TITLE
-            : "ws-type-control-label font-semibold text-[var(--canvas-ink)]",
+            : "ds-type-control-label font-semibold text-[var(--canvas-ink)]",
         )}
       >
         {title}
@@ -137,7 +137,7 @@ function InsertMenuRootOptionTile({
   return (
     <button
       aria-label={label}
-      className={cn("dn-insert-menu-root-tile dn-option-tile dn-squircle-xs", className)}
+      className={cn("ds-insert-menu-root-tile ds-option-tile ds-squircle-xs", className)}
       data-slot={slot}
       disabled={disabled}
       type="button"
@@ -146,10 +146,10 @@ function InsertMenuRootOptionTile({
       onMouseLeave={() => setIsHovered(false)}
       {...CUELUME_TOGGLE}
     >
-      <span className="dn-insert-menu-root-tile-preview">
+      <span className="ds-insert-menu-root-tile-preview">
         <InsertMenuFanPreview isHovered={isHovered} previews={previews} />
       </span>
-      <span className="dn-insert-menu-root-tile-label">{label}</span>
+      <span className="ds-insert-menu-root-tile-label">{label}</span>
     </button>
   );
 }
@@ -183,7 +183,7 @@ export function InsertMenuRootPanel({
         showScrollbar={false}
         viewportClassName="min-w-0 px-0"
       >
-        <div className="dn-insert-menu-root-grid p-3.5">
+        <div className="ds-insert-menu-root-grid p-3.5">
           <InsertMenuRootOptionTile
             label="Text"
             previews={INSERT_MENU_TEXT_PREVIEWS}
@@ -347,7 +347,7 @@ export function InsertMenuImagePanel({
         <span
           className={cn(
             "font-medium",
-            isPopover ? "dn-type-meta" : "text-xs text-[var(--canvas-ink-muted)]",
+            isPopover ? "ds-type-meta" : "text-xs text-[var(--canvas-ink-muted)]",
           )}
         >
           or
@@ -361,7 +361,7 @@ export function InsertMenuImagePanel({
         className={cn(
           isPopover
             ? INSERT_MENU_INPUT_CLASS
-            : "ws-type-input h-10 min-w-0 border-[var(--canvas-line)] bg-[var(--panel-bg-hover)] px-3 text-[var(--canvas-ink)] shadow-none",
+            : "ds-type-input h-10 min-w-0 border-[var(--canvas-line)] bg-[var(--panel-bg-hover)] px-3 text-[var(--canvas-ink)] shadow-none",
         )}
         placeholder="https://example.com/photo.png"
         value={imageUrl}
@@ -429,7 +429,7 @@ export function InsertMenuEmojiPanel({
         "min-h-0 min-w-0 w-full flex-1 border-0 bg-transparent shadow-none [--frimousse-row-height:2.25rem]",
         isPopover
           ? "text-[var(--fg)] [--frimousse-category-header-height:1px] [--frimousse-emoji-font:'Apple_Color_Emoji','Segoe_UI_Emoji','Noto_Color_Emoji',sans-serif]"
-          : "h-[22rem] dn-squircle-sm border border-[var(--canvas-line)] bg-[var(--panel-bg)]",
+          : "h-[22rem] ds-squircle-sm border border-[var(--canvas-line)] bg-[var(--panel-bg)]",
       )}
       columns={8}
       data-slot="drafting-insert-menu-emoji-picker"

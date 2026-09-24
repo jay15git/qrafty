@@ -223,8 +223,8 @@ export function SettingsPanel({
   return (
     <SettingsPanelShell fillHeight={fillHeight}>
       <SettingsScroll fillHeight={fillHeight}>
-        <div className="dn-settings-rail-track dn-settings-brand-row" data-slot="brand-mark-anchor">
-          <div className="dn-settings-rail-track__inner">
+        <div className="ds-settings-rail-track ds-settings-brand-row" data-slot="brand-mark-anchor">
+          <div className="ds-settings-rail-track__inner">
             <BrandMark theme={model.actualTheme} />
           </div>
         </div>

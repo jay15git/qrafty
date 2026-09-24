@@ -13,11 +13,11 @@ import { InspectorThemeContext } from "@/features/shell/inspector/theme-context"
 import { fillPreviewHex, isGradientFill } from "@/features/shell/inspector/FillPicker.utils";
 import { cn } from "@/lib/utils";
 
-const DN_ROW = "dn-settings-row dn-squircle-sm";
-export const DN_HINT = "dn-type-meta";
-export const DN_LABEL = "dn-type-label";
-export const DN_VALUE = "dn-type-value";
-export const DN_SECTION_GAP = "dn-section-stack";
+const DN_ROW = "ds-settings-row ds-squircle-sm";
+export const DN_HINT = "ds-type-meta";
+export const DN_LABEL = "ds-type-label";
+export const DN_VALUE = "ds-type-value";
+export const DN_SECTION_GAP = "ds-section-stack";
 
 export function SettingsRowButton({
   className,
@@ -48,7 +48,7 @@ export type SettingsFillPopoverHandle = {
   openPicker: () => void;
 };
 
-export const OPTION_TILE_SCROLL_ROW = "dn-preview-row dn-option-tile-scroll-row";
+export const OPTION_TILE_SCROLL_ROW = "ds-preview-row ds-option-tile-scroll-row";
 
 export function FillSwatchButton({
   ariaLabel,
@@ -127,7 +127,7 @@ export function ColorRowButton({
       <span className="flex min-w-0 items-center gap-2">
         <span
           aria-hidden
-          className="size-3.5 shrink-0 border border-[color-mix(in_srgb,var(--line)_40%,transparent)] dn-squircle-xs"
+          className="size-3.5 shrink-0 border border-[color-mix(in_srgb,var(--line)_40%,transparent)] ds-squircle-xs"
           style={
             imageUrl
               ? {

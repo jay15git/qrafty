@@ -61,12 +61,12 @@
   --panel-bg-hover: rgb(29 29 29 / 0.9);
 }
 
-[data-slot="workspace"] .ws-type-control-label {
+[data-slot="workspace"] .ds-type-control-label {
   font-size: var(--type-control-label);
   line-height: 1.2;
 }
 
-[data-slot="workspace"] .ws-type-input {
+[data-slot="workspace"] .ds-type-input {
   font-size: var(--type-input);
   line-height: 1.45;
 }

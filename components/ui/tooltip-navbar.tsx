@@ -281,7 +281,7 @@ export const TooltipNavbar = ({
               <div
                 key={runIndex}
                 data-slot="tooltip-navbar-shell"
-                className="t-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
+                className="ds-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
               >
                 {run.map(({ item, index }) => {
                   const button = renderItemButton(item, index);
@@ -311,7 +311,7 @@ export const TooltipNavbar = ({
             {runs.length === 0 && trailing ? (
               <div
                 data-slot="tooltip-navbar-shell"
-                className="t-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
+                className="ds-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
               >
                 {trailing}
               </div>

@@ -98,7 +98,7 @@ export function IllustrationFloatingColorControl({
 
   const multiColorBody = (
     <>
-      <p className="dn-type-meta mb-2">Colors</p>
+      <p className="ds-type-meta mb-2">Colors</p>
       <PaletteColorStopList
         colors={displayColors}
         onPaletteColorChange={(index, color) => patchStop(index, color)}
@@ -138,7 +138,7 @@ export function IllustrationFloatingColorControl({
               mobileNav.openDetail({
                 title: "Illustration colors",
                 content: (
-                  <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
+                  <div className="ds-portal-surface w-full min-w-0" data-mobile-inspector="">
                     {multiColorBody}
                   </div>
                 ),
@@ -172,7 +172,7 @@ export function IllustrationFloatingColorControl({
           <PopoverContent
             align="center"
             className={cn(
-              "inspector-fill-popover dn-portal-surface z-[var(--z-popover-raised)] w-[var(--popover-width-fill)] border-0 bg-transparent p-0 shadow-none outline-none",
+              "ds-fill-popover ds-portal-surface z-[var(--z-popover-raised)] w-[var(--popover-width-fill)] border-0 bg-transparent p-0 shadow-none outline-none",
               theme === "dark" && "dark",
             )}
             data-theme={theme}

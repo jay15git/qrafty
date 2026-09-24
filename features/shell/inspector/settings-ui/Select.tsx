@@ -47,22 +47,22 @@ export function SettingsLabeledSelect({
   return (
     <div
       className={cn(
-        "dn-content-type-select w-full min-w-0",
-        label && "dn-content-type-select--split",
+        "ds-content-type-select w-full min-w-0",
+        label && "ds-content-type-select--split",
       )}
     >
       {label ? (
-        <span className="dn-row-label-text shrink-0 pl-[var(--row-px)]">{label}</span>
+        <span className="ds-row-label-text shrink-0 pl-[var(--row-px)]">{label}</span>
       ) : null}
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger
-          className="dn-content-type-select-trigger w-full min-w-0 dn-squircle-sm"
+          className="ds-content-type-select-trigger w-full min-w-0 ds-squircle-sm"
           placeholder={placeholder}
           variant="borderless"
         />
         <SelectContent
           className={cn(
-            "dn-portal-surface inspector-popover-content overflow-hidden p-0 dn-squircle-md",
+            "ds-portal-surface ds-popover-content overflow-hidden p-0 ds-squircle-md",
             theme === "dark" && "dark",
           )}
           data-theme={theme}
@@ -134,7 +134,7 @@ export function ContentTypeBrowser({
     const selectedIcon = CONTENT_TYPE_SELECT_ICONS[normalizedSelected];
 
     return (
-      <div className="dn-content-type-select w-full min-w-0">
+      <div className="ds-content-type-select w-full min-w-0">
         <Select
           value={normalizedSelected}
           onValueChange={(next) => {
@@ -143,7 +143,7 @@ export function ContentTypeBrowser({
           }}
         >
           <SelectTrigger
-            className="dn-content-type-select-trigger w-full min-w-0 dn-squircle-sm"
+            className="ds-content-type-select-trigger w-full min-w-0 ds-squircle-sm"
             icon={selectedIcon}
             placeholder="Content type"
             variant="borderless"
@@ -151,7 +151,7 @@ export function ContentTypeBrowser({
           <SelectContent
             className={inspectorPortalClass(
               theme,
-              "dn-portal-surface inspector-popover-content overflow-hidden p-0 dn-squircle-md",
+              "ds-portal-surface ds-popover-content overflow-hidden p-0 ds-squircle-md",
             )}
             data-theme={theme}
           >
@@ -178,7 +178,7 @@ export function ContentTypeBrowser({
       items={types.map((option) => ({
         id: option.value,
         label: option.label,
-        icon: <ContentTypeGridIcon className="dn-content-type-segment-icon" type={option.value} />,
+        icon: <ContentTypeGridIcon className="ds-content-type-segment-icon" type={option.value} />,
       }))}
       value={normalizedSelected}
       onChange={(next) => {

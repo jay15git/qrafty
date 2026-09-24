@@ -13,7 +13,7 @@
 }
 
 /* transitions.dev — card resize: tween the island pills' width as items appear. */
-.t-resize {
+.ds-resize {
   interpolate-size: allow-keywords;
   transition:
     width var(--resize-dur) var(--resize-ease),
@@ -22,7 +22,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .t-resize {
+  .ds-resize {
     transition: none !important;
   }
 }

@@ -72,15 +72,15 @@ export function ToolbarPopoverContent({
       side="bottom"
       sideOffset={12}
       className={cn(
-        "dn-portal-surface inspector-popover-content dn-popover-flat z-[var(--z-popover)] grid w-[var(--popover-width)] overflow-hidden p-0 dn-squircle-md",
+        "ds-portal-surface ds-popover-content ds-popover-flat z-[var(--z-popover)] grid w-[var(--popover-width)] overflow-hidden p-0 ds-squircle-md",
         title ? "grid-rows-[auto_minmax(0,1fr)]" : "grid-rows-[minmax(0,1fr)]",
         theme === "dark" && "dark",
         heightClass,
       )}
     >
       {title ? (
-        <div className="dn-settings-popover-header">
-          <p className="dn-settings-popover-title">{title}</p>
+        <div className="ds-settings-popover-header">
+          <p className="ds-settings-popover-title">{title}</p>
           <PopoverClose asChild>
             <SettingsPopoverCloseButton title={title} />
           </PopoverClose>

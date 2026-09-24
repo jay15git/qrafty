@@ -23,7 +23,7 @@ export function InsertMenuScroll({
       showScrollbar={false}
       viewportClassName="px-0"
     >
-      <div className={cn("dn-insert-menu-scroll-content", contentClassName)}>{children}</div>
+      <div className={cn("ds-insert-menu-scroll-content", contentClassName)}>{children}</div>
     </ScrollArea>
   );
 }

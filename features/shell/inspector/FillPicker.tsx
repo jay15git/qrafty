@@ -104,15 +104,15 @@ function resolveInitialFillPickerMode({
 function FillPickerColorPane() {
   return (
     <FillPicker.Pane
-      className="dn-settings-tab-panel dn-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
+      className="ds-settings-tab-panel ds-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
       mode="color"
     >
-      <ColorPicker.Area className="dn-fill-picker-area" />
-      <ColorPicker.Hue className="dn-fill-picker-slider" />
-      <ColorPicker.Alpha className="dn-fill-picker-slider" />
+      <ColorPicker.Area className="ds-fill-picker-area" />
+      <ColorPicker.Hue className="ds-fill-picker-slider" />
+      <ColorPicker.Alpha className="ds-fill-picker-slider" />
       <div className="flex w-full min-w-0 items-stretch gap-2">
-        <ColorPicker.ChannelInput className="dn-fill-picker-channel-input min-w-0 flex-1" />
-        <EyeDropper className="dn-fill-picker-eye-dropper shrink-0" />
+        <ColorPicker.ChannelInput className="ds-fill-picker-channel-input min-w-0 flex-1" />
+        <EyeDropper className="ds-fill-picker-eye-dropper shrink-0" />
       </div>
     </FillPicker.Pane>
   );
@@ -121,25 +121,25 @@ function FillPickerColorPane() {
 function FillPickerGradientPane({ qrGradient }: { qrGradient: boolean }) {
   return (
     <FillPicker.Pane
-      className="dn-settings-tab-panel dn-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
+      className="ds-settings-tab-panel ds-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
       mode="gradient"
     >
       <div className="flex w-full min-w-0 gap-2">
         <GradientTypeRow allowedTypes={qrGradient ? [...QR_GRADIENT_TYPES] : undefined} />
         <GradientInterpRow />
       </div>
-      <GradientPicker.AngleGroup className="dn-fill-picker-angle-group">
-        <GradientPicker.AnglePad className="dn-fill-picker-angle-pad" size={32} />
-        <GradientPicker.AngleInput className="dn-fill-picker-field" />
+      <GradientPicker.AngleGroup className="ds-fill-picker-angle-group">
+        <GradientPicker.AnglePad className="ds-fill-picker-angle-pad" size={32} />
+        <GradientPicker.AngleInput className="ds-fill-picker-field" />
       </GradientPicker.AngleGroup>
-      <GradientPicker.Bar className="dn-fill-picker-gradient-bar" />
+      <GradientPicker.Bar className="ds-fill-picker-gradient-bar" />
       <GradientPicker.StopColor>
-        <ColorPicker.Area className="dn-fill-picker-area" />
-        <ColorPicker.Hue className="dn-fill-picker-slider" />
-        <ColorPicker.Alpha className="dn-fill-picker-slider" />
+        <ColorPicker.Area className="ds-fill-picker-area" />
+        <ColorPicker.Hue className="ds-fill-picker-slider" />
+        <ColorPicker.Alpha className="ds-fill-picker-slider" />
         <div className="flex w-full min-w-0 items-stretch gap-2">
-          <ColorPicker.ChannelInput className="dn-fill-picker-channel-input min-w-0 flex-1" />
-          <EyeDropper className="dn-fill-picker-eye-dropper shrink-0" />
+          <ColorPicker.ChannelInput className="ds-fill-picker-channel-input min-w-0 flex-1" />
+          <EyeDropper className="ds-fill-picker-eye-dropper shrink-0" />
         </div>
       </GradientPicker.StopColor>
     </FillPicker.Pane>
@@ -159,7 +159,7 @@ function FillPickerModeTabs({
 }) {
   return (
     <SegmentTabs
-      className="dn-fill-picker-mode-tabs self-stretch"
+      className="ds-fill-picker-mode-tabs self-stretch"
       items={[
         "Solid",
         "Gradient",
@@ -280,21 +280,21 @@ export function InspectorFillPicker({
         accordion: true,
         portaledSurfaceDataTheme: theme,
         portaledSurfaceClassName: cn(
-          "fill-picker-portal dn-portal-surface inspector-popover-content",
-          "outline-none dn-squircle-sm",
+          "fill-picker-portal ds-portal-surface ds-popover-content",
+          "outline-none ds-squircle-sm",
           theme === "dark" && "dark",
         ),
       }}
     >
       <ScrollArea
         chevron={false}
-        className={cn("dn-fill-picker-panel max-h-[min(72dvh,40rem)] max-w-none", className)}
+        className={cn("ds-fill-picker-panel max-h-[min(72dvh,40rem)] max-w-none", className)}
         cueSize="tight"
         persistKey="fill-picker"
         scrollFade
       >
         <FillPicker.Root
-          className="dn-fill-picker-root max-w-none border-0 bg-transparent shadow-none"
+          className="ds-fill-picker-root max-w-none border-0 bg-transparent shadow-none"
           defaultMode={fillPickerInitialMode}
           defaultValue={initialFill}
           mode={pickerMode}
@@ -377,7 +377,7 @@ function ModulePatternPicker({
         activeKey={selectedPreset}
         ariaLabel="Pattern options"
         dataSlot="fill-picker-pattern-grid"
-        gridClassName="dn-pattern-option-grid"
+        gridClassName="ds-pattern-option-grid"
         persistKey="fill-picker-patterns"
       >
         {DOTS_PALETTE_PRESETS.map((option) => {

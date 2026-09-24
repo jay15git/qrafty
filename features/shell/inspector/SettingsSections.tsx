@@ -100,7 +100,7 @@ import {
 } from "@/features/shell/inspector/settings-fill-presets";
 import type { LogoSettings } from "@/features/shell/model/toolbar-types";
 
-const SECTION_STACK = "dn-section-stack";
+const SECTION_STACK = "ds-section-stack";
 
 function QrStylePreviewGrid({
   options,
@@ -135,7 +135,7 @@ function QrStylePreviewGrid({
           >
             <span
               aria-hidden="true"
-              className="grid size-full place-items-center overflow-hidden p-0.5 dn-squircle-xs"
+              className="grid size-full place-items-center overflow-hidden p-0.5 ds-squircle-xs"
             >
               <QrStyleOptionPreview
                 className="size-full max-h-full max-w-full"
@@ -203,7 +203,7 @@ function ShapeCatalogueSelect({
           type="button"
           onClick={() => onSelect("none")}
         >
-          <span className="relative z-10 grid size-full place-items-center p-0.5 dn-preview-icon">
+          <span className="relative z-10 grid size-full place-items-center p-0.5 ds-preview-icon">
             <ShapeGlyph viewBox={SQUARE_SHAPE_VIEWBOX} />
           </span>
         </button>
@@ -217,7 +217,7 @@ function ShapeCatalogueSelect({
             type="button"
             onClick={() => onSelect(option.id)}
           >
-            <span className="relative z-10 grid size-full place-items-center p-0.5 dn-preview-icon">
+            <span className="relative z-10 grid size-full place-items-center p-0.5 ds-preview-icon">
               <ShapeGlyph path={option.path} viewBox={shapeViewBox(option)} />
             </span>
           </button>
@@ -227,16 +227,16 @@ function ShapeCatalogueSelect({
   }
 
   return (
-    <div className="dn-content-type-select w-full min-w-0">
+    <div className="ds-content-type-select w-full min-w-0">
       <Select value={selected} onValueChange={(next) => onSelect(next as QrBackgroundShapeId)}>
         <SelectTrigger
-          className="dn-content-type-select-trigger w-full min-w-0 dn-squircle-sm"
+          className="ds-content-type-select-trigger w-full min-w-0 ds-squircle-sm"
           placeholder="Shape"
           variant="borderless"
         />
         <SelectContent
           className={cn(
-            "dn-portal-surface inspector-popover-content overflow-hidden p-0 dn-squircle-md",
+            "ds-portal-surface ds-popover-content overflow-hidden p-0 ds-squircle-md",
             theme === "dark" && "dark",
           )}
           data-theme={theme}
@@ -314,7 +314,7 @@ function PaperShaderPreviewRow({
             onClick={() => onSelect(option.id)}
           >
             <PaperShaderOptionPreview
-              className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
+              className="relative z-10 block size-full overflow-hidden ds-squircle-xs"
               isSelected={isSelected}
               shaderId={option.id}
             />
@@ -357,7 +357,7 @@ function WallpaperPreviewRow({
       >
         <WallpaperOptionPreview
           alt={wallpaper.label}
-          className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
+          className="relative z-10 block size-full overflow-hidden ds-squircle-xs"
           previewPath={wallpaper.previewPath}
         />
       </button>
@@ -388,10 +388,10 @@ function WallpaperPreviewRow({
   return (
     <>
       <div className="flex min-h-[var(--control-height)] items-center">
-        <span className="dn-row-label-text pl-[var(--row-px)]">Upload</span>
+        <span className="ds-row-label-text pl-[var(--row-px)]">Upload</span>
         <SettingsImageUploadTile
           ariaLabel="Upload custom image"
-          className="dn-row-upload-tile ml-auto"
+          className="ds-row-upload-tile ml-auto"
           imageUrl={customImageUrl}
           onClear={onClear}
           onUpload={onUpload}
@@ -596,7 +596,7 @@ function QrStyleSection({ model }: { model: InspectorModel }) {
   const part = isQrStylePartId(tab) ? QR_STYLE_PART_DEFINITIONS[tab] : null;
 
   return (
-    <div className="dn-section-stack w-full min-w-0 max-w-full">
+    <div className="ds-section-stack w-full min-w-0 max-w-full">
       <SettingsLabeledSelect
         items={["Module", "Eye", "Frame", "Logo"]}
         placeholder="Part"
@@ -642,7 +642,7 @@ function QrStyleSection({ model }: { model: InspectorModel }) {
                 <SettingsImageUploadTile
                   fluid
                   ariaLabel="Upload custom logo"
-                  className="dn-row-upload-tile"
+                  className="ds-row-upload-tile"
                   imageUrl={actualLogoSettings.customImageUrl}
                   onClear={() => onLogoSettingsChange({ uploadedImageUrl: "" })}
                   onUpload={(imageUrl) => onLogoSettingsChange({ uploadedImageUrl: imageUrl })}
@@ -981,7 +981,7 @@ function QrColorSection({ model }: { model: InspectorModel }) {
   }
 
   return (
-    <div className="dn-section-stack w-full min-w-0 max-w-full">
+    <div className="ds-section-stack w-full min-w-0 max-w-full">
       <SettingsSwitchRow
         checked={!isUnified}
         label="Color separately"

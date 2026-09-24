@@ -56,7 +56,7 @@ export function ShadowsList({
       <InspectorLabel>Shadows</InspectorLabel>
       <Switch
         checked={enabled}
-        className="dn-switch-row"
+        className="ds-switch-row"
         label="Drop shadow"
         size="compact"
         onToggle={handleToggle}
@@ -64,7 +64,7 @@ export function ShadowsList({
 
       {effect && enabled ? (
         <div className="flex min-h-[var(--control-height)] items-center">
-          <span className="dn-row-label-text pl-[var(--row-px)]">Color</span>
+          <span className="ds-row-label-text pl-[var(--row-px)]">Color</span>
           <SettingsFillPopover
             align="start"
             hint="Drop shadow color"

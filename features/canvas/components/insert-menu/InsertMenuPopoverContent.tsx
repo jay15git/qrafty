@@ -62,8 +62,8 @@ export function InsertMenuPopoverContent({
       sideOffset={isPopover ? 12 : undefined}
     >
       {isPopover ? (
-        <div className="dn-settings-popover-header">
-          <p className="dn-settings-popover-title">Add element</p>
+        <div className="ds-settings-popover-header">
+          <p className="ds-settings-popover-title">Add element</p>
           <PopoverClose asChild>
             <SettingsPopoverCloseButton title="Add element" />
           </PopoverClose>

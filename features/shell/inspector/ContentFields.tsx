@@ -81,7 +81,7 @@ function ContentFieldRow({
   field: ContentFieldDefinition;
   onContentValueChange: (fieldId: string, value: StaticQrContentValue) => void;
 }) {
-  const controlId = `dn-content-${field.id}`;
+  const controlId = `ds-content-${field.id}`;
 
   if (field.type === "toggle") {
     return (
@@ -100,7 +100,7 @@ function ContentFieldRow({
 
     return (
       <div className="flex flex-col gap-1">
-        {field.label ? <span className="dn-type-meta px-0.5">{field.label}</span> : null}
+        {field.label ? <span className="ds-type-meta px-0.5">{field.label}</span> : null}
         <OptionScrollRow
           persistKey={field.id}
           items={options.map((option) => option.label)}
@@ -118,8 +118,8 @@ function ContentFieldRow({
 
   if (field.type === "textarea" || field.type === "text") {
     return (
-      <div className="dn-content-field min-w-0">
-        {field.label ? <span className="dn-type-meta px-0.5">{field.label}</span> : null}
+      <div className="ds-content-field min-w-0">
+        {field.label ? <span className="ds-type-meta px-0.5">{field.label}</span> : null}
         <SettingsInput
           id={controlId}
           type={field.inputKind ?? "text"}
@@ -167,7 +167,7 @@ function ContentDetectionChip({
   );
 
   return (
-    <div className="dn-content-detection-chip dn-squircle-sm">
+    <div className="ds-content-detection-chip ds-squircle-sm">
       <div className="flex min-w-0 items-start gap-2">
         {BrandIcon ? (
           <BrandIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
@@ -175,14 +175,14 @@ function ContentDetectionChip({
           <Sparkles aria-hidden className="mt-0.5 size-4 shrink-0 opacity-70" />
         )}
         <div className="min-w-0 flex-1">
-          <p className="dn-type-meta truncate">Detected: {label}</p>
+          <p className="ds-type-meta truncate">Detected: {label}</p>
           {detection.confidence === "low" ? (
-            <p className="dn-type-meta truncate">Suggestion only</p>
+            <p className="ds-type-meta truncate">Suggestion only</p>
           ) : null}
         </div>
         <button
           aria-label="Dismiss detection"
-          className="dn-pressable shrink-0 rounded-full px-2 py-0.5 dn-type-meta"
+          className="ds-pressable shrink-0 rounded-full px-2 py-0.5 ds-type-meta"
           type="button"
           onClick={onDismiss}
         >
@@ -191,7 +191,7 @@ function ContentDetectionChip({
       </div>
       {canApplyDetectedType ? (
         <button
-          className="dn-pressable dn-control-surface mt-2 w-full truncate rounded-full bg-[var(--fg)] px-2.5 dn-type-chip font-medium text-[var(--bg)]"
+          className="ds-pressable ds-control-surface mt-2 w-full truncate rounded-full bg-[var(--fg)] px-2.5 ds-type-chip font-medium text-[var(--bg)]"
           type="button"
           onClick={onApplyDetectedType}
         >
@@ -271,7 +271,7 @@ export function ContentFields({
   const fieldGroups = useMemo(() => groupContentFields(fields), [fields]);
 
   return (
-    <div className={cn("dn-section-stack pt-1")} data-slot="content-fields" onPaste={handlePaste}>
+    <div className={cn("ds-section-stack pt-1")} data-slot="content-fields" onPaste={handlePaste}>
       {fieldGroups.map((group) => {
         if (group.kind === "pair") {
           const [leftField, rightField] = group.fields;

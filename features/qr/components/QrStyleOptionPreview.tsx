@@ -20,7 +20,7 @@ export function QrStyleOptionPreview({
   return (
     <Image
       alt=""
-      className={cn("dn-qr-style-option-preview size-full object-contain", className)}
+      className={cn("ds-qr-style-option-preview size-full object-contain", className)}
       data-preview-kind={previewKind}
       data-preview-style={value}
       data-slot="qr-style-option-preview"

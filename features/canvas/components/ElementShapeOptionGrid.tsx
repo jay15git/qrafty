@@ -157,7 +157,7 @@ export function ElementShapeOptionGrid({
   const isInsertDesktop = variant === "insert-desktop";
   const decorativeFill = isInsertDesktop ? "currentColor" : shapeFill;
   const buttonClassName = isInsertDesktop
-    ? "dn-option-tile flex aspect-square w-full min-w-0 items-center justify-center text-[var(--fg)] dn-squircle-xs"
+    ? "ds-option-tile flex aspect-square w-full min-w-0 items-center justify-center text-[var(--fg)] ds-squircle-xs"
     : "flex aspect-square w-full min-w-0 items-center justify-center p-2 text-[var(--canvas-ink-muted)] transition hover:bg-[var(--panel-bg-hover)] hover:text-[var(--canvas-ink)]";
 
   return (
@@ -165,7 +165,7 @@ export function ElementShapeOptionGrid({
       aria-label="Shape options"
       className={
         isInsertDesktop
-          ? "dn-insert-menu-option-grid"
+          ? "ds-insert-menu-option-grid"
           : "grid max-h-72 grid-cols-3 gap-0 overflow-y-auto"
       }
       data-slot={optionsDataSlot ?? decorativeDataSlot}

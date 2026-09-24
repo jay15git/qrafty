@@ -1253,7 +1253,7 @@ describe("Pane", () => {
     ) as HTMLElement;
 
     expect(menu).not.toBeNull();
-    expect(menu.className).toContain("inspector-popover-content");
+    expect(menu.className).toContain("ds-popover-content");
     expect(menu.className).not.toContain("backdrop-blur");
     expect(menu.getAttribute("role")).toBe("menu");
     expect(container.contains(menu)).toBe(false);
@@ -1355,7 +1355,7 @@ describe("Pane", () => {
     ) as HTMLElement;
 
     expect(menu).not.toBeNull();
-    expect(menu.className).toContain("inspector-popover-content");
+    expect(menu.className).toContain("ds-popover-content");
     expect(menu.className).not.toContain("backdrop-blur");
     expect(menu.getAttribute("role")).toBe("menu");
     expect(container.contains(menu)).toBe(false);

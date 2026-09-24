@@ -110,7 +110,7 @@ export function InspectorSection({
   return (
     <Component
       data-slot={dataSlot}
-      className={cn(INSPECTOR_SECTION_CLASS, resize && "t-resize overflow-hidden", className)}
+      className={cn(INSPECTOR_SECTION_CLASS, resize && "ds-resize overflow-hidden", className)}
       style={{ ...style, ...resizeStyle }}
       {...props}
     >
@@ -171,14 +171,14 @@ function wrapInspectorFieldFeedback(
   // Always keep the wrap mounted so error text can appear/disappear as a
   // sibling without remounting the input (which would steal focus).
   return (
-    <div className={cn("t-input-wrap min-w-0", Boolean(error) && pasteErrorActive && "is-error")}>
+    <div className={cn("ds-input-wrap min-w-0", Boolean(error) && pasteErrorActive && "is-error")}>
       {content}
       {error ? (
         <p
           className={cn(
-            "t-error-msg t-error-msg--visible",
+            "ds-error-msg ds-error-msg--visible",
             INSPECTOR_CAPTION_CLASS,
-            pasteErrorActive && "t-error-msg--emphasis",
+            pasteErrorActive && "ds-error-msg--emphasis",
           )}
         >
           {error}
@@ -202,7 +202,7 @@ export function InspectorTextInput({
   const input = (
     <input
       className={cn(
-        "t-input w-full min-w-0 max-w-full px-3",
+        "ds-input w-full min-w-0 max-w-full px-3",
         INSPECTOR_CONTROL_HEIGHT_CLASS,
         INSPECTOR_RADIUS_CLASS,
         pasteErrorActive && "is-error",
@@ -862,7 +862,7 @@ export function InspectorTextarea({
   const textarea = (
     <textarea
       className={cn(
-        "t-input min-h-24 w-full min-w-0 max-w-full resize-none px-3 py-2.5",
+        "ds-input min-h-24 w-full min-w-0 max-w-full resize-none px-3 py-2.5",
         INSPECTOR_RADIUS_CLASS,
         pasteErrorActive && "is-error",
         shaking && "is-shaking",

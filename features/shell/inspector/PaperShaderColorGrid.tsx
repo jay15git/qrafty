@@ -17,7 +17,7 @@ import {
   type PaperShaderControlDefinition,
 } from "@/features/canvas/rendering/paper-shader-definitions";
 import { DEFAULT_PAPER_SHADER_MIN_COLOR_COUNT } from "@/features/canvas/rendering/paper-shader-colors";
-const COLOR_GRID_CHIP = cn("dn-paper-shader-color-chip", SETTINGS_FILL_OPTION_TILE);
+const COLOR_GRID_CHIP = cn("ds-paper-shader-color-chip", SETTINGS_FILL_OPTION_TILE);
 
 function PaperShaderColorGridSwatch({
   color,
@@ -33,7 +33,7 @@ function PaperShaderColorGridSwatch({
   const parsed = parseColor(color) ?? { l: 0, c: 0, h: 0, alpha: 1 };
 
   return (
-    <div className="dn-paper-shader-color-chip-wrap group/chip">
+    <div className="ds-paper-shader-color-chip-wrap group/chip">
       <SettingsAccordionColorPicker
         title={title}
         value={color}
@@ -42,7 +42,7 @@ function PaperShaderColorGridSwatch({
         <button aria-label={title} className={COLOR_GRID_CHIP} type="button">
           <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
             <span
-              className="block size-full dn-squircle-xs"
+              className="block size-full ds-squircle-xs"
               style={{
                 backgroundImage: `linear-gradient(${formatColor(parsed, "oklch")}, ${formatColor(parsed, "oklch")}), ${CHECKERBOARD_SM}`,
                 backgroundSize: "auto, 6px 6px",
@@ -107,7 +107,7 @@ export function PaperShaderColorGrid({
     <SettingsOptionShelf
       ariaLabel="Shader colors"
       dataSlot="paper-shader-color-grid"
-      gridClassName="dn-paper-shader-color-grid"
+      gridClassName="ds-paper-shader-color-grid"
       persistKey="paper-shader-colors"
     >
       {canAdd ? (
@@ -118,7 +118,7 @@ export function PaperShaderColorGrid({
           onClick={onAddColor}
         >
           <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
-            <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--muted)_38%,transparent)] text-[var(--fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--muted)_55%,transparent)] dn-squircle-xs">
+            <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--muted)_38%,transparent)] text-[var(--fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--muted)_55%,transparent)] ds-squircle-xs">
               <Plus className="size-4" strokeWidth={2.5} />
             </span>
           </span>

@@ -98,7 +98,7 @@ describe("ScrollArea", () => {
       createElement(
         "div",
         {
-          className: "inspector-root",
+          className: "ds-root",
           style: {
             "--preview-tile": "56px",
             "--space-inline": "6px",
@@ -114,7 +114,7 @@ describe("ScrollArea", () => {
           },
           createElement(
             "div",
-            { className: "dn-preview-row" },
+            { className: "ds-preview-row" },
             Array.from({ length: 13 }, (_, index) => createElement("button", { key: index })),
           ),
         ),

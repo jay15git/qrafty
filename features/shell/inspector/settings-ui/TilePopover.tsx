@@ -38,7 +38,7 @@ export function SettingsTilePopover({
   const accordionPanelClassName = inspectorPortalClass(
     theme,
     cn(
-      "inspector-fill-popover inspector-popover-content w-full border-0 bg-transparent p-0 shadow-none outline-none",
+      "ds-fill-popover ds-popover-content w-full border-0 bg-transparent p-0 shadow-none outline-none",
       contentClassName,
     ),
   );
@@ -71,7 +71,7 @@ export function SettingsTilePopover({
           theme={theme}
         >
           <SettingsPopoverChrome
-            bodyClassName="dn-settings-popover-body-fill"
+            bodyClassName="ds-settings-popover-body-fill"
             title={title}
             onClose={() => accordion.setOpenKey(null)}
           >
@@ -90,7 +90,7 @@ export function SettingsTilePopover({
         className={inspectorPortalClass(
           theme,
           cn(
-            "inspector-fill-popover dn-portal-surface w-[var(--popover-width-fill)] border-0 bg-transparent p-0 shadow-none outline-none",
+            "ds-fill-popover ds-portal-surface w-[var(--popover-width-fill)] border-0 bg-transparent p-0 shadow-none outline-none",
             contentClassName,
           ),
         )}
@@ -99,7 +99,7 @@ export function SettingsTilePopover({
         sideOffset={10}
       >
         <SettingsPopoverChrome
-          bodyClassName="dn-settings-popover-body-fill"
+          bodyClassName="ds-settings-popover-body-fill"
           title={title}
           onClose={() => setRadixOpen(false)}
         >

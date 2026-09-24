@@ -9,7 +9,7 @@
   --rail-button-bg: #161616;
 }
 
-[data-slot="mobile-family-drawer-root"].inspector-root {
+[data-slot="mobile-family-drawer-root"].ds-root {
   min-height: 0;
   height: auto;
   background: var(--bg);
@@ -18,12 +18,12 @@
   bottom: max(1rem, env(safe-area-inset-bottom, 0px), var(--mobile-drawer-keyboard-inset, 0px));
 }
 
-[data-slot="mobile-family-drawer-root"].inspector-root[data-theme="light"] {
+[data-slot="mobile-family-drawer-root"].ds-root[data-theme="light"] {
   color-scheme: light;
   --muted: var(--control);
 }
 
-[data-slot="mobile-family-drawer-root"].inspector-root[data-theme="dark"] {
+[data-slot="mobile-family-drawer-root"].ds-root[data-theme="dark"] {
   color-scheme: dark;
   --muted: var(--surface);
 }
@@ -39,14 +39,13 @@
   margin-right: 0;
 }
 
-[data-slot="mobile-family-drawer-root"]
-  .inspector-root:not([data-slot="mobile-family-drawer-root"]) {
+[data-slot="mobile-family-drawer-root"] .ds-root:not([data-slot="mobile-family-drawer-root"]) {
   min-height: 0;
   background: transparent;
   color: var(--fg);
 }
 
-[data-slot="mobile-layer-toolbar"].inspector-root {
+[data-slot="mobile-layer-toolbar"].ds-root {
   min-height: 0;
   height: auto;
   background: transparent;
@@ -56,19 +55,19 @@
 
 /* ── Mobile token scale ─────────────────────────────────────────── */
 
-/* Beat inspector portal token reset on nested .inspector-root / .dn-portal-surface. */
+/* Beat inspector portal token reset on nested .ds-root / .ds-portal-surface. */
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector],
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] *,
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  :is(.inspector-root, .dn-portal-surface, .inspector-popover-content, .inspector-fill-popover),
+  :is(.ds-root, .ds-portal-surface, .ds-popover-content, .ds-fill-popover),
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector],
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector] *,
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector]
-  :is(.inspector-root, .dn-portal-surface, .inspector-popover-content, .inspector-fill-popover),
-.dn-portal-surface[data-mobile-inspector],
-.dn-portal-surface[data-mobile-inspector] *,
-.dn-portal-surface[data-mobile-inspector]
-  :is(.inspector-root, .dn-portal-surface, .inspector-popover-content, .inspector-fill-popover) {
+  :is(.ds-root, .ds-portal-surface, .ds-popover-content, .ds-fill-popover),
+.ds-portal-surface[data-mobile-inspector],
+.ds-portal-surface[data-mobile-inspector] *,
+.ds-portal-surface[data-mobile-inspector]
+  :is(.ds-root, .ds-portal-surface, .ds-popover-content, .ds-fill-popover) {
   --type-caption: 1rem;
   --type-meta: 0.875rem;
   --type-value: 1.0625rem;
@@ -92,77 +91,77 @@
   --type-caption: 0.8125rem;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-type-label,
-.dn-portal-surface[data-mobile-inspector] .dn-type-label {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-type-label,
+.ds-portal-surface[data-mobile-inspector] .ds-type-label {
   font-size: var(--type-value);
   line-height: 1.35;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-type-value,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-type-body,
-.dn-portal-surface[data-mobile-inspector] .dn-type-value,
-.dn-portal-surface[data-mobile-inspector] .dn-type-body {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-type-value,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-type-body,
+.ds-portal-surface[data-mobile-inspector] .ds-type-value,
+.ds-portal-surface[data-mobile-inspector] .ds-type-body {
   line-height: 1.35;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-type-meta,
-.dn-portal-surface[data-mobile-inspector] .dn-type-meta {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-type-meta,
+.ds-portal-surface[data-mobile-inspector] .ds-type-meta {
   line-height: 1.35;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-settings-row,
-.dn-portal-surface[data-mobile-inspector] .dn-settings-row {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-settings-row,
+.ds-portal-surface[data-mobile-inspector] .ds-settings-row {
   min-height: var(--control-height);
   height: auto;
   border-radius: var(--radius-md);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-settings-input,
-.dn-portal-surface[data-mobile-inspector] .dn-settings-input {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-settings-input,
+.ds-portal-surface[data-mobile-inspector] .ds-settings-input {
   min-height: var(--control-height);
   font-size: var(--type-value);
   border-radius: var(--radius-md);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-settings-primary,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-settings-row.dn-settings-primary,
-.dn-portal-surface[data-mobile-inspector] .dn-settings-primary,
-.dn-portal-surface[data-mobile-inspector] .dn-settings-row.dn-settings-primary {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-settings-primary,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-settings-row.ds-settings-primary,
+.ds-portal-surface[data-mobile-inspector] .ds-settings-primary,
+.ds-portal-surface[data-mobile-inspector] .ds-settings-row.ds-settings-primary {
   min-height: var(--control-height);
   height: var(--control-height);
   font-size: var(--type-value);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .t-tabs,
-.dn-portal-surface[data-mobile-inspector] .t-tabs {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-tabs,
+.ds-portal-surface[data-mobile-inspector] .ds-tabs {
   min-height: var(--tab-height);
   height: auto;
 }
 
 /* Inactive tabs keep the full foreground color on mobile — no muted fade.
    Selected-tab color rules still take precedence. */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .t-tab:not([aria-selected="true"]),
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-tab:not([aria-selected="true"]),
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  .dn-segment-tab:not([aria-selected="true"]),
-.dn-portal-surface[data-mobile-inspector] .t-tab:not([aria-selected="true"]),
-.dn-portal-surface[data-mobile-inspector] .dn-segment-tab:not([aria-selected="true"]),
-.inspector-root[data-mobile-inspector] .t-tab:not([aria-selected="true"]),
-.inspector-root[data-mobile-inspector] .dn-segment-tab:not([aria-selected="true"]),
-[data-slot="mobile-settings-rail-root"] .t-tab:not([aria-selected="true"]) {
+  .ds-segment-tab:not([aria-selected="true"]),
+.ds-portal-surface[data-mobile-inspector] .ds-tab:not([aria-selected="true"]),
+.ds-portal-surface[data-mobile-inspector] .ds-segment-tab:not([aria-selected="true"]),
+.ds-root[data-mobile-inspector] .ds-tab:not([aria-selected="true"]),
+.ds-root[data-mobile-inspector] .ds-segment-tab:not([aria-selected="true"]),
+[data-slot="mobile-settings-rail-root"] .ds-tab:not([aria-selected="true"]) {
   color: var(--fg);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .t-tab,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-segment-tab,
-.dn-portal-surface[data-mobile-inspector] .t-tab,
-.dn-portal-surface[data-mobile-inspector] .dn-segment-tab {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-tab,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-segment-tab,
+.ds-portal-surface[data-mobile-inspector] .ds-tab,
+.ds-portal-surface[data-mobile-inspector] .ds-segment-tab {
   min-height: var(--tab-height);
   font-size: var(--type-caption);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-tab-bar,
-.dn-portal-surface[data-mobile-inspector] .dn-content-type-tab-bar,
-.inspector-root[data-mobile-inspector] .dn-content-type-tab-bar {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-content-type-tab-bar,
+.ds-portal-surface[data-mobile-inspector] .ds-content-type-tab-bar,
+.ds-root[data-mobile-inspector] .ds-content-type-tab-bar {
   gap: var(--space-stack);
   height: auto;
   min-height: 0;
@@ -171,16 +170,16 @@
 /* Content-type tabs read as icon-over-label circles, matching the settings
    rail. The sliding pill is retired for this bar. */
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  .dn-content-type-tab-bar
-  .t-tabs-pill,
-.dn-portal-surface[data-mobile-inspector] .dn-content-type-tab-bar .t-tabs-pill,
-.inspector-root[data-mobile-inspector] .dn-content-type-tab-bar .t-tabs-pill {
+  .ds-content-type-tab-bar
+  .ds-tabs-pill,
+.ds-portal-surface[data-mobile-inspector] .ds-content-type-tab-bar .ds-tabs-pill,
+.ds-root[data-mobile-inspector] .ds-content-type-tab-bar .ds-tabs-pill {
   display: none;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-tab,
-.dn-portal-surface[data-mobile-inspector] .dn-content-type-segment-tab,
-.inspector-root[data-mobile-inspector] .dn-content-type-segment-tab {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-content-type-segment-tab,
+.ds-portal-surface[data-mobile-inspector] .ds-content-type-segment-tab,
+.ds-root[data-mobile-inspector] .ds-content-type-segment-tab {
   width: 4rem;
   min-width: 4rem;
   min-height: 0;
@@ -193,9 +192,9 @@
   background: transparent;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-icon,
-.dn-portal-surface[data-mobile-inspector] .dn-content-type-segment-icon,
-.inspector-root[data-mobile-inspector] .dn-content-type-segment-icon {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-content-type-segment-icon,
+.ds-portal-surface[data-mobile-inspector] .ds-content-type-segment-icon,
+.ds-root[data-mobile-inspector] .ds-content-type-segment-icon {
   box-sizing: border-box;
   width: 3rem;
   height: 3rem;
@@ -205,49 +204,49 @@
   background: var(--rail-button-bg, #ffffff);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-content-type-segment-label,
-.dn-portal-surface[data-mobile-inspector] .dn-content-type-segment-label,
-.inspector-root[data-mobile-inspector] .dn-content-type-segment-label {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-content-type-segment-label,
+.ds-portal-surface[data-mobile-inspector] .ds-content-type-segment-label,
+.ds-root[data-mobile-inspector] .ds-content-type-segment-label {
   font-size: var(--type-caption);
   line-height: 1.15;
   color: var(--muted);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  .dn-content-type-segment-tab[aria-selected="true"]
-  .dn-content-type-segment-label,
-.dn-portal-surface[data-mobile-inspector]
-  .dn-content-type-segment-tab[aria-selected="true"]
-  .dn-content-type-segment-label,
-.inspector-root[data-mobile-inspector]
-  .dn-content-type-segment-tab[aria-selected="true"]
-  .dn-content-type-segment-label {
+  .ds-content-type-segment-tab[aria-selected="true"]
+  .ds-content-type-segment-label,
+.ds-portal-surface[data-mobile-inspector]
+  .ds-content-type-segment-tab[aria-selected="true"]
+  .ds-content-type-segment-label,
+.ds-root[data-mobile-inspector]
+  .ds-content-type-segment-tab[aria-selected="true"]
+  .ds-content-type-segment-label {
   color: var(--fg);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-option-tile,
-.dn-portal-surface[data-mobile-inspector] .dn-option-tile {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-option-tile,
+.ds-portal-surface[data-mobile-inspector] .ds-option-tile {
   border-radius: var(--radius-xs);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-option-scroll-chip,
-.dn-portal-surface[data-mobile-inspector] .dn-option-scroll-chip {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-option-scroll-chip,
+.ds-portal-surface[data-mobile-inspector] .ds-option-scroll-chip {
   min-height: var(--control-height);
   height: var(--control-height);
   font-size: var(--type-caption);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-preset-item,
-.dn-portal-surface[data-mobile-inspector] .dn-preset-item {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-preset-item,
+.ds-portal-surface[data-mobile-inspector] .ds-preset-item {
   min-height: var(--control-height);
   height: var(--control-height);
   font-size: var(--type-caption);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-preview-tile,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-preview-tile-size,
-.dn-portal-surface[data-mobile-inspector] .dn-preview-tile,
-.dn-portal-surface[data-mobile-inspector] .dn-preview-tile-size {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-preview-tile,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-preview-tile-size,
+.ds-portal-surface[data-mobile-inspector] .ds-preview-tile,
+.ds-portal-surface[data-mobile-inspector] .ds-preview-tile-size {
   width: var(--preview-tile);
   height: var(--preview-tile);
   min-width: var(--preview-tile);
@@ -255,42 +254,42 @@
   border-radius: var(--radius-xs);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-logo-icon-picker-search-icon,
-.dn-portal-surface[data-mobile-inspector] .dn-logo-icon-picker-search-icon {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-logo-icon-picker-search-icon,
+.ds-portal-surface[data-mobile-inspector] .ds-logo-icon-picker-search-icon {
   width: 1rem;
   height: 1rem;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-logo-icon-picker-icon,
-.dn-portal-surface[data-mobile-inspector] .dn-logo-icon-picker-icon {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-logo-icon-picker-icon,
+.ds-portal-surface[data-mobile-inspector] .ds-logo-icon-picker-icon {
   width: 1.375rem;
   height: 1.375rem;
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  .dn-logo-icon-picker
-  .dn-settings-input,
-.dn-portal-surface[data-mobile-inspector] .dn-logo-icon-picker .dn-settings-input {
+  .ds-logo-icon-picker
+  .ds-settings-input,
+.ds-portal-surface[data-mobile-inspector] .ds-logo-icon-picker .ds-settings-input {
   min-height: var(--control-height);
   height: var(--control-height);
   padding-inline: calc(var(--row-px) + 1.25rem) var(--row-px);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-logo-icon-picker-grid,
-.dn-portal-surface[data-mobile-inspector] .dn-logo-icon-picker-grid {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-logo-icon-picker-grid,
+.ds-portal-surface[data-mobile-inspector] .ds-logo-icon-picker-grid {
   gap: 0.5rem;
   padding-inline: 0;
 }
 
-/* Grid columns size the tiles — beat the fixed .dn-preview-tile width. */
+/* Grid columns size the tiles — beat the fixed .ds-preview-tile width. */
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  .dn-logo-icon-picker-grid
-  .dn-logo-icon-picker-tile,
-.dn-portal-surface[data-mobile-inspector] .dn-logo-icon-picker-grid .dn-logo-icon-picker-tile,
+  .ds-logo-icon-picker-grid
+  .ds-logo-icon-picker-tile,
+.ds-portal-surface[data-mobile-inspector] .ds-logo-icon-picker-grid .ds-logo-icon-picker-tile,
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  .dn-logo-icon-picker-grid
-  .dn-logo-icon-picker-skeleton,
-.dn-portal-surface[data-mobile-inspector] .dn-logo-icon-picker-grid .dn-logo-icon-picker-skeleton {
+  .ds-logo-icon-picker-grid
+  .ds-logo-icon-picker-skeleton,
+.ds-portal-surface[data-mobile-inspector] .ds-logo-icon-picker-grid .ds-logo-icon-picker-skeleton {
   width: 100%;
   height: auto;
   min-width: 0;
@@ -298,14 +297,14 @@
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="switch"],
-.dn-portal-surface[data-mobile-inspector] [data-slot="switch"] {
+.ds-portal-surface[data-mobile-inspector] [data-slot="switch"] {
   transform: scale(1.2);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  .dn-insert-menu-popover
-  .dn-settings-row,
-.dn-portal-surface[data-mobile-inspector] .dn-insert-menu-popover .dn-settings-row {
+  .ds-insert-menu-popover
+  .ds-settings-row,
+.ds-portal-surface[data-mobile-inspector] .ds-insert-menu-popover .ds-settings-row {
   min-height: var(--control-height);
 }
 
@@ -331,7 +330,7 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-nested-header {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-drawer-nested-header {
   display: grid;
   grid-template-columns: var(--nested-header-hit) minmax(0, 1fr) var(--nested-header-hit);
   align-items: center;
@@ -342,7 +341,7 @@
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  .dn-mobile-drawer-nested-header__title {
+  .ds-mobile-drawer-nested-header__title {
   margin: 0;
   min-width: 0;
   overflow: hidden;
@@ -355,7 +354,7 @@
   color: var(--foreground, var(--fg));
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-back {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-drawer-back {
   display: flex;
   width: var(--nested-header-hit, var(--icon-hit));
   height: var(--nested-header-hit, var(--icon-hit));
@@ -370,12 +369,12 @@
     color 150ms;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-back:hover {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-drawer-back:hover {
   background: var(--accent, var(--control-hover));
   color: var(--foreground, var(--fg));
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-drawer-body {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-drawer-body {
   padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
 }
 
@@ -446,7 +445,7 @@
   corner-shape: round;
 }
 
-[data-slot="mobile-layer-toolbar"][data-mobile-inspector] .dn-mobile-layer-toolbar-scroll {
+[data-slot="mobile-layer-toolbar"][data-mobile-inspector] .ds-mobile-layer-toolbar-scroll {
   border-radius: 9999px;
   corner-shape: round;
   background: var(--bg);
@@ -486,24 +485,24 @@
   height: var(--icon-hit);
 }
 
-.dn-portal-surface[data-mobile-inspector] [data-slot="drafting-layer-text-size-settings"] button {
+.ds-portal-surface[data-mobile-inspector] [data-slot="drafting-layer-text-size-settings"] button {
   min-height: var(--control-height);
   font-size: var(--type-value);
   color: var(--fg);
   border-radius: var(--radius-sm);
 }
 
-.dn-portal-surface[data-mobile-inspector]
+.ds-portal-surface[data-mobile-inspector]
   [data-slot="drafting-layer-text-size-settings"]
   button:hover,
-.dn-portal-surface[data-mobile-inspector]
+.ds-portal-surface[data-mobile-inspector]
   [data-slot="drafting-layer-text-size-settings"]
   button[aria-pressed="true"] {
   background: var(--control);
   color: var(--fg);
 }
 
-.dn-portal-surface[data-mobile-inspector]
+.ds-portal-surface[data-mobile-inspector]
   [data-slot="drafting-layer-text-typography-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"] {
   width: var(--icon-hit);
@@ -512,10 +511,10 @@
   color: var(--fg);
 }
 
-.dn-portal-surface[data-mobile-inspector]
+.ds-portal-surface[data-mobile-inspector]
   [data-slot="drafting-layer-text-typography-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"]:hover,
-.dn-portal-surface[data-mobile-inspector]
+.ds-portal-surface[data-mobile-inspector]
   [data-slot="drafting-layer-text-typography-settings"]
   [data-slot="drafting-layer-floating-toolbar-button"][aria-pressed="true"] {
   background: var(--control);
@@ -527,7 +526,7 @@
    Every rail is a native horizontal scroller with an edge fade; tiles are
    fixed-size so the row overflows and the next option peeks. */
 
-.dn-settings-shelf {
+.ds-settings-shelf {
   display: flex;
   width: 100%;
   min-width: 0;
@@ -537,15 +536,15 @@
 
 /* A shelf label is a caption, not a control: it must not reserve a full
    control-height row, which would push families past the drawer cap. */
-.dn-settings-shelf__label {
+.ds-settings-shelf__label {
   display: flex;
   min-height: 1.25rem;
   align-items: center;
   padding-inline: var(--row-px);
 }
 
-.dn-mobile-rail,
-.dn-mobile-card-rail {
+.ds-mobile-rail,
+.ds-mobile-card-rail {
   display: flex;
   min-width: max-content;
   gap: var(--space-inline);
@@ -553,23 +552,23 @@
   padding-inline: 0.25rem;
 }
 
-.dn-mobile-rail {
+.ds-mobile-rail {
   align-items: stretch;
 }
 
-.dn-mobile-card-rail {
+.ds-mobile-card-rail {
   align-items: stretch;
 }
 
-.dn-mobile-rail > *,
-.dn-mobile-card-rail > * {
+.ds-mobile-rail > *,
+.ds-mobile-card-rail > * {
   flex: 0 0 auto;
 }
 
 /* Fixed square tiles so the shelf overflows instead of compressing. Width plus
    aspect-ratio covers both fixed-size tiles and fluid ones whose `w-full`
    would otherwise collapse against a max-content row. */
-.dn-mobile-rail > * {
+.ds-mobile-rail > * {
   width: var(--preview-tile);
   min-width: var(--preview-tile);
   max-width: var(--preview-tile);
@@ -577,7 +576,7 @@
 }
 
 /* Landscape cards: wallpapers and previews. */
-.dn-mobile-card-rail > * {
+.ds-mobile-card-rail > * {
   width: var(--card-tile);
   min-width: var(--card-tile);
   max-width: var(--card-tile);
@@ -598,7 +597,7 @@
    Family tabs sit at the bottom of the drawer, under the options they
    switch, and stay pinned while the options scroll. */
 
-.dn-mobile-tab-dock {
+.ds-mobile-tab-dock {
   position: sticky;
   bottom: calc(-1 * max(1.25rem, env(safe-area-inset-bottom, 0px)));
   z-index: 2;
@@ -612,19 +611,19 @@
   border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
 }
 
-.dn-mobile-tab-dock:empty {
+.ds-mobile-tab-dock:empty {
   display: none;
 }
 
 /* One row per docked tab bar, outermost navigation first. */
-.dn-mobile-tab-dock > * {
+.ds-mobile-tab-dock > * {
   width: 100%;
   min-width: 0;
 }
 
 /* Sliding tabs: no track, the selected tab carries the grey pill and the
    pill slides between tabs. Sized for a docked bar, not a control row. */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-tab-dock .t-tabs {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-tab-dock .ds-tabs {
   min-height: 0;
   height: auto;
   gap: 0.25rem;
@@ -632,7 +631,7 @@
   background: transparent;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-tab-dock .t-tabs-pill {
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-tab-dock .ds-tabs-pill {
   inset-block: 0;
   border-radius: 9999px;
   corner-shape: round;
@@ -640,16 +639,16 @@
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  .dn-mobile-tab-dock
-  .t-tabs
+  .ds-mobile-tab-dock
+  .ds-tabs
   > [role="tab"] {
   margin-inline: 0;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .dn-mobile-tab-dock .dn-segment-tab,
+[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-tab-dock .ds-segment-tab,
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  .dn-mobile-tab-dock
-  .dn-content-type-segment-tab {
+  .ds-mobile-tab-dock
+  .ds-content-type-segment-tab {
   min-height: 2.5rem;
   height: 2.5rem;
   gap: 0.375rem;
@@ -661,14 +660,14 @@
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  .dn-mobile-tab-dock
-  .dn-segment-tab[aria-selected="true"] {
+  .ds-mobile-tab-dock
+  .ds-segment-tab[aria-selected="true"] {
   color: var(--fg);
 }
 
 [data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  .dn-mobile-tab-dock
-  .dn-content-type-segment-label {
+  .ds-mobile-tab-dock
+  .ds-content-type-segment-label {
   font-size: var(--type-caption);
   line-height: 1.1;
 }
@@ -677,15 +676,15 @@
    Persistent bottom navigation: circular icon over a short label in a
    horizontally scrolling rail. Replaces the FamilyDrawer shell. */
 
-/* Specificity must beat `.inspector-root[data-theme="light"]` (0,2,0), which
+/* Specificity must beat `.ds-root[data-theme="light"]` (0,2,0), which
    resets the fade to `var(--bg)` — pure white in light mode. */
-[data-slot="mobile-settings-rail-root"].inspector-root[data-mobile-inspector] {
+[data-slot="mobile-settings-rail-root"].ds-root[data-mobile-inspector] {
   left: env(safe-area-inset-left, 0px);
   right: env(safe-area-inset-right, 0px);
   bottom: max(1rem, env(safe-area-inset-bottom, 0px), var(--mobile-drawer-keyboard-inset, 0px));
   width: auto;
   height: auto;
-  /* `.inspector-root` forces min-height: 100dvh; a fixed rail must not inherit it. */
+  /* `.ds-root` forces min-height: 100dvh; a fixed rail must not inherit it. */
   min-height: 0;
   overflow: hidden;
   border: 0;
@@ -696,7 +695,7 @@
   --scroll-edge-chevron-color: var(--muted);
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__scroll {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__scroll {
   background: transparent;
 }
 
@@ -721,22 +720,22 @@
 /* Two-phase stage swap: the whole rail block fades out showing the old view;
    the snapshot commits while invisible, then it fades back in. One element,
    one opacity transition — nothing unmounts, nothing reflows while visible. */
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__stage {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__stage {
   transition: opacity 0.3s ease-out;
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__stage.is-fading {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__stage.is-fading {
   opacity: 0;
   transition: opacity 0.18s ease-in;
 }
 
 /* Swap container for the option row. Mirrors the row's own sizing. */
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__swap {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__swap {
   width: max-content;
   min-width: 100%;
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__row {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__row {
   display: flex;
   /* `max-content` keeps a long row scrollable; `min-width: 100%` plus
      `space-around` spreads a short row (e.g. Module/Eye/Frame/Logo) evenly. */
@@ -752,12 +751,12 @@
   transition: opacity 0.3s ease-out;
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__row.is-fading {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__row.is-fading {
   opacity: 0;
   transition: opacity 0.18s ease-in;
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__item {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__item {
   display: flex;
   flex: 0 0 auto;
   width: 4.25rem;
@@ -771,7 +770,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__circle {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__circle {
   display: flex;
   width: 3rem;
   height: 3rem;
@@ -785,12 +784,12 @@
 }
 
 [data-slot="mobile-settings-rail-root"]
-  .dn-mobile-settings-rail__item:active
-  .dn-mobile-settings-rail__circle {
+  .ds-mobile-settings-rail__item:active
+  .ds-mobile-settings-rail__circle {
   scale: 0.94;
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__label {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__label {
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1.1;
@@ -799,14 +798,14 @@
 }
 
 /* Text pill variant: no icon, fixed slot so every pill is the same size. */
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__item--pill {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__item--pill {
   width: 5rem;
   min-width: 5rem;
   align-self: center;
   gap: 0;
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__pill {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__pill {
   display: flex;
   width: 100%;
   height: 2.5rem;
@@ -826,7 +825,7 @@
 /* Corner actions under a drilled-in option row. The `margin-inline` centres
    each button inside a row item slot, so X and tick line up with the first and
    last option circles instead of with the scroller edge. */
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__actions {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -836,7 +835,7 @@
   padding: 0 0.625rem;
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__action {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__action {
   display: flex;
   width: 3rem;
   height: 3rem;
@@ -854,7 +853,7 @@
 }
 
 /* The open family's name sits centred between the corner buttons. */
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__family {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__family {
   color: var(--fg);
   font-size: 0.8125rem;
   font-weight: 600;
@@ -864,7 +863,7 @@
 
 /* Family-row option tiles (color swatches, shape glyphs, picker symbols) reuse
    the preview-tile slot so they sit in the same rhythm as the style catalogue.
-   `dn-fill-option-tile` only sizes itself inside `.dn-fill-option-grid`. */
+   `ds-fill-option-tile` only sizes itself inside `.ds-fill-option-grid`. */
 [data-slot="mobile-settings-rail-root"] [data-slot="mobile-rail-option"] {
   flex: 0 0 var(--preview-tile);
   width: var(--preview-tile);
@@ -878,15 +877,15 @@
 
 /* Pressed pills read selected the way segment tabs do — stronger fill. */
 [data-slot="mobile-settings-rail-root"]
-  .dn-mobile-settings-rail__item--pill[aria-pressed="true"]
-  .dn-mobile-settings-rail__pill {
+  .ds-mobile-settings-rail__item--pill[aria-pressed="true"]
+  .ds-mobile-settings-rail__pill {
   background: color-mix(in srgb, var(--fg) 16%, var(--rail-button-bg, #ffffff));
 }
 
 /* Fill-mode row under the options scrollarea (Color / Background). The
    options scroll above it; the row picks which set is shown. Color uses a
    sliding-pill tab bar; Background keeps text pills. */
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__subrow {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__subrow {
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -896,12 +895,12 @@
 }
 
 /* The tab bar centres natural-width tabs — no flex-1 spreading. */
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__tabs {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__tabs {
   flex: 1 1 auto;
   min-width: 0;
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__tabs .t-tabs {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__tabs .ds-tabs {
   min-height: 2.5rem;
   height: 2.5rem;
   align-items: center;
@@ -916,19 +915,19 @@
   margin-inline: auto;
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__tabs .t-tabs > [role="tab"] {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__tabs .ds-tabs > [role="tab"] {
   margin-inline: 0;
 }
 
 /* Pill-shaped tabs with a white sliding pill behind the active tab. */
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__tabs .t-tabs-pill {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__tabs .ds-tabs-pill {
   inset-block: 3px;
   border-radius: 9999px;
   corner-shape: round;
   background: var(--rail-pill, #ffffff);
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__tabs .t-tab {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__tabs .ds-tab {
   flex: 0 0 auto;
   min-height: 2.5rem;
   height: 2.5rem;
@@ -939,23 +938,23 @@
 }
 
 [data-slot="mobile-settings-rail-root"]
-  .dn-mobile-settings-rail__tabs
-  .t-tab[aria-selected="true"] {
+  .ds-mobile-settings-rail__tabs
+  .ds-tab[aria-selected="true"] {
   color: var(--rail-pill-fg, #0a0a0a);
 }
 
 /* Dark theme: inactive tabs keep the full foreground color — no fade. */
 
-[data-slot="mobile-settings-rail-root"][data-theme="dark"] .dn-mobile-settings-rail__tabs .t-tab,
+[data-slot="mobile-settings-rail-root"][data-theme="dark"] .ds-mobile-settings-rail__tabs .ds-tab,
 [data-slot="mobile-settings-rail-root"][data-theme="dark"]
-  .dn-mobile-settings-rail__tabs
-  .t-tab[aria-selected="true"] {
+  .ds-mobile-settings-rail__tabs
+  .ds-tab[aria-selected="true"] {
   color: var(--fg);
 }
 
 /* Shape family footer: the subrow stacks the padding slider (or fill sub-mode
    tabs) above the Shape|Fill view tabs. */
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__shapefooter {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__shapefooter {
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
@@ -963,14 +962,14 @@
   gap: 0.125rem;
 }
 
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__slider {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__slider {
   min-width: 0;
   padding: 0.25rem 0.375rem 0;
 }
 
-/* Image-upload tiles only size themselves inside `.dn-fill-option-grid` — give
+/* Image-upload tiles only size themselves inside `.ds-fill-option-grid` — give
    them the rail tile slot like the other `mobile-rail-option` tiles. */
-[data-slot="mobile-settings-rail-root"] .dn-mobile-settings-rail__upload-tile {
+[data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__upload-tile {
   flex: 0 0 var(--preview-tile);
   width: var(--preview-tile);
   height: var(--preview-tile);

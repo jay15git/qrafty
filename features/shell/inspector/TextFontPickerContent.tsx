@@ -70,7 +70,7 @@ export function TextFontPickerContent({
                 aria-label={`Use ${font.label} text font`}
                 aria-selected={selectedFont.id === font.id}
                 className={cn(
-                  "dn-mobile-font-option flex min-h-[var(--control-height)] min-w-0 items-center rounded-[var(--radius-sm)] px-[length:var(--row-px)] text-left font-semibold transition-colors",
+                  "ds-mobile-font-option flex min-h-[var(--control-height)] min-w-0 items-center rounded-[var(--radius-sm)] px-[length:var(--row-px)] text-left font-semibold transition-colors",
                   selectedFont.id === font.id
                     ? "bg-[var(--control)] text-[var(--fg)]"
                     : "text-[var(--fg)] hover:bg-[var(--control)]",

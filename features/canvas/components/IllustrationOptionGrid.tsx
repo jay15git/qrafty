@@ -19,7 +19,7 @@ export function IllustrationOptionGrid({
 }: IllustrationOptionGridProps) {
   const isInsertDesktop = variant === "insert-desktop";
   const buttonClassName = isInsertDesktop
-    ? "dn-option-tile flex aspect-square w-full min-w-0 items-center justify-center p-1.5 dn-squircle-xs"
+    ? "ds-option-tile flex aspect-square w-full min-w-0 items-center justify-center p-1.5 ds-squircle-xs"
     : "flex aspect-square w-full min-w-0 items-center justify-center p-2 text-[var(--canvas-ink-muted)] transition hover:bg-[var(--panel-bg-hover)] hover:text-[var(--canvas-ink)]";
 
   return (
@@ -27,7 +27,7 @@ export function IllustrationOptionGrid({
       aria-label="Illustration options"
       className={
         isInsertDesktop
-          ? "dn-insert-menu-option-grid dn-insert-menu-option-grid--3"
+          ? "ds-insert-menu-option-grid ds-insert-menu-option-grid--3"
           : "grid max-h-72 grid-cols-3 gap-0 overflow-y-auto"
       }
       data-slot={dataSlot}

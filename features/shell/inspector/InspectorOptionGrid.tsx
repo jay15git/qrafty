@@ -304,7 +304,7 @@ export function InspectorScrollArea({ children }: { children: ReactNode }) {
       data-slot="inspector-scroll-area"
       persistKey="inspector-body"
       scrollFade
-      className="inspector-scroll-area min-h-0 min-w-0 w-full max-w-full flex-1"
+      className="ds-scroll-area min-h-0 min-w-0 w-full max-w-full flex-1"
       viewportClassName="min-w-0"
     >
       <div className="min-w-0 w-full max-w-full" data-slot="inspector-scroll">

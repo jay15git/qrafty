@@ -96,14 +96,14 @@ export const DesktopAccordionFieldSelect = React.forwardRef<
           variant="borderless"
           className={cn(
             "min-w-0 font-mono text-xs uppercase tracking-wide shadow-none",
-            inline ? "h-full px-2" : "h-[var(--control-height,2rem)] w-full px-2.5 dn-squircle-xs",
+            inline ? "h-full px-2" : "h-[var(--control-height,2rem)] w-full px-2.5 ds-squircle-xs",
             className,
           )}
         />
         <SelectContent
           className={cn(
             portalSurface.portaledSurfaceClassName,
-            "inspector-popover-content dn-portal-surface overflow-hidden p-0 dn-squircle-md",
+            "ds-popover-content ds-portal-surface overflow-hidden p-0 ds-squircle-md",
           )}
           data-theme={portalSurface.portaledSurfaceDataTheme}
           positionerClassName="z-[20002]"

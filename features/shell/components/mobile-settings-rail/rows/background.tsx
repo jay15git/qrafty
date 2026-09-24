@@ -92,7 +92,7 @@ export function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
             }
           >
             <PaperShaderOptionPreview
-              className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
+              className="relative z-10 block size-full overflow-hidden ds-squircle-xs"
               shaderId={option.id}
             />
           </button>
@@ -114,10 +114,7 @@ export function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
             title: "Background",
             content: (
               <Suspense fallback={null}>
-                <div
-                  className="inspector-fill-popover w-full min-w-0"
-                  data-theme={model.actualTheme}
-                >
+                <div className="ds-fill-popover w-full min-w-0" data-theme={model.actualTheme}>
                   <LazyInspectorFillPicker
                     lockedFillMode={lockedFillModeForRailMode(mode)}
                     qrGradient
@@ -162,9 +159,9 @@ export function MobileBackgroundRailFooter({ model }: MobileRailRowProps) {
   }
 
   return (
-    <div className="dn-mobile-settings-rail__tabs">
+    <div className="ds-mobile-settings-rail__tabs">
       <SegmentTabs
-        className="dn-mobile-settings-rail__tabbar"
+        className="ds-mobile-settings-rail__tabbar"
         items={SCENE_FILL_MODES.map((mode) => ({
           id: mode.id,
           label: mode.label,

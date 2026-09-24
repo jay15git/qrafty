@@ -84,7 +84,7 @@ function BorderColorRow({
 
   return (
     <div className="flex min-h-[var(--control-height)] items-center">
-      <span className="dn-row-label-text pl-[var(--row-px)]">Color</span>
+      <span className="ds-row-label-text pl-[var(--row-px)]">Color</span>
       <SettingsFillPopover
         align="start"
         hint="Border color"

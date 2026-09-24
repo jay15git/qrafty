@@ -48,11 +48,11 @@ function LogoIconTile({
     <button
       aria-label={ariaLabel}
       aria-pressed={isSelected}
-      className="dn-logo-icon-picker-tile dn-pressable-pickable grid min-w-0 place-items-center"
+      className="ds-logo-icon-picker-tile ds-pressable-pickable grid min-w-0 place-items-center"
       type="button"
       onClick={onClick}
     >
-      <span className="dn-logo-icon-picker-tile-inner dn-squircle-xs">{children}</span>
+      <span className="ds-logo-icon-picker-tile-inner ds-squircle-xs">{children}</span>
     </button>
   );
 }
@@ -88,14 +88,14 @@ export function LogoPickerTileIcon({
 
   if (brandIcon) {
     const Icon = brandIcon.icon;
-    return <Icon aria-hidden className="dn-logo-icon-picker-icon" />;
+    return <Icon aria-hidden className="ds-logo-icon-picker-icon" />;
   }
 
   if (iconstackSvg) {
     return (
       <span
         aria-hidden
-        className="dn-logo-icon-picker-icon flex items-center justify-center text-[var(--fg)] [&_svg]:size-full"
+        className="ds-logo-icon-picker-icon flex items-center justify-center text-[var(--fg)] [&_svg]:size-full"
         dangerouslySetInnerHTML={{ __html: normalizeIconstackSvgMarkup(iconstackSvg) }}
       />
     );
@@ -104,7 +104,7 @@ export function LogoPickerTileIcon({
   return (
     <span
       aria-hidden
-      className="dn-logo-icon-picker-icon border border-[color-mix(in_srgb,var(--line)_40%,transparent)] dn-squircle-xs"
+      className="ds-logo-icon-picker-icon border border-[color-mix(in_srgb,var(--line)_40%,transparent)] ds-squircle-xs"
     />
   );
 }
@@ -121,7 +121,7 @@ function IconstackIconPreview({
   }
 
   return (
-    <span className="dn-type-caption max-w-full truncate px-1 font-medium leading-none">
+    <span className="ds-type-caption max-w-full truncate px-1 font-medium leading-none">
       {result.name}
     </span>
   );
@@ -157,7 +157,7 @@ function LazyIconstackIcon({ result }: { result: IconstackSearchResult }) {
         }
       },
       {
-        root: node.closest(".dn-logo-icon-picker-viewport"),
+        root: node.closest(".ds-logo-icon-picker-viewport"),
         rootMargin: "200px",
       },
     );
@@ -188,7 +188,7 @@ function LazyIconstackIcon({ result }: { result: IconstackSearchResult }) {
 
   if (failed) {
     return (
-      <span className="dn-type-caption max-w-full truncate px-1 font-medium leading-none">
+      <span className="ds-type-caption max-w-full truncate px-1 font-medium leading-none">
         {result.name}
       </span>
     );
@@ -198,7 +198,7 @@ function LazyIconstackIcon({ result }: { result: IconstackSearchResult }) {
     <span
       ref={hostRef}
       aria-hidden
-      className="dn-logo-icon-picker-icon dn-logo-icon-picker-icon-pending animate-pulse dn-squircle-xs"
+      className="ds-logo-icon-picker-icon ds-logo-icon-picker-icon-pending animate-pulse ds-squircle-xs"
     />
   );
 }
@@ -211,11 +211,11 @@ function LogoIconPickerEmpty() {
   }, []);
 
   return (
-    <div className="dn-logo-icon-picker-state dn-logo-icon-picker-empty col-span-full">
+    <div className="ds-logo-icon-picker-state ds-logo-icon-picker-empty col-span-full">
       <SearchIcon ref={iconRef} aria-hidden className="text-[var(--muted)]" size={44} />
       <div className="flex flex-col items-center gap-0.5">
-        <p className="dn-type-meta font-semibold text-[var(--fg)]">No matches found</p>
-        <p className="dn-type-meta text-[var(--popover-muted)]">
+        <p className="ds-type-meta font-semibold text-[var(--fg)]">No matches found</p>
+        <p className="ds-type-meta text-[var(--popover-muted)]">
           Try a different keyword or spelling
         </p>
       </div>
@@ -230,7 +230,7 @@ function LogoIconPickerSkeletonTiles({ count }: { count: number }) {
         <div
           key={index}
           aria-hidden
-          className="dn-logo-icon-picker-skeleton min-w-0 animate-pulse dn-squircle-xs bg-[var(--control)]"
+          className="ds-logo-icon-picker-skeleton min-w-0 animate-pulse ds-squircle-xs bg-[var(--control)]"
         />
       ))}
     </>
@@ -239,10 +239,10 @@ function LogoIconPickerSkeletonTiles({ count }: { count: number }) {
 
 function LogoIconPickerError({ error, onRetry }: { error: unknown; onRetry: () => void }) {
   return (
-    <div className="dn-logo-icon-picker-state col-span-4">
-      <p className="dn-type-meta text-[var(--popover-muted)]">{getIconstackErrorMessage(error)}</p>
+    <div className="ds-logo-icon-picker-state col-span-4">
+      <p className="ds-type-meta text-[var(--popover-muted)]">{getIconstackErrorMessage(error)}</p>
       <button
-        className="dn-pressable-press-only dn-type-meta dn-squircle-xs border border-[var(--line)] px-3 py-1.5 font-medium text-[var(--fg)] hover:bg-[var(--popover-tile-hover)]"
+        className="ds-pressable-press-only ds-type-meta ds-squircle-xs border border-[var(--line)] px-3 py-1.5 font-medium text-[var(--fg)] hover:bg-[var(--popover-tile-hover)]"
         type="button"
         onClick={onRetry}
       >
@@ -276,7 +276,7 @@ function LogoIconPickerLoadMore({
         }
       },
       {
-        root: node.closest(".dn-logo-icon-picker-viewport"),
+        root: node.closest(".ds-logo-icon-picker-viewport"),
         rootMargin: "160px",
       },
     );
@@ -290,13 +290,13 @@ function LogoIconPickerLoadMore({
 
   if (typeof IntersectionObserver === "undefined") {
     return (
-      <button className="dn-logo-icon-picker-state col-span-4" type="button" onClick={onLoadMore}>
-        <span className="dn-type-meta text-[var(--popover-muted)]">Load more</span>
+      <button className="ds-logo-icon-picker-state col-span-4" type="button" onClick={onLoadMore}>
+        <span className="ds-type-meta text-[var(--popover-muted)]">Load more</span>
       </button>
     );
   }
 
-  return <div ref={ref} aria-hidden className="dn-logo-icon-picker-sentinel" />;
+  return <div ref={ref} aria-hidden className="ds-logo-icon-picker-sentinel" />;
 }
 
 function CuratedLogoIconGrid({
@@ -349,7 +349,7 @@ function CuratedLogoIconGrid({
         ))
       )}
       {curatedError ? (
-        <p className="col-span-4 px-1 py-3 text-center text-[var(--popover-muted)] dn-type-meta">
+        <p className="col-span-4 px-1 py-3 text-center text-[var(--popover-muted)] ds-type-meta">
           {curatedError}
         </p>
       ) : null}
@@ -402,8 +402,8 @@ function SearchLogoIconResults({
         onLoadMore={onLoadMore}
       />
       {showResultCap ? (
-        <div className="dn-logo-icon-picker-state col-span-4">
-          <p className="dn-type-meta text-[var(--popover-muted)]">
+        <div className="ds-logo-icon-picker-state col-span-4">
+          <p className="ds-type-meta text-[var(--popover-muted)]">
             {total - results.length}+ more — refine search
           </p>
         </div>
@@ -442,7 +442,7 @@ function SearchLogoIconGrid({
 
   if (showSearchSkeleton) {
     return (
-      <div className="dn-logo-icon-picker-state dn-logo-icon-picker-empty col-span-full">
+      <div className="ds-logo-icon-picker-state ds-logo-icon-picker-empty col-span-full">
         <Loader className="text-[var(--muted)]" label="Searching icons" size={32} variant="dots" />
       </div>
     );
@@ -510,16 +510,16 @@ export function LogoIconPicker({
   };
 
   return (
-    <div className="dn-logo-icon-picker dn-section-stack">
-      <div className="dn-logo-icon-picker-search">
+    <div className="ds-logo-icon-picker ds-section-stack">
+      <div className="ds-logo-icon-picker-search">
         <Search
           aria-hidden
-          className="dn-logo-icon-picker-search-icon pointer-events-none text-[var(--muted)]"
+          className="ds-logo-icon-picker-search-icon pointer-events-none text-[var(--muted)]"
         />
         <SettingsInput
           aria-label="Search logo icons"
           autoComplete="off"
-          className="dn-settings-input dn-squircle-sm w-full min-w-0"
+          className="ds-settings-input ds-squircle-sm w-full min-w-0"
           maxLength={80}
           placeholder="Search icons"
           spellCheck={false}
@@ -532,19 +532,19 @@ export function LogoIconPicker({
       <ScrollArea
         chevron
         className={cn(
-          "dn-logo-icon-picker-scroll min-w-0 w-full",
-          !mobileDensity && "dn-logo-icon-picker-scroll-fixed",
+          "ds-logo-icon-picker-scroll min-w-0 w-full",
+          !mobileDensity && "ds-logo-icon-picker-scroll-fixed",
         )}
         cueSize="tight"
         orientation="vertical"
         persistKey="logo-icon-grid"
         scrollFade
-        viewportClassName="dn-logo-icon-picker-viewport"
+        viewportClassName="ds-logo-icon-picker-viewport"
       >
         <div
           className={cn(
-            "dn-logo-icon-picker-grid",
-            mobileDensity && "dn-logo-icon-picker-grid-mobile",
+            "ds-logo-icon-picker-grid",
+            mobileDensity && "ds-logo-icon-picker-grid-mobile",
           )}
         >
           {!canSearch ? (

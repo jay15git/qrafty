@@ -150,7 +150,7 @@ function VideoExportControls({
         }
       />
       {!canExportVideo ? (
-        <p className="dn-type-meta text-center">Add motion or animated QR to export video.</p>
+        <p className="ds-type-meta text-center">Add motion or animated QR to export video.</p>
       ) : null}
     </div>
   );
@@ -255,7 +255,7 @@ export function ExportSettingsPanel({ model }: { model: InspectorModel }) {
       />
       {exportInProgress ? (
         <button
-          className="dn-type-meta text-center text-[var(--fg-secondary)] underline-offset-2 hover:underline"
+          className="ds-type-meta text-center text-[var(--fg-secondary)] underline-offset-2 hover:underline"
           type="button"
           onClick={() => controller?.onExportCancel?.()}
         >
@@ -263,7 +263,7 @@ export function ExportSettingsPanel({ model }: { model: InspectorModel }) {
         </button>
       ) : null}
       {controller?.exportDownloadError ? (
-        <p className="dn-type-meta text-center text-red-500">{controller.exportDownloadError}</p>
+        <p className="ds-type-meta text-center text-red-500">{controller.exportDownloadError}</p>
       ) : null}
     </div>
   );

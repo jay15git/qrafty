@@ -110,11 +110,11 @@ export function SegmentTabs({
     <div
       ref={tablistRef}
       className={cn(
-        "t-tabs dn-tab-bar flex bg-transparent p-0 dn-squircle-xs",
+        "ds-tabs ds-tab-bar flex bg-transparent p-0 ds-squircle-xs",
         scrollable
-          ? "dn-content-type-tab-bar min-w-max max-w-none"
+          ? "ds-content-type-tab-bar min-w-max max-w-none"
           : "w-full max-w-full overflow-hidden",
-        variant === "muted" && "t-tabs--muted",
+        variant === "muted" && "ds-tabs--muted",
         className,
       )}
       role="tablist"
@@ -122,7 +122,7 @@ export function SegmentTabs({
       <span
         ref={pillRef}
         aria-hidden
-        className={cn("t-tabs-pill dn-squircle-xs", variant === "muted" && "t-tabs-pill--muted")}
+        className={cn("ds-tabs-pill ds-squircle-xs", variant === "muted" && "ds-tabs-pill--muted")}
       />
       {normalizedItems.map((item) => {
         const active = item.id === activeKey;
@@ -137,11 +137,11 @@ export function SegmentTabs({
             }}
             aria-label={item.ariaLabel ?? item.label}
             className={cn(
-              "t-tab dn-segment-tab dn-pressable-press-only dn-type-chip flex dn-squircle-xs",
+              "ds-tab ds-segment-tab ds-pressable-press-only ds-type-chip flex ds-squircle-xs",
               scrollable || hasIcon
-                ? "dn-content-type-segment-tab shrink-0 flex-row items-center justify-center gap-1.5 px-2.5"
+                ? "ds-content-type-segment-tab shrink-0 flex-row items-center justify-center gap-1.5 px-2.5"
                 : "min-w-0 flex-1 items-center justify-center px-2",
-              variant === "muted" && "dn-segment-tab--muted",
+              variant === "muted" && "ds-segment-tab--muted",
               active ? "text-[var(--fg)]" : "bg-transparent text-[var(--muted)]",
             )}
             role="tab"
@@ -153,7 +153,7 @@ export function SegmentTabs({
             {item.icon ? (
               <>
                 {item.icon}
-                <span className="dn-content-type-segment-label">{item.label}</span>
+                <span className="ds-content-type-segment-label">{item.label}</span>
               </>
             ) : (
               item.label

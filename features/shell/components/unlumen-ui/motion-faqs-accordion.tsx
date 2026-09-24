@@ -89,7 +89,7 @@ function AccordionItem({
       >
         <span className="inline-flex min-w-0 items-center gap-2 font-medium tracking-tight">
           {item.icon ? (
-            <span aria-hidden className="dn-settings-section-icon-slot">
+            <span aria-hidden className="ds-settings-section-icon-slot">
               {item.icon}
             </span>
           ) : null}

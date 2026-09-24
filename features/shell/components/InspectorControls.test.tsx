@@ -16,7 +16,7 @@ describe("desktop inspector controls", () => {
     );
 
     expect(markup).toContain(INSPECTOR_INPUT_CLASS);
-    expect(markup).toContain("inspector-input-bg");
+    expect(markup).toContain("ds-input-bg");
   });
 
   it("renders paste action on pasteable text inputs", () => {
@@ -35,8 +35,8 @@ describe("desktop inspector controls", () => {
       <InspectorTextInput aria-label="Content URL" pasteable onPasteValue={vi.fn()} />,
     );
 
-    expect(markup).toContain("t-input-wrap");
-    expect(markup).not.toContain("t-error-msg--visible");
+    expect(markup).toContain("ds-input-wrap");
+    expect(markup).not.toContain("ds-error-msg--visible");
   });
 
   it("renders validation feedback without paste shake styling", () => {
@@ -49,9 +49,9 @@ describe("desktop inspector controls", () => {
       />,
     );
 
-    expect(markup).toContain("t-input-wrap");
+    expect(markup).toContain("ds-input-wrap");
     expect(markup).toContain("Enter a correct profile URL.");
-    expect(markup).toContain("t-error-msg--visible");
+    expect(markup).toContain("ds-error-msg--visible");
     expect(markup).not.toContain("is-error");
     expect(markup).not.toContain("is-shaking");
   });

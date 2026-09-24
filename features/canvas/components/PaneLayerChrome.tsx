@@ -265,7 +265,7 @@ export function LayerContextMenu({
         side="bottom"
         sideOffset={4}
         className={cn(
-          "dn-portal-surface inspector-popover-content dn-popover-flat z-[var(--z-popover)] w-52 p-1.5 dn-squircle-md",
+          "ds-portal-surface ds-popover-content ds-popover-flat z-[var(--z-popover)] w-52 p-1.5 ds-squircle-md",
           theme === "dark" && "dark",
         )}
         data-drafting-dropdown-content="true"
@@ -361,7 +361,7 @@ export const LayerFloatingToolbar = forwardRef<
     <div
       ref={ref}
       className={cn(
-        "dn-portal-surface inspector-popover-content pointer-events-auto absolute left-1/2 top-1/2 z-[var(--z-canvas-toolbar)] inline-flex h-9 max-w-[calc(100%-1rem)] items-center justify-start gap-0.5 overflow-x-auto rounded-full px-1 text-[var(--fg)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "ds-portal-surface ds-popover-content pointer-events-auto absolute left-1/2 top-1/2 z-[var(--z-canvas-toolbar)] inline-flex h-9 max-w-[calc(100%-1rem)] items-center justify-start gap-0.5 overflow-x-auto rounded-full px-1 text-[var(--fg)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         theme === "dark" && "dark",
       )}
       data-slot="drafting-layer-floating-toolbar"

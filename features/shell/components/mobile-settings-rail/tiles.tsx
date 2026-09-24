@@ -42,7 +42,7 @@ export function MobileRailSwatchTile({
       onClick={onSelect}
     >
       <span aria-hidden="true" className={SETTINGS_FILL_OPTION_TILE_INNER}>
-        <span className="size-full dn-squircle-xs" style={{ background: fill }} />
+        <span className="size-full ds-squircle-xs" style={{ background: fill }} />
       </span>
     </button>
   );
@@ -70,7 +70,7 @@ export function MobileRailPickerTile({
     >
       <span aria-hidden="true" className={SETTINGS_FILL_OPTION_TILE_INNER}>
         <span
-          className="grid size-full place-items-center dn-squircle-xs"
+          className="grid size-full place-items-center ds-squircle-xs"
           style={customFill ? { background: customFill } : undefined}
         >
           <span
@@ -78,7 +78,7 @@ export function MobileRailPickerTile({
               "grid place-items-center text-[var(--fg)]",
               customFill
                 ? "size-5 rounded-full bg-[color-mix(in_srgb,var(--bg)_88%,transparent)]"
-                : "size-full bg-[color-mix(in_srgb,var(--muted)_40%,transparent)] dn-squircle-xs",
+                : "size-full bg-[color-mix(in_srgb,var(--muted)_40%,transparent)] ds-squircle-xs",
             )}
           >
             <Pipette className="size-4" strokeWidth={2.5} />
@@ -101,11 +101,11 @@ export function MobileRailPill({
   return (
     <button
       aria-pressed={pressed}
-      className="dn-mobile-settings-rail__item dn-mobile-settings-rail__item--pill"
+      className="ds-mobile-settings-rail__item ds-mobile-settings-rail__item--pill"
       type="button"
       onClick={onClick}
     >
-      <span className="dn-mobile-settings-rail__pill">{label}</span>
+      <span className="ds-mobile-settings-rail__pill">{label}</span>
     </button>
   );
 }
@@ -129,7 +129,7 @@ export function MobileRailImageOptions({
     <>
       <Suspense fallback={null}>
         <LazySettingsImageUploadTile
-          className="dn-mobile-settings-rail__upload-tile"
+          className="ds-mobile-settings-rail__upload-tile"
           imageUrl={customImageUrl}
           onClear={onClear}
           onUpload={onUpload}
@@ -148,7 +148,7 @@ export function MobileRailImageOptions({
         >
           <WallpaperOptionPreview
             alt={wallpaper.label}
-            className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
+            className="relative z-10 block size-full overflow-hidden ds-squircle-xs"
             previewPath={wallpaper.previewPath}
           />
         </button>
@@ -168,18 +168,18 @@ export function MobileRailOptionButton({
     <button
       className={
         option.shape === "pill"
-          ? "dn-mobile-settings-rail__item dn-mobile-settings-rail__item--pill"
-          : "dn-mobile-settings-rail__item"
+          ? "ds-mobile-settings-rail__item ds-mobile-settings-rail__item--pill"
+          : "ds-mobile-settings-rail__item"
       }
       type="button"
       onClick={onClick}
     >
       {option.shape === "pill" ? (
-        <span className="dn-mobile-settings-rail__pill">{option.label}</span>
+        <span className="ds-mobile-settings-rail__pill">{option.label}</span>
       ) : (
         <>
-          <span className="dn-mobile-settings-rail__circle">{option.icon}</span>
-          <span className="dn-mobile-settings-rail__label">{option.label}</span>
+          <span className="ds-mobile-settings-rail__circle">{option.icon}</span>
+          <span className="ds-mobile-settings-rail__label">{option.label}</span>
         </>
       )}
     </button>
@@ -228,15 +228,15 @@ export function MobileRailSectionButton({
   onClick: () => void;
 }) {
   return (
-    <button className="dn-mobile-settings-rail__item" type="button" onClick={onClick}>
-      <span className="dn-mobile-settings-rail__circle">
+    <button className="ds-mobile-settings-rail__item" type="button" onClick={onClick}>
+      <span className="ds-mobile-settings-rail__circle">
         <SettingsSectionIconFor
-          className="dn-mobile-settings-rail__icon"
+          className="ds-mobile-settings-rail__icon"
           section={section}
           size={22}
         />
       </span>
-      <span className="dn-mobile-settings-rail__label">{getSettingsSectionLabel(section)}</span>
+      <span className="ds-mobile-settings-rail__label">{getSettingsSectionLabel(section)}</span>
     </button>
   );
 }

@@ -31,7 +31,7 @@ function LayerSettingsPanelShell({
   return (
     <InspectorThemeContext.Provider value={theme}>
       <div
-        className="inspector-root inspector-embedded flex min-h-0 flex-col"
+        className="ds-root ds-embedded flex min-h-0 flex-col"
         data-slot={dataSlot}
         data-theme={theme}
       >

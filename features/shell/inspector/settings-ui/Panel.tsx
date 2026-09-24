@@ -23,7 +23,7 @@ export function SettingsPanelShell({
   return (
     <aside
       className={cn(
-        "dn-settings-panel dn-squircle-lg",
+        "ds-settings-panel ds-squircle-lg",
         fillHeight && "flex h-full min-h-0 w-full flex-col",
         className,
       )}
@@ -42,7 +42,7 @@ export function SettingsScroll({
 }) {
   return (
     <ScrollArea
-      className={cn("dn-settings-scroll", fillHeight ? "h-full min-h-0" : "h-[min(72dvh,40rem)]")}
+      className={cn("ds-settings-scroll", fillHeight ? "h-full min-h-0" : "h-[min(72dvh,40rem)]")}
       persistKey="settings-panel"
       viewportClassName="px-0"
     >
@@ -82,7 +82,7 @@ export function SettingsAccordion({
   return (
     <MotionAccordion
       cardHeight={null}
-      className="dn-settings-accordion w-full min-w-0 max-w-full"
+      className="ds-settings-accordion w-full min-w-0 max-w-full"
       gap={0}
       items={items}
       header={header}
@@ -147,7 +147,7 @@ export function SettingsTabPanel({
       <AnimatePresence mode="popLayout" initial={false}>
         <m.div
           key={activeKey}
-          className={cn("dn-settings-tab-panel dn-section-stack flex w-full min-w-0", className)}
+          className={cn("ds-settings-tab-panel ds-section-stack flex w-full min-w-0", className)}
           variants={reduceMotion ? settingsTabPanelReducedMotionVariants : settingsTabPanelVariants}
           initial="initial"
           animate="animate"

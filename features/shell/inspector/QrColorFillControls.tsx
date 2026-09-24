@@ -40,10 +40,10 @@ import { cn } from "@/lib/utils";
 type QrColorFillModeTab = "Solid" | "Linear" | "Radial" | "Pattern" | "Image";
 
 const PATTERN_ROW_SWATCH =
-  "size-7 shrink-0 cursor-pointer overflow-hidden dn-squircle-xs outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--ring))]";
+  "size-7 shrink-0 cursor-pointer overflow-hidden ds-squircle-xs outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--ring))]";
 
 const PATTERN_COLOR_SWATCH =
-  "size-8 shrink-0 cursor-pointer overflow-hidden dn-squircle-xs outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--ring))]";
+  "size-8 shrink-0 cursor-pointer overflow-hidden ds-squircle-xs outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--ring))]";
 
 function PatternColorSwatchPreview({ color }: { color: string }) {
   const parsed = parseColor(color) ?? { l: 0, c: 0, h: 0, alpha: 1 };
@@ -52,7 +52,7 @@ function PatternColorSwatchPreview({ color }: { color: string }) {
   return (
     <span
       aria-hidden
-      className="block size-full dn-squircle-xs"
+      className="block size-full ds-squircle-xs"
       style={{
         backgroundImage: `linear-gradient(${preview}, ${preview}), ${CHECKERBOARD_SM}`,
         backgroundSize: "auto, 6px 6px",
@@ -112,7 +112,7 @@ export function PatternColorPickerContent({
             key={`pattern-color-${colorIndex}`}
             aria-label={`Edit color ${colorIndex + 1}`}
             aria-pressed={colorIndex === active}
-            className={cn(PATTERN_COLOR_SWATCH, "dn-preview-tile")}
+            className={cn(PATTERN_COLOR_SWATCH, "ds-preview-tile")}
             type="button"
             onClick={() => setIndex(colorIndex)}
           >
@@ -158,7 +158,7 @@ function PatternColorsPlusTile({
         type="button"
       >
         <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
-          <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--muted)_38%,transparent)] text-[var(--fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--muted)_55%,transparent)] dn-squircle-xs">
+          <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--muted)_38%,transparent)] text-[var(--fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--muted)_55%,transparent)] ds-squircle-xs">
             <Plus className="size-4" strokeWidth={2.5} />
           </span>
         </span>
@@ -216,7 +216,7 @@ function QrColorFillPatternSection({
   return (
     <>
       <div className="flex min-h-[var(--control-height)] items-center">
-        <span className="dn-row-label-text pl-[var(--row-px)]">Pattern</span>
+        <span className="ds-row-label-text pl-[var(--row-px)]">Pattern</span>
         <div aria-label="Pattern colors" className="ml-auto flex items-center gap-1.5" role="group">
           {modulePattern.selectedPalette.map((color, index) => (
             <PatternRowSwatch
@@ -249,10 +249,10 @@ function QrColorFillImageSection({
   return (
     <>
       <div className="flex min-h-[var(--control-height)] items-center">
-        <span className="dn-row-label-text pl-[var(--row-px)]">Upload</span>
+        <span className="ds-row-label-text pl-[var(--row-px)]">Upload</span>
         <SettingsImageUploadTile
           ariaLabel="Upload custom image"
-          className="dn-row-upload-tile ml-auto"
+          className="ds-row-upload-tile ml-auto"
           imageUrl={moduleImage.imageUrl}
           onClear={moduleImage.onClear}
           onUpload={(imageUrl) => moduleImage.onUpload(imageUrl, "upload")}
@@ -373,7 +373,7 @@ export function QrColorFillControls({
   }
 
   return (
-    <div className="dn-section-stack w-full min-w-0 max-w-full">
+    <div className="ds-section-stack w-full min-w-0 max-w-full">
       {mobileDensity ? (
         <SegmentTabs
           items={[...modeTabs]}

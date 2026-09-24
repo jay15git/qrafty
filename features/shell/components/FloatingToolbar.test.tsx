@@ -416,7 +416,7 @@ describe("FloatingToolbar", () => {
 
     const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]');
     expect(railRoot).not.toBeNull();
-    expect(railRoot?.className).toContain("inspector-root");
+    expect(railRoot?.className).toContain("ds-root");
     expect(railRoot?.getAttribute("data-shell-theme")).toBe("dark");
     expect(railRoot?.getAttribute("data-theme")).toBe("dark");
     expect(
@@ -438,7 +438,7 @@ describe("FloatingToolbar", () => {
 
     const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]');
     const tabs = Array.from(
-      railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+      railRoot?.querySelectorAll<HTMLButtonElement>(".ds-mobile-settings-rail__item") ?? [],
     );
 
     expect(tabs.map((tab) => tab.textContent?.trim())).toEqual([
@@ -452,8 +452,8 @@ describe("FloatingToolbar", () => {
     ]);
 
     for (const tab of tabs) {
-      expect(tab.querySelector(".dn-mobile-settings-rail__circle")).not.toBeNull();
-      expect(tab.querySelector(".dn-mobile-settings-rail__label")).not.toBeNull();
+      expect(tab.querySelector(".ds-mobile-settings-rail__circle")).not.toBeNull();
+      expect(tab.querySelector(".ds-mobile-settings-rail__label")).not.toBeNull();
     }
   });
 
@@ -463,7 +463,7 @@ describe("FloatingToolbar", () => {
 
     const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]');
     const tabs = Array.from(
-      railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+      railRoot?.querySelectorAll<HTMLButtonElement>(".ds-mobile-settings-rail__item") ?? [],
     );
 
     expect(tabs).toHaveLength(7);
@@ -506,11 +506,11 @@ describe("FloatingToolbar", () => {
     const railRoot = document.querySelector('[data-slot="mobile-settings-rail-root"]');
     const getLabels = () =>
       Array.from(
-        railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+        railRoot?.querySelectorAll<HTMLButtonElement>(".ds-mobile-settings-rail__item") ?? [],
       ).map((item) => item.textContent?.trim());
 
     const contentButton = Array.from(
-      railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+      railRoot?.querySelectorAll<HTMLButtonElement>(".ds-mobile-settings-rail__item") ?? [],
     ).find((item) => item.textContent?.trim() === "Content");
 
     expect(contentButton).not.toBeUndefined();
@@ -531,12 +531,12 @@ describe("FloatingToolbar", () => {
     expect(optionLabels).not.toContain("Content");
 
     const linkButton = Array.from(
-      railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+      railRoot?.querySelectorAll<HTMLButtonElement>(".ds-mobile-settings-rail__item") ?? [],
     ).find((item) => item.textContent?.trim() === "Link");
 
-    expect(linkButton?.querySelector(".dn-mobile-settings-rail__circle")).not.toBeNull();
+    expect(linkButton?.querySelector(".ds-mobile-settings-rail__circle")).not.toBeNull();
 
-    const actions = railRoot?.querySelector(".dn-mobile-settings-rail__actions");
+    const actions = railRoot?.querySelector(".ds-mobile-settings-rail__actions");
     expect(actions).not.toBeNull();
     expect(actions?.children).toHaveLength(3);
     // The open family's name sits between the corner buttons.
@@ -553,7 +553,7 @@ describe("FloatingToolbar", () => {
     });
 
     expect(getLabels()).toContain("Style");
-    expect(railRoot?.querySelector(".dn-mobile-settings-rail__actions")).toBeNull();
+    expect(railRoot?.querySelector(".ds-mobile-settings-rail__actions")).toBeNull();
   });
 
   it("drills the mobile rail from a style part into its catalogue and back", async () => {
@@ -564,12 +564,12 @@ describe("FloatingToolbar", () => {
     const getItems = () =>
       Array.from(
         railRoot?.querySelectorAll<HTMLButtonElement>(
-          '.dn-mobile-settings-rail__item, .dn-mobile-settings-rail__row [role="tab"]',
+          '.ds-mobile-settings-rail__item, .ds-mobile-settings-rail__row [role="tab"]',
         ) ?? [],
       );
     const getLabels = () => getItems().map((item) => item.textContent?.trim());
     const getRailLabel = () => {
-      const rows = railRoot?.querySelectorAll(".dn-mobile-settings-rail__row");
+      const rows = railRoot?.querySelectorAll(".ds-mobile-settings-rail__row");
       return rows?.[rows.length - 1]?.getAttribute("aria-label");
     };
     const click = async (element: Element | null | undefined) => {
@@ -624,7 +624,7 @@ describe("FloatingToolbar", () => {
     await click(railRoot?.querySelector('button[aria-label="Discard changes"]'));
 
     expect(getLabels()).toContain("Color");
-    expect(railRoot?.querySelector(".dn-mobile-settings-rail__actions")).toBeNull();
+    expect(railRoot?.querySelector(".ds-mobile-settings-rail__actions")).toBeNull();
   });
 
   it("serves quick-pick rows for the remaining families in the mobile rail", async () => {
@@ -635,7 +635,7 @@ describe("FloatingToolbar", () => {
     const getItems = () =>
       Array.from(
         railRoot?.querySelectorAll<HTMLButtonElement>(
-          '.dn-mobile-settings-rail__item, .dn-mobile-settings-rail__row [role="tab"]',
+          '.ds-mobile-settings-rail__item, .ds-mobile-settings-rail__row [role="tab"]',
         ) ?? [],
       );
     const getLabels = () => getItems().map((item) => item.textContent?.trim());
@@ -644,7 +644,7 @@ describe("FloatingToolbar", () => {
         railRoot?.querySelectorAll<HTMLButtonElement>('[data-slot="mobile-rail-option"]') ?? [],
       );
     const getRailLabel = () => {
-      const rows = railRoot?.querySelectorAll(".dn-mobile-settings-rail__row");
+      const rows = railRoot?.querySelectorAll(".ds-mobile-settings-rail__row");
       return rows?.[rows.length - 1]?.getAttribute("aria-label");
     };
     const click = async (element: Element | null | undefined) => {
@@ -665,7 +665,7 @@ describe("FloatingToolbar", () => {
     const getModePills = () =>
       Array.from(
         railRoot?.querySelectorAll<HTMLButtonElement>(
-          '[aria-label$="fill modes"] .dn-mobile-settings-rail__item, [aria-label$="fill modes"] [role="tab"]',
+          '[aria-label$="fill modes"] .ds-mobile-settings-rail__item, [aria-label$="fill modes"] [role="tab"]',
         ) ?? [],
       );
     const getModePillLabels = () => getModePills().map((pill) => pill.textContent?.trim());
@@ -706,7 +706,7 @@ describe("FloatingToolbar", () => {
     expect(getRailLabel()).toBe("Shape options");
     expect(getTiles()).toHaveLength(QR_BACKGROUND_SHAPES.length + 1);
     const shapeControls = () => railRoot?.querySelector('[aria-label="Shape controls"]');
-    expect(shapeControls()?.querySelector(".dn-settings-inline-slider")).not.toBeNull();
+    expect(shapeControls()?.querySelector(".ds-settings-inline-slider")).not.toBeNull();
     const shapeViewTabs = () =>
       Array.from(shapeControls()?.querySelectorAll<HTMLButtonElement>('[role="tab"]') ?? []);
 
@@ -756,7 +756,7 @@ describe("FloatingToolbar", () => {
     const drawer = document.querySelector('[data-slot="mobile-family-drawer-root"]');
     expect(drawer).not.toBeNull();
     expect(
-      Array.from(drawer?.querySelectorAll(".dn-mobile-drawer-nested-header__title") ?? []).map(
+      Array.from(drawer?.querySelectorAll(".ds-mobile-drawer-nested-header__title") ?? []).map(
         (node) => node.textContent?.trim(),
       ),
     ).toContain("Layers");
@@ -777,7 +777,7 @@ describe("FloatingToolbar", () => {
 
     await click(
       Array.from(
-        railRoot?.querySelectorAll<HTMLButtonElement>(".dn-mobile-settings-rail__item") ?? [],
+        railRoot?.querySelectorAll<HTMLButtonElement>(".ds-mobile-settings-rail__item") ?? [],
       ).find((item) => item.textContent?.trim() === "Color"),
     );
     await click(railRoot?.querySelector('button[aria-label="Custom color"]'));
@@ -785,7 +785,7 @@ describe("FloatingToolbar", () => {
     const drawer = document.querySelector('[data-slot="mobile-family-drawer-root"]');
     expect(drawer).not.toBeNull();
     expect(
-      Array.from(drawer?.querySelectorAll(".dn-mobile-drawer-nested-header__title") ?? []).map(
+      Array.from(drawer?.querySelectorAll(".ds-mobile-drawer-nested-header__title") ?? []).map(
         (node) => node.textContent?.trim(),
       ),
     ).toContain("Color");
@@ -805,7 +805,7 @@ describe("FloatingToolbar", () => {
     const getItems = () =>
       Array.from(
         railRoot?.querySelectorAll<HTMLButtonElement>(
-          '.dn-mobile-settings-rail__item, .dn-mobile-settings-rail__row [role="tab"]',
+          '.ds-mobile-settings-rail__item, .ds-mobile-settings-rail__row [role="tab"]',
         ) ?? [],
       );
     const loaderPill = () =>
@@ -886,7 +886,7 @@ function getAccordionHeaders(container: HTMLElement) {
 
   return Array.from(
     container.querySelectorAll<HTMLButtonElement>(
-      ".dn-settings-accordion button[aria-expanded][aria-controls]",
+      ".ds-settings-accordion button[aria-expanded][aria-controls]",
     ),
   ).filter((button) => sectionLabels.has(button.textContent?.trim() ?? ""));
 }

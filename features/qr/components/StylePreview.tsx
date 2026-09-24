@@ -15,7 +15,7 @@ import {
 
 export type StylePreviewKind = "corner-dot" | "corner-square" | "dots";
 
-const PREVIEW_ICON_CLASS_NAME = "dn-style-preview-icon size-[5.5rem]";
+const PREVIEW_ICON_CLASS_NAME = "ds-style-preview-icon size-[5.5rem]";
 const FINDER_FRAME_PREVIEW_VIEW_BOX = "0 0 7 7";
 // The library draws several inner styles larger than the 3x3 finder cell (star at
 // 1.2x, diamond as a rotated inset square). A strict 2 2 3 3 crop clips their

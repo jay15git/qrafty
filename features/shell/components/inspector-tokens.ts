@@ -34,7 +34,7 @@ export const INSPECTOR_CONTROL_CLASS =
 export const INSPECTOR_SELECTED_CLASS =
   "border-transparent bg-[var(--option-selected-bg)] text-[var(--option-selected-fg)] hover:border-transparent hover:bg-[var(--option-selected-bg)] hover:text-[var(--option-selected-fg)]";
 export const INSPECTOR_INPUT_CLASS = cn(
-  "inspector-input-bg bg-[var(--control)] font-medium text-[var(--fg-primary)] outline-none placeholder:text-[var(--fg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)]",
+  "ds-input-bg bg-[var(--control)] font-medium text-[var(--fg-primary)] outline-none placeholder:text-[var(--fg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)]",
   INSPECTOR_TYPE_VALUE_CLASS,
 );
 const INSPECTOR_RESET_CLASS = cn(

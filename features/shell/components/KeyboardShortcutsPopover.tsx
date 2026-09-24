@@ -79,7 +79,7 @@ export function KeyboardShortcutsPopoverContent({
       side={popoverSide}
       sideOffset={12}
       className={cn(
-        "dn-portal-surface inspector-popover-content dn-popover-flat z-[var(--z-popover)] flex h-[min(44rem,calc(100dvh-7rem))] max-h-[min(44rem,calc(100dvh-7rem))] w-[var(--popover-width-lg)] flex-col overflow-hidden p-0 dn-squircle-md",
+        "ds-portal-surface ds-popover-content ds-popover-flat z-[var(--z-popover)] flex h-[min(44rem,calc(100dvh-7rem))] max-h-[min(44rem,calc(100dvh-7rem))] w-[var(--popover-width-lg)] flex-col overflow-hidden p-0 ds-squircle-md",
         theme === "dark" && "dark",
       )}
     >

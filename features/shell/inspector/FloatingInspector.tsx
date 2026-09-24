@@ -41,10 +41,7 @@ export function FloatingInspector({
       className={cn("flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden", className)}
       data-slot="settings-inspector"
     >
-      <div
-        className="inspector-root inspector-embedded h-full min-h-0 w-full"
-        data-theme={actualTheme}
-      >
+      <div className="ds-root ds-embedded h-full min-h-0 w-full" data-theme={actualTheme}>
         <InspectorThemeContext.Provider value={actualTheme}>
           <SettingsPanel fillHeight model={model} />
         </InspectorThemeContext.Provider>

@@ -52,16 +52,16 @@ import { CUELUME_TOGGLE } from "@/features/shell/audio/cuelume";
 import "@/features/shell/inspector/inspector.css";
 
 const COMPACT_POPOVER_CLASS =
-  "dn-portal-surface inspector-popover-content dn-popover-flat z-[var(--z-popover-raised)] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-hidden dn-squircle-md";
+  "ds-portal-surface ds-popover-content ds-popover-flat z-[var(--z-popover-raised)] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-hidden ds-squircle-md";
 
 const ICON_TOGGLE_CLASS =
   "grid size-9 place-items-center rounded-full text-[color-mix(in_srgb,var(--fg)_78%,transparent)] transition-colors duration-150 hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))] aria-pressed:bg-[var(--control)] aria-pressed:text-[var(--fg)]";
 
 const DN_POPOVER_CLASS =
-  "dn-portal-surface inspector-popover-content z-[var(--z-popover-raised)] max-h-[min(32rem,calc(100vh-2rem))] w-[min(100vw-2rem,15.5rem)] overflow-hidden border-0 p-0 dn-squircle-md";
+  "ds-portal-surface ds-popover-content z-[var(--z-popover-raised)] max-h-[min(32rem,calc(100vh-2rem))] w-[min(100vw-2rem,15.5rem)] overflow-hidden border-0 p-0 ds-squircle-md";
 
 const DN_OPTION_TILE_CLASS =
-  "dn-option-tile dn-control-surface dn-squircle-xs flex cursor-pointer items-center justify-center border-0";
+  "ds-option-tile ds-control-surface ds-squircle-xs flex cursor-pointer items-center justify-center border-0";
 
 const LayerFloatingSettingsButton = forwardRef<
   HTMLButtonElement,
@@ -126,7 +126,7 @@ function LayerFloatingSettingsPopover({
           mobileNav.openDetail({
             title: title ?? ariaLabel,
             content: (
-              <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
+              <div className="ds-portal-surface w-full min-w-0" data-mobile-inspector="">
                 {children ?? content}
               </div>
             ),
@@ -148,7 +148,7 @@ function LayerFloatingSettingsPopover({
         </PopoverTrigger>
         <PopoverContent
           align="center"
-          className={cn(DN_POPOVER_CLASS, "dn-popover-flat", theme === "dark" && "dark")}
+          className={cn(DN_POPOVER_CLASS, "ds-popover-flat", theme === "dark" && "dark")}
           data-slot="drafting-layer-floating-settings-popover"
           data-theme={theme}
           side="top"
@@ -358,7 +358,7 @@ function EmojiPickerSettings({
           mobileNav.openDetail({
             title: "Change emoji",
             content: (
-              <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
+              <div className="ds-portal-surface w-full min-w-0" data-mobile-inspector="">
                 <EmojiPickerSettingsContent
                   onPatch={onPatch}
                   onSelect={() => mobileNav.closeDetail()}

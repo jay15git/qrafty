@@ -110,7 +110,7 @@ function MobileLayerToolbarButton({
       aria-label={ariaLabel}
       aria-pressed={active}
       className={cn(
-        "dn-mobile-layer-toolbar-button flex h-[var(--icon-hit)] shrink-0 cursor-pointer items-center justify-center gap-1 rounded-full text-[var(--fg)] transition-colors aria-[pressed=true]:bg-[var(--fg)] aria-[pressed=true]:text-[var(--bg)] disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg)]/20",
+        "ds-mobile-layer-toolbar-button flex h-[var(--icon-hit)] shrink-0 cursor-pointer items-center justify-center gap-1 rounded-full text-[var(--fg)] transition-colors aria-[pressed=true]:bg-[var(--fg)] aria-[pressed=true]:text-[var(--bg)] disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg)]/20",
         label ? "w-auto px-2.5" : "w-[var(--icon-hit)]",
       )}
       data-slot="mobile-layer-toolbar-button"
@@ -157,7 +157,7 @@ function MobileLayerToolbarDetailButton({
         mobileNav?.openDetail({
           title,
           content: (
-            <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
+            <div className="ds-portal-surface w-full min-w-0" data-mobile-inspector="">
               {content}
             </div>
           ),
@@ -186,7 +186,7 @@ function MobileLayerPanelButton({
 }) {
   const detail = useMobileLiveDetail({
     content: (
-      <div className="dn-portal-surface w-full min-w-0" data-mobile-inspector="">
+      <div className="ds-portal-surface w-full min-w-0" data-mobile-inspector="">
         <Suspense fallback={null}>{content}</Suspense>
       </div>
     ),
@@ -648,7 +648,7 @@ export function MobileLayerToolbar({
       <div
         ref={toolbarRef}
         className={cn(
-          "inspector-root pointer-events-auto fixed z-[35]",
+          "ds-root pointer-events-auto fixed z-[35]",
           "left-[max(1rem,env(safe-area-inset-left,0px))]",
           "w-[calc(100%-max(1rem,env(safe-area-inset-left,0px))-max(1rem,env(safe-area-inset-right,0px)))]",
         )}
@@ -661,7 +661,7 @@ export function MobileLayerToolbar({
         }}
       >
         <ScrollArea
-          className="dn-mobile-layer-toolbar-scroll h-fit w-full min-w-0 max-w-full overflow-hidden rounded-full bg-[var(--bg)]"
+          className="ds-mobile-layer-toolbar-scroll h-fit w-full min-w-0 max-w-full overflow-hidden rounded-full bg-[var(--bg)]"
           chevron={false}
           cueSize="tight"
           orientation="horizontal"

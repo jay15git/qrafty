@@ -130,10 +130,7 @@ export function MobileColorRailRow({ model, openDrawer }: MobileRailRowProps) {
             title: "Color",
             content: (
               <Suspense fallback={null}>
-                <div
-                  className="inspector-fill-popover w-full min-w-0"
-                  data-theme={model.actualTheme}
-                >
+                <div className="ds-fill-popover w-full min-w-0" data-theme={model.actualTheme}>
                   <LazyInspectorFillPicker
                     lockedFillMode={lockedFillModeForRailMode(mode)}
                     qrGradient
@@ -174,9 +171,9 @@ export function MobileColorRailFooter() {
   }
 
   return (
-    <div className="dn-mobile-settings-rail__tabs">
+    <div className="ds-mobile-settings-rail__tabs">
       <SegmentTabs
-        className="dn-mobile-settings-rail__tabbar"
+        className="ds-mobile-settings-rail__tabbar"
         items={QR_COLOR_FILL_MODES.map((mode) => ({
           id: mode.id,
           label: mode.label,

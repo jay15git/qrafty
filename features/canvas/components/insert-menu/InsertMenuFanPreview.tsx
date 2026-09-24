@@ -50,7 +50,7 @@ export function InsertMenuFanPreview({
               scale: active && dist === 0 ? 1.05 : 1,
               opacity: dist === 0 || active ? 1 : 0,
             }}
-            className="dn-insert-menu-fan-card absolute bottom-0 left-1/2 -translate-x-1/2"
+            className="ds-insert-menu-fan-card absolute bottom-0 left-1/2 -translate-x-1/2"
             style={{
               originX: 0.5,
               originY: 1,
@@ -63,7 +63,7 @@ export function InsertMenuFanPreview({
               mass: 0.8,
             }}
           >
-            <span className="dn-insert-menu-fan-card-content">{previews[index]}</span>
+            <span className="ds-insert-menu-fan-card-content">{previews[index]}</span>
           </m.div>
         );
       })}

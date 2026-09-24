@@ -49,8 +49,8 @@ export function SettingsImageUploadTile({
       aria-label={ariaLabel}
       className={cn(
         fluid ? SETTINGS_PREVIEW_TILE_FLUID : SETTINGS_PREVIEW_TILE,
-        "dn-image-upload-tile overflow-hidden",
-        fluid && "dn-image-upload-tile--fluid",
+        "ds-image-upload-tile overflow-hidden",
+        fluid && "ds-image-upload-tile--fluid",
         className,
       )}
       data-slot="image-upload-tile"
@@ -101,7 +101,7 @@ function FillOptionGridPlusButton({
     >
       <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
         <span
-          className="relative grid size-full place-items-center dn-squircle-xs"
+          className="relative grid size-full place-items-center ds-squircle-xs"
           style={customValue ? { background: customValue } : undefined}
         >
           {customValue ? (
@@ -109,7 +109,7 @@ function FillOptionGridPlusButton({
               <Plus className="size-3.5" strokeWidth={2.5} />
             </span>
           ) : (
-            <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--muted)_38%,transparent)] text-[var(--fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--muted)_55%,transparent)] dn-squircle-xs">
+            <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--muted)_38%,transparent)] text-[var(--fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--muted)_55%,transparent)] ds-squircle-xs">
               <Plus className="size-4" strokeWidth={2.5} />
             </span>
           )}
@@ -144,7 +144,7 @@ export function SettingsFillOptionGrid({
       activeKey={activePreset ?? undefined}
       ariaLabel="Fill options"
       dataSlot="fill-option-grid"
-      gridClassName="dn-fill-option-grid"
+      gridClassName="ds-fill-option-grid"
       label={label}
       persistKey={persistKey}
     >
@@ -173,7 +173,7 @@ export function SettingsFillOptionGrid({
             }}
           >
             <span aria-hidden className={SETTINGS_FILL_OPTION_TILE_INNER}>
-              <span className="size-full dn-squircle-xs" style={fillPresetStyle(preset)} />
+              <span className="size-full ds-squircle-xs" style={fillPresetStyle(preset)} />
             </span>
           </button>
         );
@@ -208,7 +208,7 @@ export function SettingsPatternOptionGrid({
       activeKey={activePreset?.label}
       ariaLabel="Pattern options"
       dataSlot="pattern-option-grid"
-      gridClassName="dn-pattern-option-grid"
+      gridClassName="ds-pattern-option-grid"
       label={label}
       persistKey={persistKey}
     >
@@ -263,7 +263,7 @@ export function SettingsImageOptionGrid({
       activeKey={selectedPath}
       ariaLabel="Image options"
       dataSlot="image-option-grid"
-      gridClassName="dn-fill-option-grid"
+      gridClassName="ds-fill-option-grid"
       label={label}
       persistKey={persistKey}
     >
@@ -294,7 +294,7 @@ export function SettingsImageOptionGrid({
           >
             <WallpaperOptionPreview
               alt={wallpaper.label}
-              className="relative z-10 block size-full overflow-hidden dn-squircle-xs"
+              className="relative z-10 block size-full overflow-hidden ds-squircle-xs"
               previewPath={wallpaper.previewPath}
             />
           </button>
