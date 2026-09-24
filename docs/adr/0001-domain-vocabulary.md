@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted — 2026-09-22
+Accepted — 2026-09-22. **Superseded in part 2026-09-24**: `Drafting*` → `Canvas*`, `inspector-*`/`Inspector*` → `settings-*`/`Settings*`, `Pane` retired entirely, `FloatingToolbar` → `WorkspaceChrome`, `inspector/` dir → `features/shell/settings/`. See CONTEXT.md for current terms.
 
 ## Context
 

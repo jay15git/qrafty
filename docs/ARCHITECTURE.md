@@ -7,18 +7,18 @@ The 2026-09-22 cleanup executed under `docs/superpowers/plans/2026-09-22-repo-cl
 
 See `CONTEXT.md` for the full glossary. Canonical terms:
 
-| Term          | Meaning                                                      | NOT these                              |
-| ------------- | ------------------------------------------------------------ | -------------------------------------- |
-| **Canvas**    | The editing surface where layers live                        | `Surface`, `Pane`, `WorkspaceSurface`  |
-| **Layer**     | An editable element on the canvas                            | `Pane` (when it means layer)           |
-| **Inspector** | The settings/properties panel that edits the selection       | `settings-ui`, `desktopnew-*`          |
-| **Workspace** | The whole editor shell (canvas + inspector + toolbars)       | `Desktop` (unless truly desktop-only)  |
-| **Document**  | Serializable workspace state (what autosave/history persist) | `draft`, `snapshot` for the same thing |
-| **Pane**      | A saved/persistable document variant (real domain object)    | —                                      |
-| **Rail**      | Mobile bottom settings strip                                 | `FamilyDrawer`, `MobileDrawer`         |
-| **Scene**     | Background/composition template behind the QR                | `wallpaper`, `template` (ambiguous)    |
+| Term          | Meaning                                                             | NOT these                                                 |
+| ------------- | ------------------------------------------------------------------- | --------------------------------------------------------- |
+| **Canvas**    | The editing surface where layers live (`CanvasSurface`, `canvas-*`) | `Surface`, `Pane`, `Drafting`, `desktop-compose`          |
+| **Layer**     | An editable element on the canvas (`CanvasLayer`)                   | `Pane`, `DraftingCanvasLayer`                             |
+| **Settings**  | The settings/properties UI that edits the selection                 | `Inspector`, `inspector-*`, `settings-ui`, `desktopnew-*` |
+| **Workspace** | The whole editor shell (canvas + settings + toolbars)               | `Desktop` (unless truly desktop-only)                     |
+| **Document**  | Serializable workspace state (what autosave/history persist)        | `draft`, `snapshot` for the same thing                    |
+| **Mode**      | `desktop` or `mobile` presentation of the workspace                 | unqualified mode-specific chrome                          |
+| **Rail**      | Mobile bottom settings strip (`MobileOptionRail`)                   | `FamilyDrawer`, `MobileDrawer`, `MobileSettingsRail`      |
+| **Scene**     | Background/composition template behind the QR                       | `wallpaper`, `template` (ambiguous)                       |
 
-Banned in new names: `Surface`, `New`, `desktopnew`, `Manager`, `Helper`, `Utils` (as a filename), `Stuff`, `Common`, `Shared` (as a directory).
+Banned in new names: `Surface`, `New`, `desktopnew`, `dn-`, `Inspector`, `Drafting`, `Pane`, `Compose`, `Manager`, `Helper`, `Utils` (as a filename), `Stuff`, `Common`, `Shared` (as a directory).
 
 ## Folder structure
 
@@ -31,7 +31,7 @@ components/
 features/
   <domain>/               # vertical slice. Owns everything it needs.
     components/           # React components for this domain
-    inspector/            # (shell) settings panels and inspector-scoped CSS
+    settings/             # (shell) settings panels and settings-scoped CSS
     model/                # state, types, reducers, pure functions — no React, no DOM
     rendering/            # (canvas, qr) SVG/scene emit + shader definitions
     content/              # (qr) payload types and platform intents
@@ -43,9 +43,9 @@ lib/                      # cross-feature utilities. If only one feature uses it
 packages/qr/              # vendored @qrafty/qr library
 ```
 
-Current domains: `shell` (workspace chrome + inspector), `canvas` (drafting surface, layers, export), `qr` (QR state, styles, rendering), `marketing` (landing).
+Current domains: `shell` (workspace chrome + settings), `canvas` (editing surface, layers, export), `qr` (QR state, styles, rendering), `marketing` (landing).
 
-When a file outgrows its limit, split it into a same-name module directory with a thin facade — existing examples: `features/qr/rendering/svg-extension/`, `features/canvas/model/layers/`, `features/canvas/model/document/`, `features/qr/content/intents/`, `features/canvas/rendering/paper-shaders/`, `features/shell/components/mobile-settings-rail/`, `features/shell/inspector/settings-ui/`, `components/ui/select/`, `components/ui/family-drawer/`, `packages/qr/src/dot-matrix/` (animations split into `animation-*` modules).
+When a file outgrows its limit, split it into a same-name module directory with a thin facade — existing examples: `features/qr/rendering/svg-extension/`, `features/canvas/model/layers/`, `features/canvas/model/document/`, `features/qr/content/intents/`, `features/canvas/rendering/paper-shaders/`, `features/shell/components/mobile-settings-rail/`, `features/shell/settings/settings-ui/`, `components/ui/select/`, `components/ui/family-drawer/`, `packages/qr/src/dot-matrix/` (animations split into `animation-*` modules).
 
 ### Placement decision tree
 
@@ -86,17 +86,17 @@ app → features → components/ui → lib
 ## Naming rules
 
 - Component files: `PascalCase.tsx` matching the exported component.
-- Hooks: `use-<domain>-<thing>.ts` (e.g. `use-drafting-history.ts`).
+- Hooks: `use-<domain>-<thing>.ts` (e.g. `use-canvas-history.ts`).
 - Model files: noun (`document.ts`, `layers.ts`), not verbs or `helpers`.
 - One type, one canonical home — `fallow` flags duplicates (see `GradientStop` ADR).
-- `data-slot` names use `kebab-case` prefixed by domain (`mobile-rail-option`, `drafting-canvas`).
+- `data-slot` names use `kebab-case` prefixed by domain (`mobile-rail-option`, `canvas-layer-resize-handle`, `settings-scroll-area`, `desktop-settings-panel`).
 
 ## Design tokens
 
 Two token layers coexist in `app/globals.css`, and both must stay wired:
 
 - **shadcn layer** (`--background`, `--foreground`, `--primary`, `--muted-foreground`, `--border`, `--input`, `--ring`, …) — consumed by `components/ui/**`, which is shadcn-derived and styles itself with utilities like `bg-primary` and `text-muted-foreground`.
-- **QRafty layer** (`--surface-1..8`, `--hover`, `--active`, `--selected`, `--focus-ring`, `--qr-*`) — consumed by `features/**`.
+- **QRafty layer** (`--surface-1..3`, `--hover`, `--active`, `--selected`, `--focus-ring`, `--qr-*`) — consumed by `features/**`.
 
 Tailwind only emits a utility for a theme key declared in the `@theme inline` block. A token defined in `:root` but missing from `@theme` produces **no CSS at all** — the class silently does nothing. When adding a token, add it in three places: `@theme inline`, `:root`, and `.dark`.
 

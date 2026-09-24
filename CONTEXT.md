@@ -6,30 +6,38 @@ A glossary only — no implementation details (those live in AGENTS.md).
 ## Canvas
 
 The design surface the user edits on: layers positioned over a QR scene.
-Replaced (2026-09-24): `WorkspaceSurface` → `DraftingCanvas`, `DraftingPaneSurface`, `surface`.
+Component: `CanvasSurface`. Data-slots: `canvas`, `canvas-*`.
+Replaced (2026-09-24): `DraftingCanvas`, `DraftingPaneSurface`,
+`desktop-compose-*`, `drafting-*`, `WorkspaceSurface`, `surface`.
 
 ## Layer
 
 An object placed on the Canvas. Kinds: `qr`, `text`, `image`, `shape`,
-`shader`, `group`, `card`. Replaces: `DraftingCanvasLayer`, `PaneLayer`
-when used generically.
+`shader`, `group`, `card`. Type: `CanvasLayer`.
+Replaces: `DraftingCanvasLayer`, `PaneLayer` when used generically.
 
 ## Workspace
 
-The whole editing experience: Canvas + Inspector + toolbar chrome.
-A route-level container, not a single widget.
+The whole editing experience: Canvas + Settings + toolbar chrome.
+A route-level container, not a single widget. The floating chrome overlay
+component is `WorkspaceChrome` (was `FloatingToolbar`).
 
-## Pane
+## Settings
 
-A persistable Workspace document/tab the user can switch between.
-A real domain object — keep the term, use it only for documents,
-never as a synonym for "panel" or "view".
+All settings UI. The desktop settings panel (`DesktopSettingsPanel`,
+`DesktopSettingsShell`) and the mobile option rail + drawer
+(`MobileOptionRail`, `MobileSettingsDrawer`) are the same Settings domain
+in different presentations. Directory: `features/shell/settings/`.
+Replaced (2026-09-24): `inspector-*`, `Inspector*`, `desktopnew-*`,
+`settings-sections` → `SettingsSections`, `FloatingToolbar settings`.
 
-## Inspector
+## Mode
 
-All settings UI: the desktop settings panel AND the mobile settings
-rail + drawer are the same Inspector in different presentations.
-Replaced (2026-09-24): `desktopnew-*` → `inspector-*` / `.inspector-root`, `settings-sections` → `SettingsSections`, `FloatingToolbar settings`.
+The workspace renders in one of two modes: **desktop** or **mobile**.
+Mode-specific chrome is prefixed `Desktop*` / `Mobile*`
+(`DesktopSettingsPanel`, `MobileTopBar`, `MobileLayerToolbar`).
+Shared canvas internals are unqualified (`canvas-*`, not
+`desktop-canvas-*`).
 
 ## QR
 
@@ -54,9 +62,12 @@ Producing a downloadable artifact (SVG, PNG, video) from the Canvas.
 
 ## Banned in new names
 
-- `New`, `desktopnew-` — the "new" UI shipped; it is THE Inspector now.
+- `New`, `desktopnew-`, `dn-` — the "new" UI shipped; it is THE Settings UI now.
+- `Inspector`, `inspector-*` — say Settings.
+- `Drafting`, `drafting-*` — say Canvas.
+- `Pane` — retired entirely (was persistable documents; those are gone).
 - `Surface` — say Canvas.
-- `Chrome` — say what it is (toolbar, rail, top bar).
+- `Compose`, `desktop-compose-*` — say Canvas.
 - `Manager`, `Helper`, `Util` suffixes — name the domain concept.
-- `Desktop` as a size qualifier — the shell is `desktop-shell`; inside it,
-  names are unqualified (`inspector-*`, not `desktop-inspector-*`).
+- `Desktop`/`Mobile` as a prefix on shared canvas internals — only on
+  mode-specific chrome.

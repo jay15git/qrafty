@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted — 2026-09-24
+Accepted — 2026-09-24. **Superseded same day**: the `--dn-*` palette was renamed to canonical semantic names (`--bg`, `--fg`, `--surface`, `--control`, `--line`, `--muted`, `--mass`, `--elevated`), all `--settings-*` aliases folded onto them, `.inspector-root` → `.ds-root`, `inspector.css` → `settings.css`, `data-mobile-inspector` → `data-mobile-settings`, `--settings-rail-button-bg` → `--rail-button-bg`, `--inspector-preview-col` → `--settings-preview-col`.
 
 ## Context
 
