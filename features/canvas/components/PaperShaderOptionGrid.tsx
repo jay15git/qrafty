@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  INSPECTOR_OPTION_TILE_BUTTON_CLASS,
-  INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
-  INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-} from "@/features/shell/components/inspector-tokens";
-import { InspectorAnimatedOptionGrid } from "@/features/shell/inspector/InspectorOptionGrid";
-import { inspectorOptionGridItemClass } from "@/features/shell/inspector/InspectorOptionGrid.classes";
-import { InspectorOptionGridScrollArea } from "@/features/shell/inspector/InspectorOptionGrid";
+  SETTINGS_OPTION_TILE_BUTTON_CLASS,
+  SETTINGS_OPTION_TILE_SCALE_PREVIEW_CLASS,
+  SETTINGS_OPTION_TILE_SURFACE_CLASS,
+} from "@/features/shell/components/settings-tokens";
+import { SettingsAnimatedOptionGrid } from "@/features/shell/settings/SettingsOptionGrid";
+import { settingsOptionGridItemClass } from "@/features/shell/settings/SettingsOptionGrid.classes";
+import { SettingsOptionGridScrollArea } from "@/features/shell/settings/SettingsOptionGrid";
 import { PaperShaderOptionPreview } from "@/features/canvas/components/PaperShaderOptionPreview";
 import {
   getAllPaperShaderDefinitions,
@@ -15,7 +15,7 @@ import {
 } from "@/features/canvas/rendering/paper-shader-definitions";
 import { cn } from "@/lib/utils";
 
-type PaperShaderOptionGridVariant = "inspector" | "insert-desktop" | "insert-drafting";
+type PaperShaderOptionGridVariant = "settings" | "insert-desktop" | "insert-canvas";
 
 type PaperShaderOptionGridProps = {
   columns?: 2 | 3;
@@ -27,7 +27,7 @@ type PaperShaderOptionGridProps = {
   variant: PaperShaderOptionGridVariant;
 };
 
-function InspectorPaperShaderOptionTile({
+function SettingsPaperShaderOptionTile({
   label,
   onClick,
   selected,
@@ -48,9 +48,9 @@ function InspectorPaperShaderOptionTile({
       data-desktop-preview-option="true"
       className={cn(
         "group relative aspect-square w-full min-w-0 p-0 text-center",
-        inspectorOptionGridItemClass("loose"),
-        INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-        INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+        settingsOptionGridItemClass("loose"),
+        SETTINGS_OPTION_TILE_SURFACE_CLASS,
+        SETTINGS_OPTION_TILE_BUTTON_CLASS,
         selected && "text-[var(--option-selected-fg)]",
       )}
       type="button"
@@ -62,7 +62,7 @@ function InspectorPaperShaderOptionTile({
         data-slot="style-preview-surface"
         className={cn(
           "relative z-10 size-full overflow-hidden rounded-md border-2 border-transparent bg-[var(--style-preview-tile-bg)] shadow-[var(--style-preview-inset)]",
-          INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+          SETTINGS_OPTION_TILE_SCALE_PREVIEW_CLASS,
         )}
       >
         <PaperShaderOptionPreview isSelected={selected} shaderId={shaderId} />
@@ -80,7 +80,7 @@ function InsertPaperShaderOptionTile({
   label: string;
   onClick: () => void;
   shaderId: PaperShaderId;
-  variant: Exclude<PaperShaderOptionGridVariant, "inspector">;
+  variant: Exclude<PaperShaderOptionGridVariant, "settings">;
 }) {
   const isInsertDesktop = variant === "insert-desktop";
 
@@ -121,26 +121,26 @@ export function PaperShaderOptionGrid({
 }: PaperShaderOptionGridProps) {
   const shaders = getAllPaperShaderDefinitions();
 
-  if (variant === "inspector") {
+  if (variant === "settings") {
     if (!selectedShaderId) {
-      throw new Error("PaperShaderOptionGrid inspector variant requires selectedShaderId");
+      throw new Error("PaperShaderOptionGrid settings variant requires selectedShaderId");
     }
 
     return (
-      <InspectorOptionGridScrollArea
+      <SettingsOptionGridScrollArea
         ariaLabel="Paper shaders"
         columns={columns}
         dataSlot={scrollAreaDataSlot}
         shelfDataSlot={shelfDataSlot}
         variant="preset"
       >
-        <InspectorAnimatedOptionGrid
+        <SettingsAnimatedOptionGrid
           columns={columns}
           data-slot={dataSlot}
           selectedKey={selectedShaderId}
         >
           {shaders.map((shader) => (
-            <InspectorPaperShaderOptionTile
+            <SettingsPaperShaderOptionTile
               key={shader.id}
               label={shader.label}
               selected={selectedShaderId === shader.id}
@@ -148,8 +148,8 @@ export function PaperShaderOptionGrid({
               onClick={() => onSelect(shader.id)}
             />
           ))}
-        </InspectorAnimatedOptionGrid>
-      </InspectorOptionGridScrollArea>
+        </SettingsAnimatedOptionGrid>
+      </SettingsOptionGridScrollArea>
     );
   }
 

@@ -10,13 +10,13 @@ import { UtilityToolbar } from "@/features/shell/components/UtilityToolbar";
 import { MobileSettingsRail } from "@/features/shell/components/MobileSettingsRail";
 import { MobileTopBar } from "@/features/shell/components/MobileTopBar";
 import { UTILITY_TOOLBAR_SHELL_CLASS } from "@/features/shell/components/utility-toolbar.constants";
-import { DesktopSettingsPanel } from "@/features/shell/inspector/DesktopSettingsPanel";
+import { DesktopSettingsPanel } from "@/features/shell/settings/DesktopSettingsPanel";
 import { useToolbarSettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import { TOOLBAR_TOOLS } from "@/features/shell/model/toolbar-tools";
 import type { ThemeMode, ToolbarController } from "@/features/shell/model/toolbar-types";
 export type {
   ComposeSidebarPanel,
-  BackgroundInspectorTab,
+  BackgroundSettingsTab,
   CornersSettings,
   ExportTarget,
   LayerRow,
@@ -134,8 +134,8 @@ export function WorkspaceChrome({
             </UtilityToolbar>
           </div>
           <DesktopSettingsShell
-            showInspector
-            inspector={<DesktopSettingsPanel activeTool={actualActiveTool} model={model} />}
+            showSettings
+            settings={<DesktopSettingsPanel activeTool={actualActiveTool} model={model} />}
           />
         </>
       )}

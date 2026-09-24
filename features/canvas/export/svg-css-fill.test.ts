@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { formatFill } from "@/components/ui/fill-picker/public-api";
-import { qraftyGradientToFillCss } from "@/features/shell/inspector/settings-bridge";
+import { qraftyGradientToFillCss } from "@/features/shell/settings/settings-bridge";
 import { degreesToRadians } from "@/features/qr/styles/gradient-controls";
 import {
   cssFillToCanvasColor,

@@ -1,27 +1,27 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
-import { INSPECTOR_INPUT_CLASS } from "@/features/shell/components/inspector-tokens";
+import { SETTINGS_INPUT_CLASS } from "@/features/shell/components/settings-tokens";
 import {
-  InspectorScrubbableNumberInput,
-  InspectorTextInput,
+  SettingsScrubbableNumberInput,
+  SettingsTextInput,
 } from "@/features/shell/components/SettingsControls";
 
-describe("desktop inspector controls", () => {
-  it("renders shared input controls with the desktop inspector class contract", () => {
+describe("desktop settings controls", () => {
+  it("renders shared input controls with the desktop settings class contract", () => {
     const markup = renderToStaticMarkup(
       <div>
-        <InspectorTextInput aria-label="Remote logo URL" />
+        <SettingsTextInput aria-label="Remote logo URL" />
       </div>,
     );
 
-    expect(markup).toContain(INSPECTOR_INPUT_CLASS);
+    expect(markup).toContain(SETTINGS_INPUT_CLASS);
     expect(markup).toContain("ds-input-bg");
   });
 
   it("renders paste action on pasteable text inputs", () => {
     const markup = renderToStaticMarkup(
-      <InspectorTextInput aria-label="Content URL" pasteable onPasteValue={vi.fn()} />,
+      <SettingsTextInput aria-label="Content URL" pasteable onPasteValue={vi.fn()} />,
     );
 
     expect(markup).toContain('data-slot="settings-paste-action"');
@@ -32,7 +32,7 @@ describe("desktop inspector controls", () => {
 
   it("keeps a stable wrap around pasteable inputs without errors", () => {
     const markup = renderToStaticMarkup(
-      <InspectorTextInput aria-label="Content URL" pasteable onPasteValue={vi.fn()} />,
+      <SettingsTextInput aria-label="Content URL" pasteable onPasteValue={vi.fn()} />,
     );
 
     expect(markup).toContain("ds-input-wrap");
@@ -41,7 +41,7 @@ describe("desktop inspector controls", () => {
 
   it("renders validation feedback without paste shake styling", () => {
     const markup = renderToStaticMarkup(
-      <InspectorTextInput
+      <SettingsTextInput
         aria-label="Content URL"
         error="Enter a correct profile URL."
         pasteable
@@ -58,7 +58,7 @@ describe("desktop inspector controls", () => {
 
   it("renders scrubbable number inputs with resize cursor and scrub slot", () => {
     const markup = renderToStaticMarkup(
-      <InspectorScrubbableNumberInput
+      <SettingsScrubbableNumberInput
         aria-label="Width"
         className="h-8 rounded-[6px] px-2"
         min={1}

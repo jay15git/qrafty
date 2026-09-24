@@ -25,19 +25,19 @@ import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-
 import {
   getSettingsSectionLabel,
   type SettingsSectionId,
-} from "@/features/shell/inspector/settings-panel-meta";
+} from "@/features/shell/settings/settings-panel-meta";
 import {
   MobileDetailStackOutlets,
   useMobileDrawerNavigation,
-} from "@/features/shell/inspector/MobileDrawerNavigationContext";
-import { SettingsSectionBody } from "@/features/shell/inspector/SettingsSections";
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
-import { MobileInspectorDensityContext } from "@/features/shell/inspector/MobileInspectorDensityContext";
-import { MobileSettingsTabDockProvider } from "@/features/shell/inspector/MobileSettingsTabDock";
+} from "@/features/shell/settings/MobileDrawerNavigationContext";
+import { SettingsSectionBody } from "@/features/shell/settings/SettingsSections";
+import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
+import { MobileSettingsDensityContext } from "@/features/shell/settings/MobileSettingsDensityContext";
+import { MobileSettingsTabDockProvider } from "@/features/shell/settings/MobileSettingsTabDock";
 import { getContentTypeLabel } from "@/features/qr/content/input-options";
 
-import "@/features/shell/inspector/inspector.css";
-import "@/features/shell/inspector/mobile-inspector.css";
+import "@/features/shell/settings/settings.css";
+import "@/features/shell/settings/mobile-settings.css";
 
 const MOBILE_DRAWER_MAX_VIEWPORT_RATIO = 0.5;
 export const MOBILE_DRAWER_SECTION_VIEW = "section";
@@ -141,9 +141,9 @@ function MobileSettingDetailView({ model, onSave }: { model: SettingsModel; onSa
   const title = navigation?.detailPayload?.title ?? "Setting";
 
   return (
-    <div className="ds-root w-full min-w-0" data-mobile-inspector="" data-theme={theme}>
-      <InspectorThemeContext.Provider value={theme}>
-        <MobileInspectorDensityContext.Provider value={true}>
+    <div className="ds-root w-full min-w-0" data-mobile-settings="" data-theme={theme}>
+      <SettingsThemeContext.Provider value={theme}>
+        <MobileSettingsDensityContext.Provider value={true}>
           <header className="ds-mobile-drawer-nested-header">
             <button
               aria-label="Back"
@@ -166,8 +166,8 @@ function MobileSettingDetailView({ model, onSave }: { model: SettingsModel; onSa
             </button>
           </header>
           <MobileDetailStackOutlets />
-        </MobileInspectorDensityContext.Provider>
-      </InspectorThemeContext.Provider>
+        </MobileSettingsDensityContext.Provider>
+      </SettingsThemeContext.Provider>
     </div>
   );
 }
@@ -186,15 +186,15 @@ function MobileSettingsSectionView({
   title: string;
 }) {
   return (
-    <div className="ds-root w-full min-w-0" data-mobile-inspector="" data-theme={model.actualTheme}>
-      <InspectorThemeContext.Provider value={model.actualTheme}>
-        <MobileInspectorDensityContext.Provider value={true}>
+    <div className="ds-root w-full min-w-0" data-mobile-settings="" data-theme={model.actualTheme}>
+      <SettingsThemeContext.Provider value={model.actualTheme}>
+        <MobileSettingsDensityContext.Provider value={true}>
           <MobileSettingsTabDockProvider active>
             <MobileDrawerHeader onDiscard={onDiscard} onSave={onSave} title={title} />
             <SettingsSectionBody hideContentTypeBrowser id={section} model={model} />
           </MobileSettingsTabDockProvider>
-        </MobileInspectorDensityContext.Provider>
-      </InspectorThemeContext.Provider>
+        </MobileSettingsDensityContext.Provider>
+      </SettingsThemeContext.Provider>
     </div>
   );
 }
@@ -286,7 +286,7 @@ export function MobileSettingsDrawer({
           accessibilityTitle={title}
           className="ds-root shadow-none"
           data-shell-theme={theme}
-          data-mobile-inspector=""
+          data-mobile-settings=""
           data-slot="mobile-settings-drawer-root"
           data-theme={theme}
           maxHeight={maxHeight}

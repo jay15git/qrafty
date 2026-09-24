@@ -2,31 +2,31 @@ import { describe, expect, it } from "vitest";
 
 import { createDefaultQraftyState } from "@/features/qr/model/state";
 import {
-  createDefaultDraftingCardState,
-  type DraftingCardState,
+  createDefaultCanvasCardState,
+  type CanvasCardState,
 } from "@/features/canvas/model/card-state";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
+import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 import {
-  createDraftingShaderLayer,
-  createDraftingTextLayer,
+  createCanvasShaderLayer,
+  createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
 import { buildLayeredSvgParts } from "@/features/canvas/export/layered-svg-parts";
-import { qraftyGradientToFillCss } from "@/features/shell/inspector/settings-bridge";
+import { qraftyGradientToFillCss } from "@/features/shell/settings/settings-bridge";
 import { degreesToRadians } from "@/features/qr/styles/gradient-controls";
 
 describe("layered svg z-order", () => {
   it("renders overlay shader markup after the qr layer", async () => {
     const state = createDefaultQraftyState();
-    const cardState = createDefaultDraftingCardState();
-    const layers = createDefaultDraftingLayers("node", state, cardState);
+    const cardState = createDefaultCanvasCardState();
+    const layers = createDefaultCanvasLayers("node", state, cardState);
     const qrLayer = layers.find((layer) => layer.kind === "qr");
 
     if (!qrLayer) {
       throw new Error("Expected default qr layer.");
     }
 
-    const overlayShader = createDraftingShaderLayer("node:shader-overlay", "mesh-gradient", {
+    const overlayShader = createCanvasShaderLayer("node:shader-overlay", "mesh-gradient", {
       height: 120,
       width: 120,
       x: 40,
@@ -53,11 +53,11 @@ describe("layered svg z-order", () => {
 
   it("places card shader clip paths in defs", async () => {
     const state = createDefaultQraftyState();
-    const cardState: DraftingCardState = {
-      ...createDefaultDraftingCardState(),
+    const cardState: CanvasCardState = {
+      ...createDefaultCanvasCardState(),
       styleMode: "paper-shader",
     };
-    const layers = createDefaultDraftingLayers("node", state, cardState);
+    const layers = createDefaultCanvasLayers("node", state, cardState);
     const cardLayer = layers.find((layer) => layer.kind === "card");
 
     if (!cardLayer) {
@@ -82,15 +82,15 @@ describe("layered svg z-order", () => {
 
   it("omits shader layers when requested for compositor svg", async () => {
     const state = createDefaultQraftyState();
-    const cardState = createDefaultDraftingCardState();
-    const layers = createDefaultDraftingLayers("node", state, cardState);
+    const cardState = createDefaultCanvasCardState();
+    const layers = createDefaultCanvasLayers("node", state, cardState);
     const qrLayer = layers.find((layer) => layer.kind === "qr");
 
     if (!qrLayer) {
       throw new Error("Expected default qr layer.");
     }
 
-    const overlayShader = createDraftingShaderLayer("node:shader-overlay", "mesh-gradient", {
+    const overlayShader = createCanvasShaderLayer("node:shader-overlay", "mesh-gradient", {
       height: 120,
       width: 120,
       x: 40,
@@ -115,8 +115,8 @@ describe("layered svg z-order", () => {
 
   it("omits nested card image hrefs when compositor rasterizes svg", async () => {
     const state = createDefaultQraftyState();
-    const cardState: DraftingCardState = {
-      ...createDefaultDraftingCardState(),
+    const cardState: CanvasCardState = {
+      ...createDefaultCanvasCardState(),
       styleMode: "image",
       cardImage: {
         fit: "cover",
@@ -125,7 +125,7 @@ describe("layered svg z-order", () => {
         value: "https://example.com/card-bg.png",
       },
     };
-    const layers = createDefaultDraftingLayers("node", state, cardState);
+    const layers = createDefaultCanvasLayers("node", state, cardState);
 
     const parts = await buildLayeredSvgParts({
       cardState,
@@ -141,8 +141,8 @@ describe("layered svg z-order", () => {
 
   it("keeps nested card image hrefs in svg document exports", async () => {
     const state = createDefaultQraftyState();
-    const cardState: DraftingCardState = {
-      ...createDefaultDraftingCardState(),
+    const cardState: CanvasCardState = {
+      ...createDefaultCanvasCardState(),
       styleMode: "image",
       cardImage: {
         fit: "cover",
@@ -151,7 +151,7 @@ describe("layered svg z-order", () => {
         value: "https://example.com/card-bg.png",
       },
     };
-    const layers = createDefaultDraftingLayers("node", state, cardState);
+    const layers = createDefaultCanvasLayers("node", state, cardState);
 
     const parts = await buildLayeredSvgParts({
       cardState,
@@ -165,8 +165,8 @@ describe("layered svg z-order", () => {
 
   it("puts card css gradient fills in defs as svg paint servers", async () => {
     const state = createDefaultQraftyState();
-    const cardState: DraftingCardState = {
-      ...createDefaultDraftingCardState(),
+    const cardState: CanvasCardState = {
+      ...createDefaultCanvasCardState(),
       styleMode: "solid",
       fill: qraftyGradientToFillCss({
         enabled: true,
@@ -178,7 +178,7 @@ describe("layered svg z-order", () => {
         ],
       }),
     };
-    const layers = createDefaultDraftingLayers("node", state, cardState);
+    const layers = createDefaultCanvasLayers("node", state, cardState);
     const cardLayer = layers.find((layer) => layer.kind === "card");
 
     if (!cardLayer) {
@@ -199,10 +199,10 @@ describe("layered svg z-order", () => {
 
   it("exports gradient text fills as svg paint servers in defs", async () => {
     const state = createDefaultQraftyState();
-    const cardState = createDefaultDraftingCardState();
-    const layers = createDefaultDraftingLayers("node", state, cardState);
+    const cardState = createDefaultCanvasCardState();
+    const layers = createDefaultCanvasLayers("node", state, cardState);
     const textLayer = patchCanvasLayer(
-      createDraftingTextLayer("node", {
+      createCanvasTextLayer("node", {
         fillGradient: {
           enabled: true,
           type: "linear",

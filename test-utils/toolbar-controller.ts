@@ -18,18 +18,18 @@ import {
   DEFAULT_DESKTOP_TEXT_SETTINGS,
 } from "@/features/shell/model/toolbar-defaults";
 import type { ToolbarController } from "@/features/shell/model/toolbar-types";
-import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories";
+import { createCanvasTextLayer } from "@/features/canvas/model/layers/factories";
 
 /**
  * Builds a complete `ToolbarController` for tests. Every field is filled
- * with the same default the inspector falls back to, so a test only has to
+ * with the same default the settings falls back to, so a test only has to
  * supply the parts it exercises.
  */
 export function createToolbarController(
   overrides: Partial<ToolbarController> = {},
   nodeId = "preview",
 ): ToolbarController {
-  const layer = createDraftingTextLayer(nodeId, { text: "Hello" });
+  const layer = createCanvasTextLayer(nodeId, { text: "Hello" });
   return {
     activeTool: "content",
     contentType: "link",

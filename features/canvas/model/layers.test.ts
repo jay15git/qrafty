@@ -4,61 +4,61 @@ import {
   DEFAULT_DRAFTING_IMAGE_LAYER,
   DEFAULT_DRAFTING_SHAPE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,
-  isProtectedDraftingLayerId,
+  isProtectedCanvasLayerId,
   DEFAULT_DRAFTING_LAYER_SHADOW,
   type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import {
   clampLayerGeometryToCanvas,
-  createDefaultDraftingLayers,
+  createDefaultCanvasLayers,
   fitQrSizeInCard,
-  getDraftingCardInsetLayout,
-  layoutDraftingCardInsetLayers,
-  hasCustomDraftingQrPlacement,
+  getCanvasCardInsetLayout,
+  layoutCanvasCardInsetLayers,
+  hasCustomCanvasQrPlacement,
   normalizeCanvasLayers,
 } from "@/features/canvas/model/layers/card-qr";
 import {
-  createDraftingImageLayer,
-  createDraftingShaderLayer,
-  createDraftingShapeLayer,
-  createDraftingTextLayer,
+  createCanvasImageLayer,
+  createCanvasShaderLayer,
+  createCanvasShapeLayer,
+  createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
 import {
   alignCanvasLayers,
   cloneCanvasLayersForPaste,
   distributeCanvasLayers,
-  getDraftingMarqueeSelection,
+  getCanvasMarqueeSelection,
   reorderCanvasLayer,
 } from "@/features/canvas/model/layers/operations";
 import { groupCanvasLayers, ungroupCanvasLayer } from "@/features/canvas/model/layers/group";
-import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
+import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
 import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects";
 import { createDefaultQraftyState } from "@/features/qr/model/state";
 
-describe("drafting layer state actions", () => {
+describe("canvas layer state actions", () => {
   it("keeps the card background layer visible and protected", () => {
-    const cardState = { ...createDefaultDraftingCardState(), enabled: false };
-    const layers = createDefaultDraftingLayers("preview", createDefaultQraftyState(), cardState);
+    const cardState = { ...createDefaultCanvasCardState(), enabled: false };
+    const layers = createDefaultCanvasLayers("preview", createDefaultQraftyState(), cardState);
     const cardLayer = layers.find((layer) => layer.kind === "card");
 
     expect(cardLayer?.isVisible).toBe(true);
-    expect(isProtectedDraftingLayerId(cardLayer?.id)).toBe(true);
+    expect(isProtectedCanvasLayerId(cardLayer?.id)).toBe(true);
   });
 
   it("relayouts card and qr layers when card inset padding changes", () => {
     const qrState = createDefaultQraftyState();
     const cardState = {
-      ...createDefaultDraftingCardState(),
+      ...createDefaultCanvasCardState(),
       sizeMode: "auto" as const,
       sizePresetId: undefined,
       bottomSpace: 128,
     };
-    const layers = createDefaultDraftingLayers("preview", qrState, cardState);
+    const layers = createDefaultCanvasLayers("preview", qrState, cardState);
     const nextCardState = { ...cardState, padding: 40 };
 
-    const relayouted = layoutDraftingCardInsetLayers(layers, qrState, nextCardState);
-    const fresh = createDefaultDraftingLayers("preview", qrState, nextCardState);
+    const relayouted = layoutCanvasCardInsetLayers(layers, qrState, nextCardState);
+    const fresh = createDefaultCanvasLayers("preview", qrState, nextCardState);
 
     expect(relayouted.find((layer) => layer.kind === "card")).toMatchObject({
       height: fresh.find((layer) => layer.kind === "card")?.height,
@@ -75,16 +75,16 @@ describe("drafting layer state actions", () => {
   it("detects custom qr placement outside the default card inset", () => {
     const qrState = createDefaultQraftyState();
     const cardState = {
-      ...createDefaultDraftingCardState(),
+      ...createDefaultCanvasCardState(),
       sizeMode: "fixed" as const,
       width: 1080,
       height: 1350,
       padding: 0,
       bottomSpace: 0,
     };
-    const layers = createDefaultDraftingLayers("preview", qrState, cardState).map(cloneCanvasLayer);
+    const layers = createDefaultCanvasLayers("preview", qrState, cardState).map(cloneCanvasLayer);
 
-    expect(hasCustomDraftingQrPlacement(layers, "preview", qrState, cardState)).toBe(false);
+    expect(hasCustomCanvasQrPlacement(layers, "preview", qrState, cardState)).toBe(false);
 
     const customLayers = layers.map((layer) =>
       layer.kind === "qr"
@@ -98,9 +98,9 @@ describe("drafting layer state actions", () => {
         : layer,
     );
 
-    expect(hasCustomDraftingQrPlacement(customLayers, "preview", qrState, cardState)).toBe(true);
+    expect(hasCustomCanvasQrPlacement(customLayers, "preview", qrState, cardState)).toBe(true);
 
-    const relayouted = layoutDraftingCardInsetLayers(customLayers, qrState, cardState);
+    const relayouted = layoutCanvasCardInsetLayers(customLayers, qrState, cardState);
 
     expect(relayouted.find((layer) => layer.kind === "qr")).toMatchObject({
       height: 500,
@@ -113,14 +113,14 @@ describe("drafting layer state actions", () => {
   it("uses fixed card dimensions and fits the qr inside padding and bottom space", () => {
     const qrState = createDefaultQraftyState();
     const cardState = {
-      ...createDefaultDraftingCardState(),
+      ...createDefaultCanvasCardState(),
       sizeMode: "fixed" as const,
       width: 1050,
       height: 600,
       padding: 24,
       bottomSpace: 80,
     };
-    const layout = getDraftingCardInsetLayout(qrState, cardState);
+    const layout = getCanvasCardInsetLayout(qrState, cardState);
 
     expect(layout.card).toMatchObject({
       width: 1050,
@@ -134,8 +134,8 @@ describe("drafting layer state actions", () => {
     expect(fittedQr.width).toBeLessThanOrEqual(1050 - 48);
     expect(fittedQr.width).toBeLessThanOrEqual(600 - 48 - 80);
 
-    const layers = layoutDraftingCardInsetLayers(
-      createDefaultDraftingLayers("preview", qrState, cardState),
+    const layers = layoutCanvasCardInsetLayers(
+      createDefaultCanvasLayers("preview", qrState, cardState),
       qrState,
       cardState,
     );
@@ -152,14 +152,14 @@ describe("drafting layer state actions", () => {
   it("centers the qr vertically in a fixed card when bottom space is zero", () => {
     const qrState = createDefaultQraftyState();
     const cardState = {
-      ...createDefaultDraftingCardState(),
+      ...createDefaultCanvasCardState(),
       sizeMode: "fixed" as const,
       width: 1080,
       height: 810,
       padding: 24,
       bottomSpace: 0,
     };
-    const layout = getDraftingCardInsetLayout(qrState, cardState);
+    const layout = getCanvasCardInsetLayout(qrState, cardState);
     const fittedQr = fitQrSizeInCard(qrState, cardState);
 
     expect(layout.qr).toMatchObject({
@@ -176,12 +176,12 @@ describe("drafting layer state actions", () => {
   it("keeps auto card sizing derived from qr dimensions", () => {
     const qrState = createDefaultQraftyState();
     const cardState = {
-      ...createDefaultDraftingCardState(),
+      ...createDefaultCanvasCardState(),
       sizeMode: "auto" as const,
       sizePresetId: undefined,
       bottomSpace: 128,
     };
-    const layout = getDraftingCardInsetLayout(qrState, cardState);
+    const layout = getCanvasCardInsetLayout(qrState, cardState);
 
     expect(cardState.sizeMode).toBe("auto");
     expect(layout.card.width).toBe(qrState.width + cardState.padding * 2);
@@ -291,7 +291,7 @@ describe("drafting layer state actions", () => {
     ];
 
     expect(
-      getDraftingMarqueeSelection(layers, {
+      getCanvasMarqueeSelection(layers, {
         height: 130,
         width: 130,
         x: -10,
@@ -301,7 +301,7 @@ describe("drafting layer state actions", () => {
   });
 
   it("creates and normalizes Avnac-style text layers", () => {
-    const textLayer = createDraftingTextLayer("preview", {
+    const textLayer = createCanvasTextLayer("preview", {
       fill: "#ff00aa",
       fontFamily: "General Sans",
       fontId: "fontshare:general-sans",
@@ -370,7 +370,7 @@ describe("drafting layer state actions", () => {
         },
       ],
       createDefaultQraftyState(),
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     );
 
     expect(normalized.at(-1)).toMatchObject({
@@ -413,7 +413,7 @@ describe("drafting layer state actions", () => {
         },
       ],
       createDefaultQraftyState(),
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     );
 
     const cardLayer = normalized.find((layer) => layer.kind === "card");
@@ -449,7 +449,7 @@ describe("drafting layer state actions", () => {
         },
       ],
       createDefaultQraftyState(),
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     );
 
     expect(normalized.find((layer) => layer.kind === "qr")).toMatchObject({
@@ -488,7 +488,7 @@ describe("drafting layer state actions", () => {
         },
       ],
       createDefaultQraftyState(),
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     );
 
     const groupLayer = normalized.find((layer) => layer.kind === "group");
@@ -522,7 +522,7 @@ describe("drafting layer state actions", () => {
         createLayer("card", 0),
         createLayer("qr", 1),
         {
-          ...createDraftingTextLayer("preview", {
+          ...createCanvasTextLayer("preview", {
             fontFamily: "Legacy Brand Font",
             fontId: undefined,
             id: "text-legacy",
@@ -532,7 +532,7 @@ describe("drafting layer state actions", () => {
         },
       ],
       createDefaultQraftyState(),
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     );
 
     expect(normalized.at(-1)).toMatchObject({
@@ -549,7 +549,7 @@ describe("drafting layer state actions", () => {
         createLayer("card", 0),
         createLayer("qr", 1),
         {
-          ...createDraftingTextLayer("preview", {
+          ...createCanvasTextLayer("preview", {
             id: "text-legacy-runs",
             text: "Scan here",
             textRuns: [
@@ -561,7 +561,7 @@ describe("drafting layer state actions", () => {
         },
       ],
       createDefaultQraftyState(),
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     );
 
     expect(normalized.at(-1)?.textRuns).toEqual([
@@ -571,11 +571,11 @@ describe("drafting layer state actions", () => {
   });
 
   it("creates image and shape layers with defaults", () => {
-    const imageLayer = createDraftingImageLayer("preview", {
+    const imageLayer = createCanvasImageLayer("preview", {
       imageSource: "url",
       imageValue: "https://example.com/photo.png",
     });
-    const shapeLayer = createDraftingShapeLayer("preview", "hexagon", {
+    const shapeLayer = createCanvasShapeLayer("preview", "hexagon", {
       fill: "#abcdef",
     });
 
@@ -597,7 +597,7 @@ describe("drafting layer state actions", () => {
   });
 
   it("creates shader layers with defaults", () => {
-    const shaderLayer = createDraftingShaderLayer("preview", "warp");
+    const shaderLayer = createCanvasShaderLayer("preview", "warp");
 
     expect(shaderLayer).toMatchObject({
       height: 180,
@@ -636,7 +636,7 @@ describe("drafting layer state actions", () => {
         },
       ],
       createDefaultQraftyState(),
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     );
 
     const shader = normalized.find((layer) => layer.kind === "shader");
@@ -655,7 +655,7 @@ describe("drafting layer state actions", () => {
   });
 
   it("clones shader layer paperShader state deeply", () => {
-    const shaderLayer = createDraftingShaderLayer("preview", "mesh-gradient");
+    const shaderLayer = createCanvasShaderLayer("preview", "mesh-gradient");
     const clone = cloneCanvasLayer(shaderLayer);
 
     expect(clone.paperShader).not.toBe(shaderLayer.paperShader);
@@ -695,7 +695,7 @@ describe("drafting layer state actions", () => {
         },
       ],
       createDefaultQraftyState(),
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     );
 
     const image = normalized.find((layer) => layer.kind === "image");
@@ -719,7 +719,7 @@ describe("drafting layer state actions", () => {
   });
 
   it("preserves text fields through copy, paste, group, and ungroup", () => {
-    const textLayer = createDraftingTextLayer("preview", {
+    const textLayer = createCanvasTextLayer("preview", {
       fill: "#123456",
       id: "text-1",
       text: "Table 7",

@@ -15,7 +15,7 @@ import {
   setDotMatrixAnimationOptions,
 } from "@/features/qr/model/state";
 import { buildAnimatedQrMarkupAtTime } from "@/features/canvas/export/pipeline/qr-frames";
-import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
+import { createCanvasQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
 
 describe("dot matrix motion bridge", () => {
   it("maps desktop loaders to preset names", () => {
@@ -29,7 +29,7 @@ describe("dot matrix motion bridge", () => {
   it("adapts rendered qr svg into animatable modules", () => {
     const state = createDefaultQraftyState();
     const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(
-      renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state)),
+      renderDashboardQrSvgMarkup(createCanvasQrArtworkState(state)),
       state,
     );
 
@@ -66,7 +66,7 @@ describe("dot matrix motion bridge", () => {
     state.finderPatternInnerSettings.type = "heart";
     state.finderPatternOuterSettings.type = "rounded-lg";
 
-    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const canvasMarkup = renderDashboardQrSvgMarkup(createCanvasQrArtworkState(state));
     const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
 
     expect(adapted?.moduleCount).toBeGreaterThan(0);
@@ -91,7 +91,7 @@ describe("dot matrix motion bridge", () => {
 
   it("groups fragmented module paths into one animatable target per grid cell", () => {
     const state = createDefaultQraftyState();
-    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const canvasMarkup = renderDashboardQrSvgMarkup(createCanvasQrArtworkState(state));
     const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
 
     const moduleTags = adapted!.svg.match(/<[^>]*class="module"[^>]*>/g) ?? [];
@@ -112,7 +112,7 @@ describe("dot matrix motion bridge", () => {
     });
     state.data = "https://canvas.example";
 
-    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const canvasMarkup = renderDashboardQrSvgMarkup(createCanvasQrArtworkState(state));
     const config = toDotMatrixQrConfig(state, { canvasSvgMarkup: canvasMarkup });
 
     expect(config.useExternalSvg).toBe(true);
@@ -128,7 +128,7 @@ describe("dot matrix motion bridge", () => {
       loader: "neon-drift",
       preset: "neon-drift",
     });
-    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const canvasMarkup = renderDashboardQrSvgMarkup(createCanvasQrArtworkState(state));
 
     const frameMarkup = buildAnimatedQrMarkupAtTime(canvasMarkup, state, 500);
     const document = new DOMParser().parseFromString(frameMarkup, "image/svg+xml");
@@ -148,7 +148,7 @@ describe("dot matrix motion bridge", () => {
       loader: "radial-expand",
       preset: "radial-expand",
     });
-    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const canvasMarkup = renderDashboardQrSvgMarkup(createCanvasQrArtworkState(state));
 
     const frameMarkup = buildAnimatedQrMarkupAtTime(canvasMarkup, state, 500);
     const document = new DOMParser().parseFromString(frameMarkup, "image/svg+xml");
@@ -173,7 +173,7 @@ describe("dot matrix motion bridge", () => {
       ],
     };
 
-    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const canvasMarkup = renderDashboardQrSvgMarkup(createCanvasQrArtworkState(state));
     const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
 
     expect(adapted?.svg).toContain("fill=\"url('#dot-gradient-definition')\"");
@@ -185,7 +185,7 @@ describe("dot matrix motion bridge", () => {
     state.dotsColorMode = "palette";
     state.dotsPalette = ["#ff0000", "#00ff00", "#0000ff", "#ffff00"];
 
-    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const canvasMarkup = renderDashboardQrSvgMarkup(createCanvasQrArtworkState(state));
     const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
 
     expect(adapted?.svg).toContain('fill="#ff0000"');
@@ -197,7 +197,7 @@ describe("dot matrix motion bridge", () => {
     state.dotsColorMode = "palette";
     state.dotsPalette = ["#ff0000", "#00ff00", "#0000ff", "#ffff00"];
 
-    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const canvasMarkup = renderDashboardQrSvgMarkup(createCanvasQrArtworkState(state));
     const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
 
     const moduleTags = adapted!.svg.match(/<[^>]*class="module"[^>]*>/g) ?? [];
@@ -216,7 +216,7 @@ describe("dot matrix motion bridge", () => {
     state.dotsColorMode = "palette";
     state.dotsPalette = ["#ff0000", "#00ff00"];
 
-    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const canvasMarkup = renderDashboardQrSvgMarkup(createCanvasQrArtworkState(state));
     const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
     const document = new DOMParser().parseFromString(adapted!.svg, "image/svg+xml");
     const palettePaths = document.querySelectorAll('[data-qr-layer="dot-palette-fill"] > path');
@@ -234,7 +234,7 @@ describe("dot matrix motion bridge", () => {
       value: "data:image/png;base64,iVBORw0KGgo=",
     };
 
-    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const canvasMarkup = renderDashboardQrSvgMarkup(createCanvasQrArtworkState(state));
     const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
     const document = new DOMParser().parseFromString(adapted!.svg, "image/svg+xml");
 
@@ -289,7 +289,7 @@ describe("dot matrix motion bridge", () => {
       ],
     };
 
-    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(state));
+    const canvasMarkup = renderDashboardQrSvgMarkup(createCanvasQrArtworkState(state));
     const adapted = adaptCanvasSvgMarkupForDotMatrixMotion(canvasMarkup, state);
 
     expect(adapted?.svg).toContain('class="module"');

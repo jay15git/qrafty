@@ -1,6 +1,6 @@
-export type DraftingCornerRadiusKey = "topLeft" | "topRight" | "bottomRight" | "bottomLeft";
+export type CanvasCornerRadiusKey = "topLeft" | "topRight" | "bottomRight" | "bottomLeft";
 
-export type DraftingCornerRadiiState = {
+export type CanvasCornerRadiiState = {
   bottomLeft: number;
   bottomRight: number;
   linked: boolean;
@@ -8,7 +8,7 @@ export type DraftingCornerRadiiState = {
   topRight: number;
 };
 
-export const DRAFTING_CORNER_RADIUS_KEYS: DraftingCornerRadiusKey[] = [
+export const DRAFTING_CORNER_RADIUS_KEYS: CanvasCornerRadiusKey[] = [
   "topLeft",
   "topRight",
   "bottomRight",
@@ -17,7 +17,7 @@ export const DRAFTING_CORNER_RADIUS_KEYS: DraftingCornerRadiusKey[] = [
 
 export const DRAFTING_CORNER_RADIUS_MAX = 512;
 
-const DEFAULT_DRAFTING_CORNER_RADII: DraftingCornerRadiiState = {
+const DEFAULT_DRAFTING_CORNER_RADII: CanvasCornerRadiiState = {
   bottomLeft: 0,
   bottomRight: 0,
   linked: true,
@@ -32,8 +32,8 @@ function clampCornerRadiusValue(value: unknown, fallback: number) {
 
 export function createUniformCornerRadii(
   radius: number,
-  overrides: Partial<DraftingCornerRadiiState> = {},
-): DraftingCornerRadiiState {
+  overrides: Partial<CanvasCornerRadiiState> = {},
+): CanvasCornerRadiiState {
   const value = clampCornerRadiusValue(radius, 0);
 
   return {
@@ -48,9 +48,9 @@ export function createUniformCornerRadii(
 
 export function normalizeCornerRadiiState(
   value: unknown,
-  fallback: DraftingCornerRadiiState = DEFAULT_DRAFTING_CORNER_RADII,
+  fallback: CanvasCornerRadiiState = DEFAULT_DRAFTING_CORNER_RADII,
   legacyCornerRadius?: number,
-): DraftingCornerRadiiState {
+): CanvasCornerRadiiState {
   if (typeof value !== "object" || value === null) {
     if (legacyCornerRadius !== undefined) {
       return createUniformCornerRadii(legacyCornerRadius, { linked: fallback.linked });
@@ -75,10 +75,10 @@ export function normalizeCornerRadiiState(
 }
 
 export function resolveCornerRadii(
-  cornerRadii: DraftingCornerRadiiState | undefined,
+  cornerRadii: CanvasCornerRadiiState | undefined,
   legacyCornerRadius: number | undefined,
   fallback = 0,
-): DraftingCornerRadiiState {
+): CanvasCornerRadiiState {
   if (cornerRadii) {
     return normalizeCornerRadiiState(cornerRadii);
   }
@@ -86,7 +86,7 @@ export function resolveCornerRadii(
   return createUniformCornerRadii(legacyCornerRadius ?? fallback);
 }
 
-export function cornerRadiiToLegacyRadius(radii: DraftingCornerRadiiState) {
+export function cornerRadiiToLegacyRadius(radii: CanvasCornerRadiiState) {
   if (radii.linked) {
     return radii.topLeft;
   }
@@ -94,7 +94,7 @@ export function cornerRadiiToLegacyRadius(radii: DraftingCornerRadiiState) {
   return Math.max(radii.topLeft, radii.topRight, radii.bottomRight, radii.bottomLeft);
 }
 
-function cornerRadiiAreUniform(radii: DraftingCornerRadiiState) {
+function cornerRadiiAreUniform(radii: CanvasCornerRadiiState) {
   return (
     radii.topLeft === radii.topRight &&
     radii.topRight === radii.bottomRight &&
@@ -102,11 +102,11 @@ function cornerRadiiAreUniform(radii: DraftingCornerRadiiState) {
   );
 }
 
-export function cornerRadiiToCss(radii: DraftingCornerRadiiState) {
+export function cornerRadiiToCss(radii: CanvasCornerRadiiState) {
   return `${radii.topLeft}px ${radii.topRight}px ${radii.bottomRight}px ${radii.bottomLeft}px`;
 }
 
-function cornerRadiiToStyle(radii: DraftingCornerRadiiState) {
+function cornerRadiiToStyle(radii: CanvasCornerRadiiState) {
   return { borderRadius: cornerRadiiToCss(radii) };
 }
 
@@ -117,7 +117,7 @@ function clampCornerForRect(radius: number, width: number, height: number) {
 export function buildRoundedRectPath(
   width: number,
   height: number,
-  radii: Pick<DraftingCornerRadiiState, DraftingCornerRadiusKey>,
+  radii: Pick<CanvasCornerRadiiState, CanvasCornerRadiusKey>,
   originX = 0,
   originY = 0,
 ) {
@@ -152,11 +152,11 @@ export function buildRoundedRectPath(
 }
 
 export function patchCornerRadii(
-  current: DraftingCornerRadiiState | undefined,
+  current: CanvasCornerRadiiState | undefined,
   legacyCornerRadius: number | undefined,
-  corner: DraftingCornerRadiusKey,
+  corner: CanvasCornerRadiusKey,
   value: number,
-): DraftingCornerRadiiState {
+): CanvasCornerRadiiState {
   const base = resolveCornerRadii(current, legacyCornerRadius);
   const nextValue = clampCornerRadiusValue(value, base[corner]);
 
@@ -172,10 +172,10 @@ export function patchCornerRadii(
 }
 
 export function setCornerRadiiLinked(
-  current: DraftingCornerRadiiState | undefined,
+  current: CanvasCornerRadiiState | undefined,
   legacyCornerRadius: number | undefined,
   linked: boolean,
-): DraftingCornerRadiiState {
+): CanvasCornerRadiiState {
   const base = resolveCornerRadii(current, legacyCornerRadius);
 
   if (!linked) {
@@ -188,10 +188,10 @@ export function setCornerRadiiLinked(
 
 export function syncCornerRadiusFields(
   cornerRadius: number | undefined,
-  cornerRadii: DraftingCornerRadiiState | undefined,
+  cornerRadii: CanvasCornerRadiiState | undefined,
 ): {
   cornerRadius: number;
-  cornerRadii: DraftingCornerRadiiState;
+  cornerRadii: CanvasCornerRadiiState;
 } {
   const resolved = resolveCornerRadii(cornerRadii, cornerRadius);
   return {
@@ -203,7 +203,7 @@ export function syncCornerRadiusFields(
 export function resolveLayerCornerRadii(
   layer: {
     cornerRadius?: number;
-    cornerRadii?: DraftingCornerRadiiState;
+    cornerRadii?: CanvasCornerRadiiState;
   },
   fallback = 0,
 ) {
@@ -227,12 +227,12 @@ export function layerSupportsCornerRadius(layer: {
 }
 
 export function scaleCornerRadiiToBounds(
-  radii: DraftingCornerRadiiState,
+  radii: CanvasCornerRadiiState,
   fromWidth: number,
   fromHeight: number,
   toWidth: number,
   toHeight: number,
-): DraftingCornerRadiiState {
+): CanvasCornerRadiiState {
   const scale = Math.min(toWidth / Math.max(fromWidth, 1), toHeight / Math.max(fromHeight, 1));
 
   return {
@@ -247,15 +247,15 @@ export function scaleCornerRadiiToBounds(
 export function buildCornerRadiusLayerPatch(
   layer: {
     cornerRadius?: number;
-    cornerRadii?: DraftingCornerRadiiState;
+    cornerRadii?: CanvasCornerRadiiState;
   },
   patch: {
     cornerRadius?: number;
-    cornerRadii?: DraftingCornerRadiiState;
+    cornerRadii?: CanvasCornerRadiiState;
   },
 ): {
   cornerRadius?: number;
-  cornerRadii?: DraftingCornerRadiiState;
+  cornerRadii?: CanvasCornerRadiiState;
 } {
   if (patch.cornerRadii !== undefined) {
     const synced = syncCornerRadiusFields(

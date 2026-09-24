@@ -36,7 +36,7 @@ import {
   type IllustrationSet,
   type IllustrationSetId,
 } from "@/features/canvas/assets/illustration-sets";
-import type { DraftingElementShapeId } from "@/features/canvas/model/layers/shared";
+import type { CanvasElementShapeId } from "@/features/canvas/model/layers/shared";
 import { CUELUME_BUTTON, CUELUME_TOGGLE } from "@/features/shell/audio/cuelume";
 import { cn } from "@/lib/utils";
 
@@ -283,14 +283,14 @@ export function InsertMenuShapePanel({
 }: {
   isPopover: boolean;
   onBack: () => void;
-  onSelectShape: (shapeId: DraftingElementShapeId) => void;
+  onSelectShape: (shapeId: CanvasElementShapeId) => void;
 }) {
   return (
     <div className="space-y-3">
       <InsertMenuPanelHeader isPopover={isPopover} title="Shape" onBack={onBack} />
       <ElementShapeOptionGrid
         decorativeDataSlot="canvas-insert-decorative-shape-grid"
-        variant={isPopover ? "insert-desktop" : "insert-drafting"}
+        variant={isPopover ? "insert-desktop" : "insert-canvas"}
         onSelect={onSelectShape}
       />
     </div>
@@ -407,7 +407,7 @@ export function InsertMenuIllustrationSetPanel({
       <IllustrationOptionGrid
         assets={set.assets}
         dataSlot="canvas-illustration-option-grid"
-        variant={isPopover ? "insert-desktop" : "insert-drafting"}
+        variant={isPopover ? "insert-desktop" : "insert-canvas"}
         onSelect={onSelectAsset}
       />
     </div>

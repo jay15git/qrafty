@@ -16,7 +16,7 @@ const satoshi = localFont({
 
 export const metadata: Metadata = {
   title: "Design QR",
-  description: "A desktop QR workspace with the full drafting canvas and floating toolbar.",
+  description: "A desktop QR workspace with the full canvas and floating toolbar.",
 };
 
 export default async function DesktopPage() {

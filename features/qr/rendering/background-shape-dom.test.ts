@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest";
 
 import { createDefaultQraftyState, clampQrSize } from "@/features/qr/model/state";
 import { buildCanvasQrBackgroundSvgPayload } from "@/features/canvas/components/canvas-qr-background";
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
-import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
+import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
+import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
 
 describe("background shape svg payload", () => {
   it("renders decorative shapes as inline svg markup", () => {
@@ -15,10 +15,10 @@ describe("background shape svg payload", () => {
       height: clampQrSize(240),
     };
     state.backgroundShapeId = "flower";
-    const [layer] = createDefaultDraftingLayers(
+    const [layer] = createDefaultCanvasLayers(
       "preview",
       state,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     ).filter((entry) => entry.kind === "qr");
 
     const payload = buildCanvasQrBackgroundSvgPayload(layer, state);
@@ -46,10 +46,10 @@ describe("background shape svg payload", () => {
       ...state.backgroundGradient,
       enabled: true,
     };
-    const [layer] = createDefaultDraftingLayers(
+    const [layer] = createDefaultCanvasLayers(
       "preview",
       state,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     ).filter((entry) => entry.kind === "qr");
 
     const payload = buildCanvasQrBackgroundSvgPayload(layer, state);
@@ -72,10 +72,10 @@ describe("background shape svg payload", () => {
       ...state.backgroundShapeOptions,
       paddingPx: 24,
     };
-    const [layer] = createDefaultDraftingLayers(
+    const [layer] = createDefaultCanvasLayers(
       "preview",
       state,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     ).filter((entry) => entry.kind === "qr");
 
     const fullSize = buildCanvasQrBackgroundSvgPayload(layer, state);
@@ -108,10 +108,10 @@ describe("background shape svg payload", () => {
       shadowOffsetY: 18,
       strokeWidth: 8,
     };
-    const [layer] = createDefaultDraftingLayers(
+    const [layer] = createDefaultCanvasLayers(
       "preview",
       state,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     ).filter((entry) => entry.kind === "qr");
 
     for (const size of [100, 50, 30, 24]) {
@@ -132,10 +132,10 @@ describe("background shape svg payload", () => {
     state.backgroundOptions.round = 0.2;
     state.backgroundOptions.transparent = true;
     state.backgroundOptions.color = "";
-    const [layer] = createDefaultDraftingLayers(
+    const [layer] = createDefaultCanvasLayers(
       "preview",
       state,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     ).filter((entry) => entry.kind === "qr");
 
     const payload = buildCanvasQrBackgroundSvgPayload(layer, state);
@@ -154,10 +154,10 @@ describe("background shape svg payload", () => {
       ...state.backgroundShapeOptions,
       paddingPx: 24,
     };
-    const [layer] = createDefaultDraftingLayers(
+    const [layer] = createDefaultCanvasLayers(
       "preview",
       state,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     ).filter((entry) => entry.kind === "qr");
 
     const payload = buildCanvasQrBackgroundSvgPayload(layer, state);

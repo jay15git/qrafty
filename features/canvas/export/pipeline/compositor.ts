@@ -2,7 +2,7 @@ import { preprocessSvg } from "@qrafty/qr-internal/codegen";
 import { clampBackgroundShapeTilt } from "@/features/qr/model/state";
 import { rasterizeSvgMarkupToCanvas } from "@/features/qr/rendering/svg-raster";
 import type { QrFileExtension } from "@/features/qr/model/types";
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { QraftyState } from "@/features/qr/model/state";
 import { buildRoundedRectPath, resolveCornerRadii } from "@/features/canvas/model/corner-radius";
@@ -36,15 +36,15 @@ import {
   type WorkspaceShaderCaptureSession as ShaderSession,
 } from "@/features/canvas/export/pipeline/shader-snapshots";
 import {
-  ensureDraftingFontsForLayers,
+  ensureCanvasFontsForLayers,
   DRAFTING_FONT_REGISTRY,
-  getDraftingFontCssFamily,
+  getCanvasFontCssFamily,
 } from "@/features/canvas/model/fonts";
 
 export type CompositorRenderOptions = {
   backgroundColor?: string;
   cardLayer: CanvasLayer;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   extension?: Exclude<QrFileExtension, "svg">;
   layers: CanvasLayer[];
   mode: ExportClockMode;
@@ -124,7 +124,7 @@ function collectFontRefsFromLayers(layers: CanvasLayer[]) {
     .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
     .map((entry) => ({
       id: entry.id,
-      family: getDraftingFontCssFamily({ fontFamily: entry.family, fontId: entry.id }),
+      family: getCanvasFontCssFamily({ fontFamily: entry.family, fontId: entry.id }),
       cssText: "cssText" in entry ? entry.cssText : undefined,
       cssUrl: "cssUrl" in entry ? entry.cssUrl : undefined,
     }));
@@ -142,7 +142,7 @@ async function rasterizeLayerBatch({
   state,
 }: {
   bounds: { height: number; minX: number; minY: number; width: number };
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   fontDefs: string;
   layers: CanvasLayer[];
   nodeId: string;
@@ -171,7 +171,7 @@ async function rasterizeLayerBatch({
 function clipCardRoundedRect(
   context: CanvasRenderingContext2D,
   layer: CanvasLayer,
-  cardState: DraftingCardState,
+  cardState: CanvasCardState,
   renderScale = 1,
 ) {
   const cardRadii = resolveCornerRadii(cardState.cornerRadii, cardState.cornerRadius);
@@ -200,7 +200,7 @@ function resolveShaderBitmap(layer: CanvasLayer, shaderBitmaps: Record<string, I
 function drawCanvasFace(
   context: CanvasRenderingContext2D,
   layer: CanvasLayer,
-  cardState: DraftingCardState,
+  cardState: CanvasCardState,
   bounds: { minX: number; minY: number },
   shaderBitmaps: Record<string, ImageBitmap>,
   renderScale: number,
@@ -308,7 +308,7 @@ export async function renderWorkspaceCompositorCanvas({
       .filter((layer) => layer.isVisible)
       .sort((a, b) => a.zIndex - b.zIndex);
 
-    await ensureDraftingFontsForLayers(layers);
+    await ensureCanvasFontsForLayers(layers);
     const fontDefs = buildFontFaceDefs(collectFontRefsFromLayers(layers));
 
     const canvas = document.createElement("canvas");

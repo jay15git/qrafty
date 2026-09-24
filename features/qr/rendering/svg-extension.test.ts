@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildQrExtension,
   createAlignedCornerGradientExtension,
-  getDraftingQrLayerLayout,
+  getCanvasQrLayerLayout,
   getFinderCornerRegions,
   getQrRenderedDimensions,
   getQrSvgNumCells,
@@ -1122,7 +1122,7 @@ describe("shape padding geometry", () => {
       throw new Error("test requires a background shape");
     }
 
-    const layout = getDraftingQrLayerLayout(400, state);
+    const layout = getCanvasQrLayerLayout(400, state);
     const contentFrame = getQrBackgroundShapeContentFrame(shape);
     const scale = layout.metrics.backingRegion.width / shape.viewBox.width;
     const quietZonePx = getQraftyQrQuietZoneFraction(state) * layout.innerWidth;
@@ -1138,7 +1138,7 @@ describe("shape padding geometry", () => {
       width: clampQrSize(320),
       height: clampQrSize(320),
     };
-    const layout = getDraftingQrLayerLayout(320, state);
+    const layout = getCanvasQrLayerLayout(320, state);
     const quietZonePx = getQraftyQrQuietZoneFraction(state) * layout.innerWidth;
     const inkLeft = layout.metrics.translateX + quietZonePx;
     const inkRight = layout.metrics.translateX + layout.innerWidth - quietZonePx;
@@ -1158,7 +1158,7 @@ describe("shape padding geometry", () => {
       height: clampQrSize(320),
     };
     state.backgroundShapeOptions = { ...state.backgroundShapeOptions, paddingPx: 24 };
-    const layout = getDraftingQrLayerLayout(320, state);
+    const layout = getCanvasQrLayerLayout(320, state);
     const quietZonePx = getQraftyQrQuietZoneFraction(state) * layout.innerWidth;
     const inkLeft = layout.metrics.translateX + quietZonePx;
     const inkRight = layout.metrics.translateX + layout.innerWidth - quietZonePx;
@@ -1182,7 +1182,7 @@ describe("shape padding geometry", () => {
     state.backgroundShapeId = "ghost";
 
     const shape = getQrBackgroundShapeDefinition("ghost");
-    const layout = getDraftingQrLayerLayout(400, state);
+    const layout = getCanvasQrLayerLayout(400, state);
     const contentFrame = getQrBackgroundShapeContentFrame(shape!);
     const scale = layout.metrics.backingRegion.width / shape!.viewBox.width;
     const contentFrameCenterX =

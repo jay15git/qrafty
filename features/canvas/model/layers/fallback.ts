@@ -1,6 +1,6 @@
 import {
-  cloneDraftingCardPaperShaderState,
-  createDefaultDraftingCardPaperShader,
+  cloneCanvasCardPaperShaderState,
+  createDefaultCanvasCardPaperShader,
 } from "@/features/canvas/model/card-state";
 import {
   DEFAULT_DRAFTING_OUTLINE,
@@ -13,11 +13,11 @@ import {
   DEFAULT_DRAFTING_SHADER_LAYER,
   DEFAULT_DRAFTING_SHAPE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,
-  getDraftingCardLayerId,
-  getDraftingQrLayerId,
+  getCanvasCardLayerId,
+  getCanvasQrLayerId,
   type CanvasLayer,
   type CanvasLayerKind,
-  type DraftingLayerStateByNodeId,
+  type CanvasLayerStateByNodeId,
 } from "@/features/canvas/model/layers/shared";
 
 export function cloneCanvasLayer(layer: CanvasLayer): CanvasLayer {
@@ -40,15 +40,13 @@ export function cloneCanvasLayer(layer: CanvasLayer): CanvasLayer {
     ).map((shadow) => ({ ...shadow })),
     textRuns: layer.textRuns?.map((run) => ({ ...run })),
     illustrationColorStops: layer.illustrationColorStops?.map((stop) => ({ ...stop })),
-    paperShader: layer.paperShader
-      ? cloneDraftingCardPaperShaderState(layer.paperShader)
-      : undefined,
+    paperShader: layer.paperShader ? cloneCanvasCardPaperShaderState(layer.paperShader) : undefined,
   };
 }
 
-export function cloneDraftingLayerStateByNodeId(
-  layersByNodeId: DraftingLayerStateByNodeId,
-): DraftingLayerStateByNodeId {
+export function cloneCanvasLayerStateByNodeId(
+  layersByNodeId: CanvasLayerStateByNodeId,
+): CanvasLayerStateByNodeId {
   return Object.fromEntries(
     Object.entries(layersByNodeId).map(([nodeId, layers]) => [
       nodeId,
@@ -69,15 +67,15 @@ const FALLBACK_LAYER_NAMES: Record<CanvasLayerKind, string> = {
 
 function fallbackLayerId(nodeId: string, kind: CanvasLayerKind) {
   if (kind === "card") {
-    return getDraftingCardLayerId(nodeId);
+    return getCanvasCardLayerId(nodeId);
   }
 
   if (kind === "qr") {
-    return getDraftingQrLayerId(nodeId);
+    return getCanvasQrLayerId(nodeId);
   }
 
   if (kind === "text" || kind === "image" || kind === "shape" || kind === "shader") {
-    return createDraftingLayerInstanceId(nodeId, kind);
+    return createCanvasLayerInstanceId(nodeId, kind);
   }
 
   return `${nodeId}:group`;
@@ -140,7 +138,7 @@ function fallbackLayerKindDefaults(kind: CanvasLayerKind): Partial<CanvasLayer> 
         width: 180,
         x: -90,
         y: -90,
-        paperShader: createDefaultDraftingCardPaperShader(),
+        paperShader: createDefaultCanvasCardPaperShader(),
       };
     default:
       return {};
@@ -199,7 +197,7 @@ export function createFallbackLayer(nodeId: string, kind: CanvasLayerKind): Canv
   };
 }
 
-export function createDraftingLayerInstanceId(nodeId: string, kind: CanvasLayerKind) {
+export function createCanvasLayerInstanceId(nodeId: string, kind: CanvasLayerKind) {
   const randomId =
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()

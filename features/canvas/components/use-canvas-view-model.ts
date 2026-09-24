@@ -3,24 +3,24 @@
 import { useEffect, useMemo, useRef } from "react";
 
 import {
-  cloneDraftingCardState,
-  createDefaultDraftingCardState,
+  cloneCanvasCardState,
+  createDefaultCanvasCardState,
 } from "@/features/canvas/model/card-state";
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
-  getDraftingQrLayerId,
+  getCanvasQrLayerId,
   getQrCanvasLayers,
-  isDraftingQrLayerId,
+  isCanvasQrLayerId,
 } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import {
-  createDefaultDraftingLayers,
-  createDraftingQrLayer,
+  createDefaultCanvasLayers,
+  createCanvasQrLayer,
 } from "@/features/canvas/model/layers/card-qr";
 import {
-  cloneDraftingQrState,
-  createDefaultDraftingWorkspaceQrState,
-  type DraftingWorkspaceDocumentV1,
+  cloneCanvasQrState,
+  createDefaultCanvasWorkspaceQrState,
+  type CanvasWorkspaceDocumentV1,
 } from "@/features/canvas/model/document";
 import {
   applySceneCompositionPatch,
@@ -30,7 +30,7 @@ import {
 import { getCanvasSizeFromTemplate } from "@/features/canvas/model/size-templates";
 import { sceneHasVideoExportContent } from "@/features/canvas/export/pipeline/clock";
 import {
-  buildDraftingWorkspaceDocumentFromState,
+  buildCanvasWorkspaceDocumentFromState,
   mergeLiveQrStateByLayerId,
   resolveActiveQrLayerIdFromLayers,
 } from "@/features/canvas/components/canvas-document";
@@ -66,7 +66,7 @@ import {
 } from "@/features/qr/content/platform-intents";
 import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
 import {
-  findDraftingLayerById,
+  findCanvasLayerById,
   parseValueSegmentsText,
   type CanvasDownloadTarget,
 } from "@/features/canvas/components/canvas-operations";
@@ -96,7 +96,7 @@ import {
 } from "@/features/canvas/canvas/use-canvas-shortcuts";
 type CanvasBrandIconCategoryFilter = BrandIconCategory | "all";
 
-type DraftingWorkspaceController = ToolbarController;
+type CanvasWorkspaceController = ToolbarController;
 
 type CanvasSurfaceViewModelInput = {
   initialActiveTool?: ToolbarToolId;
@@ -110,7 +110,7 @@ export function useCanvasViewModel({
   const [
     {
       desktopRailTool,
-      backgroundInspectorTab,
+      backgroundSettingsTab,
       composeSidebarPanel,
       selectedContentType,
       contentValuesByType,
@@ -197,14 +197,14 @@ export function useCanvasViewModel({
       selectedVideoFormat,
       selectedVideoFrameRate,
       selectedVideoLongEdge,
-      isDraftingWorkspaceReady,
+      isCanvasWorkspaceReady,
       logoUploadObjectUrl,
       moduleFillUploadObjectUrl,
     },
     ,
     {
       setDesktopRailTool,
-      setBackgroundInspectorTab,
+      setBackgroundSettingsTab,
       setComposeSidebarPanel,
       setSelectedContentType,
       setContentValuesByType,
@@ -291,15 +291,15 @@ export function useCanvasViewModel({
       setSelectedVideoFormat,
       setSelectedVideoFrameRate,
       setSelectedVideoLongEdge,
-      setIsDraftingWorkspaceReady,
+      setIsCanvasWorkspaceReady,
       setLogoUploadObjectUrl,
       setModuleFillUploadObjectUrl,
     },
   ] = useCanvasSurfaceReducer(initialActiveTool);
   const brandIconQueryRef = useRef("");
   const brandIconCategoryRef = useRef<CanvasBrandIconCategoryFilter>("all");
-  const draftingCanvasRef = useRef<HTMLElement | null>(null);
-  const draftingLayerClipboardRef = useRef<string>("");
+  const canvasRef = useRef<HTMLElement | null>(null);
+  const canvasLayerClipboardRef = useRef<string>("");
   const logoUploadObjectUrlRef = useRef<string | null>(null);
   const moduleFillUploadObjectUrlRef = useRef<string | null>(null);
   const pendingQrPersistStateRef = useRef<QraftyState | null>(null);
@@ -315,7 +315,7 @@ export function useCanvasViewModel({
     () => validateStaticQrContent(selectedContentType, selectedContentValues),
     [selectedContentType, selectedContentValues],
   );
-  const draftingQraftyState = useMemo<QraftyState>(
+  const canvasQraftyState = useMemo<QraftyState>(
     () => ({
       ...DEFAULT_DRAFTING_STUDIO_STATE,
       data: selectedContentValue,
@@ -501,18 +501,18 @@ export function useCanvasViewModel({
   const keyboardStateRef = useRef({
     activeQrLayerId,
     activeQrNodeId,
-    draftingQraftyState,
+    canvasQraftyState,
     layerStateByNodeId,
     qrLayerCount: getQrCanvasLayers(
       layerStateByNodeId[activeQrNodeId] ??
-        createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState),
+        createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState),
     ).length,
     selectedCardState,
     selectedLayerIds,
   });
-  const canDownload = selectedContentValidation.isValid && Boolean(draftingQraftyState.data.trim());
-  const isDraftingRasterExport = isRasterExportExtension(selectedDownloadExtension);
-  const selectedRasterPhotoLongEdge = isDraftingRasterExport ? selectedPhotoLongEdge : undefined;
+  const canDownload = selectedContentValidation.isValid && Boolean(canvasQraftyState.data.trim());
+  const isCanvasRasterExport = isRasterExportExtension(selectedDownloadExtension);
+  const selectedRasterPhotoLongEdge = isCanvasRasterExport ? selectedPhotoLongEdge : undefined;
   const activeSceneComposition = resolveActiveSceneComposition(
     sceneCompositionByNodeId,
     activeQrNodeId,
@@ -522,14 +522,14 @@ export function useCanvasViewModel({
   const activeCanvasLayers = resolveActiveCanvasLayers(
     layerStateByNodeId,
     activeQrNodeId,
-    draftingQraftyState,
+    canvasQraftyState,
     selectedCardState,
   );
   const qrCanvasLayers = useMemo(() => getQrCanvasLayers(activeCanvasLayers), [activeCanvasLayers]);
   const canExportVideo = sceneHasVideoExportContent(
     selectedCardState,
     activeCanvasLayers,
-    draftingQraftyState,
+    canvasQraftyState,
   );
   const qrBoardNamesById = useMemo(() => {
     const next = new Map<string, string>();
@@ -544,9 +544,9 @@ export function useCanvasViewModel({
   const shouldMeasureActiveQrExport =
     selectedDownloadTarget === "current" || selectedDownloadTarget === activeQrDownloadTarget;
 
-  const draftingWorkspaceDocument = useMemo(
-    () => buildDraftingWorkspaceDocument(),
-    // buildDraftingWorkspaceDocument reads exactly the state listed here.
+  const canvasWorkspaceDocument = useMemo(
+    () => buildCanvasWorkspaceDocument(),
+    // buildCanvasWorkspaceDocument reads exactly the state listed here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       activeQrLayerId,
@@ -555,7 +555,7 @@ export function useCanvasViewModel({
       contentTypeByLayerId,
       contentTypeByNodeId,
       contentValuesByType,
-      draftingQraftyState,
+      canvasQraftyState,
       layerStateByNodeId,
       qrStateByLayerId,
       sceneCompositionByNodeId,
@@ -563,22 +563,22 @@ export function useCanvasViewModel({
       selectedContentType,
     ],
   );
-  const applyDocumentRef = useRef(applyDraftingWorkspaceDocumentToControls);
+  const applyDocumentRef = useRef(applyCanvasWorkspaceDocumentToControls);
   useEffect(() => {
-    applyDocumentRef.current = applyDraftingWorkspaceDocumentToControls;
+    applyDocumentRef.current = applyCanvasWorkspaceDocumentToControls;
   });
   const {
-    canRedo: canRedoDraftingWorkspace,
-    canUndo: canUndoDraftingWorkspace,
-    redo: handleRedoDraftingWorkspace,
-    save: handleSaveDraftingWorkspace,
-    shouldReplaceCurrentEntryRef: shouldReplaceCurrentDraftingHistoryEntryRef,
-    undo: handleUndoDraftingWorkspace,
+    canRedo: canRedoCanvasWorkspace,
+    canUndo: canUndoCanvasWorkspace,
+    redo: handleRedoCanvasWorkspace,
+    save: handleSaveCanvasWorkspace,
+    shouldReplaceCurrentEntryRef: shouldReplaceCurrentCanvasHistoryEntryRef,
+    undo: handleUndoCanvasWorkspace,
   } = useCanvasHistory({
     applyDocumentRef,
-    document: draftingWorkspaceDocument,
-    isWorkspaceReady: isDraftingWorkspaceReady,
-    setIsWorkspaceReady: setIsDraftingWorkspaceReady,
+    document: canvasWorkspaceDocument,
+    isWorkspaceReady: isCanvasWorkspaceReady,
+    setIsWorkspaceReady: setIsCanvasWorkspaceReady,
   });
   const {
     cancel: cancelWorkspaceExport,
@@ -601,7 +601,7 @@ export function useCanvasViewModel({
     qrStateByLayerId,
     rasterPhotoLongEdge: selectedRasterPhotoLongEdge,
     setDownloadError: setExportDownloadError,
-    state: draftingQraftyState,
+    state: canvasQraftyState,
     video: {
       durationSeconds: selectedVideoDurationSeconds,
       format: selectedVideoFormat,
@@ -744,7 +744,7 @@ export function useCanvasViewModel({
     selectedLogoGradient,
     selectedLogoPresetId,
     setLogoAssetSourceMode: setSelectedLogoAssetSourceMode,
-    state: draftingQraftyState,
+    state: canvasQraftyState,
   });
 
   function resolveLiveQrPersistState(): QraftyState {
@@ -752,7 +752,7 @@ export function useCanvasViewModel({
       return pendingQrPersistStateRef.current;
     }
 
-    const live = draftingQraftyState;
+    const live = canvasQraftyState;
     const persisted = qrStateByLayerId[activeQrLayerId];
     if (!persisted) {
       return live;
@@ -798,7 +798,7 @@ export function useCanvasViewModel({
     clearCanvasQrMarkupCache();
   }
 
-  function handleDraftingContentTypeChange(type: QrInputType) {
+  function handleCanvasContentTypeChange(type: QrInputType) {
     setSelectedContentType(type);
     setContentTypeByNodeId((current) => ({
       ...current,
@@ -821,7 +821,7 @@ export function useCanvasViewModel({
     });
   }
 
-  function handleDraftingContentValueChange(field: string, value: StaticQrContentValue) {
+  function handleCanvasContentValueChange(field: string, value: StaticQrContentValue) {
     if (field === "intent" && typeof value === "string" && isPlatformType(selectedContentType)) {
       setContentValuesByType((current) => ({
         ...current,
@@ -839,7 +839,7 @@ export function useCanvasViewModel({
     }));
   }
 
-  function handleDraftingContentPasteApply(type: QrInputType, values: StaticQrContentValues) {
+  function handleCanvasContentPasteApply(type: QrInputType, values: StaticQrContentValues) {
     setSelectedContentType(type);
     setContentTypeByNodeId((current) => ({
       ...current,
@@ -851,15 +851,15 @@ export function useCanvasViewModel({
     }));
   }
 
-  function buildDraftingWorkspaceDocument(): DraftingWorkspaceDocumentV1 {
-    return buildDraftingWorkspaceDocumentFromState({
+  function buildCanvasWorkspaceDocument(): CanvasWorkspaceDocumentV1 {
+    return buildCanvasWorkspaceDocumentFromState({
       activeQrLayerId,
       activeQrNodeId,
       cardStateByNodeId,
       contentTypeByLayerId,
       contentTypeByNodeId,
       contentValuesByType,
-      draftingQraftyState,
+      canvasQraftyState,
       layerStateByNodeId,
       qrStateByLayerId,
       sceneCompositionByNodeId,
@@ -869,7 +869,7 @@ export function useCanvasViewModel({
   }
 
   function persistActiveQrLayerState(nextState: QraftyState = resolveLiveQrPersistState()) {
-    const cloned = cloneDraftingQrState(nextState);
+    const cloned = cloneCanvasQrState(nextState);
     pendingQrPersistStateRef.current = cloned;
     setQrStateByLayerId((current) => ({
       ...current,
@@ -889,14 +889,14 @@ export function useCanvasViewModel({
   });
 
   function activateQrLayer(layerId: string) {
-    if (!isDraftingQrLayerId(layerId) || layerId === activeQrLayerId) {
+    if (!isCanvasQrLayerId(layerId) || layerId === activeQrLayerId) {
       return;
     }
 
-    shouldReplaceCurrentDraftingHistoryEntryRef.current = true;
+    shouldReplaceCurrentCanvasHistoryEntryRef.current = true;
     persistActiveQrLayerState();
 
-    const nextState = qrStateByLayerId[layerId] ?? createDefaultDraftingWorkspaceQrState();
+    const nextState = qrStateByLayerId[layerId] ?? createDefaultCanvasWorkspaceQrState();
     const nextContentType = contentTypeByLayerId[layerId] ?? DEFAULT_QR_INPUT_TYPE;
 
     setActiveQrLayerId(layerId);
@@ -905,21 +905,21 @@ export function useCanvasViewModel({
     selectSingleLayer(layerId);
   }
 
-  function applyDraftingWorkspaceDocumentToControls(nextDocument: DraftingWorkspaceDocumentV1) {
+  function applyCanvasWorkspaceDocumentToControls(nextDocument: CanvasWorkspaceDocumentV1) {
     const nodeId = DASHBOARD_QR_NODE_ID;
     const activeNodeId = nodeId;
     const fallbackActiveLayerId = nextDocument.qrStateByLayerId[nextDocument.activeQrLayerId]
       ? nextDocument.activeQrLayerId
-      : getDraftingQrLayerId(nodeId);
+      : getCanvasQrLayerId(nodeId);
     const activeCardState =
-      nextDocument.cardStateByNodeId[activeNodeId] ?? createDefaultDraftingCardState();
+      nextDocument.cardStateByNodeId[activeNodeId] ?? createDefaultCanvasCardState();
     const layers = (
       nextDocument.layerStateByNodeId[activeNodeId] ??
-      createDefaultDraftingLayers(
+      createDefaultCanvasLayers(
         activeNodeId,
         nextDocument.qrStateByLayerId[fallbackActiveLayerId] ??
           nextDocument.qrStateByNodeId[activeNodeId] ??
-          createDefaultDraftingWorkspaceQrState(),
+          createDefaultCanvasWorkspaceQrState(),
         activeCardState,
       )
     ).map(cloneCanvasLayer);
@@ -932,16 +932,16 @@ export function useCanvasViewModel({
       nextDocument.qrStateByLayerId[activeLayerId] ??
       nextDocument.qrStateByLayerId[fallbackActiveLayerId] ??
       nextDocument.qrStateByNodeId[activeNodeId] ??
-      createDefaultDraftingWorkspaceQrState();
+      createDefaultCanvasWorkspaceQrState();
 
     setActiveQrLayerId(activeLayerId);
     setActiveQrNodeId(activeNodeId);
     setQrStateByLayerId(structuredClone(nextDocument.qrStateByLayerId));
     setQrStateByNodeId({
-      [activeNodeId]: cloneDraftingQrState(activeState),
+      [activeNodeId]: cloneCanvasQrState(activeState),
     });
     setCardStateByNodeId({
-      [activeNodeId]: cloneDraftingCardState(activeCardState),
+      [activeNodeId]: cloneCanvasCardState(activeCardState),
     });
     setLayerStateByNodeId({
       [activeNodeId]: layers,
@@ -957,14 +957,14 @@ export function useCanvasViewModel({
     setSelectedContentType(nextDocument.selectedContentType);
     setContentValuesByType(structuredClone(nextDocument.contentValuesByType));
     qrControls.applyQrState(activeState);
-    setSelectedCardState(cloneDraftingCardState(activeCardState));
+    setSelectedCardState(cloneCanvasCardState(activeCardState));
     selectSingleLayer(activeLayerId);
   }
 
   const {
     applyLayerSelection,
-    clearDraftingLayerSelection,
-    copySelectedDraftingLayers,
+    clearCanvasLayerSelection,
+    copySelectedCanvasLayers,
     deleteSelectedLayersOrBoard,
     duplicateSelectedLayers,
     getActiveSelectableLayers,
@@ -981,8 +981,8 @@ export function useCanvasViewModel({
     handleBoardQrClick,
     handleBoardSelection,
     handleRemoveQrCode,
-    pasteDraftingLayers,
-    selectAllActiveDraftingLayers,
+    pasteCanvasLayers,
+    selectAllActiveCanvasLayers,
     selectSingleLayer,
   } = useLayerActions({
     activateQrLayer,
@@ -990,9 +990,9 @@ export function useCanvasViewModel({
     activeQrNodeId,
     cardStateByNodeId,
     contentTypeByLayerId,
-    draftingLayerClipboardRef,
-    draftingQraftyState,
-    draftingCanvasRef,
+    canvasLayerClipboardRef,
+    canvasQraftyState,
+    canvasRef,
     keyboardStateRef,
     layerStateByNodeId,
     persistActiveQrLayerState,
@@ -1014,43 +1014,43 @@ export function useCanvasViewModel({
     setSelectedContentType,
     setSelectedLayerId,
     setSelectedLayerIds,
-    shouldReplaceCurrentEntryRef: shouldReplaceCurrentDraftingHistoryEntryRef,
+    shouldReplaceCurrentEntryRef: shouldReplaceCurrentCanvasHistoryEntryRef,
   });
 
-  function resetDraftingWorkspace() {
-    const nextState = createDefaultDraftingWorkspaceQrState();
+  function resetCanvasWorkspace() {
+    const nextState = createDefaultCanvasWorkspaceQrState();
 
     setDesktopRailTool("content");
     qrControls.applyQrState(nextState);
     brandIconQueryRef.current = "";
     brandIconCategoryRef.current = "all";
-    setActiveQrLayerId(getDraftingQrLayerId(DASHBOARD_QR_NODE_ID));
+    setActiveQrLayerId(getCanvasQrLayerId(DASHBOARD_QR_NODE_ID));
     setActiveQrNodeId(DASHBOARD_QR_NODE_ID);
     setContentTypeByNodeId({
       [DASHBOARD_QR_NODE_ID]: DEFAULT_QR_INPUT_TYPE,
     });
     setContentTypeByLayerId({
-      [getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)]: DEFAULT_QR_INPUT_TYPE,
+      [getCanvasQrLayerId(DASHBOARD_QR_NODE_ID)]: DEFAULT_QR_INPUT_TYPE,
     });
     setQrStateByLayerId({
-      [getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)]: cloneDraftingQrState(nextState),
+      [getCanvasQrLayerId(DASHBOARD_QR_NODE_ID)]: cloneCanvasQrState(nextState),
     });
     setQrStateByNodeId({
-      [DASHBOARD_QR_NODE_ID]: cloneDraftingQrState(nextState),
+      [DASHBOARD_QR_NODE_ID]: cloneCanvasQrState(nextState),
     });
-    const nextCardState = createDefaultDraftingCardState();
-    setSelectedCardState(cloneDraftingCardState(nextCardState));
+    const nextCardState = createDefaultCanvasCardState();
+    setSelectedCardState(cloneCanvasCardState(nextCardState));
     setCardStateByNodeId({
-      [DASHBOARD_QR_NODE_ID]: cloneDraftingCardState(nextCardState),
+      [DASHBOARD_QR_NODE_ID]: cloneCanvasCardState(nextCardState),
     });
     setLayerStateByNodeId({
-      [DASHBOARD_QR_NODE_ID]: createDefaultDraftingLayers(
+      [DASHBOARD_QR_NODE_ID]: createDefaultCanvasLayers(
         DASHBOARD_QR_NODE_ID,
         nextState,
         nextCardState,
       ),
     });
-    selectSingleLayer(getDraftingQrLayerId(DASHBOARD_QR_NODE_ID));
+    selectSingleLayer(getCanvasQrLayerId(DASHBOARD_QR_NODE_ID));
 
     setSelectedDownloadExtension("png");
     setSelectedDownloadTarget("surface");
@@ -1083,7 +1083,7 @@ export function useCanvasViewModel({
     keyboardStateRef.current = {
       activeQrLayerId,
       activeQrNodeId,
-      draftingQraftyState,
+      canvasQraftyState,
       layerStateByNodeId,
       qrLayerCount: qrCanvasLayers.length,
       selectedCardState,
@@ -1092,7 +1092,7 @@ export function useCanvasViewModel({
   }, [
     activeQrLayerId,
     activeQrNodeId,
-    draftingQraftyState,
+    canvasQraftyState,
     layerStateByNodeId,
     qrCanvasLayers.length,
     selectedCardState,
@@ -1101,23 +1101,23 @@ export function useCanvasViewModel({
 
   useEffect(() => {
     shortcutHandlersRef.current = {
-      clearDraftingLayerSelection,
-      copySelectedDraftingLayers,
+      clearCanvasLayerSelection,
+      copySelectedCanvasLayers,
       deleteSelectedLayersOrBoard,
       duplicateSelectedLayers,
       handleLayerAction,
       handleLayerChange,
-      handleRedoDraftingWorkspace,
-      handleUndoDraftingWorkspace,
-      pasteDraftingLayers,
-      selectAllActiveDraftingLayers,
+      handleRedoCanvasWorkspace,
+      handleUndoCanvasWorkspace,
+      pasteCanvasLayers,
+      selectAllActiveCanvasLayers,
     };
   });
   useCanvasShortcuts({
-    clipboardRef: draftingLayerClipboardRef,
+    clipboardRef: canvasLayerClipboardRef,
     handlersRef: shortcutHandlersRef,
     stateRef: keyboardStateRef,
-    canvasRef: draftingCanvasRef,
+    canvasRef: canvasRef,
   });
 
   async function handleAddQrCode() {
@@ -1125,21 +1125,21 @@ export function useCanvasViewModel({
 
     persistActiveQrLayerState();
 
-    const freshState = createDefaultDraftingWorkspaceQrState();
+    const freshState = createDefaultCanvasWorkspaceQrState();
     const layers =
       layerStateByNodeId[activeQrNodeId] ??
-      createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState);
+      createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState);
     const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1);
     const nearLayer =
-      findDraftingLayerById(layers, activeQrLayerId) ?? qrCanvasLayers.at(-1) ?? undefined;
-    const nextLayer = createDraftingQrLayer(activeQrNodeId, freshState, selectedCardState, {
+      findCanvasLayerById(layers, activeQrLayerId) ?? qrCanvasLayers.at(-1) ?? undefined;
+    const nextLayer = createCanvasQrLayer(activeQrNodeId, freshState, selectedCardState, {
       nearLayer,
       zIndex: maxZIndex + 1,
     });
 
     setQrStateByLayerId((current) => ({
       ...current,
-      [nextLayer.id]: cloneDraftingQrState(freshState),
+      [nextLayer.id]: cloneCanvasQrState(freshState),
     }));
     setContentTypeByLayerId((current) => ({
       ...current,
@@ -1167,7 +1167,7 @@ export function useCanvasViewModel({
       qrStateByLayerId,
       activeQrLayerId,
       canvasLayers: activeCanvasLayers,
-      draftingQraftyState,
+      canvasQraftyState,
       selectedLayerId,
     });
 
@@ -1181,7 +1181,7 @@ export function useCanvasViewModel({
         name: "QR Code",
         qrStateByLayerId: mergedQrStateByLayerId,
         sceneComposition: activeSceneComposition,
-        state: draftingQraftyState,
+        state: canvasQraftyState,
       },
     ];
   }, [
@@ -1189,7 +1189,7 @@ export function useCanvasViewModel({
     activeQrLayerId,
     activeQrNodeId,
     activeSceneComposition,
-    draftingQraftyState,
+    canvasQraftyState,
     qrStateByLayerId,
     selectedCardState,
     selectedContentValidation,
@@ -1199,11 +1199,11 @@ export function useCanvasViewModel({
   const desktopActiveTool = desktopRailTool;
   const { appearanceTargetLayer, propertiesTransformLayer, transformTargetLayer } =
     resolveLayerTargets(activeCanvasLayers, selectedLayerIds, selectedTransformLayer);
-  const qrBackgroundVisible = resolveQrBackgroundVisible(draftingQraftyState);
+  const qrBackgroundVisible = resolveQrBackgroundVisible(canvasQraftyState);
   const desktopAppearanceSnapshot = resolveAppearanceSnapshot(
     appearanceTargetLayer,
     selectedCardState,
-    draftingQraftyState,
+    canvasQraftyState,
     qrBackgroundVisible,
   );
 
@@ -1236,7 +1236,7 @@ export function useCanvasViewModel({
     activeQrNodeId,
     appearanceTargetLayer,
     commitActiveQraftyState,
-    draftingQraftyState,
+    canvasQraftyState,
     handleLayerChange,
     handleLayerSelect,
     layerStateByNodeId,
@@ -1327,7 +1327,7 @@ export function useCanvasViewModel({
       activeCanvasLayers,
       activeCanvasLayerRows,
       activeSceneComposition,
-      draftingQraftyState,
+      canvasQraftyState,
       selectedAriaLabel,
       selectedBackgroundColor,
       selectedBackgroundColorMode,
@@ -1396,7 +1396,7 @@ export function useCanvasViewModel({
     activeCanvasLayers,
     activeQrLayerId,
     activeQrNodeId,
-    draftingQraftyState,
+    canvasQraftyState,
     qrCanvasLayers,
     qrStateByLayerId,
     resolveTargetDimensions: resolveWorkspaceExportTargetDimensions,
@@ -1412,12 +1412,12 @@ export function useCanvasViewModel({
     selectedLayerId,
   );
 
-  const desktopController: DraftingWorkspaceController = buildToolbarController({
+  const desktopController: CanvasWorkspaceController = buildToolbarController({
     core: {
       activeTool: desktopActiveTool,
       appearanceSnapshot: desktopAppearanceSnapshot,
-      canRedo: canRedoDraftingWorkspace,
-      canUndo: canUndoDraftingWorkspace,
+      canRedo: canRedoCanvasWorkspace,
+      canUndo: canUndoCanvasWorkspace,
       composeSidebarPanel,
       contentValidation: selectedContentValidation,
       contentValues: selectedContentValues,
@@ -1429,14 +1429,14 @@ export function useCanvasViewModel({
         setDesktopCanvasTool("select");
         setDesktopRailTool(toolId);
       },
-      onContentPasteApply: handleDraftingContentPasteApply,
+      onContentPasteApply: handleCanvasContentPasteApply,
       onContentReset: resetDesktopContent,
-      onContentTypeChange: handleDraftingContentTypeChange,
-      onContentValueChange: handleDraftingContentValueChange,
-      onRedo: handleRedoDraftingWorkspace,
-      onResetDefaults: resetDraftingWorkspace,
-      onSave: handleSaveDraftingWorkspace,
-      onUndo: handleUndoDraftingWorkspace,
+      onContentTypeChange: handleCanvasContentTypeChange,
+      onContentValueChange: handleCanvasContentValueChange,
+      onRedo: handleRedoCanvasWorkspace,
+      onResetDefaults: resetCanvasWorkspace,
+      onSave: handleSaveCanvasWorkspace,
+      onUndo: handleUndoCanvasWorkspace,
       scanSafetyResult,
       selectedAppearanceLayer: appearanceTargetLayer,
       selectedElementLayer,
@@ -1445,7 +1445,7 @@ export function useCanvasViewModel({
     },
     qrSettings: {
       accessibilitySettings: desktopAccessibilitySettings,
-      backgroundInspectorTab,
+      backgroundSettingsTab,
       backgroundSettings: desktopBackgroundSettings,
       cornersSettings: desktopCornersSettings,
       effectsSettings: desktopEffectsSettings,
@@ -1455,11 +1455,11 @@ export function useCanvasViewModel({
       motionSettings: selectedDotMatrixAnimation as MotionSettings,
       onAccessibilityReset: () => setSelectedAriaLabel(""),
       onAccessibilitySettingsChange: updateDesktopAccessibilitySettings,
-      onBackgroundInspectorTabChange: setBackgroundInspectorTab,
+      onBackgroundSettingsTabChange: setBackgroundSettingsTab,
       onBackgroundReset: () =>
         setSelectedCardState((current) => ({
           ...current,
-          paperShader: createDefaultDraftingCardState().paperShader,
+          paperShader: createDefaultCanvasCardState().paperShader,
           styleMode: "paper-shader",
         })),
       onBackgroundSettingsChange: (settings) =>
@@ -1470,7 +1470,7 @@ export function useCanvasViewModel({
             settings.styleMode ??
             (settings.paperShader !== undefined ? "paper-shader" : current.styleMode),
         })),
-      onCornersReset: () => qrControls.applyQrState(createDefaultDraftingWorkspaceQrState()),
+      onCornersReset: () => qrControls.applyQrState(createDefaultCanvasWorkspaceQrState()),
       onCornersSettingsChange: updateDesktopCornersSettings,
       onEffectsReset: resetDesktopShapeSettings,
       onEffectsSettingsChange: (patch) =>
@@ -1632,14 +1632,14 @@ export function useCanvasViewModel({
       layersSettings: desktopLayersSettings,
       onLayerAction: handleLayerAction,
       onLayerCopy: () => {
-        void copySelectedDraftingLayers(selectedLayerIds);
+        void copySelectedCanvasLayers(selectedLayerIds);
       },
       onLayersReset: () =>
         setLayerStateByNodeId((current) => ({
           ...current,
-          [activeQrNodeId]: createDefaultDraftingLayers(
+          [activeQrNodeId]: createDefaultCanvasLayers(
             activeQrNodeId,
-            draftingQraftyState,
+            canvasQraftyState,
             selectedCardState,
           ),
         })),
@@ -1653,8 +1653,8 @@ export function useCanvasViewModel({
     activeQrNodeId,
     desktopCanvasTool,
     desktopController,
-    draftingCanvasRef,
-    isDraftingWorkspaceReady,
+    canvasRef,
+    isCanvasWorkspaceReady,
     boards,
     selectedBackgroundShapeId,
     selectedContentType,
@@ -1670,7 +1670,7 @@ export function useCanvasViewModel({
     selectedQrRadius,
     selectedQrSize,
     selectedQrTypeNumber,
-    copySelectedDraftingLayers,
+    copySelectedCanvasLayers,
     handleAddTextLayerAt,
     handleLayerAction,
     handleLayerChange,
@@ -1678,7 +1678,7 @@ export function useCanvasViewModel({
     handleLayerSelectionChange,
     handleBoardQrClick,
     handleBoardSelection,
-    pasteDraftingLayers,
+    pasteCanvasLayers,
     setDesktopCanvasTool,
   };
 }

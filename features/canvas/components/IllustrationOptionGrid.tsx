@@ -2,7 +2,7 @@
 
 import type { IllustrationAsset } from "@/features/canvas/assets/illustration-sets";
 
-type IllustrationOptionGridVariant = "insert-desktop" | "insert-drafting";
+type IllustrationOptionGridVariant = "insert-desktop" | "insert-canvas";
 
 type IllustrationOptionGridProps = {
   assets: readonly IllustrationAsset[];

@@ -5,12 +5,12 @@ import { Trash2Icon } from "lucide-react";
 
 import { ReorderList } from "@/features/shell/components/interior/reorder-list";
 import {
-  INSPECTOR_CAPTION_CLASS,
-  INSPECTOR_LABEL_CLASS,
-  INSPECTOR_LAYER_ACTION_CLASS,
-  INSPECTOR_LAYER_ROW_SELECTED_CLASS,
-  INSPECTOR_POPOVER_HEADER_CLASS,
-} from "@/features/shell/components/inspector-tokens";
+  SETTINGS_CAPTION_CLASS,
+  SETTINGS_LABEL_CLASS,
+  SETTINGS_LAYER_ACTION_CLASS,
+  SETTINGS_LAYER_ROW_SELECTED_CLASS,
+  SETTINGS_POPOVER_HEADER_CLASS,
+} from "@/features/shell/components/settings-tokens";
 import {
   LAYER_KIND_LABELS,
   type LayerRow,
@@ -37,7 +37,7 @@ function LayerRowActionButton({
   return (
     <button
       aria-label={ariaLabel}
-      className={cn(INSPECTOR_LAYER_ACTION_CLASS, className)}
+      className={cn(SETTINGS_LAYER_ACTION_CLASS, className)}
       disabled={disabled}
       type="button"
       onClick={onClick}
@@ -174,10 +174,10 @@ export function LayersPopoverContent({
       data-slot={embedded ? "layers-embedded" : "layers-popover"}
     >
       {!embedded ? (
-        <header className={INSPECTOR_POPOVER_HEADER_CLASS}>
-          <p className={cn("mb-0", INSPECTOR_LABEL_CLASS)}>Layers</p>
+        <header className={SETTINGS_POPOVER_HEADER_CLASS}>
+          <p className={cn("mb-0", SETTINGS_LABEL_CLASS)}>Layers</p>
           {layers.length > 0 ? (
-            <p className={cn(INSPECTOR_CAPTION_CLASS, "shrink-0 tabular-nums")}>{layers.length}</p>
+            <p className={cn(SETTINGS_CAPTION_CLASS, "shrink-0 tabular-nums")}>{layers.length}</p>
           ) : null}
         </header>
       ) : null}
@@ -190,7 +190,7 @@ export function LayersPopoverContent({
             embedded
               ? embeddedRowClass
               : selected
-                ? INSPECTOR_LAYER_ROW_SELECTED_CLASS
+                ? SETTINGS_LAYER_ROW_SELECTED_CLASS
                 : "cursor-pointer rounded-[10px] border-0 bg-transparent py-1.5 pl-1.5 pr-2 shadow-none"
           }
           getLabel={(entry) => {
@@ -260,7 +260,7 @@ export function LayersPopoverContent({
           className={cn(
             embedded
               ? "ds-type-meta px-1 py-3 text-center"
-              : cn(INSPECTOR_CAPTION_CLASS, "px-3 py-4 text-center"),
+              : cn(SETTINGS_CAPTION_CLASS, "px-3 py-4 text-center"),
           )}
           data-slot="layers-empty"
         >

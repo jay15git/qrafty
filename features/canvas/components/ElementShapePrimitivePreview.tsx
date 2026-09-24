@@ -1,4 +1,4 @@
-import type { DraftingShapePrimitiveId } from "@/features/canvas/model/element-shapes";
+import type { CanvasShapePrimitiveId } from "@/features/canvas/model/element-shapes";
 import { cn } from "@/lib/utils";
 
 export function ElementShapePrimitivePreview({
@@ -6,7 +6,7 @@ export function ElementShapePrimitivePreview({
   shapeId,
 }: {
   className?: string;
-  shapeId: DraftingShapePrimitiveId;
+  shapeId: CanvasShapePrimitiveId;
 }) {
   const svgClassName = cn("size-full", className);
 

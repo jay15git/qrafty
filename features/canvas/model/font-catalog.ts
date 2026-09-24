@@ -1,7 +1,7 @@
-export type DraftingFontCategory =
+export type CanvasFontCategory =
   "sans" | "condensed" | "serif" | "slab" | "display" | "handwriting" | "mono" | "system";
 
-export const DRAFTING_FONT_CATEGORY_ORDER: readonly DraftingFontCategory[] = [
+export const DRAFTING_FONT_CATEGORY_ORDER: readonly CanvasFontCategory[] = [
   "sans",
   "condensed",
   "serif",
@@ -12,7 +12,7 @@ export const DRAFTING_FONT_CATEGORY_ORDER: readonly DraftingFontCategory[] = [
   "system",
 ];
 
-export const DRAFTING_FONT_CATEGORY_LABELS: Record<DraftingFontCategory, string> = {
+export const DRAFTING_FONT_CATEGORY_LABELS: Record<CanvasFontCategory, string> = {
   sans: "Sans-serif",
   condensed: "Condensed",
   serif: "Serif",
@@ -23,7 +23,7 @@ export const DRAFTING_FONT_CATEGORY_LABELS: Record<DraftingFontCategory, string>
   system: "System",
 };
 
-export const DRAFTING_FONT_CATEGORY_FALLBACKS: Record<DraftingFontCategory, string> = {
+export const DRAFTING_FONT_CATEGORY_FALLBACKS: Record<CanvasFontCategory, string> = {
   sans: "system-ui, Arial, sans-serif",
   condensed: "'Arial Narrow', system-ui, sans-serif",
   serif: "Georgia, 'Times New Roman', serif",
@@ -35,7 +35,7 @@ export const DRAFTING_FONT_CATEGORY_FALLBACKS: Record<DraftingFontCategory, stri
 };
 
 export type GoogleFontSpec = {
-  category: Exclude<DraftingFontCategory, "system">;
+  category: Exclude<CanvasFontCategory, "system">;
   family: string;
   italic?: boolean;
   /** Variable `wght` range. When set, one file serves every weight in the range. */

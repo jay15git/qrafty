@@ -1,4 +1,4 @@
-import type { DraftingWorkspaceDocumentV1 } from "@/features/canvas/model/document";
+import type { CanvasWorkspaceDocumentV1 } from "@/features/canvas/model/document";
 import {
   cloneSceneComposition,
   createDefaultSceneComposition,
@@ -9,7 +9,7 @@ import {
 export type SceneCompositionByNodeId = Record<string, SceneCompositionState>;
 
 export function createDefaultSceneCompositionByNodeId(
-  document: DraftingWorkspaceDocumentV1,
+  document: CanvasWorkspaceDocumentV1,
 ): SceneCompositionByNodeId {
   return Object.fromEntries(
     document.qrOrder.map((nodeId) => [nodeId, createDefaultSceneComposition()]),

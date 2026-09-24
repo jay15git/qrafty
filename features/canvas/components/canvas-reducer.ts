@@ -9,20 +9,20 @@ import type {
 import type { QraftyCornerDotStyle } from "@/features/qr/model/state";
 import type { VideoExportLongEdge } from "@/features/qr/export/video-export";
 import {
-  createDefaultDraftingCardState,
-  type DraftingCardState,
+  createDefaultCanvasCardState,
+  type CanvasCardState,
 } from "@/features/canvas/model/card-state";
 import {
-  getDraftingQrLayerId,
-  type DraftingLayerStateByNodeId,
+  getCanvasQrLayerId,
+  type CanvasLayerStateByNodeId,
 } from "@/features/canvas/model/layers/shared";
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
+import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 import {
-  createDefaultDraftingWorkspaceQrState,
-  type DraftingCardStateByNodeId,
-  type DraftingContentValuesByType,
-  type DraftingQrStateByLayerId,
-  type DraftingQrStateByNodeId,
+  createDefaultCanvasWorkspaceQrState,
+  type CanvasCardStateByNodeId,
+  type CanvasContentValuesByType,
+  type CanvasQrStateByLayerId,
+  type CanvasQrStateByNodeId,
 } from "@/features/canvas/model/document";
 import type { SceneCompositionByNodeId } from "@/features/canvas/model/apply-scene-template";
 import { createDefaultSceneComposition } from "@/features/canvas/model/scene-templates";
@@ -33,7 +33,7 @@ import {
 } from "@/features/canvas/components/canvas.constants";
 import type { CanvasBoardTool } from "@/features/canvas/components/Canvas";
 import type {
-  BackgroundInspectorTab,
+  BackgroundSettingsTab,
   ToolbarToolId,
   ComposeSidebarPanel,
 } from "@/features/shell/components/WorkspaceChrome";
@@ -63,10 +63,10 @@ export type CanvasAssetSourceMode = Extract<AssetSourceMode, "upload" | "url">;
 
 export type CanvasSurfaceState = {
   desktopRailTool: ToolbarToolId | null;
-  backgroundInspectorTab: BackgroundInspectorTab;
+  backgroundSettingsTab: BackgroundSettingsTab;
   composeSidebarPanel: ComposeSidebarPanel;
   selectedContentType: QrInputType;
-  contentValuesByType: DraftingContentValuesByType;
+  contentValuesByType: CanvasContentValuesByType;
   contentTypeByNodeId: Record<string, QrInputType>;
   contentTypeByLayerId: Record<string, QrInputType>;
   selectedQrMargin: number;
@@ -132,12 +132,12 @@ export type CanvasSurfaceState = {
   selectedLogoCrossOrigin: QrCrossOrigin;
   activeQrLayerId: string;
   activeQrNodeId: string;
-  qrStateByLayerId: DraftingQrStateByLayerId;
-  qrStateByNodeId: DraftingQrStateByNodeId;
-  selectedCardState: DraftingCardState;
-  cardStateByNodeId: DraftingCardStateByNodeId;
+  qrStateByLayerId: CanvasQrStateByLayerId;
+  qrStateByNodeId: CanvasQrStateByNodeId;
+  selectedCardState: CanvasCardState;
+  cardStateByNodeId: CanvasCardStateByNodeId;
   sceneCompositionByNodeId: SceneCompositionByNodeId;
-  layerStateByNodeId: DraftingLayerStateByNodeId;
+  layerStateByNodeId: CanvasLayerStateByNodeId;
   selectedLayerId: string | null;
   selectedLayerIds: string[];
   desktopCanvasTool: CanvasBoardTool | null;
@@ -150,8 +150,8 @@ export type CanvasSurfaceState = {
   selectedVideoFormat: "mp4" | "webm";
   selectedVideoFrameRate: 30 | 60;
   selectedVideoLongEdge: VideoExportLongEdge;
-  isDraftingWorkspaceReady: boolean;
-  draftingHistoryRevision: number;
+  isCanvasWorkspaceReady: boolean;
+  canvasHistoryRevision: number;
   logoUploadObjectUrl: string | null;
   moduleFillUploadObjectUrl: string | null;
 };
@@ -186,13 +186,13 @@ export type CanvasSurfaceSetters = {
 };
 
 function createInitialCanvasSurfaceState(initialActiveTool?: ToolbarToolId): CanvasSurfaceState {
-  const defaultQrState = createDefaultDraftingWorkspaceQrState();
-  const defaultCardState = createDefaultDraftingCardState();
-  const primaryQrLayerId = getDraftingQrLayerId(DASHBOARD_QR_NODE_ID);
+  const defaultQrState = createDefaultCanvasWorkspaceQrState();
+  const defaultCardState = createDefaultCanvasCardState();
+  const primaryQrLayerId = getCanvasQrLayerId(DASHBOARD_QR_NODE_ID);
 
   return {
     desktopRailTool: initialActiveTool ?? "content",
-    backgroundInspectorTab: "paper",
+    backgroundSettingsTab: "paper",
     composeSidebarPanel: null,
     selectedContentType: DEFAULT_QR_INPUT_TYPE,
     contentValuesByType: {
@@ -311,14 +311,14 @@ function createInitialCanvasSurfaceState(initialActiveTool?: ToolbarToolId): Can
       [DASHBOARD_QR_NODE_ID]: createDefaultSceneComposition(),
     },
     layerStateByNodeId: {
-      [DASHBOARD_QR_NODE_ID]: createDefaultDraftingLayers(
+      [DASHBOARD_QR_NODE_ID]: createDefaultCanvasLayers(
         DASHBOARD_QR_NODE_ID,
         defaultQrState,
         defaultCardState,
       ),
     },
-    selectedLayerId: getDraftingQrLayerId(DASHBOARD_QR_NODE_ID),
-    selectedLayerIds: [getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)],
+    selectedLayerId: getCanvasQrLayerId(DASHBOARD_QR_NODE_ID),
+    selectedLayerIds: [getCanvasQrLayerId(DASHBOARD_QR_NODE_ID)],
     desktopCanvasTool: "select",
     selectedDownloadExtension: "png",
     selectedDownloadTarget: "surface",
@@ -329,17 +329,14 @@ function createInitialCanvasSurfaceState(initialActiveTool?: ToolbarToolId): Can
     selectedVideoFormat: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFormat,
     selectedVideoFrameRate: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFrameRate,
     selectedVideoLongEdge: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoLongEdge,
-    isDraftingWorkspaceReady: false,
-    draftingHistoryRevision: 0,
+    isCanvasWorkspaceReady: false,
+    canvasHistoryRevision: 0,
     logoUploadObjectUrl: null,
     moduleFillUploadObjectUrl: null,
   };
 }
 
-function draftingCanvasReducer(
-  state: CanvasSurfaceState,
-  action: CanvasSurfaceAction,
-): CanvasSurfaceState {
+function canvasReducer(state: CanvasSurfaceState, action: CanvasSurfaceAction): CanvasSurfaceState {
   switch (action.type) {
     case "SET_FIELD": {
       const { field, value } = action;
@@ -372,7 +369,7 @@ function createCanvasSurfaceSetters(dispatch: Dispatch<CanvasSurfaceAction>): Ca
 
   return {
     setDesktopRailTool: (value) => setField("desktopRailTool", value),
-    setBackgroundInspectorTab: (value) => setField("backgroundInspectorTab", value),
+    setBackgroundSettingsTab: (value) => setField("backgroundSettingsTab", value),
     setComposeSidebarPanel: (value) => setField("composeSidebarPanel", value),
     setSelectedContentType: (value) => setField("selectedContentType", value),
     setContentValuesByType: (value) => setField("contentValuesByType", value),
@@ -464,8 +461,8 @@ function createCanvasSurfaceSetters(dispatch: Dispatch<CanvasSurfaceAction>): Ca
     setSelectedVideoFormat: (value) => setField("selectedVideoFormat", value),
     setSelectedVideoFrameRate: (value) => setField("selectedVideoFrameRate", value),
     setSelectedVideoLongEdge: (value) => setField("selectedVideoLongEdge", value),
-    setIsDraftingWorkspaceReady: (value) => setField("isDraftingWorkspaceReady", value),
-    setDraftingHistoryRevision: (value) => setField("draftingHistoryRevision", value),
+    setIsCanvasWorkspaceReady: (value) => setField("isCanvasWorkspaceReady", value),
+    setCanvasHistoryRevision: (value) => setField("canvasHistoryRevision", value),
     setLogoUploadObjectUrl: (value) => setField("logoUploadObjectUrl", value),
     setModuleFillUploadObjectUrl: (value) => setField("moduleFillUploadObjectUrl", value),
   };
@@ -475,7 +472,7 @@ export function useCanvasSurfaceReducer(
   initialActiveTool?: ToolbarToolId,
 ): [CanvasSurfaceState, Dispatch<CanvasSurfaceAction>, CanvasSurfaceSetters] {
   const [state, dispatch] = useReducer(
-    draftingCanvasReducer,
+    canvasReducer,
     initialActiveTool,
     createInitialCanvasSurfaceState,
   );

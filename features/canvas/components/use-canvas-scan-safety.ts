@@ -4,8 +4,8 @@ import { useMemo, useSyncExternalStore } from "react";
 
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
-import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
+import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
 import type { CanvasDownloadTarget } from "@/features/canvas/components/canvas-operations";
 import type { CanvasDownloadExtension } from "@/features/canvas/components/canvas.constants";
 import type { OutputDimensions } from "@/features/canvas/export/pipeline/bounds";
@@ -25,7 +25,7 @@ export function useCanvasScanSafety({
   activeCanvasLayers,
   activeQrLayerId,
   activeQrNodeId,
-  draftingQraftyState,
+  canvasQraftyState,
   qrCanvasLayers,
   qrStateByLayerId,
   resolveTargetDimensions,
@@ -37,11 +37,11 @@ export function useCanvasScanSafety({
   activeCanvasLayers: CanvasLayer[];
   activeQrLayerId: string;
   activeQrNodeId: string;
-  draftingQraftyState: QraftyState;
+  canvasQraftyState: QraftyState;
   qrCanvasLayers: CanvasLayer[];
-  qrStateByLayerId: DraftingQrStateByLayerId;
+  qrStateByLayerId: CanvasQrStateByLayerId;
   resolveTargetDimensions: ResolveTargetDimensions;
-  selectedCardState: DraftingCardState;
+  selectedCardState: CanvasCardState;
   selectedContentIsValid: boolean;
   selectedDownloadExtension: CanvasDownloadExtension;
   selectedDownloadTarget: CanvasDownloadTarget;
@@ -67,9 +67,9 @@ export function useCanvasScanSafety({
   const scanSafetyState = useMemo(
     () =>
       scanSafetyQrLayer && scanSafetyQrLayer.id !== activeQrLayerId
-        ? (qrStateByLayerId[scanSafetyQrLayer.id] ?? draftingQraftyState)
-        : draftingQraftyState,
-    [activeQrLayerId, draftingQraftyState, qrStateByLayerId, scanSafetyQrLayer],
+        ? (qrStateByLayerId[scanSafetyQrLayer.id] ?? canvasQraftyState)
+        : canvasQraftyState,
+    [activeQrLayerId, canvasQraftyState, qrStateByLayerId, scanSafetyQrLayer],
   );
 
   const scanSafetyLayers = useMemo(
@@ -107,13 +107,13 @@ export function useCanvasScanSafety({
             extension: selectedDownloadExtension,
             layers: scanSafetyLayers,
             nodeId: activeQrNodeId,
-            qualityPercent: draftingQraftyState.rasterExportQualityPercent,
+            qualityPercent: canvasQraftyState.rasterExportQualityPercent,
             targetDimensions: scanSafetyTargetDimensions,
           }
         : undefined,
     [
       activeQrNodeId,
-      draftingQraftyState.rasterExportQualityPercent,
+      canvasQraftyState.rasterExportQualityPercent,
       scanSafetyCardLayer,
       scanSafetyLayers,
       scanSafetyTargetDimensions,

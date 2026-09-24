@@ -1,13 +1,13 @@
 import type {
-  DraftingLayerAlignAction,
-  DraftingLayerDistributeAction,
-  DraftingLayerReorderAction,
+  CanvasLayerAlignAction,
+  CanvasLayerDistributeAction,
+  CanvasLayerReorderAction,
 } from "@/features/canvas/model/layers/shared";
 
 export type CanvasLayerMenuAction =
-  | DraftingLayerAlignAction
-  | DraftingLayerDistributeAction
-  | DraftingLayerReorderAction
+  | CanvasLayerAlignAction
+  | CanvasLayerDistributeAction
+  | CanvasLayerReorderAction
   | "delete"
   | "group"
   | "reset-rotation"

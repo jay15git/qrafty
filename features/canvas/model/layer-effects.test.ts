@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { createDefaultDraftingShadowLayer } from "@/features/canvas/model/effects";
-import { createDefaultDraftingFilterEffect } from "@/features/canvas/model/filters";
+import { createDefaultCanvasShadowLayer } from "@/features/canvas/model/effects";
+import { createDefaultCanvasFilterEffect } from "@/features/canvas/model/filters";
 import {
   createLayerEffect,
   getLayerFilterAmount,
@@ -14,11 +14,11 @@ import {
 } from "@/features/canvas/model/layer-effects";
 
 describe("layer effects stack", () => {
-  it("hides placeholder shadows from the inspector list", () => {
+  it("hides placeholder shadows from the settings list", () => {
     const effects = listLayerEffects({
       layerFilters: [],
       shadows: [
-        createDefaultDraftingShadowLayer({
+        createDefaultCanvasShadowLayer({
           blur: 0,
           opacity: 0,
           visible: false,
@@ -30,13 +30,13 @@ describe("layer effects stack", () => {
   });
 
   it("lists shadows then filters as a single stack", () => {
-    const shadow = createDefaultDraftingShadowLayer({
+    const shadow = createDefaultCanvasShadowLayer({
       blur: 8,
       opacity: 40,
       offsetY: 4,
       visible: true,
     });
-    const blur = createDefaultDraftingFilterEffect("blur", { amount: 12 });
+    const blur = createDefaultCanvasFilterEffect("blur", { amount: 12 });
     const effects = listLayerEffects({
       layerFilters: [blur],
       shadows: [shadow],
@@ -65,12 +65,12 @@ describe("layer effects stack", () => {
   });
 
   it("patches shadow geometry onto the matching id", () => {
-    const first = createDefaultDraftingShadowLayer({
+    const first = createDefaultCanvasShadowLayer({
       blur: 4,
       opacity: 25,
       visible: true,
     });
-    const second = createDefaultDraftingShadowLayer({
+    const second = createDefaultCanvasShadowLayer({
       blur: 12,
       opacity: 40,
       visible: true,

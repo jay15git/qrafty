@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { findBrandIconById } from "@/features/qr/assets/brand-icons";
 import { getSizeTemplateSections, type SizeTemplate } from "@/features/canvas/model/size-templates";
 import { SettingsNumberField, SettingsValueGrid } from "@/features/shell/components/SettingsRows";
-import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui";
+import { SettingsPopoverCloseButton } from "@/features/shell/settings/settings-ui";
 import type { CardSizeSettings } from "@/features/shell/model/card-size-settings";
 import { cn } from "@/lib/utils";
 

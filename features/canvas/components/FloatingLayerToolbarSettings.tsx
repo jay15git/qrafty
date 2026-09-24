@@ -18,28 +18,28 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Fill } from "@/components/ui/fill-picker/public-api";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext";
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
+import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
+import { useMobileDrawerNavigation } from "@/features/shell/settings/MobileDrawerNavigationContext";
+import { useMobileSettingsDensity } from "@/features/shell/settings/MobileSettingsDensityContext";
 import {
   SettingsFillPopover,
   SettingsPopoverChrome,
   SettingsSlider,
-} from "@/features/shell/inspector/settings-ui";
+} from "@/features/shell/settings/settings-ui";
 import { getLayerFontWeight, getNearestFontWeight } from "@/features/shell/model/font-weight";
 import {
   DEFAULT_DRAFTING_IMAGE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,
   type CanvasLayer,
-  type DraftingTextAlign,
+  type CanvasTextAlign,
 } from "@/features/canvas/model/layers/shared";
 import {
-  getDraftingEmojiLayerSizePatch,
-  isDraftingEmojiLayer,
-  isDraftingIllustrationLayer,
+  getCanvasEmojiLayerSizePatch,
+  isCanvasEmojiLayer,
+  isCanvasIllustrationLayer,
 } from "@/features/canvas/model/layer-floating-settings";
 import { IllustrationFloatingColorControl } from "@/features/canvas/components/IllustrationColorControls";
-import { resolveDraftingFont } from "@/features/canvas/model/fonts";
+import { resolveCanvasFont } from "@/features/canvas/model/fonts";
 import {
   getShapeLayerFillCssValue,
   getTextLayerFillCssValue,
@@ -49,7 +49,7 @@ import {
 import { cn } from "@/lib/utils";
 import { CUELUME_TOGGLE } from "@/features/shell/audio/cuelume";
 
-import "@/features/shell/inspector/inspector.css";
+import "@/features/shell/settings/settings.css";
 
 const COMPACT_POPOVER_CLASS =
   "ds-portal-surface ds-popover-content ds-popover-flat z-[var(--z-popover-raised)] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-hidden ds-squircle-md";
@@ -114,7 +114,7 @@ function LayerFloatingSettingsPopover({
   title?: string;
   trigger: ReactNode;
 }) {
-  const mobileDensity = useMobileInspectorDensity();
+  const mobileDensity = useMobileSettingsDensity();
   const mobileNav = useMobileDrawerNavigation();
 
   if (mobileDensity && mobileNav) {
@@ -126,7 +126,7 @@ function LayerFloatingSettingsPopover({
           mobileNav.openDetail({
             title: title ?? ariaLabel,
             content: (
-              <div className="ds-portal-surface w-full min-w-0" data-mobile-inspector="">
+              <div className="ds-portal-surface w-full min-w-0" data-mobile-settings="">
                 {children ?? content}
               </div>
             ),
@@ -158,11 +158,11 @@ function LayerFloatingSettingsPopover({
           onClick={(event) => event.stopPropagation()}
           onPointerDown={(event) => event.stopPropagation()}
         >
-          <InspectorThemeContext.Provider value={theme}>
+          <SettingsThemeContext.Provider value={theme}>
             <SettingsPopoverChrome title={title} onClose={() => onOpenChange?.(false)}>
               {children ?? content}
             </SettingsPopoverChrome>
-          </InspectorThemeContext.Provider>
+          </SettingsThemeContext.Provider>
         </PopoverContent>
       </Popover>
     );
@@ -220,7 +220,7 @@ export function FillColorToolbarButton({
       data-slot="canvas-layer-floating-toolbar-color"
       onPointerDown={(event) => event.stopPropagation()}
     >
-      <InspectorThemeContext.Provider value={theme}>
+      <SettingsThemeContext.Provider value={theme}>
         <SettingsFillPopover
           align="center"
           collisionPadding={12}
@@ -233,7 +233,7 @@ export function FillColorToolbarButton({
           variant="swatch"
           onValueChange={onValueChange}
         />
-      </InspectorThemeContext.Provider>
+      </SettingsThemeContext.Provider>
     </div>
   );
 }
@@ -272,7 +272,7 @@ export function TextAlignmentSettings({
           {...CUELUME_TOGGLE}
           onClick={() => {
             onPatch({
-              textAlign: option.value as DraftingTextAlign,
+              textAlign: option.value as CanvasTextAlign,
               textRuns: undefined,
             });
             onSelect?.();
@@ -293,12 +293,12 @@ export function TextSizeSettings({
   onPatch: (patch: Partial<CanvasLayer>) => void;
 }) {
   const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize;
-  const isEmojiLayer = isDraftingEmojiLayer(layer);
+  const isEmojiLayer = isCanvasEmojiLayer(layer);
 
   function applySize(size: number) {
     onPatch(
       isEmojiLayer
-        ? { ...getDraftingEmojiLayerSizePatch(layer, size), textRuns: undefined }
+        ? { ...getCanvasEmojiLayerSizePatch(layer, size), textRuns: undefined }
         : { fontSize: size, textRuns: undefined },
     );
   }
@@ -342,7 +342,7 @@ function EmojiPickerSettingsContent({
 
 function EmojiPickerSettings({ onPatch }: { onPatch: (patch: Partial<CanvasLayer>) => void }) {
   const [open, setOpen] = useState(false);
-  const mobileDensity = useMobileInspectorDensity();
+  const mobileDensity = useMobileSettingsDensity();
   const mobileNav = useMobileDrawerNavigation();
 
   if (mobileDensity && mobileNav) {
@@ -354,7 +354,7 @@ function EmojiPickerSettings({ onPatch }: { onPatch: (patch: Partial<CanvasLayer
           mobileNav.openDetail({
             title: "Change emoji",
             content: (
-              <div className="ds-portal-surface w-full min-w-0" data-mobile-inspector="">
+              <div className="ds-portal-surface w-full min-w-0" data-mobile-settings="">
                 <EmojiPickerSettingsContent
                   onPatch={onPatch}
                   onSelect={() => mobileNav.closeDetail()}
@@ -450,7 +450,7 @@ function TextLayerFloatingSettings({
   const [alignOpen, setAlignOpen] = useState(false);
   const [sizeOpen, setSizeOpen] = useState(false);
 
-  if (isDraftingEmojiLayer(layer)) {
+  if (isCanvasEmojiLayer(layer)) {
     return (
       <>
         <EmojiPickerSettings onPatch={onPatch} />
@@ -467,7 +467,7 @@ function TextLayerFloatingSettings({
     );
   }
 
-  const selectedFont = resolveDraftingFont({
+  const selectedFont = resolveCanvasFont({
     fontFamily: layer.fontFamily,
     fontId: layer.fontId,
   });
@@ -574,7 +574,7 @@ export function FloatingLayerToolbarSettings({
     );
   }
 
-  if (layer.kind === "image" && !isDraftingIllustrationLayer(layer)) {
+  if (layer.kind === "image" && !isCanvasIllustrationLayer(layer)) {
     return (
       <LayerFloatingSettingsPopover
         ariaLabel="Image settings"
@@ -584,7 +584,7 @@ export function FloatingLayerToolbarSettings({
     );
   }
 
-  if (isDraftingIllustrationLayer(layer)) {
+  if (isCanvasIllustrationLayer(layer)) {
     return <IllustrationFloatingColorControl layer={layer} onPatch={onPatch} theme={theme} />;
   }
 

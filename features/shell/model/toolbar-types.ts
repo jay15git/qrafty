@@ -9,16 +9,16 @@ import type { QraftyCornerDotStyle } from "@/features/qr/model/state";
 import type { VideoExportLongEdge } from "@/features/qr/export/video-export";
 import type { CardSizeSettings } from "@/features/shell/model/card-size-settings";
 import {
-  type DraftingCardPaperShaderState,
-  type DraftingCardSizeMode,
-  type DraftingCardStyleMode,
+  type CanvasCardPaperShaderState,
+  type CanvasCardSizeMode,
+  type CanvasCardStyleMode,
 } from "@/features/canvas/model/card-state";
 import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-definitions";
 import type {
   CanvasLayer,
-  DraftingTextAlign,
-  DraftingTextFontStyle,
-  DraftingTextFontWeight,
+  CanvasTextAlign,
+  CanvasTextFontStyle,
+  CanvasTextFontWeight,
 } from "@/features/canvas/model/layers/shared";
 import type { CanvasLayerMenuAction } from "@/features/canvas/components/canvas-layer-chrome.constants";
 import type { AppearanceSnapshot } from "@/features/shell/model/appearance";
@@ -61,7 +61,7 @@ export type ToolbarToolId =
   | "layers"
   | "export";
 
-export type BackgroundInspectorTab = "paper";
+export type BackgroundSettingsTab = "paper";
 
 export type SceneTemplateSettings = {
   sizeSettings: CardSizeSettings;
@@ -167,7 +167,7 @@ export type ShapeSettings = {
   shadowOffsetX: number;
   shadowOffsetY: number;
   shadowOpacity: number;
-  sizeMode: DraftingCardSizeMode;
+  sizeMode: CanvasCardSizeMode;
   sizePresetId?: string;
 };
 
@@ -195,8 +195,8 @@ export type ImageSettings = {
 };
 
 export type BackgroundSettings = {
-  paperShader: DraftingCardPaperShaderState;
-  styleMode: DraftingCardStyleMode;
+  paperShader: CanvasCardPaperShaderState;
+  styleMode: CanvasCardStyleMode;
 };
 
 export type EffectsSettings = {
@@ -259,12 +259,12 @@ export type TextSettings = {
   fontFamily: string;
   fontId: string;
   fontSize: number;
-  fontStyle: DraftingTextFontStyle;
-  fontWeight: DraftingTextFontWeight;
+  fontStyle: CanvasTextFontStyle;
+  fontWeight: CanvasTextFontWeight;
   letterSpacing: number;
   lineHeight: number;
   text: string;
-  textAlign: DraftingTextAlign;
+  textAlign: CanvasTextAlign;
   underline: boolean;
 };
 
@@ -285,7 +285,7 @@ export type ToolbarController = {
   accessibilitySettings: AccessibilitySettings;
   imageSettings: ImageSettings;
   backgroundSettings: BackgroundSettings;
-  backgroundInspectorTab?: BackgroundInspectorTab;
+  backgroundSettingsTab?: BackgroundSettingsTab;
   effectsSettings: EffectsSettings;
   layersSettings: LayersSettings;
   exportSettings: ExportSettings;
@@ -326,7 +326,7 @@ export type ToolbarController = {
   onPatternReset: () => void;
   onPatternSettingsChange: (patch: PatternSettingsPatch) => void;
   onUnifiedQrFillSettingsChange?: (
-    patches: import("@/features/shell/inspector/settings-bridge").UnifiedQrFillPatches,
+    patches: import("@/features/shell/settings/settings-bridge").UnifiedQrFillPatches,
   ) => void;
   onLogoReset: () => void;
   onLogoSettingsChange: (patch: LogoSettingsPatch) => void;
@@ -344,7 +344,7 @@ export type ToolbarController = {
   onImageSettingsChange: (patch: Partial<ImageSettings>) => void;
   onBackgroundReset: () => void;
   onBackgroundSettingsChange: (settings: Partial<BackgroundSettings>) => void;
-  onBackgroundInspectorTabChange?: (tab: BackgroundInspectorTab) => void;
+  onBackgroundSettingsTabChange?: (tab: BackgroundSettingsTab) => void;
   onEffectsReset: () => void;
   onEffectsSettingsChange: (patch: Partial<EffectsSettings>) => void;
   onLayersReset: () => void;

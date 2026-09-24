@@ -8,7 +8,7 @@ import { CUELUME_BUTTON } from "@/features/shell/audio/cuelume";
 import {
   SettingsAccordionPopoverOpenMarker,
   SettingsAccordionPopoverProvider,
-} from "@/features/shell/inspector/SettingsAccordionPopoverContext";
+} from "@/features/shell/settings/SettingsAccordionPopoverContext";
 import { cn } from "@/lib/utils";
 
 export interface MotionAccordionItem {

@@ -4,15 +4,15 @@ import { buildAppearancePatch, getAppearanceSnapshot } from "@/features/shell/mo
 import { DEFAULT_BACKGROUND_SHAPE_OPTIONS } from "@/features/qr/model/state";
 import { DEFAULT_DRAFTING_CARD_STATE } from "@/features/canvas/model/card-state";
 import {
-  createDraftingShapeLayer,
-  createDraftingTextLayer,
+  createCanvasShapeLayer,
+  createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
 
 const NODE_ID = "node-1";
 
 describe("desktop appearance model", () => {
   it("maps card corner radius into a shared appearance snapshot", () => {
-    const layer = createDraftingShapeLayer(NODE_ID);
+    const layer = createCanvasShapeLayer(NODE_ID);
     const snapshot = getAppearanceSnapshot(
       { ...layer, kind: "card" },
       {
@@ -27,7 +27,7 @@ describe("desktop appearance model", () => {
 
   it("reads qr layer shadow from the layer model", () => {
     const layer = {
-      ...createDraftingTextLayer(NODE_ID),
+      ...createCanvasTextLayer(NODE_ID),
       kind: "qr" as const,
       shadow: {
         blur: 18,
@@ -50,7 +50,7 @@ describe("desktop appearance model", () => {
   });
 
   it("maps qr frame options into a shared appearance snapshot", () => {
-    const layer = createDraftingTextLayer(NODE_ID);
+    const layer = createCanvasTextLayer(NODE_ID);
     const snapshot = getAppearanceSnapshot(
       { ...layer, kind: "qr" },
       { qrBackgroundShapeOptions: DEFAULT_BACKGROUND_SHAPE_OPTIONS },
@@ -61,7 +61,7 @@ describe("desktop appearance model", () => {
   });
 
   it("builds qr and card appearance patches into their domain stores", () => {
-    const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const };
+    const qrLayer = { ...createCanvasTextLayer(NODE_ID), kind: "qr" as const };
     const qrPatch = buildAppearancePatch(
       qrLayer,
       {
@@ -83,7 +83,7 @@ describe("desktop appearance model", () => {
     expect(qrPatch.qrBackgroundShapeOptions).toBeUndefined();
     expect(qrPatch.layerPatch.shadow?.blur).toBe(12);
 
-    const cardLayer = { ...createDraftingShapeLayer(NODE_ID), kind: "card" as const };
+    const cardLayer = { ...createCanvasShapeLayer(NODE_ID), kind: "card" as const };
     const cardPatch = buildAppearancePatch(cardLayer, { cornerRadius: 24 });
 
     expect(cardPatch.cardCornerRadius).toBe(24);
@@ -107,7 +107,7 @@ describe("desktop appearance model", () => {
   });
 
   it("routes border patches to card border state", () => {
-    const cardLayer = { ...createDraftingShapeLayer(NODE_ID), kind: "card" as const };
+    const cardLayer = { ...createCanvasShapeLayer(NODE_ID), kind: "card" as const };
     const patch = buildAppearancePatch(cardLayer, {
       border: { color: "#ff0000", opacity: 80, style: "solid", width: 6 },
     });
@@ -119,7 +119,7 @@ describe("desktop appearance model", () => {
   });
 
   it("routes border patches to stroke fields for shape layers", () => {
-    const shapeLayer = createDraftingShapeLayer(NODE_ID);
+    const shapeLayer = createCanvasShapeLayer(NODE_ID);
     const patch = buildAppearancePatch(shapeLayer, {
       border: { color: "#00ff00", opacity: 50, style: "solid", width: 4 },
     });
@@ -132,7 +132,7 @@ describe("desktop appearance model", () => {
   });
 
   it("routes border patches to uniform borderSides for other layers", () => {
-    const textLayer = createDraftingTextLayer(NODE_ID);
+    const textLayer = createCanvasTextLayer(NODE_ID);
     const patch = buildAppearancePatch(textLayer, {
       border: { color: "#0000ff", opacity: 100, style: "solid", width: 2 },
     });
@@ -147,7 +147,7 @@ describe("desktop appearance model", () => {
   });
 
   it("routes border patches to borderSides for qr layers", () => {
-    const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const };
+    const qrLayer = { ...createCanvasTextLayer(NODE_ID), kind: "qr" as const };
     const patch = buildAppearancePatch(qrLayer, {
       border: { color: "#111111", opacity: 90, style: "solid", width: 3 },
     });
@@ -158,7 +158,7 @@ describe("desktop appearance model", () => {
   });
 
   it("routes border patches to background shape stroke for qr layers with a shape", () => {
-    const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const };
+    const qrLayer = { ...createCanvasTextLayer(NODE_ID), kind: "qr" as const };
     const patch = buildAppearancePatch(
       qrLayer,
       { border: { color: "#222222", opacity: 75, style: "solid", width: 8 } },
@@ -175,7 +175,7 @@ describe("desktop appearance model", () => {
   });
 
   it("reads qr background shape stroke into the border snapshot", () => {
-    const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const };
+    const qrLayer = { ...createCanvasTextLayer(NODE_ID), kind: "qr" as const };
     const snapshot = getAppearanceSnapshot(qrLayer, {
       qrBackgroundShapeId: "leaf",
       qrBackgroundShapeOptions: {
@@ -196,8 +196,8 @@ describe("desktop appearance model", () => {
   });
 
   it("flags border support only for card, shape, and qr backdrop targets", () => {
-    const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const };
-    const textLayer = createDraftingTextLayer(NODE_ID);
+    const qrLayer = { ...createCanvasTextLayer(NODE_ID), kind: "qr" as const };
+    const textLayer = createCanvasTextLayer(NODE_ID);
 
     expect(
       getAppearanceSnapshot(qrLayer, {
@@ -214,12 +214,12 @@ describe("desktop appearance model", () => {
       }).supportsBorder,
     ).toBe(true);
     expect(getAppearanceSnapshot(textLayer).supportsBorder).toBe(false);
-    expect(getAppearanceSnapshot(createDraftingShapeLayer(NODE_ID)).supportsBorder).toBe(true);
+    expect(getAppearanceSnapshot(createCanvasShapeLayer(NODE_ID)).supportsBorder).toBe(true);
   });
 
   it("reads shape stroke fields into the border snapshot", () => {
     const shapeLayer = {
-      ...createDraftingShapeLayer(NODE_ID),
+      ...createCanvasShapeLayer(NODE_ID),
       stroke: "#123456",
       strokeOpacity: 70,
       strokeStyle: "solid" as const,

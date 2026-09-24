@@ -15,24 +15,24 @@ import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload";
 import { setDotMatrixAnimationOptions, type QraftyState } from "@/features/qr/model/state";
 import { createUniformCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
-  getDraftingCardLayerId,
-  getDraftingQrLayerId,
+  getCanvasCardLayerId,
+  getCanvasQrLayerId,
   type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import {
-  createDefaultDraftingLayers,
+  createDefaultCanvasLayers,
   fitQrSizeInCard,
-  layoutDraftingCardInsetLayers,
+  layoutCanvasCardInsetLayers,
 } from "@/features/canvas/model/layers/card-qr";
-import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories";
+import { createCanvasTextLayer } from "@/features/canvas/model/layers/factories";
 import {
-  createDefaultDraftingCardState,
-  normalizeDraftingCardState,
-  type DraftingCardState,
+  createDefaultCanvasCardState,
+  normalizeCanvasCardState,
+  type CanvasCardState,
 } from "@/features/canvas/model/card-state";
-import { createDefaultDraftingWorkspaceQrState } from "@/features/canvas/model/document";
+import { createDefaultCanvasWorkspaceQrState } from "@/features/canvas/model/document";
 import type {
   AccessibilitySettings,
   EncodingSettings,
@@ -47,7 +47,7 @@ import type {
   TextSettings,
 } from "@/features/shell/model/toolbar-types";
 import type { CornersSettings } from "@/features/shell/model/toolbar-types";
-import type { UnifiedQrFillPatches } from "@/features/shell/inspector/settings-bridge";
+import type { UnifiedQrFillPatches } from "@/features/shell/settings/settings-bridge";
 import {
   applyCornersSettingsPatchToQraftyState,
   applyLogoSettingsPatchToQraftyState,
@@ -56,8 +56,8 @@ import {
 import { buildAppearancePatch, type AppearancePatch } from "@/features/shell/model/appearance";
 import {
   ensureMandatoryLayerRows,
-  findDraftingLayerById,
-  getDraftingDownloadTarget,
+  findCanvasLayerById,
+  getCanvasDownloadTarget,
 } from "@/features/canvas/components/canvas-operations";
 import { replaceTrackedObjectUrl } from "@/features/canvas/components/canvas.constants";
 import { clearCanvasQrMarkupCache } from "@/features/canvas/hooks/use-canvas-qr-markup";
@@ -75,7 +75,7 @@ import {
   type CanvasDownloadExtension,
 } from "@/features/canvas/components/canvas.constants";
 
-type InspectorState = Pick<
+type SettingsState = Pick<
   CanvasSurfaceState,
   | "activeQrNodeId"
   | "layerStateByNodeId"
@@ -86,7 +86,7 @@ type InspectorState = Pick<
   | "selectedModuleFillImageUrl"
 >;
 
-type InspectorSetters = Pick<
+type SettingsSetters = Pick<
   CanvasSurfaceSetters,
   | "setContentValuesByType"
   | "setLayerStateByNodeId"
@@ -146,7 +146,7 @@ export function useSettingsActions({
   activeQrNodeId,
   appearanceTargetLayer,
   commitActiveQraftyState,
-  draftingQraftyState,
+  canvasQraftyState,
   handleLayerChange,
   handleLayerSelect,
   layerStateByNodeId,
@@ -214,12 +214,12 @@ export function useSettingsActions({
   setSelectedVideoFormat,
   setSelectedVideoFrameRate,
   setSelectedVideoLongEdge,
-}: InspectorState &
-  InspectorSetters & {
+}: SettingsState &
+  SettingsSetters & {
     activeCanvasLayers: CanvasLayer[];
     appearanceTargetLayer: CanvasLayer | null;
     commitActiveQraftyState: (nextState: QraftyState) => void;
-    draftingQraftyState: QraftyState;
+    canvasQraftyState: QraftyState;
     handleLayerChange: (boardId: string, layerId: string, patch: Partial<CanvasLayer>) => void;
     handleLayerSelect: (
       boardId: string,
@@ -242,11 +242,9 @@ export function useSettingsActions({
 
     const result = buildAppearancePatch(appearanceTargetLayer, patch, {
       qrBackgroundShapeId:
-        appearanceTargetLayer.kind === "qr" ? draftingQraftyState.backgroundShapeId : undefined,
+        appearanceTargetLayer.kind === "qr" ? canvasQraftyState.backgroundShapeId : undefined,
       qrBackgroundShapeOptions:
-        appearanceTargetLayer.kind === "qr"
-          ? draftingQraftyState.backgroundShapeOptions
-          : undefined,
+        appearanceTargetLayer.kind === "qr" ? canvasQraftyState.backgroundShapeOptions : undefined,
       qrBackgroundSurfaceVisible:
         appearanceTargetLayer.kind === "qr" ? qrBackgroundVisible : undefined,
     });
@@ -439,23 +437,23 @@ export function useSettingsActions({
         patch.uploadedFile,
         setLogoUploadObjectUrl,
       );
-      const nextState = applyAssetUploadValue(draftingQraftyState, "logo", uploadValue);
+      const nextState = applyAssetUploadValue(canvasQraftyState, "logo", uploadValue);
       commitActiveQraftyState(nextState);
     }
     if (patch.uploadedImageUrl !== undefined) {
       commitActiveQraftyState(
         patch.uploadedImageUrl
-          ? applyAssetUploadValue(draftingQraftyState, "logo", patch.uploadedImageUrl)
-          : applyAssetNoneSelection(draftingQraftyState, "logo"),
+          ? applyAssetUploadValue(canvasQraftyState, "logo", patch.uploadedImageUrl)
+          : applyAssetNoneSelection(canvasQraftyState, "logo"),
       );
     }
     if (patch.sourceMode) {
       if (patch.sourceMode === "none") {
-        commitActiveQraftyState(applyAssetNoneSelection(draftingQraftyState, "logo"));
+        commitActiveQraftyState(applyAssetNoneSelection(canvasQraftyState, "logo"));
       } else if (patch.sourceMode === "brand") {
         setSelectedLogoSourceMode("preset");
       } else if (patch.sourceMode === "url") {
-        const nextState = applyAssetUrlValue(draftingQraftyState, "logo", selectedLogoRemoteUrl);
+        const nextState = applyAssetUrlValue(canvasQraftyState, "logo", selectedLogoRemoteUrl);
         commitActiveQraftyState(nextState);
       } else {
         logoActions.clearLogoPreset("upload");
@@ -463,14 +461,14 @@ export function useSettingsActions({
     }
     if (patch.uploadMode) {
       if (patch.uploadMode === "url") {
-        const nextState = applyAssetUrlValue(draftingQraftyState, "logo", selectedLogoRemoteUrl);
+        const nextState = applyAssetUrlValue(canvasQraftyState, "logo", selectedLogoRemoteUrl);
         commitActiveQraftyState(nextState);
       } else {
         logoActions.clearLogoPreset("upload");
       }
     }
     if (patch.remoteUrl !== undefined) {
-      const nextState = applyAssetUrlValue(draftingQraftyState, "logo", patch.remoteUrl);
+      const nextState = applyAssetUrlValue(canvasQraftyState, "logo", patch.remoteUrl);
       commitActiveQraftyState(nextState);
     }
     if (patch.selectedBrandIconId) {
@@ -488,7 +486,7 @@ export function useSettingsActions({
   }
 
   function resetDesktopLogoSettings() {
-    qrControls.applyQrState(createDefaultDraftingWorkspaceQrState());
+    qrControls.applyQrState(createDefaultCanvasWorkspaceQrState());
   }
 
   function updateDesktopCornersSettings(patch: Partial<CornersSettings>) {
@@ -541,7 +539,7 @@ export function useSettingsActions({
     };
   }
 
-  function relayoutCardInset(normalizedCardState: ReturnType<typeof normalizeDraftingCardState>) {
+  function relayoutCardInset(normalizedCardState: ReturnType<typeof normalizeCanvasCardState>) {
     const baseQrState = resolveLiveQrPersistState();
     const fittedQr = fitQrSizeInCard(baseQrState, normalizedCardState);
     const nextQrState = {
@@ -557,11 +555,11 @@ export function useSettingsActions({
     setLayerStateByNodeId((layerState) => {
       const layers =
         layerState[activeQrNodeId] ??
-        createDefaultDraftingLayers(activeQrNodeId, nextQrState, normalizedCardState);
+        createDefaultCanvasLayers(activeQrNodeId, nextQrState, normalizedCardState);
 
       return {
         ...layerState,
-        [activeQrNodeId]: layoutDraftingCardInsetLayers(
+        [activeQrNodeId]: layoutCanvasCardInsetLayers(
           layers.map(cloneCanvasLayer),
           nextQrState,
           normalizedCardState,
@@ -602,8 +600,8 @@ export function useSettingsActions({
     );
 
     if (Object.keys(qrShadowPatch).length > 0) {
-      const qrLayerId = getDraftingQrLayerId(activeQrNodeId);
-      const currentQrLayer = findDraftingLayerById(activeCanvasLayers, qrLayerId);
+      const qrLayerId = getCanvasQrLayerId(activeQrNodeId);
+      const currentQrLayer = findCanvasLayerById(activeCanvasLayers, qrLayerId);
       if (currentQrLayer) {
         handleLayerChange(activeQrNodeId, qrLayerId, {
           shadow: { ...currentQrLayer.shadow, ...qrShadowPatch },
@@ -611,7 +609,7 @@ export function useSettingsActions({
       }
     }
 
-    const normalizedCardState = normalizeDraftingCardState(mergeCardStateFromShapePatch(patch));
+    const normalizedCardState = normalizeCanvasCardState(mergeCardStateFromShapePatch(patch));
     setSelectedCardState(normalizedCardState);
 
     const shouldRelayoutCardInset =
@@ -632,7 +630,7 @@ export function useSettingsActions({
       patch.shadowOffsetY !== undefined ||
       patch.shadowOpacity !== undefined
     ) {
-      handleLayerChange(activeQrNodeId, getDraftingCardLayerId(activeQrNodeId), {
+      handleLayerChange(activeQrNodeId, getCanvasCardLayerId(activeQrNodeId), {
         shadow: cardShadowFromPatch(patch),
       });
     }
@@ -676,7 +674,7 @@ export function useSettingsActions({
   }
 
   function resetDesktopShapeSettings() {
-    const defaultCard = createDefaultDraftingCardState();
+    const defaultCard = createDefaultCanvasCardState();
     setSelectedCardState(defaultCard);
     setSelectedBackgroundColor(DEFAULT_DRAFTING_STUDIO_STATE.backgroundOptions.color);
     setSelectedBackgroundColorMode(
@@ -723,9 +721,9 @@ export function useSettingsActions({
     }
     const layers =
       layerStateByNodeId[activeQrNodeId] ??
-      createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState);
+      createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState);
     const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1);
-    const textLayer = createDraftingTextLayer(activeQrNodeId, {
+    const textLayer = createCanvasTextLayer(activeQrNodeId, {
       ...patch,
       id: `${activeQrNodeId}:text:${Date.now()}`,
       zIndex: maxZIndex + 1,
@@ -746,7 +744,7 @@ export function useSettingsActions({
       const currentLayersById = new Map(activeCanvasLayers.map((layer) => [layer.id, layer]));
       const nextLayers = mergedRows.map((row) => {
         const layer =
-          currentLayersById.get(row.id) ?? createDraftingTextLayer(activeQrNodeId, { id: row.id });
+          currentLayersById.get(row.id) ?? createCanvasTextLayer(activeQrNodeId, { id: row.id });
 
         return patchCanvasLayer(layer, {
           blur: row.blur,
@@ -779,7 +777,7 @@ export function useSettingsActions({
   function updateDesktopExportSettings(patch: Partial<ExportSettings>) {
     if (patch.extension) setSelectedDownloadExtension(patch.extension as CanvasDownloadExtension);
     if (patch.photoLongEdge) setSelectedPhotoLongEdge(patch.photoLongEdge);
-    if (patch.target) setSelectedDownloadTarget(getDraftingDownloadTarget(patch.target));
+    if (patch.target) setSelectedDownloadTarget(getCanvasDownloadTarget(patch.target));
     if (patch.mediaKind) setSelectedExportMediaKind(patch.mediaKind);
     if (patch.videoDurationSeconds) setSelectedVideoDurationSeconds(patch.videoDurationSeconds);
     if (patch.videoFormat) setSelectedVideoFormat(patch.videoFormat);

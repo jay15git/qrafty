@@ -4,15 +4,15 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
-import { createDraftingShapeLayer } from "@/features/canvas/model/layers/factories";
+import { createCanvasShapeLayer } from "@/features/canvas/model/layers/factories";
 import { patchShapeLayerFillFromPicker } from "@/features/canvas/rendering/layer-fill";
-import { DraftingShapeLayerContent } from "@/features/canvas/rendering/shape-layer";
+import { CanvasShapeLayerContent } from "@/features/canvas/rendering/shape-layer";
 import { formatFill } from "@/components/ui/fill-picker/public-api";
 
-describe("DraftingShapeLayerContent", () => {
+describe("CanvasShapeLayerContent", () => {
   it("renders decorative shapes from shapeId without a solid square backdrop", () => {
-    const layer = createDraftingShapeLayer("preview", "flower");
-    const markup = renderToStaticMarkup(<DraftingShapeLayerContent layer={layer} />);
+    const layer = createCanvasShapeLayer("preview", "flower");
+    const markup = renderToStaticMarkup(<CanvasShapeLayerContent layer={layer} />);
 
     expect(layer.shapeId).toBe("flower");
     expect(markup).toContain('viewBox="0 0 320 280"');
@@ -23,7 +23,7 @@ describe("DraftingShapeLayerContent", () => {
   it("preserves shapeId through insert normalization", () => {
     const inserted = patchCanvasLayer(
       {
-        ...createDraftingShapeLayer("preview", "hexagon"),
+        ...createCanvasShapeLayer("preview", "hexagon"),
         id: "preview:shape:123",
         zIndex: 4,
       },
@@ -34,8 +34,8 @@ describe("DraftingShapeLayerContent", () => {
   });
 
   it("creates visible stroke primitives for line and arrow", () => {
-    const line = createDraftingShapeLayer("preview", "line");
-    const arrow = createDraftingShapeLayer("preview", "arrow");
+    const line = createCanvasShapeLayer("preview", "line");
+    const arrow = createCanvasShapeLayer("preview", "arrow");
 
     expect(line).toMatchObject({
       fillMode: "none",
@@ -50,7 +50,7 @@ describe("DraftingShapeLayerContent", () => {
   });
 
   it("renders svg gradient defs for gradient shape fills", () => {
-    const layer = createDraftingShapeLayer("preview", "flower");
+    const layer = createCanvasShapeLayer("preview", "flower");
     const gradientCss = formatFill({
       kind: "gradient",
       gradient: {
@@ -82,7 +82,7 @@ describe("DraftingShapeLayerContent", () => {
         gradientCss,
       ),
     );
-    const markup = renderToStaticMarkup(<DraftingShapeLayerContent layer={gradientLayer} />);
+    const markup = renderToStaticMarkup(<CanvasShapeLayerContent layer={gradientLayer} />);
 
     expect(markup).toContain("linearGradient");
     expect(markup).toContain("-shape-fill-gradient)");

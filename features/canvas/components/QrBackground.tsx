@@ -6,7 +6,7 @@ import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { QraftyState } from "@/features/qr/model/state";
 import { buildCanvasQrBackgroundSvgPayload } from "@/features/canvas/components/canvas-qr-background";
 
-function getDraftingQrBackgroundFrame(layer: CanvasLayer) {
+function getCanvasQrBackgroundFrame(layer: CanvasLayer) {
   return {
     height: layer.height,
     width: layer.width,
@@ -16,7 +16,7 @@ function getDraftingQrBackgroundFrame(layer: CanvasLayer) {
 }
 
 export function CanvasQrBackground({ layer, state }: { layer: CanvasLayer; state: QraftyState }) {
-  const frame = getDraftingQrBackgroundFrame(layer);
+  const frame = getCanvasQrBackgroundFrame(layer);
   const payload = useMemo(() => buildCanvasQrBackgroundSvgPayload(layer, state), [layer, state]);
 
   if (!payload) {

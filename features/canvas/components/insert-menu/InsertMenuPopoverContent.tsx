@@ -3,22 +3,22 @@
 import { useRef } from "react";
 import { PopoverClose, PopoverContent } from "@/components/ui/popover";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
-import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui";
+import { useMobileSettingsDensity } from "@/features/shell/settings/MobileSettingsDensityContext";
+import { SettingsPopoverCloseButton } from "@/features/shell/settings/settings-ui";
 import { InsertMenuPanelStack } from "@/features/canvas/components/insert-menu/InsertMenuPanelStack";
 import {
   INSERT_MENU_POPOVER_SHELL,
   INSERT_MENU_POPOVER_WIDTH,
   insertMenuPortalClass,
 } from "@/features/canvas/components/insert-menu/insert-menu-styles";
-import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories";
+import { createCanvasTextLayer } from "@/features/canvas/model/layers/factories";
 import { cn } from "@/lib/utils";
 
-import "@/features/shell/inspector/inspector.css";
+import "@/features/shell/settings/settings.css";
 
 type InsertMenuPopoverContentProps = {
   nodeId: string;
-  onInsertLayer: (layer: ReturnType<typeof createDraftingTextLayer>) => void;
+  onInsertLayer: (layer: ReturnType<typeof createCanvasTextLayer>) => void;
   canAddQrCode?: boolean;
   onAddQrCode?: () => void;
   onBrowseWallpapers?: () => void;
@@ -38,7 +38,7 @@ export function InsertMenuPopoverContent({
   theme = "dark",
 }: InsertMenuPopoverContentProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
-  const mobileDensity = useMobileInspectorDensity();
+  const mobileDensity = useMobileSettingsDensity();
 
   function closeMenu() {
     closeRef.current?.click();
@@ -56,7 +56,7 @@ export function InsertMenuPopoverContent({
           : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--canvas-line)] bg-[var(--panel-bg)] p-3"
       }
       data-slot={isPopover ? "canvas-insert-menu-popover" : "canvas-insert-menu"}
-      data-mobile-inspector={isPopover && mobileDensity ? "" : undefined}
+      data-mobile-settings={isPopover && mobileDensity ? "" : undefined}
       data-theme={isPopover ? theme : undefined}
       side={popoverSide}
       sideOffset={isPopover ? 12 : undefined}

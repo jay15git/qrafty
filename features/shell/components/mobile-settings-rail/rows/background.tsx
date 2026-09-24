@@ -3,17 +3,17 @@ import { Suspense, useContext } from "react";
 import { parseFill } from "@/components/ui/fill-picker/lib/gradient";
 import type { Fill } from "@/components/ui/fill-picker/public-api";
 import { PaperShaderOptionPreview } from "@/features/canvas/components/PaperShaderOptionPreview";
-import { createDefaultDraftingCardPaperShader } from "@/features/canvas/model/card-state";
+import { createDefaultCanvasCardPaperShader } from "@/features/canvas/model/card-state";
 import { getCardGeneratedShaderDefinitions } from "@/features/canvas/rendering/paper-shader-definitions";
-import { setInspectorSectionTab } from "@/features/shell/inspector/inspector-section-tabs";
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext";
-import { applyCardFill } from "@/features/shell/inspector/settings-bridge";
-import { getActiveFillPresetForStoredValue } from "@/features/shell/inspector/settings-fill-preset-match";
-import { SETTINGS_PREVIEW_TILE } from "@/features/shell/inspector/SettingsPreviewTiles";
-import { SegmentTabs } from "@/features/shell/inspector/settings-ui";
+import { setSettingsSectionTab } from "@/features/shell/settings/settings-section-tabs";
+import { useMobileDrawerNavigation } from "@/features/shell/settings/MobileDrawerNavigationContext";
+import { applyCardFill } from "@/features/shell/settings/settings-bridge";
+import { getActiveFillPresetForStoredValue } from "@/features/shell/settings/settings-fill-preset-match";
+import { SETTINGS_PREVIEW_TILE } from "@/features/shell/settings/SettingsPreviewTiles";
+import { SegmentTabs } from "@/features/shell/settings/settings-ui";
 import { cn } from "@/lib/utils";
 
-import { LazyInspectorFillPicker } from "../lazy-details";
+import { LazySettingsFillPicker } from "../lazy-details";
 import { MobileRailModeContext, useLatestModel, type MobileRailRowProps } from "../rail-context";
 import {
   fillPresetsForMode,
@@ -40,7 +40,7 @@ export function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
     const m = modelRef.current;
     m.onShapeSettingsChange(applyCardFill(fill));
     m.controller?.onCanvasBackgroundTabChange?.("color");
-    setInspectorSectionTab("background", backgroundFillTabName(css));
+    setSettingsSectionTab("background", backgroundFillTabName(css));
   };
 
   if (mode === "image") {
@@ -87,7 +87,7 @@ export function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
             type="button"
             onClick={() =>
               modelRef.current.onBackgroundSettingsChange({
-                paperShader: createDefaultDraftingCardPaperShader(option.id),
+                paperShader: createDefaultCanvasCardPaperShader(option.id),
               })
             }
           >
@@ -115,7 +115,7 @@ export function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
             content: (
               <Suspense fallback={null}>
                 <div className="ds-fill-popover w-full min-w-0" data-theme={model.actualTheme}>
-                  <LazyInspectorFillPicker
+                  <LazySettingsFillPicker
                     lockedFillMode={lockedFillModeForRailMode(mode)}
                     qrGradient
                     value={value}
@@ -173,7 +173,7 @@ export function MobileBackgroundRailFooter({ model }: MobileRailRowProps) {
             return;
           }
           railMode.setMode(mode.id);
-          setInspectorSectionTab(
+          setSettingsSectionTab(
             "background",
             mode.label as "Solid" | "Linear" | "Radial" | "Image" | "Shader",
           );

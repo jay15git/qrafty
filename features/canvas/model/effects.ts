@@ -1,33 +1,33 @@
-export type DraftingBorderStyle = "solid";
+export type CanvasBorderStyle = "solid";
 
-export type DraftingBorderSideKey = "top" | "right" | "bottom" | "left";
+export type CanvasBorderSideKey = "top" | "right" | "bottom" | "left";
 
-export type DraftingBorderSideValue = {
+export type CanvasBorderSideValue = {
   color: string;
   opacity: number;
-  style: DraftingBorderStyle;
+  style: CanvasBorderStyle;
   width: number;
 };
 
-export type DraftingPerSideBorderState = Record<DraftingBorderSideKey, DraftingBorderSideValue>;
+export type CanvasPerSideBorderState = Record<CanvasBorderSideKey, CanvasBorderSideValue>;
 
-export type DraftingOutlineState = {
+export type CanvasOutlineState = {
   color: string;
   offset: number;
   opacity: number;
-  style: DraftingBorderStyle;
+  style: CanvasBorderStyle;
   visible: boolean;
   width: number;
 };
 
-export type DraftingShadowKind = "box" | "drop";
+export type CanvasShadowKind = "box" | "drop";
 
-export type DraftingShadowLayerState = {
+export type CanvasShadowLayerState = {
   blur: number;
   color: string;
   id: string;
   inset: boolean;
-  kind: DraftingShadowKind;
+  kind: CanvasShadowKind;
   offsetX: number;
   offsetY: number;
   opacity: number;
@@ -35,14 +35,14 @@ export type DraftingShadowLayerState = {
   visible: boolean;
 };
 
-const DEFAULT_DRAFTING_BORDER_SIDE: DraftingBorderSideValue = {
+const DEFAULT_DRAFTING_BORDER_SIDE: CanvasBorderSideValue = {
   color: "#111827",
   opacity: 100,
   style: "solid",
   width: 0,
 };
 
-export const DEFAULT_DRAFTING_OUTLINE: DraftingOutlineState = {
+export const DEFAULT_DRAFTING_OUTLINE: CanvasOutlineState = {
   color: "#111827",
   offset: 0,
   opacity: 100,
@@ -51,7 +51,7 @@ export const DEFAULT_DRAFTING_OUTLINE: DraftingOutlineState = {
   width: 0,
 };
 
-const DEFAULT_DRAFTING_SHADOW_LAYER: Omit<DraftingShadowLayerState, "id"> = {
+const DEFAULT_DRAFTING_SHADOW_LAYER: Omit<CanvasShadowLayerState, "id"> = {
   blur: 0,
   color: "#111827",
   inset: false,
@@ -63,26 +63,26 @@ const DEFAULT_DRAFTING_SHADOW_LAYER: Omit<DraftingShadowLayerState, "id"> = {
   visible: true,
 };
 
-function createDraftingShadowLayerId() {
+function createCanvasShadowLayerId() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : `shadow-${Math.random().toString(36).slice(2)}`;
 }
 
-export function createDefaultDraftingShadowLayer(
-  overrides: Partial<DraftingShadowLayerState> = {},
-): DraftingShadowLayerState {
+export function createDefaultCanvasShadowLayer(
+  overrides: Partial<CanvasShadowLayerState> = {},
+): CanvasShadowLayerState {
   return {
     ...DEFAULT_DRAFTING_SHADOW_LAYER,
-    id: createDraftingShadowLayerId(),
+    id: createCanvasShadowLayerId(),
     ...overrides,
   };
 }
 
 export function createUniformPerSideBorder(
-  value: Partial<DraftingBorderSideValue> = {},
-): DraftingPerSideBorderState {
-  const side: DraftingBorderSideValue = {
+  value: Partial<CanvasBorderSideValue> = {},
+): CanvasPerSideBorderState {
+  const side: CanvasBorderSideValue = {
     ...DEFAULT_DRAFTING_BORDER_SIDE,
     ...value,
   };
@@ -97,19 +97,19 @@ export function createUniformPerSideBorder(
 
 export function normalizeBorderStyle(
   value: unknown,
-  fallback: DraftingBorderStyle,
-): DraftingBorderStyle {
+  fallback: CanvasBorderStyle,
+): CanvasBorderStyle {
   return value === "solid" ? value : fallback;
 }
 
-function normalizeShadowKind(_value: unknown, _fallback: DraftingShadowKind): DraftingShadowKind {
+function normalizeShadowKind(_value: unknown, _fallback: CanvasShadowKind): CanvasShadowKind {
   return "drop";
 }
 
 export function normalizeOutlineState(
   value: unknown,
-  fallback: DraftingOutlineState = DEFAULT_DRAFTING_OUTLINE,
-): DraftingOutlineState {
+  fallback: CanvasOutlineState = DEFAULT_DRAFTING_OUTLINE,
+): CanvasOutlineState {
   if (typeof value !== "object" || value === null) {
     return { ...fallback };
   }
@@ -128,8 +128,8 @@ export function normalizeOutlineState(
 
 function normalizeBorderSideValue(
   value: unknown,
-  fallback: DraftingBorderSideValue,
-): DraftingBorderSideValue {
+  fallback: CanvasBorderSideValue,
+): CanvasBorderSideValue {
   if (typeof value !== "object" || value === null) {
     return { ...fallback };
   }
@@ -146,8 +146,8 @@ function normalizeBorderSideValue(
 
 export function normalizePerSideBorderState(
   value: unknown,
-  uniform: Partial<DraftingBorderSideValue> = {},
-): DraftingPerSideBorderState {
+  uniform: Partial<CanvasBorderSideValue> = {},
+): CanvasPerSideBorderState {
   const base = createUniformPerSideBorder(uniform);
 
   if (typeof value !== "object" || value === null) {
@@ -166,8 +166,8 @@ export function normalizePerSideBorderState(
 
 export function normalizeShadowLayerState(
   value: unknown,
-  fallback: DraftingShadowLayerState,
-): DraftingShadowLayerState {
+  fallback: CanvasShadowLayerState,
+): CanvasShadowLayerState {
   if (typeof value !== "object" || value === null) {
     return { ...fallback };
   }
@@ -188,7 +188,7 @@ export function normalizeShadowLayerState(
   };
 }
 
-export function shadowLayerToLegacyShadow(shadow: DraftingShadowLayerState) {
+export function shadowLayerToLegacyShadow(shadow: CanvasShadowLayerState) {
   return {
     blur: shadow.blur,
     color: shadow.color,
@@ -241,7 +241,7 @@ export function legacyShadowToShadowLayer(
     blur: number;
     color: string;
     inset?: boolean;
-    kind?: DraftingShadowKind;
+    kind?: CanvasShadowKind;
     offsetX: number;
     offsetY: number;
     opacity: number;
@@ -249,11 +249,11 @@ export function legacyShadowToShadowLayer(
     visible?: boolean;
   },
   id?: string,
-): DraftingShadowLayerState {
+): CanvasShadowLayerState {
   return {
     blur: shadow.blur,
     color: shadow.color,
-    id: id ?? createDraftingShadowLayerId(),
+    id: id ?? createCanvasShadowLayerId(),
     inset: shadow.inset ?? false,
     kind: "drop",
     offsetX: shadow.offsetX,

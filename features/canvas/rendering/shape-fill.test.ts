@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { formatFill } from "@/components/ui/fill-picker/public-api";
-import { fillFromHex } from "@/features/shell/inspector/FillPicker.utils";
+import { fillFromHex } from "@/features/shell/settings/FillPicker.utils";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import {
-  createDraftingShapeLayer,
-  createDraftingTextLayer,
+  createCanvasShapeLayer,
+  createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
 import {
   getShapeLayerFillCssValue,
@@ -16,7 +16,7 @@ import {
 
 describe("shape-fill", () => {
   it("stores shape gradients on fillGradient instead of fill css", () => {
-    const layer = createDraftingShapeLayer("preview", "flower");
+    const layer = createCanvasShapeLayer("preview", "flower");
     const gradientCss = formatFill({
       kind: "gradient",
       gradient: {
@@ -61,7 +61,7 @@ describe("shape-fill", () => {
   });
 
   it("keeps solid fills as hex", () => {
-    const layer = createDraftingShapeLayer("preview", "rect");
+    const layer = createCanvasShapeLayer("preview", "rect");
     const solidCss = formatFill(fillFromHex("#ff3366"));
     const patch = patchShapeLayerFillFromPicker(
       layer,
@@ -90,7 +90,7 @@ describe("text-fill", () => {
   };
 
   it("stores text gradients on fillGradient instead of fill css", () => {
-    const layer = createDraftingTextLayer("preview");
+    const layer = createCanvasTextLayer("preview");
     const gradientCss = formatFill(gradientFill);
     const patch = patchTextLayerFillFromPicker(layer, gradientFill, gradientCss);
     const nextLayer = patchCanvasLayer(layer, patch);
@@ -102,7 +102,7 @@ describe("text-fill", () => {
   });
 
   it("keeps text solid fills as hex", () => {
-    const layer = createDraftingTextLayer("preview");
+    const layer = createCanvasTextLayer("preview");
     const solidCss = formatFill(fillFromHex("#ff3366"));
     const patch = patchTextLayerFillFromPicker(
       layer,

@@ -1,15 +1,15 @@
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
-import type { LockedFillPickerMode } from "@/features/shell/inspector/FillPicker";
+import type { LockedFillPickerMode } from "@/features/shell/settings/FillPicker";
 import {
   isPatternModuleImageFill,
   readPatternModuleFillCss,
-} from "@/features/shell/inspector/settings-bridge";
-import type { SettingsSectionId } from "@/features/shell/inspector/settings-panel-meta";
+} from "@/features/shell/settings/settings-bridge";
+import type { SettingsSectionId } from "@/features/shell/settings/settings-panel-meta";
 import {
   SETTINGS_FILL_LINEAR_PRESETS,
   SETTINGS_FILL_RADIAL_PRESETS,
   SETTINGS_FILL_SOLID_PRESETS,
-} from "@/features/shell/inspector/settings-fill-presets";
+} from "@/features/shell/settings/settings-fill-presets";
 import type { PatternSettings } from "@/features/shell/model/toolbar-types";
 
 export const QR_COLOR_FILL_MODES = [

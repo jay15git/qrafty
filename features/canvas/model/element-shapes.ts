@@ -1,13 +1,13 @@
-import type { DraftingShapePrimitiveId } from "@/features/canvas/model/layers/shared";
+import type { CanvasShapePrimitiveId } from "@/features/canvas/model/layers/shared";
 import {
   QR_BACKGROUND_SHAPES,
   type QrBackgroundShapeDefinition,
 } from "@/features/qr/styles/background-shapes";
 
-export type { DraftingShapePrimitiveId };
+export type { CanvasShapePrimitiveId };
 
 export const DRAFTING_SHAPE_PRIMITIVES: Array<{
-  id: DraftingShapePrimitiveId;
+  id: CanvasShapePrimitiveId;
   label: string;
 }> = [
   { id: "line", label: "Line" },

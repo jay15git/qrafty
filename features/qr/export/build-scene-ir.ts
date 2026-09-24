@@ -1,7 +1,7 @@
 import type { SceneIr, SceneIrFontRef } from "@qrafty/qr-internal/codegen";
 
 import type { QraftyState } from "@/features/qr/model/state";
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { SceneCompositionState } from "@/features/canvas/model/scene-templates";
 import type { SceneBackground } from "@/features/canvas/model/scene-templates";
@@ -13,12 +13,12 @@ import { getArtboardExportBounds } from "@/features/canvas/export/pipeline/bound
 import { buildLayeredDomParts } from "@/features/canvas/export/layered-dom-parts";
 import {
   DRAFTING_FONT_REGISTRY,
-  ensureDraftingFontsForLayers,
-  getDraftingFontCssFamily,
+  ensureCanvasFontsForLayers,
+  getCanvasFontCssFamily,
 } from "@/features/canvas/model/fonts";
 
 export type BuildSceneIrOptions = {
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   layers: CanvasLayer[];
   sceneComposition?: SceneCompositionState;
   state: QraftyState;
@@ -50,7 +50,7 @@ function collectFontRefs(layers: CanvasLayer[]): SceneIrFontRef[] {
     .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
     .map((entry) => ({
       id: entry.id,
-      family: getDraftingFontCssFamily({ fontFamily: entry.family, fontId: entry.id }),
+      family: getCanvasFontCssFamily({ fontFamily: entry.family, fontId: entry.id }),
       cssText: "cssText" in entry ? entry.cssText : undefined,
       cssUrl: "cssUrl" in entry ? entry.cssUrl : undefined,
     }));
@@ -65,7 +65,7 @@ export async function buildSceneIr({
   componentName,
   shaderSnapshots,
 }: BuildSceneIrOptions): Promise<SceneIr> {
-  await ensureDraftingFontsForLayers(layers);
+  await ensureCanvasFontsForLayers(layers);
 
   const cardLayer = findCardLayer(layers);
   const artboardBounds = cardLayer ? getArtboardExportBounds(cardLayer) : undefined;

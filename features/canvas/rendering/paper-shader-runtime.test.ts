@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createDefaultDraftingCardPaperShader } from "@/features/canvas/model/card-state";
+import { createDefaultCanvasCardPaperShader } from "@/features/canvas/model/card-state";
 import {
   hasValidPaperShaderLayout,
   readPaperShaderFallbackColor,
@@ -14,7 +14,7 @@ describe("paper shader runtime helpers", () => {
   });
 
   it("reads a fallback color from shader params", () => {
-    const shader = createDefaultDraftingCardPaperShader("mesh-gradient");
+    const shader = createDefaultCanvasCardPaperShader("mesh-gradient");
 
     expect(readPaperShaderFallbackColor(shader)).toMatch(/^#/);
   });

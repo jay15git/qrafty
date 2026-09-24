@@ -16,8 +16,8 @@ import {
 import { renderWorkspaceCompositorCanvas } from "@/features/canvas/export/pipeline/compositor";
 import { WorkspaceShaderCaptureSession } from "@/features/canvas/export/pipeline/shader-snapshots";
 import { buildDashboardQrNodePayload } from "@/features/qr/rendering/qr-svg-render";
-import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import { createCanvasQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { QraftyState } from "@/features/qr/model/state";
 import type {
@@ -175,7 +175,7 @@ export async function exportWorkspaceVideo({
 }: {
   abortSignal?: AbortSignal;
   cardLayer: CanvasLayer;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   layers: CanvasLayer[];
   name: string;
   nodeId: string;
@@ -207,7 +207,7 @@ export async function exportWorkspaceVideo({
     videoTimeMs: 0,
   });
 
-  const qrPayload = await buildDashboardQrNodePayload(createDraftingQrArtworkState(state));
+  const qrPayload = await buildDashboardQrNodePayload(createCanvasQrArtworkState(state));
 
   const renderFrame = async (frameIndex: number) => {
     if (abortSignal?.aborted) {

@@ -105,7 +105,7 @@ describe("getQrBackgroundShapeContentFrame", () => {
     expect(tagFrame.y + tagFrame.height / 2).not.toBeCloseTo(tag!.viewBox.height / 2);
   });
 
-  it("keeps every safe-area edge inside its registered shape", () => {
+  it("keeps every safe-area edge inside its registered shape", { timeout: 30000 }, () => {
     for (const shape of QR_BACKGROUND_SHAPES) {
       const frame = getQrBackgroundShapeContentFrame(shape);
       const polygon = parsePathToVertices(

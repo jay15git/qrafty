@@ -196,7 +196,7 @@ interface ImageUploaderProps {
   aspectRatio?: number;
   className?: string;
   dialogContentClassName?: string;
-  /** Applies /design inspector portal tokens to the crop dialog. */
+  /** Applies /design settings portal tokens to the crop dialog. */
   dialogTheme?: "light" | "dark";
   maxFileSize?: number;
   supportedFormats?: string[];

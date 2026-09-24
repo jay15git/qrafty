@@ -6,11 +6,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DownloadButton } from "@/features/shell/components/DownloadButton";
 import type { SettingsModel, ThemeMode } from "@/features/shell/components/WorkspaceChrome";
-import { ExportSettingsPanel } from "@/features/shell/inspector/ExportSettingsPanel";
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { ExportSettingsPanel } from "@/features/shell/settings/ExportSettingsPanel";
+import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
 import { cn } from "@/lib/utils";
 
-import "@/features/shell/inspector/inspector.css";
+import "@/features/shell/settings/settings.css";
 
 export function ExportDownloadPopover({
   model,
@@ -56,9 +56,9 @@ export function ExportDownloadPopover({
             data-theme={theme}
             data-slot="export-popover-content"
           >
-            <InspectorThemeContext.Provider value={theme}>
+            <SettingsThemeContext.Provider value={theme}>
               <ExportSettingsPanel model={model} />
-            </InspectorThemeContext.Provider>
+            </SettingsThemeContext.Provider>
           </div>
         </ScrollArea>
       </PopoverContent>

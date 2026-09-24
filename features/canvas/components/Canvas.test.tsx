@@ -6,7 +6,7 @@ import { createRoot } from "react-dom/client";
 import { act, type ComponentProps } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
+import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
 import { Canvas } from "@/features/canvas/components/Canvas";
 import { createDefaultQraftyState } from "@/features/qr/model/state";
 
@@ -536,7 +536,7 @@ function createBoards(_paneCount = 1) {
 
   return [
     {
-      cardState: createDefaultDraftingCardState(),
+      cardState: createDefaultCanvasCardState(),
       id: "board-1",
       name: "QR Code",
       qrStateByLayerId: {

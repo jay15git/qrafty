@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { createDefaultQraftyState } from "@/features/qr/model/state";
-import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
+import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
 import {
   frameIndexToTimeMs,
   isQrTimeVarying,
@@ -35,7 +35,7 @@ describe("export clock", () => {
     state.dotMatrixAnimation.enabled = true;
     state.dotMatrixAnimation.animated = true;
 
-    const cardState = createDefaultDraftingCardState();
+    const cardState = createDefaultCanvasCardState();
     cardState.paperShader.paused = false;
     cardState.paperShader.speed = 1;
 

@@ -10,7 +10,7 @@ vi.mock("next/headers", () => ({
 
 vi.mock("@/features/shell/components/WorkspacePageClient", () => ({
   WorkspacePageClient: ({ fontClassName }: { fontClassName?: string }) => (
-    <div data-font-class-name={fontClassName} data-testid="desktop-page-client" />
+    <div data-font-class-name={fontClassName} data-testid="design-page-client" />
   ),
 }));
 

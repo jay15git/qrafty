@@ -6,8 +6,8 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { createDefaultQraftyState, clampQrSize } from "@/features/qr/model/state";
 import { CanvasQrBackground } from "@/features/canvas/components/QrBackground";
-import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
+import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
+import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 
 const cleanupCallbacks: Array<() => void> = [];
 
@@ -27,10 +27,10 @@ describe("CanvasQrBackground", () => {
       height: clampQrSize(240),
     };
     state.backgroundShapeId = "flower";
-    const [layer] = createDefaultDraftingLayers(
+    const [layer] = createDefaultCanvasLayers(
       "preview",
       state,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     ).filter((entry) => entry.kind === "qr");
     const { container } = renderBackground(layer, state);
 

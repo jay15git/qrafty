@@ -40,7 +40,7 @@ import {
 import { TOOLBAR_TOOLS } from "@/features/shell/model/toolbar-tools";
 import type {
   AccessibilitySettings,
-  BackgroundInspectorTab,
+  BackgroundSettingsTab,
   BackgroundSettings,
   CornersSettings,
   EffectsSettings,
@@ -85,7 +85,7 @@ export type SettingsModel = {
   actualAccessibilitySettings: AccessibilitySettings;
   actualImageSettings: ImageSettings;
   actualBackgroundSettings: BackgroundSettings;
-  actualBackgroundInspectorTab: BackgroundInspectorTab;
+  actualBackgroundSettingsTab: BackgroundSettingsTab;
   actualEffectsSettings: EffectsSettings;
   actualLayersSettings: LayersSettings;
   actualExportSettings: ExportSettings;
@@ -99,7 +99,7 @@ export type SettingsModel = {
   onContentValueChange: (field: string, value: StaticQrContentValue) => void;
   onPatternSettingsChange: (patch: PatternSettingsPatch) => void;
   onUnifiedQrFillSettingsChange?: (
-    patches: import("@/features/shell/inspector/settings-bridge").UnifiedQrFillPatches,
+    patches: import("@/features/shell/settings/settings-bridge").UnifiedQrFillPatches,
   ) => void;
   onLogoSettingsChange: (patch: LogoSettingsPatch) => void;
   onCornersSettingsChange: (patch: Partial<CornersSettings>) => void;
@@ -109,7 +109,7 @@ export type SettingsModel = {
   onAccessibilitySettingsChange: (patch: Partial<AccessibilitySettings>) => void;
   onImageSettingsChange: (patch: Partial<ImageSettings>) => void;
   onBackgroundSettingsChange: (settings: Partial<BackgroundSettings>) => void;
-  onBackgroundInspectorTabChange: (tab: BackgroundInspectorTab) => void;
+  onBackgroundSettingsTabChange: (tab: BackgroundSettingsTab) => void;
   onEffectsSettingsChange: (patch: Partial<EffectsSettings>) => void;
   onLayersSettingsChange: (patch: Partial<LayersSettings>) => void;
   onLayersReorder: (orderedIds: string[]) => void;
@@ -127,7 +127,7 @@ function useSettingsSlice<T extends object>(defaults: T) {
   return [value, onChange] as const;
 }
 
-function useInspectorSettingsSlices() {
+function useSettingsSlices() {
   const [patternSettings, onPatternPatch] = useSettingsSlice(DEFAULT_DESKTOP_PATTERN_SETTINGS);
   const [logoSettings, onLogoPatch] = useSettingsSlice(DEFAULT_DESKTOP_LOGO_SETTINGS);
   const [cornersSettings, onCornersPatch] = useSettingsSlice(DEFAULT_DESKTOP_CORNERS_SETTINGS);
@@ -140,8 +140,8 @@ function useInspectorSettingsSlices() {
     DEFAULT_DESKTOP_ACCESSIBILITY_SETTINGS,
   );
   const [imageSettings, onImagePatch] = useSettingsSlice(DEFAULT_DESKTOP_IMAGE_SETTINGS);
-  const [backgroundInspectorTab, setBackgroundInspectorTab] =
-    useState<BackgroundInspectorTab>("paper");
+  const [backgroundSettingsTab, setBackgroundSettingsTab] =
+    useState<BackgroundSettingsTab>("paper");
   const [backgroundSettings, onBackgroundPatch] = useSettingsSlice(
     DEFAULT_DESKTOP_BACKGROUND_SETTINGS,
   );
@@ -173,7 +173,7 @@ function useInspectorSettingsSlices() {
 
   return {
     accessibilitySettings,
-    backgroundInspectorTab,
+    backgroundSettingsTab,
     backgroundSettings,
     cornersSettings,
     effectsSettings,
@@ -198,7 +198,7 @@ function useInspectorSettingsSlices() {
     onShapePatch,
     onTextPatch,
     patternSettings,
-    setBackgroundInspectorTab,
+    setBackgroundSettingsTab,
     shapeSettings,
     textSettings,
   };
@@ -290,7 +290,7 @@ export function useToolbarSettingsModel({
 } = {}): SettingsModel {
   const [activeTool, setActiveTool] = useState<ToolbarToolId | null>("content");
   const [internalTheme, setInternalTheme] = useState<ThemeMode>("dark");
-  const slices = useInspectorSettingsSlices();
+  const slices = useSettingsSlices();
   const {
     handleContentPasteApply,
     handleContentTypeChange,
@@ -324,7 +324,7 @@ export function useToolbarSettingsModel({
     ["actualAccessibilitySettings", "accessibilitySettings", slices.accessibilitySettings],
     ["actualImageSettings", "imageSettings", slices.imageSettings],
     ["actualBackgroundSettings", "backgroundSettings", slices.backgroundSettings],
-    ["actualBackgroundInspectorTab", "backgroundInspectorTab", slices.backgroundInspectorTab],
+    ["actualBackgroundSettingsTab", "backgroundSettingsTab", slices.backgroundSettingsTab],
     ["actualEffectsSettings", "effectsSettings", slices.effectsSettings],
     ["actualLayersSettings", "layersSettings", slices.layersSettings],
     ["actualExportSettings", "exportSettings", slices.exportSettings],
@@ -351,9 +351,9 @@ export function useToolbarSettingsModel({
     ["onImageSettingsChange", "onImageSettingsChange", slices.onImagePatch],
     ["onBackgroundSettingsChange", "onBackgroundSettingsChange", slices.onBackgroundPatch],
     [
-      "onBackgroundInspectorTabChange",
-      "onBackgroundInspectorTabChange",
-      slices.setBackgroundInspectorTab,
+      "onBackgroundSettingsTabChange",
+      "onBackgroundSettingsTabChange",
+      slices.setBackgroundSettingsTab,
     ],
     ["onEffectsSettingsChange", "onEffectsSettingsChange", slices.onEffectsPatch],
     ["onLayersSettingsChange", "onLayersSettingsChange", slices.onLayersPatch],

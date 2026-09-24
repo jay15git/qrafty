@@ -1,7 +1,7 @@
 import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr/assets/brand-icon-svg";
 import { DEFAULT_DRAFTING_TEXT_LAYER } from "@/features/canvas/model/layers/shared";
 import {
-  createDefaultDraftingCardPaperShader,
+  createDefaultCanvasCardPaperShader,
   DEFAULT_DRAFTING_CARD_STATE,
 } from "@/features/canvas/model/card-state";
 import { getCardImageFilterDefinitions } from "@/features/canvas/rendering/paper-shader-definitions";
@@ -192,9 +192,7 @@ export const DEFAULT_DESKTOP_IMAGE_SETTINGS: ImageSettings = {
 };
 
 export const DEFAULT_DESKTOP_BACKGROUND_SETTINGS: BackgroundSettings = {
-  paperShader: createDefaultDraftingCardPaperShader(
-    DEFAULT_DRAFTING_CARD_STATE.paperShader.shaderId,
-  ),
+  paperShader: createDefaultCanvasCardPaperShader(DEFAULT_DRAFTING_CARD_STATE.paperShader.shaderId),
   styleMode: DEFAULT_DRAFTING_CARD_STATE.styleMode,
 };
 

@@ -1,14 +1,14 @@
 import type { BackgroundShapeOptions } from "@/features/qr/model/state";
 import {
-  normalizeDraftingCardBorder,
-  type DraftingCardBorderState,
-  type DraftingCardShadowState,
+  normalizeCanvasCardBorder,
+  type CanvasCardBorderState,
+  type CanvasCardShadowState,
 } from "@/features/canvas/model/card-state";
 import type {
-  DraftingBorderSideValue,
-  DraftingShadowLayerState,
+  CanvasBorderSideValue,
+  CanvasShadowLayerState,
 } from "@/features/canvas/model/effects";
-import type { DraftingFilterEffect } from "@/features/canvas/model/filters";
+import type { CanvasFilterEffect } from "@/features/canvas/model/filters";
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   type CanvasLayer,
@@ -16,14 +16,14 @@ import {
 import {
   layerSupportsCornerRadius,
   resolveCornerRadii,
-  type DraftingCornerRadiiState,
+  type CanvasCornerRadiiState,
 } from "@/features/canvas/model/corner-radius";
 import {
   createUniformPerSideBorder,
   legacyShadowToShadowLayer,
 } from "@/features/canvas/model/effects";
 
-export type AppearanceBorderSnapshot = DraftingBorderSideValue;
+export type AppearanceBorderSnapshot = CanvasBorderSideValue;
 
 export type AppearancePatch = Partial<CanvasLayer> & {
   border?: AppearanceBorderSnapshot;
@@ -33,11 +33,11 @@ export type AppearanceSnapshot = {
   blur: number;
   border: AppearanceBorderSnapshot;
   cornerRadius?: number;
-  cornerRadii?: DraftingCornerRadiiState;
-  layerFilters: DraftingFilterEffect[];
+  cornerRadii?: CanvasCornerRadiiState;
+  layerFilters: CanvasFilterEffect[];
   opacity: number;
-  shadow: DraftingCardShadowState;
-  shadows: DraftingShadowLayerState[];
+  shadow: CanvasCardShadowState;
+  shadows: CanvasShadowLayerState[];
   supportsBorder: boolean;
   supportsCornerRadius: boolean;
 };
@@ -62,7 +62,7 @@ function qrHasBorderableBackdrop(options?: {
 function getLayerBorderSnapshot(
   layer: CanvasLayer,
   options?: {
-    cardBorder?: DraftingCardBorderState;
+    cardBorder?: CanvasCardBorderState;
     qrBackgroundShapeId?: string;
     qrBackgroundSurfaceVisible?: boolean;
     qrBackgroundShapeOptions?: BackgroundShapeOptions;
@@ -82,7 +82,7 @@ function getLayerBorderSnapshot(
   }
 
   if (layer.kind === "card") {
-    const border = normalizeDraftingCardBorder(options?.cardBorder);
+    const border = normalizeCanvasCardBorder(options?.cardBorder);
     return {
       color: border.color,
       opacity: border.opacity,
@@ -106,9 +106,9 @@ function getLayerBorderSnapshot(
 export function getAppearanceSnapshot(
   layer: CanvasLayer,
   options?: {
-    cardBorder?: DraftingCardBorderState;
+    cardBorder?: CanvasCardBorderState;
     cardCornerRadius?: number;
-    cardCornerRadii?: DraftingCornerRadiiState;
+    cardCornerRadii?: CanvasCornerRadiiState;
     qrBackgroundShapeId?: string;
     qrBackgroundSurfaceVisible?: boolean;
     qrBackgroundShapeOptions?: BackgroundShapeOptions;
@@ -174,10 +174,10 @@ export function getAppearanceSnapshot(
 }
 
 export type AppearancePatchResult = {
-  cardBorder?: DraftingCardBorderState;
+  cardBorder?: CanvasCardBorderState;
   cardCornerRadius?: number;
-  cardCornerRadii?: DraftingCornerRadiiState;
-  cardShadow?: Partial<DraftingCardShadowState>;
+  cardCornerRadii?: CanvasCornerRadiiState;
+  cardShadow?: Partial<CanvasCardShadowState>;
   layerPatch: Partial<CanvasLayer>;
   qrBackgroundShapeOptions?: Partial<BackgroundShapeOptions>;
 };
@@ -193,12 +193,12 @@ export function buildAppearancePatch(
   },
 ): AppearancePatchResult {
   const layerPatch: Partial<CanvasLayer> = {};
-  let cardBorder: DraftingCardBorderState | undefined;
+  let cardBorder: CanvasCardBorderState | undefined;
   let qrBackgroundShapeOptions: Partial<BackgroundShapeOptions> | undefined;
 
   if (patch.border !== undefined) {
     if (layer.kind === "card") {
-      cardBorder = normalizeDraftingCardBorder({
+      cardBorder = normalizeCanvasCardBorder({
         ...patch.border,
         sides: createUniformPerSideBorder(patch.border),
       });

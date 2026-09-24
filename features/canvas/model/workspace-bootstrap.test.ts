@@ -2,8 +2,8 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createDefaultDraftingWorkspaceDocument } from "@/features/canvas/model/document";
-import { writeDraftingWorkspaceDraft } from "@/features/canvas/model/storage";
+import { createDefaultCanvasWorkspaceDocument } from "@/features/canvas/model/document";
+import { writeCanvasWorkspaceDraft } from "@/features/canvas/model/storage";
 import { resolveWorkspaceBootstrapDocument } from "@/features/canvas/model/workspace-bootstrap";
 
 describe("resolveWorkspaceBootstrapDocument", () => {
@@ -16,10 +16,10 @@ describe("resolveWorkspaceBootstrapDocument", () => {
   });
 
   it("returns the persisted draft when one exists", async () => {
-    const seeded = createDefaultDraftingWorkspaceDocument();
+    const seeded = createDefaultCanvasWorkspaceDocument();
     const nodeId = seeded.activeQrNodeId;
 
-    await writeDraftingWorkspaceDraft(seeded);
+    await writeCanvasWorkspaceDraft(seeded);
 
     const result = await resolveWorkspaceBootstrapDocument();
 

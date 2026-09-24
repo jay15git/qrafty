@@ -1,0 +1,141 @@
+// @vitest-environment jsdom
+
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  MobileOptionCardRail,
+  MobileOptionRail,
+  MobileOptionShelf,
+} from "@/features/shell/settings/MobileOptionRail";
+import { MobileSettingsDensityContext } from "@/features/shell/settings/MobileSettingsDensityContext";
+import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root";
+
+function stubMatchMedia(matches: boolean) {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      addEventListener: vi.fn(),
+      addListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+      matches,
+      media: query,
+      onchange: null,
+      removeEventListener: vi.fn(),
+      removeListener: vi.fn(),
+    })),
+  });
+}
+
+function Options() {
+  return (
+    <>
+      <button aria-pressed={false} type="button">
+        One
+      </button>
+      <button aria-pressed type="button">
+        Two
+      </button>
+    </>
+  );
+}
+
+describe("mobile settings rails", () => {
+  beforeEach(() => {
+    stubMatchMedia(true);
+
+    class MockResizeObserver {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    }
+
+    Object.defineProperty(window, "ResizeObserver", {
+      configurable: true,
+      writable: true,
+      value: MockResizeObserver,
+    });
+  });
+
+  it("renders a shelf as a horizontal rail under mobile density", async () => {
+    const surface = await renderWithAsyncJsdomRoot(
+      <MobileSettingsDensityContext.Provider value={true}>
+        <MobileOptionShelf
+          activeKey="Two"
+          ariaLabel="Fill options"
+          dataSlot="fill-option-grid"
+          label="Presets"
+        >
+          <Options />
+        </MobileOptionShelf>
+      </MobileSettingsDensityContext.Provider>,
+    );
+
+    const rail = surface.container.querySelector('[data-slot="mobile-settings-rail"]');
+
+    expect(rail).not.toBeNull();
+    expect(rail?.getAttribute("data-orientation")).toBe("horizontal");
+    expect(surface.container.querySelector('[data-slot="fill-option-grid"]')).not.toBeNull();
+    expect(surface.container.textContent).toContain("Presets");
+    expect(surface.container.querySelector(".ds-settings-shelf")).not.toBeNull();
+
+    const row = rail?.querySelector(".ds-mobile-rail");
+    expect(row).not.toBeNull();
+    expect(row?.querySelectorAll("button")).toHaveLength(2);
+    expect(row?.getAttribute("role")).toBe("group");
+    expect(row?.getAttribute("aria-label")).toBe("Fill options");
+  });
+
+  it("keeps the fixed-column grid when mobile density is off", async () => {
+    const surface = await renderWithAsyncJsdomRoot(
+      <MobileSettingsDensityContext.Provider value={false}>
+        <MobileOptionShelf
+          ariaLabel="Fill options"
+          dataSlot="fill-option-grid"
+          gridClassName="ds-fill-option-grid"
+        >
+          <Options />
+        </MobileOptionShelf>
+      </MobileSettingsDensityContext.Provider>,
+    );
+
+    expect(surface.container.querySelector('[data-slot="mobile-settings-rail"]')).toBeNull();
+
+    const grid = surface.container.querySelector('[data-slot="fill-option-grid"]');
+
+    expect(grid).not.toBeNull();
+    expect(grid?.className).toContain("grid-cols-6");
+    expect(grid?.className).toContain("ds-fill-option-grid");
+    expect(grid?.getAttribute("role")).toBe("group");
+  });
+
+  it("does not force a scrollbar on horizontal rails", async () => {
+    const surface = await renderWithAsyncJsdomRoot(
+      <MobileSettingsDensityContext.Provider value={true}>
+        <MobileOptionRail ariaLabel="Style options" persistKey="style-options">
+          <Options />
+        </MobileOptionRail>
+      </MobileSettingsDensityContext.Provider>,
+    );
+
+    const rail = surface.container.querySelector('[data-slot="mobile-settings-rail"]');
+
+    expect(rail?.querySelector('[data-slot="scroll-area-scrollbar"]')).toBeNull();
+    expect(rail?.querySelector(".scroll-edge-cue-gradient")).not.toBeNull();
+  });
+
+  it("sizes landscape cards in the card rail row", async () => {
+    const surface = await renderWithAsyncJsdomRoot(
+      <MobileSettingsDensityContext.Provider value={true}>
+        <MobileOptionCardRail ariaLabel="Wallpapers" persistKey="wallpapers">
+          <button type="button">Wallpaper</button>
+        </MobileOptionCardRail>
+      </MobileSettingsDensityContext.Provider>,
+    );
+
+    const row = surface.container.querySelector(".ds-mobile-card-rail");
+
+    expect(row).not.toBeNull();
+    expect(row?.querySelectorAll("button")).toHaveLength(1);
+  });
+});

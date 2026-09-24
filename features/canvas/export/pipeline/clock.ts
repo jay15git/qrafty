@@ -1,4 +1,4 @@
-import type { DraftingCardPaperShaderState } from "@/features/canvas/model/card-state";
+import type { CanvasCardPaperShaderState } from "@/features/canvas/model/card-state";
 import type { QraftyState } from "@/features/qr/model/state";
 
 export type ExportClockMode = "photo" | "video";
@@ -8,7 +8,7 @@ export function frameIndexToTimeMs(frameIndex: number, frameRate: number) {
 }
 
 export function resolveShaderExportFrameMs(
-  shader: Pick<DraftingCardPaperShaderState, "frame" | "paused" | "speed">,
+  shader: Pick<CanvasCardPaperShaderState, "frame" | "paused" | "speed">,
   mode: ExportClockMode,
   videoTimeMs: number,
 ) {
@@ -41,9 +41,7 @@ export function resolveQrExportTimeMs(
   return performance.now();
 }
 
-export function isShaderTimeVarying(
-  shader: Pick<DraftingCardPaperShaderState, "paused" | "speed">,
-) {
+export function isShaderTimeVarying(shader: Pick<CanvasCardPaperShaderState, "paused" | "speed">) {
   return !shader.paused && shader.speed !== 0;
 }
 
@@ -52,7 +50,7 @@ export function isQrTimeVarying(state: QraftyState) {
 }
 
 export function sceneHasVideoExportContent(
-  cardState: import("@/features/canvas/model/card-state").DraftingCardState,
+  cardState: import("@/features/canvas/model/card-state").CanvasCardState,
   layers: import("@/features/canvas/model/layers/shared").CanvasLayer[],
   state: QraftyState,
 ) {

@@ -1,7 +1,7 @@
 import { createContext, useEffect, useRef, type ReactNode } from "react";
 
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
-import type { QrStylePartId } from "@/features/shell/inspector/qr-style-parts";
+import type { QrStylePartId } from "@/features/shell/settings/qr-style-parts";
 
 export type MobileRailOption = {
   id: string;

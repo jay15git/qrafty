@@ -1,4 +1,4 @@
-export type DraftingFilterType =
+export type CanvasFilterType =
   | "blur"
   | "brightness"
   | "contrast"
@@ -8,14 +8,14 @@ export type DraftingFilterType =
   | "saturation"
   | "sepia";
 
-export type DraftingFilterEffect = {
+export type CanvasFilterEffect = {
   amount: number;
   enabled: boolean;
   id: string;
-  type: DraftingFilterType;
+  type: CanvasFilterType;
 };
 
-const DRAFTING_LAYER_FILTER_TYPES: DraftingFilterType[] = [
+const DRAFTING_LAYER_FILTER_TYPES: CanvasFilterType[] = [
   "blur",
   "brightness",
   "contrast",
@@ -26,7 +26,7 @@ const DRAFTING_LAYER_FILTER_TYPES: DraftingFilterType[] = [
   "sepia",
 ];
 
-const DRAFTING_FILTER_DEFAULTS: Record<DraftingFilterType, number> = {
+const DRAFTING_FILTER_DEFAULTS: Record<CanvasFilterType, number> = {
   blur: 0,
   brightness: 100,
   contrast: 100,
@@ -37,7 +37,7 @@ const DRAFTING_FILTER_DEFAULTS: Record<DraftingFilterType, number> = {
   sepia: 0,
 };
 
-export const DRAFTING_FILTER_VISIBLE_DEFAULTS: Record<DraftingFilterType, number> = {
+export const DRAFTING_FILTER_VISIBLE_DEFAULTS: Record<CanvasFilterType, number> = {
   blur: 12,
   brightness: 120,
   contrast: 120,
@@ -49,7 +49,7 @@ export const DRAFTING_FILTER_VISIBLE_DEFAULTS: Record<DraftingFilterType, number
 };
 
 export const DRAFTING_FILTER_RANGES: Record<
-  DraftingFilterType,
+  CanvasFilterType,
   { defaultValue: number; max: number; min: number; unit?: string }
 > = {
   blur: { defaultValue: 0, max: 96, min: 0, unit: "px" },
@@ -62,35 +62,35 @@ export const DRAFTING_FILTER_RANGES: Record<
   sepia: { defaultValue: 0, max: 100, min: 0, unit: "%" },
 };
 
-function createDraftingFilterId() {
+function createCanvasFilterId() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : `filter-${Math.random().toString(36).slice(2)}`;
 }
 
-export function createDefaultDraftingFilterEffect(
-  type: DraftingFilterType,
-  overrides: Partial<DraftingFilterEffect> = {},
-): DraftingFilterEffect {
+export function createDefaultCanvasFilterEffect(
+  type: CanvasFilterType,
+  overrides: Partial<CanvasFilterEffect> = {},
+): CanvasFilterEffect {
   return {
     amount: DRAFTING_FILTER_DEFAULTS[type],
     enabled: true,
-    id: createDraftingFilterId(),
+    id: createCanvasFilterId(),
     type,
     ...overrides,
   };
 }
 
-function normalizeFilterType(value: unknown): DraftingFilterType | null {
+function normalizeFilterType(value: unknown): CanvasFilterType | null {
   return typeof value === "string" && (DRAFTING_LAYER_FILTER_TYPES as string[]).includes(value)
-    ? (value as DraftingFilterType)
+    ? (value as CanvasFilterType)
     : null;
 }
 
 function normalizeFilterEffect(
   value: unknown,
-  fallback?: DraftingFilterEffect,
-): DraftingFilterEffect | null {
+  fallback?: CanvasFilterEffect,
+): CanvasFilterEffect | null {
   if (typeof value !== "object" || value === null) {
     return fallback ? { ...fallback } : null;
   }
@@ -110,37 +110,34 @@ function normalizeFilterEffect(
         ? Math.min(range.max, Math.max(range.min, record.amount))
         : (fallback?.amount ?? range.defaultValue),
     enabled: typeof record.enabled === "boolean" ? record.enabled : (fallback?.enabled ?? true),
-    id: typeof record.id === "string" ? record.id : (fallback?.id ?? createDraftingFilterId()),
+    id: typeof record.id === "string" ? record.id : (fallback?.id ?? createCanvasFilterId()),
     type,
   };
 }
 
 export function normalizeFilterEffects(
   value: unknown,
-  fallback: DraftingFilterEffect[] = [],
-): DraftingFilterEffect[] {
+  fallback: CanvasFilterEffect[] = [],
+): CanvasFilterEffect[] {
   if (!Array.isArray(value)) {
     return fallback.map((effect) => ({ ...effect }));
   }
 
   return value
     .map((entry, index) => normalizeFilterEffect(entry, fallback[index]))
-    .filter((effect): effect is DraftingFilterEffect => Boolean(effect));
+    .filter((effect): effect is CanvasFilterEffect => Boolean(effect));
 }
 
-export function getBlurAmountFromFilters(filters: DraftingFilterEffect[]) {
+export function getBlurAmountFromFilters(filters: CanvasFilterEffect[]) {
   return filters.find((filter) => filter.type === "blur" && filter.enabled)?.amount ?? 0;
 }
 
-export function syncBlurFilter(
-  filters: DraftingFilterEffect[],
-  blur: number,
-): DraftingFilterEffect[] {
+export function syncBlurFilter(filters: CanvasFilterEffect[], blur: number): CanvasFilterEffect[] {
   const next = filters.filter((filter) => filter.type !== "blur");
 
   if (blur > 0) {
     next.unshift(
-      createDefaultDraftingFilterEffect("blur", {
+      createDefaultCanvasFilterEffect("blur", {
         amount: blur,
         id: filters.find((filter) => filter.type === "blur")?.id,
       }),
@@ -150,6 +147,6 @@ export function syncBlurFilter(
   return next;
 }
 
-export function syncLegacyBlurFromFilters(filters: DraftingFilterEffect[]) {
+export function syncLegacyBlurFromFilters(filters: CanvasFilterEffect[]) {
   return getBlurAmountFromFilters(filters);
 }

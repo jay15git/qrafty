@@ -3,18 +3,18 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { Fill } from "@/components/ui/fill-picker/public-api";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
-import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext";
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
-import { PaletteColorStopList } from "@/features/shell/inspector/PaletteColorStopList";
-import { SettingsFillPopover } from "@/features/shell/inspector/settings-ui";
+import { fillPreviewHex } from "@/features/shell/settings/FillPicker.utils";
+import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
+import { useMobileDrawerNavigation } from "@/features/shell/settings/MobileDrawerNavigationContext";
+import { useMobileSettingsDensity } from "@/features/shell/settings/MobileSettingsDensityContext";
+import { PaletteColorStopList } from "@/features/shell/settings/PaletteColorStopList";
+import { SettingsFillPopover } from "@/features/shell/settings/settings-ui";
 import {
   extractSvgPaintColors,
   getIllustrationDisplaySrc,
   normalizeSvgPaintColor,
   resolveIllustrationDisplayColors,
-  type DraftingIllustrationColorStop,
+  type CanvasIllustrationColorStop,
 } from "@/features/canvas/assets/illustration-recolor";
 import { useIllustrationSvgMarkup } from "@/features/canvas/assets/use-illustration-svg";
 import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius";
@@ -23,10 +23,10 @@ import { cn } from "@/lib/utils";
 
 function patchIllustrationStops(
   sourceColors: readonly string[],
-  currentStops: readonly DraftingIllustrationColorStop[] | undefined,
+  currentStops: readonly CanvasIllustrationColorStop[] | undefined,
   index: number,
   nextColor: string,
-): DraftingIllustrationColorStop[] {
+): CanvasIllustrationColorStop[] {
   const display = resolveIllustrationDisplayColors(sourceColors, currentStops);
   const to = normalizeSvgPaintColor(nextColor) ?? nextColor.toLowerCase();
   return sourceColors.map((from, colorIndex) => ({
@@ -44,7 +44,7 @@ export function IllustrationFloatingColorControl({
   onPatch: (patch: Partial<CanvasLayer>) => void;
   theme: ThemeMode;
 }) {
-  const mobileDensity = useMobileInspectorDensity();
+  const mobileDensity = useMobileSettingsDensity();
   const mobileNav = useMobileDrawerNavigation();
   const markup = useIllustrationSvgMarkup(layer.imageValue);
   const sourceColors = markup ? extractSvgPaintColors(markup) : [];
@@ -75,7 +75,7 @@ export function IllustrationFloatingColorControl({
         data-slot="canvas-layer-floating-toolbar-color"
         onPointerDown={(event) => event.stopPropagation()}
       >
-        <InspectorThemeContext.Provider value={theme}>
+        <SettingsThemeContext.Provider value={theme}>
           <SettingsFillPopover
             align="center"
             hint="Illustration color"
@@ -91,7 +91,7 @@ export function IllustrationFloatingColorControl({
               patchStop(0, fillPreviewHex(css));
             }}
           />
-        </InspectorThemeContext.Provider>
+        </SettingsThemeContext.Provider>
       </div>
     );
   }
@@ -128,7 +128,7 @@ export function IllustrationFloatingColorControl({
         data-slot="canvas-layer-floating-toolbar-color"
         onPointerDown={(event) => event.stopPropagation()}
       >
-        <InspectorThemeContext.Provider value={theme}>
+        <SettingsThemeContext.Provider value={theme}>
           <button
             aria-label="Illustration colors"
             className="relative flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg)]/30"
@@ -138,7 +138,7 @@ export function IllustrationFloatingColorControl({
               mobileNav.openDetail({
                 title: "Illustration colors",
                 content: (
-                  <div className="ds-portal-surface w-full min-w-0" data-mobile-inspector="">
+                  <div className="ds-portal-surface w-full min-w-0" data-mobile-settings="">
                     {multiColorBody}
                   </div>
                 ),
@@ -147,7 +147,7 @@ export function IllustrationFloatingColorControl({
           >
             {multiColorSwatch}
           </button>
-        </InspectorThemeContext.Provider>
+        </SettingsThemeContext.Provider>
       </div>
     );
   }
@@ -158,7 +158,7 @@ export function IllustrationFloatingColorControl({
       data-slot="canvas-layer-floating-toolbar-color"
       onPointerDown={(event) => event.stopPropagation()}
     >
-      <InspectorThemeContext.Provider value={theme}>
+      <SettingsThemeContext.Provider value={theme}>
         <Popover>
           <PopoverTrigger asChild>
             <button
@@ -184,12 +184,12 @@ export function IllustrationFloatingColorControl({
             {multiColorBody}
           </PopoverContent>
         </Popover>
-      </InspectorThemeContext.Provider>
+      </SettingsThemeContext.Provider>
     </div>
   );
 }
 
-export function IllustrationInspectorColorSection({
+export function IllustrationSettingsColorSection({
   layer,
   onPatch,
 }: {

@@ -12,7 +12,7 @@ import {
 import { QR_BACKGROUND_SHAPES } from "@/features/qr/styles/background-shapes";
 import { getShapeStrokeViewBoxScale } from "@/features/canvas/rendering/shape-layer-paths";
 import { IllustrationLayerImage } from "@/features/canvas/components/IllustrationColorControls";
-import { isDraftingIllustrationLayer } from "@/features/canvas/model/layer-floating-settings";
+import { isCanvasIllustrationLayer } from "@/features/canvas/model/layer-floating-settings";
 import { ShapeFillGradientDefs } from "@/features/canvas/rendering/shape-fill";
 import {
   resolveShapeSvgFill,
@@ -166,7 +166,7 @@ function renderPrimitiveShape(shapeId: "arrow" | "ellipse" | "line" | "rect", la
   return null;
 }
 
-export function DraftingShapeLayerContent({ layer }: { layer: CanvasLayer }) {
+export function CanvasShapeLayerContent({ layer }: { layer: CanvasLayer }) {
   const shapeId = layer.shapeId ?? "rounded-square";
   const definition = getShapeDefinition(shapeId);
   const fillStyle = getShapeFillStyle(layer);
@@ -213,7 +213,7 @@ export function DraftingShapeLayerContent({ layer }: { layer: CanvasLayer }) {
   return null;
 }
 
-export function DraftingImageLayerContent({ layer }: { layer: CanvasLayer }) {
+export function CanvasImageLayerContent({ layer }: { layer: CanvasLayer }) {
   const { artboardScale } = usePreviewRuntime();
   const imageValue = layer.imageValue;
   const cornerStyle = cornerRadiiToCss(resolveLayerCornerRadii(layer, 0));
@@ -232,7 +232,7 @@ export function DraftingImageLayerContent({ layer }: { layer: CanvasLayer }) {
     );
   }
 
-  if (isDraftingIllustrationLayer(layer)) {
+  if (isCanvasIllustrationLayer(layer)) {
     return (
       <div className="relative h-full w-full" style={{ borderRadius: cornerStyle }}>
         <IllustrationLayerImage layer={layer} />

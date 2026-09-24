@@ -4,9 +4,9 @@ import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-
 import {
   QR_STYLE_PART_DEFINITIONS,
   type QrStylePartId,
-} from "@/features/shell/inspector/qr-style-parts";
-import { SETTINGS_PREVIEW_TILE } from "@/features/shell/inspector/SettingsPreviewTiles";
-import { SegmentTabs } from "@/features/shell/inspector/settings-ui";
+} from "@/features/shell/settings/qr-style-parts";
+import { SETTINGS_PREVIEW_TILE } from "@/features/shell/settings/SettingsPreviewTiles";
+import { SegmentTabs } from "@/features/shell/settings/settings-ui";
 import { QrStyleOptionPreview } from "@/features/qr/components/QrStyleOptionPreview";
 import { cn } from "@/lib/utils";
 

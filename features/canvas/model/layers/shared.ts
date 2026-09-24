@@ -1,18 +1,15 @@
-import type {
-  DraftingCardShadowState,
-  DraftingCardState,
+import type { CanvasCardShadowState, CanvasCardState } from "@/features/canvas/model/card-state";
+import {
+  normalizeCanvasCardShadow,
+  type CanvasCardPaperShaderState,
 } from "@/features/canvas/model/card-state";
 import {
-  normalizeDraftingCardShadow,
-  type DraftingCardPaperShaderState,
-} from "@/features/canvas/model/card-state";
-import {
-  createDefaultDraftingShadowLayer,
+  createDefaultCanvasShadowLayer,
   DEFAULT_DRAFTING_OUTLINE,
-  type DraftingBorderStyle,
-  type DraftingOutlineState,
-  type DraftingPerSideBorderState,
-  type DraftingShadowLayerState,
+  type CanvasBorderStyle,
+  type CanvasOutlineState,
+  type CanvasPerSideBorderState,
+  type CanvasShadowLayerState,
   legacyShadowToShadowLayer,
   normalizeOutlineState,
   normalizePerSideBorderState,
@@ -24,7 +21,7 @@ import {
   normalizeFilterEffects,
   syncBlurFilter,
   syncLegacyBlurFromFilters,
-  type DraftingFilterEffect,
+  type CanvasFilterEffect,
 } from "@/features/canvas/model/filters";
 import { DEFAULT_DRAFTING_FONT_ID } from "@/features/canvas/model/fonts";
 import type { QrBackgroundShapeId } from "@/features/qr/styles/background-shapes";
@@ -32,75 +29,74 @@ import { clampBackgroundShapeTilt, type QraftyGradient } from "@/features/qr/mod
 import {
   cornerRadiiToLegacyRadius,
   normalizeCornerRadiiState,
-  type DraftingCornerRadiiState,
+  type CanvasCornerRadiiState,
 } from "@/features/canvas/model/corner-radius";
-import type { DraftingIllustrationColorStop } from "@/features/canvas/assets/illustration-recolor";
+import type { CanvasIllustrationColorStop } from "@/features/canvas/assets/illustration-recolor";
 
 export type CanvasLayerKind = "card" | "group" | "image" | "qr" | "shader" | "shape" | "text";
-export type DraftingImageSourceMode = "none" | "upload" | "url";
-export type DraftingImageFit = "contain" | "cover";
-export type DraftingShapeFillMode = "gradient" | "image" | "none" | "solid";
-export type DraftingShapePrimitiveId = "arrow" | "ellipse" | "line" | "rect";
-export type DraftingElementShapeId =
-  DraftingShapePrimitiveId | Exclude<QrBackgroundShapeId, "none">;
-export type DraftingTextAlign = "center" | "left" | "right";
-export type DraftingTextFontStyle = "italic" | "normal";
-export type DraftingTextFontWeight = "bold" | "normal" | number;
-export type DraftingTextRun = {
+export type CanvasImageSourceMode = "none" | "upload" | "url";
+export type CanvasImageFit = "contain" | "cover";
+export type CanvasShapeFillMode = "gradient" | "image" | "none" | "solid";
+export type CanvasShapePrimitiveId = "arrow" | "ellipse" | "line" | "rect";
+export type CanvasElementShapeId = CanvasShapePrimitiveId | Exclude<QrBackgroundShapeId, "none">;
+export type CanvasTextAlign = "center" | "left" | "right";
+export type CanvasTextFontStyle = "italic" | "normal";
+export type CanvasTextFontWeight = "bold" | "normal" | number;
+export type CanvasTextRun = {
   fill?: string;
   fontFamily?: string;
   fontId?: string;
   fontSize?: number;
-  fontStyle?: DraftingTextFontStyle;
-  fontWeight?: DraftingTextFontWeight;
+  fontStyle?: CanvasTextFontStyle;
+  fontWeight?: CanvasTextFontWeight;
   text: string;
   underline?: boolean;
 };
 
 export type CanvasLayer = {
   blur: number;
-  borderSides?: DraftingPerSideBorderState;
+  borderSides?: CanvasPerSideBorderState;
   height: number;
   id: string;
   isVisible: boolean;
   kind: CanvasLayerKind;
   cornerRadius?: number;
-  cornerRadii?: DraftingCornerRadiiState;
+  cornerRadii?: CanvasCornerRadiiState;
   fill?: string;
   fillGradient?: QraftyGradient;
-  fillMode?: DraftingShapeFillMode;
+  fillMode?: CanvasShapeFillMode;
   fontFamily?: string;
   fontId?: string;
   fontSize?: number;
-  fontStyle?: DraftingTextFontStyle;
-  fontWeight?: DraftingTextFontWeight;
-  imageFit?: DraftingImageFit;
-  imageSource?: DraftingImageSourceMode;
+  fontStyle?: CanvasTextFontStyle;
+  fontWeight?: CanvasTextFontWeight;
+  imageFit?: CanvasImageFit;
+  imageSource?: CanvasImageSourceMode;
   imageValue?: string;
-  illustrationColorStops?: DraftingIllustrationColorStop[];
-  layerFilters: DraftingFilterEffect[];
+  illustrationColorStops?: CanvasIllustrationColorStop[];
+  layerFilters: CanvasFilterEffect[];
   letterSpacing?: number;
   lineHeight?: number;
   name: string;
   nodeId: string;
   opacity: number;
-  outline: DraftingOutlineState;
-  paperShader?: DraftingCardPaperShaderState;
+  outline: CanvasOutlineState;
+  paperShader?: CanvasCardPaperShaderState;
   rotation: number;
   scaleX?: number;
   scaleY?: number;
-  shapeId?: DraftingElementShapeId;
+  shapeId?: CanvasElementShapeId;
   stroke?: string;
   strokeOpacity?: number;
-  strokeStyle?: DraftingBorderStyle;
+  strokeStyle?: CanvasBorderStyle;
   strokeWidth?: number;
   tiltX: number;
   tiltY: number;
-  shadow: DraftingCardShadowState;
-  shadows: DraftingShadowLayerState[];
+  shadow: CanvasCardShadowState;
+  shadows: CanvasShadowLayerState[];
   text?: string;
-  textAlign?: DraftingTextAlign;
-  textRuns?: DraftingTextRun[];
+  textAlign?: CanvasTextAlign;
+  textRuns?: CanvasTextRun[];
   underline?: boolean;
   width: number;
   x: number;
@@ -109,16 +105,15 @@ export type CanvasLayer = {
   children?: CanvasLayer[];
 };
 
-export type DraftingLayerStateByNodeId = Record<string, CanvasLayer[]>;
-export type DraftingLayerReorderAction = "back" | "backward" | "forward" | "front";
-export type DraftingLayerAlignAction =
-  "bottom" | "center-x" | "center-y" | "left" | "right" | "top";
-export type DraftingLayerDistributeAction = "horizontal" | "vertical";
+export type CanvasLayerStateByNodeId = Record<string, CanvasLayer[]>;
+export type CanvasLayerReorderAction = "back" | "backward" | "forward" | "front";
+export type CanvasLayerAlignAction = "bottom" | "center-x" | "center-y" | "left" | "right" | "top";
+export type CanvasLayerDistributeAction = "horizontal" | "vertical";
 
 const DRAFTING_CARD_LAYER_SUFFIX = ":card";
 const DRAFTING_QR_LAYER_SUFFIX = ":qr";
 
-export const DEFAULT_DRAFTING_LAYER_SHADOW: DraftingCardShadowState = {
+export const DEFAULT_DRAFTING_LAYER_SHADOW: CanvasCardShadowState = {
   blur: 0,
   color: "#111827",
   inset: false,
@@ -165,23 +160,23 @@ export const DEFAULT_DRAFTING_SHADER_LAYER = {
   cornerRadius: 0,
 } as const satisfies Partial<CanvasLayer>;
 
-export function getDraftingCardLayerId(nodeId: string) {
+export function getCanvasCardLayerId(nodeId: string) {
   return `${nodeId}${DRAFTING_CARD_LAYER_SUFFIX}`;
 }
 
-export function getDraftingQrLayerId(nodeId: string) {
+export function getCanvasQrLayerId(nodeId: string) {
   return `${nodeId}${DRAFTING_QR_LAYER_SUFFIX}`;
 }
 
-export function createAdditionalDraftingQrLayerId(nodeId: string) {
+export function createAdditionalCanvasQrLayerId(nodeId: string) {
   return `${nodeId}${DRAFTING_QR_LAYER_SUFFIX}:${crypto.randomUUID()}`;
 }
 
-export function isDraftingCardLayerId(layerId: string | null | undefined) {
+export function isCanvasCardLayerId(layerId: string | null | undefined) {
   return Boolean(layerId?.endsWith(DRAFTING_CARD_LAYER_SUFFIX));
 }
 
-export function isDraftingQrLayerId(layerId: string | null | undefined) {
+export function isCanvasQrLayerId(layerId: string | null | undefined) {
   if (!layerId) {
     return false;
   }
@@ -198,7 +193,7 @@ export function getQrCanvasLayers(layers: CanvasLayer[]) {
 }
 
 function canDeleteQrLayer(layerId: string, layers: CanvasLayer[]) {
-  if (!isDraftingQrLayerId(layerId)) {
+  if (!isCanvasQrLayerId(layerId)) {
     return false;
   }
 
@@ -206,33 +201,33 @@ function canDeleteQrLayer(layerId: string, layers: CanvasLayer[]) {
 }
 
 export function isLayerDeletable(layerId: string, layers: CanvasLayer[]) {
-  if (isDraftingCardLayerId(layerId)) {
+  if (isCanvasCardLayerId(layerId)) {
     return false;
   }
 
-  if (isDraftingQrLayerId(layerId)) {
+  if (isCanvasQrLayerId(layerId)) {
     return canDeleteQrLayer(layerId, layers);
   }
 
   return true;
 }
 
-export function isProtectedDraftingLayerId(
+export function isProtectedCanvasLayerId(
   layerId: string | null | undefined,
   layers?: CanvasLayer[],
 ) {
-  if (isDraftingCardLayerId(layerId)) {
+  if (isCanvasCardLayerId(layerId)) {
     return true;
   }
 
-  if (layerId && isDraftingQrLayerId(layerId) && layers) {
+  if (layerId && isCanvasQrLayerId(layerId) && layers) {
     return !canDeleteQrLayer(layerId, layers);
   }
 
   return false;
 }
 
-export type NormalizeDraftingLayerContext = {
+export type NormalizeCanvasLayerContext = {
   fallback: CanvasLayer;
   fallbackLayers: CanvasLayer[];
   height: number;
@@ -248,15 +243,15 @@ export function normalizeSharedCanvasLayerFields({
   nodeId,
   value,
   width,
-}: NormalizeDraftingLayerContext): Omit<CanvasLayer, "kind"> {
+}: NormalizeCanvasLayerContext): Omit<CanvasLayer, "kind"> {
   const legacyBlur = clamp(readFiniteNumber(value.blur, fallback.blur), 0, 96);
-  const layerFilters = normalizeDraftingLayerFilters(
+  const layerFilters = normalizeCanvasLayerFilters(
     value.layerFilters,
     fallback.layerFilters ?? [],
     legacyBlur,
   );
-  const shadow = normalizeDraftingLayerShadow(value.shadow, fallback.shadow);
-  const shadows = normalizeDraftingLayerShadows(
+  const shadow = normalizeCanvasLayerShadow(value.shadow, fallback.shadow);
+  const shadows = normalizeCanvasLayerShadows(
     value.shadows,
     shadow,
     fallback.shadows ?? [legacyShadowToShadowLayer(shadow)],
@@ -264,7 +259,7 @@ export function normalizeSharedCanvasLayerFields({
 
   return {
     blur: syncLegacyBlurFromFilters(layerFilters),
-    borderSides: normalizeDraftingLayerBorderSides(value.borderSides, fallback.borderSides),
+    borderSides: normalizeCanvasLayerBorderSides(value.borderSides, fallback.borderSides),
     children: undefined,
     height: Math.max(1, height),
     id: typeof value.id === "string" ? value.id : fallback.id,
@@ -322,15 +317,15 @@ export function normalizeLayerCornerRadiusFields(
   };
 }
 
-export function normalizeDraftingLayerShadow(
+export function normalizeCanvasLayerShadow(
   value: unknown,
-  fallback: DraftingCardShadowState,
-): DraftingCardShadowState {
+  fallback: CanvasCardShadowState,
+): CanvasCardShadowState {
   if (!isRecord(value)) {
-    return normalizeDraftingCardShadow(fallback);
+    return normalizeCanvasCardShadow(fallback);
   }
 
-  return normalizeDraftingCardShadow({
+  return normalizeCanvasCardShadow({
     ...fallback,
     blur: readFiniteNumber(value.blur, fallback.blur),
     color: typeof value.color === "string" ? value.color : fallback.color,
@@ -344,11 +339,11 @@ export function normalizeDraftingLayerShadow(
   });
 }
 
-function normalizeDraftingLayerShadows(
+function normalizeCanvasLayerShadows(
   value: unknown,
-  primaryShadow: DraftingCardShadowState,
-  fallback: DraftingShadowLayerState[],
-): DraftingShadowLayerState[] {
+  primaryShadow: CanvasCardShadowState,
+  fallback: CanvasShadowLayerState[],
+): CanvasShadowLayerState[] {
   if (!Array.isArray(value) || value.length === 0) {
     if (fallback.length > 0) {
       return fallback.map((shadow) => ({ ...shadow }));
@@ -367,11 +362,11 @@ function normalizeDraftingLayerShadows(
   });
 }
 
-function normalizeDraftingLayerFilters(
+function normalizeCanvasLayerFilters(
   value: unknown,
-  fallback: DraftingFilterEffect[],
+  fallback: CanvasFilterEffect[],
   legacyBlur: number,
-): DraftingFilterEffect[] {
+): CanvasFilterEffect[] {
   const normalized = normalizeFilterEffects(value, fallback);
 
   if (Array.isArray(value)) {
@@ -385,10 +380,10 @@ function normalizeDraftingLayerFilters(
   return legacyBlur > 0 ? syncBlurFilter([], legacyBlur) : [];
 }
 
-export function normalizeDraftingLayerBorderSides(
+export function normalizeCanvasLayerBorderSides(
   value: unknown,
-  fallback: DraftingPerSideBorderState | undefined,
-): DraftingPerSideBorderState | undefined {
+  fallback: CanvasPerSideBorderState | undefined,
+): CanvasPerSideBorderState | undefined {
   if (value === undefined && fallback === undefined) {
     return undefined;
   }
@@ -418,8 +413,8 @@ function normalizeFlipScale(value: unknown, fallback: number) {
 
 export function normalizeImageSourceMode(
   value: unknown,
-  fallback: DraftingImageSourceMode | undefined,
-): DraftingImageSourceMode {
+  fallback: CanvasImageSourceMode | undefined,
+): CanvasImageSourceMode {
   if (value === "none" || value === "upload" || value === "url") {
     return value;
   }

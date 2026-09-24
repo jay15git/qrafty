@@ -1,4 +1,4 @@
-import type { DraftingCardPaperShaderState } from "@/features/canvas/model/card-state";
+import type { CanvasCardPaperShaderState } from "@/features/canvas/model/card-state";
 
 const MIN_PAPER_SHADER_LAYOUT_PX = 8;
 
@@ -13,7 +13,7 @@ export function hasValidPaperShaderLayout(layoutWidth?: number, layoutHeight?: n
   );
 }
 
-export function readPaperShaderFallbackColor(paperShader: DraftingCardPaperShaderState): string {
+export function readPaperShaderFallbackColor(paperShader: CanvasCardPaperShaderState): string {
   const colors = paperShader.params.colors;
   if (Array.isArray(colors)) {
     const first = colors.find((value) => typeof value === "string");

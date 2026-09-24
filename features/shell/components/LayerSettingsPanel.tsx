@@ -9,15 +9,15 @@ import {
 import { EffectsAccordion } from "@/features/shell/components/EffectsAccordion";
 import { ShadowsList } from "@/features/shell/components/ShadowsList";
 import {
-  LayerStyleInspector,
+  LayerStyleSettings,
   TransformSection,
 } from "@/features/shell/components/ElementSettingsPanel";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import type { AppearancePatch, AppearanceSnapshot } from "@/features/shell/model/appearance";
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
 import type { LayerEffectKind } from "@/features/canvas/model/layer-effects";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
-import "@/features/shell/inspector/inspector.css";
+import "@/features/shell/settings/settings.css";
 
 function LayerSettingsPanelShell({
   children,
@@ -29,7 +29,7 @@ function LayerSettingsPanelShell({
   theme: ThemeMode;
 }) {
   return (
-    <InspectorThemeContext.Provider value={theme}>
+    <SettingsThemeContext.Provider value={theme}>
       <div
         className="ds-root ds-embedded flex min-h-0 flex-col"
         data-slot={dataSlot}
@@ -37,7 +37,7 @@ function LayerSettingsPanelShell({
       >
         {children}
       </div>
-    </InspectorThemeContext.Provider>
+    </SettingsThemeContext.Provider>
   );
 }
 
@@ -52,7 +52,7 @@ export function LayerStylePanel({
 }) {
   return (
     <LayerSettingsPanelShell dataSlot="layer-style-panel" theme={theme}>
-      <LayerStyleInspector layer={layer} onPatch={onPatch} />
+      <LayerStyleSettings layer={layer} onPatch={onPatch} />
     </LayerSettingsPanelShell>
   );
 }

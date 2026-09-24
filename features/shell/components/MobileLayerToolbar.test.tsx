@@ -4,15 +4,15 @@ import { act, useEffect } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MobileLayerToolbar } from "@/features/shell/components/MobileLayerToolbar";
-import { createDraftingShapeLayer } from "@/features/canvas/model/layers/factories";
+import { createCanvasShapeLayer } from "@/features/canvas/model/layers/factories";
 import { getAppearanceSnapshot } from "@/features/shell/model/appearance";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import type { ToolbarController } from "@/features/shell/model/toolbar-types";
 import {
   MobileDrawerNavigationProvider,
   useMobileDrawerNavigation,
-} from "@/features/shell/inspector/MobileDrawerNavigationContext";
-import { MobileInspectorDensityContext } from "@/features/shell/inspector/MobileInspectorDensityContext";
+} from "@/features/shell/settings/MobileDrawerNavigationContext";
+import { MobileSettingsDensityContext } from "@/features/shell/settings/MobileSettingsDensityContext";
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root";
 import { createToolbarController as createController } from "@/test-utils/toolbar-controller";
 
@@ -58,9 +58,9 @@ describe("MobileLayerToolbar", () => {
 
   it("renders layer action buttons when layers are selected", async () => {
     const surface = await renderWithAsyncJsdomRoot(
-      <MobileInspectorDensityContext.Provider value={true}>
+      <MobileSettingsDensityContext.Provider value={true}>
         <MobileLayerToolbar model={createModel()} onToolbarHeightChange={() => {}} theme="dark" />
-      </MobileInspectorDensityContext.Provider>,
+      </MobileSettingsDensityContext.Provider>,
     );
 
     expect(surface.container.querySelector('[data-slot="mobile-layer-toolbar"]')).not.toBeNull();
@@ -78,7 +78,7 @@ describe("MobileLayerToolbar", () => {
       current: null,
     };
     const surface = await renderWithAsyncJsdomRoot(
-      <MobileInspectorDensityContext.Provider value={true}>
+      <MobileSettingsDensityContext.Provider value={true}>
         <MobileDrawerNavigationProvider currentView={currentView} setView={setView}>
           <MobileLayerToolbar model={createModel()} onToolbarHeightChange={() => {}} theme="dark" />
           <NavigationProbe
@@ -87,7 +87,7 @@ describe("MobileLayerToolbar", () => {
             }}
           />
         </MobileDrawerNavigationProvider>
-      </MobileInspectorDensityContext.Provider>,
+      </MobileSettingsDensityContext.Provider>,
     );
 
     const fontButton = surface.container.querySelector('button[aria-label="Text font"]');
@@ -108,7 +108,7 @@ describe("MobileLayerToolbar", () => {
     expect(navigationRef.current?.detailPayload).toBeNull();
   });
   it("renders labeled panel buttons and opens their detail pages", async () => {
-    const layer = createDraftingShapeLayer(NODE_ID, "rect");
+    const layer = createCanvasShapeLayer(NODE_ID, "rect");
     let currentView = "default";
     const setView = (view: string) => {
       currentView = view;
@@ -118,7 +118,7 @@ describe("MobileLayerToolbar", () => {
       current: null,
     };
     const surface = await renderWithAsyncJsdomRoot(
-      <MobileInspectorDensityContext.Provider value={true}>
+      <MobileSettingsDensityContext.Provider value={true}>
         <MobileDrawerNavigationProvider currentView={currentView} setView={setView}>
           <MobileLayerToolbar
             model={createModel({
@@ -141,7 +141,7 @@ describe("MobileLayerToolbar", () => {
             }}
           />
         </MobileDrawerNavigationProvider>
-      </MobileInspectorDensityContext.Provider>,
+      </MobileSettingsDensityContext.Provider>,
     );
 
     const ariaLabels = Array.from(
@@ -174,7 +174,7 @@ describe("MobileLayerToolbar", () => {
 
   it("does not render when nothing is selected", async () => {
     const surface = await renderWithAsyncJsdomRoot(
-      <MobileInspectorDensityContext.Provider value={true}>
+      <MobileSettingsDensityContext.Provider value={true}>
         <MobileLayerToolbar
           model={createModel({
             selectedElementLayer: null,
@@ -184,7 +184,7 @@ describe("MobileLayerToolbar", () => {
           onToolbarHeightChange={() => {}}
           theme="dark"
         />
-      </MobileInspectorDensityContext.Provider>,
+      </MobileSettingsDensityContext.Provider>,
     );
 
     expect(surface.container.querySelector('[data-slot="mobile-layer-toolbar"]')).toBeNull();

@@ -1,7 +1,7 @@
 import {
-  getDraftingFontByFamily,
-  getDraftingFontById,
-  resolveDraftingFont,
+  getCanvasFontByFamily,
+  getCanvasFontById,
+  resolveCanvasFont,
 } from "@/features/canvas/model/fonts";
 import {
   clamp,
@@ -12,15 +12,15 @@ import {
   normalizeSharedCanvasLayerFields,
   readFiniteNumber,
   type CanvasLayer,
-  type DraftingShapeFillMode,
-  type DraftingTextAlign,
-  type DraftingTextFontWeight,
-  type DraftingTextRun,
-  type NormalizeDraftingLayerContext,
+  type CanvasShapeFillMode,
+  type CanvasTextAlign,
+  type CanvasTextFontWeight,
+  type CanvasTextRun,
+  type NormalizeCanvasLayerContext,
 } from "@/features/canvas/model/layers/shared";
 
 export function normalizeTextCanvasLayer(
-  context: NormalizeDraftingLayerContext & { kind: "text" },
+  context: NormalizeCanvasLayerContext & { kind: "text" },
 ): CanvasLayer {
   const { fallback, value } = context;
   const text =
@@ -71,8 +71,8 @@ export function normalizeTextCanvasLayer(
 
 function normalizeTextFillMode(
   value: unknown,
-  fallback: DraftingShapeFillMode | undefined,
-): DraftingShapeFillMode {
+  fallback: CanvasShapeFillMode | undefined,
+): CanvasShapeFillMode {
   if (value === "gradient" || value === "solid") {
     return value;
   }
@@ -80,7 +80,7 @@ function normalizeTextFillMode(
   return fallback === "gradient" ? "gradient" : "solid";
 }
 
-function normalizeTextAlign(value: unknown, fallback: unknown): DraftingTextAlign {
+function normalizeTextAlign(value: unknown, fallback: unknown): CanvasTextAlign {
   if (value === "center" || value === "left" || value === "right") {
     return value;
   }
@@ -93,13 +93,13 @@ function normalizeTextAlign(value: unknown, fallback: unknown): DraftingTextAlig
 function normalizeTextFontFamily(value: Record<string, unknown>, fallback: CanvasLayer) {
   if (typeof value.fontFamily === "string" && value.fontFamily.trim()) {
     return typeof value.fontId === "string"
-      ? resolveDraftingFont({ fontFamily: value.fontFamily, fontId: value.fontId }).family
+      ? resolveCanvasFont({ fontFamily: value.fontFamily, fontId: value.fontId }).family
       : value.fontFamily.trim().slice(0, 80);
   }
 
   if (typeof fallback.fontFamily === "string" && fallback.fontFamily.trim()) {
     return typeof fallback.fontId === "string"
-      ? resolveDraftingFont({ fontFamily: fallback.fontFamily, fontId: fallback.fontId }).family
+      ? resolveCanvasFont({ fontFamily: fallback.fontFamily, fontId: fallback.fontId }).family
       : fallback.fontFamily.trim().slice(0, 80);
   }
 
@@ -107,26 +107,26 @@ function normalizeTextFontFamily(value: Record<string, unknown>, fallback: Canva
 }
 
 function normalizeTextFontId(value: Record<string, unknown>, fallback: CanvasLayer) {
-  if (typeof value.fontId === "string" && getDraftingFontById(value.fontId)) {
+  if (typeof value.fontId === "string" && getCanvasFontById(value.fontId)) {
     return value.fontId;
   }
 
   if (typeof value.fontFamily === "string" && value.fontFamily.trim()) {
-    return getDraftingFontByFamily(value.fontFamily)?.id;
+    return getCanvasFontByFamily(value.fontFamily)?.id;
   }
 
-  if (typeof fallback.fontId === "string" && getDraftingFontById(fallback.fontId)) {
+  if (typeof fallback.fontId === "string" && getCanvasFontById(fallback.fontId)) {
     return fallback.fontId;
   }
 
   if (typeof fallback.fontFamily === "string" && fallback.fontFamily.trim()) {
-    return getDraftingFontByFamily(fallback.fontFamily)?.id;
+    return getCanvasFontByFamily(fallback.fontFamily)?.id;
   }
 
   return DEFAULT_DRAFTING_TEXT_LAYER.fontId;
 }
 
-function normalizeTextFontWeight(value: unknown, fallback: unknown): DraftingTextFontWeight {
+function normalizeTextFontWeight(value: unknown, fallback: unknown): CanvasTextFontWeight {
   if (value === "bold" || value === "normal") {
     return value;
   }
@@ -144,7 +144,7 @@ function normalizeTextRuns(
   value: unknown,
   fallback: unknown,
   text: string,
-): DraftingTextRun[] | undefined {
+): CanvasTextRun[] | undefined {
   const normalized = normalizeTextRunArray(value, text);
   if (normalized) {
     return normalized;
@@ -153,13 +153,13 @@ function normalizeTextRuns(
   return normalizeTextRunArray(fallback, text);
 }
 
-function normalizeTextRunArray(value: unknown, text: string): DraftingTextRun[] | undefined {
+function normalizeTextRunArray(value: unknown, text: string): CanvasTextRun[] | undefined {
   if (!Array.isArray(value) || text.length === 0) {
     return undefined;
   }
 
   const runs = value
-    .map((run): DraftingTextRun | null => {
+    .map((run): CanvasTextRun | null => {
       if (!isRecord(run) || typeof run.text !== "string" || run.text.length === 0) {
         return null;
       }
@@ -169,10 +169,10 @@ function normalizeTextRunArray(value: unknown, text: string): DraftingTextRun[] 
           ? run.fontFamily.trim().slice(0, 80)
           : undefined;
       const fontId =
-        typeof run.fontId === "string" && getDraftingFontById(run.fontId)
+        typeof run.fontId === "string" && getCanvasFontById(run.fontId)
           ? run.fontId
           : fontFamily
-            ? getDraftingFontByFamily(fontFamily)?.id
+            ? getCanvasFontByFamily(fontFamily)?.id
             : undefined;
 
       return {
@@ -196,7 +196,7 @@ function normalizeTextRunArray(value: unknown, text: string): DraftingTextRun[] 
         underline: typeof run.underline === "boolean" ? run.underline : undefined,
       };
     })
-    .filter((run): run is DraftingTextRun => Boolean(run));
+    .filter((run): run is CanvasTextRun => Boolean(run));
 
   if (runs.length === 0 || runs.map((run) => run.text).join("") !== text) {
     return undefined;
@@ -205,8 +205,8 @@ function normalizeTextRunArray(value: unknown, text: string): DraftingTextRun[] 
   return mergeAdjacentTextRuns(runs);
 }
 
-function mergeAdjacentTextRuns(runs: DraftingTextRun[]) {
-  return runs.reduce<DraftingTextRun[]>((merged, run) => {
+function mergeAdjacentTextRuns(runs: CanvasTextRun[]) {
+  return runs.reduce<CanvasTextRun[]>((merged, run) => {
     const previous = merged.at(-1);
 
     if (previous && areTextRunStylesEqual(previous, run)) {
@@ -219,7 +219,7 @@ function mergeAdjacentTextRuns(runs: DraftingTextRun[]) {
   }, []);
 }
 
-function areTextRunStylesEqual(a: DraftingTextRun, b: DraftingTextRun) {
+function areTextRunStylesEqual(a: CanvasTextRun, b: CanvasTextRun) {
   return (
     a.fill === b.fill &&
     a.fontFamily === b.fontFamily &&

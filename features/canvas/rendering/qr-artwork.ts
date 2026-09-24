@@ -1,6 +1,6 @@
 import { DEFAULT_BACKGROUND_SHAPE_OPTIONS, type QraftyState } from "@/features/qr/model/state";
 
-export function createDraftingQrArtworkState(state: QraftyState): QraftyState {
+export function createCanvasQrArtworkState(state: QraftyState): QraftyState {
   return {
     ...state,
     backgroundGradient: {
@@ -22,7 +22,7 @@ export function createDraftingQrArtworkState(state: QraftyState): QraftyState {
   };
 }
 
-export function sanitizeDraftingQrArtworkMarkup(markup: string) {
+export function sanitizeCanvasQrArtworkMarkup(markup: string) {
   if (typeof DOMParser === "undefined" || typeof XMLSerializer === "undefined") {
     return markup;
   }

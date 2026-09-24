@@ -6,7 +6,7 @@ import { syncBlurFilter, syncLegacyBlurFromFilters } from "@/features/canvas/mod
 import { buildCornerRadiusLayerPatch } from "@/features/canvas/model/corner-radius";
 import { normalizeCanvasLayer } from "@/features/canvas/model/layers/normalize";
 import {
-  normalizeDraftingLayerShadow,
+  normalizeCanvasLayerShadow,
   type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 
@@ -27,7 +27,7 @@ export function patchCanvasLayer(layer: CanvasLayer, patch: Partial<CanvasLayer>
   }
 
   if (patch.shadows) {
-    merged.shadow = normalizeDraftingLayerShadow(
+    merged.shadow = normalizeCanvasLayerShadow(
       shadowLayerToLegacyShadow(
         patch.shadows[0] ?? layer.shadows[0] ?? legacyShadowToShadowLayer(layer.shadow),
       ),

@@ -4,19 +4,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createDefaultQraftyState } from "@/features/qr/model/state";
-import { buildDraftingQraftyMarkup } from "@/features/qr/rendering/qrafty-markup";
+import { buildCanvasQraftyMarkup } from "@/features/qr/rendering/qrafty-markup";
 import { clearCanvasQrMarkupCache } from "@/features/canvas/hooks/use-canvas-qr-markup";
 import { previewSession } from "@/features/canvas/preview/preview-session";
 
 vi.mock("@/features/qr/rendering/qrafty-markup", () => ({
-  buildDraftingQraftyMarkup: vi.fn(() => "<svg data-testid='qr-markup'></svg>"),
+  buildCanvasQraftyMarkup: vi.fn(() => "<svg data-testid='qr-markup'></svg>"),
 }));
 
 describe("useCanvasQrMarkup interaction deferral", () => {
   beforeEach(() => {
     clearCanvasQrMarkupCache();
     previewSession.endInteraction();
-    vi.mocked(buildDraftingQraftyMarkup).mockClear();
+    vi.mocked(buildCanvasQraftyMarkup).mockClear();
   });
 
   afterEach(() => {
@@ -48,7 +48,7 @@ describe("useCanvasQrMarkup interaction deferral", () => {
       root.render(React.createElement(TestHarness, { state: initialState }));
     });
 
-    expect(vi.mocked(buildDraftingQraftyMarkup)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(buildCanvasQraftyMarkup)).toHaveBeenCalledTimes(1);
     expect(latestMarkupRef.current).toContain("qr-markup");
 
     previewSession.beginInteraction();
@@ -65,13 +65,13 @@ describe("useCanvasQrMarkup interaction deferral", () => {
       root.render(React.createElement(TestHarness, { state: nextState }));
     });
 
-    expect(vi.mocked(buildDraftingQraftyMarkup)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(buildCanvasQraftyMarkup)).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       previewSession.endInteraction();
     });
 
-    expect(vi.mocked(buildDraftingQraftyMarkup)).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(buildCanvasQraftyMarkup)).toHaveBeenCalledTimes(2);
     expect(latestMarkupRef.current).toContain("qr-markup");
 
     await act(async () => {

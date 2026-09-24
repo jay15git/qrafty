@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 
 describe("SecondaryButton", () => {
-  it("uses drafting shadow tokens instead of hardcoded shadow values", () => {
+  it("uses canvas shadow tokens instead of hardcoded shadow values", () => {
     const markup = renderToStaticMarkup(<SecondaryButton>Download PNG</SecondaryButton>);
 
     expect(markup).toContain('data-slot="secondary-button"');

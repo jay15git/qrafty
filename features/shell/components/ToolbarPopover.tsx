@@ -5,7 +5,7 @@ import { useState, type ReactNode } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ToolbarTooltip } from "@/features/shell/components/ToolbarTooltip";
-import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui";
+import { SettingsPopoverCloseButton } from "@/features/shell/settings/settings-ui";
 import { cn } from "@/lib/utils";
 
 /**

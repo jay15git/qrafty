@@ -15,15 +15,15 @@ import {
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const buildDraftingQraftyMarkupSpy = vi.fn();
+const buildCanvasQraftyMarkupSpy = vi.fn();
 
 vi.mock("@/features/qr/rendering/qrafty-markup", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/features/qr/rendering/qrafty-markup")>();
 
   return {
     ...actual,
-    buildDraftingQraftyMarkup: (...args: Parameters<typeof buildDraftingQraftyMarkupSpy>) =>
-      buildDraftingQraftyMarkupSpy(...args),
+    buildCanvasQraftyMarkup: (...args: Parameters<typeof buildCanvasQraftyMarkupSpy>) =>
+      buildCanvasQraftyMarkupSpy(...args),
   };
 });
 
@@ -115,8 +115,8 @@ beforeEach(() => {
     configurable: true,
     value: createMemoryStorage(),
   });
-  buildDraftingQraftyMarkupSpy.mockClear();
-  buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
+  buildCanvasQraftyMarkupSpy.mockClear();
+  buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
   vi.stubGlobal(
     "ResizeObserver",
     class ResizeObserver {
@@ -139,7 +139,7 @@ afterEach(() => {
 
 describe("CanvasSurface", () => {
   it("deletes removable selected layers from the floating canvas toolbar", async () => {
-    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
+    buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
     const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
 
     await waitForCanvasSurface();
@@ -174,7 +174,7 @@ describe("CanvasSurface", () => {
     ).toBeNull();
   });
 
-  it("wires the desktop overlay content inspector into the active drafting QR state", () => {
+  it("wires the desktop overlay content settings into the active canvas QR state", () => {
     const canvas = renderCanvas();
     const root = getRequiredElement(canvas.container, '[data-slot="canvas-root"]');
 
@@ -260,7 +260,7 @@ describe("CanvasSurface", () => {
     expect(document.body.querySelector('[data-slot="keyboard-shortcuts-popover"]')).not.toBeNull();
   });
 
-  it("does not expose the dashboard edit mode toggle or edit rail on drafting", async () => {
+  it("does not expose the dashboard edit mode toggle or edit rail on canvas", async () => {
     const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
 
     await waitForCanvasSurface();
@@ -283,7 +283,7 @@ describe("CanvasSurface", () => {
   });
 
   it("adds a fresh qr layer from the bottom toolbar and selects it", async () => {
-    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
+    buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
     const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
 
     await waitForCanvasSurface();
@@ -301,11 +301,11 @@ describe("CanvasSurface", () => {
       ),
     ).toBe("false");
     expect(canvas.container.querySelector('[data-slot="dashboard-edit-rail"]')).toBeNull();
-    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalled();
+    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalled();
   });
 
   it("keeps independent qr layer content on one canvas", async () => {
-    buildDraftingQraftyMarkupSpy.mockImplementation(
+    buildCanvasQraftyMarkupSpy.mockImplementation(
       (state: QraftyState) => `<svg data-value="${state.data ?? ""}" />`,
     );
     const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
@@ -344,7 +344,7 @@ describe("CanvasSurface", () => {
   });
 
   it("keeps the qr renderer foreground-only on first render and after reset", async () => {
-    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
+    buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
     const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
 
     await waitForCanvasSurface();
@@ -354,7 +354,7 @@ describe("CanvasSurface", () => {
       await flushPromises();
     });
 
-    const initialCall = buildDraftingQraftyMarkupSpy.mock.calls as unknown as Array<[QraftyState]>;
+    const initialCall = buildCanvasQraftyMarkupSpy.mock.calls as unknown as Array<[QraftyState]>;
     const initialState = initialCall[0]?.[0];
 
     expect(initialState?.backgroundOptions.transparent).toBe(true);
@@ -386,12 +386,12 @@ describe("CanvasSurface", () => {
       "#ds-content-url",
     ) as HTMLInputElement;
 
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     act(() => {
       changeInputValue(contentInput, "https://example.com/history");
     });
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     const undoButton = getRequiredElement(
       canvas.container,
@@ -439,12 +439,12 @@ describe("CanvasSurface", () => {
       "#ds-content-url",
     ) as HTMLInputElement;
 
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     act(() => {
       changeInputValue(contentInput, "https://example.com/keyboard");
     });
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     act(() => {
       getRequiredElement(canvas.container, '[data-slot="canvas-root"]').dispatchEvent(
@@ -493,14 +493,14 @@ describe("CanvasSurface", () => {
 
   it("uses keyboard shortcuts from body focus for layer nudging, ordering, and duplicating QR codes", async () => {
     vi.useFakeTimers();
-    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
+    buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
     const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
 
     await waitForCanvasSurface();
 
     vi.useFakeTimers();
 
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     const qrLayer = getRequiredElement(
       canvas.container,
@@ -530,14 +530,14 @@ describe("CanvasSurface", () => {
         }),
       );
     });
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     expect(canvas.container.querySelectorAll('[data-slot="canvas-surface"]')).toHaveLength(1);
     expect(canvas.container.querySelectorAll('[data-slot="canvas-node"]')).toHaveLength(2);
   });
 
   it("copies and pastes selected layers with keyboard shortcuts", async () => {
-    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
+    buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
     let clipboardText = "";
     const writeText = vi.fn(async (value: string) => {
       clipboardText = value;
@@ -553,7 +553,7 @@ describe("CanvasSurface", () => {
 
     vi.useFakeTimers();
 
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     expect(canvas.container.querySelectorAll('[data-slot="canvas-node"]')).toHaveLength(1);
 
@@ -572,7 +572,7 @@ describe("CanvasSurface", () => {
     expect(writeText).toHaveBeenCalledOnce();
     expect(JSON.parse(clipboardText)).toMatchObject({
       sourceNodeId: "dashboard-qr-node",
-      type: "qrafty/drafting-layers",
+      type: "qrafty/canvas-layers",
       version: 1,
     });
     expect(JSON.parse(clipboardText).layers).toHaveLength(1);
@@ -587,14 +587,14 @@ describe("CanvasSurface", () => {
       );
       await flushPromises();
     });
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     expect(readText).toHaveBeenCalledOnce();
     expect(canvas.container.querySelectorAll('[data-slot="canvas-node"]')).toHaveLength(2);
   });
 
   it("uses keyboard shortcuts to select all, clear selection, order layers, delete cards, and keep the canonical QR", async () => {
-    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
+    buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
     let clipboardText = "";
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -611,7 +611,7 @@ describe("CanvasSurface", () => {
 
     vi.useFakeTimers();
 
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     await act(async () => {
       dispatchBodyShortcut("c", { ctrlKey: true });
@@ -619,7 +619,7 @@ describe("CanvasSurface", () => {
       dispatchBodyShortcut("v", { ctrlKey: true });
       await flushPromises();
     });
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     const pastedQrLayer = Array.from(
       canvas.container.querySelectorAll<HTMLElement>('[data-slot="canvas-node"]'),
@@ -686,17 +686,17 @@ describe("CanvasSurface", () => {
   });
 
   it("uses keyboard shortcuts to group and ungroup selected layers", async () => {
-    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
+    buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
     const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
 
     await waitForCanvasSurface();
 
     vi.useFakeTimers();
 
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     await insertTextLayer(canvas.container);
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     act(() => {
       dispatchBodyShortcut("a", { ctrlKey: true });
@@ -741,7 +741,7 @@ describe("CanvasSurface", () => {
 
   it("keeps editing fields native for select-all, delete, clipboard, and layer shortcuts", async () => {
     vi.useFakeTimers();
-    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
+    buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
     const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
 
     await waitForCanvasSurface();
@@ -751,7 +751,7 @@ describe("CanvasSurface", () => {
       "#ds-content-url",
     ) as HTMLInputElement;
 
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     act(() => {
       changeInputValue(contentInput, "https://example.com/native-shortcuts");
@@ -782,7 +782,7 @@ describe("CanvasSurface", () => {
 
   it("uses native clipboard events for copy and paste when keyboard shortcuts become clipboard events", async () => {
     vi.useFakeTimers();
-    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
+    buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
     let copiedText = "";
     const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
 
@@ -790,7 +790,7 @@ describe("CanvasSurface", () => {
 
     vi.useFakeTimers();
 
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     const copyEvent = new Event("copy", { bubbles: true, cancelable: true });
     Object.defineProperty(copyEvent, "clipboardData", {
@@ -805,7 +805,7 @@ describe("CanvasSurface", () => {
       document.body.dispatchEvent(copyEvent);
     });
 
-    expect(copiedText).toContain('"type":"qrafty/drafting-layers"');
+    expect(copiedText).toContain('"type":"qrafty/canvas-layers"');
 
     const pasteEvent = new Event("paste", { bubbles: true, cancelable: true });
     Object.defineProperty(pasteEvent, "clipboardData", {
@@ -817,30 +817,30 @@ describe("CanvasSurface", () => {
     act(() => {
       document.body.dispatchEvent(pasteEvent);
     });
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     expect(canvas.container.querySelectorAll('[data-slot="canvas-node"]')).toHaveLength(2);
   });
 
-  it("focuses the drafting canvas after selecting a canvas layer", async () => {
+  it("focuses the canvas after selecting a canvas layer", async () => {
     vi.useFakeTimers();
-    buildDraftingQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
+    buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
     const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
 
     await waitForCanvasSurface();
 
     vi.useFakeTimers();
 
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
-    const draftingCanvas = getRequiredElement(canvas.container, '[data-slot="canvas-root"]');
+    const canvasRoot = getRequiredElement(canvas.container, '[data-slot="canvas-root"]');
     const qrLayer = getRequiredElement(canvas.container, '[data-slot="canvas-node"]');
 
     act(() => {
       qrLayer.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
 
-    expect(document.activeElement).toBe(draftingCanvas);
+    expect(document.activeElement).toBe(canvasRoot);
   });
 
   it("keeps add QR and reset changes undoable", async () => {
@@ -850,10 +850,10 @@ describe("CanvasSurface", () => {
 
     vi.useFakeTimers();
 
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     await addQrCode(canvas.container);
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     expect(canvas.container.querySelectorAll('[data-slot="canvas-surface"]')).toHaveLength(1);
     expect(canvas.container.querySelectorAll('[data-slot="canvas-node"]')).toHaveLength(2);
@@ -878,7 +878,7 @@ describe("CanvasSurface", () => {
         "https://example.com/before-reset",
       );
     });
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     expect(
       getRequiredElement(canvas.container, '[data-slot="canvas-root"]').getAttribute(
@@ -897,13 +897,13 @@ describe("CanvasSurface", () => {
     ).toBe("https://qrafty.local/launch");
   });
 
-  it("restores the autosaved drafting workspace after remount", async () => {
+  it("restores the autosaved canvas workspace after remount", async () => {
     const firstCanvas = renderCanvas({ boardToolbarVariant: "zoom" });
 
     await waitForCanvasSurface();
 
     vi.useFakeTimers();
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     act(() => {
       changeInputValue(
@@ -911,12 +911,12 @@ describe("CanvasSurface", () => {
         "https://example.com/autosaved",
       );
     });
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     firstCanvas.unmount();
     const secondCanvas = renderCanvas({ boardToolbarVariant: "zoom" });
     await waitForCanvasSurface();
-    await advanceDraftingTimers();
+    await advanceCanvasTimers();
 
     expect(
       getRequiredElement(secondCanvas.container, '[data-slot="canvas-root"]').getAttribute(
@@ -1071,19 +1071,6 @@ function createDragEvent(type: string, dataTransfer: ReturnType<typeof createDat
   return event;
 }
 
-function openCardOnlyMode(parent: ParentNode) {
-  act(() => {
-    activateElement(getRequiredElement(parent, 'button[aria-label="Open Shape"]'));
-  });
-
-  const shapeSwitch = getRequiredElement(parent, "#drafting-card-enabled");
-  if (shapeSwitch.getAttribute("aria-checked") !== "true") {
-    act(() => {
-      activateElement(shapeSwitch);
-    });
-  }
-}
-
 function getSelectedPreviewCard(parent: ParentNode) {
   const selectedNode =
     parent.querySelector('[data-slot="canvas-node"][data-selected="true"]') ??
@@ -1158,7 +1145,7 @@ async function insertTextLayer(parent: ParentNode) {
   });
 }
 
-async function advanceDraftingTimers() {
+async function advanceCanvasTimers() {
   await act(async () => {
     await flushPromises();
     vi.advanceTimersByTime(300);

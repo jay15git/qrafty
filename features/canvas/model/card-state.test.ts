@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  applyDraftingCardPaperShaderPreset,
-  cloneDraftingCardState,
-  createDefaultDraftingCardPaperShader,
-  createDefaultDraftingCardState,
-  normalizeDraftingCardState,
+  applyCanvasCardPaperShaderPreset,
+  cloneCanvasCardState,
+  createDefaultCanvasCardPaperShader,
+  createDefaultCanvasCardState,
+  normalizeCanvasCardState,
 } from "@/features/canvas/model/card-state";
 
-describe("drafting card state", () => {
+describe("canvas card state", () => {
   it("starts with a static mesh paper shader as the default card background", () => {
-    const state = createDefaultDraftingCardState();
+    const state = createDefaultCanvasCardState();
 
     expect(state.styleMode).toBe("paper-shader");
     expect(state.sizeMode).toBe("fixed");
@@ -39,7 +39,7 @@ describe("drafting card state", () => {
     expect(state.paperShader.shaderId).toBe("static-mesh-gradient");
     expect(state.paperShader.presetName).toBe("Default");
     expect(state.paperShader.params.colors).toEqual(
-      createDefaultDraftingCardPaperShader("static-mesh-gradient").params.colors,
+      createDefaultCanvasCardPaperShader("static-mesh-gradient").params.colors,
     );
     expect(state.paperShader.speed).toBe(0);
     expect(state.paperShader.frame).toBe(0);
@@ -47,8 +47,8 @@ describe("drafting card state", () => {
   });
 
   it("deep clones paper shader params with the rest of the card state", () => {
-    const state = createDefaultDraftingCardState();
-    const clone = cloneDraftingCardState(state);
+    const state = createDefaultCanvasCardState();
+    const clone = cloneCanvasCardState(state);
 
     expect(clone).toEqual(state);
     expect(clone).not.toBe(state);
@@ -75,12 +75,12 @@ describe("drafting card state", () => {
 
   it("normalizes legacy card shadow presets when cloning saved state", () => {
     const state = {
-      ...createDefaultDraftingCardState(),
+      ...createDefaultCanvasCardState(),
       shadow: "strong",
     };
 
-    const clone = cloneDraftingCardState(
-      state as unknown as ReturnType<typeof createDefaultDraftingCardState>,
+    const clone = cloneCanvasCardState(
+      state as unknown as ReturnType<typeof createDefaultCanvasCardState>,
     );
 
     expect(clone.shadow).toMatchObject({
@@ -93,12 +93,12 @@ describe("drafting card state", () => {
   });
 
   it("creates defaults for another shader and applies presets", () => {
-    const paperShader = createDefaultDraftingCardPaperShader("warp");
+    const paperShader = createDefaultCanvasCardPaperShader("warp");
 
     expect(paperShader.shaderId).toBe("warp");
     expect(paperShader.presetName).toBe("Default");
 
-    const liveInk = applyDraftingCardPaperShaderPreset(paperShader, "Live Ink");
+    const liveInk = applyCanvasCardPaperShaderPreset(paperShader, "Live Ink");
 
     expect(liveInk.shaderId).toBe("warp");
     expect(liveInk.presetName).toBe("Live Ink");
@@ -107,7 +107,7 @@ describe("drafting card state", () => {
   });
 
   it("starts image-filter shaders with a sample image source", () => {
-    const paperShader = createDefaultDraftingCardPaperShader("image-dithering");
+    const paperShader = createDefaultCanvasCardPaperShader("image-dithering");
 
     expect(paperShader.shaderId).toBe("image-dithering");
     expect(paperShader.image.source).toBe("sample");
@@ -115,8 +115,8 @@ describe("drafting card state", () => {
   });
 
   it("resolves canvas dimensions from size presets using the max-edge baseline", () => {
-    const state = normalizeDraftingCardState({
-      ...createDefaultDraftingCardState(),
+    const state = normalizeCanvasCardState({
+      ...createDefaultCanvasCardState(),
       height: 7200,
       sizeMode: "fixed",
       sizePresetId: "print-poster-18x24",

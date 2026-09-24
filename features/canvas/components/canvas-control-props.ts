@@ -8,7 +8,7 @@ export type CanvasBoardInteractionState = {
 };
 
 /** Layer-interaction callbacks shared by Canvas, CanvasBoard, and
- * the drafting board viewport props. */
+ * the canvas board viewport props. */
 export type CanvasLayerInteractionProps = {
   onLayerChange?: (boardId: string, layerId: string, patch: Partial<CanvasLayer>) => void;
   onLayerAction?: (boardId: string, layerIds: string[], action: CanvasLayerMenuAction) => void;

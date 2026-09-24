@@ -1,6 +1,6 @@
 import { shaderRequiresImage } from "@qrafty/qr/shaders";
 
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
   resolveShaderExportFrameMs,
@@ -13,10 +13,10 @@ type ShaderCaptureTarget = {
   key: string;
   layoutHeight: number;
   layoutWidth: number;
-  shader: DraftingCardState["paperShader"];
+  shader: CanvasCardState["paperShader"];
 };
 
-function resolveCardShaderState(cardState: DraftingCardState) {
+function resolveCardShaderState(cardState: CanvasCardState) {
   if (cardState.styleMode === "paper-shader") {
     return cardState.paperShader;
   }
@@ -34,7 +34,7 @@ function collectShaderCaptureTargets({
   layers,
 }: {
   cardLayer: CanvasLayer | null;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   layers: CanvasLayer[];
 }) {
   const targets: ShaderCaptureTarget[] = [];
@@ -117,7 +117,7 @@ export class WorkspaceShaderCaptureSession {
     videoTimeMs = 0,
   }: {
     cardLayer: CanvasLayer | null;
-    cardState: DraftingCardState;
+    cardState: CanvasCardState;
     layers: CanvasLayer[];
     mode: ExportClockMode;
     videoTimeMs?: number;
@@ -240,7 +240,7 @@ export async function captureWorkspaceShaderSnapshots({
   videoTimeMs = 0,
 }: {
   cardLayer: CanvasLayer | null;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   layers: CanvasLayer[];
   mode: ExportClockMode;
   session?: WorkspaceShaderCaptureSession;

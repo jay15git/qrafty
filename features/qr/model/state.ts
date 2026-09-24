@@ -1,8 +1,8 @@
 import type { QrBackgroundShapeId } from "@/features/qr/styles/background-shapes";
 import {
-  cloneDraftingCardPaperShaderState,
-  createDefaultDraftingCardPaperShader,
-  type DraftingCardPaperShaderState,
+  cloneCanvasCardPaperShaderState,
+  createDefaultCanvasCardPaperShader,
+  type CanvasCardPaperShaderState,
 } from "@/features/canvas/model/card-state";
 import { dotMatrixLoaderToPresetName as mapLoaderToPresetName } from "@qrafty/qr/dot-matrix";
 import type { CustomCornerDotShape } from "@/features/qr/styles/custom-corner-dot-shapes";
@@ -90,7 +90,7 @@ export type QrDotMatrixAnimationOptions = {
   overlayScale: number;
   pattern: QrDotMatrixPattern;
   preset: QrMotionStandardPreset | QrDotMatrixSquareLoader;
-  paperShader: DraftingCardPaperShaderState;
+  paperShader: CanvasCardPaperShaderState;
   presetCategory: QrMotionPresetCategory;
   respectReducedMotion: boolean;
   speed: number;
@@ -303,7 +303,7 @@ export const DEFAULT_DOT_MATRIX_ANIMATION: QrDotMatrixAnimationOptions = {
   opacityPeak: 1,
   overlayScale: 100,
   pattern: "full",
-  paperShader: createDefaultDraftingCardPaperShader("mesh-gradient"),
+  paperShader: createDefaultCanvasCardPaperShader("mesh-gradient"),
   preset: "neon-drift",
   presetCategory: "dotMatrix",
   respectReducedMotion: true,
@@ -673,7 +673,7 @@ function resolveDotMatrixAnimation(
     overlayScale: clampDotMatrixAnimationOverlayScale(take("overlayScale")),
     pattern: take("pattern"),
     preset: coerceMotionPreset(take("preset"), nextLoader),
-    paperShader: cloneDraftingCardPaperShaderState(
+    paperShader: cloneCanvasCardPaperShaderState(
       take("paperShader") ?? DEFAULT_DOT_MATRIX_ANIMATION.paperShader,
     ),
     presetCategory: coerceMotionPresetCategory(take("presetCategory")),

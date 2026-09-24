@@ -14,8 +14,8 @@ import {
   stripXmlDeclaration,
 } from "@/features/qr/rendering/qr-svg-markup";
 import {
-  createDraftingQrArtworkState,
-  sanitizeDraftingQrArtworkMarkup,
+  createCanvasQrArtworkState,
+  sanitizeCanvasQrArtworkMarkup,
   scaleNestedSvgMarkup,
 } from "@/features/canvas/rendering/qr-artwork";
 
@@ -35,23 +35,21 @@ function renderReactQrBaseMarkupCached(state: QraftyState) {
   return markup;
 }
 
-function buildDraftingQraftyPreviewMarkup(
+function buildCanvasQraftyPreviewMarkup(
   state: QraftyState,
   targetWidth: number,
   targetHeight: number,
 ) {
-  const artworkState = createDraftingQrArtworkState(state);
+  const artworkState = createCanvasQrArtworkState(state);
   const baseMarkup = renderReactQrBaseMarkupCached(artworkState);
   const enhanced = applyQraftyQrSvgMarkupExtensions(baseMarkup, artworkState);
 
-  return scaleNestedSvgMarkup(sanitizeDraftingQrArtworkMarkup(enhanced), targetWidth, targetHeight);
+  return scaleNestedSvgMarkup(sanitizeCanvasQrArtworkMarkup(enhanced), targetWidth, targetHeight);
 }
 
-export function buildDraftingQraftyMarkup(state: QraftyState) {
-  const artworkState = createDraftingQrArtworkState(state);
+export function buildCanvasQraftyMarkup(state: QraftyState) {
+  const artworkState = createCanvasQrArtworkState(state);
   const baseMarkup = renderReactQrBaseMarkupCached(artworkState);
 
-  return sanitizeDraftingQrArtworkMarkup(
-    applyQraftyQrSvgMarkupExtensions(baseMarkup, artworkState),
-  );
+  return sanitizeCanvasQrArtworkMarkup(applyQraftyQrSvgMarkupExtensions(baseMarkup, artworkState));
 }

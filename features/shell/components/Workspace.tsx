@@ -8,7 +8,7 @@ import {
   type ToolbarToolId,
 } from "@/features/shell/components/WorkspaceChrome";
 import { useWorkspaceThemeSync } from "@/features/shell/hooks/use-workspace-theme-sync";
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
 import "@/features/canvas/workspace-tokens.css";
 import { WorkspaceStyles } from "@/features/shell/components/workspace-styles";
 import { WorkspaceEntrance } from "@/features/shell/components/WorkspaceEntrance";
@@ -56,7 +56,7 @@ export function Workspace({
         theme === "light" ? "bg-[#f0f1f2] text-neutral-950" : "bg-(--canvas-page-bg) text-white",
       )}
     >
-      <InspectorThemeContext.Provider value={theme}>
+      <SettingsThemeContext.Provider value={theme}>
         <CuelumeProvider>
           <BlurFadeThemeTransition theme={theme} onThemeChange={setTheme}>
             <WorkspaceEntrance theme={theme}>
@@ -73,7 +73,7 @@ export function Workspace({
             </WorkspaceEntrance>
           </BlurFadeThemeTransition>
         </CuelumeProvider>
-      </InspectorThemeContext.Provider>
+      </SettingsThemeContext.Provider>
       <WorkspaceStyles />
     </section>
   );

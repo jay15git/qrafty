@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-import { createDefaultDraftingCardPaperShader } from "@/features/canvas/model/card-state";
+import { createDefaultCanvasCardPaperShader } from "@/features/canvas/model/card-state";
 import type { SceneBackground } from "@/features/canvas/model/scene-templates";
 
 export function getSceneBackgroundStyle(background: SceneBackground): CSSProperties {
@@ -53,7 +53,7 @@ export function getSceneLayoutTransformStyle(layout: {
 
 export function createScenePaperShaderState(shaderId: string) {
   return {
-    ...createDefaultDraftingCardPaperShader(shaderId),
+    ...createDefaultCanvasCardPaperShader(shaderId),
     shaderId,
   };
 }

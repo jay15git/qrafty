@@ -1,11 +1,11 @@
 import type { Fill } from "@/components/ui/fill-picker/public-api";
 import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/shell/model/toolbar-defaults";
-import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
+import { fillPreviewHex } from "@/features/shell/settings/FillPicker.utils";
 import {
   fillCssToQraftyGradient,
   solidColorToFillCss,
   qraftyGradientToFillCss,
-} from "@/features/shell/inspector/settings-bridge";
+} from "@/features/shell/settings/settings-bridge";
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,

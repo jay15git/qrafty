@@ -18,13 +18,13 @@ import {
   type IllustrationSet,
   type IllustrationSetId,
 } from "@/features/canvas/assets/illustration-sets";
-import type { CanvasLayer, DraftingElementShapeId } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer, CanvasElementShapeId } from "@/features/canvas/model/layers/shared";
 import {
-  createDraftingImageLayer,
-  createDraftingShapeLayer,
-  createDraftingTextLayer,
+  createCanvasImageLayer,
+  createCanvasShapeLayer,
+  createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
-import { createDraftingEmojiLayer } from "@/features/canvas/model/layer-floating-settings";
+import { createCanvasEmojiLayer } from "@/features/canvas/model/layer-floating-settings";
 
 type InsertMenuPanelStackProps = {
   nodeId: string;
@@ -50,7 +50,7 @@ type InsertMenuPanelsProps = {
   onInsertEmoji: (emoji: string) => void;
   onInsertImage: (value: string, source: "upload" | "url") => void;
   onInsertIllustration: (asset: IllustrationAsset) => void;
-  onInsertShape: (shapeId: DraftingElementShapeId) => void;
+  onInsertShape: (shapeId: CanvasElementShapeId) => void;
   onInsertText: () => void;
   onOpenEmojiPanel: () => void;
   onOpenIllustrationSet: (setId: IllustrationSetId) => void;
@@ -220,23 +220,23 @@ export function InsertMenuPanelStack({
   }
 
   function insertText() {
-    onInsertLayer(createDraftingTextLayer(nodeId));
+    onInsertLayer(createCanvasTextLayer(nodeId));
     closeMenu();
   }
 
-  function insertShape(shapeId: DraftingElementShapeId) {
-    onInsertLayer(createDraftingShapeLayer(nodeId, shapeId));
+  function insertShape(shapeId: CanvasElementShapeId) {
+    onInsertLayer(createCanvasShapeLayer(nodeId, shapeId));
     closeMenu();
   }
 
   function insertEmoji(emoji: string) {
-    onInsertLayer(createDraftingEmojiLayer(nodeId, emoji));
+    onInsertLayer(createCanvasEmojiLayer(nodeId, emoji));
     closeMenu();
   }
 
   function insertImage(value: string, source: "upload" | "url") {
     onInsertLayer(
-      createDraftingImageLayer(nodeId, {
+      createCanvasImageLayer(nodeId, {
         imageSource: source,
         imageValue: value,
       }),
@@ -246,7 +246,7 @@ export function InsertMenuPanelStack({
 
   function insertIllustration(asset: IllustrationAsset) {
     onInsertLayer(
-      createDraftingImageLayer(nodeId, {
+      createCanvasImageLayer(nodeId, {
         imageFit: "contain",
         imageSource: "url",
         imageValue: asset.path,

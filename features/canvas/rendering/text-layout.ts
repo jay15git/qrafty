@@ -2,17 +2,17 @@ import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
-import { getDraftingFontCssFamily } from "@/features/canvas/model/fonts";
+import { getCanvasFontCssFamily } from "@/features/canvas/model/fonts";
 
 let measureCanvas: HTMLCanvasElement | null = null;
 
-export type DraftingTextLayout = {
+export type CanvasTextLayout = {
   height: number;
   lineHeight: number;
   lines: string[];
 };
 
-function getDraftingTextLineHeight(layer: CanvasLayer): number {
+function getCanvasTextLineHeight(layer: CanvasLayer): number {
   const raw = layer.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight;
 
   if (!Number.isFinite(raw)) {
@@ -22,7 +22,7 @@ function getDraftingTextLineHeight(layer: CanvasLayer): number {
   return Math.max(0.6, Math.min(4, raw));
 }
 
-function getDraftingTextLetterSpacing(layer: CanvasLayer): number {
+function getCanvasTextLetterSpacing(layer: CanvasLayer): number {
   const raw = layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing;
 
   if (!Number.isFinite(raw)) {
@@ -32,23 +32,23 @@ function getDraftingTextLetterSpacing(layer: CanvasLayer): number {
   return raw;
 }
 
-export function getDraftingTextFontFamily(layer: CanvasLayer): string {
-  return getDraftingFontCssFamily({
+export function getCanvasTextFontFamily(layer: CanvasLayer): string {
+  return getCanvasFontCssFamily({
     fontFamily: layer.fontFamily,
     fontId: layer.fontId,
   });
 }
 
-function getDraftingTextFont(layer: CanvasLayer): string {
-  return `${layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle} ${layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight} ${layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}px ${getDraftingTextFontFamily(layer)}`;
+function getCanvasTextFont(layer: CanvasLayer): string {
+  return `${layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle} ${layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight} ${layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}px ${getCanvasTextFontFamily(layer)}`;
 }
-export function layoutDraftingText(
+export function layoutCanvasText(
   layer: CanvasLayer,
   ctx?: CanvasRenderingContext2D | null,
-): DraftingTextLayout {
+): CanvasTextLayout {
   const measure = ctx ?? getMeasureContext();
   const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize;
-  const lineHeight = fontSize * getDraftingTextLineHeight(layer);
+  const lineHeight = fontSize * getCanvasTextLineHeight(layer);
   const paragraphs = (layer.text ?? "").split(/\r?\n/);
 
   if (!measure) {
@@ -60,7 +60,7 @@ export function layoutDraftingText(
     };
   }
 
-  measure.font = getDraftingTextFont(layer);
+  measure.font = getCanvasTextFont(layer);
   const maxWidth = Math.max(8, layer.width);
   const lines: string[] = [];
 
@@ -76,13 +76,13 @@ export function layoutDraftingText(
     for (const word of words) {
       const next = current ? `${current}${word}` : word;
 
-      if (measureDraftingTextLineWidthWithContext(measure, layer, next) <= maxWidth) {
+      if (measureCanvasTextLineWidthWithContext(measure, layer, next) <= maxWidth) {
         current = next;
         continue;
       }
 
       if (!current) {
-        const split = splitDraftingTextTokenToFit(measure, layer, word.trimStart(), maxWidth);
+        const split = splitCanvasTextTokenToFit(measure, layer, word.trimStart(), maxWidth);
         current = split.pop() ?? "";
         lines.push(...split);
         continue;
@@ -96,12 +96,12 @@ export function layoutDraftingText(
         continue;
       }
 
-      if (measureDraftingTextLineWidthWithContext(measure, layer, remainder) <= maxWidth) {
+      if (measureCanvasTextLineWidthWithContext(measure, layer, remainder) <= maxWidth) {
         current = remainder;
         continue;
       }
 
-      const split = splitDraftingTextTokenToFit(measure, layer, remainder, maxWidth);
+      const split = splitCanvasTextTokenToFit(measure, layer, remainder, maxWidth);
       current = split.pop() ?? "";
       lines.push(...split);
     }
@@ -132,7 +132,7 @@ function getMeasureContext(): CanvasRenderingContext2D | null {
   return measureCanvas.getContext("2d");
 }
 
-function measureDraftingTextLineWidthWithContext(
+function measureCanvasTextLineWidthWithContext(
   ctx: CanvasRenderingContext2D,
   layer: CanvasLayer,
   line: string,
@@ -141,7 +141,7 @@ function measureDraftingTextLineWidthWithContext(
     return 0;
   }
 
-  const letterSpacing = getDraftingTextLetterSpacing(layer);
+  const letterSpacing = getCanvasTextLetterSpacing(layer);
 
   if (letterSpacing === 0 || line.length <= 1) {
     return ctx.measureText(line).width;
@@ -155,7 +155,7 @@ function measureDraftingTextLineWidthWithContext(
   return Math.max(0, width);
 }
 
-function splitDraftingTextTokenToFit(
+function splitCanvasTextTokenToFit(
   ctx: CanvasRenderingContext2D,
   layer: CanvasLayer,
   token: string,
@@ -172,7 +172,7 @@ function splitDraftingTextTokenToFit(
   for (const char of chars) {
     const next = current + char;
 
-    if (measureDraftingTextLineWidthWithContext(ctx, layer, next) <= maxWidth || !current) {
+    if (measureCanvasTextLineWidthWithContext(ctx, layer, next) <= maxWidth || !current) {
       current = next;
       continue;
     }
@@ -192,7 +192,7 @@ function roughWrapText(layer: CanvasLayer, paragraphs: string[]): string[] {
   const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize;
   const maxChars = Math.max(
     1,
-    Math.floor(layer.width / Math.max(1, fontSize * 0.58 + getDraftingTextLetterSpacing(layer))),
+    Math.floor(layer.width / Math.max(1, fontSize * 0.58 + getCanvasTextLetterSpacing(layer))),
   );
   const lines: string[] = [];
 

@@ -1,27 +1,27 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  createDraftingImageLayer,
-  createDraftingTextLayer,
+  createCanvasImageLayer,
+  createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
 import {
-  createDraftingEmojiLayer,
-  getDraftingEmojiLayerFrame,
-  getDraftingEmojiLayerSizePatch,
-  isDraftingEmojiLayer,
-  isDraftingIllustrationLayer,
+  createCanvasEmojiLayer,
+  getCanvasEmojiLayerFrame,
+  getCanvasEmojiLayerSizePatch,
+  isCanvasEmojiLayer,
+  isCanvasIllustrationLayer,
 } from "@/features/canvas/model/layer-floating-settings";
 
 describe("layer-floating-settings", () => {
   it("detects emoji text layers", () => {
-    const emojiLayer = createDraftingEmojiLayer("pane", "🎉");
+    const emojiLayer = createCanvasEmojiLayer("pane", "🎉");
 
-    expect(isDraftingEmojiLayer(emojiLayer)).toBe(true);
-    expect(isDraftingEmojiLayer(createDraftingTextLayer("pane", { text: "Hello" }))).toBe(false);
+    expect(isCanvasEmojiLayer(emojiLayer)).toBe(true);
+    expect(isCanvasEmojiLayer(createCanvasTextLayer("pane", { text: "Hello" }))).toBe(false);
   });
 
   it("creates emoji layers with a square frame", () => {
-    const emojiLayer = createDraftingEmojiLayer("pane", "💋");
+    const emojiLayer = createCanvasEmojiLayer("pane", "💋");
 
     expect(emojiLayer.width).toBe(60);
     expect(emojiLayer.height).toBe(60);
@@ -32,8 +32,8 @@ describe("layer-floating-settings", () => {
   });
 
   it("keeps emoji frames square when resizing", () => {
-    const emojiLayer = createDraftingEmojiLayer("pane", "💋", { x: 40, y: 40 });
-    const resized = getDraftingEmojiLayerSizePatch(emojiLayer, 64);
+    const emojiLayer = createCanvasEmojiLayer("pane", "💋", { x: 40, y: 40 });
+    const resized = getCanvasEmojiLayerSizePatch(emojiLayer, 64);
 
     expect(resized.width).toBe(72);
     expect(resized.height).toBe(72);
@@ -42,7 +42,7 @@ describe("layer-floating-settings", () => {
   });
 
   it("derives square emoji frames from font size", () => {
-    expect(getDraftingEmojiLayerFrame(52)).toEqual({
+    expect(getCanvasEmojiLayerFrame(52)).toEqual({
       width: 60,
       height: 60,
       x: -30,
@@ -51,15 +51,15 @@ describe("layer-floating-settings", () => {
   });
 
   it("detects illustration image layers", () => {
-    const illustrationLayer = createDraftingImageLayer("pane", {
+    const illustrationLayer = createCanvasImageLayer("pane", {
       imageSource: "url",
       imageValue: "/illustrations/scribbles-doodles/example.svg",
     });
 
-    expect(isDraftingIllustrationLayer(illustrationLayer)).toBe(true);
+    expect(isCanvasIllustrationLayer(illustrationLayer)).toBe(true);
     expect(
-      isDraftingIllustrationLayer(
-        createDraftingImageLayer("pane", {
+      isCanvasIllustrationLayer(
+        createCanvasImageLayer("pane", {
           imageSource: "url",
           imageValue: "https://example.com/photo.png",
         }),

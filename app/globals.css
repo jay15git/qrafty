@@ -110,7 +110,7 @@
   --popover-width-lg: min(27rem, calc(100vw - 1rem));
   --popover-max-h: min(28rem, calc(100dvh - 8rem));
   --popover-width-fill: min(100vw - 2rem, 20rem);
-  --inspector-preview-col: 4.75rem;
+  --settings-preview-col: 4.75rem;
   --style-preview-tile-bg: #15161a;
   --style-preview-inset: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }

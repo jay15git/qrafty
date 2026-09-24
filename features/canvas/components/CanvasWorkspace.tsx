@@ -2,7 +2,7 @@
 
 import {
   DEFAULT_DRAFTING_CARD_STATE,
-  type DraftingCardState,
+  type CanvasCardState,
 } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
@@ -13,7 +13,7 @@ import { type CanvasLayerMenuAction } from "@/features/canvas/components/canvas-
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { StaticQrValidationResult } from "@/features/qr/content/static-payload";
-import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document";
+import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
 import {
   createDefaultSceneComposition,
   type SceneCompositionState,
@@ -28,7 +28,7 @@ import { useCanvasWorkspaceInteractions } from "@/features/canvas/components/use
 
 export type CanvasWorkspaceProps = {
   activeQrLayerId?: string;
-  cardState?: DraftingCardState;
+  cardState?: CanvasCardState;
   contentPan?: { x: number; y: number };
   contentOnlyZoom?: boolean;
   contentValidation?: StaticQrValidationResult;
@@ -44,7 +44,7 @@ export type CanvasWorkspaceProps = {
   onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void;
   onSelect: () => void;
   onQrClick: () => void;
-  qrStateByLayerId: DraftingQrStateByLayerId;
+  qrStateByLayerId: CanvasQrStateByLayerId;
   sceneComposition?: SceneCompositionState;
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];

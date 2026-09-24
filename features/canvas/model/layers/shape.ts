@@ -3,7 +3,7 @@ import type { QraftyGradient } from "@/features/qr/model/state";
 import {
   clamp,
   DEFAULT_DRAFTING_SHAPE_LAYER,
-  normalizeDraftingLayerBorderSides,
+  normalizeCanvasLayerBorderSides,
   normalizeHexColor,
   normalizeImageSourceMode,
   normalizeLayerCornerRadiusFields,
@@ -11,20 +11,20 @@ import {
   normalizeSharedCanvasLayerFields,
   readFiniteNumber,
   type CanvasLayer,
-  type DraftingElementShapeId,
-  type DraftingShapeFillMode,
-  type DraftingShapePrimitiveId,
-  type NormalizeDraftingLayerContext,
+  type CanvasElementShapeId,
+  type CanvasShapeFillMode,
+  type CanvasShapePrimitiveId,
+  type NormalizeCanvasLayerContext,
 } from "@/features/canvas/model/layers/shared";
 
 export function normalizeShapeCanvasLayer(
-  context: NormalizeDraftingLayerContext & { kind: "shape" },
+  context: NormalizeCanvasLayerContext & { kind: "shape" },
 ): CanvasLayer {
   const { fallback, value } = context;
 
   return {
     ...normalizeSharedCanvasLayerFields(context),
-    borderSides: normalizeDraftingLayerBorderSides(value.borderSides, fallback.borderSides),
+    borderSides: normalizeCanvasLayerBorderSides(value.borderSides, fallback.borderSides),
     ...normalizeLayerCornerRadiusFields(value, fallback, DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius),
     fill: normalizeHexColor(value.fill, fallback.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill),
     fillGradient: normalizeShapeFillGradient(value.fillGradient, fallback.fillGradient),
@@ -63,8 +63,8 @@ export function normalizeShapeCanvasLayer(
 
 function normalizeShapeFillMode(
   value: unknown,
-  fallback: DraftingShapeFillMode | undefined,
-): DraftingShapeFillMode {
+  fallback: CanvasShapeFillMode | undefined,
+): CanvasShapeFillMode {
   if (value === "gradient" || value === "image" || value === "none" || value === "solid") {
     return value;
   }
@@ -72,14 +72,14 @@ function normalizeShapeFillMode(
   return fallback ?? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode;
 }
 
-const DRAFTING_SHAPE_PRIMITIVE_IDS = new Set<DraftingShapePrimitiveId>([
+const DRAFTING_SHAPE_PRIMITIVE_IDS = new Set<CanvasShapePrimitiveId>([
   "arrow",
   "ellipse",
   "line",
   "rect",
 ]);
 
-const DRAFTING_ELEMENT_SHAPE_IDS = new Set<DraftingElementShapeId>([
+const DRAFTING_ELEMENT_SHAPE_IDS = new Set<CanvasElementShapeId>([
   "arrow",
   "arch",
   "arc-cross",
@@ -148,13 +148,10 @@ const DRAFTING_ELEMENT_SHAPE_IDS = new Set<DraftingElementShapeId>([
 
 export function normalizeElementShapeId(
   value: unknown,
-  fallback: DraftingElementShapeId | undefined,
-): DraftingElementShapeId {
-  if (
-    typeof value === "string" &&
-    DRAFTING_ELEMENT_SHAPE_IDS.has(value as DraftingElementShapeId)
-  ) {
-    return value as DraftingElementShapeId;
+  fallback: CanvasElementShapeId | undefined,
+): CanvasElementShapeId {
+  if (typeof value === "string" && DRAFTING_ELEMENT_SHAPE_IDS.has(value as CanvasElementShapeId)) {
+    return value as CanvasElementShapeId;
   }
 
   return fallback ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId;

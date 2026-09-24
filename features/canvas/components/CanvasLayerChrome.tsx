@@ -13,10 +13,7 @@ import { CopyIcon, MoreHorizontalIcon, Trash2Icon } from "lucide-react";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { FloatingLayerToolbarSettings } from "@/features/canvas/components/FloatingLayerToolbarSettings";
-import {
-  isProtectedDraftingLayerId,
-  type CanvasLayer,
-} from "@/features/canvas/model/layers/shared";
+import { isProtectedCanvasLayerId, type CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { ChromeBounds } from "@/features/canvas/components/canvas-layer-chrome-overlay";
 import {
   type ResizeDirection,
@@ -353,7 +350,7 @@ export const FloatingLayerToolbar = forwardRef<
   { layers, onAction, onCopy, onLayerChange, onMore, style, theme = "dark" },
   ref,
 ) {
-  const hasRemovableLayer = layers.some((layer) => !isProtectedDraftingLayerId(layer.id, layers));
+  const hasRemovableLayer = layers.some((layer) => !isProtectedCanvasLayerId(layer.id, layers));
   const settingsLayer = layers.length === 1 ? layers[0] : null;
   const showLayerSettings = Boolean(settingsLayer && onLayerChange);
 

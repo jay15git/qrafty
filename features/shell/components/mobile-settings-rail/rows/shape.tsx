@@ -2,16 +2,16 @@ import { Suspense, useContext } from "react";
 
 import { parseFill } from "@/components/ui/fill-picker/lib/gradient";
 import type { Fill } from "@/components/ui/fill-picker/public-api";
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext";
-import { applyShapeFill, readShapeFillCss } from "@/features/shell/inspector/settings-bridge";
-import { getActiveFillPresetForStoredValue } from "@/features/shell/inspector/settings-fill-preset-match";
-import { SETTINGS_PREVIEW_TILE } from "@/features/shell/inspector/SettingsPreviewTiles";
-import { ShapeGlyph, SQUARE_SHAPE_VIEWBOX } from "@/features/shell/inspector/SettingsSections";
-import { SegmentTabs, SettingsSlider } from "@/features/shell/inspector/settings-ui";
+import { useMobileDrawerNavigation } from "@/features/shell/settings/MobileDrawerNavigationContext";
+import { applyShapeFill, readShapeFillCss } from "@/features/shell/settings/settings-bridge";
+import { getActiveFillPresetForStoredValue } from "@/features/shell/settings/settings-fill-preset-match";
+import { SETTINGS_PREVIEW_TILE } from "@/features/shell/settings/SettingsPreviewTiles";
+import { ShapeGlyph, SQUARE_SHAPE_VIEWBOX } from "@/features/shell/settings/SettingsSections";
+import { SegmentTabs, SettingsSlider } from "@/features/shell/settings/settings-ui";
 import { QR_BACKGROUND_SHAPES, shapeViewBox } from "@/features/qr/styles/background-shapes";
 import { cn } from "@/lib/utils";
 
-import { LazyInspectorFillPicker } from "../lazy-details";
+import { LazySettingsFillPicker } from "../lazy-details";
 import { MobileRailModeContext, useLatestModel, type MobileRailRowProps } from "../rail-context";
 import {
   fillPresetsForMode,
@@ -49,7 +49,7 @@ export function MobileShapeRailRow({ model }: MobileRailRowProps) {
               content: (
                 <Suspense fallback={null}>
                   <div className="ds-fill-popover w-full min-w-0" data-theme={model.actualTheme}>
-                    <LazyInspectorFillPicker
+                    <LazySettingsFillPicker
                       lockedFillMode={lockedFillModeForRailMode(shapeFillSubMode(mode))}
                       qrGradient
                       value={value}

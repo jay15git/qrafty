@@ -3,19 +3,19 @@
 import Image from "next/image";
 
 import {
-  InspectorOptionGridScrollArea,
-  InspectorScrollArea,
+  SettingsOptionGridScrollArea,
+  SettingsScrollArea,
 } from "@/features/shell/components/SettingsRows";
 import {
-  INSPECTOR_OPTION_TILE_BUTTON_CLASS,
-  INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
-  INSPECTOR_SECTION_GAP_CLASS,
-} from "@/features/shell/components/inspector-tokens";
-import { InspectorSection } from "@/features/shell/components/SettingsControls";
-import { InspectorAnimatedOptionGrid } from "@/features/shell/inspector/InspectorOptionGrid";
-import { inspectorOptionGridItemClass } from "@/features/shell/inspector/InspectorOptionGrid.classes";
-import { MobileOptionCardRail } from "@/features/shell/inspector/MobileOptionRail";
-import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
+  SETTINGS_OPTION_TILE_BUTTON_CLASS,
+  SETTINGS_OPTION_TILE_SCALE_PREVIEW_CLASS,
+  SETTINGS_SECTION_GAP_CLASS,
+} from "@/features/shell/components/settings-tokens";
+import { SettingsSection } from "@/features/shell/components/SettingsControls";
+import { SettingsAnimatedOptionGrid } from "@/features/shell/settings/SettingsOptionGrid";
+import { settingsOptionGridItemClass } from "@/features/shell/settings/SettingsOptionGrid.classes";
+import { MobileOptionCardRail } from "@/features/shell/settings/MobileOptionRail";
+import { useMobileSettingsDensity } from "@/features/shell/settings/MobileSettingsDensityContext";
 import { SCENE_WALLPAPERS } from "@/features/canvas/assets/scene-wallpapers";
 import { preloadRasterImage } from "@/features/canvas/rendering/preload-raster-image";
 import { cn } from "@/lib/utils";
@@ -36,8 +36,8 @@ function WallpaperButton({
       aria-label={`Insert ${alt} wallpaper`}
       className={cn(
         "group relative aspect-[4/3] min-w-0 overflow-hidden rounded-[7px] border-2 border-transparent bg-[var(--control-hover)]",
-        inspectorOptionGridItemClass(),
-        INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+        settingsOptionGridItemClass(),
+        SETTINGS_OPTION_TILE_BUTTON_CLASS,
       )}
       data-option-interaction="scale"
       data-option-tile="true"
@@ -52,7 +52,7 @@ function WallpaperButton({
         alt={alt}
         className={cn(
           "absolute inset-0 size-full object-cover",
-          INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+          SETTINGS_OPTION_TILE_SCALE_PREVIEW_CLASS,
         )}
         fill
         sizes="160px"
@@ -68,7 +68,7 @@ export function WallpaperPanel({
   onClose?: () => void;
   onSelectWallpaper: (imagePath: string) => void;
 }) {
-  const mobileDensity = useMobileInspectorDensity();
+  const mobileDensity = useMobileSettingsDensity();
 
   if (mobileDensity) {
     return (
@@ -90,9 +90,9 @@ export function WallpaperPanel({
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col" data-slot="wallpaper-panel">
-      <InspectorScrollArea>
-        <InspectorSection className={INSPECTOR_SECTION_GAP_CLASS}>
-          <InspectorOptionGridScrollArea
+      <SettingsScrollArea>
+        <SettingsSection className={SETTINGS_SECTION_GAP_CLASS}>
+          <SettingsOptionGridScrollArea
             ariaLabel="Wallpapers"
             columns={2}
             dataSlot="wallpapers-scroll-area"
@@ -100,7 +100,7 @@ export function WallpaperPanel({
             shelfDataSlot="wallpapers"
             variant="compact"
           >
-            <InspectorAnimatedOptionGrid columns={2}>
+            <SettingsAnimatedOptionGrid columns={2}>
               {SCENE_WALLPAPERS.map((wallpaper) => (
                 <WallpaperButton
                   key={wallpaper.id}
@@ -110,10 +110,10 @@ export function WallpaperPanel({
                   onClick={() => onSelectWallpaper(wallpaper.path)}
                 />
               ))}
-            </InspectorAnimatedOptionGrid>
-          </InspectorOptionGridScrollArea>
-        </InspectorSection>
-      </InspectorScrollArea>
+            </SettingsAnimatedOptionGrid>
+          </SettingsOptionGridScrollArea>
+        </SettingsSection>
+      </SettingsScrollArea>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { createDefaultDraftingCardPaperShader } from "@/features/canvas/model/card-state";
+import { createDefaultCanvasCardPaperShader } from "@/features/canvas/model/card-state";
 import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-definitions";
 import { createFallbackLayer } from "@/features/canvas/model/layers/fallback";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
@@ -6,10 +6,10 @@ import { normalizeElementShapeId } from "@/features/canvas/model/layers/shape";
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   type CanvasLayer,
-  type DraftingElementShapeId,
+  type CanvasElementShapeId,
 } from "@/features/canvas/model/layers/shared";
 
-export function createDraftingTextLayer(
+export function createCanvasTextLayer(
   nodeId: string,
   options: Partial<CanvasLayer> = {},
 ): CanvasLayer {
@@ -28,7 +28,7 @@ export function createDraftingTextLayer(
   );
 }
 
-export function createDraftingImageLayer(
+export function createCanvasImageLayer(
   nodeId: string,
   options: Partial<CanvasLayer> = {},
 ): CanvasLayer {
@@ -42,7 +42,7 @@ export function createDraftingImageLayer(
   );
 }
 
-export function createDraftingShaderLayer(
+export function createCanvasShaderLayer(
   nodeId: string,
   shaderId: PaperShaderId = "mesh-gradient",
   options: Partial<CanvasLayer> = {},
@@ -52,15 +52,15 @@ export function createDraftingShaderLayer(
       ...createFallbackLayer(nodeId, "shader"),
       ...options,
       kind: "shader",
-      paperShader: createDefaultDraftingCardPaperShader(shaderId),
+      paperShader: createDefaultCanvasCardPaperShader(shaderId),
     },
     {},
   );
 }
 
-export function createDraftingShapeLayer(
+export function createCanvasShapeLayer(
   nodeId: string,
-  shapeId: DraftingElementShapeId = DEFAULT_DRAFTING_SHAPE_LAYER.shapeId,
+  shapeId: CanvasElementShapeId = DEFAULT_DRAFTING_SHAPE_LAYER.shapeId,
   options: Partial<CanvasLayer> = {},
 ): CanvasLayer {
   const resolvedShapeId =

@@ -7,7 +7,7 @@ import { useState, type ComponentProps } from "react";
 import { Kbd } from "@/components/kbd";
 import { PopoverContent } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { InspectorSection } from "@/features/shell/components/SettingsControls";
+import { SettingsSection } from "@/features/shell/components/SettingsControls";
 import { DRAFTING_KEYBOARD_SHORTCUT_GROUPS } from "@/features/canvas/model/keyboard-shortcuts";
 import { cn } from "@/lib/utils";
 
@@ -133,7 +133,7 @@ export function KeyboardShortcutsPopoverContent({
         <div data-slot="keyboard-shortcuts-scroll">
           <div className="grid gap-2.5">
             {DRAFTING_KEYBOARD_SHORTCUT_GROUPS.map((group) => (
-              <InspectorSection
+              <SettingsSection
                 aria-label={`${group.title} shortcuts`}
                 className="p-2.5"
                 key={group.title}
@@ -192,7 +192,7 @@ export function KeyboardShortcutsPopoverContent({
                     </div>
                   ))}
                 </div>
-              </InspectorSection>
+              </SettingsSection>
             ))}
           </div>
         </div>

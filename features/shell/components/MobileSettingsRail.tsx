@@ -14,10 +14,10 @@ import {
   syncMobileWorkspaceChromeInsets,
 } from "@/features/shell/components/mobile-layer-toolbar-sync";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
-import { MobileDrawerNavigationProvider } from "@/features/shell/inspector/MobileDrawerNavigationContext";
-import { MobileInspectorDensityContext } from "@/features/shell/inspector/MobileInspectorDensityContext";
-import type { SettingsSectionId } from "@/features/shell/inspector/settings-panel-meta";
+import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
+import { MobileDrawerNavigationProvider } from "@/features/shell/settings/MobileDrawerNavigationContext";
+import { MobileSettingsDensityContext } from "@/features/shell/settings/MobileSettingsDensityContext";
+import type { SettingsSectionId } from "@/features/shell/settings/settings-panel-meta";
 import { ContentTypeGridIcon } from "@/features/qr/content/ContentTypeGridIcon";
 import {
   PICKER_QR_INPUT_TYPES,
@@ -58,8 +58,8 @@ import { MobileMotionRailRow } from "./mobile-settings-rail/rows/motion";
 import { MobileQrRailFooter, MobileQrRailRow } from "./mobile-settings-rail/rows/qr";
 import { MobileShapeRailFooter, MobileShapeRailRow } from "./mobile-settings-rail/rows/shape";
 
-import "@/features/shell/inspector/inspector.css";
-import "@/features/shell/inspector/mobile-inspector.css";
+import "@/features/shell/settings/settings.css";
+import "@/features/shell/settings/mobile-settings.css";
 
 const MOBILE_RAIL_BOTTOM_GAP_PX = 16;
 
@@ -235,8 +235,8 @@ export function MobileSettingsRail({ model }: { model: SettingsModel }) {
   }, []);
 
   return (
-    <InspectorThemeContext.Provider value={theme}>
-      <MobileInspectorDensityContext.Provider value={true}>
+    <SettingsThemeContext.Provider value={theme}>
+      <MobileSettingsDensityContext.Provider value={true}>
         <MobileDrawerNavigationProvider currentView={drawerView} setView={handleDrawerViewChange}>
           <MobileRailModeContext.Provider value={railModeContext}>
             <MobileRailPartContext.Provider value={railPartContext}>
@@ -250,7 +250,7 @@ export function MobileSettingsRail({ model }: { model: SettingsModel }) {
                 ref={railRef}
                 className="ds-root pointer-events-auto fixed z-[var(--z-mobile-rail)]"
                 data-shell-theme={theme}
-                data-mobile-inspector=""
+                data-mobile-settings=""
                 data-slot="mobile-settings-rail-root"
                 data-theme={theme}
               >
@@ -327,7 +327,7 @@ export function MobileSettingsRail({ model }: { model: SettingsModel }) {
             </MobileRailPartContext.Provider>
           </MobileRailModeContext.Provider>
         </MobileDrawerNavigationProvider>
-      </MobileInspectorDensityContext.Provider>
-    </InspectorThemeContext.Provider>
+      </MobileSettingsDensityContext.Provider>
+    </SettingsThemeContext.Provider>
   );
 }

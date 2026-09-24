@@ -13,7 +13,7 @@ import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import type { AssetSourceMode } from "@/features/qr/model/state";
 
-const DRAFTING_LAYER_CLIPBOARD_TYPE = "qrafty/drafting-layers";
+const DRAFTING_LAYER_CLIPBOARD_TYPE = "qrafty/canvas-layers";
 const DRAFTING_LAYER_CLIPBOARD_VERSION = 1;
 
 export type CanvasDownloadTarget = "all-qr" | "current" | "surface" | `qr:${string}`;
@@ -47,7 +47,7 @@ export function getExportTarget(target: CanvasDownloadTarget): ExportTarget {
   return "current";
 }
 
-export function getDraftingDownloadTarget(target: ExportTarget): CanvasDownloadTarget {
+export function getCanvasDownloadTarget(target: ExportTarget): CanvasDownloadTarget {
   if (target === "all-qr") return "all-qr";
   if (target === "surface") return "surface";
   return "current";
@@ -123,7 +123,7 @@ export function getLayerTextSettings(layer: CanvasLayer | null): TextSettings {
   };
 }
 
-export function patchDraftingLayerById(
+export function patchCanvasLayerById(
   layer: CanvasLayer,
   layerId: string,
   patch: Partial<CanvasLayer>,
@@ -138,7 +138,7 @@ export function patchDraftingLayerById(
 
   let childrenChanged = false;
   const children = layer.children.map((child) => {
-    const nextChild = patchDraftingLayerById(child, layerId, patch);
+    const nextChild = patchCanvasLayerById(child, layerId, patch);
     if (nextChild !== child) {
       childrenChanged = true;
     }
@@ -158,13 +158,13 @@ export function patchDraftingLayerById(
   );
 }
 
-export function findDraftingLayerById(layers: CanvasLayer[], layerId: string): CanvasLayer | null {
+export function findCanvasLayerById(layers: CanvasLayer[], layerId: string): CanvasLayer | null {
   for (const layer of layers) {
     if (layer.id === layerId) {
       return layer;
     }
 
-    const child = layer.children ? findDraftingLayerById(layer.children, layerId) : null;
+    const child = layer.children ? findCanvasLayerById(layer.children, layerId) : null;
 
     if (child) {
       return child;
@@ -186,7 +186,7 @@ export function isEditableShortcutTarget(target: EventTarget | null): boolean {
   );
 }
 
-function getDraftingClipboardBounds(layers: CanvasLayer[]) {
+function getCanvasClipboardBounds(layers: CanvasLayer[]) {
   const left = Math.min(...layers.map((layer) => layer.x));
   const top = Math.min(...layers.map((layer) => layer.y));
   const right = Math.max(...layers.map((layer) => layer.x + layer.width));
@@ -200,7 +200,7 @@ function getDraftingClipboardBounds(layers: CanvasLayer[]) {
   };
 }
 
-export function getDraftingLayerClipboardPayload({
+export function getCanvasLayerClipboardPayload({
   layerIds,
   layers,
   boardId,
@@ -217,7 +217,7 @@ export function getDraftingLayerClipboardPayload({
   }
 
   return JSON.stringify({
-    bounds: getDraftingClipboardBounds(selectedLayers),
+    bounds: getCanvasClipboardBounds(selectedLayers),
     layers: selectedLayers.map(cloneCanvasLayer),
     sourceNodeId: boardId,
     type: DRAFTING_LAYER_CLIPBOARD_TYPE,
@@ -225,7 +225,7 @@ export function getDraftingLayerClipboardPayload({
   });
 }
 
-export function parseDraftingLayerClipboardPayload(value: string) {
+export function parseCanvasLayerClipboardPayload(value: string) {
   try {
     const payload = JSON.parse(value) as unknown;
 

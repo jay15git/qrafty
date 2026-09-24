@@ -1,14 +1,14 @@
 import { Link2, Unlink2 } from "lucide-react";
-import { INSPECTOR_SECTION_GAP_CLASS } from "@/features/shell/components/inspector-tokens";
-import { InspectorLabel, InspectorSection } from "@/features/shell/components/SettingsControls";
+import { SETTINGS_SECTION_GAP_CLASS } from "@/features/shell/components/settings-tokens";
+import { SettingsLabel, SettingsSection } from "@/features/shell/components/SettingsControls";
 import {
   SettingsSliderRow,
   SettingsNumberField,
   SettingsValueGrid,
 } from "@/features/shell/components/SettingsRows";
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
-import { SettingsFillPopover, SettingsSlider } from "@/features/shell/inspector/settings-ui";
-import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
+import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
+import { SettingsFillPopover, SettingsSlider } from "@/features/shell/settings/settings-ui";
+import { fillPreviewHex } from "@/features/shell/settings/FillPicker.utils";
 import type {
   AppearanceBorderSnapshot,
   AppearancePatch,
@@ -21,8 +21,8 @@ import {
   patchCornerRadii,
   resolveCornerRadii,
   setCornerRadiiLinked,
-  type DraftingCornerRadiusKey,
-  type DraftingCornerRadiiState,
+  type CanvasCornerRadiusKey,
+  type CanvasCornerRadiiState,
 } from "@/features/canvas/model/corner-radius";
 import { cn } from "@/lib/utils";
 
@@ -43,14 +43,14 @@ export function AppearanceBorderControls({
     onPatch({ border: { ...border, ...patch } });
 
   return (
-    <InspectorSection
-      className={cn(INSPECTOR_SECTION_GAP_CLASS, className)}
+    <SettingsSection
+      className={cn(SETTINGS_SECTION_GAP_CLASS, className)}
       dataSlot="appearance-border-controls"
     >
-      <InspectorLabel>Border</InspectorLabel>
-      <InspectorThemeContext.Provider value={theme}>
+      <SettingsLabel>Border</SettingsLabel>
+      <SettingsThemeContext.Provider value={theme}>
         <BorderColorRow appearance={appearance} onPatch={onPatch} />
-      </InspectorThemeContext.Provider>
+      </SettingsThemeContext.Provider>
       <div className="mt-2 grid gap-2">
         <SettingsSliderRow
           label="Width"
@@ -69,7 +69,7 @@ export function AppearanceBorderControls({
           onChange={(opacity) => emit({ opacity })}
         />
       </div>
-    </InspectorSection>
+    </SettingsSection>
   );
 }
 
@@ -116,8 +116,8 @@ function AppearanceOpacityControls({
   const opacityPercent = Math.round(appearance.opacity * 100);
 
   return (
-    <InspectorSection
-      className={cn(INSPECTOR_SECTION_GAP_CLASS, className)}
+    <SettingsSection
+      className={cn(SETTINGS_SECTION_GAP_CLASS, className)}
       dataSlot="appearance-opacity-controls"
     >
       {useSettingsSlider ? (
@@ -138,7 +138,7 @@ function AppearanceOpacityControls({
           onChange={(next) => onPatch({ opacity: next / 100 })}
         />
       )}
-    </InspectorSection>
+    </SettingsSection>
   );
 }
 
@@ -157,7 +157,7 @@ export function AppearanceRadiusControls({
 
   const radii = resolveCornerRadii(appearance.cornerRadii, appearance.cornerRadius);
 
-  const applyRadii = (nextRadii: DraftingCornerRadiiState) => {
+  const applyRadii = (nextRadii: CanvasCornerRadiiState) => {
     onPatch({
       cornerRadius: nextRadii.linked
         ? nextRadii.topLeft
@@ -171,17 +171,17 @@ export function AppearanceRadiusControls({
     });
   };
 
-  const updateCorner = (corner: DraftingCornerRadiusKey, value: number) => {
+  const updateCorner = (corner: CanvasCornerRadiusKey, value: number) => {
     applyRadii(patchCornerRadii(appearance.cornerRadii, appearance.cornerRadius, corner, value));
   };
 
   return (
-    <InspectorSection
-      className={cn(INSPECTOR_SECTION_GAP_CLASS, className)}
+    <SettingsSection
+      className={cn(SETTINGS_SECTION_GAP_CLASS, className)}
       dataSlot="appearance-radius-controls"
     >
       <div className="flex items-center justify-between gap-2">
-        <InspectorLabel>Corner radius</InspectorLabel>
+        <SettingsLabel>Corner radius</SettingsLabel>
         <button
           aria-label={radii.linked ? "Unlink corner radii" : "Link corner radii"}
           aria-pressed={radii.linked}
@@ -228,6 +228,6 @@ export function AppearanceRadiusControls({
           ))}
         </SettingsValueGrid>
       )}
-    </InspectorSection>
+    </SettingsSection>
   );
 }

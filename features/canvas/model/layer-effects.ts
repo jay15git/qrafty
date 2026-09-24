@@ -1,14 +1,14 @@
 import {
-  createDefaultDraftingShadowLayer,
+  createDefaultCanvasShadowLayer,
   shadowLayerToLegacyShadow,
-  type DraftingShadowLayerState,
+  type CanvasShadowLayerState,
 } from "@/features/canvas/model/effects";
 import {
-  createDefaultDraftingFilterEffect,
+  createDefaultCanvasFilterEffect,
   DRAFTING_FILTER_RANGES,
   DRAFTING_FILTER_VISIBLE_DEFAULTS,
-  type DraftingFilterEffect,
-  type DraftingFilterType,
+  type CanvasFilterEffect,
+  type CanvasFilterType,
 } from "@/features/canvas/model/filters";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 
@@ -30,13 +30,13 @@ export type LayerShadowEffectItem = {
   enabled: boolean;
   id: string;
   kind: LayerShadowEffectKind;
-  shadow: DraftingShadowLayerState;
+  shadow: CanvasShadowLayerState;
   source: "shadow";
 };
 
 export type LayerFilterEffectItem = {
   enabled: boolean;
-  filter: DraftingFilterEffect;
+  filter: CanvasFilterEffect;
   id: string;
   kind: LayerFilterEffectKind;
   source: "filter";
@@ -75,7 +75,7 @@ const LAYER_EFFECT_KIND_LABELS: Record<LayerEffectKind, string> = {
   sepia: "Sepia",
 };
 
-const FILTER_TYPE_BY_KIND: Record<LayerFilterEffectKind, DraftingFilterType> = {
+const FILTER_TYPE_BY_KIND: Record<LayerFilterEffectKind, CanvasFilterType> = {
   "layer-blur": "blur",
   brightness: "brightness",
   contrast: "contrast",
@@ -86,7 +86,7 @@ const FILTER_TYPE_BY_KIND: Record<LayerFilterEffectKind, DraftingFilterType> = {
   sepia: "sepia",
 };
 
-const DEFAULT_DROP_SHADOW: Partial<DraftingShadowLayerState> = {
+const DEFAULT_DROP_SHADOW: Partial<CanvasShadowLayerState> = {
   blur: 4,
   color: "#000000",
   inset: false,
@@ -109,7 +109,7 @@ function isLayerShadowEffectItem(item: LayerEffectItem): item is LayerShadowEffe
   return item.source === "shadow";
 }
 
-function isPlaceholderShadowLayer(shadow: DraftingShadowLayerState) {
+function isPlaceholderShadowLayer(shadow: CanvasShadowLayerState) {
   return (
     shadow.visible === false &&
     shadow.opacity <= 0 &&
@@ -132,7 +132,7 @@ export function listLayerEffects(
 export function createLayerEffect(kind: LayerEffectKind): LayerEffectItem {
   if (isLayerShadowEffectKind(kind)) {
     return shadowToEffectItem(
-      createDefaultDraftingShadowLayer({
+      createDefaultCanvasShadowLayer({
         ...DEFAULT_DROP_SHADOW,
         inset: kind === "inner-shadow",
       }),
@@ -141,7 +141,7 @@ export function createLayerEffect(kind: LayerEffectKind): LayerEffectItem {
 
   const type = FILTER_TYPE_BY_KIND[kind];
   return filterToEffectItem(
-    createDefaultDraftingFilterEffect(type, {
+    createDefaultCanvasFilterEffect(type, {
       amount: DRAFTING_FILTER_VISIBLE_DEFAULTS[type],
       enabled: true,
     }),
@@ -153,7 +153,7 @@ export function serializeLayerEffects(effects: LayerEffectItem[]): Partial<Canva
   const layerFilters = effects.flatMap((item) => (item.source === "filter" ? [item.filter] : []));
 
   if (shadows.length === 0) {
-    const placeholder = createDefaultDraftingShadowLayer({
+    const placeholder = createDefaultCanvasShadowLayer({
       blur: 0,
       opacity: 0,
       visible: false,
@@ -176,7 +176,7 @@ export function serializeLayerEffects(effects: LayerEffectItem[]): Partial<Canva
 export function patchLayerShadowEffect(
   layer: Partial<Pick<CanvasLayer, "layerFilters" | "shadows">>,
   effectId: string,
-  patch: Partial<DraftingShadowLayerState>,
+  patch: Partial<CanvasShadowLayerState>,
 ): Partial<CanvasLayer> {
   return serializeLayerEffects(
     listLayerEffects(layer).map((item) => {
@@ -218,7 +218,7 @@ export function setLayerFilterAmount(
       ? withoutType
       : [
           ...withoutType,
-          createDefaultDraftingFilterEffect(type, {
+          createDefaultCanvasFilterEffect(type, {
             id: filters.find((item) => item.type === type)?.id,
             amount: clamped,
             enabled: true,
@@ -268,7 +268,7 @@ export function setLayerShadowOpacity(
 
   const nextShadow = existing
     ? { ...existing, opacity: clamped, visible: true }
-    : createDefaultDraftingShadowLayer({
+    : createDefaultCanvasShadowLayer({
         ...DEFAULT_DROP_SHADOW,
         inset: kind === "inner-shadow",
         opacity: clamped,
@@ -293,7 +293,7 @@ function getLayerShadowByKind(
   );
 }
 
-function shadowToEffectItem(shadow: DraftingShadowLayerState): LayerShadowEffectItem {
+function shadowToEffectItem(shadow: CanvasShadowLayerState): LayerShadowEffectItem {
   return {
     enabled: shadow.visible,
     id: shadow.id,
@@ -303,7 +303,7 @@ function shadowToEffectItem(shadow: DraftingShadowLayerState): LayerShadowEffect
   };
 }
 
-function filterToEffectItem(filter: DraftingFilterEffect): LayerFilterEffectItem {
+function filterToEffectItem(filter: CanvasFilterEffect): LayerFilterEffectItem {
   return {
     enabled: filter.enabled,
     filter,

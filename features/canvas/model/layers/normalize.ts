@@ -9,7 +9,7 @@ import {
   readFiniteNumber,
   type CanvasLayer,
   type CanvasLayerKind,
-  type NormalizeDraftingLayerContext,
+  type NormalizeCanvasLayerContext,
 } from "@/features/canvas/model/layers/shared";
 
 export function normalizeCanvasLayer(
@@ -27,7 +27,7 @@ export function normalizeCanvasLayer(
     return null;
   }
 
-  const fallback = getDraftingLayerFallback(nodeId, kind, fallbackLayers);
+  const fallback = getCanvasLayerFallback(nodeId, kind, fallbackLayers);
   const width = readFiniteNumber(value.width, fallback.width);
   const height = readFiniteNumber(value.height, fallback.height);
 
@@ -80,7 +80,7 @@ function getCanvasLayerKind(value: unknown): CanvasLayerKind | null {
     : null;
 }
 
-function getDraftingLayerFallback(
+function getCanvasLayerFallback(
   nodeId: string,
   kind: CanvasLayerKind,
   fallbackLayers: CanvasLayer[],
@@ -89,7 +89,7 @@ function getDraftingLayerFallback(
 }
 
 function normalizeNonTextCanvasLayer(
-  context: NormalizeDraftingLayerContext & { kind: "card" },
+  context: NormalizeCanvasLayerContext & { kind: "card" },
 ): CanvasLayer {
   return {
     ...normalizeSharedCanvasLayerFields(context),
@@ -98,7 +98,7 @@ function normalizeNonTextCanvasLayer(
 }
 
 function normalizeQrCanvasLayer(
-  context: NormalizeDraftingLayerContext & { kind: "qr" },
+  context: NormalizeCanvasLayerContext & { kind: "qr" },
 ): CanvasLayer {
   const width = Math.max(1, context.width);
 
@@ -111,20 +111,20 @@ function normalizeQrCanvasLayer(
 }
 
 function normalizeGroupCanvasLayer(
-  context: NormalizeDraftingLayerContext & { kind: "group" },
+  context: NormalizeCanvasLayerContext & { kind: "group" },
 ): CanvasLayer {
   return {
     ...normalizeSharedCanvasLayerFields(context),
-    children: normalizeDraftingGroupChildren(context),
+    children: normalizeCanvasGroupChildren(context),
     kind: "group",
   } satisfies CanvasLayer;
 }
 
-function normalizeDraftingGroupChildren({
+function normalizeCanvasGroupChildren({
   fallbackLayers,
   nodeId,
   value,
-}: NormalizeDraftingLayerContext) {
+}: NormalizeCanvasLayerContext) {
   if (!Array.isArray(value.children)) {
     return undefined;
   }

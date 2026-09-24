@@ -4,7 +4,7 @@ import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const buildDraftingQraftyMarkupSpy = vi.fn();
+const buildCanvasQraftyMarkupSpy = vi.fn();
 
 vi.mock("@/features/qr/components/DotMatrixAnimatedQr", () => ({
   DotMatrixAnimatedQr: ({ canvasSvgMarkup }: { canvasSvgMarkup?: string | null }) => (
@@ -17,10 +17,10 @@ vi.mock("@/features/qr/rendering/qrafty-markup", async (importOriginal) => {
 
   return {
     ...actual,
-    buildDraftingQraftyMarkup: (...args: Parameters<typeof buildDraftingQraftyMarkupSpy>) =>
-      buildDraftingQraftyMarkupSpy(...args),
-    buildDraftingQraftyPreviewMarkup: (...args: Parameters<typeof buildDraftingQraftyMarkupSpy>) =>
-      buildDraftingQraftyMarkupSpy(...args[0], args[1], args[2]),
+    buildCanvasQraftyMarkup: (...args: Parameters<typeof buildCanvasQraftyMarkupSpy>) =>
+      buildCanvasQraftyMarkupSpy(...args),
+    buildCanvasQraftyPreviewMarkup: (...args: Parameters<typeof buildCanvasQraftyMarkupSpy>) =>
+      buildCanvasQraftyMarkupSpy(...args[0], args[1], args[2]),
   };
 });
 
@@ -33,17 +33,17 @@ import {
 } from "@/features/canvas/components/canvas-layer-chrome.constants";
 import { getChromeFrameRect } from "@/features/canvas/components/canvas-layer-chrome-overlay";
 import {
-  createDefaultDraftingCardPaperShader,
-  createDefaultDraftingCardState,
+  createDefaultCanvasCardPaperShader,
+  createDefaultCanvasCardState,
 } from "@/features/canvas/model/card-state";
 import {
   DEFAULT_DRAFTING_LAYER_SHADOW,
-  getDraftingCardLayerId,
-  getDraftingQrLayerId,
+  getCanvasCardLayerId,
+  getCanvasQrLayerId,
   type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
-import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories";
+import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
+import { createCanvasTextLayer } from "@/features/canvas/model/layers/factories";
 import {
   createUniformPerSideBorder,
   DEFAULT_DRAFTING_OUTLINE,
@@ -55,24 +55,24 @@ import {
   clampQrSize,
 } from "@/features/qr/model/state";
 import { renderDashboardQrSvgMarkup } from "@/features/qr/rendering/qr-svg";
-import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
+import { createCanvasQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
 import { createDefaultSceneComposition } from "@/features/canvas/model/scene-templates";
-import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document";
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import { clearCanvasQrMarkupCache } from "@/features/canvas/hooks/use-canvas-qr-markup";
 
 const cleanupCallbacks: Array<() => void> = [];
 
-function createAutoSizedCardState(overrides: Partial<DraftingCardState> = {}): DraftingCardState {
+function createAutoSizedCardState(overrides: Partial<CanvasCardState> = {}): CanvasCardState {
   return {
-    ...createDefaultDraftingCardState(),
+    ...createDefaultCanvasCardState(),
     sizeMode: "auto",
     ...overrides,
   };
 }
 
-const TEST_CANVAS_CARD_STATE: DraftingCardState = {
-  ...createDefaultDraftingCardState(),
+const TEST_CANVAS_CARD_STATE: CanvasCardState = {
+  ...createDefaultCanvasCardState(),
   height: 300,
   sizeMode: "fixed",
   width: 300,
@@ -80,8 +80,8 @@ const TEST_CANVAS_CARD_STATE: DraftingCardState = {
 
 beforeEach(() => {
   clearCanvasQrMarkupCache();
-  buildDraftingQraftyMarkupSpy.mockReset();
-  buildDraftingQraftyMarkupSpy.mockImplementation((state) => {
+  buildCanvasQraftyMarkupSpy.mockReset();
+  buildCanvasQraftyMarkupSpy.mockImplementation((state) => {
     return `<svg data-width="${state.width}" data-height="${state.height}" />`;
   });
   HTMLElement.prototype.setPointerCapture = vi.fn();
@@ -117,14 +117,14 @@ describe("Artboard", () => {
 
     await waitForQrArtboardRender();
 
-    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalledTimes(1);
+    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalledTimes(1);
     expect(container.querySelector('[data-slot="canvas-node"]')).not.toBeNull();
 
     await act(async () => {
       reactRoot.render(
         <Artboard
           state={secondState}
-          cardState={createDefaultDraftingCardState()}
+          cardState={createDefaultCanvasCardState()}
           qrStateByLayerId={createDefaultBoardQrStateByLayerId(secondState)}
           isSelected={false}
           onQrClick={() => undefined}
@@ -135,13 +135,13 @@ describe("Artboard", () => {
       await flushPromises();
     });
 
-    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalledTimes(1);
+    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       reactRoot.render(
         <Artboard
           state={thirdState}
-          cardState={createDefaultDraftingCardState()}
+          cardState={createDefaultCanvasCardState()}
           qrStateByLayerId={createDefaultBoardQrStateByLayerId(thirdState)}
           isSelected={false}
           onQrClick={() => undefined}
@@ -152,7 +152,7 @@ describe("Artboard", () => {
       await flushPromises();
     });
 
-    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalledTimes(2);
+    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalledTimes(2);
   });
 
   it("renders card canvas background from card state only", async () => {
@@ -161,9 +161,9 @@ describe("Artboard", () => {
       width: clampQrSize(240),
       height: clampQrSize(240),
     };
-    const cardState = createDefaultDraftingCardState();
+    const cardState = createDefaultCanvasCardState();
     const nodeId = "preview";
-    const layers = createDefaultDraftingLayers(nodeId, state, cardState);
+    const layers = createDefaultCanvasLayers(nodeId, state, cardState);
     const { container } = renderArtboard(state, false, cardState, {
       layers,
       sceneComposition: createDefaultSceneComposition(),
@@ -314,7 +314,7 @@ describe("Artboard", () => {
   });
 
   it("renders selected qr backing shapes as a qr-layer background without changing the card", async () => {
-    buildDraftingQraftyMarkupSpy.mockImplementationOnce(
+    buildCanvasQraftyMarkupSpy.mockImplementationOnce(
       () =>
         '<svg width="240" height="240" viewBox="0 0 240 240"><defs><filter data-qr-layer="background-shape-blur-filter" id="background-shape-blur-filter"/></defs><path data-qr-layer="background-shape-blur" d="M0 0h240v240H0z"/><path data-qr-layer="background-shape" d="M0 0h240v240H0z"/><rect width="240" height="240" clip-path="url(\'#clip-path-background-color-0\')" fill="#fff"/><path data-qr-layer="dot" d="M20 20h40v40H20z" fill="#111"/></svg>',
     );
@@ -338,7 +338,7 @@ describe("Artboard", () => {
       tiltY: 0,
     };
     const cardState = {
-      ...createDefaultDraftingCardState(),
+      ...createDefaultCanvasCardState(),
       fill: "#ffffff",
       shadow: {
         ...DEFAULT_DRAFTING_LAYER_SHADOW,
@@ -369,7 +369,7 @@ describe("Artboard", () => {
     expect(qrComponent).not.toBeNull();
     expect(qrComponent?.querySelector("svg")).not.toBeNull();
     expect(container.querySelector('[data-slot="qrafty-code"]')).toBeNull();
-    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalledWith(
+    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         backgroundGradient: expect.objectContaining({ enabled: false }),
         backgroundImage: {
@@ -391,8 +391,8 @@ describe("Artboard", () => {
       height: clampQrSize(240),
     };
     const cardState = {
-      ...createDefaultDraftingCardState(),
-      paperShader: createDefaultDraftingCardPaperShader("warp"),
+      ...createDefaultCanvasCardState(),
+      paperShader: createDefaultCanvasCardPaperShader("warp"),
       styleMode: "paper-shader" as const,
     };
     const { container } = renderArtboard(state, false, cardState);
@@ -470,7 +470,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         onLayerChange: () => undefined,
         selectedLayerId: "preview:qr",
@@ -508,7 +508,7 @@ describe("Artboard", () => {
     });
     const { container } = renderArtboard(state, true, cardState, {
       onLayerChange: () => undefined,
-      selectedLayerId: getDraftingQrLayerId("preview"),
+      selectedLayerId: getCanvasQrLayerId("preview"),
     });
 
     await waitForQrArtboardRender();
@@ -519,8 +519,8 @@ describe("Artboard", () => {
     const overlay = container.querySelector(
       '[data-slot="canvas-layer-chrome-overlay"]',
     ) as HTMLElement;
-    const layers = createDefaultDraftingLayers("preview", state, cardState);
-    const qrLayer = layers.find((layer) => layer.id === getDraftingQrLayerId("preview"));
+    const layers = createDefaultCanvasLayers("preview", state, cardState);
+    const qrLayer = layers.find((layer) => layer.id === getCanvasQrLayerId("preview"));
     const frameRect = getChromeFrameRect(qrLayer!, RESIZE_CONTROL_PADDING_PX, {
       contentOnlyZoom: false,
       contentPanX: 0,
@@ -557,14 +557,14 @@ describe("Artboard", () => {
     const viewFitScale = 0.5;
     const { container } = renderArtboard(state, true, cardState, {
       onLayerChange: () => undefined,
-      selectedLayerId: getDraftingQrLayerId("preview"),
+      selectedLayerId: getCanvasQrLayerId("preview"),
       viewFitScale,
     });
 
     await waitForQrArtboardRender();
 
-    const layers = createDefaultDraftingLayers("preview", state, cardState);
-    const qrLayer = layers.find((layer) => layer.id === getDraftingQrLayerId("preview"));
+    const layers = createDefaultCanvasLayers("preview", state, cardState);
+    const qrLayer = layers.find((layer) => layer.id === getCanvasQrLayerId("preview"));
     const frame = container.querySelector('[data-slot="canvas-layer-resize-frame"]') as HTMLElement;
     const toolbar = container.querySelector(
       '[data-slot="canvas-layer-floating-toolbar"]',
@@ -615,7 +615,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers,
         onLayerChange,
@@ -666,7 +666,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers,
         onLayerChange,
@@ -715,7 +715,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers,
         onLayerChange,
@@ -753,7 +753,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers,
         onLayerChange,
@@ -800,7 +800,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers,
         onLayerChange,
@@ -853,7 +853,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers,
         onLayerChange,
@@ -883,8 +883,8 @@ describe("Artboard", () => {
 
   it("renders selected layer controls above higher z-index layer content", async () => {
     const state = createDefaultQraftyState();
-    const cardState = createDefaultDraftingCardState();
-    const layers = createDefaultDraftingLayers("preview", state, cardState).map((layer) =>
+    const cardState = createDefaultCanvasCardState();
+    const layers = createDefaultCanvasLayers("preview", state, cardState).map((layer) =>
       layer.id === "preview:qr" ? { ...layer, zIndex: 1 } : { ...layer, zIndex: 50 },
     );
     const { container } = renderArtboard(state, true, cardState, {
@@ -911,7 +911,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         onLayerChange: () => undefined,
         selectedLayerId: "preview:qr",
@@ -939,7 +939,7 @@ describe("Artboard", () => {
   it("renders and edits Avnac-style text layers inline", async () => {
     const onLayerChange = vi.fn();
     const onLayerSelect = vi.fn();
-    const textLayer = createDraftingTextLayer("preview", {
+    const textLayer = createCanvasTextLayer("preview", {
       fill: "#123456",
       fontFamily: "Manrope",
       fontSize: 38,
@@ -952,13 +952,13 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers: [
-          ...createDefaultDraftingLayers(
+          ...createDefaultCanvasLayers(
             "preview",
             createDefaultQraftyState(),
-            createDefaultDraftingCardState(),
+            createDefaultCanvasCardState(),
           ),
           textLayer,
         ],
@@ -1011,7 +1011,7 @@ describe("Artboard", () => {
   });
 
   it("keeps the text editor active after double click without a floating format toolbar", async () => {
-    let textLayer = createDraftingTextLayer("preview", {
+    let textLayer = createCanvasTextLayer("preview", {
       id: "preview:text",
       text: "Scan here",
       zIndex: 2,
@@ -1021,15 +1021,15 @@ describe("Artboard", () => {
         textLayer = { ...textLayer, ...patch };
       }
     });
-    const defaultLayers = createDefaultDraftingLayers(
+    const defaultLayers = createDefaultCanvasLayers(
       "preview",
       createDefaultQraftyState(),
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     );
     const { container, reactRoot } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers: [...defaultLayers, textLayer],
         onLayerChange,
@@ -1061,7 +1061,7 @@ describe("Artboard", () => {
     act(() => {
       reactRoot.render(
         <Artboard
-          cardState={createDefaultDraftingCardState()}
+          cardState={createDefaultCanvasCardState()}
           isSelected
           layers={[...defaultLayers, textLayer]}
           qrStateByLayerId={createTestQrStateByLayerId(createDefaultQraftyState(), [
@@ -1086,7 +1086,7 @@ describe("Artboard", () => {
   });
 
   it("renders legacy text runs for display", async () => {
-    let textLayer = createDraftingTextLayer("preview", {
+    let textLayer = createCanvasTextLayer("preview", {
       id: "preview:text",
       text: "Scan here",
       textRuns: [
@@ -1100,15 +1100,15 @@ describe("Artboard", () => {
         textLayer = { ...textLayer, ...patch };
       }
     });
-    const defaultLayers = createDefaultDraftingLayers(
+    const defaultLayers = createDefaultCanvasLayers(
       "preview",
       createDefaultQraftyState(),
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     );
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers: [...defaultLayers, textLayer],
         onLayerChange,
@@ -1135,7 +1135,7 @@ describe("Artboard", () => {
     const onLayerAction = vi.fn();
     const onLayerCopy = vi.fn();
     const onLayerChange = vi.fn();
-    const textLayer = createDraftingTextLayer("preview", {
+    const textLayer = createCanvasTextLayer("preview", {
       id: "preview:text",
       text: "Scan here",
       zIndex: 2,
@@ -1143,13 +1143,13 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers: [
-          ...createDefaultDraftingLayers(
+          ...createDefaultCanvasLayers(
             "preview",
             createDefaultQraftyState(),
-            createDefaultDraftingCardState(),
+            createDefaultCanvasCardState(),
           ),
           textLayer,
         ],
@@ -1211,7 +1211,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         onLayerAction,
         selectedLayerId: "preview:qr",
@@ -1265,13 +1265,13 @@ describe("Artboard", () => {
   it("uses all selected layer ids for multi-selection floating actions", async () => {
     const onLayerAction = vi.fn();
     const onLayerCopy = vi.fn();
-    const selectedLayerIds = [getDraftingQrLayerId("preview"), "preview:text"];
-    const layers = createDefaultDraftingLayers(
+    const selectedLayerIds = [getCanvasQrLayerId("preview"), "preview:text"];
+    const layers = createDefaultCanvasLayers(
       "preview",
       createDefaultQraftyState(),
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
     ).concat(
-      createDraftingTextLayer("preview", {
+      createCanvasTextLayer("preview", {
         height: 40,
         id: "preview:text",
         width: 120,
@@ -1283,7 +1283,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers,
         onLayerAction,
@@ -1310,7 +1310,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         onLayerAction,
         selectedLayerId: "preview:qr",
@@ -1383,7 +1383,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         selectedLayerId: "preview:qr",
       },
@@ -1418,7 +1418,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         onLayerPaste,
         selectedLayerId: null,
@@ -1476,7 +1476,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers,
         onLayerSelect,
@@ -1506,7 +1506,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         onLayerChange,
         selectedLayerId: "preview:qr",
@@ -1562,7 +1562,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         onLayerChange,
         selectedLayerId: "preview:qr",
@@ -1601,7 +1601,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         onLayerChange,
         selectedLayerId: "preview:qr",
@@ -1642,7 +1642,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         onLayerChange,
         selectedLayerId: "preview:qr",
@@ -1697,8 +1697,8 @@ describe("Artboard", () => {
 
   it("wraps the rotation value label from 359 degrees back to zero", async () => {
     const state = createDefaultQraftyState();
-    const cardState = createDefaultDraftingCardState();
-    const layers = createDefaultDraftingLayers("preview", state, cardState).map((layer) =>
+    const cardState = createDefaultCanvasCardState();
+    const layers = createDefaultCanvasLayers("preview", state, cardState).map((layer) =>
       layer.id === "preview:qr" ? { ...layer, rotation: 359.6 } : layer,
     );
     const { container } = renderArtboard(state, true, cardState, {
@@ -1740,7 +1740,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         onLayerChange: () => undefined,
         onLayerSelect,
@@ -1762,7 +1762,7 @@ describe("Artboard", () => {
   });
 
   it("applies qr layer shadow to foreground qr shapes instead of the background rect", async () => {
-    buildDraftingQraftyMarkupSpy.mockImplementationOnce(
+    buildCanvasQraftyMarkupSpy.mockImplementationOnce(
       () =>
         '<svg width="240" height="240" viewBox="0 0 240 240"><defs><clipPath id="clip-path-background-color-0"><rect x="0" y="0" width="240" height="240"/></clipPath><clipPath id="clip-path-dot-color-0"><path d="M0 0h10v10z"/></clipPath></defs><rect x="0" y="0" width="240" height="240" clip-path="url(\'#clip-path-background-color-0\')" fill="#f8fafc"/><rect x="20" y="20" width="200" height="200" clip-path="url(\'#clip-path-dot-color-0\')" fill="#111827"/></svg>',
     );
@@ -1797,7 +1797,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers: [qrLayer],
         selectedLayerId: "preview:qr",
@@ -1829,7 +1829,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         onLayerSelect,
       },
@@ -1847,11 +1847,11 @@ describe("Artboard", () => {
   });
 
   it("renders padded resize and rotate controls around multiple selected layers", async () => {
-    const selectedLayerIds = [getDraftingQrLayerId("preview")];
+    const selectedLayerIds = [getCanvasQrLayerId("preview")];
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         selectedLayerIds,
       },
@@ -2028,7 +2028,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers,
         onLayerChange,
@@ -2093,7 +2093,7 @@ describe("Artboard", () => {
     const { container, reactRoot } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers,
         onLayerChange,
@@ -2130,7 +2130,7 @@ describe("Artboard", () => {
     act(() => {
       reactRoot.render(
         <Artboard
-          cardState={createDefaultDraftingCardState()}
+          cardState={createDefaultCanvasCardState()}
           layers={[
             createLayer({
               height: 100,
@@ -2220,7 +2220,7 @@ describe("Artboard", () => {
     const { container } = renderArtboard(
       createDefaultQraftyState(),
       true,
-      createDefaultDraftingCardState(),
+      createDefaultCanvasCardState(),
       {
         layers,
         selectedLayerIds: ["preview:card", "preview:qr"],
@@ -2306,9 +2306,9 @@ describe("Artboard", () => {
       width: clampQrSize(240),
       height: clampQrSize(240),
     };
-    const canvasMarkup = renderDashboardQrSvgMarkup(createDraftingQrArtworkState(baseState));
+    const canvasMarkup = renderDashboardQrSvgMarkup(createCanvasQrArtworkState(baseState));
 
-    buildDraftingQraftyMarkupSpy.mockReturnValue(canvasMarkup);
+    buildCanvasQraftyMarkupSpy.mockReturnValue(canvasMarkup);
 
     const motionState = setDotMatrixAnimationOptions(baseState, {
       enabled: true,
@@ -2319,7 +2319,7 @@ describe("Artboard", () => {
 
     await waitForQrArtboardRender();
 
-    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalledTimes(1);
+    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalledTimes(1);
 
     const animatedPreview = container.querySelector('[data-testid="dot-matrix-animated-qr"]');
 
@@ -2330,7 +2330,7 @@ describe("Artboard", () => {
       reactRoot.render(
         <Artboard
           state={setDotMatrixAnimationOptions(motionState, { loader: "radial-expand" })}
-          cardState={createDefaultDraftingCardState()}
+          cardState={createDefaultCanvasCardState()}
           qrStateByLayerId={createDefaultBoardQrStateByLayerId(
             setDotMatrixAnimationOptions(motionState, { loader: "radial-expand" }),
           )}
@@ -2343,14 +2343,14 @@ describe("Artboard", () => {
       await flushPromises();
     });
 
-    expect(buildDraftingQraftyMarkupSpy).toHaveBeenCalledTimes(2);
+    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalledTimes(2);
   });
 });
 
 function renderArtboard(
   state = createDefaultQraftyState(),
   isSelected = false,
-  cardState = createDefaultDraftingCardState(),
+  cardState = createDefaultCanvasCardState(),
   props: {
     layers?: CanvasLayer[];
     onLayerChange?: (layerId: string, patch: Partial<CanvasLayer>) => void;
@@ -2359,7 +2359,7 @@ function renderArtboard(
     onLayerPaste?: (point: { x: number; y: number }) => void;
     onLayerSelect?: (layerId: string | null, options?: { additive?: boolean }) => void;
     onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void;
-    qrStateByLayerId?: DraftingQrStateByLayerId;
+    qrStateByLayerId?: CanvasQrStateByLayerId;
     selectedLayerId?: string | null;
     selectedLayerIds?: string[];
     snapEnabled?: boolean;
@@ -2370,7 +2370,7 @@ function renderArtboard(
 ) {
   const container = document.createElement("div");
   const reactRoot = createRoot(container);
-  const layers = props.layers ?? createDefaultDraftingLayers("preview", state, cardState);
+  const layers = props.layers ?? createDefaultCanvasLayers("preview", state, cardState);
   const qrStateByLayerId = props.qrStateByLayerId ?? createTestQrStateByLayerId(state, layers);
 
   act(() => {
@@ -2413,15 +2413,15 @@ function renderArtboard(
 function createDefaultBoardQrStateByLayerId(state: QraftyState) {
   return createTestQrStateByLayerId(
     state,
-    createDefaultDraftingLayers("preview", state, createDefaultDraftingCardState()),
+    createDefaultCanvasLayers("preview", state, createDefaultCanvasCardState()),
   );
 }
 
 function createTestQrStateByLayerId(
   state: QraftyState,
   layers: CanvasLayer[],
-): DraftingQrStateByLayerId {
-  const qrStateByLayerId: DraftingQrStateByLayerId = {};
+): CanvasQrStateByLayerId {
+  const qrStateByLayerId: CanvasQrStateByLayerId = {};
 
   for (const layer of layers) {
     if (layer.kind === "qr") {

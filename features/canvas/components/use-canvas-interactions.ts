@@ -26,7 +26,7 @@ import {
   ENTRANCE_PRE_REVEAL_EVENT,
 } from "@/features/shell/components/WorkspaceEntrance";
 
-const CANVAS_PAN_CURSOR_LOCK_CLASS = "drafting-canvas-panning";
+const CANVAS_PAN_CURSOR_LOCK_CLASS = "canvas-panning";
 
 const MIN_PREVIEW_ZOOM = 0.1;
 const MAX_PREVIEW_ZOOM = 4;

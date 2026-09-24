@@ -235,7 +235,7 @@ export function getQrRenderedDimensions(
   };
 }
 
-export type DraftingQrLayerLayout = {
+export type CanvasQrLayerLayout = {
   innerHeight: number;
   innerWidth: number;
   metrics: BackgroundRenderMetrics;
@@ -243,7 +243,7 @@ export type DraftingQrLayerLayout = {
   shapeOptions: QraftyState["backgroundShapeOptions"];
 };
 
-export function getDraftingQrLayerLayout(
+export function getCanvasQrLayerLayout(
   layerWidth: number,
   state: Pick<
     QraftyState,
@@ -258,7 +258,7 @@ export function getDraftingQrLayerLayout(
     | "width"
   >,
   layerHeight?: number,
-): DraftingQrLayerLayout {
+): CanvasQrLayerLayout {
   const naturalOuter = getQrRenderedDimensions(state);
   const targetHeight =
     layerHeight ??
@@ -282,8 +282,8 @@ export function getDraftingQrLayerLayout(
   };
 }
 
-export function getDraftingQrDomPlacementStyle(
-  layout: Pick<DraftingQrLayerLayout, "innerHeight" | "innerWidth" | "metrics">,
+export function getCanvasQrDomPlacementStyle(
+  layout: Pick<CanvasQrLayerLayout, "innerHeight" | "innerWidth" | "metrics">,
 ): CSSProperties {
   const { metrics, innerWidth, innerHeight } = layout;
   const outerWidth = Math.max(1, metrics.outerWidth);
@@ -298,7 +298,7 @@ export function getDraftingQrDomPlacementStyle(
   };
 }
 
-export function getDraftingQrBackgroundPathTransform(
+export function getCanvasQrBackgroundPathTransform(
   shape: QrBackgroundShapeDefinition,
   backingRegion: BackgroundRenderMetrics["backingRegion"],
   shapeOptions: QraftyState["backgroundShapeOptions"],

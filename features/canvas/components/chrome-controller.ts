@@ -10,7 +10,7 @@ import type { AppearanceSnapshot } from "@/features/shell/model/appearance";
 import type {
   ComposeSidebarPanel,
   AccessibilitySettings,
-  BackgroundInspectorTab,
+  BackgroundSettingsTab,
   BackgroundSettings,
   CornersSettings,
   EffectsSettings,
@@ -37,7 +37,7 @@ import type {
 import type { QrInputType } from "@/features/qr/content/input-options";
 
 /**
- * Assembles the `ToolbarController` the inspector and toolbars consume.
+ * Assembles the `ToolbarController` the settings and toolbars consume.
  *
  * The controller is the workspace's public interface, so it is built in
  * concern-sized groups rather than one 200-line literal. Groups that only
@@ -74,7 +74,7 @@ export type CoreControllerParams = {
 
 export type QrSettingsControllerParams = {
   accessibilitySettings: AccessibilitySettings;
-  backgroundInspectorTab: BackgroundInspectorTab;
+  backgroundSettingsTab: BackgroundSettingsTab;
   backgroundSettings: BackgroundSettings;
   cornersSettings: CornersSettings;
   effectsSettings: EffectsSettings;
@@ -84,7 +84,7 @@ export type QrSettingsControllerParams = {
   motionSettings: MotionSettings;
   onAccessibilityReset: () => void;
   onAccessibilitySettingsChange: ToolbarController["onAccessibilitySettingsChange"];
-  onBackgroundInspectorTabChange: (tab: BackgroundInspectorTab) => void;
+  onBackgroundSettingsTabChange: (tab: BackgroundSettingsTab) => void;
   onBackgroundReset: () => void;
   onBackgroundSettingsChange: ToolbarController["onBackgroundSettingsChange"];
   onCornersReset: () => void;

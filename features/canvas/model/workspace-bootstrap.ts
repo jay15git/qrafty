@@ -1,11 +1,11 @@
 import {
-  createDefaultDraftingWorkspaceDocument,
-  type DraftingWorkspaceDocumentV1,
+  createDefaultCanvasWorkspaceDocument,
+  type CanvasWorkspaceDocumentV1,
 } from "@/features/canvas/model/document";
-import { readDraftingWorkspaceDraft } from "@/features/canvas/model/storage";
+import { readCanvasWorkspaceDraft } from "@/features/canvas/model/storage";
 
-export async function resolveWorkspaceBootstrapDocument(): Promise<DraftingWorkspaceDocumentV1> {
-  const savedDocument = await readDraftingWorkspaceDraft();
+export async function resolveWorkspaceBootstrapDocument(): Promise<CanvasWorkspaceDocumentV1> {
+  const savedDocument = await readCanvasWorkspaceDraft();
 
-  return savedDocument ?? createDefaultDraftingWorkspaceDocument();
+  return savedDocument ?? createDefaultCanvasWorkspaceDocument();
 }

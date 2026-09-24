@@ -6,15 +6,15 @@ import {
   googleFontCssUrl,
   googleFontPreviewCssUrl,
   googleFontSlug,
-  type DraftingFontCategory,
+  type CanvasFontCategory,
 } from "@/features/canvas/model/font-catalog";
 
 export { DRAFTING_FONT_CATEGORY_LABELS } from "@/features/canvas/model/font-catalog";
 
-type DraftingFontSource = "fontshare" | "google" | "local" | "system";
+type CanvasFontSource = "fontshare" | "google" | "local" | "system";
 
-type DraftingFontRegistryEntry = {
-  category: DraftingFontCategory;
+type CanvasFontRegistryEntry = {
+  category: CanvasFontCategory;
   cssText?: string;
   cssUrl?: string;
   fallback: string;
@@ -22,7 +22,7 @@ type DraftingFontRegistryEntry = {
   id: string;
   label: string;
   previewCssUrl?: string;
-  source: DraftingFontSource;
+  source: CanvasFontSource;
   styles: readonly ("italic" | "normal")[];
   weights: readonly number[];
 };
@@ -31,7 +31,7 @@ const DRAFTING_FONT_FALLBACK = "system-ui, Arial, sans-serif";
 
 export const DEFAULT_DRAFTING_FONT_ID = "local:satoshi";
 
-const STATIC_FONT_ENTRIES: readonly DraftingFontRegistryEntry[] = [
+const STATIC_FONT_ENTRIES: readonly CanvasFontRegistryEntry[] = [
   {
     category: "sans",
     cssText: [
@@ -125,7 +125,7 @@ const STATIC_FONT_ENTRIES: readonly DraftingFontRegistryEntry[] = [
   },
 ];
 
-const GOOGLE_FONT_ENTRIES: readonly DraftingFontRegistryEntry[] = GOOGLE_FONT_SPECS.map((spec) => ({
+const GOOGLE_FONT_ENTRIES: readonly CanvasFontRegistryEntry[] = GOOGLE_FONT_SPECS.map((spec) => ({
   category: spec.category,
   cssUrl: googleFontCssUrl(spec),
   fallback: DRAFTING_FONT_CATEGORY_FALLBACKS[spec.category],
@@ -138,42 +138,42 @@ const GOOGLE_FONT_ENTRIES: readonly DraftingFontRegistryEntry[] = GOOGLE_FONT_SP
   weights: spec.weights,
 }));
 
-export const DRAFTING_FONT_REGISTRY: readonly DraftingFontRegistryEntry[] = [
+export const DRAFTING_FONT_REGISTRY: readonly CanvasFontRegistryEntry[] = [
   ...STATIC_FONT_ENTRIES,
   ...GOOGLE_FONT_ENTRIES,
 ];
 
-const FONT_BY_ID: Map<string, DraftingFontRegistryEntry> = new Map(
+const FONT_BY_ID: Map<string, CanvasFontRegistryEntry> = new Map(
   DRAFTING_FONT_REGISTRY.map((font) => [font.id, font]),
 );
-const FONT_BY_FAMILY: Map<string, DraftingFontRegistryEntry> = new Map(
-  DRAFTING_FONT_REGISTRY.map((font) => [normalizeDraftingFontFamilyKey(font.family), font]),
+const FONT_BY_FAMILY: Map<string, CanvasFontRegistryEntry> = new Map(
+  DRAFTING_FONT_REGISTRY.map((font) => [normalizeCanvasFontFamilyKey(font.family), font]),
 );
 const loadedFontIds = new Set<string>();
 const fontReadyPromises = new Map<string, Promise<void>>();
 
-export function getDraftingFontById(fontId: string | null | undefined) {
+export function getCanvasFontById(fontId: string | null | undefined) {
   return fontId ? FONT_BY_ID.get(fontId) : undefined;
 }
 
-export function getDraftingFontByFamily(fontFamily: string | null | undefined) {
-  return fontFamily ? FONT_BY_FAMILY.get(normalizeDraftingFontFamilyKey(fontFamily)) : undefined;
+export function getCanvasFontByFamily(fontFamily: string | null | undefined) {
+  return fontFamily ? FONT_BY_FAMILY.get(normalizeCanvasFontFamilyKey(fontFamily)) : undefined;
 }
 
-export function resolveDraftingFont(
+export function resolveCanvasFont(
   options: { fontFamily?: string | null; fontId?: string | null } = {},
 ) {
   return (
-    getDraftingFontById(options.fontId) ??
-    getDraftingFontByFamily(options.fontFamily) ??
-    getDraftingFontById(DEFAULT_DRAFTING_FONT_ID)!
+    getCanvasFontById(options.fontId) ??
+    getCanvasFontByFamily(options.fontFamily) ??
+    getCanvasFontById(DEFAULT_DRAFTING_FONT_ID)!
   );
 }
 
-export function getDraftingFontCssFamily(
+export function getCanvasFontCssFamily(
   options: { fontFamily?: string | null; fontId?: string | null } = {},
 ) {
-  const font = getDraftingFontById(options.fontId) ?? getDraftingFontByFamily(options.fontFamily);
+  const font = getCanvasFontById(options.fontId) ?? getCanvasFontByFamily(options.fontFamily);
   const family = font?.family ?? normalizeUnknownFontFamily(options.fontFamily);
 
   return `"${family}", ${font?.fallback ?? DRAFTING_FONT_FALLBACK}`;
@@ -183,7 +183,7 @@ export function getDraftingFontCssFamily(
  * Groups the registry by category for the font pickers. An empty query returns
  * every font; a non-empty query filters by label/family within each category.
  */
-export function groupDraftingFonts(query?: string) {
+export function groupCanvasFonts(query?: string) {
   const normalizedQuery = query?.trim().toLowerCase();
   const fonts = normalizedQuery
     ? DRAFTING_FONT_REGISTRY.filter(
@@ -193,7 +193,7 @@ export function groupDraftingFonts(query?: string) {
       )
     : DRAFTING_FONT_REGISTRY;
 
-  const groups = new Map<DraftingFontCategory, DraftingFontRegistryEntry[]>();
+  const groups = new Map<CanvasFontCategory, CanvasFontRegistryEntry[]>();
   for (const font of fonts) {
     const list = groups.get(font.category) ?? [];
     list.push(font);
@@ -205,8 +205,8 @@ export function groupDraftingFonts(query?: string) {
   );
 }
 
-export function loadDraftingFont(fontId: string | null | undefined): Promise<void> {
-  const font = getDraftingFontById(fontId) ?? getDraftingFontById(DEFAULT_DRAFTING_FONT_ID)!;
+export function loadCanvasFont(fontId: string | null | undefined): Promise<void> {
+  const font = getCanvasFontById(fontId) ?? getCanvasFontById(DEFAULT_DRAFTING_FONT_ID)!;
 
   if (typeof document === "undefined") {
     return Promise.resolve();
@@ -219,13 +219,13 @@ export function loadDraftingFont(fontId: string | null | undefined): Promise<voi
 
   const task = (async () => {
     if (font.cssUrl) {
-      await injectDraftingFontStylesheet(font);
+      await injectCanvasFontStylesheet(font);
     } else if (font.cssText) {
-      injectDraftingFontStyle(font);
+      injectCanvasFontStyle(font);
     }
 
     loadedFontIds.add(font.id);
-    await waitForDraftingFont(font);
+    await waitForCanvasFont(font);
   })();
 
   fontReadyPromises.set(font.id, task);
@@ -243,18 +243,18 @@ export function loadDraftingFont(fontId: string | null | undefined): Promise<voi
  * can render in the real typeface for a few KB each. For sources without a
  * dedicated preview URL, falls back to the full font load.
  */
-export function loadDraftingFontPreview(fontId: string | null | undefined) {
-  const font = getDraftingFontById(fontId);
+export function loadCanvasFontPreview(fontId: string | null | undefined) {
+  const font = getCanvasFontById(fontId);
   if (!font || typeof document === "undefined") {
     return;
   }
 
   if (!font.previewCssUrl) {
-    void loadDraftingFont(font.id);
+    void loadCanvasFont(font.id);
     return;
   }
 
-  const linkId = `${getDraftingFontElementId(font.id)}-preview`;
+  const linkId = `${getCanvasFontElementId(font.id)}-preview`;
   if (document.getElementById(linkId)) {
     return;
   }
@@ -266,21 +266,21 @@ export function loadDraftingFontPreview(fontId: string | null | undefined) {
   document.head.appendChild(link);
 }
 
-export async function ensureDraftingFontsForLayers(layers: readonly CanvasLayer[]) {
+export async function ensureCanvasFontsForLayers(layers: readonly CanvasLayer[]) {
   const fontIds = new Set<string>();
   const visit = (layer: CanvasLayer) => {
     if (layer.kind === "text") {
-      fontIds.add(resolveDraftingFont({ fontFamily: layer.fontFamily, fontId: layer.fontId }).id);
+      fontIds.add(resolveCanvasFont({ fontFamily: layer.fontFamily, fontId: layer.fontId }).id);
     }
     layer.children?.forEach(visit);
   };
 
   layers.forEach(visit);
-  await Promise.all([...fontIds].map(loadDraftingFont));
+  await Promise.all([...fontIds].map(loadCanvasFont));
 }
 
-function injectDraftingFontStylesheet(font: DraftingFontRegistryEntry) {
-  const linkId = getDraftingFontElementId(font.id);
+function injectCanvasFontStylesheet(font: CanvasFontRegistryEntry) {
+  const linkId = getCanvasFontElementId(font.id);
   const existing = document.getElementById(linkId) as HTMLLinkElement | null;
 
   if (existing) {
@@ -296,8 +296,8 @@ function injectDraftingFontStylesheet(font: DraftingFontRegistryEntry) {
   return waitForStylesheetLink(link);
 }
 
-function injectDraftingFontStyle(font: DraftingFontRegistryEntry) {
-  const styleId = getDraftingFontElementId(font.id);
+function injectCanvasFontStyle(font: CanvasFontRegistryEntry) {
+  const styleId = getCanvasFontElementId(font.id);
 
   if (document.getElementById(styleId)) {
     return;
@@ -309,7 +309,7 @@ function injectDraftingFontStyle(font: DraftingFontRegistryEntry) {
   document.head.appendChild(style);
 }
 
-async function waitForDraftingFont(font: DraftingFontRegistryEntry) {
+async function waitForCanvasFont(font: CanvasFontRegistryEntry) {
   if (!("fonts" in document)) {
     return;
   }
@@ -325,14 +325,14 @@ async function waitForDraftingFont(font: DraftingFontRegistryEntry) {
 
 function waitForStylesheetLink(link: HTMLLinkElement) {
   return new Promise<void>((resolve) => {
-    if (link.dataset.draftingFontLoaded === "true") {
+    if (link.dataset.canvasFontLoaded === "true") {
       resolve();
       return;
     }
 
     try {
       if (link.sheet) {
-        link.dataset.draftingFontLoaded = "true";
+        link.dataset.canvasFontLoaded = "true";
         resolve();
         return;
       }
@@ -341,7 +341,7 @@ function waitForStylesheetLink(link: HTMLLinkElement) {
     }
 
     const done = () => {
-      link.dataset.draftingFontLoaded = "true";
+      link.dataset.canvasFontLoaded = "true";
       resolve();
     };
     link.addEventListener("load", done, { once: true });
@@ -349,11 +349,11 @@ function waitForStylesheetLink(link: HTMLLinkElement) {
   });
 }
 
-function getDraftingFontElementId(fontId: string) {
-  return `drafting-font-${fontId.replace(/[^a-z0-9]+/gi, "-")}`;
+function getCanvasFontElementId(fontId: string) {
+  return `canvas-font-${fontId.replace(/[^a-z0-9]+/gi, "-")}`;
 }
 
-function normalizeDraftingFontFamilyKey(fontFamily: string) {
+function normalizeCanvasFontFamilyKey(fontFamily: string) {
   return fontFamily
     .trim()
     .replace(/^["']|["']$/g, "")
@@ -363,5 +363,5 @@ function normalizeDraftingFontFamilyKey(fontFamily: string) {
 function normalizeUnknownFontFamily(fontFamily: string | null | undefined) {
   const normalized = fontFamily?.trim().replace(/^["']|["']$/g, "");
 
-  return normalized || resolveDraftingFont().family;
+  return normalized || resolveCanvasFont().family;
 }

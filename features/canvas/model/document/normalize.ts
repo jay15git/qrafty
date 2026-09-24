@@ -1,17 +1,17 @@
-import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
+import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
 import {
-  createDefaultDraftingWorkspaceQrState,
-  cloneDraftingQrState,
-  type DraftingQrStateByLayerId,
-  type DraftingWorkspaceDocumentV1,
+  createDefaultCanvasWorkspaceQrState,
+  cloneCanvasQrState,
+  type CanvasQrStateByLayerId,
+  type CanvasWorkspaceDocumentV1,
 } from "@/features/canvas/model/document";
 import {
-  createDefaultDraftingLayers,
-  createDraftingQrLayer,
+  createDefaultCanvasLayers,
+  createCanvasQrLayer,
 } from "@/features/canvas/model/layers/card-qr";
 import {
-  createAdditionalDraftingQrLayerId,
-  getDraftingQrLayerId,
+  createAdditionalCanvasQrLayerId,
+  getCanvasQrLayerId,
   getQrCanvasLayers,
 } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
@@ -21,18 +21,18 @@ import { type QrInputType } from "@/features/qr/content/input-options";
 import { createDefaultSceneComposition } from "@/features/canvas/model/scene-templates";
 
 function normalizeSingleNodeDocument(
-  document: DraftingWorkspaceDocumentV1,
+  document: CanvasWorkspaceDocumentV1,
   primaryNodeId: string,
-): DraftingWorkspaceDocumentV1 {
-  const primaryQrLayerId = getDraftingQrLayerId(primaryNodeId);
+): CanvasWorkspaceDocumentV1 {
+  const primaryQrLayerId = getCanvasQrLayerId(primaryNodeId);
   const primaryLayers =
     document.layerStateByNodeId[primaryNodeId] ??
-    createDefaultDraftingLayers(
+    createDefaultCanvasLayers(
       primaryNodeId,
       document.qrStateByLayerId[primaryQrLayerId] ??
         document.qrStateByNodeId[primaryNodeId] ??
-        createDefaultDraftingWorkspaceQrState(),
-      document.cardStateByNodeId[primaryNodeId] ?? createDefaultDraftingCardState(),
+        createDefaultCanvasWorkspaceQrState(),
+      document.cardStateByNodeId[primaryNodeId] ?? createDefaultCanvasCardState(),
     );
 
   return {
@@ -42,8 +42,7 @@ function normalizeSingleNodeDocument(
       : primaryQrLayerId,
     activeQrNodeId: primaryNodeId,
     cardStateByNodeId: {
-      [primaryNodeId]:
-        document.cardStateByNodeId[primaryNodeId] ?? createDefaultDraftingCardState(),
+      [primaryNodeId]: document.cardStateByNodeId[primaryNodeId] ?? createDefaultCanvasCardState(),
     },
     layerStateByNodeId: {
       [primaryNodeId]: primaryLayers,
@@ -53,7 +52,7 @@ function normalizeSingleNodeDocument(
       [primaryNodeId]:
         document.qrStateByLayerId[primaryQrLayerId] ??
         document.qrStateByNodeId[primaryNodeId] ??
-        createDefaultDraftingWorkspaceQrState(),
+        createDefaultCanvasWorkspaceQrState(),
     },
     sceneCompositionByNodeId: {
       [primaryNodeId]:
@@ -64,13 +63,13 @@ function normalizeSingleNodeDocument(
 
 /** Copy each source node's QR into a new layer on the primary card. */
 function foldExtraNodesIntoPrimaryLayers(
-  document: DraftingWorkspaceDocumentV1,
+  document: CanvasWorkspaceDocumentV1,
   orderedNodeIds: string[],
   primaryNode: string,
   primaryNodeId: string,
   primaryLayers: CanvasLayer[],
-  primaryCardState: ReturnType<typeof createDefaultDraftingCardState>,
-  qrStateByLayerId: DraftingQrStateByLayerId,
+  primaryCardState: ReturnType<typeof createDefaultCanvasCardState>,
+  qrStateByLayerId: CanvasQrStateByLayerId,
   contentTypeByLayerId: Record<string, QrInputType>,
 ) {
   let nextZIndex = primaryLayers.reduce((max, layer) => Math.max(max, layer.zIndex), 0) + 1;
@@ -81,14 +80,14 @@ function foldExtraNodesIntoPrimaryLayers(
       continue;
     }
 
-    const nodeState = document.qrStateByNodeId[nodeId] ?? createDefaultDraftingWorkspaceQrState();
+    const nodeState = document.qrStateByNodeId[nodeId] ?? createDefaultCanvasWorkspaceQrState();
     const sourceQrLayer = document.layerStateByNodeId[nodeId]?.find((layer) => layer.kind === "qr");
-    const layerId = createAdditionalDraftingQrLayerId(primaryNodeId);
+    const layerId = createAdditionalCanvasQrLayerId(primaryNodeId);
     const nearLayer =
       getQrCanvasLayers(primaryLayers).at(-1) ?? primaryLayers.find((layer) => layer.kind === "qr");
 
     primaryLayers.push(
-      createDraftingQrLayer(primaryNodeId, nodeState, primaryCardState, {
+      createCanvasQrLayer(primaryNodeId, nodeState, primaryCardState, {
         id: layerId,
         nearLayer,
         zIndex: nextZIndex,
@@ -104,7 +103,7 @@ function foldExtraNodesIntoPrimaryLayers(
       targetLayer.rotation = sourceQrLayer.rotation;
     }
 
-    qrStateByLayerId[layerId] = cloneDraftingQrState(nodeState);
+    qrStateByLayerId[layerId] = cloneCanvasQrState(nodeState);
     contentTypeByLayerId[layerId] =
       document.contentTypeByNodeId[nodeId] ?? document.selectedContentType;
     nextZIndex += 1;
@@ -112,9 +111,9 @@ function foldExtraNodesIntoPrimaryLayers(
   }
 }
 
-export function normalizeDraftingWorkspaceDocument(
-  document: DraftingWorkspaceDocumentV1,
-): DraftingWorkspaceDocumentV1 {
+export function normalizeCanvasWorkspaceDocument(
+  document: CanvasWorkspaceDocumentV1,
+): CanvasWorkspaceDocumentV1 {
   const primaryNodeId = DASHBOARD_QR_NODE_ID;
   const orderedNodeIds =
     document.qrOrder.length > 0 ? [...document.qrOrder] : Object.keys(document.qrStateByNodeId);
@@ -125,16 +124,16 @@ export function normalizeDraftingWorkspaceDocument(
 
   const primaryNode = orderedNodeIds.includes(primaryNodeId) ? primaryNodeId : orderedNodeIds[0]!;
   const primaryCardState =
-    document.cardStateByNodeId[primaryNode] ?? createDefaultDraftingCardState();
+    document.cardStateByNodeId[primaryNode] ?? createDefaultCanvasCardState();
   const primaryLayers = (
     document.layerStateByNodeId[primaryNode] ??
-    createDefaultDraftingLayers(
+    createDefaultCanvasLayers(
       primaryNodeId,
-      document.qrStateByNodeId[primaryNode] ?? createDefaultDraftingWorkspaceQrState(),
+      document.qrStateByNodeId[primaryNode] ?? createDefaultCanvasWorkspaceQrState(),
       primaryCardState,
     )
   ).map(cloneCanvasLayer);
-  const qrStateByLayerId: DraftingQrStateByLayerId = {};
+  const qrStateByLayerId: CanvasQrStateByLayerId = {};
   const contentTypeByLayerId: Record<string, QrInputType> = {};
 
   for (const layer of primaryLayers) {
@@ -142,10 +141,10 @@ export function normalizeDraftingWorkspaceDocument(
       continue;
     }
 
-    qrStateByLayerId[layer.id] = cloneDraftingQrState(
+    qrStateByLayerId[layer.id] = cloneCanvasQrState(
       document.qrStateByLayerId[layer.id] ??
         document.qrStateByNodeId[primaryNode] ??
-        createDefaultDraftingWorkspaceQrState(),
+        createDefaultCanvasWorkspaceQrState(),
     );
     contentTypeByLayerId[layer.id] =
       document.contentTypeByNodeId[primaryNode] ??
@@ -164,7 +163,7 @@ export function normalizeDraftingWorkspaceDocument(
     contentTypeByLayerId,
   );
 
-  const primaryQrLayerId = getDraftingQrLayerId(primaryNodeId);
+  const primaryQrLayerId = getCanvasQrLayerId(primaryNodeId);
 
   return {
     ...document,
@@ -185,7 +184,7 @@ export function normalizeDraftingWorkspaceDocument(
       [primaryNodeId]:
         qrStateByLayerId[primaryQrLayerId] ??
         document.qrStateByNodeId[primaryNode] ??
-        createDefaultDraftingWorkspaceQrState(),
+        createDefaultCanvasWorkspaceQrState(),
     },
     sceneCompositionByNodeId: {
       [primaryNodeId]:

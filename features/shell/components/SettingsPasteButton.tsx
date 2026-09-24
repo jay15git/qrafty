@@ -5,7 +5,7 @@ import { CheckIcon, ClipboardIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-import "./inspector-icon-swap.css";
+import "./settings-icon-swap.css";
 
 const PASTE_SUCCESS_MS = 1500;
 

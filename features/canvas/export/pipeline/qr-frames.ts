@@ -2,7 +2,7 @@ import { seekDotMatrixAnimation } from "@qrafty/qr/dot-matrix";
 
 import { toDotMatrixQrConfig } from "@/features/qr/motion/dot-matrix-bridge";
 import type { QraftyState } from "@/features/qr/model/state";
-import { sanitizeDraftingQrArtworkMarkup } from "@/features/canvas/rendering/qr-artwork";
+import { sanitizeCanvasQrArtworkMarkup } from "@/features/canvas/rendering/qr-artwork";
 
 export function shouldExportAnimatedQr(state: QraftyState) {
   return state.dotMatrixAnimation.enabled && state.dotMatrixAnimation.animated;
@@ -10,7 +10,7 @@ export function shouldExportAnimatedQr(state: QraftyState) {
 
 export function buildAnimatedQrMarkupAtTime(qrMarkup: string, state: QraftyState, timeMs: number) {
   const config = toDotMatrixQrConfig(state, {
-    canvasSvgMarkup: sanitizeDraftingQrArtworkMarkup(qrMarkup),
+    canvasSvgMarkup: sanitizeCanvasQrArtworkMarkup(qrMarkup),
   });
 
   if (!config.useExternalSvg || !config.externalSvg) {

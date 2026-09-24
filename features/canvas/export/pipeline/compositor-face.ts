@@ -1,12 +1,12 @@
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { isConicCssFill } from "@/features/canvas/export/svg-css-fill";
 
-export function resolveCardShaderMode(cardState: DraftingCardState) {
+export function resolveCardShaderMode(cardState: CanvasCardState) {
   return cardState.styleMode === "paper-shader" || cardState.styleMode === "image-filter";
 }
 
-export function cardLayerNeedsCanvasFace(layer: CanvasLayer, cardState: DraftingCardState) {
+export function cardLayerNeedsCanvasFace(layer: CanvasLayer, cardState: CanvasCardState) {
   if (layer.kind === "shader") {
     return Boolean(layer.paperShader);
   }

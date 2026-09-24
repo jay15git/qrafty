@@ -4,14 +4,14 @@ import { useMemo, useState, useSyncExternalStore } from "react";
 import DOMPurify from "dompurify";
 
 import type { QraftyState } from "@/features/qr/model/state";
-import { buildDraftingQraftyMarkup } from "@/features/qr/rendering/qrafty-markup";
+import { buildCanvasQraftyMarkup } from "@/features/qr/rendering/qrafty-markup";
 import { previewSession } from "@/features/canvas/preview/preview-session";
 import {
   markPreviewPerformance,
   measurePreviewPerformance,
   PREVIEW_PERF_MARKS,
 } from "@/features/canvas/preview/preview-performance";
-import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
+import { createCanvasQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
 
 const markupCache = new Map<string, string>();
 
@@ -29,7 +29,7 @@ export function clearCanvasQrMarkupCache() {
 }
 
 export function useCanvasQrMarkup(state: QraftyState) {
-  const qrArtworkState = useMemo(() => createDraftingQrArtworkState(state), [state]);
+  const qrArtworkState = useMemo(() => createCanvasQrArtworkState(state), [state]);
   const stateCacheKey = useMemo(() => JSON.stringify(qrArtworkState), [qrArtworkState]);
   const [lastMarkup, setLastMarkup] = useState<string | null>(null);
   // Interaction state is a real render input: when a gesture ends the memo
@@ -53,7 +53,7 @@ export function useCanvasQrMarkup(state: QraftyState) {
 
     try {
       markPreviewPerformance(PREVIEW_PERF_MARKS.qrMarkupBuildBegin);
-      const nextMarkup = sanitizeQrMarkup(buildDraftingQraftyMarkup(qrArtworkState));
+      const nextMarkup = sanitizeQrMarkup(buildCanvasQraftyMarkup(qrArtworkState));
       markPreviewPerformance(PREVIEW_PERF_MARKS.qrMarkupBuildEnd);
       measurePreviewPerformance(
         "qr-markup-build",

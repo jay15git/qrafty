@@ -10,17 +10,17 @@ import {
   getQrBackgroundShapeDefinition,
 } from "@/features/qr/styles/background-shapes";
 import {
-  getDraftingQrLayerLayout,
+  getCanvasQrLayerLayout,
   getQrRenderedDimensions,
 } from "@/features/qr/rendering/svg-extension";
 import {
-  createDraftingQrArtworkState,
-  sanitizeDraftingQrArtworkMarkup,
+  createCanvasQrArtworkState,
+  sanitizeCanvasQrArtworkMarkup,
   scaleNestedSvgMarkup,
   snapLayeredRasterDimensionsToQrModuleGrid,
 } from "@/features/canvas/rendering/qr-artwork";
 
-describe("drafting qr artwork helpers", () => {
+describe("canvas qr artwork helpers", () => {
   it("scales nested svg markup to the exact target layer dimensions", () => {
     expect(
       scaleNestedSvgMarkup('<svg width="320" height="320" viewBox="0 0 57 57"></svg>', 240, 240),
@@ -58,7 +58,7 @@ describe("drafting qr artwork helpers", () => {
     };
 
     const naturalOuter = getQrRenderedDimensions(state);
-    const layout = getDraftingQrLayerLayout(naturalOuter.width * 0.75, state);
+    const layout = getCanvasQrLayerLayout(naturalOuter.width * 0.75, state);
     const shape = getQrBackgroundShapeDefinition("ghost")!;
     const contentFrame = getQrBackgroundShapeContentFrame(shape);
     const shapeScale = layout.metrics.backingRegion.width / shape.viewBox.width;
@@ -77,8 +77,8 @@ describe("drafting qr artwork helpers", () => {
   });
 });
 
-describe("drafting qr artwork helpers (legacy)", () => {
-  it("creates foreground-only ReactQRCode state for drafting artwork", () => {
+describe("canvas qr artwork helpers (legacy)", () => {
+  it("creates foreground-only ReactQRCode state for canvas artwork", () => {
     const state = createDefaultQraftyState();
     state.backgroundImage = {
       source: "url",
@@ -110,7 +110,7 @@ describe("drafting qr artwork helpers (legacy)", () => {
     state.backgroundOptions.transparent = false;
     state.backgroundOptions.color = "#facc15";
 
-    const artworkState = createDraftingQrArtworkState(state);
+    const artworkState = createCanvasQrArtworkState(state);
     const props = toReactQrCodeProps(artworkState);
 
     expect(props.background).toBe("transparent");
@@ -138,8 +138,8 @@ describe("drafting qr artwork helpers (legacy)", () => {
     expect(artworkState.backgroundOptions.transparent).toBe(true);
   });
 
-  it("strips qr-library-owned background artifacts from drafting artwork markup", () => {
-    const markup = sanitizeDraftingQrArtworkMarkup(
+  it("strips qr-library-owned background artifacts from canvas artwork markup", () => {
+    const markup = sanitizeCanvasQrArtworkMarkup(
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320">
         <defs>
           <filter data-qr-layer="background-shape-blur-filter" id="background-shape-blur-filter" />

@@ -11,7 +11,7 @@ describe("theme contract", () => {
     expect(layoutSource).toContain("Manrope");
   });
 
-  it("keeps the sitewide theme neutral, with no warm drafting palette", () => {
+  it("keeps the sitewide theme neutral, with no warm canvas palette", () => {
     const globalsSource = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
 
     expect(globalsSource).not.toContain("--drafting-");
@@ -48,7 +48,7 @@ describe("theme contract", () => {
       expect(source, `${file} uses a non-monochrome utility token`).not.toMatch(
         disallowedColorTokens,
       );
-      expect(source, `${file} should not use legacy drafting tokens`).not.toContain("--drafting-");
+      expect(source, `${file} should not use legacy canvas tokens`).not.toContain("--drafting-");
     }
   });
 });

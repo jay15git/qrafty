@@ -3,21 +3,21 @@
 import { type ReactNode } from "react";
 
 import {
-  INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
-  INSPECTOR_LABEL_CLASS,
-  INSPECTOR_RADIUS_CLASS,
-} from "@/features/shell/components/inspector-tokens";
-import { SettingsInlineSlider } from "@/features/shell/inspector/settings-ui";
+  SETTINGS_CONTROL_HEIGHT_COMPACT_CLASS,
+  SETTINGS_LABEL_CLASS,
+  SETTINGS_RADIUS_CLASS,
+} from "@/features/shell/components/settings-tokens";
+import { SettingsInlineSlider } from "@/features/shell/settings/settings-ui";
 import {
-  InspectorScrubNumberInput,
-  useInspectorNumberScrub,
+  SettingsScrubNumberInput,
+  useSettingsNumberScrub,
 } from "@/features/shell/components/SettingsControls";
 import { cn } from "@/lib/utils";
 
 export {
-  InspectorOptionGridScrollArea,
-  InspectorScrollArea,
-} from "@/features/shell/inspector/InspectorOptionGrid";
+  SettingsOptionGridScrollArea,
+  SettingsScrollArea,
+} from "@/features/shell/settings/SettingsOptionGrid";
 
 export function SettingsSliderRow({
   ariaLabel,
@@ -98,7 +98,7 @@ export function SettingsNumberField({
   className?: string;
   labelClassName?: string;
 }) {
-  const scrub = useInspectorNumberScrub({
+  const scrub = useSettingsNumberScrub({
     disabled,
     max,
     min,
@@ -112,7 +112,7 @@ export function SettingsNumberField({
       className={cn(
         fill
           ? "grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2"
-          : "grid grid-cols-[1.25rem_var(--inspector-preview-col)] items-center gap-x-2.5",
+          : "grid grid-cols-[1.25rem_var(--settings-preview-col)] items-center gap-x-2.5",
         className,
       )}
       role="group"
@@ -120,7 +120,7 @@ export function SettingsNumberField({
       <span
         className={cn(
           fill ? "text-left" : "text-center",
-          INSPECTOR_LABEL_CLASS,
+          SETTINGS_LABEL_CLASS,
           fill && "truncate-none",
           labelClassName,
           scrub.canScrub && "cursor-ew-resize touch-pan-y select-none",
@@ -129,17 +129,17 @@ export function SettingsNumberField({
       >
         {label}
       </span>
-      <InspectorScrubNumberInput
+      <SettingsScrubNumberInput
         aria-label={label}
         className={cn(
           fill ? "w-full min-w-0" : "w-[4.75rem]",
-          INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+          SETTINGS_CONTROL_HEIGHT_COMPACT_CLASS,
         )}
         disabled={disabled}
         inputClassName={cn(
-          INSPECTOR_CONTROL_HEIGHT_COMPACT_CLASS,
+          SETTINGS_CONTROL_HEIGHT_COMPACT_CLASS,
           "w-full px-1.5",
-          INSPECTOR_RADIUS_CLASS,
+          SETTINGS_RADIUS_CLASS,
         )}
         scrub={scrub}
         step={step}

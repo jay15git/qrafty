@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { CardBackgroundImageLayer } from "@/features/canvas/components/CardBackgroundImageLayer";
-import { DraftingCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer";
+import { CanvasCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer";
 import type {
-  DraftingCardPaperShaderState,
-  DraftingCardState,
+  CanvasCardPaperShaderState,
+  CanvasCardState,
 } from "@/features/canvas/model/card-state";
 import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style";
 import { cn } from "@/lib/utils";
@@ -17,8 +17,8 @@ type BackgroundMode = "solid" | "paper-shader" | "image" | "image-filter";
 
 type CardBackgroundLayersProps = {
   animateTransitions: boolean;
-  cardState: DraftingCardState;
-  imageFilterShader: DraftingCardPaperShaderState;
+  cardState: CanvasCardState;
+  imageFilterShader: CanvasCardPaperShaderState;
   isImageFilterMode: boolean;
   isImageMode: boolean;
   isPaperShaderMode: boolean;
@@ -228,7 +228,7 @@ export function CardBackgroundLayers({
           animate={animateTransitions}
           className={zIndexFor("paper-shader")}
         >
-          <DraftingCardPaperShaderLayer
+          <CanvasCardPaperShaderLayer
             displayHeight={shaderDisplayHeight}
             displayWidth={shaderDisplayWidth}
             layoutHeight={layoutHeight}
@@ -244,7 +244,7 @@ export function CardBackgroundLayers({
           animate={animateTransitions}
           className={zIndexFor("image-filter")}
         >
-          <DraftingCardPaperShaderLayer
+          <CanvasCardPaperShaderLayer
             displayHeight={shaderDisplayHeight}
             displayWidth={shaderDisplayWidth}
             layoutHeight={layoutHeight}

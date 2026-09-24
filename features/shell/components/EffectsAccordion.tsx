@@ -1,8 +1,8 @@
 "use client";
 
-import { InspectorSection } from "@/features/shell/components/SettingsControls";
+import { SettingsSection } from "@/features/shell/components/SettingsControls";
 import { SettingsSliderRow } from "@/features/shell/components/SettingsRows";
-import { SettingsSlider } from "@/features/shell/inspector/settings-ui";
+import { SettingsSlider } from "@/features/shell/settings/settings-ui";
 import { DRAFTING_FILTER_RANGES } from "@/features/canvas/model/filters";
 import {
   getLayerEffectKindLabel,
@@ -15,15 +15,15 @@ import {
   type LayerShadowEffectKind,
 } from "@/features/canvas/model/layer-effects";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
-import type { DraftingFilterType } from "@/features/canvas/model/filters";
+import type { CanvasFilterType } from "@/features/canvas/model/filters";
 import { cn } from "@/lib/utils";
 
 function isShadowEffectKind(kind: LayerEffectKind): kind is LayerShadowEffectKind {
   return kind === "drop-shadow" || kind === "inner-shadow";
 }
 
-function getFilterType(kind: LayerEffectKind): DraftingFilterType {
-  return (kind === "layer-blur" ? "blur" : kind) as DraftingFilterType;
+function getFilterType(kind: LayerEffectKind): CanvasFilterType {
+  return (kind === "layer-blur" ? "blur" : kind) as CanvasFilterType;
 }
 
 function renderSliderRow({
@@ -77,7 +77,7 @@ export function EffectsAccordion({
   const opacityPercent = layerOpacity === undefined ? undefined : Math.round(layerOpacity * 100);
 
   return (
-    <InspectorSection dataSlot="effects-accordion">
+    <SettingsSection dataSlot="effects-accordion">
       <div
         className={cn("flex flex-col", variant === "flat" ? "gap-2" : "gap-2.5")}
         data-slot="effects-list"
@@ -135,6 +135,6 @@ export function EffectsAccordion({
           );
         })}
       </div>
-    </InspectorSection>
+    </SettingsSection>
   );
 }

@@ -13,9 +13,9 @@ import type {
   TextSettings,
 } from "@/features/shell/model/toolbar-types";
 import type { QraftyState } from "@/features/qr/model/state";
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
+import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 import type { SceneCompositionState } from "@/features/canvas/model/scene-templates";
 import {
   getAssetSourceMode,
@@ -43,7 +43,7 @@ export type ToolbarSettingsSnapshots = {
       cardHeight: number;
       cardWidth: number;
       lockAspectRatio: boolean;
-      sizeMode: DraftingCardState["sizeMode"];
+      sizeMode: CanvasCardState["sizeMode"];
       sizePresetId?: string;
     };
   };
@@ -58,7 +58,7 @@ export type BuildToolbarSettingsSnapshotsInput = {
   activeCanvasLayers: CanvasLayer[];
   activeCanvasLayerRows: CanvasLayer[];
   activeSceneComposition: SceneCompositionState;
-  draftingQraftyState: QraftyState;
+  canvasQraftyState: QraftyState;
   selectedAriaLabel: string;
   selectedBackgroundColor: string;
   selectedBackgroundColorMode: "solid" | "gradient";
@@ -66,7 +66,7 @@ export type BuildToolbarSettingsSnapshotsInput = {
   selectedBackgroundShapeId: QraftyState["backgroundShapeId"];
   selectedBackgroundShapeOptions: QraftyState["backgroundShapeOptions"];
   selectedBoostLevel: boolean;
-  selectedCardState: DraftingCardState;
+  selectedCardState: CanvasCardState;
   selectedCornerDotColor: string;
   selectedCornerDotColorMode: "solid" | "gradient";
   selectedCornerDotGradient: QraftyState["finderPatternInnerGradient"];
@@ -130,7 +130,7 @@ export function buildToolbarSettingsSnapshots(
     activeCanvasLayers,
     activeCanvasLayerRows,
     activeSceneComposition,
-    draftingQraftyState,
+    canvasQraftyState,
     selectedCardState,
     selectedTextLayer,
   } = input;
@@ -156,8 +156,8 @@ export function buildToolbarSettingsSnapshots(
   const logoSettings: LogoSettings = {
     colorMode: input.selectedLogoColorMode,
     customImageUrl:
-      draftingQraftyState.logo.source === "upload" || draftingQraftyState.logo.source === "url"
-        ? (draftingQraftyState.logo.value ?? "")
+      canvasQraftyState.logo.source === "upload" || canvasQraftyState.logo.source === "url"
+        ? (canvasQraftyState.logo.value ?? "")
         : "",
     gradient: input.selectedLogoGradient,
     hideBackgroundDots: input.selectedHideBackgroundDots,
@@ -192,7 +192,7 @@ export function buildToolbarSettingsSnapshots(
 
   const activeQrLayer =
     activeCanvasLayers.find((layer) => layer.kind === "qr") ??
-    createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState).find(
+    createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState).find(
       (layer) => layer.kind === "qr",
     );
 

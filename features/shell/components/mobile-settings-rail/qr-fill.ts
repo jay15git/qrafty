@@ -8,7 +8,7 @@ import {
   applyUnifiedQrModulePatternPatch,
   type UnifiedQrFillPatches,
   type UnifiedQrFillSettings,
-} from "@/features/shell/inspector/settings-bridge";
+} from "@/features/shell/settings/settings-bridge";
 import type { PatternSettings } from "@/features/shell/model/toolbar-types";
 
 function unifiedQrSettings(model: SettingsModel): UnifiedQrFillSettings {

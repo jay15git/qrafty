@@ -27,12 +27,12 @@ import { DOT_STYLE_OPTIONS } from "@/features/qr/styles/style-options";
 import {
   SETTINGS_FILL_LINEAR_PRESETS,
   SETTINGS_FILL_SOLID_PRESETS,
-} from "@/features/shell/inspector/settings-fill-presets";
+} from "@/features/shell/settings/settings-fill-presets";
 import { getCardGeneratedShaderDefinitions } from "@/features/canvas/rendering/paper-shader-definitions";
 import type { ToolbarToolId } from "@/features/shell/model/toolbar-types";
 import {
-  createDraftingShapeLayer,
-  createDraftingTextLayer,
+  createCanvasShapeLayer,
+  createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root";
 
@@ -57,12 +57,12 @@ beforeEach(() => {
 });
 
 describe("WorkspaceChrome", () => {
-  it("renders the new settings accordion in the inspector", async () => {
+  it("renders the new settings accordion in the settings", async () => {
     const surface = await renderPrototype();
-    const inspector = surface.container.querySelector('[data-slot="desktop-settings-panel"]');
+    const settings = surface.container.querySelector('[data-slot="desktop-settings-panel"]');
     const sectionHeaders = getAccordionHeaders(surface.container);
 
-    expect(inspector).not.toBeNull();
+    expect(settings).not.toBeNull();
     expect(sectionHeaders.map((header) => header.textContent?.trim())).toEqual([
       "Content",
       "Style",
@@ -100,9 +100,9 @@ describe("WorkspaceChrome", () => {
       colorHeader.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
 
-    const inspector = surface.container.querySelector('[data-slot="desktop-settings-panel"]');
+    const settings = surface.container.querySelector('[data-slot="desktop-settings-panel"]');
 
-    expect(inspector?.textContent).toContain("Color separately");
+    expect(settings?.textContent).toContain("Color separately");
   });
 
   it("keeps the open accordion section when canvas activeTool changes", async () => {
@@ -150,7 +150,7 @@ describe("WorkspaceChrome", () => {
   });
 
   it("shows layer popover triggers when an appearance layer is selected", async () => {
-    const layer = createDraftingTextLayer(NODE_ID, { text: "Hello" });
+    const layer = createCanvasTextLayer(NODE_ID, { text: "Hello" });
     const surface = await renderPrototype({
       controller: {
         appearanceSnapshot: getAppearanceSnapshot(layer),
@@ -177,18 +177,18 @@ describe("WorkspaceChrome", () => {
     expect(surface.container.querySelector('[data-slot="desktop-settings-panel"]')).not.toBeNull();
   });
 
-  it("renders the inspector without the removed icon rail", async () => {
+  it("renders the settings without the removed icon rail", async () => {
     const surface = await renderPrototype({ controller: { activeTool: "content" } });
     const shell = surface.container.querySelector('[data-slot="desktop-settings-shell"]');
     const rail = surface.container.querySelector('[data-slot="floating-toolbar"]');
-    const inspector = surface.container.querySelector('[data-slot="desktop-settings-panel"]');
+    const settings = surface.container.querySelector('[data-slot="desktop-settings-panel"]');
 
     expect(shell).not.toBeNull();
     expect(rail).toBeNull();
-    expect(shell?.querySelector('[data-slot="desktop-settings-panel"]')).toBe(inspector);
-    expect(inspector?.className).not.toContain("fixed");
-    expect(inspector?.className).not.toContain("rounded-[20px]");
-    expect(inspector?.className).not.toContain("bg-black/55");
+    expect(shell?.querySelector('[data-slot="desktop-settings-panel"]')).toBe(settings);
+    expect(settings?.className).not.toContain("fixed");
+    expect(settings?.className).not.toContain("rounded-[20px]");
+    expect(settings?.className).not.toContain("bg-black/55");
     sessionStorage.clear();
   });
 
@@ -204,14 +204,14 @@ describe("WorkspaceChrome", () => {
   it("toggles the desktop prototype between dark and light mode", async () => {
     const surface = await renderPrototype();
     const prototype = surface.container.querySelector('[data-slot="chrome-root"]');
-    const inspector = surface.container.querySelector('[data-slot="desktop-settings-panel"]');
+    const settings = surface.container.querySelector('[data-slot="desktop-settings-panel"]');
     const dynamicIsland = surface.container.querySelector('[data-slot="dynamic-island"]');
 
     expect(prototype?.getAttribute("data-shell-theme")).toBe("dark");
     expect(surface.container.querySelector('[data-slot="action-toolbar"]')).toBeNull();
-    expect(inspector?.querySelector('[data-slot="theme-toggle"]')).not.toBeNull();
-    expect(inspector?.querySelector('[data-slot="keyboard-shortcuts-trigger"]')).not.toBeNull();
-    expect(inspector?.querySelector('[data-slot="sounds-toggle"]')).not.toBeNull();
+    expect(settings?.querySelector('[data-slot="theme-toggle"]')).not.toBeNull();
+    expect(settings?.querySelector('[data-slot="keyboard-shortcuts-trigger"]')).not.toBeNull();
+    expect(settings?.querySelector('[data-slot="sounds-toggle"]')).not.toBeNull();
     expect(dynamicIsland?.querySelector('[data-slot="theme-toggle"]')).toBeNull();
     expect(dynamicIsland?.querySelector('[data-slot="keyboard-shortcuts-trigger"]')).toBeNull();
     expect(dynamicIsland?.querySelector('button[aria-label="Undo"]')).toBeNull();
@@ -261,7 +261,7 @@ describe("WorkspaceChrome", () => {
         onUndo,
       },
     });
-    const inspector = getRequiredElement(surface.container, '[data-slot="desktop-settings-panel"]');
+    const settings = getRequiredElement(surface.container, '[data-slot="desktop-settings-panel"]');
     const utilityToolbar = surface.container.querySelector('[data-slot="utility-toolbar"]');
 
     expect(surface.container.querySelector('[data-slot="action-toolbar"]')).toBeNull();
@@ -276,12 +276,8 @@ describe("WorkspaceChrome", () => {
     expect(utilityToolbar?.querySelector('[data-slot="save-trigger"]')).toBeNull();
 
     await act(async () => {
-      getRequiredButton(inspector, "Undo").dispatchEvent(
-        new MouseEvent("click", { bubbles: true }),
-      );
-      getRequiredButton(inspector, "Redo").dispatchEvent(
-        new MouseEvent("click", { bubbles: true }),
-      );
+      getRequiredButton(settings, "Undo").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      getRequiredButton(settings, "Redo").dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
 
     expect(onUndo).toHaveBeenCalledTimes(1);
@@ -308,8 +304,8 @@ describe("WorkspaceChrome", () => {
   it("keeps the settings toolbar expanded", async () => {
     const surface = await renderWithAsyncJsdomRoot(
       <DesktopSettingsShell
-        showInspector
-        inspector={<div data-slot="desktop-settings-panel-host">Inspector</div>}
+        showSettings
+        settings={<div data-slot="desktop-settings-panel-host">Settings</div>}
       />,
     );
     const shell = getRequiredElement(surface.container, '[data-slot="desktop-settings-shell"]');
@@ -320,7 +316,7 @@ describe("WorkspaceChrome", () => {
   });
 
   it("renders layers and properties triggers in the dynamic island when a layer is selected", async () => {
-    const layer = createDraftingTextLayer(NODE_ID, { text: "Selected" });
+    const layer = createCanvasTextLayer(NODE_ID, { text: "Selected" });
     const onAppearancePatch = vi.fn();
     const surface = await renderPrototype({
       controller: {
@@ -353,7 +349,7 @@ describe("WorkspaceChrome", () => {
   });
 
   it("shows the border trigger for shape layers but not text layers", async () => {
-    const shapeLayer = createDraftingShapeLayer(NODE_ID, "rect");
+    const shapeLayer = createCanvasShapeLayer(NODE_ID, "rect");
     const surface = await renderPrototype({
       controller: {
         activeTool: null,
@@ -371,7 +367,7 @@ describe("WorkspaceChrome", () => {
   });
 
   it("shows the border trigger for a qr layer with a background shape", async () => {
-    const qrLayer = { ...createDraftingTextLayer(NODE_ID), kind: "qr" as const };
+    const qrLayer = { ...createCanvasTextLayer(NODE_ID), kind: "qr" as const };
     const surface = await renderPrototype({
       controller: {
         activeTool: null,
@@ -401,8 +397,8 @@ describe("WorkspaceChrome", () => {
         },
       },
     });
-    const inspector = getRequiredElement(surface.container, '[data-slot="desktop-settings-panel"]');
-    const badge = inspector.querySelector('[data-slot="scan-safety-badge"]');
+    const settings = getRequiredElement(surface.container, '[data-slot="desktop-settings-panel"]');
+    const badge = settings.querySelector('[data-slot="scan-safety-badge"]');
 
     expect(surface.container.querySelector('[data-slot="scan-safety-trigger"]')).toBeNull();
     expect(badge).not.toBeNull();
@@ -410,7 +406,7 @@ describe("WorkspaceChrome", () => {
     expect(badge?.textContent).toContain("Scan Unsafe");
   });
 
-  it("renders the mobile settings rail instead of the desktop inspector", async () => {
+  it("renders the mobile settings rail instead of the desktop settings", async () => {
     stubMatchMedia(true);
     const surface = await renderPrototype();
 

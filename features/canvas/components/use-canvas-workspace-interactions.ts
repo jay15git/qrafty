@@ -13,7 +13,7 @@ import {
   type PointerEvent,
 } from "react";
 
-import { type DraftingCardState } from "@/features/canvas/model/card-state";
+import { type CanvasCardState } from "@/features/canvas/model/card-state";
 import { cornerRadiiToCss } from "@/features/canvas/model/corner-radius";
 import {
   DEFAULT_DRAFTING_LAYER_SHADOW,
@@ -21,11 +21,11 @@ import {
 } from "@/features/canvas/model/layers/shared";
 import {
   clampLayerGeometryToCanvas,
-  createDefaultDraftingLayers,
+  createDefaultCanvasLayers,
 } from "@/features/canvas/model/layers/card-qr";
-import { getDraftingMarqueeSelection } from "@/features/canvas/model/layers/operations";
+import { getCanvasMarqueeSelection } from "@/features/canvas/model/layers/operations";
 import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects";
-import { ensureDraftingFontsForLayers } from "@/features/canvas/model/fonts";
+import { ensureCanvasFontsForLayers } from "@/features/canvas/model/fonts";
 import {
   CONTEXT_MENU_POINTER_OFFSET_PX,
   LAYER_TOOLBAR_MIN_WIDTH_PX,
@@ -38,12 +38,12 @@ import {
   getChromeVisualScale,
   type ChromeSpace,
 } from "@/features/canvas/components/canvas-layer-chrome-overlay";
-import { getDraftingCardBorderStyle } from "@/features/canvas/rendering/layer-dom-styles";
+import { getCanvasCardBorderStyle } from "@/features/canvas/rendering/layer-dom-styles";
 import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { StaticQrValidationResult } from "@/features/qr/content/static-payload";
-import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document";
+import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
 import { type SceneCompositionState } from "@/features/canvas/model/scene-templates";
 import {
   getCombinedLayerBounds,
@@ -69,7 +69,7 @@ import { previewDrawerResize } from "@/features/canvas/preview/preview-drawer-re
 
 export type CanvasWorkspaceInteractionsInput = {
   activeQrLayerId?: string;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   contentPan?: { x: number; y: number };
   contentOnlyZoom: boolean;
   contentValidation?: StaticQrValidationResult;
@@ -84,7 +84,7 @@ export type CanvasWorkspaceInteractionsInput = {
   onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void;
   onSelect: () => void;
   onQrClick: () => void;
-  qrStateByLayerId: DraftingQrStateByLayerId;
+  qrStateByLayerId: CanvasQrStateByLayerId;
   sceneComposition: SceneCompositionState;
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];
@@ -105,7 +105,7 @@ export type CanvasMultiSelectionPreview = {
   rotation: number;
 };
 
-const LAYER_MOVE_CURSOR_LOCK_CLASS = "drafting-layer-moving";
+const LAYER_MOVE_CURSOR_LOCK_CLASS = "canvas-layer-moving";
 
 function lockLayerMoveCursor() {
   document.documentElement.classList.add(LAYER_MOVE_CURSOR_LOCK_CLASS);
@@ -250,7 +250,7 @@ function resolveSnapGuideClipBounds(visibleLayers: CanvasLayer[], chromeSpace: C
   return snapGuideClipLayer ? getChromeFrameRect(snapGuideClipLayer, 0, chromeSpace) : null;
 }
 
-function resolveCardChrome(cardState: DraftingCardState) {
+function resolveCardChrome(cardState: CanvasCardState) {
   const isPaperShaderMode = cardState.styleMode === "paper-shader";
   const isImageMode = cardState.styleMode === "image";
   const isImageFilterMode = cardState.styleMode === "image-filter";
@@ -268,7 +268,7 @@ function resolveCardChrome(cardState: DraftingCardState) {
       ? { backgroundColor: "transparent" }
       : cssFillToBackgroundStyle(cardState.fill)),
     ...cardImageStyle,
-    ...getDraftingCardBorderStyle(cardState),
+    ...getCanvasCardBorderStyle(cardState),
     borderRadius: cornerRadiiToCss(cardState.cornerRadii),
     ...(hasTranslucentCardFill(cardState.fill) ? { backdropFilter: "blur(16px)" } : {}),
   };
@@ -474,9 +474,7 @@ export function useCanvasWorkspaceInteractions({
 
   const resolvedLayers = useMemo(
     () =>
-      layers && layers.length > 0
-        ? layers
-        : createDefaultDraftingLayers("preview", state, cardState),
+      layers && layers.length > 0 ? layers : createDefaultCanvasLayers("preview", state, cardState),
     [cardState, layers, state],
   );
   const sceneLayers = useMemo(
@@ -485,7 +483,7 @@ export function useCanvasWorkspaceInteractions({
   );
 
   useEffect(() => {
-    void ensureDraftingFontsForLayers(resolvedLayers);
+    void ensureCanvasFontsForLayers(resolvedLayers);
   }, [resolvedLayers]);
 
   useEffect(() => {
@@ -892,7 +890,7 @@ export function useCanvasWorkspaceInteractions({
       Math.abs(current.end.y - current.start.y) > 1;
     suppressCanvasClickRef.current = moved;
 
-    const selectedIds = getDraftingMarqueeSelection(
+    const selectedIds = getCanvasMarqueeSelection(
       visibleLayers,
       getMarqueeBounds(current.start, current.end),
     );

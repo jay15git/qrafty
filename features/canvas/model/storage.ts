@@ -1,8 +1,8 @@
 import {
-  serializeDraftingWorkspaceDocument,
-  type DraftingWorkspaceDocumentV1,
+  serializeCanvasWorkspaceDocument,
+  type CanvasWorkspaceDocumentV1,
 } from "@/features/canvas/model/document";
-import { parseDraftingWorkspaceDocument } from "@/features/canvas/model/document/parse";
+import { parseCanvasWorkspaceDocument } from "@/features/canvas/model/document/parse";
 
 const DB_NAME = "qrafty-canvas-workspace";
 const DB_VERSION = 1;
@@ -10,31 +10,31 @@ const STORE_NAME = "drafts";
 const DRAFT_ID = "new";
 const LOCAL_STORAGE_KEY = "qrafty:canvas-workspace:new";
 
-type StoredDraftingWorkspaceRecord = {
+type StoredCanvasWorkspaceRecord = {
   document: unknown;
   id: string;
   updatedAt: number;
 };
 
-export async function readDraftingWorkspaceDraft(): Promise<DraftingWorkspaceDocumentV1 | null> {
+export async function readCanvasWorkspaceDraft(): Promise<CanvasWorkspaceDocumentV1 | null> {
   const idbRecord = await readIndexedDbDraft().catch(() => null);
 
   if (idbRecord) {
-    return parseDraftingWorkspaceDocument(idbRecord.document);
+    return parseCanvasWorkspaceDocument(idbRecord.document);
   }
 
   try {
     const raw = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-    return raw ? parseDraftingWorkspaceDocument(JSON.parse(raw)) : null;
+    return raw ? parseCanvasWorkspaceDocument(JSON.parse(raw)) : null;
   } catch {
     return null;
   }
 }
 
-export async function writeDraftingWorkspaceDraft(
-  document: DraftingWorkspaceDocumentV1,
+export async function writeCanvasWorkspaceDraft(
+  document: CanvasWorkspaceDocumentV1,
 ): Promise<void> {
-  const serialized = serializeDraftingWorkspaceDocument(document);
+  const serialized = serializeCanvasWorkspaceDocument(document);
 
   try {
     await writeIndexedDbDraft(JSON.parse(serialized));
@@ -47,7 +47,7 @@ export async function writeDraftingWorkspaceDraft(
     }
   }
 }
-function openDraftingWorkspaceDb(): Promise<IDBDatabase> {
+function openCanvasWorkspaceDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     if (typeof indexedDB === "undefined") {
       reject(new Error("IndexedDB is unavailable."));
@@ -68,11 +68,11 @@ function openDraftingWorkspaceDb(): Promise<IDBDatabase> {
   });
 }
 
-async function readIndexedDbDraft(): Promise<StoredDraftingWorkspaceRecord | null> {
-  const db = await openDraftingWorkspaceDb();
+async function readIndexedDbDraft(): Promise<StoredCanvasWorkspaceRecord | null> {
+  const db = await openCanvasWorkspaceDb();
 
   try {
-    return await new Promise<StoredDraftingWorkspaceRecord | null>((resolve, reject) => {
+    return await new Promise<StoredCanvasWorkspaceRecord | null>((resolve, reject) => {
       const transaction = db.transaction(STORE_NAME, "readonly");
       const request = transaction.objectStore(STORE_NAME).get(DRAFT_ID);
 
@@ -86,7 +86,7 @@ async function readIndexedDbDraft(): Promise<StoredDraftingWorkspaceRecord | nul
 }
 
 async function writeIndexedDbDraft(document: unknown): Promise<void> {
-  const db = await openDraftingWorkspaceDb();
+  const db = await openCanvasWorkspaceDb();
 
   try {
     await new Promise<void>((resolve, reject) => {
@@ -98,14 +98,14 @@ async function writeIndexedDbDraft(document: unknown): Promise<void> {
         document,
         id: DRAFT_ID,
         updatedAt: Date.now(),
-      } satisfies StoredDraftingWorkspaceRecord);
+      } satisfies StoredCanvasWorkspaceRecord);
     });
   } finally {
     db.close();
   }
 }
 
-function normalizeStoredRecord(value: unknown): StoredDraftingWorkspaceRecord | null {
+function normalizeStoredRecord(value: unknown): StoredCanvasWorkspaceRecord | null {
   if (
     typeof value !== "object" ||
     value === null ||
@@ -116,5 +116,5 @@ function normalizeStoredRecord(value: unknown): StoredDraftingWorkspaceRecord | 
     return null;
   }
 
-  return value as StoredDraftingWorkspaceRecord;
+  return value as StoredCanvasWorkspaceRecord;
 }

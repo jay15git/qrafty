@@ -1,12 +1,12 @@
-import type { DraftingCardShadowState } from "@/features/canvas/model/card-state";
+import type { CanvasCardShadowState } from "@/features/canvas/model/card-state";
 import type {
-  DraftingBorderSideKey,
-  DraftingBorderStyle,
-  DraftingOutlineState,
-  DraftingPerSideBorderState,
-  DraftingShadowLayerState,
+  CanvasBorderSideKey,
+  CanvasBorderStyle,
+  CanvasOutlineState,
+  CanvasPerSideBorderState,
+  CanvasShadowLayerState,
 } from "@/features/canvas/model/effects";
-import type { DraftingFilterEffect } from "@/features/canvas/model/filters";
+import type { CanvasFilterEffect } from "@/features/canvas/model/filters";
 
 function toRgba(color: string, opacity: number) {
   const normalizedOpacity = Math.min(1, Math.max(0, Number.isFinite(opacity) ? opacity : 1));
@@ -27,7 +27,7 @@ function toRgba(color: string, opacity: number) {
   return color;
 }
 
-function getDraftingShadowLayerCss(shadow: DraftingShadowLayerState | DraftingCardShadowState) {
+function getCanvasShadowLayerCss(shadow: CanvasShadowLayerState | CanvasCardShadowState) {
   if (
     shadow.visible === false ||
     shadow.opacity <= 0 ||
@@ -40,7 +40,7 @@ function getDraftingShadowLayerCss(shadow: DraftingShadowLayerState | DraftingCa
   return `drop-shadow(${shadow.offsetX}px ${shadow.offsetY}px ${shadow.blur}px ${color})`;
 }
 
-function getDraftingShadowBoxShadowCss(shadow: DraftingShadowLayerState | DraftingCardShadowState) {
+function getCanvasShadowBoxShadowCss(shadow: CanvasShadowLayerState | CanvasCardShadowState) {
   if (
     shadow.visible === false ||
     shadow.opacity <= 0 ||
@@ -54,29 +54,29 @@ function getDraftingShadowBoxShadowCss(shadow: DraftingShadowLayerState | Drafti
   return `${inset}${shadow.offsetX}px ${shadow.offsetY}px ${shadow.blur}px ${shadow.spread ?? 0}px ${color}`;
 }
 
-export function getDraftingLayerBoxShadowStyle(
-  shadows: Array<DraftingCardShadowState | DraftingShadowLayerState>,
+export function getCanvasLayerBoxShadowStyle(
+  shadows: Array<CanvasCardShadowState | CanvasShadowLayerState>,
 ) {
   const boxShadows = shadows.flatMap((shadow) => {
-    const css = getDraftingShadowBoxShadowCss(shadow);
+    const css = getCanvasShadowBoxShadowCss(shadow);
     return css ? [css] : [];
   });
 
   return boxShadows.length > 0 ? boxShadows.join(", ") : undefined;
 }
 
-export function getDraftingLayerDropShadowFilter(
-  shadows: Array<DraftingCardShadowState | DraftingShadowLayerState>,
+export function getCanvasLayerDropShadowFilter(
+  shadows: Array<CanvasCardShadowState | CanvasShadowLayerState>,
 ) {
   const dropShadows = shadows.flatMap((shadow) => {
-    const css = getDraftingShadowLayerCss(shadow);
+    const css = getCanvasShadowLayerCss(shadow);
     return css ? [css] : [];
   });
 
   return dropShadows.length > 0 ? dropShadows.join(" ") : undefined;
 }
 
-export function buildCssFilterString(filters: DraftingFilterEffect[]) {
+export function buildCssFilterString(filters: CanvasFilterEffect[]) {
   const parts = filters.flatMap((filter) => {
     if (!filter.enabled) {
       return [];
@@ -112,7 +112,7 @@ export function mergeCssFilterStrings(...values: Array<string | undefined>) {
   return parts.length > 0 ? parts.join(" ") : undefined;
 }
 
-export function getDraftingOutlineStyle(outline: DraftingOutlineState | undefined) {
+export function getCanvasOutlineStyle(outline: CanvasOutlineState | undefined) {
   if (!outline || !outline.visible || outline.width <= 0 || outline.opacity <= 0) {
     return {};
   }
@@ -123,18 +123,18 @@ export function getDraftingOutlineStyle(outline: DraftingOutlineState | undefine
   };
 }
 
-export function hasVisibleBorderSide(sides: DraftingPerSideBorderState | undefined) {
+export function hasVisibleBorderSide(sides: CanvasPerSideBorderState | undefined) {
   if (!sides) {
     return false;
   }
 
-  const sideKeys: DraftingBorderSideKey[] = ["top", "right", "bottom", "left"];
+  const sideKeys: CanvasBorderSideKey[] = ["top", "right", "bottom", "left"];
   return sideKeys.some((key) => sides[key].width > 0 && sides[key].opacity > 0);
 }
 
-export function getDraftingPerSideBorderStyle(sides: DraftingPerSideBorderState) {
+export function getCanvasPerSideBorderStyle(sides: CanvasPerSideBorderState) {
   const style: Record<string, string> = {};
-  const sideKeys: DraftingBorderSideKey[] = ["top", "right", "bottom", "left"];
+  const sideKeys: CanvasBorderSideKey[] = ["top", "right", "bottom", "left"];
 
   for (const side of sideKeys) {
     const value = sides[side];
@@ -153,7 +153,7 @@ export function getDraftingPerSideBorderStyle(sides: DraftingPerSideBorderState)
   return style;
 }
 
-export function getDraftingUniformBorderStyle({
+export function getCanvasUniformBorderStyle({
   color,
   opacity,
   style,
@@ -161,7 +161,7 @@ export function getDraftingUniformBorderStyle({
 }: {
   color: string;
   opacity: number;
-  style: DraftingBorderStyle;
+  style: CanvasBorderStyle;
   width: number;
 }) {
   if (width <= 0 || opacity <= 0) {

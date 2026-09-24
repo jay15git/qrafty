@@ -2,7 +2,7 @@
 
 import type { DragEvent } from "react";
 
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { CanvasViewport } from "@/features/canvas/components/canvas-viewport";
 import { useCanvasInteractions } from "@/features/canvas/components/use-canvas-interactions";
@@ -12,7 +12,7 @@ import type {
 } from "@/features/canvas/components/canvas-control-props";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { StaticQrValidationResult } from "@/features/qr/content/static-payload";
-import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document";
+import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 
 export type CanvasBoardToolbarVariant = "default" | "zoom";
@@ -24,12 +24,12 @@ function resolveCanvasSurfaceTool(tool?: CanvasBoardTool | null): CanvasBoardToo
 
 export type CanvasBoardPane = {
   activeQrLayerId?: string;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   contentValidation?: StaticQrValidationResult;
   id: string;
   layers?: CanvasLayer[];
   name: string;
-  qrStateByLayerId: DraftingQrStateByLayerId;
+  qrStateByLayerId: CanvasQrStateByLayerId;
   sceneComposition?: import("@/features/canvas/model/scene-templates").SceneCompositionState;
   state: QraftyState;
 };

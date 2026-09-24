@@ -15,7 +15,7 @@ import {
   useMemo,
 } from "react";
 
-import type { DraftingCardPaperShaderState } from "@/features/canvas/model/card-state";
+import type { CanvasCardPaperShaderState } from "@/features/canvas/model/card-state";
 import { resolveShaderPlaybackVisible } from "@/features/canvas/components/card-paper-shader";
 import {
   getLivePaperShaderRenderOptions,
@@ -43,7 +43,7 @@ import {
 
 const MOTION_SHADER_CAPTURE_BOOTSTRAP_FRAMES = 120;
 
-type DraftingCardPaperShaderLayerProps = {
+type CanvasCardPaperShaderLayerProps = {
   captureFrames?: boolean;
   displayHeight?: number;
   displayWidth?: number;
@@ -51,10 +51,10 @@ type DraftingCardPaperShaderLayerProps = {
   layoutHeight?: number;
   layoutWidth?: number;
   onFrame?: (dataUrl: string, sourceCanvas: HTMLCanvasElement) => boolean | void;
-  paperShader: DraftingCardPaperShaderState;
+  paperShader: CanvasCardPaperShaderState;
 };
 
-type DraftingCardPaperShaderRendererProps = {
+type CanvasCardPaperShaderRendererProps = {
   captureFrames?: boolean;
   dataExportShader?: string;
   dataSlot: string;
@@ -66,7 +66,7 @@ type DraftingCardPaperShaderRendererProps = {
   onFrame?: (dataUrl: string, sourceCanvas: HTMLCanvasElement) => boolean | void;
   onPausedSnapshot: (dataUrl: string) => void;
   onRecover: () => void;
-  paperShader: DraftingCardPaperShaderState;
+  paperShader: CanvasCardPaperShaderState;
   renderOptions?: Record<string, unknown>;
   shouldAnimate: boolean;
   shouldSnapshotWhenPaused: boolean;
@@ -128,8 +128,8 @@ function PaperShaderFallback({ color }: { color: string }) {
   );
 }
 
-function buildDraftingPaperShaderRenderProps(
-  paperShader: DraftingCardPaperShaderState,
+function buildCanvasPaperShaderRenderProps(
+  paperShader: CanvasCardPaperShaderState,
   playbackSpeed: number,
   renderOptions?: Record<string, unknown>,
   worldSize?: ReturnType<typeof buildPaperShaderWorldSize>,
@@ -223,7 +223,7 @@ function useShaderVisibility(hostRef: RefObject<HTMLDivElement | null>) {
   return isVisible;
 }
 
-function DraftingCardPaperShaderRenderer({
+function CanvasCardPaperShaderRenderer({
   captureFrames = false,
   dataExportShader,
   dataSlot,
@@ -240,7 +240,7 @@ function DraftingCardPaperShaderRenderer({
   shouldAnimate,
   shouldSnapshotWhenPaused,
   style,
-}: DraftingCardPaperShaderRendererProps) {
+}: CanvasCardPaperShaderRendererProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const ShaderComponent =
     PAPER_SHADER_COMPONENTS[paperShader.shaderId] ?? DEFAULT_PAPER_SHADER_COMPONENT;
@@ -252,7 +252,7 @@ function DraftingCardPaperShaderRenderer({
   const playbackSpeed =
     shouldAnimate && isVisible ? (paperShader.paused ? 0 : paperShader.speed) : 0;
   const shaderProps = useMemo(
-    () => buildDraftingPaperShaderRenderProps(paperShader, playbackSpeed, renderOptions, worldSize),
+    () => buildCanvasPaperShaderRenderProps(paperShader, playbackSpeed, renderOptions, worldSize),
     [paperShader, playbackSpeed, renderOptions, worldSize],
   );
 
@@ -373,8 +373,8 @@ function DraftingCardPaperShaderRenderer({
   );
 }
 
-export const DraftingCardPaperShaderLayer = memo(
-  function DraftingCardPaperShaderLayer({
+export const CanvasCardPaperShaderLayer = memo(
+  function CanvasCardPaperShaderLayer({
     captureFrames = false,
     displayHeight,
     displayWidth,
@@ -383,7 +383,7 @@ export const DraftingCardPaperShaderLayer = memo(
     layoutWidth,
     onFrame,
     paperShader,
-  }: DraftingCardPaperShaderLayerProps) {
+  }: CanvasCardPaperShaderLayerProps) {
     const { preferLowPowerShaders } = usePreviewRuntime();
     const canRenderShader = useSyncExternalStore(
       subscribeToPaperShaderSupport,
@@ -458,7 +458,7 @@ export const DraftingCardPaperShaderLayer = memo(
     }
 
     return (
-      <DraftingCardPaperShaderRenderer
+      <CanvasCardPaperShaderRenderer
         key={`${shaderMountKey}:${recoverEpoch}`}
         captureFrames={captureFrames}
         dataSlot="canvas-card-paper-shader"

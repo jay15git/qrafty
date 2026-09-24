@@ -10,8 +10,8 @@ import {
   qraftyRadialCenterAsPercent,
 } from "@/features/qr/styles/qrafty-gradient-geometry";
 import {
-  getDraftingQrBackgroundPathTransform,
-  getDraftingQrLayerLayout,
+  getCanvasQrBackgroundPathTransform,
+  getCanvasQrLayerLayout,
 } from "@/features/qr/rendering/svg-extension";
 
 export type CanvasQrBackgroundSvgPayload = {
@@ -25,12 +25,12 @@ export function buildCanvasQrBackgroundSvgPayload(
   layer: CanvasLayer,
   state: QraftyState,
 ): CanvasQrBackgroundSvgPayload | null {
-  const markup = buildDraftingQrBackgroundPreviewSvgMarkup(layer, state);
+  const markup = buildCanvasQrBackgroundPreviewSvgMarkup(layer, state);
   if (!markup) {
     return null;
   }
 
-  const layout = getDraftingQrLayerLayout(layer.width, state, layer.height);
+  const layout = getCanvasQrLayerLayout(layer.width, state, layer.height);
 
   return {
     height: Math.max(1, layout.metrics.outerHeight),
@@ -41,20 +41,20 @@ export function buildCanvasQrBackgroundSvgPayload(
 }
 
 export function getCanvasQrBackgroundSvgMarkup(layer: CanvasLayer, state: QraftyState) {
-  if (!shouldRenderDraftingQrBackground(state)) {
+  if (!shouldRenderCanvasQrBackground(state)) {
     return "";
   }
 
   const shape = getQrBackgroundShapeDefinition(state.backgroundShapeId);
-  const layout = getDraftingQrLayerLayout(layer.width, state, layer.height);
+  const layout = getCanvasQrLayerLayout(layer.width, state, layer.height);
   const { metrics, shapeOptions } = layout;
-  const ids = getDraftingQrBackgroundIds(layer.id);
-  const defs = getDraftingQrBackgroundDefsMarkup(ids, state);
-  const fill = getDraftingQrBackgroundFill(state, ids);
-  const stroke = getDraftingQrBackgroundStroke(shapeOptions);
+  const ids = getCanvasQrBackgroundIds(layer.id);
+  const defs = getCanvasQrBackgroundDefsMarkup(ids, state);
+  const fill = getCanvasQrBackgroundFill(state, ids);
+  const stroke = getCanvasQrBackgroundStroke(shapeOptions);
   const shapeName = shape?.id ?? "rect";
   const geometry = shape
-    ? `<path d="${escapeXml(shape.path)}" transform="${getDraftingQrBackgroundPathTransform(shape, metrics.backingRegion, shapeOptions)}"/>`
+    ? `<path d="${escapeXml(shape.path)}" transform="${getCanvasQrBackgroundPathTransform(shape, metrics.backingRegion, shapeOptions)}"/>`
     : `<rect x="${metrics.backingRegion.x}" y="${metrics.backingRegion.y}" width="${metrics.backingRegion.width}" height="${metrics.backingRegion.height}" rx="${(Math.min(metrics.backingRegion.width, metrics.backingRegion.height) / 2) * state.backgroundOptions.round}"/>`;
   const { clipMarkup, contentMarkup } = wrapInnerStrokeMarkup({
     fillMarkup: ` fill="${escapeXml(fill)}"`,
@@ -81,12 +81,12 @@ export function getCanvasQrBackgroundBounds(layer: CanvasLayer) {
   };
 }
 
-function shouldRenderDraftingQrBackground(state: QraftyState) {
+function shouldRenderCanvasQrBackground(state: QraftyState) {
   if (getQrBackgroundShapeDefinition(state.backgroundShapeId)) {
     return true;
   }
 
-  if (getDraftingQrBackgroundImageHref(state)) {
+  if (getCanvasQrBackgroundImageHref(state)) {
     return true;
   }
 
@@ -97,25 +97,25 @@ function shouldRenderDraftingQrBackground(state: QraftyState) {
   return !state.backgroundOptions.transparent && Boolean(state.backgroundOptions.color);
 }
 
-function buildDraftingQrBackgroundPreviewSvgMarkup(layer: CanvasLayer, state: QraftyState) {
-  if (!shouldRenderDraftingQrBackground(state)) {
+function buildCanvasQrBackgroundPreviewSvgMarkup(layer: CanvasLayer, state: QraftyState) {
+  if (!shouldRenderCanvasQrBackground(state)) {
     return null;
   }
 
   const shape = getQrBackgroundShapeDefinition(state.backgroundShapeId);
-  const layout = getDraftingQrLayerLayout(layer.width, state, layer.height);
+  const layout = getCanvasQrLayerLayout(layer.width, state, layer.height);
   const { metrics, shapeOptions } = layout;
-  const ids = getDraftingQrBackgroundIds(layer.id);
-  const defs = getDraftingQrBackgroundDefsMarkup(ids, state);
-  const fill = getDraftingQrBackgroundFill(state, ids);
-  const stroke = getDraftingQrBackgroundStroke(shapeOptions);
+  const ids = getCanvasQrBackgroundIds(layer.id);
+  const defs = getCanvasQrBackgroundDefsMarkup(ids, state);
+  const fill = getCanvasQrBackgroundFill(state, ids);
+  const stroke = getCanvasQrBackgroundStroke(shapeOptions);
   const pathShapeOptions = {
     ...shapeOptions,
     tiltX: 0,
     tiltY: 0,
   };
   const geometry = shape
-    ? `<path data-shape-view-box="${shape.viewBox.x ?? 0} ${shape.viewBox.y ?? 0} ${shape.viewBox.width} ${shape.viewBox.height}" d="${escapeXml(shape.path)}" transform="${getDraftingQrBackgroundPathTransform(shape, metrics.backingRegion, pathShapeOptions)}"/>`
+    ? `<path data-shape-view-box="${shape.viewBox.x ?? 0} ${shape.viewBox.y ?? 0} ${shape.viewBox.width} ${shape.viewBox.height}" d="${escapeXml(shape.path)}" transform="${getCanvasQrBackgroundPathTransform(shape, metrics.backingRegion, pathShapeOptions)}"/>`
     : `<rect x="${metrics.backingRegion.x}" y="${metrics.backingRegion.y}" width="${metrics.backingRegion.width}" height="${metrics.backingRegion.height}" rx="${(Math.min(metrics.backingRegion.width, metrics.backingRegion.height) / 2) * state.backgroundOptions.round}"/>`;
   const { clipMarkup, contentMarkup } = wrapInnerStrokeMarkup({
     fillMarkup: ` fill="${escapeXml(fill)}"`,
@@ -170,7 +170,7 @@ type CanvasQrBackgroundIds = {
   strokeClipId: string;
 };
 
-function getDraftingQrBackgroundIds(layerId: string): CanvasQrBackgroundIds {
+function getCanvasQrBackgroundIds(layerId: string): CanvasQrBackgroundIds {
   const id = getSvgId(layerId);
 
   return {
@@ -180,8 +180,8 @@ function getDraftingQrBackgroundIds(layerId: string): CanvasQrBackgroundIds {
   };
 }
 
-function getDraftingQrBackgroundFill(state: QraftyState, ids: CanvasQrBackgroundIds) {
-  if (getDraftingQrBackgroundImageHref(state)) {
+function getCanvasQrBackgroundFill(state: QraftyState, ids: CanvasQrBackgroundIds) {
+  if (getCanvasQrBackgroundImageHref(state)) {
     return `url(#${ids.imagePatternId})`;
   }
 
@@ -196,7 +196,7 @@ function getDraftingQrBackgroundFill(state: QraftyState, ids: CanvasQrBackground
   return state.backgroundOptions.color;
 }
 
-function getDraftingQrBackgroundStroke(shapeOptions: QraftyState["backgroundShapeOptions"]) {
+function getCanvasQrBackgroundStroke(shapeOptions: QraftyState["backgroundShapeOptions"]) {
   const width = Math.max(0, shapeOptions.strokeWidth);
 
   return {
@@ -206,12 +206,12 @@ function getDraftingQrBackgroundStroke(shapeOptions: QraftyState["backgroundShap
   };
 }
 
-function getDraftingQrBackgroundDefsMarkup(ids: CanvasQrBackgroundIds, state: QraftyState) {
+function getCanvasQrBackgroundDefsMarkup(ids: CanvasQrBackgroundIds, state: QraftyState) {
   const parts: string[] = [];
-  const imageHref = getDraftingQrBackgroundImageHref(state);
+  const imageHref = getCanvasQrBackgroundImageHref(state);
 
   if (state.backgroundGradient.enabled) {
-    parts.push(getDraftingQrBackgroundGradientMarkup(ids.gradientId, state.backgroundGradient));
+    parts.push(getCanvasQrBackgroundGradientMarkup(ids.gradientId, state.backgroundGradient));
   }
 
   if (imageHref) {
@@ -223,7 +223,7 @@ function getDraftingQrBackgroundDefsMarkup(ids: CanvasQrBackgroundIds, state: Qr
   return parts.join("");
 }
 
-function getDraftingQrBackgroundGradientMarkup(id: string, gradient: QraftyGradient) {
+function getCanvasQrBackgroundGradientMarkup(id: string, gradient: QraftyGradient) {
   const stops = gradient.colorStops
     .map((stop) => `<stop offset="${stop.offset}" stop-color="${escapeXml(stop.color)}"/>`)
     .join("");
@@ -237,7 +237,7 @@ function getDraftingQrBackgroundGradientMarkup(id: string, gradient: QraftyGradi
   return `<linearGradient id="${id}" x1="0%" x2="100%" y1="0%" y2="100%" gradientTransform="rotate(${(gradient.rotation * 180) / Math.PI} .5 .5)">${stops}</linearGradient>`;
 }
 
-function getDraftingQrBackgroundImageHref(state: QraftyState) {
+function getCanvasQrBackgroundImageHref(state: QraftyState) {
   return state.backgroundImage.source !== "none" ? state.backgroundImage.value : undefined;
 }
 

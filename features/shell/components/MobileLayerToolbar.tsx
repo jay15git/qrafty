@@ -29,15 +29,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { MOBILE_LAYER_TOOLBAR_GAP_PX } from "@/features/shell/components/mobile-layer-toolbar-sync";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
-import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
+import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
 import {
   useMobileDrawerNavigation,
   useMobileLiveDetail,
-} from "@/features/shell/inspector/MobileDrawerNavigationContext";
+} from "@/features/shell/settings/MobileDrawerNavigationContext";
 import { CanvasSizeIcon, ShadowIcon } from "@/features/shell/components/toolbar-icons";
 import { getLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities";
 import { LAYER_FILTER_EFFECT_KINDS } from "@/features/canvas/model/layer-effects";
-import { TextFontPickerContent } from "@/features/shell/inspector/TextFontPickerContent";
+import { TextFontPickerContent } from "@/features/shell/settings/TextFontPickerContent";
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type CanvasLayer,
@@ -53,8 +53,8 @@ import {
   patchTextLayerFillFromPicker,
 } from "@/features/canvas/rendering/layer-fill";
 import { getLayerFontWeight, getNearestFontWeight } from "@/features/shell/model/font-weight";
-import { resolveDraftingFont } from "@/features/canvas/model/fonts";
-import { isDraftingEmojiLayer } from "@/features/canvas/model/layer-floating-settings";
+import { resolveCanvasFont } from "@/features/canvas/model/fonts";
+import { isCanvasEmojiLayer } from "@/features/canvas/model/layer-floating-settings";
 import { cn } from "@/lib/utils";
 
 // Heavy detail surfaces (insert menu, layer panels, size presets) load lazily so
@@ -157,7 +157,7 @@ function MobileLayerToolbarDetailButton({
         mobileNav?.openDetail({
           title,
           content: (
-            <div className="ds-portal-surface w-full min-w-0" data-mobile-inspector="">
+            <div className="ds-portal-surface w-full min-w-0" data-mobile-settings="">
               {content}
             </div>
           ),
@@ -186,7 +186,7 @@ function MobileLayerPanelButton({
 }) {
   const detail = useMobileLiveDetail({
     content: (
-      <div className="ds-portal-surface w-full min-w-0" data-mobile-inspector="">
+      <div className="ds-portal-surface w-full min-w-0" data-mobile-settings="">
         <Suspense fallback={null}>{content}</Suspense>
       </div>
     ),
@@ -465,7 +465,7 @@ function MobileLayerTextTools({
 }) {
   const mobileNav = useMobileDrawerNavigation();
 
-  if (isDraftingEmojiLayer(layer)) {
+  if (isCanvasEmojiLayer(layer)) {
     return (
       <div className="flex shrink-0 items-center gap-0.5" data-slot="mobile-layer-toolbar-settings">
         <FloatingLayerToolbarSettings layer={layer} onPatch={onPatch} theme={theme} />
@@ -473,7 +473,7 @@ function MobileLayerTextTools({
     );
   }
 
-  const selectedFont = resolveDraftingFont({
+  const selectedFont = resolveCanvasFont({
     fontFamily: layer.fontFamily,
     fontId: layer.fontId,
   });
@@ -644,7 +644,7 @@ export function MobileLayerToolbar({
       selectedElementLayer.kind === "shader");
 
   return (
-    <InspectorThemeContext.Provider value={theme}>
+    <SettingsThemeContext.Provider value={theme}>
       <div
         ref={toolbarRef}
         className={cn(
@@ -653,7 +653,7 @@ export function MobileLayerToolbar({
           "w-[calc(100%-max(1rem,env(safe-area-inset-left,0px))-max(1rem,env(safe-area-inset-right,0px)))]",
         )}
         data-shell-theme={theme}
-        data-mobile-inspector=""
+        data-mobile-settings=""
         data-slot="mobile-layer-toolbar"
         data-theme={theme}
         style={{
@@ -733,6 +733,6 @@ export function MobileLayerToolbar({
           </div>
         </ScrollArea>
       </div>
-    </InspectorThemeContext.Provider>
+    </SettingsThemeContext.Provider>
   );
 }

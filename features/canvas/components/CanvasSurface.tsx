@@ -12,7 +12,7 @@ import { MobileWorkspaceInsetTransitionBridge } from "@/features/canvas/componen
 import { useCanvasViewModel } from "@/features/canvas/components/use-canvas-view-model";
 import { cn } from "@/lib/utils";
 
-type DraftingWorkspaceController = ToolbarController;
+type CanvasWorkspaceController = ToolbarController;
 
 type CanvasSurfaceProps = {
   theme?: ThemeMode;
@@ -20,7 +20,7 @@ type CanvasSurfaceProps = {
   initialActiveTool?: ToolbarToolId;
   onThemeChange?: (theme: ThemeMode) => void;
   boardToolbarVariant?: CanvasBoardToolbarVariant;
-  renderOverlay?: (controller: DraftingWorkspaceController) => ReactNode;
+  renderOverlay?: (controller: CanvasWorkspaceController) => ReactNode;
 };
 
 export function CanvasSurface({
@@ -35,8 +35,8 @@ export function CanvasSurface({
     activeQrNodeId,
     desktopCanvasTool,
     desktopController,
-    draftingCanvasRef,
-    isDraftingWorkspaceReady,
+    canvasRef,
+    isCanvasWorkspaceReady,
     boards,
     selectedBackgroundShapeId,
     selectedContentType,
@@ -52,7 +52,7 @@ export function CanvasSurface({
     selectedQrRadius,
     selectedQrSize,
     selectedQrTypeNumber,
-    copySelectedDraftingLayers,
+    copySelectedCanvasLayers,
     handleAddTextLayerAt,
     handleLayerAction,
     handleLayerChange,
@@ -60,7 +60,7 @@ export function CanvasSurface({
     handleLayerSelectionChange,
     handleBoardQrClick,
     handleBoardSelection,
-    pasteDraftingLayers,
+    pasteCanvasLayers,
     setDesktopCanvasTool,
   } = useCanvasViewModel({
     initialActiveTool,
@@ -69,8 +69,8 @@ export function CanvasSurface({
 
   return (
     <section
-      ref={draftingCanvasRef}
-      aria-label="Drafting workspace"
+      ref={canvasRef}
+      aria-label="Canvas workspace"
       data-logo-color-mode={selectedLogoColorMode}
       data-background-shape-id={selectedBackgroundShapeId}
       data-logo-preset-id={selectedLogoPresetId ?? ""}
@@ -103,20 +103,20 @@ export function CanvasSurface({
         >
           <div data-slot="canvas-workspace-inset" className="h-full min-h-0 p-0">
             <div data-slot="canvas-viewport" className="h-full min-h-0 min-w-0">
-              {isDraftingWorkspaceReady ? (
+              {isCanvasWorkspaceReady ? (
                 <Canvas
                   activeBoardId={activeQrNodeId}
                   layerEditingEnabled
                   onLayerChange={handleLayerChange}
                   onLayerAction={handleLayerAction}
                   onLayerCopy={(_boardId, layerIds) => {
-                    void copySelectedDraftingLayers(layerIds, _boardId);
+                    void copySelectedCanvasLayers(layerIds, _boardId);
                   }}
                   activeCanvasTool={desktopCanvasTool}
                   onAddTextLayerAt={handleAddTextLayerAt}
                   onCanvasToolChange={setDesktopCanvasTool}
                   onLayerPaste={(_boardId, point) => {
-                    void pasteDraftingLayers(point, undefined, _boardId);
+                    void pasteCanvasLayers(point, undefined, _boardId);
                   }}
                   onLayerSelect={handleLayerSelect}
                   onLayerSelectionChange={handleLayerSelectionChange}

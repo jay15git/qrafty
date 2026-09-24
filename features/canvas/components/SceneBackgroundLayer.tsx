@@ -2,7 +2,7 @@
 
 import { useMemo, type CSSProperties, type ReactNode } from "react";
 
-import { DraftingCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer";
+import { CanvasCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer";
 import type { SceneBackground, SceneLayoutPreset } from "@/features/canvas/model/scene-templates";
 import { usePreviewShaderDisplaySize } from "@/features/canvas/preview/use-preview-layer-effects";
 import {
@@ -50,7 +50,7 @@ function SceneBackgroundLayer({
       }}
     >
       {paperShader ? (
-        <DraftingCardPaperShaderLayer
+        <CanvasCardPaperShaderLayer
           displayHeight={shaderDisplaySize.displayHeight}
           displayWidth={shaderDisplaySize.displayWidth}
           layoutHeight={height}

@@ -2,19 +2,19 @@ import { Suspense, useContext, useState } from "react";
 
 import { parseFill } from "@/components/ui/fill-picker/lib/gradient";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext";
-import { DOTS_PALETTE_PRESETS } from "@/features/shell/inspector/pattern-palettes";
-import { PaletteColorBarPreview } from "@/features/shell/inspector/PaletteColorBarPreview";
-import { readPatternModuleFillCss } from "@/features/shell/inspector/settings-bridge";
-import { getActiveFillPresetForStoredValue } from "@/features/shell/inspector/settings-fill-preset-match";
+import { useMobileDrawerNavigation } from "@/features/shell/settings/MobileDrawerNavigationContext";
+import { DOTS_PALETTE_PRESETS } from "@/features/shell/settings/pattern-palettes";
+import { PaletteColorBarPreview } from "@/features/shell/settings/PaletteColorBarPreview";
+import { readPatternModuleFillCss } from "@/features/shell/settings/settings-bridge";
+import { getActiveFillPresetForStoredValue } from "@/features/shell/settings/settings-fill-preset-match";
 import {
   SETTINGS_PATTERN_OPTION_TILE_INNER,
   SETTINGS_PREVIEW_TILE,
-} from "@/features/shell/inspector/SettingsPreviewTiles";
-import { SegmentTabs } from "@/features/shell/inspector/settings-ui";
+} from "@/features/shell/settings/SettingsPreviewTiles";
+import { SegmentTabs } from "@/features/shell/settings/settings-ui";
 import { cn } from "@/lib/utils";
 
-import { LazyInspectorFillPicker, LazyPatternColorPickerContent } from "../lazy-details";
+import { LazySettingsFillPicker, LazyPatternColorPickerContent } from "../lazy-details";
 import { applyQrFill, applyQrImageFill, applyQrPalette, applyQrPalettePatch } from "../qr-fill";
 import { MobileRailModeContext, useLatestModel, type MobileRailRowProps } from "../rail-context";
 import {
@@ -131,7 +131,7 @@ export function MobileColorRailRow({ model, openDrawer }: MobileRailRowProps) {
             content: (
               <Suspense fallback={null}>
                 <div className="ds-fill-popover w-full min-w-0" data-theme={model.actualTheme}>
-                  <LazyInspectorFillPicker
+                  <LazySettingsFillPicker
                     lockedFillMode={lockedFillModeForRailMode(mode)}
                     qrGradient
                     value={value}

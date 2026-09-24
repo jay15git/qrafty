@@ -7,10 +7,10 @@ import {
   isRasterExportExtension,
 } from "@/features/qr/export/raster-export";
 import type { QrFileExtension } from "@/features/qr/model/types";
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { QraftyState } from "@/features/qr/model/state";
-import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
+import { createCanvasQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
 import { inlineSvgImageHrefs } from "@/features/canvas/export/pipeline/assets";
 import { renderWorkspaceCompositorCanvas } from "@/features/canvas/export/pipeline/compositor";
 import {
@@ -28,7 +28,7 @@ import {
 
 export type RenderWorkspaceSvgOptions = {
   cardLayer: CanvasLayer;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   layers: CanvasLayer[];
   mode: ExportClockMode;
   name: string;
@@ -95,7 +95,7 @@ export async function buildWorkspaceExportPayload({
   state,
   videoTimeMs = 0,
 }: Omit<RenderWorkspaceSvgOptions, "qrMarkup"> & { state: QraftyState }) {
-  const qrPayload = await buildDashboardQrNodePayload(createDraftingQrArtworkState(state));
+  const qrPayload = await buildDashboardQrNodePayload(createCanvasQrArtworkState(state));
   const { ir, svg } = await renderWorkspaceSvgMarkup({
     cardLayer,
     cardState,
@@ -135,7 +135,7 @@ export async function renderWorkspaceRasterBlob({
 }: {
   backgroundColor?: string;
   cardLayer: CanvasLayer;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   extension: Exclude<QrFileExtension, "svg">;
   layers: CanvasLayer[];
   mode: ExportClockMode;
@@ -146,7 +146,7 @@ export async function renderWorkspaceRasterBlob({
   targetDimensions?: { height: number; width: number };
   videoTimeMs?: number;
 }) {
-  const qrPayload = await buildDashboardQrNodePayload(createDraftingQrArtworkState(state));
+  const qrPayload = await buildDashboardQrNodePayload(createCanvasQrArtworkState(state));
   const canvas = await renderWorkspaceCompositorCanvas({
     backgroundColor,
     cardLayer,

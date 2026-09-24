@@ -1,4 +1,4 @@
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import {
   buildRoundedRectPath,
   cornerRadiiToCss,
@@ -8,11 +8,11 @@ import {
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   type CanvasLayer,
-  type DraftingTextRun,
+  type CanvasTextRun,
 } from "@/features/canvas/model/layers/shared";
-import { getDraftingFontCssFamily } from "@/features/canvas/model/fonts";
-import { layoutDraftingText } from "@/features/canvas/rendering/text-layout";
-import { hasDraftingLayerShadow } from "@/features/canvas/rendering/qr-layer-shadow";
+import { getCanvasFontCssFamily } from "@/features/canvas/model/fonts";
+import { layoutCanvasText } from "@/features/canvas/rendering/text-layout";
+import { hasCanvasLayerShadow } from "@/features/canvas/rendering/qr-layer-shadow";
 import { scaleNestedSvgMarkup } from "@/features/canvas/rendering/qr-artwork";
 import { getLayerSvgTransform } from "@/features/canvas/rendering/layer-transform";
 import {
@@ -24,14 +24,14 @@ import {
   isConicCssFill,
   rasterizeConicCssFillToDataUrl,
 } from "@/features/canvas/export/svg-css-fill";
-import { qraftyGradientToFillCss } from "@/features/shell/inspector/settings-bridge";
+import { qraftyGradientToFillCss } from "@/features/shell/settings/settings-bridge";
 import { shouldRenderShapeFillGradient } from "@/features/canvas/rendering/layer-fill";
 import { QR_BACKGROUND_SHAPES } from "@/features/qr/styles/background-shapes";
 import {
   getCanvasQrBackgroundBounds,
   getCanvasQrBackgroundSvgMarkup,
 } from "@/features/canvas/components/canvas-qr-background";
-import { getDraftingQrLayerLayout } from "@/features/qr/rendering/svg-extension";
+import { getCanvasQrLayerLayout } from "@/features/qr/rendering/svg-extension";
 
 import {
   collectIllustrationAssetPaths,
@@ -52,7 +52,7 @@ export type LayeredSvgParts = {
 };
 
 export type BuildLayeredSvgPartsOptions = {
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   layers: CanvasLayer[];
   qrMarkup: string;
   state: QraftyState;
@@ -80,24 +80,23 @@ export async function buildLayeredSvgParts({
   const visibleLayers = [...layers]
     .filter((layer) => layer.isVisible)
     .sort((a, b) => a.zIndex - b.zIndex);
-  const resolvedBounds = bounds ?? getDraftingLayerBounds(visibleLayers);
+  const resolvedBounds = bounds ?? getCanvasLayerBounds(visibleLayers);
   const clipDefs: string[] = [];
   const body = visibleLayers
     .map((layer) =>
-      getDraftingLayerSvg(layer, cardState, qrMarkup, state, shaderSnapshots, {
+      getCanvasLayerSvg(layer, cardState, qrMarkup, state, shaderSnapshots, {
         clipDefs,
         omitShaderLayers,
       }),
     )
     .join("");
   const defs =
-    clipDefs.join("") +
-    visibleLayers.flatMap(getDraftingLayerFilterMarkups).filter(Boolean).join("");
+    clipDefs.join("") + visibleLayers.flatMap(getCanvasLayerFilterMarkups).filter(Boolean).join("");
 
   return { bounds: resolvedBounds, defs, body };
 }
 
-export function getDraftingLayerBounds(layers: CanvasLayer[]) {
+export function getCanvasLayerBounds(layers: CanvasLayer[]) {
   if (layers.length === 0) {
     return {
       height: 1,
@@ -132,32 +131,32 @@ export function getDraftingLayerBounds(layers: CanvasLayer[]) {
   };
 }
 
-function getDraftingLayerSvg(
+function getCanvasLayerSvg(
   layer: CanvasLayer,
-  cardState: DraftingCardState,
+  cardState: CanvasCardState,
   qrMarkup: string,
   state: QraftyState,
   shaderSnapshots?: Record<string, string>,
   options?: LayeredSvgOptions,
 ) {
   if (layer.kind === "group") {
-    return getDraftingGroupLayerSvg(layer, cardState, qrMarkup, state, shaderSnapshots, options);
+    return getCanvasGroupLayerSvg(layer, cardState, qrMarkup, state, shaderSnapshots, options);
   }
 
   if (layer.kind === "card") {
-    return getDraftingCardLayerSvg(layer, cardState, shaderSnapshots, options);
+    return getCanvasCardLayerSvg(layer, cardState, shaderSnapshots, options);
   }
 
   if (layer.kind === "text") {
-    return getDraftingTextLayerSvg(layer, options);
+    return getCanvasTextLayerSvg(layer, options);
   }
 
   if (layer.kind === "image") {
-    return getDraftingImageLayerSvg(layer);
+    return getCanvasImageLayerSvg(layer);
   }
 
   if (layer.kind === "shape") {
-    return getDraftingShapeLayerSvg(layer);
+    return getCanvasShapeLayerSvg(layer);
   }
 
   if (layer.kind === "shader") {
@@ -165,18 +164,18 @@ function getDraftingLayerSvg(
       return "";
     }
 
-    return getDraftingShaderLayerSvg(layer, shaderSnapshots);
+    return getCanvasShaderLayerSvg(layer, shaderSnapshots);
   }
 
-  return getDraftingQrLayerSvg(layer, qrMarkup, state);
+  return getCanvasQrLayerSvg(layer, qrMarkup, state);
 }
 
-function getDraftingLayerFilterAttr(layer: CanvasLayer) {
-  return getDraftingLayerFilterMarkup(layer) ? ` filter="url(#${getSvgId(layer.id)}-filter)"` : "";
+function getCanvasLayerFilterAttr(layer: CanvasLayer) {
+  return getCanvasLayerFilterMarkup(layer) ? ` filter="url(#${getSvgId(layer.id)}-filter)"` : "";
 }
 
-function getDraftingLayerFilterMarkup(layer: CanvasLayer) {
-  const hasShadow = hasDraftingLayerShadow(layer);
+function getCanvasLayerFilterMarkup(layer: CanvasLayer) {
+  const hasShadow = hasCanvasLayerShadow(layer);
   const hasBlur = layer.blur > 0;
 
   if (!hasShadow && !hasBlur) {
@@ -186,10 +185,10 @@ function getDraftingLayerFilterMarkup(layer: CanvasLayer) {
   return `<filter id="${getSvgId(layer.id)}-filter" x="-50%" y="-50%" width="200%" height="200%">${hasShadow ? `<feDropShadow dx="${layer.shadow.offsetX}" dy="${layer.shadow.offsetY}" stdDeviation="${layer.shadow.blur / 2}" flood-color="${escapeXml(layer.shadow.color)}" flood-opacity="${layer.shadow.opacity / 100}"/>` : ""}${hasBlur ? `<feGaussianBlur stdDeviation="${layer.blur}"/>` : ""}</filter>`;
 }
 
-function getDraftingLayerFilterMarkups(layer: CanvasLayer): string[] {
+function getCanvasLayerFilterMarkups(layer: CanvasLayer): string[] {
   return [
-    getDraftingLayerFilterMarkup(layer),
-    ...(layer.children?.flatMap(getDraftingLayerFilterMarkups) ?? []),
+    getCanvasLayerFilterMarkup(layer),
+    ...(layer.children?.flatMap(getCanvasLayerFilterMarkups) ?? []),
   ].filter(Boolean);
 }
 
@@ -200,7 +199,7 @@ type LayeredSvgOptions = {
 
 function cardImageLayerMarkup(
   layer: CanvasLayer,
-  cardState: DraftingCardState,
+  cardState: CanvasCardState,
   options?: LayeredSvgOptions,
 ) {
   return !options?.omitShaderLayers && cardState.styleMode === "image" && cardState.cardImage.value
@@ -210,7 +209,7 @@ function cardImageLayerMarkup(
 
 function conicFillLayerMarkup(
   layer: CanvasLayer,
-  cardState: DraftingCardState,
+  cardState: CanvasCardState,
   cardPath: string,
   options?: LayeredSvgOptions,
 ) {
@@ -229,7 +228,7 @@ function conicFillLayerMarkup(
 
 function cardShaderLayerMarkup(
   layer: CanvasLayer,
-  cardState: DraftingCardState,
+  cardState: CanvasCardState,
   cardPath: string,
   shaderSnapshots: Record<string, string> | undefined,
   options?: LayeredSvgOptions,
@@ -255,13 +254,13 @@ function cardShaderLayerMarkup(
     : "";
 }
 
-function getDraftingCardLayerSvg(
+function getCanvasCardLayerSvg(
   layer: CanvasLayer,
-  cardState: DraftingCardState,
+  cardState: CanvasCardState,
   shaderSnapshots?: Record<string, string>,
   options?: LayeredSvgOptions,
 ) {
-  const filter = getDraftingLayerFilterAttr(layer);
+  const filter = getCanvasLayerFilterAttr(layer);
   const strokeWidth = Math.max(0, cardState.border.width);
   const borderClipId = `${getSvgId(layer.id)}-border-clip`;
   const stroke =
@@ -282,51 +281,49 @@ function getDraftingCardLayerSvg(
   const conicMarkup = conicFillLayerMarkup(layer, cardState, cardPath, options);
   const shaderMarkup = cardShaderLayerMarkup(layer, cardState, cardPath, shaderSnapshots, options);
 
-  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}>${strokeClip}<path d="${cardPath}" fill="${escapeXml(fillPaint.fill)}"${stroke}/>${conicMarkup}${cardImage}${shaderMarkup}</g>`;
+  return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}>${strokeClip}<path d="${cardPath}" fill="${escapeXml(fillPaint.fill)}"${stroke}/>${conicMarkup}${cardImage}${shaderMarkup}</g>`;
 }
 
-function getDraftingGroupLayerSvg(
+function getCanvasGroupLayerSvg(
   layer: CanvasLayer,
-  cardState: DraftingCardState,
+  cardState: CanvasCardState,
   qrMarkup: string,
   state: QraftyState,
   shaderSnapshots?: Record<string, string>,
   options?: LayeredSvgOptions,
 ): string {
-  const filter = getDraftingLayerFilterAttr(layer);
+  const filter = getCanvasLayerFilterAttr(layer);
   const body: string = (layer.children ?? [])
     .filter((child) => child.isVisible)
     .sort((a, b) => a.zIndex - b.zIndex)
-    .map((child) =>
-      getDraftingLayerSvg(child, cardState, qrMarkup, state, shaderSnapshots, options),
-    )
+    .map((child) => getCanvasLayerSvg(child, cardState, qrMarkup, state, shaderSnapshots, options))
     .join("");
 
-  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}>${body}</g>`;
+  return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}>${body}</g>`;
 }
 
-function getDraftingShaderLayerSvg(layer: CanvasLayer, shaderSnapshots?: Record<string, string>) {
-  const filter = getDraftingLayerFilterAttr(layer);
+function getCanvasShaderLayerSvg(layer: CanvasLayer, shaderSnapshots?: Record<string, string>) {
+  const filter = getCanvasLayerFilterAttr(layer);
   const paperShader = layer.paperShader;
   const snapshot =
     paperShader && (shaderSnapshots?.[layer.id] ?? shaderSnapshots?.[paperShader.shaderId]);
 
   if (!snapshot) {
-    return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><rect x="0" y="0" width="${layer.width}" height="${layer.height}" fill="#111827" /></g>`;
+    return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}><rect x="0" y="0" width="${layer.width}" height="${layer.height}" fill="#111827" /></g>`;
   }
 
-  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><image href="${escapeXml(snapshot)}" x="0" y="0" width="${layer.width}" height="${layer.height}" preserveAspectRatio="xMidYMid slice" /></g>`;
+  return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}><image href="${escapeXml(snapshot)}" x="0" y="0" width="${layer.width}" height="${layer.height}" preserveAspectRatio="xMidYMid slice" /></g>`;
 }
 
-function getDraftingImageLayerSvg(layer: CanvasLayer) {
-  const filter = getDraftingLayerFilterAttr(layer);
+function getCanvasImageLayerSvg(layer: CanvasLayer) {
+  const filter = getCanvasLayerFilterAttr(layer);
   const imageValue =
     getCachedIllustrationDisplaySrc(layer.imageValue, layer.illustrationColorStops) ??
     layer.imageValue ??
     "";
 
   if (!imageValue) {
-    return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><rect x="0" y="0" width="${layer.width}" height="${layer.height}" fill="none" stroke="#d4d4d8"/></g>`;
+    return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}><rect x="0" y="0" width="${layer.width}" height="${layer.height}" fill="none" stroke="#d4d4d8"/></g>`;
   }
 
   const preserveAspectRatio = layer.imageFit === "contain" ? "xMidYMid meet" : "xMidYMid slice";
@@ -338,11 +335,11 @@ function getDraftingImageLayerSvg(layer: CanvasLayer) {
     : "";
   const clipRef = hasRadius ? ` clip-path="url(#${getSvgId(layer.id)}-clip)"` : "";
 
-  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}>${clip}<image href="${escapeXml(imageValue)}" x="0" y="0" width="${layer.width}" height="${layer.height}" preserveAspectRatio="${preserveAspectRatio}"${clipRef}/></g>`;
+  return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}>${clip}<image href="${escapeXml(imageValue)}" x="0" y="0" width="${layer.width}" height="${layer.height}" preserveAspectRatio="${preserveAspectRatio}"${clipRef}/></g>`;
 }
 
-function getDraftingShapeLayerSvg(layer: CanvasLayer) {
-  const filter = getDraftingLayerFilterAttr(layer);
+function getCanvasShapeLayerSvg(layer: CanvasLayer) {
+  const filter = getCanvasLayerFilterAttr(layer);
   const shapeId = layer.shapeId ?? "rounded-square";
   const definition = QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId);
   const fill = layer.fillMode === "none" ? "none" : escapeXml(layer.fill ?? "#E8E8E8");
@@ -380,12 +377,12 @@ function getDraftingShapeLayerSvg(layer: CanvasLayer) {
         ? `${definition.viewBox.x ?? 0} ${definition.viewBox.y ?? 0} ${definition.viewBox.width} ${definition.viewBox.height}`
         : "0 0 100 100";
 
-  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><svg x="0" y="0" width="${layer.width}" height="${layer.height}" viewBox="${viewBox}" preserveAspectRatio="none">${strokeClip}${innerMarkup}</svg></g>`;
+  return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}><svg x="0" y="0" width="${layer.width}" height="${layer.height}" viewBox="${viewBox}" preserveAspectRatio="none">${strokeClip}${innerMarkup}</svg></g>`;
 }
 
-function getDraftingQrLayerSvg(layer: CanvasLayer, qrMarkup: string, state: QraftyState) {
-  const filter = getDraftingLayerFilterAttr(layer);
-  const layout = getDraftingQrLayerLayout(layer.width, state, layer.height);
+function getCanvasQrLayerSvg(layer: CanvasLayer, qrMarkup: string, state: QraftyState) {
+  const filter = getCanvasLayerFilterAttr(layer);
+  const layout = getCanvasQrLayerLayout(layer.width, state, layer.height);
   const { metrics, innerWidth, innerHeight } = layout;
   const qrSvg = scaleNestedSvgMarkup(qrMarkup, innerWidth, innerHeight);
   const qrGroup =
@@ -393,7 +390,7 @@ function getDraftingQrLayerSvg(layer: CanvasLayer, qrMarkup: string, state: Qraf
       ? `<g transform="translate(${metrics.translateX} ${metrics.translateY})">${qrSvg}</g>`
       : qrSvg;
 
-  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}>${getCanvasQrBackgroundSvgMarkup(layer, state)}${qrGroup}</g>`;
+  return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}>${getCanvasQrBackgroundSvgMarkup(layer, state)}${qrGroup}</g>`;
 }
 
 const TEXT_ALIGN_ANCHORS: Record<string, string> = {
@@ -401,11 +398,8 @@ const TEXT_ALIGN_ANCHORS: Record<string, string> = {
   right: "end",
 };
 
-function getDraftingTextLayerSvg(
-  layer: CanvasLayer,
-  options?: Pick<LayeredSvgOptions, "clipDefs">,
-) {
-  const filter = getDraftingLayerFilterAttr(layer);
+function getCanvasTextLayerSvg(layer: CanvasLayer, options?: Pick<LayeredSvgOptions, "clipDefs">) {
+  const filter = getCanvasLayerFilterAttr(layer);
   const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize;
   const lineHeight = layer.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight;
   const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign;
@@ -427,10 +421,10 @@ function getDraftingTextLayerSvg(
   }
 
   const lineContents = hasTextRuns
-    ? splitDraftingTextRunsByLine(layer).map((runs) =>
-        runs.map((run) => getDraftingTextRunSvg(layer, run, fillPaint.fill)).join(""),
+    ? splitCanvasTextRunsByLine(layer).map((runs) =>
+        runs.map((run) => getCanvasTextRunSvg(layer, run, fillPaint.fill)).join(""),
       )
-    : layoutDraftingText(layer).lines.map(escapeXml);
+    : layoutCanvasText(layer).lines.map(escapeXml);
   const tspans = lineContents
     .map((content, index) => {
       const dy = index === 0 ? fontSize : fontSize * lineHeight;
@@ -440,15 +434,15 @@ function getDraftingTextLayerSvg(
     .join("");
   const textAttrs = hasTextRuns
     ? ""
-    : `fill="${escapeXml(fillPaint.fill)}" font-family="${escapeXml(getDraftingFontCssFamily({ fontFamily: layer.fontFamily, fontId: layer.fontId }))}" font-size="${fontSize}" font-style="${layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle}" font-weight="${layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight}" `;
+    : `fill="${escapeXml(fillPaint.fill)}" font-family="${escapeXml(getCanvasFontCssFamily({ fontFamily: layer.fontFamily, fontId: layer.fontId }))}" font-size="${fontSize}" font-style="${layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle}" font-weight="${layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight}" `;
   const decoration = !hasTextRuns && layer.underline ? ` text-decoration="underline"` : "";
 
-  return `<g opacity="${layer.opacity}" transform="${getDraftingLayerSvgTransform(layer)}"${filter}><text ${textAttrs}letter-spacing="${layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing}" text-anchor="${anchor}"${decoration}>${tspans}</text></g>`;
+  return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}><text ${textAttrs}letter-spacing="${layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing}" text-anchor="${anchor}"${decoration}>${tspans}</text></g>`;
 }
 
-function splitDraftingTextRunsByLine(layer: CanvasLayer) {
-  const runs = getDraftingTextLayerRuns(layer);
-  const lines: DraftingTextRun[][] = [[]];
+function splitCanvasTextRunsByLine(layer: CanvasLayer) {
+  const runs = getCanvasTextLayerRuns(layer);
+  const lines: CanvasTextRun[][] = [[]];
 
   for (const run of runs) {
     const parts = run.text.split(/\r?\n/);
@@ -467,7 +461,7 @@ function splitDraftingTextRunsByLine(layer: CanvasLayer) {
   return lines.length > 0 ? lines : [[{ text: "" }]];
 }
 
-function getDraftingTextLayerRuns(layer: CanvasLayer): DraftingTextRun[] {
+function getCanvasTextLayerRuns(layer: CanvasLayer): CanvasTextRun[] {
   const text = layer.text ?? "";
 
   if (!layer.textRuns?.length || layer.textRuns.map((run) => run.text).join("") !== text) {
@@ -477,13 +471,13 @@ function getDraftingTextLayerRuns(layer: CanvasLayer): DraftingTextRun[] {
   return layer.textRuns;
 }
 
-function getDraftingTextRunSvg(layer: CanvasLayer, run: DraftingTextRun, layerFillPaint: string) {
+function getCanvasTextRunSvg(layer: CanvasLayer, run: CanvasTextRun, layerFillPaint: string) {
   const decoration = (run.underline ?? layer.underline) ? ` text-decoration="underline"` : "";
 
-  return `<tspan fill="${escapeXml(run.fill ?? layerFillPaint)}" font-family="${escapeXml(getDraftingFontCssFamily({ fontFamily: run.fontFamily ?? layer.fontFamily, fontId: run.fontId ?? layer.fontId }))}" font-size="${run.fontSize ?? layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}" font-style="${run.fontStyle ?? layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle}" font-weight="${run.fontWeight ?? layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight}"${decoration}>${escapeXml(run.text)}</tspan>`;
+  return `<tspan fill="${escapeXml(run.fill ?? layerFillPaint)}" font-family="${escapeXml(getCanvasFontCssFamily({ fontFamily: run.fontFamily ?? layer.fontFamily, fontId: run.fontId ?? layer.fontId }))}" font-size="${run.fontSize ?? layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}" font-style="${run.fontStyle ?? layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle}" font-weight="${run.fontWeight ?? layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight}"${decoration}>${escapeXml(run.text)}</tspan>`;
 }
 
-function getDraftingLayerSvgTransform(layer: CanvasLayer) {
+function getCanvasLayerSvgTransform(layer: CanvasLayer) {
   return getLayerSvgTransform(layer);
 }
 

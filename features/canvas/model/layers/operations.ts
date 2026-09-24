@@ -1,20 +1,20 @@
 import {
   cloneCanvasLayer,
-  createDraftingLayerInstanceId,
+  createCanvasLayerInstanceId,
 } from "@/features/canvas/model/layers/fallback";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import {
   rectanglesIntersect,
   type CanvasLayer,
-  type DraftingLayerAlignAction,
-  type DraftingLayerDistributeAction,
-  type DraftingLayerReorderAction,
+  type CanvasLayerAlignAction,
+  type CanvasLayerDistributeAction,
+  type CanvasLayerReorderAction,
 } from "@/features/canvas/model/layers/shared";
 
 export function reorderCanvasLayer(
   layers: CanvasLayer[],
   layerId: string,
-  action: DraftingLayerReorderAction,
+  action: CanvasLayerReorderAction,
 ) {
   const ordered = [...layers].sort((a, b) => a.zIndex - b.zIndex);
   const currentIndex = ordered.findIndex((layer) => layer.id === layerId);
@@ -40,7 +40,7 @@ export function reorderCanvasLayer(
 export function alignCanvasLayers(
   layers: CanvasLayer[],
   selectedLayerIds: string[],
-  action: DraftingLayerAlignAction,
+  action: CanvasLayerAlignAction,
 ) {
   const selectedIdSet = new Set(selectedLayerIds);
   const selectedLayers = layers.filter((layer) => selectedIdSet.has(layer.id));
@@ -75,7 +75,7 @@ export function alignCanvasLayers(
 export function distributeCanvasLayers(
   layers: CanvasLayer[],
   selectedLayerIds: string[],
-  action: DraftingLayerDistributeAction,
+  action: CanvasLayerDistributeAction,
 ) {
   const selectedIdSet = new Set(selectedLayerIds);
   const selectedLayers = selectedLayerIds
@@ -129,7 +129,7 @@ export function cloneCanvasLayersForPaste({
   );
 }
 
-export function getDraftingMarqueeSelection(
+export function getCanvasMarqueeSelection(
   layers: CanvasLayer[],
   marquee: Pick<CanvasLayer, "height" | "width" | "x" | "y">,
 ) {
@@ -201,7 +201,7 @@ function remapCanvasLayerForPaste(
     zIndex: number;
   },
 ): CanvasLayer {
-  const nextId = createDraftingLayerInstanceId(options.nodeId, layer.kind);
+  const nextId = createCanvasLayerInstanceId(options.nodeId, layer.kind);
 
   return patchCanvasLayer(
     {

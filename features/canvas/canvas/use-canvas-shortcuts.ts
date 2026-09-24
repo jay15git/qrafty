@@ -2,18 +2,15 @@
 
 import { useEffect, type MutableRefObject } from "react";
 
-import type {
-  CanvasLayer,
-  DraftingLayerStateByNodeId,
-} from "@/features/canvas/model/layers/shared";
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
+import type { CanvasLayer, CanvasLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
+import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 import {
-  getDraftingLayerClipboardPayload,
+  getCanvasLayerClipboardPayload,
   isEditableShortcutTarget,
-  parseDraftingLayerClipboardPayload,
+  parseCanvasLayerClipboardPayload,
 } from "@/features/canvas/components/canvas-operations";
 import type { CanvasLayerMenuAction } from "@/features/canvas/components/Artboard";
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { QraftyState } from "@/features/qr/model/state";
 
 const ARROW_KEY_DELTAS: Record<string, readonly [number, number]> = {
@@ -26,28 +23,28 @@ const ARROW_KEY_DELTAS: Record<string, readonly [number, number]> = {
 export type CanvasShortcutKeyboardState = {
   activeQrLayerId: string;
   activeQrNodeId: string;
-  draftingQraftyState: QraftyState;
-  layerStateByNodeId: DraftingLayerStateByNodeId;
+  canvasQraftyState: QraftyState;
+  layerStateByNodeId: CanvasLayerStateByNodeId;
   qrLayerCount: number;
-  selectedCardState: DraftingCardState;
+  selectedCardState: CanvasCardState;
   selectedLayerIds: string[];
 };
 
 export type CanvasShortcutHandlers = {
-  clearDraftingLayerSelection: () => void;
-  copySelectedDraftingLayers: (layerIds?: string[], boardId?: string) => Promise<void>;
+  clearCanvasLayerSelection: () => void;
+  copySelectedCanvasLayers: (layerIds?: string[], boardId?: string) => Promise<void>;
   deleteSelectedLayersOrBoard: () => void;
   duplicateSelectedLayers: (layerIds?: string[]) => void;
   handleLayerAction: (boardId: string, layerIds: string[], action: CanvasLayerMenuAction) => void;
   handleLayerChange: (boardId: string, layerId: string, patch: Partial<CanvasLayer>) => void;
-  handleRedoDraftingWorkspace: () => void;
-  handleUndoDraftingWorkspace: () => void;
-  pasteDraftingLayers: (
+  handleRedoCanvasWorkspace: () => void;
+  handleUndoCanvasWorkspace: () => void;
+  pasteCanvasLayers: (
     point?: { x: number; y: number },
     payloadText?: string,
     boardId?: string,
   ) => Promise<void>;
-  selectAllActiveDraftingLayers: () => void;
+  selectAllActiveCanvasLayers: () => void;
 };
 
 export function useCanvasShortcuts({
@@ -65,12 +62,12 @@ export function useCanvasShortcuts({
     const MODIFIER_SHORTCUTS: Record<string, (event: KeyboardEvent) => void> = {
       z: (event) =>
         event.shiftKey
-          ? handlersRef.current.handleRedoDraftingWorkspace()
-          : handlersRef.current.handleUndoDraftingWorkspace(),
-      y: () => handlersRef.current.handleRedoDraftingWorkspace(),
+          ? handlersRef.current.handleRedoCanvasWorkspace()
+          : handlersRef.current.handleUndoCanvasWorkspace(),
+      y: () => handlersRef.current.handleRedoCanvasWorkspace(),
       d: () => handlersRef.current.duplicateSelectedLayers(),
-      a: () => handlersRef.current.selectAllActiveDraftingLayers(),
-      v: () => void handlersRef.current.pasteDraftingLayers(),
+      a: () => handlersRef.current.selectAllActiveCanvasLayers(),
+      v: () => void handlersRef.current.pasteCanvasLayers(),
     };
 
     const nudgeSelectedLayers = (event: KeyboardEvent, arrowDelta: readonly [number, number]) => {
@@ -115,7 +112,7 @@ export function useCanvasShortcuts({
 
       if (key === "escape") {
         event.preventDefault();
-        handlersRef.current.clearDraftingLayerSelection();
+        handlersRef.current.clearCanvasLayerSelection();
       }
     };
 
@@ -147,8 +144,7 @@ export function useCanvasShortcuts({
 
       if (key === "c") {
         withSelection(
-          (selectedLayerIds) =>
-            void handlersRef.current.copySelectedDraftingLayers(selectedLayerIds),
+          (selectedLayerIds) => void handlersRef.current.copySelectedCanvasLayers(selectedLayerIds),
         );
         return;
       }
@@ -198,7 +194,7 @@ export function useCanvasShortcuts({
   }, []);
 
   useEffect(() => {
-    const shouldUseDraftingClipboardEvent = (event: ClipboardEvent) => {
+    const shouldUseCanvasClipboardEvent = (event: ClipboardEvent) => {
       const target = event.target;
       const isBodyOrDocumentTarget =
         target === document.body || target === document.documentElement || target === document;
@@ -212,24 +208,24 @@ export function useCanvasShortcuts({
     };
 
     const handleCopy = (event: ClipboardEvent) => {
-      if (!shouldUseDraftingClipboardEvent(event)) {
+      if (!shouldUseCanvasClipboardEvent(event)) {
         return;
       }
 
       const {
         activeQrNodeId: currentActiveQrNodeId,
-        draftingQraftyState: currentDraftingQraftyState,
+        canvasQraftyState: currentCanvasQraftyState,
         layerStateByNodeId: currentLayerStateByNodeId,
         selectedCardState: currentSelectedCardState,
         selectedLayerIds: currentSelectedLayerIds,
       } = stateRef.current;
-      const payload = getDraftingLayerClipboardPayload({
+      const payload = getCanvasLayerClipboardPayload({
         layerIds: currentSelectedLayerIds,
         layers:
           currentLayerStateByNodeId[currentActiveQrNodeId] ??
-          createDefaultDraftingLayers(
+          createDefaultCanvasLayers(
             currentActiveQrNodeId,
-            currentDraftingQraftyState,
+            currentCanvasQraftyState,
             currentSelectedCardState,
           ),
         boardId: currentActiveQrNodeId,
@@ -245,18 +241,18 @@ export function useCanvasShortcuts({
     };
 
     const handlePaste = (event: ClipboardEvent) => {
-      if (!shouldUseDraftingClipboardEvent(event)) {
+      if (!shouldUseCanvasClipboardEvent(event)) {
         return;
       }
 
       const rawPayload = event.clipboardData?.getData("text/plain") ?? "";
 
-      if (!parseDraftingLayerClipboardPayload(rawPayload)) {
+      if (!parseCanvasLayerClipboardPayload(rawPayload)) {
         return;
       }
 
       event.preventDefault();
-      void handlersRef.current.pasteDraftingLayers(undefined, rawPayload);
+      void handlersRef.current.pasteCanvasLayers(undefined, rawPayload);
     };
 
     window.addEventListener("copy", handleCopy, true);

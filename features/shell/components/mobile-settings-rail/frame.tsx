@@ -6,8 +6,8 @@ import {
   SETTINGS_SECTIONS,
   getSettingsSectionLabel,
   type SettingsSectionId,
-} from "@/features/shell/inspector/settings-panel-meta";
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext";
+} from "@/features/shell/settings/settings-panel-meta";
+import { useMobileDrawerNavigation } from "@/features/shell/settings/MobileDrawerNavigationContext";
 
 import type { MobileRailOption, MobileRailRowProps } from "./rail-context";
 import {

@@ -31,7 +31,7 @@ import {
 import { SceneCompositionTransform } from "@/features/canvas/components/SceneBackgroundLayer";
 import { CanvasDocumentCardLayer } from "@/features/canvas/components/CanvasLayerViews";
 import { cornerRadiiToCss } from "@/features/canvas/model/corner-radius";
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { SceneCompositionState } from "@/features/canvas/model/scene-templates";
 import type { PreviewStageSize } from "@/features/canvas/preview/preview-camera";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
@@ -519,7 +519,7 @@ function CanvasChromeOverlay({
 
 export type CanvasWorkspaceContentProps = CanvasChromeOverlayProps & {
   cardLayers: CanvasLayer[];
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   contentOnlyZoom: boolean;
   contentTransformStyle: CSSProperties | undefined;
   contextMenu: CanvasContextMenuState | null;

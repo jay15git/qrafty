@@ -1,19 +1,19 @@
 import type { QraftyState } from "@/features/qr/model/state";
 import type { QrFileExtension } from "@/features/qr/model/types";
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
   getLossyRasterEncoderQuality,
   isRasterExportExtension,
 } from "@/features/qr/export/raster-export";
 import { buildDashboardQrNodePayload } from "@/features/qr/rendering/qr-svg-render";
-import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
+import { createCanvasQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
 import { renderWorkspaceCompositorCanvas } from "@/features/canvas/export/pipeline/compositor";
 import { resolveQrScanRegion } from "@/features/qr/scan-safety/scan-region";
 
 export type ScanSafetyScene = {
   backgroundColor?: string;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   extension: QrFileExtension;
   layers: CanvasLayer[];
   nodeId: string;
@@ -63,7 +63,7 @@ export async function rasterizeQraftyScanPreview(
   const outputScale = scene.targetDimensions
     ? scene.targetDimensions.width / Math.max(1, cardLayer.width)
     : 1;
-  const qrPayload = await buildDashboardQrNodePayload(createDraftingQrArtworkState(state));
+  const qrPayload = await buildDashboardQrNodePayload(createCanvasQrArtworkState(state));
   const canvas = await renderWorkspaceCompositorCanvas({
     backgroundColor: scene.backgroundColor,
     cardLayer,

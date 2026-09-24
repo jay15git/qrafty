@@ -7,7 +7,7 @@ import { buildPaperShaderRenderProps } from "@qrafty/qr/shaders";
 import { shaderRequiresImage } from "@qrafty/qr/shaders";
 import { hasPaperShaderWebGlSupport } from "@qrafty/qr-internal/scene";
 
-import type { DraftingCardPaperShaderState } from "@/features/canvas/model/card-state";
+import type { CanvasCardPaperShaderState } from "@/features/canvas/model/card-state";
 import {
   DEFAULT_PAPER_SHADER_COMPONENT,
   PAPER_SHADER_COMPONENTS,
@@ -19,7 +19,7 @@ export type ShaderFrameCaptureOptions = {
   imageValue?: string;
   layoutHeight: number;
   layoutWidth: number;
-  shader: DraftingCardPaperShaderState;
+  shader: CanvasCardPaperShaderState;
 };
 
 function waitForAnimationFrame() {
@@ -80,7 +80,7 @@ export class ShaderFrameRenderer {
   private frameMs = 0;
   private layoutWidth = 1;
   private layoutHeight = 1;
-  private shader: DraftingCardPaperShaderState | null = null;
+  private shader: CanvasCardPaperShaderState | null = null;
   private imageValue?: string;
   private mounted = false;
 

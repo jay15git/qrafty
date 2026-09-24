@@ -11,42 +11,42 @@ import {
 
 import { CardBackgroundLayers } from "@/features/canvas/components/CardBackgroundLayers";
 import { cardBackgroundStyle } from "@/features/canvas/components/card-background-style";
-import { DraftingCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer";
+import { CanvasCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer";
 import { CanvasLayerTiltShell } from "@/features/canvas/components/CanvasLayerTiltShell";
 import { CanvasQrLayerContent } from "@/features/canvas/components/CanvasQrLayerContent";
 import {
-  createDefaultDraftingCardPaperShader,
-  type DraftingCardPaperShaderState,
-  type DraftingCardState,
+  createDefaultCanvasCardPaperShader,
+  type CanvasCardPaperShaderState,
+  type CanvasCardState,
 } from "@/features/canvas/model/card-state";
 import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   type CanvasLayer,
-  type DraftingTextRun,
+  type CanvasTextRun,
 } from "@/features/canvas/model/layers/shared";
 import {
-  getDraftingCardBorderStyle,
+  getCanvasCardBorderStyle,
   getLayerPlacementStyle,
   getTextLayerStyle,
   getTextRunStyle,
 } from "@/features/canvas/rendering/layer-dom-styles";
-import { isDraftingEmojiLayer } from "@/features/canvas/model/layer-floating-settings";
+import { isCanvasEmojiLayer } from "@/features/canvas/model/layer-floating-settings";
 import {
   getBackgroundShapeTiltInnerStyle,
   getBackgroundShapeTiltPerspectiveStyle,
 } from "@/features/canvas/rendering/layer-transform";
-import { layoutDraftingText } from "@/features/canvas/rendering/text-layout";
+import { layoutCanvasText } from "@/features/canvas/rendering/text-layout";
 import {
-  DraftingImageLayerContent,
-  DraftingShapeLayerContent,
+  CanvasImageLayerContent,
+  CanvasShapeLayerContent,
 } from "@/features/canvas/rendering/shape-layer";
 import type { QraftyState } from "@/features/qr/model/state";
 import { getContentValidationOverlayMessage } from "@/features/qr/content/static-payload";
 import type { StaticQrValidationResult } from "@/features/qr/content/static-payload";
-import { getDraftingQrLayerLayout } from "@/features/qr/rendering/svg-extension";
+import { getCanvasQrLayerLayout } from "@/features/qr/rendering/svg-extension";
 import { useCanvasQrMarkup } from "@/features/canvas/hooks/use-canvas-qr-markup";
-import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document";
+import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
 import { usePreviewInteraction } from "@/features/canvas/preview/preview-context";
 import {
   useCanvasLayerEffectStyle,
@@ -67,7 +67,7 @@ function layerExportAttrs(kind: CanvasLayer["kind"]) {
 }
 
 function buildCanvasDocumentCardStyle(
-  cardState: DraftingCardState,
+  cardState: CanvasCardState,
   isImageFilterMode: boolean,
   isImageMode: boolean,
   isPaperShaderMode: boolean,
@@ -79,9 +79,9 @@ function buildCanvasDocumentCardStyle(
 }
 
 function buildCanvasDocumentCardBorderOverlayStyle(
-  cardState: DraftingCardState,
+  cardState: CanvasCardState,
 ): CSSProperties | undefined {
-  const borderStyle = getDraftingCardBorderStyle(cardState);
+  const borderStyle = getCanvasCardBorderStyle(cardState);
 
   if (!borderStyle || Object.keys(borderStyle).length === 0) {
     return undefined;
@@ -94,7 +94,7 @@ function buildCanvasDocumentCardBorderOverlayStyle(
 }
 
 type CanvasDocumentCardLayerProps = {
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   isImageFilterMode: boolean;
   isImageMode: boolean;
   isPaperShaderMode: boolean;
@@ -249,7 +249,7 @@ function canvasDocumentCardLayerPropsAreEqual(
   );
 }
 
-function getTextLayerRuns(layer: CanvasLayer): DraftingTextRun[] {
+function getTextLayerRuns(layer: CanvasLayer): CanvasTextRun[] {
   const text = layer.text ?? "";
   const runs = layer.textRuns;
 
@@ -267,7 +267,7 @@ function hasValidTextRuns(layer: CanvasLayer) {
   );
 }
 
-function getTextRunKey(layerId: string, run: DraftingTextRun, index: number) {
+function getTextRunKey(layerId: string, run: CanvasTextRun, index: number) {
   return `${layerId}:run:${index}:${run.text.length}`;
 }
 
@@ -284,7 +284,7 @@ function renderTextLayerContent(layer: CanvasLayer) {
     ));
   }
 
-  const layout = layoutDraftingText(layer);
+  const layout = layoutCanvasText(layer);
 
   return layout.lines.map((line, index) => (
     <div
@@ -300,7 +300,7 @@ function renderTextLayerContent(layer: CanvasLayer) {
 
 function resolveQrLayerState(
   layerId: string,
-  qrStateByLayerId: DraftingQrStateByLayerId,
+  qrStateByLayerId: CanvasQrStateByLayerId,
   fallbackState: QraftyState,
 ) {
   return qrStateByLayerId[layerId] ?? fallbackState;
@@ -320,7 +320,7 @@ function CanvasQrLayerCanvas({
   qrState: QraftyState;
 }) {
   const layout = useMemo(
-    () => getDraftingQrLayerLayout(layer.width, qrState, layer.height),
+    () => getCanvasQrLayerLayout(layer.width, qrState, layer.height),
     [layer.height, layer.width, qrState],
   );
   const { markup } = useCanvasQrMarkup(qrState);
@@ -358,15 +358,15 @@ export type CanvasLayerViewSharedProps = {
   activeQrLayerId?: string;
   activeSelectedLayerIdSet: Set<string>;
   cardImageStyle: CSSProperties | undefined;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   cardStyle: CSSProperties;
   contentValidation?: StaticQrValidationResult;
-  imageFilterShader: DraftingCardPaperShaderState;
+  imageFilterShader: CanvasCardPaperShaderState;
   isImageFilterMode: boolean;
   isImageMode: boolean;
   isPaperShaderMode: boolean;
   qrOverlayScale?: number;
-  qrStateByLayerId: DraftingQrStateByLayerId;
+  qrStateByLayerId: CanvasQrStateByLayerId;
   state: QraftyState;
 };
 
@@ -478,7 +478,7 @@ function CanvasNestedTextLayerView({
   layer,
   layerEffectStyle,
 }: CanvasNestedLayerKindProps) {
-  const isEmojiLayer = isDraftingEmojiLayer(layer);
+  const isEmojiLayer = isCanvasEmojiLayer(layer);
 
   return (
     <div
@@ -522,7 +522,7 @@ function CanvasNestedImageLayerView({
         ...layerEffectStyle,
       }}
     >
-      <DraftingImageLayerContent layer={layer} />
+      <CanvasImageLayerContent layer={layer} />
     </div>
   );
 }
@@ -546,7 +546,7 @@ function CanvasNestedShapeLayerView({
         ...layerEffectStyle,
       }}
     >
-      <DraftingShapeLayerContent layer={layer} />
+      <CanvasShapeLayerContent layer={layer} />
     </div>
   );
 }
@@ -557,7 +557,7 @@ function CanvasNestedShaderLayerView({
   layerEffectStyle,
   shaderDisplaySize,
 }: CanvasNestedLayerKindProps) {
-  const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader();
+  const paperShader = layer.paperShader ?? createDefaultCanvasCardPaperShader();
 
   return (
     <div
@@ -574,7 +574,7 @@ function CanvasNestedShaderLayerView({
         ...layerEffectStyle,
       }}
     >
-      <DraftingCardPaperShaderLayer
+      <CanvasCardPaperShaderLayer
         displayHeight={shaderDisplaySize.displayHeight}
         displayWidth={shaderDisplaySize.displayWidth}
         layoutHeight={layer.height}
@@ -990,7 +990,7 @@ function CanvasImageLayerView({
       onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
     >
       <CanvasLayerTiltShell layer={layer}>
-        <DraftingImageLayerContent layer={layer} />
+        <CanvasImageLayerContent layer={layer} />
       </CanvasLayerTiltShell>
     </CanvasLayerInteractive>
   );
@@ -1034,7 +1034,7 @@ function CanvasShapeLayerView({
       onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
     >
       <CanvasLayerTiltShell layer={layer}>
-        <DraftingShapeLayerContent layer={layer} />
+        <CanvasShapeLayerContent layer={layer} />
       </CanvasLayerTiltShell>
     </CanvasLayerInteractive>
   );
@@ -1052,7 +1052,7 @@ function CanvasShaderLayerView({
   onUpdateLayerInteraction,
   shaderDisplaySize,
 }: CanvasLayerKindViewProps) {
-  const paperShader = layer.paperShader ?? createDefaultDraftingCardPaperShader();
+  const paperShader = layer.paperShader ?? createDefaultCanvasCardPaperShader();
 
   return (
     <CanvasLayerInteractive
@@ -1082,7 +1082,7 @@ function CanvasShaderLayerView({
       onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
     >
       <CanvasLayerTiltShell layer={layer}>
-        <DraftingCardPaperShaderLayer
+        <CanvasCardPaperShaderLayer
           displayHeight={shaderDisplaySize.displayHeight}
           displayWidth={shaderDisplaySize.displayWidth}
           layoutHeight={layer.height}

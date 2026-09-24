@@ -6,13 +6,13 @@ import {
   SETTINGS_FILL_OPTION_TILE,
   SETTINGS_FILL_OPTION_TILE_INNER,
   SETTINGS_PREVIEW_TILE,
-} from "@/features/shell/inspector/SettingsPreviewTiles";
+} from "@/features/shell/settings/SettingsPreviewTiles";
 import {
   getSettingsSectionLabel,
   type SettingsSectionId,
-} from "@/features/shell/inspector/settings-panel-meta";
-import { SettingsSectionIconFor } from "@/features/shell/inspector/SettingsSectionIcons";
-import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext";
+} from "@/features/shell/settings/settings-panel-meta";
+import { SettingsSectionIconFor } from "@/features/shell/settings/SettingsSectionIcons";
+import { useMobileDrawerNavigation } from "@/features/shell/settings/MobileDrawerNavigationContext";
 import { SCENE_WALLPAPERS } from "@/features/canvas/assets/scene-wallpapers";
 import { WallpaperOptionPreview } from "@/features/canvas/components/WallpaperOptionPreview";
 import { cn } from "@/lib/utils";

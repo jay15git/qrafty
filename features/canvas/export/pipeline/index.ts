@@ -1,7 +1,7 @@
 import { zipSync } from "fflate";
 
 import type { QrFileExtension } from "@/features/qr/model/types";
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { QraftyState } from "@/features/qr/model/state";
 import {
@@ -22,7 +22,7 @@ export type WorkspaceExportProgress =
 export type RunWorkspaceExportOptions = {
   abortSignal?: AbortSignal;
   backgroundColor?: string;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   extension: QrFileExtension;
   layers: CanvasLayer[];
   mediaKind: "photo" | "video";
@@ -154,7 +154,7 @@ export async function runWorkspaceBatchExport({
 }: {
   abortSignal?: AbortSignal;
   backgroundColor?: string;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   extension: QrFileExtension;
   items: Array<{ layerId: string; name: string; state: QraftyState }>;
   layers: CanvasLayer[];

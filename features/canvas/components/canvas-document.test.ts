@@ -61,7 +61,7 @@ describe("mergeLiveQrStateByLayerId", () => {
       },
       activeQrLayerId: staleActiveLayerId,
       canvasLayers: [createQrLayer(staleLayerId)],
-      draftingQraftyState: liveState,
+      canvasQraftyState: liveState,
     });
 
     expect(merged[staleActiveLayerId]?.dataModulesSettings.type).toBe("pinched-square");

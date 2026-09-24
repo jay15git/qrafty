@@ -1,9 +1,9 @@
 "use client";
 
 import { Switch } from "@/components/ui/switch";
-import { InspectorLabel, InspectorSection } from "@/features/shell/components/SettingsControls";
-import { SettingsFillPopover, SettingsSlider } from "@/features/shell/inspector/settings-ui";
-import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
+import { SettingsLabel, SettingsSection } from "@/features/shell/components/SettingsControls";
+import { SettingsFillPopover, SettingsSlider } from "@/features/shell/settings/settings-ui";
+import { fillPreviewHex } from "@/features/shell/settings/FillPicker.utils";
 import {
   createLayerEffect,
   listLayerEffects,
@@ -11,7 +11,7 @@ import {
   serializeLayerEffects,
   type LayerShadowEffectItem,
 } from "@/features/canvas/model/layer-effects";
-import type { DraftingShadowLayerState } from "@/features/canvas/model/effects";
+import type { CanvasShadowLayerState } from "@/features/canvas/model/effects";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 
 export function ShadowsList({
@@ -43,7 +43,7 @@ export function ShadowsList({
     onPatch(serializeLayerEffects([...effects, createLayerEffect("drop-shadow")]));
   }
 
-  function handlePatchShadow(patch: Partial<DraftingShadowLayerState>) {
+  function handlePatchShadow(patch: Partial<CanvasShadowLayerState>) {
     if (!effect) {
       return;
     }
@@ -52,8 +52,8 @@ export function ShadowsList({
   }
 
   return (
-    <InspectorSection dataSlot="shadows-list">
-      <InspectorLabel>Shadows</InspectorLabel>
+    <SettingsSection dataSlot="shadows-list">
+      <SettingsLabel>Shadows</SettingsLabel>
       <Switch
         checked={enabled}
         className="ds-switch-row"
@@ -113,6 +113,6 @@ export function ShadowsList({
           />
         </div>
       ) : null}
-    </InspectorSection>
+    </SettingsSection>
   );
 }

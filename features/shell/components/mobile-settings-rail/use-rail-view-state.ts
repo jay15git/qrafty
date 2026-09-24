@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState, type ComponentType } from "react";
 
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
-import type { SettingsSectionId } from "@/features/shell/inspector/settings-panel-meta";
-import type { QrStylePartId } from "@/features/shell/inspector/qr-style-parts";
+import type { SettingsSectionId } from "@/features/shell/settings/settings-panel-meta";
+import type { QrStylePartId } from "@/features/shell/settings/qr-style-parts";
 
 import type { MobileRailRowProps } from "./rail-context";
 import { defaultFamilyMode } from "./rail-modes";

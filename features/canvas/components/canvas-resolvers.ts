@@ -1,17 +1,14 @@
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
-import type {
-  CanvasLayer,
-  DraftingLayerStateByNodeId,
-} from "@/features/canvas/model/layers/shared";
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
-import type { DraftingContentValuesByType } from "@/features/canvas/model/document";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
+import type { CanvasLayer, CanvasLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
+import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
+import type { CanvasContentValuesByType } from "@/features/canvas/model/document";
 import type { SceneCompositionByNodeId } from "@/features/canvas/model/apply-scene-template";
 import {
   createDefaultSceneComposition,
   normalizeSceneComposition,
 } from "@/features/canvas/model/scene-templates";
 import type { CanvasBoardToolbarVariant } from "@/features/canvas/components/Canvas";
-import { findDraftingLayerById } from "@/features/canvas/components/canvas-operations";
+import { findCanvasLayerById } from "@/features/canvas/components/canvas-operations";
 import { getAppearanceSnapshot } from "@/features/shell/model/appearance";
 import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload";
 import type { QrInputType } from "@/features/qr/content/input-options";
@@ -22,13 +19,13 @@ import {
 } from "@/features/qr/model/state";
 
 /**
- * Pure derivations for the drafting canvas view model. No React, no DOM —
+ * Pure derivations for the canvas view model. No React, no DOM —
  * every function here is a plain state → value mapping so it can be reasoned
  * about (and tested) without mounting the workspace.
  */
 
 export function resolveSelectedContentValues(
-  contentValuesByType: DraftingContentValuesByType,
+  contentValuesByType: CanvasContentValuesByType,
   selectedContentType: QrInputType,
 ) {
   return contentValuesByType[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType);
@@ -44,14 +41,14 @@ export function resolveActiveSceneComposition(
 }
 
 export function resolveActiveCanvasLayers(
-  layerStateByNodeId: DraftingLayerStateByNodeId,
+  layerStateByNodeId: CanvasLayerStateByNodeId,
   activeQrNodeId: string,
-  draftingQraftyState: QraftyState,
-  selectedCardState: DraftingCardState,
+  canvasQraftyState: QraftyState,
+  selectedCardState: CanvasCardState,
 ) {
   return (
     layerStateByNodeId[activeQrNodeId] ??
-    createDefaultDraftingLayers(activeQrNodeId, draftingQraftyState, selectedCardState)
+    createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState)
   );
 }
 
@@ -59,7 +56,7 @@ export function resolveSelectedTextLayer(
   activeCanvasLayers: CanvasLayer[],
   selectedLayerId: string | null,
 ) {
-  return selectedLayerId ? findDraftingLayerById(activeCanvasLayers, selectedLayerId) : null;
+  return selectedLayerId ? findCanvasLayerById(activeCanvasLayers, selectedLayerId) : null;
 }
 
 export function resolveSelectedElementLayer(
@@ -76,12 +73,12 @@ export function resolveSelectedElementLayer(
     : null;
 }
 
-export function resolveQrBackgroundVisible(draftingQraftyState: QraftyState) {
+export function resolveQrBackgroundVisible(canvasQraftyState: QraftyState) {
   return (
-    !hasBackgroundImage(draftingQraftyState) &&
-    (!draftingQraftyState.backgroundOptions.transparent ||
-      draftingQraftyState.backgroundGradient.enabled ||
-      hasActiveBackgroundShapeOptions(draftingQraftyState.backgroundShapeOptions))
+    !hasBackgroundImage(canvasQraftyState) &&
+    (!canvasQraftyState.backgroundOptions.transparent ||
+      canvasQraftyState.backgroundGradient.enabled ||
+      hasActiveBackgroundShapeOptions(canvasQraftyState.backgroundShapeOptions))
   );
 }
 
@@ -106,8 +103,8 @@ export function resolveLayerTargets(
 
 export function resolveAppearanceSnapshot(
   appearanceTargetLayer: CanvasLayer | null,
-  selectedCardState: DraftingCardState,
-  draftingQraftyState: QraftyState,
+  selectedCardState: CanvasCardState,
+  canvasQraftyState: QraftyState,
   qrBackgroundVisible: boolean,
 ) {
   return appearanceTargetLayer
@@ -118,10 +115,10 @@ export function resolveAppearanceSnapshot(
         cardCornerRadii:
           appearanceTargetLayer.kind === "card" ? selectedCardState.cornerRadii : undefined,
         qrBackgroundShapeId:
-          appearanceTargetLayer.kind === "qr" ? draftingQraftyState.backgroundShapeId : undefined,
+          appearanceTargetLayer.kind === "qr" ? canvasQraftyState.backgroundShapeId : undefined,
         qrBackgroundShapeOptions:
           appearanceTargetLayer.kind === "qr"
-            ? draftingQraftyState.backgroundShapeOptions
+            ? canvasQraftyState.backgroundShapeOptions
             : undefined,
         qrBackgroundSurfaceVisible:
           appearanceTargetLayer.kind === "qr" ? qrBackgroundVisible : undefined,

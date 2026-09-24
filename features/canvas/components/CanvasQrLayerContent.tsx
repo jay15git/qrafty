@@ -6,12 +6,12 @@ import { DotMatrixAnimatedQr } from "@/features/qr/components/DotMatrixAnimatedQ
 import { shouldUseDotMatrixMotionPreview } from "@/features/qr/motion/dot-matrix-bridge";
 import type { QraftyState } from "@/features/qr/model/state";
 import {
-  getDraftingQrDomPlacementStyle,
-  getDraftingQrLayerLayout,
+  getCanvasQrDomPlacementStyle,
+  getCanvasQrLayerLayout,
 } from "@/features/qr/rendering/svg-extension";
 import { CanvasQrBackground } from "@/features/canvas/components/QrBackground";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
-import { getDraftingPerSideBorderStyle } from "@/features/canvas/rendering/layer-appearance";
+import { getCanvasPerSideBorderStyle } from "@/features/canvas/rendering/layer-appearance";
 import { cn } from "@/lib/utils";
 
 type CanvasQrLayerContentProps = {
@@ -97,10 +97,10 @@ export const CanvasQrLayerContent = memo(function CanvasQrLayerContent({
   shapeTiltPerspectiveStyle,
   state,
 }: CanvasQrLayerContentProps) {
-  const layout = getDraftingQrLayerLayout(layer.width, state, layer.height);
-  const qrPlacementStyle = getDraftingQrDomPlacementStyle(layout);
+  const layout = getCanvasQrLayerLayout(layer.width, state, layer.height);
+  const qrPlacementStyle = getCanvasQrDomPlacementStyle(layout);
   const qrBorderStyle = layer.borderSides
-    ? getDraftingPerSideBorderStyle(layer.borderSides)
+    ? getCanvasPerSideBorderStyle(layer.borderSides)
     : undefined;
   const useAnimatedQr = shouldUseDotMatrixMotionPreview(state) && Boolean(canvasSvgMarkup);
 

@@ -1,21 +1,21 @@
 import {
-  createDefaultDraftingCardState,
-  normalizeDraftingCardState,
-  type DraftingCardState,
+  createDefaultCanvasCardState,
+  normalizeCanvasCardState,
+  type CanvasCardState,
 } from "@/features/canvas/model/card-state";
 import {
-  createDefaultDraftingWorkspaceDocument,
-  createDefaultDraftingWorkspaceQrState,
-  type DraftingCardStateByNodeId,
-  type DraftingContentValuesByType,
-  type DraftingQrStateByLayerId,
-  type DraftingQrStateByNodeId,
-  type DraftingWorkspaceDocumentV1,
+  createDefaultCanvasWorkspaceDocument,
+  createDefaultCanvasWorkspaceQrState,
+  type CanvasCardStateByNodeId,
+  type CanvasContentValuesByType,
+  type CanvasQrStateByLayerId,
+  type CanvasQrStateByNodeId,
+  type CanvasWorkspaceDocumentV1,
 } from "@/features/canvas/model/document";
-import { normalizeDraftingWorkspaceDocument } from "@/features/canvas/model/document/normalize";
+import { normalizeCanvasWorkspaceDocument } from "@/features/canvas/model/document/normalize";
 import { normalizeCanvasLayers } from "@/features/canvas/model/layers/card-qr";
-import { getDraftingQrLayerId } from "@/features/canvas/model/layers/shared";
-import { type DraftingLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
+import { getCanvasQrLayerId } from "@/features/canvas/model/layers/shared";
+import { type CanvasLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import {
   clampBackgroundShapeEdgeBlur,
@@ -37,17 +37,17 @@ import {
 } from "@/features/canvas/model/scene-templates";
 import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload";
 
-export function parseDraftingWorkspaceDocument(value: unknown): DraftingWorkspaceDocumentV1 {
+export function parseCanvasWorkspaceDocument(value: unknown): CanvasWorkspaceDocumentV1 {
   if (typeof value === "string") {
     try {
-      return parseDraftingWorkspaceDocument(JSON.parse(value));
+      return parseCanvasWorkspaceDocument(JSON.parse(value));
     } catch {
-      return createDefaultDraftingWorkspaceDocument();
+      return createDefaultCanvasWorkspaceDocument();
     }
   }
 
   if (!isRecord(value) || value.version !== 1) {
-    return createDefaultDraftingWorkspaceDocument();
+    return createDefaultCanvasWorkspaceDocument();
   }
 
   const rawQrStateByNodeId = isRecord(value.qrStateByNodeId) ? value.qrStateByNodeId : {};
@@ -56,7 +56,7 @@ export function parseDraftingWorkspaceDocument(value: unknown): DraftingWorkspac
   const qrOrder = Array.isArray(value.qrOrder)
     ? value.qrOrder.filter((nodeId): nodeId is string => typeof nodeId === "string")
     : [];
-  const fallback = createDefaultDraftingWorkspaceDocument();
+  const fallback = createDefaultCanvasWorkspaceDocument();
   const orderedNodeIds = qrOrder.filter((nodeId) => isRecord(rawQrStateByNodeId[nodeId]));
   const orderedNodeIdSet = new Set(orderedNodeIds);
 
@@ -71,9 +71,9 @@ export function parseDraftingWorkspaceDocument(value: unknown): DraftingWorkspac
     return fallback;
   }
 
-  const qrStateByNodeId: DraftingQrStateByNodeId = {};
-  const cardStateByNodeId: DraftingCardStateByNodeId = {};
-  const layerStateByNodeId: DraftingLayerStateByNodeId = {};
+  const qrStateByNodeId: CanvasQrStateByNodeId = {};
+  const cardStateByNodeId: CanvasCardStateByNodeId = {};
+  const layerStateByNodeId: CanvasLayerStateByNodeId = {};
 
   for (const nodeId of orderedNodeIds) {
     qrStateByNodeId[nodeId] = parseQrState(rawQrStateByNodeId[nodeId]);
@@ -118,11 +118,11 @@ export function parseDraftingWorkspaceDocument(value: unknown): DraftingWorkspac
     selectedContentType,
   );
 
-  const parsedDocument: DraftingWorkspaceDocumentV1 = {
+  const parsedDocument: CanvasWorkspaceDocumentV1 = {
     activeQrLayerId:
       typeof value.activeQrLayerId === "string"
         ? value.activeQrLayerId
-        : getDraftingQrLayerId(activeQrNodeId),
+        : getCanvasQrLayerId(activeQrNodeId),
     activeQrNodeId,
     cardStateByNodeId,
     contentTypeByLayerId: parseContentTypeByLayerId(
@@ -150,11 +150,11 @@ export function parseDraftingWorkspaceDocument(value: unknown): DraftingWorkspac
     version: 1,
   };
 
-  return normalizeDraftingWorkspaceDocument(parsedDocument);
+  return normalizeCanvasWorkspaceDocument(parsedDocument);
 }
 
 function parseQrState(value: unknown): QraftyState {
-  const fallback = createDefaultDraftingWorkspaceQrState();
+  const fallback = createDefaultCanvasWorkspaceQrState();
 
   if (!isRecord(value)) {
     return fallback;
@@ -220,30 +220,30 @@ function parseBackgroundShapeOptions(
   };
 }
 
-function parseCardState(value: unknown): DraftingCardState {
-  const fallback = createDefaultDraftingCardState();
+function parseCardState(value: unknown): CanvasCardState {
+  const fallback = createDefaultCanvasCardState();
 
   if (!isRecord(value)) {
     return fallback;
   }
 
-  return normalizeDraftingCardState({
+  return normalizeCanvasCardState({
     ...fallback,
     ...structuredClone(value),
-  } as DraftingCardState);
+  } as CanvasCardState);
 }
 
-function parseContentValuesByType(value: unknown): DraftingContentValuesByType {
+function parseContentValuesByType(value: unknown): CanvasContentValuesByType {
   if (!isRecord(value)) {
     return {};
   }
 
-  return structuredClone(value) as DraftingContentValuesByType;
+  return structuredClone(value) as CanvasContentValuesByType;
 }
 
 function parseContentTypeByLayerId(
   value: unknown,
-  layerStateByNodeId: DraftingLayerStateByNodeId,
+  layerStateByNodeId: CanvasLayerStateByNodeId,
   contentTypeByNodeId: Record<string, QrInputType>,
   activeQrNodeId: string,
 ): Record<string, QrInputType> {
@@ -266,13 +266,13 @@ function parseContentTypeByLayerId(
 
 function parseQrStateByLayerId(
   value: unknown,
-  layerStateByNodeId: DraftingLayerStateByNodeId,
-  qrStateByNodeId: DraftingQrStateByNodeId,
+  layerStateByNodeId: CanvasLayerStateByNodeId,
+  qrStateByNodeId: CanvasQrStateByNodeId,
   activeQrNodeId: string,
-): DraftingQrStateByLayerId {
+): CanvasQrStateByLayerId {
   const raw = isRecord(value) ? value : {};
-  const qrStateByLayerId: DraftingQrStateByLayerId = {};
-  const fallbackState = qrStateByNodeId[activeQrNodeId] ?? createDefaultDraftingWorkspaceQrState();
+  const qrStateByLayerId: CanvasQrStateByLayerId = {};
+  const fallbackState = qrStateByNodeId[activeQrNodeId] ?? createDefaultCanvasWorkspaceQrState();
 
   for (const [nodeId, layers] of Object.entries(layerStateByNodeId)) {
     const nodeState = qrStateByNodeId[nodeId] ?? fallbackState;

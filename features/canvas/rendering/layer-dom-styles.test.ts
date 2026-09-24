@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
-import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories";
+import { createCanvasTextLayer } from "@/features/canvas/model/layers/factories";
 import { getTextLayerStyle } from "@/features/canvas/rendering/layer-dom-styles";
 import type { QraftyGradient } from "@/features/qr/model/state";
 
@@ -17,7 +17,7 @@ const gradient: QraftyGradient = {
 
 describe("getTextLayerStyle", () => {
   it("uses flat color for solid text", () => {
-    const layer = createDraftingTextLayer("preview", { fill: "#123456" });
+    const layer = createCanvasTextLayer("preview", { fill: "#123456" });
     const style = getTextLayerStyle(layer);
 
     expect(style.color).toBe("#123456");
@@ -25,7 +25,7 @@ describe("getTextLayerStyle", () => {
   });
 
   it("clips gradient fills to the text glyphs", () => {
-    const layer = patchCanvasLayer(createDraftingTextLayer("preview"), {
+    const layer = patchCanvasLayer(createCanvasTextLayer("preview"), {
       fillGradient: gradient,
       fillMode: "gradient",
     });
@@ -38,7 +38,7 @@ describe("getTextLayerStyle", () => {
   });
 
   it("ignores disabled gradients", () => {
-    const layer = patchCanvasLayer(createDraftingTextLayer("preview"), {
+    const layer = patchCanvasLayer(createCanvasTextLayer("preview"), {
       fillGradient: { ...gradient, enabled: false },
       fillMode: "gradient",
     });

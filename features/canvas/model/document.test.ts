@@ -1,27 +1,27 @@
 import { describe, expect, it } from "vitest";
 
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
-import { getDraftingQrLayerId, getQrCanvasLayers } from "@/features/canvas/model/layers/shared";
+import { getCanvasQrLayerId, getQrCanvasLayers } from "@/features/canvas/model/layers/shared";
 import {
-  cloneDraftingWorkspaceDocument,
-  createDefaultDraftingWorkspaceDocument,
-  serializeDraftingWorkspaceDocument,
+  cloneCanvasWorkspaceDocument,
+  createDefaultCanvasWorkspaceDocument,
+  serializeCanvasWorkspaceDocument,
 } from "@/features/canvas/model/document";
-import { parseDraftingWorkspaceDocument } from "@/features/canvas/model/document/parse";
+import { parseCanvasWorkspaceDocument } from "@/features/canvas/model/document/parse";
 
-describe("drafting workspace document", () => {
+describe("canvas workspace document", () => {
   it("flattens legacy multi-pane documents into qr layers on one canvas", () => {
-    const document = createDefaultDraftingWorkspaceDocument();
+    const document = createDefaultCanvasWorkspaceDocument();
     document.qrOrder = [DASHBOARD_QR_NODE_ID, "qr-code-extra"];
     document.activeQrNodeId = "qr-code-extra";
     document.qrStateByNodeId["qr-code-extra"] = {
-      ...cloneDraftingWorkspaceDocument(document).qrStateByNodeId[DASHBOARD_QR_NODE_ID]!,
+      ...cloneCanvasWorkspaceDocument(document).qrStateByNodeId[DASHBOARD_QR_NODE_ID]!,
       data: "https://example.com/extra",
     };
     document.cardStateByNodeId["qr-code-extra"] =
-      cloneDraftingWorkspaceDocument(document).cardStateByNodeId[DASHBOARD_QR_NODE_ID]!;
+      cloneCanvasWorkspaceDocument(document).cardStateByNodeId[DASHBOARD_QR_NODE_ID]!;
     document.layerStateByNodeId["qr-code-extra"] =
-      cloneDraftingWorkspaceDocument(document).layerStateByNodeId[DASHBOARD_QR_NODE_ID]?.map(
+      cloneCanvasWorkspaceDocument(document).layerStateByNodeId[DASHBOARD_QR_NODE_ID]?.map(
         (layer) => ({
           ...layer,
           id: layer.kind === "card" ? "qr-code-extra:card" : "qr-code-extra:qr",
@@ -42,7 +42,7 @@ describe("drafting workspace document", () => {
       },
     };
 
-    const parsed = parseDraftingWorkspaceDocument(serializeDraftingWorkspaceDocument(document));
+    const parsed = parseCanvasWorkspaceDocument(serializeCanvasWorkspaceDocument(document));
     const layers = parsed.layerStateByNodeId[DASHBOARD_QR_NODE_ID] ?? [];
 
     expect(parsed.qrOrder).toEqual([DASHBOARD_QR_NODE_ID]);
@@ -53,15 +53,15 @@ describe("drafting workspace document", () => {
         (state) => state.data === "https://example.com/extra",
       ),
     ).toBe(true);
-    expect(parsed.contentTypeByLayerId[getDraftingQrLayerId(DASHBOARD_QR_NODE_ID)]).toBe("auto");
+    expect(parsed.contentTypeByLayerId[getCanvasQrLayerId(DASHBOARD_QR_NODE_ID)]).toBe("auto");
   });
 
   it("migrates missing layer state into independent card and qr layers", () => {
-    const document = createDefaultDraftingWorkspaceDocument();
-    const serialized = JSON.parse(serializeDraftingWorkspaceDocument(document));
+    const document = createDefaultCanvasWorkspaceDocument();
+    const serialized = JSON.parse(serializeCanvasWorkspaceDocument(document));
     delete serialized.layerStateByNodeId;
 
-    const parsed = parseDraftingWorkspaceDocument(serialized);
+    const parsed = parseCanvasWorkspaceDocument(serialized);
     const layers = parsed.layerStateByNodeId[DASHBOARD_QR_NODE_ID] ?? [];
 
     expect(layers.map((layer) => layer.kind)).toEqual(["card", "qr"]);
@@ -81,18 +81,18 @@ describe("drafting workspace document", () => {
   });
 
   it("falls back to defaults for invalid documents", () => {
-    expect(parseDraftingWorkspaceDocument(null)).toMatchObject({
+    expect(parseCanvasWorkspaceDocument(null)).toMatchObject({
       activeQrNodeId: DASHBOARD_QR_NODE_ID,
       version: 1,
     });
-    expect(parseDraftingWorkspaceDocument({ version: 999, qrOrder: [] })).toMatchObject({
+    expect(parseCanvasWorkspaceDocument({ version: 999, qrOrder: [] })).toMatchObject({
       activeQrNodeId: DASHBOARD_QR_NODE_ID,
       version: 1,
     });
   });
 
   it("creates one default pane when saved state is missing pane data", () => {
-    const parsed = parseDraftingWorkspaceDocument({
+    const parsed = parseCanvasWorkspaceDocument({
       activeQrNodeId: "missing-pane",
       cardStateByNodeId: {},
       contentTypeByNodeId: {},
@@ -110,7 +110,7 @@ describe("drafting workspace document", () => {
   });
 
   it("migrates legacy background shape percent growth to pixel padding", () => {
-    const document = createDefaultDraftingWorkspaceDocument();
+    const document = createDefaultCanvasWorkspaceDocument();
     document.qrStateByNodeId[DASHBOARD_QR_NODE_ID]!.backgroundShapeOptions = {
       edgeBlur: 4,
       sizePercent: 125,
@@ -119,7 +119,7 @@ describe("drafting workspace document", () => {
       strokeWidth: 8,
     } as unknown as (typeof document.qrStateByNodeId)[typeof DASHBOARD_QR_NODE_ID]["backgroundShapeOptions"];
 
-    const parsed = parseDraftingWorkspaceDocument(serializeDraftingWorkspaceDocument(document));
+    const parsed = parseCanvasWorkspaceDocument(serializeCanvasWorkspaceDocument(document));
 
     expect(parsed.qrStateByNodeId[DASHBOARD_QR_NODE_ID]?.backgroundShapeOptions).toEqual({
       edgeBlur: 4,
@@ -137,7 +137,7 @@ describe("drafting workspace document", () => {
   });
 
   it("keeps legacy edge blur as shadow blur and defaults missing shadow fields", () => {
-    const document = createDefaultDraftingWorkspaceDocument();
+    const document = createDefaultCanvasWorkspaceDocument();
     document.qrStateByNodeId[DASHBOARD_QR_NODE_ID]!.backgroundShapeOptions = {
       edgeBlur: 12,
       paddingPx: 8,
@@ -146,7 +146,7 @@ describe("drafting workspace document", () => {
       strokeWidth: 0,
     } as unknown as (typeof document.qrStateByNodeId)[typeof DASHBOARD_QR_NODE_ID]["backgroundShapeOptions"];
 
-    const parsed = parseDraftingWorkspaceDocument(serializeDraftingWorkspaceDocument(document));
+    const parsed = parseCanvasWorkspaceDocument(serializeCanvasWorkspaceDocument(document));
 
     expect(parsed.qrStateByNodeId[DASHBOARD_QR_NODE_ID]?.backgroundShapeOptions).toEqual({
       edgeBlur: 12,
@@ -164,7 +164,7 @@ describe("drafting workspace document", () => {
   });
 
   it("drops legacy background shape percent shrinkage during migration", () => {
-    const document = createDefaultDraftingWorkspaceDocument();
+    const document = createDefaultCanvasWorkspaceDocument();
     document.qrStateByNodeId[DASHBOARD_QR_NODE_ID]!.backgroundShapeOptions = {
       edgeBlur: 0,
       sizePercent: 80,
@@ -173,20 +173,20 @@ describe("drafting workspace document", () => {
       strokeWidth: 0,
     } as unknown as (typeof document.qrStateByNodeId)[typeof DASHBOARD_QR_NODE_ID]["backgroundShapeOptions"];
 
-    const parsed = parseDraftingWorkspaceDocument(serializeDraftingWorkspaceDocument(document));
+    const parsed = parseCanvasWorkspaceDocument(serializeCanvasWorkspaceDocument(document));
 
     expect(parsed.qrStateByNodeId[DASHBOARD_QR_NODE_ID]?.backgroundShapeOptions.paddingPx).toBe(0);
   });
 
   it("round-trips background shape tilt through document serialization", () => {
-    const document = createDefaultDraftingWorkspaceDocument();
+    const document = createDefaultCanvasWorkspaceDocument();
     document.qrStateByNodeId[DASHBOARD_QR_NODE_ID]!.backgroundShapeOptions = {
       ...document.qrStateByNodeId[DASHBOARD_QR_NODE_ID]!.backgroundShapeOptions,
       tiltX: 18,
       tiltY: -24,
     };
 
-    const parsed = parseDraftingWorkspaceDocument(serializeDraftingWorkspaceDocument(document));
+    const parsed = parseCanvasWorkspaceDocument(serializeCanvasWorkspaceDocument(document));
 
     expect(parsed.qrStateByNodeId[DASHBOARD_QR_NODE_ID]?.backgroundShapeOptions).toMatchObject({
       tiltX: 18,
@@ -195,7 +195,7 @@ describe("drafting workspace document", () => {
   });
 
   it("defaults card size mode to fixed 4:3 for unknown documents", () => {
-    const parsed = parseDraftingWorkspaceDocument({ version: 999, qrOrder: [] });
+    const parsed = parseCanvasWorkspaceDocument({ version: 999, qrOrder: [] });
 
     expect(parsed.cardStateByNodeId[DASHBOARD_QR_NODE_ID]).toMatchObject({
       height: 810,

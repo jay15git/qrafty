@@ -20,7 +20,7 @@ function getEnumControl(shaderId: string, key: string) {
   return control as Extract<typeof control, { type: "enum" }>;
 }
 
-describe("drafting paper shader metadata", () => {
+describe("canvas paper shader metadata", () => {
   it("uses upstream numeric ranges for previously mismatched controls", () => {
     expect(getNumberControl("warp", "speed")).toMatchObject({ min: 0, max: 20 });
     expect(getNumberControl("perlin-noise", "speed")).toMatchObject({

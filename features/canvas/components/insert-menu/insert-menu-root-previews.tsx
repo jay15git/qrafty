@@ -10,7 +10,7 @@ import {
 } from "@/features/canvas/assets/illustration-sets";
 import { ElementShapePrimitivePreview } from "@/features/canvas/components/ElementShapePrimitivePreview";
 import type { InsertMenuFanPreviewItems } from "@/features/canvas/components/insert-menu/InsertMenuFanPreview";
-import type { DraftingShapePrimitiveId } from "@/features/canvas/model/element-shapes";
+import type { CanvasShapePrimitiveId } from "@/features/canvas/model/element-shapes";
 
 const INSERT_MENU_IMAGE_PREVIEW_SRCS = [
   "/backgrounds/raycast/chromatic-dark-1-preview.webp",
@@ -37,7 +37,7 @@ function InsertMenuTextPreviewCard({
   return <span className={className}>{children}</span>;
 }
 
-function InsertMenuShapePreviewCard({ shapeId }: { shapeId: DraftingShapePrimitiveId }) {
+function InsertMenuShapePreviewCard({ shapeId }: { shapeId: CanvasShapePrimitiveId }) {
   return <ElementShapePrimitivePreview className="size-5 text-[var(--fg)]" shapeId={shapeId} />;
 }
 

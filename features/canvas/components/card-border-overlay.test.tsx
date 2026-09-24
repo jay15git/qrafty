@@ -2,15 +2,15 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { createDefaultQraftyState } from "@/features/qr/model/state";
-import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
+import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
+import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 import { CanvasDocumentCardLayer } from "@/features/canvas/components/CanvasLayerViews";
 
 describe("card border overlay", () => {
   it("renders an inner border overlay when the card has a border", () => {
     const qrState = createDefaultQraftyState();
     const cardState = {
-      ...createDefaultDraftingCardState(),
+      ...createDefaultCanvasCardState(),
       border: {
         color: "#ff0000",
         opacity: 100,
@@ -24,7 +24,7 @@ describe("card border overlay", () => {
         width: 8,
       },
     };
-    const [cardLayer] = createDefaultDraftingLayers("node-1", qrState, cardState);
+    const [cardLayer] = createDefaultCanvasLayers("node-1", qrState, cardState);
 
     const html = renderToStaticMarkup(
       <CanvasDocumentCardLayer

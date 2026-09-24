@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState, type MutableRefObject } from "react";
 
 import {
-  cloneDraftingWorkspaceDocument,
-  serializeDraftingWorkspaceDocument,
-  type DraftingWorkspaceDocumentV1,
+  cloneCanvasWorkspaceDocument,
+  serializeCanvasWorkspaceDocument,
+  type CanvasWorkspaceDocumentV1,
 } from "@/features/canvas/model/document";
-import { writeDraftingWorkspaceDraft } from "@/features/canvas/model/storage";
+import { writeCanvasWorkspaceDraft } from "@/features/canvas/model/storage";
 import { resolveWorkspaceBootstrapDocument } from "@/features/canvas/model/workspace-bootstrap";
 import { previewSession } from "@/features/canvas/preview/preview-session";
 
@@ -21,20 +21,20 @@ export function useCanvasHistory({
   isWorkspaceReady,
   setIsWorkspaceReady,
 }: {
-  applyDocumentRef: MutableRefObject<(nextDocument: DraftingWorkspaceDocumentV1) => void>;
-  document: DraftingWorkspaceDocumentV1;
+  applyDocumentRef: MutableRefObject<(nextDocument: CanvasWorkspaceDocumentV1) => void>;
+  document: CanvasWorkspaceDocumentV1;
   isWorkspaceReady: boolean;
   setIsWorkspaceReady: (ready: boolean) => void;
 }) {
   const [historyRevision, setHistoryRevision] = useState(-1);
   const autosaveTimerRef = useRef<number | null>(null);
   const historyTimerRef = useRef<number | null>(null);
-  const historyRef = useRef<DraftingWorkspaceDocumentV1[]>([]);
+  const historyRef = useRef<CanvasWorkspaceDocumentV1[]>([]);
   const historyIndexRef = useRef(-1);
   const isApplyingHistoryRef = useRef(false);
   const shouldReplaceCurrentEntryRef = useRef(false);
 
-  const setHistoryStack = (nextStack: DraftingWorkspaceDocumentV1[], nextIndex: number) => {
+  const setHistoryStack = (nextStack: CanvasWorkspaceDocumentV1[], nextIndex: number) => {
     historyRef.current = nextStack;
     historyIndexRef.current = nextIndex;
     setHistoryRevision((current) => current + 1);
@@ -69,7 +69,7 @@ export function useCanvasHistory({
       autosaveTimerRef.current = null;
     }
 
-    void writeDraftingWorkspaceDraft(document);
+    void writeCanvasWorkspaceDraft(document);
   };
 
   const canUndo = historyRevision >= 0 && historyIndexRef.current > 0;
@@ -86,7 +86,7 @@ export function useCanvasHistory({
 
       isApplyingHistoryRef.current = true;
       applyDocumentRef.current(nextDocument);
-      setHistoryStack([cloneDraftingWorkspaceDocument(nextDocument)], 0);
+      setHistoryStack([cloneCanvasWorkspaceDocument(nextDocument)], 0);
       setIsWorkspaceReady(true);
       window.setTimeout(() => {
         isApplyingHistoryRef.current = false;
@@ -114,14 +114,14 @@ export function useCanvasHistory({
         return;
       }
 
-      const snapshot = cloneDraftingWorkspaceDocument(document);
-      const serializedSnapshot = serializeDraftingWorkspaceDocument(snapshot);
+      const snapshot = cloneCanvasWorkspaceDocument(document);
+      const serializedSnapshot = serializeCanvasWorkspaceDocument(snapshot);
       const currentIndex = historyIndexRef.current;
       const currentSnapshot = historyRef.current[currentIndex];
 
       if (
         currentSnapshot &&
-        serializeDraftingWorkspaceDocument(currentSnapshot) === serializedSnapshot
+        serializeCanvasWorkspaceDocument(currentSnapshot) === serializedSnapshot
       ) {
         return;
       }
@@ -170,7 +170,7 @@ export function useCanvasHistory({
         return;
       }
 
-      void writeDraftingWorkspaceDraft(document);
+      void writeCanvasWorkspaceDraft(document);
     }, AUTOSAVE_DEBOUNCE_MS);
 
     return () => {

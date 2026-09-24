@@ -293,7 +293,7 @@
 /*
  * Radix ScrollArea content wrapper is `display: table; min-width: 100%`, which
  * grows to the widest child. That makes horizontal option shelves inflate the
- * whole settings column. Pin inspector scroll content to the panel width.
+ * whole settings column. Pin settings scroll content to the panel width.
  */
 [data-slot="settings-scroll-area"] [data-slot="scroll-area-viewport"] > div {
   display: block !important;

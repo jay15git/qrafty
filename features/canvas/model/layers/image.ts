@@ -1,26 +1,26 @@
 import {
   normalizeSvgPaintColor,
-  type DraftingIllustrationColorStop,
+  type CanvasIllustrationColorStop,
 } from "@/features/canvas/assets/illustration-recolor";
 import {
   DEFAULT_DRAFTING_IMAGE_LAYER,
   isRecord,
-  normalizeDraftingLayerBorderSides,
+  normalizeCanvasLayerBorderSides,
   normalizeImageSourceMode,
   normalizeLayerCornerRadiusFields,
   normalizeSharedCanvasLayerFields,
   type CanvasLayer,
-  type NormalizeDraftingLayerContext,
+  type NormalizeCanvasLayerContext,
 } from "@/features/canvas/model/layers/shared";
 
 export function normalizeImageCanvasLayer(
-  context: NormalizeDraftingLayerContext & { kind: "image" },
+  context: NormalizeCanvasLayerContext & { kind: "image" },
 ): CanvasLayer {
   const { fallback, value } = context;
 
   return {
     ...normalizeSharedCanvasLayerFields(context),
-    borderSides: normalizeDraftingLayerBorderSides(value.borderSides, fallback.borderSides),
+    borderSides: normalizeCanvasLayerBorderSides(value.borderSides, fallback.borderSides),
     ...normalizeLayerCornerRadiusFields(value, fallback, DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius),
     imageFit:
       value.imageFit === "contain" || value.imageFit === "cover"
@@ -41,14 +41,14 @@ export function normalizeImageCanvasLayer(
 
 function normalizeIllustrationColorStops(
   value: unknown,
-  fallback: DraftingIllustrationColorStop[] | undefined,
-): DraftingIllustrationColorStop[] | undefined {
+  fallback: CanvasIllustrationColorStop[] | undefined,
+): CanvasIllustrationColorStop[] | undefined {
   const source = Array.isArray(value) ? value : fallback;
   if (!Array.isArray(source)) {
     return undefined;
   }
 
-  const stops: DraftingIllustrationColorStop[] = [];
+  const stops: CanvasIllustrationColorStop[] = [];
   for (const item of source) {
     if (!isRecord(item) || typeof item.from !== "string" || typeof item.to !== "string") {
       continue;

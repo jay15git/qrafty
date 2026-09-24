@@ -1,9 +1,9 @@
-import type { DraftingCardSizeMode } from "@/features/canvas/model/card-state";
+import type { CanvasCardSizeMode } from "@/features/canvas/model/card-state";
 
 export type CardSizeSettings = {
   cardHeight: number;
   cardWidth: number;
   lockAspectRatio: boolean;
-  sizeMode: DraftingCardSizeMode;
+  sizeMode: CanvasCardSizeMode;
   sizePresetId?: string;
 };

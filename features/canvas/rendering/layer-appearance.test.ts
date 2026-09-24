@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest";
 
 import { createUniformPerSideBorder } from "@/features/canvas/model/effects";
-import { createDefaultDraftingFilterEffect } from "@/features/canvas/model/filters";
+import { createDefaultCanvasFilterEffect } from "@/features/canvas/model/filters";
 import {
   buildCssFilterString,
-  getDraftingLayerDropShadowFilter,
-  getDraftingOutlineStyle,
-  getDraftingPerSideBorderStyle,
-  getDraftingUniformBorderStyle,
+  getCanvasLayerDropShadowFilter,
+  getCanvasOutlineStyle,
+  getCanvasPerSideBorderStyle,
+  getCanvasUniformBorderStyle,
   mergeCssFilterStrings,
 } from "@/features/canvas/rendering/layer-appearance";
 
 describe("layer appearance css builders", () => {
   it("builds drop shadows", () => {
     expect(
-      getDraftingLayerDropShadowFilter([
+      getCanvasLayerDropShadowFilter([
         {
           blur: 12,
           color: "#111827",
@@ -32,7 +32,7 @@ describe("layer appearance css builders", () => {
 
   it("builds outline css", () => {
     expect(
-      getDraftingOutlineStyle({
+      getCanvasOutlineStyle({
         color: "#000000",
         offset: 4,
         opacity: 100,
@@ -55,7 +55,7 @@ describe("layer appearance css builders", () => {
     });
     sides.bottom = { color: "#111827", opacity: 100, style: "solid", width: 2 };
 
-    expect(getDraftingPerSideBorderStyle(sides)).toEqual({
+    expect(getCanvasPerSideBorderStyle(sides)).toEqual({
       borderTopWidth: "0",
       borderRightWidth: "0",
       borderLeftWidth: "0",
@@ -67,7 +67,7 @@ describe("layer appearance css builders", () => {
 
   it("builds uniform border shorthand", () => {
     expect(
-      getDraftingUniformBorderStyle({
+      getCanvasUniformBorderStyle({
         color: "#111827",
         opacity: 100,
         style: "solid",
@@ -78,8 +78,8 @@ describe("layer appearance css builders", () => {
 
   it("chains css filters and drop shadows", () => {
     const filter = buildCssFilterString([
-      createDefaultDraftingFilterEffect("blur", { amount: 4 }),
-      createDefaultDraftingFilterEffect("brightness", { amount: 120 }),
+      createDefaultCanvasFilterEffect("blur", { amount: 4 }),
+      createDefaultCanvasFilterEffect("brightness", { amount: 120 }),
     ]);
 
     expect(filter).toBe("blur(4px) brightness(1.2)");

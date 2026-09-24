@@ -1,4 +1,4 @@
-import type { DraftingTextFontWeight } from "@/features/canvas/model/layers/shared";
+import type { CanvasTextFontWeight } from "@/features/canvas/model/layers/shared";
 
 export function getNearestFontWeight(value: number, supportedWeights: readonly number[]) {
   return supportedWeights.reduce((nearestWeight, candidateWeight) => {
@@ -26,7 +26,7 @@ export function getFontWeightSliderStep(supportedWeights: readonly number[]) {
 }
 
 export function getLayerFontWeight(
-  fontWeight: DraftingTextFontWeight | undefined,
+  fontWeight: CanvasTextFontWeight | undefined,
   supportedWeights: readonly number[],
 ) {
   if (fontWeight === "bold") {

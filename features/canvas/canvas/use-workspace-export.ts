@@ -17,14 +17,11 @@ import {
   runWorkspaceExport,
   type WorkspaceExportProgress,
 } from "@/features/canvas/export/pipeline";
-import type {
-  CanvasLayer,
-  DraftingLayerStateByNodeId,
-} from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer, CanvasLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
-import type { DraftingCardState } from "@/features/canvas/model/card-state";
-import type { DraftingQrStateByNodeId } from "@/features/canvas/model/document";
+import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
+import type { CanvasQrStateByNodeId } from "@/features/canvas/model/document";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { VideoExportLongEdge } from "@/features/qr/export/video-export";
 
@@ -48,14 +45,14 @@ export function useWorkspaceExport({
   activeQrLayerId: string;
   activeQrNodeId: string;
   canDownload: boolean;
-  cardState: DraftingCardState;
+  cardState: CanvasCardState;
   downloadExtension: CanvasDownloadExtension;
   downloadTarget: string;
   exportMediaKind: string;
-  layerStateByNodeId: DraftingLayerStateByNodeId;
+  layerStateByNodeId: CanvasLayerStateByNodeId;
   qrCanvasLayers: CanvasLayer[];
   qrBoardNamesById: Map<string, string>;
-  qrStateByLayerId: DraftingQrStateByNodeId;
+  qrStateByLayerId: CanvasQrStateByNodeId;
   rasterPhotoLongEdge: VideoExportLongEdge | undefined;
   setDownloadError: (error: string | null) => void;
   state: QraftyState;
@@ -104,7 +101,7 @@ export function useWorkspaceExport({
 
       const exportLayers =
         layerStateByNodeId[activeQrNodeId] ??
-        createDefaultDraftingLayers(activeQrNodeId, state, cardState);
+        createDefaultCanvasLayers(activeQrNodeId, state, cardState);
       const cardLayer = exportLayers.find((layer) => layer.kind === "card" && layer.isVisible);
 
       if (!cardLayer) {

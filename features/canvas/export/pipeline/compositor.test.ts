@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import { formatFill } from "@/components/ui/fill-picker/public-api";
 import { createDefaultQraftyState } from "@/features/qr/model/state";
-import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
-import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
-import { createDraftingShaderLayer } from "@/features/canvas/model/layers/factories";
+import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
+import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
+import { createCanvasShaderLayer } from "@/features/canvas/model/layers/factories";
 import {
   cardLayerNeedsCanvasFace,
   computeObjectFitRect,
@@ -13,8 +13,8 @@ import {
 describe("export compositor faces", () => {
   it("paints shader and image card faces on canvas, not via nested svg images", () => {
     const state = createDefaultQraftyState();
-    const shaderCard = createDefaultDraftingCardState();
-    const layers = createDefaultDraftingLayers("node", state, shaderCard);
+    const shaderCard = createDefaultCanvasCardState();
+    const layers = createDefaultCanvasLayers("node", state, shaderCard);
     const cardLayer = layers.find((layer) => layer.kind === "card");
     const qrLayer = layers.find((layer) => layer.kind === "qr");
 
@@ -63,7 +63,7 @@ describe("export compositor faces", () => {
 
     expect(cardLayerNeedsCanvasFace(cardLayer, conicCard)).toBe(true);
 
-    const overlayShader = createDraftingShaderLayer("node", "mesh-gradient", {
+    const overlayShader = createCanvasShaderLayer("node", "mesh-gradient", {
       height: 120,
       id: "node:shader-overlay",
       width: 120,

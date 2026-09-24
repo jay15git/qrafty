@@ -1,6 +1,6 @@
 import { formatColor, parseColor } from "@/components/ui/fill-picker/lib/color";
 
-export type DraftingIllustrationColorStop = {
+export type CanvasIllustrationColorStop = {
   from: string;
   to: string;
 };
@@ -93,7 +93,7 @@ export function remapSvgPaintColors(markup: string, replacements: Record<string,
 
 export function resolveIllustrationDisplayColors(
   sourceColors: readonly string[],
-  stops: readonly DraftingIllustrationColorStop[] | undefined,
+  stops: readonly CanvasIllustrationColorStop[] | undefined,
 ): string[] {
   const byFrom = new Map((stops ?? []).map((stop) => [stop.from.toLowerCase(), stop.to]));
   return sourceColors.map((from) => byFrom.get(from.toLowerCase()) ?? from);
@@ -101,7 +101,7 @@ export function resolveIllustrationDisplayColors(
 
 export function illustrationStopsToReplacementMap(
   sourceColors: readonly string[],
-  stops: readonly DraftingIllustrationColorStop[] | undefined,
+  stops: readonly CanvasIllustrationColorStop[] | undefined,
 ): Record<string, string> {
   const display = resolveIllustrationDisplayColors(sourceColors, stops);
   return Object.fromEntries(sourceColors.map((from, index) => [from, display[index] ?? from]));
@@ -148,7 +148,7 @@ export async function preloadIllustrationSvgMarkup(paths: readonly string[]): Pr
 export function getIllustrationDisplaySrc(
   imageValue: string,
   markup: string,
-  stops: readonly DraftingIllustrationColorStop[] | undefined,
+  stops: readonly CanvasIllustrationColorStop[] | undefined,
 ): string {
   const sourceColors = extractSvgPaintColors(markup);
   const replacements = illustrationStopsToReplacementMap(sourceColors, stops);
@@ -161,7 +161,7 @@ export function getIllustrationDisplaySrc(
 
 export function getCachedIllustrationDisplaySrc(
   imageValue: string | undefined,
-  stops: readonly DraftingIllustrationColorStop[] | undefined,
+  stops: readonly CanvasIllustrationColorStop[] | undefined,
 ): string | null {
   if (!imageValue) {
     return null;

@@ -74,7 +74,7 @@ describe("size templates catalog", () => {
     expect(getSizeTemplatesByGroup("twitch")).toHaveLength(3);
   });
 
-  it("builds ordered sections for the inspector", () => {
+  it("builds ordered sections for the settings", () => {
     const sections = getSizeTemplateSections();
     expect(sections[0]?.group).toBe("instagram");
     expect(sections.some((section) => section.group === "app-store")).toBe(true);

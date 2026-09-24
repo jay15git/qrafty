@@ -1,8 +1,8 @@
 import {
   createUniformPerSideBorder,
-  type DraftingBorderStyle,
-  type DraftingPerSideBorderState,
-  type DraftingShadowKind,
+  type CanvasBorderStyle,
+  type CanvasPerSideBorderState,
+  type CanvasShadowKind,
   normalizeBorderStyle,
   normalizePerSideBorderState,
 } from "@/features/canvas/model/effects";
@@ -10,7 +10,7 @@ import {
   cornerRadiiToLegacyRadius,
   createUniformCornerRadii,
   normalizeCornerRadiiState,
-  type DraftingCornerRadiiState,
+  type CanvasCornerRadiiState,
 } from "@/features/canvas/model/corner-radius";
 import { getCanvasSizeFromTemplate, getSizeTemplate } from "@/features/canvas/model/size-templates";
 import {
@@ -22,15 +22,15 @@ import {
   type PaperShaderParams,
 } from "@/features/canvas/rendering/paper-shader-definitions";
 
-type DraftingCardShadowPreset = "none" | "soft" | "medium" | "strong";
-export type DraftingCardStyleMode = "solid" | "image" | "image-filter" | "paper-shader";
+type CanvasCardShadowPreset = "none" | "soft" | "medium" | "strong";
+export type CanvasCardStyleMode = "solid" | "image" | "image-filter" | "paper-shader";
 
-type LegacyDraftingCardStyleMode = DraftingCardStyleMode | "pattern";
+type LegacyCanvasCardStyleMode = CanvasCardStyleMode | "pattern";
 
-function normalizeDraftingCardStyleMode(
-  value: LegacyDraftingCardStyleMode | undefined,
-  fallback: DraftingCardStyleMode,
-): DraftingCardStyleMode {
+function normalizeCanvasCardStyleMode(
+  value: LegacyCanvasCardStyleMode | undefined,
+  fallback: CanvasCardStyleMode,
+): CanvasCardStyleMode {
   if (value === "pattern") {
     return "solid";
   }
@@ -38,19 +38,19 @@ function normalizeDraftingCardStyleMode(
   return value ?? fallback;
 }
 
-export type DraftingCardBorderState = {
+export type CanvasCardBorderState = {
   color: string;
   opacity: number;
-  sides: DraftingPerSideBorderState;
-  style: DraftingBorderStyle;
+  sides: CanvasPerSideBorderState;
+  style: CanvasBorderStyle;
   width: number;
 };
 
-export type DraftingCardShadowState = {
+export type CanvasCardShadowState = {
   blur: number;
   color: string;
   inset: boolean;
-  kind: DraftingShadowKind;
+  kind: CanvasShadowKind;
   offsetX: number;
   offsetY: number;
   opacity: number;
@@ -58,14 +58,14 @@ export type DraftingCardShadowState = {
   visible: boolean;
 };
 
-export type DraftingCardImageState = {
+export type CanvasCardImageState = {
   fit: "contain" | "cover";
   opacity: number;
   source: "none" | "upload" | "url";
   value?: string;
 };
 
-export type DraftingCardPaperShaderState = {
+export type CanvasCardPaperShaderState = {
   frame: number;
   image: {
     source: "none" | "sample" | "upload" | "url";
@@ -81,32 +81,32 @@ export type DraftingCardPaperShaderState = {
 export const DEFAULT_DRAFTING_PAPER_SHADER_IMAGE =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23f8fafc'/%3E%3Cstop offset='.48' stop-color='%2394a3b8'/%3E%3Cstop offset='1' stop-color='%23111827'/%3E%3C/linearGradient%3E%3CradialGradient id='r' cx='.32' cy='.28' r='.55'%3E%3Cstop stop-color='%23f59e0b' stop-opacity='.95'/%3E%3Cstop offset='.58' stop-color='%23ec4899' stop-opacity='.62'/%3E%3Cstop offset='1' stop-color='%230f172a' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Ccircle cx='360' cy='250' r='310' fill='url(%23r)'/%3E%3Crect x='590' y='170' width='390' height='540' rx='48' fill='%23ffffff' fill-opacity='.28'/%3E%3Cpath d='M145 715 C310 575 410 805 590 635 S865 535 1055 680' fill='none' stroke='%23ffffff' stroke-width='46' stroke-linecap='round' opacity='.7'/%3E%3C/svg%3E";
 
-export type DraftingCardSizeMode = "auto" | "fixed";
+export type CanvasCardSizeMode = "auto" | "fixed";
 
 const DRAFTING_CARD_SIZE_MIN = 320;
 const DRAFTING_CARD_SIZE_MAX = 8192;
 
-export type DraftingCardState = {
-  border: DraftingCardBorderState;
+export type CanvasCardState = {
+  border: CanvasCardBorderState;
   bottomSpace: number;
-  cardImage: DraftingCardImageState;
+  cardImage: CanvasCardImageState;
   cornerRadius: number;
-  cornerRadii: DraftingCornerRadiiState;
+  cornerRadii: CanvasCornerRadiiState;
   enabled: boolean;
   fill: string;
   height: number;
-  imageFilter: DraftingCardPaperShaderState;
+  imageFilter: CanvasCardPaperShaderState;
   lockAspectRatio: boolean;
   padding: number;
-  paperShader: DraftingCardPaperShaderState;
-  shadow: DraftingCardShadowState;
-  sizeMode: DraftingCardSizeMode;
+  paperShader: CanvasCardPaperShaderState;
+  shadow: CanvasCardShadowState;
+  sizeMode: CanvasCardSizeMode;
   sizePresetId?: string;
-  styleMode: DraftingCardStyleMode;
+  styleMode: CanvasCardStyleMode;
   width: number;
 };
 
-function buildDefaultDraftingCardState(): DraftingCardState {
+function buildDefaultCanvasCardState(): CanvasCardState {
   return {
     border: {
       color: "#111827",
@@ -132,11 +132,11 @@ function buildDefaultDraftingCardState(): DraftingCardState {
     enabled: true,
     fill: "#ffd80a",
     height: 1080,
-    imageFilter: createDefaultDraftingCardPaperShader("image-dithering"),
+    imageFilter: createDefaultCanvasCardPaperShader("image-dithering"),
     lockAspectRatio: true,
     padding: 24,
     paperShader: {
-      ...createDefaultDraftingCardPaperShader("static-mesh-gradient"),
+      ...createDefaultCanvasCardPaperShader("static-mesh-gradient"),
       paused: true,
       speed: 0,
     },
@@ -158,32 +158,32 @@ function buildDefaultDraftingCardState(): DraftingCardState {
   };
 }
 
-let cachedDefaultDraftingCardState: DraftingCardState | undefined;
+let cachedDefaultCanvasCardState: CanvasCardState | undefined;
 
-function resolveDefaultDraftingCardState() {
-  cachedDefaultDraftingCardState ??= buildDefaultDraftingCardState();
-  return cachedDefaultDraftingCardState;
+function resolveDefaultCanvasCardState() {
+  cachedDefaultCanvasCardState ??= buildDefaultCanvasCardState();
+  return cachedDefaultCanvasCardState;
 }
 
-export const DEFAULT_DRAFTING_CARD_STATE = new Proxy({} as DraftingCardState, {
+export const DEFAULT_DRAFTING_CARD_STATE = new Proxy({} as CanvasCardState, {
   get(_target, prop, receiver) {
-    return Reflect.get(resolveDefaultDraftingCardState(), prop, receiver);
+    return Reflect.get(resolveDefaultCanvasCardState(), prop, receiver);
   },
   ownKeys() {
-    return Reflect.ownKeys(resolveDefaultDraftingCardState());
+    return Reflect.ownKeys(resolveDefaultCanvasCardState());
   },
   getOwnPropertyDescriptor(_target, prop) {
-    return Reflect.getOwnPropertyDescriptor(resolveDefaultDraftingCardState(), prop);
+    return Reflect.getOwnPropertyDescriptor(resolveDefaultCanvasCardState(), prop);
   },
 });
 
-export function cloneDraftingCardState(state: DraftingCardState): DraftingCardState {
-  return normalizeDraftingCardState(state);
+export function cloneCanvasCardState(state: CanvasCardState): CanvasCardState {
+  return normalizeCanvasCardState(state);
 }
 
-export function normalizeDraftingCardState(
-  state: Partial<DraftingCardState> | DraftingCardState,
-): DraftingCardState {
+export function normalizeCanvasCardState(
+  state: Partial<CanvasCardState> | CanvasCardState,
+): CanvasCardState {
   const fallback = DEFAULT_DRAFTING_CARD_STATE;
   const sizePresetId =
     typeof state.sizePresetId === "string" && state.sizePresetId.length > 0
@@ -201,7 +201,7 @@ export function normalizeDraftingCardState(
   );
 
   return {
-    border: normalizeDraftingCardBorder(state.border),
+    border: normalizeCanvasCardBorder(state.border),
     bottomSpace: clampCardNumber(state.bottomSpace, fallback.bottomSpace, 0, 640),
     cardImage: {
       fit: state.cardImage?.fit ?? fallback.cardImage.fit,
@@ -215,17 +215,17 @@ export function normalizeDraftingCardState(
     fill: state.fill ?? fallback.fill,
     height: clampCardSize(resolvedHeight, fallback.height),
     imageFilter: state.imageFilter
-      ? cloneDraftingCardPaperShaderState(state.imageFilter)
-      : cloneDraftingCardPaperShaderState(fallback.imageFilter),
+      ? cloneCanvasCardPaperShaderState(state.imageFilter)
+      : cloneCanvasCardPaperShaderState(fallback.imageFilter),
     lockAspectRatio: state.lockAspectRatio ?? fallback.lockAspectRatio,
     padding: clampCardNumber(state.padding, fallback.padding, 0, 256),
     paperShader: state.paperShader
-      ? cloneDraftingCardPaperShaderState(state.paperShader)
-      : cloneDraftingCardPaperShaderState(fallback.paperShader),
-    shadow: normalizeDraftingCardShadow(state.shadow ?? fallback.shadow),
+      ? cloneCanvasCardPaperShaderState(state.paperShader)
+      : cloneCanvasCardPaperShaderState(fallback.paperShader),
+    shadow: normalizeCanvasCardShadow(state.shadow ?? fallback.shadow),
     sizeMode: state.sizeMode === "fixed" ? "fixed" : "auto",
     sizePresetId,
-    styleMode: normalizeDraftingCardStyleMode(state.styleMode, fallback.styleMode),
+    styleMode: normalizeCanvasCardStyleMode(state.styleMode, fallback.styleMode),
     width: clampCardSize(resolvedWidth, fallback.width),
   };
 }
@@ -240,9 +240,9 @@ function clampCardNumber(value: unknown, fallback: number, min: number, max: num
   return Math.min(max, Math.max(min, Math.round(parsed)));
 }
 
-export function normalizeDraftingCardBorder(
-  border: Partial<DraftingCardBorderState> | undefined,
-): DraftingCardBorderState {
+export function normalizeCanvasCardBorder(
+  border: Partial<CanvasCardBorderState> | undefined,
+): CanvasCardBorderState {
   const fallback = DEFAULT_DRAFTING_CARD_STATE.border;
   const width = Math.max(0, border?.width ?? fallback.width);
   const color = border?.color ?? fallback.color;
@@ -258,11 +258,11 @@ export function normalizeDraftingCardBorder(
   };
 }
 
-export function normalizeDraftingCardShadow(
-  shadow: DraftingCardShadowState | DraftingCardShadowPreset,
-): DraftingCardShadowState {
+export function normalizeCanvasCardShadow(
+  shadow: CanvasCardShadowState | CanvasCardShadowPreset,
+): CanvasCardShadowState {
   if (typeof shadow === "string") {
-    return getLegacyDraftingCardShadow(shadow);
+    return getLegacyCanvasCardShadow(shadow);
   }
 
   const fallback = DEFAULT_DRAFTING_CARD_STATE.shadow;
@@ -288,7 +288,7 @@ function clampShadowNumber(value: unknown, fallback: number, min: number, max: n
   return Math.min(max, Math.max(min, parsed));
 }
 
-function getLegacyDraftingCardShadow(shadow: DraftingCardShadowPreset): DraftingCardShadowState {
+function getLegacyCanvasCardShadow(shadow: CanvasCardShadowPreset): CanvasCardShadowState {
   switch (shadow) {
     case "none":
       return {
@@ -325,13 +325,13 @@ function getLegacyDraftingCardShadow(shadow: DraftingCardShadowPreset): Drafting
   }
 }
 
-export function createDefaultDraftingCardState() {
-  return cloneDraftingCardState(DEFAULT_DRAFTING_CARD_STATE);
+export function createDefaultCanvasCardState() {
+  return cloneCanvasCardState(DEFAULT_DRAFTING_CARD_STATE);
 }
 
-export function cloneDraftingCardPaperShaderState(
-  paperShader: DraftingCardPaperShaderState,
-): DraftingCardPaperShaderState {
+export function cloneCanvasCardPaperShaderState(
+  paperShader: CanvasCardPaperShaderState,
+): CanvasCardPaperShaderState {
   return {
     ...paperShader,
     image: { ...paperShader.image },
@@ -339,9 +339,9 @@ export function cloneDraftingCardPaperShaderState(
   };
 }
 
-export function createDefaultDraftingCardPaperShader(
+export function createDefaultCanvasCardPaperShader(
   shaderId: PaperShaderId = DEFAULT_PAPER_SHADER_ID,
-): DraftingCardPaperShaderState {
+): CanvasCardPaperShaderState {
   const definition = getPaperShaderDefinition(shaderId);
   const preset = getPaperShaderPreset(shaderId);
 
@@ -364,10 +364,10 @@ export function createDefaultDraftingCardPaperShader(
   };
 }
 
-export function applyDraftingCardPaperShaderPreset(
-  state: DraftingCardPaperShaderState,
+export function applyCanvasCardPaperShaderPreset(
+  state: CanvasCardPaperShaderState,
   presetName: string,
-): DraftingCardPaperShaderState {
+): CanvasCardPaperShaderState {
   const preset = getPaperShaderPreset(state.shaderId, presetName);
 
   return {

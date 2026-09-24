@@ -48,12 +48,12 @@ function syncSidebarColumnWidth(width: number) {
 
 export function DesktopSettingsShell({
   hovered,
-  inspector,
-  showInspector,
+  settings,
+  showSettings,
 }: {
   hovered?: boolean;
-  inspector: ReactNode;
-  showInspector: boolean;
+  settings: ReactNode;
+  showSettings: boolean;
 }) {
   const [internalHovered, setInternalHovered] = useState(false);
   const [isShellAnimating, setIsShellAnimating] = useState(false);
@@ -121,9 +121,9 @@ export function DesktopSettingsShell({
     }
   }, [hovered]);
 
-  const panelContent = showInspector ? (
+  const panelContent = showSettings ? (
     <SettingsPanelMotionFrozenProvider frozen={isShellAnimating}>
-      {inspector}
+      {settings}
     </SettingsPanelMotionFrozenProvider>
   ) : null;
 

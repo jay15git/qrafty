@@ -3,32 +3,32 @@
 import type { ReactNode } from "react";
 
 import {
-  INSPECTOR_OPTION_TILE_BUTTON_CLASS,
-  INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
-  INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-} from "@/features/shell/components/inspector-tokens";
-import { InspectorAnimatedOptionGrid } from "@/features/shell/inspector/InspectorOptionGrid";
-import { inspectorOptionGridItemClass } from "@/features/shell/inspector/InspectorOptionGrid.classes";
-import { InspectorOptionGridScrollArea } from "@/features/shell/inspector/InspectorOptionGrid";
+  SETTINGS_OPTION_TILE_BUTTON_CLASS,
+  SETTINGS_OPTION_TILE_SCALE_PREVIEW_CLASS,
+  SETTINGS_OPTION_TILE_SURFACE_CLASS,
+} from "@/features/shell/components/settings-tokens";
+import { SettingsAnimatedOptionGrid } from "@/features/shell/settings/SettingsOptionGrid";
+import { settingsOptionGridItemClass } from "@/features/shell/settings/SettingsOptionGrid.classes";
+import { SettingsOptionGridScrollArea } from "@/features/shell/settings/SettingsOptionGrid";
 import {
   DRAFTING_ELEMENT_DECORATIVE_SHAPES,
   DRAFTING_SHAPE_PRIMITIVES,
 } from "@/features/canvas/model/element-shapes";
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
-  type DraftingElementShapeId,
+  type CanvasElementShapeId,
 } from "@/features/canvas/model/layers/shared";
 import type { QrBackgroundShapeDefinition } from "@/features/qr/styles/background-shapes";
 import { ElementShapePrimitivePreview } from "@/features/canvas/components/ElementShapePrimitivePreview";
 import { cn } from "@/lib/utils";
 
-type ElementShapeOptionGridVariant = "inspector" | "insert-desktop" | "insert-drafting";
+type ElementShapeOptionGridVariant = "settings" | "insert-desktop" | "insert-canvas";
 
 type ElementShapeOptionGridProps = {
   decorativeDataSlot?: string;
-  onSelect: (shapeId: DraftingElementShapeId) => void;
+  onSelect: (shapeId: CanvasElementShapeId) => void;
   optionsDataSlot?: string;
-  selectedShapeId?: DraftingElementShapeId;
+  selectedShapeId?: CanvasElementShapeId;
   shapeFill?: string;
   variant: ElementShapeOptionGridVariant;
 };
@@ -55,7 +55,7 @@ function ElementShapeDecorativePreview({
   );
 }
 
-function InspectorElementShapeOptionTile({
+function SettingsElementShapeOptionTile({
   children,
   label,
   onClick,
@@ -75,9 +75,9 @@ function InspectorElementShapeOptionTile({
       data-option-tile="true"
       className={cn(
         "group flex w-full min-w-0 items-center justify-center",
-        inspectorOptionGridItemClass("loose"),
-        INSPECTOR_OPTION_TILE_SURFACE_CLASS,
-        INSPECTOR_OPTION_TILE_BUTTON_CLASS,
+        settingsOptionGridItemClass("loose"),
+        SETTINGS_OPTION_TILE_SURFACE_CLASS,
+        SETTINGS_OPTION_TILE_BUTTON_CLASS,
         selected && "text-[var(--option-selected-fg)]",
       )}
       type="button"
@@ -86,7 +86,7 @@ function InspectorElementShapeOptionTile({
       <span
         className={cn(
           "relative z-10 aspect-square w-full min-w-0 overflow-hidden rounded-md",
-          INSPECTOR_OPTION_TILE_SCALE_PREVIEW_CLASS,
+          SETTINGS_OPTION_TILE_SCALE_PREVIEW_CLASS,
         )}
       >
         <span
@@ -111,32 +111,32 @@ export function ElementShapeOptionGrid({
   shapeFill = DEFAULT_DRAFTING_SHAPE_LAYER.fill ?? "#18181b",
   variant,
 }: ElementShapeOptionGridProps) {
-  if (variant === "inspector") {
+  if (variant === "settings") {
     return (
-      <InspectorOptionGridScrollArea
+      <SettingsOptionGridScrollArea
         ariaLabel="Shape options"
         columns={3}
         dataSlot="layer-shape-options-scroll-area"
         shelfDataSlot="layer-shape-options"
         variant="preset"
       >
-        <InspectorAnimatedOptionGrid
+        <SettingsAnimatedOptionGrid
           columns={3}
           data-slot="layer-shape-options"
           selectedKey={selectedShapeId}
         >
           {DRAFTING_SHAPE_PRIMITIVES.map((shape) => (
-            <InspectorElementShapeOptionTile
+            <SettingsElementShapeOptionTile
               key={shape.id}
               label={shape.label}
               selected={shape.id === selectedShapeId}
               onClick={() => onSelect(shape.id)}
             >
               <ElementShapePrimitivePreview className="size-[62%]" shapeId={shape.id} />
-            </InspectorElementShapeOptionTile>
+            </SettingsElementShapeOptionTile>
           ))}
           {DRAFTING_ELEMENT_DECORATIVE_SHAPES.map((shape) => (
-            <InspectorElementShapeOptionTile
+            <SettingsElementShapeOptionTile
               key={shape.id}
               label={shape.label}
               selected={shape.id === selectedShapeId}
@@ -147,10 +147,10 @@ export function ElementShapeOptionGrid({
                 shape={shape}
                 sizeClassName="size-[62%]"
               />
-            </InspectorElementShapeOptionTile>
+            </SettingsElementShapeOptionTile>
           ))}
-        </InspectorAnimatedOptionGrid>
-      </InspectorOptionGridScrollArea>
+        </SettingsAnimatedOptionGrid>
+      </SettingsOptionGridScrollArea>
     );
   }
 
